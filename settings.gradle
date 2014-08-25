@@ -1,0 +1,3 @@
+rootProject.name = 'DesktopFX'
+include 'Util'
+include 'FxCore', 'FxDesktop'
