@@ -4,7 +4,6 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
@@ -80,40 +79,32 @@ public class LogConfig {
     });
     org.apache.log4j.Logger.getRootLogger().setLevel(logMapping.levelLog4j);
 
-    Handler fh;
-    try {
-      fh = new FileHandler(String.format("%s%%g.log",
-          new LocalFileIO.LogBuilder().addPath(applicationName).fileName(LogConfig.class.getSimpleName()).build().
-              getPath().toFile().getCanonicalPath()), 256 * 1024, 4, true);
-    }
-    catch (Exception ex) {
-      fh = new Handler() {
-        @Override
-        public void publish(LogRecord record) {
-        }
-
-        @Override
-        public void flush() {
-        }
-
-        @Override
-        public void close() throws SecurityException {
-        }
-      };
-      Logger.getAnonymousLogger().log(Level.SEVERE, "RuntimeException during startup", ex);
-    }
-
-    for (Handler handler : new Handler[] {fh, new ConsoleHandler()}) {
-      handler.setFormatter(new SimpleFormatter());
-      handler.setLevel(logger.getLevel());
-      logger.addHandler(handler);
-    }
-    logger.info("Application starting up\n");
+    newFileHandler(applicationName, LogConfig.class, logger);
+    addHandler(logger, new ConsoleHandler());
     try {
       runnable.run();
     }
     catch (RuntimeException e) {
       logger.log(Level.SEVERE, "RuntimeException during startup", e);
     }
+  }
+
+  public static void newFileHandler(String applicationName, Class<?> clazz, Logger logger) {
+    try {
+      FileHandler handler = new FileHandler(String.format("%s.%%u.%%g.log",
+          new LocalFileIO.LogBuilder().addPath(applicationName).fileName(clazz.getSimpleName()).build().
+              getPath().toFile().getCanonicalPath()), 256 * 1024, 4, true);
+      addHandler(logger, handler);
+      logger.log(logger.getLevel(), "Application starting up\n");
+    }
+    catch (Exception ex) {
+      Logger.getAnonymousLogger().log(Level.SEVERE, ex.getMessage(), ex);
+    }
+  }
+
+  private static void addHandler(Logger logger, Handler handler) {
+    handler.setFormatter(new SimpleFormatter());
+    handler.setLevel(logger.getLevel());
+    logger.addHandler(handler);
   }
 }

@@ -1,55 +1,50 @@
 package com.ak.comm.serial;
 
-import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.logging.FileHandler;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 import java.util.stream.Collectors;
 
-import com.ak.util.LocalFileIO;
+import com.ak.util.LogConfig;
 import gnu.io.CommPortIdentifier;
 
 public enum ComServiceUtils {
   PORTS;
 
   private final Logger logger = Logger.getLogger(getClass().getName());
+  private final LinkedList<String> usedPorts = new LinkedList<>();
 
   ComServiceUtils() {
-    try {
-      FileHandler fh = new FileHandler(String.format("%s%%g.log",
-          new LocalFileIO.LogBuilder().addPath("CommunicationSerial").fileName(ComServiceUtils.class.getSimpleName()).build().
-              getPath().toFile().getCanonicalPath()), 256 * 1024, 4, true);
-      fh.setFormatter(new SimpleFormatter());
-      fh.setLevel(Level.CONFIG);
-      logger.addHandler(fh);
-      logger.setLevel(fh.getLevel());
-    }
-    catch (IOException e) {
-      Logger.getAnonymousLogger().log(Level.SEVERE, e.getMessage(), e);
-    }
+    logger.setLevel(Level.CONFIG);
+    LogConfig.newFileHandler("CommunicationSerial", getClass(), logger);
   }
 
   @SuppressWarnings("unchecked")
-  public Collection<CommPortIdentifier> getPorts() {
+  public CommPortIdentifier next(String preferredName) {
     if (EnableHolder.ENABLED) {
-      Collection<CommPortIdentifier> identifiers = Collections.list((Enumeration<CommPortIdentifier>) CommPortIdentifier.
+      List<CommPortIdentifier> identifiers = Collections.list((Enumeration<CommPortIdentifier>) CommPortIdentifier.
           getPortIdentifiers()).stream().
           filter(commPortIdentifier ->
               commPortIdentifier.getPortType() == CommPortIdentifier.PORT_SERIAL && !commPortIdentifier.isCurrentlyOwned()).
-          sorted((o1, o2) -> {
-            String name = o1.getName();
-            return name.toLowerCase().contains("com") || name.toLowerCase().contains("serial") ? 1 : -1;
-          }).collect(Collectors.toList());
-      logger.config(identifiers.stream().map(CommPortIdentifier::getName).collect(Collectors.toList()).toString());
-      return identifiers;
+          sorted((o1, o2) -> usedPorts.indexOf(o1.getName()) - usedPorts.indexOf(o2.getName())).
+          collect(Collectors.toList());
+
+      CommPortIdentifier portIdentifier = identifiers.stream().
+          filter(commPortIdentifier -> commPortIdentifier.getName().equals(preferredName)).findFirst().
+          orElse(identifiers.iterator().next());
+      logger.config(String.format("%s, the '%s' is selected",
+          identifiers.stream().map(CommPortIdentifier::getName).collect(Collectors.toList()).toString(),
+          portIdentifier.getName()));
+      usedPorts.remove(portIdentifier.getName());
+      usedPorts.addLast(portIdentifier.getName());
+      return portIdentifier;
     }
     else {
       logger.info("RXTXCommDriver NOT available");
-      return Collections.emptyList();
+      return null;
     }
   }
 
