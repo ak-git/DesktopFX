@@ -9,6 +9,8 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/CommunicationCore" />
+            <option value="$PROJECT_DIR$/CommunicationSerial" />
             <option value="$PROJECT_DIR$/FxCore" />
             <option value="$PROJECT_DIR$/FxDesktop" />
             <option value="$PROJECT_DIR$/Util" />

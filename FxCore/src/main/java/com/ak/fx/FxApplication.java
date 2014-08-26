@@ -41,4 +41,10 @@ public class FxApplication extends Application {
       throw e;
     }
   }
+
+  @Override
+  public final void stop() throws Exception {
+    super.stop();
+    System.exit(0);
+  }
 }
