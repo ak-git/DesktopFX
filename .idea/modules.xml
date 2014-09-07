@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/CommunicationCore/CommunicationCore.iml" filepath="$PROJECT_DIR$/CommunicationCore/CommunicationCore.iml" />
-      <module fileurl="file://$PROJECT_DIR$/CommunicationSerial/CommunicationSerial.iml" filepath="$PROJECT_DIR$/CommunicationSerial/CommunicationSerial.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Communication/Communication.iml" filepath="$PROJECT_DIR$/Communication/Communication.iml" />
       <module fileurl="file://$PROJECT_DIR$/DesktopFX.iml" filepath="$PROJECT_DIR$/DesktopFX.iml" />
       <module fileurl="file://$PROJECT_DIR$/FxCore/FxCore.iml" filepath="$PROJECT_DIR$/FxCore/FxCore.iml" />
       <module fileurl="file://$PROJECT_DIR$/FxDesktop/FxDesktop.iml" filepath="$PROJECT_DIR$/FxDesktop/FxDesktop.iml" />

@@ -1,4 +1,4 @@
 rootProject.name = 'DesktopFX'
 include 'Util'
-include 'CommunicationCore', 'CommunicationSerial'
+include 'Communication'
 include 'FxCore', 'FxDesktop'

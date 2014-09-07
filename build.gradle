@@ -48,17 +48,11 @@ project(':Util') {
     }
 }
 
-project(':CommunicationCore') {
+project(':Communication') {
     dependencies {
         compile project(':Util')
-    }
-}
-
-project(':CommunicationSerial') {
-    dependencies {
         compile group: 'org.rxtx', name: 'rxtx', version: '2.1.7'
         //compile files('lib/nrjavaserial-3.9.2.jar')
-        compile project(':CommunicationCore')
     }
 }
 
@@ -79,6 +73,6 @@ project(':FxDesktop') {
 
     dependencies {
         compile project(':FxCore')
-        compile project(':CommunicationSerial')
+        compile project(':Communication')
     }
 }
