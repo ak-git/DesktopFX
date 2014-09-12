@@ -93,7 +93,7 @@ public class LogConfig {
     try {
       FileHandler handler = new FileHandler(String.format("%s.%%u.%%g.log",
           new LocalFileIO.LogBuilder().addPath(applicationName).fileName(clazz.getSimpleName()).build().
-              getPath().toFile().getCanonicalPath()), 256 * 1024, 4, true);
+              getPath().toString()), 256 * 1024, 4, true);
       addHandler(logger, handler);
       logger.log(logger.getLevel(), "Application starting up\n");
     }
