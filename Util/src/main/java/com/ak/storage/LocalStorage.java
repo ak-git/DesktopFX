@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 import com.ak.util.LocalFileIO;
 
-public final class LocalStorage {
+final class LocalStorage {
   private static final LocalFileIO.AbstractBuilder BUILDER = new LocalFileIO.LocalStorageBuilder().
       addPath(LocalStorage.class.getSimpleName());
 
@@ -20,10 +20,10 @@ public final class LocalStorage {
     throw new AssertionError();
   }
 
-  public static <T> void load(String fileName, Class<T> clazz, Consumer<T> consumer) {
+  static <T> void load(String fileName, Class<T> clazz, Consumer<T> consumer) {
     try (InputStream ist = BUILDER.fileName(fileName).build().openInputStream()) {
       try (XMLDecoder d = new XMLDecoder(ist)) {
-        d.setExceptionListener(ex -> Logger.getLogger(LocalStorage.class.getName()).log(Level.WARNING, ex.getMessage(), ex));
+        d.setExceptionListener(LocalStorage::warning);
         consumer.accept(clazz.cast(d.readObject()));
       }
     }
@@ -32,10 +32,10 @@ public final class LocalStorage {
     }
   }
 
-  public static void save(Object bean, String fileName) {
+  static void save(Object bean, String fileName) {
     try (ByteArrayOutputStream bst = new ByteArrayOutputStream()) {
       try (XMLEncoder e = new XMLEncoder(bst)) {
-        e.setExceptionListener(ex -> Logger.getLogger(LocalStorage.class.getName()).log(Level.WARNING, ex.getMessage(), ex));
+        e.setExceptionListener(LocalStorage::warning);
         e.writeObject(bean);
       }
       try (OutputStream out = BUILDER.fileName(fileName).build().openOutputStream()) {
@@ -43,7 +43,11 @@ public final class LocalStorage {
       }
     }
     catch (IOException e) {
-      Logger.getLogger(LocalStorage.class.getName()).log(Level.WARNING, e.getMessage(), e);
+      warning(e);
     }
+  }
+
+  private static void warning(Exception ex) {
+    Logger.getLogger(LocalStorage.class.getName()).log(Level.WARNING, ex.getMessage(), ex);
   }
 }

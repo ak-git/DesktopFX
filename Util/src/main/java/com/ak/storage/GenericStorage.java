@@ -1,7 +1,5 @@
 package com.ak.storage;
 
-import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 
 public final class GenericStorage<T> extends AbstractStorage<T> {
@@ -42,10 +40,5 @@ public final class GenericStorage<T> extends AbstractStorage<T> {
 
   public static Storage<Boolean> newBooleanStorage(String fileName, String fileSuffix, boolean defaultValue) {
     return new GenericStorage<>(fileName, fileSuffix, Boolean.class, defaultValue);
-  }
-
-  @SuppressWarnings("rawtypes")
-  public static Storage<Map> newMapStorage(String fileName, String fileSuffix) {
-    return new GenericStorage<>(fileName, fileSuffix, Map.class, Collections.emptyMap());
   }
 }
