@@ -14,13 +14,8 @@ import gnu.io.CommPortIdentifier;
 public enum ComServiceUtils {
   PORTS;
 
-  private final Logger logger = Logger.getLogger(getClass().getName());
+  private final Logger logger = LogConfig.newFileLogger("CommunicationSerial", getClass(), Level.CONFIG);
   private final LinkedList<String> usedPorts = new LinkedList<>();
-
-  ComServiceUtils() {
-    logger.setLevel(Level.CONFIG);
-    LogConfig.newFileHandler("CommunicationSerial", getClass(), logger);
-  }
 
   @SuppressWarnings("unchecked")
   public CommPortIdentifier next(String preferredName) {

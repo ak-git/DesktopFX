@@ -1,5 +1,7 @@
 package com.ak.util;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -79,7 +81,7 @@ public class LogConfig {
     });
     org.apache.log4j.Logger.getRootLogger().setLevel(logMapping.levelLog4j);
 
-    newFileHandler(applicationName, LogConfig.class, logger);
+    addFileHandler(applicationName, LogConfig.class, logger);
     addHandler(logger, new ConsoleHandler());
     try {
       runnable.run();
@@ -89,13 +91,20 @@ public class LogConfig {
     }
   }
 
-  public static void newFileHandler(String applicationName, Class<?> clazz, Logger logger) {
+  public static Logger newFileLogger(String applicationName, Class<?> clazz, Level level) {
+    Logger logger = Logger.getLogger(clazz.getName());
+    logger.setLevel(level);
+    addFileHandler(applicationName, clazz, logger);
+    return logger;
+  }
+
+  private static void addFileHandler(String applicationName, Class<?> clazz, Logger logger) {
     try {
       FileHandler handler = new FileHandler(String.format("%s.%%u.%%g.log",
-          new LocalFileIO.LogBuilder().addPath(applicationName).fileName(clazz.getSimpleName()).build().
-              getPath().toString()), 256 * 1024, 4, true);
+          new LocalFileIO.LogBuilder().addPath(applicationName).fileName(clazz.getSimpleName() +
+              DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(ZonedDateTime.now())).build().
+              getPath().toString()), true);
       addHandler(logger, handler);
-      logger.log(logger.getLevel(), "Application starting up\n");
     }
     catch (Exception ex) {
       Logger.getAnonymousLogger().log(Level.SEVERE, ex.getMessage(), ex);
