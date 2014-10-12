@@ -1,17 +1,17 @@
 package com.ak.storage;
 
 abstract class AbstractStorage<T> implements Storage<T>, Cloneable {
-  private final String fileName;
+  private final String filePrefix;
 
-  AbstractStorage(String fileName) {
-    if (fileName.isEmpty()) {
+  AbstractStorage(String filePrefix) {
+    if (filePrefix.isEmpty()) {
       throw new IllegalArgumentException();
     }
-    this.fileName = fileName;
+    this.filePrefix = filePrefix;
   }
 
-  final String fileName() {
-    return fileName;
+  final String fileName(String fileSuffix) {
+    return String.format("%s_%s", filePrefix, fileSuffix);
   }
 
   @Override

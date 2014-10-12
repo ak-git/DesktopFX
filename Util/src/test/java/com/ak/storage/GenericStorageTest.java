@@ -9,7 +9,7 @@ public final class GenericStorageTest {
   @Test
   public void testBooleanStorage() {
     Storage<Boolean> storage = GenericStorage.newBooleanStorage(GenericStorageTest.class.getSimpleName(),
-        "testBooleanStorage", Math.random() > 0.5);
+        "testBooleanStorage");
     for (boolean b : new boolean[] {true, false}) {
       storage.save(b);
       Assert.assertEquals(storage.load(true).booleanValue(), b);
