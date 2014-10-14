@@ -102,7 +102,7 @@ public class LogConfig {
     try {
       FileHandler handler = new FileHandler(String.format("%s.%%u.%%g.log",
           new LocalFileIO.LogBuilder().addPath(applicationName).fileName(clazz.getSimpleName() +
-              DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(ZonedDateTime.now())).build().
+              DateTimeFormatter.ofPattern(" yyyy-MMM-dd HH-mm-ss").format(ZonedDateTime.now())).build().
               getPath().toString()), true);
       addHandler(logger, handler);
     }

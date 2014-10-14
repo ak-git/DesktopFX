@@ -46,12 +46,13 @@ public enum ComServiceUtils {
   private static class EnableHolder {
     private static final boolean ENABLED = isEnabled();
 
+    @SuppressWarnings("ErrorNotRethrown")
     private static boolean isEnabled() {
       try {
         Class.forName("gnu.io.RXTXCommDriver");
         return true;
       }
-      catch (ClassNotFoundException e) {
+      catch (ClassNotFoundException | LinkageError e) {
         Logger.getLogger(ComServiceUtils.class.getName()).log(Level.FINE, e.getMessage(), e);
       }
       return false;

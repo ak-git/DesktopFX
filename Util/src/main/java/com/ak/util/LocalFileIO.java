@@ -104,47 +104,21 @@ public class LocalFileIO<E extends Enum<E> & LocalFileIO.OSDirectory> implements
     }
 
     public final AbstractBuilder addPath(String part) {
-      String fixed = fixName(part);
       if (relativePath == null) {
-        relativePath = Paths.get(fixed);
+        relativePath = Paths.get(part);
       }
       else {
-        relativePath.resolve(fixed);
+        relativePath.resolve(part);
       }
       return this;
     }
 
     public final AbstractBuilder fileName(String fileName) {
-      this.fileName = fixName(fileName);
+      this.fileName = fileName;
       if (!fileExtension.isEmpty()) {
         this.fileName += "." + fileExtension;
       }
       return this;
-    }
-
-    /**
-     * <p>
-     * Fixes the input file's name, because of it can contain invalid characters,
-     * e.g. on MacOS '/dev/tty.usbserial' will be fixed to 'dev.tty.usbserial'.
-     * </p>
-     * <p>
-     * Windows platform cannot create a file with name "COM3", "COM4", etc.
-     * </p>
-     *
-     * @param name usually file's name.
-     * @return fixed file's name.
-     */
-    private static String fixName(String name) {
-      String path = name.replaceAll("/", ".");
-      if (path.startsWith(".")) {
-        path = path.substring(1, path.length());
-      }
-      if (OS.get() == OS.WINDOWS) {
-        if (path.toLowerCase().startsWith("com")) {
-          path = "p" + path.toUpperCase();
-        }
-      }
-      return path;
     }
   }
 
