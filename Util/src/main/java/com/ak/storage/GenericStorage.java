@@ -30,14 +30,6 @@ public final class GenericStorage<T> extends AbstractStorage<T> {
     return t;
   }
 
-  public static Storage<String> newStringStorage(String filePrefix, String fileSuffix) {
-    return new GenericStorage<>(filePrefix, fileSuffix, String.class, "");
-  }
-
-  public static Storage<Integer> newIntegerStorage(String filePrefix, String fileSuffix, int defaultValue) {
-    return new GenericStorage<>(filePrefix, fileSuffix, Integer.class, defaultValue);
-  }
-
   public static Storage<Boolean> newBooleanStorage(String filePrefix, String fileSuffix) {
     return new GenericStorage<>(filePrefix, fileSuffix, Boolean.class, Boolean.FALSE);
   }

@@ -35,7 +35,7 @@ public final class StageStorage extends AbstractStorage<Stage> {
       fullScreenStorage.save(oldValue);
       fullScreenEventInstant = Instant.now();
     });
-    LocalStorage.load(BOUNDS, Rectangle2D.Double.class, rectangle -> {
+    LocalStorage.load(fileName(BOUNDS), Rectangle2D.Double.class, rectangle -> {
       stage.setX(rectangle.getX());
       stage.setY(rectangle.getY());
       stage.setWidth(rectangle.getWidth());
