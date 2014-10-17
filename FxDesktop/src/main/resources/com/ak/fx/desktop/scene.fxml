@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.BorderPane?>
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefWidth="1024" prefHeight="768"/>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ak.fx.desktop.Controller" prefWidth="1024"
+            prefHeight="768"/>
