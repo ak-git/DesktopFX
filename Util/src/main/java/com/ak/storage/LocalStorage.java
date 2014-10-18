@@ -12,15 +12,44 @@ import java.util.logging.Logger;
 
 import com.ak.util.LocalFileIO;
 
-final class LocalStorage {
+public final class LocalStorage<T> extends AbstractStorage<T> {
   private static final LocalFileIO.AbstractBuilder BUILDER = new LocalFileIO.LocalStorageBuilder().
       addPath(LocalStorage.class.getSimpleName());
 
-  private LocalStorage() {
-    throw new AssertionError();
+  private final String fileSuffix;
+  private final Class<T> clazz;
+  private T t;
+
+  public LocalStorage(String filePrefix, String fileSuffix, Class<T> clazz) {
+    super(filePrefix);
+    this.fileSuffix = fileSuffix;
+    this.clazz = clazz;
   }
 
-  static <T> void load(String fileName, Class<T> clazz, Consumer<T> consumer) {
+  @Override
+  public void save(T t) {
+    this.t = t;
+    save(t, fileName());
+  }
+
+  @Override
+  public void update(T t) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public T get() {
+    if (t == null) {
+      load(fileName(), clazz, value -> t = value);
+    }
+    return t;
+  }
+
+  private String fileName() {
+    return String.format("%s_%s", getFilePrefix(), fileSuffix);
+  }
+
+  private static <T> void load(String fileName, Class<? extends T> clazz, Consumer<? super T> consumer) {
     try (InputStream ist = BUILDER.fileName(fileName).build().openInputStream()) {
       try (XMLDecoder d = new XMLDecoder(ist)) {
         d.setExceptionListener(LocalStorage::warning);
@@ -32,7 +61,7 @@ final class LocalStorage {
     }
   }
 
-  static void save(Object bean, String fileName) {
+  private static void save(Object bean, String fileName) {
     try (ByteArrayOutputStream bst = new ByteArrayOutputStream()) {
       try (XMLEncoder e = new XMLEncoder(bst)) {
         e.setExceptionListener(LocalStorage::warning);

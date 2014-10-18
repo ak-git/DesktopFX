@@ -5,8 +5,8 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.ak.fx.storage.StageStorage;
 import com.ak.fx.util.OSDockImage;
-import com.ak.storage.StageStorage;
 import com.ak.storage.Storage;
 import com.ak.util.OS;
 import javafx.application.Application;
@@ -42,7 +42,7 @@ public class FxApplication extends Application {
 
       Storage<Stage> stageStorage = new StageStorage(getClass().getSimpleName());
       stage.setOnCloseRequest(event -> stageStorage.save(stage));
-      stageStorage.load(stage);
+      stageStorage.update(stage);
       stage.show();
     }
     catch (Exception e) {
