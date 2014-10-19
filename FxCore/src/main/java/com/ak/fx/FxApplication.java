@@ -5,7 +5,7 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.ak.fx.storage.StageStorage;
+import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.util.OSDockImage;
 import com.ak.storage.Storage;
 import com.ak.util.OS;
@@ -40,7 +40,7 @@ public class FxApplication extends Application {
       OSDockImage.valueOf(OS.get().name()).setIconImage(stage,
           getClass().getResource(loader.getResources().getString(KEY_APPLICATION_IMAGE)));
 
-      Storage<Stage> stageStorage = new StageStorage(getClass().getSimpleName());
+      Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass().getSimpleName());
       stage.setOnCloseRequest(event -> stageStorage.save(stage));
       stageStorage.update(stage);
       stage.show();
