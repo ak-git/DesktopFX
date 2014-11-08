@@ -8,9 +8,9 @@ import com.ak.storage.LocalStorage;
 import com.ak.storage.Storage;
 import javafx.stage.Stage;
 
-final class StageStorage extends AbstractStorage<Stage> {
-  private static final String BOUNDS = "bounds";
+class StageStorage extends AbstractStorage<Stage> {
   private static final String FULL_SCREEN = "fullScreen";
+  private static final String BOUNDS = "bounds";
   private final Storage<Boolean> fullScreenStorage;
   private final Storage<Rectangle2D.Double> boundsStorage;
 
@@ -44,11 +44,11 @@ final class StageStorage extends AbstractStorage<Stage> {
   }
 
   @Override
-  public Stage get() {
+  public final Stage get() {
     throw new UnsupportedOperationException();
   }
 
-  void saveFullScreenState(boolean state) {
+  final void saveFullScreenState(boolean state) {
     fullScreenStorage.save(state);
   }
 }

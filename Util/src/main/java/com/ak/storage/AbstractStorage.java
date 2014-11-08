@@ -3,7 +3,7 @@ package com.ak.storage;
 public abstract class AbstractStorage<T> implements Storage<T>, Cloneable {
   private final String filePrefix;
 
-  public AbstractStorage(String filePrefix) {
+  protected AbstractStorage(String filePrefix) {
     if (filePrefix.isEmpty()) {
       throw new IllegalArgumentException();
     }
