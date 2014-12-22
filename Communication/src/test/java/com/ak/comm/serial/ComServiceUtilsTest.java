@@ -13,10 +13,7 @@ public final class ComServiceUtilsTest {
     Deque<String> ids = new LinkedList<>();
     for (; ; ) {
       CommPortIdentifier identifier = ComServiceUtils.PORTS.next("");
-      if (identifier == null) {
-        break;
-      }
-      else if (!ids.isEmpty() && identifier.getName().equals(ids.getFirst())) {
+      if (identifier == null || !ids.isEmpty() && identifier.getName().equals(ids.getFirst())) {
         break;
       }
       ids.add(identifier.getName());

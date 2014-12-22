@@ -58,7 +58,7 @@ project(':Communication') {
 
 project(':FxCore') {
     dependencies {
-        compile group: 'org.springframework', name: 'spring-context', version: '4.0.5.RELEASE'
+        compile group: 'org.springframework', name: 'spring-context', version: '4.1.3.RELEASE'
         compile project(':Util')
     }
 }
