@@ -22,11 +22,9 @@ class StageStorage extends AbstractStorage<Stage> {
 
   @Override
   public void save(Stage stage) {
-    Optional.ofNullable(fullScreenStorage.get()).ifPresent(fullScreen -> {
-      if (!fullScreen) {
-        boundsStorage.save(new Rectangle2D.Double(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight()));
-      }
-    });
+    if (!Optional.ofNullable(fullScreenStorage.get()).orElse(false)) {
+      boundsStorage.save(new Rectangle2D.Double(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight()));
+    }
   }
 
   @Override
