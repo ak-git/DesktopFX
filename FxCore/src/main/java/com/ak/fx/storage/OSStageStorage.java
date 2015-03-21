@@ -14,6 +14,6 @@ public enum OSStageStorage {
   UNIX;
 
   public Storage<Stage> newInstance(String filePrefix) {
-    return new StageStorage(filePrefix);
+    return new DefaultStageStorage(filePrefix);
   }
 }

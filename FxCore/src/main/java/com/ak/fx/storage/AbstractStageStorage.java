@@ -8,28 +8,32 @@ import com.ak.storage.LocalStorage;
 import com.ak.storage.Storage;
 import javafx.stage.Stage;
 
-class StageStorage extends AbstractStorage<Stage> {
+abstract class AbstractStageStorage extends AbstractStorage<Stage> {
   private static final String FULL_SCREEN = "fullScreen";
+  private static final String MAXIMIZED = "maximized";
   private static final String BOUNDS = "bounds";
   private final Storage<Boolean> fullScreenStorage;
+  private final Storage<Boolean> maximizedStorage;
   private final Storage<Rectangle2D.Double> boundsStorage;
 
-  StageStorage(String filePrefix) {
+  AbstractStageStorage(String filePrefix) {
     super(filePrefix);
     fullScreenStorage = new LocalStorage<>(filePrefix, FULL_SCREEN, Boolean.class);
+    maximizedStorage = new LocalStorage<>(filePrefix, MAXIMIZED, Boolean.class);
     boundsStorage = new LocalStorage<>(filePrefix, BOUNDS, Rectangle2D.Double.class);
   }
 
   @Override
   public void save(Stage stage) {
-    if (!Optional.ofNullable(fullScreenStorage.get()).orElse(false)) {
+    if (!Optional.ofNullable(fullScreenStorage.get()).orElse(false) &&
+        !Optional.ofNullable(maximizedStorage.get()).orElse(false)) {
       boundsStorage.save(new Rectangle2D.Double(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight()));
     }
   }
 
   @Override
   public void update(Stage stage) {
-    stage.fullScreenProperty().addListener((observable, oldValue, newValue) -> saveFullScreenState(oldValue));
+    stage.maximizedProperty().addListener((observable, oldValue, newValue) -> maximizedStorage.save(newValue));
     Optional.ofNullable(boundsStorage.get()).ifPresent(
         rectangle -> {
           stage.setX(rectangle.getX());
@@ -38,6 +42,7 @@ class StageStorage extends AbstractStorage<Stage> {
           stage.setHeight(rectangle.getHeight());
         }
     );
+    Optional.ofNullable(maximizedStorage.get()).ifPresent(stage::setMaximized);
     Optional.ofNullable(fullScreenStorage.get()).ifPresent(stage::setFullScreen);
   }
 
