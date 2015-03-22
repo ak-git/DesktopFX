@@ -8,13 +8,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import com.ak.util.LogConfig;
 import gnu.io.CommPortIdentifier;
 
 public enum ComServiceUtils {
   PORTS;
 
-  private final Logger logger = LogConfig.newFileLogger("CommunicationSerial", getClass(), Level.CONFIG);
+  private static final Logger LOGGER = Logger.getLogger(ComServiceUtils.class.getName());
   private final LinkedList<String> usedPorts = new LinkedList<>();
 
   @SuppressWarnings("unchecked")
@@ -30,7 +29,7 @@ public enum ComServiceUtils {
       CommPortIdentifier portIdentifier = identifiers.stream().
           filter(commPortIdentifier -> commPortIdentifier.getName().equals(preferredName)).findFirst().
           orElse(identifiers.iterator().next());
-      logger.config(String.format("%s, the '%s' is selected",
+      LOGGER.config(String.format("%s, the '%s' is selected",
           identifiers.stream().map(CommPortIdentifier::getName).collect(Collectors.toList()).toString(),
           portIdentifier.getName()));
       usedPorts.remove(portIdentifier.getName());
@@ -38,7 +37,7 @@ public enum ComServiceUtils {
       return portIdentifier;
     }
     else {
-      logger.info("RXTXCommDriver NOT available");
+      LOGGER.info("RXTXCommDriver NOT available");
       return null;
     }
   }
@@ -53,7 +52,7 @@ public enum ComServiceUtils {
         return true;
       }
       catch (ClassNotFoundException | LinkageError e) {
-        Logger.getLogger(ComServiceUtils.class.getName()).log(Level.FINE, e.getMessage(), e);
+        LOGGER.log(Level.FINE, e.getMessage(), e);
       }
       return false;
     }

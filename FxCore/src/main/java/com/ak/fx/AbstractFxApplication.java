@@ -20,7 +20,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.MessageSourceResourceBundle;
 
-public class FxApplication extends Application {
+public abstract class AbstractFxApplication extends Application {
   private static final String FX_CONTEXT_XML = "fx-context.xml";
   private static final String SCENE_XML = "scene.fxml";
   private static final String KEY_APPLICATION_TITLE = "application.title";

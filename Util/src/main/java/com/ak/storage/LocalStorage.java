@@ -57,7 +57,7 @@ public final class LocalStorage<T> extends AbstractStorage<T> {
       }
     }
     catch (IOException e) {
-      Logger.getLogger(LocalStorage.class.getName()).log(Level.CONFIG, e.getMessage(), e);
+      Logger.getLogger(LocalStorage.class.getName()).log(Level.FINE, e.getMessage(), e);
     }
   }
 
