@@ -59,10 +59,10 @@ public class LocalFileIO<E extends Enum<E> & LocalFileIO.OSDirectory> implements
     }
   }
 
-  public static final String VENDOR_ID = Stream.of(LocalFileIO.class.getPackage().getName().split("\\.")).limit(2).
-      collect(Collectors.joining("."));
   private static final String USER_HOME_PATH = AccessController.doPrivileged(
       (PrivilegedAction<String>) () -> Optional.ofNullable(System.getProperty("user.home")).orElse(""));
+  private static final String VENDOR_ID = Stream.of(LocalFileIO.class.getPackage().getName().split("\\.")).limit(2).
+      collect(Collectors.joining("."));
 
   private final Path path;
   private final String fileName;
