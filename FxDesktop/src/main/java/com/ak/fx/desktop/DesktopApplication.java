@@ -5,7 +5,6 @@ import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.ak.comm.serial.ComServiceUtils;
 import com.ak.fx.AbstractFxApplication;
 
 public final class DesktopApplication extends AbstractFxApplication {
@@ -20,7 +19,6 @@ public final class DesktopApplication extends AbstractFxApplication {
   }
 
   public static void main(String[] args) {
-    ComServiceUtils.PORTS.next("");
     launch(args);
   }
 }
