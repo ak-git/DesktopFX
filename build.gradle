@@ -67,7 +67,7 @@ project(':FxDesktop') {
     mainClassName = 'com.ak.fx.desktop.DesktopApplication'
 
     run {
-        jvmArgs '-server', '-Xms512m', '-Xmx1024m', '-Dfx.level=INFO'
+        jvmArgs '-server', '-Xms512m', '-Xmx1024m'
     }
 
     dependencies {

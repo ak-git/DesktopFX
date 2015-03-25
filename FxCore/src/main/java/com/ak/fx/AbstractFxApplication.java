@@ -1,5 +1,9 @@
 package com.ak.fx;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -8,6 +12,7 @@ import java.util.logging.Logger;
 import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.util.OSDockImage;
 import com.ak.storage.Storage;
+import com.ak.util.LocalFileIO;
 import com.ak.util.OS;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -25,6 +30,7 @@ public abstract class AbstractFxApplication extends Application {
   private static final String SCENE_XML = "scene.fxml";
   private static final String KEY_APPLICATION_TITLE = "application.title";
   private static final String KEY_APPLICATION_IMAGE = "application.image";
+  private static final String LOGGING_PROPERTIES = "logging.properties";
 
   private final ListableBeanFactory context = new ClassPathXmlApplicationContext(
       Paths.get(getClass().getPackage().getName().replaceAll("\\.", "/"), FX_CONTEXT_XML).toString());
@@ -55,5 +61,19 @@ public abstract class AbstractFxApplication extends Application {
   public final void stop() throws Exception {
     super.stop();
     Platform.exit();
+  }
+
+  protected static void initLogger(Class<?> clazz) {
+    try {
+      Path path = new LocalFileIO.LogBuilder().addPath(clazz.getSimpleName()).fileName(LOGGING_PROPERTIES).
+          build().getPath();
+      if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
+        Files.copy(clazz.getResourceAsStream(LOGGING_PROPERTIES), path);
+      }
+      System.setProperty("java.util.logging.config.file", path.toAbsolutePath().toString());
+    }
+    catch (IOException e) {
+      Logger.getGlobal().log(Level.WARNING, e.getMessage(), e);
+    }
   }
 }
