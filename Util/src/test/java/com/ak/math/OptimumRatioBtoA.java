@@ -46,15 +46,14 @@ public class OptimumRatioBtoA {
     }
   }
 
-  private static double getBtoA(double dl2L, double dRL2ro) {
+  private static PointValuePair getBtoA(double dl2L, double dRL2ro) {
     UnivariateFunction inequality = new Inequality(dl2L, dRL2ro);
     SimplexOptimizer optimizer = new SimplexOptimizer(-1, 1.0e-6);
-    PointValuePair optimum = optimizer.optimize(new MaxEval(100), new ObjectiveFunction(
+    return optimizer.optimize(new MaxEval(100), new ObjectiveFunction(
             ba -> inequality.value(ba[0])), GoalType.MINIMIZE,
         new NelderMeadSimplex(1, 0.01),
         new InitialGuess(new double[] {1.4142135623730951 - 1})
     );
-    return optimum.getKey()[0];
   }
 
   public static void main(String[] args) {
@@ -66,9 +65,13 @@ public class OptimumRatioBtoA {
     yVar.get().mapToObj(value -> String.format("%.6f", value)).collect(
         new LineFileCollector<>(Paths.get("y(dR*L|ro).txt"), LineFileCollector.Direction.VERTICAL));
 
-    yVar.get().mapToObj(dRL2ro -> xVar.get().map(dL2L -> getBtoA(dL2L, dRL2ro))).
+    yVar.get().mapToObj(dRL2ro -> xVar.get().map(dL2L -> getBtoA(dL2L, dRL2ro).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("OptimumRatioBtoA.txt"), LineFileCollector.Direction.VERTICAL));
+
+    yVar.get().mapToObj(dRL2ro -> xVar.get().map(dL2L -> getBtoA(dL2L, dRL2ro).getValue())).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        collect(new LineFileCollector<>(Paths.get("ErrorsAtOptimumRatioBtoA.txt"), LineFileCollector.Direction.VERTICAL));
   }
 
   private static DoubleStream doubleRange(double step, double end) {
