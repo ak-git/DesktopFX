@@ -17,7 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collector;
 
-public final class TabFileCollector implements Collector<CharSequence, BufferedWriter, Void> {
+public final class LineFileCollector<T> implements Collector<T, BufferedWriter, Void> {
   public enum Direction {
     HORIZONTAL(bufferedWriter -> {
       try {
@@ -46,7 +46,7 @@ public final class TabFileCollector implements Collector<CharSequence, BufferedW
   private final Direction direction;
   private boolean startFlag = true;
 
-  public TabFileCollector(Path out, Direction direction) {
+  public LineFileCollector(Path out, Direction direction) {
     BufferedWriter writer = null;
     try {
       writer = Files.newBufferedWriter(out, Charset.forName("windows-1251"),
@@ -65,14 +65,14 @@ public final class TabFileCollector implements Collector<CharSequence, BufferedW
   }
 
   @Override
-  public BiConsumer<BufferedWriter, CharSequence> accumulator() {
-    return (bufferedWriter, charSequence) -> {
+  public BiConsumer<BufferedWriter, T> accumulator() {
+    return (bufferedWriter, object) -> {
       try {
         if (!startFlag) {
           direction.consumer.accept(bufferedWriter);
         }
         startFlag = false;
-        bufferedWriter.write(charSequence.toString());
+        bufferedWriter.write(object.toString());
       }
       catch (IOException e) {
         Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);

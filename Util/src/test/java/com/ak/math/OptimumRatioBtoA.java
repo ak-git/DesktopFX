@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.nio.file.Paths;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
@@ -57,17 +58,21 @@ public class OptimumRatioBtoA {
   }
 
   public static void main(String[] args) {
-    Supplier<DoubleStream> xVar = () -> doubleRange(1.0e-4, 0.1);
+    Supplier<DoubleStream> xVar = () -> doubleRange(1.0e-4, 1.0e-1);
     xVar.get().mapToObj(value -> String.format("%.4f", value)).collect(
-        new TabFileCollector(Paths.get("x(dl|L).txt"), TabFileCollector.Direction.HORIZONTAL));
+        new LineFileCollector<>(Paths.get("x(dl|L).txt"), LineFileCollector.Direction.HORIZONTAL));
 
     Supplier<DoubleStream> yVar = () -> doubleRange(1.0e-6, 1.0e-3);
     yVar.get().mapToObj(value -> String.format("%.6f", value)).collect(
-        new TabFileCollector(Paths.get("y(dR*L|ro).txt"), TabFileCollector.Direction.VERTICAL));
+        new LineFileCollector<>(Paths.get("y(dR*L|ro).txt"), LineFileCollector.Direction.VERTICAL));
+
+    yVar.get().mapToObj(dRL2ro -> xVar.get().map(dL2L -> getBtoA(dL2L, dRL2ro))).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        collect(new LineFileCollector<>(Paths.get("OptimumRatioBtoA.txt"), LineFileCollector.Direction.VERTICAL));
   }
 
   private static DoubleStream doubleRange(double step, double end) {
-    return DoubleStream.iterate(0.0, dl2L -> dl2L + step).
-        limit(BigDecimal.valueOf(end / step).round(MathContext.UNLIMITED).intValue() + 1).sequential();
+    return DoubleStream.iterate(step, dl2L -> dl2L + step).
+        limit(BigDecimal.valueOf(end / step).round(MathContext.UNLIMITED).intValue()).sequential();
   }
 }
