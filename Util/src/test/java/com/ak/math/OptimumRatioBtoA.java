@@ -104,7 +104,8 @@ public final class OptimumRatioBtoA {
     Assert.assertEquals(pair.getValue(), relError, 0.01);
   }
 
-  public static void main(String[] args) {
+  @DataProvider(name = "dl2L-dRL2ro")
+  public static Object[][] dl2LdRL2ro() {
     Supplier<DoubleStream> xVar = () -> doubleRange(1.0e-4, 1.0e-1);
     xVar.get().mapToObj(value -> String.format("%.4f", value)).collect(
         new LineFileCollector<>(Paths.get("x(dl|L).txt"), LineFileCollector.Direction.HORIZONTAL));
@@ -112,7 +113,11 @@ public final class OptimumRatioBtoA {
     Supplier<DoubleStream> yVar = () -> doubleRange(1.0e-6, 1.0e-3);
     yVar.get().mapToObj(value -> String.format("%.6f", value)).collect(
         new LineFileCollector<>(Paths.get("y(dR*L|ro).txt"), LineFileCollector.Direction.VERTICAL));
+    return new Object[][] {{xVar, yVar}};
+  }
 
+  @Test(dataProvider = "dl2L-dRL2ro", enabled = false)
+  public void testOptimalBtoAforRho(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     yVar.get().mapToObj(dRL2ro -> xVar.get().map(dL2L -> solve(new InequalityRho(dL2L, dRL2ro)).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("OptimumBtoA_Rho.txt"), LineFileCollector.Direction.VERTICAL));
@@ -120,7 +125,10 @@ public final class OptimumRatioBtoA {
     yVar.get().mapToObj(dRL2ro -> xVar.get().map(dL2L -> solve(new InequalityRho(dL2L, dRL2ro)).getValue())).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("ErrorsAtOptimumBtoA_Rho.txt"), LineFileCollector.Direction.VERTICAL));
+  }
 
+  @Test(dataProvider = "dl2L-dRL2ro", enabled = false)
+  public void testOptimalBtoAforDeltaRho(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     yVar.get().mapToObj(dRL2ro -> xVar.get().map(dL2L -> solve(new InequalityDeltaRho(dL2L, dRL2ro)).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("OptimumBtoA_DeltaRho.txt"), LineFileCollector.Direction.VERTICAL));
@@ -128,7 +136,20 @@ public final class OptimumRatioBtoA {
     yVar.get().mapToObj(dRL2ro -> xVar.get().map(dL2L -> solve(new InequalityDeltaRho(dL2L, dRL2ro)).getValue())).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("ErrorsAtOptimumBtoA_DeltaRho.txt"), LineFileCollector.Direction.VERTICAL));
+  }
 
+  @Test(dataProvider = "dl2L-dRL2ro", enabled = false)
+  public void testRhoAndDeltaRhoForBtoA(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+    DoubleStream.of(1.0 / 3.0, 0.5, 2.0 / 3.0).forEachOrdered(ba -> {
+      yVar.get().mapToObj(dRL2ro -> xVar.get().map(dL2L -> new InequalityRho(dL2L, dRL2ro).value(ba))).
+          map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+          collect(new LineFileCollector<>(Paths.get(String.format("ErrorsAt%.2f_Rho.txt", ba)),
+              LineFileCollector.Direction.VERTICAL));
+      yVar.get().mapToObj(dRL2ro -> xVar.get().map(dL2L -> new InequalityDeltaRho(dL2L, dRL2ro).value(ba))).
+          map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+          collect(new LineFileCollector<>(Paths.get(String.format("ErrorsAt%.2f_DeltaRho.txt", ba)),
+              LineFileCollector.Direction.VERTICAL));
+    });
   }
 
   private static DoubleStream doubleRange(double step, double end) {
