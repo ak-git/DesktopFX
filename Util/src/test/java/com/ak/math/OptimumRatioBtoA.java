@@ -58,7 +58,7 @@ public final class OptimumRatioBtoA {
       if (ba > 1.0) {
         ba = 1.0;
       }
-      return lG(ba) * dl2L + 2.0 * mG(ba) * dRL2rho;
+      return lG(ba) * dl2L + Math.min(2.0 * mG(ba) * dRL2rho, 1.0);
     }
   }
 
@@ -153,13 +153,19 @@ public final class OptimumRatioBtoA {
         collect(new LineFileCollector<>(Paths.get("ErrorsAtOptimumBtoA_DeltaRho.txt"), LineFileCollector.Direction.VERTICAL));
   }
 
-  @Test(dataProvider = "dl2L-dRL2dRho", enabled = false)
-  public void testRhoAndDeltaRhoForBtoA(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+  @Test(dataProvider = "dl2L-dRL2rho", enabled = false)
+  public void testRhoForBtoA(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     DoubleStream.of(1.0 / 3.0, 0.5, 2.0 / 3.0).forEachOrdered(ba -> {
       yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> new InequalityRho(dL2L, dRL2rho).value(ba))).
           map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
           collect(new LineFileCollector<>(Paths.get(String.format("ErrorsAt%.2f_Rho.txt", ba)),
               LineFileCollector.Direction.VERTICAL));
+    });
+  }
+
+  @Test(dataProvider = "dl2L-dRL2dRho", enabled = false)
+  public void testDeltaRhoForBtoA(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+    DoubleStream.of(1.0 / 3.0, 0.5, 2.0 / 3.0).forEachOrdered(ba -> {
       yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> new InequalityDeltaRho(dL2L, dRL2rho).value(ba))).
           map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
           collect(new LineFileCollector<>(Paths.get(String.format("ErrorsAt%.2f_DeltaRho.txt", ba)),
