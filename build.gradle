@@ -31,7 +31,7 @@ subprojects {
 
     dependencies {
         compile group: 'javax.inject', name: 'javax.inject', version: '1'
-        testCompile group: 'org.testng', name: 'testng', version: '6.9.4'
+        testCompile group: 'org.testng', name: 'testng', version: '6.9.6'
     }
 
     test {
@@ -57,7 +57,7 @@ project(':Communication') {
 
 project(':FxCore') {
     dependencies {
-        compile group: 'org.springframework', name: 'spring-context', version: '4.1.6.RELEASE'
+        compile group: 'org.springframework', name: 'spring-context', version: '4.2.1.RELEASE'
         compile project(':Util')
     }
 }
