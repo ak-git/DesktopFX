@@ -45,6 +45,7 @@ subprojects {
 project(':Util') {
     dependencies {
         compile group: 'org.apache.commons', name: 'commons-math3', version: '3.5'
+        compile group: 'tec.uom', name: 'uom-se', version: '0.8-RC1'
     }
 }
 

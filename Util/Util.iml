@@ -27,5 +27,8 @@
     <orderEntry type="library" scope="TEST" name="Gradle: org.yaml:snakeyaml:1.15" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.hamcrest:hamcrest-core:1.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: junit:junit:4.10" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: tec.uom:uom-se:0.8-RC1" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: javax.measure:unit-api:0.8-RC3" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: javax.annotation:javax.annotation-api:1.2" level="project" />
   </component>
 </module>
