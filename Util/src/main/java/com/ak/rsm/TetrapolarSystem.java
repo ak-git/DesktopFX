@@ -35,14 +35,6 @@ public final class TetrapolarSystem implements Cloneable {
     return 0.5 * Math.PI * resistance.to(OHM).getValue().doubleValue() / (1.0 / radiusMinus() - 1.0 / radiusPlus());
   }
 
-  public double getS() {
-    return sPotentialUnitSI;
-  }
-
-  public double getL() {
-    return lCurrentCarryingSI;
-  }
-
   double radiusMinus() {
     return lCurrentCarryingSI - sPotentialUnitSI;
   }

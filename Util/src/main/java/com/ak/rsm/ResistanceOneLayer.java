@@ -20,7 +20,15 @@ public final class ResistanceOneLayer implements UnivariateFunction, Cloneable {
    */
   @Override
   public double value(double rhoSI) {
-    return (2.0 * rhoSI / Math.PI) * (1.0 / electrodeSystem.radiusMinus() - 1.0 / electrodeSystem.radiusPlus());
+    return thoRhoByPI(rhoSI) * (1.0 / electrodeSystem.radiusMinus() - 1.0 / electrodeSystem.radiusPlus());
+  }
+
+  public TetrapolarSystem getElectrodeSystem() {
+    return electrodeSystem;
+  }
+
+  static double thoRhoByPI(double rhoSI) {
+    return 2.0 * rhoSI / Math.PI;
   }
 
   @Override
