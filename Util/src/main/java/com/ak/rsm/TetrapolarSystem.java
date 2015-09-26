@@ -14,15 +14,15 @@ import static tec.uom.se.unit.Units.METRE;
 import static tec.uom.se.unit.Units.OHM;
 
 public final class TetrapolarSystem implements Cloneable {
-  private final Quantity<Length> sPotentialUnitSI;
-  private final Quantity<Length> lCurrentCarringSI;
+  private final double sPotentialUnitSI;
+  private final double lCurrentCarryingSI;
 
   public TetrapolarSystem(double sPU, double lCC, Unit<Length> unit) {
     if (sPU >= lCC) {
       throw new IllegalArgumentException();
     }
-    sPotentialUnitSI = Quantities.getQuantity(sPU, unit).to(METRE);
-    lCurrentCarringSI = Quantities.getQuantity(lCC, unit).to(METRE);
+    sPotentialUnitSI = Quantities.getQuantity(sPU, unit).to(METRE).getValue().doubleValue();
+    lCurrentCarryingSI = Quantities.getQuantity(lCC, unit).to(METRE).getValue().doubleValue();
   }
 
   /**
@@ -32,17 +32,23 @@ public final class TetrapolarSystem implements Cloneable {
    * @return <b>apparent</b> specific resistance in Ohm-m.
    */
   public double getApparent(Quantity<ElectricResistance> resistance) {
-    double sSI = sPotentialUnitSI.getValue().doubleValue();
-    double lSI = lCurrentCarringSI.getValue().doubleValue();
-    return 0.5 * Math.PI * resistance.to(OHM).getValue().doubleValue() / (1.0 / (lSI - sSI) - 1.0 / (lSI + sSI));
+    return 0.5 * Math.PI * resistance.to(OHM).getValue().doubleValue() / (1.0 / radiusMinus() - 1.0 / radiusPlus());
   }
 
-  public Quantity<Length> getS() {
+  public double getS() {
     return sPotentialUnitSI;
   }
 
-  public Quantity<Length> getL() {
-    return lCurrentCarringSI;
+  public double getL() {
+    return lCurrentCarryingSI;
+  }
+
+  double radiusMinus() {
+    return lCurrentCarryingSI - sPotentialUnitSI;
+  }
+
+  double radiusPlus() {
+    return lCurrentCarryingSI + sPotentialUnitSI;
   }
 
   @Override
@@ -55,17 +61,19 @@ public final class TetrapolarSystem implements Cloneable {
     }
 
     TetrapolarSystem that = (TetrapolarSystem) o;
-    return Objects.equals(sPotentialUnitSI, that.sPotentialUnitSI) && Objects.equals(lCurrentCarringSI, that.lCurrentCarringSI);
+    return Objects.equals(sPotentialUnitSI, that.sPotentialUnitSI) && Objects.equals(lCurrentCarryingSI, that.lCurrentCarryingSI);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(sPotentialUnitSI, lCurrentCarringSI);
+    return Objects.hash(sPotentialUnitSI, lCurrentCarryingSI);
   }
 
   @Override
   public String toString() {
-    return String.format("%s x %s", sPotentialUnitSI.to(MILLI(METRE)), lCurrentCarringSI.to(MILLI(METRE)));
+    return String.format("%s x %s",
+        Quantities.getQuantity(sPotentialUnitSI, METRE).to(MILLI(METRE)),
+        Quantities.getQuantity(lCurrentCarryingSI, METRE).to(MILLI(METRE)));
   }
 
   @Override
