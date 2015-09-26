@@ -8,7 +8,10 @@ import javax.measure.quantity.ElectricResistance;
 import javax.measure.quantity.Length;
 
 import tec.uom.se.quantity.Quantities;
-import tec.uom.se.unit.Units;
+
+import static tec.uom.se.unit.MetricPrefix.MILLI;
+import static tec.uom.se.unit.Units.METRE;
+import static tec.uom.se.unit.Units.OHM;
 
 public final class TetrapolarSystem implements Cloneable {
   private final Quantity<Length> sPotentialUnitSI;
@@ -18,8 +21,8 @@ public final class TetrapolarSystem implements Cloneable {
     if (sPU >= lCC) {
       throw new IllegalArgumentException();
     }
-    sPotentialUnitSI = Quantities.getQuantity(sPU, unit).to(Units.METRE);
-    lCurrentCarringSI = Quantities.getQuantity(lCC, unit).to(Units.METRE);
+    sPotentialUnitSI = Quantities.getQuantity(sPU, unit).to(METRE);
+    lCurrentCarringSI = Quantities.getQuantity(lCC, unit).to(METRE);
   }
 
   /**
@@ -31,7 +34,7 @@ public final class TetrapolarSystem implements Cloneable {
   public double getApparent(Quantity<ElectricResistance> resistance) {
     double sSI = sPotentialUnitSI.getValue().doubleValue();
     double lSI = lCurrentCarringSI.getValue().doubleValue();
-    return 0.5 * Math.PI * resistance.to(Units.OHM).getValue().doubleValue() / (1.0 / (lSI - sSI) - 1.0 / (lSI + sSI));
+    return 0.5 * Math.PI * resistance.to(OHM).getValue().doubleValue() / (1.0 / (lSI - sSI) - 1.0 / (lSI + sSI));
   }
 
   public Quantity<Length> getS() {
@@ -62,7 +65,7 @@ public final class TetrapolarSystem implements Cloneable {
 
   @Override
   public String toString() {
-    return String.format("%s x %s", sPotentialUnitSI, lCurrentCarringSI);
+    return String.format("%s x %s", sPotentialUnitSI.to(MILLI(METRE)), lCurrentCarringSI.to(MILLI(METRE)));
   }
 
   @Override
