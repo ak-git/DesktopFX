@@ -3,6 +3,7 @@ package com.ak.rsm;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import tec.uom.se.unit.Units;
 
+import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.pow;
 
 /**
@@ -32,9 +33,7 @@ public final class DerivativeRbyRho2Normalized implements TrivariateFunction, Cl
     for (int n = 1; ; n++) {
       double b = 4.0 * n * hSI;
       double prev = sum;
-      sum += n * pow(k12, n - 1) *
-          (1.0 / StrictMath.hypot(electrodes.radiusMinus(), b)
-              - 1.0 / StrictMath.hypot(electrodes.radiusPlus(), b));
+      sum += n * pow(k12, n - 1) * (1.0 / hypot(electrodes.radiusMinus(), b) - 1.0 / hypot(electrodes.radiusPlus(), b));
       if (Double.compare(prev, sum) == 0) {
         break;
       }
