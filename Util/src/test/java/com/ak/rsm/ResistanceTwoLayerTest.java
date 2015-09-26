@@ -8,9 +8,9 @@ import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public class ResistanceTwoLayerTest {
+public final class ResistanceTwoLayerTest {
   @DataProvider(name = "layer-model", parallel = true)
-  public Object[][] singleLayerParameters() {
+  public Object[][] twoLayerParameters() {
     return new Object[][] {
         {new Double[] {1.0, 1.0}, 0.0, 20, 40, 21.221},
         {new Double[] {2.0, 2.0}, 0.0, 20, 40, 21.221 * 2.0},

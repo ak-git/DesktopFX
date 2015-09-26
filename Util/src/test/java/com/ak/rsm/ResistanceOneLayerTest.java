@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public class ResistanceOneLayerTest {
+public final class ResistanceOneLayerTest {
   @DataProvider(name = "layer-model", parallel = true)
   public Object[][] singleLayerParameters() {
     return new Object[][] {
