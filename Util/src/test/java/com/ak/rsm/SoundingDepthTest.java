@@ -56,8 +56,28 @@ public final class SoundingDepthTest {
   }
 
   @Test(dataProvider = "sToL-k12", enabled = false)
-  public void testRho1SameRho2(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+  public void testRho1SameRho2byK12(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     yVar.get().mapToObj(k12 -> xVar.get().map(sToL -> solve(new InequalityRbyRho2(k12, sToL)).getKey()[0])).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        collect(new LineFileCollector<>(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
+  }
+
+  @DataProvider(name = "sToL-rho")
+  public static Object[][] sToLbyRho1Rho2() {
+    Supplier<DoubleStream> xVar = () -> doubleRange(0.01, 0.99, 1.0e-2);
+    xVar.get().mapToObj(value -> String.format("%.2f", value)).collect(
+        new LineFileCollector<>(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL));
+
+    Supplier<DoubleStream> yVar = () -> logDoubleRange(1.0e-2, 1.0e2, StrictMath.pow(10.0, 1.0 / 16.0));
+    yVar.get().mapToObj(value -> String.format("%.4f", value)).collect(
+        new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
+    return new Object[][] {{xVar, yVar}};
+  }
+
+  @Test(dataProvider = "sToL-rho", enabled = false)
+  public void testRho1SameRho2byRho(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+    yVar.get().mapToObj(rhoToRho -> xVar.get().map(sToL -> solve(
+        new InequalityRbyRho2(ResistanceTwoLayer.getK12(rhoToRho, 1.0), sToL)).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
   }
@@ -65,5 +85,11 @@ public final class SoundingDepthTest {
   private static DoubleStream doubleRange(double start, double end, double step) {
     return DoubleStream.iterate(start, dl2L -> dl2L + step).
         limit(BigDecimal.valueOf((end - start) / step + 1).round(MathContext.UNLIMITED).intValue()).sequential();
+  }
+
+  private static DoubleStream logDoubleRange(double start, double end, double factor) {
+    return DoubleStream.iterate(start, dl2L -> dl2L * factor).
+        limit(BigDecimal.valueOf(StrictMath.log1p(end / start) / StrictMath.log(factor) + 1).
+            round(MathContext.UNLIMITED).intValue()).sequential();
   }
 }
