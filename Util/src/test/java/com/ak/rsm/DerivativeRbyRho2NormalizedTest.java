@@ -14,8 +14,8 @@ public final class DerivativeRbyRho2NormalizedTest {
   }
 
   @Test(dataProvider = "layer-model")
-  public void testOneLayer(double k12, double sToL, double hToL, double rOhm) {
+  public void testOneLayer(double k12, double sToL, double hToL, double rByRho2N) {
     TrivariateFunction rbyRho2Normalized = new DerivativeRbyRho2Normalized();
-    Assert.assertEquals(rbyRho2Normalized.value(k12, sToL, hToL), rOhm, 0.001);
+    Assert.assertEquals(rbyRho2Normalized.value(k12, sToL, hToL), rByRho2N, 0.001);
   }
 }
