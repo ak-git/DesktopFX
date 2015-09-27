@@ -1,6 +1,5 @@
 package com.ak.rsm;
 
-import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -21,7 +20,6 @@ public final class ResistanceOneLayerTest {
   @Test(dataProvider = "layer-model")
   public void testOneLayer(double rho, double smm, double lmm, double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MetricPrefix.MILLI(Units.METRE));
-    UnivariateFunction resistance = new ResistanceOneLayer(system);
-    Assert.assertEquals(resistance.value(rho), rOhm, 0.001);
+    Assert.assertEquals(new ResistanceOneLayer(system).value(rho), rOhm, 0.001);
   }
 }

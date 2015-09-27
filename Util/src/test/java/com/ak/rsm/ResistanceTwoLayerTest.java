@@ -1,6 +1,5 @@
 package com.ak.rsm;
 
-import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -29,8 +28,7 @@ public final class ResistanceTwoLayerTest {
   @Test(dataProvider = "layer-model")
   public void testLayer(Double[] rho, double hmm, double smm, double lmm, double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MetricPrefix.MILLI(Units.METRE));
-    TrivariateFunction resistance = new ResistanceTwoLayer(system);
-    Assert.assertEquals(resistance.value(rho[0], rho[1],
+    Assert.assertEquals(new ResistanceTwoLayer(system).value(rho[0], rho[1],
         Quantities.getQuantity(hmm, MetricPrefix.MILLI(Units.METRE)).to(Units.METRE).getValue().doubleValue()), rOhm, 0.001);
   }
 }

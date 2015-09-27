@@ -3,12 +3,12 @@ package com.ak.rsm;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.nio.file.Paths;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 import com.ak.util.LineFileCollector;
-import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.optim.InitialGuess;
 import org.apache.commons.math3.optim.MaxEval;
 import org.apache.commons.math3.optim.PointValuePair;
@@ -26,7 +26,7 @@ public final class OptimumStoL {
 
   private static final double SQRT_2 = 1.4142135623730951;
 
-  private static class InequalityRho implements UnivariateFunction {
+  private static class InequalityRho implements DoubleUnaryOperator {
     final double dl2L;
     final double dRL2rho;
 
@@ -36,7 +36,7 @@ public final class OptimumStoL {
     }
 
     @Override
-    public double value(double sToL) {
+    public double applyAsDouble(double sToL) {
       return lG(sToL) * dl2L + mG(sToL) * dRL2rho;
     }
 
@@ -55,7 +55,7 @@ public final class OptimumStoL {
     }
 
     @Override
-    public double value(double sToL) {
+    public double applyAsDouble(double sToL) {
       if (sToL > 1.0) {
         sToL = 1.0;
       }
@@ -63,10 +63,10 @@ public final class OptimumStoL {
     }
   }
 
-  private static PointValuePair solve(UnivariateFunction inequality) {
+  private static PointValuePair solve(DoubleUnaryOperator inequality) {
     SimplexOptimizer optimizer = new SimplexOptimizer(-1, 1.0e-6);
     return optimizer.optimize(new MaxEval(100), new ObjectiveFunction(
-            sToL -> inequality.value(sToL[0])), GoalType.MINIMIZE,
+            sToL -> inequality.applyAsDouble(sToL[0])), GoalType.MINIMIZE,
         new NelderMeadSimplex(1, 0.01),
         new InitialGuess(new double[] {SQRT_2 - 1})
     );
@@ -134,7 +134,7 @@ public final class OptimumStoL {
   @Test(dataProvider = "dl2L-dRL2rho", enabled = false)
   public void testRhoErrorsAt(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     DoubleStream.of(1.0 / 3.0, 0.5, 2.0 / 3.0).forEachOrdered(sToL ->
-        yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> new InequalityRho(dL2L, dRL2rho).value(sToL))).
+        yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> new InequalityRho(dL2L, dRL2rho).applyAsDouble(sToL))).
             map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
             collect(new LineFileCollector<>(Paths.get(String.format("Rho_ErrorsAt_%.2f.txt", sToL)),
                 LineFileCollector.Direction.VERTICAL)));
@@ -166,7 +166,7 @@ public final class OptimumStoL {
   @Test(dataProvider = "dl2L-dRL2dRho", enabled = false)
   public void testDeltaRhoErrorsAt(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     DoubleStream.of(1.0 / 3.0, 0.5, 2.0 / 3.0).forEachOrdered(sToL ->
-        yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> new InequalityDeltaRho(dL2L, dRL2rho).value(sToL))).
+        yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> new InequalityDeltaRho(dL2L, dRL2rho).applyAsDouble(sToL))).
             map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
             collect(new LineFileCollector<>(Paths.get(String.format("DeltaRho_ErrorsAt_%.2f.txt", sToL)),
                 LineFileCollector.Direction.VERTICAL)));
