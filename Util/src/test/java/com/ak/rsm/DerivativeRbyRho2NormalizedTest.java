@@ -9,6 +9,11 @@ public final class DerivativeRbyRho2NormalizedTest {
   public Object[][] twoLayerParameters() {
     return new Object[][] {
         {(1.0 - 5.0) / (1.0 + 5.0), 0.5, 0.126, 0.5},
+        {-0.9, 0.1, 0.129568, 0.5},
+        {0.9, 0.1, 0.022029, 0.5},
+        {-0.9, 0.9, 0.019471, 0.5},
+        {0.9, 0.9, 0.006702, 0.5},
+        {-0.6, 0.5, 0.132735, 0.5},
     };
   }
 
