@@ -31,8 +31,12 @@ public final class ResistanceTwoLayer implements TrivariateFunction, Cloneable {
       return resistivity;
     }
     else {
-      return resistivity + 2.0 * ResistanceOneLayer.thoRhoByPI(rho1SI) * sum((rho2SI - rho1SI) / (rho2SI + rho1SI), hSI);
+      return resistivity + 2.0 * ResistanceOneLayer.thoRhoByPI(rho1SI) * sum(getK12(rho1SI, rho2SI), hSI);
     }
+  }
+
+  static double getK12(double rho1SI, double rho2SI) {
+    return (rho2SI - rho1SI) / (rho2SI + rho1SI);
   }
 
   double sum(double k12, double hSI) {
