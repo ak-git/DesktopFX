@@ -1,4 +1,4 @@
-package com.ak.math;
+package com.ak.rsm;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
+import com.ak.util.LineFileCollector;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.optim.InitialGuess;
 import org.apache.commons.math3.optim.MaxEval;
@@ -21,7 +22,7 @@ import org.testng.annotations.Test;
 
 import static java.lang.StrictMath.pow;
 
-public final class OptimumRatioStoL {
+public final class OptimumStoL {
 
   private static final double SQRT_2 = 1.4142135623730951;
 

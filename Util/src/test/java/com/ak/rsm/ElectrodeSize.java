@@ -1,4 +1,4 @@
-package com.ak.math;
+package com.ak.rsm;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
+import com.ak.util.LineFileCollector;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;

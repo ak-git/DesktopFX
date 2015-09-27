@@ -1,4 +1,4 @@
-package com.ak.math;
+package com.ak.util;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
