@@ -68,7 +68,7 @@ public final class SoundingDepthTest {
     xVar.get().mapToObj(value -> String.format("%.2f", value)).collect(
         new LineFileCollector<>(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL));
 
-    Supplier<DoubleStream> yVar = () -> logDoubleRange(1.0e-2, 1.0e2, StrictMath.pow(10.0, 1.0 / 16.0));
+    Supplier<DoubleStream> yVar = () -> log10DoubleRange(1.0e-2, 1.0e2, 16.0);
     yVar.get().mapToObj(value -> String.format("%.4f", value)).collect(
         new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
     return new Object[][] {{xVar, yVar}};
@@ -87,9 +87,9 @@ public final class SoundingDepthTest {
         limit(BigDecimal.valueOf((end - start) / step + 1).round(MathContext.UNLIMITED).intValue()).sequential();
   }
 
-  private static DoubleStream logDoubleRange(double start, double end, double factor) {
-    return DoubleStream.iterate(start, dl2L -> dl2L * factor).
-        limit(BigDecimal.valueOf(StrictMath.log1p(end / start) / StrictMath.log(factor) + 1).
+  private static DoubleStream log10DoubleRange(double start, double end, double invPowOf10) {
+    return DoubleStream.iterate(start, dl2L -> dl2L * StrictMath.pow(10.0, 1.0 / invPowOf10)).
+        limit(BigDecimal.valueOf(StrictMath.log10(end / start) * invPowOf10 + 1).
             round(MathContext.UNLIMITED).intValue()).sequential();
   }
 }
