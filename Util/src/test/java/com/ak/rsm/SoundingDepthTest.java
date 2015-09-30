@@ -21,6 +21,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public final class SoundingDepthTest {
+  /**
+   * Finds point where <b>dR/dRho1 * Rho1 / R == dR/dRho2 * Rho2 / R == 1 / 2</b>
+   */
   private static class InequalityRbyRho2 implements DoubleUnaryOperator {
     private final UnivariateFunction dRbyRho2N;
 
@@ -43,7 +46,7 @@ public final class SoundingDepthTest {
     );
   }
 
-  @DataProvider(name = "sToL-k12")
+  @DataProvider(name = "k12(sToL)")
   public static Object[][] sToLbyK12() {
     Supplier<DoubleStream> xVar = () -> doubleRange(0.01, 0.99, 1.0e-2);
     xVar.get().mapToObj(value -> String.format("%.2f", value)).collect(
@@ -55,14 +58,14 @@ public final class SoundingDepthTest {
     return new Object[][] {{xVar, yVar}};
   }
 
-  @Test(dataProvider = "sToL-k12", enabled = false)
+  @Test(dataProvider = "k12(sToL)", enabled = false)
   public void testRho1SameRho2byK12(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     yVar.get().mapToObj(k12 -> xVar.get().map(sToL -> solve(new InequalityRbyRho2(k12, sToL)).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
   }
 
-  @DataProvider(name = "sToL-rho")
+  @DataProvider(name = "rho12(sToL)")
   public static Object[][] sToLbyRho1Rho2() {
     Supplier<DoubleStream> xVar = () -> doubleRange(0.01, 0.99, 1.0e-2);
     xVar.get().mapToObj(value -> String.format("%.2f", value)).collect(
@@ -74,7 +77,7 @@ public final class SoundingDepthTest {
     return new Object[][] {{xVar, yVar}};
   }
 
-  @Test(dataProvider = "sToL-rho", enabled = false)
+  @Test(dataProvider = "rho12(sToL)", enabled = false)
   public void testRho1SameRho2byRho(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     yVar.get().mapToObj(rhoToRho -> xVar.get().map(sToL -> solve(
         new InequalityRbyRho2(ResistanceTwoLayer.getK12(rhoToRho, 1.0), sToL)).getKey()[0])).
