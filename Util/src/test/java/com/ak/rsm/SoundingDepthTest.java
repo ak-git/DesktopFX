@@ -53,6 +53,22 @@ public final class SoundingDepthTest {
     }
   }
 
+  /**
+   * Finds point <b>h/L</b> where <b>dR/dh * h / L</b> reaches maximum
+   */
+  private static class InequalityRbyH implements DoubleUnaryOperator {
+    private final UnivariateFunction dRbyH;
+
+    private InequalityRbyH(double k12, double sToL) {
+      dRbyH = new DerivativeRbyHNormalizedByL(k12, sToL);
+    }
+
+    @Override
+    public double applyAsDouble(double hToL) {
+      return Math.abs(dRbyH.value(Math.max(0, hToL)));
+    }
+  }
+
   private static PointValuePair solve(DoubleUnaryOperator inequality, GoalType goalType) {
     SimplexOptimizer optimizer = new SimplexOptimizer(-1, 1.0e-6);
     return optimizer.optimize(new MaxEval(100), new ObjectiveFunction(
@@ -68,7 +84,7 @@ public final class SoundingDepthTest {
     xVar.get().mapToObj(value -> String.format("%.2f", value)).collect(
         new LineFileCollector<>(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL));
 
-    Supplier<DoubleStream> yVar = () -> doubleRange(-0.99, 0.99, 1.0e-2);
+    Supplier<DoubleStream> yVar = () -> doubleRange(-0.99, 0.99, 1.0e-2).filter(k12 -> Math.abs(k12) > 1.0e-2 / 2);
     yVar.get().mapToObj(value -> String.format("%.2f", value)).collect(
         new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
     return new Object[][] {{xVar, yVar}};
@@ -87,7 +103,7 @@ public final class SoundingDepthTest {
     xVar.get().mapToObj(value -> String.format("%.2f", value)).collect(
         new LineFileCollector<>(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL));
 
-    Supplier<DoubleStream> yVar = () -> log10DoubleRange(1.0e-2, 1.0e2, 16.0);
+    Supplier<DoubleStream> yVar = () -> log10DoubleRange(1.0e-2, 1.0e2, 16.0).filter(rho12 -> Math.abs(rho12 - 1.0) > 1.0e-2 / 2);
     yVar.get().mapToObj(value -> String.format("%.4f", value)).collect(
         new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
     return new Object[][] {{xVar, yVar}};
@@ -118,6 +134,21 @@ public final class SoundingDepthTest {
       return DoubleStream.of(rho12, h);
     }).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
+  }
+
+  @Test(dataProvider = "x = s / L, y = k12)", enabled = false)
+  public void testHLbyK12(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+    yVar.get().mapToObj(k12 -> xVar.get().map(sToL -> solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getKey()[0])).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        collect(new LineFileCollector<>(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
+  }
+
+  @Test(dataProvider = "x = s / L, y = rho1 / rho2)", enabled = false)
+  public void testHLbyRho(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+    yVar.get().mapToObj(rhoToRho -> xVar.get().map(sToL -> solve(
+        new InequalityRbyH(ResistanceTwoLayer.getK12(rhoToRho, 1.0), sToL), GoalType.MAXIMIZE).getKey()[0])).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        collect(new LineFileCollector<>(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
   }
 
   private static DoubleStream doubleRange(double start, double end, double step) {
