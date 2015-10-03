@@ -158,22 +158,39 @@ public final class SoundingDepthTest {
   }
 
   @Test(dataProvider = "x = s / L, y = k12)", enabled = false)
-  public void testHLbyK12(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+  public void testHLbyK12PointMax(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     yVar.get().mapToObj(k12 -> xVar.get().map(sToL -> solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
   }
 
+  @Test(dataProvider = "x = s / L, y = k12)", enabled = false)
+  public void testHLbyK12ValueMax(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+    yVar.get().mapToObj(k12 -> xVar.get().
+        map(sToL -> -Math.signum(k12) * solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getValue())).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        collect(new LineFileCollector<>(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
+  }
+
   @Test(dataProvider = "x = s / L, y = rho1 / rho2)", enabled = false)
-  public void testHLbyRho(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+  public void testHLbyRhoPointMax(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     yVar.get().mapToObj(rhoToRho -> xVar.get().map(sToL -> solve(
         new InequalityRbyH(ResistanceTwoLayer.getK12(rhoToRho, 1.0), sToL), GoalType.MAXIMIZE).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
   }
 
+  @Test(dataProvider = "x = s / L, y = rho1 / rho2)", enabled = false)
+  public void testHLbyRhoValueMax(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+    yVar.get().mapToObj(rhoToRho -> xVar.get().
+        map(sToL -> -Math.signum(ResistanceTwoLayer.getK12(rhoToRho, 1.0)) *
+            solve(new InequalityRbyH(ResistanceTwoLayer.getK12(rhoToRho, 1.0), sToL), GoalType.MAXIMIZE).getValue())).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        collect(new LineFileCollector<>(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
+  }
+
   @Test(dataProvider = "x = s / L)", enabled = false)
-  public void testHLbyRho(Supplier<DoubleStream> xVar) {
+  public void testHLbyRhoPointMax(Supplier<DoubleStream> xVar) {
     xVar.get().mapToObj(sToL -> {
       PointValuePair pair = solve(new MaxInequalityRbyH(sToL), GoalType.MAXIMIZE);
       double rho12 = ResistanceTwoLayer.getRho1ToRho2(pair.getKey()[0]);
