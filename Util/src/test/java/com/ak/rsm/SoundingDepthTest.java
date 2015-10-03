@@ -111,6 +111,15 @@ public final class SoundingDepthTest {
     return new Object[][] {{xVar, yVar}};
   }
 
+  @DataProvider(name = "x = k12, s / L = {1 / 3, 1 / 2}")
+  public static Object[][] k12() {
+    Supplier<DoubleStream> var = () -> DoubleStream.of(1.0 / 3.0, 1.0 / 2.0);
+    Supplier<DoubleStream> xVar = () -> doubleRange(-0.99, 0.99, 1.0e-2).filter(k12 -> Math.abs(k12) > 1.0e-2 / 2);
+    xVar.get().mapToObj(value -> String.format("%.2f", value)).collect(
+        new LineFileCollector<>(Paths.get("x.txt"), LineFileCollector.Direction.VERTICAL));
+    return new Object[][] {{var, xVar}};
+  }
+
   @DataProvider(name = "x = s / L, y = rho1 / rho2")
   public static Object[][] sToLbyRho1Rho2() {
     Supplier<DoubleStream> xVar = () -> doubleRange(0.01, 0.99, 1.0e-2);
@@ -121,6 +130,15 @@ public final class SoundingDepthTest {
     yVar.get().mapToObj(value -> String.format("%.4f", value)).collect(
         new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
     return new Object[][] {{xVar, yVar}};
+  }
+
+  @DataProvider(name = "x = rho1 / rho2, s / L = {1 / 3, 1 / 2}")
+  public static Object[][] rho12() {
+    Supplier<DoubleStream> var = () -> DoubleStream.of(1.0 / 3.0, 1.0 / 2.0);
+    Supplier<DoubleStream> xVar = () -> log10DoubleRange(1.0e-2, 1.0e2, 16.0).filter(rho12 -> Math.abs(rho12 - 1.0) > 1.0e-2 / 2);
+    xVar.get().mapToObj(value -> String.format("%.4f", value)).collect(
+        new LineFileCollector<>(Paths.get("x.txt"), LineFileCollector.Direction.VERTICAL));
+    return new Object[][] {{var, xVar}};
   }
 
   @DataProvider(name = "x = s / L")
@@ -138,12 +156,27 @@ public final class SoundingDepthTest {
         collect(new LineFileCollector<>(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
   }
 
+  @Test(dataProvider = "x = k12, s / L = {1 / 3, 1 / 2}", enabled = false)
+  public void testRho1SameRho2byK12SliceStoL(Supplier<DoubleStream> slice, Supplier<DoubleStream> xVar) {
+    xVar.get().mapToObj(k12 -> slice.get().map(sToL -> solve(new InequalityRbyRho2(k12, sToL), GoalType.MINIMIZE).getKey()[0])).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        collect(new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
+  }
+
   @Test(dataProvider = "x = s / L, y = rho1 / rho2", enabled = false)
   public void testRho1SameRho2byRho(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     yVar.get().mapToObj(rhoToRho -> xVar.get().map(sToL -> solve(
         new InequalityRbyRho2(ResistanceTwoLayer.getK12(rhoToRho, 1.0), sToL), GoalType.MINIMIZE).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
+  }
+
+  @Test(dataProvider = "x = rho1 / rho2, s / L = {1 / 3, 1 / 2}", enabled = false)
+  public void testRho1SameRho2byRhoSliceStoL(Supplier<DoubleStream> slice, Supplier<DoubleStream> xVar) {
+    xVar.get().mapToObj(rhoToRho -> slice.get().map(sToL -> solve(
+        new InequalityRbyRho2(ResistanceTwoLayer.getK12(rhoToRho, 1.0), sToL), GoalType.MINIMIZE).getKey()[0])).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        collect(new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
   }
 
   @Test(dataProvider = "x = s / L", enabled = false)
