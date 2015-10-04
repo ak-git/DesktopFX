@@ -40,7 +40,7 @@ public final class SoundingDepthTest {
   }
 
   /**
-   * Finds <b>k12 = f(s/L)</b> where <b>h/L = g(dR/dRho2 normalized)</b> reaches maximum.
+   * Finds <b>k12 = f(s/L)</b> where <b>h/L = g(dR/dRho2 normalized by Rho2 / R)</b> reaches maximum.
    */
   private static class MaxInequalityRbyRho2 implements DoubleUnaryOperator {
     private final double sToL;
@@ -72,7 +72,7 @@ public final class SoundingDepthTest {
   }
 
   /**
-   * Finds <b>k12 = f(s/L)</b> where <b>h/L = g(dR/dh normalized by L)</b> reaches maximum.
+   * Finds <b>k12 = f(s/L)</b> where <b>h/L = g(dR/dh normalized by L / R)</b> reaches maximum.
    */
   private static class MaxInequalityRbyH implements DoubleUnaryOperator {
     private final double sToL;
@@ -179,13 +179,36 @@ public final class SoundingDepthTest {
         collect(new LineFileCollector<>(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
   }
 
+  @Test(dataProvider = "x = k12, s / L = {1 / 3, 1 / 2}", enabled = false)
+  public void testHSlice(Supplier<DoubleStream> slice, Supplier<DoubleStream> xVar) {
+    xVar.get().mapToObj(k12 -> slice.get().map(sToL -> solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getKey()[0])).
+        map(stream -> stream.mapToObj(pointMax -> String.format("%.6f", pointMax)).collect(Collectors.joining("\t"))).
+        collect(new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
+    xVar.get().mapToObj(k12 -> slice.get().map(
+        sToL -> -Math.signum(k12) * solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getValue())).
+        map(stream -> stream.mapToObj(valueMax -> String.format("%.6f", valueMax)).collect(Collectors.joining("\t"))).
+        collect(new LineFileCollector<>(Paths.get("y2.txt"), LineFileCollector.Direction.VERTICAL));
+  }
+
   @Test(dataProvider = "x = s / L", enabled = false)
-  public void testHLbyRhoPointMax(Supplier<DoubleStream> xVar) {
+  public void testHbyRhoPointMax(Supplier<DoubleStream> xVar) {
     xVar.get().mapToObj(sToL -> {
       PointValuePair pair = solve(new MaxInequalityRbyH(sToL), GoalType.MAXIMIZE);
       double rho12 = ResistanceTwoLayer.getRho1ToRho2(pair.getKey()[0]);
       double hToL = pair.getValue();
       return DoubleStream.of(rho12, hToL);
+    }).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        collect(new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
+  }
+
+  @Test(dataProvider = "x = s / L", enabled = false)
+  public void testHValueMax(Supplier<DoubleStream> xVar) {
+    xVar.get().mapToObj(sToL -> {
+      PointValuePair pair = solve(new MaxInequalityRbyH(sToL), GoalType.MAXIMIZE);
+      double k12 = pair.getKey()[0];
+      double hToL = pair.getValue();
+      double value = -Math.signum(k12) * new InequalityRbyH(k12, sToL).applyAsDouble(hToL);
+      return DoubleStream.of(value, hToL);
     }).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
   }
