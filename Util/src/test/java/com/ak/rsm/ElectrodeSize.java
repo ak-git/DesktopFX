@@ -18,6 +18,9 @@ import static java.lang.StrictMath.asin;
 public final class ElectrodeSize {
   private static final double SQRT_2 = 1.4142135623730951;
 
+  private ElectrodeSize() {
+  }
+
   private static class RelativeErrorR implements UnivariateFunction {
     final double sToL;
 
@@ -44,14 +47,14 @@ public final class ElectrodeSize {
 
   @DataProvider(name = "dToL")
   public static Object[][] dl2dRL2rho() {
-    Supplier<DoubleStream> xVar = () -> doubleRange(1.0e-2, 1.0);
+    Supplier<DoubleStream> xVar = ElectrodeSize::doubleRange;
     xVar.get().mapToObj(value -> String.format("%.3f", value)).collect(
         new LineFileCollector<>(Paths.get("x.txt"), LineFileCollector.Direction.VERTICAL));
     return new Object[][] {{xVar}};
   }
 
   @Test
-  public void testValue() throws Exception {
+  public static void testValue() {
     double sToL = 0.5;
     double dToL = 0.1;
     UnivariateFunction errorR = new RelativeErrorR(sToL);
@@ -61,14 +64,16 @@ public final class ElectrodeSize {
   }
 
   @Test(dataProvider = "dToL", enabled = false)
-  public void testErrorsAt(Supplier<DoubleStream> xVar) {
+  public static void testErrorsAt(Supplier<DoubleStream> xVar) {
     DoubleStream.of(1.0 / 3.0, SQRT_2 - 1, 0.5, 2.0 / 3.0).
         mapToObj(sToL -> xVar.get().map(dToL -> new RelativeErrorR(sToL).value(dToL))).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("ErrorsAtDtoL.txt"), LineFileCollector.Direction.VERTICAL));
   }
 
-  private static DoubleStream doubleRange(double step, double end) {
+  private static DoubleStream doubleRange() {
+    double step = 1.0e-2;
+    double end = 1.0;
     return DoubleStream.iterate(step, dl2L -> dl2L + step).
         limit(BigDecimal.valueOf(end / step).round(MathContext.UNLIMITED).intValue()).sequential();
   }

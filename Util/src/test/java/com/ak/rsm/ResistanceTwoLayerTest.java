@@ -8,8 +8,11 @@ import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
 public final class ResistanceTwoLayerTest {
+  private ResistanceTwoLayerTest() {
+  }
+
   @DataProvider(name = "layer-model", parallel = true)
-  public Object[][] twoLayerParameters() {
+  public static Object[][] twoLayerParameters() {
     return new Object[][] {
         {new Double[] {1.0, 1.0}, 0.0, 20, 40, 21.221},
         {new Double[] {2.0, 2.0}, 0.0, 20, 40, 21.221 * 2.0},
@@ -26,7 +29,7 @@ public final class ResistanceTwoLayerTest {
   }
 
   @Test(dataProvider = "layer-model")
-  public void testLayer(Double[] rho, double hmm, double smm, double lmm, double rOhm) {
+  public static void testLayer(Double[] rho, double hmm, double smm, double lmm, double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MetricPrefix.MILLI(Units.METRE));
     Assert.assertEquals(new ResistanceTwoLayer(system).value(rho[0], rho[1],
         Quantities.getQuantity(hmm, MetricPrefix.MILLI(Units.METRE)).to(Units.METRE).getValue().doubleValue()), rOhm, 0.001);

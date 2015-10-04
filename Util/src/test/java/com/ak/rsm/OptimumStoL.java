@@ -23,8 +23,10 @@ import org.testng.annotations.Test;
 import static java.lang.StrictMath.pow;
 
 public final class OptimumStoL {
-
   private static final double SQRT_2 = 1.4142135623730951;
+
+  private OptimumStoL() {
+  }
 
   private static class InequalityRho implements DoubleUnaryOperator {
     final double dl2L;
@@ -95,14 +97,14 @@ public final class OptimumStoL {
   }
 
   @Test(dataProvider = "dl2L-dRL2rho-Rho")
-  public void testRho(double dl2L, double dRL2rho, double sToL, double relError) {
+  public static void testRho(double dl2L, double dRL2rho, double sToL, double relError) {
     PointValuePair pair = solve(new InequalityRho(dl2L, dRL2rho));
     Assert.assertEquals(pair.getKey()[0], sToL, 0.01);
     Assert.assertEquals(pair.getValue(), relError, 0.01);
   }
 
   @Test(dataProvider = "dl2L-dRL2dRho-DeltaRho")
-  public void testDeltaRho(double dl2L, double dRL2rho, double sToL, double relError) {
+  public static void testDeltaRho(double dl2L, double dRL2rho, double sToL, double relError) {
     PointValuePair pair = solve(new InequalityDeltaRho(dl2L, dRL2rho));
     Assert.assertEquals(pair.getKey()[0], sToL, 0.01);
     Assert.assertEquals(pair.getValue(), relError, 0.01);
@@ -121,7 +123,7 @@ public final class OptimumStoL {
   }
 
   @Test(dataProvider = "dl2L-dRL2rho", enabled = false)
-  public void testRhoOptimalStoL(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+  public static void testRhoOptimalStoL(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> solve(new InequalityRho(dL2L, dRL2rho)).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("Rho_Optimum_sToL.txt"), LineFileCollector.Direction.VERTICAL));
@@ -132,7 +134,7 @@ public final class OptimumStoL {
   }
 
   @Test(dataProvider = "dl2L-dRL2rho", enabled = false)
-  public void testRhoErrorsAt(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+  public static void testRhoErrorsAt(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     DoubleStream.of(1.0 / 3.0, 0.5, 2.0 / 3.0).forEachOrdered(sToL ->
         yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> new InequalityRho(dL2L, dRL2rho).applyAsDouble(sToL))).
             map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
@@ -153,7 +155,7 @@ public final class OptimumStoL {
   }
 
   @Test(dataProvider = "dl2L-dRL2dRho", enabled = false)
-  public void testDeltaRhoOptimalStoL(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+  public static void testDeltaRhoOptimalStoL(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> solve(new InequalityDeltaRho(dL2L, dRL2rho)).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("DeltaRho_Optimum_sToL.txt"), LineFileCollector.Direction.VERTICAL));
@@ -164,7 +166,7 @@ public final class OptimumStoL {
   }
 
   @Test(dataProvider = "dl2L-dRL2dRho", enabled = false)
-  public void testDeltaRhoErrorsAt(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+  public static void testDeltaRhoErrorsAt(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     DoubleStream.of(1.0 / 3.0, 0.5, 2.0 / 3.0).forEachOrdered(sToL ->
         yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> new InequalityDeltaRho(dL2L, dRL2rho).applyAsDouble(sToL))).
             map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).

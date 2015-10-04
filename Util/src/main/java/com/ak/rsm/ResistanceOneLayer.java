@@ -5,10 +5,10 @@ import org.apache.commons.math3.analysis.UnivariateFunction;
 /**
  * Calculates <b>full</b> resistance R<sub>m-n</sub> (in Ohm) between electrodes for <b>single-layer</b> model.
  */
-public final class ResistanceOneLayer implements UnivariateFunction, Cloneable {
+final class ResistanceOneLayer implements UnivariateFunction, Cloneable {
   private final TetrapolarSystem electrodeSystem;
 
-  public ResistanceOneLayer(TetrapolarSystem electrodeSystem) {
+  ResistanceOneLayer(TetrapolarSystem electrodeSystem) {
     this.electrodeSystem = electrodeSystem;
   }
 

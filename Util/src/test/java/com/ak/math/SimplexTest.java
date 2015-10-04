@@ -14,8 +14,11 @@ import org.testng.annotations.Test;
 import static java.lang.StrictMath.pow;
 
 public final class SimplexTest {
+  private SimplexTest() {
+  }
+
   @Test(timeOut = 10000)
-  public void testRosenbrockNelderMeadSimplex() {
+  public static void testRosenbrockNelderMeadSimplex() {
     SimplexOptimizer optimizer = new SimplexOptimizer(-1, 1.0e-3);
     PointValuePair optimum = optimizer.optimize(new MaxEval(100), new ObjectiveFunction(new Rosenbrock()),
         GoalType.MINIMIZE, new NelderMeadSimplex(2, 0.1), new InitialGuess(new double[] {0.0, 0.0})

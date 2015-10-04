@@ -4,8 +4,11 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public final class LocalStorageTest {
+  private LocalStorageTest() {
+  }
+
   @Test
-  public void testBooleanStorage() {
+  public static void testBooleanStorage() {
     Storage<Boolean> storage = new LocalStorage<>(LocalStorageTest.class.getSimpleName(),
         "testBooleanStorage", Boolean.class);
     for (boolean b : new boolean[] {true, false}) {
@@ -15,7 +18,7 @@ public final class LocalStorageTest {
   }
 
   @Test
-  public void testIntegerStorage() {
+  public static void testIntegerStorage() {
     Storage<Integer> storage = new LocalStorage<>(LocalStorageTest.class.getSimpleName(),
         "testIntStorage", Integer.class);
     for (int n : new int[] {1, 12}) {
@@ -25,7 +28,7 @@ public final class LocalStorageTest {
   }
 
   @Test
-  public void testStringStorage() {
+  public static void testStringStorage() {
     Storage<String> storage = new LocalStorage<>(LocalStorageTest.class.getSimpleName(),
         "testStringStorage", String.class);
     for (String s : new String[] {"name", "last"}) {

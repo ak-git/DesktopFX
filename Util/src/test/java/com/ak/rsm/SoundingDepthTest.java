@@ -23,6 +23,9 @@ import org.testng.annotations.Test;
 public final class SoundingDepthTest {
   private static final double PRECISION = 1.0e-2;
 
+  private SoundingDepthTest() {
+  }
+
   /**
    * Finds point where <b>dR/dRho1 * Rho1 / R == dR/dRho2 * Rho2 / R == 1 / 2</b>
    */
@@ -103,11 +106,11 @@ public final class SoundingDepthTest {
 
   @DataProvider(name = "x = s / L, y = k12")
   public static Object[][] sToLbyK12() {
-    Supplier<DoubleStream> xVar = () -> doubleRange(0.01, 0.99, PRECISION);
+    Supplier<DoubleStream> xVar = () -> doubleRange(0.01, 0.99);
     xVar.get().mapToObj(sToL -> String.format("%.2f", sToL)).collect(
         new LineFileCollector<>(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL));
 
-    Supplier<DoubleStream> yVar = () -> doubleRange(-0.98, 0.98, PRECISION).
+    Supplier<DoubleStream> yVar = () -> doubleRange(-0.98, 0.98).
         map(k12 -> -k12).filter(k12 -> Math.abs(k12) > PRECISION / 2);
     yVar.get().mapToObj(k12 -> String.format("%.4f", ResistanceTwoLayer.getRho1ToRho2(k12))).collect(
         new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
@@ -120,7 +123,7 @@ public final class SoundingDepthTest {
   @DataProvider(name = "x = k12, s / L = {1 / 3, 1 / 2}")
   public static Object[][] k12() {
     Supplier<DoubleStream> var = () -> DoubleStream.of(1.0 / 3.0, 1.0 / 2.0);
-    Supplier<DoubleStream> xVar = () -> doubleRange(-0.98, 0.98, PRECISION).
+    Supplier<DoubleStream> xVar = () -> doubleRange(-0.98, 0.98).
         map(k12 -> -k12).filter(k12 -> Math.abs(k12) > PRECISION / 2);
 
     xVar.get().mapToObj(k12 -> String.format("%.4f", ResistanceTwoLayer.getRho1ToRho2(k12))).collect(
@@ -133,28 +136,28 @@ public final class SoundingDepthTest {
 
   @DataProvider(name = "x = s / L")
   public static Object[][] sToL() {
-    Supplier<DoubleStream> xVar = () -> doubleRange(0.01, 0.99, PRECISION);
+    Supplier<DoubleStream> xVar = () -> doubleRange(0.01, 0.99);
     xVar.get().mapToObj(sToL -> String.format("%.2f", sToL)).collect(
         new LineFileCollector<>(Paths.get("x.txt"), LineFileCollector.Direction.VERTICAL));
     return new Object[][] {{xVar}};
   }
 
   @Test(dataProvider = "x = s / L, y = k12", enabled = false)
-  public void testRho1SameRho2(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+  public static void testRho1SameRho2(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     yVar.get().mapToObj(k12 -> xVar.get().map(sToL -> solve(new InequalityRbyRho2(k12, sToL), GoalType.MINIMIZE).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
   }
 
   @Test(dataProvider = "x = k12, s / L = {1 / 3, 1 / 2}", enabled = false)
-  public void testRho1SameRho2SliceStoL(Supplier<DoubleStream> slice, Supplier<DoubleStream> xVar) {
+  public static void testRho1SameRho2SliceStoL(Supplier<DoubleStream> slice, Supplier<DoubleStream> xVar) {
     xVar.get().mapToObj(k12 -> slice.get().map(sToL -> solve(new InequalityRbyRho2(k12, sToL), GoalType.MINIMIZE).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
   }
 
   @Test(dataProvider = "x = s / L", enabled = false)
-  public void testRho1SameRho2byRho(Supplier<DoubleStream> xVar) {
+  public static void testRho1SameRho2byRho(Supplier<DoubleStream> xVar) {
     xVar.get().mapToObj(sToL -> {
       PointValuePair pair = solve(new MaxInequalityRbyRho2(sToL), GoalType.MAXIMIZE);
       double hToL = pair.getValue();
@@ -165,14 +168,14 @@ public final class SoundingDepthTest {
   }
 
   @Test(dataProvider = "x = s / L, y = k12", enabled = false)
-  public void testHPointMax(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+  public static void testHPointMax(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     yVar.get().mapToObj(k12 -> xVar.get().map(sToL -> solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
   }
 
   @Test(dataProvider = "x = s / L, y = k12", enabled = false)
-  public void testHValueMax(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+  public static void testHValueMax(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     yVar.get().mapToObj(k12 -> xVar.get().
         map(sToL -> -Math.signum(k12) * solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getValue())).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
@@ -180,7 +183,7 @@ public final class SoundingDepthTest {
   }
 
   @Test(dataProvider = "x = k12, s / L = {1 / 3, 1 / 2}", enabled = false)
-  public void testHSlice(Supplier<DoubleStream> slice, Supplier<DoubleStream> xVar) {
+  public static void testHSlice(Supplier<DoubleStream> slice, Supplier<DoubleStream> xVar) {
     xVar.get().mapToObj(k12 -> slice.get().map(sToL -> solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getKey()[0])).
         map(stream -> stream.mapToObj(pointMax -> String.format("%.6f", pointMax)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
@@ -191,7 +194,7 @@ public final class SoundingDepthTest {
   }
 
   @Test(dataProvider = "x = s / L", enabled = false)
-  public void testHbyRhoPointMax(Supplier<DoubleStream> xVar) {
+  public static void testHbyRhoPointMax(Supplier<DoubleStream> xVar) {
     xVar.get().mapToObj(sToL -> {
       PointValuePair pair = solve(new MaxInequalityRbyH(sToL), GoalType.MAXIMIZE);
       double hToL = pair.getValue();
@@ -202,7 +205,7 @@ public final class SoundingDepthTest {
   }
 
   @Test(dataProvider = "x = s / L", enabled = false)
-  public void testHValueMax(Supplier<DoubleStream> xVar) {
+  public static void testHValueMax(Supplier<DoubleStream> xVar) {
     xVar.get().mapToObj(sToL -> {
       PointValuePair pair = solve(new MaxInequalityRbyH(sToL), GoalType.MAXIMIZE);
       double k12 = pair.getKey()[0];
@@ -213,8 +216,8 @@ public final class SoundingDepthTest {
         collect(new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
   }
 
-  private static DoubleStream doubleRange(double start, double end, double step) {
-    return DoubleStream.iterate(start, dl2L -> dl2L + step).
-        limit(BigDecimal.valueOf((end - start) / step + 1).round(MathContext.UNLIMITED).intValue()).sequential();
+  private static DoubleStream doubleRange(double start, double end) {
+    return DoubleStream.iterate(start, dl2L -> dl2L + PRECISION).
+        limit(BigDecimal.valueOf((end - start) / PRECISION + 1).round(MathContext.UNLIMITED).intValue()).sequential();
   }
 }

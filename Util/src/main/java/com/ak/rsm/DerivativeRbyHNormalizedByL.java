@@ -8,14 +8,14 @@ import static java.lang.StrictMath.pow;
  * <br/>
  * <b>dR<sub>h</sub> * (L / R)</b>
  */
-public final class DerivativeRbyHNormalizedByL extends AbstractDerivativeRNormalized {
+final class DerivativeRbyHNormalizedByL extends AbstractDerivativeRNormalized {
   /**
    * Construct Derivative R by h Normalized by L / R
    *
    * @param k12  (rho2 - rho2) / (rho2 + rho1)
    * @param sToL relation s / L
    */
-  public DerivativeRbyHNormalizedByL(double k12, double sToL) {
+  DerivativeRbyHNormalizedByL(double k12, double sToL) {
     super(k12, sToL);
   }
 
