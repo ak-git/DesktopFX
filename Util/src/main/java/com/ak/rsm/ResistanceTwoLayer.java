@@ -39,7 +39,7 @@ final class ResistanceTwoLayer implements TrivariateFunction, Cloneable {
     return (1.0 - k12) / (1.0 + k12);
   }
 
-  private static double getK12(double rho1SI, double rho2SI) {
+  static double getK12(double rho1SI, double rho2SI) {
     return (rho2SI - rho1SI) / (rho2SI + rho1SI);
   }
 

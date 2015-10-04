@@ -4,8 +4,8 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public final class DerivativeRbyHNormalizedByLTest {
-  private DerivativeRbyHNormalizedByLTest() {
+public final class DerivativeRbyHNormalizedTest {
+  private DerivativeRbyHNormalizedTest() {
   }
 
   @DataProvider(name = "layer-model", parallel = true)
@@ -22,6 +22,6 @@ public final class DerivativeRbyHNormalizedByLTest {
 
   @Test(dataProvider = "layer-model")
   public static void testOneLayer(double k12, double sToL, double hToL, double rByRho2N) {
-    Assert.assertEquals(new DerivativeRbyHNormalizedByL(k12, sToL).value(hToL), rByRho2N, 0.001);
+    Assert.assertEquals(new DerivativeRbyHNormalized(k12, sToL).value(hToL), rByRho2N, 0.001);
   }
 }
