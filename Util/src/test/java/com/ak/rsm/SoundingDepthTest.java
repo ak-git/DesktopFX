@@ -157,9 +157,9 @@ public final class SoundingDepthTest {
   public void testRho1SameRho2byRho(Supplier<DoubleStream> xVar) {
     xVar.get().mapToObj(sToL -> {
       PointValuePair pair = solve(new MaxInequalityRbyRho2(sToL), GoalType.MAXIMIZE);
-      double rho12 = ResistanceTwoLayer.getRho1ToRho2(pair.getKey()[0]);
       double hToL = pair.getValue();
-      return DoubleStream.of(rho12, hToL);
+      double rho12 = ResistanceTwoLayer.getRho1ToRho2(pair.getKey()[0]);
+      return DoubleStream.of(hToL, rho12);
     }).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
   }
@@ -194,9 +194,9 @@ public final class SoundingDepthTest {
   public void testHbyRhoPointMax(Supplier<DoubleStream> xVar) {
     xVar.get().mapToObj(sToL -> {
       PointValuePair pair = solve(new MaxInequalityRbyH(sToL), GoalType.MAXIMIZE);
-      double rho12 = ResistanceTwoLayer.getRho1ToRho2(pair.getKey()[0]);
       double hToL = pair.getValue();
-      return DoubleStream.of(rho12, hToL);
+      double rho12 = ResistanceTwoLayer.getRho1ToRho2(pair.getKey()[0]);
+      return DoubleStream.of(hToL, rho12);
     }).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
   }
@@ -208,7 +208,7 @@ public final class SoundingDepthTest {
       double k12 = pair.getKey()[0];
       double hToL = pair.getValue();
       double value = -Math.signum(k12) * new InequalityRbyH(k12, sToL).applyAsDouble(hToL);
-      return DoubleStream.of(value, hToL);
+      return DoubleStream.of(hToL, value);
     }).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector<>(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
   }
