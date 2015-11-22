@@ -21,7 +21,4 @@ out/*
 .idea/workspace.xml
 .idea/libraries/*
 .gradle
-gradle/*
-gradlew
-gradlew.bat
 *.iml
