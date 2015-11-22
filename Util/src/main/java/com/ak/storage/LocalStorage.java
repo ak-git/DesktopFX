@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,6 +44,16 @@ public final class LocalStorage<T> extends AbstractStorage<T> {
       load(fileName(), clazz, value -> t = value);
     }
     return t;
+  }
+
+  @Override
+  public void delete() {
+    try {
+      Files.deleteIfExists(BUILDER.fileName(fileName()).build().getPath());
+    }
+    catch (IOException e) {
+      Logger.getLogger(getClass().getName()).log(Level.FINE, e.getMessage(), e);
+    }
   }
 
   private String fileName() {

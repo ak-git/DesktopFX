@@ -6,4 +6,6 @@ public interface Storage<T> {
   void update(T t);
 
   T get();
+
+  void delete();
 }

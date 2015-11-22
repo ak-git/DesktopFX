@@ -15,6 +15,7 @@ public final class LocalStorageTest {
       storage.save(b);
       Assert.assertEquals(storage.get().booleanValue(), b);
     }
+    storage.delete();
   }
 
   @Test
@@ -25,6 +26,7 @@ public final class LocalStorageTest {
       storage.save(n);
       Assert.assertEquals(storage.get().intValue(), n);
     }
+    storage.delete();
   }
 
   @Test
@@ -35,5 +37,6 @@ public final class LocalStorageTest {
       storage.save(s);
       Assert.assertEquals(storage.get(), s);
     }
+    storage.delete();
   }
 }

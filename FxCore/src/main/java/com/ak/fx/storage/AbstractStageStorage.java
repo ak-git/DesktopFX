@@ -1,6 +1,7 @@
 package com.ak.fx.storage;
 
 import java.awt.geom.Rectangle2D;
+import java.util.Arrays;
 import java.util.Optional;
 
 import com.ak.storage.AbstractStorage;
@@ -49,6 +50,11 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
   @Override
   public final Stage get() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final void delete() {
+    Arrays.asList(fullScreenStorage, maximizedStorage, boundsStorage).forEach(Storage::delete);
   }
 
   final void saveFullScreenState(boolean state) {
