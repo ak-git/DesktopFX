@@ -1,5 +1,8 @@
 package com.ak.rsm;
 
+import java.util.function.DoubleUnaryOperator;
+
+import org.apache.commons.math3.analysis.BivariateFunction;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 
 import static java.lang.StrictMath.hypot;
@@ -43,23 +46,30 @@ final class ResistanceTwoLayer implements TrivariateFunction, Cloneable {
     return (rho2SI - rho1SI) / (rho2SI + rho1SI);
   }
 
+  static double sum(double hSI, BivariateFunction nAndB) {
+    return sum(n -> nAndB.value(n, 4.0 * n * hSI));
+  }
+
   double sum(double k12, double hSI) {
-    double sum = 0.0;
-    for (int n = 1; ; n++) {
-      double b = 4.0 * n * hSI;
-      double prev = sum;
-      sum += pow(k12, n) *
-          (1.0 / hypot(resistanceOneLayer.getElectrodeSystem().radiusMinus(), b)
-              - 1.0 / hypot(resistanceOneLayer.getElectrodeSystem().radiusPlus(), b));
-      if (Double.compare(prev, sum) == 0) {
-        break;
-      }
-    }
-    return sum;
+    return sum(hSI, (n, b) -> pow(k12, n) *
+        (1.0 / hypot(resistanceOneLayer.getElectrodeSystem().radiusMinus(), b)
+            - 1.0 / hypot(resistanceOneLayer.getElectrodeSystem().radiusPlus(), b)));
   }
 
   @Override
   protected Object clone() throws CloneNotSupportedException {
     throw new CloneNotSupportedException();
+  }
+
+  private static double sum(DoubleUnaryOperator operator) {
+    double sum = 0.0;
+    for (int n = 1; ; n++) {
+      double prev = sum;
+      sum += operator.applyAsDouble(n);
+      if (Double.compare(prev, sum) == 0) {
+        break;
+      }
+    }
+    return sum;
   }
 }
