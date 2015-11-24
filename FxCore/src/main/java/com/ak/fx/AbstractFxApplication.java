@@ -2,9 +2,9 @@ package com.ak.fx;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -67,7 +67,9 @@ public abstract class AbstractFxApplication extends Application {
     try {
       Path path = new LocalFileIO.LogBuilder().addPath(clazz.getSimpleName()).fileName(LOGGING_PROPERTIES).
           build().getPath();
-      Files.copy(clazz.getResourceAsStream(LOGGING_PROPERTIES), path, StandardCopyOption.REPLACE_EXISTING);
+      if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
+        Files.copy(clazz.getResourceAsStream(LOGGING_PROPERTIES), path);
+      }
       System.setProperty("java.util.logging.config.file", path.toAbsolutePath().toString());
     }
     catch (IOException e) {
