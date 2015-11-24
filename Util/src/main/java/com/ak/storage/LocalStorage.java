@@ -7,11 +7,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ak.util.LocalFileIO;
+import com.ak.util.LocalIO;
 
 public final class LocalStorage<T> extends AbstractStorage<T> {
   private static final LocalFileIO.AbstractBuilder BUILDER = new LocalFileIO.LocalStorageBuilder().
@@ -52,7 +54,7 @@ public final class LocalStorage<T> extends AbstractStorage<T> {
       Files.deleteIfExists(BUILDER.fileName(fileName()).build().getPath());
     }
     catch (IOException e) {
-      Logger.getLogger(getClass().getName()).log(Level.FINE, e.getMessage(), e);
+      warning(e);
     }
   }
 
@@ -61,14 +63,19 @@ public final class LocalStorage<T> extends AbstractStorage<T> {
   }
 
   private static <T> void load(String fileName, Class<? extends T> clazz, Consumer<? super T> consumer) {
-    try (InputStream ist = BUILDER.fileName(fileName).build().openInputStream()) {
-      try (XMLDecoder d = new XMLDecoder(ist)) {
-        d.setExceptionListener(LocalStorage::warning);
-        consumer.accept(clazz.cast(d.readObject()));
+    LocalIO localIO = BUILDER.fileName(fileName).build();
+    try {
+      if (Files.exists(localIO.getPath(), LinkOption.NOFOLLOW_LINKS)) {
+        try (InputStream ist = localIO.openInputStream()) {
+          try (XMLDecoder d = new XMLDecoder(ist)) {
+            d.setExceptionListener(LocalStorage::warning);
+            consumer.accept(clazz.cast(d.readObject()));
+          }
+        }
       }
     }
     catch (IOException e) {
-      Logger.getLogger(LocalStorage.class.getName()).log(Level.FINE, e.getMessage(), e);
+      warning(e);
     }
   }
 
