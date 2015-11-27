@@ -7,7 +7,7 @@ import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public final class ResistanceTwoLayerTest {
+public class ResistanceTwoLayerTest {
   private ResistanceTwoLayerTest() {
   }
 

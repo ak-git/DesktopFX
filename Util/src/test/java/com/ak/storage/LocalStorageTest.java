@@ -3,7 +3,7 @@ package com.ak.storage;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public final class LocalStorageTest {
+public class LocalStorageTest {
   private LocalStorageTest() {
   }
 

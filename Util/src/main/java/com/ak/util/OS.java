@@ -37,7 +37,7 @@ public enum OS implements BooleanSupplier {
   UNIX {
     @Override
     public boolean getAsBoolean() {
-      return true;
+      return PlatformUtil.isUnix();
     }
   };
 

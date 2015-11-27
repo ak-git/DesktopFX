@@ -4,7 +4,7 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public final class DerivativeRbyRho2NormalizedTest {
+public class DerivativeRbyRho2NormalizedTest {
   private DerivativeRbyRho2NormalizedTest() {
   }
 

@@ -12,7 +12,7 @@ import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 import static tec.uom.se.unit.Units.OHM;
 
-public final class TetrapolarSystemTest {
+public class TetrapolarSystemTest {
   private TetrapolarSystemTest() {
   }
 

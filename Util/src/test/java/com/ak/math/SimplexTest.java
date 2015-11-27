@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 
 import static java.lang.StrictMath.pow;
 
-public final class SimplexTest {
+public class SimplexTest {
   private SimplexTest() {
   }
 

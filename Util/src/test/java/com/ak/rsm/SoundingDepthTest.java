@@ -20,7 +20,7 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public final class SoundingDepthTest {
+public class SoundingDepthTest {
   private static final double PRECISION = 1.0e-2;
 
   private SoundingDepthTest() {

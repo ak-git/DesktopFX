@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 
 import static java.lang.StrictMath.asin;
 
-public final class ElectrodeSizeTest {
+public class ElectrodeSizeTest {
   private static final double SQRT_2 = 1.4142135623730951;
 
   private ElectrodeSizeTest() {

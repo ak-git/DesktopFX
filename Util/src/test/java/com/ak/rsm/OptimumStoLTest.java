@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 
 import static java.lang.StrictMath.pow;
 
-public final class OptimumStoLTest {
+public class OptimumStoLTest {
   private static final double SQRT_2 = 1.4142135623730951;
 
   private OptimumStoLTest() {

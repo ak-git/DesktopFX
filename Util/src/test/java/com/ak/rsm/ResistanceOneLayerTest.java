@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public final class ResistanceOneLayerTest {
+public class ResistanceOneLayerTest {
   private ResistanceOneLayerTest() {
   }
 
