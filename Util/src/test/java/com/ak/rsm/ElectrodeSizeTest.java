@@ -15,10 +15,10 @@ import org.testng.annotations.Test;
 
 import static java.lang.StrictMath.asin;
 
-public final class ElectrodeSize {
+public final class ElectrodeSizeTest {
   private static final double SQRT_2 = 1.4142135623730951;
 
-  private ElectrodeSize() {
+  private ElectrodeSizeTest() {
   }
 
   private static class RelativeErrorR implements UnivariateFunction {
@@ -47,7 +47,7 @@ public final class ElectrodeSize {
 
   @DataProvider(name = "dToL")
   public static Object[][] dl2dRL2rho() {
-    Supplier<DoubleStream> xVar = ElectrodeSize::doubleRange;
+    Supplier<DoubleStream> xVar = ElectrodeSizeTest::doubleRange;
     xVar.get().mapToObj(value -> String.format("%.3f", value)).collect(
         new LineFileCollector<>(Paths.get("x.txt"), LineFileCollector.Direction.VERTICAL));
     return new Object[][] {{xVar}};

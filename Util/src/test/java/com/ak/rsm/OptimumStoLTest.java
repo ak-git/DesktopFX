@@ -22,10 +22,10 @@ import org.testng.annotations.Test;
 
 import static java.lang.StrictMath.pow;
 
-public final class OptimumStoL {
+public final class OptimumStoLTest {
   private static final double SQRT_2 = 1.4142135623730951;
 
-  private OptimumStoL() {
+  private OptimumStoLTest() {
   }
 
   private static class InequalityRho implements DoubleUnaryOperator {
