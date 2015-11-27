@@ -21,4 +21,3 @@ out/*
 .idea/workspace.xml
 .idea/libraries/*
 .gradle
-*.iml
