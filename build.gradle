@@ -2,7 +2,7 @@ ext.projectIds = ['java': '1.8']
 
 allprojects {
     group = 'com.ak'
-    version = '5.0'
+    version = '1.0'
     apply plugin: 'idea'
 }
 
@@ -74,5 +74,16 @@ project(':FxDesktop') {
     dependencies {
         compile project(':FxCore')
         compile project(':Communication')
+    }
+
+    processResources {
+        from(sourceSets.main.resources.srcDirs) {
+            exclude '**/*.properties'
+        }
+        from(sourceSets.main.resources.srcDirs) {
+            include '**/*.properties'
+            filter { String line -> line.replaceAll(project.name.toString(),
+                    project.name.toString() + ' ' + project.version.toString()) }
+        }
     }
 }

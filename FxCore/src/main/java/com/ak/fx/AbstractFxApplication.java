@@ -6,6 +6,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,6 +32,7 @@ public abstract class AbstractFxApplication extends Application {
   private static final String KEY_APPLICATION_TITLE = "application.title";
   private static final String KEY_APPLICATION_IMAGE = "application.image";
   private static final String LOGGING_PROPERTIES = "logging.properties";
+  private static final String KEY_PROPERTIES = "keys.properties";
 
   private final ListableBeanFactory context = new ClassPathXmlApplicationContext(
       Paths.get(getClass().getPackage().getName().replaceAll("\\.", "/"), FX_CONTEXT_XML).toString());
@@ -65,8 +67,10 @@ public abstract class AbstractFxApplication extends Application {
 
   protected static void initLogger(Class<?> clazz) {
     try {
-      Path path = new LocalFileIO.LogBuilder().addPath(clazz.getSimpleName()).fileName(LOGGING_PROPERTIES).
-          build().getPath();
+      Properties keys = new Properties();
+      keys.load(clazz.getResourceAsStream(KEY_PROPERTIES));
+      Path path = new LocalFileIO.LogBuilder().addPath(keys.getProperty(KEY_APPLICATION_TITLE)).
+          fileName(LOGGING_PROPERTIES).build().getPath();
       if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
         Files.copy(clazz.getResourceAsStream(LOGGING_PROPERTIES), path);
       }
