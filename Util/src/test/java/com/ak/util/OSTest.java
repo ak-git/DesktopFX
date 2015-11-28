@@ -6,10 +6,23 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class OSTest {
+  private Filter oldFilter;
+
   private OSTest() {
+  }
+
+  @BeforeClass
+  void setUp() {
+    oldFilter = Logger.getLogger(OS.MAC.getClass().getName()).getFilter();
+    Logger.getLogger(OS.MAC.getClass().getName()).setFilter(record -> {
+      Assert.assertNotNull(record.getThrown());
+      return false;
+    });
   }
 
   @Test
@@ -32,16 +45,11 @@ public class OSTest {
 
   @Test
   public void testInvalidCallApplicationMethodMAC() {
-    Filter oldFilter = Logger.getLogger(OS.MAC.getClass().getName()).getFilter();
-    Logger.getLogger(OS.MAC.getClass().getName()).setFilter(record -> {
-      Assert.assertNotNull(record.getThrown());
-      return false;
-    });
-    try {
-      OS.MAC.callApplicationMethod("getDockIconImage", java.awt.Image.class, null);
-    }
-    finally {
-      Logger.getLogger(OS.MAC.getClass().getName()).setFilter(oldFilter);
-    }
+    OS.MAC.callApplicationMethod("getDockIconImage", java.awt.Image.class, null);
+  }
+
+  @AfterClass
+  public void tearDown() {
+    Logger.getLogger(OS.MAC.getClass().getName()).setFilter(oldFilter);
   }
 }
