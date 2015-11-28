@@ -7,13 +7,13 @@ public enum OSStageStorage {
   WINDOWS,
   MAC {
     @Override
-    public Storage<Stage> newInstance(String filePrefix) {
-      return new MacStageStorage(filePrefix);
+    public Storage<Stage> newInstance() {
+      return new MacStageStorage(OSStageStorage.class.getSimpleName());
     }
   },
   UNIX;
 
-  public Storage<Stage> newInstance(String filePrefix) {
-    return new DefaultStageStorage(filePrefix);
+  public Storage<Stage> newInstance() {
+    return new DefaultStageStorage(OSStageStorage.class.getSimpleName());
   }
 }
