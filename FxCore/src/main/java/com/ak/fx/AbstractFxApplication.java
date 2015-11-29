@@ -48,7 +48,7 @@ public abstract class AbstractFxApplication extends Application {
       OSDockImage.valueOf(OS.get().name()).setIconImage(stage,
           getClass().getResource(loader.getResources().getString(KEY_APPLICATION_IMAGE)));
 
-      Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance();
+      Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass());
       stage.setOnCloseRequest(event -> stageStorage.save(stage));
       stageStorage.update(stage);
       stage.show();
