@@ -32,7 +32,6 @@ subprojects {
     dependencies {
         compile group: 'javax.inject', name: 'javax.inject', version: '1'
         testCompile group: 'org.testng', name: 'testng', version: '6.9.6'
-        testCompile group: 'org.mockito', name: 'mockito-core', version: '1.10.19'
     }
 
     test {
