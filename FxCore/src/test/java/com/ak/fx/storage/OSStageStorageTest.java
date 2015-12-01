@@ -59,6 +59,7 @@ public final class OSStageStorageTest extends Application {
     Storage<Stage> stageStorage = storage.newInstance(getClass());
     Stage stage = STAGE_REFERENCE.get();
 
+    boolean maximizedFlag = stage.isMaximized();
     boolean fullScreenFlag = stage.isFullScreen();
     CountDownLatch latch = new CountDownLatch(1);
     Platform.runLater(() -> {
@@ -70,6 +71,7 @@ public final class OSStageStorageTest extends Application {
       stageStorage.update(stage);
       checkStage();
 
+      stage.setMaximized(!maximizedFlag);
       stage.setFullScreen(!fullScreenFlag);
       if (storage == OSStageStorage.MAC) {
         try {
@@ -84,6 +86,7 @@ public final class OSStageStorageTest extends Application {
       latch.countDown();
     });
     latch.await();
+    Assert.assertEquals(stage.isMaximized(), !maximizedFlag);
     Assert.assertEquals(stage.isFullScreen(), !fullScreenFlag);
   }
 
