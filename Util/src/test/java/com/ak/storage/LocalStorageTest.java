@@ -63,7 +63,7 @@ public class LocalStorageTest {
       Assert.assertNotNull(record.getThrown());
       return false;
     });
-    new LocalStorage<>(LocalStorageTest.class.getName(), " / * invalid file ... ?/ ", String.class).save("");
+    new LocalStorage<>(LocalStorageTest.class.getName(), "/invalid file ...\\\\/", String.class).save("");
     logger.setFilter(oldFilter);
   }
 }
