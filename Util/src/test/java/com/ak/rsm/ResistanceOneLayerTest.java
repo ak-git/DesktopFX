@@ -25,4 +25,9 @@ public class ResistanceOneLayerTest {
     TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MetricPrefix.MILLI(Units.METRE));
     Assert.assertEquals(new ResistanceOneLayer(system).value(rho), rOhm, 0.001);
   }
+
+  @Test(expectedExceptions = CloneNotSupportedException.class)
+  public static void testNotClone() throws CloneNotSupportedException {
+    new ResistanceOneLayer(new TetrapolarSystem(1, 2, MetricPrefix.MILLI(Units.METRE))).clone();
+  }
 }

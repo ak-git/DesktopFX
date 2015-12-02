@@ -24,4 +24,9 @@ public class DerivativeRbyHNormalizedTest {
   public static void testOneLayer(double k12, double sToL, double hToL, double rByRho2N) {
     Assert.assertEquals(new DerivativeRbyHNormalized(k12, sToL).value(hToL), rByRho2N, 0.001);
   }
+
+  @Test(expectedExceptions = CloneNotSupportedException.class)
+  public static void testNotClone() throws CloneNotSupportedException {
+    new DerivativeRbyHNormalized(1.0, 0.5).clone();
+  }
 }

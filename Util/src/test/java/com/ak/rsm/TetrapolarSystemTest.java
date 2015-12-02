@@ -18,8 +18,10 @@ public class TetrapolarSystemTest {
 
   @DataProvider(name = "tetrapolar-systems", parallel = true)
   public static Object[][] tetrapolarSystems() {
+    TetrapolarSystem ts = new TetrapolarSystem(1.0, 2.0, METRE);
     return new Object[][] {
-        {new TetrapolarSystem(1.0, 2.0, METRE), new TetrapolarSystem(1000.0, 2000.0, MILLI(METRE)), true},
+        {ts, ts, true},
+        {ts, new TetrapolarSystem(1000.0, 2000.0, MILLI(METRE)), true},
         {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)), new TetrapolarSystem(1.0, 3.0, MILLI(METRE)), false}
     };
   }
@@ -36,11 +38,27 @@ public class TetrapolarSystemTest {
   @Test(dataProvider = "tetrapolar-systems")
   public static void testEquals(TetrapolarSystem system1, TetrapolarSystem system2, boolean equals) {
     Assert.assertEquals(system1.equals(system2), equals, String.format("%s compared with %s", system1, system2));
+    Assert.assertEquals(system1.hashCode() == system2.hashCode(), equals, String.format("%s compared with %s", system1, system2));
+  }
+
+  @Test
+  public static void testNotEquals() {
+    Assert.assertFalse(new TetrapolarSystem(1.0, 2.0, METRE).equals(new Object()));
   }
 
   @Test(dataProvider = "tetrapolar-systems-2")
   public static void testApparentResistivity(TetrapolarSystem system, Quantity<ElectricResistance> resistance,
                                              double specificResistance) {
     Assert.assertEquals(system.getApparent(resistance), specificResistance, 1.0e-6);
+  }
+
+  @Test(expectedExceptions = CloneNotSupportedException.class)
+  public static void testNotClone() throws CloneNotSupportedException {
+    new TetrapolarSystem(1.0, 2.0, METRE).clone();
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public static void testInvalidConstructor() {
+    new TetrapolarSystem(2.0, 1.0, METRE);
   }
 }
