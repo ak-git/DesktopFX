@@ -11,6 +11,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class OSTest {
+  private boolean exceptionFlag;
   private Filter oldFilter;
 
   private OSTest() {
@@ -21,6 +22,7 @@ public class OSTest {
     oldFilter = Logger.getLogger(OS.MAC.getClass().getName()).getFilter();
     Logger.getLogger(OS.MAC.getClass().getName()).setFilter(record -> {
       Assert.assertNotNull(record.getThrown());
+      exceptionFlag = true;
       return false;
     });
   }
@@ -46,6 +48,7 @@ public class OSTest {
   @Test
   public void testInvalidCallApplicationMethodMAC() {
     OS.MAC.callApplicationMethod("getDockIconImage", java.awt.Image.class, null);
+    Assert.assertTrue(exceptionFlag);
   }
 
   @AfterClass
