@@ -1,11 +1,20 @@
-package com.ak.fx.storage;
+package com.ak.fx;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Filter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import com.ak.fx.storage.OSStageStorage;
+import com.ak.fx.util.OSDockImage;
 import com.ak.storage.Storage;
+import com.ak.util.OS;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -15,7 +24,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public final class OSStageStorageTest extends Application {
+public final class StageTest extends Application {
   private static final CountDownLatch LATCH = new CountDownLatch(1);
   private static final AtomicReference<Stage> STAGE_REFERENCE = new AtomicReference<>();
   private static final double STAGE_X = 10.0;
@@ -25,7 +34,7 @@ public final class OSStageStorageTest extends Application {
 
   @BeforeClass
   public void setUp() throws InterruptedException {
-    Executors.newSingleThreadExecutor().execute(() -> Application.launch(OSStageStorageTest.class));
+    Executors.newSingleThreadExecutor().execute(() -> Application.launch(StageTest.class));
     LATCH.await();
     cleanup();
   }
@@ -45,7 +54,7 @@ public final class OSStageStorageTest extends Application {
   }
 
   @DataProvider(name = "os-storage")
-  public static Object[][] newInstance() {
+  public static Object[][] newStorage() {
     Object[][] result = new Object[OSStageStorage.values().length][1];
     OSStageStorage[] values = OSStageStorage.values();
     for (int i = 0; i < values.length; i++) {
@@ -73,13 +82,11 @@ public final class OSStageStorageTest extends Application {
 
       stage.setMaximized(!maximizedFlag);
       stage.setFullScreen(!fullScreenFlag);
-      if (storage == OSStageStorage.MAC) {
-        try {
-          TimeUnit.SECONDS.sleep(4);
-        }
-        catch (InterruptedException e) {
-          Assert.fail(e.getMessage(), e);
-        }
+      try {
+        TimeUnit.SECONDS.sleep(4);
+      }
+      catch (InterruptedException e) {
+        Assert.fail(e.getMessage(), e);
       }
       stageStorage.save(stage);
       stageStorage.update(stage);
@@ -93,6 +100,50 @@ public final class OSStageStorageTest extends Application {
   @Test(dataProvider = "os-storage", expectedExceptions = UnsupportedOperationException.class)
   public void testGet(OSStageStorage storage) {
     storage.newInstance(getClass()).get();
+  }
+
+  @Test
+  public static void testNames() {
+    for (OS os : OS.values()) {
+      OSStageStorage.valueOf(os.name());
+      OSDockImage.valueOf(os.name());
+    }
+  }
+
+  @DataProvider(name = "os-image")
+  public static Object[][] newImage() {
+    Object[][] result = new Object[OSDockImage.values().length][1];
+    OSDockImage[] values = OSDockImage.values();
+    for (int i = 0; i < values.length; i++) {
+      result[i][0] = values[i];
+    }
+    return result;
+  }
+
+  @Test(dataProvider = "os-image")
+  public void testSetIconImage(OSDockImage dockImage) {
+    dockImage.setIconImage(STAGE_REFERENCE.get(), getClass().getResource(getClass().getSimpleName() + ".class"));
+  }
+
+  @Test
+  public void testInvalidSetIconImage() throws MalformedURLException {
+    Logger logger = Logger.getLogger(OSDockImage.MAC.getClass().getName());
+
+    Filter oldFilter = logger.getFilter();
+    AtomicBoolean exceptionFlag = new AtomicBoolean(false);
+    logger.setFilter(record -> {
+      Assert.assertNotNull(record.getThrown());
+      exceptionFlag.set(true);
+      return false;
+    });
+
+    Level oldLevel = logger.getLevel();
+    logger.setLevel(Level.CONFIG);
+
+    OSDockImage.MAC.setIconImage(STAGE_REFERENCE.get(), new URL("ftp://img.png/"));
+    Assert.assertTrue(exceptionFlag.get(), "Exception must be thrown");
+    logger.setFilter(oldFilter);
+    logger.setLevel(oldLevel);
   }
 
   private static void setStageBounds(double x, double y, double width, double height) {

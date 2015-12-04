@@ -31,4 +31,3 @@ public enum OSDockImage {
     stage.getIcons().add(new Image(imageURL.toString()));
   }
 }
-
