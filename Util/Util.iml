@@ -37,24 +37,24 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="Gradle: tec.uom:uom-se:0.8-RC1">
+      <library name="Gradle: tec.uom:uom-se:0.8">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/tec.uom/uom-se/0.8-RC1/907869716b80f0838d3b6cda4bec6218dfff9cbe/uom-se-0.8-RC1.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/tec.uom/uom-se/0.8/acbc3a704a3047bfa5a3c1979509eadd70fb821b/uom-se-0.8.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/tec.uom/uom-se/0.8-RC1/bd3113a4618bd476ec57c330ef439328a8266bf/uom-se-0.8-RC1-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/tec.uom/uom-se/0.8/598cac88725b97fa7ed0423c4aabb788fcb383ed/uom-se-0.8-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="Gradle: javax.measure:unit-api:0.8-RC3">
+      <library name="Gradle: javax.measure:unit-api:0.8">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/javax.measure/unit-api/0.8-RC3/249514dd825cb0822e139463b5462f927c32be82/unit-api-0.8-RC3.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/javax.measure/unit-api/0.8/895e63605dee1c13663873e26bf5f0553f3134f/unit-api-0.8.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/javax.measure/unit-api/0.8-RC3/398407531b086ceb63be963b233bf29f9ba78964/unit-api-0.8-RC3-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/javax.measure/unit-api/0.8/c9ca94c3f4019058da46e36d64462f5317ac2ddc/unit-api-0.8-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

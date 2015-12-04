@@ -45,7 +45,7 @@ subprojects {
 project(':Util') {
     dependencies {
         compile group: 'org.apache.commons', name: 'commons-math3', version: '3.5'
-        compile group: 'tec.uom', name: 'uom-se', version: '0.8-RC1'
+        compile group: 'tec.uom', name: 'uom-se', version: '0.8'
     }
 }
 
@@ -58,7 +58,7 @@ project(':Communication') {
 
 project(':FxCore') {
     dependencies {
-        compile group: 'org.springframework', name: 'spring-context', version: '4.2.1.RELEASE'
+        compile group: 'org.springframework', name: 'spring-context', version: '4.2.3.RELEASE'
         compile project(':Util')
     }
 }
