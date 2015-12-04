@@ -110,21 +110,6 @@ public final class StageTest extends Application {
     }
   }
 
-  @DataProvider(name = "os-image")
-  public static Object[][] newImage() {
-    Object[][] result = new Object[OSDockImage.values().length][1];
-    OSDockImage[] values = OSDockImage.values();
-    for (int i = 0; i < values.length; i++) {
-      result[i][0] = values[i];
-    }
-    return result;
-  }
-
-  @Test(dataProvider = "os-image")
-  public void testSetIconImage(OSDockImage dockImage) {
-    dockImage.setIconImage(STAGE_REFERENCE.get(), getClass().getResource(getClass().getSimpleName() + ".class"));
-  }
-
   @Test
   public void testInvalidSetIconImage() throws MalformedURLException {
     Logger logger = Logger.getLogger(OSDockImage.MAC.getClass().getName());
@@ -140,7 +125,10 @@ public final class StageTest extends Application {
     Level oldLevel = logger.getLevel();
     logger.setLevel(Level.CONFIG);
 
-    OSDockImage.MAC.setIconImage(STAGE_REFERENCE.get(), new URL("ftp://img.png/"));
+    for (OSDockImage dockImage : OSDockImage.values()) {
+      dockImage.setIconImage(STAGE_REFERENCE.get(), new URL("ftp://img.png/"));
+    }
+
     Assert.assertTrue(exceptionFlag.get(), "Exception must be thrown");
     logger.setFilter(oldFilter);
     logger.setLevel(oldLevel);
