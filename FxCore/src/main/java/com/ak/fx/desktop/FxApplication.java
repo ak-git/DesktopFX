@@ -1,4 +1,4 @@
-package com.ak.fx;
+package com.ak.fx.desktop;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,7 +26,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.MessageSourceResourceBundle;
 
-public abstract class AbstractFxApplication extends Application {
+public final class FxApplication extends Application {
   private static final String FX_CONTEXT_XML = "fx-context.xml";
   private static final String SCENE_XML = "scene.fxml";
   private static final String KEY_APPLICATION_TITLE = "application.title";
@@ -37,8 +37,16 @@ public abstract class AbstractFxApplication extends Application {
   private final ListableBeanFactory context = new ClassPathXmlApplicationContext(
       Paths.get(getClass().getPackage().getName().replaceAll("\\.", "/"), FX_CONTEXT_XML).toString());
 
+  static {
+    initLogger();
+  }
+
+  public static void main(String[] args) {
+    launch(args);
+  }
+
   @Override
-  public final void start(Stage stage) throws Exception {
+  public void start(Stage stage) throws Exception {
     try {
       FXMLLoader loader = new FXMLLoader(getClass().getResource(SCENE_XML), new MessageSourceResourceBundle(
           BeanFactoryUtils.beanOfType(context, MessageSource.class), Locale.getDefault()));
@@ -60,19 +68,19 @@ public abstract class AbstractFxApplication extends Application {
   }
 
   @Override
-  public final void stop() throws Exception {
+  public void stop() throws Exception {
     super.stop();
     Platform.exit();
   }
 
-  protected static void initLogger(Class<?> clazz) {
+  private static void initLogger() {
     try {
       Properties keys = new Properties();
-      keys.load(clazz.getResourceAsStream(KEY_PROPERTIES));
+      keys.load(FxApplication.class.getResourceAsStream(KEY_PROPERTIES));
       Path path = new LocalFileIO.LogBuilder().addPath(keys.getProperty(KEY_APPLICATION_TITLE)).
           fileName(LOGGING_PROPERTIES).build().getPath();
       if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
-        Files.copy(clazz.getResourceAsStream(LOGGING_PROPERTIES), path);
+        Files.copy(FxApplication.class.getResourceAsStream(LOGGING_PROPERTIES), path);
       }
       System.setProperty("java.util.logging.config.file", path.toAbsolutePath().toString());
     }

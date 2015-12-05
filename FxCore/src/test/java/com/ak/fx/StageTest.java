@@ -47,7 +47,7 @@ public final class StageTest extends Application {
   }
 
   @Override
-  public void start(Stage primaryStage) throws Exception {
+  public void start(Stage primaryStage) {
     LATCH.countDown();
     STAGE_REFERENCE.set(primaryStage);
     setStageBounds(STAGE_X, STAGE_Y, STAGE_WIDTH, STAGE_HEIGHT);

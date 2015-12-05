@@ -65,7 +65,7 @@ project(':FxCore') {
 
 project(':FxDesktop') {
     apply plugin: 'application'
-    mainClassName = 'com.ak.fx.desktop.DesktopApplication'
+    mainClassName = 'com.ak.fx.desktop.FxApplication'
 
     run {
         jvmArgs '-server', '-Xms512m', '-Xmx1024m'
