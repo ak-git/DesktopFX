@@ -36,8 +36,6 @@ public final class FxApplication extends Application {
   private final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(
       Paths.get(getClass().getPackage().getName().replaceAll("\\.", "/"), FX_CONTEXT_XML).toString());
 
-  private volatile boolean loaded;
-
   static {
     initLogger();
   }
@@ -61,7 +59,6 @@ public final class FxApplication extends Application {
       stage.setOnCloseRequest(event -> stageStorage.save(stage));
       stageStorage.update(stage);
       stage.show();
-      loaded = true;
     }
     catch (Exception e) {
       Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
@@ -78,10 +75,6 @@ public final class FxApplication extends Application {
       context.close();
       Platform.exit();
     }
-  }
-
-  public boolean isLoaded() {
-    return loaded;
   }
 
   private static void initLogger() {

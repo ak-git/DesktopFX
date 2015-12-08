@@ -7,7 +7,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Filter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,7 +24,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public final class FxApplicationTest extends Preloader {
+public final class FxDesktopTest extends Preloader {
   private static final CountDownLatch LATCH = new CountDownLatch(2);
   private static final AtomicReference<Stage> STAGE_REFERENCE = new AtomicReference<>();
   private static final AtomicReference<Application> APP_REFERENCE = new AtomicReference<>();
@@ -40,7 +39,7 @@ public final class FxApplicationTest extends Preloader {
   @BeforeClass
   public void setUp() throws InterruptedException {
     oldPreloader = System.getProperty(JAVAFX_PRELOADER);
-    System.setProperty(JAVAFX_PRELOADER, FxApplicationTest.class.getName());
+    System.setProperty(JAVAFX_PRELOADER, FxDesktopTest.class.getName());
 
     cleanup();
 
@@ -66,7 +65,7 @@ public final class FxApplicationTest extends Preloader {
 
   private static void cleanup() {
     for (OSStageStorage storage : OSStageStorage.values()) {
-      storage.newInstance(FxApplicationTest.class).delete();
+      storage.newInstance(FxDesktopTest.class).delete();
     }
   }
 
@@ -81,17 +80,7 @@ public final class FxApplicationTest extends Preloader {
   public void handleStateChangeNotification(StateChangeNotification info) {
     if (info.getType() == StateChangeNotification.Type.BEFORE_START) {
       Executors.newSingleThreadExecutor().execute(() -> {
-        FxApplication application = (FxApplication) info.getApplication();
-        while (!Thread.currentThread().isInterrupted() && !application.isLoaded()) {
-          try {
-            TimeUnit.SECONDS.sleep(1);
-          }
-          catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            break;
-          }
-        }
-        APP_REFERENCE.set(application);
+        APP_REFERENCE.set(info.getApplication());
         LATCH.countDown();
       });
     }
@@ -155,18 +144,14 @@ public final class FxApplicationTest extends Preloader {
   }
 
   @Test
-  public void testInvalidSetIconImage() throws Exception {
+  public static void testInvalidSetIconImage() throws Exception {
     Logger logger = Logger.getLogger(OSDockImage.MAC.getClass().getName());
-
-    Filter oldFilter = logger.getFilter();
     AtomicBoolean exceptionFlag = new AtomicBoolean(false);
     logger.setFilter(record -> {
       Assert.assertNotNull(record.getThrown());
       exceptionFlag.set(true);
       return false;
     });
-
-    Level oldLevel = logger.getLevel();
     logger.setLevel(Level.CONFIG);
 
     CountDownLatch latch = new CountDownLatch(1);
@@ -186,8 +171,19 @@ public final class FxApplicationTest extends Preloader {
     latch.await();
 
     Assert.assertTrue(exceptionFlag.get(), "Exception must be thrown");
-    logger.setFilter(oldFilter);
-    logger.setLevel(oldLevel);
+    logger.setFilter(null);
+    logger.setLevel(Level.INFO);
+  }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public static void testInvalidApplicationStart() throws Exception {
+    Logger.getLogger(FxApplication.class.getName()).setLevel(Level.OFF);
+    try {
+      APP_REFERENCE.get().start(null);
+    }
+    finally {
+      Logger.getLogger(FxApplication.class.getName()).setLevel(Level.INFO);
+    }
   }
 
   private static void setStageBounds(double x, double y, double width, double height) {

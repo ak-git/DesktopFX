@@ -1,7 +1,6 @@
 package com.ak.util;
 
 import java.util.function.BooleanSupplier;
-import java.util.logging.Filter;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -12,14 +11,12 @@ import org.testng.annotations.Test;
 
 public class OSTest {
   private boolean exceptionFlag;
-  private Filter oldFilter;
 
   private OSTest() {
   }
 
   @BeforeClass
   void setUp() {
-    oldFilter = Logger.getLogger(OS.MAC.getClass().getName()).getFilter();
     Logger.getLogger(OS.MAC.getClass().getName()).setFilter(record -> {
       Assert.assertNotNull(record.getThrown());
       exceptionFlag = true;
@@ -53,6 +50,6 @@ public class OSTest {
 
   @AfterClass
   public void tearDown() {
-    Logger.getLogger(OS.MAC.getClass().getName()).setFilter(oldFilter);
+    Logger.getLogger(OS.MAC.getClass().getName()).setFilter(null);
   }
 }

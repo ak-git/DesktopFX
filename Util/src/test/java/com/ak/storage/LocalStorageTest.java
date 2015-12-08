@@ -1,7 +1,6 @@
 package com.ak.storage;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Filter;
 import java.util.logging.Logger;
 
 import org.testng.Assert;
@@ -59,7 +58,6 @@ public class LocalStorageTest {
   @Test
   public void testInvalidFileName() {
     Logger logger = Logger.getLogger(LocalStorage.class.getName());
-    Filter oldFilter = logger.getFilter();
     AtomicBoolean exceptionFlag = new AtomicBoolean(false);
     logger.setFilter(record -> {
       Assert.assertNotNull(record.getThrown());
@@ -68,6 +66,6 @@ public class LocalStorageTest {
     });
     new LocalStorage<>(LocalStorageTest.class.getName(), "/invalid file ...\\\\/", String.class).save("");
     Assert.assertTrue(exceptionFlag.get(), "Exception must be thrown");
-    logger.setFilter(oldFilter);
+    logger.setFilter(null);
   }
 }
