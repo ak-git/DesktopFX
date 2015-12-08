@@ -1,4 +1,4 @@
-package com.ak.fx;
+package com.ak.fx.desktop;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -17,6 +17,7 @@ import com.ak.storage.Storage;
 import com.ak.util.OS;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.application.Preloader;
 import javafx.stage.Stage;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -24,33 +25,76 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public final class StageTest extends Application {
-  private static final CountDownLatch LATCH = new CountDownLatch(1);
+public final class FxApplicationTest extends Preloader {
+  private static final CountDownLatch LATCH = new CountDownLatch(2);
   private static final AtomicReference<Stage> STAGE_REFERENCE = new AtomicReference<>();
+  private static final AtomicReference<Application> APP_REFERENCE = new AtomicReference<>();
   private static final double STAGE_X = 10.0;
   private static final double STAGE_Y = 20.0;
   private static final double STAGE_WIDTH = 800.0;
   private static final double STAGE_HEIGHT = 600.0;
 
+  private static final String JAVAFX_PRELOADER = "javafx.preloader";
+  private String oldPreloader;
+
   @BeforeClass
   public void setUp() throws InterruptedException {
-    Executors.newSingleThreadExecutor().execute(() -> Application.launch(StageTest.class));
-    LATCH.await();
+    oldPreloader = System.getProperty(JAVAFX_PRELOADER);
+    System.setProperty(JAVAFX_PRELOADER, FxApplicationTest.class.getName());
+
     cleanup();
+
+    Executors.newSingleThreadExecutor().execute(() -> FxApplication.main(null));
+    LATCH.await();
   }
 
   @AfterClass
-  public void cleanup() {
+  public void tearDown() {
+    try {
+      APP_REFERENCE.get().stop();
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage(), e);
+    }
+
+    if (oldPreloader != null) {
+      System.setProperty(JAVAFX_PRELOADER, oldPreloader);
+    }
+
+    cleanup();
+  }
+
+  private static void cleanup() {
     for (OSStageStorage storage : OSStageStorage.values()) {
-      storage.newInstance(getClass()).delete();
+      storage.newInstance(FxApplicationTest.class).delete();
     }
   }
 
   @Override
   public void start(Stage primaryStage) {
-    LATCH.countDown();
     STAGE_REFERENCE.set(primaryStage);
     setStageBounds(STAGE_X, STAGE_Y, STAGE_WIDTH, STAGE_HEIGHT);
+    LATCH.countDown();
+  }
+
+  @Override
+  public void handleStateChangeNotification(StateChangeNotification info) {
+    if (info.getType() == StateChangeNotification.Type.BEFORE_START) {
+      Executors.newSingleThreadExecutor().execute(() -> {
+        FxApplication application = (FxApplication) info.getApplication();
+        while (!Thread.currentThread().isInterrupted() && !application.isLoaded()) {
+          try {
+            TimeUnit.SECONDS.sleep(1);
+          }
+          catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            break;
+          }
+        }
+        APP_REFERENCE.set(application);
+        LATCH.countDown();
+      });
+    }
   }
 
   @DataProvider(name = "os-storage")
@@ -111,7 +155,7 @@ public final class StageTest extends Application {
   }
 
   @Test
-  public void testInvalidSetIconImage() throws MalformedURLException {
+  public void testInvalidSetIconImage() throws Exception {
     Logger logger = Logger.getLogger(OSDockImage.MAC.getClass().getName());
 
     Filter oldFilter = logger.getFilter();
@@ -125,9 +169,21 @@ public final class StageTest extends Application {
     Level oldLevel = logger.getLevel();
     logger.setLevel(Level.CONFIG);
 
-    for (OSDockImage dockImage : OSDockImage.values()) {
-      dockImage.setIconImage(STAGE_REFERENCE.get(), new URL("ftp://img.png/"));
-    }
+    CountDownLatch latch = new CountDownLatch(1);
+    Platform.runLater(() -> {
+      try {
+        for (OSDockImage dockImage : OSDockImage.values()) {
+          dockImage.setIconImage(new Stage(), new URL("ftp://img.png/"));
+        }
+      }
+      catch (MalformedURLException e) {
+        Assert.fail(e.getMessage(), e);
+      }
+      finally {
+        latch.countDown();
+      }
+    });
+    latch.await();
 
     Assert.assertTrue(exceptionFlag.get(), "Exception must be thrown");
     logger.setFilter(oldFilter);

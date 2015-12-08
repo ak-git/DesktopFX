@@ -1,6 +1,5 @@
 package com.ak.fx.desktop;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -21,7 +20,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.BeanFactoryUtils;
-import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.MessageSourceResourceBundle;
@@ -34,15 +33,17 @@ public final class FxApplication extends Application {
   private static final String LOGGING_PROPERTIES = "logging.properties";
   private static final String KEY_PROPERTIES = "keys.properties";
 
-  private final ListableBeanFactory context = new ClassPathXmlApplicationContext(
+  private final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(
       Paths.get(getClass().getPackage().getName().replaceAll("\\.", "/"), FX_CONTEXT_XML).toString());
+
+  private volatile boolean loaded;
 
   static {
     initLogger();
   }
 
   public static void main(String[] args) {
-    launch(args);
+    launch(FxApplication.class, args);
   }
 
   @Override
@@ -60,17 +61,27 @@ public final class FxApplication extends Application {
       stage.setOnCloseRequest(event -> stageStorage.save(stage));
       stageStorage.update(stage);
       stage.show();
+      loaded = true;
     }
     catch (Exception e) {
-      Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+      Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
       throw e;
     }
   }
 
   @Override
   public void stop() throws Exception {
-    super.stop();
-    Platform.exit();
+    try {
+      super.stop();
+    }
+    finally {
+      context.close();
+      Platform.exit();
+    }
+  }
+
+  public boolean isLoaded() {
+    return loaded;
   }
 
   private static void initLogger() {
@@ -84,7 +95,7 @@ public final class FxApplication extends Application {
       }
       System.setProperty("java.util.logging.config.file", path.toAbsolutePath().toString());
     }
-    catch (IOException e) {
+    catch (Exception e) {
       Logger.getGlobal().log(Level.WARNING, e.getMessage(), e);
     }
   }
