@@ -1,5 +1,6 @@
 package com.ak.rsm;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.nio.file.Paths;
@@ -111,67 +112,79 @@ public class OptimumStoLTest {
   }
 
   @DataProvider(name = "dl2L-dRL2rho")
-  public static Object[][] dl2dRL2rho() {
+  public static Object[][] dl2dRL2rho() throws IOException {
     Supplier<DoubleStream> xVar = () -> doubleRange(1.0e-4, 1.0e-1);
     xVar.get().mapToObj(value -> String.format("%.4f", value)).collect(
-        new LineFileCollector<>(Paths.get("x(dl|L).txt"), LineFileCollector.Direction.HORIZONTAL));
+        new LineFileCollector(Paths.get("x(dl|L).txt"), LineFileCollector.Direction.HORIZONTAL));
 
     Supplier<DoubleStream> yVar = () -> doubleRange(1.0e-6, 1.0e-3);
     yVar.get().mapToObj(value -> String.format("%.6f", value)).collect(
-        new LineFileCollector<>(Paths.get("y(dR*L|rho).txt"), LineFileCollector.Direction.VERTICAL));
+        new LineFileCollector(Paths.get("y(dR*L|rho).txt"), LineFileCollector.Direction.VERTICAL));
     return new Object[][] {{xVar, yVar}};
   }
 
   @Test(dataProvider = "dl2L-dRL2rho", enabled = false)
-  public static void testRhoOptimalStoL(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+  public static void testRhoOptimalStoL(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
     yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> solve(new InequalityRho(dL2L, dRL2rho)).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
-        collect(new LineFileCollector<>(Paths.get("Rho_Optimum_sToL.txt"), LineFileCollector.Direction.VERTICAL));
+        collect(new LineFileCollector(Paths.get("Rho_Optimum_sToL.txt"), LineFileCollector.Direction.VERTICAL));
 
     yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> solve(new InequalityRho(dL2L, dRL2rho)).getValue())).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
-        collect(new LineFileCollector<>(Paths.get("Rho_ErrorsAt_Optimum_sToL.txt"), LineFileCollector.Direction.VERTICAL));
+        collect(new LineFileCollector(Paths.get("Rho_ErrorsAt_Optimum_sToL.txt"), LineFileCollector.Direction.VERTICAL));
   }
 
   @Test(dataProvider = "dl2L-dRL2rho", enabled = false)
   public static void testRhoErrorsAt(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
-    DoubleStream.of(1.0 / 3.0, 0.5, 2.0 / 3.0).forEachOrdered(sToL ->
+    DoubleStream.of(1.0 / 3.0, 0.5, 2.0 / 3.0).forEachOrdered(sToL -> {
+      try {
         yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> new InequalityRho(dL2L, dRL2rho).applyAsDouble(sToL))).
             map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
-            collect(new LineFileCollector<>(Paths.get(String.format("Rho_ErrorsAt_%.2f.txt", sToL)),
-                LineFileCollector.Direction.VERTICAL)));
+            collect(new LineFileCollector(Paths.get(String.format("Rho_ErrorsAt_%.2f.txt", sToL)),
+                LineFileCollector.Direction.VERTICAL));
+      }
+      catch (IOException e) {
+        Assert.fail(e.getMessage(), e);
+      }
+    });
   }
 
   @DataProvider(name = "dl2L-dRL2dRho")
-  public static Object[][] dl2dRL2dRho() {
+  public static Object[][] dl2dRL2dRho() throws IOException {
     Supplier<DoubleStream> xVar = () -> doubleRange(1.0e-4, 1.0e-1);
     xVar.get().mapToObj(value -> String.format("%.4f", value)).collect(
-        new LineFileCollector<>(Paths.get("x(dl|L).txt"), LineFileCollector.Direction.HORIZONTAL));
+        new LineFileCollector(Paths.get("x(dl|L).txt"), LineFileCollector.Direction.HORIZONTAL));
 
     Supplier<DoubleStream> yVar = () -> doubleRange(1.0e-4, 1.0e-1);
     yVar.get().mapToObj(value -> String.format("%.6f", value)).collect(
-        new LineFileCollector<>(Paths.get("y(dR*L|deltaRho).txt"), LineFileCollector.Direction.VERTICAL));
+        new LineFileCollector(Paths.get("y(dR*L|deltaRho).txt"), LineFileCollector.Direction.VERTICAL));
     return new Object[][] {{xVar, yVar}};
   }
 
   @Test(dataProvider = "dl2L-dRL2dRho", enabled = false)
-  public static void testDeltaRhoOptimalStoL(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+  public static void testDeltaRhoOptimalStoL(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
     yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> solve(new InequalityDeltaRho(dL2L, dRL2rho)).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
-        collect(new LineFileCollector<>(Paths.get("DeltaRho_Optimum_sToL.txt"), LineFileCollector.Direction.VERTICAL));
+        collect(new LineFileCollector(Paths.get("DeltaRho_Optimum_sToL.txt"), LineFileCollector.Direction.VERTICAL));
 
     yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> solve(new InequalityDeltaRho(dL2L, dRL2rho)).getValue())).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
-        collect(new LineFileCollector<>(Paths.get("DeltaRho_ErrorsAt_Optimum_sToL.txt"), LineFileCollector.Direction.VERTICAL));
+        collect(new LineFileCollector(Paths.get("DeltaRho_ErrorsAt_Optimum_sToL.txt"), LineFileCollector.Direction.VERTICAL));
   }
 
   @Test(dataProvider = "dl2L-dRL2dRho", enabled = false)
   public static void testDeltaRhoErrorsAt(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
-    DoubleStream.of(1.0 / 3.0, 0.5, 2.0 / 3.0).forEachOrdered(sToL ->
+    DoubleStream.of(1.0 / 3.0, 0.5, 2.0 / 3.0).forEachOrdered(sToL -> {
+      try {
         yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> new InequalityDeltaRho(dL2L, dRL2rho).applyAsDouble(sToL))).
             map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
-            collect(new LineFileCollector<>(Paths.get(String.format("DeltaRho_ErrorsAt_%.2f.txt", sToL)),
-                LineFileCollector.Direction.VERTICAL)));
+            collect(new LineFileCollector(Paths.get(String.format("DeltaRho_ErrorsAt_%.2f.txt", sToL)),
+                LineFileCollector.Direction.VERTICAL));
+      }
+      catch (IOException e) {
+        Assert.fail(e.getMessage(), e);
+      }
+    });
   }
 
   private static DoubleStream doubleRange(double step, double end) {

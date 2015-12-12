@@ -10,52 +10,38 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collector;
 
-public final class LineFileCollector<T> implements Collector<T, BufferedWriter, Void> {
+public final class LineFileCollector implements Collector<Object, BufferedWriter, Void> {
   public enum Direction {
-    HORIZONTAL(bufferedWriter -> {
-      try {
-        bufferedWriter.write("\t");
+    HORIZONTAL {
+      @Override
+      public void acceptWriter(BufferedWriter writer) throws IOException {
+        writer.write("\t");
       }
-      catch (IOException e) {
-        Logger.getLogger(Direction.class.getName()).log(Level.WARNING, e.getMessage(), e);
+    },
+    VERTICAL {
+      @Override
+      public void acceptWriter(BufferedWriter writer) throws IOException {
+        writer.newLine();
       }
-    }), VERTICAL(bufferedWriter -> {
-      try {
-        bufferedWriter.newLine();
-      }
-      catch (IOException e) {
-        Logger.getLogger(Direction.class.getName()).log(Level.WARNING, e.getMessage(), e);
-      }
-    });
+    };
 
-    private final Consumer<BufferedWriter> consumer;
-
-    Direction(Consumer<BufferedWriter> consumer) {
-      this.consumer = consumer;
-    }
+    public abstract void acceptWriter(BufferedWriter writer) throws IOException;
   }
 
   private final BufferedWriter writer;
   private final Direction direction;
   private boolean startFlag = true;
+  private boolean errorFlag;
 
-  public LineFileCollector(Path out, Direction direction) {
-    BufferedWriter writer = null;
-    try {
-      writer = Files.newBufferedWriter(out, Charset.forName("windows-1251"),
-          StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-    }
-    catch (IOException e) {
-      Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-    }
-    this.writer = writer;
+  public LineFileCollector(Path out, Direction direction) throws IOException {
+    writer = Files.newBufferedWriter(out, Charset.forName("windows-1251"),
+        StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     this.direction = direction;
   }
 
@@ -65,17 +51,20 @@ public final class LineFileCollector<T> implements Collector<T, BufferedWriter, 
   }
 
   @Override
-  public BiConsumer<BufferedWriter, T> accumulator() {
+  public BiConsumer<BufferedWriter, Object> accumulator() {
     return (bufferedWriter, object) -> {
-      try {
-        if (!startFlag) {
-          direction.consumer.accept(bufferedWriter);
+      if (!errorFlag) {
+        try {
+          if (!startFlag) {
+            direction.acceptWriter(bufferedWriter);
+          }
+          startFlag = false;
+          bufferedWriter.write(object.toString());
         }
-        startFlag = false;
-        bufferedWriter.write(object.toString());
-      }
-      catch (IOException e) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+        catch (IOException e) {
+          Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Exception when writing object: %s", object), e);
+          errorFlag = true;
+        }
       }
     };
   }
@@ -90,12 +79,15 @@ public final class LineFileCollector<T> implements Collector<T, BufferedWriter, 
   @Override
   public Function<BufferedWriter, Void> finisher() {
     return bufferedWriter -> {
-      try {
-        bufferedWriter.flush();
-        bufferedWriter.close();
-      }
-      catch (IOException e) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+      if (!errorFlag) {
+        try {
+          bufferedWriter.flush();
+          bufferedWriter.close();
+        }
+        catch (IOException e) {
+          Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+          errorFlag = true;
+        }
       }
       return null;
     };
@@ -109,10 +101,9 @@ public final class LineFileCollector<T> implements Collector<T, BufferedWriter, 
   @Override
   protected void finalize() throws Throwable {
     try {
-      writer.close();
-    }
-    catch (IOException e) {
-      Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+      if (!errorFlag) {
+        writer.close();
+      }
     }
     finally {
       super.finalize();

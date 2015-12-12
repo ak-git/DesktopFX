@@ -138,5 +138,8 @@
     </option>
     <option name="mySupportsUserInfoFilter" value="true" />
   </component>
+  <component name="TaskProjectConfiguration">
+    <server type="YouTrack" url="http://ak-macbook-pro.local:8081" />
+  </component>
   <component name="WebServicesPlugin" addRequiredLibraries="true" />
 </project>
