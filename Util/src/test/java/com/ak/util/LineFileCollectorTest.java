@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javafx.geometry.Orientation;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -57,6 +58,16 @@ public class LineFileCollectorTest {
     exceptionCounter.set(0);
   }
 
+  @Test
+  public static void testDirectionNames() {
+    for (Orientation orientation : Orientation.values()) {
+      LineFileCollector.Direction.valueOf(orientation.name());
+    }
+    for (LineFileCollector.Direction direction : LineFileCollector.Direction.values()) {
+      Orientation.valueOf(direction.name());
+    }
+  }
+
   @DataProvider(name = "stream")
   public static Object[][] intStream() {
     return new Object[][] {
@@ -81,11 +92,13 @@ public class LineFileCollectorTest {
   }
 
   @Test(dataProvider = "stream")
-  public void testInvalidFinalize(Supplier<Stream<String>> stream) throws Throwable {
+  public void testInvalidClose(Supplier<Stream<String>> stream) throws Throwable {
     LineFileCollector collector = new LineFileCollector(out, LineFileCollector.Direction.VERTICAL);
-    collector.finalize();
+    collector.close();
     stream.get().collect(collector);
     Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown");
+    collector.finalize();
+    Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown only once");
   }
 
   @DataProvider(name = "invalid-writer")

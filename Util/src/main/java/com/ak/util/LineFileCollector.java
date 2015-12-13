@@ -16,7 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collector;
 
-public final class LineFileCollector implements Collector<Object, BufferedWriter, Void> {
+public final class LineFileCollector implements Collector<Object, BufferedWriter, Void>, AutoCloseable {
   public enum Direction {
     HORIZONTAL {
       @Override
@@ -99,11 +99,16 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
   }
 
   @Override
+  public void close() throws Exception {
+    if (!errorFlag) {
+      writer.close();
+    }
+  }
+
+  @Override
   protected void finalize() throws Throwable {
     try {
-      if (!errorFlag) {
-        writer.close();
-      }
+      close();
     }
     finally {
       super.finalize();
