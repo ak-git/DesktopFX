@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.ak.fx.scene.MilliGrid?>
 <?import javafx.scene.layout.BorderPane?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ak.fx.desktop.Controller" prefWidth="1024"
-            prefHeight="768"/>
+            prefHeight="768">
+    <center>
+        <MilliGrid fx:id="root" style="-fx-border-color: white; -fx-border-width: 3px;"/>
+    </center>
+</BorderPane>
