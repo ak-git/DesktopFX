@@ -20,13 +20,14 @@ public final class MilliGrid extends Pane {
     POINTS(1.0) {
       @Override
       double getStep() {
-        return super.getStep() / 5.0;
+        return super.getStep() / 4.0;
       }
 
       @Override
       Path newPath() {
         Path path = super.newPath();
-        path.getStrokeDashArray().addAll(0.0, getStep());
+        path.setStrokeDashOffset(getStep());
+        path.getStrokeDashArray().addAll(0.0, getStep() * 2, 0.0, getStep(), 0.0, getStep());
         return path;
       }
     },
@@ -104,8 +105,13 @@ public final class MilliGrid extends Pane {
     @Override
     public final void addToPath(Path path, GridCell gridCell) {
       double contentSize = contentSize();
+      int factor = (int) Math.round(GridCell.SMALL.getStep() / gridCell.getStep());
+      int i = 0;
       for (double c = minCoordinate(contentSize, gridCell); c < maxCoordinate(contentSize) + 1.0; c += gridCell.getStep()) {
-        path.getElements().addAll(moveTo(c, gridCell), lineTo(gridCell));
+        if (!(gridCell == GridCell.POINTS && i % factor == 0)) {
+          path.getElements().addAll(moveTo(c, gridCell), lineTo(gridCell));
+        }
+        i++;
       }
     }
 
