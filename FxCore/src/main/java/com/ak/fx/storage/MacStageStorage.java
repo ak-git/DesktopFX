@@ -3,6 +3,8 @@ package com.ak.fx.storage;
 import java.time.Duration;
 import java.time.Instant;
 
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 final class MacStageStorage extends AbstractStageStorage {
@@ -16,6 +18,17 @@ final class MacStageStorage extends AbstractStageStorage {
   public void save(Stage stage) {
     if (!Duration.between(fullScreenEventInstant, Instant.now()).minusSeconds(3).isNegative()) {
       saveFullScreenState(stage.isFullScreen());
+    }
+    if (stage.isMaximized()) {
+      boolean no = Screen.getScreensForRectangle(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight()).
+          filtered(screen -> {
+            Rectangle2D screenBounds = screen.getVisualBounds();
+            return Double.compare(screenBounds.getWidth(), stage.getWidth()) == 0 &&
+                Double.compare(screenBounds.getHeight(), stage.getHeight()) == 0;
+          }).isEmpty();
+      if (no) {
+        stage.setMaximized(false);
+      }
     }
     super.save(stage);
   }
