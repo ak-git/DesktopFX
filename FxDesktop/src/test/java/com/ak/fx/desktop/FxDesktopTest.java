@@ -28,8 +28,8 @@ public final class FxDesktopTest extends Preloader {
   private static final CountDownLatch LATCH = new CountDownLatch(2);
   private static final AtomicReference<Stage> STAGE_REFERENCE = new AtomicReference<>();
   private static final AtomicReference<Application> APP_REFERENCE = new AtomicReference<>();
-  private static final double STAGE_X = 10.0;
-  private static final double STAGE_Y = 20.0;
+  private static final double STAGE_X = 100.0;
+  private static final double STAGE_Y = 100.0;
   private static final double STAGE_WIDTH = 800.0;
   private static final double STAGE_HEIGHT = 600.0;
 
