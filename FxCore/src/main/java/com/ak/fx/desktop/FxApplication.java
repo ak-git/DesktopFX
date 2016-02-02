@@ -18,6 +18,9 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -57,6 +60,12 @@ public final class FxApplication extends Application {
 
       Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass());
       stage.setOnCloseRequest(event -> stageStorage.save(stage));
+      stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+      stage.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
+        if (event.isShortcutDown() && event.isControlDown() && event.getCode() == KeyCode.F) {
+          Platform.runLater(() -> stage.setFullScreen(!stage.isFullScreen()));
+        }
+      });
       stageStorage.update(stage);
       stage.show();
     }

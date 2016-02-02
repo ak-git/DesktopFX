@@ -7,6 +7,7 @@ import java.util.Optional;
 import com.ak.storage.AbstractStorage;
 import com.ak.storage.LocalStorage;
 import com.ak.storage.Storage;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 abstract class AbstractStageStorage extends AbstractStorage<Stage> {
@@ -37,10 +38,18 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
     stage.maximizedProperty().addListener((observable, oldValue, newValue) -> maximizedStorage.save(newValue));
     Optional.ofNullable(boundsStorage.get()).ifPresent(
         rectangle -> {
-          stage.setX(rectangle.getX());
-          stage.setY(rectangle.getY());
-          stage.setWidth(rectangle.getWidth());
-          stage.setHeight(rectangle.getHeight());
+          javafx.geometry.Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
+          if (visualBounds.contains(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight())) {
+            stage.setX(rectangle.getX());
+            stage.setY(rectangle.getY());
+            stage.setWidth(rectangle.getWidth());
+            stage.setHeight(rectangle.getHeight());
+          }
+          else {
+            stage.setWidth(1024);
+            stage.setHeight(768);
+            stage.centerOnScreen();
+          }
         }
     );
     Optional.ofNullable(maximizedStorage.get()).ifPresent(stage::setMaximized);
