@@ -9,6 +9,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.ak.fx.stage.ScreenResolutionMonitor;
 import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.util.OSDockImage;
 import com.ak.storage.Storage;
@@ -68,6 +69,7 @@ public final class FxApplication extends Application {
       });
       stageStorage.update(stage);
       stage.show();
+      ScreenResolutionMonitor.setStage(stage);
     }
     catch (Exception e) {
       Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);

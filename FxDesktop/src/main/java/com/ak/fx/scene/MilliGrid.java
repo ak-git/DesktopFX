@@ -1,11 +1,12 @@
 package com.ak.fx.scene;
 
-import java.awt.Toolkit;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 
+import com.ak.fx.stage.ScreenResolutionMonitor;
+import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -39,7 +40,6 @@ public final class MilliGrid extends Pane {
       }
     };
 
-    private static final double CENTIMETER = Toolkit.getDefaultToolkit().getScreenResolution() / 2.54;
     private static final Paint COLOR = new Color(225.0 / 255.0, 130.0 / 255.0, 110.0 / 255.0, 1.0);
     private final double strokeWidth;
 
@@ -52,7 +52,7 @@ public final class MilliGrid extends Pane {
     }
 
     double getStep() {
-      return CENTIMETER;
+      return ScreenResolutionMonitor.INSTANCE.getDpi() / 2.54;
     }
 
     Path newPath() {
@@ -70,10 +70,16 @@ public final class MilliGrid extends Pane {
   }
 
   private final GridLine[] gridLines = {new HorizontalGridLine(), new VerticalGridLine()};
-  private final Map<GridCell, Path> paths = GridCell.newPaths();
+  private Map<GridCell, Path> paths = Collections.emptyMap();
 
   public MilliGrid() {
-    getChildren().addAll(paths.values());
+    reinitializePaths();
+    ScreenResolutionMonitor.INSTANCE.getDpiObservable().subscribe(dpi -> {
+      Platform.runLater(() -> {
+        reinitializePaths();
+        requestLayout();
+      });
+    });
   }
 
   @Override
@@ -89,6 +95,12 @@ public final class MilliGrid extends Pane {
       }
     }
     super.layoutChildren();
+  }
+
+  private void reinitializePaths() {
+    getChildren().removeAll(paths.values());
+    paths = GridCell.newPaths();
+    getChildren().addAll(paths.values());
   }
 
   private interface GridLine {

@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.ak.fx.stage.ScreenResolutionMonitor;
 import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.util.OSDockImage;
 import com.ak.storage.Storage;
@@ -184,6 +185,11 @@ public final class FxDesktopTest extends Preloader {
     finally {
       Logger.getLogger(FxApplication.class.getName()).setLevel(Level.INFO);
     }
+  }
+
+  @Test(expectedExceptions = IllegalStateException.class)
+  public static void testScreenResolutionMonitor() {
+    ScreenResolutionMonitor.setStage(STAGE_REFERENCE.get());
   }
 
   private static void setStageBounds(double x, double y, double width, double height) {

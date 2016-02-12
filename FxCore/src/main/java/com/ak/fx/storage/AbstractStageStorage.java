@@ -4,6 +4,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.Optional;
 
+import com.ak.fx.util.UIConstants;
 import com.ak.storage.AbstractStorage;
 import com.ak.storage.LocalStorage;
 import com.ak.storage.Storage;
@@ -46,8 +47,8 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
             stage.setHeight(rectangle.getHeight());
           }
           else {
-            stage.setWidth(1024);
-            stage.setHeight(768);
+            stage.setWidth(UIConstants.WIDTH_MIN);
+            stage.setHeight(UIConstants.HEIGHT_MIN);
             stage.centerOnScreen();
           }
         }
