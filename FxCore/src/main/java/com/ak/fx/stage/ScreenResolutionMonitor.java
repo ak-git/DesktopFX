@@ -18,10 +18,10 @@ public enum ScreenResolutionMonitor {
   private final AtomicReference<Stage> stage = new AtomicReference<>();
   private final Observable<Double> dpiObservable = Observable.interval(0, UIConstants.uiDelay(SECONDS), SECONDS).
       map(index -> stage.get()).skipWhile(stage -> stage == null).map(stage -> Utils.getScreen(stage).getDpi()).
-      skipWhile(dpi -> Double.compare(dpi, this.dpi.get()) == 0).distinctUntilChanged().
+      distinctUntilChanged().
       doOnNext(dpi -> {
         this.dpi.set(dpi);
-        Logger.getLogger(getClass().getName()).config(String.format("Screen resolution is changed to %.0f dpi", dpi));
+        Logger.getLogger(getClass().getName()).config(String.format("Screen resolution is %.0f dpi", dpi));
       });
   private final AtomicReference<Double> dpi = new AtomicReference<>(defaultDpi());
 
