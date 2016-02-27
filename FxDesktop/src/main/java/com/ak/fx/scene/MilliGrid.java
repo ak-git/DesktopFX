@@ -73,7 +73,6 @@ public final class MilliGrid extends Pane {
   private Map<GridCell, Path> paths = Collections.emptyMap();
 
   public MilliGrid() {
-    reinitializePaths();
     ScreenResolutionMonitor.INSTANCE.getDpiObservable().subscribe(dpi -> {
       Platform.runLater(() -> {
         reinitializePaths();

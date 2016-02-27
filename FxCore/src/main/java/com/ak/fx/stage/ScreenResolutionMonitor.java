@@ -15,15 +15,17 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public enum ScreenResolutionMonitor {
   INSTANCE;
 
+  private final AtomicReference<Double> dpi = new AtomicReference<>(Toolkit.getDefaultToolkit().getScreenResolution() * 1.0);
   private final AtomicReference<Stage> stage = new AtomicReference<>();
-  private final Observable<Double> dpiObservable = Observable.interval(0, UIConstants.uiDelay(SECONDS), SECONDS).
-      map(index -> stage.get()).skipWhile(stage -> stage == null).map(stage -> Utils.getScreen(stage).getDpi()).
+  private final Observable<Double> dpiObservable = Observable.merge(
+      Observable.create(subscriber -> subscriber.onNext(getDpi())),
+      Observable.interval(0, UIConstants.uiDelay(SECONDS), SECONDS).
+          map(index -> stage.get()).skipWhile(stage -> stage == null).map(stage -> Utils.getScreen(stage).getDpi())).
       distinctUntilChanged().
       doOnNext(dpi -> {
         this.dpi.set(dpi);
         Logger.getLogger(getClass().getName()).config(String.format("Screen resolution is %.0f dpi", dpi));
       });
-  private final AtomicReference<Double> dpi = new AtomicReference<>(defaultDpi());
 
   public static void setStage(Stage stage) {
     if (!INSTANCE.stage.compareAndSet(null, Objects.requireNonNull(stage))) {
@@ -38,9 +40,5 @@ public enum ScreenResolutionMonitor {
 
   public double getDpi() {
     return dpi.get();
-  }
-
-  private static double defaultDpi() {
-    return Toolkit.getDefaultToolkit().getScreenResolution() * 1.0;
   }
 }
