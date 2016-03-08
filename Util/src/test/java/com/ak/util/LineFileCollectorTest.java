@@ -97,7 +97,7 @@ public class LineFileCollectorTest {
     collector.close();
     stream.get().collect(collector);
     Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown");
-    collector.finalize();
+    collector.close();
     Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown only once");
   }
 

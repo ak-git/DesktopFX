@@ -34,6 +34,17 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
     public abstract void acceptWriter(BufferedWriter writer) throws IOException;
   }
 
+  private final Object finalizerGuardian = new Object() {
+    @Override
+    protected void finalize() throws Throwable {
+      try {
+        close();
+      }
+      finally {
+        super.finalize();
+      }
+    }
+  };
   private final BufferedWriter writer;
   private final Direction direction;
   private boolean startFlag = true;
@@ -102,16 +113,6 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
   public void close() throws Exception {
     if (!errorFlag) {
       writer.close();
-    }
-  }
-
-  @Override
-  protected void finalize() throws Throwable {
-    try {
-      close();
-    }
-    finally {
-      super.finalize();
     }
   }
 }
