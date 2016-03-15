@@ -19,5 +19,9 @@
         </property>
     </bean>
 
+    <bean class="com.ak.comm.serial.SingleSerialService">
+        <constructor-arg value="115200"/>
+    </bean>
+
     <bean class="com.ak.fx.desktop.Controller"/>
 </beans>
