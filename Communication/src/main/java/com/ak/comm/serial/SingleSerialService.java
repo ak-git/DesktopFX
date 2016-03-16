@@ -43,16 +43,14 @@ public final class SingleSerialService implements Closeable {
         serialPort.setParams(baudRate, 8, 1, 0);
         serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
         serialPort.addEventListener(event -> {
-          if (event.isRXCHAR()) {
-            try {
-              buffer.clear();
-              buffer.put(serialPort.readBytes());
-              buffer.flip();
-              byteBufferPublish.onNext(buffer);
-            }
-            catch (SerialPortException ex) {
-              logAndClose(ex);
-            }
+          try {
+            buffer.clear();
+            buffer.put(serialPort.readBytes());
+            buffer.flip();
+            byteBufferPublish.onNext(buffer);
+          }
+          catch (SerialPortException ex) {
+            logAndClose(ex);
           }
         }, SerialPort.MASK_RXCHAR);
       }
@@ -112,7 +110,7 @@ public final class SingleSerialService implements Closeable {
       else {
         String portName = portNames[0];
         Logger.getLogger(getClass().getName()).config(
-            String.format("%s, the '%s' is selected", Arrays.toString(portNames), portName));
+            String.format("Found %s, the '%s' is selected", Arrays.toString(portNames), portName));
         usedPorts.remove(portName);
         usedPorts.addLast(portName);
         return portName;

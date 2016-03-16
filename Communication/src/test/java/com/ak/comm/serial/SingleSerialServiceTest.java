@@ -1,9 +1,9 @@
 package com.ak.comm.serial;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jssc.SerialPortException;
 import jssc.SerialPortList;
@@ -13,22 +13,18 @@ import rx.Observer;
 
 public final class SingleSerialServiceTest implements Observer<ByteBuffer> {
   @Test
-  public void test() throws InterruptedException {
-    String[] portNames = SerialPortList.getPortNames();
-    Collection<SingleSerialService> services = new ArrayList<>(portNames.length);
-    for (String port : portNames) {
+  public void test() {
+    List<SingleSerialService> services = Stream.of(SerialPortList.getPortNames()).map(port -> {
       SingleSerialService singleSerialService = new SingleSerialService(115200);
       Assert.assertEquals(singleSerialService.getPortName(), port);
       singleSerialService.getByteBuffer().subscribe(this);
-      Assert.assertTrue(singleSerialService.isWrite(
-          new byte[] {0x7E, (byte) 0x81, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07}));
-      services.add(singleSerialService);
-    }
+      Assert.assertTrue(singleSerialService.isWrite(new byte[] {0x7E}));
+      return singleSerialService;
+    }).collect(Collectors.toList());
 
     SingleSerialService singleSerialService = new SingleSerialService(115200);
     singleSerialService.getByteBuffer().subscribe(this);
-    services.add(singleSerialService);
-    TimeUnit.SECONDS.sleep(1);
+    singleSerialService.close();
     services.forEach(SingleSerialService::close);
   }
 
