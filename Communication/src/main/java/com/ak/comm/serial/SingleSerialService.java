@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.ak.util.FinalizerGuardian;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
@@ -18,17 +19,7 @@ public final class SingleSerialService implements Closeable {
   private final String portName;
   private final ByteBuffer buffer;
   private final PublishSubject<ByteBuffer> byteBufferPublish = PublishSubject.create();
-  private final Object finalizerGuardian = new Object() {
-    @Override
-    protected void finalize() throws Throwable {
-      try {
-        close();
-      }
-      finally {
-        super.finalize();
-      }
-    }
-  };
+  private final Object finalizerGuardian = new FinalizerGuardian(this::close);
 
   public SingleSerialService(int baudRate) {
     buffer = ByteBuffer.allocate(baudRate);
@@ -69,11 +60,13 @@ public final class SingleSerialService implements Closeable {
   }
 
   public boolean isWrite(byte[] bytes) {
-    try {
-      return serialPort.writeBytes(bytes);
-    }
-    catch (SerialPortException e) {
-      Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+    if (serialPort.isOpened()) {
+      try {
+        return serialPort.writeBytes(bytes);
+      }
+      catch (SerialPortException e) {
+        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+      }
     }
     return false;
   }
@@ -81,7 +74,9 @@ public final class SingleSerialService implements Closeable {
   @Override
   public void close() {
     try {
-      serialPort.closePort();
+      if (serialPort.isOpened()) {
+        serialPort.closePort();
+      }
     }
     catch (SerialPortException e) {
       Logger.getLogger(getClass().getName()).log(Level.CONFIG, e.getMessage(), e);

@@ -4,10 +4,10 @@ import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.Optional;
 
-import com.ak.fx.util.UIConstants;
 import com.ak.storage.AbstractStorage;
 import com.ak.storage.LocalStorage;
 import com.ak.storage.Storage;
+import com.ak.util.UIConstants;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 

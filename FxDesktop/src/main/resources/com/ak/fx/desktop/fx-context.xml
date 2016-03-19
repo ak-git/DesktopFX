@@ -19,7 +19,7 @@
         </property>
     </bean>
 
-    <bean class="com.ak.comm.serial.SingleSerialService">
+    <bean class="com.ak.comm.serial.CycleSerialService">
         <constructor-arg value="115200"/>
     </bean>
 
