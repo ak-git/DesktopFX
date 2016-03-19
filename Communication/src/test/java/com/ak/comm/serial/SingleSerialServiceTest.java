@@ -14,18 +14,18 @@ import rx.Observer;
 public final class SingleSerialServiceTest implements Observer<ByteBuffer> {
   @Test
   public void test() {
-    List<SingleSerialService> services = Stream.of(SerialPortList.getPortNames()).map(port -> {
-      SingleSerialService singleSerialService = new SingleSerialService(115200);
-      Assert.assertEquals(singleSerialService.getPortName(), port);
-      singleSerialService.getBufferObservable().subscribe(this);
-      Assert.assertTrue(singleSerialService.isWrite(new byte[] {0x7E}));
-      return singleSerialService;
+    List<SerialService> services = Stream.of(SerialPortList.getPortNames()).map(port -> {
+      SerialService serialService = new SingleSerialService(115200);
+      Assert.assertEquals(serialService.getPortName(), port);
+      serialService.getBufferObservable().subscribe(this);
+      Assert.assertTrue(serialService.isWrite(new byte[] {0x7E}));
+      return serialService;
     }).collect(Collectors.toList());
 
-    SingleSerialService singleSerialService = new SingleSerialService(115200);
+    SerialService singleSerialService = new SingleSerialService(115200);
     singleSerialService.getBufferObservable().subscribe(this);
     singleSerialService.close();
-    services.forEach(SingleSerialService::close);
+    services.forEach(SerialService::close);
   }
 
   @Override
