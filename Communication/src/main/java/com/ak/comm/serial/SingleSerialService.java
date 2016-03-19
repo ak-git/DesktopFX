@@ -55,7 +55,7 @@ public final class SingleSerialService implements Closeable {
     return portName;
   }
 
-  public Observable<ByteBuffer> getByteBuffer() {
+  public Observable<ByteBuffer> getBufferObservable() {
     return byteBufferPublish.asObservable();
   }
 
@@ -64,8 +64,8 @@ public final class SingleSerialService implements Closeable {
       try {
         return serialPort.writeBytes(bytes);
       }
-      catch (SerialPortException e) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+      catch (SerialPortException ex) {
+        Logger.getLogger(getClass().getName()).log(Level.WARNING, ex.getPortName(), ex);
       }
     }
     return false;
@@ -78,8 +78,8 @@ public final class SingleSerialService implements Closeable {
         serialPort.closePort();
       }
     }
-    catch (SerialPortException e) {
-      Logger.getLogger(getClass().getName()).log(Level.CONFIG, e.getMessage(), e);
+    catch (SerialPortException ex) {
+      Logger.getLogger(getClass().getName()).log(Level.CONFIG, ex.getPortName(), ex);
     }
     finally {
       byteBufferPublish.onCompleted();

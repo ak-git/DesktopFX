@@ -23,7 +23,7 @@ public final class CycleSerialService implements AutoCloseable {
     executor.scheduleWithFixedDelay(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();
       CountDownLatch latch = new CountDownLatch(1);
-      serialService.getByteBuffer().subscribe(new Observer<ByteBuffer>() {
+      serialService.getBufferObservable().subscribe(new Observer<ByteBuffer>() {
         @Override
         public void onCompleted() {
         }

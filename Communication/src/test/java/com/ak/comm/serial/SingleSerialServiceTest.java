@@ -17,13 +17,13 @@ public final class SingleSerialServiceTest implements Observer<ByteBuffer> {
     List<SingleSerialService> services = Stream.of(SerialPortList.getPortNames()).map(port -> {
       SingleSerialService singleSerialService = new SingleSerialService(115200);
       Assert.assertEquals(singleSerialService.getPortName(), port);
-      singleSerialService.getByteBuffer().subscribe(this);
+      singleSerialService.getBufferObservable().subscribe(this);
       Assert.assertTrue(singleSerialService.isWrite(new byte[] {0x7E}));
       return singleSerialService;
     }).collect(Collectors.toList());
 
     SingleSerialService singleSerialService = new SingleSerialService(115200);
-    singleSerialService.getByteBuffer().subscribe(this);
+    singleSerialService.getBufferObservable().subscribe(this);
     singleSerialService.close();
     services.forEach(SingleSerialService::close);
   }
