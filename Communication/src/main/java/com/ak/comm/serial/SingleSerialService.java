@@ -74,28 +74,28 @@ public final class SingleSerialService extends AbstractService<ByteBuffer> imple
 
   @Override
   public void close() {
-    synchronized (serialPort) {
-      try {
-        if (isOpen()) {
+    try {
+      synchronized (serialPort) {
+        if (serialPort.isOpened()) {
           serialPort.closePort();
         }
       }
-      catch (SerialPortException ex) {
-        Logger.getLogger(getClass().getName()).log(Level.CONFIG, ex.getPortName(), ex);
-      }
-      finally {
-        bufferPublish().onCompleted();
-      }
+    }
+    catch (SerialPortException ex) {
+      Logger.getLogger(getClass().getName()).log(Level.CONFIG, ex.getPortName(), ex);
+    }
+    finally {
+      bufferPublish().onCompleted();
     }
   }
 
   @Override
   public String toString() {
-    return String.format("%s@%s %s", getClass().getSimpleName(), Integer.toHexString(hashCode()), serialPort.getPortName());
+    return String.format("%s@%s, port = [ %s ]", getClass().getSimpleName(), Integer.toHexString(hashCode()), serialPort.getPortName());
   }
 
   private void logAndClose(Exception ex) {
-    Logger.getLogger(getClass().getName()).log(Level.WARNING, serialPort.getPortName(), ex);
+    Logger.getLogger(getClass().getName()).log(Level.CONFIG, serialPort.getPortName(), ex);
     bufferPublish().onError(ex);
     close();
   }

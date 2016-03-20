@@ -2,7 +2,11 @@ package com.ak.comm.interceptor;
 
 import java.nio.ByteBuffer;
 
-public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Integer> {
+public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Integer, Byte> {
+  public DefaultBytesInterceptor() {
+    super(1);
+  }
+
   @Override
   public int write(ByteBuffer src) {
     src.rewind();
@@ -12,5 +16,12 @@ public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Inte
       countBytes++;
     }
     return countBytes;
+  }
+
+  @Override
+  public ByteBuffer put(Byte aByte) {
+    outBuffer().clear();
+    outBuffer().put(aByte).flip();
+    return outBuffer();
   }
 }

@@ -1,8 +1,16 @@
 package com.ak.comm.interceptor;
 
+import java.nio.ByteBuffer;
+
 import com.ak.comm.core.AbstractService;
 
-public abstract class AbstractBytesInterceptor<T> extends AbstractService<T> implements BytesInterceptor<T> {
+abstract class AbstractBytesInterceptor<FROM, TO> extends AbstractService<FROM> implements BytesInterceptor<FROM, TO> {
+  private final ByteBuffer outBuffer;
+
+  AbstractBytesInterceptor(int outBufferSize) {
+    outBuffer = ByteBuffer.allocate(outBufferSize);
+  }
+
   @Override
   public final boolean isOpen() {
     return bufferPublish().hasObservers();
@@ -11,5 +19,9 @@ public abstract class AbstractBytesInterceptor<T> extends AbstractService<T> imp
   @Override
   public final void close() {
     bufferPublish().onCompleted();
+  }
+
+  final ByteBuffer outBuffer() {
+    return outBuffer;
   }
 }

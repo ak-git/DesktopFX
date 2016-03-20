@@ -5,7 +5,9 @@ import java.nio.channels.WritableByteChannel;
 
 import com.ak.comm.core.Service;
 
-public interface BytesInterceptor<T> extends WritableByteChannel, Service<T> {
+public interface BytesInterceptor<FROM, TO> extends WritableByteChannel, Service<FROM> {
   @Override
   int write(ByteBuffer src);
+
+  ByteBuffer put(TO to);
 }
