@@ -18,10 +18,10 @@ import rx.Subscription;
 public final class CycleSerialService<FROM, TO> extends AbstractService<FROM> {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   private final BytesInterceptor<FROM, TO> bytesInterceptor;
-  private volatile SingleSerialService serialService;
+  private volatile SerialService serialService;
 
   public CycleSerialService(int baudRate, BytesInterceptor<FROM, TO> bytesInterceptor) {
-    serialService = new SingleSerialService(baudRate);
+    serialService = new SerialService(baudRate);
     this.bytesInterceptor = bytesInterceptor;
     bytesInterceptor.getBufferObservable().subscribe(bufferPublish());
     executor.scheduleWithFixedDelay(() -> {
@@ -63,7 +63,7 @@ public final class CycleSerialService<FROM, TO> extends AbstractService<FROM> {
         if (!workingFlag.get() && !executor.isShutdown()) {
           serialService.close();
           subscription.unsubscribe();
-          serialService = new SingleSerialService(baudRate);
+          serialService = new SerialService(baudRate);
         }
       }
     }, 0, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);

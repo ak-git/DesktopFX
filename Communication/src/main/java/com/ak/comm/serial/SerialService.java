@@ -12,11 +12,11 @@ import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
 
-public final class SingleSerialService extends AbstractService<ByteBuffer> implements WritableByteChannel {
+public final class SerialService extends AbstractService<ByteBuffer> implements WritableByteChannel {
   private final SerialPort serialPort;
   private final ByteBuffer buffer;
 
-  public SingleSerialService(int baudRate) {
+  public SerialService(int baudRate) {
     buffer = ByteBuffer.allocate(baudRate);
     String portName = Ports.INSTANCE.next();
     serialPort = new SerialPort(portName);
