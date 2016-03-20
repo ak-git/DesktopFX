@@ -9,22 +9,28 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.ak.comm.core.AbstractService;
+import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.UIConstants;
 import rx.Observer;
 import rx.Subscription;
 
-public final class CycleSerialService extends AbstractSerialService {
+public final class CycleSerialService<T> extends AbstractService<T> {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-  private volatile SerialService serialService;
+  private final BytesInterceptor<T> bytesInterceptor;
+  private volatile SingleSerialService serialService;
 
-  public CycleSerialService(int baudRate) {
+  public CycleSerialService(int baudRate, BytesInterceptor<T> bytesInterceptor) {
     serialService = new SingleSerialService(baudRate);
+    this.bytesInterceptor = bytesInterceptor;
+    bytesInterceptor.getBufferObservable().subscribe(bufferPublish());
     executor.scheduleWithFixedDelay(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();
       CountDownLatch latch = new CountDownLatch(1);
       Subscription subscription = serialService.getBufferObservable().subscribe(new Observer<ByteBuffer>() {
         @Override
         public void onCompleted() {
+          Logger.getLogger(getClass().getName()).config("Close connection " + serialService);
         }
 
         @Override
@@ -36,43 +42,39 @@ public final class CycleSerialService extends AbstractSerialService {
 
         @Override
         public void onNext(ByteBuffer buffer) {
-          bufferPublish().onNext(buffer);
           workingFlag.set(true);
+          bytesInterceptor.write(buffer);
         }
       });
 
-      if (isWrite(new byte[] {0x7E, (byte) 0x81, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07})) {
-        do {
-          try {
-            latch.await(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
-          }
-          catch (InterruptedException e) {
-            Logger.getLogger(getClass().getName()).log(Level.FINE, e.getMessage(), e);
-            Thread.currentThread().interrupt();
-            break;
-          }
+      do {
+        try {
+          latch.await(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
         }
-        while (workingFlag.get());
+        catch (InterruptedException e) {
+          Logger.getLogger(getClass().getName()).log(Level.FINE, e.getMessage(), e);
+          Thread.currentThread().interrupt();
+          break;
+        }
       }
+      while (workingFlag.get());
 
-      if (!workingFlag.get()) {
-        Logger.getLogger(getClass().getName()).config("Change serial connection");
-        serialService.close();
-        subscription.unsubscribe();
-        serialService = new SingleSerialService(baudRate);
+      synchronized (executor) {
+        if (!workingFlag.get() && !executor.isShutdown()) {
+          serialService.close();
+          subscription.unsubscribe();
+          serialService = new SingleSerialService(baudRate);
+        }
       }
     }, 0, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
   }
 
   @Override
-  public boolean isWrite(byte[] bytes) {
-    return serialService.isWrite(bytes);
-  }
-
-  @Override
   public void close() {
-    executor.shutdownNow();
-    serialService.close();
-    bufferPublish().onCompleted();
+    synchronized (executor) {
+      executor.shutdownNow();
+      serialService.close();
+      bytesInterceptor.close();
+    }
   }
 }

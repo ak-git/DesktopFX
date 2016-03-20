@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.ak.comm.core.Service;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
 import org.testng.Assert;
@@ -12,20 +13,22 @@ import org.testng.annotations.Test;
 import rx.Observer;
 
 public final class SingleSerialServiceTest implements Observer<ByteBuffer> {
+  private static final byte[] EMPTY = {};
+
   @Test
   public void test() {
-    List<SerialService> services = Stream.of(SerialPortList.getPortNames()).map(port -> {
-      SerialService serialService = new SingleSerialService(115200);
-      Assert.assertEquals(serialService.getPortName(), port);
+    List<Service<ByteBuffer>> services = Stream.of(SerialPortList.getPortNames()).map(port -> {
+      SingleSerialService serialService = new SingleSerialService(115200);
       serialService.getBufferObservable().subscribe(this);
-      Assert.assertTrue(serialService.isWrite(new byte[] {0x7E}));
+      Assert.assertEquals(serialService.write(ByteBuffer.allocate(1)), 1);
+      Assert.assertEquals(serialService.write(ByteBuffer.allocate(0)), 0);
       return serialService;
     }).collect(Collectors.toList());
 
-    SerialService singleSerialService = new SingleSerialService(115200);
-    singleSerialService.getBufferObservable().subscribe(this);
-    singleSerialService.close();
-    services.forEach(SerialService::close);
+    Service<ByteBuffer> singleService = new SingleSerialService(115200);
+    singleService.getBufferObservable().subscribe(this);
+    singleService.close();
+    services.forEach(Service::close);
   }
 
   @Override

@@ -1,24 +1,26 @@
 package com.ak.comm.serial;
 
 import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.ak.comm.core.AbstractService;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
 
-public final class SingleSerialService extends AbstractSerialService {
+public final class SingleSerialService extends AbstractService<ByteBuffer> implements WritableByteChannel {
   private final SerialPort serialPort;
   private final ByteBuffer buffer;
 
   public SingleSerialService(int baudRate) {
     buffer = ByteBuffer.allocate(baudRate);
-    setPortName(Ports.INSTANCE.next());
-    serialPort = new SerialPort(getPortName());
-    if (getPortName().isEmpty()) {
+    String portName = Ports.INSTANCE.next();
+    serialPort = new SerialPort(portName);
+    if (portName.isEmpty()) {
       Logger.getLogger(getClass().getName()).config("Serial port not found");
     }
     else {
@@ -33,7 +35,7 @@ public final class SingleSerialService extends AbstractSerialService {
             buffer.flip();
             bufferPublish().onNext(buffer);
           }
-          catch (SerialPortException ex) {
+          catch (Exception ex) {
             logAndClose(ex);
           }
         }, SerialPort.MASK_RXCHAR);
@@ -45,25 +47,36 @@ public final class SingleSerialService extends AbstractSerialService {
   }
 
   @Override
-  public boolean isWrite(byte[] bytes) {
-    synchronized (this) {
-      if (serialPort.isOpened()) {
+  public boolean isOpen() {
+    return serialPort.isOpened();
+  }
+
+  @Override
+  public int write(ByteBuffer src) {
+    synchronized (serialPort) {
+      int countBytes = 0;
+      if (isOpen()) {
+        src.rewind();
         try {
-          return serialPort.writeBytes(bytes);
+          while (src.hasRemaining()) {
+            if (serialPort.writeByte(src.get())) {
+              countBytes++;
+            }
+          }
         }
         catch (SerialPortException ex) {
           Logger.getLogger(getClass().getName()).log(Level.WARNING, ex.getPortName(), ex);
         }
       }
-      return false;
+      return countBytes;
     }
   }
 
   @Override
   public void close() {
-    synchronized (this) {
+    synchronized (serialPort) {
       try {
-        if (serialPort.isOpened()) {
+        if (isOpen()) {
           serialPort.closePort();
         }
       }
@@ -76,8 +89,13 @@ public final class SingleSerialService extends AbstractSerialService {
     }
   }
 
-  private void logAndClose(SerialPortException ex) {
-    Logger.getLogger(getClass().getName()).log(Level.CONFIG, ex.getPortName(), ex);
+  @Override
+  public String toString() {
+    return String.format("%s@%s %s", getClass().getSimpleName(), Integer.toHexString(hashCode()), serialPort.getPortName());
+  }
+
+  private void logAndClose(Exception ex) {
+    Logger.getLogger(getClass().getName()).log(Level.WARNING, serialPort.getPortName(), ex);
     bufferPublish().onError(ex);
     close();
   }
