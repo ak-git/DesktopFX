@@ -9,5 +9,7 @@ public interface BytesInterceptor<FROM, TO> extends WritableByteChannel, Service
   @Override
   int write(ByteBuffer src);
 
+  TO getStartCommand();
+
   ByteBuffer put(TO to);
 }

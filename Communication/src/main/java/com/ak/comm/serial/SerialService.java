@@ -91,7 +91,7 @@ public final class SerialService extends AbstractService<ByteBuffer> implements 
 
   @Override
   public String toString() {
-    return String.format("%s@%s, port = [ %s ]", getClass().getSimpleName(), Integer.toHexString(hashCode()), serialPort.getPortName());
+    return String.format("%s@%x{serialPort = %s}", getClass().getSimpleName(), hashCode(), serialPort.getPortName());
   }
 
   private void logAndClose(Exception ex) {

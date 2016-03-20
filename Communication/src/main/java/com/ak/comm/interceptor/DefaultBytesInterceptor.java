@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Integer, Byte> {
   public DefaultBytesInterceptor() {
-    super(1);
+    super(1, (byte) 0);
   }
 
   @Override

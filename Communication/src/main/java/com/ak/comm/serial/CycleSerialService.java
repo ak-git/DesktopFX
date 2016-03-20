@@ -24,7 +24,7 @@ public final class CycleSerialService<FROM, TO> extends AbstractService<FROM> {
     serialService = new SerialService(baudRate);
     this.bytesInterceptor = bytesInterceptor;
     bytesInterceptor.getBufferObservable().subscribe(bufferPublish());
-    executor.scheduleWithFixedDelay(() -> {
+    executor.scheduleAtFixedRate(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();
       CountDownLatch latch = new CountDownLatch(1);
       Subscription subscription = serialService.getBufferObservable().subscribe(new Observer<ByteBuffer>() {
@@ -47,17 +47,19 @@ public final class CycleSerialService<FROM, TO> extends AbstractService<FROM> {
         }
       });
 
-      do {
-        try {
-          latch.await(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
+      if (bytesInterceptor.getStartCommand() == null || write(bytesInterceptor.getStartCommand()) > 0) {
+        do {
+          try {
+            latch.await(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
+          }
+          catch (InterruptedException e) {
+            Logger.getLogger(getClass().getName()).log(Level.FINE, e.getMessage(), e);
+            Thread.currentThread().interrupt();
+            break;
+          }
         }
-        catch (InterruptedException e) {
-          Logger.getLogger(getClass().getName()).log(Level.FINE, e.getMessage(), e);
-          Thread.currentThread().interrupt();
-          break;
-        }
+        while (workingFlag.getAndSet(false));
       }
-      while (workingFlag.get());
 
       synchronized (executor) {
         if (!workingFlag.get() && !executor.isShutdown()) {
