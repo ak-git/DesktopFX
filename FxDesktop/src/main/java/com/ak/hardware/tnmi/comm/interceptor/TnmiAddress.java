@@ -1,6 +1,9 @@
 package com.ak.hardware.tnmi.comm.interceptor;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -13,6 +16,9 @@ public enum TnmiAddress {
   CATCH_HAND(0x00, 0x43),
   ROTATE_HAND(0x00, 0x44),
   DATA(0x45, 0x45);
+
+  public static final Collection<TnmiAddress> CHANNELS = Collections.unmodifiableCollection(
+      EnumSet.of(CATCH_ELBOW, ROTATE_ELBOW, CATCH_HAND, ROTATE_HAND));
 
   private final byte addrRequest;
   private final byte addrResponse;
