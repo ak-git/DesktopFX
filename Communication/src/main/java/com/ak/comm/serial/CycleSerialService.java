@@ -71,7 +71,7 @@ public final class CycleSerialService<FROM, TO> extends AbstractService<FROM> {
     }, 0, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
   }
 
-  public int write(TO to) {
+  int write(TO to) {
     return serialService.write(bytesInterceptor.put(to));
   }
 

@@ -5,7 +5,7 @@ import rx.Observable;
 import rx.subjects.PublishSubject;
 
 public abstract class AbstractService<FROM> implements Service<FROM> {
-  private final Object finalizerGuardian = new FinalizerGuardian(this::close);
+  private final Object finalizerGuardian = new FinalizerGuardian(this);
   private final PublishSubject<FROM> bufferPublish = PublishSubject.create();
 
   @Override

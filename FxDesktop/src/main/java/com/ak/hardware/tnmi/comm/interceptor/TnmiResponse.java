@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
 
-public final class TnmiResponse {
+final class TnmiResponse {
   private final TnmiAddress address;
   private final ByteBuffer buffer;
 

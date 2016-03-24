@@ -3,7 +3,7 @@ package com.ak.hardware.tnmi.comm.interceptor;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-public final class TnmiRequest implements Cloneable {
+final class TnmiRequest implements Cloneable {
   private enum Ohm {
     Z_360(0), Z_0_47(1), Z_1(1 << 1), Z_2(1 << 2), Z_30A(1 << 3), Z_30B(1 << 4), Z_127(1 << 5);
 
@@ -14,7 +14,7 @@ public final class TnmiRequest implements Cloneable {
     }
   }
 
-  public enum MyoFrequency {
+  enum MyoFrequency {
     OFF(0), HZ_50(1), HZ_100(1 << 1), HZ_200(1 << 2), HZ_500(1 << 3), HZ_1000(1 << 4), NOISE(1 << 5);
 
     private final byte code;
@@ -24,7 +24,7 @@ public final class TnmiRequest implements Cloneable {
     }
   }
 
-  public enum MyoType {
+  enum MyoType {
     OFF(0), MV0_1(1 << 6), MV1(1 << 7);
 
     private final byte code;
@@ -34,7 +34,7 @@ public final class TnmiRequest implements Cloneable {
     }
   }
 
-  public enum Single {
+  enum Single {
     Z_360(Ohm.Z_360),
     Z_390(Ohm.Z_360, Ohm.Z_30A),
     Z_420(Ohm.Z_360, Ohm.Z_30A, Ohm.Z_30B),
@@ -54,7 +54,7 @@ public final class TnmiRequest implements Cloneable {
     }
   }
 
-  public enum Sequence implements javafx.util.Builder<TnmiRequest> {
+  enum Sequence implements javafx.util.Builder<TnmiRequest> {
     CATCH_100(1, MyoType.MV1, MyoFrequency.HZ_200), CATCH_60(2, MyoType.MV1, MyoFrequency.HZ_200),
     CATCH_30(3, MyoType.MV1, MyoFrequency.HZ_200), CATCH_INV(4, MyoType.MV1, MyoFrequency.HZ_200),
     ROTATE_100(5, MyoType.MV0_1, MyoFrequency.NOISE), ROTATE_60(6, MyoType.MV0_1, MyoFrequency.NOISE),
@@ -80,11 +80,11 @@ public final class TnmiRequest implements Cloneable {
     toString = builder.toStringBuilder.toString();
   }
 
-  public byte[] getCodes() {
+  byte[] getCodes() {
     return Arrays.copyOf(codes, codes.length);
   }
 
-  public TnmiResponse toResponse() {
+  TnmiResponse toResponse() {
     byte[] codes = Arrays.copyOf(this.codes, this.codes.length);
     TnmiAddress addr = TnmiAddress.find(codes);
     if (addr == null) {

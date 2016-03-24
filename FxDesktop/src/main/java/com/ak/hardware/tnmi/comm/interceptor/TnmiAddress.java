@@ -7,7 +7,7 @@ import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public enum TnmiAddress {
+enum TnmiAddress {
   SINGLE(0x81, 0x91),
   SEQUENCE(0x82, 0x92),
   ALIVE(0x00, 0x40),
