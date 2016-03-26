@@ -4,8 +4,8 @@ import java.io.Closeable;
 
 import rx.Observable;
 
-public interface Service<FROM> extends Closeable {
-  Observable<FROM> getBufferObservable();
+public interface Service<RESPONSE> extends Closeable {
+  Observable<RESPONSE> getBufferObservable();
 
   @Override
   void close();

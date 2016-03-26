@@ -9,7 +9,7 @@ public final class TnmiBytesInterceptor extends AbstractBytesInterceptor<TnmiRes
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(TnmiProtocolByte.MAX_CAPACITY);
 
   public TnmiBytesInterceptor() {
-    super(TnmiProtocolByte.MAX_CAPACITY, TnmiRequest.Sequence.CATCH_100.build());
+    super(TnmiProtocolByte.MAX_CAPACITY, TnmiRequest.Single.Z_360.forAll(TnmiRequest.MyoType.OFF, TnmiRequest.MyoFrequency.OFF));
   }
 
   @Override

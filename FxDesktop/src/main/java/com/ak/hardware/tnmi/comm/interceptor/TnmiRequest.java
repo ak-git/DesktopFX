@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-final class TnmiRequest implements Cloneable {
+public final class TnmiRequest implements Cloneable {
   private enum Ohm {
     Z_360(0), Z_0_47(1), Z_1(1 << 1), Z_2(1 << 2), Z_30A(1 << 3), Z_30B(1 << 4), Z_127(1 << 5);
 
@@ -82,6 +82,7 @@ final class TnmiRequest implements Cloneable {
   }
 
   void writeTo(ByteBuffer outBuffer) {
+    byteBuffer.rewind();
     outBuffer.put(byteBuffer);
   }
 

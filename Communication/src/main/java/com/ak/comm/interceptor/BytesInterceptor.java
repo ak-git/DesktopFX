@@ -5,7 +5,7 @@ import java.nio.channels.WritableByteChannel;
 
 import com.ak.comm.core.Service;
 
-public interface BytesInterceptor<FROM, TO> extends WritableByteChannel, Service<FROM> {
+public interface BytesInterceptor<RESPONSE, REQUEST> extends WritableByteChannel, Service<RESPONSE> {
   /**
    * Process input bytes buffer.<br/>
    * <b>REWIND bytes buffer before use!</b>
@@ -16,13 +16,13 @@ public interface BytesInterceptor<FROM, TO> extends WritableByteChannel, Service
   @Override
   int write(ByteBuffer src);
 
-  TO getStartCommand();
+  REQUEST getStartCommand();
 
   /**
    * Converts object to bytes and puts them into output buffer.
    *
-   * @param to an object to convert and send out
+   * @param request an object to convert and send out
    * @return output bytes buffer with object converted
    */
-  ByteBuffer put(TO to);
+  ByteBuffer put(REQUEST request);
 }

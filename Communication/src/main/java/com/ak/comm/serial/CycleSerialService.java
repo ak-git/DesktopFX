@@ -15,12 +15,12 @@ import com.ak.util.UIConstants;
 import rx.Observer;
 import rx.Subscription;
 
-public final class CycleSerialService<FROM, TO> extends AbstractService<FROM> {
+public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService<RESPONSE> {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-  private final BytesInterceptor<FROM, TO> bytesInterceptor;
+  private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
   private volatile SerialService serialService;
 
-  public CycleSerialService(int baudRate, BytesInterceptor<FROM, TO> bytesInterceptor) {
+  public CycleSerialService(int baudRate, BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor) {
     serialService = new SerialService(baudRate);
     this.bytesInterceptor = bytesInterceptor;
     bytesInterceptor.getBufferObservable().subscribe(bufferPublish());
@@ -71,8 +71,8 @@ public final class CycleSerialService<FROM, TO> extends AbstractService<FROM> {
     }, 0, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
   }
 
-  int write(TO to) {
-    return serialService.write(bytesInterceptor.put(to));
+  int write(REQUEST request) {
+    return serialService.write(bytesInterceptor.put(request));
   }
 
   @Override
