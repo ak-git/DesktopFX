@@ -4,11 +4,11 @@ import java.nio.ByteBuffer;
 
 import com.ak.comm.core.AbstractService;
 
-abstract class AbstractBytesInterceptor<FROM, TO> extends AbstractService<FROM> implements BytesInterceptor<FROM, TO> {
+public abstract class AbstractBytesInterceptor<FROM, TO> extends AbstractService<FROM> implements BytesInterceptor<FROM, TO> {
   private final ByteBuffer outBuffer;
   private final TO startCommand;
 
-  AbstractBytesInterceptor(int outBufferSize, TO startCommand) {
+  public AbstractBytesInterceptor(int outBufferSize, TO startCommand) {
     outBuffer = ByteBuffer.allocate(outBufferSize);
     this.startCommand = startCommand;
   }
@@ -28,7 +28,13 @@ abstract class AbstractBytesInterceptor<FROM, TO> extends AbstractService<FROM> 
     return startCommand;
   }
 
-  final ByteBuffer outBuffer() {
+  @Override
+  public final ByteBuffer put(TO to) {
+    outBuffer.clear();
+    innerPut(outBuffer, to);
+    outBuffer.flip();
     return outBuffer;
   }
+
+  protected abstract void innerPut(ByteBuffer outBuffer, TO to);
 }

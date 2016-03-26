@@ -1,5 +1,6 @@
 package com.ak.hardware.tnmi.comm.interceptor;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -45,6 +46,8 @@ public final class TnmiTest {
   }
 
   private static void testRequest(TnmiRequest request, byte[] expected) {
-    Assert.assertEquals(request.getCodes(), expected, request.toString());
+    ByteBuffer byteBuffer = ByteBuffer.allocate(expected.length);
+    request.writeTo(byteBuffer);
+    Assert.assertEquals(byteBuffer.array(), expected, request.toString());
   }
 }

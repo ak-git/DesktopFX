@@ -1,5 +1,6 @@
 package com.ak.hardware.tnmi.comm.interceptor;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -72,20 +73,20 @@ final class TnmiRequest implements Cloneable {
     }
   }
 
-  private final byte[] codes;
+  private final ByteBuffer byteBuffer;
   private final String toString;
 
   private TnmiRequest(Builder builder) {
-    codes = Arrays.copyOf(builder.codes, builder.codes.length);
+    byteBuffer = ByteBuffer.wrap(builder.codes);
     toString = builder.toStringBuilder.toString();
   }
 
-  byte[] getCodes() {
-    return Arrays.copyOf(codes, codes.length);
+  void writeTo(ByteBuffer outBuffer) {
+    outBuffer.put(byteBuffer);
   }
 
   TnmiResponse toResponse() {
-    byte[] codes = Arrays.copyOf(this.codes, this.codes.length);
+    byte[] codes = Arrays.copyOf(byteBuffer.array(), byteBuffer.capacity());
     TnmiAddress addr = TnmiAddress.find(codes);
     if (addr == null) {
       return null;
@@ -99,7 +100,7 @@ final class TnmiRequest implements Cloneable {
 
   @Override
   public String toString() {
-    return String.format("%s %s", TnmiProtocolByte.toString(getClass(), getCodes()), toString);
+    return String.format("%s %s", TnmiProtocolByte.toString(getClass(), byteBuffer.array()), toString);
   }
 
   @Override

@@ -10,7 +10,7 @@ public final class CycleSerialServiceTest {
     CycleSerialService<Integer, Byte> service = new CycleSerialService<>(115200, new DefaultBytesInterceptor());
     TestSubscriber<Integer> subscriber = TestSubscriber.create();
     service.getBufferObservable().subscribe(subscriber);
-    service.write((byte) 0);
+    service.write((byte) 1);
     subscriber.assertNotCompleted();
     service.close();
     subscriber.assertCompleted();

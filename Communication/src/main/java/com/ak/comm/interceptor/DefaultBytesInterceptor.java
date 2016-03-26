@@ -19,9 +19,7 @@ public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Inte
   }
 
   @Override
-  public ByteBuffer put(Byte aByte) {
-    outBuffer().clear();
-    outBuffer().put(aByte).flip();
-    return outBuffer();
+  protected void innerPut(ByteBuffer outBuffer, Byte aByte) {
+    outBuffer.put(aByte);
   }
 }

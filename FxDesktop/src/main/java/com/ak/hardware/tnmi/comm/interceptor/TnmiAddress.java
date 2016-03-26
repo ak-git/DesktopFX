@@ -29,7 +29,7 @@ enum TnmiAddress {
   }
 
   final byte getAddrRequest() {
-    if (addrRequest == 0x00) {
+    if (addrRequest == ALIVE.addrRequest) {
       throw new UnsupportedOperationException(name());
     }
     else {

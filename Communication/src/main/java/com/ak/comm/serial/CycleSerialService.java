@@ -47,7 +47,7 @@ public final class CycleSerialService<FROM, TO> extends AbstractService<FROM> {
         }
       });
 
-      if (bytesInterceptor.getStartCommand() == null || write(bytesInterceptor.getStartCommand()) > 0) {
+      if (write(bytesInterceptor.getStartCommand()) != 0) {
         do {
           try {
             latch.await(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);

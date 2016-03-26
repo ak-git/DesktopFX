@@ -13,8 +13,6 @@ import org.testng.annotations.Test;
 import rx.Observer;
 
 public final class SerialServiceTest implements Observer<ByteBuffer> {
-  private static final byte[] EMPTY = {};
-
   @Test
   public void test() {
     List<Service<ByteBuffer>> services = Stream.of(SerialPortList.getPortNames()).map(port -> {
