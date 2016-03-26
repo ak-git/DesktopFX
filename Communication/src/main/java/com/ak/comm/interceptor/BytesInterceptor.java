@@ -16,7 +16,7 @@ public interface BytesInterceptor<RESPONSE, REQUEST> extends WritableByteChannel
   @Override
   int write(ByteBuffer src);
 
-  REQUEST getStartCommand();
+  REQUEST getPingRequest();
 
   /**
    * Converts object to bytes and puts them into output buffer.

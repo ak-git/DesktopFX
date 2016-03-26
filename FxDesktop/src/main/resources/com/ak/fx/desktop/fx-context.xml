@@ -19,11 +19,11 @@
         </property>
     </bean>
 
-    <bean id="bytesInterceptor" class="com.ak.hardware.tnmi.comm.interceptor.TnmiBytesInterceptor"/>
-
     <bean class="com.ak.comm.serial.CycleSerialService">
         <constructor-arg value="115200"/>
-        <constructor-arg ref="bytesInterceptor"/>
+        <constructor-arg>
+            <bean class="com.ak.hardware.tnmi.comm.interceptor.TnmiBytesInterceptor"/>
+        </constructor-arg>
     </bean>
 
     <bean class="com.ak.fx.desktop.Controller"/>

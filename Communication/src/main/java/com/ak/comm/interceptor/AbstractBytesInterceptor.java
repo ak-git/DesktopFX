@@ -6,11 +6,11 @@ import com.ak.comm.core.AbstractService;
 
 public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends AbstractService<RESPONSE> implements BytesInterceptor<RESPONSE, REQUEST> {
   private final ByteBuffer outBuffer;
-  private final REQUEST startCommand;
+  private final REQUEST pingRequest;
 
-  public AbstractBytesInterceptor(int outBufferSize, REQUEST startCommand) {
+  public AbstractBytesInterceptor(int outBufferSize, REQUEST pingRequest) {
     outBuffer = ByteBuffer.allocate(outBufferSize);
-    this.startCommand = startCommand;
+    this.pingRequest = pingRequest;
   }
 
   @Override
@@ -24,8 +24,8 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
   }
 
   @Override
-  public final REQUEST getStartCommand() {
-    return startCommand;
+  public final REQUEST getPingRequest() {
+    return pingRequest;
   }
 
   @Override

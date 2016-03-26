@@ -47,7 +47,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
         }
       });
 
-      if (write(bytesInterceptor.getStartCommand()) != 0) {
+      if (write(bytesInterceptor.getPingRequest()) != 0) {
         do {
           try {
             latch.await(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
