@@ -1,48 +1,20 @@
 package com.ak.comm.serial;
 
-import java.util.concurrent.TimeUnit;
-
 import com.ak.comm.interceptor.DefaultBytesInterceptor;
 import org.testng.annotations.Test;
-import rx.Observer;
+import rx.observers.TestSubscriber;
 
 public final class CycleSerialServiceTest {
   @Test
-  public void test() throws InterruptedException {
+  public void testDefaultBytesInterceptor() {
     CycleSerialService<Integer, Byte> service = new CycleSerialService<>(115200, new DefaultBytesInterceptor());
-    service.getBufferObservable().subscribe(new Observer<Integer>() {
-      @Override
-      public void onCompleted() {
-        System.out.println("CycleSerialServiceTest.onCompleted");
-      }
-
-      @Override
-      public void onError(Throwable e) {
-        System.out.println("e = " + e);
-      }
-
-      @Override
-      public void onNext(Integer integer) {
-        System.out.println(integer);
-      }
-    });
-
-    byte[][] expected = {
-        {0x7E, (byte) 0x81, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07},
-        {0x7E, (byte) 0x81, 0x08, 0x08, 0x08, 0x08, 0x08, 0x00, 0x00, 0x00, 0x00, 0x27},
-        {0x7E, (byte) 0x81, 0x08, 0x18, 0x18, 0x18, 0x18, 0x00, 0x00, 0x00, 0x00, 0x67},
-        {0x7E, (byte) 0x81, 0x08, 0x1C, 0x1C, 0x1C, 0x1C, 0x00, 0x00, 0x00, 0x00, 0x77},
-        {0x7E, (byte) 0x81, 0x08, 0x1E, 0x1E, 0x1E, 0x1E, 0x00, 0x00, 0x00, 0x00, 0x7F},
-        {0x7E, (byte) 0x81, 0x08, 0x1F, 0x1F, 0x1F, 0x1F, 0x00, 0x00, 0x00, 0x00, (byte) 0x83},
-        {0x7E, (byte) 0x81, 0x08, 0x3F, 0x3F, 0x3F, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x03}
-    };
-
-    for (byte[] bytes : expected) {
-      for (byte aByte : bytes) {
-        service.write(aByte);
-      }
-    }
-    TimeUnit.MILLISECONDS.sleep(200);
+    TestSubscriber<Integer> subscriber = TestSubscriber.create();
+    service.getBufferObservable().subscribe(subscriber);
+    service.write((byte) 0);
+    subscriber.assertNotCompleted();
     service.close();
+    subscriber.assertCompleted();
+    subscriber.assertNoValues();
+    subscriber.assertNoErrors();
   }
 }

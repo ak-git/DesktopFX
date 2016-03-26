@@ -32,12 +32,12 @@ public final class TnmiTest {
     Assert.assertEquals(request.toResponse(), TnmiResponse.newInstance(input));
   }
 
-  @Test(dataProviderClass = TnmiTestProvider.class, dataProvider = "sequenceResponse", timeOut = 10000)
+  @Test(dataProviderClass = TnmiTestProvider.class, dataProvider = "sequenceResponse")
   public void testResponseSequence(TnmiRequest request, byte[] input) {
     Assert.assertEquals(request.toResponse(), TnmiResponse.newInstance(input));
   }
 
-  @Test(dataProviderClass = TnmiTestProvider.class, dataProvider = "aliveAndChannelsResponse", timeOut = 10000)
+  @Test(dataProviderClass = TnmiTestProvider.class, dataProvider = "aliveAndChannelsResponse")
   public void testResponseAliveAndChannels(TnmiAddress address, byte[] input) {
     if (TnmiAddress.CHANNELS.contains(address)) {
       Optional.ofNullable(TnmiResponse.newInstance(input)).orElseThrow(NullPointerException::new);
