@@ -85,7 +85,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
     }, 0, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
   }
 
-  int write(REQUEST request) {
+  public int write(REQUEST request) {
     return request == null ? -1 : serialService.write(bytesInterceptor.put(request));
   }
 

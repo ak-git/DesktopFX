@@ -15,7 +15,7 @@ public final class TnmiRequest implements Cloneable {
     }
   }
 
-  enum MyoFrequency {
+  public enum MyoFrequency {
     OFF(0), HZ_50(1), HZ_100(1 << 1), HZ_200(1 << 2), HZ_500(1 << 3), HZ_1000(1 << 4), NOISE(1 << 5);
 
     private final byte code;
@@ -25,7 +25,7 @@ public final class TnmiRequest implements Cloneable {
     }
   }
 
-  enum MyoType {
+  public enum MyoType {
     OFF(0), MV0_1(1 << 6), MV1(1 << 7);
 
     private final byte code;
@@ -35,7 +35,7 @@ public final class TnmiRequest implements Cloneable {
     }
   }
 
-  enum Single {
+  public enum Single {
     Z_360(Ohm.Z_360),
     Z_390(Ohm.Z_360, Ohm.Z_30A),
     Z_420(Ohm.Z_360, Ohm.Z_30A, Ohm.Z_30B),
@@ -55,7 +55,7 @@ public final class TnmiRequest implements Cloneable {
     }
   }
 
-  enum Sequence implements javafx.util.Builder<TnmiRequest> {
+  public enum Sequence implements javafx.util.Builder<TnmiRequest> {
     CATCH_100(1, MyoType.MV1, MyoFrequency.HZ_200), CATCH_60(2, MyoType.MV1, MyoFrequency.HZ_200),
     CATCH_30(3, MyoType.MV1, MyoFrequency.HZ_200), CATCH_INV(4, MyoType.MV1, MyoFrequency.HZ_200),
     ROTATE_100(5, MyoType.MV0_1, MyoFrequency.NOISE), ROTATE_60(6, MyoType.MV0_1, MyoFrequency.NOISE),
@@ -119,6 +119,7 @@ public final class TnmiRequest implements Cloneable {
   }
 
   private static class Builder implements javafx.util.Builder<TnmiRequest> {
+    private static final String SPACE = " ";
     private final byte[] codes = new byte[1 + 1 + 1 + 8 + 1];
     private final StringBuilder toStringBuilder = new StringBuilder();
 
@@ -126,27 +127,27 @@ public final class TnmiRequest implements Cloneable {
       codes[TnmiProtocolByte.START.ordinal()] = 0x7E;
       codes[TnmiProtocolByte.ADDR.ordinal()] = address.getAddrRequest();
       codes[TnmiProtocolByte.LEN.ordinal()] = 0x08;
-      toStringBuilder.append(address.name()).append("");
+      toStringBuilder.append(address.name()).append(SPACE);
     }
 
     Builder forAll(Ohm... ohms) {
       byte code = (byte) Stream.of(ohms).mapToInt(ohm -> ohm.code).sum();
       Arrays.fill(codes, TnmiProtocolByte.DATA_1.ordinal(), TnmiProtocolByte.DATA_4.ordinal() + 1, code);
-      toStringBuilder.append(Arrays.toString(ohms)).append("");
+      toStringBuilder.append(Arrays.toString(ohms)).append(SPACE);
       return this;
     }
 
     Builder forAll(MyoType myoType, MyoFrequency frequency) {
       Arrays.fill(codes, TnmiProtocolByte.DATA_5.ordinal(), TnmiProtocolByte.DATA_8.ordinal() + 1,
           (byte) (myoType.code + frequency.code));
-      toStringBuilder.append(myoType.name()).append("").append(frequency.name()).append("");
+      toStringBuilder.append(myoType.name()).append(SPACE).append(frequency.name()).append(SPACE);
       return this;
     }
 
     Builder sequence(int number) {
       Arrays.fill(codes, TnmiProtocolByte.DATA_1.ordinal(), TnmiProtocolByte.DATA_4.ordinal() + 1, (byte) 0x00);
       codes[TnmiProtocolByte.DATA_1.ordinal()] = (byte) number;
-      toStringBuilder.append(number).append("");
+      toStringBuilder.append(number).append(SPACE);
       return this;
     }
 

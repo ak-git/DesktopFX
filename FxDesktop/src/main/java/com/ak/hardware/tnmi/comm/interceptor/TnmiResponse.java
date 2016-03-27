@@ -11,6 +11,7 @@ public final class TnmiResponse {
   private TnmiResponse(byte[] bytes) {
     address = Objects.requireNonNull(TnmiAddress.find(bytes));
     buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+    buffer.flip();
   }
 
   static TnmiResponse newInstance(byte[] bytes) {
