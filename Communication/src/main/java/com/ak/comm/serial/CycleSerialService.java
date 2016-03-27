@@ -39,7 +39,6 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
 
         @Override
         public void onError(Throwable e) {
-          bufferPublish().onError(e);
           workingFlag.set(false);
           latch.countDown();
         }
