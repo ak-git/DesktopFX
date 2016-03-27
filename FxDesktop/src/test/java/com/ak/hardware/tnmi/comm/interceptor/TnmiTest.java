@@ -50,5 +50,6 @@ public final class TnmiTest {
     ByteBuffer byteBuffer = ByteBuffer.allocate(expected.length);
     request.writeTo(byteBuffer);
     Assert.assertEquals(byteBuffer.array(), expected, request.toString());
+    Assert.assertThrows(CloneNotSupportedException.class, request::clone);
   }
 }
