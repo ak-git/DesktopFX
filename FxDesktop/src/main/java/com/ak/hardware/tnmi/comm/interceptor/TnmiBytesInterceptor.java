@@ -44,7 +44,7 @@ public final class TnmiBytesInterceptor extends AbstractBytesInterceptor<TnmiRes
         byteBuffer.get(array);
         TnmiResponse response = TnmiResponse.newInstance(array);
         if (response == null) {
-          Logger.getLogger(getClass().getName()).config(String.format("Invalid TNMI response format: {%s}", Arrays.toString(array)));
+          Logger.getLogger(getClass().getName()).warning(String.format("Invalid TNMI response format: {%s}", Arrays.toString(array)));
         }
         else {
           bufferPublish().onNext(response);

@@ -6,7 +6,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public final class TnmiResponseTest {
-  @Test(dataProviderClass = TnmiTestProvider.class, dataProvider = "invalidTestByte")
+  @Test(dataProviderClass = TnmiTestProvider.class, dataProvider = "invalidTestByteResponse")
   public void testNewInstance(byte[] input) {
     Assert.assertNotNull(TnmiAddress.find(input), Arrays.toString(input));
     Assert.assertTrue(TnmiProtocolByte.checkCRC(input), Arrays.toString(input));
