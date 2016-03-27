@@ -11,7 +11,7 @@ public interface BytesInterceptor<RESPONSE, REQUEST> extends WritableByteChannel
    * <b>REWIND bytes buffer before use!</b>
    *
    * @param src input bytes buffer
-   * @return count bytes processed
+   * @return count response generated
    */
   @Override
   int write(ByteBuffer src);

@@ -1,5 +1,8 @@
 package com.ak.fx.desktop;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.inject.Inject;
 
 import com.ak.comm.serial.CycleSerialService;
@@ -18,17 +21,16 @@ public final class Controller {
     service.getBufferObservable().subscribe(new Observer<TnmiResponse>() {
       @Override
       public void onCompleted() {
-        System.out.println("Controller.onCompleted");
       }
 
       @Override
       public void onError(Throwable e) {
-        e.printStackTrace();
+        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
       }
 
       @Override
       public void onNext(TnmiResponse tnmiResponse) {
-        System.out.println(tnmiResponse);
+        Logger.getLogger(getClass().getName()).info(tnmiResponse.toString());
       }
     });
   }

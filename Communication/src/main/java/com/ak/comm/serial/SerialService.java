@@ -55,7 +55,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
   public int write(ByteBuffer src) {
     synchronized (serialPort) {
       int countBytes = 0;
-      if (isOpen()) {
+      if (serialPort.isOpened()) {
         src.rewind();
         try {
           while (src.hasRemaining()) {

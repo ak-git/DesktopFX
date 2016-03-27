@@ -23,7 +23,7 @@ public class TnmiTestProvider {
     Object[][] values = new Object[expected.length][2];
     for (int i = 0; i < expected.length; i++) {
       values[i] = new Object[] {TnmiRequest.Single.values()[i].
-          forAll(TnmiRequest.MyoType.OFF, TnmiRequest.MyoFrequency.OFF), expected[i]};
+          buildForAll(TnmiRequest.MyoType.OFF, TnmiRequest.MyoFrequency.OFF), expected[i]};
     }
     return values;
   }
@@ -44,7 +44,7 @@ public class TnmiTestProvider {
 
     Object[][] values = new Object[expected.length][2];
     for (int i = 0; i < expected.length; i++) {
-      values[i] = new Object[] {TnmiRequest.Single.Z_360.forAll(TnmiRequest.MyoType.MV1, frequencies[i]), expected[i]};
+      values[i] = new Object[] {TnmiRequest.Single.Z_360.buildForAll(TnmiRequest.MyoType.MV1, frequencies[i]), expected[i]};
     }
     return values;
   }
@@ -87,7 +87,7 @@ public class TnmiTestProvider {
     Object[][] values = new Object[input.length][2];
     for (int i = 0; i < input.length; i++) {
       values[i] = new Object[] {TnmiRequest.Single.values()[i].
-          forAll(TnmiRequest.MyoType.OFF, TnmiRequest.MyoFrequency.OFF), input[i]};
+          buildForAll(TnmiRequest.MyoType.OFF, TnmiRequest.MyoFrequency.OFF), input[i]};
     }
     return values;
   }
@@ -108,7 +108,7 @@ public class TnmiTestProvider {
 
     Object[][] values = new Object[input.length][2];
     for (int i = 0; i < input.length; i++) {
-      values[i] = new Object[] {TnmiRequest.Single.Z_360.forAll(TnmiRequest.MyoType.MV1, frequencies[i]), input[i]};
+      values[i] = new Object[] {TnmiRequest.Single.Z_360.buildForAll(TnmiRequest.MyoType.MV1, frequencies[i]), input[i]};
     }
     return values;
   }

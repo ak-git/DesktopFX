@@ -50,7 +50,7 @@ public final class TnmiRequest implements Cloneable {
       this.ohms = Arrays.copyOf(ohms, ohms.length);
     }
 
-    public final TnmiRequest forAll(MyoType myoType, MyoFrequency frequency) {
+    public final TnmiRequest buildForAll(MyoType myoType, MyoFrequency frequency) {
       return new Builder(TnmiAddress.SINGLE).forAll(ohms).forAll(myoType, frequency).build();
     }
   }

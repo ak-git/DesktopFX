@@ -1,11 +1,14 @@
 package com.ak.comm.serial;
 
 import java.nio.ByteBuffer;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,8 +29,9 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
     bytesInterceptor.getBufferObservable().subscribe(bufferPublish());
     executor.scheduleAtFixedRate(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();
+      AtomicReference<Instant> okTime = new AtomicReference<>(Instant.now());
       CountDownLatch latch = new CountDownLatch(1);
-      Subscription subscription = serialService.getBufferObservable().subscribe(new Observer<ByteBuffer>() {
+      Subscription serviceSubscription = serialService.getBufferObservable().subscribe(new Observer<ByteBuffer>() {
         @Override
         public void onCompleted() {
           Logger.getLogger(getClass().getName()).config("Close connection " + serialService);
@@ -42,29 +46,40 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
 
         @Override
         public void onNext(ByteBuffer buffer) {
-          workingFlag.set(true);
-          bytesInterceptor.write(buffer);
+          if (bytesInterceptor.write(buffer) > 0) {
+            workingFlag.set(true);
+            okTime.set(Instant.now());
+          }
         }
       });
 
-      if (write(bytesInterceptor.getPingRequest()) != 0) {
-        do {
+      while (!Thread.currentThread().isInterrupted()) {
+        if (write(bytesInterceptor.getPingRequest()) == 0) {
+          break;
+        }
+        else {
+          okTime.set(Instant.now());
           try {
-            latch.await(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
+            while (Duration.between(okTime.get(), Instant.now()).minus(UIConstants.UI_DELAY).isNegative()) {
+              latch.await(UIConstants.UI_DELAY.toMillis() / 10, TimeUnit.MILLISECONDS);
+            }
           }
           catch (InterruptedException e) {
             Logger.getLogger(getClass().getName()).log(Level.FINE, e.getMessage(), e);
             Thread.currentThread().interrupt();
             break;
           }
+
+          if (!workingFlag.getAndSet(false)) {
+            break;
+          }
         }
-        while (workingFlag.getAndSet(false));
       }
 
       synchronized (executor) {
-        if (!workingFlag.get() && !executor.isShutdown()) {
+        if (!executor.isShutdown()) {
           serialService.close();
-          subscription.unsubscribe();
+          serviceSubscription.unsubscribe();
           serialService = new SerialService(baudRate);
         }
       }
@@ -72,7 +87,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
   }
 
   int write(REQUEST request) {
-    return serialService.write(bytesInterceptor.put(request));
+    return request == null ? -1 : serialService.write(bytesInterceptor.put(request));
   }
 
   @Override

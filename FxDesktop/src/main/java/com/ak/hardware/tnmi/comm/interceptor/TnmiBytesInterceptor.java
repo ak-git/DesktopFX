@@ -9,16 +9,14 @@ public final class TnmiBytesInterceptor extends AbstractBytesInterceptor<TnmiRes
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(TnmiProtocolByte.MAX_CAPACITY);
 
   public TnmiBytesInterceptor() {
-    super(TnmiProtocolByte.MAX_CAPACITY, TnmiRequest.Single.Z_360.forAll(TnmiRequest.MyoType.OFF, TnmiRequest.MyoFrequency.OFF));
+    super(TnmiProtocolByte.MAX_CAPACITY, TnmiRequest.Single.Z_360.buildForAll(TnmiRequest.MyoType.OFF, TnmiRequest.MyoFrequency.OFF));
   }
 
   @Override
   public int write(ByteBuffer src) {
-    int countBytes = 0;
+    int countResponse = 0;
     while (src.hasRemaining()) {
       byte b = src.get();
-      countBytes++;
-
       boolean skip = false;
       for (TnmiProtocolByte checkedByte : TnmiProtocolByte.CHECKED_BYTES) {
         if (byteBuffer.position() == checkedByte.ordinal()) {
@@ -49,11 +47,12 @@ public final class TnmiBytesInterceptor extends AbstractBytesInterceptor<TnmiRes
         }
         else {
           bufferPublish().onNext(response);
+          countResponse++;
         }
         byteBuffer.clear();
       }
     }
-    return countBytes;
+    return countResponse;
   }
 
   @Override
