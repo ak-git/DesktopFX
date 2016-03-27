@@ -153,4 +153,33 @@ public class TnmiTestProvider {
     }
     return values;
   }
+
+  /**
+   * <ol>
+   * <li>
+   * invalid START byte: 0x7A
+   * </li>
+   * <li>
+   * invalid LEN byte: TnmiProtocolByte.MAX_CAPACITY + 1
+   * </li>
+   * <li>
+   * invalid LEN byte: -1
+   * </li>
+   * </ol>
+   *
+   * @return bytes to test
+   */
+  @DataProvider(name = "invalidTestByte")
+  public static Object[][] invalidTestByte() {
+    byte[][] input = {
+        {0x7A, 0x41, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xC3},
+        {0x7E, 0x42, TnmiProtocolByte.MAX_CAPACITY + 1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x01},
+        {0x7E, 0x43, -1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xC0},
+    };
+    Object[][] values = new Object[input.length][2];
+    for (int i = 0; i < input.length; i++) {
+      values[i] = new Object[] {input[i]};
+    }
+    return values;
+  }
 }

@@ -26,6 +26,7 @@ public final class TnmiTest {
   @Test(dataProviderClass = TnmiTestProvider.class, dataProvider = "allOhmsMyoOffResponse")
   public void testResponseOhms(TnmiRequest request, byte[] input) {
     Assert.assertEquals(request.toResponse(), TnmiResponse.newInstance(Arrays.copyOfRange(input, 1, input.length)));
+    Assert.assertNotEquals(request.toResponse(), TnmiResponse.newInstance(input));
   }
 
   @Test(dataProviderClass = TnmiTestProvider.class, dataProvider = "360OhmsMyoHzResponse")

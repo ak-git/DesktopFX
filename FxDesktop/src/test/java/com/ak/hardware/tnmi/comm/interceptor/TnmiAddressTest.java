@@ -15,7 +15,7 @@ import static com.ak.hardware.tnmi.comm.interceptor.TnmiAddress.ROTATE_HAND;
 
 public final class TnmiAddressTest {
   @Test
-  public <E> void testGetAddrRequest() {
+  public void testGetAddrRequest() {
     EnumSet<TnmiAddress> bad = EnumSet.of(ALIVE, CATCH_ELBOW, ROTATE_ELBOW, CATCH_HAND, ROTATE_HAND);
     for (TnmiAddress address : bad) {
       Assert.assertThrows(UnsupportedOperationException.class, address::getAddrRequest);
