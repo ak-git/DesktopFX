@@ -8,7 +8,7 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
   private final ByteBuffer outBuffer;
   private final REQUEST pingRequest;
 
-  public AbstractBytesInterceptor(int outBufferSize, REQUEST pingRequest) {
+  protected AbstractBytesInterceptor(int outBufferSize, REQUEST pingRequest) {
     outBuffer = ByteBuffer.allocate(outBufferSize);
     this.pingRequest = pingRequest;
   }

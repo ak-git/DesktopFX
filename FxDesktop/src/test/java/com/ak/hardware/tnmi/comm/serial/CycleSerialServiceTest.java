@@ -11,7 +11,7 @@ import rx.observers.TestSubscriber;
 public final class CycleSerialServiceTest {
   @Test
   public void testDefaultBytesInterceptor() {
-    CycleSerialService<Integer, Byte> service = new CycleSerialService<>(115200, new DefaultBytesInterceptor());
+    CycleSerialService<Integer, Byte> service = new CycleSerialService<>(38400, new DefaultBytesInterceptor());
     TestSubscriber<Integer> subscriber = TestSubscriber.create();
     service.getBufferObservable().subscribe(subscriber);
     service.write((byte) 1);
