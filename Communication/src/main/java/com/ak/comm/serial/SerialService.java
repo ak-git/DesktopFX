@@ -28,6 +28,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
         serialPort.openPort();
         serialPort.setParams(baudRate, 8, 1, 0);
         serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
+        Logger.getLogger(getClass().getName()).config(String.format("Opened %s, baudRate = %d bps", this, baudRate));
         serialPort.addEventListener(event -> {
           try {
             buffer.clear();
