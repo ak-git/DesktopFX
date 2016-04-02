@@ -16,6 +16,7 @@ public final class TnmiBytesInterceptor extends AbstractBytesInterceptor<TnmiRes
 
   @Override
   public int write(ByteBuffer src) {
+    src.rewind();
     int countResponse = 0;
     while (src.hasRemaining()) {
       byte b = src.get();
