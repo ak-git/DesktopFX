@@ -6,7 +6,11 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.logging.FileHandler;
+import java.util.logging.LogManager;
 
 import javafx.util.Builder;
 
@@ -72,6 +76,13 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
   public static final class LogBuilder extends AbstractBuilder {
     public LogBuilder() {
       super("");
+    }
+
+    LogBuilder addPathAndDate(Class<? extends FileHandler> fileHandlerClass) {
+      addPath(Optional.ofNullable(LogManager.getLogManager().getProperty(fileHandlerClass.getName() + ".name")).
+          orElse(fileHandlerClass.getSimpleName()));
+      fileName(DateTimeFormatter.ofPattern("yyyy-MMM-dd").format(ZonedDateTime.now()));
+      return this;
     }
 
     /**
