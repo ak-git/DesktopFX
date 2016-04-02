@@ -21,14 +21,14 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
     String portName = Ports.INSTANCE.next();
     serialPort = new SerialPort(portName);
     if (portName.isEmpty()) {
-      Logger.getLogger(getClass().getName()).config("Serial port not found");
+      Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Serial port not found");
     }
     else {
       try {
         serialPort.openPort();
         serialPort.setParams(baudRate, 8, 1, 0);
         serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
-        Logger.getLogger(getClass().getName()).info(String.format("Opened %s, baudRate = %d bps", this, baudRate));
+        Logger.getLogger(getClass().getName()).log(Level.INFO, String.format("Opened %s, baudRate = %d bps", this, baudRate));
         serialPort.addEventListener(event -> {
           try {
             buffer.clear();
@@ -113,7 +113,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
       }
       else {
         String portName = portNames[0];
-        Logger.getLogger(getClass().getName()).config(
+        Logger.getLogger(getClass().getName()).log(Level.CONFIG,
             String.format("Found %s, the '%s' is selected", Arrays.toString(portNames), portName));
         usedPorts.remove(portName);
         usedPorts.addLast(portName);

@@ -34,7 +34,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
       Subscription serviceSubscription = serialService.getBufferObservable().subscribe(new Observer<ByteBuffer>() {
         @Override
         public void onCompleted() {
-          Logger.getLogger(getClass().getName()).config("Close connection " + serialService);
+          Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Close connection " + serialService);
         }
 
         @Override

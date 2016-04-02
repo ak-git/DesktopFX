@@ -3,6 +3,7 @@ package com.ak.fx.stage;
 import java.awt.Toolkit;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ak.util.UIConstants;
@@ -24,7 +25,7 @@ public enum ScreenResolutionMonitor {
       distinctUntilChanged().
       doOnNext(dpi -> {
         this.dpi.set(dpi);
-        Logger.getLogger(getClass().getName()).config(String.format("Screen resolution is %.0f dpi", dpi));
+        Logger.getLogger(getClass().getName()).log(Level.CONFIG, String.format("Screen resolution is %.0f dpi", dpi));
       });
 
   public static void setStage(Stage stage) {
