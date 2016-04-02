@@ -19,16 +19,22 @@ import javafx.scene.shape.VLineTo;
 public final class MilliGrid extends Pane {
   private enum GridCell {
     POINTS(1.0) {
+      private static final int FACTOR = 4;
+
       @Override
       double getStep() {
-        return super.getStep() / 4.0;
+        return super.getStep() / FACTOR;
       }
 
       @Override
       Path newPath() {
         Path path = super.newPath();
         path.setStrokeDashOffset(getStep());
-        path.getStrokeDashArray().addAll(0.0, getStep() * 2, 0.0, getStep(), 0.0, getStep());
+
+        path.getStrokeDashArray().addAll(0.0, getStep() * 2);
+        for (int i = 0; i < FACTOR - 2; i++) {
+          path.getStrokeDashArray().addAll(0.0, getStep());
+        }
         return path;
       }
     },
