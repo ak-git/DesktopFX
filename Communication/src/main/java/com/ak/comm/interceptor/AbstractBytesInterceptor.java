@@ -5,12 +5,19 @@ import java.nio.ByteBuffer;
 import com.ak.comm.core.AbstractService;
 
 public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends AbstractService<RESPONSE> implements BytesInterceptor<RESPONSE, REQUEST> {
+  private final String name;
   private final ByteBuffer outBuffer;
   private final REQUEST pingRequest;
 
-  protected AbstractBytesInterceptor(int outBufferSize, REQUEST pingRequest) {
+  protected AbstractBytesInterceptor(String name, int outBufferSize, REQUEST pingRequest) {
+    this.name = name;
     outBuffer = ByteBuffer.allocate(outBufferSize);
     this.pingRequest = pingRequest;
+  }
+
+  @Override
+  public final String name() {
+    return name;
   }
 
   @Override

@@ -16,13 +16,13 @@ public final class SerialServiceTest implements Observer<ByteBuffer> {
   @Test
   public void test() {
     List<Service<ByteBuffer>> services = Stream.of(SerialPortList.getPortNames()).map(port -> {
-      SerialService serialService = new SerialService(115200);
+      SerialService serialService = new SerialService(String.format("%x", port.hashCode()), 115200);
       serialService.getBufferObservable().subscribe(this);
       Assert.assertEquals(serialService.write(ByteBuffer.allocate(0)), 0);
       return serialService;
     }).collect(Collectors.toList());
 
-    Service<ByteBuffer> singleService = new SerialService(115200);
+    Service<ByteBuffer> singleService = new SerialService(SerialServiceTest.class.getSimpleName(), 115200);
     singleService.getBufferObservable().subscribe(this);
     singleService.close();
     services.forEach(Service::close);

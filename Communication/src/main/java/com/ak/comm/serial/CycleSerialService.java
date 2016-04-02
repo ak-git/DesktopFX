@@ -24,7 +24,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
   private volatile SerialService serialService;
 
   public CycleSerialService(int baudRate, BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor) {
-    serialService = new SerialService(baudRate);
+    serialService = new SerialService(bytesInterceptor.name(), baudRate);
     this.bytesInterceptor = bytesInterceptor;
     bytesInterceptor.getBufferObservable().subscribe(bufferPublish());
     executor.scheduleAtFixedRate(() -> {
@@ -79,7 +79,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
         if (!executor.isShutdown()) {
           serialService.close();
           serviceSubscription.unsubscribe();
-          serialService = new SerialService(baudRate);
+          serialService = new SerialService(bytesInterceptor.name(), baudRate);
         }
       }
     }, 0, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);

@@ -6,6 +6,7 @@ import java.nio.channels.WritableByteChannel;
 import com.ak.comm.core.Service;
 
 public interface BytesInterceptor<RESPONSE, REQUEST> extends WritableByteChannel, Service<RESPONSE> {
+  String name();
   /**
    * Process input bytes buffer.<br/>
    * <b>REWIND bytes buffer before use!</b>

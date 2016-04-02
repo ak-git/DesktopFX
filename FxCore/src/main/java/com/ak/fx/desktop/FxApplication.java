@@ -92,7 +92,7 @@ public final class FxApplication extends Application {
     try {
       Properties keys = new Properties();
       keys.load(FxApplication.class.getResourceAsStream(KEY_PROPERTIES));
-      Path path = new LocalFileIO.LogBuilder().addPath(keys.getProperty(KEY_APPLICATION_TITLE)).
+      Path path = new LocalFileIO.LogPathBuilder().addPath(keys.getProperty(KEY_APPLICATION_TITLE)).
           fileName(LOGGING_PROPERTIES).build().getPath();
       if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
         Files.copy(FxApplication.class.getResourceAsStream(LOGGING_PROPERTIES), path);

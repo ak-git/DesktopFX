@@ -1,13 +1,19 @@
 package com.ak.comm.serial;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ak.comm.core.AbstractService;
+import com.ak.util.LocalFileHandler;
+import com.ak.util.LocalFileIO;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
@@ -15,8 +21,9 @@ import jssc.SerialPortList;
 final class SerialService extends AbstractService<ByteBuffer> implements WritableByteChannel {
   private final SerialPort serialPort;
   private final ByteBuffer buffer;
+  private WritableByteChannel binaryLogChannel;
 
-  SerialService(int baudRate) {
+  SerialService(String name, int baudRate) {
     buffer = ByteBuffer.allocate(baudRate);
     String portName = Ports.INSTANCE.next();
     serialPort = new SerialPort(portName);
@@ -30,19 +37,32 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
         serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
         Logger.getLogger(getClass().getName()).log(Level.INFO, String.format("Opened %s, baudRate = %d bps", this, baudRate));
         serialPort.addEventListener(event -> {
+          if (binaryLogChannel == null) {
+            try {
+              Path path = new LocalFileIO.BinaryLogBuilder(name, LocalFileHandler.class).build().getPath();
+              binaryLogChannel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+              Logger.getLogger(getClass().getName()).log(Level.INFO,
+                  String.format("Bytes from serial port are logging into the file %s", path));
+            }
+            catch (IOException ex) {
+              logAndClose(Level.WARNING, ex);
+            }
+          }
+
           try {
             buffer.clear();
             buffer.put(serialPort.readBytes());
             buffer.flip();
+            binaryLogChannel.write(buffer);
             bufferPublish().onNext(buffer);
           }
           catch (Exception ex) {
-            logAndClose(ex);
+            logAndClose(Level.CONFIG, ex);
           }
         }, SerialPort.MASK_RXCHAR);
       }
       catch (SerialPortException ex) {
-        logAndClose(ex);
+        logAndClose(Level.CONFIG, ex);
       }
     }
   }
@@ -76,14 +96,25 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
   @Override
   public void close() {
     try {
-      synchronized (serialPort) {
-        if (serialPort.isOpened()) {
-          serialPort.closePort();
+      try {
+        synchronized (serialPort) {
+          if (serialPort.isOpened()) {
+            serialPort.closePort();
+          }
         }
       }
-    }
-    catch (SerialPortException ex) {
-      Logger.getLogger(getClass().getName()).log(Level.CONFIG, ex.getPortName(), ex);
+      catch (SerialPortException ex) {
+        Logger.getLogger(getClass().getName()).log(Level.CONFIG, serialPort.getPortName(), ex);
+      }
+
+      try {
+        if (binaryLogChannel != null) {
+          binaryLogChannel.close();
+        }
+      }
+      catch (IOException ex) {
+        Logger.getLogger(getClass().getName()).log(Level.WARNING, serialPort.getPortName(), ex);
+      }
     }
     finally {
       bufferPublish().onCompleted();
@@ -95,8 +126,8 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
     return String.format("%s@%x{serialPort = %s}", getClass().getSimpleName(), hashCode(), serialPort.getPortName());
   }
 
-  private void logAndClose(Exception ex) {
-    Logger.getLogger(getClass().getName()).log(Level.CONFIG, serialPort.getPortName(), ex);
+  private void logAndClose(Level level, Exception ex) {
+    Logger.getLogger(getClass().getName()).log(level, serialPort.getPortName(), ex);
     bufferPublish().onError(ex);
     close();
   }
