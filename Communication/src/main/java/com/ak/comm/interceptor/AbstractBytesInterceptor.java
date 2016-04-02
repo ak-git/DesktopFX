@@ -1,6 +1,8 @@
 package com.ak.comm.interceptor;
 
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.ak.comm.core.AbstractService;
 
@@ -13,6 +15,7 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
     this.name = name;
     outBuffer = ByteBuffer.allocate(outBufferSize);
     this.pingRequest = pingRequest;
+    bufferPublish().subscribe(response -> Logger.getLogger(getClass().getName()).log(Level.CONFIG, response.toString()));
   }
 
   @Override
@@ -37,6 +40,7 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
 
   @Override
   public final ByteBuffer put(REQUEST request) {
+    Logger.getLogger(getClass().getName()).log(Level.CONFIG, request.toString());
     outBuffer.clear();
     innerPut(outBuffer, request);
     outBuffer.flip();
