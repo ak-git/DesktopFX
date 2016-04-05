@@ -1,6 +1,7 @@
 package com.ak.util;
 
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -16,7 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collector;
 
-public final class LineFileCollector implements Collector<Object, BufferedWriter, Void>, AutoCloseable {
+public final class LineFileCollector implements Collector<Object, BufferedWriter, Void>, Closeable {
   public enum Direction {
     HORIZONTAL {
       @Override
@@ -34,17 +35,7 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
     public abstract void acceptWriter(BufferedWriter writer) throws IOException;
   }
 
-  private final Object finalizerGuardian = new Object() {
-    @Override
-    protected void finalize() throws Throwable {
-      try {
-        close();
-      }
-      finally {
-        super.finalize();
-      }
-    }
-  };
+  private final Object finalizerGuardian = new FinalizerGuardian(this);
   private final BufferedWriter writer;
   private final Direction direction;
   private boolean startFlag = true;
@@ -110,7 +101,7 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() throws IOException {
     if (!errorFlag) {
       writer.close();
     }

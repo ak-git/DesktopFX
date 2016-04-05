@@ -6,7 +6,11 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.logging.FileHandler;
+import java.util.logging.LogManager;
 
 import javafx.util.Builder;
 
@@ -69,9 +73,19 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
     }
   }
 
-  public static final class LogBuilder extends AbstractBuilder {
-    public LogBuilder() {
+  public static class LogPathBuilder extends AbstractBuilder {
+    public LogPathBuilder() {
       super("");
+    }
+
+    private LogPathBuilder(String fileExtension, Class<? extends FileHandler> fileHandlerClass) {
+      super(fileExtension);
+      addPath(Optional.ofNullable(LogManager.getLogManager().getProperty(fileHandlerClass.getName() + ".name")).
+          orElse(fileHandlerClass.getSimpleName()));
+    }
+
+    static String localDate(String pattern) {
+      return DateTimeFormatter.ofPattern(pattern).format(ZonedDateTime.now());
     }
 
     /**
@@ -91,8 +105,22 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
      * @return interface for input/output file creation.
      */
     @Override
-    public LocalIO build() {
+    public final LocalIO build() {
       return new LocalFileIO<>(this, LogOSDirectory.class);
+    }
+  }
+
+  static final class LogBuilder extends LogPathBuilder {
+    LogBuilder(Class<? extends FileHandler> fileHandlerClass) {
+      super("log", fileHandlerClass);
+      fileName(localDate("yyyy-MMM-dd") + ".%u.%g");
+    }
+  }
+
+  public static final class BinaryLogBuilder extends LogPathBuilder {
+    public BinaryLogBuilder(String prefix, Class<? extends FileHandler> fileHandlerClass) {
+      super("bin", fileHandlerClass);
+      fileName(prefix + localDate(" yyyy-MMM-dd HH-mm-ss"));
     }
   }
 

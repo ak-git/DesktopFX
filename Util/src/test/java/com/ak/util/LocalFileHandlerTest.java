@@ -1,9 +1,12 @@
 package com.ak.util;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -22,7 +25,7 @@ public class LocalFileHandlerTest {
 
   @BeforeClass
   public void setUp() throws Exception {
-    logPath = new LocalFileIO.LogBuilder().
+    logPath = new LocalFileIO.LogPathBuilder().
         addPath(LocalFileHandler.class.getSimpleName()).addPath("testSubDir").build().getPath();
     tearDown();
   }
@@ -44,6 +47,16 @@ public class LocalFileHandlerTest {
       }
       Assert.assertEquals(count, 1, "Must be the only one .log file in " + logPath);
     }
+  }
+
+  @Test
+  public void testBinaryLogBuilder() throws IOException {
+    Path path = new LocalFileIO.BinaryLogBuilder(getClass().getSimpleName(), LocalFileHandler.class).build().getPath();
+    WritableByteChannel channel = Files.newByteChannel(path,
+        StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+    channel.write(ByteBuffer.wrap(getClass().getName().getBytes()));
+    channel.close();
+    Files.deleteIfExists(path);
   }
 
   @AfterClass

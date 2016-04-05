@@ -3,9 +3,10 @@ package com.ak.fx.stage;
 import java.awt.Toolkit;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.ak.fx.util.UIConstants;
+import com.ak.util.UIConstants;
 import com.sun.javafx.util.Utils;
 import javafx.stage.Stage;
 import rx.Observable;
@@ -19,12 +20,12 @@ public enum ScreenResolutionMonitor {
   private final AtomicReference<Stage> stage = new AtomicReference<>();
   private final Observable<Double> dpiObservable = Observable.merge(
       Observable.create(subscriber -> subscriber.onNext(getDpi())),
-      Observable.interval(0, UIConstants.uiDelay(SECONDS), SECONDS).
+      Observable.interval(0, UIConstants.UI_DELAY.getSeconds(), SECONDS).
           map(index -> stage.get()).skipWhile(stage -> stage == null).map(stage -> Utils.getScreen(stage).getDpi())).
       distinctUntilChanged().
       doOnNext(dpi -> {
         this.dpi.set(dpi);
-        Logger.getLogger(getClass().getName()).config(String.format("Screen resolution is %.0f dpi", dpi));
+        Logger.getLogger(getClass().getName()).log(Level.CONFIG, String.format("Screen resolution is %.0f dpi", dpi));
       });
 
   public static void setStage(Stage stage) {
