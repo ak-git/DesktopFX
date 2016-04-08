@@ -1,4 +1,4 @@
-package com.ak.util;
+package com.ak.logging;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -11,7 +11,9 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-enum LogOSDirectory implements OSDirectory {
+import com.ak.util.OSDirectory;
+
+public enum LogOSDirectory implements OSDirectory {
   WINDOWS {
     @Override
     public Path getDirectory() {

@@ -16,8 +16,7 @@ import com.ak.util.LocalFileIO;
 import com.ak.util.LocalIO;
 
 public final class LocalStorage<T> extends AbstractStorage<T> {
-  private static final LocalFileIO.AbstractBuilder BUILDER = new LocalFileIO.LocalStorageBuilder().
-      addPath(LocalStorage.class.getSimpleName());
+  private static final LocalFileIO.AbstractBuilder BUILDER = new LocalStorageBuilder().addPath(LocalStorage.class.getSimpleName());
 
   private final String fileSuffix;
   private final Class<T> clazz;

@@ -12,8 +12,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ak.comm.core.AbstractService;
-import com.ak.util.LocalFileHandler;
-import com.ak.util.LocalFileIO;
+import com.ak.logging.BinaryLogBuilder;
+import com.ak.logging.LocalFileHandler;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
@@ -39,7 +39,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
         serialPort.addEventListener(event -> {
           if (binaryLogChannel == null) {
             try {
-              Path path = new LocalFileIO.BinaryLogBuilder(name, LocalFileHandler.class).build().getPath();
+              Path path = new BinaryLogBuilder(name, LocalFileHandler.class).build().getPath();
               binaryLogChannel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
               Logger.getLogger(getClass().getName()).log(Level.INFO,
                   String.format("Bytes from serial port are logging into the file %s", path));

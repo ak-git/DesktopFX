@@ -12,8 +12,8 @@ import java.util.logging.Logger;
 import com.ak.fx.stage.ScreenResolutionMonitor;
 import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.util.OSDockImage;
+import com.ak.logging.LogPathBuilder;
 import com.ak.storage.Storage;
-import com.ak.util.LocalFileIO;
 import com.ak.util.OS;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -92,8 +92,7 @@ public final class FxApplication extends Application {
     try {
       Properties keys = new Properties();
       keys.load(FxApplication.class.getResourceAsStream(KEY_PROPERTIES));
-      Path path = new LocalFileIO.LogPathBuilder().addPath(keys.getProperty(KEY_APPLICATION_TITLE)).
-          fileName(LOGGING_PROPERTIES).build().getPath();
+      Path path = new LogPathBuilder().addPath(keys.getProperty(KEY_APPLICATION_TITLE)).fileName(LOGGING_PROPERTIES).build().getPath();
       if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
         Files.copy(FxApplication.class.getResourceAsStream(LOGGING_PROPERTIES), path);
       }

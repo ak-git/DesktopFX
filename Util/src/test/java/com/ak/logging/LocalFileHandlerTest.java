@@ -1,4 +1,4 @@
-package com.ak.util;
+package com.ak.logging;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -25,8 +25,7 @@ public class LocalFileHandlerTest {
 
   @BeforeClass
   public void setUp() throws Exception {
-    logPath = new LocalFileIO.LogPathBuilder().
-        addPath(LocalFileHandler.class.getSimpleName()).addPath("testSubDir").build().getPath();
+    logPath = new LogPathBuilder().addPath(LocalFileHandler.class.getSimpleName()).addPath("testSubDir").build().getPath();
     tearDown();
   }
 
@@ -51,7 +50,7 @@ public class LocalFileHandlerTest {
 
   @Test
   public void testBinaryLogBuilder() throws IOException {
-    Path path = new LocalFileIO.BinaryLogBuilder(getClass().getSimpleName(), LocalFileHandler.class).build().getPath();
+    Path path = new BinaryLogBuilder(getClass().getSimpleName(), LocalFileHandler.class).build().getPath();
     WritableByteChannel channel = Files.newByteChannel(path,
         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
     channel.write(ByteBuffer.wrap(getClass().getName().getBytes()));
