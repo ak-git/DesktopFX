@@ -32,6 +32,7 @@ final class FileService extends AbstractService<ByteBuffer> {
           buffer.clear();
         }
         bufferPublish().onCompleted();
+        Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Close file " + file);
       }
       catch (ClosedChannelException e) {
         logAndClose(Level.CONFIG, file.toString(), e);

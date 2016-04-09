@@ -15,7 +15,7 @@ public enum TnmiProtocolByte {
   LEN {
     @Override
     boolean is(byte b) {
-      return b > 1 && b <= MAX_CAPACITY;
+      return b > 1 && b <= MAX_CAPACITY - 4;
     }
   }, DATA_1, DATA_2, DATA_3, DATA_4, DATA_5, DATA_6, DATA_7, DATA_8, CRC;
 

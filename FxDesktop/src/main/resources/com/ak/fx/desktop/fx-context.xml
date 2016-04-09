@@ -19,8 +19,14 @@
         </property>
     </bean>
 
-    <bean class="com.ak.comm.serial.CycleSerialService">
+    <bean class="com.ak.comm.serial.CycleSerialService" lazy-init="true">
         <constructor-arg value="115200"/>
+        <constructor-arg>
+            <bean class="com.ak.hardware.tnmi.comm.interceptor.TnmiBytesInterceptor"/>
+        </constructor-arg>
+    </bean>
+
+    <bean class="com.ak.comm.file.AutoFileService">
         <constructor-arg>
             <bean class="com.ak.hardware.tnmi.comm.interceptor.TnmiBytesInterceptor"/>
         </constructor-arg>

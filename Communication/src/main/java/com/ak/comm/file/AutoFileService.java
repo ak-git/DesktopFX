@@ -28,11 +28,11 @@ public final class AutoFileService<RESPONSE, REQUEST> extends AbstractService<RE
     executor.execute(() -> fileService = new FileService(file, new Observer<ByteBuffer>() {
       @Override
       public void onCompleted() {
-        Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Close file " + file);
       }
 
       @Override
       public void onError(Throwable e) {
+        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
       }
 
       @Override

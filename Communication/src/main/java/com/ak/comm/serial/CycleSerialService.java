@@ -1,6 +1,5 @@
 package com.ak.comm.serial;
 
-import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.CountDownLatch;
@@ -15,7 +14,6 @@ import java.util.logging.Logger;
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.UIConstants;
-import rx.Observer;
 import rx.Subscription;
 
 public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService<RESPONSE> {
@@ -31,26 +29,18 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
       AtomicBoolean workingFlag = new AtomicBoolean();
       AtomicReference<Instant> okTime = new AtomicReference<>(Instant.now());
       CountDownLatch latch = new CountDownLatch(1);
-      Subscription serviceSubscription = serialService.getBufferObservable().subscribe(new Observer<ByteBuffer>() {
-        @Override
-        public void onCompleted() {
-          Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Close connection " + serialService);
-        }
-
-        @Override
-        public void onError(Throwable e) {
-          workingFlag.set(false);
-          latch.countDown();
-        }
-
-        @Override
-        public void onNext(ByteBuffer buffer) {
-          if (bytesInterceptor.write(buffer) > 0) {
-            workingFlag.set(true);
-            okTime.set(Instant.now());
+      Subscription serviceSubscription = serialService.getBufferObservable().subscribe(
+          buffer -> {
+            if (bytesInterceptor.write(buffer) > 0) {
+              workingFlag.set(true);
+              okTime.set(Instant.now());
+            }
+          },
+          throwable -> {
+            workingFlag.set(false);
+            latch.countDown();
           }
-        }
-      });
+      );
 
       while (!Thread.currentThread().isInterrupted()) {
         if (write(bytesInterceptor.getPingRequest()) == 0) {

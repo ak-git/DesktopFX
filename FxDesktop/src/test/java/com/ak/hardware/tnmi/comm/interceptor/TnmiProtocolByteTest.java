@@ -18,7 +18,7 @@ public final class TnmiProtocolByteTest {
     Assert.assertTrue(START.is((byte) 0x7E));
 
     Assert.assertFalse(LEN.is((byte) (MAX_CAPACITY + 1)));
-    Assert.assertTrue(LEN.is((byte) MAX_CAPACITY));
+    Assert.assertTrue(LEN.is((byte) (MAX_CAPACITY - 4)));
 
     for (TnmiProtocolByte b : EnumSet.complementOf(EnumSet.of(START, LEN))) {
       Assert.assertThrows(UnsupportedOperationException.class, () -> b.is((byte) 0x00));

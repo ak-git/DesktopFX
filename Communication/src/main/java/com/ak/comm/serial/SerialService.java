@@ -118,6 +118,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
     }
     finally {
       bufferPublish().onCompleted();
+      Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Close connection " + serialPort.getPortName());
     }
   }
 

@@ -6,7 +6,7 @@ import java.util.ResourceBundle;
 
 import javax.inject.Inject;
 
-import com.ak.comm.serial.CycleSerialService;
+import com.ak.comm.file.AutoFileService;
 import com.ak.fx.scene.MilliGrid;
 import com.ak.hardware.tnmi.comm.interceptor.TnmiRequest;
 import com.ak.hardware.tnmi.comm.interceptor.TnmiResponse;
@@ -16,10 +16,10 @@ import javafx.scene.input.TransferMode;
 
 public final class Controller implements Initializable {
   public MilliGrid root;
-  private final CycleSerialService<TnmiResponse, TnmiRequest> service;
+  private final AutoFileService<TnmiResponse, TnmiRequest> service;
 
   @Inject
-  public Controller(CycleSerialService<TnmiResponse, TnmiRequest> service) {
+  public Controller(AutoFileService<TnmiResponse, TnmiRequest> service) {
     this.service = service;
   }
 
@@ -39,7 +39,7 @@ public final class Controller implements Initializable {
       if (db.hasFiles()) {
         for (File file : db.getFiles()) {
           if (file.isFile()) {
-            System.out.println(file.getAbsolutePath());
+            service.open(file.toPath());
             break;
           }
         }
