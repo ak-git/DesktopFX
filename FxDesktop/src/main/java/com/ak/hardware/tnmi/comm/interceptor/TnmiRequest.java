@@ -82,7 +82,7 @@ public final class TnmiRequest implements Cloneable {
     toString = builder.toStringBuilder.toString();
   }
 
-  void writeTo(ByteBuffer outBuffer) {
+  public void writeTo(ByteBuffer outBuffer) {
     byteBuffer.rewind();
     outBuffer.put(byteBuffer);
   }

@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 
-enum TnmiProtocolByte {
+public enum TnmiProtocolByte {
   START {
     @Override
     boolean is(byte b) {
@@ -19,7 +19,7 @@ enum TnmiProtocolByte {
     }
   }, DATA_1, DATA_2, DATA_3, DATA_4, DATA_5, DATA_6, DATA_7, DATA_8, CRC;
 
-  static final int MAX_CAPACITY = 64;
+  public static final int MAX_CAPACITY = 64;
   static final Collection<TnmiProtocolByte> CHECKED_BYTES = Collections.unmodifiableCollection(EnumSet.of(START, LEN));
 
   boolean is(byte b) {
