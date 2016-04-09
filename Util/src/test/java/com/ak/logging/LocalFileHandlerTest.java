@@ -25,7 +25,8 @@ public class LocalFileHandlerTest {
 
   @BeforeClass
   public void setUp() throws Exception {
-    logPath = new LogPathBuilder().addPath(LocalFileHandler.class.getSimpleName()).addPath("testSubDir").build().getPath();
+    logPath = new LogPathBuilder().addPath(LocalFileHandler.class.getSimpleName()).addPath("testSubDir").
+        build().getPath().getParent();
     tearDown();
   }
 

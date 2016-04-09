@@ -55,7 +55,7 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
         relativePath = Paths.get(part);
       }
       else {
-        relativePath.resolve(part);
+        relativePath = relativePath.resolve(part);
       }
       return this;
     }

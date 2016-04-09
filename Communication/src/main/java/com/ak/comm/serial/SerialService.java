@@ -35,14 +35,14 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
         serialPort.openPort();
         serialPort.setParams(baudRate, 8, 1, 0);
         serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
-        Logger.getLogger(getClass().getName()).log(Level.INFO, String.format("Opened %s, baudRate = %d bps", this, baudRate));
+        Logger.getLogger(getClass().getName()).log(Level.INFO, String.format("Open port [ %s ], baudRate = %d bps", this, baudRate));
         serialPort.addEventListener(event -> {
           if (binaryLogChannel == null) {
             try {
               Path path = new BinaryLogBuilder(name, LocalFileHandler.class).build().getPath();
               binaryLogChannel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
               Logger.getLogger(getClass().getName()).log(Level.INFO,
-                  String.format("Bytes from serial port are logging into the file %s", path));
+                  String.format("Bytes from serial port are logging into the file [ %s ]", path));
             }
             catch (IOException ex) {
               logAndClose(Level.WARNING, ex);
@@ -145,7 +145,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
       else {
         String portName = portNames[0];
         Logger.getLogger(getClass().getName()).log(Level.CONFIG,
-            String.format("Found %s, the '%s' is selected", Arrays.toString(portNames), portName));
+            String.format("Found { %s }, the [ %s ] is selected", Arrays.toString(portNames), portName));
         usedPorts.remove(portName);
         usedPorts.addLast(portName);
         return portName;
