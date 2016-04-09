@@ -3,16 +3,16 @@ package com.ak.comm.file;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
+import com.ak.comm.core.Service;
 import com.ak.logging.BinaryLogBuilder;
 import com.ak.logging.LocalFileHandler;
 import com.ak.logging.LogPathBuilder;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import rx.observers.TestSubscriber;
 
@@ -20,10 +20,9 @@ public final class FileServiceTest {
   @Test
   public void testInvalidFile() throws IOException {
     Path path = new BinaryLogBuilder(getClass().getSimpleName(), LocalFileHandler.class).build().getPath();
-    FileService service = new FileService(path);
     TestSubscriber<ByteBuffer> testSubscriber = TestSubscriber.create();
+    Service<ByteBuffer> service = new FileService(path, testSubscriber);
     service.getBufferObservable().subscribe(testSubscriber);
-    service.open();
     testSubscriber.assertNoValues();
     testSubscriber.assertNoErrors();
     testSubscriber.assertNotCompleted();
@@ -45,19 +44,23 @@ public final class FileServiceTest {
     }
 
     TestSubscriber<ByteBuffer> testSubscriber = TestSubscriber.create();
-    try (FileService service = new FileService(path)) {
+    try (Service<ByteBuffer> service = new FileService(path, testSubscriber)) {
       service.getBufferObservable().subscribe(testSubscriber);
-      service.open();
       testSubscriber.assertNoErrors();
-      testSubscriber.assertNotCompleted();
+      testSubscriber.assertValueCount(2);
+      testSubscriber.assertCompleted();
     }
-    testSubscriber.assertCompleted();
     Files.deleteIfExists(path);
   }
 
   @AfterClass
-  @BeforeClass
   public void tearDown() throws Exception {
-    Assert.assertTrue(Files.deleteIfExists(new LogPathBuilder().addPath(LocalFileHandler.class.getSimpleName()).build().getPath()));
+    Path logPath = new LogPathBuilder().addPath(LocalFileHandler.class.getSimpleName()).build().getPath();
+    try (DirectoryStream<Path> ds = Files.newDirectoryStream(logPath)) {
+      for (Path file : ds) {
+        Files.delete(file);
+      }
+      Files.delete(logPath);
+    }
   }
 }
