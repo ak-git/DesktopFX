@@ -1,5 +1,7 @@
 package com.ak.comm.file;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,7 +15,7 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import rx.Observer;
 import rx.observers.TestSubscriber;
 
-public final class AutoFileService<RESPONSE, REQUEST> extends AbstractService<RESPONSE> {
+public final class AutoFileService<RESPONSE, REQUEST> extends AbstractService<RESPONSE> implements FileFilter {
   private final ExecutorService executor = Executors.newSingleThreadExecutor();
   private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
   private volatile FileService fileService = new FileService(Paths.get(""), TestSubscriber.create());
@@ -49,5 +51,10 @@ public final class AutoFileService<RESPONSE, REQUEST> extends AbstractService<RE
       fileService.close();
       bytesInterceptor.close();
     }
+  }
+
+  @Override
+  public boolean accept(File pathname) {
+    return pathname.isFile() && pathname.getName().toLowerCase().endsWith(".bin");
   }
 }

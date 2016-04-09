@@ -32,5 +32,5 @@
         </constructor-arg>
     </bean>
 
-    <bean class="com.ak.fx.desktop.Controller"/>
+    <bean class="com.ak.fx.desktop.ViewController"/>
 </beans>

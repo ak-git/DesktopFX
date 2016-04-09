@@ -14,12 +14,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
-public final class Controller implements Initializable {
+public final class ViewController implements Initializable {
   public MilliGrid root;
   private final AutoFileService<TnmiResponse, TnmiRequest> service;
 
   @Inject
-  public Controller(AutoFileService<TnmiResponse, TnmiRequest> service) {
+  public ViewController(AutoFileService<TnmiResponse, TnmiRequest> service) {
     this.service = service;
   }
 
@@ -36,15 +36,17 @@ public final class Controller implements Initializable {
     });
     root.setOnDragDropped(event -> {
       Dragboard db = event.getDragboard();
+      boolean ok = false;
       if (db.hasFiles()) {
         for (File file : db.getFiles()) {
-          if (file.isFile()) {
+          if (service.accept(file)) {
             service.open(file.toPath());
+            ok = true;
             break;
           }
         }
       }
-      event.setDropCompleted(db.hasFiles());
+      event.setDropCompleted(ok);
       event.consume();
     });
   }
