@@ -72,7 +72,7 @@ public final class FileServiceTest {
       for (Path file : ds) {
         Files.delete(file);
       }
-      Files.delete(logPath);
     }
+    Files.delete(logPath);
   }
 }
