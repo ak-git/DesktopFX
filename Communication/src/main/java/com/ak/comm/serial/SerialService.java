@@ -47,7 +47,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
                   String.format("#%x Bytes from port [ %s ] are logging into the file [ %s ]", hashCode(), serialPort.getPortName(), path));
             }
             catch (IOException ex) {
-              logAndClose(Level.WARNING, serialPort.getPortName(), ex);
+              logErrorAndClose(Level.WARNING, serialPort.getPortName(), ex);
             }
           }
 
@@ -59,12 +59,12 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
             bufferPublish().onNext(buffer);
           }
           catch (Exception ex) {
-            logAndClose(Level.CONFIG, serialPort.getPortName(), ex);
+            logErrorAndClose(Level.CONFIG, serialPort.getPortName(), ex);
           }
         }, SerialPort.MASK_RXCHAR);
       }
       catch (SerialPortException ex) {
-        logAndClose(Level.CONFIG, serialPort.getPortName(), ex);
+        logErrorAndClose(Level.CONFIG, serialPort.getPortName(), ex);
       }
     }
   }

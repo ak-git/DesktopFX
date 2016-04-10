@@ -3,7 +3,6 @@ package com.ak.comm.file;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
-import java.nio.channels.ClosedChannelException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -34,11 +33,11 @@ final class FileService extends AbstractService<ByteBuffer> {
         bufferPublish().onCompleted();
         Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Close file " + file);
       }
-      catch (ClosedChannelException e) {
-        logAndClose(Level.CONFIG, file.toString(), e);
+      catch (IOException e) {
+        logErrorAndClose(Level.CONFIG, file.toString(), e);
       }
       catch (Exception e) {
-        logAndClose(Level.WARNING, file.toString(), e);
+        logErrorAndClose(Level.WARNING, file.toString(), e);
       }
       finally {
         subscription.unsubscribe();

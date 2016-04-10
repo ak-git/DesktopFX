@@ -20,7 +20,7 @@ public abstract class AbstractService<RESPONSE> implements Service<RESPONSE> {
     return bufferPublish;
   }
 
-  protected final void logAndClose(Level level, String message, Exception ex) {
+  protected final void logErrorAndClose(Level level, String message, Exception ex) {
     Logger.getLogger(getClass().getName()).log(level, message, ex);
     bufferPublish().onError(ex);
     close();
