@@ -16,7 +16,7 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
     outBuffer = ByteBuffer.allocate(outBufferSize);
     this.pingRequest = pingRequest;
     bufferPublish().subscribe(response -> Logger.getLogger(getClass().getName()).log(Level.CONFIG,
-        String.format("%x %s", hashCode(), response)));
+        String.format("#%x %s", hashCode(), response)));
   }
 
   @Override
@@ -46,6 +46,11 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
     innerPut(outBuffer, request);
     outBuffer.flip();
     return outBuffer;
+  }
+
+  @Override
+  public int getBaudRate() {
+    return 115200;
   }
 
   protected abstract void innerPut(ByteBuffer outBuffer, REQUEST request);

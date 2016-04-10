@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ak.comm.core.AbstractService;
+import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.logging.BinaryLogBuilder;
 import com.ak.logging.LocalFileHandler;
 import jssc.SerialPort;
@@ -23,8 +24,8 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
   private final ByteBuffer buffer;
   private WritableByteChannel binaryLogChannel;
 
-  SerialService(String name, int baudRate) {
-    buffer = ByteBuffer.allocate(baudRate);
+  SerialService(BytesInterceptor<?, ?> interceptor) {
+    buffer = ByteBuffer.allocate(interceptor.getBaudRate());
     String portName = Ports.INSTANCE.next();
     serialPort = new SerialPort(portName);
     if (portName.isEmpty()) {
@@ -33,16 +34,17 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
     else {
       try {
         serialPort.openPort();
-        serialPort.setParams(baudRate, 8, 1, 0);
+        serialPort.setParams(interceptor.getBaudRate(), 8, 1, 0);
         serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
-        Logger.getLogger(getClass().getName()).log(Level.INFO, String.format("Open port [ %s ], baudRate = %d bps", this, baudRate));
+        Logger.getLogger(getClass().getName()).log(Level.INFO,
+            String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getPortName(), interceptor.getBaudRate()));
         serialPort.addEventListener(event -> {
           if (binaryLogChannel == null) {
             try {
-              Path path = new BinaryLogBuilder(name, LocalFileHandler.class).build().getPath();
+              Path path = new BinaryLogBuilder(interceptor.name(), LocalFileHandler.class).build().getPath();
               binaryLogChannel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
               Logger.getLogger(getClass().getName()).log(Level.INFO,
-                  String.format("Bytes from port [ %s ] are logging into the file [ %s ]", serialPort.getPortName(), path));
+                  String.format("#%x Bytes from port [ %s ] are logging into the file [ %s ]", hashCode(), serialPort.getPortName(), path));
             }
             catch (IOException ex) {
               logAndClose(Level.WARNING, serialPort.getPortName(), ex);

@@ -24,7 +24,7 @@ final class FileService extends AbstractService<ByteBuffer> {
       Subscription subscription = getBufferObservable().subscribe(observer);
       try {
         channel = Files.newByteChannel(file);
-        Logger.getLogger(getClass().getName()).log(Level.INFO, String.format("Open file [ %s ]", file));
+        Logger.getLogger(getClass().getName()).log(Level.INFO, String.format("#%x Open file [ %s ]", hashCode(), file));
         ByteBuffer buffer = ByteBuffer.allocate(1024 * 4);
         while (channel.read(buffer) > 0) {
           buffer.flip();

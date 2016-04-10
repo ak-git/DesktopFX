@@ -7,6 +7,8 @@ import com.ak.comm.core.Service;
 
 public interface BytesInterceptor<RESPONSE, REQUEST> extends WritableByteChannel, Service<RESPONSE> {
   String name();
+
+  int getBaudRate();
   /**
    * Process input bytes buffer.<br/>
    * <b>REWIND bytes buffer before use!</b>
