@@ -17,6 +17,7 @@ import com.ak.hardware.tnmi.comm.interceptor.TnmiResponse;
 import com.ak.logging.BinaryLogBuilder;
 import com.ak.logging.LocalFileHandler;
 import com.ak.logging.LogPathBuilder;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import rx.observers.TestSubscriber;
@@ -45,10 +46,10 @@ public final class AutoFileServiceTest {
       latch.countDown();
     });
 
-    service.open(path);
-    service.open(path);
+    Assert.assertTrue(service.accept(path.toFile()));
+    Assert.assertTrue(service.accept(path.toFile()));
     latch.await();
-    service.open(path);
+    Assert.assertTrue(service.accept(path.toFile()));
     subscriber.assertNotCompleted();
     service.close();
     subscriber.assertCompleted();
@@ -80,7 +81,7 @@ public final class AutoFileServiceTest {
       latch.countDown();
     });
 
-    service.open(path);
+    Assert.assertTrue(service.accept(path.toFile()));
     latch.await();
     subscriber.assertNotCompleted();
     service.close();
