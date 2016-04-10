@@ -3,7 +3,6 @@ package com.ak.comm.file;
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.ByteBuffer;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,25 +24,6 @@ public final class AutoFileService<RESPONSE, REQUEST> extends AbstractService<RE
     bytesInterceptor.getBufferObservable().subscribe(bufferPublish());
   }
 
-  public void open(Path file) {
-    fileService.close();
-    executor.execute(() -> fileService = new FileService(file, new Observer<ByteBuffer>() {
-      @Override
-      public void onCompleted() {
-      }
-
-      @Override
-      public void onError(Throwable e) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-      }
-
-      @Override
-      public void onNext(ByteBuffer buffer) {
-        bytesInterceptor.write(buffer);
-      }
-    }));
-  }
-
   @Override
   public void close() {
     synchronized (executor) {
@@ -54,7 +34,28 @@ public final class AutoFileService<RESPONSE, REQUEST> extends AbstractService<RE
   }
 
   @Override
-  public boolean accept(File pathname) {
-    return pathname.isFile() && pathname.getName().toLowerCase().endsWith(".bin");
+  public boolean accept(File file) {
+    if (file.isFile() && file.getName().toLowerCase().endsWith(".bin")) {
+      fileService.close();
+      executor.execute(() -> fileService = new FileService(file.toPath(), new Observer<ByteBuffer>() {
+        @Override
+        public void onCompleted() {
+        }
+
+        @Override
+        public void onError(Throwable e) {
+          Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+        }
+
+        @Override
+        public void onNext(ByteBuffer buffer) {
+          bytesInterceptor.write(buffer);
+        }
+      }));
+      return true;
+    }
+    else {
+      return false;
+    }
   }
 }

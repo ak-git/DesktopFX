@@ -42,7 +42,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
               Path path = new BinaryLogBuilder(name, LocalFileHandler.class).build().getPath();
               binaryLogChannel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
               Logger.getLogger(getClass().getName()).log(Level.INFO,
-                  String.format("Bytes from serial port are logging into the file [ %s ]", path));
+                  String.format("Bytes from port [ %s ] are logging into the file [ %s ]", serialPort.getPortName(), path));
             }
             catch (IOException ex) {
               logAndClose(Level.WARNING, serialPort.getPortName(), ex);

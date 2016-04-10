@@ -15,7 +15,8 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
     this.name = name;
     outBuffer = ByteBuffer.allocate(outBufferSize);
     this.pingRequest = pingRequest;
-    bufferPublish().subscribe(response -> Logger.getLogger(getClass().getName()).log(Level.CONFIG, response.toString()));
+    bufferPublish().subscribe(response -> Logger.getLogger(getClass().getName()).log(Level.CONFIG,
+        String.format("%x %s", hashCode(), response)));
   }
 
   @Override

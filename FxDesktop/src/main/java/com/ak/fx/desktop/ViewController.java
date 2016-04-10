@@ -40,7 +40,6 @@ public final class ViewController implements Initializable {
       if (db.hasFiles()) {
         for (File file : db.getFiles()) {
           if (service.accept(file)) {
-            service.open(file.toPath());
             ok = true;
             break;
           }
