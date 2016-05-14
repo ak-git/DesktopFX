@@ -18,12 +18,12 @@ import org.testng.annotations.Test;
 import rx.Observer;
 import rx.observers.TestSubscriber;
 
-public final class FileServiceTest {
+public final class FileReadingServiceTest {
   @Test
   public void testInvalidFile() throws IOException {
     Path path = new BinaryLogBuilder(getClass().getSimpleName(), LocalFileHandler.class).build().getPath();
     TestSubscriber<ByteBuffer> testSubscriber = TestSubscriber.create();
-    Service<ByteBuffer> service = new FileService(path, testSubscriber);
+    Service<ByteBuffer> service = new FileReadingService(path, testSubscriber);
     service.close();
     testSubscriber.assertNotCompleted();
     Files.deleteIfExists(path);
@@ -56,7 +56,7 @@ public final class FileServiceTest {
         latch.countDown();
       }
     });
-    try (Service<ByteBuffer> ignored = new FileService(path, testSubscriber)) {
+    try (Service<ByteBuffer> ignored = new FileReadingService(path, testSubscriber)) {
       latch.await();
       testSubscriber.assertNoErrors();
       testSubscriber.assertValueCount(4);

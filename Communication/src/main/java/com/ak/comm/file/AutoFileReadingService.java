@@ -14,12 +14,12 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import rx.Observer;
 import rx.observers.TestSubscriber;
 
-public final class AutoFileService<RESPONSE, REQUEST> extends AbstractService<RESPONSE> implements FileFilter {
+public final class AutoFileReadingService<RESPONSE, REQUEST> extends AbstractService<RESPONSE> implements FileFilter {
   private final ExecutorService executor = Executors.newSingleThreadExecutor();
   private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
-  private volatile FileService fileService = new FileService(Paths.get(""), TestSubscriber.create());
+  private volatile FileReadingService fileReadingService = new FileReadingService(Paths.get(""), TestSubscriber.create());
 
-  public AutoFileService(BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor) {
+  public AutoFileReadingService(BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor) {
     this.bytesInterceptor = bytesInterceptor;
     bytesInterceptor.getBufferObservable().subscribe(bufferPublish());
   }
@@ -28,7 +28,7 @@ public final class AutoFileService<RESPONSE, REQUEST> extends AbstractService<RE
   public void close() {
     synchronized (executor) {
       executor.shutdownNow();
-      fileService.close();
+      fileReadingService.close();
       bytesInterceptor.close();
     }
   }
@@ -36,8 +36,8 @@ public final class AutoFileService<RESPONSE, REQUEST> extends AbstractService<RE
   @Override
   public boolean accept(File file) {
     if (file.isFile() && file.getName().toLowerCase().endsWith(".bin")) {
-      fileService.close();
-      executor.execute(() -> fileService = new FileService(file.toPath(), new Observer<ByteBuffer>() {
+      fileReadingService.close();
+      executor.execute(() -> fileReadingService = new FileReadingService(file.toPath(), new Observer<ByteBuffer>() {
         @Override
         public void onCompleted() {
         }

@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CountDownLatch;
 
-import com.ak.comm.file.AutoFileService;
+import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.DefaultBytesInterceptor;
 import com.ak.hardware.tnmi.comm.interceptor.TnmiBytesInterceptor;
 import com.ak.hardware.tnmi.comm.interceptor.TnmiProtocolByte;
@@ -22,10 +22,10 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import rx.observers.TestSubscriber;
 
-public final class AutoFileServiceTest {
+public final class AutoFileReadingServiceTest {
   @Test(timeOut = 10000)
   public void testDefaultBytesInterceptor() throws Exception {
-    AutoFileService<Integer, Byte> service = new AutoFileService<>(new DefaultBytesInterceptor());
+    AutoFileReadingService<Integer, Byte> service = new AutoFileReadingService<>(new DefaultBytesInterceptor());
     TestSubscriber<Integer> subscriber = TestSubscriber.create();
     service.getBufferObservable().subscribe(subscriber);
     subscriber.assertNotCompleted();
@@ -58,7 +58,7 @@ public final class AutoFileServiceTest {
 
   @Test(timeOut = 10000)
   public void testTnmiBytesInterceptor() throws Exception {
-    AutoFileService<TnmiResponse, TnmiRequest> service = new AutoFileService<>(new TnmiBytesInterceptor());
+    AutoFileReadingService<TnmiResponse, TnmiRequest> service = new AutoFileReadingService<>(new TnmiBytesInterceptor());
     TestSubscriber<TnmiResponse> subscriber = TestSubscriber.create();
     service.getBufferObservable().subscribe(subscriber);
 

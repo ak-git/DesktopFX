@@ -25,7 +25,7 @@
         <constructor-arg ref="bytesInterceptor"/>
     </bean>
 
-    <bean class="com.ak.comm.file.AutoFileService">
+    <bean class="com.ak.comm.file.AutoFileReadingService">
         <constructor-arg ref="bytesInterceptor"/>
     </bean>
 
