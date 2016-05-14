@@ -43,7 +43,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
       );
 
       while (!Thread.currentThread().isInterrupted()) {
-        if (write(bytesInterceptor.getPingRequest()) == 0) {
+        if (serialService.isOpen() && write(bytesInterceptor.getPingRequest()) == 0) {
           break;
         }
         else {

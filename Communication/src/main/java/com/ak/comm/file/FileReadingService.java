@@ -21,32 +21,34 @@ final class FileReadingService extends AbstractService<ByteBuffer> {
 
   FileReadingService(Path fileToRead, Observer<ByteBuffer> observer) {
     this.fileToRead = fileToRead;
-    if (Files.isRegularFile(fileToRead, LinkOption.NOFOLLOW_LINKS)) {
-      Subscription subscription = getBufferObservable().subscribe(observer);
-      try {
-        readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ);
-        Logger.getLogger(getClass().getName()).log(Level.INFO, String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
-        ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
-        while (readableByteChannel.read(buffer) > 0) {
-          buffer.flip();
-          bufferPublish().onNext(buffer);
-          buffer.clear();
+    if (fileToRead != null) {
+      if (Files.isRegularFile(fileToRead, LinkOption.NOFOLLOW_LINKS)) {
+        Subscription subscription = getBufferObservable().subscribe(observer);
+        try {
+          readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ);
+          Logger.getLogger(getClass().getName()).log(Level.INFO, String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
+          ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
+          while (readableByteChannel.read(buffer) > 0) {
+            buffer.flip();
+            bufferPublish().onNext(buffer);
+            buffer.clear();
+          }
+          bufferPublish().onCompleted();
+          Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Close file " + fileToRead);
         }
-        bufferPublish().onCompleted();
-        Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Close file " + fileToRead);
+        catch (IOException e) {
+          logErrorAndClose(Level.CONFIG, fileToRead.toString(), e);
+        }
+        catch (Exception e) {
+          logErrorAndClose(Level.WARNING, fileToRead.toString(), e);
+        }
+        finally {
+          subscription.unsubscribe();
+        }
       }
-      catch (IOException e) {
-        logErrorAndClose(Level.CONFIG, fileToRead.toString(), e);
+      else {
+        Logger.getLogger(getClass().getName()).log(Level.CONFIG, String.format("File [ %s ] is not a regular file", fileToRead));
       }
-      catch (Exception e) {
-        logErrorAndClose(Level.WARNING, fileToRead.toString(), e);
-      }
-      finally {
-        subscription.unsubscribe();
-      }
-    }
-    else {
-      Logger.getLogger(getClass().getName()).log(Level.CONFIG, String.format("File [ %s ] is not a regular file", fileToRead));
     }
   }
 
