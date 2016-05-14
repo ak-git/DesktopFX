@@ -23,7 +23,7 @@ final class ResistanceOneLayer implements UnivariateFunction, Cloneable {
     return thoRhoByPI(rhoSI) * (1.0 / electrodeSystem.radiusMinus() - 1.0 / electrodeSystem.radiusPlus());
   }
 
-  public TetrapolarSystem getElectrodeSystem() {
+  TetrapolarSystem getElectrodeSystem() {
     return electrodeSystem;
   }
 

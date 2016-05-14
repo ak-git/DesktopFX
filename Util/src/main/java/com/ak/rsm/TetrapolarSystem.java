@@ -13,11 +13,11 @@ import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 import static tec.uom.se.unit.Units.OHM;
 
-public final class TetrapolarSystem implements Cloneable {
+final class TetrapolarSystem implements Cloneable {
   private final double sPotentialUnitSI;
   private final double lCurrentCarryingSI;
 
-  public TetrapolarSystem(double sPU, double lCC, Unit<Length> unit) {
+  TetrapolarSystem(double sPU, double lCC, Unit<Length> unit) {
     if (sPU >= lCC) {
       throw new IllegalArgumentException();
     }
@@ -31,7 +31,7 @@ public final class TetrapolarSystem implements Cloneable {
    * @param resistance in Ohms.
    * @return <b>apparent</b> specific resistance in Ohm-m.
    */
-  public double getApparent(Quantity<ElectricResistance> resistance) {
+  double getApparent(Quantity<ElectricResistance> resistance) {
     return 0.5 * Math.PI * resistance.to(OHM).getValue().doubleValue() / (1.0 / radiusMinus() - 1.0 / radiusPlus());
   }
 

@@ -7,15 +7,11 @@ import java.util.logging.Logger;
 
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
 
-import static com.ak.hardware.tnmi.comm.interceptor.TnmiRequest.MyoFrequency;
-import static com.ak.hardware.tnmi.comm.interceptor.TnmiRequest.MyoType;
-import static com.ak.hardware.tnmi.comm.interceptor.TnmiRequest.Single;
-
 public final class TnmiBytesInterceptor extends AbstractBytesInterceptor<TnmiResponse, TnmiRequest> {
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(TnmiProtocolByte.MAX_CAPACITY);
 
   public TnmiBytesInterceptor() {
-    super("TNMI", TnmiProtocolByte.MAX_CAPACITY, Single.Z_360.buildForAll(MyoType.OFF, MyoFrequency.OFF));
+    super("TNMI", TnmiProtocolByte.MAX_CAPACITY, TnmiRequest.Sequence.CATCH_100.build());
   }
 
   @Override

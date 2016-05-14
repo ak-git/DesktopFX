@@ -41,7 +41,7 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
 
   @Override
   public final ByteBuffer put(REQUEST request) {
-    Logger.getLogger(getClass().getName()).log(Level.CONFIG, request.toString());
+    Logger.getLogger(getClass().getName()).log(Level.CONFIG, String.format("#%x %s", hashCode(), request));
     outBuffer.clear();
     innerPut(outBuffer, request);
     outBuffer.flip();

@@ -19,11 +19,11 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
+    <orderEntry type="module" module-name="Util_main" />
     <orderEntry type="module" module-name="FxCore_main" />
     <orderEntry type="module" module-name="Communication_main" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-context:4.2.5.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: io.reactivex:rxjava:1.1.1" level="project" />
-    <orderEntry type="module" module-name="Util_main" />
     <orderEntry type="library" name="Gradle: org.scream3r:jssc:2.8.0" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-aop:4.2.5.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-beans:4.2.5.RELEASE" level="project" />
