@@ -19,6 +19,10 @@ public final class Point {
     return y;
   }
 
+  public static UnaryOperator<Point> move(double toX, double toY) {
+    return point -> new Point(point.x() + toX, point.y() + toY);
+  }
+
   public static UnaryOperator<Point> transform(double koeff) {
     double k = Math.sqrt(koeff);
     return point -> new Point(point.x() * k, point.y() / k);
