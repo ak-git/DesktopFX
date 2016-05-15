@@ -6,8 +6,6 @@ import java.util.stream.StreamSupport;
 
 import com.ak.eye.CircleInequality;
 import com.ak.eye.Point;
-import com.ak.eye.PointLoader;
-import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.optim.InitialGuess;
 import org.apache.commons.math3.optim.MaxEval;
 import org.apache.commons.math3.optim.PointValuePair;
@@ -24,11 +22,12 @@ public class EyeTest {
   }
 
   @DataProvider(name = "circle", parallel = true)
-  public static Object[][] singleLayerParameters() {
+  public static Object[][] circle() {
     return new Object[][] {
         {Arrays.asList(new Point(2.0, 0.0), new Point(-1.0, 0.0)), 2.0, 1.0 / 2.0},
         {Arrays.asList(new Point(2.0, 0.0), new Point(-1.0, 0.0)), 5.0, (9.0 + 16.0) / 2.0},
         {Arrays.asList(new Point(2.0, 0.0), new Point(-1.0, 0.0), new Point(1.0, 0.0)), 1.0, 1.0 / 3.0},
+        {Arrays.asList(new Point(2.0, 0.0), new Point(-2.0, 0.0), new Point(0.0, 2.0), new Point(0.0, -2.0)), 1.5, 0.25},
     };
   }
 
@@ -38,22 +37,28 @@ public class EyeTest {
     Assert.assertEquals(inequality.applyAsDouble(radiusEstimate), error, Float.MIN_NORMAL);
   }
 
-  @Test
-  public static void testRosenbrockNelderMeadSimplex() {
-    SimplexOptimizer optimizer = new SimplexOptimizer(-1, 1.0e-3);
-    PointValuePair optimum = optimizer.optimize(new MaxEval(100), new ObjectiveFunction(new Ellipse()),
-        GoalType.MINIMIZE, new NelderMeadSimplex(2, 0.1), new InitialGuess(new double[] {1.0, 1.0})
-    );
-    System.out.println(Arrays.toString(optimum.getPoint()));
+  @DataProvider(name = "ellipse")
+  public static Object[][] ellipse() {
+    return new Object[][] {
+        {Arrays.asList(new Point(2.0, 0.0), new Point(-2.0, 0.0), new Point(0.0, 2.0), new Point(0.0, -2.0)), 2.0, 2.0},
+        {Arrays.asList(new Point(5.0, 0.0), new Point(0.0, 1.0), new Point(-5.0, 0.0)), 5.0, 1.0},
+        {Arrays.asList(new Point(0.0, 5.0), new Point(1.0, 0.0), new Point(0.0, -5.0)), 1.0, 5.0},
+    };
   }
 
-  private static class Ellipse implements MultivariateFunction {
-    @Override
-    public double value(double[] x) {
-      double r = x[0];
-      double transform = Math.sqrt(x[1]);
-      return new CircleInequality(StreamSupport.stream(PointLoader.INSTANCE.getPoints().spliterator(), true).
-          map(point -> new Point(point.x() * transform, point.y() / transform))).applyAsDouble(r);
-    }
+  @Test(dataProvider = "ellipse")
+  public static void testEllipse(Iterable<Point> points, double a, double b) {
+    SimplexOptimizer optimizer = new SimplexOptimizer(-1, 1.0e-3);
+    PointValuePair optimum = optimizer.optimize(new MaxEval(100), new ObjectiveFunction(x -> {
+          double r = x[0];
+          double transform = x[1];
+          return new CircleInequality(StreamSupport.stream(points.spliterator(), true).
+              map(point -> Point.transform(transform).apply(point))).applyAsDouble(r);
+        }),
+        GoalType.MINIMIZE, new NelderMeadSimplex(2, 0.1), new InitialGuess(new double[] {1.0, 1.0})
+    );
+    Point point = Point.transform(1.0 / optimum.getPoint()[1]).apply(new Point(optimum.getPoint()[0], optimum.getPoint()[0]));
+    Assert.assertEquals(point.x(), a, 0.1);
+    Assert.assertEquals(point.y(), b, 0.1);
   }
 }

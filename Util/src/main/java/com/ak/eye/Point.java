@@ -1,5 +1,7 @@
 package com.ak.eye;
 
+import java.util.function.UnaryOperator;
+
 public final class Point {
   private final double x;
   private final double y;
@@ -15,6 +17,11 @@ public final class Point {
 
   public double y() {
     return y;
+  }
+
+  public static UnaryOperator<Point> transform(double koeff) {
+    double k = Math.sqrt(koeff);
+    return point -> new Point(point.x() * k, point.y() / k);
   }
 
   @Override
