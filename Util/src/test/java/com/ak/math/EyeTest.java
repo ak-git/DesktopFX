@@ -1,5 +1,12 @@
 package com.ak.math;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.DoubleUnaryOperator;
+
+import com.ak.eye.CircleInequality;
+import com.ak.eye.Point;
+import com.ak.eye.PointLoader;
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.optim.InitialGuess;
 import org.apache.commons.math3.optim.MaxEval;
@@ -11,29 +18,35 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static java.lang.StrictMath.pow;
-
 public class EyeTest {
   private EyeTest() {
   }
 
-  @Test(timeOut = 10000)
-  public static void testRosenbrockNelderMeadSimplex() {
-    SimplexOptimizer optimizer = new SimplexOptimizer(-1, 1.0e-3);
-    PointValuePair optimum = optimizer.optimize(new MaxEval(100), new ObjectiveFunction(new Rosenbrock()),
-        GoalType.MINIMIZE, new NelderMeadSimplex(2, 0.1), new InitialGuess(new double[] {0.0, 0.0})
-    );
-
-    Assert.assertEquals(optimizer.getEvaluations(), 40);
-    Assert.assertTrue(optimum.getValue() < 1.0e-3);
+  @Test
+  public void testCircleInequality() {
+    Iterable<Point> points = Arrays.asList(new Point(2.0, 0.0), new Point(-1.0, 0.0));
+    DoubleUnaryOperator inequality = new CircleInequality(points);
+    Assert.assertEquals(inequality.applyAsDouble(2.0), 1.0 / 2.0, Float.MIN_NORMAL);
+    Assert.assertEquals(inequality.applyAsDouble(1.0), 1.0 / 2.0, Float.MIN_NORMAL);
+    Assert.assertEquals(inequality.applyAsDouble(3.0), (1.0 + 4.0) / 2.0, Float.MIN_NORMAL);
+    Assert.assertEquals(inequality.applyAsDouble(4.0), (4.0 + 9.0) / 2.0, Float.MIN_NORMAL);
+    Assert.assertEquals(inequality.applyAsDouble(5.0), (9.0 + 16.0) / 2.0, Float.MIN_NORMAL);
   }
 
-  private static class Rosenbrock implements MultivariateFunction {
+  @Test
+  public static void testRosenbrockNelderMeadSimplex() {
+    SimplexOptimizer optimizer = new SimplexOptimizer(-1, 1.0e-3);
+    PointValuePair optimum = optimizer.optimize(new MaxEval(100), new ObjectiveFunction(new Ellipse()),
+        GoalType.MINIMIZE, new NelderMeadSimplex(1, 0.1), new InitialGuess(new double[] {1.0})
+    );
+    System.out.println(Arrays.toString(optimum.getPoint()));
+  }
+
+  private static class Ellipse implements MultivariateFunction {
     @Override
     public double value(double[] x) {
-      double a = pow(x[0], 2.0) - x[1];
-      double b = x[0] - 1.0;
-      return 10 * pow(a, 2.0) + pow(b, 2.0);
+      List<Point> points = PointLoader.INSTANCE.getPoints();
+      return new CircleInequality(points).applyAsDouble(x[0]);
     }
   }
 }
