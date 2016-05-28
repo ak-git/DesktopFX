@@ -40,18 +40,23 @@ public final class CircleByPoints {
   @Nonnull
   private static Point origin(@Nonnull List<Point> points) {
     Point[] p = points.subList(0, 3).toArray(new Point[3]);
-    Point origin = center(p);
+    double x = 0.0;
+    double y = 0.0;
+    int n = 0;
     for (int i = 0; i < points.size() - 2; i++) {
       p[0] = points.get(i);
       for (int j = i + 1; j < points.size() - 1; j++) {
         p[1] = points.get(j);
-        for (int k = j + 2; k < points.size(); k++) {
+        for (int k = j + 1; k < points.size(); k++) {
           p[2] = points.get(k);
-          origin.avg(center(p));
+          Point c = center(p);
+          x += c.x();
+          y += c.y();
+          n++;
         }
       }
     }
-    return origin;
+    return new Point(x / n, y / n);
   }
 
   private double radius(@Nonnull Iterable<Point> points) {

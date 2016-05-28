@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
+import javax.annotation.Nonnull;
+
 import com.ak.eye.CircleByPoints;
 import com.ak.eye.Point;
 import javafx.util.Builder;
@@ -35,13 +37,29 @@ public class EyeTest {
   @Test(dataProvider = "circle")
   public void testCircle(List<Point> points, double cx, double cy, double radius) {
     CircleByPoints circleByPoints = new CircleByPoints(points);
-    Assert.assertEquals(circleByPoints.getOrigin().x(), cx, 0.1);
-    Assert.assertEquals(circleByPoints.getOrigin().y(), cy, 0.1);
-    Assert.assertEquals(circleByPoints.getRadius(), radius, 0.1);
+    Assert.assertEquals(circleByPoints.getOrigin().x(), cx, 0.1, "x");
+    Assert.assertEquals(circleByPoints.getOrigin().y(), cy, 0.1, "y");
+    Assert.assertEquals(circleByPoints.getRadius(), radius, 0.1, "r");
+  }
+
+  @DataProvider(name = "ellipse", parallel = true)
+  public static Object[][] ellipse() {
+    return new Object[][] {
+        {new EllipsePoints(45).transform(0.5 * 0.5).build(), 0.0, -3.4},
+        {new EllipsePoints(1).transform(0.5 * 0.5).build(), 0.0, -4.0},
+    };
+  }
+
+  @Test(dataProvider = "ellipse")
+  public void testEllipse(List<Point> points, double cx, double cy) {
+    CircleByPoints circleByPoints = new CircleByPoints(points);
+    Assert.assertEquals(circleByPoints.getOrigin().x(), cx, 0.1, "x");
+    Assert.assertEquals(circleByPoints.getOrigin().y(), cy, 0.1, "y");
   }
 }
 
 class EllipsePoints implements Builder<List<Point>> {
+  @Nonnull
   private Stream<Point> pointStream;
 
   EllipsePoints(int angleStep) {
@@ -49,16 +67,25 @@ class EllipsePoints implements Builder<List<Point>> {
         new Point(cos(toRadians(angle)), sin(toRadians(angle))));
   }
 
+  @Nonnull
   EllipsePoints radius(double radius) {
     pointStream = pointStream.map(point -> point.scale(radius));
     return this;
   }
 
+  @Nonnull
+  EllipsePoints transform(double bToa) {
+    pointStream = pointStream.map(point -> point.transform(bToa));
+    return this;
+  }
+
+  @Nonnull
   EllipsePoints move(double dx, double dy) {
     pointStream = pointStream.map(point -> point.move(dx, dy));
     return this;
   }
 
+  @Nonnull
   EllipsePoints noise(double dev) {
     Random random = new Random();
     pointStream = pointStream.map(point -> point.move(random.nextGaussian() * dev, random.nextGaussian() * dev));
@@ -66,6 +93,7 @@ class EllipsePoints implements Builder<List<Point>> {
   }
 
   @Override
+  @Nonnull
   public List<Point> build() {
     return pointStream.collect(Collectors.toList());
   }
