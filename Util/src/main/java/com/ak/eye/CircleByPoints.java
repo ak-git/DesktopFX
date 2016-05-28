@@ -1,44 +1,41 @@
 package com.ak.eye;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 
-public final class CircleByPoints implements Supplier<Point> {
+public final class CircleByPoints {
   @Nonnull
-  private final List<Point> points;
+  private final Point origin;
 
   public CircleByPoints(@Nonnull List<Point> points) {
     if (points.size() < 3) {
       throw new IllegalArgumentException(points.toString());
     }
-    this.points = Collections.unmodifiableList(points);
+    origin = origin(points);
   }
 
   @Nonnull
-  @Override
-  public Point get() {
-    Point p1 = points.get(0);
-    Point p2 = points.get(1);
-    for (Point point : points) {
-      Point pStart = point.distance(p1) > point.distance(p2) ? p1 : p2;
-      if (p1.distance(p2) < pStart.distance(point)) {
-        p1 = pStart;
-        p2 = point;
+  public Point getOrigin() {
+    return origin;
+  }
+
+  @Nonnull
+  private static Point origin(@Nonnull List<Point> points) {
+    Point[] p = points.subList(0, 3).toArray(new Point[3]);
+    Point origin = center(p);
+    for (int i = 0; i < points.size() - 2; i++) {
+      p[0] = points.get(i);
+      for (int j = i + 1; j < points.size() - 1; j++) {
+        p[1] = points.get(j);
+        for (int k = j + 2; k < points.size(); k++) {
+          p[2] = points.get(k);
+          origin.avg(center(p));
+        }
       }
     }
-
-    Point p3 = points.get(2);
-    for (Point point : points) {
-      if (point.distance(p1) + point.distance(p2) > p3.distance(p1) + p3.distance(p2)) {
-        p3 = point;
-      }
-    }
-
-    return center(new Point[] {p1, p2, p3});
+    return origin;
   }
 
   @Nonnull
