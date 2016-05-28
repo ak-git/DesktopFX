@@ -28,8 +28,16 @@ public final class Point {
     return point -> new Point(point.x() * k, point.y() / k);
   }
 
+  public Point scale(double factor) {
+    return new Point(x * factor, y * factor);
+  }
+
+  public double distance(Point p) {
+    return StrictMath.hypot(x - p.x, y - p.y);
+  }
+
   @Override
   public String toString() {
-    return String.format("Point{x=%s, y=%s}", x, y);
+    return String.format("Point{x=%.1f, y=%.1f}", x, y);
   }
 }
