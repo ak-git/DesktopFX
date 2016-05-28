@@ -2,23 +2,39 @@ package com.ak.eye;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.annotation.Nonnull;
+
+import org.apache.commons.math3.optim.InitialGuess;
+import org.apache.commons.math3.optim.MaxEval;
+import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
+import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
+import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
+import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 
 public final class CircleByPoints {
   @Nonnull
   private final Point origin;
+  private final double radius;
 
   public CircleByPoints(@Nonnull List<Point> points) {
     if (points.size() < 3) {
       throw new IllegalArgumentException(points.toString());
     }
     origin = origin(points);
+    radius = radius(points);
   }
 
   @Nonnull
   public Point getOrigin() {
     return origin;
+  }
+
+  public double getRadius() {
+    return radius;
   }
 
   @Nonnull
@@ -36,6 +52,19 @@ public final class CircleByPoints {
       }
     }
     return origin;
+  }
+
+  private double radius(@Nonnull Iterable<Point> points) {
+    SimplexOptimizer optimizer = new SimplexOptimizer(-1, 1.0e-3);
+    PointValuePair optimum = optimizer.optimize(new MaxEval(100), new ObjectiveFunction(x -> {
+          double r = x[0];
+          return StreamSupport.stream(points.spliterator(), true).
+              map(point -> StrictMath.pow(point.distance(origin) - r, 2)).
+              collect(Collectors.averagingDouble(Double::doubleValue));
+        }),
+        GoalType.MINIMIZE, new NelderMeadSimplex(1, 1.0e-3), new InitialGuess(new double[] {1.0})
+    );
+    return optimum.getPoint()[0];
   }
 
   @Nonnull

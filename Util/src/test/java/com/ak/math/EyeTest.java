@@ -25,18 +25,19 @@ public class EyeTest {
   @DataProvider(name = "circle", parallel = true)
   public static Object[][] circle() {
     return new Object[][] {
-        {Arrays.asList(new Point(0, 0), new Point(0, 5), new Point(5, 0)), 2.5, 2.5},
-        {Arrays.asList(new Point(0, 5), new Point(5, 0), new Point(0, 0)), 2.5, 2.5},
-        {Arrays.asList(new Point(5 + 1, -1), new Point(1, -1), new Point(1, 5 - 1)), 3.5, 1.5},
-        {new EllipsePoints(1).radius(5.0).move(11.0, -1.1).noise(0.00001).build(), 11.0, -1.1},
+        {Arrays.asList(new Point(0, 0), new Point(0, 5), new Point(5, 0)), 2.5, 2.5, 2.5 * 1.4142135623730951},
+        {Arrays.asList(new Point(0, 5), new Point(5, 0), new Point(0, 0)), 2.5, 2.5, 2.5 * 1.4142135623730951},
+        {Arrays.asList(new Point(5 + 1, -1), new Point(1, -1), new Point(1, 5 - 1)), 3.5, 1.5, 2.5 * 1.4142135623730951},
+        {new EllipsePoints(1).radius(5.0).move(11.0, -1.1).noise(0.00001).build(), 11.0, -1.1, 5.0},
     };
   }
 
   @Test(dataProvider = "circle")
-  public void testCircle(List<Point> points, double cx, double cy) {
-    Point point = new CircleByPoints(points).getOrigin();
-    Assert.assertEquals(point.x(), cx, 0.1);
-    Assert.assertEquals(point.y(), cy, 0.1);
+  public void testCircle(List<Point> points, double cx, double cy, double radius) {
+    CircleByPoints circleByPoints = new CircleByPoints(points);
+    Assert.assertEquals(circleByPoints.getOrigin().x(), cx, 0.1);
+    Assert.assertEquals(circleByPoints.getOrigin().y(), cy, 0.1);
+    Assert.assertEquals(circleByPoints.getRadius(), radius, 0.1);
   }
 }
 
