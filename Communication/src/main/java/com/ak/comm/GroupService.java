@@ -16,7 +16,7 @@ public final class GroupService<RESPONSE, REQUEST> implements Service<RESPONSE>,
   private final CycleSerialService<RESPONSE, REQUEST> serialService;
   private final AutoFileReadingService<RESPONSE, REQUEST> fileService;
 
-  public GroupService(int baudRate, Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider) {
+  public GroupService(Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider) {
     serialService = new CycleSerialService<>(interceptorProvider.get());
     fileService = new AutoFileReadingService<>(interceptorProvider.get());
   }
