@@ -10,18 +10,31 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
+import org.apache.commons.math3.geometry.Point;
+import org.apache.commons.math3.geometry.euclidean.twod.Euclidean2D;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
+
+@ThreadSafe
+@Immutable
 public enum PointLoader {
   INSTANCE;
 
-  private final List<Point> points;
+  @Nonnull
+  @GuardedBy("this")
+  private final List<Point<Euclidean2D>> points;
 
   PointLoader() {
-    List<Point> points = Collections.emptyList();
+    List<Point<Euclidean2D>> points = Collections.emptyList();
     Path fileToLoad = Paths.get("points.txt");
     try {
       points = Files.lines(fileToLoad).map(s -> {
         String[] xAndY = s.trim().split("\\s+");
-        return new Point(Double.parseDouble(xAndY[0]), Double.parseDouble(xAndY[1]));
+        return new Vector2D(Double.parseDouble(xAndY[0]), Double.parseDouble(xAndY[1]));
       }).collect(Collectors.toList());
     }
     catch (IOException ex) {
@@ -30,7 +43,7 @@ public enum PointLoader {
     this.points = Collections.unmodifiableList(points);
   }
 
-  public List<Point> getPoints() {
+  public List<Point<Euclidean2D>> getPoints() {
     return points;
   }
 }

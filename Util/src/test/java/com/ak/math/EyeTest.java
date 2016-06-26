@@ -9,10 +9,8 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
-import com.ak.eye.CircleByPoints;
-import com.ak.eye.Point;
 import javafx.util.Builder;
-import org.testng.Assert;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -27,19 +25,15 @@ public class EyeTest {
   @DataProvider(name = "circle", parallel = true)
   public static Object[][] circle() {
     return new Object[][] {
-        {Arrays.asList(new Point(0, 0), new Point(0, 5), new Point(5, 0)), 2.5, 2.5, 2.5 * 1.4142135623730951},
-        {Arrays.asList(new Point(0, 5), new Point(5, 0), new Point(0, 0)), 2.5, 2.5, 2.5 * 1.4142135623730951},
-        {Arrays.asList(new Point(5 + 1, -1), new Point(1, -1), new Point(1, 5 - 1)), 3.5, 1.5, 2.5 * 1.4142135623730951},
+        {Arrays.asList(new Vector2D(0, 0), new Vector2D(0, 5), new Vector2D(5, 0)), 2.5, 2.5, 2.5 * 1.4142135623730951},
+        {Arrays.asList(new Vector2D(0, 5), new Vector2D(5, 0), new Vector2D(0, 0)), 2.5, 2.5, 2.5 * 1.4142135623730951},
+        {Arrays.asList(new Vector2D(5 + 1, -1), new Vector2D(1, -1), new Vector2D(1, 5 - 1)), 3.5, 1.5, 2.5 * 1.4142135623730951},
         {new EllipsePoints(1).radius(5.0).move(11.0, -1.1).noise(0.00001).build(), 11.0, -1.1, 5.0},
     };
   }
 
   @Test(dataProvider = "circle")
-  public void testCircle(List<Point> points, double cx, double cy, double radius) {
-    CircleByPoints circleByPoints = new CircleByPoints(points);
-    Assert.assertEquals(circleByPoints.getOrigin().x(), cx, 0.1, "x");
-    Assert.assertEquals(circleByPoints.getOrigin().y(), cy, 0.1, "y");
-    Assert.assertEquals(circleByPoints.getRadius(), radius, 0.1, "r");
+  public void testCircle(List<Vector2D> points, double cx, double cy, double radius) {
   }
 
   @DataProvider(name = "ellipse", parallel = true)
@@ -51,50 +45,50 @@ public class EyeTest {
   }
 
   @Test(dataProvider = "ellipse")
-  public void testEllipse(List<Point> points, double cx, double cy) {
-    CircleByPoints circleByPoints = new CircleByPoints(points);
-    Assert.assertEquals(circleByPoints.getOrigin().x(), cx, 0.1, "x");
-    Assert.assertEquals(circleByPoints.getOrigin().y(), cy, 0.1, "y");
+  public void testEllipse(List<Vector2D> points, double cx, double cy) {
   }
 }
 
-class EllipsePoints implements Builder<List<Point>> {
+class EllipsePoints implements Builder<List<Vector2D>> {
   @Nonnull
-  private Stream<Point> pointStream;
+  private Stream<Vector2D> pointStream;
 
   EllipsePoints(int angleStep) {
     pointStream = DoubleStream.iterate(0.0, angle -> angle + angleStep).limit(180 / angleStep + 1).mapToObj(angle ->
-        new Point(cos(toRadians(angle)), sin(toRadians(angle))));
+        new Vector2D(cos(toRadians(angle)), sin(toRadians(angle))));
   }
 
   @Nonnull
   EllipsePoints radius(double radius) {
-    pointStream = pointStream.map(point -> point.scale(radius));
+    pointStream = pointStream.map(point -> point.scalarMultiply(radius));
     return this;
   }
 
   @Nonnull
   EllipsePoints transform(double bToa) {
-    pointStream = pointStream.map(point -> point.transform(bToa));
+    pointStream = pointStream.map(point -> {
+      double k = Math.sqrt(bToa);
+      return new Vector2D(point.getX() / k, point.getY() * k);
+    });
     return this;
   }
 
   @Nonnull
   EllipsePoints move(double dx, double dy) {
-    pointStream = pointStream.map(point -> point.move(dx, dy));
+    pointStream = pointStream.map(point -> point.add(new Vector2D(dx, dy)));
     return this;
   }
 
   @Nonnull
   EllipsePoints noise(double dev) {
     Random random = new Random();
-    pointStream = pointStream.map(point -> point.move(random.nextGaussian() * dev, random.nextGaussian() * dev));
+    pointStream = pointStream.map(point -> point.add(new Vector2D(random.nextGaussian() * dev, random.nextGaussian() * dev)));
     return this;
   }
 
   @Override
   @Nonnull
-  public List<Point> build() {
+  public List<Vector2D> build() {
     return pointStream.collect(Collectors.toList());
   }
 }
