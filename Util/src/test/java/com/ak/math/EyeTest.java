@@ -14,6 +14,7 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.DecompositionSolver;
+import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
@@ -27,20 +28,6 @@ import static java.lang.StrictMath.sin;
 
 public class EyeTest {
   private EyeTest() {
-  }
-
-  @DataProvider(name = "circle", parallel = true)
-  public static Object[][] circle() {
-    return new Object[][] {
-        {Arrays.asList(new Vector2D(0, 0), new Vector2D(0, 5), new Vector2D(5, 0)), 2.5, 2.5, 2.5 * 1.4142135623730951},
-        {Arrays.asList(new Vector2D(0, 5), new Vector2D(5, 0), new Vector2D(0, 0)), 2.5, 2.5, 2.5 * 1.4142135623730951},
-        {Arrays.asList(new Vector2D(5 + 1, -1), new Vector2D(1, -1), new Vector2D(1, 5 - 1)), 3.5, 1.5, 2.5 * 1.4142135623730951},
-        {new EllipsePoints(1).radius(5.0).move(11.0, -1.1).noise(0.00001).build(), 11.0, -1.1, 5.0},
-    };
-  }
-
-  @Test(dataProvider = "circle")
-  public void testCircle(List<Vector2D> points, double cx, double cy, double radius) {
   }
 
   @DataProvider(name = "ellipse")
@@ -84,7 +71,14 @@ public class EyeTest {
     double d = a11 * a22 - a12 * a12;
     double x0 = -(a13 * a22 - a12 * a23) / d;
     double y0 = -(a11 * a23 - a13 * a12) / d;
-    System.out.printf("%.1f (%.1f; %.1f) %n", Math.toDegrees(phi), x0, y0);
+
+    EigenDecomposition D = new EigenDecomposition(new Array2DRowRealMatrix(new double[][] {{a11, a12}, {a12, a22}}, false));
+    EigenDecomposition A = new EigenDecomposition(new Array2DRowRealMatrix(new double[][] {{a11, a12, a13}, {a12, a22, a23}, {a13, a23, 1.0}}, false));
+
+    double bAxis = Math.sqrt(-A.getDeterminant() / (D.getDeterminant() * D.getRealEigenvalues()[0]));
+    double aAxis = Math.sqrt(-A.getDeterminant() / (D.getDeterminant() * D.getRealEigenvalues()[1]));
+
+    System.out.printf("%.1f (%.1f; %.1f)  %.1f; %.1f %n", Math.toDegrees(phi), x0, y0, bAxis, aAxis);
   }
 }
 
