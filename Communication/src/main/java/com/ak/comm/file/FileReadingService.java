@@ -10,6 +10,9 @@ import java.nio.file.StandardOpenOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.ak.comm.core.AbstractService;
 import rx.Observer;
 import rx.Subscription;
@@ -17,18 +20,17 @@ import rx.Subscription;
 final class FileReadingService extends AbstractService<ByteBuffer> {
   private static final int CAPACITY_4K = 1024 * 4;
   private final Path fileToRead;
-  private ReadableByteChannel readableByteChannel;
+  private volatile boolean stopFlag;
 
-  FileReadingService(Path fileToRead, Observer<ByteBuffer> observer) {
+  FileReadingService(@Nullable Path fileToRead, @Nonnull Observer<ByteBuffer> observer) {
     this.fileToRead = fileToRead;
     if (fileToRead != null) {
       if (Files.isRegularFile(fileToRead, LinkOption.NOFOLLOW_LINKS)) {
         Subscription subscription = getBufferObservable().subscribe(observer);
-        try {
-          readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ);
+        try (ReadableByteChannel readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
           Logger.getLogger(getClass().getName()).log(Level.INFO, String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
           ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
-          while (readableByteChannel.read(buffer) > 0) {
+          while (readableByteChannel.read(buffer) > 0 && !stopFlag) {
             buffer.flip();
             bufferPublish().onNext(buffer);
             buffer.clear();
@@ -54,19 +56,8 @@ final class FileReadingService extends AbstractService<ByteBuffer> {
 
   @Override
   public void close() {
-    try {
-      if (readableByteChannel != null) {
-        try {
-          readableByteChannel.close();
-        }
-        catch (IOException ex) {
-          Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), ex);
-        }
-      }
-    }
-    finally {
-      bufferPublish().onCompleted();
-    }
+    stopFlag = true;
+    bufferPublish().onCompleted();
   }
 
   @Override

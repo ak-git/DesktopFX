@@ -2,13 +2,17 @@ package com.ak.comm.interceptor;
 
 import java.nio.ByteBuffer;
 
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Integer, Byte> {
   public DefaultBytesInterceptor() {
     super("None", 1, (byte) 0);
   }
 
   @Override
-  public int write(ByteBuffer src) {
+  public int write(@Nonnull ByteBuffer src) {
     src.rewind();
     int countBytes = 0;
     while (src.hasRemaining()) {
@@ -19,7 +23,7 @@ public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Inte
   }
 
   @Override
-  protected void innerPut(ByteBuffer outBuffer, Byte aByte) {
+  protected void innerPut(@Nonnull ByteBuffer outBuffer, @Nonnull Byte aByte) {
     outBuffer.put(aByte);
   }
 }
