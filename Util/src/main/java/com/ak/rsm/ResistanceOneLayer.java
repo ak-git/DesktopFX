@@ -1,14 +1,18 @@
 package com.ak.rsm;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 import org.apache.commons.math3.analysis.UnivariateFunction;
 
 /**
  * Calculates <b>full</b> resistance R<sub>m-n</sub> (in Ohm) between electrodes for <b>single-layer</b> model.
  */
 final class ResistanceOneLayer implements UnivariateFunction, Cloneable {
+  @Nonnull
   private final TetrapolarSystem electrodeSystem;
 
-  ResistanceOneLayer(TetrapolarSystem electrodeSystem) {
+  ResistanceOneLayer(@Nonnull TetrapolarSystem electrodeSystem) {
     this.electrodeSystem = electrodeSystem;
   }
 
@@ -19,7 +23,7 @@ final class ResistanceOneLayer implements UnivariateFunction, Cloneable {
    * @return resistance R<sub>m-n</sub> (in Ohm)
    */
   @Override
-  public double value(double rhoSI) {
+  public double value(@Nonnegative double rhoSI) {
     return thoRhoByPI(rhoSI) * (1.0 / electrodeSystem.radiusMinus() - 1.0 / electrodeSystem.radiusPlus());
   }
 
@@ -27,7 +31,8 @@ final class ResistanceOneLayer implements UnivariateFunction, Cloneable {
     return electrodeSystem;
   }
 
-  static double thoRhoByPI(double rhoSI) {
+  @Nonnegative
+  static double thoRhoByPI(@Nonnegative double rhoSI) {
     return 2.0 * rhoSI / Math.PI;
   }
 

@@ -10,6 +10,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.ak.fx.stage.ScreenResolutionMonitor;
 import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.util.OSDockImage;
@@ -35,6 +38,7 @@ public final class FxDesktopTest extends Preloader {
   private static final double STAGE_HEIGHT = 600.0;
 
   private static final String JAVAFX_PRELOADER = "javafx.preloader";
+  @Nullable
   private String oldPreloader;
 
   @BeforeClass
@@ -71,14 +75,14 @@ public final class FxDesktopTest extends Preloader {
   }
 
   @Override
-  public void start(Stage primaryStage) {
+  public void start(@Nonnull Stage primaryStage) {
     STAGE_REFERENCE.set(primaryStage);
     setStageBounds(STAGE_X, STAGE_Y, STAGE_WIDTH, STAGE_HEIGHT);
     LATCH.countDown();
   }
 
   @Override
-  public void handleStateChangeNotification(StateChangeNotification info) {
+  public void handleStateChangeNotification(@Nonnull StateChangeNotification info) {
     if (info.getType() == StateChangeNotification.Type.BEFORE_START) {
       Executors.newSingleThreadExecutor().execute(() -> {
         APP_REFERENCE.set(info.getApplication());
@@ -132,7 +136,7 @@ public final class FxDesktopTest extends Preloader {
   }
 
   @Test(dataProvider = "os-storage", expectedExceptions = UnsupportedOperationException.class)
-  public void testGet(OSStageStorage storage) {
+  public void testGet(@Nonnull OSStageStorage storage) {
     storage.newInstance(getClass()).get();
   }
 
@@ -183,7 +187,12 @@ public final class FxDesktopTest extends Preloader {
       APP_REFERENCE.get().start(null);
     }
     finally {
-      Logger.getLogger(FxApplication.class.getName()).setLevel(Level.INFO);
+      try {
+        Logger.getLogger(FxApplication.class.getName()).setLevel(Level.INFO);
+      }
+      catch (SecurityException e) {
+        Logger.getLogger(FxApplication.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+      }
     }
   }
 

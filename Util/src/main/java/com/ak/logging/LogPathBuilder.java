@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.logging.FileHandler;
 import java.util.logging.LogManager;
 
+import javax.annotation.Nonnull;
+
 import com.ak.util.LocalFileIO;
 import com.ak.util.LocalIO;
 
@@ -14,13 +16,14 @@ public class LogPathBuilder extends LocalFileIO.AbstractBuilder {
     super("");
   }
 
-  LogPathBuilder(String fileExtension, Class<? extends FileHandler> fileHandlerClass) {
+  LogPathBuilder(@Nonnull String fileExtension, @Nonnull Class<? extends FileHandler> fileHandlerClass) {
     super(fileExtension);
     addPath(Optional.ofNullable(LogManager.getLogManager().getProperty(fileHandlerClass.getName() + ".name")).
         orElse(fileHandlerClass.getSimpleName()));
   }
 
-  static String localDate(String pattern) {
+  @Nonnull
+  static String localDate(@Nonnull String pattern) {
     return DateTimeFormatter.ofPattern(pattern).format(ZonedDateTime.now());
   }
 
@@ -40,6 +43,7 @@ public class LogPathBuilder extends LocalFileIO.AbstractBuilder {
    *
    * @return interface for input/output file creation.
    */
+  @Nonnull
   @Override
   public final LocalIO build() {
     return new LocalFileIO<>(this, LogOSDirectory.class);

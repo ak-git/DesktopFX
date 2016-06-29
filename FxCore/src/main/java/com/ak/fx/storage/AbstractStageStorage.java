@@ -4,6 +4,9 @@ import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
+
 import com.ak.storage.AbstractStorage;
 import com.ak.storage.LocalStorage;
 import com.ak.storage.Storage;
@@ -11,6 +14,7 @@ import com.ak.util.UIConstants;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+@Immutable
 abstract class AbstractStageStorage extends AbstractStorage<Stage> {
   private static final String FULL_SCREEN = "fullScreen";
   private static final String MAXIMIZED = "maximized";
@@ -19,7 +23,7 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
   private final Storage<Boolean> maximizedStorage;
   private final Storage<Rectangle2D.Double> boundsStorage;
 
-  AbstractStageStorage(String filePrefix) {
+  AbstractStageStorage(@Nonnull String filePrefix) {
     super(filePrefix);
     fullScreenStorage = new LocalStorage<>(filePrefix, FULL_SCREEN, Boolean.class);
     maximizedStorage = new LocalStorage<>(filePrefix, MAXIMIZED, Boolean.class);
@@ -27,7 +31,7 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
   }
 
   @Override
-  public void save(Stage stage) {
+  public void save(@Nonnull Stage stage) {
     if (!Optional.ofNullable(fullScreenStorage.get()).orElse(false) &&
         !Optional.ofNullable(maximizedStorage.get()).orElse(false)) {
       boundsStorage.save(new Rectangle2D.Double(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight()));
@@ -35,7 +39,7 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
   }
 
   @Override
-  public void update(Stage stage) {
+  public void update(@Nonnull Stage stage) {
     stage.maximizedProperty().addListener((observable, oldValue, newValue) -> maximizedStorage.save(newValue));
     Optional.ofNullable(boundsStorage.get()).ifPresent(
         rectangle -> {

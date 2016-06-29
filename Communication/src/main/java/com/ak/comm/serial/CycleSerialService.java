@@ -11,6 +11,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.UIConstants;
@@ -19,9 +22,10 @@ import rx.Subscription;
 public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService<RESPONSE> {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
+  @Nonnull
   private volatile SerialService serialService;
 
-  public CycleSerialService(BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor) {
+  public CycleSerialService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor) {
     serialService = new SerialService(bytesInterceptor);
     this.bytesInterceptor = bytesInterceptor;
     bytesInterceptor.getBufferObservable().subscribe(bufferPublish());
@@ -75,7 +79,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
     }, 0, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
   }
 
-  public int write(REQUEST request) {
+  public int write(@Nullable REQUEST request) {
     return request == null ? -1 : serialService.write(bytesInterceptor.put(request));
   }
 

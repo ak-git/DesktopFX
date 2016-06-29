@@ -5,6 +5,12 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
+@Immutable
+@ThreadSafe
 public final class TnmiRequest implements Cloneable {
   private enum Ohm {
     Z_360(0), Z_0_47(1), Z_1(1 << 1), Z_2(1 << 2), Z_30A(1 << 3), Z_30B(1 << 4), Z_127(1 << 5);
@@ -77,23 +83,29 @@ public final class TnmiRequest implements Cloneable {
   private final ByteBuffer byteBuffer;
   private final String toString;
 
-  private TnmiRequest(Builder builder) {
+  private TnmiRequest(@Nonnull Builder builder) {
     byteBuffer = ByteBuffer.wrap(builder.codes);
     toString = builder.toStringBuilder.toString();
   }
 
-  public void writeTo(ByteBuffer outBuffer) {
+  public void writeTo(@Nonnull ByteBuffer outBuffer) {
     byteBuffer.rewind();
     outBuffer.put(byteBuffer);
   }
 
+  @Nonnull
   TnmiResponse toResponse() {
     byte[] codes = Arrays.copyOf(byteBuffer.array(), byteBuffer.capacity());
     codes[TnmiProtocolByte.ADDR.ordinal()] = Objects.requireNonNull(TnmiAddress.find(codes)).getAddrResponse();
     saveCRC(codes);
-    return TnmiResponse.newInstance(codes);
+    TnmiResponse response = TnmiResponse.newInstance(codes);
+    if (response == null) {
+      throw new NullPointerException(Arrays.toString(codes));
+    }
+    return response;
   }
 
+  @Nonnull
   @Override
   public String toString() {
     return String.format("%s %s", TnmiProtocolByte.toString(getClass(), byteBuffer.array()), toString);
@@ -104,7 +116,7 @@ public final class TnmiRequest implements Cloneable {
     throw new CloneNotSupportedException();
   }
 
-  private static void saveCRC(byte[] codes) {
+  private static void saveCRC(@Nonnull byte[] codes) {
     codes[TnmiProtocolByte.CRC.ordinal()] = 0;
     int crc = 0;
     for (byte code : codes) {
@@ -118,21 +130,21 @@ public final class TnmiRequest implements Cloneable {
     private final byte[] codes = new byte[1 + 1 + 1 + 8 + 1];
     private final StringBuilder toStringBuilder = new StringBuilder();
 
-    private Builder(TnmiAddress address) {
+    private Builder(@Nonnull TnmiAddress address) {
       codes[TnmiProtocolByte.START.ordinal()] = 0x7E;
       codes[TnmiProtocolByte.ADDR.ordinal()] = address.getAddrRequest();
       codes[TnmiProtocolByte.LEN.ordinal()] = 0x08;
       toStringBuilder.append(address.name()).append(SPACE);
     }
 
-    Builder forAll(Ohm... ohms) {
+    Builder forAll(@Nonnull Ohm... ohms) {
       byte code = (byte) Stream.of(ohms).mapToInt(ohm -> ohm.code).sum();
       Arrays.fill(codes, TnmiProtocolByte.DATA_1.ordinal(), TnmiProtocolByte.DATA_4.ordinal() + 1, code);
       toStringBuilder.append(Arrays.toString(ohms)).append(SPACE);
       return this;
     }
 
-    Builder forAll(MyoType myoType, MyoFrequency frequency) {
+    Builder forAll(@Nonnull MyoType myoType, @Nonnull MyoFrequency frequency) {
       Arrays.fill(codes, TnmiProtocolByte.DATA_5.ordinal(), TnmiProtocolByte.DATA_8.ordinal() + 1,
           (byte) (myoType.code + frequency.code));
       toStringBuilder.append(myoType.name()).append(SPACE).append(frequency.name()).append(SPACE);
@@ -146,6 +158,7 @@ public final class TnmiRequest implements Cloneable {
       return this;
     }
 
+    @Nonnull
     @Override
     public TnmiRequest build() {
       saveCRC(codes);

@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 
+import javax.annotation.Nonnull;
+
 public enum TnmiProtocolByte {
   START {
     @Override
@@ -26,7 +28,7 @@ public enum TnmiProtocolByte {
     throw new UnsupportedOperationException(name());
   }
 
-  static boolean checkCRC(byte[] codes) {
+  static boolean checkCRC(@Nonnull byte[] codes) {
     int crc = 0;
     for (int i = 0; i < codes.length - 1; i++) {
       crc += codes[i];
@@ -34,7 +36,8 @@ public enum TnmiProtocolByte {
     return codes[codes.length - 1] == (byte) (crc & 0xff);
   }
 
-  static String toString(Class<?> clazz, byte[] bytes) {
+  @Nonnull
+  static String toString(@Nonnull Class<?> clazz, @Nonnull byte[] bytes) {
     StringBuilder sb = new StringBuilder(clazz.getSimpleName()).append("[ ");
     for (int i : bytes) {
       sb.append(String.format("%#04x ", (i & 0xFF)));

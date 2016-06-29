@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import com.ak.comm.file.AutoFileReadingService;
@@ -15,16 +16,18 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
 public final class ViewController implements Initializable {
+  @Nonnull
   public MilliGrid root;
+  @Nonnull
   private final AutoFileReadingService<TnmiResponse, TnmiRequest> service;
 
   @Inject
-  public ViewController(AutoFileReadingService<TnmiResponse, TnmiRequest> service) {
+  public ViewController(@Nonnull AutoFileReadingService<TnmiResponse, TnmiRequest> service) {
     this.service = service;
   }
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initialize(@Nonnull URL location, @Nonnull ResourceBundle resources) {
     root.setOnDragOver(event -> {
       Dragboard db = event.getDragboard();
       if (db.hasFiles()) {

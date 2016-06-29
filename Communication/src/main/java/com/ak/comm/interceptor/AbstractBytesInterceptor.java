@@ -4,14 +4,20 @@ import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+
 import com.ak.comm.core.AbstractService;
 
+@Immutable
 public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends AbstractService<RESPONSE> implements BytesInterceptor<RESPONSE, REQUEST> {
   private final String name;
   private final ByteBuffer outBuffer;
   private final REQUEST pingRequest;
 
-  protected AbstractBytesInterceptor(String name, int outBufferSize, REQUEST pingRequest) {
+  protected AbstractBytesInterceptor(@Nonnull String name, @Nonnegative int outBufferSize, @Nullable REQUEST pingRequest) {
     this.name = name;
     outBuffer = ByteBuffer.allocate(outBufferSize);
     this.pingRequest = pingRequest;
@@ -19,6 +25,7 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
         String.format("#%x %s", hashCode(), response)));
   }
 
+  @Nonnull
   @Override
   public final String name() {
     return name;
@@ -34,13 +41,15 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
     bufferPublish().onCompleted();
   }
 
+  @Nullable
   @Override
   public final REQUEST getPingRequest() {
     return pingRequest;
   }
 
+  @Nonnull
   @Override
-  public final ByteBuffer put(REQUEST request) {
+  public final ByteBuffer put(@Nonnull REQUEST request) {
     Logger.getLogger(getClass().getName()).log(Level.CONFIG, String.format("#%x %s", hashCode(), request));
     outBuffer.clear();
     innerPut(outBuffer, request);
@@ -48,10 +57,11 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
     return outBuffer;
   }
 
+  @Nonnegative
   @Override
   public int getBaudRate() {
     return 115200;
   }
 
-  protected abstract void innerPut(ByteBuffer outBuffer, REQUEST request);
+  protected abstract void innerPut(@Nonnull ByteBuffer outBuffer, @Nonnull REQUEST request);
 }

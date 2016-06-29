@@ -11,6 +11,9 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.logging.BinaryLogBuilder;
@@ -22,9 +25,10 @@ import jssc.SerialPortList;
 final class SerialService extends AbstractService<ByteBuffer> implements WritableByteChannel {
   private final SerialPort serialPort;
   private final ByteBuffer buffer;
+  @Nullable
   private WritableByteChannel binaryLogChannel;
 
-  SerialService(BytesInterceptor<?, ?> interceptor) {
+  SerialService(@Nonnull BytesInterceptor<?, ?> interceptor) {
     buffer = ByteBuffer.allocate(interceptor.getBaudRate());
     String portName = Ports.INSTANCE.next();
     serialPort = new SerialPort(portName);
@@ -75,7 +79,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
   }
 
   @Override
-  public int write(ByteBuffer src) {
+  public int write(@Nonnull ByteBuffer src) {
     synchronized (serialPort) {
       int countBytes = 0;
       if (serialPort.isOpened()) {
@@ -124,6 +128,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
     }
   }
 
+  @Nonnull
   @Override
   public String toString() {
     return String.format("%s@%x{serialPort = %s}", getClass().getSimpleName(), hashCode(), serialPort.getPortName());

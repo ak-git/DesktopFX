@@ -6,6 +6,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.ak.util.UIConstants;
 import com.sun.javafx.util.Utils;
 import javafx.stage.Stage;
@@ -13,6 +17,8 @@ import rx.Observable;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+@Immutable
+@ThreadSafe
 public enum ScreenResolutionMonitor {
   INSTANCE;
 
@@ -35,6 +41,7 @@ public enum ScreenResolutionMonitor {
     }
   }
 
+  @Nonnull
   public Observable<Double> getDpiObservable() {
     return dpiObservable;
   }

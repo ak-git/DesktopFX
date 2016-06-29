@@ -1,9 +1,12 @@
 package com.ak.rsm;
 
+import javax.annotation.Nonnull;
+
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import tec.uom.se.unit.Units;
 
 abstract class AbstractDerivativeRNormalized implements UnivariateFunction, Cloneable {
+  @Nonnull
   private final TetrapolarSystem electrodes;
   private final double k12;
 
@@ -21,6 +24,7 @@ abstract class AbstractDerivativeRNormalized implements UnivariateFunction, Clon
 
   abstract double nominator(double hToL);
 
+  @Nonnull
   final TetrapolarSystem electrodes() {
     return electrodes;
   }
