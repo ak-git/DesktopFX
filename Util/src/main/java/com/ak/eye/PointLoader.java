@@ -15,8 +15,6 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.apache.commons.math3.geometry.Point;
-import org.apache.commons.math3.geometry.euclidean.twod.Euclidean2D;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
 @ThreadSafe
@@ -26,10 +24,10 @@ public enum PointLoader {
 
   @Nonnull
   @GuardedBy("this")
-  private final List<Point<Euclidean2D>> points;
+  private final List<Vector2D> points;
 
   PointLoader() {
-    List<Point<Euclidean2D>> points = Collections.emptyList();
+    List<Vector2D> points = Collections.emptyList();
     Path fileToLoad = Paths.get("points.txt");
     try {
       points = Files.lines(fileToLoad).map(s -> {
@@ -43,7 +41,7 @@ public enum PointLoader {
     this.points = Collections.unmodifiableList(points);
   }
 
-  public List<Point<Euclidean2D>> getPoints() {
+  public List<Vector2D> getPoints() {
     return points;
   }
 }

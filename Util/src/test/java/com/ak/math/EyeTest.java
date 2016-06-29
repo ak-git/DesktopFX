@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
+import com.ak.eye.PointLoader;
 import javafx.util.Builder;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
@@ -37,6 +38,7 @@ public class EyeTest {
         {new EllipsePoints(1).transform(0.5 * 0.5).move(10.0, -1.0).rotate(30).build()},
         {new EllipsePoints(1).transform(0.5 * 0.5).move(10, 10).rotate(45).build()},
         {new EllipsePoints(1).build()},
+        {PointLoader.INSTANCE.getPoints()},
     };
   }
 
