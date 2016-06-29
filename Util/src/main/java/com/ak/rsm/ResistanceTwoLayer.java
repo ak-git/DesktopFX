@@ -2,6 +2,9 @@ package com.ak.rsm;
 
 import java.util.function.DoubleUnaryOperator;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 import org.apache.commons.math3.analysis.BivariateFunction;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 
@@ -12,9 +15,10 @@ import static java.lang.StrictMath.pow;
  * Calculates <b>full</b> resistance R<sub>m-n</sub> (in Ohm) between electrodes for <b>2-layer</b> model.
  */
 final class ResistanceTwoLayer implements TrivariateFunction, Cloneable {
+  @Nonnull
   private final ResistanceOneLayer resistanceOneLayer;
 
-  ResistanceTwoLayer(TetrapolarSystem electrodeSystem) {
+  ResistanceTwoLayer(@Nonnull TetrapolarSystem electrodeSystem) {
     resistanceOneLayer = new ResistanceOneLayer(electrodeSystem);
   }
 
@@ -27,7 +31,7 @@ final class ResistanceTwoLayer implements TrivariateFunction, Cloneable {
    * @return resistance R<sub>m-n</sub> (in Ohm)
    */
   @Override
-  public double value(double rho1SI, double rho2SI, double hSI) {
+  public double value(@Nonnegative double rho1SI, @Nonnegative double rho2SI, @Nonnegative double hSI) {
     double resistivity = resistanceOneLayer.value(rho1SI);
 
     if (Double.compare(rho1SI, rho2SI) == 0) {
@@ -42,15 +46,15 @@ final class ResistanceTwoLayer implements TrivariateFunction, Cloneable {
     return (1.0 - k12) / (1.0 + k12);
   }
 
-  static double getK12(double rho1SI, double rho2SI) {
+  static double getK12(@Nonnegative double rho1SI, @Nonnegative double rho2SI) {
     return (rho2SI - rho1SI) / (rho2SI + rho1SI);
   }
 
-  static double sum(double hSI, BivariateFunction nAndB) {
+  static double sum(@Nonnegative double hSI, @Nonnull BivariateFunction nAndB) {
     return sum(n -> nAndB.value(n, 4.0 * n * hSI));
   }
 
-  double sum(double k12, double hSI) {
+  double sum(double k12, @Nonnegative double hSI) {
     return sum(hSI, (n, b) -> pow(k12, n) *
         (1.0 / hypot(resistanceOneLayer.getElectrodeSystem().radiusMinus(), b)
             - 1.0 / hypot(resistanceOneLayer.getElectrodeSystem().radiusPlus(), b)));
@@ -61,7 +65,7 @@ final class ResistanceTwoLayer implements TrivariateFunction, Cloneable {
     throw new CloneNotSupportedException();
   }
 
-  private static double sum(DoubleUnaryOperator operator) {
+  private static double sum(@Nonnull DoubleUnaryOperator operator) {
     double sum = 0.0;
     for (int n = 1; ; n++) {
       double prev = sum;
