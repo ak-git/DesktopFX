@@ -9,6 +9,9 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
+
 import com.ak.fx.stage.ScreenResolutionMonitor;
 import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.util.OSDockImage;
@@ -29,6 +32,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.MessageSourceResourceBundle;
 
+@Immutable
 public final class FxApplication extends Application {
   private static final String FX_CONTEXT_XML = "fx-context.xml";
   private static final String SCENE_XML = "scene.fxml";
@@ -49,7 +53,7 @@ public final class FxApplication extends Application {
   }
 
   @Override
-  public void start(Stage stage) throws Exception {
+  public void start(@Nonnull Stage stage) throws Exception {
     try {
       FXMLLoader loader = new FXMLLoader(getClass().getResource(SCENE_XML), new MessageSourceResourceBundle(
           BeanFactoryUtils.beanOfType(context, MessageSource.class), Locale.getDefault()));
