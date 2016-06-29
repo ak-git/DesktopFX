@@ -5,8 +5,12 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
+
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
 
+@Immutable
 public final class TnmiBytesInterceptor extends AbstractBytesInterceptor<TnmiResponse, TnmiRequest> {
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(TnmiProtocolByte.MAX_CAPACITY);
 
@@ -15,7 +19,7 @@ public final class TnmiBytesInterceptor extends AbstractBytesInterceptor<TnmiRes
   }
 
   @Override
-  public int write(ByteBuffer src) {
+  public int write(@Nonnull ByteBuffer src) {
     src.rewind();
     int countResponse = 0;
     while (src.hasRemaining()) {
@@ -60,7 +64,7 @@ public final class TnmiBytesInterceptor extends AbstractBytesInterceptor<TnmiRes
   }
 
   @Override
-  protected void innerPut(ByteBuffer outBuffer, TnmiRequest tnmiRequest) {
+  protected void innerPut(@Nonnull ByteBuffer outBuffer, @Nonnull TnmiRequest tnmiRequest) {
     tnmiRequest.writeTo(outBuffer);
   }
 }
