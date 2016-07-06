@@ -1,5 +1,6 @@
 package com.ak.fx.desktop;
 
+import java.awt.Toolkit;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.CountDownLatch;
@@ -34,8 +35,8 @@ public final class FxDesktopTest extends Preloader {
   private static final AtomicReference<Application> APP_REFERENCE = new AtomicReference<>();
   private static final double STAGE_X = 100.0;
   private static final double STAGE_Y = 100.0;
-  private static final double STAGE_WIDTH = 800.0;
-  private static final double STAGE_HEIGHT = 600.0;
+  private static final double STAGE_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 2.0;
+  private static final double STAGE_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 2.0;
 
   private static final String JAVAFX_PRELOADER = "javafx.preloader";
   @Nullable
@@ -110,25 +111,32 @@ public final class FxDesktopTest extends Preloader {
     boolean fullScreenFlag = stage.isFullScreen();
     CountDownLatch latch = new CountDownLatch(1);
     Platform.runLater(() -> {
-      stageStorage.update(stage);
-      checkStage();
-
-      stageStorage.save(stage);
-      setStageBounds(STAGE_X / 2.0, STAGE_Y / 2.0, STAGE_WIDTH / 2.0, STAGE_HEIGHT / 2.0);
-      stageStorage.update(stage);
-      checkStage();
-
-      stage.setMaximized(!maximizedFlag);
-      stage.setFullScreen(!fullScreenFlag);
       try {
-        TimeUnit.SECONDS.sleep(4);
+        stageStorage.update(stage);
+        checkStage();
+
+        stageStorage.save(stage);
+        setStageBounds(STAGE_X / 2.0, STAGE_Y / 2.0, STAGE_WIDTH / 2.0, STAGE_HEIGHT / 2.0);
+        stageStorage.update(stage);
+        checkStage();
+
+        stage.setMaximized(!maximizedFlag);
+        stage.setFullScreen(!fullScreenFlag);
+        try {
+          TimeUnit.SECONDS.sleep(4);
+        }
+        catch (InterruptedException e) {
+          Assert.fail(e.getMessage(), e);
+        }
+        stageStorage.save(stage);
+        stageStorage.update(stage);
       }
-      catch (InterruptedException e) {
+      catch (Exception e) {
         Assert.fail(e.getMessage(), e);
       }
-      stageStorage.save(stage);
-      stageStorage.update(stage);
-      latch.countDown();
+      finally {
+        latch.countDown();
+      }
     });
     latch.await();
     Assert.assertEquals(stage.isMaximized(), !maximizedFlag);

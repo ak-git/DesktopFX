@@ -11,18 +11,23 @@ import javax.annotation.concurrent.Immutable;
 
 import com.ak.comm.core.AbstractService;
 
+import static jssc.SerialPort.BAUDRATE_115200;
+
 @Immutable
 public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends AbstractService<RESPONSE> implements BytesInterceptor<RESPONSE, REQUEST> {
+  private static final Level LOG_LEVEL = Level.CONFIG;
   private final String name;
   private final ByteBuffer outBuffer;
   private final REQUEST pingRequest;
+  private final Logger logger = Logger.getLogger(getClass().getName());
 
   protected AbstractBytesInterceptor(@Nonnull String name, @Nonnegative int outBufferSize, @Nullable REQUEST pingRequest) {
     this.name = name;
     outBuffer = ByteBuffer.allocate(outBufferSize);
     this.pingRequest = pingRequest;
-    bufferPublish().subscribe(response -> Logger.getLogger(getClass().getName()).log(Level.CONFIG,
-        String.format("#%x %s", hashCode(), response)));
+    if (logger.isLoggable(LOG_LEVEL)) {
+      bufferPublish().subscribe(response -> logger.log(LOG_LEVEL, String.format("#%x %s", hashCode(), response)));
+    }
   }
 
   @Nonnull
@@ -50,7 +55,7 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
   @Nonnull
   @Override
   public final ByteBuffer put(@Nonnull REQUEST request) {
-    Logger.getLogger(getClass().getName()).log(Level.CONFIG, String.format("#%x %s", hashCode(), request));
+    logger.log(LOG_LEVEL, String.format("#%x %s", hashCode(), request));
     outBuffer.clear();
     innerPut(outBuffer, request);
     outBuffer.flip();
@@ -60,7 +65,7 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
   @Nonnegative
   @Override
   public int getBaudRate() {
-    return 115200;
+    return BAUDRATE_115200;
   }
 
   protected abstract void innerPut(@Nonnull ByteBuffer outBuffer, @Nonnull REQUEST request);
