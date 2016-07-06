@@ -45,8 +45,9 @@ public class EyeTest {
   @Test(dataProvider = "ellipse")
   public void testEllipse(@Nonnull List<Vector2D> points) {
     if (points.size() < 5) {
-      throw new IllegalArgumentException(points.toString());
+      return;
     }
+
     double[][] coeff = new double[points.size()][5];
     for (int i = 0; i < points.size(); i++) {
       double x = points.get(i).getX();
