@@ -70,11 +70,14 @@ public class EyeTest {
     double a23 = solution.getEntry(4);
 
     double phi = StrictMath.atan(2.0 * a12 / (a11 - a22)) / 2.0;
-    double d = a11 * a22 - a12 * a12;
-    double x0 = -(a13 * a22 - a12 * a23) / d;
-    double y0 = -(a11 * a23 - a13 * a12) / d;
 
     EigenDecomposition D = new EigenDecomposition(new Array2DRowRealMatrix(new double[][] {{a11, a12}, {a12, a22}}, false));
+    EigenDecomposition X0 = new EigenDecomposition(new Array2DRowRealMatrix(new double[][] {{a13, a12}, {a23, a22}}, false));
+    EigenDecomposition Y0 = new EigenDecomposition(new Array2DRowRealMatrix(new double[][] {{a11, a13}, {a12, a23}}, false));
+    double x0 = -X0.getDeterminant() / D.getDeterminant();
+    double y0 = -Y0.getDeterminant() / D.getDeterminant();
+
+
     EigenDecomposition A = new EigenDecomposition(new Array2DRowRealMatrix(new double[][] {{a11, a12, a13}, {a12, a22, a23}, {a13, a23, 1.0}}, false));
 
     double bAxis = Math.sqrt(-A.getDeterminant() / (D.getDeterminant() * D.getRealEigenvalues()[0]));
