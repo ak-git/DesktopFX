@@ -12,10 +12,11 @@
     <orderEntry type="module" module-name="Util_main" />
     <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:3.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: org.apache.commons:commons-math3:3.6" level="project" />
-    <orderEntry type="library" name="Gradle: tec.uom:uom-se:0.8" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.commons:commons-math3:3.6.1" level="project" />
+    <orderEntry type="library" name="Gradle: tec.uom:uom-se:0.9" level="project" />
     <orderEntry type="library" name="Gradle: org.testng:testng:6.9.10" level="project" />
-    <orderEntry type="library" name="Gradle: javax.measure:unit-api:0.8" level="project" />
+    <orderEntry type="library" name="Gradle: javax.measure:unit-api:0.9" level="project" />
+    <orderEntry type="library" name="Gradle: tec.uom.lib:uom-lib-common:0.9" level="project" />
     <orderEntry type="library" name="Gradle: javax.annotation:javax.annotation-api:1.2" level="project" />
     <orderEntry type="library" name="Gradle: com.beust:jcommander:1.48" level="project" />
     <orderEntry type="library" name="Gradle: org.beanshell:bsh:2.0b4" level="project" />

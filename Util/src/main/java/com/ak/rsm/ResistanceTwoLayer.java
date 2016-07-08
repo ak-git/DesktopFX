@@ -14,7 +14,7 @@ import static java.lang.StrictMath.pow;
 /**
  * Calculates <b>full</b> resistance R<sub>m-n</sub> (in Ohm) between electrodes for <b>2-layer</b> model.
  */
-final class ResistanceTwoLayer implements TrivariateFunction, Cloneable {
+final class ResistanceTwoLayer implements TrivariateFunction {
   @Nonnull
   private final ResistanceOneLayer resistanceOneLayer;
 

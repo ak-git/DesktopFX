@@ -15,7 +15,7 @@ import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 import static tec.uom.se.unit.Units.OHM;
 
-final class TetrapolarSystem implements Cloneable {
+final class TetrapolarSystem {
   @Nonnegative
   private final double sPotentialUnitSI;
   @Nonnegative

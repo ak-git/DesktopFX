@@ -7,6 +7,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class LocalStorageTest {
+  private static final Logger LOGGER = Logger.getLogger(LocalStorage.class.getName());
   private LocalStorageTest() {
   }
 
@@ -57,15 +58,14 @@ public class LocalStorageTest {
 
   @Test
   public void testInvalidFileName() {
-    Logger logger = Logger.getLogger(LocalStorage.class.getName());
     AtomicBoolean exceptionFlag = new AtomicBoolean(false);
-    logger.setFilter(record -> {
+    LOGGER.setFilter(record -> {
       Assert.assertNotNull(record.getThrown());
       exceptionFlag.set(true);
       return false;
     });
     new LocalStorage<>(LocalStorageTest.class.getName(), "/invalid file ...\\\\/", String.class).save("");
     Assert.assertTrue(exceptionFlag.get(), "Exception must be thrown");
-    logger.setFilter(null);
+    LOGGER.setFilter(null);
   }
 }

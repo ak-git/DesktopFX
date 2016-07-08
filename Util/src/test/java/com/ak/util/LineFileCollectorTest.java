@@ -25,6 +25,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class LineFileCollectorTest {
+  private static final Logger LOGGER = Logger.getLogger(LineFileCollector.class.getName());
   private final AtomicInteger exceptionCounter = new AtomicInteger();
   private Path out;
 
@@ -35,22 +36,20 @@ public class LineFileCollectorTest {
   public void setUp() {
     out = Paths.get(LineFileCollectorTest.class.getName() + ".txt");
 
-    Logger logger = Logger.getLogger(LineFileCollector.class.getName());
-    logger.setFilter(record -> {
+    LOGGER.setFilter(record -> {
       Assert.assertNotNull(record.getThrown());
       exceptionCounter.incrementAndGet();
       return false;
     });
-    logger.setLevel(Level.WARNING);
+    LOGGER.setLevel(Level.WARNING);
   }
 
   @AfterClass
   public void tearDown() throws IOException {
     Files.deleteIfExists(out);
 
-    Logger logger = Logger.getLogger(LineFileCollector.class.getName());
-    logger.setFilter(null);
-    logger.setLevel(Level.INFO);
+    LOGGER.setFilter(null);
+    LOGGER.setLevel(Level.INFO);
   }
 
   @BeforeMethod

@@ -8,7 +8,7 @@ import org.apache.commons.math3.analysis.UnivariateFunction;
 /**
  * Calculates <b>full</b> resistance R<sub>m-n</sub> (in Ohm) between electrodes for <b>single-layer</b> model.
  */
-final class ResistanceOneLayer implements UnivariateFunction, Cloneable {
+final class ResistanceOneLayer implements UnivariateFunction {
   @Nonnull
   private final TetrapolarSystem electrodeSystem;
 

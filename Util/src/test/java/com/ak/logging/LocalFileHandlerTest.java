@@ -3,6 +3,7 @@ package com.ak.logging;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -54,7 +55,7 @@ public class LocalFileHandlerTest {
     Path path = new BinaryLogBuilder(getClass().getSimpleName(), LocalFileHandler.class).build().getPath();
     WritableByteChannel channel = Files.newByteChannel(path,
         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-    channel.write(ByteBuffer.wrap(getClass().getName().getBytes()));
+    channel.write(ByteBuffer.wrap(getClass().getName().getBytes(Charset.defaultCharset())));
     channel.close();
     Files.deleteIfExists(path);
   }

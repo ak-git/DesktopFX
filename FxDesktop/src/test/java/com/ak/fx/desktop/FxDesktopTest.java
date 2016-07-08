@@ -30,6 +30,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public final class FxDesktopTest extends Preloader {
+  private static final Logger OS_DOCK_IMAGE_LOGGER = Logger.getLogger(OSDockImage.MAC.getClass().getName());
+  private static final Logger FX_APP_LOGGER = Logger.getLogger(FxApplication.class.getName());
   private static final CountDownLatch LATCH = new CountDownLatch(2);
   private static final AtomicReference<Stage> STAGE_REFERENCE = new AtomicReference<>();
   private static final AtomicReference<Application> APP_REFERENCE = new AtomicReference<>();
@@ -158,14 +160,13 @@ public final class FxDesktopTest extends Preloader {
 
   @Test
   public static void testInvalidSetIconImage() throws Exception {
-    Logger logger = Logger.getLogger(OSDockImage.MAC.getClass().getName());
     AtomicBoolean exceptionFlag = new AtomicBoolean(false);
-    logger.setFilter(record -> {
+    OS_DOCK_IMAGE_LOGGER.setFilter(record -> {
       Assert.assertNotNull(record.getThrown());
       exceptionFlag.set(true);
       return false;
     });
-    logger.setLevel(Level.CONFIG);
+    OS_DOCK_IMAGE_LOGGER.setLevel(Level.CONFIG);
 
     CountDownLatch latch = new CountDownLatch(1);
     Platform.runLater(() -> {
@@ -184,22 +185,22 @@ public final class FxDesktopTest extends Preloader {
     latch.await();
 
     Assert.assertTrue(exceptionFlag.get(), "Exception must be thrown");
-    logger.setFilter(null);
-    logger.setLevel(Level.INFO);
+    OS_DOCK_IMAGE_LOGGER.setFilter(null);
+    OS_DOCK_IMAGE_LOGGER.setLevel(Level.INFO);
   }
 
   @Test(expectedExceptions = NullPointerException.class)
   public static void testInvalidApplicationStart() throws Exception {
-    Logger.getLogger(FxApplication.class.getName()).setLevel(Level.OFF);
+    FX_APP_LOGGER.setLevel(Level.OFF);
     try {
       APP_REFERENCE.get().start(null);
     }
     finally {
       try {
-        Logger.getLogger(FxApplication.class.getName()).setLevel(Level.INFO);
+        FX_APP_LOGGER.setLevel(Level.INFO);
       }
       catch (SecurityException e) {
-        Logger.getLogger(FxApplication.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+        FX_APP_LOGGER.log(Level.SEVERE, e.getMessage(), e);
       }
     }
   }
