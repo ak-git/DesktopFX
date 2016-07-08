@@ -15,7 +15,7 @@ import static jssc.SerialPort.BAUDRATE_115200;
 
 @Immutable
 public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends AbstractService<RESPONSE> implements BytesInterceptor<RESPONSE, REQUEST> {
-  private static final Level LOG_LEVEL = Level.CONFIG;
+  private static final Level LOG_LEVEL = Level.FINE;
   private final String name;
   private final ByteBuffer outBuffer;
   private final REQUEST pingRequest;

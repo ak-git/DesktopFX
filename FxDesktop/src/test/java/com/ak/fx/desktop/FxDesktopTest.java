@@ -57,13 +57,6 @@ public final class FxDesktopTest extends Preloader {
 
   @AfterClass
   public void tearDown() {
-    try {
-      APP_REFERENCE.get().stop();
-    }
-    catch (Exception e) {
-      Assert.fail(e.getMessage(), e);
-    }
-
     if (oldPreloader != null) {
       System.setProperty(JAVAFX_PRELOADER, oldPreloader);
     }
