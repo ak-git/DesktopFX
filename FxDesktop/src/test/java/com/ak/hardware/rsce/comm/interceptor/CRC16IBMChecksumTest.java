@@ -9,12 +9,12 @@ import org.testng.annotations.Test;
 public final class CRC16IBMChecksumTest {
   @DataProvider(name = "checksum")
   public static Object[][] ohms() {
-    int[][] input = {
+    byte[][] input = {
         {0x01, 0x05, 0x0C, 0x00, 0x00},
         {0x01, 0x05, 0x0C, 0x20, 0x4E},
-        {0x01, 0x05, 0x0C, 0xE0, 0xB1},
+        {0x01, 0x05, 0x0C, (byte) 0xE0, (byte) 0xB1},
 
-        {0x01, 0x05, 0x0C, 0xA0, 0x0F},
+        {0x01, 0x05, 0x0C, (byte) 0xA0, 0x0F},
         {0x01, 0x03, 0x00}
     };
 
@@ -31,15 +31,17 @@ public final class CRC16IBMChecksumTest {
   }
 
   @Test(dataProvider = "checksum")
-  public void testGetValue(@Nonnull int[] input, int expectedSum) {
+  public void testUpdate(@Nonnull byte[] input, int expectedSum) {
     CRC16IBMChecksum checksum = new CRC16IBMChecksum();
     Assert.assertThrows(CloneNotSupportedException.class, checksum::clone);
-    Assert.assertThrows(UnsupportedOperationException.class, () -> checksum.update(null, 0, 0));
-
     for (int i = 0, bytesLength = input.length; i < bytesLength; i++) {
       for (int b : input) {
         checksum.update(b);
       }
+      Assert.assertEquals(checksum.getValue(), expectedSum, String.format("Test [%d], checksum %s", i, checksum));
+      checksum.reset();
+
+      checksum.update(input, 0, input.length);
       Assert.assertEquals(checksum.getValue(), expectedSum, String.format("Test [%d], checksum %s", i, checksum));
       checksum.reset();
     }

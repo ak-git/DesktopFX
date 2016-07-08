@@ -51,18 +51,14 @@ final class CRC16IBMChecksum implements Checksum {
 
   @Override
   public void update(int b) {
-    lock.writeLock().lock();
-    try {
-      crc = (crc >> 8) ^ CRC_16_TABLE[((crc & 0xFF) ^ b) & 0xFF];
-    }
-    finally {
-      lock.writeLock().unlock();
-    }
+    update((byte) b);
   }
 
   @Override
   public void update(byte[] b, int off, int len) {
-    throw new UnsupportedOperationException();
+    for (int i = off; i < len; i++) {
+      update(b[i]);
+    }
   }
 
   @Override
@@ -96,6 +92,16 @@ final class CRC16IBMChecksum implements Checksum {
   @Override
   protected Object clone() throws CloneNotSupportedException {
     throw new CloneNotSupportedException();
+  }
+
+  private void update(byte b) {
+    lock.writeLock().lock();
+    try {
+      crc = (crc >> 8) ^ CRC_16_TABLE[((crc & 0xFF) ^ b) & 0xFF];
+    }
+    finally {
+      lock.writeLock().unlock();
+    }
   }
 }
 
