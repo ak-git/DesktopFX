@@ -11,6 +11,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.ak.fx.stage.ScreenResolutionMonitor;
 import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.util.OSDockImage;
@@ -27,6 +30,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public final class FxDesktopTest extends Preloader {
+  private static final Logger OS_DOCK_IMAGE_LOGGER = Logger.getLogger(OSDockImage.MAC.getClass().getName());
+  private static final Logger FX_APP_LOGGER = Logger.getLogger(FxApplication.class.getName());
   private static final CountDownLatch LATCH = new CountDownLatch(2);
   private static final AtomicReference<Stage> STAGE_REFERENCE = new AtomicReference<>();
   private static final AtomicReference<Application> APP_REFERENCE = new AtomicReference<>();
@@ -36,6 +41,7 @@ public final class FxDesktopTest extends Preloader {
   private static final double STAGE_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 2.0;
 
   private static final String JAVAFX_PRELOADER = "javafx.preloader";
+  @Nullable
   private String oldPreloader;
 
   @BeforeClass
@@ -51,13 +57,6 @@ public final class FxDesktopTest extends Preloader {
 
   @AfterClass
   public void tearDown() {
-    try {
-      APP_REFERENCE.get().stop();
-    }
-    catch (Exception e) {
-      Assert.fail(e.getMessage(), e);
-    }
-
     if (oldPreloader != null) {
       System.setProperty(JAVAFX_PRELOADER, oldPreloader);
     }
@@ -72,14 +71,14 @@ public final class FxDesktopTest extends Preloader {
   }
 
   @Override
-  public void start(Stage primaryStage) {
+  public void start(@Nonnull Stage primaryStage) {
     STAGE_REFERENCE.set(primaryStage);
     setStageBounds(STAGE_X, STAGE_Y, STAGE_WIDTH, STAGE_HEIGHT);
     LATCH.countDown();
   }
 
   @Override
-  public void handleStateChangeNotification(StateChangeNotification info) {
+  public void handleStateChangeNotification(@Nonnull StateChangeNotification info) {
     if (info.getType() == StateChangeNotification.Type.BEFORE_START) {
       Executors.newSingleThreadExecutor().execute(() -> {
         APP_REFERENCE.set(info.getApplication());
@@ -140,7 +139,7 @@ public final class FxDesktopTest extends Preloader {
   }
 
   @Test(dataProvider = "os-storage", expectedExceptions = UnsupportedOperationException.class)
-  public void testGet(OSStageStorage storage) {
+  public void testGet(@Nonnull OSStageStorage storage) {
     storage.newInstance(getClass()).get();
   }
 
@@ -154,14 +153,13 @@ public final class FxDesktopTest extends Preloader {
 
   @Test
   public static void testInvalidSetIconImage() throws Exception {
-    Logger logger = Logger.getLogger(OSDockImage.MAC.getClass().getName());
     AtomicBoolean exceptionFlag = new AtomicBoolean(false);
-    logger.setFilter(record -> {
+    OS_DOCK_IMAGE_LOGGER.setFilter(record -> {
       Assert.assertNotNull(record.getThrown());
       exceptionFlag.set(true);
       return false;
     });
-    logger.setLevel(Level.CONFIG);
+    OS_DOCK_IMAGE_LOGGER.setLevel(Level.CONFIG);
 
     CountDownLatch latch = new CountDownLatch(1);
     Platform.runLater(() -> {
@@ -180,18 +178,23 @@ public final class FxDesktopTest extends Preloader {
     latch.await();
 
     Assert.assertTrue(exceptionFlag.get(), "Exception must be thrown");
-    logger.setFilter(null);
-    logger.setLevel(Level.INFO);
+    OS_DOCK_IMAGE_LOGGER.setFilter(null);
+    OS_DOCK_IMAGE_LOGGER.setLevel(Level.INFO);
   }
 
   @Test(expectedExceptions = NullPointerException.class)
   public static void testInvalidApplicationStart() throws Exception {
-    Logger.getLogger(FxApplication.class.getName()).setLevel(Level.OFF);
+    FX_APP_LOGGER.setLevel(Level.OFF);
     try {
       APP_REFERENCE.get().start(null);
     }
     finally {
-      Logger.getLogger(FxApplication.class.getName()).setLevel(Level.INFO);
+      try {
+        FX_APP_LOGGER.setLevel(Level.INFO);
+      }
+      catch (SecurityException e) {
+        FX_APP_LOGGER.log(Level.SEVERE, e.getMessage(), e);
+      }
     }
   }
 

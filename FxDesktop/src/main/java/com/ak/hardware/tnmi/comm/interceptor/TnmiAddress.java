@@ -7,6 +7,9 @@ import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 enum TnmiAddress {
   SINGLE(0x81, 0x91),
   SEQUENCE(0x82, 0x92),
@@ -41,14 +44,15 @@ enum TnmiAddress {
     return addrResponse;
   }
 
-  static TnmiAddress find(byte[] codes) {
+  @Nullable
+  static TnmiAddress find(@Nonnull byte[] codes) {
     byte addr = codes[TnmiProtocolByte.ADDR.ordinal()];
     for (TnmiAddress tnmiAddress : values()) {
       if (tnmiAddress.addrRequest == addr || tnmiAddress.addrResponse == addr) {
         return tnmiAddress;
       }
     }
-    Logger.getLogger(TnmiAddress.class.getName()).log(Level.WARNING, String.format("Address %d not found: %s", addr, Arrays.toString(codes)));
+    Logger.getLogger(TnmiAddress.class.getName()).log(Level.CONFIG, String.format("Address %d not found: %s", addr, Arrays.toString(codes)));
     return null;
   }
 }

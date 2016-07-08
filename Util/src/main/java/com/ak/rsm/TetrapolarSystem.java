@@ -2,6 +2,8 @@ package com.ak.rsm;
 
 import java.util.Objects;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.quantity.ElectricResistance;
@@ -13,11 +15,13 @@ import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 import static tec.uom.se.unit.Units.OHM;
 
-public final class TetrapolarSystem implements Cloneable {
+final class TetrapolarSystem {
+  @Nonnegative
   private final double sPotentialUnitSI;
+  @Nonnegative
   private final double lCurrentCarryingSI;
 
-  public TetrapolarSystem(double sPU, double lCC, Unit<Length> unit) {
+  TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
     if (sPU >= lCC) {
       throw new IllegalArgumentException();
     }
@@ -31,7 +35,8 @@ public final class TetrapolarSystem implements Cloneable {
    * @param resistance in Ohms.
    * @return <b>apparent</b> specific resistance in Ohm-m.
    */
-  public double getApparent(Quantity<ElectricResistance> resistance) {
+  @Nonnegative
+  double getApparent(@Nonnull Quantity<ElectricResistance> resistance) {
     return 0.5 * Math.PI * resistance.to(OHM).getValue().doubleValue() / (1.0 / radiusMinus() - 1.0 / radiusPlus());
   }
 
@@ -61,6 +66,7 @@ public final class TetrapolarSystem implements Cloneable {
     return Objects.hash(sPotentialUnitSI, lCurrentCarryingSI);
   }
 
+  @Nonnull
   @Override
   public String toString() {
     return String.format("%s x %s",

@@ -5,21 +5,21 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
+
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
 
-import static com.ak.hardware.tnmi.comm.interceptor.TnmiRequest.MyoFrequency;
-import static com.ak.hardware.tnmi.comm.interceptor.TnmiRequest.MyoType;
-import static com.ak.hardware.tnmi.comm.interceptor.TnmiRequest.Single;
-
+@Immutable
 public final class TnmiBytesInterceptor extends AbstractBytesInterceptor<TnmiResponse, TnmiRequest> {
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(TnmiProtocolByte.MAX_CAPACITY);
 
   public TnmiBytesInterceptor() {
-    super("TNMI", TnmiProtocolByte.MAX_CAPACITY, Single.Z_360.buildForAll(MyoType.OFF, MyoFrequency.OFF));
+    super("TNMI", TnmiProtocolByte.MAX_CAPACITY, TnmiRequest.Sequence.CATCH_100.build());
   }
 
   @Override
-  public int write(ByteBuffer src) {
+  public int write(@Nonnull ByteBuffer src) {
     src.rewind();
     int countResponse = 0;
     while (src.hasRemaining()) {
@@ -50,7 +50,7 @@ public final class TnmiBytesInterceptor extends AbstractBytesInterceptor<TnmiRes
         byteBuffer.get(array);
         TnmiResponse response = TnmiResponse.newInstance(array);
         if (response == null) {
-          Logger.getLogger(getClass().getName()).log(Level.WARNING,
+          Logger.getLogger(getClass().getName()).log(Level.CONFIG,
               String.format("Invalid TNMI response format: {%s}", Arrays.toString(array)));
         }
         else {
@@ -64,7 +64,7 @@ public final class TnmiBytesInterceptor extends AbstractBytesInterceptor<TnmiRes
   }
 
   @Override
-  protected void innerPut(ByteBuffer outBuffer, TnmiRequest tnmiRequest) {
+  protected void innerPut(@Nonnull ByteBuffer outBuffer, @Nonnull TnmiRequest tnmiRequest) {
     tnmiRequest.writeTo(outBuffer);
   }
 }

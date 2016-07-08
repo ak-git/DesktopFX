@@ -4,7 +4,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 
-enum TnmiProtocolByte {
+import javax.annotation.Nonnull;
+
+public enum TnmiProtocolByte {
   START {
     @Override
     boolean is(byte b) {
@@ -15,18 +17,18 @@ enum TnmiProtocolByte {
   LEN {
     @Override
     boolean is(byte b) {
-      return b > 1 && b <= MAX_CAPACITY;
+      return b > 1 && b <= MAX_CAPACITY - 4;
     }
   }, DATA_1, DATA_2, DATA_3, DATA_4, DATA_5, DATA_6, DATA_7, DATA_8, CRC;
 
-  static final int MAX_CAPACITY = 64;
+  public static final int MAX_CAPACITY = 64;
   static final Collection<TnmiProtocolByte> CHECKED_BYTES = Collections.unmodifiableCollection(EnumSet.of(START, LEN));
 
   boolean is(byte b) {
     throw new UnsupportedOperationException(name());
   }
 
-  static boolean checkCRC(byte[] codes) {
+  static boolean checkCRC(@Nonnull byte[] codes) {
     int crc = 0;
     for (int i = 0; i < codes.length - 1; i++) {
       crc += codes[i];
@@ -34,7 +36,8 @@ enum TnmiProtocolByte {
     return codes[codes.length - 1] == (byte) (crc & 0xff);
   }
 
-  static String toString(Class<?> clazz, byte[] bytes) {
+  @Nonnull
+  static String toString(@Nonnull Class<?> clazz, @Nonnull byte[] bytes) {
     StringBuilder sb = new StringBuilder(clazz.getSimpleName()).append("[ ");
     for (int i : bytes) {
       sb.append(String.format("%#04x ", (i & 0xFF)));

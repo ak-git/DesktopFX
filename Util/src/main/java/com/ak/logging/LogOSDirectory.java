@@ -1,4 +1,4 @@
-package com.ak.util;
+package com.ak.logging;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -11,8 +11,13 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-enum LogOSDirectory implements OSDirectory {
+import javax.annotation.Nonnull;
+
+import com.ak.util.OSDirectory;
+
+public enum LogOSDirectory implements OSDirectory {
   WINDOWS {
+    @Nonnull
     @Override
     public Path getDirectory() {
       File appDataDir = null;
@@ -35,12 +40,14 @@ enum LogOSDirectory implements OSDirectory {
     }
   },
   MAC {
+    @Nonnull
     @Override
     public Path getDirectory() {
       return Paths.get(USER_HOME_PATH, "Library", "Application Support", VENDOR_ID);
     }
   },
   UNIX {
+    @Nonnull
     @Override
     public Path getDirectory() {
       return Paths.get(USER_HOME_PATH);

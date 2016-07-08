@@ -1,15 +1,19 @@
 package com.ak.storage;
 
+import javax.annotation.Nonnull;
+
 public abstract class AbstractStorage<T> implements Storage<T>, Cloneable {
+  @Nonnull
   private final String filePrefix;
 
-  protected AbstractStorage(String filePrefix) {
+  protected AbstractStorage(@Nonnull String filePrefix) {
     if (filePrefix.isEmpty()) {
       throw new IllegalArgumentException();
     }
     this.filePrefix = filePrefix;
   }
 
+  @Nonnull
   final String getFilePrefix() {
     return filePrefix;
   }

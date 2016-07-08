@@ -11,9 +11,13 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.ak.comm.core.AbstractService;
-import com.ak.util.LocalFileHandler;
-import com.ak.util.LocalFileIO;
+import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.logging.BinaryLogBuilder;
+import com.ak.logging.LocalFileHandler;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
@@ -21,10 +25,11 @@ import jssc.SerialPortList;
 final class SerialService extends AbstractService<ByteBuffer> implements WritableByteChannel {
   private final SerialPort serialPort;
   private final ByteBuffer buffer;
+  @Nullable
   private WritableByteChannel binaryLogChannel;
 
-  SerialService(String name, int baudRate) {
-    buffer = ByteBuffer.allocate(baudRate);
+  SerialService(@Nonnull BytesInterceptor<?, ?> interceptor) {
+    buffer = ByteBuffer.allocate(interceptor.getBaudRate());
     String portName = Ports.INSTANCE.next();
     serialPort = new SerialPort(portName);
     if (portName.isEmpty()) {
@@ -33,19 +38,20 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
     else {
       try {
         serialPort.openPort();
-        serialPort.setParams(baudRate, 8, 1, 0);
+        serialPort.setParams(interceptor.getBaudRate(), 8, 1, 0);
         serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
-        Logger.getLogger(getClass().getName()).log(Level.INFO, String.format("Opened %s, baudRate = %d bps", this, baudRate));
+        Logger.getLogger(getClass().getName()).log(Level.INFO,
+            String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getPortName(), interceptor.getBaudRate()));
         serialPort.addEventListener(event -> {
           if (binaryLogChannel == null) {
             try {
-              Path path = new LocalFileIO.BinaryLogBuilder(name, LocalFileHandler.class).build().getPath();
+              Path path = new BinaryLogBuilder(interceptor.name(), LocalFileHandler.class).build().getPath();
               binaryLogChannel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
               Logger.getLogger(getClass().getName()).log(Level.INFO,
-                  String.format("Bytes from serial port are logging into the file %s", path));
+                  String.format("#%x Bytes from port [ %s ] are logging into the file [ %s ]", hashCode(), serialPort.getPortName(), path));
             }
             catch (IOException ex) {
-              logAndClose(Level.WARNING, ex);
+              logErrorAndClose(Level.WARNING, serialPort.getPortName(), ex);
             }
           }
 
@@ -57,12 +63,12 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
             bufferPublish().onNext(buffer);
           }
           catch (Exception ex) {
-            logAndClose(Level.CONFIG, ex);
+            logErrorAndClose(Level.CONFIG, serialPort.getPortName(), ex);
           }
         }, SerialPort.MASK_RXCHAR);
       }
       catch (SerialPortException ex) {
-        logAndClose(Level.CONFIG, ex);
+        logErrorAndClose(Level.CONFIG, serialPort.getPortName(), ex);
       }
     }
   }
@@ -73,7 +79,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
   }
 
   @Override
-  public int write(ByteBuffer src) {
+  public int write(@Nonnull ByteBuffer src) {
     synchronized (serialPort) {
       int countBytes = 0;
       if (serialPort.isOpened()) {
@@ -118,18 +124,14 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
     }
     finally {
       bufferPublish().onCompleted();
+      Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Close connection " + serialPort.getPortName());
     }
   }
 
+  @Nonnull
   @Override
   public String toString() {
     return String.format("%s@%x{serialPort = %s}", getClass().getSimpleName(), hashCode(), serialPort.getPortName());
-  }
-
-  private void logAndClose(Level level, Exception ex) {
-    Logger.getLogger(getClass().getName()).log(level, serialPort.getPortName(), ex);
-    bufferPublish().onError(ex);
-    close();
   }
 
   private enum Ports {
@@ -145,7 +147,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
       else {
         String portName = portNames[0];
         Logger.getLogger(getClass().getName()).log(Level.CONFIG,
-            String.format("Found %s, the '%s' is selected", Arrays.toString(portNames), portName));
+            String.format("Found { %s }, the [ %s ] is selected", Arrays.toString(portNames), portName));
         usedPorts.remove(portName);
         usedPorts.addLast(portName);
         return portName;

@@ -1,9 +1,12 @@
 package com.ak.fx.scene;
 
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 
 import com.ak.fx.stage.ScreenResolutionMonitor;
 import javafx.application.Platform;
@@ -21,11 +24,13 @@ public final class MilliGrid extends Pane {
     POINTS(1.0) {
       private static final int FACTOR = 4;
 
+      @Nonnegative
       @Override
       double getStep() {
         return super.getStep() / FACTOR;
       }
 
+      @Nonnull
       @Override
       Path newPath() {
         Path path = super.newPath();
@@ -40,6 +45,7 @@ public final class MilliGrid extends Pane {
     },
     SMALL(1.0),
     BIG(3.0) {
+      @Nonnegative
       @Override
       double getStep() {
         return super.getStep() * 5.0;
@@ -47,20 +53,24 @@ public final class MilliGrid extends Pane {
     };
 
     private static final Paint COLOR = new Color(225.0 / 255.0, 130.0 / 255.0, 110.0 / 255.0, 1.0);
+    @Nonnegative
     private final double strokeWidth;
 
-    GridCell(double strokeWidth) {
+    GridCell(@Nonnegative double strokeWidth) {
       this.strokeWidth = strokeWidth;
     }
 
+    @Nonnegative
     final double getStrokeWidth() {
       return strokeWidth;
     }
 
+    @Nonnegative
     double getStep() {
       return ScreenResolutionMonitor.INSTANCE.getDpi() / 2.54;
     }
 
+    @Nonnull
     Path newPath() {
       Path p = new Path();
       p.setStroke(COLOR);
@@ -68,15 +78,17 @@ public final class MilliGrid extends Pane {
       return p;
     }
 
-    static Map<GridCell, Path> newPaths() {
-      Map<GridCell, Path> map = new EnumMap<>(GridCell.class);
-      EnumSet.allOf(GridCell.class).forEach(gridCell -> map.put(gridCell, gridCell.newPath()));
-      return Collections.unmodifiableMap(map);
+    @Nonnull
+    static List<Path> newPaths() {
+      List<Path> paths = new LinkedList<>();
+      EnumSet.allOf(GridCell.class).forEach(gridCell -> paths.add(gridCell.newPath()));
+      return Collections.unmodifiableList(paths);
     }
   }
 
   private final GridLine[] gridLines = {new HorizontalGridLine(), new VerticalGridLine()};
-  private Map<GridCell, Path> paths = Collections.emptyMap();
+  @Nonnull
+  private List<Path> paths = GridCell.newPaths();
 
   public MilliGrid() {
     ScreenResolutionMonitor.INSTANCE.getDpiObservable().subscribe(dpi -> {
@@ -89,11 +101,11 @@ public final class MilliGrid extends Pane {
 
   @Override
   protected void layoutChildren() {
-    paths.values().forEach(path -> path.getElements().clear());
+    paths.forEach(path -> path.getElements().clear());
 
-    for (GridCell gridCell : paths.keySet()) {
+    for (GridCell gridCell : GridCell.values()) {
       for (GridLine gridLine : gridLines) {
-        gridLine.addToPath(paths.get(gridCell), gridCell);
+        gridLine.addToPath(paths.get(gridCell.ordinal()), gridCell);
         if (gridCell == GridCell.POINTS) {
           break;
         }
@@ -103,24 +115,27 @@ public final class MilliGrid extends Pane {
   }
 
   private void reinitializePaths() {
-    getChildren().removeAll(paths.values());
+    getChildren().removeAll(paths);
     paths = GridCell.newPaths();
-    getChildren().addAll(paths.values());
+    getChildren().addAll(paths);
   }
 
   private interface GridLine {
-    void addToPath(Path path, GridCell gridCell);
+    void addToPath(@Nonnull Path path, @Nonnull GridCell gridCell);
 
+    @Nonnegative
     double contentSize();
 
-    PathElement moveTo(double c, GridCell gridCell);
+    @Nonnull
+    PathElement moveTo(@Nonnegative double c, @Nonnull GridCell gridCell);
 
-    PathElement lineTo(GridCell gridCell);
+    @Nonnull
+    PathElement lineTo(@Nonnull GridCell gridCell);
   }
 
   private abstract class AbstractGridLine implements GridLine {
     @Override
-    public final void addToPath(Path path, GridCell gridCell) {
+    public final void addToPath(@Nonnull Path path, @Nonnull GridCell gridCell) {
       double contentSize = contentSize();
       int factor = (int) Math.round(GridCell.SMALL.getStep() / gridCell.getStep());
       int i = 0;
@@ -132,15 +147,18 @@ public final class MilliGrid extends Pane {
       }
     }
 
+    @Nonnegative
     final double contentWidth() {
       return snapSize(getWidth() - (snappedLeftInset() + snappedRightInset()));
     }
 
+    @Nonnegative
     final double contentHeight() {
       return snapSize(getHeight() - (snappedTopInset() + snappedBottomInset()));
     }
 
-    final double minCoordinate(double size, GridCell gridCell) {
+    @Nonnegative
+    final double minCoordinate(@Nonnegative double size, @Nonnull GridCell gridCell) {
       double min = size / 2.0 - Math.floor(size / 2 / gridCell.getStep()) * gridCell.getStep();
       if (gridCell != GridCell.SMALL) {
         min = Math.max(min, minCoordinate(size, GridCell.SMALL));
@@ -148,45 +166,53 @@ public final class MilliGrid extends Pane {
       return min;
     }
 
-    final double maxCoordinate(double size) {
+    @Nonnegative
+    final double maxCoordinate(@Nonnegative double size) {
       return size - minCoordinate(size, GridCell.SMALL);
     }
 
-    final double linePad(GridCell gridCell) {
+    @Nonnegative
+    final double linePad(@Nonnull GridCell gridCell) {
       return (gridCell.getStrokeWidth() - 1.0) / 2.0;
     }
   }
 
   private final class VerticalGridLine extends AbstractGridLine {
+    @Nonnegative
     @Override
     public double contentSize() {
       return contentWidth();
     }
 
+    @Nonnull
     @Override
-    public PathElement moveTo(double x, GridCell gridCell) {
+    public PathElement moveTo(@Nonnegative double x, @Nonnull GridCell gridCell) {
       return new MoveTo(snappedLeftInset() + x, snappedTopInset() + minCoordinate(contentHeight(), GridCell.SMALL) + linePad(gridCell));
     }
 
+    @Nonnull
     @Override
-    public PathElement lineTo(GridCell gridCell) {
+    public PathElement lineTo(@Nonnull GridCell gridCell) {
       return new VLineTo(snappedTopInset() + maxCoordinate(contentHeight()) - linePad(gridCell));
     }
   }
 
   private final class HorizontalGridLine extends AbstractGridLine {
+    @Nonnegative
     @Override
     public double contentSize() {
       return contentHeight();
     }
 
+    @Nonnull
     @Override
-    public PathElement moveTo(double y, GridCell gridCell) {
+    public PathElement moveTo(@Nonnegative double y, @Nonnull GridCell gridCell) {
       return new MoveTo(snappedLeftInset() + minCoordinate(contentWidth(), GridCell.SMALL) + linePad(gridCell), snappedTopInset() + y);
     }
 
+    @Nonnull
     @Override
-    public PathElement lineTo(GridCell gridCell) {
+    public PathElement lineTo(@Nonnull GridCell gridCell) {
       return new HLineTo(snappedLeftInset() + maxCoordinate(contentWidth()) - linePad(gridCell));
     }
   }

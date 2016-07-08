@@ -5,13 +5,16 @@ import com.ak.comm.serial.CycleSerialService;
 import com.ak.hardware.tnmi.comm.interceptor.TnmiBytesInterceptor;
 import com.ak.hardware.tnmi.comm.interceptor.TnmiRequest;
 import com.ak.hardware.tnmi.comm.interceptor.TnmiResponse;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 import rx.observers.TestSubscriber;
 
 public final class CycleSerialServiceTest {
   @Test
   public void testDefaultBytesInterceptor() {
-    CycleSerialService<Integer, Byte> service = new CycleSerialService<>(38400, new DefaultBytesInterceptor());
+    DefaultBytesInterceptor interceptor = new DefaultBytesInterceptor();
+    CycleSerialService<Integer, Byte> service = new CycleSerialService<>(interceptor);
+    Assert.assertTrue(interceptor.isOpen());
     TestSubscriber<Integer> subscriber = TestSubscriber.create();
     service.getBufferObservable().subscribe(subscriber);
     service.write((byte) 1);
@@ -25,7 +28,7 @@ public final class CycleSerialServiceTest {
 
   @Test
   public void testTnmiBytesInterceptor() {
-    CycleSerialService<TnmiResponse, TnmiRequest> service = new CycleSerialService<>(115200, new TnmiBytesInterceptor());
+    CycleSerialService<TnmiResponse, TnmiRequest> service = new CycleSerialService<>(new TnmiBytesInterceptor());
     TestSubscriber<TnmiResponse> subscriber = TestSubscriber.create();
     service.getBufferObservable().subscribe(subscriber);
     service.write(TnmiRequest.Single.Z_360.buildForAll(TnmiRequest.MyoType.OFF, TnmiRequest.MyoFrequency.OFF));

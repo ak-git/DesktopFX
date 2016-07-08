@@ -1,5 +1,6 @@
 package com.ak.fx.desktop;
 
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -9,11 +10,14 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
+
 import com.ak.fx.stage.ScreenResolutionMonitor;
 import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.util.OSDockImage;
+import com.ak.logging.LogPathBuilder;
 import com.ak.storage.Storage;
-import com.ak.util.LocalFileIO;
 import com.ak.util.OS;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -29,6 +33,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.MessageSourceResourceBundle;
 
+@Immutable
 public final class FxApplication extends Application {
   private static final String FX_CONTEXT_XML = "fx-context.xml";
   private static final String SCENE_XML = "scene.fxml";
@@ -49,7 +54,7 @@ public final class FxApplication extends Application {
   }
 
   @Override
-  public void start(Stage stage) throws Exception {
+  public void start(@Nonnull Stage stage) throws Exception {
     try {
       FXMLLoader loader = new FXMLLoader(getClass().getResource(SCENE_XML), new MessageSourceResourceBundle(
           BeanFactoryUtils.beanOfType(context, MessageSource.class), Locale.getDefault()));
@@ -89,11 +94,10 @@ public final class FxApplication extends Application {
   }
 
   private static void initLogger() {
-    try {
+    try (InputStream in = FxApplication.class.getResourceAsStream(KEY_PROPERTIES)) {
       Properties keys = new Properties();
-      keys.load(FxApplication.class.getResourceAsStream(KEY_PROPERTIES));
-      Path path = new LocalFileIO.LogPathBuilder().addPath(keys.getProperty(KEY_APPLICATION_TITLE)).
-          fileName(LOGGING_PROPERTIES).build().getPath();
+      keys.load(in);
+      Path path = new LogPathBuilder().addPath(keys.getProperty(KEY_APPLICATION_TITLE)).fileName(LOGGING_PROPERTIES).build().getPath();
       if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
         Files.copy(FxApplication.class.getResourceAsStream(LOGGING_PROPERTIES), path);
       }

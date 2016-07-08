@@ -1,5 +1,7 @@
 package com.ak.rsm;
 
+import javax.annotation.Nonnegative;
+
 import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.pow;
 
@@ -20,7 +22,7 @@ final class DerivativeRbyRho2Normalized extends AbstractDerivativeRNormalized {
   }
 
   @Override
-  double nominator(double hSI) {
+  double nominator(@Nonnegative double hSI) {
     return (1.0 - pow(k12(), 2.0)) *
         ResistanceTwoLayer.sum(hSI, (n, b) ->
             n * pow(k12(), n - 1) * (1.0 / hypot(electrodes().radiusMinus(), b) - 1.0 / hypot(electrodes().radiusPlus(), b)));

@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.ak.comm.core.Service;
+import com.ak.comm.interceptor.DefaultBytesInterceptor;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
 import org.testng.Assert;
@@ -16,13 +17,13 @@ public final class SerialServiceTest implements Observer<ByteBuffer> {
   @Test
   public void test() {
     List<Service<ByteBuffer>> services = Stream.of(SerialPortList.getPortNames()).map(port -> {
-      SerialService serialService = new SerialService(String.format("%x", port.hashCode()), 115200);
+      SerialService serialService = new SerialService(new DefaultBytesInterceptor());
       serialService.getBufferObservable().subscribe(this);
       Assert.assertEquals(serialService.write(ByteBuffer.allocate(0)), 0);
       return serialService;
     }).collect(Collectors.toList());
 
-    Service<ByteBuffer> singleService = new SerialService(SerialServiceTest.class.getSimpleName(), 115200);
+    Service<ByteBuffer> singleService = new SerialService(new DefaultBytesInterceptor());
     singleService.getBufferObservable().subscribe(this);
     singleService.close();
     services.forEach(Service::close);
@@ -34,9 +35,13 @@ public final class SerialServiceTest implements Observer<ByteBuffer> {
 
   @Override
   public void onError(Throwable e) {
-    SerialPortException cast = SerialPortException.class.cast(e);
-    Assert.assertNotNull(cast);
-    Assert.assertEquals(cast.getMethodName(), "openPort()");
+    Assert.assertNotNull(e);
+    if (e instanceof SerialPortException) {
+      Assert.assertEquals(((SerialPortException) e).getMethodName(), "openPort()");
+    }
+    else {
+      Assert.fail();
+    }
   }
 
   @Override

@@ -6,6 +6,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import javax.annotation.Nonnull;
+
 import com.sun.javafx.PlatformUtil;
 
 public enum OS implements BooleanSupplier {
@@ -22,7 +24,7 @@ public enum OS implements BooleanSupplier {
     }
 
     @Override
-    public <T> void callApplicationMethod(String methodName, Class<? super T> type, T value) {
+    public <T> void callApplicationMethod(@Nonnull String methodName, @Nonnull Class<? super T> type, @Nonnull T value) {
       try {
         Class<?> clazz = Class.forName("com.apple.eawt.Application");
         Method method = clazz.getMethod("getApplication");
@@ -41,10 +43,11 @@ public enum OS implements BooleanSupplier {
     }
   };
 
-  public <T> void callApplicationMethod(String methodName, Class<? super T> type, T value) {
+  public <T> void callApplicationMethod(@Nonnull String methodName, @Nonnull Class<? super T> type, @Nonnull T value) {
     throw new UnsupportedOperationException(name());
   }
 
+  @Nonnull
   public static OS get() {
     return Stream.of(values()).filter(BooleanSupplier::getAsBoolean).findFirst().orElseThrow(IllegalStateException::new);
   }

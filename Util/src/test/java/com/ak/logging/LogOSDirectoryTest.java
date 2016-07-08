@@ -1,5 +1,6 @@
-package com.ak.util;
+package com.ak.logging;
 
+import com.ak.util.OS;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
