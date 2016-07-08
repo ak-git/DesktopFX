@@ -1,9 +1,6 @@
 package com.ak.hardware.tnmi.comm.interceptor;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
@@ -49,11 +46,7 @@ public final class TnmiBytesInterceptor extends AbstractBytesInterceptor<TnmiRes
         byteBuffer.rewind();
         byteBuffer.get(array);
         TnmiResponse response = TnmiResponse.newInstance(array);
-        if (response == null) {
-          Logger.getLogger(getClass().getName()).log(Level.CONFIG,
-              String.format("Invalid TNMI response format: {%s}", Arrays.toString(array)));
-        }
-        else {
+        if (response != null) {
           bufferPublish().onNext(response);
           countResponse++;
         }
