@@ -52,7 +52,7 @@ enum TnmiAddress {
         return tnmiAddress;
       }
     }
-    Logger.getLogger(TnmiAddress.class.getName()).log(Level.WARNING, String.format("Address %d not found: %s", addr, Arrays.toString(codes)));
+    Logger.getLogger(TnmiAddress.class.getName()).log(Level.CONFIG, String.format("Address %d not found: %s", addr, Arrays.toString(codes)));
     return null;
   }
 }
