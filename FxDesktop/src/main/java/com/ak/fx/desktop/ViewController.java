@@ -11,13 +11,15 @@ import com.ak.comm.file.AutoFileReadingService;
 import com.ak.fx.scene.MilliGrid;
 import com.ak.hardware.tnmi.comm.interceptor.TnmiRequest;
 import com.ak.hardware.tnmi.comm.interceptor.TnmiResponse;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
 public final class ViewController implements Initializable {
   @Nonnull
-  public MilliGrid root;
+  @FXML
+  public MilliGrid root = new MilliGrid();
   @Nonnull
   private final AutoFileReadingService<TnmiResponse, TnmiRequest> service;
 

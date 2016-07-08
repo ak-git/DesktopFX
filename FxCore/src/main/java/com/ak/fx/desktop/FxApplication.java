@@ -1,5 +1,6 @@
 package com.ak.fx.desktop;
 
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -93,9 +94,9 @@ public final class FxApplication extends Application {
   }
 
   private static void initLogger() {
-    try {
+    try (InputStream in = FxApplication.class.getResourceAsStream(KEY_PROPERTIES)) {
       Properties keys = new Properties();
-      keys.load(FxApplication.class.getResourceAsStream(KEY_PROPERTIES));
+      keys.load(in);
       Path path = new LogPathBuilder().addPath(keys.getProperty(KEY_APPLICATION_TITLE)).fileName(LOGGING_PROPERTIES).build().getPath();
       if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
         Files.copy(FxApplication.class.getResourceAsStream(LOGGING_PROPERTIES), path);

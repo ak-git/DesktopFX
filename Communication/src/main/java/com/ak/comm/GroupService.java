@@ -26,7 +26,7 @@ public final class GroupService<RESPONSE, REQUEST> implements Service<RESPONSE>,
 
   @Override
   public Observable<RESPONSE> getBufferObservable() {
-    return null;
+    return fileService.getBufferObservable();
   }
 
   @Override

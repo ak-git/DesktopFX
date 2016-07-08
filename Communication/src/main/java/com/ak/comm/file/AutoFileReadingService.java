@@ -28,7 +28,7 @@ public final class AutoFileReadingService<RESPONSE, REQUEST> extends AbstractSer
 
   @Override
   public void close() {
-    synchronized (executor) {
+    synchronized (this) {
       executor.shutdownNow();
       fileReadingService.close();
       bytesInterceptor.close();

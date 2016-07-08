@@ -1,9 +1,9 @@
 package com.ak.fx.scene;
 
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -79,16 +79,16 @@ public final class MilliGrid extends Pane {
     }
 
     @Nonnull
-    static Map<GridCell, Path> newPaths() {
-      Map<GridCell, Path> map = new EnumMap<>(GridCell.class);
-      EnumSet.allOf(GridCell.class).forEach(gridCell -> map.put(gridCell, gridCell.newPath()));
-      return Collections.unmodifiableMap(map);
+    static List<Path> newPaths() {
+      List<Path> paths = new LinkedList<>();
+      EnumSet.allOf(GridCell.class).forEach(gridCell -> paths.add(gridCell.newPath()));
+      return Collections.unmodifiableList(paths);
     }
   }
 
   private final GridLine[] gridLines = {new HorizontalGridLine(), new VerticalGridLine()};
   @Nonnull
-  private Map<GridCell, Path> paths = Collections.emptyMap();
+  private List<Path> paths = GridCell.newPaths();
 
   public MilliGrid() {
     ScreenResolutionMonitor.INSTANCE.getDpiObservable().subscribe(dpi -> {
@@ -101,11 +101,11 @@ public final class MilliGrid extends Pane {
 
   @Override
   protected void layoutChildren() {
-    paths.values().forEach(path -> path.getElements().clear());
+    paths.forEach(path -> path.getElements().clear());
 
-    for (GridCell gridCell : paths.keySet()) {
+    for (GridCell gridCell : GridCell.values()) {
       for (GridLine gridLine : gridLines) {
-        gridLine.addToPath(paths.get(gridCell), gridCell);
+        gridLine.addToPath(paths.get(gridCell.ordinal()), gridCell);
         if (gridCell == GridCell.POINTS) {
           break;
         }
@@ -115,9 +115,9 @@ public final class MilliGrid extends Pane {
   }
 
   private void reinitializePaths() {
-    getChildren().removeAll(paths.values());
+    getChildren().removeAll(paths);
     paths = GridCell.newPaths();
-    getChildren().addAll(paths.values());
+    getChildren().addAll(paths);
   }
 
   private interface GridLine {

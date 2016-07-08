@@ -1,5 +1,6 @@
 package com.ak.util;
 
+import java.awt.image.BufferedImage;
 import java.util.function.BooleanSupplier;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -9,7 +10,10 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static java.awt.image.BufferedImage.TYPE_INT_RGB;
+
 public class OSTest {
+  private static final Logger LOGGER = Logger.getLogger(OS.MAC.getClass().getName());
   private boolean exceptionFlag;
 
   private OSTest() {
@@ -17,7 +21,7 @@ public class OSTest {
 
   @BeforeClass
   void setUp() {
-    Logger.getLogger(OS.MAC.getClass().getName()).setFilter(record -> {
+    LOGGER.setFilter(record -> {
       Assert.assertNotNull(record.getThrown());
       exceptionFlag = true;
       return false;
@@ -33,7 +37,7 @@ public class OSTest {
   public void testCallApplicationMethod() {
     Stream.of(OS.values()).forEach(os -> {
       try {
-        os.callApplicationMethod("setDockIconImage", java.awt.Image.class, null);
+        os.callApplicationMethod("setDockIconImage", java.awt.Image.class, new BufferedImage(1, 1, TYPE_INT_RGB));
         Assert.assertEquals(os, OS.MAC);
       }
       catch (Exception e) {
@@ -44,12 +48,12 @@ public class OSTest {
 
   @Test
   public void testInvalidCallApplicationMethodMAC() {
-    OS.MAC.callApplicationMethod("getDockIconImage", java.awt.Image.class, null);
+    OS.MAC.callApplicationMethod("getDockIconImage", java.awt.Image.class, new BufferedImage(1, 1, TYPE_INT_RGB));
     Assert.assertTrue(exceptionFlag);
   }
 
   @AfterClass
   public void tearDown() {
-    Logger.getLogger(OS.MAC.getClass().getName()).setFilter(null);
+    LOGGER.setFilter(null);
   }
 }

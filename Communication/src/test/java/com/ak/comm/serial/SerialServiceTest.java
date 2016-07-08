@@ -35,9 +35,13 @@ public final class SerialServiceTest implements Observer<ByteBuffer> {
 
   @Override
   public void onError(Throwable e) {
-    SerialPortException cast = SerialPortException.class.cast(e);
-    Assert.assertNotNull(cast);
-    Assert.assertEquals(cast.getMethodName(), "openPort()");
+    Assert.assertNotNull(e);
+    if (e instanceof SerialPortException) {
+      Assert.assertEquals(((SerialPortException) e).getMethodName(), "openPort()");
+    }
+    else {
+      Assert.fail();
+    }
   }
 
   @Override
