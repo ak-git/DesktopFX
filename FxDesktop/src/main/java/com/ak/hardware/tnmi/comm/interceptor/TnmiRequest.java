@@ -94,11 +94,11 @@ public final class TnmiRequest {
   }
 
   @Nonnull
-  TnmiResponse toResponse() {
+  TnmiResponseFrame toResponse() {
     byte[] codes = Arrays.copyOf(byteBuffer.array(), byteBuffer.capacity());
     codes[TnmiProtocolByte.ADDR.ordinal()] = Objects.requireNonNull(TnmiAddress.find(codes)).getAddrResponse();
     saveCRC(codes);
-    TnmiResponse response = TnmiResponse.newInstance(codes);
+    TnmiResponseFrame response = TnmiResponseFrame.newInstance(codes);
     if (response == null) {
       throw new NullPointerException(Arrays.toString(codes));
     }

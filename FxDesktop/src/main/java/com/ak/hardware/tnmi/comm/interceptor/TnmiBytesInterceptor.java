@@ -8,7 +8,7 @@ import javax.annotation.concurrent.Immutable;
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
 
 @Immutable
-public final class TnmiBytesInterceptor extends AbstractBytesInterceptor<TnmiResponse, TnmiRequest> {
+public final class TnmiBytesInterceptor extends AbstractBytesInterceptor<TnmiResponseFrame, TnmiRequest> {
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(TnmiProtocolByte.MAX_CAPACITY);
 
   public TnmiBytesInterceptor() {
@@ -45,7 +45,7 @@ public final class TnmiBytesInterceptor extends AbstractBytesInterceptor<TnmiRes
         byte[] array = new byte[byteBuffer.limit()];
         byteBuffer.rewind();
         byteBuffer.get(array);
-        TnmiResponse response = TnmiResponse.newInstance(array);
+        TnmiResponseFrame response = TnmiResponseFrame.newInstance(array);
         if (response != null) {
           bufferPublish().onNext(response);
           countResponse++;

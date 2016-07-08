@@ -13,7 +13,7 @@ import com.ak.comm.interceptor.DefaultBytesInterceptor;
 import com.ak.hardware.tnmi.comm.interceptor.TnmiBytesInterceptor;
 import com.ak.hardware.tnmi.comm.interceptor.TnmiProtocolByte;
 import com.ak.hardware.tnmi.comm.interceptor.TnmiRequest;
-import com.ak.hardware.tnmi.comm.interceptor.TnmiResponse;
+import com.ak.hardware.tnmi.comm.interceptor.TnmiResponseFrame;
 import com.ak.logging.BinaryLogBuilder;
 import com.ak.logging.LocalFileHandler;
 import com.ak.logging.LogPathBuilder;
@@ -58,8 +58,8 @@ public final class AutoFileReadingServiceTest {
 
   @Test(timeOut = 10000)
   public void testTnmiBytesInterceptor() throws Exception {
-    AutoFileReadingService<TnmiResponse, TnmiRequest> service = new AutoFileReadingService<>(new TnmiBytesInterceptor());
-    TestSubscriber<TnmiResponse> subscriber = TestSubscriber.create();
+    AutoFileReadingService<TnmiResponseFrame, TnmiRequest> service = new AutoFileReadingService<>(new TnmiBytesInterceptor());
+    TestSubscriber<TnmiResponseFrame> subscriber = TestSubscriber.create();
     service.getBufferObservable().subscribe(subscriber);
 
     Path path = new BinaryLogBuilder(getClass().getSimpleName(), LocalFileHandler.class).build().getPath();

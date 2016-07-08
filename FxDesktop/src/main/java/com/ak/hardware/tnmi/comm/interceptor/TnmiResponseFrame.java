@@ -12,20 +12,23 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
+/**
+ * Classic TNMI Response Frame for INEUM protocol.
+ */
 @Immutable
 @ThreadSafe
-public final class TnmiResponse {
+public final class TnmiResponseFrame {
   private final TnmiAddress address;
   private final ByteBuffer buffer;
 
-  private TnmiResponse(@Nonnull byte[] bytes) {
+  private TnmiResponseFrame(@Nonnull byte[] bytes) {
     address = Objects.requireNonNull(TnmiAddress.find(bytes));
     buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
     buffer.flip();
   }
 
   @Nullable
-  static TnmiResponse newInstance(@Nonnull byte[] bytes) {
+  static TnmiResponseFrame newInstance(@Nonnull byte[] bytes) {
     if (TnmiAddress.find(bytes) != null && TnmiProtocolByte.checkCRC(bytes)) {
       for (TnmiProtocolByte b : TnmiProtocolByte.CHECKED_BYTES) {
         if (!b.is(bytes[b.ordinal()])) {
@@ -33,7 +36,7 @@ public final class TnmiResponse {
           return null;
         }
       }
-      return new TnmiResponse(bytes);
+      return new TnmiResponseFrame(bytes);
     }
     logWarning(bytes);
     return null;
@@ -50,11 +53,11 @@ public final class TnmiResponse {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof TnmiResponse)) {
+    if (!(o instanceof TnmiResponseFrame)) {
       return false;
     }
 
-    TnmiResponse response = (TnmiResponse) o;
+    TnmiResponseFrame response = (TnmiResponseFrame) o;
     return buffer.equals(response.buffer);
   }
 
@@ -64,7 +67,7 @@ public final class TnmiResponse {
   }
 
   private static void logWarning(@Nonnull byte[] array) {
-    Logger.getLogger(TnmiResponse.class.getName()).log(Level.CONFIG,
+    Logger.getLogger(TnmiResponseFrame.class.getName()).log(Level.CONFIG,
         String.format("Invalid TNMI response format: {%s}", Arrays.toString(array)));
   }
 }

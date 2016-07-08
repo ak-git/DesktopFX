@@ -26,27 +26,27 @@ public final class TnmiTest {
 
   @Test(dataProviderClass = TnmiTestProvider.class, dataProvider = "allOhmsMyoOffResponse")
   public void testResponseOhms(TnmiRequest request, byte[] input) {
-    Assert.assertEquals(request.toResponse(), TnmiResponse.newInstance(Arrays.copyOfRange(input, 1, input.length)));
-    Assert.assertNotEquals(request.toResponse(), TnmiResponse.newInstance(input));
+    Assert.assertEquals(request.toResponse(), TnmiResponseFrame.newInstance(Arrays.copyOfRange(input, 1, input.length)));
+    Assert.assertNotEquals(request.toResponse(), TnmiResponseFrame.newInstance(input));
     testResponse(request, input);
   }
 
   @Test(dataProviderClass = TnmiTestProvider.class, dataProvider = "360OhmsMyoHzResponse")
   public void testResponseMyo(TnmiRequest request, byte[] input) {
-    Assert.assertEquals(request.toResponse(), TnmiResponse.newInstance(input));
+    Assert.assertEquals(request.toResponse(), TnmiResponseFrame.newInstance(input));
     testResponse(request, input);
   }
 
   @Test(dataProviderClass = TnmiTestProvider.class, dataProvider = "sequenceResponse")
   public void testResponseSequence(TnmiRequest request, byte[] input) {
-    Assert.assertEquals(request.toResponse(), TnmiResponse.newInstance(input));
+    Assert.assertEquals(request.toResponse(), TnmiResponseFrame.newInstance(input));
     testResponse(request, input);
   }
 
   @Test(dataProviderClass = TnmiTestProvider.class, dataProvider = "aliveAndChannelsResponse")
   public void testResponseAliveAndChannels(TnmiAddress address, byte[] input) {
     if (TnmiAddress.CHANNELS.contains(address)) {
-      Optional.ofNullable(TnmiResponse.newInstance(input)).orElseThrow(NullPointerException::new);
+      Optional.ofNullable(TnmiResponseFrame.newInstance(input)).orElseThrow(NullPointerException::new);
       testResponse(TnmiRequest.Sequence.ROTATE_100.build(), input);
     }
   }
@@ -70,7 +70,7 @@ public final class TnmiTest {
 
   private static void testResponse(TnmiRequest request, byte[] input) {
     TnmiBytesInterceptor interceptor = new TnmiBytesInterceptor();
-    TestSubscriber<TnmiResponse> subscriber = TestSubscriber.create();
+    TestSubscriber<TnmiResponseFrame> subscriber = TestSubscriber.create();
     interceptor.getBufferObservable().subscribe(subscriber);
 
     int countResponses = interceptor.write(ByteBuffer.wrap(input));
