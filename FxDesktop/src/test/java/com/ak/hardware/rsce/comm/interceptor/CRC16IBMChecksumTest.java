@@ -7,8 +7,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public final class CRC16IBMChecksumTest {
-  @DataProvider(name = "checksum")
-  public static Object[][] ohms() {
+  @DataProvider(name = "checksum", parallel = true)
+  public static Object[][] checksum() {
     byte[][] input = {
         {0x01, 0x05, 0x0C, 0x00, 0x00},
         {0x01, 0x05, 0x0C, 0x20, 0x4E},
