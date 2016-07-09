@@ -2,12 +2,16 @@ package com.ak.hardware.rsce.comm.interceptor;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.Checksum;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.ak.comm.interceptor.AbstractBufferFrame;
 import com.ak.comm.interceptor.BytesChecker;
@@ -77,6 +81,13 @@ final class RsceCommandFrame extends AbstractBufferFrame {
   private static final int NON_LEN_BYTES = 2;
   private static final Map<String, RsceCommandFrame> SERVOMOTOR_REQUEST_MAP = new ConcurrentHashMap<>();
 
+  private RsceCommandFrame(@Nonnull ByteBuffer buffer) {
+    super(ByteBuffer.allocate(buffer.limit()));
+    buffer.rewind();
+    byteBuffer().put(buffer);
+    byteBuffer().flip();
+  }
+
   private RsceCommandFrame(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType) {
     this(control, actionType, requestType, ByteBuffer.allocate(0));
   }
@@ -95,6 +106,25 @@ final class RsceCommandFrame extends AbstractBufferFrame {
     byteBuffer().putShort((short) checksum.getValue());
     byteBuffer().flip();
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof RsceCommandFrame)) {
+      return false;
+    }
+
+    RsceCommandFrame that = (RsceCommandFrame) o;
+    return byteBuffer().equals(that.byteBuffer());
+  }
+
+  @Override
+  public int hashCode() {
+    return byteBuffer().hashCode();
+  }
+
 
   @Nonnull
   static RsceCommandFrame simple(@Nonnull Control control, @Nonnull RequestType requestType) {
@@ -115,6 +145,21 @@ final class RsceCommandFrame extends AbstractBufferFrame {
   static RsceCommandFrame precise(@Nonnull Control control, @Nonnull RequestType requestType, short speed) {
     return new RsceCommandFrame(control, ActionType.PRECISE, requestType,
         ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort(speed));
+  }
+
+  @Nullable
+  static RsceCommandFrame newInstance(@Nonnull ByteBuffer byteBuffer) {
+    int codeLength = byteBuffer.limit() - NON_LEN_BYTES;
+    Checksum checksum = new CRC16IBMChecksum();
+    checksum.update(byteBuffer.array(), 0, codeLength);
+    if (byteBuffer.order(ByteOrder.LITTLE_ENDIAN).getShort(codeLength) == (short) checksum.getValue()) {
+      return new RsceCommandFrame(byteBuffer);
+    }
+    else {
+      Logger.getLogger(RsceCommandFrame.class.getName()).log(Level.WARNING,
+          String.format("Invalid RSCE response format: {%s}", Arrays.toString(byteBuffer.array())));
+      return null;
+    }
   }
 
   @Nonnull
