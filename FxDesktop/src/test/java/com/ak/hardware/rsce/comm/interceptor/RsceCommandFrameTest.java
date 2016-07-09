@@ -28,6 +28,11 @@ public final class RsceCommandFrameTest {
     checkRequest(expected, RsceCommandFrame.precise(CATCH, STATUS_I_SPEED_ANGLE, speed));
   }
 
+  @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "positionRequests")
+  public void testPositionRequest(@Nonnull byte[] expected, byte position) {
+    checkRequest(expected, RsceCommandFrame.position(CATCH, position));
+  }
+
   @Test(expectedExceptions = CloneNotSupportedException.class)
   public void testClone() throws CloneNotSupportedException {
     RsceCommandFrame.precise(ALL, EMPTY).clone();

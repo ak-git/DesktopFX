@@ -2,10 +2,12 @@ package com.ak.hardware.rsce.comm.interceptor;
 
 import org.testng.annotations.DataProvider;
 
+import static com.ak.hardware.rsce.comm.interceptor.RsceCommandFrame.Control.ALL;
 import static com.ak.hardware.rsce.comm.interceptor.RsceCommandFrame.Control.CATCH;
 import static com.ak.hardware.rsce.comm.interceptor.RsceCommandFrame.Control.FINGER;
 import static com.ak.hardware.rsce.comm.interceptor.RsceCommandFrame.Control.ROTATE;
 import static com.ak.hardware.rsce.comm.interceptor.RsceCommandFrame.RequestType.EMPTY;
+import static com.ak.hardware.rsce.comm.interceptor.RsceCommandFrame.RequestType.RESERVE;
 import static com.ak.hardware.rsce.comm.interceptor.RsceCommandFrame.RequestType.STATUS_I;
 import static com.ak.hardware.rsce.comm.interceptor.RsceCommandFrame.RequestType.STATUS_I_ANGLE;
 import static com.ak.hardware.rsce.comm.interceptor.RsceCommandFrame.RequestType.STATUS_I_SPEED;
@@ -18,6 +20,8 @@ public final class RsceTestDataProvider {
   @DataProvider(name = "simpleRequests", parallel = true)
   public static Object[][] simpleSimpleRequests() {
     return new Object[][] {
+        {new byte[] {0x00, 0x03, 0x07, 0x30, (byte) 0xf2}, ALL, RESERVE},
+
         {new byte[] {0x01, 0x03, 0x00, 0x20, (byte) 0xF0}, CATCH, EMPTY},
         {new byte[] {0x01, 0x03, 0x01, (byte) 0xE1, 0x30}, CATCH, STATUS_I},
         {new byte[] {0x01, 0x03, 0x02, (byte) 0xA1, 0x31}, CATCH, STATUS_I_SPEED},
@@ -70,6 +74,23 @@ public final class RsceTestDataProvider {
     for (int i = 0; i < values.length; i++) {
       values[i][0] = expected[i];
       values[i][1] = speeds[i];
+    }
+    return values;
+  }
+
+  @DataProvider(name = "positionRequests", parallel = true)
+  public static Object[][] positionRequests() {
+    byte[][] expected = {
+        {0x01, 0x04, 0x18, 0x64, 0x4b, (byte) 0xf2},
+        {0x01, 0x04, 0x18, 0x00, 0x4a, (byte) 0x19},
+    };
+
+    byte[] positions = {100, 0};
+
+    Object[][] values = new Object[expected.length][2];
+    for (int i = 0; i < values.length; i++) {
+      values[i][0] = expected[i];
+      values[i][1] = positions[i];
     }
     return values;
   }
