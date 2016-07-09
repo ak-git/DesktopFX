@@ -10,8 +10,34 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.interceptor.AbstractBufferFrame;
+import com.ak.comm.interceptor.BytesChecker;
 
 final class RsceCommandFrame extends AbstractBufferFrame {
+  enum ProtocolByte implements BytesChecker {
+    ADDR {
+      @Override
+      public boolean is(byte b) {
+        for (Control control : Control.values()) {
+          if (control.addr == b) {
+            return true;
+          }
+        }
+        return false;
+      }
+    },
+    LEN {
+      @Override
+      public boolean is(byte b) {
+        return b >= 3 && b <= MAX_CAPACITY - NON_LEN_BYTES;
+      }
+
+      @Override
+      public void buffer(byte b, @Nonnull ByteBuffer buffer) {
+        buffer.limit(b + NON_LEN_BYTES);
+      }
+    };
+  }
+
   enum Control {
     ALL(0x00, 0),
     CATCH(0x01, -20000),
@@ -48,6 +74,7 @@ final class RsceCommandFrame extends AbstractBufferFrame {
   }
 
   static final int MAX_CAPACITY = 12;
+  private static final int NON_LEN_BYTES = 2;
   private static final Map<String, RsceCommandFrame> SERVOMOTOR_REQUEST_MAP = new ConcurrentHashMap<>();
 
   private RsceCommandFrame(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType) {
@@ -55,8 +82,8 @@ final class RsceCommandFrame extends AbstractBufferFrame {
   }
 
   private RsceCommandFrame(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType, ByteBuffer parameters) {
-    super(ByteBuffer.allocate(1 + 1 + 1 + parameters.capacity() + 2).order(ByteOrder.LITTLE_ENDIAN));
-    int codeLength = byteBuffer().capacity() - 2;
+    super(ByteBuffer.allocate(NON_LEN_BYTES + 1 + parameters.capacity() + 2).order(ByteOrder.LITTLE_ENDIAN));
+    int codeLength = byteBuffer().capacity() - NON_LEN_BYTES;
     byteBuffer().put(control.addr);
     byteBuffer().put((byte) (codeLength));
     byteBuffer().put((byte) ((actionType.code << 3) + requestType.code));

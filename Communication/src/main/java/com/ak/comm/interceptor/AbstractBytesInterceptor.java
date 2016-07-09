@@ -7,13 +7,11 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 
 import com.ak.comm.core.AbstractService;
 
 import static jssc.SerialPort.BAUDRATE_115200;
 
-@Immutable
 public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends AbstractService<RESPONSE> implements BytesInterceptor<RESPONSE, REQUEST> {
   private static final Level LOG_LEVEL = Level.FINE;
   private final String name;

@@ -3,9 +3,7 @@ package com.ak.comm.interceptor;
 import java.nio.ByteBuffer;
 
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
 
-@Immutable
 public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Integer, Byte> {
   public DefaultBytesInterceptor() {
     super("None", 1, (byte) 0);
