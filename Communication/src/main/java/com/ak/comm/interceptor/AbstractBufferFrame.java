@@ -28,8 +28,8 @@ public abstract class AbstractBufferFrame {
   }
 
   public final void writeTo(@Nonnull ByteBuffer outBuffer) {
-    byteBuffer.rewind();
     outBuffer.put(byteBuffer);
+    byteBuffer.rewind();
   }
 
   @Nonnull

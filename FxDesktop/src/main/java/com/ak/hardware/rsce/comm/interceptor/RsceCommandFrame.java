@@ -66,7 +66,7 @@ final class RsceCommandFrame extends AbstractBufferFrame {
     }
   }
 
-  private enum ActionType {
+  enum ActionType {
     NONE, PRECISE, HARD, POSITION, OFF;
 
     static ActionType find(ByteBuffer buffer) {
@@ -112,27 +112,6 @@ final class RsceCommandFrame extends AbstractBufferFrame {
     byteBuffer().flip();
   }
 
-  private RsceCommandFrame(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType) {
-    this(control, actionType, requestType, ByteBuffer.allocate(0));
-  }
-
-  private RsceCommandFrame(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType, ByteBuffer parameters) {
-    super(ByteBuffer.allocate(NON_LEN_BYTES + 1 + parameters.capacity() + 2).order(ByteOrder.LITTLE_ENDIAN));
-    int codeLength = byteBuffer().capacity() - NON_LEN_BYTES;
-    byteBuffer().put(control.addr);
-    byteBuffer().put((byte) (codeLength));
-    byteBuffer().put((byte) ((actionType.ordinal() << 3) + requestType.code));
-    parameters.rewind();
-    byteBuffer().put(parameters);
-
-    Checksum checksum = new CRC16IBMChecksum();
-    checksum.update(byteBuffer().array(), 0, codeLength);
-    byteBuffer().putShort((short) checksum.getValue());
-    byteBuffer().flip();
-
-    toString = String.format("%s %s %s", control, actionType, requestType);
-  }
-
   @Nonnull
   @Override
   public String toString() {
@@ -157,7 +136,6 @@ final class RsceCommandFrame extends AbstractBufferFrame {
     return byteBuffer().hashCode();
   }
 
-
   @Nonnull
   static RsceCommandFrame simple(@Nonnull Control control, @Nonnull RequestType requestType) {
     return getInstance(control, ActionType.NONE, requestType);
@@ -170,8 +148,7 @@ final class RsceCommandFrame extends AbstractBufferFrame {
 
   @Nonnull
   static RsceCommandFrame position(@Nonnull Control control, byte position) {
-    return new RsceCommandFrame(control, ActionType.POSITION, RequestType.EMPTY,
-        ByteBuffer.allocate(1).put(position));
+    return new RsceCommandFrame.Builder(control, ActionType.POSITION, RequestType.EMPTY).addParam(position).build();
   }
 
   @Nonnull
@@ -181,8 +158,42 @@ final class RsceCommandFrame extends AbstractBufferFrame {
 
   @Nonnull
   static RsceCommandFrame precise(@Nonnull Control control, @Nonnull RequestType requestType, short speed) {
-    return new RsceCommandFrame(control, ActionType.PRECISE, requestType,
-        ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort(speed));
+    return new RsceCommandFrame.Builder(control, ActionType.PRECISE, requestType).addParam(speed).build();
+  }
+
+  static class Builder implements javafx.util.Builder<RsceCommandFrame> {
+    private final ByteBuffer byteBuffer = ByteBuffer.allocate(MAX_CAPACITY).order(ByteOrder.LITTLE_ENDIAN);
+    private byte codeLength;
+
+    Builder(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType) {
+      codeLength = 3;
+      byteBuffer.put(control.addr);
+      byteBuffer.put(codeLength);
+      byteBuffer.put((byte) ((actionType.ordinal() << 3) + requestType.code));
+    }
+
+    Builder addParam(byte value) {
+      byteBuffer.put(value);
+      codeLength++;
+      return this;
+    }
+
+    Builder addParam(short value) {
+      byteBuffer.putShort(value);
+      codeLength += 2;
+      return this;
+    }
+
+    @Nonnull
+    @Override
+    public RsceCommandFrame build() {
+      byteBuffer.put(1, codeLength);
+      Checksum checksum = new CRC16IBMChecksum();
+      checksum.update(byteBuffer.array(), 0, codeLength);
+      byteBuffer.putShort((short) checksum.getValue());
+      byteBuffer.flip();
+      return new RsceCommandFrame(byteBuffer);
+    }
   }
 
   @Nullable
@@ -203,7 +214,6 @@ final class RsceCommandFrame extends AbstractBufferFrame {
       logWarning(byteBuffer, null);
       return null;
     }
-
   }
 
   @Nonnull
@@ -213,7 +223,7 @@ final class RsceCommandFrame extends AbstractBufferFrame {
         actionType.getClass().getSimpleName(), actionType.name(),
         requestType.getClass().getSimpleName(), requestType.name());
     if (!SERVOMOTOR_REQUEST_MAP.containsKey(key)) {
-      SERVOMOTOR_REQUEST_MAP.putIfAbsent(key, new RsceCommandFrame(control, actionType, requestType));
+      SERVOMOTOR_REQUEST_MAP.putIfAbsent(key, new RsceCommandFrame.Builder(control, actionType, requestType).build());
     }
     return SERVOMOTOR_REQUEST_MAP.get(key);
   }
