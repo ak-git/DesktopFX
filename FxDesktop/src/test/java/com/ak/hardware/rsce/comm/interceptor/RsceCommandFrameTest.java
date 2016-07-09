@@ -90,8 +90,7 @@ public final class RsceCommandFrameTest {
 
   @Test(dataProvider = "preciseRequests")
   public void testPreciseRequest(@Nonnull byte[] expected, short speed) {
-    checkRequest(expected,
-        RsceCommandFrame.precise(CATCH, STATUS_I_SPEED_ANGLE, speed));
+    checkRequest(expected, RsceCommandFrame.precise(CATCH, STATUS_I_SPEED_ANGLE, speed));
   }
 
   @Test(expectedExceptions = CloneNotSupportedException.class)

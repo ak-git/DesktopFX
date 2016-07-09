@@ -107,11 +107,6 @@ public final class TnmiRequest extends AbstractBufferFrame {
     return String.format("%s %s", AbstractBufferFrame.toString(getClass(), byteBuffer().array()), toString);
   }
 
-  @Override
-  protected Object clone() throws CloneNotSupportedException {
-    throw new CloneNotSupportedException();
-  }
-
   private static void saveCRC(@Nonnull byte[] codes) {
     codes[TnmiProtocolByte.CRC.ordinal()] = 0;
     int crc = 0;

@@ -47,6 +47,7 @@ final class RsceCommandFrame extends AbstractBufferFrame {
     }
   }
 
+  static final int MAX_CAPACITY = 12;
   private static final Map<String, RsceCommandFrame> SERVOMOTOR_REQUEST_MAP = new ConcurrentHashMap<>();
 
   private RsceCommandFrame(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType) {
@@ -87,22 +88,6 @@ final class RsceCommandFrame extends AbstractBufferFrame {
   static RsceCommandFrame precise(@Nonnull Control control, @Nonnull RequestType requestType, short speed) {
     return new RsceCommandFrame(control, ActionType.PRECISE, requestType,
         ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort(speed));
-  }
-
-  @Nonnull
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder(getClass().getSimpleName()).append("[ ");
-    for (byte i : byteBuffer().array()) {
-      sb.append(String.format("%#04x ", (i & 0xFF)));
-    }
-    sb.append("]");
-    return sb.toString();
-  }
-
-  @Override
-  protected Object clone() throws CloneNotSupportedException {
-    throw new CloneNotSupportedException();
   }
 
   @Nonnull

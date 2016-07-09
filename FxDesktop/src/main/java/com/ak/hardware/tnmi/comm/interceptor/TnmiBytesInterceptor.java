@@ -1,63 +1,41 @@
 package com.ak.hardware.tnmi.comm.interceptor;
 
-import java.nio.ByteBuffer;
-
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-import com.ak.comm.interceptor.AbstractBytesInterceptor;
+import com.ak.comm.interceptor.AbstractCheckedBytesInterceptor;
 
 @Immutable
-public final class TnmiBytesInterceptor extends AbstractBytesInterceptor<TnmiResponseFrame, TnmiRequest> {
-  private final ByteBuffer byteBuffer = ByteBuffer.allocate(TnmiProtocolByte.MAX_CAPACITY);
-
+public final class TnmiBytesInterceptor extends AbstractCheckedBytesInterceptor<TnmiResponseFrame, TnmiRequest> {
   public TnmiBytesInterceptor() {
     super("TNMI", TnmiProtocolByte.MAX_CAPACITY, TnmiRequest.Sequence.CATCH_100.build());
   }
 
   @Override
-  public int write(@Nonnull ByteBuffer src) {
-    src.rewind();
-    int countResponse = 0;
-    while (src.hasRemaining()) {
-      byte b = src.get();
-      boolean skip = false;
-      for (TnmiProtocolByte checkedByte : TnmiProtocolByte.CHECKED_BYTES) {
-        if (byteBuffer.position() == checkedByte.ordinal()) {
-          if (checkedByte.is(b)) {
-            if (checkedByte == TnmiProtocolByte.LEN) {
-              byteBuffer.limit(b + 4);
-            }
+  protected boolean check(byte b) {
+    boolean skip = false;
+    for (TnmiProtocolByte checkedByte : TnmiProtocolByte.CHECKED_BYTES) {
+      if (byteBuffer().position() == checkedByte.ordinal()) {
+        if (checkedByte.is(b)) {
+          if (checkedByte == TnmiProtocolByte.LEN) {
+            byteBuffer().limit(b + 4);
           }
-          else {
-            byteBuffer.clear();
-            skip = !TnmiProtocolByte.START.is(b);
-          }
-          break;
         }
-      }
-
-      if (!skip) {
-        byteBuffer.put(b);
-      }
-
-      if (!byteBuffer.hasRemaining()) {
-        byte[] array = new byte[byteBuffer.limit()];
-        byteBuffer.rewind();
-        byteBuffer.get(array);
-        TnmiResponseFrame response = TnmiResponseFrame.newInstance(array);
-        if (response != null) {
-          bufferPublish().onNext(response);
-          countResponse++;
+        else {
+          byteBuffer().clear();
+          skip = !TnmiProtocolByte.START.is(b);
         }
-        byteBuffer.clear();
+        break;
       }
     }
-    return countResponse;
+    return skip;
   }
 
+  @Nullable
   @Override
-  protected void innerPut(@Nonnull ByteBuffer outBuffer, @Nonnull TnmiRequest tnmiRequest) {
-    tnmiRequest.writeTo(outBuffer);
+  protected TnmiResponseFrame newResponse() {
+    byte[] array = new byte[byteBuffer().limit()];
+    byteBuffer().get(array);
+    return TnmiResponseFrame.newInstance(array);
   }
 }
