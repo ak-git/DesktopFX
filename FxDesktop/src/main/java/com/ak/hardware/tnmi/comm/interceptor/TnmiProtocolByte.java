@@ -35,14 +35,4 @@ public enum TnmiProtocolByte {
     }
     return codes[codes.length - 1] == (byte) (crc & 0xff);
   }
-
-  @Nonnull
-  static String toString(@Nonnull Class<?> clazz, @Nonnull byte[] bytes) {
-    StringBuilder sb = new StringBuilder(clazz.getSimpleName()).append("[ ");
-    for (int i : bytes) {
-      sb.append(String.format("%#04x ", (i & 0xFF)));
-    }
-    sb.append("]");
-    return sb.toString();
-  }
 }

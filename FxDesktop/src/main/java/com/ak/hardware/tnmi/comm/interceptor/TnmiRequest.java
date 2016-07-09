@@ -9,9 +9,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
+import com.ak.comm.interceptor.AbstractBufferFrame;
+
 @Immutable
 @ThreadSafe
-public final class TnmiRequest {
+public final class TnmiRequest extends AbstractBufferFrame {
   private enum Ohm {
     Z_360(0), Z_0_47(1), Z_1(1 << 1), Z_2(1 << 2), Z_30A(1 << 3), Z_30B(1 << 4), Z_127(1 << 5);
 
@@ -80,22 +82,16 @@ public final class TnmiRequest {
     }
   }
 
-  private final ByteBuffer byteBuffer;
   private final String toString;
 
   private TnmiRequest(@Nonnull Builder builder) {
-    byteBuffer = ByteBuffer.wrap(builder.codes);
+    super(ByteBuffer.wrap(builder.codes));
     toString = builder.toStringBuilder.toString();
-  }
-
-  public void writeTo(@Nonnull ByteBuffer outBuffer) {
-    byteBuffer.rewind();
-    outBuffer.put(byteBuffer);
   }
 
   @Nonnull
   TnmiResponseFrame toResponse() {
-    byte[] codes = Arrays.copyOf(byteBuffer.array(), byteBuffer.capacity());
+    byte[] codes = Arrays.copyOf(byteBuffer().array(), byteBuffer().capacity());
     codes[TnmiProtocolByte.ADDR.ordinal()] = Objects.requireNonNull(TnmiAddress.find(codes)).getAddrResponse();
     saveCRC(codes);
     TnmiResponseFrame response = TnmiResponseFrame.newInstance(codes);
@@ -108,7 +104,7 @@ public final class TnmiRequest {
   @Nonnull
   @Override
   public String toString() {
-    return String.format("%s %s", TnmiProtocolByte.toString(getClass(), byteBuffer.array()), toString);
+    return String.format("%s %s", AbstractBufferFrame.toString(getClass(), byteBuffer().array()), toString);
   }
 
   @Override

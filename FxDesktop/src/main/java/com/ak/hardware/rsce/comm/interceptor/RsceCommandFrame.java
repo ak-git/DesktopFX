@@ -9,7 +9,9 @@ import java.util.zip.Checksum;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-final class RsceCommandFrame {
+import com.ak.comm.interceptor.AbstractBufferFrame;
+
+final class RsceCommandFrame extends AbstractBufferFrame {
   enum Control {
     ALL(0x00, 0),
     CATCH(0x01, -20000),
@@ -46,31 +48,24 @@ final class RsceCommandFrame {
   }
 
   private static final Map<String, RsceCommandFrame> SERVOMOTOR_REQUEST_MAP = new ConcurrentHashMap<>();
-  @Nonnull
-  private final ByteBuffer byteBuffer;
 
   private RsceCommandFrame(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType) {
     this(control, actionType, requestType, ByteBuffer.allocate(0));
   }
 
   private RsceCommandFrame(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType, ByteBuffer parameters) {
-    byteBuffer = ByteBuffer.allocate(1 + 1 + 1 + parameters.capacity() + 2).order(ByteOrder.LITTLE_ENDIAN);
-    int codeLength = byteBuffer.capacity() - 2;
-    byteBuffer.put(control.addr);
-    byteBuffer.put((byte) (codeLength));
-    byteBuffer.put((byte) ((actionType.code << 3) + requestType.code));
+    super(ByteBuffer.allocate(1 + 1 + 1 + parameters.capacity() + 2).order(ByteOrder.LITTLE_ENDIAN));
+    int codeLength = byteBuffer().capacity() - 2;
+    byteBuffer().put(control.addr);
+    byteBuffer().put((byte) (codeLength));
+    byteBuffer().put((byte) ((actionType.code << 3) + requestType.code));
     parameters.rewind();
-    byteBuffer.put(parameters);
+    byteBuffer().put(parameters);
 
     Checksum checksum = new CRC16IBMChecksum();
-    checksum.update(byteBuffer.array(), 0, codeLength);
-    byteBuffer.putShort((short) checksum.getValue());
-    byteBuffer.rewind();
-  }
-
-  void writeTo(@Nonnull ByteBuffer outBuffer) {
-    byteBuffer.rewind();
-    outBuffer.put(byteBuffer);
+    checksum.update(byteBuffer().array(), 0, codeLength);
+    byteBuffer().putShort((short) checksum.getValue());
+    byteBuffer().flip();
   }
 
   @Nonnull
@@ -98,7 +93,7 @@ final class RsceCommandFrame {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder(getClass().getSimpleName()).append("[ ");
-    for (byte i : byteBuffer.array()) {
+    for (byte i : byteBuffer().array()) {
       sb.append(String.format("%#04x ", (i & 0xFF)));
     }
     sb.append("]");

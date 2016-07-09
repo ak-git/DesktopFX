@@ -12,6 +12,8 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
+import com.ak.comm.interceptor.AbstractBufferFrame;
+
 /**
  * Classic TNMI Response Frame for INEUM protocol.
  */
@@ -45,7 +47,7 @@ public final class TnmiResponseFrame {
   @Nonnull
   @Override
   public String toString() {
-    return String.format("%s %s", TnmiProtocolByte.toString(getClass(), buffer.array()), address);
+    return String.format("%s %s", AbstractBufferFrame.toString(getClass(), buffer.array()), address);
   }
 
   @Override
