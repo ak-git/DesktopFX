@@ -1,6 +1,5 @@
 package com.ak.hardware.nmis.comm.interceptor;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -85,7 +84,7 @@ public final class NmisRequest extends AbstractBufferFrame {
   private final String toString;
 
   private NmisRequest(@Nonnull Builder builder) {
-    super(ByteBuffer.wrap(builder.codes));
+    super(builder.codes);
     toString = builder.toStringBuilder.toString();
   }
 
@@ -104,7 +103,7 @@ public final class NmisRequest extends AbstractBufferFrame {
   @Nonnull
   @Override
   public String toString() {
-    return String.format("%s %s", AbstractBufferFrame.toString(getClass(), byteBuffer().array()), toString);
+    return String.format("%s %s", super.toString(), toString);
   }
 
   private static void saveCRC(@Nonnull byte[] codes) {

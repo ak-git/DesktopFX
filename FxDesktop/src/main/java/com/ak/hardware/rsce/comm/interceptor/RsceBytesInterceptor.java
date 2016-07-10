@@ -8,8 +8,8 @@ import javax.annotation.Nullable;
 
 import com.ak.comm.interceptor.AbstractCheckedBytesInterceptor;
 
-final class RsceBytesInterceptor extends AbstractCheckedBytesInterceptor<RsceCommandFrame.ProtocolByte, RsceCommandFrame, RsceCommandFrame> {
-  RsceBytesInterceptor() {
+public final class RsceBytesInterceptor extends AbstractCheckedBytesInterceptor<RsceCommandFrame.ProtocolByte, RsceCommandFrame, RsceCommandFrame> {
+  public RsceBytesInterceptor() {
     super("RSCE", RsceCommandFrame.MAX_CAPACITY, RsceCommandFrame.off(RsceCommandFrame.Control.ALL), EnumSet.allOf(RsceCommandFrame.ProtocolByte.class));
   }
 

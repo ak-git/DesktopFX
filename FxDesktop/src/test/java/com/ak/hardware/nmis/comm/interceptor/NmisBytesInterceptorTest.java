@@ -47,7 +47,6 @@ public final class NmisBytesInterceptorTest {
   public void testResponseAliveAndChannels(NmisAddress address, byte[] input) {
     if (NmisAddress.CHANNELS.contains(address)) {
       Optional.ofNullable(NmisResponseFrame.newInstance(input)).orElseThrow(NullPointerException::new);
-      testResponse(NmisRequest.Sequence.ROTATE_100.build(), input);
     }
   }
 

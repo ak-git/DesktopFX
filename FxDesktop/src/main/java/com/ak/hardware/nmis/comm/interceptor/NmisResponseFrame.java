@@ -1,11 +1,6 @@
 package com.ak.hardware.nmis.comm.interceptor;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,14 +14,12 @@ import com.ak.comm.interceptor.AbstractBufferFrame;
  */
 @Immutable
 @ThreadSafe
-public final class NmisResponseFrame {
+public final class NmisResponseFrame extends AbstractBufferFrame {
   private final NmisAddress address;
-  private final ByteBuffer buffer;
 
   private NmisResponseFrame(@Nonnull byte[] bytes) {
+    super(bytes);
     address = Objects.requireNonNull(NmisAddress.find(bytes));
-    buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
-    buffer.flip();
   }
 
   @Nullable
@@ -35,13 +28,13 @@ public final class NmisResponseFrame {
       if (NmisProtocolByte.checkCRC(bytes)) {
         for (NmisProtocolByte b : NmisProtocolByte.CHECKED_BYTES) {
           if (!b.is(bytes[b.ordinal()])) {
-            logWarning(bytes);
+            logWarning(bytes, null);
             return null;
           }
         }
         return new NmisResponseFrame(bytes);
       }
-      logWarning(bytes);
+      logWarning(bytes, null);
     }
     return null;
   }
@@ -49,29 +42,6 @@ public final class NmisResponseFrame {
   @Nonnull
   @Override
   public String toString() {
-    return String.format("%s %s", AbstractBufferFrame.toString(getClass(), buffer.array()), address);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof NmisResponseFrame)) {
-      return false;
-    }
-
-    NmisResponseFrame response = (NmisResponseFrame) o;
-    return buffer.equals(response.buffer);
-  }
-
-  @Override
-  public int hashCode() {
-    return buffer.hashCode();
-  }
-
-  private static void logWarning(@Nonnull byte[] array) {
-    Logger.getLogger(NmisResponseFrame.class.getName()).log(Level.CONFIG,
-        String.format("Invalid NMI Stand response format: {%s}", Arrays.toString(array)));
+    return String.format("%s %s", super.toString(), address);
   }
 }
