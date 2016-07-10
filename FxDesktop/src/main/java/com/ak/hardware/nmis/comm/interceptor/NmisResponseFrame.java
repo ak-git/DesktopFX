@@ -31,16 +31,18 @@ public final class NmisResponseFrame {
 
   @Nullable
   static NmisResponseFrame newInstance(@Nonnull byte[] bytes) {
-    if (NmisAddress.find(bytes) != null && NmisProtocolByte.checkCRC(bytes)) {
-      for (NmisProtocolByte b : NmisProtocolByte.CHECKED_BYTES) {
-        if (!b.is(bytes[b.ordinal()])) {
-          logWarning(bytes);
-          return null;
+    if (NmisAddress.find(bytes) != null) {
+      if (NmisProtocolByte.checkCRC(bytes)) {
+        for (NmisProtocolByte b : NmisProtocolByte.CHECKED_BYTES) {
+          if (!b.is(bytes[b.ordinal()])) {
+            logWarning(bytes);
+            return null;
+          }
         }
+        return new NmisResponseFrame(bytes);
       }
-      return new NmisResponseFrame(bytes);
+      logWarning(bytes);
     }
-    logWarning(bytes);
     return null;
   }
 
