@@ -70,6 +70,6 @@ public final class NmisResponseFrame {
 
   private static void logWarning(@Nonnull byte[] array) {
     Logger.getLogger(NmisResponseFrame.class.getName()).log(Level.CONFIG,
-        String.format("Invalid TNMI response format: {%s}", Arrays.toString(array)));
+        String.format("Invalid NMI Stand response format: {%s}", Arrays.toString(array)));
   }
 }
