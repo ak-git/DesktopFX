@@ -8,7 +8,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import rx.observers.TestSubscriber;
 
-public final class TnmiTest {
+public final class TnmiBytesInterceptorTest {
   @Test(dataProviderClass = TnmiTestProvider.class, dataProvider = "allOhmsMyoOff")
   public void testRequestOhms(TnmiRequest request, byte[] expected) {
     testRequest(request, expected);
