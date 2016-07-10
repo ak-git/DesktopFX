@@ -18,7 +18,7 @@ public final class NmisResponseFrameTest {
     NmisResponseFrame nmisResponseFrame = NmisResponseFrame.newInstance(input);
     Assert.assertNotNull(nmisResponseFrame);
     Assert.assertNotEquals(request, nmisResponseFrame, Arrays.toString(input));
-    Assert.assertTrue(nmisResponseFrame.equals(nmisResponseFrame), nmisResponseFrame.toString());
+    Assert.assertEquals(nmisResponseFrame, nmisResponseFrame, nmisResponseFrame.toString());
     Assert.assertEquals(request.toResponse().hashCode(), nmisResponseFrame.hashCode());
   }
 }

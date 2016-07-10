@@ -69,4 +69,16 @@ public final class RsceTestDataProvider {
         {new byte[] {0x01, 0x04, 0x18, 0x00, 0x4a, (byte) 0x19}, (byte) 0},
     };
   }
+
+  @DataProvider(name = "invalidRequests", parallel = true)
+  public static Object[][] invalidRequests() {
+    return new Object[][] {
+        //invalid Control byte (first - 0x04)
+        {new byte[] {0x04, 0x04, 0x18, 0x64, 0x4b, (byte) 0x3e}},
+        //invalid ActionType byte (third - 0xff)
+        {new byte[] {0x01, 0x04, (byte) 0xff, 0x64, 0x00, (byte) 0x02}},
+        //invalid RequestType byte (third - 0x05)
+        {new byte[] {0x01, 0x04, 0x05, 0x64, 0x42, (byte) 0xA2}},
+    };
+  }
 }
