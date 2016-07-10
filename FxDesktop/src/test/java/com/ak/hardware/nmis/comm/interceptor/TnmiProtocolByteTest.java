@@ -1,4 +1,4 @@
-package com.ak.hardware.tnmi.comm.interceptor;
+package com.ak.hardware.nmis.comm.interceptor;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -6,10 +6,10 @@ import java.util.EnumSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static com.ak.hardware.tnmi.comm.interceptor.TnmiProtocolByte.LEN;
-import static com.ak.hardware.tnmi.comm.interceptor.TnmiProtocolByte.MAX_CAPACITY;
-import static com.ak.hardware.tnmi.comm.interceptor.TnmiProtocolByte.START;
-import static com.ak.hardware.tnmi.comm.interceptor.TnmiProtocolByte.checkCRC;
+import static com.ak.hardware.nmis.comm.interceptor.TnmiProtocolByte.LEN;
+import static com.ak.hardware.nmis.comm.interceptor.TnmiProtocolByte.MAX_CAPACITY;
+import static com.ak.hardware.nmis.comm.interceptor.TnmiProtocolByte.START;
+import static com.ak.hardware.nmis.comm.interceptor.TnmiProtocolByte.checkCRC;
 
 public final class TnmiProtocolByteTest {
   @Test

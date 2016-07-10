@@ -1,10 +1,10 @@
-package com.ak.hardware.tnmi.comm.serial;
+package com.ak.hardware.nmis.comm.serial;
 
 import com.ak.comm.interceptor.DefaultBytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
-import com.ak.hardware.tnmi.comm.interceptor.TnmiBytesInterceptor;
-import com.ak.hardware.tnmi.comm.interceptor.TnmiRequest;
-import com.ak.hardware.tnmi.comm.interceptor.TnmiResponseFrame;
+import com.ak.hardware.nmis.comm.interceptor.TnmiBytesInterceptor;
+import com.ak.hardware.nmis.comm.interceptor.TnmiRequest;
+import com.ak.hardware.nmis.comm.interceptor.TnmiResponseFrame;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import rx.observers.TestSubscriber;

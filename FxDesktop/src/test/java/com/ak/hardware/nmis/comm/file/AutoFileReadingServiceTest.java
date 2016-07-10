@@ -1,4 +1,4 @@
-package com.ak.hardware.tnmi.comm.file;
+package com.ak.hardware.nmis.comm.file;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
@@ -10,10 +10,10 @@ import java.util.concurrent.CountDownLatch;
 
 import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.DefaultBytesInterceptor;
-import com.ak.hardware.tnmi.comm.interceptor.TnmiBytesInterceptor;
-import com.ak.hardware.tnmi.comm.interceptor.TnmiProtocolByte;
-import com.ak.hardware.tnmi.comm.interceptor.TnmiRequest;
-import com.ak.hardware.tnmi.comm.interceptor.TnmiResponseFrame;
+import com.ak.hardware.nmis.comm.interceptor.TnmiBytesInterceptor;
+import com.ak.hardware.nmis.comm.interceptor.TnmiProtocolByte;
+import com.ak.hardware.nmis.comm.interceptor.TnmiRequest;
+import com.ak.hardware.nmis.comm.interceptor.TnmiResponseFrame;
 import com.ak.logging.BinaryLogBuilder;
 import com.ak.logging.LocalFileHandler;
 import com.ak.logging.LogPathBuilder;

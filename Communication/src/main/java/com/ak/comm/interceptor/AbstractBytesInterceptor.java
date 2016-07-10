@@ -13,7 +13,7 @@ import com.ak.comm.core.AbstractService;
 import static jssc.SerialPort.BAUDRATE_115200;
 
 public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends AbstractService<RESPONSE> implements BytesInterceptor<RESPONSE, REQUEST> {
-  private static final Level LOG_LEVEL = Level.FINE;
+  private static final Level LOG_LEVEL = Level.FINER;
   private final String name;
   private final ByteBuffer outBuffer;
   private final REQUEST pingRequest;

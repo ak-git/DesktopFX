@@ -1,4 +1,4 @@
-package com.ak.hardware.tnmi.comm.interceptor;
+package com.ak.hardware.nmis.comm.interceptor;
 
 import java.util.EnumSet;
 import java.util.Optional;
@@ -6,12 +6,12 @@ import java.util.Optional;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static com.ak.hardware.tnmi.comm.interceptor.TnmiAddress.ALIVE;
-import static com.ak.hardware.tnmi.comm.interceptor.TnmiAddress.CATCH_ELBOW;
-import static com.ak.hardware.tnmi.comm.interceptor.TnmiAddress.CATCH_HAND;
-import static com.ak.hardware.tnmi.comm.interceptor.TnmiAddress.DATA;
-import static com.ak.hardware.tnmi.comm.interceptor.TnmiAddress.ROTATE_ELBOW;
-import static com.ak.hardware.tnmi.comm.interceptor.TnmiAddress.ROTATE_HAND;
+import static com.ak.hardware.nmis.comm.interceptor.TnmiAddress.ALIVE;
+import static com.ak.hardware.nmis.comm.interceptor.TnmiAddress.CATCH_ELBOW;
+import static com.ak.hardware.nmis.comm.interceptor.TnmiAddress.CATCH_HAND;
+import static com.ak.hardware.nmis.comm.interceptor.TnmiAddress.DATA;
+import static com.ak.hardware.nmis.comm.interceptor.TnmiAddress.ROTATE_ELBOW;
+import static com.ak.hardware.nmis.comm.interceptor.TnmiAddress.ROTATE_HAND;
 
 public final class TnmiAddressTest {
   @Test

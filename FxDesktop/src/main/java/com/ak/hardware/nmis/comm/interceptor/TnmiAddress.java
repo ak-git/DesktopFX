@@ -1,4 +1,4 @@
-package com.ak.hardware.tnmi.comm.interceptor;
+package com.ak.hardware.nmis.comm.interceptor;
 
 import java.util.Arrays;
 import java.util.Collection;

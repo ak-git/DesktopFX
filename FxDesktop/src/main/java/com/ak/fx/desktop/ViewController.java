@@ -9,8 +9,8 @@ import javax.inject.Inject;
 
 import com.ak.comm.file.AutoFileReadingService;
 import com.ak.fx.scene.MilliGrid;
-import com.ak.hardware.tnmi.comm.interceptor.TnmiRequest;
-import com.ak.hardware.tnmi.comm.interceptor.TnmiResponseFrame;
+import com.ak.hardware.nmis.comm.interceptor.TnmiRequest;
+import com.ak.hardware.nmis.comm.interceptor.TnmiResponseFrame;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.Dragboard;
