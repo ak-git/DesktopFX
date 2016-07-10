@@ -15,30 +15,30 @@ import javax.annotation.concurrent.ThreadSafe;
 import com.ak.comm.interceptor.AbstractBufferFrame;
 
 /**
- * Classic TNMI Response Frame for INEUM protocol.
+ * Classic <b>NMI Test Stand</b> Response Frame for INEUM protocol.
  */
 @Immutable
 @ThreadSafe
-public final class TnmiResponseFrame {
-  private final TnmiAddress address;
+public final class NmisResponseFrame {
+  private final NmisAddress address;
   private final ByteBuffer buffer;
 
-  private TnmiResponseFrame(@Nonnull byte[] bytes) {
-    address = Objects.requireNonNull(TnmiAddress.find(bytes));
+  private NmisResponseFrame(@Nonnull byte[] bytes) {
+    address = Objects.requireNonNull(NmisAddress.find(bytes));
     buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
     buffer.flip();
   }
 
   @Nullable
-  static TnmiResponseFrame newInstance(@Nonnull byte[] bytes) {
-    if (TnmiAddress.find(bytes) != null && TnmiProtocolByte.checkCRC(bytes)) {
-      for (TnmiProtocolByte b : TnmiProtocolByte.CHECKED_BYTES) {
+  static NmisResponseFrame newInstance(@Nonnull byte[] bytes) {
+    if (NmisAddress.find(bytes) != null && NmisProtocolByte.checkCRC(bytes)) {
+      for (NmisProtocolByte b : NmisProtocolByte.CHECKED_BYTES) {
         if (!b.is(bytes[b.ordinal()])) {
           logWarning(bytes);
           return null;
         }
       }
-      return new TnmiResponseFrame(bytes);
+      return new NmisResponseFrame(bytes);
     }
     logWarning(bytes);
     return null;
@@ -55,11 +55,11 @@ public final class TnmiResponseFrame {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof TnmiResponseFrame)) {
+    if (!(o instanceof NmisResponseFrame)) {
       return false;
     }
 
-    TnmiResponseFrame response = (TnmiResponseFrame) o;
+    NmisResponseFrame response = (NmisResponseFrame) o;
     return buffer.equals(response.buffer);
   }
 
@@ -69,7 +69,7 @@ public final class TnmiResponseFrame {
   }
 
   private static void logWarning(@Nonnull byte[] array) {
-    Logger.getLogger(TnmiResponseFrame.class.getName()).log(Level.CONFIG,
+    Logger.getLogger(NmisResponseFrame.class.getName()).log(Level.CONFIG,
         String.format("Invalid TNMI response format: {%s}", Arrays.toString(array)));
   }
 }

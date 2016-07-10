@@ -2,9 +2,9 @@ package com.ak.hardware.nmis.comm.serial;
 
 import com.ak.comm.interceptor.DefaultBytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
-import com.ak.hardware.nmis.comm.interceptor.TnmiBytesInterceptor;
-import com.ak.hardware.nmis.comm.interceptor.TnmiRequest;
-import com.ak.hardware.nmis.comm.interceptor.TnmiResponseFrame;
+import com.ak.hardware.nmis.comm.interceptor.NmisBytesInterceptor;
+import com.ak.hardware.nmis.comm.interceptor.NmisRequest;
+import com.ak.hardware.nmis.comm.interceptor.NmisResponseFrame;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import rx.observers.TestSubscriber;
@@ -27,12 +27,12 @@ public final class CycleSerialServiceTest {
   }
 
   @Test
-  public void testTnmiBytesInterceptor() {
-    CycleSerialService<TnmiResponseFrame, TnmiRequest> service = new CycleSerialService<>(new TnmiBytesInterceptor());
-    TestSubscriber<TnmiResponseFrame> subscriber = TestSubscriber.create();
+  public void testBytesInterceptor() {
+    CycleSerialService<NmisResponseFrame, NmisRequest> service = new CycleSerialService<>(new NmisBytesInterceptor());
+    TestSubscriber<NmisResponseFrame> subscriber = TestSubscriber.create();
     service.getBufferObservable().subscribe(subscriber);
-    service.write(TnmiRequest.Single.Z_360.buildForAll(TnmiRequest.MyoType.OFF, TnmiRequest.MyoFrequency.OFF));
-    service.write(TnmiRequest.Sequence.CATCH_100.build());
+    service.write(NmisRequest.Single.Z_360.buildForAll(NmisRequest.MyoType.OFF, NmisRequest.MyoFrequency.OFF));
+    service.write(NmisRequest.Sequence.CATCH_100.build());
 
     subscriber.assertNotCompleted();
     service.close();

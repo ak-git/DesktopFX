@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 
 import com.ak.comm.interceptor.BytesChecker;
 
-public enum TnmiProtocolByte implements BytesChecker {
+public enum NmisProtocolByte implements BytesChecker {
   START {
     @Override
     public boolean is(byte b) {
@@ -30,7 +30,7 @@ public enum TnmiProtocolByte implements BytesChecker {
   }, DATA_1, DATA_2, DATA_3, DATA_4, DATA_5, DATA_6, DATA_7, DATA_8, CRC;
 
   public static final int MAX_CAPACITY = 64;
-  static final Collection<TnmiProtocolByte> CHECKED_BYTES = Collections.unmodifiableCollection(EnumSet.of(START, LEN));
+  static final Collection<NmisProtocolByte> CHECKED_BYTES = Collections.unmodifiableCollection(EnumSet.of(START, LEN));
 
   static boolean checkCRC(@Nonnull byte[] codes) {
     int crc = 0;

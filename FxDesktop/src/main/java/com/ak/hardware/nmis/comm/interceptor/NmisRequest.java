@@ -13,7 +13,7 @@ import com.ak.comm.interceptor.AbstractBufferFrame;
 
 @Immutable
 @ThreadSafe
-public final class TnmiRequest extends AbstractBufferFrame {
+public final class NmisRequest extends AbstractBufferFrame {
   private enum Ohm {
     Z_360(0), Z_0_47(1), Z_1(1 << 1), Z_2(1 << 2), Z_30A(1 << 3), Z_30B(1 << 4), Z_127(1 << 5);
 
@@ -59,12 +59,12 @@ public final class TnmiRequest extends AbstractBufferFrame {
       this.ohms = Arrays.copyOf(ohms, ohms.length);
     }
 
-    public final TnmiRequest buildForAll(MyoType myoType, MyoFrequency frequency) {
-      return new Builder(TnmiAddress.SINGLE).forAll(ohms).forAll(myoType, frequency).build();
+    public final NmisRequest buildForAll(MyoType myoType, MyoFrequency frequency) {
+      return new Builder(NmisAddress.SINGLE).forAll(ohms).forAll(myoType, frequency).build();
     }
   }
 
-  public enum Sequence implements javafx.util.Builder<TnmiRequest> {
+  public enum Sequence implements javafx.util.Builder<NmisRequest> {
     CATCH_100(1, MyoType.MV1, MyoFrequency.HZ_200), CATCH_60(2, MyoType.MV1, MyoFrequency.HZ_200),
     CATCH_30(3, MyoType.MV1, MyoFrequency.HZ_200), CATCH_INV(4, MyoType.MV1, MyoFrequency.HZ_200),
     ROTATE_100(5, MyoType.MV0_1, MyoFrequency.NOISE), ROTATE_60(6, MyoType.MV0_1, MyoFrequency.NOISE),
@@ -73,28 +73,28 @@ public final class TnmiRequest extends AbstractBufferFrame {
     private final Builder builder;
 
     Sequence(int number, MyoType myoType, MyoFrequency frequency) {
-      builder = new Builder(TnmiAddress.SEQUENCE).sequence(number).forAll(myoType, frequency);
+      builder = new Builder(NmisAddress.SEQUENCE).sequence(number).forAll(myoType, frequency);
     }
 
     @Override
-    public final TnmiRequest build() {
+    public final NmisRequest build() {
       return builder.build();
     }
   }
 
   private final String toString;
 
-  private TnmiRequest(@Nonnull Builder builder) {
+  private NmisRequest(@Nonnull Builder builder) {
     super(ByteBuffer.wrap(builder.codes));
     toString = builder.toStringBuilder.toString();
   }
 
   @Nonnull
-  TnmiResponseFrame toResponse() {
+  NmisResponseFrame toResponse() {
     byte[] codes = Arrays.copyOf(byteBuffer().array(), byteBuffer().capacity());
-    codes[TnmiProtocolByte.ADDR.ordinal()] = Objects.requireNonNull(TnmiAddress.find(codes)).getAddrResponse();
+    codes[NmisProtocolByte.ADDR.ordinal()] = Objects.requireNonNull(NmisAddress.find(codes)).getAddrResponse();
     saveCRC(codes);
-    TnmiResponseFrame response = TnmiResponseFrame.newInstance(codes);
+    NmisResponseFrame response = NmisResponseFrame.newInstance(codes);
     if (response == null) {
       throw new NullPointerException(Arrays.toString(codes));
     }
@@ -108,52 +108,52 @@ public final class TnmiRequest extends AbstractBufferFrame {
   }
 
   private static void saveCRC(@Nonnull byte[] codes) {
-    codes[TnmiProtocolByte.CRC.ordinal()] = 0;
+    codes[NmisProtocolByte.CRC.ordinal()] = 0;
     int crc = 0;
     for (byte code : codes) {
       crc += code;
     }
-    codes[TnmiProtocolByte.CRC.ordinal()] = (byte) (crc & 0xff);
+    codes[NmisProtocolByte.CRC.ordinal()] = (byte) (crc & 0xff);
   }
 
-  private static class Builder implements javafx.util.Builder<TnmiRequest> {
+  private static class Builder implements javafx.util.Builder<NmisRequest> {
     private static final String SPACE = " ";
     private final byte[] codes = new byte[1 + 1 + 1 + 8 + 1];
     private final StringBuilder toStringBuilder = new StringBuilder();
 
-    private Builder(@Nonnull TnmiAddress address) {
-      codes[TnmiProtocolByte.START.ordinal()] = 0x7E;
-      codes[TnmiProtocolByte.ADDR.ordinal()] = address.getAddrRequest();
-      codes[TnmiProtocolByte.LEN.ordinal()] = 0x08;
+    private Builder(@Nonnull NmisAddress address) {
+      codes[NmisProtocolByte.START.ordinal()] = 0x7E;
+      codes[NmisProtocolByte.ADDR.ordinal()] = address.getAddrRequest();
+      codes[NmisProtocolByte.LEN.ordinal()] = 0x08;
       toStringBuilder.append(address.name()).append(SPACE);
     }
 
     Builder forAll(@Nonnull Ohm... ohms) {
       byte code = (byte) Stream.of(ohms).mapToInt(ohm -> ohm.code).sum();
-      Arrays.fill(codes, TnmiProtocolByte.DATA_1.ordinal(), TnmiProtocolByte.DATA_4.ordinal() + 1, code);
+      Arrays.fill(codes, NmisProtocolByte.DATA_1.ordinal(), NmisProtocolByte.DATA_4.ordinal() + 1, code);
       toStringBuilder.append(Arrays.toString(ohms)).append(SPACE);
       return this;
     }
 
     Builder forAll(@Nonnull MyoType myoType, @Nonnull MyoFrequency frequency) {
-      Arrays.fill(codes, TnmiProtocolByte.DATA_5.ordinal(), TnmiProtocolByte.DATA_8.ordinal() + 1,
+      Arrays.fill(codes, NmisProtocolByte.DATA_5.ordinal(), NmisProtocolByte.DATA_8.ordinal() + 1,
           (byte) (myoType.code + frequency.code));
       toStringBuilder.append(myoType.name()).append(SPACE).append(frequency.name()).append(SPACE);
       return this;
     }
 
     Builder sequence(int number) {
-      Arrays.fill(codes, TnmiProtocolByte.DATA_1.ordinal(), TnmiProtocolByte.DATA_4.ordinal() + 1, (byte) 0x00);
-      codes[TnmiProtocolByte.DATA_1.ordinal()] = (byte) number;
+      Arrays.fill(codes, NmisProtocolByte.DATA_1.ordinal(), NmisProtocolByte.DATA_4.ordinal() + 1, (byte) 0x00);
+      codes[NmisProtocolByte.DATA_1.ordinal()] = (byte) number;
       toStringBuilder.append(number).append(SPACE);
       return this;
     }
 
     @Nonnull
     @Override
-    public TnmiRequest build() {
+    public NmisRequest build() {
       saveCRC(codes);
-      return new TnmiRequest(this);
+      return new NmisRequest(this);
     }
   }
 }
