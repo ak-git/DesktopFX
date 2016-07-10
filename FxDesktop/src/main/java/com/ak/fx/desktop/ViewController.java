@@ -9,8 +9,8 @@ import javax.inject.Inject;
 
 import com.ak.comm.file.AutoFileReadingService;
 import com.ak.fx.scene.MilliGrid;
-import com.ak.hardware.tnmi.comm.interceptor.TnmiRequest;
-import com.ak.hardware.tnmi.comm.interceptor.TnmiResponse;
+import com.ak.hardware.nmis.comm.interceptor.NmisRequest;
+import com.ak.hardware.nmis.comm.interceptor.NmisResponseFrame;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.Dragboard;
@@ -21,10 +21,10 @@ public final class ViewController implements Initializable {
   @FXML
   public MilliGrid root = new MilliGrid();
   @Nonnull
-  private final AutoFileReadingService<TnmiResponse, TnmiRequest> service;
+  private final AutoFileReadingService<NmisResponseFrame, NmisRequest> service;
 
   @Inject
-  public ViewController(@Nonnull AutoFileReadingService<TnmiResponse, TnmiRequest> service) {
+  public ViewController(@Nonnull AutoFileReadingService<NmisResponseFrame, NmisRequest> service) {
     this.service = service;
   }
 

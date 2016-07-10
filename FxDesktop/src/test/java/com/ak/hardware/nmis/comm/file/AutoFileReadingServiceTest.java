@@ -1,4 +1,4 @@
-package com.ak.hardware.tnmi.comm.file;
+package com.ak.hardware.nmis.comm.file;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
@@ -10,10 +10,10 @@ import java.util.concurrent.CountDownLatch;
 
 import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.DefaultBytesInterceptor;
-import com.ak.hardware.tnmi.comm.interceptor.TnmiBytesInterceptor;
-import com.ak.hardware.tnmi.comm.interceptor.TnmiProtocolByte;
-import com.ak.hardware.tnmi.comm.interceptor.TnmiRequest;
-import com.ak.hardware.tnmi.comm.interceptor.TnmiResponse;
+import com.ak.hardware.nmis.comm.interceptor.NmisBytesInterceptor;
+import com.ak.hardware.nmis.comm.interceptor.NmisProtocolByte;
+import com.ak.hardware.nmis.comm.interceptor.NmisRequest;
+import com.ak.hardware.nmis.comm.interceptor.NmisResponseFrame;
 import com.ak.logging.BinaryLogBuilder;
 import com.ak.logging.LocalFileHandler;
 import com.ak.logging.LogPathBuilder;
@@ -57,16 +57,16 @@ public final class AutoFileReadingServiceTest {
   }
 
   @Test(timeOut = 10000)
-  public void testTnmiBytesInterceptor() throws Exception {
-    AutoFileReadingService<TnmiResponse, TnmiRequest> service = new AutoFileReadingService<>(new TnmiBytesInterceptor());
-    TestSubscriber<TnmiResponse> subscriber = TestSubscriber.create();
+  public void testBytesInterceptor() throws Exception {
+    AutoFileReadingService<NmisResponseFrame, NmisRequest> service = new AutoFileReadingService<>(new NmisBytesInterceptor());
+    TestSubscriber<NmisResponseFrame> subscriber = TestSubscriber.create();
     service.getBufferObservable().subscribe(subscriber);
 
     Path path = new BinaryLogBuilder(getClass().getSimpleName(), LocalFileHandler.class).build().getPath();
     try (WritableByteChannel channel = Files.newByteChannel(path,
         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
-      ByteBuffer buffer = ByteBuffer.allocate(TnmiProtocolByte.MAX_CAPACITY);
-      for (TnmiRequest.Sequence sequence : TnmiRequest.Sequence.values()) {
+      ByteBuffer buffer = ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY);
+      for (NmisRequest.Sequence sequence : NmisRequest.Sequence.values()) {
         buffer.clear();
         sequence.build().writeTo(buffer);
         buffer.flip();
@@ -75,7 +75,7 @@ public final class AutoFileReadingServiceTest {
     }
 
 
-    int eventCount = TnmiRequest.Sequence.values().length;
+    int eventCount = NmisRequest.Sequence.values().length;
     CountDownLatch latch = new CountDownLatch(eventCount);
     service.getBufferObservable().subscribe(response -> {
       latch.countDown();

@@ -1,10 +1,10 @@
-package com.ak.hardware.tnmi.comm.interceptor;
+package com.ak.hardware.nmis.comm.interceptor;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 
-public class TnmiTestProvider {
-  private TnmiTestProvider() {
+public class NmisTestProvider {
+  private NmisTestProvider() {
   }
 
   @DataProvider(name = "allOhmsMyoOff")
@@ -19,11 +19,11 @@ public class TnmiTestProvider {
         {0x7E, (byte) 0x81, 0x08, 0x3F, 0x3F, 0x3F, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x03}
     };
 
-    Assert.assertEquals(expected.length, TnmiRequest.Single.values().length);
+    Assert.assertEquals(expected.length, NmisRequest.Single.values().length);
     Object[][] values = new Object[expected.length][2];
     for (int i = 0; i < expected.length; i++) {
-      values[i] = new Object[] {TnmiRequest.Single.values()[i].
-          buildForAll(TnmiRequest.MyoType.OFF, TnmiRequest.MyoFrequency.OFF), expected[i]};
+      values[i] = new Object[] {NmisRequest.Single.values()[i].
+          buildForAll(NmisRequest.MyoType.OFF, NmisRequest.MyoFrequency.OFF), expected[i]};
     }
     return values;
   }
@@ -38,13 +38,13 @@ public class TnmiTestProvider {
         {0x7E, (byte) 0x81, 0x08, 0x00, 0x00, 0x00, 0x00, (byte) 0x90, (byte) 0x90, (byte) 0x90, (byte) 0x90, 0x47}
     };
 
-    TnmiRequest.MyoFrequency[] frequencies = {TnmiRequest.MyoFrequency.HZ_50, TnmiRequest.MyoFrequency.HZ_100,
-        TnmiRequest.MyoFrequency.HZ_200, TnmiRequest.MyoFrequency.HZ_500, TnmiRequest.MyoFrequency.HZ_1000};
+    NmisRequest.MyoFrequency[] frequencies = {NmisRequest.MyoFrequency.HZ_50, NmisRequest.MyoFrequency.HZ_100,
+        NmisRequest.MyoFrequency.HZ_200, NmisRequest.MyoFrequency.HZ_500, NmisRequest.MyoFrequency.HZ_1000};
     Assert.assertEquals(expected.length, frequencies.length);
 
     Object[][] values = new Object[expected.length][2];
     for (int i = 0; i < expected.length; i++) {
-      values[i] = new Object[] {TnmiRequest.Single.Z_360.buildForAll(TnmiRequest.MyoType.MV1, frequencies[i]), expected[i]};
+      values[i] = new Object[] {NmisRequest.Single.Z_360.buildForAll(NmisRequest.MyoType.MV1, frequencies[i]), expected[i]};
     }
     return values;
   }
@@ -62,10 +62,10 @@ public class TnmiTestProvider {
         {0x7E, (byte) 0x82, 0x08, 0x08, 0x00, 0x00, 0x00, 0x60, 0x60, 0x60, 0x60, (byte) 0x90}
     };
 
-    Assert.assertEquals(expected.length, TnmiRequest.Sequence.values().length);
+    Assert.assertEquals(expected.length, NmisRequest.Sequence.values().length);
     Object[][] values = new Object[expected.length][2];
     for (int i = 0; i < expected.length; i++) {
-      values[i] = new Object[] {TnmiRequest.Sequence.values()[i].build(), expected[i]};
+      values[i] = new Object[] {NmisRequest.Sequence.values()[i].build(), expected[i]};
     }
     return values;
   }
@@ -83,11 +83,11 @@ public class TnmiTestProvider {
         {0x07, 0x7E, (byte) 0x91, 0x08, 0x3F, 0x3F, 0x3F, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x13}
     };
 
-    Assert.assertEquals(input.length, TnmiRequest.Single.values().length);
+    Assert.assertEquals(input.length, NmisRequest.Single.values().length);
     Object[][] values = new Object[input.length][2];
     for (int i = 0; i < input.length; i++) {
-      values[i] = new Object[] {TnmiRequest.Single.values()[i].
-          buildForAll(TnmiRequest.MyoType.OFF, TnmiRequest.MyoFrequency.OFF), input[i]};
+      values[i] = new Object[] {NmisRequest.Single.values()[i].
+          buildForAll(NmisRequest.MyoType.OFF, NmisRequest.MyoFrequency.OFF), input[i]};
     }
     return values;
   }
@@ -102,13 +102,13 @@ public class TnmiTestProvider {
         {0x7E, (byte) 0x91, 0x08, 0x00, 0x00, 0x00, 0x00, (byte) 0x90, (byte) 0x90, (byte) 0x90, (byte) 0x90, 0x57}
     };
 
-    TnmiRequest.MyoFrequency[] frequencies = {TnmiRequest.MyoFrequency.HZ_50, TnmiRequest.MyoFrequency.HZ_100,
-        TnmiRequest.MyoFrequency.HZ_200, TnmiRequest.MyoFrequency.HZ_500, TnmiRequest.MyoFrequency.HZ_1000};
+    NmisRequest.MyoFrequency[] frequencies = {NmisRequest.MyoFrequency.HZ_50, NmisRequest.MyoFrequency.HZ_100,
+        NmisRequest.MyoFrequency.HZ_200, NmisRequest.MyoFrequency.HZ_500, NmisRequest.MyoFrequency.HZ_1000};
     Assert.assertEquals(input.length, frequencies.length);
 
     Object[][] values = new Object[input.length][2];
     for (int i = 0; i < input.length; i++) {
-      values[i] = new Object[] {TnmiRequest.Single.Z_360.buildForAll(TnmiRequest.MyoType.MV1, frequencies[i]), input[i]};
+      values[i] = new Object[] {NmisRequest.Single.Z_360.buildForAll(NmisRequest.MyoType.MV1, frequencies[i]), input[i]};
     }
     return values;
   }
@@ -126,10 +126,10 @@ public class TnmiTestProvider {
         {0x7E, (byte) 0x92, 0x08, 0x08, 0x00, 0x00, 0x00, 0x60, 0x60, 0x60, 0x60, (byte) 0xA0}
     };
 
-    Assert.assertEquals(input.length, TnmiRequest.Sequence.values().length);
+    Assert.assertEquals(input.length, NmisRequest.Sequence.values().length);
     Object[][] values = new Object[input.length][2];
     for (int i = 0; i < input.length; i++) {
-      values[i] = new Object[] {TnmiRequest.Sequence.values()[i].build(), input[i]};
+      values[i] = new Object[] {NmisRequest.Sequence.values()[i].build(), input[i]};
     }
     return values;
   }
@@ -143,8 +143,8 @@ public class TnmiTestProvider {
         {0x7E, 0x43, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xC9},
         {0x7E, 0x44, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xCA},
     };
-    TnmiAddress[] addresses = {TnmiAddress.ALIVE,
-        TnmiAddress.CATCH_ELBOW, TnmiAddress.ROTATE_ELBOW, TnmiAddress.CATCH_HAND, TnmiAddress.ROTATE_HAND};
+    NmisAddress[] addresses = {NmisAddress.ALIVE,
+        NmisAddress.CATCH_ELBOW, NmisAddress.ROTATE_ELBOW, NmisAddress.CATCH_HAND, NmisAddress.ROTATE_HAND};
 
     Assert.assertEquals(input.length, addresses.length);
     Object[][] values = new Object[input.length][2];
@@ -160,7 +160,7 @@ public class TnmiTestProvider {
    * invalid START byte: 0x7A
    * </li>
    * <li>
-   * invalid LEN byte: TnmiProtocolByte.MAX_CAPACITY + 1
+   * invalid LEN byte: NmisProtocolByte.MAX_CAPACITY + 1
    * </li>
    * <li>
    * invalid LEN byte: -1
@@ -173,7 +173,7 @@ public class TnmiTestProvider {
   public static Object[][] invalidTestByteResponse() {
     byte[][] input = {
         {0x7A, 0x41, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xC3},
-        {0x7E, 0x42, TnmiProtocolByte.MAX_CAPACITY + 1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x01},
+        {0x7E, 0x42, NmisProtocolByte.MAX_CAPACITY + 1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x01},
         {0x7E, 0x43, -1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xC0},
     };
     Object[][] values = new Object[input.length][2];

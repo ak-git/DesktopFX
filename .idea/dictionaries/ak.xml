@@ -91,6 +91,7 @@
       <w>myogram</w>
       <w>nelder</w>
       <w>neuronrobotics</w>
+      <w>nmis</w>
       <w>nmtoken</w>
       <w>nrjavaserial</w>
       <w>ooxml</w>
@@ -132,6 +133,7 @@
       <w>rheogram</w>
       <w>richclient</w>
       <w>rosenbrock</w>
+      <w>rsce</w>
       <w>runnables</w>
       <w>runstate</w>
       <w>rxtx</w>
@@ -156,7 +158,6 @@
       <w>tetrapolar</w>
       <w>throwable</w>
       <w>timingframework</w>
-      <w>tnmi</w>
       <w>ttrg</w>
       <w>tukey</w>
       <w>undos</w>
