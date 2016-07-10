@@ -1,4 +1,4 @@
-package com.ak.hardware.tnmi.comm.interceptor;
+package com.ak.hardware.nmis.comm.interceptor;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-enum TnmiAddress {
+enum NmisAddress {
   SINGLE(0x81, 0x91),
   SEQUENCE(0x82, 0x92),
   ALIVE(0x00, 0x40),
@@ -20,13 +20,13 @@ enum TnmiAddress {
   ROTATE_HAND(0x00, 0x44),
   DATA(0x45, 0x45);
 
-  public static final Collection<TnmiAddress> CHANNELS = Collections.unmodifiableCollection(
+  public static final Collection<NmisAddress> CHANNELS = Collections.unmodifiableCollection(
       EnumSet.of(CATCH_ELBOW, ROTATE_ELBOW, CATCH_HAND, ROTATE_HAND));
 
   private final byte addrRequest;
   private final byte addrResponse;
 
-  TnmiAddress(int addrRequest, int addrResponse) {
+  NmisAddress(int addrRequest, int addrResponse) {
     this.addrRequest = (byte) addrRequest;
     this.addrResponse = (byte) addrResponse;
   }
@@ -45,14 +45,14 @@ enum TnmiAddress {
   }
 
   @Nullable
-  static TnmiAddress find(@Nonnull byte[] codes) {
-    byte addr = codes[TnmiProtocolByte.ADDR.ordinal()];
-    for (TnmiAddress tnmiAddress : values()) {
-      if (tnmiAddress.addrRequest == addr || tnmiAddress.addrResponse == addr) {
-        return tnmiAddress;
+  static NmisAddress find(@Nonnull byte[] codes) {
+    byte addr = codes[NmisProtocolByte.ADDR.ordinal()];
+    for (NmisAddress nmisAddress : values()) {
+      if (nmisAddress.addrRequest == addr || nmisAddress.addrResponse == addr) {
+        return nmisAddress;
       }
     }
-    Logger.getLogger(TnmiAddress.class.getName()).log(Level.CONFIG, String.format("Address %d not found: %s", addr, Arrays.toString(codes)));
+    Logger.getLogger(NmisAddress.class.getName()).log(Level.CONFIG, String.format("Address %d not found: %s", addr, Arrays.toString(codes)));
     return null;
   }
 }
