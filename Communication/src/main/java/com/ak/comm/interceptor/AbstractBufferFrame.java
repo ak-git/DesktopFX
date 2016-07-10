@@ -46,9 +46,9 @@ public abstract class AbstractBufferFrame {
     return toString(getClass(), byteBuffer.array());
   }
 
-  protected static void logWarning(@Nonnull byte[] array, @Nullable Exception e) {
+  protected static void logWarning(@Nonnull ByteBuffer byteBuffer, @Nullable Exception e) {
     Logger.getLogger(AbstractBufferFrame.class.getName()).log(Level.CONFIG,
-        String.format("Invalid response format: {%s}", Arrays.toString(array)), e);
+        String.format("Invalid response format: {%s}", Arrays.toString(byteBuffer.array())), e);
   }
 
   @Nonnull

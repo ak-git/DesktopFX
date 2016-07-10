@@ -15,8 +15,6 @@ public final class NmisBytesInterceptor extends AbstractCheckedBytesInterceptor<
   @Nullable
   @Override
   protected NmisResponseFrame newResponse(@Nonnull ByteBuffer byteBuffer) {
-    byte[] array = new byte[byteBuffer.limit()];
-    byteBuffer.get(array);
-    return NmisResponseFrame.newInstance(array);
+    return NmisResponseFrame.newInstance(byteBuffer);
   }
 }

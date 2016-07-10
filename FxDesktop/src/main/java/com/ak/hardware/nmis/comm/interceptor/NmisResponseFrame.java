@@ -1,5 +1,6 @@
 package com.ak.hardware.nmis.comm.interceptor;
 
+import java.nio.ByteBuffer;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
@@ -15,26 +16,27 @@ import com.ak.comm.interceptor.AbstractBufferFrame;
 @Immutable
 @ThreadSafe
 public final class NmisResponseFrame extends AbstractBufferFrame {
+  @Nonnull
   private final NmisAddress address;
 
-  private NmisResponseFrame(@Nonnull byte[] bytes) {
-    super(bytes);
-    address = Objects.requireNonNull(NmisAddress.find(bytes));
+  private NmisResponseFrame(@Nonnull ByteBuffer byteBuffer) {
+    super(byteBuffer);
+    address = Objects.requireNonNull(NmisAddress.find(byteBuffer));
   }
 
   @Nullable
-  static NmisResponseFrame newInstance(@Nonnull byte[] bytes) {
-    if (NmisAddress.find(bytes) != null) {
-      if (NmisProtocolByte.checkCRC(bytes)) {
+  static NmisResponseFrame newInstance(@Nonnull ByteBuffer byteBuffer) {
+    if (NmisAddress.find(byteBuffer) != null) {
+      if (NmisProtocolByte.checkCRC(byteBuffer)) {
         for (NmisProtocolByte b : NmisProtocolByte.CHECKED_BYTES) {
-          if (!b.is(bytes[b.ordinal()])) {
-            logWarning(bytes, null);
+          if (!b.is(byteBuffer.get(b.ordinal()))) {
+            logWarning(byteBuffer, null);
             return null;
           }
         }
-        return new NmisResponseFrame(bytes);
+        return new NmisResponseFrame(byteBuffer);
       }
-      logWarning(bytes, null);
+      logWarning(byteBuffer, null);
     }
     return null;
   }

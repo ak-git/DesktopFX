@@ -1,5 +1,6 @@
 package com.ak.hardware.nmis.comm.interceptor;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -91,9 +92,9 @@ public final class NmisRequest extends AbstractBufferFrame {
   @Nonnull
   NmisResponseFrame toResponse() {
     byte[] codes = Arrays.copyOf(byteBuffer().array(), byteBuffer().capacity());
-    codes[NmisProtocolByte.ADDR.ordinal()] = Objects.requireNonNull(NmisAddress.find(codes)).getAddrResponse();
+    codes[NmisProtocolByte.ADDR.ordinal()] = Objects.requireNonNull(NmisAddress.find(byteBuffer())).getAddrResponse();
     saveCRC(codes);
-    NmisResponseFrame response = NmisResponseFrame.newInstance(codes);
+    NmisResponseFrame response = NmisResponseFrame.newInstance(ByteBuffer.wrap(codes));
     if (response == null) {
       throw new NullPointerException(Arrays.toString(codes));
     }

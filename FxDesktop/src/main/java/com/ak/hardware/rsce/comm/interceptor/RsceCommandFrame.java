@@ -10,10 +10,14 @@ import java.util.zip.Checksum;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 import com.ak.comm.interceptor.AbstractBufferFrame;
 import com.ak.comm.interceptor.BytesChecker;
 
+@Immutable
+@ThreadSafe
 public final class RsceCommandFrame extends AbstractBufferFrame {
   enum ProtocolByte implements BytesChecker {
     ADDR {
@@ -183,12 +187,12 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
         return new RsceCommandFrame(byteBuffer);
       }
       catch (Exception e) {
-        logWarning(byteBuffer.array(), e);
+        logWarning(byteBuffer, e);
         return null;
       }
     }
     else {
-      logWarning(byteBuffer.array(), null);
+      logWarning(byteBuffer, null);
       return null;
     }
   }

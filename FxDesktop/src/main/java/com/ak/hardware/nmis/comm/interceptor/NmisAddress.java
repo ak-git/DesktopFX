@@ -1,5 +1,6 @@
 package com.ak.hardware.nmis.comm.interceptor;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,14 +46,14 @@ enum NmisAddress {
   }
 
   @Nullable
-  static NmisAddress find(@Nonnull byte[] codes) {
-    byte addr = codes[NmisProtocolByte.ADDR.ordinal()];
+  static NmisAddress find(@Nonnull ByteBuffer byteBuffer) {
+    byte addr = byteBuffer.get(NmisProtocolByte.ADDR.ordinal());
     for (NmisAddress nmisAddress : values()) {
       if (nmisAddress.addrRequest == addr || nmisAddress.addrResponse == addr) {
         return nmisAddress;
       }
     }
-    Logger.getLogger(NmisAddress.class.getName()).log(Level.CONFIG, String.format("Address %d not found: %s", addr, Arrays.toString(codes)));
+    Logger.getLogger(NmisAddress.class.getName()).log(Level.CONFIG, String.format("Address %d not found: %s", addr, Arrays.toString(byteBuffer.array())));
     return null;
   }
 }

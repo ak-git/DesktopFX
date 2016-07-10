@@ -32,11 +32,12 @@ public enum NmisProtocolByte implements BytesChecker {
   public static final int MAX_CAPACITY = 64;
   static final Collection<NmisProtocolByte> CHECKED_BYTES = Collections.unmodifiableCollection(EnumSet.of(START, LEN));
 
-  static boolean checkCRC(@Nonnull byte[] codes) {
+  static boolean checkCRC(@Nonnull ByteBuffer byteBuffer) {
     int crc = 0;
-    for (int i = 0; i < codes.length - 1; i++) {
-      crc += codes[i];
+    byteBuffer.rewind();
+    for (int i = 0; i < byteBuffer.limit() - 1; i++) {
+      crc += byteBuffer.get();
     }
-    return codes[codes.length - 1] == (byte) (crc & 0xff);
+    return byteBuffer.get(byteBuffer.limit() - 1) == (byte) (crc & 0xff);
   }
 }
