@@ -26,28 +26,27 @@ public final class NmisBytesInterceptorTest {
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "allOhmsMyoOffResponse")
   public void testResponseOhms(NmisRequest request, byte[] input) {
-    Assert.assertEquals(request.toResponse(), NmisResponseFrame.newInstance(Arrays.copyOfRange(input, 1, input.length)));
-    Assert.assertNotEquals(request.toResponse(), NmisResponseFrame.newInstance(input));
+    Assert.assertEquals(request.toResponse(), NmisResponseFrame.newInstance(ByteBuffer.wrap(Arrays.copyOfRange(input, 1, input.length))));
+    Assert.assertNotEquals(request.toResponse(), NmisResponseFrame.newInstance(ByteBuffer.wrap(input)));
     testResponse(request, input);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "360OhmsMyoHzResponse")
   public void testResponseMyo(NmisRequest request, byte[] input) {
-    Assert.assertEquals(request.toResponse(), NmisResponseFrame.newInstance(input));
+    Assert.assertEquals(request.toResponse(), NmisResponseFrame.newInstance(ByteBuffer.wrap(input)));
     testResponse(request, input);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "sequenceResponse")
   public void testResponseSequence(NmisRequest request, byte[] input) {
-    Assert.assertEquals(request.toResponse(), NmisResponseFrame.newInstance(input));
+    Assert.assertEquals(request.toResponse(), NmisResponseFrame.newInstance(ByteBuffer.wrap(input)));
     testResponse(request, input);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "aliveAndChannelsResponse")
   public void testResponseAliveAndChannels(NmisAddress address, byte[] input) {
     if (NmisAddress.CHANNELS.contains(address)) {
-      Optional.ofNullable(NmisResponseFrame.newInstance(input)).orElseThrow(NullPointerException::new);
-      testResponse(NmisRequest.Sequence.ROTATE_100.build(), input);
+      Optional.ofNullable(NmisResponseFrame.newInstance(ByteBuffer.wrap(input))).orElseThrow(NullPointerException::new);
     }
   }
 

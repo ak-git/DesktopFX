@@ -15,6 +15,8 @@ public final class CycleSerialServiceTest {
     DefaultBytesInterceptor interceptor = new DefaultBytesInterceptor();
     CycleSerialService<Integer, Byte> service = new CycleSerialService<>(interceptor);
     Assert.assertTrue(interceptor.isOpen());
+    Assert.assertNotNull(interceptor.name());
+    Assert.assertNotNull(interceptor.getPingRequest());
     TestSubscriber<Integer> subscriber = TestSubscriber.create();
     service.getBufferObservable().subscribe(subscriber);
     service.write((byte) 1);

@@ -1,9 +1,13 @@
 package com.ak.hardware.nmis.comm.interceptor;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,6 +23,51 @@ enum NmisAddress {
   CATCH_HAND(0x00, 0x43),
   ROTATE_HAND(0x00, 0x44),
   DATA(0x45, 0x45);
+
+  enum FrameField {
+    TIME_COUNTER, DATA_WRAPPED
+  }
+
+  enum Extractor {
+    DATA_TIME(DATA, FrameField.TIME_COUNTER),
+    DATA_DATA(DATA, FrameField.DATA_WRAPPED) {
+      @Override
+      void extract(@Nonnull ByteBuffer from, @Nonnull ByteBuffer to) {
+        if (from.get(NmisProtocolByte.LEN.ordinal()) > 2) {
+          to.put(from.array(), NmisProtocolByte.DATA_1.ordinal(), NmisProtocolByte.CRC.ordinal()).flip();
+        }
+      }
+    };
+
+    private static final Map<NmisAddress, Map<FrameField, Extractor>> NMIS_ADDRESS_MAP = new EnumMap<>(NmisAddress.class);
+    @Nonnull
+    private final NmisAddress address;
+    @Nonnull
+    private final FrameField field;
+
+    static {
+      for (NmisAddress address : NmisAddress.values()) {
+        NMIS_ADDRESS_MAP.put(address, new EnumMap<>(FrameField.class));
+        for (Extractor extractor : Extractor.values()) {
+          NMIS_ADDRESS_MAP.get(extractor.address).put(extractor.field, extractor);
+        }
+      }
+    }
+
+    Extractor(@Nonnull NmisAddress address, @Nonnull FrameField field) {
+      this.address = address;
+      this.field = field;
+    }
+
+    void extract(@Nonnull ByteBuffer from, @Nonnull ByteBuffer to) {
+      throw new UnsupportedOperationException(name());
+    }
+
+    @Nullable
+    static Extractor from(@Nonnull NmisAddress address, @Nonnull FrameField field) {
+      return Optional.ofNullable(NMIS_ADDRESS_MAP.get(address)).map(extractorMap -> extractorMap.get(field)).orElse(null);
+    }
+  }
 
   public static final Collection<NmisAddress> CHANNELS = Collections.unmodifiableCollection(
       EnumSet.of(CATCH_ELBOW, ROTATE_ELBOW, CATCH_HAND, ROTATE_HAND));
@@ -45,14 +94,14 @@ enum NmisAddress {
   }
 
   @Nullable
-  static NmisAddress find(@Nonnull byte[] codes) {
-    byte addr = codes[NmisProtocolByte.ADDR.ordinal()];
+  static NmisAddress find(@Nonnull ByteBuffer byteBuffer) {
+    byte addr = byteBuffer.get(NmisProtocolByte.ADDR.ordinal());
     for (NmisAddress nmisAddress : values()) {
       if (nmisAddress.addrRequest == addr || nmisAddress.addrResponse == addr) {
         return nmisAddress;
       }
     }
-    Logger.getLogger(NmisAddress.class.getName()).log(Level.CONFIG, String.format("Address %d not found: %s", addr, Arrays.toString(codes)));
+    Logger.getLogger(NmisAddress.class.getName()).log(Level.CONFIG, String.format("Address %d not found: %s", addr, Arrays.toString(byteBuffer.array())));
     return null;
   }
 }

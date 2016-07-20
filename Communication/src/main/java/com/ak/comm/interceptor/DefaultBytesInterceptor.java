@@ -21,7 +21,7 @@ public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Inte
   }
 
   @Override
-  protected void innerPut(@Nonnull ByteBuffer outBuffer, @Nonnull Byte aByte) {
+  void innerPut(@Nonnull ByteBuffer outBuffer, @Nonnull Byte aByte) {
     outBuffer.put(aByte);
   }
 }

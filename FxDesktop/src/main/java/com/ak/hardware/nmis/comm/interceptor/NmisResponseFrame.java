@@ -1,11 +1,7 @@
 package com.ak.hardware.nmis.comm.interceptor;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,57 +15,35 @@ import com.ak.comm.interceptor.AbstractBufferFrame;
  */
 @Immutable
 @ThreadSafe
-public final class NmisResponseFrame {
+public final class NmisResponseFrame extends AbstractBufferFrame {
+  @Nonnull
   private final NmisAddress address;
-  private final ByteBuffer buffer;
 
-  private NmisResponseFrame(@Nonnull byte[] bytes) {
-    address = Objects.requireNonNull(NmisAddress.find(bytes));
-    buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
-    buffer.flip();
+  private NmisResponseFrame(@Nonnull ByteBuffer byteBuffer) {
+    super(byteBuffer);
+    address = Objects.requireNonNull(NmisAddress.find(byteBuffer));
   }
 
   @Nullable
-  static NmisResponseFrame newInstance(@Nonnull byte[] bytes) {
-    if (NmisAddress.find(bytes) != null && NmisProtocolByte.checkCRC(bytes)) {
-      for (NmisProtocolByte b : NmisProtocolByte.CHECKED_BYTES) {
-        if (!b.is(bytes[b.ordinal()])) {
-          logWarning(bytes);
-          return null;
+  static NmisResponseFrame newInstance(@Nonnull ByteBuffer byteBuffer) {
+    if (NmisAddress.find(byteBuffer) != null) {
+      if (NmisProtocolByte.checkCRC(byteBuffer)) {
+        for (NmisProtocolByte b : NmisProtocolByte.CHECKED_BYTES) {
+          if (!b.is(byteBuffer.get(b.ordinal()))) {
+            logWarning(byteBuffer, null);
+            return null;
+          }
         }
+        return new NmisResponseFrame(byteBuffer);
       }
-      return new NmisResponseFrame(bytes);
+      logWarning(byteBuffer, null);
     }
-    logWarning(bytes);
     return null;
   }
 
   @Nonnull
   @Override
   public String toString() {
-    return String.format("%s %s", AbstractBufferFrame.toString(getClass(), buffer.array()), address);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof NmisResponseFrame)) {
-      return false;
-    }
-
-    NmisResponseFrame response = (NmisResponseFrame) o;
-    return buffer.equals(response.buffer);
-  }
-
-  @Override
-  public int hashCode() {
-    return buffer.hashCode();
-  }
-
-  private static void logWarning(@Nonnull byte[] array) {
-    Logger.getLogger(NmisResponseFrame.class.getName()).log(Level.CONFIG,
-        String.format("Invalid TNMI response format: {%s}", Arrays.toString(array)));
+    return String.format("%s %s", super.toString(), address);
   }
 }

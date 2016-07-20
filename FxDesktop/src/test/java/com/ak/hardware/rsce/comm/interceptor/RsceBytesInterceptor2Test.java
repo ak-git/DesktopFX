@@ -85,7 +85,7 @@ public final class RsceBytesInterceptor2Test {
                 addParam((short) 45536).addParam((short) 17216).addParam((short) 8942).build()},
 
         //fake bytes
-        {new byte[] {0x00, 0x01}, RsceCommandFrame.off(CATCH)}
+        {new byte[] {(byte) 0xff, (byte) 0xff}, RsceCommandFrame.off(CATCH)}
     };
   }
 

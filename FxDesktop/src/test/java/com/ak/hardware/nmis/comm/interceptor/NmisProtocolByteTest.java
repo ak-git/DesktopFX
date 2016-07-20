@@ -1,5 +1,6 @@
 package com.ak.hardware.nmis.comm.interceptor;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.EnumSet;
 
@@ -27,24 +28,24 @@ public final class NmisProtocolByteTest {
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "allOhmsMyoOffResponse")
   public void testResponseOhmsCRC(NmisRequest request, byte[] input) {
-    Assert.assertTrue(checkCRC(Arrays.copyOfRange(input, 1, input.length)), Arrays.toString(input));
-    Assert.assertFalse(checkCRC(input), Arrays.toString(input));
+    Assert.assertTrue(checkCRC(ByteBuffer.wrap(Arrays.copyOfRange(input, 1, input.length))), Arrays.toString(input));
+    Assert.assertFalse(checkCRC(ByteBuffer.wrap(input)), Arrays.toString(input));
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "360OhmsMyoHzResponse")
   public void testResponseMyoCRC(NmisRequest request, byte[] input) {
-    Assert.assertTrue(checkCRC(input), Arrays.toString(input));
+    Assert.assertTrue(checkCRC(ByteBuffer.wrap(input)), Arrays.toString(input));
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "sequenceResponse")
   public void testResponseSequenceCRC(NmisRequest request, byte[] input) {
-    Assert.assertTrue(checkCRC(input), Arrays.toString(input));
+    Assert.assertTrue(checkCRC(ByteBuffer.wrap(input)), Arrays.toString(input));
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "aliveAndChannelsResponse")
   public void testResponseAliveAndChannelsCRC(NmisAddress address, byte[] input) {
     if (NmisAddress.CHANNELS.contains(address)) {
-      Assert.assertTrue(checkCRC(input), Arrays.toString(input));
+      Assert.assertTrue(checkCRC(ByteBuffer.wrap(input)), Arrays.toString(input));
     }
   }
 }

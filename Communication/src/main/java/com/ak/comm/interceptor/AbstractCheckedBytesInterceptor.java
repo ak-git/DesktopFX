@@ -48,7 +48,7 @@ public abstract class AbstractCheckedBytesInterceptor<CHECKED extends Enum<CHECK
   protected abstract RESPONSE newResponse(@Nonnull ByteBuffer byteBuffer);
 
   @Override
-  protected final void innerPut(@Nonnull ByteBuffer outBuffer, @Nonnull REQUEST request) {
+  final void innerPut(@Nonnull ByteBuffer outBuffer, @Nonnull REQUEST request) {
     request.writeTo(outBuffer);
   }
 

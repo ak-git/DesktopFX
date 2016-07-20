@@ -85,16 +85,16 @@ public final class NmisRequest extends AbstractBufferFrame {
   private final String toString;
 
   private NmisRequest(@Nonnull Builder builder) {
-    super(ByteBuffer.wrap(builder.codes));
+    super(builder.codes);
     toString = builder.toStringBuilder.toString();
   }
 
   @Nonnull
   NmisResponseFrame toResponse() {
     byte[] codes = Arrays.copyOf(byteBuffer().array(), byteBuffer().capacity());
-    codes[NmisProtocolByte.ADDR.ordinal()] = Objects.requireNonNull(NmisAddress.find(codes)).getAddrResponse();
+    codes[NmisProtocolByte.ADDR.ordinal()] = Objects.requireNonNull(NmisAddress.find(byteBuffer())).getAddrResponse();
     saveCRC(codes);
-    NmisResponseFrame response = NmisResponseFrame.newInstance(codes);
+    NmisResponseFrame response = NmisResponseFrame.newInstance(ByteBuffer.wrap(codes));
     if (response == null) {
       throw new NullPointerException(Arrays.toString(codes));
     }
@@ -104,7 +104,7 @@ public final class NmisRequest extends AbstractBufferFrame {
   @Nonnull
   @Override
   public String toString() {
-    return String.format("%s %s", AbstractBufferFrame.toString(getClass(), byteBuffer().array()), toString);
+    return String.format("%s %s", super.toString(), toString);
   }
 
   private static void saveCRC(@Nonnull byte[] codes) {

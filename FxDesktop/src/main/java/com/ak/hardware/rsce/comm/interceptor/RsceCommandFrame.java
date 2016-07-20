@@ -5,18 +5,20 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.Checksum;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 import com.ak.comm.interceptor.AbstractBufferFrame;
 import com.ak.comm.interceptor.BytesChecker;
 
-final class RsceCommandFrame extends AbstractBufferFrame {
+@Immutable
+@ThreadSafe
+public final class RsceCommandFrame extends AbstractBufferFrame {
   enum ProtocolByte implements BytesChecker {
     ADDR {
       @Override
@@ -105,35 +107,14 @@ final class RsceCommandFrame extends AbstractBufferFrame {
   private final String toString;
 
   private RsceCommandFrame(@Nonnull ByteBuffer buffer) {
-    super(ByteBuffer.allocate(buffer.limit()));
+    super(buffer);
     toString = String.format("%s %s %s", Control.find(buffer), ActionType.find(buffer), RequestType.find(buffer));
-    buffer.rewind();
-    byteBuffer().put(buffer);
-    byteBuffer().flip();
   }
 
   @Nonnull
   @Override
   public String toString() {
-    return String.format("%s %s", AbstractBufferFrame.toString(getClass(), byteBuffer().array()), toString);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof RsceCommandFrame)) {
-      return false;
-    }
-
-    RsceCommandFrame that = (RsceCommandFrame) o;
-    return byteBuffer().equals(that.byteBuffer());
-  }
-
-  @Override
-  public int hashCode() {
-    return byteBuffer().hashCode();
+    return String.format("%s %s", super.toString(), toString);
   }
 
   @Nonnull
@@ -226,10 +207,5 @@ final class RsceCommandFrame extends AbstractBufferFrame {
       SERVOMOTOR_REQUEST_MAP.putIfAbsent(key, new RsceCommandFrame.Builder(control, actionType, requestType).build());
     }
     return SERVOMOTOR_REQUEST_MAP.get(key);
-  }
-
-  private static void logWarning(@Nonnull ByteBuffer byteBuffer, Exception e) {
-    Logger.getLogger(RsceCommandFrame.class.getName()).log(Level.CONFIG,
-        String.format("Invalid RSCE response format: {%s}", Arrays.toString(byteBuffer.array())), e);
   }
 }
