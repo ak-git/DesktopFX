@@ -12,12 +12,12 @@ public final class NmisResponseFrameTest {
     ByteBuffer byteBuffer = ByteBuffer.wrap(input);
     Assert.assertNotNull(NmisAddress.find(byteBuffer), Arrays.toString(input));
     Assert.assertTrue(NmisProtocolByte.checkCRC(byteBuffer), Arrays.toString(input));
-    Assert.assertNull(NmisResponseFrame.newInstance(byteBuffer), Arrays.toString(input));
+    Assert.assertNull(new NmisResponseFrame.Builder(byteBuffer).build(), Arrays.toString(input));
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "sequenceResponse")
   public void testEquals(NmisRequest request, byte[] input) {
-    NmisResponseFrame nmisResponseFrame = NmisResponseFrame.newInstance(ByteBuffer.wrap(input));
+    NmisResponseFrame nmisResponseFrame = new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build();
     Assert.assertNotNull(nmisResponseFrame);
     Assert.assertNotEquals(request, nmisResponseFrame, Arrays.toString(input));
     Assert.assertEquals(nmisResponseFrame, nmisResponseFrame, nmisResponseFrame.toString());

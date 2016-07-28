@@ -1,12 +1,8 @@
 package com.ak.comm.interceptor;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public abstract class AbstractBufferFrame {
   @Nonnull
@@ -44,11 +40,6 @@ public abstract class AbstractBufferFrame {
   @Override
   public String toString() {
     return toString(getClass(), byteBuffer.array());
-  }
-
-  protected static void logWarning(@Nonnull ByteBuffer byteBuffer, @Nullable Exception e) {
-    Logger.getLogger(AbstractBufferFrame.class.getName()).log(Level.CONFIG,
-        String.format("Invalid response format: {%s}", Arrays.toString(byteBuffer.array())), e);
   }
 
   @Nonnull

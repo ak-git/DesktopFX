@@ -24,8 +24,8 @@ public enum NmisProtocolByte implements BytesChecker {
     }
 
     @Override
-    public void buffer(byte b, @Nonnull ByteBuffer buffer) {
-      buffer.limit(b + 4);
+    public void buffer(@Nonnull ByteBuffer buffer) {
+      buffer.limit(buffer.get(ordinal()) + 4);
     }
   }, DATA_1, DATA_2, DATA_3, DATA_4, DATA_5, DATA_6, DATA_7, DATA_8, CRC;
 
@@ -38,6 +38,7 @@ public enum NmisProtocolByte implements BytesChecker {
     for (int i = 0; i < byteBuffer.limit() - 1; i++) {
       crc += byteBuffer.get();
     }
+    byteBuffer.rewind();
     return byteBuffer.get(byteBuffer.limit() - 1) == (byte) (crc & 0xff);
   }
 }

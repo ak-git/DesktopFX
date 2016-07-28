@@ -26,27 +26,27 @@ public final class NmisBytesInterceptorTest {
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "allOhmsMyoOffResponse")
   public void testResponseOhms(NmisRequest request, byte[] input) {
-    Assert.assertEquals(request.toResponse(), NmisResponseFrame.newInstance(ByteBuffer.wrap(Arrays.copyOfRange(input, 1, input.length))));
-    Assert.assertNotEquals(request.toResponse(), NmisResponseFrame.newInstance(ByteBuffer.wrap(input)));
+    Assert.assertEquals(request.toResponse(), new NmisResponseFrame.Builder(ByteBuffer.wrap(Arrays.copyOfRange(input, 1, input.length))).build());
+    Assert.assertNotEquals(request.toResponse(), new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
     testResponse(request, input);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "360OhmsMyoHzResponse")
   public void testResponseMyo(NmisRequest request, byte[] input) {
-    Assert.assertEquals(request.toResponse(), NmisResponseFrame.newInstance(ByteBuffer.wrap(input)));
+    Assert.assertEquals(request.toResponse(), new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
     testResponse(request, input);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "sequenceResponse")
   public void testResponseSequence(NmisRequest request, byte[] input) {
-    Assert.assertEquals(request.toResponse(), NmisResponseFrame.newInstance(ByteBuffer.wrap(input)));
+    Assert.assertEquals(request.toResponse(), new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
     testResponse(request, input);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "aliveAndChannelsResponse")
   public void testResponseAliveAndChannels(NmisAddress address, byte[] input) {
     if (NmisAddress.CHANNELS.contains(address)) {
-      Optional.ofNullable(NmisResponseFrame.newInstance(ByteBuffer.wrap(input))).orElseThrow(NullPointerException::new);
+      Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build()).orElseThrow(NullPointerException::new);
     }
   }
 

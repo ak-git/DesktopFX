@@ -6,13 +6,9 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
 
 import com.ak.comm.interceptor.AbstractBufferFrame;
 
-@Immutable
-@ThreadSafe
 public final class NmisRequest extends AbstractBufferFrame {
   private enum Ohm {
     Z_360(0), Z_0_47(1), Z_1(1 << 1), Z_2(1 << 2), Z_30A(1 << 3), Z_30B(1 << 4), Z_127(1 << 5);
@@ -94,7 +90,7 @@ public final class NmisRequest extends AbstractBufferFrame {
     byte[] codes = Arrays.copyOf(byteBuffer().array(), byteBuffer().capacity());
     codes[NmisProtocolByte.ADDR.ordinal()] = Objects.requireNonNull(NmisAddress.find(byteBuffer())).getAddrResponse();
     saveCRC(codes);
-    NmisResponseFrame response = NmisResponseFrame.newInstance(ByteBuffer.wrap(codes));
+    NmisResponseFrame response = new NmisResponseFrame.Builder(ByteBuffer.wrap(codes)).build();
     if (response == null) {
       throw new NullPointerException(Arrays.toString(codes));
     }

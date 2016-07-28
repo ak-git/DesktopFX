@@ -2,33 +2,25 @@ package com.ak.hardware.rsce.comm.interceptor;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 import java.util.zip.Checksum;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
 
 import com.ak.comm.interceptor.AbstractBufferFrame;
+import com.ak.comm.interceptor.AbstractCheckedBuilder;
 import com.ak.comm.interceptor.BytesChecker;
 
-@Immutable
-@ThreadSafe
 public final class RsceCommandFrame extends AbstractBufferFrame {
-  enum ProtocolByte implements BytesChecker {
+  private enum ProtocolByte implements BytesChecker {
     ADDR {
       @Override
       public boolean is(byte b) {
-        for (Control control : Control.values()) {
-          if (control.addr == b) {
-            return true;
-          }
-        }
-        return false;
+        return b >= Control.ALL.addr && b <= Control.ROTATE.addr;
       }
     },
     LEN {
@@ -38,10 +30,19 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
       }
 
       @Override
-      public void buffer(byte b, @Nonnull ByteBuffer buffer) {
-        buffer.limit(b + NON_LEN_BYTES);
+      public void buffer(@Nonnull ByteBuffer buffer) {
+        buffer.limit(buffer.get(ordinal()) + NON_LEN_BYTES);
       }
-    };
+    },
+    TYPE {
+      @Override
+      public boolean is(byte b) {
+        int actionType = (b & 0b00_111_000) >> 3;
+        byte requestType = (byte) (b & 0b00000_111);
+        return actionType > -1 && actionType < ActionType.values().length &&
+            Stream.of(RequestType.values()).filter(type -> type.code == requestType).findAny().isPresent();
+      }
+    }
   }
 
   enum Control {
@@ -57,28 +58,10 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
       this.addr = (byte) addr;
       this.speed = (short) speed;
     }
-
-    static Control find(ByteBuffer buffer) {
-      for (Control control : values()) {
-        if (buffer.get(0) == control.addr) {
-          return control;
-        }
-      }
-      throw new IllegalArgumentException(Arrays.toString(buffer.array()));
-    }
   }
 
   enum ActionType {
-    NONE, PRECISE, HARD, POSITION, OFF;
-
-    static ActionType find(ByteBuffer buffer) {
-      for (ActionType actionType : values()) {
-        if (((buffer.get(2) & 0b00_111_000) >> 3) == (byte) actionType.ordinal()) {
-          return actionType;
-        }
-      }
-      throw new IllegalArgumentException(Arrays.toString(buffer.array()));
-    }
+    NONE, PRECISE, HARD, POSITION, OFF
   }
 
   enum RequestType {
@@ -89,32 +72,14 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     RequestType(@Nonnegative int code) {
       this.code = (byte) code;
     }
-
-    static RequestType find(ByteBuffer buffer) {
-      for (RequestType requestType : values()) {
-        if ((buffer.get(2) & 0b0000_0111) == requestType.code) {
-          return requestType;
-        }
-      }
-      throw new IllegalArgumentException(Arrays.toString(buffer.array()));
-    }
   }
 
-  static final int MAX_CAPACITY = 12;
+  private static final int MAX_CAPACITY = 12;
   private static final int NON_LEN_BYTES = 2;
   private static final Map<String, RsceCommandFrame> SERVOMOTOR_REQUEST_MAP = new ConcurrentHashMap<>();
-  @Nonnull
-  private final String toString;
 
-  private RsceCommandFrame(@Nonnull ByteBuffer buffer) {
-    super(buffer);
-    toString = String.format("%s %s %s", Control.find(buffer), ActionType.find(buffer), RequestType.find(buffer));
-  }
-
-  @Nonnull
-  @Override
-  public String toString() {
-    return String.format("%s %s", super.toString(), toString);
+  private RsceCommandFrame(@Nonnull AbstractCheckedBuilder<RsceCommandFrame> builder) {
+    super(builder.buffer());
   }
 
   @Nonnull
@@ -129,7 +94,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
 
   @Nonnull
   static RsceCommandFrame position(@Nonnull Control control, byte position) {
-    return new RsceCommandFrame.Builder(control, ActionType.POSITION, RequestType.EMPTY).addParam(position).build();
+    return new RequestBuilder(control, ActionType.POSITION, RequestType.EMPTY).addParam(position).build();
   }
 
   @Nonnull
@@ -139,28 +104,28 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
 
   @Nonnull
   static RsceCommandFrame precise(@Nonnull Control control, @Nonnull RequestType requestType, short speed) {
-    return new RsceCommandFrame.Builder(control, ActionType.PRECISE, requestType).addParam(speed).build();
+    return new RequestBuilder(control, ActionType.PRECISE, requestType).addParam(speed).build();
   }
 
-  static class Builder implements javafx.util.Builder<RsceCommandFrame> {
-    private final ByteBuffer byteBuffer = ByteBuffer.allocate(MAX_CAPACITY).order(ByteOrder.LITTLE_ENDIAN);
+  static class RequestBuilder extends AbstractCheckedBuilder<RsceCommandFrame> {
+    @Nonnegative
     private byte codeLength;
 
-    Builder(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType) {
+    RequestBuilder(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType) {
+      super(ByteBuffer.allocate(MAX_CAPACITY).order(ByteOrder.LITTLE_ENDIAN));
       codeLength = 3;
-      byteBuffer.put(control.addr);
-      byteBuffer.put(codeLength);
-      byteBuffer.put((byte) ((actionType.ordinal() << 3) + requestType.code));
+      buffer().put(control.addr).put(codeLength).
+          put((byte) ((actionType.ordinal() << 3) + requestType.code));
     }
 
-    Builder addParam(byte value) {
-      byteBuffer.put(value);
+    RequestBuilder addParam(byte value) {
+      buffer().put(value);
       codeLength++;
       return this;
     }
 
-    Builder addParam(short value) {
-      byteBuffer.putShort(value);
+    RequestBuilder addParam(short value) {
+      buffer().putShort(value);
       codeLength += 2;
       return this;
     }
@@ -168,32 +133,67 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     @Nonnull
     @Override
     public RsceCommandFrame build() {
-      byteBuffer.put(1, codeLength);
+      buffer().put(1, codeLength);
       Checksum checksum = new CRC16IBMChecksum();
-      checksum.update(byteBuffer.array(), 0, codeLength);
-      byteBuffer.putShort((short) checksum.getValue());
-      byteBuffer.flip();
-      return new RsceCommandFrame(byteBuffer);
+      checksum.update(buffer().array(), 0, codeLength);
+      buffer().putShort((short) checksum.getValue());
+      buffer().flip();
+      return new RsceCommandFrame(this);
     }
   }
 
-  @Nullable
-  static RsceCommandFrame newInstance(@Nonnull ByteBuffer byteBuffer) {
-    int codeLength = byteBuffer.limit() - NON_LEN_BYTES;
-    Checksum checksum = new CRC16IBMChecksum();
-    checksum.update(byteBuffer.array(), 0, codeLength);
-    if (byteBuffer.order(ByteOrder.LITTLE_ENDIAN).getShort(codeLength) == (short) checksum.getValue()) {
-      try {
-        return new RsceCommandFrame(byteBuffer);
+  static class ResponseBuilder extends AbstractCheckedBuilder<RsceCommandFrame> {
+    ResponseBuilder() {
+      this(ByteBuffer.allocate(MAX_CAPACITY));
+    }
+
+    ResponseBuilder(@Nonnull ByteBuffer buffer) {
+      super(buffer);
+    }
+
+    @Override
+    public boolean is(byte b) {
+      boolean okFlag = true;
+      if (buffer().position() <= ProtocolByte.values().length) {
+        ProtocolByte protocolByte = ProtocolByte.values()[buffer().position() - 1];
+        if (protocolByte.is(b)) {
+          protocolByte.buffer(buffer());
+        }
+        else {
+          okFlag = false;
+        }
       }
-      catch (Exception e) {
-        logWarning(byteBuffer, e);
+      return okFlag;
+    }
+
+    @Nullable
+    @Override
+    public RsceCommandFrame build() {
+      if (buffer().position() == 0) {
+        for (ProtocolByte protocolByte : ProtocolByte.values()) {
+          if (!protocolByte.is(buffer().get())) {
+            logWarning(null);
+            return null;
+          }
+        }
+      }
+
+      int codeLength = buffer().limit() - NON_LEN_BYTES;
+      Checksum checksum = new CRC16IBMChecksum();
+      checksum.update(buffer().array(), 0, codeLength);
+      if (buffer().order(ByteOrder.LITTLE_ENDIAN).getShort(codeLength) == (short) checksum.getValue()) {
+        try {
+          return new RsceCommandFrame(this);
+        }
+        catch (Exception e) {
+          logWarning(e);
+          return null;
+        }
+      }
+      else {
+        logWarning(null);
         return null;
       }
-    }
-    else {
-      logWarning(byteBuffer, null);
-      return null;
     }
   }
 
@@ -204,7 +204,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
         actionType.getClass().getSimpleName(), actionType.name(),
         requestType.getClass().getSimpleName(), requestType.name());
     if (!SERVOMOTOR_REQUEST_MAP.containsKey(key)) {
-      SERVOMOTOR_REQUEST_MAP.putIfAbsent(key, new RsceCommandFrame.Builder(control, actionType, requestType).build());
+      SERVOMOTOR_REQUEST_MAP.putIfAbsent(key, new RequestBuilder(control, actionType, requestType).build());
     }
     return SERVOMOTOR_REQUEST_MAP.get(key);
   }
