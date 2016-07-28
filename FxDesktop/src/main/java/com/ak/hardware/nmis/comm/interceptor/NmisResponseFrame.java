@@ -42,7 +42,7 @@ public final class NmisResponseFrame extends AbstractBufferFrame {
       for (NmisProtocolByte protocolByte : NmisProtocolByte.CHECKED_BYTES) {
         if (buffer().position() - 1 == protocolByte.ordinal()) {
           if (protocolByte.is(b)) {
-            protocolByte.buffer(buffer());
+            protocolByte.bufferLimit(buffer());
           }
           else {
             okFlag = false;

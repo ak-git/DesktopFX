@@ -34,7 +34,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
       }
 
       @Override
-      public void buffer(@Nonnull ByteBuffer buffer) {
+      public void bufferLimit(@Nonnull ByteBuffer buffer) {
         buffer.limit(buffer.get(ordinal()) + NON_LEN_BYTES);
       }
     },
@@ -196,7 +196,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
       if (buffer().position() <= ProtocolByte.values().length) {
         ProtocolByte protocolByte = ProtocolByte.values()[buffer().position() - 1];
         if (protocolByte.is(b)) {
-          protocolByte.buffer(buffer());
+          protocolByte.bufferLimit(buffer());
         }
         else {
           okFlag = false;

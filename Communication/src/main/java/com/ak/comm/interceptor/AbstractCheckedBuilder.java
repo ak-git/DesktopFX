@@ -19,7 +19,7 @@ public abstract class AbstractCheckedBuilder<T> implements BytesChecker, Builder
   }
 
   @Override
-  public final void buffer(@Nonnull ByteBuffer buffer) {
+  public final void bufferLimit(@Nonnull ByteBuffer buffer) {
     throw new UnsupportedOperationException(Arrays.toString(buffer.array()));
   }
 

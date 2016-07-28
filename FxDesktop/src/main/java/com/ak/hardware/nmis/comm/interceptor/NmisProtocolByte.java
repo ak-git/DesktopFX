@@ -24,7 +24,7 @@ public enum NmisProtocolByte implements BytesChecker {
     }
 
     @Override
-    public void buffer(@Nonnull ByteBuffer buffer) {
+    public void bufferLimit(@Nonnull ByteBuffer buffer) {
       buffer.limit(buffer.get(ordinal()) + 4);
     }
   }, DATA_1, DATA_2, DATA_3, DATA_4, DATA_5, DATA_6, DATA_7, DATA_8, CRC;
