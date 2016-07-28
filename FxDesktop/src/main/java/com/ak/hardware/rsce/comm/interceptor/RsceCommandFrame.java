@@ -2,9 +2,13 @@ package com.ak.hardware.rsce.comm.interceptor;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import java.util.zip.Checksum;
 
 import javax.annotation.Nonnegative;
@@ -37,10 +41,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     TYPE {
       @Override
       public boolean is(byte b) {
-        int actionType = (b & 0b00_111_000) >> 3;
-        byte requestType = (byte) (b & 0b00000_111);
-        return actionType > -1 && actionType < ActionType.values().length &&
-            Stream.of(RequestType.values()).filter(type -> type.code == requestType).findAny().isPresent();
+        return ActionType.find(b) != null && RequestType.find(b) != null;
       }
     }
   }
@@ -58,10 +59,26 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
       this.addr = (byte) addr;
       this.speed = (short) speed;
     }
+
+    @Nonnull
+    private static Control find(@Nonnull ByteBuffer buffer) {
+      return RsceCommandFrame.find(Control.class, buffer, control -> control.addr == buffer.get(ProtocolByte.ADDR.ordinal()));
+    }
   }
 
   enum ActionType {
-    NONE, PRECISE, HARD, POSITION, OFF
+    NONE, PRECISE, HARD, POSITION, OFF;
+
+    @Nullable
+    private static ActionType find(byte b) {
+      int n = (b & 0b00_111_000) >> 3;
+      return n > -1 && n < values().length ? values()[n] : null;
+    }
+
+    @Nonnull
+    private static ActionType find(@Nonnull ByteBuffer buffer) {
+      return RsceCommandFrame.find(ActionType.class, buffer, actionType -> actionType == find(buffer.get(ProtocolByte.TYPE.ordinal())));
+    }
   }
 
   enum RequestType {
@@ -72,6 +89,16 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     RequestType(@Nonnegative int code) {
       this.code = (byte) code;
     }
+
+    @Nullable
+    private static RequestType find(byte b) {
+      return Stream.of(RequestType.values()).filter(type -> type.code == (byte) (b & 0b00000_111)).findAny().orElse(null);
+    }
+
+    @Nonnull
+    private static RequestType find(@Nonnull ByteBuffer buffer) {
+      return RsceCommandFrame.find(RequestType.class, buffer, requestType -> requestType == find(buffer.get(ProtocolByte.TYPE.ordinal())));
+    }
   }
 
   private static final int MAX_CAPACITY = 12;
@@ -80,6 +107,12 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
 
   private RsceCommandFrame(@Nonnull AbstractCheckedBuilder<RsceCommandFrame> builder) {
     super(builder.buffer());
+  }
+
+  @Override
+  public String toString() {
+    return String.format("%s %s %s %s",
+        super.toString(), Control.find(byteBuffer()), ActionType.find(byteBuffer()), RequestType.find(byteBuffer()));
   }
 
   @Nonnull
@@ -107,6 +140,13 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     return new RequestBuilder(control, ActionType.PRECISE, requestType).addParam(speed).build();
   }
 
+  @Nonnull
+  private static <E extends Enum<E>> E find(@Nonnull Class<E> clazz, @Nonnull ByteBuffer buffer,
+                                            @Nonnull Predicate<? super E> predicate) {
+    return StreamSupport.stream(EnumSet.allOf(clazz).spliterator(), true).filter(predicate).findAny().
+        orElseThrow(() -> new IllegalArgumentException(Arrays.toString(buffer.array())));
+  }
+
   static class RequestBuilder extends AbstractCheckedBuilder<RsceCommandFrame> {
     @Nonnegative
     private byte codeLength;
@@ -114,8 +154,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     RequestBuilder(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType) {
       super(ByteBuffer.allocate(MAX_CAPACITY).order(ByteOrder.LITTLE_ENDIAN));
       codeLength = 3;
-      buffer().put(control.addr).put(codeLength).
-          put((byte) ((actionType.ordinal() << 3) + requestType.code));
+      buffer().put(control.addr).put(codeLength).put((byte) ((actionType.ordinal() << 3) + requestType.code));
     }
 
     RequestBuilder addParam(byte value) {
