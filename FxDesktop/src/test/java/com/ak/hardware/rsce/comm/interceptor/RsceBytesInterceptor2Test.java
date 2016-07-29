@@ -29,8 +29,15 @@ public final class RsceBytesInterceptor2Test {
     return new Object[][] {
         //added 0x00 at start
         {new byte[] {0x00, 0x01, 0x03, 0x00, 0x20, (byte) 0xF0}, RsceCommandFrame.simple(CATCH, EMPTY)},
-        //added 0x00 at start
-        {new byte[] {0x00, 0x01, 0x03, 0x01, (byte) 0xE1, 0x30}, RsceCommandFrame.simple(CATCH, STATUS_I)},
+        //added 0x00 at start and duplicate start byte 0x01
+        {new byte[] {0x00, 0x01, 0x01, 0x03, 0x01, (byte) 0xE1, 0x30}, RsceCommandFrame.simple(CATCH, STATUS_I)},
+        //added 0x00 at start and duplicate bytes 0x01, 0x03 and add 0xff
+        {new byte[] {0x00, 0x01, 0x03, (byte) 0xff, 0x01, 0x04, (byte) 0xff, 0x01, 0x05, (byte) 0xff, 0x01, 0x06, (byte) 0xff,
+            0x01, 0x07, (byte) 0xff,
+            0x01, 0x0a, 0x04, 0x04, (byte) 0xE0, (byte) 0xB1, 0x40, 0x43, (byte) 0xEE, 0x22, 0x58, (byte) 0x86},
+            new RsceCommandFrame.RequestBuilder(CATCH, NONE, STATUS_I_SPEED_ANGLE).addParam((byte) 0x04).
+                addParam((short) 45536).addParam((short) 17216).addParam((short) 8942).build()},
+
         {new byte[] {0x01, 0x03, 0x02, (byte) 0xA1, 0x31}, RsceCommandFrame.simple(CATCH, STATUS_I_SPEED)},
         //error in CRC16
         {new byte[] {0x01, 0x03, 0x03, 0x60, (byte) 0xF1 + 1}, RsceCommandFrame.off(CATCH)},
@@ -94,10 +101,14 @@ public final class RsceBytesInterceptor2Test {
     TestSubscriber<RsceCommandFrame> subscriber = TestSubscriber.create();
     Subscription subscription = interceptor.getBufferObservable().subscribe(subscriber);
 
-    byteBuffer.clear();
-    byteBuffer.put(bytes);
-    byteBuffer.flip();
-    int countResponses = interceptor.write(byteBuffer);
+    int countResponses = 0;
+    for (byte b : bytes) {
+      byteBuffer.clear();
+      byteBuffer.put(b);
+      byteBuffer.flip();
+      countResponses += interceptor.write(byteBuffer);
+    }
+
     if (countResponses == 0) {
       subscriber.assertNoValues();
     }

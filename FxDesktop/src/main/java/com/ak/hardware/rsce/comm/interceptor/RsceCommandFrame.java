@@ -221,13 +221,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
       Checksum checksum = new CRC16IBMChecksum();
       checksum.update(buffer().array(), 0, codeLength);
       if (buffer().order(ByteOrder.LITTLE_ENDIAN).getShort(codeLength) == (short) checksum.getValue()) {
-        try {
-          return new RsceCommandFrame(this);
-        }
-        catch (Exception e) {
-          logWarning(e);
-          return null;
-        }
+        return new RsceCommandFrame(this);
       }
       else {
         logWarning(null);

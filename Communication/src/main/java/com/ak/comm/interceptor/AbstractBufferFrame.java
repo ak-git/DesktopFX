@@ -39,16 +39,21 @@ public abstract class AbstractBufferFrame {
   @Nonnull
   @Override
   public String toString() {
-    return toString(getClass(), byteBuffer.array());
+    return toString(getClass(), byteBuffer);
   }
 
   @Nonnull
-  public static String toString(@Nonnull Class<?> clazz, @Nonnull byte[] bytes) {
+  public static String toString(@Nonnull Class<?> clazz, @Nonnull ByteBuffer buffer) {
+    buffer.rewind();
     StringBuilder sb = new StringBuilder(clazz.getSimpleName()).append("[ ");
-    for (int i : bytes) {
-      sb.append(String.format("%#04x ", (i & 0xFF)));
+    while (buffer.hasRemaining()) {
+      sb.append(String.format("%#04x ", (buffer.get() & 0xFF)));
     }
     sb.append("]");
+    if (buffer.limit() > 1) {
+      sb.append(" ").append(buffer.limit()).append(" bytes");
+    }
+    buffer.rewind();
     return sb.toString();
   }
 

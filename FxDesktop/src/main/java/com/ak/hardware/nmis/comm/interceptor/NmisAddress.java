@@ -1,7 +1,6 @@
 package com.ak.hardware.nmis.comm.interceptor;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -13,6 +12,8 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import com.ak.comm.interceptor.AbstractBufferFrame;
 
 enum NmisAddress {
   SINGLE(0x81, 0x91),
@@ -101,7 +102,8 @@ enum NmisAddress {
         return nmisAddress;
       }
     }
-    Logger.getLogger(NmisAddress.class.getName()).log(Level.CONFIG, String.format("Address %d not found: %s", addr, Arrays.toString(byteBuffer.array())));
+    Logger.getLogger(NmisAddress.class.getName()).log(Level.CONFIG,
+        String.format("%s Address %d not found", AbstractBufferFrame.toString(NmisAddress.class, byteBuffer), addr));
     return null;
   }
 }
