@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
 
 import com.ak.storage.AbstractStorage;
 import com.ak.storage.LocalStorage;
@@ -14,7 +13,6 @@ import com.ak.util.UIConstants;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-@Immutable
 abstract class AbstractStageStorage extends AbstractStorage<Stage> {
   private static final String FULL_SCREEN = "fullScreen";
   private static final String MAXIMIZED = "maximized";

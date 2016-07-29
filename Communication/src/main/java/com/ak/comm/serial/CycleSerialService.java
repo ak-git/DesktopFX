@@ -14,21 +14,19 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ak.comm.core.AbstractService;
+import com.ak.comm.core.AbstractInterceptorService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.UIConstants;
 import rx.Subscription;
 
-public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService<RESPONSE> {
+public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractInterceptorService<RESPONSE, REQUEST> {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-  private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
   @Nonnull
   private volatile SerialService serialService;
 
   public CycleSerialService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor) {
+    super(bytesInterceptor);
     serialService = new SerialService(bytesInterceptor);
-    this.bytesInterceptor = bytesInterceptor;
-    bytesInterceptor.getBufferObservable().subscribe(bufferPublish());
     executor.scheduleAtFixedRate(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();
       AtomicReference<Instant> okTime = new AtomicReference<>(Instant.now());
@@ -80,7 +78,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
   }
 
   public int write(@Nullable REQUEST request) {
-    return request == null ? -1 : serialService.write(bytesInterceptor.put(request));
+    return request == null ? -1 : serialService.write(bytesInterceptor().put(request));
   }
 
   @Override
@@ -88,7 +86,6 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
     synchronized (this) {
       executor.shutdownNow();
       serialService.close();
-      bytesInterceptor.close();
       super.close();
     }
   }
