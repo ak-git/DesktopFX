@@ -12,14 +12,14 @@ import com.ak.comm.core.AbstractService;
 
 import static jssc.SerialPort.BAUDRATE_115200;
 
-abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends AbstractService<RESPONSE> implements BytesInterceptor<RESPONSE, REQUEST> {
+public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends AbstractService<RESPONSE> implements BytesInterceptor<RESPONSE, REQUEST> {
   private static final Level LOG_LEVEL = Level.FINER;
   private final String name;
   private final ByteBuffer outBuffer;
   private final REQUEST pingRequest;
   private final Logger logger = Logger.getLogger(getClass().getName());
 
-  AbstractBytesInterceptor(@Nonnull String name, @Nonnegative int outBufferSize, @Nullable REQUEST pingRequest) {
+  public AbstractBytesInterceptor(@Nonnull String name, @Nonnegative int outBufferSize, @Nullable REQUEST pingRequest) {
     this.name = name;
     outBuffer = ByteBuffer.allocate(outBufferSize);
     this.pingRequest = pingRequest;
@@ -32,16 +32,6 @@ abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends AbstractServi
   @Override
   public final String name() {
     return name;
-  }
-
-  @Override
-  public final boolean isOpen() {
-    return bufferPublish().hasObservers();
-  }
-
-  @Override
-  public final void close() {
-    bufferPublish().onCompleted();
   }
 
   @Nullable
@@ -66,5 +56,5 @@ abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends AbstractServi
     return BAUDRATE_115200;
   }
 
-  abstract void innerPut(@Nonnull ByteBuffer outBuffer, @Nonnull REQUEST request);
+  protected abstract void innerPut(@Nonnull ByteBuffer outBuffer, @Nonnull REQUEST request);
 }

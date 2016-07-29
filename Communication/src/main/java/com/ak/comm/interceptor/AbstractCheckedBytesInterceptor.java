@@ -83,7 +83,7 @@ public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedB
   }
 
   @Override
-  final void innerPut(@Nonnull ByteBuffer outBuffer, @Nonnull REQUEST request) {
+  protected final void innerPut(@Nonnull ByteBuffer outBuffer, @Nonnull REQUEST request) {
     request.writeTo(outBuffer);
   }
 }

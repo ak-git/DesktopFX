@@ -19,7 +19,8 @@
         </property>
     </bean>
 
-    <bean id="bytesInterceptor" class="com.ak.hardware.nmis.comm.interceptor.NmisBytesInterceptor" scope="prototype"/>
+    <bean id="bytesInterceptor" class="com.ak.hardware.nmisr.comm.interceptor.NmisRsceBytesInterceptor"
+          scope="prototype"/>
 
     <bean class="com.ak.comm.serial.CycleSerialService">
         <constructor-arg ref="bytesInterceptor"/>

@@ -32,6 +32,7 @@ public final class AutoFileReadingService<RESPONSE, REQUEST> extends AbstractSer
       executor.shutdownNow();
       fileReadingService.close();
       bytesInterceptor.close();
+      super.close();
     }
   }
 

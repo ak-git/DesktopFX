@@ -46,7 +46,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     }
   }
 
-  enum Control {
+  public enum Control {
     ALL(0x00, 0),
     CATCH(0x01, -20000),
     FINGER(0x02, 10000),
@@ -81,7 +81,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     }
   }
 
-  enum RequestType {
+  public enum RequestType {
     EMPTY(0), STATUS_I(1), STATUS_I_SPEED(2), STATUS_I_ANGLE(3), STATUS_I_SPEED_ANGLE(4), RESERVE(7);
 
     private final byte code;
@@ -116,7 +116,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
   }
 
   @Nonnull
-  static RsceCommandFrame simple(@Nonnull Control control, @Nonnull RequestType requestType) {
+  public static RsceCommandFrame simple(@Nonnull Control control, @Nonnull RequestType requestType) {
     return getInstance(control, ActionType.NONE, requestType);
   }
 
@@ -131,7 +131,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
   }
 
   @Nonnull
-  static RsceCommandFrame precise(@Nonnull Control control, @Nonnull RequestType requestType) {
+  public static RsceCommandFrame precise(@Nonnull Control control, @Nonnull RequestType requestType) {
     return precise(control, requestType, control.speed);
   }
 

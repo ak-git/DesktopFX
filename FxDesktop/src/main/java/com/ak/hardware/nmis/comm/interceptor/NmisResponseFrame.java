@@ -20,6 +20,10 @@ public final class NmisResponseFrame extends AbstractBufferFrame {
     this.address = address;
   }
 
+  public void extractData(@Nonnull ByteBuffer destination) {
+    NmisAddress.Extractor.from(address, NmisAddress.FrameField.DATA_WRAPPED).extract(byteBuffer(), destination);
+  }
+
   @Nonnull
   @Override
   public String toString() {

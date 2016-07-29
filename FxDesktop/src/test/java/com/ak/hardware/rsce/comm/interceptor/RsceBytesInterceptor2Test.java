@@ -22,7 +22,7 @@ import static com.ak.hardware.rsce.comm.interceptor.RsceCommandFrame.RequestType
 
 public final class RsceBytesInterceptor2Test {
   private final BytesInterceptor<RsceCommandFrame, RsceCommandFrame> interceptor = new RsceBytesInterceptor();
-  private final ByteBuffer byteBuffer = ByteBuffer.allocate(12 * 2);
+  private final ByteBuffer byteBuffer = ByteBuffer.allocate(1);
 
   @DataProvider(name = "data")
   public Object[][] data() {
@@ -97,15 +97,14 @@ public final class RsceBytesInterceptor2Test {
   }
 
   @Test(dataProvider = "data")
-  public void testInterceptor(@Nonnull byte[] bytes, @Nonnull RsceCommandFrame request) {
+  public void testInterceptor(@Nonnull byte[] bytes, @Nonnull RsceCommandFrame response) {
     TestSubscriber<RsceCommandFrame> subscriber = TestSubscriber.create();
     Subscription subscription = interceptor.getBufferObservable().subscribe(subscriber);
 
     int countResponses = 0;
     for (byte b : bytes) {
       byteBuffer.clear();
-      byteBuffer.put(b);
-      byteBuffer.flip();
+      byteBuffer.put(b).flip();
       countResponses += interceptor.write(byteBuffer);
     }
 
@@ -114,9 +113,9 @@ public final class RsceBytesInterceptor2Test {
     }
     else {
       Assert.assertEquals(countResponses, 1);
-      subscriber.assertValue(request);
+      subscriber.assertValue(response);
     }
-    Assert.assertTrue(interceptor.put(request).remaining() > 0);
+    Assert.assertTrue(interceptor.put(response).remaining() > 0);
     subscriber.assertNoErrors();
     subscription.unsubscribe();
   }

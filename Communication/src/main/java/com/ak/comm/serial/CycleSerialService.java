@@ -89,6 +89,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
       executor.shutdownNow();
       serialService.close();
       bytesInterceptor.close();
+      super.close();
     }
   }
 }
