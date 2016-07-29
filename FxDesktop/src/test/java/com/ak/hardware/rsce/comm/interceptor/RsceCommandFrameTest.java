@@ -39,6 +39,12 @@ public final class RsceCommandFrameTest {
     Assert.assertNull(new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build(), Arrays.toString(bytes));
   }
 
+  @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "invalidRequests",
+      expectedExceptions = UnsupportedOperationException.class)
+  public void testInvalidMethod(@Nonnull byte[] bytes) {
+    new RsceCommandFrame.ResponseBuilder().bufferLimit(ByteBuffer.wrap(bytes));
+  }
+
   @Test(expectedExceptions = CloneNotSupportedException.class)
   public void testClone() throws CloneNotSupportedException {
     RsceCommandFrame.precise(ALL, EMPTY).clone();
