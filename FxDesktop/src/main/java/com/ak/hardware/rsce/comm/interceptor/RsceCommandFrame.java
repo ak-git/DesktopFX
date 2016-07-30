@@ -126,7 +126,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
   }
 
   @Nonnull
-  static RsceCommandFrame position(@Nonnull Control control, byte position) {
+  public static RsceCommandFrame position(@Nonnull Control control, byte position) {
     return new RequestBuilder(control, ActionType.POSITION, RequestType.EMPTY).addParam(position).build();
   }
 

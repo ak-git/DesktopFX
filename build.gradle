@@ -2,7 +2,7 @@ ext.projectIds = ['java': '1.8']
 
 allprojects {
     group = 'com.ak'
-    version = '1.4'
+    version = '1.4.1'
     apply plugin: 'idea'
 }
 
