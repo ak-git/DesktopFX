@@ -5,6 +5,7 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CountDownLatch;
 
@@ -42,9 +43,7 @@ public final class AutoFileReadingServiceTest {
 
     int eventCount = 1024 * 10;
     CountDownLatch latch = new CountDownLatch(eventCount);
-    service.getBufferObservable().subscribe(response -> {
-      latch.countDown();
-    });
+    service.getBufferObservable().subscribe(response -> latch.countDown());
 
     Assert.assertTrue(service.accept(path.toFile()));
     Assert.assertTrue(service.accept(path.toFile()));
@@ -77,9 +76,7 @@ public final class AutoFileReadingServiceTest {
 
     int eventCount = NmisRequest.Sequence.values().length;
     CountDownLatch latch = new CountDownLatch(eventCount);
-    service.getBufferObservable().subscribe(response -> {
-      latch.countDown();
-    });
+    service.getBufferObservable().subscribe(response -> latch.countDown());
 
     Assert.assertTrue(service.accept(path.toFile()));
     latch.await();
@@ -88,6 +85,11 @@ public final class AutoFileReadingServiceTest {
     subscriber.assertValueCount(eventCount);
     subscriber.assertCompleted();
     subscriber.assertNoErrors();
+  }
+
+  @Test
+  public void testInvalidFile() {
+    Assert.assertFalse(new AutoFileReadingService<>(new DefaultBytesInterceptor()).accept(Paths.get("").toFile()));
   }
 
   @AfterClass

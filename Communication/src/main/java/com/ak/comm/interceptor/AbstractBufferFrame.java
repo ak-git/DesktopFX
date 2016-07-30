@@ -1,12 +1,8 @@
 package com.ak.comm.interceptor;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public abstract class AbstractBufferFrame {
   @Nonnull
@@ -43,21 +39,21 @@ public abstract class AbstractBufferFrame {
   @Nonnull
   @Override
   public String toString() {
-    return toString(getClass(), byteBuffer.array());
-  }
-
-  protected static void logWarning(@Nonnull ByteBuffer byteBuffer, @Nullable Exception e) {
-    Logger.getLogger(AbstractBufferFrame.class.getName()).log(Level.CONFIG,
-        String.format("Invalid response format: {%s}", Arrays.toString(byteBuffer.array())), e);
+    return toString(getClass(), byteBuffer);
   }
 
   @Nonnull
-  public static String toString(@Nonnull Class<?> clazz, @Nonnull byte[] bytes) {
+  public static String toString(@Nonnull Class<?> clazz, @Nonnull ByteBuffer buffer) {
+    buffer.rewind();
     StringBuilder sb = new StringBuilder(clazz.getSimpleName()).append("[ ");
-    for (int i : bytes) {
-      sb.append(String.format("%#04x ", (i & 0xFF)));
+    while (buffer.hasRemaining()) {
+      sb.append(String.format("%#04x ", (buffer.get() & 0xFF)));
     }
     sb.append("]");
+    if (buffer.limit() > 1) {
+      sb.append(" ").append(buffer.limit()).append(" bytes");
+    }
+    buffer.rewind();
     return sb.toString();
   }
 

@@ -57,7 +57,7 @@ final class FileReadingService extends AbstractService<ByteBuffer> {
   @Override
   public void close() {
     stopFlag = true;
-    bufferPublish().onCompleted();
+    super.close();
   }
 
   @Override

@@ -36,7 +36,13 @@ public final class RsceCommandFrameTest {
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "invalidRequests")
   public void testInvalidRequests(@Nonnull byte[] bytes) {
-    Assert.assertNull(RsceCommandFrame.newInstance(ByteBuffer.wrap(bytes)), Arrays.toString(bytes));
+    Assert.assertNull(new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build(), Arrays.toString(bytes));
+  }
+
+  @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "invalidRequests",
+      expectedExceptions = UnsupportedOperationException.class)
+  public void testInvalidMethod(@Nonnull byte[] bytes) {
+    new RsceCommandFrame.ResponseBuilder().bufferLimit(ByteBuffer.wrap(bytes));
   }
 
   @Test(expectedExceptions = CloneNotSupportedException.class)
@@ -49,7 +55,7 @@ public final class RsceCommandFrameTest {
     request.writeTo(byteBuffer);
     Assert.assertEquals(byteBuffer.array(), expected, request.toString());
 
-    RsceCommandFrame that = RsceCommandFrame.newInstance(byteBuffer);
+    RsceCommandFrame that = new RsceCommandFrame.ResponseBuilder(byteBuffer).build();
     Assert.assertNotNull(that);
     Assert.assertEquals(that, request);
     Assert.assertEquals(that, that);

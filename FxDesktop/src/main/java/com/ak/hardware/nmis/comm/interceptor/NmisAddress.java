@@ -1,7 +1,6 @@
 package com.ak.hardware.nmis.comm.interceptor;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -14,6 +13,8 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.ak.comm.interceptor.AbstractBufferFrame;
+
 enum NmisAddress {
   SINGLE(0x81, 0x91),
   SEQUENCE(0x82, 0x92),
@@ -25,16 +26,18 @@ enum NmisAddress {
   DATA(0x45, 0x45);
 
   enum FrameField {
-    TIME_COUNTER, DATA_WRAPPED
+    NONE, TIME_COUNTER, DATA_WRAPPED
   }
 
   enum Extractor {
+    NONE(DATA, FrameField.NONE),
     DATA_TIME(DATA, FrameField.TIME_COUNTER),
     DATA_DATA(DATA, FrameField.DATA_WRAPPED) {
       @Override
       void extract(@Nonnull ByteBuffer from, @Nonnull ByteBuffer to) {
-        if (from.get(NmisProtocolByte.LEN.ordinal()) > 2) {
-          to.put(from.array(), NmisProtocolByte.DATA_1.ordinal(), NmisProtocolByte.CRC.ordinal()).flip();
+        int len = from.get(NmisProtocolByte.LEN.ordinal()) - 2;
+        if (len > 0) {
+          to.put(from.array(), NmisProtocolByte.DATA_3.ordinal(), len);
         }
       }
     };
@@ -48,9 +51,9 @@ enum NmisAddress {
     static {
       for (NmisAddress address : NmisAddress.values()) {
         NMIS_ADDRESS_MAP.put(address, new EnumMap<>(FrameField.class));
-        for (Extractor extractor : Extractor.values()) {
-          NMIS_ADDRESS_MAP.get(extractor.address).put(extractor.field, extractor);
-        }
+      }
+      for (Extractor extractor : Extractor.values()) {
+        NMIS_ADDRESS_MAP.get(extractor.address).put(extractor.field, extractor);
       }
     }
 
@@ -60,12 +63,11 @@ enum NmisAddress {
     }
 
     void extract(@Nonnull ByteBuffer from, @Nonnull ByteBuffer to) {
-      throw new UnsupportedOperationException(name());
     }
 
-    @Nullable
+    @Nonnull
     static Extractor from(@Nonnull NmisAddress address, @Nonnull FrameField field) {
-      return Optional.ofNullable(NMIS_ADDRESS_MAP.get(address)).map(extractorMap -> extractorMap.get(field)).orElse(null);
+      return Optional.ofNullable(NMIS_ADDRESS_MAP.get(address)).map(extractorMap -> extractorMap.get(field)).orElse(NONE);
     }
   }
 
@@ -101,7 +103,8 @@ enum NmisAddress {
         return nmisAddress;
       }
     }
-    Logger.getLogger(NmisAddress.class.getName()).log(Level.CONFIG, String.format("Address %d not found: %s", addr, Arrays.toString(byteBuffer.array())));
+    Logger.getLogger(NmisAddress.class.getName()).log(Level.CONFIG,
+        String.format("%s Address %d not found", AbstractBufferFrame.toString(NmisAddress.class, byteBuffer), addr));
     return null;
   }
 }

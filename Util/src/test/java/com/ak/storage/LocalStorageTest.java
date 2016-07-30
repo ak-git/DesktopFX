@@ -8,6 +8,7 @@ import org.testng.annotations.Test;
 
 public class LocalStorageTest {
   private static final Logger LOGGER = Logger.getLogger(LocalStorage.class.getName());
+
   private LocalStorageTest() {
   }
 

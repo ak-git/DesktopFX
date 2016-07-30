@@ -10,20 +10,18 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
-import com.ak.comm.core.AbstractService;
+import com.ak.comm.core.AbstractInterceptorService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import rx.Observer;
 import rx.observers.TestSubscriber;
 
-public final class AutoFileReadingService<RESPONSE, REQUEST> extends AbstractService<RESPONSE> implements FileFilter {
+public final class AutoFileReadingService<RESPONSE, REQUEST> extends AbstractInterceptorService<RESPONSE, REQUEST> implements FileFilter {
   private final ExecutorService executor = Executors.newSingleThreadExecutor();
-  private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
   @Nonnull
   private volatile FileReadingService fileReadingService = new FileReadingService(null, TestSubscriber.create());
 
   public AutoFileReadingService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor) {
-    this.bytesInterceptor = bytesInterceptor;
-    bytesInterceptor.getBufferObservable().subscribe(bufferPublish());
+    super(bytesInterceptor);
   }
 
   @Override
@@ -31,7 +29,7 @@ public final class AutoFileReadingService<RESPONSE, REQUEST> extends AbstractSer
     synchronized (this) {
       executor.shutdownNow();
       fileReadingService.close();
-      bytesInterceptor.close();
+      super.close();
     }
   }
 
@@ -51,7 +49,7 @@ public final class AutoFileReadingService<RESPONSE, REQUEST> extends AbstractSer
 
         @Override
         public void onNext(ByteBuffer buffer) {
-          bytesInterceptor.write(buffer);
+          bytesInterceptor().write(buffer);
         }
       }));
       return true;
