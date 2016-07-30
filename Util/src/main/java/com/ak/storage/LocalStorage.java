@@ -45,7 +45,7 @@ public final class LocalStorage<T> extends AbstractStorage<T> {
     throw new UnsupportedOperationException();
   }
 
-  @Nonnull
+  @Nullable
   @Override
   public T get() {
     if (t == null) {

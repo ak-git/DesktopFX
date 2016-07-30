@@ -24,19 +24,21 @@ public enum NmisProtocolByte implements BytesChecker {
     }
 
     @Override
-    public void buffer(byte b, @Nonnull ByteBuffer buffer) {
-      buffer.limit(b + 4);
+    public void bufferLimit(@Nonnull ByteBuffer buffer) {
+      buffer.limit(buffer.get(ordinal()) + 4);
     }
   }, DATA_1, DATA_2, DATA_3, DATA_4, DATA_5, DATA_6, DATA_7, DATA_8, CRC;
 
   public static final int MAX_CAPACITY = 64;
   static final Collection<NmisProtocolByte> CHECKED_BYTES = Collections.unmodifiableCollection(EnumSet.of(START, LEN));
 
-  static boolean checkCRC(@Nonnull byte[] codes) {
+  static boolean checkCRC(@Nonnull ByteBuffer byteBuffer) {
     int crc = 0;
-    for (int i = 0; i < codes.length - 1; i++) {
-      crc += codes[i];
+    byteBuffer.rewind();
+    for (int i = 0; i < byteBuffer.limit() - 1; i++) {
+      crc += byteBuffer.get();
     }
-    return codes[codes.length - 1] == (byte) (crc & 0xff);
+    byteBuffer.rewind();
+    return byteBuffer.get(byteBuffer.limit() - 1) == (byte) (crc & 0xff);
   }
 }

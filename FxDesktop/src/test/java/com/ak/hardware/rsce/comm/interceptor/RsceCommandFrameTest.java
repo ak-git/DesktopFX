@@ -1,6 +1,7 @@
 package com.ak.hardware.rsce.comm.interceptor;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 
@@ -33,6 +34,17 @@ public final class RsceCommandFrameTest {
     checkRequest(expected, RsceCommandFrame.position(CATCH, position));
   }
 
+  @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "invalidRequests")
+  public void testInvalidRequests(@Nonnull byte[] bytes) {
+    Assert.assertNull(new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build(), Arrays.toString(bytes));
+  }
+
+  @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "invalidRequests",
+      expectedExceptions = UnsupportedOperationException.class)
+  public void testInvalidMethod(@Nonnull byte[] bytes) {
+    new RsceCommandFrame.ResponseBuilder().bufferLimit(ByteBuffer.wrap(bytes));
+  }
+
   @Test(expectedExceptions = CloneNotSupportedException.class)
   public void testClone() throws CloneNotSupportedException {
     RsceCommandFrame.precise(ALL, EMPTY).clone();
@@ -42,5 +54,13 @@ public final class RsceCommandFrameTest {
     ByteBuffer byteBuffer = ByteBuffer.allocate(expected.length);
     request.writeTo(byteBuffer);
     Assert.assertEquals(byteBuffer.array(), expected, request.toString());
+
+    RsceCommandFrame that = new RsceCommandFrame.ResponseBuilder(byteBuffer).build();
+    Assert.assertNotNull(that);
+    Assert.assertEquals(that, request);
+    Assert.assertEquals(that, that);
+    Assert.assertEquals(that.hashCode(), request.hashCode());
+    Assert.assertNotEquals(that, byteBuffer);
+    Assert.assertNotEquals(byteBuffer, that);
   }
 }

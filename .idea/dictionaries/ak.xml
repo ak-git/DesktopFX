@@ -57,6 +57,7 @@
       <w>freqz</w>
       <w>grayscale</w>
       <w>idref</w>
+      <w>ineum</w>
       <w>infoable</w>
       <w>initializers</w>
       <w>inplace</w>
@@ -92,6 +93,7 @@
       <w>nelder</w>
       <w>neuronrobotics</w>
       <w>nmis</w>
+      <w>nmisr</w>
       <w>nmtoken</w>
       <w>nrjavaserial</w>
       <w>ooxml</w>

@@ -1,75 +1,83 @@
 package com.ak.hardware.nmis.comm.interceptor;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
 
 import com.ak.comm.interceptor.AbstractBufferFrame;
+import com.ak.comm.interceptor.AbstractCheckedBuilder;
 
 /**
  * Classic <b>NMI Test Stand</b> Response Frame for INEUM protocol.
  */
-@Immutable
-@ThreadSafe
-public final class NmisResponseFrame {
+public final class NmisResponseFrame extends AbstractBufferFrame {
+  @Nonnull
   private final NmisAddress address;
-  private final ByteBuffer buffer;
 
-  private NmisResponseFrame(@Nonnull byte[] bytes) {
-    address = Objects.requireNonNull(NmisAddress.find(bytes));
-    buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
-    buffer.flip();
+  private NmisResponseFrame(@Nonnull ByteBuffer byteBuffer, @Nonnull NmisAddress address) {
+    super(byteBuffer);
+    this.address = address;
   }
 
-  @Nullable
-  static NmisResponseFrame newInstance(@Nonnull byte[] bytes) {
-    if (NmisAddress.find(bytes) != null && NmisProtocolByte.checkCRC(bytes)) {
-      for (NmisProtocolByte b : NmisProtocolByte.CHECKED_BYTES) {
-        if (!b.is(bytes[b.ordinal()])) {
-          logWarning(bytes);
-          return null;
-        }
-      }
-      return new NmisResponseFrame(bytes);
-    }
-    logWarning(bytes);
-    return null;
+  public void extractData(@Nonnull ByteBuffer destination) {
+    NmisAddress.Extractor.from(address, NmisAddress.FrameField.DATA_WRAPPED).extract(byteBuffer(), destination);
   }
 
   @Nonnull
   @Override
   public String toString() {
-    return String.format("%s %s", AbstractBufferFrame.toString(getClass(), buffer.array()), address);
+    return String.format("%s %s", super.toString(), address);
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof NmisResponseFrame)) {
-      return false;
+  static class Builder extends AbstractCheckedBuilder<NmisResponseFrame> {
+    Builder() {
+      this(ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY));
     }
 
-    NmisResponseFrame response = (NmisResponseFrame) o;
-    return buffer.equals(response.buffer);
-  }
+    Builder(@Nonnull ByteBuffer buffer) {
+      super(buffer);
+    }
 
-  @Override
-  public int hashCode() {
-    return buffer.hashCode();
-  }
+    @Override
+    public boolean is(byte b) {
+      boolean okFlag = true;
 
-  private static void logWarning(@Nonnull byte[] array) {
-    Logger.getLogger(NmisResponseFrame.class.getName()).log(Level.CONFIG,
-        String.format("Invalid TNMI response format: {%s}", Arrays.toString(array)));
+      for (NmisProtocolByte protocolByte : NmisProtocolByte.CHECKED_BYTES) {
+        if (buffer().position() - 1 == protocolByte.ordinal()) {
+          if (protocolByte.is(b)) {
+            protocolByte.bufferLimit(buffer());
+          }
+          else {
+            okFlag = false;
+          }
+          break;
+        }
+      }
+      return okFlag;
+
+    }
+
+    @Nullable
+    @Override
+    public NmisResponseFrame build() {
+      if (buffer().position() == 0) {
+        for (NmisProtocolByte protocolByte : NmisProtocolByte.CHECKED_BYTES) {
+          if (!protocolByte.is(buffer().get(protocolByte.ordinal()))) {
+            logWarning();
+            return null;
+          }
+        }
+      }
+
+      NmisAddress address = NmisAddress.find(buffer());
+      if (address != null) {
+        if (NmisProtocolByte.checkCRC(buffer())) {
+          return new NmisResponseFrame(buffer(), address);
+        }
+        logWarning();
+      }
+      return null;
+    }
   }
 }

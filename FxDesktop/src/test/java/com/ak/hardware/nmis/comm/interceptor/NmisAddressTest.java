@@ -1,5 +1,6 @@
 package com.ak.hardware.nmis.comm.interceptor;
 
+import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.Optional;
 
@@ -32,6 +33,6 @@ public final class NmisAddressTest {
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "aliveAndChannelsResponse")
   public void testFind(NmisAddress address, byte[] input) {
-    Assert.assertEquals(Optional.ofNullable(NmisAddress.find(input)).orElse(ALIVE), address);
+    Assert.assertEquals(Optional.ofNullable(NmisAddress.find(ByteBuffer.wrap(input))).orElse(ALIVE), address);
   }
 }

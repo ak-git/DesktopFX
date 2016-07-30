@@ -34,16 +34,6 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
     return name;
   }
 
-  @Override
-  public final boolean isOpen() {
-    return bufferPublish().hasObservers();
-  }
-
-  @Override
-  public final void close() {
-    bufferPublish().onCompleted();
-  }
-
   @Nullable
   @Override
   public final REQUEST getPingRequest() {
