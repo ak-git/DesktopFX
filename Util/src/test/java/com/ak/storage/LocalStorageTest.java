@@ -1,5 +1,6 @@
 package com.ak.storage;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -17,7 +18,7 @@ public class LocalStorageTest {
     Storage<Boolean> storage = new LocalStorage<>(LocalStorageTest.class.getName(), "testBooleanStorage", Boolean.class);
     for (boolean b : new boolean[] {true, false}) {
       storage.save(b);
-      Assert.assertEquals(storage.get().booleanValue(), b);
+      Assert.assertEquals(Optional.ofNullable(storage.get()).orElseThrow(NullPointerException::new).booleanValue(), b);
     }
     storage.delete();
   }
@@ -27,8 +28,15 @@ public class LocalStorageTest {
     Storage<Integer> storage = new LocalStorage<>(LocalStorageTest.class.getName(), "testIntStorage", Integer.class);
     for (int n : new int[] {1, -12}) {
       storage.save(n);
-      Assert.assertEquals(storage.get().intValue(), n);
+      Assert.assertEquals(Optional.ofNullable(storage.get()).orElseThrow(NullPointerException::new).intValue(), n);
     }
+    storage.delete();
+  }
+
+  @Test
+  public static void testNullStorage() {
+    Storage<Double> storage = new LocalStorage<>(LocalStorageTest.class.getName(), "testNullStorage", Double.class);
+    Assert.assertNull(storage.get());
     storage.delete();
   }
 
