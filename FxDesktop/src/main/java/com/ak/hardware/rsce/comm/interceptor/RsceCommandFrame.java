@@ -173,9 +173,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     @Override
     public RsceCommandFrame build() {
       buffer().put(1, codeLength);
-      Checksum checksum = new CRC16IBMChecksum();
-      checksum.update(buffer().array(), 0, codeLength);
-      buffer().putShort((short) checksum.getValue());
+      buffer().putShort((short) getChecksum(buffer(), codeLength));
       buffer().flip();
       return new RsceCommandFrame(this);
     }
@@ -211,20 +209,18 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
       if (buffer().position() == 0) {
         for (ProtocolByte protocolByte : ProtocolByte.values()) {
           if (!protocolByte.is(buffer().get())) {
-            logWarning(null);
+            logWarning();
             return null;
           }
         }
       }
 
       int codeLength = buffer().limit() - NON_LEN_BYTES;
-      Checksum checksum = new CRC16IBMChecksum();
-      checksum.update(buffer().array(), 0, codeLength);
-      if (buffer().order(ByteOrder.LITTLE_ENDIAN).getShort(codeLength) == (short) checksum.getValue()) {
+      if (buffer().order(ByteOrder.LITTLE_ENDIAN).getShort(codeLength) == (short) getChecksum(buffer(), codeLength)) {
         return new RsceCommandFrame(this);
       }
       else {
-        logWarning(null);
+        logWarning();
         return null;
       }
     }
@@ -240,5 +236,11 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
       SERVOMOTOR_REQUEST_MAP.putIfAbsent(key, new RequestBuilder(control, actionType, requestType).build());
     }
     return SERVOMOTOR_REQUEST_MAP.get(key);
+  }
+
+  private static long getChecksum(@Nonnull ByteBuffer buffer, @Nonnegative int codeLength) {
+    Checksum checksum = new CRC16IBMChecksum();
+    checksum.update(buffer.array(), 0, codeLength);
+    return checksum.getValue();
   }
 }

@@ -19,7 +19,7 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
   private final REQUEST pingRequest;
   private final Logger logger = Logger.getLogger(getClass().getName());
 
-  public AbstractBytesInterceptor(@Nonnull String name, @Nonnegative int outBufferSize, @Nullable REQUEST pingRequest) {
+  protected AbstractBytesInterceptor(@Nonnull String name, @Nonnegative int outBufferSize, @Nullable REQUEST pingRequest) {
     this.name = name;
     outBuffer = ByteBuffer.allocate(outBufferSize);
     this.pingRequest = pingRequest;

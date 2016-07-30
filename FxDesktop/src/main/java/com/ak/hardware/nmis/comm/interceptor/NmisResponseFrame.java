@@ -64,7 +64,7 @@ public final class NmisResponseFrame extends AbstractBufferFrame {
       if (buffer().position() == 0) {
         for (NmisProtocolByte protocolByte : NmisProtocolByte.CHECKED_BYTES) {
           if (!protocolByte.is(buffer().get(protocolByte.ordinal()))) {
-            logWarning(null);
+            logWarning();
             return null;
           }
         }
@@ -75,7 +75,7 @@ public final class NmisResponseFrame extends AbstractBufferFrame {
         if (NmisProtocolByte.checkCRC(buffer())) {
           return new NmisResponseFrame(buffer(), address);
         }
-        logWarning(null);
+        logWarning();
       }
       return null;
     }

@@ -8,7 +8,7 @@ import com.ak.comm.interceptor.BytesInterceptor;
 public abstract class AbstractInterceptorService<RESPONSE, REQUEST> extends AbstractService<RESPONSE> {
   private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
 
-  public AbstractInterceptorService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor) {
+  protected AbstractInterceptorService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor) {
     this.bytesInterceptor = bytesInterceptor;
     bytesInterceptor.getBufferObservable().subscribe(bufferPublish());
   }

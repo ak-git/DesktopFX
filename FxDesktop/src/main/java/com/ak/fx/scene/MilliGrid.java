@@ -91,12 +91,10 @@ public final class MilliGrid extends Pane {
   private List<Path> paths = GridCell.newPaths();
 
   public MilliGrid() {
-    ScreenResolutionMonitor.INSTANCE.getDpiObservable().subscribe(dpi -> {
-      Platform.runLater(() -> {
-        reinitializePaths();
-        requestLayout();
-      });
-    });
+    ScreenResolutionMonitor.INSTANCE.getDpiObservable().subscribe(dpi -> Platform.runLater(() -> {
+      reinitializePaths();
+      requestLayout();
+    }));
   }
 
   @Override
