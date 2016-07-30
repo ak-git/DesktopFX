@@ -6,7 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import javafx.util.Builder;
 
@@ -28,8 +27,8 @@ public abstract class AbstractCheckedBuilder<T> implements BytesChecker, Builder
     return buffer;
   }
 
-  protected final void logWarning(@Nullable Exception e) {
+  protected final void logWarning() {
     Logger.getLogger(AbstractBufferFrame.class.getName()).log(Level.CONFIG,
-        String.format("Invalid response format: {%s}", Arrays.toString(buffer.array())), e);
+        String.format("Invalid response format: {%s}", Arrays.toString(buffer.array())));
   }
 }
