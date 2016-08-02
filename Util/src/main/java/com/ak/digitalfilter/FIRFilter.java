@@ -1,27 +1,29 @@
 package com.ak.digitalfilter;
 
 import java.util.Arrays;
-import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntUnaryOperator;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-final class FIRFilter implements DigitalFilter, DoubleUnaryOperator {
-  private final double[] buffer;
+final class FIRFilter extends AbstractDigitalFilter implements IntUnaryOperator {
+  private final int[] buffer;
   private final double[] koeff;
   private int bufferIndex = -1;
 
   FIRFilter(@Nonnull double[] koeff) {
     this.koeff = Arrays.copyOf(koeff, koeff.length);
-    buffer = new double[koeff.length];
+    buffer = new int[koeff.length];
   }
 
+  @Nonnegative
   @Override
-  public double delay() {
+  public double getDelay() {
     return (buffer.length - 1) / 2.0;
   }
 
   @Override
-  public double applyAsDouble(double in) {
+  public int applyAsInt(int in) {
     bufferIndex = (++bufferIndex) % buffer.length;
     buffer[bufferIndex] = in;
 
@@ -29,6 +31,11 @@ final class FIRFilter implements DigitalFilter, DoubleUnaryOperator {
     for (int i = 0; i < koeff.length; i++) {
       result += buffer[(1 + i + bufferIndex) % buffer.length] * koeff[i];
     }
-    return result;
+    return (int) Math.round(result);
+  }
+
+  @Override
+  public void accept(int in) {
+    publish(applyAsInt(in));
   }
 }

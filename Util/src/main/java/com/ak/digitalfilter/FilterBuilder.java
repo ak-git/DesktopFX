@@ -1,13 +1,14 @@
 package com.ak.digitalfilter;
 
-import java.util.function.DoubleUnaryOperator;
+import java.util.Objects;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
 import javafx.util.Builder;
 
-class FilterBuilder implements Builder<DoubleUnaryOperator> {
-  private DoubleUnaryOperator filter = DoubleUnaryOperator.identity();
+class FilterBuilder implements Builder<DigitalFilter> {
+  private DigitalFilter filter;
 
   private FilterBuilder() {
   }
@@ -18,13 +19,15 @@ class FilterBuilder implements Builder<DoubleUnaryOperator> {
   }
 
   FilterBuilder fir(double... koeff) {
-    filter = filter.andThen(new FIRFilter(koeff));
+    filter = Optional.ofNullable(filter).<DigitalFilter>map(filter -> new ChainFilter(filter, new FIRFilter(koeff))).
+        orElse(new FIRFilter(koeff));
     return this;
   }
 
   @Nonnull
   @Override
-  public DoubleUnaryOperator build() {
+  public DigitalFilter build() {
+    Objects.requireNonNull(filter);
     return filter;
   }
 }

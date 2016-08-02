@@ -1,5 +1,9 @@
 package com.ak.digitalfilter;
 
-interface DigitalFilter {
-  double delay();
+import java.util.function.IntConsumer;
+
+import javax.annotation.Nonnull;
+
+interface DigitalFilter extends Delay, IntConsumer {
+  void forEach(@Nonnull IntConsumer after);
 }
