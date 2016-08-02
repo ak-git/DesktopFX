@@ -10,6 +10,7 @@ final class ChainFilter extends AbstractDigitalFilter {
     this.first = first;
     this.second = second;
     first.forEach(second);
+    second.forEach(this::publish);
   }
 
   @Nonnegative

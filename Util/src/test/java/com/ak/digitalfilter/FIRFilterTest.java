@@ -1,5 +1,6 @@
 package com.ak.digitalfilter;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntConsumer;
 
 import org.testng.Assert;
@@ -21,8 +22,8 @@ public class FIRFilterTest {
         0.5
     }, {
         new int[] {1, 2, 4},
-        FilterBuilder.of().fir(-1.0, 0.0, 1.0).fir(1.0, 2.0).build(),
-        new int[] {2, 5, 8},
+        FilterBuilder.of().fir(-1.0, 0.0, 1.0).fir(1.0, 2.0).fir(2.0).fir(3.0).build(),
+        new int[] {12, 30, 16 * 3},
         1.5
     }
     };
@@ -30,19 +31,23 @@ public class FIRFilterTest {
 
   @Test(dataProvider = "simple")
   public void testApplyAsDouble(int[] input, DigitalFilter filter, int[] result, double delay) {
-    for (int anInput : input) {
-      filter.accept(anInput);
-    }
-
+    AtomicInteger filteredCounter = new AtomicInteger();
     filter.forEach(new IntConsumer() {
       int i;
 
       @Override
       public void accept(int value) {
+        filteredCounter.incrementAndGet();
         Assert.assertEquals(value, result[i], String.format("Step %d of [0 - %d]", i, input.length));
         i++;
       }
     });
+
+    for (int anInput : input) {
+      filter.accept(anInput);
+    }
+
+    Assert.assertEquals(filteredCounter.get(), result.length, filter.toString());
     Assert.assertEquals(filter.getDelay(), delay, 1.0e-3, filter.toString());
   }
 }
