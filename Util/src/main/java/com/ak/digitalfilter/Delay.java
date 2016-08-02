@@ -11,7 +11,9 @@ import tec.uom.se.unit.Units;
 
 interface Delay {
   @Nonnegative
-  double getDelay();
+  default double getDelay() {
+    return 0.0;
+  }
 
   @Nonnull
   default Quantity<Time> getDelay(@Nonnull Quantity<Frequency> frequency) {

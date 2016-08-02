@@ -1,12 +1,11 @@
 package com.ak.digitalfilter;
 
 import java.util.Arrays;
-import java.util.function.IntUnaryOperator;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-final class FIRFilter extends AbstractDigitalFilter implements IntUnaryOperator {
+final class FIRFilter extends OperableFilter {
   private final int[] buffer;
   private final double[] koeff;
   private int bufferIndex = -1;
@@ -34,8 +33,4 @@ final class FIRFilter extends AbstractDigitalFilter implements IntUnaryOperator 
     return (int) Math.round(result);
   }
 
-  @Override
-  public void accept(int in) {
-    publish(applyAsInt(in));
-  }
 }
