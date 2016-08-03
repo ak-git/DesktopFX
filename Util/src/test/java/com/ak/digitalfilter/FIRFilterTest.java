@@ -76,4 +76,33 @@ public class FIRFilterTest {
     Assert.assertEquals(filter.getDelay(Quantities.getQuantity(0.2, MetricPrefix.KILO(Units.HERTZ))).getValue().doubleValue(),
         delay / 200.0, 1.0e-3, filter.toString());
   }
+
+  @Test(expectedExceptions = IllegalStateException.class)
+  public void testInvalidChain() {
+    DigitalFilter filter = FilterBuilder.of().fir(2.0).build();
+    FilterBuilder.of().fork(filter, filter).build();
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInvalidAccept() {
+    DigitalFilter filter1 = FilterBuilder.of().fir(1.0).build();
+    DigitalFilter filter2 = FilterBuilder.of().fir(1.0).build();
+    FilterBuilder.of().fork(filter1, filter2).fir(1.0).build().accept(1);
+  }
+
+  @Test(expectedExceptions = IllegalStateException.class)
+  public void testInvalidForkLeft() {
+    DigitalFilter filter1 = FilterBuilder.of().fir(1.0).build();
+    FilterBuilder.of().fork(filter1, FilterBuilder.of().fir(2.0).build()).build();
+    filter1.accept(1);
+    filter1.accept(2);
+  }
+
+  @Test(expectedExceptions = IllegalStateException.class)
+  public void testInvalidForkRight() {
+    DigitalFilter filter2 = FilterBuilder.of().fir(4.0).build();
+    FilterBuilder.of().fork(FilterBuilder.of().fir(3.0).build(), filter2).build();
+    filter2.accept(1);
+    filter2.accept(2);
+  }
 }

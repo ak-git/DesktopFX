@@ -12,7 +12,7 @@ abstract class OperableFilter extends AbstractDigitalFilter implements IntUnaryO
       publish(applyAsInt(in[0]));
     }
     else {
-      throw new IllegalArgumentException(Arrays.toString(in));
+      throw new IllegalArgumentException(String.format("%s %s", toString(), Arrays.toString(in)));
     }
   }
 

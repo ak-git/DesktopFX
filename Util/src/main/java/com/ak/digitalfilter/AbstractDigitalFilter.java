@@ -14,7 +14,7 @@ abstract class AbstractDigitalFilter implements DigitalFilter {
       this.after = after;
     }
     else {
-      throw new IllegalStateException(this.after.toString());
+      throw new IllegalStateException(toString());
     }
   }
 
