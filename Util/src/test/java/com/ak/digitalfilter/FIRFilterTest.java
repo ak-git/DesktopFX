@@ -48,9 +48,12 @@ public class FIRFilterTest {
         1.0
     }, {
         new int[] {1, 2, 4},
-        FilterBuilder.of().fork(FilterBuilder.of().fir(3.0).build(), FilterBuilder.of().fir(1.0, 2.0).build()).build(),
-        new int[][] {{0, 2}, {3, 5}, {6, 10}},
-        1.0
+        FilterBuilder.of().fork(
+            FilterBuilder.of().fir(3.0).build(),
+            FilterBuilder.of().fir(0.0, 0.0, 1.0, 2.0, 3.0).build()
+        ).buildNoDelay(),
+        new int[][] {{0, 8}, {3, 17}},
+        0.0
     }
     };
   }
@@ -78,6 +81,7 @@ public class FIRFilterTest {
     Assert.assertEquals(filter.getDelay(), delay, 1.0e-3, filter.toString());
     Assert.assertEquals(filter.getDelay(Quantities.getQuantity(0.2, MetricPrefix.KILO(Units.HERTZ))).getValue().doubleValue(),
         delay / 200.0, 1.0e-3, filter.toString());
+    Assert.assertEquals(filter.size(), result[0].length);
   }
 
   @Test(expectedExceptions = IllegalStateException.class)

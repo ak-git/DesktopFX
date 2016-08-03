@@ -29,6 +29,11 @@ class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   @Nonnull
+  DigitalFilter buildNoDelay() {
+    return new NoDelayFilter(build());
+  }
+
+  @Nonnull
   @Override
   public DigitalFilter build() {
     return Optional.ofNullable(filter).orElse(new NoFilter());

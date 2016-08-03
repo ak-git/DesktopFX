@@ -33,7 +33,7 @@ final class ForkFilter extends AbstractDigitalFilter {
       DigitalFilter filter = filters.get(i);
       int finalI = i;
       filter.forEach(values -> {
-        if (sync.getAndIncrement() == finalI) {
+        if (sync.compareAndSet(finalI, finalI + 1)) {
           buffer.put(values);
           if (finalI == filters.size() - 1) {
             buffer.flip();
