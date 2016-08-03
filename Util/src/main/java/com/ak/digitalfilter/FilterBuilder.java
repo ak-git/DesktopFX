@@ -1,12 +1,13 @@
 package com.ak.digitalfilter;
 
+import java.util.Optional;
+
 import javax.annotation.Nonnull;
 
 import javafx.util.Builder;
 
 class FilterBuilder implements Builder<DigitalFilter> {
-  @Nonnull
-  private DigitalFilter filter = new NoFilter();
+  private DigitalFilter filter;
 
   private FilterBuilder() {
   }
@@ -16,14 +17,26 @@ class FilterBuilder implements Builder<DigitalFilter> {
     return new FilterBuilder();
   }
 
+  @Nonnull
   FilterBuilder fir(double... koeff) {
-    filter = new ChainFilter(filter, new FIRFilter(koeff));
+    return chain(new FIRFilter(koeff));
+  }
+
+  @Nonnull
+  FilterBuilder fork(@Nonnull DigitalFilter left, @Nonnull DigitalFilter right) {
+    filter = new ChainFilter(build(), new ForkFilter(left, right));
     return this;
   }
 
   @Nonnull
   @Override
   public DigitalFilter build() {
-    return filter;
+    return Optional.ofNullable(filter).orElse(new NoFilter());
+  }
+
+  @Nonnull
+  private FilterBuilder chain(@Nonnull DigitalFilter chain) {
+    filter = Optional.ofNullable(filter).<DigitalFilter>map(filter -> new ChainFilter(filter, chain)).orElse(chain);
+    return this;
   }
 }

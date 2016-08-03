@@ -1,7 +1,7 @@
 package com.ak.digitalfilter;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.IntConsumer;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -16,38 +16,54 @@ public class FIRFilterTest {
     return new Object[][] {{
         new int[] {1, 2, 4, 8, 5, 2, 1},
         FilterBuilder.of().build(),
-        new int[] {1, 2, 4, 8, 5, 2, 1},
+        new int[][] {{1}, {2}, {4}, {8}, {5}, {2}, {1}},
         0.0
     }, {
         new int[] {1, 2, 4, 8, 5, 2, 1},
         FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
-        new int[] {1, 2, 4 - 1, 8 - 2, 5 - 4, 2 - 8, 1 - 5},
+        new int[][] {{1}, {2}, {4 - 1}, {8 - 2}, {5 - 4}, {2 - 8}, {1 - 5}},
         1.0
     }, {
         new int[] {1, 2, 4, 8, 5, 2, 1},
         FilterBuilder.of().fir(1.0, 2.0).build(),
-        new int[] {2, 5, 10, 20, 18, 9, 4},
+        new int[][] {{2}, {5}, {10}, {20}, {18}, {9}, {4}},
         0.5
     }, {
         new int[] {1, 2, 4},
         FilterBuilder.of().fir(-1.0, 0.0, 1.0).fir(1.0, 2.0).fir(2.0).fir(3.0).build(),
-        new int[] {12, 30, 16 * 3},
+        new int[][] {{12}, {30}, {16 * 3}},
         1.5
+    }, {
+        new int[] {1, 2, 4},
+        FilterBuilder.of().fork(FilterBuilder.of().fir(2.0).build(), FilterBuilder.of().fir(3.0).build()).build(),
+        new int[][] {{2, 3}, {4, 6}, {8, 12}},
+        0.0
+    }, {
+        new int[] {1, 2, 4},
+        FilterBuilder.of().fork(FilterBuilder.of().fir(1.0, 2.0).build(), FilterBuilder.of().fir(3.0).build()).build(),
+        new int[][] {{2, 0}, {5, 3}, {10, 6}},
+        1.0
+    }, {
+        new int[] {1, 2, 4},
+        FilterBuilder.of().fork(FilterBuilder.of().fir(3.0).build(), FilterBuilder.of().fir(1.0, 2.0).build()).build(),
+        new int[][] {{0, 2}, {3, 5}, {6, 10}},
+        1.0
     }
     };
   }
 
   @Test(dataProvider = "simple")
-  public void testSimpleFilter(int[] input, DigitalFilter filter, int[] result, double delay) {
+  public void testSimpleFilter(int[] input, DigitalFilter filter, int[][] result, double delay) {
     AtomicInteger filteredCounter = new AtomicInteger();
     filter.accept(0);
-    filter.forEach(new IntConsumer() {
+    filter.forEach(new IntsAcceptor() {
       int i;
 
       @Override
-      public void accept(int value) {
+      public void accept(int... value) {
         filteredCounter.incrementAndGet();
-        Assert.assertEquals(value, result[i], String.format("Step %d of [0 - %d]", i, input.length));
+        Assert.assertEquals(value, result[i],
+            String.format("Actual %s, expected %s", Arrays.toString(value), Arrays.toString(result[i])));
         i++;
       }
     });

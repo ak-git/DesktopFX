@@ -20,7 +20,13 @@ final class ChainFilter extends AbstractDigitalFilter {
   }
 
   @Override
-  public void accept(int in) {
+  public void accept(int... in) {
     first.accept(in);
+  }
+
+  @Nonnegative
+  @Override
+  public int size() {
+    return second.size();
   }
 }

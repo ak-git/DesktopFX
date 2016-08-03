@@ -2,7 +2,7 @@ package com.ak.digitalfilter;
 
 import javax.annotation.Nonnegative;
 
-final class DelayFilter extends AbstractDigitalFilter {
+final class DelayFilter extends OperableFilter {
   private final int[] buffer;
   private int bufferIndex = -1;
 
@@ -17,9 +17,10 @@ final class DelayFilter extends AbstractDigitalFilter {
   }
 
   @Override
-  public void accept(int in) {
+  public int applyAsInt(int in) {
     bufferIndex = (++bufferIndex) % buffer.length;
-    publish(buffer[bufferIndex]);
+    int result = buffer[bufferIndex];
     buffer[bufferIndex] = in;
+    return result;
   }
 }

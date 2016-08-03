@@ -1,9 +1,11 @@
 package com.ak.digitalfilter;
 
-import java.util.function.IntConsumer;
-
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-interface DigitalFilter extends Delay, IntConsumer {
-  void forEach(@Nonnull IntConsumer after);
+interface DigitalFilter extends Delay, IntsAcceptor {
+  void forEach(@Nonnull IntsAcceptor after);
+
+  @Nonnegative
+  int size();
 }
