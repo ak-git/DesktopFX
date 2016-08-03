@@ -1,70 +1,68 @@
 package com.ak.digitalfilter;
 
+import java.nio.IntBuffer;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 final class ForkFilter extends AbstractDigitalFilter {
-  @Nonnull
-  private final DigitalFilter left;
-  @Nonnull
-  private final DigitalFilter right;
+  private final List<DigitalFilter> filters = new LinkedList<>();
 
-  ForkFilter(@Nonnull DigitalFilter left, @Nonnull DigitalFilter right) {
-    int delay = (int) Math.round(Math.abs(left.getDelay() - right.getDelay()));
-    if (left.getDelay() > right.getDelay()) {
-      this.left = left;
-      this.right = new ChainFilter(right, new DelayFilter(delay));
-    }
-    else if (left.getDelay() < right.getDelay()) {
-      this.left = new ChainFilter(left, new DelayFilter(delay));
-      this.right = right;
-    }
-    else {
-      this.left = left;
-      this.right = right;
+  ForkFilter(@Nonnull DigitalFilter first, @Nonnull DigitalFilter... next) {
+    filters.add(first);
+    filters.addAll(Arrays.asList(next));
+
+    double maxDelay = getDelay();
+    ListIterator<DigitalFilter> listIterator = filters.listIterator();
+    while (listIterator.hasNext()) {
+      DigitalFilter filter = listIterator.next();
+      int delay = (int) Math.round(maxDelay - filter.getDelay());
+      if (delay != 0) {
+        listIterator.set(new ChainFilter(filter, new DelayFilter(delay)));
+      }
     }
 
-    AtomicBoolean sync = new AtomicBoolean();
-    int[] result = new int[size()];
-    this.left.forEach(values -> {
-      if (sync.get()) {
-        throw new IllegalStateException(Arrays.toString(values));
-      }
-      else {
-        System.arraycopy(values, 0, result, 0, values.length);
-        sync.set(true);
-      }
-    });
-    this.right.forEach(values -> {
-      if (sync.get()) {
-        System.arraycopy(values, 0, result, result.length - values.length, values.length);
-        publish(result);
-        sync.set(false);
-      }
-      else {
-        throw new IllegalStateException(Arrays.toString(values));
-      }
-    });
+    IntBuffer buffer = IntBuffer.allocate(size());
+    AtomicInteger sync = new AtomicInteger();
+    for (int i = 0; i < filters.size(); i++) {
+      DigitalFilter filter = filters.get(i);
+      int finalI = i;
+      filter.forEach(values -> {
+        if (sync.getAndIncrement() == finalI) {
+          buffer.put(values);
+          if (finalI == filters.size() - 1) {
+            buffer.flip();
+            publish(buffer.array());
+            buffer.clear();
+            sync.set(0);
+          }
+        }
+        else {
+          throw new IllegalStateException(String.format("%s, %s", filter, Arrays.toString(values)));
+        }
+      });
+    }
   }
 
   @Nonnegative
   @Override
   public double getDelay() {
-    return Math.max(left.getDelay(), right.getDelay());
+    return filters.stream().mapToDouble(Delay::getDelay).max().orElseThrow(IllegalStateException::new);
   }
 
   @Override
   public void accept(int... in) {
-    left.accept(in);
-    right.accept(in);
+    filters.forEach(filter -> filter.accept(in));
   }
 
   @Nonnegative
   @Override
   public int size() {
-    return left.size() + right.size();
+    return filters.stream().mapToInt(DigitalFilter::size).sum();
   }
 }

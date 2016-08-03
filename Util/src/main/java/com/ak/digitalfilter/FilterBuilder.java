@@ -23,8 +23,8 @@ class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   @Nonnull
-  FilterBuilder fork(@Nonnull DigitalFilter left, @Nonnull DigitalFilter right) {
-    filter = new ChainFilter(build(), new ForkFilter(left, right));
+  FilterBuilder fork(@Nonnull DigitalFilter first, @Nonnull DigitalFilter... next) {
+    filter = new ChainFilter(build(), new ForkFilter(first, next));
     return this;
   }
 

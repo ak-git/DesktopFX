@@ -34,9 +34,12 @@ public class FIRFilterTest {
         new int[][] {{12}, {30}, {16 * 3}},
         1.5
     }, {
-        new int[] {1, 2, 4},
-        FilterBuilder.of().fork(FilterBuilder.of().fir(2.0).build(), FilterBuilder.of().fir(3.0).build()).build(),
-        new int[][] {{2, 3}, {4, 6}, {8, 12}},
+        new int[] {1, 10, 100},
+        FilterBuilder.of().fork(
+            FilterBuilder.of().fir(2.0).build(),
+            FilterBuilder.of().fir(3.0).build(),
+            FilterBuilder.of().fir(4.0).build()).build(),
+        new int[][] {{2, 3, 4}, {20, 30, 40}, {200, 300, 400}},
         0.0
     }, {
         new int[] {1, 2, 4},
