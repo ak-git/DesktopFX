@@ -29,4 +29,10 @@ final class ChainFilter extends AbstractDigitalFilter {
   public int size() {
     return second.size();
   }
+
+  @Override
+  public String toString() {
+    String base = String.format("%s - ", first.toString());
+    return base + second.toString().replaceAll(NEW_LINE, newLineTabSpaces(base.length()));
+  }
 }

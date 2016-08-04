@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -64,5 +65,10 @@ final class ForkFilter extends AbstractDigitalFilter {
   @Override
   public int size() {
     return filters.stream().mapToInt(DigitalFilter::size).sum();
+  }
+
+  @Override
+  public String toString() {
+    return filters.stream().map(Object::toString).collect(Collectors.joining(NEW_LINE, EMPTY, EMPTY));
   }
 }

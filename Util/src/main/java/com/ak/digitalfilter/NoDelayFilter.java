@@ -36,4 +36,11 @@ final class NoDelayFilter extends AbstractDigitalFilter {
   public int size() {
     return filter.size();
   }
+
+  @Override
+  public String toString() {
+    String base = String.format("%s (compensate %.1f delay) - ", getClass().getSimpleName(), filter.getDelay());
+    return base + filter.toString().replaceAll(NEW_LINE, newLineTabSpaces(base.length()));
+
+  }
 }
