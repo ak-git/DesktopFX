@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ak.comm.core.AbstractInterceptorService;
+import com.ak.comm.interceptor.AbstractInterceptorService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.UIConstants;
 import rx.Subscription;

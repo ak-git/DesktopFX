@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
-import com.ak.comm.core.AbstractInterceptorService;
+import com.ak.comm.interceptor.AbstractInterceptorService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import rx.Observer;
 import rx.observers.TestSubscriber;

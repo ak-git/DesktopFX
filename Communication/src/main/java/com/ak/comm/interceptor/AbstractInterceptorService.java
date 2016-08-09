@@ -1,9 +1,9 @@
-package com.ak.comm.core;
+package com.ak.comm.interceptor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
-import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.core.AbstractService;
 
 public abstract class AbstractInterceptorService<RESPONSE, REQUEST> extends AbstractService<RESPONSE> {
   private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
