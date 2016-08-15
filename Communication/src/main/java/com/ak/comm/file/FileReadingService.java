@@ -20,7 +20,6 @@ import rx.Subscription;
 final class FileReadingService extends AbstractService<ByteBuffer> {
   private static final int CAPACITY_4K = 1024 * 4;
   private final Path fileToRead;
-  private volatile boolean stopFlag;
 
   FileReadingService(@Nullable Path fileToRead, @Nonnull Observer<ByteBuffer> observer) {
     this.fileToRead = fileToRead;
@@ -30,7 +29,7 @@ final class FileReadingService extends AbstractService<ByteBuffer> {
         try (ReadableByteChannel readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
           Logger.getLogger(getClass().getName()).log(Level.INFO, String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
           ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
-          while (readableByteChannel.read(buffer) > 0 && !stopFlag) {
+          while (readableByteChannel.read(buffer) > 0) {
             buffer.flip();
             bufferPublish().onNext(buffer);
             buffer.clear();
@@ -52,12 +51,6 @@ final class FileReadingService extends AbstractService<ByteBuffer> {
         Logger.getLogger(getClass().getName()).log(Level.CONFIG, String.format("File [ %s ] is not a regular file", fileToRead));
       }
     }
-  }
-
-  @Override
-  public void close() {
-    stopFlag = true;
-    super.close();
   }
 
   @Override

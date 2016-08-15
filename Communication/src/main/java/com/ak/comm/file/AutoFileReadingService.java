@@ -5,8 +5,6 @@ import java.io.FileFilter;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -27,8 +25,8 @@ public final class AutoFileReadingService<RESPONSE, REQUEST> extends AbstractInt
   @Override
   public void close() {
     synchronized (this) {
-      executor.shutdownNow();
       fileReadingService.close();
+      executor.shutdownNow();
       super.close();
     }
   }
@@ -44,7 +42,6 @@ public final class AutoFileReadingService<RESPONSE, REQUEST> extends AbstractInt
 
         @Override
         public void onError(Throwable e) {
-          Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
         }
 
         @Override
