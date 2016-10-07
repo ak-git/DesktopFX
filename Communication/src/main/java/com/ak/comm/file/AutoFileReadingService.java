@@ -24,11 +24,9 @@ public final class AutoFileReadingService<RESPONSE, REQUEST> extends AbstractInt
 
   @Override
   public void close() {
-    synchronized (this) {
-      fileReadingService.close();
-      executor.shutdownNow();
-      super.close();
-    }
+    fileReadingService.close();
+    executor.shutdownNow();
+    super.close();
   }
 
   @Override

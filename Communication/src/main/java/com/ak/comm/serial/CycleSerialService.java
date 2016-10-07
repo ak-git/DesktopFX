@@ -56,7 +56,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractInterce
             }
           }
           catch (InterruptedException e) {
-            Logger.getLogger(getClass().getName()).log(Level.FINE, serialService.toString(), e);
+            Logger.getLogger(getClass().getName()).log(Level.FINEST, serialService.toString(), e);
             Thread.currentThread().interrupt();
             break;
           }
