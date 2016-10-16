@@ -32,5 +32,4 @@ final class FIRFilter extends OperableFilter {
     }
     return (int) Math.round(result);
   }
-
 }
