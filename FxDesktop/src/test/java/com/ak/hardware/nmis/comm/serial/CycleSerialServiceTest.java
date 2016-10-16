@@ -1,10 +1,10 @@
 package com.ak.hardware.nmis.comm.serial;
 
-import com.ak.comm.interceptor.DefaultBytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
 import com.ak.hardware.nmis.comm.interceptor.NmisBytesInterceptor;
 import com.ak.hardware.nmis.comm.interceptor.NmisRequest;
 import com.ak.hardware.nmis.comm.interceptor.NmisResponseFrame;
+import com.ak.hardware.simple.comm.interceptor.DefaultBytesInterceptor;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import rx.observers.TestSubscriber;

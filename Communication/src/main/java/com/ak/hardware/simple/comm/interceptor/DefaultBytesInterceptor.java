@@ -1,8 +1,10 @@
-package com.ak.comm.interceptor;
+package com.ak.hardware.simple.comm.interceptor;
 
 import java.nio.ByteBuffer;
 
 import javax.annotation.Nonnull;
+
+import com.ak.comm.interceptor.AbstractBytesInterceptor;
 
 public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Integer, Byte> {
   public DefaultBytesInterceptor() {

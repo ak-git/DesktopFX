@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.ak.comm.core.Service;
-import com.ak.comm.interceptor.DefaultBytesInterceptor;
+import com.ak.hardware.simple.comm.interceptor.DefaultBytesInterceptor;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
 import org.testng.Assert;

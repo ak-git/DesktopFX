@@ -10,11 +10,11 @@ import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CountDownLatch;
 
 import com.ak.comm.file.AutoFileReadingService;
-import com.ak.comm.interceptor.DefaultBytesInterceptor;
 import com.ak.hardware.nmis.comm.interceptor.NmisBytesInterceptor;
 import com.ak.hardware.nmis.comm.interceptor.NmisProtocolByte;
 import com.ak.hardware.nmis.comm.interceptor.NmisRequest;
 import com.ak.hardware.nmis.comm.interceptor.NmisResponseFrame;
+import com.ak.hardware.simple.comm.interceptor.DefaultBytesInterceptor;
 import com.ak.logging.BinaryLogBuilder;
 import com.ak.logging.LocalFileHandler;
 import com.ak.logging.LogPathBuilder;
