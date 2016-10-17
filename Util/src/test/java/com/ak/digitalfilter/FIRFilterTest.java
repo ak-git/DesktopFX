@@ -46,22 +46,39 @@ public class FIRFilterTest {
         FilterBuilder.of().fork(FilterBuilder.of().fir(1.0, 2.0).build(), FilterBuilder.of().fir(3.0).build()).build(),
         new int[][] {{2, 0}, {5, 3}, {10, 6}},
         1.0
-    }, {
-        new int[] {1, 2, 4},
+    }};
+  }
+
+  @DataProvider(name = "delay")
+  public Object[][] delay() {
+    return new Object[][] {{
+        new int[] {1, 2, 4, 2, 2, 1},
         FilterBuilder.of().fork(
-            FilterBuilder.of().fir(3.0).build(),
-            FilterBuilder.of().fir(0.0, 0.0, 1.0, 2.0, 3.0).build()
+            FilterBuilder.of().fir(1.0).build(),
+            FilterBuilder.of().fir(-1.0, 0.0, 1.0).build()
+        ).build(),
+        new int[][] {{0, 1}, {1, 2}, {2, 3}, {4, 0}, {2, -2}, {2, -1}},
+        1.0
+    }, {
+        new int[] {1, 2, 4, 2, 2, 1},
+        FilterBuilder.of().fork(
+            FilterBuilder.of().fir(1.0).build(),
+            FilterBuilder.of().fir(-1.0, 0.0, 1.0).build()
         ).buildNoDelay(),
-        new int[][] {{0, 8}, {3, 17}},
+        new int[][] {{1, 2}, {2, 3}, {4, 0}, {2, -2}, {2, -1}},
         0.0
-    }
-    };
+    }};
   }
 
   @Test(dataProvider = "simple")
-  public void testSimpleFilter(int[] input, DigitalFilter filter, int[][] result, double delay) {
-    AtomicInteger filteredCounter = new AtomicInteger();
+  public void testWithLostZeroFilter(int[] input, DigitalFilter filter, int[][] result, double delay) {
     filter.accept(0);
+    testFilter(input, filter, result, delay);
+  }
+
+  @Test(dataProvider = "delay")
+  public void testFilter(int[] input, DigitalFilter filter, int[][] result, double delay) {
+    AtomicInteger filteredCounter = new AtomicInteger();
     filter.forEach(new IntsAcceptor() {
       int i;
 
