@@ -148,6 +148,9 @@ public final class NmisRequest extends AbstractBufferFrame {
     @Nonnull
     @Override
     public NmisRequest build() {
+      if (toStringBuilder.length() > 1) {
+        toStringBuilder.deleteCharAt(toStringBuilder.length() - 1);
+      }
       saveCRC(codes);
       return new NmisRequest(this);
     }
