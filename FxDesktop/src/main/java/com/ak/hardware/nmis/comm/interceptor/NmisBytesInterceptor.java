@@ -68,7 +68,6 @@ import com.ak.comm.interceptor.AbstractCheckedBytesInterceptor;
  * </td>
  * </tr>
  * </table>
- * <hr/>
  */
 public final class NmisBytesInterceptor extends AbstractCheckedBytesInterceptor<NmisResponseFrame.Builder, NmisResponseFrame, NmisRequest> {
   public NmisBytesInterceptor() {
