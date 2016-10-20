@@ -10,7 +10,6 @@ import javax.annotation.Nullable;
 public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedBuilder<RESPONSE>, RESPONSE, REQUEST extends AbstractBufferFrame>
     extends AbstractBytesInterceptor<RESPONSE, REQUEST> {
   private static final Level LOG_LEVEL_ERRORS = Level.CONFIG;
-  private static final Level LOG_LEVEL_BYTES = Level.FINEST;
   private static final int IGNORE_LIMIT = 16;
   private final Logger logger = Logger.getLogger(getClass().getName());
   private final ByteBuffer ignoreBuffer;
@@ -27,10 +26,8 @@ public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedB
 
   @Override
   public final int write(@Nonnull ByteBuffer src) {
+    super.write(src);
     src.rewind();
-    if (logger.isLoggable(LOG_LEVEL_BYTES)) {
-      logger.log(LOG_LEVEL_BYTES, String.format("#%x %s", hashCode(), AbstractBufferFrame.toString(getClass(), src)));
-    }
     int countResponse = 0;
     ByteBuffer buffer = responseBuilder.buffer();
     while (src.hasRemaining()) {

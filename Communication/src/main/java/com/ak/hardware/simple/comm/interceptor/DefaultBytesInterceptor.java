@@ -13,6 +13,7 @@ public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Inte
 
   @Override
   public int write(@Nonnull ByteBuffer src) {
+    super.write(src);
     src.rewind();
     int countBytes = 0;
     while (src.hasRemaining()) {

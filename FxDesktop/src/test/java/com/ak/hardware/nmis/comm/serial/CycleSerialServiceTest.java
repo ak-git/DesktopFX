@@ -24,7 +24,6 @@ public final class CycleSerialServiceTest {
     subscriber.assertNotCompleted();
     service.close();
     subscriber.assertCompleted();
-    subscriber.assertNoValues();
     subscriber.assertNoErrors();
   }
 
@@ -39,7 +38,6 @@ public final class CycleSerialServiceTest {
     subscriber.assertNotCompleted();
     service.close();
     subscriber.assertCompleted();
-    subscriber.assertNoValues();
     subscriber.assertNoErrors();
   }
 }

@@ -38,6 +38,7 @@ public final class NmisRsceBytesInterceptor extends AbstractBytesInterceptor<Rsc
 
   @Override
   public int write(@Nonnull ByteBuffer src) {
+    super.write(src);
     return nmis.write(src);
   }
 
