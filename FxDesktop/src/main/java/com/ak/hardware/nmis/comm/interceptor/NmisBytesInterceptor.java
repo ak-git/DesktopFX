@@ -3,7 +3,8 @@ package com.ak.hardware.nmis.comm.interceptor;
 import com.ak.comm.interceptor.AbstractCheckedBytesInterceptor;
 
 /**
- * Format:
+ * Neuro-Muscular Interface Stand (Test Stand) Format:
+ * <p>
  * <pre>
  *   <b>Start  Address Len Data1 Data2 Data3 Data4 Data5 Data6 Data7 Data8 CRC</b>
  *   0x7E   0xХХ    8   0xХХ  0xХХ  0xХХ  0xХХ  0xХХ  0xХХ  0xХХ  0xХХ  0xХХ

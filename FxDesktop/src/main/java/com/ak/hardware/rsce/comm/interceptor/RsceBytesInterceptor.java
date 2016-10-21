@@ -3,7 +3,8 @@ package com.ak.hardware.rsce.comm.interceptor;
 import com.ak.comm.interceptor.AbstractCheckedBytesInterceptor;
 
 /**
- * Format:
+ * RSC Energia protocol for Hand Control:
+ * <p>
  * <pre>
  *   <b>Address Len Command Par1 Par2 ParN CRC1 CRC2</b>
  * </pre>
