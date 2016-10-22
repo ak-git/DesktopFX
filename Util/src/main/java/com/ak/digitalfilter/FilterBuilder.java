@@ -36,6 +36,11 @@ class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   @Nonnull
+  FilterBuilder rrs(@Nonnegative int averageFactor) {
+    return chain(new RecursiveRunningSumFilter(averageFactor));
+  }
+
+  @Nonnull
   FilterBuilder fork(@Nonnull DigitalFilter first, @Nonnull DigitalFilter... next) {
     filter = new ChainFilter(build(), new ForkFilter(first, next));
     return this;
