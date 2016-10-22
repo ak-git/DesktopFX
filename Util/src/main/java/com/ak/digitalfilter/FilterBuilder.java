@@ -31,6 +31,11 @@ class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   @Nonnull
+  FilterBuilder integrate() {
+    return chain(new IntegrateFilter());
+  }
+
+  @Nonnull
   FilterBuilder fork(@Nonnull DigitalFilter first, @Nonnull DigitalFilter... next) {
     filter = new ChainFilter(build(), new ForkFilter(first, next));
     return this;

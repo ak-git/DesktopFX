@@ -10,6 +10,9 @@ import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
+import static java.lang.Integer.MAX_VALUE;
+import static java.lang.Integer.MIN_VALUE;
+
 public class FIRFilterTest {
   @DataProvider(name = "simple")
   public Object[][] simple() {
@@ -74,6 +77,11 @@ public class FIRFilterTest {
         FilterBuilder.of().comb(1).build(),
         new int[][] {{1}, {1}, {2}, {-2}, {0}, {-1}},
         0.5
+    }, {
+        new int[] {-1, 1, MAX_VALUE, 1, MAX_VALUE},
+        FilterBuilder.of().integrate().build(),
+        new int[][] {{-1}, {0}, {MAX_VALUE}, {MIN_VALUE}, {-1}},
+        0.0
     }};
   }
 
