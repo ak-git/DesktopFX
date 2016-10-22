@@ -27,5 +27,5 @@ abstract class AbstractBufferFilter extends AbstractOperableFilter {
     return buffer[index % buffer.length];
   }
 
-  abstract int apply(int nowIndex);
+  abstract int apply(@Nonnegative int nowIndex);
 }

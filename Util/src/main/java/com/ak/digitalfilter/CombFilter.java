@@ -8,7 +8,7 @@ final class CombFilter extends AbstractBufferFilter {
   }
 
   @Override
-  int apply(int nowIndex) {
+  int apply(@Nonnegative int nowIndex) {
     return get(nowIndex) - get(nowIndex + 1);
   }
 }

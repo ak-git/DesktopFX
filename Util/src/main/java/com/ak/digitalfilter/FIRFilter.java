@@ -2,6 +2,7 @@ package com.ak.digitalfilter;
 
 import java.util.Arrays;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 final class FIRFilter extends AbstractBufferFilter {
@@ -14,7 +15,7 @@ final class FIRFilter extends AbstractBufferFilter {
   }
 
   @Override
-  int apply(int nowIndex) {
+  int apply(@Nonnegative int nowIndex) {
     double result = 0;
     for (int i = 0; i < koeff.length; i++) {
       result += get(1 + i + nowIndex) * koeff[i];
