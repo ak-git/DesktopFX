@@ -12,13 +12,13 @@ import static com.ak.util.Strings.NEW_LINE;
 import static com.ak.util.Strings.SPACE;
 
 abstract class AbstractDigitalFilter implements DigitalFilter {
-  private static final IntsAcceptor EMPTY_ACCEPTOR = IntsAcceptor.empty();
-  private IntsAcceptor after = EMPTY_ACCEPTOR;
+  @Nonnull
+  private IntsAcceptor after = EMPTY_INTS_ACCEPTOR;
 
   @Override
   public final void forEach(@Nonnull IntsAcceptor after) {
     Objects.requireNonNull(after);
-    if (this.after.equals(EMPTY_ACCEPTOR)) {
+    if (this.after.equals(EMPTY_INTS_ACCEPTOR)) {
       this.after = after;
     }
     else {
