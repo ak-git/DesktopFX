@@ -55,18 +55,25 @@ public class FIRFilterTest {
         new int[] {1, 2, 4, 2, 2, 1},
         FilterBuilder.of().fork(
             FilterBuilder.of().fir(1.0).build(),
-            FilterBuilder.of().fir(-1.0, 0.0, 1.0).build()
+            FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
+            FilterBuilder.of().comb(2).build()
         ).build(),
-        new int[][] {{0, 1}, {1, 2}, {2, 3}, {4, 0}, {2, -2}, {2, -1}},
+        new int[][] {{0, 1, 1}, {1, 2, 2}, {2, 3, 3}, {4, 0, 0}, {2, -2, -2}, {2, -1, -1}},
         1.0
     }, {
         new int[] {1, 2, 4, 2, 2, 1},
         FilterBuilder.of().fork(
             FilterBuilder.of().fir(1.0).build(),
-            FilterBuilder.of().fir(-1.0, 0.0, 1.0).build()
+            FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
+            FilterBuilder.of().comb(2).build()
         ).buildNoDelay(),
-        new int[][] {{1, 2}, {2, 3}, {4, 0}, {2, -2}, {2, -1}},
+        new int[][] {{1, 2, 2}, {2, 3, 3}, {4, 0, 0}, {2, -2, -2}, {2, -1, -1}},
         0.0
+    }, {
+        new int[] {1, 2, 4, 2, 2, 1},
+        FilterBuilder.of().comb(1).build(),
+        new int[][] {{1}, {1}, {2}, {-2}, {0}, {-1}},
+        0.5
     }};
   }
 

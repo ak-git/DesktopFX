@@ -2,11 +2,14 @@ package com.ak.digitalfilter;
 
 import java.util.Optional;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import javafx.util.Builder;
 
 class FilterBuilder implements Builder<DigitalFilter> {
+  @Nullable
   private DigitalFilter filter;
 
   private FilterBuilder() {
@@ -20,6 +23,11 @@ class FilterBuilder implements Builder<DigitalFilter> {
   @Nonnull
   FilterBuilder fir(double... koeff) {
     return chain(new FIRFilter(koeff));
+  }
+
+  @Nonnull
+  FilterBuilder comb(@Nonnegative int combFactor) {
+    return chain(new CombFilter(combFactor));
   }
 
   @Nonnull
