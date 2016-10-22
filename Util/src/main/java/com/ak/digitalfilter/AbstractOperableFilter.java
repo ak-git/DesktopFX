@@ -5,7 +5,7 @@ import java.util.function.IntUnaryOperator;
 
 import javax.annotation.Nonnegative;
 
-abstract class OperableFilter extends AbstractDigitalFilter implements IntUnaryOperator {
+abstract class AbstractOperableFilter extends AbstractDigitalFilter implements IntUnaryOperator {
   @Override
   public final void accept(int... in) {
     if (in.length == 1) {

@@ -2,33 +2,22 @@ package com.ak.digitalfilter;
 
 import java.util.Arrays;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-final class FIRFilter extends OperableFilter {
-  private final int[] buffer;
+final class FIRFilter extends AbstractBufferFilter {
+  @Nonnull
   private final double[] koeff;
-  private int bufferIndex = -1;
 
   FIRFilter(@Nonnull double[] koeff) {
+    super(koeff.length);
     this.koeff = Arrays.copyOf(koeff, koeff.length);
-    buffer = new int[koeff.length];
-  }
-
-  @Nonnegative
-  @Override
-  public double getDelay() {
-    return (buffer.length - 1) / 2.0;
   }
 
   @Override
-  public int applyAsInt(int in) {
-    bufferIndex = (++bufferIndex) % buffer.length;
-    buffer[bufferIndex] = in;
-
+  int apply(int nowIndex) {
     double result = 0;
     for (int i = 0; i < koeff.length; i++) {
-      result += buffer[(1 + i + bufferIndex) % buffer.length] * koeff[i];
+      result += get(1 + i + nowIndex) * koeff[i];
     }
     return (int) Math.round(result);
   }

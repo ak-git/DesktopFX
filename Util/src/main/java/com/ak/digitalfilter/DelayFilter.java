@@ -2,7 +2,7 @@ package com.ak.digitalfilter;
 
 import javax.annotation.Nonnegative;
 
-final class DelayFilter extends OperableFilter {
+final class DelayFilter extends AbstractOperableFilter {
   private final int[] buffer;
   private int bufferIndex = -1;
 
