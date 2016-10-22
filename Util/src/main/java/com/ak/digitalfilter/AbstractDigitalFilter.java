@@ -7,16 +7,18 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import static com.ak.util.Strings.EMPTY;
+import static com.ak.util.Strings.NEW_LINE;
+import static com.ak.util.Strings.SPACE;
+
 abstract class AbstractDigitalFilter implements DigitalFilter {
-  static final String NEW_LINE = String.format("%n");
-  static final String EMPTY = "";
-  private static final String SPACE = " ";
-  private IntsAcceptor after;
+  private static final IntsAcceptor EMPTY_ACCEPTOR = IntsAcceptor.empty();
+  private IntsAcceptor after = EMPTY_ACCEPTOR;
 
   @Override
   public final void forEach(@Nonnull IntsAcceptor after) {
     Objects.requireNonNull(after);
-    if (this.after == null) {
+    if (this.after.equals(EMPTY_ACCEPTOR)) {
       this.after = after;
     }
     else {
@@ -25,9 +27,7 @@ abstract class AbstractDigitalFilter implements DigitalFilter {
   }
 
   final void publish(int... out) {
-    if (after != null) {
-      after.accept(out);
-    }
+    after.accept(out);
   }
 
   @Override

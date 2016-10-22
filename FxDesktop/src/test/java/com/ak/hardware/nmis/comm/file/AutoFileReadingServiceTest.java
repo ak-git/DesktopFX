@@ -18,6 +18,7 @@ import com.ak.hardware.simple.comm.interceptor.DefaultBytesInterceptor;
 import com.ak.logging.BinaryLogBuilder;
 import com.ak.logging.LocalFileHandler;
 import com.ak.logging.LogPathBuilder;
+import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
@@ -89,7 +90,7 @@ public final class AutoFileReadingServiceTest {
 
   @Test
   public void testInvalidFile() {
-    Assert.assertFalse(new AutoFileReadingService<>(new DefaultBytesInterceptor()).accept(Paths.get("").toFile()));
+    Assert.assertFalse(new AutoFileReadingService<>(new DefaultBytesInterceptor()).accept(Paths.get(Strings.EMPTY).toFile()));
   }
 
   @AfterClass

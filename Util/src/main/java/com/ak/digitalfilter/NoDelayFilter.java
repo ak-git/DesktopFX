@@ -5,6 +5,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import static com.ak.util.Strings.NEW_LINE;
+
 final class NoDelayFilter extends AbstractDigitalFilter {
   private final DigitalFilter filter;
 

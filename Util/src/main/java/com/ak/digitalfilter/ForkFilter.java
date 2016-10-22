@@ -11,6 +11,9 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import static com.ak.util.Strings.EMPTY;
+import static com.ak.util.Strings.NEW_LINE;
+
 final class ForkFilter extends AbstractDigitalFilter {
   private final List<DigitalFilter> filters = new LinkedList<>();
 

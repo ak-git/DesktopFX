@@ -10,10 +10,11 @@ import javax.annotation.Nonnull;
 
 import com.ak.util.LocalFileIO;
 import com.ak.util.LocalIO;
+import com.ak.util.Strings;
 
 public class LogPathBuilder extends LocalFileIO.AbstractBuilder {
   public LogPathBuilder() {
-    super("");
+    super(Strings.EMPTY);
   }
 
   LogPathBuilder(@Nonnull String fileExtension, @Nonnull Class<? extends FileHandler> fileHandlerClass) {

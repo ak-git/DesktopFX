@@ -2,6 +2,8 @@ package com.ak.digitalfilter;
 
 import javax.annotation.Nonnegative;
 
+import static com.ak.util.Strings.NEW_LINE;
+
 final class ChainFilter extends AbstractDigitalFilter {
   private final DigitalFilter first;
   private final DigitalFilter second;
