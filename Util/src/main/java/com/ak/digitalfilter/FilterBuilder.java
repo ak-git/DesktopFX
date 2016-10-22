@@ -46,6 +46,11 @@ class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   @Nonnull
+  FilterBuilder interpolate(@Nonnegative int interpolateFactor) {
+    return chain(new LinearInterpolationFilter(interpolateFactor));
+  }
+
+  @Nonnull
   FilterBuilder fork(@Nonnull DigitalFilter first, @Nonnull DigitalFilter... next) {
     filter = new ChainFilter(build(), new ForkFilter(first, next));
     return this;

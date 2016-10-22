@@ -47,7 +47,8 @@ final class ForkFilter extends AbstractDigitalFilter {
           }
         }
         else {
-          throw new IllegalStateException(String.format("%s, %s", filter, Arrays.toString(values)));
+          throw new IllegalStateException(String.format("Invalid fork [ %s ] for filter {%n%s%n}, values = %s", filter,
+              this, Arrays.toString(values)));
         }
       });
     }

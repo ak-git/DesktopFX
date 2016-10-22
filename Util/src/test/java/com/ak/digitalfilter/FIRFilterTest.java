@@ -93,6 +93,21 @@ public class FIRFilterTest {
         FilterBuilder.of().decimate(3).build(),
         new int[][] {{10}, {10}},
         -1.0 / 3.0
+    }, {
+        new int[] {10, 10, 10, 10, 10, 10},
+        FilterBuilder.of().decimate(3).buildNoDelay(),
+        new int[][] {{10}, {10}},
+        0.0
+    }, {
+        new int[] {1, 4, 7},
+        FilterBuilder.of().interpolate(3).build(),
+        new int[][] {{0}, {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}},
+        1.0
+    }, {
+        new int[] {1, 4, 7},
+        FilterBuilder.of().interpolate(3).buildNoDelay(),
+        new int[][] {{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}},
+        0.0
     }};
   }
 
