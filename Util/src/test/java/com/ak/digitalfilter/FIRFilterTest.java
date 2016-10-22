@@ -88,6 +88,11 @@ public class FIRFilterTest {
         FilterBuilder.of().rrs(2).build(),
         new int[][] {{0}, {1}, {3}, {3}, {2}, {1}},
         1.0
+    }, {
+        new int[] {10, 10, 10, 10, 10, 10},
+        FilterBuilder.of().decimate(3).build(),
+        new int[][] {{10}, {10}},
+        -1.0 / 3.0
     }};
   }
 
@@ -107,7 +112,8 @@ public class FIRFilterTest {
       public void accept(int... value) {
         filteredCounter.incrementAndGet();
         Assert.assertEquals(value, result[i],
-            String.format("Actual %s, expected %s", Arrays.toString(value), Arrays.toString(result[i])));
+            String.format("Output Sample %d of %d, Actual %s, expected %s", filteredCounter.get() - 1, result.length,
+                Arrays.toString(value), Arrays.toString(result[i])));
         i++;
       }
     });
@@ -149,5 +155,10 @@ public class FIRFilterTest {
     FilterBuilder.of().fork(FilterBuilder.of().fir(3.0).build(), filter2).build();
     filter2.accept(1);
     filter2.accept(2);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInvalidDecimateFactor() {
+    FilterBuilder.of().decimate(0).build();
   }
 }

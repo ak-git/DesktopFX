@@ -15,10 +15,9 @@ final class ChainFilter extends AbstractDigitalFilter {
     second.forEach(this::publish);
   }
 
-  @Nonnegative
   @Override
   public double getDelay() {
-    return first.getDelay() + second.getDelay();
+    return second.getDelay(first.getDelay());
   }
 
   @Override

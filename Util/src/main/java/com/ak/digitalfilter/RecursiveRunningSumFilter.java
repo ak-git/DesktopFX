@@ -25,5 +25,4 @@ final class RecursiveRunningSumFilter extends AbstractOperableFilter {
   public String toString() {
     return String.format("RRS /= %d (delay %.1f)", averageFactor, getDelay());
   }
-
 }

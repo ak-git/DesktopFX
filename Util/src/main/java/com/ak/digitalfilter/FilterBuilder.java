@@ -41,6 +41,11 @@ class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   @Nonnull
+  FilterBuilder decimate(@Nonnegative int decimateFactor) {
+    return chain(new LinearDecimationFilter(decimateFactor));
+  }
+
+  @Nonnull
   FilterBuilder fork(@Nonnull DigitalFilter first, @Nonnull DigitalFilter... next) {
     filter = new ChainFilter(build(), new ForkFilter(first, next));
     return this;
