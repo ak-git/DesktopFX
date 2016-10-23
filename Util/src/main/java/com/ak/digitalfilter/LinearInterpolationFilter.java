@@ -19,11 +19,6 @@ final class LinearInterpolationFilter extends AbstractLinearRateConversionFilter
   }
 
   @Override
-  public String toString() {
-    return String.format("Interpolator *= %d (delay %.1f)", factor, getDelay());
-  }
-
-  @Override
   void publishUnary(int in) {
     int hold = comb.applyAsInt(in);
     for (int i = 0; i < factor; i++) {

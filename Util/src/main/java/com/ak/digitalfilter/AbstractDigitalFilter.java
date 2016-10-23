@@ -32,7 +32,15 @@ abstract class AbstractDigitalFilter implements DigitalFilter {
 
   @Override
   public String toString() {
-    return String.format("%s (delay %.1f)", getClass().getSimpleName(), getDelay());
+    if (getFrequencyFactor() > 1) {
+      return String.format("%s (f \u00b7 %.1f; delay %.1f)", getClass().getSimpleName(), getFrequencyFactor(), getDelay());
+    }
+    else if (getFrequencyFactor() < 1) {
+      return String.format("%s (f / %.1f; delay %.1f)", getClass().getSimpleName(), 1.0 / getFrequencyFactor(), getDelay());
+    }
+    else {
+      return String.format("%s (delay %.1f)", getClass().getSimpleName(), getDelay());
+    }
   }
 
   @Nonnull

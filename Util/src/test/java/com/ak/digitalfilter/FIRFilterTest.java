@@ -116,6 +116,31 @@ public class FIRFilterTest {
     }};
   }
 
+  @DataProvider(name = "strings")
+  public Object[][] strings() {
+    return new Object[][] {{
+        FilterBuilder.of().build(),
+        "NoFilter (delay 0,0)",
+    }, {
+        FilterBuilder.of().decimate(7).build(),
+        "LinearDecimationFilter (f / 7,0; delay -0,4)"
+    }, {
+        FilterBuilder.of().interpolate(7).buildNoDelay(),
+        "NoDelayFilter (compensate 3,0 delay) - LinearInterpolationFilter (f · 7,0; delay 3,0)"
+    }, {
+        FilterBuilder.of().fork(
+            FilterBuilder.of().fir(1.0).build(),
+            FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
+            FilterBuilder.of().comb(2).build(),
+            FilterBuilder.of().rrs(4).build()
+        ).buildNoDelay(),
+        "NoDelayFilter (compensate 2,0 delay) - NoFilter (delay 0,0) - FIRFilter (delay 0,0) - DelayFilter (delay 2,0)\n" +
+            "                                                              FIRFilter (delay 1,0) - DelayFilter (delay 1,0)\n" +
+            "                                                              CombFilter (delay 1,0) - DelayFilter (delay 1,0)\n" +
+            "                                                              RRS4 (delay 2,0)"
+    }};
+  }
+
   @Test(dataProvider = "simple")
   public void testWithLostZeroFilter(int[] input, DigitalFilter filter, int[][] result, double delay, double frequencyFactor) {
     filter.accept(0);
@@ -186,5 +211,10 @@ public class FIRFilterTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidDecimateFactor() {
     FilterBuilder.of().decimate(0).build();
+  }
+
+  @Test(dataProvider = "strings")
+  public void testToString(DigitalFilter filter, String toString) {
+    Assert.assertEquals(filter.toString(), toString, filter.toString());
   }
 }

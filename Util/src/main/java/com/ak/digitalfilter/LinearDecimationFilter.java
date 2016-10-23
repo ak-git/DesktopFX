@@ -21,11 +21,6 @@ final class LinearDecimationFilter extends AbstractLinearRateConversionFilter {
   }
 
   @Override
-  public String toString() {
-    return String.format("Decimator /= %d (delay %.1f)", factor, getDelay());
-  }
-
-  @Override
   void publishUnary(int in) {
     counter = (++counter) % factor;
     int reduced = integrator.applyAsInt(in);
