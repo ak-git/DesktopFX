@@ -1,5 +1,6 @@
 package com.ak.digitalfilter;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.measure.Quantity;
 import javax.measure.quantity.Frequency;
@@ -15,6 +16,16 @@ interface Delay {
 
   default double getDelay(double beforeDelay) {
     return beforeDelay + getDelay();
+  }
+
+  @Nonnegative
+  default double getFrequencyFactor() {
+    return 1.0;
+  }
+
+  @Nonnull
+  default Quantity<Frequency> getFrequency(@Nonnull Quantity<Frequency> frequency) {
+    return Quantities.getQuantity(frequency.to(Units.HERTZ).getValue().doubleValue() * getFrequencyFactor(), Units.HERTZ);
   }
 
   @Nonnull

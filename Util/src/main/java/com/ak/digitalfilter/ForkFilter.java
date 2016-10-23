@@ -54,10 +54,15 @@ final class ForkFilter extends AbstractDigitalFilter {
     }
   }
 
-  @Nonnegative
   @Override
   public double getDelay() {
     return filters.stream().mapToDouble(Delay::getDelay).max().orElseThrow(IllegalStateException::new);
+  }
+
+  @Nonnegative
+  @Override
+  public double getFrequencyFactor() {
+    return filters.stream().mapToDouble(Delay::getFrequencyFactor).max().orElseThrow(IllegalStateException::new);
   }
 
   @Override

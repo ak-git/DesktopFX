@@ -12,6 +12,12 @@ final class LinearInterpolationFilter extends AbstractLinearRateConversionFilter
     return beforeDelay * factor + (factor - 1) / 2.0;
   }
 
+  @Nonnegative
+  @Override
+  public double getFrequencyFactor() {
+    return factor;
+  }
+
   @Override
   public String toString() {
     return String.format("Interpolator *= %d (delay %.1f)", factor, getDelay());

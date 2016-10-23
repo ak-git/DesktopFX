@@ -14,6 +14,12 @@ final class LinearDecimationFilter extends AbstractLinearRateConversionFilter {
     return (beforeDelay - (factor - 1) / 2.0) / factor;
   }
 
+  @Nonnegative
+  @Override
+  public double getFrequencyFactor() {
+    return 1.0 / factor;
+  }
+
   @Override
   public String toString() {
     return String.format("Decimator /= %d (delay %.1f)", factor, getDelay());
