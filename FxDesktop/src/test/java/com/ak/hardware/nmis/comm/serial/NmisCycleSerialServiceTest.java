@@ -7,7 +7,7 @@ import com.ak.hardware.nmis.comm.interceptor.NmisResponseFrame;
 import org.testng.annotations.Test;
 import rx.observers.TestSubscriber;
 
-public final class CycleSerialServiceTest {
+public final class NmisCycleSerialServiceTest {
   @Test
   public void testBytesInterceptor() {
     CycleSerialService<NmisResponseFrame, NmisRequest> service = new CycleSerialService<>(new NmisBytesInterceptor());

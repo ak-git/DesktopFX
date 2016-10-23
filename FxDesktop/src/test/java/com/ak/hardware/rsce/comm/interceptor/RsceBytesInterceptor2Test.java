@@ -115,7 +115,7 @@ public final class RsceBytesInterceptor2Test {
       Assert.assertEquals(countResponses, 1);
       subscriber.assertValue(response);
     }
-    Assert.assertTrue(interceptor.put(response).remaining() > 0);
+    Assert.assertTrue(interceptor.putOut(response).remaining() > 0);
     subscriber.assertNoErrors();
     subscription.unsubscribe();
   }

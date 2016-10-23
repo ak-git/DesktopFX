@@ -53,7 +53,7 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
 
   @Nonnull
   @Override
-  public final ByteBuffer put(@Nonnull REQUEST request) {
+  public final ByteBuffer putOut(@Nonnull REQUEST request) {
     logger.log(LOG_LEVEL_LEXEMES, String.format("#%x %s OUT to hardware", hashCode(), request));
     outBuffer.clear();
     innerPut(outBuffer, request);

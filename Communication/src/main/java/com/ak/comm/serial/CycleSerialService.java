@@ -78,7 +78,9 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractInterce
   }
 
   public int write(@Nullable REQUEST request) {
-    return request == null ? -1 : serialService.write(bytesInterceptor().put(request));
+    synchronized (this) {
+      return request == null ? -1 : serialService.write(bytesInterceptor().putOut(request));
+    }
   }
 
   @Override

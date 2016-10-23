@@ -51,7 +51,7 @@ public final class NmisRsceBytesInterceptorTest {
     byteBuffer.clear();
 
     Assert.assertEquals(countResponses, 1);
-    Assert.assertTrue(interceptor.put(NmisRequest.Sequence.ROTATE_INV.build()).remaining() > 0);
+    Assert.assertTrue(interceptor.putOut(NmisRequest.Sequence.ROTATE_INV.build()).remaining() > 0);
     subscriber.assertValue(response);
     subscriber.assertNoErrors();
     subscription.unsubscribe();

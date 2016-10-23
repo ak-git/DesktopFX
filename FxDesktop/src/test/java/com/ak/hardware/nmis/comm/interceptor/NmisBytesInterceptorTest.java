@@ -80,7 +80,7 @@ public final class NmisBytesInterceptorTest {
       Assert.assertEquals(countResponses, 1);
       subscriber.assertValue(request.toResponse());
     }
-    Assert.assertTrue(interceptor.put(request).remaining() > 0);
+    Assert.assertTrue(interceptor.putOut(request).remaining() > 0);
     interceptor.close();
     subscriber.assertCompleted();
     subscriber.assertNoErrors();

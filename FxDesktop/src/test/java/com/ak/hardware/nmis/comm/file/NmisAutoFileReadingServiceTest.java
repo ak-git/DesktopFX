@@ -18,7 +18,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import rx.observers.TestSubscriber;
 
-public final class AutoFileReadingServiceTest {
+public final class NmisAutoFileReadingServiceTest {
   @Test(timeOut = 10000)
   public void testBytesInterceptor() throws Exception {
     AutoFileReadingService<NmisResponseFrame, NmisRequest> service = new AutoFileReadingService<>(new NmisBytesInterceptor());
