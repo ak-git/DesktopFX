@@ -134,10 +134,10 @@ public class FIRFilterTest {
             FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(4).build()
         ).buildNoDelay(),
-        "NoDelayFilter (compensate 2,0 delay) - NoFilter (delay 0,0) - FIRFilter (delay 0,0) - DelayFilter (delay 2,0)\n" +
-            "                                                              FIRFilter (delay 1,0) - DelayFilter (delay 1,0)\n" +
-            "                                                              CombFilter (delay 1,0) - DelayFilter (delay 1,0)\n" +
-            "                                                              RRS4 (delay 2,0)"
+        "NoDelayFilter (compensate 2,0 delay) - FIRFilter (delay 0,0) - DelayFilter (delay 2,0)\n" +
+            "                                       FIRFilter (delay 1,0) - DelayFilter (delay 1,0)\n" +
+            "                                       CombFilter (delay 1,0) - DelayFilter (delay 1,0)\n" +
+            "                                       RRS4 (delay 2,0)"
     }};
   }
 
