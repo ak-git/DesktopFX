@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import static com.ak.util.Strings.NEW_LINE;
 
 final class NoDelayFilter extends AbstractDigitalFilter {
+  @Nonnull
   private final DigitalFilter filter;
 
   NoDelayFilter(@Nonnull DigitalFilter filter) {
