@@ -9,7 +9,10 @@ import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+import static com.ak.util.UIConstants.UI_DELAY;
+
 final class MacStageStorage extends AbstractStageStorage {
+  @Nonnull
   private Instant fullScreenEventInstant = Instant.now();
 
   MacStageStorage(@Nonnull String filePrefix) {
@@ -18,7 +21,7 @@ final class MacStageStorage extends AbstractStageStorage {
 
   @Override
   public void save(@Nonnull Stage stage) {
-    if (!Duration.between(fullScreenEventInstant, Instant.now()).minusSeconds(3).isNegative()) {
+    if (!Duration.between(fullScreenEventInstant, Instant.now()).minus(UI_DELAY).isNegative()) {
       saveFullScreenState(stage.isFullScreen());
     }
     if (stage.isMaximized()) {

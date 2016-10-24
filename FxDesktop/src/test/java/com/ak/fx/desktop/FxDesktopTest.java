@@ -117,11 +117,13 @@ public final class FxDesktopTest extends Preloader {
 
         stage.setMaximized(!maximizedFlag);
         stage.setFullScreen(!fullScreenFlag);
-        try {
-          TimeUnit.SECONDS.sleep(4);
-        }
-        catch (InterruptedException e) {
-          Assert.fail(e.getMessage(), e);
+        if (storage == OSStageStorage.MAC) {
+          try {
+            TimeUnit.SECONDS.sleep(4);
+          }
+          catch (InterruptedException e) {
+            Assert.fail(e.getMessage(), e);
+          }
         }
         stageStorage.save(stage);
         stageStorage.update(stage);
