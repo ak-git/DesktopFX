@@ -2,6 +2,7 @@ package com.ak.hardware.simple.comm.interceptor;
 
 import java.nio.ByteBuffer;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
@@ -11,6 +12,7 @@ public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Inte
     super("None", 1, (byte) 0);
   }
 
+  @Nonnegative
   @Override
   public int write(@Nonnull ByteBuffer src) {
     super.write(src);

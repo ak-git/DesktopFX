@@ -37,6 +37,7 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
   }
 
   @OverridingMethodsMustInvokeSuper
+  @Nonnegative
   @Override
   public int write(@Nonnull ByteBuffer src) {
     if (logger.isLoggable(LOG_LEVEL_BYTES)) {

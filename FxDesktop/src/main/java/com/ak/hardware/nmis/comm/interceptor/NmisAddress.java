@@ -31,7 +31,27 @@ enum NmisAddress {
 
   enum Extractor {
     NONE(DATA, FrameField.NONE),
+    /**
+     * <pre>
+     *   0х7Е, 0х45 (address for wrapped frame type), Len, CounterLow, CounterHi, DATA_WRAPPED_RSC_Energia ..., CRC
+     * </pre>
+     * Examples:
+     * <pre>
+     *   NmisResponseFrame[ 0x7e 0x45 0x02 <b>0x80 0x00</b> 0x45 ] DATA
+     *   NmisResponseFrame[ 0x7e 0x45 0x09 <b>0x85 0x00</b> 0x01 0x05 0x0b 0xe0 0xb1 0xe1 0x7a 0x4e ] DATA
+     * </pre>
+     */
     DATA_TIME(DATA, FrameField.TIME_COUNTER),
+    /**
+     * <pre>
+     *   0х7Е, 0х45 (address for wrapped frame type), Len, CounterLow, CounterHi, DATA_WRAPPED_RSC_Energia ..., CRC
+     * </pre>
+     * Examples:
+     * <pre>
+     *   NmisResponseFrame[ 0x7e 0x45 0x02 0x80 0x00 0x45 ] DATA
+     *   NmisResponseFrame[ 0x7e 0x45 0x09 0x85 0x00 <b>0x01 0x05 0x0b 0xe0 0xb1 0xe1 0x7a</b> 0x4e ] DATA
+     * </pre>
+     */
     DATA_DATA(DATA, FrameField.DATA_WRAPPED) {
       @Override
       void extract(@Nonnull ByteBuffer from, @Nonnull ByteBuffer to) {

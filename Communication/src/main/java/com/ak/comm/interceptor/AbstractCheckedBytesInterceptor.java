@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -24,6 +25,7 @@ public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedB
     ignoreBuffer = ByteBuffer.allocate(responseBuilder.buffer().capacity() + IGNORE_LIMIT);
   }
 
+  @Nonnegative
   @Override
   public final int write(@Nonnull ByteBuffer src) {
     super.write(src);
