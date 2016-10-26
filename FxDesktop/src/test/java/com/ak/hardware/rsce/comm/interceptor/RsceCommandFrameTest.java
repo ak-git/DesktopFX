@@ -35,11 +35,11 @@ public final class RsceCommandFrameTest {
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "rheo12-catch-rotate")
-  public void testInfoRequest(@Nonnull byte[] expected) {
+  public void testInfoRequest(@Nonnull byte[] expected, int[] rDozenMilliOhms) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(expected)).build();
     Assert.assertNotNull(frame);
-    Assert.assertEquals(frame.getR1DozenMilliOhms(), 2880, frame.toString());
-    Assert.assertEquals(frame.getR2DozenMilliOhms(), 2976, frame.toString());
+    Assert.assertEquals(frame.getR1DozenMilliOhms(), rDozenMilliOhms[0], frame.toString());
+    Assert.assertEquals(frame.getR2DozenMilliOhms(), rDozenMilliOhms[1], frame.toString());
   }
 
   @Test
