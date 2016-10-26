@@ -3,8 +3,11 @@ package com.ak.hardware.rsce.comm.interceptor;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -101,12 +104,91 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     }
   }
 
+  private enum FrameField {
+    NONE, R1_DOZEN_MILLI_OHM, R2_DOZEN_MILLI_OHM
+  }
+
+  private enum Extractor {
+    NONE(ActionType.NONE, RequestType.EMPTY, FrameField.NONE),
+    /**
+     * <pre>
+     *   2. 0x00 0x09 (Length) 0xc7 (None-Reserve) <b>0xRheo1-Low 0xRheo1-High</b> 0xRheo2-Low 0xRheo2-High 0xOpen% 0xRotate% CRC1 CRC2
+     * </pre>
+     */
+    R1_DOZEN_MILLI_OHM(ActionType.NONE, RequestType.RESERVE, FrameField.R1_DOZEN_MILLI_OHM) {
+      @Override
+      int extractResistance(@Nonnull ByteBuffer from) {
+        return from.getShort(3);
+      }
+    },
+    /**
+     * <pre>
+     *   2. 0x00 0x09 (Length) 0xc7 (None-Reserve) 0xRheo1-Low 0xRheo1-High <b>0xRheo2-Low 0xRheo2-High</b> 0xOpen% 0xRotate% CRC1 CRC2
+     * </pre>
+     */
+    R2_DOZEN_MILLI_OHM(ActionType.NONE, RequestType.RESERVE, FrameField.R2_DOZEN_MILLI_OHM) {
+      @Override
+      int extractResistance(@Nonnull ByteBuffer from) {
+        return from.getShort(5);
+      }
+    };
+
+    private static final Map<String, Map<FrameField, Extractor>> RSCE_TYPE_MAP = new HashMap<>();
+    @Nonnull
+    private final String type;
+    @Nonnull
+    private final FrameField field;
+
+    static {
+      for (ActionType actionType : ActionType.values()) {
+        for (RequestType requestType : RequestType.values()) {
+          RSCE_TYPE_MAP.put(toType(actionType, requestType), new EnumMap<>(FrameField.class));
+        }
+      }
+
+      for (Extractor extractor : Extractor.values()) {
+        RSCE_TYPE_MAP.get(extractor.type).put(extractor.field, extractor);
+      }
+    }
+
+    Extractor(@Nonnull ActionType actionType, @Nonnull RequestType requestType, @Nonnull FrameField field) {
+      type = toType(actionType, requestType);
+      this.field = field;
+    }
+
+    int extractResistance(@Nonnull ByteBuffer from) {
+      throw new UnsupportedOperationException(name());
+    }
+
+    @Nonnull
+    static Extractor from(@Nonnull ActionType actionType, @Nonnull RequestType requestType, @Nonnull FrameField field) {
+      return Optional.ofNullable(RSCE_TYPE_MAP.get(toType(actionType, requestType))).map(extractorMap -> extractorMap.get(field)).orElse(NONE);
+    }
+
+    @Nonnull
+    private static String toType(@Nonnull ActionType actionType, @Nonnull RequestType requestType) {
+      return String.format("%s-%s", actionType.name(), requestType.name());
+    }
+  }
+
   private static final int MAX_CAPACITY = 12;
   private static final int NON_LEN_BYTES = 2;
   private static final Map<String, RsceCommandFrame> SERVOMOTOR_REQUEST_MAP = new ConcurrentHashMap<>();
 
   private RsceCommandFrame(@Nonnull AbstractCheckedBuilder<RsceCommandFrame> builder) {
     super(builder.buffer());
+  }
+
+  int getR1DozenMilliOhms() {
+    return getRDozenMilliOhms(FrameField.R1_DOZEN_MILLI_OHM);
+  }
+
+  int getR2DozenMilliOhms() {
+    return getRDozenMilliOhms(FrameField.R2_DOZEN_MILLI_OHM);
+  }
+
+  private int getRDozenMilliOhms(FrameField frameField) {
+    return Extractor.from(ActionType.find(byteBuffer()), RequestType.find(byteBuffer()), frameField).extractResistance(byteBuffer());
   }
 
   @Override
@@ -185,7 +267,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     }
 
     ResponseBuilder(@Nonnull ByteBuffer buffer) {
-      super(buffer);
+      super(buffer.order(ByteOrder.LITTLE_ENDIAN));
     }
 
     @Override
@@ -216,7 +298,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
       }
 
       int codeLength = buffer().limit() - NON_LEN_BYTES;
-      if (buffer().order(ByteOrder.LITTLE_ENDIAN).getShort(codeLength) == (short) getChecksum(buffer(), codeLength)) {
+      if (buffer().getShort(codeLength) == (short) getChecksum(buffer(), codeLength)) {
         return new RsceCommandFrame(this);
       }
       else {

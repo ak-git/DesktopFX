@@ -12,7 +12,7 @@ public abstract class AbstractBufferFrame {
 
   protected AbstractBufferFrame(@Nonnull ByteBuffer byteBuffer) {
     byteBuffer.rewind();
-    this.byteBuffer = ByteBuffer.allocate(byteBuffer.limit()).put(byteBuffer);
+    this.byteBuffer = ByteBuffer.allocate(byteBuffer.limit()).put(byteBuffer).order(byteBuffer.order());
     this.byteBuffer.flip();
   }
 

@@ -34,6 +34,22 @@ public final class RsceCommandFrameTest {
     checkRequest(expected, RsceCommandFrame.position(CATCH, position));
   }
 
+  @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "rheo12-catch-rotate")
+  public void testInfoRequest(@Nonnull byte[] expected) {
+    RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(expected)).build();
+    Assert.assertNotNull(frame);
+    Assert.assertEquals(frame.getR1DozenMilliOhms(), 2880, frame.toString());
+    Assert.assertEquals(frame.getR2DozenMilliOhms(), 2976, frame.toString());
+  }
+
+  @Test
+  public void testInvalidInfoRequest() {
+    RsceCommandFrame frame = new RsceCommandFrame.RequestBuilder(ALL, RsceCommandFrame.ActionType.NONE, EMPTY).build();
+    Assert.assertNotNull(frame);
+    Assert.assertThrows(UnsupportedOperationException.class, frame::getR1DozenMilliOhms);
+    Assert.assertThrows(UnsupportedOperationException.class, frame::getR2DozenMilliOhms);
+  }
+
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "invalidRequests")
   public void testInvalidRequests(@Nonnull byte[] bytes) {
     Assert.assertNull(new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build(), Arrays.toString(bytes));

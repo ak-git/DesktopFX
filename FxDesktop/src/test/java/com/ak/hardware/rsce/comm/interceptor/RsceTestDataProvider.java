@@ -70,6 +70,13 @@ public final class RsceTestDataProvider {
     };
   }
 
+  @DataProvider(name = "rheo12-catch-rotate", parallel = true)
+  public static Object[][] infoRequests() {
+    return new Object[][] {
+        {new byte[] {0x00, 0x09, (byte) 0xc7, 0x40, 0x0b, (byte) 0xa0, 0x0b, 0x64, 0x00, (byte) 0xae, 0x55}}
+    };
+  }
+
   @DataProvider(name = "invalidRequests", parallel = true)
   public static Object[][] invalidRequests() {
     return new Object[][] {
