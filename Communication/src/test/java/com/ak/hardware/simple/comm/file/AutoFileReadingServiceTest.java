@@ -54,7 +54,9 @@ public final class AutoFileReadingServiceTest {
 
   @Test
   public void testInvalidFile() {
-    Assert.assertFalse(new AutoFileReadingService<>(new DefaultBytesInterceptor()).accept(Paths.get(Strings.EMPTY).toFile()));
+    AutoFileReadingService<Integer, Byte> fileReadingService = new AutoFileReadingService<>(new DefaultBytesInterceptor());
+    Assert.assertFalse(fileReadingService.accept(Paths.get(Strings.EMPTY).toFile()));
+    Assert.assertFalse(fileReadingService.isOpen());
   }
 
   @AfterClass

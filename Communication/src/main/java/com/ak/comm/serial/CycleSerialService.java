@@ -84,6 +84,11 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractInterce
   }
 
   @Override
+  public boolean isOpen() {
+    return serialService.isOpen();
+  }
+
+  @Override
   public void close() {
     synchronized (this) {
       executor.shutdownNow();

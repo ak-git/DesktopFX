@@ -23,6 +23,11 @@ public final class AutoFileReadingService<RESPONSE, REQUEST> extends AbstractInt
   }
 
   @Override
+  public boolean isOpen() {
+    return fileReadingService.isOpen();
+  }
+
+  @Override
   public void close() {
     fileReadingService.close();
     executor.shutdownNow();

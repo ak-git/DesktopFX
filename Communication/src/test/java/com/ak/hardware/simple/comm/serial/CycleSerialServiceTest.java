@@ -17,6 +17,9 @@ public final class CycleSerialServiceTest {
     TestSubscriber<Integer> subscriber = TestSubscriber.create();
     service.getBufferObservable().subscribe(subscriber);
     service.write((byte) 1);
+    if (service.isOpen()) {
+      service.write((byte) 2);
+    }
 
     subscriber.assertNotCompleted();
     service.close();

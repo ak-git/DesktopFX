@@ -13,6 +13,7 @@ import com.ak.comm.core.Service;
 import com.ak.logging.BinaryLogBuilder;
 import com.ak.logging.LocalFileHandler;
 import com.ak.logging.LogPathBuilder;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import rx.Observer;
@@ -24,6 +25,7 @@ public final class FileReadingServiceTest {
     Path path = new BinaryLogBuilder(getClass().getSimpleName(), LocalFileHandler.class).build().getPath();
     TestSubscriber<ByteBuffer> testSubscriber = TestSubscriber.create();
     Service<ByteBuffer> service = new FileReadingService(path, testSubscriber);
+    Assert.assertTrue(service.toString().contains(path.toString()));
     service.close();
     testSubscriber.assertNotCompleted();
     Files.deleteIfExists(path);
