@@ -2,7 +2,6 @@ package com.ak.hardware.nmis.comm.file;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,9 +16,7 @@ import com.ak.hardware.nmis.comm.interceptor.NmisRequest;
 import com.ak.hardware.nmis.comm.interceptor.NmisResponseFrame;
 import com.ak.logging.BinaryLogBuilder;
 import com.ak.logging.LocalFileHandler;
-import com.ak.logging.LogPathBuilder;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import rx.observers.TestSubscriber;
 
@@ -90,16 +87,5 @@ public final class AutoFileReadingServiceTest {
   @Test
   public void testInvalidFile() {
     Assert.assertFalse(new AutoFileReadingService<>(new DefaultBytesInterceptor()).accept(Paths.get("").toFile()));
-  }
-
-  @AfterClass
-  public void tearDown() throws Exception {
-    Path logPath = new LogPathBuilder().addPath(LocalFileHandler.class.getSimpleName()).build().getPath();
-    try (DirectoryStream<Path> ds = Files.newDirectoryStream(logPath)) {
-      for (Path file : ds) {
-        Files.delete(file);
-      }
-    }
-    Files.delete(logPath);
   }
 }

@@ -13,7 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.testng.log.TextFormatter;
@@ -60,7 +60,7 @@ public class LocalFileHandlerTest {
     Files.deleteIfExists(path);
   }
 
-  @AfterClass
+  @AfterSuite
   public void tearDown() throws Exception {
     try (DirectoryStream<Path> ds = Files.newDirectoryStream(logPath)) {
       for (Path file : ds) {
