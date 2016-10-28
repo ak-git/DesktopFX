@@ -2,7 +2,6 @@ package com.ak.hardware.simple.comm.file;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,10 +12,8 @@ import com.ak.comm.file.AutoFileReadingService;
 import com.ak.hardware.simple.comm.interceptor.DefaultBytesInterceptor;
 import com.ak.logging.BinaryLogBuilder;
 import com.ak.logging.LocalFileHandler;
-import com.ak.logging.LogPathBuilder;
 import com.ak.util.Strings;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import rx.observers.TestSubscriber;
 
@@ -57,16 +54,5 @@ public final class AutoFileReadingServiceTest {
     AutoFileReadingService<Integer, Byte> fileReadingService = new AutoFileReadingService<>(new DefaultBytesInterceptor());
     Assert.assertFalse(fileReadingService.accept(Paths.get(Strings.EMPTY).toFile()));
     Assert.assertFalse(fileReadingService.isOpen());
-  }
-
-  @AfterClass
-  public void tearDown() throws Exception {
-    Path logPath = new LogPathBuilder().addPath(LocalFileHandler.class.getSimpleName()).build().getPath();
-    try (DirectoryStream<Path> ds = Files.newDirectoryStream(logPath)) {
-      for (Path file : ds) {
-        Files.delete(file);
-      }
-    }
-    Files.delete(logPath);
   }
 }

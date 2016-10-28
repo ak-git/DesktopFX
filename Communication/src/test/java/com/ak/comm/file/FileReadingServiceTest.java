@@ -11,6 +11,7 @@ import java.util.concurrent.CountDownLatch;
 import com.ak.comm.core.Service;
 import com.ak.logging.BinaryLogBuilder;
 import com.ak.logging.LocalFileHandler;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 import rx.Observer;
 import rx.observers.TestSubscriber;
