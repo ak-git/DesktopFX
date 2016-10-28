@@ -3,7 +3,6 @@ package com.ak.comm.file;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -12,8 +11,6 @@ import java.util.concurrent.CountDownLatch;
 import com.ak.comm.core.Service;
 import com.ak.logging.BinaryLogBuilder;
 import com.ak.logging.LocalFileHandler;
-import com.ak.logging.LogPathBuilder;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import rx.Observer;
 import rx.observers.TestSubscriber;
@@ -63,16 +60,5 @@ public final class FileReadingServiceTest {
       testSubscriber.assertCompleted();
     }
     Files.deleteIfExists(path);
-  }
-
-  @AfterClass
-  public void tearDown() throws Exception {
-    Path logPath = new LogPathBuilder().addPath(LocalFileHandler.class.getSimpleName()).build().getPath();
-    try (DirectoryStream<Path> ds = Files.newDirectoryStream(logPath)) {
-      for (Path file : ds) {
-        Files.delete(file);
-      }
-    }
-    Files.delete(logPath);
   }
 }

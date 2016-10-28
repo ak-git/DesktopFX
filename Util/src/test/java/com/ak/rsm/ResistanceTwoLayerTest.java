@@ -14,15 +14,15 @@ public class ResistanceTwoLayerTest {
   @DataProvider(name = "layer-model", parallel = true)
   public static Object[][] twoLayerParameters() {
     return new Object[][] {
-        {new Double[] {1.0, 1.0}, 0.0, 20, 40, 21.221},
-        {new Double[] {2.0, 2.0}, 0.0, 20, 40, 21.221 * 2.0},
-        {new Double[] {1.0, 1.0}, 0.0, 40, 80, 10.610},
-        {new Double[] {0.5, 0.5}, 0.0, 40, 80, 10.610 / 2.0},
+        {new Double[] {1.0, 1.0}, 0.0, 20.0, 40.0, 21.221},
+        {new Double[] {2.0, 2.0}, 0.0, 20.0, 40.0, 21.221 * 2.0},
+        {new Double[] {1.0, 1.0}, 0.0, 40.0, 80.0, 10.610},
+        {new Double[] {0.5, 0.5}, 0.0, 40.0, 80.0, 10.610 / 2.0},
 
-        {new Double[] {3.5, 1.35}, 10, 20, 40, 59.108},
-        {new Double[] {5.0, 2.0}, 15, 20, 40, 95.908},
-        {new Double[] {7.0, 1.0}, 20, 40, 80, 50.132},
-        {new Double[] {9.5, 0.5}, 30, 40, 80, 81.831},
+        {new Double[] {3.5, 1.35}, 10.0, 20.0, 40.0, 59.108},
+        {new Double[] {5.0, 2.0}, 15.0, 20.0, 40.0, 95.908},
+        {new Double[] {7.0, 1.0}, 20.0, 40.0, 80.0, 50.132},
+        {new Double[] {9.5, 0.5}, 30.0, 40.0, 80.0, 81.831},
 
         {new Double[] {20.0, 1.0}, 1.0, 40.0, 80.0, 10.649}
     };
