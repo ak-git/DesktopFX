@@ -179,6 +179,10 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     super(builder.buffer());
   }
 
+  boolean hasResistance() {
+    return Extractor.from(ActionType.find(byteBuffer()), RequestType.find(byteBuffer()), FrameField.R1_DOZEN_MILLI_OHM) != Extractor.NONE;
+  }
+
   int getR1DozenMilliOhms() {
     return getRDozenMilliOhms(FrameField.R1_DOZEN_MILLI_OHM);
   }
