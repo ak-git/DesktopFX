@@ -1,12 +1,12 @@
 ext.projectIds = ['java': '1.8']
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "2.14"
+    gradleVersion = "3.1"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '1.5.1'
+    version = '1.5.2'
     apply plugin: 'idea'
 }
 
