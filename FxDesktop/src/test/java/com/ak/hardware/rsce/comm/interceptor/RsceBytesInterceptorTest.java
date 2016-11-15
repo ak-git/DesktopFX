@@ -40,7 +40,7 @@ public final class RsceBytesInterceptorTest {
       Assert.assertEquals(countResponses, 1);
       subscriber.assertValue(request);
     }
-    Assert.assertTrue(interceptor.put(request).remaining() > 0);
+    Assert.assertTrue(interceptor.putOut(request).remaining() > 0);
     interceptor.close();
     subscriber.assertCompleted();
     subscriber.assertNoErrors();

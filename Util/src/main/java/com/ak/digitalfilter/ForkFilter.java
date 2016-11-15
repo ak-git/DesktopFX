@@ -11,6 +11,9 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import static com.ak.util.Strings.EMPTY;
+import static com.ak.util.Strings.NEW_LINE;
+
 final class ForkFilter extends AbstractDigitalFilter {
   private final List<DigitalFilter> filters = new LinkedList<>();
 
@@ -44,16 +47,22 @@ final class ForkFilter extends AbstractDigitalFilter {
           }
         }
         else {
-          throw new IllegalStateException(String.format("%s, %s", filter, Arrays.toString(values)));
+          throw new IllegalStateException(String.format("Invalid fork [ %s ] for filter {%n%s%n}, values = %s", filter,
+              this, Arrays.toString(values)));
         }
       });
     }
   }
 
-  @Nonnegative
   @Override
   public double getDelay() {
     return filters.stream().mapToDouble(Delay::getDelay).max().orElseThrow(IllegalStateException::new);
+  }
+
+  @Nonnegative
+  @Override
+  public double getFrequencyFactor() {
+    return filters.stream().mapToDouble(Delay::getFrequencyFactor).max().orElseThrow(IllegalStateException::new);
   }
 
   @Override

@@ -15,6 +15,8 @@ import javax.annotation.Nonnull;
 
 import com.ak.util.OSDirectory;
 
+import static com.ak.util.Strings.EMPTY;
+
 public enum LogOSDirectory implements OSDirectory {
   WINDOWS {
     @Nonnull
@@ -22,7 +24,7 @@ public enum LogOSDirectory implements OSDirectory {
     public Path getDirectory() {
       File appDataDir = null;
       try {
-        String appDataEV = Optional.ofNullable(System.getenv("APPDATA")).orElse("");
+        String appDataEV = Optional.ofNullable(System.getenv("APPDATA")).orElse(EMPTY);
         if (!appDataEV.isEmpty()) {
           appDataDir = new File(appDataEV);
         }
@@ -55,7 +57,7 @@ public enum LogOSDirectory implements OSDirectory {
   };
 
   private static final String USER_HOME_PATH = AccessController.doPrivileged(
-      (PrivilegedAction<String>) () -> Optional.ofNullable(System.getProperty("user.home")).orElse(""));
+      (PrivilegedAction<String>) () -> Optional.ofNullable(System.getProperty("user.home")).orElse(EMPTY));
   private static final String VENDOR_ID = Stream.of(LogOSDirectory.class.getPackage().getName().split("\\.")).limit(2).
       collect(Collectors.joining("."));
 }

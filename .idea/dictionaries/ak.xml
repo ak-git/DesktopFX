@@ -51,6 +51,7 @@
       <w>digitalfilter</w>
       <w>ecgm</w>
       <w>endian</w>
+      <w>energia</w>
       <w>exceptionhandling</w>
       <w>flexion</w>
       <w>fono</w>
@@ -91,6 +92,7 @@
       <w>multirate</w>
       <w>myogram</w>
       <w>nelder</w>
+      <w>neuro</w>
       <w>neuronrobotics</w>
       <w>nmis</w>
       <w>nmisr</w>

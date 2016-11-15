@@ -18,6 +18,7 @@ import com.ak.comm.core.AbstractService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.logging.BinaryLogBuilder;
 import com.ak.logging.LocalFileHandler;
+import com.ak.util.Strings;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
@@ -142,7 +143,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
     public synchronized String next() {
       String[] portNames = SerialPortList.getPortNames((o1, o2) -> usedPorts.indexOf(o1) - usedPorts.indexOf(o2));
       if (portNames.length == 0) {
-        return "";
+        return Strings.EMPTY;
       }
       else {
         String portName = portNames[0];

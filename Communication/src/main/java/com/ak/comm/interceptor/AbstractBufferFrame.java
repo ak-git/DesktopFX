@@ -4,13 +4,15 @@ import java.nio.ByteBuffer;
 
 import javax.annotation.Nonnull;
 
+import com.ak.util.Strings;
+
 public abstract class AbstractBufferFrame {
   @Nonnull
   private final ByteBuffer byteBuffer;
 
   protected AbstractBufferFrame(@Nonnull ByteBuffer byteBuffer) {
     byteBuffer.rewind();
-    this.byteBuffer = ByteBuffer.allocate(byteBuffer.limit()).put(byteBuffer);
+    this.byteBuffer = ByteBuffer.allocate(byteBuffer.limit()).put(byteBuffer).order(byteBuffer.order());
     this.byteBuffer.flip();
   }
 
@@ -51,7 +53,7 @@ public abstract class AbstractBufferFrame {
     }
     sb.append("]");
     if (buffer.limit() > 1) {
-      sb.append(" ").append(buffer.limit()).append(" bytes");
+      sb.append(Strings.SPACE).append(buffer.limit()).append(" bytes");
     }
     buffer.rewind();
     return sb.toString();

@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ak.comm.core.AbstractInterceptorService;
+import com.ak.comm.interceptor.AbstractInterceptorService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.UIConstants;
 import rx.Subscription;
@@ -56,7 +56,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractInterce
             }
           }
           catch (InterruptedException e) {
-            Logger.getLogger(getClass().getName()).log(Level.FINE, serialService.toString(), e);
+            Logger.getLogger(getClass().getName()).log(Level.FINEST, serialService.toString(), e);
             Thread.currentThread().interrupt();
             break;
           }
@@ -78,7 +78,14 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractInterce
   }
 
   public int write(@Nullable REQUEST request) {
-    return request == null ? -1 : serialService.write(bytesInterceptor().put(request));
+    synchronized (this) {
+      return request == null ? -1 : serialService.write(bytesInterceptor().putOut(request));
+    }
+  }
+
+  @Override
+  public boolean isOpen() {
+    return serialService.isOpen();
   }
 
   @Override

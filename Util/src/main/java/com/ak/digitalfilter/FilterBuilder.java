@@ -2,11 +2,14 @@ package com.ak.digitalfilter;
 
 import java.util.Optional;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import javafx.util.Builder;
 
 class FilterBuilder implements Builder<DigitalFilter> {
+  @Nullable
   private DigitalFilter filter;
 
   private FilterBuilder() {
@@ -23,9 +26,33 @@ class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   @Nonnull
+  FilterBuilder comb(@Nonnegative int combFactor) {
+    return chain(new CombFilter(combFactor));
+  }
+
+  @Nonnull
+  FilterBuilder integrate() {
+    return chain(new IntegrateFilter());
+  }
+
+  @Nonnull
+  FilterBuilder rrs(@Nonnegative int averageFactor) {
+    return chain(new RecursiveRunningSumFilter(averageFactor));
+  }
+
+  @Nonnull
+  FilterBuilder decimate(@Nonnegative int decimateFactor) {
+    return chain(new LinearDecimationFilter(decimateFactor));
+  }
+
+  @Nonnull
+  FilterBuilder interpolate(@Nonnegative int interpolateFactor) {
+    return chain(new LinearInterpolationFilter(interpolateFactor));
+  }
+
+  @Nonnull
   FilterBuilder fork(@Nonnull DigitalFilter first, @Nonnull DigitalFilter... next) {
-    filter = new ChainFilter(build(), new ForkFilter(first, next));
-    return this;
+    return chain(new ForkFilter(first, next));
   }
 
   @Nonnull

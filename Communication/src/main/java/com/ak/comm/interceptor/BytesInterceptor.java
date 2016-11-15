@@ -23,6 +23,7 @@ public interface BytesInterceptor<RESPONSE, REQUEST> extends WritableByteChannel
    * @param src input bytes buffer
    * @return count response generated
    */
+  @Nonnegative
   @Override
   int write(@Nonnull ByteBuffer src);
 
@@ -36,5 +37,5 @@ public interface BytesInterceptor<RESPONSE, REQUEST> extends WritableByteChannel
    * @return output bytes buffer with object converted
    */
   @Nonnull
-  ByteBuffer put(@Nonnull REQUEST request);
+  ByteBuffer putOut(@Nonnull REQUEST request);
 }

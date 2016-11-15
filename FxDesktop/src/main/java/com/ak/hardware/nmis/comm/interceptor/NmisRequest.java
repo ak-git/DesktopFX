@@ -9,6 +9,8 @@ import javax.annotation.Nonnull;
 
 import com.ak.comm.interceptor.AbstractBufferFrame;
 
+import static com.ak.util.Strings.SPACE;
+
 public final class NmisRequest extends AbstractBufferFrame {
   private enum Ohm {
     Z_360(0), Z_0_47(1), Z_1(1 << 1), Z_2(1 << 2), Z_30A(1 << 3), Z_30B(1 << 4), Z_127(1 << 5);
@@ -113,7 +115,6 @@ public final class NmisRequest extends AbstractBufferFrame {
   }
 
   private static class Builder implements javafx.util.Builder<NmisRequest> {
-    private static final String SPACE = " ";
     private final byte[] codes = new byte[1 + 1 + 1 + 8 + 1];
     private final StringBuilder toStringBuilder = new StringBuilder();
 
@@ -148,6 +149,9 @@ public final class NmisRequest extends AbstractBufferFrame {
     @Nonnull
     @Override
     public NmisRequest build() {
+      if (toStringBuilder.length() > 1) {
+        toStringBuilder.deleteCharAt(toStringBuilder.length() - 1);
+      }
       saveCRC(codes);
       return new NmisRequest(this);
     }

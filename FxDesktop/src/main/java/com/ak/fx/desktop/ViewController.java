@@ -7,7 +7,7 @@ import java.util.ResourceBundle;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
-import com.ak.comm.file.AutoFileReadingService;
+import com.ak.comm.GroupService;
 import com.ak.fx.scene.MilliGrid;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -19,10 +19,10 @@ public final class ViewController implements Initializable {
   @FXML
   public MilliGrid root = new MilliGrid();
   @Nonnull
-  private final AutoFileReadingService<?, ?> service;
+  private final GroupService<?, ?> service;
 
   @Inject
-  public ViewController(@Nonnull AutoFileReadingService<?, ?> service) {
+  public ViewController(@Nonnull GroupService<?, ?> service) {
     this.service = service;
   }
 

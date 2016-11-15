@@ -5,12 +5,10 @@ import java.io.FileFilter;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
-import com.ak.comm.core.AbstractInterceptorService;
+import com.ak.comm.interceptor.AbstractInterceptorService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import rx.Observer;
 import rx.observers.TestSubscriber;
@@ -25,12 +23,15 @@ public final class AutoFileReadingService<RESPONSE, REQUEST> extends AbstractInt
   }
 
   @Override
+  public boolean isOpen() {
+    return fileReadingService.isOpen();
+  }
+
+  @Override
   public void close() {
-    synchronized (this) {
-      executor.shutdownNow();
-      fileReadingService.close();
-      super.close();
-    }
+    fileReadingService.close();
+    executor.shutdownNow();
+    super.close();
   }
 
   @Override
@@ -44,7 +45,6 @@ public final class AutoFileReadingService<RESPONSE, REQUEST> extends AbstractInt
 
         @Override
         public void onError(Throwable e) {
-          Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
         }
 
         @Override

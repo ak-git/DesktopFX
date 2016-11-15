@@ -1,15 +1,14 @@
 package com.ak.digitalfilter;
 
 import java.util.Arrays;
-import java.util.function.IntUnaryOperator;
 
 import javax.annotation.Nonnegative;
 
-abstract class OperableFilter extends AbstractDigitalFilter implements IntUnaryOperator {
+abstract class AbstractUnaryFilter extends AbstractDigitalFilter {
   @Override
   public final void accept(int... in) {
     if (in.length == 1) {
-      publish(applyAsInt(in[0]));
+      publishUnary(in[0]);
     }
     else {
       throw new IllegalArgumentException(String.format("%s %s", toString(), Arrays.toString(in)));
@@ -21,4 +20,6 @@ abstract class OperableFilter extends AbstractDigitalFilter implements IntUnaryO
   public final int size() {
     return 1;
   }
+
+  abstract void publishUnary(int in);
 }
