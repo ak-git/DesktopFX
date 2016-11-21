@@ -1,8 +1,17 @@
 package com.ak.rsm;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.nio.file.Paths;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+
 import javax.measure.Quantity;
 import javax.measure.quantity.ElectricResistance;
 
+import com.ak.util.LineFileCollector;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -60,5 +69,38 @@ public class TetrapolarSystemTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public static void testInvalidConstructor() {
     new TetrapolarSystem(2.0, 1.0, METRE);
+  }
+
+  @DataProvider(name = "R(Ohm)-L(mm)")
+  public static Object[][] rL() throws IOException {
+    Supplier<DoubleStream> xVar = () -> doubleRange(1.0, 1000.0);
+    xVar.get().mapToObj(value -> String.format("%.0f", value)).collect(
+        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL));
+
+    Supplier<DoubleStream> yVar = () -> doubleRange(1.0, 100.0);
+    yVar.get().mapToObj(value -> String.format("%.0f", value)).collect(
+        new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
+    return new Object[][] {{xVar, yVar}};
+  }
+
+  @Test(dataProvider = "R(Ohm)-L(mm)", enabled = false)
+  public static void testApparent(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+    DoubleStream.of(1.0 / 3.0, 0.5).forEachOrdered(sToL -> {
+      try {
+        yVar.get().mapToObj(lmm -> xVar.get().map(r ->
+            new TetrapolarSystem(lmm * sToL, lmm, MILLI(METRE)).getApparent(Quantities.getQuantity(r, OHM)))
+        ).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+            collect(new LineFileCollector(Paths.get(String.format("Apparent_Rho_At_%.2f.txt", sToL)),
+                LineFileCollector.Direction.VERTICAL));
+      }
+      catch (IOException e) {
+        Assert.fail(e.getMessage(), e);
+      }
+    });
+  }
+
+  private static DoubleStream doubleRange(double step, double end) {
+    return DoubleStream.iterate(step, dl2L -> dl2L + step).
+        limit(BigDecimal.valueOf(end / step).round(MathContext.UNLIMITED).intValue()).sequential();
   }
 }
