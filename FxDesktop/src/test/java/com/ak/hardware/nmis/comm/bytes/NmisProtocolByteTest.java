@@ -1,4 +1,4 @@
-package com.ak.hardware.nmis.comm.interceptor;
+package com.ak.hardware.nmis.comm.bytes;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -7,10 +7,10 @@ import java.util.EnumSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static com.ak.hardware.nmis.comm.interceptor.NmisProtocolByte.LEN;
-import static com.ak.hardware.nmis.comm.interceptor.NmisProtocolByte.MAX_CAPACITY;
-import static com.ak.hardware.nmis.comm.interceptor.NmisProtocolByte.START;
-import static com.ak.hardware.nmis.comm.interceptor.NmisProtocolByte.checkCRC;
+import static com.ak.hardware.nmis.comm.bytes.NmisProtocolByte.LEN;
+import static com.ak.hardware.nmis.comm.bytes.NmisProtocolByte.MAX_CAPACITY;
+import static com.ak.hardware.nmis.comm.bytes.NmisProtocolByte.START;
+import static com.ak.hardware.nmis.comm.bytes.NmisProtocolByte.checkCRC;
 
 public final class NmisProtocolByteTest {
   @Test

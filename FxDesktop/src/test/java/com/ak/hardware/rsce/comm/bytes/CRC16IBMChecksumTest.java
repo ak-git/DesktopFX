@@ -1,4 +1,4 @@
-package com.ak.hardware.rsce.comm.interceptor;
+package com.ak.hardware.rsce.comm.bytes;
 
 import javax.annotation.Nonnull;
 

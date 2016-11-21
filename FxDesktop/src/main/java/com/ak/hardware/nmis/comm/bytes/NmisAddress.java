@@ -1,4 +1,4 @@
-package com.ak.hardware.nmis.comm.interceptor;
+package com.ak.hardware.nmis.comm.bytes;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ak.comm.interceptor.AbstractBufferFrame;
+import com.ak.comm.bytes.AbstractBufferFrame;
 
 enum NmisAddress {
   SINGLE(0x81, 0x91),

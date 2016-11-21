@@ -1,4 +1,4 @@
-package com.ak.hardware.nmis.comm.interceptor;
+package com.ak.hardware.nmis.comm.bytes;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
-import com.ak.comm.interceptor.AbstractBufferFrame;
+import com.ak.comm.bytes.AbstractBufferFrame;
 
 import static com.ak.util.Strings.SPACE;
 

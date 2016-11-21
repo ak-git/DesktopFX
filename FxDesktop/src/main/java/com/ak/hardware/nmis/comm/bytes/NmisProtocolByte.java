@@ -1,4 +1,4 @@
-package com.ak.hardware.nmis.comm.interceptor;
+package com.ak.hardware.nmis.comm.bytes;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
@@ -7,7 +7,7 @@ import java.util.EnumSet;
 
 import javax.annotation.Nonnull;
 
-import com.ak.comm.interceptor.BytesChecker;
+import com.ak.comm.bytes.BytesChecker;
 
 public enum NmisProtocolByte implements BytesChecker {
   START {

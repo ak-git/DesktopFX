@@ -1,12 +1,12 @@
-package com.ak.hardware.nmis.comm.interceptor;
+package com.ak.hardware.nmis.comm.bytes;
 
 import java.nio.ByteBuffer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ak.comm.interceptor.AbstractBufferFrame;
-import com.ak.comm.interceptor.AbstractCheckedBuilder;
+import com.ak.comm.bytes.AbstractBufferFrame;
+import com.ak.comm.bytes.AbstractCheckedBuilder;
 
 /**
  * Classic <b>NMI Test Stand</b> Response Frame for INEUM protocol.

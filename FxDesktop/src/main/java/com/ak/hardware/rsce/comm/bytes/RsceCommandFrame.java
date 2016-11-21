@@ -1,4 +1,4 @@
-package com.ak.hardware.rsce.comm.interceptor;
+package com.ak.hardware.rsce.comm.bytes;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -18,9 +18,9 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ak.comm.interceptor.AbstractBufferFrame;
-import com.ak.comm.interceptor.AbstractCheckedBuilder;
-import com.ak.comm.interceptor.BytesChecker;
+import com.ak.comm.bytes.AbstractBufferFrame;
+import com.ak.comm.bytes.AbstractCheckedBuilder;
+import com.ak.comm.bytes.BytesChecker;
 
 public final class RsceCommandFrame extends AbstractBufferFrame {
   private enum ProtocolByte implements BytesChecker {

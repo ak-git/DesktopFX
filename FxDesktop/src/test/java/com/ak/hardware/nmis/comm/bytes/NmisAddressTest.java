@@ -1,4 +1,4 @@
-package com.ak.hardware.nmis.comm.interceptor;
+package com.ak.hardware.nmis.comm.bytes;
 
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
@@ -7,12 +7,12 @@ import java.util.Optional;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static com.ak.hardware.nmis.comm.interceptor.NmisAddress.ALIVE;
-import static com.ak.hardware.nmis.comm.interceptor.NmisAddress.CATCH_ELBOW;
-import static com.ak.hardware.nmis.comm.interceptor.NmisAddress.CATCH_HAND;
-import static com.ak.hardware.nmis.comm.interceptor.NmisAddress.DATA;
-import static com.ak.hardware.nmis.comm.interceptor.NmisAddress.ROTATE_ELBOW;
-import static com.ak.hardware.nmis.comm.interceptor.NmisAddress.ROTATE_HAND;
+import static com.ak.hardware.nmis.comm.bytes.NmisAddress.ALIVE;
+import static com.ak.hardware.nmis.comm.bytes.NmisAddress.CATCH_ELBOW;
+import static com.ak.hardware.nmis.comm.bytes.NmisAddress.CATCH_HAND;
+import static com.ak.hardware.nmis.comm.bytes.NmisAddress.DATA;
+import static com.ak.hardware.nmis.comm.bytes.NmisAddress.ROTATE_ELBOW;
+import static com.ak.hardware.nmis.comm.bytes.NmisAddress.ROTATE_HAND;
 
 public final class NmisAddressTest {
   @Test

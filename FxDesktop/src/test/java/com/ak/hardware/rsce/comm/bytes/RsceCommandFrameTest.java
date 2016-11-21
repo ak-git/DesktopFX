@@ -1,4 +1,4 @@
-package com.ak.hardware.rsce.comm.interceptor;
+package com.ak.hardware.rsce.comm.bytes;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -8,10 +8,10 @@ import javax.annotation.Nonnull;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static com.ak.hardware.rsce.comm.interceptor.RsceCommandFrame.Control.ALL;
-import static com.ak.hardware.rsce.comm.interceptor.RsceCommandFrame.Control.CATCH;
-import static com.ak.hardware.rsce.comm.interceptor.RsceCommandFrame.RequestType.EMPTY;
-import static com.ak.hardware.rsce.comm.interceptor.RsceCommandFrame.RequestType.STATUS_I_SPEED_ANGLE;
+import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.Control.ALL;
+import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.Control.CATCH;
+import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.RequestType.EMPTY;
+import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.RequestType.STATUS_I_SPEED_ANGLE;
 
 public final class RsceCommandFrameTest {
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "simpleRequests")
