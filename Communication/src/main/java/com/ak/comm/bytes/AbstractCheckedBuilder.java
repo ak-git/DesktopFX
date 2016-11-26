@@ -22,7 +22,6 @@ public abstract class AbstractCheckedBuilder<T> implements BytesChecker, Builder
     throw new UnsupportedOperationException(Arrays.toString(buffer.array()));
   }
 
-  @Nonnull
   public final ByteBuffer buffer() {
     return buffer;
   }

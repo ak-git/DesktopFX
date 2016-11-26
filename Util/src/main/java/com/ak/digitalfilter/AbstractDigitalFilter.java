@@ -43,7 +43,6 @@ abstract class AbstractDigitalFilter implements DigitalFilter {
     }
   }
 
-  @Nonnull
   static String newLineTabSpaces(@Nonnegative int len) {
     return Stream.generate(() -> SPACE).limit(len).collect(Collectors.joining(EMPTY, NEW_LINE, EMPTY));
   }

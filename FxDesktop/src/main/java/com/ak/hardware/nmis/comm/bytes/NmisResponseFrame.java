@@ -53,7 +53,6 @@ public final class NmisResponseFrame extends AbstractBufferFrame {
     NmisAddress.Extractor.from(address, NmisAddress.FrameField.DATA_WRAPPED).extract(byteBuffer(), destination);
   }
 
-  @Nonnull
   @Override
   public String toString() {
     return String.format("%s %s", super.toString(), address);

@@ -68,15 +68,19 @@ public final class NmisRequest extends AbstractBufferFrame {
     ROTATE_100(5, MyoType.MV0_1, MyoFrequency.NOISE), ROTATE_60(6, MyoType.MV0_1, MyoFrequency.NOISE),
     ROTATE_30(7, MyoType.MV0_1, MyoFrequency.NOISE), ROTATE_INV(8, MyoType.MV0_1, MyoFrequency.NOISE);
 
-    private final Builder builder;
+    private final int number;
+    private final MyoType myoType;
+    private final MyoFrequency frequency;
 
     Sequence(int number, MyoType myoType, MyoFrequency frequency) {
-      builder = new Builder(NmisAddress.SEQUENCE).sequence(number).forAll(myoType, frequency);
+      this.number = number;
+      this.myoType = myoType;
+      this.frequency = frequency;
     }
 
     @Override
     public final NmisRequest build() {
-      return builder.build();
+      return new Builder(NmisAddress.SEQUENCE).sequence(number).forAll(myoType, frequency).build();
     }
   }
 
@@ -87,7 +91,6 @@ public final class NmisRequest extends AbstractBufferFrame {
     toString = builder.toStringBuilder.toString();
   }
 
-  @Nonnull
   NmisResponseFrame toResponse() {
     byte[] codes = Arrays.copyOf(byteBuffer().array(), byteBuffer().capacity());
     codes[NmisProtocolByte.ADDR.ordinal()] = Objects.requireNonNull(NmisAddress.find(byteBuffer())).getAddrResponse();
@@ -99,7 +102,6 @@ public final class NmisRequest extends AbstractBufferFrame {
     return response;
   }
 
-  @Nonnull
   @Override
   public String toString() {
     return String.format("%s %s", super.toString(), toString);
@@ -146,7 +148,6 @@ public final class NmisRequest extends AbstractBufferFrame {
       return this;
     }
 
-    @Nonnull
     @Override
     public NmisRequest build() {
       if (toStringBuilder.length() > 1) {

@@ -85,7 +85,6 @@ enum NmisAddress {
     void extract(@Nonnull ByteBuffer from, @Nonnull ByteBuffer to) {
     }
 
-    @Nonnull
     static Extractor from(@Nonnull NmisAddress address, @Nonnull FrameField field) {
       return Optional.ofNullable(NMIS_ADDRESS_MAP.get(address)).map(extractorMap -> extractorMap.get(field)).orElse(NONE);
     }

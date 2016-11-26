@@ -6,7 +6,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -41,7 +40,6 @@ public enum ScreenResolutionMonitor {
     }
   }
 
-  @Nonnull
   public Observable<Double> getDpiObservable() {
     return dpiObservable;
   }

@@ -64,7 +64,6 @@ public final class LocalStorage<T> extends AbstractStorage<T> {
     }
   }
 
-  @Nonnull
   private String fileName() {
     return String.format("%s_%s", getFilePrefix(), fileSuffix);
   }

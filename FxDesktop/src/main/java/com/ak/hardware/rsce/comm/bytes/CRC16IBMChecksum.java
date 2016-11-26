@@ -4,8 +4,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.zip.Checksum;
 
-import javax.annotation.Nonnull;
-
 final class CRC16IBMChecksum implements Checksum {
   private static final int[] CRC_16_TABLE = {
       0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,
@@ -83,7 +81,6 @@ final class CRC16IBMChecksum implements Checksum {
     }
   }
 
-  @Nonnull
   @Override
   public String toString() {
     return String.format("%#04X", getValue());

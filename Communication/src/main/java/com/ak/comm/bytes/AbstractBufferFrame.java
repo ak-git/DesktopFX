@@ -38,13 +38,11 @@ public abstract class AbstractBufferFrame {
     return byteBuffer.hashCode();
   }
 
-  @Nonnull
   @Override
   public String toString() {
     return toString(getClass(), byteBuffer);
   }
 
-  @Nonnull
   public static String toString(@Nonnull Class<?> clazz, @Nonnull ByteBuffer buffer) {
     buffer.rewind();
     StringBuilder sb = new StringBuilder(clazz.getSimpleName()).append("[ ");
@@ -64,7 +62,6 @@ public abstract class AbstractBufferFrame {
     byteBuffer.rewind();
   }
 
-  @Nonnull
   protected final ByteBuffer byteBuffer() {
     return byteBuffer;
   }
