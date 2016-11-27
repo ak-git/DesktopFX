@@ -17,7 +17,7 @@ import io.reactivex.subscribers.TestSubscriber;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public final class FileReadingServiceTest {
+public final class FilePublisherTest {
   private static final int KILO_BYTE = 1024;
 
   @DataProvider(name = "files")
@@ -32,7 +32,7 @@ public final class FileReadingServiceTest {
   @Test(dataProvider = "files")
   public void testFile(@Nonnull Path fileToRead, @Nonnegative int valueCount) throws Exception {
     TestSubscriber<ByteBuffer> testSubscriber = TestSubscriber.create();
-    Flowable.fromPublisher(new FileReadingService(fileToRead)).subscribe(testSubscriber);
+    Flowable.fromPublisher(new FilePublisher(fileToRead)).subscribe(testSubscriber);
     testSubscriber.assertValueCount(valueCount);
     testSubscriber.assertComplete();
     testSubscriber.assertNoErrors();

@@ -16,12 +16,12 @@ import io.reactivex.internal.subscriptions.EmptySubscription;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
-final class FileReadingService implements Publisher<ByteBuffer> {
+final class FilePublisher implements Publisher<ByteBuffer> {
   private static final int CAPACITY_4K = 1024 * 4;
   @Nonnull
   private final Path fileToRead;
 
-  FileReadingService(@Nonnull Path fileToRead) {
+  FilePublisher(@Nonnull Path fileToRead) {
     Objects.requireNonNull(fileToRead);
     this.fileToRead = fileToRead;
   }
