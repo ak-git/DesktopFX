@@ -91,7 +91,7 @@ public final class NmisRequest extends AbstractBufferFrame {
     toString = builder.toStringBuilder.toString();
   }
 
-  NmisResponseFrame toResponse() {
+  public NmisResponseFrame toResponse() {
     byte[] codes = Arrays.copyOf(byteBuffer().array(), byteBuffer().capacity());
     codes[NmisProtocolByte.ADDR.ordinal()] = Objects.requireNonNull(NmisAddress.find(byteBuffer())).getAddrResponse();
     saveCRC(codes);

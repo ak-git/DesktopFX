@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.AbstractBufferFrame;
 
-enum NmisAddress {
+public enum NmisAddress {
   SINGLE(0x81, 0x91),
   SEQUENCE(0x82, 0x92),
   ALIVE(0x00, 0x40),

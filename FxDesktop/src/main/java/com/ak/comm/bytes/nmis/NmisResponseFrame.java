@@ -58,12 +58,12 @@ public final class NmisResponseFrame extends AbstractBufferFrame {
     return String.format("%s %s", super.toString(), address);
   }
 
-  static class Builder extends AbstractCheckedBuilder<NmisResponseFrame> {
-    Builder() {
+  public static class Builder extends AbstractCheckedBuilder<NmisResponseFrame> {
+    public Builder() {
       this(ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY));
     }
 
-    Builder(@Nonnull ByteBuffer buffer) {
+    public Builder(@Nonnull ByteBuffer buffer) {
       super(buffer);
     }
 

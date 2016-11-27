@@ -42,7 +42,7 @@ public final class FilePublisherTest {
 
     testSubscriber.assertNoErrors();
     if (valueCount < 0) {
-      testSubscriber.assertValueCount(0);
+      testSubscriber.assertNoValues();
       testSubscriber.assertNotSubscribed();
       testSubscriber.assertNotComplete();
     }
@@ -67,7 +67,7 @@ public final class FilePublisherTest {
       testSubscriber.assertError(NoSuchFileException.class);
       testSubscriber.assertSubscribed();
     }
-    testSubscriber.assertValueCount(0);
+    testSubscriber.assertNoValues();
     testSubscriber.assertNotComplete();
   }
 
@@ -77,7 +77,7 @@ public final class FilePublisherTest {
     Publisher<ByteBuffer> publisher = new FilePublisher(fileToRead);
     Flowable.fromPublisher(publisher).doOnSubscribe(Subscription::cancel).subscribe(testSubscriber);
     testSubscriber.assertNoErrors();
-    testSubscriber.assertValueCount(0);
+    testSubscriber.assertNoValues();
     if (valueCount < 0) {
       testSubscriber.assertNotSubscribed();
       testSubscriber.assertNotComplete();
