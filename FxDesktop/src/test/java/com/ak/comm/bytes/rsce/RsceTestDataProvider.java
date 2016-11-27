@@ -1,17 +1,17 @@
-package com.ak.hardware.rsce.comm.bytes;
+package com.ak.comm.bytes.rsce;
 
 import org.testng.annotations.DataProvider;
 
-import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.Control.ALL;
-import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.Control.CATCH;
-import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.Control.FINGER;
-import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.Control.ROTATE;
-import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.RequestType.EMPTY;
-import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.RequestType.RESERVE;
-import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.RequestType.STATUS_I;
-import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.RequestType.STATUS_I_ANGLE;
-import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.RequestType.STATUS_I_SPEED;
-import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.RequestType.STATUS_I_SPEED_ANGLE;
+import static com.ak.comm.bytes.rsce.RsceCommandFrame.Control.ALL;
+import static com.ak.comm.bytes.rsce.RsceCommandFrame.Control.CATCH;
+import static com.ak.comm.bytes.rsce.RsceCommandFrame.Control.FINGER;
+import static com.ak.comm.bytes.rsce.RsceCommandFrame.Control.ROTATE;
+import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.EMPTY;
+import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.RESERVE;
+import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I;
+import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_ANGLE;
+import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_SPEED;
+import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_SPEED_ANGLE;
 
 public final class RsceTestDataProvider {
   private RsceTestDataProvider() {

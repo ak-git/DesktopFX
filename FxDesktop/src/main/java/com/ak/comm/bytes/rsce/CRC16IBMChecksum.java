@@ -1,4 +1,4 @@
-package com.ak.hardware.rsce.comm.bytes;
+package com.ak.comm.bytes.rsce;
 
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;

@@ -1,4 +1,4 @@
-package com.ak.hardware.nmis.comm.bytes;
+package com.ak.comm.bytes.nmis;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;

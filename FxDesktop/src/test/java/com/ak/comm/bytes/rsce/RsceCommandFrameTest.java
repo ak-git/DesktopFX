@@ -1,4 +1,4 @@
-package com.ak.hardware.rsce.comm.bytes;
+package com.ak.comm.bytes.rsce;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -7,11 +7,6 @@ import javax.annotation.Nonnull;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.Control.ALL;
-import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.Control.CATCH;
-import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.RequestType.EMPTY;
-import static com.ak.hardware.rsce.comm.bytes.RsceCommandFrame.RequestType.STATUS_I_SPEED_ANGLE;
 
 public final class RsceCommandFrameTest {
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "simpleRequests")
@@ -26,12 +21,12 @@ public final class RsceCommandFrameTest {
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "preciseRequests")
   public void testPreciseRequest(@Nonnull byte[] expected, short speed) {
-    checkRequest(expected, RsceCommandFrame.precise(CATCH, STATUS_I_SPEED_ANGLE, speed));
+    checkRequest(expected, RsceCommandFrame.precise(RsceCommandFrame.Control.CATCH, RsceCommandFrame.RequestType.STATUS_I_SPEED_ANGLE, speed));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "positionRequests")
   public void testPositionRequest(@Nonnull byte[] expected, byte position) {
-    checkRequest(expected, RsceCommandFrame.position(CATCH, position));
+    checkRequest(expected, RsceCommandFrame.position(RsceCommandFrame.Control.CATCH, position));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "rheo12-catch-rotate")
@@ -46,7 +41,7 @@ public final class RsceCommandFrameTest {
 
   @Test
   public void testInvalidInfoRequest() {
-    RsceCommandFrame frame = new RsceCommandFrame.RequestBuilder(ALL, RsceCommandFrame.ActionType.NONE, EMPTY).build();
+    RsceCommandFrame frame = new RsceCommandFrame.RequestBuilder(RsceCommandFrame.Control.ALL, RsceCommandFrame.ActionType.NONE, RsceCommandFrame.RequestType.EMPTY).build();
     Assert.assertNotNull(frame);
     Assert.assertThrows(UnsupportedOperationException.class, frame::getR1DozenMilliOhms);
     Assert.assertThrows(UnsupportedOperationException.class, frame::getR2DozenMilliOhms);
@@ -65,7 +60,7 @@ public final class RsceCommandFrameTest {
 
   @Test(expectedExceptions = CloneNotSupportedException.class)
   public void testClone() throws CloneNotSupportedException {
-    RsceCommandFrame.precise(ALL, EMPTY).clone();
+    RsceCommandFrame.precise(RsceCommandFrame.Control.ALL, RsceCommandFrame.RequestType.EMPTY).clone();
   }
 
   private static void checkRequest(@Nonnull byte[] expected, @Nonnull RsceCommandFrame request) {

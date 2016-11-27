@@ -1,4 +1,4 @@
-package com.ak.hardware.nmis.comm.bytes;
+package com.ak.comm.bytes.nmis;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
