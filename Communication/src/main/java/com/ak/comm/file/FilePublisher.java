@@ -12,14 +12,15 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
-import io.reactivex.internal.subscriptions.EmptySubscription;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
-final class FilePublisher implements Publisher<ByteBuffer> {
+final class FilePublisher implements Publisher<ByteBuffer>, Subscription {
   private static final int CAPACITY_4K = 1024 * 4;
   @Nonnull
   private final Path fileToRead;
+  private volatile boolean canceled;
 
   FilePublisher(@Nonnull Path fileToRead) {
     Objects.requireNonNull(fileToRead);
@@ -28,28 +29,25 @@ final class FilePublisher implements Publisher<ByteBuffer> {
 
   @Override
   public void subscribe(@Nonnull Subscriber<? super ByteBuffer> s) {
-    s.onSubscribe(EmptySubscription.INSTANCE);
     if (Files.isRegularFile(fileToRead, LinkOption.NOFOLLOW_LINKS)) {
+      s.onSubscribe(this);
       try (ReadableByteChannel readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
         Logger.getLogger(getClass().getName()).log(Level.INFO, String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
         ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
-        while (readableByteChannel.read(buffer) > 0) {
+        while (readableByteChannel.read(buffer) > 0 && !canceled) {
           buffer.flip();
           s.onNext(buffer);
           buffer.clear();
         }
         s.onComplete();
+        Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
       }
       catch (Exception e) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, fileToRead.toString(), e);
+        Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
         s.onError(e);
-      }
-      finally {
-        Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
       }
     }
     else {
-      s.onComplete();
       Logger.getLogger(getClass().getName()).log(Level.CONFIG, String.format("File [ %s ] is not a regular file", fileToRead));
     }
   }
@@ -57,5 +55,14 @@ final class FilePublisher implements Publisher<ByteBuffer> {
   @Override
   public String toString() {
     return String.format("%s@%x{file = %s}", getClass().getSimpleName(), hashCode(), fileToRead);
+  }
+
+  @Override
+  public void request(long n) {
+  }
+
+  @Override
+  public void cancel() {
+    canceled = true;
   }
 }

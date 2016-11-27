@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
@@ -14,6 +15,9 @@ import com.ak.logging.BinaryLogBuilder;
 import com.ak.logging.LocalFileHandler;
 import io.reactivex.Flowable;
 import io.reactivex.subscribers.TestSubscriber;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscription;
+import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -23,7 +27,7 @@ public final class FilePublisherTest {
   @DataProvider(name = "files")
   public Object[][] simple() throws IOException {
     return new Object[][] {
-        {createFile(-1), 0},
+        {createFile(-1), -1},
         {createFile(0), 0},
         {createFile(14), 14 / 4 + 1}
     };
@@ -32,10 +36,56 @@ public final class FilePublisherTest {
   @Test(dataProvider = "files")
   public void testFile(@Nonnull Path fileToRead, @Nonnegative int valueCount) throws Exception {
     TestSubscriber<ByteBuffer> testSubscriber = TestSubscriber.create();
-    Flowable.fromPublisher(new FilePublisher(fileToRead)).subscribe(testSubscriber);
-    testSubscriber.assertValueCount(valueCount);
-    testSubscriber.assertComplete();
+    Publisher<ByteBuffer> publisher = new FilePublisher(fileToRead);
+    Assert.assertTrue(publisher.toString().contains(fileToRead.toString()));
+    Flowable.fromPublisher(publisher).subscribe(testSubscriber);
+
     testSubscriber.assertNoErrors();
+    if (valueCount < 0) {
+      testSubscriber.assertValueCount(0);
+      testSubscriber.assertNotSubscribed();
+      testSubscriber.assertNotComplete();
+    }
+    else {
+      testSubscriber.assertValueCount(valueCount);
+      testSubscriber.assertSubscribed();
+      testSubscriber.assertComplete();
+    }
+    Files.deleteIfExists(fileToRead);
+  }
+
+  @Test(dataProvider = "files")
+  public void testException(@Nonnull Path fileToRead, @Nonnegative int valueCount) {
+    TestSubscriber<ByteBuffer> testSubscriber = TestSubscriber.create();
+    Publisher<ByteBuffer> publisher = new FilePublisher(fileToRead);
+    Flowable.fromPublisher(publisher).doOnSubscribe(subscription -> Files.deleteIfExists(fileToRead)).subscribe(testSubscriber);
+    if (valueCount < 0) {
+      testSubscriber.assertNoErrors();
+      testSubscriber.assertNotSubscribed();
+    }
+    else {
+      testSubscriber.assertError(NoSuchFileException.class);
+      testSubscriber.assertSubscribed();
+    }
+    testSubscriber.assertValueCount(0);
+    testSubscriber.assertNotComplete();
+  }
+
+  @Test(dataProvider = "files")
+  public void testCancel(@Nonnull Path fileToRead, @Nonnegative int valueCount) throws IOException {
+    TestSubscriber<ByteBuffer> testSubscriber = TestSubscriber.create();
+    Publisher<ByteBuffer> publisher = new FilePublisher(fileToRead);
+    Flowable.fromPublisher(publisher).doOnSubscribe(Subscription::cancel).subscribe(testSubscriber);
+    testSubscriber.assertNoErrors();
+    testSubscriber.assertValueCount(0);
+    if (valueCount < 0) {
+      testSubscriber.assertNotSubscribed();
+      testSubscriber.assertNotComplete();
+    }
+    else {
+      testSubscriber.assertSubscribed();
+      testSubscriber.assertComplete();
+    }
     Files.deleteIfExists(fileToRead);
   }
 
