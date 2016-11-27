@@ -12,17 +12,20 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
+import com.ak.comm.bytes.AbstractBufferFrame;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
-final class FilePublisher implements Publisher<ByteBuffer>, Subscription {
+public final class FilePublisher implements Publisher<ByteBuffer>, Subscription {
+  private static final Level LOG_LEVEL_BYTES = Level.FINEST;
   private static final int CAPACITY_4K = 1024 * 4;
+  private final Logger logger = Logger.getLogger(getClass().getName());
   @Nonnull
   private final Path fileToRead;
   private volatile boolean canceled;
 
-  FilePublisher(@Nonnull Path fileToRead) {
+  public FilePublisher(@Nonnull Path fileToRead) {
     Objects.requireNonNull(fileToRead);
     this.fileToRead = fileToRead;
   }
@@ -36,6 +39,9 @@ final class FilePublisher implements Publisher<ByteBuffer>, Subscription {
         ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
         while (readableByteChannel.read(buffer) > 0 && !canceled) {
           buffer.flip();
+          if (logger.isLoggable(LOG_LEVEL_BYTES)) {
+            logger.log(LOG_LEVEL_BYTES, String.format("#%x %s IN from hardware", hashCode(), AbstractBufferFrame.toString(getClass(), buffer)));
+          }
           s.onNext(buffer);
           buffer.clear();
         }
