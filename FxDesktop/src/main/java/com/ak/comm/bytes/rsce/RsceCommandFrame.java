@@ -68,7 +68,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     }
   }
 
-  enum ActionType {
+  public enum ActionType {
     NONE, PRECISE, HARD, POSITION, OFF;
 
     @Nullable
@@ -196,11 +196,11 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
         super.toString(), Control.find(byteBuffer()), ActionType.find(byteBuffer()), RequestType.find(byteBuffer()));
   }
 
-  static RsceCommandFrame simple(@Nonnull Control control, @Nonnull RequestType requestType) {
+  public static RsceCommandFrame simple(@Nonnull Control control, @Nonnull RequestType requestType) {
     return getInstance(control, ActionType.NONE, requestType);
   }
 
-  static RsceCommandFrame off(@Nonnull Control control) {
+  public static RsceCommandFrame off(@Nonnull Control control) {
     return getInstance(control, ActionType.OFF, RequestType.EMPTY);
   }
 
@@ -212,7 +212,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     return precise(control, requestType, control.speed);
   }
 
-  static RsceCommandFrame precise(@Nonnull Control control, @Nonnull RequestType requestType, short speed) {
+  public static RsceCommandFrame precise(@Nonnull Control control, @Nonnull RequestType requestType, short speed) {
     return new RequestBuilder(control, ActionType.PRECISE, requestType).addParam(speed).build();
   }
 
@@ -222,23 +222,23 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
         orElseThrow(() -> new IllegalArgumentException(Arrays.toString(buffer.array())));
   }
 
-  static class RequestBuilder extends AbstractCheckedBuilder<RsceCommandFrame> {
+  public static class RequestBuilder extends AbstractCheckedBuilder<RsceCommandFrame> {
     @Nonnegative
     private byte codeLength;
 
-    RequestBuilder(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType) {
+    public RequestBuilder(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType) {
       super(ByteBuffer.allocate(MAX_CAPACITY).order(ByteOrder.LITTLE_ENDIAN));
       codeLength = 3;
       buffer().put(control.addr).put(codeLength).put((byte) ((actionType.ordinal() << 3) + requestType.code));
     }
 
-    RequestBuilder addParam(byte value) {
+    public RequestBuilder addParam(byte value) {
       buffer().put(value);
       codeLength++;
       return this;
     }
 
-    RequestBuilder addParam(short value) {
+    public RequestBuilder addParam(short value) {
       buffer().putShort(value);
       codeLength += 2;
       return this;
@@ -253,8 +253,8 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     }
   }
 
-  static class ResponseBuilder extends AbstractCheckedBuilder<RsceCommandFrame> {
-    ResponseBuilder() {
+  public static class ResponseBuilder extends AbstractCheckedBuilder<RsceCommandFrame> {
+    public ResponseBuilder() {
       this(ByteBuffer.allocate(MAX_CAPACITY));
     }
 
