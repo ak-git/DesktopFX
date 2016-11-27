@@ -204,11 +204,11 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     return getInstance(control, ActionType.OFF, RequestType.EMPTY);
   }
 
-  static RsceCommandFrame position(@Nonnull Control control, byte position) {
+  public static RsceCommandFrame position(@Nonnull Control control, byte position) {
     return new RequestBuilder(control, ActionType.POSITION, RequestType.EMPTY).addParam(position).build();
   }
 
-  static RsceCommandFrame precise(@Nonnull Control control, @Nonnull RequestType requestType) {
+  public static RsceCommandFrame precise(@Nonnull Control control, @Nonnull RequestType requestType) {
     return precise(control, requestType, control.speed);
   }
 
