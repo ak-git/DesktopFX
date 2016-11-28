@@ -12,15 +12,11 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
-import com.ak.comm.bytes.AbstractBufferFrame;
-import org.reactivestreams.Publisher;
+import com.ak.comm.core.AbstractService;
 import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
-public final class FilePublisher implements Publisher<ByteBuffer>, Subscription {
-  private static final Level LOG_LEVEL_BYTES = Level.FINEST;
+public final class FilePublisher extends AbstractService {
   private static final int CAPACITY_4K = 1024 * 4;
-  private final Logger logger = Logger.getLogger(getClass().getName());
   @Nonnull
   private final Path fileToRead;
   private volatile boolean canceled;
@@ -39,9 +35,7 @@ public final class FilePublisher implements Publisher<ByteBuffer>, Subscription 
         ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
         while (readableByteChannel.read(buffer) > 0 && !canceled) {
           buffer.flip();
-          if (logger.isLoggable(LOG_LEVEL_BYTES)) {
-            logger.log(LOG_LEVEL_BYTES, String.format("#%x %s IN from hardware", hashCode(), AbstractBufferFrame.toString(getClass(), buffer)));
-          }
+          logBytes(buffer);
           s.onNext(buffer);
           buffer.clear();
         }
@@ -49,8 +43,7 @@ public final class FilePublisher implements Publisher<ByteBuffer>, Subscription 
         Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
       }
       catch (Exception e) {
-        Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
-        s.onError(e);
+        logErrorAndClose(s, Level.CONFIG, fileToRead.toString(), e);
       }
     }
     else {

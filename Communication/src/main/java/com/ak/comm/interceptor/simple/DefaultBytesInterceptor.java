@@ -9,7 +9,7 @@ import com.ak.comm.interceptor.AbstractBytesInterceptor;
 import io.reactivex.Flowable;
 
 public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Integer, Byte> {
-  DefaultBytesInterceptor() {
+  public DefaultBytesInterceptor() {
     super("None", 1, (byte) 0);
   }
 
