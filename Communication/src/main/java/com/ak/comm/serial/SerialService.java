@@ -12,11 +12,11 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ak.comm.core.AbstractService;
-import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.logging.BinaryLogBuilder;
 import com.ak.logging.LocalFileHandler;
 import com.ak.util.Strings;
@@ -25,19 +25,22 @@ import jssc.SerialPortException;
 import jssc.SerialPortList;
 import org.reactivestreams.Subscriber;
 
-final class SerialService extends AbstractService implements WritableByteChannel {
-  @Nonnull
-  private final BytesInterceptor<?, ?> interceptor;
+final class SerialService extends AbstractService<ByteBuffer> implements WritableByteChannel {
   @Nonnull
   private final SerialPort serialPort;
+  @Nonnull
+  private final String protocolName;
+  @Nonnegative
+  private final int baudRate;
   @Nonnull
   private final ByteBuffer buffer;
   @Nullable
   private WritableByteChannel binaryLogChannel;
 
-  SerialService(@Nonnull BytesInterceptor<?, ?> interceptor) {
-    this.interceptor = interceptor;
-    buffer = ByteBuffer.allocate(interceptor.getBaudRate());
+  SerialService(@Nonnull String protocolName, @Nonnegative int baudRate) {
+    this.protocolName = protocolName;
+    this.baudRate = baudRate;
+    buffer = ByteBuffer.allocate(baudRate);
     String portName = Ports.INSTANCE.next();
     serialPort = new SerialPort(portName);
     if (portName.isEmpty()) {
@@ -75,21 +78,21 @@ final class SerialService extends AbstractService implements WritableByteChannel
   public void subscribe(Subscriber<? super ByteBuffer> s) {
     try {
       serialPort.openPort();
-      serialPort.setParams(interceptor.getBaudRate(), 8, 1, 0);
+      serialPort.setParams(baudRate, 8, 1, 0);
       serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
       Logger.getLogger(getClass().getName()).log(Level.INFO,
-          String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getPortName(), interceptor.getBaudRate()));
+          String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getPortName(), baudRate));
       s.onSubscribe(this);
       serialPort.addEventListener(event -> {
         if (binaryLogChannel == null) {
           try {
-            Path path = new BinaryLogBuilder(interceptor.name(), LocalFileHandler.class).build().getPath();
+            Path path = new BinaryLogBuilder(protocolName, LocalFileHandler.class).build().getPath();
             binaryLogChannel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
             Logger.getLogger(getClass().getName()).log(Level.INFO,
                 String.format("#%x Bytes from port [ %s ] are logging into the file [ %s ]", hashCode(), serialPort.getPortName(), path));
           }
           catch (IOException ex) {
-            logErrorAndClose(s, Level.WARNING, serialPort.getPortName(), ex);
+            logErrorAndComplete(s, Level.WARNING, ex);
           }
         }
 
@@ -102,12 +105,12 @@ final class SerialService extends AbstractService implements WritableByteChannel
           s.onNext(buffer);
         }
         catch (Exception ex) {
-          logErrorAndClose(s, Level.CONFIG, serialPort.getPortName(), ex);
+          logErrorAndComplete(s, Level.CONFIG, ex);
         }
       }, SerialPort.MASK_RXCHAR);
     }
     catch (SerialPortException ex) {
-      logErrorAndClose(s, Level.CONFIG, serialPort.getPortName(), ex);
+      logErrorAndComplete(s, Level.CONFIG, ex);
     }
   }
 
@@ -151,6 +154,12 @@ final class SerialService extends AbstractService implements WritableByteChannel
   @Override
   public String toString() {
     return String.format("%s@%x{serialPort = %s}", getClass().getSimpleName(), hashCode(), serialPort.getPortName());
+  }
+
+  private void logErrorAndComplete(Subscriber<?> s, @Nonnull Level level, @Nonnull Exception ex) {
+    Logger.getLogger(getClass().getName()).log(level, serialPort.getPortName(), ex);
+    cancel();
+    s.onComplete();
   }
 
   private enum Ports {

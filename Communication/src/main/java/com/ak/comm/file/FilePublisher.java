@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 import com.ak.comm.core.AbstractService;
 import org.reactivestreams.Subscriber;
 
-public final class FilePublisher extends AbstractService {
+public final class FilePublisher extends AbstractService<ByteBuffer> {
   private static final int CAPACITY_4K = 1024 * 4;
   @Nonnull
   private final Path fileToRead;
@@ -43,7 +43,8 @@ public final class FilePublisher extends AbstractService {
         Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
       }
       catch (Exception e) {
-        logErrorAndClose(s, Level.CONFIG, fileToRead.toString(), e);
+        Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
+        s.onError(e);
       }
     }
     else {
