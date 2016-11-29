@@ -27,6 +27,7 @@ public final class SerialServiceTest implements Subscriber<ByteBuffer> {
     SerialService singleService = new SerialService("None", BAUDRATE_115200);
     singleService.subscribe(this);
     singleService.close();
+    Assert.assertTrue(singleService.toString().contains("serialPort"));
     Assert.assertFalse(singleService.isOpen());
     services.forEach(SerialService::close);
   }
