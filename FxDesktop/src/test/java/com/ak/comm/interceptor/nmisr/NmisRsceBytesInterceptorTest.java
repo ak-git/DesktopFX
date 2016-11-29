@@ -9,6 +9,7 @@ import com.ak.comm.bytes.nmis.NmisProtocolByte;
 import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.interceptor.nmis.NmisBytesInterceptor;
 import io.reactivex.subscribers.TestSubscriber;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -45,6 +46,7 @@ public final class NmisRsceBytesInterceptorTest {
 
     byteBuffer.put(bytes);
     byteBuffer.flip();
+    Assert.assertEquals(interceptor.getBaudRate(), new NmisBytesInterceptor().getBaudRate());
     interceptor.apply(byteBuffer).subscribe(subscriber);
     byteBuffer.clear();
 
