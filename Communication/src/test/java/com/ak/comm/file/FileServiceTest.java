@@ -21,7 +21,7 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public final class FilePublisherTest {
+public final class FileServiceTest {
   private static final int KILO_BYTE = 1024;
 
   @DataProvider(name = "files")
@@ -36,7 +36,7 @@ public final class FilePublisherTest {
   @Test(dataProvider = "files")
   public void testFile(@Nonnull Path fileToRead, @Nonnegative int valueCount) throws Exception {
     TestSubscriber<ByteBuffer> testSubscriber = TestSubscriber.create();
-    Publisher<ByteBuffer> publisher = new FilePublisher(fileToRead);
+    Publisher<ByteBuffer> publisher = new FileService(fileToRead);
     Assert.assertTrue(publisher.toString().contains(fileToRead.toString()));
     Flowable.fromPublisher(publisher).subscribe(testSubscriber);
 
@@ -57,7 +57,7 @@ public final class FilePublisherTest {
   @Test(dataProvider = "files")
   public void testException(@Nonnull Path fileToRead, @Nonnegative int valueCount) {
     TestSubscriber<ByteBuffer> testSubscriber = TestSubscriber.create();
-    Publisher<ByteBuffer> publisher = new FilePublisher(fileToRead);
+    Publisher<ByteBuffer> publisher = new FileService(fileToRead);
     Flowable.fromPublisher(publisher).doOnSubscribe(subscription -> Files.deleteIfExists(fileToRead)).subscribe(testSubscriber);
     if (valueCount < 0) {
       testSubscriber.assertNoErrors();
@@ -74,7 +74,7 @@ public final class FilePublisherTest {
   @Test(dataProvider = "files")
   public void testCancel(@Nonnull Path fileToRead, @Nonnegative int valueCount) throws IOException {
     TestSubscriber<ByteBuffer> testSubscriber = TestSubscriber.create();
-    Publisher<ByteBuffer> publisher = new FilePublisher(fileToRead);
+    Publisher<ByteBuffer> publisher = new FileService(fileToRead);
     Flowable.fromPublisher(publisher).doOnSubscribe(Subscription::cancel).subscribe(testSubscriber);
     testSubscriber.assertNoErrors();
     testSubscriber.assertNoValues();

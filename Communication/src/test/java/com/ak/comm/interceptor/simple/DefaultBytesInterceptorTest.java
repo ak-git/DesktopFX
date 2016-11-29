@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-import com.ak.comm.file.FilePublisher;
+import com.ak.comm.file.FileService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.logging.BinaryLogBuilder;
 import com.ak.logging.LocalFileHandler;
@@ -37,7 +37,7 @@ public final class DefaultBytesInterceptorTest {
     Assert.assertEquals(interceptor.getBaudRate(), BAUDRATE_115200);
     Assert.assertEquals(interceptor.getPingRequest(), Byte.valueOf((byte) 0));
 
-    Flowable.fromPublisher(new FilePublisher(path)).flatMap(interceptor).subscribe(testSubscriber);
+    Flowable.fromPublisher(new FileService(path)).flatMap(interceptor).subscribe(testSubscriber);
     testSubscriber.assertNoErrors();
     testSubscriber.assertValueCount(1024 * 10);
     testSubscriber.assertSubscribed();
