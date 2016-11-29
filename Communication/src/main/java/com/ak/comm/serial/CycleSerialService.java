@@ -35,13 +35,13 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
 
   @Override
   public void subscribe(Subscriber<? super RESPONSE> s) {
+    s.onSubscribe(this);
     executor.scheduleAtFixedRate(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();
       AtomicReference<Instant> okTime = new AtomicReference<>(Instant.now());
       CountDownLatch latch = new CountDownLatch(1);
 
-      s.onSubscribe(this);
-      Disposable disposable = Flowable.fromPublisher(serialService).doOnComplete(() -> {
+      Disposable disposable = Flowable.fromPublisher(serialService).doFinally(() -> {
         workingFlag.set(false);
         latch.countDown();
       }).flatMap(bytesInterceptor).doOnNext(response -> {

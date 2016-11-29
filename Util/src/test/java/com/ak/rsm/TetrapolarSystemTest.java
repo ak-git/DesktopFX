@@ -73,11 +73,11 @@ public class TetrapolarSystemTest {
 
   @DataProvider(name = "R(Ohm)-L(mm)")
   public static Object[][] rL() throws IOException {
-    Supplier<DoubleStream> xVar = () -> doubleRange(1.0, 1000.0);
+    Supplier<DoubleStream> xVar = () -> doubleRange(1000.0);
     xVar.get().mapToObj(value -> String.format("%.0f", value)).collect(
         new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL));
 
-    Supplier<DoubleStream> yVar = () -> doubleRange(1.0, 100.0);
+    Supplier<DoubleStream> yVar = () -> doubleRange(100.0);
     yVar.get().mapToObj(value -> String.format("%.0f", value)).collect(
         new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
     return new Object[][] {{xVar, yVar}};
@@ -99,7 +99,8 @@ public class TetrapolarSystemTest {
     });
   }
 
-  private static DoubleStream doubleRange(double step, double end) {
+  private static DoubleStream doubleRange(double end) {
+    double step = 1.0;
     return DoubleStream.iterate(step, dl2L -> dl2L + step).
         limit(BigDecimal.valueOf(end / step).round(MathContext.UNLIMITED).intValue()).sequential();
   }
