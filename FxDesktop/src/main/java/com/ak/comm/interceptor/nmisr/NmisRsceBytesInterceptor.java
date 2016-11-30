@@ -44,11 +44,10 @@ final class NmisRsceBytesInterceptor implements BytesInterceptor<RsceCommandFram
   @Override
   public Publisher<RsceCommandFrame> apply(@Nonnull ByteBuffer src) {
     return Flowable.fromPublisher(nmis.apply(src)).flatMap(nmisResponseFrame -> {
+      buffer.clear();
       nmisResponseFrame.extractData(buffer);
       buffer.flip();
-      Publisher<RsceCommandFrame> publisher = rsce.apply(buffer);
-      buffer.clear();
-      return publisher;
+      return rsce.apply(buffer);
     });
   }
 
