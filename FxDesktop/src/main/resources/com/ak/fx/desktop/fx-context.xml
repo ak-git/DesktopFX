@@ -19,9 +19,9 @@
         </property>
     </bean>
 
-    <!--<bean class="com.ak.hardware.simple.comm.interceptor.DefaultBytesInterceptor" scope="prototype"/>-->
-    <!--<bean class="com.ak.hardware.nmis.comm.interceptor.NmisBytesInterceptor" scope="prototype"/>-->
-    <bean class="com.ak.hardware.nmisr.comm.interceptor.NmisRsceBytesInterceptor" scope="prototype"/>
+    <!--<bean class="com.ak.comm.interceptor.simple.DefaultBytesInterceptor" scope="prototype"/>-->
+    <!--<bean class="com.ak.comm.interceptor.nmis.NmisBytesInterceptor" scope="prototype"/>-->
+    <bean class="com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor" scope="prototype"/>
 
     <bean class="com.ak.comm.GroupService"/>
 

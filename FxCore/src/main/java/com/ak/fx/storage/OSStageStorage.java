@@ -8,7 +8,6 @@ import javafx.stage.Stage;
 public enum OSStageStorage {
   WINDOWS,
   MAC {
-    @Nonnull
     @Override
     public Storage<Stage> newInstance(@Nonnull Class<?> clazz) {
       return new MacStageStorage(clazz.getName());
@@ -16,7 +15,6 @@ public enum OSStageStorage {
   },
   UNIX;
 
-  @Nonnull
   public Storage<Stage> newInstance(@Nonnull Class<?> clazz) {
     return new DefaultStageStorage(clazz.getName());
   }

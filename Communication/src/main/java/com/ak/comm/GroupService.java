@@ -2,34 +2,34 @@ package com.ak.comm;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.nio.IntBuffer;
-import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
+import javax.inject.Inject;
 import javax.inject.Provider;
 
-import com.ak.comm.core.AbstractService;
-import com.ak.comm.core.Service;
-import com.ak.comm.file.AutoFileReadingService;
+import com.ak.comm.file.FileService;
 import com.ak.comm.interceptor.BytesInterceptor;
+import io.reactivex.Flowable;
+import io.reactivex.schedulers.Schedulers;
 
-@Immutable
-public final class GroupService<RESPONSE, REQUEST> extends AbstractService<IntBuffer[]> implements FileFilter {
-  private final AutoFileReadingService<RESPONSE, REQUEST> fileService;
+public final class GroupService<RESPONSE, REQUEST> implements FileFilter {
+  @Nonnull
+  private final Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider;
 
+  @Inject
   public GroupService(@Nonnull Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider) {
-    fileService = new AutoFileReadingService<>(interceptorProvider.get());
-  }
-
-  @Override
-  public void close() {
-    Stream.of(fileService).forEach(Service::close);
-    super.close();
+    this.interceptorProvider = interceptorProvider;
   }
 
   @Override
   public boolean accept(File file) {
-    return fileService.accept(file);
+    if (file.isFile() && file.getName().toLowerCase().endsWith(".bin")) {
+      Flowable.fromPublisher(new FileService(file.toPath())).subscribeOn(Schedulers.io()).
+          flatMap(interceptorProvider.get()).subscribe();
+      return true;
+    }
+    else {
+      return false;
+    }
   }
 }

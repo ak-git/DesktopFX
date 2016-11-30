@@ -24,7 +24,7 @@ final class ResistanceOneLayer implements UnivariateFunction {
    */
   @Override
   public double value(@Nonnegative double rhoSI) {
-    return thoRhoByPI(rhoSI) * (1.0 / electrodeSystem.radiusMinus() - 1.0 / electrodeSystem.radiusPlus());
+    return twoRhoByPI(rhoSI) * (1.0 / electrodeSystem.radiusMinus() - 1.0 / electrodeSystem.radiusPlus());
   }
 
   TetrapolarSystem getElectrodeSystem() {
@@ -32,7 +32,7 @@ final class ResistanceOneLayer implements UnivariateFunction {
   }
 
   @Nonnegative
-  static double thoRhoByPI(@Nonnegative double rhoSI) {
+  static double twoRhoByPI(@Nonnegative double rhoSI) {
     return 2.0 * rhoSI / Math.PI;
   }
 

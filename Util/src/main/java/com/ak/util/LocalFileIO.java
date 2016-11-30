@@ -27,7 +27,6 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
     osIdEnum = Enum.valueOf(enumClass, OS.get().name());
   }
 
-  @Nonnull
   @Override
   public Path getPath() throws IOException {
     Path path = osIdEnum.getDirectory().resolve(this.path);
@@ -38,13 +37,11 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
     return path;
   }
 
-  @Nonnull
   @Override
   public InputStream openInputStream() throws IOException {
     return Files.newInputStream(getPath());
   }
 
-  @Nonnull
   @Override
   public OutputStream openOutputStream() throws IOException {
     return Files.newOutputStream(getPath());
