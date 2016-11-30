@@ -30,7 +30,6 @@ public final class MilliGrid extends Pane {
         return super.getStep() / FACTOR;
       }
 
-      @Nonnull
       @Override
       Path newPath() {
         Path path = super.newPath();
@@ -70,7 +69,6 @@ public final class MilliGrid extends Pane {
       return ScreenResolutionMonitor.INSTANCE.getDpi() / 2.54;
     }
 
-    @Nonnull
     Path newPath() {
       Path p = new Path();
       p.setStroke(COLOR);
@@ -78,7 +76,6 @@ public final class MilliGrid extends Pane {
       return p;
     }
 
-    @Nonnull
     static List<Path> newPaths() {
       List<Path> paths = new LinkedList<>();
       EnumSet.allOf(GridCell.class).forEach(gridCell -> paths.add(gridCell.newPath()));
@@ -182,13 +179,11 @@ public final class MilliGrid extends Pane {
       return contentWidth();
     }
 
-    @Nonnull
     @Override
     public PathElement moveTo(@Nonnegative double x, @Nonnull GridCell gridCell) {
       return new MoveTo(snappedLeftInset() + x, snappedTopInset() + minCoordinate(contentHeight(), GridCell.SMALL) + linePad(gridCell));
     }
 
-    @Nonnull
     @Override
     public PathElement lineTo(@Nonnull GridCell gridCell) {
       return new VLineTo(snappedTopInset() + maxCoordinate(contentHeight()) - linePad(gridCell));
@@ -202,13 +197,11 @@ public final class MilliGrid extends Pane {
       return contentHeight();
     }
 
-    @Nonnull
     @Override
     public PathElement moveTo(@Nonnegative double y, @Nonnull GridCell gridCell) {
       return new MoveTo(snappedLeftInset() + minCoordinate(contentWidth(), GridCell.SMALL) + linePad(gridCell), snappedTopInset() + y);
     }
 
-    @Nonnull
     @Override
     public PathElement lineTo(@Nonnull GridCell gridCell) {
       return new HLineTo(snappedLeftInset() + maxCoordinate(contentWidth()) - linePad(gridCell));

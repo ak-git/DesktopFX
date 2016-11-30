@@ -14,35 +14,41 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ak.comm.core.AbstractInterceptorService;
+import com.ak.comm.core.AbstractService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.UIConstants;
-import rx.Subscription;
+import io.reactivex.Flowable;
+import io.reactivex.disposables.Disposable;
+import org.reactivestreams.Subscriber;
 
-public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractInterceptorService<RESPONSE, REQUEST> {
+public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService<RESPONSE> {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+  @Nonnull
+  private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
   @Nonnull
   private volatile SerialService serialService;
 
   public CycleSerialService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor) {
-    super(bytesInterceptor);
-    serialService = new SerialService(bytesInterceptor);
+    this.bytesInterceptor = bytesInterceptor;
+    serialService = new SerialService(bytesInterceptor.name(), bytesInterceptor.getBaudRate());
+  }
+
+  @Override
+  public void subscribe(Subscriber<? super RESPONSE> s) {
+    s.onSubscribe(this);
     executor.scheduleAtFixedRate(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();
       AtomicReference<Instant> okTime = new AtomicReference<>(Instant.now());
       CountDownLatch latch = new CountDownLatch(1);
-      Subscription serviceSubscription = serialService.getBufferObservable().subscribe(
-          buffer -> {
-            if (bytesInterceptor.write(buffer) > 0) {
-              workingFlag.set(true);
-              okTime.set(Instant.now());
-            }
-          },
-          throwable -> {
-            workingFlag.set(false);
-            latch.countDown();
-          }
-      );
+
+      Disposable disposable = Flowable.fromPublisher(serialService).doFinally(() -> {
+        workingFlag.set(false);
+        latch.countDown();
+      }).flatMap(bytesInterceptor).doOnNext(response -> {
+        s.onNext(response);
+        workingFlag.set(true);
+        okTime.set(Instant.now());
+      }).subscribe();
 
       while (!Thread.currentThread().isInterrupted()) {
         if (serialService.isOpen() && write(bytesInterceptor.getPingRequest()) == 0) {
@@ -56,7 +62,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractInterce
             }
           }
           catch (InterruptedException e) {
-            Logger.getLogger(getClass().getName()).log(Level.FINE, serialService.toString(), e);
+            Logger.getLogger(getClass().getName()).log(Level.FINEST, serialService.toString(), e);
             Thread.currentThread().interrupt();
             break;
           }
@@ -70,23 +76,28 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractInterce
       synchronized (this) {
         if (!executor.isShutdown()) {
           serialService.close();
-          serviceSubscription.unsubscribe();
-          serialService = new SerialService(bytesInterceptor);
+          disposable.dispose();
+          serialService = new SerialService(bytesInterceptor.name(), bytesInterceptor.getBaudRate());
         }
       }
     }, 0, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
   }
 
-  public int write(@Nullable REQUEST request) {
-    return request == null ? -1 : serialService.write(bytesInterceptor().put(request));
+  @Override
+  public void request(long n) {
   }
 
   @Override
-  public void close() {
+  public void cancel() {
     synchronized (this) {
       executor.shutdownNow();
       serialService.close();
-      super.close();
+    }
+  }
+
+  public int write(@Nullable REQUEST request) {
+    synchronized (this) {
+      return request == null ? -1 : serialService.write(bytesInterceptor.putOut(request));
     }
   }
 }

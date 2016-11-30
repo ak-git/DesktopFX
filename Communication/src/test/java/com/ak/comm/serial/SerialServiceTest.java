@@ -5,32 +5,39 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.ak.comm.core.Service;
-import com.ak.comm.interceptor.DefaultBytesInterceptor;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import rx.Observer;
 
-public final class SerialServiceTest implements Observer<ByteBuffer> {
+import static jssc.SerialPort.BAUDRATE_115200;
+
+public final class SerialServiceTest implements Subscriber<ByteBuffer> {
   @Test
   public void test() {
-    List<Service<ByteBuffer>> services = Stream.of(SerialPortList.getPortNames()).map(port -> {
-      SerialService serialService = new SerialService(new DefaultBytesInterceptor());
-      serialService.getBufferObservable().subscribe(this);
+    List<SerialService> services = Stream.of(SerialPortList.getPortNames()).map(port -> {
+      SerialService serialService = new SerialService("None", BAUDRATE_115200);
+      serialService.subscribe(this);
       Assert.assertEquals(serialService.write(ByteBuffer.allocate(0)), 0);
       return serialService;
     }).collect(Collectors.toList());
 
-    Service<ByteBuffer> singleService = new SerialService(new DefaultBytesInterceptor());
-    singleService.getBufferObservable().subscribe(this);
+    SerialService singleService = new SerialService("None", BAUDRATE_115200);
+    singleService.subscribe(this);
     singleService.close();
-    services.forEach(Service::close);
+    Assert.assertTrue(singleService.toString().contains("serialPort"));
+    Assert.assertFalse(singleService.isOpen());
+    services.forEach(SerialService::close);
   }
 
   @Override
-  public void onCompleted() {
+  public void onSubscribe(Subscription s) {
+  }
+
+  @Override
+  public void onNext(ByteBuffer buffer) {
   }
 
   @Override
@@ -45,6 +52,6 @@ public final class SerialServiceTest implements Observer<ByteBuffer> {
   }
 
   @Override
-  public void onNext(ByteBuffer buffer) {
+  public void onComplete() {
   }
 }

@@ -47,7 +47,6 @@ public enum OS implements BooleanSupplier {
     throw new UnsupportedOperationException(name());
   }
 
-  @Nonnull
   public static OS get() {
     return Stream.of(values()).filter(BooleanSupplier::getAsBoolean).findFirst().orElseThrow(IllegalStateException::new);
   }

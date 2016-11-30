@@ -8,12 +8,14 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ak.comm.core.AbstractService;
+import io.reactivex.Flowable;
+import org.reactivestreams.Publisher;
 
 import static jssc.SerialPort.BAUDRATE_115200;
 
-public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends AbstractService<RESPONSE> implements BytesInterceptor<RESPONSE, REQUEST> {
-  private static final Level LOG_LEVEL = Level.FINER;
+public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> implements BytesInterceptor<RESPONSE, REQUEST> {
+  private static final Level LOG_LEVEL_LEXEMES = Level.FINER;
+  @Nonnull
   private final String name;
   private final ByteBuffer outBuffer;
   private final REQUEST pingRequest;
@@ -23,15 +25,20 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
     this.name = name;
     outBuffer = ByteBuffer.allocate(outBufferSize);
     this.pingRequest = pingRequest;
-    if (logger.isLoggable(LOG_LEVEL)) {
-      bufferPublish().subscribe(response -> logger.log(LOG_LEVEL, String.format("#%x %s", hashCode(), response)));
-    }
   }
 
-  @Nonnull
   @Override
   public final String name() {
     return name;
+  }
+
+  @Override
+  public final Publisher<RESPONSE> apply(@Nonnull ByteBuffer src) {
+    Flowable<RESPONSE> responses = innerProcessIn(src);
+    if (logger.isLoggable(LOG_LEVEL_LEXEMES)) {
+      responses.forEach(response -> logger.log(LOG_LEVEL_LEXEMES, String.format("#%x %s", hashCode(), response)));
+    }
+    return responses;
   }
 
   @Nullable
@@ -40,12 +47,11 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
     return pingRequest;
   }
 
-  @Nonnull
   @Override
-  public final ByteBuffer put(@Nonnull REQUEST request) {
-    logger.log(LOG_LEVEL, String.format("#%x %s", hashCode(), request));
+  public final ByteBuffer putOut(@Nonnull REQUEST request) {
+    logger.log(LOG_LEVEL_LEXEMES, String.format("#%x %s OUT to hardware", hashCode(), request));
     outBuffer.clear();
-    innerPut(outBuffer, request);
+    innerPutOut(outBuffer, request);
     outBuffer.flip();
     return outBuffer;
   }
@@ -56,5 +62,7 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> extends Abstra
     return BAUDRATE_115200;
   }
 
-  protected abstract void innerPut(@Nonnull ByteBuffer outBuffer, @Nonnull REQUEST request);
+  protected abstract void innerPutOut(@Nonnull ByteBuffer outBuffer, @Nonnull REQUEST request);
+
+  protected abstract Flowable<RESPONSE> innerProcessIn(@Nonnull ByteBuffer src);
 }

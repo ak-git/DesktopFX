@@ -1,16 +1,21 @@
 package com.ak.comm.interceptor;
 
 import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.ak.comm.bytes.AbstractBufferFrame;
+import com.ak.comm.bytes.AbstractCheckedBuilder;
+import io.reactivex.Flowable;
+
 public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedBuilder<RESPONSE>, RESPONSE, REQUEST extends AbstractBufferFrame>
     extends AbstractBytesInterceptor<RESPONSE, REQUEST> {
   private static final Level LOG_LEVEL_ERRORS = Level.CONFIG;
-  private static final Level LOG_LEVEL_BYTES = Level.FINEST;
   private static final int IGNORE_LIMIT = 16;
   private final Logger logger = Logger.getLogger(getClass().getName());
   private final ByteBuffer ignoreBuffer;
@@ -26,12 +31,14 @@ public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedB
   }
 
   @Override
-  public final int write(@Nonnull ByteBuffer src) {
+  protected final void innerPutOut(@Nonnull ByteBuffer outBuffer, @Nonnull REQUEST request) {
+    request.writeTo(outBuffer);
+  }
+
+  @Override
+  protected Flowable<RESPONSE> innerProcessIn(@Nonnull ByteBuffer src) {
     src.rewind();
-    if (logger.isLoggable(LOG_LEVEL_BYTES)) {
-      logger.log(LOG_LEVEL_BYTES, String.format("#%x %s", hashCode(), AbstractBufferFrame.toString(getClass(), src)));
-    }
-    int countResponse = 0;
+    Collection<RESPONSE> responses = new LinkedList<>();
     ByteBuffer buffer = responseBuilder.buffer();
     while (src.hasRemaining()) {
       byte b = src.get();
@@ -65,13 +72,12 @@ public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedB
           logger.log(LOG_LEVEL_ERRORS, String.format("#%x %s INVALID FRAME", hashCode(), AbstractBufferFrame.toString(getClass(), buffer)));
         }
         else {
-          bufferPublish().onNext(response);
-          countResponse++;
+          responses.add(response);
         }
         buffer.clear();
       }
     }
-    return countResponse;
+    return Flowable.fromIterable(responses);
   }
 
   private void logSkippedBytes() {
@@ -80,10 +86,5 @@ public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedB
       logger.log(LOG_LEVEL_ERRORS, String.format("#%x %s IGNORED", hashCode(), AbstractBufferFrame.toString(getClass(), ignoreBuffer)));
     }
     ignoreBuffer.clear();
-  }
-
-  @Override
-  protected final void innerPut(@Nonnull ByteBuffer outBuffer, @Nonnull REQUEST request) {
-    request.writeTo(outBuffer);
   }
 }

@@ -19,16 +19,11 @@
         </property>
     </bean>
 
-    <bean id="bytesInterceptor" class="com.ak.hardware.nmisr.comm.interceptor.NmisRsceBytesInterceptor"
-          scope="prototype"/>
+    <!--<bean class="com.ak.comm.interceptor.simple.DefaultBytesInterceptor" scope="prototype"/>-->
+    <!--<bean class="com.ak.comm.interceptor.nmis.NmisBytesInterceptor" scope="prototype"/>-->
+    <bean class="com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor" scope="prototype"/>
 
-    <bean class="com.ak.comm.serial.CycleSerialService">
-        <constructor-arg ref="bytesInterceptor"/>
-    </bean>
-
-    <bean class="com.ak.comm.file.AutoFileReadingService">
-        <constructor-arg ref="bytesInterceptor"/>
-    </bean>
+    <bean class="com.ak.comm.GroupService"/>
 
     <bean class="com.ak.fx.desktop.ViewController"/>
 </beans>

@@ -10,10 +10,11 @@ import javax.annotation.Nonnull;
 
 import com.ak.util.LocalFileIO;
 import com.ak.util.LocalIO;
+import com.ak.util.Strings;
 
 public class LogPathBuilder extends LocalFileIO.AbstractBuilder {
   public LogPathBuilder() {
-    super("");
+    super(Strings.EMPTY);
   }
 
   LogPathBuilder(@Nonnull String fileExtension, @Nonnull Class<? extends FileHandler> fileHandlerClass) {
@@ -22,7 +23,6 @@ public class LogPathBuilder extends LocalFileIO.AbstractBuilder {
         orElse(fileHandlerClass.getSimpleName()));
   }
 
-  @Nonnull
   static String localDate(@Nonnull String pattern) {
     return DateTimeFormatter.ofPattern(pattern).format(ZonedDateTime.now());
   }
@@ -43,7 +43,6 @@ public class LogPathBuilder extends LocalFileIO.AbstractBuilder {
    *
    * @return interface for input/output file creation.
    */
-  @Nonnull
   @Override
   public final LocalIO build() {
     return new LocalFileIO<>(this, LogOSDirectory.class);

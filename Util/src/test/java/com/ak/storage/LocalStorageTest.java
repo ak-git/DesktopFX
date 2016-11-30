@@ -7,6 +7,8 @@ import java.util.logging.Logger;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import static com.ak.util.Strings.EMPTY;
+
 public class LocalStorageTest {
   private static final Logger LOGGER = Logger.getLogger(LocalStorage.class.getName());
 
@@ -52,12 +54,12 @@ public class LocalStorageTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public static void testEmptyFileName() {
-    new LocalStorage<>("", "testStringStorage", String.class);
+    new LocalStorage<>(EMPTY, "testStringStorage", String.class);
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public static void testNotUpdate() {
-    new LocalStorage<>(LocalStorageTest.class.getName(), "testStringStorage", String.class).update("");
+    new LocalStorage<>(LocalStorageTest.class.getName(), "testStringStorage", String.class).update(EMPTY);
   }
 
   @Test(expectedExceptions = CloneNotSupportedException.class)
@@ -73,7 +75,7 @@ public class LocalStorageTest {
       exceptionFlag.set(true);
       return false;
     });
-    new LocalStorage<>(LocalStorageTest.class.getName(), "/invalid file ...\\\\/", String.class).save("");
+    new LocalStorage<>(LocalStorageTest.class.getName(), "/invalid file ...\\\\/", String.class).save(EMPTY);
     Assert.assertTrue(exceptionFlag.get(), "Exception must be thrown");
     LOGGER.setFilter(null);
   }

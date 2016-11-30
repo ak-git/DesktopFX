@@ -117,11 +117,13 @@ public final class FxDesktopTest extends Preloader {
 
         stage.setMaximized(!maximizedFlag);
         stage.setFullScreen(!fullScreenFlag);
-        try {
-          TimeUnit.SECONDS.sleep(4);
-        }
-        catch (InterruptedException e) {
-          Assert.fail(e.getMessage(), e);
+        if (storage == OSStageStorage.MAC) {
+          try {
+            TimeUnit.SECONDS.sleep(4);
+          }
+          catch (InterruptedException e) {
+            Assert.fail(e.getMessage(), e);
+          }
         }
         stageStorage.save(stage);
         stageStorage.update(stage);
@@ -182,7 +184,7 @@ public final class FxDesktopTest extends Preloader {
     OS_DOCK_IMAGE_LOGGER.setLevel(Level.INFO);
   }
 
-  @Test(expectedExceptions = NullPointerException.class)
+  @Test(expectedExceptions = {NullPointerException.class, IllegalArgumentException.class})
   public static void testInvalidApplicationStart() throws Exception {
     FX_APP_LOGGER.setLevel(Level.OFF);
     try {

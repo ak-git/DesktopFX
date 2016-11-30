@@ -66,7 +66,6 @@ final class TetrapolarSystem {
     return Objects.hash(sPotentialUnitSI, lCurrentCarryingSI);
   }
 
-  @Nonnull
   @Override
   public String toString() {
     return String.format("%s x %s",

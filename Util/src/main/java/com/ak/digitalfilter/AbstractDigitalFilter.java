@@ -7,16 +7,18 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import static com.ak.util.Strings.EMPTY;
+import static com.ak.util.Strings.NEW_LINE;
+import static com.ak.util.Strings.SPACE;
+
 abstract class AbstractDigitalFilter implements DigitalFilter {
-  static final String NEW_LINE = String.format("%n");
-  static final String EMPTY = "";
-  private static final String SPACE = " ";
-  private IntsAcceptor after;
+  @Nonnull
+  private IntsAcceptor after = EMPTY_INTS_ACCEPTOR;
 
   @Override
   public final void forEach(@Nonnull IntsAcceptor after) {
     Objects.requireNonNull(after);
-    if (this.after == null) {
+    if (this.after.equals(EMPTY_INTS_ACCEPTOR)) {
       this.after = after;
     }
     else {
@@ -25,17 +27,22 @@ abstract class AbstractDigitalFilter implements DigitalFilter {
   }
 
   final void publish(int... out) {
-    if (after != null) {
-      after.accept(out);
-    }
+    after.accept(out);
   }
 
   @Override
   public String toString() {
-    return String.format("%s (delay %.1f)", getClass().getSimpleName(), getDelay());
+    if (getFrequencyFactor() > 1) {
+      return String.format("%s (f \u00b7 %.1f; delay %.1f)", getClass().getSimpleName(), getFrequencyFactor(), getDelay());
+    }
+    else if (getFrequencyFactor() < 1) {
+      return String.format("%s (f / %.1f; delay %.1f)", getClass().getSimpleName(), 1.0 / getFrequencyFactor(), getDelay());
+    }
+    else {
+      return String.format("%s (delay %.1f)", getClass().getSimpleName(), getDelay());
+    }
   }
 
-  @Nonnull
   static String newLineTabSpaces(@Nonnegative int len) {
     return Stream.generate(() -> SPACE).limit(len).collect(Collectors.joining(EMPTY, NEW_LINE, EMPTY));
   }

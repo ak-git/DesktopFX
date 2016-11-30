@@ -38,7 +38,7 @@ final class ResistanceTwoLayer implements TrivariateFunction {
       return resistivity;
     }
     else {
-      return resistivity + 2.0 * ResistanceOneLayer.thoRhoByPI(rho1SI) * sum(getK12(rho1SI, rho2SI), hSI);
+      return resistivity + 2.0 * ResistanceOneLayer.twoRhoByPI(rho1SI) * sum(getK12(rho1SI, rho2SI), hSI);
     }
   }
 
