@@ -23,12 +23,10 @@ interface Delay {
     return 1.0;
   }
 
-  @Nonnull
   default Quantity<Frequency> getFrequency(@Nonnull Quantity<Frequency> frequency) {
     return Quantities.getQuantity(frequency.to(Units.HERTZ).getValue().doubleValue() * getFrequencyFactor(), Units.HERTZ);
   }
 
-  @Nonnull
   default Quantity<Time> getDelay(@Nonnull Quantity<Frequency> frequency) {
     return Quantities.getQuantity(frequency.to(Units.HERTZ).inverse().getValue().doubleValue() * getDelay(), Units.SECOND);
   }

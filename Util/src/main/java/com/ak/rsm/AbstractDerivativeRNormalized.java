@@ -24,7 +24,6 @@ abstract class AbstractDerivativeRNormalized implements UnivariateFunction, Clon
 
   abstract double nominator(double hToL);
 
-  @Nonnull
   final TetrapolarSystem electrodes() {
     return electrodes;
   }

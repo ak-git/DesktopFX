@@ -215,6 +215,6 @@ public class FIRFilterTest {
 
   @Test(dataProvider = "strings")
   public void testToString(DigitalFilter filter, String toString) {
-    Assert.assertEquals(filter.toString(), toString, filter.toString());
+    Assert.assertEquals(filter.toString().replace('.', ','), toString, filter.toString());
   }
 }

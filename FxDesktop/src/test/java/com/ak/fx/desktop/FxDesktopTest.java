@@ -184,7 +184,7 @@ public final class FxDesktopTest extends Preloader {
     OS_DOCK_IMAGE_LOGGER.setLevel(Level.INFO);
   }
 
-  @Test(expectedExceptions = NullPointerException.class)
+  @Test(expectedExceptions = {NullPointerException.class, IllegalArgumentException.class})
   public static void testInvalidApplicationStart() throws Exception {
     FX_APP_LOGGER.setLevel(Level.OFF);
     try {

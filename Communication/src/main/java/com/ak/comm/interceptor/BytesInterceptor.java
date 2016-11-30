@@ -1,15 +1,15 @@
 package com.ak.comm.interceptor;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ak.comm.core.Service;
+import io.reactivex.functions.Function;
+import org.reactivestreams.Publisher;
 
-public interface BytesInterceptor<RESPONSE, REQUEST> extends WritableByteChannel, Service<RESPONSE> {
+public interface BytesInterceptor<RESPONSE, REQUEST> extends Function<ByteBuffer, Publisher<RESPONSE>> {
   @Nonnull
   String name();
 
@@ -21,11 +21,10 @@ public interface BytesInterceptor<RESPONSE, REQUEST> extends WritableByteChannel
    * <b>REWIND bytes buffer before use!</b>
    *
    * @param src input bytes buffer
-   * @return count response generated
+   * @return response's publisher
    */
-  @Nonnegative
   @Override
-  int write(@Nonnull ByteBuffer src);
+  Publisher<RESPONSE> apply(@Nonnull ByteBuffer src);
 
   @Nullable
   REQUEST getPingRequest();

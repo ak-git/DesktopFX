@@ -6,14 +6,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
 import com.ak.util.UIConstants;
 import com.sun.javafx.util.Utils;
+import io.reactivex.Observable;
 import javafx.stage.Stage;
-import rx.Observable;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -27,7 +26,7 @@ public enum ScreenResolutionMonitor {
   private final Observable<Double> dpiObservable = Observable.merge(
       Observable.create(subscriber -> subscriber.onNext(getDpi())),
       Observable.interval(0, UIConstants.UI_DELAY.getSeconds(), SECONDS).
-          map(index -> stage.get()).skipWhile(stage -> stage == null).map(stage -> Utils.getScreen(stage).getDpi())).
+          skipWhile(index -> stage.get() == null).map(index -> stage.get()).map(stage -> Utils.getScreen(stage).getDpi())).
       distinctUntilChanged().
       doOnNext(dpi -> {
         this.dpi.set(dpi);
@@ -41,7 +40,6 @@ public enum ScreenResolutionMonitor {
     }
   }
 
-  @Nonnull
   public Observable<Double> getDpiObservable() {
     return dpiObservable;
   }

@@ -13,7 +13,6 @@ public abstract class AbstractStorage<T> implements Storage<T>, Cloneable {
     this.filePrefix = filePrefix;
   }
 
-  @Nonnull
   final String getFilePrefix() {
     return filePrefix;
   }
