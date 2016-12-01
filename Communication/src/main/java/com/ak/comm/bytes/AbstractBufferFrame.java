@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 import javax.annotation.Nonnull;
 
-import com.ak.util.Strings;
+import static com.ak.util.Strings.SPACE;
 
 public abstract class AbstractBufferFrame {
   @Nonnull
@@ -47,11 +47,15 @@ public abstract class AbstractBufferFrame {
     buffer.rewind();
     StringBuilder sb = new StringBuilder(clazz.getSimpleName()).append("[ ");
     while (buffer.hasRemaining()) {
-      sb.append(String.format("%#04x ", (buffer.get() & 0xFF)));
+      sb.append(String.format("%#04x", (buffer.get() & 0xFF)));
+      if (buffer.hasRemaining()) {
+        sb.append(',');
+      }
+      sb.append(SPACE);
     }
     sb.append("]");
     if (buffer.limit() > 1) {
-      sb.append(Strings.SPACE).append(buffer.limit()).append(" bytes");
+      sb.append(SPACE).append(buffer.limit()).append(" bytes");
     }
     buffer.rewind();
     return sb.toString();
