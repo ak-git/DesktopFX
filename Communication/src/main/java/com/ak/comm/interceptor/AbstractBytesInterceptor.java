@@ -64,5 +64,6 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> implements Byt
 
   protected abstract void innerPutOut(@Nonnull ByteBuffer outBuffer, @Nonnull REQUEST request);
 
+  @Nonnull
   protected abstract Flowable<RESPONSE> innerProcessIn(@Nonnull ByteBuffer src);
 }

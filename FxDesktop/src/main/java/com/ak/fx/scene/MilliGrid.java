@@ -9,6 +9,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.fx.stage.ScreenResolutionMonitor;
+import io.reactivex.disposables.Disposable;
 import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -83,12 +84,14 @@ public final class MilliGrid extends Pane {
     }
   }
 
+  @Nonnull
+  private final Disposable screenSubscription;
   private final GridLine[] gridLines = {new HorizontalGridLine(), new VerticalGridLine()};
   @Nonnull
   private List<Path> paths = GridCell.newPaths();
 
   public MilliGrid() {
-    ScreenResolutionMonitor.INSTANCE.getDpiObservable().subscribe(dpi -> Platform.runLater(() -> {
+    screenSubscription = ScreenResolutionMonitor.INSTANCE.getDpiObservable().subscribe(dpi -> Platform.runLater(() -> {
       reinitializePaths();
       requestLayout();
     }));
@@ -113,6 +116,16 @@ public final class MilliGrid extends Pane {
     getChildren().removeAll(paths);
     paths = GridCell.newPaths();
     getChildren().addAll(paths);
+  }
+
+  @Override
+  protected void finalize() throws Throwable {
+    try {
+      screenSubscription.dispose();
+    }
+    finally {
+      super.finalize();
+    }
   }
 
   private interface GridLine {
