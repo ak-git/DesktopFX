@@ -47,7 +47,12 @@ final class NmisRsceBytesInterceptor implements BytesInterceptor<RsceCommandFram
       buffer.clear();
       nmisResponseFrame.extractData(buffer);
       buffer.flip();
-      return rsce.apply(buffer);
+      if (buffer.hasRemaining()) {
+        return rsce.apply(buffer);
+      }
+      else {
+        return Flowable.just(RsceCommandFrame.simple(RsceCommandFrame.Control.ALL, RsceCommandFrame.RequestType.EMPTY));
+      }
     });
   }
 

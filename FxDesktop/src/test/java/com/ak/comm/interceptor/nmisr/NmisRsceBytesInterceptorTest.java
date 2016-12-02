@@ -23,8 +23,9 @@ public final class NmisRsceBytesInterceptorTest {
   public Object[][] data() {
     return new Object[][] {
         new Object[] {new byte[] {
+            // NO Data, empty Rsce frame
             0x7e, 0x45, 0x02, 0x3f, 0x00, 0x04},
-            null},
+            RsceCommandFrame.simple(RsceCommandFrame.Control.ALL, RsceCommandFrame.RequestType.EMPTY)},
 
         new Object[] {new byte[] {
             0x7e, 0x45, 0x08, 0x3f, 0x00, 0x03, 0x04, 0x18, 0x32, (byte) 0xca, 0x74, (byte) 0x99},
@@ -35,8 +36,9 @@ public final class NmisRsceBytesInterceptorTest {
             RsceCommandFrame.precise(RsceCommandFrame.Control.CATCH, RsceCommandFrame.RequestType.STATUS_I_ANGLE)},
 
         new Object[] {new byte[] {
+            // NO Data, invalid Rsce frame
             0x7e, (byte) 0x92, 0x08, 0x01, 0x00, 0x00, 0x00, (byte) 0x84, (byte) 0x84, (byte) 0x84, (byte) 0x84, 0x29},
-            null},
+            RsceCommandFrame.simple(RsceCommandFrame.Control.ALL, RsceCommandFrame.RequestType.EMPTY)},
     };
   }
 

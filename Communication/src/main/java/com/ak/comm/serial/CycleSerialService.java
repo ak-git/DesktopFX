@@ -75,7 +75,6 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
 
       synchronized (this) {
         if (!executor.isShutdown()) {
-          serialService.close();
           disposable.dispose();
           serialService = new SerialService(bytesInterceptor.name(), bytesInterceptor.getBaudRate());
         }
@@ -90,8 +89,8 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
   @Override
   public void cancel() {
     synchronized (this) {
-      executor.shutdownNow();
       serialService.close();
+      executor.shutdownNow();
     }
   }
 
