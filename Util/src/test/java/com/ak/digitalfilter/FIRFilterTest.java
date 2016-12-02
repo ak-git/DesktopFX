@@ -10,6 +10,7 @@ import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
+import static com.ak.util.Strings.NEW_LINE;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 
@@ -134,9 +135,9 @@ public class FIRFilterTest {
             FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(4).build()
         ).buildNoDelay(),
-        "NoDelayFilter (compensate 2,0 delay) - FIRFilter (delay 0,0) - DelayFilter (delay 2,0)\n" +
-            "                                       FIRFilter (delay 1,0) - DelayFilter (delay 1,0)\n" +
-            "                                       CombFilter (delay 1,0) - DelayFilter (delay 1,0)\n" +
+        "NoDelayFilter (compensate 2,0 delay) - FIRFilter (delay 0,0) - DelayFilter (delay 2,0)" + NEW_LINE +
+            "                                       FIRFilter (delay 1,0) - DelayFilter (delay 1,0)" + NEW_LINE +
+            "                                       CombFilter (delay 1,0) - DelayFilter (delay 1,0)" + NEW_LINE +
             "                                       RRS4 (delay 2,0)"
     }};
   }
