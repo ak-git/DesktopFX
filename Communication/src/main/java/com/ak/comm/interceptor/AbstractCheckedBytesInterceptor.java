@@ -22,9 +22,8 @@ public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedB
   @Nonnull
   private final B responseBuilder;
 
-  protected AbstractCheckedBytesInterceptor(@Nonnull String name, @Nullable REQUEST pingRequest,
-                                            @Nonnull B responseBuilder) {
-    super(name, responseBuilder.buffer().capacity(), pingRequest);
+  protected AbstractCheckedBytesInterceptor(@Nullable REQUEST pingRequest, @Nonnull B responseBuilder) {
+    super(responseBuilder.buffer().capacity(), pingRequest);
     this.responseBuilder = responseBuilder;
     ignoreBuffer = ByteBuffer.allocate(responseBuilder.buffer().capacity() + IGNORE_LIMIT);
   }

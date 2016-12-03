@@ -10,7 +10,7 @@ import com.ak.comm.interceptor.AbstractBytesInterceptor;
 
 public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Integer, Byte> {
   public DefaultBytesInterceptor() {
-    super("None", 1, (byte) 0);
+    super(1, (byte) 0);
   }
 
   @Override

@@ -1,7 +1,7 @@
 package com.ak.comm.converter;
 
-import io.reactivex.functions.Function;
-import org.reactivestreams.Publisher;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
-public interface Converter<RESPONSE> extends Function<RESPONSE, Publisher<int[]>> {
+public interface Converter<RESPONSE> extends Function<RESPONSE, Stream<int[]>> {
 }

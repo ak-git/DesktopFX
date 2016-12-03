@@ -10,7 +10,6 @@ import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-import static com.ak.util.Strings.NEW_LINE;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 
@@ -121,13 +120,13 @@ public class FIRFilterTest {
   public Object[][] strings() {
     return new Object[][] {{
         FilterBuilder.of().build(),
-        "NoFilter (delay 0,0)",
+        String.format("NoFilter (delay %.1f)", 0.0),
     }, {
         FilterBuilder.of().decimate(7).build(),
-        "LinearDecimationFilter (f / 7,0; delay -0,4)"
+        String.format("LinearDecimationFilter (f / %.1f; delay %.1f)", 7.0, -0.4)
     }, {
         FilterBuilder.of().interpolate(7).buildNoDelay(),
-        "NoDelayFilter (compensate 3,0 delay) - LinearInterpolationFilter (f · 7,0; delay 3,0)"
+        String.format("NoDelayFilter (compensate %.1f delay) - LinearInterpolationFilter (f · %.1f; delay %.1f)", 3.0, 7.0, 3.0)
     }, {
         FilterBuilder.of().fork(
             FilterBuilder.of().fir(1.0).build(),
@@ -135,10 +134,16 @@ public class FIRFilterTest {
             FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(4).build()
         ).buildNoDelay(),
-        "NoDelayFilter (compensate 2,0 delay) - FIRFilter (delay 0,0) - DelayFilter (delay 2,0)" + NEW_LINE +
-            "                                       FIRFilter (delay 1,0) - DelayFilter (delay 1,0)" + NEW_LINE +
-            "                                       CombFilter (delay 1,0) - DelayFilter (delay 1,0)" + NEW_LINE +
-            "                                       RRS4 (delay 2,0)"
+        String.format(
+            "NoDelayFilter (compensate %.1f delay) - FIRFilter (delay %.1f) - DelayFilter (delay %.1f)%n" +
+                "                                       FIRFilter (delay %.1f) - DelayFilter (delay %.1f)%n" +
+                "                                       CombFilter (delay %.1f) - DelayFilter (delay %.1f)%n" +
+                "                                       RRS4 (delay %.1f)",
+            2.0, 0.0, 2.0,
+            1.0, 1.0,
+            1.0, 1.0,
+            2.0
+        )
     }};
   }
 
@@ -216,6 +221,6 @@ public class FIRFilterTest {
 
   @Test(dataProvider = "strings")
   public void testToString(DigitalFilter filter, String toString) {
-    Assert.assertEquals(filter.toString().replace('.', ','), toString, filter.toString());
+    Assert.assertEquals(filter.toString(), toString, filter.toString());
   }
 }

@@ -258,7 +258,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
       this(ByteBuffer.allocate(MAX_CAPACITY));
     }
 
-    ResponseBuilder(@Nonnull ByteBuffer buffer) {
+    public ResponseBuilder(@Nonnull ByteBuffer buffer) {
       super(buffer.order(ByteOrder.LITTLE_ENDIAN));
     }
 

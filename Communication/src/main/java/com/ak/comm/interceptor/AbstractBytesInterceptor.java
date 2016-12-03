@@ -14,11 +14,11 @@ import static jssc.SerialPort.BAUDRATE_115200;
 
 public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> implements BytesInterceptor<RESPONSE, REQUEST> {
   private static final Level LOG_LEVEL_LEXEMES = Level.FINER;
+  private final Logger logger = Logger.getLogger(getClass().getName());
   private final ByteBuffer outBuffer;
   private final REQUEST pingRequest;
-  private final Logger logger = Logger.getLogger(getClass().getName());
 
-  protected AbstractBytesInterceptor(@Nonnull String name, @Nonnegative int outBufferSize, @Nullable REQUEST pingRequest) {
+  protected AbstractBytesInterceptor(@Nonnegative int outBufferSize, @Nullable REQUEST pingRequest) {
     outBuffer = ByteBuffer.allocate(outBufferSize);
     this.pingRequest = pingRequest;
   }
