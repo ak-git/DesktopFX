@@ -52,7 +52,7 @@ public class LocalFileHandlerTest {
 
   @Test
   public void testBinaryLogBuilder() throws IOException {
-    Path path = new BinaryLogBuilder(getClass().getSimpleName(), LocalFileHandler.class).build().getPath();
+    Path path = new BinaryLogBuilder(getClass().getSimpleName()).build().getPath();
     WritableByteChannel channel = Files.newByteChannel(path,
         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
     channel.write(ByteBuffer.wrap(getClass().getName().getBytes(Charset.defaultCharset())));

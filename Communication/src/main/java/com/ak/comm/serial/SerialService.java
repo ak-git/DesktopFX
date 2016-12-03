@@ -18,7 +18,6 @@ import javax.annotation.Nullable;
 
 import com.ak.comm.core.AbstractService;
 import com.ak.logging.BinaryLogBuilder;
-import com.ak.logging.LocalFileHandler;
 import com.ak.util.Strings;
 import jssc.SerialPort;
 import jssc.SerialPortException;
@@ -28,8 +27,6 @@ import org.reactivestreams.Subscriber;
 final class SerialService extends AbstractService<ByteBuffer> implements WritableByteChannel {
   @Nonnull
   private final SerialPort serialPort;
-  @Nonnull
-  private final String protocolName;
   @Nonnegative
   private final int baudRate;
   @Nonnull
@@ -37,8 +34,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
   @Nullable
   private WritableByteChannel binaryLogChannel;
 
-  SerialService(@Nonnull String protocolName, @Nonnegative int baudRate) {
-    this.protocolName = protocolName;
+  SerialService(@Nonnegative int baudRate) {
     this.baudRate = baudRate;
     buffer = ByteBuffer.allocate(baudRate);
     String portName = Ports.INSTANCE.next();
@@ -86,7 +82,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
       serialPort.addEventListener(event -> {
         if (binaryLogChannel == null) {
           try {
-            Path path = new BinaryLogBuilder(protocolName, LocalFileHandler.class).build().getPath();
+            Path path = new BinaryLogBuilder(getClass().getSimpleName()).build().getPath();
             binaryLogChannel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
             Logger.getLogger(getClass().getName()).log(Level.INFO,
                 String.format("#%x Bytes from port [ %s ] are logging into the file [ %s ]", hashCode(), serialPort.getPortName(), path));

@@ -8,11 +8,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-
 public interface BytesInterceptor<RESPONSE, REQUEST> extends Function<ByteBuffer, Stream<RESPONSE>> {
-  @Nonnull
-  String name();
-
   @Nonnegative
   int getBaudRate();
 
@@ -23,6 +19,7 @@ public interface BytesInterceptor<RESPONSE, REQUEST> extends Function<ByteBuffer
    * @param src input bytes buffer
    * @return response's publisher
    */
+  @Nonnull
   @Override
   Stream<RESPONSE> apply(@Nonnull ByteBuffer src);
 

@@ -32,11 +32,6 @@ final class NmisRsceBytesInterceptor implements BytesInterceptor<RsceCommandFram
   private final ByteBuffer buffer = ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY);
 
   @Override
-  public String name() {
-    return "NMIS-RSCE";
-  }
-
-  @Override
   public int getBaudRate() {
     return nmis.getBaudRate();
   }

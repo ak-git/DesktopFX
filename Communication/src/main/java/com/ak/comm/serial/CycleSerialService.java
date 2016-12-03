@@ -30,7 +30,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
 
   public CycleSerialService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor) {
     this.bytesInterceptor = bytesInterceptor;
-    serialService = new SerialService(bytesInterceptor.name(), bytesInterceptor.getBaudRate());
+    serialService = new SerialService(bytesInterceptor.getBaudRate());
   }
 
   @Override
@@ -76,7 +76,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
       synchronized (this) {
         if (!executor.isShutdown()) {
           disposable.dispose();
-          serialService = new SerialService(bytesInterceptor.name(), bytesInterceptor.getBaudRate());
+          serialService = new SerialService(bytesInterceptor.getBaudRate());
         }
       }
     }, 0, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);

@@ -12,7 +12,6 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.logging.BinaryLogBuilder;
-import com.ak.logging.LocalFileHandler;
 import io.reactivex.Flowable;
 import io.reactivex.subscribers.TestSubscriber;
 import org.reactivestreams.Publisher;
@@ -90,7 +89,7 @@ public final class FileServiceTest {
   }
 
   private Path createFile(int kBytes) throws IOException {
-    Path path = new BinaryLogBuilder(String.format("%s %d bytes", getClass().getSimpleName(), kBytes), LocalFileHandler.class).build().getPath();
+    Path path = new BinaryLogBuilder(String.format("%s %d bytes", getClass().getSimpleName(), kBytes)).build().getPath();
     if (kBytes >= 0) {
       try (WritableByteChannel channel = Files.newByteChannel(path,
           StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
