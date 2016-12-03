@@ -1,12 +1,12 @@
 package com.ak.comm.interceptor.simple;
 
 import java.nio.ByteBuffer;
-import java.util.Iterator;
+import java.util.Collection;
+import java.util.LinkedList;
 
 import javax.annotation.Nonnull;
 
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
-import io.reactivex.Flowable;
 
 public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Integer, Byte> {
   public DefaultBytesInterceptor() {
@@ -19,18 +19,12 @@ public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Inte
   }
 
   @Override
-  protected Flowable<Integer> innerProcessIn(@Nonnull ByteBuffer src) {
+  protected Collection<Integer> innerProcessIn(@Nonnull ByteBuffer src) {
     src.rewind();
-    return Flowable.fromIterable(() -> new Iterator<Integer>() {
-      @Override
-      public boolean hasNext() {
-        return src.hasRemaining();
-      }
-
-      @Override
-      public Integer next() {
-        return Byte.toUnsignedInt(src.get());
-      }
-    });
+    Collection<Integer> ints = new LinkedList<>();
+    while (src.hasRemaining()) {
+      ints.add(Byte.toUnsignedInt(src.get()));
+    }
+    return ints;
   }
 }

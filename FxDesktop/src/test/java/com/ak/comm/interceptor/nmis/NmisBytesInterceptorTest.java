@@ -2,6 +2,8 @@ package com.ak.comm.interceptor.nmis;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 import com.ak.comm.bytes.nmis.NmisAddress;
@@ -9,7 +11,6 @@ import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.nmis.NmisResponseFrame;
 import com.ak.comm.bytes.nmis.NmisTestProvider;
 import com.ak.comm.interceptor.BytesInterceptor;
-import io.reactivex.subscribers.TestSubscriber;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -74,14 +75,11 @@ public final class NmisBytesInterceptorTest {
 
   private static void testResponse(NmisRequest request, byte[] input) {
     BytesInterceptor<NmisResponseFrame, NmisRequest> interceptor = new NmisBytesInterceptor();
-    TestSubscriber<NmisResponseFrame> subscriber = TestSubscriber.create();
-    interceptor.apply(ByteBuffer.wrap(input)).subscribe(subscriber);
+    Collection<NmisResponseFrame> frames = interceptor.apply(ByteBuffer.wrap(input));
 
-    if (subscriber.valueCount() > 0) {
-      subscriber.assertValue(request.toResponse());
+    if (!frames.isEmpty()) {
+      Assert.assertEquals(frames, Collections.singleton(request.toResponse()));
     }
     Assert.assertTrue(interceptor.putOut(request).remaining() > 0);
-    subscriber.assertComplete();
-    subscriber.assertNoErrors();
   }
 }

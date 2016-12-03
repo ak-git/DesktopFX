@@ -11,7 +11,6 @@ import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.AbstractBufferFrame;
 import com.ak.comm.bytes.AbstractCheckedBuilder;
-import io.reactivex.Flowable;
 
 public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedBuilder<RESPONSE>, RESPONSE, REQUEST extends AbstractBufferFrame>
     extends AbstractBytesInterceptor<RESPONSE, REQUEST> {
@@ -36,7 +35,7 @@ public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedB
   }
 
   @Override
-  protected Flowable<RESPONSE> innerProcessIn(@Nonnull ByteBuffer src) {
+  protected Collection<RESPONSE> innerProcessIn(@Nonnull ByteBuffer src) {
     src.rewind();
     Collection<RESPONSE> responses = new LinkedList<>();
     ByteBuffer buffer = responseBuilder.buffer();
@@ -77,7 +76,7 @@ public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedB
         buffer.clear();
       }
     }
-    return Flowable.fromIterable(responses);
+    return responses;
   }
 
   private void logSkippedBytes() {

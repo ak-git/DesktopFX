@@ -1,13 +1,13 @@
 package com.ak.comm.interceptor.rsce;
 
 import java.nio.ByteBuffer;
+import java.util.Collections;
 
 import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.bytes.rsce.RsceTestDataProvider;
 import com.ak.comm.interceptor.BytesInterceptor;
-import io.reactivex.subscribers.TestSubscriber;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -32,11 +32,7 @@ public final class RsceBytesInterceptorTest {
 
   private static void checkResponse(@Nonnull byte[] bytes, @Nonnull RsceCommandFrame request) {
     BytesInterceptor<RsceCommandFrame, RsceCommandFrame> interceptor = new RsceBytesInterceptor();
-    TestSubscriber<RsceCommandFrame> subscriber = TestSubscriber.create();
-    interceptor.apply(ByteBuffer.wrap(bytes)).subscribe(subscriber);
-    subscriber.assertValue(request);
+    Assert.assertEquals(interceptor.apply(ByteBuffer.wrap(bytes)), Collections.singleton(request));
     Assert.assertTrue(interceptor.putOut(request).remaining() > 0);
-    subscriber.assertComplete();
-    subscriber.assertNoErrors();
   }
 }

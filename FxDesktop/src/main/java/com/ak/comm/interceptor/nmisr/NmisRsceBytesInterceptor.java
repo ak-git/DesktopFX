@@ -1,6 +1,10 @@
 package com.ak.comm.interceptor.nmisr;
 
 import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
@@ -11,8 +15,6 @@ import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.nmis.NmisBytesInterceptor;
 import com.ak.comm.interceptor.rsce.RsceBytesInterceptor;
-import io.reactivex.Flowable;
-import org.reactivestreams.Publisher;
 
 /**
  * RSC Energia Hand Control format wrapped by Neuro-Muscular Test Stand format.
@@ -28,12 +30,12 @@ import org.reactivestreams.Publisher;
  */
 final class NmisRsceBytesInterceptor implements BytesInterceptor<RsceCommandFrame, NmisRequest> {
   private final BytesInterceptor<NmisResponseFrame, NmisRequest> nmis = new NmisBytesInterceptor();
-  private final BytesInterceptor<RsceCommandFrame, RsceCommandFrame> rsce = new RsceBytesInterceptor();
+  private final Function<ByteBuffer, Collection<RsceCommandFrame>> rsce = new RsceBytesInterceptor();
   private final ByteBuffer buffer = ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY);
 
   @Override
   public String name() {
-    return "NMISR";
+    return "NMIS-RSCE";
   }
 
   @Override
@@ -42,18 +44,18 @@ final class NmisRsceBytesInterceptor implements BytesInterceptor<RsceCommandFram
   }
 
   @Override
-  public Publisher<RsceCommandFrame> apply(@Nonnull ByteBuffer src) {
-    return Flowable.fromPublisher(nmis.apply(src)).flatMap(nmisResponseFrame -> {
+  public Collection<RsceCommandFrame> apply(@Nonnull ByteBuffer src) {
+    return nmis.apply(src).stream().flatMap(nmisResponseFrame -> {
       buffer.clear();
       nmisResponseFrame.extractData(buffer);
       buffer.flip();
       if (buffer.hasRemaining()) {
-        return rsce.apply(buffer);
+        return rsce.apply(buffer).stream();
       }
       else {
-        return Flowable.just(RsceCommandFrame.simple(RsceCommandFrame.Control.ALL, RsceCommandFrame.RequestType.EMPTY));
+        return Stream.of(RsceCommandFrame.simple(RsceCommandFrame.Control.ALL, RsceCommandFrame.RequestType.EMPTY));
       }
-    });
+    }).collect(Collectors.toList());
   }
 
   @Override

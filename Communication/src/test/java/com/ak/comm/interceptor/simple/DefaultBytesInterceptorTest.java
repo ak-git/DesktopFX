@@ -37,7 +37,8 @@ public final class DefaultBytesInterceptorTest {
     Assert.assertEquals(interceptor.getBaudRate(), BAUDRATE_115200);
     Assert.assertEquals(interceptor.getPingRequest(), Byte.valueOf((byte) 0));
 
-    Flowable.fromPublisher(new FileService(path)).flatMap(interceptor).subscribe(testSubscriber);
+    Flowable.fromPublisher(new FileService(path)).flatMap(buffer -> Flowable.fromIterable(interceptor.apply(buffer))).
+        subscribe(testSubscriber);
     testSubscriber.assertNoErrors();
     testSubscriber.assertValueCount(1024 * 10);
     testSubscriber.assertSubscribed();

@@ -1,6 +1,8 @@
 package com.ak.comm.interceptor.nmisr;
 
 import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.Collections;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -10,7 +12,6 @@ import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.nmis.NmisBytesInterceptor;
-import io.reactivex.subscribers.TestSubscriber;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -44,21 +45,18 @@ public final class NmisRsceBytesInterceptorTest {
 
   @Test(dataProvider = "data")
   public void testInterceptor(@Nonnull byte[] bytes, @Nullable RsceCommandFrame response) {
-    TestSubscriber<RsceCommandFrame> subscriber = TestSubscriber.create();
-
     byteBuffer.put(bytes);
     byteBuffer.flip();
     Assert.assertEquals(interceptor.getBaudRate(), new NmisBytesInterceptor().getBaudRate());
-    interceptor.apply(byteBuffer).subscribe(subscriber);
+    Collection<RsceCommandFrame> frames = interceptor.apply(byteBuffer);
     byteBuffer.clear();
 
     if (response == null) {
-      subscriber.assertNoValues();
+      Assert.assertTrue(frames.isEmpty());
     }
     else {
-      subscriber.assertValue(response);
+      Assert.assertEquals(frames, Collections.singleton(response));
       Assert.assertTrue(interceptor.putOut(NmisRequest.Sequence.ROTATE_INV.build()).remaining() > 0);
     }
-    subscriber.assertNoErrors();
   }
 }

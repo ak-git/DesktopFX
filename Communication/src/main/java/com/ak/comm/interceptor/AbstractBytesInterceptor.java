@@ -1,15 +1,13 @@
 package com.ak.comm.interceptor;
 
 import java.nio.ByteBuffer;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import io.reactivex.Flowable;
-import org.reactivestreams.Publisher;
 
 import static jssc.SerialPort.BAUDRATE_115200;
 
@@ -33,8 +31,8 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> implements Byt
   }
 
   @Override
-  public final Publisher<RESPONSE> apply(@Nonnull ByteBuffer src) {
-    Flowable<RESPONSE> responses = innerProcessIn(src);
+  public final Collection<RESPONSE> apply(@Nonnull ByteBuffer src) {
+    Collection<RESPONSE> responses = innerProcessIn(src);
     if (logger.isLoggable(LOG_LEVEL_LEXEMES)) {
       responses.forEach(response -> logger.log(LOG_LEVEL_LEXEMES, String.format("#%x %s", hashCode(), response)));
     }
@@ -65,5 +63,5 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> implements Byt
   protected abstract void innerPutOut(@Nonnull ByteBuffer outBuffer, @Nonnull REQUEST request);
 
   @Nonnull
-  protected abstract Flowable<RESPONSE> innerProcessIn(@Nonnull ByteBuffer src);
+  protected abstract Collection<RESPONSE> innerProcessIn(@Nonnull ByteBuffer src);
 }
