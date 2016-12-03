@@ -119,7 +119,7 @@ public final class RsceBytesInterceptor2Test {
       }
     });
 
-    bufferFlowable.flatMap(buffer -> Flowable.fromIterable(interceptor.apply(buffer))).subscribe(subscriber);
+    bufferFlowable.flatMapIterable(buffer -> () -> interceptor.apply(buffer).iterator()).subscribe(subscriber);
     if (response == null) {
       subscriber.assertNoValues();
     }

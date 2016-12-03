@@ -1,15 +1,15 @@
 package com.ak.comm.interceptor;
 
 import java.nio.ByteBuffer;
-import java.util.Collection;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 
-public interface BytesInterceptor<RESPONSE, REQUEST> extends Function<ByteBuffer, Collection<RESPONSE>> {
+public interface BytesInterceptor<RESPONSE, REQUEST> extends Function<ByteBuffer, Stream<RESPONSE>> {
   @Nonnull
   String name();
 
@@ -24,7 +24,7 @@ public interface BytesInterceptor<RESPONSE, REQUEST> extends Function<ByteBuffer
    * @return response's publisher
    */
   @Override
-  Collection<RESPONSE> apply(@Nonnull ByteBuffer src);
+  Stream<RESPONSE> apply(@Nonnull ByteBuffer src);
 
   @Nullable
   REQUEST getPingRequest();

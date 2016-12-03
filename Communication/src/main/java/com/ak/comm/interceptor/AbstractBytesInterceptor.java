@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -31,12 +32,12 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> implements Byt
   }
 
   @Override
-  public final Collection<RESPONSE> apply(@Nonnull ByteBuffer src) {
+  public final Stream<RESPONSE> apply(@Nonnull ByteBuffer src) {
     Collection<RESPONSE> responses = innerProcessIn(src);
     if (logger.isLoggable(LOG_LEVEL_LEXEMES)) {
       responses.forEach(response -> logger.log(LOG_LEVEL_LEXEMES, String.format("#%x %s", hashCode(), response)));
     }
-    return responses;
+    return responses.stream();
   }
 
   @Nullable

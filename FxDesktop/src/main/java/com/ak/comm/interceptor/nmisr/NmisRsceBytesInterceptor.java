@@ -1,9 +1,7 @@
 package com.ak.comm.interceptor.nmisr;
 
 import java.nio.ByteBuffer;
-import java.util.Collection;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -30,7 +28,7 @@ import com.ak.comm.interceptor.rsce.RsceBytesInterceptor;
  */
 final class NmisRsceBytesInterceptor implements BytesInterceptor<RsceCommandFrame, NmisRequest> {
   private final BytesInterceptor<NmisResponseFrame, NmisRequest> nmis = new NmisBytesInterceptor();
-  private final Function<ByteBuffer, Collection<RsceCommandFrame>> rsce = new RsceBytesInterceptor();
+  private final Function<ByteBuffer, Stream<RsceCommandFrame>> rsce = new RsceBytesInterceptor();
   private final ByteBuffer buffer = ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY);
 
   @Override
@@ -44,18 +42,18 @@ final class NmisRsceBytesInterceptor implements BytesInterceptor<RsceCommandFram
   }
 
   @Override
-  public Collection<RsceCommandFrame> apply(@Nonnull ByteBuffer src) {
-    return nmis.apply(src).stream().flatMap(nmisResponseFrame -> {
+  public Stream<RsceCommandFrame> apply(@Nonnull ByteBuffer src) {
+    return nmis.apply(src).flatMap(nmisResponseFrame -> {
       buffer.clear();
       nmisResponseFrame.extractData(buffer);
       buffer.flip();
       if (buffer.hasRemaining()) {
-        return rsce.apply(buffer).stream();
+        return rsce.apply(buffer);
       }
       else {
         return Stream.of(RsceCommandFrame.simple(RsceCommandFrame.Control.ALL, RsceCommandFrame.RequestType.EMPTY));
       }
-    }).collect(Collectors.toList());
+    });
   }
 
   @Override

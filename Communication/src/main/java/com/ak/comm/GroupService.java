@@ -2,7 +2,6 @@ package com.ak.comm;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.stream.Stream;
 
@@ -16,10 +15,8 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
 import io.reactivex.internal.util.EmptyComponent;
 import io.reactivex.schedulers.Schedulers;
-import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
 public final class GroupService<RESPONSE, REQUEST> extends AbstractService<IntBuffer[]> implements FileFilter {
@@ -41,7 +38,7 @@ public final class GroupService<RESPONSE, REQUEST> extends AbstractService<IntBu
     if (file.isFile() && file.getName().toLowerCase().endsWith(".bin")) {
       fileSubscription.dispose();
       fileSubscription = Flowable.fromPublisher(new FileService(file.toPath())).subscribeOn(Schedulers.io()).
-          flatMap((Function<ByteBuffer, Publisher<?>>) buffer -> Flowable.fromIterable(interceptorProvider.get().apply(buffer))).subscribe();
+          flatMapIterable(buffer -> () -> interceptorProvider.get().apply(buffer).iterator()).subscribe();
       return true;
     }
     else {

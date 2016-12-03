@@ -1,8 +1,8 @@
 package com.ak.comm.interceptor.nmisr;
 
 import java.nio.ByteBuffer;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -48,14 +48,14 @@ public final class NmisRsceBytesInterceptorTest {
     byteBuffer.put(bytes);
     byteBuffer.flip();
     Assert.assertEquals(interceptor.getBaudRate(), new NmisBytesInterceptor().getBaudRate());
-    Collection<RsceCommandFrame> frames = interceptor.apply(byteBuffer);
+    Stream<RsceCommandFrame> frames = interceptor.apply(byteBuffer);
     byteBuffer.clear();
 
     if (response == null) {
-      Assert.assertTrue(frames.isEmpty());
+      Assert.assertEquals(frames.count(), 0);
     }
     else {
-      Assert.assertEquals(frames, Collections.singleton(response));
+      Assert.assertEquals(frames.iterator(), Collections.singleton(response).iterator());
       Assert.assertTrue(interceptor.putOut(NmisRequest.Sequence.ROTATE_INV.build()).remaining() > 0);
     }
   }

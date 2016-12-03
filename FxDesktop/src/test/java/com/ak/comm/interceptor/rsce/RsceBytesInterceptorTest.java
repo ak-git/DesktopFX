@@ -1,7 +1,7 @@
 package com.ak.comm.interceptor.rsce;
 
 import java.nio.ByteBuffer;
-import java.util.Collections;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
@@ -32,7 +32,7 @@ public final class RsceBytesInterceptorTest {
 
   private static void checkResponse(@Nonnull byte[] bytes, @Nonnull RsceCommandFrame request) {
     BytesInterceptor<RsceCommandFrame, RsceCommandFrame> interceptor = new RsceBytesInterceptor();
-    Assert.assertEquals(interceptor.apply(ByteBuffer.wrap(bytes)), Collections.singleton(request));
+    Assert.assertEquals(interceptor.apply(ByteBuffer.wrap(bytes)).iterator(), Stream.of(request).iterator());
     Assert.assertTrue(interceptor.putOut(request).remaining() > 0);
   }
 }

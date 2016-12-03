@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.ak.comm.bytes.nmis.NmisAddress;
 import com.ak.comm.bytes.nmis.NmisRequest;
@@ -75,7 +76,7 @@ public final class NmisBytesInterceptorTest {
 
   private static void testResponse(NmisRequest request, byte[] input) {
     BytesInterceptor<NmisResponseFrame, NmisRequest> interceptor = new NmisBytesInterceptor();
-    Collection<NmisResponseFrame> frames = interceptor.apply(ByteBuffer.wrap(input));
+    Collection<NmisResponseFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).collect(Collectors.toList());
 
     if (!frames.isEmpty()) {
       Assert.assertEquals(frames, Collections.singleton(request.toResponse()));

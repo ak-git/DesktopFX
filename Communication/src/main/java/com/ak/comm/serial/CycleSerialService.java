@@ -44,7 +44,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
       Disposable disposable = Flowable.fromPublisher(serialService).doFinally(() -> {
         workingFlag.set(false);
         latch.countDown();
-      }).flatMap(buffer -> Flowable.fromIterable(bytesInterceptor.apply(buffer))).doOnNext(response -> {
+      }).flatMapIterable(buffer -> () -> bytesInterceptor.apply(buffer).iterator()).doOnNext(response -> {
         s.onNext(response);
         workingFlag.set(true);
         okTime.set(Instant.now());
