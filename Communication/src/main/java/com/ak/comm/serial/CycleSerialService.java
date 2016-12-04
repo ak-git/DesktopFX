@@ -15,26 +15,21 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ak.comm.converter.Converter;
-import com.ak.comm.core.AbstractService;
+import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.UIConstants;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import org.reactivestreams.Subscriber;
 
-public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService<int[]> {
+public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractConvertableService<RESPONSE, REQUEST> {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-  @Nonnull
-  private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
-  @Nonnull
-  private final Converter<RESPONSE> responseConverter;
   @Nonnull
   private volatile SerialService serialService;
 
   public CycleSerialService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
                             @Nonnull Converter<RESPONSE> responseConverter) {
-    this.bytesInterceptor = bytesInterceptor;
-    this.responseConverter = responseConverter;
+    super(bytesInterceptor, responseConverter);
     serialService = new SerialService(bytesInterceptor.getBaudRate());
   }
 
@@ -49,14 +44,14 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
       Disposable disposable = Flowable.fromPublisher(serialService).doFinally(() -> {
         workingFlag.set(false);
         latch.countDown();
-      }).subscribe(buffer -> bytesInterceptor.apply(buffer).flatMap(responseConverter::apply).forEach(ints -> {
+      }).subscribe(buffer -> process(buffer).forEach(ints -> {
         s.onNext(ints);
         workingFlag.set(true);
         okTime.set(Instant.now());
       }));
 
       while (!Thread.currentThread().isInterrupted()) {
-        if (serialService.isOpen() && write(bytesInterceptor.getPingRequest()) == 0) {
+        if (!serialService.isOpen() || (serialService.isOpen() && write(bytesInterceptor().getPingRequest()) == 0)) {
           break;
         }
         else {
@@ -81,14 +76,10 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
       synchronized (this) {
         if (!executor.isShutdown()) {
           disposable.dispose();
-          serialService = new SerialService(bytesInterceptor.getBaudRate());
+          serialService = new SerialService(bytesInterceptor().getBaudRate());
         }
       }
     }, 0, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
-  }
-
-  @Override
-  public void request(long n) {
   }
 
   @Override
@@ -101,7 +92,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
 
   public int write(@Nullable REQUEST request) {
     synchronized (this) {
-      return request == null ? -1 : serialService.write(bytesInterceptor.putOut(request));
+      return request == null ? -1 : serialService.write(bytesInterceptor().putOut(request));
     }
   }
 }

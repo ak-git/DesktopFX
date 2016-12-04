@@ -1,4 +1,4 @@
-package com.ak.comm.interceptor.simple;
+package com.ak.comm.file;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
@@ -6,8 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-import com.ak.comm.file.FileService;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.interceptor.simple.DefaultBytesInterceptor;
 import com.ak.logging.BinaryLogBuilder;
 import io.reactivex.Flowable;
 import io.reactivex.subscribers.TestSubscriber;
