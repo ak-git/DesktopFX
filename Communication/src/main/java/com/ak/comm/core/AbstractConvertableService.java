@@ -1,8 +1,6 @@
 package com.ak.comm.core;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -11,7 +9,6 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.interceptor.BytesInterceptor;
 
 public abstract class AbstractConvertableService<RESPONSE, REQUEST> extends AbstractService<int[]> {
-  private static final Level LOG_LEVEL_VALUES = Level.FINE;
   @Nonnull
   private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
   @Nonnull
@@ -28,11 +25,7 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST> extends Abst
   }
 
   protected final Stream<int[]> process(ByteBuffer buffer) {
-    Stream<int[]> stream = bytesInterceptor.apply(buffer).flatMap(responseConverter::apply);
-    if (logger.isLoggable(LOG_LEVEL_VALUES)) {
-      stream = stream.peek(ints -> logger.log(LOG_LEVEL_VALUES, String.format("#%x %s", hashCode(), Arrays.toString(ints))));
-    }
-    return stream;
+    return bytesInterceptor.apply(buffer).flatMap(responseConverter::apply);
   }
 
   protected final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor() {

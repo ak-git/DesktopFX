@@ -10,7 +10,7 @@ import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
 
 public abstract class AbstractService<T> implements Publisher<T>, Subscription {
-  protected final Logger logger = Logger.getLogger(getClass().getName());
+  private final Logger logger = Logger.getLogger(getClass().getName());
   private static final Level LOG_LEVEL_BYTES = Level.FINEST;
   private final Object finalizerGuardian = new FinalizerGuardian(this::cancel);
 
