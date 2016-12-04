@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.ak.comm.converter.Converter;
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.UIConstants;
@@ -21,20 +22,24 @@ import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import org.reactivestreams.Subscriber;
 
-public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService<RESPONSE> {
+public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService<int[]> {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   @Nonnull
   private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
   @Nonnull
+  private final Converter<RESPONSE> responseConverter;
+  @Nonnull
   private volatile SerialService serialService;
 
-  public CycleSerialService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor) {
+  public CycleSerialService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
+                            @Nonnull Converter<RESPONSE> responseConverter) {
     this.bytesInterceptor = bytesInterceptor;
+    this.responseConverter = responseConverter;
     serialService = new SerialService(bytesInterceptor.getBaudRate());
   }
 
   @Override
-  public void subscribe(Subscriber<? super RESPONSE> s) {
+  public void subscribe(Subscriber<? super int[]> s) {
     s.onSubscribe(this);
     executor.scheduleAtFixedRate(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();
@@ -44,11 +49,11 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
       Disposable disposable = Flowable.fromPublisher(serialService).doFinally(() -> {
         workingFlag.set(false);
         latch.countDown();
-      }).flatMapIterable(buffer -> () -> bytesInterceptor.apply(buffer).iterator()).doOnNext(response -> {
-        s.onNext(response);
+      }).subscribe(buffer -> bytesInterceptor.apply(buffer).flatMap(responseConverter::apply).forEach(ints -> {
+        s.onNext(ints);
         workingFlag.set(true);
         okTime.set(Instant.now());
-      }).subscribe();
+      }));
 
       while (!Thread.currentThread().isInterrupted()) {
         if (serialService.isOpen() && write(bytesInterceptor.getPingRequest()) == 0) {

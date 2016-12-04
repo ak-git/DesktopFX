@@ -72,41 +72,43 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
 
   @Override
   public void subscribe(Subscriber<? super ByteBuffer> s) {
-    try {
-      serialPort.openPort();
-      serialPort.setParams(baudRate, 8, 1, 0);
-      serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
-      Logger.getLogger(getClass().getName()).log(Level.INFO,
-          String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getPortName(), baudRate));
-      s.onSubscribe(this);
-      serialPort.addEventListener(event -> {
-        if (binaryLogChannel == null) {
-          try {
-            Path path = new BinaryLogBuilder(getClass().getSimpleName()).build().getPath();
-            binaryLogChannel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
-            Logger.getLogger(getClass().getName()).log(Level.INFO,
-                String.format("#%x Bytes from port [ %s ] are logging into the file [ %s ]", hashCode(), serialPort.getPortName(), path));
+    if (!serialPort.getPortName().isEmpty()) {
+      try {
+        serialPort.openPort();
+        serialPort.setParams(baudRate, 8, 1, 0);
+        serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
+        Logger.getLogger(getClass().getName()).log(Level.INFO,
+            String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getPortName(), baudRate));
+        s.onSubscribe(this);
+        serialPort.addEventListener(event -> {
+          if (binaryLogChannel == null) {
+            try {
+              Path path = new BinaryLogBuilder(getClass().getSimpleName()).build().getPath();
+              binaryLogChannel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+              Logger.getLogger(getClass().getName()).log(Level.INFO,
+                  String.format("#%x Bytes from port [ %s ] are logging into the file [ %s ]", hashCode(), serialPort.getPortName(), path));
+            }
+            catch (IOException ex) {
+              logErrorAndComplete(s, Level.WARNING, ex);
+            }
           }
-          catch (IOException ex) {
-            logErrorAndComplete(s, Level.WARNING, ex);
-          }
-        }
 
-        try {
-          buffer.clear();
-          buffer.put(serialPort.readBytes());
-          buffer.flip();
-          binaryLogChannel.write(buffer);
-          logBytes(buffer);
-          s.onNext(buffer);
-        }
-        catch (Exception ex) {
-          logErrorAndComplete(s, Level.CONFIG, ex);
-        }
-      }, SerialPort.MASK_RXCHAR);
-    }
-    catch (SerialPortException ex) {
-      logErrorAndComplete(s, Level.CONFIG, ex);
+          try {
+            buffer.clear();
+            buffer.put(serialPort.readBytes());
+            buffer.flip();
+            binaryLogChannel.write(buffer);
+            logBytes(buffer);
+            s.onNext(buffer);
+          }
+          catch (Exception ex) {
+            logErrorAndComplete(s, Level.CONFIG, ex);
+          }
+        }, SerialPort.MASK_RXCHAR);
+      }
+      catch (SerialPortException ex) {
+        logErrorAndComplete(s, Level.CONFIG, ex);
+      }
     }
   }
 

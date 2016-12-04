@@ -4,8 +4,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import com.ak.comm.bytes.nmis.NmisRequest;
-import com.ak.comm.bytes.nmis.NmisResponseFrame;
-import com.ak.comm.interceptor.nmis.NmisBytesInterceptor;
+import com.ak.comm.bytes.rsce.RsceCommandFrame;
+import com.ak.comm.converter.rsce.RsceConverter;
+import com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
 import io.reactivex.subscribers.TestSubscriber;
 import org.testng.Assert;
@@ -18,8 +19,8 @@ public final class CycleSerialServiceTest {
   public void testBytesInterceptor() throws InterruptedException {
     CountDownLatch latch = new CountDownLatch(1);
 
-    CycleSerialService<NmisResponseFrame, NmisRequest> service = new CycleSerialService<>(new NmisBytesInterceptor());
-    TestSubscriber<NmisResponseFrame> subscriber = TestSubscriber.create();
+    CycleSerialService<RsceCommandFrame, NmisRequest> service = new CycleSerialService<>(new NmisRsceBytesInterceptor(), new RsceConverter());
+    TestSubscriber<int[]> subscriber = TestSubscriber.create();
     service.subscribe(subscriber);
     service.write(NmisRequest.Single.Z_360.buildForAll(NmisRequest.MyoType.OFF, NmisRequest.MyoFrequency.OFF));
     service.write(NmisRequest.Sequence.CATCH_100.build());

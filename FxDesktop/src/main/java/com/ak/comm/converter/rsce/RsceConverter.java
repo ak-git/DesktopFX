@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.converter.Converter;
 
-class RsceConverter implements Converter<RsceCommandFrame> {
+public final class RsceConverter implements Converter<RsceCommandFrame> {
   @Override
   public Stream<int[]> apply(RsceCommandFrame frame) {
     if (frame.hasResistance()) {

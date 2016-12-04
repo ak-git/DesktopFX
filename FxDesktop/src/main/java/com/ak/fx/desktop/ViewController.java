@@ -14,8 +14,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
-public final class ViewController implements Initializable {
+public final class ViewController implements Initializable, Subscriber<int[]> {
   @Nullable
   @FXML
   public MilliGrid root;
@@ -25,6 +27,7 @@ public final class ViewController implements Initializable {
   @Inject
   public ViewController(@Nonnull GroupService<?, ?> service) {
     this.service = service;
+    service.subscribe(this);
   }
 
   @Override
@@ -54,5 +57,24 @@ public final class ViewController implements Initializable {
         event.consume();
       });
     }
+  }
+
+  @Override
+  public void onSubscribe(Subscription s) {
+    s.request(Long.MAX_VALUE);
+  }
+
+  @Override
+  public void onNext(int[] ints) {
+  }
+
+  @Override
+  public void onError(Throwable t) {
+
+  }
+
+  @Override
+  public void onComplete() {
+
   }
 }

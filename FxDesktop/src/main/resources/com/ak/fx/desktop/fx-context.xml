@@ -23,6 +23,8 @@
     <!--<bean class="com.ak.comm.interceptor.nmis.NmisBytesInterceptor" scope="prototype"/>-->
     <bean class="com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor" scope="prototype"/>
 
+    <bean class="com.ak.comm.converter.rsce.RsceConverter" scope="prototype"/>
+
     <bean class="com.ak.comm.GroupService" destroy-method="cancel"/>
 
     <bean class="com.ak.fx.desktop.ViewController"/>

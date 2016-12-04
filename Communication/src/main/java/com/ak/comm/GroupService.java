@@ -2,13 +2,12 @@ package com.ak.comm;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.nio.IntBuffer;
-import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
+import com.ak.comm.converter.Converter;
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.file.FileService;
 import com.ak.comm.interceptor.BytesInterceptor;
@@ -19,26 +18,34 @@ import io.reactivex.internal.util.EmptyComponent;
 import io.reactivex.schedulers.Schedulers;
 import org.reactivestreams.Subscriber;
 
-public final class GroupService<RESPONSE, REQUEST> extends AbstractService<IntBuffer[]> implements FileFilter {
+public final class GroupService<RESPONSE, REQUEST> extends AbstractService<int[]> implements FileFilter {
   @Nonnull
   private final Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider;
   @Nonnull
-  private final Disposable serialSubscription;
+  private final Provider<Converter<RESPONSE>> converterProvider;
+  @Nonnull
+  private final Flowable<int[]> serialFlow;
   @Nonnull
   private Disposable fileSubscription = EmptyComponent.INSTANCE;
 
   @Inject
-  public GroupService(@Nonnull Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider) {
+  public GroupService(@Nonnull Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider,
+                      @Nonnull Provider<Converter<RESPONSE>> converterProvider) {
     this.interceptorProvider = interceptorProvider;
-    serialSubscription = Flowable.fromPublisher(new CycleSerialService<>(interceptorProvider.get())).subscribe();
+    this.converterProvider = converterProvider;
+    serialFlow = Flowable.fromPublisher(new CycleSerialService<>(interceptorProvider.get(), converterProvider.get()));
   }
 
   @Override
   public boolean accept(File file) {
     if (file.isFile() && file.getName().toLowerCase().endsWith(".bin")) {
       fileSubscription.dispose();
+
+      BytesInterceptor<RESPONSE, REQUEST> interceptor = interceptorProvider.get();
+      Converter<RESPONSE> converter = converterProvider.get();
       fileSubscription = Flowable.fromPublisher(new FileService(file.toPath())).subscribeOn(Schedulers.io()).
-          flatMapIterable(buffer -> () -> interceptorProvider.get().apply(buffer).iterator()).subscribe();
+          flatMapIterable(buffer -> () -> interceptor.apply(buffer).iterator()).
+          flatMapIterable(response -> () -> converter.apply(response).iterator()).subscribe();
       return true;
     }
     else {
@@ -47,15 +54,18 @@ public final class GroupService<RESPONSE, REQUEST> extends AbstractService<IntBu
   }
 
   @Override
-  public void subscribe(Subscriber<? super IntBuffer[]> s) {
+  public void subscribe(Subscriber<? super int[]> s) {
+    serialFlow.subscribe(s);
   }
 
   @Override
-  public void request(long timeSample) {
+  public void request(long n) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void cancel() {
-    Stream.of(serialSubscription, fileSubscription).forEach(Disposable::dispose);
+    serialFlow.subscribe().dispose();
+    fileSubscription.dispose();
   }
 }
