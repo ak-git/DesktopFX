@@ -9,7 +9,7 @@ import javax.inject.Provider;
 
 import com.ak.comm.converter.Converter;
 import com.ak.comm.core.AbstractService;
-import com.ak.comm.file.AutoFileService;
+import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
 import io.reactivex.Flowable;
@@ -19,13 +19,13 @@ public final class GroupService<RESPONSE, REQUEST> extends AbstractService<int[]
   @Nonnull
   private final Flowable<int[]> serialFlow;
   @Nonnull
-  private final AutoFileService<RESPONSE, REQUEST> fileService;
+  private final AutoFileReadingService<RESPONSE, REQUEST> fileService;
 
   @Inject
   public GroupService(@Nonnull Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider,
                       @Nonnull Provider<Converter<RESPONSE>> converterProvider) {
     serialFlow = Flowable.fromPublisher(new CycleSerialService<>(interceptorProvider.get(), converterProvider.get()));
-    fileService = new AutoFileService<>(interceptorProvider.get(), converterProvider.get());
+    fileService = new AutoFileReadingService<>(interceptorProvider.get(), converterProvider.get());
   }
 
   @Override

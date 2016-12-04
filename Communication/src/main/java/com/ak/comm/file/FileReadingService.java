@@ -15,13 +15,13 @@ import javax.annotation.Nonnull;
 import com.ak.comm.core.AbstractService;
 import org.reactivestreams.Subscriber;
 
-public final class FileService extends AbstractService<ByteBuffer> {
+public final class FileReadingService extends AbstractService<ByteBuffer> {
   private static final int CAPACITY_4K = 1024 * 4;
   @Nonnull
   private final Path fileToRead;
   private volatile boolean canceled;
 
-  public FileService(@Nonnull Path fileToRead) {
+  FileReadingService(@Nonnull Path fileToRead) {
     Objects.requireNonNull(fileToRead);
     this.fileToRead = fileToRead;
   }

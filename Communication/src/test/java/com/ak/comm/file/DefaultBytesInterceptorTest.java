@@ -1,14 +1,12 @@
 package com.ak.comm.file;
 
-import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.DefaultBytesInterceptor;
-import com.ak.logging.BinaryLogBuilder;
 import io.reactivex.Flowable;
 import io.reactivex.subscribers.TestSubscriber;
 import org.testng.Assert;
@@ -17,30 +15,27 @@ import org.testng.annotations.Test;
 import static jssc.SerialPort.BAUDRATE_115200;
 
 public final class DefaultBytesInterceptorTest {
-  @Test
-  public void testDefaultBytesInterceptor() throws Exception {
-    Path path = new BinaryLogBuilder(getClass().getSimpleName()).build().getPath();
-    try (WritableByteChannel channel = Files.newByteChannel(path,
-        StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
-      ByteBuffer buffer = ByteBuffer.wrap(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-      for (int i = 0; i < 1024; i++) {
-        channel.write(buffer);
-        buffer.rewind();
-      }
-    }
-
+  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "files")
+  public void testDefaultBytesInterceptor(@Nonnull Path fileToRead, @Nonnegative int bytes) throws Exception {
     TestSubscriber<Integer> testSubscriber = TestSubscriber.create();
     BytesInterceptor<Integer, Byte> interceptor = new DefaultBytesInterceptor();
     interceptor.putOut((byte) 1);
     Assert.assertEquals(interceptor.getBaudRate(), BAUDRATE_115200);
     Assert.assertEquals(interceptor.getPingRequest(), Byte.valueOf((byte) 0));
 
-    Flowable.fromPublisher(new FileService(path)).flatMapIterable(buffer -> () -> interceptor.apply(buffer).iterator()).
+    Flowable.fromPublisher(new FileReadingService(fileToRead)).flatMapIterable(buffer -> () -> interceptor.apply(buffer).iterator()).
         subscribe(testSubscriber);
     testSubscriber.assertNoErrors();
-    testSubscriber.assertValueCount(1024 * 10);
-    testSubscriber.assertSubscribed();
-    testSubscriber.assertComplete();
-    Files.deleteIfExists(path);
+
+    if (bytes < 0) {
+      testSubscriber.assertNoValues();
+      testSubscriber.assertNotSubscribed();
+      testSubscriber.assertNotComplete();
+    }
+    else {
+      testSubscriber.assertValueCount(bytes);
+      testSubscriber.assertSubscribed();
+      testSubscriber.assertComplete();
+    }
   }
 }
