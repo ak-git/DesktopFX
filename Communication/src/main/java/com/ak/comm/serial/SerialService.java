@@ -37,11 +37,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
   SerialService(@Nonnegative int baudRate) {
     this.baudRate = baudRate;
     buffer = ByteBuffer.allocate(baudRate);
-    String portName = Ports.INSTANCE.next();
-    serialPort = new SerialPort(portName);
-    if (portName.isEmpty()) {
-      Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Serial port not found");
-    }
+    serialPort = new SerialPort(Ports.INSTANCE.next());
   }
 
   @Override
@@ -72,7 +68,10 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
 
   @Override
   public void subscribe(Subscriber<? super ByteBuffer> s) {
-    if (!serialPort.getPortName().isEmpty()) {
+    if (serialPort.getPortName().isEmpty()) {
+      Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Serial port not found");
+    }
+    else {
       try {
         serialPort.openPort();
         serialPort.setParams(baudRate, 8, 1, 0);
@@ -124,28 +123,24 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
   @Override
   public void close() {
     try {
-      try {
-        synchronized (serialPort) {
-          if (serialPort.isOpened()) {
-            serialPort.closePort();
-          }
+      synchronized (serialPort) {
+        if (serialPort.isOpened()) {
+          Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Close connection " + serialPort.getPortName());
+          serialPort.closePort();
         }
-      }
-      catch (SerialPortException ex) {
-        Logger.getLogger(getClass().getName()).log(Level.CONFIG, serialPort.getPortName(), ex);
-      }
-
-      try {
-        if (binaryLogChannel != null) {
-          binaryLogChannel.close();
-        }
-      }
-      catch (IOException ex) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, serialPort.getPortName(), ex);
       }
     }
-    finally {
-      Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Close connection " + serialPort.getPortName());
+    catch (SerialPortException ex) {
+      Logger.getLogger(getClass().getName()).log(Level.CONFIG, serialPort.getPortName(), ex);
+    }
+
+    try {
+      if (binaryLogChannel != null) {
+        binaryLogChannel.close();
+      }
+    }
+    catch (IOException ex) {
+      Logger.getLogger(getClass().getName()).log(Level.WARNING, serialPort.getPortName(), ex);
     }
   }
 
