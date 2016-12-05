@@ -34,7 +34,7 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractConvert
   }
 
   @Override
-  public void subscribe(Subscriber<? super int[]> s) {
+  public void subscribe(@Nonnull Subscriber<? super int[]> s) {
     s.onSubscribe(this);
     executor.scheduleAtFixedRate(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();

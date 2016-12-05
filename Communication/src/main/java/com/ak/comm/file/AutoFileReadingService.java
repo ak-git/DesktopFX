@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileFilter;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.ak.comm.converter.Converter;
 import com.ak.comm.core.AbstractConvertableService;
@@ -24,7 +25,7 @@ public final class AutoFileReadingService<RESPONSE, REQUEST> extends AbstractCon
   }
 
   @Override
-  public void subscribe(Subscriber<? super int[]> s) {
+  public void subscribe(@Nullable Subscriber<? super int[]> s) {
     throw new UnsupportedOperationException();
   }
 
@@ -34,7 +35,7 @@ public final class AutoFileReadingService<RESPONSE, REQUEST> extends AbstractCon
   }
 
   @Override
-  public boolean accept(File file) {
+  public boolean accept(@Nonnull File file) {
     if (file.isFile() && file.getName().toLowerCase().endsWith(".bin")) {
       cancel();
       subscription = Flowable.fromPublisher(new FileReadingService(file.toPath())).subscribeOn(Schedulers.io()).

@@ -24,7 +24,7 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST> extends Abst
   public final void request(long n) {
   }
 
-  protected final Stream<int[]> process(ByteBuffer buffer) {
+  protected final Stream<int[]> process(@Nonnull ByteBuffer buffer) {
     return bytesInterceptor.apply(buffer).flatMap(responseConverter::apply);
   }
 
