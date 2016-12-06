@@ -85,8 +85,13 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractConvert
   @Override
   public void cancel() {
     synchronized (this) {
-      serialService.close();
-      executor.shutdownNow();
+      try {
+        serialService.close();
+        executor.shutdownNow();
+      }
+      finally {
+        super.cancel();
+      }
     }
   }
 

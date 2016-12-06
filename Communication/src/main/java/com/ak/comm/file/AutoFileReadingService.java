@@ -31,7 +31,12 @@ public final class AutoFileReadingService<RESPONSE, REQUEST> extends AbstractCon
 
   @Override
   public void cancel() {
-    subscription.dispose();
+    try {
+      subscription.dispose();
+    }
+    finally {
+      super.cancel();
+    }
   }
 
   @Override
