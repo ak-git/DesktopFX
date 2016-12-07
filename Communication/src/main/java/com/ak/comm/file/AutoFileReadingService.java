@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import io.reactivex.Flowable;
@@ -15,12 +16,13 @@ import io.reactivex.internal.util.EmptyComponent;
 import io.reactivex.schedulers.Schedulers;
 import org.reactivestreams.Subscriber;
 
-public final class AutoFileReadingService<RESPONSE, REQUEST> extends AbstractConvertableService<RESPONSE, REQUEST> implements FileFilter {
+public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
+    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements FileFilter {
   @Nonnull
   private volatile Disposable subscription = EmptyComponent.INSTANCE;
 
   public AutoFileReadingService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
-                                @Nonnull Converter<RESPONSE> responseConverter) {
+                                @Nonnull Converter<RESPONSE, EV> responseConverter) {
     super(bytesInterceptor, responseConverter);
   }
 

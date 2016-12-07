@@ -16,7 +16,7 @@ public final class RsceConverterTest {
   public void testApply(@Nonnull byte[] bytes, int[] rDozenMilliOhms) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     Assert.assertNotNull(frame);
-    Converter<RsceCommandFrame> converter = new RsceConverter();
+    Converter<RsceCommandFrame, RsceVariable> converter = new RsceConverter();
     Stream<int[]> stream = converter.apply(frame);
     if (rDozenMilliOhms.length == 0) {
       Assert.assertEquals(stream.count(), 0);

@@ -22,10 +22,10 @@ public final class ViewController implements Initializable, Subscriber<int[]> {
   @FXML
   public MilliGrid root;
   @Nonnull
-  private final GroupService<?, ?> service;
+  private final GroupService<?, ?, ?> service;
 
   @Inject
-  public ViewController(@Nonnull GroupService<?, ?> service) {
+  public ViewController(@Nonnull GroupService<?, ?, ?> service) {
     this.service = service;
     service.subscribe(this);
   }

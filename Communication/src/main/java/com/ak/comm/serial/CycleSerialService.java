@@ -15,6 +15,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.UIConstants;
@@ -22,13 +23,14 @@ import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import org.reactivestreams.Subscriber;
 
-public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractConvertableService<RESPONSE, REQUEST> {
+public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
+    extends AbstractConvertableService<RESPONSE, REQUEST, EV> {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   @Nonnull
   private volatile SerialService serialService;
 
   public CycleSerialService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
-                            @Nonnull Converter<RESPONSE> responseConverter) {
+                            @Nonnull Converter<RESPONSE, EV> responseConverter) {
     super(bytesInterceptor, responseConverter);
     serialService = new SerialService(bytesInterceptor.getBaudRate());
   }

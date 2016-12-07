@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.converter.rsce.RsceConverter;
+import com.ak.comm.converter.rsce.RsceVariable;
 import com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
 import io.reactivex.subscribers.TestSubscriber;
@@ -19,7 +20,8 @@ public final class CycleSerialServiceTest {
   public void testBytesInterceptor() throws InterruptedException {
     CountDownLatch latch = new CountDownLatch(1);
 
-    CycleSerialService<RsceCommandFrame, NmisRequest> service = new CycleSerialService<>(new NmisRsceBytesInterceptor(), new RsceConverter());
+    CycleSerialService<RsceCommandFrame, NmisRequest, RsceVariable> service =
+        new CycleSerialService<>(new NmisRsceBytesInterceptor(), new RsceConverter());
     TestSubscriber<int[]> subscriber = TestSubscriber.create();
     service.subscribe(subscriber);
     service.write(NmisRequest.Single.Z_360.buildForAll(NmisRequest.MyoType.OFF, NmisRequest.MyoFrequency.OFF));

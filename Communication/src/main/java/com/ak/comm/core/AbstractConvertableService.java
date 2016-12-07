@@ -7,21 +7,24 @@ import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.Variable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.logging.SafeByteChannel;
 
-public abstract class AbstractConvertableService<RESPONSE, REQUEST> extends AbstractService<int[]> {
+public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractService<int[]> {
   @Nonnull
   private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
   @Nonnull
-  private final Converter<RESPONSE> responseConverter;
+  private final Converter<RESPONSE, EV> responseConverter;
   private final SafeByteChannel byteChannel = new SafeByteChannel(getClass().getSimpleName());
-  private final ByteBuffer workingBuffer = ByteBuffer.allocate(1024);
+  @Nonnull
+  private final ByteBuffer workingBuffer;
 
   public AbstractConvertableService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
-                                    @Nonnull Converter<RESPONSE> responseConverter) {
+                                    @Nonnull Converter<RESPONSE, EV> responseConverter) {
     this.bytesInterceptor = bytesInterceptor;
     this.responseConverter = responseConverter;
+    workingBuffer = ByteBuffer.allocate(responseConverter.variables().size() * Integer.BYTES);
   }
 
   @Override

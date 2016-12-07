@@ -8,14 +8,24 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import com.ak.comm.converter.AbstractConverter;
 import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.Variable;
 import com.ak.comm.interceptor.simple.DefaultBytesInterceptor;
 import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public final class AutoFileReadingServiceTest {
-  private static final Converter<Integer> INTEGER_CONVERTER = integer -> Stream.of(new int[] {integer});
+  private enum TestVariables implements Variable<TestVariables> {
+  }
+
+  private static final Converter<Integer, TestVariables> INTEGER_CONVERTER = new AbstractConverter<Integer, TestVariables>(TestVariables.class) {
+    @Override
+    protected Stream<int[]> innerApply(@Nonnull Integer integer) {
+      return Stream.of(new int[] {integer});
+    }
+  };
 
   @Test(timeOut = 10000, dataProviderClass = FileDataProvider.class, dataProvider = "files")
   public void testDefaultBytesInterceptor(@Nonnull Path fileToRead, @Nonnegative int bytes) throws Exception {
@@ -28,7 +38,7 @@ public final class AutoFileReadingServiceTest {
 
   @Test
   public void testInvalidFile() {
-    AutoFileReadingService<Integer, Byte> fileReadingService = new AutoFileReadingService<>(
+    AutoFileReadingService<Integer, Byte, TestVariables> fileReadingService = new AutoFileReadingService<>(
         new DefaultBytesInterceptor(), INTEGER_CONVERTER);
     Assert.assertFalse(fileReadingService.accept(Paths.get(Strings.EMPTY).toFile()));
     fileReadingService.cancel();
