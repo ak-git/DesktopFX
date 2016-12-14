@@ -13,46 +13,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
 public final class SafeByteChannel implements WritableByteChannel {
-  private static final SeekableByteChannel EMPTY_CHANNEL = new SeekableByteChannel() {
-    @Override
-    public int read(ByteBuffer dst) {
-      return 0;
-    }
-
-    @Override
-    public int write(ByteBuffer src) {
-      return 0;
-    }
-
-    @Override
-    public long position() {
-      return 0;
-    }
-
-    @Override
-    public SeekableByteChannel position(long newPosition) {
-      return this;
-    }
-
-    @Override
-    public long size() {
-      return 0;
-    }
-
-    @Override
-    public SeekableByteChannel truncate(long size) {
-      return this;
-    }
-
-    @Override
-    public boolean isOpen() {
-      return false;
-    }
-
-    @Override
-    public void close() {
-    }
-  };
+  private static final SeekableByteChannel EMPTY_CHANNEL = new EmptyByteChannel();
   @Nonnull
   private final String namePrefix;
   @Nonnull
@@ -79,7 +40,6 @@ public final class SafeByteChannel implements WritableByteChannel {
     }
 
     try {
-      src.rewind();
       return channel.write(src);
     }
     catch (IOException e) {
