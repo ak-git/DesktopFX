@@ -1,4 +1,4 @@
-package com.ak.logging;
+package com.ak.comm.core;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -11,6 +11,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
+
+import com.ak.logging.BinaryLogBuilder;
 
 public final class SafeByteChannel implements WritableByteChannel {
   private static final SeekableByteChannel EMPTY_CHANNEL = new EmptyByteChannel();
@@ -43,7 +45,7 @@ public final class SafeByteChannel implements WritableByteChannel {
       return channel.write(src);
     }
     catch (IOException e) {
-      Logger.getLogger(getClass().getName()).log(Level.CONFIG, e.getMessage(), e);
+      Logger.getLogger(getClass().getName()).log(LogLevels.LOG_LEVEL_ERRORS, e.getMessage(), e);
       return 0;
     }
   }
@@ -59,7 +61,7 @@ public final class SafeByteChannel implements WritableByteChannel {
       channel.close();
     }
     catch (IOException e) {
-      Logger.getLogger(getClass().getName()).log(Level.CONFIG, e.getMessage(), e);
+      Logger.getLogger(getClass().getName()).log(LogLevels.LOG_LEVEL_ERRORS, e.getMessage(), e);
     }
     finally {
       initialized = false;

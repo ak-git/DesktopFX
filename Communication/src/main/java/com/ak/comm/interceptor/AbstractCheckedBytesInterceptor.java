@@ -3,7 +3,6 @@ package com.ak.comm.interceptor;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -12,9 +11,10 @@ import javax.annotation.Nullable;
 import com.ak.comm.bytes.AbstractBufferFrame;
 import com.ak.comm.bytes.AbstractCheckedBuilder;
 
+import static com.ak.comm.core.LogLevels.LOG_LEVEL_ERRORS;
+
 public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedBuilder<RESPONSE>, RESPONSE, REQUEST extends AbstractBufferFrame>
     extends AbstractBytesInterceptor<RESPONSE, REQUEST> {
-  private static final Level LOG_LEVEL_ERRORS = Level.CONFIG;
   private static final int IGNORE_LIMIT = 16;
   private final Logger logger = Logger.getLogger(getClass().getName());
   private final ByteBuffer ignoreBuffer;

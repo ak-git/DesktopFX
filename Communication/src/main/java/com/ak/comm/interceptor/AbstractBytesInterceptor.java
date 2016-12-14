@@ -2,7 +2,6 @@ package com.ak.comm.interceptor;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -10,10 +9,10 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import static com.ak.comm.core.LogLevels.LOG_LEVEL_LEXEMES;
 import static jssc.SerialPort.BAUDRATE_115200;
 
 public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> implements BytesInterceptor<RESPONSE, REQUEST> {
-  private static final Level LOG_LEVEL_LEXEMES = Level.FINER;
   private final Logger logger = Logger.getLogger(getClass().getName());
   private final ByteBuffer outBuffer;
   private final REQUEST pingRequest;

@@ -15,6 +15,8 @@ import javax.annotation.Nonnull;
 import com.ak.comm.core.AbstractService;
 import org.reactivestreams.Subscriber;
 
+import static com.ak.comm.core.LogLevels.LOG_LEVEL_ERRORS;
+
 public final class FileReadingService extends AbstractService<ByteBuffer> {
   private static final int CAPACITY_4K = 1024 * 4;
   @Nonnull
@@ -43,12 +45,12 @@ public final class FileReadingService extends AbstractService<ByteBuffer> {
         Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
       }
       catch (Exception e) {
-        Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
+        Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, fileToRead.toString(), e);
         s.onError(e);
       }
     }
     else {
-      Logger.getLogger(getClass().getName()).log(Level.CONFIG, String.format("File [ %s ] is not a regular file", fileToRead));
+      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, String.format("File [ %s ] is not a regular file", fileToRead));
     }
   }
 

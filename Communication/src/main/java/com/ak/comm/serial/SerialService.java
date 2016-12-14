@@ -12,12 +12,14 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.core.AbstractService;
-import com.ak.logging.SafeByteChannel;
+import com.ak.comm.core.SafeByteChannel;
 import com.ak.util.Strings;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
 import org.reactivestreams.Subscriber;
+
+import static com.ak.comm.core.LogLevels.LOG_LEVEL_ERRORS;
 
 final class SerialService extends AbstractService<ByteBuffer> implements WritableByteChannel {
   @Nonnull
@@ -63,7 +65,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
   @Override
   public void subscribe(Subscriber<? super ByteBuffer> s) {
     if (serialPort.getPortName().isEmpty()) {
-      Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Serial port not found");
+      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, "Serial port not found");
     }
     else {
       try {
@@ -83,12 +85,12 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
             s.onNext(buffer);
           }
           catch (Exception ex) {
-            logErrorAndComplete(s, Level.CONFIG, ex);
+            logErrorAndComplete(s, LOG_LEVEL_ERRORS, ex);
           }
         }, SerialPort.MASK_RXCHAR);
       }
       catch (SerialPortException ex) {
-        logErrorAndComplete(s, Level.CONFIG, ex);
+        logErrorAndComplete(s, LOG_LEVEL_ERRORS, ex);
       }
     }
   }
@@ -107,13 +109,13 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
     try {
       synchronized (serialPort) {
         if (serialPort.isOpened()) {
-          Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Close connection " + serialPort.getPortName());
+          Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, "Close connection " + serialPort.getPortName());
           serialPort.closePort();
         }
       }
     }
     catch (SerialPortException ex) {
-      Logger.getLogger(getClass().getName()).log(Level.CONFIG, serialPort.getPortName(), ex);
+      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
     }
     binaryLogChannel.close();
   }
@@ -141,7 +143,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
       }
       else {
         String portName = portNames[0];
-        Logger.getLogger(getClass().getName()).log(Level.CONFIG,
+        Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS,
             String.format("Found { %s }, the [ %s ] is selected", Arrays.toString(portNames), portName));
         usedPorts.remove(portName);
         usedPorts.addLast(portName);

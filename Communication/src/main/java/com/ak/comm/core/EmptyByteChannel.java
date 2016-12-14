@@ -1,4 +1,4 @@
-package com.ak.logging;
+package com.ak.comm.core;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
