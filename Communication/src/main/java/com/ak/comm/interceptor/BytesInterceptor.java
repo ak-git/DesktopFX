@@ -14,7 +14,6 @@ public interface BytesInterceptor<RESPONSE, REQUEST> extends Function<ByteBuffer
 
   /**
    * Process input bytes buffer.<br/>
-   * <b>REWIND bytes buffer before use!</b>
    *
    * @param src input bytes buffer
    * @return response's stream

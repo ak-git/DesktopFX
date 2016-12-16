@@ -20,7 +20,6 @@ public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Inte
 
   @Override
   protected Collection<Integer> innerProcessIn(@Nonnull ByteBuffer src) {
-    src.rewind();
     Collection<Integer> ints = new LinkedList<>();
     while (src.hasRemaining()) {
       ints.add(Byte.toUnsignedInt(src.get()));

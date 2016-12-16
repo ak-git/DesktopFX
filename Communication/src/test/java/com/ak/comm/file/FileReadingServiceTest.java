@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -21,8 +20,10 @@ import org.reactivestreams.Subscription;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import static com.ak.comm.core.LogLevelSubstitution.substituteLogLevel;
+
 public final class FileReadingServiceTest {
-  private static final Logger LOGGER = Logger.getLogger(FileReadingServiceTest.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(FileReadingService.class.getName());
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "files")
   public void testFile(@Nonnull Path fileToRead, @Nonnegative int bytes) throws Exception {
@@ -46,7 +47,7 @@ public final class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "filesCanDelete")
   public void testException(@Nonnull Path fileToRead, @Nonnegative int bytes) {
-    substituteLogLevel(Level.WARNING, () -> {
+    substituteLogLevel(LOGGER, Level.WARNING, () -> {
       TestSubscriber<ByteBuffer> testSubscriber = TestSubscriber.create();
       Publisher<ByteBuffer> publisher = new FileReadingService(fileToRead);
       Flowable.fromPublisher(publisher).doOnSubscribe(subscription -> Files.deleteIfExists(fileToRead)).subscribe(testSubscriber);
@@ -82,7 +83,7 @@ public final class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "files")
   public void testLogBytes(@Nonnull Path fileToRead, @Nonnegative int bytes) {
-    substituteLogLevel(LogLevels.LOG_LEVEL_BYTES, () -> {
+    substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_BYTES, () -> {
       Publisher<ByteBuffer> publisher = new FileReadingService(fileToRead);
       Flowable.fromPublisher(publisher).subscribe();
     }, new Consumer<LogRecord>() {
@@ -96,19 +97,5 @@ public final class FileReadingServiceTest {
         packCounter++;
       }
     });
-  }
-
-  private static void substituteLogLevel(Level level, Runnable runnable, Consumer<LogRecord> recordConsumer) {
-    Level oldLevel = LOGGER.getLevel();
-    LOGGER.setLevel(level);
-    LOGGER.setFilter(record -> {
-      if (Objects.equals(record.getLevel(), level)) {
-        recordConsumer.accept(record);
-      }
-      return false;
-    });
-    runnable.run();
-    LOGGER.setFilter(null);
-    LOGGER.setLevel(oldLevel);
   }
 }

@@ -1,13 +1,16 @@
 package com.ak.comm.interceptor.rsce;
 
 import java.nio.ByteBuffer;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.bytes.rsce.RsceTestDataProvider;
+import com.ak.comm.core.LogLevels;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.interceptor.LogLevelSubstitution;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -15,6 +18,8 @@ import static com.ak.comm.bytes.rsce.RsceCommandFrame.Control.CATCH;
 import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_SPEED_ANGLE;
 
 public final class RsceBytesInterceptorTest {
+  private static final Logger LOGGER = Logger.getLogger(RsceBytesInterceptor.class.getName());
+
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "simpleRequests")
   public void testSimpleRequest(@Nonnull byte[] bytes, @Nonnull RsceCommandFrame.Control control, @Nonnull RsceCommandFrame.RequestType type) {
     checkResponse(bytes, RsceCommandFrame.simple(control, type));
@@ -32,7 +37,15 @@ public final class RsceBytesInterceptorTest {
 
   private static void checkResponse(@Nonnull byte[] bytes, @Nonnull RsceCommandFrame request) {
     BytesInterceptor<RsceCommandFrame, RsceCommandFrame> interceptor = new RsceBytesInterceptor();
-    Assert.assertEquals(interceptor.apply(ByteBuffer.wrap(bytes)).iterator(), Stream.of(request).iterator());
-    Assert.assertTrue(interceptor.putOut(request).remaining() > 0);
+
+    LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_LEXEMES,
+        () -> Assert.assertEquals(interceptor.apply(ByteBuffer.wrap(bytes)).iterator(), Stream.of(request).iterator()),
+        logRecord -> Assert.assertEquals(logRecord.getMessage().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), ""),
+            request.toString().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), "")));
+
+    LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_LEXEMES,
+        () -> Assert.assertTrue(interceptor.putOut(request).remaining() > 0),
+        logRecord -> Assert.assertEquals(logRecord.getMessage().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), ""),
+            request.toString().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), "") + " OUT to hardware"));
   }
 }

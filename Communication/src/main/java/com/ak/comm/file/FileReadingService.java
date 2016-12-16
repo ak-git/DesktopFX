@@ -31,7 +31,8 @@ public final class FileReadingService extends AbstractService<ByteBuffer> {
 
   @Override
   public void subscribe(@Nonnull Subscriber<? super ByteBuffer> s) {
-    if (Files.isRegularFile(fileToRead, LinkOption.NOFOLLOW_LINKS)) {
+    if (Files.isRegularFile(fileToRead, LinkOption.NOFOLLOW_LINKS) && Files.exists(fileToRead, LinkOption.NOFOLLOW_LINKS) &&
+        Files.isReadable(fileToRead)) {
       s.onSubscribe(this);
       try (ReadableByteChannel readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
         Logger.getLogger(getClass().getName()).log(Level.INFO, String.format("#%x Open file [ %s ]", hashCode(), fileToRead));

@@ -35,7 +35,6 @@ public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedB
 
   @Override
   protected Collection<RESPONSE> innerProcessIn(@Nonnull ByteBuffer src) {
-    src.rewind();
     Collection<RESPONSE> responses = new LinkedList<>();
     ByteBuffer buffer = responseBuilder.buffer();
     while (src.hasRemaining()) {
