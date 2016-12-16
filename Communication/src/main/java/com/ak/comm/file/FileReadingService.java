@@ -1,6 +1,7 @@
 package com.ak.comm.file;
 
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -44,8 +45,12 @@ public final class FileReadingService extends AbstractService<ByteBuffer> {
         s.onComplete();
         Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
       }
+      catch (ClosedByInterruptException e) {
+        Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
+        s.onError(e);
+      }
       catch (Exception e) {
-        Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, fileToRead.toString(), e);
+        Logger.getLogger(getClass().getName()).log(Level.WARNING, fileToRead.toString(), e);
         s.onError(e);
       }
     }
