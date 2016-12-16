@@ -8,13 +8,13 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import com.ak.comm.LogLevelSubstitution;
 import com.ak.comm.bytes.nmis.NmisAddress;
 import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.nmis.NmisResponseFrame;
 import com.ak.comm.bytes.nmis.NmisTestProvider;
 import com.ak.comm.core.LogLevels;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.comm.interceptor.LogLevelSubstitution;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

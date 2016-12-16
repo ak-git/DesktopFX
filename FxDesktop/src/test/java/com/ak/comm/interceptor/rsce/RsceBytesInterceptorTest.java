@@ -6,11 +6,11 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
+import com.ak.comm.LogLevelSubstitution;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.bytes.rsce.RsceTestDataProvider;
 import com.ak.comm.core.LogLevels;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.comm.interceptor.LogLevelSubstitution;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

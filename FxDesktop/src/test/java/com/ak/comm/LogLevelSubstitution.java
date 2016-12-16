@@ -1,4 +1,4 @@
-package com.ak.comm.interceptor;
+package com.ak.comm;
 
 import java.util.Objects;
 import java.util.function.Consumer;
