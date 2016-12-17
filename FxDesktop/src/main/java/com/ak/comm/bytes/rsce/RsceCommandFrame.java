@@ -44,7 +44,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     TYPE {
       @Override
       public boolean is(byte b) {
-        return ActionType.find(b) != null && RequestType.find(b) != null;
+        return ActionType.NONE.find(b) != null && RequestType.EMPTY.find(b) != null;
       }
     }
   }
@@ -68,21 +68,27 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     }
   }
 
-  public enum ActionType {
+  private interface Findable<E extends Enum<E>> {
+    @Nullable
+    E find(byte b);
+  }
+
+  public enum ActionType implements Findable<ActionType> {
     NONE, PRECISE, HARD, POSITION, OFF;
 
+    @Override
     @Nullable
-    private static ActionType find(byte b) {
+    public ActionType find(byte b) {
       int n = (b & 0b00_111_000) >> 3;
       return n > -1 && n < values().length ? values()[n] : null;
     }
 
     private static ActionType find(@Nonnull ByteBuffer buffer) {
-      return RsceCommandFrame.find(ActionType.class, buffer, actionType -> actionType == find(buffer.get(ProtocolByte.TYPE.ordinal())));
+      return RsceCommandFrame.find(ActionType.class, buffer);
     }
   }
 
-  public enum RequestType {
+  public enum RequestType implements Findable<RequestType> {
     EMPTY(0), STATUS_I(1), STATUS_I_SPEED(2), STATUS_I_ANGLE(3), STATUS_I_SPEED_ANGLE(4), RESERVE(7);
 
     private final byte code;
@@ -91,13 +97,14 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
       this.code = (byte) code;
     }
 
+    @Override
     @Nullable
-    private static RequestType find(byte b) {
+    public RequestType find(byte b) {
       return Stream.of(RequestType.values()).filter(type -> type.code == (byte) (b & 0b00000_111)).findAny().orElse(null);
     }
 
     private static RequestType find(@Nonnull ByteBuffer buffer) {
-      return RsceCommandFrame.find(RequestType.class, buffer, requestType -> requestType == find(buffer.get(ProtocolByte.TYPE.ordinal())));
+      return RsceCommandFrame.find(RequestType.class, buffer);
     }
   }
 
@@ -220,6 +227,10 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
                                             @Nonnull Predicate<? super E> predicate) {
     return StreamSupport.stream(EnumSet.allOf(clazz).spliterator(), true).filter(predicate).findAny().
         orElseThrow(() -> new IllegalArgumentException(Arrays.toString(buffer.array())));
+  }
+
+  private static <E extends Enum<E> & Findable<E>> E find(@Nonnull Class<E> clazz, @Nonnull ByteBuffer buffer) {
+    return find(clazz, buffer, e -> e == e.find(buffer.get(ProtocolByte.TYPE.ordinal())));
   }
 
   public static class RequestBuilder extends AbstractCheckedBuilder<RsceCommandFrame> {
