@@ -2,14 +2,17 @@ package com.ak.comm.interceptor.nmisr;
 
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.ak.comm.LogLevelSubstitution;
 import com.ak.comm.bytes.nmis.NmisProtocolByte;
 import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
+import com.ak.comm.core.LogLevels;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.nmis.NmisBytesInterceptor;
 import org.testng.Assert;
@@ -17,6 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public final class NmisRsceBytesInterceptorTest {
+  private static final Logger LOGGER = Logger.getLogger(NmisRsceBytesInterceptor.class.getName());
   private final BytesInterceptor<RsceCommandFrame, NmisRequest> interceptor = new NmisRsceBytesInterceptor();
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY);
 
@@ -45,18 +49,24 @@ public final class NmisRsceBytesInterceptorTest {
 
   @Test(dataProvider = "data")
   public void testInterceptor(@Nonnull byte[] bytes, @Nullable RsceCommandFrame response) {
+    byteBuffer.clear();
     byteBuffer.put(bytes);
     byteBuffer.flip();
     Assert.assertEquals(interceptor.getBaudRate(), new NmisBytesInterceptor().getBaudRate());
-    Stream<RsceCommandFrame> frames = interceptor.apply(byteBuffer);
-    byteBuffer.clear();
+    Assert.assertEquals(interceptor.getPingRequest(), NmisRequest.Sequence.CATCH_100.build());
 
-    if (response == null) {
-      Assert.assertEquals(frames.count(), 0);
-    }
-    else {
-      Assert.assertEquals(frames.iterator(), Collections.singleton(response).iterator());
-      Assert.assertTrue(interceptor.putOut(NmisRequest.Sequence.ROTATE_INV.build()).remaining() > 0);
-    }
+    LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_LEXEMES,
+        () -> {
+          Stream<RsceCommandFrame> frames = interceptor.apply(byteBuffer);
+          if (response == null) {
+            Assert.assertEquals(frames.count(), 0);
+          }
+          else {
+            Assert.assertEquals(frames.iterator(), Collections.singleton(response).iterator());
+          }
+          Assert.assertTrue(interceptor.putOut(NmisRequest.Sequence.ROTATE_INV.build()).remaining() > 0);
+        },
+        logRecord -> Assert.fail(logRecord.getMessage())
+    );
   }
 }

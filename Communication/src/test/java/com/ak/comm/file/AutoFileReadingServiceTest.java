@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
 
 public final class AutoFileReadingServiceTest {
   private enum TestVariables implements Variable<TestVariables> {
+    VAR
   }
 
   private static final Converter<Integer, TestVariables> INTEGER_CONVERTER = new AbstractConverter<Integer, TestVariables>(TestVariables.class) {

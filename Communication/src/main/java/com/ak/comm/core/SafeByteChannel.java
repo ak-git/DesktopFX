@@ -1,4 +1,4 @@
-package com.ak.logging;
+package com.ak.comm.core;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -12,47 +12,10 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
+import com.ak.logging.BinaryLogBuilder;
+
 public final class SafeByteChannel implements WritableByteChannel {
-  private static final SeekableByteChannel EMPTY_CHANNEL = new SeekableByteChannel() {
-    @Override
-    public int read(ByteBuffer dst) {
-      return 0;
-    }
-
-    @Override
-    public int write(ByteBuffer src) {
-      return 0;
-    }
-
-    @Override
-    public long position() {
-      return 0;
-    }
-
-    @Override
-    public SeekableByteChannel position(long newPosition) {
-      return this;
-    }
-
-    @Override
-    public long size() {
-      return 0;
-    }
-
-    @Override
-    public SeekableByteChannel truncate(long size) {
-      return this;
-    }
-
-    @Override
-    public boolean isOpen() {
-      return false;
-    }
-
-    @Override
-    public void close() {
-    }
-  };
+  private static final SeekableByteChannel EMPTY_CHANNEL = new EmptyByteChannel();
   @Nonnull
   private final String namePrefix;
   @Nonnull
@@ -79,11 +42,10 @@ public final class SafeByteChannel implements WritableByteChannel {
     }
 
     try {
-      src.rewind();
       return channel.write(src);
     }
     catch (IOException e) {
-      Logger.getLogger(getClass().getName()).log(Level.CONFIG, e.getMessage(), e);
+      Logger.getLogger(getClass().getName()).log(LogLevels.LOG_LEVEL_ERRORS, e.getMessage(), e);
       return 0;
     }
   }
@@ -99,7 +61,7 @@ public final class SafeByteChannel implements WritableByteChannel {
       channel.close();
     }
     catch (IOException e) {
-      Logger.getLogger(getClass().getName()).log(Level.CONFIG, e.getMessage(), e);
+      Logger.getLogger(getClass().getName()).log(LogLevels.LOG_LEVEL_ERRORS, e.getMessage(), e);
     }
     finally {
       initialized = false;

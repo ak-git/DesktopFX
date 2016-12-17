@@ -7,13 +7,13 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.AbstractBufferFrame;
+import com.ak.comm.core.LogLevels;
 
 public enum NmisAddress {
   SINGLE(0x81, 0x91),
@@ -122,7 +122,7 @@ public enum NmisAddress {
         return nmisAddress;
       }
     }
-    Logger.getLogger(NmisAddress.class.getName()).log(Level.CONFIG,
+    Logger.getLogger(NmisAddress.class.getName()).log(LogLevels.LOG_LEVEL_ERRORS,
         String.format("%s Address %d not found", AbstractBufferFrame.toString(NmisAddress.class, byteBuffer), addr));
     return null;
   }
