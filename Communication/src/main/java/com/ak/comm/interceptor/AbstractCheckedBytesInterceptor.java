@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.AbstractBufferFrame;
 import com.ak.comm.bytes.AbstractCheckedBuilder;
+import com.ak.comm.core.AbstractService;
 
 import static com.ak.comm.core.LogLevels.LOG_LEVEL_ERRORS;
 
@@ -66,7 +67,7 @@ public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedB
 
         RESPONSE response = responseBuilder.build();
         if (response == null) {
-          logger.log(LOG_LEVEL_ERRORS, String.format("#%x %s INVALID FRAME", hashCode(), AbstractBufferFrame.toString(getClass(), buffer)));
+          AbstractService.logBytes(logger, LOG_LEVEL_ERRORS, this, buffer, "INVALID FRAME");
         }
         else {
           responses.add(response);
@@ -80,7 +81,7 @@ public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedB
   private void logSkippedBytes() {
     ignoreBuffer.flip();
     if (ignoreBuffer.limit() > 0) {
-      logger.log(LOG_LEVEL_ERRORS, String.format("#%x %s IGNORED", hashCode(), AbstractBufferFrame.toString(getClass(), ignoreBuffer)));
+      AbstractService.logBytes(logger, LOG_LEVEL_ERRORS, this, ignoreBuffer, "IGNORED");
     }
     ignoreBuffer.clear();
   }
