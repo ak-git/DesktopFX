@@ -1,6 +1,7 @@
 package com.ak.comm.file;
 
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -15,20 +16,23 @@ import javax.annotation.Nonnull;
 import com.ak.comm.core.AbstractService;
 import org.reactivestreams.Subscriber;
 
-public final class FileService extends AbstractService<ByteBuffer> {
+import static com.ak.comm.core.LogLevels.LOG_LEVEL_ERRORS;
+
+public final class FileReadingService extends AbstractService<ByteBuffer> {
   private static final int CAPACITY_4K = 1024 * 4;
   @Nonnull
   private final Path fileToRead;
   private volatile boolean canceled;
 
-  public FileService(@Nonnull Path fileToRead) {
+  FileReadingService(@Nonnull Path fileToRead) {
     Objects.requireNonNull(fileToRead);
     this.fileToRead = fileToRead;
   }
 
   @Override
   public void subscribe(@Nonnull Subscriber<? super ByteBuffer> s) {
-    if (Files.isRegularFile(fileToRead, LinkOption.NOFOLLOW_LINKS)) {
+    if (Files.isRegularFile(fileToRead, LinkOption.NOFOLLOW_LINKS) && Files.exists(fileToRead, LinkOption.NOFOLLOW_LINKS) &&
+        Files.isReadable(fileToRead)) {
       s.onSubscribe(this);
       try (ReadableByteChannel readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
         Logger.getLogger(getClass().getName()).log(Level.INFO, String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
@@ -42,13 +46,17 @@ public final class FileService extends AbstractService<ByteBuffer> {
         s.onComplete();
         Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
       }
-      catch (Exception e) {
+      catch (ClosedByInterruptException e) {
         Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
+        s.onError(e);
+      }
+      catch (Exception e) {
+        Logger.getLogger(getClass().getName()).log(Level.WARNING, fileToRead.toString(), e);
         s.onError(e);
       }
     }
     else {
-      Logger.getLogger(getClass().getName()).log(Level.CONFIG, String.format("File [ %s ] is not a regular file", fileToRead));
+      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, String.format("File [ %s ] is not a regular file", fileToRead));
     }
   }
 

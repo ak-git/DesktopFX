@@ -13,23 +13,11 @@ import static com.ak.util.Strings.SPACE;
 
 public final class NmisRequest extends AbstractBufferFrame {
   private enum Ohm {
-    Z_360(0), Z_0_47(1), Z_1(1 << 1), Z_2(1 << 2), Z_30A(1 << 3), Z_30B(1 << 4), Z_127(1 << 5);
-
-    private final byte code;
-
-    Ohm(int code) {
-      this.code = (byte) code;
-    }
+    Z_360, Z_0_47, Z_1, Z_2, Z_30A, Z_30B, Z_127
   }
 
   public enum MyoFrequency {
-    OFF(0), HZ_50(1), HZ_100(1 << 1), HZ_200(1 << 2), HZ_500(1 << 3), HZ_1000(1 << 4), NOISE(1 << 5);
-
-    private final byte code;
-
-    MyoFrequency(int code) {
-      this.code = (byte) code;
-    }
+    OFF, HZ_50, HZ_100, HZ_200, HZ_500, HZ_1000, NOISE
   }
 
   public enum MyoType {
@@ -128,7 +116,7 @@ public final class NmisRequest extends AbstractBufferFrame {
     }
 
     Builder forAll(@Nonnull Ohm... ohms) {
-      byte code = (byte) Stream.of(ohms).mapToInt(ohm -> ohm.code).sum();
+      byte code = (byte) Stream.of(ohms).mapToInt(Builder::toCode).sum();
       Arrays.fill(codes, NmisProtocolByte.DATA_1.ordinal(), NmisProtocolByte.DATA_4.ordinal() + 1, code);
       toStringBuilder.append(Arrays.toString(ohms)).append(SPACE);
       return this;
@@ -136,7 +124,7 @@ public final class NmisRequest extends AbstractBufferFrame {
 
     Builder forAll(@Nonnull MyoType myoType, @Nonnull MyoFrequency frequency) {
       Arrays.fill(codes, NmisProtocolByte.DATA_5.ordinal(), NmisProtocolByte.DATA_8.ordinal() + 1,
-          (byte) (myoType.code + frequency.code));
+          (byte) (myoType.code + toCode(frequency)));
       toStringBuilder.append(myoType.name()).append(SPACE).append(frequency.name()).append(SPACE);
       return this;
     }
@@ -146,6 +134,10 @@ public final class NmisRequest extends AbstractBufferFrame {
       codes[NmisProtocolByte.DATA_1.ordinal()] = (byte) number;
       toStringBuilder.append(number).append(SPACE);
       return this;
+    }
+
+    private static byte toCode(Enum<?> e) {
+      return (byte) (1 << (e.ordinal() - 1));
     }
 
     @Override

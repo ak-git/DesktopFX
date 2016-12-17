@@ -1,11 +1,7 @@
 package com.ak.comm.serial;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -14,38 +10,30 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.ak.comm.core.AbstractService;
-import com.ak.logging.BinaryLogBuilder;
-import com.ak.logging.LocalFileHandler;
+import com.ak.comm.core.SafeByteChannel;
 import com.ak.util.Strings;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
 import org.reactivestreams.Subscriber;
 
+import static com.ak.comm.core.LogLevels.LOG_LEVEL_ERRORS;
+
 final class SerialService extends AbstractService<ByteBuffer> implements WritableByteChannel {
   @Nonnull
   private final SerialPort serialPort;
-  @Nonnull
-  private final String protocolName;
   @Nonnegative
   private final int baudRate;
   @Nonnull
   private final ByteBuffer buffer;
-  @Nullable
-  private WritableByteChannel binaryLogChannel;
+  private final SafeByteChannel binaryLogChannel = new SafeByteChannel(getClass().getSimpleName());
 
-  SerialService(@Nonnull String protocolName, @Nonnegative int baudRate) {
-    this.protocolName = protocolName;
+  SerialService(@Nonnegative int baudRate) {
     this.baudRate = baudRate;
     buffer = ByteBuffer.allocate(baudRate);
-    String portName = Ports.INSTANCE.next();
-    serialPort = new SerialPort(portName);
-    if (portName.isEmpty()) {
-      Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Serial port not found");
-    }
+    serialPort = new SerialPort(Ports.INSTANCE.next());
   }
 
   @Override
@@ -76,41 +64,34 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
 
   @Override
   public void subscribe(Subscriber<? super ByteBuffer> s) {
-    try {
-      serialPort.openPort();
-      serialPort.setParams(baudRate, 8, 1, 0);
-      serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
-      Logger.getLogger(getClass().getName()).log(Level.INFO,
-          String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getPortName(), baudRate));
-      s.onSubscribe(this);
-      serialPort.addEventListener(event -> {
-        if (binaryLogChannel == null) {
-          try {
-            Path path = new BinaryLogBuilder(protocolName, LocalFileHandler.class).build().getPath();
-            binaryLogChannel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
-            Logger.getLogger(getClass().getName()).log(Level.INFO,
-                String.format("#%x Bytes from port [ %s ] are logging into the file [ %s ]", hashCode(), serialPort.getPortName(), path));
-          }
-          catch (IOException ex) {
-            logErrorAndComplete(s, Level.WARNING, ex);
-          }
-        }
-
-        try {
-          buffer.clear();
-          buffer.put(serialPort.readBytes());
-          buffer.flip();
-          binaryLogChannel.write(buffer);
-          logBytes(buffer);
-          s.onNext(buffer);
-        }
-        catch (Exception ex) {
-          logErrorAndComplete(s, Level.CONFIG, ex);
-        }
-      }, SerialPort.MASK_RXCHAR);
+    if (serialPort.getPortName().isEmpty()) {
+      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, "Serial port not found");
     }
-    catch (SerialPortException ex) {
-      logErrorAndComplete(s, Level.CONFIG, ex);
+    else {
+      try {
+        serialPort.openPort();
+        serialPort.setParams(baudRate, 8, 1, 0);
+        serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
+        Logger.getLogger(getClass().getName()).log(Level.INFO,
+            String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getPortName(), baudRate));
+        s.onSubscribe(this);
+        serialPort.addEventListener(event -> {
+          try {
+            buffer.clear();
+            buffer.put(serialPort.readBytes());
+            buffer.flip();
+            binaryLogChannel.write(buffer);
+            logBytes(buffer);
+            s.onNext(buffer);
+          }
+          catch (Exception ex) {
+            logErrorAndComplete(s, LOG_LEVEL_ERRORS, ex);
+          }
+        }, SerialPort.MASK_RXCHAR);
+      }
+      catch (SerialPortException ex) {
+        logErrorAndComplete(s, LOG_LEVEL_ERRORS, ex);
+      }
     }
   }
 
@@ -126,29 +107,17 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
   @Override
   public void close() {
     try {
-      try {
-        synchronized (serialPort) {
-          if (serialPort.isOpened()) {
-            serialPort.closePort();
-          }
+      synchronized (serialPort) {
+        if (serialPort.isOpened()) {
+          Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, "Close connection " + serialPort.getPortName());
+          serialPort.closePort();
         }
       }
-      catch (SerialPortException ex) {
-        Logger.getLogger(getClass().getName()).log(Level.CONFIG, serialPort.getPortName(), ex);
-      }
-
-      try {
-        if (binaryLogChannel != null) {
-          binaryLogChannel.close();
-        }
-      }
-      catch (IOException ex) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, serialPort.getPortName(), ex);
-      }
     }
-    finally {
-      Logger.getLogger(getClass().getName()).log(Level.CONFIG, "Close connection " + serialPort.getPortName());
+    catch (SerialPortException ex) {
+      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
     }
+    binaryLogChannel.close();
   }
 
   @Override
@@ -174,7 +143,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
       }
       else {
         String portName = portNames[0];
-        Logger.getLogger(getClass().getName()).log(Level.CONFIG,
+        Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS,
             String.format("Found { %s }, the [ %s ] is selected", Arrays.toString(portNames), portName));
         usedPorts.remove(portName);
         usedPorts.addLast(portName);

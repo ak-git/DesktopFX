@@ -3,7 +3,6 @@ package com.ak.comm.interceptor;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -11,11 +10,12 @@ import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.AbstractBufferFrame;
 import com.ak.comm.bytes.AbstractCheckedBuilder;
-import io.reactivex.Flowable;
+import com.ak.comm.core.AbstractService;
+
+import static com.ak.comm.core.LogLevels.LOG_LEVEL_ERRORS;
 
 public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedBuilder<RESPONSE>, RESPONSE, REQUEST extends AbstractBufferFrame>
     extends AbstractBytesInterceptor<RESPONSE, REQUEST> {
-  private static final Level LOG_LEVEL_ERRORS = Level.CONFIG;
   private static final int IGNORE_LIMIT = 16;
   private final Logger logger = Logger.getLogger(getClass().getName());
   private final ByteBuffer ignoreBuffer;
@@ -23,9 +23,8 @@ public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedB
   @Nonnull
   private final B responseBuilder;
 
-  protected AbstractCheckedBytesInterceptor(@Nonnull String name, @Nullable REQUEST pingRequest,
-                                            @Nonnull B responseBuilder) {
-    super(name, responseBuilder.buffer().capacity(), pingRequest);
+  protected AbstractCheckedBytesInterceptor(@Nullable REQUEST pingRequest, @Nonnull B responseBuilder) {
+    super(responseBuilder.buffer().capacity(), pingRequest);
     this.responseBuilder = responseBuilder;
     ignoreBuffer = ByteBuffer.allocate(responseBuilder.buffer().capacity() + IGNORE_LIMIT);
   }
@@ -36,8 +35,7 @@ public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedB
   }
 
   @Override
-  protected Flowable<RESPONSE> innerProcessIn(@Nonnull ByteBuffer src) {
-    src.rewind();
+  protected Collection<RESPONSE> innerProcessIn(@Nonnull ByteBuffer src) {
     Collection<RESPONSE> responses = new LinkedList<>();
     ByteBuffer buffer = responseBuilder.buffer();
     while (src.hasRemaining()) {
@@ -69,7 +67,7 @@ public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedB
 
         RESPONSE response = responseBuilder.build();
         if (response == null) {
-          logger.log(LOG_LEVEL_ERRORS, String.format("#%x %s INVALID FRAME", hashCode(), AbstractBufferFrame.toString(getClass(), buffer)));
+          AbstractService.logBytes(logger, LOG_LEVEL_ERRORS, this, buffer, "INVALID FRAME");
         }
         else {
           responses.add(response);
@@ -77,13 +75,13 @@ public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedB
         buffer.clear();
       }
     }
-    return Flowable.fromIterable(responses);
+    return responses;
   }
 
   private void logSkippedBytes() {
     ignoreBuffer.flip();
     if (ignoreBuffer.limit() > 0) {
-      logger.log(LOG_LEVEL_ERRORS, String.format("#%x %s IGNORED", hashCode(), AbstractBufferFrame.toString(getClass(), ignoreBuffer)));
+      AbstractService.logBytes(logger, LOG_LEVEL_ERRORS, this, ignoreBuffer, "IGNORED");
     }
     ignoreBuffer.clear();
   }

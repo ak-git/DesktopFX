@@ -1,21 +1,26 @@
 package com.ak.comm.interceptor.nmisr;
 
 import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.ak.comm.LogLevelSubstitution;
 import com.ak.comm.bytes.nmis.NmisProtocolByte;
 import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
+import com.ak.comm.core.LogLevels;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.nmis.NmisBytesInterceptor;
-import io.reactivex.subscribers.TestSubscriber;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public final class NmisRsceBytesInterceptorTest {
+  private static final Logger LOGGER = Logger.getLogger(NmisRsceBytesInterceptor.class.getName());
   private final BytesInterceptor<RsceCommandFrame, NmisRequest> interceptor = new NmisRsceBytesInterceptor();
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY);
 
@@ -23,8 +28,9 @@ public final class NmisRsceBytesInterceptorTest {
   public Object[][] data() {
     return new Object[][] {
         new Object[] {new byte[] {
+            // NO Data, empty Rsce frame
             0x7e, 0x45, 0x02, 0x3f, 0x00, 0x04},
-            null},
+            RsceCommandFrame.simple(RsceCommandFrame.Control.ALL, RsceCommandFrame.RequestType.EMPTY)},
 
         new Object[] {new byte[] {
             0x7e, 0x45, 0x08, 0x3f, 0x00, 0x03, 0x04, 0x18, 0x32, (byte) 0xca, 0x74, (byte) 0x99},
@@ -35,28 +41,32 @@ public final class NmisRsceBytesInterceptorTest {
             RsceCommandFrame.precise(RsceCommandFrame.Control.CATCH, RsceCommandFrame.RequestType.STATUS_I_ANGLE)},
 
         new Object[] {new byte[] {
+            // NO Data, invalid Rsce frame
             0x7e, (byte) 0x92, 0x08, 0x01, 0x00, 0x00, 0x00, (byte) 0x84, (byte) 0x84, (byte) 0x84, (byte) 0x84, 0x29},
-            null},
+            RsceCommandFrame.simple(RsceCommandFrame.Control.ALL, RsceCommandFrame.RequestType.EMPTY)},
     };
   }
 
   @Test(dataProvider = "data")
   public void testInterceptor(@Nonnull byte[] bytes, @Nullable RsceCommandFrame response) {
-    TestSubscriber<RsceCommandFrame> subscriber = TestSubscriber.create();
-
+    byteBuffer.clear();
     byteBuffer.put(bytes);
     byteBuffer.flip();
     Assert.assertEquals(interceptor.getBaudRate(), new NmisBytesInterceptor().getBaudRate());
-    interceptor.apply(byteBuffer).subscribe(subscriber);
-    byteBuffer.clear();
+    Assert.assertEquals(interceptor.getPingRequest(), NmisRequest.Sequence.CATCH_100.build());
 
-    if (response == null) {
-      subscriber.assertNoValues();
-    }
-    else {
-      subscriber.assertValue(response);
-      Assert.assertTrue(interceptor.putOut(NmisRequest.Sequence.ROTATE_INV.build()).remaining() > 0);
-    }
-    subscriber.assertNoErrors();
+    LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_LEXEMES,
+        () -> {
+          Stream<RsceCommandFrame> frames = interceptor.apply(byteBuffer);
+          if (response == null) {
+            Assert.assertEquals(frames.count(), 0);
+          }
+          else {
+            Assert.assertEquals(frames.iterator(), Collections.singleton(response).iterator());
+          }
+          Assert.assertTrue(interceptor.putOut(NmisRequest.Sequence.ROTATE_INV.build()).remaining() > 0);
+        },
+        logRecord -> Assert.fail(logRecord.getMessage())
+    );
   }
 }

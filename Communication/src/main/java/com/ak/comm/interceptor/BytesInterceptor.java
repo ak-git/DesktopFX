@@ -1,30 +1,26 @@
 package com.ak.comm.interceptor;
 
 import java.nio.ByteBuffer;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.reactivex.functions.Function;
-import org.reactivestreams.Publisher;
-
-public interface BytesInterceptor<RESPONSE, REQUEST> extends Function<ByteBuffer, Publisher<RESPONSE>> {
-  @Nonnull
-  String name();
-
+public interface BytesInterceptor<RESPONSE, REQUEST> extends Function<ByteBuffer, Stream<RESPONSE>> {
   @Nonnegative
   int getBaudRate();
 
   /**
    * Process input bytes buffer.<br/>
-   * <b>REWIND bytes buffer before use!</b>
    *
    * @param src input bytes buffer
-   * @return response's publisher
+   * @return response's stream
    */
+  @Nonnull
   @Override
-  Publisher<RESPONSE> apply(@Nonnull ByteBuffer src);
+  Stream<RESPONSE> apply(@Nonnull ByteBuffer src);
 
   @Nullable
   REQUEST getPingRequest();

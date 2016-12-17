@@ -9,6 +9,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.fx.stage.ScreenResolutionMonitor;
+import io.reactivex.disposables.Disposable;
 import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -83,12 +84,14 @@ public final class MilliGrid extends Pane {
     }
   }
 
+  @Nonnull
+  private final Disposable screenSubscription;
   private final GridLine[] gridLines = {new HorizontalGridLine(), new VerticalGridLine()};
   @Nonnull
   private List<Path> paths = GridCell.newPaths();
 
   public MilliGrid() {
-    ScreenResolutionMonitor.INSTANCE.getDpiObservable().subscribe(dpi -> Platform.runLater(() -> {
+    screenSubscription = ScreenResolutionMonitor.INSTANCE.getDpiObservable().subscribe(dpi -> Platform.runLater(() -> {
       reinitializePaths();
       requestLayout();
     }));
@@ -113,6 +116,16 @@ public final class MilliGrid extends Pane {
     getChildren().removeAll(paths);
     paths = GridCell.newPaths();
     getChildren().addAll(paths);
+  }
+
+  @Override
+  protected void finalize() throws Throwable {
+    try {
+      screenSubscription.dispose();
+    }
+    finally {
+      super.finalize();
+    }
   }
 
   private interface GridLine {
@@ -170,6 +183,13 @@ public final class MilliGrid extends Pane {
     final double linePad(@Nonnull GridCell gridCell) {
       return (gridCell.getStrokeWidth() - 1.0) / 2.0;
     }
+
+    final double lineToCoordinate(@Nonnull GridCell gridCell) {
+      return maxCoordinate(length()) - linePad(gridCell);
+    }
+
+    @Nonnegative
+    abstract double length();
   }
 
   private final class VerticalGridLine extends AbstractGridLine {
@@ -181,12 +201,18 @@ public final class MilliGrid extends Pane {
 
     @Override
     public PathElement moveTo(@Nonnegative double x, @Nonnull GridCell gridCell) {
-      return new MoveTo(snappedLeftInset() + x, snappedTopInset() + minCoordinate(contentHeight(), GridCell.SMALL) + linePad(gridCell));
+      return new MoveTo(snappedLeftInset() + x, snappedTopInset() + minCoordinate(length(), GridCell.SMALL) + linePad(gridCell));
     }
 
     @Override
     public PathElement lineTo(@Nonnull GridCell gridCell) {
-      return new VLineTo(snappedTopInset() + maxCoordinate(contentHeight()) - linePad(gridCell));
+      return new VLineTo(snappedTopInset() + lineToCoordinate(gridCell));
+    }
+
+    @Nonnegative
+    @Override
+    double length() {
+      return contentHeight();
     }
   }
 
@@ -199,12 +225,18 @@ public final class MilliGrid extends Pane {
 
     @Override
     public PathElement moveTo(@Nonnegative double y, @Nonnull GridCell gridCell) {
-      return new MoveTo(snappedLeftInset() + minCoordinate(contentWidth(), GridCell.SMALL) + linePad(gridCell), snappedTopInset() + y);
+      return new MoveTo(snappedLeftInset() + minCoordinate(length(), GridCell.SMALL) + linePad(gridCell), snappedTopInset() + y);
     }
 
     @Override
     public PathElement lineTo(@Nonnull GridCell gridCell) {
-      return new HLineTo(snappedLeftInset() + maxCoordinate(contentWidth()) - linePad(gridCell));
+      return new HLineTo(snappedLeftInset() + lineToCoordinate(gridCell));
+    }
+
+    @Nonnegative
+    @Override
+    double length() {
+      return contentWidth();
     }
   }
 }
