@@ -48,6 +48,6 @@ public final class DefaultBytesInterceptorTest {
 
     LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_LEXEMES,
         () -> Assert.assertTrue(interceptor.putOut(response.byteValue()).remaining() > 0),
-        logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(response.byteValue() + " OUT to hardware"), logRecord.getMessage()));
+        logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(response.byteValue() + " - OUT to hardware"), logRecord.getMessage()));
   }
 }

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -90,9 +91,14 @@ public final class NmisBytesInterceptorTest {
     }, logRecord -> Assert.assertEquals(logRecord.getMessage().replaceAll(".*" + NmisResponseFrame.class.getSimpleName(), ""),
         request.toResponse().toString().replaceAll(".*" + NmisResponseFrame.class.getSimpleName(), "")));
 
+    AtomicReference<String> logMessage = new AtomicReference<>("");
     LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_LEXEMES,
-        () -> Assert.assertTrue(interceptor.putOut(request).remaining() > 0),
-        logRecord -> Assert.assertEquals(logRecord.getMessage().replaceAll(".*" + NmisRequest.class.getSimpleName(), ""),
-            request.toString().replaceAll(".*" + NmisRequest.class.getSimpleName(), "") + " OUT to hardware"));
+        () -> {
+          int bytesOut = interceptor.putOut(request).remaining();
+          Assert.assertTrue(bytesOut > 0);
+          Assert.assertEquals(logMessage.get(),
+              request.toString().replaceAll(".*" + NmisRequest.class.getSimpleName(), "") + " - " + bytesOut + " bytes OUT to hardware");
+        },
+        logRecord -> logMessage.set(logRecord.getMessage().replaceAll(".*" + NmisRequest.class.getSimpleName(), "")));
   }
 }

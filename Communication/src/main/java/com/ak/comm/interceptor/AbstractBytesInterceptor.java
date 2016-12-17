@@ -39,12 +39,17 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> implements Byt
 
   @Override
   public final ByteBuffer putOut(@Nonnull REQUEST request) {
-    if (logger.isLoggable(LOG_LEVEL_LEXEMES)) {
-      logger.log(LOG_LEVEL_LEXEMES, String.format("#%x %s OUT to hardware", hashCode(), request));
-    }
     outBuffer.clear();
     innerPutOut(outBuffer, request);
     outBuffer.flip();
+    if (logger.isLoggable(LOG_LEVEL_LEXEMES)) {
+      if (outBuffer.limit() > 1) {
+        logger.log(LOG_LEVEL_LEXEMES, String.format("#%x %s - %d bytes OUT to hardware", hashCode(), request, outBuffer.limit()));
+      }
+      else {
+        logger.log(LOG_LEVEL_LEXEMES, String.format("#%x %s - OUT to hardware", hashCode(), request));
+      }
+    }
     return outBuffer;
   }
 

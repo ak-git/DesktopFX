@@ -46,6 +46,7 @@ public final class RsceBytesInterceptorTest {
     LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_LEXEMES,
         () -> Assert.assertTrue(interceptor.putOut(request).remaining() > 0),
         logRecord -> Assert.assertEquals(logRecord.getMessage().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), ""),
-            request.toString().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), "") + " OUT to hardware"));
+            request.toString().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), "") +
+                " - " + bytes.length + " bytes OUT to hardware"));
   }
 }
