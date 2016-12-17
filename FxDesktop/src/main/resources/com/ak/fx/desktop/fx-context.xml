@@ -19,7 +19,9 @@
         </property>
     </bean>
 
-    <!--<bean class="com.ak.comm.interceptor.simple.DefaultBytesInterceptor" scope="prototype"/>-->
+    <!--<bean class="com.ak.comm.interceptor.simple.DefaultBytesInterceptor" scope="prototype">-->
+    <!--<constructor-arg name="baudRate" value="BR_115200"/>-->
+    <!--</bean>-->
     <!--<bean class="com.ak.comm.interceptor.nmis.NmisBytesInterceptor" scope="prototype"/>-->
     <bean class="com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor" scope="prototype"/>
 

@@ -44,7 +44,7 @@ public final class FxDesktopTest extends Preloader {
   @Nullable
   private String oldPreloader;
 
-  @BeforeClass
+  @BeforeClass(timeOut = 5000)
   public void setUp() throws InterruptedException {
     oldPreloader = System.getProperty(JAVAFX_PRELOADER);
     System.setProperty(JAVAFX_PRELOADER, FxDesktopTest.class.getName());

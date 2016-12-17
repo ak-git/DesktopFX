@@ -9,8 +9,8 @@ import javax.annotation.Nonnull;
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
 
 public final class DefaultBytesInterceptor extends AbstractBytesInterceptor<Integer, Byte> {
-  public DefaultBytesInterceptor() {
-    super(1, (byte) 0);
+  public DefaultBytesInterceptor(BaudRate baudRate) {
+    super(baudRate, (byte) 0);
   }
 
   @Override

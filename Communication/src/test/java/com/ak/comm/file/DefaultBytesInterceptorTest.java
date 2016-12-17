@@ -21,7 +21,7 @@ public final class DefaultBytesInterceptorTest {
 
   @Test
   public void testInterceptorProperties() {
-    BytesInterceptor<Integer, Byte> interceptor = new DefaultBytesInterceptor();
+    BytesInterceptor<Integer, Byte> interceptor = new DefaultBytesInterceptor(BytesInterceptor.BaudRate.BR_115200);
     Assert.assertEquals(interceptor.getBaudRate(), BAUDRATE_115200);
     Assert.assertEquals(interceptor.getPingRequest(), Byte.valueOf((byte) 0));
   }
@@ -37,7 +37,7 @@ public final class DefaultBytesInterceptorTest {
 
   @Test(dataProvider = "responses")
   public void testDefaultBytesInterceptor(byte[] input, Integer response) {
-    BytesInterceptor<Integer, Byte> interceptor = new DefaultBytesInterceptor();
+    BytesInterceptor<Integer, Byte> interceptor = new DefaultBytesInterceptor(BytesInterceptor.BaudRate.BR_921600);
 
     LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_LEXEMES,
         () -> {

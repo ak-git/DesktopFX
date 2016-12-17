@@ -10,15 +10,19 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static com.ak.comm.core.LogLevels.LOG_LEVEL_LEXEMES;
-import static jssc.SerialPort.BAUDRATE_115200;
 
 public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> implements BytesInterceptor<RESPONSE, REQUEST> {
   private final Logger logger = Logger.getLogger(getClass().getName());
+  @Nonnull
   private final ByteBuffer outBuffer;
+  @Nonnull
+  private final BaudRate baudRate;
+  @Nullable
   private final REQUEST pingRequest;
 
-  protected AbstractBytesInterceptor(@Nonnegative int outBufferSize, @Nullable REQUEST pingRequest) {
-    outBuffer = ByteBuffer.allocate(outBufferSize);
+  protected AbstractBytesInterceptor(@Nonnull BaudRate baudRate, @Nullable REQUEST pingRequest) {
+    outBuffer = ByteBuffer.allocate(baudRate.get());
+    this.baudRate = baudRate;
     this.pingRequest = pingRequest;
   }
 
@@ -56,7 +60,7 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> implements Byt
   @Nonnegative
   @Override
   public int getBaudRate() {
-    return BAUDRATE_115200;
+    return baudRate.get();
   }
 
   protected abstract void innerPutOut(@Nonnull ByteBuffer outBuffer, @Nonnull REQUEST request);
