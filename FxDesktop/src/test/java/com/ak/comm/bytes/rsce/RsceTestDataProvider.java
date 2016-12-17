@@ -14,10 +14,12 @@ import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_SPEED
 import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_SPEED_ANGLE;
 
 public final class RsceTestDataProvider {
+  private static final int[] EMPTY_INTS = {};
+
   private RsceTestDataProvider() {
   }
 
-  @DataProvider(name = "simpleRequests", parallel = true)
+  @DataProvider(name = "simpleRequests")
   public static Object[][] simpleSimpleRequests() {
     return new Object[][] {
         {new byte[] {0x00, 0x03, 0x07, 0x30, (byte) 0xf2}, ALL, RESERVE},
@@ -42,7 +44,7 @@ public final class RsceTestDataProvider {
     };
   }
 
-  @DataProvider(name = "offRequests", parallel = true)
+  @DataProvider(name = "offRequests")
   public static Object[][] offRequests() {
     return new Object[][] {
         {new byte[] {0x00, 0x03, 0x20, 0x70, (byte) 0xe8}, ALL},
@@ -52,7 +54,7 @@ public final class RsceTestDataProvider {
     };
   }
 
-  @DataProvider(name = "preciseRequests", parallel = true)
+  @DataProvider(name = "preciseRequests")
   public static Object[][] preciseRequests() {
     return new Object[][] {
         {new byte[] {0x01, 0x05, 0x0C, 0x00, 0x00, (byte) 0xD9, 0x0F}, (short) 0},
@@ -70,7 +72,7 @@ public final class RsceTestDataProvider {
     };
   }
 
-  @DataProvider(name = "rheo12-catch-rotate", parallel = true)
+  @DataProvider(name = "rheo12-catch-rotate")
   public static Object[][] infoRequests() {
     return new Object[][] {
         {new byte[] {0x00, 0x09, (byte) 0xc7, 0x40, 0x0b, (byte) 0xa0, 0x0b, 0x64, 0x00, (byte) 0xae, 0x55},
@@ -78,7 +80,7 @@ public final class RsceTestDataProvider {
         {new byte[] {0x00, 0x07, (byte) 0xc7, 0x00, 0x00, 0x00, 0x00, (byte) 0xaf, 0x66},
             new int[] {0, 0}},
         {new byte[] {0x00, 0x03, 0x00, 0x71, 0x30},
-            new int[] {0, 0}}
+            EMPTY_INTS}
     };
   }
 

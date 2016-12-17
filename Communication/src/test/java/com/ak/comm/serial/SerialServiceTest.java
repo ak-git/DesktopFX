@@ -18,13 +18,13 @@ public final class SerialServiceTest implements Subscriber<ByteBuffer> {
   @Test
   public void test() {
     List<SerialService> services = Stream.of(SerialPortList.getPortNames()).map(port -> {
-      SerialService serialService = new SerialService("None", BAUDRATE_115200);
+      SerialService serialService = new SerialService(BAUDRATE_115200);
       serialService.subscribe(this);
       Assert.assertEquals(serialService.write(ByteBuffer.allocate(0)), 0);
       return serialService;
     }).collect(Collectors.toList());
 
-    SerialService singleService = new SerialService("None", BAUDRATE_115200);
+    SerialService singleService = new SerialService(BAUDRATE_115200);
     singleService.subscribe(this);
     singleService.close();
     Assert.assertTrue(singleService.toString().contains("serialPort"));

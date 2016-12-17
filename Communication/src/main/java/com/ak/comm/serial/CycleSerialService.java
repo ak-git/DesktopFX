@@ -14,27 +14,29 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ak.comm.core.AbstractService;
+import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.Variable;
+import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.UIConstants;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import org.reactivestreams.Subscriber;
 
-public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService<RESPONSE> {
+public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
+    extends AbstractConvertableService<RESPONSE, REQUEST, EV> {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-  @Nonnull
-  private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
   @Nonnull
   private volatile SerialService serialService;
 
-  public CycleSerialService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor) {
-    this.bytesInterceptor = bytesInterceptor;
-    serialService = new SerialService(bytesInterceptor.name(), bytesInterceptor.getBaudRate());
+  public CycleSerialService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
+                            @Nonnull Converter<RESPONSE, EV> responseConverter) {
+    super(bytesInterceptor, responseConverter);
+    serialService = new SerialService(bytesInterceptor.getBaudRate());
   }
 
   @Override
-  public void subscribe(Subscriber<? super RESPONSE> s) {
+  public void subscribe(@Nonnull Subscriber<? super int[]> s) {
     s.onSubscribe(this);
     executor.scheduleAtFixedRate(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();
@@ -44,14 +46,14 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
       Disposable disposable = Flowable.fromPublisher(serialService).doFinally(() -> {
         workingFlag.set(false);
         latch.countDown();
-      }).flatMap(bytesInterceptor).doOnNext(response -> {
-        s.onNext(response);
+      }).subscribe(buffer -> process(buffer).forEach(ints -> {
+        s.onNext(ints);
         workingFlag.set(true);
         okTime.set(Instant.now());
-      }).subscribe();
+      }));
 
       while (!Thread.currentThread().isInterrupted()) {
-        if (serialService.isOpen() && write(bytesInterceptor.getPingRequest()) == 0) {
+        if (!serialService.isOpen() || (serialService.isOpen() && write(bytesInterceptor().getPingRequest()) == 0)) {
           break;
         }
         else {
@@ -75,29 +77,29 @@ public final class CycleSerialService<RESPONSE, REQUEST> extends AbstractService
 
       synchronized (this) {
         if (!executor.isShutdown()) {
-          serialService.close();
           disposable.dispose();
-          serialService = new SerialService(bytesInterceptor.name(), bytesInterceptor.getBaudRate());
+          serialService = new SerialService(bytesInterceptor().getBaudRate());
         }
       }
     }, 0, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
   }
 
   @Override
-  public void request(long n) {
-  }
-
-  @Override
   public void cancel() {
     synchronized (this) {
-      executor.shutdownNow();
-      serialService.close();
+      try {
+        serialService.close();
+        executor.shutdownNow();
+      }
+      finally {
+        super.cancel();
+      }
     }
   }
 
   public int write(@Nullable REQUEST request) {
     synchronized (this) {
-      return request == null ? -1 : serialService.write(bytesInterceptor.putOut(request));
+      return request == null ? -1 : serialService.write(bytesInterceptor().putOut(request));
     }
   }
 }

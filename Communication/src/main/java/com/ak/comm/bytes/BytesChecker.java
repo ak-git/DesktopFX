@@ -11,4 +11,12 @@ public interface BytesChecker {
 
   default void bufferLimit(@Nonnull ByteBuffer buffer) {
   }
+
+  default boolean isCheckedAndLimitSet(byte b, @Nonnull ByteBuffer buffer) {
+    boolean check = is(b);
+    if (check) {
+      bufferLimit(buffer);
+    }
+    return check;
+  }
 }

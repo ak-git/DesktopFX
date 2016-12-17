@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
@@ -58,13 +59,13 @@ final class ForkFilter extends AbstractDigitalFilter {
 
   @Override
   public double getDelay() {
-    return filters.stream().mapToDouble(Delay::getDelay).max().orElseThrow(IllegalStateException::new);
+    return findMax(Delay::getDelay);
   }
 
   @Nonnegative
   @Override
   public double getFrequencyFactor() {
-    return filters.stream().mapToDouble(Delay::getFrequencyFactor).max().orElseThrow(IllegalStateException::new);
+    return findMax(Delay::getFrequencyFactor);
   }
 
   @Override
@@ -81,5 +82,9 @@ final class ForkFilter extends AbstractDigitalFilter {
   @Override
   public String toString() {
     return filters.stream().map(Object::toString).collect(Collectors.joining(NEW_LINE, EMPTY, EMPTY));
+  }
+
+  private double findMax(@Nonnull ToDoubleFunction<? super DigitalFilter> mapper) {
+    return filters.stream().mapToDouble(mapper).max().orElseThrow(IllegalStateException::new);
   }
 }
