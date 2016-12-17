@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
-import com.ak.comm.bytes.AbstractBufferFrame;
+import com.ak.comm.bytes.BufferFrame;
 import com.ak.util.FinalizerGuardian;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
@@ -20,7 +20,7 @@ public abstract class AbstractService<T> implements Publisher<T>, Subscription {
   public static void logBytes(@Nonnull Logger logger, @Nonnull Level level, @Nonnull Object aThis, @Nonnull ByteBuffer buffer,
                               @Nonnull String message) {
     if (logger.isLoggable(level)) {
-      logger.log(level, String.format("#%x %s %s", aThis.hashCode(), AbstractBufferFrame.toString(aThis.getClass(), buffer), message));
+      logger.log(level, String.format("#%x %s %s", aThis.hashCode(), BufferFrame.toString(aThis.getClass(), buffer), message));
     }
   }
 

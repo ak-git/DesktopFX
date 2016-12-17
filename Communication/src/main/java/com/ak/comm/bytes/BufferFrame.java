@@ -6,17 +6,17 @@ import javax.annotation.Nonnull;
 
 import static com.ak.util.Strings.SPACE;
 
-public abstract class AbstractBufferFrame {
+public class BufferFrame {
   @Nonnull
   private final ByteBuffer byteBuffer;
 
-  protected AbstractBufferFrame(@Nonnull ByteBuffer byteBuffer) {
+  protected BufferFrame(@Nonnull ByteBuffer byteBuffer) {
     byteBuffer.rewind();
     this.byteBuffer = ByteBuffer.allocate(byteBuffer.limit()).put(byteBuffer).order(byteBuffer.order());
     this.byteBuffer.flip();
   }
 
-  protected AbstractBufferFrame(@Nonnull byte[] bytes) {
+  public BufferFrame(@Nonnull byte[] bytes) {
     byteBuffer = ByteBuffer.wrap(bytes);
   }
 
@@ -25,11 +25,11 @@ public abstract class AbstractBufferFrame {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof AbstractBufferFrame)) {
+    if (!(o instanceof BufferFrame)) {
       return false;
     }
 
-    AbstractBufferFrame that = (AbstractBufferFrame) o;
+    BufferFrame that = (BufferFrame) o;
     return byteBuffer.equals(that.byteBuffer);
   }
 

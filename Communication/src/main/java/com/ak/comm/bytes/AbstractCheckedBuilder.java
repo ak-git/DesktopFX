@@ -28,7 +28,7 @@ public abstract class AbstractCheckedBuilder<T> implements BytesChecker, Builder
   }
 
   protected final void logWarning() {
-    Logger.getLogger(AbstractBufferFrame.class.getName()).log(LOG_LEVEL_ERRORS,
+    Logger.getLogger(BufferFrame.class.getName()).log(LOG_LEVEL_ERRORS,
         String.format("Invalid response format: {%s}", Arrays.toString(buffer.array())));
   }
 }

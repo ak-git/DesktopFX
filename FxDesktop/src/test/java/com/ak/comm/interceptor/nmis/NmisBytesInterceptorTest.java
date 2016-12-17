@@ -97,7 +97,8 @@ public final class NmisBytesInterceptorTest {
           int bytesOut = interceptor.putOut(request).remaining();
           Assert.assertTrue(bytesOut > 0);
           Assert.assertEquals(logMessage.get(),
-              request.toString().replaceAll(".*" + NmisRequest.class.getSimpleName(), "") + " - " + bytesOut + " bytes OUT to hardware");
+              request.toString().replaceAll(".*" + NmisRequest.class.getSimpleName(), "") +
+                  " - " + bytesOut + " bytes OUT to hardware");
         },
         logRecord -> logMessage.set(logRecord.getMessage().replaceAll(".*" + NmisRequest.class.getSimpleName(), "")));
   }

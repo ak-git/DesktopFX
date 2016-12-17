@@ -5,8 +5,8 @@ import java.nio.ByteBuffer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ak.comm.bytes.AbstractBufferFrame;
 import com.ak.comm.bytes.AbstractCheckedBuilder;
+import com.ak.comm.bytes.BufferFrame;
 
 /**
  * Classic <b>NMI Test Stand</b> Response Frame for INEUM protocol.
@@ -40,7 +40,7 @@ import com.ak.comm.bytes.AbstractCheckedBuilder;
  * </pre>
  * each 5 ms.
  */
-public final class NmisResponseFrame extends AbstractBufferFrame {
+public final class NmisResponseFrame extends BufferFrame {
   @Nonnull
   private final NmisAddress address;
 
@@ -70,7 +70,6 @@ public final class NmisResponseFrame extends AbstractBufferFrame {
     @Override
     public boolean is(byte b) {
       boolean okFlag = true;
-
       for (NmisProtocolByte protocolByte : NmisProtocolByte.CHECKED_BYTES) {
         if (buffer().position() - 1 == protocolByte.ordinal()) {
           if (!protocolByte.isCheckedAndLimitSet(b, buffer())) {
@@ -80,7 +79,6 @@ public final class NmisResponseFrame extends AbstractBufferFrame {
         }
       }
       return okFlag;
-
     }
 
     @Nullable
