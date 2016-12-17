@@ -25,8 +25,8 @@ final class TetrapolarSystem {
     if (sPU >= lCC) {
       throw new IllegalArgumentException();
     }
-    sPotentialUnitSI = Quantities.getQuantity(sPU, unit).to(METRE).getValue().doubleValue();
-    lCurrentCarryingSI = Quantities.getQuantity(lCC, unit).to(METRE).getValue().doubleValue();
+    sPotentialUnitSI = toDouble(sPU, unit);
+    lCurrentCarryingSI = toDouble(lCC, unit);
   }
 
   /**
@@ -76,6 +76,10 @@ final class TetrapolarSystem {
   @Override
   protected Object clone() throws CloneNotSupportedException {
     throw new CloneNotSupportedException();
+  }
+
+  private static double toDouble(@Nonnegative double sPU, @Nonnull Unit<Length> unit) {
+    return Quantities.getQuantity(sPU, unit).to(METRE).getValue().doubleValue();
   }
 }
 

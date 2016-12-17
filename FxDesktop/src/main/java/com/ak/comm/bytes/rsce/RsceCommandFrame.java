@@ -113,13 +113,13 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
   }
 
   private enum Extractor {
-    NONE(ActionType.NONE, RequestType.EMPTY, FrameField.NONE),
+    NONE(ActionType.NONE, RequestType.EMPTY),
     /**
      * <pre>
      *   2. 0x00 0x09 (Length) 0xc7 (None-Reserve) <b>0xRheo1-Low 0xRheo1-High</b> 0xRheo2-Low 0xRheo2-High 0xOpen% 0xRotate% CRC1 CRC2
      * </pre>
      */
-    R1_DOZEN_MILLI_OHM(ActionType.NONE, RequestType.RESERVE, FrameField.R1_DOZEN_MILLI_OHM) {
+    R1_DOZEN_MILLI_OHM(ActionType.NONE, RequestType.RESERVE) {
       @Override
       int extractResistance(@Nonnull ByteBuffer from) {
         return from.getShort(3);
@@ -130,7 +130,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
      *   2. 0x00 0x09 (Length) 0xc7 (None-Reserve) 0xRheo1-Low 0xRheo1-High <b>0xRheo2-Low 0xRheo2-High</b> 0xOpen% 0xRotate% CRC1 CRC2
      * </pre>
      */
-    R2_DOZEN_MILLI_OHM(ActionType.NONE, RequestType.RESERVE, FrameField.R2_DOZEN_MILLI_OHM) {
+    R2_DOZEN_MILLI_OHM(ActionType.NONE, RequestType.RESERVE) {
       @Override
       int extractResistance(@Nonnull ByteBuffer from) {
         return from.getShort(5);
@@ -155,9 +155,9 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
       }
     }
 
-    Extractor(@Nonnull ActionType actionType, @Nonnull RequestType requestType, @Nonnull FrameField field) {
+    Extractor(@Nonnull ActionType actionType, @Nonnull RequestType requestType) {
       type = toType(actionType, requestType);
-      this.field = field;
+      field = FrameField.values()[ordinal()];
     }
 
     int extractResistance(@Nonnull ByteBuffer from) {
@@ -277,11 +277,7 @@ public final class RsceCommandFrame extends AbstractBufferFrame {
     public boolean is(byte b) {
       boolean okFlag = true;
       if (buffer().position() <= ProtocolByte.values().length) {
-        ProtocolByte protocolByte = ProtocolByte.values()[buffer().position() - 1];
-        if (protocolByte.is(b)) {
-          protocolByte.bufferLimit(buffer());
-        }
-        else {
+        if (!ProtocolByte.values()[buffer().position() - 1].isCheckedAndLimitSet(b, buffer())) {
           okFlag = false;
         }
       }
