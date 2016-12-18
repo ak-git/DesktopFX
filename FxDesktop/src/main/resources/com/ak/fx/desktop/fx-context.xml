@@ -19,7 +19,7 @@
         </property>
     </bean>
 
-    <!--<bean class="com.ak.comm.interceptor.simple.RampBytesInterceptorcope="prototype">-->
+    <!--<bean class="com.ak.comm.interceptor.simple.RampBytesInterceptor" scope="prototype">-->
     <!--<constructor-arg name="baudRate" value="BR_115200"/>-->
     <!--<constructor-arg name="frameLength" value="9"/>-->
     <!--</bean>-->
