@@ -43,7 +43,9 @@ public final class FileReadingService extends AbstractService<ByteBuffer> {
           s.onNext(buffer);
           buffer.clear();
         }
-        s.onComplete();
+        if (!canceled) {
+          s.onComplete();
+        }
         Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
       }
       catch (ClosedByInterruptException e) {

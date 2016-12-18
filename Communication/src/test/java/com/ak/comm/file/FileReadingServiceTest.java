@@ -71,13 +71,12 @@ public final class FileReadingServiceTest {
     Flowable.fromPublisher(publisher).doOnSubscribe(Subscription::cancel).subscribe(testSubscriber);
     testSubscriber.assertNoErrors();
     testSubscriber.assertNoValues();
+    testSubscriber.assertNotComplete();
     if (bytes < 0) {
       testSubscriber.assertNotSubscribed();
-      testSubscriber.assertNotComplete();
     }
     else {
       testSubscriber.assertSubscribed();
-      testSubscriber.assertComplete();
     }
   }
 
