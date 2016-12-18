@@ -49,7 +49,7 @@ public class ElectrodeSizeTest {
   @DataProvider(name = "dToL")
   public static Object[][] dl2dRL2rho() throws IOException {
     Supplier<DoubleStream> xVar = ElectrodeSizeTest::doubleRange;
-    Assert.assertNotNull(xVar.get().mapToObj(value -> String.format("%.3f", value)).collect(
+    Assert.assertNull(xVar.get().mapToObj(value -> String.format("%.3f", value)).collect(
         new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.VERTICAL)));
     return new Object[][] {{xVar}};
   }
@@ -66,7 +66,7 @@ public class ElectrodeSizeTest {
 
   @Test(dataProvider = "dToL", enabled = false)
   public static void testErrorsAt(Supplier<DoubleStream> xVar) throws IOException {
-    Assert.assertNotNull(DoubleStream.of(1.0 / 3.0, SQRT_2 - 1, 0.5, 2.0 / 3.0).
+    Assert.assertNull(DoubleStream.of(1.0 / 3.0, SQRT_2 - 1, 0.5, 2.0 / 3.0).
         mapToObj(sToL -> xVar.get().map(dToL -> new RelativeErrorR(sToL).value(dToL))).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector(Paths.get("ErrorsAtDtoL.txt"), LineFileCollector.Direction.VERTICAL)));
