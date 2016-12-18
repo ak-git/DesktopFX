@@ -1,6 +1,7 @@
 package com.ak.comm.file;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
@@ -52,7 +53,7 @@ public final class RampBytesInterceptorTest {
             },
             new BufferFrame(new byte[] {
                 (byte) 255, 10, 20, 30, 40, 50, 60, 70, 80
-            })
+            }, ByteOrder.nativeOrder())
         },
         {
             // check 127, -128 ramp step
@@ -62,7 +63,7 @@ public final class RampBytesInterceptorTest {
             },
             new BufferFrame(new byte[] {
                 (byte) 127, 17, 18, 19, 20, 21, 22, 23, 24
-            })
+            }, ByteOrder.nativeOrder())
         },
         {
             // check 255, 0 ramp step
@@ -72,7 +73,7 @@ public final class RampBytesInterceptorTest {
             },
             new BufferFrame(new byte[] {
                 (byte) 255, 33, 34, 35, 36, 37, 38, 39, 40
-            })
+            }, ByteOrder.nativeOrder())
         }
     };
   }
@@ -99,7 +100,7 @@ public final class RampBytesInterceptorTest {
         },
         logRecord -> logMessage.set(logRecord.getMessage().replaceAll(".*" + BufferFrame.class.getSimpleName(), "")));
 
-    BufferFrame singleByte = new BufferFrame(new byte[] {input[0]});
+    BufferFrame singleByte = new BufferFrame(new byte[] {input[0]}, ByteOrder.nativeOrder());
     LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_LEXEMES,
         () -> Assert.assertTrue(interceptor.putOut(singleByte).remaining() > 0),
         logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(singleByte + " - OUT to hardware"), logRecord.getMessage()));

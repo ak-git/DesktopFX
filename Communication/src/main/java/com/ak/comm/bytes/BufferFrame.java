@@ -1,6 +1,7 @@
 package com.ak.comm.bytes;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import javax.annotation.Nonnull;
 
@@ -16,8 +17,8 @@ public class BufferFrame {
     this.byteBuffer.flip();
   }
 
-  public BufferFrame(@Nonnull byte[] bytes) {
-    byteBuffer = ByteBuffer.wrap(bytes);
+  public BufferFrame(@Nonnull byte[] bytes, ByteOrder byteOrder) {
+    byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
   }
 
   @Override
@@ -64,6 +65,10 @@ public class BufferFrame {
   public final void writeTo(@Nonnull ByteBuffer outBuffer) {
     outBuffer.put(byteBuffer);
     byteBuffer.rewind();
+  }
+
+  public final int getInt(int index) {
+    return byteBuffer.getInt(index);
   }
 
   protected final ByteBuffer byteBuffer() {

@@ -1,6 +1,7 @@
 package com.ak.comm.bytes.nmis;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -75,7 +76,7 @@ public final class NmisRequest extends BufferFrame {
   private final String toString;
 
   private NmisRequest(@Nonnull Builder builder) {
-    super(builder.codes);
+    super(builder.codes, ByteOrder.LITTLE_ENDIAN);
     toString = builder.toStringBuilder.toString();
   }
 
