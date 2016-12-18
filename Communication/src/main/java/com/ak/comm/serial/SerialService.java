@@ -81,6 +81,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
             buffer.put(serialPort.readBytes());
             buffer.flip();
             binaryLogChannel.write(buffer);
+            buffer.rewind();
             logBytes(buffer);
             s.onNext(buffer);
           }
