@@ -18,11 +18,13 @@ import org.testng.annotations.Test;
 
 public final class AutoFileReadingServiceTest {
   private enum TestVariables implements Variable<TestVariables> {
+    INT_VARIABLE
   }
 
   @Test(timeOut = 10000, dataProviderClass = FileDataProvider.class, dataProvider = "files")
   public void testRampBytesInterceptor(@Nonnull Path fileToRead, @Nonnegative int bytes) throws Exception {
-    FileFilter service = new AutoFileReadingService<>(new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1),
+    FileFilter service = new AutoFileReadingService<>(
+        new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1 + TestVariables.values().length * Integer.BYTES),
         new ToIntegerConverter<>(TestVariables.class));
 
     Assert.assertEquals(service.accept(fileToRead.toFile()), bytes >= 0);
