@@ -74,12 +74,12 @@ public class TetrapolarSystemTest {
   @DataProvider(name = "R(Ohm)-L(mm)")
   public static Object[][] rL() throws IOException {
     Supplier<DoubleStream> xVar = () -> doubleRange(1000.0);
-    xVar.get().mapToObj(value -> String.format("%.0f", value)).collect(
-        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL));
+    Assert.assertNull(xVar.get().mapToObj(value -> String.format("%.0f", value)).collect(
+        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL)));
 
     Supplier<DoubleStream> yVar = () -> doubleRange(100.0);
-    yVar.get().mapToObj(value -> String.format("%.0f", value)).collect(
-        new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
+    Assert.assertNull(yVar.get().mapToObj(value -> String.format("%.0f", value)).collect(
+        new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
     return new Object[][] {{xVar, yVar}};
   }
 
@@ -87,11 +87,11 @@ public class TetrapolarSystemTest {
   public static void testApparent(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     DoubleStream.of(1.0 / 3.0, 0.5).forEachOrdered(sToL -> {
       try {
-        yVar.get().mapToObj(lmm -> xVar.get().map(r ->
+        Assert.assertNull(yVar.get().mapToObj(lmm -> xVar.get().map(r ->
             new TetrapolarSystem(lmm * sToL, lmm, MILLI(METRE)).getApparent(Quantities.getQuantity(r, OHM)))
         ).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
             collect(new LineFileCollector(Paths.get(String.format("Apparent_Rho_At_%.2f.txt", sToL)),
-                LineFileCollector.Direction.VERTICAL));
+                LineFileCollector.Direction.VERTICAL)));
       }
       catch (IOException e) {
         Assert.fail(e.getMessage(), e);
