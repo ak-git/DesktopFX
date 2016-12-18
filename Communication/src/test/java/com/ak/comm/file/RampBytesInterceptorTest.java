@@ -47,6 +47,7 @@ public final class RampBytesInterceptorTest {
             })
         },
         {
+            // check 127, -128 ramp step
             new byte[] {
                 0x7f, (byte) 0xe0, (byte) 0xff, 0x3f, 0x00, (byte) 0xea, (byte) 0xff, 0x3f, 0x00,
                 (byte) 0x80, (byte) 0xe0, (byte) 0xff, 0x3f, 0x00, (byte) 0xea, (byte) 0xff, 0x3f, 0x00
@@ -55,6 +56,16 @@ public final class RampBytesInterceptorTest {
                 (byte) 127, (byte) 0xe0, (byte) 0xff, 0x3f, 0x00, (byte) 0xea, (byte) 0xff, 0x3f, 0x00
             })
         },
+        {
+            // check 255, 0 ramp step
+            new byte[] {
+                (byte) 255, (byte) 0xe0, (byte) 0xff, 0x3f, 0x00, (byte) 0xea, (byte) 0xff, 0x3f, 0x00,
+                0, (byte) 0xe0, (byte) 0xff, 0x3f, 0x00, (byte) 0xea, (byte) 0xff, 0x3f, 0x00
+            },
+            new BufferFrame(new byte[] {
+                (byte) 255, (byte) 0xe0, (byte) 0xff, 0x3f, 0x00, (byte) 0xea, (byte) 0xff, 0x3f, 0x00
+            })
+        }
     };
   }
 
@@ -79,5 +90,10 @@ public final class RampBytesInterceptorTest {
                   " - " + bytesOut + " bytes OUT to hardware");
         },
         logRecord -> logMessage.set(logRecord.getMessage().replaceAll(".*" + BufferFrame.class.getSimpleName(), "")));
+
+    BufferFrame singleByte = new BufferFrame(new byte[] {input[0]});
+    LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_LEXEMES,
+        () -> Assert.assertTrue(interceptor.putOut(singleByte).remaining() > 0),
+        logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(singleByte + " - OUT to hardware"), logRecord.getMessage()));
   }
 }
