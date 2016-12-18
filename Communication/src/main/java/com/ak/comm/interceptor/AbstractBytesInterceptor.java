@@ -74,11 +74,11 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST extends BufferF
   @Nonnull
   protected abstract Collection<RESPONSE> innerProcessIn(@Nonnull ByteBuffer src);
 
-  final ByteBuffer ignoreBuffer() {
+  protected final ByteBuffer ignoreBuffer() {
     return ignoreBuffer;
   }
 
-  final void logSkippedBytes(boolean force) {
+  protected final void logSkippedBytes(boolean force) {
     if (force || ignoreBuffer.position() >= IGNORE_LIMIT) {
       ignoreBuffer.flip();
       if (ignoreBuffer.limit() > 0) {

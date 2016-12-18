@@ -15,6 +15,7 @@ public final class RampBytesInterceptor extends AbstractBytesInterceptor<BufferF
   @Nonnull
   private final byte[] buffer;
   private int bufferIndex = -1;
+  private int ignoreIndex = -1;
 
   public RampBytesInterceptor(@Nonnull BytesInterceptor.BaudRate baudRate, int frameLength) {
     super(baudRate, null);
@@ -28,10 +29,19 @@ public final class RampBytesInterceptor extends AbstractBytesInterceptor<BufferF
   protected Collection<BufferFrame> innerProcessIn(@Nonnull ByteBuffer src) {
     Collection<BufferFrame> responses = new LinkedList<>();
     while (src.hasRemaining()) {
-      bufferIndex = (++bufferIndex) % buffer.length;
+      bufferIndex++;
+      bufferIndex %= buffer.length;
+      ignoreIndex++;
+      if (++ignoreIndex >= buffer.length) {
+        ignoreBuffer().put(buffer[bufferIndex]);
+        logSkippedBytes(false);
+      }
       buffer[bufferIndex] = src.get();
 
       if (((byte) (buffer[(bufferIndex + 1) % buffer.length] + 1)) == buffer[bufferIndex]) {
+        logSkippedBytes(true);
+        ignoreIndex = 0;
+
         byte[] bytes = new byte[buffer.length - 1];
         for (int i = 0; i < bytes.length; i++) {
           bytes[i] = buffer[(bufferIndex + 1 + i) % buffer.length];

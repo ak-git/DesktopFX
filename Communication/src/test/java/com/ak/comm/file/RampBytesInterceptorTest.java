@@ -4,8 +4,13 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.core.LogLevelSubstitution;
@@ -20,6 +25,9 @@ import static jssc.SerialPort.BAUDRATE_115200;
 
 public final class RampBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(RampBytesInterceptor.class.getName());
+  private final Function<ByteBuffer, Stream<BufferFrame>> interceptor =
+      new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 9);
+  private final ByteBuffer byteBuffer = ByteBuffer.allocate(20);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidInterceptorProperties() {
@@ -33,44 +41,44 @@ public final class RampBytesInterceptorTest {
     Assert.assertNull(interceptor.getPingRequest());
   }
 
-  @DataProvider(name = "responses")
-  public static Object[][] responses() {
+  @DataProvider(name = "data")
+  public static Object[][] data() {
     return new Object[][] {
         {
             // invalid first byte, 0x00 at start
             new byte[] {0x00,
-                (byte) 255, (byte) 0xe0, (byte) 0xff, 0x3f, 0x00, (byte) 0xea, (byte) 0xff, 0x3f, 0x00,
-                0, (byte) 0xe0, (byte) 0xff, 0x3f, 0x00, (byte) 0xea, (byte) 0xff, 0x3f, 0x00
+                (byte) 255, 10, 20, 30, 40, 50, 60, 70, 80,
+                0, 9, 10, 11, 12, 13, 14, 15, 16
             },
             new BufferFrame(new byte[] {
-                (byte) 255, (byte) 0xe0, (byte) 0xff, 0x3f, 0x00, (byte) 0xea, (byte) 0xff, 0x3f, 0x00
+                (byte) 255, 10, 20, 30, 40, 50, 60, 70, 80
             })
         },
         {
             // check 127, -128 ramp step
             new byte[] {
-                0x7f, (byte) 0xe0, (byte) 0xff, 0x3f, 0x00, (byte) 0xea, (byte) 0xff, 0x3f, 0x00,
-                (byte) 0x80, (byte) 0xe0, (byte) 0xff, 0x3f, 0x00, (byte) 0xea, (byte) 0xff, 0x3f, 0x00
+                0x7f, 17, 18, 19, 20, 21, 22, 23, 24,
+                (byte) 0x80, 25, 26, 27, 28, 29, 30, 31, 32
             },
             new BufferFrame(new byte[] {
-                (byte) 127, (byte) 0xe0, (byte) 0xff, 0x3f, 0x00, (byte) 0xea, (byte) 0xff, 0x3f, 0x00
+                (byte) 127, 17, 18, 19, 20, 21, 22, 23, 24
             })
         },
         {
             // check 255, 0 ramp step
             new byte[] {
-                (byte) 255, (byte) 0xe0, (byte) 0xff, 0x3f, 0x00, (byte) 0xea, (byte) 0xff, 0x3f, 0x00,
-                0, (byte) 0xe0, (byte) 0xff, 0x3f, 0x00, (byte) 0xea, (byte) 0xff, 0x3f, 0x00
+                (byte) 255, 33, 34, 35, 36, 37, 38, 39, 40,
+                0, 41, 42, 43, 44, 45, 46, 47, 48
             },
             new BufferFrame(new byte[] {
-                (byte) 255, (byte) 0xe0, (byte) 0xff, 0x3f, 0x00, (byte) 0xea, (byte) 0xff, 0x3f, 0x00
+                (byte) 255, 33, 34, 35, 36, 37, 38, 39, 40
             })
         }
     };
   }
 
-  @Test(dataProvider = "responses")
-  public void testDefaultBytesInterceptor(byte[] input, BufferFrame testFrame) {
+  @Test(dataProvider = "data")
+  public void testRampBytesInterceptor(byte[] input, BufferFrame testFrame) {
     BytesInterceptor<BufferFrame, BufferFrame> interceptor = new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, 9);
 
     LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_LEXEMES,
@@ -95,5 +103,19 @@ public final class RampBytesInterceptorTest {
     LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_LEXEMES,
         () -> Assert.assertTrue(interceptor.putOut(singleByte).remaining() > 0),
         logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(singleByte + " - OUT to hardware"), logRecord.getMessage()));
+  }
+
+  @Test(dataProvider = "data")
+  public void testInterceptor(@Nonnull byte[] bytes, @Nullable BufferFrame response) {
+    byteBuffer.clear();
+    byteBuffer.put(bytes);
+    byteBuffer.flip();
+    LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_ERRORS,
+        () -> {
+          Stream<BufferFrame> frames = interceptor.apply(byteBuffer);
+          Assert.assertEquals(frames.iterator(), Collections.singleton(response).iterator());
+        },
+        logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(" IGNORED"))
+    );
   }
 }

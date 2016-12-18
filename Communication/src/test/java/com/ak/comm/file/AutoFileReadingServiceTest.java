@@ -32,7 +32,7 @@ public final class AutoFileReadingServiceTest {
       };
 
   @Test(timeOut = 10000, dataProviderClass = FileDataProvider.class, dataProvider = "files")
-  public void testDefaultBytesInterceptor(@Nonnull Path fileToRead, @Nonnegative int bytes) throws Exception {
+  public void testRampBytesInterceptor(@Nonnull Path fileToRead, @Nonnegative int bytes) throws Exception {
     FileFilter service = new AutoFileReadingService<>(new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1),
         INTEGER_CONVERTER);
 
