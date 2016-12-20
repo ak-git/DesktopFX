@@ -13,7 +13,7 @@ import com.ak.comm.converter.Converter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static com.ak.comm.core.LogLevels.LOG_LEVEL_VALUES;
+import static com.ak.comm.util.LogUtils.LOG_LEVEL_VALUES;
 
 public final class RsceConverterTest {
   private static final Logger LOGGER = Logger.getLogger(RsceConverter.class.getName());

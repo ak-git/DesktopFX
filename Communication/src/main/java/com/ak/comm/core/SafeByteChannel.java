@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
+import com.ak.comm.util.LogUtils;
 import com.ak.logging.BinaryLogBuilder;
 
 public final class SafeByteChannel implements WritableByteChannel {
@@ -45,7 +46,7 @@ public final class SafeByteChannel implements WritableByteChannel {
       return channel.write(src);
     }
     catch (IOException e) {
-      Logger.getLogger(getClass().getName()).log(LogLevels.LOG_LEVEL_ERRORS, e.getMessage(), e);
+      Logger.getLogger(getClass().getName()).log(LogUtils.LOG_LEVEL_ERRORS, e.getMessage(), e);
       return 0;
     }
   }
@@ -61,7 +62,7 @@ public final class SafeByteChannel implements WritableByteChannel {
       channel.close();
     }
     catch (IOException e) {
-      Logger.getLogger(getClass().getName()).log(LogLevels.LOG_LEVEL_ERRORS, e.getMessage(), e);
+      Logger.getLogger(getClass().getName()).log(LogUtils.LOG_LEVEL_ERRORS, e.getMessage(), e);
     }
     finally {
       initialized = false;

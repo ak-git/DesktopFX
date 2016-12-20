@@ -10,10 +10,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.BufferFrame;
-import com.ak.comm.core.AbstractService;
+import com.ak.comm.util.LogUtils;
 
-import static com.ak.comm.core.LogLevels.LOG_LEVEL_ERRORS;
-import static com.ak.comm.core.LogLevels.LOG_LEVEL_LEXEMES;
+import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
+import static com.ak.comm.util.LogUtils.LOG_LEVEL_LEXEMES;
 
 public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST extends BufferFrame> implements BytesInterceptor<RESPONSE, REQUEST> {
   private static final int IGNORE_LIMIT = 16;
@@ -82,7 +82,7 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST extends BufferF
     if (force || ignoreBuffer.position() >= IGNORE_LIMIT) {
       ignoreBuffer.flip();
       if (ignoreBuffer.limit() > 0) {
-        AbstractService.logBytes(logger, LOG_LEVEL_ERRORS, this, ignoreBuffer, "IGNORED");
+        LogUtils.logBytes(logger, LOG_LEVEL_ERRORS, this, ignoreBuffer, "IGNORED");
       }
       ignoreBuffer.clear();
     }

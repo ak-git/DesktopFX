@@ -5,7 +5,7 @@ import java.nio.ByteOrder;
 
 import javax.annotation.Nonnull;
 
-import static com.ak.util.Strings.SPACE;
+import com.ak.comm.util.LogUtils;
 
 public class BufferFrame {
   @Nonnull
@@ -41,25 +41,7 @@ public class BufferFrame {
 
   @Override
   public String toString() {
-    return toString(getClass(), byteBuffer);
-  }
-
-  public static String toString(@Nonnull Class<?> clazz, @Nonnull ByteBuffer buffer) {
-    buffer.rewind();
-    StringBuilder sb = new StringBuilder(clazz.getSimpleName()).append("[ ");
-    while (buffer.hasRemaining()) {
-      sb.append(String.format("%#04x", (buffer.get() & 0xFF)));
-      if (buffer.hasRemaining()) {
-        sb.append(',');
-      }
-      sb.append(SPACE);
-    }
-    sb.append("]");
-    if (buffer.limit() > 1) {
-      sb.append(SPACE).append(buffer.limit()).append(" bytes");
-    }
-    buffer.rewind();
-    return sb.toString();
+    return LogUtils.toString(getClass(), byteBuffer);
   }
 
   public final void writeTo(@Nonnull ByteBuffer outBuffer) {

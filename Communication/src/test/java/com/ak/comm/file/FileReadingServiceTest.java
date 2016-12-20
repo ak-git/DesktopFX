@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.comm.core.LogLevels;
+import com.ak.comm.util.LogUtils;
 import io.reactivex.Flowable;
 import io.reactivex.subscribers.TestSubscriber;
 import org.reactivestreams.Publisher;
@@ -20,7 +20,7 @@ import org.reactivestreams.Subscription;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static com.ak.comm.core.LogLevelSubstitution.substituteLogLevel;
+import static com.ak.comm.util.LogLevelSubstitution.substituteLogLevel;
 
 public final class FileReadingServiceTest {
   private static final Logger LOGGER = Logger.getLogger(FileReadingService.class.getName());
@@ -82,7 +82,7 @@ public final class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "files")
   public void testLogBytes(@Nonnull Path fileToRead, @Nonnegative int bytes) {
-    substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_BYTES, () -> {
+    substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () -> {
       Publisher<ByteBuffer> publisher = new FileReadingService(fileToRead);
       Flowable.fromPublisher(publisher).subscribe();
     }, new Consumer<LogRecord>() {

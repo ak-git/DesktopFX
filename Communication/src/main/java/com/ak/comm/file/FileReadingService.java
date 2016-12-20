@@ -16,7 +16,7 @@ import javax.annotation.Nonnull;
 import com.ak.comm.core.AbstractService;
 import org.reactivestreams.Subscriber;
 
-import static com.ak.comm.core.LogLevels.LOG_LEVEL_ERRORS;
+import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
 public final class FileReadingService extends AbstractService<ByteBuffer> {
   private static final int CAPACITY_4K = 1024 * 4;

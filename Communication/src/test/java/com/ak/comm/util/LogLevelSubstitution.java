@@ -1,4 +1,4 @@
-package com.ak.comm.core;
+package com.ak.comm.util;
 
 import java.util.Objects;
 import java.util.function.Consumer;

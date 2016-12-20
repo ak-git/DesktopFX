@@ -19,7 +19,7 @@ import jssc.SerialPortException;
 import jssc.SerialPortList;
 import org.reactivestreams.Subscriber;
 
-import static com.ak.comm.core.LogLevels.LOG_LEVEL_ERRORS;
+import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
 final class SerialService extends AbstractService<ByteBuffer> implements WritableByteChannel {
   @Nonnull

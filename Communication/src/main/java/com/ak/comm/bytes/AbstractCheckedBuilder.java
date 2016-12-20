@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 
 import javafx.util.Builder;
 
-import static com.ak.comm.core.LogLevels.LOG_LEVEL_ERRORS;
+import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
 public abstract class AbstractCheckedBuilder<T> implements BytesChecker, Builder<T> {
   @Nonnull
