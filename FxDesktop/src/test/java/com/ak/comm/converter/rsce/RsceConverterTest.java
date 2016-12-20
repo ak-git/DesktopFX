@@ -6,10 +6,10 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
-import com.ak.comm.LogLevelSubstitution;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.bytes.rsce.RsceTestDataProvider;
 import com.ak.comm.converter.Converter;
+import com.ak.comm.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -22,7 +22,7 @@ public final class RsceConverterTest {
   public void testApply(@Nonnull byte[] bytes, int[] rDozenMilliOhms) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     Assert.assertNotNull(frame);
-    LogLevelSubstitution.substituteLogLevel(LOGGER, LOG_LEVEL_VALUES, () -> {
+    LogUtils.substituteLogLevel(LOGGER, LOG_LEVEL_VALUES, () -> {
       Converter<RsceCommandFrame, RsceVariable> converter = new RsceConverter();
       Stream<int[]> stream = converter.apply(frame);
       if (rDozenMilliOhms.length == 0) {

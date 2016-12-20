@@ -20,8 +20,6 @@ import org.reactivestreams.Subscription;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static com.ak.comm.util.LogLevelSubstitution.substituteLogLevel;
-
 public final class FileReadingServiceTest {
   private static final Logger LOGGER = Logger.getLogger(FileReadingService.class.getName());
 
@@ -47,7 +45,7 @@ public final class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "filesCanDelete")
   public void testException(@Nonnull Path fileToRead, @Nonnegative int bytes) {
-    substituteLogLevel(LOGGER, Level.WARNING, () -> {
+    LogUtils.substituteLogLevel(LOGGER, Level.WARNING, () -> {
       TestSubscriber<ByteBuffer> testSubscriber = TestSubscriber.create();
       Publisher<ByteBuffer> publisher = new FileReadingService(fileToRead);
       Flowable.fromPublisher(publisher).doOnSubscribe(subscription -> Files.deleteIfExists(fileToRead)).subscribe(testSubscriber);
@@ -82,7 +80,7 @@ public final class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "files")
   public void testLogBytes(@Nonnull Path fileToRead, @Nonnegative int bytes) {
-    substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () -> {
+    LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () -> {
       Publisher<ByteBuffer> publisher = new FileReadingService(fileToRead);
       Flowable.fromPublisher(publisher).subscribe();
     }, new Consumer<LogRecord>() {

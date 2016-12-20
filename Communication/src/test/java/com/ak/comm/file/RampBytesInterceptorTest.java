@@ -16,7 +16,6 @@ import javax.annotation.Nullable;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
-import com.ak.comm.util.LogLevelSubstitution;
 import com.ak.comm.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -82,7 +81,7 @@ public final class RampBytesInterceptorTest {
   public void testRampBytesInterceptor(byte[] input, BufferFrame testFrame) {
     BytesInterceptor<BufferFrame, BufferFrame> interceptor = new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, 9);
 
-    LogLevelSubstitution.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
+    LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> {
           Collection<BufferFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).collect(Collectors.toList());
           Assert.assertEquals(frames, Collections.singleton(testFrame));
@@ -90,7 +89,7 @@ public final class RampBytesInterceptorTest {
         logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(testFrame.toString()), logRecord.getMessage()));
 
     AtomicReference<String> logMessage = new AtomicReference<>("");
-    LogLevelSubstitution.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
+    LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> {
           int bytesOut = interceptor.putOut(testFrame).remaining();
           Assert.assertTrue(bytesOut > 0);
@@ -101,7 +100,7 @@ public final class RampBytesInterceptorTest {
         logRecord -> logMessage.set(logRecord.getMessage().replaceAll(".*" + BufferFrame.class.getSimpleName(), "")));
 
     BufferFrame singleByte = new BufferFrame(new byte[] {input[0]}, ByteOrder.nativeOrder());
-    LogLevelSubstitution.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
+    LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> Assert.assertTrue(interceptor.putOut(singleByte).remaining() > 0),
         logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(singleByte + " - OUT to hardware"), logRecord.getMessage()));
   }
@@ -111,7 +110,7 @@ public final class RampBytesInterceptorTest {
     byteBuffer.clear();
     byteBuffer.put(bytes);
     byteBuffer.flip();
-    LogLevelSubstitution.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
+    LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
         () -> {
           Stream<BufferFrame> frames = interceptor.apply(byteBuffer);
           Assert.assertEquals(frames.iterator(), Collections.singleton(response).iterator());
