@@ -86,12 +86,12 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
             s.onNext(buffer);
           }
           catch (Exception ex) {
-            logErrorAndComplete(s, LOG_LEVEL_ERRORS, ex);
+            logErrorAndComplete(s, ex);
           }
         }, SerialPort.MASK_RXCHAR);
       }
       catch (SerialPortException ex) {
-        logErrorAndComplete(s, LOG_LEVEL_ERRORS, ex);
+        logErrorAndComplete(s, ex);
       }
     }
   }
@@ -126,8 +126,8 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
     return String.format("%s@%x{serialPort = %s}", getClass().getSimpleName(), hashCode(), serialPort.getPortName());
   }
 
-  private void logErrorAndComplete(Subscriber<?> s, @Nonnull Level level, @Nonnull Exception ex) {
-    Logger.getLogger(getClass().getName()).log(level, serialPort.getPortName(), ex);
+  private void logErrorAndComplete(Subscriber<?> s, @Nonnull Exception ex) {
+    Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
     cancel();
     s.onComplete();
   }

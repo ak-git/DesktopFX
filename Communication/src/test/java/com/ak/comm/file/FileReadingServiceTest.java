@@ -24,7 +24,7 @@ public final class FileReadingServiceTest {
   private static final Logger LOGGER = Logger.getLogger(FileReadingService.class.getName());
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "files")
-  public void testFile(@Nonnull Path fileToRead, @Nonnegative int bytes) throws Exception {
+  public void testFile(@Nonnull Path fileToRead, @Nonnegative int bytes) {
     TestSubscriber<ByteBuffer> testSubscriber = TestSubscriber.create();
     Publisher<ByteBuffer> publisher = new FileReadingService(fileToRead);
     Assert.assertTrue(publisher.toString().contains(fileToRead.toString()));

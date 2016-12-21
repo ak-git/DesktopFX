@@ -9,7 +9,7 @@ public final class SafeByteChannelTest {
   private final SafeByteChannel channel = new SafeByteChannel(getClass().getSimpleName());
 
   @Test
-  public void testWrite() throws Exception {
+  public void testWrite() {
     Assert.assertFalse(channel.isOpen());
     channel.close();
     ByteBuffer byteBuffer = ByteBuffer.allocate(1);
