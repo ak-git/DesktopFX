@@ -32,10 +32,6 @@ public final class ToIntegerConverterTest {
     S
   }
 
-  private enum TwoVariables implements Variable<TwoVariables> {
-    S1, S2
-  }
-
   @Test(dataProvider = "variables")
   public <T extends Enum<T> & Variable<T>> void testApply(@Nonnull Class<T> evClass, @Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
     ToIntegerConverter<T> converter = new ToIntegerConverter<>(evClass);

@@ -25,44 +25,39 @@ import com.ak.comm.interceptor.BytesInterceptor;
 public final class RampBytesInterceptor extends AbstractBytesInterceptor<BufferFrame, BufferFrame> {
   @Nonnull
   private final byte[] buffer;
-  private int bufferIndex = -1;
-  private int ignoreIndex = -1;
+  private int position = -1;
 
   public RampBytesInterceptor(@Nonnull BytesInterceptor.BaudRate baudRate, int frameLength) {
     super(baudRate, null);
     if (frameLength < 1) {
       throw new IllegalArgumentException(String.format("frameLength must be > 0, but found %d", frameLength));
     }
-    buffer = new byte[frameLength + 1];
+    buffer = new byte[frameLength];
   }
 
   @Override
   protected Collection<BufferFrame> innerProcessIn(@Nonnull ByteBuffer src) {
     Collection<BufferFrame> responses = new LinkedList<>();
     while (src.hasRemaining()) {
-      bufferIndex++;
-      bufferIndex %= buffer.length;
-      ignoreIndex++;
-      if (++ignoreIndex >= buffer.length) {
-        ignoreBuffer().put(buffer[bufferIndex]);
-        logSkippedBytes(false);
+      byte in = src.get();
+      position++;
+      if (position < buffer.length) {
+        buffer[position] = in;
       }
-      buffer[bufferIndex] = src.get();
-
-      if (((byte) (buffer[(bufferIndex + 1) % buffer.length] + 1)) == buffer[bufferIndex]) {
-        logSkippedBytes(true);
-        ignoreIndex = 0;
-
-        byte[] bytes = new byte[buffer.length - 1];
-        for (int i = 0; i < bytes.length; i++) {
-          bytes[i] = buffer[(bufferIndex + 1 + i) % buffer.length];
+      else {
+        if (((byte) (buffer[0] + 1)) == in) {
+          logSkippedBytes(true);
+          responses.add(new BufferFrame(Arrays.copyOf(buffer, buffer.length), ByteOrder.LITTLE_ENDIAN));
+          position = 0;
+          buffer[position] = in;
         }
-        responses.add(new BufferFrame(bytes, ByteOrder.LITTLE_ENDIAN));
-
-        byte saveStart = buffer[bufferIndex];
-        Arrays.fill(buffer, (byte) 0);
-        bufferIndex = 0;
-        buffer[0] = saveStart;
+        else {
+          ignoreBuffer().put(buffer[0]);
+          logSkippedBytes(false);
+          System.arraycopy(buffer, 1, buffer, 0, buffer.length - 1);
+          buffer[buffer.length - 1] = in;
+          position = buffer.length - 1;
+        }
       }
     }
     return responses;

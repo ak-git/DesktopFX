@@ -46,12 +46,12 @@ public final class RampBytesInterceptorTest {
     return new Object[][] {
         {
             // invalid first byte, 0x00 at start
-            new byte[] {0x00,
-                (byte) 255, 10, 20, 30, 40, 50, 60, 70, 80,
+            new byte[] {0x7f,
+                (byte) 255, 4, 3, 2, 1, 4, 3, 2, 1,
                 0, 9, 10, 11, 12, 13, 14, 15, 16
             },
             new BufferFrame(new byte[] {
-                (byte) 255, 10, 20, 30, 40, 50, 60, 70, 80
+                (byte) 255, 4, 3, 2, 1, 4, 3, 2, 1
             }, ByteOrder.nativeOrder())
         },
         {
@@ -62,16 +62,6 @@ public final class RampBytesInterceptorTest {
             },
             new BufferFrame(new byte[] {
                 (byte) 127, 17, 18, 19, 20, 21, 22, 23, 24
-            }, ByteOrder.nativeOrder())
-        },
-        {
-            // check 255, 0 ramp step
-            new byte[] {
-                (byte) 255, 33, 34, 35, 36, 37, 38, 39, 40,
-                0, 41, 42, 43, 44, 45, 46, 47, 48
-            },
-            new BufferFrame(new byte[] {
-                (byte) 255, 33, 34, 35, 36, 37, 38, 39, 40
             }, ByteOrder.nativeOrder())
         }
     };
@@ -110,12 +100,15 @@ public final class RampBytesInterceptorTest {
     byteBuffer.clear();
     byteBuffer.put(bytes);
     byteBuffer.flip();
+
+    AtomicReference<String> logMessage = new AtomicReference<>("");
     LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
         () -> {
           Stream<BufferFrame> frames = interceptor.apply(byteBuffer);
           Assert.assertEquals(frames.iterator(), Collections.singleton(response).iterator());
+          Assert.assertTrue(logMessage.get().endsWith(" IGNORED"));
         },
-        logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(" IGNORED"))
+        logRecord -> logMessage.set(logRecord.getMessage())
     );
   }
 }
