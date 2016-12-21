@@ -52,7 +52,8 @@ public final class RampBytesInterceptorTest {
             },
             new BufferFrame(new byte[] {
                 (byte) 255, 4, 3, 2, 1, 4, 3, 2, 1
-            }, ByteOrder.nativeOrder())
+            }, ByteOrder.nativeOrder()),
+            "[ 0x7f ] IGNORED"
         },
         {
             // check 127, -128 ramp step
@@ -62,13 +63,44 @@ public final class RampBytesInterceptorTest {
             },
             new BufferFrame(new byte[] {
                 (byte) 127, 17, 18, 19, 20, 21, 22, 23, 24
-            }, ByteOrder.nativeOrder())
-        }
+            }, ByteOrder.nativeOrder()),
+            "[ 0x00, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10 ] 9 bytes IGNORED"
+        },
+        {
+            new byte[] {
+                (byte) 0xc2, 0x04, 0x03, 0x02, 0x01, 0x04, 0x03, 0x02, 0x01,
+                (byte) 0xc3, 0x04
+            },
+            new BufferFrame(new byte[] {
+                (byte) 0xc2, 0x04, 0x03, 0x02, 0x01, 0x04, 0x03, 0x02, 0x01
+            }, ByteOrder.nativeOrder()),
+            "[ 0x80, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20 ] 9 bytes IGNORED"
+        },
+        {
+            new byte[] {
+                0x03, 0x02, 0x01, 0x04, 0x03, 0x02, 0x01, 0x01, 0x09,
+                0x04, 0x03, 0x02, 0x01, 0x04, 0x03, 0x02, 0x01,
+            },
+            new BufferFrame(new byte[] {
+                0x03, 0x02, 0x01, 0x04, 0x03, 0x02, 0x01, 0x01, 0x09
+            }, ByteOrder.nativeOrder()),
+            "[ 0xc3, 0x04 ] 2 bytes IGNORED"
+        },
+        {
+            new byte[] {
+                0x0a, 0x04, 0x03, 0x02, 0x01, 0x04, 0x03, 0x02, 0x01,
+                0x0b
+            },
+            new BufferFrame(new byte[] {
+                0x0a, 0x04, 0x03, 0x02, 0x01, 0x04, 0x03, 0x02, 0x01,
+            }, ByteOrder.nativeOrder()),
+            "[ 0x04, 0x03, 0x02, 0x01, 0x04, 0x03, 0x02, 0x01 ] 8 bytes IGNORED"
+        },
     };
   }
 
   @Test(dataProvider = "data")
-  public void testRampBytesInterceptor(byte[] input, BufferFrame testFrame) {
+  public void testRampBytesInterceptor(byte[] input, BufferFrame testFrame, String ignoredMessage) {
     BytesInterceptor<BufferFrame, BufferFrame> interceptor = new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, 9);
 
     LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
@@ -76,7 +108,8 @@ public final class RampBytesInterceptorTest {
           Collection<BufferFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).collect(Collectors.toList());
           Assert.assertEquals(frames, Collections.singleton(testFrame));
         },
-        logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(testFrame.toString()), logRecord.getMessage()));
+        logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(testFrame.toString()),
+            String.format("[ %s ] must ends with [ %s ]", logRecord.getMessage(), testFrame.toString())));
 
     AtomicReference<String> logMessage = new AtomicReference<>("");
     LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
@@ -96,7 +129,7 @@ public final class RampBytesInterceptorTest {
   }
 
   @Test(dataProvider = "data")
-  public void testInterceptor(@Nonnull byte[] bytes, @Nullable BufferFrame response) {
+  public void testInterceptor(@Nonnull byte[] bytes, @Nullable BufferFrame response, String ignoredMessage) {
     byteBuffer.clear();
     byteBuffer.put(bytes);
     byteBuffer.flip();
@@ -106,7 +139,7 @@ public final class RampBytesInterceptorTest {
         () -> {
           Stream<BufferFrame> frames = interceptor.apply(byteBuffer);
           Assert.assertEquals(frames.iterator(), Collections.singleton(response).iterator());
-          Assert.assertTrue(logMessage.get().endsWith(" IGNORED"));
+          Assert.assertTrue(logMessage.get().endsWith(ignoredMessage), logMessage.get());
         },
         logRecord -> logMessage.set(logRecord.getMessage())
     );
