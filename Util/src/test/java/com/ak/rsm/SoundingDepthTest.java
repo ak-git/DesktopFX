@@ -18,6 +18,7 @@ import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -108,16 +109,16 @@ public class SoundingDepthTest {
   @DataProvider(name = "x = s / L, y = k12")
   public static Object[][] sToLbyK12() throws IOException {
     Supplier<DoubleStream> xVar = () -> doubleRange(0.01, 0.99);
-    xVar.get().mapToObj(sToL -> String.format("%.2f", sToL)).collect(
-        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL));
+    Assert.assertNull(xVar.get().mapToObj(sToL -> String.format("%.2f", sToL)).collect(
+        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL)));
 
     Supplier<DoubleStream> yVar = () -> doubleRange(-0.98, 0.98).
         map(k12 -> -k12).filter(k12 -> Math.abs(k12) > PRECISION / 2);
-    yVar.get().mapToObj(k12 -> String.format("%.4f", ResistanceTwoLayer.getRho1ToRho2(k12))).collect(
-        new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
+    Assert.assertNull(yVar.get().mapToObj(k12 -> String.format("%.4f", ResistanceTwoLayer.getRho1ToRho2(k12))).collect(
+        new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
 
-    yVar.get().mapToObj(k12 -> String.format("%.2f", k12)).collect(
-        new LineFileCollector(Paths.get("k12.txt"), LineFileCollector.Direction.VERTICAL));
+    Assert.assertNull(yVar.get().mapToObj(k12 -> String.format("%.2f", k12)).collect(
+        new LineFileCollector(Paths.get("k12.txt"), LineFileCollector.Direction.VERTICAL)));
     return new Object[][] {{xVar, yVar}};
   }
 
@@ -127,19 +128,19 @@ public class SoundingDepthTest {
     Supplier<DoubleStream> xVar = () -> doubleRange(-0.98, 0.98).
         map(k12 -> -k12).filter(k12 -> Math.abs(k12) > PRECISION / 2);
 
-    xVar.get().mapToObj(k12 -> String.format("%.4f", ResistanceTwoLayer.getRho1ToRho2(k12))).collect(
-        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.VERTICAL));
+    Assert.assertNull(xVar.get().mapToObj(k12 -> String.format("%.4f", ResistanceTwoLayer.getRho1ToRho2(k12))).collect(
+        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.VERTICAL)));
 
-    xVar.get().mapToObj(value -> String.format("%.2f", value)).collect(
-        new LineFileCollector(Paths.get("k12.txt"), LineFileCollector.Direction.VERTICAL));
+    Assert.assertNull(xVar.get().mapToObj(value -> String.format("%.2f", value)).collect(
+        new LineFileCollector(Paths.get("k12.txt"), LineFileCollector.Direction.VERTICAL)));
     return new Object[][] {{var, xVar}};
   }
 
   @DataProvider(name = "x = s / L")
   public static Object[][] sToL() throws IOException {
     Supplier<DoubleStream> xVar = () -> doubleRange(0.01, 0.99);
-    xVar.get().mapToObj(sToL -> String.format("%.2f", sToL)).collect(
-        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.VERTICAL));
+    Assert.assertNull(xVar.get().mapToObj(sToL -> String.format("%.2f", sToL)).collect(
+        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.VERTICAL)));
     return new Object[][] {{xVar}};
   }
 
@@ -147,133 +148,133 @@ public class SoundingDepthTest {
   public static Object[][] k12byHtoL() throws IOException {
     Supplier<DoubleStream> xVar = () -> doubleRange(-0.98, 0.98).
         map(k12 -> -k12).filter(k12 -> Math.abs(k12) > PRECISION / 2);
-    xVar.get().mapToObj(k12 -> String.format("%.4f", ResistanceTwoLayer.getRho1ToRho2(k12))).collect(
-        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL));
-    xVar.get().mapToObj(k12 -> String.format("%.2f", k12)).collect(
-        new LineFileCollector(Paths.get("x-k12.txt"), LineFileCollector.Direction.HORIZONTAL));
+    Assert.assertNull(xVar.get().mapToObj(k12 -> String.format("%.4f", ResistanceTwoLayer.getRho1ToRho2(k12))).collect(
+        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL)));
+    Assert.assertNull(xVar.get().mapToObj(k12 -> String.format("%.2f", k12)).collect(
+        new LineFileCollector(Paths.get("x-k12.txt"), LineFileCollector.Direction.HORIZONTAL)));
 
     Supplier<DoubleStream> yVar = () -> doubleRange(0.0, 0.5);
-    yVar.get().mapToObj(hToL -> String.format("%.2f", hToL)).collect(
-        new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
+    Assert.assertNull(yVar.get().mapToObj(hToL -> String.format("%.2f", hToL)).collect(
+        new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
     return new Object[][] {{xVar, yVar}};
   }
 
   @DataProvider(name = "x = s / L, y = h / L")
   public static Object[][] sToLbyHtoL() throws IOException {
     Supplier<DoubleStream> xVar = () -> doubleRange(0.01, 0.99);
-    xVar.get().mapToObj(sToL -> String.format("%.2f", sToL)).collect(
-        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL));
+    Assert.assertNull(xVar.get().mapToObj(sToL -> String.format("%.2f", sToL)).collect(
+        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL)));
 
     Supplier<DoubleStream> yVar = () -> doubleRange(0.0, 0.5);
-    yVar.get().mapToObj(hToL -> String.format("%.2f", hToL)).collect(
-        new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
+    Assert.assertNull(yVar.get().mapToObj(hToL -> String.format("%.2f", hToL)).collect(
+        new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
     return new Object[][] {{xVar, yVar}};
   }
 
   @Test(dataProvider = "x = s / L, y = k12", enabled = false)
   public static void testRho1SameRho2(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
-    yVar.get().mapToObj(k12 -> xVar.get().map(sToL -> solve(new InequalityRbyRho2(k12, sToL), GoalType.MINIMIZE).getKey()[0])).
+    Assert.assertNull(yVar.get().mapToObj(k12 -> xVar.get().map(sToL -> solve(new InequalityRbyRho2(k12, sToL), GoalType.MINIMIZE).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
-        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
+        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   @Test(dataProvider = "x = k12, s / L = {1 / 3, 1 / 2}", enabled = false)
   public static void testRho1SameRho2SliceStoL(Supplier<DoubleStream> slice, Supplier<DoubleStream> xVar) throws IOException {
-    xVar.get().mapToObj(k12 -> slice.get().map(sToL -> solve(new InequalityRbyRho2(k12, sToL), GoalType.MINIMIZE).getKey()[0])).
+    Assert.assertNull(xVar.get().mapToObj(k12 -> slice.get().map(sToL -> solve(new InequalityRbyRho2(k12, sToL), GoalType.MINIMIZE).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
-        collect(new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
+        collect(new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   @Test(dataProvider = "x = s / L", enabled = false)
   public static void testRho1SameRho2byRho(Supplier<DoubleStream> xVar) throws IOException {
-    xVar.get().mapToObj(sToL -> {
+    Assert.assertNull(xVar.get().mapToObj(sToL -> {
       PointValuePair pair = solve(new MaxInequalityRbyRho2(sToL), GoalType.MAXIMIZE);
       double hToL = pair.getValue();
       double rho12 = ResistanceTwoLayer.getRho1ToRho2(pair.getKey()[0]);
       return DoubleStream.of(hToL, rho12);
     }).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
-        collect(new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
+        collect(new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   @Test(dataProvider = "x = k12, y = h / L", enabled = false)
   public static void testRho1SameRho2FixedStoL(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
-    yVar.get().mapToObj(hToL -> xVar.get().
+    Assert.assertNull(yVar.get().mapToObj(hToL -> xVar.get().
         map(k12 -> new DerivativeRbyRho2Normalized(k12, 1.0 / 2.0).value(hToL))).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
-        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
+        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   @Test(dataProvider = "x = s / L, y = h / L", enabled = false)
   public static void testRho1SameRho2FixedRho12(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
-    yVar.get().mapToObj(hToL -> xVar.get().
+    Assert.assertNull(yVar.get().mapToObj(hToL -> xVar.get().
         map(sToL -> new DerivativeRbyRho2Normalized(ResistanceTwoLayer.getK12(3.0, 1.0), sToL).value(hToL))).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
-        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
+        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   @Test(dataProvider = "x = s / L, y = k12", enabled = false)
   public static void testHPointMax(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
-    yVar.get().mapToObj(k12 -> xVar.get().map(sToL -> solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getKey()[0])).
+    Assert.assertNull(yVar.get().mapToObj(k12 -> xVar.get().map(sToL -> solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getKey()[0])).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
-        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
+        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   @Test(dataProvider = "x = s / L, y = k12", enabled = false)
   public static void testHValueMax(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
-    yVar.get().mapToObj(k12 -> xVar.get().
+    Assert.assertNull(yVar.get().mapToObj(k12 -> xVar.get().
         map(sToL -> -Math.signum(k12) * solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getValue())).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
-        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
+        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   @Test(dataProvider = "x = k12, s / L = {1 / 3, 1 / 2}", enabled = false)
   public static void testHSlice(Supplier<DoubleStream> slice, Supplier<DoubleStream> xVar) throws IOException {
-    xVar.get().mapToObj(k12 -> slice.get().map(sToL -> solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getKey()[0])).
+    Assert.assertNull(xVar.get().mapToObj(k12 -> slice.get().map(sToL -> solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getKey()[0])).
         map(stream -> stream.mapToObj(pointMax -> String.format("%.6f", pointMax)).collect(Collectors.joining("\t"))).
-        collect(new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
-    xVar.get().mapToObj(k12 -> slice.get().map(
+        collect(new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
+    Assert.assertNull(xVar.get().mapToObj(k12 -> slice.get().map(
         sToL -> -Math.signum(k12) * solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getValue())).
         map(stream -> stream.mapToObj(valueMax -> String.format("%.6f", valueMax)).collect(Collectors.joining("\t"))).
-        collect(new LineFileCollector(Paths.get("y2.txt"), LineFileCollector.Direction.VERTICAL));
+        collect(new LineFileCollector(Paths.get("y2.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   @Test(dataProvider = "x = s / L", enabled = false)
   public static void testHbyRhoPointMax(Supplier<DoubleStream> xVar) throws IOException {
-    xVar.get().mapToObj(sToL -> {
+    Assert.assertNull(xVar.get().mapToObj(sToL -> {
       PointValuePair pair = solve(new MaxInequalityRbyH(sToL), GoalType.MAXIMIZE);
       double hToL = pair.getValue();
       double rho12 = ResistanceTwoLayer.getRho1ToRho2(pair.getKey()[0]);
       return DoubleStream.of(hToL, rho12);
     }).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
-        collect(new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
+        collect(new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   @Test(dataProvider = "x = s / L", enabled = false)
   public static void testHValueMax(Supplier<DoubleStream> xVar) throws IOException {
-    xVar.get().mapToObj(sToL -> {
+    Assert.assertNull(xVar.get().mapToObj(sToL -> {
       PointValuePair pair = solve(new MaxInequalityRbyH(sToL), GoalType.MAXIMIZE);
       double k12 = pair.getKey()[0];
       double hToL = pair.getValue();
       double value = -Math.signum(k12) * new InequalityRbyH(k12, sToL).applyAsDouble(hToL);
       return DoubleStream.of(hToL, value);
     }).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
-        collect(new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL));
+        collect(new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   @Test(dataProvider = "x = k12, y = h / L", enabled = false)
   public static void testHValueFixedStoL(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
-    yVar.get().mapToObj(hToL -> xVar.get().
+    Assert.assertNull(yVar.get().mapToObj(hToL -> xVar.get().
         map(k12 -> new DerivativeRbyHNormalized(k12, 1.0 / 2.0).value(hToL))).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
-        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
+        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   @Test(dataProvider = "x = s / L, y = h / L", enabled = false)
   public static void testHValueFixedRho12(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
-    yVar.get().mapToObj(hToL -> xVar.get().
+    Assert.assertNull(yVar.get().mapToObj(hToL -> xVar.get().
         map(sToL -> new DerivativeRbyHNormalized(ResistanceTwoLayer.getK12(3.0, 1.0), sToL).value(hToL))).
         map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
-        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL));
+        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   private static DoubleStream doubleRange(double start, double end) {

@@ -1,4 +1,11 @@
 package com.ak.comm.converter;
 
-public interface Variable<E extends Enum<E>> {
+import javax.measure.Unit;
+
+import tec.uom.se.AbstractUnit;
+
+public interface Variable<E extends Enum<E> & Variable<E>> {
+  default Unit<?> getUnit() {
+    return AbstractUnit.ONE;
+  }
 }

@@ -1,17 +1,18 @@
 package com.ak.comm.bytes.nmis;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
-import com.ak.comm.bytes.AbstractBufferFrame;
+import com.ak.comm.bytes.BufferFrame;
 
 import static com.ak.util.Strings.SPACE;
 
-public final class NmisRequest extends AbstractBufferFrame {
+public final class NmisRequest extends BufferFrame {
   private enum Ohm {
     Z_360, Z_0_47, Z_1, Z_2, Z_30A, Z_30B, Z_127
   }
@@ -75,7 +76,7 @@ public final class NmisRequest extends AbstractBufferFrame {
   private final String toString;
 
   private NmisRequest(@Nonnull Builder builder) {
-    super(builder.codes);
+    super(builder.codes, ByteOrder.LITTLE_ENDIAN);
     toString = builder.toStringBuilder.toString();
   }
 

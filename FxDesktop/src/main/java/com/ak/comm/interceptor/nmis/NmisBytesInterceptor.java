@@ -74,6 +74,6 @@ import com.ak.comm.interceptor.AbstractCheckedBytesInterceptor;
  */
 public final class NmisBytesInterceptor extends AbstractCheckedBytesInterceptor<NmisResponseFrame.Builder, NmisResponseFrame, NmisRequest> {
   public NmisBytesInterceptor() {
-    super(NmisRequest.Sequence.CATCH_100.build(), new NmisResponseFrame.Builder());
+    super(BaudRate.BR_115200, NmisRequest.Sequence.CATCH_100.build(), new NmisResponseFrame.Builder());
   }
 }

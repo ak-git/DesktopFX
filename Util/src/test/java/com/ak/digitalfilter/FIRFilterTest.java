@@ -126,7 +126,7 @@ public class FIRFilterTest {
         String.format("LinearDecimationFilter (f / %.1f; delay %.1f)", 7.0, -0.4)
     }, {
         FilterBuilder.of().interpolate(7).buildNoDelay(),
-        String.format("NoDelayFilter (compensate %.1f delay) - LinearInterpolationFilter (f · %.1f; delay %.1f)", 3.0, 7.0, 3.0)
+        String.format("NoDelayFilter (compensate %.1f delay) - LinearInterpolationFilter (f \u00b7 %.1f; delay %.1f)", 3.0, 7.0, 3.0)
     }, {
         FilterBuilder.of().fork(
             FilterBuilder.of().fir(1.0).build(),

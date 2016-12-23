@@ -19,7 +19,7 @@ import jssc.SerialPortException;
 import jssc.SerialPortList;
 import org.reactivestreams.Subscriber;
 
-import static com.ak.comm.core.LogLevels.LOG_LEVEL_ERRORS;
+import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
 final class SerialService extends AbstractService<ByteBuffer> implements WritableByteChannel {
   @Nonnull
@@ -81,16 +81,17 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
             buffer.put(serialPort.readBytes());
             buffer.flip();
             binaryLogChannel.write(buffer);
+            buffer.rewind();
             logBytes(buffer);
             s.onNext(buffer);
           }
           catch (Exception ex) {
-            logErrorAndComplete(s, LOG_LEVEL_ERRORS, ex);
+            logErrorAndComplete(s, ex);
           }
         }, SerialPort.MASK_RXCHAR);
       }
       catch (SerialPortException ex) {
-        logErrorAndComplete(s, LOG_LEVEL_ERRORS, ex);
+        logErrorAndComplete(s, ex);
       }
     }
   }
@@ -125,8 +126,8 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
     return String.format("%s@%x{serialPort = %s}", getClass().getSimpleName(), hashCode(), serialPort.getPortName());
   }
 
-  private void logErrorAndComplete(Subscriber<?> s, @Nonnull Level level, @Nonnull Exception ex) {
-    Logger.getLogger(getClass().getName()).log(level, serialPort.getPortName(), ex);
+  private void logErrorAndComplete(Subscriber<?> s, @Nonnull Exception ex) {
+    Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
     cancel();
     s.onComplete();
   }

@@ -64,7 +64,7 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
             }
           }
           catch (InterruptedException e) {
-            Logger.getLogger(getClass().getName()).log(Level.FINEST, serialService.toString(), e);
+            Logger.getLogger(getClass().getName()).log(Level.ALL, serialService.toString(), e);
             Thread.currentThread().interrupt();
             break;
           }
