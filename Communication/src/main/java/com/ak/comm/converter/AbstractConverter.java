@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
-import static com.ak.comm.core.LogLevels.LOG_LEVEL_VALUES;
+import static com.ak.comm.util.LogUtils.LOG_LEVEL_VALUES;
 
 public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable<EV>> implements Converter<RESPONSE, EV> {
   private final Logger logger = Logger.getLogger(getClass().getName());

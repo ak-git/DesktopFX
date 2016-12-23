@@ -18,11 +18,11 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ak.comm.bytes.AbstractBufferFrame;
 import com.ak.comm.bytes.AbstractCheckedBuilder;
+import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.bytes.BytesChecker;
 
-public final class RsceCommandFrame extends AbstractBufferFrame {
+public final class RsceCommandFrame extends BufferFrame {
   private enum ProtocolByte implements BytesChecker {
     ADDR {
       @Override

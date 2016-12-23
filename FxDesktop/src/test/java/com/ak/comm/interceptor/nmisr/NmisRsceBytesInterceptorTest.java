@@ -8,13 +8,12 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ak.comm.LogLevelSubstitution;
 import com.ak.comm.bytes.nmis.NmisProtocolByte;
 import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
-import com.ak.comm.core.LogLevels;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.nmis.NmisBytesInterceptor;
+import com.ak.comm.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -55,7 +54,7 @@ public final class NmisRsceBytesInterceptorTest {
     Assert.assertEquals(interceptor.getBaudRate(), new NmisBytesInterceptor().getBaudRate());
     Assert.assertEquals(interceptor.getPingRequest(), NmisRequest.Sequence.CATCH_100.build());
 
-    LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_LEXEMES,
+    LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> {
           Stream<RsceCommandFrame> frames = interceptor.apply(byteBuffer);
           if (response == null) {

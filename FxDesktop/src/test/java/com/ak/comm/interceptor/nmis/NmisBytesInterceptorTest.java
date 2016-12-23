@@ -9,13 +9,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import com.ak.comm.LogLevelSubstitution;
 import com.ak.comm.bytes.nmis.NmisAddress;
 import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.nmis.NmisResponseFrame;
 import com.ak.comm.bytes.nmis.NmisTestProvider;
-import com.ak.comm.core.LogLevels;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -83,7 +82,7 @@ public final class NmisBytesInterceptorTest {
   private static void testResponse(NmisRequest request, byte[] input) {
     BytesInterceptor<NmisResponseFrame, NmisRequest> interceptor = new NmisBytesInterceptor();
 
-    LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_LEXEMES, () -> {
+    LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {
       Collection<NmisResponseFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).collect(Collectors.toList());
       if (!frames.isEmpty()) {
         Assert.assertEquals(frames, Collections.singleton(request.toResponse()));
@@ -92,12 +91,13 @@ public final class NmisBytesInterceptorTest {
         request.toResponse().toString().replaceAll(".*" + NmisResponseFrame.class.getSimpleName(), "")));
 
     AtomicReference<String> logMessage = new AtomicReference<>("");
-    LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_LEXEMES,
+    LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> {
           int bytesOut = interceptor.putOut(request).remaining();
           Assert.assertTrue(bytesOut > 0);
           Assert.assertEquals(logMessage.get(),
-              request.toString().replaceAll(".*" + NmisRequest.class.getSimpleName(), "") + " - " + bytesOut + " bytes OUT to hardware");
+              request.toString().replaceAll(".*" + NmisRequest.class.getSimpleName(), "") +
+                  " - " + bytesOut + " bytes OUT to hardware");
         },
         logRecord -> logMessage.set(logRecord.getMessage().replaceAll(".*" + NmisRequest.class.getSimpleName(), "")));
   }

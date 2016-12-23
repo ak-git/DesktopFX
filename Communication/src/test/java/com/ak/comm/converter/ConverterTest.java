@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
-import com.ak.comm.core.LogLevelSubstitution;
+import com.ak.comm.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -35,14 +35,14 @@ public final class ConverterTest {
 
   @Test
   public void testInvalidApply() {
-    LogLevelSubstitution.substituteLogLevel(LOGGER_INVALID, WARNING,
+    LogUtils.substituteLogLevel(LOGGER_INVALID, WARNING,
         () -> Assert.assertEquals(INVALID_CONVERTER.apply(1).count(), 1),
         logRecord -> Assert.assertEquals(logRecord.getMessage(), "Invalid variables: [] not match [1]"));
   }
 
   @Test
   public void testValidApply() {
-    LogLevelSubstitution.substituteLogLevel(LOGGER_VALID, WARNING,
+    LogUtils.substituteLogLevel(LOGGER_VALID, WARNING,
         () -> Assert.assertEquals(VALID_CONVERTER.apply(1).count(), 0),
         logRecord -> Assert.fail(logRecord.getMessage()));
   }

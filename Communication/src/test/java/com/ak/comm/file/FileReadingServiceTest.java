@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.comm.core.LogLevels;
+import com.ak.comm.util.LogUtils;
 import io.reactivex.Flowable;
 import io.reactivex.subscribers.TestSubscriber;
 import org.reactivestreams.Publisher;
@@ -20,13 +20,11 @@ import org.reactivestreams.Subscription;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static com.ak.comm.core.LogLevelSubstitution.substituteLogLevel;
-
 public final class FileReadingServiceTest {
   private static final Logger LOGGER = Logger.getLogger(FileReadingService.class.getName());
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "files")
-  public void testFile(@Nonnull Path fileToRead, @Nonnegative int bytes) throws Exception {
+  public void testFile(@Nonnull Path fileToRead, @Nonnegative int bytes) {
     TestSubscriber<ByteBuffer> testSubscriber = TestSubscriber.create();
     Publisher<ByteBuffer> publisher = new FileReadingService(fileToRead);
     Assert.assertTrue(publisher.toString().contains(fileToRead.toString()));
@@ -47,7 +45,7 @@ public final class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "filesCanDelete")
   public void testException(@Nonnull Path fileToRead, @Nonnegative int bytes) {
-    substituteLogLevel(LOGGER, Level.WARNING, () -> {
+    LogUtils.substituteLogLevel(LOGGER, Level.WARNING, () -> {
       TestSubscriber<ByteBuffer> testSubscriber = TestSubscriber.create();
       Publisher<ByteBuffer> publisher = new FileReadingService(fileToRead);
       Flowable.fromPublisher(publisher).doOnSubscribe(subscription -> Files.deleteIfExists(fileToRead)).subscribe(testSubscriber);
@@ -71,19 +69,18 @@ public final class FileReadingServiceTest {
     Flowable.fromPublisher(publisher).doOnSubscribe(Subscription::cancel).subscribe(testSubscriber);
     testSubscriber.assertNoErrors();
     testSubscriber.assertNoValues();
+    testSubscriber.assertNotComplete();
     if (bytes < 0) {
       testSubscriber.assertNotSubscribed();
-      testSubscriber.assertNotComplete();
     }
     else {
       testSubscriber.assertSubscribed();
-      testSubscriber.assertComplete();
     }
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "files")
   public void testLogBytes(@Nonnull Path fileToRead, @Nonnegative int bytes) {
-    substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_BYTES, () -> {
+    LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () -> {
       Publisher<ByteBuffer> publisher = new FileReadingService(fileToRead);
       Flowable.fromPublisher(publisher).subscribe();
     }, new Consumer<LogRecord>() {

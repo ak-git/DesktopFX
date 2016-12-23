@@ -6,11 +6,10 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
-import com.ak.comm.LogLevelSubstitution;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.bytes.rsce.RsceTestDataProvider;
-import com.ak.comm.core.LogLevels;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -38,12 +37,12 @@ public final class RsceBytesInterceptorTest {
   private static void checkResponse(@Nonnull byte[] bytes, @Nonnull RsceCommandFrame request) {
     BytesInterceptor<RsceCommandFrame, RsceCommandFrame> interceptor = new RsceBytesInterceptor();
 
-    LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_LEXEMES,
+    LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> Assert.assertEquals(interceptor.apply(ByteBuffer.wrap(bytes)).iterator(), Stream.of(request).iterator()),
         logRecord -> Assert.assertEquals(logRecord.getMessage().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), ""),
             request.toString().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), "")));
 
-    LogLevelSubstitution.substituteLogLevel(LOGGER, LogLevels.LOG_LEVEL_LEXEMES,
+    LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> Assert.assertTrue(interceptor.putOut(request).remaining() > 0),
         logRecord -> Assert.assertEquals(logRecord.getMessage().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), ""),
             request.toString().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), "") +

@@ -9,16 +9,28 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static com.ak.comm.core.LogLevels.LOG_LEVEL_LEXEMES;
-import static jssc.SerialPort.BAUDRATE_115200;
+import com.ak.comm.bytes.BufferFrame;
+import com.ak.comm.util.LogUtils;
 
-public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> implements BytesInterceptor<RESPONSE, REQUEST> {
+import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
+import static com.ak.comm.util.LogUtils.LOG_LEVEL_LEXEMES;
+
+public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST extends BufferFrame> implements BytesInterceptor<RESPONSE, REQUEST> {
+  private static final int IGNORE_LIMIT = 16;
   private final Logger logger = Logger.getLogger(getClass().getName());
+  @Nonnull
   private final ByteBuffer outBuffer;
+  @Nonnull
+  private final ByteBuffer ignoreBuffer;
+  @Nonnull
+  private final BaudRate baudRate;
+  @Nullable
   private final REQUEST pingRequest;
 
-  protected AbstractBytesInterceptor(@Nonnegative int outBufferSize, @Nullable REQUEST pingRequest) {
-    outBuffer = ByteBuffer.allocate(outBufferSize);
+  public AbstractBytesInterceptor(@Nonnull BaudRate baudRate, @Nullable REQUEST pingRequest) {
+    outBuffer = ByteBuffer.allocate(baudRate.get());
+    ignoreBuffer = ByteBuffer.allocate(IGNORE_LIMIT);
+    this.baudRate = baudRate;
     this.pingRequest = pingRequest;
   }
 
@@ -40,7 +52,7 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> implements Byt
   @Override
   public final ByteBuffer putOut(@Nonnull REQUEST request) {
     outBuffer.clear();
-    innerPutOut(outBuffer, request);
+    request.writeTo(outBuffer);
     outBuffer.flip();
     if (logger.isLoggable(LOG_LEVEL_LEXEMES)) {
       if (outBuffer.limit() > 1) {
@@ -56,11 +68,23 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST> implements Byt
   @Nonnegative
   @Override
   public int getBaudRate() {
-    return BAUDRATE_115200;
+    return baudRate.get();
   }
-
-  protected abstract void innerPutOut(@Nonnull ByteBuffer outBuffer, @Nonnull REQUEST request);
 
   @Nonnull
   protected abstract Collection<RESPONSE> innerProcessIn(@Nonnull ByteBuffer src);
+
+  protected final ByteBuffer ignoreBuffer() {
+    return ignoreBuffer;
+  }
+
+  protected final void logSkippedBytes(boolean force) {
+    if (force || ignoreBuffer.position() >= IGNORE_LIMIT) {
+      ignoreBuffer.flip();
+      if (ignoreBuffer.limit() > 0) {
+        LogUtils.logBytes(logger, LOG_LEVEL_ERRORS, this, ignoreBuffer, "IGNORED");
+      }
+      ignoreBuffer.clear();
+    }
+  }
 }

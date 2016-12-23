@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 
 import javafx.util.Builder;
 
-import static com.ak.comm.core.LogLevels.LOG_LEVEL_ERRORS;
+import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
 public abstract class AbstractCheckedBuilder<T> implements BytesChecker, Builder<T> {
   @Nonnull
@@ -28,7 +28,7 @@ public abstract class AbstractCheckedBuilder<T> implements BytesChecker, Builder
   }
 
   protected final void logWarning() {
-    Logger.getLogger(AbstractBufferFrame.class.getName()).log(LOG_LEVEL_ERRORS,
+    Logger.getLogger(BufferFrame.class.getName()).log(LOG_LEVEL_ERRORS,
         String.format("Invalid response format: {%s}", Arrays.toString(buffer.array())));
   }
 }
