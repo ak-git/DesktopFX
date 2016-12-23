@@ -1,4 +1,4 @@
-package com.ak.comm.file;
+package com.ak.comm.interceptor.simple;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -15,7 +15,6 @@ import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
