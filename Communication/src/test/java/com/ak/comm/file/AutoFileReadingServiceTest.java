@@ -36,7 +36,7 @@ public final class AutoFileReadingServiceTest {
     AutoFileReadingService<BufferFrame, BufferFrame, TestVariables> fileReadingService = new AutoFileReadingService<>(
         new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, 2), new ToIntegerConverter<>(TestVariables.class));
     Assert.assertFalse(fileReadingService.accept(Paths.get(Strings.EMPTY).toFile()));
-    fileReadingService.cancel();
+    fileReadingService.close();
     Assert.assertThrows(UnsupportedOperationException.class, () -> fileReadingService.subscribe(null));
   }
 }

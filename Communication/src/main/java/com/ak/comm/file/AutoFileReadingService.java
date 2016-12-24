@@ -32,19 +32,19 @@ public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV>
   }
 
   @Override
-  public void cancel() {
+  public void close() {
     try {
       subscription.dispose();
     }
     finally {
-      super.cancel();
+      super.close();
     }
   }
 
   @Override
   public boolean accept(@Nonnull File file) {
     if (file.isFile() && file.getName().toLowerCase().endsWith(".bin")) {
-      cancel();
+      close();
       subscription = Flowable.fromPublisher(new FileReadingService(file.toPath())).subscribeOn(Schedulers.io()).
           flatMapIterable(buffer -> () -> process(buffer).iterator()).subscribe();
       return true;

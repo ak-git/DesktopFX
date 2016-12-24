@@ -68,11 +68,7 @@ public final class FileReadingService extends AbstractService<ByteBuffer> {
   }
 
   @Override
-  public void request(long n) {
-  }
-
-  @Override
-  public void cancel() {
+  public void close() {
     canceled = true;
   }
 }

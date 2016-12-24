@@ -12,9 +12,21 @@ import org.reactivestreams.Subscription;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_BYTES;
 
-public abstract class AbstractService<T> implements Publisher<T>, Subscription {
+public abstract class AbstractService<T> implements Publisher<T>, AutoCloseable, Subscription {
   private final Logger logger = Logger.getLogger(getClass().getName());
-  private final Object finalizerGuardian = new FinalizerGuardian(this::cancel);
+  private final Object finalizerGuardian = new FinalizerGuardian(this);
+
+  @Override
+  public abstract void close();
+
+  @Override
+  public final void request(long n) {
+  }
+
+  @Override
+  public final void cancel() {
+    close();
+  }
 
   protected final void logBytes(@Nonnull ByteBuffer buffer) {
     LogUtils.logBytes(logger, LOG_LEVEL_BYTES, this, buffer, "IN from hardware");

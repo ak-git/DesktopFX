@@ -97,15 +97,6 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
   }
 
   @Override
-  public void request(long n) {
-  }
-
-  @Override
-  public void cancel() {
-    close();
-  }
-
-  @Override
   public void close() {
     try {
       synchronized (serialPort) {
@@ -128,7 +119,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
 
   private void logErrorAndComplete(Subscriber<?> s, @Nonnull Exception ex) {
     Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
-    cancel();
+    close();
     s.onComplete();
   }
 

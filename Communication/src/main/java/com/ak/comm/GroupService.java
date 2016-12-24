@@ -40,13 +40,8 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   }
 
   @Override
-  public void request(long n) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void cancel() {
+  public void close() {
     serialFlow.subscribe().dispose();
-    fileService.cancel();
+    fileService.close();
   }
 }

@@ -26,13 +26,9 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends E
     workingBuffer = ByteBuffer.allocate(responseConverter.variables().size() * Integer.BYTES);
   }
 
-  @Override
-  public final void request(long n) {
-  }
-
   @OverridingMethodsMustInvokeSuper
   @Override
-  public void cancel() {
+  public void close() {
     byteChannel.close();
   }
 
