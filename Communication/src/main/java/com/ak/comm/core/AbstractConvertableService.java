@@ -1,9 +1,11 @@
 package com.ak.comm.core;
 
 import java.nio.ByteBuffer;
+import java.nio.file.Path;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import com.ak.comm.converter.Converter;
@@ -24,6 +26,11 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends E
     this.bytesInterceptor = bytesInterceptor;
     this.responseConverter = responseConverter;
     workingBuffer = ByteBuffer.allocate(responseConverter.variables().size() * Integer.BYTES);
+  }
+
+  @Nullable
+  public Path getPath() {
+    return byteChannel.getPath();
   }
 
   @OverridingMethodsMustInvokeSuper

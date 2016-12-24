@@ -27,10 +27,19 @@ public final class AutoFileReadingServiceTest {
     service.subscribe(new SingleObserver<Path>() {
       @Override
       public void onSubscribe(Disposable d) {
+        if (bytes < 0) {
+          Assert.fail(fileToRead.toString());
+        }
       }
 
       @Override
       public void onSuccess(Path value) {
+        if (bytes > 0) {
+          Assert.assertTrue(value.toString().contains(AutoFileReadingService.class.getSimpleName()));
+        }
+        else {
+          Assert.assertNull(value);
+        }
         latch.countDown();
       }
 

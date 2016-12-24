@@ -23,6 +23,8 @@ public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV>
     extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements FileFilter, SingleSource<Path> {
   @Nonnull
   private volatile SingleObserver<? super Path> observer = EmptyComponent.INSTANCE;
+  @Nonnull
+  private volatile FileReadingService fileReadingService = new FileReadingService(Paths.get(""));
 
   public AutoFileReadingService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
                                 @Nonnull Converter<RESPONSE, EV> responseConverter) {
@@ -38,13 +40,13 @@ public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV>
   public boolean accept(@Nonnull File file) {
     if (file.isFile() && file.getName().toLowerCase().endsWith(".bin")) {
       close();
-      FileReadingService source = new FileReadingService(file.toPath());
-      Flowable.fromPublisher(source).subscribeOn(Schedulers.io()).
+      fileReadingService = new FileReadingService(file.toPath());
+      Flowable.fromPublisher(fileReadingService).subscribeOn(Schedulers.io()).
           flatMapIterable(buffer -> () -> process(buffer).iterator()).subscribe(new Subscriber<int[]>() {
         @Override
         public void onSubscribe(Subscription s) {
           s.request(Long.MAX_VALUE);
-          observer.onSubscribe(source);
+          observer.onSubscribe(fileReadingService);
         }
 
         @Override
@@ -58,13 +60,24 @@ public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV>
 
         @Override
         public void onComplete() {
-          observer.onSuccess(Paths.get(""));
+          close();
+          observer.onSuccess(getPath());
         }
       });
       return true;
     }
     else {
       return false;
+    }
+  }
+
+  @Override
+  public void close() {
+    try {
+      fileReadingService.close();
+    }
+    finally {
+      super.close();
     }
   }
 }

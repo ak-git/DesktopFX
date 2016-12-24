@@ -2,6 +2,7 @@ package com.ak.comm;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.nio.file.Path;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -14,11 +15,13 @@ import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
 import io.reactivex.Flowable;
+import io.reactivex.SingleObserver;
+import io.reactivex.disposables.Disposable;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
 public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractService
-    implements FileFilter, Publisher<int[]> {
+    implements FileFilter, Publisher<int[]>, SingleObserver<Path> {
   @Nonnull
   private final Flowable<int[]> serialFlow;
   @Nonnull
@@ -29,6 +32,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
                       @Nonnull Provider<Converter<RESPONSE, EV>> converterProvider) {
     serialFlow = Flowable.fromPublisher(new CycleSerialService<>(interceptorProvider.get(), converterProvider.get()));
     fileService = new AutoFileReadingService<>(interceptorProvider.get(), converterProvider.get());
+    fileService.subscribe(this);
   }
 
   @Override
@@ -45,5 +49,20 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   public void close() {
     serialFlow.subscribe().dispose();
     fileService.close();
+  }
+
+  @Override
+  public void onSubscribe(Disposable d) {
+
+  }
+
+  @Override
+  public void onSuccess(Path value) {
+
+  }
+
+  @Override
+  public void onError(Throwable e) {
+
   }
 }

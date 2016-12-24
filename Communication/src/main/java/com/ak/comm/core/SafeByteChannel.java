@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.ak.comm.util.LogUtils;
 import com.ak.logging.BinaryLogBuilder;
@@ -21,17 +22,24 @@ public final class SafeByteChannel implements WritableByteChannel {
   private final String namePrefix;
   @Nonnull
   private SeekableByteChannel channel = EMPTY_CHANNEL;
+  @Nullable
+  private Path path;
   private boolean initialized;
 
   public SafeByteChannel(@Nonnull String namePrefix) {
     this.namePrefix = namePrefix;
   }
 
+  @Nullable
+  Path getPath() {
+    return path;
+  }
+
   @Override
   public int write(@Nonnull ByteBuffer src) {
     if (!initialized) {
       try {
-        Path path = new BinaryLogBuilder(namePrefix).build().getPath();
+        path = new BinaryLogBuilder(namePrefix).build().getPath();
         channel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
       }
       catch (IOException ex) {
