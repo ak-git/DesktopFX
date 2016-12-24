@@ -2,24 +2,27 @@ package com.ak.comm.file;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import io.reactivex.Flowable;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.SingleObserver;
+import io.reactivex.SingleSource;
 import io.reactivex.internal.util.EmptyComponent;
 import io.reactivex.schedulers.Schedulers;
 import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
-    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements FileFilter {
+    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements FileFilter, SingleSource<Path> {
   @Nonnull
-  private volatile Disposable subscription = EmptyComponent.INSTANCE;
+  private volatile SingleObserver<? super Path> observer = EmptyComponent.INSTANCE;
 
   public AutoFileReadingService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
                                 @Nonnull Converter<RESPONSE, EV> responseConverter) {
@@ -27,26 +30,37 @@ public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV>
   }
 
   @Override
-  public void subscribe(@Nullable Subscriber<? super int[]> s) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void close() {
-    try {
-      subscription.dispose();
-    }
-    finally {
-      super.close();
-    }
+  public void subscribe(SingleObserver<? super Path> observer) {
+    this.observer = observer;
   }
 
   @Override
   public boolean accept(@Nonnull File file) {
     if (file.isFile() && file.getName().toLowerCase().endsWith(".bin")) {
       close();
-      subscription = Flowable.fromPublisher(new FileReadingService(file.toPath())).subscribeOn(Schedulers.io()).
-          flatMapIterable(buffer -> () -> process(buffer).iterator()).subscribe();
+      FileReadingService source = new FileReadingService(file.toPath());
+      Flowable.fromPublisher(source).subscribeOn(Schedulers.io()).
+          flatMapIterable(buffer -> () -> process(buffer).iterator()).subscribe(new Subscriber<int[]>() {
+        @Override
+        public void onSubscribe(Subscription s) {
+          s.request(Long.MAX_VALUE);
+          observer.onSubscribe(source);
+        }
+
+        @Override
+        public void onNext(int[] ints) {
+        }
+
+        @Override
+        public void onError(Throwable t) {
+          observer.onError(t);
+        }
+
+        @Override
+        public void onComplete() {
+          observer.onSuccess(Paths.get(""));
+        }
+      });
       return true;
     }
     else {

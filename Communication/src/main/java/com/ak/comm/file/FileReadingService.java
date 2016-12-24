@@ -14,15 +14,17 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.core.AbstractService;
+import io.reactivex.disposables.Disposable;
+import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
-public final class FileReadingService extends AbstractService<ByteBuffer> {
+public final class FileReadingService extends AbstractService implements Publisher<ByteBuffer>, Disposable {
   private static final int CAPACITY_4K = 1024 * 4;
   @Nonnull
   private final Path fileToRead;
-  private volatile boolean canceled;
+  private volatile boolean disposed;
 
   FileReadingService(@Nonnull Path fileToRead) {
     Objects.requireNonNull(fileToRead);
@@ -37,13 +39,13 @@ public final class FileReadingService extends AbstractService<ByteBuffer> {
       try (ReadableByteChannel readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
         Logger.getLogger(getClass().getName()).log(Level.INFO, String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
         ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
-        while (readableByteChannel.read(buffer) > 0 && !canceled) {
+        while (readableByteChannel.read(buffer) > 0 && !isDisposed()) {
           buffer.flip();
           logBytes(buffer);
           s.onNext(buffer);
           buffer.clear();
         }
-        if (!canceled) {
+        if (!isDisposed()) {
           s.onComplete();
         }
         Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
@@ -68,7 +70,17 @@ public final class FileReadingService extends AbstractService<ByteBuffer> {
   }
 
   @Override
+  public void dispose() {
+    disposed = true;
+  }
+
+  @Override
+  public boolean isDisposed() {
+    return disposed;
+  }
+
+  @Override
   public void close() {
-    canceled = true;
+    dispose();
   }
 }

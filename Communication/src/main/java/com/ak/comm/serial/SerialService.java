@@ -17,11 +17,12 @@ import com.ak.util.Strings;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
+import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
-final class SerialService extends AbstractService<ByteBuffer> implements WritableByteChannel {
+final class SerialService extends AbstractService implements WritableByteChannel, Publisher<ByteBuffer> {
   @Nonnull
   private final SerialPort serialPort;
   @Nonnegative

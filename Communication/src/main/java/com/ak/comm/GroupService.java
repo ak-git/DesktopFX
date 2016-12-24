@@ -14,9 +14,11 @@ import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
 import io.reactivex.Flowable;
+import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
-public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractService<int[]> implements FileFilter {
+public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractService
+    implements FileFilter, Publisher<int[]> {
   @Nonnull
   private final Flowable<int[]> serialFlow;
   @Nonnull

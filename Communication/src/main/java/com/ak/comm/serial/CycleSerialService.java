@@ -21,10 +21,11 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.UIConstants;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
+import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
 public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
-    extends AbstractConvertableService<RESPONSE, REQUEST, EV> {
+    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Publisher<int[]> {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   @Nonnull
   private volatile SerialService serialService;

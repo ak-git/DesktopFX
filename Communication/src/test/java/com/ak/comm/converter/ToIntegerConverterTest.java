@@ -10,6 +10,7 @@ import com.ak.comm.bytes.BufferFrame;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import tec.uom.se.AbstractUnit;
 
 public final class ToIntegerConverterTest {
   private static final int[] EMPTY = {};
@@ -36,6 +37,7 @@ public final class ToIntegerConverterTest {
   public <T extends Enum<T> & Variable<T>> void testApply(@Nonnull Class<T> evClass, @Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
     ToIntegerConverter<T> converter = new ToIntegerConverter<>(evClass);
     Assert.assertEquals(EnumSet.allOf(evClass), converter.variables());
+    EnumSet.allOf(evClass).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
     converter.apply(new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN)).
         forEach(ints -> Assert.assertEquals(ints, outputInts, Arrays.toString(ints)));
   }
