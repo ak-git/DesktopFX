@@ -16,8 +16,8 @@ public final class FileDataProvider {
   private FileDataProvider() {
   }
 
-  @DataProvider(name = "files")
-  public static Object[][] simple() throws IOException {
+  @DataProvider(name = "rampFiles")
+  public static Object[][] rampFiles() throws IOException {
     return new Object[][] {
         {createFile(-1), -1},
         {createFile(0), 0},
@@ -26,7 +26,7 @@ public final class FileDataProvider {
   }
 
   @DataProvider(name = "filesCanDelete")
-  public static Object[][] simple2() throws IOException {
+  public static Object[][] filesCanDelete() throws IOException {
     return new Object[][] {
         {createFile(-1), -1},
         {createFile(0), 0},

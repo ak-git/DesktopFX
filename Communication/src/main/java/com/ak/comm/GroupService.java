@@ -11,7 +11,6 @@ import javax.inject.Provider;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractService;
-import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
 import io.reactivex.Flowable;
@@ -24,20 +23,16 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     implements FileFilter, Publisher<int[]>, SingleObserver<Path> {
   @Nonnull
   private final Flowable<int[]> serialFlow;
-  @Nonnull
-  private final AutoFileReadingService<RESPONSE, REQUEST, EV> fileService;
 
   @Inject
   public GroupService(@Nonnull Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider,
                       @Nonnull Provider<Converter<RESPONSE, EV>> converterProvider) {
     serialFlow = Flowable.fromPublisher(new CycleSerialService<>(interceptorProvider.get(), converterProvider.get()));
-    fileService = new AutoFileReadingService<>(interceptorProvider.get(), converterProvider.get());
-    fileService.subscribe(this);
   }
 
   @Override
   public boolean accept(File file) {
-    return fileService.accept(file);
+    throw new UnsupportedOperationException(file.toString());
   }
 
   @Override
@@ -48,7 +43,6 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   @Override
   public void close() {
     serialFlow.subscribe().dispose();
-    fileService.close();
   }
 
   @Override

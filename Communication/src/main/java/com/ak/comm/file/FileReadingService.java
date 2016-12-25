@@ -13,26 +13,32 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
-import com.ak.comm.core.AbstractService;
+import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.Variable;
+import com.ak.comm.core.AbstractConvertableService;
+import com.ak.comm.interceptor.BytesInterceptor;
 import io.reactivex.disposables.Disposable;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
-public final class FileReadingService extends AbstractService implements Publisher<ByteBuffer>, Disposable {
+public final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
+    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Publisher<int[]>, Disposable {
   private static final int CAPACITY_4K = 1024 * 4;
   @Nonnull
   private final Path fileToRead;
   private volatile boolean disposed;
 
-  FileReadingService(@Nonnull Path fileToRead) {
+  FileReadingService(@Nonnull Path fileToRead, @Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
+                     @Nonnull Converter<RESPONSE, EV> responseConverter) {
+    super(bytesInterceptor, responseConverter);
     Objects.requireNonNull(fileToRead);
     this.fileToRead = fileToRead;
   }
 
   @Override
-  public void subscribe(@Nonnull Subscriber<? super ByteBuffer> s) {
+  public void subscribe(Subscriber<? super int[]> s) {
     if (Files.isRegularFile(fileToRead, LinkOption.NOFOLLOW_LINKS) && Files.exists(fileToRead, LinkOption.NOFOLLOW_LINKS) &&
         Files.isReadable(fileToRead)) {
       s.onSubscribe(this);
@@ -42,7 +48,7 @@ public final class FileReadingService extends AbstractService implements Publish
         while (readableByteChannel.read(buffer) > 0 && !isDisposed()) {
           buffer.flip();
           logBytes(buffer);
-          s.onNext(buffer);
+          process(buffer).forEach(s::onNext);
           buffer.clear();
         }
         if (!isDisposed()) {
@@ -81,6 +87,11 @@ public final class FileReadingService extends AbstractService implements Publish
 
   @Override
   public void close() {
-    dispose();
+    try {
+      dispose();
+    }
+    finally {
+      super.close();
+    }
   }
 }
