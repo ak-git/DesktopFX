@@ -16,7 +16,7 @@ import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_LEXEMES;
 
 public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST extends BufferFrame> implements BytesInterceptor<RESPONSE, REQUEST> {
-  private static final int IGNORE_LIMIT = 16;
+  protected static final int IGNORE_LIMIT = 16;
   private final Logger logger = Logger.getLogger(getClass().getName());
   @Nonnull
   private final ByteBuffer outBuffer;
@@ -27,9 +27,9 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST extends BufferF
   @Nullable
   private final REQUEST pingRequest;
 
-  public AbstractBytesInterceptor(@Nonnull BaudRate baudRate, @Nullable REQUEST pingRequest) {
+  public AbstractBytesInterceptor(@Nonnull BaudRate baudRate, @Nullable REQUEST pingRequest, int ignoreBufferLimit) {
     outBuffer = ByteBuffer.allocate(baudRate.get());
-    ignoreBuffer = ByteBuffer.allocate(IGNORE_LIMIT);
+    ignoreBuffer = ByteBuffer.allocate(ignoreBufferLimit);
     this.baudRate = baudRate;
     this.pingRequest = pingRequest;
   }
