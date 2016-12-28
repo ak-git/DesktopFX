@@ -34,7 +34,7 @@
     <!--<bean class="com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor" scope="prototype"/>-->
     <!--<bean class="com.ak.comm.converter.rsce.RsceConverter"/>-->
 
-    <bean class="com.ak.comm.GroupService" destroy-method="close"/>
+    <bean class="com.ak.comm.GroupService"/>
 
-    <bean class="com.ak.fx.desktop.ViewController"/>
+    <bean class="com.ak.fx.desktop.ViewController" destroy-method="close"/>
 </beans>

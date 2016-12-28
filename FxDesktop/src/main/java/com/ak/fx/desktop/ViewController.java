@@ -17,12 +17,14 @@ import javafx.scene.input.TransferMode;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
-public final class ViewController implements Initializable, Subscriber<int[]> {
+public final class ViewController implements Initializable, Subscriber<int[]>, AutoCloseable {
   @Nullable
   @FXML
   public MilliGrid root;
   @Nonnull
   private final GroupService<?, ?, ?> service;
+  @Nullable
+  private Subscription serialSubscription;
 
   @Inject
   public ViewController(@Nonnull GroupService<?, ?, ?> service) {
@@ -60,8 +62,9 @@ public final class ViewController implements Initializable, Subscriber<int[]> {
   }
 
   @Override
-  public void onSubscribe(Subscription s) {
-    s.request(Long.MAX_VALUE);
+  public void onSubscribe(Subscription serialSubscription) {
+    this.serialSubscription = serialSubscription;
+    serialSubscription.request(Long.MAX_VALUE);
   }
 
   @Override
@@ -70,11 +73,16 @@ public final class ViewController implements Initializable, Subscriber<int[]> {
 
   @Override
   public void onError(Throwable t) {
-
   }
 
   @Override
   public void onComplete() {
+  }
 
+  @Override
+  public void close() {
+    if (serialSubscription != null) {
+      serialSubscription.cancel();
+    }
   }
 }
