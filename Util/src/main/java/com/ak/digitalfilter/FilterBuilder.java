@@ -1,5 +1,6 @@
 package com.ak.digitalfilter;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.annotation.Nonnegative;
@@ -8,14 +9,14 @@ import javax.annotation.Nullable;
 
 import javafx.util.Builder;
 
-class FilterBuilder implements Builder<DigitalFilter> {
+public class FilterBuilder implements Builder<DigitalFilter> {
   @Nullable
   private DigitalFilter filter;
 
   private FilterBuilder() {
   }
 
-  static FilterBuilder of() {
+  public static FilterBuilder of() {
     return new FilterBuilder();
   }
 
@@ -43,7 +44,9 @@ class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new LinearInterpolationFilter(interpolateFactor));
   }
 
-  FilterBuilder fork(@Nonnull DigitalFilter first, @Nonnull DigitalFilter... next) {
+  public FilterBuilder fork(@Nonnull DigitalFilter first, @Nonnull DigitalFilter... next) {
+    Objects.requireNonNull(first);
+    Objects.requireNonNull(next);
     return chain(new ForkFilter(first, next));
   }
 
