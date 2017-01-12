@@ -1,6 +1,6 @@
 package com.ak.digitalfilter;
 
-interface IntsAcceptor {
+public interface IntsAcceptor {
   IntsAcceptor EMPTY_INTS_ACCEPTOR = empty();
 
   void accept(int... values);
