@@ -57,12 +57,15 @@ public class FIRFilterTest {
     return new Object[][] {{
         new int[] {1, 2, 4, 2, 2, 1},
         FilterBuilder.of().fork(
-            FilterBuilder.of().fir(1.0).build(),
+            FilterBuilder.of().fork(
+                FilterBuilder.of().fir(1.0).build(),
+                FilterBuilder.of().fir(1.0).build()
+            ).build(),
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
             FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(2).build()
         ).build(),
-        new int[][] {{0, 1, 1, 0}, {1, 2, 2, 1}, {2, 3, 3, 3}, {4, 0, 0, 3}, {2, -2, -2, 2}, {2, -1, -1, 1}},
+        new int[][] {{0, 0, 1, 1, 0}, {1, 1, 2, 2, 1}, {2, 2, 3, 3, 3}, {4, 4, 0, 0, 3}, {2, 2, -2, -2, 2}, {2, 2, -1, -1, 1}},
         1.0, 1.0
     }, {
         new int[] {1, 2, 4, 2, 2, 1},
@@ -129,17 +132,22 @@ public class FIRFilterTest {
         String.format("NoDelayFilter (compensate %.1f delay) - LinearInterpolationFilter (f \u00b7 %.1f; delay %.1f)", 3.0, 7.0, 3.0)
     }, {
         FilterBuilder.of().fork(
-            FilterBuilder.of().fir(1.0).build(),
+            FilterBuilder.of().fork(
+                FilterBuilder.of().fir(1.0).build(),
+                FilterBuilder.of().fir(1.0).build()
+            ).build(),
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
             FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(4).build()
         ).buildNoDelay(),
         String.format(
-            "NoDelayFilter (compensate %.1f delay) - FIRFilter (delay %.1f) - DelayFilter (delay %.1f)%n" +
-                "                                       FIRFilter (delay %.1f) - DelayFilter (delay %.1f)%n" +
-                "                                       CombFilter (delay %.1f) - DelayFilter (delay %.1f)%n" +
+            "NoDelayFilter (compensate %.1f delay) - DelayFilter (delay %.1f) - FIRFilter (delay %.1f)%n" +
+                "                                                                 FIRFilter (delay %.1f)%n" +
+                "                                       DelayFilter (delay %.1f) - FIRFilter (delay %.1f)%n" +
+                "                                       DelayFilter (delay %.1f) - CombFilter (delay %.1f)%n" +
                 "                                       RRS4 (delay %.1f)",
-            2.0, 0.0, 2.0,
+            2.0, 2.0, 0.0,
+            0.0,
             1.0, 1.0,
             1.0, 1.0,
             2.0
@@ -212,6 +220,11 @@ public class FIRFilterTest {
     FilterBuilder.of().fork(FilterBuilder.of().fir(3.0).build(), filter2).build();
     filter2.accept(1);
     filter2.accept(2);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInvalidFork() {
+    FilterBuilder.of().fork(FilterBuilder.of().fir(1.0).build()).build();
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

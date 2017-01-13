@@ -19,30 +19,32 @@ import static com.ak.util.Strings.NEW_LINE;
 final class ForkFilter extends AbstractDigitalFilter {
   private final List<DigitalFilter> filters = new LinkedList<>();
 
-  ForkFilter(@Nonnull DigitalFilter first, @Nonnull DigitalFilter... next) {
-    Objects.requireNonNull(next);
-    filters.add(first);
-    filters.addAll(Arrays.asList(next));
+  ForkFilter(@Nonnull DigitalFilter... filters) {
+    Objects.requireNonNull(filters);
+    if (filters.length < 2) {
+      throw new IllegalArgumentException(Arrays.deepToString(filters));
+    }
+    this.filters.addAll(Arrays.asList(filters));
 
     double maxDelay = getDelay();
-    ListIterator<DigitalFilter> listIterator = filters.listIterator();
+    ListIterator<DigitalFilter> listIterator = this.filters.listIterator();
     while (listIterator.hasNext()) {
       DigitalFilter filter = listIterator.next();
       int delay = (int) Math.round(maxDelay - filter.getDelay());
       if (delay != 0) {
-        listIterator.set(new ChainFilter(filter, new DelayFilter(delay)));
+        listIterator.set(new ChainFilter(new DelayFilter(delay), filter));
       }
     }
 
     IntBuffer buffer = IntBuffer.allocate(size());
     AtomicInteger sync = new AtomicInteger();
-    for (int i = 0; i < filters.size(); i++) {
-      DigitalFilter filter = filters.get(i);
+    for (int i = 0; i < this.filters.size(); i++) {
+      DigitalFilter filter = this.filters.get(i);
       int finalI = i;
       filter.forEach(values -> {
         if (sync.compareAndSet(finalI, finalI + 1)) {
           buffer.put(values);
-          if (finalI == filters.size() - 1) {
+          if (finalI == this.filters.size() - 1) {
             buffer.flip();
             publish(buffer.array());
             buffer.clear();
