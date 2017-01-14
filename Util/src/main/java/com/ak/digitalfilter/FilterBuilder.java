@@ -16,15 +16,23 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   private FilterBuilder() {
   }
 
-  public static FilterBuilder of() {
-    return new FilterBuilder();
-  }
-
   public static FilterBuilder parallel(@Nonnull DigitalFilter... filters) {
     Objects.requireNonNull(filters);
     FilterBuilder filterBuilder = new FilterBuilder();
-    filterBuilder.filter = new ForkFilter(filters, true);
+    if (filters.length == 0) {
+      throw new IllegalArgumentException();
+    }
+    else if (filters.length == 1) {
+      filterBuilder.filter = filters[0];
+    }
+    else {
+      filterBuilder.filter = new ForkFilter(filters, true);
+    }
     return filterBuilder;
+  }
+
+  public static FilterBuilder of() {
+    return new FilterBuilder();
   }
 
   FilterBuilder fir(double... koeff) {

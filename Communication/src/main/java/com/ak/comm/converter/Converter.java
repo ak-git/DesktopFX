@@ -14,15 +14,10 @@ public interface Converter<RESPONSE, EV extends Enum<EV> & Variable> extends Fun
   List<EV> variables();
 
   default DigitalFilter filter() {
-    if (variables().size() > 1) {
-      DigitalFilter[] filters = new DigitalFilter[variables().size()];
-      for (int i = 0; i < filters.length; i++) {
-        filters[i] = FilterBuilder.of().build();
-      }
-      return FilterBuilder.parallel(filters).build();
+    DigitalFilter[] filters = new DigitalFilter[variables().size()];
+    for (int i = 0; i < filters.length; i++) {
+      filters[i] = FilterBuilder.of().build();
     }
-    else {
-      return FilterBuilder.of().build();
-    }
+    return FilterBuilder.parallel(filters).build();
   }
 }

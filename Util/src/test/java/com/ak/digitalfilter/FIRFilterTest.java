@@ -14,6 +14,8 @@ import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 
 public class FIRFilterTest {
+  private static final DigitalFilter[] EMPTY_FILTERS = {};
+
   @DataProvider(name = "simple")
   public Object[][] simple() {
     return new Object[][] {{
@@ -229,6 +231,11 @@ public class FIRFilterTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidParallel() {
+    FilterBuilder.parallel(EMPTY_FILTERS).build();
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInvalidParallel2() {
     DigitalFilter filter = FilterBuilder.parallel(
         FilterBuilder.of().fir(1.0).build(),
         FilterBuilder.of().fir(1.0).build()).build();
