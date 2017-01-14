@@ -1,5 +1,6 @@
 package com.ak.digitalfilter;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.annotation.Nonnegative;
@@ -19,7 +20,8 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return new FilterBuilder();
   }
 
-  static FilterBuilder parallel(@Nonnull DigitalFilter... filters) {
+  public static FilterBuilder parallel(@Nonnull DigitalFilter... filters) {
+    Objects.requireNonNull(filters);
     FilterBuilder filterBuilder = new FilterBuilder();
     filterBuilder.filter = new ForkFilter(filters, true);
     return filterBuilder;
@@ -50,6 +52,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   FilterBuilder fork(@Nonnull DigitalFilter... filters) {
+    Objects.requireNonNull(filters);
     return chain(new ForkFilter(filters, false));
   }
 

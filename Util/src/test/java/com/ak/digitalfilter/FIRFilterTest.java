@@ -55,8 +55,8 @@ public class FIRFilterTest {
   @DataProvider(name = "delay")
   public Object[][] delay() {
     return new Object[][] {{
-        new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
-        FilterBuilder.of().fork(
+        new int[][] {{1, 1, 1, 1}, {2, 2, 2, 2}, {4, 4, 4, 4}, {2, 2, 2, 2}, {2, 2, 2, 2}, {1, 1, 1, 1}},
+        FilterBuilder.parallel(
             FilterBuilder.of().fork(
                 FilterBuilder.of().fir(1.0).build(),
                 FilterBuilder.of().fir(1.0).build()

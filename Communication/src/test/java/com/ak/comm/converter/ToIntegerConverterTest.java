@@ -17,15 +17,11 @@ public final class ToIntegerConverterTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
-        {NoVariables.class, new byte[] {1, 2, 3}, EMPTY},
         {SingleVariable.class, new byte[] {1, 2, 3, 4, 5, 6},
             new int[] {2 + (3 << 8) + (4 << 16) + (5 << 24)}},
         {TwoVariables.class, new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9},
             new int[] {2 + (3 << 8) + (4 << 16) + (5 << 24), 6 + (7 << 8) + (8 << 16) + (9 << 24)}},
     };
-  }
-
-  private enum NoVariables implements Variable<NoVariables> {
   }
 
   private enum SingleVariable implements Variable<SingleVariable> {
