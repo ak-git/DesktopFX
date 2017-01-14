@@ -19,6 +19,12 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return new FilterBuilder();
   }
 
+  static FilterBuilder parallel(@Nonnull DigitalFilter... filters) {
+    FilterBuilder filterBuilder = new FilterBuilder();
+    filterBuilder.filter = new ForkFilter(filters, true);
+    return filterBuilder;
+  }
+
   FilterBuilder fir(double... koeff) {
     return chain(new FIRFilter(koeff));
   }
@@ -44,7 +50,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   FilterBuilder fork(@Nonnull DigitalFilter... filters) {
-    return chain(new ForkFilter(filters));
+    return chain(new ForkFilter(filters, false));
   }
 
   DigitalFilter buildNoDelay() {
