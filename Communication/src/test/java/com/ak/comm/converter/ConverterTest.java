@@ -12,10 +12,10 @@ import org.testng.annotations.Test;
 import static java.util.logging.Level.WARNING;
 
 public final class ConverterTest {
-  private enum NoVariables implements Variable<NoVariables> {
+  private enum NoVariables implements Variable {
   }
 
-  private enum ThreeVariables implements Variable<ThreeVariables> {
+  private enum ThreeVariables implements Variable {
     TV1, TV2, TV3
   }
 

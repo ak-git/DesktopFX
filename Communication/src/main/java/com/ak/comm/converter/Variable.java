@@ -4,7 +4,7 @@ import javax.measure.Unit;
 
 import tec.uom.se.AbstractUnit;
 
-public interface Variable<E extends Enum<E> & Variable<E>> {
+public interface Variable {
   default Unit<?> getUnit() {
     return AbstractUnit.ONE;
   }

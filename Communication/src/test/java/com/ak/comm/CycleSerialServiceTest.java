@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 import static com.ak.util.UIConstants.UI_DELAY;
 
 public final class CycleSerialServiceTest {
-  private enum SingleVariable implements Variable<SingleVariable> {
+  private enum SingleVariable implements Variable {
     SINGLE_VARIABLE
   }
 
