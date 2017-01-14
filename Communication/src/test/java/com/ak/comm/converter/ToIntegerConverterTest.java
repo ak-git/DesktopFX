@@ -24,12 +24,12 @@ public final class ToIntegerConverterTest {
     };
   }
 
-  private enum SingleVariable implements Variable {
+  private enum SingleVariable implements Variable<SingleVariable> {
     S
   }
 
   @Test(dataProvider = "variables")
-  public <T extends Enum<T> & Variable> void testApply(@Nonnull Class<T> evClass, @Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
+  public <T extends Enum<T> & Variable<T>> void testApply(@Nonnull Class<T> evClass, @Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
     ToIntegerConverter<T> converter = new ToIntegerConverter<>(evClass);
     Assert.assertEquals(EnumSet.allOf(evClass), converter.variables());
     converter.apply(new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN)).

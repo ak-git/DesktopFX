@@ -66,9 +66,9 @@ public class FIRFilterTest {
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
             FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(2).build()
-        ).build(),
-        new int[][] {{0, 0, 1, 1, 0}, {1, 1, 2, 2, 1}, {2, 2, 3, 3, 3}, {4, 4, 0, 0, 3}, {2, 2, -2, -2, 2}, {2, 2, -1, -1, 1}},
-        1.0, 1.0
+        ),
+        new int[][] {{1, 1, 2, 2, 1}, {2, 2, 3, 3, 3}, {4, 4, 0, 0, 3}, {2, 2, -2, -2, 2}, {2, 2, -1, -1, 1}},
+        0.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
         FilterBuilder.of().fork(
@@ -231,14 +231,14 @@ public class FIRFilterTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidParallel() {
-    FilterBuilder.parallel(EMPTY_FILTERS).build();
+    FilterBuilder.parallel(EMPTY_FILTERS);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidParallel2() {
     DigitalFilter filter = FilterBuilder.parallel(
         FilterBuilder.of().fir(1.0).build(),
-        FilterBuilder.of().fir(1.0).build()).build();
+        FilterBuilder.of().fir(1.0).build());
     filter.accept(1);
   }
 

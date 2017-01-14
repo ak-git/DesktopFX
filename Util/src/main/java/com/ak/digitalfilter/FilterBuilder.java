@@ -16,7 +16,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   private FilterBuilder() {
   }
 
-  public static FilterBuilder parallel(@Nonnull DigitalFilter... filters) {
+  public static DigitalFilter parallel(@Nonnull DigitalFilter... filters) {
     Objects.requireNonNull(filters);
     FilterBuilder filterBuilder = new FilterBuilder();
     if (filters.length == 0) {
@@ -28,7 +28,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     else {
       filterBuilder.filter = new ForkFilter(filters, true);
     }
-    return filterBuilder;
+    return filterBuilder.buildNoDelay();
   }
 
   public static FilterBuilder of() {

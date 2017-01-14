@@ -12,12 +12,8 @@ import org.testng.annotations.Test;
 import static java.util.logging.Level.WARNING;
 
 public final class ConverterTest {
-  private enum SingleVariable implements Variable {
+  private enum SingleVariable implements Variable<SingleVariable> {
     SINGLE_VARIABLE
-  }
-
-  private enum ThreeVariables implements Variable {
-    TV1, TV2, TV3
   }
 
   private static final Converter<Integer, SingleVariable> INVALID_CONVERTER =
@@ -50,17 +46,5 @@ public final class ConverterTest {
     LogUtils.substituteLogLevel(LOGGER_VALID, WARNING,
         () -> Assert.assertEquals(VALID_CONVERTER_0.apply(1).count(), 0),
         logRecord -> Assert.fail(logRecord.getMessage()));
-  }
-
-  @Test
-  public void testFilter() {
-    Assert.assertEquals(VALID_CONVERTER_0.filter().size(), 1);
-    Converter<Integer, ThreeVariables> converter = new AbstractConverter<Integer, ThreeVariables>(ThreeVariables.class) {
-      @Override
-      protected Stream<int[]> innerApply(@Nonnull Integer integer) {
-        return Stream.of(new int[] {integer, integer * 2, integer * 3});
-      }
-    };
-    Assert.assertEquals(converter.filter().size(), converter.variables().size());
   }
 }

@@ -17,7 +17,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public final class AutoFileReadingServiceTest {
-  private enum TestVariables implements Variable {
+  private enum TestVariables implements Variable<TestVariables> {
     INT_VARIABLE
   }
 
