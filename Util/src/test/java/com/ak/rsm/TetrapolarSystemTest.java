@@ -71,19 +71,19 @@ public class TetrapolarSystemTest {
     new TetrapolarSystem(2.0, 1.0, METRE);
   }
 
-  @DataProvider(name = "R(Ohm)-L(mm)")
+  @DataProvider(name = "x[R(Ohm)]-y[L(mm)]")
   public static Object[][] rL() throws IOException {
-    Supplier<DoubleStream> xVar = () -> doubleRange(1000.0);
-    Assert.assertNull(xVar.get().mapToObj(value -> String.format("%.0f", value)).collect(
+    Supplier<DoubleStream> xVarR = () -> doubleRange(100.0);
+    Assert.assertNull(xVarR.get().mapToObj(value -> String.format("%.0f", value)).collect(
         new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL)));
 
-    Supplier<DoubleStream> yVar = () -> doubleRange(100.0);
-    Assert.assertNull(yVar.get().mapToObj(value -> String.format("%.0f", value)).collect(
+    Supplier<DoubleStream> yVarL = () -> doubleRange(120.0);
+    Assert.assertNull(yVarL.get().mapToObj(value -> String.format("%.0f", value)).collect(
         new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
-    return new Object[][] {{xVar, yVar}};
+    return new Object[][] {{xVarR, yVarL}};
   }
 
-  @Test(dataProvider = "R(Ohm)-L(mm)", enabled = false)
+  @Test(dataProvider = "x[R(Ohm)]-y[L(mm)]", enabled = false)
   public static void testApparent(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     DoubleStream.of(1.0 / 3.0, 0.5).forEachOrdered(sToL -> {
       try {

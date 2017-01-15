@@ -21,8 +21,8 @@ public class DerivativeRbyHNormalizedTest {
   }
 
   @Test(dataProvider = "layer-model")
-  public static void testOneLayer(double k12, double sToL, double hToL, double rByRho2N) {
-    Assert.assertEquals(new DerivativeRbyHNormalized(k12, sToL).value(hToL), rByRho2N, 0.001);
+  public static void testOneLayer(double k12, double sToL, double hToL, double rByHN) {
+    Assert.assertEquals(new DerivativeRbyHNormalized(k12, sToL).value(hToL), rByHN, 0.001);
   }
 
   @Test(expectedExceptions = CloneNotSupportedException.class)
