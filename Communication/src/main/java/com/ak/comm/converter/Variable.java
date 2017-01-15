@@ -6,7 +6,7 @@ import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import tec.uom.se.AbstractUnit;
 
-public interface Variable<E extends Enum<E> & Variable<E>> {
+public interface Variable {
   default Unit<?> getUnit() {
     return AbstractUnit.ONE;
   }

@@ -16,7 +16,7 @@ import io.reactivex.internal.util.EmptyComponent;
 import io.reactivex.schedulers.Schedulers;
 import org.reactivestreams.Subscriber;
 
-public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
+public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable>
     extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements FileFilter {
   @Nonnull
   private volatile Disposable subscription = EmptyComponent.INSTANCE;

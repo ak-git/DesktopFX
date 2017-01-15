@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import static java.util.logging.Level.WARNING;
 
 public final class ConverterTest {
-  private enum SingleVariable implements Variable<SingleVariable> {
+  private enum SingleVariable implements Variable {
     SINGLE_VARIABLE
   }
 
