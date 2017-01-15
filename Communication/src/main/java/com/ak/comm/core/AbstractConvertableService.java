@@ -12,7 +12,7 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.interceptor.BytesInterceptor;
 
-public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable> extends AbstractService<int[]> {
+public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable> extends AbstractService {
   @Nonnull
   private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
   @Nonnull

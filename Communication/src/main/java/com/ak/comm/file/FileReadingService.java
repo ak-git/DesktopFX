@@ -23,7 +23,7 @@ import org.reactivestreams.Subscriber;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
-public final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
+public final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable>
     extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Publisher<int[]>, Disposable {
   private static final int CAPACITY_4K = 1024 * 4;
   @Nonnull
