@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
-public interface Converter<RESPONSE, EV extends Enum<EV> & Variable<EV>> extends Function<RESPONSE, Stream<int[]>> {
+public interface Converter<RESPONSE, EV extends Enum<EV> & Variable> extends Function<RESPONSE, Stream<int[]>> {
   @Nonnull
   List<EV> variables();
 }

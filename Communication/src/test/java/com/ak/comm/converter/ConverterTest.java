@@ -12,11 +12,12 @@ import org.testng.annotations.Test;
 import static java.util.logging.Level.WARNING;
 
 public final class ConverterTest {
-  private enum NoVariables implements Variable<NoVariables> {
+  private enum SingleVariable implements Variable {
+    SINGLE_VARIABLE
   }
 
-  private static final Converter<Integer, NoVariables> INVALID_CONVERTER =
-      new AbstractConverter<Integer, NoVariables>(NoVariables.class) {
+  private static final Converter<Integer, SingleVariable> INVALID_CONVERTER =
+      new AbstractConverter<Integer, SingleVariable>(SingleVariable.class) {
         @Override
         protected Stream<int[]> innerApply(@Nonnull Integer integer) {
           return Stream.of(new int[] {integer});
@@ -24,14 +25,14 @@ public final class ConverterTest {
       };
   private static final Logger LOGGER_INVALID = Logger.getLogger(INVALID_CONVERTER.getClass().getName());
 
-  private static final Converter<Integer, NoVariables> VALID_CONVERTER =
-      new AbstractConverter<Integer, NoVariables>(NoVariables.class) {
+  private static final Converter<Integer, SingleVariable> VALID_CONVERTER_0 =
+      new AbstractConverter<Integer, SingleVariable>(SingleVariable.class) {
         @Override
         protected Stream<int[]> innerApply(@Nonnull Integer integer) {
           return Stream.empty();
         }
       };
-  private static final Logger LOGGER_VALID = Logger.getLogger(VALID_CONVERTER.getClass().getName());
+  private static final Logger LOGGER_VALID = Logger.getLogger(VALID_CONVERTER_0.getClass().getName());
 
   @Test
   public void testInvalidApply() {
@@ -43,7 +44,7 @@ public final class ConverterTest {
   @Test
   public void testValidApply() {
     LogUtils.substituteLogLevel(LOGGER_VALID, WARNING,
-        () -> Assert.assertEquals(VALID_CONVERTER.apply(1).count(), 0),
+        () -> Assert.assertEquals(VALID_CONVERTER_0.apply(1).count(), 0),
         logRecord -> Assert.fail(logRecord.getMessage()));
   }
 }

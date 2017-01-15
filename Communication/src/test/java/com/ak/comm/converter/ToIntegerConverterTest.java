@@ -18,7 +18,6 @@ public final class ToIntegerConverterTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
-        {NoVariables.class, new byte[] {1, 2, 3}, EMPTY},
         {SingleVariable.class, new byte[] {1, 2, 3, 4, 5, 6},
             new int[] {2 + (3 << 8) + (4 << 16) + (5 << 24)}},
         {TwoVariables.class, new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9},
@@ -26,15 +25,12 @@ public final class ToIntegerConverterTest {
     };
   }
 
-  private enum NoVariables implements Variable<NoVariables> {
-  }
-
-  private enum SingleVariable implements Variable<SingleVariable> {
+  private enum SingleVariable implements Variable {
     S
   }
 
   @Test(dataProvider = "variables")
-  public <T extends Enum<T> & Variable<T>> void testApply(@Nonnull Class<T> evClass, @Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
+  public <T extends Enum<T> & Variable> void testApply(@Nonnull Class<T> evClass, @Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
     ToIntegerConverter<T> converter = new ToIntegerConverter<>(evClass);
     Assert.assertEquals(EnumSet.allOf(evClass), converter.variables());
     EnumSet.allOf(evClass).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));

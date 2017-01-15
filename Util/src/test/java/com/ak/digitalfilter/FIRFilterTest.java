@@ -14,30 +14,32 @@ import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 
 public class FIRFilterTest {
+  private static final DigitalFilter[] EMPTY_FILTERS = {};
+
   @DataProvider(name = "simple")
   public Object[][] simple() {
     return new Object[][] {{
-        new int[] {1, 2, 4, 8, 5, 2, 1},
+        new int[][] {{1}, {2}, {4}, {8}, {5}, {2}, {1}},
         FilterBuilder.of().build(),
         new int[][] {{1}, {2}, {4}, {8}, {5}, {2}, {1}},
         0.0, 1.0
     }, {
-        new int[] {1, 2, 4, 8, 5, 2, 1},
+        new int[][] {{1}, {2}, {4}, {8}, {5}, {2}, {1}},
         FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
         new int[][] {{1}, {2}, {4 - 1}, {8 - 2}, {5 - 4}, {2 - 8}, {1 - 5}},
         1.0, 1.0
     }, {
-        new int[] {1, 2, 4, 8, 5, 2, 1},
+        new int[][] {{1}, {2}, {4}, {8}, {5}, {2}, {1}},
         FilterBuilder.of().fir(1.0, 2.0).build(),
         new int[][] {{2}, {5}, {10}, {20}, {18}, {9}, {4}},
         0.5, 1.0
     }, {
-        new int[] {1, 2, 4},
+        new int[][] {{1}, {2}, {4}},
         FilterBuilder.of().fir(-1.0, 0.0, 1.0).fir(1.0, 2.0).fir(2.0).fir(3.0).build(),
         new int[][] {{12}, {30}, {16 * 3}},
         1.5, 1.0
     }, {
-        new int[] {1, 10, 100},
+        new int[][] {{1}, {10}, {100}},
         FilterBuilder.of().fork(
             FilterBuilder.of().fir(2.0).build(),
             FilterBuilder.of().fir(3.0).build(),
@@ -45,7 +47,7 @@ public class FIRFilterTest {
         new int[][] {{2, 3, 4}, {20, 30, 40}, {200, 300, 400}},
         0.0, 1.0
     }, {
-        new int[] {1, 2, 4},
+        new int[][] {{1}, {2}, {4}},
         FilterBuilder.of().fork(FilterBuilder.of().fir(1.0, 2.0).build(), FilterBuilder.of().fir(3.0).build()).build(),
         new int[][] {{2, 0}, {5, 3}, {10, 6}},
         1.0, 1.0
@@ -55,17 +57,20 @@ public class FIRFilterTest {
   @DataProvider(name = "delay")
   public Object[][] delay() {
     return new Object[][] {{
-        new int[] {1, 2, 4, 2, 2, 1},
-        FilterBuilder.of().fork(
-            FilterBuilder.of().fir(1.0).build(),
+        new int[][] {{1, 1, 1, 1}, {2, 2, 2, 2}, {4, 4, 4, 4}, {2, 2, 2, 2}, {2, 2, 2, 2}, {1, 1, 1, 1}},
+        FilterBuilder.parallel(
+            FilterBuilder.of().fork(
+                FilterBuilder.of().fir(1.0).build(),
+                FilterBuilder.of().fir(1.0).build()
+            ).build(),
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
             FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(2).build()
-        ).build(),
-        new int[][] {{0, 1, 1, 0}, {1, 2, 2, 1}, {2, 3, 3, 3}, {4, 0, 0, 3}, {2, -2, -2, 2}, {2, -1, -1, 1}},
-        1.0, 1.0
+        ),
+        new int[][] {{1, 1, 2, 2, 1}, {2, 2, 3, 3, 3}, {4, 4, 0, 0, 3}, {2, 2, -2, -2, 2}, {2, 2, -1, -1, 1}},
+        0.0, 1.0
     }, {
-        new int[] {1, 2, 4, 2, 2, 1},
+        new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
         FilterBuilder.of().fork(
             FilterBuilder.of().fir(1.0).build(),
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
@@ -74,42 +79,42 @@ public class FIRFilterTest {
         new int[][] {{1, 2, 2}, {2, 3, 3}, {4, 0, 0}, {2, -2, -2}, {2, -1, -1}},
         0.0, 1.0
     }, {
-        new int[] {1, 2, 4, 2, 2, 1},
+        new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
         FilterBuilder.of().comb(1).build(),
         new int[][] {{1}, {1}, {2}, {-2}, {0}, {-1}},
         0.5, 1.0
     }, {
-        new int[] {-1, 1, MAX_VALUE, 1, MAX_VALUE},
+        new int[][] {{-1}, {1}, {MAX_VALUE}, {1}, {MAX_VALUE}},
         FilterBuilder.of().integrate().build(),
         new int[][] {{-1}, {0}, {MAX_VALUE}, {MIN_VALUE}, {-1}},
         0.0, 1.0
     }, {
-        new int[] {1, 2, 4, 2, 2, 1},
+        new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
         FilterBuilder.of().rrs(2).build(),
         new int[][] {{0}, {1}, {3}, {3}, {2}, {1}},
         1.0, 1.0
     }, {
-        new int[] {10, 10, 10, 10, 10, 10},
+        new int[][] {{10}, {10}, {10}, {10}, {10}, {10}},
         FilterBuilder.of().decimate(3).build(),
         new int[][] {{10}, {10}},
         -1.0 / 3.0, 1.0 / 3.0
     }, {
-        new int[] {10, 10, 10, 10, 10, 10},
+        new int[][] {{10}, {10}, {10}, {10}, {10}, {10}},
         FilterBuilder.of().decimate(3).buildNoDelay(),
         new int[][] {{10}, {10}},
         0.0, 1.0 / 3.0
     }, {
-        new int[] {1, 4, 7},
+        new int[][] {{1}, {4}, {7}},
         FilterBuilder.of().interpolate(3).build(),
         new int[][] {{0}, {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}},
         1.0, 3.0
     }, {
-        new int[] {1, 4, 7},
+        new int[][] {{1}, {4}, {7}},
         FilterBuilder.of().interpolate(3).buildNoDelay(),
         new int[][] {{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}},
         0.0, 3.0
     }, {
-        new int[] {1, 4, 7},
+        new int[][] {{1}, {4}, {7}},
         FilterBuilder.of().decimate(3).interpolate(3).buildNoDelay(),
         new int[][] {{1}, {2}, {4}},
         0.0, 1.0
@@ -129,17 +134,22 @@ public class FIRFilterTest {
         String.format("NoDelayFilter (compensate %.1f delay) - LinearInterpolationFilter (f \u00b7 %.1f; delay %.1f)", 3.0, 7.0, 3.0)
     }, {
         FilterBuilder.of().fork(
-            FilterBuilder.of().fir(1.0).build(),
+            FilterBuilder.of().fork(
+                FilterBuilder.of().fir(1.0).build(),
+                FilterBuilder.of().fir(1.0).build()
+            ).build(),
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
             FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(4).build()
         ).buildNoDelay(),
         String.format(
-            "NoDelayFilter (compensate %.1f delay) - FIRFilter (delay %.1f) - DelayFilter (delay %.1f)%n" +
-                "                                       FIRFilter (delay %.1f) - DelayFilter (delay %.1f)%n" +
-                "                                       CombFilter (delay %.1f) - DelayFilter (delay %.1f)%n" +
+            "NoDelayFilter (compensate %.1f delay) - DelayFilter (delay %.1f) - FIRFilter (delay %.1f)%n" +
+                "                                                                 FIRFilter (delay %.1f)%n" +
+                "                                       DelayFilter (delay %.1f) - FIRFilter (delay %.1f)%n" +
+                "                                       DelayFilter (delay %.1f) - CombFilter (delay %.1f)%n" +
                 "                                       RRS4 (delay %.1f)",
-            2.0, 0.0, 2.0,
+            2.0, 2.0, 0.0,
+            0.0,
             1.0, 1.0,
             1.0, 1.0,
             2.0
@@ -148,13 +158,13 @@ public class FIRFilterTest {
   }
 
   @Test(dataProvider = "simple")
-  public void testWithLostZeroFilter(int[] input, DigitalFilter filter, int[][] result, double delay, double frequencyFactor) {
+  public void testWithLostZeroFilter(int[][] input, DigitalFilter filter, int[][] result, double delay, double frequencyFactor) {
     filter.accept(0);
     testFilter(input, filter, result, delay, frequencyFactor);
   }
 
   @Test(dataProvider = "delay")
-  public void testFilter(int[] input, DigitalFilter filter, int[][] result, double delay, double frequencyFactor) {
+  public void testFilter(int[][] input, DigitalFilter filter, int[][] result, double delay, double frequencyFactor) {
     AtomicInteger filteredCounter = new AtomicInteger();
     filter.forEach(new IntsAcceptor() {
       int i;
@@ -168,7 +178,7 @@ public class FIRFilterTest {
         i++;
       }
     });
-    for (int anInput : input) {
+    for (int[] anInput : input) {
       filter.accept(anInput);
     }
 
@@ -212,6 +222,24 @@ public class FIRFilterTest {
     FilterBuilder.of().fork(FilterBuilder.of().fir(3.0).build(), filter2).build();
     filter2.accept(1);
     filter2.accept(2);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInvalidFork() {
+    FilterBuilder.of().fork(FilterBuilder.of().fir(1.0).build()).build();
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInvalidParallel() {
+    FilterBuilder.parallel(EMPTY_FILTERS);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInvalidParallel2() {
+    DigitalFilter filter = FilterBuilder.parallel(
+        FilterBuilder.of().fir(1.0).build(),
+        FilterBuilder.of().fir(1.0).build());
+    filter.accept(1);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
