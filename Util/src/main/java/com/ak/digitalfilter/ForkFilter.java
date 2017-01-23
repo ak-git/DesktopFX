@@ -81,7 +81,7 @@ final class ForkFilter extends AbstractDigitalFilter {
         }
       }
       else {
-        throw new IllegalArgumentException(String.format("%s - %s", toString(), Arrays.toString(in)));
+        illegalArgumentException(in);
       }
     }
     else {

@@ -71,7 +71,7 @@ public class TetrapolarSystemTest {
     new TetrapolarSystem(2.0, 1.0, METRE);
   }
 
-  @DataProvider(name = "x[R(Ohm)]-y[L(mm)]")
+  @DataProvider(name = "x = R(Ohm), y = L(mm)")
   public static Object[][] rL() throws IOException {
     Supplier<DoubleStream> xVarR = () -> doubleRange(100.0);
     Assert.assertNull(xVarR.get().mapToObj(value -> String.format("%.0f", value)).collect(
@@ -83,7 +83,7 @@ public class TetrapolarSystemTest {
     return new Object[][] {{xVarR, yVarL}};
   }
 
-  @Test(dataProvider = "x[R(Ohm)]-y[L(mm)]", enabled = false)
+  @Test(dataProvider = "x = R(Ohm), y = L(mm)", enabled = false)
   public static void testApparent(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
     DoubleStream.of(1.0 / 3.0, 0.5).forEachOrdered(sToL -> {
       try {

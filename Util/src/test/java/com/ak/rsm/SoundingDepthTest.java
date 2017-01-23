@@ -277,6 +277,35 @@ public class SoundingDepthTest {
         collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
+  @DataProvider(name = "x = h / L, y = L")
+  public static Object[][] hL() throws IOException {
+    Supplier<DoubleStream> xVarHL = () -> doubleRange(0, 0.01);
+    Assert.assertNull(xVarHL.get().mapToObj(value -> String.format("%.2f", value)).collect(
+        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL)));
+
+    Supplier<DoubleStream> yVarL = () -> doubleRange(20.0, 20.02);
+    Assert.assertNull(yVarL.get().mapToObj(value -> String.format("%.2f", value)).collect(
+        new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
+    return new Object[][] {{xVarHL, yVarL}};
+  }
+
+  @Test(dataProvider = "x = h / L, y = L", enabled = false)
+  public static void testDerivativeRbyHDivideByRho(Supplier<DoubleStream> xVarHL, Supplier<DoubleStream> yVarL) {
+    DoubleStream.of(1.0 / 3.0, 0.5).forEachOrdered(sToL -> {
+      try {
+        Assert.assertNull(yVarL.get().mapToObj(lmm -> xVarHL.get().
+            map(hToL -> new DerivativeRbyHDivideByRho(-1.0, sToL * lmm * 1.0e-3, lmm * 1.0e-3).value(hToL))
+        ).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+            collect(new LineFileCollector(Paths.get(String.format("dRdh_At_%.2f.txt", sToL)),
+                LineFileCollector.Direction.VERTICAL)));
+      }
+      catch (IOException e) {
+        Assert.fail(e.getMessage(), e);
+      }
+    });
+  }
+
+
   private static DoubleStream doubleRange(double start, double end) {
     return DoubleStream.iterate(start, dl2L -> dl2L + PRECISION).
         limit(BigDecimal.valueOf((end - start) / PRECISION + 1).round(MathContext.UNLIMITED).intValue()).sequential();
