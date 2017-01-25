@@ -6,6 +6,8 @@ import java.math.MathContext;
 import java.nio.file.Paths;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
@@ -279,11 +281,11 @@ public class SoundingDepthTest {
 
   @DataProvider(name = "x = h / L, y = L")
   public static Object[][] hL() throws IOException {
-    Supplier<DoubleStream> xVarHL = () -> doubleRange(0, 0.01);
+    Supplier<DoubleStream> xVarHL = () -> doubleRange(0.1, 0.9, 0.01);
     Assert.assertNull(xVarHL.get().mapToObj(value -> String.format("%.2f", value)).collect(
         new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL)));
 
-    Supplier<DoubleStream> yVarL = () -> doubleRange(20.0, 20.02);
+    Supplier<DoubleStream> yVarL = () -> doubleRange(20.0, 120.0, 2.0);
     Assert.assertNull(yVarL.get().mapToObj(value -> String.format("%.2f", value)).collect(
         new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
     return new Object[][] {{xVarHL, yVarL}};
@@ -291,11 +293,16 @@ public class SoundingDepthTest {
 
   @Test(dataProvider = "x = h / L, y = L", enabled = false)
   public static void testDerivativeRbyHDivideByRho(Supplier<DoubleStream> xVarHL, Supplier<DoubleStream> yVarL) {
-    DoubleStream.of(1.0 / 3.0, 0.5).forEachOrdered(sToL -> {
+    DoubleStream.of(0.5).forEachOrdered(sToL -> {
       try {
-        Assert.assertNull(yVarL.get().mapToObj(lmm -> xVarHL.get().
-            map(hToL -> new DerivativeRbyHDivideByRho(-1.0, sToL * lmm * 1.0e-3, lmm * 1.0e-3).value(hToL))
-        ).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        Assert.assertNull(yVarL.get().
+            peek(lmm -> Logger.getLogger(SoundingDepthTest.class.getName()).log(Level.INFO, String.format("L = %.2f", lmm))).
+            mapToObj(lmm -> xVarHL.get().
+                map(hToL -> {
+                  double lMetre = lmm * 1.0e-3;
+                  return StrictMath.log(new DerivativeRbyHDivideByRho(-1.0, sToL * lMetre, lMetre).value(hToL * lMetre));
+                })
+            ).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
             collect(new LineFileCollector(Paths.get(String.format("dRdh_At_%.2f.txt", sToL)),
                 LineFileCollector.Direction.VERTICAL)));
       }
@@ -305,9 +312,12 @@ public class SoundingDepthTest {
     });
   }
 
-
   private static DoubleStream doubleRange(double start, double end) {
-    return DoubleStream.iterate(start, dl2L -> dl2L + PRECISION).
-        limit(BigDecimal.valueOf((end - start) / PRECISION + 1).round(MathContext.UNLIMITED).intValue()).sequential();
+    return doubleRange(start, end, PRECISION);
+  }
+
+  private static DoubleStream doubleRange(double start, double end, double precision) {
+    return DoubleStream.iterate(start, dl2L -> dl2L + precision).
+        limit(BigDecimal.valueOf((end - start) / precision + 1).round(MathContext.UNLIMITED).intValue()).sequential();
   }
 }
