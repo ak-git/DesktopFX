@@ -1,6 +1,7 @@
 package com.ak.rsm;
 
 import java.util.function.DoubleUnaryOperator;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -67,9 +68,9 @@ final class ResistanceTwoLayer implements TrivariateFunction {
 
   private static double sum(@Nonnull DoubleUnaryOperator operator) {
     double sum = 0.0;
-    for (int n = 1; ; n++) {
+    for (int i = 1, size = 2; ; i += size, size *= 2) {
       double prev = sum;
-      sum += operator.applyAsDouble(n);
+      sum += IntStream.range(i, i + size).parallel().mapToDouble(operator::applyAsDouble).sum();
       if (Double.compare(prev, sum) == 0) {
         break;
       }

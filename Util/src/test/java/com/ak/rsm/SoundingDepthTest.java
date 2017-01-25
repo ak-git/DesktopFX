@@ -285,7 +285,7 @@ public class SoundingDepthTest {
     Assert.assertNull(xVarHL.get().mapToObj(value -> String.format("%.2f", value)).collect(
         new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL)));
 
-    Supplier<DoubleStream> yVarL = () -> doubleRange(20.0, 120.0, 2.0);
+    Supplier<DoubleStream> yVarL = () -> doubleRange(20.0, 120.0, 1.0);
     Assert.assertNull(yVarL.get().mapToObj(value -> String.format("%.2f", value)).collect(
         new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
     return new Object[][] {{xVarHL, yVarL}};
@@ -293,14 +293,14 @@ public class SoundingDepthTest {
 
   @Test(dataProvider = "x = h / L, y = L", enabled = false)
   public static void testDerivativeRbyHDivideByRho(Supplier<DoubleStream> xVarHL, Supplier<DoubleStream> yVarL) {
-    DoubleStream.of(0.5).forEachOrdered(sToL -> {
+    DoubleStream.of(1.0 / 3.0, 0.5).forEachOrdered(sToL -> {
       try {
         Assert.assertNull(yVarL.get().
             peek(lmm -> Logger.getLogger(SoundingDepthTest.class.getName()).log(Level.INFO, String.format("L = %.2f", lmm))).
             mapToObj(lmm -> xVarHL.get().
                 map(hToL -> {
                   double lMetre = lmm * 1.0e-3;
-                  return StrictMath.log(new DerivativeRbyHDivideByRho(-1.0, sToL * lMetre, lMetre).value(hToL * lMetre));
+                  return StrictMath.log10(new DerivativeRbyHDivideByRho(-1.0, sToL * lMetre, lMetre).value(hToL * lMetre));
                 })
             ).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
             collect(new LineFileCollector(Paths.get(String.format("dRdh_At_%.2f.txt", sToL)),
