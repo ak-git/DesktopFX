@@ -67,14 +67,6 @@ final class ResistanceTwoLayer implements TrivariateFunction {
   }
 
   private static double sum(@Nonnull DoubleUnaryOperator operator) {
-    double sum = 0.0;
-    for (int i = 1, size = 2; ; i += size, size *= 2) {
-      double prev = sum;
-      sum += IntStream.range(i, i + size).parallel().mapToDouble(operator::applyAsDouble).sum();
-      if (Double.compare(prev, sum) == 0) {
-        break;
-      }
-    }
-    return sum;
+    return IntStream.rangeClosed(1, 1024).parallel().mapToDouble(operator::applyAsDouble).sum();
   }
 }

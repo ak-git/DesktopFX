@@ -318,7 +318,7 @@ public class SoundingDepthTest {
     Assert.assertNull(xVarL.get().mapToObj(value -> String.format("%.2f", value)).collect(
         new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL)));
 
-    Supplier<DoubleStream> yVarH = () -> doubleRange(5.0, 30.0, 1.0);
+    Supplier<DoubleStream> yVarH = () -> doubleRange(4.0, 30.0, 0.1);
     Assert.assertNull(yVarH.get().mapToObj(value -> String.format("%.2f", value)).collect(
         new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
     return new Object[][] {{xVarL, yVarH}};
