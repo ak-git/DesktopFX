@@ -3,6 +3,7 @@ package com.ak.comm.converter;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nonnull;
 
@@ -32,7 +33,12 @@ public final class ToIntegerConverterTest {
   public <T extends Enum<T> & Variable> void testApply(@Nonnull Class<T> evClass, @Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
     ToIntegerConverter<T> converter = new ToIntegerConverter<>(evClass);
     Assert.assertEquals(EnumSet.allOf(evClass), converter.variables());
+    AtomicBoolean processed = new AtomicBoolean();
     converter.apply(new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN)).
-        forEach(ints -> Assert.assertEquals(ints, outputInts, Arrays.toString(ints)));
+        forEach(ints -> {
+          Assert.assertEquals(ints, outputInts, Arrays.toString(ints));
+          processed.set(true);
+        });
+    Assert.assertTrue(processed.get(), "Data are not converted!");
   }
 }
