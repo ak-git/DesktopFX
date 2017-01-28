@@ -122,9 +122,13 @@ public class FIRFilterTest {
         new int[][] {{2}, {4}, {6}, {8}},
         FilterBuilder.of().fork(
             FilterBuilder.of().decimate(2).interpolate(2).build(),
-            FilterBuilder.of().fir(1).build()
+            FilterBuilder.of().fork(
+                FilterBuilder.of().decimate(2).interpolate(2).build(),
+                FilterBuilder.of().fir(1).build()
+            ).build(),
+            FilterBuilder.of().fir(2).build()
         ).build(),
-        new int[][] {{1, 2}, {3, 4}, {5, 6}, {7, 8}},
+        new int[][] {{1, 1, 2, 4}, {3, 3, 4, 8}, {5, 5, 6, 12}, {7, 7, 8, 16}},
         0.0, 1.0
     }};
   }
