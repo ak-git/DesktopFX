@@ -118,6 +118,14 @@ public class FIRFilterTest {
         FilterBuilder.of().decimate(3).interpolate(3).buildNoDelay(),
         new int[][] {{1}, {2}, {4}},
         0.0, 1.0
+    }, {
+        new int[][] {{2}, {4}, {6}, {8}},
+        FilterBuilder.of().fork(
+            FilterBuilder.of().decimate(2).interpolate(2).build(),
+            FilterBuilder.of().fir(1).build()
+        ).build(),
+        new int[][] {{1, 2}, {3, 4}, {5, 6}, {7, 8}},
+        0.0, 1.0
     }};
   }
 
@@ -211,17 +219,23 @@ public class FIRFilterTest {
   @Test(expectedExceptions = IllegalStateException.class)
   public void testInvalidForkLeft() {
     DigitalFilter filter1 = FilterBuilder.of().fir(1.0).build();
-    FilterBuilder.of().fork(filter1, FilterBuilder.of().fir(2.0).build()).build();
+    DigitalFilter filter2 = FilterBuilder.of().fir(2.0).build();
+    FilterBuilder.of().fork(filter1, filter2).build();
     filter1.accept(1);
     filter1.accept(2);
+    filter2.accept(1);
+    filter1.accept(3);
   }
 
   @Test(expectedExceptions = IllegalStateException.class)
   public void testInvalidForkRight() {
+    DigitalFilter filter1 = FilterBuilder.of().fir(3.0).build();
     DigitalFilter filter2 = FilterBuilder.of().fir(4.0).build();
-    FilterBuilder.of().fork(FilterBuilder.of().fir(3.0).build(), filter2).build();
+    FilterBuilder.of().fork(filter1, filter2).build();
     filter2.accept(1);
     filter2.accept(2);
+    filter1.accept(1);
+    filter2.accept(3);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

@@ -56,14 +56,8 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
       }
     }).forEach(digitalFilter::accept);
 
-    Stream<int[]> stream;
-    if (filteredValues.isEmpty()) {
-      stream = Stream.empty();
-    }
-    else {
-      stream = filteredValues.stream();
-      filteredValues.clear();
-    }
+    Stream<int[]> stream = filteredValues.stream();
+    filteredValues.clear();
     return stream;
   }
 
