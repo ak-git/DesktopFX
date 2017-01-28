@@ -4,7 +4,6 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nonnull;
 
@@ -15,8 +14,6 @@ import org.testng.annotations.Test;
 import tec.uom.se.AbstractUnit;
 
 public final class ToIntegerConverterTest {
-  private static final int[] EMPTY = {};
-
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -38,6 +35,10 @@ public final class ToIntegerConverterTest {
     EnumSet.allOf(evClass).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
     AtomicBoolean processed = new AtomicBoolean();
     converter.apply(new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN)).
-        forEach(ints -> Assert.assertEquals(ints, outputInts, Arrays.toString(ints)));
+        forEach(ints -> {
+          Assert.assertEquals(ints, outputInts, Arrays.toString(ints));
+          processed.set(true);
+        });
+    Assert.assertTrue(processed.get(), "Data are not converted!");
   }
 }
