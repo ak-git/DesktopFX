@@ -13,8 +13,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public final class ToIntegerConverterTest {
-  private static final int[] EMPTY = {};
-
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
