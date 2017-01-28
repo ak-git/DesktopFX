@@ -10,13 +10,13 @@ abstract class AbstractDerivativeRNormalized implements UnivariateFunction, Clon
   private final TetrapolarSystem electrodes;
   private final double k12;
 
-  AbstractDerivativeRNormalized(double k12, double sToL) {
-    electrodes = new TetrapolarSystem(sToL, 1.0, Units.METRE);
+  AbstractDerivativeRNormalized(double k12, double sMetre, double lMetre) {
+    electrodes = new TetrapolarSystem(sMetre, lMetre, Units.METRE);
     this.k12 = k12;
   }
 
   @Override
-  public final double value(double hToL) {
+  public double value(double hToL) {
     ResistanceTwoLayer rTwoLayer = new ResistanceTwoLayer(electrodes);
     double denominator = 1.0 / electrodes.radiusMinus() - 1.0 / electrodes.radiusPlus() + 2.0 * rTwoLayer.sum(k12, hToL);
     return nominator(hToL) / denominator;

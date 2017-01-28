@@ -1,14 +1,16 @@
 package com.ak.digitalfilter;
 
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -38,24 +40,47 @@ final class ForkFilter extends AbstractDigitalFilter {
       }
     }
 
-    IntBuffer buffer = IntBuffer.allocate(size());
-    AtomicInteger sync = new AtomicInteger();
+    int[] bufferPositions = new int[this.filters.size()];
+    bufferPositions[0] = 0;
+    for (int i = 1; i < this.filters.size(); i++) {
+      bufferPositions[i] = bufferPositions[i - 1] + this.filters.get(i - 1).size();
+    }
+    int[] bufferIndexes = new int[this.filters.size()];
+
+    AtomicBoolean initializedFlag = new AtomicBoolean();
+    List<IntBuffer> intBuffers = new ArrayList<>();
     for (int i = 0; i < this.filters.size(); i++) {
       DigitalFilter filter = this.filters.get(i);
-      int finalI = i;
+      int filterI = i;
       filter.forEach(values -> {
-        if (sync.compareAndSet(finalI, finalI + 1)) {
-          buffer.put(values);
-          if (finalI == this.filters.size() - 1) {
-            buffer.flip();
-            publish(buffer.array());
-            buffer.clear();
-            sync.set(0);
+        int bufferIndex = bufferIndexes[filterI];
+        bufferIndexes[filterI]++;
+
+        if (bufferIndex >= intBuffers.size()) {
+          if (initializedFlag.get()) {
+            throw new IllegalStateException(String.format("Invalid fork [ %s ] for filter {%n%s%n}, values = %s", filter,
+                this, Arrays.toString(values)));
+          }
+          else {
+            intBuffers.add(IntBuffer.allocate(size()));
           }
         }
-        else {
-          throw new IllegalStateException(String.format("Invalid fork [ %s ] for filter {%n%s%n}, values = %s", filter,
-              this, Arrays.toString(values)));
+
+        IntBuffer buffer = intBuffers.get(bufferIndex);
+        for (int j = 0; j < values.length; j++) {
+          buffer.put(bufferPositions[filterI] + j, values[j]);
+        }
+
+        if (IntStream.of(bufferIndexes).allMatch(value -> value > 0)) {
+          initializedFlag.set(true);
+          if (IntStream.of(bufferIndexes).allMatch(value -> value == bufferIndexes[0])) {
+            intBuffers.forEach(b -> {
+              b.flip();
+              publish(b.array());
+              b.clear();
+            });
+            Arrays.fill(bufferIndexes, 0);
+          }
         }
       });
     }
@@ -81,7 +106,7 @@ final class ForkFilter extends AbstractDigitalFilter {
         }
       }
       else {
-        throw new IllegalArgumentException(String.format("%s - %s", toString(), Arrays.toString(in)));
+        illegalArgumentException(in);
       }
     }
     else {

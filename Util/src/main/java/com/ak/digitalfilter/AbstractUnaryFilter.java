@@ -1,7 +1,5 @@
 package com.ak.digitalfilter;
 
-import java.util.Arrays;
-
 import javax.annotation.Nonnegative;
 
 abstract class AbstractUnaryFilter extends AbstractDigitalFilter {
@@ -11,7 +9,7 @@ abstract class AbstractUnaryFilter extends AbstractDigitalFilter {
       publishUnary(in[0]);
     }
     else {
-      throw new IllegalArgumentException(String.format("%s %s", toString(), Arrays.toString(in)));
+      illegalArgumentException(in);
     }
   }
 

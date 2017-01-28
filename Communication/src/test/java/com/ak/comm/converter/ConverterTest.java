@@ -16,8 +16,8 @@ public final class ConverterTest {
     SINGLE_VARIABLE
   }
 
-  private static final Converter<Integer, SingleVariable> INVALID_CONVERTER =
-      new AbstractConverter<Integer, SingleVariable>(SingleVariable.class) {
+  private static final Converter<Integer, TwoVariables> INVALID_CONVERTER =
+      new AbstractConverter<Integer, TwoVariables>(TwoVariables.class) {
         @Override
         protected Stream<int[]> innerApply(@Nonnull Integer integer) {
           return Stream.of(new int[] {integer});
@@ -34,11 +34,11 @@ public final class ConverterTest {
       };
   private static final Logger LOGGER_VALID = Logger.getLogger(VALID_CONVERTER_0.getClass().getName());
 
-  @Test
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidApply() {
     LogUtils.substituteLogLevel(LOGGER_INVALID, WARNING,
         () -> Assert.assertEquals(INVALID_CONVERTER.apply(1).count(), 1),
-        logRecord -> Assert.assertEquals(logRecord.getMessage(), "Invalid variables: [] not match [1]"));
+        logRecord -> Assert.assertEquals(logRecord.getMessage(), "Invalid variables: [V1, V2] not match [1]"));
   }
 
   @Test
