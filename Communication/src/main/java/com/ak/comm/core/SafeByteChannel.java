@@ -2,8 +2,8 @@ package com.ak.comm.core;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ByteChannel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -15,10 +15,10 @@ import javax.annotation.Nonnull;
 import com.ak.comm.util.LogUtils;
 import com.ak.logging.BinaryLogBuilder;
 
-public final class SafeByteChannel implements WritableByteChannel {
+public final class SafeByteChannel implements ByteChannel {
   private static final SeekableByteChannel EMPTY_CHANNEL = new EmptyByteChannel();
   @Nonnull
-  private String namePrefix;
+  private final String namePrefix;
   @Nonnull
   private SeekableByteChannel channel = EMPTY_CHANNEL;
   private boolean initialized;
@@ -29,25 +29,13 @@ public final class SafeByteChannel implements WritableByteChannel {
 
   @Override
   public int write(@Nonnull ByteBuffer src) {
-    if (!initialized) {
-      try {
-        Path path = new BinaryLogBuilder(namePrefix).build().getPath();
-        channel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
-      }
-      catch (IOException ex) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, namePrefix, ex);
-      }
-      finally {
-        initialized = true;
-      }
-    }
-
+    checkAndInitialize();
     try {
       return channel.write(src);
     }
     catch (IOException e) {
       Logger.getLogger(getClass().getName()).log(LogUtils.LOG_LEVEL_ERRORS, e.getMessage(), e);
-      return 0;
+      return -1;
     }
   }
 
@@ -66,6 +54,44 @@ public final class SafeByteChannel implements WritableByteChannel {
     }
     finally {
       initialized = false;
+    }
+  }
+
+  @Override
+  public int read(ByteBuffer dst) {
+    checkAndInitialize();
+    try {
+      return channel.read(dst);
+    }
+    catch (IOException e) {
+      Logger.getLogger(getClass().getName()).log(LogUtils.LOG_LEVEL_ERRORS, e.getMessage(), e);
+      return -1;
+    }
+  }
+
+  boolean isMovedTo(long newPosition) {
+    try {
+      channel.position(newPosition);
+      return true;
+    }
+    catch (IOException e) {
+      Logger.getLogger(getClass().getName()).log(LogUtils.LOG_LEVEL_ERRORS, e.getMessage(), e);
+      return false;
+    }
+  }
+
+  private void checkAndInitialize() {
+    if (!initialized) {
+      try {
+        Path path = new BinaryLogBuilder(namePrefix).build().getPath();
+        channel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
+      }
+      catch (IOException ex) {
+        Logger.getLogger(getClass().getName()).log(Level.WARNING, namePrefix, ex);
+      }
+      finally {
+        initialized = true;
+      }
     }
   }
 }
