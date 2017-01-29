@@ -20,11 +20,14 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     implements FileFilter, Publisher<int[]> {
   @Nonnull
   private final Flowable<int[]> serialFlow;
+  @Nonnull
+  private final CycleSerialService<RESPONSE, REQUEST, EV> serialService;
 
   @Inject
   public GroupService(@Nonnull Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider,
                       @Nonnull Provider<Converter<RESPONSE, EV>> converterProvider) {
-    serialFlow = Flowable.fromPublisher(new CycleSerialService<>(interceptorProvider.get(), converterProvider.get()));
+    serialService = new CycleSerialService<>(interceptorProvider.get(), converterProvider.get());
+    serialFlow = Flowable.fromPublisher(serialService);
   }
 
   @Override
@@ -39,5 +42,6 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
 
   @Override
   public void close() {
+    serialService.close();
   }
 }
