@@ -58,9 +58,10 @@ project(':Util') {
 
 project(':Communication') {
     dependencies {
-        compile project(':Util')
         compile group: 'org.scream3r', name: 'jssc', version: '2.8.0'
         compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.0.2'
+        compile group: 'org.springframework', name: 'spring-core', version: '4.3.4.RELEASE'
+        compile project(':Util')
     }
 }
 

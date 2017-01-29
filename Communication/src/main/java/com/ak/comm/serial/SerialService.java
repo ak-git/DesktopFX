@@ -29,7 +29,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
   private final int baudRate;
   @Nonnull
   private final ByteBuffer buffer;
-  private final SafeByteChannel binaryLogChannel = new SafeByteChannel(getClass().getSimpleName());
+  private final SafeByteChannel binaryLogChannel = new SafeByteChannel(getClass());
 
   SerialService(@Nonnegative int baudRate) {
     this.baudRate = baudRate;

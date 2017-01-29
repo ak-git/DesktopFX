@@ -15,7 +15,8 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends E
   private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
   @Nonnull
   private final Converter<RESPONSE, EV> responseConverter;
-  private final SafeByteChannel byteChannel = new SafeByteChannel(getClass().getSimpleName());
+  @Nonnull
+  private final SafeByteChannel byteChannel = new SafeByteChannel(getClass());
   @Nonnull
   private final ByteBuffer workingBuffer;
 

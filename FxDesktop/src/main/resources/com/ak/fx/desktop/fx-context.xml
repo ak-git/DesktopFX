@@ -19,20 +19,8 @@
         </property>
     </bean>
 
-    <bean class="com.ak.comm.interceptor.simple.RampBytesInterceptor" scope="prototype">
-        <constructor-arg name="baudRate" value="BR_921600"/>
-        <constructor-arg name="frameLength" value="9"/>
-    </bean>
-    <bean class="com.ak.comm.converter.ToIntegerConverter" scope="prototype">
-        <constructor-arg>
-            <bean class="java.lang.Class" factory-method="forName">
-                <constructor-arg type="java.lang.String" value="com.ak.comm.converter.TwoVariables"/>
-            </bean>
-        </constructor-arg>
-    </bean>
-
-    <!--<bean class="com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor" scope="prototype"/>-->
-    <!--<bean class="com.ak.comm.converter.rsce.RsceConverter"/>-->
+    <bean class="com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor" scope="prototype"/>
+    <bean class="com.ak.comm.converter.rsce.RsceConverter" scope="prototype"/>
 
     <bean class="com.ak.comm.GroupService" destroy-method="close"/>
 

@@ -6,7 +6,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public final class SafeByteChannelTest {
-  private final SafeByteChannel channel = new SafeByteChannel(getClass().getSimpleName());
+  private final SafeByteChannel channel = new SafeByteChannel(getClass());
 
   @Test
   public void testWrite() {
