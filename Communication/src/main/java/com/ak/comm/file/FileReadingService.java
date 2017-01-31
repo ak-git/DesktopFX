@@ -1,6 +1,5 @@
 package com.ak.comm.file;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
@@ -19,7 +18,6 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.util.Strings;
 import io.reactivex.disposables.Disposable;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
@@ -45,33 +43,32 @@ public final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   public void subscribe(Subscriber<? super int[]> s) {
     if (Files.isRegularFile(fileToRead, LinkOption.NOFOLLOW_LINKS) && Files.exists(fileToRead, LinkOption.NOFOLLOW_LINKS) &&
         Files.isReadable(fileToRead)) {
-      String md5Code = Strings.EMPTY;
-      try (InputStream in = Files.newInputStream(fileToRead, StandardOpenOption.READ)) {
-        md5Code = DigestUtils.appendMd5DigestAsHex(in, new StringBuilder()).toString();
-      }
-      catch (IOException ex) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING,
-            String.format("#%x Cannot calculate MD5 hash for file [ %s ]", hashCode(), fileToRead));
-      }
-
       s.onSubscribe(this);
-      try (ReadableByteChannel readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
-        Logger.getLogger(getClass().getName()).log(Level.INFO, String.format("#%x Open file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
-        ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
-        while (readableByteChannel.read(buffer) > 0 && !isDisposed()) {
-          buffer.flip();
-          logBytes(buffer);
-          process(buffer).forEach(s::onNext);
-          buffer.clear();
+
+      try (InputStream in = Files.newInputStream(fileToRead, StandardOpenOption.READ)) {
+        Logger.getLogger(getClass().getName()).log(Level.CONFIG,
+            String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
+        String md5Code = DigestUtils.appendMd5DigestAsHex(in, new StringBuilder()).toString();
+        try (ReadableByteChannel readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
+          Logger.getLogger(getClass().getName()).log(Level.INFO,
+              String.format("#%x Read file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
+          ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
+          while (readableByteChannel.read(buffer) > 0 && !isDisposed()) {
+            buffer.flip();
+            logBytes(buffer);
+            process(buffer).forEach(s::onNext);
+            buffer.clear();
+          }
+          if (!isDisposed()) {
+            s.onComplete();
+          }
+          Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
         }
-        if (!isDisposed()) {
-          s.onComplete();
+        catch (ClosedByInterruptException e) {
+          Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
+          s.onError(e);
         }
-        Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
-      }
-      catch (ClosedByInterruptException e) {
-        Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
-        s.onError(e);
+
       }
       catch (Exception e) {
         Logger.getLogger(getClass().getName()).log(Level.WARNING, fileToRead.toString(), e);

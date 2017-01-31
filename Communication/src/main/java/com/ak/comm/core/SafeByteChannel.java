@@ -29,7 +29,7 @@ public final class SafeByteChannel implements ByteChannel {
 
   @Override
   public int write(@Nonnull ByteBuffer src) {
-    checkAndInitialize();
+    initialize();
     try {
       return channel.write(src);
     }
@@ -59,7 +59,7 @@ public final class SafeByteChannel implements ByteChannel {
 
   @Override
   public int read(ByteBuffer dst) {
-    checkAndInitialize();
+    initialize();
     try {
       return channel.read(dst);
     }
@@ -69,18 +69,7 @@ public final class SafeByteChannel implements ByteChannel {
     }
   }
 
-  boolean isMovedTo(long newPosition) {
-    try {
-      channel.position(newPosition);
-      return true;
-    }
-    catch (IOException e) {
-      Logger.getLogger(getClass().getName()).log(LogUtils.LOG_LEVEL_ERRORS, e.getMessage(), e);
-      return false;
-    }
-  }
-
-  private void checkAndInitialize() {
+  private void initialize() {
     if (!initialized) {
       try {
         Path path = new BinaryLogBuilder(namePrefix).build().getPath();

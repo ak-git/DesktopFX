@@ -15,6 +15,7 @@ import java.util.logging.LogRecord;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.log.TextFormatter;
 
@@ -50,9 +51,17 @@ public class LocalFileHandlerTest {
     }
   }
 
-  @Test
-  public void testBinaryLogBuilder() throws IOException {
-    Path path = new BinaryLogBuilder(getClass().getSimpleName()).build().getPath();
+  @DataProvider(name = "logBuilders")
+  public static Object[][] logBuilders() throws IOException {
+    return new Object[][] {
+        {new BinaryLogBuilder(LocalFileHandlerTest.class.getSimpleName()).build().getPath()},
+        {new BinaryLogBuilder("02f29f660fa69e6c404c03de0f1e15f9").build().getPath()},
+    };
+  }
+
+
+  @Test(dataProvider = "logBuilders")
+  public void testLogBuilders(Path path) throws IOException {
     WritableByteChannel channel = Files.newByteChannel(path,
         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
     channel.write(ByteBuffer.wrap(getClass().getName().getBytes(Charset.defaultCharset())));

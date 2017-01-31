@@ -19,8 +19,7 @@ public final class SafeByteChannelTest {
     for (int i = 0; i < 10; i++) {
       Assert.assertEquals(channel.write(byteBuffer), 1);
       byteBuffer.clear();
-      Assert.assertTrue(channel.isMovedTo(i));
-      Assert.assertEquals(channel.read(byteBuffer), 1);
+      Assert.assertEquals(channel.read(byteBuffer), -1);
       byteBuffer.rewind();
     }
     Assert.assertTrue(channel.isOpen());
