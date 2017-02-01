@@ -76,7 +76,7 @@ final class ForkFilter extends AbstractDigitalFilter {
           if (IntStream.of(bufferIndexes).allMatch(value -> value == bufferIndexes[0])) {
             intBuffers.forEach(b -> {
               b.flip();
-              publish(b.array());
+              publish(Arrays.copyOf(b.array(), b.array().length));
               b.clear();
             });
             Arrays.fill(bufferIndexes, 0);
