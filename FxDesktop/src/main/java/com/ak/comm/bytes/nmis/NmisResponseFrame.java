@@ -1,6 +1,7 @@
 package com.ak.comm.bytes.nmis;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -60,7 +61,7 @@ public final class NmisResponseFrame extends BufferFrame {
 
   public static class Builder extends AbstractCheckedBuilder<NmisResponseFrame> {
     public Builder() {
-      this(ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY));
+      this(ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY).order(ByteOrder.LITTLE_ENDIAN));
     }
 
     public Builder(@Nonnull ByteBuffer buffer) {
