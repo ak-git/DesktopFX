@@ -1,6 +1,5 @@
 package com.ak.digitalfilter;
 
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -48,7 +47,7 @@ final class ForkFilter extends AbstractDigitalFilter {
     int[] bufferIndexes = new int[this.filters.size()];
 
     AtomicBoolean initializedFlag = new AtomicBoolean();
-    List<IntBuffer> intBuffers = new ArrayList<>();
+    List<int[]> intBuffers = new ArrayList<>();
     for (int i = 0; i < this.filters.size(); i++) {
       DigitalFilter filter = this.filters.get(i);
       int filterI = i;
@@ -62,24 +61,19 @@ final class ForkFilter extends AbstractDigitalFilter {
                 this, Arrays.toString(values)));
           }
           else {
-            intBuffers.add(IntBuffer.allocate(size()));
+            intBuffers.add(new int[size()]);
           }
         }
 
-        IntBuffer buffer = intBuffers.get(bufferIndex);
-        for (int j = 0; j < values.length; j++) {
-          buffer.put(bufferPositions[filterI] + j, values[j]);
-        }
+        System.arraycopy(values, 0, intBuffers.get(bufferIndex), bufferPositions[filterI], values.length);
 
         if (IntStream.of(bufferIndexes).allMatch(value -> value > 0)) {
           initializedFlag.set(true);
           if (IntStream.of(bufferIndexes).allMatch(value -> value == bufferIndexes[0])) {
-            intBuffers.forEach(b -> {
-              b.flip();
-              publish(Arrays.copyOf(b.array(), b.array().length));
-              b.clear();
-            });
+            intBuffers.forEach(this::publish);
             Arrays.fill(bufferIndexes, 0);
+            intBuffers.clear();
+            initializedFlag.set(false);
           }
         }
       });
