@@ -2,6 +2,9 @@ package com.ak.comm.serial;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -13,6 +16,7 @@ import javax.annotation.Nonnull;
 
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.SafeByteChannel;
+import com.ak.logging.BinaryLogBuilder;
 import com.ak.util.Strings;
 import jssc.SerialPort;
 import jssc.SerialPortException;
@@ -29,7 +33,10 @@ final class SerialService extends AbstractService implements WritableByteChannel
   private final int baudRate;
   @Nonnull
   private final ByteBuffer buffer;
-  private final SafeByteChannel binaryLogChannel = new SafeByteChannel(getClass());
+  private final SafeByteChannel binaryLogChannel = new SafeByteChannel(() -> {
+    Path path = new BinaryLogBuilder().fileNameWithTime(SerialService.class.getSimpleName()).addPath("serialBytesLog").build().getPath();
+    return Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+  });
 
   SerialService(@Nonnegative int baudRate) {
     this.baudRate = baudRate;

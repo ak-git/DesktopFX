@@ -1,12 +1,19 @@
 package com.ak.comm.core;
 
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
+import com.ak.logging.BinaryLogBuilder;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public final class SafeByteChannelTest {
-  private final SafeByteChannel channel = new SafeByteChannel(getClass());
+  private final SafeByteChannel channel = new SafeByteChannel(() -> {
+    Path path = new BinaryLogBuilder().fileNameWithTime(getClass().getSimpleName()).build().getPath();
+    return Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
+  });
 
   @Test
   public void testWriteAndRead() {

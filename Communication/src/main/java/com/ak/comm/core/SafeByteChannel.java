@@ -4,27 +4,24 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
 import com.ak.comm.util.LogUtils;
-import com.ak.logging.BinaryLogBuilder;
 
 public final class SafeByteChannel implements ByteChannel {
   private static final SeekableByteChannel EMPTY_CHANNEL = new EmptyByteChannel();
   @Nonnull
-  private final String namePrefix;
+  private final Callable<SeekableByteChannel> channelProvider;
   @Nonnull
   private SeekableByteChannel channel = EMPTY_CHANNEL;
   private boolean initialized;
 
-  public SafeByteChannel(@Nonnull Class<?> aClass) {
-    namePrefix = aClass.getSimpleName();
+  public SafeByteChannel(@Nonnull Callable<SeekableByteChannel> channelProvider) {
+    this.channelProvider = channelProvider;
   }
 
   @Override
@@ -72,11 +69,10 @@ public final class SafeByteChannel implements ByteChannel {
   private void initialize() {
     if (!initialized) {
       try {
-        Path path = new BinaryLogBuilder().fileNameWithTime(namePrefix).build().getPath();
-        channel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
+        channel = channelProvider.call();
       }
-      catch (IOException ex) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, namePrefix, ex);
+      catch (Exception ex) {
+        Logger.getLogger(getClass().getName()).log(Level.WARNING, channelProvider.toString(), ex);
       }
       finally {
         initialized = true;

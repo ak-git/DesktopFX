@@ -71,11 +71,20 @@ public class LocalFileHandlerTest {
 
   @AfterSuite
   public void tearDown() throws Exception {
-    try (DirectoryStream<Path> ds = Files.newDirectoryStream(logPath)) {
+    delete(logPath);
+  }
+
+  private static void delete(Path root) throws Exception {
+    try (DirectoryStream<Path> ds = Files.newDirectoryStream(root)) {
       for (Path file : ds) {
-        Files.delete(file);
+        if (Files.isDirectory(file)) {
+          delete(file);
+        }
+        else {
+          Files.delete(file);
+        }
       }
     }
-    Files.delete(logPath);
+    Files.delete(root);
   }
 }
