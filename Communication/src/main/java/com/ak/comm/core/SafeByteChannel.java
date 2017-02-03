@@ -72,7 +72,7 @@ public final class SafeByteChannel implements ByteChannel {
   private void initialize() {
     if (!initialized) {
       try {
-        Path path = new BinaryLogBuilder(namePrefix).build().getPath();
+        Path path = new BinaryLogBuilder().fileNameWithTime(namePrefix).build().getPath();
         channel = Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
       }
       catch (IOException ex) {

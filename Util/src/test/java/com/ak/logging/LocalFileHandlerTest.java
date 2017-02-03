@@ -54,8 +54,8 @@ public class LocalFileHandlerTest {
   @DataProvider(name = "logBuilders")
   public static Object[][] logBuilders() throws IOException {
     return new Object[][] {
-        {new BinaryLogBuilder(LocalFileHandlerTest.class.getSimpleName()).build().getPath()},
-        {new BinaryLogBuilder("02f29f660fa69e6c404c03de0f1e15f9").build().getPath()},
+        {new BinaryLogBuilder().fileNameWithTime(LocalFileHandlerTest.class.getSimpleName()).build().getPath()},
+        {new BinaryLogBuilder().fileName("02f29f660fa69e6c404c03de0f1e15f9").build().getPath()},
     };
   }
 

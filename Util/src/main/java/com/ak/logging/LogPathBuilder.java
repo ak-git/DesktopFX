@@ -23,6 +23,11 @@ public class LogPathBuilder extends LocalFileIO.AbstractBuilder {
         orElse(fileHandlerClass.getSimpleName()));
   }
 
+  public final LocalFileIO.AbstractBuilder fileNameWithTime(@Nonnull String prefix) {
+    fileName(prefix + localDate(" yyyy-MMM-dd HH-mm-ss"));
+    return this;
+  }
+
   static String localDate(@Nonnull String pattern) {
     return DateTimeFormatter.ofPattern(pattern).format(ZonedDateTime.now());
   }
