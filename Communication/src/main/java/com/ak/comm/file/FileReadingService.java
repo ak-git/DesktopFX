@@ -1,5 +1,6 @@
 package com.ak.comm.file;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
@@ -68,9 +69,8 @@ public final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & V
           Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
           s.onError(e);
         }
-
       }
-      catch (Exception e) {
+      catch (IOException e) {
         Logger.getLogger(getClass().getName()).log(Level.WARNING, fileToRead.toString(), e);
         s.onError(e);
       }
