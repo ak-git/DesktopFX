@@ -1,9 +1,8 @@
 package com.ak.comm.core;
 
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.channels.SeekableByteChannel;
+import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -12,18 +11,15 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.logging.BinaryLogBuilder;
 
-public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable> extends AbstractService {
+public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable>
+    extends AbstractService implements Callable<SeekableByteChannel> {
   @Nonnull
   private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
   @Nonnull
   private final Converter<RESPONSE, EV> responseConverter;
   @Nonnull
-  private final SafeByteChannel byteChannel = new SafeByteChannel(() -> {
-    Path path = new BinaryLogBuilder().fileNameWithTime(getClass().getSimpleName()).build().getPath();
-    return Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
-  });
+  private final SafeByteChannel byteChannel = new SafeByteChannel(this);
   @Nonnull
   private final ByteBuffer workingBuffer;
 

@@ -5,11 +5,13 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,6 +21,7 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.logging.BinaryLogBuilder;
 import io.reactivex.disposables.Disposable;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
@@ -31,6 +34,10 @@ public final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   private static final int CAPACITY_4K = 1024 * 4;
   @Nonnull
   private final Path fileToRead;
+  @Nonnull
+  private Callable<SeekableByteChannel> convertedFileChannelProvider = () -> {
+    throw new IllegalStateException("Invalid call for Converted File Channel");
+  };
   private volatile boolean disposed;
 
   FileReadingService(@Nonnull Path fileToRead, @Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
@@ -50,24 +57,35 @@ public final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & V
         Logger.getLogger(getClass().getName()).log(Level.CONFIG,
             String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
         String md5Code = DigestUtils.appendMd5DigestAsHex(in, new StringBuilder()).toString();
-        try (ReadableByteChannel readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
+        Path path = new BinaryLogBuilder().fileName(md5Code).addPath("converterFileLog").build().getPath();
+        if (Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
+          convertedFileChannelProvider = () -> Files.newByteChannel(path, StandardOpenOption.READ);
           Logger.getLogger(getClass().getName()).log(Level.INFO,
-              String.format("#%x Read file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
-          ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
-          while (readableByteChannel.read(buffer) > 0 && !isDisposed()) {
-            buffer.flip();
-            logBytes(buffer);
-            process(buffer).forEach(s::onNext);
-            buffer.clear();
-          }
-          if (!isDisposed()) {
-            s.onComplete();
-          }
-          Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
+              String.format("#%x File [ %s ] with MD5 = [ %s ] is already processed", hashCode(), fileToRead, md5Code));
+          s.onComplete();
         }
-        catch (ClosedByInterruptException e) {
-          Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
-          s.onError(e);
+        else {
+          convertedFileChannelProvider = () -> Files.newByteChannel(path,
+              StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
+          try (ReadableByteChannel readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
+            Logger.getLogger(getClass().getName()).log(Level.INFO,
+                String.format("#%x Read file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
+            ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
+            while (readableByteChannel.read(buffer) > 0 && !isDisposed()) {
+              buffer.flip();
+              logBytes(buffer);
+              process(buffer).forEach(s::onNext);
+              buffer.clear();
+            }
+            if (!isDisposed()) {
+              s.onComplete();
+            }
+            Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
+          }
+          catch (ClosedByInterruptException e) {
+            Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
+            s.onError(e);
+          }
         }
       }
       catch (IOException e) {
@@ -103,5 +121,10 @@ public final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & V
     finally {
       super.close();
     }
+  }
+
+  @Override
+  public SeekableByteChannel call() throws Exception {
+    return convertedFileChannelProvider.call();
   }
 }
