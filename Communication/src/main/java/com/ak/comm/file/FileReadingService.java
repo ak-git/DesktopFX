@@ -32,6 +32,7 @@ import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable>
     extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Publisher<int[]>, Disposable {
   private static final int CAPACITY_4K = 1024 * 4;
+  private static final String CONVERTED_FILE_DIR = "converterFileLog";
   @Nonnull
   private final Path fileToRead;
   @Nonnull
@@ -57,16 +58,17 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
         Logger.getLogger(getClass().getName()).log(Level.CONFIG,
             String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
         String md5Code = DigestUtils.appendMd5DigestAsHex(in, new StringBuilder()).toString();
-        Path path = new BinaryLogBuilder().fileName(md5Code).addPath("converterFileLog").build().getPath();
-        if (Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
-          convertedFileChannelProvider = () -> Files.newByteChannel(path, StandardOpenOption.READ);
+        Path convertedFile = new BinaryLogBuilder().fileName(md5Code).addPath(CONVERTED_FILE_DIR).build().getPath();
+        if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
+          convertedFileChannelProvider = () -> Files.newByteChannel(convertedFile, StandardOpenOption.READ);
           Logger.getLogger(getClass().getName()).log(Level.INFO,
               String.format("#%x File [ %s ] with MD5 = [ %s ] is already processed", hashCode(), fileToRead, md5Code));
           s.onComplete();
         }
         else {
-          convertedFileChannelProvider = () -> Files.newByteChannel(path,
-              StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
+          Path tempConverterFile = new BinaryLogBuilder().fileName("tempConverterFile").addPath(CONVERTED_FILE_DIR).build().getPath();
+          convertedFileChannelProvider = () -> Files.newByteChannel(tempConverterFile,
+              StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
           try (ReadableByteChannel readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
             Logger.getLogger(getClass().getName()).log(Level.INFO,
                 String.format("#%x Read file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
@@ -77,7 +79,9 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
               process(buffer).forEach(s::onNext);
               buffer.clear();
             }
+
             if (!isDisposed()) {
+              Files.copy(tempConverterFile, convertedFile, LinkOption.NOFOLLOW_LINKS);
               s.onComplete();
             }
             Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);

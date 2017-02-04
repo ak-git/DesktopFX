@@ -16,6 +16,16 @@ public final class FileDataProvider {
   private FileDataProvider() {
   }
 
+  @DataProvider(name = "rampFile")
+  public static Object[][] rampFile() throws IOException {
+    return new Object[][] {
+        {createFile(16), 4096, true},
+        {createFile(16), 16371, false},
+        {createFile(16), 0, false},
+        {createFile(4), 4086, false},
+    };
+  }
+
   @DataProvider(name = "rampFiles")
   public static Object[][] rampFiles() throws IOException {
     return new Object[][] {
@@ -36,7 +46,7 @@ public final class FileDataProvider {
   }
 
   private static Path createFile(int kBytes) throws IOException {
-    Path path = new BinaryLogBuilder().fileName(String.format("%s %d bytes", FileDataProvider.class.getSimpleName(), kBytes)).build().getPath();
+    Path path = new BinaryLogBuilder().fileName(String.format("%s %d kBytes", FileDataProvider.class.getSimpleName(), kBytes)).build().getPath();
     if (kBytes >= 0) {
       try (WritableByteChannel channel = Files.newByteChannel(path,
           StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
