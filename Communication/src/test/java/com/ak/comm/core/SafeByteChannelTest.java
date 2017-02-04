@@ -1,6 +1,8 @@
 package com.ak.comm.core;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -15,13 +17,13 @@ import org.testng.annotations.Test;
 public final class SafeByteChannelTest {
   private static final Logger LOGGER = Logger.getLogger(SafeByteChannel.class.getName());
 
-  private final SafeByteChannel channel = new SafeByteChannel(() -> {
-    Path path = new BinaryLogBuilder().fileNameWithTime(getClass().getSimpleName()).build().getPath();
-    return Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
-  });
-
   @Test
   public void testWriteAndRead() {
+    SafeByteChannel channel = new SafeByteChannel(() -> {
+      Path path = new BinaryLogBuilder().fileNameWithTime(getClass().getSimpleName()).build().getPath();
+      return Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
+    });
+
     Assert.assertFalse(channel.isOpen());
     channel.close();
     ByteBuffer byteBuffer = ByteBuffer.allocate(1);
@@ -37,6 +39,61 @@ public final class SafeByteChannelTest {
     Assert.assertTrue(channel.isOpen());
     channel.close();
     Assert.assertFalse(channel.isOpen());
+  }
+
+  @Test
+  public void testInvalidOperations() {
+    SafeByteChannel channel = new SafeByteChannel(() -> new SeekableByteChannel() {
+      @Override
+      public int read(ByteBuffer dst) throws IOException {
+        throw new IOException("read");
+      }
+
+      @Override
+      public int write(ByteBuffer src) throws IOException {
+        throw new IOException("write");
+      }
+
+      @Override
+      public long position() {
+        return 0;
+      }
+
+      @Override
+      public SeekableByteChannel position(long newPosition) {
+        return null;
+      }
+
+      @Override
+      public long size() {
+        return 0;
+      }
+
+      @Override
+      public SeekableByteChannel truncate(long size) {
+        return null;
+      }
+
+      @Override
+      public boolean isOpen() {
+        return false;
+      }
+
+      @Override
+      public void close() throws IOException {
+        throw new IOException("close");
+      }
+    });
+    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
+        () -> Assert.assertEquals(channel.write(ByteBuffer.allocate(1)), -1),
+        logRecord -> Assert.assertEquals(logRecord.getMessage(), "write")));
+
+    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
+        () -> Assert.assertEquals(channel.read(ByteBuffer.allocate(1)), -1),
+        logRecord -> Assert.assertEquals(logRecord.getMessage(), "read")));
+
+    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS, channel::close,
+        logRecord -> Assert.assertEquals(logRecord.getMessage(), "close")));
   }
 
   @Test
