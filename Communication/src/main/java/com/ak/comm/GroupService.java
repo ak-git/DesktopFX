@@ -12,6 +12,7 @@ import javax.inject.Provider;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractService;
+import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
 import com.ak.digitalfilter.IntsAcceptor;
@@ -22,16 +23,19 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     implements FileFilter {
   @Nonnull
   private final CycleSerialService<RESPONSE, REQUEST, EV> serialService;
+  @Nonnull
+  private final AutoFileReadingService<RESPONSE, REQUEST, EV> fileReadingService;
 
   @Inject
   public GroupService(@Nonnull Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider,
                       @Nonnull Provider<Converter<RESPONSE, EV>> converterProvider) {
     serialService = new CycleSerialService<>(interceptorProvider.get(), converterProvider.get());
+    fileReadingService = new AutoFileReadingService<>(interceptorProvider, converterProvider);
   }
 
   @Override
   public boolean accept(File file) {
-    throw new UnsupportedOperationException(file.toString());
+    return fileReadingService.accept(file);
   }
 
   public void forEach(@Nonnull IntsAcceptor acceptor) {
@@ -60,5 +64,6 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   @Override
   public void close() {
     serialService.close();
+    fileReadingService.close();
   }
 }
