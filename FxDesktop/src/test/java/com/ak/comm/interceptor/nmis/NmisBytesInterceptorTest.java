@@ -40,19 +40,19 @@ public final class NmisBytesInterceptorTest {
   public void testResponseOhms(NmisRequest request, byte[] input) {
     Assert.assertEquals(request.toResponse(), new NmisResponseFrame.Builder(ByteBuffer.wrap(Arrays.copyOfRange(input, 1, input.length))).build());
     Assert.assertNotEquals(request.toResponse(), new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
-    testResponse(request, input);
+    testResponse(request, input, true);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "360OhmsMyoHzResponse")
   public void testResponseMyo(NmisRequest request, byte[] input) {
     Assert.assertEquals(request.toResponse(), new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
-    testResponse(request, input);
+    testResponse(request, input, true);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "sequenceResponse")
   public void testResponseSequence(NmisRequest request, byte[] input) {
     Assert.assertEquals(request.toResponse(), new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
-    testResponse(request, input);
+    testResponse(request, input, true);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "aliveAndChannelsResponse")
@@ -64,12 +64,12 @@ public final class NmisBytesInterceptorTest {
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "invalidTestByteResponse")
   public void testInvalidResponse(byte[] input) {
-    testResponse(NmisRequest.Sequence.CATCH_30.build(), input);
+    testResponse(NmisRequest.Sequence.CATCH_30.build(), input, false);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "invalidCRCResponse")
   public void testInvalidResponseCRC(byte[] input) {
-    testResponse(NmisRequest.Sequence.CATCH_30.build(), input);
+    testResponse(NmisRequest.Sequence.CATCH_30.build(), input, false);
   }
 
   private static void testRequest(NmisRequest request, byte[] expected) {
@@ -79,19 +79,19 @@ public final class NmisBytesInterceptorTest {
     Assert.assertThrows(CloneNotSupportedException.class, request::clone);
   }
 
-  private static void testResponse(NmisRequest request, byte[] input) {
+  private static void testResponse(NmisRequest request, byte[] input, boolean logFlag) {
     BytesInterceptor<NmisResponseFrame, NmisRequest> interceptor = new NmisBytesInterceptor();
 
-    LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {
+    Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {
       Collection<NmisResponseFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).collect(Collectors.toList());
       if (!frames.isEmpty()) {
         Assert.assertEquals(frames, Collections.singleton(request.toResponse()));
       }
     }, logRecord -> Assert.assertEquals(logRecord.getMessage().replaceAll(".*" + NmisResponseFrame.class.getSimpleName(), ""),
-        request.toResponse().toString().replaceAll(".*" + NmisResponseFrame.class.getSimpleName(), "")));
+        request.toResponse().toString().replaceAll(".*" + NmisResponseFrame.class.getSimpleName(), ""))), logFlag);
 
     AtomicReference<String> logMessage = new AtomicReference<>("");
-    LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
+    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> {
           int bytesOut = interceptor.putOut(request).remaining();
           Assert.assertTrue(bytesOut > 0);
@@ -99,6 +99,6 @@ public final class NmisBytesInterceptorTest {
               request.toString().replaceAll(".*" + NmisRequest.class.getSimpleName(), "") +
                   " - " + bytesOut + " bytes OUT to hardware");
         },
-        logRecord -> logMessage.set(logRecord.getMessage().replaceAll(".*" + NmisRequest.class.getSimpleName(), "")));
+        logRecord -> logMessage.set(logRecord.getMessage().replaceAll(".*" + NmisRequest.class.getSimpleName(), ""))));
   }
 }

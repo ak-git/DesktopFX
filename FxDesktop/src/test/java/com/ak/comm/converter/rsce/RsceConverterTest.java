@@ -22,7 +22,7 @@ public final class RsceConverterTest {
   public void testApply(@Nonnull byte[] bytes, int[] rDozenMilliOhms) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     Assert.assertNotNull(frame);
-    LogUtils.substituteLogLevel(LOGGER, LOG_LEVEL_VALUES, () -> {
+    Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES, () -> {
       Converter<RsceCommandFrame, RsceVariable> converter = new RsceConverter();
       Stream<int[]> stream = converter.apply(frame);
       if (rDozenMilliOhms.length == 0) {
@@ -38,6 +38,6 @@ public final class RsceConverterTest {
       for (RsceVariable rsceVariable : RsceVariable.values()) {
         Assert.assertTrue(logRecord.getMessage().contains(rsceVariable.name()));
       }
-    });
+    }), rDozenMilliOhms.length > 0);
   }
 }

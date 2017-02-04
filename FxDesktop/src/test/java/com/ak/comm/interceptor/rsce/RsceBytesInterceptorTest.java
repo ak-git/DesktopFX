@@ -37,12 +37,12 @@ public final class RsceBytesInterceptorTest {
   private static void checkResponse(@Nonnull byte[] bytes, @Nonnull RsceCommandFrame request) {
     BytesInterceptor<RsceCommandFrame, RsceCommandFrame> interceptor = new RsceBytesInterceptor();
 
-    LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
+    LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> Assert.assertEquals(interceptor.apply(ByteBuffer.wrap(bytes)).iterator(), Stream.of(request).iterator()),
         logRecord -> Assert.assertEquals(logRecord.getMessage().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), ""),
             request.toString().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), "")));
 
-    LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
+    LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> Assert.assertTrue(interceptor.putOut(request).remaining() > 0),
         logRecord -> Assert.assertEquals(logRecord.getMessage().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), ""),
             request.toString().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), "") +

@@ -36,15 +36,15 @@ public final class ConverterTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidApply() {
-    LogUtils.substituteLogLevel(LOGGER_INVALID, WARNING,
+    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER_INVALID, WARNING,
         () -> Assert.assertEquals(INVALID_CONVERTER.apply(1).count(), 1),
-        logRecord -> Assert.assertEquals(logRecord.getMessage(), "Invalid variables: [V1, V2] not match [1]"));
+        logRecord -> Assert.assertEquals(logRecord.getMessage(), "Invalid variables: [V1, V2] not match [1]")));
   }
 
   @Test
   public void testValidApply() {
-    LogUtils.substituteLogLevel(LOGGER_VALID, WARNING,
+    Assert.assertFalse(LogUtils.isSubstituteLogLevel(LOGGER_VALID, WARNING,
         () -> Assert.assertEquals(VALID_CONVERTER_0.apply(1).count(), 0),
-        logRecord -> Assert.fail(logRecord.getMessage()));
+        logRecord -> Assert.fail(logRecord.getMessage())));
   }
 }

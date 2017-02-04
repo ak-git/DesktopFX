@@ -3,6 +3,7 @@ package com.ak.comm.file;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -34,7 +35,7 @@ public final class FileReadingServiceTest {
         new ToIntegerConverter<>(TwoVariables.class));
     Assert.assertTrue(publisher.toString().contains(fileToRead.toString()));
 
-    LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
+    Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
         Flowable.fromPublisher(publisher).subscribe(testSubscriber), new Consumer<LogRecord>() {
       private static final int CAPACITY_4K = 4096;
       int packCounter;
@@ -45,7 +46,7 @@ public final class FileReadingServiceTest {
         Assert.assertTrue(logRecord.getMessage().endsWith(bytesCount + " bytes IN from hardware"), logRecord.getMessage());
         packCounter++;
       }
-    });
+    }), bytes > 0);
 
     testSubscriber.assertNoErrors();
     if (bytes < 0) {
@@ -62,7 +63,7 @@ public final class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "filesCanDelete")
   public void testException(@Nonnull Path fileToRead, @Nonnegative int bytes) {
-    LogUtils.substituteLogLevel(LOGGER, Level.WARNING, () -> {
+    Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
       TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
       Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
           BytesInterceptor.BaudRate.BR_921600, 1 + TwoVariables.values().length * Integer.BYTES),
@@ -78,7 +79,7 @@ public final class FileReadingServiceTest {
       }
       testSubscriber.assertNoValues();
       testSubscriber.assertNotComplete();
-    }, logRecord -> Assert.assertEquals(logRecord.getMessage(), fileToRead.toString()));
+    }, logRecord -> Assert.assertEquals(logRecord.getMessage(), fileToRead.toString())), bytes > -1);
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
@@ -97,5 +98,12 @@ public final class FileReadingServiceTest {
     else {
       testSubscriber.assertSubscribed();
     }
+  }
+
+  @Test(expectedExceptions = IllegalStateException.class)
+  public void testInvalidChannelCall() throws Exception {
+    new FileReadingService<>(Paths.get(""), new RampBytesInterceptor(
+        BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
+        new ToIntegerConverter<>(TwoVariables.class)).call();
   }
 }

@@ -21,7 +21,8 @@ public final class FileDataProvider {
     return new Object[][] {
         {createFile(-1), -1},
         {createFile(0), 0},
-        {createFile(14), 14328}
+        {createFile(14), 14328},
+        {createFile(14), 0}
     };
   }
 
@@ -35,7 +36,7 @@ public final class FileDataProvider {
   }
 
   private static Path createFile(int kBytes) throws IOException {
-    Path path = new BinaryLogBuilder().fileNameWithTime(String.format("%s %d bytes", FileDataProvider.class.getSimpleName(), kBytes)).build().getPath();
+    Path path = new BinaryLogBuilder().fileName(String.format("%s %d bytes", FileDataProvider.class.getSimpleName(), kBytes)).build().getPath();
     if (kBytes >= 0) {
       try (WritableByteChannel channel = Files.newByteChannel(path,
           StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {

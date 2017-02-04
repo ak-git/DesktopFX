@@ -54,7 +54,7 @@ public final class NmisRsceBytesInterceptorTest {
     Assert.assertEquals(interceptor.getBaudRate(), new NmisBytesInterceptor().getBaudRate());
     Assert.assertEquals(interceptor.getPingRequest(), NmisRequest.Sequence.CATCH_100.build());
 
-    LogUtils.substituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
+    Assert.assertFalse(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> {
           Stream<RsceCommandFrame> frames = interceptor.apply(byteBuffer);
           if (response == null) {
@@ -66,6 +66,6 @@ public final class NmisRsceBytesInterceptorTest {
           Assert.assertTrue(interceptor.putOut(NmisRequest.Sequence.ROTATE_INV.build()).remaining() > 0);
         },
         logRecord -> Assert.fail(logRecord.getMessage())
-    );
+    ));
   }
 }
