@@ -9,9 +9,12 @@ import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,6 +36,7 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
     extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Publisher<int[]>, Disposable {
   private static final int CAPACITY_4K = 1024 * 4;
   private static final String CONVERTED_FILE_DIR = "converterFileLog";
+  private static final Lock LOCK = new ReentrantLock();
   @Nonnull
   private final Path fileToRead;
   @Nonnull
@@ -66,32 +70,37 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
           s.onComplete();
         }
         else {
-          Path tempConverterFile = new BinaryLogBuilder().fileName("tempConverterFile").addPath(CONVERTED_FILE_DIR).build().getPath();
-          convertedFileChannelProvider = () -> Files.newByteChannel(tempConverterFile,
-              StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
-          try (ReadableByteChannel readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
+          LOCK.lock();
+          try {
             Logger.getLogger(getClass().getName()).log(Level.INFO,
                 String.format("#%x Read file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
-            ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
-            while (readableByteChannel.read(buffer) > 0 && !isDisposed()) {
-              buffer.flip();
-              logBytes(buffer);
-              process(buffer).forEach(s::onNext);
-              buffer.clear();
-            }
+            try (ReadableByteChannel readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
+              Path tempConverterFile = new BinaryLogBuilder().fileName("tempConverterFile").addPath(CONVERTED_FILE_DIR).build().getPath();
+              convertedFileChannelProvider = () -> Files.newByteChannel(tempConverterFile,
+                  StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
 
-            if (!isDisposed()) {
-              Files.copy(tempConverterFile, convertedFile, LinkOption.NOFOLLOW_LINKS);
+              ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
+              while (readableByteChannel.read(buffer) > 0 && !isDisposed()) {
+                buffer.flip();
+                logBytes(buffer);
+                process(buffer).forEach(s::onNext);
+                buffer.clear();
+              }
+
+              if (!isDisposed()) {
+                Files.copy(tempConverterFile, convertedFile, LinkOption.NOFOLLOW_LINKS, StandardCopyOption.REPLACE_EXISTING);
+                s.onComplete();
+              }
             }
-          }
-          catch (ClosedByInterruptException e) {
-            Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
           }
           finally {
+            LOCK.unlock();
             Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
-            s.onComplete();
           }
         }
+      }
+      catch (ClosedByInterruptException e) {
+        Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
       }
       catch (IOException e) {
         Logger.getLogger(getClass().getName()).log(Level.WARNING, fileToRead.toString(), e);

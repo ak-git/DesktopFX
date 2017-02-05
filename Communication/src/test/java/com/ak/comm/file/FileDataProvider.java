@@ -16,6 +16,16 @@ public final class FileDataProvider {
   private FileDataProvider() {
   }
 
+  @DataProvider(name = "parallelRampFiles", parallel = true)
+  public static Object[][] parallelRampFiles() throws IOException {
+    return new Object[][] {
+        {createFile(1)},
+        {createFile(1)},
+        {createFile(2)},
+        {createFile(3)},
+    };
+  }
+
   @DataProvider(name = "rampFile")
   public static Object[][] rampFile() throws IOException {
     return new Object[][] {
