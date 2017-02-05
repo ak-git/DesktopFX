@@ -82,13 +82,14 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
 
             if (!isDisposed()) {
               Files.copy(tempConverterFile, convertedFile, LinkOption.NOFOLLOW_LINKS);
-              s.onComplete();
             }
-            Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
           }
           catch (ClosedByInterruptException e) {
             Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
-            s.onError(e);
+          }
+          finally {
+            Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
+            s.onComplete();
           }
         }
       }
