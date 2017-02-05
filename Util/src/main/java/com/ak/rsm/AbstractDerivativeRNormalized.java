@@ -1,9 +1,13 @@
 package com.ak.rsm;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import tec.uom.se.unit.Units;
+
+import static java.lang.StrictMath.hypot;
+import static java.lang.StrictMath.pow;
 
 abstract class AbstractDerivativeRNormalized implements UnivariateFunction, Cloneable {
   @Nonnull
@@ -30,6 +34,11 @@ abstract class AbstractDerivativeRNormalized implements UnivariateFunction, Clon
 
   final double k12() {
     return k12;
+  }
+
+  final double sumN2kN(@Nonnegative double hSI) {
+    return ResistanceTwoLayer.sum(hSI, (n, b) -> pow(n, 2.0) * pow(k12(), n) *
+        (-1.0 / pow(hypot(electrodes().radiusMinus(), b), 3.0) + 1.0 / pow(hypot(electrodes().radiusPlus(), b), 3.0)));
   }
 
   @Override

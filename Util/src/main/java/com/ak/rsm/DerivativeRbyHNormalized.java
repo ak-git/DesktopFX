@@ -2,9 +2,6 @@ package com.ak.rsm;
 
 import javax.annotation.Nonnegative;
 
-import static java.lang.StrictMath.hypot;
-import static java.lang.StrictMath.pow;
-
 /**
  * Calculates <b>first derivative</b> resistance R<sub>m-n</sub> (in Ohm) by <b>h</b> normalized by L / R for 2-layer model.
  * <br/>
@@ -23,8 +20,6 @@ final class DerivativeRbyHNormalized extends AbstractDerivativeRNormalized {
 
   @Override
   double nominator(@Nonnegative double hSI) {
-    return 32 * hSI *
-        ResistanceTwoLayer.sum(hSI, (n, b) -> pow(n, 2.0) * pow(k12(), n) *
-            (-1.0 / pow(hypot(electrodes().radiusMinus(), b), 3.0) + 1.0 / pow(hypot(electrodes().radiusPlus(), b), 3.0)));
+    return 32 * hSI * sumN2kN(hSI);
   }
 }
