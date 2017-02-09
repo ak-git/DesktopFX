@@ -12,6 +12,6 @@ public final class NmisConverter extends AbstractConverter<NmisResponseFrame, Nm
 
   @Override
   protected Stream<int[]> innerApply(NmisResponseFrame frame) {
-    return Stream.of(new int[] {frame.getShort(3), frame.getShort(0)});
+    return frame.extractTime().mapToObj(value -> new int[] {value});
   }
 }

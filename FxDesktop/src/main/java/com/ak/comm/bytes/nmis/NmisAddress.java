@@ -40,7 +40,12 @@ public enum NmisAddress {
      *   NmisResponseFrame[ 0x7e 0x45 0x09 <b>0x85 0x00</b> 0x01 0x05 0x0b 0xe0 0xb1 0xe1 0x7a 0x4e ] DATA
      * </pre>
      */
-    DATA_TIME(DATA, FrameField.TIME_COUNTER),
+    DATA_TIME(DATA, FrameField.TIME_COUNTER) {
+      @Override
+      int extract(@Nonnull ByteBuffer from) {
+        return from.getShort(3);
+      }
+    },
     /**
      * <pre>
      *   0х7Е, 0х45 (address for wrapped frame type), Len, CounterLow, CounterHi, DATA_WRAPPED_RSC_Energia ..., CRC
@@ -82,6 +87,10 @@ public enum NmisAddress {
     }
 
     void extract(@Nonnull ByteBuffer from, @Nonnull ByteBuffer to) {
+    }
+
+    int extract(@Nonnull ByteBuffer from) {
+      throw new UnsupportedOperationException(name());
     }
 
     static Extractor from(@Nonnull NmisAddress address, @Nonnull FrameField field) {

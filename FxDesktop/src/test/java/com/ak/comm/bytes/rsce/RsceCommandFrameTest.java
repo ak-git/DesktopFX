@@ -33,10 +33,9 @@ public final class RsceCommandFrameTest {
   public void testInfoRequest(@Nonnull byte[] bytes, int[] rDozenMilliOhms) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     Assert.assertNotNull(frame);
-    Assert.assertFalse(frame.hasResistance() && rDozenMilliOhms.length == 0);
+    Assert.assertFalse(frame.getRDozenMilliOhms().count() != 0 && rDozenMilliOhms.length == 0);
     if (rDozenMilliOhms.length != 0) {
-      Assert.assertEquals(frame.getR1DozenMilliOhms(), rDozenMilliOhms[0], frame.toString());
-      Assert.assertEquals(frame.getR2DozenMilliOhms(), rDozenMilliOhms[1], frame.toString());
+      Assert.assertEquals(frame.getRDozenMilliOhms().toArray(), rDozenMilliOhms, frame.toString());
     }
   }
 
@@ -44,8 +43,6 @@ public final class RsceCommandFrameTest {
   public void testInvalidInfoRequest() {
     RsceCommandFrame frame = new RsceCommandFrame.RequestBuilder(RsceCommandFrame.Control.ALL, RsceCommandFrame.ActionType.NONE, RsceCommandFrame.RequestType.EMPTY).build();
     Assert.assertNotNull(frame);
-    Assert.assertThrows(UnsupportedOperationException.class, frame::getR1DozenMilliOhms);
-    Assert.assertThrows(UnsupportedOperationException.class, frame::getR2DozenMilliOhms);
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "invalidRequests")

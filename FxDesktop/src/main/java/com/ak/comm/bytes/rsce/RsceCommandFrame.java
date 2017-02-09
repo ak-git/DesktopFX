@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import java.util.zip.Checksum;
@@ -181,20 +182,17 @@ public final class RsceCommandFrame extends BufferFrame {
     super(builder.buffer());
   }
 
-  public boolean hasResistance() {
-    return Extractor.from(ActionType.find(byteBuffer()), RequestType.find(byteBuffer()), FrameField.R1_DOZEN_MILLI_OHM) != Extractor.NONE;
-  }
-
-  public int getR1DozenMilliOhms() {
-    return getRDozenMilliOhms(FrameField.R1_DOZEN_MILLI_OHM);
-  }
-
-  public int getR2DozenMilliOhms() {
-    return getRDozenMilliOhms(FrameField.R2_DOZEN_MILLI_OHM);
-  }
-
-  private int getRDozenMilliOhms(FrameField frameField) {
-    return Extractor.from(ActionType.find(byteBuffer()), RequestType.find(byteBuffer()), frameField).extractResistance(byteBuffer());
+  public IntStream getRDozenMilliOhms() {
+    return EnumSet.range(FrameField.R1_DOZEN_MILLI_OHM, FrameField.R2_DOZEN_MILLI_OHM).stream().
+        flatMapToInt(frameField -> {
+          Extractor extractor = Extractor.from(ActionType.find(byteBuffer()), RequestType.find(byteBuffer()), frameField);
+          if (extractor == Extractor.NONE) {
+            return IntStream.empty();
+          }
+          else {
+            return IntStream.of(extractor.extractResistance(byteBuffer()));
+          }
+        });
   }
 
   @Override
