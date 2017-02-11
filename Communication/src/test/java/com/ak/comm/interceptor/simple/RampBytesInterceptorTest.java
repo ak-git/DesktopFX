@@ -29,12 +29,12 @@ public final class RampBytesInterceptorTest {
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(20);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testInvalidInterceptorProperties() {
+  public static void testInvalidInterceptorProperties() {
     new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 0);
   }
 
   @Test
-  public void testInterceptorProperties() {
+  public static void testInterceptorProperties() {
     BytesInterceptor<BufferFrame, BufferFrame> interceptor = new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1);
     Assert.assertEquals(interceptor.getBaudRate(), BAUDRATE_115200);
     Assert.assertNull(interceptor.getPingRequest());
@@ -99,7 +99,7 @@ public final class RampBytesInterceptorTest {
   }
 
   @Test(dataProvider = "data")
-  public void testRampBytesInterceptor(byte[] input, BufferFrame testFrame, String ignoredMessage) {
+  public static void testRampBytesInterceptor(byte[] input, BufferFrame testFrame, String ignoredMessage) {
     BytesInterceptor<BufferFrame, BufferFrame> interceptor = new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, 9);
 
     Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,

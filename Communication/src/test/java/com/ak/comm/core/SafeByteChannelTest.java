@@ -14,13 +14,16 @@ import com.ak.logging.BinaryLogBuilder;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public final class SafeByteChannelTest {
+public class SafeByteChannelTest {
   private static final Logger LOGGER = Logger.getLogger(SafeByteChannel.class.getName());
 
+  private SafeByteChannelTest() {
+  }
+
   @Test
-  public void testWriteAndRead() {
+  public static void testWriteAndRead() {
     SafeByteChannel channel = new SafeByteChannel(() -> {
-      Path path = new BinaryLogBuilder().fileNameWithTime(getClass().getSimpleName()).build().getPath();
+      Path path = new BinaryLogBuilder().fileNameWithTime(SafeByteChannelTest.class.getSimpleName()).build().getPath();
       return Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
     });
 
@@ -42,7 +45,7 @@ public final class SafeByteChannelTest {
   }
 
   @Test
-  public void testInvalidOperations() {
+  public static void testInvalidOperations() {
     SafeByteChannel channel = new SafeByteChannel(() -> new SeekableByteChannel() {
       @Override
       public int read(ByteBuffer dst) throws IOException {
@@ -97,7 +100,7 @@ public final class SafeByteChannelTest {
   }
 
   @Test
-  public void testInvalidInitialize() {
+  public static void testInvalidInitialize() {
     Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
       SafeByteChannel channel = new SafeByteChannel(() -> {
         throw new Exception();

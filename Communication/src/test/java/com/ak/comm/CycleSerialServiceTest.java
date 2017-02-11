@@ -16,13 +16,16 @@ import org.testng.annotations.Test;
 
 import static com.ak.util.UIConstants.UI_DELAY;
 
-public final class CycleSerialServiceTest {
+public class CycleSerialServiceTest {
   private enum SingleVariable implements Variable {
     SINGLE_VARIABLE
   }
 
+  private CycleSerialServiceTest() {
+  }
+
   @Test
-  public void testBytesInterceptor() throws InterruptedException {
+  public static void testBytesInterceptor() throws InterruptedException {
     CountDownLatch latch = new CountDownLatch(1);
 
     CycleSerialService<BufferFrame, BufferFrame, SingleVariable> service =

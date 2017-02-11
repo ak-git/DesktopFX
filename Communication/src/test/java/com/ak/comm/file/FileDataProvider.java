@@ -12,7 +12,7 @@ import com.ak.comm.converter.TwoVariables;
 import com.ak.logging.BinaryLogBuilder;
 import org.testng.annotations.DataProvider;
 
-public final class FileDataProvider {
+public class FileDataProvider {
   private FileDataProvider() {
   }
 

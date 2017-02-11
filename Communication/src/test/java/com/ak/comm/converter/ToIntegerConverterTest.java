@@ -13,7 +13,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import tec.uom.se.AbstractUnit;
 
-public final class ToIntegerConverterTest {
+public class ToIntegerConverterTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -28,8 +28,11 @@ public final class ToIntegerConverterTest {
     S
   }
 
+  private ToIntegerConverterTest() {
+  }
+
   @Test(dataProvider = "variables")
-  public <T extends Enum<T> & Variable> void testApply(@Nonnull Class<T> evClass, @Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
+  public static <T extends Enum<T> & Variable> void testApply(@Nonnull Class<T> evClass, @Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
     ToIntegerConverter<T> converter = new ToIntegerConverter<>(evClass);
     Assert.assertEquals(EnumSet.allOf(evClass), converter.variables());
     EnumSet.allOf(evClass).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));

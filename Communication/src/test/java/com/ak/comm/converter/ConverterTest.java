@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 
 import static java.util.logging.Level.WARNING;
 
-public final class ConverterTest {
+public class ConverterTest {
   private enum SingleVariable implements Variable {
     SINGLE_VARIABLE
   }
@@ -24,7 +24,6 @@ public final class ConverterTest {
         }
       };
   private static final Logger LOGGER_INVALID = Logger.getLogger(INVALID_CONVERTER.getClass().getName());
-
   private static final Converter<Integer, SingleVariable> VALID_CONVERTER_0 =
       new AbstractConverter<Integer, SingleVariable>(SingleVariable.class) {
         @Override
@@ -34,15 +33,18 @@ public final class ConverterTest {
       };
   private static final Logger LOGGER_VALID = Logger.getLogger(VALID_CONVERTER_0.getClass().getName());
 
+  private ConverterTest() {
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testInvalidApply() {
+  public static void testInvalidApply() {
     Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER_INVALID, WARNING,
         () -> Assert.assertEquals(INVALID_CONVERTER.apply(1).count(), 1),
         logRecord -> Assert.assertEquals(logRecord.getMessage(), "Invalid variables: [V1, V2] not match [1]")));
   }
 
   @Test
-  public void testValidApply() {
+  public static void testValidApply() {
     Assert.assertFalse(LogUtils.isSubstituteLogLevel(LOGGER_VALID, WARNING,
         () -> Assert.assertEquals(VALID_CONVERTER_0.apply(1).count(), 0),
         logRecord -> Assert.fail(logRecord.getMessage())));

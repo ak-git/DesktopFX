@@ -25,12 +25,15 @@ import org.reactivestreams.Subscription;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public final class FileReadingServiceTest {
+public class FileReadingServiceTest {
   private static final Logger LOGGER = Logger.getLogger(FileReadingService.class.getName());
   private static final int CAPACITY_4K = 4096;
 
+  private FileReadingServiceTest() {
+  }
+
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFile")
-  public void testFile(@Nonnull Path fileToRead, @Nonnegative int bytes, boolean forceClose) {
+  public static void testFile(@Nonnull Path fileToRead, @Nonnegative int bytes, boolean forceClose) {
     TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
     FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher = new FileReadingService<>(
@@ -47,7 +50,7 @@ public final class FileReadingServiceTest {
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
-  public void testFiles(@Nonnull Path fileToRead, @Nonnegative int bytes) {
+  public static void testFiles(@Nonnull Path fileToRead, @Nonnegative int bytes) {
     TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
     Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
@@ -81,7 +84,7 @@ public final class FileReadingServiceTest {
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "filesCanDelete")
-  public void testException(@Nonnull Path fileToRead, @Nonnegative int bytes) {
+  public static void testException(@Nonnull Path fileToRead, @Nonnegative int bytes) {
     Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
       TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
       Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
@@ -102,7 +105,7 @@ public final class FileReadingServiceTest {
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
-  public void testCancel(@Nonnull Path fileToRead, @Nonnegative int bytes) {
+  public static void testCancel(@Nonnull Path fileToRead, @Nonnegative int bytes) {
     TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
     Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
         BytesInterceptor.BaudRate.BR_921600, 1 + TwoVariables.values().length * Integer.BYTES),
@@ -120,7 +123,7 @@ public final class FileReadingServiceTest {
   }
 
   @Test(expectedExceptions = IllegalStateException.class)
-  public void testInvalidChannelCall() throws Exception {
+  public static void testInvalidChannelCall() throws Exception {
     new FileReadingService<>(Paths.get(""), new RampBytesInterceptor(
         BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
         new ToIntegerConverter<>(TwoVariables.class)).call();
