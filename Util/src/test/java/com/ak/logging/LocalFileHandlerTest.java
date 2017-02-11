@@ -63,10 +63,10 @@ public class LocalFileHandlerTest {
 
 
   @Test(dataProvider = "logBuilders")
-  public void testLogBuilders(Path path) throws IOException {
+  public static void testLogBuilders(Path path) throws IOException {
     WritableByteChannel channel = Files.newByteChannel(path,
         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-    channel.write(ByteBuffer.wrap(getClass().getName().getBytes(Charset.defaultCharset())));
+    channel.write(ByteBuffer.wrap(LocalFileHandlerTest.class.getName().getBytes(Charset.defaultCharset())));
     channel.close();
     Files.deleteIfExists(path);
   }
