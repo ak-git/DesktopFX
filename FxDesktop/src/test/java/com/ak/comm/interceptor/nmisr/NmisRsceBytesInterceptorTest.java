@@ -18,13 +18,16 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public final class NmisRsceBytesInterceptorTest {
+public class NmisRsceBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(NmisRsceBytesInterceptor.class.getName());
   private final BytesInterceptor<RsceCommandFrame, NmisRequest> interceptor = new NmisRsceBytesInterceptor();
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY);
 
+  private NmisRsceBytesInterceptorTest() {
+  }
+
   @DataProvider(name = "data")
-  public Object[][] data() {
+  public static Object[][] data() {
     return new Object[][] {
         new Object[] {new byte[] {
             // NO Data, empty Rsce frame

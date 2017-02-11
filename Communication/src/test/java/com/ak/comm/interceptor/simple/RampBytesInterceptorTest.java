@@ -22,11 +22,14 @@ import org.testng.annotations.Test;
 
 import static jssc.SerialPort.BAUDRATE_115200;
 
-public final class RampBytesInterceptorTest {
+public class RampBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(RampBytesInterceptor.class.getName());
   private final Function<ByteBuffer, Stream<BufferFrame>> interceptor =
       new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 9);
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(20);
+
+  private RampBytesInterceptorTest() {
+  }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public static void testInvalidInterceptorProperties() {

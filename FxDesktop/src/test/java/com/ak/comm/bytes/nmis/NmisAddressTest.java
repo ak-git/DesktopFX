@@ -14,9 +14,12 @@ import static com.ak.comm.bytes.nmis.NmisAddress.DATA;
 import static com.ak.comm.bytes.nmis.NmisAddress.ROTATE_ELBOW;
 import static com.ak.comm.bytes.nmis.NmisAddress.ROTATE_HAND;
 
-public final class NmisAddressTest {
+public class NmisAddressTest {
+  private NmisAddressTest() {
+  }
+
   @Test
-  public void testGetAddrRequest() {
+  public static void testGetAddrRequest() {
     EnumSet<NmisAddress> bad = EnumSet.of(ALIVE, CATCH_ELBOW, ROTATE_ELBOW, CATCH_HAND, ROTATE_HAND);
     for (NmisAddress address : bad) {
       Assert.assertThrows(UnsupportedOperationException.class, address::getAddrRequest);
@@ -32,7 +35,7 @@ public final class NmisAddressTest {
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "aliveAndChannelsResponse")
-  public void testFind(NmisAddress address, byte[] input) {
+  public static void testFind(NmisAddress address, byte[] input) {
     Assert.assertEquals(Optional.ofNullable(NmisAddress.find(ByteBuffer.wrap(input))).orElse(ALIVE), address);
   }
 }

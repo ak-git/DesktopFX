@@ -18,57 +18,60 @@ import com.ak.comm.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public final class NmisBytesInterceptorTest {
+public class NmisBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(NmisBytesInterceptor.class.getName());
 
+  private NmisBytesInterceptorTest() {
+  }
+
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "allOhmsMyoOff")
-  public void testRequestOhms(NmisRequest request, byte[] expected) {
+  public static void testRequestOhms(NmisRequest request, byte[] expected) {
     testRequest(request, expected);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "360OhmsMyoHz")
-  public void testRequestMyo(NmisRequest request, byte[] expected) {
+  public static void testRequestMyo(NmisRequest request, byte[] expected) {
     testRequest(request, expected);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "sequence")
-  public void testRequestSequence(NmisRequest request, byte[] expected) {
+  public static void testRequestSequence(NmisRequest request, byte[] expected) {
     testRequest(request, expected);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "allOhmsMyoOffResponse")
-  public void testResponseOhms(NmisRequest request, byte[] input) {
+  public static void testResponseOhms(NmisRequest request, byte[] input) {
     Assert.assertEquals(request.toResponse(), new NmisResponseFrame.Builder(ByteBuffer.wrap(Arrays.copyOfRange(input, 1, input.length))).build());
     Assert.assertNotEquals(request.toResponse(), new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
     testResponse(request, input, true);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "360OhmsMyoHzResponse")
-  public void testResponseMyo(NmisRequest request, byte[] input) {
+  public static void testResponseMyo(NmisRequest request, byte[] input) {
     Assert.assertEquals(request.toResponse(), new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
     testResponse(request, input, true);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "sequenceResponse")
-  public void testResponseSequence(NmisRequest request, byte[] input) {
+  public static void testResponseSequence(NmisRequest request, byte[] input) {
     Assert.assertEquals(request.toResponse(), new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
     testResponse(request, input, true);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "aliveAndChannelsResponse")
-  public void testResponseAliveAndChannels(NmisAddress address, byte[] input) {
+  public static void testResponseAliveAndChannels(NmisAddress address, byte[] input) {
     if (NmisAddress.CHANNELS.contains(address)) {
       Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build()).orElseThrow(NullPointerException::new);
     }
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "invalidTestByteResponse")
-  public void testInvalidResponse(byte[] input) {
+  public static void testInvalidResponse(byte[] input) {
     testResponse(NmisRequest.Sequence.CATCH_30.build(), input, false);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "invalidCRCResponse")
-  public void testInvalidResponseCRC(byte[] input) {
+  public static void testInvalidResponseCRC(byte[] input) {
     testResponse(NmisRequest.Sequence.CATCH_30.build(), input, false);
   }
 

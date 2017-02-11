@@ -12,11 +12,14 @@ import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public final class AutoFileReadingServiceTest {
+public class AutoFileReadingServiceTest {
   private final FileFilter service = new AutoFileReadingService<>(
       () -> new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
       () -> new ToIntegerConverter<>(TwoVariables.class));
 
+
+  private AutoFileReadingServiceTest() {
+  }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "parallelRampFiles", invocationCount = 10)
   public void testAccept(@Nonnull Path file) {

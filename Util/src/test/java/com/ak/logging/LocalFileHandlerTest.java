@@ -15,6 +15,7 @@ import java.util.logging.LogRecord;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.log.TextFormatter;
@@ -25,6 +26,7 @@ public class LocalFileHandlerTest {
   private LocalFileHandlerTest() {
   }
 
+  @BeforeSuite
   @BeforeClass
   public void setUp() throws Exception {
     logPath = new LogPathBuilder().addPath(LocalFileHandler.class.getSimpleName()).addPath("testSubDir").

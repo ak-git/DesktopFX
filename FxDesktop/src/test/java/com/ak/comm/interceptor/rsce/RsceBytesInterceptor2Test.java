@@ -22,12 +22,15 @@ import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_ANGLE
 import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_SPEED;
 import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_SPEED_ANGLE;
 
-public final class RsceBytesInterceptor2Test {
+public class RsceBytesInterceptor2Test {
   private final BytesInterceptor<RsceCommandFrame, RsceCommandFrame> interceptor = new RsceBytesInterceptor();
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(1);
 
+  private RsceBytesInterceptor2Test() {
+  }
+
   @DataProvider(name = "data")
-  public Object[][] data() {
+  public static Object[][] data() {
     return new Object[][] {
         //added 0x00 at start
         {new byte[] {0x00, 0x01, 0x03, 0x00, 0x20, (byte) 0xF0}, RsceCommandFrame.simple(CATCH, EMPTY)},

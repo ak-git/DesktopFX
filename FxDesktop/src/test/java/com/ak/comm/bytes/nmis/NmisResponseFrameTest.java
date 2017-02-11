@@ -6,9 +6,12 @@ import java.util.Arrays;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public final class NmisResponseFrameTest {
+public class NmisResponseFrameTest {
+  private NmisResponseFrameTest() {
+  }
+
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "invalidTestByteResponse")
-  public void testNewInstance(byte[] input) {
+  public static void testNewInstance(byte[] input) {
     ByteBuffer byteBuffer = ByteBuffer.wrap(input);
     Assert.assertNotNull(NmisAddress.find(byteBuffer), Arrays.toString(input));
     Assert.assertTrue(NmisProtocolByte.checkCRC(byteBuffer), Arrays.toString(input));
@@ -16,7 +19,7 @@ public final class NmisResponseFrameTest {
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "sequenceResponse")
-  public void testEquals(NmisRequest request, byte[] input) {
+  public static void testEquals(NmisRequest request, byte[] input) {
     NmisResponseFrame nmisResponseFrame = new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build();
     Assert.assertNotNull(nmisResponseFrame);
     Assert.assertNotEquals(request, nmisResponseFrame, Arrays.toString(input));

@@ -15,11 +15,14 @@ import org.testng.annotations.Test;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_VALUES;
 
-public final class RsceConverterTest {
+public class RsceConverterTest {
   private static final Logger LOGGER = Logger.getLogger(RsceConverter.class.getName());
 
+  private RsceConverterTest() {
+  }
+
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "rheo12-catch-rotate")
-  public void testApply(@Nonnull byte[] bytes, int[] rDozenMilliOhms) {
+  public static void testApply(@Nonnull byte[] bytes, int[] rDozenMilliOhms) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     Assert.assertNotNull(frame);
     Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES, () -> {
