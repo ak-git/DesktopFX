@@ -72,11 +72,11 @@ public final class NmisResponseFrame extends BufferFrame {
 
   public static class Builder extends AbstractCheckedBuilder<NmisResponseFrame> {
     public Builder() {
-      this(ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY).order(ByteOrder.LITTLE_ENDIAN));
+      this(ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY));
     }
 
     public Builder(@Nonnull ByteBuffer buffer) {
-      super(buffer);
+      super(buffer.order(ByteOrder.LITTLE_ENDIAN));
     }
 
     @Override

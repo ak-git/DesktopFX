@@ -43,7 +43,7 @@ public enum NmisAddress {
     DATA_TIME(DATA, FrameField.TIME_COUNTER) {
       @Override
       int extract(@Nonnull ByteBuffer from) {
-        return from.getShort(3);
+        return from.getShort(NmisProtocolByte.DATA_1.ordinal());
       }
     },
     /**
