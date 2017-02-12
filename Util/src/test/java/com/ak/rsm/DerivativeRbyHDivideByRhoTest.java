@@ -27,6 +27,11 @@ public class DerivativeRbyHDivideByRhoTest {
 
   @Test(expectedExceptions = CloneNotSupportedException.class)
   public static void testNotClone() throws CloneNotSupportedException {
-    new DerivativeRbyHNormalized(1.0, 0.5).clone();
+    new DerivativeRbyHDivideByRho(1.0, 0.5, 1.0).clone();
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public static void testNotNominator() {
+    new DerivativeRbyHDivideByRho(1.0, 0.5, 1.0).nominator(1.0);
   }
 }

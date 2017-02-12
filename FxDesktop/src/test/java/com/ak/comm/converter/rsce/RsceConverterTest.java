@@ -12,6 +12,8 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import tec.uom.se.unit.MetricPrefix;
+import tec.uom.se.unit.Units;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_VALUES;
 
@@ -40,6 +42,7 @@ public class RsceConverterTest {
       }
       for (RsceVariable rsceVariable : RsceVariable.values()) {
         Assert.assertTrue(logRecord.getMessage().contains(rsceVariable.name()));
+        Assert.assertEquals(rsceVariable.getUnit(), MetricPrefix.CENTI(Units.OHM));
       }
     }), rDozenMilliOhms.length > 0);
   }

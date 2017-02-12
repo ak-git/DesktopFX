@@ -2,6 +2,7 @@ package com.ak.comm.file;
 
 import java.io.FileFilter;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.annotation.Nonnull;
 
@@ -24,5 +25,10 @@ public class AutoFileReadingServiceTest {
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "parallelRampFiles", invocationCount = 10)
   public void testAccept(@Nonnull Path file) {
     Assert.assertTrue(service.accept(file.toFile()));
+  }
+
+  @Test
+  public void testNotAccept() {
+    Assert.assertFalse(service.accept(Paths.get("").toFile()));
   }
 }
