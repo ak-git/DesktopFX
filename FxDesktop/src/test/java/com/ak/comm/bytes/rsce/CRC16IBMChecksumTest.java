@@ -6,7 +6,10 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public final class CRC16IBMChecksumTest {
+public class CRC16IBMChecksumTest {
+  private CRC16IBMChecksumTest() {
+  }
+
   @DataProvider(name = "checksum", parallel = true)
   public static Object[][] checksum() {
     byte[][] input = {
@@ -31,7 +34,7 @@ public final class CRC16IBMChecksumTest {
   }
 
   @Test(dataProvider = "checksum")
-  public void testUpdate(@Nonnull byte[] input, int expectedSum) {
+  public static void testUpdate(@Nonnull byte[] input, int expectedSum) {
     CRC16IBMChecksum checksum = new CRC16IBMChecksum();
     Assert.assertThrows(CloneNotSupportedException.class, checksum::clone);
     for (int i = 0, bytesLength = input.length; i < bytesLength; i++) {

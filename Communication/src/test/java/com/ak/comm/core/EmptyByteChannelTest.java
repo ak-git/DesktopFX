@@ -5,9 +5,12 @@ import java.nio.ByteBuffer;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public final class EmptyByteChannelTest {
+public class EmptyByteChannelTest {
   private final EmptyByteChannel channel = new EmptyByteChannel();
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(1);
+
+  private EmptyByteChannelTest() {
+  }
 
   @Test
   public void testRead() {

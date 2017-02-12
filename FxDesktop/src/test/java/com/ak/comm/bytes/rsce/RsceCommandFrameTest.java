@@ -8,59 +8,59 @@ import javax.annotation.Nonnull;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public final class RsceCommandFrameTest {
+public class RsceCommandFrameTest {
+  private RsceCommandFrameTest() {
+  }
+
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "simpleRequests")
-  public void testSimpleRequest(@Nonnull byte[] expected, @Nonnull RsceCommandFrame.Control control, @Nonnull RsceCommandFrame.RequestType type) {
+  public static void testSimpleRequest(@Nonnull byte[] expected, @Nonnull RsceCommandFrame.Control control, @Nonnull RsceCommandFrame.RequestType type) {
     checkRequest(expected, RsceCommandFrame.simple(control, type));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "offRequests")
-  public void testOffRequest(@Nonnull byte[] expected, @Nonnull RsceCommandFrame.Control control) {
+  public static void testOffRequest(@Nonnull byte[] expected, @Nonnull RsceCommandFrame.Control control) {
     checkRequest(expected, RsceCommandFrame.off(control));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "preciseRequests")
-  public void testPreciseRequest(@Nonnull byte[] expected, short speed) {
+  public static void testPreciseRequest(@Nonnull byte[] expected, short speed) {
     checkRequest(expected, RsceCommandFrame.precise(RsceCommandFrame.Control.CATCH, RsceCommandFrame.RequestType.STATUS_I_SPEED_ANGLE, speed));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "positionRequests")
-  public void testPositionRequest(@Nonnull byte[] expected, byte position) {
+  public static void testPositionRequest(@Nonnull byte[] expected, byte position) {
     checkRequest(expected, RsceCommandFrame.position(RsceCommandFrame.Control.CATCH, position));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "rheo12-catch-rotate")
-  public void testInfoRequest(@Nonnull byte[] bytes, int[] rDozenMilliOhms) {
+  public static void testInfoRequest(@Nonnull byte[] bytes, int[] rDozenMilliOhms) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     Assert.assertNotNull(frame);
-    Assert.assertFalse(frame.hasResistance() && rDozenMilliOhms.length == 0);
+    Assert.assertFalse(frame.getRDozenMilliOhms().count() != 0 && rDozenMilliOhms.length == 0);
     if (rDozenMilliOhms.length != 0) {
-      Assert.assertEquals(frame.getR1DozenMilliOhms(), rDozenMilliOhms[0], frame.toString());
-      Assert.assertEquals(frame.getR2DozenMilliOhms(), rDozenMilliOhms[1], frame.toString());
+      Assert.assertEquals(frame.getRDozenMilliOhms().toArray(), rDozenMilliOhms, frame.toString());
     }
   }
 
   @Test
-  public void testInvalidInfoRequest() {
+  public static void testInvalidInfoRequest() {
     RsceCommandFrame frame = new RsceCommandFrame.RequestBuilder(RsceCommandFrame.Control.ALL, RsceCommandFrame.ActionType.NONE, RsceCommandFrame.RequestType.EMPTY).build();
     Assert.assertNotNull(frame);
-    Assert.assertThrows(UnsupportedOperationException.class, frame::getR1DozenMilliOhms);
-    Assert.assertThrows(UnsupportedOperationException.class, frame::getR2DozenMilliOhms);
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "invalidRequests")
-  public void testInvalidRequests(@Nonnull byte[] bytes) {
+  public static void testInvalidRequests(@Nonnull byte[] bytes) {
     Assert.assertNull(new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build(), Arrays.toString(bytes));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "invalidRequests",
       expectedExceptions = UnsupportedOperationException.class)
-  public void testInvalidMethod(@Nonnull byte[] bytes) {
+  public static void testInvalidMethod(@Nonnull byte[] bytes) {
     new RsceCommandFrame.ResponseBuilder().bufferLimit(ByteBuffer.wrap(bytes));
   }
 
   @Test(expectedExceptions = CloneNotSupportedException.class)
-  public void testClone() throws CloneNotSupportedException {
+  public static void testClone() throws CloneNotSupportedException {
     RsceCommandFrame.precise(RsceCommandFrame.Control.ALL, RsceCommandFrame.RequestType.EMPTY).clone();
   }
 

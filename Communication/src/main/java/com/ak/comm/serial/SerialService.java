@@ -2,6 +2,9 @@ package com.ak.comm.serial;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -13,22 +16,27 @@ import javax.annotation.Nonnull;
 
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.SafeByteChannel;
+import com.ak.logging.BinaryLogBuilder;
 import com.ak.util.Strings;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
+import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
-final class SerialService extends AbstractService<ByteBuffer> implements WritableByteChannel {
+final class SerialService extends AbstractService implements WritableByteChannel, Publisher<ByteBuffer> {
   @Nonnull
   private final SerialPort serialPort;
   @Nonnegative
   private final int baudRate;
   @Nonnull
   private final ByteBuffer buffer;
-  private final SafeByteChannel binaryLogChannel = new SafeByteChannel(getClass().getSimpleName());
+  private final SafeByteChannel binaryLogChannel = new SafeByteChannel(() -> {
+    Path path = new BinaryLogBuilder().fileNameWithTime(SerialService.class.getSimpleName()).addPath("serialBytesLog").build().getPath();
+    return Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+  });
 
   SerialService(@Nonnegative int baudRate) {
     this.baudRate = baudRate;
@@ -97,15 +105,6 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
   }
 
   @Override
-  public void request(long n) {
-  }
-
-  @Override
-  public void cancel() {
-    close();
-  }
-
-  @Override
   public void close() {
     try {
       synchronized (serialPort) {
@@ -128,7 +127,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
 
   private void logErrorAndComplete(Subscriber<?> s, @Nonnull Exception ex) {
     Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
-    cancel();
+    close();
     s.onComplete();
   }
 

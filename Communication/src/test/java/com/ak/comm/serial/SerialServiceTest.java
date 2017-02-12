@@ -14,7 +14,10 @@ import org.testng.annotations.Test;
 
 import static jssc.SerialPort.BAUDRATE_115200;
 
-public final class SerialServiceTest implements Subscriber<ByteBuffer> {
+public class SerialServiceTest implements Subscriber<ByteBuffer> {
+  private SerialServiceTest() {
+  }
+
   @Test
   public void test() {
     List<SerialService> services = Stream.of(SerialPortList.getPortNames()).map(port -> {

@@ -8,6 +8,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,7 +41,12 @@ public enum NmisAddress {
      *   NmisResponseFrame[ 0x7e 0x45 0x09 <b>0x85 0x00</b> 0x01 0x05 0x0b 0xe0 0xb1 0xe1 0x7a 0x4e ] DATA
      * </pre>
      */
-    DATA_TIME(DATA, FrameField.TIME_COUNTER),
+    DATA_TIME(DATA, FrameField.TIME_COUNTER) {
+      @Override
+      IntStream extract(@Nonnull ByteBuffer from) {
+        return IntStream.of(from.getShort(NmisProtocolByte.DATA_1.ordinal()));
+      }
+    },
     /**
      * <pre>
      *   0х7Е, 0х45 (address for wrapped frame type), Len, CounterLow, CounterHi, DATA_WRAPPED_RSC_Energia ..., CRC
@@ -82,6 +88,10 @@ public enum NmisAddress {
     }
 
     void extract(@Nonnull ByteBuffer from, @Nonnull ByteBuffer to) {
+    }
+
+    IntStream extract(@Nonnull ByteBuffer from) {
+      return IntStream.empty();
     }
 
     static Extractor from(@Nonnull NmisAddress address, @Nonnull FrameField field) {

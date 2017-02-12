@@ -12,8 +12,9 @@ public final class RsceConverter extends AbstractConverter<RsceCommandFrame, Rsc
 
   @Override
   protected Stream<int[]> innerApply(RsceCommandFrame frame) {
-    if (frame.hasResistance()) {
-      return Stream.of(new int[] {frame.getR1DozenMilliOhms(), frame.getR2DozenMilliOhms()});
+    int[] ints = frame.getRDozenMilliOhms().toArray();
+    if (ints.length == RsceVariable.values().length) {
+      return Stream.of(ints);
     }
     else {
       return Stream.empty();

@@ -1,6 +1,8 @@
 package com.ak.comm.bytes.nmis;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,6 +55,10 @@ public final class NmisResponseFrame extends BufferFrame {
     NmisAddress.Extractor.from(address, NmisAddress.FrameField.DATA_WRAPPED).extract(byteBuffer(), destination);
   }
 
+  public IntStream extractTime() {
+    return NmisAddress.Extractor.from(address, NmisAddress.FrameField.TIME_COUNTER).extract(byteBuffer());
+  }
+
   @Override
   public String toString() {
     return String.format("%s %s", super.toString(), address);
@@ -64,7 +70,7 @@ public final class NmisResponseFrame extends BufferFrame {
     }
 
     public Builder(@Nonnull ByteBuffer buffer) {
-      super(buffer);
+      super(buffer.order(ByteOrder.LITTLE_ENDIAN));
     }
 
     @Override

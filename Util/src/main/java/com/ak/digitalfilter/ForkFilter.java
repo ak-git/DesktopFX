@@ -1,14 +1,15 @@
 package com.ak.digitalfilter;
 
-import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -18,40 +19,62 @@ import static com.ak.util.Strings.NEW_LINE;
 
 final class ForkFilter extends AbstractDigitalFilter {
   private final List<DigitalFilter> filters = new LinkedList<>();
+  private final boolean parallel;
 
-  ForkFilter(@Nonnull DigitalFilter first, @Nonnull DigitalFilter... next) {
-    Objects.requireNonNull(next);
-    filters.add(first);
-    filters.addAll(Arrays.asList(next));
+  ForkFilter(@Nonnull DigitalFilter[] filters, boolean parallel) {
+    Objects.requireNonNull(filters);
+    if (filters.length < 2) {
+      throw new IllegalArgumentException(Arrays.deepToString(filters));
+    }
+    this.parallel = parallel;
+    this.filters.addAll(Arrays.asList(filters));
 
     double maxDelay = getDelay();
-    ListIterator<DigitalFilter> listIterator = filters.listIterator();
+    ListIterator<DigitalFilter> listIterator = this.filters.listIterator();
     while (listIterator.hasNext()) {
       DigitalFilter filter = listIterator.next();
       int delay = (int) Math.round(maxDelay - filter.getDelay());
       if (delay != 0) {
-        listIterator.set(new ChainFilter(filter, new DelayFilter(delay)));
+        listIterator.set(new ChainFilter(new DelayFilter(delay), filter));
       }
     }
 
-    IntBuffer buffer = IntBuffer.allocate(size());
-    AtomicInteger sync = new AtomicInteger();
-    for (int i = 0; i < filters.size(); i++) {
-      DigitalFilter filter = filters.get(i);
-      int finalI = i;
+    int[] bufferPositions = new int[this.filters.size()];
+    bufferPositions[0] = 0;
+    for (int i = 1; i < this.filters.size(); i++) {
+      bufferPositions[i] = bufferPositions[i - 1] + this.filters.get(i - 1).size();
+    }
+    int[] bufferIndexes = new int[this.filters.size()];
+
+    AtomicBoolean initializedFlag = new AtomicBoolean();
+    List<int[]> intBuffers = new ArrayList<>();
+    for (int i = 0; i < this.filters.size(); i++) {
+      DigitalFilter filter = this.filters.get(i);
+      int filterI = i;
       filter.forEach(values -> {
-        if (sync.compareAndSet(finalI, finalI + 1)) {
-          buffer.put(values);
-          if (finalI == filters.size() - 1) {
-            buffer.flip();
-            publish(buffer.array());
-            buffer.clear();
-            sync.set(0);
+        int bufferIndex = bufferIndexes[filterI];
+        bufferIndexes[filterI]++;
+
+        if (bufferIndex >= intBuffers.size()) {
+          if (initializedFlag.get()) {
+            throw new IllegalStateException(String.format("Invalid fork [ %s ] for filter {%n%s%n}, values = %s", filter,
+                this, Arrays.toString(values)));
+          }
+          else {
+            intBuffers.add(new int[size()]);
           }
         }
-        else {
-          throw new IllegalStateException(String.format("Invalid fork [ %s ] for filter {%n%s%n}, values = %s", filter,
-              this, Arrays.toString(values)));
+
+        System.arraycopy(values, 0, intBuffers.get(bufferIndex), bufferPositions[filterI], values.length);
+
+        if (IntStream.of(bufferIndexes).allMatch(value -> value > 0)) {
+          initializedFlag.set(true);
+          if (IntStream.of(bufferIndexes).allMatch(value -> value == bufferIndexes[0])) {
+            intBuffers.forEach(this::publish);
+            Arrays.fill(bufferIndexes, 0);
+            intBuffers.clear();
+            initializedFlag.set(false);
+          }
         }
       });
     }
@@ -70,7 +93,19 @@ final class ForkFilter extends AbstractDigitalFilter {
 
   @Override
   public void accept(int... in) {
-    filters.forEach(filter -> filter.accept(in));
+    if (parallel) {
+      if (filters.size() == in.length) {
+        for (int i = 0; i < in.length; i++) {
+          filters.get(i).accept(in[i]);
+        }
+      }
+      else {
+        illegalArgumentException(in);
+      }
+    }
+    else {
+      filters.forEach(filter -> filter.accept(in));
+    }
   }
 
   @Nonnegative

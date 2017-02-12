@@ -1,6 +1,8 @@
 package com.ak.comm.core;
 
 import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
+import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -10,12 +12,14 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.interceptor.BytesInterceptor;
 
-public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractService<int[]> {
+public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable>
+    extends AbstractService implements Callable<SeekableByteChannel> {
   @Nonnull
   private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
   @Nonnull
   private final Converter<RESPONSE, EV> responseConverter;
-  private final SafeByteChannel byteChannel = new SafeByteChannel(getClass().getSimpleName());
+  @Nonnull
+  private final SafeByteChannel byteChannel = new SafeByteChannel(this);
   @Nonnull
   private final ByteBuffer workingBuffer;
 
@@ -26,13 +30,9 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends E
     workingBuffer = ByteBuffer.allocate(responseConverter.variables().size() * Integer.BYTES);
   }
 
-  @Override
-  public final void request(long n) {
-  }
-
   @OverridingMethodsMustInvokeSuper
   @Override
-  public void cancel() {
+  public void close() {
     byteChannel.close();
   }
 

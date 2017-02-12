@@ -7,9 +7,12 @@ import java.util.EnumSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public final class NmisProtocolByteTest {
+public class NmisProtocolByteTest {
+  private NmisProtocolByteTest() {
+  }
+
   @Test
-  public void testIs() {
+  public static void testIs() {
     Assert.assertFalse(NmisProtocolByte.START.is((byte) 0x00));
     Assert.assertTrue(NmisProtocolByte.START.is((byte) 0x7E));
 
@@ -22,23 +25,23 @@ public final class NmisProtocolByteTest {
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "allOhmsMyoOffResponse")
-  public void testResponseOhmsCRC(NmisRequest request, byte[] input) {
+  public static void testResponseOhmsCRC(NmisRequest request, byte[] input) {
     Assert.assertTrue(NmisProtocolByte.checkCRC(ByteBuffer.wrap(Arrays.copyOfRange(input, 1, input.length))), Arrays.toString(input));
     Assert.assertFalse(NmisProtocolByte.checkCRC(ByteBuffer.wrap(input)), Arrays.toString(input));
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "360OhmsMyoHzResponse")
-  public void testResponseMyoCRC(NmisRequest request, byte[] input) {
+  public static void testResponseMyoCRC(NmisRequest request, byte[] input) {
     Assert.assertTrue(NmisProtocolByte.checkCRC(ByteBuffer.wrap(input)), Arrays.toString(input));
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "sequenceResponse")
-  public void testResponseSequenceCRC(NmisRequest request, byte[] input) {
+  public static void testResponseSequenceCRC(NmisRequest request, byte[] input) {
     Assert.assertTrue(NmisProtocolByte.checkCRC(ByteBuffer.wrap(input)), Arrays.toString(input));
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "aliveAndChannelsResponse")
-  public void testResponseAliveAndChannelsCRC(NmisAddress address, byte[] input) {
+  public static void testResponseAliveAndChannelsCRC(NmisAddress address, byte[] input) {
     if (NmisAddress.CHANNELS.contains(address)) {
       Assert.assertTrue(NmisProtocolByte.checkCRC(ByteBuffer.wrap(input)), Arrays.toString(input));
     }
