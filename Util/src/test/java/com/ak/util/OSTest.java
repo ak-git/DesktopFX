@@ -29,12 +29,12 @@ public class OSTest {
   }
 
   @Test
-  public void testGet() {
+  public static void testGet() {
     Assert.assertEquals(Stream.of(OS.values()).filter(BooleanSupplier::getAsBoolean).count(), 1);
   }
 
   @Test
-  public void testCallApplicationMethod() {
+  public static void testCallApplicationMethod() {
     Stream.of(OS.values()).forEach(os -> {
       try {
         os.callApplicationMethod("setDockIconImage", java.awt.Image.class, new BufferedImage(1, 1, TYPE_INT_RGB));
@@ -53,7 +53,7 @@ public class OSTest {
   }
 
   @AfterClass
-  public void tearDown() {
+  public static void tearDown() {
     LOGGER.setFilter(null);
   }
 }

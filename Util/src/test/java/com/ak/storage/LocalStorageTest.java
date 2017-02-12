@@ -68,7 +68,7 @@ public class LocalStorageTest {
   }
 
   @Test
-  public void testInvalidFileName() {
+  public static void testInvalidFileName() {
     AtomicBoolean exceptionFlag = new AtomicBoolean(false);
     LOGGER.setFilter(record -> {
       Assert.assertNotNull(record.getThrown());

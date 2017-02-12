@@ -28,7 +28,7 @@ public final class RampBytesInterceptor extends AbstractBytesInterceptor<BufferF
   private int position = -1;
 
   public RampBytesInterceptor(@Nonnull BytesInterceptor.BaudRate baudRate, int frameLength) {
-    super(baudRate, null);
+    super(baudRate, null, IGNORE_LIMIT);
     if (frameLength < 1) {
       throw new IllegalArgumentException(String.format("frameLength must be > 0, but found %d", frameLength));
     }

@@ -1,5 +1,6 @@
 package com.ak.digitalfilter;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -45,5 +46,9 @@ abstract class AbstractDigitalFilter implements DigitalFilter {
 
   static String newLineTabSpaces(@Nonnegative int len) {
     return Stream.generate(() -> SPACE).limit(len).collect(Collectors.joining(EMPTY, NEW_LINE, EMPTY));
+  }
+
+  final void illegalArgumentException(int[] in) {
+    throw new IllegalArgumentException(String.format("%s %s", toString(), Arrays.toString(in)));
   }
 }

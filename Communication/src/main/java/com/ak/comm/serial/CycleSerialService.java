@@ -1,5 +1,10 @@
 package com.ak.comm.serial;
 
+import java.io.IOException;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.CountDownLatch;
@@ -18,13 +23,15 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.logging.BinaryLogBuilder;
 import com.ak.util.UIConstants;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
+import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
-public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
-    extends AbstractConvertableService<RESPONSE, REQUEST, EV> {
+public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable>
+    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Publisher<int[]> {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   @Nonnull
   private volatile SerialService serialService;
@@ -85,14 +92,14 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   }
 
   @Override
-  public void cancel() {
+  public void close() {
     synchronized (this) {
       try {
         serialService.close();
         executor.shutdownNow();
       }
       finally {
-        super.cancel();
+        super.close();
       }
     }
   }
@@ -101,5 +108,11 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
     synchronized (this) {
       return request == null ? -1 : serialService.write(bytesInterceptor().putOut(request));
     }
+  }
+
+  @Override
+  public SeekableByteChannel call() throws IOException {
+    Path path = new BinaryLogBuilder().fileNameWithTime(getClass().getSimpleName()).addPath("converterSerialLog").build().getPath();
+    return Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
   }
 }

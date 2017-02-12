@@ -18,7 +18,7 @@ final class DerivativeRbyRho2Normalized extends AbstractDerivativeRNormalized {
    * @param sToL relation s / L
    */
   DerivativeRbyRho2Normalized(double k12, double sToL) {
-    super(k12, sToL);
+    super(k12, sToL, 1.0);
   }
 
   @Override

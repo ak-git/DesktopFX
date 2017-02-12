@@ -4,6 +4,8 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 
 public class NmisTestProvider {
+  private static final int[] EMPTY_INTS = {};
+
   private NmisTestProvider() {
   }
 
@@ -196,5 +198,21 @@ public class NmisTestProvider {
       values[i] = new Object[] {input[i]};
     }
     return values;
+  }
+
+  @DataProvider(name = "dataResponse")
+  public static Object[][] data() {
+    return new Object[][] {
+        new Object[] {new byte[] {
+            // NO Data, empty frame
+            0x7e, 0x45, 0x02, 0x3f, 0x00, 0x04}, new int[] {0x3f}},
+        new Object[] {new byte[] {
+            0x7e, 0x45, 0x08, 0x3f, 0x00, 0x03, 0x04, 0x18, 0x32, (byte) 0xca, 0x74, (byte) 0x99}, new int[] {0x3f}},
+        new Object[] {new byte[] {
+            0x7e, 0x45, 0x09, 0x44, 0x00, 0x01, 0x05, 0x0b, (byte) 0xe0, (byte) 0xb1, (byte) 0xe1, 0x7a, 0x0d}, new int[] {0x44}},
+        new Object[] {new byte[] {
+            // NO Data, invalid frame
+            0x7e, (byte) 0x92, 0x08, 0x01, 0x00, 0x00, 0x00, (byte) 0x84, (byte) 0x84, (byte) 0x84, (byte) 0x84, 0x29}, EMPTY_INTS},
+    };
   }
 }

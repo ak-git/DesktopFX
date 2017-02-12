@@ -2,6 +2,8 @@ package com.ak.comm;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -13,40 +15,55 @@ import com.ak.comm.core.AbstractService;
 import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
-import io.reactivex.Flowable;
+import com.ak.digitalfilter.IntsAcceptor;
 import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
-public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractService<int[]> implements FileFilter {
+public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable> extends AbstractService
+    implements FileFilter {
   @Nonnull
-  private final Flowable<int[]> serialFlow;
+  private final CycleSerialService<RESPONSE, REQUEST, EV> serialService;
   @Nonnull
-  private final AutoFileReadingService<RESPONSE, REQUEST, EV> fileService;
+  private final AutoFileReadingService<RESPONSE, REQUEST, EV> fileReadingService;
 
   @Inject
   public GroupService(@Nonnull Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider,
                       @Nonnull Provider<Converter<RESPONSE, EV>> converterProvider) {
-    serialFlow = Flowable.fromPublisher(new CycleSerialService<>(interceptorProvider.get(), converterProvider.get()));
-    fileService = new AutoFileReadingService<>(interceptorProvider.get(), converterProvider.get());
+    serialService = new CycleSerialService<>(interceptorProvider.get(), converterProvider.get());
+    fileReadingService = new AutoFileReadingService<>(interceptorProvider, converterProvider);
   }
 
   @Override
   public boolean accept(File file) {
-    return fileService.accept(file);
+    return fileReadingService.accept(file);
+  }
+
+  public void forEach(@Nonnull IntsAcceptor acceptor) {
+    serialService.subscribe(new Subscriber<int[]>() {
+      @Override
+      public void onSubscribe(Subscription s) {
+        s.request(Long.MAX_VALUE);
+      }
+
+      @Override
+      public void onNext(int[] ints) {
+        acceptor.accept(ints);
+      }
+
+      @Override
+      public void onError(Throwable t) {
+        Logger.getLogger(getClass().getName()).log(Level.WARNING, t.getMessage(), t);
+      }
+
+      @Override
+      public void onComplete() {
+      }
+    });
   }
 
   @Override
-  public void subscribe(Subscriber<? super int[]> s) {
-    serialFlow.subscribe(s);
-  }
-
-  @Override
-  public void request(long n) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void cancel() {
-    serialFlow.subscribe().dispose();
-    fileService.cancel();
+  public void close() {
+    serialService.close();
+    fileReadingService.close();
   }
 }

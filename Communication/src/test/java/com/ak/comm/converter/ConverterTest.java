@@ -11,39 +11,42 @@ import org.testng.annotations.Test;
 
 import static java.util.logging.Level.WARNING;
 
-public final class ConverterTest {
-  private enum NoVariables implements Variable<NoVariables> {
+public class ConverterTest {
+  private enum SingleVariable implements Variable {
+    SINGLE_VARIABLE
   }
 
-  private static final Converter<Integer, NoVariables> INVALID_CONVERTER =
-      new AbstractConverter<Integer, NoVariables>(NoVariables.class) {
+  private static final Converter<Integer, TwoVariables> INVALID_CONVERTER =
+      new AbstractConverter<Integer, TwoVariables>(TwoVariables.class) {
         @Override
         protected Stream<int[]> innerApply(@Nonnull Integer integer) {
           return Stream.of(new int[] {integer});
         }
       };
   private static final Logger LOGGER_INVALID = Logger.getLogger(INVALID_CONVERTER.getClass().getName());
-
-  private static final Converter<Integer, NoVariables> VALID_CONVERTER =
-      new AbstractConverter<Integer, NoVariables>(NoVariables.class) {
+  private static final Converter<Integer, SingleVariable> VALID_CONVERTER_0 =
+      new AbstractConverter<Integer, SingleVariable>(SingleVariable.class) {
         @Override
         protected Stream<int[]> innerApply(@Nonnull Integer integer) {
           return Stream.empty();
         }
       };
-  private static final Logger LOGGER_VALID = Logger.getLogger(VALID_CONVERTER.getClass().getName());
+  private static final Logger LOGGER_VALID = Logger.getLogger(VALID_CONVERTER_0.getClass().getName());
 
-  @Test
-  public void testInvalidApply() {
-    LogUtils.substituteLogLevel(LOGGER_INVALID, WARNING,
+  private ConverterTest() {
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public static void testInvalidApply() {
+    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER_INVALID, WARNING,
         () -> Assert.assertEquals(INVALID_CONVERTER.apply(1).count(), 1),
-        logRecord -> Assert.assertEquals(logRecord.getMessage(), "Invalid variables: [] not match [1]"));
+        logRecord -> Assert.assertEquals(logRecord.getMessage(), "Invalid variables: [V1, V2] not match [1]")));
   }
 
   @Test
-  public void testValidApply() {
-    LogUtils.substituteLogLevel(LOGGER_VALID, WARNING,
-        () -> Assert.assertEquals(VALID_CONVERTER.apply(1).count(), 0),
-        logRecord -> Assert.fail(logRecord.getMessage()));
+  public static void testValidApply() {
+    Assert.assertFalse(LogUtils.isSubstituteLogLevel(LOGGER_VALID, WARNING,
+        () -> Assert.assertEquals(VALID_CONVERTER_0.apply(1).count(), 0),
+        logRecord -> Assert.fail(logRecord.getMessage())));
   }
 }

@@ -12,17 +12,22 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import tec.uom.se.unit.MetricPrefix;
+import tec.uom.se.unit.Units;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_VALUES;
 
-public final class RsceConverterTest {
+public class RsceConverterTest {
   private static final Logger LOGGER = Logger.getLogger(RsceConverter.class.getName());
 
+  private RsceConverterTest() {
+  }
+
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "rheo12-catch-rotate")
-  public void testApply(@Nonnull byte[] bytes, int[] rDozenMilliOhms) {
+  public static void testApply(@Nonnull byte[] bytes, int[] rDozenMilliOhms) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     Assert.assertNotNull(frame);
-    LogUtils.substituteLogLevel(LOGGER, LOG_LEVEL_VALUES, () -> {
+    Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES, () -> {
       Converter<RsceCommandFrame, RsceVariable> converter = new RsceConverter();
       Stream<int[]> stream = converter.apply(frame);
       if (rDozenMilliOhms.length == 0) {
@@ -37,7 +42,8 @@ public final class RsceConverterTest {
       }
       for (RsceVariable rsceVariable : RsceVariable.values()) {
         Assert.assertTrue(logRecord.getMessage().contains(rsceVariable.name()));
+        Assert.assertEquals(rsceVariable.getUnit(), MetricPrefix.CENTI(Units.OHM));
       }
-    });
+    }), rDozenMilliOhms.length > 0);
   }
 }

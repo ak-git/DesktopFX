@@ -2,7 +2,10 @@ package com.ak.fx.desktop;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -14,10 +17,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
-public final class ViewController implements Initializable, Subscriber<int[]> {
+public final class ViewController implements Initializable {
   @Nullable
   @FXML
   public MilliGrid root;
@@ -27,7 +28,7 @@ public final class ViewController implements Initializable, Subscriber<int[]> {
   @Inject
   public ViewController(@Nonnull GroupService<?, ?, ?> service) {
     this.service = service;
-    service.subscribe(this);
+    service.forEach(values -> Logger.getLogger(getClass().getName()).log(Level.INFO, Arrays.toString(values)));
   }
 
   @Override
@@ -57,24 +58,5 @@ public final class ViewController implements Initializable, Subscriber<int[]> {
         event.consume();
       });
     }
-  }
-
-  @Override
-  public void onSubscribe(Subscription s) {
-    s.request(Long.MAX_VALUE);
-  }
-
-  @Override
-  public void onNext(int[] ints) {
-  }
-
-  @Override
-  public void onError(Throwable t) {
-
-  }
-
-  @Override
-  public void onComplete() {
-
   }
 }

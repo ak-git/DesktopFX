@@ -13,7 +13,7 @@ import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_ANGLE
 import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_SPEED;
 import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_SPEED_ANGLE;
 
-public final class RsceTestDataProvider {
+public class RsceTestDataProvider {
   private static final int[] EMPTY_INTS = {};
 
   private RsceTestDataProvider() {
