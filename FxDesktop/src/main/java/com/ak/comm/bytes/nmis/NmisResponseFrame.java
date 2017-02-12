@@ -56,13 +56,7 @@ public final class NmisResponseFrame extends BufferFrame {
   }
 
   public IntStream extractTime() {
-    NmisAddress.Extractor extractor = NmisAddress.Extractor.from(address, NmisAddress.FrameField.TIME_COUNTER);
-    if (extractor == NmisAddress.Extractor.DATA_TIME) {
-      return IntStream.of(extractor.extract(byteBuffer()));
-    }
-    else {
-      return IntStream.empty();
-    }
+    return NmisAddress.Extractor.from(address, NmisAddress.FrameField.TIME_COUNTER).extract(byteBuffer());
   }
 
   @Override

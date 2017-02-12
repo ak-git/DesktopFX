@@ -8,6 +8,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,8 +43,8 @@ public enum NmisAddress {
      */
     DATA_TIME(DATA, FrameField.TIME_COUNTER) {
       @Override
-      int extract(@Nonnull ByteBuffer from) {
-        return from.getShort(NmisProtocolByte.DATA_1.ordinal());
+      IntStream extract(@Nonnull ByteBuffer from) {
+        return IntStream.of(from.getShort(NmisProtocolByte.DATA_1.ordinal()));
       }
     },
     /**
@@ -89,8 +90,8 @@ public enum NmisAddress {
     void extract(@Nonnull ByteBuffer from, @Nonnull ByteBuffer to) {
     }
 
-    int extract(@Nonnull ByteBuffer from) {
-      throw new UnsupportedOperationException(name());
+    IntStream extract(@Nonnull ByteBuffer from) {
+      return IntStream.empty();
     }
 
     static Extractor from(@Nonnull NmisAddress address, @Nonnull FrameField field) {
