@@ -9,6 +9,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.fx.stage.ScreenResolutionMonitor;
+import com.ak.util.FinalizerGuardian;
 import io.reactivex.disposables.Disposable;
 import javafx.application.Platform;
 import javafx.scene.layout.Pane;
@@ -20,7 +21,7 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.shape.VLineTo;
 
-public final class MilliGrid extends Pane {
+public final class MilliGrid extends Pane implements AutoCloseable {
   private enum GridCell {
     POINTS(1.0) {
       private static final int FACTOR = 4;
@@ -85,6 +86,8 @@ public final class MilliGrid extends Pane {
   }
 
   @Nonnull
+  private final Object finalizerGuardian = new FinalizerGuardian(this);
+  @Nonnull
   private final Disposable screenSubscription;
   private final GridLine[] gridLines = {new HorizontalGridLine(), new VerticalGridLine()};
   @Nonnull
@@ -95,6 +98,11 @@ public final class MilliGrid extends Pane {
       reinitializePaths();
       requestLayout();
     }));
+  }
+
+  @Override
+  public void close() {
+    screenSubscription.dispose();
   }
 
   @Override
@@ -116,16 +124,6 @@ public final class MilliGrid extends Pane {
     getChildren().removeAll(paths);
     paths = GridCell.newPaths();
     getChildren().addAll(paths);
-  }
-
-  @Override
-  protected void finalize() throws Throwable {
-    try {
-      screenSubscription.dispose();
-    }
-    finally {
-      super.finalize();
-    }
   }
 
   private interface GridLine {

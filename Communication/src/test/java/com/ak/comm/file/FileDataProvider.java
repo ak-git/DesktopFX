@@ -19,8 +19,8 @@ public class FileDataProvider {
   @DataProvider(name = "parallelRampFiles", parallel = true)
   public static Object[][] parallelRampFiles() throws IOException {
     return new Object[][] {
-        {createFile(1)},
-        {createFile(1)},
+        {createFile(11)},
+        {createFile(11)},
         {createFile(2)},
         {createFile(3)},
     };
