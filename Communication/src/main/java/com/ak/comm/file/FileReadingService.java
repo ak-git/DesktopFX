@@ -79,16 +79,20 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
               convertedFileChannelProvider = () -> Files.newByteChannel(tempConverterFile,
                   StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
 
+              boolean readFlag = false;
               ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
               while (readableByteChannel.read(buffer) > 0 && !isDisposed()) {
                 buffer.flip();
                 logBytes(buffer);
                 process(buffer).forEach(s::onNext);
                 buffer.clear();
+                readFlag = true;
               }
 
               if (!isDisposed()) {
-                Files.copy(tempConverterFile, convertedFile, LinkOption.NOFOLLOW_LINKS, StandardCopyOption.REPLACE_EXISTING);
+                if (readFlag) {
+                  Files.copy(tempConverterFile, convertedFile, LinkOption.NOFOLLOW_LINKS, StandardCopyOption.REPLACE_EXISTING);
+                }
                 s.onComplete();
               }
             }
