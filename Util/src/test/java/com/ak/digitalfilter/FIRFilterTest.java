@@ -28,8 +28,8 @@ public class FIRFilterTest {
         0.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {8}, {5}, {2}, {1}},
-        FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
-        new int[][] {{1}, {2}, {4 - 1}, {8 - 2}, {5 - 4}, {2 - 8}, {1 - 5}},
+        FilterBuilder.of().fir(SimpleCoefficients.DIFF).build(),
+        new int[][] {{1}, {1}, {2}, {3}, {1}, {-3}, {-2}},
         1.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {8}, {5}, {2}, {1}},
