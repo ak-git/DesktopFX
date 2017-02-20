@@ -1,5 +1,6 @@
 package com.ak.digitalfilter;
 
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Locale;
@@ -10,7 +11,8 @@ import javax.inject.Provider;
 public interface Coefficients extends Provider<double[]> {
   @Override
   default double[] get() {
-    Scanner scanner = new Scanner(getClass().getResourceAsStream(String.format("%s.properties", name().toLowerCase())));
+    Scanner scanner = new Scanner(getClass().getResourceAsStream(String.format("%s.txt", name().toLowerCase())),
+        Charset.defaultCharset().name());
     scanner.useLocale(Locale.ROOT);
 
     Collection<Double> coeffs = new LinkedList<>();
