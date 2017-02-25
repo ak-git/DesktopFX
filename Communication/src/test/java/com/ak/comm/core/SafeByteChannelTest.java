@@ -23,7 +23,7 @@ public class SafeByteChannelTest {
   @Test
   public static void testWriteAndRead() {
     SafeByteChannel channel = new SafeByteChannel(() -> {
-      Path path = new BinaryLogBuilder().fileNameWithTime(SafeByteChannelTest.class.getSimpleName()).build().getPath();
+      Path path = BinaryLogBuilder.TIME.build(SafeByteChannelTest.class.getSimpleName()).getPath();
       return Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
     });
 

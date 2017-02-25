@@ -112,7 +112,7 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
 
   @Override
   public SeekableByteChannel call() throws IOException {
-    Path path = new BinaryLogBuilder().fileNameWithTime(getClass().getSimpleName()).addPath("converterSerialLog").build().getPath();
+    Path path = BinaryLogBuilder.CONVERTER_SERIAL.build(getClass().getSimpleName()).getPath();
     return Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
   }
 }
