@@ -1,37 +1,34 @@
 package com.ak.logging;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
-import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
+import javax.annotation.Nonnull;
+
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.log.TextFormatter;
 
 public class LocalFileHandlerTest {
-  private Path logPath;
+  @Nonnull
+  private final Path logPath;
 
-  private LocalFileHandlerTest() {
+  private LocalFileHandlerTest() throws IOException {
+    logPath = new LogPathBuilder().addPath(LocalFileHandler.class.getSimpleName()).addPath("testSubDir").
+        build().getPath().getParent();
   }
 
   @BeforeSuite
-  @BeforeClass
+  @AfterSuite
   public void setUp() throws Exception {
-    logPath = new LogPathBuilder().addPath(LocalFileHandler.class.getSimpleName()).addPath("testSubDir").
-        build().getPath().getParent();
-    tearDown();
+    delete(logPath);
   }
 
   @Test
@@ -53,30 +50,7 @@ public class LocalFileHandlerTest {
     }
   }
 
-  @DataProvider(name = "logBuilders")
-  public static Object[][] logBuilders() throws IOException {
-    return new Object[][] {
-        {new BinaryLogBuilder().fileNameWithTime(LocalFileHandlerTest.class.getSimpleName()).build().getPath()},
-        {new BinaryLogBuilder().fileName("02f29f660fa69e6c404c03de0f1e15f9").build().getPath()},
-    };
-  }
-
-
-  @Test(dataProvider = "logBuilders")
-  public static void testLogBuilders(Path path) throws IOException {
-    WritableByteChannel channel = Files.newByteChannel(path,
-        StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-    channel.write(ByteBuffer.wrap(LocalFileHandlerTest.class.getName().getBytes(Charset.defaultCharset())));
-    channel.close();
-    Files.deleteIfExists(path);
-  }
-
-  @AfterSuite
-  public void tearDown() throws Exception {
-    delete(logPath);
-  }
-
-  private static void delete(Path root) throws Exception {
+  private static void delete(@Nonnull Path root) throws Exception {
     try (DirectoryStream<Path> ds = Files.newDirectoryStream(root)) {
       for (Path file : ds) {
         if (Files.isDirectory(file)) {

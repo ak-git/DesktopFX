@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.inject.Provider;
 
 import javafx.util.Builder;
 
@@ -35,8 +36,12 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return new FilterBuilder();
   }
 
-  FilterBuilder fir(double... koeff) {
-    return chain(new FIRFilter(koeff));
+  FilterBuilder fir(Provider<double[]> coefficients) {
+    return fir(coefficients.get());
+  }
+
+  FilterBuilder fir(double... coefficients) {
+    return chain(new FIRFilter(coefficients));
   }
 
   FilterBuilder comb(@Nonnegative int combFactor) {

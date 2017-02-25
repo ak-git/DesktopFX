@@ -1,6 +1,10 @@
 package com.ak.comm.converter.nmis;
 
+import javax.measure.Unit;
+
 import com.ak.comm.converter.Variable;
+import tec.uom.se.unit.MetricPrefix;
+import tec.uom.se.unit.Units;
 
 /**
  * <p>
@@ -16,5 +20,10 @@ import com.ak.comm.converter.Variable;
  * each 5 ms.
  */
 public enum NmisVariable implements Variable {
-  COUNTER_5_MILLI_SECONDS
+  COUNTER_5_MILLI_SECONDS {
+    @Override
+    public Unit<?> getUnit() {
+      return MetricPrefix.MILLI(Units.SECOND);
+    }
+  }
 }

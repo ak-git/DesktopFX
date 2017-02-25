@@ -6,7 +6,7 @@ task wrapper(type: Wrapper) {
 
 allprojects {
     group = 'com.ak'
-    version = '1.9'
+    version = '1.9.1'
     apply plugin: 'idea'
 }
 

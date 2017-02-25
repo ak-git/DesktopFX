@@ -1,5 +1,7 @@
 package com.ak.comm.file;
 
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -17,12 +19,15 @@ import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.TwoVariables;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
+import com.ak.comm.logging.BinaryLogBuilder;
 import com.ak.comm.util.LogUtils;
 import io.reactivex.Flowable;
 import io.reactivex.subscribers.TestSubscriber;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class FileReadingServiceTest {
@@ -30,6 +35,23 @@ public class FileReadingServiceTest {
   private static final int CAPACITY_4K = 4096;
 
   private FileReadingServiceTest() {
+  }
+
+  @BeforeClass
+  @AfterClass
+  public static void setUp() throws IOException {
+    Path path = BinaryLogBuilder.CONVERTER_FILE.build("").getPath().getParent();
+    Assert.assertNotNull(path);
+    try (DirectoryStream<Path> ds = Files.newDirectoryStream(path, entry -> Files.isRegularFile(entry))) {
+      for (Path file : ds) {
+        try {
+          Files.deleteIfExists(file);
+        }
+        catch (IOException e) {
+          Assert.fail(file.toString(), e);
+        }
+      }
+    }
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFile")
