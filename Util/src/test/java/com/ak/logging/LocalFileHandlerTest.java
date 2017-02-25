@@ -8,25 +8,27 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
+import javax.annotation.Nonnull;
+
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.testng.log.TextFormatter;
 
 public class LocalFileHandlerTest {
-  private Path logPath;
+  @Nonnull
+  private final Path logPath;
 
-  private LocalFileHandlerTest() {
+  private LocalFileHandlerTest() throws IOException {
+    logPath = new LogPathBuilder().addPath(LocalFileHandler.class.getSimpleName()).addPath("testSubDir").
+        build().getPath().getParent();
   }
 
   @BeforeSuite
-  @BeforeClass
+  @AfterSuite
   public void setUp() throws Exception {
-    logPath = new LogPathBuilder().addPath(LocalFileHandler.class.getSimpleName()).addPath("testSubDir").
-        build().getPath().getParent();
-    tearDown();
+    delete(logPath);
   }
 
   @Test
@@ -48,12 +50,7 @@ public class LocalFileHandlerTest {
     }
   }
 
-  @AfterSuite
-  public void tearDown() throws Exception {
-    delete(logPath);
-  }
-
-  private static void delete(Path root) throws Exception {
+  private static void delete(@Nonnull Path root) throws Exception {
     try (DirectoryStream<Path> ds = Files.newDirectoryStream(root)) {
       for (Path file : ds) {
         if (Files.isDirectory(file)) {
