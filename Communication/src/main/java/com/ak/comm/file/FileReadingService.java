@@ -24,7 +24,7 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.logging.BinaryLogBuilder;
+import com.ak.comm.logging.BinaryLogBuilder;
 import io.reactivex.disposables.Disposable;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
@@ -35,7 +35,6 @@ import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable>
     extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Publisher<int[]>, Disposable {
   private static final int CAPACITY_4K = 1024 * 4;
-  private static final String CONVERTED_FILE_DIR = "converterFileLog";
   private static final Lock LOCK = new ReentrantLock();
   @Nonnull
   private final Path fileToRead;
@@ -62,7 +61,7 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
         Logger.getLogger(getClass().getName()).log(Level.CONFIG,
             String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
         String md5Code = DigestUtils.appendMd5DigestAsHex(in, new StringBuilder()).toString();
-        Path convertedFile = new BinaryLogBuilder().fileName(md5Code).addPath(CONVERTED_FILE_DIR).build().getPath();
+        Path convertedFile = BinaryLogBuilder.CONVERTER_FILE.build(md5Code).getPath();
         if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
           convertedFileChannelProvider = () -> Files.newByteChannel(convertedFile, StandardOpenOption.READ);
           Logger.getLogger(getClass().getName()).log(Level.INFO,
@@ -75,7 +74,7 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
             Logger.getLogger(getClass().getName()).log(Level.INFO,
                 String.format("#%x Read file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
             try (ReadableByteChannel readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
-              Path tempConverterFile = new BinaryLogBuilder().fileName("tempConverterFile").addPath(CONVERTED_FILE_DIR).build().getPath();
+              Path tempConverterFile = BinaryLogBuilder.CONVERTER_FILE.build("tempConverterFile").getPath();
               convertedFileChannelProvider = () -> Files.newByteChannel(tempConverterFile,
                   StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
 

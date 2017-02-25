@@ -17,7 +17,7 @@ public class LogPathBuilder extends LocalFileIO.AbstractBuilder {
     super(Strings.EMPTY);
   }
 
-  LogPathBuilder(@Nonnull String fileExtension, @Nonnull Class<? extends FileHandler> fileHandlerClass) {
+  public LogPathBuilder(@Nonnull String fileExtension, @Nonnull Class<? extends FileHandler> fileHandlerClass) {
     super(fileExtension);
     addPath(Optional.ofNullable(LogManager.getLogManager().getProperty(fileHandlerClass.getName() + ".name")).
         orElse(fileHandlerClass.getSimpleName()));
