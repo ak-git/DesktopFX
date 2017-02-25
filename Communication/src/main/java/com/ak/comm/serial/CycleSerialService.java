@@ -23,7 +23,7 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.logging.BinaryLogBuilder;
+import com.ak.comm.logging.BinaryLogBuilder;
 import com.ak.util.UIConstants;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;

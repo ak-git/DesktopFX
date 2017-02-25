@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.SafeByteChannel;
-import com.ak.logging.BinaryLogBuilder;
+import com.ak.comm.logging.BinaryLogBuilder;
 import com.ak.util.Strings;
 import jssc.SerialPort;
 import jssc.SerialPortException;

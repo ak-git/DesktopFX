@@ -9,8 +9,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.ak.comm.logging.BinaryLogBuilder;
 import com.ak.comm.util.LogUtils;
-import com.ak.logging.BinaryLogBuilder;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

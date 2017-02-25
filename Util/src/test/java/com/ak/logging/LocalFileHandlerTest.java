@@ -1,13 +1,9 @@
 package com.ak.logging;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
-import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -16,7 +12,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.log.TextFormatter;
 
@@ -51,24 +46,6 @@ public class LocalFileHandlerTest {
       }
       Assert.assertEquals(count, 1, "Must be the only one .log file in " + logPath);
     }
-  }
-
-  @DataProvider(name = "logBuilders")
-  public static Object[][] logBuilders() throws IOException {
-    return new Object[][] {
-        {BinaryLogBuilder.TIME.build(LocalFileHandlerTest.class.getSimpleName()).getPath()},
-        {BinaryLogBuilder.SIMPLE.build("02f29f660fa69e6c404c03de0f1e15f9").getPath()},
-    };
-  }
-
-
-  @Test(dataProvider = "logBuilders")
-  public static void testLogBuilders(Path path) throws IOException {
-    WritableByteChannel channel = Files.newByteChannel(path,
-        StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-    channel.write(ByteBuffer.wrap(LocalFileHandlerTest.class.getName().getBytes(Charset.defaultCharset())));
-    channel.close();
-    Files.deleteIfExists(path);
   }
 
   @AfterSuite

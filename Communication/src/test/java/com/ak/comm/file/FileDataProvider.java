@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 import com.ak.comm.converter.TwoVariables;
-import com.ak.logging.BinaryLogBuilder;
+import com.ak.comm.logging.BinaryLogBuilder;
 import org.testng.annotations.DataProvider;
 
 public class FileDataProvider {
