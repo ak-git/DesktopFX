@@ -2,6 +2,7 @@ package com.ak.digitalfilter;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.IntUnaryOperator;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -36,7 +37,16 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return new FilterBuilder();
   }
 
-  FilterBuilder fir(Provider<double[]> coefficients) {
+  public FilterBuilder function(@Nonnull IntUnaryOperator operator) {
+    return chain(new AbstractOperableFilter() {
+      @Override
+      public int applyAsInt(int in) {
+        return operator.applyAsInt(in);
+      }
+    });
+  }
+
+  public FilterBuilder fir(@Nonnull Provider<double[]> coefficients) {
     return fir(coefficients.get());
   }
 

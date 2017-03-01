@@ -15,26 +15,40 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import tec.uom.se.AbstractUnit;
+import tec.uom.se.unit.MetricPrefix;
+import tec.uom.se.unit.Units;
 
 public final class AperConverterTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
-        {new byte[] {1, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0, 4, 0, 0, 0, 5, 0, 0, 0, 6, 0, 0, 0},
-            new int[] {1, 2, 3, 4, 5, 6}},
+        {new byte[] {1,
+            (byte) 0x9a, (byte) 0x88, 0x01, 0,
+            2, 0, 0, 0,
+            (byte) 0xf1, 0x05, 0, 0,
+
+            0x40, 0x0d, 0x03, 0,
+            5, 0, 0, 0,
+            (byte) 0xd0, 0x07, 0, 0},
+            new int[] {15000, 1, 997, 29849, 2, 1558}},
     };
   }
 
   @Test(dataProvider = "variables")
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
     Function<BufferFrame, Stream<int[]>> converter = new ToIntegerConverter<>(AperVariable.class);
-    EnumSet.allOf(AperVariable.class).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
+    EnumSet.of(AperVariable.R1, AperVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.OHM)));
+    EnumSet.of(AperVariable.M1, AperVariable.M2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
+    EnumSet.of(AperVariable.I1, AperVariable.I2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
+
     AtomicBoolean processed = new AtomicBoolean();
-    converter.apply(new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN)).
-        forEach(ints -> {
-          Assert.assertEquals(ints, outputInts, Arrays.toString(ints));
-          processed.set(true);
-        });
+    BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
+    for (int i = 0; i < 31; i++) {
+      converter.apply(bufferFrame).forEach(ints -> {
+        Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
+        processed.set(true);
+      });
+    }
     Assert.assertTrue(processed.get(), "Data are not converted!");
   }
 }
