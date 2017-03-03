@@ -38,7 +38,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     return fileReadingService.accept(file);
   }
 
-  public void forEach(@Nonnull IntsAcceptor acceptor) {
+  public void subscribe(@Nonnull IntsAcceptor acceptor) {
     serialService.subscribe(new Subscriber<int[]>() {
       @Override
       public void onSubscribe(Subscription s) {

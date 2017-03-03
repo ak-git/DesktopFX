@@ -28,7 +28,7 @@ public final class ViewController implements Initializable {
   @Inject
   public ViewController(@Nonnull GroupService<?, ?, ?> service) {
     this.service = service;
-    service.forEach(values -> Logger.getLogger(getClass().getName()).log(Level.INFO, Arrays.toString(values)));
+    service.subscribe(values -> Logger.getLogger(getClass().getName()).log(Level.INFO, Arrays.toString(values)));
   }
 
   @Override
