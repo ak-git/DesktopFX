@@ -14,6 +14,13 @@ import org.testng.annotations.Test;
 import tec.uom.se.AbstractUnit;
 
 public class ToIntegerConverterTest {
+  private enum SingleVariable implements Variable {
+    S
+  }
+
+  private ToIntegerConverterTest() {
+  }
+
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -22,13 +29,6 @@ public class ToIntegerConverterTest {
         {TwoVariables.class, new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9},
             new int[] {2 + (3 << 8) + (4 << 16) + (5 << 24), 6 + (7 << 8) + (8 << 16) + (9 << 24)}},
     };
-  }
-
-  private enum SingleVariable implements Variable {
-    S
-  }
-
-  private ToIntegerConverterTest() {
   }
 
   @Test(dataProvider = "variables")
