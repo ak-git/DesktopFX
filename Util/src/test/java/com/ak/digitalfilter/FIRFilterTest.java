@@ -200,11 +200,11 @@ public class FIRFilterTest {
     Assert.assertEquals(filteredCounter.get(), result.length, filter.toString());
 
     Assert.assertEquals(filter.getDelay(), delay, 1.0e-3, filter.toString());
-    Assert.assertEquals(filter.getDelay(Quantities.getQuantity(0.2, MetricPrefix.KILO(Units.HERTZ))).getValue().doubleValue(),
+    Assert.assertEquals(Filters.getDelay(filter, Quantities.getQuantity(0.2, MetricPrefix.KILO(Units.HERTZ))).getValue().doubleValue(),
         delay / 200.0, 1.0e-3, filter.toString());
 
     Assert.assertEquals(filter.getFrequencyFactor(), frequencyFactor, 1.0e-3, filter.toString());
-    Assert.assertEquals(filter.getFrequency(Quantities.getQuantity(0.1, MetricPrefix.KILO(Units.HERTZ))).getValue().doubleValue(),
+    Assert.assertEquals(Filters.getFrequency(filter, Quantities.getQuantity(0.1, MetricPrefix.KILO(Units.HERTZ))).getValue().doubleValue(),
         100 * frequencyFactor, 1.0e-3, filter.toString());
 
     Assert.assertEquals(filter.size(), result[0].length);

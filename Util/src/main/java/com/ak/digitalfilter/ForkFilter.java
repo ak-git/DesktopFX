@@ -82,13 +82,13 @@ final class ForkFilter extends AbstractDigitalFilter {
 
   @Override
   public double getDelay() {
-    return findMax(Delay::getDelay);
+    return findMax(DigitalFilter::getDelay);
   }
 
   @Nonnegative
   @Override
   public double getFrequencyFactor() {
-    return findMax(Delay::getFrequencyFactor);
+    return findMax(DigitalFilter::getFrequencyFactor);
   }
 
   @Override
