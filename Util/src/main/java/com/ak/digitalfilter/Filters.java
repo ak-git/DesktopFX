@@ -8,9 +8,8 @@ import javax.measure.quantity.Time;
 import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.Units;
 
-class Filters {
-  private Filters() {
-  }
+enum Filters {
+  ;
 
   static Quantity<Frequency> getFrequency(DigitalFilter filter, @Nonnull Quantity<Frequency> frequency) {
     return Quantities.getQuantity(frequency.to(Units.HERTZ).getValue().doubleValue() * filter.getFrequencyFactor(), Units.HERTZ);
