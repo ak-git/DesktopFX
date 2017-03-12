@@ -19,6 +19,7 @@ import com.ak.digitalfilter.FilterBuilder;
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_VALUES;
 
 public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable> implements Converter<RESPONSE, EV> {
+  @Nonnull
   private final Logger logger = Logger.getLogger(getClass().getName());
   @Nonnull
   private final List<EV> variables;
@@ -57,5 +58,6 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
     return filteredValues;
   }
 
+  @Nonnull
   protected abstract Stream<int[]> innerApply(@Nonnull RESPONSE response);
 }

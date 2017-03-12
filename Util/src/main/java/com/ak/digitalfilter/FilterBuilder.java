@@ -1,8 +1,10 @@
 package com.ak.digitalfilter;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.IntUnaryOperator;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -12,6 +14,7 @@ import javax.inject.Provider;
 import javafx.util.Builder;
 
 public class FilterBuilder implements Builder<DigitalFilter> {
+  private static final int[][] EMPTY_SELECTED_INDEXES = {};
   @Nullable
   private DigitalFilter filter;
 
@@ -20,17 +23,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
 
   public static DigitalFilter parallel(@Nonnull DigitalFilter... filters) {
     Objects.requireNonNull(filters);
-    FilterBuilder filterBuilder = new FilterBuilder();
-    if (filters.length == 0) {
-      throw new IllegalArgumentException();
-    }
-    else if (filters.length == 1) {
-      filterBuilder.filter = filters[0];
-    }
-    else {
-      filterBuilder.filter = new ForkFilter(filters, true);
-    }
-    return filterBuilder.buildNoDelay();
+    return of().fork(IntStream.range(0, filters.length).mapToObj(i -> new int[] {i}).toArray(value -> new int[value][1]), filters).buildNoDelay();
   }
 
   public static FilterBuilder of() {
@@ -75,8 +68,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   FilterBuilder fork(@Nonnull DigitalFilter... filters) {
-    Objects.requireNonNull(filters);
-    return chain(new ForkFilter(filters, false));
+    return fork(EMPTY_SELECTED_INDEXES, filters);
   }
 
   DigitalFilter buildNoDelay() {
@@ -86,6 +78,29 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   @Override
   public DigitalFilter build() {
     return Optional.ofNullable(filter).orElse(new NoFilter());
+  }
+
+  private FilterBuilder fork(@Nonnull int[][] selectedIndexes, @Nonnull DigitalFilter... filters) {
+    Objects.requireNonNull(filters);
+    Objects.requireNonNull(selectedIndexes);
+    if (filters.length == 0) {
+      throw new IllegalArgumentException();
+    }
+    DigitalFilter[] wrappedFilters;
+    if (selectedIndexes.length == 0) {
+      wrappedFilters = Arrays.copyOf(filters, filters.length);
+    }
+    else {
+      if (selectedIndexes.length != filters.length) {
+        throw new IllegalArgumentException(String.format("selectedIndexes.length [%s] != filters.length [%s]",
+            Arrays.deepToString(selectedIndexes), Arrays.toString(filters)));
+      }
+      wrappedFilters = new DigitalFilter[filters.length];
+      for (int i = 0; i < wrappedFilters.length; i++) {
+        wrappedFilters[i] = new SelectFilter(selectedIndexes[i], filters[i]);
+      }
+    }
+    return filters.length == 1 ? chain(wrappedFilters[0]) : chain(new ForkFilter(wrappedFilters));
   }
 
   private FilterBuilder chain(@Nonnull DigitalFilter chain) {

@@ -158,15 +158,15 @@ public class FIRFilterTest {
             FilterBuilder.of().rrs(4).build()
         ).buildNoDelay(),
         String.format(
-            "NoDelayFilter (compensate %.1f delay) - DelayFilter (delay %.1f) - FIRFilter (delay %.1f)%n" +
-                "                                                                 FIRFilter (delay %.1f)%n" +
-                "                                       DelayFilter (delay %.1f) - FIRFilter (delay %.1f)%n" +
-                "                                       DelayFilter (delay %.1f) - CombFilter (delay %.1f)%n" +
+            "NoDelayFilter (compensate %.1f delay) - DelayFilter (delay %d) - FIRFilter (delay %.1f)%n" +
+                "                                                               FIRFilter (delay %.1f)%n" +
+                "                                       DelayFilter (delay %d) - FIRFilter (delay %.1f)%n" +
+                "                                       DelayFilter (delay %d) - CombFilter (delay %.1f)%n" +
                 "                                       RRS4 (delay %.1f)",
-            2.0, 2.0, 0.0,
+            2.0, 2, 0.0,
             0.0,
-            1.0, 1.0,
-            1.0, 1.0,
+            1, 1.0,
+            1, 1.0,
             2.0
         )
     }};
@@ -247,7 +247,12 @@ public class FIRFilterTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public static void testInvalidFork() {
-    FilterBuilder.of().fork(FilterBuilder.of().fir(1.0).build()).build();
+    FilterBuilder.of().fork(EMPTY_FILTERS).build();
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public static void testInvalidFork2() {
+    new ForkFilter(new DigitalFilter[] {FilterBuilder.of().build()});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

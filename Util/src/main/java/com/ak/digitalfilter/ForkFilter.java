@@ -19,14 +19,12 @@ import static com.ak.util.Strings.NEW_LINE;
 
 final class ForkFilter extends AbstractDigitalFilter {
   private final List<DigitalFilter> filters = new LinkedList<>();
-  private final boolean parallel;
 
-  ForkFilter(@Nonnull DigitalFilter[] filters, boolean parallel) {
+  ForkFilter(@Nonnull DigitalFilter[] filters) {
     Objects.requireNonNull(filters);
     if (filters.length < 2) {
       throw new IllegalArgumentException(Arrays.deepToString(filters));
     }
-    this.parallel = parallel;
     this.filters.addAll(Arrays.asList(filters));
 
     double maxDelay = getDelay();
@@ -35,7 +33,7 @@ final class ForkFilter extends AbstractDigitalFilter {
       DigitalFilter filter = listIterator.next();
       int delay = (int) Math.round(maxDelay - filter.getDelay());
       if (delay != 0) {
-        listIterator.set(new ChainFilter(new DelayFilter(delay), filter));
+        listIterator.set(new DelayFilter(filter, delay));
       }
     }
 
@@ -93,19 +91,7 @@ final class ForkFilter extends AbstractDigitalFilter {
 
   @Override
   public void accept(int... in) {
-    if (parallel) {
-      if (filters.size() == in.length) {
-        for (int i = 0; i < in.length; i++) {
-          filters.get(i).accept(in[i]);
-        }
-      }
-      else {
-        illegalArgumentException(in);
-      }
-    }
-    else {
-      filters.forEach(filter -> filter.accept(in));
-    }
+    filters.forEach(filter -> filter.accept(in));
   }
 
   @Nonnegative
