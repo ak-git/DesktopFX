@@ -19,7 +19,7 @@ import com.ak.digitalfilter.IntsAcceptor;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
-public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable> extends AbstractService
+public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractService
     implements FileFilter {
   @Nonnull
   private final CycleSerialService<RESPONSE, REQUEST, EV> serialService;

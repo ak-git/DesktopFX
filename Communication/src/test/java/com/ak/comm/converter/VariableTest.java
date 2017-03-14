@@ -10,7 +10,7 @@ public class VariableTest {
 
   @Test
   public static void testGetUnit() {
-    Variable variable = new Variable() {
+    Variable<?> variable = new Variable() {
     };
     Assert.assertEquals(variable.getUnit(), AbstractUnit.ONE);
   }

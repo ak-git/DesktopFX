@@ -30,7 +30,7 @@ import io.reactivex.disposables.Disposable;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
-public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable>
+public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
     extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Publisher<int[]> {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   @Nonnull

@@ -1,5 +1,7 @@
 package com.ak.comm.converter.aper;
 
+import java.util.stream.Stream;
+
 import javax.measure.Unit;
 
 import com.ak.comm.converter.Variable;
@@ -10,7 +12,7 @@ import org.apache.commons.math3.analysis.interpolation.AkimaSplineInterpolator;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public enum AperVariable implements Variable {
+public enum AperVariable implements Variable<AperVariable> {
   R1 {
     @Override
     public Unit<?> getUnit() {
@@ -46,6 +48,11 @@ public enum AperVariable implements Variable {
               AperCoefficients.I_ADC.get(), AperCoefficients.I_OHM.get()).value(Math.min(Math.max(in, 0), 3000))
           )
       ).build();
+    }
+
+    @Override
+    public Stream<AperVariable> getInputVariables() {
+      return Stream.of(I1, R1);
     }
   },
 
