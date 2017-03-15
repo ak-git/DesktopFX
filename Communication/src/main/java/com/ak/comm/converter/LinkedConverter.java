@@ -10,9 +10,9 @@ final class LinkedConverter<RESPONSE, IN extends Enum<IN> & Variable, OUT extend
   private final Converter<RESPONSE, IN> responseConverter;
   private final Converter<Stream<int[]>, OUT> outConverter;
 
-  LinkedConverter(Converter<RESPONSE, IN> responseConverter, Converter<Stream<int[]>, OUT> outConverter) {
+  LinkedConverter(Converter<RESPONSE, IN> responseConverter, Class<OUT> outVarClass) {
     this.responseConverter = responseConverter;
-    this.outConverter = outConverter;
+    outConverter = new SelectableConverter<>(outVarClass);
   }
 
   @Nonnull

@@ -3,6 +3,7 @@ package com.ak.comm.converter;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.ak.comm.bytes.BufferFrame;
@@ -33,9 +34,8 @@ public class LinkedConverterTest {
   @Test(dataProvider = "variables")
   public static void testApply(BufferFrame frame, int[] output) {
     ToIntegerConverter<TwoVariables> converter = new ToIntegerConverter<>(TwoVariables.class);
-    SelectableConverter<TwoVariables, OperatorVariables> selectableConverter = new SelectableConverter<>(OperatorVariables.class);
-    LinkedConverter<BufferFrame, TwoVariables, OperatorVariables> linkedConverter = new LinkedConverter<>(converter, selectableConverter);
-    Assert.assertEquals(linkedConverter.variables(), selectableConverter.variables());
+    LinkedConverter<BufferFrame, TwoVariables, OperatorVariables> linkedConverter = new LinkedConverter<>(converter, OperatorVariables.class);
+    Assert.assertEquals(linkedConverter.variables(), Stream.of(OperatorVariables.values()).collect(Collectors.toList()));
     Assert.assertEquals(linkedConverter.apply(frame).peek(ints -> Assert.assertEquals(ints, output,
         String.format("Actual %s, Expected %s", Arrays.toString(ints), Arrays.toString(output)))).count(), 1);
   }
@@ -44,9 +44,8 @@ public class LinkedConverterTest {
   public static void testApply2(BufferFrame frame, int[] output) {
     Function<BufferFrame, Stream<int[]>> linkedConverter =
         new LinkedConverter<>(
-            new LinkedConverter<>(new ToIntegerConverter<>(TwoVariables.class),
-                new SelectableConverter<>(OperatorVariables.class)),
-            new SelectableConverter<>(OperatorVariables2.class)
+            new LinkedConverter<>(new ToIntegerConverter<>(TwoVariables.class), OperatorVariables.class),
+            OperatorVariables2.class
         );
 
     Assert.assertEquals(linkedConverter.apply(frame).peek(ints -> Assert.assertEquals(ints, output,
