@@ -32,7 +32,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return of().fork(selectedIndexes, filters).buildNoDelay();
   }
 
-  public static DigitalFilter parallel(@Nonnull DigitalFilter... filters) {
+  static DigitalFilter parallel(@Nonnull DigitalFilter... filters) {
     Objects.requireNonNull(filters);
     return parallel(Stream.generate(() -> EMPTY_INTS).limit(filters.length).collect(Collectors.toList()), filters);
   }

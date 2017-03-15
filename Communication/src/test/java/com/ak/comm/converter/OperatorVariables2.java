@@ -1,18 +1,23 @@
 package com.ak.comm.converter;
 
 import java.util.function.IntBinaryOperator;
+import java.util.stream.Stream;
 
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 
-public enum OperatorVariables implements Variable {
-  OUT_PLUS((left, right) -> left + right),
-  OUT_MINUS((left, right) -> left - right);
+public enum OperatorVariables2 implements DependentVariable<OperatorVariables> {
+  OUT((left, right) -> left * right);
 
   private final IntBinaryOperator operator;
 
-  OperatorVariables(IntBinaryOperator operator) {
+  OperatorVariables2(IntBinaryOperator operator) {
     this.operator = operator;
+  }
+
+  @Override
+  public final Stream<OperatorVariables> getInputVariables() {
+    return Stream.of(OperatorVariables.OUT_PLUS, OperatorVariables.OUT_MINUS);
   }
 
   @Override
