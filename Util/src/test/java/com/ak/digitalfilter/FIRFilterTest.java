@@ -268,6 +268,13 @@ public class FIRFilterTest {
     filter.accept(1);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "selectedIndexes.*filters.*")
+  public static void testInvalidParallel3() {
+    FilterBuilder.parallel(Arrays.asList(new int[] {1}),
+        FilterBuilder.of().fir(1.0).build(),
+        FilterBuilder.of().fir(1.0).build());
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public static void testInvalidDecimateFactor() {
     FilterBuilder.of().decimate(0).build();

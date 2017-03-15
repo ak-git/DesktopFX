@@ -25,7 +25,6 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   public static DigitalFilter parallel(@Nonnull List<int[]> selectedIndexes, @Nonnull DigitalFilter... filters) {
-    Objects.requireNonNull(filters);
     if (selectedIndexes.isEmpty()) {
       throw new IllegalArgumentException(Arrays.deepToString(filters));
     }
@@ -33,6 +32,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   static DigitalFilter parallel(@Nonnull DigitalFilter... filters) {
+    Objects.requireNonNull(filters);
     return parallel(Stream.generate(() -> EMPTY_INTS).limit(filters.length).collect(Collectors.toList()), filters);
   }
 

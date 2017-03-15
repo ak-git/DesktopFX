@@ -1,7 +1,6 @@
 package com.ak.digitalfilter;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
@@ -12,10 +11,6 @@ final class SelectFilter extends AbstractDigitalFilter {
   private final int[] selectedIndexes;
 
   SelectFilter(@Nonnull int[] selectedIndexes, @Nonnull DigitalFilter outFilter) {
-    Objects.requireNonNull(selectedIndexes);
-    if (selectedIndexes.length == 0) {
-      throw new IllegalArgumentException("selectedIndexes are not defined for " + outFilter);
-    }
     this.selectedIndexes = Arrays.copyOf(selectedIndexes, selectedIndexes.length);
     this.outFilter = outFilter;
     outFilter.forEach(this::publish);
