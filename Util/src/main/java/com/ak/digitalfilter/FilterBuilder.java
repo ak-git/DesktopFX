@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.IntUnaryOperator;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,7 +32,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return of().fork(selectedIndexes, filters).buildNoDelay();
   }
 
-  static DigitalFilter parallel(@Nonnull DigitalFilter... filters) {
+  public static DigitalFilter parallel(@Nonnull DigitalFilter... filters) {
     Objects.requireNonNull(filters);
     return parallel(Stream.generate(() -> EMPTY_INTS).limit(filters.length).collect(Collectors.toList()), filters);
   }
@@ -40,11 +41,25 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return new FilterBuilder();
   }
 
-  public FilterBuilder function(@Nonnull IntUnaryOperator operator) {
+  public FilterBuilder operator(@Nonnull IntUnaryOperator operator) {
     return chain(new AbstractOperableFilter() {
       @Override
       public int applyAsInt(int in) {
         return operator.applyAsInt(in);
+      }
+    });
+  }
+
+  public FilterBuilder function(@Nonnull ToIntFunction<int[]> function) {
+    return chain(new AbstractDigitalFilter() {
+      @Override
+      public int size() {
+        return 1;
+      }
+
+      @Override
+      public void accept(@Nonnull int... values) {
+        publish(function.applyAsInt(values));
       }
     });
   }

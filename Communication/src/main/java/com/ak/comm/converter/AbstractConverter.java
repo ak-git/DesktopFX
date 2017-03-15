@@ -18,7 +18,7 @@ import com.ak.digitalfilter.FilterBuilder;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_VALUES;
 
-public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable<EV>> implements Converter<RESPONSE, EV> {
+public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable> implements Converter<RESPONSE, EV> {
   @Nonnull
   private final Logger logger = Logger.getLogger(getClass().getName());
   @Nonnull
@@ -32,10 +32,7 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
     variables = Collections.unmodifiableList(new ArrayList<>(EnumSet.allOf(evClass)));
     List<DigitalFilter> filters = variables.stream().map(ev -> ev.filter()).collect(Collectors.toList());
 
-    List<int[]> selectedIndexes = variables.stream().map(ev -> ev.getInputVariables()).
-        map(evs -> evs.mapToInt(Enum::ordinal).toArray()).collect(Collectors.toList());
-
-    digitalFilter = FilterBuilder.parallel(selectedIndexes, filters.toArray(new DigitalFilter[variables.size()]));
+    digitalFilter = FilterBuilder.parallel(filters.toArray(new DigitalFilter[variables.size()]));
     digitalFilter.forEach(ints -> {
       if (logger.isLoggable(LOG_LEVEL_VALUES)) {
         logger.log(LOG_LEVEL_VALUES, String.format("#%x [ %s ]", hashCode(),

@@ -19,7 +19,7 @@ import tec.uom.se.unit.Units;
  * </pre>
  * each 5 ms.
  */
-public enum NmisVariable implements Variable<NmisVariable> {
+public enum NmisVariable implements Variable {
   COUNTER_5_MILLI_SECONDS {
     @Override
     public Unit<?> getUnit() {

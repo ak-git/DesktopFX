@@ -15,7 +15,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.internal.util.EmptyComponent;
 import io.reactivex.schedulers.Schedulers;
 
-public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractService implements FileFilter {
+public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable> extends AbstractService implements FileFilter {
   @Nonnull
   private final Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider;
   @Nonnull
