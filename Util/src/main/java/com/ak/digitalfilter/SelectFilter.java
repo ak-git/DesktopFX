@@ -13,6 +13,9 @@ final class SelectFilter extends AbstractDigitalFilter {
 
   SelectFilter(@Nonnull int[] selectedIndexes, @Nonnull DigitalFilter outFilter) {
     Objects.requireNonNull(selectedIndexes);
+    if (selectedIndexes.length == 0) {
+      throw new IllegalArgumentException("selectedIndexes are not defined for " + outFilter);
+    }
     this.selectedIndexes = Arrays.copyOf(selectedIndexes, selectedIndexes.length);
     this.outFilter = outFilter;
     outFilter.forEach(this::publish);

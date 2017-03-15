@@ -1,7 +1,5 @@
 package com.ak.comm.converter.aper;
 
-import java.util.stream.Stream;
-
 import javax.measure.Unit;
 
 import com.ak.comm.converter.Variable;
@@ -48,11 +46,6 @@ public enum AperVariable implements Variable<AperVariable> {
               AperCoefficients.I_ADC.get(), AperCoefficients.I_OHM.get()).value(Math.min(Math.max(in, 0), 3000))
           )
       ).build();
-    }
-
-    @Override
-    public Stream<AperVariable> getInputVariables() {
-      return Stream.of(I1, R1);
     }
   },
 

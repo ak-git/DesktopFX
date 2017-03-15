@@ -1,10 +1,13 @@
 package com.ak.digitalfilter;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.IntUnaryOperator;
-import java.util.stream.IntStream;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -14,16 +17,23 @@ import javax.inject.Provider;
 import javafx.util.Builder;
 
 public class FilterBuilder implements Builder<DigitalFilter> {
-  private static final int[][] EMPTY_SELECTED_INDEXES = {};
+  private static final int[] EMPTY_INTS = {};
   @Nullable
   private DigitalFilter filter;
 
   private FilterBuilder() {
   }
 
-  public static DigitalFilter parallel(@Nonnull DigitalFilter... filters) {
+  public static DigitalFilter parallel(@Nonnull List<int[]> selectedIndexes, @Nonnull DigitalFilter... filters) {
     Objects.requireNonNull(filters);
-    return of().fork(IntStream.range(0, filters.length).mapToObj(i -> new int[] {i}).toArray(value -> new int[value][1]), filters).buildNoDelay();
+    if (selectedIndexes.isEmpty()) {
+      throw new IllegalArgumentException(Arrays.deepToString(filters));
+    }
+    return of().fork(selectedIndexes, filters).buildNoDelay();
+  }
+
+  static DigitalFilter parallel(@Nonnull DigitalFilter... filters) {
+    return parallel(Stream.generate(() -> EMPTY_INTS).limit(filters.length).collect(Collectors.toList()), filters);
   }
 
   public static FilterBuilder of() {
@@ -68,7 +78,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   FilterBuilder fork(@Nonnull DigitalFilter... filters) {
-    return fork(EMPTY_SELECTED_INDEXES, filters);
+    return fork(Collections.emptyList(), filters);
   }
 
   DigitalFilter buildNoDelay() {
@@ -80,24 +90,28 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return Optional.ofNullable(filter).orElse(new NoFilter());
   }
 
-  private FilterBuilder fork(@Nonnull int[][] selectedIndexes, @Nonnull DigitalFilter... filters) {
-    Objects.requireNonNull(filters);
+  private FilterBuilder fork(@Nonnull List<int[]> selectedIndexes, @Nonnull DigitalFilter... filters) {
     Objects.requireNonNull(selectedIndexes);
+    Objects.requireNonNull(filters);
     if (filters.length == 0) {
       throw new IllegalArgumentException();
     }
     DigitalFilter[] wrappedFilters;
-    if (selectedIndexes.length == 0) {
+    if (selectedIndexes.isEmpty()) {
       wrappedFilters = Arrays.copyOf(filters, filters.length);
     }
     else {
-      if (selectedIndexes.length != filters.length) {
+      if (selectedIndexes.size() != filters.length) {
         throw new IllegalArgumentException(String.format("selectedIndexes.length [%s] != filters.length [%s]",
-            Arrays.deepToString(selectedIndexes), Arrays.toString(filters)));
+            selectedIndexes.stream().map(Arrays::toString).collect(Collectors.joining()), Arrays.toString(filters)));
       }
       wrappedFilters = new DigitalFilter[filters.length];
       for (int i = 0; i < wrappedFilters.length; i++) {
-        wrappedFilters[i] = new SelectFilter(selectedIndexes[i], filters[i]);
+        int[] ints = selectedIndexes.get(i);
+        if (ints.length == 0) {
+          ints = new int[] {i};
+        }
+        wrappedFilters[i] = new SelectFilter(ints, filters[i]);
       }
     }
     return filters.length == 1 ? chain(wrappedFilters[0]) : chain(new ForkFilter(wrappedFilters));
