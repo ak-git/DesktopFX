@@ -1,10 +1,12 @@
 package com.ak.comm.converter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -55,7 +57,11 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
   public final Stream<int[]> apply(@Nonnull RESPONSE response) {
     Objects.requireNonNull(response);
     filteredValues = Stream.empty();
-    innerApply(response).forEach(digitalFilter::accept);
+    innerApply(response).peek(ints -> {
+      if (ints.length < variables.size()) {
+        logger.log(Level.WARNING, String.format("Invalid variables: %s not match %s", variables, Arrays.toString(ints)));
+      }
+    }).forEach(digitalFilter::accept);
     return filteredValues;
   }
 
