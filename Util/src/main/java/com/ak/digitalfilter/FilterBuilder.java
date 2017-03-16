@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.IntBinaryOperator;
 import java.util.function.IntUnaryOperator;
-import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,7 +50,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     });
   }
 
-  public FilterBuilder function(@Nonnull ToIntFunction<int[]> function) {
+  public FilterBuilder biOperator(@Nonnull IntBinaryOperator operator) {
     return chain(new AbstractDigitalFilter() {
       @Override
       public int size() {
@@ -59,7 +59,8 @@ public class FilterBuilder implements Builder<DigitalFilter> {
 
       @Override
       public void accept(@Nonnull int... values) {
-        publish(function.applyAsInt(values));
+        Objects.requireNonNull(values);
+        publish(operator.applyAsInt(values[0], values[1]));
       }
     });
   }

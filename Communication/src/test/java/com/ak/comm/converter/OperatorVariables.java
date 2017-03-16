@@ -16,6 +16,12 @@ public enum OperatorVariables implements DependentVariable<TwoVariables> {
     this.operator = operator;
   }
 
+
+  @Override
+  public final Class<TwoVariables> getInputVariablesClass() {
+    return TwoVariables.class;
+  }
+
   @Override
   public final Stream<TwoVariables> getInputVariables() {
     return Stream.of(TwoVariables.V1, TwoVariables.V2);
@@ -23,6 +29,6 @@ public enum OperatorVariables implements DependentVariable<TwoVariables> {
 
   @Override
   public final DigitalFilter filter() {
-    return FilterBuilder.of().function(value -> operator.applyAsInt(value[0], value[1])).build();
+    return FilterBuilder.of().biOperator(operator).build();
   }
 }

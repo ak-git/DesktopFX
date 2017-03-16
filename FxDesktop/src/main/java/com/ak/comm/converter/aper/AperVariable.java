@@ -11,29 +11,19 @@ import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
 public enum AperVariable implements Variable {
-  R1 {
+  R1,
+  M1 {
     @Override
     public Unit<?> getUnit() {
-      return MetricPrefix.MILLI(Units.OHM);
+      return MetricPrefix.MILLI(Units.VOLT);
     }
 
-    @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.of().operator(in -> (int) Math.round(
-          15000.0 * in /
-              new AkimaSplineInterpolator().interpolate(
-                  AperCoefficients.R_ADC_15_OHM.get(), AperCoefficients.R_VALUE_15_OHM.get()).value(166)
-          )
-      ).build();
-    }
-  },
-  M1 {
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.of().fir(AperCoefficients.MYO).build();
     }
   },
-  I1 {
+  RI1 {
     @Override
     public Unit<?> getUnit() {
       return Units.OHM;
@@ -49,32 +39,27 @@ public enum AperVariable implements Variable {
     }
   },
 
-  R2 {
+  R2,
+  M2 {
     @Override
     public Unit<?> getUnit() {
-      return R1.getUnit();
+      return M1.getUnit();
     }
 
-    @Override
-    public DigitalFilter filter() {
-      return R1.filter();
-    }
-  },
-  M2 {
     @Override
     public DigitalFilter filter() {
       return M1.filter();
     }
   },
-  I2 {
+  RI2 {
     @Override
     public Unit<?> getUnit() {
-      return I1.getUnit();
+      return RI1.getUnit();
     }
 
     @Override
     public DigitalFilter filter() {
-      return I1.filter();
+      return RI1.filter();
     }
   }
 }

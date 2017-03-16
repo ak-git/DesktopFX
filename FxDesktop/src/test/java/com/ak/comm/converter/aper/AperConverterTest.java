@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.BufferFrame;
+import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -30,25 +31,27 @@ public final class AperConverterTest {
             0x40, 0x0d, 0x03, 0,
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
-            new int[] {15000, 1, 997, 29849, 2, 1558}},
+
+            new int[] {14995, 997}},
     };
   }
 
   @Test(dataProvider = "variables")
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
-    Function<BufferFrame, Stream<int[]>> converter = new ToIntegerConverter<>(AperVariable.class);
-    EnumSet.of(AperVariable.R1, AperVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.OHM)));
-    EnumSet.of(AperVariable.M1, AperVariable.M2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
-    EnumSet.of(AperVariable.I1, AperVariable.I2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
+    Function<BufferFrame, Stream<int[]>> converter = new LinkedConverter<>(new ToIntegerConverter<>(AperVariable.class), AperOutVariable.class);
+    EnumSet.of(AperVariable.R1, AperVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
+    EnumSet.of(AperVariable.M1, AperVariable.M2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.VOLT), t.name()));
+    EnumSet.of(AperVariable.RI1, AperVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
 
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 31; i++) {
-      converter.apply(bufferFrame).forEach(ints -> {
-        Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
-        processed.set(true);
-      });
+    for (int i = 0; i < 100; i++) {
+      converter.apply(bufferFrame);
     }
+    converter.apply(bufferFrame).forEach(ints -> {
+      Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
+      processed.set(true);
+    });
     Assert.assertTrue(processed.get(), "Data are not converted!");
   }
 }

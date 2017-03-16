@@ -27,7 +27,7 @@ abstract class AbstractDigitalFilter implements DigitalFilter {
     }
   }
 
-  final void publish(int... out) {
+  final void publish(@Nonnull int... out) {
     after.accept(out);
   }
 
