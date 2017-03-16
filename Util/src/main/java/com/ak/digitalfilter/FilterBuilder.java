@@ -47,6 +47,11 @@ public class FilterBuilder implements Builder<DigitalFilter> {
       public int applyAsInt(int in) {
         return operator.applyAsInt(in);
       }
+
+      @Override
+      public String toString() {
+        return "Operator " + super.toString();
+      }
     });
   }
 
@@ -61,6 +66,11 @@ public class FilterBuilder implements Builder<DigitalFilter> {
       public void accept(@Nonnull int... values) {
         Objects.requireNonNull(values);
         publish(operator.applyAsInt(values[0], values[1]));
+      }
+
+      @Override
+      public String toString() {
+        return "BiOperator " + super.toString();
       }
     });
   }

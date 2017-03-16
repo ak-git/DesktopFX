@@ -169,6 +169,37 @@ public class FIRFilterTest {
             1, 1.0,
             2.0
         )
+    }, {
+        FilterBuilder.parallel(
+            FilterBuilder.of().fork(
+                FilterBuilder.of().fir(1.0).build(),
+                FilterBuilder.of().fir(1.0).build()
+            ).build(),
+            FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
+            FilterBuilder.of().comb(2).build(),
+            FilterBuilder.of().rrs(2).build()
+        ),
+        String.format(
+            "NoDelayFilter (compensate %.1f delay) - DelayFilter (delay %d) - SelectFilter (indexes = [0]) - FIRFilter (delay %.1f)%n" +
+                "                                                                                              FIRFilter (delay %.1f)%n" +
+                "                                       SelectFilter (indexes = [1]) - FIRFilter (delay %.1f)%n" +
+                "                                       SelectFilter (indexes = [2]) - CombFilter (delay %.1f)%n" +
+                "                                       SelectFilter (indexes = [3]) - RRS2 (delay %.1f)",
+            1.0, 1, 0.0,
+            0.0,
+            1.0,
+            1.0,
+            1.0
+        )
+    }, {
+        FilterBuilder.parallel(Arrays.asList(new int[] {0}, new int[] {1, 2}),
+            FilterBuilder.of().operator(Integer::bitCount).rrs(10).build(), FilterBuilder.of().biOperator(Integer::compare).build()),
+        String.format(
+            "NoDelayFilter (compensate %.1f delay) - SelectFilter (indexes = [0]) - Operator  (delay %.1f) - RRS10 (delay %.1f)%n" +
+                "                                       DelayFilter (delay %d) - SelectFilter (indexes = [1, 2]) - BiOperator  (delay %.1f)",
+            5.0, 0.0, 5.0,
+            5, 0.0
+        )
     }};
   }
 

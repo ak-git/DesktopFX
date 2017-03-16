@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 
+import static com.ak.util.Strings.NEW_LINE;
+
 final class SelectFilter extends AbstractDigitalFilter {
   @Nonnull
   private final DigitalFilter outFilter;
@@ -43,5 +45,11 @@ final class SelectFilter extends AbstractDigitalFilter {
   @Override
   public int size() {
     return outFilter.size();
+  }
+
+  @Override
+  public String toString() {
+    String base = String.format("%s (indexes = %s) - ", getClass().getSimpleName(), Arrays.toString(selectedIndexes));
+    return base + outFilter.toString().replaceAll(NEW_LINE, newLineTabSpaces(base.length()));
   }
 }
