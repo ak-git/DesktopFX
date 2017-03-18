@@ -20,6 +20,7 @@ enum Filters {
     return Quantities.getQuantity(frequency.to(Units.HERTZ).inverse().getValue().doubleValue() * filter.getDelay(), Units.SECOND);
   }
 
+  @Nonnegative
   static int hypot63(@Nonnegative int a, @Nonnegative int b) {
     int max = Math.max(a, b);
     int min = Math.min(a, b);
@@ -28,6 +29,7 @@ enum Filters {
     return x - (x >> 4);
   }
 
+  @Nonnegative
   static int hypot02(@Nonnegative int a, @Nonnegative int b) {
     int max = Math.max(a, b);
     int min = Math.min(a, b);
@@ -37,6 +39,20 @@ enum Filters {
     }
     else {
       return max - (max >> 3) - (max >> 5) + (min >> 1) + (min >> 4);
+    }
+  }
+
+  @Nonnegative
+  static int cathetus(@Nonnegative int hypot, @Nonnegative int cathetus) {
+    int c = Math.max(hypot, cathetus);
+    int b = Math.min(hypot, cathetus);
+    c += c >> 4;
+    int a = c - (b >> 1);
+    if (a > b) {
+      return a;
+    }
+    else {
+      return (c - b) << 1;
     }
   }
 }
