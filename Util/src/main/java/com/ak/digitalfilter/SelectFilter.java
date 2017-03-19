@@ -43,8 +43,8 @@ final class SelectFilter extends AbstractDigitalFilter {
   }
 
   @Override
-  public int size() {
-    return outFilter.size();
+  public int getOutputDataSize() {
+    return outFilter.getOutputDataSize();
   }
 
   @Override

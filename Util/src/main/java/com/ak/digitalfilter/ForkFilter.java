@@ -40,7 +40,7 @@ final class ForkFilter extends AbstractDigitalFilter {
     int[] bufferPositions = new int[this.filters.size()];
     bufferPositions[0] = 0;
     for (int i = 1; i < this.filters.size(); i++) {
-      bufferPositions[i] = bufferPositions[i - 1] + this.filters.get(i - 1).size();
+      bufferPositions[i] = bufferPositions[i - 1] + this.filters.get(i - 1).getOutputDataSize();
     }
     int[] bufferIndexes = new int[this.filters.size()];
 
@@ -59,7 +59,7 @@ final class ForkFilter extends AbstractDigitalFilter {
                 this, Arrays.toString(values)));
           }
           else {
-            intBuffers.add(new int[size()]);
+            intBuffers.add(new int[getOutputDataSize()]);
           }
         }
 
@@ -96,8 +96,8 @@ final class ForkFilter extends AbstractDigitalFilter {
 
   @Nonnegative
   @Override
-  public int size() {
-    return filters.stream().mapToInt(DigitalFilter::size).sum();
+  public int getOutputDataSize() {
+    return filters.stream().mapToInt(DigitalFilter::getOutputDataSize).sum();
   }
 
   @Override

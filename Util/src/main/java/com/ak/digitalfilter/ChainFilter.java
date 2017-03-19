@@ -33,8 +33,8 @@ final class ChainFilter extends AbstractDigitalFilter {
 
   @Nonnegative
   @Override
-  public int size() {
-    return second.size();
+  public int getOutputDataSize() {
+    return second.getOutputDataSize();
   }
 
   @Override

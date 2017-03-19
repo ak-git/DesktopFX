@@ -58,7 +58,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   public FilterBuilder biOperator(@Nonnull IntBinaryOperator operator) {
     return chain(new AbstractDigitalFilter() {
       @Override
-      public int size() {
+      public int getOutputDataSize() {
         return 1;
       }
 

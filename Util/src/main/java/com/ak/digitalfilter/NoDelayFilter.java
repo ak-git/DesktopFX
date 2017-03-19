@@ -36,8 +36,8 @@ final class NoDelayFilter extends AbstractDigitalFilter {
   }
 
   @Override
-  public int size() {
-    return filter.size();
+  public int getOutputDataSize() {
+    return filter.getOutputDataSize();
   }
 
   @Override

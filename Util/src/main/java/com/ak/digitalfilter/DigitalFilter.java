@@ -7,7 +7,7 @@ public interface DigitalFilter extends IntsAcceptor {
   void forEach(@Nonnull IntsAcceptor after);
 
   @Nonnegative
-  int size();
+  int getOutputDataSize();
 
   default double getDelay() {
     return 0.0;

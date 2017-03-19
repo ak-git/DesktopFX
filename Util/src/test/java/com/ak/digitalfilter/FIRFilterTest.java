@@ -238,7 +238,7 @@ public class FIRFilterTest {
     Assert.assertEquals(Filters.getFrequency(filter, Quantities.getQuantity(0.1, MetricPrefix.KILO(Units.HERTZ))).getValue().doubleValue(),
         100 * frequencyFactor, 1.0e-3, filter.toString());
 
-    Assert.assertEquals(filter.size(), result[0].length);
+    Assert.assertEquals(filter.getOutputDataSize(), result[0].length);
   }
 
   @Test(expectedExceptions = IllegalStateException.class)
