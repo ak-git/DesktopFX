@@ -12,11 +12,11 @@ import org.apache.commons.math3.analysis.interpolation.AkimaSplineInterpolator;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public enum AperOutVariable implements DependentVariable<AperVariable> {
+public enum AperOutVariable implements DependentVariable<AperInVariable> {
   R1 {
     @Override
-    public Stream<AperVariable> getInputVariables() {
-      return Stream.of(AperVariable.R1, AperVariable.RI1);
+    public Stream<AperInVariable> getInputVariables() {
+      return Stream.of(AperInVariable.R1, AperInVariable.RI1);
     }
 
     @Override
@@ -36,7 +36,7 @@ public enum AperOutVariable implements DependentVariable<AperVariable> {
   RI1;
 
   @Override
-  public final Class<AperVariable> getInputVariablesClass() {
-    return AperVariable.class;
+  public final Class<AperInVariable> getInputVariablesClass() {
+    return AperInVariable.class;
   }
 }

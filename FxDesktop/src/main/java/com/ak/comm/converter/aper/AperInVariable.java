@@ -10,7 +10,7 @@ import org.apache.commons.math3.analysis.interpolation.AkimaSplineInterpolator;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public enum AperVariable implements Variable {
+public enum AperInVariable implements Variable {
   R1,
   M1 {
     @Override

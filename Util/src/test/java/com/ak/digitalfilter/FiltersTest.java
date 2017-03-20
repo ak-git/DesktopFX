@@ -46,15 +46,15 @@ public class FiltersTest {
   @DataProvider(name = "cathetus")
   public static Object[][] cathetus() {
     return new Object[][] {{
-        1, (IntBinaryOperator) Filters::cathetus, 0, 1
+        1, (IntBinaryOperator) Filters::cathetus63, 0, 1
     }, {
-        10, (IntBinaryOperator) Filters::cathetus, 0, 10
+        10, (IntBinaryOperator) Filters::cathetus63, 0, 10
     }, {
-        100, (IntBinaryOperator) Filters::cathetus, 12, 106
+        100, (IntBinaryOperator) Filters::cathetus63, 12, 106
     }, {
-        1000, (IntBinaryOperator) Filters::cathetus, 124, 1062
+        1000, (IntBinaryOperator) Filters::cathetus63, 124, 1062
     }, {
-        10000, (IntBinaryOperator) Filters::cathetus, 1250, 10625
+        10000, (IntBinaryOperator) Filters::cathetus63, 1250, 10625
     }};
   }
 

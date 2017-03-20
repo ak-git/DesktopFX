@@ -43,7 +43,7 @@ enum Filters {
   }
 
   @Nonnegative
-  static int cathetus(@Nonnegative int hypot, @Nonnegative int cathetus) {
+  static int cathetus63(@Nonnegative int hypot, @Nonnegative int cathetus) {
     int c = Math.max(hypot, cathetus);
     int b = Math.min(hypot, cathetus);
     c += c >> 4;
