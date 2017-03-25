@@ -5,6 +5,8 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.measure.Unit;
 
+import tec.uom.se.AbstractUnit;
+
 public interface DependentVariable<IN extends Enum<IN> & Variable> extends Variable {
   @Nonnull
   String name();
@@ -18,6 +20,11 @@ public interface DependentVariable<IN extends Enum<IN> & Variable> extends Varia
 
   @Override
   default Unit<?> getUnit() {
-    return Enum.valueOf(getInputVariablesClass(), name()).getUnit();
+    try {
+      return Enum.valueOf(getInputVariablesClass(), name()).getUnit();
+    }
+    catch (IllegalArgumentException e) {
+      return AbstractUnit.ONE;
+    }
   }
 }

@@ -70,8 +70,8 @@ public class FIRFilterTest {
             FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(2).build()
         ),
-        new int[][] {{1, 1, 2, 2, 1}, {2, 2, 3, 3, 3}, {4, 4, 0, 0, 3}, {2, 2, -2, -2, 2}, {2, 2, -1, -1, 1}},
-        0.0, 1.0
+        new int[][] {{0, 0, 1, 1, 0}, {1, 1, 2, 2, 1}, {2, 2, 3, 3, 3}, {4, 4, 0, 0, 3}, {2, 2, -2, -2, 2}, {2, 2, -1, -1, 1}},
+        1.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
         FilterBuilder.of().fork(
@@ -180,12 +180,12 @@ public class FIRFilterTest {
             FilterBuilder.of().rrs(2).build()
         ),
         String.format(
-            "NoDelayFilter (compensate %.1f delay) - DelayFilter (delay %d) - SelectFilter (indexes = [0]) - FIRFilter (delay %.1f)%n" +
-                "                                                                                              FIRFilter (delay %.1f)%n" +
-                "                                       SelectFilter (indexes = [1]) - FIRFilter (delay %.1f)%n" +
-                "                                       SelectFilter (indexes = [2]) - CombFilter (delay %.1f)%n" +
-                "                                       SelectFilter (indexes = [3]) - RRS2 (delay %.1f)",
-            1.0, 1, 0.0,
+            "DelayFilter (delay %d) - SelectFilter (indexes = [0]) - FIRFilter (delay %.1f)%n" +
+                "                                                       FIRFilter (delay %.1f)%n" +
+                "SelectFilter (indexes = [1]) - FIRFilter (delay %.1f)%n" +
+                "SelectFilter (indexes = [2]) - CombFilter (delay %.1f)%n" +
+                "SelectFilter (indexes = [3]) - RRS2 (delay %.1f)",
+            1, 0.0,
             0.0,
             1.0,
             1.0,
@@ -195,9 +195,9 @@ public class FIRFilterTest {
         FilterBuilder.parallel(Arrays.asList(new int[] {0}, new int[] {1, 2}),
             FilterBuilder.of().operator(Integer::bitCount).rrs(10).build(), FilterBuilder.of().biOperator(Integer::compare).build()),
         String.format(
-            "NoDelayFilter (compensate %.1f delay) - SelectFilter (indexes = [0]) - Operator  (delay %.1f) - RRS10 (delay %.1f)%n" +
-                "                                       DelayFilter (delay %d) - SelectFilter (indexes = [1, 2]) - BiOperator  (delay %.1f)",
-            5.0, 0.0, 5.0,
+            "SelectFilter (indexes = [0]) - Operator  (delay %.1f) - RRS10 (delay %.1f)%n" +
+                "DelayFilter (delay %d) - SelectFilter (indexes = [1, 2]) - BiOperator  (delay %.1f)",
+            0.0, 5.0,
             5, 0.0
         )
     }};

@@ -29,7 +29,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     if (selectedIndexes.isEmpty()) {
       throw new IllegalArgumentException(Arrays.deepToString(filters));
     }
-    return of().fork(selectedIndexes, filters).buildNoDelay();
+    return of().fork(selectedIndexes, filters).build();
   }
 
   static DigitalFilter parallel(@Nonnull DigitalFilter... filters) {
