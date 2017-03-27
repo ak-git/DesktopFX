@@ -13,10 +13,10 @@ import tec.uom.se.unit.Units;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 
-public class FIRFilterTest {
+public class FilterBuilderTest {
   private static final DigitalFilter[] EMPTY_FILTERS = {};
 
-  private FIRFilterTest() {
+  private FilterBuilderTest() {
   }
 
   @DataProvider(name = "simple")

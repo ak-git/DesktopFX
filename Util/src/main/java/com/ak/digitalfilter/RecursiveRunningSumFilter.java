@@ -1,11 +1,13 @@
 package com.ak.digitalfilter;
 
+import javax.annotation.Nonnegative;
+
 final class RecursiveRunningSumFilter extends AbstractOperableFilter {
   private final CombFilter combIntegrate;
   private final IntegrateFilter integrator;
   private final int averageFactor;
 
-  RecursiveRunningSumFilter(int averageFactor) {
+  RecursiveRunningSumFilter(@Nonnegative int averageFactor) {
     combIntegrate = new CombFilter(averageFactor);
     integrator = new IntegrateFilter();
     this.averageFactor = averageFactor;
