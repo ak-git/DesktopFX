@@ -7,7 +7,7 @@ import javax.measure.Unit;
 import com.ak.comm.converter.DependentVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
-import com.ak.digitalfilter.aper.AperCoefficients;
+import com.ak.numbers.aper.AperCoefficients;
 import org.apache.commons.math3.analysis.interpolation.AkimaSplineInterpolator;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;

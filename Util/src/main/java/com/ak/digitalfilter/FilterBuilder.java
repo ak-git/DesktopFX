@@ -41,8 +41,11 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return new FilterBuilder();
   }
 
-  public FilterBuilder operator(@Nonnull IntUnaryOperator operator) {
+  public FilterBuilder operator(@Nonnull Provider<IntUnaryOperator> operatorProvider) {
     return chain(new AbstractOperableFilter() {
+      @Nonnull
+      private final IntUnaryOperator operator = operatorProvider.get();
+
       @Override
       public int applyAsInt(int in) {
         return operator.applyAsInt(in);

@@ -1,4 +1,4 @@
-package com.ak.digitalfilter.aper;
+package com.ak.numbers.aper;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -17,8 +17,7 @@ public class AperCoefficientsTest {
         {AperCoefficients.RHEO, 61},
         {AperCoefficients.MYO, 61},
         {AperCoefficients.ECG, 61},
-        {AperCoefficients.I_ADC, 30},
-        {AperCoefficients.I_OHM, 30},
+        {AperCoefficients.I_ADC_TO_OHM, 60},
         {AperCoefficients.R_ADC_15_OHM, 33},
         {AperCoefficients.R_VALUE_15_OHM, 33},
     };

@@ -1,4 +1,4 @@
-package com.ak.digitalfilter;
+package com.ak.numbers;
 
 public enum SimpleCoefficients implements Coefficients {
   DIFF

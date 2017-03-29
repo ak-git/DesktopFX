@@ -1,4 +1,4 @@
-package com.ak.digitalfilter;
+package com.ak.numbers;
 
 import java.nio.charset.Charset;
 import java.util.Collection;
@@ -11,11 +11,14 @@ import javax.inject.Provider;
 public interface Coefficients extends Provider<double[]> {
   @Override
   default double[] get() {
-    Scanner scanner = new Scanner(getClass().getResourceAsStream(String.format("%s.txt", name().toLowerCase())),
+    Scanner scanner = new Scanner(getClass().getResourceAsStream(String.format("%s.txt", name())),
         Charset.defaultCharset().name());
     scanner.useLocale(Locale.ROOT);
 
     Collection<Double> coeffs = new LinkedList<>();
+    while (scanner.hasNext() && !scanner.hasNextDouble()) {
+      scanner.next();
+    }
     while (scanner.hasNextDouble()) {
       coeffs.add(scanner.nextDouble());
     }

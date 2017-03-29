@@ -3,6 +3,7 @@ package com.ak.digitalfilter;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.ak.numbers.SimpleCoefficients;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -193,7 +194,7 @@ public class FilterBuilderTest {
         )
     }, {
         FilterBuilder.parallel(Arrays.asList(new int[] {0}, new int[] {1, 2}),
-            FilterBuilder.of().operator(Integer::bitCount).rrs(10).build(), FilterBuilder.of().biOperator(Integer::compare).build()),
+            FilterBuilder.of().operator(() -> Integer::bitCount).rrs(10).build(), FilterBuilder.of().biOperator(Integer::compare).build()),
         String.format(
             "SelectFilter (indexes = [0]) - Operator  (delay %.1f) - RRS10 (delay %.1f)%n" +
                 "DelayFilter (delay %d) - SelectFilter (indexes = [1, 2]) - BiOperator  (delay %.1f)",

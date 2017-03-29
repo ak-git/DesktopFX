@@ -5,8 +5,8 @@ import javax.measure.Unit;
 import com.ak.comm.converter.Variable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
-import com.ak.digitalfilter.aper.AperCoefficients;
-import org.apache.commons.math3.analysis.interpolation.AkimaSplineInterpolator;
+import com.ak.numbers.Interpolators;
+import com.ak.numbers.aper.AperCoefficients;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
@@ -31,11 +31,7 @@ public enum AperInVariable implements Variable {
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().operator(in -> (int) Math.round(
-          new AkimaSplineInterpolator().interpolate(
-              AperCoefficients.I_ADC.get(), AperCoefficients.I_OHM.get()).value(Math.min(Math.max(in, 0), 3000))
-          )
-      ).build();
+      return FilterBuilder.of().operator(Interpolators.interpolator(AperCoefficients.I_ADC_TO_OHM)).build();
     }
   },
 
