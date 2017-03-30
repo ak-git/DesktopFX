@@ -33,7 +33,25 @@ public enum AperOutVariable implements DependentVariable<AperInVariable> {
       )).build();
     }
   },
-  RI1;
+  RI1,
+
+  R2 {
+    @Override
+    public Stream<AperInVariable> getInputVariables() {
+      return Stream.of(AperInVariable.R2, AperInVariable.RI2);
+    }
+
+    @Override
+    public Unit<?> getUnit() {
+      return R1.getUnit();
+    }
+
+    @Override
+    public DigitalFilter filter() {
+      return R1.filter();
+    }
+  },
+  RI2;
 
   @Override
   public final Class<AperInVariable> getInputVariablesClass() {
