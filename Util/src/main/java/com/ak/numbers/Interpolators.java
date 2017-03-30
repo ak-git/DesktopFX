@@ -11,7 +11,7 @@ import org.apache.commons.math3.analysis.interpolation.AkimaSplineInterpolator;
 public enum Interpolators {
   ;
 
-  public static Provider<IntUnaryOperator> interpolator(@Nonnull Coefficients coefficients) {
+  public static Provider<IntUnaryOperator> interpolate(@Nonnull Coefficients coefficients) {
     double[] all = coefficients.get();
     if ((all.length & 1) == 1) {
       throw new IllegalArgumentException(String.format("Number %d of coefficients %s is not even", all.length, coefficients.name()));
