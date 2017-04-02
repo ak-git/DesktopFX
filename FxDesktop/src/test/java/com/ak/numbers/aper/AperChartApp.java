@@ -51,8 +51,8 @@ public final class AperChartApp extends Application {
     }
 
     ObservableList<XYChart.Data<Number, Number>> splineData = FXCollections.observableArrayList();
-    IntUnaryOperator f = Interpolators.interpolate(coefficients).get();
-    for (int i = 0; i < xAxis.getUpperBound(); i++) {
+    IntUnaryOperator f = Interpolators.interpolator(coefficients).get();
+    for (int i = 0; i < xAxis.getUpperBound() + 1; i++) {
       splineData.add(new XYChart.Data<>(i, f.applyAsInt(i)));
     }
 

@@ -1,10 +1,15 @@
 package com.ak.comm.converter.aper;
 
+import java.io.IOException;
 import java.nio.ByteOrder;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import java.util.function.IntBinaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -12,6 +17,10 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
+import com.ak.numbers.Coefficients;
+import com.ak.numbers.Interpolators;
+import com.ak.numbers.aper.AperCoefficients;
+import com.ak.util.LineFileCollector;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -32,7 +41,7 @@ public final class AperConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {14995, 997, 29771, 1558}},
+            new int[] {14970, 997, 15000, 1558}},
     };
   }
 
@@ -41,7 +50,7 @@ public final class AperConverterTest {
     Function<BufferFrame, Stream<int[]>> converter = new LinkedConverter<>(new ToIntegerConverter<>(AperInVariable.class), AperOutVariable.class);
     EnumSet.of(AperInVariable.R1, AperInVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
     EnumSet.of(AperInVariable.M1, AperInVariable.M2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.VOLT), t.name()));
-    EnumSet.of(AperInVariable.RI1, AperInVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
+    EnumSet.of(AperInVariable.RI1, AperInVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
 
     EnumSet.of(AperOutVariable.R1).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.OHM)));
     EnumSet.of(AperOutVariable.RI1).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
@@ -59,5 +68,14 @@ public final class AperConverterTest {
       processed.set(true);
     });
     Assert.assertTrue(processed.get(), "Data are not converted!");
+  }
+
+  @Test(enabled = false)
+  public static void test() throws IOException {
+    IntBinaryOperator function = Interpolators.interpolator(new Coefficients[] {AperCoefficients.IADC_VADC_0, AperCoefficients.IADC_VADC_15000}).get();
+
+    Assert.assertNull(IntStream.rangeClosed(0, 1).mapToObj(y -> IntStream.rangeClosed(0, 1).map(x -> function.applyAsInt(x, y))).
+        map(stream -> stream.mapToObj(value -> String.format("%d", value)).collect(Collectors.joining("\t"))).
+        collect(new LineFileCollector(Paths.get("out.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 }

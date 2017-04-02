@@ -58,8 +58,11 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     });
   }
 
-  public FilterBuilder biOperator(@Nonnull IntBinaryOperator operator) {
+  public FilterBuilder biOperator(@Nonnull Provider<IntBinaryOperator> operatorProvider) {
     return chain(new AbstractDigitalFilter() {
+      @Nonnull
+      private final IntBinaryOperator operator = operatorProvider.get();
+
       @Override
       public int getOutputDataSize() {
         return 1;

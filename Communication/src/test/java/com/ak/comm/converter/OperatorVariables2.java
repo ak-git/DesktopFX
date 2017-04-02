@@ -28,6 +28,6 @@ public enum OperatorVariables2 implements DependentVariable<OperatorVariables> {
 
   @Override
   public final DigitalFilter filter() {
-    return FilterBuilder.of().biOperator(operator).build();
+    return FilterBuilder.of().biOperator(() -> operator).build();
   }
 }

@@ -29,6 +29,6 @@ public enum OperatorVariables implements DependentVariable<TwoVariables> {
 
   @Override
   public final DigitalFilter filter() {
-    return FilterBuilder.of().biOperator(operator).build();
+    return FilterBuilder.of().biOperator(() -> operator).build();
   }
 }

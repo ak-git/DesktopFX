@@ -21,13 +21,13 @@ public class InterpolatorsTest {
   @Test(expectedExceptions = IllegalArgumentException.class,
       expectedExceptionsMessageRegExp = "Number 3 of coefficients DIFF is not even")
   public static void testInvalidCoefficients() {
-    Interpolators.interpolate(SimpleCoefficients.DIFF);
+    Interpolators.interpolator(SimpleCoefficients.DIFF);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
       expectedExceptionsMessageRegExp = "Number of points 1 from INTERPOLATOR_TEST_INVALID is too small")
   public static void testTooLowCoefficients() {
-    Interpolators.interpolate(InterpolatorCoefficients.INTERPOLATOR_TEST_INVALID);
+    Interpolators.interpolator(InterpolatorCoefficients.INTERPOLATOR_TEST_INVALID);
   }
 
   @DataProvider(name = "interpolators")
@@ -46,7 +46,7 @@ public class InterpolatorsTest {
 
   @Test(dataProvider = "interpolators")
   public static void testInterpolator(@Nonnull Coefficients coefficients, @Nonnull int[] expected) {
-    IntUnaryOperator operator = Interpolators.interpolate(coefficients).get();
+    IntUnaryOperator operator = Interpolators.interpolator(coefficients).get();
     int[] actual = IntStream.rangeClosed(1, 15).map(operator).toArray();
     Assert.assertTrue(Arrays.equals(actual, expected), Arrays.toString(actual));
   }
