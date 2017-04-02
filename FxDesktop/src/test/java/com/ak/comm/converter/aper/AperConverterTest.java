@@ -17,7 +17,6 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
-import com.ak.numbers.Coefficients;
 import com.ak.numbers.Interpolators;
 import com.ak.numbers.aper.AperCoefficients;
 import com.ak.util.LineFileCollector;
@@ -72,7 +71,7 @@ public final class AperConverterTest {
 
   @Test(enabled = false)
   public static void test() throws IOException {
-    IntBinaryOperator function = Interpolators.interpolator(new Coefficients[] {AperCoefficients.IADC_VADC_0, AperCoefficients.IADC_VADC_15000}).get();
+    IntBinaryOperator function = Interpolators.interpolator(AperCoefficients.IADC_VADC_0, AperCoefficients.IADC_VADC_15000).get();
 
     Assert.assertNull(IntStream.rangeClosed(0, 1).mapToObj(y -> IntStream.rangeClosed(0, 1).map(x -> function.applyAsInt(x, y))).
         map(stream -> stream.mapToObj(value -> String.format("%d", value)).collect(Collectors.joining("\t"))).

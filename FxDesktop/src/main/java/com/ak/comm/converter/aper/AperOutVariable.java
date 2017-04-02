@@ -7,7 +7,6 @@ import javax.measure.Unit;
 import com.ak.comm.converter.DependentVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
-import com.ak.numbers.Coefficients;
 import com.ak.numbers.Interpolators;
 import com.ak.numbers.aper.AperCoefficients;
 import tec.uom.se.unit.MetricPrefix;
@@ -30,7 +29,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable> {
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().biOperator(Interpolators.interpolator(new Coefficients[] {IADC_VADC_0, IADC_VADC_15000})).build();
+      return FilterBuilder.of().biOperator(Interpolators.interpolator(IADC_VADC_0, IADC_VADC_15000)).build();
     }
   },
   RI1 {

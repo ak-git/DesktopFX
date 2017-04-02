@@ -35,7 +35,7 @@ public enum Interpolators {
     this.minPoints = minPoints;
   }
 
-  public static Provider<IntBinaryOperator> interpolator(@Nonnull Coefficients[] xyForZ) {
+  public static Provider<IntBinaryOperator> interpolator(@Nonnull Coefficients... xyForZ) {
     Map<Coefficients, IntUnaryOperator> coeffSplineMap = Stream.of(xyForZ).collect(
         Collectors.toMap(Function.identity(), coefficients -> interpolator(coefficients).get())
     );
