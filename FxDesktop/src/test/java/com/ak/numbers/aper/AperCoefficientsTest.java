@@ -18,8 +18,8 @@ public class AperCoefficientsTest {
         {AperCoefficients.MYO, 61},
         {AperCoefficients.ECG, 61},
         {AperCoefficients.I_ADC_TO_OHM, 60},
-        {AperCoefficients.IADC_VADC_0, 4},
-        {AperCoefficients.IADC_VADC_15000, 64},
+        {AperCoefficients.RI_VADC_0, 4},
+        {AperCoefficients.RI_VADC_15000, 64},
     };
   }
 

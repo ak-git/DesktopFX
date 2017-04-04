@@ -40,7 +40,7 @@ public final class AperConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {14970, 997, 15000, 1558}},
+            new int[] {14978, 997, 15002, 1558}},
     };
   }
 
@@ -49,7 +49,7 @@ public final class AperConverterTest {
     Function<BufferFrame, Stream<int[]>> converter = new LinkedConverter<>(new ToIntegerConverter<>(AperInVariable.class), AperOutVariable.class);
     EnumSet.of(AperInVariable.R1, AperInVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
     EnumSet.of(AperInVariable.M1, AperInVariable.M2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.VOLT), t.name()));
-    EnumSet.of(AperInVariable.RI1, AperInVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
+    EnumSet.of(AperInVariable.RI1, AperInVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
 
     EnumSet.of(AperOutVariable.R1).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.OHM)));
     EnumSet.of(AperOutVariable.RI1).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
@@ -71,7 +71,7 @@ public final class AperConverterTest {
 
   @Test(enabled = false)
   public static void test() throws IOException {
-    IntBinaryOperator function = Interpolators.interpolator(AperCoefficients.IADC_VADC_0, AperCoefficients.IADC_VADC_15000).get();
+    IntBinaryOperator function = Interpolators.interpolator(AperCoefficients.RI_VADC_0, AperCoefficients.RI_VADC_15000).get();
 
     Assert.assertNull(IntStream.rangeClosed(0, 1).mapToObj(y -> IntStream.rangeClosed(0, 1).map(x -> function.applyAsInt(x, y))).
         map(stream -> stream.mapToObj(value -> String.format("%d", value)).collect(Collectors.joining("\t"))).

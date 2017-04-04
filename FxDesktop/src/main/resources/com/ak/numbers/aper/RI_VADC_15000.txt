@@ -1,4 +1,4 @@
-RI(ADC)    V(ADC)
+RI(Ohm)    V(ADC)
 
 166	    100506
 222	    100497

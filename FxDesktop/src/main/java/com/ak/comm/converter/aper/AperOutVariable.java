@@ -8,12 +8,11 @@ import com.ak.comm.converter.DependentVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.Interpolators;
-import com.ak.numbers.aper.AperCoefficients;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-import static com.ak.numbers.aper.AperCoefficients.IADC_VADC_0;
-import static com.ak.numbers.aper.AperCoefficients.IADC_VADC_15000;
+import static com.ak.numbers.aper.AperCoefficients.RI_VADC_0;
+import static com.ak.numbers.aper.AperCoefficients.RI_VADC_15000;
 
 public enum AperOutVariable implements DependentVariable<AperInVariable> {
   R1 {
@@ -29,20 +28,10 @@ public enum AperOutVariable implements DependentVariable<AperInVariable> {
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().biOperator(Interpolators.interpolator(IADC_VADC_0, IADC_VADC_15000)).build();
+      return FilterBuilder.of().biOperator(Interpolators.interpolator(RI_VADC_0, RI_VADC_15000)).build();
     }
   },
-  RI1 {
-    @Override
-    public Unit<?> getUnit() {
-      return Units.OHM;
-    }
-
-    @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.of().operator(Interpolators.interpolator(AperCoefficients.I_ADC_TO_OHM)).build();
-    }
-  },
+  RI1,
 
   R2 {
     @Override
