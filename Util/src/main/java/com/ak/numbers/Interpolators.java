@@ -11,8 +11,8 @@ import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
 
@@ -30,23 +30,20 @@ public enum Interpolators {
   public static final int SPLINE_POINTS = 100;
   @Nonnull
   private final UnivariateInterpolator interpolator;
+  @Nonnegative
   private final int minPoints;
 
-  Interpolators(@Nonnull UnivariateInterpolator interpolator, int minPoints) {
+  Interpolators(@Nonnull UnivariateInterpolator interpolator, @Nonnegative int minPoints) {
     this.interpolator = interpolator;
     this.minPoints = minPoints;
   }
 
-  public static Provider<IntBinaryOperator> interpolator(@Nonnull Coefficients... xyForZ) {
-    Map<Coefficients, IntUnaryOperator> coeffSplineMap = Stream.of(xyForZ).collect(
+  public static <C extends Enum<C> & Coefficients> Provider<IntBinaryOperator> interpolator(@Nonnull Class<C> coeffEnum) {
+    Map<Coefficients, IntUnaryOperator> coeffSplineMap = EnumSet.allOf(coeffEnum).stream().collect(
         Collectors.toMap(Function.identity(), coefficients -> interpolator(coefficients).get())
     );
 
-    int limitX = (int) Math.floor(coeffSplineMap.keySet().stream().mapToDouble(c -> {
-      double[][] pairs = c.getPairs();
-      return pairs[pairs.length - 1][0];
-    }).summaryStatistics().getMax());
-
+    int limitX = CoefficientsUtils.rangeX(coeffEnum).getMax();
     int limitY = IntStream.rangeClosed(0, limitX).map(x ->
         coeffSplineMap.values().stream().mapToInt(value -> value.applyAsInt(x)).summaryStatistics().getMax()
     ).summaryStatistics().getMax();

@@ -5,9 +5,11 @@ import java.nio.ByteOrder;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.IntSummaryStatistics;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -17,8 +19,10 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
+import com.ak.numbers.Coefficients;
+import com.ak.numbers.CoefficientsUtils;
 import com.ak.numbers.Interpolators;
-import com.ak.numbers.aper.AperCoefficients;
+import com.ak.numbers.aper.AperSurfaceCoefficients;
 import com.ak.util.LineFileCollector;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -69,12 +73,32 @@ public final class AperConverterTest {
     Assert.assertTrue(processed.get(), "Data are not converted!");
   }
 
-  @Test(enabled = false)
-  public static void test() throws IOException {
-    IntBinaryOperator function = Interpolators.interpolator(AperCoefficients.RI_VADC_0, AperCoefficients.RI_VADC_15000).get();
+  @DataProvider(name = "x = ADC, y = R(I-I)")
+  public static Object[][] adcAndR() throws IOException {
+    Supplier<IntStream> xVarADC = () -> intRange(AperSurfaceCoefficients.class, CoefficientsUtils::rangeX);
+    Assert.assertNull(xVarADC.get().mapToObj(value -> String.format("%d", value)).collect(
+        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL)));
 
-    Assert.assertNull(IntStream.rangeClosed(0, 1).mapToObj(y -> IntStream.rangeClosed(0, 1).map(x -> function.applyAsInt(x, y))).
+    Supplier<IntStream> yVarR = () -> intRange(AperSurfaceCoefficients.class, CoefficientsUtils::rangeY);
+    Assert.assertNull(yVarR.get().mapToObj(value -> String.format("%d", value)).collect(
+        new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
+
+    return new Object[][] {{xVarADC, yVarR}};
+  }
+
+  @Test(dataProvider = "x = ADC, y = R(I-I)", enabled = false)
+  public static void testSplineSurface(@Nonnull Supplier<IntStream> xVar, @Nonnull Supplier<IntStream> yVar) throws IOException {
+    IntBinaryOperator function = Interpolators.interpolator(AperSurfaceCoefficients.class).get();
+    Assert.assertNull(yVar.get().mapToObj(y -> xVar.get().map(x -> function.applyAsInt(x, y))).
         map(stream -> stream.mapToObj(value -> String.format("%d", value)).collect(Collectors.joining("\t"))).
         collect(new LineFileCollector(Paths.get("out.txt"), LineFileCollector.Direction.VERTICAL)));
+  }
+
+  private static <C extends Enum<C> & Coefficients> IntStream intRange(@Nonnull Class<C> coeffClass,
+                                                                       @Nonnull Function<Class<C>, IntSummaryStatistics> selector) {
+    int countValues = 100;
+    IntSummaryStatistics statistics = selector.apply(coeffClass);
+    int step = Math.max(1, (statistics.getMax() - statistics.getMin()) / countValues);
+    return IntStream.rangeClosed(0, countValues).map(i -> statistics.getMin() + i * step);
   }
 }

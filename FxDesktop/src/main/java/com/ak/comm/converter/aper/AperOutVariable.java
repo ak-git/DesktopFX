@@ -8,11 +8,9 @@ import com.ak.comm.converter.DependentVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.Interpolators;
+import com.ak.numbers.aper.AperSurfaceCoefficients;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
-
-import static com.ak.numbers.aper.AperCoefficients.RI_VADC_0;
-import static com.ak.numbers.aper.AperCoefficients.RI_VADC_15000;
 
 public enum AperOutVariable implements DependentVariable<AperInVariable> {
   R1 {
@@ -28,7 +26,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable> {
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().biOperator(Interpolators.interpolator(RI_VADC_0, RI_VADC_15000)).build();
+      return FilterBuilder.of().biOperator(Interpolators.interpolator(AperSurfaceCoefficients.class)).build();
     }
   },
   RI1,
