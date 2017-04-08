@@ -20,9 +20,6 @@ import javafx.scene.chart.XYChart;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-import static java.lang.StrictMath.log;
-import static java.lang.StrictMath.pow;
-
 public abstract class AbstractSplineCoefficientsChartApp
     extends Application {
   @Nonnull
@@ -49,8 +46,7 @@ public abstract class AbstractSplineCoefficientsChartApp
 
   private Parent createContent() {
     double[][] xAndY = coefficients.getPairs();
-    ValueAxis<Number> xAxis = new NumberAxis(xAndY[0][0], xAndY[xAndY.length - 1][0],
-        getOptimalInterval(xAndY[xAndY.length - 1][0] - xAndY[0][0]));
+    ValueAxis<Number> xAxis = new NumberAxis();
     xAxis.setLabel(xVariable.toName());
     xAxis.setAutoRanging(true);
 
@@ -65,7 +61,7 @@ public abstract class AbstractSplineCoefficientsChartApp
 
     ObservableList<XYChart.Data<Number, Number>> splineData = FXCollections.observableArrayList();
     IntUnaryOperator f = Interpolators.interpolator(coefficients).get();
-    for (int i = 0; i < xAxis.getUpperBound() + 1; i++) {
+    for (int i = 0; i < xAndY[xAndY.length - 1][0]; i++) {
       splineData.add(new XYChart.Data<>(i, f.applyAsInt(i)));
     }
 
@@ -77,25 +73,5 @@ public abstract class AbstractSplineCoefficientsChartApp
     chart.setCreateSymbols(true);
     chart.setLegendSide(Side.TOP);
     return chart;
-  }
-
-  private static double getOptimalInterval(double a) {
-    double lgx = log(a) / log(10.0);
-    double x = Math.floor(lgx);
-    double dx0 = log(1.1) / log(10.0);
-    double dx1 = log(4.1) / log(10.0);
-    double dx2 = log(7.1) / log(10.0);
-    if (lgx >= x && (lgx < x + dx0)) {
-      return pow(10.0, x - 1.0) * 5.0;
-    }
-    else if ((lgx >= x + dx0) && (lgx < x + dx1)) {
-      return pow(10.0, x);
-    }
-    else if ((lgx >= x + dx1) && (lgx < x + dx2)) {
-      return pow(10.0, x) * 3.0;
-    }
-    else {
-      return pow(10.0, x) * 5.0;
-    }
   }
 }
