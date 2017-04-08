@@ -39,7 +39,7 @@ public class InterpolatorsTest {
             120, 83, 33, -27, -100
         }},
         {InterpolatorCoefficients.INTERPOLATOR_TEST_LINEAR, new int[] {
-            0, 0, 0, 8, 17, 25, 33, 42, 50, 58, 67, 75, 83, 92, 100
+            0, 0, 0, 8, 15, 23, 30, 38, 46, 53, 61, 69, 76, 84, 91
         }}
     };
   }

@@ -19,7 +19,7 @@ public class CoefficientsTest {
   @DataProvider(name = "coefficients")
   public static Object[][] coefficients() {
     return new Object[][] {
-        {CoefficientsUtils.rangeX(InterpolatorCoefficients.class), 1, 15},
+        {CoefficientsUtils.rangeX(InterpolatorCoefficients.class), 1, 16},
         {CoefficientsUtils.rangeY(InterpolatorCoefficients.class), -100, 100},
     };
   }
