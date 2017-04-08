@@ -9,9 +9,6 @@ import tec.uom.se.AbstractUnit;
 
 public interface DependentVariable<IN extends Enum<IN> & Variable> extends Variable {
   @Nonnull
-  String name();
-
-  @Nonnull
   Class<IN> getInputVariablesClass();
 
   default Stream<IN> getInputVariables() {

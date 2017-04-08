@@ -16,6 +16,12 @@ public interface Variable {
   }
 
   default String toString(int value) {
-    return String.format("%s = %d %s", this, value, getUnit());
+    return String.format("%s = %d %s", name(), value, getUnit());
   }
+
+  default String toName() {
+    return String.format("%s, %s", name(), getUnit());
+  }
+
+  String name();
 }

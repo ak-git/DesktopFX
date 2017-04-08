@@ -12,9 +12,10 @@ public class VariableTest {
 
   @Test
   public static void testGetUnit() {
-    Variable variable = new Variable() {
-    };
+    Variable variable = Variable.class::getSimpleName;
     Assert.assertEquals(variable.getUnit(), AbstractUnit.ONE);
+    Assert.assertEquals(variable.toString(1), "Variable = 1 one");
+    Assert.assertEquals(variable.toName(), "Variable, one");
   }
 
   @Test

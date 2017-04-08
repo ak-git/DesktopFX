@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
+import java.util.function.IntFunction;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -26,6 +27,7 @@ import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
 public enum Interpolators {
   AKIMA(new AkimaSplineInterpolator(), 5), LINEAR(new LinearInterpolator(), 2);
 
+  public static final int SPLINE_POINTS = 100;
   @Nonnull
   private final UnivariateInterpolator interpolator;
   private final int minPoints;
@@ -49,9 +51,11 @@ public enum Interpolators {
         coeffSplineMap.values().stream().mapToInt(value -> value.applyAsInt(x)).summaryStatistics().getMax()
     ).summaryStatistics().getMax();
 
+    IntFunction<double[]> samples = limit -> DoubleStream.iterate(0, operand -> operand + Math.max(1, limit / SPLINE_POINTS)).
+        limit(SPLINE_POINTS + 2).toArray();
 
-    double[] xs = DoubleStream.iterate(0, operand -> operand + Math.max(1, limitX / 100)).limit(102).toArray();
-    double[] ys = DoubleStream.iterate(0, operand -> operand + Math.max(1, limitY / 100)).limit(102).toArray();
+    double[] xs = samples.apply(limitX);
+    double[] ys = samples.apply(limitY);
 
     double[][] z = new double[xs.length][ys.length];
     for (int i = 0; i < xs.length; i++) {

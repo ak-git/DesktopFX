@@ -5,8 +5,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import com.ak.comm.bytes.BufferFrame;
+import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.ToIntegerConverter;
-import com.ak.comm.converter.Variable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
@@ -17,10 +17,6 @@ import org.testng.annotations.Test;
 import static com.ak.util.UIConstants.UI_DELAY;
 
 public class CycleSerialServiceTest {
-  private enum SingleVariable implements Variable {
-    SINGLE_VARIABLE
-  }
-
   private CycleSerialServiceTest() {
   }
 
@@ -28,9 +24,9 @@ public class CycleSerialServiceTest {
   public static void testBytesInterceptor() throws InterruptedException {
     CountDownLatch latch = new CountDownLatch(1);
 
-    CycleSerialService<BufferFrame, BufferFrame, SingleVariable> service =
+    CycleSerialService<BufferFrame, BufferFrame, ADCVariable> service =
         new CycleSerialService<>(new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 2),
-            new ToIntegerConverter<>(SingleVariable.class));
+            new ToIntegerConverter<>(ADCVariable.class));
     TestSubscriber<int[]> subscriber = TestSubscriber.create();
     service.subscribe(subscriber);
     service.write(new BufferFrame(new byte[] {1, 2}, ByteOrder.nativeOrder()));

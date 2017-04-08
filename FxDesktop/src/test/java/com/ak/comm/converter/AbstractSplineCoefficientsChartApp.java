@@ -1,7 +1,10 @@
-package com.ak.numbers.aper;
+package com.ak.comm.converter;
 
 import java.util.function.IntUnaryOperator;
 
+import javax.annotation.Nonnull;
+
+import com.ak.numbers.Coefficients;
 import com.ak.numbers.Interpolators;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -16,12 +19,20 @@ import javafx.scene.chart.ValueAxis;
 import javafx.scene.chart.XYChart;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import tec.uom.se.unit.Units;
 
+public abstract class AbstractSplineCoefficientsChartApp
+    extends Application {
+  @Nonnull
+  private final Coefficients coefficients;
+  @Nonnull
+  private final Variable xVariable;
+  @Nonnull
+  private final Variable yVariable;
 
-public final class AperChartApp extends Application {
-  public static void main(String[] args) {
-    launch(args);
+  public AbstractSplineCoefficientsChartApp(@Nonnull Coefficients coefficients, @Nonnull Variable xVariable, @Nonnull Variable yVariable) {
+    this.coefficients = coefficients;
+    this.xVariable = xVariable;
+    this.yVariable = yVariable;
   }
 
   @Override
@@ -33,21 +44,19 @@ public final class AperChartApp extends Application {
     primaryStage.show();
   }
 
-  private static Parent createContent() {
-    AperCoefficients coefficients = AperCoefficients.I_ADC_TO_OHM;
-
-    double[] xAndY = coefficients.get();
-    ValueAxis<Number> xAxis = new NumberAxis(xAndY[0], xAndY[xAndY.length - 2], 100);
-    xAxis.setLabel("Samples ADC");
+  private Parent createContent() {
+    double[][] xAndY = coefficients.getPairs();
+    ValueAxis<Number> xAxis = new NumberAxis(xAndY[0][0], xAndY[xAndY.length - 1][0], 100);
+    xAxis.setLabel(xVariable.toName());
     xAxis.setAutoRanging(true);
 
     Axis<Number> yAxis = new NumberAxis();
-    yAxis.setLabel("R(I-I), " + Units.OHM);
+    yAxis.setLabel(yVariable.toName());
     yAxis.setAutoRanging(true);
 
     ObservableList<XYChart.Data<Number, Number>> pureData = FXCollections.observableArrayList();
-    for (int i = 0; i < xAndY.length / 2; i++) {
-      pureData.add(new XYChart.Data<>(xAndY[i * 2], xAndY[i * 2 + 1]));
+    for (double[] aXAndY : xAndY) {
+      pureData.add(new XYChart.Data<>(aXAndY[0], aXAndY[1]));
     }
 
     ObservableList<XYChart.Data<Number, Number>> splineData = FXCollections.observableArrayList();
