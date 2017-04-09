@@ -19,7 +19,7 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends E
   @Nonnull
   private final Converter<RESPONSE, EV> responseConverter;
   @Nonnull
-  private final SafeByteChannel byteChannel = new SafeByteChannel(this);
+  private final SafeByteChannel convertedLogByteChannel = new SafeByteChannel(this);
   @Nonnull
   private final ByteBuffer workingBuffer;
 
@@ -33,7 +33,7 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends E
   @OverridingMethodsMustInvokeSuper
   @Override
   public void close() {
-    byteChannel.close();
+    convertedLogByteChannel.close();
   }
 
   protected final Stream<int[]> process(@Nonnull ByteBuffer buffer) {
@@ -43,7 +43,7 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends E
         workingBuffer.putInt(i);
       }
       workingBuffer.flip();
-      byteChannel.write(workingBuffer);
+      convertedLogByteChannel.write(workingBuffer);
     });
   }
 

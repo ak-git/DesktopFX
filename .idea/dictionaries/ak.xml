@@ -10,6 +10,7 @@
       <w>MMMMM</w>
       <w>addr</w>
       <w>advisor</w>
+      <w>akima</w>
       <w>amper</w>
       <w>analyzer&lt;?, ?&gt;</w>
       <w>anim</w>
@@ -66,6 +67,7 @@
       <w>inplace</w>
       <w>instanceable</w>
       <w>interpolator</w>
+      <w>interpolators</w>
       <w>ints</w>
       <w>iterable</w>
       <w>javaw</w>

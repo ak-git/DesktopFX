@@ -12,10 +12,6 @@ import org.testng.annotations.Test;
 import static java.util.logging.Level.WARNING;
 
 public class ConverterTest {
-  private enum SingleVariable implements Variable {
-    SINGLE_VARIABLE
-  }
-
   private static final Converter<Integer, TwoVariables> INVALID_CONVERTER =
       new AbstractConverter<Integer, TwoVariables>(TwoVariables.class) {
         @Override
@@ -24,8 +20,8 @@ public class ConverterTest {
         }
       };
   private static final Logger LOGGER_INVALID = Logger.getLogger(INVALID_CONVERTER.getClass().getName());
-  private static final Converter<Integer, SingleVariable> VALID_CONVERTER_0 =
-      new AbstractConverter<Integer, SingleVariable>(SingleVariable.class) {
+  private static final Converter<Integer, ADCVariable> VALID_CONVERTER_0 =
+      new AbstractConverter<Integer, ADCVariable>(ADCVariable.class) {
         @Override
         protected Stream<int[]> innerApply(@Nonnull Integer integer) {
           return Stream.empty();

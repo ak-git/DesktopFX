@@ -1,4 +1,4 @@
-package com.ak.digitalfilter;
+package com.ak.numbers;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;

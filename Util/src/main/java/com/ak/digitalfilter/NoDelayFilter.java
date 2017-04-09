@@ -26,12 +26,6 @@ final class NoDelayFilter extends AbstractDigitalFilter {
 
   @Nonnegative
   @Override
-  public double getDelay() {
-    return 0.0;
-  }
-
-  @Nonnegative
-  @Override
   public double getFrequencyFactor() {
     return filter.getFrequencyFactor();
   }
@@ -42,8 +36,8 @@ final class NoDelayFilter extends AbstractDigitalFilter {
   }
 
   @Override
-  public int size() {
-    return filter.size();
+  public int getOutputDataSize() {
+    return filter.getOutputDataSize();
   }
 
   @Override

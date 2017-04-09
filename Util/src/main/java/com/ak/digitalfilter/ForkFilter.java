@@ -19,14 +19,12 @@ import static com.ak.util.Strings.NEW_LINE;
 
 final class ForkFilter extends AbstractDigitalFilter {
   private final List<DigitalFilter> filters = new LinkedList<>();
-  private final boolean parallel;
 
-  ForkFilter(@Nonnull DigitalFilter[] filters, boolean parallel) {
+  ForkFilter(@Nonnull DigitalFilter[] filters) {
     Objects.requireNonNull(filters);
     if (filters.length < 2) {
       throw new IllegalArgumentException(Arrays.deepToString(filters));
     }
-    this.parallel = parallel;
     this.filters.addAll(Arrays.asList(filters));
 
     double maxDelay = getDelay();
@@ -35,14 +33,14 @@ final class ForkFilter extends AbstractDigitalFilter {
       DigitalFilter filter = listIterator.next();
       int delay = (int) Math.round(maxDelay - filter.getDelay());
       if (delay != 0) {
-        listIterator.set(new ChainFilter(new DelayFilter(delay), filter));
+        listIterator.set(new DelayFilter(filter, delay));
       }
     }
 
     int[] bufferPositions = new int[this.filters.size()];
     bufferPositions[0] = 0;
     for (int i = 1; i < this.filters.size(); i++) {
-      bufferPositions[i] = bufferPositions[i - 1] + this.filters.get(i - 1).size();
+      bufferPositions[i] = bufferPositions[i - 1] + this.filters.get(i - 1).getOutputDataSize();
     }
     int[] bufferIndexes = new int[this.filters.size()];
 
@@ -61,7 +59,7 @@ final class ForkFilter extends AbstractDigitalFilter {
                 this, Arrays.toString(values)));
           }
           else {
-            intBuffers.add(new int[size()]);
+            intBuffers.add(new int[getOutputDataSize()]);
           }
         }
 
@@ -82,36 +80,24 @@ final class ForkFilter extends AbstractDigitalFilter {
 
   @Override
   public double getDelay() {
-    return findMax(Delay::getDelay);
+    return findMax(DigitalFilter::getDelay);
   }
 
   @Nonnegative
   @Override
   public double getFrequencyFactor() {
-    return findMax(Delay::getFrequencyFactor);
+    return findMax(DigitalFilter::getFrequencyFactor);
   }
 
   @Override
   public void accept(int... in) {
-    if (parallel) {
-      if (filters.size() == in.length) {
-        for (int i = 0; i < in.length; i++) {
-          filters.get(i).accept(in[i]);
-        }
-      }
-      else {
-        illegalArgumentException(in);
-      }
-    }
-    else {
-      filters.forEach(filter -> filter.accept(in));
-    }
+    filters.forEach(filter -> filter.accept(in));
   }
 
   @Nonnegative
   @Override
-  public int size() {
-    return filters.stream().mapToInt(DigitalFilter::size).sum();
+  public int getOutputDataSize() {
+    return filters.stream().mapToInt(DigitalFilter::getOutputDataSize).sum();
   }
 
   @Override
