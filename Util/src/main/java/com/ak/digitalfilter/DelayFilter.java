@@ -3,8 +3,6 @@ package com.ak.digitalfilter;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import static com.ak.util.Strings.NEW_LINE;
-
 final class DelayFilter extends AbstractDigitalFilter {
   @Nonnull
   private final DigitalFilter filter;
@@ -46,7 +44,6 @@ final class DelayFilter extends AbstractDigitalFilter {
 
   @Override
   public String toString() {
-    String base = String.format("%s (delay %d) - ", getClass().getSimpleName(), buffer.length);
-    return base + filter.toString().replaceAll(NEW_LINE, newLineTabSpaces(base.length()));
+    return toString(String.format("%s (delay %d) - ", getClass().getSimpleName(), buffer.length), filter);
   }
 }

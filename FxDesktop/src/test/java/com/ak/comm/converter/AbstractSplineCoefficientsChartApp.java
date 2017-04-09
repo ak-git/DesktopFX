@@ -29,14 +29,14 @@ public abstract class AbstractSplineCoefficientsChartApp
   @Nonnull
   private final Variable yVariable;
 
-  public AbstractSplineCoefficientsChartApp(@Nonnull Coefficients coefficients, @Nonnull Variable xVariable, @Nonnull Variable yVariable) {
+  protected AbstractSplineCoefficientsChartApp(@Nonnull Coefficients coefficients, @Nonnull Variable xVariable, @Nonnull Variable yVariable) {
     this.coefficients = coefficients;
     this.xVariable = xVariable;
     this.yVariable = yVariable;
   }
 
   @Override
-  public void start(Stage primaryStage) throws Exception {
+  public void start(Stage primaryStage) {
     primaryStage.setScene(new Scene(createContent()));
     primaryStage.setWidth(Screen.getPrimary().getVisualBounds().getWidth());
     primaryStage.setHeight(Screen.getPrimary().getVisualBounds().getHeight());
