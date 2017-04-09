@@ -7,18 +7,18 @@ import javax.annotation.Nonnull;
 
 final class FIRFilter extends AbstractBufferFilter {
   @Nonnull
-  private final double[] koeff;
+  private final double[] coefficients;
 
-  FIRFilter(@Nonnull double[] koeff) {
-    super(koeff.length);
-    this.koeff = Arrays.copyOf(koeff, koeff.length);
+  FIRFilter(@Nonnull double[] coefficients) {
+    super(coefficients.length);
+    this.coefficients = Arrays.copyOf(coefficients, coefficients.length);
   }
 
   @Override
   int apply(@Nonnegative int nowIndex) {
     double result = 0;
-    for (int i = 0; i < koeff.length; i++) {
-      result += get(1 + i + nowIndex) * koeff[i];
+    for (int i = 0; i < coefficients.length; i++) {
+      result += get(1 + i + nowIndex) * coefficients[i];
     }
     return (int) Math.round(result);
   }

@@ -14,4 +14,14 @@ public interface Variable {
   default DigitalFilter filter() {
     return FilterBuilder.of().build();
   }
+
+  default String toString(int value) {
+    return String.format("%s = %d %s", name(), value, getUnit());
+  }
+
+  default String toName() {
+    return String.format("%s, %s", name(), getUnit());
+  }
+
+  String name();
 }

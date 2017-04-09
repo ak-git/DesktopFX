@@ -15,7 +15,7 @@ abstract class AbstractUnaryFilter extends AbstractDigitalFilter {
 
   @Nonnegative
   @Override
-  public final int size() {
+  public final int getOutputDataSize() {
     return 1;
   }
 

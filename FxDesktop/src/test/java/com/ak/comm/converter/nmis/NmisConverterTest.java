@@ -11,6 +11,8 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import tec.uom.se.unit.MetricPrefix;
+import tec.uom.se.unit.Units;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_VALUES;
 
@@ -53,6 +55,7 @@ public class NmisConverterTest {
         }
         for (NmisVariable v : NmisVariable.values()) {
           Assert.assertTrue(logRecord.getMessage().contains(v.name()));
+          Assert.assertEquals(v.getUnit(), MetricPrefix.MILLI(Units.SECOND));
         }
       }), expected.length > 0);
     }

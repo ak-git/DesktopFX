@@ -5,8 +5,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import static com.ak.util.Strings.NEW_LINE;
-
 final class NoDelayFilter extends AbstractDigitalFilter {
   @Nonnull
   private final DigitalFilter filter;
@@ -26,12 +24,6 @@ final class NoDelayFilter extends AbstractDigitalFilter {
 
   @Nonnegative
   @Override
-  public double getDelay() {
-    return 0.0;
-  }
-
-  @Nonnegative
-  @Override
   public double getFrequencyFactor() {
     return filter.getFrequencyFactor();
   }
@@ -42,13 +34,12 @@ final class NoDelayFilter extends AbstractDigitalFilter {
   }
 
   @Override
-  public int size() {
-    return filter.size();
+  public int getOutputDataSize() {
+    return filter.getOutputDataSize();
   }
 
   @Override
   public String toString() {
-    String base = String.format("%s (compensate %.1f delay) - ", getClass().getSimpleName(), filter.getDelay());
-    return base + filter.toString().replaceAll(NEW_LINE, newLineTabSpaces(base.length()));
+    return toString(String.format("%s (compensate %.1f delay) - ", getClass().getSimpleName(), filter.getDelay()), filter);
   }
 }

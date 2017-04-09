@@ -2,8 +2,6 @@ package com.ak.digitalfilter;
 
 import javax.annotation.Nonnegative;
 
-import static com.ak.util.Strings.NEW_LINE;
-
 final class ChainFilter extends AbstractDigitalFilter {
   private final DigitalFilter first;
   private final DigitalFilter second;
@@ -33,13 +31,12 @@ final class ChainFilter extends AbstractDigitalFilter {
 
   @Nonnegative
   @Override
-  public int size() {
-    return second.size();
+  public int getOutputDataSize() {
+    return second.getOutputDataSize();
   }
 
   @Override
   public String toString() {
-    String base = String.format("%s - ", first.toString());
-    return base + second.toString().replaceAll(NEW_LINE, newLineTabSpaces(base.length()));
+    return toString(String.format("%s - ", first.toString()), second);
   }
 }

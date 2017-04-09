@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ import com.ak.digitalfilter.FilterBuilder;
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_VALUES;
 
 public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable> implements Converter<RESPONSE, EV> {
+  @Nonnull
   private final Logger logger = Logger.getLogger(getClass().getName());
   @Nonnull
   private final List<EV> variables;
@@ -28,14 +30,19 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
   private Stream<int[]> filteredValues = Stream.empty();
 
   public AbstractConverter(@Nonnull Class<EV> evClass) {
+    this(evClass, EnumSet.allOf(evClass).stream().map(ev -> new int[] {ev.ordinal()}).collect(Collectors.toList()));
+  }
+
+  AbstractConverter(@Nonnull Class<EV> evClass, @Nonnull List<int[]> selectedIndexes) {
     variables = Collections.unmodifiableList(new ArrayList<>(EnumSet.allOf(evClass)));
     List<DigitalFilter> filters = variables.stream().map(ev -> ev.filter()).collect(Collectors.toList());
-    digitalFilter = FilterBuilder.parallel(filters.toArray(new DigitalFilter[variables.size()]));
+
+    digitalFilter = FilterBuilder.parallel(selectedIndexes, filters.toArray(new DigitalFilter[variables.size()]));
     digitalFilter.forEach(ints -> {
       if (logger.isLoggable(LOG_LEVEL_VALUES)) {
         logger.log(LOG_LEVEL_VALUES, String.format("#%x [ %s ]", hashCode(),
             IntStream.iterate(0, operand -> operand + 1).limit(variables.size()).mapToObj(
-                value -> String.format("%s = %d", variables.get(value), ints[value])).collect(Collectors.joining(", "))));
+                idx -> variables.get(idx).toString(ints[idx])).collect(Collectors.joining(", "))));
       }
       filteredValues = Stream.concat(filteredValues, Stream.of(ints));
     });
@@ -48,14 +55,16 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
 
   @Override
   public final Stream<int[]> apply(@Nonnull RESPONSE response) {
+    Objects.requireNonNull(response);
     filteredValues = Stream.empty();
     innerApply(response).peek(ints -> {
-      if (ints.length != variables.size()) {
+      if (ints.length < variables.size()) {
         logger.log(Level.WARNING, String.format("Invalid variables: %s not match %s", variables, Arrays.toString(ints)));
       }
     }).forEach(digitalFilter::accept);
     return filteredValues;
   }
 
+  @Nonnull
   protected abstract Stream<int[]> innerApply(@Nonnull RESPONSE response);
 }
