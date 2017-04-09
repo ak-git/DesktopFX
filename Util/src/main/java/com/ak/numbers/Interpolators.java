@@ -27,7 +27,7 @@ import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
 public enum Interpolators {
   AKIMA(new AkimaSplineInterpolator(), 5), LINEAR(new LinearInterpolator(), 2);
 
-  public static final int SPLINE_POINTS = 100;
+  private static final int SPLINE_POINTS = 100;
   @Nonnull
   private final UnivariateInterpolator interpolator;
   @Nonnegative

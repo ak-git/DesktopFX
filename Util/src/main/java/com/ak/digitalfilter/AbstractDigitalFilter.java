@@ -5,7 +5,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import static com.ak.util.Strings.EMPTY;
@@ -44,11 +43,12 @@ abstract class AbstractDigitalFilter implements DigitalFilter {
     }
   }
 
-  static String newLineTabSpaces(@Nonnegative int len) {
-    return Stream.generate(() -> SPACE).limit(len).collect(Collectors.joining(EMPTY, NEW_LINE, EMPTY));
+  static String toString(@Nonnull String base, @Nonnull DigitalFilter filter) {
+    return base + filter.toString().replaceAll(NEW_LINE,
+        Stream.generate(() -> SPACE).limit(base.length()).collect(Collectors.joining(EMPTY, NEW_LINE, EMPTY)));
   }
 
-  final void illegalArgumentException(int[] in) {
+  final void illegalArgumentException(@Nonnull int[] in) {
     throw new IllegalArgumentException(String.format("%s %s", toString(), Arrays.toString(in)));
   }
 }
