@@ -1,17 +1,18 @@
 package com.ak.fx.desktop;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
 
 import com.ak.fx.stage.ScreenResolutionMonitor;
 import com.ak.fx.storage.OSStageStorage;
@@ -19,6 +20,7 @@ import com.ak.fx.util.OSDockImage;
 import com.ak.logging.LogPathBuilder;
 import com.ak.storage.Storage;
 import com.ak.util.OS;
+import com.ak.util.Strings;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -31,19 +33,22 @@ import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.MessageSourceResourceBundle;
 
-@Immutable
 public final class FxApplication extends Application {
-  private static final String FX_CONTEXT_XML = "fx-context.xml";
+  private static final String APP_PARAMETER_CONTEXT = "context";
+  private static final String CONTEXT_XML = "context.xml";
   private static final String SCENE_XML = "scene.fxml";
   private static final String KEY_APPLICATION_TITLE = "application.title";
   private static final String KEY_APPLICATION_IMAGE = "application.image";
   private static final String LOGGING_PROPERTIES = "logging.properties";
   private static final String KEY_PROPERTIES = "keys.properties";
 
-  private final ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(
-      Paths.get(getClass().getPackage().getName().replaceAll("\\.", "/"), FX_CONTEXT_XML).toString());
+  @Nonnull
+  private ConfigurableApplicationContext context = new GenericApplicationContext();
+  @Nonnull
+  private String contextName = Strings.EMPTY;
 
   static {
     initLogger();
@@ -54,9 +59,29 @@ public final class FxApplication extends Application {
   }
 
   @Override
+  public void init() throws Exception {
+    super.init();
+    Logger.getLogger(getClass().getName()).log(Level.INFO, getParameters().getRaw().toString());
+
+    Path path = Paths.get(getClass().getPackage().getName().replaceAll("\\.", "/"));
+    contextName = Optional.ofNullable(getParameters().getNamed().get(APP_PARAMETER_CONTEXT)).orElse(Strings.EMPTY);
+    if (contextName.isEmpty()) {
+      path = path.resolve(CONTEXT_XML);
+    }
+    else {
+      path = path.resolve(contextName).resolve(String.format("%s-%s", contextName, CONTEXT_XML));
+    }
+    context = new ClassPathXmlApplicationContext(path.toString());
+  }
+
+  @Override
   public void start(@Nonnull Stage stage) throws Exception {
     try {
-      FXMLLoader loader = new FXMLLoader(getClass().getResource(SCENE_XML), new MessageSourceResourceBundle(
+      URL resource = getClass().getResource(SCENE_XML);
+      if (!contextName.isEmpty()) {
+        resource = Optional.ofNullable(getClass().getResource(String.format("%1$s/%1$s-%2$s", contextName, SCENE_XML))).orElse(resource);
+      }
+      FXMLLoader loader = new FXMLLoader(resource, new MessageSourceResourceBundle(
           BeanFactoryUtils.beanOfType(context, MessageSource.class), Locale.getDefault()));
       loader.setControllerFactory(clazz -> BeanFactoryUtils.beanOfType(context, clazz));
       stage.setScene(new Scene(loader.load()));
