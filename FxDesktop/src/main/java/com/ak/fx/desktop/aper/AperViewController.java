@@ -9,28 +9,26 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import com.ak.comm.GroupService;
+import com.ak.fx.desktop.AbstractViewController;
 import javafx.application.Platform;
-import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
 
-public final class AperViewController {
+public final class AperViewController extends AbstractViewController {
   private static final int INT = 4000;
   @Nonnull
   private final List<LineChart<Number, Number>> lineCharts = new LinkedList<>();
-  @FXML
-  private VBox root;
   private int index = -1;
 
   @Inject
   public AperViewController(@Nonnull GroupService<?, ?, ?> service) {
+    super(service);
     service.subscribe(ints -> Platform.runLater(() -> {
       if (lineCharts.isEmpty()) {
         lineCharts.addAll(Arrays.stream(ints).mapToObj(value -> createChart()).collect(Collectors.toList()));
-        lineCharts.forEach(lineChart -> root.getChildren().add(new BorderPane(lineChart)));
+        lineCharts.forEach(lineChart -> root().getChildren().add(new BorderPane(lineChart)));
       }
 
       index = (++index) % INT;
