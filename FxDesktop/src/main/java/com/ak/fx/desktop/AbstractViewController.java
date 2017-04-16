@@ -53,7 +53,6 @@ public abstract class AbstractViewController implements Initializable {
     });
   }
 
-  @Nonnull
   protected final Pane root() {
     return root;
   }
