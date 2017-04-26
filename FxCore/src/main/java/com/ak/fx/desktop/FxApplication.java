@@ -59,8 +59,7 @@ public final class FxApplication extends Application {
   }
 
   @Override
-  public void init() throws Exception {
-    super.init();
+  public void init() {
     Logger.getLogger(getClass().getName()).log(Level.INFO, getParameters().getRaw().toString());
 
     Path path = Paths.get(getClass().getPackage().getName().replaceAll("\\.", "/"));

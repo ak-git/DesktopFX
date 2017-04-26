@@ -19,7 +19,7 @@ import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.TwoVariables;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
-import com.ak.comm.logging.BinaryLogBuilder;
+import com.ak.comm.logging.LogBuilders;
 import com.ak.comm.util.LogUtils;
 import io.reactivex.Flowable;
 import io.reactivex.subscribers.TestSubscriber;
@@ -40,7 +40,7 @@ public class FileReadingServiceTest {
   @BeforeClass
   @AfterClass
   public static void setUp() throws IOException {
-    Path path = BinaryLogBuilder.CONVERTER_FILE.build("").getPath().getParent();
+    Path path = LogBuilders.CONVERTER_FILE.build("").getPath().getParent();
     Assert.assertNotNull(path);
     try (DirectoryStream<Path> ds = Files.newDirectoryStream(path, entry -> Files.isRegularFile(entry))) {
       for (Path file : ds) {
