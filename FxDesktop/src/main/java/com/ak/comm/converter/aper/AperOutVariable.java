@@ -47,17 +47,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable> {
       return R1.filter();
     }
   },
-  RI2 {
-    @Override
-    public Unit<?> getUnit() {
-      return RI1.getUnit();
-    }
-
-    @Override
-    public DigitalFilter filter() {
-      return RI1.filter();
-    }
-  };
+  RI2;
 
   @Override
   public final Class<AperInVariable> getInputVariablesClass() {

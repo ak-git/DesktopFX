@@ -40,11 +40,11 @@ public final class AperConverterTest {
             2, 0, 0, 0,
             (byte) 0xf1, 0x05, 0, 0,
 
-            0x40, 0x0d, 0x03, 0,
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, 0,
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {14978, 997, 15002, 1558}},
+            new int[] {14999, 997, 450000, 1558}},
     };
   }
 

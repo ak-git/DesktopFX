@@ -27,7 +27,7 @@ public class AperCoefficientsTest {
   @Test
   public static void testCoefficients() {
     Assert.assertEquals(AperCoefficients.values().length, 4);
-    Assert.assertEquals(AperSurfaceCoefficients.values().length, 2);
+    Assert.assertEquals(AperSurfaceCoefficients.values().length, 3);
   }
 
   @Test(dataProvider = "aper-coefficients")
