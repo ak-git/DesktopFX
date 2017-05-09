@@ -1,28 +1,30 @@
 package com.ak.digitalfilter;
 
 import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 
 final class LinearInterpolationFilter extends AbstractLinearRateConversionFilter {
+  @Nonnull
+  private final InterpolationFilter interpolationFilter;
+
   LinearInterpolationFilter(@Nonnegative int interpolateFactor) {
-    super(interpolateFactor);
+    interpolationFilter = new InterpolationFilter(interpolateFactor, expand -> integrator.applyAsInt(expand) / interpolateFactor);
+    interpolationFilter.forEach(this::publish);
   }
 
   @Override
   public double getDelay(double beforeDelay) {
-    return beforeDelay * factor + (factor - 1) / 2.0;
+    return interpolationFilter.getDelay(beforeDelay);
   }
 
   @Nonnegative
   @Override
   public double getFrequencyFactor() {
-    return factor;
+    return interpolationFilter.getFrequencyFactor();
   }
 
   @Override
   void publishUnary(int in) {
-    int hold = comb.applyAsInt(in);
-    for (int i = 0; i < factor; i++) {
-      publish(integrator.applyAsInt(hold) / factor);
-    }
+    interpolationFilter.publishUnary(comb.applyAsInt(in));
   }
 }
