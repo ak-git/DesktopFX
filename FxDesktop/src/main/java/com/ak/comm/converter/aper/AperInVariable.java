@@ -1,7 +1,11 @@
 package com.ak.comm.converter.aper;
 
+import java.util.Optional;
+
+import javax.annotation.Nullable;
 import javax.measure.Unit;
 
+import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.Variable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
@@ -11,8 +15,8 @@ import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
 public enum AperInVariable implements Variable {
-  R1,
-  M1 {
+  R1(null),
+  M1(null) {
     @Override
     public Unit<?> getUnit() {
       return MetricPrefix.MILLI(Units.VOLT);
@@ -23,7 +27,7 @@ public enum AperInVariable implements Variable {
       return FilterBuilder.of().fir(AperCoefficients.MYO).build();
     }
   },
-  RI1 {
+  RI1(null) {
     @Override
     public Unit<?> getUnit() {
       return Units.OHM;
@@ -35,27 +39,29 @@ public enum AperInVariable implements Variable {
     }
   },
 
-  R2,
-  M2 {
-    @Override
-    public Unit<?> getUnit() {
-      return M1.getUnit();
-    }
+  R2(R1),
+  M2(M1),
+  RI2(RI1);
 
-    @Override
-    public DigitalFilter filter() {
-      return M1.filter();
-    }
-  },
-  RI2 {
-    @Override
-    public Unit<?> getUnit() {
-      return RI1.getUnit();
-    }
+  @Nullable
+  private final Variable analog;
 
-    @Override
-    public DigitalFilter filter() {
-      return RI1.filter();
-    }
+  AperInVariable(@Nullable Variable analog) {
+    this.analog = analog;
+  }
+
+
+  @Override
+  public Unit<?> getUnit() {
+    return analog().getUnit();
+  }
+
+  @Override
+  public DigitalFilter filter() {
+    return analog().filter();
+  }
+
+  private Variable analog() {
+    return Optional.ofNullable(analog).orElse(ADCVariable.ADC);
   }
 }
