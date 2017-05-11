@@ -75,6 +75,16 @@ public class LineFileCollectorTest {
   }
 
   @Test(dataProvider = "stream")
+  public void testConsumer(Supplier<Stream<String>> stream) throws IOException {
+    try (LineFileCollector collector = new LineFileCollector(out, LineFileCollector.Direction.VERTICAL)) {
+      stream.get().forEach(collector);
+    }
+    Assert.assertTrue(Files.readAllLines(out, Charset.forName("windows-1251")).stream().collect(Collectors.joining()).
+        equals(stream.get().collect(Collectors.joining())));
+    Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
+  }
+
+  @Test(dataProvider = "stream")
   public void testVertical(Supplier<Stream<String>> stream) throws IOException {
     Assert.assertNull(stream.get().collect(new LineFileCollector(out, LineFileCollector.Direction.VERTICAL)));
     Assert.assertTrue(Files.readAllLines(out, Charset.forName("windows-1251")).stream().collect(Collectors.joining()).
