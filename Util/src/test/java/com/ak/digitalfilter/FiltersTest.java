@@ -1,12 +1,26 @@
 package com.ak.digitalfilter;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Arrays;
 import java.util.IntSummaryStatistics;
 import java.util.function.IntBinaryOperator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import com.ak.util.LineFileCollector;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -63,5 +77,43 @@ public class FiltersTest {
     IntSummaryStatistics stat = IntStream.range(0, c + 1).map(b -> cathetusOperator.applyAsInt(b, c)).summaryStatistics();
     Assert.assertEquals(stat.getMin(), min, Integer.toString(stat.getMin()));
     Assert.assertEquals(stat.getMax(), max, Integer.toString(stat.getMax()));
+  }
+
+  @Test(enabled = false)
+  public static void textFiles() throws IOException {
+    String filteredPrefix = "Filtered - ";
+    int column = 0;
+
+    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(""), "*.txt")) {
+      directoryStream.forEach(path -> {
+        if (!path.toString().startsWith(filteredPrefix)) {
+          SmoothingImpulsiveNoiseFilter filter = new SmoothingImpulsiveNoiseFilter(5);
+
+          try (LineFileCollector collector = new LineFileCollector(
+              Paths.get(String.format("%s%s", filteredPrefix, path.getFileName().toString())), LineFileCollector.Direction.VERTICAL)) {
+            filter.forEach(values ->
+                collector.accept(Arrays.stream(values).mapToObj(String::valueOf).collect(Collectors.joining("\t"))));
+
+            try (Stream<String> lines = Files.lines(path, Charset.forName("windows-1251"))) {
+              lines.filter(s -> s.matches("\\d+.*")).mapToInt(value -> {
+                try {
+                  return NumberFormat.getIntegerInstance().parse(value.split("\\t")[column]).intValue();
+                }
+                catch (ParseException e) {
+                  Logger.getLogger(FiltersTest.class.getName()).log(Level.INFO, e.getMessage(), e);
+                  return 0;
+                }
+              }).forEach(filter::accept);
+            }
+            catch (IOException e) {
+              Logger.getLogger(FiltersTest.class.getName()).log(Level.INFO, e.getMessage(), e);
+            }
+          }
+          catch (IOException e) {
+            Logger.getLogger(FiltersTest.class.getName()).log(Level.INFO, e.getMessage(), e);
+          }
+        }
+      });
+    }
   }
 }
