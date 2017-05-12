@@ -8,7 +8,7 @@ final class HoldFilter extends AbstractBufferFilter {
   private static final int LOST_COUNT = 1;
 
   HoldFilter(@Nonnegative int size) {
-    super(size + LOST_COUNT * 2);
+    super(size);
   }
 
   @Override

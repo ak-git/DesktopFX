@@ -17,7 +17,7 @@ public class SmoothingImpulsiveNoiseFilterTest {
   @DataProvider(name = "data")
   public static Object[][] data() {
     return new Object[][] {{
-        new int[] {1, 2, 3, 4, 5, 6}, 3, new int[] {0, 0, 1, 2, 3, 4}
+        new int[] {1, 2, 3, 4, 5, 6}, 3, new int[] {0, 1, 2, 3, 4, 5}
     }, {
         new int[] {10, 10, 11, 9, 10, 10, 13, 10, 10, 10, 100, -1}, 10, new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
     }};
@@ -44,7 +44,7 @@ public class SmoothingImpulsiveNoiseFilterTest {
 
   @Test
   public static void testDelay() {
-    Assert.assertEquals(FilterBuilder.of().smoothingImpulsive(5).build().getDelay(), 5.5);
-    Assert.assertEquals(FilterBuilder.of().smoothingImpulsive(10).build().getDelay(), 10.5);
+    Assert.assertEquals(FilterBuilder.of().smoothingImpulsive(5).build().getDelay(), 4.5);
+    Assert.assertEquals(FilterBuilder.of().smoothingImpulsive(10).build().getDelay(), 9.5);
   }
 }
