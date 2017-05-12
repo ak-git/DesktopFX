@@ -87,7 +87,7 @@ public class FiltersTest {
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(""), "*.txt")) {
       directoryStream.forEach(path -> {
         if (!path.toString().startsWith(filteredPrefix)) {
-          SmoothingImpulsiveNoiseFilter filter = new SmoothingImpulsiveNoiseFilter(5);
+          DigitalFilter filter = FilterBuilder.of().smoothingImpulsive(5).build();
 
           try (LineFileCollector collector = new LineFileCollector(
               Paths.get(String.format("%s%s", filteredPrefix, path.getFileName().toString())), LineFileCollector.Direction.VERTICAL)) {

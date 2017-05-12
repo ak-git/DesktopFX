@@ -85,6 +85,25 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return fir(coefficients.get());
   }
 
+  FilterBuilder smoothingImpulsive(@Nonnegative int size) {
+    HoldFilter holdFilter = new HoldFilter(size);
+    DigitalFilter decimationFilter = new DecimationFilter(size, operand -> {
+      int[] sorted = holdFilter.getSorted();
+      double mean = Arrays.stream(sorted).average().orElse(0.0);
+
+      int posCount = 0;
+      double distances = 0.0;
+      for (int n : sorted) {
+        if (n > mean) {
+          posCount++;
+          distances += (n - mean);
+        }
+      }
+      return (int) Math.round(mean + (posCount - (size - posCount)) * distances / StrictMath.pow(size, 2));
+    });
+    return chain(holdFilter).chain(decimationFilter).interpolate(size);
+  }
+
   FilterBuilder fir(double... coefficients) {
     return chain(new FIRFilter(coefficients));
   }
@@ -102,11 +121,13 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   FilterBuilder decimate(@Nonnegative int decimateFactor) {
-    return chain(new LinearDecimationFilter(decimateFactor));
+    IntUnaryOperator comb = new CombFilter(1);
+    return chain(new IntegrateFilter()).chain(new DecimationFilter(decimateFactor, reduced -> comb.applyAsInt(reduced) / decimateFactor));
   }
 
   FilterBuilder interpolate(@Nonnegative int interpolateFactor) {
-    return chain(new LinearInterpolationFilter(interpolateFactor));
+    IntUnaryOperator integrator = new IntegrateFilter();
+    return chain(new CombFilter(1)).chain(new InterpolationFilter(interpolateFactor, expand -> integrator.applyAsInt(expand) / interpolateFactor));
   }
 
   FilterBuilder fork(@Nonnull DigitalFilter... filters) {

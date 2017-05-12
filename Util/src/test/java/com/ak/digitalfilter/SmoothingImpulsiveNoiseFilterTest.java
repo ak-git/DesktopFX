@@ -25,8 +25,8 @@ public class SmoothingImpulsiveNoiseFilterTest {
 
 
   @Test(dataProvider = "data")
-  public static void testGetSorted(@Nonnull int[] data, @Nonnegative int size, @Nonnull int[] expected) {
-    SmoothingImpulsiveNoiseFilter filter = new SmoothingImpulsiveNoiseFilter(size);
+  public static void testFilter(@Nonnull int[] data, @Nonnegative int size, @Nonnull int[] expected) {
+    DigitalFilter filter = FilterBuilder.of().smoothingImpulsive(size).build();
 
     AtomicInteger index = new AtomicInteger();
     int[] actual = new int[expected.length];
@@ -44,6 +44,7 @@ public class SmoothingImpulsiveNoiseFilterTest {
 
   @Test
   public static void testDelay() {
-    Assert.assertEquals(new SmoothingImpulsiveNoiseFilter(5).getDelay(), 1.0);
+    Assert.assertEquals(FilterBuilder.of().smoothingImpulsive(5).build().getDelay(), 5.5);
+    Assert.assertEquals(FilterBuilder.of().smoothingImpulsive(10).build().getDelay(), 10.5);
   }
 }
