@@ -117,7 +117,8 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   FilterBuilder rrs(@Nonnegative int averageFactor) {
-    return chain(new RecursiveRunningSumFilter(averageFactor));
+    return wrap(String.format("RRS%d", averageFactor), of().chain(new CombFilter(averageFactor)).
+        chain(new IntegrateFilter()).operator(() -> n -> n / averageFactor));
   }
 
   FilterBuilder decimate(@Nonnegative int decimateFactor) {
