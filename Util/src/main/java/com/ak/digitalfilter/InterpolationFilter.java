@@ -9,7 +9,7 @@ final class InterpolationFilter extends AbstractRateConversionFilter {
 
   @Override
   public double getDelay(double beforeDelay) {
-    return beforeDelay * factor + (factor - 1) / 2.0;
+    return beforeDelay * factor;
   }
 
   @Nonnegative

@@ -8,4 +8,9 @@ final class IntegrateFilter extends AbstractOperableFilter {
     sum += in;
     return sum;
   }
+
+  @Override
+  public double getDelay() {
+    return -0.5;
+  }
 }
