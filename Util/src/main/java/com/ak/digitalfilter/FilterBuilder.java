@@ -85,6 +85,25 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return fir(coefficients.get());
   }
 
+  FilterBuilder smoothingImpulsive(@Nonnegative int size) {
+    HoldFilter holdFilter = new HoldFilter(size);
+    DigitalFilter decimationFilter = new DecimationFilter(size);
+    return chain(holdFilter).chain(decimationFilter).operator(() -> operand -> {
+      int[] sorted = holdFilter.getSorted();
+      double mean = Arrays.stream(sorted).average().orElse(0.0);
+
+      int posCount = 0;
+      double distances = 0.0;
+      for (int n : sorted) {
+        if (n > mean) {
+          posCount++;
+          distances += (n - mean);
+        }
+      }
+      return (int) Math.round(mean + (posCount - (size - posCount)) * distances / StrictMath.pow(size, 2));
+    }).interpolate(size);
+  }
+
   FilterBuilder fir(double... coefficients) {
     return chain(new FIRFilter(coefficients));
   }
@@ -98,15 +117,20 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   FilterBuilder rrs(@Nonnegative int averageFactor) {
-    return chain(new RecursiveRunningSumFilter(averageFactor));
+    return wrap(String.format("RRS%d", averageFactor), of().chain(new CombFilter(averageFactor)).
+        chain(new IntegrateFilter()).operator(() -> n -> n / averageFactor));
   }
 
   FilterBuilder decimate(@Nonnegative int decimateFactor) {
-    return chain(new LinearDecimationFilter(decimateFactor));
+    return wrap("LinearDecimationFilter", of().chain(new IntegrateFilter()).
+        chain(new DecimationFilter(decimateFactor)).chain(new CombFilter(1)).
+        operator(() -> n -> n / decimateFactor));
   }
 
   FilterBuilder interpolate(@Nonnegative int interpolateFactor) {
-    return chain(new LinearInterpolationFilter(interpolateFactor));
+    return wrap("LinearInterpolationFilter", of().chain(new CombFilter(1)).
+        chain(new InterpolationFilter(interpolateFactor)).chain(new IntegrateFilter()).
+        operator(() -> n -> n / interpolateFactor));
   }
 
   FilterBuilder fork(@Nonnull DigitalFilter... filters) {
@@ -152,5 +176,9 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   private FilterBuilder chain(@Nonnull DigitalFilter chain) {
     filter = Optional.ofNullable(filter).<DigitalFilter>map(filter -> new ChainFilter(filter, chain)).orElse(chain);
     return this;
+  }
+
+  private FilterBuilder wrap(@Nonnull String name, @Nonnull Builder<DigitalFilter> filterBuilder) {
+    return chain(new FilterWrapper(name, filterBuilder.build()));
   }
 }

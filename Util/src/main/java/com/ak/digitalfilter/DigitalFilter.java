@@ -17,8 +17,4 @@ public interface DigitalFilter extends IntsAcceptor {
   default double getFrequencyFactor() {
     return 1.0;
   }
-
-  default double getDelay(double beforeDelay) {
-    return beforeDelay + getDelay();
-  }
 }

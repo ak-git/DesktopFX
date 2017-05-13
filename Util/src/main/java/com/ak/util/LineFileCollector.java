@@ -11,13 +11,14 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collector;
 
-public final class LineFileCollector implements Collector<Object, BufferedWriter, Void>, Closeable {
+public final class LineFileCollector implements Collector<Object, BufferedWriter, Void>, Closeable, Consumer<String> {
   public enum Direction {
     HORIZONTAL {
       @Override
@@ -45,6 +46,11 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
     writer = Files.newBufferedWriter(out, Charset.forName("windows-1251"),
         StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     this.direction = direction;
+  }
+
+  @Override
+  public void accept(String s) {
+    accumulator().accept(writer, s);
   }
 
   @Override
