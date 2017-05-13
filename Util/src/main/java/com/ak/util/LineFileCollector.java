@@ -23,7 +23,7 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
     HORIZONTAL {
       @Override
       public void acceptWriter(BufferedWriter writer) throws IOException {
-        writer.write("\t");
+        writer.write(Strings.TAB);
       }
     },
     VERTICAL {

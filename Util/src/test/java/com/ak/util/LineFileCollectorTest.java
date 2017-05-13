@@ -96,7 +96,7 @@ public class LineFileCollectorTest {
   public void testHorizontal(Supplier<Stream<String>> stream) throws IOException {
     Assert.assertNull(stream.get().collect(new LineFileCollector(out, LineFileCollector.Direction.HORIZONTAL)));
     Assert.assertTrue(Files.readAllLines(out, Charset.forName("windows-1251")).stream().collect(Collectors.joining()).
-        equals(stream.get().collect(Collectors.joining("\t"))));
+        equals(stream.get().collect(Collectors.joining(Strings.TAB))));
     Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
   }
 

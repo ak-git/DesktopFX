@@ -21,6 +21,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.util.LineFileCollector;
+import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -92,7 +93,7 @@ public class FiltersTest {
           try (LineFileCollector collector = new LineFileCollector(
               Paths.get(String.format("%s%s", filteredPrefix, path.getFileName().toString())), LineFileCollector.Direction.VERTICAL)) {
             filter.forEach(values ->
-                collector.accept(Arrays.stream(values).mapToObj(String::valueOf).collect(Collectors.joining("\t"))));
+                collector.accept(Arrays.stream(values).mapToObj(String::valueOf).collect(Collectors.joining(Strings.TAB))));
 
             try (Stream<String> lines = Files.lines(path, Charset.forName("windows-1251"))) {
               lines.filter(s -> s.matches("\\d+.*")).mapToInt(value -> {

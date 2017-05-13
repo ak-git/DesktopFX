@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 import com.ak.util.LineFileCollector;
+import com.ak.util.Strings;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.optim.InitialGuess;
 import org.apache.commons.math3.optim.MaxEval;
@@ -176,14 +177,14 @@ public class SoundingDepthTest {
   @Test(dataProvider = "x = s / L, y = k12", enabled = false)
   public static void testRho1SameRho2(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
     Assert.assertNull(yVar.get().mapToObj(k12 -> xVar.get().map(sToL -> solve(new InequalityRbyRho2(k12, sToL), GoalType.MINIMIZE).getKey()[0])).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   @Test(dataProvider = "x = k12, s / L = {1 / 3, 1 / 2}", enabled = false)
   public static void testRho1SameRho2SliceStoL(Supplier<DoubleStream> slice, Supplier<DoubleStream> xVar) throws IOException {
     Assert.assertNull(xVar.get().mapToObj(k12 -> slice.get().map(sToL -> solve(new InequalityRbyRho2(k12, sToL), GoalType.MINIMIZE).getKey()[0])).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
@@ -194,7 +195,7 @@ public class SoundingDepthTest {
       double hToL = pair.getValue();
       double rho12 = ResistanceTwoLayer.getRho1ToRho2(pair.getKey()[0]);
       return DoubleStream.of(hToL, rho12);
-    }).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+    }).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
@@ -202,7 +203,7 @@ public class SoundingDepthTest {
   public static void testRho1SameRho2FixedStoL(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
     Assert.assertNull(yVar.get().mapToObj(hToL -> xVar.get().
         map(k12 -> new DerivativeRbyRho2Normalized(k12, 1.0 / 2.0).value(hToL))).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
@@ -210,14 +211,14 @@ public class SoundingDepthTest {
   public static void testRho1SameRho2FixedRho12(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
     Assert.assertNull(yVar.get().mapToObj(hToL -> xVar.get().
         map(sToL -> new DerivativeRbyRho2Normalized(ResistanceTwoLayer.getK12(3.0, 1.0), sToL).value(hToL))).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   @Test(dataProvider = "x = s / L, y = k12", enabled = false)
   public static void testHPointMax(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
     Assert.assertNull(yVar.get().mapToObj(k12 -> xVar.get().map(sToL -> solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getKey()[0])).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
@@ -225,18 +226,18 @@ public class SoundingDepthTest {
   public static void testHValueMax(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
     Assert.assertNull(yVar.get().mapToObj(k12 -> xVar.get().
         map(sToL -> -Math.signum(k12) * solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getValue())).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   @Test(dataProvider = "x = k12, s / L = {1 / 3, 1 / 2}", enabled = false)
   public static void testHSlice(Supplier<DoubleStream> slice, Supplier<DoubleStream> xVar) throws IOException {
     Assert.assertNull(xVar.get().mapToObj(k12 -> slice.get().map(sToL -> solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getKey()[0])).
-        map(stream -> stream.mapToObj(pointMax -> String.format("%.6f", pointMax)).collect(Collectors.joining("\t"))).
+        map(stream -> stream.mapToObj(pointMax -> String.format("%.6f", pointMax)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
     Assert.assertNull(xVar.get().mapToObj(k12 -> slice.get().map(
         sToL -> -Math.signum(k12) * solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getValue())).
-        map(stream -> stream.mapToObj(valueMax -> String.format("%.6f", valueMax)).collect(Collectors.joining("\t"))).
+        map(stream -> stream.mapToObj(valueMax -> String.format("%.6f", valueMax)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("y2.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
@@ -247,7 +248,7 @@ public class SoundingDepthTest {
       double hToL = pair.getValue();
       double rho12 = ResistanceTwoLayer.getRho1ToRho2(pair.getKey()[0]);
       return DoubleStream.of(hToL, rho12);
-    }).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+    }).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
@@ -259,7 +260,7 @@ public class SoundingDepthTest {
       double hToL = pair.getValue();
       double value = -Math.signum(k12) * new InequalityRbyH(k12, sToL).applyAsDouble(hToL);
       return DoubleStream.of(hToL, value);
-    }).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+    }).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
@@ -267,7 +268,7 @@ public class SoundingDepthTest {
   public static void testHValueFixedStoL(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
     Assert.assertNull(yVar.get().mapToObj(hToL -> xVar.get().
         map(k12 -> new DerivativeRbyHNormalized(k12, 1.0 / 2.0).value(hToL))).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
@@ -275,7 +276,7 @@ public class SoundingDepthTest {
   public static void testHValueFixedRho12(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
     Assert.assertNull(yVar.get().mapToObj(hToL -> xVar.get().
         map(sToL -> new DerivativeRbyHNormalized(ResistanceTwoLayer.getK12(3.0, 1.0), sToL).value(hToL))).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
@@ -302,7 +303,7 @@ public class SoundingDepthTest {
                   double lMetre = lmm * 1.0e-3;
                   return StrictMath.log10(new DerivativeRbyHDivideByRho(-1.0, sToL * lMetre, lMetre).value(hToL * lMetre));
                 })
-            ).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+            ).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
             collect(new LineFileCollector(Paths.get(String.format("dRdh_At_%.2f.txt", sToL)),
                 LineFileCollector.Direction.VERTICAL)));
       }
@@ -335,7 +336,7 @@ public class SoundingDepthTest {
                   double lMetre = lmm * 1.0e-3;
                   return StrictMath.log10(new DerivativeRbyHDivideByRho(-1.0, sToL * lMetre, lMetre).value(hmm * 1.0e-3));
                 })
-            ).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+            ).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
             collect(new LineFileCollector(Paths.get(String.format("dRdh_At_%.2f.txt", sToL)),
                 LineFileCollector.Direction.VERTICAL)));
       }

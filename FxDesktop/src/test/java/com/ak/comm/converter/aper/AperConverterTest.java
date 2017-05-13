@@ -24,6 +24,7 @@ import com.ak.numbers.CoefficientsUtils;
 import com.ak.numbers.Interpolators;
 import com.ak.numbers.aper.AperSurfaceCoefficients;
 import com.ak.util.LineFileCollector;
+import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -90,7 +91,7 @@ public final class AperConverterTest {
   public static void testSplineSurface(@Nonnull Supplier<IntStream> xVar, @Nonnull Supplier<IntStream> yVar) throws IOException {
     IntBinaryOperator function = Interpolators.interpolator(AperSurfaceCoefficients.class).get();
     Assert.assertNull(yVar.get().mapToObj(y -> xVar.get().map(x -> function.applyAsInt(x, y))).
-        map(stream -> stream.mapToObj(value -> String.format("%d", value)).collect(Collectors.joining("\t"))).
+        map(stream -> stream.mapToObj(value -> String.format("%d", value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("out.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
