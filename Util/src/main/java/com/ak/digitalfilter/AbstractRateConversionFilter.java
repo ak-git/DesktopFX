@@ -13,9 +13,4 @@ abstract class AbstractRateConversionFilter extends AbstractUnaryFilter {
       throw new IllegalArgumentException(String.format("factor must be > 0, but found %d", factor));
     }
   }
-
-  @Override
-  public final double getDelay() {
-    return getDelay(0.0);
-  }
 }

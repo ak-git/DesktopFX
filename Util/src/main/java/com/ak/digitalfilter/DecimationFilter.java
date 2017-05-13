@@ -10,8 +10,8 @@ final class DecimationFilter extends AbstractRateConversionFilter {
   }
 
   @Override
-  public double getDelay(double beforeDelay) {
-    return (beforeDelay - (factor - 1) / 2.0) / factor;
+  public double getDelay() {
+    return (-(factor - 1) / 2.0) / factor;
   }
 
   @Nonnegative
