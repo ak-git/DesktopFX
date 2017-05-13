@@ -144,10 +144,10 @@ public class FilterBuilderTest {
         String.format("NoFilter (delay %.1f)", 0.0),
     }, {
         FilterBuilder.of().decimate(7).build(),
-        String.format("LinearDecimationFilter (f / %.1f; delay %.1f)", 7.0, -0.4)
+        String.format("LinearDecimationFilter (f / %.1f)", 7.0)
     }, {
         FilterBuilder.of().interpolate(7).buildNoDelay(),
-        String.format("NoDelayFilter (compensate %.1f delay) - LinearInterpolationFilter (f \u00b7 %.1f; delay %.1f)", 3.0, 7.0, 3.0)
+        String.format("NoDelayFilter (compensate %.1f delay) - LinearInterpolationFilter (f \u00b7 %.1f)", 3.0, 7.0)
     }, {
         FilterBuilder.of().fork(
             FilterBuilder.of().fork(
@@ -168,7 +168,7 @@ public class FilterBuilderTest {
             0.0,
             1, 1.0,
             1, 1.0,
-            2.0
+            1.5
         )
     }, {
         FilterBuilder.parallel(
@@ -185,12 +185,13 @@ public class FilterBuilderTest {
                 "                                                       FIRFilter (delay %.1f)%n" +
                 "SelectFilter (indexes = [1]) - FIRFilter (delay %.1f)%n" +
                 "SelectFilter (indexes = [2]) - CombFilter (delay %.1f)%n" +
-                "SelectFilter (indexes = [3]) - RRS2 (delay %.1f)",
+                "DelayFilter (delay %d) - SelectFilter (indexes = [3]) - RRS2 (delay %.1f)",
             1, 0.0,
             0.0,
             1.0,
             1.0,
-            1.0
+            1,
+            0.5
         )
     }, {
         FilterBuilder.parallel(Arrays.asList(new int[] {0}, new int[] {1, 2}),
@@ -198,7 +199,7 @@ public class FilterBuilderTest {
         String.format(
             "SelectFilter (indexes = [0]) - Operator  (delay %.1f) - RRS10 (delay %.1f)%n" +
                 "DelayFilter (delay %d) - SelectFilter (indexes = [1, 2]) - BiOperator  (delay %.1f)",
-            0.0, 5.0,
+            0.0, 4.5,
             5, 0.0
         )
     }};
