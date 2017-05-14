@@ -6,11 +6,11 @@
         <fileset id="fileset" name="Spring Application Context" removed="false">
           <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/context.xml</file>
         </fileset>
-        <fileset id="fileset2" name="aper-myo" removed="false">
-          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/aper/aper-context.xml</file>
-        </fileset>
         <fileset id="fileset3" name="aper-ecg" removed="false">
           <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/aper/ecg/context.xml</file>
+        </fileset>
+        <fileset id="fileset2" name="aper-myo" removed="false">
+          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/aper/myo/context.xml</file>
         </fileset>
       </configuration>
     </facet>

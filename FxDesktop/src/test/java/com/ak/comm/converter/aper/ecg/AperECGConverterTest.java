@@ -54,7 +54,7 @@ public final class AperECGConverterTest {
 
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 99; i++) {
+    for (int i = 0; i < 200 - 1; i++) {
       long count = converter.apply(bufferFrame).count();
       Assert.assertTrue(count == 0 || count == 10, Long.toString(count));
     }

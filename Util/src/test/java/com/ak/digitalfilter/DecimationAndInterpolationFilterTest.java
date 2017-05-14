@@ -19,12 +19,12 @@ public class DecimationAndInterpolationFilterTest {
         FilterBuilder.of().smoothingImpulsive(3).build(),
         new int[] {1, 2, 3, 4, 5, 6},
         new int[] {0, 1, 2, 3, 4, 5},
-        1.0
+        2.0
     }, {
         FilterBuilder.of().smoothingImpulsive(10).build(),
         new int[] {10, 10, 11, 9, 10, 10, 13, 10, 100, -1},
-        new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
-        4.5
+        new int[] {0, 0, 0, 0, 1, 1, 1, 1, 1, 2},
+        49.0
     }, {
         FilterBuilder.of().decimate(3).build(),
         new int[] {9, 9, 9, 9, 9, 9},
@@ -38,8 +38,8 @@ public class DecimationAndInterpolationFilterTest {
     }, {
         FilterBuilder.of().decimate(4).build(),
         new int[] {9, 9, 9, 9, 10, 10, 10, 10},
-        new int[] {9, 10},
-        0.0
+        new int[] {4, 9},
+        0.5
     }, {
         FilterBuilder.of().interpolate(1).decimate(1).build(),
         new int[] {100, 110, 120, 130, 140, 150, 160, 170},
@@ -58,8 +58,8 @@ public class DecimationAndInterpolationFilterTest {
     }, {
         FilterBuilder.of().interpolate(4).decimate(4).build(),
         new int[] {100, 110, 120, 130, 140, 150, 160, 170},
-        new int[] {62, 106, 116, 126, 136, 146, 156, 166},
-        0.375
+        new int[] {15, 57, 97, 116, 126, 136, 146, 156},
+        1.375
     }, {
         FilterBuilder.of().decimate(1).interpolate(1).build(),
         new int[] {100, 110, 120, 130, 140, 150, 160, 170},
@@ -78,8 +78,8 @@ public class DecimationAndInterpolationFilterTest {
     }, {
         FilterBuilder.of().decimate(4).interpolate(4).build(),
         new int[] {100, 110, 120, 130, 140, 150, 160, 170},
-        new int[] {28, 57, 86, 115, 125, 135, 145, 155},
-        1.5
+        new int[] {7, 14, 21, 28, 45, 62, 79, 96},
+        5.5
     }};
   }
 
