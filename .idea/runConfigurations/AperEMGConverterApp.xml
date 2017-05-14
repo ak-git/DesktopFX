@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="AperMyoConverterApp" type="Application" factoryName="Application" singleton="true">
+  <configuration default="false" name="AperEMGConverterApp" type="Application" factoryName="Application" singleton="true">
     <extension name="coverage" enabled="false" merge="false" runner="idea">
       <pattern>
         <option name="PATTERN" value="com.ak.comm.converter.*" />

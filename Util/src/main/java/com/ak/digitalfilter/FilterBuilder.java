@@ -85,7 +85,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return fir(coefficients.get());
   }
 
-  FilterBuilder smoothingImpulsive(@Nonnegative int size) {
+  public FilterBuilder smoothingImpulsive(@Nonnegative int size) {
     HoldFilter holdFilter = new HoldFilter(size);
     DigitalFilter decimationFilter = new DecimationFilter(size);
     return chain(holdFilter).chain(decimationFilter).operator(() -> operand -> {
