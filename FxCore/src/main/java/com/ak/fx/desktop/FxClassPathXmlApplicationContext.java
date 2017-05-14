@@ -16,8 +16,8 @@ public final class FxClassPathXmlApplicationContext extends ClassPathXmlApplicat
   private final String contextName;
 
   public FxClassPathXmlApplicationContext(@Nullable String contextName) {
-    super(getContextPath(Optional.ofNullable(contextName).orElse(Strings.EMPTY)));
-    this.contextName = Optional.ofNullable(contextName).orElse(Strings.EMPTY);
+    super(getContextPath(contextName));
+    this.contextName = getContextName(contextName);
   }
 
   @Override
@@ -25,14 +25,19 @@ public final class FxClassPathXmlApplicationContext extends ClassPathXmlApplicat
     return contextName;
   }
 
-  private static String getContextPath(@Nonnull String contextName) {
+  private static String getContextPath(@Nullable String contextName) {
+    contextName = getContextName(contextName);
     Path path = Paths.get(FxClassPathXmlApplicationContext.class.getPackage().getName().replaceAll("\\.", "/"));
     if (contextName.isEmpty()) {
       path = path.resolve(CONTEXT_XML);
     }
     else {
-      path = path.resolve(contextName).resolve(String.format("%s-%s", contextName, CONTEXT_XML));
+      path = path.resolve(contextName).resolve(CONTEXT_XML);
     }
     return path.toString();
+  }
+
+  private static String getContextName(@Nullable String contextName) {
+    return Optional.ofNullable(contextName).orElse(Strings.EMPTY).replaceAll("\\.", "/");
   }
 }

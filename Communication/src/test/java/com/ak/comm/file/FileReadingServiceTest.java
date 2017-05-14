@@ -21,6 +21,7 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.logging.LogBuilders;
 import com.ak.comm.util.LogUtils;
+import com.ak.util.Strings;
 import io.reactivex.Flowable;
 import io.reactivex.subscribers.TestSubscriber;
 import org.reactivestreams.Publisher;
@@ -40,7 +41,7 @@ public class FileReadingServiceTest {
   @BeforeClass
   @AfterClass
   public static void setUp() throws IOException {
-    Path path = LogBuilders.CONVERTER_FILE.build("").getPath().getParent();
+    Path path = LogBuilders.CONVERTER_FILE.build(Strings.EMPTY).getPath().getParent();
     Assert.assertNotNull(path);
     try (DirectoryStream<Path> ds = Files.newDirectoryStream(path, entry -> Files.isRegularFile(entry))) {
       for (Path file : ds) {
@@ -146,7 +147,7 @@ public class FileReadingServiceTest {
 
   @Test(expectedExceptions = IllegalStateException.class)
   public static void testInvalidChannelCall() throws Exception {
-    new FileReadingService<>(Paths.get(""), new RampBytesInterceptor(
+    new FileReadingService<>(Paths.get(Strings.EMPTY), new RampBytesInterceptor(
         BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
         new ToIntegerConverter<>(TwoVariables.class)).call();
   }

@@ -64,7 +64,7 @@ public final class FxApplication extends Application {
       URL resource = getClass().getResource(SCENE_XML);
       if (!context.getApplicationName().isEmpty()) {
         resource = Optional.ofNullable(
-            getClass().getResource(String.format("%1$s/%1$s-%2$s", context.getApplicationName(), SCENE_XML))).orElse(resource);
+            getClass().getResource(String.format("%s/%s", context.getApplicationName(), SCENE_XML))).orElse(resource);
       }
       FXMLLoader loader = new FXMLLoader(resource, new MessageSourceResourceBundle(
           BeanFactoryUtils.beanOfType(context, MessageSource.class), Locale.getDefault()));

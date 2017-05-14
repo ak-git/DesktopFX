@@ -48,7 +48,7 @@ public final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     Converter<RESPONSE, EV> responseConverter = BeanFactoryUtils.beanOfType(context, Converter.class);
     try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
          LineFileCollector collector = new LineFileCollector(
-             Paths.get(path.getFileName().toString().replaceAll("\\.bin", "") + ".txt"),
+             Paths.get(path.getFileName().toString().replaceAll("\\.bin", Strings.EMPTY) + ".txt"),
              LineFileCollector.Direction.VERTICAL)
     ) {
       collector.accept(responseConverter.variables().stream().map(ev -> ev.toName()).collect(Collectors.joining(Strings.TAB)));
@@ -69,7 +69,7 @@ public final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   public static void main(String[] args) {
     Application.Parameters parameters = new ParametersImpl(args);
     try (ConverterApp<?, ?, ?> app = new ConverterApp(parameters);
-         DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(""), "*.bin")) {
+         DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), "*.bin")) {
       paths.forEach(app);
     }
     catch (IOException e) {

@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.util.LogUtils;
+import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -113,16 +114,16 @@ public class RampBytesInterceptorTest {
         logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(testFrame.toString()),
             String.format("[ %s ] must ends with [ %s ]", logRecord.getMessage(), testFrame.toString()))));
 
-    AtomicReference<String> logMessage = new AtomicReference<>("");
+    AtomicReference<String> logMessage = new AtomicReference<>(Strings.EMPTY);
     Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> {
           int bytesOut = interceptor.putOut(testFrame).remaining();
           Assert.assertTrue(bytesOut > 0);
           Assert.assertEquals(logMessage.get(),
-              testFrame.toString().replaceAll(".*" + BufferFrame.class.getSimpleName(), "") +
+              testFrame.toString().replaceAll(".*" + BufferFrame.class.getSimpleName(), Strings.EMPTY) +
                   " - " + bytesOut + " bytes OUT to hardware");
         },
-        logRecord -> logMessage.set(logRecord.getMessage().replaceAll(".*" + BufferFrame.class.getSimpleName(), ""))));
+        logRecord -> logMessage.set(logRecord.getMessage().replaceAll(".*" + BufferFrame.class.getSimpleName(), Strings.EMPTY))));
 
     BufferFrame singleByte = new BufferFrame(new byte[] {input[0]}, ByteOrder.nativeOrder());
     Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
@@ -136,7 +137,7 @@ public class RampBytesInterceptorTest {
     byteBuffer.put(bytes);
     byteBuffer.flip();
 
-    AtomicReference<String> logMessage = new AtomicReference<>("");
+    AtomicReference<String> logMessage = new AtomicReference<>(Strings.EMPTY);
     Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
         () -> {
           Stream<BufferFrame> frames = interceptor.apply(byteBuffer);

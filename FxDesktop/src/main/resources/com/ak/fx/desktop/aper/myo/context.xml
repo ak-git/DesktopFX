@@ -28,12 +28,12 @@
             <bean class="com.ak.comm.converter.ToIntegerConverter">
                 <constructor-arg>
                     <bean class="java.lang.Class" factory-method="forName">
-                        <constructor-arg type="java.lang.String" value="com.ak.comm.converter.aper.AperInVariable"/>
+                        <constructor-arg type="java.lang.String" value="com.ak.comm.converter.aper.myo.AperInVariable"/>
                     </bean>
                 </constructor-arg>
             </bean>
         </constructor-arg>
-        <constructor-arg index="1" value="com.ak.comm.converter.aper.AperOutVariable"/>
+        <constructor-arg index="1" value="com.ak.comm.converter.aper.myo.AperOutVariable"/>
     </bean>
 
     <bean class="com.ak.comm.GroupService" destroy-method="close"/>

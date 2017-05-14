@@ -85,7 +85,7 @@ public class FiltersTest {
     String filteredPrefix = "Filtered - ";
     int column = 0;
 
-    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(""), "*.txt")) {
+    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(Strings.EMPTY), "*.txt")) {
       directoryStream.forEach(path -> {
         if (!path.toString().startsWith(filteredPrefix)) {
           DigitalFilter filter = FilterBuilder.of().smoothingImpulsive(10).build();
