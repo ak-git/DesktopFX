@@ -3,7 +3,6 @@ package com.ak.util;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -43,7 +42,7 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
   private boolean errorFlag;
 
   public LineFileCollector(Path out, Direction direction) throws IOException {
-    writer = Files.newBufferedWriter(out, Charset.forName("windows-1251"),
+    writer = Files.newBufferedWriter(out,
         StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     this.direction = direction;
   }

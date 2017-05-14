@@ -5,7 +5,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Properties;
@@ -20,7 +19,6 @@ import com.ak.fx.util.OSDockImage;
 import com.ak.logging.LogPathBuilder;
 import com.ak.storage.Storage;
 import com.ak.util.OS;
-import com.ak.util.Strings;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -32,13 +30,11 @@ import javafx.stage.Stage;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.MessageSourceResourceBundle;
 
 public final class FxApplication extends Application {
-  private static final String APP_PARAMETER_CONTEXT = "context";
-  private static final String CONTEXT_XML = "context.xml";
+  public static final String APP_PARAMETER_CONTEXT = "context";
   private static final String SCENE_XML = "scene.fxml";
   private static final String KEY_APPLICATION_TITLE = "application.title";
   private static final String KEY_APPLICATION_IMAGE = "application.image";
@@ -47,8 +43,6 @@ public final class FxApplication extends Application {
 
   @Nonnull
   private ConfigurableApplicationContext context = new GenericApplicationContext();
-  @Nonnull
-  private String contextName = Strings.EMPTY;
 
   static {
     initLogger();
@@ -61,24 +55,16 @@ public final class FxApplication extends Application {
   @Override
   public void init() {
     Logger.getLogger(getClass().getName()).log(Level.INFO, getParameters().getRaw().toString());
-
-    Path path = Paths.get(getClass().getPackage().getName().replaceAll("\\.", "/"));
-    contextName = Optional.ofNullable(getParameters().getNamed().get(APP_PARAMETER_CONTEXT)).orElse(Strings.EMPTY);
-    if (contextName.isEmpty()) {
-      path = path.resolve(CONTEXT_XML);
-    }
-    else {
-      path = path.resolve(contextName).resolve(String.format("%s-%s", contextName, CONTEXT_XML));
-    }
-    context = new ClassPathXmlApplicationContext(path.toString());
+    context = new FxClassPathXmlApplicationContext(getParameters().getNamed().get(APP_PARAMETER_CONTEXT));
   }
 
   @Override
   public void start(@Nonnull Stage stage) throws Exception {
     try {
       URL resource = getClass().getResource(SCENE_XML);
-      if (!contextName.isEmpty()) {
-        resource = Optional.ofNullable(getClass().getResource(String.format("%1$s/%1$s-%2$s", contextName, SCENE_XML))).orElse(resource);
+      if (!context.getApplicationName().isEmpty()) {
+        resource = Optional.ofNullable(
+            getClass().getResource(String.format("%1$s/%1$s-%2$s", context.getApplicationName(), SCENE_XML))).orElse(resource);
       }
       FXMLLoader loader = new FXMLLoader(resource, new MessageSourceResourceBundle(
           BeanFactoryUtils.beanOfType(context, MessageSource.class), Locale.getDefault()));
