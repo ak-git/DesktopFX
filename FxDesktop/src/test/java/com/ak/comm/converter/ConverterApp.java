@@ -31,7 +31,7 @@ public final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   @Nonnull
   private final ConfigurableApplicationContext context;
 
-  private ConverterApp(Application.Parameters parameters) {
+  private ConverterApp(@Nonnull Application.Parameters parameters) {
     context = new FxClassPathXmlApplicationContext(parameters.getNamed().get(APP_PARAMETER_CONTEXT));
   }
 
@@ -41,14 +41,14 @@ public final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   }
 
   @Override
-  public void accept(Path path) {
+  public void accept(@Nonnull Path path) {
     @SuppressWarnings("unchecked")
     BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor = BeanFactoryUtils.beanOfType(context, BytesInterceptor.class);
     @SuppressWarnings("unchecked")
     Converter<RESPONSE, EV> responseConverter = BeanFactoryUtils.beanOfType(context, Converter.class);
     try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
          LineFileCollector collector = new LineFileCollector(
-             Paths.get(path.getFileName().toString().replaceAll("\\.bin", Strings.EMPTY) + ".txt"),
+             Paths.get(path.toFile().toString().replaceAll("\\.bin", Strings.EMPTY) + ".txt"),
              LineFileCollector.Direction.VERTICAL)
     ) {
       collector.accept(responseConverter.variables().stream().map(ev -> ev.toName()).collect(Collectors.joining(Strings.TAB)));

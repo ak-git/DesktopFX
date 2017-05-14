@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
+import com.ak.comm.converter.aper.AperInVariable;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -19,7 +20,7 @@ import tec.uom.se.AbstractUnit;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public final class AperConverterTest {
+public final class AperEMGConverterTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -32,32 +33,32 @@ public final class AperConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {14999, 997, 450000, 1558}},
+            new int[] {0, 997, 0, 1558}},
     };
   }
 
   @Test(dataProvider = "variables")
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
-    Function<BufferFrame, Stream<int[]>> converter = new LinkedConverter<>(new ToIntegerConverter<>(AperInVariable.class), AperOutVariable.class);
+    Function<BufferFrame, Stream<int[]>> converter = new LinkedConverter<>(new ToIntegerConverter<>(AperInVariable.class), AperEMGVariable.class);
     EnumSet.of(AperInVariable.R1, AperInVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
-    EnumSet.of(AperInVariable.M1, AperInVariable.M2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.VOLT), t.name()));
+    EnumSet.of(AperInVariable.E1, AperInVariable.E2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.VOLT), t.name()));
     EnumSet.of(AperInVariable.RI1, AperInVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
 
-    EnumSet.of(AperOutVariable.R1).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.OHM)));
-    EnumSet.of(AperOutVariable.RI1).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
+    EnumSet.of(AperEMGVariable.M1).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.VOLT)));
+    EnumSet.of(AperEMGVariable.RI1).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
 
-    EnumSet.of(AperOutVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.OHM)));
-    EnumSet.of(AperOutVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
+    EnumSet.of(AperEMGVariable.M2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.VOLT)));
+    EnumSet.of(AperEMGVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
 
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 100; i++) {
-      converter.apply(bufferFrame);
+      Assert.assertEquals(converter.apply(bufferFrame).count(), 1);
     }
-    converter.apply(bufferFrame).forEach(ints -> {
+    Assert.assertEquals(converter.apply(bufferFrame).peek(ints -> {
       Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
       processed.set(true);
-    });
+    }).count(), 1);
     Assert.assertTrue(processed.get(), "Data are not converted!");
   }
 }

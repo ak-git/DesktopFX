@@ -17,6 +17,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collector;
 
+import javax.annotation.Nonnull;
+
 public final class LineFileCollector implements Collector<Object, BufferedWriter, Void>, Closeable, Consumer<String> {
   public enum Direction {
     HORIZONTAL {
@@ -41,7 +43,7 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
   private boolean startFlag = true;
   private boolean errorFlag;
 
-  public LineFileCollector(Path out, Direction direction) throws IOException {
+  public LineFileCollector(@Nonnull Path out, @Nonnull Direction direction) throws IOException {
     writer = Files.newBufferedWriter(out,
         StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     this.direction = direction;

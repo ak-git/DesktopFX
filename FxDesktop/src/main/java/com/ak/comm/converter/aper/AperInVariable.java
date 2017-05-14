@@ -1,4 +1,4 @@
-package com.ak.comm.converter.aper.myo;
+package com.ak.comm.converter.aper;
 
 import java.util.Optional;
 
@@ -16,15 +16,10 @@ import tec.uom.se.unit.Units;
 
 public enum AperInVariable implements Variable {
   R1(null),
-  M1(null) {
+  E1(null) {
     @Override
     public Unit<?> getUnit() {
       return MetricPrefix.MILLI(Units.VOLT);
-    }
-
-    @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.of().fir(AperCoefficients.MYO).build();
     }
   },
   RI1(null) {
@@ -40,7 +35,7 @@ public enum AperInVariable implements Variable {
   },
 
   R2(R1),
-  M2(M1),
+  E2(E1),
   RI2(RI1);
 
   @Nullable

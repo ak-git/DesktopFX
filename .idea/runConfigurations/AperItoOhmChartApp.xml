@@ -2,7 +2,7 @@
   <configuration default="false" name="AperItoOhmChartApp" type="Application" factoryName="Application" singleton="true" nameIsGenerated="true">
     <extension name="coverage" enabled="false" merge="false" runner="idea">
       <pattern>
-        <option name="PATTERN" value="com.ak.comm.converter.aper.myo.*" />
+        <option name="PATTERN" value="com.ak.comm.converter.aper.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
