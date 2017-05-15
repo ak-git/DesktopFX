@@ -19,12 +19,12 @@ public class DecimationAndInterpolationFilterTest {
         FilterBuilder.of().smoothingImpulsive(3).build(),
         new int[] {1, 2, 3, 4, 5, 6},
         new int[] {0, 1, 2, 3, 4, 5},
-        2.0
+        1.0
     }, {
         FilterBuilder.of().smoothingImpulsive(10).build(),
         new int[] {10, 10, 11, 9, 10, 10, 13, 10, 100, -1},
         new int[] {0, 0, 0, 0, 1, 1, 1, 1, 1, 2},
-        49.0
+        24.5
     }, {
         FilterBuilder.of().decimate(3).build(),
         new int[] {9, 9, 9, 9, 9, 9},

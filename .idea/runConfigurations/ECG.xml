@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="AperECGApplication" type="Application" factoryName="Application" singleton="true">
+  <configuration default="false" name="ECG" type="Application" factoryName="Application" singleton="true">
     <extension name="coverage" enabled="false" merge="false" runner="idea">
       <pattern>
         <option name="PATTERN" value="com.ak.fx.desktop.*" />

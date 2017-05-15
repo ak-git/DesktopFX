@@ -29,7 +29,7 @@ public enum AperECGVariable implements DependentVariable<AperInVariable> {
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.of().biOperator(Interpolators.interpolator(AperSurfaceCoefficients.class)).
-          smoothingImpulsive(10).build();
+          smoothingImpulsive(10).fir(AperCoefficients.RHEO).build();
     }
   },
   ECG1 {

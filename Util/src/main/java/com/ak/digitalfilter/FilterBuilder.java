@@ -87,7 +87,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
 
   public FilterBuilder smoothingImpulsive(@Nonnegative int size) {
     HoldFilter holdFilter = new HoldFilter(size);
-    return chain(holdFilter).decimate(size).operator(() -> operand -> {
+    return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> operand -> {
       int[] sorted = holdFilter.getSorted();
       double mean = Arrays.stream(sorted).average().orElse(0.0);
 

@@ -33,7 +33,7 @@ public final class AperECGConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {14999, 2, 997, 450000, 5, 1558}},
+            new int[] {14998, 2, 997, 449956, 5, 1558}},
     };
   }
 
@@ -54,7 +54,7 @@ public final class AperECGConverterTest {
 
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 100 - 1; i++) {
+    for (int i = 0; i < 200 - 1; i++) {
       long count = converter.apply(bufferFrame).count();
       Assert.assertTrue(count == 0 || count == 10, Long.toString(count));
     }
