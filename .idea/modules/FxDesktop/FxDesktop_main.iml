@@ -12,6 +12,9 @@
         <fileset id="fileset2" name="aper-myo" removed="false">
           <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/aper/myo/context.xml</file>
         </fileset>
+        <fileset id="fileset4" name="aper-calibration" removed="false">
+          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/aper/calibration/context.xml</file>
+        </fileset>
       </configuration>
     </facet>
   </component>
