@@ -52,6 +52,7 @@ public final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
              LineFileCollector.Direction.VERTICAL)
     ) {
       collector.accept(responseConverter.variables().stream().map(ev -> ev.toName()).collect(Collectors.joining(Strings.TAB)));
+      collector.accept(Strings.EMPTY);
 
       ByteBuffer buffer = ByteBuffer.allocate(1024);
       while (readableByteChannel.read(buffer) > 0) {
