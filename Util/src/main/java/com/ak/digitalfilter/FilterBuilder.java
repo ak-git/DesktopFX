@@ -116,22 +116,22 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   FilterBuilder rrs(@Nonnegative int averageFactor) {
-    return wrap(String.format("RRS%d", averageFactor), of().chain(new CombFilter(averageFactor)).
-        chain(new IntegrateFilter()).operator(() -> n -> n / averageFactor));
+    return wrap(String.format("RRS%d", averageFactor),
+        of().comb(averageFactor).integrate().operator(() -> n -> n / averageFactor));
   }
 
   FilterBuilder decimate(@Nonnegative int decimateFactor) {
     int combFactor = Math.max(decimateFactor / 2, 1);
-    return wrap("LinearDecimationFilter", of().chain(new IntegrateFilter()).
-        chain(new DecimationFilter(decimateFactor)).chain(new CombFilter(combFactor)).
-        operator(() -> n -> n / decimateFactor / combFactor));
+    return wrap("LinearDecimationFilter",
+        of().integrate().chain(new DecimationFilter(decimateFactor)).comb(combFactor).
+            operator(() -> n -> n / decimateFactor / combFactor));
   }
 
   FilterBuilder interpolate(@Nonnegative int interpolateFactor) {
     int combFactor = Math.max(interpolateFactor / 2, 1);
-    return wrap("LinearInterpolationFilter", of().chain(new CombFilter(combFactor)).
-        chain(new InterpolationFilter(interpolateFactor)).chain(new IntegrateFilter()).
-        operator(() -> n -> n / interpolateFactor / combFactor));
+    return wrap("LinearInterpolationFilter",
+        of().comb(combFactor).chain(new InterpolationFilter(interpolateFactor)).integrate().
+            operator(() -> n -> n / interpolateFactor / combFactor));
   }
 
   FilterBuilder fork(@Nonnull DigitalFilter... filters) {
