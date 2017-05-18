@@ -103,6 +103,10 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     }).interpolate(size);
   }
 
+  public FilterBuilder expSum() {
+    return chain(new ExpSumFilter());
+  }
+
   FilterBuilder fir(double... coefficients) {
     return chain(new FIRFilter(coefficients));
   }

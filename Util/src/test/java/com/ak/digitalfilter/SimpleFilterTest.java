@@ -9,8 +9,8 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class DecimationAndInterpolationFilterTest {
-  private DecimationAndInterpolationFilterTest() {
+public class SimpleFilterTest {
+  private SimpleFilterTest() {
   }
 
   @DataProvider(name = "data")
@@ -80,6 +80,11 @@ public class DecimationAndInterpolationFilterTest {
         new int[] {100, 110, 120, 130, 140, 150, 160, 170},
         new int[] {7, 14, 21, 28, 45, 62, 79, 96},
         5.5
+    }, {
+        FilterBuilder.of().expSum().build(),
+        new int[] {100, 110, 120, 130, 140, 150, 160, 170},
+        new int[] {100, 100, 100, 100, 101, 102, 103, 104},
+        0.0
     }};
   }
 
