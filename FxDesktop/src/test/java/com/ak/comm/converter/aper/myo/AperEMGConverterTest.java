@@ -52,8 +52,8 @@ public final class AperEMGConverterTest {
 
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 100; i++) {
-      Assert.assertEquals(converter.apply(bufferFrame).count(), 1);
+    for (int i = 0; i < 60; i++) {
+      Assert.assertEquals(converter.apply(bufferFrame).count(), 0);
     }
     Assert.assertEquals(converter.apply(bufferFrame).peek(ints -> {
       Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));

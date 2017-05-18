@@ -1,7 +1,6 @@
 package com.ak.digitalfilter;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -88,14 +87,14 @@ public class FiltersTest {
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(Strings.EMPTY), "*.txt")) {
       directoryStream.forEach(path -> {
         if (!path.toString().startsWith(filteredPrefix)) {
-          DigitalFilter filter = FilterBuilder.of().smoothingImpulsive(10).build();
+          DigitalFilter filter = FilterBuilder.of().smoothingImpulsive(10).buildNoDelay();
 
           try (LineFileCollector collector = new LineFileCollector(
               Paths.get(String.format("%s%s", filteredPrefix, path.getFileName().toString())), LineFileCollector.Direction.VERTICAL)) {
             filter.forEach(values ->
                 collector.accept(Arrays.stream(values).mapToObj(String::valueOf).collect(Collectors.joining(Strings.TAB))));
 
-            try (Stream<String> lines = Files.lines(path, Charset.forName("windows-1251"))) {
+            try (Stream<String> lines = Files.lines(path)) {
               lines.filter(s -> s.matches("\\d+.*")).mapToInt(value -> {
                 try {
                   return NumberFormat.getIntegerInstance().parse(value.split("\\t")[column]).intValue();

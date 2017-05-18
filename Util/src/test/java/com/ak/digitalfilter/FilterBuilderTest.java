@@ -71,8 +71,8 @@ public class FilterBuilderTest {
             FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(2).build()
         ),
-        new int[][] {{0, 0, 1, 1, 0}, {1, 1, 2, 2, 0}, {2, 2, 3, 3, 1}, {4, 4, 0, 0, 3}, {2, 2, -2, -2, 3}, {2, 2, -1, -1, 2}},
-        1.5, 1.0
+        new int[][] {{2, 2, 3, 3, 1}, {4, 4, 0, 0, 3}, {2, 2, -2, -2, 3}, {2, 2, -1, -1, 2}},
+        -1.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
         FilterBuilder.of().fork(
@@ -80,8 +80,8 @@ public class FilterBuilderTest {
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
             FilterBuilder.of().comb(2).build()
         ).buildNoDelay(),
-        new int[][] {{1, 2, 2}, {2, 3, 3}, {4, 0, 0}, {2, -2, -2}, {2, -1, -1}},
-        0.0, 1.0
+        new int[][] {{2, 3, 3}, {4, 0, 0}, {2, -2, -2}, {2, -1, -1}},
+        -1.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
         FilterBuilder.of().comb(1).build(),
@@ -115,13 +115,13 @@ public class FilterBuilderTest {
     }, {
         new int[][] {{1}, {4}, {7}},
         FilterBuilder.of().interpolate(3).buildNoDelay(),
-        new int[][] {{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}},
-        0.0, 3.0
+        new int[][] {{1}, {2}, {3}, {4}, {5}, {6}, {7}},
+        -1.0, 3.0
     }, {
         new int[][] {{1}, {4}, {7}},
         FilterBuilder.of().decimate(3).interpolate(3).buildNoDelay(),
-        new int[][] {{2}, {4}},
-        0.0, 1.0
+        new int[][] {{4}},
+        -1.0, 1.0
     }, {
         new int[][] {{2}, {4}, {6}, {8}},
         FilterBuilder.of().fork(
@@ -147,7 +147,7 @@ public class FilterBuilderTest {
         String.format("LinearDecimationFilter (f / %.1f)", 7.0)
     }, {
         FilterBuilder.of().interpolate(7).buildNoDelay(),
-        String.format("NoDelayFilter (compensate %.1f delay) - LinearInterpolationFilter (f \u00b7 %.1f)", 10.0, 7.0)
+        String.format("NoDelayFilter (compensate %.1f delay x 2) - LinearInterpolationFilter (f \u00b7 %.1f)", 10.0, 7.0)
     }, {
         FilterBuilder.of().fork(
             FilterBuilder.of().fork(
@@ -159,11 +159,11 @@ public class FilterBuilderTest {
             FilterBuilder.of().rrs(4).build()
         ).buildNoDelay(),
         String.format(
-            "NoDelayFilter (compensate %.1f delay) - DelayFilter (delay %d) - FIRFilter (delay %.1f)%n" +
-                "                                                               FIRFilter (delay %.1f)%n" +
-                "                                       DelayFilter (delay %d) - FIRFilter (delay %.1f)%n" +
-                "                                       DelayFilter (delay %d) - CombFilter (delay %.1f)%n" +
-                "                                       RRS4 (delay %.1f)",
+            "NoDelayFilter (compensate %.1f delay x 2) - DelayFilter (delay %d) - FIRFilter (delay %.1f)%n" +
+                "                                                                   FIRFilter (delay %.1f)%n" +
+                "                                           DelayFilter (delay %d) - FIRFilter (delay %.1f)%n" +
+                "                                           DelayFilter (delay %d) - CombFilter (delay %.1f)%n" +
+                "                                           RRS4 (delay %.1f)",
             2.0, 2, 0.0,
             0.0,
             1, 1.0,
@@ -181,12 +181,12 @@ public class FilterBuilderTest {
             FilterBuilder.of().rrs(2).build()
         ),
         String.format(
-            "DelayFilter (delay %d) - SelectFilter (indexes = [0]) - FIRFilter (delay %.1f)%n" +
-                "                                                       FIRFilter (delay %.1f)%n" +
-                "SelectFilter (indexes = [1]) - FIRFilter (delay %.1f)%n" +
-                "SelectFilter (indexes = [2]) - CombFilter (delay %.1f)%n" +
-                "DelayFilter (delay %d) - SelectFilter (indexes = [3]) - RRS2 (delay %.1f)",
-            1, 0.0,
+            "NoDelayFilter (compensate %.1f delay x 2) - DelayFilter (delay %d) - SelectFilter (indexes = [0]) - FIRFilter (delay %.1f)%n" +
+                "                                                                                                  FIRFilter (delay %.1f)%n" +
+                "                                           SelectFilter (indexes = [1]) - FIRFilter (delay %.1f)%n" +
+                "                                           SelectFilter (indexes = [2]) - CombFilter (delay %.1f)%n" +
+                "                                           DelayFilter (delay %d) - SelectFilter (indexes = [3]) - RRS2 (delay %.1f)",
+            1.5, 1, 0.0,
             0.0,
             1.0,
             1.0,
@@ -197,9 +197,9 @@ public class FilterBuilderTest {
         FilterBuilder.parallel(Arrays.asList(new int[] {0}, new int[] {1, 2}),
             FilterBuilder.of().operator(() -> Integer::bitCount).rrs(10).build(), FilterBuilder.of().biOperator(() -> Integer::compare).build()),
         String.format(
-            "SelectFilter (indexes = [0]) - Operator  (delay %.1f) - RRS10 (delay %.1f)%n" +
-                "DelayFilter (delay %d) - SelectFilter (indexes = [1, 2]) - BiOperator  (delay %.1f)",
-            0.0, 4.5,
+            "NoDelayFilter (compensate %.1f delay x 2) - SelectFilter (indexes = [0]) - Operator  (delay %.1f) - RRS10 (delay %.1f)%n" +
+                "                                           DelayFilter (delay %d) - SelectFilter (indexes = [1, 2]) - BiOperator  (delay %.1f)",
+            5.0, 0.0, 4.5,
             5, 0.0
         )
     }};

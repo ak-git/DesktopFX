@@ -23,7 +23,7 @@
         <constructor-arg name="baudRate" value="BR_921600"/>
         <constructor-arg name="frameLength" value="25"/>
     </bean>
-    <bean class="com.ak.comm.converter.ToIntegerConverter">
+    <bean class="com.ak.comm.converter.ToIntegerConverter" scope="prototype">
         <constructor-arg>
             <bean class="java.lang.Class" factory-method="forName">
                 <constructor-arg type="java.lang.String" value="com.ak.comm.converter.aper.AperInVariable"/>
