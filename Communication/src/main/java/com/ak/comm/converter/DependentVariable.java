@@ -18,7 +18,12 @@ public interface DependentVariable<IN extends Enum<IN> & Variable> extends Varia
   @Override
   default Unit<?> getUnit() {
     try {
-      return Enum.valueOf(getInputVariablesClass(), name()).getUnit();
+      if (getInputVariables().count() == 1) {
+        return getInputVariables().findFirst().map(in -> in.getUnit()).orElseThrow(IllegalArgumentException::new);
+      }
+      else {
+        return AbstractUnit.ONE;
+      }
     }
     catch (IllegalArgumentException e) {
       return AbstractUnit.ONE;

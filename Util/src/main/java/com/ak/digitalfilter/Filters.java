@@ -12,11 +12,11 @@ import tec.uom.se.unit.Units;
 enum Filters {
   ;
 
-  static Quantity<Frequency> getFrequency(DigitalFilter filter, @Nonnull Quantity<Frequency> frequency) {
+  static Quantity<Frequency> getFrequency(@Nonnull DigitalFilter filter, @Nonnull Quantity<Frequency> frequency) {
     return Quantities.getQuantity(frequency.to(Units.HERTZ).getValue().doubleValue() * filter.getFrequencyFactor(), Units.HERTZ);
   }
 
-  static Quantity<Time> getDelay(DigitalFilter filter, @Nonnull Quantity<Frequency> frequency) {
+  static Quantity<Time> getDelay(@Nonnull DigitalFilter filter, @Nonnull Quantity<Frequency> frequency) {
     return Quantities.getQuantity(frequency.to(Units.HERTZ).inverse().getValue().doubleValue() * filter.getDelay(), Units.SECOND);
   }
 

@@ -15,6 +15,7 @@ import com.ak.comm.bytes.nmis.NmisResponseFrame;
 import com.ak.comm.bytes.nmis.NmisTestProvider;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.util.LogUtils;
+import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -90,18 +91,18 @@ public class NmisBytesInterceptorTest {
       if (!frames.isEmpty()) {
         Assert.assertEquals(frames, Collections.singleton(request.toResponse()));
       }
-    }, logRecord -> Assert.assertEquals(logRecord.getMessage().replaceAll(".*" + NmisResponseFrame.class.getSimpleName(), ""),
-        request.toResponse().toString().replaceAll(".*" + NmisResponseFrame.class.getSimpleName(), ""))), logFlag);
+    }, logRecord -> Assert.assertEquals(logRecord.getMessage().replaceAll(".*" + NmisResponseFrame.class.getSimpleName(), Strings.EMPTY),
+        request.toResponse().toString().replaceAll(".*" + NmisResponseFrame.class.getSimpleName(), Strings.EMPTY))), logFlag);
 
-    AtomicReference<String> logMessage = new AtomicReference<>("");
+    AtomicReference<String> logMessage = new AtomicReference<>(Strings.EMPTY);
     Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> {
           int bytesOut = interceptor.putOut(request).remaining();
           Assert.assertTrue(bytesOut > 0);
           Assert.assertEquals(logMessage.get(),
-              request.toString().replaceAll(".*" + NmisRequest.class.getSimpleName(), "") +
+              request.toString().replaceAll(".*" + NmisRequest.class.getSimpleName(), Strings.EMPTY) +
                   " - " + bytesOut + " bytes OUT to hardware");
         },
-        logRecord -> logMessage.set(logRecord.getMessage().replaceAll(".*" + NmisRequest.class.getSimpleName(), ""))));
+        logRecord -> logMessage.set(logRecord.getMessage().replaceAll(".*" + NmisRequest.class.getSimpleName(), Strings.EMPTY))));
   }
 }

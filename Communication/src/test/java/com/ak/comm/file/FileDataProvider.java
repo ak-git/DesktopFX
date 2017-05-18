@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 import com.ak.comm.converter.TwoVariables;
-import com.ak.comm.logging.BinaryLogBuilder;
+import com.ak.comm.logging.LogBuilders;
 import org.testng.annotations.DataProvider;
 
 public class FileDataProvider {
@@ -56,7 +56,7 @@ public class FileDataProvider {
   }
 
   private static Path createFile(int kBytes) throws IOException {
-    Path path = BinaryLogBuilder.SIMPLE.build(String.format("%s %d kBytes", FileDataProvider.class.getSimpleName(), kBytes)).getPath();
+    Path path = LogBuilders.SIMPLE.build(String.format("%s %d kBytes", FileDataProvider.class.getSimpleName(), kBytes)).getPath();
     if (kBytes >= 0) {
       try (WritableByteChannel channel = Files.newByteChannel(path,
           StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {

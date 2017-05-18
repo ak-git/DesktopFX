@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 import com.ak.util.LineFileCollector;
+import com.ak.util.Strings;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -68,7 +69,7 @@ public class ElectrodeSizeTest {
   public static void testErrorsAt(Supplier<DoubleStream> xVar) throws IOException {
     Assert.assertNull(DoubleStream.of(1.0 / 3.0, SQRT_2 - 1, 0.5, 2.0 / 3.0).
         mapToObj(sToL -> xVar.get().map(dToL -> new RelativeErrorR(sToL).value(dToL))).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("ErrorsAtDtoL.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 

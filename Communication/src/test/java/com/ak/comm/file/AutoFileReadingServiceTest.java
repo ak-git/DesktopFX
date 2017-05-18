@@ -10,6 +10,7 @@ import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.TwoVariables;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
+import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -29,6 +30,6 @@ public class AutoFileReadingServiceTest {
 
   @Test
   public void testNotAccept() {
-    Assert.assertFalse(service.accept(Paths.get("").toFile()));
+    Assert.assertFalse(service.accept(Paths.get(Strings.EMPTY).toFile()));
   }
 }

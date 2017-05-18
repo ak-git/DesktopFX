@@ -10,6 +10,7 @@ import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.bytes.rsce.RsceTestDataProvider;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.util.LogUtils;
+import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -42,13 +43,13 @@ public class RsceBytesInterceptorTest {
 
     LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> Assert.assertEquals(interceptor.apply(ByteBuffer.wrap(bytes)).iterator(), Stream.of(request).iterator()),
-        logRecord -> Assert.assertEquals(logRecord.getMessage().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), ""),
-            request.toString().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), "")));
+        logRecord -> Assert.assertEquals(logRecord.getMessage().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), Strings.EMPTY),
+            request.toString().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), Strings.EMPTY)));
 
     LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> Assert.assertTrue(interceptor.putOut(request).remaining() > 0),
-        logRecord -> Assert.assertEquals(logRecord.getMessage().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), ""),
-            request.toString().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), "") +
+        logRecord -> Assert.assertEquals(logRecord.getMessage().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), Strings.EMPTY),
+            request.toString().replaceAll(".*" + RsceCommandFrame.class.getSimpleName(), Strings.EMPTY) +
                 " - " + bytes.length + " bytes OUT to hardware"));
   }
 }
