@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 import com.ak.util.LineFileCollector;
+import com.ak.util.Strings;
 import org.apache.commons.math3.optim.InitialGuess;
 import org.apache.commons.math3.optim.MaxEval;
 import org.apache.commons.math3.optim.PointValuePair;
@@ -126,11 +127,11 @@ public class OptimumStoLTest {
   @Test(dataProvider = "dl2L-dRL2rho", enabled = false)
   public static void testRhoOptimalStoL(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
     Assert.assertNull(yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> solve(new InequalityRho(dL2L, dRL2rho)).getKey()[0])).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("Rho_Optimum_sToL.txt"), LineFileCollector.Direction.VERTICAL)));
 
     Assert.assertNull(yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> solve(new InequalityRho(dL2L, dRL2rho)).getValue())).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("Rho_ErrorsAt_Optimum_sToL.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
@@ -139,7 +140,7 @@ public class OptimumStoLTest {
     DoubleStream.of(1.0 / 3.0, 0.5, 2.0 / 3.0).forEachOrdered(sToL -> {
       try {
         Assert.assertNull(yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> new InequalityRho(dL2L, dRL2rho).applyAsDouble(sToL))).
-            map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+            map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
             collect(new LineFileCollector(Paths.get(String.format("Rho_ErrorsAt_%.2f.txt", sToL)),
                 LineFileCollector.Direction.VERTICAL)));
       }
@@ -164,11 +165,11 @@ public class OptimumStoLTest {
   @Test(dataProvider = "dl2L-dRL2dRho", enabled = false)
   public static void testDeltaRhoOptimalStoL(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
     Assert.assertNull(yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> solve(new InequalityDeltaRho(dL2L, dRL2rho)).getKey()[0])).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("DeltaRho_Optimum_sToL.txt"), LineFileCollector.Direction.VERTICAL)));
 
     Assert.assertNull(yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> solve(new InequalityDeltaRho(dL2L, dRL2rho)).getValue())).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get("DeltaRho_ErrorsAt_Optimum_sToL.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
@@ -177,7 +178,7 @@ public class OptimumStoLTest {
     DoubleStream.of(1.0 / 3.0, 0.5, 2.0 / 3.0).forEachOrdered(sToL -> {
       try {
         Assert.assertNull(yVar.get().mapToObj(dRL2rho -> xVar.get().map(dL2L -> new InequalityDeltaRho(dL2L, dRL2rho).applyAsDouble(sToL))).
-            map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+            map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
             collect(new LineFileCollector(Paths.get(String.format("DeltaRho_ErrorsAt_%.2f.txt", sToL)),
                 LineFileCollector.Direction.VERTICAL)));
       }

@@ -2,16 +2,16 @@ package com.ak.digitalfilter;
 
 import javax.annotation.Nonnegative;
 
-final class LinearDecimationFilter extends AbstractLinearRateConversionFilter {
+final class DecimationFilter extends AbstractRateConversionFilter {
   private int counter;
 
-  LinearDecimationFilter(@Nonnegative int decimateFactor) {
+  DecimationFilter(@Nonnegative int decimateFactor) {
     super(decimateFactor);
   }
 
   @Override
-  public double getDelay(double beforeDelay) {
-    return (beforeDelay - (factor - 1) / 2.0) / factor;
+  public double getDelay() {
+    return (-(factor - 1) / 2.0) / factor;
   }
 
   @Nonnegative
@@ -23,9 +23,8 @@ final class LinearDecimationFilter extends AbstractLinearRateConversionFilter {
   @Override
   void publishUnary(int in) {
     counter = (++counter) % factor;
-    int reduced = integrator.applyAsInt(in);
     if (counter == 0) {
-      publish(comb.applyAsInt(reduced) / factor);
+      publish(in);
     }
   }
 }

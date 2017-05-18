@@ -15,7 +15,7 @@ final class ChainFilter extends AbstractDigitalFilter {
 
   @Override
   public double getDelay() {
-    return second.getDelay(first.getDelay());
+    return first.getDelay() * second.getFrequencyFactor() + second.getDelay();
   }
 
   @Nonnegative

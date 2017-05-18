@@ -29,7 +29,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     if (selectedIndexes.isEmpty()) {
       throw new IllegalArgumentException(Arrays.deepToString(filters));
     }
-    return of().fork(selectedIndexes, filters).build();
+    return of().fork(selectedIndexes, filters).buildNoDelay();
   }
 
   static DigitalFilter parallel(@Nonnull DigitalFilter... filters) {
@@ -85,6 +85,28 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return fir(coefficients.get());
   }
 
+  public FilterBuilder smoothingImpulsive(@Nonnegative int size) {
+    HoldFilter holdFilter = new HoldFilter(size);
+    return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> operand -> {
+      int[] sorted = holdFilter.getSorted();
+      double mean = Arrays.stream(sorted).average().orElse(0.0);
+
+      int posCount = 0;
+      double distances = 0.0;
+      for (int n : sorted) {
+        if (n > mean) {
+          posCount++;
+          distances += (n - mean);
+        }
+      }
+      return (int) Math.round(mean + (posCount - (size - posCount)) * distances / StrictMath.pow(size, 2));
+    }).interpolate(size);
+  }
+
+  public FilterBuilder expSum() {
+    return chain(new ExpSumFilter());
+  }
+
   FilterBuilder fir(double... coefficients) {
     return chain(new FIRFilter(coefficients));
   }
@@ -98,15 +120,22 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   FilterBuilder rrs(@Nonnegative int averageFactor) {
-    return chain(new RecursiveRunningSumFilter(averageFactor));
+    return wrap(String.format("RRS%d", averageFactor),
+        of().comb(averageFactor).integrate().operator(() -> n -> n / averageFactor));
   }
 
   FilterBuilder decimate(@Nonnegative int decimateFactor) {
-    return chain(new LinearDecimationFilter(decimateFactor));
+    int combFactor = Math.max(decimateFactor / 2, 1);
+    return wrap("LinearDecimationFilter",
+        of().integrate().chain(new DecimationFilter(decimateFactor)).comb(combFactor).
+            operator(() -> n -> n / decimateFactor / combFactor));
   }
 
   FilterBuilder interpolate(@Nonnegative int interpolateFactor) {
-    return chain(new LinearInterpolationFilter(interpolateFactor));
+    int combFactor = Math.max(interpolateFactor / 2, 1);
+    return wrap("LinearInterpolationFilter",
+        of().comb(combFactor).chain(new InterpolationFilter(interpolateFactor)).integrate().
+            operator(() -> n -> n / interpolateFactor / combFactor));
   }
 
   FilterBuilder fork(@Nonnull DigitalFilter... filters) {
@@ -152,5 +181,9 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   private FilterBuilder chain(@Nonnull DigitalFilter chain) {
     filter = Optional.ofNullable(filter).<DigitalFilter>map(filter -> new ChainFilter(filter, chain)).orElse(chain);
     return this;
+  }
+
+  private FilterBuilder wrap(@Nonnull String name, @Nonnull Builder<DigitalFilter> filterBuilder) {
+    return chain(new FilterWrapper(name, filterBuilder.build()));
   }
 }

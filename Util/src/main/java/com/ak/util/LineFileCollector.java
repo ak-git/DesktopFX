@@ -3,7 +3,6 @@ package com.ak.util;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -11,18 +10,21 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collector;
 
-public final class LineFileCollector implements Collector<Object, BufferedWriter, Void>, Closeable {
+import javax.annotation.Nonnull;
+
+public final class LineFileCollector implements Collector<Object, BufferedWriter, Void>, Closeable, Consumer<String> {
   public enum Direction {
     HORIZONTAL {
       @Override
       public void acceptWriter(BufferedWriter writer) throws IOException {
-        writer.write("\t");
+        writer.write(Strings.TAB);
       }
     },
     VERTICAL {
@@ -41,10 +43,15 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
   private boolean startFlag = true;
   private boolean errorFlag;
 
-  public LineFileCollector(Path out, Direction direction) throws IOException {
-    writer = Files.newBufferedWriter(out, Charset.forName("windows-1251"),
+  public LineFileCollector(@Nonnull Path out, @Nonnull Direction direction) throws IOException {
+    writer = Files.newBufferedWriter(out,
         StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     this.direction = direction;
+  }
+
+  @Override
+  public void accept(String s) {
+    accumulator().accept(writer, s);
   }
 
   @Override

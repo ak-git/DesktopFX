@@ -32,20 +32,24 @@ abstract class AbstractDigitalFilter implements DigitalFilter {
 
   @Override
   public String toString() {
-    if (getFrequencyFactor() > 1) {
-      return String.format("%s (f \u00b7 %.1f; delay %.1f)", getClass().getSimpleName(), getFrequencyFactor(), getDelay());
-    }
-    else if (getFrequencyFactor() < 1) {
-      return String.format("%s (f / %.1f; delay %.1f)", getClass().getSimpleName(), 1.0 / getFrequencyFactor(), getDelay());
-    }
-    else {
-      return String.format("%s (delay %.1f)", getClass().getSimpleName(), getDelay());
-    }
+    return toString(getClass().getSimpleName());
   }
 
   static String toString(@Nonnull String base, @Nonnull DigitalFilter filter) {
     return base + filter.toString().replaceAll(NEW_LINE,
         Stream.generate(() -> SPACE).limit(base.length()).collect(Collectors.joining(EMPTY, NEW_LINE, EMPTY)));
+  }
+
+  final String toString(@Nonnull String filterName) {
+    if (getFrequencyFactor() > 1) {
+      return String.format("%s (f \u00b7 %.1f)", filterName, getFrequencyFactor());
+    }
+    else if (getFrequencyFactor() < 1) {
+      return String.format("%s (f / %.1f)", filterName, 1.0 / getFrequencyFactor());
+    }
+    else {
+      return String.format("%s (delay %.1f)", filterName, getDelay());
+    }
   }
 
   final void illegalArgumentException(@Nonnull int[] in) {

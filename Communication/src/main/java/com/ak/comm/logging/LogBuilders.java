@@ -5,7 +5,7 @@ import com.ak.logging.LogPathBuilder;
 import com.ak.util.LocalIO;
 import com.ak.util.Strings;
 
-public enum BinaryLogBuilder {
+public enum LogBuilders {
   SIMPLE(Strings.EMPTY) {
     @Override
     public LocalIO build(String fileName) {
@@ -29,7 +29,7 @@ public enum BinaryLogBuilder {
 
   private final String directory;
 
-  BinaryLogBuilder(String directory) {
+  LogBuilders(String directory) {
     this.directory = directory;
   }
 

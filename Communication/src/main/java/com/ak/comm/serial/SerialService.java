@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.SafeByteChannel;
-import com.ak.comm.logging.BinaryLogBuilder;
+import com.ak.comm.logging.LogBuilders;
 import com.ak.util.Strings;
 import jssc.SerialPort;
 import jssc.SerialPortException;
@@ -33,7 +33,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
   @Nonnull
   private final ByteBuffer buffer;
   private final SafeByteChannel binaryLogChannel = new SafeByteChannel(() ->
-      Files.newByteChannel(BinaryLogBuilder.SERIAL_BYTES.build(getClass().getSimpleName()).getPath(),
+      Files.newByteChannel(LogBuilders.SERIAL_BYTES.build(getClass().getSimpleName()).getPath(),
           StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE));
 
   SerialService(@Nonnegative int baudRate) {

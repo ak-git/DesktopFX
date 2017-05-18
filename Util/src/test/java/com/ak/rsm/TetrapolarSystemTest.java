@@ -12,6 +12,7 @@ import javax.measure.Quantity;
 import javax.measure.quantity.ElectricResistance;
 
 import com.ak.util.LineFileCollector;
+import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -89,7 +90,7 @@ public class TetrapolarSystemTest {
       try {
         Assert.assertNull(yVar.get().mapToObj(lmm -> xVar.get().map(r ->
             new TetrapolarSystem(lmm * sToL, lmm, MILLI(METRE)).getApparent(Quantities.getQuantity(r, OHM)))
-        ).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining("\t"))).
+        ).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
             collect(new LineFileCollector(Paths.get(String.format("Apparent_Rho_At_%.2f.txt", sToL)),
                 LineFileCollector.Direction.VERTICAL)));
       }

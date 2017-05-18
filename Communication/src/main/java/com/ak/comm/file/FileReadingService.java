@@ -24,7 +24,7 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.comm.logging.BinaryLogBuilder;
+import com.ak.comm.logging.LogBuilders;
 import io.reactivex.disposables.Disposable;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
@@ -61,7 +61,7 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
         Logger.getLogger(getClass().getName()).log(Level.CONFIG,
             String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
         String md5Code = DigestUtils.appendMd5DigestAsHex(in, new StringBuilder()).toString();
-        Path convertedFile = BinaryLogBuilder.CONVERTER_FILE.build(md5Code).getPath();
+        Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
         if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
           convertedFileChannelProvider = () -> Files.newByteChannel(convertedFile, StandardOpenOption.READ);
           Logger.getLogger(getClass().getName()).log(Level.INFO,
@@ -74,7 +74,7 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
             Logger.getLogger(getClass().getName()).log(Level.INFO,
                 String.format("#%x Read file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
             try (ReadableByteChannel readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
-              Path tempConverterFile = BinaryLogBuilder.CONVERTER_FILE.build("tempConverterFile").getPath();
+              Path tempConverterFile = LogBuilders.CONVERTER_FILE.build("tempConverterFile").getPath();
               convertedFileChannelProvider = () -> Files.newByteChannel(tempConverterFile,
                   StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
 

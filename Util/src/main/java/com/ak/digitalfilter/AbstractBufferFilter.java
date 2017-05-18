@@ -1,5 +1,7 @@
 package com.ak.digitalfilter;
 
+import java.util.Arrays;
+
 import javax.annotation.Nonnegative;
 
 abstract class AbstractBufferFilter extends AbstractOperableFilter {
@@ -25,6 +27,10 @@ abstract class AbstractBufferFilter extends AbstractOperableFilter {
 
   final int get(@Nonnegative int index) {
     return buffer[index % buffer.length];
+  }
+
+  final int[] buffer() {
+    return Arrays.copyOf(buffer, buffer.length);
   }
 
   abstract int apply(@Nonnegative int nowIndex);
