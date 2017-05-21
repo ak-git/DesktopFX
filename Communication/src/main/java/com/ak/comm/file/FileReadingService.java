@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,49 +60,29 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
       LOCK.lock();
       try (SeekableByteChannel seekableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
         Logger.getLogger(getClass().getName()).log(Level.CONFIG, String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
+
         MessageDigest md5 = MessageDigest.getInstance("MD5");
-
-        ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
-        while (seekableByteChannel.read(buffer) > 0 && !isDisposed()) {
-          buffer.flip();
-          md5.update(buffer);
-          buffer.clear();
-        }
-
-        byte[] digest = md5.digest();
-        StringBuilder sb = new StringBuilder(digest.length * 2);
-        for (byte b : digest) {
-          sb.append(String.format("%x", b));
-        }
-        String md5Code = sb.toString();
-
-        Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
-        if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
-          convertedFileChannelProvider = () -> Files.newByteChannel(convertedFile, StandardOpenOption.READ);
-          Logger.getLogger(getClass().getName()).log(Level.INFO,
-              String.format("#%x File [ %s ] with MD5 = [ %s ] is already processed", hashCode(), fileToRead, md5Code));
-        }
-        else {
-          Logger.getLogger(getClass().getName()).log(Level.INFO,
-              String.format("#%x Read file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
-
-          Path tempConverterFile = LogBuilders.CONVERTER_FILE.build("tempConverterFile").getPath();
-          convertedFileChannelProvider = () -> Files.newByteChannel(tempConverterFile,
-              StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
-
-          boolean readFlag = false;
-          seekableByteChannel.position(0);
-
-          while (seekableByteChannel.read(buffer) > 0 && !isDisposed()) {
-            buffer.flip();
-            logBytes(buffer);
-            process(buffer).forEach(s::onNext);
-            buffer.clear();
-            readFlag = true;
+        if (isChannelProcessed(seekableByteChannel, md5::update)) {
+          String md5Code = digestToString(md5);
+          Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
+          if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
+            convertedFileChannelProvider = () -> Files.newByteChannel(convertedFile, StandardOpenOption.READ);
+            Logger.getLogger(getClass().getName()).log(Level.INFO,
+                String.format("#%x File [ %s ] with MD5 = [ %s ] is already processed", hashCode(), fileToRead, md5Code));
           }
+          else {
+            Logger.getLogger(getClass().getName()).log(Level.INFO,
+                String.format("#%x Read file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
+            Path tempConverterFile = LogBuilders.CONVERTER_FILE.build("tempConverterFile").getPath();
+            convertedFileChannelProvider = () -> Files.newByteChannel(tempConverterFile,
+                StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
 
-          if (!isDisposed()) {
-            if (readFlag) {
+            boolean processed = isChannelProcessed(seekableByteChannel, byteBuffer -> {
+              logBytes(byteBuffer);
+              process(byteBuffer).forEach(s::onNext);
+            });
+
+            if (processed) {
               Files.copy(tempConverterFile, convertedFile, LinkOption.NOFOLLOW_LINKS, StandardCopyOption.REPLACE_EXISTING);
             }
           }
@@ -156,5 +137,27 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
   @Override
   public SeekableByteChannel call() throws Exception {
     return convertedFileChannelProvider.call();
+  }
+
+  private boolean isChannelProcessed(@Nonnull SeekableByteChannel seekableByteChannel, @Nonnull Consumer<ByteBuffer> consumer) throws IOException {
+    ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
+    boolean readFlag = false;
+    seekableByteChannel.position(0);
+    while (seekableByteChannel.read(buffer) > 0 && !isDisposed()) {
+      buffer.flip();
+      consumer.accept(buffer);
+      buffer.clear();
+      readFlag = true;
+    }
+    return readFlag && !isDisposed();
+  }
+
+  private static String digestToString(@Nonnull MessageDigest messageDigest) {
+    byte[] digest = messageDigest.digest();
+    StringBuilder sb = new StringBuilder(digest.length * 2);
+    for (byte b : digest) {
+      sb.append(String.format("%x", b));
+    }
+    return sb.toString();
   }
 }
