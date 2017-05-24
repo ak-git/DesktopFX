@@ -7,9 +7,8 @@ import javax.annotation.Nonnull;
 
 import com.ak.util.Strings;
 
-class Variables {
-  private Variables() {
-  }
+enum Variables {
+  ;
 
   static <E extends Enum<E> & Variable<E>, T> T tryFindSame(@Nonnull String name, @Nonnull Class<E> eClass,
                                                             @Nonnull Function<E, T> function, @Nonnull Supplier<T> orElse) {
