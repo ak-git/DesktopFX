@@ -12,7 +12,17 @@ public class VariableTest {
 
   @Test
   public static void testGetUnit() {
-    Variable variable = Variable.class::getSimpleName;
+    Variable<ADCVariable> variable = new Variable<ADCVariable>() {
+      @Override
+      public String name() {
+        return Variable.class.getSimpleName();
+      }
+
+      @Override
+      public Class<ADCVariable> getDeclaringClass() {
+        return ADCVariable.class;
+      }
+    };
     Assert.assertEquals(variable.getUnit(), AbstractUnit.ONE);
     Assert.assertEquals(variable.toString(1), "Variable = 1 one");
     Assert.assertEquals(variable.toName(), "Variable, one");
@@ -25,11 +35,16 @@ public class VariableTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*No enum constant.*InvalidName")
   public static void testInvalidGetVariables() {
-    DependentVariable<OperatorVariables> variable = new DependentVariable<OperatorVariables>() {
+    DependentVariable<OperatorVariables, ADCVariable> variable = new DependentVariable<OperatorVariables, ADCVariable>() {
       @Nonnull
       @Override
       public String name() {
         return "InvalidName";
+      }
+
+      @Override
+      public Class<ADCVariable> getDeclaringClass() {
+        return ADCVariable.class;
       }
 
       @Nonnull

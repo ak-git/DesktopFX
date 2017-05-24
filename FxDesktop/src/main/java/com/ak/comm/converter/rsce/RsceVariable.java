@@ -6,7 +6,7 @@ import com.ak.comm.converter.Variable;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public enum RsceVariable implements Variable {
+public enum RsceVariable implements Variable<RsceVariable> {
   R1, R2;
 
   @Override

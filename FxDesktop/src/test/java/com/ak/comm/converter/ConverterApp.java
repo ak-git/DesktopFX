@@ -27,7 +27,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import static com.ak.fx.desktop.FxApplication.APP_PARAMETER_CONTEXT;
 
-public final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variable> implements AutoCloseable, Consumer<Path> {
+public final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> implements AutoCloseable, Consumer<Path> {
   @Nonnull
   private final ConfigurableApplicationContext context;
 

@@ -39,18 +39,18 @@ public final class AperECGConverterTest {
 
   @Test(dataProvider = "variables")
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
-    Function<BufferFrame, Stream<int[]>> converter = new LinkedConverter<>(new ToIntegerConverter<>(AperInVariable.class), AperECGVariable.class);
+    Function<BufferFrame, Stream<int[]>> converter = new LinkedConverter<>(
+        new ToIntegerConverter<>(AperInVariable.class), AperECGVariable.class);
     EnumSet.of(AperInVariable.R1, AperInVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
     EnumSet.of(AperInVariable.E1, AperInVariable.E2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.VOLT), t.name()));
     EnumSet.of(AperInVariable.RI1, AperInVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
 
-    EnumSet.of(AperECGVariable.R1).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.OHM)));
-    EnumSet.of(AperECGVariable.ECG1).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.VOLT)));
-    EnumSet.of(AperECGVariable.RI1).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
+    EnumSet.of(AperECGVariable.R1, AperECGVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.OHM)));
+    EnumSet.of(AperECGVariable.ECG1, AperECGVariable.ECG2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.VOLT)));
+    EnumSet.of(AperECGVariable.RI1, AperECGVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
 
-    EnumSet.of(AperECGVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.OHM)));
-    EnumSet.of(AperECGVariable.ECG2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.VOLT)));
-    EnumSet.of(AperECGVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
+    Assert.assertEquals(AperECGVariable.R1.filter().toString(), AperECGVariable.R2.filter().toString());
+    Assert.assertEquals(AperECGVariable.ECG1.filter().toString(), AperECGVariable.ECG2.filter().toString());
 
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);

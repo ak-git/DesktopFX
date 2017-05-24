@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 
-public enum OperatorVariables implements DependentVariable<TwoVariables> {
+public enum OperatorVariables implements DependentVariable<TwoVariables, OperatorVariables> {
   OUT_PLUS((left, right) -> left + right),
   OUT_MINUS((left, right) -> left - right);
 

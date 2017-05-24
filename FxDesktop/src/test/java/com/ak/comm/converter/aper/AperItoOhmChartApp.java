@@ -24,7 +24,7 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public final class AperItoOhmChartApp extends AbstractSplineCoefficientsChartApp {
+public final class AperItoOhmChartApp extends AbstractSplineCoefficientsChartApp<ADCVariable, AperInVariable> {
   public AperItoOhmChartApp() {
     super(AperCoefficients.I_ADC_TO_OHM, ADCVariable.ADC, AperInVariable.RI1);
   }

@@ -8,7 +8,7 @@ import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.aper.AperCoefficients;
 
-public enum AperEMGVariable implements DependentVariable<AperInVariable> {
+public enum AperEMGVariable implements DependentVariable<AperInVariable, AperEMGVariable> {
   M1 {
     @Override
     public Stream<AperInVariable> getInputVariables() {
@@ -25,11 +25,6 @@ public enum AperEMGVariable implements DependentVariable<AperInVariable> {
     @Override
     public Stream<AperInVariable> getInputVariables() {
       return Stream.of(AperInVariable.E2);
-    }
-
-    @Override
-    public DigitalFilter filter() {
-      return M1.filter();
     }
   },
   RI2;

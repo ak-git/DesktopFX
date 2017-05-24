@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 
-public enum OperatorVariables2 implements DependentVariable<OperatorVariables> {
+public enum OperatorVariables2 implements DependentVariable<OperatorVariables, OperatorVariables2> {
   OUT((left, right) -> left * right);
 
   private final IntBinaryOperator operator;

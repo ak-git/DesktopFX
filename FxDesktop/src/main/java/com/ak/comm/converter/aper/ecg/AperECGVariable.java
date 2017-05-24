@@ -14,7 +14,7 @@ import com.ak.numbers.aper.AperSurfaceCoefficients;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public enum AperECGVariable implements DependentVariable<AperInVariable> {
+public enum AperECGVariable implements DependentVariable<AperInVariable, AperECGVariable> {
   R1 {
     @Override
     public Stream<AperInVariable> getInputVariables() {
@@ -50,26 +50,11 @@ public enum AperECGVariable implements DependentVariable<AperInVariable> {
     public Stream<AperInVariable> getInputVariables() {
       return Stream.of(AperInVariable.RI2, AperInVariable.R2);
     }
-
-    @Override
-    public Unit<?> getUnit() {
-      return R1.getUnit();
-    }
-
-    @Override
-    public DigitalFilter filter() {
-      return R1.filter();
-    }
   },
   ECG2 {
     @Override
     public Stream<AperInVariable> getInputVariables() {
       return Stream.of(AperInVariable.E2);
-    }
-
-    @Override
-    public DigitalFilter filter() {
-      return ECG1.filter();
     }
   },
   RI2;

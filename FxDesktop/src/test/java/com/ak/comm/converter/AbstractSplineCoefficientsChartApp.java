@@ -20,16 +20,16 @@ import javafx.scene.chart.XYChart;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-public abstract class AbstractSplineCoefficientsChartApp
+public abstract class AbstractSplineCoefficientsChartApp<X extends Enum<X> & Variable<X>, Y extends Enum<Y> & Variable<Y>>
     extends Application {
   @Nonnull
   private final Coefficients coefficients;
   @Nonnull
-  private final Variable xVariable;
+  private final Variable<X> xVariable;
   @Nonnull
-  private final Variable yVariable;
+  private final Variable<Y> yVariable;
 
-  protected AbstractSplineCoefficientsChartApp(@Nonnull Coefficients coefficients, @Nonnull Variable xVariable, @Nonnull Variable yVariable) {
+  protected AbstractSplineCoefficientsChartApp(@Nonnull Coefficients coefficients, @Nonnull Variable<X> xVariable, @Nonnull Variable<Y> yVariable) {
     this.coefficients = coefficients;
     this.xVariable = xVariable;
     this.yVariable = yVariable;

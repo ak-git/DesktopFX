@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
-final class SelectableConverter<IN extends Enum<IN> & Variable, OUT extends Enum<OUT> & DependentVariable<IN>>
+final class SelectableConverter<IN extends Enum<IN> & Variable<IN>, OUT extends Enum<OUT> & DependentVariable<IN, OUT>>
     extends AbstractConverter<Stream<int[]>, OUT> {
   SelectableConverter(@Nonnull Class<OUT> evClass) {
     super(evClass, EnumSet.allOf(evClass).stream().map(ev -> ev.getInputVariables()).

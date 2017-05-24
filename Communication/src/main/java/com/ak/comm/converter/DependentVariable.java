@@ -1,5 +1,7 @@
 package com.ak.comm.converter;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -7,7 +9,7 @@ import javax.measure.Unit;
 
 import tec.uom.se.AbstractUnit;
 
-public interface DependentVariable<IN extends Enum<IN> & Variable> extends Variable {
+public interface DependentVariable<IN extends Enum<IN> & Variable<IN>, OUT extends Enum<OUT> & Variable<OUT>> extends Variable<OUT> {
   @Nonnull
   Class<IN> getInputVariablesClass();
 
@@ -17,16 +19,14 @@ public interface DependentVariable<IN extends Enum<IN> & Variable> extends Varia
 
   @Override
   default Unit<?> getUnit() {
-    try {
-      if (getInputVariables().count() == 1) {
-        return getInputVariables().findFirst().map(in -> in.getUnit()).orElseThrow(IllegalArgumentException::new);
+    return Variables.tryFindSame(name(), getDeclaringClass(), out -> out.getUnit(), () -> {
+      List<IN> inputVars = getInputVariables().collect(Collectors.toList());
+      if (inputVars.size() == 1) {
+        return inputVars.get(0).getUnit();
       }
       else {
         return AbstractUnit.ONE;
       }
-    }
-    catch (IllegalArgumentException e) {
-      return AbstractUnit.ONE;
-    }
+    });
   }
 }

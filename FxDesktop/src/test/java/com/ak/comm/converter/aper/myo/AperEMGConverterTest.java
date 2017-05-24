@@ -44,11 +44,8 @@ public final class AperEMGConverterTest {
     EnumSet.of(AperInVariable.E1, AperInVariable.E2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.VOLT), t.name()));
     EnumSet.of(AperInVariable.RI1, AperInVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
 
-    EnumSet.of(AperEMGVariable.M1).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.VOLT)));
-    EnumSet.of(AperEMGVariable.RI1).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
-
-    EnumSet.of(AperEMGVariable.M2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.VOLT)));
-    EnumSet.of(AperEMGVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
+    EnumSet.of(AperEMGVariable.M1, AperEMGVariable.M2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.VOLT)));
+    EnumSet.of(AperEMGVariable.RI1, AperEMGVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
 
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);

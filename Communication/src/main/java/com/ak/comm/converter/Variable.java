@@ -6,13 +6,13 @@ import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import tec.uom.se.AbstractUnit;
 
-public interface Variable {
+public interface Variable<E extends Enum<E> & Variable<E>> {
   default Unit<?> getUnit() {
-    return AbstractUnit.ONE;
+    return Variables.tryFindSame(name(), getDeclaringClass(), e -> e.getUnit(), () -> AbstractUnit.ONE);
   }
 
   default DigitalFilter filter() {
-    return FilterBuilder.of().build();
+    return Variables.tryFindSame(name(), getDeclaringClass(), e -> e.filter(), () -> FilterBuilder.of().build());
   }
 
   default String toString(int value) {
@@ -24,4 +24,6 @@ public interface Variable {
   }
 
   String name();
+
+  Class<E> getDeclaringClass();
 }

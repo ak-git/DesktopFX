@@ -3,7 +3,7 @@ package com.ak.comm.converter;
 import java.util.List;
 import java.util.stream.Stream;
 
-public final class LinkedConverter<RESPONSE, IN extends Enum<IN> & Variable, OUT extends Enum<OUT> & DependentVariable<IN>>
+public final class LinkedConverter<RESPONSE, IN extends Enum<IN> & Variable<IN>, OUT extends Enum<OUT> & DependentVariable<IN, OUT>>
     implements Converter<RESPONSE, OUT> {
   private final Converter<RESPONSE, IN> responseConverter;
   private final Converter<Stream<int[]>, OUT> outConverter;
