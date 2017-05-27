@@ -9,8 +9,6 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.fx.stage.ScreenResolutionMonitor;
-import com.ak.util.FinalizerGuardian;
-import io.reactivex.disposables.Disposable;
 import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -21,7 +19,7 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.shape.VLineTo;
 
-public final class MilliGrid extends Pane implements AutoCloseable {
+public final class MilliGrid extends Pane {
   private enum GridCell {
     POINTS(1.0) {
       private static final int FACTOR = 4;
@@ -85,24 +83,17 @@ public final class MilliGrid extends Pane implements AutoCloseable {
     }
   }
 
-  @Nonnull
-  private final Object finalizerGuardian = new FinalizerGuardian(this);
-  @Nonnull
-  private final Disposable screenSubscription;
   private final GridLine[] gridLines = {new HorizontalGridLine(), new VerticalGridLine()};
   @Nonnull
   private List<Path> paths = GridCell.newPaths();
 
   public MilliGrid() {
-    screenSubscription = ScreenResolutionMonitor.INSTANCE.getDpiObservable().subscribe(dpi -> Platform.runLater(() -> {
+    Runnable initialize = () -> {
       reinitializePaths();
       requestLayout();
-    }));
-  }
-
-  @Override
-  public void close() {
-    screenSubscription.dispose();
+    };
+    initialize.run();
+    ScreenResolutionMonitor.INSTANCE.dpi().addListener((observable, oldValue, newValue) -> Platform.runLater((initialize)));
   }
 
   @Override

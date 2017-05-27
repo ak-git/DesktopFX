@@ -67,7 +67,6 @@ project(':Communication') {
 project(':FxCore') {
     dependencies {
         compile group: 'org.springframework', name: 'spring-context', version: '4.3.8.RELEASE'
-        compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.1.0'
         compile project(':Util')
     }
 }
