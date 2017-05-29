@@ -88,12 +88,8 @@ public final class MilliGrid extends Pane {
   private List<Path> paths = GridCell.newPaths();
 
   public MilliGrid() {
-    Runnable initialize = () -> {
-      reinitializePaths();
-      requestLayout();
-    };
-    initialize.run();
-    ScreenResolutionMonitor.INSTANCE.dpi().addListener((observable, oldValue, newValue) -> Platform.runLater((initialize)));
+    reinitializePaths();
+    ScreenResolutionMonitor.INSTANCE.dpi().addListener((observable, oldValue, newValue) -> Platform.runLater(this::reinitializePaths));
   }
 
   @Override
@@ -115,6 +111,7 @@ public final class MilliGrid extends Pane {
     getChildren().removeAll(paths);
     paths = GridCell.newPaths();
     getChildren().addAll(paths);
+    requestLayout();
   }
 
   private interface GridLine {
