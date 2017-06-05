@@ -112,17 +112,17 @@ public final class NmisRequest extends BufferFrame {
       toStringBuilder.append(address.name()).append(SPACE);
     }
 
+    javafx.util.Builder<NmisRequest> forAll(@Nonnull MyoType myoType, @Nonnull MyoFrequency frequency) {
+      Arrays.fill(codes, NmisProtocolByte.DATA_5.ordinal(), NmisProtocolByte.DATA_8.ordinal() + 1,
+          (byte) (myoType.code + toCode(frequency)));
+      toStringBuilder.append(myoType.name()).append(SPACE).append(frequency.name()).append(SPACE);
+      return this;
+    }
+
     Builder forAll(@Nonnull Ohm... ohms) {
       byte code = (byte) Stream.of(ohms).mapToInt(Builder::toCode).sum();
       Arrays.fill(codes, NmisProtocolByte.DATA_1.ordinal(), NmisProtocolByte.DATA_4.ordinal() + 1, code);
       toStringBuilder.append(Arrays.toString(ohms)).append(SPACE);
-      return this;
-    }
-
-    Builder forAll(@Nonnull MyoType myoType, @Nonnull MyoFrequency frequency) {
-      Arrays.fill(codes, NmisProtocolByte.DATA_5.ordinal(), NmisProtocolByte.DATA_8.ordinal() + 1,
-          (byte) (myoType.code + toCode(frequency)));
-      toStringBuilder.append(myoType.name()).append(SPACE).append(frequency.name()).append(SPACE);
       return this;
     }
 

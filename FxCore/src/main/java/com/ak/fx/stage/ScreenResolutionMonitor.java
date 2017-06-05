@@ -13,8 +13,8 @@ import javax.swing.Timer;
 
 import com.ak.util.UIConstants;
 import com.sun.javafx.util.Utils;
-import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
+import javafx.beans.value.ObservableValue;
 import javafx.stage.Stage;
 
 @Immutable
@@ -46,7 +46,7 @@ public enum ScreenResolutionMonitor {
     return dpi.get();
   }
 
-  public ReadOnlyIntegerProperty dpi() {
+  public ObservableValue<Number> dpi() {
     return dpi.getReadOnlyProperty();
   }
 }

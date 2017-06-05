@@ -15,7 +15,7 @@ public enum AperInVariable implements Variable<AperInVariable> {
   E1 {
     @Override
     public Unit<?> getUnit() {
-      return MetricPrefix.MILLI(Units.VOLT);
+      return MetricPrefix.MICRO(Units.VOLT);
     }
   },
   RI1 {

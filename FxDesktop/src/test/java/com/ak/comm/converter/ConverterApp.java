@@ -27,7 +27,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import static com.ak.fx.desktop.FxApplication.APP_PARAMETER_CONTEXT;
 
-public final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> implements AutoCloseable, Consumer<Path> {
+final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> implements AutoCloseable, Consumer<Path> {
   @Nonnull
   private final ConfigurableApplicationContext context;
 
@@ -52,7 +52,6 @@ public final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
              LineFileCollector.Direction.VERTICAL)
     ) {
       collector.accept(responseConverter.variables().stream().map(ev -> ev.toName()).collect(Collectors.joining(Strings.TAB)));
-      collector.accept(Strings.EMPTY);
 
       ByteBuffer buffer = ByteBuffer.allocate(1024);
       while (readableByteChannel.read(buffer) > 0) {

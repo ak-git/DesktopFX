@@ -71,7 +71,7 @@ public class FilterBuilderTest {
             FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(2).build()
         ),
-        new int[][] {{2, 2, 3, 3, 1}, {4, 4, 0, 0, 3}, {2, 2, -2, -2, 3}, {2, 2, -1, -1, 2}},
+        new int[][] {{4, 4, 0, 0, 3}, {2, 2, -2, -2, 3}, {2, 2, -1, -1, 2}},
         -1.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},

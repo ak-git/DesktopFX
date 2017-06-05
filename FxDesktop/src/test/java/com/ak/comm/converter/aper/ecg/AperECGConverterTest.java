@@ -42,11 +42,11 @@ public final class AperECGConverterTest {
     Function<BufferFrame, Stream<int[]>> converter = new LinkedConverter<>(
         new ToIntegerConverter<>(AperInVariable.class), AperECGVariable.class);
     EnumSet.of(AperInVariable.R1, AperInVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
-    EnumSet.of(AperInVariable.E1, AperInVariable.E2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.VOLT), t.name()));
+    EnumSet.of(AperInVariable.E1, AperInVariable.E2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT), t.name()));
     EnumSet.of(AperInVariable.RI1, AperInVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
 
     EnumSet.of(AperECGVariable.R1, AperECGVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.OHM)));
-    EnumSet.of(AperECGVariable.ECG1, AperECGVariable.ECG2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.VOLT)));
+    EnumSet.of(AperECGVariable.ECG1, AperECGVariable.ECG2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT)));
     EnumSet.of(AperECGVariable.RI1, AperECGVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
 
     Assert.assertEquals(AperECGVariable.R1.filter().toString(), AperECGVariable.R2.filter().toString());
@@ -56,7 +56,7 @@ public final class AperECGConverterTest {
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 200 - 1; i++) {
       long count = converter.apply(bufferFrame).count();
-      Assert.assertTrue(count == 0 || count == 10, Long.toString(count));
+      Assert.assertTrue(count == 0 || count == 9 || count == 10, Long.toString(count));
     }
     Assert.assertEquals(converter.apply(bufferFrame).peek(ints -> {
       Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
