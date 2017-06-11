@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
+import javax.annotation.Nonnull;
 import javax.measure.Quantity;
 import javax.measure.quantity.ElectricResistance;
 
@@ -26,6 +27,40 @@ public class TetrapolarSystemTest {
   private TetrapolarSystemTest() {
   }
 
+  @DataProvider(name = "system-apparent", parallel = true)
+  public static Object[][] systemApparent() {
+    return new Object[][] {
+        {new TetrapolarSystem(0.030, 0.06, METRE), Quantities.getQuantity(1000, MILLI(OHM)), Math.PI * 9.0 / 400.0},
+        {new TetrapolarSystem(30.0, 90.0, MILLI(METRE)), Quantities.getQuantity(1.0 / Math.PI, OHM), 3.0 / 50.0},
+        {new TetrapolarSystem(40.0, 80.0, MILLI(METRE)), Quantities.getQuantity(1.0 / Math.PI, OHM), 3.0 / 100.0},
+    };
+  }
+
+  @Test(dataProvider = "system-apparent")
+  public static void testApparentResistivity(TetrapolarSystem system, Quantity<ElectricResistance> resistance,
+                                             double specificResistance) {
+    Assert.assertEquals(system.getApparent(resistance), specificResistance, 1.0e-6);
+  }
+
+  @DataProvider(name = "asymmetric-apparent")
+  public static Object[][] systemApparent2() {
+    return new Object[][] {
+        {7.0, 35.0, 7.0, Quantities.getQuantity(103.6, OHM), 7.811},
+        {20.0, 80.0, 10.0, Quantities.getQuantity(1.0 / Math.PI / 2.0, OHM), 3.0 / 100.0},
+        {40.0, 80.0, 0.0, Quantities.getQuantity(1.0 / Math.PI, OHM), 3.0 / 100.0}
+    };
+  }
+
+  @Test(dataProvider = "asymmetric-apparent")
+  public static void testApparentResistivity2(double smm, double lmm, double centerShift,
+                                              @Nonnull Quantity<ElectricResistance> resistance, double specificResistance) {
+    TetrapolarSystem sP = new TetrapolarSystem(smm + centerShift * 2, lmm, MILLI(METRE));
+    TetrapolarSystem sM = new TetrapolarSystem(smm - centerShift * 2, lmm, MILLI(METRE));
+    double rho = Math.PI * resistance.to(OHM).getValue().doubleValue() /
+        (1.0 / sP.radiusMinus() - 1.0 / sP.radiusPlus() + 1.0 / sM.radiusMinus() - 1.0 / sM.radiusPlus());
+    Assert.assertEquals(rho, specificResistance, 1.0e-3);
+  }
+
   @DataProvider(name = "tetrapolar-systems", parallel = true)
   public static Object[][] tetrapolarSystems() {
     TetrapolarSystem ts = new TetrapolarSystem(1.0, 2.0, METRE);
@@ -33,15 +68,6 @@ public class TetrapolarSystemTest {
         {ts, ts, true},
         {ts, new TetrapolarSystem(1000.0, 2000.0, MILLI(METRE)), true},
         {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)), new TetrapolarSystem(1.0, 3.0, MILLI(METRE)), false}
-    };
-  }
-
-  @DataProvider(name = "tetrapolar-systems-2", parallel = true)
-  public static Object[][] tetrapolarSystems2() {
-    return new Object[][] {
-        {new TetrapolarSystem(0.030, 0.06, METRE), Quantities.getQuantity(1000, MILLI(OHM)), Math.PI * 9.0 / 400.0},
-        {new TetrapolarSystem(30.0, 90.0, MILLI(METRE)), Quantities.getQuantity(1.0 / Math.PI, OHM), 3.0 / 50.0},
-        {new TetrapolarSystem(40.0, 80.0, MILLI(METRE)), Quantities.getQuantity(1.0 / Math.PI, OHM), 3.0 / 100.0},
     };
   }
 
@@ -54,12 +80,6 @@ public class TetrapolarSystemTest {
   @Test
   public static void testNotEquals() {
     Assert.assertFalse(new TetrapolarSystem(1.0, 2.0, METRE).equals(new Object()));
-  }
-
-  @Test(dataProvider = "tetrapolar-systems-2")
-  public static void testApparentResistivity(TetrapolarSystem system, Quantity<ElectricResistance> resistance,
-                                             double specificResistance) {
-    Assert.assertEquals(system.getApparent(resistance), specificResistance, 1.0e-6);
   }
 
   @Test(expectedExceptions = CloneNotSupportedException.class)
