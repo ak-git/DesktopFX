@@ -33,7 +33,7 @@ public final class AperECGConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {14999, 2, 997, 450000, 5, 1558}},
+            new int[] {14999, -486109, 997, 450000, -486108, 1558}},
     };
   }
 
