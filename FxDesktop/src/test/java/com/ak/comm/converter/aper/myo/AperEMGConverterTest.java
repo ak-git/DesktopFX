@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
+import com.ak.comm.converter.Variables;
 import com.ak.comm.converter.aper.AperInVariable;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -40,12 +41,6 @@ public final class AperEMGConverterTest {
   @Test(dataProvider = "variables")
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
     Function<BufferFrame, Stream<int[]>> converter = new LinkedConverter<>(new ToIntegerConverter<>(AperInVariable.class), AperEMGVariable.class);
-    EnumSet.of(AperInVariable.R1, AperInVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
-    EnumSet.of(AperInVariable.E1, AperInVariable.E2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT), t.name()));
-    EnumSet.of(AperInVariable.RI1, AperInVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
-
-    EnumSet.of(AperEMGVariable.M1, AperEMGVariable.M2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT)));
-    EnumSet.of(AperEMGVariable.RI1, AperEMGVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
 
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
@@ -57,5 +52,19 @@ public final class AperEMGConverterTest {
       processed.set(true);
     }).count(), 1);
     Assert.assertTrue(processed.get(), "Data are not converted!");
+  }
+
+  @Test
+  public static void testVariableProperties() {
+    EnumSet.of(AperInVariable.R1, AperInVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
+    EnumSet.of(AperInVariable.E1, AperInVariable.E2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT), t.name()));
+    EnumSet.of(AperInVariable.RI1, AperInVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
+
+    EnumSet.of(AperEMGVariable.M1, AperEMGVariable.M2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT)));
+    EnumSet<AperEMGVariable> serviceVars = EnumSet.of(AperEMGVariable.RI1, AperEMGVariable.RI2);
+    serviceVars.forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
+
+    serviceVars.forEach(t -> Assert.assertFalse(Variables.isDisplay(t)));
+    EnumSet.complementOf(serviceVars).forEach(t -> Assert.assertTrue(Variables.isDisplay(t)));
   }
 }

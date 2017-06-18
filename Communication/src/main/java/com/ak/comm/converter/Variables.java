@@ -1,14 +1,30 @@
 package com.ak.comm.converter;
 
+import java.lang.reflect.Field;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
 import com.ak.util.Strings;
 
-enum Variables {
+public enum Variables {
   ;
+
+  public static <E extends Enum<E> & Variable<E>> boolean isDisplay(E variable) {
+    try {
+      Field field = variable.getDeclaringClass().getDeclaredField(variable.name());
+      if (field.isAnnotationPresent(VariableProperties.class)) {
+        return field.getAnnotation(VariableProperties.class).display();
+      }
+    }
+    catch (NoSuchFieldException e) {
+      Logger.getLogger(Variables.class.getName()).log(Level.WARNING, variable.toName(), e);
+    }
+    return true;
+  }
 
   static <E extends Enum<E> & Variable<E>, T> T tryFindSame(@Nonnull String name, @Nonnull Class<E> eClass,
                                                             @Nonnull Function<E, T> function, @Nonnull Supplier<T> orElse) {

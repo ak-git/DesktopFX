@@ -1,5 +1,7 @@
 package com.ak.comm.converter;
 
+import java.util.EnumSet;
+
 import javax.annotation.Nonnull;
 
 import org.testng.Assert;
@@ -55,5 +57,13 @@ public class VariableTest {
     };
 
     variable.getInputVariables();
+  }
+
+  @Test
+  public static void testDisplayProperty() {
+    Assert.assertFalse(Variables.isDisplay(OperatorVariables.OUT_MINUS));
+    Assert.assertTrue(Variables.isDisplay(OperatorVariables.OUT_PLUS));
+
+    EnumSet.allOf(OperatorVariables2.class).forEach(v -> Assert.assertTrue(Variables.isDisplay(v), v.toName()));
   }
 }

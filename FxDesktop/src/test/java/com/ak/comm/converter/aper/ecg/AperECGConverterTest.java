@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
+import com.ak.comm.converter.Variables;
 import com.ak.comm.converter.aper.AperInVariable;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -41,17 +42,6 @@ public final class AperECGConverterTest {
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
     Function<BufferFrame, Stream<int[]>> converter = new LinkedConverter<>(
         new ToIntegerConverter<>(AperInVariable.class), AperECGVariable.class);
-    EnumSet.of(AperInVariable.R1, AperInVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
-    EnumSet.of(AperInVariable.E1, AperInVariable.E2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT), t.name()));
-    EnumSet.of(AperInVariable.RI1, AperInVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
-
-    EnumSet.of(AperECGVariable.R1, AperECGVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.OHM)));
-    EnumSet.of(AperECGVariable.ECG1, AperECGVariable.ECG2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT)));
-    EnumSet.of(AperECGVariable.RI1, AperECGVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
-
-    Assert.assertEquals(AperECGVariable.R1.filter().toString(), AperECGVariable.R2.filter().toString());
-    Assert.assertEquals(AperECGVariable.ECG1.filter().toString(), AperECGVariable.ECG2.filter().toString());
-
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 200 - 1; i++) {
@@ -63,5 +53,26 @@ public final class AperECGConverterTest {
       processed.set(true);
     }).count(), 10);
     Assert.assertTrue(processed.get(), "Data are not converted!");
+  }
+
+  @Test
+  public static void testVariableProperties() {
+    EnumSet.of(AperInVariable.R1, AperInVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
+    EnumSet.of(AperInVariable.E1, AperInVariable.E2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT), t.name()));
+    EnumSet.of(AperInVariable.RI1, AperInVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
+
+    EnumSet.of(AperECGVariable.R1, AperECGVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.OHM)));
+    EnumSet.of(AperECGVariable.ECG1, AperECGVariable.ECG2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT)));
+
+    EnumSet<AperECGVariable> serviceVars = EnumSet.of(AperECGVariable.RI1, AperECGVariable.RI2);
+    serviceVars.forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
+
+    Assert.assertEquals(AperECGVariable.R1.filter().toString(), AperECGVariable.R2.filter().toString());
+    Assert.assertEquals(AperECGVariable.ECG1.filter().toString(), AperECGVariable.ECG2.filter().toString());
+
+    serviceVars.forEach(t -> Assert.assertFalse(Variables.isDisplay(t)));
+    EnumSet.complementOf(serviceVars).forEach(t -> Assert.assertTrue(Variables.isDisplay(t)));
+
+    EnumSet.allOf(AperInVariable.class).forEach(t -> Assert.assertTrue(Variables.isDisplay(t)));
   }
 }
