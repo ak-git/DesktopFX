@@ -51,7 +51,7 @@ final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> 
              Paths.get(path.toFile().toString().replaceAll("\\.bin", Strings.EMPTY) + ".txt"),
              LineFileCollector.Direction.VERTICAL)
     ) {
-      collector.accept(responseConverter.variables().stream().map(ev -> ev.toName()).collect(Collectors.joining(Strings.TAB)));
+      collector.accept(responseConverter.variables().stream().map(Variables::toName).collect(Collectors.joining(Strings.TAB)));
 
       ByteBuffer buffer = ByteBuffer.allocate(1024);
       while (readableByteChannel.read(buffer) > 0) {

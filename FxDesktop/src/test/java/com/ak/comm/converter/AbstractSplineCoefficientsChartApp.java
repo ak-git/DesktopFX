@@ -25,11 +25,11 @@ public abstract class AbstractSplineCoefficientsChartApp<X extends Enum<X> & Var
   @Nonnull
   private final Coefficients coefficients;
   @Nonnull
-  private final Variable<X> xVariable;
+  private final X xVariable;
   @Nonnull
-  private final Variable<Y> yVariable;
+  private final Y yVariable;
 
-  protected AbstractSplineCoefficientsChartApp(@Nonnull Coefficients coefficients, @Nonnull Variable<X> xVariable, @Nonnull Variable<Y> yVariable) {
+  protected AbstractSplineCoefficientsChartApp(@Nonnull Coefficients coefficients, @Nonnull X xVariable, @Nonnull Y yVariable) {
     this.coefficients = coefficients;
     this.xVariable = xVariable;
     this.yVariable = yVariable;
@@ -47,11 +47,11 @@ public abstract class AbstractSplineCoefficientsChartApp<X extends Enum<X> & Var
   private Parent createContent() {
     double[][] xAndY = coefficients.getPairs();
     ValueAxis<Number> xAxis = new NumberAxis();
-    xAxis.setLabel(xVariable.toName());
+    xAxis.setLabel(Variables.toName(xVariable));
     xAxis.setAutoRanging(true);
 
     Axis<Number> yAxis = new NumberAxis();
-    yAxis.setLabel(yVariable.toName());
+    yAxis.setLabel(Variables.toName(yVariable));
     yAxis.setAutoRanging(true);
 
     ObservableList<XYChart.Data<Number, Number>> pureData = FXCollections.observableArrayList();

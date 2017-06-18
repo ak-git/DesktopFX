@@ -15,14 +15,6 @@ public interface Variable<E extends Enum<E> & Variable<E>> {
     return Variables.tryFindSame(name(), getDeclaringClass(), e -> e.filter(), () -> FilterBuilder.of().build());
   }
 
-  default String toString(int value) {
-    return String.format("%s = %d %s", name(), value, getUnit());
-  }
-
-  default String toName() {
-    return String.format("%s, %s", name(), getUnit());
-  }
-
   String name();
 
   Class<E> getDeclaringClass();

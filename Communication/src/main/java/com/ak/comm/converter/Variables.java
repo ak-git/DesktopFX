@@ -21,9 +21,17 @@ public enum Variables {
       }
     }
     catch (NoSuchFieldException e) {
-      Logger.getLogger(Variables.class.getName()).log(Level.WARNING, variable.toName(), e);
+      Logger.getLogger(Variables.class.getName()).log(Level.WARNING, toName(variable), e);
     }
     return true;
+  }
+
+  public static <E extends Enum<E> & Variable<E>> String toString(E variable, int value) {
+    return String.format("%s = %d %s", variable.name(), value, variable.getUnit());
+  }
+
+  public static <E extends Enum<E> & Variable<E>> String toName(E variable) {
+    return String.format("%s, %s", variable.name(), variable.getUnit());
   }
 
   static <E extends Enum<E> & Variable<E>, T> T tryFindSame(@Nonnull String name, @Nonnull Class<E> eClass,

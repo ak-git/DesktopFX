@@ -42,7 +42,7 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
       if (logger.isLoggable(LOG_LEVEL_VALUES)) {
         logger.log(LOG_LEVEL_VALUES, String.format("#%x [ %s ]", hashCode(),
             IntStream.iterate(0, operand -> operand + 1).limit(variables.size()).mapToObj(
-                idx -> variables.get(idx).toString(ints[idx])).collect(Collectors.joining(", "))));
+                idx -> Variables.toString(variables.get(idx), ints[idx])).collect(Collectors.joining(", "))));
       }
       filteredValues = Stream.concat(filteredValues, Stream.of(ints));
     });

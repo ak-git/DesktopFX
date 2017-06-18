@@ -26,8 +26,6 @@ public class VariableTest {
       }
     };
     Assert.assertEquals(variable.getUnit(), AbstractUnit.ONE);
-    Assert.assertEquals(variable.toString(1), "Variable = 1 one");
-    Assert.assertEquals(variable.toName(), "Variable, one");
   }
 
   @Test
@@ -64,6 +62,16 @@ public class VariableTest {
     Assert.assertFalse(Variables.isDisplay(OperatorVariables.OUT_MINUS));
     Assert.assertTrue(Variables.isDisplay(OperatorVariables.OUT_PLUS));
 
-    EnumSet.allOf(OperatorVariables2.class).forEach(v -> Assert.assertTrue(Variables.isDisplay(v), v.toName()));
+    EnumSet.allOf(OperatorVariables2.class).forEach(v -> Assert.assertTrue(Variables.isDisplay(v), Variables.toName(v)));
+  }
+
+  @Test
+  public static void testToString() {
+    Assert.assertEquals(Variables.toString(ADCVariable.ADC, 1), "ADC = 1 one");
+  }
+
+  @Test
+  public static void testToName() {
+    Assert.assertEquals(Variables.toName(ADCVariable.ADC), "ADC, one");
   }
 }
