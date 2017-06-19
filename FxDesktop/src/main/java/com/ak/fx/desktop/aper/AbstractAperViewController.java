@@ -1,14 +1,17 @@
 package com.ak.fx.desktop.aper;
 
-import java.util.Arrays;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
-import javax.inject.Inject;
 
 import com.ak.comm.GroupService;
+import com.ak.comm.bytes.BufferFrame;
+import com.ak.comm.converter.Variable;
+import com.ak.comm.converter.Variables;
 import com.ak.fx.desktop.AbstractViewController;
 import javafx.application.Platform;
 import javafx.scene.chart.LineChart;
@@ -16,26 +19,32 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.layout.BorderPane;
 
-public final class AperViewController extends AbstractViewController {
+public abstract class AbstractAperViewController<EV extends Enum<EV> & Variable<EV>>
+    extends AbstractViewController<BufferFrame, BufferFrame, EV> {
   private static final int INT = 4000;
   @Nonnull
   private final List<LineChart<Number, Number>> lineCharts = new LinkedList<>();
   private int index = -1;
 
-  @Inject
-  public AperViewController(@Nonnull GroupService<?, ?, ?> service) {
+  public AbstractAperViewController(@Nonnull GroupService<BufferFrame, BufferFrame, EV> service) {
     super(service);
     service.subscribe(ints -> Platform.runLater(() -> {
-      if (lineCharts.isEmpty()) {
-        lineCharts.addAll(Arrays.stream(ints).mapToObj(value -> createChart()).collect(Collectors.toList()));
-        lineCharts.forEach(lineChart -> root().getChildren().add(new BorderPane(lineChart)));
-      }
-
       index = (++index) % INT;
-      for (int i = 0; i < ints.length; i++) {
-        lineCharts.get(i).getData().get(0).getData().set(index, new XYChart.Data<>(index, ints[i]));
+
+      for (int i = 0, list = 0; i < ints.length; i++) {
+        if (isDisplayed(i)) {
+          lineCharts.get(list).getData().get(0).getData().set(index, new XYChart.Data<>(index, ints[i]));
+          list++;
+        }
       }
     }));
+  }
+
+  @Override
+  public final void initialize(@Nonnull URL location, @Nonnull ResourceBundle resources) {
+    super.initialize(location, resources);
+    lineCharts.addAll(service().getVariables().stream().filter(Variables::isDisplay).map(v -> createChart()).collect(Collectors.toList()));
+    lineCharts.forEach(lineChart -> root().getChildren().add(new BorderPane(lineChart)));
   }
 
   private static LineChart<Number, Number> createChart() {

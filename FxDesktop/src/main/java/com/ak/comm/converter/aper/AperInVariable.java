@@ -3,6 +3,7 @@ package com.ak.comm.converter.aper;
 import javax.measure.Unit;
 
 import com.ak.comm.converter.Variable;
+import com.ak.comm.converter.VariableProperties;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.Interpolators;
@@ -23,6 +24,7 @@ public enum AperInVariable implements Variable<AperInVariable> {
       return FilterBuilder.of().operator(() -> adc -> (int) Math.round((adc - ((1 << 17) * 25)) / 6.5)).build();
     }
   },
+  @VariableProperties(display = false)
   RI1 {
     @Override
     public Unit<?> getUnit() {
@@ -37,5 +39,6 @@ public enum AperInVariable implements Variable<AperInVariable> {
 
   R2,
   E2,
+  @VariableProperties(display = false)
   RI2
 }

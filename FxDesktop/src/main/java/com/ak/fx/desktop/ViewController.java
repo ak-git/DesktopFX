@@ -8,10 +8,13 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import com.ak.comm.GroupService;
+import com.ak.comm.bytes.nmis.NmisRequest;
+import com.ak.comm.bytes.nmis.NmisResponseFrame;
+import com.ak.comm.converter.nmis.NmisVariable;
 
-public final class ViewController extends AbstractViewController {
+public final class ViewController extends AbstractViewController<NmisResponseFrame, NmisRequest, NmisVariable> {
   @Inject
-  public ViewController(@Nonnull GroupService<?, ?, ?> service) {
+  public ViewController(@Nonnull GroupService<NmisResponseFrame, NmisRequest, NmisVariable> service) {
     super(service);
     service.subscribe(values -> Logger.getLogger(getClass().getName()).log(Level.INFO, Arrays.toString(values)));
   }

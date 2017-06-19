@@ -72,7 +72,5 @@ public final class AperECGConverterTest {
 
     serviceVars.forEach(t -> Assert.assertFalse(Variables.isDisplay(t)));
     EnumSet.complementOf(serviceVars).forEach(t -> Assert.assertTrue(Variables.isDisplay(t)));
-
-    EnumSet.allOf(AperInVariable.class).forEach(t -> Assert.assertTrue(Variables.isDisplay(t)));
   }
 }

@@ -2,7 +2,7 @@
 
 <?import java.net.URL?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="root" fx:controller="com.ak.fx.desktop.aper.AperViewController"
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="root" fx:controller="com.ak.fx.desktop.aper.emg.AperEMGViewController"
       prefWidth="1024"
       prefHeight="768">
     <stylesheets>
