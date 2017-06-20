@@ -1,7 +1,8 @@
 package com.ak.comm.converter;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.IntBinaryOperator;
-import java.util.stream.Stream;
 
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
@@ -28,8 +29,8 @@ public enum OperatorVariables implements DependentVariable<TwoVariables, Operato
   }
 
   @Override
-  public final Stream<TwoVariables> getInputVariables() {
-    return Stream.of(TwoVariables.V1, TwoVariables.V2);
+  public final List<TwoVariables> getInputVariables() {
+    return Arrays.asList(TwoVariables.V1, TwoVariables.V2);
   }
 
   @Override

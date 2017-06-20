@@ -10,7 +10,7 @@ final class SelectableConverter<IN extends Enum<IN> & Variable<IN>, OUT extends 
     extends AbstractConverter<Stream<int[]>, OUT> {
   SelectableConverter(@Nonnull Class<OUT> evClass) {
     super(evClass, EnumSet.allOf(evClass).stream().map(ev -> ev.getInputVariables()).
-        map(evs -> evs.mapToInt(Enum::ordinal).toArray()).collect(Collectors.toList()));
+        map(evs -> evs.stream().mapToInt(Enum::ordinal).toArray()).collect(Collectors.toList()));
   }
 
   @Override

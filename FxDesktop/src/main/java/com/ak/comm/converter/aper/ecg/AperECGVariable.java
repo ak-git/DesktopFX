@@ -1,6 +1,8 @@
 package com.ak.comm.converter.aper.ecg;
 
-import java.util.stream.Stream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import javax.measure.Unit;
 
@@ -17,8 +19,8 @@ import tec.uom.se.unit.Units;
 public enum AperECGVariable implements DependentVariable<AperInVariable, AperECGVariable> {
   R1 {
     @Override
-    public Stream<AperInVariable> getInputVariables() {
-      return Stream.of(AperInVariable.RI1, AperInVariable.R1);
+    public List<AperInVariable> getInputVariables() {
+      return Arrays.asList(AperInVariable.RI1, AperInVariable.R1);
     }
 
     @Override
@@ -34,8 +36,8 @@ public enum AperECGVariable implements DependentVariable<AperInVariable, AperECG
   },
   ECG1 {
     @Override
-    public Stream<AperInVariable> getInputVariables() {
-      return Stream.of(AperInVariable.E1);
+    public List<AperInVariable> getInputVariables() {
+      return Collections.singletonList(AperInVariable.E1);
     }
 
     @Override
@@ -47,14 +49,14 @@ public enum AperECGVariable implements DependentVariable<AperInVariable, AperECG
 
   R2 {
     @Override
-    public Stream<AperInVariable> getInputVariables() {
-      return Stream.of(AperInVariable.RI2, AperInVariable.R2);
+    public List<AperInVariable> getInputVariables() {
+      return Arrays.asList(AperInVariable.RI2, AperInVariable.R2);
     }
   },
   ECG2 {
     @Override
-    public Stream<AperInVariable> getInputVariables() {
-      return Stream.of(AperInVariable.E2);
+    public List<AperInVariable> getInputVariables() {
+      return Collections.singletonList(AperInVariable.E2);
     }
   },
   RI2;

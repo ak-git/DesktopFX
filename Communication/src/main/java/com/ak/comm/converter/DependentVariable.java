@@ -1,8 +1,7 @@
 package com.ak.comm.converter;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.measure.Unit;
@@ -13,16 +12,15 @@ public interface DependentVariable<IN extends Enum<IN> & Variable<IN>, OUT exten
   @Nonnull
   Class<IN> getInputVariablesClass();
 
-  default Stream<IN> getInputVariables() {
-    return Stream.of(Enum.valueOf(getInputVariablesClass(), name()));
+  default List<IN> getInputVariables() {
+    return Collections.singletonList(Enum.valueOf(getInputVariablesClass(), name()));
   }
 
   @Override
   default Unit<?> getUnit() {
     return Variables.tryFindSame(name(), getDeclaringClass(), out -> out.getUnit(), () -> {
-      List<IN> inputVars = getInputVariables().collect(Collectors.toList());
-      if (inputVars.size() == 1) {
-        return inputVars.get(0).getUnit();
+      if (getInputVariables().size() == 1) {
+        return getInputVariables().get(0).getUnit();
       }
       else {
         return AbstractUnit.ONE;
@@ -32,9 +30,7 @@ public interface DependentVariable<IN extends Enum<IN> & Variable<IN>, OUT exten
 
   @Override
   default boolean isVisible() {
-    return Variables.tryFindSame(name(), getDeclaringClass(), out -> out.isVisible(), () -> {
-      List<IN> inputVars = getInputVariables().collect(Collectors.toList());
-      return inputVars.size() != 1 || inputVars.get(0).isVisible();
-    });
+    return Variables.tryFindSame(name(), getDeclaringClass(), out -> out.isVisible(),
+        () -> getInputVariables().size() != 1 || getInputVariables().get(0).isVisible());
   }
 }
