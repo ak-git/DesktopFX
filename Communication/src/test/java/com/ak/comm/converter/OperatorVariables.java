@@ -8,8 +8,12 @@ import com.ak.digitalfilter.FilterBuilder;
 
 public enum OperatorVariables implements DependentVariable<TwoVariables, OperatorVariables> {
   OUT_PLUS((left, right) -> left + right),
-  @VariableProperties(display = false)
-  OUT_MINUS((left, right) -> left - right);
+  OUT_MINUS((left, right) -> left - right) {
+    @Override
+    public boolean isVisible() {
+      return false;
+    }
+  };
 
   private final IntBinaryOperator operator;
 

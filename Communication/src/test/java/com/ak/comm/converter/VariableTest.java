@@ -58,11 +58,11 @@ public class VariableTest {
   }
 
   @Test
-  public static void testDisplayProperty() {
-    Assert.assertFalse(Variables.isDisplay(OperatorVariables.OUT_MINUS));
-    Assert.assertTrue(Variables.isDisplay(OperatorVariables.OUT_PLUS));
+  public static void testVisibleProperty() {
+    Assert.assertFalse(OperatorVariables.OUT_MINUS.isVisible());
+    Assert.assertTrue(OperatorVariables.OUT_PLUS.isVisible());
 
-    EnumSet.allOf(OperatorVariables2.class).forEach(v -> Assert.assertTrue(Variables.isDisplay(v), Variables.toName(v)));
+    EnumSet.allOf(OperatorVariables2.class).forEach(v -> Assert.assertTrue(v.isVisible(), Variables.toName(v)));
   }
 
   @Test

@@ -4,14 +4,11 @@ import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.inject.Inject;
 
 import com.ak.comm.GroupService;
 import com.ak.comm.converter.Variable;
-import com.ak.comm.converter.Variables;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.Dragboard;
@@ -22,18 +19,11 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
   @Nonnull
   private final GroupService<RESPONSE, REQUEST, EV> service;
   @Nonnull
-  private final boolean[] displayVariables;
-  @Nonnull
   @FXML
   private Pane root = new Pane();
 
-  @Inject
   public AbstractViewController(@Nonnull GroupService<RESPONSE, REQUEST, EV> service) {
     this.service = service;
-    displayVariables = new boolean[service.getVariables().size()];
-    for (int i = 0; i < displayVariables.length; i++) {
-      displayVariables[i] = Variables.isDisplay(service.getVariables().get(i));
-    }
   }
 
   @OverridingMethodsMustInvokeSuper
@@ -66,10 +56,6 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
 
   protected final Pane root() {
     return root;
-  }
-
-  protected final boolean isDisplayed(@Nonnegative int index) {
-    return displayVariables[index];
   }
 
   protected final GroupService<RESPONSE, REQUEST, EV> service() {

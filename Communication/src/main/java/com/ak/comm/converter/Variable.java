@@ -15,6 +15,10 @@ public interface Variable<E extends Enum<E> & Variable<E>> {
     return Variables.tryFindSame(name(), getDeclaringClass(), e -> e.filter(), () -> FilterBuilder.of().build());
   }
 
+  default boolean isVisible() {
+    return Variables.tryFindSame(name(), getDeclaringClass(), e -> e.isVisible(), () -> true);
+  }
+
   String name();
 
   Class<E> getDeclaringClass();

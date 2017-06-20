@@ -5,7 +5,6 @@ import java.util.stream.Stream;
 import javax.measure.Unit;
 
 import com.ak.comm.converter.DependentVariable;
-import com.ak.comm.converter.VariableProperties;
 import com.ak.comm.converter.aper.AperInVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
@@ -44,7 +43,6 @@ public enum AperECGVariable implements DependentVariable<AperInVariable, AperECG
       return FilterBuilder.of().fir(AperCoefficients.ECG).build();
     }
   },
-  @VariableProperties(display = false)
   RI1,
 
   R2 {
@@ -59,7 +57,6 @@ public enum AperECGVariable implements DependentVariable<AperInVariable, AperECG
       return Stream.of(AperInVariable.E2);
     }
   },
-  @VariableProperties(display = false)
   RI2;
 
   @Override

@@ -12,7 +12,6 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
-import com.ak.comm.converter.Variables;
 import com.ak.comm.converter.aper.AperInVariable;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -70,7 +69,7 @@ public final class AperECGConverterTest {
     Assert.assertEquals(AperECGVariable.R1.filter().toString(), AperECGVariable.R2.filter().toString());
     Assert.assertEquals(AperECGVariable.ECG1.filter().toString(), AperECGVariable.ECG2.filter().toString());
 
-    serviceVars.forEach(t -> Assert.assertFalse(Variables.isDisplay(t)));
-    EnumSet.complementOf(serviceVars).forEach(t -> Assert.assertTrue(Variables.isDisplay(t)));
+    serviceVars.forEach(t -> Assert.assertFalse(t.isVisible()));
+    EnumSet.complementOf(serviceVars).forEach(t -> Assert.assertTrue(t.isVisible()));
   }
 }

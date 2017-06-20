@@ -12,7 +12,6 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
-import com.ak.comm.converter.Variables;
 import com.ak.comm.converter.aper.AperInVariable;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -64,7 +63,7 @@ public final class AperEMGConverterTest {
     EnumSet<AperEMGVariable> serviceVars = EnumSet.of(AperEMGVariable.RI1, AperEMGVariable.RI2);
     serviceVars.forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
 
-    serviceVars.forEach(t -> Assert.assertFalse(Variables.isDisplay(t)));
-    EnumSet.complementOf(serviceVars).forEach(t -> Assert.assertTrue(Variables.isDisplay(t)));
+    serviceVars.forEach(t -> Assert.assertFalse(t.isVisible()));
+    EnumSet.complementOf(serviceVars).forEach(t -> Assert.assertTrue(t.isVisible()));
   }
 }

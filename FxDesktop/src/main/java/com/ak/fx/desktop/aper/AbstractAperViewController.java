@@ -11,7 +11,6 @@ import javax.annotation.Nonnull;
 import com.ak.comm.GroupService;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Variable;
-import com.ak.comm.converter.Variables;
 import com.ak.fx.desktop.AbstractViewController;
 import javafx.application.Platform;
 import javafx.scene.chart.LineChart;
@@ -28,11 +27,13 @@ public abstract class AbstractAperViewController<EV extends Enum<EV> & Variable<
 
   public AbstractAperViewController(@Nonnull GroupService<BufferFrame, BufferFrame, EV> service) {
     super(service);
+    List<EV> variables = service.getVariables();
+
     service.subscribe(ints -> Platform.runLater(() -> {
       index = (++index) % INT;
 
       for (int i = 0, list = 0; i < ints.length; i++) {
-        if (isDisplayed(i)) {
+        if (variables.get(i).isVisible()) {
           lineCharts.get(list).getData().get(0).getData().set(index, new XYChart.Data<>(index, ints[i]));
           list++;
         }
@@ -43,7 +44,7 @@ public abstract class AbstractAperViewController<EV extends Enum<EV> & Variable<
   @Override
   public final void initialize(@Nonnull URL location, @Nonnull ResourceBundle resources) {
     super.initialize(location, resources);
-    lineCharts.addAll(service().getVariables().stream().filter(Variables::isDisplay).map(v -> createChart()).collect(Collectors.toList()));
+    lineCharts.addAll(service().getVariables().stream().filter(Variable::isVisible).map(v -> createChart()).collect(Collectors.toList()));
     lineCharts.forEach(lineChart -> root().getChildren().add(new BorderPane(lineChart)));
   }
 

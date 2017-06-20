@@ -3,7 +3,6 @@ package com.ak.comm.converter.aper.myo;
 import java.util.stream.Stream;
 
 import com.ak.comm.converter.DependentVariable;
-import com.ak.comm.converter.VariableProperties;
 import com.ak.comm.converter.aper.AperInVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
@@ -21,7 +20,6 @@ public enum AperEMGVariable implements DependentVariable<AperInVariable, AperEMG
       return FilterBuilder.of().fir(AperCoefficients.MYO).build();
     }
   },
-  @VariableProperties(display = false)
   RI1,
   M2 {
     @Override
@@ -29,7 +27,6 @@ public enum AperEMGVariable implements DependentVariable<AperInVariable, AperEMG
       return Stream.of(AperInVariable.E2);
     }
   },
-  @VariableProperties(display = false)
   RI2;
 
   @Override

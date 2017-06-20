@@ -29,4 +29,12 @@ public interface DependentVariable<IN extends Enum<IN> & Variable<IN>, OUT exten
       }
     });
   }
+
+  @Override
+  default boolean isVisible() {
+    return Variables.tryFindSame(name(), getDeclaringClass(), out -> out.isVisible(), () -> {
+      List<IN> inputVars = getInputVariables().collect(Collectors.toList());
+      return inputVars.size() != 1 || inputVars.get(0).isVisible();
+    });
+  }
 }
