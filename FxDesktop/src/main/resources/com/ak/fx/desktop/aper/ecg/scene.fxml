@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.net.URL?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="root" fx:controller="com.ak.fx.desktop.aper.ecg.AperECGViewController"
-      prefWidth="1024"
-      prefHeight="768">
-    <stylesheets>
-        <URL value="@styles.css"/>
-    </stylesheets>
-</VBox>
+<?import javafx.scene.Scene?>
+<Scene xmlns:fx="http://javafx.com/fxml/1" stylesheets="@styles.css"
+       fx:controller="com.ak.fx.desktop.aper.ecg.AperECGViewController">
+    <BorderPane prefHeight="768" prefWidth="1024">
+        <center>
+            <VBox fx:id="root"/>
+        </center>
+        <bottom>
+            <HBox alignment="CENTER">
+                <Label fx:id="qOs1Label"/>
+                <Separator/>
+                <Label fx:id="qOs2Label"/>
+            </HBox>
+        </bottom>
+    </BorderPane>
+</Scene>

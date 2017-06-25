@@ -22,7 +22,6 @@ import com.ak.util.OS;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
@@ -69,7 +68,7 @@ public final class FxApplication extends Application {
       FXMLLoader loader = new FXMLLoader(resource, new MessageSourceResourceBundle(
           BeanFactoryUtils.beanOfType(context, MessageSource.class), Locale.getDefault()));
       loader.setControllerFactory(clazz -> BeanFactoryUtils.beanOfType(context, clazz));
-      stage.setScene(new Scene(loader.load()));
+      stage.setScene(loader.load());
       stage.setTitle(loader.getResources().getString(KEY_APPLICATION_TITLE));
       OSDockImage.valueOf(OS.get().name()).setIconImage(stage,
           getClass().getResource(loader.getResources().getString(KEY_APPLICATION_IMAGE)));

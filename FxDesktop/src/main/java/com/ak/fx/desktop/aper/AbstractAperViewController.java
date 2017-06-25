@@ -11,11 +11,14 @@ import javax.annotation.Nonnull;
 import com.ak.comm.GroupService;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Variable;
+import com.ak.comm.converter.Variables;
 import com.ak.fx.desktop.AbstractViewController;
 import javafx.application.Platform;
+import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 
 public abstract class AbstractAperViewController<EV extends Enum<EV> & Variable<EV>>
@@ -23,6 +26,10 @@ public abstract class AbstractAperViewController<EV extends Enum<EV> & Variable<
   private static final int INT = 4000;
   @Nonnull
   private final List<LineChart<Number, Number>> lineCharts = new LinkedList<>();
+  @FXML
+  private Label qOs1Label;
+  @FXML
+  private Label qOs2Label;
   private int index = -1;
 
   public AbstractAperViewController(@Nonnull GroupService<BufferFrame, BufferFrame, EV> service) {
@@ -33,9 +40,18 @@ public abstract class AbstractAperViewController<EV extends Enum<EV> & Variable<
       index = (++index) % INT;
 
       for (int i = 0, list = 0; i < ints.length; i++) {
-        if (variables.get(i).isVisible()) {
+        EV ev = variables.get(i);
+        if (ev.isVisible()) {
           lineCharts.get(list).getData().get(0).getData().set(index, new XYChart.Data<>(index, ints[i]));
           list++;
+        }
+        else {
+          if ("RI1".equals(ev.name())) {
+            qOs1Label.setText(Variables.toString(ev, ints[i]));
+          }
+          else if ("RI2".equals(ev.name())) {
+            qOs2Label.setText(Variables.toString(ev, ints[i]));
+          }
         }
       }
     }));
@@ -44,7 +60,7 @@ public abstract class AbstractAperViewController<EV extends Enum<EV> & Variable<
   @Override
   public final void initialize(@Nonnull URL location, @Nonnull ResourceBundle resources) {
     super.initialize(location, resources);
-    lineCharts.addAll(service().getVariables().stream().filter(Variable::isVisible).map(v -> createChart()).collect(Collectors.toList()));
+    lineCharts.addAll(service().getVariables().stream().filter(ev -> ev.isVisible()).map(v -> createChart()).collect(Collectors.toList()));
     lineCharts.forEach(lineChart -> root().getChildren().add(new BorderPane(lineChart)));
   }
 
