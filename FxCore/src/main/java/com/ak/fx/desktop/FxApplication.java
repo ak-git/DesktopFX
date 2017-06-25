@@ -22,7 +22,6 @@ import com.ak.util.OS;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
@@ -77,7 +76,7 @@ public final class FxApplication extends Application {
       stage.setOnCloseRequest(event -> stageStorage.save(stage));
       stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
       stage.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
-        if (event.isShortcutDown() && event.isControlDown() && event.getCode() == KeyCode.F) {
+        if (KeyCombination.keyCombination("Ctrl+Shortcut+F").match(event)) {
           Platform.runLater(() -> stage.setFullScreen(!stage.isFullScreen()));
         }
       });
