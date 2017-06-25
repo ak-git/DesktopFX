@@ -16,12 +16,13 @@ import com.ak.comm.core.AbstractService;
 import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
+import com.ak.comm.serial.Refreshable;
 import com.ak.digitalfilter.IntsAcceptor;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
 public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractService
-    implements FileFilter {
+    implements FileFilter, Refreshable {
   @Nonnull
   private final CycleSerialService<RESPONSE, REQUEST, EV> serialService;
   @Nonnull
@@ -41,6 +42,11 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   @Override
   public boolean accept(File file) {
     return fileReadingService.accept(file);
+  }
+
+  @Override
+  public void refresh() {
+    serialService.refresh();
   }
 
   public void subscribe(@Nonnull IntsAcceptor acceptor) {

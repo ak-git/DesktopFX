@@ -12,6 +12,8 @@ import com.ak.comm.converter.Variable;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 
@@ -51,6 +53,11 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
       }
       event.setDropCompleted(ok);
       event.consume();
+    });
+    root.getScene().addEventHandler(KeyEvent.KEY_RELEASED, event -> {
+      if (KeyCombination.keyCombination("Shortcut+N").match(event)) {
+        service.refresh();
+      }
     });
   }
 

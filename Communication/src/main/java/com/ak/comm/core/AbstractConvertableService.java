@@ -6,6 +6,7 @@ import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import com.ak.comm.converter.Converter;
@@ -36,15 +37,21 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends E
     convertedLogByteChannel.close();
   }
 
-  protected final Stream<int[]> process(@Nonnull ByteBuffer buffer) {
-    return bytesInterceptor.apply(buffer).flatMap(responseConverter::apply).peek(ints -> {
-      workingBuffer.clear();
-      for (int i : ints) {
-        workingBuffer.putInt(i);
-      }
-      workingBuffer.flip();
-      convertedLogByteChannel.write(workingBuffer);
-    });
+  protected final Stream<int[]> process(@Nullable ByteBuffer buffer) {
+    if (buffer == null) {
+      convertedLogByteChannel.close();
+      return Stream.empty();
+    }
+    else {
+      return bytesInterceptor.apply(buffer).flatMap(responseConverter::apply).peek(ints -> {
+        workingBuffer.clear();
+        for (int i : ints) {
+          workingBuffer.putInt(i);
+        }
+        workingBuffer.flip();
+        convertedLogByteChannel.write(workingBuffer);
+      });
+    }
   }
 
   protected final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor() {

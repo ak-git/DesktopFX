@@ -25,7 +25,7 @@ import org.reactivestreams.Subscriber;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
-final class SerialService extends AbstractService implements WritableByteChannel, Publisher<ByteBuffer> {
+final class SerialService extends AbstractService implements WritableByteChannel, Publisher<ByteBuffer>, Refreshable {
   @Nonnull
   private final SerialPort serialPort;
   @Nonnegative
@@ -35,6 +35,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
   private final SafeByteChannel binaryLogChannel = new SafeByteChannel(() ->
       Files.newByteChannel(LogBuilders.SERIAL_BYTES.build(getClass().getSimpleName()).getPath(),
           StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE));
+  private volatile boolean refresh;
 
   SerialService(@Nonnegative int baudRate) {
     this.baudRate = baudRate;
@@ -83,6 +84,11 @@ final class SerialService extends AbstractService implements WritableByteChannel
         s.onSubscribe(this);
         serialPort.addEventListener(event -> {
           try {
+            if (refresh) {
+              binaryLogChannel.close();
+              refresh = false;
+              s.onNext(null);
+            }
             buffer.clear();
             buffer.put(serialPort.readBytes());
             buffer.flip();
@@ -116,6 +122,13 @@ final class SerialService extends AbstractService implements WritableByteChannel
       Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
     }
     binaryLogChannel.close();
+  }
+
+  @Override
+  public void refresh() {
+    Logger.getLogger(getClass().getName()).log(Level.INFO,
+        String.format("#%x Refresh connection [ %s ]", hashCode(), serialPort.getPortName()));
+    refresh = true;
   }
 
   @Override

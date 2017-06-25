@@ -31,7 +31,7 @@ import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
 public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
-    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Publisher<int[]> {
+    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Publisher<int[]>, Refreshable {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   @Nonnull
   private volatile SerialService serialService;
@@ -57,10 +57,13 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
         s.onNext(ints);
         workingFlag.set(true);
         okTime.set(Instant.now());
-      }));
+      }), throwable -> {
+        serialService.close();
+        Logger.getLogger(getClass().getName()).log(Level.SEVERE, serialService.toString(), throwable);
+      });
 
       while (!Thread.currentThread().isInterrupted()) {
-        if (!serialService.isOpen() || (serialService.isOpen() && write(bytesInterceptor().getPingRequest()) == 0)) {
+        if (!serialService.isOpen() || write(bytesInterceptor().getPingRequest()) == 0) {
           break;
         }
         else {
@@ -114,5 +117,11 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   public SeekableByteChannel call() throws IOException {
     Path path = LogBuilders.CONVERTER_SERIAL.build(getClass().getSimpleName()).getPath();
     return Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
+  }
+
+  @Override
+  public void refresh() {
+    serialService.refresh();
+    write(bytesInterceptor().getPingRequest());
   }
 }

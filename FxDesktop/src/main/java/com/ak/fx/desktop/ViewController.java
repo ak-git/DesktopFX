@@ -1,9 +1,5 @@
 package com.ak.fx.desktop;
 
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
@@ -16,6 +12,7 @@ public final class ViewController extends AbstractViewController<NmisResponseFra
   @Inject
   public ViewController(@Nonnull GroupService<NmisResponseFrame, NmisRequest, NmisVariable> service) {
     super(service);
-    service.subscribe(values -> Logger.getLogger(getClass().getName()).log(Level.INFO, Arrays.toString(values)));
+    service.subscribe(values -> {
+    });
   }
 }
