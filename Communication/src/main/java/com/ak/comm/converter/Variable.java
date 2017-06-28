@@ -8,15 +8,15 @@ import tec.uom.se.AbstractUnit;
 
 public interface Variable<E extends Enum<E> & Variable<E>> {
   default Unit<?> getUnit() {
-    return Variables.tryFindSame(name(), getDeclaringClass(), e -> e.getUnit(), () -> AbstractUnit.ONE);
+    return Variables.tryFindSame(this, e -> e.getUnit(), () -> AbstractUnit.ONE);
   }
 
   default DigitalFilter filter() {
-    return Variables.tryFindSame(name(), getDeclaringClass(), e -> e.filter(), () -> FilterBuilder.of().build());
+    return Variables.tryFindSame(this, e -> e.filter(), () -> FilterBuilder.of().build());
   }
 
   default boolean isVisible() {
-    return Variables.tryFindSame(name(), getDeclaringClass(), e -> e.isVisible(), () -> true);
+    return Variables.tryFindSame(this, e -> e.isVisible(), () -> true);
   }
 
   String name();

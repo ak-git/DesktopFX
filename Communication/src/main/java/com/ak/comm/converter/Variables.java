@@ -18,14 +18,14 @@ public enum Variables {
     return String.format("%s, %s", variable.name(), variable.getUnit());
   }
 
-  static <E extends Enum<E> & Variable<E>, T> T tryFindSame(@Nonnull String name, @Nonnull Class<E> eClass,
+  static <E extends Enum<E> & Variable<E>, T> T tryFindSame(Variable<E> variable,
                                                             @Nonnull Function<E, T> function, @Nonnull Supplier<T> orElse) {
-    String s = name.replaceFirst(".*\\D+", Strings.EMPTY);
+    String s = variable.name().replaceFirst(".*\\D+", Strings.EMPTY);
     if (s.isEmpty() || Integer.parseInt(s) == 1) {
       return orElse.get();
     }
     else {
-      return function.apply(Enum.valueOf(eClass, name.replaceFirst("\\d+", "1")));
+      return function.apply(Enum.valueOf(variable.getDeclaringClass(), variable.name().replaceFirst("\\d+", "1")));
     }
   }
 }

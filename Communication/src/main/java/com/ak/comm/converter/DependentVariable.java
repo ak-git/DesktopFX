@@ -18,7 +18,7 @@ public interface DependentVariable<IN extends Enum<IN> & Variable<IN>, OUT exten
 
   @Override
   default Unit<?> getUnit() {
-    return Variables.tryFindSame(name(), getDeclaringClass(), out -> out.getUnit(), () -> {
+    return Variables.tryFindSame(this, out -> out.getUnit(), () -> {
       if (getInputVariables().size() == 1) {
         return getInputVariables().get(0).getUnit();
       }
@@ -30,7 +30,7 @@ public interface DependentVariable<IN extends Enum<IN> & Variable<IN>, OUT exten
 
   @Override
   default boolean isVisible() {
-    return Variables.tryFindSame(name(), getDeclaringClass(), out -> out.isVisible(),
+    return Variables.tryFindSame(this, out -> out.isVisible(),
         () -> getInputVariables().size() != 1 || getInputVariables().get(0).isVisible());
   }
 }
