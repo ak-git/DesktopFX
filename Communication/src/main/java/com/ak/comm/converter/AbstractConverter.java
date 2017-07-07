@@ -19,7 +19,7 @@ import javax.measure.quantity.Frequency;
 
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
-import com.ak.digitalfilter.Filters;
+import com.ak.digitalfilter.Frequencies;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_VALUES;
 
@@ -52,7 +52,7 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
       }
       filteredValues = Stream.concat(filteredValues, Stream.of(ints));
     });
-    this.frequency = Filters.getFrequency(digitalFilter, frequency);
+    this.frequency = Frequencies.getFrequency(frequency, digitalFilter);
   }
 
   @Override
