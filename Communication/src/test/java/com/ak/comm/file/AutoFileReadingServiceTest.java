@@ -10,6 +10,7 @@ import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.TwoVariables;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
+import com.ak.digitalfilter.Frequencies;
 import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -17,7 +18,7 @@ import org.testng.annotations.Test;
 public class AutoFileReadingServiceTest {
   private final FileFilter service = new AutoFileReadingService<>(
       () -> new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
-      () -> new ToIntegerConverter<>(TwoVariables.class));
+      () -> new ToIntegerConverter<>(TwoVariables.class, Frequencies.HZ_1000));
 
 
   private AutoFileReadingServiceTest() {

@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.BufferFrame;
+import com.ak.digitalfilter.Frequencies;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -29,7 +30,7 @@ public class ToIntegerConverterTest {
 
   @Test(dataProvider = "variables")
   public static <T extends Enum<T> & Variable<T>> void testApply(@Nonnull Class<T> evClass, @Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
-    ToIntegerConverter<T> converter = new ToIntegerConverter<>(evClass);
+    ToIntegerConverter<T> converter = new ToIntegerConverter<>(evClass, Frequencies.HZ_1000);
     Assert.assertEquals(EnumSet.allOf(evClass), converter.variables());
     EnumSet.allOf(evClass).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
     AtomicBoolean processed = new AtomicBoolean();

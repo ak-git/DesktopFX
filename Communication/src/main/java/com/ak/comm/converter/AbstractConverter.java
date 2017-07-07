@@ -12,10 +12,14 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.measure.Quantity;
+import javax.measure.quantity.Frequency;
 
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
+import com.ak.digitalfilter.Filters;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_VALUES;
 
@@ -27,13 +31,15 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
   @Nonnull
   private final DigitalFilter digitalFilter;
   @Nonnull
+  private final Quantity<Frequency> frequency;
+  @Nonnull
   private Stream<int[]> filteredValues = Stream.empty();
 
-  public AbstractConverter(@Nonnull Class<EV> evClass) {
-    this(evClass, EnumSet.allOf(evClass).stream().map(ev -> new int[] {ev.ordinal()}).collect(Collectors.toList()));
+  public AbstractConverter(@Nonnull Class<EV> evClass, @Nonnull Quantity<Frequency> frequency) {
+    this(evClass, frequency, EnumSet.allOf(evClass).stream().map(ev -> new int[] {ev.ordinal()}).collect(Collectors.toList()));
   }
 
-  AbstractConverter(@Nonnull Class<EV> evClass, @Nonnull List<int[]> selectedIndexes) {
+  AbstractConverter(@Nonnull Class<EV> evClass, @Nonnull Quantity<Frequency> frequency, @Nonnull List<int[]> selectedIndexes) {
     variables = Collections.unmodifiableList(new ArrayList<>(EnumSet.allOf(evClass)));
     List<DigitalFilter> filters = variables.stream().map(ev -> ev.filter()).collect(Collectors.toList());
 
@@ -46,11 +52,18 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
       }
       filteredValues = Stream.concat(filteredValues, Stream.of(ints));
     });
+    this.frequency = Filters.getFrequency(digitalFilter, frequency);
   }
 
   @Override
   public final List<EV> variables() {
     return variables;
+  }
+
+  @Nonnegative
+  @Override
+  public final Quantity<Frequency> getFrequency() {
+    return frequency;
   }
 
   @Override

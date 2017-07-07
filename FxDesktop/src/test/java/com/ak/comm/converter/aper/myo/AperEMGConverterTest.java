@@ -4,15 +4,15 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.BufferFrame;
+import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.aper.AperInVariable;
+import com.ak.digitalfilter.Frequencies;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -39,7 +39,8 @@ public final class AperEMGConverterTest {
 
   @Test(dataProvider = "variables")
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
-    Function<BufferFrame, Stream<int[]>> converter = new LinkedConverter<>(new ToIntegerConverter<>(AperInVariable.class), AperEMGVariable.class);
+    Converter<BufferFrame, AperEMGVariable> converter = new LinkedConverter<>(
+        new ToIntegerConverter<>(AperInVariable.class, Frequencies.HZ_1000), AperEMGVariable.class);
 
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
@@ -51,6 +52,7 @@ public final class AperEMGConverterTest {
       processed.set(true);
     }).count(), 1);
     Assert.assertTrue(processed.get(), "Data are not converted!");
+    Assert.assertEquals(converter.getFrequency(), Frequencies.HZ_1000);
   }
 
   @Test

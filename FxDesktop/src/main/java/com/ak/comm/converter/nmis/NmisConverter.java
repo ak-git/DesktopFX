@@ -4,10 +4,11 @@ import java.util.stream.Stream;
 
 import com.ak.comm.bytes.nmis.NmisResponseFrame;
 import com.ak.comm.converter.AbstractConverter;
+import com.ak.digitalfilter.Frequencies;
 
 public final class NmisConverter extends AbstractConverter<NmisResponseFrame, NmisVariable> {
   public NmisConverter() {
-    super(NmisVariable.class);
+    super(NmisVariable.class, Frequencies.HZ_200);
   }
 
   @Override

@@ -9,10 +9,10 @@ import javax.measure.quantity.Time;
 import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.Units;
 
-enum Filters {
+public enum Filters {
   ;
 
-  static Quantity<Frequency> getFrequency(@Nonnull DigitalFilter filter, @Nonnull Quantity<Frequency> frequency) {
+  public static Quantity<Frequency> getFrequency(@Nonnull DigitalFilter filter, @Nonnull Quantity<Frequency> frequency) {
     return Quantities.getQuantity(frequency.to(Units.HERTZ).getValue().doubleValue() * filter.getFrequencyFactor(), Units.HERTZ);
   }
 

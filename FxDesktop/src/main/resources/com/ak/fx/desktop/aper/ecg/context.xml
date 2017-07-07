@@ -23,14 +23,19 @@
         <constructor-arg name="baudRate" value="BR_921600"/>
         <constructor-arg name="frameLength" value="25"/>
     </bean>
+
+    <bean id="com.ak.digitalfilter.Frequencies.HZ_1000"
+          class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+
     <bean class="com.ak.comm.converter.LinkedConverter" scope="prototype">
         <constructor-arg index="0">
             <bean class="com.ak.comm.converter.ToIntegerConverter">
-                <constructor-arg>
+                <constructor-arg index="0">
                     <bean class="java.lang.Class" factory-method="forName">
                         <constructor-arg type="java.lang.String" value="com.ak.comm.converter.aper.AperInVariable"/>
                     </bean>
                 </constructor-arg>
+                <constructor-arg index="1" ref="com.ak.digitalfilter.Frequencies.HZ_1000"/>
             </bean>
         </constructor-arg>
         <constructor-arg index="1" value="com.ak.comm.converter.aper.ecg.AperECGVariable"/>

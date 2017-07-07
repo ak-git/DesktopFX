@@ -10,6 +10,7 @@ import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
+import com.ak.digitalfilter.Frequencies;
 import io.reactivex.subscribers.TestSubscriber;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -26,7 +27,7 @@ public class CycleSerialServiceTest {
 
     CycleSerialService<BufferFrame, BufferFrame, ADCVariable> service =
         new CycleSerialService<>(new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 2),
-            new ToIntegerConverter<>(ADCVariable.class));
+            new ToIntegerConverter<>(ADCVariable.class, Frequencies.HZ_1000));
     TestSubscriber<int[]> subscriber = TestSubscriber.create();
     service.subscribe(subscriber);
     service.write(new BufferFrame(new byte[] {1, 2}, ByteOrder.nativeOrder()));
