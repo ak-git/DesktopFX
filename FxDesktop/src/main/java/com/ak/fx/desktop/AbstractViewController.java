@@ -61,8 +61,4 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
       }
     });
   }
-
-  protected final GroupService<RESPONSE, REQUEST, EV> service() {
-    return service;
-  }
 }
