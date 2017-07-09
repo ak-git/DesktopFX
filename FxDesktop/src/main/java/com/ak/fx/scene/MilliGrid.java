@@ -19,7 +19,7 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.shape.VLineTo;
 
-public final class MilliGrid extends Pane {
+final class MilliGrid extends Pane {
   private enum GridCell {
     POINTS(1.0) {
       private static final int FACTOR = 4;
@@ -87,7 +87,7 @@ public final class MilliGrid extends Pane {
   @Nonnull
   private List<Path> paths = GridCell.newPaths();
 
-  public MilliGrid() {
+  MilliGrid() {
     reinitializePaths();
     ScreenResolutionMonitor.INSTANCE.dpi().addListener((observable, oldValue, newValue) -> Platform.runLater(this::reinitializePaths));
   }
@@ -127,7 +127,7 @@ public final class MilliGrid extends Pane {
     PathElement lineTo(@Nonnull GridCell gridCell);
   }
 
-  private abstract class AbstractGridLine implements GridLine {
+  private abstract static class AbstractGridLine implements GridLine {
     @Override
     public final void addToPath(@Nonnull Path path, @Nonnull GridCell gridCell) {
       double contentSize = contentSize();
@@ -142,17 +142,7 @@ public final class MilliGrid extends Pane {
     }
 
     @Nonnegative
-    final double contentWidth() {
-      return snapSize(getWidth() - (snappedLeftInset() + snappedRightInset()));
-    }
-
-    @Nonnegative
-    final double contentHeight() {
-      return snapSize(getHeight() - (snappedTopInset() + snappedBottomInset()));
-    }
-
-    @Nonnegative
-    final double minCoordinate(@Nonnegative double size, @Nonnull GridCell gridCell) {
+    static double minCoordinate(@Nonnegative double size, @Nonnull GridCell gridCell) {
       double min = size / 2.0 - Math.floor(size / 2 / gridCell.getStep()) * gridCell.getStep();
       if (gridCell != GridCell.SMALL) {
         min = Math.max(min, minCoordinate(size, GridCell.SMALL));
@@ -161,12 +151,12 @@ public final class MilliGrid extends Pane {
     }
 
     @Nonnegative
-    final double maxCoordinate(@Nonnegative double size) {
+    static double maxCoordinate(@Nonnegative double size) {
       return size - minCoordinate(size, GridCell.SMALL);
     }
 
     @Nonnegative
-    final double linePad(@Nonnull GridCell gridCell) {
+    static double linePad(@Nonnull GridCell gridCell) {
       return (gridCell.getStrokeWidth() - 1.0) / 2.0;
     }
 
@@ -182,7 +172,7 @@ public final class MilliGrid extends Pane {
     @Nonnegative
     @Override
     public double contentSize() {
-      return contentWidth();
+      return getWidth();
     }
 
     @Override
@@ -198,7 +188,7 @@ public final class MilliGrid extends Pane {
     @Nonnegative
     @Override
     double length() {
-      return contentHeight();
+      return getHeight();
     }
   }
 
@@ -206,7 +196,7 @@ public final class MilliGrid extends Pane {
     @Nonnegative
     @Override
     public double contentSize() {
-      return contentHeight();
+      return getHeight();
     }
 
     @Override
@@ -222,7 +212,7 @@ public final class MilliGrid extends Pane {
     @Nonnegative
     @Override
     double length() {
-      return contentWidth();
+      return getWidth();
     }
   }
 }

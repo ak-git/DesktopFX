@@ -16,13 +16,14 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 
 public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> implements Initializable {
   @Nonnull
   private final GroupService<RESPONSE, REQUEST, EV> service;
   @Nonnull
   @FXML
-  private Pane root = new Pane();
+  private Region root = new Pane();
 
   public AbstractViewController(@Nonnull GroupService<RESPONSE, REQUEST, EV> service) {
     this.service = service;
@@ -59,10 +60,6 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
         service.refresh();
       }
     });
-  }
-
-  protected final Pane root() {
-    return root;
   }
 
   protected final GroupService<RESPONSE, REQUEST, EV> service() {

@@ -38,5 +38,5 @@
 
     <bean class="com.ak.comm.GroupService" destroy-method="close"/>
 
-    <bean class="com.ak.fx.desktop.aper.calibration.AperViewController"/>
+    <bean class="com.ak.fx.desktop.ViewController"/>
 </beans>

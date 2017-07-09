@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.ak.fx.scene.MilliGrid?>
+<?import com.ak.fx.scene.Chart?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.Scene?>
 <Scene xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ak.fx.desktop.ViewController">
     <BorderPane xmlns:fx="http://javafx.com/fxml/1" prefWidth="1024" prefHeight="768">
         <center>
-            <MilliGrid fx:id="root" style="-fx-border-color: white; -fx-border-width: 3px;"/>
+            <Chart fx:id="root" style="-fx-border-color: white; -fx-border-width: 3px;"/>
         </center>
     </BorderPane>
 </Scene>
