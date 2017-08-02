@@ -5,6 +5,7 @@
     <content url="file://$MODULE_DIR$/../../../FxDesktop">
       <excludeFolder url="file://$MODULE_DIR$/../../../FxDesktop/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/../../../FxDesktop/build" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../FxDesktop/out" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

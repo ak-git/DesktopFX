@@ -5,6 +5,7 @@
     <content url="file://$MODULE_DIR$/../../../FxCore">
       <excludeFolder url="file://$MODULE_DIR$/../../../FxCore/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/../../../FxCore/build" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../FxCore/out" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
