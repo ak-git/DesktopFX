@@ -3,12 +3,15 @@ package com.ak.inverse;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleSupplier;
 
+import javax.annotation.Nonnull;
+
 public final class Inequality implements DoubleBinaryOperator, DoubleSupplier {
   private static final DoubleBinaryOperator L2_NORM = StrictMath::hypot;
+  @Nonnull
   private final DoubleBinaryOperator errorDefinition;
   private double errorNorm;
 
-  private Inequality(DoubleBinaryOperator errorDefinition) {
+  private Inequality(@Nonnull DoubleBinaryOperator errorDefinition) {
     this.errorDefinition = errorDefinition;
   }
 

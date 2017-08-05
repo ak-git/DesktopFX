@@ -1,8 +1,6 @@
 package com.ak.rsm;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.logging.Logger;
@@ -92,10 +90,5 @@ public class OptimumStoL2Test {
       System.arraycopy(toAdd, 0, pairs, pairs.length - toAdd.length, toAdd.length);
       return Stream.of(pairs);
     });
-  }
-
-  private static DoubleStream doubleRange(double step, double end) {
-    return DoubleStream.iterate(step, dl2L -> dl2L + step).
-        limit(BigDecimal.valueOf(end / step).round(MathContext.UNLIMITED).intValue()).sequential();
   }
 }
