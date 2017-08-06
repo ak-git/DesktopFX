@@ -35,7 +35,7 @@ public class OptimumStoL2Test {
 
   @Test
   public static void test() throws IOException {
-    LineFileBuilder.of("%.6f").
+    LineFileBuilder.of("%.2f %.2f %.6f").
         xRange(0.05, 0.9, 0.05).
         yRange(0.05, 0.9, 0.05).generate((x, y) -> gerRho1HErrors(x, y)[0]);
   }
