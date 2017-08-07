@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -31,7 +32,7 @@ public class LineFileBuilderTest {
   }
 
   @Test
-  public static void testGenerate() throws IOException {
+  public static void testGenerateRange() throws IOException {
     LineFileBuilder.of("%.0f %.0f %.0f").
         xRange(1.0, 3.0, 1.0).
         yRange(1.0, 2.0, 1.0).generate((x, y) -> x + y * 10);
@@ -49,6 +50,21 @@ public class LineFileBuilderTest {
     Path z = Paths.get("z.txt");
     Assert.assertEquals(Files.readAllLines(z, Charset.forName("windows-1251")).stream().collect(Collectors.joining(Strings.TAB)),
         "11\t12\t13\t21\t22\t23");
+    Assert.assertTrue(Files.deleteIfExists(z));
+  }
+
+  @Test
+  public static void testGenerateStream() throws IOException {
+    LineFileBuilder.of("%.0f %.0f %.0f").
+        xStream(() -> DoubleStream.of(1.0, 2.0)).
+        yStream(() -> DoubleStream.of(1.0, 2.0)).generate((x, y) -> x + y * 2.0);
+
+    Assert.assertTrue(Files.notExists(Paths.get("x.txt")));
+    Assert.assertTrue(Files.notExists(Paths.get("y.txt")));
+
+    Path z = Paths.get("z.txt");
+    Assert.assertEquals(Files.readAllLines(z, Charset.forName("windows-1251")).stream().collect(Collectors.joining(Strings.TAB)),
+        "3\t4\t5\t6");
     Assert.assertTrue(Files.deleteIfExists(z));
   }
 }
