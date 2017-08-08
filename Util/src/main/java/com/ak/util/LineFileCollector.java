@@ -98,7 +98,7 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
           errorFlag = true;
         }
       }
-      return errorFlag;
+      return !errorFlag;
     };
   }
 

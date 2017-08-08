@@ -35,7 +35,7 @@ public class LineFileBuilderTest {
   public static void testGenerateRange() throws IOException {
     LineFileBuilder.of("%.0f %.0f %.0f").
         xRange(1.0, 3.0, 1.0).
-        yRange(1.0, 2.0, 1.0).generate((x, y) -> x + y * 10);
+        yRange(1.0, 2.0, 1.0).generate("z.txt", (x, y) -> x + y * 10);
 
     Path x = Paths.get("x.txt");
     Assert.assertEquals(Files.readAllLines(x, Charset.forName("windows-1251")).stream().collect(Collectors.joining()),
@@ -57,7 +57,7 @@ public class LineFileBuilderTest {
   public static void testGenerateStream() throws IOException {
     LineFileBuilder.of("%.0f %.0f %.0f").
         xStream(() -> DoubleStream.of(1.0, 2.0)).
-        yStream(() -> DoubleStream.of(1.0, 2.0)).generate((x, y) -> x + y * 2.0);
+        yStream(() -> DoubleStream.of(1.0, 2.0)).generate("z.txt", (x, y) -> x + y * 2.0);
 
     Assert.assertTrue(Files.notExists(Paths.get("x.txt")));
     Assert.assertTrue(Files.notExists(Paths.get("y.txt")));

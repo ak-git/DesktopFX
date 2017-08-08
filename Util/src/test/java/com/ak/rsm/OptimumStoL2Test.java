@@ -33,11 +33,11 @@ public class OptimumStoL2Test {
   private OptimumStoL2Test() {
   }
 
-  @Test
+  @Test(enabled = false)
   public static void test() throws IOException {
     LineFileBuilder.of("%.2f %.2f %.6f").
         xRange(0.05, 0.9, 0.05).
-        yRange(0.05, 0.9, 0.05).generate((x, y) -> gerRho1HErrors(x, y)[0]);
+        yRange(0.05, 0.9, 0.05).generate("z.txt", (x, y) -> gerRho1HErrors(x, y)[0]);
   }
 
   private static double[] gerRho1HErrors(double sPU1, double sPU2) {

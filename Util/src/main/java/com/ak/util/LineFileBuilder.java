@@ -5,8 +5,10 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.Supplier;
+import java.util.function.ToDoubleFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -18,13 +20,15 @@ import javax.annotation.Nullable;
 
 import javafx.util.Builder;
 
-public class LineFileBuilder {
+public class LineFileBuilder<IN> {
   @Nonnull
   private final String outFormat;
   @Nonnull
   private final Range xRange;
   @Nonnull
   private final Range yRange;
+  @Nonnull
+  private final MultiFileCollector.Builder<IN> multiFileBuilder;
 
   private LineFileBuilder(@Nonnull String outFormat) {
     String[] formats = outFormat.split(" ");
@@ -34,42 +38,54 @@ public class LineFileBuilder {
     xRange = new Range(formats[0], LineFileCollector.Direction.HORIZONTAL);
     yRange = new Range(formats[1], LineFileCollector.Direction.VERTICAL);
     this.outFormat = formats[2];
+    multiFileBuilder = new MultiFileCollector.Builder<>(this.outFormat);
   }
 
-  public static LineFileBuilder of(@Nonnull String outFormat) {
-    return new LineFileBuilder(outFormat);
+  public static <IN> LineFileBuilder<IN> of(@Nonnull String outFormat) {
+    return new LineFileBuilder<>(outFormat);
   }
 
-  public LineFileBuilder xStream(Supplier<DoubleStream> doubleStreamSupplier) {
+  public LineFileBuilder<IN> xStream(Supplier<DoubleStream> doubleStreamSupplier) {
     xRange.doubleStreamSupplier = doubleStreamSupplier;
     return this;
   }
 
-  public LineFileBuilder xRange(double startInclusive, double endInclusive, @Nonnegative double step) {
+  public LineFileBuilder<IN> xRange(double startInclusive, double endInclusive, @Nonnegative double step) {
     xRange.range(startInclusive, endInclusive, step);
     return this;
   }
 
-  public LineFileBuilder yStream(Supplier<DoubleStream> doubleStreamSupplier) {
+  public LineFileBuilder<IN> yStream(Supplier<DoubleStream> doubleStreamSupplier) {
     yRange.doubleStreamSupplier = doubleStreamSupplier;
     return this;
   }
 
-  public LineFileBuilder yRange(double startInclusive, double endInclusive, @Nonnegative double step) {
+  public LineFileBuilder<IN> yRange(double startInclusive, double endInclusive, @Nonnegative double step) {
     yRange.range(startInclusive, endInclusive, step);
     return this;
   }
 
-  public void generate(@Nonnull DoubleBinaryOperator operator) throws IOException {
+  public void generate(@Nonnull String fileName, @Nonnull DoubleBinaryOperator operator) throws IOException {
     Supplier<DoubleStream> xVar = xRange::build;
     Supplier<DoubleStream> yVar = yRange::build;
     check(yVar.get().mapToObj(y -> xVar.get().map(x -> operator.applyAsDouble(x, y))).
         map(stream -> stream.mapToObj(value -> String.format(outFormat, value)).collect(Collectors.joining(Strings.TAB))).
-        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
+        collect(new LineFileCollector(Paths.get(fileName), LineFileCollector.Direction.VERTICAL)));
   }
 
-  private static void check(@Nonnull Boolean errorFlag) {
-    if (errorFlag) {
+  public LineFileBuilder<IN> add(@Nonnull String fileName, @Nonnull ToDoubleFunction<IN> converter) {
+    multiFileBuilder.add(Paths.get(fileName), converter);
+    return this;
+  }
+
+  public void generate(@Nonnull BiFunction<Double, Double, IN> doubleFunction) {
+    Supplier<DoubleStream> xVar = xRange::build;
+    Supplier<DoubleStream> yVar = yRange::build;
+    check(yVar.get().mapToObj(y -> xVar.get().mapToObj(x -> doubleFunction.apply(x, y))).collect(multiFileBuilder.build()));
+  }
+
+  private static void check(@Nonnull Boolean okFlag) {
+    if (!okFlag) {
       throw new IllegalStateException();
     }
   }

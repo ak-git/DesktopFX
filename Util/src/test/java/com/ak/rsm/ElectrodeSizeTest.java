@@ -55,6 +55,6 @@ public class ElectrodeSizeTest {
     LineFileBuilder.of("%.3f %.3f %.6f").
         xRange(1.0e-2, 1.0, 1.0e-2).
         yStream(() -> DoubleStream.of(1.0 / 3.0, SQRT_2 - 1, 0.5, 2.0 / 3.0)).
-        generate((dToL, sToL) -> new RelativeErrorR(sToL).value(dToL));
+        generate("ErrorsAtDtoL.txt", (dToL, sToL) -> new RelativeErrorR(sToL).value(dToL));
   }
 }

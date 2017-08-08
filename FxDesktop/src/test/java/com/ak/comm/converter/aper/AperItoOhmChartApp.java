@@ -36,7 +36,7 @@ public final class AperItoOhmChartApp extends AbstractSplineCoefficientsChartApp
     LineFileBuilder.of("%.0f %.0f %.0f").
         xStream(() -> intRange(AperSurfaceCoefficients.class, CoefficientsUtils::rangeX).asDoubleStream()).
         yStream(() -> intRange(AperSurfaceCoefficients.class, CoefficientsUtils::rangeY).asDoubleStream()).
-        generate((adc, rII) -> function.applyAsInt(Double.valueOf(adc).intValue(), Double.valueOf(rII).intValue()));
+        generate("z.txt", (adc, rII) -> function.applyAsInt(Double.valueOf(adc).intValue(), Double.valueOf(rII).intValue()));
   }
 
   private static <C extends Enum<C> & Coefficients> IntStream intRange(@Nonnull Class<C> coeffClass,
@@ -46,5 +46,4 @@ public final class AperItoOhmChartApp extends AbstractSplineCoefficientsChartApp
     int step = Math.max(1, (statistics.getMax() - statistics.getMin()) / countValues);
     return IntStream.rangeClosed(0, countValues).map(i -> statistics.getMin() + i * step);
   }
-
 }
