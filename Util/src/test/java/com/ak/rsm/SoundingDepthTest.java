@@ -206,12 +206,14 @@ public class SoundingDepthTest {
         collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
-  @Test(dataProvider = "x = s / L, y = h / L", enabled = false)
-  public static void testRho1SameRho2FixedRho12(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
-    Assert.assertTrue(yVar.get().mapToObj(hToL -> xVar.get().
-        map(sToL -> new DerivativeRbyRho2Normalized(ResistanceTwoLayer.getK12(3.0, 1.0), sToL).value(hToL))).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
-        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
+  @Test(enabled = false)
+  public static void testRho1SameRho2FixedRho12() throws IOException {
+    LineFileBuilder.of("%.2f %.2f %.6f").
+        xRange(0.01, 0.99, PRECISION).
+        yRange(0.0, 0.5, PRECISION).
+        generate("z.txt", (sToL, hToL) ->
+            new DerivativeRbyRho2Normalized(ResistanceTwoLayer.getK12(3.0, 1.0), sToL).value(hToL)
+        );
   }
 
   @Test(dataProvider = "x = s / L, y = k12", enabled = false)
@@ -271,12 +273,14 @@ public class SoundingDepthTest {
         collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
-  @Test(dataProvider = "x = s / L, y = h / L", enabled = false)
-  public static void testHValueFixedRho12(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
-    Assert.assertTrue(yVar.get().mapToObj(hToL -> xVar.get().
-        map(sToL -> new DerivativeRbyHNormalized(ResistanceTwoLayer.getK12(3.0, 1.0), sToL).value(hToL))).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
-        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
+  @Test(enabled = false)
+  public static void testHValueFixedRho12() throws IOException {
+    LineFileBuilder.of("%.2f %.2f %.6f").
+        xRange(0.01, 0.99, PRECISION).
+        yRange(0.0, 0.5, PRECISION).
+        generate("z.txt", (sToL, hToL) ->
+            new DerivativeRbyHNormalized(ResistanceTwoLayer.getK12(3.0, 1.0), sToL).value(hToL)
+        );
   }
 
   @Test(enabled = false)
