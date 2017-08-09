@@ -299,11 +299,7 @@ public class SoundingDepthTest {
   }
 
   private static DoubleStream doubleRange(double start, double end) {
-    return doubleRange(start, end, PRECISION);
-  }
-
-  private static DoubleStream doubleRange(double start, double end, double precision) {
-    return DoubleStream.iterate(start, dl2L -> dl2L + precision).
-        limit(BigDecimal.valueOf((end - start) / precision + 1).round(MathContext.UNLIMITED).intValue()).sequential();
+    return DoubleStream.iterate(start, dl2L -> dl2L + PRECISION).
+        limit(BigDecimal.valueOf((end - start) / PRECISION + 1).round(MathContext.UNLIMITED).intValue()).sequential();
   }
 }
