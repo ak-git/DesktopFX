@@ -161,30 +161,16 @@ public class SoundingDepthTest {
     return new Object[][] {{xVar, yVar}};
   }
 
-  @DataProvider(name = "x = s / L, y = h / L")
-  public static Object[][] sToLbyHtoL() throws IOException {
-    Supplier<DoubleStream> xVar = () -> doubleRange(0.01, 0.99);
-    Assert.assertTrue(xVar.get().mapToObj(sToL -> String.format("%.2f", sToL)).collect(
-        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL)));
-
-    Supplier<DoubleStream> yVar = () -> doubleRange(0.0, 0.5);
-    Assert.assertTrue(yVar.get().mapToObj(hToL -> String.format("%.2f", hToL)).collect(
-        new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
-    return new Object[][] {{xVar, yVar}};
-  }
-
   @Test(dataProvider = "x = s / L, y = k12", enabled = false)
   public static void testRho1SameRho2(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
-    Assert.assertTrue(yVar.get().mapToObj(k12 -> xVar.get().map(sToL -> solve(new InequalityRbyRho2(k12, sToL), GoalType.MINIMIZE).getKey()[0])).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
-        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
+    LineFileBuilder.of("%.4f %.2f %.6f").xStream(xVar).yStream(yVar).
+        generate("z.txt", (sToL, k12) -> solve(new InequalityRbyRho2(k12, sToL), GoalType.MINIMIZE).getKey()[0]);
   }
 
   @Test(dataProvider = "x = k12, s / L = {1 / 3, 1 / 2}", enabled = false)
   public static void testRho1SameRho2SliceStoL(Supplier<DoubleStream> slice, Supplier<DoubleStream> xVar) throws IOException {
-    Assert.assertTrue(xVar.get().mapToObj(k12 -> slice.get().map(sToL -> solve(new InequalityRbyRho2(k12, sToL), GoalType.MINIMIZE).getKey()[0])).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
-        collect(new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
+    LineFileBuilder.<PointValuePair>of("%.4f %.4f %.6f").xStream(slice).yStream(xVar).
+        generate("y.txt", (sToL, k12) -> solve(new InequalityRbyRho2(k12, sToL), GoalType.MINIMIZE).getKey()[0]);
   }
 
   @Test(dataProvider = "x = s / L", enabled = false)
@@ -200,10 +186,8 @@ public class SoundingDepthTest {
 
   @Test(dataProvider = "x = k12, y = h / L", enabled = false)
   public static void testRho1SameRho2FixedStoL(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
-    Assert.assertTrue(yVar.get().mapToObj(hToL -> xVar.get().
-        map(k12 -> new DerivativeRbyRho2Normalized(k12, 1.0 / 2.0).value(hToL))).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
-        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
+    LineFileBuilder.of("%.4f %.2f %.6f").xStream(xVar).yStream(yVar).
+        generate("z.txt", (k12, hToL) -> new DerivativeRbyRho2Normalized(k12, 1.0 / 2.0).value(hToL));
   }
 
   @Test(enabled = false)
@@ -218,28 +202,23 @@ public class SoundingDepthTest {
 
   @Test(dataProvider = "x = s / L, y = k12", enabled = false)
   public static void testHPointMax(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
-    Assert.assertTrue(yVar.get().mapToObj(k12 -> xVar.get().map(sToL -> solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getKey()[0])).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
-        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
+    LineFileBuilder.of("%.2f %.4f %.6f").xStream(xVar).yStream(yVar).
+        generate("z.txt", (sToL, k12) -> solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getKey()[0]);
   }
 
   @Test(dataProvider = "x = s / L, y = k12", enabled = false)
   public static void testHValueMax(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
-    Assert.assertTrue(yVar.get().mapToObj(k12 -> xVar.get().
-        map(sToL -> -Math.signum(k12) * solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getValue())).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
-        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
+    LineFileBuilder.of("%.2f %.4f %.6f").xStream(xVar).yStream(yVar).
+        generate("z.txt", (sToL, k12) -> -Math.signum(k12) * solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getValue());
   }
 
   @Test(dataProvider = "x = k12, s / L = {1 / 3, 1 / 2}", enabled = false)
   public static void testHSlice(Supplier<DoubleStream> slice, Supplier<DoubleStream> xVar) throws IOException {
-    Assert.assertTrue(xVar.get().mapToObj(k12 -> slice.get().map(sToL -> solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getKey()[0])).
-        map(stream -> stream.mapToObj(pointMax -> String.format("%.6f", pointMax)).collect(Collectors.joining(Strings.TAB))).
-        collect(new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
-    Assert.assertTrue(xVar.get().mapToObj(k12 -> slice.get().map(
-        sToL -> -Math.signum(k12) * solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getValue())).
-        map(stream -> stream.mapToObj(valueMax -> String.format("%.6f", valueMax)).collect(Collectors.joining(Strings.TAB))).
-        collect(new LineFileCollector(Paths.get("y2.txt"), LineFileCollector.Direction.VERTICAL)));
+    LineFileBuilder.<PointValuePair>of("%.4f %.4f %.6f").xStream(slice).yStream(xVar).
+        generate("y.txt", (sToL, k12) -> solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getKey()[0]);
+
+    LineFileBuilder.<PointValuePair>of("%.4f %.4f %.6f").xStream(slice).yStream(xVar).
+        generate("y2.txt", (sToL, k12) -> -Math.signum(k12) * solve(new InequalityRbyH(k12, sToL), GoalType.MAXIMIZE).getValue());
   }
 
   @Test(dataProvider = "x = s / L", enabled = false)
@@ -267,10 +246,8 @@ public class SoundingDepthTest {
 
   @Test(dataProvider = "x = k12, y = h / L", enabled = false)
   public static void testHValueFixedStoL(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) throws IOException {
-    Assert.assertTrue(yVar.get().mapToObj(hToL -> xVar.get().
-        map(k12 -> new DerivativeRbyHNormalized(k12, 1.0 / 2.0).value(hToL))).
-        map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
-        collect(new LineFileCollector(Paths.get("z.txt"), LineFileCollector.Direction.VERTICAL)));
+    LineFileBuilder.of("%.4f %.2f %.6f").xStream(xVar).yStream(yVar).
+        generate("z.txt", (k12, hToL) -> new DerivativeRbyHNormalized(k12, 1.0 / 2.0).value(hToL));
   }
 
   @Test(enabled = false)
