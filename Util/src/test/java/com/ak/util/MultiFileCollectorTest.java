@@ -15,12 +15,12 @@ public class MultiFileCollectorTest {
   @Test
   public void test() throws IOException {
     Path out = Paths.get(MultiFileCollectorTest.class.getSimpleName() + ".txt");
-    MultiFileCollector<Double> multiFileCollector = new MultiFileCollector.Builder<Double>("%.1f").
+    MultiFileCollector<Double> multiFileCollector = new MultiFileCollector.Builder<Double>("%.0f").
         add(out, value -> value).build();
     Assert.assertTrue(Stream.generate(() -> Stream.of(1.0, 2.0)).limit(1).collect(multiFileCollector));
 
     Assert.assertEquals(Files.readAllLines(out, Charset.forName("windows-1251")).stream().collect(Collectors.joining(Strings.TAB)),
-        "1,0\t2,0");
+        "1\t2");
     Assert.assertTrue(Files.deleteIfExists(out));
   }
 
