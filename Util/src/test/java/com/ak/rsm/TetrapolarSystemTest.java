@@ -1,19 +1,13 @@
 package com.ak.rsm;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.nio.file.Paths;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 import javax.annotation.Nonnull;
 import javax.measure.Quantity;
 import javax.measure.quantity.ElectricResistance;
 
-import com.ak.util.LineFileCollector;
-import com.ak.util.Strings;
+import com.ak.util.LineFileBuilder;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -92,37 +86,20 @@ public class TetrapolarSystemTest {
     new TetrapolarSystem(2.0, 1.0, METRE);
   }
 
-  @DataProvider(name = "x = R(Ohm), y = L(mm)")
-  public static Object[][] rL() throws IOException {
-    Supplier<DoubleStream> xVarR = () -> doubleRange(100.0);
-    Assert.assertNull(xVarR.get().mapToObj(value -> String.format("%.0f", value)).collect(
-        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL)));
-
-    Supplier<DoubleStream> yVarL = () -> doubleRange(120.0);
-    Assert.assertNull(yVarL.get().mapToObj(value -> String.format("%.0f", value)).collect(
-        new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
-    return new Object[][] {{xVarR, yVarL}};
-  }
-
-  @Test(dataProvider = "x = R(Ohm), y = L(mm)", enabled = false)
-  public static void testApparent(Supplier<DoubleStream> xVar, Supplier<DoubleStream> yVar) {
+  @Test(enabled = false)
+  public static void testApparent() {
     DoubleStream.of(1.0 / 3.0, 0.5).forEachOrdered(sToL -> {
       try {
-        Assert.assertNull(yVar.get().mapToObj(lmm -> xVar.get().map(r ->
-            new TetrapolarSystem(lmm * sToL, lmm, MILLI(METRE)).getApparent(Quantities.getQuantity(r, OHM)))
-        ).map(stream -> stream.mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(Strings.TAB))).
-            collect(new LineFileCollector(Paths.get(String.format("Apparent_Rho_At_%.2f.txt", sToL)),
-                LineFileCollector.Direction.VERTICAL)));
+        LineFileBuilder.of("%.0f %.0f %.6f").
+            xRange(1.0, 100.0, 1.0).
+            yRange(1.0, 120.0, 1.0).
+            generate(String.format("Apparent_Rho_At_%.2f.txt", sToL),
+                (r, lmm) -> new TetrapolarSystem(lmm * sToL, lmm, MILLI(METRE)).getApparent(Quantities.getQuantity(r, OHM))
+            );
       }
       catch (IOException e) {
         Assert.fail(e.getMessage(), e);
       }
     });
-  }
-
-  private static DoubleStream doubleRange(double end) {
-    double step = 1.0;
-    return DoubleStream.iterate(step, dl2L -> dl2L + step).
-        limit(BigDecimal.valueOf(end / step).round(MathContext.UNLIMITED).intValue()).sequential();
   }
 }

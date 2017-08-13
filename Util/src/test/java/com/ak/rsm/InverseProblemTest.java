@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
+import com.ak.inverse.Inequality;
 import com.ak.util.LineFileCollector;
 import com.ak.util.Strings;
 import org.apache.commons.math3.analysis.TrivariateFunction;
@@ -69,13 +70,10 @@ public class InverseProblemTest {
 
                 SimplexOptimizer optimizer = new SimplexOptimizer(-1, 1.0e-14);
                 PointValuePair optimum = optimizer.optimize(new MaxEval(30000), new ObjectiveFunction(point -> {
-                      double value1 = resistance1.value(point[0], point[1], hSI);
-                      double value2 = resistance2.value(point[0], point[1], hSI);
-
-                      double e1 = StrictMath.log(value1) - StrictMath.log(r1);
-                      double e2 = StrictMath.log(value2) - StrictMath.log(r2);
-
-                      return StrictMath.hypot(e1, e2);
+                      Inequality inequality = Inequality.logDifference();
+                      inequality.applyAsDouble(resistance1.value(point[0], point[1], hSI), r1);
+                      inequality.applyAsDouble(resistance2.value(point[0], point[1], hSI), r2);
+                      return inequality.getAsDouble();
                     }),
                     GoalType.MINIMIZE, new NelderMeadSimplex(2, 0.001), new InitialGuess(rhos)
                 );
