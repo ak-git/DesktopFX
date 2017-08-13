@@ -15,10 +15,8 @@ public final class Chart extends Region {
   protected void layoutChildren() {
     double top = snappedTopInset();
     double left = snappedLeftInset();
-    double bottom = snappedBottomInset();
-    double right = snappedRightInset();
-    double width = getWidth();
-    double height = getHeight();
-    milliGrid.resizeRelocate(left, top, width - left - right, height - top - bottom);
+    double contentWidth = snapSize(getWidth() - (left + snappedRightInset()));
+    double contentHeight = snapSize(getHeight() - (top + snappedBottomInset()));
+    milliGrid.resizeRelocate(snapPosition(left), snapPosition(top), contentWidth, contentHeight);
   }
 }

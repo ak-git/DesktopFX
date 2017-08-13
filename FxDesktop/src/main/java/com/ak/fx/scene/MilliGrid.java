@@ -69,11 +69,30 @@ final class MilliGrid extends Pane {
       return ScreenResolutionMonitor.INSTANCE.getDpi() / 2.54;
     }
 
+    @Nonnegative
+    double linePad() {
+      return (strokeWidth - 1.0) / 2.0;
+    }
+
     Path newPath() {
       Path p = new Path();
       p.setStroke(COLOR);
       p.setStrokeWidth(getStrokeWidth());
       return p;
+    }
+
+    @Nonnegative
+    double minCoordinate(@Nonnegative double size) {
+      double min = size / 2.0 - Math.floor(size / 2 / getStep()) * getStep();
+      if (this != SMALL) {
+        min = Math.max(min, SMALL.minCoordinate(size));
+      }
+      return min;
+    }
+
+    @Nonnegative
+    static double maxCoordinate(@Nonnegative double size) {
+      return size - SMALL.minCoordinate(size);
     }
 
     static List<Path> newPaths() {
@@ -133,7 +152,7 @@ final class MilliGrid extends Pane {
       double contentSize = contentSize();
       int factor = (int) Math.round(GridCell.SMALL.getStep() / gridCell.getStep());
       int i = 0;
-      for (double c = minCoordinate(contentSize, gridCell); c < maxCoordinate(contentSize) + 1.0; c += gridCell.getStep()) {
+      for (double c = gridCell.minCoordinate(contentSize); c < GridCell.maxCoordinate(contentSize) + 1.0; c += gridCell.getStep()) {
         if (!(gridCell == GridCell.POINTS && i % factor == 0)) {
           path.getElements().addAll(moveTo(c, gridCell), lineTo(gridCell));
         }
@@ -141,27 +160,8 @@ final class MilliGrid extends Pane {
       }
     }
 
-    @Nonnegative
-    static double minCoordinate(@Nonnegative double size, @Nonnull GridCell gridCell) {
-      double min = size / 2.0 - Math.floor(size / 2 / gridCell.getStep()) * gridCell.getStep();
-      if (gridCell != GridCell.SMALL) {
-        min = Math.max(min, minCoordinate(size, GridCell.SMALL));
-      }
-      return min;
-    }
-
-    @Nonnegative
-    static double maxCoordinate(@Nonnegative double size) {
-      return size - minCoordinate(size, GridCell.SMALL);
-    }
-
-    @Nonnegative
-    static double linePad(@Nonnull GridCell gridCell) {
-      return (gridCell.getStrokeWidth() - 1.0) / 2.0;
-    }
-
     final double lineToCoordinate(@Nonnull GridCell gridCell) {
-      return maxCoordinate(length()) - linePad(gridCell);
+      return GridCell.maxCoordinate(length()) - gridCell.linePad();
     }
 
     @Nonnegative
@@ -177,7 +177,8 @@ final class MilliGrid extends Pane {
 
     @Override
     public PathElement moveTo(@Nonnegative double x, @Nonnull GridCell gridCell) {
-      return new MoveTo(snappedLeftInset() + x, snappedTopInset() + minCoordinate(length(), GridCell.SMALL) + linePad(gridCell));
+      return new MoveTo(snappedLeftInset() + x,
+          snappedTopInset() + GridCell.SMALL.minCoordinate(length()) + gridCell.linePad());
     }
 
     @Override
@@ -201,7 +202,8 @@ final class MilliGrid extends Pane {
 
     @Override
     public PathElement moveTo(@Nonnegative double y, @Nonnull GridCell gridCell) {
-      return new MoveTo(snappedLeftInset() + minCoordinate(length(), GridCell.SMALL) + linePad(gridCell), snappedTopInset() + y);
+      return new MoveTo(snappedLeftInset() + GridCell.SMALL.minCoordinate(length()) + gridCell.linePad(),
+          snappedTopInset() + y);
     }
 
     @Override
