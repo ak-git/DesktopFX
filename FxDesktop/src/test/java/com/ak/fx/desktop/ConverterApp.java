@@ -1,4 +1,4 @@
-package com.ak.comm.converter;
+package com.ak.fx.desktop;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -16,8 +16,10 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.Variable;
+import com.ak.comm.converter.Variables;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.fx.desktop.FxClassPathXmlApplicationContext;
 import com.ak.util.LineFileCollector;
 import com.ak.util.Strings;
 import com.sun.javafx.application.ParametersImpl;
