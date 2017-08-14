@@ -13,7 +13,7 @@ public final class Chart extends Region {
     // mark chartContent as unmanaged because any changes to its preferred size shouldn't cause a relayout
     milliGrid.setManaged(false);
 
-    rectangle.setStroke(Color.BLACK);
+    rectangle.setStroke(Color.WHITE);
     rectangle.setFill(null);
   }
 
@@ -29,9 +29,10 @@ public final class Chart extends Region {
   private void layoutChartChildren(double xInset, double yInset, double width, double height) {
     milliGrid.resizeRelocate(xInset, yInset, width, height);
 
-    rectangle.setX(xInset + GridCell.BIG.minCoordinate(width));
-    rectangle.setY(yInset + GridCell.BIG.minCoordinate(height));
-    rectangle.setWidth(GridCell.BIG.maxCoordinate(width));
-    rectangle.setHeight(GridCell.BIG.maxCoordinate(height));
+    GridCell cell = GridCell.SMALL;
+    rectangle.setX(xInset + cell.minCoordinate(width));
+    rectangle.setY(yInset + cell.minCoordinate(height));
+    rectangle.setWidth(cell.maxCoordinate(width));
+    rectangle.setHeight(cell.maxCoordinate(height));
   }
 }

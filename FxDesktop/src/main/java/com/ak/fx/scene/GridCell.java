@@ -34,7 +34,19 @@ enum GridCell {
       return path;
     }
   },
-  SMALL(1.0),
+  SMALL(1.0) {
+    @Override
+    @Nonnegative
+    double minCoordinate(@Nonnegative double size) {
+      return minCoordinate(getStep(), size);
+    }
+
+    @Override
+    @Nonnegative
+    double maxCoordinate(@Nonnegative double size) {
+      return maxCoordinate(getStep(), size);
+    }
+  },
   BIG(3.0) {
     @Nonnegative
     @Override
@@ -75,21 +87,27 @@ enum GridCell {
 
   @Nonnegative
   double minCoordinate(@Nonnegative double size) {
-    double min = size / 2.0 - Math.floor(size / 2 / getStep()) * getStep();
-    if (this != SMALL) {
-      min = Math.max(min, SMALL.minCoordinate(size));
-    }
-    return min;
+    return Math.max(minCoordinate(getStep(), size), SMALL.minCoordinate(size));
   }
 
   @Nonnegative
   double maxCoordinate(@Nonnegative double size) {
-    return Math.floor((size - minCoordinate(size)) / getStep()) * getStep();
+    return Math.min(maxCoordinate(getStep(), size), SMALL.maxCoordinate(size));
   }
 
   static List<Path> newPaths() {
     List<Path> paths = new LinkedList<>();
     EnumSet.allOf(GridCell.class).forEach(gridCell -> paths.add(gridCell.newPath()));
     return Collections.unmodifiableList(paths);
+  }
+
+  @Nonnegative
+  static double minCoordinate(@Nonnegative double step, @Nonnegative double size) {
+    return size / 2.0 - Math.floor(size / 2.0 / step) * step;
+  }
+
+  @Nonnegative
+  static double maxCoordinate(@Nonnegative double step, @Nonnegative double size) {
+    return Math.floor((size - minCoordinate(step, size)) / step) * step;
   }
 }
