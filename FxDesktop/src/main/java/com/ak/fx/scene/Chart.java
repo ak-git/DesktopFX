@@ -48,19 +48,24 @@ public final class Chart extends Region {
       rectangle.setHeight(chartHeight);
     }
 
-    for (int i = 0; i < rectangles.size() / 2; i++) {
-      rectangles.get(i).setY(yInset + GridCell.SMALL.minCoordinate(height) +
-          GridCell.SMALL.roundCoordinate(height / (rectangles.size() + 1)) * i);
+    if (chartHeight >= GridCell.SMALL.getStep() * 2) {
+      for (int i = 0; i < rectangles.size() / 2; i++) {
+        rectangles.get(i).setY(yInset + GridCell.SMALL.minCoordinate(height) +
+            GridCell.SMALL.roundCoordinate(height / (rectangles.size() + 1)) * i);
+      }
+      if ((rectangles.size() & 1) != 0) {
+        rectangles.get(rectangles.size() / 2).setY(yInset + GridCell.SMALL.minCoordinate(height) +
+            GridCell.SMALL.maxCoordinate(height) / 2 - chartHeight / 2
+        );
+      }
+      for (int i = 0; i < rectangles.size() / 2; i++) {
+        rectangles.get(rectangles.size() - 1 - i).setY(
+            yInset + GridCell.SMALL.minCoordinate(height) + GridCell.SMALL.maxCoordinate(height) -
+                chartHeight - GridCell.SMALL.roundCoordinate(height / (rectangles.size() + 1)) * i);
+      }
     }
-    if ((rectangles.size() & 1) != 0) {
-      rectangles.get(rectangles.size() / 2).setY(yInset + GridCell.SMALL.minCoordinate(height) +
-          GridCell.SMALL.maxCoordinate(height) / 2 - chartHeight / 2
-      );
-    }
-    for (int i = 0; i < rectangles.size() / 2; i++) {
-      rectangles.get(rectangles.size() - 1 - i).setY(
-          yInset + GridCell.SMALL.minCoordinate(height) + GridCell.SMALL.maxCoordinate(height) -
-              chartHeight - GridCell.SMALL.roundCoordinate(height / (rectangles.size() + 1)) * i);
+    else {
+      rectangles.forEach(rectangle -> rectangle.setHeight(GridCell.SMALL.maxCoordinate(height)));
     }
   }
 }
