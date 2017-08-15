@@ -38,13 +38,19 @@ enum GridCell {
     @Override
     @Nonnegative
     double minCoordinate(@Nonnegative double size) {
-      return minCoordinate(getStep(), size);
+      return GridCell.minCoordinate(getStep(), size);
     }
 
     @Override
     @Nonnegative
     double maxCoordinate(@Nonnegative double size) {
-      return maxCoordinate(getStep(), size);
+      return GridCell.maxCoordinate(getStep(), size);
+    }
+
+    @Override
+    @Nonnegative
+    double roundCoordinate(@Nonnegative double size) {
+      return GridCell.roundCoordinate(getStep(), size);
     }
   },
   BIG(3.0) {
@@ -74,7 +80,7 @@ enum GridCell {
   }
 
   @Nonnegative
-  double linePad() {
+  final double linePad() {
     return (strokeWidth - 1.0) / 2.0;
   }
 
@@ -95,6 +101,11 @@ enum GridCell {
     return Math.min(maxCoordinate(getStep(), size), SMALL.maxCoordinate(size));
   }
 
+  @Nonnegative
+  double roundCoordinate(@Nonnegative double size) {
+    return Math.min(roundCoordinate(getStep(), size), SMALL.roundCoordinate(size));
+  }
+
   static List<Path> newPaths() {
     List<Path> paths = new LinkedList<>();
     EnumSet.allOf(GridCell.class).forEach(gridCell -> paths.add(gridCell.newPath()));
@@ -102,12 +113,17 @@ enum GridCell {
   }
 
   @Nonnegative
-  static double minCoordinate(@Nonnegative double step, @Nonnegative double size) {
+  private static double minCoordinate(@Nonnegative double step, @Nonnegative double size) {
     return size / 2.0 - Math.floor(size / 2.0 / step) * step;
   }
 
   @Nonnegative
-  static double maxCoordinate(@Nonnegative double step, @Nonnegative double size) {
+  private static double maxCoordinate(@Nonnegative double step, @Nonnegative double size) {
     return Math.floor((size - minCoordinate(step, size)) / step) * step;
+  }
+
+  @Nonnegative
+  private static double roundCoordinate(@Nonnegative double step, @Nonnegative double size) {
+    return Math.rint(size / step) * step;
   }
 }
