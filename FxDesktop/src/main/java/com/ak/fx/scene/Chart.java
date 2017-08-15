@@ -14,11 +14,9 @@ public final class Chart extends AbstractRegion {
   }
 
   @Override
-  void layoutChartChildren(double xInset, double yInset, double width, double height) {
-    milliGrid.resizeRelocate(xInset, yInset, width, height);
-    layoutLineDiagrams(
-        xInset + GridCell.SMALL.minCoordinate(width),
-        yInset + GridCell.SMALL.minCoordinate(height),
+  void layoutChartChildren(double x, double y, double width, double height) {
+    milliGrid.resizeRelocate(x, y, width, height);
+    layoutLineDiagrams(x + GridCell.SMALL.minCoordinate(width), y + GridCell.SMALL.minCoordinate(height),
         GridCell.SMALL.maxCoordinate(width), height);
   }
 

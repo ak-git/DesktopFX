@@ -12,5 +12,5 @@ abstract class AbstractRegion extends Region {
     layoutChartChildren(snapPosition(left), snapPosition(top), contentWidth, contentHeight);
   }
 
-  abstract void layoutChartChildren(double xInset, double yInset, double width, double height);
+  abstract void layoutChartChildren(double x, double y, double width, double height);
 }

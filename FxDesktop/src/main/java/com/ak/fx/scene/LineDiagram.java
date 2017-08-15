@@ -14,9 +14,9 @@ final class LineDiagram extends AbstractRegion {
   }
 
   @Override
-  void layoutChartChildren(double xInset, double yInset, double width, double height) {
-    rectangle.setX(xInset);
-    rectangle.setY(yInset);
+  void layoutChartChildren(double x, double y, double width, double height) {
+    rectangle.setX(x);
+    rectangle.setY(y);
     rectangle.setWidth(width);
     rectangle.setHeight(height);
   }
