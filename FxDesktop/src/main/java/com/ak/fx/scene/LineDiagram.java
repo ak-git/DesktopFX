@@ -1,43 +1,41 @@
 package com.ak.fx.scene;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 import javafx.beans.binding.Bindings;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
+import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
+import static com.ak.fx.scene.Constants.LABEL_HEIGHT;
 import static com.ak.fx.scene.GridCell.POINTS;
 import static com.ak.fx.scene.GridCell.SMALL;
 
 final class LineDiagram extends AbstractRegion {
-  private static final double LABEL_HEIGHT = SMALL.getStep() / 3;
   private final Rectangle bounds = new Rectangle();
   private final Text title = new Text("aVL");
   private final Text centerValue = new Text("0");
-  private final Path path = new Path();
+  private final Polyline polyline = new Polyline();
 
   LineDiagram() {
     bounds.setVisible(false);
     bounds.setStroke(Color.BLACK);
     bounds.setFill(null);
-    bounds.setStrokeWidth(3.0);
+    bounds.setStrokeWidth(2);
 
-    title.setFont(Font.font(Font.getDefault().getName(), LABEL_HEIGHT));
+    title.setFont(Constants.FONT);
     centerValue.setFont(title.getFont());
 
-    path.setFill(Color.BLACK);
+    polyline.setStroke(Color.BLACK);
+    polyline.translateXProperty().setValue(SMALL.getStep() * 2);
+    polyline.translateYProperty().bind(Bindings.divide(heightProperty(), 2));
+
     getChildren().add(bounds);
     getChildren().add(title);
     getChildren().add(centerValue);
-    getChildren().add(path);
-
-    path.getElements().add(new MoveTo(0, 0));
-    path.getElements().add(new LineTo(10, -200));
-    path.translateXProperty().setValue(SMALL.getStep() * 2);
-    path.translateYProperty().bind(Bindings.divide(heightProperty(), 2));
+    getChildren().add(polyline);
   }
 
   @Override
@@ -46,7 +44,20 @@ final class LineDiagram extends AbstractRegion {
     bounds.setY(y);
     bounds.setWidth(width);
     bounds.setHeight(height);
-    title.relocate(x + GridCell.SMALL.getStep() + POINTS.getStep(), y + height / 4 - LABEL_HEIGHT);
+    title.relocate(x + SMALL.getStep() + POINTS.getStep(), y + height / 4 - LABEL_HEIGHT);
     centerValue.relocate(x + POINTS.getStep() / 4, y + height / 2 - LABEL_HEIGHT - POINTS.getStep() / 4);
+    polyline.setVisible(SMALL.maxCoordinate(width) > SMALL.getStep() * 2);
+  }
+
+  void setAll(@Nonnegative double xStep, @Nonnull double[] y) {
+    polyline.getPoints().clear();
+    for (int i = 0, n = Math.min(y.length, getMaxSamples(xStep)); i < n; i++) {
+      polyline.getPoints().add(xStep * i);
+      polyline.getPoints().add(-y[i]);
+    }
+  }
+
+  int getMaxSamples(@Nonnegative double xStep) {
+    return Math.max(0, (int) Math.rint((SMALL.maxCoordinate(getWidth()) - SMALL.getStep() * 2) / xStep));
   }
 }
