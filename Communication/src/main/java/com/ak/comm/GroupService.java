@@ -40,7 +40,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   }
 
   @Override
-  public boolean accept(File file) {
+  public boolean accept(@Nonnull File file) {
     return fileReadingService.accept(file);
   }
 
@@ -49,7 +49,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     serialService.refresh();
   }
 
-  public void subscribe(@Nonnull IntsAcceptor acceptor) {
+  public void subscribeSerial(@Nonnull IntsAcceptor acceptor) {
     serialService.subscribe(new Subscriber<int[]>() {
       @Override
       public void onSubscribe(Subscription s) {
@@ -70,6 +70,10 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
       public void onComplete() {
       }
     });
+  }
+
+  public void subscribeFile(@Nonnull IntsAcceptor acceptor) {
+    fileReadingService.subscribe(acceptor);
   }
 
   public List<EV> getVariables() {

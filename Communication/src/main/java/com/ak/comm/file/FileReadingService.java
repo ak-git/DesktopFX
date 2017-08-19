@@ -66,7 +66,8 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
           String md5Code = digestToString(md5);
           Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
           if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
-            convertedFileChannelProvider = () -> Files.newByteChannel(convertedFile, StandardOpenOption.READ);
+            SeekableByteChannel convertedFileChannel = Files.newByteChannel(convertedFile, StandardOpenOption.READ);
+            convertedFileChannelProvider = () -> convertedFileChannel;
             Logger.getLogger(getClass().getName()).log(Level.INFO,
                 String.format("#%x File [ %s ] with MD5 = [ %s ] is already processed", hashCode(), fileToRead, md5Code));
           }
@@ -74,8 +75,10 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
             Logger.getLogger(getClass().getName()).log(Level.INFO,
                 String.format("#%x Read file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
             Path tempConverterFile = LogBuilders.CONVERTER_FILE.build("tempConverterFile").getPath();
-            convertedFileChannelProvider = () -> Files.newByteChannel(tempConverterFile,
+
+            SeekableByteChannel convertedFileChannel = Files.newByteChannel(tempConverterFile,
                 StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
+            convertedFileChannelProvider = () -> convertedFileChannel;
 
             boolean processed = isChannelProcessed(seekableByteChannel, byteBuffer -> {
               logBytes(byteBuffer);

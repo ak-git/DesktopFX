@@ -10,7 +10,9 @@ public final class ViewController<RESPONSE, REQUEST, EV extends Enum<EV> & Varia
   @Inject
   public ViewController(@Nonnull GroupService<RESPONSE, REQUEST, EV> service) {
     super(service);
-    service.subscribe(values -> {
+    service.subscribeSerial(values -> {
+    });
+    service.subscribeFile(values -> {
     });
   }
 }
