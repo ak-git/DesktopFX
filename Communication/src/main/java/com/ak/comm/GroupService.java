@@ -72,10 +72,6 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     });
   }
 
-  public void subscribeFile(@Nonnull IntsAcceptor acceptor) {
-    fileReadingService.subscribe(acceptor);
-  }
-
   public List<EV> getVariables() {
     return variables;
   }

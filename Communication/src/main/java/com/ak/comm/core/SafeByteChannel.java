@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 import com.ak.comm.util.LogUtils;
 
 public final class SafeByteChannel implements ByteChannel {
-  private static final SeekableByteChannel EMPTY_CHANNEL = new EmptyByteChannel();
+  public static final SeekableByteChannel EMPTY_CHANNEL = new EmptyByteChannel();
   @Nonnull
   private final Callable<SeekableByteChannel> channelProvider;
   @Nonnull

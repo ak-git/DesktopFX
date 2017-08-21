@@ -12,7 +12,6 @@ import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
-import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -24,6 +23,7 @@ import javax.annotation.Nonnull;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
+import com.ak.comm.core.SafeByteChannel;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.logging.LogBuilders;
 import io.reactivex.disposables.Disposable;
@@ -39,9 +39,7 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
   @Nonnull
   private final Path fileToRead;
   @Nonnull
-  private Callable<SeekableByteChannel> convertedFileChannelProvider = () -> {
-    throw new IllegalStateException("Invalid call for Converted File Channel");
-  };
+  private SeekableByteChannel convertedFileChannel = SafeByteChannel.EMPTY_CHANNEL;
   private volatile boolean disposed;
 
   FileReadingService(@Nonnull Path fileToRead, @Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
@@ -66,8 +64,7 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
           String md5Code = digestToString(md5);
           Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
           if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
-            SeekableByteChannel convertedFileChannel = Files.newByteChannel(convertedFile, StandardOpenOption.READ);
-            convertedFileChannelProvider = () -> convertedFileChannel;
+            convertedFileChannel = Files.newByteChannel(convertedFile, StandardOpenOption.READ);
             Logger.getLogger(getClass().getName()).log(Level.INFO,
                 String.format("#%x File [ %s ] with MD5 = [ %s ] is already processed", hashCode(), fileToRead, md5Code));
           }
@@ -76,9 +73,8 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
                 String.format("#%x Read file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
             Path tempConverterFile = LogBuilders.CONVERTER_FILE.build("tempConverterFile").getPath();
 
-            SeekableByteChannel convertedFileChannel = Files.newByteChannel(tempConverterFile,
+            convertedFileChannel = Files.newByteChannel(tempConverterFile,
                 StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
-            convertedFileChannelProvider = () -> convertedFileChannel;
 
             boolean processed = isChannelProcessed(seekableByteChannel, byteBuffer -> {
               logBytes(byteBuffer);
@@ -138,11 +134,12 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
   }
 
   @Override
-  public SeekableByteChannel call() throws Exception {
-    return convertedFileChannelProvider.call();
+  public SeekableByteChannel call() {
+    return convertedFileChannel;
   }
 
-  private boolean isChannelProcessed(@Nonnull SeekableByteChannel seekableByteChannel, @Nonnull Consumer<ByteBuffer> consumer) throws IOException {
+  private boolean isChannelProcessed(@Nonnull SeekableByteChannel seekableByteChannel, @Nonnull Consumer<ByteBuffer> consumer)
+      throws IOException {
     ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
     boolean readFlag = false;
     seekableByteChannel.position(0);
