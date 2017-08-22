@@ -17,7 +17,6 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.TwoVariables;
-import com.ak.comm.core.SafeByteChannel;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.logging.LogBuilders;
@@ -147,10 +146,10 @@ public class FileReadingServiceTest {
     }
   }
 
-  @Test
-  public static void testInvalidChannelCall() {
-    Assert.assertEquals(new FileReadingService<>(Paths.get(Strings.EMPTY), new RampBytesInterceptor(
+  @Test(expectedExceptions = IllegalStateException.class)
+  public static void testInvalidChannelCall() throws Exception {
+    new FileReadingService<>(Paths.get(Strings.EMPTY), new RampBytesInterceptor(
         BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
-        new ToIntegerConverter<>(TwoVariables.class, Frequencies.HZ_200)).call(), SafeByteChannel.EMPTY_CHANNEL);
+        new ToIntegerConverter<>(TwoVariables.class, Frequencies.HZ_200)).call();
   }
 }
