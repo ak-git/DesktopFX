@@ -4,6 +4,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,6 +40,44 @@ public class ConcurrentAsyncFileChannelTest {
       Assert.assertEquals(channel.read(byteBuffer, 0), 1);
       byteBuffer.rewind();
     }
+    channel.close();
+  }
+
+  @Test
+  public static void testParallelWriteAndRead() throws InterruptedException, ExecutionException {
+    ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> {
+      Path path = LogBuilders.TIME.build(ConcurrentAsyncFileChannelTest.class.getSimpleName() + "Parallel").getPath();
+      return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
+    });
+    Assert.assertEquals(channel.read(ByteBuffer.allocate(4), 100), -1);
+    ExecutorService executorService = Executors.newFixedThreadPool(2);
+    int INTS = 1024;
+    Future<?> writeFuture = executorService.submit(() -> {
+      ByteBuffer byteBuffer = ByteBuffer.allocate(Integer.BYTES);
+
+      for (int i = 0; i < INTS; i++) {
+        byteBuffer.clear();
+        byteBuffer.putInt(i);
+        byteBuffer.flip();
+        Assert.assertEquals(channel.write(byteBuffer), Integer.BYTES);
+      }
+    });
+
+    Future<?> readFuture = executorService.submit(() -> {
+      ByteBuffer byteBuffer = ByteBuffer.allocate(Integer.BYTES * INTS);
+      for (int i = 0; i < INTS; i++) {
+        byteBuffer.clear();
+        int read = channel.read(byteBuffer, 0);
+        byteBuffer.flip();
+        Assert.assertEquals(read, byteBuffer.limit());
+        for (int j = 0; byteBuffer.hasRemaining(); j++) {
+          Assert.assertEquals(byteBuffer.getInt(), j);
+        }
+      }
+    });
+
+    writeFuture.get();
+    readFuture.get();
     channel.close();
   }
 
