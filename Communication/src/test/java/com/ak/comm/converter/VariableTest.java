@@ -1,15 +1,21 @@
 package com.ak.comm.converter;
 
 import java.util.EnumSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
+import com.ak.comm.converter.inner.UnLocalizedVariables;
+import com.ak.comm.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import tec.uom.se.AbstractUnit;
 import tec.uom.se.quantity.Quantities;
 
 public class VariableTest {
+  private static final Logger LOGGER = Logger.getLogger(Variables.class.getName());
+
   private VariableTest() {
   }
 
@@ -70,6 +76,30 @@ public class VariableTest {
   public static void testToString() {
     Assert.assertTrue(Variables.toString(ADCVariable.ADC, 1).startsWith("ADC = 1 "));
     Assert.assertTrue(Variables.toString(Quantities.getQuantity(1, AbstractUnit.ONE)).startsWith("1 "));
+
+    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
+        () -> Assert.assertEquals(Variables.toString(ADCVariable.ADC), ADCVariable.ADC.name()),
+        logRecord -> {
+          Assert.assertTrue(logRecord.getMessage().contains(ADCVariable.ADC.name()));
+          Assert.assertNull(logRecord.getThrown());
+        }));
+
+    Assert.assertFalse(LogUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
+        () -> Assert.assertEquals(Variables.toString(TwoVariables.V1), "Variable Name 1"),
+        logRecord -> Assert.fail(logRecord.getMessage())));
+
+    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
+        () -> Assert.assertEquals(Variables.toString(TwoVariables.V2), TwoVariables.V2.name()), logRecord -> {
+          Assert.assertTrue(logRecord.getMessage().contains(TwoVariables.V2.name()));
+          Assert.assertNull(logRecord.getThrown());
+        }));
+
+    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
+        () -> Assert.assertEquals(Variables.toString(UnLocalizedVariables.MISSING_RESOURCE),
+            UnLocalizedVariables.MISSING_RESOURCE.name()), logRecord -> {
+          Assert.assertTrue(logRecord.getMessage().contains(UnLocalizedVariables.MISSING_RESOURCE.name()));
+          Assert.assertNull(logRecord.getThrown());
+        }));
   }
 
   @Test
