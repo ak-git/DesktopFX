@@ -6,7 +6,7 @@
 <Scene xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ak.fx.desktop.ViewController">
     <BorderPane xmlns:fx="http://javafx.com/fxml/1" prefWidth="1024" prefHeight="768">
         <center>
-            <Chart fx:id="root" style="-fx-border-color: white; -fx-border-width: 3px;"/>
+            <Chart fx:id="chart" style="-fx-border-color: white; -fx-border-width: 3px;"/>
         </center>
     </BorderPane>
 </Scene>

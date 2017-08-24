@@ -15,17 +15,18 @@ import static com.ak.fx.scene.GridCell.SMALL;
 
 final class LineDiagram extends AbstractRegion {
   private final Rectangle bounds = new Rectangle();
-  private final Text title = new Text("aVL");
+  private final Text title = new Text();
   private final Text centerValue = new Text("0");
   private final Polyline polyline = new Polyline();
 
-  LineDiagram() {
+  LineDiagram(@Nonnull String name) {
     bounds.setVisible(false);
     bounds.setStroke(Color.BLACK);
     bounds.setFill(null);
     bounds.setStrokeWidth(2);
 
     title.setFont(Constants.FONT);
+    title.setText(name);
     centerValue.setFont(title.getFont());
 
     polyline.setStroke(Color.BLACK);

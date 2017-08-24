@@ -32,7 +32,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.MessageSourceResourceBundle;
 
 public final class FxApplication extends Application {
-  public static final String APP_PARAMETER_CONTEXT = "context";
+  static final String APP_PARAMETER_CONTEXT = "context";
   private static final String SCENE_XML = "scene.fxml";
   private static final String KEY_APPLICATION_TITLE = "application.title";
   private static final String KEY_APPLICATION_IMAGE = "application.image";

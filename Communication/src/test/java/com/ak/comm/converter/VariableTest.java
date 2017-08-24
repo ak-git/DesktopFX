@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import tec.uom.se.AbstractUnit;
+import tec.uom.se.quantity.Quantities;
 
 public class VariableTest {
   private VariableTest() {
@@ -67,11 +68,12 @@ public class VariableTest {
 
   @Test
   public static void testToString() {
-    Assert.assertEquals(Variables.toString(ADCVariable.ADC, 1), "ADC = 1 one");
+    Assert.assertTrue(Variables.toString(ADCVariable.ADC, 1).startsWith("ADC = 1 "));
+    Assert.assertTrue(Variables.toString(Quantities.getQuantity(1, AbstractUnit.ONE)).startsWith("1 "));
   }
 
   @Test
   public static void testToName() {
-    Assert.assertEquals(Variables.toName(ADCVariable.ADC), "ADC, one");
+    Assert.assertTrue(Variables.toName(ADCVariable.ADC).startsWith("ADC, "));
   }
 }

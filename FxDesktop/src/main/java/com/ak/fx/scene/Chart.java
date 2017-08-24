@@ -1,13 +1,16 @@
 package com.ak.fx.scene;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
 
 import javax.measure.quantity.Speed;
 
+import com.ak.comm.converter.Variable;
+import com.ak.comm.converter.Variables;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.SequentialTransition;
@@ -22,23 +25,21 @@ import tec.uom.se.unit.Units;
 import static com.ak.fx.scene.GridCell.POINTS;
 import static com.ak.fx.scene.GridCell.SMALL;
 
-public final class Chart extends AbstractRegion {
+public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractRegion {
   private final MilliGrid milliGrid = new MilliGrid();
-  private final List<LineDiagram> lineDiagrams = Stream.generate(LineDiagram::new).limit(3).collect(Collectors.toList());
-  private final Text xAxisUnit = new Text(
-      Quantities.getQuantity(25, MetricPrefix.MILLI(Units.METRE).divide(Units.SECOND).asType(Speed.class)).toString()
+  private final List<LineDiagram> lineDiagrams = new ArrayList<>();
+  private final Text xAxisUnit = new Text(Variables.toString(
+      Quantities.getQuantity(25, MetricPrefix.MILLI(Units.METRE).divide(Units.SECOND).asType(Speed.class)))
   );
 
   public Chart() {
     getChildren().add(milliGrid);
-    getChildren().addAll(lineDiagrams);
-    getChildren().add(xAxisUnit);
 
     xAxisUnit.setFont(Constants.FONT);
 
     Timeline timeLine = new Timeline();
     timeLine.getKeyFrames().add(
-        new KeyFrame(Duration.millis(200), (ActionEvent actionEvent) -> lineDiagrams.forEach(lineDiagram -> {
+        new KeyFrame(Duration.millis(250), (ActionEvent actionEvent) -> lineDiagrams.forEach(lineDiagram -> {
           Random random = new Random();
 
           double xStep = 1.0;
@@ -50,6 +51,12 @@ public final class Chart extends AbstractRegion {
     SequentialTransition animation = new SequentialTransition();
     animation.getChildren().addAll(timeLine);
     animation.play();
+  }
+
+  public void setVariables(Collection<EV> variables) {
+    lineDiagrams.addAll(variables.stream().map(ev -> new LineDiagram(Variables.toString(ev))).collect(Collectors.toList()));
+    getChildren().addAll(lineDiagrams);
+    getChildren().add(xAxisUnit);
   }
 
   @Override
