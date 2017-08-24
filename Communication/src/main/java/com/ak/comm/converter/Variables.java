@@ -25,7 +25,7 @@ public enum Variables {
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable) {
-    String baseName = variable.getClass().getPackage().getName() + ".messages";
+    String baseName = variable.getClass().getPackage().getName() + ".variables";
     try {
       ResourceBundle resourceBundle = ResourceBundle.getBundle(baseName);
       if (resourceBundle.containsKey(variable.name())) {
