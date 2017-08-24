@@ -1,5 +1,6 @@
 package com.ak.comm.serial;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +20,7 @@ public class SerialServiceTest implements Subscriber<ByteBuffer> {
   }
 
   @Test
-  public void test() {
+  public void test() throws IOException {
     List<SerialService> services = Stream.of(SerialPortList.getPortNames()).map(port -> {
       SerialService serialService = new SerialService(BAUDRATE_115200);
       serialService.subscribe(this);
@@ -32,7 +33,14 @@ public class SerialServiceTest implements Subscriber<ByteBuffer> {
     singleService.close();
     Assert.assertTrue(singleService.toString().contains("serialPort"));
     Assert.assertFalse(singleService.isOpen());
-    services.forEach(SerialService::close);
+    services.forEach(serialService -> {
+      try {
+        serialService.close();
+      }
+      catch (IOException e) {
+        Assert.fail(e.getMessage(), e);
+      }
+    });
   }
 
   @Override

@@ -1,9 +1,9 @@
 package com.ak.comm.serial;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -14,8 +14,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.core.AbstractService;
-import com.ak.comm.core.SafeByteChannel;
-import com.ak.comm.logging.LogBuilders;
+import com.ak.comm.core.EmptyByteChannel;
 import com.ak.util.Strings;
 import jssc.SerialPort;
 import jssc.SerialPortException;
@@ -32,9 +31,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
   private final int baudRate;
   @Nonnull
   private final ByteBuffer buffer;
-  private final SafeByteChannel binaryLogChannel = new SafeByteChannel(() ->
-      Files.newByteChannel(LogBuilders.SERIAL_BYTES.build(getClass().getSimpleName()).getPath(),
-          StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE));
+  private final ByteChannel binaryLogChannel = EmptyByteChannel.INSTANCE;
   private volatile boolean refresh;
 
   SerialService(@Nonnegative int baudRate) {
@@ -85,9 +82,9 @@ final class SerialService extends AbstractService implements WritableByteChannel
         serialPort.addEventListener(event -> {
           try {
             if (refresh) {
-              binaryLogChannel.close();
               refresh = false;
               s.onNext(null);
+              binaryLogChannel.close();
             }
             buffer.clear();
             buffer.put(serialPort.readBytes());
@@ -109,7 +106,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
   }
 
   @Override
-  public void close() {
+  public void close() throws IOException {
     try {
       synchronized (serialPort) {
         if (serialPort.isOpened()) {
@@ -137,9 +134,16 @@ final class SerialService extends AbstractService implements WritableByteChannel
   }
 
   private void logErrorAndComplete(Subscriber<?> s, @Nonnull Exception ex) {
-    Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
-    close();
-    s.onComplete();
+    try {
+      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
+      close();
+    }
+    catch (IOException e) {
+      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, e.getMessage(), e);
+    }
+    finally {
+      s.onComplete();
+    }
   }
 
   private enum Ports {

@@ -16,15 +16,17 @@ public abstract class AbstractService implements AutoCloseable, Subscription {
   private final Object finalizerGuardian = new FinalizerGuardian(this);
 
   @Override
-  public abstract void close();
-
-  @Override
   public final void request(long n) {
   }
 
   @Override
   public final void cancel() {
-    close();
+    try {
+      close();
+    }
+    catch (Exception e) {
+      Logger.getLogger(getClass().getName()).log(LogUtils.LOG_LEVEL_ERRORS, e.getMessage(), e);
+    }
   }
 
   protected final void logBytes(@Nonnull ByteBuffer buffer) {

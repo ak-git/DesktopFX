@@ -2,6 +2,7 @@ package com.ak.comm;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -77,7 +78,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   }
 
   @Override
-  public void close() {
+  public void close() throws IOException {
     serialService.close();
     fileReadingService.close();
   }

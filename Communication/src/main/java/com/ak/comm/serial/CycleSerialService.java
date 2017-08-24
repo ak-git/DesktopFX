@@ -1,8 +1,7 @@
 package com.ak.comm.serial;
 
 import java.io.IOException;
-import java.nio.channels.SeekableByteChannel;
-import java.nio.file.Files;
+import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
@@ -95,7 +94,7 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   }
 
   @Override
-  public void close() {
+  public void close() throws IOException {
     synchronized (this) {
       try {
         serialService.close();
@@ -114,9 +113,9 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   }
 
   @Override
-  public SeekableByteChannel call() throws IOException {
+  public AsynchronousFileChannel call() throws IOException {
     Path path = LogBuilders.CONVERTER_SERIAL.build(getClass().getSimpleName()).getPath();
-    return Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
+    return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
   }
 
   @Override

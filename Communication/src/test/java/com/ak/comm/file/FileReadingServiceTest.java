@@ -67,7 +67,12 @@ public class FileReadingServiceTest {
     LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
         Flowable.fromPublisher(publisher).subscribe(testSubscriber), logRecord -> {
       if (forceClose) {
-        publisher.close();
+        try {
+          publisher.close();
+        }
+        catch (IOException e) {
+          Assert.fail(e.getMessage(), e);
+        }
       }
     });
     testSubscriber.assertValueCount(bytes / frameLength);
