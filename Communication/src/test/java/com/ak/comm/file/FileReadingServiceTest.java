@@ -151,10 +151,10 @@ public class FileReadingServiceTest {
     }
   }
 
-  @Test(expectedExceptions = IllegalStateException.class)
+  @Test
   public static void testInvalidChannelCall() throws Exception {
-    new FileReadingService<>(Paths.get(Strings.EMPTY), new RampBytesInterceptor(
+    Assert.assertNull(new FileReadingService<>(Paths.get(Strings.EMPTY), new RampBytesInterceptor(
         BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
-        new ToIntegerConverter<>(TwoVariables.class, Frequencies.HZ_200)).call();
+        new ToIntegerConverter<>(TwoVariables.class, Frequencies.HZ_200)).call());
   }
 }

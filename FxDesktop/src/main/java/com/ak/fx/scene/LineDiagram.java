@@ -45,7 +45,7 @@ final class LineDiagram extends AbstractRegion {
     bounds.setY(y);
     bounds.setWidth(width);
     bounds.setHeight(height);
-    title.relocate(x + SMALL.getStep() + POINTS.getStep(), y + height / 4 - LABEL_HEIGHT);
+    title.relocate(x + SMALL.getStep() + POINTS.getStep() / 4, y + height / 4 - LABEL_HEIGHT - POINTS.getStep() / 4);
     centerValue.relocate(x + POINTS.getStep() / 4, y + height / 2 - LABEL_HEIGHT - POINTS.getStep() / 4);
     polyline.setVisible(SMALL.maxCoordinate(width) > SMALL.getStep() * 2);
   }

@@ -85,7 +85,9 @@ final class ConcurrentAsyncFileChannel implements Closeable {
       if (channel == null) {
         channel = channelCallable.call();
       }
-      bytesCount = operation.operate(channel);
+      if (channel != null) {
+        bytesCount = operation.operate(channel);
+      }
     }
     catch (InterruptedException e) {
       Logger.getLogger(getClass().getName()).log(LogUtils.LOG_LEVEL_ERRORS, e.getMessage(), e);

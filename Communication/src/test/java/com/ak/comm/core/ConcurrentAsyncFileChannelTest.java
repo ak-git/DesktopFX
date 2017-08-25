@@ -94,4 +94,11 @@ public class ConcurrentAsyncFileChannelTest {
       Assert.assertEquals(logRecord.getThrown().getClass().getSimpleName(), Exception.class.getSimpleName());
     }));
   }
+
+  @Test
+  public static void testNullInitialize() {
+    ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> null);
+    Assert.assertEquals(channel.write(ByteBuffer.allocate(1)), 0);
+    Assert.assertEquals(channel.read(ByteBuffer.allocate(1), 1), 0);
+  }
 }
