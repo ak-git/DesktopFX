@@ -27,6 +27,7 @@ public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV>
   private final Provider<Converter<RESPONSE, EV>> converterProvider;
   @Nonnull
   private Disposable subscription = EmptyComponent.INSTANCE;
+  @Nonnull
   private Readable readable = Readable.EMPTY_READABLE;
 
   public AutoFileReadingService(@Nonnull Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider,
@@ -62,7 +63,7 @@ public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV>
   }
 
   @Override
-  public long read(@Nonnull ByteBuffer dst, long position) {
-    return readable.read(dst, position);
+  public void read(@Nonnull ByteBuffer dst, long position) {
+    readable.read(dst, position);
   }
 }

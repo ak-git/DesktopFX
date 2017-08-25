@@ -40,8 +40,8 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends E
   }
 
   @Override
-  public final long read(@Nonnull ByteBuffer dst, @Nonnegative long position) {
-    return convertedLogByteChannel.read(dst, position);
+  public final void read(@Nonnull ByteBuffer dst, @Nonnegative long position) {
+    convertedLogByteChannel.read(dst, position);
   }
 
   protected final Stream<int[]> process(@Nullable ByteBuffer buffer) {

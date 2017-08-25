@@ -3,10 +3,13 @@ package com.ak.comm;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -81,5 +84,24 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   public void close() throws IOException {
     serialService.close();
     fileReadingService.close();
+  }
+
+  public List<int[]> read(@Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
+    int from = Math.min(fromInclusive, toExclusive);
+    int to = Math.max(fromInclusive, toExclusive);
+
+    int frameSize = variables.size() * Integer.BYTES;
+    ByteBuffer buffer = ByteBuffer.allocate(frameSize * (to - from));
+    fileReadingService.read(buffer, frameSize * from);
+    buffer.flip();
+
+    int count = buffer.limit() / frameSize;
+    List<int[]> result = variables.stream().map(ev -> new int[count]).collect(Collectors.toList());
+    for (int i = 0; i < count; i++) {
+      for (int[] ints : result) {
+        ints[i] = buffer.getInt();
+      }
+    }
+    return result;
   }
 }
