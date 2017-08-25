@@ -1,43 +1,43 @@
-package com.ak.comm.file;
+package com.ak.comm;
 
-import java.nio.ByteBuffer;
+import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.TwoVariables;
+import com.ak.comm.file.FileDataProvider;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.digitalfilter.Frequencies;
-import com.ak.util.Strings;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
-public class AutoFileReadingServiceTest {
-  private final AutoFileReadingService<BufferFrame, BufferFrame, TwoVariables> service = new AutoFileReadingService<>(
+public class GroupServiceTest {
+  private final GroupService<BufferFrame, BufferFrame, TwoVariables> service = new GroupService<>(
       () -> new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
       () -> new ToIntegerConverter<>(TwoVariables.class, Frequencies.HZ_1000));
 
 
-  private AutoFileReadingServiceTest() {
+  private GroupServiceTest() {
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "parallelRampFiles", invocationCount = 10)
-  public void testAccept(@Nonnull Path file) {
+  public void testRead(@Nonnull Path file) {
     Assert.assertTrue(service.accept(file.toFile()));
-    int countFrames = 10;
-    ByteBuffer buffer = ByteBuffer.allocate(TwoVariables.values().length * Integer.BYTES * countFrames);
     while (!Thread.currentThread().isInterrupted()) {
-      buffer.clear();
-      service.read(buffer, 0);
-      buffer.flip();
-      if (buffer.limit() == buffer.capacity()) {
+      int countFrames = 10;
+      int shift = 2;
+      List<int[]> ints = service.read(shift, countFrames + shift);
+      if (!ints.isEmpty()) {
         for (int i = 0; i < countFrames; i++) {
           for (int j = 0; j < TwoVariables.values().length; j++) {
-            Assert.assertEquals(buffer.getInt(), i + j);
+            Assert.assertEquals(ints.get(j)[i], i + j + shift, Arrays.toString(ints.get(j)));
           }
         }
         break;
@@ -45,8 +45,15 @@ public class AutoFileReadingServiceTest {
     }
   }
 
-  @Test
-  public void testNotAccept() {
-    Assert.assertFalse(service.accept(Paths.get(Strings.EMPTY).toFile()));
+  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "parallelRampFiles", invocationCount = 10)
+  public void testNotRead(@Nonnull Path file) {
+    Assert.assertTrue(service.accept(file.toFile()));
+    List<int[]> ints = service.read(1, 1);
+    Assert.assertTrue(ints.isEmpty());
+  }
+
+  @AfterClass
+  public void tearDown() throws IOException {
+    service.close();
   }
 }

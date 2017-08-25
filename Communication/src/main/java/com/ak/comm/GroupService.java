@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -96,12 +97,17 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     buffer.flip();
 
     int count = buffer.limit() / frameSize;
-    List<int[]> result = variables.stream().map(ev -> new int[count]).collect(Collectors.toList());
-    for (int i = 0; i < count; i++) {
-      for (int[] ints : result) {
-        ints[i] = buffer.getInt();
-      }
+    if (count == 0) {
+      return Collections.emptyList();
     }
-    return result;
+    else {
+      List<int[]> result = variables.stream().map(ev -> new int[count]).collect(Collectors.toList());
+      for (int i = 0; i < count; i++) {
+        for (int[] ints : result) {
+          ints[i] = buffer.getInt();
+        }
+      }
+      return result;
+    }
   }
 }
