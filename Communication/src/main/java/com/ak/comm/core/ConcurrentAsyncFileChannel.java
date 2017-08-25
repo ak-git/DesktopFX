@@ -31,8 +31,8 @@ final class ConcurrentAsyncFileChannel implements Closeable {
     this.channelCallable = channelCallable;
   }
 
-  int write(@Nonnull ByteBuffer src) {
-    int countBytes;
+  long write(@Nonnull ByteBuffer src) {
+    long countBytes;
     lock.writeLock().lock();
     try {
       countBytes = operate(c -> c.write(src, writePos).get());
@@ -46,11 +46,14 @@ final class ConcurrentAsyncFileChannel implements Closeable {
     return countBytes;
   }
 
-  int read(@Nonnull ByteBuffer dst, @Nonnegative long position) {
-    int countBytes;
+  long read(@Nonnull ByteBuffer dst, @Nonnegative long position) {
+    long countBytes;
     lock.readLock().lock();
     try {
-      countBytes = operate(c -> c.read(dst, position).get());
+      countBytes = operate(c -> {
+        c.read(dst, position).get();
+        return c.size();
+      });
     }
     finally {
       lock.readLock().unlock();
@@ -79,8 +82,8 @@ final class ConcurrentAsyncFileChannel implements Closeable {
     }
   }
 
-  private int operate(@Nonnull ChannelOperation operation) {
-    int bytesCount = 0;
+  private long operate(@Nonnull ChannelOperation operation) {
+    long bytesCount = 0;
     try {
       if (channel == null) {
         channel = channelCallable.call();
@@ -100,6 +103,6 @@ final class ConcurrentAsyncFileChannel implements Closeable {
   }
 
   private interface ChannelOperation {
-    int operate(@Nonnull AsynchronousFileChannel channel) throws InterruptedException, ExecutionException;
+    long operate(@Nonnull AsynchronousFileChannel channel) throws InterruptedException, ExecutionException, IOException;
   }
 }

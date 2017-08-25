@@ -6,6 +6,7 @@ import java.nio.channels.AsynchronousFileChannel;
 import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -15,7 +16,7 @@ import com.ak.comm.converter.Variable;
 import com.ak.comm.interceptor.BytesInterceptor;
 
 public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
-    extends AbstractService implements Callable<AsynchronousFileChannel> {
+    extends AbstractService implements Callable<AsynchronousFileChannel>, Readable {
   @Nonnull
   private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
   @Nonnull
@@ -36,6 +37,11 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends E
   @Override
   public void close() throws IOException {
     convertedLogByteChannel.close();
+  }
+
+  @Override
+  public final long read(@Nonnull ByteBuffer dst, @Nonnegative long position) {
+    return convertedLogByteChannel.read(dst, position);
   }
 
   protected final Stream<int[]> process(@Nullable ByteBuffer buffer) {

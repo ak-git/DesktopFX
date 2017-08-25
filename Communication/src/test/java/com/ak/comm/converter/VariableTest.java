@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
-import com.ak.comm.converter.inner.UnLocalizedVariables;
 import com.ak.comm.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -91,13 +90,6 @@ public class VariableTest {
     Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
         () -> Assert.assertEquals(Variables.toString(TwoVariables.V2), TwoVariables.V2.name()), logRecord -> {
           Assert.assertTrue(logRecord.getMessage().contains(TwoVariables.V2.name()));
-          Assert.assertNull(logRecord.getThrown());
-        }));
-
-    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
-        () -> Assert.assertEquals(Variables.toString(UnLocalizedVariables.MISSING_RESOURCE),
-            UnLocalizedVariables.MISSING_RESOURCE.name()), logRecord -> {
-          Assert.assertTrue(logRecord.getMessage().contains(UnLocalizedVariables.MISSING_RESOURCE.name()));
           Assert.assertNull(logRecord.getThrown());
         }));
   }

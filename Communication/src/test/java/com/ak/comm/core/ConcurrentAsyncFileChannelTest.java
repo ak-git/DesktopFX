@@ -37,7 +37,7 @@ public class ConcurrentAsyncFileChannelTest {
     for (int i = 0; i < 10; i++) {
       Assert.assertEquals(channel.write(byteBuffer), 1);
       byteBuffer.clear();
-      Assert.assertEquals(channel.read(byteBuffer, 0), 1);
+      Assert.assertEquals(channel.read(byteBuffer, 0), i + 1);
       byteBuffer.rewind();
     }
     channel.close();
@@ -49,7 +49,7 @@ public class ConcurrentAsyncFileChannelTest {
       Path path = LogBuilders.TIME.build(ConcurrentAsyncFileChannelTest.class.getSimpleName() + "Parallel").getPath();
       return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
     });
-    Assert.assertEquals(channel.read(ByteBuffer.allocate(4), 100), -1);
+    Assert.assertEquals(channel.read(ByteBuffer.allocate(4), 100), 0);
     ExecutorService executorService = Executors.newFixedThreadPool(2);
     int INTS = 1024;
     Future<?> writeFuture = executorService.submit(() -> {
@@ -67,7 +67,7 @@ public class ConcurrentAsyncFileChannelTest {
       ByteBuffer byteBuffer = ByteBuffer.allocate(Integer.BYTES * INTS);
       for (int i = 0; i < INTS; i++) {
         byteBuffer.clear();
-        int read = channel.read(byteBuffer, 0);
+        long read = channel.read(byteBuffer, 0);
         byteBuffer.flip();
         Assert.assertEquals(read, byteBuffer.limit());
         for (int j = 0; byteBuffer.hasRemaining(); j++) {
