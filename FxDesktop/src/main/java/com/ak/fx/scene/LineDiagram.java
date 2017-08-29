@@ -16,8 +16,10 @@ import static com.ak.fx.scene.GridCell.SMALL;
 final class LineDiagram extends AbstractRegion {
   private final Rectangle bounds = new Rectangle();
   private final Text title = new Text();
-  private final Text centerValue = new Text("0");
+  private final Text centerValue = new Text("416,08");
   private final Polyline polyline = new Polyline();
+  private double xStep = 1.0;
+  private int nowIndex;
 
   LineDiagram(@Nonnull String name) {
     bounds.setVisible(false);
@@ -30,7 +32,7 @@ final class LineDiagram extends AbstractRegion {
     centerValue.setFont(title.getFont());
 
     polyline.setStroke(Color.BLACK);
-    polyline.translateXProperty().setValue(SMALL.getStep() * 2);
+    polyline.translateXProperty().setValue(SMALL.getStep());
     polyline.translateYProperty().bind(Bindings.divide(heightProperty(), 2));
 
     getChildren().add(bounds);
@@ -45,20 +47,44 @@ final class LineDiagram extends AbstractRegion {
     bounds.setY(y);
     bounds.setWidth(width);
     bounds.setHeight(height);
-    title.relocate(x + SMALL.getStep() + POINTS.getStep() / 4, y + height / 4 - LABEL_HEIGHT - POINTS.getStep() / 4);
+    title.relocate(x + POINTS.getStep() / 2, y + height / 4 - LABEL_HEIGHT - POINTS.getStep() / 4);
     centerValue.relocate(x + POINTS.getStep() / 4, y + height / 2 - LABEL_HEIGHT - POINTS.getStep() / 4);
+
+    if (polyline.getPoints().size() / 2 > getMaxSamples()) {
+      polyline.getPoints().remove(getMaxSamples() * 2, polyline.getPoints().size());
+      nowIndex = 0;
+    }
     polyline.setVisible(SMALL.maxCoordinate(width) > SMALL.getStep() * 2);
   }
 
-  void setAll(@Nonnegative double xStep, @Nonnull double[] y) {
+  void setAll(@Nonnull double[] y) {
     polyline.getPoints().clear();
-    for (int i = 0, n = Math.min(y.length, getMaxSamples(xStep)); i < n; i++) {
+    for (int i = 0, n = Math.min(y.length, getMaxSamples()); i < n; i++) {
       polyline.getPoints().add(xStep * i);
       polyline.getPoints().add(-y[i]);
+      nowIndex++;
     }
+    nowIndex %= getMaxSamples();
   }
 
-  int getMaxSamples(@Nonnegative double xStep) {
-    return Math.max(0, (int) Math.rint((SMALL.maxCoordinate(getWidth()) - SMALL.getStep() * 2) / xStep));
+  void add(double y) {
+    if (polyline.getPoints().size() / 2 <= nowIndex) {
+      polyline.getPoints().add(xStep * nowIndex);
+      polyline.getPoints().add(y);
+    }
+    else {
+      polyline.getPoints().set(nowIndex * 2 + 1, y);
+    }
+
+    nowIndex++;
+    nowIndex %= getMaxSamples();
+  }
+
+  int getMaxSamples() {
+    return Math.max(0, (int) Math.rint((SMALL.maxCoordinate(getWidth()) - polyline.translateXProperty().get()) / xStep));
+  }
+
+  void setXStep(@Nonnegative double xStep) {
+    this.xStep = xStep;
   }
 }
