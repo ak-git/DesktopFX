@@ -6,7 +6,6 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.util.LogUtils;
-import com.ak.digitalfilter.Frequencies;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -14,7 +13,7 @@ import static java.util.logging.Level.WARNING;
 
 public class ConverterTest {
   private static final Converter<Integer, TwoVariables> INVALID_CONVERTER =
-      new AbstractConverter<Integer, TwoVariables>(TwoVariables.class, Frequencies.HZ_200) {
+      new AbstractConverter<Integer, TwoVariables>(TwoVariables.class, 200) {
         @Override
         protected Stream<int[]> innerApply(@Nonnull Integer integer) {
           return Stream.of(new int[] {integer});
@@ -22,7 +21,7 @@ public class ConverterTest {
       };
   private static final Logger LOGGER_INVALID = Logger.getLogger(INVALID_CONVERTER.getClass().getName());
   private static final Converter<Integer, ADCVariable> VALID_CONVERTER_0 =
-      new AbstractConverter<Integer, ADCVariable>(ADCVariable.class, Frequencies.HZ_1000) {
+      new AbstractConverter<Integer, ADCVariable>(ADCVariable.class, 1000) {
         @Override
         protected Stream<int[]> innerApply(@Nonnull Integer integer) {
           return Stream.empty();
@@ -49,7 +48,7 @@ public class ConverterTest {
 
   @Test
   public static void testFrequencies() {
-    Assert.assertEquals(INVALID_CONVERTER.getFrequency().getValue().intValue(), 200);
-    Assert.assertEquals(VALID_CONVERTER_0.getFrequency().getValue().intValue(), 1000);
+    Assert.assertEquals(INVALID_CONVERTER.getFrequency(), 200, 0.1);
+    Assert.assertEquals(VALID_CONVERTER_0.getFrequency(), 1000, 0.1);
   }
 }

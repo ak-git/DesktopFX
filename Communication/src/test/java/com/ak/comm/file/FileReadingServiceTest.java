@@ -21,7 +21,6 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.logging.LogBuilders;
 import com.ak.comm.util.LogUtils;
-import com.ak.digitalfilter.Frequencies;
 import com.ak.util.Strings;
 import io.reactivex.Flowable;
 import io.reactivex.subscribers.TestSubscriber;
@@ -63,7 +62,7 @@ public class FileReadingServiceTest {
     FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher = new FileReadingService<>(
         fileToRead,
         new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, frameLength),
-        new ToIntegerConverter<>(TwoVariables.class, Frequencies.HZ_200));
+        new ToIntegerConverter<>(TwoVariables.class, 200));
     LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
         Flowable.fromPublisher(publisher).subscribe(testSubscriber), logRecord -> {
       if (forceClose) {
@@ -84,7 +83,7 @@ public class FileReadingServiceTest {
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
     Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
         BytesInterceptor.BaudRate.BR_921600, frameLength),
-        new ToIntegerConverter<>(TwoVariables.class, Frequencies.HZ_1000));
+        new ToIntegerConverter<>(TwoVariables.class, 1000));
     Assert.assertTrue(publisher.toString().contains(fileToRead.toString()));
 
     Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
@@ -118,7 +117,7 @@ public class FileReadingServiceTest {
       TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
       Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
           BytesInterceptor.BaudRate.BR_921600, 1 + TwoVariables.values().length * Integer.BYTES),
-          new ToIntegerConverter<>(TwoVariables.class, Frequencies.HZ_200));
+          new ToIntegerConverter<>(TwoVariables.class, 200));
       Flowable.fromPublisher(publisher).doOnSubscribe(subscription -> Files.deleteIfExists(fileToRead)).subscribe(testSubscriber);
       if (bytes < 0) {
         testSubscriber.assertNoErrors();
@@ -138,7 +137,7 @@ public class FileReadingServiceTest {
     TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
     Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
         BytesInterceptor.BaudRate.BR_921600, 1 + TwoVariables.values().length * Integer.BYTES),
-        new ToIntegerConverter<>(TwoVariables.class, Frequencies.HZ_1000));
+        new ToIntegerConverter<>(TwoVariables.class, 1000));
     Flowable.fromPublisher(publisher).doOnSubscribe(Subscription::cancel).subscribe(testSubscriber);
     testSubscriber.assertNoErrors();
     testSubscriber.assertNoValues();
@@ -155,6 +154,6 @@ public class FileReadingServiceTest {
   public static void testInvalidChannelCall() throws Exception {
     Assert.assertNull(new FileReadingService<>(Paths.get(Strings.EMPTY), new RampBytesInterceptor(
         BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
-        new ToIntegerConverter<>(TwoVariables.class, Frequencies.HZ_200)).call());
+        new ToIntegerConverter<>(TwoVariables.class, 200)).call());
   }
 }

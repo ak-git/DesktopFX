@@ -4,11 +4,10 @@ import java.util.stream.Stream;
 
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.converter.AbstractConverter;
-import com.ak.digitalfilter.Frequencies;
 
 public final class RsceConverter extends AbstractConverter<RsceCommandFrame, RsceVariable> {
   public RsceConverter() {
-    super(RsceVariable.class, Frequencies.HZ_200);
+    super(RsceVariable.class, 200);
   }
 
   @Override

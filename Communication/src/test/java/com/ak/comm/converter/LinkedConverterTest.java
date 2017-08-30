@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.ak.comm.bytes.BufferFrame;
-import com.ak.digitalfilter.Frequencies;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -34,7 +33,7 @@ public class LinkedConverterTest {
 
   @Test(dataProvider = "variables")
   public static void testApply(BufferFrame frame, int[] output) {
-    ToIntegerConverter<TwoVariables> converter = new ToIntegerConverter<>(TwoVariables.class, Frequencies.HZ_200);
+    ToIntegerConverter<TwoVariables> converter = new ToIntegerConverter<>(TwoVariables.class, 200);
     LinkedConverter<BufferFrame, TwoVariables, OperatorVariables> linkedConverter = new LinkedConverter<>(converter, OperatorVariables.class);
     Assert.assertEquals(linkedConverter.variables(), Stream.of(OperatorVariables.values()).collect(Collectors.toList()));
     Assert.assertEquals(linkedConverter.apply(frame).peek(ints -> Assert.assertEquals(ints, output,
@@ -45,7 +44,7 @@ public class LinkedConverterTest {
   public static void testApply2(BufferFrame frame, int[] output) {
     Function<BufferFrame, Stream<int[]>> linkedConverter =
         new LinkedConverter<>(
-            new LinkedConverter<>(new ToIntegerConverter<>(TwoVariables.class, Frequencies.HZ_1000), OperatorVariables.class),
+            new LinkedConverter<>(new ToIntegerConverter<>(TwoVariables.class, 1000), OperatorVariables.class),
             OperatorVariables2.class
         );
 

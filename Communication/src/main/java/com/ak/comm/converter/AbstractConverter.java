@@ -14,8 +14,6 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.measure.Quantity;
-import javax.measure.quantity.Frequency;
 
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
@@ -29,16 +27,16 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
   private final List<EV> variables;
   @Nonnull
   private final DigitalFilter digitalFilter;
-  @Nonnull
-  private final Quantity<Frequency> frequency;
+  @Nonnegative
+  private final double frequency;
   @Nonnull
   private Stream<int[]> filteredValues = Stream.empty();
 
-  public AbstractConverter(@Nonnull Class<EV> evClass, @Nonnull Quantity<Frequency> frequency) {
+  public AbstractConverter(@Nonnull Class<EV> evClass, @Nonnegative double frequency) {
     this(evClass, frequency, EnumSet.allOf(evClass).stream().map(ev -> new int[] {ev.ordinal()}).collect(Collectors.toList()));
   }
 
-  AbstractConverter(@Nonnull Class<EV> evClass, @Nonnull Quantity<Frequency> frequency, @Nonnull List<int[]> selectedIndexes) {
+  AbstractConverter(@Nonnull Class<EV> evClass, @Nonnegative double frequency, @Nonnull List<int[]> selectedIndexes) {
     variables = Collections.unmodifiableList(new ArrayList<>(EnumSet.allOf(evClass)));
     List<DigitalFilter> filters = variables.stream().map(ev -> ev.filter()).collect(Collectors.toList());
 
@@ -51,7 +49,7 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
       }
       filteredValues = Stream.concat(filteredValues, Stream.of(ints));
     });
-    this.frequency = frequency.multiply(digitalFilter.getFrequencyFactor());
+    this.frequency = frequency * digitalFilter.getFrequencyFactor();
   }
 
   @Override
@@ -61,7 +59,7 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
 
   @Nonnegative
   @Override
-  public final Quantity<Frequency> getFrequency() {
+  public final double getFrequency() {
     return frequency;
   }
 

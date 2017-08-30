@@ -3,9 +3,6 @@ package com.ak.comm.converter;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.measure.Quantity;
-import javax.measure.quantity.Frequency;
-
 public final class LinkedConverter<RESPONSE, IN extends Enum<IN> & Variable<IN>, OUT extends Enum<OUT> & DependentVariable<IN, OUT>>
     implements Converter<RESPONSE, OUT> {
   private final Converter<RESPONSE, IN> responseConverter;
@@ -22,7 +19,7 @@ public final class LinkedConverter<RESPONSE, IN extends Enum<IN> & Variable<IN>,
   }
 
   @Override
-  public Quantity<Frequency> getFrequency() {
+  public double getFrequency() {
     return outConverter.getFrequency();
   }
 

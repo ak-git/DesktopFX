@@ -34,12 +34,15 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   private final AutoFileReadingService<RESPONSE, REQUEST, EV> fileReadingService;
   @Nonnull
   private final List<EV> variables;
+  @Nonnull
+  private final double frequency;
 
   @Inject
   public GroupService(@Nonnull Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider,
                       @Nonnull Provider<Converter<RESPONSE, EV>> converterProvider) {
     Converter<RESPONSE, EV> converter = converterProvider.get();
     variables = converter.variables();
+    frequency = converter.getFrequency();
     serialService = new CycleSerialService<>(interceptorProvider.get(), converter);
     fileReadingService = new AutoFileReadingService<>(interceptorProvider, converterProvider);
   }
@@ -79,6 +82,10 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
 
   public List<EV> getVariables() {
     return variables;
+  }
+
+  public double getFrequency() {
+    return frequency;
   }
 
   @Override

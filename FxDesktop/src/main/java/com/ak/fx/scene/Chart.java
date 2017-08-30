@@ -25,6 +25,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
   private final Text xAxisUnit = new Text(Variables.toString(
       Quantities.getQuantity(25, MetricPrefix.MILLI(Units.METRE).divide(Units.SECOND).asType(Speed.class)))
   );
+  private double frequency = 200.0;
   private int start;
 
   public Chart() {
@@ -48,6 +49,10 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
     lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(1.0));
     getChildren().addAll(lineDiagrams);
     getChildren().add(xAxisUnit);
+  }
+
+  public void setFrequency(double frequency) {
+    this.frequency = frequency;
   }
 
   @Override
