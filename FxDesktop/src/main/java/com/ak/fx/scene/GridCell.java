@@ -43,8 +43,8 @@ enum GridCell {
 
     @Override
     @Nonnegative
-    double maxCoordinate(@Nonnegative double size) {
-      return GridCell.maxCoordinate(getStep(), size);
+    double maxWidth(@Nonnegative double size) {
+      return GridCell.maxWidth(getStep(), size);
     }
 
     @Override
@@ -97,8 +97,8 @@ enum GridCell {
   }
 
   @Nonnegative
-  double maxCoordinate(@Nonnegative double size) {
-    return Math.min(maxCoordinate(getStep(), size), SMALL.maxCoordinate(size));
+  double maxWidth(@Nonnegative double size) {
+    return Math.min(maxWidth(getStep(), size), SMALL.maxWidth(size));
   }
 
   @Nonnegative
@@ -118,7 +118,7 @@ enum GridCell {
   }
 
   @Nonnegative
-  private static double maxCoordinate(@Nonnegative double step, @Nonnegative double size) {
+  private static double maxWidth(@Nonnegative double step, @Nonnegative double size) {
     return Math.floor((size - minCoordinate(step, size)) / step) * step;
   }
 

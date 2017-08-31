@@ -58,17 +58,17 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
   @Override
   void layoutChartChildren(double x, double y, double width, double height) {
     milliGrid.resizeRelocate(x, y, width, height);
-    layoutLineDiagrams(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxCoordinate(width), height);
-    layoutText(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxCoordinate(width));
+    layoutLineDiagrams(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxWidth(width), height);
+    layoutText(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxWidth(width));
   }
 
   private void layoutText(double x, double y, double width) {
-    xAxisUnit.relocate(x + BIG.minCoordinate(width) + BIG.maxCoordinate(width) / 2 + POINTS.getStep(),
+    xAxisUnit.relocate(x + BIG.minCoordinate(width) + BIG.maxWidth(width) / 2 + POINTS.getStep(),
         y + SMALL.getStep() / 2 - Constants.LABEL_HEIGHT);
   }
 
   private void layoutLineDiagrams(double x, double y, double width, double height) {
-    double dHeight = SMALL.maxCoordinate(height * 2 / (1 + lineDiagrams.size()));
+    double dHeight = SMALL.maxWidth(height * 2 / (1 + lineDiagrams.size()));
 
     for (LineDiagram rectangle : lineDiagrams) {
       rectangle.resizeRelocate(x, y, width, dHeight);
@@ -79,16 +79,16 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
         lineDiagrams.get(i).relocate(x, y + SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i);
       }
       if ((lineDiagrams.size() & 1) != 0) {
-        lineDiagrams.get(lineDiagrams.size() / 2).relocate(x, y + SMALL.maxCoordinate(height) / 2 - dHeight / 2);
+        lineDiagrams.get(lineDiagrams.size() / 2).relocate(x, y + SMALL.maxWidth(height) / 2 - dHeight / 2);
       }
       for (int i = 0; i < lineDiagrams.size() / 2; i++) {
         lineDiagrams.get(lineDiagrams.size() - 1 - i).
-            relocate(x, y + SMALL.maxCoordinate(height) -
+            relocate(x, y + SMALL.maxWidth(height) -
                 dHeight - SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i);
       }
     }
     else {
-      lineDiagrams.forEach(rectangle -> rectangle.resize(width, SMALL.maxCoordinate(height)));
+      lineDiagrams.forEach(rectangle -> rectangle.resize(width, SMALL.maxWidth(height)));
     }
   }
 }

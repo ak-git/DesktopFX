@@ -54,7 +54,7 @@ final class LineDiagram extends AbstractRegion {
       polyline.getPoints().remove(getMaxSamples() * 2, polyline.getPoints().size());
       nowIndex = 0;
     }
-    polyline.setVisible(SMALL.maxCoordinate(width) > SMALL.getStep() * 2);
+    polyline.setVisible(SMALL.maxWidth(width) > SMALL.getStep() * 2);
   }
 
   void setAll(@Nonnull double[] y) {
@@ -81,7 +81,8 @@ final class LineDiagram extends AbstractRegion {
   }
 
   int getMaxSamples() {
-    return Math.max(0, (int) Math.rint((SMALL.maxCoordinate(getWidth()) - polyline.translateXProperty().get()) / xStep));
+    return Math.max(0, (int) Math.rint((SMALL.minCoordinate(getWidth()) + SMALL.maxWidth(getWidth()) -
+        polyline.translateXProperty().get()) / xStep));
   }
 
   void setXStep(@Nonnegative double xStep) {
