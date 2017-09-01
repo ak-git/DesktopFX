@@ -4,11 +4,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import javax.annotation.Nonnull;
 import javax.measure.quantity.Speed;
 
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.text.Text;
 import tec.uom.se.quantity.Quantities;
@@ -20,28 +25,18 @@ import static com.ak.fx.scene.GridCell.POINTS;
 import static com.ak.fx.scene.GridCell.SMALL;
 
 public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractRegion {
+  private static final double[] EMPTY_DOUBLES = {};
   private final MilliGrid milliGrid = new MilliGrid();
   private final List<LineDiagram> lineDiagrams = new ArrayList<>();
   private final Text xAxisUnit = new Text(Variables.toString(
       Quantities.getQuantity(25, MetricPrefix.MILLI(Units.METRE).divide(Units.SECOND).asType(Speed.class)))
   );
-  private double frequency = 200.0;
-  private int start;
+  private final IntegerProperty startProperty = new SimpleIntegerProperty();
+  private final IntegerProperty lengthProperty = new SimpleIntegerProperty();
 
   public Chart() {
     getChildren().add(milliGrid);
     xAxisUnit.setFont(Constants.FONT);
-
-    setOnScroll((ScrollEvent event) -> {
-      start = (int) Math.max(0, Math.rint(start - event.getDeltaX()));
-
-      for (int i = 0; i < lineDiagrams.stream().mapToInt(LineDiagram::getMaxSamples).summaryStatistics().getMin(); i++) {
-        int finalI = i;
-        lineDiagrams.forEach(lineDiagram -> lineDiagram.add(50 * StrictMath.sin((finalI + start) / 100.0)));
-      }
-
-      event.consume();
-    });
   }
 
   public void setVariables(Collection<EV> variables) {
@@ -49,10 +44,35 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
     lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(1.0));
     getChildren().addAll(lineDiagrams);
     getChildren().add(xAxisUnit);
+
+    setOnScroll((ScrollEvent event) -> {
+      startProperty.setValue((int) Math.max(0, Math.rint(startProperty.get() - event.getDeltaX())));
+      event.consume();
+    });
   }
 
-  public void setFrequency(double frequency) {
-    this.frequency = frequency;
+  public void setAll(@Nonnull List<int[]> chartData) {
+    if (chartData.isEmpty()) {
+      lineDiagrams.forEach(lineDiagram -> lineDiagram.setAll(EMPTY_DOUBLES));
+    }
+    else {
+      for (int i = 0; i < chartData.size(); i++) {
+        int[] ints = chartData.get(i);
+        lineDiagrams.get(i).setAll(IntStream.of(ints).mapToDouble(value -> value).toArray());
+      }
+      int realDataLen = chartData.get(0).length;
+      if (realDataLen < lengthProperty.get()) {
+        startProperty.setValue(Math.max(0, startProperty.get() + realDataLen - lengthProperty.get()));
+      }
+    }
+  }
+
+  public ReadOnlyIntegerProperty startProperty() {
+    return ReadOnlyIntegerProperty.readOnlyIntegerProperty(startProperty);
+  }
+
+  public ReadOnlyIntegerProperty lengthProperty() {
+    return ReadOnlyIntegerProperty.readOnlyIntegerProperty(lengthProperty);
   }
 
   @Override
@@ -60,6 +80,9 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
     milliGrid.resizeRelocate(x, y, width, height);
     layoutLineDiagrams(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxWidth(width), height);
     layoutText(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxWidth(width));
+    int prevChartCenter = startProperty.get() + lengthProperty.get() / 2;
+    lengthProperty.setValue(lineDiagrams.get(0).getMaxSamples());
+    startProperty.setValue(Math.max(0, prevChartCenter - lengthProperty.get() / 2));
   }
 
   private void layoutText(double x, double y, double width) {

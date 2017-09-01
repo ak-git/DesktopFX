@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -60,7 +61,16 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
         }
       });
       chart.setVariables(service.getVariables());
-      chart.setFrequency(service.getFrequency());
+      chart.startProperty().addListener((observable, oldValue, newValue) ->
+          readFromFile(newValue.intValue(), chart.lengthProperty().get()));
+      chart.lengthProperty().addListener((observable, oldValue, newValue) ->
+          readFromFile(chart.startProperty().get(), newValue.intValue()));
+    }
+  }
+
+  private void readFromFile(@Nonnegative int start, @Nonnegative int length) {
+    if (chart != null) {
+      chart.setAll(service.read(start, start + length));
     }
   }
 }
