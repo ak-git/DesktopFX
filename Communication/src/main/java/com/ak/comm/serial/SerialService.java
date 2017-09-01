@@ -1,9 +1,9 @@
 package com.ak.comm.serial;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ByteChannel;
+import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -14,7 +14,8 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.core.AbstractService;
-import com.ak.comm.core.EmptyByteChannel;
+import com.ak.comm.core.ConcurrentAsyncFileChannel;
+import com.ak.comm.logging.LogBuilders;
 import com.ak.util.Strings;
 import jssc.SerialPort;
 import jssc.SerialPortException;
@@ -31,7 +32,9 @@ final class SerialService extends AbstractService implements WritableByteChannel
   private final int baudRate;
   @Nonnull
   private final ByteBuffer buffer;
-  private final ByteChannel binaryLogChannel = EmptyByteChannel.INSTANCE;
+  private final ConcurrentAsyncFileChannel binaryLogChannel = new ConcurrentAsyncFileChannel(() ->
+      AsynchronousFileChannel.open(LogBuilders.SERIAL_BYTES.build(getClass().getSimpleName()).getPath(),
+          StandardOpenOption.CREATE, StandardOpenOption.WRITE));
   private volatile boolean refresh;
 
   SerialService(@Nonnegative int baudRate) {
@@ -106,7 +109,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     try {
       synchronized (serialPort) {
         if (serialPort.isOpened()) {
@@ -137,9 +140,6 @@ final class SerialService extends AbstractService implements WritableByteChannel
     try {
       Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
       close();
-    }
-    catch (IOException e) {
-      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, e.getMessage(), e);
     }
     finally {
       s.onComplete();

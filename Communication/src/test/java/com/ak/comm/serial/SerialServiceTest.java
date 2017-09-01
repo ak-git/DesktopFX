@@ -33,14 +33,7 @@ public class SerialServiceTest implements Subscriber<ByteBuffer> {
     singleService.close();
     Assert.assertTrue(singleService.toString().contains("serialPort"));
     Assert.assertFalse(singleService.isOpen());
-    services.forEach(serialService -> {
-      try {
-        serialService.close();
-      }
-      catch (IOException e) {
-        Assert.fail(e.getMessage(), e);
-      }
-    });
+    services.forEach(SerialService::close);
   }
 
   @Override

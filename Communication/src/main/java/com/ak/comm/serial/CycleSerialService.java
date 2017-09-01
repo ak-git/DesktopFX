@@ -115,7 +115,7 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   @Override
   public AsynchronousFileChannel call() throws IOException {
     Path path = LogBuilders.CONVERTER_SERIAL.build(getClass().getSimpleName()).getPath();
-    return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
+    return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
   }
 
   @Override

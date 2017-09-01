@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
 
 import com.ak.comm.util.LogUtils;
 
-final class ConcurrentAsyncFileChannel implements Closeable {
+public final class ConcurrentAsyncFileChannel implements Closeable {
   @Nonnull
   private final Callable<AsynchronousFileChannel> channelCallable;
   @Nonnull
@@ -27,11 +27,11 @@ final class ConcurrentAsyncFileChannel implements Closeable {
   @Nonnegative
   private long writePos;
 
-  ConcurrentAsyncFileChannel(@Nonnull Callable<AsynchronousFileChannel> channelCallable) {
+  public ConcurrentAsyncFileChannel(@Nonnull Callable<AsynchronousFileChannel> channelCallable) {
     this.channelCallable = channelCallable;
   }
 
-  void write(@Nonnull ByteBuffer src) {
+  public void write(@Nonnull ByteBuffer src) {
     lock.writeLock().lock();
     try {
       long countBytes = operate(c -> c.write(src, writePos).get());
