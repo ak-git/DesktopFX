@@ -13,11 +13,13 @@ import com.ak.comm.converter.TwoVariables;
 import com.ak.comm.file.FileDataProvider;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
-public class GroupServiceTest {
+public class GroupServiceTest implements Subscriber<int[]> {
   private final GroupService<BufferFrame, BufferFrame, TwoVariables> service = new GroupService<>(
       () -> new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
       () -> new ToIntegerConverter<>(TwoVariables.class, 1000));
@@ -28,7 +30,7 @@ public class GroupServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "parallelRampFiles", invocationCount = 10)
   public void testRead(@Nonnull Path file) {
-    Assert.assertTrue(service.accept(file.toFile()));
+    Assert.assertTrue(service.isAccept(file.toFile(), this));
     while (!Thread.currentThread().isInterrupted()) {
       int countFrames = 10;
       int shift = 2;
@@ -46,7 +48,7 @@ public class GroupServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "parallelRampFiles", invocationCount = 10)
   public void testNotRead(@Nonnull Path file) {
-    Assert.assertTrue(service.accept(file.toFile()));
+    Assert.assertTrue(service.isAccept(file.toFile(), this));
     List<int[]> ints = service.read(1, 1);
     Assert.assertTrue(ints.isEmpty());
   }
@@ -54,5 +56,22 @@ public class GroupServiceTest {
   @AfterClass
   public void tearDown() throws IOException {
     service.close();
+  }
+
+  @Override
+  public void onSubscribe(Subscription s) {
+  }
+
+  @Override
+  public void onNext(int[] ints) {
+  }
+
+  @Override
+  public void onError(Throwable t) {
+    Assert.fail(t.getMessage(), t);
+  }
+
+  @Override
+  public void onComplete() {
   }
 }

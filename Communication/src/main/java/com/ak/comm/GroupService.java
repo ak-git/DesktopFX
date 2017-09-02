@@ -1,13 +1,10 @@
 package com.ak.comm;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
@@ -22,12 +19,10 @@ import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
 import com.ak.comm.serial.Refreshable;
-import com.ak.digitalfilter.IntsAcceptor;
 import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractService
-    implements FileFilter, Refreshable {
+    implements Refreshable {
   @Nonnull
   private final CycleSerialService<RESPONSE, REQUEST, EV> serialService;
   @Nonnull
@@ -47,9 +42,8 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     fileReadingService = new AutoFileReadingService<>(interceptorProvider, converterProvider);
   }
 
-  @Override
-  public boolean accept(@Nonnull File file) {
-    return fileReadingService.accept(file);
+  public boolean isAccept(@Nonnull File file, @Nonnull Subscriber<int[]> subscriber) {
+    return fileReadingService.isAccept(file, subscriber);
   }
 
   @Override
@@ -57,27 +51,8 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     serialService.refresh();
   }
 
-  public void subscribeSerial(@Nonnull IntsAcceptor acceptor) {
-    serialService.subscribe(new Subscriber<int[]>() {
-      @Override
-      public void onSubscribe(Subscription s) {
-        s.request(Long.MAX_VALUE);
-      }
-
-      @Override
-      public void onNext(int[] ints) {
-        acceptor.accept(ints);
-      }
-
-      @Override
-      public void onError(Throwable t) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, t.getMessage(), t);
-      }
-
-      @Override
-      public void onComplete() {
-      }
-    });
+  public void subscribeSerial(@Nonnull Subscriber<int[]> subscriber) {
+    serialService.subscribe(subscriber);
   }
 
   public List<EV> getVariables() {

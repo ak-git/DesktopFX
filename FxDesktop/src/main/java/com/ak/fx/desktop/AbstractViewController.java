@@ -2,7 +2,11 @@ package com.ak.fx.desktop;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -11,16 +15,22 @@ import javax.annotation.Nullable;
 import com.ak.comm.GroupService;
 import com.ak.comm.converter.Variable;
 import com.ak.fx.scene.Chart;
+import io.reactivex.internal.util.EmptyComponent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
-public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> implements Initializable {
+public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
+    implements Initializable, Subscriber<int[]> {
   @Nonnull
   private final GroupService<RESPONSE, REQUEST, EV> service;
+  @Nonnull
+  private Subscription subscription = EmptyComponent.INSTANCE;
   @Nullable
   @FXML
   private Chart<EV> chart;
@@ -46,7 +56,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
         boolean ok = false;
         if (db.hasFiles()) {
           for (File file : db.getFiles()) {
-            if (service.accept(file)) {
+            if (service.isAccept(file, this)) {
               ok = true;
               break;
             }
@@ -66,11 +76,31 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
       chart.lengthProperty().addListener((observable, oldValue, newValue) ->
           readFromFile(chart.startProperty().get(), newValue.intValue()));
     }
+
+    service.subscribeSerial(this);
+  }
+
+  @Override
+  public final void onSubscribe(Subscription s) {
+    Objects.requireNonNull(chart).setAll(Collections.emptyList());
+    subscription.cancel();
+    subscription = s;
+  }
+
+  @Override
+  public final void onNext(int[] ints) {
+  }
+
+  @Override
+  public final void onError(Throwable t) {
+    Logger.getLogger(getClass().getName()).log(Level.WARNING, t.getMessage(), t);
+  }
+
+  @Override
+  public final void onComplete() {
   }
 
   private void readFromFile(@Nonnegative int start, @Nonnegative int length) {
-    if (chart != null) {
-      chart.setAll(service.read(start, start + length));
-    }
+    Objects.requireNonNull(chart).setAll(service.read(start, start + length));
   }
 }

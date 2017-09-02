@@ -54,6 +54,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
   public void setAll(@Nonnull List<int[]> chartData) {
     if (chartData.isEmpty()) {
       lineDiagrams.forEach(lineDiagram -> lineDiagram.setAll(EMPTY_DOUBLES));
+      startProperty.setValue(0);
     }
     else {
       for (int i = 0; i < chartData.size(); i++) {

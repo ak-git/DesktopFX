@@ -64,7 +64,13 @@ final class LineDiagram extends AbstractRegion {
       polyline.getPoints().add(-y[i]);
       nowIndex++;
     }
-    nowIndex %= getMaxSamples();
+
+    if (y.length == 0) {
+      nowIndex = 0;
+    }
+    else {
+      nowIndex %= getMaxSamples();
+    }
   }
 
   void add(double y) {

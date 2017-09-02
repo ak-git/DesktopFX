@@ -12,10 +12,12 @@ import com.ak.comm.converter.TwoVariables;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.util.Strings;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class AutoFileReadingServiceTest {
+public class AutoFileReadingServiceTest implements Subscriber<int[]> {
   private final AutoFileReadingService<BufferFrame, BufferFrame, TwoVariables> service = new AutoFileReadingService<>(
       () -> new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
       () -> new ToIntegerConverter<>(TwoVariables.class, 1000));
@@ -26,7 +28,7 @@ public class AutoFileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "parallelRampFiles", invocationCount = 10)
   public void testAccept(@Nonnull Path file) {
-    Assert.assertTrue(service.accept(file.toFile()));
+    Assert.assertTrue(service.isAccept(file.toFile(), this));
     int countFrames = 10;
     ByteBuffer buffer = ByteBuffer.allocate(TwoVariables.values().length * Integer.BYTES * countFrames);
     while (!Thread.currentThread().isInterrupted()) {
@@ -46,6 +48,23 @@ public class AutoFileReadingServiceTest {
 
   @Test
   public void testNotAccept() {
-    Assert.assertFalse(service.accept(Paths.get(Strings.EMPTY).toFile()));
+    Assert.assertFalse(service.isAccept(Paths.get(Strings.EMPTY).toFile(), this));
+  }
+
+  @Override
+  public void onSubscribe(Subscription s) {
+  }
+
+  @Override
+  public void onNext(int[] ints) {
+  }
+
+  @Override
+  public void onError(Throwable t) {
+    Assert.fail(t.getMessage(), t);
+  }
+
+  @Override
+  public void onComplete() {
   }
 }

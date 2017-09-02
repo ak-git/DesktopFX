@@ -1,10 +1,7 @@
 package com.ak.comm.file;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.nio.ByteBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
@@ -15,18 +12,15 @@ import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.Readable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import io.reactivex.Flowable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.internal.util.EmptyComponent;
 import io.reactivex.schedulers.Schedulers;
+import org.reactivestreams.Subscriber;
 
 public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
-    extends AbstractService implements FileFilter, Readable {
+    extends AbstractService implements Readable {
   @Nonnull
   private final Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider;
   @Nonnull
   private final Provider<Converter<RESPONSE, EV>> converterProvider;
-  @Nonnull
-  private Disposable subscription = EmptyComponent.INSTANCE;
   @Nonnull
   private Readable readable = Readable.EMPTY_READABLE;
 
@@ -36,19 +30,14 @@ public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV>
     this.converterProvider = converterProvider;
   }
 
-  @Override
-  public boolean accept(@Nonnull File file) {
+  public boolean isAccept(@Nonnull File file, Subscriber<int[]> subscriber) {
     if (file.isFile() && file.getName().toLowerCase().endsWith(".bin")) {
       close();
       FileReadingService<RESPONSE, REQUEST, EV> source = new FileReadingService<>(file.toPath(),
           interceptorProvider.get(), converterProvider.get()
       );
       readable = source;
-      subscription = Flowable.fromPublisher(source).subscribeOn(Schedulers.io()).subscribe(
-          ints -> {
-          },
-          t -> Logger.getLogger(getClass().getName()).log(Level.WARNING, t.getMessage(), t)
-      );
+      Flowable.fromPublisher(source).subscribeOn(Schedulers.io()).subscribe(subscriber);
       return true;
     }
     else {
@@ -59,7 +48,6 @@ public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV>
   @Override
   public void close() {
     readable = Readable.EMPTY_READABLE;
-    subscription.dispose();
   }
 
   @Override

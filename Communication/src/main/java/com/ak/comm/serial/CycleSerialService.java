@@ -26,6 +26,7 @@ import com.ak.comm.logging.LogBuilders;
 import com.ak.util.UIConstants;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.internal.util.EmptyComponent;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
@@ -43,7 +44,7 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
 
   @Override
   public void subscribe(@Nonnull Subscriber<? super int[]> s) {
-    s.onSubscribe(this);
+    s.onSubscribe(EmptyComponent.INSTANCE);
     executor.scheduleAtFixedRate(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();
       AtomicReference<Instant> okTime = new AtomicReference<>(Instant.now());
