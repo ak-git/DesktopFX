@@ -12,9 +12,10 @@ import javax.measure.quantity.Speed;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.scene.input.ScrollEvent;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.text.Text;
 import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.MetricPrefix;
@@ -25,14 +26,38 @@ import static com.ak.fx.scene.GridCell.POINTS;
 import static com.ak.fx.scene.GridCell.SMALL;
 
 public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractRegion {
+  private enum ZoomX {
+    Z_50(50), Z_25(25), Z_10(10);
+
+    private final int mmPerSec;
+
+    ZoomX(int mmPerSec) {
+      this.mmPerSec = mmPerSec;
+    }
+
+    ZoomX prev() {
+      return values()[Math.max(0, ordinal() - 1)];
+    }
+
+    ZoomX next() {
+      return values()[Math.min(values().length - 1, ordinal() + 1)];
+    }
+
+    @Override
+    public String toString() {
+      return Variables.toString(
+          Quantities.getQuantity(mmPerSec, MetricPrefix.MILLI(Units.METRE).divide(Units.SECOND).asType(Speed.class))
+      );
+    }
+  }
+
   private static final double[] EMPTY_DOUBLES = {};
   private final MilliGrid milliGrid = new MilliGrid();
   private final List<LineDiagram> lineDiagrams = new ArrayList<>();
-  private final Text xAxisUnit = new Text(Variables.toString(
-      Quantities.getQuantity(25, MetricPrefix.MILLI(Units.METRE).divide(Units.SECOND).asType(Speed.class)))
-  );
+  private final Text xAxisUnit = new Text();
   private final IntegerProperty startProperty = new SimpleIntegerProperty();
   private final IntegerProperty lengthProperty = new SimpleIntegerProperty();
+  private final ObjectProperty<ZoomX> zoomXProperty = new SimpleObjectProperty<>(ZoomX.Z_25);
 
   public Chart() {
     getChildren().add(milliGrid);
@@ -45,8 +70,18 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
     getChildren().addAll(lineDiagrams);
     getChildren().add(xAxisUnit);
 
-    setOnScroll((ScrollEvent event) -> {
+    xAxisUnit.textProperty().bind(zoomXProperty.asString());
+    setOnScroll(event -> {
       startProperty.setValue((int) Math.max(0, Math.rint(startProperty.get() - event.getDeltaX())));
+      event.consume();
+    });
+    setOnZoomStarted(event -> {
+      if (event.getZoomFactor() > 1) {
+        zoomXProperty.setValue(zoomXProperty.get().next());
+      }
+      else if (event.getZoomFactor() < 1) {
+        zoomXProperty.setValue(zoomXProperty.get().prev());
+      }
       event.consume();
     });
   }
