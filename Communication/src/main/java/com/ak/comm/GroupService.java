@@ -66,6 +66,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   @Override
   public void refresh() {
     serialService.refresh();
+    currentReadable = serialService;
   }
 
   public List<EV> getVariables() {

@@ -26,6 +26,7 @@ import com.ak.comm.logging.LogBuilders;
 import com.ak.util.UIConstants;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.internal.util.EmptyComponent;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
@@ -35,6 +36,8 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   private volatile boolean cancelled;
   @Nonnull
   private volatile SerialService serialService;
+  @Nonnull
+  private Subscriber<? super int[]> subscriber = EmptyComponent.asSubscriber();
 
   public CycleSerialService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
                             @Nonnull Converter<RESPONSE, EV> responseConverter) {
@@ -44,6 +47,7 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
 
   @Override
   public void subscribe(@Nonnull Subscriber<? super int[]> s) {
+    subscriber = s;
     s.onSubscribe(this);
     executor.scheduleAtFixedRate(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();
@@ -55,7 +59,7 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
         latch.countDown();
       }).subscribe(buffer -> process(buffer).forEach(ints -> {
         if (!cancelled) {
-          s.onNext(ints);
+          subscriber.onNext(ints);
         }
         workingFlag.set(true);
         okTime.set(Instant.now());
@@ -124,12 +128,13 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   @Override
   public void refresh() {
     serialService.refresh();
+    subscriber.onSubscribe(this);
+    cancelled = false;
     write(bytesInterceptor().getPingRequest());
   }
 
   @Override
   public void request(long n) {
-    cancelled = false;
   }
 
   @Override
