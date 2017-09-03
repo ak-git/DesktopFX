@@ -70,6 +70,7 @@ public final class ConcurrentAsyncFileChannel implements Closeable {
         }
         finally {
           channel = null;
+          writePos = 0;
         }
       }
     }
