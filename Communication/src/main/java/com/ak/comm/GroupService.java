@@ -1,6 +1,7 @@
 package com.ak.comm;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
@@ -15,14 +16,16 @@ import javax.inject.Provider;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractService;
+import com.ak.comm.core.Readable;
 import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
 import com.ak.comm.serial.Refreshable;
+import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 
 public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractService
-    implements Refreshable {
+    implements Publisher<int[]>, Refreshable, FileFilter {
   @Nonnull
   private final CycleSerialService<RESPONSE, REQUEST, EV> serialService;
   @Nonnull
@@ -31,6 +34,8 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   private final List<EV> variables;
   @Nonnull
   private final double frequency;
+  @Nonnull
+  private Readable currentReadable;
 
   @Inject
   public GroupService(@Nonnull Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider,
@@ -40,19 +45,27 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     frequency = converter.getFrequency();
     serialService = new CycleSerialService<>(interceptorProvider.get(), converter);
     fileReadingService = new AutoFileReadingService<>(interceptorProvider, converterProvider);
+    currentReadable = serialService;
   }
 
-  public boolean isAccept(@Nonnull File file, @Nonnull Subscriber<int[]> subscriber) {
-    return fileReadingService.isAccept(file, subscriber);
+  @Override
+  public void subscribe(@Nonnull Subscriber<? super int[]> subscriber) {
+    serialService.subscribe(subscriber);
+    fileReadingService.subscribe(subscriber);
+  }
+
+  @Override
+  public boolean accept(@Nonnull File file) {
+    boolean accept = fileReadingService.accept(file);
+    if (accept) {
+      currentReadable = fileReadingService;
+    }
+    return accept;
   }
 
   @Override
   public void refresh() {
     serialService.refresh();
-  }
-
-  public void subscribeSerial(@Nonnull Subscriber<int[]> subscriber) {
-    serialService.subscribe(subscriber);
   }
 
   public List<EV> getVariables() {
@@ -75,7 +88,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
 
     int frameSize = variables.size() * Integer.BYTES;
     ByteBuffer buffer = ByteBuffer.allocate(frameSize * (to - from));
-    fileReadingService.read(buffer, frameSize * from);
+    currentReadable.read(buffer, frameSize * from);
     buffer.flip();
 
     int count = buffer.limit() / frameSize;

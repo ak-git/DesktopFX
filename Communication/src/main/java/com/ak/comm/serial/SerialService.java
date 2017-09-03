@@ -22,10 +22,11 @@ import jssc.SerialPortException;
 import jssc.SerialPortList;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
-final class SerialService extends AbstractService implements WritableByteChannel, Publisher<ByteBuffer>, Refreshable {
+final class SerialService extends AbstractService implements WritableByteChannel, Publisher<ByteBuffer>, Refreshable, Subscription {
   @Nonnull
   private final SerialPort serialPort;
   @Nonnegative
@@ -106,6 +107,15 @@ final class SerialService extends AbstractService implements WritableByteChannel
         logErrorAndComplete(s, ex);
       }
     }
+  }
+
+  @Override
+  public void request(long n) {
+  }
+
+  @Override
+  public void cancel() {
+    close();
   }
 
   @Override

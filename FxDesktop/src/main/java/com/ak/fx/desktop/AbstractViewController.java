@@ -56,7 +56,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
         boolean ok = false;
         if (db.hasFiles()) {
           for (File file : db.getFiles()) {
-            if (service.isAccept(file, this)) {
+            if (service.accept(file)) {
               ok = true;
               break;
             }
@@ -77,7 +77,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
           readFromFile(chart.startProperty().get(), newValue.intValue()));
     }
 
-    service.subscribeSerial(this);
+    service.subscribe(this);
   }
 
   @Override
@@ -98,6 +98,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
 
   @Override
   public final void onComplete() {
+    readFromFile(Objects.requireNonNull(chart).startProperty().get(), Objects.requireNonNull(chart).lengthProperty().get());
   }
 
   private void readFromFile(@Nonnegative int start, @Nonnegative int length) {

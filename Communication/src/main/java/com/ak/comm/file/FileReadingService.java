@@ -28,13 +28,13 @@ import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.logging.LogBuilders;
 import io.reactivex.disposables.Disposable;
-import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
 final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
-    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Publisher<int[]>, Disposable {
+    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Disposable, Subscription {
   private static final int CAPACITY_4K = 1024 * 4;
   private static final Lock LOCK = new ReentrantLock();
   @Nonnull
@@ -112,6 +112,20 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
   @Override
   public String toString() {
     return String.format("%s@%x{file = %s}", getClass().getSimpleName(), hashCode(), fileToRead);
+  }
+
+  @Override
+  public void request(long n) {
+  }
+
+  @Override
+  public void cancel() {
+    try {
+      close();
+    }
+    catch (Exception e) {
+      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, e.getMessage(), e);
+    }
   }
 
   @Override

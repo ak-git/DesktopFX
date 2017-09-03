@@ -17,6 +17,7 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class GroupServiceTest implements Subscriber<int[]> {
@@ -24,13 +25,17 @@ public class GroupServiceTest implements Subscriber<int[]> {
       () -> new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
       () -> new ToIntegerConverter<>(TwoVariables.class, 1000));
 
-
   private GroupServiceTest() {
   }
 
-  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "parallelRampFiles", invocationCount = 10)
+  @BeforeClass
+  public void setUp() {
+    service.subscribe(this);
+  }
+
+  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "parallelRampFiles2", invocationCount = 10)
   public void testRead(@Nonnull Path file) {
-    Assert.assertTrue(service.isAccept(file.toFile(), this));
+    Assert.assertTrue(service.accept(file.toFile()));
     while (!Thread.currentThread().isInterrupted()) {
       int countFrames = 10;
       int shift = 2;
@@ -46,9 +51,9 @@ public class GroupServiceTest implements Subscriber<int[]> {
     }
   }
 
-  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "parallelRampFiles", invocationCount = 10)
+  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "parallelRampFiles2", invocationCount = 10)
   public void testNotRead(@Nonnull Path file) {
-    Assert.assertTrue(service.isAccept(file.toFile(), this));
+    Assert.assertTrue(service.accept(file.toFile()));
     List<int[]> ints = service.read(1, 1);
     Assert.assertTrue(ints.isEmpty());
   }

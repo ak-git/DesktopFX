@@ -15,6 +15,7 @@ import com.ak.util.Strings;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class AutoFileReadingServiceTest implements Subscriber<int[]> {
@@ -22,13 +23,17 @@ public class AutoFileReadingServiceTest implements Subscriber<int[]> {
       () -> new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
       () -> new ToIntegerConverter<>(TwoVariables.class, 1000));
 
-
   private AutoFileReadingServiceTest() {
+  }
+
+  @BeforeClass
+  public void setUp() {
+    service.subscribe(this);
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "parallelRampFiles", invocationCount = 10)
   public void testAccept(@Nonnull Path file) {
-    Assert.assertTrue(service.isAccept(file.toFile(), this));
+    Assert.assertTrue(service.accept(file.toFile()));
     int countFrames = 10;
     ByteBuffer buffer = ByteBuffer.allocate(TwoVariables.values().length * Integer.BYTES * countFrames);
     while (!Thread.currentThread().isInterrupted()) {
@@ -48,7 +53,7 @@ public class AutoFileReadingServiceTest implements Subscriber<int[]> {
 
   @Test
   public void testNotAccept() {
-    Assert.assertFalse(service.isAccept(Paths.get(Strings.EMPTY).toFile(), this));
+    Assert.assertFalse(service.accept(Paths.get(Strings.EMPTY).toFile()));
   }
 
   @Override

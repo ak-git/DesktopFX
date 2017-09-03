@@ -14,9 +14,10 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.interceptor.BytesInterceptor;
+import org.reactivestreams.Publisher;
 
 public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
-    extends AbstractService implements Callable<AsynchronousFileChannel>, Readable {
+    extends AbstractService implements Callable<AsynchronousFileChannel>, Publisher<int[]>, Readable {
   @Nonnull
   private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
   @Nonnull

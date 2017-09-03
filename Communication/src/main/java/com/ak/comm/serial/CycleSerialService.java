@@ -26,13 +26,13 @@ import com.ak.comm.logging.LogBuilders;
 import com.ak.util.UIConstants;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.internal.util.EmptyComponent;
-import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
-    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Publisher<int[]>, Refreshable {
+    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Refreshable, Subscription {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+  private volatile boolean cancelled;
   @Nonnull
   private volatile SerialService serialService;
 
@@ -44,7 +44,7 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
 
   @Override
   public void subscribe(@Nonnull Subscriber<? super int[]> s) {
-    s.onSubscribe(EmptyComponent.INSTANCE);
+    s.onSubscribe(this);
     executor.scheduleAtFixedRate(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();
       AtomicReference<Instant> okTime = new AtomicReference<>(Instant.now());
@@ -54,7 +54,9 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
         workingFlag.set(false);
         latch.countDown();
       }).subscribe(buffer -> process(buffer).forEach(ints -> {
-        s.onNext(ints);
+        if (!cancelled) {
+          s.onNext(ints);
+        }
         workingFlag.set(true);
         okTime.set(Instant.now());
       }), throwable -> {
@@ -123,5 +125,15 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   public void refresh() {
     serialService.refresh();
     write(bytesInterceptor().getPingRequest());
+  }
+
+  @Override
+  public void request(long n) {
+    cancelled = false;
+  }
+
+  @Override
+  public void cancel() {
+    cancelled = true;
   }
 }
