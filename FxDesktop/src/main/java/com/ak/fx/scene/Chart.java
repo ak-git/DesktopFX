@@ -75,7 +75,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
 
     xAxisUnit.textProperty().bind(zoomXProperty.asString());
     setOnScroll(event -> {
-      startProperty.setValue((int) Math.max(0, Math.rint(startProperty.get() - event.getDeltaX())));
+      startProperty.setValue((int) Math.max(0, Math.rint(startProperty.get() - event.getDeltaX() * decimateFactor)));
       event.consume();
     });
     setOnZoomStarted(event -> {

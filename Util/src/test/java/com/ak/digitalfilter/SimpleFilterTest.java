@@ -85,6 +85,21 @@ public class SimpleFilterTest {
         new int[] {100, 110, 120, 130, 140, 150, 160, 170},
         new int[] {100, 100, 100, 100, 101, 102, 103, 104},
         0.0
+    }, {
+        FilterBuilder.of().smoothingDecimate(4).build(),
+        new int[] {
+            1, 1, 1, 4,
+            1, 1, 2, 0,
+            1, 1, 2, -1,
+            1, 1, 20, -1
+        },
+        new int[] {4, 1, -1, 20},
+        0.0
+    }, {
+        FilterBuilder.of().smoothingDecimate(2).build(),
+        new int[] {1, 1, 2, 0, 2, -1, 20, -1},
+        new int[] {1, 1, 0, 10},
+        0.0
     }};
   }
 
