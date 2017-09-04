@@ -1,5 +1,7 @@
 package com.ak.digitalfilter;
 
+import java.util.Arrays;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.measure.Quantity;
@@ -9,7 +11,7 @@ import javax.measure.quantity.Time;
 import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.Units;
 
-enum Filters {
+public enum Filters {
   ;
 
   static Quantity<Time> getDelay(@Nonnull DigitalFilter filter, @Nonnull Quantity<Frequency> frequency) {
@@ -49,6 +51,48 @@ enum Filters {
     }
     else {
       return (c - b) << 1;
+    }
+  }
+
+  public static int[] smoothingDecimate(@Nonnull int[] ints, @Nonnegative int factor) {
+    if (factor < 2) {
+      return ints;
+    }
+    else {
+      int[] decimated = new int[ints.length / factor];
+      for (int i = 0; i < decimated.length; i++) {
+        Arrays.sort(ints, i * factor, (i + 1) * factor);
+        double mean = 0.0;
+        for (int j = 0; j < factor; j++) {
+          mean += ints[i * factor + j];
+        }
+        mean /= factor;
+
+
+        int posCount = 0;
+        int negCount = 0;
+        for (int j = 0; j < factor; j++) {
+          int n = ints[i * factor + j];
+
+          if (n > mean) {
+            posCount++;
+          }
+          else if (n < mean) {
+            negCount++;
+          }
+        }
+
+        if (posCount > negCount) {
+          decimated[i] = ints[i * factor];
+        }
+        else if (posCount < negCount) {
+          decimated[i] = ints[(i + 1) * factor - 1];
+        }
+        else {
+          decimated[i] = (int) Math.rint(mean);
+        }
+      }
+      return decimated;
     }
   }
 }

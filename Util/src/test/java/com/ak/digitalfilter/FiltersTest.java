@@ -79,6 +79,27 @@ public class FiltersTest {
     Assert.assertEquals(stat.getMax(), max, Integer.toString(stat.getMax()));
   }
 
+  @DataProvider(name = "smoothingDecimate")
+  public static Object[][] smoothingDecimate() {
+    return new Object[][] {{
+        new int[] {1, 2, 3}, 1, new int[] {1, 2, 3}
+    }, {
+        new int[] {1, 2, 3}, 2, new int[] {2}
+    }, {
+        new int[] {1, 1, 2, 0, 2, -1, 20, -1}, 2, new int[] {1, 1, 0, 10},
+    }, {
+        new int[] {1, 1, 2, 0, 2, -1, 20, -1}, 3, new int[] {2, 2},
+    }, {
+        new int[] {1, 1, -2, 0, 2, -1, 20, -1}, 4, new int[] {-2, 20},
+    }};
+  }
+
+  @Test(dataProvider = "smoothingDecimate")
+  public static void testSmoothingDecimate(@Nonnull int[] input, @Nonnegative int factor, @Nonnull int[] output) {
+    int[] actual = Filters.smoothingDecimate(input, factor);
+    Assert.assertEquals(actual, output, String.format("Actual = %s", Arrays.toString(actual)));
+  }
+
   @Test(enabled = false)
   public static void textFiles() throws IOException {
     String filteredPrefix = "Filtered - ";

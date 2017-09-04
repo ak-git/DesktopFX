@@ -12,6 +12,7 @@ import javax.measure.quantity.Speed;
 
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
+import com.ak.digitalfilter.Filters;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
@@ -101,12 +102,8 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
     }
     else {
       for (int i = 0; i < chartData.size(); i++) {
-        int[] ints = chartData.get(i);
-        int[] decimated = new int[ints.length / decimateFactor];
-        for (int j = 0; j < decimated.length; j++) {
-          decimated[j] = ints[j * decimateFactor];
-        }
-        lineDiagrams.get(i).setAll(IntStream.of(decimated).mapToDouble(value -> value).toArray());
+        lineDiagrams.get(i).setAll(IntStream.of(Filters.smoothingDecimate(chartData.get(i), decimateFactor)).
+            mapToDouble(value -> value).toArray());
       }
       int realDataLen = chartData.get(0).length;
       if (realDataLen < lengthProperty.get()) {
@@ -169,7 +166,13 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
 
   private void setXStep(@Nonnull ZoomX zoomX, @Nonnegative double frequency) {
     double pointsInSec = SMALL.getStep() * zoomX.mmPerSec / 10;
-    decimateFactor = (int) Math.rint(frequency / pointsInSec);
-    lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(frequency / decimateFactor / pointsInSec));
+    int decimateFactor = (int) Math.rint(frequency / pointsInSec);
+    if (decimateFactor > 2) {
+      this.decimateFactor = decimateFactor;
+    }
+    else {
+      this.decimateFactor = 1;
+    }
+    lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(this.decimateFactor * pointsInSec / frequency));
   }
 }
