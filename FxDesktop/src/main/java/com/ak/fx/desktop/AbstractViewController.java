@@ -8,7 +8,6 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -71,10 +70,10 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
         }
       });
       chart.setVariables(service.getVariables());
-      chart.startProperty().addListener((observable, oldValue, newValue) ->
-          readFromFile(newValue.intValue(), chart.lengthProperty().get()));
-      chart.lengthProperty().addListener((observable, oldValue, newValue) ->
-          readFromFile(chart.startProperty().get(), newValue.intValue()));
+      chart.setFrequency(service.getFrequency());
+      chart.startProperty().addListener((observable, oldValue, newValue) -> readFromFile());
+      chart.lengthProperty().addListener((observable, oldValue, newValue) -> readFromFile());
+      chart.zoomXProperty().addListener((observable, oldValue, newValue) -> readFromFile());
     }
 
     service.subscribe(this);
@@ -98,10 +97,12 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
 
   @Override
   public final void onComplete() {
-    readFromFile(Objects.requireNonNull(chart).startProperty().get(), Objects.requireNonNull(chart).lengthProperty().get());
+    readFromFile();
   }
 
-  private void readFromFile(@Nonnegative int start, @Nonnegative int length) {
-    Objects.requireNonNull(chart).setAll(service.read(start, start + length));
+  private void readFromFile() {
+    Objects.requireNonNull(chart).setAll(
+        service.read(chart.startProperty().get(), chart.startProperty().get() + chart.lengthProperty().get())
+    );
   }
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.measure.quantity.Speed;
 
@@ -14,6 +15,7 @@ import com.ak.comm.converter.Variables;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.text.Text;
@@ -26,8 +28,8 @@ import static com.ak.fx.scene.GridCell.POINTS;
 import static com.ak.fx.scene.GridCell.SMALL;
 
 public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractRegion {
-  private enum ZoomX {
-    Z_50(50), Z_25(25), Z_10(10);
+  public enum ZoomX {
+    Z_10(10), Z_25(25), Z_50(50);
 
     private final int mmPerSec;
 
@@ -58,15 +60,16 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
   private final IntegerProperty startProperty = new SimpleIntegerProperty();
   private final IntegerProperty lengthProperty = new SimpleIntegerProperty();
   private final ObjectProperty<ZoomX> zoomXProperty = new SimpleObjectProperty<>(ZoomX.Z_25);
+  @Nonnegative
+  private int decimateFactor = 1;
 
   public Chart() {
     getChildren().add(milliGrid);
     xAxisUnit.setFont(Constants.FONT);
   }
 
-  public void setVariables(Collection<EV> variables) {
+  public void setVariables(@Nonnull Collection<EV> variables) {
     lineDiagrams.addAll(variables.stream().map(ev -> new LineDiagram(Variables.toString(ev))).collect(Collectors.toList()));
-    lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(1.0));
     getChildren().addAll(lineDiagrams);
     getChildren().add(xAxisUnit);
 
@@ -86,6 +89,11 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
     });
   }
 
+  public void setFrequency(@Nonnegative double frequency) {
+    setXStep(zoomXProperty.get(), frequency);
+    zoomXProperty.addListener((observable, oldValue, newValue) -> setXStep(newValue, frequency));
+  }
+
   public void setAll(@Nonnull List<int[]> chartData) {
     if (chartData.isEmpty()) {
       lineDiagrams.forEach(lineDiagram -> lineDiagram.setAll(EMPTY_DOUBLES));
@@ -94,7 +102,11 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
     else {
       for (int i = 0; i < chartData.size(); i++) {
         int[] ints = chartData.get(i);
-        lineDiagrams.get(i).setAll(IntStream.of(ints).mapToDouble(value -> value).toArray());
+        int[] decimated = new int[ints.length / decimateFactor];
+        for (int j = 0; j < decimated.length; j++) {
+          decimated[j] = ints[j * decimateFactor];
+        }
+        lineDiagrams.get(i).setAll(IntStream.of(decimated).mapToDouble(value -> value).toArray());
       }
       int realDataLen = chartData.get(0).length;
       if (realDataLen < lengthProperty.get()) {
@@ -104,11 +116,15 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
   }
 
   public ReadOnlyIntegerProperty startProperty() {
-    return ReadOnlyIntegerProperty.readOnlyIntegerProperty(startProperty);
+    return startProperty;
   }
 
   public ReadOnlyIntegerProperty lengthProperty() {
-    return ReadOnlyIntegerProperty.readOnlyIntegerProperty(lengthProperty);
+    return lengthProperty;
+  }
+
+  public ReadOnlyObjectProperty<ZoomX> zoomXProperty() {
+    return zoomXProperty;
   }
 
   @Override
@@ -117,7 +133,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
     layoutLineDiagrams(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxWidth(width), height);
     layoutText(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxWidth(width));
     int prevChartCenter = startProperty.get() + lengthProperty.get() / 2;
-    lengthProperty.setValue(lineDiagrams.get(0).getMaxSamples());
+    lengthProperty.setValue(lineDiagrams.get(0).getMaxSamples() * decimateFactor);
     startProperty.setValue(Math.max(0, prevChartCenter - lengthProperty.get() / 2));
   }
 
@@ -149,5 +165,11 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
     else {
       lineDiagrams.forEach(rectangle -> rectangle.resize(width, SMALL.maxWidth(height)));
     }
+  }
+
+  private void setXStep(@Nonnull ZoomX zoomX, @Nonnegative double frequency) {
+    double pointsInSec = SMALL.getStep() * zoomX.mmPerSec / 10;
+    decimateFactor = (int) Math.rint(frequency / pointsInSec);
+    lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(frequency / decimateFactor / pointsInSec));
   }
 }
