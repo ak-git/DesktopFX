@@ -1,7 +1,9 @@
 package com.ak.comm.converter;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.IntBinaryOperator;
 
 import com.ak.digitalfilter.DigitalFilter;
@@ -11,8 +13,8 @@ public enum OperatorVariables implements DependentVariable<TwoVariables, Operato
   OUT_PLUS((left, right) -> left + right),
   OUT_MINUS((left, right) -> left - right) {
     @Override
-    public boolean isVisible() {
-      return false;
+    public Set<Option> options() {
+      return Collections.emptySet();
     }
   };
 

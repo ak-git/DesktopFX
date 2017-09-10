@@ -1,5 +1,8 @@
 package com.ak.comm.converter.aper;
 
+import java.util.Collections;
+import java.util.Set;
+
 import javax.measure.Unit;
 
 import com.ak.comm.converter.Variable;
@@ -35,8 +38,8 @@ public enum AperInVariable implements Variable<AperInVariable> {
     }
 
     @Override
-    public boolean isVisible() {
-      return false;
+    public Set<Option> options() {
+      return Collections.emptySet();
     }
   },
 

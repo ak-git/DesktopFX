@@ -11,6 +11,7 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
+import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.aper.AperInVariable;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -69,7 +70,7 @@ public final class AperECGConverterTest {
     Assert.assertEquals(AperECGVariable.R1.filter().toString(), AperECGVariable.R2.filter().toString());
     Assert.assertEquals(AperECGVariable.ECG1.filter().toString(), AperECGVariable.ECG2.filter().toString());
 
-    serviceVars.forEach(t -> Assert.assertFalse(t.isVisible()));
-    EnumSet.complementOf(serviceVars).forEach(t -> Assert.assertTrue(t.isVisible()));
+    serviceVars.forEach(t -> Assert.assertFalse(t.options().contains(Variable.Option.VISIBLE)));
+    EnumSet.complementOf(serviceVars).forEach(t -> Assert.assertTrue(t.options().contains(Variable.Option.VISIBLE), t.name()));
   }
 }

@@ -1,7 +1,9 @@
 package com.ak.comm.converter;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.measure.Unit;
@@ -29,7 +31,14 @@ public interface DependentVariable<IN extends Enum<IN> & Variable<IN>, OUT exten
   }
 
   @Override
-  default boolean isVisible() {
-    return tryFindSame(out -> out.isVisible(), () -> getInputVariables().size() != 1 || getInputVariables().get(0).isVisible());
+  default Set<Option> options() {
+    return tryFindSame(out -> out.options(), () -> {
+      if (getInputVariables().size() == 1) {
+        return getInputVariables().get(0).options();
+      }
+      else {
+        return EnumSet.of(Option.VISIBLE);
+      }
+    });
   }
 }

@@ -1,5 +1,7 @@
 package com.ak.comm.converter;
 
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -12,6 +14,10 @@ import com.ak.util.Strings;
 import tec.uom.se.AbstractUnit;
 
 public interface Variable<E extends Enum<E> & Variable<E>> {
+  enum Option {
+    VISIBLE, FORCE_ZERO_IN_RANGE
+  }
+
   default Unit<?> getUnit() {
     return tryFindSame(e -> e.getUnit(), () -> AbstractUnit.ONE);
   }
@@ -20,8 +26,8 @@ public interface Variable<E extends Enum<E> & Variable<E>> {
     return tryFindSame(e -> e.filter(), () -> FilterBuilder.of().build());
   }
 
-  default boolean isVisible() {
-    return tryFindSame(e -> e.isVisible(), () -> true);
+  default Set<Option> options() {
+    return tryFindSame(e -> e.options(), () -> EnumSet.of(Option.VISIBLE));
   }
 
   String name();
