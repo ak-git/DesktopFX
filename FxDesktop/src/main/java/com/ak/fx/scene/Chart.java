@@ -2,7 +2,10 @@ package com.ak.fx.scene;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.IntSummaryStatistics;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -79,6 +82,13 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
       startProperty.setValue((int) Math.max(0, Math.rint(startProperty.get() - event.getDeltaX() * decimateFactor)));
       event.consume();
     });
+    setOnScrollFinished(event -> {
+      Logger.getLogger(getClass().getName()).log(Level.CONFIG,
+          String.format("Total chart size = %d [%d - %d]; x-zoom = %d mm/s; decimate factor = %d",
+              lengthProperty.get(), startProperty.get(), startProperty.get() + lengthProperty.get(),
+              zoomXProperty.get().mmPerSec, decimateFactor));
+      event.consume();
+    });
     setOnZoomStarted(event -> {
       if (event.getZoomFactor() > 1) {
         zoomXProperty.setValue(zoomXProperty.get().next());
@@ -96,20 +106,29 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
   }
 
   public void setAll(@Nonnull List<int[]> chartData) {
-    if (chartData.isEmpty()) {
-      lineDiagrams.forEach(lineDiagram -> lineDiagram.setAll(EMPTY_DOUBLES));
-      startProperty.setValue(0);
-    }
-    else {
-      for (int i = 0; i < chartData.size(); i++) {
-        lineDiagrams.get(i).setAll(IntStream.of(Filters.smoothingDecimate(chartData.get(i), decimateFactor)).
-            mapToDouble(value -> value).toArray());
+    Constants.invokeInFx(() -> {
+      if (chartData.isEmpty()) {
+        lineDiagrams.forEach(lineDiagram -> lineDiagram.setAll(EMPTY_DOUBLES));
+        startProperty.setValue(0);
       }
-      int realDataLen = chartData.get(0).length;
-      if (realDataLen < lengthProperty.get()) {
-        startProperty.setValue(Math.max(0, startProperty.get() + realDataLen - lengthProperty.get()));
+      else {
+        for (int i = 0; i < chartData.size(); i++) {
+          double mm = SMALL.getStep() / 10.0;
+          double range = lineDiagrams.get(i).getHeight() / mm;
+          int[] values = Filters.smoothingDecimate(chartData.get(i), decimateFactor);
+          IntSummaryStatistics intSummaryStatistics = IntStream.of(values).summaryStatistics();
+          int signalRange = Math.max(1, intSummaryStatistics.getMax() - intSummaryStatistics.getMin());
+
+          int scaleFactor10 = (int) StrictMath.pow(10.0, Math.ceil(Math.max(0, StrictMath.log10(signalRange / range))));
+          lineDiagrams.get(i).setAll(IntStream.of(values).
+              mapToDouble(value -> mm * (value - (intSummaryStatistics.getMax() + intSummaryStatistics.getMin()) / 2.0) / scaleFactor10).toArray());
+        }
+        int realDataLen = chartData.get(0).length;
+        if (realDataLen < lengthProperty.get()) {
+          startProperty.setValue(Math.max(0, startProperty.get() + realDataLen - lengthProperty.get()));
+        }
       }
-    }
+    });
   }
 
   public ReadOnlyIntegerProperty startProperty() {
@@ -141,12 +160,8 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
 
   private void layoutLineDiagrams(double x, double y, double width, double height) {
     double dHeight = SMALL.maxWidth(height * 2 / (1 + lineDiagrams.size()));
-
-    for (LineDiagram rectangle : lineDiagrams) {
-      rectangle.resizeRelocate(x, y, width, dHeight);
-    }
-
     if (dHeight >= SMALL.getStep() * 2) {
+      lineDiagrams.forEach(lineDiagram -> lineDiagram.resizeRelocate(x, y, width, dHeight));
       for (int i = 0; i < lineDiagrams.size() / 2; i++) {
         lineDiagrams.get(i).relocate(x, y + SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i);
       }
@@ -160,12 +175,12 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
       }
     }
     else {
-      lineDiagrams.forEach(rectangle -> rectangle.resize(width, SMALL.maxWidth(height)));
+      lineDiagrams.forEach(lineDiagram -> lineDiagram.resizeRelocate(x, y, width, SMALL.maxWidth(height)));
     }
   }
 
   private void setXStep(@Nonnull ZoomX zoomX, @Nonnegative double frequency) {
-    double pointsInSec = SMALL.getStep() * zoomX.mmPerSec / 10;
+    double pointsInSec = SMALL.getStep() * zoomX.mmPerSec / 10.0;
     int decimateFactor = (int) Math.rint(frequency / pointsInSec);
     if (decimateFactor > 2) {
       this.decimateFactor = decimateFactor;
@@ -173,6 +188,10 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
     else {
       this.decimateFactor = 1;
     }
-    lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(this.decimateFactor * pointsInSec / frequency));
+    double xStep = this.decimateFactor * pointsInSec / frequency;
+    Logger.getLogger(getClass().getName()).log(Level.CONFIG,
+        String.format("Frequency = %.0f Hz; x-zoom = %d mm/s; pixels per sec = %.1f; decimate factor = %d; x-step = %.1f px",
+            frequency, zoomX.mmPerSec, pointsInSec, this.decimateFactor, xStep));
+    lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(xStep));
   }
 }
