@@ -58,6 +58,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
   }
 
   private static final double[] EMPTY_DOUBLES = {};
+  private final List<EV> variables = new ArrayList<>();
   private final MilliGrid milliGrid = new MilliGrid();
   private final List<LineDiagram> lineDiagrams = new ArrayList<>();
   private final Text xAxisUnit = new Text();
@@ -73,6 +74,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
   }
 
   public void setVariables(@Nonnull Collection<EV> variables) {
+    this.variables.addAll(variables);
     lineDiagrams.addAll(variables.stream().map(ev -> new LineDiagram(Variables.toString(ev))).collect(Collectors.toList()));
     getChildren().addAll(lineDiagrams);
     getChildren().add(xAxisUnit);
@@ -118,10 +120,24 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
           int[] values = Filters.smoothingDecimate(chartData.get(i), decimateFactor);
           IntSummaryStatistics intSummaryStatistics = IntStream.of(values).summaryStatistics();
           int signalRange = Math.max(1, intSummaryStatistics.getMax() - intSummaryStatistics.getMin());
-
           int scaleFactor10 = (int) StrictMath.pow(10.0, Math.ceil(Math.max(0, StrictMath.log10(signalRange / range))));
+
+          int mean = (int) Math.rint((intSummaryStatistics.getMax() + intSummaryStatistics.getMin()) / 2.0 / scaleFactor10) * scaleFactor10;
+          lineDiagrams.get(i).setMean(Variables.toString(mean, variables.get(i).getUnit(), scaleFactor10));
+
+          int scaleFactor;
+          if (range / (signalRange / scaleFactor10) > 5) {
+            scaleFactor = scaleFactor10 / 5;
+          }
+          else if (range / (signalRange / scaleFactor10) > 2) {
+            scaleFactor = scaleFactor10 / 2;
+          }
+          else {
+            scaleFactor = scaleFactor10;
+          }
+
           lineDiagrams.get(i).setAll(IntStream.of(values).
-              mapToDouble(value -> mm * (value - (intSummaryStatistics.getMax() + intSummaryStatistics.getMin()) / 2.0) / scaleFactor10).toArray());
+              mapToDouble(value -> mm * (value - mean) / Math.max(scaleFactor, 1)).toArray());
         }
         int realDataLen = chartData.get(0).length;
         if (realDataLen < lengthProperty.get()) {

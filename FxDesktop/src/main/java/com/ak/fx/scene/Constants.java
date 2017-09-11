@@ -1,5 +1,7 @@
 package com.ak.fx.scene;
 
+import javax.annotation.Nonnull;
+
 import javafx.application.Platform;
 import javafx.scene.text.Font;
 
@@ -12,7 +14,7 @@ enum Constants {
 
   static final Font FONT = Font.font(Font.getDefault().getName(), LABEL_HEIGHT);
 
-  static void invokeInFx(Runnable runnable) {
+  static void invokeInFx(@Nonnull Runnable runnable) {
     if (Platform.isFxApplicationThread()) {
       runnable.run();
     }

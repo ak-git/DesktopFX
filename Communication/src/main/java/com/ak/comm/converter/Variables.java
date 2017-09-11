@@ -6,12 +6,14 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 
 import com.ak.util.Strings;
 import tec.uom.se.format.LocalUnitFormat;
+import tec.uom.se.unit.MetricPrefix;
 
 public enum Variables {
   ;
@@ -41,6 +43,25 @@ public enum Variables {
           String.format("Missing resource file %s.properties for %s key", baseName, variable.name()));
     }
     return variable.name();
+  }
+
+  public static <Q extends Quantity<Q>> String toString(int value, @Nonnull Unit<Q> unit, @Nonnegative int scaleFactor10) {
+    int scale = (int) Math.rint(StrictMath.log10(unit.getConverterTo(unit.getSystemUnit()).convert(1.0)));
+    int displayScale = scale + 1;
+    while (displayScale % 3 != 0) {
+      displayScale++;
+    }
+    int formatZeros = Math.max(0, (displayScale - scale) - (int) Math.rint(StrictMath.log10(scaleFactor10)));
+
+    Unit<Q> displayUnit = unit.getSystemUnit();
+    for (MetricPrefix metricPrefix : MetricPrefix.values()) {
+      if (displayScale == (int) Math.rint(StrictMath.log10(metricPrefix.getConverter().convert(1.0)))) {
+        displayUnit = displayUnit.transform(metricPrefix.getConverter());
+        break;
+      }
+    }
+
+    return String.format(String.format("%%.%df %%s", formatZeros), unit.getConverterTo(displayUnit).convert(value), displayUnit);
   }
 
   public static <E extends Enum<E> & Variable<E>> String toName(@Nonnull E variable) {

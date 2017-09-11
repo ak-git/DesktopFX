@@ -16,7 +16,7 @@ import static com.ak.fx.scene.GridCell.SMALL;
 final class LineDiagram extends AbstractRegion {
   private final Rectangle bounds = new Rectangle();
   private final Text title = new Text();
-  private final Text centerValue = new Text("416,08");
+  private final Text centerValue = new Text("0");
   private final Polyline polyline = new Polyline();
   private double xStep = 1.0;
   private int nowIndex;
@@ -55,6 +55,10 @@ final class LineDiagram extends AbstractRegion {
       nowIndex = 0;
     }
     polyline.setVisible(SMALL.maxWidth(width) > SMALL.getStep() * 2);
+  }
+
+  void setMean(@Nonnull String mean) {
+    centerValue.setText(mean);
   }
 
   void setAll(@Nonnull double[] y) {
