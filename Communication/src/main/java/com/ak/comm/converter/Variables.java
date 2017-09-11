@@ -61,7 +61,13 @@ public enum Variables {
       }
     }
 
-    return String.format(String.format("%%.%df %%s", formatZeros), unit.getConverterTo(displayUnit).convert(value), displayUnit);
+    double converted = unit.getConverterTo(displayUnit).convert(value);
+    if (Math.abs(converted) < 1.0) {
+      return String.format("%d %s", value, unit);
+    }
+    else {
+      return String.format(String.format("%%.%df %%s", formatZeros), converted, displayUnit);
+    }
   }
 
   public static <E extends Enum<E> & Variable<E>> String toName(@Nonnull E variable) {

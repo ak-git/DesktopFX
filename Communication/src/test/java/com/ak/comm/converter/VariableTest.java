@@ -109,12 +109,13 @@ public class VariableTest {
   public static Object[][] formatValues() {
     return new Object[][] {
         {1234, MetricPrefix.CENTI(Units.HERTZ), 1, String.format("%.2f Hz", 12.34)},
-        {1234, MetricPrefix.CENTI(Units.HERTZ), 10, String.format("%.1f Hz", 12.3)},
+        {-1234, MetricPrefix.CENTI(Units.HERTZ), 10, String.format("%.1f Hz", -12.3)},
         {1234, MetricPrefix.CENTI(Units.HERTZ), 100, String.format("%.0f Hz", 12.0)},
-        {1234, Units.HERTZ, 1, String.format("%.3f kHz", 1.234)},
+        {-1234, Units.HERTZ, 1, String.format("%.3f kHz", -1.234)},
         {1234, Units.HERTZ, 10, String.format("%.2f kHz", 1.23)},
-        {1234, Units.HERTZ, 100, String.format("%.1f kHz", 1.2)},
-        {1234, Units.HERTZ, 1000, String.format("%.0f kHz", 1.0)}
+        {-1234, Units.HERTZ, 100, String.format("%.1f kHz", -1.2)},
+        {1234, Units.HERTZ, 1000, String.format("%.0f kHz", 1.0)},
+        {-123, Units.HERTZ, 1, String.format("%.0f Hz", -123.0)}
     };
   }
 
