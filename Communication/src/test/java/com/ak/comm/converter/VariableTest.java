@@ -115,7 +115,10 @@ public class VariableTest {
         {1234, Units.HERTZ, 10, String.format("%.2f kHz", 1.23)},
         {-1234, Units.HERTZ, 100, String.format("%.1f kHz", -1.2)},
         {1234, Units.HERTZ, 1000, String.format("%.0f kHz", 1.0)},
-        {-123, Units.HERTZ, 1, String.format("%.0f Hz", -123.0)}
+        {-123, Units.HERTZ, 1, String.format("%.0f Hz", -123.0)},
+        {-3140, Units.VOLT, 1, String.format("%.2f kV", -3.14)},
+        {3100, Units.VOLT, 1, String.format("%.1f kV", 3.1)},
+        {-3000, Units.VOLT, 1, String.format("%.0f kV", -3.0)}
     };
   }
 

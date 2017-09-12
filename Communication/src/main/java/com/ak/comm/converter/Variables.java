@@ -51,6 +51,12 @@ public enum Variables {
     while (displayScale % 3 != 0) {
       displayScale++;
     }
+
+    if (scaleFactor10 == 1) {
+      for (int i = value; i % 10 == 0; i /= 10) {
+        scaleFactor10 *= 10;
+      }
+    }
     int formatZeros = Math.max(0, (displayScale - scale) - (int) Math.rint(StrictMath.log10(scaleFactor10)));
 
     Unit<Q> displayUnit = unit.getSystemUnit();

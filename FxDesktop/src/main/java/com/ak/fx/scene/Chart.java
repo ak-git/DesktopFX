@@ -70,7 +70,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
 
   public Chart() {
     getChildren().add(milliGrid);
-    xAxisUnit.setFont(Constants.FONT);
+    xAxisUnit.setFont(Constants.FONT_H1);
   }
 
   public void setVariables(@Nonnull Collection<EV> variables) {
@@ -171,7 +171,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
 
   private void layoutText(double x, double y, double width) {
     xAxisUnit.relocate(x + BIG.minCoordinate(width) + BIG.maxWidth(width) / 2 + POINTS.getStep(),
-        y + SMALL.getStep() / 2 - Constants.LABEL_HEIGHT);
+        y + SMALL.getStep() / 2 - xAxisUnit.getFont().getSize());
   }
 
   private void layoutLineDiagrams(double x, double y, double width, double height) {

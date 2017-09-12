@@ -9,7 +9,6 @@ import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
-import static com.ak.fx.scene.Constants.LABEL_HEIGHT;
 import static com.ak.fx.scene.GridCell.POINTS;
 import static com.ak.fx.scene.GridCell.SMALL;
 
@@ -27,9 +26,9 @@ final class LineDiagram extends AbstractRegion {
     bounds.setFill(null);
     bounds.setStrokeWidth(2);
 
-    title.setFont(Constants.FONT);
+    title.setFont(Constants.FONT_H1);
     title.setText(name);
-    centerValue.setFont(title.getFont());
+    centerValue.setFont(Constants.FONT_H2);
 
     polyline.setStroke(Color.BLACK);
     polyline.translateXProperty().setValue(SMALL.getStep());
@@ -47,8 +46,8 @@ final class LineDiagram extends AbstractRegion {
     bounds.setY(y);
     bounds.setWidth(width);
     bounds.setHeight(height);
-    title.relocate(x + POINTS.getStep() / 2, y + height / 4 - LABEL_HEIGHT - POINTS.getStep() / 4);
-    centerValue.relocate(x + POINTS.getStep() / 4, y + height / 2 - LABEL_HEIGHT - POINTS.getStep() / 4);
+    title.relocate(x + POINTS.getStep() / 2, y + height / 4 - title.getFont().getSize() - POINTS.getStep() / 4);
+    centerValue.relocate(x + POINTS.getStep() / 4, y + height / 2 - centerValue.getFont().getSize() - POINTS.getStep() / 4);
 
     if (polyline.getPoints().size() / 2 > getMaxSamples()) {
       polyline.getPoints().remove(getMaxSamples() * 2, polyline.getPoints().size());
