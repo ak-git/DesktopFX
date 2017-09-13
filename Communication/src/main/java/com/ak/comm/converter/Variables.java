@@ -52,7 +52,7 @@ public enum Variables {
       displayScale++;
     }
 
-    if (scaleFactor10 == 1) {
+    if (scaleFactor10 == 1 && value != 0) {
       for (int i = value; i % 10 == 0; i /= 10) {
         scaleFactor10 *= 10;
       }
@@ -77,7 +77,7 @@ public enum Variables {
   }
 
   public static <E extends Enum<E> & Variable<E>> String toName(@Nonnull E variable) {
-    return String.format("%s, %s", variable.name(), toString(variable.getUnit()));
+    return String.format("%s, %s", variable.name(), variable.getUnit());
   }
 
   private static String toString(@Nonnull Unit<?> unit) {
