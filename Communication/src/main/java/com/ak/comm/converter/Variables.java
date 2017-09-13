@@ -68,7 +68,7 @@ public enum Variables {
     }
 
     double converted = unit.getConverterTo(displayUnit).convert(value);
-    if (Math.abs(converted) < 1.0) {
+    if (Math.abs(converted) < 1.0 && value != 0) {
       return String.format("%d %s", value, unit);
     }
     else {

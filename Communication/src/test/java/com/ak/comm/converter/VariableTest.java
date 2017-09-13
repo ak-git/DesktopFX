@@ -119,7 +119,8 @@ public class VariableTest {
         {-3140, Units.VOLT, 1, String.format("%.2f kV", -3.14)},
         {3100, Units.VOLT, 1, String.format("%.1f kV", 3.1)},
         {-3000, Units.VOLT, 1, String.format("%.0f kV", -3.0)},
-        {0, Units.VOLT, 1, String.format("%.0f V", 0.0)}
+        {0, Units.VOLT, 1, String.format("%.3f kV", 0.0)},
+        {0, Units.VOLT, 1000, String.format("%.0f kV", 0.0)}
     };
   }
 
