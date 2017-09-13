@@ -229,10 +229,11 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
   private static int optimizeScaleY(@Nonnegative double range, @Nonnegative int signalRange) {
     int scaleFactor10 = scaleFactor10(range, signalRange);
     int scaleFactor = scaleFactor10;
-    if (range / (signalRange / scaleFactor10) > 5) {
+    int scaledRange = signalRange / scaleFactor10;
+    if (range / scaledRange > 5.0) {
       scaleFactor = scaleFactor10 / 5;
     }
-    else if (range / (signalRange / scaleFactor10) > 2) {
+    else if (range / scaledRange > 2.0) {
       scaleFactor = scaleFactor10 / 2;
     }
     return Math.max(1, scaleFactor);
