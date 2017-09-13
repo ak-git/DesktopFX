@@ -67,12 +67,17 @@ public enum Variables {
       }
     }
 
-    double converted = unit.getConverterTo(displayUnit).convert(value);
-    if (Math.abs(converted) < 1.0 && value != 0) {
-      return String.format("%d %s", value, unit);
+    if (value == 0) {
+      return String.format("%d %s", value, scaleFactor10 > 10 ? displayUnit : unit);
     }
     else {
-      return String.format(String.format("%%.%df %%s", formatZeros), converted, displayUnit);
+      double converted = unit.getConverterTo(displayUnit).convert(value);
+      if (Math.abs(converted) < 1.0) {
+        return String.format("%d %s", value, unit);
+      }
+      else {
+        return String.format(String.format("%%.%df %%s", formatZeros), converted, displayUnit);
+      }
     }
   }
 

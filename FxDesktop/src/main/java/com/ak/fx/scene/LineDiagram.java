@@ -1,8 +1,13 @@
 package com.ak.fx.scene;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.IntFunction;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import com.ak.util.Strings;
 import javafx.beans.binding.Bindings;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polyline;
@@ -15,10 +20,12 @@ import static com.ak.fx.scene.GridCell.SMALL;
 final class LineDiagram extends AbstractRegion {
   private final Rectangle bounds = new Rectangle();
   private final Text title = new Text();
-  private final Text centerValue = new Text("0");
+  private final Map<Integer, Text> yLabels = new HashMap<>();
   private final Polyline polyline = new Polyline();
   private double xStep = 1.0;
   private int nowIndex;
+  @Nonnull
+  private IntFunction<String> yLabelsGenerator = value -> Strings.EMPTY;
 
   LineDiagram(@Nonnull String name) {
     bounds.setVisible(false);
@@ -28,7 +35,6 @@ final class LineDiagram extends AbstractRegion {
 
     title.setFont(Constants.FONT_H1);
     title.setText(name);
-    centerValue.setFont(Constants.FONT_H2);
 
     polyline.setStroke(Color.BLACK);
     polyline.translateXProperty().setValue(SMALL.getStep());
@@ -36,7 +42,6 @@ final class LineDiagram extends AbstractRegion {
 
     getChildren().add(bounds);
     getChildren().add(title);
-    getChildren().add(centerValue);
     getChildren().add(polyline);
   }
 
@@ -46,8 +51,19 @@ final class LineDiagram extends AbstractRegion {
     bounds.setY(y);
     bounds.setWidth(width);
     bounds.setHeight(height);
-    title.relocate(x + POINTS.getStep() / 2, y + height / 4 - title.getFont().getSize() - POINTS.getStep() / 4);
-    centerValue.relocate(x + POINTS.getStep() / 4, y + height / 2 - centerValue.getFont().getSize() - POINTS.getStep() / 4);
+
+    getChildren().removeAll(yLabels.values());
+    yLabels.clear();
+    for (int i = 0; height / 2 - SMALL.getStep() * i > SMALL.minCoordinate(height); i++) {
+      newYLabel(i, x, y + height / 2);
+      if (yLabels.containsKey(i)) {
+        title.relocate(x + SMALL.getStep() * 1.5, y + height / 2 - SMALL.getStep() * i - title.getFont().getSize() - POINTS.getStep() / 4);
+      }
+    }
+    for (int i = 1; height / 2 - SMALL.getStep() * i > SMALL.minCoordinate(height) - POINTS.getStep(); i++) {
+      newYLabel(-i, x, y + height / 2);
+    }
+    getChildren().addAll(yLabels.values());
 
     if (polyline.getPoints().size() / 2 > getMaxSamples()) {
       polyline.getPoints().remove(getMaxSamples() * 2, polyline.getPoints().size());
@@ -56,8 +72,8 @@ final class LineDiagram extends AbstractRegion {
     polyline.setVisible(SMALL.maxWidth(width) > SMALL.getStep() * 2);
   }
 
-  void setMean(@Nonnull String mean) {
-    centerValue.setText(mean);
+  void setYLabelsGenerator(@Nonnull IntFunction<String> yLabelsGenerator) {
+    this.yLabelsGenerator = yLabelsGenerator;
   }
 
   void setAll(@Nonnull double[] y) {
@@ -94,7 +110,21 @@ final class LineDiagram extends AbstractRegion {
         polyline.translateXProperty().get()) / xStep));
   }
 
+  double getCenter() {
+    return getLayoutY() + getHeight() / 2.0;
+  }
+
   void setXStep(@Nonnegative double xStep) {
     this.xStep = xStep;
+  }
+
+  private void newYLabel(int index, double x, double y) {
+    String apply = yLabelsGenerator.apply(index * 10);
+    if (apply != null) {
+      Text label = new Text(apply);
+      label.setFont(Constants.FONT_H2);
+      label.relocate(x + POINTS.getStep() / 4, y - SMALL.getStep() * index - label.getFont().getSize() - POINTS.getStep() / 4);
+      yLabels.put(index, label);
+    }
   }
 }

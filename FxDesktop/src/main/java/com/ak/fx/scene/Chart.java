@@ -123,25 +123,32 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
             intSummaryStatistics = IntStream.of(intSummaryStatistics.getMax(), 0).summaryStatistics();
           }
 
-          int signalRange = intSummaryStatistics.getMax() - intSummaryStatistics.getMin();
-          int scaleFactor10 = (int) StrictMath.pow(10.0, Math.ceil(Math.max(0, StrictMath.log10(signalRange / range))));
+          int meanScaleFactor10 = scaleFactor10(range, intSummaryStatistics.getMax() - intSummaryStatistics.getMin()) * 10;
+          int mean = (int) Math.rint((intSummaryStatistics.getMax() + intSummaryStatistics.getMin()) / 2.0 / meanScaleFactor10) * meanScaleFactor10;
+          int signalRange = Math.max(Math.abs(intSummaryStatistics.getMax() - mean), Math.abs(intSummaryStatistics.getMin() - mean)) * 2;
+          int scaleFactor10 = scaleFactor10(range, signalRange);
+          int scaleFactor = optimizeScaleY(range, signalRange);
 
-          int mean = (int) Math.rint((intSummaryStatistics.getMax() + intSummaryStatistics.getMin()) / 2.0 / scaleFactor10) * scaleFactor10;
-          lineDiagrams.get(i).setMean(Variables.toString(mean, variables.get(i).getUnit(), scaleFactor10));
+          int finalI = i;
+          lineDiagrams.get(i).setYLabelsGenerator(mmIndex -> {
+                double yCoordinate = lineDiagrams.get(finalI).getCenter() - mmIndex * mm;
+                boolean visible = true;
 
-          int scaleFactor;
-          if (range / (signalRange / scaleFactor10) > 5) {
-            scaleFactor = scaleFactor10 / 5;
-          }
-          else if (range / (signalRange / scaleFactor10) > 2) {
-            scaleFactor = scaleFactor10 / 2;
-          }
-          else {
-            scaleFactor = scaleFactor10;
-          }
+                if (finalI > 0) {
+                  visible = Math.abs(yCoordinate - lineDiagrams.get(finalI).getCenter()) - POINTS.getStep() <
+                      Math.abs(yCoordinate - lineDiagrams.get(finalI - 1).getCenter());
+                }
 
-          lineDiagrams.get(i).setAll(IntStream.of(values).
-              mapToDouble(value -> mm * (value - mean) / Math.max(scaleFactor, 1)).toArray());
+                if (finalI < lineDiagrams.size() - 1) {
+                  visible &= Math.abs(yCoordinate - lineDiagrams.get(finalI).getCenter()) + POINTS.getStep() <
+                      Math.abs(yCoordinate - lineDiagrams.get(finalI + 1).getCenter());
+                }
+
+                return visible ? Variables.toString(mean + mmIndex * scaleFactor, variables.get(finalI).getUnit(), scaleFactor10) : null;
+              }
+          );
+
+          lineDiagrams.get(i).setAll(IntStream.of(values).mapToDouble(value -> mm * (value - mean) / scaleFactor).toArray());
         }
         int realDataLen = chartData.get(0).length;
         if (realDataLen < lengthProperty.get()) {
@@ -213,5 +220,21 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
         String.format("Frequency = %.0f Hz; x-zoom = %d mm/s; pixels per sec = %.1f; decimate factor = %d; x-step = %.1f px",
             frequency, zoomX.mmPerSec, pointsInSec, this.decimateFactor, xStep));
     lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(xStep));
+  }
+
+  private static int scaleFactor10(@Nonnegative double range, @Nonnegative int signalRange) {
+    return (int) StrictMath.pow(10.0, Math.ceil(Math.max(0, StrictMath.log10(signalRange / range))));
+  }
+
+  private static int optimizeScaleY(@Nonnegative double range, @Nonnegative int signalRange) {
+    int scaleFactor10 = scaleFactor10(range, signalRange);
+    int scaleFactor = scaleFactor10;
+    if (range / (signalRange / scaleFactor10) > 5) {
+      scaleFactor = scaleFactor10 / 5;
+    }
+    else if (range / (signalRange / scaleFactor10) > 2) {
+      scaleFactor = scaleFactor10 / 2;
+    }
+    return Math.max(1, scaleFactor);
   }
 }
