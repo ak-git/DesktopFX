@@ -119,7 +119,11 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
           double range = lineDiagrams.get(i).getHeight() / mm;
           int[] values = Filters.smoothingDecimate(chartData.get(i), decimateFactor);
           IntSummaryStatistics intSummaryStatistics = IntStream.of(values).summaryStatistics();
-          int signalRange = Math.max(1, intSummaryStatistics.getMax() - intSummaryStatistics.getMin());
+          if (intSummaryStatistics.getMax() == intSummaryStatistics.getMin()) {
+            intSummaryStatistics = IntStream.of(intSummaryStatistics.getMax(), 0).summaryStatistics();
+          }
+
+          int signalRange = intSummaryStatistics.getMax() - intSummaryStatistics.getMin();
           int scaleFactor10 = (int) StrictMath.pow(10.0, Math.ceil(Math.max(0, StrictMath.log10(signalRange / range))));
 
           int mean = (int) Math.rint((intSummaryStatistics.getMax() + intSummaryStatistics.getMin()) / 2.0 / scaleFactor10) * scaleFactor10;
