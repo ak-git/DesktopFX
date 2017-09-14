@@ -84,11 +84,11 @@ public class FiltersTest {
     return new Object[][] {{
         new int[] {1, 2, 3}, 1, new int[] {1, 2, 3}
     }, {
-        new int[] {1, 2, 3}, 2, new int[] {2}
+        new int[] {1, 2, 3}, 2, new int[] {0}
     }, {
-        new int[] {1, 1, 2, 0, 2, -1, 20, -1}, 2, new int[] {1, 1, 0, 10},
+        new int[] {1, 1, 2, 0, 2, -1, 20, -1}, 2, new int[] {2, 0, -1, 20},
     }, {
-        new int[] {1, 1, 2, 0, 2, -1, 20, -1}, 3, new int[] {2, 2},
+        new int[] {1, 1, 2, 0, 2, -1, 20, -1}, 3, new int[] {2, -1},
     }, {
         new int[] {1, 1, -2, 0, 2, -1, 20, -1}, 4, new int[] {-2, 20},
     }};

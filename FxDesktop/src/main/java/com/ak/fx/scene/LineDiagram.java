@@ -38,7 +38,7 @@ final class LineDiagram extends AbstractRegion {
     title.setText(name);
 
     polyline.setStroke(Color.BLACK);
-    polyline.translateXProperty().setValue(SMALL.getStep());
+    polyline.translateXProperty().setValue(0);
     polyline.translateYProperty().bind(Bindings.divide(heightProperty(), 2));
 
     getChildren().add(bounds);
@@ -108,8 +108,7 @@ final class LineDiagram extends AbstractRegion {
   }
 
   int getMaxSamples() {
-    return Math.max(0, (int) Math.rint((SMALL.minCoordinate(getWidth()) + SMALL.maxWidth(getWidth()) -
-        polyline.translateXProperty().get()) / xStep));
+    return Math.max(0, (int) Math.rint((getWidth() - polyline.translateXProperty().get()) / xStep));
   }
 
   double getCenter() {
