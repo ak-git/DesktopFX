@@ -33,6 +33,7 @@ final class LineDiagram extends AbstractRegion {
     bounds.setFill(null);
     bounds.setStrokeWidth(2);
 
+    title.setVisible(false);
     title.setFont(Constants.FONT_H1);
     title.setText(name);
 
@@ -57,6 +58,7 @@ final class LineDiagram extends AbstractRegion {
     for (int i = 0; height / 2 - SMALL.getStep() * i > SMALL.minCoordinate(height); i++) {
       newYLabel(i, x, y + height / 2);
       if (yLabels.containsKey(i)) {
+        title.setVisible(true);
         title.relocate(x + SMALL.getStep() * 1.5, y + height / 2 - SMALL.getStep() * i - title.getFont().getSize() - POINTS.getStep() / 4);
       }
     }
@@ -120,7 +122,7 @@ final class LineDiagram extends AbstractRegion {
 
   private void newYLabel(int index, double x, double y) {
     String apply = yLabelsGenerator.apply(index * 10);
-    if (apply != null) {
+    if (!apply.isEmpty()) {
       Text label = new Text(apply);
       label.setFont(Constants.FONT_H2);
       label.relocate(x + POINTS.getStep() / 4, y - SMALL.getStep() * index - label.getFont().getSize() - POINTS.getStep() / 4);

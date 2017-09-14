@@ -16,6 +16,7 @@ import javax.measure.quantity.Speed;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.digitalfilter.Filters;
+import com.ak.util.Strings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
@@ -144,7 +145,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
                       Math.abs(yCoordinate - lineDiagrams.get(finalI + 1).getCenter());
                 }
 
-                return visible ? Variables.toString(mean + mmIndex * scaleFactor, variables.get(finalI).getUnit(), scaleFactor10) : null;
+            return visible ? Variables.toString(mean + mmIndex * scaleFactor, variables.get(finalI).getUnit(), scaleFactor10) : Strings.EMPTY;
               }
           );
 
