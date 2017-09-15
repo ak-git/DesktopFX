@@ -12,7 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import java.util.zip.Checksum;
 
 import javax.annotation.Nonnegative;
@@ -216,7 +215,7 @@ public final class RsceCommandFrame extends BufferFrame {
 
   private static <E extends Enum<E>> E find(@Nonnull Class<E> clazz, @Nonnull ByteBuffer buffer,
                                             @Nonnull Predicate<? super E> predicate) {
-    return StreamSupport.stream(EnumSet.allOf(clazz).spliterator(), true).filter(predicate).findAny().
+    return EnumSet.allOf(clazz).parallelStream().filter(predicate).findAny().
         orElseThrow(() -> new IllegalArgumentException(Arrays.toString(buffer.array())));
   }
 
