@@ -118,7 +118,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
         for (int i = 0; i < chartData.size(); i++) {
           double mm = SMALL.getStep() / 10.0;
           double range = lineDiagrams.get(i).getHeight() / mm;
-          int[] values = Filters.smoothingDecimate(chartData.get(i), decimateFactor);
+          int[] values = Filters.sharpingDecimate(chartData.get(i), decimateFactor);
           IntSummaryStatistics intSummaryStatistics = IntStream.of(values).summaryStatistics();
           if (intSummaryStatistics.getMax() == intSummaryStatistics.getMin()) {
             intSummaryStatistics = IntStream.of(intSummaryStatistics.getMax(), 0).summaryStatistics();
@@ -209,7 +209,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
 
   private void setXStep(@Nonnull ZoomX zoomX, @Nonnegative double frequency) {
     double pointsInSec = SMALL.getStep() * zoomX.mmPerSec / 10.0;
-    int decimateFactor = (int) Math.rint(frequency / pointsInSec);
+    int decimateFactor = (int) Math.rint(frequency / pointsInSec / 1.5);
     if (decimateFactor > 2) {
       this.decimateFactor = decimateFactor;
     }

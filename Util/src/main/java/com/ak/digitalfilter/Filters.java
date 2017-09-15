@@ -1,5 +1,7 @@
 package com.ak.digitalfilter;
 
+import java.util.Arrays;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.measure.Quantity;
@@ -52,9 +54,45 @@ public enum Filters {
     }
   }
 
-  public static int[] smoothingDecimate(@Nonnull int[] ints, @Nonnegative int factor) {
+  public static int[] sharpingDecimate(@Nonnull int[] ints, @Nonnegative int factor) {
     if (factor < 2) {
       return ints;
+    }
+    else if (factor < 10) {
+      int[] decimated = new int[ints.length / factor];
+      for (int i = 0; i < decimated.length; i++) {
+        Arrays.sort(ints, i * factor, (i + 1) * factor);
+        double mean = 0.0;
+        for (int j = 0; j < factor; j++) {
+          mean += ints[i * factor + j];
+        }
+        mean /= factor;
+
+
+        int posCount = 0;
+        int negCount = 0;
+        for (int j = 0; j < factor; j++) {
+          int n = ints[i * factor + j];
+
+          if (n > mean) {
+            posCount++;
+          }
+          else if (n < mean) {
+            negCount++;
+          }
+        }
+
+        if (posCount > negCount) {
+          decimated[i] = ints[i * factor];
+        }
+        else if (posCount < negCount) {
+          decimated[i] = ints[(i + 1) * factor - 1];
+        }
+        else {
+          decimated[i] = (int) Math.rint(mean);
+        }
+      }
+      return decimated;
     }
     else {
       int[] decimated = new int[ints.length / factor];
@@ -76,6 +114,9 @@ public enum Filters {
         }
         decimated[2 * i] = minLast ? max : min;
         decimated[2 * i + 1] = minLast ? min : max;
+      }
+      if ((decimated.length & 1) != 0) {
+        decimated[decimated.length - 1] = ints[ints.length - 1];
       }
       return decimated;
     }
