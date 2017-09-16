@@ -26,7 +26,7 @@ public class FileDataProvider {
     };
   }
 
-  @DataProvider(name = "parallelRampFiles2", parallel = true)
+  @DataProvider(name = "parallelRampFiles2")
   public static Object[][] parallelRampFiles2() throws IOException {
     return new Object[][] {
         {createFile(111)},
