@@ -33,7 +33,7 @@ public class GroupServiceTest implements Subscriber<int[]> {
     service.subscribe(this);
   }
 
-  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "parallelRampFiles2", invocationCount = 10)
+  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles2", invocationCount = 10)
   public void testRead(@Nonnull Path file) {
     Assert.assertTrue(service.accept(file.toFile()));
     while (!Thread.currentThread().isInterrupted()) {
@@ -51,7 +51,7 @@ public class GroupServiceTest implements Subscriber<int[]> {
     }
   }
 
-  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "parallelRampFiles2", invocationCount = 10)
+  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles2", invocationCount = 10)
   public void testNotRead(@Nonnull Path file) {
     Assert.assertTrue(service.accept(file.toFile()));
     List<int[]> ints = service.read(1, 1);

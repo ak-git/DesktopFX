@@ -26,16 +26,6 @@ public class FileDataProvider {
     };
   }
 
-  @DataProvider(name = "parallelRampFiles2")
-  public static Object[][] parallelRampFiles2() throws IOException {
-    return new Object[][] {
-        {createFile(111)},
-        {createFile(111)},
-        {createFile(21)},
-        {createFile(31)},
-    };
-  }
-
   @DataProvider(name = "rampFile")
   public static Object[][] rampFile() throws IOException {
     return new Object[][] {
@@ -53,6 +43,16 @@ public class FileDataProvider {
         {createFile(0), 0},
         {createFile(14), 14328},
         {createFile(14), 0}
+    };
+  }
+
+  @DataProvider(name = "rampFiles2")
+  public static Object[][] rampFiles2() throws IOException {
+    return new Object[][] {
+        {createFile(111)},
+        {createFile(111)},
+        {createFile(21)},
+        {createFile(31)},
     };
   }
 

@@ -71,7 +71,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
 
   public Chart() {
     getChildren().add(milliGrid);
-    xAxisUnit.setFont(Constants.FONT_H1);
+    xAxisUnit.setFont(Constants.FONT_H2);
   }
 
   public void setVariables(@Nonnull Collection<EV> variables) {
@@ -209,7 +209,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
 
   private void setXStep(@Nonnull ZoomX zoomX, @Nonnegative double frequency) {
     double pointsInSec = SMALL.getStep() * zoomX.mmPerSec / 10.0;
-    int decimateFactor = (int) Math.rint(frequency / pointsInSec / 1.5);
+    int decimateFactor = (int) Math.rint(frequency / pointsInSec);
     if (decimateFactor > 2) {
       this.decimateFactor = decimateFactor;
     }
