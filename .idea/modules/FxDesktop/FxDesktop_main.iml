@@ -15,6 +15,9 @@
         <fileset id="fileset4" name="aper-calibration" removed="false">
           <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/aper/calibration/context.xml</file>
         </fileset>
+        <fileset id="fileset5" name="nmisr" removed="false">
+          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/nmisr/context.xml</file>
+        </fileset>
       </configuration>
     </facet>
   </component>

@@ -1,5 +1,6 @@
 package com.ak.comm.converter.rsce;
 
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
@@ -12,7 +13,7 @@ public final class RsceConverter extends AbstractConverter<RsceCommandFrame, Rsc
 
   @Override
   protected Stream<int[]> innerApply(RsceCommandFrame frame) {
-    int[] ints = frame.getRDozenMilliOhms().toArray();
+    int[] ints = IntStream.concat(frame.getRDozenMilliOhms(), frame.getInfoOnes()).toArray();
     if (ints.length == RsceVariable.values().length) {
       return Stream.of(ints);
     }

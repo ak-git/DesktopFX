@@ -33,12 +33,17 @@ public class RsceCommandFrameTest {
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "rheo12-catch-rotate")
-  public static void testInfoRequest(@Nonnull byte[] bytes, int[] rDozenMilliOhms) {
+  public static void testInfoRequest(@Nonnull byte[] bytes, @Nonnull int[] rDozenMilliOhms, @Nonnull int[] infoOnes) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     Assert.assertNotNull(frame);
     Assert.assertFalse(frame.getRDozenMilliOhms().count() != 0 && rDozenMilliOhms.length == 0);
     if (rDozenMilliOhms.length != 0) {
-      Assert.assertEquals(frame.getRDozenMilliOhms().toArray(), rDozenMilliOhms, frame.toString());
+      Assert.assertEquals(frame.getRDozenMilliOhms().toArray(), rDozenMilliOhms,
+          String.format("%s, Ohms = %s", frame, Arrays.toString(frame.getRDozenMilliOhms().toArray())));
+    }
+    if (infoOnes.length != 0) {
+      Assert.assertEquals(frame.getInfoOnes().toArray(), infoOnes,
+          String.format("%s, Info = %s", frame, Arrays.toString(frame.getInfoOnes().toArray())));
     }
   }
 
