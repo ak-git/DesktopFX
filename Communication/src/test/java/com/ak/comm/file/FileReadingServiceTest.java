@@ -1,11 +1,14 @@
 package com.ak.comm.file;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -17,6 +20,7 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.TwoVariables;
+import com.ak.comm.interceptor.AbstractBytesInterceptor;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.logging.LogBuilders;
@@ -52,6 +56,33 @@ public class FileReadingServiceTest {
           Assert.fail(file.toString(), e);
         }
       }
+    }
+  }
+
+  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
+  public static void testNoDataConverted(@Nonnull Path fileToRead, @Nonnegative int bytes) {
+    TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
+    Publisher<int[]> publisher = new FileReadingService<>(fileToRead,
+        new AbstractBytesInterceptor<BufferFrame, BufferFrame>(
+            BytesInterceptor.BaudRate.BR_921600, null, 1) {
+          @Nonnull
+          @Override
+          protected Collection<BufferFrame> innerProcessIn(@Nonnull ByteBuffer src) {
+            return Collections.emptyList();
+          }
+        },
+        new ToIntegerConverter<>(TwoVariables.class, 1000)
+    );
+    Flowable.fromPublisher(publisher).subscribe(testSubscriber);
+    testSubscriber.assertNoErrors();
+    testSubscriber.assertNoValues();
+    if (bytes < 0) {
+      testSubscriber.assertNotComplete();
+      testSubscriber.assertNotSubscribed();
+    }
+    else {
+      testSubscriber.assertComplete();
+      testSubscriber.assertSubscribed();
     }
   }
 
