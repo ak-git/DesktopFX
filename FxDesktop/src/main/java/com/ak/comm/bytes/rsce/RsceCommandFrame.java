@@ -107,13 +107,13 @@ public final class RsceCommandFrame extends BufferFrame {
   }
 
   private enum FrameField {
-    NONE(ActionType.NONE, RequestType.EMPTY, 3 + NON_LEN_BYTES),
+    NONE(RequestType.EMPTY, 3 + NON_LEN_BYTES),
     /**
      * <pre>
      *   0x00 0x09 (Length) 0xc7 (None-Reserve) <b>0xRheo1-Low 0xRheo1-High</b> 0xRheo2-Low 0xRheo2-High 0xOpen% 0xRotate% CRC1 CRC2
      * </pre>
      */
-    R1_DOZEN_MILLI_OHM(ActionType.NONE, RequestType.RESERVE, 3 + 2 + 2 + NON_LEN_BYTES) {
+    R1_DOZEN_MILLI_OHM(RequestType.RESERVE, 3 + 2 + 2 + NON_LEN_BYTES) {
       @Override
       IntStream resistance(@Nonnull ByteBuffer buffer) {
         return IntStream.of(buffer.getShort(3));
@@ -124,7 +124,7 @@ public final class RsceCommandFrame extends BufferFrame {
      *   0x00 0x09 (Length) 0xc7 (None-Reserve) 0xRheo1-Low 0xRheo1-High <b>0xRheo2-Low 0xRheo2-High</b> 0xOpen% 0xRotate% CRC1 CRC2
      * </pre>
      */
-    R2_DOZEN_MILLI_OHM(ActionType.NONE, RequestType.RESERVE, 3 + 2 + 2 + NON_LEN_BYTES) {
+    R2_DOZEN_MILLI_OHM(RequestType.RESERVE, 3 + 2 + 2 + NON_LEN_BYTES) {
       @Override
       IntStream resistance(@Nonnull ByteBuffer buffer) {
         return IntStream.of(buffer.getShort(5));
@@ -135,7 +135,7 @@ public final class RsceCommandFrame extends BufferFrame {
      *   0x00 0x09 (Length) 0xc7 (None-Reserve) 0xRheo1-Low 0xRheo1-High 0xRheo2-Low 0xRheo2-High <b>0xInfoLow 0xInfoHigh</b> CRC1 CRC2
      * </pre>
      */
-    INFO(ActionType.NONE, RequestType.RESERVE, 3 + 2 + 2 + 2 + NON_LEN_BYTES) {
+    INFO(RequestType.RESERVE, 3 + 2 + 2 + 2 + NON_LEN_BYTES) {
       @Override
       IntStream info(@Nonnull ByteBuffer buffer) {
         return IntStream.of(buffer.getShort(7));
@@ -147,8 +147,8 @@ public final class RsceCommandFrame extends BufferFrame {
     @Nonnegative
     private final int minFrameLength;
 
-    FrameField(@Nonnull ActionType actionType, @Nonnull RequestType requestType, @Nonnegative int minFrameLength) {
-      type = toType(actionType, requestType);
+    FrameField(@Nonnull RequestType requestType, @Nonnegative int minFrameLength) {
+      type = toType(ActionType.NONE, requestType);
       this.minFrameLength = minFrameLength;
     }
 
