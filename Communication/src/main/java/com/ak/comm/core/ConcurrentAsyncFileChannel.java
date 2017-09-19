@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
@@ -34,7 +35,7 @@ public final class ConcurrentAsyncFileChannel implements Closeable {
   public void write(@Nonnull ByteBuffer src) {
     lock.writeLock().lock();
     try {
-      long countBytes = operate(c -> c.write(src, writePos).get());
+      long countBytes = operate(c -> c.write(src, writePos));
       if (countBytes > 0) {
         writePos += countBytes;
       }
@@ -47,10 +48,7 @@ public final class ConcurrentAsyncFileChannel implements Closeable {
   void read(@Nonnull ByteBuffer dst, @Nonnegative long position) {
     lock.readLock().lock();
     try {
-      operate(c -> {
-        c.read(dst, position).get();
-        return c.size();
-      });
+      operate(c -> c.read(dst, position));
     }
     finally {
       lock.readLock().unlock();
@@ -86,7 +84,7 @@ public final class ConcurrentAsyncFileChannel implements Closeable {
         channel = channelCallable.call();
       }
       if (channel != null) {
-        bytesCount = operation.operate(channel);
+        bytesCount = operation.operate(channel).get();
       }
     }
     catch (InterruptedException e) {
@@ -100,6 +98,6 @@ public final class ConcurrentAsyncFileChannel implements Closeable {
   }
 
   private interface ChannelOperation {
-    long operate(@Nonnull AsynchronousFileChannel channel) throws InterruptedException, ExecutionException, IOException;
+    Future<Integer> operate(@Nonnull AsynchronousFileChannel channel) throws InterruptedException, ExecutionException, IOException;
   }
 }
