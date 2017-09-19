@@ -35,7 +35,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   @Nonnull
   private final double frequency;
   @Nonnull
-  private Readable currentReadable;
+  private volatile Readable currentReadable;
 
   @Inject
   public GroupService(@Nonnull Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider,
