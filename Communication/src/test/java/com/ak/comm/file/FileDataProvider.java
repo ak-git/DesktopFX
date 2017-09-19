@@ -50,7 +50,6 @@ public class FileDataProvider {
   public static Object[][] rampFiles2() throws IOException {
     return new Object[][] {
         {createFile(111)},
-        {createFile(111)},
         {createFile(21)},
         {createFile(31)},
     };

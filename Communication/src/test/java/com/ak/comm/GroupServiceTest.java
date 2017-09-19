@@ -49,13 +49,7 @@ public class GroupServiceTest implements Subscriber<int[]> {
         break;
       }
     }
-  }
-
-  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles2", invocationCount = 100, singleThreaded = true)
-  public void testNotRead(@Nonnull Path file) {
-    Assert.assertTrue(service.accept(file.toFile()));
-    List<int[]> ints = service.read(1, 1);
-    Assert.assertTrue(ints.isEmpty());
+    Assert.assertTrue(service.read(1, 1).isEmpty());
   }
 
   @AfterClass
