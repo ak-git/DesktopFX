@@ -83,7 +83,7 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
             });
 
             if (processed && Files.exists(tempConverterFile)) {
-              Files.copy(tempConverterFile, convertedFile, LinkOption.NOFOLLOW_LINKS, StandardCopyOption.REPLACE_EXISTING);
+              Files.move(tempConverterFile, convertedFile, LinkOption.NOFOLLOW_LINKS, StandardCopyOption.REPLACE_EXISTING);
             }
           }
         }
