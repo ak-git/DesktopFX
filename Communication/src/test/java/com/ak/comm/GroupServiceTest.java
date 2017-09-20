@@ -13,6 +13,7 @@ import com.ak.comm.converter.TwoVariables;
 import com.ak.comm.file.FileDataProvider;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
+import io.reactivex.internal.util.EmptyComponent;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import org.testng.Assert;
@@ -24,6 +25,8 @@ public class GroupServiceTest implements Subscriber<int[]> {
   private final GroupService<BufferFrame, BufferFrame, TwoVariables> service = new GroupService<>(
       () -> new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
       () -> new ToIntegerConverter<>(TwoVariables.class, 1000));
+  @Nonnull
+  private Subscription subscription = EmptyComponent.INSTANCE;
 
   private GroupServiceTest() {
   }
@@ -59,6 +62,8 @@ public class GroupServiceTest implements Subscriber<int[]> {
 
   @Override
   public void onSubscribe(Subscription s) {
+    subscription.cancel();
+    subscription = s;
   }
 
   @Override
