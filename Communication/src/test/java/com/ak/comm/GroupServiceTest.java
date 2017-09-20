@@ -53,6 +53,7 @@ public class GroupServiceTest implements Subscriber<int[]> {
       }
     }
     Assert.assertTrue(service.read(1, 1).isEmpty());
+    service.refresh();
   }
 
   @AfterClass

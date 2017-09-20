@@ -128,7 +128,6 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   @Override
   public void refresh() {
     serialService.refresh();
-    subscriber.onSubscribe(this);
     cancelled = false;
     write(bytesInterceptor().getPingRequest());
   }

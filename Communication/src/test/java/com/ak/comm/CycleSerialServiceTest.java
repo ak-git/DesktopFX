@@ -31,6 +31,7 @@ public class CycleSerialServiceTest {
     TestSubscriber<int[]> subscriber = TestSubscriber.create();
     service.subscribe(subscriber);
     service.write(new BufferFrame(new byte[] {1, 2}, ByteOrder.nativeOrder()));
+    service.refresh();
     Assert.assertFalse(latch.await(UI_DELAY.getSeconds(), TimeUnit.SECONDS));
     subscriber.assertNotComplete();
     service.close();
