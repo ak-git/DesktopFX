@@ -73,7 +73,6 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
             Logger.getLogger(getClass().getName()).log(Level.INFO,
                 String.format("#%x Read file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
             Path tempConverterFile = LogBuilders.CONVERTER_FILE.build("tempConverterFile" + md5Code).getPath();
-
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(tempConverterFile,
                 StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
 
@@ -83,7 +82,8 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
             });
 
             if (processed && Files.exists(tempConverterFile)) {
-              Files.move(tempConverterFile, convertedFile, LinkOption.NOFOLLOW_LINKS, StandardCopyOption.REPLACE_EXISTING);
+              Files.copy(tempConverterFile, convertedFile, LinkOption.NOFOLLOW_LINKS, StandardCopyOption.REPLACE_EXISTING);
+              tempConverterFile.toFile().deleteOnExit();
             }
           }
         }
