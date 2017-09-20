@@ -134,18 +134,18 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
 
           int finalI = i;
           lineDiagrams.get(i).setYLabelsGenerator(mmIndex -> {
-                double yCoordinate = lineDiagrams.get(finalI).getCenter() - mmIndex * mm;
-                boolean visible = true;
+            double yCoordinate = lineDiagrams.get(finalI).getCenter() - mmIndex * mm;
+            boolean visible = true;
 
-                if (finalI > 0) {
-                  visible = Math.abs(yCoordinate - lineDiagrams.get(finalI).getCenter()) - POINTS.getStep() <
-                      Math.abs(yCoordinate - lineDiagrams.get(finalI - 1).getCenter());
-                }
+            if (finalI > 0) {
+              visible = Math.abs(yCoordinate - lineDiagrams.get(finalI).getCenter()) - POINTS.getStep() <
+                  Math.abs(yCoordinate - lineDiagrams.get(finalI - 1).getCenter());
+            }
 
-                if (finalI < lineDiagrams.size() - 1) {
-                  visible &= Math.abs(yCoordinate - lineDiagrams.get(finalI).getCenter()) + POINTS.getStep() <
-                      Math.abs(yCoordinate - lineDiagrams.get(finalI + 1).getCenter());
-                }
+            if (finalI < lineDiagrams.size() - 1) {
+              visible &= Math.abs(yCoordinate - lineDiagrams.get(finalI).getCenter()) + POINTS.getStep() <
+                  Math.abs(yCoordinate - lineDiagrams.get(finalI + 1).getCenter());
+            }
 
             if (visible) {
               return Variables.toString(mean + mmIndex * scaleFactor, variables.get(finalI).getUnit(), scaleFactor10);
@@ -153,8 +153,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
             else {
               return Strings.EMPTY;
             }
-              }
-          );
+          });
 
           lineDiagrams.get(i).setAll(IntStream.of(values).mapToDouble(value -> mm * (value - mean) / scaleFactor).toArray());
         }
