@@ -17,6 +17,7 @@ import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.digitalfilter.Filters;
+import com.ak.fx.util.FxUtils;
 import com.ak.util.Strings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -110,7 +111,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
   }
 
   public void setAll(@Nonnull List<int[]> chartData) {
-    Constants.invokeInFx(() -> {
+    FxUtils.invokeInFx(() -> {
       if (chartData.isEmpty()) {
         lineDiagrams.forEach(lineDiagram -> lineDiagram.setAll(EMPTY_DOUBLES));
         startProperty.setValue(0);
@@ -146,7 +147,12 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
                       Math.abs(yCoordinate - lineDiagrams.get(finalI + 1).getCenter());
                 }
 
-            return visible ? Variables.toString(mean + mmIndex * scaleFactor, variables.get(finalI).getUnit(), scaleFactor10) : Strings.EMPTY;
+            if (visible) {
+              return Variables.toString(mean + mmIndex * scaleFactor, variables.get(finalI).getUnit(), scaleFactor10);
+            }
+            else {
+              return Strings.EMPTY;
+            }
               }
           );
 
