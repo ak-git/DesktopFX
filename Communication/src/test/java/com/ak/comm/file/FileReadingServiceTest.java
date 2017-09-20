@@ -31,8 +31,8 @@ import io.reactivex.subscribers.TestSubscriber;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 public class FileReadingServiceTest {
@@ -42,8 +42,8 @@ public class FileReadingServiceTest {
   private FileReadingServiceTest() {
   }
 
-  @BeforeClass
-  @AfterClass
+  @BeforeSuite
+  @AfterSuite
   public static void setUp() throws IOException {
     Path path = LogBuilders.CONVERTER_FILE.build(Strings.EMPTY).getPath().getParent();
     Assert.assertNotNull(path);
