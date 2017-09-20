@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,7 +32,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   @Nonnull
   private final AutoFileReadingService<RESPONSE, REQUEST, EV> fileReadingService;
   @Nonnull
-  private final List<EV> variables;
+  private final Collection<EV> variables;
   @Nonnull
   private final double frequency;
   @Nonnull
@@ -69,7 +70,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     currentReadable = serialService;
   }
 
-  public List<EV> getVariables() {
+  public Collection<EV> getVariables() {
     return variables;
   }
 

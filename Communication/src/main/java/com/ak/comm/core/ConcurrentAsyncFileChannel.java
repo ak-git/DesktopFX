@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -98,6 +97,6 @@ public final class ConcurrentAsyncFileChannel implements Closeable {
   }
 
   private interface ChannelOperation {
-    Future<Integer> operate(@Nonnull AsynchronousFileChannel channel) throws InterruptedException, ExecutionException, IOException;
+    Future<Integer> operate(@Nonnull AsynchronousFileChannel channel);
   }
 }
