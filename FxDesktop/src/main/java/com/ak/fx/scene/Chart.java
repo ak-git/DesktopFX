@@ -15,6 +15,7 @@ import javax.measure.quantity.Speed;
 
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
+import com.ak.digitalfilter.FilterBuilder;
 import com.ak.digitalfilter.Filters;
 import com.ak.util.Strings;
 import javafx.beans.property.IntegerProperty;
@@ -118,7 +119,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
         for (int i = 0; i < chartData.size(); i++) {
           double mm = SMALL.getStep() / 10.0;
           double range = lineDiagrams.get(i).getHeight() / mm;
-          int[] values = Filters.sharpingDecimate(chartData.get(i), decimateFactor);
+          int[] values = Filters.filter(FilterBuilder.of().sharpingDecimate(decimateFactor).build(), chartData.get(i));
           IntSummaryStatistics intSummaryStatistics = IntStream.of(values).summaryStatistics();
           if (intSummaryStatistics.getMax() == intSummaryStatistics.getMin()) {
             intSummaryStatistics = IntStream.of(intSummaryStatistics.getMax(), 0).summaryStatistics();

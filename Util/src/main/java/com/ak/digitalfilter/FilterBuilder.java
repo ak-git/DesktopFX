@@ -107,31 +107,18 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     }).interpolate(size);
   }
 
-  FilterBuilder smoothingDecimate(@Nonnegative int size) {
+  public FilterBuilder sharpingDecimate(@Nonnegative int size) {
     HoldFilter holdFilter = new HoldFilter.Builder(size).lostCount(0);
-    return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> operand -> {
-      int[] sorted = holdFilter.getSorted();
-      double mean = Arrays.stream(sorted).average().orElse(0.0);
+    return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> new IntUnaryOperator() {
+      private int prev;
 
-      int posCount = 0;
-      int negCount = 0;
-      for (int n : sorted) {
-        if (n > mean) {
-          posCount++;
-        }
-        else if (n < mean) {
-          negCount++;
-        }
-      }
-
-      if (posCount > negCount) {
-        return sorted[0];
-      }
-      else if (posCount < negCount) {
-        return sorted[sorted.length - 1];
-      }
-      else {
-        return (int) Math.rint(mean);
+      @Override
+      public int applyAsInt(int operand) {
+        int[] sorted = holdFilter.getSorted();
+        int min = sorted[0];
+        int max = sorted[sorted.length - 1];
+        prev = Math.abs(prev - max) > Math.abs(prev - min) ? max : min;
+        return prev;
       }
     });
   }

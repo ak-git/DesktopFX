@@ -1,6 +1,6 @@
 package com.ak.digitalfilter;
 
-import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -54,25 +54,13 @@ public enum Filters {
     }
   }
 
-  public static int[] sharpingDecimate(@Nonnull int[] ints, @Nonnegative int factor) {
-    if (factor < 2) {
-      return ints;
+  public static int[] filter(@Nonnull DigitalFilter filter, @Nonnull int[] ints) {
+    int[] result = new int[(int) Math.floor(ints.length * filter.getFrequencyFactor())];
+    AtomicInteger index = new AtomicInteger();
+    filter.forEach(values -> result[index.getAndIncrement()] = values[0]);
+    for (int i : ints) {
+      filter.accept(i);
     }
-    else {
-      int[] decimated = new int[ints.length / factor];
-      decimated[0] = ints[0];
-      for (int i = 1; i < decimated.length; i++) {
-        Arrays.sort(ints, i * factor, (i + 1) * factor);
-        int min = ints[i * factor];
-        int max = ints[(i + 1) * factor - 1];
-        if (Math.abs(decimated[i - 1] - max) > Math.abs(decimated[i - 1] - min)) {
-          decimated[i] = max;
-        }
-        else {
-          decimated[i] = min;
-        }
-      }
-      return decimated;
-    }
+    return result;
   }
 }
