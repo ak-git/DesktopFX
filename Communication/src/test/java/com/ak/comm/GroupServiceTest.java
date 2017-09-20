@@ -41,7 +41,7 @@ public class GroupServiceTest implements Subscriber<int[]> {
       int shift = 2;
       List<int[]> ints = service.read(shift, countFrames + shift);
       if (!ints.isEmpty()) {
-        for (int i = 0; i < countFrames; i++) {
+        for (int i = 0; i < ints.get(0).length; i++) {
           for (int j = 0; j < TwoVariables.values().length; j++) {
             Assert.assertEquals(ints.get(j)[i], i + j + shift, Arrays.toString(ints.get(j)));
           }
