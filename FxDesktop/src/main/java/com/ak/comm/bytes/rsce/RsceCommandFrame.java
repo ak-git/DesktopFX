@@ -3,16 +3,13 @@ package com.ak.comm.bytes.rsce;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import java.util.zip.Checksum;
 
 import javax.annotation.Nonnegative;
@@ -110,63 +107,66 @@ public final class RsceCommandFrame extends BufferFrame {
   }
 
   private enum FrameField {
-    NONE, R1_DOZEN_MILLI_OHM, R2_DOZEN_MILLI_OHM
-  }
-
-  private enum Extractor {
-    NONE(ActionType.NONE, RequestType.EMPTY),
+    NONE(RequestType.EMPTY, 3 + NON_LEN_BYTES),
     /**
      * <pre>
-     *   2. 0x00 0x09 (Length) 0xc7 (None-Reserve) <b>0xRheo1-Low 0xRheo1-High</b> 0xRheo2-Low 0xRheo2-High 0xOpen% 0xRotate% CRC1 CRC2
+     *   0x00 0x09 (Length) 0xc7 (None-Reserve) <b>0xRheo1-Low 0xRheo1-High</b> 0xRheo2-Low 0xRheo2-High 0xOpen% 0xRotate% CRC1 CRC2
      * </pre>
      */
-    R1_DOZEN_MILLI_OHM(ActionType.NONE, RequestType.RESERVE) {
+    R1_DOZEN_MILLI_OHM(RequestType.RESERVE, 3 + 2 + 2 + NON_LEN_BYTES) {
       @Override
-      IntStream extractResistance(@Nonnull ByteBuffer from) {
-        return IntStream.of(from.getShort(3));
+      IntStream resistance(@Nonnull ByteBuffer buffer) {
+        return IntStream.of(buffer.getShort(3));
       }
     },
     /**
      * <pre>
-     *   2. 0x00 0x09 (Length) 0xc7 (None-Reserve) 0xRheo1-Low 0xRheo1-High <b>0xRheo2-Low 0xRheo2-High</b> 0xOpen% 0xRotate% CRC1 CRC2
+     *   0x00 0x09 (Length) 0xc7 (None-Reserve) 0xRheo1-Low 0xRheo1-High <b>0xRheo2-Low 0xRheo2-High</b> 0xOpen% 0xRotate% CRC1 CRC2
      * </pre>
      */
-    R2_DOZEN_MILLI_OHM(ActionType.NONE, RequestType.RESERVE) {
+    R2_DOZEN_MILLI_OHM(RequestType.RESERVE, 3 + 2 + 2 + NON_LEN_BYTES) {
       @Override
-      IntStream extractResistance(@Nonnull ByteBuffer from) {
-        return IntStream.of(from.getShort(5));
+      IntStream resistance(@Nonnull ByteBuffer buffer) {
+        return IntStream.of(buffer.getShort(5));
+      }
+    },
+    /**
+     * <pre>
+     *   0x00 0x09 (Length) 0xc7 (None-Reserve) 0xRheo1-Low 0xRheo1-High 0xRheo2-Low 0xRheo2-High <b>0xInfoLow 0xInfoHigh</b> CRC1 CRC2
+     * </pre>
+     */
+    INFO(RequestType.RESERVE, 3 + 2 + 2 + 2 + NON_LEN_BYTES) {
+      @Override
+      IntStream info(@Nonnull ByteBuffer buffer) {
+        return IntStream.of(buffer.getShort(7));
       }
     };
 
-    private static final Map<String, Map<FrameField, Extractor>> RSCE_TYPE_MAP = new HashMap<>();
     @Nonnull
     private final String type;
-    @Nonnull
-    private final FrameField field;
+    @Nonnegative
+    private final int minFrameLength;
 
-    static {
-      for (ActionType actionType : ActionType.values()) {
-        for (RequestType requestType : RequestType.values()) {
-          RSCE_TYPE_MAP.put(toType(actionType, requestType), new EnumMap<>(FrameField.class));
-        }
-      }
-
-      for (Extractor extractor : Extractor.values()) {
-        RSCE_TYPE_MAP.get(extractor.type).put(extractor.field, extractor);
-      }
+    FrameField(@Nonnull RequestType requestType, @Nonnegative int minFrameLength) {
+      type = toType(ActionType.NONE, requestType);
+      this.minFrameLength = minFrameLength;
     }
 
-    Extractor(@Nonnull ActionType actionType, @Nonnull RequestType requestType) {
-      type = toType(actionType, requestType);
-      field = FrameField.values()[ordinal()];
-    }
-
-    IntStream extractResistance(@Nonnull ByteBuffer from) {
+    IntStream resistance(@Nonnull ByteBuffer buffer) {
       return IntStream.empty();
     }
 
-    private static Extractor from(@Nonnull ActionType actionType, @Nonnull RequestType requestType, @Nonnull FrameField field) {
-      return Optional.ofNullable(RSCE_TYPE_MAP.get(toType(actionType, requestType))).map(extractorMap -> extractorMap.get(field)).orElse(NONE);
+    IntStream info(@Nonnull ByteBuffer buffer) {
+      return IntStream.empty();
+    }
+
+    private IntStream extract(@Nonnull ByteBuffer buffer, @Nonnull Supplier<? extends IntStream> supplier) {
+      if (buffer.limit() >= minFrameLength && type.equals(toType(ActionType.find(buffer), RequestType.find(buffer)))) {
+        return supplier.get();
+      }
+      else {
+        return IntStream.empty();
+      }
     }
 
     private static String toType(@Nonnull ActionType actionType, @Nonnull RequestType requestType) {
@@ -183,9 +183,12 @@ public final class RsceCommandFrame extends BufferFrame {
   }
 
   public IntStream getRDozenMilliOhms() {
-    return EnumSet.range(FrameField.R1_DOZEN_MILLI_OHM, FrameField.R2_DOZEN_MILLI_OHM).stream().
-        flatMapToInt(frameField ->
-            Extractor.from(ActionType.find(byteBuffer()), RequestType.find(byteBuffer()), frameField).extractResistance(byteBuffer()));
+    return Stream.of(FrameField.R1_DOZEN_MILLI_OHM, FrameField.R2_DOZEN_MILLI_OHM).
+        flatMapToInt(f -> f.extract(byteBuffer(), () -> f.resistance(byteBuffer())));
+  }
+
+  public IntStream getInfoOnes() {
+    return Stream.of(FrameField.INFO).flatMapToInt(f -> f.extract(byteBuffer(), () -> f.info(byteBuffer())));
   }
 
   @Override
@@ -216,7 +219,7 @@ public final class RsceCommandFrame extends BufferFrame {
 
   private static <E extends Enum<E>> E find(@Nonnull Class<E> clazz, @Nonnull ByteBuffer buffer,
                                             @Nonnull Predicate<? super E> predicate) {
-    return StreamSupport.stream(EnumSet.allOf(clazz).spliterator(), true).filter(predicate).findAny().
+    return EnumSet.allOf(clazz).parallelStream().filter(predicate).findAny().
         orElseThrow(() -> new IllegalArgumentException(Arrays.toString(buffer.array())));
   }
 

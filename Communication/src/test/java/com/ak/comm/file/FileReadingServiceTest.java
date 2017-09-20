@@ -1,11 +1,14 @@
 package com.ak.comm.file;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -17,6 +20,7 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.TwoVariables;
+import com.ak.comm.interceptor.AbstractBytesInterceptor;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.logging.LogBuilders;
@@ -27,8 +31,8 @@ import io.reactivex.subscribers.TestSubscriber;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 public class FileReadingServiceTest {
@@ -38,8 +42,8 @@ public class FileReadingServiceTest {
   private FileReadingServiceTest() {
   }
 
-  @BeforeClass
-  @AfterClass
+  @BeforeSuite
+  @AfterSuite
   public static void setUp() throws IOException {
     Path path = LogBuilders.CONVERTER_FILE.build(Strings.EMPTY).getPath().getParent();
     Assert.assertNotNull(path);
@@ -55,6 +59,33 @@ public class FileReadingServiceTest {
     }
   }
 
+  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
+  public static void testNoDataConverted(@Nonnull Path fileToRead, @Nonnegative int bytes) {
+    TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
+    Publisher<int[]> publisher = new FileReadingService<>(fileToRead,
+        new AbstractBytesInterceptor<BufferFrame, BufferFrame>(
+            BytesInterceptor.BaudRate.BR_921600, null, 1) {
+          @Nonnull
+          @Override
+          protected Collection<BufferFrame> innerProcessIn(@Nonnull ByteBuffer src) {
+            return Collections.emptyList();
+          }
+        },
+        new ToIntegerConverter<>(TwoVariables.class, 1000)
+    );
+    Flowable.fromPublisher(publisher).subscribe(testSubscriber);
+    testSubscriber.assertNoErrors();
+    testSubscriber.assertNoValues();
+    if (bytes < 0) {
+      testSubscriber.assertNotComplete();
+      testSubscriber.assertNotSubscribed();
+    }
+    else {
+      testSubscriber.assertComplete();
+      testSubscriber.assertSubscribed();
+    }
+  }
+
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFile")
   public static void testFile(@Nonnull Path fileToRead, @Nonnegative int bytes, boolean forceClose) {
     TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
@@ -62,11 +93,16 @@ public class FileReadingServiceTest {
     FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher = new FileReadingService<>(
         fileToRead,
         new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, frameLength),
-        new ToIntegerConverter<>(TwoVariables.class));
+        new ToIntegerConverter<>(TwoVariables.class, 200));
     LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
         Flowable.fromPublisher(publisher).subscribe(testSubscriber), logRecord -> {
       if (forceClose) {
-        publisher.close();
+        try {
+          publisher.close();
+        }
+        catch (IOException e) {
+          Assert.fail(e.getMessage(), e);
+        }
       }
     });
     testSubscriber.assertValueCount(bytes / frameLength);
@@ -78,7 +114,7 @@ public class FileReadingServiceTest {
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
     Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
         BytesInterceptor.BaudRate.BR_921600, frameLength),
-        new ToIntegerConverter<>(TwoVariables.class));
+        new ToIntegerConverter<>(TwoVariables.class, 1000));
     Assert.assertTrue(publisher.toString().contains(fileToRead.toString()));
 
     Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
@@ -112,7 +148,7 @@ public class FileReadingServiceTest {
       TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
       Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
           BytesInterceptor.BaudRate.BR_921600, 1 + TwoVariables.values().length * Integer.BYTES),
-          new ToIntegerConverter<>(TwoVariables.class));
+          new ToIntegerConverter<>(TwoVariables.class, 200));
       Flowable.fromPublisher(publisher).doOnSubscribe(subscription -> Files.deleteIfExists(fileToRead)).subscribe(testSubscriber);
       if (bytes < 0) {
         testSubscriber.assertNoErrors();
@@ -132,7 +168,7 @@ public class FileReadingServiceTest {
     TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
     Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
         BytesInterceptor.BaudRate.BR_921600, 1 + TwoVariables.values().length * Integer.BYTES),
-        new ToIntegerConverter<>(TwoVariables.class));
+        new ToIntegerConverter<>(TwoVariables.class, 1000));
     Flowable.fromPublisher(publisher).doOnSubscribe(Subscription::cancel).subscribe(testSubscriber);
     testSubscriber.assertNoErrors();
     testSubscriber.assertNoValues();
@@ -145,10 +181,10 @@ public class FileReadingServiceTest {
     }
   }
 
-  @Test(expectedExceptions = IllegalStateException.class)
+  @Test
   public static void testInvalidChannelCall() throws Exception {
-    new FileReadingService<>(Paths.get(Strings.EMPTY), new RampBytesInterceptor(
+    Assert.assertNull(new FileReadingService<>(Paths.get(Strings.EMPTY), new RampBytesInterceptor(
         BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
-        new ToIntegerConverter<>(TwoVariables.class)).call();
+        new ToIntegerConverter<>(TwoVariables.class, 200)).call());
   }
 }

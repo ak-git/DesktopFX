@@ -23,14 +23,16 @@
         <constructor-arg name="baudRate" value="BR_921600"/>
         <constructor-arg name="frameLength" value="25"/>
     </bean>
+
     <bean class="com.ak.comm.converter.LinkedConverter" scope="prototype">
         <constructor-arg index="0">
             <bean class="com.ak.comm.converter.ToIntegerConverter">
-                <constructor-arg>
+                <constructor-arg index="0">
                     <bean class="java.lang.Class" factory-method="forName">
                         <constructor-arg type="java.lang.String" value="com.ak.comm.converter.aper.AperInVariable"/>
                     </bean>
                 </constructor-arg>
+                <constructor-arg index="1" value="1000"/>
             </bean>
         </constructor-arg>
         <constructor-arg index="1" value="com.ak.comm.converter.aper.myo.AperEMGVariable"/>
@@ -38,5 +40,5 @@
 
     <bean class="com.ak.comm.GroupService" destroy-method="close"/>
 
-    <bean class="com.ak.fx.desktop.aper.AperViewController"/>
+    <bean class="com.ak.fx.desktop.ViewController"/>
 </beans>

@@ -86,21 +86,54 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   public FilterBuilder smoothingImpulsive(@Nonnegative int size) {
-    HoldFilter holdFilter = new HoldFilter(size);
+    HoldFilter holdFilter = new HoldFilter.Builder(size).lostCount(1);
     return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> operand -> {
       int[] sorted = holdFilter.getSorted();
       double mean = Arrays.stream(sorted).average().orElse(0.0);
 
       int posCount = 0;
+      int negCount = 0;
       double distances = 0.0;
       for (int n : sorted) {
         if (n > mean) {
           posCount++;
           distances += (n - mean);
         }
+        else if (n < mean) {
+          negCount++;
+        }
       }
-      return (int) Math.round(mean + (posCount - (size - posCount)) * distances / StrictMath.pow(size, 2));
+      return (int) Math.round(mean + (posCount - negCount) * distances / StrictMath.pow(size, 2));
     }).interpolate(size);
+  }
+
+  FilterBuilder smoothingDecimate(@Nonnegative int size) {
+    HoldFilter holdFilter = new HoldFilter.Builder(size).lostCount(0);
+    return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> operand -> {
+      int[] sorted = holdFilter.getSorted();
+      double mean = Arrays.stream(sorted).average().orElse(0.0);
+
+      int posCount = 0;
+      int negCount = 0;
+      for (int n : sorted) {
+        if (n > mean) {
+          posCount++;
+        }
+        else if (n < mean) {
+          negCount++;
+        }
+      }
+
+      if (posCount > negCount) {
+        return sorted[0];
+      }
+      else if (posCount < negCount) {
+        return sorted[sorted.length - 1];
+      }
+      else {
+        return (int) Math.rint(mean);
+      }
+    });
   }
 
   public FilterBuilder expSum() {

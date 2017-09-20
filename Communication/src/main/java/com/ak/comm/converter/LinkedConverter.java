@@ -3,19 +3,24 @@ package com.ak.comm.converter;
 import java.util.List;
 import java.util.stream.Stream;
 
-public final class LinkedConverter<RESPONSE, IN extends Enum<IN> & Variable, OUT extends Enum<OUT> & DependentVariable<IN>>
+public final class LinkedConverter<RESPONSE, IN extends Enum<IN> & Variable<IN>, OUT extends Enum<OUT> & DependentVariable<IN, OUT>>
     implements Converter<RESPONSE, OUT> {
   private final Converter<RESPONSE, IN> responseConverter;
   private final Converter<Stream<int[]>, OUT> outConverter;
 
   public LinkedConverter(Converter<RESPONSE, IN> responseConverter, Class<OUT> outVarClass) {
     this.responseConverter = responseConverter;
-    outConverter = new SelectableConverter<>(outVarClass);
+    outConverter = new SelectableConverter<>(outVarClass, responseConverter.getFrequency());
   }
 
   @Override
   public List<OUT> variables() {
     return outConverter.variables();
+  }
+
+  @Override
+  public double getFrequency() {
+    return outConverter.getFrequency();
   }
 
   @Override

@@ -71,7 +71,7 @@ public class FilterBuilderTest {
             FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(2).build()
         ),
-        new int[][] {{2, 2, 3, 3, 1}, {4, 4, 0, 0, 3}, {2, 2, -2, -2, 3}, {2, 2, -1, -1, 2}},
+        new int[][] {{4, 4, 0, 0, 3}, {2, 2, -2, -2, 3}, {2, 2, -1, -1, 2}},
         -1.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
@@ -237,9 +237,6 @@ public class FilterBuilderTest {
         delay / 200.0, 1.0e-3, filter.toString());
 
     Assert.assertEquals(filter.getFrequencyFactor(), frequencyFactor, 1.0e-3, filter.toString());
-    Assert.assertEquals(Filters.getFrequency(filter, Quantities.getQuantity(0.1, MetricPrefix.KILO(Units.HERTZ))).getValue().doubleValue(),
-        100 * frequencyFactor, 1.0e-3, filter.toString());
-
     Assert.assertEquals(filter.getOutputDataSize(), result[0].length);
   }
 

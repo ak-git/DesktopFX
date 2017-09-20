@@ -1,8 +1,8 @@
 package com.ak.comm.serial;
 
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.WritableByteChannel;
-import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -14,7 +14,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.core.AbstractService;
-import com.ak.comm.core.SafeByteChannel;
+import com.ak.comm.core.ConcurrentAsyncFileChannel;
 import com.ak.comm.logging.LogBuilders;
 import com.ak.util.Strings;
 import jssc.SerialPort;
@@ -22,19 +22,21 @@ import jssc.SerialPortException;
 import jssc.SerialPortList;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
-final class SerialService extends AbstractService implements WritableByteChannel, Publisher<ByteBuffer> {
+final class SerialService extends AbstractService implements WritableByteChannel, Publisher<ByteBuffer>, Refreshable, Subscription {
   @Nonnull
   private final SerialPort serialPort;
   @Nonnegative
   private final int baudRate;
   @Nonnull
   private final ByteBuffer buffer;
-  private final SafeByteChannel binaryLogChannel = new SafeByteChannel(() ->
-      Files.newByteChannel(LogBuilders.SERIAL_BYTES.build(getClass().getSimpleName()).getPath(),
-          StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE));
+  private final ConcurrentAsyncFileChannel binaryLogChannel = new ConcurrentAsyncFileChannel(() ->
+      AsynchronousFileChannel.open(LogBuilders.SERIAL_BYTES.build(getClass().getSimpleName()).getPath(),
+          StandardOpenOption.CREATE, StandardOpenOption.WRITE));
+  private volatile boolean refresh;
 
   SerialService(@Nonnegative int baudRate) {
     this.baudRate = baudRate;
@@ -83,6 +85,11 @@ final class SerialService extends AbstractService implements WritableByteChannel
         s.onSubscribe(this);
         serialPort.addEventListener(event -> {
           try {
+            if (refresh) {
+              refresh = false;
+              s.onNext(null);
+              binaryLogChannel.close();
+            }
             buffer.clear();
             buffer.put(serialPort.readBytes());
             buffer.flip();
@@ -103,6 +110,15 @@ final class SerialService extends AbstractService implements WritableByteChannel
   }
 
   @Override
+  public void request(long n) {
+  }
+
+  @Override
+  public void cancel() {
+    close();
+  }
+
+  @Override
   public void close() {
     try {
       synchronized (serialPort) {
@@ -119,14 +135,25 @@ final class SerialService extends AbstractService implements WritableByteChannel
   }
 
   @Override
+  public void refresh() {
+    Logger.getLogger(getClass().getName()).log(Level.INFO,
+        String.format("#%x Refresh connection [ %s ]", hashCode(), serialPort.getPortName()));
+    refresh = true;
+  }
+
+  @Override
   public String toString() {
     return String.format("%s@%x{serialPort = %s}", getClass().getSimpleName(), hashCode(), serialPort.getPortName());
   }
 
   private void logErrorAndComplete(Subscriber<?> s, @Nonnull Exception ex) {
-    Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
-    close();
-    s.onComplete();
+    try {
+      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
+      close();
+    }
+    finally {
+      s.onComplete();
+    }
   }
 
   private enum Ports {

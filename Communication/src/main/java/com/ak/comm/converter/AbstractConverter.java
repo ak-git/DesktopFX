@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.digitalfilter.DigitalFilter;
@@ -19,21 +20,23 @@ import com.ak.digitalfilter.FilterBuilder;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_VALUES;
 
-public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable> implements Converter<RESPONSE, EV> {
+public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable<EV>> implements Converter<RESPONSE, EV> {
   @Nonnull
   private final Logger logger = Logger.getLogger(getClass().getName());
   @Nonnull
   private final List<EV> variables;
   @Nonnull
   private final DigitalFilter digitalFilter;
+  @Nonnegative
+  private final double frequency;
   @Nonnull
   private Stream<int[]> filteredValues = Stream.empty();
 
-  public AbstractConverter(@Nonnull Class<EV> evClass) {
-    this(evClass, EnumSet.allOf(evClass).stream().map(ev -> new int[] {ev.ordinal()}).collect(Collectors.toList()));
+  public AbstractConverter(@Nonnull Class<EV> evClass, @Nonnegative double frequency) {
+    this(evClass, frequency, EnumSet.allOf(evClass).stream().map(ev -> new int[] {ev.ordinal()}).collect(Collectors.toList()));
   }
 
-  AbstractConverter(@Nonnull Class<EV> evClass, @Nonnull List<int[]> selectedIndexes) {
+  AbstractConverter(@Nonnull Class<EV> evClass, @Nonnegative double frequency, @Nonnull List<int[]> selectedIndexes) {
     variables = Collections.unmodifiableList(new ArrayList<>(EnumSet.allOf(evClass)));
     List<DigitalFilter> filters = variables.stream().map(ev -> ev.filter()).collect(Collectors.toList());
 
@@ -42,15 +45,22 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
       if (logger.isLoggable(LOG_LEVEL_VALUES)) {
         logger.log(LOG_LEVEL_VALUES, String.format("#%x [ %s ]", hashCode(),
             IntStream.iterate(0, operand -> operand + 1).limit(variables.size()).mapToObj(
-                idx -> variables.get(idx).toString(ints[idx])).collect(Collectors.joining(", "))));
+                idx -> Variables.toString(variables.get(idx), ints[idx])).collect(Collectors.joining(", "))));
       }
       filteredValues = Stream.concat(filteredValues, Stream.of(ints));
     });
+    this.frequency = frequency * digitalFilter.getFrequencyFactor();
   }
 
   @Override
   public final List<EV> variables() {
     return variables;
+  }
+
+  @Nonnegative
+  @Override
+  public final double getFrequency() {
+    return frequency;
   }
 
   @Override

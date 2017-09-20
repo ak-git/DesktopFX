@@ -46,6 +46,15 @@ public class FileDataProvider {
     };
   }
 
+  @DataProvider(name = "rampFiles2")
+  public static Object[][] rampFiles2() throws IOException {
+    return new Object[][] {
+        {createFile(111)},
+        {createFile(21)},
+        {createFile(31)},
+    };
+  }
+
   @DataProvider(name = "filesCanDelete")
   public static Object[][] filesCanDelete() throws IOException {
     return new Object[][] {

@@ -1,7 +1,9 @@
 package com.ak.comm.converter.rsce;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -12,6 +14,7 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import tec.uom.se.AbstractUnit;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
@@ -24,7 +27,7 @@ public class RsceConverterTest {
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "rheo12-catch-rotate")
-  public static void testApply(@Nonnull byte[] bytes, int[] rDozenMilliOhms) {
+  public static void testApply(@Nonnull byte[] bytes, @Nonnull int[] rDozenMilliOhms, @Nonnull int[] infoOnes) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     Assert.assertNotNull(frame);
     Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES, () -> {
@@ -34,7 +37,8 @@ public class RsceConverterTest {
         Assert.assertEquals(stream.count(), 0);
       }
       else {
-        stream.forEach(ints -> Assert.assertEquals(ints, rDozenMilliOhms));
+        stream.forEach(ints ->
+            Assert.assertEquals(ints, IntStream.concat(Arrays.stream(rDozenMilliOhms), Arrays.stream(infoOnes)).toArray()));
       }
     }, logRecord -> {
       for (int milliOhm : rDozenMilliOhms) {
@@ -42,8 +46,13 @@ public class RsceConverterTest {
       }
       for (RsceVariable rsceVariable : RsceVariable.values()) {
         Assert.assertTrue(logRecord.getMessage().contains(rsceVariable.name()));
-        Assert.assertEquals(rsceVariable.getUnit(), MetricPrefix.CENTI(Units.OHM));
+        if (rsceVariable == RsceVariable.INFO) {
+          Assert.assertEquals(rsceVariable.getUnit(), AbstractUnit.ONE);
+        }
+        else {
+          Assert.assertEquals(rsceVariable.getUnit(), MetricPrefix.CENTI(Units.OHM));
+        }
       }
-    }), rDozenMilliOhms.length > 0);
+    }), rDozenMilliOhms.length > 0 && infoOnes.length > 0);
   }
 }

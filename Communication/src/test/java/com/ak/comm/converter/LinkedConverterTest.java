@@ -33,7 +33,7 @@ public class LinkedConverterTest {
 
   @Test(dataProvider = "variables")
   public static void testApply(BufferFrame frame, int[] output) {
-    ToIntegerConverter<TwoVariables> converter = new ToIntegerConverter<>(TwoVariables.class);
+    ToIntegerConverter<TwoVariables> converter = new ToIntegerConverter<>(TwoVariables.class, 200);
     LinkedConverter<BufferFrame, TwoVariables, OperatorVariables> linkedConverter = new LinkedConverter<>(converter, OperatorVariables.class);
     Assert.assertEquals(linkedConverter.variables(), Stream.of(OperatorVariables.values()).collect(Collectors.toList()));
     Assert.assertEquals(linkedConverter.apply(frame).peek(ints -> Assert.assertEquals(ints, output,
@@ -44,7 +44,7 @@ public class LinkedConverterTest {
   public static void testApply2(BufferFrame frame, int[] output) {
     Function<BufferFrame, Stream<int[]>> linkedConverter =
         new LinkedConverter<>(
-            new LinkedConverter<>(new ToIntegerConverter<>(TwoVariables.class), OperatorVariables.class),
+            new LinkedConverter<>(new ToIntegerConverter<>(TwoVariables.class, 1000), OperatorVariables.class),
             OperatorVariables2.class
         );
 

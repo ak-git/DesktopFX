@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":Util:test" external.linked.project.path="$MODULE_DIR$/../../../Util" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.ak" external.system.module.type="sourceSet" external.system.module.version="2017.2" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":Util:test" external.linked.project.path="$MODULE_DIR$/../../../Util" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.ak" external.system.module.type="sourceSet" external.system.module.version="2017.3" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
-    <output-test url="file://$MODULE_DIR$/../../../Util/build/classes/test" />
+    <output-test url="file://$MODULE_DIR$/../../../Util/out/test/classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../Util/src/test">
       <sourceFolder url="file://$MODULE_DIR$/../../../Util/src/test/java" isTestSource="true" />
@@ -11,12 +11,12 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Util_main" />
     <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
-    <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:3.0.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:3.0.2" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-math3:3.6.1" level="project" />
-    <orderEntry type="library" name="Gradle: tec.uom:uom-se:1.0.5" level="project" />
+    <orderEntry type="library" name="Gradle: tec.uom:uom-se:1.0.8" level="project" />
     <orderEntry type="library" name="Gradle: org.testng:testng:6.11" level="project" />
+    <orderEntry type="library" name="Gradle: tec.uom.lib:uom-lib-common:1.0.2" level="project" />
     <orderEntry type="library" name="Gradle: javax.measure:unit-api:1.0" level="project" />
-    <orderEntry type="library" name="Gradle: tec.uom.lib:uom-lib-common:1.0.1" level="project" />
     <orderEntry type="library" name="Gradle: com.beust:jcommander:1.64" level="project" />
     <orderEntry type="library" name="Gradle: org.yaml:snakeyaml:1.17" level="project" />
   </component>

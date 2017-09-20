@@ -1,4 +1,4 @@
-package com.ak.comm.converter;
+package com.ak.fx.desktop;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -16,8 +16,10 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.Variable;
+import com.ak.comm.converter.Variables;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.fx.desktop.FxClassPathXmlApplicationContext;
 import com.ak.util.LineFileCollector;
 import com.ak.util.Strings;
 import com.sun.javafx.application.ParametersImpl;
@@ -27,7 +29,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import static com.ak.fx.desktop.FxApplication.APP_PARAMETER_CONTEXT;
 
-public final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variable> implements AutoCloseable, Consumer<Path> {
+final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> implements AutoCloseable, Consumer<Path> {
   @Nonnull
   private final ConfigurableApplicationContext context;
 
@@ -51,8 +53,7 @@ public final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
              Paths.get(path.toFile().toString().replaceAll("\\.bin", Strings.EMPTY) + ".txt"),
              LineFileCollector.Direction.VERTICAL)
     ) {
-      collector.accept(responseConverter.variables().stream().map(ev -> ev.toName()).collect(Collectors.joining(Strings.TAB)));
-      collector.accept(Strings.EMPTY);
+      collector.accept(responseConverter.variables().stream().map(Variables::toName).collect(Collectors.joining(Strings.TAB)));
 
       ByteBuffer buffer = ByteBuffer.allocate(1024);
       while (readableByteChannel.read(buffer) > 0) {

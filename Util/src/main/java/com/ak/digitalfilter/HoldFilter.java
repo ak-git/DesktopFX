@@ -3,12 +3,14 @@ package com.ak.digitalfilter;
 import java.util.Arrays;
 
 import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 
 final class HoldFilter extends AbstractBufferFilter {
-  private static final int LOST_COUNT = 1;
+  private final int lostCount;
 
-  HoldFilter(@Nonnegative int size) {
-    super(size);
+  private HoldFilter(@Nonnull Builder builder) {
+    super(builder.size);
+    lostCount = builder.lostCount;
   }
 
   @Override
@@ -19,6 +21,22 @@ final class HoldFilter extends AbstractBufferFilter {
   int[] getSorted() {
     int[] buffer = buffer();
     Arrays.sort(buffer);
-    return Arrays.copyOfRange(buffer, LOST_COUNT, buffer.length - LOST_COUNT);
+    return Arrays.copyOfRange(buffer, lostCount, buffer.length - lostCount);
+  }
+
+  static final class Builder {
+    @Nonnegative
+    private final int size;
+    @Nonnegative
+    private int lostCount;
+
+    Builder(@Nonnegative int size) {
+      this.size = size;
+    }
+
+    HoldFilter lostCount(@Nonnegative int lostCount) {
+      this.lostCount = lostCount;
+      return new HoldFilter(this);
+    }
   }
 }

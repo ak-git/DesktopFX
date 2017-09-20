@@ -22,8 +22,6 @@ import com.ak.util.OS;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
@@ -34,7 +32,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.MessageSourceResourceBundle;
 
 public final class FxApplication extends Application {
-  public static final String APP_PARAMETER_CONTEXT = "context";
+  static final String APP_PARAMETER_CONTEXT = "context";
   private static final String SCENE_XML = "scene.fxml";
   private static final String KEY_APPLICATION_TITLE = "application.title";
   private static final String KEY_APPLICATION_IMAGE = "application.image";
@@ -69,7 +67,7 @@ public final class FxApplication extends Application {
       FXMLLoader loader = new FXMLLoader(resource, new MessageSourceResourceBundle(
           BeanFactoryUtils.beanOfType(context, MessageSource.class), Locale.getDefault()));
       loader.setControllerFactory(clazz -> BeanFactoryUtils.beanOfType(context, clazz));
-      stage.setScene(new Scene(loader.load()));
+      stage.setScene(loader.load());
       stage.setTitle(loader.getResources().getString(KEY_APPLICATION_TITLE));
       OSDockImage.valueOf(OS.get().name()).setIconImage(stage,
           getClass().getResource(loader.getResources().getString(KEY_APPLICATION_IMAGE)));
@@ -78,7 +76,7 @@ public final class FxApplication extends Application {
       stage.setOnCloseRequest(event -> stageStorage.save(stage));
       stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
       stage.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
-        if (event.isShortcutDown() && event.isControlDown() && event.getCode() == KeyCode.F) {
+        if (KeyCombination.keyCombination("Ctrl+Shortcut+F").match(event)) {
           Platform.runLater(() -> stage.setFullScreen(!stage.isFullScreen()));
         }
       });

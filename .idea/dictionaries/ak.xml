@@ -131,6 +131,7 @@
       <w>realtime</w>
       <w>refr</w>
       <w>registerable</w>
+      <w>relayout</w>
       <w>remez</w>
       <w>remezord</w>
       <w>reocalib</w>
@@ -169,6 +170,7 @@
       <w>ttrg</w>
       <w>tukey</w>
       <w>undos</w>
+      <w>unmanaged</w>
       <w>updateable</w>
       <w>usbserial</w>
       <w>variable&lt;?, ?&gt;</w>

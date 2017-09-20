@@ -1,5 +1,6 @@
 package com.ak.comm;
 
+import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -21,12 +22,12 @@ public class CycleSerialServiceTest {
   }
 
   @Test
-  public static void testBytesInterceptor() throws InterruptedException {
+  public static void testBytesInterceptor() throws InterruptedException, IOException {
     CountDownLatch latch = new CountDownLatch(1);
 
     CycleSerialService<BufferFrame, BufferFrame, ADCVariable> service =
         new CycleSerialService<>(new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 2),
-            new ToIntegerConverter<>(ADCVariable.class));
+            new ToIntegerConverter<>(ADCVariable.class, 1000));
     TestSubscriber<int[]> subscriber = TestSubscriber.create();
     service.subscribe(subscriber);
     service.write(new BufferFrame(new byte[] {1, 2}, ByteOrder.nativeOrder()));

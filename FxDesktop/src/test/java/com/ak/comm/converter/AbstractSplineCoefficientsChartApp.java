@@ -20,16 +20,16 @@ import javafx.scene.chart.XYChart;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-public abstract class AbstractSplineCoefficientsChartApp
+public abstract class AbstractSplineCoefficientsChartApp<X extends Enum<X> & Variable<X>, Y extends Enum<Y> & Variable<Y>>
     extends Application {
   @Nonnull
   private final Coefficients coefficients;
   @Nonnull
-  private final Variable xVariable;
+  private final X xVariable;
   @Nonnull
-  private final Variable yVariable;
+  private final Y yVariable;
 
-  protected AbstractSplineCoefficientsChartApp(@Nonnull Coefficients coefficients, @Nonnull Variable xVariable, @Nonnull Variable yVariable) {
+  protected AbstractSplineCoefficientsChartApp(@Nonnull Coefficients coefficients, @Nonnull X xVariable, @Nonnull Y yVariable) {
     this.coefficients = coefficients;
     this.xVariable = xVariable;
     this.yVariable = yVariable;
@@ -47,11 +47,11 @@ public abstract class AbstractSplineCoefficientsChartApp
   private Parent createContent() {
     double[][] xAndY = coefficients.getPairs();
     ValueAxis<Number> xAxis = new NumberAxis();
-    xAxis.setLabel(xVariable.toName());
+    xAxis.setLabel(Variables.toName(xVariable));
     xAxis.setAutoRanging(true);
 
     Axis<Number> yAxis = new NumberAxis();
-    yAxis.setLabel(yVariable.toName());
+    yAxis.setLabel(Variables.toName(yVariable));
     yAxis.setAutoRanging(true);
 
     ObservableList<XYChart.Data<Number, Number>> pureData = FXCollections.observableArrayList();

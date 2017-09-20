@@ -1,8 +1,7 @@
 package com.ak.comm.serial;
 
 import java.io.IOException;
-import java.nio.channels.SeekableByteChannel;
-import java.nio.file.Files;
+import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
@@ -27,14 +26,18 @@ import com.ak.comm.logging.LogBuilders;
 import com.ak.util.UIConstants;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
-import org.reactivestreams.Publisher;
+import io.reactivex.internal.util.EmptyComponent;
 import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
-public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable>
-    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Publisher<int[]> {
+public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
+    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Refreshable, Subscription {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+  private volatile boolean cancelled;
   @Nonnull
   private volatile SerialService serialService;
+  @Nonnull
+  private Subscriber<? super int[]> subscriber = EmptyComponent.asSubscriber();
 
   public CycleSerialService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
                             @Nonnull Converter<RESPONSE, EV> responseConverter) {
@@ -44,6 +47,7 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
 
   @Override
   public void subscribe(@Nonnull Subscriber<? super int[]> s) {
+    subscriber = s;
     s.onSubscribe(this);
     executor.scheduleAtFixedRate(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();
@@ -54,13 +58,18 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
         workingFlag.set(false);
         latch.countDown();
       }).subscribe(buffer -> process(buffer).forEach(ints -> {
-        s.onNext(ints);
+        if (!cancelled) {
+          subscriber.onNext(ints);
+        }
         workingFlag.set(true);
         okTime.set(Instant.now());
-      }));
+      }), throwable -> {
+        serialService.close();
+        Logger.getLogger(getClass().getName()).log(Level.SEVERE, serialService.toString(), throwable);
+      });
 
       while (!Thread.currentThread().isInterrupted()) {
-        if (!serialService.isOpen() || (serialService.isOpen() && write(bytesInterceptor().getPingRequest()) == 0)) {
+        if (!serialService.isOpen() || write(bytesInterceptor().getPingRequest()) == 0) {
           break;
         }
         else {
@@ -92,7 +101,7 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   }
 
   @Override
-  public void close() {
+  public void close() throws IOException {
     synchronized (this) {
       try {
         serialService.close();
@@ -111,8 +120,25 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   }
 
   @Override
-  public SeekableByteChannel call() throws IOException {
+  public AsynchronousFileChannel call() throws IOException {
     Path path = LogBuilders.CONVERTER_SERIAL.build(getClass().getSimpleName()).getPath();
-    return Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
+    return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
+  }
+
+  @Override
+  public void refresh() {
+    serialService.refresh();
+    subscriber.onSubscribe(this);
+    cancelled = false;
+    write(bytesInterceptor().getPingRequest());
+  }
+
+  @Override
+  public void request(long n) {
+  }
+
+  @Override
+  public void cancel() {
+    cancelled = true;
   }
 }

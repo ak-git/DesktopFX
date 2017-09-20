@@ -5,6 +5,7 @@
     <option name="PRINT_LINE_NUMBERS" value="true" />
     <option name="OUTPUT_DIRECTORY" value="$USER_HOME$/Downloads" />
   </component>
+  <component name="FrameworkDetectionExcludesConfiguration" detection-enabled="false" />
   <component name="IdProvider" IDEtalkID="76B6EE955C13237A70C3B7C0299BD30A" />
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" />
