@@ -65,7 +65,7 @@ final class MilliGrid extends Pane {
       double contentSize = contentSize();
       int factor = (int) Math.round(GridCell.SMALL.getStep() / gridCell.getStep());
       int i = 0;
-      for (double c = gridCell.minCoordinate(contentSize); c < maxWidth(contentSize) + 1.0; c += gridCell.getStep()) {
+      for (double c = gridCell.minCoordinate(contentSize); c < maxValue(contentSize) + 1.0; c += gridCell.getStep()) {
         if (!(gridCell == GridCell.POINTS && i % factor == 0)) {
           path.getElements().addAll(moveTo(c, gridCell), lineTo(gridCell));
         }
@@ -74,14 +74,14 @@ final class MilliGrid extends Pane {
     }
 
     final double lineToCoordinate(@Nonnull GridCell gridCell) {
-      return maxWidth(length()) - gridCell.linePad();
+      return maxValue(length()) - gridCell.linePad();
     }
 
     @Nonnegative
     abstract double length();
 
     @Nonnegative
-    private static double maxWidth(@Nonnegative double size) {
+    private static double maxValue(@Nonnegative double size) {
       return size - GridCell.SMALL.minCoordinate(size);
     }
   }

@@ -9,8 +9,8 @@ abstract class AbstractRegion extends Region {
     double left = snappedLeftInset();
     double contentWidth = snapSize(getWidth() - (left + snappedRightInset()));
     double contentHeight = snapSize(getHeight() - (top + snappedBottomInset()));
-    layoutChartChildren(snapPosition(left), snapPosition(top), contentWidth, contentHeight);
+    layoutAll(snapPosition(left), snapPosition(top), contentWidth, contentHeight);
   }
 
-  abstract void layoutChartChildren(double x, double y, double width, double height);
+  abstract void layoutAll(double x, double y, double width, double height);
 }
