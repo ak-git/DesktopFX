@@ -200,7 +200,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
   @Override
   void layoutAll(double x, double y, double width, double height) {
     milliGrid.resizeRelocate(x, y, width, height);
-    layoutLineDiagrams(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxValue(width), height);
+    layoutLineDiagrams(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxValue(width), SMALL.maxValue(height));
     layoutText(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxValue(width));
     int prevChartCenter = startProperty.get() + lengthProperty.get() / 2;
     lengthProperty.setValue(lineDiagrams.get(0).getMaxSamples() * decimateFactor);
@@ -220,16 +220,15 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
         lineDiagrams.get(i).relocate(x, y + SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i);
       }
       if ((lineDiagrams.size() & 1) != 0) {
-        lineDiagrams.get(lineDiagrams.size() / 2).relocate(x, y + SMALL.maxValue(height) / 2 - dHeight / 2);
+        lineDiagrams.get(lineDiagrams.size() / 2).relocate(x, y + height / 2 - dHeight / 2);
       }
       for (int i = 0; i < lineDiagrams.size() / 2; i++) {
         lineDiagrams.get(lineDiagrams.size() - 1 - i).
-            relocate(x, y + SMALL.maxValue(height) -
-                dHeight - SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i);
+            relocate(x, y + height - dHeight - SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i);
       }
     }
     else {
-      lineDiagrams.forEach(lineDiagram -> lineDiagram.resizeRelocate(x, y, width, SMALL.maxValue(height)));
+      lineDiagrams.forEach(lineDiagram -> lineDiagram.resizeRelocate(x, y, width, height));
     }
   }
 
