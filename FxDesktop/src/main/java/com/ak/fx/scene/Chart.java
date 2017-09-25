@@ -22,7 +22,6 @@ import com.ak.util.Strings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.text.Text;
@@ -193,26 +192,19 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
     return lengthProperty;
   }
 
-  public ReadOnlyObjectProperty<ZoomX> zoomXProperty() {
-    return zoomXProperty;
-  }
-
   @Override
   void layoutAll(double x, double y, double width, double height) {
     milliGrid.resizeRelocate(x, y, width, height);
     layoutLineDiagrams(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxValue(width), SMALL.maxValue(height));
-    layoutText(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxValue(width));
     int prevChartCenter = startProperty.get() + lengthProperty.get() / 2;
     lengthProperty.setValue(lineDiagrams.get(0).getMaxSamples() * decimateFactor);
     startProperty.setValue(Math.max(0, prevChartCenter - lengthProperty.get() / 2));
   }
 
-  private void layoutText(double x, double y, double width) {
+  private void layoutLineDiagrams(double x, double y, double width, double height) {
     xAxisUnit.relocate(x + BIG.minCoordinate(width) + BIG.maxValue(width) / 2 + POINTS.getStep(),
         y + SMALL.getStep() / 2 - xAxisUnit.getFont().getSize());
-  }
 
-  private void layoutLineDiagrams(double x, double y, double width, double height) {
     double dHeight = SMALL.maxValue(height * 2 / (1 + lineDiagrams.size()));
     if (dHeight >= SMALL.getStep() * 2) {
       lineDiagrams.forEach(lineDiagram -> lineDiagram.resizeRelocate(x, y, width, dHeight));

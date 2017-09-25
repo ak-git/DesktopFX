@@ -1,4 +1,4 @@
-ext.projectIds = ['java': '1.8']
+ext.projectIds = ['java': '1.9']
 
 task wrapper(type: Wrapper) {
     gradleVersion = "4.1"
@@ -12,8 +12,6 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
-    apply plugin: 'findbugs'
-    findbugs.toolVersion = '3.0.1'
 
     sourceCompatibility = projectIds.java
     targetCompatibility = projectIds.java

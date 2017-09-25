@@ -74,7 +74,6 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
       chart.startProperty().addListener((observable, oldValue, newValue) -> readFromFile());
       chart.heightProperty().addListener((observable, oldValue, newValue) -> readFromFile());
       chart.lengthProperty().addListener((observable, oldValue, newValue) -> readFromFile());
-      chart.zoomXProperty().addListener((observable, oldValue, newValue) -> readFromFile());
     }
 
     service.subscribe(this);

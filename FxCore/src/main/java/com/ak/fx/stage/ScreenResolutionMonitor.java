@@ -12,12 +12,14 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.swing.Timer;
 
 import com.ak.util.UIConstants;
-import com.sun.javafx.util.Utils;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 @Immutable
 @ThreadSafe
@@ -28,10 +30,17 @@ public enum ScreenResolutionMonitor {
   private final IntegerProperty dpi = new SimpleIntegerProperty(Toolkit.getDefaultToolkit().getScreenResolution());
 
   ScreenResolutionMonitor() {
+    dpi.setValue(Screen.getPrimary().getDpi());
     log();
     Timer timer = new Timer((int) UIConstants.UI_DELAY.toMillis(), e -> {
       if (stage.get() != null) {
-        dpi.setValue(Utils.getScreen(stage.get()).getDpi());
+        Window window = stage.get().getScene().getWindow();
+        ObservableList<Screen> screens = Screen.getScreensForRectangle(window.getX(), window.getY(), window.getWidth(), window.getHeight());
+        Screen screen = Screen.getPrimary();
+        if (!screens.isEmpty()) {
+          screen = screens.get(0);
+        }
+        dpi.setValue(screen.getDpi());
       }
     });
     timer.start();
