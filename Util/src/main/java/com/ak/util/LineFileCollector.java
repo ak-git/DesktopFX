@@ -37,7 +37,6 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
     public abstract void acceptWriter(BufferedWriter writer) throws IOException;
   }
 
-  private final Object finalizerGuardian = new FinalizerGuardian(this);
   private final BufferedWriter writer;
   private final Direction direction;
   private boolean startFlag = true;
