@@ -32,7 +32,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.MessageSourceResourceBundle;
 
 public final class FxApplication extends Application {
-  static final String APP_PARAMETER_CONTEXT = "context";
+  private static final String APP_PARAMETER_CONTEXT = "context";
   private static final String SCENE_XML = "scene.fxml";
   private static final String KEY_APPLICATION_TITLE = "application.title";
   private static final String KEY_APPLICATION_IMAGE = "application.image";
@@ -77,7 +77,11 @@ public final class FxApplication extends Application {
       stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
       stage.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
         if (KeyCombination.keyCombination("Ctrl+Shortcut+F").match(event)) {
-          Platform.runLater(() -> stage.setFullScreen(!stage.isFullScreen()));
+          Platform.runLater(() -> {
+            stage.setFullScreen(!stage.isFullScreen());
+            stage.setResizable(false);
+            stage.setResizable(true);
+          });
         }
       });
       stageStorage.update(stage);

@@ -166,7 +166,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
       }
 
       private int scaleFactor10(@Nonnegative double range, @Nonnegative int signalRange) {
-        return (int) StrictMath.pow(10.0, Math.ceil(Math.max(0, StrictMath.log10(signalRange / range))));
+        return (int) Math.max(1, StrictMath.pow(10.0, Math.ceil(Math.max(0, StrictMath.log10(signalRange / range)))));
       }
 
       private int optimizeScaleY(@Nonnegative double range, @Nonnegative int signalRange) {
