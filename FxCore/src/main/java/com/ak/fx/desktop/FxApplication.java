@@ -84,8 +84,8 @@ public final class FxApplication extends Application {
           });
         }
       });
-      stageStorage.update(stage);
       stage.show();
+      stageStorage.update(stage);
       ScreenResolutionMonitor.setStage(stage);
     }
     catch (Exception e) {
