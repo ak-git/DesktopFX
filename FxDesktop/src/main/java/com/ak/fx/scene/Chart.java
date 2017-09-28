@@ -75,7 +75,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
 
   public Chart() {
     getChildren().add(milliGrid);
-    xAxisUnit.setFont(Constants.FONT_H2);
+    xAxisUnit.fontProperty().bind(Fonts.H2.fontProperty());
   }
 
   public void setVariables(@Nonnull Collection<EV> variables) {

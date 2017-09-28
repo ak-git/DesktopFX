@@ -34,7 +34,7 @@ final class LineDiagram extends AbstractRegion {
     bounds.setStrokeWidth(2);
 
     title.setVisible(false);
-    title.setFont(Constants.FONT_H1);
+    title.fontProperty().bind(Fonts.H1.fontProperty());
     title.setText(name);
 
     polyline.setStroke(Color.BLACK);
@@ -122,7 +122,7 @@ final class LineDiagram extends AbstractRegion {
     String apply = yLabelsGenerator.apply(index * 10);
     if (!apply.isEmpty()) {
       Text label = new Text(apply);
-      label.setFont(Constants.FONT_H2);
+      label.fontProperty().bind(Fonts.H2.fontProperty());
       label.relocate(x + POINTS.getStep() / 4, y - SMALL.getStep() * index - label.getFont().getSize() - POINTS.getStep() / 4);
       yLabels.put(index, label);
     }
