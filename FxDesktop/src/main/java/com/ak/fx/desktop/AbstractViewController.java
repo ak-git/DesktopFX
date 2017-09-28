@@ -2,7 +2,6 @@ package com.ak.fx.desktop;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -71,9 +70,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
       });
       chart.setVariables(service.getVariables());
       chart.setFrequency(service.getFrequency());
-      chart.startProperty().addListener((observable, oldValue, newValue) -> readFromFile());
-      chart.heightProperty().addListener((observable, oldValue, newValue) -> readFromFile());
-      chart.lengthProperty().addListener((observable, oldValue, newValue) -> readFromFile());
+      chart.setDataCallback(service::read);
     }
 
     service.subscribe(this);
@@ -81,7 +78,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
 
   @Override
   public final void onSubscribe(Subscription s) {
-    Objects.requireNonNull(chart).setAll(Collections.emptyList());
+    Objects.requireNonNull(chart).changed();
     subscription.cancel();
     subscription = s;
   }
@@ -97,12 +94,6 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
 
   @Override
   public final void onComplete() {
-    readFromFile();
-  }
-
-  private void readFromFile() {
-    Objects.requireNonNull(chart).setAll(
-        service.read(chart.startProperty().get(), chart.startProperty().get() + chart.lengthProperty().get())
-    );
+    Objects.requireNonNull(chart).changed();
   }
 }

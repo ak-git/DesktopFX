@@ -2,8 +2,10 @@ package com.ak.fx.scene;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.IntSummaryStatistics;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -21,7 +23,6 @@ import com.ak.fx.util.FxUtils;
 import com.ak.util.Strings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.text.Text;
@@ -69,6 +70,8 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
   private final ObjectProperty<ZoomX> zoomXProperty = new SimpleObjectProperty<>(ZoomX.Z_25);
   @Nonnegative
   private int decimateFactor = 1;
+  @Nonnull
+  private BiFunction<Integer, Integer, List<? extends int[]>> dataCallback = (start, end) -> Collections.emptyList();
 
   public Chart() {
     getChildren().add(milliGrid);
@@ -102,6 +105,9 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
       }
       event.consume();
     });
+    startProperty.addListener((observable, oldValue, newValue) -> changed());
+    lengthProperty.addListener((observable, oldValue, newValue) -> changed());
+    heightProperty().addListener((observable, oldValue, newValue) -> changed());
   }
 
   public void setFrequency(@Nonnegative double frequency) {
@@ -109,7 +115,15 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
     zoomXProperty.addListener((observable, oldValue, newValue) -> setXStep(newValue, frequency));
   }
 
-  public void setAll(@Nonnull List<int[]> chartData) {
+  public void setDataCallback(@Nonnull BiFunction<Integer, Integer, List<? extends int[]>> dataCallback) {
+    this.dataCallback = dataCallback;
+  }
+
+  public void changed() {
+    setAll(dataCallback.apply(startProperty.getValue(), startProperty.getValue() + lengthProperty.getValue()));
+  }
+
+  private void setAll(@Nonnull List<? extends int[]> chartData) {
     FxUtils.invokeInFx(new Runnable() {
       @Override
       public void run() {
@@ -182,14 +196,6 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
         return Math.max(1, scaleFactor);
       }
     });
-  }
-
-  public ReadOnlyIntegerProperty startProperty() {
-    return startProperty;
-  }
-
-  public ReadOnlyIntegerProperty lengthProperty() {
-    return lengthProperty;
   }
 
   @Override
