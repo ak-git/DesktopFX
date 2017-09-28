@@ -106,16 +106,16 @@ final class LineDiagram extends AbstractRegion {
     nowIndex %= getMaxSamples();
   }
 
-  int getMaxSamples() {
-    return Math.max(0, (int) Math.rint(getWidth() / xStep));
-  }
-
   double getCenter() {
     return getLayoutY() + getHeight() / 2.0;
   }
 
   void setXStep(@Nonnegative double xStep) {
     this.xStep = xStep;
+  }
+
+  private int getMaxSamples() {
+    return Math.max(0, (int) Math.rint(getWidth() / xStep));
   }
 
   private void newYLabel(int index, double x, double y) {
