@@ -93,9 +93,7 @@ final class AxisXController {
   }
 
   void checkLength(@Nonnegative int realDataLen) {
-    if (realDataLen < lengthProperty.get()) {
-      startProperty.setValue(Math.max(0, startProperty.get() + realDataLen - lengthProperty.get()));
-    }
+    startProperty.setValue(Math.max(0, startProperty.get() + realDataLen - lengthProperty.get()));
   }
 
   void preventCenter(@Nonnegative double width) {
@@ -118,17 +116,11 @@ final class AxisXController {
 
   private double getStep(@Nonnegative double frequency) {
     double pointsInSec = SMALL.getStep() * zoomProperty.get().mmPerSec / 10.0;
-    int decimateFactor = (int) Math.rint(frequency / pointsInSec);
-    if (decimateFactor > 2) {
-      this.decimateFactor = decimateFactor;
-    }
-    else {
-      this.decimateFactor = 1;
-    }
-    double xStep = this.decimateFactor * pointsInSec / frequency;
+    decimateFactor = (int) Math.max(1, Math.rint(frequency / pointsInSec));
+    double xStep = decimateFactor * pointsInSec / frequency;
     Logger.getLogger(getClass().getName()).log(Level.CONFIG,
         String.format("Frequency = %.0f Hz; x-zoom = %d mm/s; pixels per sec = %.1f; decimate factor = %d; x-step = %.1f px",
-            frequency, zoomProperty.get().mmPerSec, pointsInSec, this.decimateFactor, xStep));
+            frequency, zoomProperty.get().mmPerSec, pointsInSec, decimateFactor, xStep));
     return xStep;
   }
 

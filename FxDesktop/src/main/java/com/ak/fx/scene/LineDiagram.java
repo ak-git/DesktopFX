@@ -79,18 +79,12 @@ final class LineDiagram extends AbstractRegion {
 
   void setAll(@Nonnull double[] y) {
     polyline.getPoints().clear();
-    for (int i = 0, n = Math.min(y.length, getMaxSamples()); i < n; i++) {
+    nowIndex = Math.min(y.length, getMaxSamples());
+    for (int i = 0; i < nowIndex; i++) {
       polyline.getPoints().add(xStep * i);
       polyline.getPoints().add(-y[i]);
-      nowIndex++;
     }
-
-    if (y.length == 0) {
-      nowIndex = 0;
-    }
-    else {
-      nowIndex %= getMaxSamples();
-    }
+    nowIndex %= getMaxSamples();
   }
 
   void add(double y) {
@@ -115,7 +109,7 @@ final class LineDiagram extends AbstractRegion {
   }
 
   private int getMaxSamples() {
-    return Math.max(0, (int) Math.rint(getWidth() / xStep));
+    return Math.max(1, (int) Math.rint(getWidth() / xStep));
   }
 
   private void newYLabel(int index, double x, double y) {
