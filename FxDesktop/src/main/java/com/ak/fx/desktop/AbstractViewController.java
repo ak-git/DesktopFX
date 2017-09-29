@@ -68,11 +68,9 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
           service.refresh();
         }
       });
-      chart.setVariables(service.getVariables());
-      chart.setFrequency(service.getFrequency());
+      chart.setVariables(service.getVariables(), service.getFrequency());
       chart.setDataCallback(service::read);
     }
-
     service.subscribe(this);
   }
 

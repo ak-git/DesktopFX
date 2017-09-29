@@ -41,9 +41,11 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
     xAxisUnit.fontProperty().bind(Fonts.H2.fontProperty());
   }
 
-  public void setVariables(@Nonnull Collection<EV> variables) {
+  public void setVariables(@Nonnull Collection<EV> variables, @Nonnegative double frequency) {
     this.variables.addAll(variables);
     lineDiagrams.addAll(variables.stream().map(ev -> new LineDiagram(Variables.toString(ev))).collect(Collectors.toList()));
+    axisXController.setFrequency(frequency, xStep -> lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(xStep)));
+
     getChildren().addAll(lineDiagrams);
     getChildren().add(xAxisUnit);
 
@@ -61,10 +63,6 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
       event.consume();
     });
     heightProperty().addListener((observable, oldValue, newValue) -> changed());
-  }
-
-  public void setFrequency(@Nonnegative double frequency) {
-    axisXController.setFrequency(frequency, xStep -> lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(xStep)));
   }
 
   public void setDataCallback(@Nonnull BiFunction<Integer, Integer, List<? extends int[]>> dataCallback) {
