@@ -19,15 +19,15 @@ public interface Variable<E extends Enum<E> & Variable<E>> {
   }
 
   default Unit<?> getUnit() {
-    return tryFindSame(e -> e.getUnit(), () -> AbstractUnit.ONE);
+    return tryFindSame(Variable::getUnit, () -> AbstractUnit.ONE);
   }
 
   default DigitalFilter filter() {
-    return tryFindSame(e -> e.filter(), () -> FilterBuilder.of().build());
+    return tryFindSame(Variable::filter, () -> FilterBuilder.of().build());
   }
 
   default Set<Option> options() {
-    return tryFindSame(e -> e.options(), () -> EnumSet.of(Option.VISIBLE));
+    return tryFindSame(Variable::options, () -> EnumSet.of(Option.VISIBLE));
   }
 
   String name();

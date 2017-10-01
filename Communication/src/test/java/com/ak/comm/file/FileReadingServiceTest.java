@@ -63,7 +63,7 @@ public class FileReadingServiceTest {
   public static void testNoDataConverted(@Nonnull Path fileToRead, @Nonnegative int bytes) {
     TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
     Publisher<int[]> publisher = new FileReadingService<>(fileToRead,
-        new AbstractBytesInterceptor<BufferFrame, BufferFrame>(
+        new AbstractBytesInterceptor<>(
             BytesInterceptor.BaudRate.BR_921600, null, 1) {
           @Nonnull
           @Override
@@ -118,7 +118,7 @@ public class FileReadingServiceTest {
     Assert.assertTrue(publisher.toString().contains(fileToRead.toString()));
 
     Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
-        Flowable.fromPublisher(publisher).subscribe(testSubscriber), new Consumer<LogRecord>() {
+        Flowable.fromPublisher(publisher).subscribe(testSubscriber), new Consumer<>() {
       int packCounter;
 
       @Override

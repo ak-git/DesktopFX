@@ -62,7 +62,7 @@ public class NmisBytesInterceptorTest {
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "aliveAndChannelsResponse")
   public static void testResponseAliveAndChannels(NmisAddress address, byte[] input) {
     if (NmisAddress.CHANNELS.contains(address)) {
-      Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build()).orElseThrow(NullPointerException::new);
+      Assert.assertNotNull(Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build()).orElseThrow(NullPointerException::new));
     }
   }
 

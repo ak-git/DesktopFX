@@ -25,7 +25,7 @@ public class VariableTest {
 
   @Test
   public static void testGetUnit() {
-    Variable<ADCVariable> variable = new Variable<ADCVariable>() {
+    Variable<ADCVariable> variable = new Variable<>() {
       @Override
       public String name() {
         return Variable.class.getSimpleName();
@@ -46,7 +46,7 @@ public class VariableTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*No enum constant.*InvalidName")
   public static void testInvalidGetVariables() {
-    DependentVariable<OperatorVariables, ADCVariable> variable = new DependentVariable<OperatorVariables, ADCVariable>() {
+    DependentVariable<OperatorVariables, ADCVariable> variable = new DependentVariable<>() {
       @Nonnull
       @Override
       public String name() {

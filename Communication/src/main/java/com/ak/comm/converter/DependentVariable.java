@@ -20,7 +20,7 @@ public interface DependentVariable<IN extends Enum<IN> & Variable<IN>, OUT exten
 
   @Override
   default Unit<?> getUnit() {
-    return tryFindSame(out -> out.getUnit(), () -> {
+    return tryFindSame(Variable::getUnit, () -> {
       if (getInputVariables().size() == 1) {
         return getInputVariables().get(0).getUnit();
       }
@@ -32,7 +32,7 @@ public interface DependentVariable<IN extends Enum<IN> & Variable<IN>, OUT exten
 
   @Override
   default Set<Option> options() {
-    return tryFindSame(out -> out.options(), () -> {
+    return tryFindSame(Variable::options, () -> {
       if (getInputVariables().size() == 1) {
         return getInputVariables().get(0).options();
       }

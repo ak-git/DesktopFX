@@ -38,7 +38,7 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
 
   AbstractConverter(@Nonnull Class<EV> evClass, @Nonnegative double frequency, @Nonnull List<int[]> selectedIndexes) {
     variables = Collections.unmodifiableList(new ArrayList<>(EnumSet.allOf(evClass)));
-    List<DigitalFilter> filters = variables.stream().map(ev -> ev.filter()).collect(Collectors.toList());
+    List<DigitalFilter> filters = variables.stream().map(Variable::filter).collect(Collectors.toList());
 
     digitalFilter = FilterBuilder.parallel(selectedIndexes, filters.toArray(new DigitalFilter[variables.size()]));
     digitalFilter.forEach(ints -> {
