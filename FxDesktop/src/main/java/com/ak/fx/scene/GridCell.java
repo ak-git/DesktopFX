@@ -112,6 +112,14 @@ enum GridCell {
     return Collections.unmodifiableList(paths);
   }
 
+  static double mmToScreen(double value) {
+    return value * SMALL.getStep() / 10.0;
+  }
+
+  static int mm(double value) {
+    return (int) Math.rint(value / (SMALL.getStep() / 10.0));
+  }
+
   @Nonnegative
   private static double minCoordinate(@Nonnegative double step, @Nonnegative double size) {
     return size / 2.0 - Math.floor(size / 2.0 / step) * step;
