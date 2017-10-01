@@ -71,6 +71,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
   }
 
   public void changed() {
+    Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
     setAll(dataCallback.apply(axisXController.getStart(), axisXController.getEnd()));
   }
 
@@ -85,8 +86,7 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
           int[] values = Filters.filter(FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).build(), chartData.get(i));
           axisYController.scaleOrdered(values, scaleInfo ->
               lineDiagrams.get(i).setAll(IntStream.of(values).parallel().mapToDouble(scaleInfo).toArray(), scaleInfo));
-            }
-        );
+        });
         axisXController.checkLength(chartData.get(0).length);
       }
     });

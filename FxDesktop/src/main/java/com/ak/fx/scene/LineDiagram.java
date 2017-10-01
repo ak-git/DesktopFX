@@ -26,7 +26,6 @@ final class LineDiagram extends AbstractRegion {
   private final ObservableList<Text> yLabels = FXCollections.observableArrayList();
   private final Polyline polyline = new Polyline();
   private double xStep = 1.0;
-  private int nowIndex;
   @Nonnull
   private DoubleFunction<String> positionToStringConverter = value -> Strings.EMPTY;
 
@@ -56,6 +55,7 @@ final class LineDiagram extends AbstractRegion {
         yLabels.addAll(IntStream.range(0, count).mapToObj(i -> {
           Text text = new Text(getText(i));
           text.fontProperty().bind(Fonts.H2.fontProperty());
+          text.visibleProperty().bind(text.textProperty().isEmpty().not());
           return text;
         }).collect(Collectors.toList()));
         getChildren().addAll(yLabels);
@@ -75,11 +75,6 @@ final class LineDiagram extends AbstractRegion {
     bounds.setY(y);
     bounds.setWidth(width);
     bounds.setHeight(height);
-
-    if (polyline.getPoints().size() / 2 > getMaxSamples()) {
-      polyline.getPoints().remove(getMaxSamples() * 2, polyline.getPoints().size());
-      nowIndex = 0;
-    }
     polyline.setVisible(SMALL.maxValue(width) > SMALL.getStep() * 2);
   }
 
@@ -88,35 +83,16 @@ final class LineDiagram extends AbstractRegion {
     for (int i = 0; i < yLabels.size(); i++) {
       yLabels.get(i).setText(getText(i));
     }
-    
+
     polyline.getPoints().clear();
-    nowIndex = Math.min(y.length, getMaxSamples());
-    for (int i = 0; i < nowIndex; i++) {
+    for (int i = 0; i < y.length; i++) {
       polyline.getPoints().add(xStep * i);
       polyline.getPoints().add(-y[i]);
     }
-    nowIndex %= getMaxSamples();
-  }
-
-  void add(double y) {
-    if (polyline.getPoints().size() / 2 <= nowIndex) {
-      polyline.getPoints().add(xStep * nowIndex);
-      polyline.getPoints().add(y);
-    }
-    else {
-      polyline.getPoints().set(nowIndex * 2 + 1, y);
-    }
-
-    nowIndex++;
-    nowIndex %= getMaxSamples();
   }
 
   void setXStep(@Nonnegative double xStep) {
     this.xStep = xStep;
-  }
-
-  private int getMaxSamples() {
-    return Math.max(1, (int) Math.rint(getWidth() / xStep));
   }
 
   private String getText(int i) {
