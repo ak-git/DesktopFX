@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -14,7 +12,6 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.converter.Variable;
-import com.ak.comm.converter.Variables;
 
 final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
   private final List<EV> variables = new ArrayList<>();
@@ -55,14 +52,6 @@ final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
         build());
 
     if (index == variables.size() - 1) {
-      variables.stream().collect(Collectors.groupingBy(o -> o.getUnit().toString())).values().forEach(evs -> {
-        int max = evs.stream().mapToInt(ev -> scaleInfos.get(ev.ordinal()).getScaleFactor()).summaryStatistics().getMax();
-        evs.forEach(ev -> {
-          scaleInfos.set(ev.ordinal(), scaleInfos.get(ev.ordinal()).newFromScaleFactor(max));
-          Logger.getLogger(getClass().getName()).log(Level.CONFIG,
-              String.format("%s; %s", Variables.toName(ev), scaleInfos.get(ev.ordinal())));
-        });
-      });
       scaleInfos.forEach(ScaleYInfo::run);
     }
   }

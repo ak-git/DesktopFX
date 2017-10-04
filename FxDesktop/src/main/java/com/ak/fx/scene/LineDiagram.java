@@ -67,6 +67,15 @@ final class LineDiagram extends AbstractRegion {
       text.relocate(POINTS.getStep() / 4, SMALL.getStep() * i - text.getFont().getSize() - POINTS.getStep() / 4);
       return text;
     }).collect(Collectors.toList()));
+
+    for (int i = 0; i < yLabels.getChildren().size(); i++) {
+      title.setVisible(false);
+      if (yLabels.getChildren().get(i).isVisible()) {
+        title.setVisible(true);
+        title.relocate(x + SMALL.getStep() * 1.5, y + SMALL.getStep() * i - title.getFont().getSize() - POINTS.getStep() / 4);
+        break;
+      }
+    }
   }
 
   void setAll(@Nonnull double[] y, @Nonnull DoubleFunction<String> positionToStringConverter) {
