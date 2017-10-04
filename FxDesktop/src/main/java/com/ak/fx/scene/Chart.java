@@ -117,10 +117,28 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
         lineDiagrams.get(lineDiagrams.size() - 1 - i).
             relocate(x, y + height - dHeight - SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i);
       }
+
+      for (int i = 0; i < lineDiagrams.size(); i++) {
+        double visibleY = 0;
+        if (i > 0) {
+          double approveLineG = (lineDiagrams.get(i).getLayoutY() + lineDiagrams.get(i - 1).getLayoutY() + dHeight) / 2;
+          visibleY = approveLineG - lineDiagrams.get(i).getLayoutY() - POINTS.getStep();
+        }
+
+        double visibleH = dHeight - visibleY + POINTS.getStep();
+        if (i < lineDiagrams.size() - 1) {
+          double approveLineG = (lineDiagrams.get(i).getLayoutY() + lineDiagrams.get(i + 1).getLayoutY() + dHeight) / 2;
+          visibleH = approveLineG - lineDiagrams.get(i).getLayoutY() - POINTS.getStep() - visibleY;
+        }
+        lineDiagrams.get(i).setVisibleTextBounds(visibleY, visibleH);
+      }
     }
     else {
       axisYController.setLineDiagramHeight(height);
-      lineDiagrams.forEach(lineDiagram -> lineDiagram.resizeRelocate(x, y, width, height));
+      lineDiagrams.forEach(lineDiagram -> {
+        lineDiagram.resizeRelocate(x, y, width, height);
+        lineDiagram.setVisibleTextBounds(height / 2, 0);
+      });
     }
   }
 }

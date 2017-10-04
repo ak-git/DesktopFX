@@ -36,8 +36,8 @@ final class ScaleYInfo<EV extends Enum<EV> & Variable<EV>> implements IntToDoubl
   }
 
   @Override
-  public String apply(double screenPosition) {
-    return Variables.toString(mean + GridCell.mm(scaleFactor * screenPosition), variable.getUnit(), scaleFactor10);
+  public String apply(double fromMean) {
+    return Variables.toString(mean + GridCell.mm(scaleFactor * fromMean), variable.getUnit(), scaleFactor10);
   }
 
   @Override
