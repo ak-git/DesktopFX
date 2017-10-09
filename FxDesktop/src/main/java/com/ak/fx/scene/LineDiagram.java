@@ -44,11 +44,7 @@ final class LineDiagram extends AbstractRegion {
     polyline.translateYProperty().bind(Bindings.divide(heightProperty(), 2));
     polyline.setManaged(false);
 
-    getChildren().add(bounds);
-    getChildren().add(visibleTextBounds);
-    getChildren().add(title);
-    getChildren().add(yLabels);
-    getChildren().add(polyline);
+    getChildren().addAll(bounds, visibleTextBounds, title, yLabels, polyline);
   }
 
   @Override
