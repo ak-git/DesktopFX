@@ -93,13 +93,13 @@ final class AxisXController {
   }
 
   void checkLength(@Nonnegative int realDataLen) {
-    startProperty.setValue(Math.max(0, startProperty.get() + realDataLen - lengthProperty.get()));
+    setStart(startProperty.get() + realDataLen - lengthProperty.get());
   }
 
   void preventCenter(@Nonnegative double width) {
     int prevChartCenter = startProperty.get() + lengthProperty.get() / 2;
     lengthProperty.setValue(width * decimateFactor / step);
-    startProperty.setValue(Math.max(0, prevChartCenter - lengthProperty.get() / 2));
+    setStart(prevChartCenter - lengthProperty.get() / 2);
   }
 
   int getStart() {

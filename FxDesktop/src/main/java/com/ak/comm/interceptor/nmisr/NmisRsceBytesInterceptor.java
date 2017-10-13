@@ -27,13 +27,9 @@ import com.ak.comm.interceptor.rsce.RsceBytesInterceptor;
  * each 5 ms.
  */
 public final class NmisRsceBytesInterceptor implements BytesInterceptor<RsceCommandFrame, NmisRequest> {
-  private static final NmisRequest.Sequence[] PINGS = {
-      NmisRequest.Sequence.CATCH_100, NmisRequest.Sequence.CATCH_60, NmisRequest.Sequence.CATCH_30,
-      NmisRequest.Sequence.ROTATE_100, NmisRequest.Sequence.ROTATE_60, NmisRequest.Sequence.ROTATE_30};
   private final BytesInterceptor<NmisResponseFrame, NmisRequest> nmis = new NmisBytesInterceptor();
   private final Function<ByteBuffer, Stream<RsceCommandFrame>> rsce = new RsceBytesInterceptor();
   private final ByteBuffer buffer = ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY);
-  private int pingIndex = -1;
 
   @Override
   public int getBaudRate() {
@@ -57,7 +53,7 @@ public final class NmisRsceBytesInterceptor implements BytesInterceptor<RsceComm
 
   @Override
   public NmisRequest getPingRequest() {
-    return PINGS[(++pingIndex) % PINGS.length].build();
+    return NmisRequest.Sequence.CATCH_100.build();
   }
 
   @Override

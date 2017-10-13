@@ -57,7 +57,7 @@ final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
   }
 
   private static int scaleFactor10(@Nonnegative int range, @Nonnegative int signalRange) {
-    return (int) Math.max(1, StrictMath.pow(10.0, Math.ceil(Math.max(0, StrictMath.log10(signalRange * 1.0 / range)))));
+    return Math.max(1, (int) StrictMath.pow(10.0, Math.ceil(Math.max(0, StrictMath.log10(signalRange * 1.0 / range)))));
   }
 
   private static int optimizeScaleY(@Nonnegative int range, @Nonnegative int signalRange) {

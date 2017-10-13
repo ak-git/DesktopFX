@@ -20,12 +20,8 @@ import org.testng.annotations.Test;
 
 public class NmisRsceBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(NmisRsceBytesInterceptor.class.getName());
-  private static final NmisRequest.Sequence[] PINGS = {
-      NmisRequest.Sequence.CATCH_100, NmisRequest.Sequence.CATCH_60, NmisRequest.Sequence.CATCH_30,
-      NmisRequest.Sequence.ROTATE_100};
   private final BytesInterceptor<RsceCommandFrame, NmisRequest> interceptor = new NmisRsceBytesInterceptor();
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY);
-  private int pingIndex = -1;
 
   private NmisRsceBytesInterceptorTest() {
   }
@@ -59,7 +55,7 @@ public class NmisRsceBytesInterceptorTest {
     byteBuffer.put(bytes);
     byteBuffer.flip();
     Assert.assertEquals(interceptor.getBaudRate(), new NmisBytesInterceptor().getBaudRate());
-    Assert.assertEquals(interceptor.getPingRequest(), PINGS[++pingIndex].build());
+    Assert.assertEquals(interceptor.getPingRequest(), NmisRequest.Sequence.CATCH_100.build());
 
     Assert.assertFalse(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> {

@@ -95,7 +95,7 @@ public class NmisBytesInterceptorTest {
         request.toResponse().toString().replaceAll(".*" + NmisResponseFrame.class.getSimpleName(), Strings.EMPTY))), logFlag);
 
     AtomicReference<String> logMessage = new AtomicReference<>(Strings.EMPTY);
-    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
+    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
         () -> {
           int bytesOut = interceptor.putOut(request).remaining();
           Assert.assertTrue(bytesOut > 0);

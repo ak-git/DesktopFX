@@ -115,7 +115,7 @@ public class RampBytesInterceptorTest {
             String.format("[ %s ] must ends with [ %s ]", logRecord.getMessage(), testFrame.toString()))));
 
     AtomicReference<String> logMessage = new AtomicReference<>(Strings.EMPTY);
-    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
+    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
         () -> {
           int bytesOut = interceptor.putOut(testFrame).remaining();
           Assert.assertTrue(bytesOut > 0);
@@ -126,7 +126,7 @@ public class RampBytesInterceptorTest {
         logRecord -> logMessage.set(logRecord.getMessage().replaceAll(".*" + BufferFrame.class.getSimpleName(), Strings.EMPTY))));
 
     BufferFrame singleByte = new BufferFrame(new byte[] {input[0]}, ByteOrder.nativeOrder());
-    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
+    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
         () -> Assert.assertTrue(interceptor.putOut(singleByte).remaining() > 0),
         logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(singleByte + " - OUT to hardware"), logRecord.getMessage())));
   }

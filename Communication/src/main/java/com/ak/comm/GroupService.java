@@ -7,10 +7,12 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
@@ -68,6 +70,15 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   public void refresh() {
     serialService.refresh();
     currentReadable = serialService;
+  }
+
+  public int write(@Nullable REQUEST request) {
+    if (Objects.equals(currentReadable, serialService)) {
+      return serialService.write(request);
+    }
+    else {
+      return -1;
+    }
   }
 
   public Collection<EV> getVariables() {

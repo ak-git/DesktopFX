@@ -8,7 +8,7 @@ import com.ak.comm.converter.AbstractConverter;
 
 public final class RsceConverter extends AbstractConverter<RsceCommandFrame, RsceVariable> {
   public RsceConverter() {
-    super(RsceVariable.class, 200);
+    super(RsceVariable.class, 125);
   }
 
   @Override
