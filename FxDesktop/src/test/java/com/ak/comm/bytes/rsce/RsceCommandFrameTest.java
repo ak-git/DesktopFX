@@ -27,12 +27,23 @@ public class RsceCommandFrameTest {
     checkRequest(expected, RsceCommandFrame.precise(RsceCommandFrame.Control.CATCH, RsceCommandFrame.RequestType.STATUS_I_SPEED_ANGLE, speed));
   }
 
-  @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "positionRequests")
-  public static void testPositionRequest(@Nonnull byte[] expected, byte position) {
+  @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "positionCatchRequests")
+  public static void testPositionCatchRequest(@Nonnull byte[] expected, byte position) {
     checkRequest(expected, RsceCommandFrame.position(RsceCommandFrame.Control.CATCH, position));
+    RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(expected)).build();
+    Assert.assertNotNull(frame);
+    Assert.assertEquals(frame.getCatchPercent(-1), position, String.format("%s, Position = %s", frame, frame.getCatchPercent(-1)));
   }
 
-  @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "rheo12-catch-rotate")
+  @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "positionRotateRequests")
+  public static void testPositionRotateRequest(@Nonnull byte[] expected, byte position) {
+    checkRequest(expected, RsceCommandFrame.position(RsceCommandFrame.Control.ROTATE, position));
+    RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(expected)).build();
+    Assert.assertNotNull(frame);
+    Assert.assertEquals(frame.getRotatePercent(-1), position, String.format("%s, Position = %s", frame, frame.getRotatePercent(-1)));
+  }
+
+  @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "rheo12-info")
   public static void testInfoRequest(@Nonnull byte[] bytes, @Nonnull int[] rDozenMilliOhms, @Nonnull int[] infoOnes) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     Assert.assertNotNull(frame);

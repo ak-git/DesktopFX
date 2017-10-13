@@ -2,6 +2,7 @@ package com.ak.comm.converter.rsce;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -26,7 +27,7 @@ public class RsceConverterTest {
   private RsceConverterTest() {
   }
 
-  @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "rheo12-catch-rotate")
+  @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "rheo12-info")
   public static void testApply(@Nonnull byte[] bytes, @Nonnull int[] rDozenMilliOhms, @Nonnull int[] infoOnes) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     Assert.assertNotNull(frame);
@@ -38,7 +39,8 @@ public class RsceConverterTest {
       }
       else {
         stream.forEach(ints ->
-            Assert.assertEquals(ints, IntStream.concat(Arrays.stream(rDozenMilliOhms), Arrays.stream(infoOnes)).toArray()));
+            Assert.assertEquals(ints, IntStream.concat(IntStream.concat(Arrays.stream(rDozenMilliOhms), Arrays.stream(infoOnes)),
+                IntStream.of(0, 0)).toArray()));
       }
     }, logRecord -> {
       for (int milliOhm : rDozenMilliOhms) {
@@ -49,8 +51,11 @@ public class RsceConverterTest {
         if (rsceVariable == RsceVariable.INFO) {
           Assert.assertEquals(rsceVariable.getUnit(), AbstractUnit.ONE);
         }
-        else {
+        else if (EnumSet.of(RsceVariable.R1, RsceVariable.R2).contains(rsceVariable)) {
           Assert.assertEquals(rsceVariable.getUnit(), MetricPrefix.CENTI(Units.OHM));
+        }
+        else {
+          Assert.assertEquals(rsceVariable.getUnit(), Units.PERCENT);
         }
       }
     }), rDozenMilliOhms.length > 0 && infoOnes.length > 0);

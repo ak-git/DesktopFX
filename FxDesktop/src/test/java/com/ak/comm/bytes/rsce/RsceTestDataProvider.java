@@ -64,15 +64,23 @@ public class RsceTestDataProvider {
     };
   }
 
-  @DataProvider(name = "positionRequests", parallel = true)
-  public static Object[][] positionRequests() {
+  @DataProvider(name = "positionCatchRequests", parallel = true)
+  public static Object[][] positionCatchRequests() {
     return new Object[][] {
         {new byte[] {0x01, 0x04, 0x18, 0x64, 0x4b, (byte) 0xf2}, (byte) 100},
         {new byte[] {0x01, 0x04, 0x18, 0x00, 0x4a, (byte) 0x19}, (byte) 0},
     };
   }
 
-  @DataProvider(name = "rheo12-catch-rotate")
+  @DataProvider(name = "positionRotateRequests", parallel = true)
+  public static Object[][] positionRotateRequests() {
+    return new Object[][] {
+        {new byte[] {0x03, 0x04, 0x18, 0x64, 0x4a, 0x4a}, (byte) 100},
+        {new byte[] {0x03, 0x04, 0x18, 0x00, 0x4b, (byte) 0xa1}, (byte) 0},
+    };
+  }
+
+  @DataProvider(name = "rheo12-info")
   public static Object[][] infoRequests() {
     return new Object[][] {
         {new byte[] {0x00, 0x09, (byte) 0xc7, 0x40, 0x0b, (byte) 0xa0, 0x0b, 0x64, 0x00, (byte) 0xae, 0x55},

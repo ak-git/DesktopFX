@@ -7,7 +7,6 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.zip.Checksum;
@@ -107,70 +106,88 @@ public final class RsceCommandFrame extends BufferFrame {
   }
 
   private enum FrameField {
-    NONE(RequestType.EMPTY, 3 + NON_LEN_BYTES),
     /**
+     * RsceCommandFrame[ 0x00, 0x09, 0xc7, 0x1a, 0x0b, 0xe3, 0x22, 0x10, 0x00, 0x41, 0xe3 ] 11 bytes ALL NONE RESERVE
      * <pre>
-     *   0x00 0x09 (Length) 0xc7 (None-Reserve) <b>0xRheo1-Low 0xRheo1-High</b> 0xRheo2-Low 0xRheo2-High 0xOpen% 0xRotate% CRC1 CRC2
+     *   0x00 0x09 (Length) 0xc7 (None-Reserve) <b>0xRheo1-Low 0xRheo1-High</b> 0xRheo2-Low 0xRheo2-High 0xInfo-Low 0xInfo-High CRC1 CRC2
      * </pre>
      */
-    R1_DOZEN_MILLI_OHM(RequestType.RESERVE, 3 + 2 + 2 + NON_LEN_BYTES) {
+    R1_DOZEN_MILLI_OHM(Control.ALL, ActionType.NONE, RequestType.RESERVE, 3 + 2 + 2 + NON_LEN_BYTES) {
       @Override
-      IntStream resistance(@Nonnull ByteBuffer buffer) {
+      IntStream get(@Nonnull ByteBuffer buffer) {
         return IntStream.of(buffer.getShort(3));
       }
     },
     /**
+     * RsceCommandFrame[ 0x00, 0x09, 0xc7, 0x1a, 0x0b, 0xe3, 0x22, 0x10, 0x00, 0x41, 0xe3 ] 11 bytes ALL NONE RESERVE
      * <pre>
-     *   0x00 0x09 (Length) 0xc7 (None-Reserve) 0xRheo1-Low 0xRheo1-High <b>0xRheo2-Low 0xRheo2-High</b> 0xOpen% 0xRotate% CRC1 CRC2
+     *   0x00 0x09 (Length) 0xc7 (None-Reserve) 0xRheo1-Low 0xRheo1-High <b>0xRheo2-Low 0xRheo2-High</b> 0xInfo-Low 0xInfo-High CRC1 CRC2
      * </pre>
      */
-    R2_DOZEN_MILLI_OHM(RequestType.RESERVE, 3 + 2 + 2 + NON_LEN_BYTES) {
+    R2_DOZEN_MILLI_OHM(Control.ALL, ActionType.NONE, RequestType.RESERVE, 3 + 2 + 2 + NON_LEN_BYTES) {
       @Override
-      IntStream resistance(@Nonnull ByteBuffer buffer) {
+      IntStream get(@Nonnull ByteBuffer buffer) {
         return IntStream.of(buffer.getShort(5));
       }
     },
     /**
+     * RsceCommandFrame[ 0x00, 0x09, 0xc7, 0x1a, 0x0b, 0xe3, 0x22, 0x10, 0x00, 0x41, 0xe3 ] 11 bytes ALL NONE RESERVE
      * <pre>
-     *   0x00 0x09 (Length) 0xc7 (None-Reserve) 0xRheo1-Low 0xRheo1-High 0xRheo2-Low 0xRheo2-High <b>0xInfoLow 0xInfoHigh</b> CRC1 CRC2
+     *   0x00 0x09 (Length) 0xc7 (None-Reserve) 0xRheo1-Low 0xRheo1-High 0xRheo2-Low 0xRheo2-High <b>0xInfo-Low 0xInfo-High</b> CRC1 CRC2
      * </pre>
      */
-    INFO(RequestType.RESERVE, 3 + 2 + 2 + 2 + NON_LEN_BYTES) {
+    INFO(Control.ALL, ActionType.NONE, RequestType.RESERVE, 3 + 2 + 2 + 2 + NON_LEN_BYTES) {
       @Override
-      IntStream info(@Nonnull ByteBuffer buffer) {
+      IntStream get(@Nonnull ByteBuffer buffer) {
         return IntStream.of(buffer.getShort(7));
+      }
+    },
+    /**
+     * RsceCommandFrame[ 0x01, 0x04, 0x18, 0x01, 0x8b, 0xd9 ] 6 bytes CATCH POSITION EMPTY
+     * <pre>
+     *   0x01 (Catch) 0x04 (Length) 0x18 (Position-Empty) <b>0xCatchValue</b> CRC1 CRC2
+     * </pre>
+     */
+    CATCH(Control.CATCH, ActionType.POSITION, RequestType.EMPTY, 3 + 1 + NON_LEN_BYTES) {
+      @Override
+      IntStream get(@Nonnull ByteBuffer buffer) {
+        return IntStream.of(buffer.get(3));
+      }
+    },
+    /**
+     * RsceCommandFrame[ 0x03, 0x04, 0x18, 0x64, 0x4a, 0x4a ] 6 bytes ROTATE POSITION EMPTY
+     * <pre>
+     *   0x03 (Rotate) 0x04 (Length) 0x18 (Position-Empty) <b>0xRotateValue</b> CRC1 CRC2
+     * </pre>
+     */
+    ROTATE(Control.ROTATE, ActionType.POSITION, RequestType.EMPTY, 3 + 1 + NON_LEN_BYTES) {
+      @Override
+      IntStream get(@Nonnull ByteBuffer buffer) {
+        return CATCH.get(buffer);
       }
     };
 
     @Nonnull
-    private final String type;
+    private final String typeCode;
     @Nonnegative
     private final int minFrameLength;
 
-    FrameField(@Nonnull RequestType requestType, @Nonnegative int minFrameLength) {
-      type = toType(ActionType.NONE, requestType);
+    FrameField(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType, @Nonnegative int minFrameLength) {
+      typeCode = toType(control, actionType, requestType);
       this.minFrameLength = minFrameLength;
     }
 
-    IntStream resistance(@Nonnull ByteBuffer buffer) {
+    IntStream get(@Nonnull ByteBuffer buffer) {
       return IntStream.empty();
     }
 
-    IntStream info(@Nonnull ByteBuffer buffer) {
-      return IntStream.empty();
-    }
-
-    private IntStream extract(@Nonnull ByteBuffer buffer, @Nonnull Supplier<? extends IntStream> supplier) {
-      if (buffer.limit() >= minFrameLength && type.equals(toType(ActionType.find(buffer), RequestType.find(buffer)))) {
-        return supplier.get();
+    private IntStream extract(@Nonnull ByteBuffer buffer) {
+      if (buffer.limit() >= minFrameLength && typeCode.equals(toType(buffer))) {
+        return get(buffer);
       }
       else {
         return IntStream.empty();
       }
-    }
-
-    private static String toType(@Nonnull ActionType actionType, @Nonnull RequestType requestType) {
-      return String.format("%s-%s", actionType.name(), requestType.name());
     }
   }
 
@@ -183,18 +200,24 @@ public final class RsceCommandFrame extends BufferFrame {
   }
 
   public IntStream getRDozenMilliOhms() {
-    return Stream.of(FrameField.R1_DOZEN_MILLI_OHM, FrameField.R2_DOZEN_MILLI_OHM).
-        flatMapToInt(f -> f.extract(byteBuffer(), () -> f.resistance(byteBuffer())));
+    return Stream.of(FrameField.R1_DOZEN_MILLI_OHM, FrameField.R2_DOZEN_MILLI_OHM).flatMapToInt(f -> f.extract(byteBuffer()));
   }
 
   public IntStream getInfoOnes() {
-    return Stream.of(FrameField.INFO).flatMapToInt(f -> f.extract(byteBuffer(), () -> f.info(byteBuffer())));
+    return Stream.of(FrameField.INFO).flatMapToInt(f -> f.extract(byteBuffer()));
+  }
+
+  public int getCatchPercent(int orElse) {
+    return Stream.of(FrameField.CATCH).flatMapToInt(f -> f.extract(byteBuffer())).findAny().orElse(orElse);
+  }
+
+  public int getRotatePercent(int orElse) {
+    return Stream.of(FrameField.ROTATE).flatMapToInt(f -> f.extract(byteBuffer())).findAny().orElse(orElse);
   }
 
   @Override
   public String toString() {
-    return String.format("%s %s %s %s",
-        super.toString(), Control.find(byteBuffer()), ActionType.find(byteBuffer()), RequestType.find(byteBuffer()));
+    return String.format("%s %s", super.toString(), toType(byteBuffer()));
   }
 
   public static RsceCommandFrame simple(@Nonnull Control control, @Nonnull RequestType requestType) {
@@ -316,5 +339,13 @@ public final class RsceCommandFrame extends BufferFrame {
     Checksum checksum = new CRC16IBMChecksum();
     checksum.update(buffer.array(), 0, codeLength);
     return checksum.getValue();
+  }
+
+  private static String toType(@Nonnull ByteBuffer byteBuffer) {
+    return toType(Control.find(byteBuffer), ActionType.find(byteBuffer), RequestType.find(byteBuffer));
+  }
+
+  private static String toType(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType) {
+    return String.format("%s %s %s", control.name(), actionType.name(), requestType.name());
   }
 }
