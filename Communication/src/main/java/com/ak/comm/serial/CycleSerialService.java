@@ -76,7 +76,9 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
           okTime.set(Instant.now());
           try {
             while (Duration.between(okTime.get(), Instant.now()).minus(UIConstants.UI_DELAY).isNegative()) {
-              latch.await(UIConstants.UI_DELAY.toMillis() / 10, TimeUnit.MILLISECONDS);
+              if (latch.await(UIConstants.UI_DELAY.toMillis(), TimeUnit.MILLISECONDS)) {
+                break;
+              }
             }
           }
           catch (InterruptedException e) {

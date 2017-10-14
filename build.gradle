@@ -1,3 +1,9 @@
+import com.github.spotbugs.SpotBugsTask
+
+plugins {
+    id 'com.github.spotbugs' version '1.4'
+}
+
 ext.projectIds = ['java': '1.9']
 
 task wrapper(type: Wrapper) {
@@ -12,6 +18,18 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: "com.github.spotbugs"
+
+    spotbugs {
+        toolVersion = '3.1.0-RC6'
+    }
+
+    tasks.withType(SpotBugsTask) {
+        reports {
+            xml.enabled = false
+            html.enabled = true
+        }
+    }
 
     sourceCompatibility = projectIds.java
     targetCompatibility = projectIds.java
@@ -31,11 +49,14 @@ subprojects {
             name = 'Spring rich client repository'
             url = 'http://spring-rich-c.sourceforge.net/maven2repository'
         }
+        maven {
+            url = 'https://plugins.gradle.org/m2/'
+        }
     }
 
     dependencies {
         compile group: 'javax.inject', name: 'javax.inject', version: '1'
-        compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+        compile group: 'com.github.spotbugs', name: 'spotbugs', version: '3.1.0-RC6'
         testCompile group: 'org.testng', name: 'testng', version: '6.11'
     }
 
@@ -64,7 +85,7 @@ project(':Communication') {
 
 project(':FxCore') {
     dependencies {
-        compile group: 'org.springframework', name: 'spring-context', version: '4.3.11.RELEASE'
+        compile group: 'org.springframework', name: 'spring-context', version: '5.0.0.RELEASE'
         compile project(':Util')
     }
 }
