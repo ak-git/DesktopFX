@@ -2,9 +2,7 @@ package com.ak.fx.scene;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -12,7 +10,9 @@ import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.inject.Inject;
 
+import com.ak.comm.GroupService;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.digitalfilter.FilterBuilder;
@@ -25,71 +25,27 @@ import static com.ak.fx.scene.GridCell.BIG;
 import static com.ak.fx.scene.GridCell.POINTS;
 import static com.ak.fx.scene.GridCell.SMALL;
 
-public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractRegion {
+public final class Chart<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractRegion {
   private static final double[] EMPTY_DOUBLES = {};
   private final MilliGrid milliGrid = new MilliGrid();
   private final List<LineDiagram> lineDiagrams = new ArrayList<>();
   private final Text xAxisUnit = new Text();
   private final AxisXController axisXController = new AxisXController(this::changed);
   private final AxisYController<EV> axisYController = new AxisYController<>();
-  @Nonnull
-  private BiFunction<Integer, Integer, List<? extends int[]>> dataCallback = (start, end) -> Collections.emptyList();
+  private final GroupService<RESPONSE, REQUEST, EV> service;
 
-  public Chart() {
+  @Inject
+  public Chart(@Nonnull GroupService<RESPONSE, REQUEST, EV> service) {
+    this.service = service;
     milliGrid.setManaged(false);
     getChildren().add(milliGrid);
     xAxisUnit.fontProperty().bind(Fonts.H2.fontProperty());
-  }
-
-  public void setVariables(@Nonnull Collection<EV> variables, @Nonnegative double frequency) {
-    lineDiagrams.addAll(variables.stream().map(ev -> new LineDiagram(Variables.toString(ev))).collect(Collectors.toList()));
-    lineDiagrams.forEach(lineDiagram -> lineDiagram.setManaged(false));
-    axisXController.setFrequency(frequency, xStep -> lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(xStep)));
-    axisYController.setVariables(variables);
-
-    getChildren().addAll(lineDiagrams);
-    getChildren().add(xAxisUnit);
-
-    xAxisUnit.textProperty().bind(axisXController.zoomProperty().asString());
-    setOnScroll(event -> {
-      axisXController.scroll(event.getDeltaX());
-      event.consume();
-    });
-    setOnScrollFinished(event -> {
-      Logger.getLogger(getClass().getName()).log(Level.CONFIG, axisXController.toString());
-      event.consume();
-    });
-    setOnZoomStarted(event -> {
-      axisXController.zoom(event.getZoomFactor());
-      event.consume();
-    });
-    heightProperty().addListener((observable, oldValue, newValue) -> changed());
-  }
-
-  public void setDataCallback(@Nonnull BiFunction<Integer, Integer, List<? extends int[]>> dataCallback) {
-    this.dataCallback = dataCallback;
+    setVariables(service.getVariables(), service.getFrequency());
   }
 
   public void changed() {
     Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
-    setAll(dataCallback.apply(axisXController.getStart(), axisXController.getEnd()));
-  }
-
-  private void setAll(@Nonnull List<? extends int[]> chartData) {
-    FxUtils.invokeInFx(() -> {
-      if (chartData.isEmpty()) {
-        lineDiagrams.forEach(lineDiagram -> lineDiagram.setAll(EMPTY_DOUBLES, value -> Strings.EMPTY));
-        axisXController.reset();
-      }
-      else {
-        IntStream.range(0, chartData.size()).forEachOrdered(i -> {
-          int[] values = Filters.filter(FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).build(), chartData.get(i));
-          axisYController.scaleOrdered(values, scaleInfo ->
-              lineDiagrams.get(i).setAll(IntStream.of(values).parallel().mapToDouble(scaleInfo).toArray(), scaleInfo));
-        });
-        axisXController.checkLength(chartData.get(0).length);
-      }
-    });
+    setAll(service.read(axisXController.getStart(), axisXController.getEnd()));
   }
 
   @Override
@@ -140,5 +96,43 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
         lineDiagram.setVisibleTextBounds(height / 2, 0);
       });
     }
+  }
+
+  private void setVariables(@Nonnull Collection<EV> variables, @Nonnegative double frequency) {
+    lineDiagrams.addAll(variables.stream().map(ev -> new LineDiagram(Variables.toString(ev))).collect(Collectors.toList()));
+    lineDiagrams.forEach(lineDiagram -> lineDiagram.setManaged(false));
+    axisXController.setFrequency(frequency, xStep -> lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(xStep)));
+    axisYController.setVariables(variables);
+
+    getChildren().addAll(lineDiagrams);
+    getChildren().add(xAxisUnit);
+
+    xAxisUnit.textProperty().bind(axisXController.zoomProperty().asString());
+    setOnScroll(event -> {
+      axisXController.scroll(event.getDeltaX());
+      event.consume();
+    });
+    setOnZoomStarted(event -> {
+      axisXController.zoom(event.getZoomFactor());
+      event.consume();
+    });
+    heightProperty().addListener((observable, oldValue, newValue) -> changed());
+  }
+
+  private void setAll(@Nonnull List<? extends int[]> chartData) {
+    FxUtils.invokeInFx(() -> {
+      if (chartData.isEmpty()) {
+        lineDiagrams.forEach(lineDiagram -> lineDiagram.setAll(EMPTY_DOUBLES, value -> Strings.EMPTY));
+        axisXController.reset();
+      }
+      else {
+        IntStream.range(0, chartData.size()).forEachOrdered(i -> {
+          int[] values = Filters.filter(FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).build(), chartData.get(i));
+          axisYController.scaleOrdered(values, scaleInfo ->
+              lineDiagrams.get(i).setAll(IntStream.of(values).parallel().mapToDouble(scaleInfo).toArray(), scaleInfo));
+        });
+        axisXController.checkLength(chartData.get(0).length);
+      }
+    });
   }
 }

@@ -31,7 +31,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
   private Subscription subscription = EmptyComponent.INSTANCE;
   @Nullable
   @FXML
-  private Chart<EV> chart;
+  private Chart<RESPONSE, REQUEST, EV> chart;
 
   public AbstractViewController(@Nonnull GroupService<RESPONSE, REQUEST, EV> service) {
     this.service = service;
@@ -68,8 +68,6 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
           service.refresh();
         }
       });
-      chart.setVariables(service.getVariables(), service.getFrequency());
-      chart.setDataCallback(service::read);
     }
     service.subscribe(this);
   }

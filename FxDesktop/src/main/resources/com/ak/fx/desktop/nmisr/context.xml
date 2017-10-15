@@ -25,4 +25,6 @@
     <bean class="com.ak.comm.GroupService" destroy-method="close"/>
 
     <bean class="com.ak.fx.desktop.nmisr.NmisRsceViewController" destroy-method="close"/>
+
+    <bean class="com.ak.fx.scene.Chart"/>
 </beans>
