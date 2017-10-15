@@ -145,10 +145,10 @@ public final class RsceCommandFrame extends BufferFrame {
     /**
      * RsceCommandFrame[ 0x01, 0x04, 0x18, 0x01, 0x8b, 0xd9 ] 6 bytes CATCH POSITION EMPTY
      * <pre>
-     *   0x01 (Catch) 0x04 (Length) 0x18 (Position-Empty) <b>0xCatchValue</b> CRC1 CRC2
+     *   0x01 (Catch) 0x04 (Length) 0x18 (Position-Empty) <b>0xOpenValue</b> CRC1 CRC2
      * </pre>
      */
-    CATCH(Control.CATCH, ActionType.POSITION, RequestType.EMPTY, 3 + 1 + NON_LEN_BYTES) {
+    OPEN(Control.CATCH, ActionType.POSITION, RequestType.EMPTY, 3 + 1 + NON_LEN_BYTES) {
       @Override
       IntStream get(@Nonnull ByteBuffer buffer) {
         return IntStream.of(buffer.get(3));
@@ -163,7 +163,7 @@ public final class RsceCommandFrame extends BufferFrame {
     ROTATE(Control.ROTATE, ActionType.POSITION, RequestType.EMPTY, 3 + 1 + NON_LEN_BYTES) {
       @Override
       IntStream get(@Nonnull ByteBuffer buffer) {
-        return CATCH.get(buffer);
+        return OPEN.get(buffer);
       }
     };
 
@@ -207,8 +207,8 @@ public final class RsceCommandFrame extends BufferFrame {
     return Stream.of(FrameField.INFO).flatMapToInt(f -> f.extract(byteBuffer()));
   }
 
-  public int getCatchPercent(int orElse) {
-    return Stream.of(FrameField.CATCH).flatMapToInt(f -> f.extract(byteBuffer())).findAny().orElse(orElse);
+  public int getOpenPercent(int orElse) {
+    return Stream.of(FrameField.OPEN).flatMapToInt(f -> f.extract(byteBuffer())).findAny().orElse(orElse);
   }
 
   public int getRotatePercent(int orElse) {

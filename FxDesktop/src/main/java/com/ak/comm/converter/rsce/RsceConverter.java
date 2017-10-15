@@ -7,7 +7,7 @@ import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.converter.AbstractConverter;
 
 public final class RsceConverter extends AbstractConverter<RsceCommandFrame, RsceVariable> {
-  private int catchPercent;
+  private int openPercent;
   private int rotatePercent;
 
   public RsceConverter() {
@@ -16,10 +16,10 @@ public final class RsceConverter extends AbstractConverter<RsceCommandFrame, Rsc
 
   @Override
   protected Stream<int[]> innerApply(RsceCommandFrame frame) {
-    catchPercent = frame.getCatchPercent(catchPercent);
+    openPercent = frame.getOpenPercent(openPercent);
     rotatePercent = frame.getRotatePercent(rotatePercent);
     int[] ints = IntStream.concat(IntStream.concat(frame.getRDozenMilliOhms(), frame.getInfoOnes()),
-        IntStream.of(catchPercent, rotatePercent)).toArray();
+        IntStream.of(openPercent, rotatePercent)).toArray();
     if (ints.length == RsceVariable.values().length) {
       return Stream.of(ints);
     }

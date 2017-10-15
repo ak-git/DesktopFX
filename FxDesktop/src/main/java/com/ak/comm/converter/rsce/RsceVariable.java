@@ -27,7 +27,7 @@ public enum RsceVariable implements Variable<RsceVariable> {
       return AbstractUnit.ONE;
     }
   },
-  CATCH {
+  OPEN {
     @Override
     public Unit<?> getUnit() {
       return Units.PERCENT;

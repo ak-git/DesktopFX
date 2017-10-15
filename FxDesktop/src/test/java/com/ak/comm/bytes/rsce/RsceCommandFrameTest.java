@@ -32,7 +32,7 @@ public class RsceCommandFrameTest {
     checkRequest(expected, RsceCommandFrame.position(RsceCommandFrame.Control.CATCH, position));
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(expected)).build();
     Assert.assertNotNull(frame);
-    Assert.assertEquals(frame.getCatchPercent(-1), position, String.format("%s, Position = %s", frame, frame.getCatchPercent(-1)));
+    Assert.assertEquals(frame.getOpenPercent(-1), position, String.format("%s, Position = %s", frame, frame.getOpenPercent(-1)));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "positionRotateRequests")
