@@ -62,8 +62,7 @@ final class AxisXController {
   @Override
   public String toString() {
     return String.format("Axis-X size = %d [%d - %d]; x-zoom = %d mm/s; decimate factor = %d",
-        lengthProperty.get(), startProperty.get(), startProperty.get() + lengthProperty.get(),
-        zoomProperty.get().mmPerSec, decimateFactor);
+        lengthProperty.get(), getStart(), getEnd(), zoomProperty.get().mmPerSec, decimateFactor);
   }
 
   void setFrequency(@Nonnegative double frequency, @Nonnull DoubleConsumer xStep) {
@@ -89,7 +88,7 @@ final class AxisXController {
   }
 
   void reset() {
-    startProperty.set(0);
+    setStart(0);
   }
 
   void checkLength(@Nonnegative int realDataLen) {
@@ -116,7 +115,7 @@ final class AxisXController {
 
   private double getStep(@Nonnegative double frequency) {
     double pointsInSec = SMALL.getStep() * zoomProperty.get().mmPerSec / 10.0;
-    decimateFactor = (int) Math.max(1, Math.rint(frequency / pointsInSec));
+    decimateFactor = Math.max(1, (int) Math.rint(frequency / pointsInSec));
     double xStep = decimateFactor * pointsInSec / frequency;
     Logger.getLogger(getClass().getName()).log(Level.CONFIG,
         String.format("Frequency = %.0f Hz; x-zoom = %d mm/s; pixels per sec = %.1f; decimate factor = %d; x-step = %.1f px",
