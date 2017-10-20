@@ -57,15 +57,13 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
       Disposable disposable = Flowable.fromPublisher(serialService).doFinally(() -> {
         workingFlag.set(false);
         latch.countDown();
-      }).subscribe(buffer -> {
+      }).subscribe(buffer -> process(buffer).forEach(ints -> {
+        if (!cancelled) {
+          subscriber.onNext(ints);
+        }
         workingFlag.set(true);
         okTime.set(Instant.now());
-        process(buffer).forEach(ints -> {
-          if (!cancelled) {
-            subscriber.onNext(ints);
-          }
-        });
-      }, throwable -> {
+      }), throwable -> {
         serialService.close();
         Logger.getLogger(getClass().getName()).log(Level.SEVERE, serialService.toString(), throwable);
       });

@@ -161,7 +161,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
 
     private final LinkedList<String> usedPorts = new LinkedList<>();
 
-    public synchronized String next() {
+    synchronized String next() {
       String[] portNames = SerialPortList.getPortNames(Comparator.comparingInt(usedPorts::indexOf));
       if (portNames.length == 0) {
         return Strings.EMPTY;
