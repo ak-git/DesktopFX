@@ -14,8 +14,6 @@ import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_SPEED
 import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_SPEED_ANGLE;
 
 public class RsceTestDataProvider {
-  private static final int[] EMPTY_INTS = {};
-
   private RsceTestDataProvider() {
   }
 
@@ -86,9 +84,9 @@ public class RsceTestDataProvider {
         {new byte[] {0x00, 0x09, (byte) 0xc7, 0x40, 0x0b, (byte) 0xa0, 0x0b, 0x64, 0x00, (byte) 0xae, 0x55},
             new int[] {2880, 2976}, new int[] {100}},
         {new byte[] {0x00, 0x07, (byte) 0xc7, 0x00, 0x00, 0x00, 0x00, (byte) 0xaf, 0x66},
-            new int[] {0, 0}, EMPTY_INTS},
+            new int[] {0, 0}, new int[] {0}},
         {new byte[] {0x00, 0x03, 0x00, 0x71, 0x30},
-            EMPTY_INTS, EMPTY_INTS}
+            new int[] {0, 0}, new int[] {0}}
     };
   }
 

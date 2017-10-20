@@ -7,7 +7,6 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.zip.Checksum;
 
@@ -105,7 +104,7 @@ public final class RsceCommandFrame extends BufferFrame {
     }
   }
 
-  private enum FrameField {
+  public enum FrameField {
     /**
      * RsceCommandFrame[ 0x00, 0x09, 0xc7, 0x1a, 0x0b, 0xe3, 0x22, 0x10, 0x00, 0x41, 0xe3 ] 11 bytes ALL NONE RESERVE
      * <pre>
@@ -114,8 +113,8 @@ public final class RsceCommandFrame extends BufferFrame {
      */
     R1_DOZEN_MILLI_OHM(Control.ALL, ActionType.NONE, RequestType.RESERVE, 3 + 2 + 2 + NON_LEN_BYTES) {
       @Override
-      IntStream get(@Nonnull ByteBuffer buffer) {
-        return IntStream.of(buffer.getShort(3));
+      int get(@Nonnull ByteBuffer buffer) {
+        return buffer.getShort(3);
       }
     },
     /**
@@ -126,8 +125,8 @@ public final class RsceCommandFrame extends BufferFrame {
      */
     R2_DOZEN_MILLI_OHM(Control.ALL, ActionType.NONE, RequestType.RESERVE, 3 + 2 + 2 + NON_LEN_BYTES) {
       @Override
-      IntStream get(@Nonnull ByteBuffer buffer) {
-        return IntStream.of(buffer.getShort(5));
+      int get(@Nonnull ByteBuffer buffer) {
+        return buffer.getShort(5);
       }
     },
     /**
@@ -138,8 +137,8 @@ public final class RsceCommandFrame extends BufferFrame {
      */
     INFO(Control.ALL, ActionType.NONE, RequestType.RESERVE, 3 + 2 + 2 + 2 + NON_LEN_BYTES) {
       @Override
-      IntStream get(@Nonnull ByteBuffer buffer) {
-        return IntStream.of(buffer.getShort(7));
+      int get(@Nonnull ByteBuffer buffer) {
+        return buffer.getShort(7);
       }
     },
     /**
@@ -148,10 +147,10 @@ public final class RsceCommandFrame extends BufferFrame {
      *   0x01 (Catch) 0x04 (Length) 0x18 (Position-Empty) <b>0xOpenValue</b> CRC1 CRC2
      * </pre>
      */
-    OPEN(Control.CATCH, ActionType.POSITION, RequestType.EMPTY, 3 + 1 + NON_LEN_BYTES) {
+    OPEN_PERCENT(Control.CATCH, ActionType.POSITION, RequestType.EMPTY, 3 + 1 + NON_LEN_BYTES) {
       @Override
-      IntStream get(@Nonnull ByteBuffer buffer) {
-        return IntStream.of(buffer.get(3));
+      int get(@Nonnull ByteBuffer buffer) {
+        return buffer.get(3);
       }
     },
     /**
@@ -160,10 +159,10 @@ public final class RsceCommandFrame extends BufferFrame {
      *   0x03 (Rotate) 0x04 (Length) 0x18 (Position-Empty) <b>0xRotateValue</b> CRC1 CRC2
      * </pre>
      */
-    ROTATE(Control.ROTATE, ActionType.POSITION, RequestType.EMPTY, 3 + 1 + NON_LEN_BYTES) {
+    ROTATE_PERCENT(Control.ROTATE, ActionType.POSITION, RequestType.EMPTY, 3 + 1 + NON_LEN_BYTES) {
       @Override
-      IntStream get(@Nonnull ByteBuffer buffer) {
-        return OPEN.get(buffer);
+      int get(@Nonnull ByteBuffer buffer) {
+        return OPEN_PERCENT.get(buffer);
       }
     };
 
@@ -177,16 +176,14 @@ public final class RsceCommandFrame extends BufferFrame {
       this.minFrameLength = minFrameLength;
     }
 
-    IntStream get(@Nonnull ByteBuffer buffer) {
-      return IntStream.empty();
-    }
+    abstract int get(@Nonnull ByteBuffer buffer);
 
-    private IntStream extract(@Nonnull ByteBuffer buffer) {
+    public int extract(@Nonnull ByteBuffer buffer, int orElse) {
       if (buffer.limit() >= minFrameLength && typeCode.equals(toType(buffer))) {
         return get(buffer);
       }
       else {
-        return IntStream.empty();
+        return orElse;
       }
     }
   }
@@ -199,20 +196,8 @@ public final class RsceCommandFrame extends BufferFrame {
     super(builder.buffer());
   }
 
-  public IntStream getRDozenMilliOhms() {
-    return Stream.of(FrameField.R1_DOZEN_MILLI_OHM, FrameField.R2_DOZEN_MILLI_OHM).flatMapToInt(f -> f.extract(byteBuffer()));
-  }
-
-  public IntStream getInfoOnes() {
-    return Stream.of(FrameField.INFO).flatMapToInt(f -> f.extract(byteBuffer()));
-  }
-
-  public int getOpenPercent(int orElse) {
-    return Stream.of(FrameField.OPEN).flatMapToInt(f -> f.extract(byteBuffer())).findAny().orElse(orElse);
-  }
-
-  public int getRotatePercent(int orElse) {
-    return Stream.of(FrameField.ROTATE).flatMapToInt(f -> f.extract(byteBuffer())).findAny().orElse(orElse);
+  public int extract(@Nonnull FrameField frameField, int orElse) {
+    return frameField.extract(byteBuffer(), orElse);
   }
 
   @Override

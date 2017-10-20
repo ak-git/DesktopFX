@@ -32,7 +32,8 @@ public class RsceCommandFrameTest {
     checkRequest(expected, RsceCommandFrame.position(RsceCommandFrame.Control.CATCH, position));
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(expected)).build();
     Assert.assertNotNull(frame);
-    Assert.assertEquals(frame.getOpenPercent(-1), position, String.format("%s, Position = %s", frame, frame.getOpenPercent(-1)));
+    Assert.assertEquals(frame.extract(RsceCommandFrame.FrameField.OPEN_PERCENT, -1), position,
+        String.format("%s, Position = %s", frame, frame.extract(RsceCommandFrame.FrameField.OPEN_PERCENT, -1)));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "positionRotateRequests")
@@ -40,22 +41,20 @@ public class RsceCommandFrameTest {
     checkRequest(expected, RsceCommandFrame.position(RsceCommandFrame.Control.ROTATE, position));
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(expected)).build();
     Assert.assertNotNull(frame);
-    Assert.assertEquals(frame.getRotatePercent(-1), position, String.format("%s, Position = %s", frame, frame.getRotatePercent(-1)));
+    Assert.assertEquals(frame.extract(RsceCommandFrame.FrameField.ROTATE_PERCENT, -1), position,
+        String.format("%s, Position = %s", frame, frame.extract(RsceCommandFrame.FrameField.ROTATE_PERCENT, -1)));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "rheo12-info")
   public static void testInfoRequest(@Nonnull byte[] bytes, @Nonnull int[] rDozenMilliOhms, @Nonnull int[] infoOnes) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     Assert.assertNotNull(frame);
-    Assert.assertFalse(frame.getRDozenMilliOhms().count() != 0 && rDozenMilliOhms.length == 0);
-    if (rDozenMilliOhms.length != 0) {
-      Assert.assertEquals(frame.getRDozenMilliOhms().toArray(), rDozenMilliOhms,
-          String.format("%s, Ohms = %s", frame, Arrays.toString(frame.getRDozenMilliOhms().toArray())));
-    }
-    if (infoOnes.length != 0) {
-      Assert.assertEquals(frame.getInfoOnes().toArray(), infoOnes,
-          String.format("%s, Info = %s", frame, Arrays.toString(frame.getInfoOnes().toArray())));
-    }
+    Assert.assertEquals(frame.extract(RsceCommandFrame.FrameField.R1_DOZEN_MILLI_OHM, 0), rDozenMilliOhms[0],
+        String.format("%s, Ohms = %s", frame, frame.extract(RsceCommandFrame.FrameField.R1_DOZEN_MILLI_OHM, 0)));
+    Assert.assertEquals(frame.extract(RsceCommandFrame.FrameField.R2_DOZEN_MILLI_OHM, 0), rDozenMilliOhms[1],
+        String.format("%s, Ohms = %s", frame, frame.extract(RsceCommandFrame.FrameField.R2_DOZEN_MILLI_OHM, 0)));
+    Assert.assertEquals(frame.extract(RsceCommandFrame.FrameField.INFO, 0), infoOnes[0],
+        String.format("%s, Info = %s", frame, frame.extract(RsceCommandFrame.FrameField.INFO, 0)));
   }
 
   @Test

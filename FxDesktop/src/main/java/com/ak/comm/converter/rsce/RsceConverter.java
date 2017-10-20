@@ -1,6 +1,5 @@
 package com.ak.comm.converter.rsce;
 
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
@@ -16,15 +15,11 @@ public final class RsceConverter extends AbstractConverter<RsceCommandFrame, Rsc
 
   @Override
   protected Stream<int[]> innerApply(RsceCommandFrame frame) {
-    openPercent = frame.getOpenPercent(openPercent);
-    rotatePercent = frame.getRotatePercent(rotatePercent);
-    int[] ints = IntStream.concat(IntStream.concat(frame.getRDozenMilliOhms(), frame.getInfoOnes()),
-        IntStream.of(openPercent, rotatePercent)).toArray();
-    if (ints.length == RsceVariable.values().length) {
-      return Stream.of(ints);
-    }
-    else {
-      return Stream.empty();
-    }
+    int r1 = frame.extract(RsceCommandFrame.FrameField.R1_DOZEN_MILLI_OHM, 0);
+    int r2 = frame.extract(RsceCommandFrame.FrameField.R2_DOZEN_MILLI_OHM, 0);
+    int accelerometer = frame.extract(RsceCommandFrame.FrameField.INFO, 0);
+    openPercent = frame.extract(RsceCommandFrame.FrameField.OPEN_PERCENT, openPercent);
+    rotatePercent = frame.extract(RsceCommandFrame.FrameField.ROTATE_PERCENT, rotatePercent);
+    return Stream.of(new int[] {r1, r2, accelerometer, openPercent, rotatePercent});
   }
 }

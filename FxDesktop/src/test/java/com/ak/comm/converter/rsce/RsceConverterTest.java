@@ -34,14 +34,10 @@ public class RsceConverterTest {
     Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES, () -> {
       Converter<RsceCommandFrame, RsceVariable> converter = new RsceConverter();
       Stream<int[]> stream = converter.apply(frame);
-      if (rDozenMilliOhms.length == 0) {
-        Assert.assertEquals(stream.count(), 0);
-      }
-      else {
-        stream.forEach(ints ->
-            Assert.assertEquals(ints, IntStream.concat(IntStream.concat(Arrays.stream(rDozenMilliOhms), Arrays.stream(infoOnes)),
-                IntStream.of(0, 0)).toArray()));
-      }
+      stream.forEach(ints ->
+          Assert.assertEquals(ints, IntStream.concat(IntStream.concat(Arrays.stream(rDozenMilliOhms), Arrays.stream(infoOnes)),
+              IntStream.of(0, 0)).toArray(), Arrays.toString(ints)));
+
     }, logRecord -> {
       for (int milliOhm : rDozenMilliOhms) {
         Assert.assertTrue(logRecord.getMessage().contains(Integer.toString(milliOhm)));
