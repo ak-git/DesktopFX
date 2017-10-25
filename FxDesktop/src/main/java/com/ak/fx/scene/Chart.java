@@ -3,56 +3,41 @@ package com.ak.fx.scene;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.function.DoubleFunction;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
-import com.ak.comm.GroupService;
-import com.ak.comm.converter.Variable;
-import com.ak.comm.converter.Variables;
-import com.ak.digitalfilter.FilterBuilder;
-import com.ak.digitalfilter.Filters;
 import com.ak.fx.util.FxUtils;
-import com.ak.util.Strings;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.text.Text;
 
 import static com.ak.fx.scene.GridCell.BIG;
 import static com.ak.fx.scene.GridCell.POINTS;
 import static com.ak.fx.scene.GridCell.SMALL;
 
-public final class Chart<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractRegion {
-  private static final double[] EMPTY_DOUBLES = {};
+public final class Chart extends AbstractRegion {
   private final MilliGrid milliGrid = new MilliGrid();
   private final List<LineDiagram> lineDiagrams = new ArrayList<>();
   private final Text xAxisUnit = new Text();
-  private final AxisXController axisXController = new AxisXController(this::changed);
-  private final AxisYController<EV> axisYController = new AxisYController<>();
-  private final GroupService<RESPONSE, REQUEST, EV> service;
+  private final IntegerProperty diagramHeight = new SimpleIntegerProperty();
 
   @Inject
-  public Chart(@Nonnull GroupService<RESPONSE, REQUEST, EV> service) {
-    this.service = service;
+  public Chart() {
     milliGrid.setManaged(false);
     getChildren().add(milliGrid);
     xAxisUnit.fontProperty().bind(Fonts.H2.fontProperty());
-    setVariables(service.getVariables(), service.getFrequency());
-  }
-
-  public void changed() {
-    Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
-    setAll(service.read(axisXController.getStart(), axisXController.getEnd()));
   }
 
   @Override
   void layoutAll(double x, double y, double width, double height) {
     milliGrid.resizeRelocate(x, y, width, height);
     layoutLineDiagrams(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxValue(width), SMALL.maxValue(height));
-    axisXController.preventCenter(SMALL.maxValue(width));
   }
 
   private void layoutLineDiagrams(double x, double y, double width, double height) {
@@ -61,7 +46,7 @@ public final class Chart<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> 
 
     double dHeight = SMALL.maxValue((height + POINTS.getStep()) * 2 / (1 + lineDiagrams.size()));
     if (dHeight >= SMALL.getStep() * 2) {
-      axisYController.setLineDiagramHeight(dHeight);
+      diagramHeight.setValue(dHeight);
       lineDiagrams.forEach(lineDiagram -> lineDiagram.resizeRelocate(x, y, width, dHeight));
       for (int i = 0; i < lineDiagrams.size() / 2; i++) {
         lineDiagrams.get(i).relocate(x, y + SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i);
@@ -90,7 +75,7 @@ public final class Chart<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> 
       }
     }
     else {
-      axisYController.setLineDiagramHeight(height);
+      diagramHeight.setValue(height);
       lineDiagrams.forEach(lineDiagram -> {
         lineDiagram.resizeRelocate(x, y, width, height);
         lineDiagram.setVisibleTextBounds(height / 2, 0);
@@ -98,41 +83,26 @@ public final class Chart<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> 
     }
   }
 
-  private void setVariables(@Nonnull Collection<EV> variables, @Nonnegative double frequency) {
-    lineDiagrams.addAll(variables.stream().map(ev -> new LineDiagram(Variables.toString(ev))).collect(Collectors.toList()));
+  public void setVariables(@Nonnull Collection<String> variables) {
+    lineDiagrams.addAll(variables.stream().map(LineDiagram::new).collect(Collectors.toList()));
     lineDiagrams.forEach(lineDiagram -> lineDiagram.setManaged(false));
-    axisXController.setFrequency(frequency, xStep -> lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(xStep)));
-    axisYController.setVariables(variables);
-
     getChildren().addAll(lineDiagrams);
     getChildren().add(xAxisUnit);
-
-    xAxisUnit.textProperty().bind(axisXController.zoomProperty().asString());
-    setOnScroll(event -> {
-      axisXController.scroll(event.getDeltaX());
-      event.consume();
-    });
-    setOnZoomStarted(event -> {
-      axisXController.zoom(event.getZoomFactor());
-      event.consume();
-    });
-    heightProperty().addListener((observable, oldValue, newValue) -> changed());
   }
 
-  private void setAll(@Nonnull List<? extends int[]> chartData) {
-    FxUtils.invokeInFx(() -> {
-      if (chartData.isEmpty()) {
-        lineDiagrams.forEach(lineDiagram -> lineDiagram.setAll(EMPTY_DOUBLES, value -> Strings.EMPTY));
-        axisXController.reset();
-      }
-      else {
-        IntStream.range(0, chartData.size()).forEachOrdered(i -> {
-          int[] values = Filters.filter(FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).build(), chartData.get(i));
-          axisYController.scaleOrdered(values, scaleInfo ->
-              lineDiagrams.get(i).setAll(IntStream.of(values).parallel().mapToDouble(scaleInfo).toArray(), scaleInfo));
-        });
-        axisXController.checkLength(chartData.get(0).length);
-      }
-    });
+  public void setXStep(@Nonnegative double xStep) {
+    lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(xStep));
+  }
+
+  public StringProperty titleProperty() {
+    return xAxisUnit.textProperty();
+  }
+
+  public ReadOnlyIntegerProperty diagramHeightProperty() {
+    return diagramHeight;
+  }
+
+  public void setAll(int chartIndex, @Nonnull double[] values, @Nonnull DoubleFunction<String> positionToStringConverter) {
+    FxUtils.invokeInFx(() -> lineDiagrams.get(chartIndex).setAll(values, positionToStringConverter));
   }
 }
