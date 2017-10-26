@@ -10,10 +10,9 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
-import com.ak.fx.util.FxUtils;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ReadOnlyIntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.text.Text;
 
@@ -25,7 +24,8 @@ public final class Chart extends AbstractRegion {
   private final MilliGrid milliGrid = new MilliGrid();
   private final List<LineDiagram> lineDiagrams = new ArrayList<>();
   private final Text xAxisUnit = new Text();
-  private final IntegerProperty diagramHeight = new SimpleIntegerProperty();
+  private final DoubleProperty diagramWidth = new SimpleDoubleProperty();
+  private final DoubleProperty diagramHeight = new SimpleDoubleProperty();
 
   @Inject
   public Chart() {
@@ -38,6 +38,7 @@ public final class Chart extends AbstractRegion {
   void layoutAll(double x, double y, double width, double height) {
     milliGrid.resizeRelocate(x, y, width, height);
     layoutLineDiagrams(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxValue(width), SMALL.maxValue(height));
+    diagramWidth.set(SMALL.maxValue(width));
   }
 
   private void layoutLineDiagrams(double x, double y, double width, double height) {
@@ -98,11 +99,15 @@ public final class Chart extends AbstractRegion {
     return xAxisUnit.textProperty();
   }
 
-  public ReadOnlyIntegerProperty diagramHeightProperty() {
+  public ReadOnlyDoubleProperty diagramWidthProperty() {
+    return diagramWidth;
+  }
+
+  public ReadOnlyDoubleProperty diagramHeightProperty() {
     return diagramHeight;
   }
 
   public void setAll(int chartIndex, @Nonnull double[] values, @Nonnull DoubleFunction<String> positionToStringConverter) {
-    FxUtils.invokeInFx(() -> lineDiagrams.get(chartIndex).setAll(values, positionToStringConverter));
+    lineDiagrams.get(chartIndex).setAll(values, positionToStringConverter);
   }
 }

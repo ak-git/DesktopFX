@@ -21,6 +21,7 @@ import com.ak.digitalfilter.Filters;
 import com.ak.fx.scene.AxisXController;
 import com.ak.fx.scene.AxisYController;
 import com.ak.fx.scene.Chart;
+import com.ak.fx.util.FxUtils;
 import io.reactivex.internal.util.EmptyComponent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -86,15 +87,18 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
       });
       chart.setOnZoomStarted(event -> {
         axisXController.zoom(event.getZoomFactor());
-        axisXController.preventCenter(chart.widthProperty().doubleValue());
+        axisXController.preventCenter(chart.diagramWidthProperty().doubleValue());
         event.consume();
       });
-      chart.widthProperty().addListener((observable, oldValue, newValue) -> axisXController.preventCenter(newValue.doubleValue()));
-      chart.heightProperty().addListener((observable, oldValue, newValue) -> changed());
-      chart.diagramHeightProperty().addListener((observable, oldValue, newValue) -> axisYController.setLineDiagramHeight(newValue.doubleValue()));
-      axisXController.setFrequency(service.getFrequency());
+      chart.diagramHeightProperty().addListener((observable, oldValue, newValue) -> {
+        axisYController.setLineDiagramHeight(newValue.doubleValue());
+        changed();
+      });
+      chart.diagramWidthProperty().addListener((observable, oldValue, newValue) -> axisXController.preventCenter(newValue.doubleValue()));
       axisXController.stepProperty().addListener((observable, oldValue, newValue) -> chart.setXStep(newValue.doubleValue()));
+
       axisYController.setVariables(service.getVariables());
+      axisXController.setFrequency(service.getFrequency());
     }
     service.subscribe(this);
   }
@@ -126,13 +130,14 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
   }
 
   private void setAll(@Nonnull List<? extends int[]> chartData) {
-    axisXController.checkLength(chartData.get(0).length);
-
-    IntStream.range(0, chartData.size()).forEachOrdered(i -> {
-      int[] values = Filters.filter(FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).build(), chartData.get(i));
-      axisYController.scaleOrdered(values, scaleInfo ->
-          Objects.requireNonNull(chart).setAll(i, IntStream.of(values).parallel().mapToDouble(scaleInfo).toArray(), scaleInfo)
-      );
+    FxUtils.invokeInFx(() -> {
+      IntStream.range(0, chartData.size()).forEachOrdered(i -> {
+        int[] values = Filters.filter(FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).build(), chartData.get(i));
+        axisYController.scaleOrdered(values, scaleInfo ->
+            Objects.requireNonNull(chart).setAll(i, IntStream.of(values).parallel().mapToDouble(scaleInfo).toArray(), scaleInfo)
+        );
+      });
+      axisXController.checkLength(chartData.get(0).length);
     });
   }
 }

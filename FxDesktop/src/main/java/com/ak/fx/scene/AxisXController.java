@@ -103,7 +103,7 @@ public final class AxisXController {
 
   public void preventCenter(@Nonnegative double width) {
     int prevChartCenter = startProperty.get() + lengthProperty.get() / 2;
-    lengthProperty.setValue(SMALL.maxValue(width) * decimateFactor / stepProperty.get());
+    lengthProperty.setValue(width * decimateFactor / stepProperty.get());
     setStart(prevChartCenter - lengthProperty.get() / 2);
   }
 
