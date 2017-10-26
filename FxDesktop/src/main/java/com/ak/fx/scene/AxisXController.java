@@ -1,6 +1,5 @@
 package com.ak.fx.scene;
 
-import java.util.function.DoubleConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -9,9 +8,12 @@ import javax.annotation.Nonnull;
 import javax.measure.quantity.Speed;
 
 import com.ak.comm.converter.Variables;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import tec.uom.se.quantity.Quantities;
@@ -20,7 +22,7 @@ import tec.uom.se.unit.Units;
 
 import static com.ak.fx.scene.GridCell.SMALL;
 
-final class AxisXController {
+public final class AxisXController {
   public enum ZoomX {
     Z_10(10), Z_25(25), Z_50(50);
 
@@ -49,12 +51,11 @@ final class AxisXController {
   private final IntegerProperty startProperty = new SimpleIntegerProperty();
   private final IntegerProperty lengthProperty = new SimpleIntegerProperty();
   private final ObjectProperty<ZoomX> zoomProperty = new SimpleObjectProperty<>(ZoomX.Z_25);
-  @Nonnegative
-  private double step;
+  private final DoubleProperty stepProperty = new SimpleDoubleProperty();
   @Nonnegative
   private int decimateFactor = 1;
 
-  AxisXController(@Nonnull Runnable onUpdate) {
+  public AxisXController(@Nonnull Runnable onUpdate) {
     startProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
     lengthProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
   }
@@ -65,20 +66,24 @@ final class AxisXController {
         lengthProperty.get(), getStart(), getEnd(), zoomProperty.get().mmPerSec, decimateFactor);
   }
 
-  void setFrequency(@Nonnegative double frequency, @Nonnull DoubleConsumer xStep) {
-    setStep(frequency, xStep);
-    zoomProperty.addListener((observable, oldValue, newValue) -> setStep(frequency, xStep));
+  public void setFrequency(@Nonnegative double frequency) {
+    setStep(frequency);
+    zoomProperty.addListener((observable, oldValue, newValue) -> setStep(frequency));
   }
 
-  ReadOnlyObjectProperty<ZoomX> zoomProperty() {
+  public ReadOnlyObjectProperty<ZoomX> zoomProperty() {
     return zoomProperty;
   }
 
-  void scroll(double deltaX) {
+  public ReadOnlyDoubleProperty stepProperty() {
+    return stepProperty;
+  }
+
+  public void scroll(double deltaX) {
     setStart((int) Math.rint(startProperty.get() - deltaX * decimateFactor));
   }
 
-  void zoom(double zoomFactor) {
+  public void zoom(double zoomFactor) {
     if (zoomFactor > 1) {
       zoomProperty.setValue(zoomProperty.get().next());
     }
@@ -87,29 +92,30 @@ final class AxisXController {
     }
   }
 
-  void reset() {
-    setStart(0);
+  public void checkLength(@Nonnegative int realDataLen) {
+    if (realDataLen == 0) {
+      setStart(0);
+    }
+    else {
+      setStart(startProperty.get() + realDataLen - lengthProperty.get());
+    }
   }
 
-  void checkLength(@Nonnegative int realDataLen) {
-    setStart(startProperty.get() + realDataLen - lengthProperty.get());
-  }
-
-  void preventCenter(@Nonnegative double width) {
+  public void preventCenter(@Nonnegative double width) {
     int prevChartCenter = startProperty.get() + lengthProperty.get() / 2;
-    lengthProperty.setValue(width * decimateFactor / step);
+    lengthProperty.setValue(width * decimateFactor / stepProperty.get());
     setStart(prevChartCenter - lengthProperty.get() / 2);
   }
 
-  int getStart() {
+  public int getStart() {
     return startProperty.get();
   }
 
-  int getEnd() {
+  public int getEnd() {
     return startProperty.get() + lengthProperty.get();
   }
 
-  int getDecimateFactor() {
+  public int getDecimateFactor() {
     return decimateFactor;
   }
 
@@ -127,8 +133,7 @@ final class AxisXController {
     startProperty.setValue(Math.max(0, start));
   }
 
-  private void setStep(@Nonnegative double frequency, @Nonnull DoubleConsumer xStep) {
-    step = getStep(frequency);
-    xStep.accept(step);
+  private void setStep(@Nonnegative double frequency) {
+    stepProperty.set(getStep(frequency));
   }
 }

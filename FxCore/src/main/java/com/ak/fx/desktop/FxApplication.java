@@ -22,11 +22,9 @@ import com.ak.util.OS;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-import javafx.util.BuilderFactory;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
@@ -40,7 +38,6 @@ public final class FxApplication extends Application {
   private static final String KEY_APPLICATION_IMAGE = "application.image";
   private static final String LOGGING_PROPERTIES = "logging.properties";
   private static final String KEY_PROPERTIES = "keys.properties";
-  private static final BuilderFactory DEFAULT_BUILDER_FACTORY = new JavaFXBuilderFactory();
 
   @Nonnull
   private ConfigurableApplicationContext context = new GenericApplicationContext();
@@ -70,14 +67,6 @@ public final class FxApplication extends Application {
       FXMLLoader loader = new FXMLLoader(resource, new MessageSourceResourceBundle(
           BeanFactoryUtils.beanOfType(context, MessageSource.class), Locale.getDefault()));
       loader.setControllerFactory(clazz -> BeanFactoryUtils.beanOfType(context, clazz));
-      loader.setBuilderFactory(type -> {
-        if (BeanFactoryUtils.beanNamesForTypeIncludingAncestors(context, type).length == 1) {
-          return () -> BeanFactoryUtils.beanOfType(context, type);
-        }
-        else {
-          return DEFAULT_BUILDER_FACTORY.getBuilder(type);
-        }
-      });
       stage.setScene(loader.load());
       stage.setTitle(loader.getResources().getString(KEY_APPLICATION_TITLE));
       OSDockImage.valueOf(OS.get().name()).setIconImage(stage,

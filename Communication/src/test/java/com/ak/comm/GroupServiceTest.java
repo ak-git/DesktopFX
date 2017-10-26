@@ -52,7 +52,7 @@ public class GroupServiceTest implements Subscriber<int[]> {
         break;
       }
     }
-    Assert.assertTrue(service.read(1, 1).isEmpty());
+    service.read(1, 1).forEach(ints -> Assert.assertEquals(ints.length, 0));
     service.refresh();
   }
 

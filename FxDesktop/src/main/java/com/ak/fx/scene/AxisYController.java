@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 
 import com.ak.comm.converter.Variable;
 
-final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
+public final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
   private final List<EV> variables = new ArrayList<>();
   private final List<ScaleYInfo<EV>> scaleInfos = new ArrayList<>();
   @Nonnegative
@@ -21,7 +21,7 @@ final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
   @Nonnegative
   private int index = -1;
 
-  void setVariables(@Nonnull Collection<EV> variables) {
+  public void setVariables(@Nonnull Collection<EV> variables) {
     this.variables.addAll(variables);
     scaleInfos.addAll(variables.stream().map(ev -> new ScaleYInfo.Builder<>(ev,
         scaleYInfo -> {
@@ -29,11 +29,11 @@ final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
     );
   }
 
-  void setLineDiagramHeight(double lineDiagramHeight) {
+  public void setLineDiagramHeight(double lineDiagramHeight) {
     mmHeight = GridCell.mm(lineDiagramHeight);
   }
 
-  void scaleOrdered(@Nonnull int[] values, Consumer<ScaleYInfo<EV>> scaledConsumer) {
+  public void scaleOrdered(@Nonnull int[] values, @Nonnull Consumer<ScaleYInfo<EV>> scaledConsumer) {
     index = (++index) % variables.size();
 
     IntSummaryStatistics intSummaryStatistics = IntStream.of(values).summaryStatistics();

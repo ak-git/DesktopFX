@@ -41,6 +41,4 @@
     <bean class="com.ak.comm.GroupService" destroy-method="close"/>
 
     <bean class="com.ak.fx.desktop.ViewController"/>
-
-    <bean class="com.ak.fx.scene.Chart"/>
 </beans>
