@@ -118,12 +118,7 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
 
   @Override
   public void cancel() {
-    try {
-      close();
-    }
-    catch (Exception e) {
-      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, e.getMessage(), e);
-    }
+    close();
   }
 
   @Override
