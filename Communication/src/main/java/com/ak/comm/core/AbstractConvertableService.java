@@ -1,9 +1,9 @@
 package com.ak.comm.core;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Flow;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
@@ -14,10 +14,9 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.interceptor.BytesInterceptor;
-import org.reactivestreams.Publisher;
 
 public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
-    extends AbstractService implements Callable<AsynchronousFileChannel>, Publisher<int[]>, Readable {
+    extends AbstractService implements Callable<AsynchronousFileChannel>, Flow.Publisher<int[]>, Readable {
   @Nonnull
   private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
   @Nonnull
@@ -36,7 +35,7 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends E
 
   @OverridingMethodsMustInvokeSuper
   @Override
-  public void close() throws IOException {
+  public void close() {
     convertedLogByteChannel.close();
   }
 

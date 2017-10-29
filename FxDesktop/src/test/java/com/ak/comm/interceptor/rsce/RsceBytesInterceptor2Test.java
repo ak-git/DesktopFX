@@ -2,14 +2,13 @@ package com.ak.comm.interceptor.rsce;
 
 import java.nio.ByteBuffer;
 import java.util.Iterator;
+import java.util.Objects;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
-import io.reactivex.Flowable;
-import io.reactivex.subscribers.TestSubscriber;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -103,9 +102,7 @@ public class RsceBytesInterceptor2Test {
 
   @Test(dataProvider = "data")
   public void testInterceptor(@Nonnull byte[] bytes, @Nullable RsceCommandFrame response) {
-    TestSubscriber<RsceCommandFrame> subscriber = TestSubscriber.create();
-
-    Flowable<ByteBuffer> bufferFlowable = Flowable.fromIterable(() -> new Iterator<ByteBuffer>() {
+    Iterator<ByteBuffer> iterator = new Iterator<>() {
       int index;
 
       @Override
@@ -120,16 +117,13 @@ public class RsceBytesInterceptor2Test {
         index++;
         return byteBuffer;
       }
-    });
+    };
 
-    bufferFlowable.flatMapIterable(buffer -> () -> interceptor.apply(buffer).iterator()).subscribe(subscriber);
-    if (response == null) {
-      subscriber.assertNoValues();
+    while (iterator.hasNext()) {
+      interceptor.apply(iterator.next()).forEach(rsceCommandFrame -> {
+        Assert.assertEquals(rsceCommandFrame, Objects.requireNonNull(response));
+        Assert.assertTrue(interceptor.putOut(Objects.requireNonNull(response)).remaining() > 0);
+      });
     }
-    else {
-      subscriber.assertValue(response);
-      Assert.assertTrue(interceptor.putOut(response).remaining() > 0);
-    }
-    subscriber.assertNoErrors();
   }
 }

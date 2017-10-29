@@ -2,11 +2,11 @@ package com.ak.comm;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Flow;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
@@ -23,11 +23,9 @@ import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
 import com.ak.comm.serial.Refreshable;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
 
 public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractService
-    implements Publisher<int[]>, Refreshable, FileFilter {
+    implements Flow.Publisher<int[]>, Refreshable, FileFilter {
   @Nonnull
   private final CycleSerialService<RESPONSE, REQUEST, EV> serialService;
   @Nonnull
@@ -51,7 +49,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   }
 
   @Override
-  public void subscribe(@Nonnull Subscriber<? super int[]> subscriber) {
+  public void subscribe(@Nonnull Flow.Subscriber<? super int[]> subscriber) {
     serialService.subscribe(subscriber);
     fileReadingService.subscribe(subscriber);
   }
@@ -89,7 +87,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     serialService.close();
     fileReadingService.close();
   }
