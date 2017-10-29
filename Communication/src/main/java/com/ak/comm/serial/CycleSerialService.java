@@ -49,6 +49,7 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
       CountDownLatch latch = new CountDownLatch(1);
 
       Flow.Subscriber<ByteBuffer> subscriber = new Flow.Subscriber<>() {
+        @Nullable
         Flow.Subscription subscription;
 
         @Override
@@ -75,9 +76,16 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
 
         @Override
         public void onComplete() {
-          workingFlag.set(false);
-          latch.countDown();
-          subscription.cancel();
+          try {
+            workingFlag.set(false);
+            latch.countDown();
+            if (subscription != null) {
+              subscription.cancel();
+            }
+          }
+          catch (Exception e) {
+            Logger.getLogger(getClass().getName()).log(Level.INFO, e.getMessage(), e);
+          }
         }
       };
       serialService.subscribe(subscriber);
