@@ -9,6 +9,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
+import java.util.concurrent.Flow;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -16,6 +18,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.ToIntegerConverter;
@@ -26,10 +29,6 @@ import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.logging.LogBuilders;
 import com.ak.comm.util.LogUtils;
 import com.ak.util.Strings;
-import io.reactivex.Flowable;
-import io.reactivex.subscribers.TestSubscriber;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscription;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
@@ -61,8 +60,8 @@ public class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
   public static void testNoDataConverted(@Nonnull Path fileToRead, @Nonnegative int bytes) {
-    TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
-    Publisher<int[]> publisher = new FileReadingService<>(fileToRead,
+    TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
+    Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead,
         new AbstractBytesInterceptor<>(
             BytesInterceptor.BaudRate.BR_921600, null, 1) {
           @Nonnull
@@ -73,7 +72,7 @@ public class FileReadingServiceTest {
         },
         new ToIntegerConverter<>(TwoVariables.class, 1000)
     );
-    Flowable.fromPublisher(publisher).subscribe(testSubscriber);
+    publisher.subscribe(testSubscriber);
     testSubscriber.assertNoErrors();
     testSubscriber.assertNoValues();
     if (bytes < 0) {
@@ -88,21 +87,16 @@ public class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFile")
   public static void testFile(@Nonnull Path fileToRead, @Nonnegative int bytes, boolean forceClose) {
-    TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
+    TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
     FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher = new FileReadingService<>(
         fileToRead,
         new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, frameLength),
         new ToIntegerConverter<>(TwoVariables.class, 200));
     LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
-        Flowable.fromPublisher(publisher).subscribe(testSubscriber), logRecord -> {
+        publisher.subscribe(testSubscriber), logRecord -> {
       if (forceClose) {
-        try {
-          publisher.close();
-        }
-        catch (IOException e) {
-          Assert.fail(e.getMessage(), e);
-        }
+        publisher.close();
       }
     });
     testSubscriber.assertValueCount(bytes / frameLength);
@@ -110,15 +104,15 @@ public class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
   public static void testFiles(@Nonnull Path fileToRead, @Nonnegative int bytes) {
-    TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
+    TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
-    Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
+    Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
         BytesInterceptor.BaudRate.BR_921600, frameLength),
         new ToIntegerConverter<>(TwoVariables.class, 1000));
     Assert.assertTrue(publisher.toString().contains(fileToRead.toString()));
 
     Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
-        Flowable.fromPublisher(publisher).subscribe(testSubscriber), new Consumer<>() {
+        publisher.subscribe(testSubscriber), new Consumer<>() {
       int packCounter;
 
       @Override
@@ -145,11 +139,19 @@ public class FileReadingServiceTest {
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "filesCanDelete")
   public static void testException(@Nonnull Path fileToRead, @Nonnegative int bytes) {
     Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
-      TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
-      Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
+      TestSubscriber<int[]> testSubscriber = new TestSubscriber<>(subscription -> {
+        try {
+          Files.deleteIfExists(fileToRead);
+        }
+        catch (IOException e) {
+          Assert.fail(fileToRead.toString(), e);
+        }
+      });
+
+      Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
           BytesInterceptor.BaudRate.BR_921600, 1 + TwoVariables.values().length * Integer.BYTES),
           new ToIntegerConverter<>(TwoVariables.class, 200));
-      Flowable.fromPublisher(publisher).doOnSubscribe(subscription -> Files.deleteIfExists(fileToRead)).subscribe(testSubscriber);
+      publisher.subscribe(testSubscriber);
       if (bytes < 0) {
         testSubscriber.assertNoErrors();
         testSubscriber.assertNotSubscribed();
@@ -165,11 +167,11 @@ public class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
   public static void testCancel(@Nonnull Path fileToRead, @Nonnegative int bytes) {
-    TestSubscriber<int[]> testSubscriber = TestSubscriber.create();
-    Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
+    TestSubscriber<int[]> testSubscriber = new TestSubscriber<>(Flow.Subscription::cancel);
+    Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
         BytesInterceptor.BaudRate.BR_921600, 1 + TwoVariables.values().length * Integer.BYTES),
         new ToIntegerConverter<>(TwoVariables.class, 1000));
-    Flowable.fromPublisher(publisher).doOnSubscribe(Subscription::cancel).subscribe(testSubscriber);
+    publisher.subscribe(testSubscriber);
     testSubscriber.assertNoErrors();
     testSubscriber.assertNoValues();
     testSubscriber.assertNotComplete();
@@ -186,5 +188,80 @@ public class FileReadingServiceTest {
     Assert.assertNull(new FileReadingService<>(Paths.get(Strings.EMPTY), new RampBytesInterceptor(
         BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
         new ToIntegerConverter<>(TwoVariables.class, 200)).call());
+  }
+
+  private static final class TestSubscriber<T> implements Flow.Subscriber<T> {
+    @Nonnull
+    private final Consumer<Flow.Subscription> onSubscribe;
+    private boolean subscribeFlag;
+    private boolean completeFlag;
+    @Nullable
+    private Throwable throwable;
+    private int count;
+
+
+    TestSubscriber() {
+      this(subscription -> {
+      });
+    }
+
+    TestSubscriber(@Nonnull Consumer<Flow.Subscription> onSubscribe) {
+      this.onSubscribe = onSubscribe;
+    }
+
+    @Override
+    public void onSubscribe(Flow.Subscription subscription) {
+      subscribeFlag = true;
+      onSubscribe.accept(subscription);
+    }
+
+    @Override
+    public void onNext(T item) {
+      count++;
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+      this.throwable = throwable;
+    }
+
+    @Override
+    public void onComplete() {
+      completeFlag = true;
+    }
+
+    void assertSubscribed() {
+      Assert.assertTrue(subscribeFlag);
+    }
+
+    void assertNotSubscribed() {
+      Assert.assertFalse(subscribeFlag);
+    }
+
+    void assertComplete() {
+      Assert.assertTrue(completeFlag);
+    }
+
+    void assertNotComplete() {
+      Assert.assertFalse(completeFlag);
+    }
+
+    void assertNoValues() {
+      assertValueCount(0);
+    }
+
+    void assertValueCount(int n) {
+      Assert.assertEquals(count, n);
+    }
+
+    void assertNoErrors() {
+      if (throwable != null) {
+        Assert.fail(throwable.getMessage(), throwable);
+      }
+    }
+
+    void assertError(Class<?> throwable) {
+      Assert.assertEquals(Objects.requireNonNull(this.throwable).getClass(), throwable);
+    }
   }
 }

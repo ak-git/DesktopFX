@@ -3,19 +3,18 @@ package com.ak.comm.serial;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.Flow;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import jssc.SerialPortException;
 import jssc.SerialPortList;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static jssc.SerialPort.BAUDRATE_115200;
 
-public class SerialServiceTest implements Subscriber<ByteBuffer> {
+public class SerialServiceTest implements Flow.Subscriber<ByteBuffer> {
   private SerialServiceTest() {
   }
 
@@ -37,7 +36,7 @@ public class SerialServiceTest implements Subscriber<ByteBuffer> {
   }
 
   @Override
-  public void onSubscribe(Subscription s) {
+  public void onSubscribe(Flow.Subscription s) {
   }
 
   @Override

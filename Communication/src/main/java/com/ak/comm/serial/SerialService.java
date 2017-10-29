@@ -7,6 +7,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.concurrent.Flow;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,13 +21,10 @@ import com.ak.util.Strings;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
-final class SerialService extends AbstractService implements WritableByteChannel, Publisher<ByteBuffer>, Refreshable, Subscription {
+final class SerialService extends AbstractService implements WritableByteChannel, Flow.Publisher<ByteBuffer>, Refreshable, Flow.Subscription {
   @Nonnull
   private final SerialPort serialPort;
   @Nonnegative
@@ -71,7 +69,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
   }
 
   @Override
-  public void subscribe(Subscriber<? super ByteBuffer> s) {
+  public void subscribe(Flow.Subscriber<? super ByteBuffer> s) {
     if (serialPort.getPortName().isEmpty()) {
       Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, "Serial port not found");
     }
@@ -146,7 +144,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
     return String.format("%s@%x{serialPort = %s}", getClass().getSimpleName(), hashCode(), serialPort.getPortName());
   }
 
-  private void logErrorAndComplete(Subscriber<?> s, @Nonnull Exception ex) {
+  private void logErrorAndComplete(Flow.Subscriber<?> s, @Nonnull Exception ex) {
     try {
       Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
       close();

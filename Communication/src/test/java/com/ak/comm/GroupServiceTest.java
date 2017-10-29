@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Flow;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.ToIntegerConverter;
@@ -13,20 +15,17 @@ import com.ak.comm.converter.TwoVariables;
 import com.ak.comm.file.FileDataProvider;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
-import io.reactivex.internal.util.EmptyComponent;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class GroupServiceTest implements Subscriber<int[]> {
+public class GroupServiceTest implements Flow.Subscriber<int[]> {
   private final GroupService<BufferFrame, BufferFrame, TwoVariables> service = new GroupService<>(
       () -> new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
       () -> new ToIntegerConverter<>(TwoVariables.class, 1000));
-  @Nonnull
-  private Subscription subscription = EmptyComponent.INSTANCE;
+  @Nullable
+  private Flow.Subscription subscription;
 
   private GroupServiceTest() {
   }
@@ -62,8 +61,10 @@ public class GroupServiceTest implements Subscriber<int[]> {
   }
 
   @Override
-  public void onSubscribe(Subscription s) {
-    subscription.cancel();
+  public void onSubscribe(Flow.Subscription s) {
+    if (subscription != null) {
+      subscription.cancel();
+    }
     subscription = s;
   }
 

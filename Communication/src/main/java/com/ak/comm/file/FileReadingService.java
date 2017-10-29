@@ -14,6 +14,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Flow;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -27,14 +28,11 @@ import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.logging.LogBuilders;
-import io.reactivex.disposables.Disposable;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
 final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
-    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Disposable, Subscription {
+    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Flow.Subscription {
   private static final int CAPACITY_4K = 1024 * 4;
   private static final Lock LOCK = new ReentrantLock();
   @Nonnull
@@ -51,7 +49,7 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
   }
 
   @Override
-  public void subscribe(Subscriber<? super int[]> s) {
+  public void subscribe(Flow.Subscriber<? super int[]> s) {
     if (Files.isRegularFile(fileToRead, LinkOption.NOFOLLOW_LINKS) && Files.exists(fileToRead, LinkOption.NOFOLLOW_LINKS) &&
         Files.isReadable(fileToRead)) {
       s.onSubscribe(this);
@@ -88,7 +86,7 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
           }
         }
 
-        if (!isDisposed()) {
+        if (!disposed) {
           s.onComplete();
         }
       }
@@ -120,28 +118,13 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
 
   @Override
   public void cancel() {
+    close();
+  }
+
+  @Override
+  public void close() {
     try {
-      close();
-    }
-    catch (Exception e) {
-      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, e.getMessage(), e);
-    }
-  }
-
-  @Override
-  public void dispose() {
-    disposed = true;
-  }
-
-  @Override
-  public boolean isDisposed() {
-    return disposed;
-  }
-
-  @Override
-  public void close() throws IOException {
-    try {
-      dispose();
+      disposed = true;
     }
     finally {
       super.close();
@@ -157,13 +140,13 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
     ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
     boolean readFlag = false;
     seekableByteChannel.position(0);
-    while (seekableByteChannel.read(buffer) > 0 && !isDisposed()) {
+    while (seekableByteChannel.read(buffer) > 0 && !disposed) {
       buffer.flip();
       consumer.accept(buffer);
       buffer.clear();
       readFlag = true;
     }
-    return readFlag && !isDisposed();
+    return readFlag && !disposed;
   }
 
   private static String digestToString(@Nonnull MessageDigest messageDigest) {

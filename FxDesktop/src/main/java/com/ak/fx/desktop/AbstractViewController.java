@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.concurrent.Flow;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -22,22 +23,19 @@ import com.ak.fx.scene.AxisXController;
 import com.ak.fx.scene.AxisYController;
 import com.ak.fx.scene.Chart;
 import com.ak.fx.util.FxUtils;
-import io.reactivex.internal.util.EmptyComponent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
-    implements Initializable, Subscriber<int[]> {
+    implements Initializable, Flow.Subscriber<int[]> {
   @Nonnull
   private final GroupService<RESPONSE, REQUEST, EV> service;
-  @Nonnull
-  private Subscription subscription = EmptyComponent.INSTANCE;
+  @Nullable
+  private Flow.Subscription subscription;
   @Nullable
   @FXML
   private Chart chart;
@@ -104,9 +102,11 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
   }
 
   @Override
-  public final void onSubscribe(Subscription s) {
+  public final void onSubscribe(Flow.Subscription s) {
     changed();
-    subscription.cancel();
+    if (subscription != null) {
+      subscription.cancel();
+    }
     subscription = s;
   }
 
