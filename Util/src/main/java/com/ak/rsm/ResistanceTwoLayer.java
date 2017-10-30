@@ -49,7 +49,7 @@ final class ResistanceTwoLayer implements TrivariateFunction {
 
   static double getK12(@Nonnegative double rho1SI, @Nonnegative double rho2SI) {
     if (Double.isInfinite(rho2SI)) {
-      return -1.0;
+      return 1.0;
     }
     else {
       return (rho2SI - rho1SI) / (rho2SI + rho1SI);
