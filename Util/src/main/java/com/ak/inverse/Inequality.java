@@ -23,7 +23,7 @@ public final class Inequality implements DoubleBinaryOperator, DoubleSupplier {
     return new Inequality((means, predicted) -> (means - predicted) / predicted);
   }
 
-  static Inequality absolute() {
+  public static Inequality absolute() {
     return new Inequality((means, predicted) -> means - predicted);
   }
 
