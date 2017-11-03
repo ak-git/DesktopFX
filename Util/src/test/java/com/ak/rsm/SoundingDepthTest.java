@@ -100,11 +100,15 @@ public class SoundingDepthTest {
   }
 
   private static PointValuePair solve(DoubleUnaryOperator inequality, GoalType goalType) {
+    return solve(inequality, goalType, 0.0);
+  }
+
+  static PointValuePair solve(DoubleUnaryOperator inequality, GoalType goalType, double initial) {
     SimplexOptimizer optimizer = new SimplexOptimizer(-1, 1.0e-6);
     return optimizer.optimize(new MaxEval(100), new ObjectiveFunction(
             x -> inequality.applyAsDouble(x[0])), goalType,
         new NelderMeadSimplex(1, 0.01),
-        new InitialGuess(new double[] {0.0})
+        new InitialGuess(new double[] {initial})
     );
   }
 

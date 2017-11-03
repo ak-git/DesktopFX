@@ -51,6 +51,11 @@ public class LineFileBuilder<IN> {
     return this;
   }
 
+  public LineFileBuilder<IN> xLog10Range(double startInclusive, double endInclusive) {
+    xRange.rangeLog10(startInclusive, endInclusive);
+    return this;
+  }
+
   public LineFileBuilder<IN> yStream(Supplier<DoubleStream> doubleStreamSupplier) {
     yRange.doubleStreamSupplier = doubleStreamSupplier;
     return this;
@@ -109,7 +114,7 @@ public class LineFileBuilder<IN> {
       double to = Math.max(start, end);
 
       doubleStreamSupplier = () -> DoubleStream.concat(DoubleStream.iterate(from, operand -> operand * 10.0).takeWhile(value -> value < to).
-          flatMap(scale -> DoubleStream.iterate(scale, operand -> operand + scale / 5).limit(9 * 5)), DoubleStream.of(to));
+          flatMap(scale -> DoubleStream.iterate(scale, operand -> operand + scale / 5).takeWhile(value -> value < to).limit(9 * 5)), DoubleStream.of(to));
       toFile();
     }
 

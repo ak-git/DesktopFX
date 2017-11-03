@@ -56,12 +56,12 @@ public class LineFileBuilderTest {
   @Test
   public static void testGenerateLogRange() throws IOException {
     LineFileBuilder.of("%.0f %.1f %.0f").
-        xRange(1.0, 3.0, 1.0).
+        xLog10Range(10.0, 20.0).
         yLog10Range(10.0, 1.0).generate("z.txt", (x, y) -> x + y * 10);
 
     Path x = Paths.get("x.txt");
     Assert.assertEquals(Files.readAllLines(x, Charset.forName("windows-1251")).stream().collect(Collectors.joining()),
-        "1\t2\t3");
+        "10\t12\t14\t16\t18\t20");
     Assert.assertTrue(Files.deleteIfExists(x));
 
     Path y = Paths.get("y.txt");
@@ -72,11 +72,25 @@ public class LineFileBuilderTest {
 
     Path z = Paths.get("z.txt");
     Assert.assertEquals(Files.readAllLines(z, Charset.forName("windows-1251")).stream().collect(Collectors.joining(Strings.TAB)),
-        "11\t12\t13\t13\t14\t15\t15\t16\t17\t17\t18\t19\t19\t20\t21\t21\t22\t23\t23\t24\t25\t25\t26\t27\t27\t28\t29\t29\t" +
-            "30\t31\t31\t32\t33\t33\t34\t35\t35\t36\t37\t37\t38\t39\t39\t40\t41\t41\t42\t43\t43\t44\t45\t45\t46\t47\t47\t48\t49\t49\t" +
-            "50\t51\t51\t52\t53\t53\t54\t55\t55\t56\t57\t57\t58\t59\t59\t60\t61\t61\t62\t63\t63\t64\t65\t65\t66\t67\t67\t68\t69\t69\t" +
-            "70\t71\t71\t72\t73\t73\t74\t75\t75\t76\t77\t77\t78\t79\t79\t80\t81\t81\t82\t83\t83\t84\t85\t85\t86\t87\t87\t88\t89\t89\t" +
-            "90\t91\t91\t92\t93\t93\t94\t95\t95\t96\t97\t97\t98\t99\t99\t100\t101\t101\t102\t103");
+        "20\t22\t24\t26\t28\t30\t22\t24\t26\t28\t30\t32\t24\t26\t28\t" +
+            "30\t32\t34\t26\t28\t30\t32\t34\t36\t28\t30\t32\t34\t36\t38\t" +
+            "30\t32\t34\t36\t38\t40\t32\t34\t36\t38\t40\t42\t34\t36\t38\t" +
+            "40\t42\t44\t36\t38\t40\t42\t44\t46\t38\t40\t42\t44\t46\t48\t" +
+            "40\t42\t44\t46\t48\t50\t42\t44\t46\t48\t50\t52\t44\t46\t48\t" +
+            "50\t52\t54\t46\t48\t50\t52\t54\t56\t48\t50\t52\t54\t56\t58\t" +
+            "50\t52\t54\t56\t58\t60\t52\t54\t56\t58\t60\t62\t54\t56\t58\t" +
+            "60\t62\t64\t56\t58\t60\t62\t64\t66\t58\t60\t62\t64\t66\t68\t" +
+            "60\t62\t64\t66\t68\t70\t62\t64\t66\t68\t70\t72\t64\t66\t68\t" +
+            "70\t72\t74\t66\t68\t70\t72\t74\t76\t68\t70\t72\t74\t76\t78\t" +
+            "70\t72\t74\t76\t78\t80\t72\t74\t76\t78\t80\t82\t74\t76\t78\t" +
+            "80\t82\t84\t76\t78\t80\t82\t84\t86\t78\t80\t82\t84\t86\t88\t" +
+            "80\t82\t84\t86\t88\t90\t82\t84\t86\t88\t90\t92\t84\t86\t88\t" +
+            "90\t92\t94\t86\t88\t90\t92\t94\t96\t88\t90\t92\t94\t96\t98\t" +
+            "90\t92\t94\t96\t98\t100\t92\t94\t96\t98\t100\t102\t94\t96\t98\t" +
+            "100\t102\t104\t96\t98\t100\t102\t104\t106\t98\t100\t102\t104\t106\t108\t" +
+            "100\t102\t104\t106\t108\t110\t102\t104\t106\t108\t110\t112\t104\t106\t108\t" +
+            "110\t112\t114\t106\t108\t110\t112\t114\t116\t108\t110\t112\t114\t116\t118\t110" +
+            "\t112\t114\t116\t118\t120");
     Assert.assertTrue(Files.deleteIfExists(z));
   }
 
