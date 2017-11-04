@@ -3,7 +3,6 @@ package com.ak.comm;
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.ByteBuffer;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Flow;
@@ -31,7 +30,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   @Nonnull
   private final AutoFileReadingService<RESPONSE, REQUEST, EV> fileReadingService;
   @Nonnull
-  private final Collection<EV> variables;
+  private final List<EV> variables;
   @Nonnull
   private final double frequency;
   @Nonnull
@@ -78,7 +77,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     }
   }
 
-  public Collection<EV> getVariables() {
+  public List<EV> getVariables() {
     return variables;
   }
 

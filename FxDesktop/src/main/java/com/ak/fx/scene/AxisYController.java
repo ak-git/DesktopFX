@@ -1,11 +1,6 @@
 package com.ak.fx.scene;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.IntSummaryStatistics;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -14,28 +9,14 @@ import javax.annotation.Nonnull;
 import com.ak.comm.converter.Variable;
 
 public final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
-  private final List<EV> variables = new ArrayList<>();
-  private final List<ScaleYInfo<EV>> scaleInfos = new ArrayList<>();
   @Nonnegative
   private int mmHeight = 1;
-  @Nonnegative
-  private int index = -1;
-
-  public void setVariables(@Nonnull Collection<EV> variables) {
-    this.variables.addAll(variables);
-    scaleInfos.addAll(variables.stream().map(ev -> new ScaleYInfo.Builder<>(ev,
-        scaleYInfo -> {
-        }).build()).collect(Collectors.toList())
-    );
-  }
 
   public void setLineDiagramHeight(@Nonnegative double lineDiagramHeight) {
     mmHeight = GridCell.mm(lineDiagramHeight);
   }
 
-  public void scaleOrdered(@Nonnull int[] values, @Nonnull Consumer<ScaleYInfo<EV>> scaledConsumer) {
-    index = (++index) % variables.size();
-
+  public ScaleYInfo<EV> scale(@Nonnull EV variable, @Nonnull int[] values) {
     IntSummaryStatistics intSummaryStatistics = IntStream.of(values).summaryStatistics();
     if (intSummaryStatistics.getMax() == intSummaryStatistics.getMin()) {
       intSummaryStatistics = IntStream.of(intSummaryStatistics.getMax(), 0).summaryStatistics();
@@ -44,16 +25,10 @@ public final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
     int meanScaleFactor10 = scaleFactor10(mmHeight, intSummaryStatistics.getMax() - intSummaryStatistics.getMin()) * 10;
     int mean = (int) Math.rint((intSummaryStatistics.getMax() + intSummaryStatistics.getMin()) / 2.0 / meanScaleFactor10) * meanScaleFactor10;
     int signalRange = Math.max(Math.abs(intSummaryStatistics.getMax() - mean), Math.abs(intSummaryStatistics.getMin() - mean)) * 2;
-
-    scaleInfos.set(index, new ScaleYInfo.Builder<>(variables.get(index), scaledConsumer).
-        mean(mean).
+    return new ScaleYInfo.Builder<>(variable).mean(mean).
         scaleFactor(optimizeScaleY(mmHeight, signalRange)).
         scaleFactor10(scaleFactor10(mmHeight, signalRange)).
-        build());
-
-    if (index == variables.size() - 1) {
-      scaleInfos.forEach(ScaleYInfo::run);
-    }
+        build();
   }
 
   private static int scaleFactor10(@Nonnegative int range, @Nonnegative int signalRange) {
