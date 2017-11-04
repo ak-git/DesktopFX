@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.Flow;
+import java.util.function.IntConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -39,7 +40,23 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
   @Nullable
   @FXML
   private Chart chart;
-  private final AxisXController axisXController = new AxisXController(this::changed);
+  private final AxisXController axisXController = new AxisXController(new IntConsumer() {
+    private boolean posDirection;
+
+    @Override
+    public void accept(int value) {
+      if (value == 0) {
+        changed();
+      }
+      else if (posDirection != (value > 0)) {
+        posDirection = !posDirection;
+        changed();
+      }
+      else {
+        changed();
+      }
+    }
+  });
   private final AxisYController<EV> axisYController = new AxisYController<>();
 
   public AbstractViewController(@Nonnull GroupService<RESPONSE, REQUEST, EV> service) {
@@ -126,10 +143,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
 
   private void changed() {
     Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
-    setAll(service.read(axisXController.getStart(), axisXController.getEnd()));
-  }
-
-  private void setAll(@Nonnull List<? extends int[]> chartData) {
+    List<? extends int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
     FxUtils.invokeInFx(() -> {
       IntStream.range(0, chartData.size()).forEachOrdered(i -> {
         int[] values = Filters.filter(FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).build(), chartData.get(i));

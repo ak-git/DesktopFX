@@ -1,5 +1,6 @@
 package com.ak.fx.scene;
 
+import java.util.function.IntConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,9 +56,9 @@ public final class AxisXController {
   @Nonnegative
   private int decimateFactor = 1;
 
-  public AxisXController(@Nonnull Runnable onUpdate) {
-    startProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
-    lengthProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
+  public AxisXController(@Nonnull IntConsumer onUpdate) {
+    startProperty.addListener((observable, oldValue, newValue) -> onUpdate.accept(newValue.intValue() - oldValue.intValue()));
+    lengthProperty.addListener((observable, oldValue, newValue) -> onUpdate.accept(0));
   }
 
   @Override
@@ -80,7 +81,7 @@ public final class AxisXController {
   }
 
   public void scroll(double deltaX) {
-    setStart((int) Math.rint(startProperty.get() - deltaX * decimateFactor));
+    setStart(toInt(startProperty.get() - deltaX * decimateFactor));
   }
 
   public void zoom(double zoomFactor) {
@@ -103,7 +104,7 @@ public final class AxisXController {
 
   public void preventCenter(@Nonnegative double width) {
     int prevChartCenter = startProperty.get() + lengthProperty.get() / 2;
-    lengthProperty.setValue(width * decimateFactor / stepProperty.get());
+    lengthProperty.set(toInt(width / stepProperty.get()) * decimateFactor);
     setStart(prevChartCenter - lengthProperty.get() / 2);
   }
 
@@ -121,7 +122,7 @@ public final class AxisXController {
 
   private double getStep(@Nonnegative double frequency) {
     double pointsInSec = SMALL.getStep() * zoomProperty.get().mmPerSec / 10.0;
-    decimateFactor = Math.max(1, (int) Math.rint(frequency / pointsInSec));
+    decimateFactor = Math.max(1, toInt(frequency / pointsInSec));
     double xStep = decimateFactor * pointsInSec / frequency;
     Logger.getLogger(getClass().getName()).log(Level.CONFIG,
         String.format("Frequency = %.0f Hz; x-zoom = %d mm/s; pixels per sec = %.1f; decimate factor = %d; x-step = %.1f px",
@@ -130,10 +131,14 @@ public final class AxisXController {
   }
 
   private void setStart(int start) {
-    startProperty.setValue(Math.max(0, start));
+    startProperty.setValue(Math.max(0, toInt(start / (decimateFactor * 1.0)) * decimateFactor));
   }
 
   private void setStep(@Nonnegative double frequency) {
     stepProperty.set(getStep(frequency));
+  }
+
+  private static int toInt(double d) {
+    return (int) Math.rint(d);
   }
 }

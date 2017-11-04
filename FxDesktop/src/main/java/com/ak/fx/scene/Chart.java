@@ -45,7 +45,8 @@ public final class Chart extends AbstractRegion {
     xAxisUnit.relocate(x + BIG.minCoordinate(width) + BIG.maxValue(width) / 2 + POINTS.getStep(),
         y + SMALL.getStep() / 2 - xAxisUnit.getFont().getSize());
 
-    double dHeight = SMALL.maxValue((height + POINTS.getStep()) * 2 / (1 + lineDiagrams.size()));
+    double n = lineDiagrams.size() == 1 ? 2 : lineDiagrams.size() + 2;
+    double dHeight = SMALL.maxValue((height + POINTS.getStep()) * 2 / n);
     if (dHeight >= SMALL.getStep() * 2) {
       diagramHeight.setValue(dHeight);
       lineDiagrams.forEach(lineDiagram -> lineDiagram.resizeRelocate(x, y, width, dHeight));

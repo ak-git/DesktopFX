@@ -29,7 +29,7 @@ public final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
     );
   }
 
-  public void setLineDiagramHeight(double lineDiagramHeight) {
+  public void setLineDiagramHeight(@Nonnegative double lineDiagramHeight) {
     mmHeight = GridCell.mm(lineDiagramHeight);
   }
 
