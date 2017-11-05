@@ -12,6 +12,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.swing.Timer;
 
 import com.ak.util.UIConstants;
+import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -30,7 +31,9 @@ public enum ScreenResolutionMonitor {
   private final IntegerProperty dpi = new SimpleIntegerProperty(Toolkit.getDefaultToolkit().getScreenResolution());
 
   ScreenResolutionMonitor() {
-    dpi.setValue(Screen.getPrimary().getDpi());
+    if (Platform.isFxApplicationThread()) {
+      dpi.setValue(Screen.getPrimary().getDpi());
+    }
     log();
     Timer timer = new Timer((int) UIConstants.UI_DELAY.toMillis(), e -> {
       if (stage.get() != null) {

@@ -57,6 +57,7 @@ public class AutoFileReadingServiceTest implements Flow.Subscriber<int[]> {
 
   @Override
   public void onSubscribe(Flow.Subscription s) {
+    s.request(Long.MAX_VALUE);
   }
 
   @Override
