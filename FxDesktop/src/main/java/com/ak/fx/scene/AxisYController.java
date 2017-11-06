@@ -1,6 +1,8 @@
 package com.ak.fx.scene;
 
+import java.util.HashMap;
 import java.util.IntSummaryStatistics;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -9,6 +11,7 @@ import javax.annotation.Nonnull;
 import com.ak.comm.converter.Variable;
 
 public final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
+  private final Map<EV, ScaleYInfo<EV>> scaleMap = new HashMap<>();
   @Nonnegative
   private int mmHeight = 1;
 
@@ -25,10 +28,16 @@ public final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
     int meanScaleFactor10 = scaleFactor10(mmHeight, intSummaryStatistics.getMax() - intSummaryStatistics.getMin()) * 10;
     int mean = (int) Math.rint((intSummaryStatistics.getMax() + intSummaryStatistics.getMin()) / 2.0 / meanScaleFactor10) * meanScaleFactor10;
     int signalRange = Math.max(Math.abs(intSummaryStatistics.getMax() - mean), Math.abs(intSummaryStatistics.getMin() - mean)) * 2;
-    return new ScaleYInfo.Builder<>(variable).mean(mean).
+    ScaleYInfo<EV> info = new ScaleYInfo.Builder<>(variable).mean(mean).
         scaleFactor(optimizeScaleY(mmHeight, signalRange)).
         scaleFactor10(scaleFactor10(mmHeight, signalRange)).
         build();
+    scaleMap.put(variable, info);
+    return info;
+  }
+
+  public ScaleYInfo<EV> getScale(@Nonnull EV variable) {
+    return scaleMap.get(variable);
   }
 
   private static int scaleFactor10(@Nonnegative int range, @Nonnegative int signalRange) {

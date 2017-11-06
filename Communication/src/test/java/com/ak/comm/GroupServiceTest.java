@@ -51,7 +51,7 @@ public class GroupServiceTest implements Flow.Subscriber<int[]> {
         break;
       }
     }
-    service.read(1, 1).forEach(ints -> Assert.assertEquals(ints.length, 0));
+    service.read(-1, 0).forEach(ints -> Assert.assertEquals(ints.length, 0));
     service.refresh();
   }
 

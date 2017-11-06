@@ -80,10 +80,35 @@ final class LineDiagram extends AbstractRegion {
       updateText(i, (Text) yLabels.getChildren().get(i));
     }
 
-    polyline.getPoints().clear();
-    for (int i = 0; i < y.length; i++) {
-      polyline.getPoints().add(xStep * i);
-      polyline.getPoints().add(-y[i]);
+    if (polyline.getPoints().size() / 2 == y.length) {
+      for (int i = 0; i < y.length; i++) {
+        polyline.getPoints().set(i * 2 + 1, -y[i]);
+      }
+    }
+    else {
+      polyline.getPoints().clear();
+      for (int i = 0; i < y.length; i++) {
+        polyline.getPoints().add(xStep * i);
+        polyline.getPoints().add(-y[i]);
+      }
+    }
+  }
+
+  void add(@Nonnull double[] y) {
+    for (int i = y.length * 2 + 1; i < polyline.getPoints().size(); i += 2) {
+      polyline.getPoints().set(i - y.length * 2, polyline.getPoints().get(i));
+    }
+    for (int i = polyline.getPoints().size() - (y.length * 2 - 1), n = 0; i < polyline.getPoints().size(); i += 2, n++) {
+      polyline.getPoints().set(i, -y[n]);
+    }
+  }
+
+  void prev(@Nonnull double[] y) {
+    for (int i = polyline.getPoints().size() - (y.length * 2 + 1); i > 0; i -= 2) {
+      polyline.getPoints().set(i + y.length * 2, polyline.getPoints().get(i));
+    }
+    for (int i = 1, n = 0; i < y.length * 2; i += 2, n++) {
+      polyline.getPoints().set(i, -y[n]);
     }
   }
 

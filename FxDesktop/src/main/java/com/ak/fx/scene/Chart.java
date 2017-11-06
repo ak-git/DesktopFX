@@ -111,4 +111,12 @@ public final class Chart extends AbstractRegion {
   public void setAll(int chartIndex, @Nonnull double[] values, @Nonnull DoubleFunction<String> positionToStringConverter) {
     lineDiagrams.get(chartIndex).setAll(values, positionToStringConverter);
   }
+
+  public void add(int chartIndex, @Nonnull double[] values) {
+    lineDiagrams.get(chartIndex).add(values);
+  }
+
+  public void prev(int chartIndex, @Nonnull double[] values) {
+    lineDiagrams.get(chartIndex).prev(values);
+  }
 }

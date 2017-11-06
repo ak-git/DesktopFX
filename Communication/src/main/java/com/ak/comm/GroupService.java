@@ -92,8 +92,8 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   }
 
   public List<int[]> read(@Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
-    int from = Math.min(fromInclusive, toExclusive);
-    int to = Math.max(fromInclusive, toExclusive);
+    int from = Math.max(0, Math.min(fromInclusive, toExclusive));
+    int to = Math.max(0, Math.max(fromInclusive, toExclusive));
 
     int frameSize = variables.size() * Integer.BYTES;
     ByteBuffer buffer = ByteBuffer.allocate(frameSize * (to - from));

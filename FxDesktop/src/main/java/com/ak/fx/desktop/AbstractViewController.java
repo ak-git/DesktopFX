@@ -12,8 +12,10 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.swing.Timer;
 
 import com.ak.comm.GroupService;
 import com.ak.comm.converter.Variable;
@@ -36,29 +38,53 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
     implements Initializable, Flow.Subscriber<int[]> {
   @Nonnull
   private final GroupService<RESPONSE, REQUEST, EV> service;
+  private final AxisXController axisXController = new AxisXController(new IntConsumer() {
+    private final Timer timer = new Timer(100, e -> changed());
+    private boolean posDirection;
+
+    @Override
+    public void accept(int value) {
+      if (posDirection == (value > 0)) {
+        timer.stop();
+        timer.setRepeats(false);
+        timer.start();
+        Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
+        if (value > 0) {
+          List<? extends int[]> chartData = service.read(axisXController.getEnd() - value, axisXController.getEnd());
+          for (int i = 0; i < chartData.size(); i++) {
+            int[] values = Filters.filter(FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).build(), chartData.get(i));
+            Objects.requireNonNull(chart).add(i, IntStream.of(values).parallel().mapToDouble(axisYController.getScale(service.getVariables().get(i))).toArray());
+          }
+          check(value, chartData.get(0).length);
+        }
+        else {
+          value = Math.abs(value);
+          List<? extends int[]> chartData = service.read(axisXController.getStart(), axisXController.getStart() + value);
+          for (int i = 0; i < chartData.size(); i++) {
+            int[] values = Filters.filter(FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).build(), chartData.get(i));
+            Objects.requireNonNull(chart).prev(i, IntStream.of(values).parallel().mapToDouble(axisYController.getScale(service.getVariables().get(i))).toArray());
+          }
+          check(value, chartData.get(0).length);
+        }
+      }
+      else {
+        posDirection = !posDirection;
+        changed();
+      }
+    }
+
+    private void check(@Nonnegative int needSize, @Nonnegative int realSize) {
+      if (realSize < needSize) {
+        axisXController.checkLength(axisXController.getEnd() - axisXController.getStart() - (needSize - realSize));
+      }
+    }
+  });
+  private final AxisYController<EV> axisYController = new AxisYController<>();
   @Nullable
   private Flow.Subscription subscription;
   @Nullable
   @FXML
   private Chart chart;
-  private final AxisXController axisXController = new AxisXController(new IntConsumer() {
-    private boolean posDirection;
-
-    @Override
-    public void accept(int value) {
-      if (value == 0) {
-        changed();
-      }
-      else if (posDirection != (value > 0)) {
-        posDirection = !posDirection;
-        changed();
-      }
-      else {
-        changed();
-      }
-    }
-  });
-  private final AxisYController<EV> axisYController = new AxisYController<>();
 
   public AbstractViewController(@Nonnull GroupService<RESPONSE, REQUEST, EV> service) {
     this.service = service;
