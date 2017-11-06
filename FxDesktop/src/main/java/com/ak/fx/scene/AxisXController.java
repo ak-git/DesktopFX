@@ -13,6 +13,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -64,7 +65,7 @@ public final class AxisXController {
   @Override
   public String toString() {
     return String.format("axis-x size = %d [%d - %d]; x-zoom = %d mm/s; decimate factor = %d",
-        lengthProperty.get(), getStart(), getEnd(), zoomProperty.get().mmPerSec, decimateFactor);
+        getLength(), getStart(), getEnd(), zoomProperty.get().mmPerSec, decimateFactor);
   }
 
   public void setFrequency(@Nonnegative double frequency) {
@@ -80,8 +81,12 @@ public final class AxisXController {
     return stepProperty;
   }
 
+  public ReadOnlyIntegerProperty lengthProperty() {
+    return lengthProperty;
+  }
+
   public void scroll(double deltaX) {
-    setStart(toInt(startProperty.get() - deltaX * decimateFactor));
+    setStart(toInt(getStart() - deltaX * decimateFactor));
   }
 
   public void zoom(double zoomFactor) {
@@ -98,22 +103,26 @@ public final class AxisXController {
       setStart(0);
     }
     else {
-      setStart(startProperty.get() + realDataLen - lengthProperty.get());
+      setStart(getStart() + realDataLen - getLength());
     }
   }
 
   public void preventCenter(@Nonnegative double width) {
-    int prevChartCenter = startProperty.get() + lengthProperty.get() / 2;
+    int prevChartCenter = getStart() + getLength() / 2;
     lengthProperty.set(toInt(width / stepProperty.get()) * decimateFactor);
-    setStart(prevChartCenter - lengthProperty.get() / 2);
+    setStart(prevChartCenter - getLength() / 2);
   }
 
   public int getStart() {
     return startProperty.get();
   }
 
+  public int getLength() {
+    return lengthProperty.get();
+  }
+
   public int getEnd() {
-    return startProperty.get() + lengthProperty.get();
+    return getStart() + getLength();
   }
 
   public int getDecimateFactor() {

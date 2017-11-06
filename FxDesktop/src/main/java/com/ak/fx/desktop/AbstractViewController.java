@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.Flow;
+import java.util.concurrent.TimeUnit;
 import java.util.function.IntConsumer;
 import java.util.function.ObjIntConsumer;
 import java.util.logging.Level;
@@ -16,11 +17,11 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.swing.Timer;
 
 import com.ak.comm.GroupService;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
+import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.digitalfilter.Filters;
 import com.ak.fx.scene.AxisXController;
@@ -28,6 +29,7 @@ import com.ak.fx.scene.AxisYController;
 import com.ak.fx.scene.Chart;
 import com.ak.fx.scene.ScaleYInfo;
 import com.ak.fx.util.FxUtils;
+import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.Dragboard;
@@ -40,21 +42,43 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
   @Nonnull
   private final GroupService<RESPONSE, REQUEST, EV> service;
   private final AxisXController axisXController = new AxisXController(new IntConsumer() {
-    private final Timer timer = new Timer(100, e -> changed());
+    private final AnimationTimer timer = new AnimationTimer() {
+      private long time = -1;
+
+      @Override
+      public void start() {
+        super.start();
+        time = -1;
+      }
+
+      @Override
+      public void handle(long now) {
+        if (time == -1) {
+          time = now;
+        }
+        else if (now - time > TimeUnit.MILLISECONDS.toNanos(50)) {
+          changed();
+          stop();
+        }
+      }
+    };
     private boolean posDirection;
 
     @Override
     public void accept(int shiftValue) {
       if (posDirection == (shiftValue > 0)) {
-        timer.stop();
-        timer.setRepeats(false);
-        timer.start();
-        Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
-        if (shiftValue > 0) {
-          display(axisXController.getEnd(), shiftValue, (doubles, i) -> Objects.requireNonNull(chart).add(i, doubles));
+        if (Math.abs(shiftValue) > axisXController.getLength() / 2) {
+          changed();
         }
         else {
-          display(axisXController.getStart(), shiftValue, (doubles, i) -> Objects.requireNonNull(chart).prev(i, doubles));
+          Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
+          if (shiftValue > 0) {
+            display(axisXController.getEnd(), shiftValue, (doubles, i) -> Objects.requireNonNull(chart).shiftRight(i, doubles));
+          }
+          else {
+            display(axisXController.getStart(), shiftValue, (doubles, i) -> Objects.requireNonNull(chart).shiftLeft(i, doubles));
+          }
+          timer.start();
         }
       }
       else {
@@ -66,7 +90,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
     private void display(@Nonnegative int axisEnd, int shiftValue, ObjIntConsumer<double[]> consumer) {
       List<? extends int[]> chartData = service.read(axisEnd - shiftValue, axisEnd);
       for (int i = 0; i < chartData.size(); i++) {
-        int[] values = Filters.filter(FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).build(), chartData.get(i));
+        int[] values = Filters.filter(newDecimateFilter(), chartData.get(i));
         consumer.accept(IntStream.of(values).parallel().mapToDouble(axisYController.getScale(service.getVariables().get(i))).toArray(), i);
       }
       check(shiftValue, chartData.get(0).length);
@@ -74,7 +98,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
 
     private void check(@Nonnegative int needSize, int shiftValue) {
       if (Math.abs(shiftValue) < needSize) {
-        axisXController.checkLength(axisXController.getEnd() - axisXController.getStart() - (needSize - shiftValue));
+        axisXController.checkLength(axisXController.getLength() - (needSize - shiftValue));
       }
     }
   });
@@ -137,26 +161,30 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
       });
       chart.diagramWidthProperty().addListener((observable, oldValue, newValue) -> axisXController.preventCenter(newValue.doubleValue()));
       axisXController.stepProperty().addListener((observable, oldValue, newValue) -> chart.setXStep(newValue.doubleValue()));
+      axisXController.lengthProperty().addListener((observable, oldValue, newValue) ->
+          chart.setMaxSamples(newValue.intValue() / axisXController.getDecimateFactor())
+      );
       axisXController.setFrequency(service.getFrequency());
     }
     service.subscribe(this);
   }
 
   @Override
-  public final void onSubscribe(Flow.Subscription s) {
-    changed();
+  public final void onSubscribe(@Nonnull Flow.Subscription s) {
     if (subscription != null) {
       subscription.cancel();
     }
     subscription = s;
+    changed();
+    subscription.request(axisXController.getLength());
   }
 
   @Override
-  public final void onNext(int[] ints) {
+  public final void onNext(@Nonnull int[] ints) {
   }
 
   @Override
-  public final void onError(Throwable t) {
+  public final void onError(@Nonnull Throwable t) {
     Logger.getLogger(getClass().getName()).log(Level.WARNING, t.getMessage(), t);
   }
 
@@ -170,11 +198,15 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
     List<? extends int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
     FxUtils.invokeInFx(() -> {
       IntStream.range(0, chartData.size()).forEachOrdered(i -> {
-        int[] values = Filters.filter(FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).build(), chartData.get(i));
+        int[] values = Filters.filter(newDecimateFilter(), chartData.get(i));
         ScaleYInfo<EV> scaleInfo = axisYController.scale(service.getVariables().get(i), values);
         Objects.requireNonNull(chart).setAll(i, IntStream.of(values).parallel().mapToDouble(scaleInfo).toArray(), scaleInfo);
       });
       axisXController.checkLength(chartData.get(0).length);
     });
+  }
+
+  private DigitalFilter newDecimateFilter() {
+    return FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).build();
   }
 }

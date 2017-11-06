@@ -11,7 +11,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Flow;
@@ -21,6 +20,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.converter.Converter;
@@ -37,6 +37,8 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
   private static final Lock LOCK = new ReentrantLock();
   @Nonnull
   private final Path fileToRead;
+  @Nonnegative
+  private long requestSamples = Long.MAX_VALUE;
   @Nonnull
   private volatile Callable<AsynchronousFileChannel> convertedFileChannelProvider = () -> null;
   private volatile boolean disposed;
@@ -74,9 +76,20 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(tempConverterFile,
                 StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
 
-            boolean processed = isChannelProcessed(seekableByteChannel, byteBuffer -> {
-              logBytes(byteBuffer);
-              process(byteBuffer).forEach(s::onNext);
+            boolean processed = isChannelProcessed(seekableByteChannel, new Consumer<>() {
+              @Nonnegative
+              private long samplesCounter;
+
+              @Override
+              public void accept(@Nonnull ByteBuffer byteBuffer) {
+                logBytes(byteBuffer);
+                process(byteBuffer).forEach(ints -> {
+                  if (samplesCounter < requestSamples) {
+                    s.onNext(ints);
+                  }
+                  samplesCounter++;
+                });
+              }
             });
 
             if (processed && Files.exists(tempConverterFile)) {
@@ -93,7 +106,7 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
       catch (ClosedByInterruptException e) {
         Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
       }
-      catch (IOException | NoSuchAlgorithmException e) {
+      catch (Exception e) {
         Logger.getLogger(getClass().getName()).log(Level.WARNING, fileToRead.toString(), e);
         s.onError(e);
       }
@@ -113,7 +126,8 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
   }
 
   @Override
-  public void request(long n) {
+  public void request(@Nonnegative long requestSamples) {
+    this.requestSamples = requestSamples;
   }
 
   @Override

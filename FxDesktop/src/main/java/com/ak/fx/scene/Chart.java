@@ -96,6 +96,10 @@ public final class Chart extends AbstractRegion {
     lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(xStep));
   }
 
+  public void setMaxSamples(@Nonnegative int maxSamples) {
+    lineDiagrams.forEach(lineDiagram -> lineDiagram.setMaxSamples(maxSamples));
+  }
+
   public StringProperty titleProperty() {
     return xAxisUnit.textProperty();
   }
@@ -108,15 +112,21 @@ public final class Chart extends AbstractRegion {
     return diagramHeight;
   }
 
-  public void setAll(int chartIndex, @Nonnull double[] values, @Nonnull DoubleFunction<String> positionToStringConverter) {
+  public void setAll(@Nonnegative int chartIndex, @Nonnull double[] values, @Nonnull DoubleFunction<String> positionToStringConverter) {
     lineDiagrams.get(chartIndex).setAll(values, positionToStringConverter);
   }
 
-  public void add(int chartIndex, @Nonnull double[] values) {
-    lineDiagrams.get(chartIndex).add(values);
+  public void shiftRight(@Nonnegative int chartIndex, @Nonnull double[] values) {
+    lineDiagrams.get(chartIndex).shiftRight(values);
   }
 
-  public void prev(int chartIndex, @Nonnull double[] values) {
-    lineDiagrams.get(chartIndex).prev(values);
+  public void shiftLeft(@Nonnegative int chartIndex, @Nonnull double[] values) {
+    lineDiagrams.get(chartIndex).shiftLeft(values);
+  }
+
+  public void add(@Nonnull double[] values) {
+    for (int i = 0; i < values.length; i++) {
+      lineDiagrams.get(i).add(values[i]);
+    }
   }
 }
