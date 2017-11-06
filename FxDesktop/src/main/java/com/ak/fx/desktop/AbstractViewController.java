@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.Flow;
 import java.util.function.IntConsumer;
+import java.util.function.ObjIntConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -43,28 +44,17 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
     private boolean posDirection;
 
     @Override
-    public void accept(int value) {
-      if (posDirection == (value > 0)) {
+    public void accept(int shiftValue) {
+      if (posDirection == (shiftValue > 0)) {
         timer.stop();
         timer.setRepeats(false);
         timer.start();
         Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
-        if (value > 0) {
-          List<? extends int[]> chartData = service.read(axisXController.getEnd() - value, axisXController.getEnd());
-          for (int i = 0; i < chartData.size(); i++) {
-            int[] values = Filters.filter(FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).build(), chartData.get(i));
-            Objects.requireNonNull(chart).add(i, IntStream.of(values).parallel().mapToDouble(axisYController.getScale(service.getVariables().get(i))).toArray());
-          }
-          check(value, chartData.get(0).length);
+        if (shiftValue > 0) {
+          display(axisXController.getEnd(), shiftValue, (doubles, i) -> Objects.requireNonNull(chart).add(i, doubles));
         }
         else {
-          value = Math.abs(value);
-          List<? extends int[]> chartData = service.read(axisXController.getStart(), axisXController.getStart() + value);
-          for (int i = 0; i < chartData.size(); i++) {
-            int[] values = Filters.filter(FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).build(), chartData.get(i));
-            Objects.requireNonNull(chart).prev(i, IntStream.of(values).parallel().mapToDouble(axisYController.getScale(service.getVariables().get(i))).toArray());
-          }
-          check(value, chartData.get(0).length);
+          display(axisXController.getStart(), shiftValue, (doubles, i) -> Objects.requireNonNull(chart).prev(i, doubles));
         }
       }
       else {
@@ -73,9 +63,18 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
       }
     }
 
-    private void check(@Nonnegative int needSize, @Nonnegative int realSize) {
-      if (realSize < needSize) {
-        axisXController.checkLength(axisXController.getEnd() - axisXController.getStart() - (needSize - realSize));
+    private void display(@Nonnegative int axisEnd, int shiftValue, ObjIntConsumer<double[]> consumer) {
+      List<? extends int[]> chartData = service.read(axisEnd - shiftValue, axisEnd);
+      for (int i = 0; i < chartData.size(); i++) {
+        int[] values = Filters.filter(FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).build(), chartData.get(i));
+        consumer.accept(IntStream.of(values).parallel().mapToDouble(axisYController.getScale(service.getVariables().get(i))).toArray(), i);
+      }
+      check(shiftValue, chartData.get(0).length);
+    }
+
+    private void check(@Nonnegative int needSize, int shiftValue) {
+      if (Math.abs(shiftValue) < needSize) {
+        axisXController.checkLength(axisXController.getEnd() - axisXController.getStart() - (needSize - shiftValue));
       }
     }
   });
