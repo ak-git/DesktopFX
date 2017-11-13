@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
@@ -169,6 +170,17 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   @Override
   public DigitalFilter build() {
     return Optional.ofNullable(filter).orElse(new NoFilter());
+  }
+
+  public int[] filter(@Nonnull int[] ints) {
+    DigitalFilter filter = build();
+    int[] result = new int[(int) Math.floor(ints.length * filter.getFrequencyFactor())];
+    AtomicInteger index = new AtomicInteger();
+    filter.forEach(values -> result[index.getAndIncrement()] = values[0]);
+    for (int i : ints) {
+      filter.accept(i);
+    }
+    return result;
   }
 
   private FilterBuilder fork(@Nonnull List<int[]> selectedIndexes, @Nonnull DigitalFilter... filters) {

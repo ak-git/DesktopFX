@@ -21,9 +21,7 @@ import javax.annotation.Nullable;
 import com.ak.comm.GroupService;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
-import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
-import com.ak.digitalfilter.Filters;
 import com.ak.fx.scene.AxisXController;
 import com.ak.fx.scene.AxisYController;
 import com.ak.fx.scene.Chart;
@@ -90,8 +88,8 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
     private void display(@Nonnegative int axisEnd, int shiftValue, ObjIntConsumer<double[]> consumer) {
       List<? extends int[]> chartData = service.read(axisEnd - shiftValue, axisEnd);
       for (int i = 0; i < chartData.size(); i++) {
-        int[] values = Filters.filter(newDecimateFilter(), chartData.get(i));
-        consumer.accept(IntStream.of(values).parallel().mapToDouble(axisYController.getScale(service.getVariables().get(i))).toArray(), i);
+        consumer.accept(IntStream.of(filter(chartData.get(i))).parallel().
+            mapToDouble(axisYController.getScale(service.getVariables().get(i))).toArray(), i);
       }
       check(shiftValue, chartData.get(0).length);
     }
@@ -198,7 +196,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
     List<? extends int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
     FxUtils.invokeInFx(() -> {
       IntStream.range(0, chartData.size()).forEachOrdered(i -> {
-        int[] values = Filters.filter(newDecimateFilter(), chartData.get(i));
+        int[] values = filter(chartData.get(i));
         ScaleYInfo<EV> scaleInfo = axisYController.scale(service.getVariables().get(i), values);
         Objects.requireNonNull(chart).setAll(i, IntStream.of(values).parallel().mapToDouble(scaleInfo).toArray(), scaleInfo);
       });
@@ -206,7 +204,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
     });
   }
 
-  private DigitalFilter newDecimateFilter() {
-    return FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).build();
+  private int[] filter(@Nonnull int[] input) {
+    return FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(input);
   }
 }

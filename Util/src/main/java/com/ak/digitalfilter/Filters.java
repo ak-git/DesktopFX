@@ -1,7 +1,5 @@
 package com.ak.digitalfilter;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.measure.Quantity;
@@ -11,7 +9,7 @@ import javax.measure.quantity.Time;
 import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.Units;
 
-public enum Filters {
+enum Filters {
   ;
 
   static Quantity<Time> getDelay(@Nonnull DigitalFilter filter, @Nonnull Quantity<Frequency> frequency) {
@@ -52,15 +50,5 @@ public enum Filters {
     else {
       return (c - b) << 1;
     }
-  }
-
-  public static int[] filter(@Nonnull DigitalFilter filter, @Nonnull int[] ints) {
-    int[] result = new int[(int) Math.floor(ints.length * filter.getFrequencyFactor())];
-    AtomicInteger index = new AtomicInteger();
-    filter.forEach(values -> result[index.getAndIncrement()] = values[0]);
-    for (int i : ints) {
-      filter.accept(i);
-    }
-    return result;
   }
 }

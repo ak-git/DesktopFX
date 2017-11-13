@@ -3,6 +3,9 @@ package com.ak.digitalfilter;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 import com.ak.numbers.SimpleCoefficients;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -313,5 +316,26 @@ public class FilterBuilderTest {
   @Test(dataProvider = "strings")
   public static void testToString(DigitalFilter filter, String toString) {
     Assert.assertEquals(filter.toString(), toString, filter.toString());
+  }
+
+  @DataProvider(name = "sharpingDecimate")
+  public static Object[][] sharpingDecimate() {
+    return new Object[][] {{
+        new int[] {1, 2, 3}, 1, new int[] {1, 2, 3}
+    }, {
+        new int[] {1, 2, 3}, 2, new int[] {2}
+    }, {
+        new int[] {1, 1, 2, 0, 2, -1, 20, -1}, 2, new int[] {1, 0, 2, 20},
+    }, {
+        new int[] {1, 1, 2, 0, 2, -1, 20, -1}, 3, new int[] {2, -1},
+    }, {
+        new int[] {1, 1, -2, 0, 2, -1, 20, -1}, 4, new int[] {-2, 20},
+    }};
+  }
+
+  @Test(dataProvider = "sharpingDecimate")
+  public static void testSharpingDecimate(@Nonnull int[] input, @Nonnegative int factor, @Nonnull int[] output) {
+    int[] actual = FilterBuilder.of().sharpingDecimate(factor).filter(input);
+    Assert.assertEquals(actual, output, String.format("Actual = %s", Arrays.toString(actual)));
   }
 }
