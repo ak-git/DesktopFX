@@ -150,14 +150,14 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
       });
       chart.setOnZoomStarted(event -> {
         axisXController.zoom(event.getZoomFactor());
-        axisXController.preventCenter(chart.diagramWidthProperty().doubleValue());
+        axisXController.preventEnd(chart.diagramWidthProperty().doubleValue());
         event.consume();
       });
       chart.diagramHeightProperty().addListener((observable, oldValue, newValue) -> {
         axisYController.setLineDiagramHeight(newValue.doubleValue());
         changed();
       });
-      chart.diagramWidthProperty().addListener((observable, oldValue, newValue) -> axisXController.preventCenter(newValue.doubleValue()));
+      chart.diagramWidthProperty().addListener((observable, oldValue, newValue) -> axisXController.preventEnd(newValue.doubleValue()));
       axisXController.stepProperty().addListener((observable, oldValue, newValue) -> chart.setXStep(newValue.doubleValue()));
       axisXController.lengthProperty().addListener((observable, oldValue, newValue) ->
           chart.setMaxSamples(newValue.intValue() / axisXController.getDecimateFactor())
