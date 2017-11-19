@@ -1,7 +1,6 @@
 package com.ak.comm.converter;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -37,7 +36,7 @@ public interface DependentVariable<IN extends Enum<IN> & Variable<IN>, OUT exten
         return getInputVariables().get(0).options();
       }
       else {
-        return EnumSet.of(Option.VISIBLE);
+        return Option.defaultOptions();
       }
     });
   }

@@ -24,13 +24,19 @@
         <constructor-arg name="frameLength" value="25"/>
     </bean>
 
-    <bean class="com.ak.comm.converter.ToIntegerConverter" scope="prototype">
+    <bean class="com.ak.comm.converter.LinkedConverter" scope="prototype">
         <constructor-arg index="0">
-            <bean class="java.lang.Class" factory-method="forName">
-                <constructor-arg type="java.lang.String" value="com.ak.comm.converter.aper.AperInVariable"/>
+            <bean class="com.ak.comm.converter.ToIntegerConverter">
+                <constructor-arg index="0">
+                    <bean class="java.lang.Class" factory-method="forName">
+                        <constructor-arg type="java.lang.String"
+                                         value="com.ak.comm.converter.aper.calibration.AperVariable"/>
+                    </bean>
+                </constructor-arg>
+                <constructor-arg index="1" value="1000"/>
             </bean>
         </constructor-arg>
-        <constructor-arg index="1" value="1000"/>
+        <constructor-arg index="1" value="com.ak.comm.converter.aper.calibration.AperCalibrationCurrentVariable"/>
     </bean>
 
     <bean class="com.ak.comm.GroupService" destroy-method="close"/>

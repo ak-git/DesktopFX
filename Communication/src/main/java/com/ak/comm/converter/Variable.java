@@ -15,7 +15,15 @@ import tec.uom.se.AbstractUnit;
 
 public interface Variable<E extends Enum<E> & Variable<E>> {
   enum Option {
-    VISIBLE, FORCE_ZERO_IN_RANGE
+    VISIBLE, FORCE_ZERO_IN_RANGE, TEXT_VALUE_BANNER;
+
+    static Set<Option> defaultOptions() {
+      return EnumSet.of(VISIBLE);
+    }
+
+    public static Set<Option> addToDefault(@Nonnull Option option) {
+      return EnumSet.of(VISIBLE, option);
+    }
   }
 
   default Unit<?> getUnit() {
@@ -27,7 +35,7 @@ public interface Variable<E extends Enum<E> & Variable<E>> {
   }
 
   default Set<Option> options() {
-    return tryFindSame(Variable::options, () -> EnumSet.of(Option.VISIBLE));
+    return tryFindSame(Variable::options, Option::defaultOptions);
   }
 
   String name();

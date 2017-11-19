@@ -1,5 +1,6 @@
 package com.ak.comm.converter;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,6 +38,7 @@ public class VariableTest {
       }
     };
     Assert.assertEquals(variable.getUnit(), AbstractUnit.ONE);
+    Assert.assertEqualsDeep(variable.options(), Collections.singleton(Variable.Option.VISIBLE), variable.name());
   }
 
   @Test
@@ -74,7 +76,7 @@ public class VariableTest {
     Assert.assertTrue(OperatorVariables.OUT_PLUS.options().contains(Variable.Option.VISIBLE));
 
     EnumSet.allOf(OperatorVariables2.class).forEach(v ->
-        Assert.assertTrue(v.options().contains(Variable.Option.VISIBLE), Variables.toName(v)));
+        Assert.assertEqualsDeep(v.options(), EnumSet.of(Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER), Variables.toName(v)));
   }
 
   @Test
