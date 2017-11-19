@@ -18,7 +18,7 @@ public enum AperEMGVariable implements DependentVariable<AperInVariable, AperEMG
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().fir(AperCoefficients.MYO).build();
+      return FilterBuilder.of().fir(AperCoefficients.MYO).comb(1000 / 50).build();
     }
   },
   RI1,

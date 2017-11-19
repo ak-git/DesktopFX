@@ -33,7 +33,7 @@ public final class AperEMGConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {962, 997, 962, 1558}},
+            new int[] {0, 997, 0, 1558}},
     };
   }
 
@@ -44,7 +44,7 @@ public final class AperEMGConverterTest {
 
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 60; i++) {
+    for (int i = 0; i < (30 + 10) * 2; i++) {
       Assert.assertEquals(converter.apply(bufferFrame).count(), 0);
     }
     Assert.assertEquals(converter.apply(bufferFrame).peek(ints -> {

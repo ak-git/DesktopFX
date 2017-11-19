@@ -132,7 +132,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new FIRFilter(coefficients));
   }
 
-  FilterBuilder comb(@Nonnegative int combFactor) {
+  public FilterBuilder comb(@Nonnegative int combFactor) {
     return chain(new CombFilter(combFactor));
   }
 
