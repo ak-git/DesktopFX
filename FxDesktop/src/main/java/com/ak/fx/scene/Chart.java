@@ -37,14 +37,13 @@ public final class Chart extends AbstractRegion {
   @Override
   void layoutAll(double x, double y, double width, double height) {
     milliGrid.resizeRelocate(x, y, width, height);
+    xAxisUnit.relocate(x + BIG.minCoordinate(width) + BIG.maxValue(width) / 2 + POINTS.getStep(),
+        y + SMALL.minCoordinate(height) + SMALL.getStep() / 2 - xAxisUnit.getFont().getSize());
     layoutLineDiagrams(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxValue(width), SMALL.maxValue(height));
     diagramWidth.set(SMALL.maxValue(width));
   }
 
   private void layoutLineDiagrams(double x, double y, double width, double height) {
-    xAxisUnit.relocate(x + BIG.minCoordinate(width) + BIG.maxValue(width) / 2 + POINTS.getStep(),
-        y + SMALL.getStep() / 2 - xAxisUnit.getFont().getSize());
-
     double n = lineDiagrams.size() == 1 ? 2 : lineDiagrams.size() + 2;
     double dHeight = SMALL.maxValue((height + POINTS.getStep()) * 2 / n);
     if (dHeight >= SMALL.getStep() * 2) {
