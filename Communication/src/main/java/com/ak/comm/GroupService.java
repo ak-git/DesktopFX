@@ -77,8 +77,8 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     }
   }
 
-  public List<EV> getVariables() {
-    return variables;
+  public List<EV> getVariables(@Nonnull Variable.Option option) {
+    return variables.stream().filter(ev -> ev.options().contains(option)).collect(Collectors.toList());
   }
 
   public double getFrequency() {
@@ -91,7 +91,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     fileReadingService.close();
   }
 
-  public List<int[]> read(@Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
+  public List<int[]> read(@Nonnull Variable.Option option, @Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
     int from = Math.max(0, Math.min(fromInclusive, toExclusive));
     int to = Math.max(0, Math.max(fromInclusive, toExclusive));
 
@@ -101,10 +101,15 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     buffer.flip();
 
     int count = buffer.limit() / frameSize;
-    List<int[]> result = variables.stream().map(ev -> new int[count]).collect(Collectors.toList());
+    List<int[]> result = getVariables(option).stream().map(ev -> new int[count]).collect(Collectors.toList());
     for (int i = 0; i < count; i++) {
-      for (int[] ints : result) {
-        ints[i] = buffer.getInt();
+      int j = 0;
+      for (EV ev : variables) {
+        int n = buffer.getInt();
+        if (ev.options().contains(option)) {
+          result.get(j)[i] = n;
+          j++;
+        }
       }
     }
     return result;

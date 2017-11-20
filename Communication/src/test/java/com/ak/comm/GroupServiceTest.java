@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.TwoVariables;
+import com.ak.comm.converter.Variable;
 import com.ak.comm.file.FileDataProvider;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
@@ -41,7 +42,7 @@ public class GroupServiceTest implements Flow.Subscriber<int[]> {
     while (!Thread.currentThread().isInterrupted()) {
       int countFrames = 10;
       int shift = 2;
-      List<int[]> ints = service.read(shift, countFrames + shift);
+      List<int[]> ints = service.read(Variable.Option.VISIBLE, shift, countFrames + shift);
       if (!ints.isEmpty()) {
         for (int i = 0; i < ints.get(0).length; i++) {
           for (int j = 0; j < TwoVariables.values().length; j++) {
@@ -51,7 +52,7 @@ public class GroupServiceTest implements Flow.Subscriber<int[]> {
         break;
       }
     }
-    service.read(-1, 0).forEach(ints -> Assert.assertEquals(ints.length, 0));
+    service.read(Variable.Option.VISIBLE, -1, 0).forEach(ints -> Assert.assertEquals(ints.length, 0));
     service.refresh();
   }
 
