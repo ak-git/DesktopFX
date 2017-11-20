@@ -23,7 +23,7 @@ public enum Variables {
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable, int value) {
-    return String.format("%s = %d %s", variable.name(), value, variable.getUnit());
+    return String.format("%s = %d %s", toString(variable), value, variable.getUnit());
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable) {

@@ -9,7 +9,13 @@ import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 
 public enum AperCalibrationCurrentVariable implements DependentVariable<AperVariable, AperCalibrationCurrentVariable> {
-  RI1 {
+  RI1,
+  VALUE_RI1 {
+    @Override
+    public List<AperVariable> getInputVariables() {
+      return Collections.singletonList(AperVariable.RI1);
+    }
+
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.of().expSum().build();
@@ -17,7 +23,7 @@ public enum AperCalibrationCurrentVariable implements DependentVariable<AperVari
 
     @Override
     public Set<Option> options() {
-      return Option.addToDefault(Option.TEXT_VALUE_BANNER);
+      return Collections.singleton(Option.TEXT_VALUE_BANNER);
     }
   },
   STD_RI1 {
@@ -37,6 +43,12 @@ public enum AperCalibrationCurrentVariable implements DependentVariable<AperVari
     }
   },
   RI2,
+  VALUE_RI2 {
+    @Override
+    public List<AperVariable> getInputVariables() {
+      return Collections.singletonList(AperVariable.RI2);
+    }
+  },
   STD_RI2 {
     @Override
     public List<AperVariable> getInputVariables() {

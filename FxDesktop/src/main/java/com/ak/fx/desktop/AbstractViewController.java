@@ -27,6 +27,7 @@ import com.ak.fx.scene.AxisYController;
 import com.ak.fx.scene.Chart;
 import com.ak.fx.scene.ScaleYInfo;
 import com.ak.fx.util.FxUtils;
+import com.ak.util.Strings;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -86,10 +87,10 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
     }
 
     private void display(@Nonnegative int axisEnd, int shiftValue, ObjIntConsumer<double[]> consumer) {
-      List<? extends int[]> chartData = service.read(Variable.Option.VISIBLE, axisEnd - shiftValue, axisEnd);
+      List<? extends int[]> chartData = service.read(axisEnd - shiftValue, axisEnd);
       for (int i = 0; i < chartData.size(); i++) {
         consumer.accept(IntStream.of(filter(chartData.get(i))).parallel().
-            mapToDouble(axisYController.getScale(service.getVariables(Variable.Option.VISIBLE).get(i))).toArray(), i);
+            mapToDouble(axisYController.getScale(service.getVariables().get(i))).toArray(), i);
       }
       check(shiftValue, chartData.get(0).length);
     }
@@ -142,7 +143,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
           service.refresh();
         }
       });
-      chart.setVariables(service.getVariables(Variable.Option.VISIBLE).stream().map(Variables::toString).collect(Collectors.toList()));
+      chart.setVariables(service.getVariables().stream().map(Variables::toString).collect(Collectors.toList()));
       chart.titleProperty().bind(axisXController.zoomProperty().asString());
       chart.setOnScroll(event -> {
         axisXController.scroll(event.getDeltaX());
@@ -151,6 +152,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
       chart.setOnZoomStarted(event -> {
         axisXController.zoom(event.getZoomFactor());
         axisXController.preventEnd(chart.diagramWidthProperty().doubleValue());
+        changed();
         event.consume();
       });
       chart.diagramHeightProperty().addListener((observable, oldValue, newValue) -> {
@@ -193,15 +195,29 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
 
   private void changed() {
     Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
-    List<? extends int[]> chartData = service.read(Variable.Option.VISIBLE, axisXController.getStart(), axisXController.getEnd());
+    List<? extends int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
     FxUtils.invokeInFx(() -> {
       IntStream.range(0, chartData.size()).forEachOrdered(i -> {
         int[] values = filter(chartData.get(i));
-        ScaleYInfo<EV> scaleInfo = axisYController.scale(service.getVariables(Variable.Option.VISIBLE).get(i), values);
+        ScaleYInfo<EV> scaleInfo = axisYController.scale(service.getVariables().get(i), values);
         Objects.requireNonNull(chart).setAll(i, IntStream.of(values).parallel().mapToDouble(scaleInfo).toArray(), scaleInfo);
       });
       axisXController.checkLength(chartData.get(0).length);
     });
+
+    List<int[]> read = service.read(axisXController.getStart() + chartData.get(0).length - 1,
+        axisXController.getStart() + chartData.get(0).length);
+    List<EV> bannerVars = service.getVariables();
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < bannerVars.size(); i++) {
+      if (read.get(i).length > 0) {
+        sb.append(Variables.toString(bannerVars.get(i), read.get(i)[0]));
+      }
+      if (i + 1 < bannerVars.size()) {
+        sb.append(Strings.NEW_LINE).append(Strings.NEW_LINE);
+      }
+    }
+    FxUtils.invokeInFx(() -> Objects.requireNonNull(chart).setBannerText(sb.toString()));
   }
 
   private int[] filter(@Nonnull int[] input) {

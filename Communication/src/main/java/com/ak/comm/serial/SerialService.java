@@ -71,14 +71,14 @@ final class SerialService extends AbstractService implements WritableByteChannel
   @Override
   public void subscribe(Flow.Subscriber<? super ByteBuffer> s) {
     if (serialPort.getPortName().isEmpty()) {
-      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, "Serial port not found");
+      Logger.getLogger(getClass().getName()).log(Level.INFO, "Serial port not found");
     }
     else {
       try {
         serialPort.openPort();
         serialPort.setParams(baudRate, 8, 1, 0);
         serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
-        Logger.getLogger(getClass().getName()).log(Level.INFO,
+        Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS,
             String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getPortName(), baudRate));
         s.onSubscribe(this);
         serialPort.addEventListener(event -> {

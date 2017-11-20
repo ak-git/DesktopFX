@@ -15,6 +15,7 @@ import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 
 import static com.ak.fx.scene.GridCell.BIG;
 import static com.ak.fx.scene.GridCell.POINTS;
@@ -24,6 +25,7 @@ public final class Chart extends AbstractRegion {
   private final MilliGrid milliGrid = new MilliGrid();
   private final List<LineDiagram> lineDiagrams = new ArrayList<>();
   private final Text xAxisUnit = new Text();
+  private final Text banner = new Text();
   private final DoubleProperty diagramWidth = new SimpleDoubleProperty();
   private final DoubleProperty diagramHeight = new SimpleDoubleProperty();
 
@@ -32,6 +34,8 @@ public final class Chart extends AbstractRegion {
     milliGrid.setManaged(false);
     getChildren().add(milliGrid);
     xAxisUnit.fontProperty().bind(Fonts.H2.fontProperty());
+    banner.fontProperty().bind(Fonts.H1.fontProperty());
+    banner.setTextAlignment(TextAlignment.RIGHT);
   }
 
   @Override
@@ -39,6 +43,10 @@ public final class Chart extends AbstractRegion {
     milliGrid.resizeRelocate(x, y, width, height);
     xAxisUnit.relocate(x + BIG.minCoordinate(width) + BIG.maxValue(width) / 2 + POINTS.getStep(),
         y + SMALL.minCoordinate(height) + SMALL.getStep() / 2 - xAxisUnit.getFont().getSize());
+
+    banner.relocate(x + SMALL.minCoordinate(width) + SMALL.maxValue(width) - SMALL.getStep() - banner.getBoundsInParent().getWidth(),
+        y + SMALL.minCoordinate(height) + SMALL.getStep() / 2 - xAxisUnit.getFont().getSize());
+
     layoutLineDiagrams(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxValue(width), SMALL.maxValue(height));
     diagramWidth.set(SMALL.maxValue(width));
   }
@@ -89,6 +97,7 @@ public final class Chart extends AbstractRegion {
     lineDiagrams.forEach(lineDiagram -> lineDiagram.setManaged(false));
     getChildren().addAll(lineDiagrams);
     getChildren().add(xAxisUnit);
+    getChildren().add(banner);
   }
 
   public void setXStep(@Nonnegative double xStep) {
@@ -101,6 +110,10 @@ public final class Chart extends AbstractRegion {
 
   public StringProperty titleProperty() {
     return xAxisUnit.textProperty();
+  }
+
+  public void setBannerText(@Nonnull String text) {
+    banner.setText(text);
   }
 
   public ReadOnlyDoubleProperty diagramWidthProperty() {
