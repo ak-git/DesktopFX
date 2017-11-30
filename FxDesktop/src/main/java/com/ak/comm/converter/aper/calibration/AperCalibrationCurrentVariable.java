@@ -9,16 +9,16 @@ import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 
 public enum AperCalibrationCurrentVariable implements DependentVariable<AperVariable, AperCalibrationCurrentVariable> {
-  RI1,
-  VALUE_RI1 {
+  U1,
+  VALUE_U1 {
     @Override
     public List<AperVariable> getInputVariables() {
-      return Collections.singletonList(AperVariable.RI1);
+      return Collections.singletonList(AperVariable.U1);
     }
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().expSum().build();
+      return FilterBuilder.of().rrs(1000).build();
     }
 
     @Override
@@ -26,33 +26,11 @@ public enum AperCalibrationCurrentVariable implements DependentVariable<AperVari
       return Collections.singleton(Option.TEXT_VALUE_BANNER);
     }
   },
-  STD_RI1 {
+  U2,
+  VALUE_U2 {
     @Override
     public List<AperVariable> getInputVariables() {
-      return Collections.singletonList(AperVariable.RI1);
-    }
-
-    @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.of().std(1000).build();
-    }
-
-    @Override
-    public Set<Option> options() {
-      return Collections.singleton(Option.TEXT_VALUE_BANNER);
-    }
-  },
-  RI2,
-  VALUE_RI2 {
-    @Override
-    public List<AperVariable> getInputVariables() {
-      return Collections.singletonList(AperVariable.RI2);
-    }
-  },
-  STD_RI2 {
-    @Override
-    public List<AperVariable> getInputVariables() {
-      return Collections.singletonList(AperVariable.RI2);
+      return Collections.singletonList(AperVariable.U2);
     }
   };
 

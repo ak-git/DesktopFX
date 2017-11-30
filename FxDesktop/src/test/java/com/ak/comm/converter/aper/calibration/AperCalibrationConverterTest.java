@@ -56,7 +56,6 @@ public final class AperCalibrationConverterTest {
   public static void testVariableProperties() {
     EnumSet.allOf(AperCalibrationCurrentVariable.class).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
     EnumSet.allOf(AperCalibrationCurrentVariable.class).forEach(t -> Assert.assertTrue(t.options().contains(Variable.Option.TEXT_VALUE_BANNER)));
-    Assert.assertEquals(AperCalibrationCurrentVariable.RI1.filter().toString(), AperCalibrationCurrentVariable.RI2.filter().toString());
-    Assert.assertEquals(AperCalibrationCurrentVariable.STD_RI1.filter().toString(), AperCalibrationCurrentVariable.STD_RI2.filter().toString());
+    Assert.assertEquals(AperCalibrationCurrentVariable.U1.filter().toString(), AperCalibrationCurrentVariable.U2.filter().toString());
   }
 }

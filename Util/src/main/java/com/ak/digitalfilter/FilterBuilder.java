@@ -140,12 +140,12 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new IntegrateFilter());
   }
 
-  FilterBuilder rrs(@Nonnegative int averageFactor) {
+  public FilterBuilder rrs(@Nonnegative int averageFactor) {
     return wrap(String.format("RRS%d", averageFactor),
         of().comb(averageFactor).integrate().operator(() -> n -> n / averageFactor));
   }
 
-  public FilterBuilder std(@Nonnegative int averageFactor) {
+  FilterBuilder std(@Nonnegative int averageFactor) {
     return wrap(String.format("std%d", averageFactor),
         of().fork(new NoFilter(), of().rrs(averageFactor).build()).biOperator(() -> (x, mean) -> x - mean).chain(new SqrtSumFilter(averageFactor)));
   }
