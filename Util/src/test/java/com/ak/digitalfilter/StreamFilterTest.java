@@ -28,6 +28,18 @@ public class StreamFilterTest {
     }, {
         FilterBuilder.of().std(2000).build(),
         IntStream.generate(() -> (int) Math.round(RANDOM.nextGaussian() * 1000 + 1000)).limit(4000), 900, 1100
+    }, {
+        FilterBuilder.of().peakToPeak(2).build(),
+        IntStream.of(-2, -1, 0, 1, 0, 1, 2, 1, 1, 2, 3, 4, 3), 0, 1
+    }, {
+        FilterBuilder.of().peakToPeak(1000).build(),
+        IntStream.generate(() -> 1000).limit(5000), 0, 0
+    }, {
+        FilterBuilder.of().peakToPeak(1000).build(),
+        IntStream.generate(() -> RANDOM.nextInt(1000)).limit(3000), 900, 1000
+    }, {
+        FilterBuilder.of().peakToPeak(2000).build(),
+        IntStream.generate(() -> (int) Math.round(RANDOM.nextGaussian() * 1000)).limit(4000), 5000, 9000
     }};
   }
 

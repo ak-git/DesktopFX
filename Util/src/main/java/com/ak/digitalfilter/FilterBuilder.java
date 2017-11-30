@@ -150,6 +150,10 @@ public class FilterBuilder implements Builder<DigitalFilter> {
         of().fork(new NoFilter(), of().rrs(averageFactor).build()).biOperator(() -> (x, mean) -> x - mean).chain(new SqrtSumFilter(averageFactor)));
   }
 
+  FilterBuilder peakToPeak(@Nonnegative int size) {
+    return chain(new PeakToPeakFilter(size));
+  }
+
   FilterBuilder decimate(@Nonnegative int decimateFactor) {
     int combFactor = Math.max(decimateFactor / 2, 1);
     return wrap("LinearDecimationFilter",

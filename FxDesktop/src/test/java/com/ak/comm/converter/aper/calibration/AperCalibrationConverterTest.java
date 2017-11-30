@@ -30,7 +30,7 @@ public final class AperCalibrationConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {1490, 0, 1969, 0}},
+            new int[] {1521, 1521, 2000, 2000}},
     };
   }
 
@@ -55,7 +55,7 @@ public final class AperCalibrationConverterTest {
   @Test
   public static void testVariableProperties() {
     EnumSet.allOf(AperCalibrationCurrentVariable.class).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
-    EnumSet.allOf(AperCalibrationCurrentVariable.class).forEach(t -> Assert.assertTrue(t.options().contains(Variable.Option.TEXT_VALUE_BANNER)));
-    Assert.assertEquals(AperCalibrationCurrentVariable.U1.filter().toString(), AperCalibrationCurrentVariable.U2.filter().toString());
+    EnumSet.of(AperCalibrationCurrentVariable.VALUE_U1, AperCalibrationCurrentVariable.VALUE_U2).forEach(t -> Assert.assertTrue(t.options().contains(Variable.Option.TEXT_VALUE_BANNER)));
+    Assert.assertEquals(AperCalibrationCurrentVariable.VALUE_U1.filter().toString(), AperCalibrationCurrentVariable.VALUE_U2.filter().toString());
   }
 }

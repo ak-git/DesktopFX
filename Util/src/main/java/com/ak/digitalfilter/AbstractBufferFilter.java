@@ -33,5 +33,9 @@ abstract class AbstractBufferFilter extends AbstractOperableFilter {
     return Arrays.copyOf(buffer, buffer.length);
   }
 
+  final int length() {
+    return buffer.length;
+  }
+
   abstract int apply(@Nonnegative int nowIndex);
 }
