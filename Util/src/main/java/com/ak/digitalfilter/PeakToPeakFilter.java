@@ -13,8 +13,8 @@ final class PeakToPeakFilter extends AbstractBufferFilter {
 
   PeakToPeakFilter(@Nonnegative int size) {
     super(size);
-    max = new Index(Operator.MAX, size - 1);
-    min = new Index(Operator.MIN, size - 1);
+    max = new Index(Operator.MAX);
+    min = new Index(Operator.MIN);
   }
 
   @Override
@@ -45,9 +45,8 @@ final class PeakToPeakFilter extends AbstractBufferFilter {
     @Nonnegative
     private int extremalIndex;
 
-    private Index(@Nonnull Operator operator, @Nonnegative int extremalIndex) {
+    private Index(@Nonnull Operator operator) {
       this.operator = operator;
-      this.extremalIndex = extremalIndex;
     }
 
     @Override

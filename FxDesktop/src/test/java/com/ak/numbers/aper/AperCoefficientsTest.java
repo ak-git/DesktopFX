@@ -18,7 +18,8 @@ public class AperCoefficientsTest {
         {AperCoefficients.RHEO, 61},
         {AperCoefficients.MYO, 61},
         {AperCoefficients.ECG, 61},
-        {AperCoefficients.I_ADC_TO_OHM, 60},
+        {AperCoefficients.ADC_TO_OHM_1, 36},
+        {AperCoefficients.ADC_TO_OHM_2, 36},
         {AperSurfaceCoefficients.RI_VADC_0, 4},
         {AperSurfaceCoefficients.RI_VADC_15000, 64},
     };
@@ -26,7 +27,7 @@ public class AperCoefficientsTest {
 
   @Test
   public static void testCoefficients() {
-    Assert.assertEquals(AperCoefficients.values().length, 4);
+    Assert.assertEquals(AperCoefficients.values().length, 5);
     Assert.assertEquals(AperSurfaceCoefficients.values().length, 3);
   }
 

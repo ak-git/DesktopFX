@@ -18,7 +18,7 @@ public enum AperCalibrationCurrentVariable implements DependentVariable<AperVari
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().rrs(1000).build();
+      return FilterBuilder.of().smoothingImpulsive(10).build();
     }
 
     @Override

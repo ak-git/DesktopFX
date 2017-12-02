@@ -34,7 +34,7 @@ public enum AperInVariable implements Variable<AperInVariable> {
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().expSum().operator(Interpolators.interpolator(AperCoefficients.I_ADC_TO_OHM)).build();
+      return FilterBuilder.of().expSum().operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM_1)).build();
     }
 
     @Override
