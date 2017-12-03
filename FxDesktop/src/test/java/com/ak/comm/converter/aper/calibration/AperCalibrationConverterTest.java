@@ -11,7 +11,6 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
-import com.ak.comm.converter.Variable;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -30,7 +29,7 @@ public final class AperCalibrationConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {1521, 1521, 2000, 2000}},
+            new int[] {1521, 2000}},
     };
   }
 
@@ -40,14 +39,14 @@ public final class AperCalibrationConverterTest {
         new ToIntegerConverter<>(AperVariable.class, 1000), AperCalibrationCurrentVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 59; i++) {
+    for (int i = 0; i < 219; i++) {
       long count = converter.apply(bufferFrame).count();
       Assert.assertTrue(count == 0 || count == 1, String.format("Index %d, count %d", i, count));
     }
     Assert.assertEquals(converter.apply(bufferFrame).peek(ints -> {
       Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
       processed.set(true);
-    }).count(), 10);
+    }).count(), 20);
     Assert.assertTrue(processed.get(), "Data are not converted!");
     Assert.assertEquals(converter.getFrequency(), 1000, 0.1);
   }
@@ -55,7 +54,5 @@ public final class AperCalibrationConverterTest {
   @Test
   public static void testVariableProperties() {
     EnumSet.allOf(AperCalibrationCurrentVariable.class).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
-    EnumSet.of(AperCalibrationCurrentVariable.VALUE_U1, AperCalibrationCurrentVariable.VALUE_U2).forEach(t -> Assert.assertTrue(t.options().contains(Variable.Option.TEXT_VALUE_BANNER)));
-    Assert.assertEquals(AperCalibrationCurrentVariable.VALUE_U1.filter().toString(), AperCalibrationCurrentVariable.VALUE_U2.filter().toString());
   }
 }

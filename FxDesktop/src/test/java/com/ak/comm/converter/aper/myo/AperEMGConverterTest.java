@@ -33,7 +33,7 @@ public final class AperEMGConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {0, 825, 0, 1082}},
+            new int[] {0, 825, 0, 1075}},
     };
   }
 
