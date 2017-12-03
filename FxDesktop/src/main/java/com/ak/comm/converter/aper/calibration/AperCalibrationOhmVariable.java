@@ -10,7 +10,6 @@ import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.Interpolators;
 import com.ak.numbers.aper.AperCoefficients;
-import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
 public enum AperCalibrationOhmVariable implements DependentVariable<AperVariable, AperCalibrationOhmVariable> {
@@ -29,7 +28,7 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperVariable
   RI1 {
     @Override
     public Unit<?> getUnit() {
-      return MetricPrefix.MILLI(Units.OHM);
+      return Units.OHM;
     }
 
     @Override
