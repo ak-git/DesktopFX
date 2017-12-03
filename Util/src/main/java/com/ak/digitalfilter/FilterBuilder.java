@@ -140,7 +140,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new IntegrateFilter());
   }
 
-  public FilterBuilder rrs(@Nonnegative int averageFactor) {
+  FilterBuilder rrs(@Nonnegative int averageFactor) {
     return wrap(String.format("RRS%d", averageFactor),
         of().comb(averageFactor).integrate().operator(() -> n -> n / averageFactor));
   }
@@ -150,7 +150,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
         of().fork(new NoFilter(), of().rrs(averageFactor).build()).biOperator(() -> (x, mean) -> x - mean).chain(new SqrtSumFilter(averageFactor)));
   }
 
-  FilterBuilder peakToPeak(@Nonnegative int size) {
+  public FilterBuilder peakToPeak(@Nonnegative int size) {
     return chain(new PeakToPeakFilter(size));
   }
 
