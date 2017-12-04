@@ -87,7 +87,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   public FilterBuilder smoothingImpulsive(@Nonnegative int size) {
-    HoldFilter holdFilter = new HoldFilter.Builder(size).lostCount(1);
+    HoldFilter holdFilter = new HoldFilter.Builder(size).lostCount((size - Integer.highestOneBit(size)) / 2);
     return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> operand -> {
       int[] sorted = holdFilter.getSorted();
       double mean = Arrays.stream(sorted).average().orElse(0.0);
@@ -145,12 +145,12 @@ public class FilterBuilder implements Builder<DigitalFilter> {
         of().comb(averageFactor).integrate().operator(() -> n -> n / averageFactor));
   }
 
-  FilterBuilder std(@Nonnegative int averageFactor) {
+  public FilterBuilder std(@Nonnegative int averageFactor) {
     return wrap(String.format("std%d", averageFactor),
         of().fork(new NoFilter(), of().rrs(averageFactor).build()).biOperator(() -> (x, mean) -> x - mean).chain(new SqrtSumFilter(averageFactor)));
   }
 
-  public FilterBuilder peakToPeak(@Nonnegative int size) {
+  FilterBuilder peakToPeak(@Nonnegative int size) {
     return chain(new PeakToPeakFilter(size));
   }
 
