@@ -2,7 +2,6 @@ package com.ak.fx.desktop;
 
 import java.io.File;
 import java.net.URL;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -95,8 +94,8 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
 
     private void display(@Nonnegative int axisEnd, int shiftValue, ObjIntConsumer<double[]> consumer) {
       Map<EV, int[]> chartData = service.read(axisEnd - shiftValue, axisEnd);
-      chartData.forEach((ev, ints) -> consumer.accept(IntStream.of(filter(ints)).parallel().
-          mapToDouble(axisYController.getScale(ev)).toArray(), ev.ordinal()));
+      chartData.forEach((ev, ints) -> consumer.accept(IntStream.of(filter(ints)).unordered().parallel()
+          .mapToDouble(axisYController.getScale(ev)).toArray(), ev.ordinal()));
       check(shiftValue, chartData.values().iterator().next().length);
     }
 
@@ -196,15 +195,10 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
 
   @Override
   public final void onNext(@Nonnull int[] ints) {
-    List<EV> bannerVars = service.getVariables();
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < bannerVars.size(); i++) {
-      sb.append(Variables.toString(bannerVars.get(i), ints[i]));
-      if (i + 1 < bannerVars.size()) {
-        sb.append(Strings.NEW_LINE).append(Strings.NEW_LINE);
-      }
-    }
-    FxUtils.invokeInFx(() -> Objects.requireNonNull(chart).setBannerText(sb.toString()));
+    FxUtils.invokeInFx(() -> Objects.requireNonNull(chart).setBannerText(
+        service.getVariables().stream().filter(ev -> ev.options().contains(Variable.Option.TEXT_VALUE_BANNER))
+            .map(ev -> Variables.toString(ev, ints[ev.ordinal()])).collect(Collectors.joining(Strings.NEW_LINE_2)))
+    );
   }
 
   @Override
@@ -224,7 +218,8 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
       chartData.forEach((ev, ints) -> {
         int[] values = filter(ints);
         ScaleYInfo<EV> scaleInfo = axisYController.scale(ev, values);
-        Objects.requireNonNull(chart).setAll(ev.ordinal(), IntStream.of(values).parallel().mapToDouble(scaleInfo).toArray(), scaleInfo);
+        Objects.requireNonNull(chart).setAll(ev.ordinal(), IntStream.of(values).unordered().parallel()
+            .mapToDouble(scaleInfo).toArray(), scaleInfo);
       });
       axisXController.checkLength(chartData.values().iterator().next().length);
     });

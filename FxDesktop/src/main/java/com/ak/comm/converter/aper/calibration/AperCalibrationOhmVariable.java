@@ -2,6 +2,7 @@ package com.ak.comm.converter.aper.calibration;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.measure.Unit;
 
@@ -13,8 +14,13 @@ import com.ak.numbers.aper.AperCoefficients;
 import tec.uom.se.unit.Units;
 
 public enum AperCalibrationOhmVariable implements DependentVariable<AperVariable, AperCalibrationOhmVariable> {
-  R1,
-  R1_PEAK_TO_PEAK {
+  R1 {
+    @Override
+    public DigitalFilter filter() {
+      return FilterBuilder.of().smoothingImpulsive(128 + 16).build();
+    }
+  },
+  R1_STD {
     @Override
     public List<AperVariable> getInputVariables() {
       return Collections.singletonList(AperVariable.R1);
@@ -22,7 +28,7 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperVariable
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().peakToPeak(1000).smoothingImpulsive(20).build();
+      return FilterBuilder.of().std(1000).smoothingImpulsive(128 + 16).build();
     }
   },
   RI1 {
@@ -38,10 +44,16 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperVariable
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().smoothingImpulsive(20).operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM_1)).build();
+      return FilterBuilder.of().smoothingImpulsive(128 + 16).operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM_1)).build();
     }
   },
   R2,
+  R2_STD {
+    @Override
+    public List<AperVariable> getInputVariables() {
+      return Collections.singletonList(AperVariable.R2);
+    }
+  },
   RI2 {
     @Override
     public List<AperVariable> getInputVariables() {
@@ -57,5 +69,10 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperVariable
   @Override
   public final Class<AperVariable> getInputVariablesClass() {
     return AperVariable.class;
+  }
+
+  @Override
+  public final Set<Option> options() {
+    return Option.addToDefault(Option.TEXT_VALUE_BANNER);
   }
 }
