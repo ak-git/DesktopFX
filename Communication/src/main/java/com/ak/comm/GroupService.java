@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Flow;
 import java.util.stream.Collectors;
@@ -91,7 +92,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     fileReadingService.close();
   }
 
-  public List<int[]> read(@Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
+  public Map<EV, int[]> read(@Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
     int from = Math.max(0, Math.min(fromInclusive, toExclusive));
     int to = Math.max(0, Math.max(fromInclusive, toExclusive));
 
@@ -101,10 +102,10 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     buffer.flip();
 
     int count = buffer.limit() / frameSize;
-    List<int[]> result = variables.stream().map(ev -> new int[count]).collect(Collectors.toList());
+    Map<EV, int[]> result = variables.stream().collect(Collectors.toMap(o -> o, o -> new int[count]));
     for (int i = 0; i < count; i++) {
-      for (int[] ints : result) {
-        ints[i] = buffer.getInt();
+      for (EV variable : variables) {
+        result.get(variable)[i] = buffer.getInt();
       }
     }
     return result;

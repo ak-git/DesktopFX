@@ -3,6 +3,7 @@ package com.ak.fx.desktop;
 import java.io.File;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.Flow;
@@ -28,13 +29,19 @@ import com.ak.fx.scene.Chart;
 import com.ak.fx.scene.ScaleYInfo;
 import com.ak.fx.util.FxUtils;
 import com.ak.util.Strings;
+import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
+import javafx.animation.KeyFrame;
+import javafx.animation.SequentialTransition;
+import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
+import javafx.util.Duration;
 
 public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
     implements Initializable, Flow.Subscriber<int[]> {
@@ -87,12 +94,10 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
     }
 
     private void display(@Nonnegative int axisEnd, int shiftValue, ObjIntConsumer<double[]> consumer) {
-      List<? extends int[]> chartData = service.read(axisEnd - shiftValue, axisEnd);
-      for (int i = 0; i < chartData.size(); i++) {
-        consumer.accept(IntStream.of(filter(chartData.get(i))).parallel().
-            mapToDouble(axisYController.getScale(service.getVariables().get(i))).toArray(), i);
-      }
-      check(shiftValue, chartData.get(0).length);
+      Map<EV, int[]> chartData = service.read(axisEnd - shiftValue, axisEnd);
+      chartData.forEach((ev, ints) -> consumer.accept(IntStream.of(filter(ints)).parallel().
+          mapToDouble(axisYController.getScale(ev)).toArray(), ev.ordinal()));
+      check(shiftValue, chartData.values().iterator().next().length);
     }
 
     private void check(@Nonnegative int needSize, int shiftValue) {
@@ -165,6 +170,16 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
           chart.setMaxSamples(newValue.intValue() / axisXController.getDecimateFactor())
       );
       axisXController.setFrequency(service.getFrequency());
+
+      Timeline timeline = new Timeline();
+      timeline.getKeyFrames().add(new KeyFrame(Duration.millis(100), (ActionEvent actionEvent) -> {
+//        axisXController.scroll(-1000);
+      }));
+      timeline.setCycleCount(Animation.INDEFINITE);
+      SequentialTransition animation;
+      animation = new SequentialTransition();
+      animation.getChildren().addAll(timeline);
+      animation.play();
     }
     service.subscribe(this);
   }
@@ -181,6 +196,15 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
 
   @Override
   public final void onNext(@Nonnull int[] ints) {
+    List<EV> bannerVars = service.getVariables();
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < bannerVars.size(); i++) {
+      sb.append(Variables.toString(bannerVars.get(i), ints[i]));
+      if (i + 1 < bannerVars.size()) {
+        sb.append(Strings.NEW_LINE).append(Strings.NEW_LINE);
+      }
+    }
+    FxUtils.invokeInFx(() -> Objects.requireNonNull(chart).setBannerText(sb.toString()));
   }
 
   @Override
@@ -195,29 +219,15 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
 
   private void changed() {
     Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
-    List<? extends int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
+    Map<EV, int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
     FxUtils.invokeInFx(() -> {
-      IntStream.range(0, chartData.size()).forEachOrdered(i -> {
-        int[] values = filter(chartData.get(i));
-        ScaleYInfo<EV> scaleInfo = axisYController.scale(service.getVariables().get(i), values);
-        Objects.requireNonNull(chart).setAll(i, IntStream.of(values).parallel().mapToDouble(scaleInfo).toArray(), scaleInfo);
+      chartData.forEach((ev, ints) -> {
+        int[] values = filter(ints);
+        ScaleYInfo<EV> scaleInfo = axisYController.scale(ev, values);
+        Objects.requireNonNull(chart).setAll(ev.ordinal(), IntStream.of(values).parallel().mapToDouble(scaleInfo).toArray(), scaleInfo);
       });
-      axisXController.checkLength(chartData.get(0).length);
+      axisXController.checkLength(chartData.values().iterator().next().length);
     });
-
-    List<int[]> read = service.read(axisXController.getStart() + chartData.get(0).length - 1,
-        axisXController.getStart() + chartData.get(0).length);
-    List<EV> bannerVars = service.getVariables();
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < bannerVars.size(); i++) {
-      if (read.get(i).length > 0) {
-        sb.append(Variables.toString(bannerVars.get(i), read.get(i)[0]));
-      }
-      if (i + 1 < bannerVars.size()) {
-        sb.append(Strings.NEW_LINE).append(Strings.NEW_LINE);
-      }
-    }
-    FxUtils.invokeInFx(() -> Objects.requireNonNull(chart).setBannerText(sb.toString()));
   }
 
   private int[] filter(@Nonnull int[] input) {

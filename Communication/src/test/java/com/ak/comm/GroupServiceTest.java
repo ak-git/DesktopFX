@@ -3,7 +3,7 @@ package com.ak.comm;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Flow;
 
 import javax.annotation.Nonnull;
@@ -41,17 +41,17 @@ public class GroupServiceTest implements Flow.Subscriber<int[]> {
     while (!Thread.currentThread().isInterrupted()) {
       int countFrames = 10;
       int shift = 2;
-      List<int[]> ints = service.read(shift, countFrames + shift);
+      Map<TwoVariables, int[]> ints = service.read(shift, countFrames + shift);
       if (!ints.isEmpty()) {
-        for (int i = 0; i < ints.get(0).length; i++) {
-          for (int j = 0; j < TwoVariables.values().length; j++) {
-            Assert.assertEquals(ints.get(j)[i], i + j + shift, Arrays.toString(ints.get(j)));
+        for (int i = 0; i < ints.get(TwoVariables.V1).length; i++) {
+          for (TwoVariables v : TwoVariables.values()) {
+            Assert.assertEquals(ints.get(v)[i], i + v.ordinal() + shift, Arrays.toString(ints.get(v)));
           }
         }
         break;
       }
     }
-    service.read(-1, 0).forEach(ints -> Assert.assertEquals(ints.length, 0));
+    service.read(-1, 0).forEach((twoVariables, ints) -> Assert.assertEquals(ints.length, 0));
     service.refresh();
   }
 
