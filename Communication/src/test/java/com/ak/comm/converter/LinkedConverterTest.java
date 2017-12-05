@@ -19,7 +19,7 @@ public class LinkedConverterTest {
   public static Object[][] variables() {
     return new Object[][] {
         {new BufferFrame(new byte[] {1, 2, 0, 0, 0, 3, 0, 0, 0}, ByteOrder.LITTLE_ENDIAN),
-            new int[] {2 + 3, 2 - 3}},
+            new int[] {2 + 3, 2 - 3, 0}},
     };
   }
 

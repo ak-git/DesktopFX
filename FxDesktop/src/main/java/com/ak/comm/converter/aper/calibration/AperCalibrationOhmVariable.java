@@ -20,7 +20,7 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperVariable
       return FilterBuilder.of().smoothingImpulsive(128 + 16).build();
     }
   },
-  R1_STD {
+  STD_R1 {
     @Override
     public List<AperVariable> getInputVariables() {
       return Collections.singletonList(AperVariable.R1);
@@ -46,9 +46,14 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperVariable
     public DigitalFilter filter() {
       return FilterBuilder.of().smoothingImpulsive(128 + 16).operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM_1)).build();
     }
+
+    @Override
+    public Set<Option> options() {
+      return Collections.singleton(Option.TEXT_VALUE_BANNER);
+    }
   },
   R2,
-  R2_STD {
+  STD_R2 {
     @Override
     public List<AperVariable> getInputVariables() {
       return Collections.singletonList(AperVariable.R2);
@@ -72,7 +77,7 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperVariable
   }
 
   @Override
-  public final Set<Option> options() {
+  public Set<Option> options() {
     return Option.addToDefault(Option.TEXT_VALUE_BANNER);
   }
 }

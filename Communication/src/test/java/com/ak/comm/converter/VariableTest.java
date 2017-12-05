@@ -33,6 +33,11 @@ public class VariableTest {
       }
 
       @Override
+      public int ordinal() {
+        return 0;
+      }
+
+      @Override
       public Class<ADCVariable> getDeclaringClass() {
         return ADCVariable.class;
       }
@@ -56,6 +61,11 @@ public class VariableTest {
       }
 
       @Override
+      public int ordinal() {
+        return 0;
+      }
+
+      @Override
       public Class<ADCVariable> getDeclaringClass() {
         return ADCVariable.class;
       }
@@ -72,8 +82,12 @@ public class VariableTest {
 
   @Test
   public static void testVisibleProperty() {
-    Assert.assertFalse(OperatorVariables.OUT_MINUS.options().contains(Variable.Option.VISIBLE));
     Assert.assertTrue(OperatorVariables.OUT_PLUS.options().contains(Variable.Option.VISIBLE));
+    Assert.assertEquals(OperatorVariables.OUT_PLUS.indexBy(Variable.Option.VISIBLE), 0);
+    Assert.assertFalse(OperatorVariables.OUT_MINUS.options().contains(Variable.Option.VISIBLE));
+    Assert.assertEquals(OperatorVariables.OUT_MINUS.indexBy(Variable.Option.VISIBLE), -1);
+    Assert.assertTrue(OperatorVariables.OUT_DIV.options().contains(Variable.Option.VISIBLE));
+    Assert.assertEquals(OperatorVariables.OUT_DIV.indexBy(Variable.Option.VISIBLE), 1);
 
     EnumSet.allOf(OperatorVariables2.class).forEach(v ->
         Assert.assertEqualsDeep(v.options(), EnumSet.of(Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER), Variables.toName(v)));

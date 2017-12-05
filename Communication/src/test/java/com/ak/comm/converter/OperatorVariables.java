@@ -16,7 +16,8 @@ public enum OperatorVariables implements DependentVariable<TwoVariables, Operato
     public Set<Option> options() {
       return Collections.emptySet();
     }
-  };
+  },
+  OUT_DIV((left, right) -> left / right);
 
   private final IntBinaryOperator operator;
 

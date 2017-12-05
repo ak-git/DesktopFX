@@ -94,8 +94,12 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
 
     private void display(@Nonnegative int axisEnd, int shiftValue, ObjIntConsumer<double[]> consumer) {
       Map<EV, int[]> chartData = service.read(axisEnd - shiftValue, axisEnd);
-      chartData.forEach((ev, ints) -> consumer.accept(IntStream.of(filter(ints)).unordered().parallel()
-          .mapToDouble(axisYController.getScale(ev)).toArray(), ev.ordinal()));
+      chartData.forEach((ev, ints) -> {
+        if (ev.options().contains(Variable.Option.VISIBLE)) {
+          consumer.accept(IntStream.of(filter(ints)).unordered().parallel()
+              .mapToDouble(axisYController.getScale(ev)).toArray(), ev.indexBy(Variable.Option.VISIBLE));
+        }
+      });
       check(shiftValue, chartData.values().iterator().next().length);
     }
 
@@ -147,7 +151,8 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
           service.refresh();
         }
       });
-      chart.setVariables(service.getVariables().stream().map(Variables::toString).collect(Collectors.toList()));
+      chart.setVariables(service.getVariables().stream().filter(ev -> ev.options().contains(Variable.Option.VISIBLE))
+          .map(Variables::toString).collect(Collectors.toList()));
       chart.titleProperty().bind(axisXController.zoomProperty().asString());
       chart.setOnScroll(event -> {
         axisXController.scroll(event.getDeltaX());
@@ -216,10 +221,12 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
     Map<EV, int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
     FxUtils.invokeInFx(() -> {
       chartData.forEach((ev, ints) -> {
-        int[] values = filter(ints);
-        ScaleYInfo<EV> scaleInfo = axisYController.scale(ev, values);
-        Objects.requireNonNull(chart).setAll(ev.ordinal(), IntStream.of(values).unordered().parallel()
-            .mapToDouble(scaleInfo).toArray(), scaleInfo);
+        if (ev.options().contains(Variable.Option.VISIBLE)) {
+          int[] values = filter(ints);
+          ScaleYInfo<EV> scaleInfo = axisYController.scale(ev, values);
+          Objects.requireNonNull(chart).setAll(ev.indexBy(Variable.Option.VISIBLE), IntStream.of(values).unordered().parallel()
+              .mapToDouble(scaleInfo).toArray(), scaleInfo);
+        }
       });
       axisXController.checkLength(chartData.values().iterator().next().length);
     });

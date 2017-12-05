@@ -38,7 +38,19 @@ public interface Variable<E extends Enum<E> & Variable<E>> {
     return tryFindSame(Variable::options, Option::defaultOptions);
   }
 
+  default int indexBy(Option option) {
+    if (options().contains(option)) {
+      return EnumSet.allOf(getDeclaringClass()).stream().filter(e -> e.options().contains(option)).mapToInt(Enum::ordinal).sorted()
+          .reduce(-1, (acc, now) -> now > ordinal() ? acc : acc + 1);
+    }
+    else {
+      return -1;
+    }
+  }
+
   String name();
+
+  int ordinal();
 
   Class<E> getDeclaringClass();
 
