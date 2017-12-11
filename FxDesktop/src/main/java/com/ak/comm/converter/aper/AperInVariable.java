@@ -39,7 +39,7 @@ public enum AperInVariable implements Variable<AperInVariable> {
 
     @Override
     public Set<Option> options() {
-      return Collections.emptySet();
+      return Collections.singleton(Option.TEXT_VALUE_BANNER);
     }
   },
 

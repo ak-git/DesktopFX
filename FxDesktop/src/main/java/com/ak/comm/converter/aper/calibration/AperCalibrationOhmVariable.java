@@ -14,13 +14,7 @@ import com.ak.numbers.aper.AperCoefficients;
 import tec.uom.se.unit.Units;
 
 public enum AperCalibrationOhmVariable implements DependentVariable<AperVariable, AperCalibrationOhmVariable> {
-  R1 {
-    @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.of().smoothingImpulsive(128 + 16).build();
-    }
-  },
-  STD_R1 {
+  R {
     @Override
     public List<AperVariable> getInputVariables() {
       return Collections.singletonList(AperVariable.R1);
@@ -28,10 +22,37 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperVariable
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().std(1000).smoothingImpulsive(128 + 16).build();
+      return FilterBuilder.of().smoothingImpulsive(20).rrs(2000).build();
     }
   },
-  RI1 {
+  STD_R {
+    @Override
+    public List<AperVariable> getInputVariables() {
+      return Collections.singletonList(AperVariable.R1);
+    }
+
+    @Override
+    public DigitalFilter filter() {
+      return FilterBuilder.of().std(2000).smoothingImpulsive(20).build();
+    }
+
+    @Override
+    public Set<Option> options() {
+      return Collections.singleton(Option.TEXT_VALUE_BANNER);
+    }
+  },
+  U {
+    @Override
+    public List<AperVariable> getInputVariables() {
+      return Collections.singletonList(AperVariable.U1);
+    }
+
+    @Override
+    public DigitalFilter filter() {
+      return FilterBuilder.of().smoothingImpulsive(20).rrs(2000).build();
+    }
+  },
+  RI {
     @Override
     public Unit<?> getUnit() {
       return Units.OHM;
@@ -44,30 +65,12 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperVariable
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().smoothingImpulsive(128 + 16).operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM_1)).build();
+      return FilterBuilder.of().smoothingImpulsive(20).operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM_1)).build();
     }
 
     @Override
     public Set<Option> options() {
       return Collections.singleton(Option.TEXT_VALUE_BANNER);
-    }
-  },
-  R2,
-  STD_R2 {
-    @Override
-    public List<AperVariable> getInputVariables() {
-      return Collections.singletonList(AperVariable.R2);
-    }
-  },
-  RI2 {
-    @Override
-    public List<AperVariable> getInputVariables() {
-      return Collections.singletonList(AperVariable.U2);
-    }
-
-    @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.of().smoothingImpulsive(20).operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM_2)).build();
     }
   };
 
