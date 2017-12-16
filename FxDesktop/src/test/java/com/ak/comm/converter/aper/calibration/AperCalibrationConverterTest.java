@@ -11,6 +11,7 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
+import com.ak.comm.converter.aper.AperInVariable;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -36,7 +37,7 @@ public final class AperCalibrationConverterTest {
   @Test(dataProvider = "variables")
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
     Converter<BufferFrame, AperCalibrationCurrentVariable> converter = new LinkedConverter<>(
-        new ToIntegerConverter<>(AperVariable.class, 1000), AperCalibrationCurrentVariable.class);
+        new ToIntegerConverter<>(AperInVariable.class, 1000), AperCalibrationCurrentVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 219; i++) {

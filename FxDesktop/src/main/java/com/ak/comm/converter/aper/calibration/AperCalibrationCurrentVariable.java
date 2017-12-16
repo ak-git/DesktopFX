@@ -3,12 +3,13 @@ package com.ak.comm.converter.aper.calibration;
 import java.util.Set;
 
 import com.ak.comm.converter.DependentVariable;
+import com.ak.comm.converter.aper.AperInVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 
-public enum AperCalibrationCurrentVariable implements DependentVariable<AperVariable, AperCalibrationCurrentVariable> {
-  U1,
-  U2;
+public enum AperCalibrationCurrentVariable implements DependentVariable<AperInVariable, AperCalibrationCurrentVariable> {
+  CCU1,
+  CCU2;
 
   @Override
   public final DigitalFilter filter() {
@@ -16,8 +17,8 @@ public enum AperCalibrationCurrentVariable implements DependentVariable<AperVari
   }
 
   @Override
-  public final Class<AperVariable> getInputVariablesClass() {
-    return AperVariable.class;
+  public final Class<AperInVariable> getInputVariablesClass() {
+    return AperInVariable.class;
   }
 
   @Override

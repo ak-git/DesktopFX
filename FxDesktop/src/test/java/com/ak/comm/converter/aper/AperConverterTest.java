@@ -1,4 +1,4 @@
-package com.ak.comm.converter.aper.ecg;
+package com.ak.comm.converter.aper;
 
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -12,7 +12,6 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.Variable;
-import com.ak.comm.converter.aper.AperInVariable;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -20,7 +19,7 @@ import tec.uom.se.AbstractUnit;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public final class AperECGConverterTest {
+public final class AperConverterTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -33,17 +32,17 @@ public final class AperECGConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {15004, -486109, 825, 450003, -486108, 1075}},
+            new int[] {14974, -486109, 0, 808, 450000, -486108, 0, 1057}},
     };
   }
 
   @Test(dataProvider = "variables")
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
-    Converter<BufferFrame, AperECGVariable> converter = new LinkedConverter<>(
-        new ToIntegerConverter<>(AperInVariable.class, 1000), AperECGVariable.class);
+    Converter<BufferFrame, AperOutVariable> converter = new LinkedConverter<>(
+        new ToIntegerConverter<>(AperInVariable.class, 1000), AperOutVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 200 - 1; i++) {
+    for (int i = 0; i < 2000 - 1; i++) {
       long count = converter.apply(bufferFrame).count();
       Assert.assertTrue(count == 0 || count == 9 || count == 10, Long.toString(count));
     }
@@ -59,16 +58,18 @@ public final class AperECGConverterTest {
   public static void testVariableProperties() {
     EnumSet.of(AperInVariable.R1, AperInVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
     EnumSet.of(AperInVariable.E1, AperInVariable.E2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT), t.name()));
-    EnumSet.of(AperInVariable.RI1, AperInVariable.RI2).forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
+    EnumSet.of(AperInVariable.CCU1, AperInVariable.CCU2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
 
-    EnumSet.of(AperECGVariable.R1, AperECGVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.OHM)));
-    EnumSet.of(AperECGVariable.ECG1, AperECGVariable.ECG2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT)));
+    EnumSet.of(AperOutVariable.R1, AperOutVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.OHM)));
+    EnumSet.of(AperOutVariable.ECG1, AperOutVariable.ECG2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT)));
+    EnumSet.of(AperOutVariable.MYO1, AperOutVariable.MYO2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT)));
 
-    EnumSet<AperECGVariable> serviceVars = EnumSet.of(AperECGVariable.RI1, AperECGVariable.RI2);
+    EnumSet<AperOutVariable> serviceVars = EnumSet.of(AperOutVariable.CCU1, AperOutVariable.CCU2);
     serviceVars.forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
 
-    Assert.assertEquals(AperECGVariable.R1.filter().toString(), AperECGVariable.R2.filter().toString());
-    Assert.assertEquals(AperECGVariable.ECG1.filter().toString(), AperECGVariable.ECG2.filter().toString());
+    Assert.assertEquals(AperOutVariable.R1.filter().toString(), AperOutVariable.R2.filter().toString());
+    Assert.assertEquals(AperOutVariable.ECG1.filter().toString(), AperOutVariable.ECG2.filter().toString());
+    Assert.assertEquals(AperOutVariable.MYO1.filter().toString(), AperOutVariable.MYO2.filter().toString());
 
     serviceVars.forEach(t -> Assert.assertFalse(t.options().contains(Variable.Option.VISIBLE)));
     EnumSet.complementOf(serviceVars).forEach(t -> Assert.assertTrue(t.options().contains(Variable.Option.VISIBLE), t.name()));

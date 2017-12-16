@@ -7,17 +7,18 @@ import java.util.Set;
 import javax.measure.Unit;
 
 import com.ak.comm.converter.DependentVariable;
+import com.ak.comm.converter.aper.AperInVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.Interpolators;
 import com.ak.numbers.aper.AperCoefficients;
 import tec.uom.se.unit.Units;
 
-public enum AperCalibrationOhmVariable implements DependentVariable<AperVariable, AperCalibrationOhmVariable> {
+public enum AperCalibrationOhmVariable implements DependentVariable<AperInVariable, AperCalibrationOhmVariable> {
   R {
     @Override
-    public List<AperVariable> getInputVariables() {
-      return Collections.singletonList(AperVariable.R1);
+    public List<AperInVariable> getInputVariables() {
+      return Collections.singletonList(AperInVariable.R1);
     }
 
     @Override
@@ -27,8 +28,8 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperVariable
   },
   STD_R {
     @Override
-    public List<AperVariable> getInputVariables() {
-      return Collections.singletonList(AperVariable.R1);
+    public List<AperInVariable> getInputVariables() {
+      return Collections.singletonList(AperInVariable.R1);
     }
 
     @Override
@@ -43,8 +44,8 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperVariable
   },
   U {
     @Override
-    public List<AperVariable> getInputVariables() {
-      return Collections.singletonList(AperVariable.U1);
+    public List<AperInVariable> getInputVariables() {
+      return Collections.singletonList(AperInVariable.CCU1);
     }
 
     @Override
@@ -59,8 +60,8 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperVariable
     }
 
     @Override
-    public List<AperVariable> getInputVariables() {
-      return Collections.singletonList(AperVariable.U1);
+    public List<AperInVariable> getInputVariables() {
+      return Collections.singletonList(AperInVariable.CCU1);
     }
 
     @Override
@@ -75,8 +76,8 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperVariable
   };
 
   @Override
-  public final Class<AperVariable> getInputVariablesClass() {
-    return AperVariable.class;
+  public final Class<AperInVariable> getInputVariablesClass() {
+    return AperInVariable.class;
   }
 
   @Override

@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
  */
 public final class AperItoOhmChartApp extends AbstractSplineCoefficientsChartApp<ADCVariable, AperInVariable> {
   public AperItoOhmChartApp() {
-    super(AperCoefficients.ADC_TO_OHM_1, ADCVariable.ADC, AperInVariable.RI1);
+    super(AperCoefficients.ADC_TO_OHM_1, ADCVariable.ADC, AperInVariable.CCU1);
   }
 
   public static void main(String[] args) {
