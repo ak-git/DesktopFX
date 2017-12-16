@@ -56,7 +56,12 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
       return FilterBuilder.of().fir(AperCoefficients.MYO).comb(1000 / 50).build();
     }
   },
-  CCU1 {
+  CCR1 {
+    @Override
+    public List<AperInVariable> getInputVariables() {
+      return Collections.singletonList(AperInVariable.CCU1);
+    }
+
     @Override
     public Unit<?> getUnit() {
       return Units.OHM;
@@ -91,7 +96,12 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
       return Collections.singletonList(AperInVariable.E2);
     }
   },
-  CCU2 {
+  CCR2 {
+    @Override
+    public List<AperInVariable> getInputVariables() {
+      return Collections.singletonList(AperInVariable.CCU2);
+    }
+
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.of().expSum().operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM_2)).build();

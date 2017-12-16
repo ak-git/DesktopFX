@@ -1,4 +1,4 @@
-ADC RI(Ohm)
+ADC CCR2(Ohm)
 96 0
 97  15.2
 103 30.2

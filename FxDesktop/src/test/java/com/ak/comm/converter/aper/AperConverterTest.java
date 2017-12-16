@@ -64,7 +64,7 @@ public final class AperConverterTest {
     EnumSet.of(AperOutVariable.ECG1, AperOutVariable.ECG2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT)));
     EnumSet.of(AperOutVariable.MYO1, AperOutVariable.MYO2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT)));
 
-    EnumSet<AperOutVariable> serviceVars = EnumSet.of(AperOutVariable.CCU1, AperOutVariable.CCU2);
+    EnumSet<AperOutVariable> serviceVars = EnumSet.of(AperOutVariable.CCR1, AperOutVariable.CCR2);
     serviceVars.forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
 
     Assert.assertEquals(AperOutVariable.R1.filter().toString(), AperOutVariable.R2.filter().toString());
