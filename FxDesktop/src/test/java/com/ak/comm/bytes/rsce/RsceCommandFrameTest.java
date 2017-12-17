@@ -53,8 +53,16 @@ public class RsceCommandFrameTest {
         String.format("%s, Ohms = %s", frame, frame.extract(RsceCommandFrame.FrameField.R1_DOZEN_MILLI_OHM, 0)));
     Assert.assertEquals(frame.extract(RsceCommandFrame.FrameField.R2_DOZEN_MILLI_OHM, 0), rDozenMilliOhms[1],
         String.format("%s, Ohms = %s", frame, frame.extract(RsceCommandFrame.FrameField.R2_DOZEN_MILLI_OHM, 0)));
-    Assert.assertEquals(frame.extract(RsceCommandFrame.FrameField.INFO, 0), infoOnes[0],
-        String.format("%s, Info = %s", frame, frame.extract(RsceCommandFrame.FrameField.INFO, 0)));
+    Assert.assertEquals(frame.extract(RsceCommandFrame.FrameField.ACCELEROMETER, 0), infoOnes[0],
+        String.format("%s, Info = %s", frame, frame.extract(RsceCommandFrame.FrameField.ACCELEROMETER, 0)));
+  }
+
+  @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "finger")
+  public static void testInfoRequest(@Nonnull byte[] bytes, int fingerSpeed) {
+    RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
+    Assert.assertNotNull(frame);
+    Assert.assertEquals(frame.extract(RsceCommandFrame.FrameField.FINGER, 0), fingerSpeed,
+        String.format("%s, finger = %s", frame, frame.extract(RsceCommandFrame.FrameField.FINGER, 0)));
   }
 
   @Test

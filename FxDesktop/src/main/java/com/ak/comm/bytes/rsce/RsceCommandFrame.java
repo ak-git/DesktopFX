@@ -135,7 +135,7 @@ public final class RsceCommandFrame extends BufferFrame {
      *   0x00 0x09 (Length) 0xc7 (None-Reserve) 0xRheo1-Low 0xRheo1-High 0xRheo2-Low 0xRheo2-High <b>0xInfo-Low 0xInfo-High</b> CRC1 CRC2
      * </pre>
      */
-    INFO(Control.ALL, ActionType.NONE, RequestType.RESERVE, 3 + 2 + 2 + 2 + NON_LEN_BYTES) {
+    ACCELEROMETER(Control.ALL, ActionType.NONE, RequestType.RESERVE, 3 + 2 + 2 + 2 + NON_LEN_BYTES) {
       @Override
       int get(@Nonnull ByteBuffer buffer) {
         return buffer.getShort(7);
@@ -163,6 +163,18 @@ public final class RsceCommandFrame extends BufferFrame {
       @Override
       int get(@Nonnull ByteBuffer buffer) {
         return OPEN_PERCENT.get(buffer);
+      }
+    },
+    /**
+     * RsceCommandFrame[ 0x02, 0x05, 0x0c, 0x20, 0x4e, 0x04, 0xfb ] 7 bytes FINGER PRECISE STATUS_I_SPEED_ANGLE
+     * <pre>
+     *   0x02 (Finger) 0x05 (Length) 0x18 (Position-Empty) <b>0xRotateValue</b> CRC1 CRC2
+     * </pre>
+     */
+    FINGER(Control.FINGER, ActionType.PRECISE, RequestType.STATUS_I_SPEED_ANGLE, 3 + 2 + NON_LEN_BYTES) {
+      @Override
+      int get(@Nonnull ByteBuffer buffer) {
+        return buffer.getShort(3);
       }
     };
 

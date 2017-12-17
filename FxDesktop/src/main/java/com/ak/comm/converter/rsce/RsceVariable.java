@@ -3,7 +3,6 @@ package com.ak.comm.converter.rsce;
 import javax.measure.Unit;
 
 import com.ak.comm.converter.Variable;
-import tec.uom.se.AbstractUnit;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
@@ -21,12 +20,7 @@ public enum RsceVariable implements Variable<RsceVariable> {
       return MetricPrefix.CENTI(Units.OHM);
     }
   },
-  INFO {
-    @Override
-    public Unit<?> getUnit() {
-      return AbstractUnit.ONE;
-    }
-  },
+  ACCELEROMETER,
   OPEN {
     @Override
     public Unit<?> getUnit() {
@@ -38,5 +32,6 @@ public enum RsceVariable implements Variable<RsceVariable> {
     public Unit<?> getUnit() {
       return Units.PERCENT;
     }
-  }
+  },
+  FINGER_OPEN
 }

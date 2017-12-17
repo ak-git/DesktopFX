@@ -36,7 +36,7 @@ public class RsceConverterTest {
       Stream<int[]> stream = converter.apply(frame);
       stream.forEach(ints ->
           Assert.assertEquals(ints, IntStream.concat(IntStream.concat(Arrays.stream(rDozenMilliOhms), Arrays.stream(infoOnes)),
-              IntStream.of(0, 0)).toArray(), Arrays.toString(ints)));
+              IntStream.of(0, 0, 0)).toArray(), Arrays.toString(ints)));
 
     }, logRecord -> {
       for (int milliOhm : rDozenMilliOhms) {
@@ -44,7 +44,7 @@ public class RsceConverterTest {
       }
       for (RsceVariable rsceVariable : RsceVariable.values()) {
         Assert.assertTrue(logRecord.getMessage().contains(rsceVariable.name()));
-        if (rsceVariable == RsceVariable.INFO) {
+        if (EnumSet.of(RsceVariable.ACCELEROMETER, RsceVariable.FINGER_OPEN).contains(rsceVariable)) {
           Assert.assertEquals(rsceVariable.getUnit(), AbstractUnit.ONE);
         }
         else if (EnumSet.of(RsceVariable.R1, RsceVariable.R2).contains(rsceVariable)) {

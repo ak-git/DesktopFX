@@ -90,6 +90,16 @@ public class RsceTestDataProvider {
     };
   }
 
+  @DataProvider(name = "finger")
+  public static Object[][] finger() {
+    return new Object[][] {
+        {new byte[] {0x02, 0x05, 0x0c, 0x20, 0x4e, 0x04, (byte) 0xfb},
+            20000},
+        {new byte[] {0x02, 0x05, 0x0c, (byte) 0xe0, (byte) 0xb1, 0x14, (byte) 0xbb},
+            -20000},
+    };
+  }
+
   @DataProvider(name = "invalidRequests", parallel = true)
   public static Object[][] invalidRequests() {
     return new Object[][] {
