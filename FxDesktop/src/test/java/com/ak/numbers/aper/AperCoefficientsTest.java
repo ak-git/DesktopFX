@@ -20,15 +20,18 @@ public class AperCoefficientsTest {
         {AperCoefficients.ECG, 61},
         {AperCoefficients.ADC_TO_OHM_1, 36},
         {AperCoefficients.ADC_TO_OHM_2, 36},
-        {AperSurfaceCoefficients.RI_VADC_0, 4},
-        {AperSurfaceCoefficients.RI_VADC_15000, 64},
+        {AperSurfaceCoefficients.CCU1_VADC_0, 4},
+        {AperSurfaceCoefficients.CCU1_VADC_15100, 34},
+        {AperSurfaceCoefficients.CCU1_VADC_30200, 32},
+        {AperSurfaceCoefficients.CCU1_VADC_90400, 32},
+        {AperSurfaceCoefficients.CCU1_VADC_301400, 30},
     };
   }
 
   @Test
   public static void testCoefficients() {
     Assert.assertEquals(AperCoefficients.values().length, 5);
-    Assert.assertEquals(AperSurfaceCoefficients.values().length, 3);
+    Assert.assertEquals(AperSurfaceCoefficients.values().length, 5);
   }
 
   @Test(dataProvider = "aper-coefficients")

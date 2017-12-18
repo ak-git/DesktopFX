@@ -3,5 +3,5 @@ package com.ak.numbers.aper;
 import com.ak.numbers.Coefficients;
 
 public enum AperSurfaceCoefficients implements Coefficients {
-  RI_VADC_0, RI_VADC_15000, RI_VADC_450000
+  CCU1_VADC_0, CCU1_VADC_15100, CCU1_VADC_30200, CCU1_VADC_90400, CCU1_VADC_301400
 }
