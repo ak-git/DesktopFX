@@ -33,5 +33,5 @@ public enum RsceVariable implements Variable<RsceVariable> {
       return Units.PERCENT;
     }
   },
-  FINGER_OPEN
+  FINGER_CLOSED
 }

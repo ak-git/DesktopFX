@@ -14,6 +14,12 @@
     <bytecodeTargetLevel>
       <module name="Communication_main" target="1.9" />
       <module name="Communication_test" target="1.9" />
+      <module name="DesktopFX-Communication_main" target="1.9" />
+      <module name="DesktopFX-Communication_test" target="1.9" />
+      <module name="DesktopFX-FxCore_main" target="1.9" />
+      <module name="DesktopFX-FxCore_test" target="1.9" />
+      <module name="DesktopFX-FxDesktop_main" target="1.9" />
+      <module name="DesktopFX-FxDesktop_test" target="1.9" />
       <module name="FxCore_main" target="1.9" />
       <module name="FxCore_test" target="1.9" />
       <module name="FxDesktop_main" target="1.9" />

@@ -44,7 +44,7 @@ public class RsceConverterTest {
       }
       for (RsceVariable rsceVariable : RsceVariable.values()) {
         Assert.assertTrue(logRecord.getMessage().contains(rsceVariable.name()));
-        if (EnumSet.of(RsceVariable.ACCELEROMETER, RsceVariable.FINGER_OPEN).contains(rsceVariable)) {
+        if (EnumSet.of(RsceVariable.ACCELEROMETER, RsceVariable.FINGER_CLOSED).contains(rsceVariable)) {
           Assert.assertEquals(rsceVariable.getUnit(), AbstractUnit.ONE);
         }
         else if (EnumSet.of(RsceVariable.R1, RsceVariable.R2).contains(rsceVariable)) {

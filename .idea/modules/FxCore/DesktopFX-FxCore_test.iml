@@ -1,40 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":FxDesktop:main" external.linked.project.path="$MODULE_DIR$/../../../FxDesktop" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.ak" external.system.module.type="sourceSet" external.system.module.version="2017.3" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":FxCore:test" external.linked.project.path="$MODULE_DIR$/../../../FxCore" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.ak" external.system.module.type="sourceSet" external.system.module.version="2017.3" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="Spring" name="Spring">
-      <configuration>
-        <fileset id="fileset" name="Spring Application Context" removed="false">
-          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/context.xml</file>
-        </fileset>
-        <fileset id="fileset5" name="nmisr" removed="false">
-          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/nmisr/context.xml</file>
-        </fileset>
-        <fileset id="fileset6" name="aper-calibration-ohm" removed="false">
-          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/aper/calibration/ohm/context.xml</file>
-        </fileset>
-        <fileset id="fileset7" name="aper" removed="false">
-          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/aper/context.xml</file>
-        </fileset>
-        <fileset id="fileset2" name="aper-calibration-current" removed="false">
-          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/aper/calibration/current/context.xml</file>
-        </fileset>
-      </configuration>
+      <configuration />
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_9">
-    <output url="file://$MODULE_DIR$/../../../FxDesktop/out/production/classes" />
+    <output-test url="file://$MODULE_DIR$/../../../FxCore/out/test/classes" />
     <exclude-output />
-    <content url="file://$MODULE_DIR$/../../../FxDesktop/src/main">
-      <sourceFolder url="file://$MODULE_DIR$/../../../FxDesktop/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../FxDesktop/src/main/resources" type="java-resource" />
+    <content url="file://$MODULE_DIR$/../../../FxCore/src/test">
+      <sourceFolder url="file://$MODULE_DIR$/../../../FxCore/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../FxCore/src/test/resources" type="java-test-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="FxCore_main" />
-    <orderEntry type="module" module-name="Communication_main" />
+    <orderEntry type="module" module-name="DesktopFX-FxCore_main" />
     <orderEntry type="module" module-name="Util_main" />
     <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
     <orderEntry type="library" name="Gradle: com.github.spotbugs:spotbugs:3.1.0-RC6" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-context:5.0.0.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.testng:testng:6.11" level="project" />
     <orderEntry type="library" name="Gradle: org.ow2.asm:asm-analysis:6.0" level="project" />
     <orderEntry type="library" name="Gradle: org.ow2.asm:asm-commons:6.0" level="project" />
     <orderEntry type="library" name="Gradle: org.ow2.asm:asm-xml:6.0" level="project" />
@@ -48,18 +33,19 @@
     <orderEntry type="library" name="Gradle: commons-lang:commons-lang:2.6" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.findbugs:jFormatString:3.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.github.spotbugs:spotbugs-annotations:3.1.0-RC6" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework:spring-context:5.0.0.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.scream3r:jssc:2.8.0" level="project" />
-    <orderEntry type="library" name="Gradle: xml-apis:xml-apis:1.0.b2" level="project" />
-    <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:3.0.1" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-aop:5.0.0.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-beans:5.0.0.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-expression:5.0.0.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-core:5.0.0.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-math3:3.6.1" level="project" />
     <orderEntry type="library" name="Gradle: tec.uom:uom-se:1.0.8" level="project" />
+    <orderEntry type="library" name="Gradle: com.beust:jcommander:1.64" level="project" />
+    <orderEntry type="library" name="Gradle: org.yaml:snakeyaml:1.17" level="project" />
+    <orderEntry type="library" name="Gradle: xml-apis:xml-apis:1.0.b2" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:3.0.1" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-jcl:5.0.0.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: tec.uom.lib:uom-lib-common:1.0.2" level="project" />
     <orderEntry type="library" name="Gradle: javax.measure:unit-api:1.0" level="project" />
   </component>
+  <component name="TestModuleProperties" production-module="FxCore_main" />
 </module>
