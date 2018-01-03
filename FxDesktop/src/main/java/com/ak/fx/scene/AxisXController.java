@@ -1,6 +1,5 @@
 package com.ak.fx.scene;
 
-import java.util.function.IntConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,9 +56,9 @@ public final class AxisXController {
   @Nonnegative
   private int decimateFactor = 1;
 
-  public AxisXController(@Nonnull IntConsumer onUpdate) {
-    startProperty.addListener((observable, oldValue, newValue) -> onUpdate.accept(newValue.intValue() - oldValue.intValue()));
-    lengthProperty.addListener((observable, oldValue, newValue) -> onUpdate.accept(0));
+  public AxisXController(@Nonnull Runnable onUpdate) {
+    startProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
+    lengthProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
   }
 
   @Override

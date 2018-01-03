@@ -15,10 +15,10 @@ import com.ak.numbers.aper.AperCoefficients;
 import tec.uom.se.unit.Units;
 
 public enum AperCalibrationOhmVariable implements DependentVariable<AperInVariable, AperCalibrationOhmVariable> {
-  R {
+  ADC_R {
     @Override
     public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(AperInVariable.R1);
+      return Collections.singletonList(VAR_R);
     }
 
     @Override
@@ -26,10 +26,10 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperInVariab
       return FilterBuilder.of().smoothingImpulsive(20).rrs(2000).build();
     }
   },
-  STD_R {
+  STD_ADC_R {
     @Override
     public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(AperInVariable.R1);
+      return Collections.singletonList(VAR_R);
     }
 
     @Override
@@ -42,10 +42,10 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperInVariab
       return Collections.singleton(Option.TEXT_VALUE_BANNER);
     }
   },
-  U {
+  ADC_PUMP_U {
     @Override
     public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(AperInVariable.CCU1);
+      return Collections.singletonList(VAR_CCU);
     }
 
     @Override
@@ -61,12 +61,12 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperInVariab
 
     @Override
     public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(AperInVariable.CCU1);
+      return Collections.singletonList(VAR_CCU);
     }
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().smoothingImpulsive(20).operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM_1)).build();
+      return FilterBuilder.of().smoothingImpulsive(20).operator(Interpolators.interpolator(COEFF_ADC_TO_OHM)).build();
     }
 
     @Override
@@ -74,6 +74,10 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperInVariab
       return Collections.singleton(Option.TEXT_VALUE_BANNER);
     }
   };
+
+  public static final AperInVariable VAR_R = AperInVariable.R1;
+  public static final AperInVariable VAR_CCU = AperInVariable.CCU1;
+  public static final AperCoefficients COEFF_ADC_TO_OHM = AperCoefficients.ADC_TO_OHM_1;
 
   @Override
   public final Class<AperInVariable> getInputVariablesClass() {

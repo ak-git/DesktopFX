@@ -6,15 +6,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.Flow;
-import java.util.concurrent.TimeUnit;
-import java.util.function.IntConsumer;
-import java.util.function.ObjIntConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -29,7 +25,6 @@ import com.ak.fx.scene.ScaleYInfo;
 import com.ak.fx.util.FxUtils;
 import com.ak.util.Strings;
 import javafx.animation.Animation;
-import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
@@ -46,69 +41,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
     implements Initializable, Flow.Subscriber<int[]> {
   @Nonnull
   private final GroupService<RESPONSE, REQUEST, EV> service;
-  private final AxisXController axisXController = new AxisXController(new IntConsumer() {
-    private final AnimationTimer timer = new AnimationTimer() {
-      private long time = -1;
-
-      @Override
-      public void start() {
-        super.start();
-        time = -1;
-      }
-
-      @Override
-      public void handle(long now) {
-        if (time == -1) {
-          time = now;
-        }
-        else if (now - time > TimeUnit.MILLISECONDS.toNanos(50)) {
-          changed();
-          stop();
-        }
-      }
-    };
-    private boolean posDirection;
-
-    @Override
-    public void accept(int shiftValue) {
-      if (posDirection == (shiftValue > 0)) {
-        if (Math.abs(shiftValue) > axisXController.getLength() / 2) {
-          changed();
-        }
-        else {
-          Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
-          if (shiftValue > 0) {
-            display(axisXController.getEnd(), shiftValue, (doubles, i) -> Objects.requireNonNull(chart).shiftRight(i, doubles));
-          }
-          else {
-            display(axisXController.getStart(), shiftValue, (doubles, i) -> Objects.requireNonNull(chart).shiftLeft(i, doubles));
-          }
-          timer.start();
-        }
-      }
-      else {
-        posDirection = !posDirection;
-        changed();
-      }
-    }
-
-    private void display(@Nonnegative int axisEnd, int shiftValue, ObjIntConsumer<double[]> consumer) {
-      Map<EV, int[]> chartData = service.read(axisEnd - shiftValue, axisEnd);
-      chartData.forEach((ev, ints) -> {
-        if (ev.options().contains(Variable.Option.VISIBLE)) {
-          consumer.accept(IntStream.of(filter(ints)).unordered().parallel()
-              .mapToDouble(axisYController.getScale(ev)).toArray(), ev.indexBy(Variable.Option.VISIBLE));
-        }
-      });
-      check(shiftValue, chartData.values().iterator().next().length);
-    }
-
-    private void check(@Nonnegative int needSize, int shiftValue) {
-      if (Math.abs(shiftValue) < needSize) {
-        axisXController.checkLength(axisXController.getLength() - (needSize - shiftValue));
-      }
-    }
-  });
+  private final AxisXController axisXController = new AxisXController(this::changed);
   private final AxisYController<EV> axisYController = new AxisYController<>();
   @Nullable
   private Flow.Subscription subscription;
