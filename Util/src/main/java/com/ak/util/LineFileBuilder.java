@@ -1,10 +1,7 @@
 package com.ak.util;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.MathContext;
 import java.nio.file.Paths;
-import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.Supplier;
@@ -16,7 +13,6 @@ import java.util.stream.DoubleStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import javafx.util.Builder;
 
@@ -55,6 +51,11 @@ public class LineFileBuilder<IN> {
     return this;
   }
 
+  public LineFileBuilder<IN> xLog10Range(double startInclusive, double endInclusive) {
+    xRange.rangeLog10(startInclusive, endInclusive);
+    return this;
+  }
+
   public LineFileBuilder<IN> yStream(Supplier<DoubleStream> doubleStreamSupplier) {
     yRange.doubleStreamSupplier = doubleStreamSupplier;
     return this;
@@ -62,6 +63,11 @@ public class LineFileBuilder<IN> {
 
   public LineFileBuilder<IN> yRange(double startInclusive, double endInclusive, @Nonnegative double step) {
     yRange.range(startInclusive, endInclusive, step);
+    return this;
+  }
+
+  public LineFileBuilder<IN> yLog10Range(double startInclusive, double endInclusive) {
+    yRange.rangeLog10(startInclusive, endInclusive);
     return this;
   }
 
@@ -95,11 +101,7 @@ public class LineFileBuilder<IN> {
     private final String outFormat;
     @Nonnull
     private final LineFileCollector.Direction direction;
-    private double start;
-    private double end;
-    @Nonnegative
-    private double precision;
-    @Nullable
+    @Nonnull
     private Supplier<DoubleStream> doubleStreamSupplier;
 
     private Range(@Nonnull String outFormat, @Nonnull LineFileCollector.Direction direction) {
@@ -107,15 +109,25 @@ public class LineFileBuilder<IN> {
       this.direction = direction;
     }
 
+    private void rangeLog10(@Nonnegative double start, @Nonnegative double end) {
+      double from = Math.min(start, end);
+      double to = Math.max(start, end);
+
+      doubleStreamSupplier = () -> DoubleStream.concat(DoubleStream.iterate(from, operand -> operand * 10.0).takeWhile(value -> value < to).
+          flatMap(scale -> DoubleStream.iterate(scale, operand -> operand + scale / 5).takeWhile(value -> value < to).limit(9 * 5)), DoubleStream.of(to));
+      toFile();
+    }
+
     private void range(double start, double end, @Nonnegative double precision) {
       if (end <= start || (end - start < precision)) {
         throw new IllegalArgumentException(String.format(
             String.format("[%1$s .. %1$s] precision %1$s", outFormat), start, end, precision));
       }
-      this.start = start;
-      this.end = end;
-      this.precision = precision;
+      doubleStreamSupplier = () -> DoubleStream.iterate(start, dl2L -> dl2L + precision).takeWhile(value -> value < end + precision).sequential();
+      toFile();
+    }
 
+    private void toFile() {
       try {
         String fileName = direction == LineFileCollector.Direction.HORIZONTAL ? "x.txt" : "y.txt";
         check(build().mapToObj(value -> String.format(outFormat, value)).collect(
@@ -128,10 +140,7 @@ public class LineFileBuilder<IN> {
 
     @Override
     public DoubleStream build() {
-      return Optional.ofNullable(doubleStreamSupplier).orElse(() ->
-          DoubleStream.iterate(start, dl2L -> dl2L + precision).
-              limit(BigDecimal.valueOf((end - start) / precision + 1).
-                  round(MathContext.UNLIMITED).intValue()).sequential()).get();
+      return doubleStreamSupplier.get();
     }
   }
 }
