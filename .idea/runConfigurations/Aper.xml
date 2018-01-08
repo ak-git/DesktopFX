@@ -7,7 +7,7 @@
       </pattern>
     </extension>
     <option name="MAIN_CLASS_NAME" value="com.ak.fx.desktop.FxApplication" />
-    <option name="VM_PARAMETERS" value="" />
+    <option name="VM_PARAMETERS" value="-Dtest=true" />
     <option name="PROGRAM_PARAMETERS" value="--context=aper" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
