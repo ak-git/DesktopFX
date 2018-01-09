@@ -1,13 +1,13 @@
 import com.github.spotbugs.SpotBugsTask
 
 plugins {
-    id 'com.github.spotbugs' version '1.4'
+    id 'com.github.spotbugs' version '1.6.0'
 }
 
 ext.projectIds = ['java': '1.9']
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "4.2.1"
+    gradleVersion = "4.4.1"
 }
 
 allprojects {
@@ -21,7 +21,7 @@ subprojects {
     apply plugin: "com.github.spotbugs"
 
     spotbugs {
-        toolVersion = '3.1.0-RC6'
+        toolVersion = '3.1.1'
     }
 
     tasks.withType(SpotBugsTask) {
@@ -56,8 +56,8 @@ subprojects {
 
     dependencies {
         compile group: 'javax.inject', name: 'javax.inject', version: '1'
-        compile group: 'com.github.spotbugs', name: 'spotbugs', version: '3.1.0-RC6'
-        testCompile group: 'org.testng', name: 'testng', version: '6.11'
+        compile group: 'com.github.spotbugs', name: 'spotbugs', version: '3.1.1'
+        testCompile group: 'org.testng', name: 'testng', version: '6.13.1'
     }
 
     test {
@@ -84,7 +84,7 @@ project(':Communication') {
 
 project(':FxCore') {
     dependencies {
-        compile group: 'org.springframework', name: 'spring-context', version: '5.0.0.RELEASE'
+        compile group: 'org.springframework', name: 'spring-context', version: '5.0.2.RELEASE'
         compile project(':Util')
     }
 }
