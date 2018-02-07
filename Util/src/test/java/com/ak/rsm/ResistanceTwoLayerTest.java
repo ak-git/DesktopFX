@@ -1,5 +1,13 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.function.ToDoubleFunction;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+
+import com.ak.inverse.Inequality;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -48,5 +56,49 @@ public class ResistanceTwoLayerTest {
   @Test(expectedExceptions = CloneNotSupportedException.class)
   public static void testNotClone() throws CloneNotSupportedException {
     new ResistanceTwoLayer(new TetrapolarSystem(1, 2, MetricPrefix.MILLI(Units.METRE))).clone();
+  }
+
+
+  @DataProvider(name = "two-measures")
+  public static Object[][] twoMeasuresParameters() {
+    return new Object[][] {
+        {new double[] {10.0, 1.0}, 15.0},
+        {new double[] {10.0, 1.0}, 15.01},
+    };
+  }
+
+  @Test(dataProvider = "two-measures", enabled = false)
+  public static void testTwoMeasures(double[] rho, double hmm) {
+    double lCCmm = 50.0;
+    double sPU1mm = 30.0;
+    double sPU2mm = 10.0;
+    double dLmm = 0.05;
+
+    double[] rOhmsMeans = DoubleStream.of(dLmm, -dLmm)
+        .mapToObj(error -> Arrays.stream(new double[] {sPU1mm - error, sPU2mm - error}).map(s -> {
+          TetrapolarSystem tetrapolarSystem = new TetrapolarSystem(s, lCCmm + error, MetricPrefix.MILLI(Units.METRE));
+          return new ResistanceTwoLayer(tetrapolarSystem).value(rho[0], rho[1],
+              Quantities.getQuantity(hmm, MetricPrefix.MILLI(Units.METRE)).to(Units.METRE).getValue().doubleValue());
+        }).toArray())
+        .max(Comparator.comparingDouble(new ToDoubleFunction<>() {
+          double[] rOhmsPredicted = DoubleStream.of(sPU1mm, sPU2mm).map(s -> {
+            TetrapolarSystem tetrapolarSystem = new TetrapolarSystem(s, lCCmm, MetricPrefix.MILLI(Units.METRE));
+            return new ResistanceTwoLayer(tetrapolarSystem).value(rho[0], rho[1],
+                Quantities.getQuantity(hmm, MetricPrefix.MILLI(Units.METRE)).to(Units.METRE).getValue().doubleValue());
+          }).toArray();
+
+          @Override
+          public double applyAsDouble(double[] rOhms) {
+            Inequality inequality = Inequality.proportional();
+            for (int i = 0; i < rOhms.length; i++) {
+              inequality.applyAsDouble(rOhms[i], rOhmsPredicted[i]);
+            }
+            return inequality.getAsDouble();
+          }
+        }))
+        .orElseThrow(IllegalStateException::new);
+
+    Logger.getAnonymousLogger().
+        info(DoubleStream.of(rOhmsMeans).mapToObj(value -> String.format("%.3f", value)).collect(Collectors.joining(", ")));
   }
 }
