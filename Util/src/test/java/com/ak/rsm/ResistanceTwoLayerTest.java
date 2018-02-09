@@ -5,12 +5,16 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import tec.uom.se.quantity.Quantities;
-import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
+
+import static tec.uom.se.unit.MetricPrefix.MILLI;
 
 public class ResistanceTwoLayerTest {
   private ResistanceTwoLayerTest() {
@@ -35,9 +39,9 @@ public class ResistanceTwoLayerTest {
 
   @Test(dataProvider = "layer-model")
   public static void testLayer(Double[] rho, double hmm, double smm, double lmm, double rOhm) {
-    TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MetricPrefix.MILLI(Units.METRE));
+    TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MILLI(Units.METRE));
     Assert.assertEquals(new ResistanceTwoLayer(system).value(rho[0], rho[1],
-        Quantities.getQuantity(hmm, MetricPrefix.MILLI(Units.METRE)).to(Units.METRE).getValue().doubleValue()), rOhm, 0.001);
+        Quantities.getQuantity(hmm, MILLI(Units.METRE)).to(Units.METRE).getValue().doubleValue()), rOhm, 0.001);
   }
 
   @Test
@@ -52,31 +56,35 @@ public class ResistanceTwoLayerTest {
 
   @Test(expectedExceptions = CloneNotSupportedException.class)
   public static void testNotClone() throws CloneNotSupportedException {
-    new ResistanceTwoLayer(new TetrapolarSystem(1, 2, MetricPrefix.MILLI(Units.METRE))).clone();
+    new ResistanceTwoLayer(new TetrapolarSystem(1, 2, MILLI(Units.METRE))).clone();
   }
 
 
   @DataProvider(name = "two-measures")
   public static Object[][] twoMeasuresParameters() {
     return new Object[][] {
-        {new double[] {10.0, 1.0}, 15.0},
+        {
+            new double[] {10.0, 1.0}, 15.0,
+            new TetrapolarSystem[] {
+                new TetrapolarSystem(30.0, 50.0, MILLI(Units.METRE)),
+                new TetrapolarSystem(10.0, 50.0, MILLI(Units.METRE))
+            },
+        },
     };
   }
 
-  @Test(dataProvider = "two-measures", enabled = true)
-  public static void testTwoMeasures(double[] rho, double hmm) {
-    double lCCmm = 50.0;
-    double sPU1mm = 30.0;
-    double sPU2mm = 10.0;
-    double error = 0.05;
+  @Test(dataProvider = "two-measures", enabled = false)
+  public static void testTwoMeasures(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnull TetrapolarSystem[] systems) {
+    double eLmm = 0.05;
+    double dHmm = 0.01;
 
-    double[] rOhmsMeans = Arrays.stream(new double[] {sPU1mm + error, sPU2mm + error}).map(s -> {
-      TetrapolarSystem tetrapolarSystem = new TetrapolarSystem(s, lCCmm - error, MetricPrefix.MILLI(Units.METRE));
-      return new ResistanceTwoLayer(tetrapolarSystem).value(rho[0], rho[1],
-          Quantities.getQuantity(hmm, MetricPrefix.MILLI(Units.METRE)).to(Units.METRE).getValue().doubleValue());
-    }).toArray();
-
-    Logger.getAnonymousLogger().
-        info(DoubleStream.of(rOhmsMeans).mapToObj(value -> String.format("%.3f", value)).collect(Collectors.joining(", ")));
+    double[] rOhms = DoubleStream.of(hmm, hmm + dHmm).flatMap(h ->
+        Arrays.stream(Arrays.stream(systems).mapToDouble(s ->
+            new ResistanceTwoLayer(s.newWithError(eLmm, MILLI(Units.METRE))).value(rho[0], rho[1],
+                Quantities.getQuantity(h, MILLI(Units.METRE)).to(Units.METRE).getValue().doubleValue())).toArray())
+    ).toArray();
+    Logger.getAnonymousLogger().info(DoubleStream.of(rOhms).mapToObj(value ->
+        String.format("%.3f", value)).collect(Collectors.joining(", ", "[", "]"))
+    );
   }
 }

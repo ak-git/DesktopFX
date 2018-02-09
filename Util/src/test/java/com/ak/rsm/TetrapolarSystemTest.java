@@ -6,6 +6,7 @@ import java.util.stream.DoubleStream;
 import javax.annotation.Nonnull;
 import javax.measure.Quantity;
 import javax.measure.quantity.ElectricResistance;
+import javax.measure.quantity.Length;
 
 import com.ak.util.LineFileBuilder;
 import org.testng.Assert;
@@ -69,6 +70,22 @@ public class TetrapolarSystemTest {
   public static void testEquals(TetrapolarSystem system1, TetrapolarSystem system2, boolean equals) {
     Assert.assertEquals(system1.equals(system2), equals, String.format("%s compared with %s", system1, system2));
     Assert.assertEquals(system1.hashCode() == system2.hashCode(), equals, String.format("%s compared with %s", system1, system2));
+  }
+
+  @DataProvider(name = "tetrapolar-systems-with-error", parallel = true)
+  public static Object[][] tetrapolarSystemsWithError() {
+    return new Object[][] {
+        {new TetrapolarSystem(2.0, 3.0, METRE), new TetrapolarSystem(2000.0 + 10, 3000.0 - 10.0, MILLI(METRE)),
+            Quantities.getQuantity(10.0, MILLI(METRE))},
+        {new TetrapolarSystem(2.0, 3.0, METRE), new TetrapolarSystem(2.0 - 0.010, 3.0 + 0.010, METRE),
+            Quantities.getQuantity(-10.0, MILLI(METRE))},
+    };
+  }
+
+  @Test(dataProvider = "tetrapolar-systems-with-error")
+  public static void testEqualsWithError(@Nonnull TetrapolarSystem system, @Nonnull TetrapolarSystem systemE, @Nonnull Quantity<Length> err) {
+    Assert.assertTrue(system.newWithError(err.getValue().doubleValue(), err.getUnit()).equals(systemE),
+        String.format("%s compared with %s", system, systemE));
   }
 
   @Test
