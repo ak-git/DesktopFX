@@ -201,7 +201,7 @@ public class FilterBuilderTest {
             FilterBuilder.of().operator(() -> Integer::bitCount).rrs(10).build(), FilterBuilder.of().biOperator(() -> Integer::compare).build()),
         String.format(
             "NoDelayFilter (compensate %.1f delay x 2) - SelectFilter (indexes = [0]) - Operator  (delay %.1f) - RRS10 (delay %.1f)%n" +
-                "                                           DelayFilter (delay %d) - SelectFilter (indexes = [1, 2]) - BiOperator FilterBuilder$2 (delay %.1f)",
+                "                                           DelayFilter (delay %d) - SelectFilter (indexes = [1, 2]) - BiOperator  (delay %.1f)",
             5.0, 0.0, 4.5,
             5, 0.0
         )

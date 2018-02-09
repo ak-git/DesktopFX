@@ -8,7 +8,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.concurrent.Flow;
+import java.util.logging.Filter;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
@@ -25,6 +27,31 @@ import jssc.SerialPortList;
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
 final class SerialService extends AbstractService implements WritableByteChannel, Flow.Publisher<ByteBuffer>, Refreshable, Flow.Subscription {
+  private static final String SERIAL_PORT_NOT_FOUND = "Serial port not found";
+
+  static {
+    Logger.getLogger(SerialService.class.getName()).setFilter(new Filter() {
+      private boolean notFoundFlag;
+
+      @Override
+      public boolean isLoggable(LogRecord record) {
+        if (SERIAL_PORT_NOT_FOUND.equals(record.getMessage())) {
+          if (notFoundFlag) {
+            return false;
+          }
+          else {
+            notFoundFlag = true;
+            return true;
+          }
+        }
+        else {
+          notFoundFlag = false;
+          return true;
+        }
+      }
+    });
+  }
+
   @Nonnull
   private final SerialPort serialPort;
   @Nonnegative
@@ -71,7 +98,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
   @Override
   public void subscribe(Flow.Subscriber<? super ByteBuffer> s) {
     if (serialPort.getPortName().isEmpty()) {
-      Logger.getLogger(getClass().getName()).log(Level.INFO, "Serial port not found");
+      Logger.getLogger(getClass().getName()).log(Level.INFO, SERIAL_PORT_NOT_FOUND);
     }
     else {
       try {
