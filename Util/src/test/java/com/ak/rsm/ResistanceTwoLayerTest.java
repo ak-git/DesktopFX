@@ -58,32 +58,27 @@ public class ResistanceTwoLayerTest {
     new ResistanceTwoLayer(new TetrapolarSystem(1, 2, MILLI(METRE))).clone();
   }
 
-  private static final Logger LOGGER = Logger.getLogger(ResistanceTwoLayerTest.class.getName());
-
   @DataProvider(name = "two-measures")
   public static Object[][] twoMeasuresParameters() {
     return new Object[][] {
         {
             new double[] {10.0, 1.0}, Metrics.fromMilli(15.0),
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
-                new TetrapolarSystem(10.0, 50.0, MILLI(METRE))
-            },
+            new TetrapolarSystemPair(10.0, 30.0, 50.0, MILLI(METRE))
         }
     };
   }
 
   @Test(dataProvider = "two-measures", enabled = false)
-  public static void testTwoMeasures(@Nonnull double[] rho, @Nonnegative double hSI, @Nonnull TetrapolarSystem[] systems) {
+  public static void testTwoMeasures(@Nonnull double[] rho, @Nonnegative double hSI, @Nonnull TetrapolarSystemPair system) {
     DoubleStream.of(0.1, 0.0, -0.1).forEach(eLmm -> {
       double dH = Metrics.fromMilli(0.01);
 
       double[] rOhms = DoubleStream.of(hSI, hSI + dH).flatMap(h ->
-          Arrays.stream(Arrays.stream(systems).mapToDouble(s ->
+          Arrays.stream(Arrays.stream(system.getPair()).mapToDouble(s ->
               new ResistanceTwoLayer(s.newWithError(eLmm, MILLI(METRE))).value(rho[0], rho[1], h)).toArray())
       ).toArray();
-      LOGGER.info(DoubleStream.of(rOhms).mapToObj(value ->
-          String.format("%.3f", value)).collect(Collectors.joining(", ", "[", "]"))
+      Logger.getAnonymousLogger().info(DoubleStream.of(rOhms).mapToObj(value ->
+          String.format("%.3f", value)).collect(Collectors.joining(", ", String.format("eLmm = %.1f [", eLmm), "]"))
       );
     });
   }

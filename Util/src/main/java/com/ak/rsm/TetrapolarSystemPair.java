@@ -13,8 +13,8 @@ final class TetrapolarSystemPair implements Cloneable {
 
   TetrapolarSystemPair(@Nonnegative double s1PU, @Nonnegative double s2PU, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
     pair = new TetrapolarSystem[2];
-    pair[0] = new TetrapolarSystem(Math.max(s1PU, s2PU), lCC, unit);
-    pair[1] = new TetrapolarSystem(Math.min(s1PU, s2PU), lCC, unit);
+    pair[0] = new TetrapolarSystem(Math.min(s1PU, s2PU), lCC, unit);
+    pair[1] = new TetrapolarSystem(Math.max(s1PU, s2PU), lCC, unit);
   }
 
   private TetrapolarSystemPair(TetrapolarSystem[] pair) {
@@ -27,6 +27,9 @@ final class TetrapolarSystemPair implements Cloneable {
     );
   }
 
+  TetrapolarSystem[] getPair() {
+    return Arrays.copyOf(pair, pair.length);
+  }
 
   @Override
   public boolean equals(Object o) {

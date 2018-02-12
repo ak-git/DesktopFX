@@ -1,5 +1,7 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
+
 import javax.annotation.Nonnull;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
@@ -31,6 +33,7 @@ public class TetrapolarSystemPairTest {
   @Test(dataProvider = "tetrapolarPairs")
   public static void testEquals(@Nonnull TetrapolarSystemPair system1, TetrapolarSystemPair system2, boolean equals) {
     Assert.assertEquals(system1.equals(system2), equals, String.format("%s compared with %s", system1, system2));
+    Assert.assertEquals(Arrays.equals(system1.getPair(), system2.getPair()), equals, String.format("%s compared with %s", system1, system2));
   }
 
   @Test
