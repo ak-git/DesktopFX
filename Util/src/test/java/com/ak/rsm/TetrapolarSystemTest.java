@@ -25,14 +25,14 @@ public class TetrapolarSystemTest {
   @DataProvider(name = "system-apparent", parallel = true)
   public static Object[][] systemApparent() {
     return new Object[][] {
-        {new TetrapolarSystem(0.030, 0.06, METRE), Quantities.getQuantity(1000, MILLI(OHM)), Math.PI * 9.0 / 400.0},
-        {new TetrapolarSystem(30.0, 90.0, MILLI(METRE)), Quantities.getQuantity(1.0 / Math.PI, OHM), 3.0 / 50.0},
-        {new TetrapolarSystem(40.0, 80.0, MILLI(METRE)), Quantities.getQuantity(1.0 / Math.PI, OHM), 3.0 / 100.0},
+        {new TetrapolarSystem(0.030, 0.06, METRE), 1.0, Math.PI * 9.0 / 400.0},
+        {new TetrapolarSystem(30.0, 90.0, MILLI(METRE)), 1.0 / Math.PI, 3.0 / 50.0},
+        {new TetrapolarSystem(40.0, 80.0, MILLI(METRE)), 1.0 / Math.PI, 3.0 / 100.0},
     };
   }
 
   @Test(dataProvider = "system-apparent")
-  public static void testApparentResistivity(TetrapolarSystem system, Quantity<ElectricResistance> resistance,
+  public static void testApparentResistivity(TetrapolarSystem system, double resistance,
                                              double specificResistance) {
     Assert.assertEquals(system.getApparent(resistance), specificResistance, 1.0e-6);
   }
@@ -69,6 +69,7 @@ public class TetrapolarSystemTest {
   @Test(dataProvider = "tetrapolar-systems")
   public static void testEquals(TetrapolarSystem system1, TetrapolarSystem system2, boolean equals) {
     Assert.assertEquals(system1.equals(system2), equals, String.format("%s compared with %s", system1, system2));
+    Assert.assertEquals(system1.getL(), system2.getL(), 0.01, String.format("%s compared with %s", system1, system2));
     Assert.assertEquals(system1.hashCode() == system2.hashCode(), equals, String.format("%s compared with %s", system1, system2));
   }
 
@@ -111,7 +112,7 @@ public class TetrapolarSystemTest {
             xRange(1.0, 100.0, 1.0).
             yRange(1.0, 120.0, 1.0).
             generate(String.format("Apparent_Rho_At_%.2f.txt", sToL),
-                (r, lmm) -> new TetrapolarSystem(lmm * sToL, lmm, MILLI(METRE)).getApparent(Quantities.getQuantity(r, OHM))
+                (r, lmm) -> new TetrapolarSystem(lmm * sToL, lmm, MILLI(METRE)).getApparent(r)
             );
       }
       catch (IOException e) {

@@ -2,10 +2,11 @@ package com.ak.inverse;
 
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleSupplier;
+import java.util.function.ToDoubleBiFunction;
 
 import javax.annotation.Nonnull;
 
-public final class Inequality implements DoubleBinaryOperator, DoubleSupplier {
+public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, ToDoubleBiFunction<double[], double[]> {
   private static final DoubleBinaryOperator L2_NORM = StrictMath::hypot;
   @Nonnull
   private final DoubleBinaryOperator errorDefinition;
@@ -31,6 +32,14 @@ public final class Inequality implements DoubleBinaryOperator, DoubleSupplier {
   public double applyAsDouble(double means, double predicted) {
     errorNorm = L2_NORM.applyAsDouble(errorNorm, errorDefinition.applyAsDouble(means, predicted));
     return errorNorm;
+  }
+
+  @Override
+  public double applyAsDouble(double[] means, double[] predicted) {
+    for (int i = 0; i < means.length; i++) {
+      applyAsDouble(means[i], predicted[i]);
+    }
+    return getAsDouble();
   }
 
   @Override

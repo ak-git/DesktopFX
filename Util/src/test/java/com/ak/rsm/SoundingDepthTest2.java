@@ -9,7 +9,6 @@ import com.ak.util.LineFileBuilder;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.testng.annotations.Test;
-import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.Units;
 
 public class SoundingDepthTest2 {
@@ -30,7 +29,7 @@ public class SoundingDepthTest2 {
               TetrapolarSystem system = new TetrapolarSystem(0.5, 1.0, Units.METRE);
               TrivariateFunction twoLayerR = new ResistanceTwoLayer(system);
               double r = twoLayerR.value(rho1, 1.0 / rho1Rho2, hL);
-              double apparentRho = system.getApparent(Quantities.getQuantity(r, Units.OHM));
+              double apparentRho = system.getApparent(r);
               return new double[] {(apparentRho - rho1) / rho1};
             }
         );
@@ -57,7 +56,7 @@ public class SoundingDepthTest2 {
     public double applyAsDouble(double hL) {
       double rho1 = 1.0;
       double r = twoLayerR.value(rho1, 1.0 / rho1Rho2, hL);
-      double apparentRho = system.getApparent(Quantities.getQuantity(r, Units.OHM));
+      double apparentRho = system.getApparent(r);
       double dRho2RhoMeans = Math.abs(apparentRho - rho1) / rho1;
       Inequality inequality = Inequality.absolute();
       inequality.applyAsDouble(dRho2RhoMeans, dRho2RhoPredicted);
