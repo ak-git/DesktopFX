@@ -1,13 +1,5 @@
 package com.ak.rsm;
 
-import java.util.Arrays;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -56,30 +48,5 @@ public class ResistanceTwoLayerTest {
   @Test(expectedExceptions = CloneNotSupportedException.class)
   public static void testNotClone() throws CloneNotSupportedException {
     new ResistanceTwoLayer(new TetrapolarSystem(1, 2, MILLI(METRE))).clone();
-  }
-
-  @DataProvider(name = "two-measures")
-  public static Object[][] twoMeasuresParameters() {
-    return new Object[][] {
-        {
-            new double[] {10.0, 1.0}, Metrics.fromMilli(15.0),
-            new TetrapolarSystemPair(10.0, 30.0, 50.0, MILLI(METRE))
-        }
-    };
-  }
-
-  @Test(dataProvider = "two-measures", enabled = false)
-  public static void testTwoMeasures(@Nonnull double[] rho, @Nonnegative double hSI, @Nonnull TetrapolarSystemPair system) {
-    DoubleStream.of(0.1, 0.0, -0.1).forEach(eLmm -> {
-      double dH = Metrics.fromMilli(0.01);
-
-      double[] rOhms = DoubleStream.of(hSI, hSI + dH).flatMap(h ->
-          Arrays.stream(Arrays.stream(system.getPair()).mapToDouble(s ->
-              new ResistanceTwoLayer(s.newWithError(eLmm, MILLI(METRE))).value(rho[0], rho[1], h)).toArray())
-      ).toArray();
-      Logger.getAnonymousLogger().info(DoubleStream.of(rOhms).mapToObj(value ->
-          String.format("%.3f", value)).collect(Collectors.joining(", ", String.format("eLmm = %.1f [", eLmm), "]"))
-      );
-    });
   }
 }
