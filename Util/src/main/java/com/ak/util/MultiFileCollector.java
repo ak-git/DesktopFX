@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
-public final class MultiFileCollector<IN> implements Collector<Stream<IN>, List<LineFileCollector>, Boolean> {
+final class MultiFileCollector<IN> implements Collector<Stream<IN>, List<LineFileCollector>, Boolean> {
   @Nonnull
   private final String outFormat;
   @Nonnull

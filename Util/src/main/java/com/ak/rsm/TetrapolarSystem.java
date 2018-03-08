@@ -20,7 +20,7 @@ final class TetrapolarSystem implements Cloneable {
 
   TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
     if (sPU >= lCC) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException(String.format("%.6f > %.6f", sPU, lCC));
     }
     sPotentialUnitSI = toDouble(sPU, unit);
     lCurrentCarryingSI = toDouble(lCC, unit);
