@@ -36,16 +36,26 @@ public class OptimumStoL2Test {
 
   @Test(enabled = false)
   public static void testOptimalS1S2() {
-    LineFileBuilder.<double[]>of("%.2f %.2f %.6f").
+    LineFileBuilder.<double[]>of("%.2f %.3f %.6f").
         xRange(STEP_S * 2, 1.0 - STEP_S, STEP_S).
-        yLog10Range(0.1, 10.0).
+        yLog10Range(0.01, 100.0).
         add("zS1.txt", value -> value[0]).
         add("zS2.txt", value -> value[1]).
+        add("zRho1Error.txt", value -> value[2]).
+        add("zRho2Error.txt", value -> value[3]).
         generate((hToL, rho1rho2) -> {
-          double[] optimalS1S2 = getOptimalS1S2(RHO1_SI / rho1rho2, hToL);
-          Logger.getLogger(OptimumStoL2Test.class.getName()).info(String.format("rho1 / rho2 = %.2f; h = %.2f; s1, s2 = [%s]",
-              rho1rho2, hToL, Arrays.stream(optimalS1S2).mapToObj(value -> String.format("%.3f", value)).collect(Collectors.joining(", "))));
-          return optimalS1S2;
+          double rho2 = RHO1_SI / rho1rho2;
+          double[] optimalS1S2 = getOptimalS1S2(rho2, hToL);
+          double[] rho1rho2Errors = getRho1Rho2Errors(optimalS1S2[0], optimalS1S2[1], rho2, hToL);
+
+          Logger.getLogger(OptimumStoL2Test.class.getName()).info(
+              String.format("rho1 / rho2 = %.2f; h = %.2f; [s1, s2] = [%s]; [rho1Err, rho2Err] = [%s]",
+                  rho1rho2, hToL,
+                  Arrays.stream(optimalS1S2).mapToObj(value -> String.format("%.3f", value)).collect(Collectors.joining(", ")),
+                  Arrays.stream(rho1rho2Errors).mapToObj(value -> String.format("%.3f", value)).collect(Collectors.joining(", "))
+              )
+          );
+          return DoubleStream.concat(Arrays.stream(optimalS1S2), Arrays.stream(rho1rho2Errors)).toArray();
         });
   }
 
@@ -69,7 +79,7 @@ public class OptimumStoL2Test {
             Inequality.absolute().applyAsDouble(getRho1Rho2Errors2(s1s2[0], s1s2[1], rho2, hSI), new double[] {0, 0})
         ),
         GoalType.MINIMIZE, new NelderMeadSimplex(2, STEP_S),
-        new InitialGuess(new double[] {0.5, STEP_S})).getPoint();
+        new InitialGuess(new double[] {3.0 / 5.0, 1.0 / 3.0})).getPoint();
   }
 
   @Test(enabled = false)
@@ -82,7 +92,7 @@ public class OptimumStoL2Test {
   }
 
   private static double[] getRho1Rho2Errors2(double sPU1, double sPU2, double rho2, double hSI) {
-    if (sPU2 > sPU1 - STEP_S) {
+    if (sPU2 > sPU1 - STEP_S || Math.max(sPU1, sPU2) >= LCC_SI) {
       return new double[] {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};
     }
     return getRho1Rho2Errors(sPU1, sPU2, rho2, hSI);
@@ -94,6 +104,7 @@ public class OptimumStoL2Test {
         .flatMap(signDL -> scalarMultiply(signDL, -1, 1))
         .flatMap(signDS1 -> scalarMultiply(signDS1, -1, 1))
         .flatMap(signDS2 -> scalarMultiply(signDS2, -1, 1))
+        .parallel()
         .map((double[] doubles) -> {
           double signDL = doubles[0];
           double signDS1 = doubles[1];
@@ -112,10 +123,15 @@ public class OptimumStoL2Test {
             return new double[] {dRByRho1, dRByRho2};
           }).toArray(value -> new double[value][2]);
 
-          double[] array = new LUDecomposition(new Array2DRowRealMatrix(A)).getSolver().solve(new ArrayRealVector(B)).toArray();
-          array[0] = Math.abs(array[0] * (LCC_SI / RHO1_SI));
-          array[1] = Math.abs(array[1] * (LCC_SI / rho2));
-          return array;
+          try {
+            double[] array = new LUDecomposition(new Array2DRowRealMatrix(A)).getSolver().solve(new ArrayRealVector(B)).toArray();
+            array[0] = Math.abs(array[0] * (LCC_SI / RHO1_SI));
+            array[1] = Math.abs(array[1] * (LCC_SI / rho2));
+            return array;
+          }
+          catch (RuntimeException e) {
+            return new double[] {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};
+          }
         })
         .max(Comparator.comparingDouble(optimum -> Inequality.proportional().applyAsDouble(optimum, new double[] {RHO1_SI, rho2})))
         .orElseThrow(IllegalStateException::new);
