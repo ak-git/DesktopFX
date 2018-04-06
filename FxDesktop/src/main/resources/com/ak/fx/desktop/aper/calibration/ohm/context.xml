@@ -20,7 +20,7 @@
     </bean>
 
     <bean class="com.ak.comm.interceptor.simple.RampBytesInterceptor" scope="prototype">
-        <constructor-arg name="baudRate" value="BR_921600"/>
+        <constructor-arg name="baudRate" value="BR_460800"/>
         <constructor-arg name="frameLength" value="25"/>
     </bean>
 

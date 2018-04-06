@@ -2,7 +2,23 @@
 <module external.linked.project.id=":FxDesktop:main" external.linked.project.path="$MODULE_DIR$/../../../FxDesktop" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.ak" external.system.module.type="sourceSet" external.system.module.version="2017.3" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="Spring" name="Spring">
-      <configuration />
+      <configuration>
+        <fileset id="fileset" name="aper-calibration-ohm" removed="false">
+          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/aper/calibration/ohm/context.xml</file>
+        </fileset>
+        <fileset id="fileset2" name="aper-calibration-cc" removed="false">
+          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/aper/calibration/current/context.xml</file>
+        </fileset>
+        <fileset id="fileset3" name="aper" removed="false">
+          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/aper/context.xml</file>
+        </fileset>
+        <fileset id="fileset4" name="default" removed="false">
+          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/context.xml</file>
+        </fileset>
+        <fileset id="fileset5" name="nmisr" removed="false">
+          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/nmisr/context.xml</file>
+        </fileset>
+      </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_9">

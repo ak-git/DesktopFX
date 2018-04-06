@@ -18,7 +18,7 @@ public enum AperInVariable implements Variable<AperInVariable> {
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().operator(() -> adc -> (int) Math.round((adc - ((1 << 17) * 25)) / 6.5)).build();
+      return FilterBuilder.of().operator(() -> adc -> (int) Math.round((adc - ((1 << 17) * 25)) / 6.0)).build();
     }
   },
   CCU1,

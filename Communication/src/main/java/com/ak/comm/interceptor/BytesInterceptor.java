@@ -12,7 +12,7 @@ import static jssc.SerialPort.BAUDRATE_115200;
 
 public interface BytesInterceptor<RESPONSE, REQUEST> extends Function<ByteBuffer, Stream<RESPONSE>> {
   enum BaudRate {
-    BR_115200(BAUDRATE_115200), BR_921600(BAUDRATE_115200 * 8);
+    BR_115200(BAUDRATE_115200), BR_460800(BAUDRATE_115200 * 4), BR_921600(BAUDRATE_115200 * 8);
 
     @Nonnegative
     private final int baudRate;
