@@ -124,7 +124,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     });
   }
 
-  public FilterBuilder expSum() {
+  FilterBuilder expSum() {
     return chain(new ExpSumFilter());
   }
 
@@ -145,7 +145,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
         of().comb(averageFactor).integrate().operator(() -> n -> n / averageFactor));
   }
 
-  public FilterBuilder std(@Nonnegative int averageFactor) {
+  FilterBuilder std(@Nonnegative int averageFactor) {
     return wrap(String.format("std%d", averageFactor),
         of().fork(new NoFilter(), of().rrs(averageFactor).build()).biOperator(() -> (x, mean) -> x - mean).chain(new SqrtSumFilter(averageFactor)));
   }

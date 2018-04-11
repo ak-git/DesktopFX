@@ -1,4 +1,4 @@
-RI(Ohm)    V(ADC)
+CCU1(ADC)    V(ADC)
 
-0	    0
-3458	0
+0	    6
+3322	6
