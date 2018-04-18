@@ -38,7 +38,7 @@ public class TetrapolarSystemPairTest {
 
   @Test
   public static void testNotEquals() {
-    Assert.assertFalse(new TetrapolarSystemPair(10.0, 20.0, 25.0, MILLI(METRE)).equals(new Object()));
+    Assert.assertNotEquals(new TetrapolarSystemPair(10.0, 20.0, 25.0, MILLI(METRE)), new Object());
   }
 
   @Test(dataProvider = "tetrapolarPairs")
@@ -75,8 +75,8 @@ public class TetrapolarSystemPairTest {
 
   @Test(dataProvider = "tetrapolarPairs-with-error")
   public static void testNewWithError(@Nonnull TetrapolarSystemPair system, @Nonnull TetrapolarSystemPair systemE, @Nonnull Quantity<Length> err) {
-    Assert.assertTrue(system.newWithError(err.getValue().doubleValue(), err.getUnit()).equals(systemE),
-        String.format("%s compared with %s", system, systemE));
+    Assert.assertEquals(system.newWithError(err.getValue().doubleValue(), err.getUnit()),
+        systemE, String.format("%s compared with %s", system, systemE));
 
   }
 }

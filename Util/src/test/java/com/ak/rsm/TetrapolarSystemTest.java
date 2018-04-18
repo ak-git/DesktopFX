@@ -85,13 +85,12 @@ public class TetrapolarSystemTest {
 
   @Test(dataProvider = "tetrapolar-systems-with-error")
   public static void testEqualsWithError(@Nonnull TetrapolarSystem system, @Nonnull TetrapolarSystem systemE, @Nonnull Quantity<Length> err) {
-    Assert.assertTrue(system.newWithError(err.getValue().doubleValue(), err.getUnit()).equals(systemE),
-        String.format("%s compared with %s", system, systemE));
+    Assert.assertEquals(system.newWithError(err.getValue().doubleValue(), err.getUnit()), systemE, String.format("%s compared with %s", system, systemE));
   }
 
   @Test
   public static void testNotEquals() {
-    Assert.assertFalse(new TetrapolarSystem(1.0, 2.0, METRE).equals(new Object()));
+    Assert.assertNotEquals(new TetrapolarSystem(1.0, 2.0, METRE), new Object());
   }
 
   @Test(expectedExceptions = CloneNotSupportedException.class)

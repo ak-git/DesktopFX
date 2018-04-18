@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
 
 import com.ak.inverse.Inequality;
 import com.ak.util.LineFileBuilder;
@@ -132,35 +132,23 @@ public class OptimumStoL2Test {
     double signDSMax = -1.0;
     double signDSMin = 1.0;
 
+    DoubleUnaryOperator R = sToL -> new ResistanceTwoLayer(new TetrapolarSystem(sToL, 1.0, METRE)).value(RHO1_SI, rho2, hToL);
+
     DoubleBinaryOperator rightPart = (sToL, signS) ->
-        new DerivativeRBySLNormalizedByRho1(k12, sToL, LCC_SI, L).value(hToL) * RHO1_SI * signDL +
-            new DerivativeRBySLNormalizedByRho1(k12, sToL, LCC_SI, S).value(hToL) * RHO1_SI * signS;
+        (new DerivativeRBySLNormalizedByRho1(k12, sToL, LCC_SI, L).value(hToL) * RHO1_SI * signDL +
+            new DerivativeRBySLNormalizedByRho1(k12, sToL, LCC_SI, S).value(hToL) * RHO1_SI * signS) / R.applyAsDouble(sToL);
     double[] B = {rightPart.applyAsDouble(sMax, signDSMax), rightPart.applyAsDouble(sMin, signDSMin)};
 
     double[][] A = DoubleStream.of(sMax, sMin).mapToObj(sToL -> {
-      double resistanceTwoLayer = new ResistanceTwoLayer(new TetrapolarSystem(sToL, 1.0, METRE)).value(RHO1_SI, rho2, hToL);
-      double dRByRho2 = new DerivativeRbyRho2Normalized(k12, sToL).value(hToL) *
-          (resistanceTwoLayer / rho2);
-      double dRByRho1 = (resistanceTwoLayer - dRByRho2 * rho2) / RHO1_SI;
-      return new double[] {dRByRho1, dRByRho2};
+      double dRByRho2 = new DerivativeRbyRho2Normalized(k12, sToL).value(hToL);
+      return new double[] {1.0 - dRByRho2, dRByRho2};
     }).toArray(value -> new double[value][2]);
 
     try {
-      double[] array = new LUDecomposition(new Array2DRowRealMatrix(A)).getSolver().solve(new ArrayRealVector(B)).toArray();
-      array[0] = Math.abs(array[0] * (LCC_SI / RHO1_SI));
-      array[1] = Math.abs(array[1] * (LCC_SI / rho2));
-      return array;
+      return new LUDecomposition(new Array2DRowRealMatrix(A)).getSolver().solve(new ArrayRealVector(B)).toArray();
     }
     catch (RuntimeException e) {
       return new double[] {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};
     }
-  }
-
-  private static Stream<? extends double[]> scalarMultiply(double[] destination, double... values) {
-    double[] pairs = Arrays.copyOf(destination, destination.length + 1);
-    return DoubleStream.of(values).mapToObj(value -> new double[] {value}).flatMap(toAdd -> {
-      System.arraycopy(toAdd, 0, pairs, pairs.length - toAdd.length, toAdd.length);
-      return Stream.of(pairs);
-    });
   }
 }
