@@ -132,6 +132,10 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new FIRFilter(coefficients));
   }
 
+  FilterBuilder iir(double... coefficients) {
+    return chain(new IIRFilter(coefficients));
+  }
+
   public FilterBuilder comb(@Nonnegative int combFactor) {
     return chain(new CombFilter(combFactor));
   }
