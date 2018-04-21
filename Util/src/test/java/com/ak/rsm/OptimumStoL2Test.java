@@ -1,15 +1,17 @@
 package com.ak.rsm;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
 
 import com.ak.inverse.Inequality;
 import com.ak.util.LineFileBuilder;
+import com.ak.util.LineFileCollector;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.LUDecomposition;
@@ -19,6 +21,7 @@ import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static com.ak.rsm.DerivativeRBySLNormalizedByRho1.DerivateBy.L;
@@ -26,7 +29,6 @@ import static com.ak.rsm.DerivativeRBySLNormalizedByRho1.DerivateBy.S;
 import static tec.uom.se.unit.Units.METRE;
 
 public class OptimumStoL2Test {
-  private static final double[] EMPTY = {};
   private static final double LCC_SI = 1.0;
   private static final double RHO1_SI = 1.0;
   private static final double STEP_S = 0.05;
@@ -59,6 +61,16 @@ public class OptimumStoL2Test {
         });
   }
 
+  @Test(enabled = false)
+  public static void testFixedS1S2() {
+    LineFileBuilder.<double[]>of("%.2f %.3f %.6f").
+        xRange(STEP_S * 2, 1.0 - STEP_S, STEP_S).
+        yLog10Range(0.01, 100.0).
+        add("zRho1Error.txt", value -> value[0]).
+        add("zRho2Error.txt", value -> value[1]).
+        generate((hToL, rho1rho2) -> Arrays.stream(getRho1Rho2Errors(1.0 / 3.0, 3.0 / 5.0, RHO1_SI / rho1rho2, hToL)).toArray());
+  }
+
 
   @Test(enabled = false)
   public static void testOptimalS1S2FixedK() {
@@ -88,7 +100,21 @@ public class OptimumStoL2Test {
         xRange(STEP_S * 2.0, 1.0 - STEP_S, STEP_S).
         yRange(STEP_S * 2.0, 1.0 - STEP_S, STEP_S).
         add("zErrorRho1.txt", value -> value[0]).add("zErrorRho2.txt", value -> value[1]).
-        generate((sPU1, sPU2) -> getRho1Rho2Errors2(sPU1, sPU2, 0.1, 0.2));
+        generate((sPU1, sPU2) -> getRho1Rho2Errors2(sPU1, sPU2, 1.0 / 5.0, 0.5));
+  }
+
+  @Test(enabled = false)
+  public static void testRho1Rho2ErrorsIterateH() throws IOException {
+    Assert.assertNotNull(DoubleStream.iterate(0.1, operand -> operand + 0.02).takeWhile(value -> value <= 1.0).mapToObj(hToL -> {
+      double[] errors = getRho1Rho2Errors2(3.0 / 5.0, 1.0 / 3.0, 10, hToL);
+      return String.format("h = %.2f; errRho1 = %.3f; errRho2 = %.3f", hToL, errors[0], errors[1]);
+    }).collect(new LineFileCollector(Paths.get("errors.txt"), LineFileCollector.Direction.VERTICAL)));
+  }
+
+  @Test(enabled = false)
+  public static void testRho1Rho2ErrorsSingle() {
+    double[] errors = getRho1Rho2Errors2(3.0 / 5.0, 1.0 / 3.0, 0.1, 0.2);
+    Logger.getAnonymousLogger().info(String.format("errRho1 = %.2f; errRho2 = %.2f", errors[0], errors[1]));
   }
 
   private static double[] getRho1Rho2Errors2(double sPU1, double sPU2, double rho2, double hSI) {
@@ -98,50 +124,31 @@ public class OptimumStoL2Test {
     return getRho1Rho2Errors(sPU1, sPU2, rho2, hSI);
   }
 
-  private static double[] getRho1Rho2Errors(double sPU1, double sPU2, double rho2, double hToL) {
+  private static double[] getRho1Rho2Errors(double s1, double s2, double rho2, double hToL) {
+    double sMax = Math.max(s1, s2);
+    double sMin = Math.min(s1, s2);
     double k12 = ResistanceTwoLayer.getK12(RHO1_SI, rho2);
-    return Stream.of(EMPTY)
-        .flatMap(signDL -> scalarMultiply(signDL, -1, 1))
-        .flatMap(signDS1 -> scalarMultiply(signDS1, -1, 1))
-        .flatMap(signDS2 -> scalarMultiply(signDS2, -1, 1))
-        .parallel()
-        .map((double[] doubles) -> {
-          double signDL = doubles[0];
-          double signDS1 = doubles[1];
-          double signDS2 = doubles[2];
+    double signDL = 1.0;
+    double signDSMax = -1.0;
+    double signDSMin = 1.0;
 
-          DoubleBinaryOperator rightPart = (sToL, signS) ->
-              new DerivativeRBySLNormalizedByRho1(k12, sToL, LCC_SI, L).value(hToL) * RHO1_SI * signDL +
-                  new DerivativeRBySLNormalizedByRho1(k12, sToL, LCC_SI, S).value(hToL) * RHO1_SI * signS;
-          double[] B = {rightPart.applyAsDouble(sPU1, signDS1), rightPart.applyAsDouble(sPU2, signDS2)};
+    DoubleUnaryOperator R = sToL -> new ResistanceTwoLayer(new TetrapolarSystem(sToL, 1.0, METRE)).value(RHO1_SI, rho2, hToL);
 
-          double[][] A = DoubleStream.of(sPU1, sPU2).mapToObj(sToL -> {
-            double resistanceTwoLayer = new ResistanceTwoLayer(new TetrapolarSystem(sToL, 1.0, METRE)).value(RHO1_SI, rho2, hToL);
-            double dRByRho2 = new DerivativeRbyRho2Normalized(k12, sToL).value(hToL) *
-                (resistanceTwoLayer / rho2);
-            double dRByRho1 = (resistanceTwoLayer - dRByRho2 * rho2) / RHO1_SI;
-            return new double[] {dRByRho1, dRByRho2};
-          }).toArray(value -> new double[value][2]);
+    DoubleBinaryOperator rightPart = (sToL, signS) ->
+        (new DerivativeRBySLNormalizedByRho1(k12, sToL, LCC_SI, L).value(hToL) * RHO1_SI * signDL +
+            new DerivativeRBySLNormalizedByRho1(k12, sToL, LCC_SI, S).value(hToL) * RHO1_SI * signS) / R.applyAsDouble(sToL);
+    double[] B = {rightPart.applyAsDouble(sMax, signDSMax), rightPart.applyAsDouble(sMin, signDSMin)};
 
-          try {
-            double[] array = new LUDecomposition(new Array2DRowRealMatrix(A)).getSolver().solve(new ArrayRealVector(B)).toArray();
-            array[0] = Math.abs(array[0] * (LCC_SI / RHO1_SI));
-            array[1] = Math.abs(array[1] * (LCC_SI / rho2));
-            return array;
-          }
-          catch (RuntimeException e) {
-            return new double[] {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};
-          }
-        })
-        .max(Comparator.comparingDouble(optimum -> Inequality.proportional().applyAsDouble(optimum, new double[] {RHO1_SI, rho2})))
-        .orElseThrow(IllegalStateException::new);
-  }
+    double[][] A = DoubleStream.of(sMax, sMin).mapToObj(sToL -> {
+      double dRByRho2 = new DerivativeRbyRho2Normalized(k12, sToL).value(hToL);
+      return new double[] {1.0 - dRByRho2, dRByRho2};
+    }).toArray(value -> new double[value][2]);
 
-  private static Stream<? extends double[]> scalarMultiply(double[] destination, double... values) {
-    double[] pairs = Arrays.copyOf(destination, destination.length + 1);
-    return DoubleStream.of(values).mapToObj(value -> new double[] {value}).flatMap(toAdd -> {
-      System.arraycopy(toAdd, 0, pairs, pairs.length - toAdd.length, toAdd.length);
-      return Stream.of(pairs);
-    });
+    try {
+      return new LUDecomposition(new Array2DRowRealMatrix(A)).getSolver().solve(new ArrayRealVector(B)).toArray();
+    }
+    catch (RuntimeException e) {
+      return new double[] {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};
+    }
   }
 }

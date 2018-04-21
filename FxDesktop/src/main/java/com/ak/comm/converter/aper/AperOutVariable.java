@@ -12,7 +12,8 @@ import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.Interpolators;
 import com.ak.numbers.aper.AperCoefficients;
-import com.ak.numbers.aper.AperSurfaceCoefficients;
+import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
+import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
@@ -30,7 +31,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().biOperator(Interpolators.interpolator(AperSurfaceCoefficients.class)).
+      return FilterBuilder.of().biOperator(Interpolators.interpolator(AperSurfaceCoefficientsChannel1.class)).
           smoothingImpulsive(10).build();
     }
   },
@@ -69,7 +70,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().expSum().operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM_1)).build();
+      return FilterBuilder.of().operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM_1)).build();
     }
 
     @Override
@@ -82,6 +83,12 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
     @Override
     public List<AperInVariable> getInputVariables() {
       return Arrays.asList(AperInVariable.CCU2, AperInVariable.R2);
+    }
+
+    @Override
+    public DigitalFilter filter() {
+      return FilterBuilder.of().biOperator(Interpolators.interpolator(AperSurfaceCoefficientsChannel2.class)).
+          smoothingImpulsive(10).build();
     }
   },
   ECG2 {
@@ -104,7 +111,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().expSum().operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM_2)).build();
+      return FilterBuilder.of().operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM_2)).build();
     }
   };
 
