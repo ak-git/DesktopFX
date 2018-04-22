@@ -1,6 +1,5 @@
 package com.ak.digitalfilter;
 
-import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
@@ -40,19 +39,27 @@ public class StreamFilterTest {
     }, {
         FilterBuilder.of().peakToPeak(2000).build(),
         IntStream.generate(() -> (int) Math.round(RANDOM.nextGaussian() * 1000)).limit(4000), 5000, 9000
+    }, {
+        FilterBuilder.of().rrs().build(),
+        IntStream.generate(() -> 1000).limit(3000), 1000, 1000
+    }, {
+        FilterBuilder.of().rrs().build(),
+        IntStream.generate(() -> RANDOM.nextInt(1000)).limit(3000), 400, 600
+    }, {
+        FilterBuilder.of().rrs().build(),
+        IntStream.generate(() -> (int) Math.round(RANDOM.nextGaussian() * 1000 + 1000)).limit(4000).limit(3000), 900, 1100
     }};
   }
 
 
   @Test(dataProvider = "stream", successPercentage = 80, invocationCount = 100)
   public static void testFilter(@Nonnull DigitalFilter filter, @Nonnull IntStream data, int min, int max) {
-    AtomicInteger counter = new AtomicInteger();
+    AtomicInteger lastValue = new AtomicInteger();
     filter.forEach(values -> {
       Assert.assertEquals(values.length, 1);
-      if (counter.incrementAndGet() > filter.getDelay() * 2) {
-        Assert.assertTrue(values[0] >= min && values[0] <= max, String.format("%d - %s - %d", min, Arrays.toString(values), max));
-      }
+      lastValue.set(values[0]);
     });
     data.forEach(filter::accept);
+    Assert.assertTrue(lastValue.get() >= min && lastValue.get() <= max, String.format("%d - %s - %d", min, lastValue.get(), max));
   }
 }

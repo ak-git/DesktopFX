@@ -154,6 +154,10 @@ public class FilterBuilder implements Builder<DigitalFilter> {
         of().comb(averageFactor).integrate().operator(() -> n -> n / averageFactor));
   }
 
+  public FilterBuilder rrs() {
+    return chain(new RRSFilter());
+  }
+
   FilterBuilder std(@Nonnegative int averageFactor) {
     return wrap(String.format("std%d", averageFactor),
         of().fork(new NoFilter(), of().rrs(averageFactor).build()).biOperator(() -> (x, mean) -> x - mean).chain(new SqrtSumFilter(averageFactor)));

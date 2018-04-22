@@ -31,7 +31,7 @@ public final class AperCalibrationConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {1521, 100506}},
+            new int[] {1513, 100006}},
     };
   }
 
@@ -41,9 +41,9 @@ public final class AperCalibrationConverterTest {
         new ToIntegerConverter<>(AperInVariable.class, 1000), AperCalibrationVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 219; i++) {
+    for (int i = 0; i < 20 * 1000 - 1; i++) {
       long count = converter.apply(bufferFrame).count();
-      Assert.assertTrue(count == 0 || count == 1, String.format("Index %d, count %d", i, count));
+      Assert.assertTrue(count == 0 || count == 1 || count == 20, String.format("Index %d, count %d", i, count));
     }
     Assert.assertEquals(converter.apply(bufferFrame).peek(ints -> {
       Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));

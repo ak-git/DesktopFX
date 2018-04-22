@@ -125,6 +125,11 @@ public class SimpleFilterTest {
         new int[] {1, -2, 3, -4, 5, -6, 7, -8},
         new int[] {1, 3, 5, 7, 9, 11, 13, 15},
         1.0
+    }, {
+        FilterBuilder.of().rrs().build(),
+        new int[] {10, 11, 9, 11, 9, 11, 9},
+        new int[] {10, 11, 10, 10, 10, 10, 10},
+        0.0
     }};
   }
 

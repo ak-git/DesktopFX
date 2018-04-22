@@ -33,7 +33,7 @@ public enum AperCalibrationVariable implements DependentVariable<AperInVariable,
 
   @Override
   public final DigitalFilter filter() {
-    return FilterBuilder.of().smoothingImpulsive(20).build();
+    return FilterBuilder.of().smoothingImpulsive(20).rrs().build();
   }
 
   @Override
