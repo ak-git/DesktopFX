@@ -12,7 +12,7 @@ task wrapper(type: Wrapper) {
 
 allprojects {
     group = 'com.ak'
-    version = '2017.3'
+    version = '2018.1'
     apply plugin: 'idea'
 }
 
@@ -72,6 +72,8 @@ project(':Util') {
     dependencies {
         compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
         compile group: 'tec.uom', name: 'uom-se', version: '1.0.8'
+        compile group: 'javax.json', name: 'javax.json-api', version: '1.1.2'
+        compile group: 'org.glassfish', name: 'javax.json', version: '1.1.2'
     }
 }
 
