@@ -20,17 +20,17 @@ public class AperCoefficientsTest {
         {AperCoefficients.ECG, 61},
         {AperCoefficients.ADC_TO_OHM_1, 20},
         {AperCoefficients.ADC_TO_OHM_2, 20},
-        {AperSurfaceCoefficientsChannel1.CCU1_VADC_0, 4},
-        {AperSurfaceCoefficientsChannel1.CCU1_VADC_15100, 16},
-        {AperSurfaceCoefficientsChannel1.CCU1_VADC_30200, 14},
-        {AperSurfaceCoefficientsChannel1.CCU1_VADC_90400, 12},
-        {AperSurfaceCoefficientsChannel1.CCU1_VADC_301400, 10},
+        {AperSurfaceCoefficientsChannel1.CCU_VADC_0, 4},
+        {AperSurfaceCoefficientsChannel1.CCU_VADC_15100, 16},
+        {AperSurfaceCoefficientsChannel1.CCU_VADC_30200, 14},
+        {AperSurfaceCoefficientsChannel1.CCU_VADC_90400, 12},
+        {AperSurfaceCoefficientsChannel1.CCU_VADC_301400, 10},
 
-        {AperSurfaceCoefficientsChannel2.CCU2_VADC_0, 4},
-        {AperSurfaceCoefficientsChannel2.CCU2_VADC_15100, 16},
-        {AperSurfaceCoefficientsChannel2.CCU2_VADC_30200, 14},
-        {AperSurfaceCoefficientsChannel2.CCU2_VADC_90400, 12},
-        {AperSurfaceCoefficientsChannel2.CCU2_VADC_301400, 10},
+        {AperSurfaceCoefficientsChannel2.CCU_VADC_0, 4},
+        {AperSurfaceCoefficientsChannel2.CCU_VADC_15100, 16},
+        {AperSurfaceCoefficientsChannel2.CCU_VADC_30200, 14},
+        {AperSurfaceCoefficientsChannel2.CCU_VADC_90400, 12},
+        {AperSurfaceCoefficientsChannel2.CCU_VADC_301400, 10},
     };
   }
 

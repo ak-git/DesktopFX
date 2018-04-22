@@ -63,7 +63,7 @@ public enum Interpolators {
       ).map(Map.Entry::getKey).collect(Collectors.toList());
 
       double[] yValues = sliceAlongY.stream().mapToDouble(c -> coeffSplineMap.get(c).applyAsInt(finalX)).toArray();
-      double[] zValues = sliceAlongY.stream().mapToDouble(c -> Double.parseDouble(c.name().replaceAll(".*_", Strings.EMPTY))).toArray();
+      double[] zValues = sliceAlongY.stream().mapToDouble(c -> Double.parseDouble(Strings.numberSuffix(c.name()))).toArray();
 
       IntUnaryOperator operator = interpolator(yValues, zValues).get();
       for (int j = 0; j < ys.length; j++) {
