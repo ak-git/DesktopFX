@@ -29,4 +29,9 @@ public class CoefficientsTest {
     Assert.assertEquals(statistics.getMin(), min, statistics.toString());
     Assert.assertEquals(statistics.getMax(), max, statistics.toString());
   }
+
+  @Test
+  public static void testReverseOrder() {
+    Assert.assertEquals(CoefficientsUtils.reverseOrder(new double[] {1.0, 2.0, -10.0, 3.0}), new double[] {3.0, -10.0, 2.0, 1.0});
+  }
 }
