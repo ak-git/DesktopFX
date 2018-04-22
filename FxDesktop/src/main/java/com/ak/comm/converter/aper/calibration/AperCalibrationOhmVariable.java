@@ -10,31 +10,21 @@ import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 
 public enum AperCalibrationOhmVariable implements DependentVariable<AperInVariable, AperCalibrationOhmVariable> {
-  ADC_PUMP_U {
+  CC_ADC {
     @Override
     public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(VAR_CCU);
-    }
-
-    @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.of().smoothingImpulsive(20).rrs(2000).build();
+      return Collections.singletonList(VAR_CC);
     }
   },
-  ADC_R {
+  PU_ADC {
     @Override
     public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(VAR_R);
-    }
-
-    @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.of().smoothingImpulsive(20).rrs(2000).build();
+      return Collections.singletonList(VAR_PU);
     }
   };
 
-  public static final AperInVariable VAR_R = AperInVariable.R1;
-  public static final AperInVariable VAR_CCU = AperInVariable.CCU1;
+  public static final AperInVariable VAR_CC = AperInVariable.CCU1;
+  public static final AperInVariable VAR_PU = AperInVariable.R1;
 
   @Override
   public final Class<AperInVariable> getInputVariablesClass() {
@@ -42,7 +32,12 @@ public enum AperCalibrationOhmVariable implements DependentVariable<AperInVariab
   }
 
   @Override
-  public Set<Option> options() {
+  public final DigitalFilter filter() {
+    return FilterBuilder.of().smoothingImpulsive(20).build();
+  }
+
+  @Override
+  public final Set<Option> options() {
     return Option.addToDefault(Option.TEXT_VALUE_BANNER);
   }
 }
