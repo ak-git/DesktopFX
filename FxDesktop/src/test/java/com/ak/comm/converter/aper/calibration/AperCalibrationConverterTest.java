@@ -36,8 +36,8 @@ public final class AperCalibrationConverterTest {
 
   @Test(dataProvider = "variables")
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
-    Converter<BufferFrame, AperCalibrationOhmVariable> converter = new LinkedConverter<>(
-        new ToIntegerConverter<>(AperInVariable.class, 1000), AperCalibrationOhmVariable.class);
+    Converter<BufferFrame, AperCalibrationVariable> converter = new LinkedConverter<>(
+        new ToIntegerConverter<>(AperInVariable.class, 1000), AperCalibrationVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 219; i++) {
@@ -54,6 +54,6 @@ public final class AperCalibrationConverterTest {
 
   @Test
   public static void testVariableProperties() {
-    EnumSet.allOf(AperCalibrationOhmVariable.class).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
+    EnumSet.allOf(AperCalibrationVariable.class).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
   }
 }

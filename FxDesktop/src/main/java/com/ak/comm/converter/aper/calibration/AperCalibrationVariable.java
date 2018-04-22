@@ -9,7 +9,7 @@ import com.ak.comm.converter.aper.AperInVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 
-public enum AperCalibrationOhmVariable implements DependentVariable<AperInVariable, AperCalibrationOhmVariable> {
+public enum AperCalibrationVariable implements DependentVariable<AperInVariable, AperCalibrationVariable> {
   CC_ADC {
     @Override
     public List<AperInVariable> getInputVariables() {
