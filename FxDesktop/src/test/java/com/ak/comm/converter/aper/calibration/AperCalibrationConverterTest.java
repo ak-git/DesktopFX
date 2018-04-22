@@ -11,6 +11,7 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
+import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.aper.AperInVariable;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -55,5 +56,8 @@ public final class AperCalibrationConverterTest {
   @Test
   public static void testVariableProperties() {
     EnumSet.allOf(AperCalibrationVariable.class).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
+    EnumSet.allOf(AperCalibrationVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), AperInVariable.class));
+    EnumSet.allOf(AperCalibrationVariable.class).forEach(variable -> Assert.assertEquals(variable.options(),
+        Variable.Option.addToDefault(Variable.Option.TEXT_VALUE_BANNER)));
   }
 }

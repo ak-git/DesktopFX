@@ -149,7 +149,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new IntegrateFilter());
   }
 
-  public FilterBuilder rrs(@Nonnegative int averageFactor) {
+  FilterBuilder rrs(@Nonnegative int averageFactor) {
     return wrap(String.format("RRS%d", averageFactor),
         of().comb(averageFactor).integrate().operator(() -> n -> n / averageFactor));
   }

@@ -74,4 +74,9 @@ public final class AperConverterTest {
     serviceVars.forEach(t -> Assert.assertFalse(t.options().contains(Variable.Option.VISIBLE)));
     EnumSet.complementOf(serviceVars).forEach(t -> Assert.assertTrue(t.options().contains(Variable.Option.VISIBLE), t.name()));
   }
+
+  @Test
+  public static void testInputVariablesClass() {
+    EnumSet.allOf(AperOutVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), AperInVariable.class));
+  }
 }
