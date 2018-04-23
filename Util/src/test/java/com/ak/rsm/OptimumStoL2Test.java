@@ -12,6 +12,7 @@ import java.util.stream.DoubleStream;
 import com.ak.inverse.Inequality;
 import com.ak.util.LineFileBuilder;
 import com.ak.util.LineFileCollector;
+import com.ak.util.Strings;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.LUDecomposition;
@@ -29,6 +30,9 @@ import static com.ak.rsm.DerivativeRBySLNormalizedByRho1.DerivateBy.S;
 import static tec.uom.se.unit.Units.METRE;
 
 public class OptimumStoL2Test {
+  private static final String D_RHO_1 = Strings.DELTA + Strings.RHO + Strings.LOW_1;
+  private static final String D_RHO_2 = Strings.DELTA + Strings.RHO + Strings.LOW_2;
+  private static final String D_L = Strings.DELTA + "L";
   private static final double LCC_SI = 1.0;
   private static final double RHO1_SI = 1.0;
   private static final double STEP_S = 0.05;
@@ -51,10 +55,12 @@ public class OptimumStoL2Test {
           double[] rho1rho2Errors = getRho1Rho2Errors(optimalS1S2[0], optimalS1S2[1], rho2, hToL);
 
           Logger.getLogger(OptimumStoL2Test.class.getName()).info(
-              String.format("rho1 / rho2 = %.2f; h = %.2f; [s1, s2] = [%s]; [rho1Err, rho2Err] = [%s]",
-                  rho1rho2, hToL,
+              String.format("%s / %s = %.2f; h / L = %.2f; [s1, s2] = [%s]; [%s, %s] = [%s] %s",
+                  D_RHO_1, D_RHO_2, rho1rho2, hToL,
                   Arrays.stream(optimalS1S2).mapToObj(value -> String.format("%.3f", value)).collect(Collectors.joining(", ")),
-                  Arrays.stream(rho1rho2Errors).mapToObj(value -> String.format("%.3f", value)).collect(Collectors.joining(", "))
+                  D_RHO_1, D_RHO_2,
+                  Arrays.stream(rho1rho2Errors).mapToObj(value -> String.format("%.3f", value)).collect(Collectors.joining(", ")),
+                  D_L
               )
           );
           return DoubleStream.concat(Arrays.stream(optimalS1S2), Arrays.stream(rho1rho2Errors)).toArray();
@@ -80,8 +86,11 @@ public class OptimumStoL2Test {
           double[] s1s2Optimal = getOptimalS1S2(rho2, h);
           double[] rho1rho2Errors = getRho1Rho2Errors2(s1s2Optimal[0], s1s2Optimal[1], rho2, h);
           Logger.getLogger(OptimumStoL2Test.class.getName()).info(
-              String.format("h = %.2f; [%.3f - %.3f] errRho1 = %.6f errRho2 = %.6f", h,
-                  s1s2Optimal[0], s1s2Optimal[1], rho1rho2Errors[0], rho1rho2Errors[1]));
+              String.format("h / L = %.2f; [%.3f - %.3f] %s = %.6f %s; %s = %.6f %s", h,
+                  s1s2Optimal[0], s1s2Optimal[1],
+                  D_RHO_1, rho1rho2Errors[0], D_L,
+                  D_RHO_2, rho1rho2Errors[1], D_L)
+          );
         });
   }
 
@@ -107,14 +116,20 @@ public class OptimumStoL2Test {
   public static void testRho1Rho2ErrorsIterateH() throws IOException {
     Assert.assertNotNull(DoubleStream.iterate(0.1, operand -> operand + 0.02).takeWhile(value -> value <= 1.0).mapToObj(hToL -> {
       double[] errors = getRho1Rho2Errors2(3.0 / 5.0, 1.0 / 3.0, 10, hToL);
-      return String.format("h = %.2f; errRho1 = %.3f; errRho2 = %.3f", hToL, errors[0], errors[1]);
+      return String.format("h / L = %.2f; %s = %.3f %s; %s = %.3f %s", hToL,
+          D_RHO_1, errors[0], D_L,
+          D_RHO_2, errors[1], D_L);
     }).collect(new LineFileCollector(Paths.get("errors.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   @Test(enabled = false)
   public static void testRho1Rho2ErrorsSingle() {
     double[] errors = getRho1Rho2Errors2(3.0 / 5.0, 1.0 / 3.0, 0.1, 0.2);
-    Logger.getAnonymousLogger().info(String.format("errRho1 = %.2f; errRho2 = %.2f", errors[0], errors[1]));
+    Logger.getAnonymousLogger().info(
+        String.format("%s = %.2f %s; %s = %.2f %s",
+            D_RHO_1, Math.abs(errors[0]), D_L,
+            D_RHO_2, Math.abs(errors[1]), D_L)
+    );
   }
 
   private static double[] getRho1Rho2Errors2(double sPU1, double sPU2, double rho2, double hSI) {
@@ -136,7 +151,7 @@ public class OptimumStoL2Test {
 
     DoubleBinaryOperator rightPart = (sToL, signS) ->
         (new DerivativeRBySLNormalizedByRho1(k12, sToL, LCC_SI, L).value(hToL) * RHO1_SI * signDL +
-            new DerivativeRBySLNormalizedByRho1(k12, sToL, LCC_SI, S).value(hToL) * RHO1_SI * signS) / R.applyAsDouble(sToL);
+            new DerivativeRBySLNormalizedByRho1(k12, sToL, LCC_SI, S).value(hToL) * RHO1_SI * signS) * LCC_SI / R.applyAsDouble(sToL);
     double[] B = {rightPart.applyAsDouble(sMax, signDSMax), rightPart.applyAsDouble(sMin, signDSMin)};
 
     double[][] A = DoubleStream.of(sMax, sMin).mapToObj(sToL -> {
