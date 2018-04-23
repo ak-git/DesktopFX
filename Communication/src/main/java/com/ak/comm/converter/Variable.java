@@ -55,7 +55,7 @@ public interface Variable<E extends Enum<E> & Variable<E>> {
   Class<E> getDeclaringClass();
 
   default <T> T tryFindSame(@Nonnull Function<E, T> function, @Nonnull Supplier<T> orElse) {
-    String s = name().replaceFirst(".*\\D+", Strings.EMPTY);
+    String s = Strings.numberSuffix(name());
     if (s.isEmpty() || Integer.parseInt(s) == 1) {
       return orElse.get();
     }
