@@ -160,7 +160,8 @@ public class OptimumStoL2Test {
     }).toArray(value -> new double[value][2]);
 
     try {
-      return new LUDecomposition(new Array2DRowRealMatrix(A)).getSolver().solve(new ArrayRealVector(B)).toArray();
+      double[] solution = new LUDecomposition(new Array2DRowRealMatrix(A)).getSolver().solve(new ArrayRealVector(B)).toArray();
+      return Arrays.stream(solution).map(Math::abs).toArray();
     }
     catch (RuntimeException e) {
       return new double[] {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};

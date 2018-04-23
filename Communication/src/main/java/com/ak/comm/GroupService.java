@@ -3,6 +3,7 @@ package com.ak.comm;
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -79,7 +80,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   }
 
   public List<EV> getVariables() {
-    return variables;
+    return Collections.unmodifiableList(variables);
   }
 
   public double getFrequency() {
