@@ -1,6 +1,5 @@
 package com.ak.comm;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Map;
@@ -51,12 +50,12 @@ public class GroupServiceTest implements Flow.Subscriber<int[]> {
         break;
       }
     }
-    service.read(-1, 0).forEach((twoVariables, ints) -> Assert.assertEquals(ints.length, 0));
+    service.read(0, 0).forEach((twoVariables, ints) -> Assert.assertEquals(ints.length, 0));
     service.refresh();
   }
 
   @AfterClass
-  public void tearDown() throws IOException {
+  public void tearDown() {
     service.close();
   }
 

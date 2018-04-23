@@ -17,7 +17,7 @@ public interface BytesInterceptor<RESPONSE, REQUEST> extends Function<ByteBuffer
     @Nonnegative
     private final int baudRate;
 
-    BaudRate(@Nonnegative int baudRate) {
+    BaudRate(int baudRate) {
       this.baudRate = baudRate;
     }
 
