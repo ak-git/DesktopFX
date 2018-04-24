@@ -51,10 +51,11 @@ public final class RsceCommandFrame extends BufferFrame {
     FINGER(0x02, 10000),
     ROTATE(0x03, 20000);
 
+    @Nonnegative
     private final byte addr;
     private final short speed;
 
-    Control(@Nonnegative int addr, int speed) {
+    Control(int addr, int speed) {
       this.addr = (byte) addr;
       this.speed = (short) speed;
     }
@@ -87,9 +88,10 @@ public final class RsceCommandFrame extends BufferFrame {
   public enum RequestType implements Findable<RequestType> {
     EMPTY(0), STATUS_I(1), STATUS_I_SPEED(2), STATUS_I_ANGLE(3), STATUS_I_SPEED_ANGLE(4), RESERVE(7);
 
+    @Nonnegative
     private final byte code;
 
-    RequestType(@Nonnegative int code) {
+    RequestType(int code) {
       this.code = (byte) code;
     }
 

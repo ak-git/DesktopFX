@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 
-final class TetrapolarSystemPair implements Cloneable {
+final class TetrapolarSystemPair {
   private final TetrapolarSystem[] pair;
 
   TetrapolarSystemPair(@Nonnegative double s1PU, @Nonnegative double s2PU, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
@@ -51,10 +51,5 @@ final class TetrapolarSystemPair implements Cloneable {
   @Override
   public String toString() {
     return Arrays.stream(pair).map(TetrapolarSystem::toString).collect(Collectors.joining(" / "));
-  }
-
-  @Override
-  protected Object clone() throws CloneNotSupportedException {
-    throw new CloneNotSupportedException();
   }
 }

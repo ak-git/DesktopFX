@@ -12,7 +12,7 @@ import tec.uom.se.quantity.Quantities;
 import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 
-final class TetrapolarSystem implements Cloneable {
+final class TetrapolarSystem {
   @Nonnegative
   private final double sPotentialUnitSI;
   @Nonnegative
@@ -78,11 +78,6 @@ final class TetrapolarSystem implements Cloneable {
     return String.format("%s x %s",
         Quantities.getQuantity(sPotentialUnitSI, METRE).to(MILLI(METRE)),
         Quantities.getQuantity(lCurrentCarryingSI, METRE).to(MILLI(METRE)));
-  }
-
-  @Override
-  protected Object clone() throws CloneNotSupportedException {
-    throw new CloneNotSupportedException();
   }
 
   private static double toDouble(@Nonnegative double sPU, @Nonnull Unit<Length> unit) {

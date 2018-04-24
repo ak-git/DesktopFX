@@ -1,5 +1,6 @@
 package com.ak.numbers.aper;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,7 +36,7 @@ public enum AperCoefficients implements Coefficients {
   }
 
   static String readPotentialUnitCalibration(@Nonnull JsonObject object, @Nonnull Coefficients coefficients) {
-    String ohms = String.format("%.1f", Metrics.fromMilli(Double.parseDouble(Strings.numberSuffix(coefficients.name()))));
+    String ohms = String.format(Locale.ROOT, "%.1f", Metrics.fromMilli(Double.parseDouble(Strings.numberSuffix(coefficients.name()))));
     String channel = String.format("Channel-%s", Strings.numberSuffix(coefficients.getClass().getName()));
     Set<Map.Entry<String, JsonValue>> entries = object.getJsonObject("Potential-unit electrodes, Ohm : ADC[CurrentCarrying, PotentialUnit]").
         getJsonObject(ohms).getJsonObject(channel).entrySet();

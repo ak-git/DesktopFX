@@ -2,6 +2,7 @@ package com.ak.util;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Locale;
 import java.util.function.BiFunction;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.Supplier;
@@ -75,7 +76,7 @@ public class LineFileBuilder<IN> {
     Supplier<DoubleStream> xVar = xRange::build;
     Supplier<DoubleStream> yVar = yRange::build;
     check(yVar.get().mapToObj(y -> xVar.get().map(x -> operator.applyAsDouble(x, y))).
-        map(stream -> stream.mapToObj(value -> String.format(outFormat, value)).collect(Collectors.joining(Strings.TAB))).
+        map(stream -> stream.mapToObj(value -> String.format(Locale.ROOT, outFormat, value)).collect(Collectors.joining(Strings.TAB))).
         collect(new LineFileCollector(Paths.get(fileName), LineFileCollector.Direction.VERTICAL)));
   }
 
@@ -102,7 +103,7 @@ public class LineFileBuilder<IN> {
     @Nonnull
     private final LineFileCollector.Direction direction;
     @Nonnull
-    private Supplier<DoubleStream> doubleStreamSupplier;
+    private Supplier<DoubleStream> doubleStreamSupplier = DoubleStream::empty;
 
     private Range(@Nonnull String outFormat, @Nonnull LineFileCollector.Direction direction) {
       this.outFormat = outFormat;
@@ -130,7 +131,7 @@ public class LineFileBuilder<IN> {
     private void toFile() {
       try {
         String fileName = direction == LineFileCollector.Direction.HORIZONTAL ? "x.txt" : "y.txt";
-        check(build().mapToObj(value -> String.format(outFormat, value)).collect(
+        check(build().mapToObj(value -> String.format(Locale.ROOT, outFormat, value)).collect(
             new LineFileCollector(Paths.get(fileName), direction)));
       }
       catch (IOException e) {

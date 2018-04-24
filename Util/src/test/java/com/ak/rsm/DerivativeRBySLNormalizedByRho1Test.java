@@ -32,9 +32,4 @@ public class DerivativeRBySLNormalizedByRho1Test {
                           @Nonnull DerivativeRBySLNormalizedByRho1.DerivateBy derivateBy, double expected) {
     Assert.assertEquals(new DerivativeRBySLNormalizedByRho1(ResistanceTwoLayer.getK12(rho1, rho2), sToL, 1.0, derivateBy).value(hToL), expected, 0.001);
   }
-
-  @Test(expectedExceptions = CloneNotSupportedException.class)
-  public static void testNotClone() throws CloneNotSupportedException {
-    new DerivativeRBySLNormalizedByRho1(1.0, 0.5, 1.0, L).clone();
-  }
 }

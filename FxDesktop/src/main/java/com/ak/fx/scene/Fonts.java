@@ -15,7 +15,7 @@ import static com.ak.fx.scene.GridCell.SMALL;
 enum Fonts {
   H1(FontWeight.BOLD, 2.5), H2(FontWeight.NORMAL, 3.0);
 
-  private final ObjectProperty<Font> fontProperty;
+  private final transient ObjectProperty<Font> fontProperty;
 
   Fonts(@Nonnull FontWeight weight, @Nonnegative double divider) {
     fontProperty = new SimpleObjectProperty<>(newFont(weight, divider));

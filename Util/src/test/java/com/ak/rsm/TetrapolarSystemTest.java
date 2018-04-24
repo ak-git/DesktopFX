@@ -93,11 +93,6 @@ public class TetrapolarSystemTest {
     Assert.assertNotEquals(new TetrapolarSystem(1.0, 2.0, METRE), new Object());
   }
 
-  @Test(expectedExceptions = CloneNotSupportedException.class)
-  public static void testNotClone() throws CloneNotSupportedException {
-    new TetrapolarSystem(1.0, 2.0, METRE).clone();
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public static void testInvalidConstructor() {
     new TetrapolarSystem(2.0, 1.0, METRE);

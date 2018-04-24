@@ -51,11 +51,6 @@ public class TetrapolarSystemPairTest {
     Assert.assertEquals(system1.toString().equals(system2.toString()), equals, String.format("%s compared with %s", system1, system2));
   }
 
-  @Test(expectedExceptions = CloneNotSupportedException.class)
-  public static void testNotClone() throws CloneNotSupportedException {
-    new TetrapolarSystemPair(1.0, 2.0, 3.0, METRE).clone();
-  }
-
   @DataProvider(name = "tetrapolarPairs-with-error", parallel = true)
   public static Object[][] tetrapolarPairsWithError() {
     return new Object[][] {

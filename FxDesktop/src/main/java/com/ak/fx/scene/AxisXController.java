@@ -27,9 +27,10 @@ public final class AxisXController {
   public enum ZoomX {
     Z_10(10), Z_25(25), Z_50(50);
 
+    @Nonnegative
     private final int mmPerSec;
 
-    ZoomX(@Nonnegative int mmPerSec) {
+    ZoomX(int mmPerSec) {
       this.mmPerSec = mmPerSec;
     }
 

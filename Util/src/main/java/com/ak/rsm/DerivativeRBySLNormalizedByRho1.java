@@ -15,7 +15,7 @@ import static java.lang.StrictMath.pow;
  * <br/>
  * <b>dR<sub>L</sub> / rho1</b>
  */
-final class DerivativeRBySLNormalizedByRho1 implements UnivariateFunction, Cloneable {
+final class DerivativeRBySLNormalizedByRho1 implements UnivariateFunction {
   enum DerivateBy {
     S(1), L(-1);
 
@@ -49,10 +49,5 @@ final class DerivativeRBySLNormalizedByRho1 implements UnivariateFunction, Clone
     return ResistanceTwoLayer.sum(hSI, (n, b) -> pow(-1, n) * pow(-k12, n) *
         (derivateBy.factor * electrodes.radiusMinus() / pow(hypot(electrodes.radiusMinus(), b), 3.0) +
             electrodes.radiusPlus() / pow(hypot(electrodes.radiusPlus(), b), 3.0)));
-  }
-
-  @Override
-  protected Object clone() throws CloneNotSupportedException {
-    throw new CloneNotSupportedException();
   }
 }
