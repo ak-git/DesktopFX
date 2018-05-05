@@ -11,10 +11,10 @@ import javax.measure.quantity.Length;
 final class TetrapolarSystemPair {
   private final TetrapolarSystem[] pair;
 
-  TetrapolarSystemPair(@Nonnegative double s1PU, @Nonnegative double s2PU, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
+  TetrapolarSystemPair(@Nonnegative double sPUSmall, @Nonnegative double sPULarge, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
     pair = new TetrapolarSystem[2];
-    pair[0] = new TetrapolarSystem(Math.min(s1PU, s2PU), lCC, unit);
-    pair[1] = new TetrapolarSystem(Math.max(s1PU, s2PU), lCC, unit);
+    pair[0] = new TetrapolarSystem(Math.min(sPUSmall, sPULarge), lCC, unit);
+    pair[1] = new TetrapolarSystem(Math.max(sPUSmall, sPULarge), lCC, unit);
   }
 
   TetrapolarSystem[] getPair() {

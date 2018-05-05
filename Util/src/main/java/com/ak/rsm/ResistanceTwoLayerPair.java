@@ -29,7 +29,7 @@ final class ResistanceTwoLayerPair {
    * @return resistance R<sub>m-n</sub> (in Ohm)
    */
   public double[] value(@Nonnegative double rho1SI, @Nonnegative double rho2SI, @Nonnegative double hSI) {
-    return DoubleStream.of(hSI, hSI + dhSI).flatMap(h ->
+    return DoubleStream.of(hSI - dhSI, hSI).flatMap(h ->
         Arrays.stream(
             Arrays.stream(electrodeSystemPair.getPair()).mapToDouble(s ->
                 new ResistanceTwoLayer(s).value(rho1SI, rho2SI, h)).toArray()
