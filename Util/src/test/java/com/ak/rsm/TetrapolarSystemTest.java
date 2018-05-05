@@ -6,7 +6,6 @@ import java.util.stream.DoubleStream;
 import javax.annotation.Nonnull;
 import javax.measure.Quantity;
 import javax.measure.quantity.ElectricResistance;
-import javax.measure.quantity.Length;
 
 import com.ak.util.LineFileBuilder;
 import org.testng.Assert;
@@ -81,11 +80,6 @@ public class TetrapolarSystemTest {
         {new TetrapolarSystem(2.0, 3.0, METRE), new TetrapolarSystem(2.0 - 0.010, 3.0 + 0.010, METRE),
             Quantities.getQuantity(-10.0, MILLI(METRE))},
     };
-  }
-
-  @Test(dataProvider = "tetrapolar-systems-with-error")
-  public static void testEqualsWithError(@Nonnull TetrapolarSystem system, @Nonnull TetrapolarSystem systemE, @Nonnull Quantity<Length> err) {
-    Assert.assertEquals(system.newWithError(err.getValue().doubleValue(), err.getUnit()), systemE, String.format("%s compared with %s", system, systemE));
   }
 
   @Test

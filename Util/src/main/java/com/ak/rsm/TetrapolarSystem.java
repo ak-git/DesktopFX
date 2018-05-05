@@ -26,11 +26,6 @@ final class TetrapolarSystem {
     lCurrentCarryingSI = toDouble(lCC, unit);
   }
 
-  TetrapolarSystem newWithError(double eL, @Nonnull Unit<Length> unit) {
-    double eSI = toDouble(eL, unit);
-    return new TetrapolarSystem(sPotentialUnitSI + eSI, lCurrentCarryingSI - eSI, METRE);
-  }
-
   /**
    * Gets <b>apparent</b> specific resistance which is correspond to 1-layer model.
    *

@@ -17,16 +17,6 @@ final class TetrapolarSystemPair {
     pair[1] = new TetrapolarSystem(Math.max(s1PU, s2PU), lCC, unit);
   }
 
-  private TetrapolarSystemPair(TetrapolarSystem[] pair) {
-    this.pair = Arrays.copyOf(pair, 2);
-  }
-
-  TetrapolarSystemPair newWithError(double eL, @Nonnull Unit<Length> unit) {
-    return new TetrapolarSystemPair(
-        Arrays.stream(pair).map(tetrapolarSystem -> tetrapolarSystem.newWithError(eL, unit)).toArray(TetrapolarSystem[]::new)
-    );
-  }
-
   TetrapolarSystem[] getPair() {
     return Arrays.copyOf(pair, pair.length);
   }

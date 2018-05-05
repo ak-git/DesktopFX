@@ -3,8 +3,6 @@ package com.ak.rsm;
 import java.util.Arrays;
 
 import javax.annotation.Nonnull;
-import javax.measure.Quantity;
-import javax.measure.quantity.Length;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -66,12 +64,5 @@ public class TetrapolarSystemPairTest {
         },
 
     };
-  }
-
-  @Test(dataProvider = "tetrapolarPairs-with-error")
-  public static void testNewWithError(@Nonnull TetrapolarSystemPair system, @Nonnull TetrapolarSystemPair systemE, @Nonnull Quantity<Length> err) {
-    Assert.assertEquals(system.newWithError(err.getValue().doubleValue(), err.getUnit()),
-        systemE, String.format("%s compared with %s", system, systemE));
-
   }
 }
