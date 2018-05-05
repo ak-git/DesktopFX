@@ -24,7 +24,7 @@ public class ResistanceTwoLayerPairTest {
         {new ResistanceTwoLayerPair(new TetrapolarSystemPair(10.0, 30.0, 50.0, MILLI(METRE)), Metrics.fromMilli(0.01)),
             new double[] {10.0, 1.0}, Metrics.fromMilli(15.0),
 
-            new double[] {34.399, 186.797, 34.420, 186.857}
+            new double[] {34.420, 186.857, 34.399, 186.797}
         },
     };
   }
