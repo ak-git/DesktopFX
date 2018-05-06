@@ -37,11 +37,6 @@ final class TetrapolarSystem {
     return 0.5 * Math.PI * resistance / (1.0 / radiusMinus() - 1.0 / radiusPlus());
   }
 
-  @Nonnegative
-  double getL() {
-    return lCurrentCarryingSI;
-  }
-
   double radiusMinus() {
     return lCurrentCarryingSI - sPotentialUnitSI;
   }

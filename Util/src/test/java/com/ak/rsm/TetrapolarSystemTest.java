@@ -68,7 +68,6 @@ public class TetrapolarSystemTest {
   @Test(dataProvider = "tetrapolar-systems")
   public static void testEquals(TetrapolarSystem system1, TetrapolarSystem system2, boolean equals) {
     Assert.assertEquals(system1.equals(system2), equals, String.format("%s compared with %s", system1, system2));
-    Assert.assertEquals(system1.getL(), system2.getL(), 0.01, String.format("%s compared with %s", system1, system2));
     Assert.assertEquals(system1.hashCode() == system2.hashCode(), equals, String.format("%s compared with %s", system1, system2));
   }
 

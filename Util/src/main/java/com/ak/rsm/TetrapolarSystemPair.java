@@ -11,10 +11,20 @@ import javax.measure.quantity.Length;
 final class TetrapolarSystemPair {
   private final TetrapolarSystem[] pair;
 
-  TetrapolarSystemPair(@Nonnegative double sPUSmall, @Nonnegative double sPULarge, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
+  private TetrapolarSystemPair(@Nonnegative double sPUSmall, @Nonnegative double sPULarge, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
+    double sMin = Math.min(sPUSmall, sPULarge);
+    if (sMin <= 0) {
+      throw new IllegalArgumentException(String.format("sPU[ %.1f ] <= 0", sMin));
+    }
+
+    double sMax = Math.max(sPUSmall, sPULarge);
+    if (lCC <= sMax) {
+      throw new IllegalArgumentException(String.format("lCC[ %.1f ] <= sPU [ %.1f ]", lCC, sMax));
+    }
+
     pair = new TetrapolarSystem[2];
-    pair[0] = new TetrapolarSystem(Math.min(sPUSmall, sPULarge), lCC, unit);
-    pair[1] = new TetrapolarSystem(Math.max(sPUSmall, sPULarge), lCC, unit);
+    pair[0] = new TetrapolarSystem(sMin, lCC, unit);
+    pair[1] = new TetrapolarSystem(sMax, lCC, unit);
   }
 
   TetrapolarSystem[] getPair() {
@@ -41,5 +51,40 @@ final class TetrapolarSystemPair {
   @Override
   public String toString() {
     return Arrays.stream(pair).map(TetrapolarSystem::toString).collect(Collectors.joining(" / "));
+  }
+
+  static class Builder implements javafx.util.Builder<TetrapolarSystemPair> {
+    @Nonnull
+    private final Unit<Length> unit;
+    @Nonnegative
+    double sPUSmall;
+    @Nonnegative
+    double sPULarge;
+    @Nonnegative
+    double lCC;
+
+    Builder(@Nonnull Unit<Length> unit) {
+      this.unit = unit;
+    }
+
+    Builder sPU(@Nonnegative double sPUSmall, @Nonnegative double sPULarge) {
+      this.sPUSmall = Math.min(sPUSmall, sPULarge);
+      this.sPULarge = Math.max(sPUSmall, sPULarge);
+      return this;
+    }
+
+    Builder lCC(@Nonnegative double lCC) {
+      this.lCC = lCC;
+      return this;
+    }
+
+    TetrapolarSystemPair buildWithError(@Nonnegative double dL) {
+      return new TetrapolarSystemPair(sPUSmall + dL, sPULarge - dL, lCC + dL, unit);
+    }
+
+    @Override
+    public TetrapolarSystemPair build() {
+      return new TetrapolarSystemPair(sPUSmall, sPULarge, lCC, unit);
+    }
   }
 }
