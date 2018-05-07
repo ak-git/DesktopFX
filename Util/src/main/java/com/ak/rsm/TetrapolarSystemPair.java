@@ -78,7 +78,7 @@ final class TetrapolarSystemPair {
       return this;
     }
 
-    TetrapolarSystemPair buildWithError(@Nonnegative double dL) {
+    TetrapolarSystemPair buildWithError(double dL) {
       return new TetrapolarSystemPair(sPUSmall + dL, sPULarge - dL, lCC + dL, unit);
     }
 

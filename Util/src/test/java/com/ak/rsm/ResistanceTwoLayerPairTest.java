@@ -3,7 +3,6 @@ package com.ak.rsm;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.util.Metrics;
@@ -22,7 +21,7 @@ public class ResistanceTwoLayerPairTest {
   public static Object[][] twoLayerParameters() {
     return new Object[][] {
         {new ResistanceTwoLayerPair(new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0).build(), Metrics.fromMilli(0.01)),
-            new double[] {10.0, 1.0}, Metrics.fromMilli(15.0),
+            new double[] {10.0, 1.0, Metrics.fromMilli(15.0)},
 
             new double[] {34.420, 186.857, 34.399, 186.797}
         },
@@ -30,8 +29,8 @@ public class ResistanceTwoLayerPairTest {
   }
 
   @Test(dataProvider = "layer-model")
-  public void testValue(@Nonnull ResistanceTwoLayerPair layerPair, @Nonnull double[] rho1rho2, @Nonnegative double hSI, @Nonnull double[] rOhms) {
-    Assert.assertEquals(toString(layerPair.value(rho1rho2[0], rho1rho2[1], hSI)), toString(rOhms));
+  public void testValue(@Nonnull ResistanceTwoLayerPair layerPair, @Nonnull double[] rho1rho2h, @Nonnull double[] rOhms) {
+    Assert.assertEquals(toString(layerPair.value(rho1rho2h)), toString(rOhms));
   }
 
   @Test(expectedExceptions = CloneNotSupportedException.class)

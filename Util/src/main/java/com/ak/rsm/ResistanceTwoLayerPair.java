@@ -37,6 +37,10 @@ final class ResistanceTwoLayerPair {
     ).toArray();
   }
 
+  public double[] value(@Nonnull double[] rho1rho2h) {
+    return value(rho1rho2h[0], rho1rho2h[1], rho1rho2h[2]);
+  }
+
   @Override
   protected Object clone() throws CloneNotSupportedException {
     throw new CloneNotSupportedException();
