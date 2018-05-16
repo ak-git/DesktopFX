@@ -1,18 +1,18 @@
 import com.github.spotbugs.SpotBugsTask
 
 plugins {
-    id 'com.github.spotbugs' version '1.6.0'
+    id 'com.github.spotbugs' version '1.6.1'
 }
 
-ext.projectIds = ['java': '1.9']
+ext.projectIds = ['java': '1.10']
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "4.5.1"
+    gradleVersion = "4.7"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '2018.1'
+    version = '2018.2'
     apply plugin: 'idea'
 }
 
@@ -86,7 +86,7 @@ project(':Communication') {
 
 project(':FxCore') {
     dependencies {
-        compile group: 'org.springframework', name: 'spring-context', version: '5.0.5.RELEASE'
+        compile group: 'org.springframework', name: 'spring-context', version: '5.0.6.RELEASE'
         compile project(':Util')
     }
 }
