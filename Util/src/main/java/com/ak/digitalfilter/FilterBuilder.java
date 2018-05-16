@@ -66,6 +66,10 @@ public class FilterBuilder implements Builder<DigitalFilter> {
       private final IntBinaryOperator operator = operatorProvider.get();
 
       @Override
+      public void reset() {
+      }
+
+      @Override
       public int getOutputDataSize() {
         return 1;
       }

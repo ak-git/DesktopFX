@@ -1,4 +1,4 @@
-package com.ak.comm.serial;
+package com.ak.comm.core;
 
 public interface Refreshable {
   void refresh();

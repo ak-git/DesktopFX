@@ -7,7 +7,9 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-public interface Converter<RESPONSE, EV extends Enum<EV> & Variable<EV>> extends Function<RESPONSE, Stream<int[]>> {
+import com.ak.comm.core.Refreshable;
+
+public interface Converter<RESPONSE, EV extends Enum<EV> & Variable<EV>> extends Function<RESPONSE, Stream<int[]>>, Refreshable {
   @Nonnull
   List<EV> variables();
 

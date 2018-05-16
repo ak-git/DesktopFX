@@ -69,6 +69,11 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
     return filteredValues;
   }
 
+  @Override
+  public final void refresh() {
+    digitalFilter.reset();
+  }
+
   @Nonnull
   protected abstract Stream<int[]> innerApply(@Nonnull RESPONSE response);
 }

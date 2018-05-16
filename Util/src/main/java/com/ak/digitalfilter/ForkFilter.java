@@ -94,6 +94,11 @@ final class ForkFilter extends AbstractDigitalFilter {
     filters.forEach(filter -> filter.accept(in));
   }
 
+  @Override
+  public void reset() {
+    filters.forEach(DigitalFilter::reset);
+  }
+
   @Nonnegative
   @Override
   public int getOutputDataSize() {

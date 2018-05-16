@@ -27,4 +27,10 @@ public final class LinkedConverter<RESPONSE, IN extends Enum<IN> & Variable<IN>,
   public Stream<int[]> apply(RESPONSE response) {
     return responseConverter.apply(response).flatMap(ints -> outConverter.apply(Stream.of(ints)));
   }
+
+  @Override
+  public void refresh() {
+    responseConverter.refresh();
+    outConverter.refresh();
+  }
 }

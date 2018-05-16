@@ -20,10 +20,10 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.Readable;
+import com.ak.comm.core.Refreshable;
 import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
-import com.ak.comm.serial.Refreshable;
 
 public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractService
     implements Flow.Publisher<int[]>, Refreshable, FileFilter {

@@ -47,6 +47,7 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends E
   protected final Stream<int[]> process(@Nullable ByteBuffer buffer) {
     if (buffer == null) {
       convertedLogByteChannel.close();
+      responseConverter.refresh();
       return Stream.empty();
     }
     else {

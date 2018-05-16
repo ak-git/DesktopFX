@@ -18,6 +18,7 @@ import javax.annotation.Nonnull;
 
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.ConcurrentAsyncFileChannel;
+import com.ak.comm.core.Refreshable;
 import com.ak.comm.logging.LogBuilders;
 import com.ak.util.Strings;
 import jssc.SerialPort;

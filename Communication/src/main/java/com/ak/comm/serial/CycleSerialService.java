@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
+import com.ak.comm.core.Refreshable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.logging.LogBuilders;
 import com.ak.util.UIConstants;
