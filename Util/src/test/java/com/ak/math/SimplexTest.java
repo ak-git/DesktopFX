@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
@@ -17,6 +16,7 @@ import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
+import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.BOBYQAOptimizer;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
@@ -25,6 +25,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static java.lang.StrictMath.pow;
+import static org.apache.commons.math3.optim.nonlinear.scalar.noderiv.BOBYQAOptimizer.DEFAULT_STOPPING_RADIUS;
 
 public class SimplexTest {
   private SimplexTest() {
@@ -32,22 +33,42 @@ public class SimplexTest {
 
   @Test(timeOut = 10000)
   public static void testRosenbrockNelderMeadSimplex() {
-    SimplexOptimizer optimizer = new SimplexOptimizer(-1, 1.0e-3);
-    PointValuePair optimum = optimizer.optimize(new MaxEval(100), new ObjectiveFunction(new Rosenbrock()),
-        GoalType.MINIMIZE, new NelderMeadSimplex(2, 0.1), new InitialGuess(new double[] {0.0, 0.0})
-    );
-
-    Assert.assertEquals(optimizer.getEvaluations(), 40);
-    Assert.assertTrue(optimum.getValue() < 1.0e-3);
+    PointValuePair optimum = optimizeNelderMead(new Rosenbrock(), new double[] {0.0, 0.0}, new double[] {0.1, 0.1});
+    Assert.assertTrue(optimum.getValue() < 1.0e-6);
+    Assert.assertEquals(optimum.getPoint()[0], 1.0, 1.0e-5);
   }
 
-  @Test(invocationCount = 10)
-  public void testRosenbrockCMAESOptimizer() {
-    int DIM = 2;
-    double[] startPoint = point(DIM, 0.1);
-    double[] inSigma = point(DIM, 0.1);
-    PointValuePair expected = new PointValuePair(point(DIM, 1.0), 0.0);
-    doTest(new Rosenbrock(), startPoint, inSigma, null, expected);
+  public static PointValuePair optimizeNelderMead(@Nonnull MultivariateFunction function,
+                                                  @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
+    return new SimplexOptimizer(-1, 1.0e-8).optimize(new MaxEval(10000), new ObjectiveFunction(function), GoalType.MINIMIZE,
+        new NelderMeadSimplex(initialSteps), new InitialGuess(initialGuess));
+  }
+
+  public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
+                                             @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
+    return new CMAESOptimizer(30000, 1.0e-11, true, 0,
+        0, new MersenneTwister(), false, null)
+        .optimize(
+            new MaxEval(30000),
+            new ObjectiveFunction(function),
+            GoalType.MINIMIZE,
+            new InitialGuess(initialGuess),
+            bounds,
+            new CMAESOptimizer.Sigma(initialSteps),
+            new CMAESOptimizer.PopulationSize(2 * (4 + (int) (3.0 * StrictMath.log(initialGuess.length))))
+        );
+  }
+
+  public static PointValuePair optimizeBOBYQA(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
+                                              @Nonnull double[] initialGuess, @Nonnegative double initialRadius) {
+    return new BOBYQAOptimizer(2 * initialGuess.length + 1, initialRadius, DEFAULT_STOPPING_RADIUS)
+        .optimize(
+            new MaxEval(30000),
+            new ObjectiveFunction(function),
+            GoalType.MINIMIZE,
+            new InitialGuess(initialGuess),
+            bounds
+        );
   }
 
   @Test(invocationCount = 10)
@@ -57,46 +78,30 @@ public class SimplexTest {
     double[] inSigma = point(DIM, 0.1);
     double[][] boundaries = boundaries(DIM, -(Math.random() + 0.5), 2.0 * (Math.random() + 0.5));
     PointValuePair expected = new PointValuePair(point(DIM, 1.0), 0.0);
-    doTest(new Rosenbrock(), startPoint, inSigma, boundaries, expected);
-  }
 
-  /**
-   * @param func       Function to optimize.
-   * @param startPoint Starting point.
-   * @param inSigma    Individual input sigma.
-   * @param boundaries Upper / lower point limit.
-   * @param expected   Expected point / value.
-   */
-  private static void doTest(@Nonnull MultivariateFunction func,
-                             @Nonnull double[] startPoint,
-                             @Nonnull double[] inSigma,
-                             @Nullable double[][] boundaries,
-                             @Nonnull PointValuePair expected) {
-    int dim = startPoint.length;
-    int lambda = 2 * (4 + (int) (3.0 * StrictMath.log(dim)));
-    // test diagonalOnly = 0 - slow but normally fewer feval#
-    CMAESOptimizer optim = new CMAESOptimizer(30000, 1.0E-13, true, 0,
-        0, new MersenneTwister(), false, null);
-
-    SimpleBounds simpleBounds = SimpleBounds.unbounded(dim);
-    if (boundaries != null) {
-      simpleBounds = new SimpleBounds(boundaries[0], boundaries[1]);
-    }
-    PointValuePair result = optim.optimize(new MaxEval(100000),
-        new ObjectiveFunction(func),
-        GoalType.MINIMIZE,
-        new InitialGuess(startPoint),
-        simpleBounds,
-        new CMAESOptimizer.Sigma(inSigma),
-        new CMAESOptimizer.PopulationSize(lambda));
+    PointValuePair result = optimizeCMAES(new Rosenbrock(), new SimpleBounds(boundaries[0], boundaries[1]), startPoint, inSigma);
 
     Logger.getAnonymousLogger().finest("sol=" + Arrays.toString(result.getPoint()));
-    Assert.assertEquals(expected.getValue(), result.getValue(), 1.0E-13);
-    for (int i = 0; i < dim; i++) {
-      Assert.assertEquals(expected.getPoint()[i], result.getPoint()[i], 1.0E-6);
+    Assert.assertEquals(expected.getValue(), result.getValue(), 1.0e-10);
+    for (int i = 0; i < DIM; i++) {
+      Assert.assertEquals(expected.getPoint()[i], result.getPoint()[i], 1.0e-5);
     }
+  }
 
-    Assert.assertTrue(optim.getIterations() > 0);
+  @Test
+  public void testConstrainedRosenbrockBOBYQAOptimizer() {
+    int DIM = 2;
+    double[] startPoint = point(DIM, 0.1);
+    double[][] boundaries = boundaries(DIM, -(Math.random() + 0.5), 2.0 * (Math.random() + 0.5));
+    PointValuePair expected = new PointValuePair(point(DIM, 1.0), 0.0);
+
+    PointValuePair result = optimizeBOBYQA(new Rosenbrock(), new SimpleBounds(boundaries[0], boundaries[1]), startPoint, 0.1);
+
+    Logger.getAnonymousLogger().finest("sol=" + Arrays.toString(result.getPoint()));
+    Assert.assertEquals(expected.getValue(), result.getValue(), 1.0e-13);
+    for (int i = 0; i < DIM; i++) {
+      Assert.assertEquals(expected.getPoint()[i], result.getPoint()[i], 1.0e-6);
+    }
   }
 
   private static double[] point(@Nonnegative int n, double value) {

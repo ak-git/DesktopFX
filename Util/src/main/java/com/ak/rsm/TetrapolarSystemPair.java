@@ -8,6 +8,10 @@ import javax.annotation.Nonnull;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 
+import tec.uom.se.quantity.Quantities;
+
+import static tec.uom.se.unit.Units.METRE;
+
 final class TetrapolarSystemPair {
   private final TetrapolarSystem[] pair;
 
@@ -76,6 +80,10 @@ final class TetrapolarSystemPair {
     Builder lCC(@Nonnegative double lCC) {
       this.lCC = lCC;
       return this;
+    }
+
+    double getLCC() {
+      return Quantities.getQuantity(lCC, unit).to(METRE).getValue().doubleValue();
     }
 
     TetrapolarSystemPair buildWithError(double dL) {
