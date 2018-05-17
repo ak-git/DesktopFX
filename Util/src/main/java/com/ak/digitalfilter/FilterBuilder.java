@@ -162,12 +162,12 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new RRSFilter());
   }
 
-  FilterBuilder std(@Nonnegative int averageFactor) {
+  public FilterBuilder std(@Nonnegative int averageFactor) {
     return wrap(String.format("std%d", averageFactor),
         of().fork(new NoFilter(), of().rrs(averageFactor).build()).biOperator(() -> (x, mean) -> x - mean).chain(new SqrtSumFilter(averageFactor)));
   }
 
-  FilterBuilder peakToPeak(@Nonnegative int size) {
+  public FilterBuilder peakToPeak(@Nonnegative int size) {
     return chain(new PeakToPeakFilter(size));
   }
 
