@@ -16,7 +16,7 @@ public class TetrapolarSystemPairTest {
   private TetrapolarSystemPairTest() {
   }
 
-  @DataProvider(name = "tetrapolarPairs", parallel = true)
+  @DataProvider(name = "tetrapolarPairs")
   public static Object[][] tetrapolarPairs() {
     TetrapolarSystemPair ts = new TetrapolarSystemPair.Builder(METRE).sPU(1, 2).lCC(3).build();
     return new Object[][] {

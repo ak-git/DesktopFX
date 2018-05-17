@@ -21,7 +21,7 @@ public class TetrapolarSystemTest {
   private TetrapolarSystemTest() {
   }
 
-  @DataProvider(name = "system-apparent", parallel = true)
+  @DataProvider(name = "system-apparent")
   public static Object[][] systemApparent() {
     return new Object[][] {
         {new TetrapolarSystem(0.030, 0.06, METRE), 1.0, Math.PI * 9.0 / 400.0},
@@ -55,7 +55,7 @@ public class TetrapolarSystemTest {
     Assert.assertEquals(rho, specificResistance, 1.0e-3);
   }
 
-  @DataProvider(name = "tetrapolar-systems", parallel = true)
+  @DataProvider(name = "tetrapolar-systems")
   public static Object[][] tetrapolarSystems() {
     TetrapolarSystem ts = new TetrapolarSystem(1.0, 2.0, METRE);
     return new Object[][] {
@@ -71,7 +71,7 @@ public class TetrapolarSystemTest {
     Assert.assertEquals(system1.hashCode() == system2.hashCode(), equals, String.format("%s compared with %s", system1, system2));
   }
 
-  @DataProvider(name = "tetrapolar-systems-with-error", parallel = true)
+  @DataProvider(name = "tetrapolar-systems-with-error")
   public static Object[][] tetrapolarSystemsWithError() {
     return new Object[][] {
         {new TetrapolarSystem(2.0, 3.0, METRE), new TetrapolarSystem(2000.0 + 10, 3000.0 - 10.0, MILLI(METRE)),

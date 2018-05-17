@@ -14,7 +14,7 @@ public class DerivativeRBySLNormalizedByRho1Test {
   private DerivativeRBySLNormalizedByRho1Test() {
   }
 
-  @DataProvider(name = "layer-model", parallel = true)
+  @DataProvider(name = "layer-model")
   public static Object[][] twoLayerParameters() {
     return new Object[][] {
         {1.0, 0.1, 0.3, 0.2, L, -0.69},

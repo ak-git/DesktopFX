@@ -12,7 +12,7 @@ public class ResistanceTwoLayerTest {
   private ResistanceTwoLayerTest() {
   }
 
-  @DataProvider(name = "layer-model", parallel = true)
+  @DataProvider(name = "layer-model")
   public static Object[][] twoLayerParameters() {
     return new Object[][] {
         {new Double[] {1.0, 1.0}, 0.0, 20.0, 40.0, 21.221},
