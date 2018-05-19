@@ -58,7 +58,9 @@ public class TetrapolarSystemPairTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "lCC.*")
   public static void testInvalidLCC() {
-    new TetrapolarSystemPair.Builder(METRE).sPU(2.0, 2.0).lCC(1.0).build();
+    TetrapolarSystemPair.Builder builder = new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(2.0, 2.0).lCC(1.0);
+    Assert.assertEquals(builder.getLCC(), 0.001, 0.0001);
+    builder.build();
   }
 
   @Test(dataProvider = "tetrapolarPairs-with-error")

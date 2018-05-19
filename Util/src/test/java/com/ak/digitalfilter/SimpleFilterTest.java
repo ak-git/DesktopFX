@@ -150,4 +150,44 @@ public class SimpleFilterTest {
     Assert.assertEquals(actual, expected, Arrays.toString(actual));
     Assert.assertEquals(filter.getDelay(), delay, 0.001);
   }
+
+  @DataProvider(name = "data-reset")
+  public static Object[][] dataWithReset() {
+    return new Object[][] {{
+        FilterBuilder.of().expSum().build(),
+        new int[] {100, 110, 120, 130, 140, 150, 160, 170},
+        new int[] {
+            100, 100, 100, 100, 101, 102, 103, 104,
+            100, 100, 100, 100, 101, 102, 103, 104
+        },
+    }, {
+        FilterBuilder.of().rrs().build(),
+        new int[] {10, 11, 9, 11, 9, 11, 9},
+        new int[] {
+            10, 11, 10, 10, 10, 10, 10,
+            10, 11, 10, 10, 10, 10, 10
+        },
+    }};
+  }
+
+  @Test(dataProvider = "data-reset")
+  public static void testFilterWithReset(@Nonnull DigitalFilter filter, @Nonnull int[] data, @Nonnull int[] expected) {
+    AtomicInteger index = new AtomicInteger();
+    int[] actual = new int[expected.length];
+    filter.forEach(values -> {
+      Assert.assertEquals(values.length, 1);
+      actual[index.getAndIncrement()] = values[0];
+    });
+
+    for (int n : data) {
+      filter.accept(n);
+    }
+    filter.reset();
+    for (int n : data) {
+      filter.accept(n);
+    }
+
+    Assert.assertEquals(index.get(), expected.length);
+    Assert.assertEquals(actual, expected, Arrays.toString(actual));
+  }
 }

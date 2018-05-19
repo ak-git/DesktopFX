@@ -152,6 +152,11 @@ public class FilterBuilderTest {
         ).build(),
         new int[][] {{0, 1, 0, 0}, {1, 3, 2, 4}, {3, 5, 4, 8}, {5, 7, 6, 12}},
         1.5, 1.0
+    }, {
+        new int[][] {{1, 2}, {3, 4}, {5, 6}},
+        FilterBuilder.of().biOperator(() -> (left, right) -> left + right).buildNoDelay(),
+        new int[][] {{1 + 2}, {3 + 4}, {5 + 6}},
+        0.0, 1.0
     }};
   }
 
@@ -246,6 +251,7 @@ public class FilterBuilderTest {
     });
     for (int[] anInput : input) {
       filter.accept(anInput);
+      filter.reset();
     }
 
     Assert.assertEquals(filteredCounter.get(), result.length, filter.toString());
