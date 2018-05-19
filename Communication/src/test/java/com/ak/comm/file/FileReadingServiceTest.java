@@ -59,7 +59,7 @@ public class FileReadingServiceTest {
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
-  public static void testNoDataConverted(@Nonnull Path fileToRead, @Nonnegative int bytes) {
+  public static void testNoDataConverted(@Nonnull Path fileToRead, int bytes) {
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
     Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead,
         new AbstractBytesInterceptor<>(
@@ -103,7 +103,7 @@ public class FileReadingServiceTest {
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
-  public static void testFiles(@Nonnull Path fileToRead, @Nonnegative int bytes) {
+  public static void testFiles(@Nonnull Path fileToRead, int bytes) {
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
     Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
@@ -137,7 +137,7 @@ public class FileReadingServiceTest {
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "filesCanDelete")
-  public static void testException(@Nonnull Path fileToRead, @Nonnegative int bytes) {
+  public static void testException(@Nonnull Path fileToRead, int bytes) {
     Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
       TestSubscriber<int[]> testSubscriber = new TestSubscriber<>(subscription -> {
         try {
@@ -157,7 +157,7 @@ public class FileReadingServiceTest {
         testSubscriber.assertNotSubscribed();
       }
       else {
-        testSubscriber.assertError(NoSuchFileException.class);
+        Assert.assertEquals(Objects.requireNonNull(testSubscriber.throwable).getClass(), NoSuchFileException.class);
         testSubscriber.assertSubscribed();
       }
       testSubscriber.assertNoValues();
@@ -166,7 +166,7 @@ public class FileReadingServiceTest {
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
-  public static void testCancel(@Nonnull Path fileToRead, @Nonnegative int bytes) {
+  public static void testCancel(@Nonnull Path fileToRead, int bytes) {
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>(Flow.Subscription::cancel);
     Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
         BytesInterceptor.BaudRate.BR_921600, 1 + TwoVariables.values().length * Integer.BYTES),
@@ -258,10 +258,6 @@ public class FileReadingServiceTest {
       if (throwable != null) {
         Assert.fail(throwable.getMessage(), throwable);
       }
-    }
-
-    void assertError(Class<?> throwable) {
-      Assert.assertEquals(Objects.requireNonNull(this.throwable).getClass(), throwable);
     }
   }
 }
