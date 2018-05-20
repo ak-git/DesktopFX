@@ -118,69 +118,41 @@ public class InverseTwoLayerPairTest {
             new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0),
             Metrics.fromMilli(0.01),
 
-            Metrics.fromMilli(15.0)
+            new double[] {10.011, 1.236, Metrics.fromMilli(15.0)}
         },
         {
             new double[] {34.601, 183.855, 34.581, 183.795},
             new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0),
             Metrics.fromMilli(0.01),
 
-            Metrics.fromMilli(12.0)
-        },
-        {
-            new double[] {10.913, 39.527, 10.921, 39.553},
-            new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0),
-            Metrics.fromMilli(0.01),
-
-            Metrics.fromMilli(11.0)
+            new double[] {9.749, 3.098, Metrics.fromMilli(12.0)}
         },
     };
   }
 
-  @Test(dataProvider = "experimental-errors", enabled = false)
+  @Test(dataProvider = "experimental-errors", invocationCount = 10, enabled = false)
   public void testExperimentalErrors(@Nonnull double[] rOhmMeasured, @Nonnull TetrapolarSystemPair.Builder systemBuilder,
-                                     @Nonnegative double dH, @Nonnegative double expectedH) {
+                                     @Nonnegative double dH, @Nonnull double[] rho1rho2hExpected) {
     double rho2Apparent = systemBuilder.build().getPair()[0].getApparent(rOhmMeasured[0]);
     double rho1Apparent = systemBuilder.build().getPair()[1].getApparent(rOhmMeasured[1]);
 
-    SimpleBounds simpleBounds;
-    if (rho1Apparent > rho2Apparent) {
-      simpleBounds = new SimpleBounds(
-          new double[] {rho1Apparent, 0.0},
-          new double[] {Double.POSITIVE_INFINITY, rho2Apparent}
-      );
-    }
-    else {
-      simpleBounds = new SimpleBounds(
-          new double[] {0.0, rho2Apparent},
-          new double[] {rho1Apparent, Double.POSITIVE_INFINITY}
-      );
+    SimpleBounds simpleBounds = new SimpleBounds(
+        new double[] {rho1Apparent, 0.0, 0.0},
+        new double[] {100.0, rho2Apparent, systemBuilder.getLCC() / 2.0}
+    );
+    if (rho1Apparent <= rho2Apparent) {
+      throw new UnsupportedOperationException();
     }
 
-    PointValuePair hOptimal = SimplexTest.optimizeNelderMead(
-        new MultivariateFunction() {
-          private final ResistanceTwoLayerPair resistancePredicted = new ResistanceTwoLayerPair(systemBuilder.build(), dH);
+    PointValuePair pair = SimplexTest.optimizeCMAES(new MultivariateFunction() {
+      private final ResistanceTwoLayerPair resistancePredicted = new ResistanceTwoLayerPair(systemBuilder.build(), dH);
 
-          @Override
-          public double value(double[] hSI) {
-            return experimentalErrorsFixedH(rOhmMeasured, resistancePredicted, hSI[0], simpleBounds, new double[] {rho1Apparent, rho2Apparent}).getValue();
-          }
-        },
-        new double[] {systemBuilder.getLCC() / 2.0},
-        new double[] {Metrics.fromMilli(0.1)});
-
-    Assert.assertEquals(toString(hOptimal.getPoint()), toString(new double[] {expectedH}));
-  }
-
-  private static PointValuePair experimentalErrorsFixedH(@Nonnull double[] rOhmMeasured,
-                                                         @Nonnull ResistanceTwoLayerPair resistancePredicted,
-                                                         @Nonnegative double hSI,
-                                                         @Nonnull SimpleBounds simpleBounds,
-                                                         @Nonnull double[] rho1rho2Initial) {
-    return SimplexTest.optimizeCMAES(rho1rho2 ->
-            Inequality.logDifference().applyAsDouble(rOhmMeasured, resistancePredicted.value(rho1rho2[0], rho1rho2[1], hSI)),
-        simpleBounds,
-        rho1rho2Initial, new double[] {0.1, 0.1});
+      @Override
+      public double value(double[] rho1rho2h) {
+        return Inequality.logDifference().applyAsDouble(rOhmMeasured, resistancePredicted.value(rho1rho2h));
+      }
+    }, simpleBounds, new double[] {rho1Apparent, rho2Apparent, systemBuilder.getLCC() / 3.0}, new double[] {0.1, 0.1, Metrics.fromMilli(0.1)});
+    Assert.assertEquals(toString(pair.getPoint()), toString(rho1rho2hExpected));
   }
 
   private static String toString(@Nonnull double[] doubles) {
