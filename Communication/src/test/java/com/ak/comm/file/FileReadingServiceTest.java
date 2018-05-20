@@ -2,11 +2,13 @@ package com.ak.comm.file;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -23,11 +25,15 @@ import javax.annotation.Nullable;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.TwoVariables;
+import com.ak.comm.converter.Variable;
+import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.logging.LogBuilders;
 import com.ak.comm.util.LogUtils;
+import com.ak.digitalfilter.DigitalFilter;
+import com.ak.digitalfilter.FilterBuilder;
 import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
@@ -190,6 +196,64 @@ public class FileReadingServiceTest {
         new ToIntegerConverter<>(TwoVariables.class, 200)).call());
   }
 
+  @Test
+  public static void testAbstractConvertableService() {
+    try (AbstractConvertableService<BufferFrame, BufferFrame, TestVariable> convertableService =
+             new AbstractConvertableService<>(new RampBytesInterceptor(
+                 BytesInterceptor.BaudRate.BR_460800, 1 + TestVariable.values().length * Integer.BYTES),
+                 new ToIntegerConverter<>(TestVariable.class, 2)) {
+               @Override
+               public void subscribe(Flow.Subscriber<? super int[]> subscriber) {
+                 subscriber.onSubscribe(new Flow.Subscription() {
+                   @Override
+                   public void request(long n) {
+                     Assert.assertEquals(n, Long.MAX_VALUE);
+                   }
+
+                   @Override
+                   public void cancel() {
+                     Assert.fail();
+                   }
+                 });
+                 Assert.assertEquals(process(null).count(), 0);
+                 int[] ints = process(ByteBuffer.wrap(new byte[] {0, 2, 0, 0, 0, 1})).mapToInt(value -> value[0]).toArray();
+                 Assert.assertEquals(ints, new int[] {2});
+                 ints = process(ByteBuffer.wrap(new byte[] {4, 0, 0, 0, 2})).mapToInt(value -> value[0]).toArray();
+                 Assert.assertEquals(ints, new int[] {3});
+
+                 Assert.assertEquals(process(null).count(), 0);
+                 ints = process(ByteBuffer.wrap(new byte[] {6, 0, 0, 0, 3})).mapToInt(value -> value[0]).toArray();
+                 Assert.assertEquals(ints, new int[] {6});
+                 subscriber.onComplete();
+               }
+
+               @Override
+               public AsynchronousFileChannel call() throws Exception {
+                 return AsynchronousFileChannel.open(LogBuilders.CONVERTER_FILE.build(TestVariable.V_RRS.name()).getPath(),
+                     StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
+               }
+             }) {
+      TestSubscriber<int[]> subscriber = new TestSubscriber<>();
+      convertableService.subscribe(subscriber);
+      subscriber.assertNoErrors();
+      subscriber.assertSubscribed();
+      subscriber.assertComplete();
+      subscriber.assertValueCount(0);
+    }
+    catch (Exception ex) {
+      Assert.fail();
+    }
+  }
+
+  private enum TestVariable implements Variable<TestVariable> {
+    V_RRS {
+      @Override
+      public DigitalFilter filter() {
+        return FilterBuilder.of().rrs().build();
+      }
+    }
+  }
+
   private static final class TestSubscriber<T> implements Flow.Subscriber<T> {
     @Nonnull
     private final Consumer<Flow.Subscription> onSubscribe;
@@ -201,8 +265,7 @@ public class FileReadingServiceTest {
 
 
     TestSubscriber() {
-      this(subscription -> {
-      });
+      this(subscription -> subscription.request(Long.MAX_VALUE));
     }
 
     TestSubscriber(@Nonnull Consumer<Flow.Subscription> onSubscribe) {
