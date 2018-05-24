@@ -141,11 +141,11 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new IIRFilter(coefficients));
   }
 
-  FilterBuilder iirMATLAB(double[] num, double[] den) {
+  public FilterBuilder iirMATLAB(double[] num, double[] den) {
     return fir(CoefficientsUtils.reverseOrder(num)).iir(Arrays.stream(den).skip(1).map(operand -> -operand).toArray());
   }
 
-  public FilterBuilder comb(@Nonnegative int combFactor) {
+  FilterBuilder comb(@Nonnegative int combFactor) {
     return chain(new CombFilter(combFactor));
   }
 
