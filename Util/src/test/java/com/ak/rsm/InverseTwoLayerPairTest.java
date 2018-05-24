@@ -1,7 +1,10 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -27,25 +30,31 @@ public class InverseTwoLayerPairTest {
   public static Object[][] noisyResistance() {
     return new Object[][] {
         {
-            new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0).build(),
+            new TetrapolarSystemPair.Builder(0.0, MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0).build(),
             new double[] {10.0, 1.0, Metrics.fromMilli(15.0)}, Metrics.fromMilli(0.01),
 
             new double[] {34.420, 186.857, 34.399, 186.797}
         },
         {
-            new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0).buildWithError(0.1),
+            new TetrapolarSystemPair.Builder(0.1, MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0).buildWithError()[0],
             new double[] {10.0, 1.0, Metrics.fromMilli(15.0)}, Metrics.fromMilli(0.01),
 
             new double[] {34.601, 183.855, 34.581, 183.795}
         },
         {
-            new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0).buildWithError(0.1),
+            new TetrapolarSystemPair.Builder(0.1, MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0).buildWithError()[1],
+            new double[] {10.0, 1.0, Metrics.fromMilli(15.0)}, Metrics.fromMilli(0.01),
+
+            new double[] {34.237, 189.923, 34.216, 189.863}
+        },
+        {
+            new TetrapolarSystemPair.Builder(0.1, MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0).buildWithError()[0],
             new double[] {1.0, 10.0, Metrics.fromMilli(10.0)}, Metrics.fromMilli(0.01),
 
             new double[] {10.913, 39.527, 10.921, 39.553}
         },
         {
-            new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0).buildWithError(0.1),
+            new TetrapolarSystemPair.Builder(0.1, MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0).buildWithError()[0],
             new double[] {1.0, 1.0, Metrics.fromMilli(15.0)}, Metrics.fromMilli(0.01),
 
             new double[] {5.340, 23.558, 5.340, 23.558}
@@ -63,28 +72,28 @@ public class InverseTwoLayerPairTest {
   public static Object[][] inverseErrors() {
     return new Object[][] {
         {
-            new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0),
+            new TetrapolarSystemPair.Builder(0.1, MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0),
             new double[] {10.0, 1.0, Metrics.fromMilli(5.0)}, Metrics.fromMilli(0.01),
 
-            new double[] {0.004, 0.040, 0.027}
+            new double[] {0.004, 0.047, 0.031}
         },
         {
-            new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0),
+            new TetrapolarSystemPair.Builder(0.1, MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0),
             new double[] {10.0, 1.0, Metrics.fromMilli(15.0)}, Metrics.fromMilli(0.01),
 
-            new double[] {0.040, 0.120, 0.064}
+            new double[] {0.042, 0.120, 0.064}
         },
         {
-            new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0),
+            new TetrapolarSystemPair.Builder(0.1, MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0),
             new double[] {10.0, 1.0, Metrics.fromMilli(25.0)}, Metrics.fromMilli(0.01),
 
             new double[] {0.042, 0.139, 0.204}
         },
         {
-            new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0),
+            new TetrapolarSystemPair.Builder(0.1, MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0),
             new double[] {1.0, 10.0, Metrics.fromMilli(15.0)}, Metrics.fromMilli(0.01),
 
-            new double[] {0.061, 0.002, 0.089}
+            new double[] {0.061, 0.007, 0.100}
         },
     };
   }
@@ -92,22 +101,30 @@ public class InverseTwoLayerPairTest {
   @Test(dataProvider = "inverseErrors")
   public void testInverseErrors(@Nonnull TetrapolarSystemPair.Builder systemBuilder, @Nonnull double[] rho1rho2h, @Nonnegative double dH,
                                 @Nonnull double[] relErrorsExpected) {
-    double[] rho1rho2hInverse = SimplexTest.optimizeBOBYQA(new MultivariateFunction() {
-      private final double[] rOhmActual = new ResistanceTwoLayerPair(systemBuilder.buildWithError(0.1), dH).value(rho1rho2h);
-      private final ResistanceTwoLayerPair resistancePredicted = new ResistanceTwoLayerPair(systemBuilder.build(), dH);
 
-      @Override
-      public double value(double[] rho1rho2h) {
-        return Inequality.logDifference().applyAsDouble(rOhmActual, resistancePredicted.value(rho1rho2h));
+    Arrays.stream(systemBuilder.buildWithError()).flatMap(systemPair -> {
+      double[] rho1rho2hInverse = SimplexTest.optimizeBOBYQA(new MultivariateFunction() {
+        private final double[] rOhmActual = new ResistanceTwoLayerPair(systemPair, dH).value(rho1rho2h);
+        private final ResistanceTwoLayerPair resistancePredicted = new ResistanceTwoLayerPair(systemBuilder.build(), dH);
+
+        @Override
+        public double value(double[] rho1rho2h) {
+          return Inequality.logDifference().applyAsDouble(rOhmActual, resistancePredicted.value(rho1rho2h));
+        }
+      }, SimpleBounds.unbounded(rho1rho2h.length), rho1rho2h, 0.001).getPoint();
+
+      double[] relErrors = new double[rho1rho2hInverse.length];
+      for (int i = 0; i < rho1rho2hInverse.length; i++) {
+        relErrors[i] = Inequality.proportional().applyAsDouble(rho1rho2hInverse[i], rho1rho2h[i]);
       }
-    }, SimpleBounds.unbounded(rho1rho2h.length), rho1rho2h, 0.001).getPoint();
-
-    double[] relErrors = new double[rho1rho2hInverse.length];
-    for (int i = 0; i < rho1rho2hInverse.length; i++) {
-      relErrors[i] = Inequality.proportional().applyAsDouble(rho1rho2hInverse[i], rho1rho2h[i]);
-    }
-    Assert.assertEquals(toString(relErrors), toString(relErrorsExpected),
-        String.format("Forward problem: %s, Inverse: %s", toString(rho1rho2h), toString(rho1rho2hInverse)));
+      return Stream.of(relErrors);
+    }).reduce((first, second) -> {
+      double[] max = new double[first.length];
+      for (int i = 0; i < max.length; i++) {
+        max[i] = Math.max(first[i], second[i]);
+      }
+      return max;
+    }).ifPresentOrElse(relErrors -> Assert.assertEquals(toString(relErrors), toString(relErrorsExpected)), Assert::fail);
   }
 
   @DataProvider(name = "experimental-errors")
@@ -115,24 +132,20 @@ public class InverseTwoLayerPairTest {
     return new Object[][] {
         {
             new double[] {34.420, 186.857, 34.399, 186.797},
-            new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0),
+            new TetrapolarSystemPair.Builder(0.1, MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0),
             Metrics.fromMilli(0.01),
-
-            new double[] {10.011, 1.236, Metrics.fromMilli(15.0)}
         },
         {
             new double[] {34.601, 183.855, 34.581, 183.795},
-            new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0),
+            new TetrapolarSystemPair.Builder(0.1, MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0),
             Metrics.fromMilli(0.01),
-
-            new double[] {9.749, 3.098, Metrics.fromMilli(12.0)}
         },
     };
   }
 
-  @Test(dataProvider = "experimental-errors", invocationCount = 10, enabled = false)
+  @Test(dataProvider = "experimental-errors", invocationCount = 100, enabled = false)
   public void testExperimentalErrors(@Nonnull double[] rOhmMeasured, @Nonnull TetrapolarSystemPair.Builder systemBuilder,
-                                     @Nonnegative double dH, @Nonnull double[] rho1rho2hExpected) {
+                                     @Nonnegative double dH) {
     double rho2Apparent = systemBuilder.build().getPair()[0].getApparent(rOhmMeasured[0]);
     double rho1Apparent = systemBuilder.build().getPair()[1].getApparent(rOhmMeasured[1]);
 
@@ -144,15 +157,21 @@ public class InverseTwoLayerPairTest {
       throw new UnsupportedOperationException();
     }
 
-    PointValuePair pair = SimplexTest.optimizeCMAES(new MultivariateFunction() {
-      private final ResistanceTwoLayerPair resistancePredicted = new ResistanceTwoLayerPair(systemBuilder.build(), dH);
 
-      @Override
-      public double value(double[] rho1rho2h) {
-        return Inequality.logDifference().applyAsDouble(rOhmMeasured, resistancePredicted.value(rho1rho2h));
-      }
-    }, simpleBounds, new double[] {rho1Apparent, rho2Apparent, systemBuilder.getLCC() / 3.0}, new double[] {0.1, 0.1, Metrics.fromMilli(0.1)});
-    Assert.assertEquals(toString(pair.getPoint()), toString(rho1rho2hExpected));
+    double[] initialGuess = {rho1Apparent, rho2Apparent, systemBuilder.getLCC() / 3.0};
+
+    Arrays.stream(systemBuilder.buildWithError()).forEach(systemPair -> {
+      ResistanceTwoLayerPair resistancePredicted = new ResistanceTwoLayerPair(systemPair, dH);
+      PointValuePair pair = getRho1Rho2H(rOhmMeasured, resistancePredicted, simpleBounds, initialGuess);
+      Logger.getAnonymousLogger().info(systemPair + " : " + toString(pair.getPoint()));
+    });
+  }
+
+  private static PointValuePair getRho1Rho2H(@Nonnull double[] rOhmMeasured, @Nonnull ResistanceTwoLayerPair resistancePredicted,
+                                             @Nonnull SimpleBounds simpleBounds, @Nonnull double[] rho1rho2hInitial) {
+    return SimplexTest.optimizeCMAES(rho1rho2h -> Inequality.logDifference().applyAsDouble(rOhmMeasured, resistancePredicted.value(rho1rho2h)),
+        simpleBounds, rho1rho2hInitial, new double[] {0.1, 0.1, Metrics.fromMilli(0.1)}
+    );
   }
 
   private static String toString(@Nonnull double[] doubles) {

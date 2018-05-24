@@ -2,6 +2,7 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -58,6 +59,8 @@ final class TetrapolarSystemPair {
   }
 
   static class Builder implements javafx.util.Builder<TetrapolarSystemPair> {
+    @Nonnegative
+    private final double dL;
     @Nonnull
     private final Unit<Length> unit;
     @Nonnegative
@@ -67,7 +70,8 @@ final class TetrapolarSystemPair {
     @Nonnegative
     double lCC;
 
-    Builder(@Nonnull Unit<Length> unit) {
+    Builder(@Nonnegative double dL, @Nonnull Unit<Length> unit) {
+      this.dL = dL;
       this.unit = unit;
     }
 
@@ -86,8 +90,16 @@ final class TetrapolarSystemPair {
       return Quantities.getQuantity(lCC, unit).to(METRE).getValue().doubleValue();
     }
 
-    TetrapolarSystemPair buildWithError(double dL) {
-      return new TetrapolarSystemPair(sPUSmall + dL, sPULarge - dL, lCC + dL, unit);
+    TetrapolarSystemPair[] buildWithError() {
+      if (Double.compare(dL, 0.0) == 0) {
+        throw new IllegalStateException("dL == 0");
+      }
+
+      return IntStream.of(1, -1).mapToObj(dLSign -> {
+            var error = dL * dLSign;
+            return new TetrapolarSystemPair(sPUSmall + error, sPULarge - error, lCC + error, unit);
+          }
+      ).toArray(TetrapolarSystemPair[]::new);
     }
 
     @Override

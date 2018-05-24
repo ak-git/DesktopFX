@@ -38,8 +38,8 @@ public class SimplexTest {
     Assert.assertEquals(optimum.getPoint()[0], 1.0, 1.0e-5);
   }
 
-  public static PointValuePair optimizeNelderMead(@Nonnull MultivariateFunction function,
-                                                  @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
+  private static PointValuePair optimizeNelderMead(@Nonnull MultivariateFunction function,
+                                                   @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
     return new SimplexOptimizer(-1, 1.0e-8).optimize(new MaxEval(10000), new ObjectiveFunction(function), GoalType.MINIMIZE,
         new NelderMeadSimplex(initialSteps), new InitialGuess(initialGuess));
   }
@@ -47,7 +47,7 @@ public class SimplexTest {
   public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
                                              @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
     return new CMAESOptimizer(30000, 1.0e-11, true, 0,
-        0, new MersenneTwister(), false, null)
+        10, new MersenneTwister(), false, null)
         .optimize(
             new MaxEval(30000),
             new ObjectiveFunction(function),

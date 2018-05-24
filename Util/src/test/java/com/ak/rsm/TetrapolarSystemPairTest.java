@@ -18,12 +18,12 @@ public class TetrapolarSystemPairTest {
 
   @DataProvider(name = "tetrapolarPairs")
   public static Object[][] tetrapolarPairs() {
-    TetrapolarSystemPair ts = new TetrapolarSystemPair.Builder(METRE).sPU(1, 2).lCC(3).build();
+    TetrapolarSystemPair ts = new TetrapolarSystemPair.Builder(0.0, METRE).sPU(1, 2).lCC(3).build();
     return new Object[][] {
         {ts, ts, true},
-        {ts, new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(2000.0, 1000.0).lCC(3000.0).build(), true},
-        {new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(1.0, 2.0).lCC(3.0).build(),
-            new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(1.0, 1.5).lCC(3.0).build(), false}
+        {ts, new TetrapolarSystemPair.Builder(0.0, MILLI(METRE)).sPU(2000.0, 1000.0).lCC(3000.0).build(), true},
+        {new TetrapolarSystemPair.Builder(0.0, MILLI(METRE)).sPU(1.0, 2.0).lCC(3.0).build(),
+            new TetrapolarSystemPair.Builder(0.0, MILLI(METRE)).sPU(1.0, 1.5).lCC(3.0).build(), false}
     };
   }
 
@@ -36,7 +36,7 @@ public class TetrapolarSystemPairTest {
 
   @Test
   public static void testNotEquals() {
-    TetrapolarSystemPair pair = new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(10.0, 20.0).lCC(25.0).build();
+    TetrapolarSystemPair pair = new TetrapolarSystemPair.Builder(0.0, MILLI(METRE)).sPU(10.0, 20.0).lCC(25.0).build();
     Assert.assertNotEquals(pair, new Object());
     Assert.assertNotEquals(pair.equals(new Object()), true);
   }
@@ -53,27 +53,35 @@ public class TetrapolarSystemPairTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "sPU.*")
   public static void testInvalidSPU() {
-    new TetrapolarSystemPair.Builder(METRE).build();
+    new TetrapolarSystemPair.Builder(1.0, METRE).build();
+  }
+
+  @Test(expectedExceptions = IllegalStateException.class, expectedExceptionsMessageRegExp = "dL == 0")
+  public static void testInvalidDL() {
+    new TetrapolarSystemPair.Builder(0.0, METRE).buildWithError();
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "lCC.*")
   public static void testInvalidLCC() {
-    TetrapolarSystemPair.Builder builder = new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(2.0, 2.0).lCC(1.0);
+    TetrapolarSystemPair.Builder builder = new TetrapolarSystemPair.Builder(1.0, MILLI(METRE)).sPU(2.0, 2.0).lCC(1.0);
     Assert.assertEquals(builder.getLCC(), 0.001, 0.0001);
     builder.build();
   }
 
   @Test(dataProvider = "tetrapolarPairs-with-error")
-  public static void testWithError(@Nonnull TetrapolarSystemPair system, @Nonnull TetrapolarSystemPair systemE) {
-    Assert.assertEquals(system, systemE, String.format("%s compared with %s", system, systemE));
+  public static void testWithError(@Nonnull TetrapolarSystemPair[] systems, @Nonnull TetrapolarSystemPair[] systemsE) {
+    Assert.assertEquals(systems, systemsE, String.format("%s compared with %s", Arrays.toString(systems), Arrays.toString(systemsE)));
   }
 
   @DataProvider(name = "tetrapolarPairs-with-error")
   public static Object[][] tetrapolarPairsWithError() {
     return new Object[][] {
         {
-            new TetrapolarSystemPair.Builder(METRE).sPU(1.0, 2.0).lCC(3.0).buildWithError(Metrics.fromMilli(10.0)),
-            new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(1000.0 + 10, 2000.0 - 10).lCC(3000.0 + 10.0).build(),
+            new TetrapolarSystemPair.Builder(Metrics.fromMilli(10.0), METRE).sPU(1.0, 2.0).lCC(3.0).buildWithError(),
+            new TetrapolarSystemPair[] {
+                new TetrapolarSystemPair.Builder(0.0, MILLI(METRE)).sPU(1000.0 + 10, 2000.0 - 10).lCC(3000.0 + 10.0).build(),
+                new TetrapolarSystemPair.Builder(0.0, MILLI(METRE)).sPU(1000.0 - 10, 2000.0 + 10).lCC(3000.0 - 10.0).build()
+            },
         },
     };
   }

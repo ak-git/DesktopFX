@@ -20,7 +20,7 @@ public class ResistanceTwoLayerPairTest {
   @DataProvider(name = "layer-model")
   public static Object[][] twoLayerParameters() {
     return new Object[][] {
-        {new ResistanceTwoLayerPair(new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0).build(), Metrics.fromMilli(0.01)),
+        {new ResistanceTwoLayerPair(new TetrapolarSystemPair.Builder(0.0, MILLI(METRE)).sPU(10.0, 30.0).lCC(50.0).build(), Metrics.fromMilli(0.01)),
             new double[] {10.0, 1.0, Metrics.fromMilli(15.0)},
 
             new double[] {34.420, 186.857, 34.399, 186.797}
@@ -35,7 +35,7 @@ public class ResistanceTwoLayerPairTest {
 
   @Test(expectedExceptions = CloneNotSupportedException.class)
   public static void testNotClone() throws CloneNotSupportedException {
-    new ResistanceTwoLayerPair(new TetrapolarSystemPair.Builder(MILLI(METRE)).sPU(1, 2).lCC(3).build(), 0.1).clone();
+    new ResistanceTwoLayerPair(new TetrapolarSystemPair.Builder(0.0, MILLI(METRE)).sPU(1, 2).lCC(3).build(), 0.1).clone();
   }
 
   private static String toString(@Nonnull double[] doubles) {
