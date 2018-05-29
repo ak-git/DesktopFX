@@ -22,29 +22,29 @@ import org.testng.annotations.Test;
 
 import static jssc.SerialPort.BAUDRATE_115200;
 
-public class RampBytesInterceptorTest {
-  private static final Logger LOGGER = Logger.getLogger(RampBytesInterceptor.class.getName());
+public class FixedFrameBytesInterceptorTest {
+  private static final Logger LOGGER = Logger.getLogger(FixedFrameBytesInterceptor.class.getName());
   private final Function<ByteBuffer, Stream<BufferFrame>> interceptor =
-      new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 9);
+      new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 9);
 
-  private RampBytesInterceptorTest() {
+  private FixedFrameBytesInterceptorTest() {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public static void testInvalidInterceptorProperties() {
-    new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 0);
+    new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 0);
   }
 
   @Test
   public static void testInterceptorProperties() {
-    BytesInterceptor<BufferFrame, BufferFrame> interceptor = new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1);
+    BytesInterceptor<BufferFrame, BufferFrame> interceptor = new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1);
     Assert.assertEquals(interceptor.getBaudRate(), BAUDRATE_115200);
     Assert.assertNull(interceptor.getPingRequest());
   }
 
-  @Test(dataProviderClass = FrameBytesInterceptorDataProvider.class, dataProvider = "ramp-data")
-  public static void testRampBytesInterceptor(@Nonnull byte[] input, @Nonnull BufferFrame testFrame, @Nonnull String ignoredMessage) {
-    BytesInterceptor<BufferFrame, BufferFrame> interceptor = new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, 9);
+  @Test(dataProviderClass = FrameBytesInterceptorDataProvider.class, dataProvider = "fixed-start-data")
+  public static void testFixedBytesInterceptor(@Nonnull byte[] input, @Nonnull BufferFrame testFrame, @Nonnull String ignoredMessage) {
+    BytesInterceptor<BufferFrame, BufferFrame> interceptor = new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, 9);
 
     Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> {
@@ -71,7 +71,7 @@ public class RampBytesInterceptorTest {
         logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(singleByte + " - OUT to hardware"), logRecord.getMessage())));
   }
 
-  @Test(dataProviderClass = FrameBytesInterceptorDataProvider.class, dataProvider = "ramp-data")
+  @Test(dataProviderClass = FrameBytesInterceptorDataProvider.class, dataProvider = "fixed-start-data")
   public void testInterceptor(@Nonnull byte[] bytes, @Nullable BufferFrame response, @Nonnull String ignoredMessage) {
     new FrameBytesInterceptorDataProvider().testInterceptor(bytes, response, ignoredMessage, LOGGER, interceptor);
   }

@@ -19,19 +19,8 @@
         </property>
     </bean>
 
-    <bean class="com.ak.comm.interceptor.simple.FixedFrameBytesInterceptor" scope="prototype">
-        <constructor-arg name="baudRate" value="BR_460800"/>
-        <constructor-arg name="frameLength" value="224"/>
-    </bean>
-
-    <bean class="com.ak.comm.converter.ToIntegerConverter" scope="prototype">
-        <constructor-arg index="0">
-            <bean class="java.lang.Class" factory-method="forName">
-                <constructor-arg type="java.lang.String" value="com.ak.comm.converter.ADCVariable"/>
-            </bean>
-        </constructor-arg>
-        <constructor-arg index="1" value="1000"/>
-    </bean>
+    <bean class="com.ak.comm.interceptor.nmis.NmisBytesInterceptor" scope="prototype"/>
+    <bean class="com.ak.comm.converter.nmis.NmisConverter" scope="prototype"/>
 
     <bean class="com.ak.comm.GroupService" destroy-method="close"/>
 
