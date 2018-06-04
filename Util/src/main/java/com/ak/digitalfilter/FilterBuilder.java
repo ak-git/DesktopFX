@@ -145,7 +145,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return fir(CoefficientsUtils.reverseOrder(num)).iir(Arrays.stream(den).skip(1).map(operand -> -operand).toArray());
   }
 
-  FilterBuilder comb(@Nonnegative int combFactor) {
+  private FilterBuilder comb(@Nonnegative int combFactor) {
     return chain(new CombFilter(combFactor));
   }
 

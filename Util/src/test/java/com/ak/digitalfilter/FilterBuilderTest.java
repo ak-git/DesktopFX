@@ -64,32 +64,25 @@ public class FilterBuilderTest {
   @DataProvider(name = "delay")
   public static Object[][] delay() {
     return new Object[][] {{
-        new int[][] {{1, 1, 1, 1}, {2, 2, 2, 2}, {4, 4, 4, 4}, {2, 2, 2, 2}, {2, 2, 2, 2}, {1, 1, 1, 1}},
+        new int[][] {{1, 1, 1}, {2, 2, 2}, {4, 4, 4}, {2, 2, 2}, {2, 2, 2}, {1, 1, 1}},
         FilterBuilder.parallel(
             FilterBuilder.of().fork(
                 FilterBuilder.of().fir(1.0).build(),
                 FilterBuilder.of().fir(1.0).build()
             ).build(),
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
-            FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(2).build()
         ),
-        new int[][] {{4, 4, 0, 0, 3}, {2, 2, -2, -2, 3}, {2, 2, -1, -1, 2}},
+        new int[][] {{4, 4, 0, 3}, {2, 2, -2, 3}, {2, 2, -1, 2}},
         -1.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
         FilterBuilder.of().fork(
             FilterBuilder.of().fir(1.0).build(),
-            FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
-            FilterBuilder.of().comb(2).build()
+            FilterBuilder.of().fir(-1.0, 0.0, 1.0).build()
         ).buildNoDelay(),
-        new int[][] {{2, 3, 3}, {4, 0, 0}, {2, -2, -2}, {2, -1, -1}},
+        new int[][] {{2, 3}, {4, 0}, {2, -2}, {2, -1}},
         -1.0, 1.0
-    }, {
-        new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
-        FilterBuilder.of().comb(1).build(),
-        new int[][] {{1}, {1}, {2}, {-2}, {0}, {-1}},
-        0.5, 1.0
     }, {
         new int[][] {{-1}, {1}, {MAX_VALUE}, {1}, {MAX_VALUE}},
         FilterBuilder.of().integrate().build(),
@@ -178,18 +171,15 @@ public class FilterBuilderTest {
                 FilterBuilder.of().fir(1.0).build()
             ).build(),
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
-            FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(4).build()
         ).buildNoDelay(),
         String.format(
             "NoDelayFilter (compensate %.1f delay x 2) - DelayFilter (delay %d) - FIRFilter (delay %.1f)%n" +
                 "                                                                   FIRFilter (delay %.1f)%n" +
                 "                                           DelayFilter (delay %d) - FIRFilter (delay %.1f)%n" +
-                "                                           DelayFilter (delay %d) - CombFilter (delay %.1f)%n" +
                 "                                           RRS4 (delay %.1f)",
             2.0, 2, 0.0,
             0.0,
-            1, 1.0,
             1, 1.0,
             1.5
         )
@@ -200,18 +190,15 @@ public class FilterBuilderTest {
                 FilterBuilder.of().fir(1.0).build()
             ).build(),
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
-            FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(2).build()
         ),
         String.format(
             "NoDelayFilter (compensate %.1f delay x 2) - DelayFilter (delay %d) - SelectFilter (indexes = [0]) - FIRFilter (delay %.1f)%n" +
                 "                                                                                                  FIRFilter (delay %.1f)%n" +
                 "                                           SelectFilter (indexes = [1]) - FIRFilter (delay %.1f)%n" +
-                "                                           SelectFilter (indexes = [2]) - CombFilter (delay %.1f)%n" +
-                "                                           DelayFilter (delay %d) - SelectFilter (indexes = [3]) - RRS2 (delay %.1f)",
+                "                                           DelayFilter (delay %d) - SelectFilter (indexes = [2]) - RRS2 (delay %.1f)",
             1.5, 1, 0.0,
             0.0,
-            1.0,
             1.0,
             1,
             0.5
