@@ -21,6 +21,9 @@
         <fileset id="fileset6" name="nmis" removed="false">
           <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/nmis/context.xml</file>
         </fileset>
+        <fileset id="fileset7" name="briko" removed="false">
+          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/briko/context.xml</file>
+        </fileset>
       </configuration>
     </facet>
   </component>
