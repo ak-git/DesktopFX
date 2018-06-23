@@ -1,9 +1,12 @@
 package com.ak.comm.converter.aper;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.IntSummaryStatistics;
 import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
+import java.util.function.Supplier;
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
@@ -17,6 +20,8 @@ import com.ak.numbers.aper.AperCoefficients;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
 import com.ak.util.LineFileBuilder;
+import com.ak.util.LineFileCollector;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -38,6 +43,14 @@ public final class AperItoOhmChartApp extends AbstractSplineCoefficientsChartApp
         xStream(() -> intRange(AperSurfaceCoefficientsChannel1.class, CoefficientsUtils::rangeX).asDoubleStream()).
         yStream(() -> intRange(AperSurfaceCoefficientsChannel1.class, CoefficientsUtils::rangeY).asDoubleStream()).
         generate("z.txt", (adc, rII) -> function.applyAsInt(Double.valueOf(adc).intValue(), Double.valueOf(rII).intValue()));
+
+    Supplier<DoubleStream> xVar = () -> intRange(AperSurfaceCoefficientsChannel1.class, CoefficientsUtils::rangeX).asDoubleStream();
+    Assert.assertTrue(xVar.get().mapToObj(sToL -> String.format("%.2f", sToL)).collect(
+        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL)));
+
+    Supplier<DoubleStream> yVar = () -> intRange(AperSurfaceCoefficientsChannel1.class, CoefficientsUtils::rangeY).asDoubleStream();
+    Assert.assertTrue(yVar.get().mapToObj(sToL -> String.format("%.2f", sToL)).collect(
+        new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   @Test(enabled = false)
