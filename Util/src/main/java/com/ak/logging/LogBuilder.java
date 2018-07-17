@@ -4,9 +4,11 @@ import java.util.logging.FileHandler;
 
 import javax.annotation.Nonnull;
 
+import com.ak.util.LocalFileIO;
+
 final class LogBuilder extends LogPathBuilder {
   LogBuilder(@Nonnull Class<? extends FileHandler> fileHandlerClass) {
     super("log", fileHandlerClass);
-    fileName(localDate("yyyy-MMM-dd") + ".%u.%g");
+    fileName(LocalFileIO.AbstractBuilder.localDate("yyyy-MMM-dd") + ".%u.%g");
   }
 }

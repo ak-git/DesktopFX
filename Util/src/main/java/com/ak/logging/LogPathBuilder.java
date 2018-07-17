@@ -1,7 +1,5 @@
 package com.ak.logging;
 
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.logging.FileHandler;
 import java.util.logging.LogManager;
@@ -21,15 +19,6 @@ public class LogPathBuilder extends LocalFileIO.AbstractBuilder {
     super(fileExtension);
     addPath(Optional.ofNullable(LogManager.getLogManager().getProperty(fileHandlerClass.getName() + ".name")).
         orElse(fileHandlerClass.getSimpleName()));
-  }
-
-  public final LocalFileIO.AbstractBuilder fileNameWithTime(@Nonnull String prefix) {
-    fileName(prefix + localDate(" yyyy-MMM-dd HH-mm-ss"));
-    return this;
-  }
-
-  static String localDate(@Nonnull String pattern) {
-    return DateTimeFormatter.ofPattern(pattern).format(ZonedDateTime.now());
   }
 
   /**
