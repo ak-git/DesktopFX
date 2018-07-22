@@ -15,7 +15,7 @@ public final class ScaleYInfo<EV extends Enum<EV> & Variable<EV>> implements Int
   private final int scaleFactor;
   private final int scaleFactor10;
 
-  ScaleYInfo(@Nonnull Builder<EV> builder) {
+  private ScaleYInfo(@Nonnull Builder<EV> builder) {
     variable = builder.variable;
     mean = builder.mean;
     scaleFactor = builder.scaleFactor;
