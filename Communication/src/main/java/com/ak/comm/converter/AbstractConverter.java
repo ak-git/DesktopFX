@@ -60,7 +60,7 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
       filteredValues = Stream.concat(filteredValues, Stream.of(ints));
     });
     this.frequency = frequency * digitalFilter.getFrequencyFactor();
-    refresh();
+    refreshFileCollector();
   }
 
   @Override
@@ -85,6 +85,13 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
   @Override
   public final void refresh() {
     digitalFilter.reset();
+    refreshFileCollector();
+  }
+
+  @Nonnull
+  protected abstract Stream<int[]> innerApply(@Nonnull RESPONSE response);
+
+  private void refreshFileCollector() {
     try {
       if (fileCollector != null) {
         fileCollector.close();
@@ -97,7 +104,4 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
       fileCollector = null;
     }
   }
-
-  @Nonnull
-  protected abstract Stream<int[]> innerApply(@Nonnull RESPONSE response);
 }

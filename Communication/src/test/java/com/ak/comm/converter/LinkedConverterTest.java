@@ -16,6 +16,7 @@ import com.ak.digitalfilter.IntsAcceptor;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import tec.uom.se.AbstractUnit;
 
 public class LinkedConverterTest {
   private LinkedConverterTest() {
@@ -63,6 +64,12 @@ public class LinkedConverterTest {
     return new Object[][] {
         {new BufferFrame(new byte[] {1, 0, 0, 0, 10}, ByteOrder.BIG_ENDIAN)},
     };
+  }
+
+  @Test
+  public static void testRecursive() {
+    Assert.assertEquals(RefreshVariable.OUT.getUnit(), AbstractUnit.ONE);
+    Assert.assertEquals(RefreshVariable.OUT.options(), Variable.Option.defaultOptions());
   }
 
   @Test(dataProvider = "refresh-variables")
