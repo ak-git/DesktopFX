@@ -54,13 +54,21 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
             IntStream.iterate(0, operand -> operand + 1).limit(variables.size()).mapToObj(
                 idx -> Variables.toString(variables.get(idx), ints[idx])).collect(Collectors.joining(", "))));
       }
+      try {
+        if (fileCollector == null) {
+          fileCollector = new LineFileCollector(OutputBuilders.TIME.build(Strings.EMPTY).getPath(), LineFileCollector.Direction.VERTICAL);
+          fileCollector.accept(variables.stream().map(Variables::toName).collect(Collectors.joining(Strings.TAB)));
+        }
+      }
+      catch (IOException e) {
+        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+      }
       if (fileCollector != null) {
         fileCollector.accept(Arrays.stream(ints).mapToObj(Integer::toString).collect(Collectors.joining(Strings.TAB)));
       }
       filteredValues = Stream.concat(filteredValues, Stream.of(ints));
     });
     this.frequency = frequency * digitalFilter.getFrequencyFactor();
-    refreshFileCollector();
   }
 
   @Override
@@ -85,23 +93,17 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
   @Override
   public final void refresh() {
     digitalFilter.reset();
-    refreshFileCollector();
-  }
-
-  @Nonnull
-  protected abstract Stream<int[]> innerApply(@Nonnull RESPONSE response);
-
-  private void refreshFileCollector() {
     try {
       if (fileCollector != null) {
         fileCollector.close();
       }
-      fileCollector = new LineFileCollector(OutputBuilders.TIME.build(Strings.EMPTY).getPath(), LineFileCollector.Direction.VERTICAL);
-      fileCollector.accept(variables.stream().map(Variables::toName).collect(Collectors.joining(Strings.TAB)));
     }
     catch (IOException e) {
       Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
       fileCollector = null;
     }
   }
+
+  @Nonnull
+  protected abstract Stream<int[]> innerApply(@Nonnull RESPONSE response);
 }
