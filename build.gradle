@@ -111,8 +111,7 @@ project(':FxDesktop') {
         from(sourceSets.main.resources.srcDirs) {
             include '**/*.properties'
             filter { String line ->
-                line.replaceAll(project.name.toString(),
-                        project.name.toString() + ' ' + project.version.toString())
+                line.replaceAll('application.version', project.version.toString())
             }
         }
     }
