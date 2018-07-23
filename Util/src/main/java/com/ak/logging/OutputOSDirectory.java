@@ -11,11 +11,16 @@ public enum OutputOSDirectory implements OSDirectory {
 
   @Override
   public Path getDirectory() {
-    String path = "/Downloads/";
-    File file = new File(USER_HOME_PATH, path);
-    if (!file.exists() || !file.isDirectory() || file.isHidden()) {
-      path = "/Documents/";
+    String[] paths = {"/Downloads/", "/Documents/"};
+
+    Path result = Paths.get(USER_HOME_PATH);
+    for (String path : paths) {
+      File file = new File(USER_HOME_PATH, path);
+      if (file.exists() && file.isDirectory() && !file.isHidden()) {
+        result = Paths.get(USER_HOME_PATH, path, "Aper");
+        break;
+      }
     }
-    return Paths.get(USER_HOME_PATH, path, "Aper");
+    return result;
   }
 }

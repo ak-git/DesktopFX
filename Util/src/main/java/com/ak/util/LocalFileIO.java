@@ -25,7 +25,7 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
 
   public LocalFileIO(@Nonnull AbstractBuilder b, @Nonnull Class<E> enumClass) {
     path = b.relativePath == null ? Paths.get(Strings.EMPTY) : b.relativePath;
-    fileName = Optional.ofNullable(b.fileName).orElse(Strings.EMPTY);
+    fileName = Optional.ofNullable(b.fileName).orElse(Strings.EMPTY).trim();
     osIdEnum = Enum.valueOf(enumClass, OS.get().name());
   }
 

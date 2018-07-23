@@ -114,6 +114,7 @@ public final class FxApplication extends Application {
         Files.copy(FxApplication.class.getResourceAsStream(LOGGING_PROPERTIES), path);
       }
       System.setProperty("java.util.logging.config.file", path.toAbsolutePath().toString());
+      Logger.getLogger(FxApplication.class.getName()).log(Level.INFO, path.toAbsolutePath().toString());
     }
     catch (Exception e) {
       Logger.getGlobal().log(Level.WARNING, e.getMessage(), e);

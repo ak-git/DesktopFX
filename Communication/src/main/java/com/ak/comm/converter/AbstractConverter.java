@@ -1,13 +1,10 @@
 package com.ak.comm.converter;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -15,13 +12,9 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
-import com.ak.comm.logging.OutputBuilders;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
-import com.ak.util.LineFileCollector;
-import com.ak.util.Strings;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_VALUES;
 
@@ -36,8 +29,6 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
   private final double frequency;
   @Nonnull
   private Stream<int[]> filteredValues = Stream.empty();
-  @Nullable
-  private LineFileCollector fileCollector;
 
   public AbstractConverter(@Nonnull Class<EV> evClass, @Nonnegative double frequency) {
     this(evClass, frequency, EnumSet.allOf(evClass).stream().map(ev -> new int[] {ev.ordinal()}).collect(Collectors.toList()));
@@ -53,18 +44,6 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
         logger.log(LOG_LEVEL_VALUES, String.format("#%x [ %s ]", hashCode(),
             IntStream.iterate(0, operand -> operand + 1).limit(variables.size()).mapToObj(
                 idx -> Variables.toString(variables.get(idx), ints[idx])).collect(Collectors.joining(", "))));
-      }
-      try {
-        if (fileCollector == null) {
-          fileCollector = new LineFileCollector(OutputBuilders.TIME.build(Strings.EMPTY).getPath(), LineFileCollector.Direction.VERTICAL);
-          fileCollector.accept(variables.stream().map(Variables::toName).collect(Collectors.joining(Strings.TAB)));
-        }
-      }
-      catch (IOException e) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-      }
-      if (fileCollector != null) {
-        fileCollector.accept(Arrays.stream(ints).mapToObj(Integer::toString).collect(Collectors.joining(Strings.TAB)));
       }
       filteredValues = Stream.concat(filteredValues, Stream.of(ints));
     });
@@ -93,15 +72,6 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
   @Override
   public final void refresh() {
     digitalFilter.reset();
-    try {
-      if (fileCollector != null) {
-        fileCollector.close();
-      }
-    }
-    catch (IOException e) {
-      Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-      fileCollector = null;
-    }
   }
 
   @Nonnull
