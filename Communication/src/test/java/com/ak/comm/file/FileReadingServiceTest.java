@@ -34,6 +34,7 @@ import com.ak.comm.logging.LogBuilders;
 import com.ak.comm.util.LogUtils;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
+import com.ak.util.PropertiesSupport;
 import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
@@ -93,6 +94,7 @@ public class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFile")
   public static void testFile(@Nonnull Path fileToRead, @Nonnegative int bytes, boolean forceClose) {
+    System.setProperty(PropertiesSupport.TEST.key(), Boolean.valueOf(forceClose).toString());
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
     FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher = new FileReadingService<>(
@@ -106,6 +108,7 @@ public class FileReadingServiceTest {
       }
     });
     testSubscriber.assertValueCount(bytes / frameLength);
+    System.clearProperty(PropertiesSupport.TEST.key());
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")

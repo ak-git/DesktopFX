@@ -2,11 +2,19 @@ package com.ak.util;
 
 import java.util.Optional;
 
-public class PropertiesSupport {
-  public static final boolean IS_TEST = Boolean.valueOf(
-      Optional.ofNullable(System.getProperty("test", Boolean.FALSE.toString())).orElse(Strings.EMPTY).trim());
+public enum PropertiesSupport {
+  TEST {
+    @Override
+    public boolean check() {
+      return Boolean.valueOf(
+          Optional.ofNullable(System.getProperty(key(), Boolean.FALSE.toString())).orElse(Strings.EMPTY).trim());
+    }
+  };
 
-  private PropertiesSupport() {
+  public abstract boolean check();
+
+  public final String key() {
+    return name().toLowerCase();
   }
 }
 
