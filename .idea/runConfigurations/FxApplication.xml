@@ -2,7 +2,6 @@
   <configuration default="false" name="FxApplication" type="Application" factoryName="Application" singleton="true" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="com.ak.fx.desktop.FxApplication" />
     <module name="DesktopFX-FxDesktop_main" />
-    <option name="VM_PARAMETERS" value="-Dtest=true" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
     <extension name="coverage">
       <pattern>

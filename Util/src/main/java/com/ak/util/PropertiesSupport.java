@@ -3,11 +3,11 @@ package com.ak.util;
 import java.util.Optional;
 
 public enum PropertiesSupport {
-  TEST {
+  CACHE {
     @Override
     public boolean check() {
       return Boolean.valueOf(
-          Optional.ofNullable(System.getProperty(key(), Boolean.FALSE.toString())).orElse(Strings.EMPTY).trim());
+          Optional.ofNullable(System.getProperty(key(), Boolean.TRUE.toString())).orElse(Strings.EMPTY).trim());
     }
   };
 

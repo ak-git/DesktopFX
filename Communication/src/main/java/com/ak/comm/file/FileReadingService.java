@@ -65,7 +65,7 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
         if (isChannelProcessed(seekableByteChannel, md5::update)) {
           String md5Code = digestToString(md5);
           Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
-          if (PropertiesSupport.TEST.check()) {
+          if (!PropertiesSupport.CACHE.check()) {
             Files.deleteIfExists(convertedFile);
           }
           if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
