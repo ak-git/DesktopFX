@@ -91,7 +91,7 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends E
     try {
       try {
         if (txtCollector == null) {
-          Path path = OutputBuilders.TIME.build(Strings.EMPTY).getPath();
+          Path path = OutputBuilders.build(Strings.EMPTY).getPath();
           txtCollector = new LineFileCollector(path, LineFileCollector.Direction.VERTICAL);
           txtCollector.accept(responseConverter.variables().stream().map(Variables::toName).collect(Collectors.joining(Strings.TAB)));
           Logger.getLogger(getClass().getName()).log(Level.INFO, path.toString());
