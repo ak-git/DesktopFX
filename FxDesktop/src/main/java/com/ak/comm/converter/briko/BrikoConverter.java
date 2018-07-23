@@ -2,18 +2,16 @@ package com.ak.comm.converter.briko;
 
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.AbstractConverter;
-import com.ak.comm.converter.Variable;
 
 import static java.lang.Integer.BYTES;
 
-public final class BrikoConverter<EV extends Enum<EV> & Variable<EV>> extends AbstractConverter<BufferFrame, EV> {
-  public BrikoConverter(@Nonnull Class<EV> evClass, @Nonnegative int frequency) {
-    super(evClass, frequency);
+public final class BrikoConverter extends AbstractConverter<BufferFrame, BrikoVariable> {
+  public BrikoConverter() {
+    super(BrikoVariable.class, 100);
   }
 
   @Override

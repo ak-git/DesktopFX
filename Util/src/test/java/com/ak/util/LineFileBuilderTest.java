@@ -54,6 +54,29 @@ public class LineFileBuilderTest {
   }
 
   @Test
+  public static void testGenerateRange2() throws IOException {
+    LineFileBuilder.<Double>of("%.0f %.0f %.0f").
+        xRange(1.0, 3.0, 1.0).
+        yRange(1.0, 2.0, 1.0).
+        add("z.txt", value -> value).generate((x, y) -> x + y * 10);
+
+    Path x = Paths.get("x.txt");
+    Assert.assertEquals(Files.readAllLines(x, Charset.forName("windows-1251")).stream().collect(Collectors.joining()),
+        "1\t2\t3");
+    Assert.assertTrue(Files.deleteIfExists(x));
+
+    Path y = Paths.get("y.txt");
+    Assert.assertEquals(Files.readAllLines(y, Charset.forName("windows-1251")).stream().collect(Collectors.joining(Strings.SPACE)),
+        "1 2");
+    Assert.assertTrue(Files.deleteIfExists(y));
+
+    Path z = Paths.get("z.txt");
+    Assert.assertEquals(Files.readAllLines(z, Charset.forName("windows-1251")).stream().collect(Collectors.joining(Strings.TAB)),
+        "11\t12\t13\t21\t22\t23");
+    Assert.assertTrue(Files.deleteIfExists(z));
+  }
+
+  @Test
   public static void testGenerateLogRange() throws IOException {
     LineFileBuilder.of("%.0f %.1f %.0f").
         xLog10Range(10.0, 20.0).

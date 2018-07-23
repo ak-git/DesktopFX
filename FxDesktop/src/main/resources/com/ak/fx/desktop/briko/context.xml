@@ -24,14 +24,7 @@
         <constructor-arg name="frameLength" value="18"/>
     </bean>
 
-    <bean class="com.ak.comm.converter.briko.BrikoConverter" scope="prototype">
-        <constructor-arg index="0">
-            <bean class="java.lang.Class" factory-method="forName">
-                <constructor-arg type="java.lang.String" value="com.ak.comm.converter.briko.BrikoVariable"/>
-            </bean>
-        </constructor-arg>
-        <constructor-arg index="1" value="100"/>
-    </bean>
+    <bean class="com.ak.comm.converter.briko.BrikoConverter" scope="prototype"/>
 
     <bean class="com.ak.comm.GroupService" destroy-method="close"/>
 
