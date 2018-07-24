@@ -19,6 +19,8 @@ import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.util.OSDockImage;
 import com.ak.storage.Storage;
 import com.ak.util.OS;
+import com.ak.util.OSDirectory;
+import com.ak.util.PropertiesSupport;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.application.Preloader;
@@ -46,6 +48,7 @@ public final class FxDesktopTest extends Preloader {
 
   @BeforeClass(timeOut = 5000)
   public void setUp() throws InterruptedException {
+    PropertiesSupport.OUT_CONVERTER_PATH.set(OSDirectory.VENDOR_ID);
     oldPreloader = System.getProperty(JAVAFX_PRELOADER);
     System.setProperty(JAVAFX_PRELOADER, FxDesktopTest.class.getName());
 

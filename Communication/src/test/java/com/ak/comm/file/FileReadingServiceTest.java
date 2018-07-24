@@ -31,6 +31,7 @@ import com.ak.comm.interceptor.AbstractBytesInterceptor;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.logging.LogBuilders;
+import com.ak.comm.logging.OutputBuilders;
 import com.ak.comm.util.LogUtils;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
@@ -51,15 +52,20 @@ public class FileReadingServiceTest {
   @BeforeSuite
   @AfterSuite
   public static void setUp() throws IOException {
-    Path path = LogBuilders.CONVERTER_FILE.build(Strings.EMPTY).getPath().getParent();
-    Assert.assertNotNull(path);
-    try (DirectoryStream<Path> ds = Files.newDirectoryStream(path, entry -> Files.isRegularFile(entry))) {
-      for (Path file : ds) {
-        try {
-          Files.deleteIfExists(file);
-        }
-        catch (IOException e) {
-          Assert.fail(file.toString(), e);
+    Path[] paths = {
+        LogBuilders.CONVERTER_FILE.build(Strings.EMPTY).getPath().getParent(),
+        OutputBuilders.build(Strings.EMPTY).getPath().getParent()
+    };
+    for (Path path : paths) {
+      Assert.assertNotNull(path);
+      try (DirectoryStream<Path> ds = Files.newDirectoryStream(path, entry -> Files.isRegularFile(entry))) {
+        for (Path file : ds) {
+          try {
+            Files.deleteIfExists(file);
+          }
+          catch (IOException e) {
+            Assert.fail(file.toString(), e);
+          }
         }
       }
     }
@@ -94,7 +100,7 @@ public class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFile")
   public static void testFile(@Nonnull Path fileToRead, @Nonnegative int bytes, boolean forceClose) {
-    System.setProperty(PropertiesSupport.CACHE.key(), Boolean.valueOf(!forceClose).toString());
+    PropertiesSupport.CACHE.set(Boolean.valueOf(!forceClose).toString());
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
     FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher = new FileReadingService<>(
@@ -108,7 +114,7 @@ public class FileReadingServiceTest {
       }
     });
     testSubscriber.assertValueCount(bytes / frameLength);
-    System.clearProperty(PropertiesSupport.CACHE.key());
+    PropertiesSupport.CACHE.clear();
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")

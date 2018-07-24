@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import com.ak.util.OSDirectory;
+import com.ak.util.PropertiesSupport;
 
 public enum OutputOSDirectory implements OSDirectory {
   WINDOWS, MAC, UNIX;
@@ -17,7 +18,7 @@ public enum OutputOSDirectory implements OSDirectory {
     for (String path : paths) {
       File file = new File(USER_HOME_PATH, path);
       if (file.exists() && file.isDirectory() && !file.isHidden()) {
-        result = Paths.get(USER_HOME_PATH, path, "Aper");
+        result = Paths.get(USER_HOME_PATH, path, PropertiesSupport.OUT_CONVERTER_PATH.value());
         break;
       }
     }

@@ -19,6 +19,7 @@ import com.ak.fx.util.OSDockImage;
 import com.ak.logging.LogPathBuilder;
 import com.ak.storage.Storage;
 import com.ak.util.OS;
+import com.ak.util.PropertiesSupport;
 import com.ak.util.Strings;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -70,7 +71,11 @@ public final class FxApplication extends Application {
           BeanFactoryUtils.beanOfType(context, MessageSource.class), Locale.getDefault()));
       loader.setControllerFactory(clazz -> BeanFactoryUtils.beanOfType(context, clazz));
       stage.setScene(loader.load());
-      stage.setTitle(getApplicationFullName(loader.getResources().getString(KEY_APPLICATION_TITLE)));
+      String applicationFullName = getApplicationFullName(loader.getResources().getString(KEY_APPLICATION_TITLE));
+      stage.setTitle(applicationFullName);
+      if (!PropertiesSupport.OUT_CONVERTER_PATH.check()) {
+        PropertiesSupport.OUT_CONVERTER_PATH.set(applicationFullName);
+      }
       OSDockImage.valueOf(OS.get().name()).setIconImage(stage,
           getClass().getResource(loader.getResources().getString(KEY_APPLICATION_IMAGE)));
 
