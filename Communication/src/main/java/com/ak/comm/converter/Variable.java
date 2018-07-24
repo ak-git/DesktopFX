@@ -15,27 +15,47 @@ import tec.uom.se.AbstractUnit;
 
 public interface Variable<E extends Enum<E> & Variable<E>> {
   enum Option {
-    VISIBLE, FORCE_ZERO_IN_RANGE
+    VISIBLE, FORCE_ZERO_IN_RANGE, TEXT_VALUE_BANNER;
+
+    static Set<Option> defaultOptions() {
+      return EnumSet.of(VISIBLE);
+    }
+
+    public static Set<Option> addToDefault(@Nonnull Option option) {
+      return EnumSet.of(VISIBLE, option);
+    }
   }
 
   default Unit<?> getUnit() {
-    return tryFindSame(e -> e.getUnit(), () -> AbstractUnit.ONE);
+    return tryFindSame(Variable::getUnit, () -> AbstractUnit.ONE);
   }
 
   default DigitalFilter filter() {
-    return tryFindSame(e -> e.filter(), () -> FilterBuilder.of().build());
+    return tryFindSame(Variable::filter, () -> FilterBuilder.of().build());
   }
 
   default Set<Option> options() {
-    return tryFindSame(e -> e.options(), () -> EnumSet.of(Option.VISIBLE));
+    return tryFindSame(Variable::options, Option::defaultOptions);
+  }
+
+  default int indexBy(Option option) {
+    if (options().contains(option)) {
+      return EnumSet.allOf(getDeclaringClass()).stream().filter(e -> e.options().contains(option)).mapToInt(Enum::ordinal).sorted()
+          .reduce(-1, (acc, now) -> now > ordinal() ? acc : acc + 1);
+    }
+    else {
+      return -1;
+    }
   }
 
   String name();
 
+  int ordinal();
+
   Class<E> getDeclaringClass();
 
   default <T> T tryFindSame(@Nonnull Function<E, T> function, @Nonnull Supplier<T> orElse) {
-    String s = name().replaceFirst(".*\\D+", Strings.EMPTY);
+    String s = Strings.numberSuffix(name());
     if (s.isEmpty() || Integer.parseInt(s) == 1) {
       return orElse.get();
     }

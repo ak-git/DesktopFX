@@ -1,7 +1,6 @@
 package com.ak.comm.converter;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -20,9 +19,14 @@ public interface DependentVariable<IN extends Enum<IN> & Variable<IN>, OUT exten
 
   @Override
   default Unit<?> getUnit() {
-    return tryFindSame(out -> out.getUnit(), () -> {
+    return tryFindSame(Variable::getUnit, () -> {
       if (getInputVariables().size() == 1) {
-        return getInputVariables().get(0).getUnit();
+        if (getInputVariables().get(0) == this) {
+          return AbstractUnit.ONE;
+        }
+        else {
+          return getInputVariables().get(0).getUnit();
+        }
       }
       else {
         return AbstractUnit.ONE;
@@ -32,12 +36,17 @@ public interface DependentVariable<IN extends Enum<IN> & Variable<IN>, OUT exten
 
   @Override
   default Set<Option> options() {
-    return tryFindSame(out -> out.options(), () -> {
+    return tryFindSame(Variable::options, () -> {
       if (getInputVariables().size() == 1) {
-        return getInputVariables().get(0).options();
+        if (getInputVariables().get(0) == this) {
+          return Option.defaultOptions();
+        }
+        else {
+          return getInputVariables().get(0).options();
+        }
       }
       else {
-        return EnumSet.of(Option.VISIBLE);
+        return Option.defaultOptions();
       }
     });
   }

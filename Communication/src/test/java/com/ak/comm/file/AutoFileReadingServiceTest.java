@@ -3,6 +3,7 @@ package com.ak.comm.file;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.Flow;
 
 import javax.annotation.Nonnull;
 
@@ -12,13 +13,11 @@ import com.ak.comm.converter.TwoVariables;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.util.Strings;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class AutoFileReadingServiceTest implements Subscriber<int[]> {
+public class AutoFileReadingServiceTest implements Flow.Subscriber<int[]> {
   private final AutoFileReadingService<BufferFrame, BufferFrame, TwoVariables> service = new AutoFileReadingService<>(
       () -> new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
       () -> new ToIntegerConverter<>(TwoVariables.class, 1000));
@@ -57,7 +56,8 @@ public class AutoFileReadingServiceTest implements Subscriber<int[]> {
   }
 
   @Override
-  public void onSubscribe(Subscription s) {
+  public void onSubscribe(Flow.Subscription s) {
+    s.request(Long.MAX_VALUE);
   }
 
   @Override

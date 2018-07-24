@@ -1,6 +1,7 @@
 package com.ak.comm.serial;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -8,6 +9,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Flow;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -21,23 +23,17 @@ import javax.annotation.Nullable;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
+import com.ak.comm.core.Refreshable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.logging.LogBuilders;
 import com.ak.util.UIConstants;
-import io.reactivex.Flowable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.internal.util.EmptyComponent;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
-    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Refreshable, Subscription {
+    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Refreshable, Flow.Subscription {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   private volatile boolean cancelled;
   @Nonnull
   private volatile SerialService serialService;
-  @Nonnull
-  private Subscriber<? super int[]> subscriber = EmptyComponent.asSubscriber();
 
   public CycleSerialService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
                             @Nonnull Converter<RESPONSE, EV> responseConverter) {
@@ -46,27 +42,54 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   }
 
   @Override
-  public void subscribe(@Nonnull Subscriber<? super int[]> s) {
-    subscriber = s;
+  public void subscribe(@Nonnull Flow.Subscriber<? super int[]> s) {
     s.onSubscribe(this);
     executor.scheduleAtFixedRate(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();
       AtomicReference<Instant> okTime = new AtomicReference<>(Instant.now());
       CountDownLatch latch = new CountDownLatch(1);
 
-      Disposable disposable = Flowable.fromPublisher(serialService).doFinally(() -> {
-        workingFlag.set(false);
-        latch.countDown();
-      }).subscribe(buffer -> process(buffer).forEach(ints -> {
-        if (!cancelled) {
-          subscriber.onNext(ints);
+      Flow.Subscriber<ByteBuffer> subscriber = new Flow.Subscriber<>() {
+        @Nullable
+        Flow.Subscription subscription;
+
+        @Override
+        public void onSubscribe(Flow.Subscription s) {
+          subscription = s;
         }
-        workingFlag.set(true);
-        okTime.set(Instant.now());
-      }), throwable -> {
-        serialService.close();
-        Logger.getLogger(getClass().getName()).log(Level.SEVERE, serialService.toString(), throwable);
-      });
+
+        @Override
+        public void onNext(ByteBuffer buffer) {
+          process(buffer).forEach(ints -> {
+            if (!cancelled) {
+              s.onNext(ints);
+            }
+            workingFlag.set(true);
+            okTime.set(Instant.now());
+          });
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+          serialService.close();
+          Logger.getLogger(getClass().getName()).log(Level.SEVERE, serialService.toString(), throwable);
+        }
+
+        @Override
+        public void onComplete() {
+          try {
+            workingFlag.set(false);
+            latch.countDown();
+            if (subscription != null) {
+              subscription.cancel();
+            }
+          }
+          catch (Exception e) {
+            Logger.getLogger(getClass().getName()).log(Level.INFO, e.getMessage(), e);
+          }
+        }
+      };
+      serialService.subscribe(subscriber);
 
       while (!Thread.currentThread().isInterrupted()) {
         if (!serialService.isOpen() || write(bytesInterceptor().getPingRequest()) == 0) {
@@ -76,7 +99,9 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
           okTime.set(Instant.now());
           try {
             while (Duration.between(okTime.get(), Instant.now()).minus(UIConstants.UI_DELAY).isNegative()) {
-              latch.await(UIConstants.UI_DELAY.toMillis() / 10, TimeUnit.MILLISECONDS);
+              if (latch.await(UIConstants.UI_DELAY.toMillis(), TimeUnit.MILLISECONDS)) {
+                break;
+              }
             }
           }
           catch (InterruptedException e) {
@@ -93,7 +118,7 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
 
       synchronized (this) {
         if (!executor.isShutdown()) {
-          disposable.dispose();
+          subscriber.onComplete();
           serialService = new SerialService(bytesInterceptor().getBaudRate());
         }
       }
@@ -101,7 +126,7 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     synchronized (this) {
       try {
         serialService.close();
@@ -128,7 +153,6 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   @Override
   public void refresh() {
     serialService.refresh();
-    subscriber.onSubscribe(this);
     cancelled = false;
     write(bytesInterceptor().getPingRequest());
   }

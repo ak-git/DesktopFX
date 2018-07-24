@@ -3,6 +3,9 @@ package com.ak.digitalfilter;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 import com.ak.numbers.SimpleCoefficients;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -61,37 +64,45 @@ public class FilterBuilderTest {
   @DataProvider(name = "delay")
   public static Object[][] delay() {
     return new Object[][] {{
-        new int[][] {{1, 1, 1, 1}, {2, 2, 2, 2}, {4, 4, 4, 4}, {2, 2, 2, 2}, {2, 2, 2, 2}, {1, 1, 1, 1}},
+        new int[][] {{1, 1, 1}, {2, 2, 2}, {4, 4, 4}, {2, 2, 2}, {2, 2, 2}, {1, 1, 1}},
         FilterBuilder.parallel(
             FilterBuilder.of().fork(
                 FilterBuilder.of().fir(1.0).build(),
                 FilterBuilder.of().fir(1.0).build()
             ).build(),
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
-            FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(2).build()
         ),
-        new int[][] {{4, 4, 0, 0, 3}, {2, 2, -2, -2, 3}, {2, 2, -1, -1, 2}},
+        new int[][] {{4, 4, 0, 3}, {2, 2, -2, 3}, {2, 2, -1, 2}},
         -1.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
         FilterBuilder.of().fork(
             FilterBuilder.of().fir(1.0).build(),
-            FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
-            FilterBuilder.of().comb(2).build()
+            FilterBuilder.of().fir(-1.0, 0.0, 1.0).build()
         ).buildNoDelay(),
-        new int[][] {{2, 3, 3}, {4, 0, 0}, {2, -2, -2}, {2, -1, -1}},
+        new int[][] {{2, 3}, {4, 0}, {2, -2}, {2, -1}},
         -1.0, 1.0
-    }, {
-        new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
-        FilterBuilder.of().comb(1).build(),
-        new int[][] {{1}, {1}, {2}, {-2}, {0}, {-1}},
-        0.5, 1.0
     }, {
         new int[][] {{-1}, {1}, {MAX_VALUE}, {1}, {MAX_VALUE}},
         FilterBuilder.of().integrate().build(),
         new int[][] {{-1}, {0}, {MAX_VALUE}, {MIN_VALUE}, {-1}},
         -0.5, 1.0
+    }, {
+        new int[][] {{-1}, {1}, {MAX_VALUE}, {1}, {MAX_VALUE}},
+        FilterBuilder.of().iir(1.0).build(),
+        new int[][] {{-1}, {0}, {MAX_VALUE}, {MIN_VALUE}, {-1}},
+        0.0, 1.0
+    }, {
+        new int[][] {{10}, {10}, {10}, {10}, {10}, {10}, {10}, {10}, {10}},
+        FilterBuilder.of().iirMATLAB(new double[] {0.2452, 0, -0.2452}, new double[] {1.0, 0, 0.5095}).build(),
+        new int[][] {{2}, {2}, {-1}, {-1}, {1}, {1}, {-1}, {-1}, {1}},
+        1.0, 1.0
+    }, {
+        new int[][] {{100}, {0}, {-100}, {0}, {100}, {0}, {-100}, {0}, {100}, {0}, {-100}, {0}, {100}},
+        FilterBuilder.of().iirMATLAB(new double[] {0.2452, 0, -0.2452}, new double[] {1.0, 0, 0.5095}).build(),
+        new int[][] {{25}, {0}, {-62}, {0}, {81}, {0}, {-90}, {0}, {95}, {0}, {-97}, {0}, {98}},
+        1.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
         FilterBuilder.of().rrs(2).build(),
@@ -134,6 +145,11 @@ public class FilterBuilderTest {
         ).build(),
         new int[][] {{0, 1, 0, 0}, {1, 3, 2, 4}, {3, 5, 4, 8}, {5, 7, 6, 12}},
         1.5, 1.0
+    }, {
+        new int[][] {{1, 2}, {3, 4}, {5, 6}},
+        FilterBuilder.of().biOperator(() -> (left, right) -> left + right).buildNoDelay(),
+        new int[][] {{1 + 2}, {3 + 4}, {5 + 6}},
+        0.0, 1.0
     }};
   }
 
@@ -155,18 +171,15 @@ public class FilterBuilderTest {
                 FilterBuilder.of().fir(1.0).build()
             ).build(),
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
-            FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(4).build()
         ).buildNoDelay(),
         String.format(
             "NoDelayFilter (compensate %.1f delay x 2) - DelayFilter (delay %d) - FIRFilter (delay %.1f)%n" +
                 "                                                                   FIRFilter (delay %.1f)%n" +
                 "                                           DelayFilter (delay %d) - FIRFilter (delay %.1f)%n" +
-                "                                           DelayFilter (delay %d) - CombFilter (delay %.1f)%n" +
                 "                                           RRS4 (delay %.1f)",
             2.0, 2, 0.0,
             0.0,
-            1, 1.0,
             1, 1.0,
             1.5
         )
@@ -177,18 +190,15 @@ public class FilterBuilderTest {
                 FilterBuilder.of().fir(1.0).build()
             ).build(),
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
-            FilterBuilder.of().comb(2).build(),
             FilterBuilder.of().rrs(2).build()
         ),
         String.format(
             "NoDelayFilter (compensate %.1f delay x 2) - DelayFilter (delay %d) - SelectFilter (indexes = [0]) - FIRFilter (delay %.1f)%n" +
                 "                                                                                                  FIRFilter (delay %.1f)%n" +
                 "                                           SelectFilter (indexes = [1]) - FIRFilter (delay %.1f)%n" +
-                "                                           SelectFilter (indexes = [2]) - CombFilter (delay %.1f)%n" +
-                "                                           DelayFilter (delay %d) - SelectFilter (indexes = [3]) - RRS2 (delay %.1f)",
+                "                                           DelayFilter (delay %d) - SelectFilter (indexes = [2]) - RRS2 (delay %.1f)",
             1.5, 1, 0.0,
             0.0,
-            1.0,
             1.0,
             1,
             0.5
@@ -228,6 +238,7 @@ public class FilterBuilderTest {
     });
     for (int[] anInput : input) {
       filter.accept(anInput);
+      filter.reset();
     }
 
     Assert.assertEquals(filteredCounter.get(), result.length, filter.toString());
@@ -313,5 +324,26 @@ public class FilterBuilderTest {
   @Test(dataProvider = "strings")
   public static void testToString(DigitalFilter filter, String toString) {
     Assert.assertEquals(filter.toString(), toString, filter.toString());
+  }
+
+  @DataProvider(name = "sharpingDecimate")
+  public static Object[][] sharpingDecimate() {
+    return new Object[][] {{
+        new int[] {1, 2, 3}, 1, new int[] {1, 2, 3}
+    }, {
+        new int[] {1, 2, 3}, 2, new int[] {2}
+    }, {
+        new int[] {1, 1, 2, 0, 2, -1, 20, -1}, 2, new int[] {1, 0, 2, 20},
+    }, {
+        new int[] {1, 1, 2, 0, 2, -1, 20, -1}, 3, new int[] {2, -1},
+    }, {
+        new int[] {1, 1, -2, 0, 2, -1, 20, -1}, 4, new int[] {-2, 20},
+    }};
+  }
+
+  @Test(dataProvider = "sharpingDecimate")
+  public static void testSharpingDecimate(@Nonnull int[] input, @Nonnegative int factor, @Nonnull int[] output) {
+    int[] actual = FilterBuilder.of().sharpingDecimate(factor).filter(input);
+    Assert.assertEquals(actual, output, String.format("Actual = %s", Arrays.toString(actual)));
   }
 }

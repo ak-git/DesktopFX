@@ -18,16 +18,27 @@ public class AperCoefficientsTest {
         {AperCoefficients.RHEO, 61},
         {AperCoefficients.MYO, 61},
         {AperCoefficients.ECG, 61},
-        {AperCoefficients.I_ADC_TO_OHM, 60},
-        {AperSurfaceCoefficients.RI_VADC_0, 4},
-        {AperSurfaceCoefficients.RI_VADC_15000, 64},
+        {AperCoefficients.ADC_TO_OHM_1, 20},
+        {AperCoefficients.ADC_TO_OHM_2, 20},
+        {AperSurfaceCoefficientsChannel1.CCU_VADC_0, 4},
+        {AperSurfaceCoefficientsChannel1.CCU_VADC_15100, 16},
+        {AperSurfaceCoefficientsChannel1.CCU_VADC_30200, 14},
+        {AperSurfaceCoefficientsChannel1.CCU_VADC_90400, 12},
+        {AperSurfaceCoefficientsChannel1.CCU_VADC_301400, 10},
+
+        {AperSurfaceCoefficientsChannel2.CCU_VADC_0, 4},
+        {AperSurfaceCoefficientsChannel2.CCU_VADC_15100, 16},
+        {AperSurfaceCoefficientsChannel2.CCU_VADC_30200, 14},
+        {AperSurfaceCoefficientsChannel2.CCU_VADC_90400, 12},
+        {AperSurfaceCoefficientsChannel2.CCU_VADC_301400, 10},
     };
   }
 
   @Test
   public static void testCoefficients() {
-    Assert.assertEquals(AperCoefficients.values().length, 4);
-    Assert.assertEquals(AperSurfaceCoefficients.values().length, 3);
+    Assert.assertEquals(AperCoefficients.values().length, 5);
+    Assert.assertEquals(AperSurfaceCoefficientsChannel1.values().length, 5);
+    Assert.assertEquals(AperSurfaceCoefficientsChannel2.values().length, 5);
   }
 
   @Test(dataProvider = "aper-coefficients")

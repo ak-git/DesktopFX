@@ -19,6 +19,8 @@ import com.ak.fx.util.OSDockImage;
 import com.ak.logging.LogPathBuilder;
 import com.ak.storage.Storage;
 import com.ak.util.OS;
+import com.ak.util.PropertiesSupport;
+import com.ak.util.Strings;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -32,9 +34,10 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.MessageSourceResourceBundle;
 
 public final class FxApplication extends Application {
-  static final String APP_PARAMETER_CONTEXT = "context";
+  private static final String APP_PARAMETER_CONTEXT = "context";
   private static final String SCENE_XML = "scene.fxml";
   private static final String KEY_APPLICATION_TITLE = "application.title";
+  private static final String KEY_APPLICATION_VERSION = "application.version";
   private static final String KEY_APPLICATION_IMAGE = "application.image";
   private static final String LOGGING_PROPERTIES = "logging.properties";
   private static final String KEY_PROPERTIES = "keys.properties";
@@ -68,7 +71,11 @@ public final class FxApplication extends Application {
           BeanFactoryUtils.beanOfType(context, MessageSource.class), Locale.getDefault()));
       loader.setControllerFactory(clazz -> BeanFactoryUtils.beanOfType(context, clazz));
       stage.setScene(loader.load());
-      stage.setTitle(loader.getResources().getString(KEY_APPLICATION_TITLE));
+      String applicationFullName = getApplicationFullName(loader.getResources().getString(KEY_APPLICATION_TITLE));
+      stage.setTitle(applicationFullName);
+      if (!PropertiesSupport.OUT_CONVERTER_PATH.check()) {
+        PropertiesSupport.OUT_CONVERTER_PATH.set(applicationFullName);
+      }
       OSDockImage.valueOf(OS.get().name()).setIconImage(stage,
           getClass().getResource(loader.getResources().getString(KEY_APPLICATION_IMAGE)));
 
@@ -77,11 +84,15 @@ public final class FxApplication extends Application {
       stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
       stage.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
         if (KeyCombination.keyCombination("Ctrl+Shortcut+F").match(event)) {
-          Platform.runLater(() -> stage.setFullScreen(!stage.isFullScreen()));
+          Platform.runLater(() -> {
+            stage.setFullScreen(!stage.isFullScreen());
+            stage.setResizable(false);
+            stage.setResizable(true);
+          });
         }
       });
-      stageStorage.update(stage);
       stage.show();
+      stageStorage.update(stage);
       ScreenResolutionMonitor.setStage(stage);
     }
     catch (Exception e) {
@@ -105,14 +116,20 @@ public final class FxApplication extends Application {
     try (InputStream in = FxApplication.class.getResourceAsStream(KEY_PROPERTIES)) {
       Properties keys = new Properties();
       keys.load(in);
-      Path path = new LogPathBuilder().addPath(keys.getProperty(KEY_APPLICATION_TITLE)).fileName(LOGGING_PROPERTIES).build().getPath();
+      Path path = new LogPathBuilder().addPath(getApplicationFullName(keys.getProperty(KEY_APPLICATION_TITLE, Strings.EMPTY))).
+          fileName(LOGGING_PROPERTIES).build().getPath();
       if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
         Files.copy(FxApplication.class.getResourceAsStream(LOGGING_PROPERTIES), path);
       }
       System.setProperty("java.util.logging.config.file", path.toAbsolutePath().toString());
+      Logger.getLogger(FxApplication.class.getName()).log(Level.INFO, path.toAbsolutePath().toString());
     }
     catch (Exception e) {
       Logger.getGlobal().log(Level.WARNING, e.getMessage(), e);
     }
+  }
+
+  private static String getApplicationFullName(@Nonnull String name) {
+    return name.replaceFirst(KEY_APPLICATION_VERSION, Strings.EMPTY).trim();
   }
 }

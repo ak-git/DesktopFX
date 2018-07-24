@@ -2,13 +2,19 @@ package com.ak.comm.converter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.function.IntBinaryOperator;
 
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 
 public enum OperatorVariables2 implements DependentVariable<OperatorVariables, OperatorVariables2> {
-  OUT((left, right) -> left * right);
+  OUT((left, right) -> left * right) {
+    @Override
+    public Set<Option> options() {
+      return Option.addToDefault(Option.TEXT_VALUE_BANNER);
+    }
+  };
 
   private final IntBinaryOperator operator;
 

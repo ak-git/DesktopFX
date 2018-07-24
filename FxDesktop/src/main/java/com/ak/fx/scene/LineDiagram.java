@@ -1,14 +1,15 @@
 package com.ak.fx.scene;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.IntFunction;
+import java.util.function.DoubleFunction;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.util.Strings;
 import javafx.beans.binding.Bindings;
+import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
@@ -19,13 +20,18 @@ import static com.ak.fx.scene.GridCell.SMALL;
 
 final class LineDiagram extends AbstractRegion {
   private final Rectangle bounds = new Rectangle();
+  private final Rectangle visibleTextBounds = new Rectangle();
   private final Text title = new Text();
-  private final Map<Integer, Text> yLabels = new HashMap<>();
+  private final Group yLabels = new Group();
   private final Polyline polyline = new Polyline();
+  @Nonnegative
   private double xStep = 1.0;
+  @Nonnegative
   private int nowIndex;
+  @Nonnegative
+  private int maxSamples = 1;
   @Nonnull
-  private IntFunction<String> yLabelsGenerator = value -> Strings.EMPTY;
+  private DoubleFunction<String> positionToStringConverter = value -> Strings.EMPTY;
 
   LineDiagram(@Nonnull String name) {
     bounds.setVisible(false);
@@ -33,99 +39,117 @@ final class LineDiagram extends AbstractRegion {
     bounds.setFill(null);
     bounds.setStrokeWidth(2);
 
+    visibleTextBounds.setVisible(false);
+
     title.setVisible(false);
-    title.setFont(Constants.FONT_H1);
+    title.fontProperty().bind(Fonts.H1.fontProperty());
     title.setText(name);
 
     polyline.setStroke(Color.BLACK);
-    polyline.translateXProperty().setValue(0);
     polyline.translateYProperty().bind(Bindings.divide(heightProperty(), 2));
+    polyline.setManaged(false);
 
-    getChildren().add(bounds);
-    getChildren().add(title);
-    getChildren().add(polyline);
+    getChildren().addAll(bounds, visibleTextBounds, title, yLabels, polyline);
   }
 
   @Override
-  void layoutChartChildren(double x, double y, double width, double height) {
-    bounds.setX(x);
+  void layoutAll(double x, double y, double width, double height) {
+    bounds.setX(x + getLayoutY());
     bounds.setY(y);
-    bounds.setWidth(width);
+    bounds.setWidth(width - getLayoutY() * 2);
     bounds.setHeight(height);
+    polyline.setVisible(SMALL.maxValue(width) > SMALL.getStep() * 2);
 
-    getChildren().removeAll(yLabels.values());
-    yLabels.clear();
-    for (int i = 0; height / 2 - SMALL.getStep() * i > SMALL.minCoordinate(height); i++) {
-      newYLabel(i, x, y + height / 2);
-      if (yLabels.containsKey(i)) {
+    yLabels.getChildren().clear();
+    yLabels.getChildren().addAll(IntStream.range(0, (int) (Math.rint((height / 2) / SMALL.getStep()) * 2) + 1).mapToObj(i -> {
+      Text text = new Text();
+      updateText(i, text);
+      text.fontProperty().bind(Fonts.H2.fontProperty());
+      text.relocate(POINTS.getStep() / 4, SMALL.getStep() * i - text.getFont().getSize() - POINTS.getStep() / 4);
+      return text;
+    }).collect(Collectors.toList()));
+
+    for (int i = 0; i < yLabels.getChildren().size(); i++) {
+      title.setVisible(false);
+      if (yLabels.getChildren().get(i).isVisible()) {
         title.setVisible(true);
-        title.relocate(x + SMALL.getStep() * 1.5, y + height / 2 - SMALL.getStep() * i - title.getFont().getSize() - POINTS.getStep() / 4);
+        title.relocate(x + SMALL.getStep() * 1.5, y + SMALL.getStep() * i - title.getFont().getSize() - POINTS.getStep() / 4);
+        break;
       }
     }
-    for (int i = 1; height / 2 - SMALL.getStep() * i > SMALL.minCoordinate(height) - POINTS.getStep(); i++) {
-      newYLabel(-i, x, y + height / 2);
-    }
-    getChildren().addAll(yLabels.values());
-
-    if (polyline.getPoints().size() / 2 > getMaxSamples()) {
-      polyline.getPoints().remove(getMaxSamples() * 2, polyline.getPoints().size());
-      nowIndex = 0;
-    }
-    polyline.setVisible(SMALL.maxWidth(width) > SMALL.getStep() * 2);
   }
 
-  void setYLabelsGenerator(@Nonnull IntFunction<String> yLabelsGenerator) {
-    this.yLabelsGenerator = yLabelsGenerator;
-  }
-
-  void setAll(@Nonnull double[] y) {
-    polyline.getPoints().clear();
-    for (int i = 0, n = Math.min(y.length, getMaxSamples()); i < n; i++) {
-      polyline.getPoints().add(xStep * i);
-      polyline.getPoints().add(-y[i]);
-      nowIndex++;
+  void setAll(@Nonnull double[] y, @Nonnull DoubleFunction<String> positionToStringConverter) {
+    this.positionToStringConverter = positionToStringConverter;
+    for (int i = 0; i < yLabels.getChildren().size(); i++) {
+      updateText(i, (Text) yLabels.getChildren().get(i));
     }
 
-    if (y.length == 0) {
-      nowIndex = 0;
+    if (polyline.getPoints().size() / 2 == y.length) {
+      for (int i = 0; i < y.length; i++) {
+        polyline.getPoints().set(i * 2 + 1, -y[i]);
+      }
     }
     else {
-      nowIndex %= getMaxSamples();
+      polyline.getPoints().clear();
+      for (int i = 0; i < y.length; i++) {
+        polyline.getPoints().add(xStep * i);
+        polyline.getPoints().add(-y[i]);
+      }
     }
+    nowIndex = Math.min(y.length, maxSamples) % maxSamples;
   }
 
   void add(double y) {
     if (polyline.getPoints().size() / 2 <= nowIndex) {
       polyline.getPoints().add(xStep * nowIndex);
-      polyline.getPoints().add(y);
+      polyline.getPoints().add(-y);
     }
     else {
-      polyline.getPoints().set(nowIndex * 2 + 1, y);
+      polyline.getPoints().set(nowIndex * 2 + 1, -y);
     }
 
     nowIndex++;
-    nowIndex %= getMaxSamples();
+    nowIndex %= maxSamples;
   }
 
-  int getMaxSamples() {
-    return Math.max(0, (int) Math.rint((getWidth() - polyline.translateXProperty().get()) / xStep));
+  void shiftRight(@Nonnull double[] y) {
+    for (int i = y.length * 2 + 1; i < polyline.getPoints().size(); i += 2) {
+      polyline.getPoints().set(i - y.length * 2, polyline.getPoints().get(i));
+    }
+    for (int i = polyline.getPoints().size() - (y.length * 2 - 1), n = 0; i < polyline.getPoints().size(); i += 2, n++) {
+      polyline.getPoints().set(i, -y[n]);
+    }
   }
 
-  double getCenter() {
-    return getLayoutY() + getHeight() / 2.0;
+  void shiftLeft(@Nonnull double[] y) {
+    for (int i = polyline.getPoints().size() - (y.length * 2 + 1); i > 0; i -= 2) {
+      polyline.getPoints().set(i + y.length * 2, polyline.getPoints().get(i));
+    }
+    for (int i = 1, n = 0; i < y.length * 2; i += 2, n++) {
+      polyline.getPoints().set(i, -y[n]);
+    }
   }
 
   void setXStep(@Nonnegative double xStep) {
     this.xStep = xStep;
   }
 
-  private void newYLabel(int index, double x, double y) {
-    String apply = yLabelsGenerator.apply(index * 10);
-    if (!apply.isEmpty()) {
-      Text label = new Text(apply);
-      label.setFont(Constants.FONT_H2);
-      label.relocate(x + POINTS.getStep() / 4, y - SMALL.getStep() * index - label.getFont().getSize() - POINTS.getStep() / 4);
-      yLabels.put(index, label);
-    }
+  void setMaxSamples(@Nonnegative int maxSamples) {
+    this.maxSamples = Math.max(maxSamples, 1);
+  }
+
+  void setVisibleTextBounds(double y, double height) {
+    visibleTextBounds.setX(SMALL.getStep() * 2 + getLayoutY());
+    visibleTextBounds.setY(y);
+    visibleTextBounds.setWidth(SMALL.getStep());
+    visibleTextBounds.setHeight(height);
+  }
+
+  private void updateText(int i, Text label) {
+    double posY = i * SMALL.getStep();
+    label.setVisible(posY > visibleTextBounds.getY() && posY < visibleTextBounds.getY() + visibleTextBounds.getHeight());
+    String text = positionToStringConverter.apply(getHeight() / 2 - i * SMALL.getStep());
+    label.setText(label.isVisible() ? text : Strings.EMPTY);
   }
 }

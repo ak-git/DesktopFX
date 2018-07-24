@@ -22,19 +22,15 @@ import com.ak.comm.converter.Variables;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.LineFileCollector;
 import com.ak.util.Strings;
-import com.sun.javafx.application.ParametersImpl;
-import javafx.application.Application;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ConfigurableApplicationContext;
-
-import static com.ak.fx.desktop.FxApplication.APP_PARAMETER_CONTEXT;
 
 final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> implements AutoCloseable, Consumer<Path> {
   @Nonnull
   private final ConfigurableApplicationContext context;
 
-  private ConverterApp(@Nonnull Application.Parameters parameters) {
-    context = new FxClassPathXmlApplicationContext(parameters.getNamed().get(APP_PARAMETER_CONTEXT));
+  private ConverterApp(@Nonnull String contextName) {
+    context = new FxClassPathXmlApplicationContext(contextName);
   }
 
   @Override
@@ -69,8 +65,7 @@ final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> 
   }
 
   public static void main(String[] args) {
-    Application.Parameters parameters = new ParametersImpl(args);
-    try (ConverterApp<?, ?, ?> app = new ConverterApp(parameters);
+    try (ConverterApp<?, ?, ?> app = new ConverterApp(args[0]);
          DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), "*.bin")) {
       paths.forEach(app);
     }

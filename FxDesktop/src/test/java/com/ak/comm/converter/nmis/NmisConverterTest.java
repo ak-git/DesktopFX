@@ -8,6 +8,7 @@ import com.ak.comm.bytes.nmis.NmisAddress;
 import com.ak.comm.bytes.nmis.NmisResponseFrame;
 import com.ak.comm.bytes.nmis.NmisTestProvider;
 import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.Variables;
 import com.ak.comm.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -54,7 +55,7 @@ public class NmisConverterTest {
           Assert.assertTrue(logRecord.getMessage().contains(Integer.toString(v)));
         }
         for (NmisVariable v : NmisVariable.values()) {
-          Assert.assertTrue(logRecord.getMessage().contains(v.name()));
+          Assert.assertTrue(logRecord.getMessage().contains(Variables.toString(v)), logRecord.getMessage());
           Assert.assertEquals(v.getUnit(), MetricPrefix.MILLI(Units.SECOND));
         }
       }), expected.length > 0);

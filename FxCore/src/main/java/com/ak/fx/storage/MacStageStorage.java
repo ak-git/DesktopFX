@@ -43,6 +43,8 @@ final class MacStageStorage extends AbstractStageStorage {
     stage.fullScreenProperty().addListener((observable, oldValue, newValue) -> {
       fullScreenEventInstant = Instant.now();
       saveFullScreenState(oldValue);
+      stage.setResizable(false);
+      stage.setResizable(true);
     });
     super.update(stage);
   }

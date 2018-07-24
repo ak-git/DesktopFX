@@ -1,7 +1,5 @@
 package com.ak.digitalfilter;
 
-import java.util.Arrays;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.measure.Quantity;
@@ -11,7 +9,7 @@ import javax.measure.quantity.Time;
 import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.Units;
 
-public enum Filters {
+enum Filters {
   ;
 
   static Quantity<Time> getDelay(@Nonnull DigitalFilter filter, @Nonnull Quantity<Frequency> frequency) {
@@ -51,28 +49,6 @@ public enum Filters {
     }
     else {
       return (c - b) << 1;
-    }
-  }
-
-  public static int[] sharpingDecimate(@Nonnull int[] ints, @Nonnegative int factor) {
-    if (factor < 2) {
-      return ints;
-    }
-    else {
-      int[] decimated = new int[ints.length / factor];
-      decimated[0] = ints[0];
-      for (int i = 1; i < decimated.length; i++) {
-        Arrays.sort(ints, i * factor, (i + 1) * factor);
-        int min = ints[i * factor];
-        int max = ints[(i + 1) * factor - 1];
-        if (Math.abs(decimated[i - 1] - max) > Math.abs(decimated[i - 1] - min)) {
-          decimated[i] = max;
-        }
-        else {
-          decimated[i] = min;
-        }
-      }
-      return decimated;
     }
   }
 }

@@ -24,4 +24,12 @@ public enum CoefficientsUtils {
         coefficients -> Arrays.stream(coefficients.getPairs()).mapToDouble(selector)).
         mapToInt(value -> (int) Math.floor(value)).summaryStatistics();
   }
+
+  public static double[] reverseOrder(double[] array) {
+    double[] reverse = new double[array.length];
+    for (int i = 0; i < reverse.length; i++) {
+      reverse[i] = array[array.length - i - 1];
+    }
+    return reverse;
+  }
 }

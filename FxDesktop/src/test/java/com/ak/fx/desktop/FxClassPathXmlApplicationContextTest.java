@@ -18,7 +18,7 @@ public class FxClassPathXmlApplicationContextTest {
     return new Object[][] {
         {null, Strings.EMPTY},
         {Strings.EMPTY, Strings.EMPTY},
-        {"aper.myo", "aper/myo"}
+        {"aper.calibration", "aper/calibration"},
     };
   }
 

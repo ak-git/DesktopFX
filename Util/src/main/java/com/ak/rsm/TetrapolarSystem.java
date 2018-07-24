@@ -4,16 +4,13 @@ import java.util.Objects;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.measure.Quantity;
 import javax.measure.Unit;
-import javax.measure.quantity.ElectricResistance;
 import javax.measure.quantity.Length;
 
 import tec.uom.se.quantity.Quantities;
 
 import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
-import static tec.uom.se.unit.Units.OHM;
 
 final class TetrapolarSystem {
   @Nonnegative
@@ -23,7 +20,7 @@ final class TetrapolarSystem {
 
   TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
     if (sPU >= lCC) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException(String.format("%.6f > %.6f", sPU, lCC));
     }
     sPotentialUnitSI = toDouble(sPU, unit);
     lCurrentCarryingSI = toDouble(lCC, unit);
@@ -36,8 +33,8 @@ final class TetrapolarSystem {
    * @return <b>apparent</b> specific resistance in Ohm-m.
    */
   @Nonnegative
-  double getApparent(@Nonnull Quantity<ElectricResistance> resistance) {
-    return 0.5 * Math.PI * resistance.to(OHM).getValue().doubleValue() / (1.0 / radiusMinus() - 1.0 / radiusPlus());
+  double getApparent(@Nonnegative double resistance) {
+    return 0.5 * Math.PI * resistance / (1.0 / radiusMinus() - 1.0 / radiusPlus());
   }
 
   double radiusMinus() {
@@ -71,11 +68,6 @@ final class TetrapolarSystem {
     return String.format("%s x %s",
         Quantities.getQuantity(sPotentialUnitSI, METRE).to(MILLI(METRE)),
         Quantities.getQuantity(lCurrentCarryingSI, METRE).to(MILLI(METRE)));
-  }
-
-  @Override
-  protected Object clone() throws CloneNotSupportedException {
-    throw new CloneNotSupportedException();
   }
 
   private static double toDouble(@Nonnegative double sPU, @Nonnull Unit<Length> unit) {

@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -22,8 +24,8 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
   private final E osIdEnum;
 
   public LocalFileIO(@Nonnull AbstractBuilder b, @Nonnull Class<E> enumClass) {
-    path = b.relativePath;
-    fileName = Optional.ofNullable(b.fileName).orElse(Strings.EMPTY);
+    path = b.relativePath == null ? Paths.get(Strings.EMPTY) : b.relativePath;
+    fileName = Optional.ofNullable(b.fileName).orElse(Strings.EMPTY).trim();
     osIdEnum = Enum.valueOf(enumClass, OS.get().name());
   }
 
@@ -74,6 +76,15 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
         this.fileName += "." + fileExtension;
       }
       return this;
+    }
+
+    public final AbstractBuilder fileNameWithTime(@Nonnull String prefix) {
+      fileName(prefix + localDate(" yyyy-MMM-dd HH-mm-ss"));
+      return this;
+    }
+
+    public static String localDate(@Nonnull String pattern) {
+      return DateTimeFormatter.ofPattern(pattern).format(ZonedDateTime.now());
     }
   }
 }

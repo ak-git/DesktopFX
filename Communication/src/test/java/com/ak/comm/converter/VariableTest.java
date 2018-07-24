@@ -1,5 +1,6 @@
 package com.ak.comm.converter;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,10 +26,15 @@ public class VariableTest {
 
   @Test
   public static void testGetUnit() {
-    Variable<ADCVariable> variable = new Variable<ADCVariable>() {
+    Variable<ADCVariable> variable = new Variable<>() {
       @Override
       public String name() {
         return Variable.class.getSimpleName();
+      }
+
+      @Override
+      public int ordinal() {
+        return 0;
       }
 
       @Override
@@ -37,6 +43,7 @@ public class VariableTest {
       }
     };
     Assert.assertEquals(variable.getUnit(), AbstractUnit.ONE);
+    Assert.assertEqualsDeep(variable.options(), Collections.singleton(Variable.Option.VISIBLE), variable.name());
   }
 
   @Test
@@ -46,11 +53,16 @@ public class VariableTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*No enum constant.*InvalidName")
   public static void testInvalidGetVariables() {
-    DependentVariable<OperatorVariables, ADCVariable> variable = new DependentVariable<OperatorVariables, ADCVariable>() {
+    DependentVariable<OperatorVariables, ADCVariable> variable = new DependentVariable<>() {
       @Nonnull
       @Override
       public String name() {
         return "InvalidName";
+      }
+
+      @Override
+      public int ordinal() {
+        return 0;
       }
 
       @Override
@@ -70,11 +82,15 @@ public class VariableTest {
 
   @Test
   public static void testVisibleProperty() {
-    Assert.assertFalse(OperatorVariables.OUT_MINUS.options().contains(Variable.Option.VISIBLE));
     Assert.assertTrue(OperatorVariables.OUT_PLUS.options().contains(Variable.Option.VISIBLE));
+    Assert.assertEquals(OperatorVariables.OUT_PLUS.indexBy(Variable.Option.VISIBLE), 0);
+    Assert.assertFalse(OperatorVariables.OUT_MINUS.options().contains(Variable.Option.VISIBLE));
+    Assert.assertEquals(OperatorVariables.OUT_MINUS.indexBy(Variable.Option.VISIBLE), -1);
+    Assert.assertTrue(OperatorVariables.OUT_DIV.options().contains(Variable.Option.VISIBLE));
+    Assert.assertEquals(OperatorVariables.OUT_DIV.indexBy(Variable.Option.VISIBLE), 1);
 
     EnumSet.allOf(OperatorVariables2.class).forEach(v ->
-        Assert.assertTrue(v.options().contains(Variable.Option.VISIBLE), Variables.toName(v)));
+        Assert.assertEqualsDeep(v.options(), EnumSet.of(Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER), Variables.toName(v)));
   }
 
   @Test

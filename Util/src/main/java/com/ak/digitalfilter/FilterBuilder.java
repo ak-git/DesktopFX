@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Provider;
 
+import com.ak.numbers.CoefficientsUtils;
 import javafx.util.Builder;
 
 public class FilterBuilder implements Builder<DigitalFilter> {
@@ -64,6 +66,10 @@ public class FilterBuilder implements Builder<DigitalFilter> {
       private final IntBinaryOperator operator = operatorProvider.get();
 
       @Override
+      public void reset() {
+      }
+
+      @Override
       public int getOutputDataSize() {
         return 1;
       }
@@ -86,7 +92,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   public FilterBuilder smoothingImpulsive(@Nonnegative int size) {
-    HoldFilter holdFilter = new HoldFilter.Builder(size).lostCount(1);
+    HoldFilter holdFilter = new HoldFilter.Builder(size).lostCount((size - Integer.highestOneBit(size)) / 2);
     return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> operand -> {
       int[] sorted = holdFilter.getSorted();
       double mean = Arrays.stream(sorted).average().orElse(0.0);
@@ -107,36 +113,23 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     }).interpolate(size);
   }
 
-  FilterBuilder smoothingDecimate(@Nonnegative int size) {
+  public FilterBuilder sharpingDecimate(@Nonnegative int size) {
     HoldFilter holdFilter = new HoldFilter.Builder(size).lostCount(0);
-    return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> operand -> {
-      int[] sorted = holdFilter.getSorted();
-      double mean = Arrays.stream(sorted).average().orElse(0.0);
+    return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> new IntUnaryOperator() {
+      private int prev;
 
-      int posCount = 0;
-      int negCount = 0;
-      for (int n : sorted) {
-        if (n > mean) {
-          posCount++;
-        }
-        else if (n < mean) {
-          negCount++;
-        }
-      }
-
-      if (posCount > negCount) {
-        return sorted[0];
-      }
-      else if (posCount < negCount) {
-        return sorted[sorted.length - 1];
-      }
-      else {
-        return (int) Math.rint(mean);
+      @Override
+      public int applyAsInt(int operand) {
+        int[] sorted = holdFilter.getSorted();
+        int min = sorted[0];
+        int max = sorted[sorted.length - 1];
+        prev = Math.abs(prev - max) > Math.abs(prev - min) ? max : min;
+        return prev;
       }
     });
   }
 
-  public FilterBuilder expSum() {
+  FilterBuilder expSum() {
     return chain(new ExpSumFilter());
   }
 
@@ -144,7 +137,15 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new FIRFilter(coefficients));
   }
 
-  FilterBuilder comb(@Nonnegative int combFactor) {
+  FilterBuilder iir(double... coefficients) {
+    return chain(new IIRFilter(coefficients));
+  }
+
+  public FilterBuilder iirMATLAB(double[] num, double[] den) {
+    return fir(CoefficientsUtils.reverseOrder(num)).iir(Arrays.stream(den).skip(1).map(operand -> -operand).toArray());
+  }
+
+  private FilterBuilder comb(@Nonnegative int combFactor) {
     return chain(new CombFilter(combFactor));
   }
 
@@ -155,6 +156,19 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   FilterBuilder rrs(@Nonnegative int averageFactor) {
     return wrap(String.format("RRS%d", averageFactor),
         of().comb(averageFactor).integrate().operator(() -> n -> n / averageFactor));
+  }
+
+  public FilterBuilder rrs() {
+    return chain(new RRSFilter());
+  }
+
+  public FilterBuilder std(@Nonnegative int averageFactor) {
+    return wrap(String.format("std%d", averageFactor),
+        of().fork(new NoFilter(), of().rrs(averageFactor).build()).biOperator(() -> (x, mean) -> x - mean).chain(new SqrtSumFilter(averageFactor)));
+  }
+
+  public FilterBuilder peakToPeak(@Nonnegative int size) {
+    return chain(new PeakToPeakFilter(size));
   }
 
   FilterBuilder decimate(@Nonnegative int decimateFactor) {
@@ -182,6 +196,17 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   @Override
   public DigitalFilter build() {
     return Optional.ofNullable(filter).orElse(new NoFilter());
+  }
+
+  public int[] filter(@Nonnull int[] ints) {
+    DigitalFilter filter = build();
+    int[] result = new int[(int) Math.floor(ints.length * filter.getFrequencyFactor())];
+    AtomicInteger index = new AtomicInteger();
+    filter.forEach(values -> result[index.getAndIncrement()] = values[0]);
+    for (int i : ints) {
+      filter.accept(i);
+    }
+    return result;
   }
 
   private FilterBuilder fork(@Nonnull List<int[]> selectedIndexes, @Nonnull DigitalFilter... filters) {

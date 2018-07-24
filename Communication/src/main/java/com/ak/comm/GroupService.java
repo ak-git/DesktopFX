@@ -2,15 +2,17 @@ package com.ak.comm;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.Flow;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
@@ -18,21 +20,19 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.Readable;
+import com.ak.comm.core.Refreshable;
 import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
-import com.ak.comm.serial.Refreshable;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
 
 public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractService
-    implements Publisher<int[]>, Refreshable, FileFilter {
+    implements Flow.Publisher<int[]>, Refreshable, FileFilter {
   @Nonnull
   private final CycleSerialService<RESPONSE, REQUEST, EV> serialService;
   @Nonnull
   private final AutoFileReadingService<RESPONSE, REQUEST, EV> fileReadingService;
   @Nonnull
-  private final Collection<EV> variables;
+  private final List<EV> variables;
   @Nonnull
   private final double frequency;
   @Nonnull
@@ -50,7 +50,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   }
 
   @Override
-  public void subscribe(@Nonnull Subscriber<? super int[]> subscriber) {
+  public void subscribe(@Nonnull Flow.Subscriber<? super int[]> subscriber) {
     serialService.subscribe(subscriber);
     fileReadingService.subscribe(subscriber);
   }
@@ -70,8 +70,17 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     currentReadable = serialService;
   }
 
-  public Collection<EV> getVariables() {
-    return variables;
+  public int write(@Nullable REQUEST request) {
+    if (Objects.equals(currentReadable, serialService)) {
+      return serialService.write(request);
+    }
+    else {
+      return -1;
+    }
+  }
+
+  public List<EV> getVariables() {
+    return Collections.unmodifiableList(variables);
   }
 
   public double getFrequency() {
@@ -79,14 +88,14 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     serialService.close();
     fileReadingService.close();
   }
 
-  public List<int[]> read(@Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
-    int from = Math.min(fromInclusive, toExclusive);
-    int to = Math.max(fromInclusive, toExclusive);
+  public Map<EV, int[]> read(@Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
+    int from = Math.max(0, Math.min(fromInclusive, toExclusive));
+    int to = Math.max(0, Math.max(fromInclusive, toExclusive));
 
     int frameSize = variables.size() * Integer.BYTES;
     ByteBuffer buffer = ByteBuffer.allocate(frameSize * (to - from));
@@ -94,17 +103,12 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     buffer.flip();
 
     int count = buffer.limit() / frameSize;
-    if (count == 0) {
-      return Collections.emptyList();
-    }
-    else {
-      List<int[]> result = variables.stream().map(ev -> new int[count]).collect(Collectors.toList());
-      for (int i = 0; i < count; i++) {
-        for (int[] ints : result) {
-          ints[i] = buffer.getInt();
-        }
+    Map<EV, int[]> result = variables.stream().collect(Collectors.toMap(o -> o, o -> new int[count]));
+    for (int i = 0; i < count; i++) {
+      for (EV variable : variables) {
+        result.get(variable)[i] = buffer.getInt();
       }
-      return result;
     }
+    return result;
   }
 }

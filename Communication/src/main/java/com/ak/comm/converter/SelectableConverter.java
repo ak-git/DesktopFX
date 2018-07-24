@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
 final class SelectableConverter<IN extends Enum<IN> & Variable<IN>, OUT extends Enum<OUT> & DependentVariable<IN, OUT>>
     extends AbstractConverter<Stream<int[]>, OUT> {
   SelectableConverter(@Nonnull Class<OUT> evClass, @Nonnegative double frequency) {
-    super(evClass, frequency, EnumSet.allOf(evClass).stream().map(ev -> ev.getInputVariables()).
+    super(evClass, frequency, EnumSet.allOf(evClass).stream().map(DependentVariable::getInputVariables).
         map(evs -> evs.stream().mapToInt(Enum::ordinal).toArray()).collect(Collectors.toList()));
   }
 

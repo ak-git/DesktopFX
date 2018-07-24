@@ -7,7 +7,10 @@ import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.concurrent.Flow;
+import java.util.logging.Filter;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
@@ -15,18 +18,42 @@ import javax.annotation.Nonnull;
 
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.ConcurrentAsyncFileChannel;
+import com.ak.comm.core.Refreshable;
 import com.ak.comm.logging.LogBuilders;
 import com.ak.util.Strings;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
-final class SerialService extends AbstractService implements WritableByteChannel, Publisher<ByteBuffer>, Refreshable, Subscription {
+final class SerialService extends AbstractService implements WritableByteChannel, Flow.Publisher<ByteBuffer>, Refreshable, Flow.Subscription {
+  private static final Logger LOGGER = Logger.getLogger(SerialService.class.getName());
+  private static final String SERIAL_PORT_NOT_FOUND = "Serial port not found";
+
+  static {
+    LOGGER.setFilter(new Filter() {
+      private boolean notFoundFlag;
+
+      @Override
+      public boolean isLoggable(LogRecord record) {
+        if (SERIAL_PORT_NOT_FOUND.equals(record.getMessage())) {
+          if (notFoundFlag) {
+            return false;
+          }
+          else {
+            notFoundFlag = true;
+            return true;
+          }
+        }
+        else {
+          notFoundFlag = false;
+          return true;
+        }
+      }
+    });
+  }
+
   @Nonnull
   private final SerialPort serialPort;
   @Nonnegative
@@ -63,7 +90,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
           }
         }
         catch (SerialPortException ex) {
-          Logger.getLogger(getClass().getName()).log(Level.WARNING, ex.getPortName(), ex);
+          LOGGER.log(Level.WARNING, ex.getPortName(), ex);
         }
       }
       return countBytes;
@@ -71,17 +98,16 @@ final class SerialService extends AbstractService implements WritableByteChannel
   }
 
   @Override
-  public void subscribe(Subscriber<? super ByteBuffer> s) {
+  public void subscribe(Flow.Subscriber<? super ByteBuffer> s) {
     if (serialPort.getPortName().isEmpty()) {
-      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, "Serial port not found");
+      LOGGER.log(Level.INFO, SERIAL_PORT_NOT_FOUND);
     }
     else {
       try {
         serialPort.openPort();
         serialPort.setParams(baudRate, 8, 1, 0);
         serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
-        Logger.getLogger(getClass().getName()).log(Level.INFO,
-            String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getPortName(), baudRate));
+        LOGGER.log(LOG_LEVEL_ERRORS, String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getPortName(), baudRate));
         s.onSubscribe(this);
         serialPort.addEventListener(event -> {
           try {
@@ -123,21 +149,20 @@ final class SerialService extends AbstractService implements WritableByteChannel
     try {
       synchronized (serialPort) {
         if (serialPort.isOpened()) {
-          Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, "Close connection " + serialPort.getPortName());
+          LOGGER.log(LOG_LEVEL_ERRORS, "Close connection " + serialPort.getPortName());
           serialPort.closePort();
         }
       }
     }
     catch (SerialPortException ex) {
-      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
+      LOGGER.log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
     }
     binaryLogChannel.close();
   }
 
   @Override
   public void refresh() {
-    Logger.getLogger(getClass().getName()).log(Level.INFO,
-        String.format("#%x Refresh connection [ %s ]", hashCode(), serialPort.getPortName()));
+    LOGGER.log(Level.INFO, String.format("#%x Refresh connection [ %s ]", hashCode(), serialPort.getPortName()));
     refresh = true;
   }
 
@@ -146,9 +171,9 @@ final class SerialService extends AbstractService implements WritableByteChannel
     return String.format("%s@%x{serialPort = %s}", getClass().getSimpleName(), hashCode(), serialPort.getPortName());
   }
 
-  private void logErrorAndComplete(Subscriber<?> s, @Nonnull Exception ex) {
+  private void logErrorAndComplete(Flow.Subscriber<?> s, @Nonnull Exception ex) {
     try {
-      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
+      LOGGER.log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
       close();
     }
     finally {
@@ -161,15 +186,14 @@ final class SerialService extends AbstractService implements WritableByteChannel
 
     private final LinkedList<String> usedPorts = new LinkedList<>();
 
-    public synchronized String next() {
+    synchronized String next() {
       String[] portNames = SerialPortList.getPortNames(Comparator.comparingInt(usedPorts::indexOf));
       if (portNames.length == 0) {
         return Strings.EMPTY;
       }
       else {
         String portName = portNames[0];
-        Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS,
-            String.format("Found { %s }, the [ %s ] is selected", Arrays.toString(portNames), portName));
+        LOGGER.log(LOG_LEVEL_ERRORS, String.format("Found { %s }, the [ %s ] is selected", Arrays.toString(portNames), portName));
         usedPorts.remove(portName);
         usedPorts.addLast(portName);
         return portName;

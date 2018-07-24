@@ -41,6 +41,11 @@ final class SelectFilter extends AbstractDigitalFilter {
   }
 
   @Override
+  public void reset() {
+    outFilter.reset();
+  }
+
+  @Override
   public int getOutputDataSize() {
     return outFilter.getOutputDataSize();
   }

@@ -50,7 +50,7 @@ public class LocalFileHandlerTest {
     }
   }
 
-  private static void delete(@Nonnull Path root) throws Exception {
+  static void delete(@Nonnull Path root) throws Exception {
     try (DirectoryStream<Path> ds = Files.newDirectoryStream(root)) {
       for (Path file : ds) {
         if (Files.isDirectory(file)) {

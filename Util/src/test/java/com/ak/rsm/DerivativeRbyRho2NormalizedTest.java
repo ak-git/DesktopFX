@@ -8,7 +8,7 @@ public class DerivativeRbyRho2NormalizedTest {
   private DerivativeRbyRho2NormalizedTest() {
   }
 
-  @DataProvider(name = "layer-model", parallel = true)
+  @DataProvider(name = "layer-model")
   public static Object[][] twoLayerParameters() {
     return new Object[][] {
         {(1.0 - 5.0) / (1.0 + 5.0), 0.5, 0.126, 0.5},

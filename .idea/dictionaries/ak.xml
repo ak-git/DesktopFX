@@ -1,6 +1,7 @@
 <component name="ProjectDictionaryState">
   <dictionary name="ak">
     <words>
+      <w />
       <w>&amp;верхний</w>
       <w>&amp;время</w>
       <w>&amp;левый</w>
@@ -12,7 +13,6 @@
       <w>advisor</w>
       <w>akima</w>
       <w>amper</w>
-      <w>analyzer&lt;?, ?&gt;</w>
       <w>anim</w>
       <w>aper</w>
       <w>appdata</w>
@@ -25,6 +25,7 @@
       <w>biochannels</w>
       <w>biodevice</w>
       <w>biofilter</w>
+      <w>briko</w>
       <w>buildable</w>
       <w>buildnumber</w>
       <w>calibrable</w>
@@ -63,6 +64,7 @@
       <w>idref</w>
       <w>ineum</w>
       <w>infoable</w>
+      <w>infos</w>
       <w>initializers</w>
       <w>inplace</w>
       <w>instanceable</w>
@@ -86,6 +88,7 @@
       <w>lifecycle</w>
       <w>listable</w>
       <w>localeable</w>
+      <w>matlab</w>
       <w>menubar</w>
       <w>metadata</w>
       <w>millis</w>
@@ -173,7 +176,6 @@
       <w>unmanaged</w>
       <w>updateable</w>
       <w>usbserial</w>
-      <w>variable&lt;?, ?&gt;</w>
       <w>virtualable</w>
       <w>xlsx</w>
       <w>yyyy</w>

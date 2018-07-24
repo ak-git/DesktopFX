@@ -62,7 +62,7 @@ public class NmisBytesInterceptorTest {
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "aliveAndChannelsResponse")
   public static void testResponseAliveAndChannels(NmisAddress address, byte[] input) {
     if (NmisAddress.CHANNELS.contains(address)) {
-      Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build()).orElseThrow(NullPointerException::new);
+      Assert.assertNotNull(Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build()).orElseThrow(NullPointerException::new));
     }
   }
 
@@ -95,7 +95,7 @@ public class NmisBytesInterceptorTest {
         request.toResponse().toString().replaceAll(".*" + NmisResponseFrame.class.getSimpleName(), Strings.EMPTY))), logFlag);
 
     AtomicReference<String> logMessage = new AtomicReference<>(Strings.EMPTY);
-    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
+    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
         () -> {
           int bytesOut = interceptor.putOut(request).remaining();
           Assert.assertTrue(bytesOut > 0);

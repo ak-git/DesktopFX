@@ -23,26 +23,27 @@ public enum Variables {
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable, int value) {
-    return String.format("%s = %d %s", variable.name(), value, variable.getUnit());
+    return String.format("%s = %d %s", toString(variable), value, variable.getUnit());
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable) {
     String baseName = variable.getClass().getPackage().getName() + ".variables";
+    String name;
     try {
       ResourceBundle resourceBundle = ResourceBundle.getBundle(baseName);
       if (resourceBundle.containsKey(variable.name())) {
-        return Objects.toString(resourceBundle.getString(variable.name()), Strings.EMPTY);
+        name = Objects.toString(resourceBundle.getString(variable.name()), Strings.EMPTY);
       }
       else {
         Logger.getLogger(Variables.class.getName()).log(Level.CONFIG,
             String.format("Missing resource key %s at file %s.properties", variable.name(), baseName));
+        name = variable.name();
       }
     }
     catch (MissingResourceException e) {
-      Logger.getLogger(Variables.class.getName()).log(Level.CONFIG,
-          String.format("Missing resource file %s.properties for %s key", baseName, variable.name()));
+      name = variable.name();
     }
-    return variable.name();
+    return name;
   }
 
   public static <Q extends Quantity<Q>> String toString(int value, @Nonnull Unit<Q> unit, @Nonnegative int scaleFactor10) {
