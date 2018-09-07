@@ -11,13 +11,9 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
-import com.ak.comm.converter.Variable;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import tec.uom.se.AbstractUnit;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
 
 public final class AperConverterTest {
   @DataProvider(name = "variables")
@@ -52,27 +48,6 @@ public final class AperConverterTest {
     }).count(), 10);
     Assert.assertTrue(processed.get(), "Data are not converted!");
     Assert.assertEquals(converter.getFrequency(), 1000, 0.1);
-  }
-
-  @Test
-  public static void testVariableProperties() {
-    EnumSet.of(AperInVariable.R1, AperInVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
-    EnumSet.of(AperInVariable.E1, AperInVariable.E2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT), t.name()));
-    EnumSet.of(AperInVariable.CCU1, AperInVariable.CCU2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
-
-    EnumSet.of(AperOutVariable.R1, AperOutVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.OHM)));
-    EnumSet.of(AperOutVariable.ECG1, AperOutVariable.ECG2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT)));
-    EnumSet.of(AperOutVariable.MYO1, AperOutVariable.MYO2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT)));
-
-    EnumSet<AperOutVariable> serviceVars = EnumSet.of(AperOutVariable.CCR1, AperOutVariable.CCR2);
-    serviceVars.forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
-
-    Assert.assertEquals(AperOutVariable.R1.filter().toString(), AperOutVariable.R2.filter().toString());
-    Assert.assertEquals(AperOutVariable.ECG1.filter().toString(), AperOutVariable.ECG2.filter().toString());
-    Assert.assertEquals(AperOutVariable.MYO1.filter().toString(), AperOutVariable.MYO2.filter().toString());
-
-    serviceVars.forEach(t -> Assert.assertFalse(t.options().contains(Variable.Option.VISIBLE)));
-    EnumSet.complementOf(serviceVars).forEach(t -> Assert.assertTrue(t.options().contains(Variable.Option.VISIBLE), t.name()));
   }
 
   @Test

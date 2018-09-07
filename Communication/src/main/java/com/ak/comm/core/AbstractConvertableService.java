@@ -77,7 +77,7 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends E
         }
         workingBuffer.flip();
         convertedLogByteChannel.write(workingBuffer);
-        writeOutFileCollector(ints);
+//        writeOutFileCollector(ints);
       });
     }
   }
