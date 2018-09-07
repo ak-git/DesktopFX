@@ -50,7 +50,7 @@ public class InverseProblemTest {
                 Paths.get(String.format("%s %.1f mm %s", filteredPrefix, hSI * 1000.0, path.getFileName().toString())), LineFileCollector.Direction.VERTICAL);
                  Stream<String> lines = Files.lines(path)) {
 
-              collector.accept(Stream.of("time", "rho1", "rho2").collect(Collectors.joining(Strings.TAB)));
+              collector.accept(String.join(Strings.TAB, "time", "rho1", "rho2"));
               collector.accept(Strings.SPACE);
 
               Assert.assertNull(lines.filter(s -> s.matches("\\d+.*")).map(value -> {
