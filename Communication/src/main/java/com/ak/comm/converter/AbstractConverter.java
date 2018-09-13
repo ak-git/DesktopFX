@@ -1,6 +1,5 @@
 package com.ak.comm.converter;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -35,7 +34,7 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
   }
 
   AbstractConverter(@Nonnull Class<EV> evClass, @Nonnegative double frequency, @Nonnull List<int[]> selectedIndexes) {
-    variables = Collections.unmodifiableList(new ArrayList<>(EnumSet.allOf(evClass)));
+    variables = List.copyOf(EnumSet.allOf(evClass));
     List<DigitalFilter> filters = variables.stream().map(Variable::filter).collect(Collectors.toList());
 
     digitalFilter = FilterBuilder.parallel(selectedIndexes, filters.toArray(new DigitalFilter[variables.size()]));
