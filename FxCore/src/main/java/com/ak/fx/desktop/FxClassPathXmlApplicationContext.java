@@ -10,12 +10,12 @@ import javax.annotation.Nullable;
 import com.ak.util.Strings;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public final class FxClassPathXmlApplicationContext extends ClassPathXmlApplicationContext {
+final class FxClassPathXmlApplicationContext extends ClassPathXmlApplicationContext {
   private static final String CONTEXT_XML = "context.xml";
   @Nonnull
   private final String contextName;
 
-  public FxClassPathXmlApplicationContext(@Nullable String contextName) {
+  FxClassPathXmlApplicationContext(@Nullable String contextName) {
     super(getContextPath(contextName));
     this.contextName = getContextName(contextName);
   }

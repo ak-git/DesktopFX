@@ -5,7 +5,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.testng.Assert;
@@ -19,7 +18,7 @@ public class MultiFileCollectorTest {
         add(out, value -> value).build();
     Assert.assertTrue(Stream.generate(() -> Stream.of(1.0, 2.0)).limit(1).collect(multiFileCollector));
 
-    Assert.assertEquals(Files.readAllLines(out, Charset.forName("windows-1251")).stream().collect(Collectors.joining(Strings.TAB)),
+    Assert.assertEquals(String.join(Strings.TAB, Files.readAllLines(out, Charset.forName("windows-1251"))),
         "1\t2");
     Assert.assertTrue(Files.deleteIfExists(out));
   }
