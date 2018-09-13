@@ -77,7 +77,7 @@ public final class RsceCommandFrame extends BufferFrame {
     @Nullable
     public ActionType find(byte b) {
       int n = (b & 0b00_111_000) >> 3;
-      return n > -1 && n < values().length ? values()[n] : null;
+      return n < values().length ? values()[n] : null;
     }
 
     private static ActionType find(@Nonnull ByteBuffer buffer) {

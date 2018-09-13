@@ -69,6 +69,8 @@ public class RampBytesInterceptorTest {
     Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
         () -> Assert.assertTrue(interceptor.putOut(singleByte).remaining() > 0),
         logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(singleByte + " - OUT to hardware"), logRecord.getMessage())));
+
+    Assert.assertFalse(ignoredMessage.isEmpty());
   }
 
   @Test(dataProviderClass = FrameBytesInterceptorDataProvider.class, dataProvider = "ramp-data")

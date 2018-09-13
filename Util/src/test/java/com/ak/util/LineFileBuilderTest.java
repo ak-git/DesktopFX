@@ -38,17 +38,17 @@ public class LineFileBuilderTest {
         yRange(1.0, 2.0, 1.0).generate("z.txt", (x, y) -> x + y * 10);
 
     Path x = Paths.get("x.txt");
-    Assert.assertEquals(Files.readAllLines(x, Charset.forName("windows-1251")).stream().collect(Collectors.joining()),
+    Assert.assertEquals(String.join("", Files.readAllLines(x, Charset.forName("windows-1251"))),
         "1\t2\t3");
     Assert.assertTrue(Files.deleteIfExists(x));
 
     Path y = Paths.get("y.txt");
-    Assert.assertEquals(Files.readAllLines(y, Charset.forName("windows-1251")).stream().collect(Collectors.joining(Strings.SPACE)),
+    Assert.assertEquals(String.join(Strings.SPACE, Files.readAllLines(y, Charset.forName("windows-1251"))),
         "1 2");
     Assert.assertTrue(Files.deleteIfExists(y));
 
     Path z = Paths.get("z.txt");
-    Assert.assertEquals(Files.readAllLines(z, Charset.forName("windows-1251")).stream().collect(Collectors.joining(Strings.TAB)),
+    Assert.assertEquals(String.join(Strings.TAB, Files.readAllLines(z, Charset.forName("windows-1251"))),
         "11\t12\t13\t21\t22\t23");
     Assert.assertTrue(Files.deleteIfExists(z));
   }
@@ -61,17 +61,17 @@ public class LineFileBuilderTest {
         add("z.txt", value -> value).generate((x, y) -> x + y * 10);
 
     Path x = Paths.get("x.txt");
-    Assert.assertEquals(Files.readAllLines(x, Charset.forName("windows-1251")).stream().collect(Collectors.joining()),
+    Assert.assertEquals(String.join("", Files.readAllLines(x, Charset.forName("windows-1251"))),
         "1\t2\t3");
     Assert.assertTrue(Files.deleteIfExists(x));
 
     Path y = Paths.get("y.txt");
-    Assert.assertEquals(Files.readAllLines(y, Charset.forName("windows-1251")).stream().collect(Collectors.joining(Strings.SPACE)),
+    Assert.assertEquals(String.join(Strings.SPACE, Files.readAllLines(y, Charset.forName("windows-1251"))),
         "1 2");
     Assert.assertTrue(Files.deleteIfExists(y));
 
     Path z = Paths.get("z.txt");
-    Assert.assertEquals(Files.readAllLines(z, Charset.forName("windows-1251")).stream().collect(Collectors.joining(Strings.TAB)),
+    Assert.assertEquals(String.join(Strings.TAB, Files.readAllLines(z, Charset.forName("windows-1251"))),
         "11\t12\t13\t21\t22\t23");
     Assert.assertTrue(Files.deleteIfExists(z));
   }
@@ -83,18 +83,18 @@ public class LineFileBuilderTest {
         yLog10Range(10.0, 1.0).generate("z.txt", (x, y) -> x + y * 10);
 
     Path x = Paths.get("x.txt");
-    Assert.assertEquals(Files.readAllLines(x, Charset.forName("windows-1251")).stream().collect(Collectors.joining()),
+    Assert.assertEquals(String.join("", Files.readAllLines(x, Charset.forName("windows-1251"))),
         "10\t12\t14\t16\t18\t20");
     Assert.assertTrue(Files.deleteIfExists(x));
 
     Path y = Paths.get("y.txt");
-    Assert.assertEquals(Files.readAllLines(y, Charset.forName("windows-1251")).stream().collect(Collectors.joining(Strings.SPACE)),
+    Assert.assertEquals(String.join(Strings.SPACE, Files.readAllLines(y, Charset.forName("windows-1251"))),
         DoubleStream.iterate(1.0, d -> d + 0.2).takeWhile(d -> d <= 10.0)
             .mapToObj(d -> String.format("%.1f", d)).collect(Collectors.joining(Strings.SPACE)));
     Assert.assertTrue(Files.deleteIfExists(y));
 
     Path z = Paths.get("z.txt");
-    Assert.assertEquals(Files.readAllLines(z, Charset.forName("windows-1251")).stream().collect(Collectors.joining(Strings.TAB)),
+    Assert.assertEquals(String.join(Strings.TAB, Files.readAllLines(z, Charset.forName("windows-1251"))),
         DoubleStream.iterate(1.0, operand -> operand + 0.2).takeWhile(value -> value <= 10.0)
             .flatMap(value -> DoubleStream.iterate(10.0, d -> d + 2).takeWhile(d -> d <= 20.0).map(d -> d + value * 10))
             .mapToObj(value -> String.format("%.0f", value)).collect(Collectors.joining(Strings.TAB)));
@@ -111,7 +111,7 @@ public class LineFileBuilderTest {
     Assert.assertTrue(Files.notExists(Paths.get("y.txt")));
 
     Path z = Paths.get("z.txt");
-    Assert.assertEquals(Files.readAllLines(z, Charset.forName("windows-1251")).stream().collect(Collectors.joining(Strings.TAB)),
+    Assert.assertEquals(String.join(Strings.TAB, Files.readAllLines(z, Charset.forName("windows-1251"))),
         "3\t4\t5\t6");
     Assert.assertTrue(Files.deleteIfExists(z));
   }

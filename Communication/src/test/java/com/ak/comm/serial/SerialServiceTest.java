@@ -1,6 +1,5 @@
 package com.ak.comm.serial;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.Flow;
@@ -19,7 +18,7 @@ public class SerialServiceTest implements Flow.Subscriber<ByteBuffer> {
   }
 
   @Test
-  public void test() throws IOException {
+  public void test() {
     List<SerialService> services = Stream.of(SerialPortList.getPortNames()).map(port -> {
       SerialService serialService = new SerialService(BAUDRATE_115200);
       serialService.subscribe(this);
