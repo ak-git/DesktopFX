@@ -1,7 +1,6 @@
 package com.ak.comm.interceptor.simple;
 
-import java.util.function.IntUnaryOperator;
-
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -15,7 +14,7 @@ import javax.annotation.Nonnull;
  * </p>
  */
 public final class FixedFrameBytesInterceptor extends AbstractFixedFrameBytesInterceptor {
-  public FixedFrameBytesInterceptor(@Nonnull BaudRate baudRate, int frameLength) {
-    super(baudRate, frameLength, IntUnaryOperator.identity());
+  public FixedFrameBytesInterceptor(@Nonnull BaudRate baudRate, @Nonnegative int frameLength) {
+    super(baudRate, frameLength);
   }
 }

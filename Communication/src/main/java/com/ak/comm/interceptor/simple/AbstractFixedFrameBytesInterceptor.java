@@ -5,8 +5,8 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.function.IntUnaryOperator;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.BufferFrame;
@@ -15,13 +15,10 @@ import com.ak.comm.interceptor.AbstractBytesInterceptor;
 public abstract class AbstractFixedFrameBytesInterceptor extends AbstractBytesInterceptor<BufferFrame, BufferFrame> {
   @Nonnull
   private final byte[] buffer;
-  @Nonnull
-  private final IntUnaryOperator nextStart;
   private int position = -1;
 
-  public AbstractFixedFrameBytesInterceptor(@Nonnull BaudRate baudRate, int frameLength, @Nonnull IntUnaryOperator nextStart) {
+  public AbstractFixedFrameBytesInterceptor(@Nonnull BaudRate baudRate, @Nonnegative int frameLength) {
     super(baudRate, null, IGNORE_LIMIT);
-    this.nextStart = nextStart;
     if (frameLength < 1) {
       throw new IllegalArgumentException(String.format("frameLength must be > 0, but found %d", frameLength));
     }
@@ -38,7 +35,7 @@ public abstract class AbstractFixedFrameBytesInterceptor extends AbstractBytesIn
         buffer[position] = in;
       }
       else {
-        if (((byte) nextStart.applyAsInt(buffer[0])) == in) {
+        if (check(buffer[0], in)) {
           logSkippedBytes(true);
           responses.add(new BufferFrame(Arrays.copyOf(buffer, buffer.length), ByteOrder.LITTLE_ENDIAN));
           position = 0;
@@ -54,5 +51,9 @@ public abstract class AbstractFixedFrameBytesInterceptor extends AbstractBytesIn
       }
     }
     return responses;
+  }
+
+  protected boolean check(byte firstFrameStartByte, byte nextFrameStartByte) {
+    return firstFrameStartByte == nextFrameStartByte;
   }
 }

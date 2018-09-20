@@ -1,5 +1,6 @@
 package com.ak.comm.interceptor.simple;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.interceptor.BytesInterceptor;
@@ -15,7 +16,12 @@ import com.ak.comm.interceptor.BytesInterceptor;
  * </p>
  */
 public final class RampBytesInterceptor extends AbstractFixedFrameBytesInterceptor {
-  public RampBytesInterceptor(@Nonnull BytesInterceptor.BaudRate baudRate, int frameLength) {
-    super(baudRate, frameLength, ramp -> ramp + 1);
+  public RampBytesInterceptor(@Nonnull BytesInterceptor.BaudRate baudRate, @Nonnegative int frameLength) {
+    super(baudRate, frameLength);
+  }
+
+  @Override
+  protected boolean check(byte firstFrameStartByte, byte nextFrameStartByte) {
+    return (byte) (firstFrameStartByte + 1) == nextFrameStartByte;
   }
 }
