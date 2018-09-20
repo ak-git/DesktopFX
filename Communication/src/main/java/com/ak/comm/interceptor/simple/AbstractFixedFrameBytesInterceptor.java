@@ -12,14 +12,14 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
 
-abstract class AbstractFixedFrameBytesInterceptor extends AbstractBytesInterceptor<BufferFrame, BufferFrame> {
+public abstract class AbstractFixedFrameBytesInterceptor extends AbstractBytesInterceptor<BufferFrame, BufferFrame> {
   @Nonnull
   private final byte[] buffer;
   @Nonnull
   private final IntUnaryOperator nextStart;
   private int position = -1;
 
-  AbstractFixedFrameBytesInterceptor(@Nonnull BaudRate baudRate, int frameLength, @Nonnull IntUnaryOperator nextStart) {
+  public AbstractFixedFrameBytesInterceptor(@Nonnull BaudRate baudRate, int frameLength, @Nonnull IntUnaryOperator nextStart) {
     super(baudRate, null, IGNORE_LIMIT);
     this.nextStart = nextStart;
     if (frameLength < 1) {

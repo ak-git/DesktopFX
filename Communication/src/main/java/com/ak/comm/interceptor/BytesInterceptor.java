@@ -9,10 +9,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static jssc.SerialPort.BAUDRATE_115200;
+import static jssc.SerialPort.BAUDRATE_38400;
 
 public interface BytesInterceptor<RESPONSE, REQUEST> extends Function<ByteBuffer, Stream<RESPONSE>> {
   enum BaudRate {
-    BR_115200(BAUDRATE_115200), BR_460800(BAUDRATE_115200 * 4), BR_921600(BAUDRATE_115200 * 8);
+    BR_38400(BAUDRATE_38400), BR_115200(BAUDRATE_115200), BR_460800(BAUDRATE_115200 * 4), BR_921600(BAUDRATE_115200 * 8);
 
     @Nonnegative
     private final int baudRate;
