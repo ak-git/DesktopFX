@@ -21,7 +21,7 @@ public final class RampBytesInterceptor extends AbstractFixedFrameBytesIntercept
   }
 
   @Override
-  protected boolean check(byte firstFrameStartByte, byte nextFrameStartByte) {
-    return (byte) (firstFrameStartByte + 1) == nextFrameStartByte;
+  protected boolean check(@Nonnull byte[] buffer, byte nextFrameStartByte) {
+    return (byte) (buffer[0] + 1) == nextFrameStartByte;
   }
 }

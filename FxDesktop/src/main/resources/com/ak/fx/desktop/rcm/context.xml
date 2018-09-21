@@ -19,7 +19,7 @@
         </property>
     </bean>
 
-    <bean class="com.ak.comm.interceptor.rcms.RcmsBytesInterceptor" scope="prototype"/>
+    <bean class="com.ak.comm.interceptor.rcm.RcmBytesInterceptor" scope="prototype"/>
 
     <bean class="com.ak.comm.converter.ToIntegerConverter" scope="prototype">
         <constructor-arg index="0">

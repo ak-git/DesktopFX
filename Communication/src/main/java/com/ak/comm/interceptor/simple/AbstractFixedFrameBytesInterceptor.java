@@ -35,7 +35,7 @@ public abstract class AbstractFixedFrameBytesInterceptor extends AbstractBytesIn
         buffer[position] = in;
       }
       else {
-        if (check(buffer[0], in)) {
+        if (check(buffer, in)) {
           logSkippedBytes(true);
           responses.add(new BufferFrame(Arrays.copyOf(buffer, buffer.length), ByteOrder.LITTLE_ENDIAN));
           position = 0;
@@ -53,7 +53,5 @@ public abstract class AbstractFixedFrameBytesInterceptor extends AbstractBytesIn
     return responses;
   }
 
-  protected boolean check(byte firstFrameStartByte, byte nextFrameStartByte) {
-    return firstFrameStartByte == nextFrameStartByte;
-  }
+  protected abstract boolean check(@Nonnull byte[] buffer, byte nextFrameStartByte);
 }

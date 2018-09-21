@@ -17,4 +17,9 @@ public final class FixedFrameBytesInterceptor extends AbstractFixedFrameBytesInt
   public FixedFrameBytesInterceptor(@Nonnull BaudRate baudRate, @Nonnegative int frameLength) {
     super(baudRate, frameLength);
   }
+
+  @Override
+  protected boolean check(@Nonnull byte[] buffer, byte nextFrameStartByte) {
+    return buffer[0] == nextFrameStartByte;
+  }
 }
