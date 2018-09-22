@@ -3,12 +3,6 @@
   <component name="FacetManager">
     <facet type="Spring" name="Spring">
       <configuration>
-        <fileset id="fileset" name="aper-calibration-ohm" removed="false">
-          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/aper/calibration/ohm/context.xml</file>
-        </fileset>
-        <fileset id="fileset2" name="aper-calibration-cc" removed="false">
-          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/aper/calibration/current/context.xml</file>
-        </fileset>
         <fileset id="fileset3" name="aper" removed="false">
           <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/aper/context.xml</file>
         </fileset>
@@ -21,11 +15,8 @@
         <fileset id="fileset6" name="nmis" removed="false">
           <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/nmis/context.xml</file>
         </fileset>
-        <fileset id="fileset7" name="briko" removed="false">
-          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/briko/context.xml</file>
-        </fileset>
-        <fileset id="fileset8" name="rcms" removed="false">
-          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/rcms/context.xml</file>
+        <fileset id="fileset8" name="rcm" removed="false">
+          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/rcm/context.xml</file>
         </fileset>
       </configuration>
     </facet>
