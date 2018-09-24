@@ -21,9 +21,9 @@ import com.ak.comm.core.ConcurrentAsyncFileChannel;
 import com.ak.comm.core.Refreshable;
 import com.ak.comm.logging.LogBuilders;
 import com.ak.util.Strings;
-import jssc.SerialPort;
-import jssc.SerialPortException;
-import jssc.SerialPortList;
+import com.fazecast.jSerialComm.SerialPort;
+import com.fazecast.jSerialComm.SerialPortDataListener;
+import com.fazecast.jSerialComm.SerialPortEvent;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
@@ -55,7 +55,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
   }
 
   @Nonnull
-  private final SerialPort serialPort;
+  private final SerialPort serialPort = SerialPort.getCommPort(Ports.INSTANCE.next());
   @Nonnegative
   private final int baudRate;
   @Nonnull
@@ -68,29 +68,26 @@ final class SerialService extends AbstractService implements WritableByteChannel
   SerialService(@Nonnegative int baudRate) {
     this.baudRate = baudRate;
     buffer = ByteBuffer.allocate(baudRate);
-    serialPort = new SerialPort(Ports.INSTANCE.next());
   }
 
   @Override
   public boolean isOpen() {
-    return serialPort.isOpened();
+    return serialPort.isOpen();
   }
 
   @Override
   public int write(@Nonnull ByteBuffer src) {
-    synchronized (serialPort) {
+    synchronized (this) {
       int countBytes = 0;
-      if (serialPort.isOpened()) {
+      if (isOpen()) {
         src.rewind();
         try {
-          while (src.hasRemaining()) {
-            if (serialPort.writeByte(src.get())) {
-              countBytes++;
-            }
-          }
+          byte[] bytes = new byte[src.remaining()];
+          src.get(bytes);
+          countBytes = serialPort.writeBytes(bytes, bytes.length);
         }
-        catch (SerialPortException ex) {
-          LOGGER.log(Level.WARNING, ex.getPortName(), ex);
+        catch (Exception ex) {
+          LOGGER.log(Level.WARNING, ex.getMessage(), ex);
         }
       }
       return countBytes;
@@ -99,37 +96,51 @@ final class SerialService extends AbstractService implements WritableByteChannel
 
   @Override
   public void subscribe(Flow.Subscriber<? super ByteBuffer> s) {
-    if (serialPort.getPortName().isEmpty()) {
+    if (serialPort.getSystemPortName().isEmpty()) {
       LOGGER.log(Level.INFO, SERIAL_PORT_NOT_FOUND);
     }
     else {
       try {
         serialPort.openPort();
-        serialPort.setParams(baudRate, 8, 1, 0);
-        serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
-        LOGGER.log(LOG_LEVEL_ERRORS, String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getPortName(), baudRate));
+        serialPort.setComPortParameters(baudRate, 8, 1, 0);
+        serialPort.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
+        LOGGER.log(LOG_LEVEL_ERRORS, String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getSystemPortName(), baudRate));
         s.onSubscribe(this);
-        serialPort.addEventListener(event -> {
-          try {
-            if (refresh) {
-              refresh = false;
-              s.onNext(null);
-              binaryLogChannel.close();
+        serialPort.addDataListener(new SerialPortDataListener() {
+          @Override
+          public int getListeningEvents() {
+            return SerialPort.LISTENING_EVENT_DATA_AVAILABLE;
+          }
+
+          @Override
+          public void serialEvent(SerialPortEvent event) {
+            if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_AVAILABLE) {
+              try {
+                if (refresh) {
+                  refresh = false;
+                  s.onNext(ByteBuffer.allocate(0));
+                  binaryLogChannel.close();
+                }
+                if (serialPort.bytesAvailable() > 0) {
+                  buffer.clear();
+                  byte[] bytes = new byte[serialPort.bytesAvailable()];
+                  serialPort.readBytes(bytes, bytes.length);
+                  buffer.put(bytes);
+                  buffer.flip();
+                  binaryLogChannel.write(buffer);
+                  buffer.rewind();
+                  logBytes(buffer);
+                  s.onNext(buffer);
+                }
+              }
+              catch (Exception ex) {
+                logErrorAndComplete(s, ex);
+              }
             }
-            buffer.clear();
-            buffer.put(serialPort.readBytes());
-            buffer.flip();
-            binaryLogChannel.write(buffer);
-            buffer.rewind();
-            logBytes(buffer);
-            s.onNext(buffer);
           }
-          catch (Exception ex) {
-            logErrorAndComplete(s, ex);
-          }
-        }, SerialPort.MASK_RXCHAR);
+        });
       }
-      catch (SerialPortException ex) {
+      catch (Exception ex) {
         logErrorAndComplete(s, ex);
       }
     }
@@ -147,33 +158,33 @@ final class SerialService extends AbstractService implements WritableByteChannel
   @Override
   public void close() {
     try {
-      synchronized (serialPort) {
-        if (serialPort.isOpened()) {
-          LOGGER.log(LOG_LEVEL_ERRORS, "Close connection " + serialPort.getPortName());
+      synchronized (this) {
+        if (isOpen()) {
+          LOGGER.log(LOG_LEVEL_ERRORS, "Close connection " + serialPort.getSystemPortName());
           serialPort.closePort();
         }
       }
     }
-    catch (SerialPortException ex) {
-      LOGGER.log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
+    catch (Exception ex) {
+      LOGGER.log(LOG_LEVEL_ERRORS, serialPort.getSystemPortName(), ex);
     }
     binaryLogChannel.close();
   }
 
   @Override
   public void refresh() {
-    LOGGER.log(Level.INFO, String.format("#%x Refresh connection [ %s ]", hashCode(), serialPort.getPortName()));
+    LOGGER.log(Level.INFO, String.format("#%x Refresh connection [ %s ]", hashCode(), serialPort.getSystemPortName()));
     refresh = true;
   }
 
   @Override
   public String toString() {
-    return String.format("%s@%x{serialPort = %s}", getClass().getSimpleName(), hashCode(), serialPort.getPortName());
+    return String.format("%s@%x{serialPort = %s}", getClass().getSimpleName(), hashCode(), serialPort.getSystemPortName());
   }
 
   private void logErrorAndComplete(Flow.Subscriber<?> s, @Nonnull Exception ex) {
     try {
-      LOGGER.log(LOG_LEVEL_ERRORS, serialPort.getPortName(), ex);
+      LOGGER.log(LOG_LEVEL_ERRORS, serialPort.getSystemPortName(), ex);
       close();
     }
     finally {
@@ -187,7 +198,8 @@ final class SerialService extends AbstractService implements WritableByteChannel
     private final LinkedList<String> usedPorts = new LinkedList<>();
 
     synchronized String next() {
-      String[] portNames = SerialPortList.getPortNames(Comparator.comparingInt(usedPorts::indexOf));
+      String[] portNames = Arrays.stream(SerialPort.getCommPorts()).map(SerialPort::getSystemPortName).
+          sorted(Comparator.comparingInt(usedPorts::indexOf)).toArray(String[]::new);
       if (portNames.length == 0) {
         return Strings.EMPTY;
       }

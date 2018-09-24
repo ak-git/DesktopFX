@@ -20,8 +20,6 @@ import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static jssc.SerialPort.BAUDRATE_115200;
-
 public class RampBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(RampBytesInterceptor.class.getName());
   private final Function<ByteBuffer, Stream<BufferFrame>> interceptor =
@@ -38,7 +36,7 @@ public class RampBytesInterceptorTest {
   @Test
   public static void testInterceptorProperties() {
     BytesInterceptor<BufferFrame, BufferFrame> interceptor = new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1);
-    Assert.assertEquals(interceptor.getBaudRate(), BAUDRATE_115200);
+    Assert.assertEquals(interceptor.getBaudRate(), 115200);
     Assert.assertNull(interceptor.getPingRequest());
   }
 
