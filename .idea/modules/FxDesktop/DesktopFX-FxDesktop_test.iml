@@ -34,7 +34,7 @@
     <orderEntry type="library" name="Gradle: commons-lang:commons-lang:2.6" level="project" />
     <orderEntry type="library" name="Gradle: com.github.spotbugs:spotbugs-annotations:3.1.7" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-context:5.0.9.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: com.fazecast:jSerialComm:2.2.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.fazecast:jSerialComm:2.2.1" level="project" />
     <orderEntry type="library" name="Gradle: com.beust:jcommander:1.72" level="project" />
     <orderEntry type="library" name="Gradle: org.apache-extras.beanshell:bsh:2.0b6" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:3.0.2" level="project" />

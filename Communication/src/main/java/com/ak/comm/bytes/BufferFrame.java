@@ -53,6 +53,10 @@ public class BufferFrame {
     return byteBuffer.getInt(index);
   }
 
+  public final int get() {
+    return byteBuffer.get();
+  }
+
   protected final ByteBuffer byteBuffer() {
     return byteBuffer;
   }

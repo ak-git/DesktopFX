@@ -38,7 +38,7 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   public CycleSerialService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
                             @Nonnull Converter<RESPONSE, EV> responseConverter) {
     super(bytesInterceptor, responseConverter);
-    serialService = new SerialService(bytesInterceptor.getBaudRate());
+    serialService = new SerialService(bytesInterceptor.getBaudRate(), bytesInterceptor.getSerialParams());
   }
 
   @Override
@@ -119,7 +119,7 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
       synchronized (this) {
         if (!executor.isShutdown()) {
           subscriber.onComplete();
-          serialService = new SerialService(bytesInterceptor().getBaudRate());
+          serialService = new SerialService(bytesInterceptor().getBaudRate(), bytesInterceptor().getSerialParams());
         }
       }
     }, 0, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
@@ -129,8 +129,8 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   public void close() {
     synchronized (this) {
       try {
-        serialService.close();
         executor.shutdownNow();
+        serialService.close();
       }
       finally {
         super.close();
