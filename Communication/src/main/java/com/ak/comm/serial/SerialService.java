@@ -5,8 +5,10 @@ import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.concurrent.Flow;
 import java.util.logging.Filter;
 import java.util.logging.Level;
@@ -19,6 +21,7 @@ import javax.annotation.Nonnull;
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.ConcurrentAsyncFileChannel;
 import com.ak.comm.core.Refreshable;
+import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.logging.LogBuilders;
 import com.ak.util.Strings;
 import com.fazecast.jSerialComm.SerialPort;
@@ -60,14 +63,17 @@ final class SerialService extends AbstractService implements WritableByteChannel
   private final int baudRate;
   @Nonnull
   private final ByteBuffer buffer;
+  @Nonnull
+  private final Set<BytesInterceptor.SerialParams> serialParams;
   private final ConcurrentAsyncFileChannel binaryLogChannel = new ConcurrentAsyncFileChannel(() ->
       AsynchronousFileChannel.open(LogBuilders.SERIAL_BYTES.build(getClass().getSimpleName()).getPath(),
           StandardOpenOption.CREATE, StandardOpenOption.WRITE));
   private volatile boolean refresh;
 
-  SerialService(@Nonnegative int baudRate) {
+  SerialService(@Nonnegative int baudRate, Set<BytesInterceptor.SerialParams> serialParams) {
     this.baudRate = baudRate;
     buffer = ByteBuffer.allocate(baudRate);
+    this.serialParams = Collections.unmodifiableSet(serialParams);
   }
 
   @Override
@@ -104,6 +110,9 @@ final class SerialService extends AbstractService implements WritableByteChannel
         serialPort.openPort();
         serialPort.setComPortParameters(baudRate, 8, 1, 0);
         serialPort.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
+        if (serialParams.contains(BytesInterceptor.SerialParams.RTS)) {
+          serialPort.setRTS();
+        }
         LOGGER.log(LOG_LEVEL_ERRORS, String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getSystemPortName(), baudRate));
         s.onSubscribe(this);
         serialPort.addDataListener(new SerialPortDataListener() {

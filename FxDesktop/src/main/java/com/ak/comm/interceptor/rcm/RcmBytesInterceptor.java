@@ -1,5 +1,8 @@
 package com.ak.comm.interceptor.rcm;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 import javax.annotation.Nonnull;
 
 import com.ak.comm.interceptor.simple.AbstractFixedFrameBytesInterceptor;
@@ -7,6 +10,12 @@ import com.ak.comm.interceptor.simple.AbstractFixedFrameBytesInterceptor;
 public final class RcmBytesInterceptor extends AbstractFixedFrameBytesInterceptor {
   public RcmBytesInterceptor() {
     super(BaudRate.BR_38400, 20);
+  }
+
+  @Nonnull
+  @Override
+  public Set<SerialParams> getSerialParams() {
+    return EnumSet.of(SerialParams.RTS);
   }
 
   @Override
