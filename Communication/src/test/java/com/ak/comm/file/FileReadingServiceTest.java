@@ -224,13 +224,13 @@ public class FileReadingServiceTest {
                      Assert.fail();
                    }
                  });
-                 Assert.assertEquals(process(null).count(), 0);
+                 Assert.assertEquals(process(ByteBuffer.allocate(0)).count(), 0);
                  int[] ints = process(ByteBuffer.wrap(new byte[] {0, 2, 0, 0, 0, 1})).mapToInt(value -> value[0]).toArray();
                  Assert.assertEquals(ints, new int[] {2});
                  ints = process(ByteBuffer.wrap(new byte[] {4, 0, 0, 0, 2})).mapToInt(value -> value[0]).toArray();
                  Assert.assertEquals(ints, new int[] {3});
 
-                 Assert.assertEquals(process(null).count(), 0);
+                 Assert.assertEquals(process(ByteBuffer.allocate(0)).count(), 0);
                  ints = process(ByteBuffer.wrap(new byte[] {6, 0, 0, 0, 3})).mapToInt(value -> value[0]).toArray();
                  Assert.assertEquals(ints, new int[] {6});
                  subscriber.onComplete();

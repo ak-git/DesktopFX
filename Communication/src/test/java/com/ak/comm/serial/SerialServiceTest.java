@@ -1,17 +1,14 @@
 package com.ak.comm.serial;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Flow;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import jssc.SerialPortException;
-import jssc.SerialPortList;
+import com.fazecast.jSerialComm.SerialPort;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import static jssc.SerialPort.BAUDRATE_115200;
 
 public class SerialServiceTest implements Flow.Subscriber<ByteBuffer> {
   private SerialServiceTest() {
@@ -19,14 +16,14 @@ public class SerialServiceTest implements Flow.Subscriber<ByteBuffer> {
 
   @Test
   public void test() {
-    List<SerialService> services = Stream.of(SerialPortList.getPortNames()).map(port -> {
-      SerialService serialService = new SerialService(BAUDRATE_115200);
+    List<SerialService> services = Arrays.stream(SerialPort.getCommPorts()).map(port -> {
+      SerialService serialService = new SerialService(115200);
       serialService.subscribe(this);
       Assert.assertEquals(serialService.write(ByteBuffer.allocate(0)), 0);
       return serialService;
     }).collect(Collectors.toList());
 
-    SerialService singleService = new SerialService(BAUDRATE_115200);
+    SerialService singleService = new SerialService(115200);
     singleService.subscribe(this);
     singleService.close();
     Assert.assertTrue(singleService.toString().contains("serialPort"));
@@ -45,12 +42,7 @@ public class SerialServiceTest implements Flow.Subscriber<ByteBuffer> {
   @Override
   public void onError(Throwable e) {
     Assert.assertNotNull(e);
-    if (e instanceof SerialPortException) {
-      Assert.assertEquals(((SerialPortException) e).getMethodName(), "openPort()");
-    }
-    else {
-      Assert.fail();
-    }
+    Assert.fail();
   }
 
   @Override

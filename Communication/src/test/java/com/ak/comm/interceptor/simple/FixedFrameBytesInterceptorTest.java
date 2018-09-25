@@ -20,8 +20,6 @@ import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static jssc.SerialPort.BAUDRATE_115200;
-
 public class FixedFrameBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(FixedFrameBytesInterceptor.class.getName());
   private final Function<ByteBuffer, Stream<BufferFrame>> interceptor =
@@ -38,7 +36,7 @@ public class FixedFrameBytesInterceptorTest {
   @Test
   public static void testInterceptorProperties() {
     BytesInterceptor<BufferFrame, BufferFrame> interceptor = new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1);
-    Assert.assertEquals(interceptor.getBaudRate(), BAUDRATE_115200);
+    Assert.assertEquals(interceptor.getBaudRate(), 115200);
     Assert.assertNull(interceptor.getPingRequest());
   }
 
