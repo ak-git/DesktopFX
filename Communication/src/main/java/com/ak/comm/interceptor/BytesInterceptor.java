@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
 
 public interface BytesInterceptor<RESPONSE, REQUEST> extends Function<ByteBuffer, Stream<RESPONSE>> {
   enum SerialParams {
-    RTS
+    CLEAR_DTR
   }
 
   enum BaudRate {

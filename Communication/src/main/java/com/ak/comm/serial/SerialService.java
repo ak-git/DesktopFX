@@ -110,8 +110,8 @@ final class SerialService extends AbstractService implements WritableByteChannel
         serialPort.openPort();
         serialPort.setComPortParameters(baudRate, 8, 1, 0);
         serialPort.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
-        if (serialParams.contains(BytesInterceptor.SerialParams.RTS)) {
-          serialPort.setRTS();
+        if (serialParams.contains(BytesInterceptor.SerialParams.CLEAR_DTR)) {
+          serialPort.clearDTR();
         }
         LOGGER.log(LOG_LEVEL_ERRORS, String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getSystemPortName(), baudRate));
         s.onSubscribe(this);

@@ -26,7 +26,7 @@ public class SerialServiceTest implements Flow.Subscriber<ByteBuffer> {
       return serialService;
     }).collect(Collectors.toList());
 
-    SerialService singleService = new SerialService(115200, EnumSet.of(BytesInterceptor.SerialParams.RTS));
+    SerialService singleService = new SerialService(115200, EnumSet.of(BytesInterceptor.SerialParams.CLEAR_DTR));
     singleService.subscribe(this);
     singleService.close();
     Assert.assertTrue(singleService.toString().contains("serialPort"));

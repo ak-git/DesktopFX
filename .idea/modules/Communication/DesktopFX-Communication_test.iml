@@ -13,7 +13,7 @@
     <orderEntry type="module" module-name="Util_main" />
     <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
     <orderEntry type="library" name="Gradle: com.github.spotbugs:spotbugs:3.1.7" level="project" />
-    <orderEntry type="library" name="Gradle: com.fazecast:jSerialComm:2.2.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.fazecast:jSerialComm:2.2.1" level="project" />
     <orderEntry type="library" name="Gradle: org.testng:testng:6.14.3" level="project" />
     <orderEntry type="library" name="Gradle: org.ow2.asm:asm-commons:6.2" level="project" />
     <orderEntry type="library" name="Gradle: org.ow2.asm:asm-xml:6.2" level="project" />
