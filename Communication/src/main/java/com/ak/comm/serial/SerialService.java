@@ -121,7 +121,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
           try {
             if (refresh) {
               refresh = false;
-              s.onNext(null);
+              s.onNext(ByteBuffer.allocate(0));
               binaryLogChannel.close();
             }
             buffer.clear();
