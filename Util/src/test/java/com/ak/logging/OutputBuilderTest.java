@@ -19,7 +19,7 @@ public class OutputBuilderTest {
   private final Path outPath;
 
   private OutputBuilderTest() throws IOException {
-    Path txt = new OutputBuilder("txt").fileNameWithTime(OutputBuilderTest.class.getSimpleName()).build().getPath();
+    Path txt = new OutputBuilder("txt").fileNameWithDateTime(OutputBuilderTest.class.getSimpleName()).build().getPath();
     Files.createFile(txt);
     outPath = txt.getParent();
   }

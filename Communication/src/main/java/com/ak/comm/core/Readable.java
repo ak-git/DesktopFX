@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+@FunctionalInterface
 public interface Readable extends AutoCloseable {
   Readable EMPTY_READABLE = (dst, position) -> {
   };
