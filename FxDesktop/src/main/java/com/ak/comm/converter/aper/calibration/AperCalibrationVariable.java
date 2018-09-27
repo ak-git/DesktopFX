@@ -83,8 +83,8 @@ public enum AperCalibrationVariable implements DependentVariable<AperInVariable,
     }
   };
 
-  public static final AperInVariable VAR_CC = AperInVariable.CCU1;
-  public static final AperInVariable VAR_PU = AperInVariable.R1;
+  static final AperInVariable VAR_CC = AperInVariable.CCU1;
+  static final AperInVariable VAR_PU = AperInVariable.R1;
 
   @Override
   public final Class<AperInVariable> getInputVariablesClass() {

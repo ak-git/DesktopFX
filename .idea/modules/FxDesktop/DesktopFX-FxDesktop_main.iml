@@ -18,6 +18,9 @@
         <fileset id="fileset8" name="rcm" removed="false">
           <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/rcm/context.xml</file>
         </fileset>
+        <fileset id="fileset" name="rcm-calibration" removed="false">
+          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/rcm/calibration/context.xml</file>
+        </fileset>
       </configuration>
     </facet>
   </component>
