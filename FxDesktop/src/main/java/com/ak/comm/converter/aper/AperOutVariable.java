@@ -35,6 +35,17 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
           smoothingImpulsive(10).build();
     }
   },
+  ECG1 {
+    @Override
+    public List<AperInVariable> getInputVariables() {
+      return Collections.singletonList(AperInVariable.E1);
+    }
+
+    @Override
+    public DigitalFilter filter() {
+      return FilterBuilder.of().fir(AperCoefficients.ECG).build();
+    }
+  },
   MYO1 {
     @Override
     public List<AperInVariable> getInputVariables() {
@@ -88,13 +99,19 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
   R2 {
     @Override
     public List<AperInVariable> getInputVariables() {
-      return Arrays.asList(AperInVariable.CCU1, AperInVariable.R2);
+      return Arrays.asList(AperInVariable.CCU2, AperInVariable.R2);
     }
 
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.of().biOperator(Interpolators.interpolator(AperSurfaceCoefficientsChannel2.class)).
           smoothingImpulsive(10).build();
+    }
+  },
+  ECG2 {
+    @Override
+    public List<AperInVariable> getInputVariables() {
+      return Collections.singletonList(AperInVariable.E2);
     }
   },
   MYO2 {
@@ -106,7 +123,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
   CCR2 {
     @Override
     public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(AperInVariable.CCU1);
+      return Collections.singletonList(AperInVariable.CCU2);
     }
 
     @Override

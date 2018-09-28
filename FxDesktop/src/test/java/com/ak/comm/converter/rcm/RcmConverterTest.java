@@ -10,10 +10,29 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
+import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.rcm.calibration.RcmCalibrationVariable;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import tec.uom.se.unit.MetricPrefix;
+import tec.uom.se.unit.Units;
+
+import static com.ak.comm.converter.rcm.RcmInVariable.ECG_X;
+import static com.ak.comm.converter.rcm.RcmInVariable.RHEO_1X;
+import static com.ak.comm.converter.rcm.RcmInVariable.RHEO_2X;
+import static com.ak.comm.converter.rcm.RcmOutVariable.BASE_1;
+import static com.ak.comm.converter.rcm.RcmOutVariable.BASE_2;
+import static com.ak.comm.converter.rcm.RcmOutVariable.ECG;
+import static com.ak.comm.converter.rcm.RcmOutVariable.QS_1;
+import static com.ak.comm.converter.rcm.RcmOutVariable.QS_2;
+import static com.ak.comm.converter.rcm.RcmOutVariable.RHEO_1;
+import static com.ak.comm.converter.rcm.RcmOutVariable.RHEO_2;
+import static com.ak.comm.converter.rcm.calibration.RcmCalibrationVariable.AVG_RHEO_ADC;
+import static com.ak.comm.converter.rcm.calibration.RcmCalibrationVariable.BASE_ADC;
+import static com.ak.comm.converter.rcm.calibration.RcmCalibrationVariable.CC_ADC;
+import static com.ak.comm.converter.rcm.calibration.RcmCalibrationVariable.MIN_RHEO_ADC;
+import static com.ak.comm.converter.rcm.calibration.RcmCalibrationVariable.RHEO_ADC;
 
 public final class RcmConverterTest {
   @DataProvider(name = "variables")
@@ -70,7 +89,15 @@ public final class RcmConverterTest {
 
   @Test
   public static void testInputVariablesClass() {
+    EnumSet.of(RHEO_1X, RHEO_2X, ECG_X).forEach(variable -> Assert.assertTrue(variable.options().isEmpty(), variable.options().toString()));
     EnumSet.allOf(RcmOutVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), RcmInVariable.class));
+    EnumSet.of(RHEO_1, RHEO_2).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MILLI(Units.OHM)));
+    EnumSet.of(BASE_1, BASE_2, QS_1, QS_2).forEach(variable -> Assert.assertEquals(variable.getUnit(), Units.OHM));
+    EnumSet.of(ECG).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MILLI(Units.VOLT)));
+    EnumSet.of(QS_1, QS_2).forEach(v -> Assert.assertEquals(v.options(), EnumSet.of(Variable.Option.TEXT_VALUE_BANNER), v.options().toString()));
+
     EnumSet.allOf(RcmCalibrationVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), RcmInVariable.class));
+    EnumSet.of(CC_ADC, BASE_ADC, RHEO_ADC).forEach(v -> Assert.assertTrue(v.options().contains(Variable.Option.VISIBLE), v.options().toString()));
+    EnumSet.of(MIN_RHEO_ADC, AVG_RHEO_ADC).forEach(v -> Assert.assertTrue(v.options().contains(Variable.Option.TEXT_VALUE_BANNER), v.options().toString()));
   }
 }
