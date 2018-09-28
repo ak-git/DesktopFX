@@ -1,4 +1,4 @@
-package com.ak.comm.converter.rcm;
+package com.ak.comm.converter.rcm.calibration;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import javax.measure.Unit;
 
 import com.ak.comm.converter.DependentVariable;
+import com.ak.comm.converter.rcm.RcmInVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import tec.uom.se.unit.MetricPrefix;
