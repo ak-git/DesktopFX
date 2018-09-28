@@ -6,20 +6,29 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
-import javax.measure.Unit;
 
 import com.ak.comm.converter.DependentVariable;
 import com.ak.comm.converter.rcm.RcmInVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
 
 public enum RcmCalibrationVariable implements DependentVariable<RcmInVariable, RcmCalibrationVariable> {
-  RHEO {
+  CC_ADC {
     @Override
-    public Unit<?> getUnit() {
-      return MetricPrefix.MILLI(Units.OHM);
+    public List<RcmInVariable> getInputVariables() {
+      return Collections.singletonList(VAR_QS);
+    }
+  },
+  BASE_ADC {
+    @Override
+    public List<RcmInVariable> getInputVariables() {
+      return Collections.singletonList(VAR_BASE);
+    }
+  },
+  RHEO_ADC {
+    @Override
+    public List<RcmInVariable> getInputVariables() {
+      return Collections.singletonList(VAR_RHEO);
     }
 
     @Override
@@ -31,27 +40,37 @@ public enum RcmCalibrationVariable implements DependentVariable<RcmInVariable, R
     public Set<Option> options() {
       return EnumSet.of(Option.VISIBLE);
     }
-
+  },
+  AVG_RHEO_ADC {
     @Override
     public List<RcmInVariable> getInputVariables() {
       return Collections.singletonList(VAR_RHEO);
     }
-  },
-  BASE {
+
     @Override
-    public Unit<?> getUnit() {
-      return Units.OHM;
+    public DigitalFilter filter() {
+      return FilterBuilder.of().rrs().build();
     }
 
     @Override
-    public List<RcmInVariable> getInputVariables() {
-      return Collections.singletonList(VAR_BASE);
+    public Set<Option> options() {
+      return EnumSet.of(Option.TEXT_VALUE_BANNER);
     }
   },
-  QS {
+  MIN_RHEO_ADC {
     @Override
     public List<RcmInVariable> getInputVariables() {
-      return Collections.singletonList(VAR_QS);
+      return Collections.singletonList(VAR_RHEO);
+    }
+
+    @Override
+    public DigitalFilter filter() {
+      return FilterBuilder.of().peakToPeak(400).build();
+    }
+
+    @Override
+    public Set<Option> options() {
+      return EnumSet.of(Option.TEXT_VALUE_BANNER);
     }
   };
 
