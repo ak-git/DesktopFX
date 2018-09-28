@@ -3,6 +3,7 @@ package com.ak.comm.interceptor.rcm;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -52,6 +53,7 @@ public class RcmBytesInterceptorTest {
 
     Assert.assertEquals(interceptor.getBaudRate(), 115200 / 3);
     Assert.assertNull(interceptor.getPingRequest());
+    Assert.assertEquals(interceptor.getSerialParams(), EnumSet.of(BytesInterceptor.SerialParams.CLEAR_DTR));
 
     AtomicReference<String> logMessage = new AtomicReference<>(Strings.EMPTY);
     Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,

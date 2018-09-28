@@ -3,6 +3,7 @@ package com.ak.comm.bytes;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.util.LogUtils;
@@ -49,12 +50,12 @@ public class BufferFrame {
     byteBuffer.rewind();
   }
 
-  public final int getInt(int index) {
+  public final int getInt(@Nonnegative int index) {
     return byteBuffer.getInt(index);
   }
 
-  public final int get() {
-    return byteBuffer.get();
+  public final int get(@Nonnegative int index) {
+    return byteBuffer.get(index);
   }
 
   protected final ByteBuffer byteBuffer() {

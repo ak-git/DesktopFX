@@ -16,7 +16,8 @@ public final class RcmConverter extends AbstractConverter<BufferFrame, RcmInVari
   protected Stream<int[]> innerApply(@Nonnull BufferFrame frame) {
     int[] values = new int[variables().size()];
     for (int i = 0; i < values.length; i++) {
-      values[i] = ((frame.get() & 0x7E) << 5) + ((frame.get() & 0x7E) >> 1);
+      int index = 2 * i * Byte.BYTES;
+      values[i] = ((frame.get(index) & 0x7E) << 5) + ((frame.get(index + 1) & 0x7E) >> 1);
     }
     return Stream.of(values);
   }
