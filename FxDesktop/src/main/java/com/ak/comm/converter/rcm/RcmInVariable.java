@@ -15,12 +15,7 @@ public enum RcmInVariable implements Variable<RcmInVariable> {
     }
   },
   BASE_1,
-  RHEO_2 {
-    @Override
-    public DigitalFilter filter() {
-      return toSignedFilter();
-    }
-  },
+  RHEO_2,
   ECG {
     @Override
     public DigitalFilter filter() {

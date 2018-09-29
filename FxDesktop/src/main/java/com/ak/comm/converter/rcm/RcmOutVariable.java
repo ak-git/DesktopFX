@@ -49,32 +49,12 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
       return MetricPrefix.MILLI(Units.VOLT);
     }
   },
-  RHEO_2 {
-    @Override
-    public Unit<?> getUnit() {
-      return MetricPrefix.MILLI(Units.OHM);
-    }
-  },
-  BASE_2 {
-    @Override
-    public Unit<?> getUnit() {
-      return Units.OHM;
-    }
-  },
+  RHEO_2,
+  BASE_2,
   QS_2 {
-    @Override
-    public Unit<?> getUnit() {
-      return Units.OHM;
-    }
-
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.of().operator(Interpolators.interpolator(RcmCoefficients.ADC_TO_OHM_2)).smoothingImpulsive(10).build();
-    }
-
-    @Override
-    public Set<Option> options() {
-      return Collections.singleton(Option.TEXT_VALUE_BANNER);
     }
   };
 

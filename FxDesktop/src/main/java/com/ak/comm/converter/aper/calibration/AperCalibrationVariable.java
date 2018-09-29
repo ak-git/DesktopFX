@@ -21,65 +21,29 @@ public enum AperCalibrationVariable implements DependentVariable<AperInVariable,
     public DigitalFilter filter() {
       return FilterBuilder.of().smoothingImpulsive(10).rrs().build();
     }
-
-    @Override
-    public Set<Option> options() {
-      return EnumSet.of(Option.TEXT_VALUE_BANNER);
-    }
   },
   PU_ADC {
-    @Override
-    public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(VAR_PU);
-    }
-
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.of().smoothingImpulsive(10).rrs().build();
     }
-
-    @Override
-    public Set<Option> options() {
-      return EnumSet.of(Option.TEXT_VALUE_BANNER);
-    }
   },
   PEAK_TO_PEAK_PU_ADC {
-    @Override
-    public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(VAR_PU);
-    }
-
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.of().peakToPeak(1000).rrs().build();
     }
-
-    @Override
-    public Set<Option> options() {
-      return EnumSet.of(Option.TEXT_VALUE_BANNER);
-    }
   },
   STD_PU_ADC {
-    @Override
-    public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(VAR_PU);
-    }
-
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.of().std(1000).rrs().build();
     }
-
-    @Override
-    public Set<Option> options() {
-      return EnumSet.of(Option.TEXT_VALUE_BANNER);
-    }
   },
-
   PU {
     @Override
-    public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(VAR_PU);
+    public Set<Option> options() {
+      return EnumSet.of(Option.VISIBLE);
     }
   };
 
@@ -89,5 +53,15 @@ public enum AperCalibrationVariable implements DependentVariable<AperInVariable,
   @Override
   public final Class<AperInVariable> getInputVariablesClass() {
     return AperInVariable.class;
+  }
+
+  @Override
+  public List<AperInVariable> getInputVariables() {
+    return Collections.singletonList(VAR_PU);
+  }
+
+  @Override
+  public Set<Option> options() {
+    return EnumSet.of(Option.TEXT_VALUE_BANNER);
   }
 }
