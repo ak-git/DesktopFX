@@ -14,7 +14,8 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.rcm.calibration.RcmCalibrationVariable;
-import com.ak.numbers.rcm.RcmSurfaceCoefficientsChannel1;
+import com.ak.numbers.rcm.RcmBaseSurfaceCoefficientsChannel1;
+import com.ak.numbers.rcm.RcmBaseSurfaceCoefficientsChannel2;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -105,7 +106,12 @@ public final class RcmConverterTest {
   }
 
   @Test(enabled = false)
-  public static void testSplineSurface1() throws IOException {
-    AbstractSplineCoefficientsChartApp.testSplineSurface1(RcmSurfaceCoefficientsChannel1.class);
+  public static void testBaseSplineSurface1() throws IOException {
+    AbstractSplineCoefficientsChartApp.testSplineSurface1(RcmBaseSurfaceCoefficientsChannel1.class);
+  }
+
+  @Test(enabled = false)
+  public static void testBaseSplineSurface2() throws IOException {
+    AbstractSplineCoefficientsChartApp.testSplineSurface2(RcmBaseSurfaceCoefficientsChannel2.class);
   }
 }

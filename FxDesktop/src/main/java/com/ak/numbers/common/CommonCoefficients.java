@@ -3,7 +3,6 @@ package com.ak.numbers.common;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
@@ -31,23 +30,17 @@ public enum CommonCoefficients implements Coefficients {
   }
 
   public static String readPotentialUnitCalibration(@Nonnull JsonObject object, @Nonnull Coefficients coefficients) {
-    return readCalibration(object, coefficients, "Potential-unit electrodes, Ohm : ADC[CurrentCarrying, PotentialUnit]",
-        JsonValue::toString);
+    return readCalibration(object, coefficients, "Potential-unit electrodes, Ohm : ADC[CurrentCarrying, PotentialUnit]");
   }
 
   public static String readBaseCalibration(@Nonnull JsonObject object, @Nonnull Coefficients coefficients) {
-    return readCalibration(object, coefficients, "Potential-unit electrodes, Ohm : ADC{CurrentCarrying, [Base, Rheo 0.26 Ohm]}",
-        jsonValue -> String.valueOf(jsonValue.asJsonArray().getInt(0)));
+    return readCalibration(object, coefficients, "Potential-unit electrodes, Ohm : ADC{CurrentCarrying, Base}");
   }
 
-  private static String readCalibration(@Nonnull JsonObject object, @Nonnull Coefficients coefficients, @Nonnull String name,
-                                        @Nonnull Function<JsonValue, String> entryToString) {
+  private static String readCalibration(@Nonnull JsonObject object, @Nonnull Coefficients coefficients, @Nonnull String name) {
     String ohms = String.format(Locale.ROOT, "%.1f", Metrics.fromMilli(Double.parseDouble(Strings.numberSuffix(coefficients.name()))));
     String channel = String.format("Channel-%s", Strings.numberSuffix(coefficients.getClass().getName()));
-    Set<Map.Entry<String, JsonValue>> entries = object.getJsonObject(name).
-        getJsonObject(ohms).getJsonObject(channel).entrySet();
-    return entries.stream()
-        .map(entry -> String.format("%s\t%s", entry.getKey(), entryToString.apply(entry.getValue())))
-        .collect(Collectors.joining(Strings.NEW_LINE));
+    Set<Map.Entry<String, JsonValue>> entries = object.getJsonObject(name).getJsonObject(ohms).getJsonObject(channel).entrySet();
+    return entries.stream().map(entry -> String.format("%s\t%s", entry.getKey(), entry.getValue())).collect(Collectors.joining(Strings.NEW_LINE));
   }
 }

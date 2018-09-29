@@ -12,9 +12,9 @@ import com.ak.comm.converter.DependentVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.numbers.Coefficients;
 import com.ak.numbers.Interpolators;
+import com.ak.numbers.rcm.RcmBaseSurfaceCoefficientsChannel1;
+import com.ak.numbers.rcm.RcmBaseSurfaceCoefficientsChannel2;
 import com.ak.numbers.rcm.RcmCoefficients;
-import com.ak.numbers.rcm.RcmSurfaceCoefficientsChannel1;
-import com.ak.numbers.rcm.RcmSurfaceCoefficientsChannel2;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
@@ -38,7 +38,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
 
     @Override
     public DigitalFilter filter() {
-      return Interpolators.asFilterBuilder(RcmSurfaceCoefficientsChannel1.class).build();
+      return Interpolators.asFilterBuilder(RcmBaseSurfaceCoefficientsChannel1.class).build();
     }
   },
   QS_1 {
@@ -72,7 +72,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
 
     @Override
     public DigitalFilter filter() {
-      return Interpolators.asFilterBuilder(RcmSurfaceCoefficientsChannel2.class).build();
+      return Interpolators.asFilterBuilder(RcmBaseSurfaceCoefficientsChannel2.class).build();
     }
   },
   QS_2 {
