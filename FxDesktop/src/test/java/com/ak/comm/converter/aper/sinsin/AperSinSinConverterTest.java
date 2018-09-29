@@ -20,6 +20,7 @@ import com.ak.numbers.aper.sinsin.AperSurfaceCoefficientsChannel2;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
 public final class AperSinSinConverterTest {
@@ -60,7 +61,10 @@ public final class AperSinSinConverterTest {
   @Test
   public static void testVariableProperties() {
     Assert.assertEquals(AperOutVariable.CCR.getUnit(), Units.OHM);
-    Assert.assertFalse(AperOutVariable.CCR.options().contains(Variable.Option.VISIBLE));
+    Assert.assertTrue(AperOutVariable.CCR.options().contains(Variable.Option.TEXT_VALUE_BANNER));
+
+    EnumSet.of(AperOutVariable.R1, AperOutVariable.R2).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MILLI(Units.OHM)));
+    EnumSet.of(AperOutVariable.R1, AperOutVariable.R2).forEach(variable -> Assert.assertTrue(variable.options().contains(Variable.Option.VISIBLE)));
   }
 
   @Test
