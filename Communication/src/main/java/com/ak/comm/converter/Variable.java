@@ -1,27 +1,66 @@
 package com.ak.comm.converter;
 
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import javax.annotation.Nonnull;
 import javax.measure.Unit;
 
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
+import com.ak.util.Strings;
 import tec.uom.se.AbstractUnit;
 
-public interface Variable {
+public interface Variable<E extends Enum<E> & Variable<E>> {
+  enum Option {
+    VISIBLE, FORCE_ZERO_IN_RANGE, TEXT_VALUE_BANNER;
+
+    static Set<Option> defaultOptions() {
+      return EnumSet.of(VISIBLE);
+    }
+
+    public static Set<Option> addToDefault(@Nonnull Option option) {
+      return EnumSet.of(VISIBLE, option);
+    }
+  }
+
   default Unit<?> getUnit() {
-    return AbstractUnit.ONE;
+    return tryFindSame(Variable::getUnit, () -> AbstractUnit.ONE);
   }
 
   default DigitalFilter filter() {
-    return FilterBuilder.of().build();
+    return tryFindSame(Variable::filter, () -> FilterBuilder.of().build());
   }
 
-  default String toString(int value) {
-    return String.format("%s = %d %s", name(), value, getUnit());
+  default Set<Option> options() {
+    return tryFindSame(Variable::options, Option::defaultOptions);
   }
 
-  default String toName() {
-    return String.format("%s, %s", name(), getUnit());
+  default int indexBy(Option option) {
+    if (options().contains(option)) {
+      return EnumSet.allOf(getDeclaringClass()).stream().filter(e -> e.options().contains(option)).mapToInt(Enum::ordinal).sorted()
+          .reduce(-1, (acc, now) -> now > ordinal() ? acc : acc + 1);
+    }
+    else {
+      return -1;
+    }
   }
 
   String name();
+
+  int ordinal();
+
+  Class<E> getDeclaringClass();
+
+  default <T> T tryFindSame(@Nonnull Function<E, T> function, @Nonnull Supplier<T> orElse) {
+    String s = Strings.numberSuffix(name());
+    if (s.isEmpty() || Integer.parseInt(s) == 1) {
+      return orElse.get();
+    }
+    else {
+      return function.apply(Enum.valueOf(getDeclaringClass(), name().replaceFirst("\\d+", "1")));
+    }
+  }
 }

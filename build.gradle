@@ -1,19 +1,35 @@
-ext.projectIds = ['java': '1.8']
+import com.github.spotbugs.SpotBugsTask
+
+plugins {
+    id 'com.github.spotbugs' version '1.6.3'
+}
+
+ext.projectIds = ['java': '1.10']
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "3.5"
+    gradleVersion = "4.10.2"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '2017.2'
+    version = '2018.3'
     apply plugin: 'idea'
 }
 
 subprojects {
     apply plugin: 'java'
-    apply plugin: 'findbugs'
-    findbugs.toolVersion = '3.0.1'
+    apply plugin: "com.github.spotbugs"
+
+    spotbugs {
+        toolVersion = '3.1.7'
+    }
+
+    tasks.withType(SpotBugsTask) {
+        reports {
+            xml.enabled = false
+            html.enabled = true
+        }
+    }
 
     sourceCompatibility = projectIds.java
     targetCompatibility = projectIds.java
@@ -33,12 +49,15 @@ subprojects {
             name = 'Spring rich client repository'
             url = 'http://spring-rich-c.sourceforge.net/maven2repository'
         }
+        maven {
+            url = 'https://plugins.gradle.org/m2/'
+        }
     }
 
     dependencies {
         compile group: 'javax.inject', name: 'javax.inject', version: '1'
-        compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
-        testCompile group: 'org.testng', name: 'testng', version: '6.11'
+        compile group: 'com.github.spotbugs', name: 'spotbugs', version: '3.1.7'
+        testCompile group: 'org.testng', name: 'testng', version: '6.14.3'
     }
 
     test {
@@ -52,23 +71,22 @@ subprojects {
 project(':Util') {
     dependencies {
         compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
-        compile group: 'tec.uom', name: 'uom-se', version: '1.0.5'
+        compile group: 'tec.uom', name: 'uom-se', version: '1.0.9'
+        compile group: 'javax.json', name: 'javax.json-api', version: '1.1.2'
+        compile group: 'org.glassfish', name: 'javax.json', version: '1.1.2'
     }
 }
 
 project(':Communication') {
     dependencies {
         compile group: 'org.scream3r', name: 'jssc', version: '2.8.0'
-        compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.0.8'
-        compile group: 'org.springframework', name: 'spring-core', version: '4.3.7.RELEASE'
         compile project(':Util')
     }
 }
 
 project(':FxCore') {
     dependencies {
-        compile group: 'org.springframework', name: 'spring-context', version: '4.3.7.RELEASE'
-        compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.0.8'
+        compile group: 'org.springframework', name: 'spring-context', version: '5.0.9.RELEASE'
         compile project(':Util')
     }
 }
@@ -93,8 +111,7 @@ project(':FxDesktop') {
         from(sourceSets.main.resources.srcDirs) {
             include '**/*.properties'
             filter { String line ->
-                line.replaceAll(project.name.toString(),
-                        project.name.toString() + ' ' + project.version.toString())
+                line.replaceAll('application.version', project.version.toString())
             }
         }
     }

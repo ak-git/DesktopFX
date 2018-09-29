@@ -7,7 +7,7 @@ import com.ak.comm.converter.AbstractConverter;
 
 public final class NmisConverter extends AbstractConverter<NmisResponseFrame, NmisVariable> {
   public NmisConverter() {
-    super(NmisVariable.class);
+    super(NmisVariable.class, 200);
   }
 
   @Override

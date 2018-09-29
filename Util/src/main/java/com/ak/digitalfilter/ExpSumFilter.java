@@ -2,13 +2,11 @@ package com.ak.digitalfilter;
 
 final class ExpSumFilter extends AbstractOperableFilter {
   private int y;
-  private boolean resetFlag = true;
 
   @Override
   public int applyAsInt(int in) {
-    if (resetFlag) {
+    if (checkResetAndClear()) {
       y = in;
-      resetFlag = false;
     }
     int diff = in - y;
     y += (diff >> 5) - (diff >> 6);

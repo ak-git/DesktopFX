@@ -29,6 +29,12 @@ final class ChainFilter extends AbstractDigitalFilter {
     first.accept(in);
   }
 
+  @Override
+  public void reset() {
+    first.reset();
+    second.reset();
+  }
+
   @Nonnegative
   @Override
   public int getOutputDataSize() {

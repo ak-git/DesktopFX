@@ -54,12 +54,12 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST extends BufferF
     outBuffer.clear();
     request.writeTo(outBuffer);
     outBuffer.flip();
-    if (logger.isLoggable(LOG_LEVEL_LEXEMES)) {
+    if (logger.isLoggable(LOG_LEVEL_ERRORS)) {
       if (outBuffer.limit() > 1) {
-        logger.log(LOG_LEVEL_LEXEMES, String.format("#%x %s - %d bytes OUT to hardware", hashCode(), request, outBuffer.limit()));
+        logger.log(LOG_LEVEL_ERRORS, String.format("#%x %s - %d bytes OUT to hardware", hashCode(), request, outBuffer.limit()));
       }
       else {
-        logger.log(LOG_LEVEL_LEXEMES, String.format("#%x %s - OUT to hardware", hashCode(), request));
+        logger.log(LOG_LEVEL_ERRORS, String.format("#%x %s - OUT to hardware", hashCode(), request));
       }
     }
     return outBuffer;

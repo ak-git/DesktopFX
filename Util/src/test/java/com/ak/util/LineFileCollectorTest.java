@@ -79,24 +79,24 @@ public class LineFileCollectorTest {
     try (LineFileCollector collector = new LineFileCollector(out, LineFileCollector.Direction.VERTICAL)) {
       stream.get().forEach(collector);
     }
-    Assert.assertTrue(Files.readAllLines(out, Charset.forName("windows-1251")).stream().collect(Collectors.joining()).
-        equals(stream.get().collect(Collectors.joining())));
+    Assert.assertEquals(String.join("", Files.readAllLines(out, Charset.forName("windows-1251"))),
+        stream.get().collect(Collectors.joining()));
     Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
   }
 
   @Test(dataProvider = "stream")
   public void testVertical(Supplier<Stream<String>> stream) throws IOException {
-    Assert.assertNull(stream.get().collect(new LineFileCollector(out, LineFileCollector.Direction.VERTICAL)));
-    Assert.assertTrue(Files.readAllLines(out, Charset.forName("windows-1251")).stream().collect(Collectors.joining()).
-        equals(stream.get().collect(Collectors.joining())));
+    Assert.assertTrue(stream.get().collect(new LineFileCollector(out, LineFileCollector.Direction.VERTICAL)));
+    Assert.assertEquals(String.join("", Files.readAllLines(out, Charset.forName("windows-1251"))),
+        stream.get().collect(Collectors.joining()));
     Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
   }
 
   @Test(dataProvider = "stream")
   public void testHorizontal(Supplier<Stream<String>> stream) throws IOException {
-    Assert.assertNull(stream.get().collect(new LineFileCollector(out, LineFileCollector.Direction.HORIZONTAL)));
-    Assert.assertTrue(Files.readAllLines(out, Charset.forName("windows-1251")).stream().collect(Collectors.joining()).
-        equals(stream.get().collect(Collectors.joining(Strings.TAB))));
+    Assert.assertTrue(stream.get().collect(new LineFileCollector(out, LineFileCollector.Direction.HORIZONTAL)));
+    Assert.assertEquals(String.join("", Files.readAllLines(out, Charset.forName("windows-1251"))),
+        stream.get().collect(Collectors.joining(Strings.TAB)));
     Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
   }
 
@@ -104,7 +104,7 @@ public class LineFileCollectorTest {
   public void testInvalidClose(Supplier<Stream<String>> stream) throws Throwable {
     LineFileCollector collector = new LineFileCollector(out, LineFileCollector.Direction.VERTICAL);
     collector.close();
-    Assert.assertNull(stream.get().collect(collector));
+    Assert.assertFalse(stream.get().collect(collector));
     Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown");
     collector.close();
     Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown only once");
@@ -134,7 +134,7 @@ public class LineFileCollectorTest {
 
   @Test(dataProvider = "invalid-writer")
   public void testInvalidAccumulator(BufferedWriter bufferedWriter) throws IOException {
-    Collector<Object, BufferedWriter, Void> collector = new LineFileCollector(out, LineFileCollector.Direction.VERTICAL);
+    Collector<Object, BufferedWriter, Boolean> collector = new LineFileCollector(out, LineFileCollector.Direction.VERTICAL);
     collector.accumulator().accept(bufferedWriter, Math.PI);
     bufferedWriter.close();
     collector.accumulator().accept(bufferedWriter, Math.PI);
@@ -146,7 +146,7 @@ public class LineFileCollectorTest {
 
   @Test(dataProvider = "invalid-writer")
   public void testInvalidFinisher(BufferedWriter bufferedWriter) throws IOException {
-    Collector<Object, BufferedWriter, Void> collector = new LineFileCollector(out, LineFileCollector.Direction.VERTICAL);
+    Collector<Object, BufferedWriter, Boolean> collector = new LineFileCollector(out, LineFileCollector.Direction.VERTICAL);
     collector.accumulator().accept(bufferedWriter, Math.PI);
     Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
     collector.finisher().apply(bufferedWriter);

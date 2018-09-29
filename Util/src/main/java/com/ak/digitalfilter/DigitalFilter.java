@@ -6,6 +6,8 @@ import javax.annotation.Nonnull;
 public interface DigitalFilter extends IntsAcceptor {
   void forEach(@Nonnull IntsAcceptor after);
 
+  void reset();
+
   @Nonnegative
   int getOutputDataSize();
 

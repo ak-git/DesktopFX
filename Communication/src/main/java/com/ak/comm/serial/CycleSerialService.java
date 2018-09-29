@@ -1,14 +1,15 @@
 package com.ak.comm.serial;
 
 import java.io.IOException;
-import java.nio.channels.SeekableByteChannel;
-import java.nio.file.Files;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Flow;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -22,52 +23,85 @@ import javax.annotation.Nullable;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
+import com.ak.comm.core.Refreshable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.logging.LogBuilders;
 import com.ak.util.UIConstants;
-import io.reactivex.Flowable;
-import io.reactivex.disposables.Disposable;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
 
-public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable>
-    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Publisher<int[]> {
+public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
+    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Refreshable, Flow.Subscription {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+  private volatile boolean cancelled;
   @Nonnull
   private volatile SerialService serialService;
 
   public CycleSerialService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
                             @Nonnull Converter<RESPONSE, EV> responseConverter) {
     super(bytesInterceptor, responseConverter);
-    serialService = new SerialService(bytesInterceptor.getBaudRate());
+    serialService = new SerialService(bytesInterceptor.getBaudRate(), bytesInterceptor.getSerialParams());
   }
 
   @Override
-  public void subscribe(@Nonnull Subscriber<? super int[]> s) {
+  public void subscribe(@Nonnull Flow.Subscriber<? super int[]> s) {
     s.onSubscribe(this);
     executor.scheduleAtFixedRate(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();
       AtomicReference<Instant> okTime = new AtomicReference<>(Instant.now());
       CountDownLatch latch = new CountDownLatch(1);
 
-      Disposable disposable = Flowable.fromPublisher(serialService).doFinally(() -> {
-        workingFlag.set(false);
-        latch.countDown();
-      }).subscribe(buffer -> process(buffer).forEach(ints -> {
-        s.onNext(ints);
-        workingFlag.set(true);
-        okTime.set(Instant.now());
-      }));
+      Flow.Subscriber<ByteBuffer> subscriber = new Flow.Subscriber<>() {
+        @Nullable
+        Flow.Subscription subscription;
+
+        @Override
+        public void onSubscribe(Flow.Subscription s) {
+          subscription = s;
+        }
+
+        @Override
+        public void onNext(ByteBuffer buffer) {
+          process(buffer).forEach(ints -> {
+            if (!cancelled) {
+              s.onNext(ints);
+            }
+            workingFlag.set(true);
+            okTime.set(Instant.now());
+          });
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+          serialService.close();
+          Logger.getLogger(getClass().getName()).log(Level.SEVERE, serialService.toString(), throwable);
+        }
+
+        @Override
+        public void onComplete() {
+          try {
+            workingFlag.set(false);
+            latch.countDown();
+            if (subscription != null) {
+              subscription.cancel();
+            }
+          }
+          catch (Exception e) {
+            Logger.getLogger(getClass().getName()).log(Level.INFO, e.getMessage(), e);
+          }
+        }
+      };
+      serialService.subscribe(subscriber);
 
       while (!Thread.currentThread().isInterrupted()) {
-        if (!serialService.isOpen() || (serialService.isOpen() && write(bytesInterceptor().getPingRequest()) == 0)) {
+        if (!serialService.isOpen() || write(bytesInterceptor().getPingRequest()) == 0) {
           break;
         }
         else {
           okTime.set(Instant.now());
           try {
             while (Duration.between(okTime.get(), Instant.now()).minus(UIConstants.UI_DELAY).isNegative()) {
-              latch.await(UIConstants.UI_DELAY.toMillis() / 10, TimeUnit.MILLISECONDS);
+              if (latch.await(UIConstants.UI_DELAY.toMillis(), TimeUnit.MILLISECONDS)) {
+                break;
+              }
             }
           }
           catch (InterruptedException e) {
@@ -84,8 +118,8 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
 
       synchronized (this) {
         if (!executor.isShutdown()) {
-          disposable.dispose();
-          serialService = new SerialService(bytesInterceptor().getBaudRate());
+          subscriber.onComplete();
+          serialService = new SerialService(bytesInterceptor().getBaudRate(), bytesInterceptor().getSerialParams());
         }
       }
     }, 0, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
@@ -95,8 +129,8 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   public void close() {
     synchronized (this) {
       try {
-        serialService.close();
         executor.shutdownNow();
+        serialService.close();
       }
       finally {
         super.close();
@@ -111,8 +145,24 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   }
 
   @Override
-  public SeekableByteChannel call() throws IOException {
+  public AsynchronousFileChannel call() throws IOException {
     Path path = LogBuilders.CONVERTER_SERIAL.build(getClass().getSimpleName()).getPath();
-    return Files.newByteChannel(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
+    return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
+  }
+
+  @Override
+  public void refresh() {
+    serialService.refresh();
+    cancelled = false;
+    write(bytesInterceptor().getPingRequest());
+  }
+
+  @Override
+  public void request(long n) {
+  }
+
+  @Override
+  public void cancel() {
+    cancelled = true;
   }
 }

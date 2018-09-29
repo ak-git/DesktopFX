@@ -48,7 +48,12 @@ final class ResistanceTwoLayer implements TrivariateFunction {
   }
 
   static double getK12(@Nonnegative double rho1SI, @Nonnegative double rho2SI) {
-    return (rho2SI - rho1SI) / (rho2SI + rho1SI);
+    if (Double.isInfinite(rho2SI)) {
+      return 1.0;
+    }
+    else {
+      return (rho2SI - rho1SI) / (rho2SI + rho1SI);
+    }
   }
 
   static double sum(@Nonnegative double hSI, @Nonnull BivariateFunction nAndB) {
@@ -67,6 +72,6 @@ final class ResistanceTwoLayer implements TrivariateFunction {
   }
 
   private static double sum(@Nonnull DoubleUnaryOperator operator) {
-    return IntStream.rangeClosed(1, 1024).parallel().mapToDouble(operator::applyAsDouble).sum();
+    return IntStream.rangeClosed(1, 1024 * 8).unordered().parallel().mapToDouble(operator::applyAsDouble).sum();
   }
 }

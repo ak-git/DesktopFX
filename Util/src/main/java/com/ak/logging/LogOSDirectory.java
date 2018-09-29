@@ -3,13 +3,9 @@ package com.ak.logging;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.ak.util.OSDirectory;
 
@@ -49,10 +45,5 @@ public enum LogOSDirectory implements OSDirectory {
     public Path getDirectory() {
       return Paths.get(USER_HOME_PATH);
     }
-  };
-
-  private static final String USER_HOME_PATH = AccessController.doPrivileged(
-      (PrivilegedAction<String>) () -> Optional.ofNullable(System.getProperty("user.home")).orElse(EMPTY));
-  private static final String VENDOR_ID = Stream.of(LogOSDirectory.class.getPackage().getName().split("\\.")).limit(2).
-      collect(Collectors.joining("."));
+  }
 }

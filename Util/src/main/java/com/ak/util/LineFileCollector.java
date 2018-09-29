@@ -19,7 +19,7 @@ import java.util.stream.Collector;
 
 import javax.annotation.Nonnull;
 
-public final class LineFileCollector implements Collector<Object, BufferedWriter, Void>, Closeable, Consumer<String> {
+public final class LineFileCollector implements Collector<Object, BufferedWriter, Boolean>, Closeable, Consumer<String> {
   public enum Direction {
     HORIZONTAL {
       @Override
@@ -37,7 +37,6 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
     public abstract void acceptWriter(BufferedWriter writer) throws IOException;
   }
 
-  private final Object finalizerGuardian = new FinalizerGuardian(this);
   private final BufferedWriter writer;
   private final Direction direction;
   private boolean startFlag = true;
@@ -86,7 +85,7 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
   }
 
   @Override
-  public Function<BufferedWriter, Void> finisher() {
+  public Function<BufferedWriter, Boolean> finisher() {
     return bufferedWriter -> {
       if (!errorFlag) {
         try {
@@ -98,7 +97,7 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
           errorFlag = true;
         }
       }
-      return null;
+      return !errorFlag;
     };
   }
 

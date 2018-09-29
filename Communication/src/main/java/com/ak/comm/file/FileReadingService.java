@@ -1,23 +1,26 @@
 package com.ak.comm.file;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.ClosedByInterruptException;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.security.MessageDigest;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Flow;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.converter.Converter;
@@ -25,23 +28,20 @@ import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.logging.LogBuilders;
-import io.reactivex.disposables.Disposable;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.springframework.util.DigestUtils;
+import com.ak.util.PropertiesSupport;
 
 import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
 
-final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable>
-    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Publisher<int[]>, Disposable {
+final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
+    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Flow.Subscription {
   private static final int CAPACITY_4K = 1024 * 4;
   private static final Lock LOCK = new ReentrantLock();
   @Nonnull
   private final Path fileToRead;
+  @Nonnegative
+  private long requestSamples = Long.MAX_VALUE;
   @Nonnull
-  private Callable<SeekableByteChannel> convertedFileChannelProvider = () -> {
-    throw new IllegalStateException("Invalid call for Converted File Channel");
-  };
+  private volatile Callable<AsynchronousFileChannel> convertedFileChannelProvider = () -> null;
   private volatile boolean disposed;
 
   FileReadingService(@Nonnull Path fileToRead, @Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
@@ -52,62 +52,71 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
   }
 
   @Override
-  public void subscribe(Subscriber<? super int[]> s) {
+  public void subscribe(Flow.Subscriber<? super int[]> s) {
     if (Files.isRegularFile(fileToRead, LinkOption.NOFOLLOW_LINKS) && Files.exists(fileToRead, LinkOption.NOFOLLOW_LINKS) &&
         Files.isReadable(fileToRead)) {
       s.onSubscribe(this);
 
-      try (InputStream in = Files.newInputStream(fileToRead, StandardOpenOption.READ)) {
-        Logger.getLogger(getClass().getName()).log(Level.CONFIG,
-            String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
-        String md5Code = DigestUtils.appendMd5DigestAsHex(in, new StringBuilder()).toString();
-        Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
-        if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
-          convertedFileChannelProvider = () -> Files.newByteChannel(convertedFile, StandardOpenOption.READ);
-          Logger.getLogger(getClass().getName()).log(Level.INFO,
-              String.format("#%x File [ %s ] with MD5 = [ %s ] is already processed", hashCode(), fileToRead, md5Code));
-          s.onComplete();
-        }
-        else {
-          LOCK.lock();
-          try {
+      LOCK.lock();
+      try (SeekableByteChannel seekableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
+        Logger.getLogger(getClass().getName()).log(Level.CONFIG, String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
+
+        MessageDigest md5 = MessageDigest.getInstance("MD5");
+        if (isChannelProcessed(seekableByteChannel, md5::update)) {
+          String md5Code = digestToString(md5);
+          Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
+          if (!PropertiesSupport.CACHE.check()) {
+            Files.deleteIfExists(convertedFile);
+          }
+          if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
+            convertedFileChannelProvider = () -> AsynchronousFileChannel.open(convertedFile, StandardOpenOption.READ);
+            Logger.getLogger(getClass().getName()).log(Level.INFO,
+                String.format("#%x File [ %s ] with MD5 = [ %s ] is already processed", hashCode(), fileToRead, md5Code));
+          }
+          else {
             Logger.getLogger(getClass().getName()).log(Level.INFO,
                 String.format("#%x Read file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
-            try (ReadableByteChannel readableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
-              Path tempConverterFile = LogBuilders.CONVERTER_FILE.build("tempConverterFile").getPath();
-              convertedFileChannelProvider = () -> Files.newByteChannel(tempConverterFile,
-                  StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
+            Path tempConverterFile = LogBuilders.CONVERTER_FILE.build("temp." + md5Code).getPath();
+            convertedFileChannelProvider = () -> AsynchronousFileChannel.open(tempConverterFile,
+                StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
 
-              boolean readFlag = false;
-              ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
-              while (readableByteChannel.read(buffer) > 0 && !isDisposed()) {
-                buffer.flip();
-                logBytes(buffer);
-                process(buffer).forEach(s::onNext);
-                buffer.clear();
-                readFlag = true;
-              }
+            boolean processed = isChannelProcessed(seekableByteChannel, new Consumer<>() {
+              @Nonnegative
+              private long samplesCounter;
 
-              if (!isDisposed()) {
-                if (readFlag) {
-                  Files.copy(tempConverterFile, convertedFile, LinkOption.NOFOLLOW_LINKS, StandardCopyOption.REPLACE_EXISTING);
-                }
-                s.onComplete();
+              @Override
+              public void accept(@Nonnull ByteBuffer byteBuffer) {
+                logBytes(byteBuffer);
+                process(byteBuffer).forEach(ints -> {
+                  if (samplesCounter < requestSamples) {
+                    s.onNext(ints);
+                  }
+                  samplesCounter++;
+                });
               }
+            });
+
+            if (processed && Files.exists(tempConverterFile)) {
+              Files.copy(tempConverterFile, convertedFile, LinkOption.NOFOLLOW_LINKS, StandardCopyOption.REPLACE_EXISTING);
+              tempConverterFile.toFile().deleteOnExit();
             }
           }
-          finally {
-            LOCK.unlock();
-            Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
-          }
+        }
+
+        if (!disposed) {
+          s.onComplete();
         }
       }
       catch (ClosedByInterruptException e) {
         Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
       }
-      catch (IOException e) {
+      catch (Exception e) {
         Logger.getLogger(getClass().getName()).log(Level.WARNING, fileToRead.toString(), e);
         s.onError(e);
+      }
+      finally {
+        LOCK.unlock();
+        Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
       }
     }
     else {
@@ -121,19 +130,19 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
   }
 
   @Override
-  public void dispose() {
-    disposed = true;
+  public void request(@Nonnegative long requestSamples) {
+    this.requestSamples = requestSamples;
   }
 
   @Override
-  public boolean isDisposed() {
-    return disposed;
+  public void cancel() {
+    close();
   }
 
   @Override
   public void close() {
     try {
-      dispose();
+      disposed = true;
     }
     finally {
       super.close();
@@ -141,7 +150,29 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
   }
 
   @Override
-  public SeekableByteChannel call() throws Exception {
+  public AsynchronousFileChannel call() throws Exception {
     return convertedFileChannelProvider.call();
+  }
+
+  private boolean isChannelProcessed(@Nonnull SeekableByteChannel seekableByteChannel, @Nonnull Consumer<ByteBuffer> consumer) throws IOException {
+    ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
+    boolean readFlag = false;
+    seekableByteChannel.position(0);
+    while (seekableByteChannel.read(buffer) > 0 && !disposed) {
+      buffer.flip();
+      consumer.accept(buffer);
+      buffer.clear();
+      readFlag = true;
+    }
+    return readFlag && !disposed;
+  }
+
+  private static String digestToString(@Nonnull MessageDigest messageDigest) {
+    byte[] digest = messageDigest.digest();
+    StringBuilder sb = new StringBuilder(digest.length * 2);
+    for (byte b : digest) {
+      sb.append(String.format("%x", b));
+    }
+    return sb.toString();
   }
 }

@@ -15,14 +15,14 @@ public enum LogBuilders {
   TIME(Strings.EMPTY) {
     @Override
     public LocalIO build(String fileName) {
-      return newInstance().fileNameWithTime(fileName).build();
+      return newInstance().fileNameWithDateTime(fileName).build();
     }
   },
   SERIAL_BYTES("serialBytesLog"), CONVERTER_SERIAL("converterSerialLog"),
   CONVERTER_FILE("converterFileLog") {
     @Override
     public LocalIO build(String fileName) {
-      return newInstance().fileName(fileName).addPath(CONVERTER_FILE.directory).build();
+      return newInstance().fileName(fileName).addPathWithDate().addPath(CONVERTER_FILE.directory).build();
     }
   };
 
@@ -34,7 +34,7 @@ public enum LogBuilders {
   }
 
   public LocalIO build(String fileName) {
-    return newInstance().fileNameWithTime(fileName).addPath(directory).build();
+    return newInstance().fileNameWithDateTime(fileName).addPathWithDate().addPath(directory).build();
   }
 
   private static LogPathBuilder newInstance() {

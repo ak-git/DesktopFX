@@ -8,21 +8,9 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
-import com.sun.javafx.PlatformUtil;
-
 public enum OS implements BooleanSupplier {
-  WINDOWS {
-    @Override
-    public boolean getAsBoolean() {
-      return PlatformUtil.isWindows();
-    }
-  },
+  WINDOWS,
   MAC {
-    @Override
-    public boolean getAsBoolean() {
-      return PlatformUtil.isMac();
-    }
-
     @Override
     public <T> void callApplicationMethod(@Nonnull String methodName, @Nonnull Class<? super T> type, @Nonnull T value) {
       try {
@@ -39,9 +27,14 @@ public enum OS implements BooleanSupplier {
   UNIX {
     @Override
     public boolean getAsBoolean() {
-      return PlatformUtil.isUnix();
+      return !(WINDOWS.getAsBoolean() || MAC.getAsBoolean());
     }
   };
+
+  @Override
+  public boolean getAsBoolean() {
+    return System.getProperty("os.name").toLowerCase().startsWith(name().toLowerCase());
+  }
 
   public <T> void callApplicationMethod(@Nonnull String methodName, @Nonnull Class<? super T> type, @Nonnull T value) {
     throw new UnsupportedOperationException(name());

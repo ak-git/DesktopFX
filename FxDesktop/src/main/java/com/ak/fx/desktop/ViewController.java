@@ -1,18 +1,15 @@
 package com.ak.fx.desktop;
 
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import com.ak.comm.GroupService;
+import com.ak.comm.converter.Variable;
 
-public final class ViewController extends AbstractViewController {
+public final class ViewController<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
+    extends AbstractViewController<RESPONSE, REQUEST, EV> {
   @Inject
-  public ViewController(@Nonnull GroupService<?, ?, ?> service) {
+  public ViewController(@Nonnull GroupService<RESPONSE, REQUEST, EV> service) {
     super(service);
-    service.subscribe(values -> Logger.getLogger(getClass().getName()).log(Level.INFO, Arrays.toString(values)));
   }
 }

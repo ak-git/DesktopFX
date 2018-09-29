@@ -1,17 +1,18 @@
 package com.ak.rsm;
 
+import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import tec.uom.se.quantity.Quantities;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
+
+import static tec.uom.se.unit.MetricPrefix.MILLI;
+import static tec.uom.se.unit.Units.METRE;
 
 public class ResistanceTwoLayerTest {
   private ResistanceTwoLayerTest() {
   }
 
-  @DataProvider(name = "layer-model", parallel = true)
+  @DataProvider(name = "layer-model")
   public static Object[][] twoLayerParameters() {
     return new Object[][] {
         {new Double[] {1.0, 1.0}, 0.0, 20.0, 40.0, 21.221},
@@ -24,15 +25,15 @@ public class ResistanceTwoLayerTest {
         {new Double[] {7.0, 1.0}, 20.0, 40.0, 80.0, 50.132},
         {new Double[] {9.5, 0.5}, 30.0, 40.0, 80.0, 81.831},
 
-        {new Double[] {20.0, 1.0}, 1.0, 40.0, 80.0, 10.649}
+        {new Double[] {20.0, 1.0}, 1.0, 40.0, 80.0, 10.649},
+        {new Double[] {8.0, 1.0}, 50.0, 30.0, 90.0, 38.858}
     };
   }
 
   @Test(dataProvider = "layer-model")
   public static void testLayer(Double[] rho, double hmm, double smm, double lmm, double rOhm) {
-    TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MetricPrefix.MILLI(Units.METRE));
-    Assert.assertEquals(new ResistanceTwoLayer(system).value(rho[0], rho[1],
-        Quantities.getQuantity(hmm, MetricPrefix.MILLI(Units.METRE)).to(Units.METRE).getValue().doubleValue()), rOhm, 0.001);
+    TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MILLI(METRE));
+    Assert.assertEquals(new ResistanceTwoLayer(system).value(rho[0], rho[1], Metrics.fromMilli(hmm)), rOhm, 0.001);
   }
 
   @Test
@@ -42,10 +43,11 @@ public class ResistanceTwoLayerTest {
     Assert.assertEquals(ResistanceTwoLayer.getRho1ToRho2(-1.0), Double.POSITIVE_INFINITY, Float.MIN_NORMAL);
     Assert.assertEquals(ResistanceTwoLayer.getRho1ToRho2(0.1), ResistanceTwoLayer.getK12(0.1, 1.0), Float.MIN_NORMAL);
     Assert.assertEquals(ResistanceTwoLayer.getRho1ToRho2(10.0), ResistanceTwoLayer.getK12(10.0, 1.0), Float.MIN_NORMAL);
+    Assert.assertEquals(ResistanceTwoLayer.getK12(10.0, Double.POSITIVE_INFINITY), 1.0, Float.MIN_NORMAL);
   }
 
   @Test(expectedExceptions = CloneNotSupportedException.class)
   public static void testNotClone() throws CloneNotSupportedException {
-    new ResistanceTwoLayer(new TetrapolarSystem(1, 2, MetricPrefix.MILLI(Units.METRE))).clone();
+    new ResistanceTwoLayer(new TetrapolarSystem(1, 2, MILLI(METRE))).clone();
   }
 }

@@ -1,13 +1,20 @@
 package com.ak.comm.converter;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.function.IntBinaryOperator;
-import java.util.stream.Stream;
 
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 
-public enum OperatorVariables2 implements DependentVariable<OperatorVariables> {
-  OUT((left, right) -> left * right);
+public enum OperatorVariables2 implements DependentVariable<OperatorVariables, OperatorVariables2> {
+  OUT((left, right) -> left * right) {
+    @Override
+    public Set<Option> options() {
+      return Option.addToDefault(Option.TEXT_VALUE_BANNER);
+    }
+  };
 
   private final IntBinaryOperator operator;
 
@@ -22,8 +29,8 @@ public enum OperatorVariables2 implements DependentVariable<OperatorVariables> {
   }
 
   @Override
-  public final Stream<OperatorVariables> getInputVariables() {
-    return Stream.of(OperatorVariables.OUT_PLUS, OperatorVariables.OUT_MINUS);
+  public final List<OperatorVariables> getInputVariables() {
+    return Arrays.asList(OperatorVariables.OUT_PLUS, OperatorVariables.OUT_MINUS);
   }
 
   @Override

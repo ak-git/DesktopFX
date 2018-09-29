@@ -11,7 +11,7 @@ final class NoDelayFilter extends AbstractDigitalFilter {
 
   NoDelayFilter(@Nonnull DigitalFilter filter) {
     this.filter = filter;
-    AtomicInteger skipSamples = new AtomicInteger((int) Math.floor(filter.getDelay()) * 2);
+    AtomicInteger skipSamples = new AtomicInteger((int) Math.round(filter.getDelay() * 2));
     filter.forEach(values -> {
       if (skipSamples.get() == 0) {
         publish(values);
@@ -36,6 +36,11 @@ final class NoDelayFilter extends AbstractDigitalFilter {
   @Override
   public void accept(int... in) {
     filter.accept(in);
+  }
+
+  @Override
+  public void reset() {
+    filter.reset();
   }
 
   @Override

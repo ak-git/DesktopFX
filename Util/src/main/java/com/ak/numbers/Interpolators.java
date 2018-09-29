@@ -9,13 +9,13 @@ import java.util.function.IntBinaryOperator;
 import java.util.function.IntFunction;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
 
+import com.ak.digitalfilter.FilterBuilder;
 import com.ak.util.Strings;
 import org.apache.commons.math3.analysis.BivariateFunction;
 import org.apache.commons.math3.analysis.UnivariateFunction;
@@ -38,6 +38,10 @@ public enum Interpolators {
     this.minPoints = minPoints;
   }
 
+  public static <C extends Enum<C> & Coefficients> FilterBuilder asFilterBuilder(@Nonnull Class<C> coeffEnum) {
+    return FilterBuilder.of().biOperator(interpolator(coeffEnum));
+  }
+
   public static <C extends Enum<C> & Coefficients> Provider<IntBinaryOperator> interpolator(@Nonnull Class<C> coeffEnum) {
     Map<Coefficients, IntUnaryOperator> coeffSplineMap = EnumSet.allOf(coeffEnum).stream().collect(
         Collectors.toMap(Function.identity(), coefficients -> interpolator(coefficients).get())
@@ -48,35 +52,42 @@ public enum Interpolators {
         coeffSplineMap.values().stream().mapToInt(value -> value.applyAsInt(x)).summaryStatistics().getMax()
     ).summaryStatistics().getMax();
 
-    IntFunction<double[]> samples = limit -> DoubleStream.iterate(0, operand -> operand + Math.max(1, limit / SPLINE_POINTS)).
-        limit(SPLINE_POINTS + 2).toArray();
+    IntFunction<int[]> samples = limit -> IntStream.concat(
+        IntStream.iterate(0, operand -> operand + Math.max(1, limit / SPLINE_POINTS)).takeWhile(value -> value < limit),
+        IntStream.of(limit)
+    ).toArray();
 
-    double[] xs = samples.apply(limitX);
-    double[] ys = samples.apply(limitY);
+    int[] xs = samples.apply(limitX);
+    int[] ys = samples.apply(limitY);
 
     double[][] z = new double[xs.length][ys.length];
     for (int i = 0; i < xs.length; i++) {
-      int finalX = (int) xs[i];
+      int finalX = xs[i];
       List<Coefficients> sliceAlongY = coeffSplineMap.entrySet().stream().sorted(
           Comparator.comparingInt(o -> o.getValue().applyAsInt(finalX))
       ).map(Map.Entry::getKey).collect(Collectors.toList());
 
       double[] yValues = sliceAlongY.stream().mapToDouble(c -> coeffSplineMap.get(c).applyAsInt(finalX)).toArray();
-      double[] zValues = sliceAlongY.stream().mapToDouble(c -> Double.parseDouble(c.name().replaceAll("\\D*", Strings.EMPTY))).toArray();
+      double[] zValues = sliceAlongY.stream().mapToDouble(c -> Double.parseDouble(Strings.numberSuffix(c.name()))).toArray();
 
       IntUnaryOperator operator = interpolator(yValues, zValues).get();
       for (int j = 0; j < ys.length; j++) {
-        z[i][j] = operator.applyAsInt((int) ys[j]);
+        z[i][j] = operator.applyAsInt(ys[j]);
       }
     }
     return () -> new IntBinaryOperator() {
-      private final BivariateFunction f = new PiecewiseBicubicSplineInterpolator().interpolate(xs, ys, z);
+      private final BivariateFunction f = new PiecewiseBicubicSplineInterpolator().interpolate(
+          IntStream.of(xs).mapToDouble(value -> value).toArray(), IntStream.of(ys).mapToDouble(value -> value).toArray(), z);
 
       @Override
       public int applyAsInt(int x, int y) {
-        return (int) Math.round(f.value(Math.min(Math.max(x, 0), limitX), Math.min(Math.max(y, 0), limitY)));
+        return (int) Math.round(f.value(Math.min(Math.max(x, 0), xs[xs.length - 1]), Math.min(Math.max(y, 0), ys[ys.length - 1])));
       }
     };
+  }
+
+  public static FilterBuilder asFilterBuilder(@Nonnull Coefficients coefficients) {
+    return FilterBuilder.of().operator(interpolator(coefficients));
   }
 
   public static Provider<IntUnaryOperator> interpolator(@Nonnull Coefficients coefficients) {

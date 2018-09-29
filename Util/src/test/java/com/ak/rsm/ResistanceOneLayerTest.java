@@ -10,7 +10,7 @@ public class ResistanceOneLayerTest {
   private ResistanceOneLayerTest() {
   }
 
-  @DataProvider(name = "layer-model", parallel = true)
+  @DataProvider(name = "layer-model")
   public static Object[][] singleLayerParameters() {
     return new Object[][] {
         {1.0, 20.0, 40.0, 21.221},
