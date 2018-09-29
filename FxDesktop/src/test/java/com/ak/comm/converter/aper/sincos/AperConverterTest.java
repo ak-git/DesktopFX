@@ -1,4 +1,4 @@
-package com.ak.comm.converter.aper;
+package com.ak.comm.converter.aper.sincos;
 
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -12,6 +12,7 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.Variable;
+import com.ak.comm.converter.aper.AperInVariable;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

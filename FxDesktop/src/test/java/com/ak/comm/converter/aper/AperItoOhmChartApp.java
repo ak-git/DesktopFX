@@ -13,6 +13,7 @@ import javax.annotation.Nonnull;
 
 import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.AbstractSplineCoefficientsChartApp;
+import com.ak.comm.converter.aper.sincos.AperOutVariable;
 import com.ak.numbers.Coefficients;
 import com.ak.numbers.CoefficientsUtils;
 import com.ak.numbers.Interpolators;

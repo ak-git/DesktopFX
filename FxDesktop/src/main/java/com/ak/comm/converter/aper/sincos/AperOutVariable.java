@@ -19,7 +19,7 @@ import com.ak.numbers.common.CommonCoefficients;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public enum AperSinCosOutVariable implements DependentVariable<AperInVariable, AperSinCosOutVariable> {
+public enum AperOutVariable implements DependentVariable<AperInVariable, AperOutVariable> {
   R1 {
     @Override
     public List<AperInVariable> getInputVariables() {
