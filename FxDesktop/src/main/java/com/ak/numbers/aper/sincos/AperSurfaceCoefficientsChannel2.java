@@ -1,4 +1,4 @@
-package com.ak.numbers.aper;
+package com.ak.numbers.aper.sincos;
 
 import javax.annotation.Nonnull;
 import javax.json.JsonObject;

@@ -5,7 +5,7 @@ import javax.json.JsonObject;
 
 import com.ak.numbers.Coefficients;
 
-import static com.ak.numbers.aper.AperCoefficients.readCurrentCarryingCalibration;
+import static com.ak.numbers.common.CommonCoefficients.readCurrentCarryingCalibration;
 
 public enum RcmCoefficients implements Coefficients {
   ADC_TO_OHM_1 {

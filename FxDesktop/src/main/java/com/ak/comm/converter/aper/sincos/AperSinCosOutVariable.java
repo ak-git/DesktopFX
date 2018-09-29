@@ -1,4 +1,4 @@
-package com.ak.comm.converter.aper;
+package com.ak.comm.converter.aper.sincos;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.measure.Unit;
 
 import com.ak.comm.converter.DependentVariable;
+import com.ak.comm.converter.aper.AperInVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.Interpolators;
@@ -18,7 +19,7 @@ import com.ak.numbers.common.CommonCoefficients;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public enum AperOutVariable implements DependentVariable<AperInVariable, AperOutVariable> {
+public enum AperSinCosOutVariable implements DependentVariable<AperInVariable, AperSinCosOutVariable> {
   R1 {
     @Override
     public List<AperInVariable> getInputVariables() {
