@@ -15,6 +15,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
 
+import com.ak.digitalfilter.FilterBuilder;
 import com.ak.util.Strings;
 import org.apache.commons.math3.analysis.BivariateFunction;
 import org.apache.commons.math3.analysis.UnivariateFunction;
@@ -35,6 +36,10 @@ public enum Interpolators {
   Interpolators(@Nonnull UnivariateInterpolator interpolator, @Nonnegative int minPoints) {
     this.interpolator = interpolator;
     this.minPoints = minPoints;
+  }
+
+  public static <C extends Enum<C> & Coefficients> FilterBuilder asFilterBuilder(@Nonnull Class<C> coeffEnum) {
+    return FilterBuilder.of().biOperator(interpolator(coeffEnum));
   }
 
   public static <C extends Enum<C> & Coefficients> Provider<IntBinaryOperator> interpolator(@Nonnull Class<C> coeffEnum) {
@@ -79,6 +84,10 @@ public enum Interpolators {
         return (int) Math.round(f.value(Math.min(Math.max(x, 0), xs[xs.length - 1]), Math.min(Math.max(y, 0), ys[ys.length - 1])));
       }
     };
+  }
+
+  public static FilterBuilder asFilterBuilder(@Nonnull Coefficients coefficients) {
+    return FilterBuilder.of().operator(interpolator(coefficients));
   }
 
   public static Provider<IntUnaryOperator> interpolator(@Nonnull Coefficients coefficients) {

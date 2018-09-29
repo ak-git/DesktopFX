@@ -1,5 +1,6 @@
 package com.ak.comm.converter.rcm;
 
+import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -8,10 +9,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.BufferFrame;
+import com.ak.comm.converter.AbstractSplineCoefficientsChartApp;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.rcm.calibration.RcmCalibrationVariable;
+import com.ak.numbers.rcm.RcmSurfaceCoefficientsChannel1;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -40,7 +43,7 @@ public final class RcmConverterTest {
     return new Object[][] {
         {
             new byte[] {-10, -36, -125, -72, -5, -60, -125, -124, -111, -94, -7, -98, -127, -128, -5, -78, -127, -10, -127, -128},
-            new int[] {-274, 92, 0, 66, -158, 529, 0}},
+            new int[] {-274, 5442, 0, 66, -158, 31522, 0}},
     };
   }
 
@@ -51,12 +54,12 @@ public final class RcmConverterTest {
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 2000 - 1; i++) {
       long count = converter.apply(bufferFrame).count();
-      Assert.assertTrue(count == 0 || count == 9 || count == 10, Long.toString(count));
+      Assert.assertEquals(1, count, Long.toString(count));
     }
     Assert.assertEquals(converter.apply(bufferFrame).peek(ints -> {
       Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
       processed.set(true);
-    }).count(), 10);
+    }).count(), 1);
     Assert.assertTrue(processed.get(), "Data are not converted!");
     Assert.assertEquals(converter.getFrequency(), 200, 0.1);
   }
@@ -91,13 +94,18 @@ public final class RcmConverterTest {
   public static void testInputVariablesClass() {
     EnumSet.of(RHEO_1X, RHEO_2X, ECG_X).forEach(variable -> Assert.assertTrue(variable.options().isEmpty(), variable.options().toString()));
     EnumSet.allOf(RcmOutVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), RcmInVariable.class));
-    EnumSet.of(RHEO_1, RHEO_2).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MILLI(Units.OHM)));
-    EnumSet.of(BASE_1, BASE_2, QS_1, QS_2).forEach(variable -> Assert.assertEquals(variable.getUnit(), Units.OHM));
+    EnumSet.of(RHEO_1, RHEO_2, BASE_1, BASE_2).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MILLI(Units.OHM)));
+    EnumSet.of(QS_1, QS_2).forEach(variable -> Assert.assertEquals(variable.getUnit(), Units.OHM));
     EnumSet.of(ECG).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MILLI(Units.VOLT)));
     EnumSet.of(QS_1, QS_2).forEach(v -> Assert.assertEquals(v.options(), EnumSet.of(Variable.Option.TEXT_VALUE_BANNER), v.options().toString()));
 
     EnumSet.allOf(RcmCalibrationVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), RcmInVariable.class));
     EnumSet.of(CC_ADC, BASE_ADC, RHEO_ADC).forEach(v -> Assert.assertTrue(v.options().contains(Variable.Option.VISIBLE), v.options().toString()));
     EnumSet.of(MIN_RHEO_ADC, AVG_RHEO_ADC).forEach(v -> Assert.assertTrue(v.options().contains(Variable.Option.TEXT_VALUE_BANNER), v.options().toString()));
+  }
+
+  @Test(enabled = false)
+  public static void testSplineSurface1() throws IOException {
+    AbstractSplineCoefficientsChartApp.testSplineSurface1(RcmSurfaceCoefficientsChannel1.class);
   }
 }

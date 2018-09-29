@@ -97,11 +97,11 @@ public abstract class AbstractSplineCoefficientsChartApp<X extends Enum<X> & Var
 
     Supplier<DoubleStream> xVar = () -> intRange(surfaceCoeffClass, CoefficientsUtils::rangeX).asDoubleStream();
     Assert.assertTrue(xVar.get().mapToObj(sToL -> String.format("%.2f", sToL)).collect(
-        new LineFileCollector(Paths.get("x.txt"), LineFileCollector.Direction.HORIZONTAL)));
+        new LineFileCollector(Paths.get("x-CC-R.txt"), LineFileCollector.Direction.HORIZONTAL)));
 
     Supplier<DoubleStream> yVar = () -> intRange(surfaceCoeffClass, CoefficientsUtils::rangeY).asDoubleStream();
     Assert.assertTrue(yVar.get().mapToObj(sToL -> String.format("%.2f", sToL)).collect(
-        new LineFileCollector(Paths.get("y.txt"), LineFileCollector.Direction.VERTICAL)));
+        new LineFileCollector(Paths.get("y-ADC-R.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
   public static <C extends Enum<C> & Coefficients> void testSplineSurface2(Class<C> surfaceCoeffClass) throws IOException {

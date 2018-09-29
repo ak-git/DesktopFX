@@ -28,11 +28,7 @@ public enum AperInVariable implements Variable<AperInVariable> {
   E2,
   CCU2;
 
-  public static <C extends Enum<C> & Coefficients> DigitalFilter rheoFilter(Class<C> surfaceCoefficientsClass) {
-    return FilterBuilder.of().biOperator(Interpolators.interpolator(surfaceCoefficientsClass)).build();
-  }
-
   public static DigitalFilter ccrFilter(Coefficients c) {
-    return FilterBuilder.of().operator(Interpolators.interpolator(c)).smoothingImpulsive(10).build();
+    return Interpolators.asFilterBuilder(c).smoothingImpulsive(10).build();
   }
 }

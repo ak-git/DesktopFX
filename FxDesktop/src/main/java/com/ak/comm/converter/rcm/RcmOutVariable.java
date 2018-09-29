@@ -1,6 +1,8 @@
 package com.ak.comm.converter.rcm;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -8,10 +10,11 @@ import javax.measure.Unit;
 
 import com.ak.comm.converter.DependentVariable;
 import com.ak.digitalfilter.DigitalFilter;
-import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.Coefficients;
 import com.ak.numbers.Interpolators;
 import com.ak.numbers.rcm.RcmCoefficients;
+import com.ak.numbers.rcm.RcmSurfaceCoefficientsChannel1;
+import com.ak.numbers.rcm.RcmSurfaceCoefficientsChannel2;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
@@ -24,8 +27,18 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
   },
   BASE_1 {
     @Override
+    public List<RcmInVariable> getInputVariables() {
+      return Arrays.asList(RcmInVariable.QS_1, RcmInVariable.BASE_1);
+    }
+
+    @Override
     public Unit<?> getUnit() {
-      return Units.OHM;
+      return MetricPrefix.MILLI(Units.OHM);
+    }
+
+    @Override
+    public DigitalFilter filter() {
+      return Interpolators.asFilterBuilder(RcmSurfaceCoefficientsChannel1.class).build();
     }
   },
   QS_1 {
@@ -51,7 +64,17 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
     }
   },
   RHEO_2,
-  BASE_2,
+  BASE_2 {
+    @Override
+    public List<RcmInVariable> getInputVariables() {
+      return Arrays.asList(RcmInVariable.QS_2, RcmInVariable.BASE_2);
+    }
+
+    @Override
+    public DigitalFilter filter() {
+      return Interpolators.asFilterBuilder(RcmSurfaceCoefficientsChannel2.class).build();
+    }
+  },
   QS_2 {
     @Override
     public DigitalFilter filter() {
@@ -66,6 +89,6 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
   }
 
   private static DigitalFilter qOsFilter(Coefficients adcToOhm) {
-    return FilterBuilder.of().operator(Interpolators.interpolator(adcToOhm)).smoothingImpulsive(10).build();
+    return Interpolators.asFilterBuilder(adcToOhm).build();
   }
 }
