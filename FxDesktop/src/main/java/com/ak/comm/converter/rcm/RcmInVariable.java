@@ -11,7 +11,7 @@ public enum RcmInVariable implements Variable<RcmInVariable> {
   RHEO_1 {
     @Override
     public DigitalFilter filter() {
-      return toSignedFilter();
+      return toSignedFilter(-1);
     }
   },
   BASE_1,
@@ -19,7 +19,7 @@ public enum RcmInVariable implements Variable<RcmInVariable> {
   ECG {
     @Override
     public DigitalFilter filter() {
-      return toSignedFilter();
+      return toSignedFilter(1);
     }
   },
   BASE_2,
@@ -45,12 +45,12 @@ public enum RcmInVariable implements Variable<RcmInVariable> {
   QS_2;
 
 
-  static DigitalFilter toSignedFilter() {
+  static DigitalFilter toSignedFilter(int k) {
     return FilterBuilder.of().operator(() -> n -> {
       if ((n & 0x0800) == 0x0800) {
         n |= 0xfffff000;
       }
-      return n;
+      return k * n;
     }).build();
   }
 }
