@@ -29,7 +29,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
 
     @Override
     public Unit<?> getUnit() {
-      return MetricPrefix.MILLI(Units.OHM);
+      return MetricPrefix.MICRO(Units.OHM);
     }
 
     @Override
@@ -112,7 +112,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
 
   private static DigitalFilter getRheoFilter(Coefficients rheoAdcTo260Milli) {
     IntUnaryOperator rheo260ADC = Interpolators.interpolator(rheoAdcTo260Milli).get();
-    return FilterBuilder.of().biOperator(() -> (ccADC, rheoADC) -> (int) Math.round(260.0 * rheoADC / rheo260ADC.applyAsInt(ccADC))).build();
+    return FilterBuilder.of().biOperator(() -> (ccADC, rheoADC) -> (int) Math.round(260.0 * 1000.0 * rheoADC / rheo260ADC.applyAsInt(ccADC))).build();
   }
 
   private static DigitalFilter qOsFilter(Coefficients adcToOhm) {
