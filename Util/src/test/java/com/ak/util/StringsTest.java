@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 
 public class StringsTest {
   @DataProvider(name = "strings")
-  public static Object[][] aperCoefficients() {
+  public static Object[][] strings() {
     return new Object[][] {
         {"CC1_1_2", "2"},
         {"CC_12", "12"},
