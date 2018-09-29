@@ -1,5 +1,6 @@
 package com.ak.comm.converter.aper.sincos;
 
+import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -8,11 +9,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.BufferFrame;
+import com.ak.comm.converter.AbstractSplineCoefficientsChartApp;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.aper.AperInVariable;
+import com.ak.numbers.aper.sincos.AperSurfaceCoefficientsChannel1;
+import com.ak.numbers.aper.sincos.AperSurfaceCoefficientsChannel2;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -74,5 +78,15 @@ public final class AperSinCosConverterTest {
   @Test
   public static void testInputVariablesClass() {
     EnumSet.allOf(AperOutVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), AperInVariable.class));
+  }
+
+  @Test(enabled = false)
+  public static void testSplineSurface1() throws IOException {
+    AbstractSplineCoefficientsChartApp.testSplineSurface1(AperSurfaceCoefficientsChannel1.class);
+  }
+
+  @Test(enabled = false)
+  public static void testSplineSurface2() throws IOException {
+    AbstractSplineCoefficientsChartApp.testSplineSurface2(AperSurfaceCoefficientsChannel2.class);
   }
 }
