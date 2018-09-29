@@ -6,7 +6,6 @@ import com.ak.comm.converter.Variable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.Coefficients;
-import com.ak.numbers.Interpolators;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
@@ -29,6 +28,6 @@ public enum AperInVariable implements Variable<AperInVariable> {
   CCU2;
 
   public static DigitalFilter ccrFilter(Coefficients c) {
-    return Interpolators.asFilterBuilder(c).smoothingImpulsive(10).build();
+    return FilterBuilder.asFilterBuilder(c).smoothingImpulsive(10).build();
   }
 }
