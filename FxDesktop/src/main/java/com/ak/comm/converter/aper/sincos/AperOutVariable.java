@@ -11,7 +11,6 @@ import com.ak.comm.converter.DependentVariable;
 import com.ak.comm.converter.aper.AperInVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
-import com.ak.numbers.Interpolators;
 import com.ak.numbers.aper.sincos.AperCoefficients;
 import com.ak.numbers.aper.sincos.AperSurfaceCoefficientsChannel1;
 import com.ak.numbers.aper.sincos.AperSurfaceCoefficientsChannel2;
@@ -33,8 +32,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().biOperator(Interpolators.interpolator(AperSurfaceCoefficientsChannel1.class)).
-          smoothingImpulsive(10).build();
+      return AperInVariable.rheoFilter(AperSurfaceCoefficientsChannel1.class);
     }
   },
   ECG1 {
@@ -89,7 +87,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM_1)).smoothingImpulsive(10).build();
+      return AperInVariable.ccrFilter(AperCoefficients.ADC_TO_OHM_1);
     }
 
     @Override
@@ -106,8 +104,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().biOperator(Interpolators.interpolator(AperSurfaceCoefficientsChannel2.class)).
-          smoothingImpulsive(10).build();
+      return AperInVariable.rheoFilter(AperSurfaceCoefficientsChannel2.class);
     }
   },
   ECG2 {
@@ -130,7 +127,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM_2)).build();
+      return AperInVariable.ccrFilter(AperCoefficients.ADC_TO_OHM_2);
     }
   };
 

@@ -9,6 +9,7 @@ import javax.measure.Unit;
 import com.ak.comm.converter.DependentVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
+import com.ak.numbers.Coefficients;
 import com.ak.numbers.Interpolators;
 import com.ak.numbers.rcm.RcmCoefficients;
 import tec.uom.se.unit.MetricPrefix;
@@ -35,7 +36,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().operator(Interpolators.interpolator(RcmCoefficients.ADC_TO_OHM_1)).smoothingImpulsive(10).build();
+      return qOsFilter(RcmCoefficients.ADC_TO_OHM_1);
     }
 
     @Override
@@ -54,7 +55,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
   QS_2 {
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().operator(Interpolators.interpolator(RcmCoefficients.ADC_TO_OHM_2)).smoothingImpulsive(10).build();
+      return qOsFilter(RcmCoefficients.ADC_TO_OHM_2);
     }
   };
 
@@ -62,5 +63,9 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
   @Override
   public Class<RcmInVariable> getInputVariablesClass() {
     return RcmInVariable.class;
+  }
+
+  private static DigitalFilter qOsFilter(Coefficients adcToOhm) {
+    return FilterBuilder.of().operator(Interpolators.interpolator(adcToOhm)).smoothingImpulsive(10).build();
   }
 }

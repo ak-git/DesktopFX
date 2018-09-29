@@ -10,13 +10,14 @@ import javax.measure.Unit;
 import com.ak.comm.converter.DependentVariable;
 import com.ak.comm.converter.aper.AperInVariable;
 import com.ak.digitalfilter.DigitalFilter;
-import com.ak.digitalfilter.FilterBuilder;
-import com.ak.numbers.Interpolators;
 import com.ak.numbers.aper.sinsin.AperCoefficients;
 import com.ak.numbers.aper.sinsin.AperSurfaceCoefficientsChannel1;
 import com.ak.numbers.aper.sinsin.AperSurfaceCoefficientsChannel2;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
+
+import static com.ak.comm.converter.aper.AperInVariable.ccrFilter;
+import static com.ak.comm.converter.aper.AperInVariable.rheoFilter;
 
 public enum AperOutVariable implements DependentVariable<AperInVariable, AperOutVariable> {
   R1 {
@@ -32,7 +33,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().biOperator(Interpolators.interpolator(AperSurfaceCoefficientsChannel1.class)).build();
+      return rheoFilter(AperSurfaceCoefficientsChannel1.class);
     }
   },
   R2 {
@@ -43,7 +44,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().biOperator(Interpolators.interpolator(AperSurfaceCoefficientsChannel2.class)).build();
+      return rheoFilter(AperSurfaceCoefficientsChannel2.class);
     }
   },
   CCR {
@@ -59,7 +60,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM)).smoothingImpulsive(10).build();
+      return ccrFilter(AperCoefficients.ADC_TO_OHM);
     }
 
     @Override

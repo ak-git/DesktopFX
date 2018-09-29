@@ -5,6 +5,8 @@ import javax.measure.Unit;
 import com.ak.comm.converter.Variable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
+import com.ak.numbers.Coefficients;
+import com.ak.numbers.Interpolators;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
@@ -24,5 +26,13 @@ public enum AperInVariable implements Variable<AperInVariable> {
   CCU1,
   R2,
   E2,
-  CCU2
+  CCU2;
+
+  public static <C extends Enum<C> & Coefficients> DigitalFilter rheoFilter(Class<C> surfaceCoefficientsClass) {
+    return FilterBuilder.of().biOperator(Interpolators.interpolator(surfaceCoefficientsClass)).build();
+  }
+
+  public static DigitalFilter ccrFilter(Coefficients c) {
+    return FilterBuilder.of().operator(Interpolators.interpolator(c)).smoothingImpulsive(10).build();
+  }
 }
