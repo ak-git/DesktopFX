@@ -3,7 +3,7 @@
   <component name="FacetManager">
     <facet type="Spring" name="Spring">
       <configuration>
-        <fileset id="fileset3" name="aper" removed="false">
+        <fileset id="fileset3" name="aper-sincos" removed="false">
           <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/aper/context.xml</file>
         </fileset>
         <fileset id="fileset4" name="default" removed="false">
@@ -20,6 +20,9 @@
         </fileset>
         <fileset id="fileset" name="rcm-calibration" removed="false">
           <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/rcm/calibration/context.xml</file>
+        </fileset>
+        <fileset id="fileset2" name="aper-sinsin" removed="false">
+          <file>file://$MODULE_DIR$/../../../FxDesktop/src/main/resources/com/ak/fx/desktop/aper/sinsin/context.xml</file>
         </fileset>
       </configuration>
     </facet>

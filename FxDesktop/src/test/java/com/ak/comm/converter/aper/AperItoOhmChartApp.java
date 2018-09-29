@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 
 import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.AbstractSplineCoefficientsChartApp;
-import com.ak.comm.converter.aper.sincos.AperOutVariable;
+import com.ak.comm.converter.aper.sinsin.AperOutVariable;
 import com.ak.numbers.Coefficients;
 import com.ak.numbers.CoefficientsUtils;
 import com.ak.numbers.Interpolators;
@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  */
 public final class AperItoOhmChartApp extends AbstractSplineCoefficientsChartApp<ADCVariable, AperOutVariable> {
   public AperItoOhmChartApp() {
-    super(AperCoefficients.ADC_TO_OHM_1, ADCVariable.ADC, AperOutVariable.CCR1);
+    super(AperCoefficients.ADC_TO_OHM_1, ADCVariable.ADC, AperOutVariable.CCR);
   }
 
   public static void main(String[] args) {
