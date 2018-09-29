@@ -7,6 +7,6 @@ public enum OutputBuilders {
   ;
 
   public static LocalIO build(String fileName) {
-    return new OutputBuilder("txt").fileNameWithTime(fileName).build();
+    return new OutputBuilder("txt").addPathWithDate().fileNameWithDateTime(fileName).build();
   }
 }

@@ -110,7 +110,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
 
       Timeline timeline = new Timeline();
       timeline.getKeyFrames().add(new KeyFrame(Duration.millis(100), (ActionEvent actionEvent) -> {
-//        axisXController.scroll(-1000);
+        axisXController.scroll(-1000);
       }));
       timeline.setCycleCount(Animation.INDEFINITE);
       SequentialTransition animation;

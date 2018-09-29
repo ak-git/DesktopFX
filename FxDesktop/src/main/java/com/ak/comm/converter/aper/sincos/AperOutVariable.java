@@ -1,4 +1,4 @@
-package com.ak.comm.converter.aper;
+package com.ak.comm.converter.aper.sincos;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,12 +8,14 @@ import java.util.Set;
 import javax.measure.Unit;
 
 import com.ak.comm.converter.DependentVariable;
+import com.ak.comm.converter.aper.AperInVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.Interpolators;
-import com.ak.numbers.aper.AperCoefficients;
-import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
-import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
+import com.ak.numbers.aper.sincos.AperCoefficients;
+import com.ak.numbers.aper.sincos.AperSurfaceCoefficientsChannel1;
+import com.ak.numbers.aper.sincos.AperSurfaceCoefficientsChannel2;
+import com.ak.numbers.common.CommonCoefficients;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
@@ -31,8 +33,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().biOperator(Interpolators.interpolator(AperSurfaceCoefficientsChannel1.class)).
-          smoothingImpulsive(10).build();
+      return Interpolators.asFilterBuilder(AperSurfaceCoefficientsChannel1.class).build();
     }
   },
   ECG1 {
@@ -43,7 +44,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().fir(AperCoefficients.ECG).build();
+      return FilterBuilder.of().fir(CommonCoefficients.ECG).build();
     }
   },
   MYO1 {
@@ -71,7 +72,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
               0, 0, 0, 0,
               -0.8045548609183
           }
-      ).fir(AperCoefficients.MYO).build();
+      ).fir(CommonCoefficients.MYO).build();
     }
   },
   CCR1 {
@@ -87,7 +88,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM_1)).smoothingImpulsive(10).build();
+      return AperInVariable.ccrFilter(AperCoefficients.ADC_TO_OHM_1);
     }
 
     @Override
@@ -104,8 +105,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().biOperator(Interpolators.interpolator(AperSurfaceCoefficientsChannel2.class)).
-          smoothingImpulsive(10).build();
+      return Interpolators.asFilterBuilder(AperSurfaceCoefficientsChannel2.class).build();
     }
   },
   ECG2 {
@@ -128,7 +128,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().operator(Interpolators.interpolator(AperCoefficients.ADC_TO_OHM_2)).build();
+      return AperInVariable.ccrFilter(AperCoefficients.ADC_TO_OHM_2);
     }
   };
 

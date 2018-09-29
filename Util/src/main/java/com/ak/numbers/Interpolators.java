@@ -1,5 +1,6 @@
 package com.ak.numbers;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
@@ -15,6 +16,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.inject.Provider;
 
+import com.ak.digitalfilter.FilterBuilder;
 import com.ak.util.Strings;
 import org.apache.commons.math3.analysis.BivariateFunction;
 import org.apache.commons.math3.analysis.UnivariateFunction;
@@ -35,6 +37,10 @@ public enum Interpolators {
   Interpolators(@Nonnull UnivariateInterpolator interpolator, @Nonnegative int minPoints) {
     this.interpolator = interpolator;
     this.minPoints = minPoints;
+  }
+
+  public static <C extends Enum<C> & Coefficients> FilterBuilder asFilterBuilder(@Nonnull Class<C> coeffEnum) {
+    return FilterBuilder.of().biOperator(interpolator(coeffEnum));
   }
 
   public static <C extends Enum<C> & Coefficients> Provider<IntBinaryOperator> interpolator(@Nonnull Class<C> coeffEnum) {
@@ -81,6 +87,10 @@ public enum Interpolators {
     };
   }
 
+  public static FilterBuilder asFilterBuilder(@Nonnull Coefficients coefficients) {
+    return FilterBuilder.of().operator(interpolator(coefficients));
+  }
+
   public static Provider<IntUnaryOperator> interpolator(@Nonnull Coefficients coefficients) {
     double[][] pairs = coefficients.getPairs();
     return EnumSet.allOf(Interpolators.class).stream().filter(i -> pairs.length >= i.minPoints).findFirst().
@@ -96,12 +106,13 @@ public enum Interpolators {
   }
 
   private Provider<IntUnaryOperator> interpolate(@Nonnull double[][] coefficients) {
-    double[] xValues = new double[coefficients.length];
-    double[] yValues = new double[coefficients.length];
+    double[][] sorted = Arrays.stream(coefficients).sorted(Comparator.comparingDouble(o -> o[0])).toArray(value -> new double[value][0]);
+    double[] xValues = new double[sorted.length];
+    double[] yValues = new double[sorted.length];
 
     for (int i = 0; i < xValues.length; i++) {
-      xValues[i] = coefficients[i][0];
-      yValues[i] = coefficients[i][1];
+      xValues[i] = sorted[i][0];
+      yValues[i] = sorted[i][1];
     }
 
     return interpolate(xValues, yValues);

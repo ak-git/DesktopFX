@@ -82,6 +82,7 @@ public class VariableTest {
 
   @Test
   public static void testVisibleProperty() {
+    Assert.assertTrue(SingleVariables.E1.options().contains(Variable.Option.VISIBLE));
     Assert.assertTrue(OperatorVariables.OUT_PLUS.options().contains(Variable.Option.VISIBLE));
     Assert.assertEquals(OperatorVariables.OUT_PLUS.indexBy(Variable.Option.VISIBLE), 0);
     Assert.assertFalse(OperatorVariables.OUT_MINUS.options().contains(Variable.Option.VISIBLE));

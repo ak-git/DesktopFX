@@ -59,5 +59,6 @@ public final class AperCalibrationConverterTest {
     EnumSet.allOf(AperCalibrationVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), AperInVariable.class));
     EnumSet.complementOf(EnumSet.of(AperCalibrationVariable.PU)).forEach(variable -> Assert.assertEquals(variable.options(),
         EnumSet.of(Variable.Option.TEXT_VALUE_BANNER), variable.name()));
+    Assert.assertEquals(AperCalibrationVariable.PU.options(), EnumSet.of(Variable.Option.VISIBLE));
   }
 }

@@ -70,6 +70,10 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
       return this;
     }
 
+    public final AbstractBuilder addPathWithDate() {
+      return addPath(localDate("yyyy-MMM-dd"));
+    }
+
     public final AbstractBuilder fileName(@Nonnull String fileName) {
       this.fileName = fileName;
       if (!fileExtension.isEmpty()) {
@@ -78,7 +82,7 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
       return this;
     }
 
-    public final AbstractBuilder fileNameWithTime(@Nonnull String prefix) {
+    public final AbstractBuilder fileNameWithDateTime(@Nonnull String prefix) {
       fileName(prefix + localDate(" yyyy-MMM-dd HH-mm-ss"));
       return this;
     }

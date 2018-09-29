@@ -5,6 +5,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Properties;
@@ -118,8 +119,8 @@ public final class FxApplication extends Application {
       keys.load(in);
       Path path = new LogPathBuilder().addPath(getApplicationFullName(keys.getProperty(KEY_APPLICATION_TITLE, Strings.EMPTY))).
           fileName(LOGGING_PROPERTIES).build().getPath();
-      if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
-        Files.copy(FxApplication.class.getResourceAsStream(LOGGING_PROPERTIES), path);
+      if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS) || !PropertiesSupport.CACHE.check()) {
+        Files.copy(FxApplication.class.getResourceAsStream(LOGGING_PROPERTIES), path, StandardCopyOption.REPLACE_EXISTING);
       }
       System.setProperty("java.util.logging.config.file", path.toAbsolutePath().toString());
       Logger.getLogger(FxApplication.class.getName()).log(Level.INFO, path.toAbsolutePath().toString());

@@ -13,7 +13,7 @@ import static java.util.logging.Level.WARNING;
 
 public class ConverterTest {
   private static final Converter<Integer, TwoVariables> INVALID_CONVERTER =
-      new AbstractConverter<Integer, TwoVariables>(TwoVariables.class, 200) {
+      new AbstractConverter<>(TwoVariables.class, 200) {
         @Override
         protected Stream<int[]> innerApply(@Nonnull Integer integer) {
           return Stream.of(new int[] {integer});
@@ -21,7 +21,7 @@ public class ConverterTest {
       };
   private static final Logger LOGGER_INVALID = Logger.getLogger(INVALID_CONVERTER.getClass().getName());
   private static final Converter<Integer, ADCVariable> VALID_CONVERTER_0 =
-      new AbstractConverter<Integer, ADCVariable>(ADCVariable.class, 1000) {
+      new AbstractConverter<>(ADCVariable.class, 1000) {
         @Override
         protected Stream<int[]> innerApply(@Nonnull Integer integer) {
           return Stream.empty();

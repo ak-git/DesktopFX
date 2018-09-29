@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":Communication:main" external.linked.project.path="$MODULE_DIR$/../../../Communication" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.ak" external.system.module.type="sourceSet" external.system.module.version="2018.3" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":Communication:main" external.linked.project.path="$MODULE_DIR$/../../../Communication" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.ak" external.system.module.type="sourceSet" external.system.module.version="2018.4" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_10">
     <output url="file://$MODULE_DIR$/../../../Communication/out/production/classes" />
     <exclude-output />
@@ -11,7 +11,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Util_main" />
     <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
-    <orderEntry type="library" name="Gradle: com.github.spotbugs:spotbugs:3.1.6" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.spotbugs:spotbugs:3.1.7" level="project" />
     <orderEntry type="library" name="Gradle: org.scream3r:jssc:2.8.0" level="project" />
     <orderEntry type="library" name="Gradle: org.ow2.asm:asm-commons:6.2" level="project" />
     <orderEntry type="library" name="Gradle: org.ow2.asm:asm-xml:6.2" level="project" />
@@ -24,8 +24,7 @@
     <orderEntry type="library" name="Gradle: org.dom4j:dom4j:2.1.0" level="project" />
     <orderEntry type="library" name="Gradle: jaxen:jaxen:1.1.6" level="project" />
     <orderEntry type="library" name="Gradle: commons-lang:commons-lang:2.6" level="project" />
-    <orderEntry type="library" name="Gradle: com.google.code.findbugs:jFormatString:3.0.0" level="project" />
-    <orderEntry type="library" name="Gradle: com.github.spotbugs:spotbugs-annotations:3.1.6" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.spotbugs:spotbugs-annotations:3.1.7" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-math3:3.6.1" level="project" />
     <orderEntry type="library" name="Gradle: tec.uom:uom-se:1.0.9" level="project" />
     <orderEntry type="library" name="Gradle: org.glassfish:javax.json:1.1.2" level="project" />
