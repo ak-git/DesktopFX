@@ -15,13 +15,13 @@ import tec.uom.se.AbstractUnit;
 
 public interface Variable<E extends Enum<E> & Variable<E>> {
   enum Option {
-    VISIBLE, FORCE_ZERO_IN_RANGE, TEXT_VALUE_BANNER;
+    VISIBLE, TEXT_VALUE_BANNER, INVERSE, FORCE_ZERO_IN_RANGE;
 
     static Set<Option> defaultOptions() {
       return EnumSet.of(VISIBLE);
     }
 
-    public static Set<Option> addToDefault(@Nonnull Option option) {
+    public static Set<Option> addToDefault(@Nonnull Option... option) {
       return EnumSet.of(VISIBLE, option);
     }
   }

@@ -36,6 +36,11 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
     public DigitalFilter filter() {
       return getRheoFilter(RcmCoefficients.RHEO_ADC_TO_260_MILLI_1);
     }
+
+    @Override
+    public Set<Option> options() {
+      return Option.addToDefault(Option.INVERSE, Option.FORCE_ZERO_IN_RANGE);
+    }
   },
   BASE_1 {
     @Override

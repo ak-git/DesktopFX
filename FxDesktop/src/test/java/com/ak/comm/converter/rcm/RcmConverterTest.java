@@ -98,6 +98,8 @@ public final class RcmConverterTest {
     EnumSet.of(RHEO_1X, RHEO_2X, ECG_X).forEach(variable -> Assert.assertTrue(variable.options().isEmpty(), variable.options().toString()));
     EnumSet.allOf(RcmOutVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), RcmInVariable.class));
     EnumSet.of(RHEO_1, RHEO_2).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MICRO(Units.OHM)));
+    EnumSet.of(RHEO_1, RHEO_2).forEach(variable -> Assert.assertTrue(variable.options().contains(Variable.Option.INVERSE)));
+    EnumSet.of(RHEO_1, RHEO_2).forEach(variable -> Assert.assertTrue(variable.options().contains(Variable.Option.FORCE_ZERO_IN_RANGE)));
     EnumSet.of(BASE_1, BASE_2).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MILLI(Units.OHM)));
     EnumSet.of(QS_1, QS_2).forEach(variable -> Assert.assertEquals(variable.getUnit(), Units.OHM));
     EnumSet.of(ECG).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MILLI(Units.VOLT)));
