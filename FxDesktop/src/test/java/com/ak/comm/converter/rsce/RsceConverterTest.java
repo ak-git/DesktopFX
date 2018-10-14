@@ -12,14 +12,14 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.bytes.rsce.RsceTestDataProvider;
 import com.ak.comm.converter.Converter;
-import com.ak.comm.util.LogUtils;
+import com.ak.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import tec.uom.se.AbstractUnit;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-import static com.ak.comm.util.LogUtils.LOG_LEVEL_VALUES;
+import static com.ak.util.LogUtils.LOG_LEVEL_VALUES;
 
 public class RsceConverterTest {
   private static final Logger LOGGER = Logger.getLogger(RsceConverter.class.getName());

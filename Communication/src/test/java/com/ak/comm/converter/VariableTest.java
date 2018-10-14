@@ -9,7 +9,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.measure.Unit;
 
-import com.ak.comm.util.LogUtils;
+import com.ak.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
