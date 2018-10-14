@@ -64,13 +64,17 @@ public class ResistanceTwoLayerTest {
   @DataProvider(name = "rho1")
   public static Object[][] rho1Parameters() {
     return new Object[][] {
-        {10.0, 10.0, 50.0, 9.616},
-        {10.0, 30.0, 50.0, 33.666},
+        {10.0, 10.0, 50.0, 9.616, 0.74},
+        {10.0, 30.0, 50.0, 33.666, 0.73},
+
+        {10.0, 10.0, 50.0, 9.782, 0.76},
+        {10.0, 30.0, 50.0, 33.669, 0.73},
     };
   }
 
-  @Test(dataProvider = "rho1", enabled = false)
-  public void testInverseRho1(@Nonnegative double hmm, @Nonnegative double sPUmm, @Nonnegative double lCCmm, @Nonnegative double rOhmActual) {
+  @Test(dataProvider = "rho1")
+  public void testInverseRho1(@Nonnegative double hmm, @Nonnegative double sPUmm, @Nonnegative double lCCmm,
+                              @Nonnegative double rOhmActual, @Nonnegative double rho1Expected) {
     TetrapolarSystem electrodeSystem = new TetrapolarSystem(sPUmm, lCCmm, MILLI(METRE));
 
     ToDoubleFunction<TetrapolarSystem> findRho1 = electrode -> SimplexTest.optimizeNelderMead(new MultivariateFunction() {
@@ -84,6 +88,7 @@ public class ResistanceTwoLayerTest {
 
     double[] doubles = Arrays.stream(electrodeSystem.newWithError(0.1, MILLI(METRE))).mapToDouble(findRho1).toArray();
     double center = findRho1.applyAsDouble(electrodeSystem);
-    Logger.getAnonymousLogger().info(String.format("%.3f +%.3f/-%.3f", center, doubles[0] - center, center - doubles[1]));
+    Logger.getAnonymousLogger().config(String.format("%.3f +%.3f/-%.3f", center, doubles[0] - center, center - doubles[1]));
+    Assert.assertEquals(center, rho1Expected, 0.01);
   }
 }
