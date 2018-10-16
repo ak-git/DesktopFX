@@ -11,13 +11,12 @@ import com.ak.comm.converter.DependentVariable;
 import com.ak.comm.converter.aper.AperInVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
+import com.ak.numbers.aper.AperRheoCoefficients;
 import com.ak.numbers.aper.sinsin.AperCoefficients;
 import com.ak.numbers.aper.sinsin.AperSurfaceCoefficientsChannel1;
 import com.ak.numbers.aper.sinsin.AperSurfaceCoefficientsChannel2;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
-
-import static com.ak.comm.converter.aper.AperInVariable.ccrFilter;
 
 public enum AperOutVariable implements DependentVariable<AperInVariable, AperOutVariable> {
   R1 {
@@ -33,7 +32,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel1.class).build();
+      return AperOutVariable.filter(FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel1.class));
     }
   },
   R2 {
@@ -44,7 +43,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel2.class).build();
+      return AperOutVariable.filter(FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel2.class));
     }
   },
   CCR {
@@ -60,7 +59,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return ccrFilter(AperCoefficients.ADC_TO_OHM);
+      return AperOutVariable.filter(FilterBuilder.asFilterBuilder(AperCoefficients.ADC_TO_OHM));
     }
 
     @Override
@@ -72,5 +71,14 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
   @Override
   public final Class<AperInVariable> getInputVariablesClass() {
     return AperInVariable.class;
+  }
+
+  private static DigitalFilter filter(FilterBuilder filterBuilder) {
+    return filterBuilder.smoothingImpulsive(12)
+        .decimate(AperRheoCoefficients.F_1000_32_200, 4)
+        .decimate(AperRheoCoefficients.F_250_32_75, 2)
+        .fir(AperRheoCoefficients.F_125_32_50)
+        .interpolate(2, AperRheoCoefficients.F_250_32_75)
+        .interpolate(4, AperRheoCoefficients.F_1000_32_200).build();
   }
 }

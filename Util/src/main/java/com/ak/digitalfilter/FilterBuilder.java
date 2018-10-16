@@ -181,6 +181,14 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return of().operator(Interpolators.interpolator(coefficients));
   }
 
+  public FilterBuilder decimate(@Nonnull Provider<double[]> coefficients, @Nonnegative int decimateFactor) {
+    return chain(new FIRFilter(coefficients.get())).chain(new DecimationFilter(decimateFactor));
+  }
+
+  public FilterBuilder interpolate(@Nonnegative int interpolateFactor, @Nonnull Provider<double[]> coefficients) {
+    return chain(new InterpolationFilter(interpolateFactor)).chain(new FIRFilter(coefficients.get()));
+  }
+
   FilterBuilder decimate(@Nonnegative int decimateFactor) {
     int combFactor = Math.max(decimateFactor / 2, 1);
     return wrap("LinearDecimationFilter",
