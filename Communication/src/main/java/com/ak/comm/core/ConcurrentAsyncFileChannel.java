@@ -15,7 +15,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ak.comm.util.LogUtils;
+import com.ak.util.LogUtils;
 
 public final class ConcurrentAsyncFileChannel implements Closeable {
   @Nonnull

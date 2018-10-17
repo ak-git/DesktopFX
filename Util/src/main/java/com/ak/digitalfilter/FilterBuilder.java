@@ -16,7 +16,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Provider;
 
+import com.ak.numbers.Coefficients;
 import com.ak.numbers.CoefficientsUtils;
+import com.ak.numbers.Interpolators;
 import javafx.util.Builder;
 
 public class FilterBuilder implements Builder<DigitalFilter> {
@@ -169,6 +171,22 @@ public class FilterBuilder implements Builder<DigitalFilter> {
 
   public FilterBuilder peakToPeak(@Nonnegative int size) {
     return chain(new PeakToPeakFilter(size));
+  }
+
+  public static <C extends Enum<C> & Coefficients> FilterBuilder asFilterBuilder(@Nonnull Class<C> coeffEnum) {
+    return of().biOperator(Interpolators.interpolator(coeffEnum));
+  }
+
+  public static FilterBuilder asFilterBuilder(@Nonnull Coefficients coefficients) {
+    return of().operator(Interpolators.interpolator(coefficients));
+  }
+
+  public FilterBuilder decimate(@Nonnull Provider<double[]> coefficients, @Nonnegative int decimateFactor) {
+    return chain(new FIRFilter(coefficients.get())).chain(new DecimationFilter(decimateFactor));
+  }
+
+  public FilterBuilder interpolate(@Nonnegative int interpolateFactor, @Nonnull Provider<double[]> coefficients) {
+    return chain(new InterpolationFilter(interpolateFactor)).chain(new FIRFilter(coefficients.get()));
   }
 
   FilterBuilder decimate(@Nonnegative int decimateFactor) {

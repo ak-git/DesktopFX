@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ak.comm.util.LogUtils;
+import com.ak.util.LogUtils;
 
 public enum NmisAddress {
   SINGLE(0x81, 0x91),

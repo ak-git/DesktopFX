@@ -15,7 +15,6 @@ public class CommonCoefficientsTest {
   @DataProvider(name = "coefficients")
   public static Object[][] coefficients() {
     return new Object[][] {
-        {CommonCoefficients.RHEO, 61},
         {CommonCoefficients.MYO, 61},
         {CommonCoefficients.ECG, 61},
     };

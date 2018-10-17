@@ -3,7 +3,6 @@ package com.ak.storage;
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -59,7 +58,7 @@ public final class LocalStorage<T> extends AbstractStorage<T> {
     try {
       Files.deleteIfExists(BUILDER.fileName(fileName()).build().getPath());
     }
-    catch (IOException e) {
+    catch (Exception e) {
       warning(e);
     }
   }
@@ -80,7 +79,7 @@ public final class LocalStorage<T> extends AbstractStorage<T> {
         }
       }
     }
-    catch (IOException e) {
+    catch (Exception e) {
       warning(e);
     }
   }
@@ -95,7 +94,7 @@ public final class LocalStorage<T> extends AbstractStorage<T> {
         out.write(bst.toByteArray());
       }
     }
-    catch (IOException e) {
+    catch (Exception e) {
       warning(e);
     }
   }

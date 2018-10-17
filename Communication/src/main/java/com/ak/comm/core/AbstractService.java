@@ -5,9 +5,9 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
-import com.ak.comm.util.LogUtils;
+import com.ak.util.LogUtils;
 
-import static com.ak.comm.util.LogUtils.LOG_LEVEL_BYTES;
+import static com.ak.util.LogUtils.LOG_LEVEL_BYTES;
 
 public abstract class AbstractService implements AutoCloseable {
   private final Logger logger = Logger.getLogger(getClass().getName());

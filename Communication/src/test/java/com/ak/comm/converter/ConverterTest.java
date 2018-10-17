@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
-import com.ak.comm.util.LogUtils;
+import com.ak.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

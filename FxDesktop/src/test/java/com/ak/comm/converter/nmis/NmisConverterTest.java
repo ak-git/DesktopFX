@@ -9,13 +9,13 @@ import com.ak.comm.bytes.nmis.NmisResponseFrame;
 import com.ak.comm.bytes.nmis.NmisTestProvider;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variables;
-import com.ak.comm.util.LogUtils;
+import com.ak.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-import static com.ak.comm.util.LogUtils.LOG_LEVEL_VALUES;
+import static com.ak.util.LogUtils.LOG_LEVEL_VALUES;
 
 public class NmisConverterTest {
   private static final Logger LOGGER = Logger.getLogger(NmisConverter.class.getName());
