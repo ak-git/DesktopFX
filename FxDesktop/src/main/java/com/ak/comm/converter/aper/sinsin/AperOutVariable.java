@@ -74,7 +74,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
   }
 
   private static DigitalFilter filter(FilterBuilder filterBuilder) {
-    return filterBuilder.smoothingImpulsive(12)
+    return filterBuilder
         .decimate(AperRheoCoefficients.F_1000_32_200, 4)
         .decimate(AperRheoCoefficients.F_250_32_75, 2)
         .fir(AperRheoCoefficients.F_125_32_50)
