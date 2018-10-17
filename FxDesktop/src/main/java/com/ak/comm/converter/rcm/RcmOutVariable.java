@@ -36,6 +36,11 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
     public DigitalFilter filter() {
       return getRheoFilter(RcmCoefficients.RHEO_ADC_TO_260_MILLI_1);
     }
+
+    @Override
+    public Set<Option> options() {
+      return Option.addToDefault(Option.INVERSE, Option.FORCE_ZERO_IN_RANGE);
+    }
   },
   BASE_1 {
     @Override
@@ -50,7 +55,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
 
     @Override
     public DigitalFilter filter() {
-      return Interpolators.asFilterBuilder(RcmBaseSurfaceCoefficientsChannel1.class).build();
+      return FilterBuilder.asFilterBuilder(RcmBaseSurfaceCoefficientsChannel1.class).build();
     }
   },
   QS_1 {
@@ -94,7 +99,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
 
     @Override
     public DigitalFilter filter() {
-      return Interpolators.asFilterBuilder(RcmBaseSurfaceCoefficientsChannel2.class).build();
+      return FilterBuilder.asFilterBuilder(RcmBaseSurfaceCoefficientsChannel2.class).build();
     }
   },
   QS_2 {
@@ -116,6 +121,6 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
   }
 
   private static DigitalFilter qOsFilter(Coefficients adcToOhm) {
-    return Interpolators.asFilterBuilder(adcToOhm).build();
+    return FilterBuilder.asFilterBuilder(adcToOhm).build();
   }
 }

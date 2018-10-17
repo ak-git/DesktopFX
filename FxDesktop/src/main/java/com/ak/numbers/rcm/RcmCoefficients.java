@@ -39,7 +39,7 @@ public enum RcmCoefficients implements Coefficients {
   String readRheo260Calibration(@Nonnull JsonObject object) {
     String channel = String.format("Channel-%s", Strings.numberSuffix(name()));
     return object.getJsonObject("Rheo 0.26 Ohm : ADC{CurrentCarrying, Rheo}").getJsonObject(channel).entrySet().stream()
-        .map(entry -> String.format("%s\t%s", entry.getValue(), entry.getKey()))
+        .map(entry -> String.format("%s\t%s", entry.getKey(), entry.getValue()))
         .collect(Collectors.joining(Strings.NEW_LINE));
   }
 }

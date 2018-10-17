@@ -30,7 +30,7 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.logging.LogBuilders;
 import com.ak.util.PropertiesSupport;
 
-import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
+import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
 
 final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
     extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Flow.Subscription {

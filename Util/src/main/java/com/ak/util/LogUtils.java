@@ -1,4 +1,4 @@
-package com.ak.comm.util;
+package com.ak.util;
 
 import java.nio.ByteBuffer;
 import java.util.Objects;

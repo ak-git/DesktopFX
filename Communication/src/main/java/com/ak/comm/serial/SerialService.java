@@ -28,7 +28,7 @@ import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
 
-import static com.ak.comm.util.LogUtils.LOG_LEVEL_ERRORS;
+import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
 
 final class SerialService extends AbstractService implements WritableByteChannel, Flow.Publisher<ByteBuffer>, Refreshable, Flow.Subscription {
   private static final Logger LOGGER = Logger.getLogger(SerialService.class.getName());

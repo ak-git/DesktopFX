@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 
-import static com.ak.comm.util.LogUtils.LOG_LEVEL_VALUES;
+import static com.ak.util.LogUtils.LOG_LEVEL_VALUES;
 
 public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable<EV>> implements Converter<RESPONSE, EV> {
   @Nonnull

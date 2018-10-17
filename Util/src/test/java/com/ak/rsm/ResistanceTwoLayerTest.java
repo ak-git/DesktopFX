@@ -1,6 +1,16 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
+import java.util.function.ToDoubleFunction;
+import java.util.logging.Logger;
+
+import javax.annotation.Nonnegative;
+
+import com.ak.inverse.Inequality;
+import com.ak.math.SimplexTest;
 import com.ak.util.Metrics;
+import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -49,5 +59,40 @@ public class ResistanceTwoLayerTest {
   @Test(expectedExceptions = CloneNotSupportedException.class)
   public static void testNotClone() throws CloneNotSupportedException {
     new ResistanceTwoLayer(new TetrapolarSystem(1, 2, MILLI(METRE))).clone();
+  }
+
+  @DataProvider(name = "rho1")
+  public static Object[][] rho1Parameters() {
+    return new Object[][] {
+        {10.0, 10.0, 50.0, 9.616,
+            0.74},
+        {10.0, 30.0, 50.0, 33.666,
+            0.73},
+
+        {10.0, 10.0, 50.0, 9.782,
+            0.76},
+        {10.0, 30.0, 50.0, 33.669,
+            0.73},
+    };
+  }
+
+  @Test(dataProvider = "rho1")
+  public void testInverseRho1(@Nonnegative double hmm, @Nonnegative double sPUmm, @Nonnegative double lCCmm,
+                              @Nonnegative double rOhmActual, @Nonnegative double rho1Expected) {
+    TetrapolarSystem electrodeSystem = new TetrapolarSystem(sPUmm, lCCmm, MILLI(METRE));
+
+    ToDoubleFunction<TetrapolarSystem> findRho1 = electrode -> SimplexTest.optimizeNelderMead(new MultivariateFunction() {
+      private final TrivariateFunction resistancePredicted = new ResistanceTwoLayer(electrode);
+
+      @Override
+      public double value(double[] rho1) {
+        return Inequality.logDifference().applyAsDouble(rOhmActual, resistancePredicted.value(rho1[0], Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)));
+      }
+    }, new double[] {electrodeSystem.getApparent(rOhmActual)}, new double[] {0.001}).getPoint()[0];
+
+    double[] doubles = Arrays.stream(electrodeSystem.newWithError(0.1, MILLI(METRE))).mapToDouble(findRho1).toArray();
+    double center = findRho1.applyAsDouble(electrodeSystem);
+    Logger.getAnonymousLogger().config(String.format("%.3f +%.3f/-%.3f", center, doubles[0] - center, center - doubles[1]));
+    Assert.assertEquals(center, rho1Expected, 0.01);
   }
 }

@@ -1,9 +1,12 @@
 package com.ak.numbers.rcm;
 
+import java.util.function.IntUnaryOperator;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.numbers.Coefficients;
+import com.ak.numbers.Interpolators;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -25,6 +28,10 @@ public class RcmCoefficientsTest {
   @Test
   public static void testCoefficients() {
     Assert.assertEquals(RcmCoefficients.values().length, 4);
+
+    IntUnaryOperator rheo260ADC = Interpolators.interpolator(RcmCoefficients.RHEO_ADC_TO_260_MILLI_1).get();
+    Assert.assertEquals(rheo260ADC.applyAsInt(100), 1054);
+    Assert.assertEquals(rheo260ADC.applyAsInt(1300), 911);
   }
 
   @Test(dataProvider = "rcm-coefficients")

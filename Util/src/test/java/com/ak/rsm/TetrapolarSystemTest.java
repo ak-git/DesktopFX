@@ -3,9 +3,12 @@ package com.ak.rsm;
 import java.io.IOException;
 import java.util.stream.DoubleStream;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.measure.Quantity;
+import javax.measure.Unit;
 import javax.measure.quantity.ElectricResistance;
+import javax.measure.quantity.Length;
 
 import com.ak.util.LineFileBuilder;
 import org.testng.Assert;
@@ -76,11 +79,22 @@ public class TetrapolarSystemTest {
   @DataProvider(name = "tetrapolar-systems-with-error")
   public static Object[][] tetrapolarSystemsWithError() {
     return new Object[][] {
-        {new TetrapolarSystem(2.0, 3.0, METRE), new TetrapolarSystem(2000.0 + 10, 3000.0 - 10.0, MILLI(METRE)),
-            Quantities.getQuantity(10.0, MILLI(METRE))},
-        {new TetrapolarSystem(2.0, 3.0, METRE), new TetrapolarSystem(2.0 - 0.010, 3.0 + 0.010, METRE),
-            Quantities.getQuantity(-10.0, MILLI(METRE))},
+        {2.0, 3.0, METRE, Quantities.getQuantity(10.0, MILLI(METRE))},
+        {2000.0, 3000.0, MILLI(METRE), Quantities.getQuantity(0.1, METRE)},
     };
+  }
+
+  @Test(dataProvider = "tetrapolar-systems-with-error")
+  public static void testWithError(@Nonnegative double sPU, @Nonnegative double lCC, @Nonnull Unit<Length> unit, @Nonnull Quantity<Length> quantity) {
+    TetrapolarSystem[] systems = new TetrapolarSystem(sPU, lCC, unit).newWithError(quantity.getValue().doubleValue(), quantity.getUnit());
+    double error = quantity.to(unit).getValue().doubleValue();
+    Assert.assertEquals(systems[0], new TetrapolarSystem(sPU - error, lCC + error, unit));
+    Assert.assertEquals(systems[1], new TetrapolarSystem(sPU + error, lCC - error, unit));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public static void testInvalidConstructorError() {
+    new TetrapolarSystem(1.0, 2.0, METRE).newWithError(0.0, METRE);
   }
 
   @Test

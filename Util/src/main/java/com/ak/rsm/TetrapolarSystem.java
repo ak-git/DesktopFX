@@ -1,6 +1,7 @@
 package com.ak.rsm;
 
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -68,6 +69,18 @@ final class TetrapolarSystem {
     return String.format("%s x %s",
         Quantities.getQuantity(sPotentialUnitSI, METRE).to(MILLI(METRE)),
         Quantities.getQuantity(lCurrentCarryingSI, METRE).to(MILLI(METRE)));
+  }
+
+  TetrapolarSystem[] newWithError(@Nonnegative double dlCC, @Nonnull Unit<Length> unit) {
+    if (Double.compare(dlCC, 0.0) == 0) {
+      throw new IllegalArgumentException("dL == 0");
+    }
+
+    return IntStream.of(1, -1).mapToObj(dLSign -> {
+          var error = toDouble(dlCC, unit) * dLSign;
+          return new TetrapolarSystem(sPotentialUnitSI - error, lCurrentCarryingSI + error, METRE);
+        }
+    ).toArray(TetrapolarSystem[]::new);
   }
 
   private static double toDouble(@Nonnegative double sPU, @Nonnull Unit<Length> unit) {

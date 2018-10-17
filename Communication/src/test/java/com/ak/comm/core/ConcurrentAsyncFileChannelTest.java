@@ -12,7 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ak.comm.logging.LogBuilders;
-import com.ak.comm.util.LogUtils;
+import com.ak.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

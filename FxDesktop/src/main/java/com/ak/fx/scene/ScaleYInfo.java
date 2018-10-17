@@ -18,7 +18,12 @@ public final class ScaleYInfo<EV extends Enum<EV> & Variable<EV>> implements Int
   private ScaleYInfo(@Nonnull Builder<EV> builder) {
     variable = builder.variable;
     mean = builder.mean;
-    scaleFactor = builder.scaleFactor;
+    if (variable.options().contains(Variable.Option.INVERSE)) {
+      scaleFactor = -builder.scaleFactor;
+    }
+    else {
+      scaleFactor = builder.scaleFactor;
+    }
     scaleFactor10 = builder.scaleFactor10;
   }
 

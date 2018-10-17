@@ -15,7 +15,7 @@ import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
 public enum CommonCoefficients implements Coefficients {
-  RHEO, MYO, ECG;
+  MYO, ECG;
 
   public static String readCurrentCarryingCalibration(@Nonnull JsonObject object) {
     return object.getJsonObject("Current-carrying electrodes, Ohm : ADC").entrySet().stream()

@@ -31,7 +31,17 @@ public class SimpleFilterTest {
         new int[] {9, 9},
         0.0
     }, {
+        FilterBuilder.of().decimate(() -> new double[] {1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0}, 3).build(),
+        new int[] {9, 9, 9, 9, 9, 9},
+        new int[] {9, 9},
+        0.0
+    }, {
         FilterBuilder.of().interpolate(3).build(),
+        new int[] {9, 9, 9},
+        new int[] {3, 6, 9, 9, 9, 9, 9, 9, 9},
+        1.0
+    }, {
+        FilterBuilder.of().interpolate(3, () -> new double[] {1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0}).build(),
         new int[] {9, 9, 9},
         new int[] {3, 6, 9, 9, 9, 9, 9, 9, 9},
         1.0

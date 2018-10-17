@@ -23,7 +23,10 @@ public final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
     }
 
     int meanScaleFactor10 = scaleFactor10(mmHeight, intSummaryStatistics.getMax() - intSummaryStatistics.getMin()) * 10;
-    int mean = (int) Math.rint((intSummaryStatistics.getMax() + intSummaryStatistics.getMin()) / 2.0 / meanScaleFactor10) * meanScaleFactor10;
+    int mean = 0;
+    if (!variable.options().contains(Variable.Option.FORCE_ZERO_IN_RANGE)) {
+      mean = (int) Math.rint((intSummaryStatistics.getMax() + intSummaryStatistics.getMin()) / 2.0 / meanScaleFactor10) * meanScaleFactor10;
+    }
     int signalRange = Math.max(Math.abs(intSummaryStatistics.getMax() - mean), Math.abs(intSummaryStatistics.getMin() - mean)) * 2;
     return new ScaleYInfo.Builder<>(variable).mean(mean).
         scaleFactor(optimizeScaleY(mmHeight, signalRange)).

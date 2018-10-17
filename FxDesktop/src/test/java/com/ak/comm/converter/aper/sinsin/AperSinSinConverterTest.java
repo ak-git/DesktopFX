@@ -36,7 +36,7 @@ public final class AperSinSinConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {57024, 301400, 1429}},
+            new int[] {56904, 300767, 1427}},
     };
   }
 
@@ -47,13 +47,18 @@ public final class AperSinSinConverterTest {
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 2000 - 1; i++) {
-      long count = converter.apply(bufferFrame).count();
-      Assert.assertTrue(count == 0 || count == 1 || count == 10, Long.toString(count));
+      int finalI = i;
+      long count = converter.apply(bufferFrame).peek(ints -> {
+        if (finalI > 1900) {
+          Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
+          processed.set(true);
+        }
+      }).count();
+      if (processed.get()) {
+        Assert.assertEquals(count, 8);
+        break;
+      }
     }
-    Assert.assertEquals(converter.apply(bufferFrame).peek(ints -> {
-      Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
-      processed.set(true);
-    }).count(), 10);
     Assert.assertTrue(processed.get(), "Data are not converted!");
     Assert.assertEquals(converter.getFrequency(), 1000, 0.1);
   }
