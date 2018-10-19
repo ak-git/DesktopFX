@@ -44,7 +44,7 @@ public final class RcmConverterTest {
     return new Object[][] {
         {
             new byte[] {-10, -36, -125, -72, -5, -60, -125, -124, -111, -94, -7, -98, -127, -128, -5, -78, -127, -10, -127, -128},
-            new int[] {-67590, 5442, 0, 66, -38791, 31522, 0}
+            new int[] {-67590, 218810, 0, 66, -38791, 1267364, 0}
         },
     };
   }
@@ -55,13 +55,18 @@ public final class RcmConverterTest {
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 2000 - 1; i++) {
-      long count = converter.apply(bufferFrame).count();
-      Assert.assertEquals(1, count, Long.toString(count));
+      int finalI = i;
+      long count = converter.apply(bufferFrame).peek(ints -> {
+        if (finalI > 1900) {
+          Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
+          processed.set(true);
+        }
+      }).count();
+      if (processed.get()) {
+        Assert.assertEquals(count, 40);
+        break;
+      }
     }
-    Assert.assertEquals(converter.apply(bufferFrame).peek(ints -> {
-      Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
-      processed.set(true);
-    }).count(), 1);
     Assert.assertTrue(processed.get(), "Data are not converted!");
     Assert.assertEquals(converter.getFrequency(), 200, 0.1);
   }

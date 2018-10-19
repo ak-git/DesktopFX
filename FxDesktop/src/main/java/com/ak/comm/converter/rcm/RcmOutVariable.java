@@ -55,7 +55,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.asFilterBuilder(RcmBaseSurfaceCoefficientsChannel1.class).build();
+      return RcmOutVariable.getBaseFilter(RcmBaseSurfaceCoefficientsChannel1.class);
     }
   },
   QS_1 {
@@ -66,7 +66,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
 
     @Override
     public DigitalFilter filter() {
-      return qOsFilter(RcmCoefficients.CC_ADC_TO_OHM_1);
+      return getQoSFilter(RcmCoefficients.CC_ADC_TO_OHM_1);
     }
 
     @Override
@@ -78,6 +78,11 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
     @Override
     public Unit<?> getUnit() {
       return MetricPrefix.MILLI(Units.VOLT);
+    }
+
+    @Override
+    public DigitalFilter filter() {
+      return RcmOutVariable.smoothing(FilterBuilder.of());
     }
   },
   RHEO_2 {
@@ -99,13 +104,13 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.asFilterBuilder(RcmBaseSurfaceCoefficientsChannel2.class).build();
+      return RcmOutVariable.getBaseFilter(RcmBaseSurfaceCoefficientsChannel2.class);
     }
   },
   QS_2 {
     @Override
     public DigitalFilter filter() {
-      return qOsFilter(RcmCoefficients.CC_ADC_TO_OHM_2);
+      return getQoSFilter(RcmCoefficients.CC_ADC_TO_OHM_2);
     }
   };
 
@@ -117,10 +122,38 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
 
   private static DigitalFilter getRheoFilter(Coefficients rheoAdcTo260Milli) {
     IntUnaryOperator rheo260ADC = Interpolators.interpolator(rheoAdcTo260Milli).get();
-    return FilterBuilder.of().biOperator(() -> (ccADC, rheoADC) -> (int) Math.round(260.0 * 1000.0 * rheoADC / rheo260ADC.applyAsInt(ccADC))).build();
+    return smoothing(FilterBuilder.of().biOperator(() -> (ccADC, rheoADC) -> (int) Math.round(260.0 * 1000.0 * rheoADC / rheo260ADC.applyAsInt(ccADC))));
   }
 
-  private static DigitalFilter qOsFilter(Coefficients adcToOhm) {
-    return FilterBuilder.asFilterBuilder(adcToOhm).build();
+  /**
+   * <p>Delay = 308 cycles (1,540 sec).</p>
+   * <p>Filters [dp = 0.01/5, ds = 0.01]:
+   * <ol>
+   * <li>1.3 - 48.8 Hz @ 200 Hz / 12 coeff</li>
+   * <li>0.08 - 3.8 Hz @ 50 Hz / 40 coeff</li>
+   * <li>0.05 - 1.2 Hz @ 5 Hz / 10 coeff</li>
+   * </ol>
+   * </p>
+   *
+   * @param coeffEnum surface coefficients.
+   * @param <C>       surface coefficients class.
+   * @return DigitalFilter
+   */
+  private static <C extends Enum<C> & Coefficients> DigitalFilter getBaseFilter(@Nonnull Class<C> coeffEnum) {
+    return smoothing(FilterBuilder.asFilterBuilder(coeffEnum)
+        .decimate(RcmCoefficients.BR_F200, 4)
+        .decimate(RcmCoefficients.BR_F050, 10)
+        .fir(RcmCoefficients.BR_F005)
+        .interpolate(10, RcmCoefficients.BR_F050)
+        .interpolate(4, RcmCoefficients.BR_F200)
+    );
+  }
+
+  private static DigitalFilter getQoSFilter(Coefficients adcToOhm) {
+    return smoothing(FilterBuilder.asFilterBuilder(adcToOhm));
+  }
+
+  private static DigitalFilter smoothing(FilterBuilder filterBuilder) {
+    return filterBuilder.smoothingImpulsive(4).build();
   }
 }

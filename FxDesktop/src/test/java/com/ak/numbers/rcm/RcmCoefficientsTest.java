@@ -22,12 +22,15 @@ public class RcmCoefficientsTest {
         {RcmCoefficients.CC_ADC_TO_OHM_2, 20},
         {RcmCoefficients.RHEO_ADC_TO_260_MILLI_1, 16},
         {RcmCoefficients.RHEO_ADC_TO_260_MILLI_2, 16},
+        {RcmCoefficients.BR_F005, 10},
+        {RcmCoefficients.BR_F050, 40},
+        {RcmCoefficients.BR_F200, 12},
     };
   }
 
   @Test
   public static void testCoefficients() {
-    Assert.assertEquals(RcmCoefficients.values().length, 4);
+    Assert.assertEquals(RcmCoefficients.values().length, 7);
 
     IntUnaryOperator rheo260ADC = Interpolators.interpolator(RcmCoefficients.RHEO_ADC_TO_260_MILLI_1).get();
     Assert.assertEquals(rheo260ADC.applyAsInt(100), 1054);
