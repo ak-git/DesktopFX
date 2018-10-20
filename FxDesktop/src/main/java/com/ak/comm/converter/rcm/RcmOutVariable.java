@@ -126,12 +126,11 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
   }
 
   /**
-   * <p>Delay = 308 cycles (1,540 sec).</p>
-   * <p>Filters [dp = 0.01/5, ds = 0.01]:
+   * <p>Filters [dp = 0.01/5, ds = 0.001/5]:
    * <ol>
-   * <li>1.3 - 48.8 Hz @ 200 Hz / 12 coeff</li>
-   * <li>0.08 - 3.8 Hz @ 50 Hz / 40 coeff</li>
-   * <li>0.05 - 1.2 Hz @ 5 Hz / 10 coeff</li>
+   * <li>1.2 - 22.5 Hz @ 200 Hz / 33 coeff</li>
+   * <li>1.2 - 2.5 Hz @ 25 Hz / 68 coeff</li>
+   * <li>0.05 - 1.2 Hz @ 5 Hz / 14 coeff</li>
    * </ol>
    * </p>
    *
@@ -141,11 +140,11 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
    */
   private static <C extends Enum<C> & Coefficients> DigitalFilter getBaseFilter(@Nonnull Class<C> coeffEnum) {
     return smoothing(FilterBuilder.asFilterBuilder(coeffEnum)
-        .decimate(RcmCoefficients.BR_F200, 4)
-        .decimate(RcmCoefficients.BR_F050, 10)
+        .decimate(RcmCoefficients.BR_F200, 8)
+        .decimate(RcmCoefficients.BR_F025, 5)
         .fir(RcmCoefficients.BR_F005)
-        .interpolate(10, RcmCoefficients.BR_F050)
-        .interpolate(4, RcmCoefficients.BR_F200)
+        .interpolate(8, RcmCoefficients.BR_F025)
+        .interpolate(5, RcmCoefficients.BR_F200)
     );
   }
 
