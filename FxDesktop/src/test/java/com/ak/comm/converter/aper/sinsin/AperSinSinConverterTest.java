@@ -36,7 +36,7 @@ public final class AperSinSinConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {56904, 300767, 1427}},
+            new int[] {57236, 302526, 1435}},
     };
   }
 
@@ -55,7 +55,7 @@ public final class AperSinSinConverterTest {
         }
       }).count();
       if (processed.get()) {
-        Assert.assertEquals(count, 8);
+        Assert.assertEquals(count, 10);
         break;
       }
     }

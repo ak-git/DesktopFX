@@ -73,12 +73,25 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
     return AperInVariable.class;
   }
 
+  /**
+   * <p>Filters [dp = 0.01/5, ds = 0.001/5]:
+   * <ol>
+   * <li>32 - 187.5 Hz @ 1000 Hz / 22 coeff</li>
+   * <li>32 - 62.5 Hz @ 250 Hz / 29 coeff</li>
+   * <li>32 - 50 Hz @ 125 Hz / 24 coeff</li>
+   * </ol>
+   * </p>
+   * <p>
+   *
+   * @param filterBuilder {@link FilterBuilder}
+   * @return DigitalFilter
+   */
   private static DigitalFilter filter(FilterBuilder filterBuilder) {
     return filterBuilder
-        .decimate(AperRheoCoefficients.F_1000_32_200, 4)
-        .decimate(AperRheoCoefficients.F_250_32_75, 2)
+        .decimate(AperRheoCoefficients.F_1000_32_187, 4)
+        .decimate(AperRheoCoefficients.F_250_32_62, 2)
         .fir(AperRheoCoefficients.F_125_32_50)
-        .interpolate(2, AperRheoCoefficients.F_250_32_75)
-        .interpolate(4, AperRheoCoefficients.F_1000_32_200).build();
+        .interpolate(2, AperRheoCoefficients.F_250_32_62)
+        .interpolate(4, AperRheoCoefficients.F_1000_32_187).smoothingImpulsive(10).build();
   }
 }
