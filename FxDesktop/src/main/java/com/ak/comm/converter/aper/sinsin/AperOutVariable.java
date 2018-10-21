@@ -75,10 +75,10 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
   /**
    * <p>Filters [dp = 0.01/5, ds = 0.001/5]:
+   * Delay = 157.5 / 1000 Hz = 0.1575 sec
    * <ol>
    * <li>32 - 187.5 Hz @ 1000 Hz / 22 coeff</li>
    * <li>32 - 62.5 Hz @ 250 Hz / 29 coeff</li>
-   * <li>32 - 50 Hz @ 125 Hz / 24 coeff</li>
    * </ol>
    * </p>
    * <p>
@@ -90,8 +90,8 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
     return filterBuilder
         .decimate(AperRheoCoefficients.F_1000_32_187, 4)
         .decimate(AperRheoCoefficients.F_250_32_62, 2)
-        .fir(AperRheoCoefficients.F_125_32_50)
+        .smoothingImpulsive(4)
         .interpolate(2, AperRheoCoefficients.F_250_32_62)
-        .interpolate(4, AperRheoCoefficients.F_1000_32_187).smoothingImpulsive(10).build();
+        .interpolate(4, AperRheoCoefficients.F_1000_32_187).build();
   }
 }

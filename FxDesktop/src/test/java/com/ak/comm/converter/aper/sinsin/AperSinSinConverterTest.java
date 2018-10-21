@@ -36,7 +36,7 @@ public final class AperSinSinConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {57236, 302526, 1435}},
+            new int[] {57089, 301742, 1431}},
     };
   }
 
@@ -55,7 +55,7 @@ public final class AperSinSinConverterTest {
         }
       }).count();
       if (processed.get()) {
-        Assert.assertEquals(count, 10);
+        Assert.assertEquals(count, 32);
         break;
       }
     }
@@ -75,6 +75,20 @@ public final class AperSinSinConverterTest {
   @Test
   public static void testInputVariablesClass() {
     EnumSet.allOf(AperOutVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), AperInVariable.class));
+  }
+
+  @DataProvider(name = "filter-delay")
+  public static Object[][] filterDelay() {
+    return new Object[][] {
+        {AperOutVariable.R1, 157.5},
+        {AperOutVariable.R2, 157.5},
+        {AperOutVariable.CCR, 157.5},
+    };
+  }
+
+  @Test(dataProvider = "filter-delay")
+  public static void testFilterDelay(@Nonnull AperOutVariable variable, double delay) {
+    Assert.assertEquals(variable.filter().getDelay(), delay, 0.001, variable.toString());
   }
 
   @Test(enabled = false)

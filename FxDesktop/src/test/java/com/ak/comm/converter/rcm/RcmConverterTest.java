@@ -99,7 +99,7 @@ public final class RcmConverterTest {
   }
 
   @Test
-  public static void testInputVariablesClass() {
+  public static void testVariables() {
     EnumSet.of(RHEO_1X, RHEO_2X, ECG_X).forEach(variable -> Assert.assertTrue(variable.options().isEmpty(), variable.options().toString()));
     EnumSet.allOf(RcmOutVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), RcmInVariable.class));
     EnumSet.of(RHEO_1, RHEO_2).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MICRO(Units.OHM)));
@@ -113,6 +113,25 @@ public final class RcmConverterTest {
     EnumSet.allOf(RcmCalibrationVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), RcmInVariable.class));
     EnumSet.of(CC_ADC, BASE_ADC, RHEO_ADC).forEach(v -> Assert.assertTrue(v.options().contains(Variable.Option.VISIBLE), v.options().toString()));
     EnumSet.of(MIN_RHEO_ADC, AVG_RHEO_ADC).forEach(v -> Assert.assertTrue(v.options().contains(Variable.Option.TEXT_VALUE_BANNER), v.options().toString()));
+  }
+
+  @DataProvider(name = "filter-delay")
+  public static Object[][] filterDelay() {
+    return new Object[][] {
+        {RHEO_1, 3.5},
+        {BASE_1, 711.5},
+        {QS_1, 3.5},
+        {ECG, 3.5},
+        {RHEO_2, 3.5},
+        {BASE_2, 711.5},
+        {QS_2, 3.5},
+
+    };
+  }
+
+  @Test(dataProvider = "filter-delay")
+  public static void testFilterDelay(@Nonnull RcmOutVariable variable, double delay) {
+    Assert.assertEquals(variable.filter().getDelay(), delay, 0.001, variable.toString());
   }
 
   @Test(enabled = false)
