@@ -84,6 +84,11 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
     public DigitalFilter filter() {
       return RcmOutVariable.smoothing(FilterBuilder.of());
     }
+
+    @Override
+    public Set<Option> options() {
+      return Option.addToDefault(Option.FORCE_ZERO_IN_RANGE);
+    }
   },
   RHEO_2 {
     @Override
