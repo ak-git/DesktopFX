@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
-import javafx.util.Builder;
+import com.ak.util.Builder;
 
 import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
 

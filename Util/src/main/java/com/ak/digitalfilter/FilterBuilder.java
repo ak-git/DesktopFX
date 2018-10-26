@@ -19,7 +19,7 @@ import javax.inject.Provider;
 import com.ak.numbers.Coefficients;
 import com.ak.numbers.CoefficientsUtils;
 import com.ak.numbers.Interpolators;
-import javafx.util.Builder;
+import com.ak.util.Builder;
 
 public class FilterBuilder implements Builder<DigitalFilter> {
   private static final int[] EMPTY_INTS = {};

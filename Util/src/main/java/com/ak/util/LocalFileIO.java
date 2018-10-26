@@ -13,8 +13,6 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import javafx.util.Builder;
-
 public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
   @Nonnull
   private final Path path;

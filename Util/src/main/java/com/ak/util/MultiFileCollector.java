@@ -88,7 +88,7 @@ final class MultiFileCollector<IN> implements Collector<Stream<IN>, List<LineFil
     return Collections.emptySet();
   }
 
-  public static final class Builder<IN> implements javafx.util.Builder<MultiFileCollector<IN>> {
+  public static final class Builder<IN> implements com.ak.util.Builder<MultiFileCollector<IN>> {
     @Nonnull
     private final MultiFileCollector<IN> multiFileCollector;
 
