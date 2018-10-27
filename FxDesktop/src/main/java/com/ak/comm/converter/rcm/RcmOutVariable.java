@@ -131,12 +131,12 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
   }
 
   /**
-   * <p>Filters [dp = 0.01/5, ds = 0.001/5]:
-   * Delay = 711.5 / 200 Hz = 3.5575 sec
+   * <p>Filters [dp = 0.01/5, ds = 0.001]:
+   * Delay = 425.0 / 200 Hz = 2.125 sec
    * <ol>
-   * <li>1.2 - 22.5 Hz @ 200 Hz / 33 coeff</li>
-   * <li>1.2 - 2.5 Hz @ 25 Hz / 68 coeff</li>
-   * <li>0.05 - 1.2 Hz @ 5 Hz / 14 coeff</li>
+   * <li>0.05 - 22.5 Hz @ 200 Hz / 27 coeff</li>
+   * <li>0.05 - 2.5 Hz @ 25 Hz / 31 coeff</li>
+   * <li>0.05 - 1.2 Hz @ 5 Hz / 12 coeff</li>
    * </ol>
    * </p>
    *
