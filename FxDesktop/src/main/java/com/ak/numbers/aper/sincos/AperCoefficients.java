@@ -8,16 +8,10 @@ import com.ak.numbers.Coefficients;
 import static com.ak.numbers.common.CommonCoefficients.readCurrentCarryingCalibration;
 
 public enum AperCoefficients implements Coefficients {
-  ADC_TO_OHM_1 {
+  ADC_TO_OHM {
     @Override
     public String readJSON(@Nonnull JsonObject object) {
       return readCurrentCarryingCalibration(object, 0);
-    }
-  },
-  ADC_TO_OHM_2 {
-    @Override
-    public String readJSON(@Nonnull JsonObject object) {
-      return readCurrentCarryingCalibration(object, 1);
     }
   }
 }

@@ -10,7 +10,7 @@ import com.ak.numbers.aper.sincos.AperCoefficients;
  */
 public final class AperItoOhmChartApp extends AbstractSplineCoefficientsChartApp<ADCVariable, AperOutVariable> {
   public AperItoOhmChartApp() {
-    super(AperCoefficients.ADC_TO_OHM_1, ADCVariable.ADC, AperOutVariable.CCR);
+    super(AperCoefficients.ADC_TO_OHM, ADCVariable.ADC, AperOutVariable.CCR);
   }
 
   public static void main(String[] args) {
