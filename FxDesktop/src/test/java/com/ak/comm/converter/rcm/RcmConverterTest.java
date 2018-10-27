@@ -44,7 +44,7 @@ public final class RcmConverterTest {
     return new Object[][] {
         {
             new byte[] {-10, -36, -125, -72, -5, -60, -125, -124, -111, -94, -7, -98, -127, -128, -5, -78, -127, -10, -127, -128},
-            new int[] {-67590, 5464, 0, 66, -38791, 31647, 0}
+            new int[] {-67590, 5457, 0, 66, -38791, 31612, 0}
         },
     };
   }
@@ -119,11 +119,11 @@ public final class RcmConverterTest {
   public static Object[][] filterDelay() {
     return new Object[][] {
         {RHEO_1, 3.5},
-        {BASE_1, 425.0},
+        {BASE_1, 341.0},
         {QS_1, 3.5},
         {ECG, 3.5},
         {RHEO_2, 3.5},
-        {BASE_2, 425.0},
+        {BASE_2, 341.0},
         {QS_2, 3.5},
 
     };

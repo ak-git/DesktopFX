@@ -22,9 +22,9 @@ public class RcmCoefficientsTest {
         {RcmCoefficients.CC_ADC_TO_OHM_2, 20},
         {RcmCoefficients.RHEO_ADC_TO_260_MILLI_1, 16},
         {RcmCoefficients.RHEO_ADC_TO_260_MILLI_2, 16},
-        {RcmCoefficients.BR_F005, 12},
-        {RcmCoefficients.BR_F025, 31},
-        {RcmCoefficients.BR_F200, 27},
+        {RcmCoefficients.BR_F005, 10},
+        {RcmCoefficients.BR_F025, 25},
+        {RcmCoefficients.BR_F200, 22},
     };
   }
 
