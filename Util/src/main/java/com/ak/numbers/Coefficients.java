@@ -1,7 +1,5 @@
 package com.ak.numbers;
 
-import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Locale;
@@ -17,16 +15,9 @@ import com.ak.util.Strings;
 public interface Coefficients extends Provider<double[]> {
   @Override
   default double[] get() {
-    InputStream resourceAsStream = getClass().getResourceAsStream(String.format("%s.txt", name()));
-    Scanner scanner;
-    if (resourceAsStream == null) {
-      scanner = new Scanner(readJSON(Json.createReader(
-          getClass().getResourceAsStream(String.format("%s.json", getClass().getPackageName().replaceFirst(".*\\.", "")))
-      ).readObject()));
-    }
-    else {
-      scanner = new Scanner(resourceAsStream, Charset.defaultCharset().name());
-    }
+    Scanner scanner = new Scanner(readJSON(Json.createReader(
+        getClass().getResourceAsStream(String.format("%s.json", getClass().getPackageName().replaceFirst(".*\\.", "")))
+    ).readObject()));
     scanner.useLocale(Locale.ROOT);
 
     Collection<Double> coeffs = new LinkedList<>();
