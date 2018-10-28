@@ -45,9 +45,6 @@ public final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
     if (range / scaledRange >= 5) {
       scaleFactor = scaleFactor10 / 5;
     }
-    else if (range / scaledRange >= 2) {
-      scaleFactor = scaleFactor10 / 2;
-    }
     return Math.max(1, scaleFactor);
   }
 }
