@@ -16,8 +16,8 @@ public class CoefficientsTest {
   @DataProvider(name = "coefficients")
   public static Object[][] coefficients() {
     return new Object[][] {
-        {CoefficientsUtils.rangeX(InterpolatorCoefficients.class), 1, 16},
-        {CoefficientsUtils.rangeY(InterpolatorCoefficients.class), -100, 100},
+        {RangeUtils.rangeX(InterpolatorCoefficients.class), 1, 16},
+        {RangeUtils.rangeY(InterpolatorCoefficients.class), -100, 100},
     };
   }
 
@@ -29,7 +29,7 @@ public class CoefficientsTest {
 
   @Test
   public static void testReverseOrder() {
-    Assert.assertEquals(CoefficientsUtils.reverseOrder(new double[] {1.0, 2.0, -10.0, 3.0}), new double[] {3.0, -10.0, 2.0, 1.0});
+    Assert.assertEquals(RangeUtils.reverseOrder(new double[] {1.0, 2.0, -10.0, 3.0}), new double[] {3.0, -10.0, 2.0, 1.0});
   }
 
   @DataProvider(name = "count-coefficients")

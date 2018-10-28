@@ -43,7 +43,7 @@ public enum Interpolators {
         Collectors.toMap(Function.identity(), coefficients -> interpolator(coefficients).get())
     );
 
-    int limitX = CoefficientsUtils.rangeX(coeffEnum).getMax();
+    int limitX = RangeUtils.rangeX(coeffEnum).getMax();
     int limitY = IntStream.rangeClosed(0, limitX).map(x ->
         coeffSplineMap.values().stream().mapToInt(value -> value.applyAsInt(x)).summaryStatistics().getMax()
     ).summaryStatistics().getMax();

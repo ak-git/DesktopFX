@@ -17,8 +17,8 @@ import javax.annotation.Nullable;
 import javax.inject.Provider;
 
 import com.ak.numbers.Coefficients;
-import com.ak.numbers.CoefficientsUtils;
 import com.ak.numbers.Interpolators;
+import com.ak.numbers.RangeUtils;
 import com.ak.util.Builder;
 
 public class FilterBuilder implements Builder<DigitalFilter> {
@@ -144,7 +144,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   public FilterBuilder iirMATLAB(double[] num, double[] den) {
-    return fir(CoefficientsUtils.reverseOrder(num)).iir(Arrays.stream(den).skip(1).map(operand -> -operand).toArray());
+    return fir(RangeUtils.reverseOrder(num)).iir(Arrays.stream(den).skip(1).map(operand -> -operand).toArray());
   }
 
   private FilterBuilder comb(@Nonnegative int combFactor) {

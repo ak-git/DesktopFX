@@ -13,8 +13,8 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 
 import com.ak.numbers.Coefficients;
-import com.ak.numbers.CoefficientsUtils;
 import com.ak.numbers.Interpolators;
+import com.ak.numbers.RangeUtils;
 import com.ak.numbers.aper.sincos.AperSurfaceCoefficientsChannel2;
 import com.ak.util.LineFileBuilder;
 import com.ak.util.LineFileCollector;
@@ -91,15 +91,15 @@ public abstract class AbstractSplineCoefficientsChartApp<X extends Enum<X> & Var
   public static <C extends Enum<C> & Coefficients> void testSplineSurface1(Class<C> surfaceCoeffClass) throws IOException {
     IntBinaryOperator function = Interpolators.interpolator(surfaceCoeffClass).get();
     LineFileBuilder.of("%.0f %.0f %.0f").
-        xStream(() -> intRange(surfaceCoeffClass, CoefficientsUtils::rangeX).asDoubleStream()).
-        yStream(() -> intRange(surfaceCoeffClass, CoefficientsUtils::rangeY).asDoubleStream()).
+        xStream(() -> intRange(surfaceCoeffClass, RangeUtils::rangeX).asDoubleStream()).
+        yStream(() -> intRange(surfaceCoeffClass, RangeUtils::rangeY).asDoubleStream()).
         generate("z.txt", (adc, rII) -> function.applyAsInt(Double.valueOf(adc).intValue(), Double.valueOf(rII).intValue()));
 
-    Supplier<DoubleStream> xVar = () -> intRange(surfaceCoeffClass, CoefficientsUtils::rangeX).asDoubleStream();
+    Supplier<DoubleStream> xVar = () -> intRange(surfaceCoeffClass, RangeUtils::rangeX).asDoubleStream();
     Assert.assertTrue(xVar.get().mapToObj(sToL -> String.format("%.2f", sToL)).collect(
         new LineFileCollector(Paths.get("x-CC-R.txt"), LineFileCollector.Direction.HORIZONTAL)));
 
-    Supplier<DoubleStream> yVar = () -> intRange(surfaceCoeffClass, CoefficientsUtils::rangeY).asDoubleStream();
+    Supplier<DoubleStream> yVar = () -> intRange(surfaceCoeffClass, RangeUtils::rangeY).asDoubleStream();
     Assert.assertTrue(yVar.get().mapToObj(sToL -> String.format("%.2f", sToL)).collect(
         new LineFileCollector(Paths.get("y-ADC-R.txt"), LineFileCollector.Direction.VERTICAL)));
   }
@@ -107,8 +107,8 @@ public abstract class AbstractSplineCoefficientsChartApp<X extends Enum<X> & Var
   public static <C extends Enum<C> & Coefficients> void testSplineSurface2(Class<C> surfaceCoeffClass) throws IOException {
     IntBinaryOperator function = Interpolators.interpolator(surfaceCoeffClass).get();
     LineFileBuilder.of("%.0f %.0f %.0f").
-        xStream(() -> intRange(AperSurfaceCoefficientsChannel2.class, CoefficientsUtils::rangeX).asDoubleStream()).
-        yStream(() -> intRange(AperSurfaceCoefficientsChannel2.class, CoefficientsUtils::rangeY).asDoubleStream()).
+        xStream(() -> intRange(AperSurfaceCoefficientsChannel2.class, RangeUtils::rangeX).asDoubleStream()).
+        yStream(() -> intRange(AperSurfaceCoefficientsChannel2.class, RangeUtils::rangeY).asDoubleStream()).
         generate("z.txt", (adc, rII) -> function.applyAsInt(Double.valueOf(adc).intValue(), Double.valueOf(rII).intValue()));
   }
 

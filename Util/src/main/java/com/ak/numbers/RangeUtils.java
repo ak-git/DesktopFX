@@ -7,7 +7,7 @@ import java.util.function.ToDoubleFunction;
 
 import javax.annotation.Nonnull;
 
-public enum CoefficientsUtils {
+public enum RangeUtils {
   ;
 
   public static <C extends Enum<C> & Coefficients> IntSummaryStatistics rangeX(@Nonnull Class<C> coeffClass) {
