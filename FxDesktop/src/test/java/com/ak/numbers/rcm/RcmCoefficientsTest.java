@@ -1,5 +1,6 @@
 package com.ak.numbers.rcm;
 
+import java.util.Arrays;
 import java.util.function.IntUnaryOperator;
 
 import javax.annotation.Nonnegative;
@@ -35,6 +36,9 @@ public class RcmCoefficientsTest {
     IntUnaryOperator rheo260ADC = Interpolators.interpolator(RcmCoefficients.RHEO_ADC_TO_260_MILLI_1).get();
     Assert.assertEquals(rheo260ADC.applyAsInt(100), 1054);
     Assert.assertEquals(rheo260ADC.applyAsInt(1300), 911);
+
+    Assert.assertFalse(Arrays.equals(RcmCoefficients.CC_ADC_TO_OHM_1.get(), RcmCoefficients.CC_ADC_TO_OHM_2.get()));
+    Assert.assertFalse(Arrays.equals(RcmCoefficients.RHEO_ADC_TO_260_MILLI_1.get(), RcmCoefficients.RHEO_ADC_TO_260_MILLI_2.get()));
   }
 
   @Test(dataProvider = "rcm-coefficients")
