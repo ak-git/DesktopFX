@@ -34,8 +34,7 @@ public enum RcmCoefficients implements Coefficients {
     public String readJSON(@Nonnull JsonObject object) {
       return readRheo260Calibration(object);
     }
-  },
-  BR_F200, BR_F025, BR_F005;
+  };
 
   String readRheo260Calibration(@Nonnull JsonObject object) {
     String channel = String.format("Channel-%s", Strings.numberSuffix(name()));

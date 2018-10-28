@@ -17,6 +17,7 @@ import com.ak.numbers.Interpolators;
 import com.ak.numbers.rcm.RcmBaseSurfaceCoefficientsChannel1;
 import com.ak.numbers.rcm.RcmBaseSurfaceCoefficientsChannel2;
 import com.ak.numbers.rcm.RcmCoefficients;
+import com.ak.numbers.rcm.RcmSimpleCoefficients;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
@@ -146,11 +147,11 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
    */
   private static <C extends Enum<C> & Coefficients> DigitalFilter getBaseFilter(@Nonnull Class<C> coeffEnum) {
     return smoothing(FilterBuilder.asFilterBuilder(coeffEnum)
-        .decimate(RcmCoefficients.BR_F200, 8)
-        .decimate(RcmCoefficients.BR_F025, 5)
-        .fir(RcmCoefficients.BR_F005)
-        .interpolate(8, RcmCoefficients.BR_F025)
-        .interpolate(5, RcmCoefficients.BR_F200)
+        .decimate(RcmSimpleCoefficients.BR_F200, 8)
+        .decimate(RcmSimpleCoefficients.BR_F025, 5)
+        .fir(RcmSimpleCoefficients.BR_F005)
+        .interpolate(8, RcmSimpleCoefficients.BR_F025)
+        .interpolate(5, RcmSimpleCoefficients.BR_F200)
     );
   }
 
