@@ -11,10 +11,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class InterpolatorsTest {
-  private enum InterpolatorCoefficients implements Coefficients {
-    INTERPOLATOR_TEST_AKIMA, INTERPOLATOR_TEST_LINEAR, INTERPOLATOR_TEST_INVALID
-  }
-
   private InterpolatorsTest() {
   }
 

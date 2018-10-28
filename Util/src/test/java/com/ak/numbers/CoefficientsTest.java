@@ -10,10 +10,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class CoefficientsTest {
-  private enum InterpolatorCoefficients implements Coefficients {
-    INTERPOLATOR_TEST_AKIMA, INTERPOLATOR_TEST_LINEAR, INTERPOLATOR_TEST_JSON
-  }
-
   private CoefficientsTest() {
   }
 
@@ -41,7 +37,7 @@ public class CoefficientsTest {
     return new Object[][] {
         {InterpolatorCoefficients.INTERPOLATOR_TEST_AKIMA, 10},
         {InterpolatorCoefficients.INTERPOLATOR_TEST_LINEAR, 8},
-        {InterpolatorCoefficients.INTERPOLATOR_TEST_JSON, 0},
+        {InterpolatorCoefficients.INTERPOLATOR_TEST_INVALID, 2},
     };
   }
 
