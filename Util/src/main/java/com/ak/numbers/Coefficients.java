@@ -4,15 +4,15 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Scanner;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
-import javax.inject.Provider;
 import javax.json.Json;
 import javax.json.JsonObject;
 
 import com.ak.util.Strings;
 
-public interface Coefficients extends Provider<double[]> {
+public interface Coefficients extends Supplier<double[]> {
   @Override
   default double[] get() {
     Scanner scanner = new Scanner(readJSON(Json.createReader(

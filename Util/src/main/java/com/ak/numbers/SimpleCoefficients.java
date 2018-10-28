@@ -6,10 +6,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Scanner;
+import java.util.function.Supplier;
 
-import javax.inject.Provider;
-
-public interface SimpleCoefficients extends Provider<double[]> {
+public interface SimpleCoefficients extends Supplier<double[]> {
   @Override
   default double[] get() {
     InputStream resourceAsStream = getClass().getResourceAsStream(String.format("%s.txt", name()));

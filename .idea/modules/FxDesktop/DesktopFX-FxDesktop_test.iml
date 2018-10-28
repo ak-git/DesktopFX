@@ -18,7 +18,6 @@
     <orderEntry type="module" module-name="DesktopFX-FxCore_main" />
     <orderEntry type="module" module-name="DesktopFX-Communication_main" />
     <orderEntry type="module" module-name="Util_main" />
-    <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
     <orderEntry type="library" name="Gradle: com.github.spotbugs:spotbugs:3.1.8" level="project" />
     <orderEntry type="library" name="Gradle: org.testng:testng:7.0.0-beta1" level="project" />
     <orderEntry type="library" name="Gradle: org.ow2.asm:asm-commons:6.2.1" level="project" />
@@ -34,6 +33,7 @@
     <orderEntry type="library" name="Gradle: commons-lang:commons-lang:2.6" level="project" />
     <orderEntry type="library" name="Gradle: com.github.spotbugs:spotbugs-annotations:3.1.8" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-context:5.1.1.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
     <orderEntry type="library" name="Gradle: org.scream3r:jssc:2.8.0" level="project" />
     <orderEntry type="library" name="Gradle: com.beust:jcommander:1.72" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:3.0.2" level="project" />

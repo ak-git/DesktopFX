@@ -9,12 +9,12 @@ import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntFunction;
 import java.util.function.IntUnaryOperator;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.inject.Provider;
 
 import com.ak.util.Strings;
 import org.apache.commons.math3.analysis.BivariateFunction;
@@ -38,7 +38,7 @@ public enum Interpolators {
     this.minPoints = minPoints;
   }
 
-  public static <C extends Enum<C> & Coefficients> Provider<IntBinaryOperator> interpolator(@Nonnull Class<C> coeffEnum) {
+  public static <C extends Enum<C> & Coefficients> Supplier<IntBinaryOperator> interpolator(@Nonnull Class<C> coeffEnum) {
     Map<Coefficients, IntUnaryOperator> coeffSplineMap = EnumSet.allOf(coeffEnum).stream().collect(
         Collectors.toMap(Function.identity(), coefficients -> interpolator(coefficients).get())
     );
@@ -82,21 +82,21 @@ public enum Interpolators {
     };
   }
 
-  public static Provider<IntUnaryOperator> interpolator(@Nonnull Coefficients coefficients) {
+  public static Supplier<IntUnaryOperator> interpolator(@Nonnull Coefficients coefficients) {
     double[][] pairs = coefficients.getPairs();
     return EnumSet.allOf(Interpolators.class).stream().filter(i -> pairs.length >= i.minPoints).findFirst().
         orElseThrow(() -> new IllegalArgumentException(String.format("Number of points %d from %s is too small", pairs.length, coefficients.name()))).
         interpolate(pairs);
   }
 
-  private static Provider<IntUnaryOperator> interpolator(@Nonnull double[] xValues, @Nonnull double[] yValues) {
+  private static Supplier<IntUnaryOperator> interpolator(@Nonnull double[] xValues, @Nonnull double[] yValues) {
     int length = Math.min(xValues.length, yValues.length);
     return EnumSet.allOf(Interpolators.class).stream().filter(i -> length >= i.minPoints).findFirst().
         orElseThrow(() -> new IllegalArgumentException(String.format("Number of points %d is too small", length))).
         interpolate(xValues, yValues);
   }
 
-  private Provider<IntUnaryOperator> interpolate(@Nonnull double[][] coefficients) {
+  private Supplier<IntUnaryOperator> interpolate(@Nonnull double[][] coefficients) {
     double[][] sorted = Arrays.stream(coefficients).sorted(Comparator.comparingDouble(o -> o[0])).toArray(value -> new double[value][0]);
     double[] xValues = new double[sorted.length];
     double[] yValues = new double[sorted.length];
@@ -109,7 +109,7 @@ public enum Interpolators {
     return interpolate(xValues, yValues);
   }
 
-  private Provider<IntUnaryOperator> interpolate(@Nonnull double[] xValues, @Nonnull double[] yValues) {
+  private Supplier<IntUnaryOperator> interpolate(@Nonnull double[] xValues, @Nonnull double[] yValues) {
     return () -> new IntUnaryOperator() {
       private final UnivariateFunction f = interpolator.interpolate(xValues, yValues);
 
