@@ -1,8 +1,5 @@
 package com.ak.numbers;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Locale;
 import java.util.Scanner;
 import java.util.function.Supplier;
 
@@ -18,24 +15,11 @@ public interface Coefficients extends Supplier<double[]> {
     Scanner scanner = new Scanner(readJSON(Json.createReader(
         getClass().getResourceAsStream(String.format("%s.json", getClass().getPackageName().replaceFirst(".*\\.", "")))
     ).readObject()));
-    scanner.useLocale(Locale.ROOT);
-
-    Collection<Double> coeffs = new LinkedList<>();
-    while (scanner.hasNext() && !scanner.hasNextDouble()) {
-      scanner.next();
-    }
-    while (scanner.hasNextDouble()) {
-      coeffs.add(scanner.nextDouble());
-    }
-    return coeffs.stream().mapToDouble(Double::doubleValue).toArray();
+    return CoefficientsUtils.read(scanner);
   }
 
   default double[][] getPairs() {
     double[] xAndY = get();
-    if ((xAndY.length & 1) == 1) {
-      throw new IllegalArgumentException(String.format("Number %d of coefficients %s is not even", xAndY.length, name()));
-    }
-
     double[][] pairs = new double[xAndY.length / 2][2];
 
     for (int i = 0; i < pairs.length; i++) {
