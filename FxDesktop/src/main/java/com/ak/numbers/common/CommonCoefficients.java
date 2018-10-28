@@ -11,10 +11,11 @@ import javax.json.JsonObject;
 import javax.json.JsonValue;
 
 import com.ak.numbers.Coefficients;
+import com.ak.numbers.SimpleCoefficients;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
-public enum CommonCoefficients implements Coefficients {
+public enum CommonCoefficients implements SimpleCoefficients {
   MYO, ECG;
 
   public static String readCurrentCarryingCalibration(@Nonnull JsonObject object) {

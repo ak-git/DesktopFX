@@ -15,12 +15,6 @@ public class InterpolatorsTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Number 3 of coefficients DIFF is not even")
-  public static void testInvalidCoefficients() {
-    Interpolators.interpolator(DiffCoefficients.DIFF);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class,
       expectedExceptionsMessageRegExp = "Number of points 1 from INTERPOLATOR_TEST_INVALID is too small")
   public static void testTooLowCoefficients() {
     Interpolators.interpolator(InterpolatorCoefficients.INTERPOLATOR_TEST_INVALID);
