@@ -1,7 +1,7 @@
 package com.ak.numbers.aper;
 
-import com.ak.numbers.Coefficients;
+import com.ak.numbers.SimpleCoefficients;
 
-public enum AperRheoCoefficients implements Coefficients {
+public enum AperRheoCoefficients implements SimpleCoefficients {
   F_1000_32_187, F_250_32_62
 }
