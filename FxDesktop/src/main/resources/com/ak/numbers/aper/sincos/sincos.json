@@ -1,29 +1,13 @@
 {
-  "Current-carrying electrodes, Ohm : ADC[Channel-1, Channel-2]": {
-    "0": [
-      0
-    ],
-    "90.4": [
-      64
-    ],
-    "331": [
-      317
-    ],
-    "1200": [
-      1237
-    ],
-    "2100": [
-      2387
-    ],
-    "3000": [
-      2795
-    ],
-    "3800": [
-      3093
-    ],
-    "4700": [
-      3302
-    ]
+  "Current-carrying electrodes, Ohm : ADC": {
+    "0": 0,
+    "90.4": 64,
+    "331": 317,
+    "1200": 1237,
+    "2100": 2387,
+    "3000": 2795,
+    "3800": 3093,
+    "4700": 3302
   },
   "Potential-unit electrodes, Ohm : ADC[CurrentCarrying, PotentialUnit]": {
     "0.0": {

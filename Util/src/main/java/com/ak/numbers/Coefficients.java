@@ -7,8 +7,6 @@ import javax.annotation.Nonnull;
 import javax.json.Json;
 import javax.json.JsonObject;
 
-import com.ak.util.Strings;
-
 public interface Coefficients extends Supplier<double[]> {
   @Override
   default double[] get() {
@@ -31,7 +29,5 @@ public interface Coefficients extends Supplier<double[]> {
 
   String name();
 
-  default String readJSON(@Nonnull JsonObject object) {
-    return Strings.EMPTY;
-  }
+  String readJSON(@Nonnull JsonObject object);
 }

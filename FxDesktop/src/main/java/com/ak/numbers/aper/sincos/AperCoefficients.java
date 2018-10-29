@@ -11,7 +11,7 @@ public enum AperCoefficients implements Coefficients {
   ADC_TO_OHM {
     @Override
     public String readJSON(@Nonnull JsonObject object) {
-      return readCurrentCarryingCalibration(object, 0);
+      return readCurrentCarryingCalibration(object);
     }
   }
 }
