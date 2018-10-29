@@ -35,7 +35,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
 
     @Override
     public DigitalFilter filter() {
-      return getRheoFilter(RcmCoefficients.RHEO_ADC_TO_260_MILLI_1);
+      return getRheoFilter(RcmCoefficients.RHEO_ADC_TO_260_MILLI.of(1));
     }
 
     @Override
@@ -67,7 +67,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
 
     @Override
     public DigitalFilter filter() {
-      return getQoSFilter(RcmCoefficients.CC_ADC_TO_OHM_1);
+      return getQoSFilter(RcmCoefficients.CC_ADC_TO_OHM.of(1));
     }
 
     @Override
@@ -99,7 +99,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
 
     @Override
     public DigitalFilter filter() {
-      return getRheoFilter(RcmCoefficients.RHEO_ADC_TO_260_MILLI_2);
+      return getRheoFilter(RcmCoefficients.RHEO_ADC_TO_260_MILLI.of(2));
     }
   },
   BASE_2 {
@@ -116,7 +116,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
   QS_2 {
     @Override
     public DigitalFilter filter() {
-      return getQoSFilter(RcmCoefficients.CC_ADC_TO_OHM_2);
+      return getQoSFilter(RcmCoefficients.CC_ADC_TO_OHM.of(2));
     }
   };
 

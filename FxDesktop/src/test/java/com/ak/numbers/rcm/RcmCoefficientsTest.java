@@ -20,24 +20,24 @@ public class RcmCoefficientsTest {
   @DataProvider(name = "rcm-coefficients")
   public static Object[][] rcmCoefficients() {
     return new Object[][] {
-        {RcmCoefficients.CC_ADC_TO_OHM_1, 20},
-        {RcmCoefficients.CC_ADC_TO_OHM_2, 20},
-        {RcmCoefficients.RHEO_ADC_TO_260_MILLI_1, 16},
-        {RcmCoefficients.RHEO_ADC_TO_260_MILLI_2, 16},
+        {RcmCoefficients.CC_ADC_TO_OHM.of(1), 20},
+        {RcmCoefficients.CC_ADC_TO_OHM.of(2), 20},
+        {RcmCoefficients.RHEO_ADC_TO_260_MILLI.of(1), 16},
+        {RcmCoefficients.RHEO_ADC_TO_260_MILLI.of(2), 16},
     };
   }
 
   @Test
   public static void testCoefficients() {
-    Assert.assertEquals(RcmCoefficients.values().length, 4);
+    Assert.assertEquals(RcmCoefficients.values().length, 2);
     Assert.assertEquals(RcmSimpleCoefficients.values().length, 3);
 
-    IntUnaryOperator rheo260ADC = Interpolators.interpolator(RcmCoefficients.RHEO_ADC_TO_260_MILLI_1).get();
+    IntUnaryOperator rheo260ADC = Interpolators.interpolator(RcmCoefficients.RHEO_ADC_TO_260_MILLI.of(1)).get();
     Assert.assertEquals(rheo260ADC.applyAsInt(100), 1054);
     Assert.assertEquals(rheo260ADC.applyAsInt(1300), 911);
 
-    Assert.assertFalse(Arrays.equals(RcmCoefficients.CC_ADC_TO_OHM_1.get(), RcmCoefficients.CC_ADC_TO_OHM_2.get()));
-    Assert.assertFalse(Arrays.equals(RcmCoefficients.RHEO_ADC_TO_260_MILLI_1.get(), RcmCoefficients.RHEO_ADC_TO_260_MILLI_2.get()));
+    Assert.assertFalse(Arrays.equals(RcmCoefficients.CC_ADC_TO_OHM.of(1).get(), RcmCoefficients.CC_ADC_TO_OHM.of(2).get()));
+    Assert.assertFalse(Arrays.equals(RcmCoefficients.RHEO_ADC_TO_260_MILLI.of(1).get(), RcmCoefficients.RHEO_ADC_TO_260_MILLI.of(2).get()));
   }
 
   @Test(dataProvider = "rcm-coefficients")
