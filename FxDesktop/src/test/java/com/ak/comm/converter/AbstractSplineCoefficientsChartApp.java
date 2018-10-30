@@ -80,7 +80,7 @@ public abstract class AbstractSplineCoefficientsChartApp<X extends Enum<X> & Var
 
     ObservableList<XYChart.Series<Number, Number>> lineChartData = FXCollections.observableArrayList();
     lineChartData.add(new LineChart.Series<>("Spline", splineData));
-    lineChartData.add(new LineChart.Series<>(coefficients.name(), pureData));
+    lineChartData.add(new LineChart.Series<>(coefficients.toString(), pureData));
 
     LineChart<Number, Number> chart = new LineChart<>(xAxis, yAxis, lineChartData);
     chart.setCreateSymbols(true);

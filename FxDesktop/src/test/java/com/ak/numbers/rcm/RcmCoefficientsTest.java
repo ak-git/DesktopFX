@@ -2,11 +2,11 @@ package com.ak.numbers.rcm;
 
 import java.util.Arrays;
 import java.util.function.IntUnaryOperator;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.numbers.Coefficients;
 import com.ak.numbers.Interpolators;
 import com.ak.numbers.SimpleCoefficients;
 import org.testng.Assert;
@@ -41,8 +41,8 @@ public class RcmCoefficientsTest {
   }
 
   @Test(dataProvider = "rcm-coefficients")
-  public static void testCoefficients(@Nonnull Coefficients coefficients, @Nonnegative int count) {
-    Assert.assertEquals(coefficients.get().length, count, coefficients.name());
+  public static void testCoefficients(@Nonnull Supplier<double[]> coefficients, @Nonnegative int count) {
+    Assert.assertEquals(coefficients.get().length, count, coefficients.toString());
   }
 
   @DataProvider(name = "rcm-simple-coefficients")

@@ -1,6 +1,7 @@
 package com.ak.numbers;
 
 import java.util.IntSummaryStatistics;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -42,7 +43,7 @@ public class CoefficientsTest {
   }
 
   @Test(dataProvider = "count-coefficients")
-  public static void testCoefficients(@Nonnull Coefficients coefficients, @Nonnegative int count) {
-    Assert.assertEquals(coefficients.get().length, count, coefficients.name());
+  public static void testCoefficients(@Nonnull Supplier<double[]> coefficients, @Nonnegative int count) {
+    Assert.assertEquals(coefficients.get().length, count, coefficients.toString());
   }
 }

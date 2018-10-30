@@ -23,15 +23,15 @@ public enum CommonCoefficients implements SimpleCoefficients {
         .collect(Collectors.joining(Strings.NEW_LINE));
   }
 
-  public static String readPotentialUnitCalibration(@Nonnull JsonObject object, @Nonnull Coefficients coefficients) {
+  public static <C extends Enum<C> & Coefficients> String readPotentialUnitCalibration(@Nonnull JsonObject object, @Nonnull C coefficients) {
     return readCalibration(object, coefficients, "Potential-unit electrodes, Ohm : ADC[CurrentCarrying, PotentialUnit]");
   }
 
-  public static String readBaseCalibration(@Nonnull JsonObject object, @Nonnull Coefficients coefficients) {
+  public static <C extends Enum<C> & Coefficients> String readBaseCalibration(@Nonnull JsonObject object, @Nonnull C coefficients) {
     return readCalibration(object, coefficients, "Potential-unit electrodes, Ohm : ADC{CurrentCarrying, Base}");
   }
 
-  private static String readCalibration(@Nonnull JsonObject object, @Nonnull Coefficients coefficients, @Nonnull String name) {
+  private static <C extends Enum<C> & Coefficients> String readCalibration(@Nonnull JsonObject object, @Nonnull C coefficients, @Nonnull String name) {
     String ohms = String.format(Locale.ROOT, "%.1f", Metrics.fromMilli(Double.parseDouble(Strings.numberSuffix(coefficients.name()))));
     String channel = String.format("Channel-%s", Strings.numberSuffix(coefficients.getClass().getName()));
     Set<Map.Entry<String, JsonValue>> entries = object.getJsonObject(name).getJsonObject(ohms).getJsonObject(channel).entrySet();

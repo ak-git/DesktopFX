@@ -27,7 +27,5 @@ public interface Coefficients extends Supplier<double[]> {
     return pairs;
   }
 
-  String name();
-
   String readJSON(@Nonnull JsonObject object);
 }

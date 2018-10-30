@@ -35,7 +35,7 @@ public class InterpolatorsTest {
   }
 
   @Test(dataProvider = "interpolators")
-  public static void testInterpolator(@Nonnull Coefficients coefficients, @Nonnull int[] expected) {
+  public static <C extends Enum<C> & Coefficients> void testInterpolator(@Nonnull C coefficients, @Nonnull int[] expected) {
     IntUnaryOperator operator = Interpolators.interpolator(coefficients).get();
     int[] actual = IntStream.rangeClosed(1, 15).map(operator).toArray();
     Assert.assertTrue(Arrays.equals(actual, expected), Arrays.toString(actual));

@@ -1,9 +1,10 @@
 package com.ak.numbers.aper;
 
+import java.util.function.Supplier;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.numbers.Coefficients;
 import com.ak.numbers.aper.sincos.AperCoefficients;
 import com.ak.numbers.aper.sincos.AperSurfaceCoefficientsChannel1;
 import com.ak.numbers.aper.sincos.AperSurfaceCoefficientsChannel2;
@@ -41,7 +42,7 @@ public class AperCoefficientsTest {
   }
 
   @Test(dataProvider = "aper-coefficients")
-  public static void testCoefficients(@Nonnull Coefficients coefficients, @Nonnegative int count) {
-    Assert.assertEquals(coefficients.get().length, count, coefficients.name());
+  public static void testCoefficients(@Nonnull Supplier<double[]> coefficients, @Nonnegative int count) {
+    Assert.assertEquals(coefficients.get().length, count, coefficients.toString());
   }
 }

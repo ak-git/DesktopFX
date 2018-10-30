@@ -39,7 +39,7 @@ public enum Interpolators {
   }
 
   public static <C extends Enum<C> & Coefficients> Supplier<IntBinaryOperator> interpolator(@Nonnull Class<C> coeffEnum) {
-    Map<Coefficients, IntUnaryOperator> coeffSplineMap = EnumSet.allOf(coeffEnum).stream().collect(
+    Map<C, IntUnaryOperator> coeffSplineMap = EnumSet.allOf(coeffEnum).stream().collect(
         Collectors.toMap(Function.identity(), coefficients -> interpolator(coefficients).get())
     );
 
@@ -59,7 +59,7 @@ public enum Interpolators {
     double[][] z = new double[xs.length][ys.length];
     for (int i = 0; i < xs.length; i++) {
       int finalX = xs[i];
-      List<Coefficients> sliceAlongY = coeffSplineMap.entrySet().stream().sorted(
+      List<C> sliceAlongY = coeffSplineMap.entrySet().stream().sorted(
           Comparator.comparingInt(o -> o.getValue().applyAsInt(finalX))
       ).map(Map.Entry::getKey).collect(Collectors.toList());
 
@@ -85,7 +85,7 @@ public enum Interpolators {
   public static Supplier<IntUnaryOperator> interpolator(@Nonnull Coefficients coefficients) {
     double[][] pairs = coefficients.getPairs();
     return EnumSet.allOf(Interpolators.class).stream().filter(i -> pairs.length >= i.minPoints).findFirst().
-        orElseThrow(() -> new IllegalArgumentException(String.format("Number of points %d from %s is too small", pairs.length, coefficients.name()))).
+        orElseThrow(() -> new IllegalArgumentException(String.format("Number of points %d from %s is too small", pairs.length, coefficients))).
         interpolate(pairs);
   }
 
