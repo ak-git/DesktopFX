@@ -5,9 +5,6 @@ import java.util.function.Supplier;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.numbers.aper.sincos.AperCoefficients;
-import com.ak.numbers.aper.sincos.AperSurfaceCoefficientsChannel1;
-import com.ak.numbers.aper.sincos.AperSurfaceCoefficientsChannel2;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

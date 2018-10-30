@@ -11,10 +11,10 @@ import com.ak.comm.converter.DependentVariable;
 import com.ak.comm.converter.aper.AperInVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
+import com.ak.numbers.aper.AperCoefficients;
 import com.ak.numbers.aper.AperRheoCoefficients;
-import com.ak.numbers.aper.sinsin.AperCoefficients;
-import com.ak.numbers.aper.sinsin.AperSurfaceCoefficientsChannel1;
-import com.ak.numbers.aper.sinsin.AperSurfaceCoefficientsChannel2;
+import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
+import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 

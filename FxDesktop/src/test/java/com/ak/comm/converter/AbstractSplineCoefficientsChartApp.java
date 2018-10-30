@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 import com.ak.numbers.Coefficients;
 import com.ak.numbers.Interpolators;
 import com.ak.numbers.RangeUtils;
-import com.ak.numbers.aper.sincos.AperSurfaceCoefficientsChannel2;
+import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
 import com.ak.util.LineFileBuilder;
 import com.ak.util.LineFileCollector;
 import javafx.application.Application;
