@@ -17,12 +17,6 @@ import com.ak.util.Strings;
 public enum CommonCoefficients implements SimpleCoefficients {
   MYO, ECG;
 
-  public static String readCurrentCarryingCalibration(@Nonnull JsonObject object) {
-    return object.getJsonObject("Current-carrying electrodes, Ohm : ADC").entrySet().stream()
-        .map(entry -> String.format("%s\t%s", entry.getValue().toString(), entry.getKey()))
-        .collect(Collectors.joining(Strings.NEW_LINE));
-  }
-
   public static <C extends Enum<C> & Coefficients> String readPotentialUnitCalibration(@Nonnull JsonObject object, @Nonnull C coefficients) {
     return readCalibration(object, coefficients, "Potential-unit electrodes, Ohm : ADC[CurrentCarrying, PotentialUnit]");
   }
