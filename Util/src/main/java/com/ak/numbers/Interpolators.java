@@ -89,11 +89,11 @@ public enum Interpolators {
         interpolate(pairs);
   }
 
-  private static Supplier<IntUnaryOperator> interpolator(@Nonnull double[] xValues, @Nonnull double[] yValues) {
-    int length = Math.min(xValues.length, yValues.length);
+  private static Supplier<IntUnaryOperator> interpolator(@Nonnull double[] abscissValues, @Nonnull double[] ordinateValues) {
+    int length = Math.min(abscissValues.length, ordinateValues.length);
     return EnumSet.allOf(Interpolators.class).stream().filter(i -> length >= i.minPoints).findFirst().
         orElseThrow(() -> new IllegalArgumentException(String.format("Number of points %d is too small", length))).
-        interpolate(xValues, yValues);
+        interpolate(abscissValues, ordinateValues);
   }
 
   private Supplier<IntUnaryOperator> interpolate(@Nonnull double[][] coefficients) {
