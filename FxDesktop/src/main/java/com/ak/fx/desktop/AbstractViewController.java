@@ -109,9 +109,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
       axisXController.setFrequency(service.getFrequency());
 
       Timeline timeline = new Timeline();
-      timeline.getKeyFrames().add(new KeyFrame(Duration.millis(100), (ActionEvent actionEvent) -> {
-        axisXController.scroll(-1000);
-      }));
+      timeline.getKeyFrames().add(new KeyFrame(Duration.millis(100), (ActionEvent actionEvent) -> axisXController.scroll(-1000)));
       timeline.setCycleCount(Animation.INDEFINITE);
       SequentialTransition animation;
       animation = new SequentialTransition();
@@ -155,7 +153,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
     FxUtils.invokeInFx(() -> {
       chartData.forEach((ev, ints) -> {
         if (ev.options().contains(Variable.Option.VISIBLE)) {
-          int[] values = filter(ints);
+          int[] values = FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(ints);
           ScaleYInfo<EV> scaleInfo = axisYController.scale(ev, values);
           Objects.requireNonNull(chart).setAll(ev.indexBy(Variable.Option.VISIBLE), IntStream.of(values).unordered().parallel()
               .mapToDouble(scaleInfo).toArray(), scaleInfo);
@@ -163,9 +161,5 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
       });
       axisXController.checkLength(chartData.values().iterator().next().length);
     });
-  }
-
-  private int[] filter(@Nonnull int[] input) {
-    return FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(input);
   }
 }
