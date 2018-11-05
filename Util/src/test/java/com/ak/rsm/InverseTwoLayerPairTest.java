@@ -1,6 +1,7 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
+import java.util.DoubleSummaryStatistics;
 import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -148,8 +149,14 @@ public class InverseTwoLayerPairTest {
 
   @Test(dataProvider = "experimental-errors", invocationCount = 10, enabled = false)
   public void testExperimentalErrors(@Nonnull double[] rOhmMeasured, @Nonnull TetrapolarSystemPair.Builder systemBuilder) {
-    double rho2Apparent = systemBuilder.build().getPair()[0].getApparent(rOhmMeasured[0]);
-    double rho1Apparent = systemBuilder.build().getPair()[1].getApparent(rOhmMeasured[1]);
+    double[] rhos = new double[2];
+    for (int i = 0; i < rhos.length; i++) {
+      rhos[i] = systemBuilder.build().getPair()[i].getApparent(rOhmMeasured[i]);
+    }
+
+    DoubleSummaryStatistics statistics = Arrays.stream(rhos).summaryStatistics();
+    double rho1Apparent = statistics.getMax();
+    double rho2Apparent = statistics.getMin();
 
     SimpleBounds simpleBounds = new SimpleBounds(
         new double[] {rho1Apparent, 0.0, 0.0, 0.0},
