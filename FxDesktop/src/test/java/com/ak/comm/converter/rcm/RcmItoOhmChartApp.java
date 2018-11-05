@@ -9,7 +9,7 @@ import com.ak.numbers.rcm.RcmCoefficients;
  */
 public final class RcmItoOhmChartApp extends AbstractSplineCoefficientsChartApp<ADCVariable, RcmOutVariable> {
   public RcmItoOhmChartApp() {
-    super(RcmCoefficients.CC_ADC_TO_OHM_1, ADCVariable.ADC, RcmOutVariable.QS_1);
+    super(RcmCoefficients.CC_ADC_TO_OHM.of(1), ADCVariable.ADC, RcmOutVariable.QS_1);
   }
 
   public static void main(String[] args) {

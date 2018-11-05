@@ -203,9 +203,17 @@ public final class FxDesktopTest extends Preloader {
     }
   }
 
-  @Test(expectedExceptions = IllegalStateException.class)
+  @Test
   public static void testScreenResolutionMonitor() {
-    ScreenResolutionMonitor.setStage(STAGE_REFERENCE.get());
+    try {
+      ScreenResolutionMonitor.setStage(STAGE_REFERENCE.get());
+    }
+    catch (Exception e) {
+      if (!STAGE_REFERENCE.get().isFullScreen()) {
+        Assert.assertThrows(IllegalStateException.class, () -> {
+        });
+      }
+    }
   }
 
   private static void setStageBounds(double x, double y, double width, double height) {

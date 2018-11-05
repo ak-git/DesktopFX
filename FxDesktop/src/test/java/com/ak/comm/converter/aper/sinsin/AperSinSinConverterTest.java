@@ -15,8 +15,8 @@ import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.aper.AperInVariable;
-import com.ak.numbers.aper.sinsin.AperSurfaceCoefficientsChannel1;
-import com.ak.numbers.aper.sinsin.AperSurfaceCoefficientsChannel2;
+import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
+import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -36,7 +36,7 @@ public final class AperSinSinConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {56904, 300767, 1427}},
+            new int[] {57089, 301742, 1431}},
     };
   }
 
@@ -55,7 +55,7 @@ public final class AperSinSinConverterTest {
         }
       }).count();
       if (processed.get()) {
-        Assert.assertEquals(count, 8);
+        Assert.assertEquals(count, 32);
         break;
       }
     }
@@ -75,6 +75,20 @@ public final class AperSinSinConverterTest {
   @Test
   public static void testInputVariablesClass() {
     EnumSet.allOf(AperOutVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), AperInVariable.class));
+  }
+
+  @DataProvider(name = "filter-delay")
+  public static Object[][] filterDelay() {
+    return new Object[][] {
+        {AperOutVariable.R1, 157.5},
+        {AperOutVariable.R2, 157.5},
+        {AperOutVariable.CCR, 157.5},
+    };
+  }
+
+  @Test(dataProvider = "filter-delay")
+  public static void testFilterDelay(@Nonnull AperOutVariable variable, double delay) {
+    Assert.assertEquals(variable.filter().getDelay(), delay, 0.001, variable.toString());
   }
 
   @Test(enabled = false)

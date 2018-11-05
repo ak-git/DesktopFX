@@ -15,7 +15,7 @@ public class AxisYControllerTest {
   @DataProvider(name = "fullData")
   public static Object[][] fullData() {
     return new Object[][] {
-        {IntStream.range(0, 1000), 500, 5},
+        {IntStream.range(0, 1000), 500, 10},
         {IntStream.range(0, 20), 10, 1},
         {IntStream.generate(() -> 1).limit(10), 0, 1},
         {IntStream.generate(() -> 100).limit(10), 50, 1},

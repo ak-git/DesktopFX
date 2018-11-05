@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":FxCore:test" external.linked.project.path="$MODULE_DIR$/../../../FxCore" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.ak" external.system.module.type="sourceSet" external.system.module.version="2018.5" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":FxCore:test" external.linked.project.path="$MODULE_DIR$/../../../FxCore" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.ak" external.system.module.type="sourceSet" external.system.module.version="2018.6" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="Spring" name="Spring">
       <configuration />
@@ -16,7 +16,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="DesktopFX-FxCore_main" />
     <orderEntry type="module" module-name="Util_main" />
-    <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
     <orderEntry type="library" name="Gradle: com.github.spotbugs:spotbugs:3.1.8" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-context:5.1.1.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.testng:testng:7.0.0-beta1" level="project" />

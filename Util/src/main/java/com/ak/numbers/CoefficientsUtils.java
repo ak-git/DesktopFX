@@ -1,35 +1,24 @@
 package com.ak.numbers;
 
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.IntSummaryStatistics;
-import java.util.function.ToDoubleFunction;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Locale;
+import java.util.Scanner;
 
 import javax.annotation.Nonnull;
 
-public enum CoefficientsUtils {
+enum CoefficientsUtils {
   ;
 
-  public static <C extends Enum<C> & Coefficients> IntSummaryStatistics rangeX(@Nonnull Class<C> coeffClass) {
-    return range(coeffClass, value -> value[0]);
-  }
-
-  public static <C extends Enum<C> & Coefficients> IntSummaryStatistics rangeY(@Nonnull Class<C> coeffClass) {
-    return range(coeffClass, value -> value[1]);
-  }
-
-  private static <C extends Enum<C> & Coefficients> IntSummaryStatistics range(@Nonnull Class<C> coeffClass,
-                                                                               @Nonnull ToDoubleFunction<double[]> selector) {
-    return EnumSet.allOf(coeffClass).stream().flatMapToDouble(
-        coefficients -> Arrays.stream(coefficients.getPairs()).mapToDouble(selector)).
-        mapToInt(value -> (int) Math.floor(value)).summaryStatistics();
-  }
-
-  public static double[] reverseOrder(double[] array) {
-    double[] reverse = new double[array.length];
-    for (int i = 0; i < reverse.length; i++) {
-      reverse[i] = array[array.length - i - 1];
+  static double[] read(@Nonnull Scanner scanner) {
+    scanner.useLocale(Locale.ROOT);
+    Collection<Double> coeffs = new LinkedList<>();
+    while (scanner.hasNext() && !scanner.hasNextDouble()) {
+      scanner.next();
     }
-    return reverse;
+    while (scanner.hasNextDouble()) {
+      coeffs.add(scanner.nextDouble());
+    }
+    return coeffs.stream().mapToDouble(Double::doubleValue).toArray();
   }
 }

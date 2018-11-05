@@ -2,7 +2,7 @@ package com.ak.digitalfilter;
 
 import javax.annotation.Nonnull;
 
-import com.ak.numbers.CoefficientsUtils;
+import com.ak.numbers.RangeUtils;
 
 final class IIRFilter extends AbstractOperableFilter {
   @Nonnull
@@ -10,7 +10,7 @@ final class IIRFilter extends AbstractOperableFilter {
   private int sum;
 
   IIRFilter(@Nonnull double[] coefficients) {
-    filter = new FIRFilter(CoefficientsUtils.reverseOrder(coefficients));
+    filter = new FIRFilter(RangeUtils.reverseOrder(coefficients));
   }
 
   @Override

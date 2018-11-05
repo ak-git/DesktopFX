@@ -13,22 +13,38 @@ final class ResistanceTwoLayerPair {
   @Nonnull
   private final TetrapolarSystemPair electrodeSystemPair;
   @Nonnegative
-  private final double dhSI;
+  private double rho1SI;
+  @Nonnegative
+  private double rho2SI;
+  @Nonnegative
+  private double hSI;
+  private double dhSI;
 
-  ResistanceTwoLayerPair(@Nonnull TetrapolarSystemPair electrodeSystemPair, @Nonnegative double dhSI) {
+  ResistanceTwoLayerPair(@Nonnull TetrapolarSystemPair electrodeSystemPair) {
     this.electrodeSystemPair = electrodeSystemPair;
-    this.dhSI = dhSI;
   }
 
-  /**
-   * Calculates <b>full</b> resistance R<sub>m-n</sub> (in Ohm)
-   *
-   * @param rho1SI specific resistance of <b>1st-layer</b> in Ohm-m
-   * @param rho2SI specific resistance of <b>2nd-layer</b> in Ohm-m
-   * @param hSI    height of <b>1-layer</b> in metres
-   * @return resistance R<sub>m-n</sub> (in Ohm)
-   */
-  public double[] value(@Nonnegative double rho1SI, @Nonnegative double rho2SI, @Nonnegative double hSI) {
+  ResistanceTwoLayerPair rho1(@Nonnegative double rho1SI) {
+    this.rho1SI = rho1SI;
+    return this;
+  }
+
+  ResistanceTwoLayerPair rho2(@Nonnegative double rho2SI) {
+    this.rho2SI = rho2SI;
+    return this;
+  }
+
+  ResistanceTwoLayerPair h(@Nonnegative double hSI) {
+    this.hSI = hSI;
+    return this;
+  }
+
+  ResistanceTwoLayerPair dh(double dhSI) {
+    this.dhSI = dhSI;
+    return this;
+  }
+
+  public double[] value() {
     return DoubleStream.of(hSI, hSI - dhSI).flatMap(h ->
         Arrays.stream(
             Arrays.stream(electrodeSystemPair.getPair()).mapToDouble(s ->
@@ -37,8 +53,25 @@ final class ResistanceTwoLayerPair {
     ).toArray();
   }
 
-  public double[] value(@Nonnull double[] rho1rho2h) {
-    return value(rho1rho2h[0], rho1rho2h[1], rho1rho2h[2]);
+  public double[] value(@Nonnull double[] params) {
+    if (params.length == 0 || params.length > 4) {
+      throw new IllegalArgumentException(Arrays.toString(params));
+    }
+    for (int i = 0; i < params.length; i++) {
+      if (i == 0) {
+        rho1(params[i]);
+      }
+      else if (i == 1) {
+        rho2(params[i]);
+      }
+      else if (i == 2) {
+        h(params[i]);
+      }
+      else {
+        dh(params[i]);
+      }
+    }
+    return value();
   }
 
   @Override

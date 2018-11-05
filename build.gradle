@@ -4,7 +4,7 @@ plugins {
     id 'com.github.spotbugs' version '1.6.4'
 }
 
-ext.projectIds = ['java': '1.10']
+ext.projectIds = ['java': JavaVersion.VERSION_1_10]
 
 wrapper {
     gradleVersion = "4.10.2"
@@ -12,7 +12,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2018.5'
+    version = '2018.6'
     apply plugin: 'idea'
 }
 
@@ -55,7 +55,6 @@ subprojects {
     }
 
     dependencies {
-        compile group: 'javax.inject', name: 'javax.inject', version: '1'
         compile group: 'com.github.spotbugs', name: 'spotbugs', version: '3.1.8'
         testCompile group: 'org.testng', name: 'testng', version: '7.0.0-beta1'
     }
@@ -79,6 +78,7 @@ project(':Util') {
 
 project(':Communication') {
     dependencies {
+        compile group: 'javax.inject', name: 'javax.inject', version: '1'
         compile group: 'org.scream3r', name: 'jssc', version: '2.8.0'
         compile project(':Util')
     }

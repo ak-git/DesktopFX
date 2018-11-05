@@ -14,8 +14,6 @@ import java.util.stream.DoubleStream;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import javafx.util.Builder;
-
 public class LineFileBuilder<IN> {
   @Nonnull
   private final String outFormat;

@@ -1,50 +1,23 @@
 package com.ak.numbers;
 
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Locale;
 import java.util.Scanner;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
-import javax.inject.Provider;
 import javax.json.Json;
 import javax.json.JsonObject;
 
-import com.ak.util.Strings;
-
-public interface Coefficients extends Provider<double[]> {
+public interface Coefficients extends Supplier<double[]> {
   @Override
   default double[] get() {
-    InputStream resourceAsStream = getClass().getResourceAsStream(String.format("%s.txt", name()));
-    Scanner scanner;
-    if (resourceAsStream == null) {
-      scanner = new Scanner(readJSON(Json.createReader(
-          getClass().getResourceAsStream(String.format("%s.json", getClass().getPackageName().replaceFirst(".*\\.", "")))
-      ).readObject()));
-    }
-    else {
-      scanner = new Scanner(resourceAsStream, Charset.defaultCharset().name());
-    }
-    scanner.useLocale(Locale.ROOT);
-
-    Collection<Double> coeffs = new LinkedList<>();
-    while (scanner.hasNext() && !scanner.hasNextDouble()) {
-      scanner.next();
-    }
-    while (scanner.hasNextDouble()) {
-      coeffs.add(scanner.nextDouble());
-    }
-    return coeffs.stream().mapToDouble(Double::doubleValue).toArray();
+    Scanner scanner = new Scanner(readJSON(Json.createReader(
+        getClass().getResourceAsStream(String.format("%s.json", getClass().getPackageName().replaceFirst(".*\\.", "")))
+    ).readObject()));
+    return CoefficientsUtils.read(scanner);
   }
 
   default double[][] getPairs() {
     double[] xAndY = get();
-    if ((xAndY.length & 1) == 1) {
-      throw new IllegalArgumentException(String.format("Number %d of coefficients %s is not even", xAndY.length, name()));
-    }
-
     double[][] pairs = new double[xAndY.length / 2][2];
 
     for (int i = 0; i < pairs.length; i++) {
@@ -54,9 +27,5 @@ public interface Coefficients extends Provider<double[]> {
     return pairs;
   }
 
-  String name();
-
-  default String readJSON(@Nonnull JsonObject object) {
-    return Strings.EMPTY;
-  }
+  String readJSON(@Nonnull JsonObject object);
 }
