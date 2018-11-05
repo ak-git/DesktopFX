@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":Communication:test" external.linked.project.path="$MODULE_DIR$/../../../Communication" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.ak" external.system.module.type="sourceSet" external.system.module.version="2018.5" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":Communication:test" external.linked.project.path="$MODULE_DIR$/../../../Communication" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.ak" external.system.module.type="sourceSet" external.system.module.version="2018.6" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_10">
     <output-test url="file://$MODULE_DIR$/../../../Communication/out/test/classes" />
     <exclude-output />
@@ -11,8 +11,8 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="DesktopFX-Communication_main" />
     <orderEntry type="module" module-name="Util_main" />
-    <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
     <orderEntry type="library" name="Gradle: com.github.spotbugs:spotbugs:3.1.8" level="project" />
+    <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
     <orderEntry type="library" name="Gradle: org.scream3r:jssc:2.8.0" level="project" />
     <orderEntry type="library" name="Gradle: org.testng:testng:7.0.0-beta1" level="project" />
     <orderEntry type="library" name="Gradle: org.ow2.asm:asm-commons:6.2.1" level="project" />

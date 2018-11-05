@@ -3,7 +3,7 @@ package com.ak.numbers.common;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.numbers.Coefficients;
+import com.ak.numbers.SimpleCoefficients;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -26,7 +26,7 @@ public class CommonCoefficientsTest {
   }
 
   @Test(dataProvider = "coefficients")
-  public static void testCoefficients(@Nonnull Coefficients coefficients, @Nonnegative int count) {
+  public static void testCoefficients(@Nonnull SimpleCoefficients coefficients, @Nonnegative int count) {
     Assert.assertEquals(coefficients.get().length, count, coefficients.name());
   }
 }

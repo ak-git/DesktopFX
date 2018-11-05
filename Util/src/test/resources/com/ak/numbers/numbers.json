@@ -1,1 +1,18 @@
-{}
+{
+  "INTERPOLATOR_TEST_AKIMA, x : y": {
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "5": 100,
+    "15": -100
+  },
+  "INTERPOLATOR_TEST_LINEAR, x : y": {
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "16": 99
+  },
+  "INTERPOLATOR_TEST_INVALID, x : y": {
+    "1": 0
+  }
+}

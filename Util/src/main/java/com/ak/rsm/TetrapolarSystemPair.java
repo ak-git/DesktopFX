@@ -58,7 +58,7 @@ final class TetrapolarSystemPair {
     return Arrays.stream(pair).map(TetrapolarSystem::toString).collect(Collectors.joining(" / "));
   }
 
-  static class Builder implements javafx.util.Builder<TetrapolarSystemPair> {
+  static class Builder implements com.ak.util.Builder<TetrapolarSystemPair> {
     @Nonnegative
     private final double dL;
     @Nonnull

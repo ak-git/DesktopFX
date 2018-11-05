@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.numbers.SimpleCoefficients;
+import com.ak.numbers.DiffCoefficients;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -32,7 +32,7 @@ public class FilterBuilderTest {
         0.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {8}, {5}, {2}, {1}},
-        FilterBuilder.of().fir(SimpleCoefficients.DIFF).build(),
+        FilterBuilder.of().fir(DiffCoefficients.DIFF).build(),
         new int[][] {{1}, {1}, {2}, {3}, {1}, {-3}, {-2}},
         1.0, 1.0
     }, {

@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javafx.geometry.Orientation;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -55,16 +54,6 @@ public class LineFileCollectorTest {
   @BeforeMethod
   public void prepare() {
     exceptionCounter.set(0);
-  }
-
-  @Test
-  public static void testDirectionNames() {
-    for (Orientation orientation : Orientation.values()) {
-      LineFileCollector.Direction.valueOf(orientation.name());
-    }
-    for (LineFileCollector.Direction direction : LineFileCollector.Direction.values()) {
-      Orientation.valueOf(direction.name());
-    }
   }
 
   @DataProvider(name = "stream")

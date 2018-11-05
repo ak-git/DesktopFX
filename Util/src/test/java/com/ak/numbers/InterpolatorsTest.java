@@ -11,17 +11,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class InterpolatorsTest {
-  private enum InterpolatorCoefficients implements Coefficients {
-    INTERPOLATOR_TEST_AKIMA, INTERPOLATOR_TEST_LINEAR, INTERPOLATOR_TEST_INVALID
-  }
-
   private InterpolatorsTest() {
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Number 3 of coefficients DIFF is not even")
-  public static void testInvalidCoefficients() {
-    Interpolators.interpolator(SimpleCoefficients.DIFF);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
@@ -45,7 +35,7 @@ public class InterpolatorsTest {
   }
 
   @Test(dataProvider = "interpolators")
-  public static void testInterpolator(@Nonnull Coefficients coefficients, @Nonnull int[] expected) {
+  public static <C extends Enum<C> & Coefficients> void testInterpolator(@Nonnull C coefficients, @Nonnull int[] expected) {
     IntUnaryOperator operator = Interpolators.interpolator(coefficients).get();
     int[] actual = IntStream.rangeClosed(1, 15).map(operator).toArray();
     Assert.assertTrue(Arrays.equals(actual, expected), Arrays.toString(actual));

@@ -9,12 +9,12 @@ import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntFunction;
 import java.util.function.IntUnaryOperator;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.inject.Provider;
 
 import com.ak.util.Strings;
 import org.apache.commons.math3.analysis.BivariateFunction;
@@ -38,12 +38,12 @@ public enum Interpolators {
     this.minPoints = minPoints;
   }
 
-  public static <C extends Enum<C> & Coefficients> Provider<IntBinaryOperator> interpolator(@Nonnull Class<C> coeffEnum) {
-    Map<Coefficients, IntUnaryOperator> coeffSplineMap = EnumSet.allOf(coeffEnum).stream().collect(
+  public static <C extends Enum<C> & Coefficients> Supplier<IntBinaryOperator> interpolator(@Nonnull Class<C> coeffEnum) {
+    Map<C, IntUnaryOperator> coeffSplineMap = EnumSet.allOf(coeffEnum).stream().collect(
         Collectors.toMap(Function.identity(), coefficients -> interpolator(coefficients).get())
     );
 
-    int limitX = CoefficientsUtils.rangeX(coeffEnum).getMax();
+    int limitX = RangeUtils.rangeX(coeffEnum).getMax();
     int limitY = IntStream.rangeClosed(0, limitX).map(x ->
         coeffSplineMap.values().stream().mapToInt(value -> value.applyAsInt(x)).summaryStatistics().getMax()
     ).summaryStatistics().getMax();
@@ -59,7 +59,7 @@ public enum Interpolators {
     double[][] z = new double[xs.length][ys.length];
     for (int i = 0; i < xs.length; i++) {
       int finalX = xs[i];
-      List<Coefficients> sliceAlongY = coeffSplineMap.entrySet().stream().sorted(
+      List<C> sliceAlongY = coeffSplineMap.entrySet().stream().sorted(
           Comparator.comparingInt(o -> o.getValue().applyAsInt(finalX))
       ).map(Map.Entry::getKey).collect(Collectors.toList());
 
@@ -82,21 +82,21 @@ public enum Interpolators {
     };
   }
 
-  public static Provider<IntUnaryOperator> interpolator(@Nonnull Coefficients coefficients) {
+  public static Supplier<IntUnaryOperator> interpolator(@Nonnull Coefficients coefficients) {
     double[][] pairs = coefficients.getPairs();
     return EnumSet.allOf(Interpolators.class).stream().filter(i -> pairs.length >= i.minPoints).findFirst().
-        orElseThrow(() -> new IllegalArgumentException(String.format("Number of points %d from %s is too small", pairs.length, coefficients.name()))).
+        orElseThrow(() -> new IllegalArgumentException(String.format("Number of points %d from %s is too small", pairs.length, coefficients))).
         interpolate(pairs);
   }
 
-  private static Provider<IntUnaryOperator> interpolator(@Nonnull double[] xValues, @Nonnull double[] yValues) {
-    int length = Math.min(xValues.length, yValues.length);
+  private static Supplier<IntUnaryOperator> interpolator(@Nonnull double[] abscissValues, @Nonnull double[] ordinateValues) {
+    int length = Math.min(abscissValues.length, ordinateValues.length);
     return EnumSet.allOf(Interpolators.class).stream().filter(i -> length >= i.minPoints).findFirst().
         orElseThrow(() -> new IllegalArgumentException(String.format("Number of points %d is too small", length))).
-        interpolate(xValues, yValues);
+        interpolate(abscissValues, ordinateValues);
   }
 
-  private Provider<IntUnaryOperator> interpolate(@Nonnull double[][] coefficients) {
+  private Supplier<IntUnaryOperator> interpolate(@Nonnull double[][] coefficients) {
     double[][] sorted = Arrays.stream(coefficients).sorted(Comparator.comparingDouble(o -> o[0])).toArray(value -> new double[value][0]);
     double[] xValues = new double[sorted.length];
     double[] yValues = new double[sorted.length];
@@ -109,7 +109,7 @@ public enum Interpolators {
     return interpolate(xValues, yValues);
   }
 
-  private Provider<IntUnaryOperator> interpolate(@Nonnull double[] xValues, @Nonnull double[] yValues) {
+  private Supplier<IntUnaryOperator> interpolate(@Nonnull double[] xValues, @Nonnull double[] yValues) {
     return () -> new IntUnaryOperator() {
       private final UnivariateFunction f = interpolator.interpolate(xValues, yValues);
 

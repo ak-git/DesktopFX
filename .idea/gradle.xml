@@ -6,6 +6,7 @@
         <option name="createEmptyContentRootDirectories" value="true" />
         <option name="distributionType" value="WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleJvm" value="10" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />

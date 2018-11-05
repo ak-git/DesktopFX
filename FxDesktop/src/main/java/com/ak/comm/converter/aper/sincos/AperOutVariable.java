@@ -11,10 +11,9 @@ import com.ak.comm.converter.DependentVariable;
 import com.ak.comm.converter.aper.AperInVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
-import com.ak.numbers.Coefficients;
-import com.ak.numbers.aper.sincos.AperCoefficients;
-import com.ak.numbers.aper.sincos.AperSurfaceCoefficientsChannel1;
-import com.ak.numbers.aper.sincos.AperSurfaceCoefficientsChannel2;
+import com.ak.numbers.aper.AperCoefficients;
+import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
+import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
 import com.ak.numbers.common.CommonCoefficients;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
@@ -88,7 +87,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return ccrFilter(AperCoefficients.ADC_TO_OHM_1);
+      return FilterBuilder.asFilterBuilder(AperCoefficients.ADC_TO_OHM).smoothingImpulsive(10).build();
     }
 
     @Override
@@ -125,19 +124,10 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
     public List<AperInVariable> getInputVariables() {
       return Collections.singletonList(AperInVariable.CCU2);
     }
-
-    @Override
-    public DigitalFilter filter() {
-      return ccrFilter(AperCoefficients.ADC_TO_OHM_2);
-    }
   };
 
   @Override
   public final Class<AperInVariable> getInputVariablesClass() {
     return AperInVariable.class;
-  }
-
-  private static DigitalFilter ccrFilter(Coefficients c) {
-    return FilterBuilder.asFilterBuilder(c).smoothingImpulsive(10).build();
   }
 }
