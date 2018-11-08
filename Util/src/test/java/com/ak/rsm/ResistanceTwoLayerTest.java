@@ -1,16 +1,14 @@
 package com.ak.rsm;
 
-import java.util.Arrays;
-import java.util.function.ToDoubleFunction;
-import java.util.logging.Logger;
-
 import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.SimplexTest;
 import com.ak.util.Metrics;
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.analysis.TrivariateFunction;
+import org.apache.commons.math3.optim.PointValuePair;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -64,35 +62,31 @@ public class ResistanceTwoLayerTest {
   @DataProvider(name = "rho1")
   public static Object[][] rho1Parameters() {
     return new Object[][] {
-        {10.0, 10.0, 50.0, 9.616,
-            0.74},
-        {10.0, 30.0, 50.0, 33.666,
-            0.73},
-
-        {10.0, 10.0, 50.0, 9.782,
-            0.76},
-        {10.0, 30.0, 50.0, 33.669,
-            0.73},
+        {10.0, 10.0, new double[] {33.860, 9.822}, 0.7463},
     };
   }
 
   @Test(dataProvider = "rho1")
-  public void testInverseRho1(@Nonnegative double hmm, @Nonnegative double sPUmm, @Nonnegative double lCCmm,
-                              @Nonnegative double rOhmActual, @Nonnegative double rho1Expected) {
-    TetrapolarSystem electrodeSystem = new TetrapolarSystem(sPUmm, lCCmm, MILLI(METRE));
+  public void testInverseRho1(@Nonnegative double hmm, @Nonnegative double sPUmm,
+                              @Nonnull double[] rOhmActual, @Nonnegative double rho1Expected) {
+    TetrapolarSystem electrodeSystemBig = new TetrapolarSystem(sPUmm * 3.0, sPUmm * 5.0, MILLI(METRE));
+    TetrapolarSystem electrodeSystemSmall = new TetrapolarSystem(sPUmm, sPUmm * 5.0, MILLI(METRE));
 
-    ToDoubleFunction<TetrapolarSystem> findRho1 = electrode -> SimplexTest.optimizeNelderMead(new MultivariateFunction() {
-      private final TrivariateFunction resistancePredicted = new ResistanceTwoLayer(electrode);
+    PointValuePair pointValuePair = SimplexTest.optimizeNelderMead(new MultivariateFunction() {
+      private final TrivariateFunction resistancePredictedBig = new ResistanceTwoLayer(electrodeSystemBig);
+      private final TrivariateFunction resistancePredictedSmall = new ResistanceTwoLayer(electrodeSystemSmall);
 
       @Override
       public double value(double[] rho1) {
-        return Inequality.logDifference().applyAsDouble(rOhmActual, resistancePredicted.value(rho1[0], Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)));
-      }
-    }, new double[] {electrodeSystem.getApparent(rOhmActual)}, new double[] {0.001}).getPoint()[0];
+        Inequality inequality = Inequality.logDifference();
+        inequality.applyAsDouble(electrodeSystemBig.getApparent(rOhmActual[0]),
+            electrodeSystemBig.getApparent(resistancePredictedBig.value(rho1[0], Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm))));
 
-    double[] doubles = Arrays.stream(electrodeSystem.newWithError(0.1, MILLI(METRE))).mapToDouble(findRho1).toArray();
-    double center = findRho1.applyAsDouble(electrodeSystem);
-    Logger.getAnonymousLogger().config(String.format("%.3f +%.3f/-%.3f", center, doubles[0] - center, center - doubles[1]));
-    Assert.assertEquals(center, rho1Expected, 0.01);
+        inequality.applyAsDouble(electrodeSystemSmall.getApparent(rOhmActual[1]),
+            electrodeSystemSmall.getApparent(resistancePredictedSmall.value(rho1[0], Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm))));
+        return inequality.getAsDouble();
+      }
+    }, new double[] {1.0}, new double[] {0.001});
+    Assert.assertEquals(pointValuePair.getPoint()[0], rho1Expected, 1.0e-4);
   }
 }
