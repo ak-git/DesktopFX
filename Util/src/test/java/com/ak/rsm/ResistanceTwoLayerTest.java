@@ -62,7 +62,7 @@ public class ResistanceTwoLayerTest {
   @DataProvider(name = "rho1")
   public static Object[][] rho1Parameters() {
     return new Object[][] {
-        {10.0, 10.0, new double[] {33.860, 9.822}, 0.7463},
+        {10.0, 10.0, new double[] {33.860, 9.822}, 0.746},
     };
   }
 
@@ -79,14 +79,11 @@ public class ResistanceTwoLayerTest {
       @Override
       public double value(double[] rho1) {
         Inequality inequality = Inequality.logDifference();
-        inequality.applyAsDouble(electrodeSystemBig.getApparent(rOhmActual[0]),
-            electrodeSystemBig.getApparent(resistancePredictedBig.value(rho1[0], Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm))));
-
-        inequality.applyAsDouble(electrodeSystemSmall.getApparent(rOhmActual[1]),
-            electrodeSystemSmall.getApparent(resistancePredictedSmall.value(rho1[0], Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm))));
+        inequality.applyAsDouble(rOhmActual[0], resistancePredictedBig.value(rho1[0], Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)));
+        inequality.applyAsDouble(rOhmActual[1], resistancePredictedSmall.value(rho1[0], Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)));
         return inequality.getAsDouble();
       }
     }, new double[] {1.0}, new double[] {0.001});
-    Assert.assertEquals(pointValuePair.getPoint()[0], rho1Expected, 1.0e-4);
+    Assert.assertEquals(pointValuePair.getPoint()[0], rho1Expected, 1.0e-3);
   }
 }
