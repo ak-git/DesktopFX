@@ -9,6 +9,6 @@ import com.ak.util.LocalFileIO;
 final class LogBuilder extends LogPathBuilder {
   LogBuilder(@Nonnull Class<? extends FileHandler> fileHandlerClass) {
     super("log", fileHandlerClass);
-    fileName(LocalFileIO.AbstractBuilder.localDate("yyyy-MMM-dd") + ".%u.%g");
+    fileName(LocalFileIO.AbstractBuilder.localDate("yyyy-MM-dd") + ".%u.%g");
   }
 }
