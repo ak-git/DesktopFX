@@ -20,6 +20,10 @@ public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, T
     return new Inequality((measured, predicted) -> StrictMath.log(measured) - StrictMath.log(predicted));
   }
 
+  public static Inequality log1pDifference() {
+    return new Inequality((measured, predicted) -> StrictMath.log1p(measured) - StrictMath.log1p(predicted));
+  }
+
   public static Inequality proportional() {
     return new Inequality((measured, predicted) -> (measured - predicted) / predicted);
   }
