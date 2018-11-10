@@ -1,5 +1,7 @@
 package com.ak.rsm;
 
+import java.util.logging.Logger;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -9,6 +11,7 @@ import com.ak.util.Metrics;
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -34,7 +37,10 @@ public class ResistanceTwoLayerTest {
         {new Double[] {9.5, 0.5}, 30.0, 40.0, 80.0, 81.831},
 
         {new Double[] {20.0, 1.0}, 1.0, 40.0, 80.0, 10.649},
-        {new Double[] {8.0, 1.0}, 50.0, 30.0, 90.0, 38.858}
+        {new Double[] {0.746, Double.POSITIVE_INFINITY}, 10.0, 10.0, 50.0, 9.670},
+
+        {new Double[] {0.746, Double.POSITIVE_INFINITY}, 10.0, 30.0, 50.0, 34.365},
+        {new Double[] {0.746, Double.POSITIVE_INFINITY}, 10.0, 10.0, 30.0, 17.862},
     };
   }
 
@@ -67,8 +73,8 @@ public class ResistanceTwoLayerTest {
   }
 
   @Test(dataProvider = "rho1")
-  public void testInverseRho1(@Nonnegative double hmm, @Nonnegative double sPUmm,
-                              @Nonnull double[] rOhmActual, @Nonnegative double rho1Expected) {
+  public static void testInverseRho1(@Nonnegative double hmm, @Nonnegative double sPUmm,
+                                     @Nonnull double[] rOhmActual, @Nonnegative double rho1Expected) {
     TetrapolarSystem electrodeSystemBig = new TetrapolarSystem(sPUmm * 3.0, sPUmm * 5.0, MILLI(METRE));
     TetrapolarSystem electrodeSystemSmall = new TetrapolarSystem(sPUmm, sPUmm * 5.0, MILLI(METRE));
 
@@ -85,5 +91,50 @@ public class ResistanceTwoLayerTest {
       }
     }, new double[] {1.0}, new double[] {0.001});
     Assert.assertEquals(pointValuePair.getPoint()[0], rho1Expected, 1.0e-3);
+  }
+
+  @DataProvider(name = "rho1-h")
+  public static Object[][] rho1HParameters() {
+    return new Object[][] {
+        {10.0, new double[] {33.860, 9.822}, new double[] {33.682, 9.725}, new double[] {0.612, 0.008}},
+    };
+  }
+
+  @Test(dataProvider = "rho1-h")
+  public static void testInverseRho1H(@Nonnegative double sPUmm, @Nonnull double[] rOhmBefore, @Nonnull double[] rOhmAfter,
+                                      @Nonnull double[] rho1hExpected) {
+    TetrapolarSystem systemBig = new TetrapolarSystem(sPUmm * 3, sPUmm * 5.0, MILLI(METRE));
+    TetrapolarSystem systemSmall = new TetrapolarSystem(sPUmm, sPUmm * 5.0, MILLI(METRE));
+
+    double rho1Apparent = systemBig.getApparent(rOhmBefore[0]);
+    double rho2Apparent = systemSmall.getApparent(rOhmBefore[1]);
+    Logger.getAnonymousLogger().config(String.format("Apparent : %.3f; %.3f", rho1Apparent, rho2Apparent));
+
+    SimpleBounds bounds = new SimpleBounds(
+        new double[] {0.0, 0.0},
+        new double[] {rho1Apparent, Metrics.fromMilli(sPUmm * 5.0 / 2.0)}
+    );
+
+    TrivariateFunction predictedSmall = new ResistanceTwoLayer(systemSmall);
+    TrivariateFunction predictedBig = new ResistanceTwoLayer(systemBig);
+
+    double[] point = SimplexTest.optimizeCMAES(rho1h -> {
+          Inequality inequality = Inequality.log1pDifference();
+          inequality.applyAsDouble(rOhmBefore[0], predictedBig.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]));
+          inequality.applyAsDouble(rOhmBefore[1], predictedSmall.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]));
+
+          inequality.applyAsDouble(rOhmBefore[0] - rOhmAfter[0],
+              predictedBig.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]) -
+                  predictedBig.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1] + Metrics.fromMilli(10.0 / 200.0))
+          );
+          inequality.applyAsDouble(rOhmBefore[1] - rOhmAfter[1],
+              predictedSmall.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]) -
+                  predictedSmall.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1] + Metrics.fromMilli(10.0 / 200.0))
+          );
+          return inequality.getAsDouble();
+        },
+        bounds, bounds.getUpper(), new double[] {rho1Apparent / 10.0, Metrics.fromMilli(sPUmm / 10.0)}
+    ).getPoint();
+    Assert.assertEquals(point, rho1hExpected, 1.0e-3);
   }
 }
