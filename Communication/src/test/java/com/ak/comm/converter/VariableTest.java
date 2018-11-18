@@ -2,6 +2,7 @@ package com.ak.comm.converter;
 
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -96,7 +97,9 @@ public class VariableTest {
 
   @Test
   public static void testToString() {
-    Assert.assertTrue(Variables.toString(ADCVariable.ADC, 1).startsWith("ADC = 1 "));
+    String adc = Variables.toString(ADCVariable.ADC, 10000);
+    Assert.assertTrue(adc.startsWith("ADC = "), adc);
+    Assert.assertTrue(adc.endsWith(String.format(Locale.getDefault(), "%,d one", 10000)), adc);
     Assert.assertTrue(Variables.toString(Quantities.getQuantity(1, AbstractUnit.ONE)).startsWith("1 "));
 
     Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
@@ -125,16 +128,16 @@ public class VariableTest {
   @DataProvider(name = "formatValues")
   public static Object[][] formatValues() {
     return new Object[][] {
-        {1234, MetricPrefix.CENTI(Units.HERTZ), 1, String.format("%.2f Hz", 12.34)},
-        {-1234, MetricPrefix.CENTI(Units.HERTZ), 10, String.format("%.1f Hz", -12.3)},
+        {1234, MetricPrefix.CENTI(Units.HERTZ), 1, String.format(Locale.getDefault(), "%,.2f Hz", 12.34)},
+        {-1234, MetricPrefix.CENTI(Units.HERTZ), 10, String.format(Locale.getDefault(), "%,.1f Hz", -12.3)},
         {1234, MetricPrefix.CENTI(Units.HERTZ), 100, String.format("%.0f Hz", 12.0)},
-        {-1234, Units.HERTZ, 1, String.format("%.3f kHz", -1.234)},
-        {1234, Units.HERTZ, 10, String.format("%.2f kHz", 1.23)},
-        {-1234, Units.HERTZ, 100, String.format("%.1f kHz", -1.2)},
+        {-1234, Units.HERTZ, 1, String.format(Locale.getDefault(), "%,.3f kHz", -1.234)},
+        {1234, Units.HERTZ, 10, String.format(Locale.getDefault(), "%,.2f kHz", 1.23)},
+        {-1234, Units.HERTZ, 100, String.format(Locale.getDefault(), "%,.1f kHz", -1.2)},
         {1234, Units.HERTZ, 1000, String.format("%.0f kHz", 1.0)},
         {-123, Units.HERTZ, 1, String.format("%.0f Hz", -123.0)},
-        {-3140, Units.VOLT, 1, String.format("%.2f kV", -3.14)},
-        {3100, Units.VOLT, 1, String.format("%.1f kV", 3.1)},
+        {-3140, Units.VOLT, 1, String.format(Locale.getDefault(), "%,.2f kV", -3.14)},
+        {3100, Units.VOLT, 1, String.format(Locale.getDefault(), "%,.1f kV", 3.1)},
         {-3000, Units.VOLT, 1, String.format("%.0f kV", -3.0)},
         {0, Units.VOLT, 1, String.format("%.0f V", 0.0)},
         {0, Units.VOLT, 1000, String.format("%.0f kV", 0.0)}
