@@ -22,7 +22,7 @@ public enum LogBuilders {
   CONVERTER_FILE("converterFileLog") {
     @Override
     public LocalIO build(String fileName) {
-      return newInstance().fileName(fileName).addPathWithDate().addPath(CONVERTER_FILE.directory).build();
+      return newInstance().fileName(fileName).addPath(CONVERTER_FILE.directory).addPathWithDate().build();
     }
   };
 
@@ -34,7 +34,7 @@ public enum LogBuilders {
   }
 
   public LocalIO build(String fileName) {
-    return newInstance().fileNameWithDateTime(fileName).addPathWithDate().addPath(directory).build();
+    return newInstance().fileNameWithDateTime(fileName).addPath(directory).addPathWithDate().build();
   }
 
   private static LogPathBuilder newInstance() {
