@@ -34,7 +34,7 @@ public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, T
 
   @Override
   public double applyAsDouble(double measured, double predicted) {
-    errorNorm = L2_NORM.applyAsDouble(errorNorm, errorDefinition.applyAsDouble(measured, predicted));
+    errorNorm = L2_NORM.applyAsDouble(errorNorm, errorDefinition.applyAsDouble(Math.abs(measured), Math.abs(predicted)));
     return errorNorm;
   }
 

@@ -3,7 +3,6 @@ package com.ak.rsm;
 import java.util.Arrays;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -142,107 +141,63 @@ public class ResistanceTwoLayerTest {
     Assert.assertEquals(point, rho1hExpected, 1.0e-3, Arrays.toString(point));
   }
 
-  @DataProvider(name = "rho1-h-dH")
-  public static Object[][] rho1HdHParameters() {
+
+  @DataProvider(name = "rho1-rho2-h-dh")
+  public static Object[][] dhParameters() {
     return new Object[][] {
-        {10.0, new double[] {33.860, 9.822}, new double[] {33.682, 9.725}, new double[] {0.62210, Metrics.fromMilli(8.22), Metrics.fromMilli(0.05)}},
+        {8.0, new double[] {125.525, 204.450}, new double[] {125.75, 204.86}},
+        {8.0, new double[] {125.55, 204.6}, new double[] {126.1, 205.6}},
+        {7.0, new double[] {142.7, 224.1}, new double[] {143.15, 224.7}},
+        {6.0, new double[] {138.0, 213.9}, new double[] {138.375, 214.7}},
     };
   }
 
-  @Test(dataProvider = "rho1-h-dH")
-  public static void testInverseRho1HdH(@Nonnegative double sPUmm, @Nonnull double[] rOhmBefore, @Nonnull double[] rOhmAfter,
-                                        @Nonnull double[] rho1hExpected) {
-    TetrapolarSystem systemBig = new TetrapolarSystem(sPUmm * 3, sPUmm * 5.0, MILLI(METRE));
-    TetrapolarSystem systemSmall = new TetrapolarSystem(sPUmm, sPUmm * 5.0, MILLI(METRE));
+  @Test(dataProvider = "rho1-rho2-h-dh", enabled = false)
+  public static void testInverseDh(@Nonnegative double sPUmm, @Nonnull double[] rOhmBefore, @Nonnull double[] rOhmAfter) {
+    TetrapolarSystem systemSmall = new TetrapolarSystem(sPUmm, sPUmm * 3.0, MILLI(METRE));
+    TetrapolarSystem systemBig = new TetrapolarSystem(sPUmm * 3.0, sPUmm * 5.0, MILLI(METRE));
 
-    double rho1Apparent = systemBig.getApparent(rOhmBefore[0]);
-    double rho2Apparent = systemSmall.getApparent(rOhmBefore[1]);
-    Logger.getAnonymousLogger().config(String.format("Apparent : %.3f; %.3f", rho1Apparent, rho2Apparent));
-
-    SimpleBounds bounds = new SimpleBounds(
-        new double[] {0.0, 0.0, 0.0},
-        new double[] {rho1Apparent, Metrics.fromMilli(sPUmm * 5.0 / 2.0), Metrics.fromMilli(1.0)}
-    );
-
-    TrivariateFunction predictedSmall = new ResistanceTwoLayer(systemSmall);
-    TrivariateFunction predictedBig = new ResistanceTwoLayer(systemBig);
-
-    double[] point = SimplexTest.optimizeCMAES(rho1h -> {
-          Inequality inequality = Inequality.log1pDifference();
-          inequality.applyAsDouble(rOhmBefore[0], predictedBig.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]));
-          inequality.applyAsDouble(rOhmBefore[1], predictedSmall.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]));
-
-          double dH = rho1h[2];
-          inequality.applyAsDouble(rOhmBefore[0] - rOhmAfter[0],
-              predictedBig.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]) -
-                  predictedBig.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1] + dH)
-          );
-          inequality.applyAsDouble(rOhmBefore[1] - rOhmAfter[1],
-              predictedSmall.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]) -
-                  predictedSmall.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1] + dH)
-          );
-          return inequality.getAsDouble();
-        },
-        bounds, bounds.getUpper(), new double[] {rho1Apparent / 10.0, Metrics.fromMilli(sPUmm / 10.0), Metrics.fromMilli(0.01)}
-    ).getPoint();
-    Assert.assertEquals(point, rho1hExpected, 1.0e-5, Arrays.toString(point));
-  }
-
-  @DataProvider(name = "rho1-rho2-h-dRho2")
-  public static Object[][] dRho2Parameters() {
-    return new Object[][] {
-        {10.0, new double[] {163.0, 36.0}, new double[] {166.5, 36.7}},
-    };
-  }
-
-  @Test(dataProvider = "rho1-rho2-h-dRho2", enabled = false)
-  public static void testInverseDRho2(@Nonnegative double sPUmm, @Nonnull double[] rOhmBefore, @Nonnull double[] rOhmAfter) {
-    TetrapolarSystem systemBig = new TetrapolarSystem(sPUmm * 3, sPUmm * 5.0, MILLI(METRE));
-    TetrapolarSystem systemSmall = new TetrapolarSystem(sPUmm, sPUmm * 5.0, MILLI(METRE));
-
-    double rho1Apparent = systemBig.getApparent(rOhmBefore[0]);
-    double rho2Apparent = systemSmall.getApparent(rOhmBefore[1]);
+    double rho1Apparent = systemSmall.getApparent(rOhmBefore[0]);
+    double rho2Apparent = systemBig.getApparent(rOhmBefore[1]);
     Logger.getAnonymousLogger().info(String.format("Apparent : %.3f; %.3f", rho1Apparent, rho2Apparent));
 
-    SimpleBounds bounds = new SimpleBounds(
-        new double[] {rho1Apparent, 0.0},
-        new double[] {Double.POSITIVE_INFINITY, rho2Apparent}
-    );
-
     TrivariateFunction predictedSmall = new ResistanceTwoLayer(systemSmall);
     TrivariateFunction predictedBig = new ResistanceTwoLayer(systemBig);
 
-    DoubleStream.iterate(0.8, hmm -> hmm + 0.001).takeWhile(hmm -> hmm < 0.9).forEachOrdered(hmm -> {
-      double[] point = SimplexTest.optimizeCMAES(v -> {
-            Inequality inequality = Inequality.log1pDifference();
-            inequality.applyAsDouble(rOhmBefore[0], predictedBig.value(v[0], v[1], Metrics.fromMilli(hmm)));
-            inequality.applyAsDouble(rOhmBefore[1], predictedSmall.value(v[0], v[1], Metrics.fromMilli(hmm)));
-            return inequality.getAsDouble();
-          },
-          bounds, new double[] {rho1Apparent, rho2Apparent},
-          new double[] {rho1Apparent / 10.0, rho2Apparent / 10.0}
-      ).getPoint();
-
-      PointValuePair point2 = SimplexTest.optimizeNelderMead(v -> {
-            Inequality inequality = Inequality.log1pDifference();
-            inequality.applyAsDouble(rOhmAfter[0] - rOhmBefore[0],
-                predictedBig.value(point[0], point[1] + v[0], Metrics.fromMilli(hmm)) -
-                    predictedBig.value(point[0], point[1], Metrics.fromMilli(hmm)));
-            inequality.applyAsDouble(rOhmAfter[1] - rOhmBefore[1],
-                predictedSmall.value(point[0], point[1] + v[0], Metrics.fromMilli(hmm)) -
-                    predictedSmall.value(point[0], point[1], Metrics.fromMilli(hmm)));
-            return inequality.getAsDouble();
-          },
-          new double[] {rho2Apparent / 10.0},
-          new double[] {rho1Apparent / 100.0}
+    SimpleBounds bounds;
+    if (rho1Apparent > rho2Apparent) {
+      bounds = new SimpleBounds(
+          new double[] {rho1Apparent, 0.0, 0.0, 0.0},
+          new double[] {Double.POSITIVE_INFINITY, rho2Apparent, Metrics.fromMilli(sPUmm * 2.0), Metrics.fromMilli(1.0)}
       );
+    }
+    else {
+      bounds = new SimpleBounds(
+          new double[] {0.0, rho2Apparent, 0.0, 0.0},
+          new double[] {rho1Apparent, Double.POSITIVE_INFINITY, Metrics.fromMilli(sPUmm * 2.0), Metrics.fromMilli(1.0)}
+      );
+    }
 
-      Logger.getAnonymousLogger().info(String.format("h = %.3f mm, rho = %s, dRho2 = %.4f, e = %.6f",
-          hmm, toString(point), point2.getPoint()[0], point2.getValue()));
-    });
+    PointValuePair pointValuePair = SimplexTest.optimizeCMAES(point -> {
+          double rho1 = point[0];
+          double rho2 = Double.POSITIVE_INFINITY;
+          double h = point[2];
+          double dh = point[3];
+
+          Inequality inequality = Inequality.log1pDifference();
+          inequality.applyAsDouble(rOhmBefore[0], predictedSmall.value(rho1, rho2, h));
+          inequality.applyAsDouble(rOhmBefore[1], predictedBig.value(rho1, rho2, h));
+          inequality.applyAsDouble(rOhmAfter[0] - rOhmBefore[0],
+              predictedSmall.value(rho1, rho2, h - dh) - predictedSmall.value(rho1, rho2, h));
+          inequality.applyAsDouble(rOhmAfter[1] - rOhmBefore[1],
+              predictedBig.value(rho1, rho2, h - dh) - predictedBig.value(rho1, rho2, h));
+          return inequality.getAsDouble();
+        }, bounds, new double[] {rho1Apparent, rho2Apparent, Metrics.fromMilli(sPUmm * 2.0), Metrics.fromMilli(1.0)},
+        new double[] {rho1Apparent / 10.0, rho2Apparent / 10.0, Metrics.fromMilli(0.1), Metrics.fromMilli(0.01)});
+    Logger.getAnonymousLogger().info(toString(pointValuePair.getPoint()));
   }
 
   private static String toString(@Nonnull double[] v) {
-    return Arrays.stream(v).mapToObj(value -> String.format("%.4f", value)).collect(Collectors.joining(", ", "[", "]"));
+    return Arrays.stream(v).mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(", ", "[", "]"));
   }
 }

@@ -12,13 +12,13 @@ public class InequalityTest {
   @Test
   public void testLog1pDifference() {
     Inequality inequality = Inequality.log1pDifference();
-    Assert.assertEquals(inequality.applyAsDouble(1.0, pow(Math.E, 3.0)), 2.35, 0.01);
+    Assert.assertEquals(inequality.applyAsDouble(-1.0, -pow(Math.E, 3.0)), 2.35, 0.01);
     Assert.assertEquals(inequality.getAsDouble(), 2.35, 0.01);
     Assert.assertEquals(inequality.applyAsDouble(pow(Math.E, 4.0), 1.0), 4.07, 0.01);
     Assert.assertEquals(inequality.applyAsDouble(new double[] {pow(Math.E, 8.0), pow(Math.E, 8.0), pow(Math.E, 4.0)},
         new double[] {1, 1, 1}), 11.59, 0.01);
     Assert.assertEquals(inequality.applyAsDouble(0.0, 0.0), 11.59, 0.01);
-    Assert.assertEquals(inequality.applyAsDouble(1.0, 0.0), 11.61, 0.01);
+    Assert.assertEquals(inequality.applyAsDouble(-1.0, 0.0), 11.61, 0.01);
   }
 
   @Test
