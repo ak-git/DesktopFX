@@ -106,7 +106,7 @@ public class FilterBuilderTest {
     }, {
         new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
         FilterBuilder.of().rrs(2).build(),
-        new int[][] {{0}, {1}, {3}, {3}, {2}, {1}},
+        new int[][] {{1}, {1}, {3}, {3}, {2}, {1}},
         0.5, 1.0
     }, {
         new int[][] {{10}, {10}, {10}, {10}, {10}, {10}},
@@ -177,7 +177,7 @@ public class FilterBuilderTest {
             "NoDelayFilter (compensate %.1f delay x 2) - DelayFilter (delay %d) - FIRFilter (delay %.1f)%n" +
                 "                                                                   FIRFilter (delay %.1f)%n" +
                 "                                           DelayFilter (delay %d) - FIRFilter (delay %.1f)%n" +
-                "                                           RRS4 (delay %.1f)",
+                "                                           MeanFilter (delay %.1f)",
             2.0, 2, 0.0,
             0.0,
             1, 1.0,
@@ -196,7 +196,7 @@ public class FilterBuilderTest {
             "NoDelayFilter (compensate %.1f delay x 2) - DelayFilter (delay %d) - SelectFilter (indexes = [0]) - FIRFilter (delay %.1f)%n" +
                 "                                                                                                  FIRFilter (delay %.1f)%n" +
                 "                                           SelectFilter (indexes = [1]) - FIRFilter (delay %.1f)%n" +
-                "                                           DelayFilter (delay %d) - SelectFilter (indexes = [2]) - RRS2 (delay %.1f)",
+                "                                           DelayFilter (delay %d) - SelectFilter (indexes = [2]) - MeanFilter (delay %.1f)",
             1.5, 1, 0.0,
             0.0,
             1.0,
@@ -207,7 +207,7 @@ public class FilterBuilderTest {
         FilterBuilder.parallel(Arrays.asList(new int[] {0}, new int[] {1, 2}),
             FilterBuilder.of().operator(() -> Integer::bitCount).rrs(10).build(), FilterBuilder.of().biOperator(() -> Integer::compare).build()),
         String.format(
-            "NoDelayFilter (compensate %.1f delay x 2) - SelectFilter (indexes = [0]) - Operator  (delay %.1f) - RRS10 (delay %.1f)%n" +
+            "NoDelayFilter (compensate %.1f delay x 2) - SelectFilter (indexes = [0]) - Operator  (delay %.1f) - MeanFilter (delay %.1f)%n" +
                 "                                           DelayFilter (delay %d) - SelectFilter (indexes = [1, 2]) - BiOperator  (delay %.1f)",
             5.0, 0.0, 4.5,
             5, 0.0
@@ -238,7 +238,6 @@ public class FilterBuilderTest {
     });
     for (int[] anInput : input) {
       filter.accept(anInput);
-      filter.reset();
     }
 
     Assert.assertEquals(filteredCounter.get(), result.length, filter.toString());
