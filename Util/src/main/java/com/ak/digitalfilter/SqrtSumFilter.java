@@ -2,11 +2,11 @@ package com.ak.digitalfilter;
 
 import javax.annotation.Nonnegative;
 
-final class SqrtSumFilter extends AbstractBufferFilter {
+final class SqrtSumFilter extends AbstractExcessBufferFilter {
   private long sumSqr;
 
   SqrtSumFilter(@Nonnegative int n) {
-    super(n + 1);
+    super(n);
   }
 
   @Override

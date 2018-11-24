@@ -140,6 +140,11 @@ public class SimpleFilterTest {
         new int[] {10, 11, 9, 11, 9, 11, 9},
         new int[] {10, 11, 10, 10, 10, 10, 10},
         0.0
+    }, {
+        FilterBuilder.of().rrs(7).build(),
+        new int[] {-10, -30, -50, -70, -90, -110, -130, -70 - 10, -70 - 30},
+        new int[] {-10, -20, -30, -40, -50, -60, -70, -80, -90},
+        3.0
     }};
   }
 
@@ -176,6 +181,13 @@ public class SimpleFilterTest {
         new int[] {
             10, 11, 10, 10, 10, 10, 10,
             10, 11, 10, 10, 10, 10, 10
+        },
+    }, {
+        FilterBuilder.of().rrs(4).build(),
+        new int[] {4, 2, 0, 2},
+        new int[] {
+            4, 3, 2, 2,
+            0, 0, 0, 0
         },
     }};
   }
