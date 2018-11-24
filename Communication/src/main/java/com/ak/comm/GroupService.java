@@ -26,7 +26,7 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
 
 public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractService
-    implements Flow.Publisher<int[]>, Refreshable, FileFilter {
+    implements Flow.Publisher<int[]>, Refreshable, ServiceReadable<EV>, FileFilter {
   @Nonnull
   private final CycleSerialService<RESPONSE, REQUEST, EV> serialService;
   @Nonnull
@@ -79,10 +79,12 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     }
   }
 
+  @Override
   public List<EV> getVariables() {
     return Collections.unmodifiableList(variables);
   }
 
+  @Override
   public double getFrequency() {
     return frequency;
   }
@@ -93,6 +95,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     fileReadingService.close();
   }
 
+  @Override
   public Map<EV, int[]> read(@Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
     int from = Math.max(0, Math.min(fromInclusive, toExclusive));
     int to = Math.max(0, Math.max(fromInclusive, toExclusive));

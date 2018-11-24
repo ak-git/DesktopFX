@@ -1,19 +1,24 @@
 package com.ak.fx.scene;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.function.DoubleFunction;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
+import com.ak.comm.ServiceReadable;
+import com.ak.comm.converter.Variable;
+import com.ak.comm.converter.Variables;
+import com.ak.digitalfilter.FilterBuilder;
+import com.ak.fx.util.FxUtils;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.StringProperty;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
@@ -21,7 +26,29 @@ import static com.ak.fx.scene.GridCell.BIG;
 import static com.ak.fx.scene.GridCell.POINTS;
 import static com.ak.fx.scene.GridCell.SMALL;
 
-public final class Chart extends AbstractRegion {
+public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractRegion {
+  private final AxisXController axisXController = new AxisXController(this::changed);
+  private final AxisYController<EV> axisYController = new AxisYController<>();
+  @Nonnull
+  private ServiceReadable<EV> service = new ServiceReadable<>() {
+    @Nonnull
+    @Override
+    public Map<EV, int[]> read(int fromInclusive, int toExclusive) {
+      return Collections.emptyMap();
+    }
+
+    @Nonnull
+    @Override
+    public List<EV> getVariables() {
+      return Collections.emptyList();
+    }
+
+    @Override
+    public double getFrequency() {
+      return 1;
+    }
+  };
+
   private final MilliGrid milliGrid = new MilliGrid();
   private final List<LineDiagram> lineDiagrams = new ArrayList<>();
   private final Text xAxisUnit = new Text();
@@ -36,6 +63,47 @@ public final class Chart extends AbstractRegion {
     xAxisUnit.fontProperty().bind(Fonts.H2.fontProperty());
     banner.fontProperty().bind(Fonts.H1.fontProperty());
     banner.setTextAlignment(TextAlignment.RIGHT);
+  }
+
+  public AxisXController getAxisXController() {
+    return axisXController;
+  }
+
+  public void init(@Nonnull ServiceReadable<EV> service) {
+    this.service = service;
+
+    lineDiagrams.addAll(service.getVariables().stream().filter(ev -> ev.options().contains(Variable.Option.VISIBLE))
+        .map(ev -> new LineDiagram(Variables.toString(ev))).collect(Collectors.toList()));
+    lineDiagrams.forEach(lineDiagram -> lineDiagram.setManaged(false));
+    getChildren().addAll(lineDiagrams);
+    getChildren().add(xAxisUnit);
+    getChildren().add(banner);
+
+    xAxisUnit.textProperty().bind(axisXController.zoomProperty().asString());
+    setOnScroll(event -> {
+      axisXController.scroll(event.getDeltaX());
+      event.consume();
+    });
+    setOnZoomStarted(event -> {
+      axisXController.zoom(event.getZoomFactor());
+      axisXController.preventEnd(diagramWidth.doubleValue());
+      changed();
+      event.consume();
+    });
+    diagramHeight.addListener((observable, oldValue, newValue) -> {
+      axisYController.setLineDiagramHeight(newValue.doubleValue());
+      changed();
+    });
+    diagramWidth.addListener((observable, oldValue, newValue) -> axisXController.preventEnd(newValue.doubleValue()));
+    axisXController.stepProperty().addListener((observable, oldValue, newValue) -> lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(newValue.doubleValue())));
+    axisXController.lengthProperty().addListener((observable, oldValue, newValue) ->
+        lineDiagrams.forEach(lineDiagram -> lineDiagram.setMaxSamples(newValue.intValue() / axisXController.getDecimateFactor()))
+    );
+    axisXController.setFrequency(service.getFrequency());
+  }
+
+  public void setBannerText(@Nonnull String text) {
+    banner.setText(text);
   }
 
   @Override
@@ -92,53 +160,19 @@ public final class Chart extends AbstractRegion {
     }
   }
 
-  public void setVariables(@Nonnull Collection<String> variables) {
-    lineDiagrams.addAll(variables.stream().map(LineDiagram::new).collect(Collectors.toList()));
-    lineDiagrams.forEach(lineDiagram -> lineDiagram.setManaged(false));
-    getChildren().addAll(lineDiagrams);
-    getChildren().add(xAxisUnit);
-    getChildren().add(banner);
-  }
-
-  public void setXStep(@Nonnegative double xStep) {
-    lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(xStep));
-  }
-
-  public void setMaxSamples(@Nonnegative int maxSamples) {
-    lineDiagrams.forEach(lineDiagram -> lineDiagram.setMaxSamples(maxSamples));
-  }
-
-  public StringProperty titleProperty() {
-    return xAxisUnit.textProperty();
-  }
-
-  public void setBannerText(@Nonnull String text) {
-    banner.setText(text);
-  }
-
-  public ReadOnlyDoubleProperty diagramWidthProperty() {
-    return diagramWidth;
-  }
-
-  public ReadOnlyDoubleProperty diagramHeightProperty() {
-    return diagramHeight;
-  }
-
-  public void setAll(@Nonnegative int chartIndex, @Nonnull double[] values, @Nonnull DoubleFunction<String> positionToStringConverter) {
-    lineDiagrams.get(chartIndex).setAll(values, positionToStringConverter);
-  }
-
-  public void shiftRight(@Nonnegative int chartIndex, @Nonnull double[] values) {
-    lineDiagrams.get(chartIndex).shiftRight(values);
-  }
-
-  public void shiftLeft(@Nonnegative int chartIndex, @Nonnull double[] values) {
-    lineDiagrams.get(chartIndex).shiftLeft(values);
-  }
-
-  public void add(@Nonnull double[] values) {
-    for (int i = 0; i < values.length; i++) {
-      lineDiagrams.get(i).add(values[i]);
-    }
+  public void changed() {
+    Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
+    Map<EV, int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
+    FxUtils.invokeInFx(() -> {
+      chartData.forEach((ev, ints) -> {
+        if (ev.options().contains(Variable.Option.VISIBLE)) {
+          int[] values = FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(ints);
+          ScaleYInfo<EV> scaleInfo = axisYController.scale(ev, values);
+          lineDiagrams.get(ev.indexBy(Variable.Option.VISIBLE)).setAll(IntStream.of(values).unordered().parallel()
+              .mapToDouble(scaleInfo).toArray(), scaleInfo);
+        }
+      });
+      axisXController.checkLength(chartData.values().iterator().next().length);
+    });
   }
 }

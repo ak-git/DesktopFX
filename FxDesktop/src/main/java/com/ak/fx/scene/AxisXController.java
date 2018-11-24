@@ -57,7 +57,7 @@ public final class AxisXController {
   @Nonnegative
   private int decimateFactor = 1;
 
-  public AxisXController(@Nonnull Runnable onUpdate) {
+  AxisXController(@Nonnull Runnable onUpdate) {
     startProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
     lengthProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
   }
@@ -68,28 +68,28 @@ public final class AxisXController {
         getLength(), getStart(), getEnd(), zoomProperty.get().mmPerSec, decimateFactor);
   }
 
-  public void setFrequency(@Nonnegative double frequency) {
+  void setFrequency(@Nonnegative double frequency) {
     setStep(frequency);
     zoomProperty.addListener((observable, oldValue, newValue) -> setStep(frequency));
   }
 
-  public ReadOnlyObjectProperty<ZoomX> zoomProperty() {
+  ReadOnlyObjectProperty<ZoomX> zoomProperty() {
     return zoomProperty;
   }
 
-  public ReadOnlyDoubleProperty stepProperty() {
+  ReadOnlyDoubleProperty stepProperty() {
     return stepProperty;
   }
 
-  public ReadOnlyIntegerProperty lengthProperty() {
+  ReadOnlyIntegerProperty lengthProperty() {
     return lengthProperty;
   }
 
-  public void scroll(double deltaX) {
+  void scroll(double deltaX) {
     setStart(toInt(getStart() - deltaX * decimateFactor));
   }
 
-  public void zoom(double zoomFactor) {
+  void zoom(double zoomFactor) {
     if (zoomFactor > 1) {
       zoomProperty.setValue(zoomProperty.get().next());
     }
@@ -98,7 +98,7 @@ public final class AxisXController {
     }
   }
 
-  public void checkLength(@Nonnegative int realDataLen) {
+  void checkLength(@Nonnegative int realDataLen) {
     if (realDataLen == 0) {
       setStart(0);
     }
@@ -107,13 +107,13 @@ public final class AxisXController {
     }
   }
 
-  public void preventEnd(@Nonnegative double width) {
+  void preventEnd(@Nonnegative double width) {
     int newLen = toInt(width / stepProperty.get()) * decimateFactor;
     setStart(getEnd() - newLen);
     lengthProperty.set(newLen);
   }
 
-  public int getStart() {
+  int getStart() {
     return startProperty.get();
   }
 
@@ -121,11 +121,11 @@ public final class AxisXController {
     return lengthProperty.get();
   }
 
-  public int getEnd() {
+  int getEnd() {
     return getStart() + getLength();
   }
 
-  public int getDecimateFactor() {
+  int getDecimateFactor() {
     return decimateFactor;
   }
 

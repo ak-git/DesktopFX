@@ -2,14 +2,12 @@ package com.ak.fx.desktop;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.Flow;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,37 +15,25 @@ import javax.annotation.Nullable;
 import com.ak.comm.GroupService;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
-import com.ak.digitalfilter.FilterBuilder;
-import com.ak.fx.scene.AxisXController;
-import com.ak.fx.scene.AxisYController;
 import com.ak.fx.scene.Chart;
-import com.ak.fx.scene.ScaleYInfo;
 import com.ak.fx.util.FxUtils;
 import com.ak.util.Strings;
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.SequentialTransition;
-import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
-import javafx.util.Duration;
 
 public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
     implements Initializable, Flow.Subscriber<int[]> {
   @Nonnull
   private final GroupService<RESPONSE, REQUEST, EV> service;
-  private final AxisXController axisXController = new AxisXController(this::changed);
-  private final AxisYController<EV> axisYController = new AxisYController<>();
   @Nullable
   private Flow.Subscription subscription;
   @Nullable
   @FXML
-  private Chart chart;
+  private Chart<EV> chart;
 
   public AbstractViewController(@Nonnull GroupService<RESPONSE, REQUEST, EV> service) {
     this.service = service;
@@ -84,37 +70,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
           service.refresh();
         }
       });
-      chart.setVariables(service.getVariables().stream().filter(ev -> ev.options().contains(Variable.Option.VISIBLE))
-          .map(Variables::toString).collect(Collectors.toList()));
-      chart.titleProperty().bind(axisXController.zoomProperty().asString());
-      chart.setOnScroll(event -> {
-        axisXController.scroll(event.getDeltaX());
-        event.consume();
-      });
-      chart.setOnZoomStarted(event -> {
-        axisXController.zoom(event.getZoomFactor());
-        axisXController.preventEnd(chart.diagramWidthProperty().doubleValue());
-        changed();
-        event.consume();
-      });
-      chart.diagramHeightProperty().addListener((observable, oldValue, newValue) -> {
-        axisYController.setLineDiagramHeight(newValue.doubleValue());
-        changed();
-      });
-      chart.diagramWidthProperty().addListener((observable, oldValue, newValue) -> axisXController.preventEnd(newValue.doubleValue()));
-      axisXController.stepProperty().addListener((observable, oldValue, newValue) -> chart.setXStep(newValue.doubleValue()));
-      axisXController.lengthProperty().addListener((observable, oldValue, newValue) ->
-          chart.setMaxSamples(newValue.intValue() / axisXController.getDecimateFactor())
-      );
-      axisXController.setFrequency(service.getFrequency());
-
-      Timeline timeline = new Timeline();
-      timeline.getKeyFrames().add(new KeyFrame(Duration.millis(100), (ActionEvent actionEvent) -> axisXController.scroll(-1000)));
-      timeline.setCycleCount(Animation.INDEFINITE);
-      SequentialTransition animation;
-      animation = new SequentialTransition();
-      animation.getChildren().addAll(timeline);
-      animation.play();
+      chart.init(service);
     }
     service.subscribe(this);
   }
@@ -125,8 +81,8 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
       subscription.cancel();
     }
     subscription = s;
-    changed();
-    subscription.request(axisXController.getLength());
+    Objects.requireNonNull(chart).changed();
+    subscription.request(Objects.requireNonNull(chart).getAxisXController().getLength());
   }
 
   @Override
@@ -144,22 +100,6 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
 
   @Override
   public final void onComplete() {
-    changed();
-  }
-
-  private void changed() {
-    Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
-    Map<EV, int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
-    FxUtils.invokeInFx(() -> {
-      chartData.forEach((ev, ints) -> {
-        if (ev.options().contains(Variable.Option.VISIBLE)) {
-          int[] values = FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(ints);
-          ScaleYInfo<EV> scaleInfo = axisYController.scale(ev, values);
-          Objects.requireNonNull(chart).setAll(ev.indexBy(Variable.Option.VISIBLE), IntStream.of(values).unordered().parallel()
-              .mapToDouble(scaleInfo).toArray(), scaleInfo);
-        }
-      });
-      axisXController.checkLength(chartData.values().iterator().next().length);
-    });
+    Objects.requireNonNull(chart).changed();
   }
 }
