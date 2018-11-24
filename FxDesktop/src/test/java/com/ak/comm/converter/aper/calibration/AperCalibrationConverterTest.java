@@ -31,7 +31,7 @@ public final class AperCalibrationConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {761, 50303, 8396992, 50178, 16028, 100506, 16777215}
+            new int[] {761, 50303, 8396992, 50178, 22332, 100506, 16777215}
         },
     };
   }
