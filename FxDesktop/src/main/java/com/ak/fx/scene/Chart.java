@@ -95,11 +95,28 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
       changed();
     });
     diagramWidth.addListener((observable, oldValue, newValue) -> axisXController.preventEnd(newValue.doubleValue()));
-    axisXController.stepProperty().addListener((observable, oldValue, newValue) -> lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(newValue.doubleValue())));
+    axisXController.stepProperty().addListener((observable, oldValue, newValue) ->
+        lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(newValue.doubleValue())));
     axisXController.lengthProperty().addListener((observable, oldValue, newValue) ->
         lineDiagrams.forEach(lineDiagram -> lineDiagram.setMaxSamples(newValue.intValue() / axisXController.getDecimateFactor()))
     );
     axisXController.setFrequency(service.getFrequency());
+  }
+
+  public void changed() {
+    Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
+    Map<EV, int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
+    FxUtils.invokeInFx(() -> {
+      chartData.forEach((ev, ints) -> {
+        if (ev.options().contains(Variable.Option.VISIBLE)) {
+          int[] values = FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(ints);
+          ScaleYInfo<EV> scaleInfo = axisYController.scale(ev, values);
+          lineDiagrams.get(ev.indexBy(Variable.Option.VISIBLE)).setAll(IntStream.of(values).unordered().parallel()
+              .mapToDouble(scaleInfo).toArray(), scaleInfo);
+        }
+      });
+      axisXController.checkLength(chartData.values().iterator().next().length);
+    });
   }
 
   public void setBannerText(@Nonnull String text) {
@@ -158,21 +175,5 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
         lineDiagram.setVisibleTextBounds(height / 2, 0);
       });
     }
-  }
-
-  public void changed() {
-    Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
-    Map<EV, int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
-    FxUtils.invokeInFx(() -> {
-      chartData.forEach((ev, ints) -> {
-        if (ev.options().contains(Variable.Option.VISIBLE)) {
-          int[] values = FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(ints);
-          ScaleYInfo<EV> scaleInfo = axisYController.scale(ev, values);
-          lineDiagrams.get(ev.indexBy(Variable.Option.VISIBLE)).setAll(IntStream.of(values).unordered().parallel()
-              .mapToDouble(scaleInfo).toArray(), scaleInfo);
-        }
-      });
-      axisXController.checkLength(chartData.values().iterator().next().length);
-    });
   }
 }
