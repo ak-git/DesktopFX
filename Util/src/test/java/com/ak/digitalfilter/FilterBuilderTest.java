@@ -150,6 +150,16 @@ public class FilterBuilderTest {
         FilterBuilder.of().biOperator(() -> (left, right) -> left + right).buildNoDelay(),
         new int[][] {{1 + 2}, {3 + 4}, {5 + 6}},
         0.0, 1.0
+    }, {
+        new int[][] {{1, 2}, {3, 4}, {5, 6}},
+        FilterBuilder.parallel(new int[] {1}, () -> FilterBuilder.of().build()),
+        new int[][] {{2}, {4}, {6}},
+        0.0, 1.0
+    }, {
+        new int[][] {{1, 2}, {3, 4}, {5, 6}},
+        FilterBuilder.parallel(new int[] {1, 0}, () -> FilterBuilder.of().build()),
+        new int[][] {{2, 1}, {4, 3}, {6, 5}},
+        0.0, 1.0
     }};
   }
 

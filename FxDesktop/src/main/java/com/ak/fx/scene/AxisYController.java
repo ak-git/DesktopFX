@@ -8,15 +8,15 @@ import javax.annotation.Nonnull;
 
 import com.ak.comm.converter.Variable;
 
-public final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
+final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
   @Nonnegative
   private int mmHeight = 1;
 
-  public void setLineDiagramHeight(@Nonnegative double lineDiagramHeight) {
+  void setLineDiagramHeight(@Nonnegative double lineDiagramHeight) {
     mmHeight = GridCell.mm(lineDiagramHeight);
   }
 
-  public ScaleYInfo<EV> scale(@Nonnull EV variable, @Nonnull int[] values) {
+  ScaleYInfo<EV> scale(@Nonnull EV variable, @Nonnull int[] values) {
     IntSummaryStatistics intSummaryStatistics = IntStream.of(values).summaryStatistics();
     if (intSummaryStatistics.getMax() == intSummaryStatistics.getMin()) {
       intSummaryStatistics = IntStream.of(intSummaryStatistics.getMax(), 0).summaryStatistics();

@@ -1,23 +1,19 @@
 package com.ak.fx.scene;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
-import com.ak.comm.ServiceReadable;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
-import com.ak.digitalfilter.FilterBuilder;
-import com.ak.fx.util.FxUtils;
-import com.ak.util.Strings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.text.Text;
@@ -30,32 +26,17 @@ import static com.ak.fx.scene.GridCell.SMALL;
 public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractRegion {
   private final AxisXController axisXController = new AxisXController(this::changed);
   private final AxisYController<EV> axisYController = new AxisYController<>();
-  @Nonnull
-  private ServiceReadable<EV> service = new ServiceReadable<>() {
-    @Nonnull
-    @Override
-    public Map<EV, int[]> read(int fromInclusive, int toExclusive) {
-      return Collections.emptyMap();
-    }
-
-    @Nonnull
-    @Override
-    public List<EV> getVariables() {
-      return Collections.emptyList();
-    }
-
-    @Override
-    public double getFrequency() {
-      return 1;
-    }
-  };
 
   private final MilliGrid milliGrid = new MilliGrid();
-  private final List<LineDiagram> lineDiagrams = new ArrayList<>();
+  private final Map<EV, LineDiagram> lineDiagrams = new LinkedHashMap<>();
   private final Text xAxisUnit = new Text();
   private final Text banner = new Text();
   private final DoubleProperty diagramWidth = new SimpleDoubleProperty();
   private final DoubleProperty diagramHeight = new SimpleDoubleProperty();
+
+  @Nonnull
+  private Runnable changedCallback = () -> {
+  };
 
   @Inject
   public Chart() {
@@ -70,13 +51,12 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
     return axisXController;
   }
 
-  public void init(@Nonnull ServiceReadable<EV> service) {
-    this.service = service;
-
-    lineDiagrams.addAll(service.getVariables().stream().filter(ev -> ev.options().contains(Variable.Option.VISIBLE))
-        .map(ev -> new LineDiagram(Variables.toString(ev))).collect(Collectors.toList()));
-    lineDiagrams.forEach(lineDiagram -> lineDiagram.setManaged(false));
-    getChildren().addAll(lineDiagrams);
+  public void init(@Nonnull Iterable<EV> variables, @Nonnegative double frequency, @Nonnull Runnable changedCallback) {
+    for (EV variable : variables) {
+      lineDiagrams.put(variable, new LineDiagram(Variables.toString(variable)));
+    }
+    lineDiagrams.values().forEach(lineDiagram -> lineDiagram.setManaged(false));
+    getChildren().addAll(lineDiagrams.values());
     getChildren().add(xAxisUnit);
     getChildren().add(banner);
 
@@ -97,34 +77,20 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
     });
     diagramWidth.addListener((observable, oldValue, newValue) -> axisXController.preventEnd(newValue.doubleValue()));
     axisXController.stepProperty().addListener((observable, oldValue, newValue) ->
-        lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(newValue.doubleValue())));
+        lineDiagrams.values().forEach(lineDiagram -> lineDiagram.setXStep(newValue.doubleValue())));
     axisXController.lengthProperty().addListener((observable, oldValue, newValue) ->
-        lineDiagrams.forEach(lineDiagram -> lineDiagram.setMaxSamples(newValue.intValue() / axisXController.getDecimateFactor()))
+        lineDiagrams.values().forEach(lineDiagram -> lineDiagram.setMaxSamples(newValue.intValue() / axisXController.getDecimateFactor()))
     );
-    axisXController.setFrequency(service.getFrequency());
+    axisXController.setFrequency(frequency);
+    this.changedCallback = changedCallback;
   }
 
-  public void changed() {
-    Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
-    Map<EV, int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
-    FxUtils.invokeInFx(() -> {
-      chartData.forEach((ev, ints) -> {
-        if (ev.options().contains(Variable.Option.VISIBLE)) {
-          int[] values = FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(ints);
-          ScaleYInfo<EV> scaleInfo = axisYController.scale(ev, values);
-          lineDiagrams.get(ev.indexBy(Variable.Option.VISIBLE)).setAll(IntStream.of(values).unordered().parallel()
-              .mapToDouble(scaleInfo).toArray(), scaleInfo);
-        }
-      });
-      axisXController.checkLength(chartData.values().iterator().next().length);
-    });
+  public void addAll(@Nonnull EV variable, @Nonnull int[] values) {
+    ScaleYInfo<EV> scaleInfo = axisYController.scale(variable, values);
+    lineDiagrams.get(variable).setAll(IntStream.of(values).unordered().parallel().mapToDouble(scaleInfo).toArray(), scaleInfo);
   }
 
-  public void add(@Nonnull int[] ints) {
-    FxUtils.invokeInFx(() -> banner.setText(
-        service.getVariables().stream().filter(ev -> ev.options().contains(Variable.Option.TEXT_VALUE_BANNER))
-            .map(ev -> Variables.toString(ev, ints[ev.ordinal()])).collect(Collectors.joining(Strings.NEW_LINE_2))
-    ));
+  public void add(@Nonnull int[] visibleValues) {
   }
 
   @Override
@@ -141,43 +107,49 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
   }
 
   private void layoutLineDiagrams(double x, double y, double width, double height) {
-    double n = lineDiagrams.size() == 1 ? 2 : lineDiagrams.size() + 2;
+    List<LineDiagram> diagrams = new ArrayList<>(lineDiagrams.values());
+    double n = diagrams.size() == 1 ? 2 : diagrams.size() + 2;
     double dHeight = SMALL.maxValue((height + POINTS.getStep()) * 2 / n);
     if (dHeight >= SMALL.getStep() * 2) {
       diagramHeight.setValue(dHeight);
-      lineDiagrams.forEach(lineDiagram -> lineDiagram.resizeRelocate(x, y, width, dHeight));
-      for (int i = 0; i < lineDiagrams.size() / 2; i++) {
-        lineDiagrams.get(i).relocate(x, y + SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i);
+      diagrams.forEach(lineDiagram -> lineDiagram.resizeRelocate(x, y, width, dHeight));
+      for (int i = 0; i < diagrams.size() / 2; i++) {
+        diagrams.get(i).relocate(x, y + SMALL.roundCoordinate(height / (diagrams.size() + 1)) * i);
       }
-      if ((lineDiagrams.size() & 1) != 0) {
-        lineDiagrams.get(lineDiagrams.size() / 2).relocate(x, y + height / 2 - dHeight / 2);
+      if ((diagrams.size() & 1) != 0) {
+        diagrams.get(diagrams.size() / 2).relocate(x, y + height / 2 - dHeight / 2);
       }
-      for (int i = 0; i < lineDiagrams.size() / 2; i++) {
-        lineDiagrams.get(lineDiagrams.size() - 1 - i).
-            relocate(x, y + height - dHeight - SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i);
+      for (int i = 0; i < diagrams.size() / 2; i++) {
+        diagrams.get(diagrams.size() - 1 - i).
+            relocate(x, y + height - dHeight - SMALL.roundCoordinate(height / (diagrams.size() + 1)) * i);
       }
 
-      for (int i = 0; i < lineDiagrams.size(); i++) {
+      for (int i = 0; i < diagrams.size(); i++) {
         double visibleY = 0;
         if (i > 0) {
-          double approveLineG = (lineDiagrams.get(i).getLayoutY() + lineDiagrams.get(i - 1).getLayoutY() + dHeight) / 2;
-          visibleY = approveLineG - lineDiagrams.get(i).getLayoutY() - POINTS.getStep();
+          double approveLineG = (diagrams.get(i).getLayoutY() + diagrams.get(i - 1).getLayoutY() + dHeight) / 2;
+          visibleY = approveLineG - diagrams.get(i).getLayoutY() - POINTS.getStep();
         }
 
         double visibleH = dHeight - visibleY + POINTS.getStep();
-        if (i < lineDiagrams.size() - 1) {
-          double approveLineG = (lineDiagrams.get(i).getLayoutY() + lineDiagrams.get(i + 1).getLayoutY() + dHeight) / 2;
-          visibleH = approveLineG - lineDiagrams.get(i).getLayoutY() - POINTS.getStep() - visibleY;
+        if (i < diagrams.size() - 1) {
+          double approveLineG = (diagrams.get(i).getLayoutY() + diagrams.get(i + 1).getLayoutY() + dHeight) / 2;
+          visibleH = approveLineG - diagrams.get(i).getLayoutY() - POINTS.getStep() - visibleY;
         }
-        lineDiagrams.get(i).setVisibleTextBounds(visibleY, visibleH);
+        diagrams.get(i).setVisibleTextBounds(visibleY, visibleH);
       }
     }
     else {
       diagramHeight.setValue(height);
-      lineDiagrams.forEach(lineDiagram -> {
+      diagrams.forEach(lineDiagram -> {
         lineDiagram.resizeRelocate(x, y, width, height);
         lineDiagram.setVisibleTextBounds(height / 2, 0);
       });
     }
+  }
+
+  private void changed() {
+    Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
+    changedCallback.run();
   }
 }

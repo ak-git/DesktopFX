@@ -98,7 +98,7 @@ public final class AxisXController {
     }
   }
 
-  void checkLength(@Nonnegative int realDataLen) {
+  public void checkLength(@Nonnegative int realDataLen) {
     if (realDataLen == 0) {
       setStart(0);
     }
@@ -113,7 +113,7 @@ public final class AxisXController {
     lengthProperty.set(newLen);
   }
 
-  int getStart() {
+  public int getStart() {
     return startProperty.get();
   }
 
@@ -121,11 +121,11 @@ public final class AxisXController {
     return lengthProperty.get();
   }
 
-  int getEnd() {
+  public int getEnd() {
     return getStart() + getLength();
   }
 
-  int getDecimateFactor() {
+  public int getDecimateFactor() {
     return decimateFactor;
   }
 

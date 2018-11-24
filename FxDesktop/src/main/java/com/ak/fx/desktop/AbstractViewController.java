@@ -2,18 +2,24 @@ package com.ak.fx.desktop;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.Flow;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ak.comm.GroupService;
 import com.ak.comm.converter.Variable;
+import com.ak.digitalfilter.DigitalFilter;
+import com.ak.digitalfilter.FilterBuilder;
+import com.ak.fx.scene.AxisXController;
 import com.ak.fx.scene.Chart;
+import com.ak.fx.util.FxUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.Dragboard;
@@ -30,6 +36,8 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
   @Nullable
   @FXML
   private Chart<EV> chart;
+  @Nullable
+  private volatile DigitalFilter visibleFilter;
 
   public AbstractViewController(@Nonnull GroupService<RESPONSE, REQUEST, EV> service) {
     this.service = service;
@@ -66,7 +74,13 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
           service.refresh();
         }
       });
-      chart.init(service);
+      chart.init(
+          service.getVariables().stream().filter(ev -> ev.options().contains(Variable.Option.VISIBLE)).collect(Collectors.toList()),
+          service.getFrequency(), () -> {
+            visibleFilter = null;
+            onComplete();
+          }
+      );
     }
     service.subscribe(this);
   }
@@ -77,13 +91,13 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
       subscription.cancel();
     }
     subscription = s;
-    subscription.request(Objects.requireNonNull(chart).getAxisXController().getLength());
     onComplete();
+    subscription.request(Objects.requireNonNull(chart).getAxisXController().getLength());
   }
 
   @Override
   public final void onNext(@Nonnull int[] ints) {
-    Objects.requireNonNull(chart).add(ints);
+    checkVisibleFilter().accept(ints);
   }
 
   @Override
@@ -93,6 +107,29 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
 
   @Override
   public final void onComplete() {
-    Objects.requireNonNull(chart).changed();
+    AxisXController axisXController = Objects.requireNonNull(chart).getAxisXController();
+    Map<EV, int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
+    FxUtils.invokeInFx(() -> {
+      chartData.forEach((ev, ints) -> {
+        if (ev.options().contains(Variable.Option.VISIBLE)) {
+          int[] values = FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(ints);
+          Objects.requireNonNull(chart).addAll(ev, values);
+        }
+      });
+      axisXController.checkLength(chartData.values().iterator().next().length);
+    });
+  }
+
+  private DigitalFilter checkVisibleFilter() {
+    if (visibleFilter == null) {
+      int[] visibleIndexes = service.getVariables().stream()
+          .filter(ev -> ev.options().contains(Variable.Option.VISIBLE))
+          .mapToInt(Enum::ordinal).toArray();
+      visibleFilter = FilterBuilder.parallel(visibleIndexes,
+          () -> FilterBuilder.of().sharpingDecimate(Objects.requireNonNull(chart).getAxisXController().getDecimateFactor()).build()
+      );
+      Objects.requireNonNull(visibleFilter).forEach(ints -> FxUtils.invokeInFx(() -> Objects.requireNonNull(chart).add(ints)));
+    }
+    return Objects.requireNonNull(visibleFilter);
   }
 }

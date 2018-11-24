@@ -29,6 +29,12 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   private FilterBuilder() {
   }
 
+  public static DigitalFilter parallel(@Nonnull int[] selectedIndexes, @Nonnull Supplier<DigitalFilter> copied) {
+    List<int[]> selectors = Arrays.stream(selectedIndexes).mapToObj(i -> new int[] {i}).collect(Collectors.toList());
+    DigitalFilter[] filters = Stream.generate(copied).limit(selectedIndexes.length).toArray(DigitalFilter[]::new);
+    return parallel(selectors, filters);
+  }
+
   public static DigitalFilter parallel(@Nonnull List<int[]> selectedIndexes, @Nonnull DigitalFilter... filters) {
     if (selectedIndexes.isEmpty()) {
       throw new IllegalArgumentException(Arrays.deepToString(filters));
