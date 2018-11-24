@@ -17,6 +17,7 @@ import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.fx.util.FxUtils;
+import com.ak.util.Strings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.text.Text;
@@ -119,8 +120,11 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
     });
   }
 
-  public void setBannerText(@Nonnull String text) {
-    banner.setText(text);
+  public void add(@Nonnull int[] ints) {
+    FxUtils.invokeInFx(() -> banner.setText(
+        service.getVariables().stream().filter(ev -> ev.options().contains(Variable.Option.TEXT_VALUE_BANNER))
+            .map(ev -> Variables.toString(ev, ints[ev.ordinal()])).collect(Collectors.joining(Strings.NEW_LINE_2))
+    ));
   }
 
   @Override

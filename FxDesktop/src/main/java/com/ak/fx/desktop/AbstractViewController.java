@@ -7,17 +7,13 @@ import java.util.ResourceBundle;
 import java.util.concurrent.Flow;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ak.comm.GroupService;
 import com.ak.comm.converter.Variable;
-import com.ak.comm.converter.Variables;
 import com.ak.fx.scene.Chart;
-import com.ak.fx.util.FxUtils;
-import com.ak.util.Strings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.Dragboard;
@@ -81,16 +77,13 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
       subscription.cancel();
     }
     subscription = s;
-    Objects.requireNonNull(chart).changed();
     subscription.request(Objects.requireNonNull(chart).getAxisXController().getLength());
+    onComplete();
   }
 
   @Override
   public final void onNext(@Nonnull int[] ints) {
-    FxUtils.invokeInFx(() -> Objects.requireNonNull(chart).setBannerText(
-        service.getVariables().stream().filter(ev -> ev.options().contains(Variable.Option.TEXT_VALUE_BANNER))
-            .map(ev -> Variables.toString(ev, ints[ev.ordinal()])).collect(Collectors.joining(Strings.NEW_LINE_2)))
-    );
+    Objects.requireNonNull(chart).add(ints);
   }
 
   @Override
