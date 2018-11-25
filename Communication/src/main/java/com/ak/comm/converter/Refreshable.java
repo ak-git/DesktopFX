@@ -1,4 +1,4 @@
-package com.ak.comm.core;
+package com.ak.comm.converter;
 
 @FunctionalInterface
 public interface Refreshable {
