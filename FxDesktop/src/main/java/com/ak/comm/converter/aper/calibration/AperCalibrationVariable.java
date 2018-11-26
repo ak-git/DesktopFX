@@ -48,7 +48,7 @@ public enum AperCalibrationVariable implements DependentVariable<AperInVariable,
   STD_PU_ADC {
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().std(1000).rrs().build();
+      return FilterBuilder.of().recursiveStd(1000).rrs().build();
     }
   },
   PU_1 {
