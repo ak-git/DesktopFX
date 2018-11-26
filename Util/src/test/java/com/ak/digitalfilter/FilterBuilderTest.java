@@ -71,9 +71,9 @@ public class FilterBuilderTest {
                 FilterBuilder.of().fir(1.0).build()
             ).build(),
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
-            FilterBuilder.of().rrs(2).build()
+            FilterBuilder.of().recursiveMean(2).build()
         ),
-        new int[][] {{4, 4, 0, 3}, {2, 2, -2, 3}, {2, 2, -1, 2}},
+        new int[][] {{2, 2, 3, 1}, {4, 4, 0, 3}, {2, 2, -2, 3}, {2, 2, -1, 2}},
         -1.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
@@ -105,9 +105,9 @@ public class FilterBuilderTest {
         1.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
-        FilterBuilder.of().rrs(2).build(),
+        FilterBuilder.of().recursiveMean(2).build(),
         new int[][] {{1}, {1}, {3}, {3}, {2}, {1}},
-        0.5, 1.0
+        0.0, 1.0
     }, {
         new int[][] {{10}, {10}, {10}, {10}, {10}, {10}},
         FilterBuilder.of().decimate(3).build(),
@@ -181,17 +181,17 @@ public class FilterBuilderTest {
                 FilterBuilder.of().fir(1.0).build()
             ).build(),
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
-            FilterBuilder.of().rrs(4).build()
+            FilterBuilder.of().recursiveMean(4).build()
         ).buildNoDelay(),
         String.format(
             "NoDelayFilter (compensate %.1f delay x 2) - DelayFilter (delay %d) - FIRFilter (delay %.1f)%n" +
                 "                                                                   FIRFilter (delay %.1f)%n" +
-                "                                           DelayFilter (delay %d) - FIRFilter (delay %.1f)%n" +
-                "                                           MeanFilter (delay %.1f)",
-            2.0, 2, 0.0,
+                "                                           FIRFilter (delay %.1f)%n" +
+                "                                           DelayFilter (delay %d) - MeanFilter (delay %.1f)",
+            1.0, 1, 0.0,
             0.0,
-            1, 1.0,
-            1.5
+            1.0,
+            1, 0.0
         )
     }, {
         FilterBuilder.parallel(
@@ -200,27 +200,26 @@ public class FilterBuilderTest {
                 FilterBuilder.of().fir(1.0).build()
             ).build(),
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
-            FilterBuilder.of().rrs(2).build()
+            FilterBuilder.of().recursiveMean(2).build()
         ),
         String.format(
             "NoDelayFilter (compensate %.1f delay x 2) - DelayFilter (delay %d) - SelectFilter (indexes = [0]) - FIRFilter (delay %.1f)%n" +
                 "                                                                                                  FIRFilter (delay %.1f)%n" +
                 "                                           SelectFilter (indexes = [1]) - FIRFilter (delay %.1f)%n" +
                 "                                           DelayFilter (delay %d) - SelectFilter (indexes = [2]) - MeanFilter (delay %.1f)",
-            1.5, 1, 0.0,
+            1.0, 1, 0.0,
             0.0,
             1.0,
-            1,
-            0.5
+            1, 0.0
         )
     }, {
         FilterBuilder.parallel(Arrays.asList(new int[] {0}, new int[] {1, 2}),
-            FilterBuilder.of().operator(() -> Integer::bitCount).rrs(10).build(), FilterBuilder.of().biOperator(() -> Integer::compare).build()),
+            FilterBuilder.of().operator(() -> Integer::bitCount).recursiveMean(10).build(), FilterBuilder.of().biOperator(() -> Integer::compare).build()),
         String.format(
             "NoDelayFilter (compensate %.1f delay x 2) - SelectFilter (indexes = [0]) - Operator  (delay %.1f) - MeanFilter (delay %.1f)%n" +
-                "                                           DelayFilter (delay %d) - SelectFilter (indexes = [1, 2]) - BiOperator  (delay %.1f)",
-            5.0, 0.0, 4.5,
-            5, 0.0
+                "                                           SelectFilter (indexes = [1, 2]) - BiOperator  (delay %.1f)",
+            0.0, 0.0, 0.0,
+            0.0
         )
     }};
   }

@@ -141,15 +141,15 @@ public class SimpleFilterTest {
         new int[] {10, 11, 10, 10, 10, 10, 10},
         0.0
     }, {
-        FilterBuilder.of().rrs(7).build(),
+        FilterBuilder.of().recursiveMean(7).build(),
         new int[] {-10, -30, -50, -70, -90, -110, -130, -70 - 10, -70 - 30},
         new int[] {-10, -20, -30, -40, -50, -60, -70, -80, -90},
-        3.0
+        0.0
     }, {
-        FilterBuilder.of().std(4).build(),
+        FilterBuilder.of().recursiveStd(4).build(),
         new int[] {100, -100, 100, -100, 100, -100, 100, -100, 100, -100, 100, -100, 100, -100},
-        new int[] {100, 70, 69, 78, 78, 92, 100, 100, 100, 100, 100, 100, 100, 100},
-        3.5
+        new int[] {0, 70, 69, 78, 92, 92, 100, 100, 100, 100, 100, 100, 100, 100},
+        0.0
     }};
   }
 
@@ -188,18 +188,18 @@ public class SimpleFilterTest {
             10, 11, 10, 10, 10, 10, 10
         },
     }, {
-        FilterBuilder.of().rrs(4).build(),
+        FilterBuilder.of().recursiveMean(4).build(),
         new int[] {4, 2, 0, 2},
         new int[] {
             4, 3, 2, 2,
             0, 0, 0, 0
         },
     }, {
-        FilterBuilder.of().std(5).build(),
+        FilterBuilder.of().recursiveStd(5).build(),
         new int[] {100, -100, 100, -100, 0, -100, 100, -100, 100},
         new int[] {
-            100, 70, 69, 78, 83, 74, 74, 73, 73,
-            29, 37, 52, 69, 69, 52, 37, 29, 0
+            0, 70, 69, 78, 69, 74, 74, 73, 73,
+            35, 58, 52, 69, 53, 48, 37, 29, 0
         },
     }};
   }

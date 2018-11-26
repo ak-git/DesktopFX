@@ -14,7 +14,7 @@ abstract class AbstractBufferFilter extends AbstractOperableFilter {
 
   @Nonnegative
   @Override
-  public final double getDelay() {
+  public double getDelay() {
     return (length() - 1) / 2.0;
   }
 
@@ -33,7 +33,7 @@ abstract class AbstractBufferFilter extends AbstractOperableFilter {
     return Arrays.copyOf(buffer, buffer.length);
   }
 
-  int length() {
+  final int length() {
     return buffer.length;
   }
 
