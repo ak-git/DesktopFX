@@ -150,6 +150,16 @@ public class SimpleFilterTest {
         new int[] {100, -100, 100, -100, 100, -100, 100, -100, 100, -100, 100, -100, 100, -100},
         new int[] {0, 70, 69, 78, 92, 92, 100, 100, 100, 100, 100, 100, 100, 100},
         0.0
+    }, {
+        FilterBuilder.of().recursiveMeanAndStd(7).biOperator(() -> (mean, std) -> mean).build(),
+        new int[] {-10, -30, -50, -70, -90, -110, -130, -70 - 10, -70 - 30},
+        new int[] {-10, -20, -30, -40, -50, -60, -70, -80, -90},
+        0.0
+    }, {
+        FilterBuilder.of().recursiveMeanAndStd(4).biOperator(() -> (mean, std) -> std).build(),
+        new int[] {100, -100, 100, -100, 100, -100, 100, -100, 100, -100, 100, -100, 100, -100},
+        new int[] {0, 70, 69, 78, 92, 92, 100, 100, 100, 100, 100, 100, 100, 100},
+        0.0
     }};
   }
 
