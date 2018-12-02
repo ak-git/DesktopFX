@@ -8,17 +8,19 @@ final class SqrtSumFilter extends AbstractExcessBufferFilter {
   }
 
   @Override
-  int add(int nowIndex) {
-    return get(nowIndex) * get(nowIndex);
+  long add(long sum, int nowIndex) {
+    long x = get(nowIndex);
+    return sum + x * x;
   }
 
   @Override
-  int sub(int nowIndex) {
-    return get(nowIndex + 1) * get(nowIndex + 1);
+  long sub(long sum, int nowIndex) {
+    long x = get(nowIndex + 1);
+    return sum - x * x;
   }
 
   @Override
-  int div() {
-    return (int) Math.sqrt(super.div());
+  int div(long sum, @Nonnegative int length) {
+    return (int) (Math.sqrt(sum / Math.max(length - 1.0, 1.0)));
   }
 }

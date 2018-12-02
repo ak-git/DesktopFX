@@ -8,12 +8,17 @@ final class MeanFilter extends AbstractExcessBufferFilter {
   }
 
   @Override
-  int add(int nowIndex) {
-    return get(nowIndex);
+  long add(long sum, int nowIndex) {
+    return sum + get(nowIndex);
   }
 
   @Override
-  int sub(int nowIndex) {
-    return get(nowIndex + 1);
+  long sub(long sum, int nowIndex) {
+    return sum - get(nowIndex + 1);
+  }
+
+  @Override
+  int div(long sum, @Nonnegative int length) {
+    return (int) (sum / length);
   }
 }

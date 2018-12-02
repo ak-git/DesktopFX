@@ -15,6 +15,7 @@ public class SimpleFilterTest {
 
   @DataProvider(name = "data")
   public static Object[][] data() {
+    double[] AVG_3 = {1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0};
     return new Object[][] {{
         FilterBuilder.of().smoothingImpulsive(3).build(),
         new int[] {1, 2, 3, 4, 5, 6},
@@ -31,7 +32,7 @@ public class SimpleFilterTest {
         new int[] {9, 9},
         0.0
     }, {
-        FilterBuilder.of().decimate(() -> new double[] {1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0}, 3).build(),
+        FilterBuilder.of().decimate(() -> AVG_3, 3).build(),
         new int[] {9, 9, 9, 9, 9, 9},
         new int[] {9, 9},
         0.0
@@ -41,7 +42,7 @@ public class SimpleFilterTest {
         new int[] {3, 6, 9, 9, 9, 9, 9, 9, 9},
         1.0
     }, {
-        FilterBuilder.of().interpolate(3, () -> new double[] {1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0}).build(),
+        FilterBuilder.of().interpolate(3, () -> AVG_3).build(),
         new int[] {9, 9, 9},
         new int[] {3, 6, 9, 9, 9, 9, 9, 9, 9},
         1.0
@@ -148,7 +149,7 @@ public class SimpleFilterTest {
     }, {
         FilterBuilder.of().recursiveStd(4).build(),
         new int[] {100, -100, 100, -100, 100, -100, 100, -100, 100, -100, 100, -100, 100, -100},
-        new int[] {0, 70, 69, 78, 92, 92, 100, 100, 100, 100, 100, 100, 100, 100},
+        new int[] {0, 141, 117, 115, 115, 115, 115, 115, 115, 115, 115, 115, 115, 115},
         0.0
     }, {
         FilterBuilder.of().recursiveMeanAndStd(7).biOperator(() -> (mean, std) -> mean).build(),
@@ -157,8 +158,8 @@ public class SimpleFilterTest {
         0.0
     }, {
         FilterBuilder.of().recursiveMeanAndStd(4).biOperator(() -> (mean, std) -> std).build(),
-        new int[] {100, -100, 100, -100, 100, -100, 100, -100, 100, -100, 100, -100, 100, -100},
-        new int[] {0, 70, 69, 78, 92, 92, 100, 100, 100, 100, 100, 100, 100, 100},
+        new int[] {-100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100, 0, -100},
+        new int[] {0, 86, 75, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63},
         0.0
     }};
   }
@@ -208,8 +209,8 @@ public class SimpleFilterTest {
         FilterBuilder.of().recursiveStd(5).build(),
         new int[] {100, -100, 100, -100, 0, -100, 100, -100, 100},
         new int[] {
-            0, 70, 69, 78, 69, 74, 74, 73, 73,
-            35, 58, 52, 69, 53, 48, 37, 29, 0
+            0, 141, 117, 115, 100, 91, 100, 91, 100,
+            109, 109, 109, 109, 100, 91, 100, 91, 100
         },
     }};
   }

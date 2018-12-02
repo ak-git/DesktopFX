@@ -182,8 +182,14 @@ public class FilterBuilder implements Builder<DigitalFilter> {
    * @return FilterBuilder
    */
   public FilterBuilder recursiveStd(@Nonnegative int averageFactor) {
+    IntUnaryOperator sqrtSumFilter = new SqrtSumFilter(averageFactor);
     return wrap(String.format("recursiveStd%d", averageFactor),
-        of().fork(new NoFilter(), new MeanFilter(averageFactor)).biOperator(() -> (x, mean) -> x - mean).chain(new SqrtSumFilter(averageFactor)));
+        of().fork(new NoFilter(), new MeanFilter(averageFactor))
+            .biOperator(() -> (x, mean) -> {
+              long sqrtSum = sqrtSumFilter.applyAsInt(x);
+              return (int) Math.sqrt(sqrtSum * sqrtSum - (long) mean * (long) mean);
+            })
+    );
   }
 
   /**
@@ -192,12 +198,16 @@ public class FilterBuilder implements Builder<DigitalFilter> {
    * @param averageFactor average factor.
    * @return FilterBuilder
    */
-  FilterBuilder recursiveMeanAndStd(@Nonnegative int averageFactor) {
+  public FilterBuilder recursiveMeanAndStd(@Nonnegative int averageFactor) {
+    IntUnaryOperator sqrtSumFilter = new SqrtSumFilter(averageFactor);
     return wrap(String.format("mean-n-std%d", averageFactor),
         of().fork(new NoFilter(), new MeanFilter(averageFactor))
             .fork(
                 of().biOperator(() -> (x, mean) -> mean).build(),
-                of().biOperator(() -> (x, mean) -> x - mean).chain(new SqrtSumFilter(averageFactor)).build()
+                of().biOperator(() -> (x, mean) -> {
+                  long sqrtSum = sqrtSumFilter.applyAsInt(x);
+                  return (int) Math.sqrt(sqrtSum * sqrtSum - (long) mean * (long) mean);
+                }).build()
             )
     );
   }

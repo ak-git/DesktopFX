@@ -22,16 +22,13 @@ abstract class AbstractExcessBufferFilter extends AbstractBufferFilter {
       sum = 0;
     }
     length = Math.min(length + 1, length() - 1);
-    sum += add(nowIndex);
-    sum -= sub(nowIndex);
-    return div();
+    sum = sub(add(sum, nowIndex), nowIndex);
+    return div(sum, length);
   }
 
-  abstract int add(@Nonnegative int nowIndex);
+  abstract long add(long sum, @Nonnegative int nowIndex);
 
-  abstract int sub(@Nonnegative int nowIndex);
+  abstract long sub(long sum, @Nonnegative int nowIndex);
 
-  int div() {
-    return (int) (sum / length);
-  }
+  abstract int div(long sum, @Nonnegative int length);
 }

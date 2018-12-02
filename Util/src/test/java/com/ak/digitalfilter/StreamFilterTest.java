@@ -79,7 +79,7 @@ public class StreamFilterTest {
   }
 
 
-  @Test(dataProvider = "stream", successPercentage = 80, invocationCount = 100)
+  @Test(dataProvider = "stream")
   public static void testFilter(@Nonnull DigitalFilter filter, @Nonnull IntStream data, int min, int max) {
     AtomicInteger lastValue = new AtomicInteger();
     filter.forEach(values -> {

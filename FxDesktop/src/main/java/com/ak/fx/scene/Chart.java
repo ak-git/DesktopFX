@@ -79,9 +79,14 @@ public final class Chart<EV extends Enum<EV> & Variable<EV>> extends AbstractReg
     axisXController.stepProperty().addListener((observable, oldValue, newValue) ->
         lineDiagrams.values().forEach(lineDiagram -> lineDiagram.setXStep(newValue.doubleValue())));
     axisXController.lengthProperty().addListener((observable, oldValue, newValue) ->
-        lineDiagrams.values().forEach(lineDiagram -> lineDiagram.setMaxSamples(newValue.intValue() / axisXController.getDecimateFactor()))
+        lineDiagrams.values().forEach(lineDiagram -> {
+          int maxSamples = newValue.intValue() / axisXController.getDecimateFactor();
+          lineDiagram.setMaxSamples(maxSamples);
+          axisYController.setMaxSamples(maxSamples);
+        })
     );
     axisXController.setFrequency(frequency);
+    axisYController.setVariables(variables);
     this.changedCallback = changedCallback;
   }
 
