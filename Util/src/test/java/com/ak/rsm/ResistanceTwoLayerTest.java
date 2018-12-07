@@ -145,10 +145,9 @@ public class ResistanceTwoLayerTest {
   @DataProvider(name = "rho1-rho2-h-dh")
   public static Object[][] dhParameters() {
     return new Object[][] {
-        {8.0, new double[] {125.525, 204.450}, new double[] {125.75, 204.86}},
-        {8.0, new double[] {125.55, 204.6}, new double[] {126.1, 205.6}},
-        {7.0, new double[] {142.7, 224.1}, new double[] {143.15, 224.7}},
-        {6.0, new double[] {138.0, 213.9}, new double[] {138.375, 214.7}},
+        {6.0, new double[] {80.0, 224.3}, new double[] {80.1, 224.4}},
+        {6.0, new double[] {92.1, 221.95}, new double[] {92.15, 222.0}},
+        {8.0, new double[] {143.55, 212.3}, new double[] {143.60, 212.35}},
     };
   }
 
@@ -167,14 +166,14 @@ public class ResistanceTwoLayerTest {
     SimpleBounds bounds;
     if (rho1Apparent > rho2Apparent) {
       bounds = new SimpleBounds(
-          new double[] {rho1Apparent, 0.0, 0.0, 0.0},
-          new double[] {Double.POSITIVE_INFINITY, rho2Apparent, Metrics.fromMilli(sPUmm * 2.0), Metrics.fromMilli(1.0)}
+          new double[] {rho1Apparent, 0.0, 0.0},
+          new double[] {Double.POSITIVE_INFINITY, rho2Apparent, Metrics.fromMilli(sPUmm * 3.0)}
       );
     }
     else {
       bounds = new SimpleBounds(
-          new double[] {0.0, rho2Apparent, 0.0, 0.0},
-          new double[] {rho1Apparent, Double.POSITIVE_INFINITY, Metrics.fromMilli(sPUmm * 2.0), Metrics.fromMilli(1.0)}
+          new double[] {0.0, rho2Apparent, 0.0},
+          new double[] {rho1Apparent, Double.POSITIVE_INFINITY, Metrics.fromMilli(sPUmm * 3.0)}
       );
     }
 
@@ -182,7 +181,7 @@ public class ResistanceTwoLayerTest {
           double rho1 = point[0];
           double rho2 = Double.POSITIVE_INFINITY;
           double h = point[2];
-          double dh = point[3];
+          double dh = Metrics.fromMilli(0.05);
 
           Inequality inequality = Inequality.log1pDifference();
           inequality.applyAsDouble(rOhmBefore[0], predictedSmall.value(rho1, rho2, h));
@@ -192,8 +191,8 @@ public class ResistanceTwoLayerTest {
           inequality.applyAsDouble(rOhmAfter[1] - rOhmBefore[1],
               predictedBig.value(rho1, rho2, h - dh) - predictedBig.value(rho1, rho2, h));
           return inequality.getAsDouble();
-        }, bounds, new double[] {rho1Apparent, rho2Apparent, Metrics.fromMilli(sPUmm * 2.0), Metrics.fromMilli(1.0)},
-        new double[] {rho1Apparent / 10.0, rho2Apparent / 10.0, Metrics.fromMilli(0.1), Metrics.fromMilli(0.01)});
+        }, bounds, new double[] {rho1Apparent, rho2Apparent, Metrics.fromMilli(sPUmm * 2.0)},
+        new double[] {rho1Apparent / 10.0, rho2Apparent / 10.0, Metrics.fromMilli(0.1)});
     Logger.getAnonymousLogger().info(toString(pointValuePair.getPoint()));
   }
 
