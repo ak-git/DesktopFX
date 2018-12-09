@@ -26,10 +26,6 @@ final class LineDiagram extends AbstractRegion {
   private final Polyline polyline = new Polyline();
   @Nonnegative
   private double xStep = 1.0;
-  @Nonnegative
-  private int nowIndex;
-  @Nonnegative
-  private int maxSamples = 1;
   @Nonnull
   private DoubleFunction<String> positionToStringConverter = value -> Strings.EMPTY;
 
@@ -97,46 +93,10 @@ final class LineDiagram extends AbstractRegion {
         polyline.getPoints().add(-y[i]);
       }
     }
-    nowIndex = Math.min(y.length, maxSamples) % maxSamples;
-  }
-
-  void add(double y) {
-    if (polyline.getPoints().size() / 2 <= nowIndex) {
-      polyline.getPoints().add(xStep * nowIndex);
-      polyline.getPoints().add(-y);
-    }
-    else {
-      polyline.getPoints().set(nowIndex * 2 + 1, -y);
-    }
-
-    nowIndex++;
-    nowIndex %= maxSamples;
-  }
-
-  void shiftRight(@Nonnull double[] y) {
-    for (int i = y.length * 2 + 1; i < polyline.getPoints().size(); i += 2) {
-      polyline.getPoints().set(i - y.length * 2, polyline.getPoints().get(i));
-    }
-    for (int i = polyline.getPoints().size() - (y.length * 2 - 1), n = 0; i < polyline.getPoints().size(); i += 2, n++) {
-      polyline.getPoints().set(i, -y[n]);
-    }
-  }
-
-  void shiftLeft(@Nonnull double[] y) {
-    for (int i = polyline.getPoints().size() - (y.length * 2 + 1); i > 0; i -= 2) {
-      polyline.getPoints().set(i + y.length * 2, polyline.getPoints().get(i));
-    }
-    for (int i = 1, n = 0; i < y.length * 2; i += 2, n++) {
-      polyline.getPoints().set(i, -y[n]);
-    }
   }
 
   void setXStep(@Nonnegative double xStep) {
     this.xStep = xStep;
-  }
-
-  void setMaxSamples(@Nonnegative int maxSamples) {
-    this.maxSamples = Math.max(maxSamples, 1);
   }
 
   void setVisibleTextBounds(double y, double height) {

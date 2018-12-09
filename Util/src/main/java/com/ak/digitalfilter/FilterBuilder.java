@@ -198,7 +198,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
    * @param averageFactor average factor.
    * @return FilterBuilder
    */
-  public FilterBuilder recursiveMeanAndStd(@Nonnegative int averageFactor) {
+  FilterBuilder recursiveMeanAndStd(@Nonnegative int averageFactor) {
     IntUnaryOperator sqrtSumFilter = new SqrtSumFilter(averageFactor);
     return wrap(String.format("mean-n-std%d", averageFactor),
         of().fork(new NoFilter(), new MeanFilter(averageFactor))
