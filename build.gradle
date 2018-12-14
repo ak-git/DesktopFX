@@ -1,7 +1,7 @@
 import com.github.spotbugs.SpotBugsTask
 
 plugins {
-    id 'com.github.spotbugs' version '1.6.4'
+    id 'com.github.spotbugs' version '1.6.6'
 }
 
 ext.projectIds = ['java': JavaVersion.VERSION_1_10]
@@ -21,7 +21,7 @@ subprojects {
     apply plugin: "com.github.spotbugs"
 
     spotbugs {
-        toolVersion = '3.1.8'
+        toolVersion = '3.1.9'
     }
 
     tasks.withType(SpotBugsTask) {
@@ -55,7 +55,7 @@ subprojects {
     }
 
     dependencies {
-        compile group: 'com.github.spotbugs', name: 'spotbugs', version: '3.1.8'
+        compile group: 'com.github.spotbugs', name: 'spotbugs', version: '3.1.9'
         testCompile group: 'org.testng', name: 'testng', version: '7.0.0-beta1'
     }
 
@@ -71,8 +71,8 @@ project(':Util') {
     dependencies {
         compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
         compile group: 'tec.uom', name: 'uom-se', version: '1.0.9'
-        compile group: 'javax.json', name: 'javax.json-api', version: '1.1.3'
-        compile group: 'org.glassfish', name: 'javax.json', version: '1.1.3'
+        compile group: 'javax.json', name: 'javax.json-api', version: '1.1.4'
+        compile group: 'org.glassfish', name: 'javax.json', version: '1.1.4'
     }
 }
 
@@ -86,7 +86,7 @@ project(':Communication') {
 
 project(':FxCore') {
     dependencies {
-        compile group: 'org.springframework', name: 'spring-context', version: '5.1.1.RELEASE'
+        compile group: 'org.springframework', name: 'spring-context', version: '5.1.3.RELEASE'
         compile project(':Util')
     }
 }
