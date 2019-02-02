@@ -1,13 +1,7 @@
-import com.github.spotbugs.SpotBugsTask
-
-plugins {
-    id 'com.github.spotbugs' version '1.6.6'
-}
-
 ext.projectIds = ['java': JavaVersion.VERSION_1_10]
 
 wrapper {
-    gradleVersion = "4.10.2"
+    gradleVersion = "5.0"
 }
 
 allprojects {
@@ -18,29 +12,12 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
-    apply plugin: "com.github.spotbugs"
-
-    spotbugs {
-        toolVersion = '3.1.9'
-    }
-
-    tasks.withType(SpotBugsTask) {
-        reports {
-            xml.enabled = false
-            html.enabled = true
-        }
-    }
-
     sourceCompatibility = projectIds.java
     targetCompatibility = projectIds.java
 
     repositories {
         mavenCentral()
         mavenLocal()
-        maven {
-            name = 'Central Repository'
-            url = 'http://repo.maven.apache.org/maven2'
-        }
         maven {
             name = 'Apache Repository'
             url = 'https://repository.apache.org/content/repositories/snapshots/'
@@ -61,7 +38,8 @@ subprojects {
 
     test {
         forkEvery = 5
-        maxParallelForks = Runtime.runtime.availableProcessors() / 2
+        useTestNG()
+        maxHeapSize = '1G'
     }
 
     test.useTestNG()

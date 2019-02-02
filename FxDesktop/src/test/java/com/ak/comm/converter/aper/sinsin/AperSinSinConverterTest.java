@@ -36,7 +36,7 @@ public final class AperSinSinConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {56940, 301742, 1431}},
+            new int[] {56844, 301742, 1431, 52082, 276467}},
     };
   }
 
@@ -50,7 +50,9 @@ public final class AperSinSinConverterTest {
       int finalI = i;
       long count = converter.apply(bufferFrame).peek(ints -> {
         if (finalI > 1900) {
-          Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
+          if (!processed.get()) {
+            Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
+          }
           processed.set(true);
         }
       }).count();

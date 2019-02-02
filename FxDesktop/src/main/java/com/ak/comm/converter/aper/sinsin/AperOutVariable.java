@@ -32,7 +32,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return AperOutVariable.filter(FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel1.class));
+      return AperOutVariable.filter(FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel1.class)).build();
     }
   },
   R2 {
@@ -43,7 +43,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return AperOutVariable.filter(FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel2.class));
+      return AperOutVariable.filter(FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel2.class)).build();
     }
   },
   CCR {
@@ -59,7 +59,49 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return AperOutVariable.filter(FilterBuilder.asFilterBuilder(AperCoefficients.ADC_TO_OHM));
+      return AperOutVariable.filter(FilterBuilder.asFilterBuilder(AperCoefficients.ADC_TO_OHM)).build();
+    }
+
+    @Override
+    public Set<Option> options() {
+      return Collections.singleton(Option.TEXT_VALUE_BANNER);
+    }
+  },
+  R1_AVG {
+    @Override
+    public List<AperInVariable> getInputVariables() {
+      return Arrays.asList(AperInVariable.CCU1, AperInVariable.R1);
+    }
+
+    @Override
+    public Unit<?> getUnit() {
+      return MetricPrefix.MILLI(Units.OHM);
+    }
+
+    @Override
+    public DigitalFilter filter() {
+      return AperOutVariable.filter(FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel1.class)).rrs().build();
+    }
+
+    @Override
+    public Set<Option> options() {
+      return Collections.singleton(Option.TEXT_VALUE_BANNER);
+    }
+  },
+  R2_AVG {
+    @Override
+    public List<AperInVariable> getInputVariables() {
+      return Arrays.asList(AperInVariable.CCU1, AperInVariable.R2);
+    }
+
+    @Override
+    public Unit<?> getUnit() {
+      return MetricPrefix.MILLI(Units.OHM);
+    }
+
+    @Override
+    public DigitalFilter filter() {
+      return AperOutVariable.filter(FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel2.class)).rrs().build();
     }
 
     @Override
@@ -86,12 +128,12 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
    * @param filterBuilder {@link FilterBuilder}
    * @return DigitalFilter
    */
-  private static DigitalFilter filter(FilterBuilder filterBuilder) {
+  private static FilterBuilder filter(FilterBuilder filterBuilder) {
     return filterBuilder
         .decimate(AperRheoCoefficients.F_1000_32_187, 4)
         .decimate(AperRheoCoefficients.F_250_32_62, 2)
         .smoothingImpulsive(4)
         .interpolate(2, AperRheoCoefficients.F_250_32_62)
-        .interpolate(4, AperRheoCoefficients.F_1000_32_187).build();
+        .interpolate(4, AperRheoCoefficients.F_1000_32_187);
   }
 }
