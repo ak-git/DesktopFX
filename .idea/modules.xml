@@ -9,15 +9,9 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/FxCore/DesktopFX-FxCore.iml" filepath="$PROJECT_DIR$/.idea/modules/FxCore/DesktopFX-FxCore.iml" group="FxCore" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/FxCore/DesktopFX-FxCore_main.iml" filepath="$PROJECT_DIR$/.idea/modules/FxCore/DesktopFX-FxCore_main.iml" group="FxCore" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/FxCore/DesktopFX-FxCore_test.iml" filepath="$PROJECT_DIR$/.idea/modules/FxCore/DesktopFX-FxCore_test.iml" group="FxCore" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FxDesktop/DesktopFX-FxDesktop.iml" filepath="$PROJECT_DIR$/.idea/modules/FxDesktop/DesktopFX-FxDesktop.iml" group="FxDesktop" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FxDesktop/DesktopFX-FxDesktop_main.iml" filepath="$PROJECT_DIR$/.idea/modules/FxDesktop/DesktopFX-FxDesktop_main.iml" group="FxDesktop" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FxDesktop/DesktopFX-FxDesktop_test.iml" filepath="$PROJECT_DIR$/.idea/modules/FxDesktop/DesktopFX-FxDesktop_test.iml" group="FxDesktop" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Util/DesktopFX-Util.iml" filepath="$PROJECT_DIR$/.idea/modules/Util/DesktopFX-Util.iml" group="Util" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/DesktopFX_main.iml" filepath="$PROJECT_DIR$/.idea/modules/DesktopFX_main.iml" group="DesktopFX" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/DesktopFX_test.iml" filepath="$PROJECT_DIR$/.idea/modules/DesktopFX_test.iml" group="DesktopFX" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FxDesktop/FxDesktop.iml" filepath="$PROJECT_DIR$/.idea/modules/FxDesktop/FxDesktop.iml" group="FxDesktop" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FxDesktop/FxDesktop_main.iml" filepath="$PROJECT_DIR$/.idea/modules/FxDesktop/FxDesktop_main.iml" group="FxDesktop" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FxDesktop/FxDesktop_test.iml" filepath="$PROJECT_DIR$/.idea/modules/FxDesktop/FxDesktop_test.iml" group="FxDesktop" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Util/Util_main.iml" filepath="$PROJECT_DIR$/.idea/modules/Util/Util_main.iml" group="Util" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Util/Util_test.iml" filepath="$PROJECT_DIR$/.idea/modules/Util/Util_test.iml" group="Util" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/FxDesktop/com.ak-FxDesktop.iml" filepath="$PROJECT_DIR$/.idea/modules/FxDesktop/com.ak-FxDesktop.iml" group="FxDesktop" />

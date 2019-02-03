@@ -95,14 +95,13 @@ project(':FxCore') {
     ext.moduleName = 'com.ak.fx'
 
     javafx {
-        modules = ['javafx.controls', 'javafx.fxml']
+        modules = ['javafx.graphics']
     }
     
     compileJava {
         doFirst {
             options.compilerArgs = [
                     '--module-path', classpath.asPath,
-                    '--add-modules', 'javafx.fxml'
             ]
         }
     }
@@ -128,7 +127,6 @@ project(':FxDesktop') {
         doFirst {
             options.compilerArgs = [
                     '--module-path', classpath.asPath,
-                    '--add-modules', 'javafx.fxml'
             ]
         }
     }
@@ -138,7 +136,6 @@ project(':FxDesktop') {
             jvmArgs = [
                     '-server', '-Xms512m', '-Xmx1024m',
                     '--module-path', classpath.asPath,
-                    '--add-modules', 'javafx.fxml'
             ]
         }
     }
