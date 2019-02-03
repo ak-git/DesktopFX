@@ -10,4 +10,5 @@ module com.ak.util {
   exports com.ak.util;
   exports com.ak.logging;
   exports com.ak.digitalfilter;
+  exports com.ak.storage;
 }
