@@ -51,6 +51,17 @@ subprojects {
 }
 
 project(':Util') {
+    ext.moduleName = 'com.ak.util'
+
+    compileJava {
+        doFirst {
+            options.compilerArgs = [
+                    '--module-path', classpath.asPath,
+            ]
+            classpath = files()
+        }
+    }
+    
     dependencies {
         api 'tec.uom:uom-se:1.0.9'
         api 'org.glassfish:javax.json:1.1.4'
