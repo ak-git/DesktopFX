@@ -50,7 +50,7 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends E
       return Stream.empty();
     }
     else {
-      return bytesInterceptor.apply(buffer).flatMap(responseConverter::apply).peek(ints -> {
+      return bytesInterceptor.apply(buffer).flatMap(responseConverter).peek(ints -> {
         workingBuffer.clear();
         for (int i : ints) {
           workingBuffer.putInt(i);

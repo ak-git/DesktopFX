@@ -6,4 +6,8 @@ module com.ak.util {
   requires jsr305;
   requires java.logging;
   requires java.desktop;
+
+  exports com.ak.util;
+  exports com.ak.logging;
+  exports com.ak.digitalfilter;
 }

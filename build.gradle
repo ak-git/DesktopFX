@@ -70,6 +70,17 @@ project(':Util') {
 }
 
 project(':Communication') {
+    ext.moduleName = 'com.ak.comm'
+
+    compileJava {
+        doFirst {
+            options.compilerArgs = [
+                    '--module-path', classpath.asPath,
+            ]
+            classpath = files()
+        }
+    }
+    
     dependencies {
         api project(':Util')
         api 'javax.inject:javax.inject:1'
