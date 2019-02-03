@@ -1,8 +1,9 @@
 plugins {
+    id 'org.openjfx.javafxplugin' version '0.0.7'
     id 'java-library'
 }
 
-ext.projectIds = ['java': JavaVersion.VERSION_1_10]
+ext.projectIds = ['java': JavaVersion.VERSION_11]
 
 wrapper {
     gradleVersion = "5.1.1"
@@ -90,14 +91,19 @@ project(':Communication') {
 }
 
 project(':FxCore') {
+    apply plugin: 'org.openjfx.javafxplugin'
     ext.moduleName = 'com.ak.fx'
 
+    javafx {
+        modules = ['javafx.controls', 'javafx.fxml']
+    }
+    
     compileJava {
         doFirst {
             options.compilerArgs = [
                     '--module-path', classpath.asPath,
+                    '--add-modules', 'javafx.fxml'
             ]
-            classpath = files()
         }
     }
     
@@ -108,11 +114,33 @@ project(':FxCore') {
 }
 
 project(':FxDesktop') {
+    apply plugin: 'org.openjfx.javafxplugin'
     apply plugin: 'application'
-    mainClassName = 'com.ak.fx.desktop.FxApplication'
+    mainClassName = 'com.ak.fx.desktop/com.ak.fx.desktop.FxApplication'
+
+    ext.moduleName = 'com.ak.fx.desktop'
+
+    javafx {
+        modules = ['javafx.controls', 'javafx.fxml']
+    }
+
+    compileJava {
+        doFirst {
+            options.compilerArgs = [
+                    '--module-path', classpath.asPath,
+                    '--add-modules', 'javafx.fxml'
+            ]
+        }
+    }
 
     run {
-        jvmArgs '-server', '-Xms512m', '-Xmx1024m'
+        doFirst {
+            jvmArgs = [
+                    '-server', '-Xms512m', '-Xmx1024m',
+                    '--module-path', classpath.asPath,
+                    '--add-modules', 'javafx.fxml'
+            ]
+        }
     }
 
     dependencies {

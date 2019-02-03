@@ -9,12 +9,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.BufferFrame;
-import com.ak.comm.converter.AbstractSplineCoefficientsChartApp;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.aper.AperInVariable;
+import com.ak.comm.converter.app.AbstractSplineCoefficientsChartApp;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
 import org.testng.Assert;

@@ -1,4 +1,4 @@
-package com.ak.comm.converter;
+package com.ak.comm.converter.app;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -12,6 +12,8 @@ import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 
+import com.ak.comm.converter.Variable;
+import com.ak.comm.converter.Variables;
 import com.ak.numbers.Coefficients;
 import com.ak.numbers.Interpolators;
 import com.ak.numbers.RangeUtils;

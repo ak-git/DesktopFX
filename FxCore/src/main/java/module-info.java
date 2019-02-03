@@ -7,5 +7,8 @@ module com.ak.fx {
   requires spring.context;
   requires spring.beans;
   requires javafx.graphics;
-  requires javafx.fxml;
+
+  exports com.ak.fx.stage;
+  exports com.ak.fx.storage;
+  exports com.ak.fx.util;
 }
