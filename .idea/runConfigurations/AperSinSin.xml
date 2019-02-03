@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="AperSinSin" type="Application" factoryName="Application" singleton="true">
     <option name="MAIN_CLASS_NAME" value="com.ak.fx.desktop.FxApplication" />
-    <module name="DesktopFX-FxDesktop_main" />
+    <module name="com.ak-FxDesktop_main" />
     <option name="PROGRAM_PARAMETERS" value="--context=aper.sinsin" />
     <extension name="coverage">
       <pattern>
