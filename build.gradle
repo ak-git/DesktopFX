@@ -1,18 +1,22 @@
 plugins {
     id 'org.openjfx.javafxplugin' version '0.0.7'
     id 'java-library'
+    id 'idea'
 }
 
 ext.projectIds = ['java': JavaVersion.VERSION_11]
 
 wrapper {
-    gradleVersion = "5.1.1"
+    description 'Setup the Gradle wrapper'
+    gradleVersion = '5.2.1'
+    distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 allprojects {
     group = 'com.ak'
     version = '2019.1'
     apply plugin: 'idea'
+    idea.module.outputDir file("out/production/classes")
 }
 
 subprojects {
@@ -39,7 +43,7 @@ subprojects {
 
     dependencies {
         implementation 'com.google.code.findbugs:jsr305:3.0.2'
-        testImplementation 'org.testng:testng:7.0.0-beta1'
+        testImplementation 'org.testng:testng:7.0.0-beta3'
     }
 
     test {
@@ -55,14 +59,15 @@ project(':Util') {
     ext.moduleName = 'com.ak.util'
 
     compileJava {
+        inputs.property("moduleName", 'com.ak.util')
         doFirst {
             options.compilerArgs = [
                     '--module-path', classpath.asPath,
+                    '--patch-module', "$moduleName=" + files(sourceSets.main.resources.srcDirs).asPath
             ]
-            classpath = files()
         }
     }
-    
+
     dependencies {
         implementation 'tec.uom:uom-se:1.0.9'
         implementation 'org.glassfish:javax.json:1.1.4'
@@ -74,14 +79,15 @@ project(':Communication') {
     ext.moduleName = 'com.ak.comm'
 
     compileJava {
+        inputs.property("moduleName", 'com.ak.comm')
         doFirst {
             options.compilerArgs = [
                     '--module-path', classpath.asPath,
+                    '--patch-module', "$moduleName=" + files(sourceSets.main.resources.srcDirs).asPath
             ]
-            classpath = files()
         }
     }
-    
+
     dependencies {
         api project(':Util')
         implementation 'javax.inject:javax.inject:1'
@@ -97,18 +103,20 @@ project(':FxCore') {
     javafx {
         modules = ['javafx.graphics']
     }
-    
+
     compileJava {
+        inputs.property("moduleName", 'com.ak.fx')
         doFirst {
             options.compilerArgs = [
                     '--module-path', classpath.asPath,
+                    '--patch-module', "$moduleName=" + files(sourceSets.main.resources.srcDirs).asPath
             ]
         }
     }
-    
+
     dependencies {
         api project(':Util')
-        implementation 'org.springframework:spring-context:5.1.3.RELEASE'
+        implementation 'org.springframework:spring-context:5.1.5.RELEASE'
     }
 }
 
@@ -124,18 +132,22 @@ project(':FxDesktop') {
     }
 
     compileJava {
+        inputs.property("moduleName", 'com.ak.fx.desktop')
         doFirst {
             options.compilerArgs = [
                     '--module-path', classpath.asPath,
+                    '--patch-module', "$moduleName=" + files(sourceSets.main.resources.srcDirs).asPath
             ]
         }
     }
 
     run {
+        inputs.property("moduleName", 'com.ak.fx.desktop')
         doFirst {
             jvmArgs = [
-                    '-server', '-Xms512m', '-Xmx1024m',
                     '--module-path', classpath.asPath,
+                    '--patch-module', "$moduleName=" + files(sourceSets.main.resources.srcDirs).asPath,
+                    '--module', "$moduleName/$mainClassName"
             ]
         }
     }
@@ -144,7 +156,7 @@ project(':FxDesktop') {
         implementation project(':FxCore')
         implementation project(':Communication')
 
-        implementation 'org.springframework:spring-context:5.1.3.RELEASE'
+        implementation 'org.springframework:spring-context:5.1.5.RELEASE'
         implementation 'javax.inject:javax.inject:1'
         implementation 'tec.uom:uom-se:1.0.9'
         implementation 'org.glassfish:javax.json:1.1.4'
