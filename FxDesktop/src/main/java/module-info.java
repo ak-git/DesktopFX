@@ -19,5 +19,6 @@ module com.ak.fx.desktop {
   requires java.desktop;
 
   opens com.ak.fx.desktop to javafx.fxml;
+  opens com.ak.fx.scene to javafx.fxml;
   exports com.ak.fx.desktop;
 }

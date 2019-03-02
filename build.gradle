@@ -147,7 +147,7 @@ project(':FxDesktop') {
             jvmArgs = [
                     '--module-path', classpath.asPath,
                     '--patch-module', "$moduleName=" + files(sourceSets.main.resources.srcDirs).asPath,
-                    '--module', "$moduleName/$mainClassName"
+                    '--module', "$mainClassName"
             ]
         }
     }

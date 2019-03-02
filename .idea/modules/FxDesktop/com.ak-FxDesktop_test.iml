@@ -30,7 +30,6 @@
     <orderEntry type="library" name="Gradle: org.testng:testng:7.0.0-beta3" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-aop:5.1.5.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-beans:5.1.5.RELEASE" level="project" />
-    <orderEntry type="module" module-name="Util_main" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-expression:5.1.5.RELEASE" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.scream3r:jssc:2.8.0" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-core:5.1.5.RELEASE" level="project" />
@@ -38,6 +37,7 @@
     <orderEntry type="library" name="Gradle: javax.measure:unit-api:1.0" level="project" />
     <orderEntry type="library" name="Gradle: com.beust:jcommander:1.72" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-jcl:5.1.5.RELEASE" level="project" />
+    <orderEntry type="module" module-name="Util_main" />
     <orderEntry type="module" module-name="Util_main" />
     <orderEntry type="module" module-name="DesktopFX-FxCore_main" />
     <orderEntry type="module" module-name="DesktopFX-Communication_main" />
