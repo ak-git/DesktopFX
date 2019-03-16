@@ -28,6 +28,11 @@ public class ResistanceTwoLayerTest {
   @DataProvider(name = "layer-model")
   public static Object[][] twoLayerParameters() {
     return new Object[][] {
+        {new Double[] {8.0, 1.0}, 10.0, 10.0, 20.0, 309.342},
+        {new Double[] {8.0, 1.0}, 10.0, 30.0, 90.0, 8.815},
+        {new Double[] {8.0, 1.0}, 50.0, 10.0, 20.0, 339.173},
+        {new Double[] {8.0, 1.0}, 50.0, 30.0, 90.0, 38.858},
+
         {new Double[] {1.0, 1.0}, 0.0, 20.0, 40.0, 21.221},
         {new Double[] {2.0, 2.0}, 0.0, 20.0, 40.0, 21.221 * 2.0},
         {new Double[] {1.0, 1.0}, 0.0, 40.0, 80.0, 10.610},
@@ -40,9 +45,15 @@ public class ResistanceTwoLayerTest {
 
         {new Double[] {20.0, 1.0}, 1.0, 40.0, 80.0, 10.649},
 
-        {new Double[] {0.7, Double.POSITIVE_INFINITY}, 10.0, 10.0, 50.0, 9.074},
+        {new Double[] {0.7, Double.POSITIVE_INFINITY}, 10.0 - 10.0 / 200.0, 10.0, 30.0, 16.821},
         {new Double[] {0.7, Double.POSITIVE_INFINITY}, 10.0, 10.0, 30.0, 16.761},
+        {new Double[] {0.7, Double.POSITIVE_INFINITY}, 10.0 - 10.0 / 200.0, 30.0, 50.0, 32.383},
         {new Double[] {0.7, Double.POSITIVE_INFINITY}, 10.0, 30.0, 50.0, 32.246},
+
+        {new Double[] {0.7, Double.POSITIVE_INFINITY}, 15.0 - 10.0 / 200.0, 10.0, 30.0, 13.357},
+        {new Double[] {0.7, Double.POSITIVE_INFINITY}, 15.0, 10.0, 30.0, 13.338},
+        {new Double[] {0.7, Double.POSITIVE_INFINITY}, 15.0 - 10.0 / 200.0, 30.0, 50.0, 23.953},
+        {new Double[] {0.7, Double.POSITIVE_INFINITY}, 15.0, 30.0, 50.0, 23.903},
     };
   }
 
