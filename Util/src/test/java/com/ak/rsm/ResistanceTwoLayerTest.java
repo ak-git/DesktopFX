@@ -195,14 +195,13 @@ public class ResistanceTwoLayerTest {
   @DataProvider(name = "rho1-rho2-h-dh")
   public static Object[][] dhParameters() {
     return new Object[][] {
-        {6.0, new double[] {80.0, 224.3}, new double[] {80.1, 224.4}},
-        {6.0, new double[] {92.1, 221.95}, new double[] {92.15, 222.0}},
-        {8.0, new double[] {143.55, 212.3}, new double[] {143.60, 212.35}},
+        {10.0, new double[] {16.39, 33.00}, new double[] {16.45, 33.15}, -Metrics.fromMilli(10.0 / 200.0)},
+        {10.0, new double[] {16.761, 32.246}, new double[] {16.821, 32.383}, -Metrics.fromMilli(10.0 / 200.0)},
     };
   }
 
   @Test(dataProvider = "rho1-rho2-h-dh", enabled = false)
-  public static void testInverseDh(@Nonnegative double sPUmm, @Nonnull double[] rOhmBefore, @Nonnull double[] rOhmAfter) {
+  public static void testInverseDh(@Nonnegative double sPUmm, @Nonnull double[] rOhmBefore, @Nonnull double[] rOhmAfter, double dHSI) {
     TetrapolarSystem systemSmall = new TetrapolarSystem(sPUmm, sPUmm * 3.0, MILLI(METRE));
     TetrapolarSystem systemBig = new TetrapolarSystem(sPUmm * 3.0, sPUmm * 5.0, MILLI(METRE));
 
@@ -229,17 +228,18 @@ public class ResistanceTwoLayerTest {
 
     PointValuePair pointValuePair = SimplexTest.optimizeCMAES(point -> {
           double rho1 = point[0];
-          double rho2 = Double.POSITIVE_INFINITY;
+          double rho2 = point[1];
           double h = point[2];
-          double dh = Metrics.fromMilli(0.05);
 
           Inequality inequality = Inequality.log1pDifference();
           inequality.applyAsDouble(rOhmBefore[0], predictedSmall.value(rho1, rho2, h));
           inequality.applyAsDouble(rOhmBefore[1], predictedBig.value(rho1, rho2, h));
-          inequality.applyAsDouble(rOhmAfter[0] - rOhmBefore[0],
-              predictedSmall.value(rho1, rho2, h - dh) - predictedSmall.value(rho1, rho2, h));
-          inequality.applyAsDouble(rOhmAfter[1] - rOhmBefore[1],
-              predictedBig.value(rho1, rho2, h - dh) - predictedBig.value(rho1, rho2, h));
+
+          inequality.applyAsDouble(rOhmBefore[0] - rOhmAfter[0],
+              predictedSmall.value(rho1, rho2, h) - predictedSmall.value(rho1, rho2, h + dHSI));
+          inequality.applyAsDouble(rOhmBefore[1] - rOhmAfter[1],
+              predictedBig.value(rho1, rho2, h) - predictedBig.value(rho1, rho2, h + dHSI));
+
           return inequality.getAsDouble();
         }, bounds, new double[] {rho1Apparent, rho2Apparent, Metrics.fromMilli(sPUmm * 2.0)},
         new double[] {rho1Apparent / 10.0, rho2Apparent / 10.0, Metrics.fromMilli(0.1)});
