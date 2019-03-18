@@ -171,7 +171,7 @@ public class ResistanceTwoLayerTest {
     TrivariateFunction predictedBig = new ResistanceTwoLayer(systemBig);
 
     double[] point = SimplexTest.optimizeCMAES(rho1h -> {
-          Inequality inequality = Inequality.log1pDifference();
+          Inequality inequality = Inequality.expAndLogDifference();
           inequality.applyAsDouble(rOhmBefore[0], predictedSmall.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]));
           inequality.applyAsDouble(rOhmBefore[1], predictedBig.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]));
 
@@ -192,7 +192,7 @@ public class ResistanceTwoLayerTest {
   }
 
 
-  @DataProvider(name = "rho1-rho2-h-dh")
+  @DataProvider(name = "rho1-rho2-h")
   public static Object[][] dhParameters() {
     return new Object[][] {
         {10.0, new double[] {16.39, 33.00}, new double[] {16.45, 33.15}, -Metrics.fromMilli(10.0 / 200.0)},
@@ -201,7 +201,7 @@ public class ResistanceTwoLayerTest {
     };
   }
 
-  @Test(dataProvider = "rho1-rho2-h-dh", enabled = false)
+  @Test(dataProvider = "rho1-rho2-h", enabled = false)
   public static void testInverseDh(@Nonnegative double sPUmm, @Nonnull double[] rOhmBefore, @Nonnull double[] rOhmAfter, double dHSI) {
     TetrapolarSystem systemSmall = new TetrapolarSystem(sPUmm, sPUmm * 3.0, MILLI(METRE));
     TetrapolarSystem systemBig = new TetrapolarSystem(sPUmm * 3.0, sPUmm * 5.0, MILLI(METRE));
@@ -245,7 +245,7 @@ public class ResistanceTwoLayerTest {
     Logger.getAnonymousLogger().info(toString(pair.getPoint()));
   }
 
-  @Test(dataProvider = "rho1-rho2-h-dh", enabled = false)
+  @Test(dataProvider = "rho1-rho2-h", enabled = false)
   public static void testInverseDh2(@Nonnegative double sPUmm, @Nonnull double[] rOhmBefore, @Nonnull double[] rOhmAfter, double dHSI) {
     TetrapolarSystem systemSmall = new TetrapolarSystem(sPUmm, sPUmm * 3.0, MILLI(METRE));
     TetrapolarSystem systemBig = new TetrapolarSystem(sPUmm * 3.0, sPUmm * 5.0, MILLI(METRE));
