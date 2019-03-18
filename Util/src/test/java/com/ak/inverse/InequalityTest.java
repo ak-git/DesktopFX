@@ -3,10 +3,24 @@ package com.ak.inverse;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import static java.lang.StrictMath.log;
 import static java.lang.StrictMath.pow;
 
 public class InequalityTest {
   private InequalityTest() {
+  }
+
+  @Test
+  public void testExpAndLogDifference() {
+    Inequality inequality = Inequality.expAndLogDifference();
+    Assert.assertEquals(inequality.applyAsDouble(-1.0, 1.0), 2 * (Math.E - 1), 0.01);
+    Assert.assertEquals(inequality.applyAsDouble(1.0, -1.0), 2 * (Math.E - 1) * 1.4142135623730951, 0.01);
+
+    inequality = Inequality.expAndLogDifference();
+    Assert.assertEquals(inequality.applyAsDouble(0.0, -1.0), log(2.0), 0.01);
+    inequality = Inequality.expAndLogDifference();
+    Assert.assertEquals(inequality.applyAsDouble(-1.0, -2.0), log(3.0) - log(2.0), 0.01);
+    Assert.assertEquals(inequality.applyAsDouble(2.0, 1.0), (log(3.0) - log(2.0)) * 1.4142135623730951, 0.01);
   }
 
   @Test
