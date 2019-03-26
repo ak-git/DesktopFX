@@ -1,7 +1,9 @@
 package com.ak.math;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -21,6 +23,7 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.math3.random.MersenneTwister;
+import org.apache.commons.math3.util.Pair;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -46,7 +49,7 @@ public class SimplexTest {
 
   public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
                                              @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
-    return new CMAESOptimizer(30000, 1.0e-11, true, 0,
+    return Stream.generate(() -> new CMAESOptimizer(30000, 1.0e-12, true, 0,
         10, new MersenneTwister(), false, null)
         .optimize(
             new MaxEval(30000),
@@ -56,7 +59,7 @@ public class SimplexTest {
             bounds,
             new CMAESOptimizer.Sigma(initialSteps),
             new CMAESOptimizer.PopulationSize(2 * (4 + (int) (3.0 * StrictMath.log(initialGuess.length))))
-        );
+        )).limit(25).parallel().min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
 
   public static PointValuePair optimizeBOBYQA(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,

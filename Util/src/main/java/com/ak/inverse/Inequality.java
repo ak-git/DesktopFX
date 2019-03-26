@@ -21,11 +21,11 @@ public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, T
 
   public static Inequality expAndLogDifference() {
     return new Inequality((measured, predicted) -> {
-      if ((measured < 0 && predicted > 0) || (measured > 0 && predicted < 0)) {
-        return StrictMath.expm1(abs(measured)) + StrictMath.expm1(abs(predicted));
+      if ((measured < 0 && predicted < 0) || (measured > 0 && predicted > 0)) {
+        return LOG1P.applyAsDouble(measured, predicted);
       }
       else {
-        return LOG1P.applyAsDouble(measured, predicted);
+        return StrictMath.expm1(abs(measured)) + StrictMath.expm1(abs(predicted));
       }
     });
   }

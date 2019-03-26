@@ -128,18 +128,18 @@ public class ResistanceTwoLayerTest {
   @Test(dataProvider = "rho1")
   public static void testInverseRho1(@Nonnegative double hmm, @Nonnegative double sPUmm,
                                      @Nonnull double[] rOhmActual, @Nonnegative double rho1Expected) {
-    TetrapolarSystem electrodeSystemSmall = new TetrapolarSystem(sPUmm, sPUmm * 3.0, MILLI(METRE));
-    TetrapolarSystem electrodeSystemBig = new TetrapolarSystem(sPUmm * 3.0, sPUmm * 5.0, MILLI(METRE));
+    TetrapolarSystem electrodeSystemSm = new TetrapolarSystem(sPUmm, sPUmm * 3.0, MILLI(METRE));
+    TetrapolarSystem electrodeSystemBg = new TetrapolarSystem(sPUmm * 3.0, sPUmm * 5.0, MILLI(METRE));
 
     PointValuePair pointValuePair = SimplexTest.optimizeNelderMead(new MultivariateFunction() {
-      private final TrivariateFunction resistancePredictedSmall = new ResistanceTwoLayer(electrodeSystemSmall);
-      private final TrivariateFunction resistancePredictedBig = new ResistanceTwoLayer(electrodeSystemBig);
+      private final TrivariateFunction resistancePredictedSm = new ResistanceTwoLayer(electrodeSystemSm);
+      private final TrivariateFunction resistancePredictedBg = new ResistanceTwoLayer(electrodeSystemBg);
 
       @Override
       public double value(double[] rho1) {
         Inequality inequality = Inequality.logDifference();
-        inequality.applyAsDouble(rOhmActual[0], resistancePredictedSmall.value(rho1[0], Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)));
-        inequality.applyAsDouble(rOhmActual[1], resistancePredictedBig.value(rho1[0], Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)));
+        inequality.applyAsDouble(rOhmActual[0], resistancePredictedSm.value(rho1[0], Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)));
+        inequality.applyAsDouble(rOhmActual[1], resistancePredictedBg.value(rho1[0], Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)));
         return inequality.getAsDouble();
       }
     }, new double[] {1.0}, new double[] {0.001});
@@ -156,11 +156,11 @@ public class ResistanceTwoLayerTest {
   @Test(dataProvider = "rho1-h")
   public static void testInverseRho1H(@Nonnegative double sPUmm, @Nonnull double[] rOhmBefore, @Nonnull double[] rOhmAfter,
                                       @Nonnull double[] rho1hExpected) {
-    TetrapolarSystem systemSmall = new TetrapolarSystem(sPUmm, sPUmm * 3.0, MILLI(METRE));
-    TetrapolarSystem systemBig = new TetrapolarSystem(sPUmm * 3, sPUmm * 5.0, MILLI(METRE));
+    TetrapolarSystem systemSm = new TetrapolarSystem(sPUmm, sPUmm * 3.0, MILLI(METRE));
+    TetrapolarSystem systemBg = new TetrapolarSystem(sPUmm * 3, sPUmm * 5.0, MILLI(METRE));
 
-    double rho1Apparent = systemSmall.getApparent(rOhmBefore[0]);
-    double rho2Apparent = systemBig.getApparent(rOhmBefore[1]);
+    double rho1Apparent = systemSm.getApparent(rOhmBefore[0]);
+    double rho2Apparent = systemBg.getApparent(rOhmBefore[1]);
     Logger.getAnonymousLogger().config(String.format("Apparent : %.3f; %.3f", rho1Apparent, rho2Apparent));
 
     SimpleBounds bounds = new SimpleBounds(
@@ -168,22 +168,22 @@ public class ResistanceTwoLayerTest {
         new double[] {rho1Apparent, Metrics.fromMilli(sPUmm * 5.0 / 2.0)}
     );
 
-    TrivariateFunction predictedSmall = new ResistanceTwoLayer(systemSmall);
-    TrivariateFunction predictedBig = new ResistanceTwoLayer(systemBig);
+    TrivariateFunction predictedSm = new ResistanceTwoLayer(systemSm);
+    TrivariateFunction predictedBg = new ResistanceTwoLayer(systemBg);
 
     double[] point = SimplexTest.optimizeCMAES(rho1h -> {
           Inequality inequality = Inequality.expAndLogDifference();
-          inequality.applyAsDouble(rOhmBefore[0], predictedSmall.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]));
-          inequality.applyAsDouble(rOhmBefore[1], predictedBig.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]));
+          inequality.applyAsDouble(rOhmBefore[0], predictedSm.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]));
+          inequality.applyAsDouble(rOhmBefore[1], predictedBg.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]));
 
           double dH = Metrics.fromMilli(0.05);
           inequality.applyAsDouble(rOhmBefore[0] - rOhmAfter[0],
-              predictedSmall.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]) -
-                  predictedSmall.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1] + dH)
+              predictedSm.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]) -
+                  predictedSm.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1] + dH)
           );
           inequality.applyAsDouble(rOhmBefore[1] - rOhmAfter[1],
-              predictedBig.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]) -
-                  predictedBig.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1] + dH)
+              predictedBg.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]) -
+                  predictedBg.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1] + dH)
           );
           return inequality.getAsDouble();
         },
@@ -191,7 +191,6 @@ public class ResistanceTwoLayerTest {
     ).getPoint();
     Assert.assertEquals(point, rho1hExpected, 1.0e-3, Arrays.toString(point));
   }
-
 
   @DataProvider(name = "rho1-rho2-h")
   public static Object[][] dhParameters() {
@@ -222,26 +221,21 @@ public class ResistanceTwoLayerTest {
   @DataProvider(name = "rho1-rho2-h-experimental")
   public static Object[][] dhParameters2() {
     return new Object[][] {
-        {10.0, 30.0, new double[] {30.971, 61.860}, new double[] {31.278, 62.479}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 5 mm
-        {10.0, 50.0, new double[] {18.069, 61.860}, new double[] {18.252, 62.479}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 5 mm
+        {10.0, 10.0 * 3, new double[] {29.44, 65.6}, new double[] {29.44 + 0.29, 65.6 + 0.695}, -Metrics.fromMilli(10.0 / 200.0)},// h = 5 mm
+        {10.0, 10.0 * 3, new double[] {16.62, 33.8}, new double[] {16.62 + 0.07, 33.8 + 0.137}, -Metrics.fromMilli(10.0 / 200.0)},// h = 10 mm
+        {10.0, 10.0 * 3, new double[] {13.154, 24.89}, new double[] {13.154 + 0.035, 24.89 + 0.05}, -Metrics.fromMilli(10.0 / 200.0)},// h = 15 mm
+        {10.0, 10.0 * 3, new double[] {11.985, 21.3}, new double[] {11.985 + 0.007, 21.3 + 0.026}, -Metrics.fromMilli(10.0 / 200.0)},// h = 20 mm
+        {10.0, 10.0 * 3, new double[] {11.45, 19.5}, new double[] {11.45 + 0.0055, 19.5 + 0.0145}, -Metrics.fromMilli(10.0 / 200.0)},// h = 25 mm
+        {10.0, 10.0 * 3, new double[] {10.634, 17.7}, new double[] {10.634 + 0.021, 17.7 + 0.035}, -Metrics.fromMilli(10.0 / 200.0)},// h = 30 mm
 
-        {10.0, 30.0, new double[] {16.761, 32.246}, new double[] {16.821, 32.383}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 10 mm
-        {10.0, 50.0, new double[] {9.074, 32.246}, new double[] {9.118, 32.383}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 10 mm
+        {10.0, 10.0 * 5, new double[] {19.62, 65.6}, new double[] {19.62 + 0.2, 65.6 + 0.695}, -Metrics.fromMilli(10.0 / 200.0)},// h = 5 mm
+        {10.0, 10.0 * 5, new double[] {10.126, 33.8}, new double[] {10.126 + 0.0485, 33.8 + 0.137}, -Metrics.fromMilli(10.0 / 200.0)},// h = 10 mm
+        {10.0, 10.0 * 5, new double[] {7.005, 24.89}, new double[] {7.005 + 0.0185, 24.89 + 0.05}, -Metrics.fromMilli(10.0 / 200.0)},// h = 15 mm
+        {10.0, 10.0 * 5, new double[] {5.65, 21.3}, new double[] {5.65 + 0.011, 21.3 + 0.026}, -Metrics.fromMilli(10.0 / 200.0)},// h = 20 mm
+        {10.0, 10.0 * 5, new double[] {4.956, 19.5}, new double[] {4.956 + 0.007, 19.5 + 0.0145}, -Metrics.fromMilli(10.0 / 200.0)},// h = 25 mm
+        {10.0, 10.0 * 5, new double[] {4.432, 17.7}, new double[] {4.432 + 0.006, 17.7 + 0.035}, -Metrics.fromMilli(10.0 / 200.0)},// h = 30 mm
 
-        {10.0, 30.0, new double[] {13.338, 23.903}, new double[] {13.357, 23.953}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 15 mm
-        {10.0, 50.0, new double[] {6.267, 23.903}, new double[] {6.284, 23.953}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 15 mm
-
-        {10.0, 30.0, new double[] {12.187, 20.567}, new double[] {12.194, 20.589}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 20 mm
-        {10.0, 50.0, new double[] {5.082, 20.567}, new double[] {5.090, 20.589}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 20 mm
-
-        {10.0, 30.0, new double[] {11.710, 18.986}, new double[] {11.714, 18.998}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 25 mm
-        {10.0, 50.0, new double[] {4.514, 18.986}, new double[] {4.518, 18.998}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 25 mm
-
-        {10.0, 30.0, new double[] {11.482, 18.152}, new double[] {11.484, 18.158}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 30 mm
-        {10.0, 50.0, new double[] {4.216, 18.152}, new double[] {4.218, 18.158}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 30 mm
-
-        {10.0, 30.0, new double[] {11.361, 17.674}, new double[] {11.362, 17.678}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 35 mm
-        {10.0, 50.0, new double[] {4.047, 17.674}, new double[] {4.048, 17.678}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 35 mm
+        {7.0, 7.0 * 3, new double[] {88.81, 141.1}, new double[] {88.81 - 0.04, 141.1 - 0.06}, -Metrics.fromMilli(0.1)},
     };
   }
 
@@ -254,8 +248,8 @@ public class ResistanceTwoLayerTest {
     double rho2Apparent = systemBg.getApparent(rOhmBefore[1]);
     Logger.getAnonymousLogger().config(String.format("Apparent : %.3f; %.3f", rho1Apparent, rho2Apparent));
 
-    TrivariateFunction predictedSmall = new ResistanceTwoLayer(systemSm);
-    TrivariateFunction predictedBig = new ResistanceTwoLayer(systemBg);
+    TrivariateFunction predictedSm = new ResistanceTwoLayer(systemSm);
+    TrivariateFunction predictedBg = new ResistanceTwoLayer(systemBg);
 
     PointValuePair pair = SimplexTest.optimizeNelderMead(h -> {
       double hypot;
@@ -266,8 +260,8 @@ public class ResistanceTwoLayerTest {
           double rho2 = rho1rho2[1];
 
           Inequality inequality = Inequality.log1pDifference();
-          inequality.applyAsDouble(rOhmBefore[0], predictedSmall.value(rho1, rho2, hSI));
-          inequality.applyAsDouble(rOhmBefore[1], predictedBig.value(rho1, rho2, hSI));
+          inequality.applyAsDouble(rOhmBefore[0], predictedSm.value(rho1, rho2, hSI));
+          inequality.applyAsDouble(rOhmBefore[1], predictedBg.value(rho1, rho2, hSI));
           return inequality.getAsDouble();
         }, new double[] {rho1Apparent, rho2Apparent}, new double[] {rho1Apparent / 10.0, rho2Apparent / 10.0});
 
@@ -276,9 +270,9 @@ public class ResistanceTwoLayerTest {
 
         Inequality inequality = Inequality.expAndLogDifference();
         inequality.applyAsDouble((rOhmBefore[0] - rOhmAfter[0]),
-            (predictedSmall.value(rho1, rho2, hSI) - predictedSmall.value(rho1, rho2, hSI + dHSI)));
+            (predictedSm.value(rho1, rho2, hSI) - predictedSm.value(rho1, rho2, hSI + dHSI)));
         inequality.applyAsDouble((rOhmBefore[1] - rOhmAfter[1]),
-            (predictedBig.value(rho1, rho2, hSI) - predictedBig.value(rho1, rho2, hSI + dHSI)));
+            (predictedBg.value(rho1, rho2, hSI) - predictedBg.value(rho1, rho2, hSI + dHSI)));
         hypot = inequality.getAsDouble();
       }
       else {
@@ -298,8 +292,8 @@ public class ResistanceTwoLayerTest {
     double rho2Apparent = systemBg.getApparent(rOhmBefore[1]);
     Logger.getAnonymousLogger().config(String.format("Apparent : %.3f; %.3f", rho1Apparent, rho2Apparent));
 
-    TrivariateFunction predictedSmall = new ResistanceTwoLayer(systemSm);
-    TrivariateFunction predictedBig = new ResistanceTwoLayer(systemBg);
+    TrivariateFunction predictedSm = new ResistanceTwoLayer(systemSm);
+    TrivariateFunction predictedBg = new ResistanceTwoLayer(systemBg);
 
     SimpleBounds bounds = new SimpleBounds(
         new double[] {0.0, 0.0, 0.0},
@@ -312,19 +306,27 @@ public class ResistanceTwoLayerTest {
           double h = point[2];
 
           Inequality inequality = Inequality.expAndLogDifference();
-          inequality.applyAsDouble(rOhmBefore[0], predictedSmall.value(rho1, rho2, h));
-          inequality.applyAsDouble(rOhmBefore[1], predictedBig.value(rho1, rho2, h));
+          inequality.applyAsDouble(rOhmBefore[0], predictedSm.value(rho1, rho2, h));
+          inequality.applyAsDouble(rOhmBefore[1], predictedBg.value(rho1, rho2, h));
 
           inequality.applyAsDouble(rOhmBefore[0] - rOhmAfter[0],
-              predictedSmall.value(rho1, rho2, h) - predictedSmall.value(rho1, rho2, h + dHSI));
+              predictedSm.value(rho1, rho2, h) - predictedSm.value(rho1, rho2, h + dHSI));
           inequality.applyAsDouble(rOhmBefore[1] - rOhmAfter[1],
-              predictedBig.value(rho1, rho2, h) - predictedBig.value(rho1, rho2, h + dHSI));
+              predictedBg.value(rho1, rho2, h) - predictedBg.value(rho1, rho2, h + dHSI));
 
           return inequality.getAsDouble();
-        }, bounds, new double[] {rho1Apparent, rho2Apparent, Metrics.fromMilli(sPUmm * 2.0)},
+        }, bounds, new double[] {rho1Apparent, rho2Apparent, 0.0},
         new double[] {rho1Apparent / 10.0, rho2Apparent / 10.0, Metrics.fromMilli(0.1)});
-    Logger.getAnonymousLogger().info(String.format("%.0f x %.0f / %.0f x %.0f mm, %sh = %.3f mm, %s", sPUmm, lCCmm, sPUmm * 3.0, sPUmm * 5.0,
-        Strings.CAP_DELTA, dHSI * 1000, toString3(pointValuePair.getPoint())));
+
+    double rho1 = pointValuePair.getPoint()[0];
+    double rho2 = pointValuePair.getPoint()[1];
+    double h = pointValuePair.getPoint()[2];
+    String validate = String.format("R1 = %.1f (%s = %.3f), R2 = %.1f (%s = %.3f)",
+        predictedSm.value(rho1, rho2, h), Strings.CAP_DELTA, predictedSm.value(rho1, rho2, h + dHSI) - predictedSm.value(rho1, rho2, h),
+        predictedBg.value(rho1, rho2, h), Strings.CAP_DELTA, predictedBg.value(rho1, rho2, h + dHSI) - predictedBg.value(rho1, rho2, h));
+
+    Logger.getAnonymousLogger().info(String.format("%.0f x %.0f / %.0f x %.0f mm, %sh = %.3f mm, %s, error = %.6f, %s", sPUmm, lCCmm, sPUmm * 3.0, sPUmm * 5.0,
+        Strings.CAP_DELTA, dHSI * 1000, toString3(pointValuePair.getPoint()), pointValuePair.getValue(), validate));
   }
 
   private static String toString(@Nonnull double[] v) {
@@ -332,6 +334,6 @@ public class ResistanceTwoLayerTest {
   }
 
   private static String toString3(@Nonnull double[] v) {
-    return String.format("%s1 = %.3f, %s2 = %.3f, h = %.3f", Strings.RHO, v[0], Strings.RHO, v[1], v[2] * 1000);
+    return String.format("%s1 = %.3f, %s2 = %.3f, h = %.3f mm", Strings.RHO, v[0], Strings.RHO, v[1], v[2] * 1000);
   }
 }
