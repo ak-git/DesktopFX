@@ -79,24 +79,6 @@ public class FiltersTest {
     Assert.assertEquals(stat.getMax(), max, Integer.toString(stat.getMax()));
   }
 
-  @Test
-  public static void testFindImpulseResponse() {
-    double[] bNum = {1.0, -1.0, 3.0, -3.0};
-    double[] aDen = {1.0, -1.0};
-    double[] out = new double[5];
-
-    out[0] = bNum[0] / aDen[0];
-    for (int n = 1; n < out.length; n++) {
-      double sum = 0.0;
-      for (int i = 1, k = Math.min(aDen.length - 1, n); i <= k; i++) {
-        sum += out[n - i] * aDen[i];
-      }
-      double bn = n < bNum.length ? bNum[n] : 0;
-      out[n] = (bn - sum) / aDen[0];
-    }
-    Assert.assertEquals(out, new double[] {1.0, 0.0, 3.0, 0.0, 0.0}, 1.0e-3);
-  }
-
   @Test(enabled = false)
   public static void textFiles() throws IOException {
     String filteredPrefix = "Filtered - ";

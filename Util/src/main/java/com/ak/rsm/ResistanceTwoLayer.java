@@ -1,6 +1,6 @@
 package com.ak.rsm;
 
-import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -60,6 +60,10 @@ final class ResistanceTwoLayer implements TrivariateFunction {
     return sum(n -> nAndB.value(n, 4.0 * n * hSI));
   }
 
+  private static double sum(@Nonnull IntToDoubleFunction operator) {
+    return IntStream.rangeClosed(1, 1024 * 8).unordered().parallel().mapToDouble(operator).sum();
+  }
+
   double sum(double k12, @Nonnegative double hSI) {
     return sum(hSI, (n, b) -> pow(k12, n) *
         (1.0 / hypot(resistanceOneLayer.getElectrodeSystem().radiusMinus(), b)
@@ -69,9 +73,5 @@ final class ResistanceTwoLayer implements TrivariateFunction {
   @Override
   protected Object clone() throws CloneNotSupportedException {
     throw new CloneNotSupportedException();
-  }
-
-  private static double sum(@Nonnull DoubleUnaryOperator operator) {
-    return IntStream.rangeClosed(1, 1024 * 8).unordered().parallel().mapToDouble(operator::applyAsDouble).sum();
   }
 }
