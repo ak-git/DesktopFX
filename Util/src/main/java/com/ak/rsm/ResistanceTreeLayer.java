@@ -29,19 +29,22 @@ final class ResistanceTreeLayer {
    * @return resistance R<sub>m-n</sub> (in Ohm)
    */
   public double value(@Nonnegative double rho1SI, @Nonnegative double rho2SI, @Nonnegative double rho3SI, @Nonnegative int p1, @Nonnegative int p2mp1) {
+    if (p1 < 1) {
+      throw new IllegalArgumentException(String.format("p1 = %d < 0", p1));
+    }
     double k12 = ResistanceTwoLayer.getK12(rho1SI, rho2SI);
     double k23 = ResistanceTwoLayer.getK12(rho2SI, rho3SI);
 
     int p2 = p2mp1 + p1;
 
     double[] bNum = new double[p2 + 1];
-    bNum[p1] = k12;
-    bNum[p2] = k23;
+    bNum[p1] += k12;
+    bNum[p2] += k23;
 
     double[] aDen = new double[p2 + 1];
     aDen[0] = 1;
-    aDen[p1] = -k12;
-    aDen[p2] = -k23;
+    aDen[p1] -= k12;
+    aDen[p2] -= k23;
     aDen[p2 - p1] += k12 * k23;
 
     double[] q = CoefficientsUtils.serialize(bNum, aDen, ResistanceTwoLayer.SUM_LIMIT + 1);
