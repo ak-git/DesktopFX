@@ -235,6 +235,7 @@ public class ResistanceTwoLayerTest {
         {10.0, 10.0 * 5, new double[] {4.432, 17.7}, new double[] {4.432 + 0.006, 17.7 + 0.035}, -Metrics.fromMilli(10.0 / 200.0)},// h = 30 mm
 
         {7.0, 7.0 * 3, new double[] {88.81, 141.1}, new double[] {88.81 - 0.04, 141.1 - 0.06}, -Metrics.fromMilli(0.1)},
+        {7.0, 7.0 * 5, new double[] {34.58, 147.3}, new double[] {34.58 - 0.03, 147.3 - 0.06}, -Metrics.fromMilli(0.1)},
     };
   }
 
@@ -282,7 +283,7 @@ public class ResistanceTwoLayerTest {
     Logger.getAnonymousLogger().info(String.format("h = %.3f", pair.getPoint()[0] * 1000));
   }
 
-  @Test(dataProvider = "rho1-rho2-h", enabled = false)
+  @Test(dataProvider = "rho1-rho2-h-experimental", enabled = false)
   public static void testInverseDh2(@Nonnegative double sPUmm, @Nonnegative double lCCmm, @Nonnull double[] rOhmBefore, @Nonnull double[] rOhmAfter, double dHSI) {
     TetrapolarSystem systemSm = new TetrapolarSystem(sPUmm, lCCmm, MILLI(METRE));
     TetrapolarSystem systemBg = new TetrapolarSystem(sPUmm * 3.0, sPUmm * 5.0, MILLI(METRE));
