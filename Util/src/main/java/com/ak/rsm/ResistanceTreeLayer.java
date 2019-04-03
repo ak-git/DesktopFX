@@ -4,7 +4,6 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.numbers.CoefficientsUtils;
-import org.apache.commons.math3.analysis.BivariateFunction;
 
 /**
  * Calculates <b>full</b> resistance R<sub>m-n</sub> (in Ohm) between electrodes for <b>3-layer</b> model.
@@ -46,15 +45,8 @@ final class ResistanceTreeLayer {
     aDen[p2 - p1] += k12 * k23;
 
     double[] q = CoefficientsUtils.serialize(bNum, aDen, ResistanceTwoLayer.SUM_LIMIT + 1);
-    return resistanceOneLayer.value(rho1SI) + 2.0 * ResistanceOneLayer.twoRhoByPI(rho1SI) * sum(q);
-  }
-
-  private double sum(@Nonnull double[] q) {
-    return sum(q, resistanceOneLayer.qAndB());
-  }
-
-  private double sum(@Nonnull double[] q, @Nonnull BivariateFunction qAndB) {
-    return ResistanceTwoLayer.sum(n -> qAndB.value(q[n], 4.0 * n * hStepSI));
+    return resistanceOneLayer.value(rho1SI) + 2.0 * ResistanceOneLayer.twoRhoByPI(rho1SI) *
+        ResistanceTwoLayer.sum(n -> resistanceOneLayer.qAndB().value(q[n], 4.0 * n * hStepSI));
   }
 
   @Override
