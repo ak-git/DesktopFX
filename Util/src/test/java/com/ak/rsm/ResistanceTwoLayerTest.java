@@ -2,7 +2,6 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -327,10 +326,6 @@ public class ResistanceTwoLayerTest {
 
     Logger.getAnonymousLogger().info(String.format("%.0f x %.0f / %.0f x %.0f mm, %sh = %.3f mm, %s, error = %.6f, %s", sPUmm, lCCmm, sPUmm * 3.0, sPUmm * 5.0,
         Strings.CAP_DELTA, dHSI * 1000, toString3(pointValuePair.getPoint()), pointValuePair.getValue(), validate));
-  }
-
-  private static String toString(@Nonnull double[] v) {
-    return Arrays.stream(v).mapToObj(value -> String.format("%.6f", value)).collect(Collectors.joining(", ", "[", "]"));
   }
 
   private static String toString3(@Nonnull double[] v) {

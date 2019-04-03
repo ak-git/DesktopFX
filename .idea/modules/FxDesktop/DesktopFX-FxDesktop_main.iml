@@ -28,7 +28,7 @@
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_10">
-    <output url="file://$MODULE_DIR$/../../../FxDesktop/out/production/classes" />
+    <output url="file://$MODULE_DIR$/../../../FxDesktop/build/classes/java/main" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../FxDesktop/src/main">
       <sourceFolder url="file://$MODULE_DIR$/../../../FxDesktop/src/main/java" isTestSource="false" />
