@@ -49,7 +49,7 @@ final class ResistanceTreeLayer {
     aDen[0] = 1;
     aDen[p1] = -k12;
     aDen[p2] = -k23;
-    aDen[p2 - p1] = k12 * k23;
+    aDen[p2 - p1] += k12 * k23;
 
     double[] q = CoefficientsUtils.serialize(bNum, aDen, INT + 1);
 

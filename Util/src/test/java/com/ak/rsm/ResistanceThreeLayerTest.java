@@ -30,22 +30,19 @@ public class ResistanceThreeLayerTest {
             new ResistanceOneLayer(new TetrapolarSystem(10.0, 20.0, MILLI(METRE))).value(8.0)
         },
 
-        {new double[] {8.0, 1.0, 1.0}, Metrics.fromMilli(5), new int[] {1, 1}, 10.0, 20.0, 204.958},
-        {new double[] {8.0, 2.0, 1.0}, Metrics.fromMilli(5), new int[] {1, 1}, 10.0, 20.0, 230.149},
-        {new double[] {8.0, 3.0, 1.0}, Metrics.fromMilli(5), new int[] {1, 1}, 10.0, 20.0, 248.905},
-        {new double[] {8.0, 4.0, 1.0}, Metrics.fromMilli(5), new int[] {1, 1}, 10.0, 20.0, 264.453},
-        {new double[] {8.0, 5.0, 1.0}, Metrics.fromMilli(5), new int[] {1, 1}, 10.0, 20.0, 277.833},
+        {new double[] {8.0, 1.0, 1.0}, Metrics.fromMilli(5), new int[] {1, 1}, 10.0, 20.0, 225.684},
+        {new double[] {8.0, 2.0, 1.0}, Metrics.fromMilli(5), new int[] {1, 1}, 10.0, 20.0, 242.751},
+        {new double[] {8.0, 3.0, 1.0}, Metrics.fromMilli(5), new int[] {1, 1}, 10.0, 20.0, 257.079},
+        {new double[] {8.0, 4.0, 1.0}, Metrics.fromMilli(5), new int[] {1, 1}, 10.0, 20.0, 269.694},
+        {new double[] {8.0, 5.0, 1.0}, Metrics.fromMilli(5), new int[] {1, 1}, 10.0, 20.0, 281.017},
 
         {new double[] {1.0, 1.0, 1.0}, Metrics.fromMilli(10), new int[] {1, 5}, 10.0, 20.0,
             new ResistanceOneLayer(new TetrapolarSystem(10.0, 20.0, MILLI(METRE))).value(1.0)
         },
-        {new double[] {8.0, 1.0, 1.0}, Metrics.fromMilli(0.01), new int[] {1, 2}, 10.0, 20.0,
+
+        {new double[] {8.0, 1.0, 1.0}, Metrics.fromMilli(0.01), new int[] {1, 1}, 10.0, 20.0,
             new ResistanceOneLayer(new TetrapolarSystem(10.0, 20.0, MILLI(METRE))).value(1.0)
         },
-
-//        {new double[] {8.0, 1.0, 1.0}, Metrics.fromMilli(1), new int[] {1, 1}, 10.0, 20.0,
-//            new ResistanceOneLayer(new TetrapolarSystem(10.0, 20.0, MILLI(METRE))).value(1.0)
-//        },
     };
   }
 
