@@ -46,7 +46,7 @@ final class DerivativeRBySLNormalizedByRho1 implements UnivariateFunction {
   }
 
   private double sumNkN(@Nonnegative double hSI) {
-    return ResistanceTwoLayer.sum(hSI, (n, b) -> pow(-1, n) * pow(-k12, n) *
+    return ResistanceTwoLayer.sum(hSI, n -> pow(-1, n) * pow(-k12, n), (qn, b) -> qn *
         (derivateBy.factor * electrodes.radiusMinus() / pow(hypot(electrodes.radiusMinus(), b), 3.0) +
             electrodes.radiusPlus() / pow(hypot(electrodes.radiusPlus(), b), 3.0)));
   }

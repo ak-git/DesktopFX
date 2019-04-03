@@ -3,7 +3,10 @@ package com.ak.rsm;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import org.apache.commons.math3.analysis.BivariateFunction;
 import org.apache.commons.math3.analysis.UnivariateFunction;
+
+import static java.lang.StrictMath.hypot;
 
 /**
  * Calculates <b>full</b> resistance R<sub>m-n</sub> (in Ohm) between electrodes for <b>single-layer</b> model.
@@ -27,8 +30,8 @@ final class ResistanceOneLayer implements UnivariateFunction {
     return twoRhoByPI(rhoSI) * (1.0 / electrodeSystem.radiusMinus() - 1.0 / electrodeSystem.radiusPlus());
   }
 
-  TetrapolarSystem getElectrodeSystem() {
-    return electrodeSystem;
+  BivariateFunction qAndB() {
+    return (qn, b) -> qn * (1.0 / hypot(electrodeSystem.radiusMinus(), b) - 1.0 / hypot(electrodeSystem.radiusPlus(), b));
   }
 
   @Nonnegative

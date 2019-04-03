@@ -24,7 +24,7 @@ final class DerivativeRbyRho2Normalized extends AbstractDerivativeRNormalized {
   @Override
   double nominator(@Nonnegative double hSI) {
     return (1.0 - pow(k12(), 2.0)) *
-        ResistanceTwoLayer.sum(hSI, (n, b) ->
-            n * pow(k12(), n - 1) * (1.0 / hypot(electrodes().radiusMinus(), b) - 1.0 / hypot(electrodes().radiusPlus(), b)));
+        ResistanceTwoLayer.sum(hSI, n -> n * pow(k12(), n - 1), (qn, b) ->
+            qn * (1.0 / hypot(electrodes().radiusMinus(), b) - 1.0 / hypot(electrodes().radiusPlus(), b)));
   }
 }

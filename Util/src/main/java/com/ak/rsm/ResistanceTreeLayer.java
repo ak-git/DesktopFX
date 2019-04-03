@@ -1,21 +1,15 @@
 package com.ak.rsm;
 
-import java.util.function.IntToDoubleFunction;
-import java.util.stream.IntStream;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.numbers.CoefficientsUtils;
 import org.apache.commons.math3.analysis.BivariateFunction;
 
-import static java.lang.StrictMath.hypot;
-
 /**
  * Calculates <b>full</b> resistance R<sub>m-n</sub> (in Ohm) between electrodes for <b>3-layer</b> model.
  */
 final class ResistanceTreeLayer {
-  private static final int INT = 1024 * 8;
   @Nonnull
   private final ResistanceOneLayer resistanceOneLayer;
   private final double hStepSI;
@@ -51,23 +45,16 @@ final class ResistanceTreeLayer {
     aDen[p2] = -k23;
     aDen[p2 - p1] += k12 * k23;
 
-    double[] q = CoefficientsUtils.serialize(bNum, aDen, INT + 1);
-
+    double[] q = CoefficientsUtils.serialize(bNum, aDen, ResistanceTwoLayer.SUM_LIMIT + 1);
     return resistanceOneLayer.value(rho1SI) + 2.0 * ResistanceOneLayer.twoRhoByPI(rho1SI) * sum(q);
   }
 
   private double sum(@Nonnull double[] q) {
-    return sum(q, (qn, b) -> qn *
-        (1.0 / hypot(resistanceOneLayer.getElectrodeSystem().radiusMinus(), b)
-            - 1.0 / hypot(resistanceOneLayer.getElectrodeSystem().radiusPlus(), b)));
+    return sum(q, resistanceOneLayer.qAndB());
   }
 
   private double sum(@Nonnull double[] q, @Nonnull BivariateFunction qAndB) {
-    return sum(n -> qAndB.value(q[n], 4.0 * n * hStepSI));
-  }
-
-  private static double sum(@Nonnull IntToDoubleFunction operator) {
-    return IntStream.rangeClosed(1, INT).unordered().parallel().mapToDouble(operator).sum();
+    return ResistanceTwoLayer.sum(n -> qAndB.value(q[n], 4.0 * n * hStepSI));
   }
 
   @Override

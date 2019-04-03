@@ -9,13 +9,13 @@ import javax.annotation.Nonnull;
 import org.apache.commons.math3.analysis.BivariateFunction;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 
-import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.pow;
 
 /**
  * Calculates <b>full</b> resistance R<sub>m-n</sub> (in Ohm) between electrodes for <b>2-layer</b> model.
  */
 final class ResistanceTwoLayer implements TrivariateFunction {
+  static final int SUM_LIMIT = 1024 * 8;
   @Nonnull
   private final ResistanceOneLayer resistanceOneLayer;
 
@@ -56,18 +56,16 @@ final class ResistanceTwoLayer implements TrivariateFunction {
     }
   }
 
-  static double sum(@Nonnegative double hSI, @Nonnull BivariateFunction nAndB) {
-    return sum(n -> nAndB.value(n, 4.0 * n * hSI));
-  }
-
-  private static double sum(@Nonnull IntToDoubleFunction operator) {
-    return IntStream.rangeClosed(1, 1024 * 8).unordered().parallel().mapToDouble(operator).sum();
-  }
-
   double sum(double k12, @Nonnegative double hSI) {
-    return sum(hSI, (n, b) -> pow(k12, n) *
-        (1.0 / hypot(resistanceOneLayer.getElectrodeSystem().radiusMinus(), b)
-            - 1.0 / hypot(resistanceOneLayer.getElectrodeSystem().radiusPlus(), b)));
+    return sum(hSI, n -> pow(k12, n), resistanceOneLayer.qAndB());
+  }
+
+  static double sum(@Nonnegative double hSI, @Nonnull IntToDoubleFunction q, @Nonnull BivariateFunction qAndB) {
+    return sum(n -> qAndB.value(q.applyAsDouble(n), 4.0 * n * hSI));
+  }
+
+  static double sum(@Nonnull IntToDoubleFunction operator) {
+    return IntStream.rangeClosed(1, SUM_LIMIT).unordered().parallel().mapToDouble(operator).sum();
   }
 
   @Override

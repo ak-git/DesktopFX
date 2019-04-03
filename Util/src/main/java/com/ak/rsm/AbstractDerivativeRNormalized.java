@@ -37,7 +37,7 @@ abstract class AbstractDerivativeRNormalized implements UnivariateFunction, Clon
   }
 
   final double sumN2kN(@Nonnegative double hSI) {
-    return ResistanceTwoLayer.sum(hSI, (n, b) -> pow(n, 2.0) * pow(k12(), n) *
+    return ResistanceTwoLayer.sum(hSI, n -> pow(n, 2.0) * pow(k12(), n), (qn, b) -> qn *
         (-1.0 / pow(hypot(electrodes().radiusMinus(), b), 3.0) + 1.0 / pow(hypot(electrodes().radiusPlus(), b), 3.0)));
   }
 
