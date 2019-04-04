@@ -3,6 +3,8 @@ package com.ak.math;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.logging.Logger;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
@@ -47,9 +49,24 @@ public class SimplexTest {
         new NelderMeadSimplex(initialSteps), new InitialGuess(initialGuess));
   }
 
+  public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds) {
+    return Stream.generate(() -> {
+      double[] initialGuess = IntStream.range(0, bounds.getUpper().length).mapToDouble(i -> {
+        double r = Math.random() - 0.5;
+        double up = bounds.getUpper()[i];
+        double lo = bounds.getLower()[i];
+        return r * (up - lo) * 0.9 + (up + lo) / 2.0;
+      }).toArray();
+      double[] initialSteps = DoubleStream.of(initialGuess).map(operand -> operand / 50.0).toArray();
+      return optimizeCMAES(function, bounds, initialGuess, initialSteps);
+    }).limit(25).parallel()
+        .peek(p -> Logger.getAnonymousLogger().info(String.format("%s %.6f %n", Arrays.toString(p.getPoint()), p.getValue())))
+        .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
+  }
+
   public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
                                              @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
-    return Stream.generate(() -> new CMAESOptimizer(30000, 1.0e-12, true, 0,
+    return new CMAESOptimizer(30000, 1.0e-12, true, 0,
         10, new MersenneTwister(), false, null)
         .optimize(
             new MaxEval(30000),
@@ -59,11 +76,11 @@ public class SimplexTest {
             bounds,
             new CMAESOptimizer.Sigma(initialSteps),
             new CMAESOptimizer.PopulationSize(2 * (4 + (int) (3.0 * StrictMath.log(initialGuess.length))))
-        )).limit(25).parallel().min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
+        );
   }
 
-  public static PointValuePair optimizeBOBYQA(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
-                                              @Nonnull double[] initialGuess, @Nonnegative double initialRadius) {
+  private static PointValuePair optimizeBOBYQA(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
+                                               @Nonnull double[] initialGuess, @Nonnegative double initialRadius) {
     return new BOBYQAOptimizer(2 * initialGuess.length + 1, initialRadius, DEFAULT_STOPPING_RADIUS)
         .optimize(
             new MaxEval(30000),

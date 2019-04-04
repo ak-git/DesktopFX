@@ -6,7 +6,7 @@
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_10">
-    <output-test url="file://$MODULE_DIR$/../../../FxCore/build/classes/java/test" />
+    <output-test url="file://$MODULE_DIR$/../../../FxCore/out/test/classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../FxCore/src/test">
       <sourceFolder url="file://$MODULE_DIR$/../../../FxCore/src/test/java" isTestSource="true" />
