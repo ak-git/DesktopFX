@@ -16,7 +16,6 @@ allprojects {
     group = 'com.ak'
     version = '2019.1'
     apply plugin: 'idea'
-    idea.module.outputDir file("out/production/classes")
 }
 
 subprojects {

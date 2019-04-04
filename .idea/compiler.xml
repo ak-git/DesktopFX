@@ -14,6 +14,8 @@
     <bytecodeTargetLevel>
       <module name="com.ak-FxDesktop_main" target="11" />
       <module name="com.ak-FxDesktop_test" target="11" />
+      <module name="Communication_main" target="11" />
+      <module name="Communication_test" target="11" />
       <module name="DesktopFX-Communication_main" target="11" />
       <module name="DesktopFX-Communication_test" target="11" />
       <module name="DesktopFX-FxCore_main" target="11" />
@@ -22,6 +24,8 @@
       <module name="DesktopFX-FxDesktop_test" target="11" />
       <module name="DesktopFX_main" target="11" />
       <module name="DesktopFX_test" target="11" />
+      <module name="FxCore_main" target="11" />
+      <module name="FxCore_test" target="11" />
       <module name="FxDesktop_main" target="11" />
       <module name="FxDesktop_test" target="11" />
       <module name="Util_main" target="11" />
