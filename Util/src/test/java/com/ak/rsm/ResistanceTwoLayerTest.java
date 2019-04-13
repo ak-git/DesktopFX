@@ -1,6 +1,7 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
+import java.util.Random;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
@@ -194,17 +195,17 @@ public class ResistanceTwoLayerTest {
   @DataProvider(name = "rho1-rho2-h")
   public static Object[][] dhParameters() {
     return new Object[][] {
-        {10.0, 30.0, new double[] {30.971, 61.860}, new double[] {31.278, 62.479}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 5 mm
-        {10.0, 50.0, new double[] {18.069, 61.860}, new double[] {18.252, 62.479}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 5 mm
-
-        {10.0, 30.0, new double[] {16.761, 32.246}, new double[] {16.821, 32.383}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 10 mm
-        {10.0, 50.0, new double[] {9.074, 32.246}, new double[] {9.118, 32.383}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 10 mm
-
-        {10.0, 30.0, new double[] {13.338, 23.903}, new double[] {13.357, 23.953}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 15 mm
-        {10.0, 50.0, new double[] {6.267, 23.903}, new double[] {6.284, 23.953}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 15 mm
-
-        {10.0, 30.0, new double[] {12.187, 20.567}, new double[] {12.194, 20.589}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 20 mm
-        {10.0, 50.0, new double[] {5.082, 20.567}, new double[] {5.090, 20.589}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 20 mm
+//        {10.0, 30.0, new double[] {30.971, 61.860}, new double[] {31.278, 62.479}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 5 mm
+//        {10.0, 50.0, new double[] {18.069, 61.860}, new double[] {18.252, 62.479}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 5 mm
+//
+//        {10.0, 30.0, new double[] {16.761, 32.246}, new double[] {16.821, 32.383}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 10 mm
+//        {10.0, 50.0, new double[] {9.074, 32.246}, new double[] {9.118, 32.383}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 10 mm
+//
+//        {10.0, 30.0, new double[] {13.338, 23.903}, new double[] {13.357, 23.953}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 15 mm
+//        {10.0, 50.0, new double[] {6.267, 23.903}, new double[] {6.284, 23.953}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 15 mm
+//
+//        {10.0, 30.0, new double[] {12.187, 20.567}, new double[] {12.194, 20.589}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 20 mm
+//        {10.0, 50.0, new double[] {5.082, 20.567}, new double[] {5.090, 20.589}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 20 mm
 
         {10.0, 30.0, new double[] {11.710, 18.986}, new double[] {11.714, 18.998}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 25 mm
         {10.0, 50.0, new double[] {4.514, 18.986}, new double[] {4.518, 18.998}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 25 mm
@@ -296,27 +297,30 @@ public class ResistanceTwoLayerTest {
     TrivariateFunction predictedBg = new ResistanceTwoLayer(systemBg);
 
     SimpleBounds bounds = new SimpleBounds(
-        new double[] {0.0, 0.0, 0.0},
-        new double[] {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY}
+        new double[] {0.1, 0.1, Metrics.fromMilli(0.1)},
+        new double[] {10.0, 1000.0, Metrics.fromMilli(sPUmm) * 10.0}
     );
 
+    Random rnd = new Random();
     PointValuePair pointValuePair = SimplexTest.optimizeCMAES(point -> {
-          double rho1 = point[0];
-          double rho2 = point[1];
-          double h = point[2];
+      double rho1 = point[0];
+      double rho2 = point[1];
+      double h = point[2];
 
-          Inequality inequality = Inequality.expAndLogDifference();
-          inequality.applyAsDouble(rOhmBefore[0], predictedSm.value(rho1, rho2, h));
-          inequality.applyAsDouble(rOhmBefore[1], predictedBg.value(rho1, rho2, h));
+      Inequality inequality = Inequality.expAndLogDifference();
+      double error = Metrics.fromPercents(0.1);
+      double baseE = rnd.nextGaussian() * error / 6.0;
+      inequality.applyAsDouble(rOhmBefore[0], predictedSm.value(rho1, rho2, h) * (1.0 + baseE));
+      inequality.applyAsDouble(rOhmBefore[1], predictedBg.value(rho1, rho2, h) * (1.0 - baseE));
 
-          inequality.applyAsDouble(rOhmBefore[0] - rOhmAfter[0],
-              predictedSm.value(rho1, rho2, h) - predictedSm.value(rho1, rho2, h + dHSI));
-          inequality.applyAsDouble(rOhmBefore[1] - rOhmAfter[1],
-              predictedBg.value(rho1, rho2, h) - predictedBg.value(rho1, rho2, h + dHSI));
+      double diffE = rnd.nextGaussian() * error / 6.0;
+      inequality.applyAsDouble(rOhmBefore[0] - rOhmAfter[0],
+          (predictedSm.value(rho1, rho2, h) - predictedSm.value(rho1, rho2, h + dHSI) * (1.0 + diffE)));
+      inequality.applyAsDouble(rOhmBefore[1] - rOhmAfter[1],
+          (predictedBg.value(rho1, rho2, h) - predictedBg.value(rho1, rho2, h + dHSI) * (1.0 - diffE)));
 
-          return inequality.getAsDouble();
-        }, bounds, new double[] {rho1Apparent, rho2Apparent, 0.0},
-        new double[] {rho1Apparent / 10.0, rho2Apparent / 10.0, Metrics.fromMilli(0.1)});
+      return inequality.getAsDouble();
+    }, bounds);
 
     double rho1 = pointValuePair.getPoint()[0];
     double rho2 = pointValuePair.getPoint()[1];

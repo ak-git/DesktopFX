@@ -1,6 +1,7 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
+import java.util.Random;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -66,6 +67,10 @@ public class ResistanceThreeLayerTest {
         {new double[] {22.19, 1.57, 4.24}, Metrics.fromMilli(0.001), new int[] {154, 301}, 7.0, 7.0 * 5, 31.938},
         {new double[] {22.19, 1.57, 4.24}, Metrics.fromMilli(0.001), new int[] {154, 301}, 7.0, 7.0 * 3, 94.584},
         {new double[] {22.19, 1.57, 4.24}, Metrics.fromMilli(0.001), new int[] {154, 301}, 7.0 * 3, 7.0 * 5, 142.542},
+
+        {new double[] {10.0, 5.0, 1.0}, Metrics.fromMilli(1), new int[] {5, 5}, 20.0, 40.0, 99.949},// briko: 101.99
+        {new double[] {5.0, 10.0, 1.0}, Metrics.fromMilli(1), new int[] {5, 5}, 20.0, 40.0, 103.657},// briko: 104.87
+        {new double[] {1.0, 5.0, 10.0}, Metrics.fromMilli(1), new int[] {5, 5}, 20.0, 40.0, 49.651},// briko: 53.11
     };
   }
 
@@ -101,17 +106,17 @@ public class ResistanceThreeLayerTest {
     double rho1Apparent = system0.getApparent(rOhmBefore[0]);
     double rho2Apparent = system1.getApparent(rOhmBefore[1]);
     double rho3Apparent = system2.getApparent(rOhmBefore[2]);
-    Logger.getAnonymousLogger().info(String.format("Apparent : %.3f; %.3f; %.3f", rho1Apparent, rho2Apparent, rho3Apparent));
+    Logger.getAnonymousLogger().config(String.format("Apparent : %.3f; %.3f; %.3f", rho1Apparent, rho2Apparent, rho3Apparent));
 
     ResistanceTreeLayer[] predicted = Stream.of(system0, system1, system2).
-        map(system -> new ResistanceTreeLayer(system, Metrics.fromMilli(0.001))).toArray(ResistanceTreeLayer[]::new);
+        map(system -> new ResistanceTreeLayer(system, Metrics.fromMilli(0.1))).toArray(ResistanceTreeLayer[]::new);
 
     SimpleBounds bounds = new SimpleBounds(
-        new double[] {0.0, 0.0, 0.0, 101.0, 1.0},
-        new double[] {50.0, 50.0, 50.0, 10_000, 10_000}
+        new double[] {0.7, 0.7, 0.7, 2.0, 2.0},
+        new double[] {100.0, 100.0, 100.0, 10_0, 10_0}
     );
 
-    PointValuePair pointValuePair = SimplexTest.optimizeCMAES(point -> {
+    PointValuePair p = SimplexTest.optimizeCMAES(point -> {
       double rho1 = point[0];
       double rho2 = point[1];
       double rho3 = point[2];
@@ -119,13 +124,22 @@ public class ResistanceThreeLayerTest {
       int p2 = (int) Math.round(point[4]);
 
       Inequality inequality = Inequality.expAndLogDifference();
+
+      double error = Metrics.fromPercents(0.1);
+      Random rnd = new Random();
+      double baseE = rnd.nextGaussian() * error / 6.0;
+      double diffE = rnd.nextGaussian() * error / 6.0;
+
       for (int i = 0; i < predicted.length; i++) {
-        inequality.applyAsDouble(rOhmBefore[i], predicted[i].value(rho1, rho2, rho3, p1, p2));
+        inequality.applyAsDouble(rOhmBefore[i], predicted[i].value(rho1, rho2, rho3, p1, p2) * (1.0 + baseE));
+        baseE *= -1.0;
+
         inequality.applyAsDouble(rOhmBefore[i] - rOhmAfter[i],
-            predicted[i].value(rho1, rho2, rho3, p1, p2) - predicted[i].value(rho1, rho2, rho3, p1 - 100, p2));
+            (predicted[i].value(rho1, rho2, rho3, p1, p2) - predicted[i].value(rho1, rho2, rho3, p1, p2 - 1) * (1.0 + diffE)));
+        diffE *= -1.0;
       }
       return inequality.getAsDouble();
     }, bounds);
-    Logger.getAnonymousLogger().info(Arrays.toString(pointValuePair.getPoint()));
+    Logger.getAnonymousLogger().info(String.format("%s %.6f %n", Arrays.toString(p.getPoint()), p.getValue()));
   }
 }

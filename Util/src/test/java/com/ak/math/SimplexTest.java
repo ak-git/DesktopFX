@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.logging.Logger;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -50,16 +49,21 @@ public class SimplexTest {
   }
 
   public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds) {
-    return Stream.generate(() -> {
-      double[] initialGuess = IntStream.range(0, bounds.getUpper().length).mapToDouble(i -> {
-        double r = Math.random() - 0.5;
-        double up = bounds.getUpper()[i];
-        double lo = bounds.getLower()[i];
-        return r * (up - lo) * 0.9 + (up + lo) / 2.0;
-      }).toArray();
-      double[] initialSteps = DoubleStream.of(initialGuess).map(operand -> operand / 50.0).toArray();
-      return optimizeCMAES(function, bounds, initialGuess, initialSteps);
-    }).limit(25).parallel()
+    return IntStream.rangeClosed(1, 1 << bounds.getLower().length)
+        .mapToObj(n -> {
+          double[] initialGuess = new double[bounds.getLower().length];
+          for (int i = 0; i < initialGuess.length; i++) {
+            if ((n & (1 << i)) == 0) {
+              initialGuess[i] = bounds.getLower()[i];
+            }
+            else {
+              initialGuess[i] = bounds.getUpper()[i];
+            }
+          }
+          double[] initialSteps = DoubleStream.of(initialGuess).map(operand -> operand / 100.0).toArray();
+          return optimizeCMAES(function, bounds, initialGuess, initialSteps);
+        })
+        .parallel()
         .peek(p -> Logger.getAnonymousLogger().info(String.format("%s %.6f %n", Arrays.toString(p.getPoint()), p.getValue())))
         .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
