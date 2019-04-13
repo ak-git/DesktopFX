@@ -135,7 +135,7 @@ public class ResistanceThreeLayerTest {
         baseE *= -1.0;
 
         inequality.applyAsDouble(rOhmBefore[i] - rOhmAfter[i],
-            (predicted[i].value(rho1, rho2, rho3, p1, p2) - predicted[i].value(rho1, rho2, rho3, p1, p2 - 1) * (1.0 + diffE)));
+            (predicted[i].value(rho1, rho2, rho3, p1, p2) - predicted[i].value(rho1, rho2, rho3, p1 - 1, p2) * (1.0 + diffE)));
         diffE *= -1.0;
       }
       return inequality.getAsDouble();

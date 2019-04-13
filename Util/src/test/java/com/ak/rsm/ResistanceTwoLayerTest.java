@@ -195,17 +195,17 @@ public class ResistanceTwoLayerTest {
   @DataProvider(name = "rho1-rho2-h")
   public static Object[][] dhParameters() {
     return new Object[][] {
-//        {10.0, 30.0, new double[] {30.971, 61.860}, new double[] {31.278, 62.479}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 5 mm
-//        {10.0, 50.0, new double[] {18.069, 61.860}, new double[] {18.252, 62.479}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 5 mm
-//
-//        {10.0, 30.0, new double[] {16.761, 32.246}, new double[] {16.821, 32.383}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 10 mm
-//        {10.0, 50.0, new double[] {9.074, 32.246}, new double[] {9.118, 32.383}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 10 mm
-//
-//        {10.0, 30.0, new double[] {13.338, 23.903}, new double[] {13.357, 23.953}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 15 mm
-//        {10.0, 50.0, new double[] {6.267, 23.903}, new double[] {6.284, 23.953}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 15 mm
-//
-//        {10.0, 30.0, new double[] {12.187, 20.567}, new double[] {12.194, 20.589}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 20 mm
-//        {10.0, 50.0, new double[] {5.082, 20.567}, new double[] {5.090, 20.589}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 20 mm
+        {10.0, 30.0, new double[] {30.971, 61.860}, new double[] {31.278, 62.479}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 5 mm
+        {10.0, 50.0, new double[] {18.069, 61.860}, new double[] {18.252, 62.479}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 5 mm
+
+        {10.0, 30.0, new double[] {16.761, 32.246}, new double[] {16.821, 32.383}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 10 mm
+        {10.0, 50.0, new double[] {9.074, 32.246}, new double[] {9.118, 32.383}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 10 mm
+
+        {10.0, 30.0, new double[] {13.338, 23.903}, new double[] {13.357, 23.953}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 15 mm
+        {10.0, 50.0, new double[] {6.267, 23.903}, new double[] {6.284, 23.953}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 15 mm
+
+        {10.0, 30.0, new double[] {12.187, 20.567}, new double[] {12.194, 20.589}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 20 mm
+        {10.0, 50.0, new double[] {5.082, 20.567}, new double[] {5.090, 20.589}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 20 mm
 
         {10.0, 30.0, new double[] {11.710, 18.986}, new double[] {11.714, 18.998}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 25 mm
         {10.0, 50.0, new double[] {4.514, 18.986}, new double[] {4.518, 18.998}, -Metrics.fromMilli(10.0 / 200.0)}, // h == 25 mm
@@ -284,7 +284,7 @@ public class ResistanceTwoLayerTest {
     Logger.getAnonymousLogger().info(String.format("h = %.3f", pair.getPoint()[0] * 1000));
   }
 
-  @Test(dataProvider = "rho1-rho2-h-experimental", enabled = false)
+  @Test(dataProvider = "rho1-rho2-h", enabled = false)
   public static void testInverseDh2(@Nonnegative double sPUmm, @Nonnegative double lCCmm, @Nonnull double[] rOhmBefore, @Nonnull double[] rOhmAfter, double dHSI) {
     TetrapolarSystem systemSm = new TetrapolarSystem(sPUmm, lCCmm, MILLI(METRE));
     TetrapolarSystem systemBg = new TetrapolarSystem(sPUmm * 3.0, sPUmm * 5.0, MILLI(METRE));
