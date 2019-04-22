@@ -81,6 +81,11 @@ public class ResistanceTwoLayerTest {
         {new double[] {0.7, Double.POSITIVE_INFINITY}, 25.0 - 10.0 / 200.0, 10.0, 50.0, 4.518},
         {new double[] {0.7, Double.POSITIVE_INFINITY}, 25.0, 10.0, 50.0, 4.514},
 
+        {new double[] {0.6973, 9.25}, 22.631 - 10.0 / 200.0, 10.0, 30.0, 11.714},
+        {new double[] {0.6973, 9.25}, 22.631, 10.0, 30.0, 11.710},
+        {new double[] {0.6973, 9.25}, 22.631 - 10.0 / 200.0, 30.0, 50.0, 18.999},
+        {new double[] {0.6973, 9.25}, 22.631, 30.0, 50.0, 18.987},
+
         {new double[] {0.7, Double.POSITIVE_INFINITY}, 30.0 - 10.0 / 200.0, 10.0, 30.0, 11.484},
         {new double[] {0.7, Double.POSITIVE_INFINITY}, 30.0, 10.0, 30.0, 11.482},
         {new double[] {0.7, Double.POSITIVE_INFINITY}, 30.0 - 10.0 / 200.0, 30.0, 50.0, 18.158},

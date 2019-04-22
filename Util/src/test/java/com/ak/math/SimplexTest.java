@@ -44,7 +44,7 @@ public class SimplexTest {
 
   public static PointValuePair optimizeNelderMead(@Nonnull MultivariateFunction function,
                                                   @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
-    return new SimplexOptimizer(-1, 1.0e-8).optimize(new MaxEval(10000), new ObjectiveFunction(function), GoalType.MINIMIZE,
+    return new SimplexOptimizer(-1, 1.0e-12).optimize(new MaxEval(30000), new ObjectiveFunction(function), GoalType.MINIMIZE,
         new NelderMeadSimplex(initialSteps), new InitialGuess(initialGuess));
   }
 
