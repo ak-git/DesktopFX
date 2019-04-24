@@ -20,6 +20,7 @@ public class DerivativeRbyHTest {
         {new TetrapolarSystem(0.5, 0.9, Units.METRE), 5.0, 1.0, 0.09, 20.242},
         {new TetrapolarSystem(500.0, 900.0, MetricPrefix.MILLI(Units.METRE)), 5.0, 1.0, 0.09 * Metrics.fromMilli(900.0), 19.163},
         {new TetrapolarSystem(50.0, 90.0, MetricPrefix.MILLI(Units.METRE)), 5.0, 1.0, 0.09 * Metrics.fromMilli(90.0), 1916.316},
+        {new TetrapolarSystem(10.0, 30.0, MetricPrefix.MILLI(Units.METRE)), 0.7, Double.POSITIVE_INFINITY, Metrics.fromMilli(5.0), -6083.591},
     };
   }
 

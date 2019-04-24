@@ -97,7 +97,7 @@ public class OptimumStoL2Test {
   private static double[] getOptimalS1S2(double rho2, double hSI) {
     return new SimplexOptimizer(-1, 1.0e-10).optimize(new MaxEval(30000),
         new ObjectiveFunction(s1s2 ->
-            Inequality.absolute().applyAsDouble(getRho1Rho2Errors2(s1s2[0], s1s2[1], rho2, hSI), new double[] {0, 0})
+            Inequality.absolute().applyAsDouble(getRho1Rho2Errors2(s1s2[0], s1s2[1], rho2, hSI), i -> 0.0)
         ),
         GoalType.MINIMIZE, new NelderMeadSimplex(2, STEP_S),
         new InitialGuess(new double[] {3.0 / 5.0, 1.0 / 3.0})).getPoint();

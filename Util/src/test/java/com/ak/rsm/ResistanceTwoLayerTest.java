@@ -1,8 +1,7 @@
 package com.ak.rsm;
 
-import java.util.Arrays;
-import java.util.Random;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -11,7 +10,6 @@ import com.ak.inverse.Inequality;
 import com.ak.math.SimplexTest;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
-import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
@@ -123,78 +121,33 @@ public class ResistanceTwoLayerTest {
     new ResistanceTwoLayer(new TetrapolarSystem(1, 2, MILLI(METRE))).clone();
   }
 
-  @DataProvider(name = "rho1")
-  public static Object[][] rho1Parameters() {
+  @DataProvider(name = "staticParameters")
+  public static Object[][] staticParameters() {
     return new Object[][] {
-        {10.0, 10.0, new double[] {16.17, 33.15}, 0.697},
-    };
-  }
-
-  @Test(dataProvider = "rho1")
-  public static void testInverseRho1(@Nonnegative double hmm, @Nonnegative double sPUmm,
-                                     @Nonnull double[] rOhmActual, @Nonnegative double rho1Expected) {
-    TetrapolarSystem electrodeSystemSm = new TetrapolarSystem(sPUmm, sPUmm * 3.0, MILLI(METRE));
-    TetrapolarSystem electrodeSystemBg = new TetrapolarSystem(sPUmm * 3.0, sPUmm * 5.0, MILLI(METRE));
-
-    PointValuePair pointValuePair = SimplexTest.optimizeNelderMead(new MultivariateFunction() {
-      private final TrivariateFunction resistancePredictedSm = new ResistanceTwoLayer(electrodeSystemSm);
-      private final TrivariateFunction resistancePredictedBg = new ResistanceTwoLayer(electrodeSystemBg);
-
-      @Override
-      public double value(double[] rho1) {
-        Inequality inequality = Inequality.logDifference();
-        inequality.applyAsDouble(rOhmActual[0], resistancePredictedSm.value(rho1[0], Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)));
-        inequality.applyAsDouble(rOhmActual[1], resistancePredictedBg.value(rho1[0], Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)));
-        return inequality.getAsDouble();
-      }
-    }, new double[] {1.0}, new double[] {0.001});
-    Assert.assertEquals(pointValuePair.getPoint()[0], rho1Expected, 1.0e-3);
-  }
-
-  @DataProvider(name = "rho1-h")
-  public static Object[][] rho1HParameters() {
-    return new Object[][] {
-        {10.0, new double[] {16.17, 33.15}, new double[] {16.09, 33.0}, new double[] {0.624, Metrics.fromMilli(8.7)}},
-    };
-  }
-
-  @Test(dataProvider = "rho1-h")
-  public static void testInverseRho1H(@Nonnegative double sPUmm, @Nonnull double[] rOhmBefore, @Nonnull double[] rOhmAfter,
-                                      @Nonnull double[] rho1hExpected) {
-    TetrapolarSystem systemSm = new TetrapolarSystem(sPUmm, sPUmm * 3.0, MILLI(METRE));
-    TetrapolarSystem systemBg = new TetrapolarSystem(sPUmm * 3, sPUmm * 5.0, MILLI(METRE));
-
-    double rho1Apparent = systemSm.getApparent(rOhmBefore[0]);
-    double rho2Apparent = systemBg.getApparent(rOhmBefore[1]);
-    Logger.getAnonymousLogger().config(String.format("Apparent : %.3f; %.3f", rho1Apparent, rho2Apparent));
-
-    SimpleBounds bounds = new SimpleBounds(
-        new double[] {0.0, 0.0},
-        new double[] {rho1Apparent, Metrics.fromMilli(sPUmm * 5.0 / 2.0)}
-    );
-
-    TrivariateFunction predictedSm = new ResistanceTwoLayer(systemSm);
-    TrivariateFunction predictedBg = new ResistanceTwoLayer(systemBg);
-
-    double[] point = SimplexTest.optimizeCMAES(rho1h -> {
-          Inequality inequality = Inequality.expAndLogDifference();
-          inequality.applyAsDouble(rOhmBefore[0], predictedSm.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]));
-          inequality.applyAsDouble(rOhmBefore[1], predictedBg.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]));
-
-          double dH = Metrics.fromMilli(0.05);
-          inequality.applyAsDouble(rOhmBefore[0] - rOhmAfter[0],
-              predictedSm.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]) -
-                  predictedSm.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1] + dH)
-          );
-          inequality.applyAsDouble(rOhmBefore[1] - rOhmAfter[1],
-              predictedBg.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1]) -
-                  predictedBg.value(rho1h[0], Double.POSITIVE_INFINITY, rho1h[1] + dH)
-          );
-          return inequality.getAsDouble();
+        {
+            new TetrapolarSystem[] {
+                new TetrapolarSystem(7.0, 21.0, MILLI(METRE)),
+                new TetrapolarSystem(21.0, 35.0, MILLI(METRE)),
+                new TetrapolarSystem(7.0, 35.0, MILLI(METRE)),
+                new TetrapolarSystem(14.0, 28.0, MILLI(METRE)),
+                new TetrapolarSystem(28.0, 42.0, MILLI(METRE)),
+            },
+            new double[] {123.3, 176.1, 43.09, 170.14, 85.84 * 2}
         },
-        bounds, bounds.getUpper(), new double[] {rho1Apparent / 10.0, Metrics.fromMilli(sPUmm / 10.0)}
-    ).getPoint();
-    Assert.assertEquals(point, rho1hExpected, 1.0e-3, Arrays.toString(point));
+    };
+  }
+
+  @Test(dataProvider = "staticParameters", enabled = false)
+  public static void testInverseStatic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
+    ResistanceTwoLayer[] predicted = Stream.of(systems).map(ResistanceTwoLayer::new).toArray(ResistanceTwoLayer[]::new);
+    SimpleBounds bounds = new SimpleBounds(
+        new double[] {0.1, 0.1, Metrics.fromMilli(0.1)},
+        new double[] {1000.0, 1000.0, Metrics.fromMilli(100.0)}
+    );
+    PointValuePair pair = SimplexTest.optimizeCMAES(point ->
+            Inequality.proportional().applyAsDouble(rOhms, i -> predicted[i].value(point[0], point[1], point[2])),
+        bounds);
+    Logger.getAnonymousLogger().warning(toString3(pair.getPoint()));
   }
 
   @DataProvider(name = "rho1-rho2-h")
@@ -246,50 +199,6 @@ public class ResistanceTwoLayerTest {
   }
 
   @Test(dataProvider = "rho1-rho2-h", enabled = false)
-  public static void testInverseDh(@Nonnegative double sPUmm, @Nonnegative double lCCmm, @Nonnull double[] rOhmBefore, @Nonnull double[] rOhmAfter, double dHSI) {
-    TetrapolarSystem systemSm = new TetrapolarSystem(sPUmm, lCCmm, MILLI(METRE));
-    TetrapolarSystem systemBg = new TetrapolarSystem(sPUmm * 3.0, sPUmm * 5.0, MILLI(METRE));
-
-    double rho1Apparent = systemSm.getApparent(rOhmBefore[0]);
-    double rho2Apparent = systemBg.getApparent(rOhmBefore[1]);
-    Logger.getAnonymousLogger().config(String.format("Apparent : %.3f; %.3f", rho1Apparent, rho2Apparent));
-
-    TrivariateFunction predictedSm = new ResistanceTwoLayer(systemSm);
-    TrivariateFunction predictedBg = new ResistanceTwoLayer(systemBg);
-
-    PointValuePair pair = SimplexTest.optimizeNelderMead(h -> {
-      double hypot;
-      double hSI = h[0];
-      if (hSI > 0) {
-        PointValuePair pointValuePair = SimplexTest.optimizeNelderMead(rho1rho2 -> {
-          double rho1 = rho1rho2[0];
-          double rho2 = rho1rho2[1];
-
-          Inequality inequality = Inequality.log1pDifference();
-          inequality.applyAsDouble(rOhmBefore[0], predictedSm.value(rho1, rho2, hSI));
-          inequality.applyAsDouble(rOhmBefore[1], predictedBg.value(rho1, rho2, hSI));
-          return inequality.getAsDouble();
-        }, new double[] {rho1Apparent, rho2Apparent}, new double[] {rho1Apparent / 10.0, rho2Apparent / 10.0});
-
-        double rho1 = pointValuePair.getPoint()[0];
-        double rho2 = pointValuePair.getPoint()[1];
-
-        Inequality inequality = Inequality.expAndLogDifference();
-        inequality.applyAsDouble((rOhmBefore[0] - rOhmAfter[0]),
-            (predictedSm.value(rho1, rho2, hSI) - predictedSm.value(rho1, rho2, hSI + dHSI)));
-        inequality.applyAsDouble((rOhmBefore[1] - rOhmAfter[1]),
-            (predictedBg.value(rho1, rho2, hSI) - predictedBg.value(rho1, rho2, hSI + dHSI)));
-        hypot = inequality.getAsDouble();
-      }
-      else {
-        hypot = Double.POSITIVE_INFINITY;
-      }
-      return hypot;
-    }, new double[] {0}, new double[] {dHSI});
-    Logger.getAnonymousLogger().info(String.format("h = %.3f", pair.getPoint()[0] * 1000));
-  }
-
-  @Test(dataProvider = "rho1-rho2-h", enabled = false)
   public static void testInverseDh2(@Nonnegative double sPUmm, @Nonnegative double lCCmm, @Nonnull double[] rOhmBefore, @Nonnull double[] rOhmAfter, double dHSI) {
     TetrapolarSystem systemSm = new TetrapolarSystem(sPUmm, lCCmm, MILLI(METRE));
     TetrapolarSystem systemBg = new TetrapolarSystem(sPUmm * 3.0, sPUmm * 5.0, MILLI(METRE));
@@ -306,24 +215,19 @@ public class ResistanceTwoLayerTest {
         new double[] {10.0, 1000.0, Metrics.fromMilli(sPUmm) * 10.0}
     );
 
-    Random rnd = new Random();
     PointValuePair pointValuePair = SimplexTest.optimizeCMAES(point -> {
       double rho1 = point[0];
       double rho2 = point[1];
       double h = point[2];
 
+      TrivariateFunction predictedDiffSm = new DerivativeRbyH(systemSm);
+      TrivariateFunction predictedDiffBg = new DerivativeRbyH(systemBg);
+
       Inequality inequality = Inequality.expAndLogDifference();
-      double error = Metrics.fromPercents(0.1);
-      double baseE = rnd.nextGaussian() * error / 6.0;
-      inequality.applyAsDouble(rOhmBefore[0], predictedSm.value(rho1, rho2, h) * (1.0 + baseE));
-      inequality.applyAsDouble(rOhmBefore[1], predictedBg.value(rho1, rho2, h) * (1.0 - baseE));
-
-      double diffE = rnd.nextGaussian() * error / 6.0;
-      inequality.applyAsDouble(rOhmBefore[0] - rOhmAfter[0],
-          (predictedSm.value(rho1, rho2, h) - predictedSm.value(rho1, rho2, h + dHSI) * (1.0 + diffE)));
-      inequality.applyAsDouble(rOhmBefore[1] - rOhmAfter[1],
-          (predictedBg.value(rho1, rho2, h) - predictedBg.value(rho1, rho2, h + dHSI) * (1.0 - diffE)));
-
+      inequality.applyAsDouble(rOhmBefore[0], predictedSm.value(rho1, rho2, h));
+      inequality.applyAsDouble(rOhmBefore[1], predictedBg.value(rho1, rho2, h));
+      inequality.applyAsDouble((rOhmAfter[0] - rOhmBefore[0]) / dHSI, predictedDiffSm.value(rho1, rho2, h));
+      inequality.applyAsDouble((rOhmAfter[1] - rOhmBefore[1]) / dHSI, predictedDiffBg.value(rho1, rho2, h));
       return inequality.getAsDouble();
     }, bounds);
 
@@ -334,7 +238,7 @@ public class ResistanceTwoLayerTest {
         predictedSm.value(rho1, rho2, h), Strings.CAP_DELTA, predictedSm.value(rho1, rho2, h + dHSI) - predictedSm.value(rho1, rho2, h),
         predictedBg.value(rho1, rho2, h), Strings.CAP_DELTA, predictedBg.value(rho1, rho2, h + dHSI) - predictedBg.value(rho1, rho2, h));
 
-    Logger.getAnonymousLogger().info(String.format("%.0f x %.0f / %.0f x %.0f mm, %sh = %.3f mm, %s, error = %.6f, %s", sPUmm, lCCmm, sPUmm * 3.0, sPUmm * 5.0,
+    Logger.getAnonymousLogger().warning(String.format("%.0f x %.0f / %.0f x %.0f mm, %sh = %.3f mm, %s, error = %.6f, %s", sPUmm, lCCmm, sPUmm * 3.0, sPUmm * 5.0,
         Strings.CAP_DELTA, dHSI * 1000, toString3(pointValuePair.getPoint()), pointValuePair.getValue(), validate));
   }
 
