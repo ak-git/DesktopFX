@@ -22,7 +22,7 @@ public enum LogBuilders {
   CONVERTER_FILE("converterFileLog") {
     @Override
     public LocalIO build(String fileName) {
-      return newInstance().fileName(fileName).addPath(CONVERTER_FILE.directory).addPathWithDate().build();
+      return newInstance().fileName(fileName).addPath(CONVERTER_FILE.directory).build();
     }
   };
 
