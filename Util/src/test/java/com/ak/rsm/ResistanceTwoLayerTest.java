@@ -1,5 +1,6 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -147,7 +148,45 @@ public class ResistanceTwoLayerTest {
     PointValuePair pair = SimplexTest.optimizeCMAES(point ->
             Inequality.proportional().applyAsDouble(rOhms, i -> predicted[i].value(point[0], point[1], point[2])),
         bounds);
-    Logger.getAnonymousLogger().warning(toString3(pair.getPoint()));
+    Logger.getAnonymousLogger().warning(toString3(pair));
+  }
+
+  @DataProvider(name = "dynamicParameters")
+  public static Object[][] dynamicParameters() {
+    return new Object[][] {
+        {
+            new TetrapolarSystem[] {
+                new TetrapolarSystem(7.0, 21.0, MILLI(METRE)),
+                new TetrapolarSystem(21.0, 35.0, MILLI(METRE)),
+                new TetrapolarSystem(7.0, 35.0, MILLI(METRE)),
+                new TetrapolarSystem(14.0, 28.0, MILLI(METRE)),
+                new TetrapolarSystem(28.0, 42.0, MILLI(METRE)),
+            },
+            new double[] {123.3, 176.1, 43.09, 170.14, 85.84 * 2},
+            new double[] {123.3 - 0.1, 176.1 - 0.125, 43.09 - 0.04, 170.14 - 0.16, 85.84 * 2 - 0.1 * 2},
+            -Metrics.fromMilli(0.1)
+        },
+    };
+  }
+
+  @Test(dataProvider = "dynamicParameters", enabled = false)
+  public static void testInverseDynamic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
+    TrivariateFunction[] predicted = Stream.of(systems).map(ResistanceTwoLayer::new).toArray(ResistanceTwoLayer[]::new);
+    SimpleBounds bounds = new SimpleBounds(
+        new double[] {0.1, 0.1, Metrics.fromMilli(0.1)},
+        new double[] {1000.0, 1000.0, Metrics.fromMilli(100.0)}
+    );
+    PointValuePair pair = SimplexTest.optimizeCMAES(point -> {
+          TrivariateFunction[] predictedDiff = Stream.of(systems).map(DerivativeRbyH::new).toArray(DerivativeRbyH[]::new);
+          Inequality inequality = Inequality.proportional();
+          inequality.applyAsDouble(rOhmsBefore, i -> predicted[i].value(point[0], point[1], point[2]));
+          double[] dH = new double[rOhmsBefore.length];
+          Arrays.setAll(dH, i -> (rOhmsAfter[i] - rOhmsBefore[i]) / dh);
+          inequality.applyAsDouble(dH, i -> predictedDiff[i].value(point[0], point[1], point[2]));
+          return inequality.getAsDouble();
+        },
+        bounds);
+    Logger.getAnonymousLogger().warning(toString3(pair));
   }
 
   @DataProvider(name = "rho1-rho2-h")
@@ -239,10 +278,11 @@ public class ResistanceTwoLayerTest {
         predictedBg.value(rho1, rho2, h), Strings.CAP_DELTA, predictedBg.value(rho1, rho2, h + dHSI) - predictedBg.value(rho1, rho2, h));
 
     Logger.getAnonymousLogger().warning(String.format("%.0f x %.0f / %.0f x %.0f mm, %sh = %.3f mm, %s, error = %.6f, %s", sPUmm, lCCmm, sPUmm * 3.0, sPUmm * 5.0,
-        Strings.CAP_DELTA, dHSI * 1000, toString3(pointValuePair.getPoint()), pointValuePair.getValue(), validate));
+        Strings.CAP_DELTA, dHSI * 1000, toString3(pointValuePair), pointValuePair.getValue(), validate));
   }
 
-  private static String toString3(@Nonnull double[] v) {
-    return String.format("%s1 = %.3f, %s2 = %.3f, h = %.3f mm", Strings.RHO, v[0], Strings.RHO, v[1], v[2] * 1000);
+  private static String toString3(@Nonnull PointValuePair point) {
+    double[] v = point.getPoint();
+    return String.format("%s1 = %.3f, %s2 = %.3f, h = %.3f mm, e = %.6f", Strings.RHO, v[0], Strings.RHO, v[1], v[2] * 1000, point.getValue());
   }
 }

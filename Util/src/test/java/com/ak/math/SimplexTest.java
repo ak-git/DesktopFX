@@ -3,6 +3,7 @@ package com.ak.math;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
@@ -42,8 +43,8 @@ public class SimplexTest {
     Assert.assertEquals(optimum.getPoint()[0], 1.0, 1.0e-5);
   }
 
-  public static PointValuePair optimizeNelderMead(@Nonnull MultivariateFunction function,
-                                                  @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
+  private static PointValuePair optimizeNelderMead(@Nonnull MultivariateFunction function,
+                                                   @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
     return new SimplexOptimizer(-1, 1.0e-12).optimize(new MaxEval(30000), new ObjectiveFunction(function), GoalType.MINIMIZE,
         new NelderMeadSimplex(initialSteps), new InitialGuess(initialGuess));
   }
@@ -64,12 +65,15 @@ public class SimplexTest {
           return optimizeCMAES(function, bounds, initialGuess, initialSteps);
         })
         .parallel()
-        .peek(p -> Logger.getAnonymousLogger().info(String.format("%s %.6f %n", Arrays.toString(p.getPoint()), p.getValue())))
+        .peek(p -> Logger.getAnonymousLogger().info(
+            String.format("%s %.6f %n", Arrays.stream(p.getPoint()).mapToObj(value -> String.format("%.3f", value)).collect(Collectors.joining(", ", "[", "]")),
+                p.getValue()))
+        )
         .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
 
-  public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
-                                             @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
+  private static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
+                                              @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
     return new CMAESOptimizer(30000, 1.0e-12, true, 0,
         10, new MersenneTwister(), false, null)
         .optimize(
