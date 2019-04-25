@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -49,7 +48,7 @@ public class SimplexTest {
         new NelderMeadSimplex(initialSteps), new InitialGuess(initialGuess));
   }
 
-  public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds) {
+  public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds, @Nonnull double[] initialSteps) {
     return IntStream.rangeClosed(1, 1 << bounds.getLower().length)
         .mapToObj(n -> {
           double[] initialGuess = new double[bounds.getLower().length];
@@ -61,11 +60,10 @@ public class SimplexTest {
               initialGuess[i] = bounds.getUpper()[i];
             }
           }
-          double[] initialSteps = DoubleStream.of(initialGuess).map(operand -> operand / 100.0).toArray();
           return optimizeCMAES(function, bounds, initialGuess, initialSteps);
         })
         .parallel()
-        .peek(p -> Logger.getAnonymousLogger().info(
+        .peek(p -> Logger.getAnonymousLogger().config(
             String.format("%s %.6f %n", Arrays.stream(p.getPoint()).mapToObj(value -> String.format("%.3f", value)).collect(Collectors.joining(", ", "[", "]")),
                 p.getValue()))
         )

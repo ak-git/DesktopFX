@@ -139,7 +139,7 @@ public class ResistanceThreeLayerTest {
         diffE *= -1.0;
       }
       return inequality.getAsDouble();
-    }, bounds);
+    }, bounds, new double[] {0.1, 0.1, 0.1, 1.0, 1.0});
     Logger.getAnonymousLogger().info(String.format("%s %.6f %n", Arrays.toString(p.getPoint()), p.getValue()));
   }
 }
