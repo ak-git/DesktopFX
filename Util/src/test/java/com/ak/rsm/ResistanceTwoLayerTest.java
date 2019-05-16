@@ -1,7 +1,10 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
+import java.util.DoubleSummaryStatistics;
+import java.util.function.DoubleFunction;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
@@ -80,11 +83,6 @@ public class ResistanceTwoLayerTest {
         {new double[] {0.7, Double.POSITIVE_INFINITY}, 25.0 - 10.0 / 200.0, 10.0, 50.0, 4.518},
         {new double[] {0.7, Double.POSITIVE_INFINITY}, 25.0, 10.0, 50.0, 4.514},
 
-        {new double[] {0.6973, 9.25}, 22.631 - 10.0 / 200.0, 10.0, 30.0, 11.714},
-        {new double[] {0.6973, 9.25}, 22.631, 10.0, 30.0, 11.710},
-        {new double[] {0.6973, 9.25}, 22.631 - 10.0 / 200.0, 30.0, 50.0, 18.999},
-        {new double[] {0.6973, 9.25}, 22.631, 30.0, 50.0, 18.987},
-
         {new double[] {0.7, Double.POSITIVE_INFINITY}, 30.0 - 10.0 / 200.0, 10.0, 30.0, 11.484},
         {new double[] {0.7, Double.POSITIVE_INFINITY}, 30.0, 10.0, 30.0, 11.482},
         {new double[] {0.7, Double.POSITIVE_INFINITY}, 30.0 - 10.0 / 200.0, 30.0, 50.0, 18.158},
@@ -122,40 +120,7 @@ public class ResistanceTwoLayerTest {
     new ResistanceTwoLayer(new TetrapolarSystem(1, 2, MILLI(METRE))).clone();
   }
 
-  @DataProvider(name = "staticParameters")
-  public static Object[][] staticParameters() {
-    return new Object[][] {
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(7.0, 21.0, MILLI(METRE)),
-                new TetrapolarSystem(21.0, 35.0, MILLI(METRE)),
-                new TetrapolarSystem(7.0, 35.0, MILLI(METRE)),
-            },
-            new double[] {123.3, 176.1, 43.09}
-        },
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(7.0, 21.0, MILLI(METRE)),
-                new TetrapolarSystem(21.0, 35.0, MILLI(METRE)),
-                new TetrapolarSystem(7.0, 35.0, MILLI(METRE)),
-                new TetrapolarSystem(14.0, 28.0, MILLI(METRE)),
-            },
-            new double[] {123.3, 176.1, 43.09, 170.14}
-        },
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(7.0, 21.0, MILLI(METRE)),
-                new TetrapolarSystem(21.0, 35.0, MILLI(METRE)),
-                new TetrapolarSystem(7.0, 35.0, MILLI(METRE)),
-                new TetrapolarSystem(14.0, 28.0, MILLI(METRE)),
-                new TetrapolarSystem(28.0, 42.0, MILLI(METRE)),
-            },
-            new double[] {123.3, 176.1, 43.09, 170.14, 85.84 * 2}
-        },
-    };
-  }
-
-  @Test(dataProvider = "staticParameters", enabled = false)
+  @Test(dataProviderClass = LayersProvider.class, dataProvider = "staticParameters", enabled = false)
   public static void testInverseStatic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
     ResistanceTwoLayer[] predicted = Stream.of(systems).map(ResistanceTwoLayer::new).toArray(ResistanceTwoLayer[]::new);
     SimpleBounds bounds = new SimpleBounds(
@@ -163,222 +128,47 @@ public class ResistanceTwoLayerTest {
         new double[] {1000.0, 1000.0, Metrics.fromMilli(100.0)}
     );
     PointValuePair pair = SimplexTest.optimizeCMAES(point ->
-            Inequality.proportional().applyAsDouble(rOhms, i -> predicted[i].value(point[0], point[1], point[2])),
+            Inequality.absolute().applyAsDouble(rOhms, i -> predicted[i].value(point[0], point[1], point[2])),
         bounds, new double[] {0.01, 0.01, Metrics.fromMilli(0.1)});
     Logger.getAnonymousLogger().warning(toString3(pair, systems.length));
   }
 
-  @DataProvider(name = "4.048, 17.678")
-  public static Object[][] dynamicParameters() {
-    return new Object[][] {
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(7.0, 21.0, MILLI(METRE)),
-                new TetrapolarSystem(21.0, 35.0, MILLI(METRE)),
-            },
-            new double[] {123.3, 176.1},
-            new double[] {123.3 - 0.1, 176.1 - 0.125},
-            -Metrics.fromMilli(0.1)
-        },
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(7.0, 21.0, MILLI(METRE)),
-                new TetrapolarSystem(21.0, 35.0, MILLI(METRE)),
-                new TetrapolarSystem(7.0, 35.0, MILLI(METRE)),
-            },
-            new double[] {123.3, 176.1, 43.09},
-            new double[] {123.3 - 0.1, 176.1 - 0.125, 43.09 - 0.04},
-            -Metrics.fromMilli(0.1)
-        },
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(7.0, 21.0, MILLI(METRE)),
-                new TetrapolarSystem(21.0, 35.0, MILLI(METRE)),
-                new TetrapolarSystem(7.0, 35.0, MILLI(METRE)),
-                new TetrapolarSystem(14.0, 28.0, MILLI(METRE)),
-            },
-            new double[] {123.3, 176.1, 43.09, 170.14},
-            new double[] {123.3 - 0.1, 176.1 - 0.125, 43.09 - 0.04, 170.14 - 0.16},
-            -Metrics.fromMilli(0.1)
-        },
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(7.0, 21.0, MILLI(METRE)),
-                new TetrapolarSystem(21.0, 35.0, MILLI(METRE)),
-                new TetrapolarSystem(7.0, 35.0, MILLI(METRE)),
-                new TetrapolarSystem(14.0, 28.0, MILLI(METRE)),
-                new TetrapolarSystem(28.0, 42.0, MILLI(METRE)),
-            },
-            new double[] {123.3, 176.1, 43.09, 170.14, 85.84 * 2},
-            new double[] {123.3 - 0.1, 176.1 - 0.125, 43.09 - 0.04, 170.14 - 0.16, 85.84 * 2 - 0.1 * 2},
-            -Metrics.fromMilli(0.1)
-        },
-    };
-  }
-
-  @Test(dataProvider = "4.048, 17.678", enabled = false)
+  @Test(dataProviderClass = LayersProvider.class, dataProvider = "dynamicParameters", enabled = false)
   public static void testInverseDynamic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
     TrivariateFunction[] predicted = Stream.of(systems).map(ResistanceTwoLayer::new).toArray(ResistanceTwoLayer[]::new);
-    SimpleBounds bounds = new SimpleBounds(
-        new double[] {0.1, 0.1, Metrics.fromMilli(0.1)},
-        new double[] {1000.0, 1000.0, Metrics.fromMilli(30.0)}
+    TrivariateFunction[] predictedDiff = Stream.of(systems).map(DerivativeRbyH::new).toArray(DerivativeRbyH[]::new);
+
+    DoubleSummaryStatistics apparent = IntStream.range(0, systems.length).mapToDouble(i -> systems[i].getApparent(rOhmsBefore[i])).summaryStatistics();
+
+    DoubleFunction<PointValuePair> rho1rho2 = h -> SimplexTest.optimizeNelderMead(rho -> {
+      double rho1 = rho[0];
+      double rho2 = rho[1];
+      return Inequality.proportional().applyAsDouble(rOhmsBefore, i -> predicted[i].value(rho1, rho2, h));
+    }, new double[] {apparent.getMin(), apparent.getMax()}, new double[] {0.1, 0.1});
+
+    PointValuePair hPoint = SimplexTest.optimizeNelderMead(p -> {
+      double h = p[0];
+      double[] dH = new double[rOhmsBefore.length];
+      Arrays.setAll(dH, i -> (systems[i].getL() / rOhmsBefore[i]) * (rOhmsAfter[i] - rOhmsBefore[i]) / dh);
+
+      PointValuePair pair = rho1rho2.apply(h);
+      double rho1 = pair.getPoint()[0];
+      double rho2 = pair.getPoint()[1];
+      Inequality inequality = Inequality.absolute();
+      inequality.applyAsDouble(dH, i -> (systems[i].getL() / predicted[i].value(rho1, rho2, h)) * predictedDiff[i].value(rho1, rho2, h));
+      Logger.getAnonymousLogger().config(
+          String.format("%s1 = %.3f, %s2 = %.3f, h = %.3f mm, e = %.6f, eh = %.6f", Strings.RHO, rho1, Strings.RHO, rho2, h * 1000, pair.getValue(), inequality.getAsDouble())
+      );
+      return inequality.getAsDouble();
+    }, new double[] {Metrics.fromMilli(1.0)}, new double[] {Metrics.fromMilli(0.1)});
+
+    double h = hPoint.getPoint()[0];
+    PointValuePair rho = rho1rho2.apply(h);
+    Logger.getAnonymousLogger().info(
+        String.format("%s1 = %.3f, %s2 = %.3f, h = %.3f mm, e = %.6f, eh = %.6f",
+            Strings.RHO, rho.getPoint()[0], Strings.RHO, rho.getPoint()[1], h * 1000, rho.getValue(), hPoint.getValue()
+        )
     );
-    PointValuePair pair = SimplexTest.optimizeCMAES(point -> {
-          TrivariateFunction[] predictedDiff = Stream.of(systems).map(DerivativeRbyH::new).toArray(DerivativeRbyH[]::new);
-          Inequality inequality = Inequality.proportional();
-          inequality.applyAsDouble(rOhmsBefore, i -> predicted[i].value(point[0], point[1], point[2]));
-          double[] dH = new double[rOhmsBefore.length];
-          Arrays.setAll(dH, i -> (rOhmsAfter[i] - rOhmsBefore[i]) / dh);
-          inequality.applyAsDouble(dH, i -> predictedDiff[i].value(point[0], point[1], point[2]));
-          return inequality.getAsDouble();
-        },
-        bounds, new double[] {0.01, 0.01, Metrics.fromMilli(0.1)});
-    Logger.getAnonymousLogger().warning(toString3(pair, systems.length * 2));
-  }
-
-  @DataProvider(name = "theoryDynamicParameters")
-  public static Object[][] theoryDynamicParameters() {
-    return new Object[][] {
-        // h = 5 mm
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(10.0, 30.0, MILLI(METRE)),
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
-            },
-            new double[] {30.971, 61.860},
-            new double[] {31.278, 62.479},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(10.0, 50.0, MILLI(METRE)),
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
-            },
-            new double[] {18.069, 61.860},
-            new double[] {18.252, 62.479},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-
-        // h = 10 mm
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(10.0, 30.0, MILLI(METRE)),
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
-            },
-            new double[] {16.761, 32.246},
-            new double[] {16.821, 32.383},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(10.0, 50.0, MILLI(METRE)),
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
-            },
-            new double[] {9.074, 32.246},
-            new double[] {9.118, 32.383},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-
-        // h = 15 mm
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(10.0, 30.0, MILLI(METRE)),
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
-            },
-            new double[] {13.338, 23.903},
-            new double[] {13.357, 23.953},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(10.0, 50.0, MILLI(METRE)),
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
-            },
-            new double[] {6.267, 23.903},
-            new double[] {6.284, 23.953},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-
-        // h = 20 mm
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(10.0, 30.0, MILLI(METRE)),
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
-            },
-            new double[] {12.187, 20.567},
-            new double[] {12.194, 20.589},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(10.0, 50.0, MILLI(METRE)),
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
-            },
-            new double[] {5.082, 20.567},
-            new double[] {5.090, 20.589},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-
-        // h = 25 mm
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(10.0, 30.0, MILLI(METRE)),
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
-            },
-            new double[] {11.710, 18.986},
-            new double[] {11.714, 18.998},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(10.0, 50.0, MILLI(METRE)),
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
-            },
-            new double[] {4.514, 18.986},
-            new double[] {4.518, 18.998},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-
-        // h = 30 mm
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(10.0, 30.0, MILLI(METRE)),
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
-            },
-            new double[] {11.482, 18.152},
-            new double[] {11.484, 18.158},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(10.0, 50.0, MILLI(METRE)),
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
-            },
-            new double[] {4.216, 18.152},
-            new double[] {4.218, 18.158},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-
-        // h = 35 mm
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(10.0, 30.0, MILLI(METRE)),
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
-            },
-            new double[] {11.361, 17.674},
-            new double[] {11.362, 17.678},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(10.0, 50.0, MILLI(METRE)),
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
-            },
-            new double[] {4.047, 17.674},
-            new double[] {4.048, 17.678},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-    };
   }
 
   private static String toString3(@Nonnull PointValuePair point, @Nonnegative int avg) {

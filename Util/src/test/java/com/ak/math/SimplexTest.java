@@ -42,8 +42,8 @@ public class SimplexTest {
     Assert.assertEquals(optimum.getPoint()[0], 1.0, 1.0e-5);
   }
 
-  private static PointValuePair optimizeNelderMead(@Nonnull MultivariateFunction function,
-                                                   @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
+  public static PointValuePair optimizeNelderMead(@Nonnull MultivariateFunction function,
+                                                  @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
     return new SimplexOptimizer(-1, 1.0e-12).optimize(new MaxEval(30000), new ObjectiveFunction(function), GoalType.MINIMIZE,
         new NelderMeadSimplex(initialSteps), new InitialGuess(initialGuess));
   }
@@ -70,9 +70,9 @@ public class SimplexTest {
         .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
 
-  private static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
-                                              @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
-    return new CMAESOptimizer(30000, 1.0e-12, true, 0,
+  public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
+                                             @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
+    return IntStream.range(0, 4).mapToObj(value -> new CMAESOptimizer(30000, 1.0e-16, true, 0,
         10, new MersenneTwister(), false, null)
         .optimize(
             new MaxEval(30000),
@@ -82,7 +82,11 @@ public class SimplexTest {
             bounds,
             new CMAESOptimizer.Sigma(initialSteps),
             new CMAESOptimizer.PopulationSize(2 * (4 + (int) (3.0 * StrictMath.log(initialGuess.length))))
-        );
+        )).parallel()
+        .peek(p -> Logger.getAnonymousLogger().config(
+            String.format("%s %.6f %n", Arrays.stream(p.getPoint()).mapToObj(value -> String.format("%.3f", value)).collect(Collectors.joining(", ", "[", "]")),
+                p.getValue()))
+        ).min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
 
   private static PointValuePair optimizeBOBYQA(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,

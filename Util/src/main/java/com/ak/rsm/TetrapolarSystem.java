@@ -27,6 +27,10 @@ final class TetrapolarSystem {
     lCurrentCarryingSI = toDouble(lCC, unit);
   }
 
+  public double getL() {
+    return lCurrentCarryingSI;
+  }
+
   /**
    * Gets <b>apparent</b> specific resistance which is correspond to 1-layer model.
    *
