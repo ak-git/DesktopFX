@@ -11,6 +11,7 @@ import static java.lang.Math.abs;
 
 public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, ToDoubleBiFunction<double[], IntToDoubleFunction> {
   private static final DoubleBinaryOperator L2_NORM = StrictMath::hypot;
+  private static final DoubleBinaryOperator EXPM = (measured, predicted) -> StrictMath.expm1(abs(measured)) + StrictMath.expm1(abs(predicted));
   private static final DoubleBinaryOperator LOG1P = (measured, predicted) -> abs(StrictMath.log1p(abs(measured)) - StrictMath.log1p(abs(predicted)));
   @Nonnull
   private final DoubleBinaryOperator errorDefinition;
@@ -21,14 +22,7 @@ public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, T
   }
 
   public static Inequality expAndLogDifference() {
-    return new Inequality((measured, predicted) -> {
-      if ((measured < 0 && predicted < 0) || (measured > 0 && predicted > 0)) {
-        return LOG1P.applyAsDouble(measured, predicted);
-      }
-      else {
-        return StrictMath.expm1(abs(measured)) + StrictMath.expm1(abs(predicted));
-      }
-    });
+    return expSigned(LOG1P);
   }
 
   public static Inequality logDifference() {
@@ -45,6 +39,10 @@ public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, T
 
   public static Inequality absolute() {
     return new Inequality((measured, predicted) -> abs(measured - predicted));
+  }
+
+  public static Inequality expAndAbsolute() {
+    return expSigned((measured, predicted) -> abs(measured - predicted));
   }
 
   @Override
@@ -64,5 +62,16 @@ public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, T
   @Override
   public double getAsDouble() {
     return errorNorm;
+  }
+
+  private static Inequality expSigned(DoubleBinaryOperator operator) {
+    return new Inequality((measured, predicted) -> {
+      if ((measured < 0 && predicted < 0) || (measured > 0 && predicted > 0)) {
+        return operator.applyAsDouble(measured, predicted);
+      }
+      else {
+        return EXPM.applyAsDouble(measured, predicted);
+      }
+    });
   }
 }

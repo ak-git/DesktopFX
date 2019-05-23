@@ -24,6 +24,19 @@ public class InequalityTest {
   }
 
   @Test
+  public void testExpAndAbsoluteDifference() {
+    Inequality inequality = Inequality.expAndAbsolute();
+    Assert.assertEquals(inequality.applyAsDouble(-1.0, 1.0), 2 * (Math.E - 1), 0.01);
+    Assert.assertEquals(inequality.applyAsDouble(1.0, -1.0), 2 * (Math.E - 1) * 1.4142135623730951, 0.01);
+
+    inequality = Inequality.expAndAbsolute();
+    Assert.assertEquals(inequality.applyAsDouble(0.0, -1.0), Math.E - 1, 0.01);
+    inequality = Inequality.expAndAbsolute();
+    Assert.assertEquals(inequality.applyAsDouble(-1.0, -2.0), 1.0, 0.01);
+    Assert.assertEquals(inequality.applyAsDouble(2.0, 1.0), 1.4142135623730951, 0.01);
+  }
+
+  @Test
   public void testLog1pDifference() {
     Inequality inequality = Inequality.log1pDifference();
     Assert.assertEquals(inequality.applyAsDouble(-1.0, -pow(Math.E, 3.0)), 2.35, 0.01);

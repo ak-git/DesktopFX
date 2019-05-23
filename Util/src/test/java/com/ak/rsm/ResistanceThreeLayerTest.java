@@ -1,8 +1,11 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
-import java.util.Random;
+import java.util.DoubleSummaryStatistics;
+import java.util.function.BiFunction;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
@@ -90,56 +93,65 @@ public class ResistanceThreeLayerTest {
     new ResistanceTreeLayer(new TetrapolarSystem(1, 2, MILLI(METRE)), Metrics.fromMilli(0.001)).value(1.0, 2.0, 3.0, 0, 1);
   }
 
-  @DataProvider(name = "experimental")
-  public static Object[][] dhParameters() {
-    return new Object[][] {
-        {7.0, new double[] {34.58, 88.81, 141.1}, new double[] {34.58 - 0.03, 88.81 - 0.04, 141.1 - 0.06}},
-    };
-  }
-
-  @Test(dataProvider = "experimental", enabled = false)
-  public static void testInverseDh2(@Nonnegative double sPUmm, @Nonnull double[] rOhmBefore, @Nonnull double[] rOhmAfter) {
-    TetrapolarSystem system0 = new TetrapolarSystem(sPUmm, sPUmm * 5.0, MILLI(METRE));
-    TetrapolarSystem system1 = new TetrapolarSystem(sPUmm, sPUmm * 3.0, MILLI(METRE));
-    TetrapolarSystem system2 = new TetrapolarSystem(sPUmm * 3.0, sPUmm * 5.0, MILLI(METRE));
-
-    double rho1Apparent = system0.getApparent(rOhmBefore[0]);
-    double rho2Apparent = system1.getApparent(rOhmBefore[1]);
-    double rho3Apparent = system2.getApparent(rOhmBefore[2]);
-    Logger.getAnonymousLogger().config(String.format("Apparent : %.3f; %.3f; %.3f", rho1Apparent, rho2Apparent, rho3Apparent));
-
-    ResistanceTreeLayer[] predicted = Stream.of(system0, system1, system2).
-        map(system -> new ResistanceTreeLayer(system, Metrics.fromMilli(0.1))).toArray(ResistanceTreeLayer[]::new);
+  @Test(dataProviderClass = LayersProvider.class, dataProvider = "staticParameters5", invocationCount = 20, enabled = false)
+  public static void testInverseStatic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
+    ResistanceTreeLayer[] predicted = Stream.of(systems).map(system -> new ResistanceTreeLayer(system, Metrics.fromMilli(0.1))).toArray(ResistanceTreeLayer[]::new);
+    double[] apparent = IntStream.range(0, systems.length).mapToDouble(i -> systems[i].getApparent(rOhms[i])).toArray();
+    Logger.getAnonymousLogger().config(Arrays.toString(apparent));
 
     SimpleBounds bounds = new SimpleBounds(
-        new double[] {0.7, 0.7, 0.7, 2.0, 2.0},
-        new double[] {100.0, 100.0, 100.0, 10_0, 10_0}
+        new double[] {apparent[2], 0.7, 0.7, 2, 1},
+        new double[] {100.0, apparent[2], 100.0, 10_0, 10_0}
     );
 
-    PointValuePair p = SimplexTest.optimizeCMAES(point -> {
-      double rho1 = point[0];
-      double rho2 = point[1];
-      double rho3 = point[2];
-      int p1 = (int) Math.round(point[3]);
-      int p2 = (int) Math.round(point[4]);
+    PointValuePair pair = SimplexTest.optimizeCMAES(x -> {
+          int p1 = (int) Math.max(Math.round(x[3]), 1);
+          int p2 = (int) Math.max(Math.round(x[4]), 2);
+          return Inequality.proportional().applyAsDouble(rOhms, i -> predicted[i].value(x[0], x[1], x[2], p1, p2));
+        },
+        bounds, new double[] {apparent[2], apparent[2], apparent[2], 2, 1}, new double[] {0.01, 0.01, 0.01, 1, 1});
+    Logger.getAnonymousLogger().info(Arrays.toString(pair.getPoint()) + " : " + pair.getValue());
+  }
 
-      Inequality inequality = Inequality.expAndLogDifference();
+  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryDynamicParameters3", enabled = false)
+  public static void testInverseDynamic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
+    ResistanceTreeLayer[] predicted = Stream.of(systems).map(system -> new ResistanceTreeLayer(system, Math.abs(dh))).toArray(ResistanceTreeLayer[]::new);
+    DoubleSummaryStatistics apparent = IntStream.range(0, systems.length).mapToDouble(i -> systems[i].getApparent(rOhmsBefore[i])).summaryStatistics();
 
-      double error = Metrics.fromPercents(0.1);
-      Random rnd = new Random();
-      double baseE = rnd.nextGaussian() * error / 6.0;
-      double diffE = rnd.nextGaussian() * error / 6.0;
-
-      for (int i = 0; i < predicted.length; i++) {
-        inequality.applyAsDouble(rOhmBefore[i], predicted[i].value(rho1, rho2, rho3, p1, p2) * (1.0 + baseE));
-        baseE *= -1.0;
-
-        inequality.applyAsDouble(rOhmBefore[i] - rOhmAfter[i],
-            (predicted[i].value(rho1, rho2, rho3, p1, p2) - predicted[i].value(rho1, rho2, rho3, p1 - 1, p2) * (1.0 + diffE)));
-        diffE *= -1.0;
+    BiFunction<int[], double[], PointValuePair> rhos = (hs, rhoInit) -> SimplexTest.optimizeNelderMead(rho -> {
+      for (double v : rho) {
+        if (v < 0.1) {
+          return Double.POSITIVE_INFINITY;
+        }
       }
+      return Inequality.proportional().applyAsDouble(rOhmsBefore, i -> predicted[i].value(rho[0], rho[1], rho[2], hs[0], hs[1]));
+    }, rhoInit, new double[] {1.0, 1.0, 1.0});
+
+    double[] rhoInit = {apparent.getAverage(), apparent.getAverage(), apparent.getAverage()};
+    PointValuePair hs = SimplexTest.optimizeNelderMead(p -> {
+      p[0] = (int) Math.max(Math.round(p[0]), 2);
+      p[1] = (int) Math.max(Math.round(p[1]), 2);
+      int p1 = (int) p[0];
+      int p2 = (int) p[1];
+      double[] dHMeasured = new double[rOhmsBefore.length];
+      Arrays.setAll(dHMeasured, i -> (systems[i].getL() / rOhmsBefore[i]) * (rOhmsAfter[i] - rOhmsBefore[i]) / dh);
+
+      PointValuePair pair = rhos.apply(new int[] {p1, p2}, rhoInit);
+      double rho1 = pair.getPoint()[0];
+      double rho2 = pair.getPoint()[1];
+      double rho3 = pair.getPoint()[2];
+      for (int i = 0; i < rhoInit.length; i++) {
+        rhoInit[i] = pair.getPoint()[i];
+      }
+
+      Inequality inequality = Inequality.absolute();
+      inequality.applyAsDouble(dHMeasured, i -> (systems[i].getL() / predicted[i].value(rho1, rho2, rho3, p1, p2)) *
+          ((predicted[i].value(rho1, rho2, rho3, p1 - 1, p2) - predicted[i].value(rho1, rho2, rho3, p1, p2)) / dh));
+
+      Logger.getAnonymousLogger().config(String.format("%d %d %s %.6g", p1, p2, Arrays.toString(pair.getPoint()), inequality.getAsDouble()));
+
       return inequality.getAsDouble();
-    }, bounds, new double[] {0.1, 0.1, 0.1, 1.0, 1.0});
-    Logger.getAnonymousLogger().info(String.format("%s %.6f %n", Arrays.toString(p.getPoint()), p.getValue()));
+    }, new double[] {1000, 1000}, new double[] {100, 100});
+    Logger.getAnonymousLogger().info(Arrays.stream(hs.getPoint()).map(operand -> Math.abs(operand * dh * 1000)).mapToObj(value -> String.format("%.2f", value)).collect(Collectors.joining(", ")));
   }
 }
