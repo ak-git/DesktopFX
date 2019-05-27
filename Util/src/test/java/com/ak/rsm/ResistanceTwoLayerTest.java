@@ -133,7 +133,7 @@ public class ResistanceTwoLayerTest {
     Logger.getAnonymousLogger().warning(toString3(pair, systems.length));
   }
 
-  @Test(dataProviderClass = LayersProvider.class, dataProvider = "dynamicParameters", enabled = false)
+  @Test(dataProviderClass = LayersProvider.class, dataProvider = "waterDynamicParameters2", enabled = false)
   public static void testInverseDynamic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
     TrivariateFunction[] predicted = Stream.of(systems).map(ResistanceTwoLayer::new).toArray(ResistanceTwoLayer[]::new);
     TrivariateFunction[] predictedDiff = Stream.of(systems).map(DerivativeRbyH::new).toArray(DerivativeRbyH[]::new);

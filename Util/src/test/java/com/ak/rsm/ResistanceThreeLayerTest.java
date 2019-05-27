@@ -113,7 +113,7 @@ public class ResistanceThreeLayerTest {
     Logger.getAnonymousLogger().info(Arrays.toString(pair.getPoint()) + " : " + pair.getValue());
   }
 
-  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryDynamicParameters3", enabled = false)
+  @Test(dataProviderClass = LayersProvider.class, dataProvider = "waterDynamicParameters3", enabled = false)
   public static void testInverseDynamic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
     ResistanceTreeLayer[] predicted = Stream.of(systems).map(system -> new ResistanceTreeLayer(system, Math.abs(dh))).toArray(ResistanceTreeLayer[]::new);
     DoubleSummaryStatistics apparent = IntStream.range(0, systems.length).mapToDouble(i -> systems[i].getApparent(rOhmsBefore[i])).summaryStatistics();
