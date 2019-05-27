@@ -36,8 +36,8 @@
     <orderEntry type="library" name="Gradle: org.springframework:spring-jcl:5.1.5.RELEASE" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.apache.commons:commons-math3:3.6.1" level="project" />
     <orderEntry type="module" module-name="Util_main" />
+    <orderEntry type="module" module-name="Util_main" />
     <orderEntry type="module" module-name="FxCore_main" />
     <orderEntry type="module" module-name="Communication_main" />
-    <orderEntry type="module" module-name="Util_main" />
   </component>
 </module>
