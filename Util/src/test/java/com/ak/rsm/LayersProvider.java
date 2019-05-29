@@ -31,12 +31,24 @@ class LayersProvider {
             },
             new double[] {123.3, 176.1, 43.09, 170.14, 85.84 * 2}
         },
+        //vk
+        {
+            new TetrapolarSystem[] {
+                new TetrapolarSystem(7.0, 21.0, MILLI(METRE)),
+                new TetrapolarSystem(21.0, 35.0, MILLI(METRE)),
+                new TetrapolarSystem(7.0, 35.0, MILLI(METRE)),
+                new TetrapolarSystem(14.0, 28.0, MILLI(METRE)),
+                new TetrapolarSystem(28.0, 42.0, MILLI(METRE)),
+            },
+            new double[] {96.7, 155.0, 36.56, 134.7, 79.9 * 2}
+        },
     };
   }
 
   @DataProvider(name = "staticParameters5")
   public static Object[][] staticParameters5() {
     return new Object[][] {
+        //ak
         {
             new TetrapolarSystem[] {
                 new TetrapolarSystem(7.0, 21.0, MILLI(METRE)),
@@ -46,6 +58,17 @@ class LayersProvider {
                 new TetrapolarSystem(28.0, 42.0, MILLI(METRE)),
             },
             new double[] {123.3, 176.1, 43.09, 170.14, 85.84 * 2}
+        },
+        //vk
+        {
+            new TetrapolarSystem[] {
+                new TetrapolarSystem(7.0, 21.0, MILLI(METRE)),
+                new TetrapolarSystem(21.0, 35.0, MILLI(METRE)),
+                new TetrapolarSystem(7.0, 35.0, MILLI(METRE)),
+                new TetrapolarSystem(14.0, 28.0, MILLI(METRE)),
+                new TetrapolarSystem(28.0, 42.0, MILLI(METRE)),
+            },
+            new double[] {96.7, 155.0, 36.56, 134.7, 79.9 * 2}
         },
     };
   }
