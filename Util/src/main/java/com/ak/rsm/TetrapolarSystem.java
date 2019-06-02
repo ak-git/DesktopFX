@@ -1,7 +1,6 @@
 package com.ak.rsm;
 
 import java.util.Objects;
-import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -20,34 +19,16 @@ final class TetrapolarSystem {
   private final double lCurrentCarryingSI;
 
   TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
-    if (sPU >= lCC) {
-      throw new IllegalArgumentException(String.format("%.6f > %.6f", sPU, lCC));
-    }
     sPotentialUnitSI = toDouble(sPU, unit);
     lCurrentCarryingSI = toDouble(lCC, unit);
   }
 
-  public double getL() {
-    return lCurrentCarryingSI;
+  double radiusMns() {
+    return (lCurrentCarryingSI - sPotentialUnitSI) / 2.0;
   }
 
-  /**
-   * Gets <b>apparent</b> specific resistance which is correspond to 1-layer model.
-   *
-   * @param resistance in Ohms.
-   * @return <b>apparent</b> specific resistance in Ohm-m.
-   */
-  @Nonnegative
-  double getApparent(@Nonnegative double resistance) {
-    return 0.5 * Math.PI * resistance / (1.0 / radiusMinus() - 1.0 / radiusPlus());
-  }
-
-  double radiusMinus() {
-    return lCurrentCarryingSI - sPotentialUnitSI;
-  }
-
-  double radiusPlus() {
-    return lCurrentCarryingSI + sPotentialUnitSI;
+  double radiusPls() {
+    return (lCurrentCarryingSI + sPotentialUnitSI) / 2.0;
   }
 
   @Override
@@ -60,12 +41,13 @@ final class TetrapolarSystem {
     }
 
     TetrapolarSystem that = (TetrapolarSystem) o;
-    return Objects.equals(sPotentialUnitSI, that.sPotentialUnitSI) && Objects.equals(lCurrentCarryingSI, that.lCurrentCarryingSI);
+    return Objects.equals(Math.min(sPotentialUnitSI, lCurrentCarryingSI), Math.min(that.sPotentialUnitSI, that.lCurrentCarryingSI)) &&
+        Objects.equals(Math.max(sPotentialUnitSI, lCurrentCarryingSI), Math.max(that.sPotentialUnitSI, that.lCurrentCarryingSI));
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(sPotentialUnitSI, lCurrentCarryingSI);
+    return Objects.hash(Math.min(sPotentialUnitSI, lCurrentCarryingSI), Math.max(sPotentialUnitSI, lCurrentCarryingSI));
   }
 
   @Override
@@ -73,18 +55,6 @@ final class TetrapolarSystem {
     return String.format("%s x %s",
         Quantities.getQuantity(sPotentialUnitSI, METRE).to(MILLI(METRE)),
         Quantities.getQuantity(lCurrentCarryingSI, METRE).to(MILLI(METRE)));
-  }
-
-  TetrapolarSystem[] newWithError(@Nonnegative double dlCC, @Nonnull Unit<Length> unit) {
-    if (Double.compare(dlCC, 0.0) == 0) {
-      throw new IllegalArgumentException("dL == 0");
-    }
-
-    return IntStream.of(1, -1).mapToObj(dLSign -> {
-          var error = toDouble(dlCC, unit) * dLSign;
-          return new TetrapolarSystem(sPotentialUnitSI - error, lCurrentCarryingSI + error, METRE);
-        }
-    ).toArray(TetrapolarSystem[]::new);
   }
 
   private static double toDouble(@Nonnegative double sPU, @Nonnull Unit<Length> unit) {

@@ -10,8 +10,8 @@ import org.testng.annotations.Test;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public class DerivativeRbyHTest {
-  private DerivativeRbyHTest() {
+public class DerivativeResistance2LayerByHTest {
+  private DerivativeResistance2LayerByHTest() {
   }
 
   @DataProvider(name = "layer-model")
@@ -26,11 +26,6 @@ public class DerivativeRbyHTest {
 
   @Test(dataProvider = "layer-model")
   public static void testLayer(@Nonnull TetrapolarSystem system, @Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double hSI, double expected) {
-    Assert.assertEquals(new DerivativeRbyH(system).value(rho1, rho2, hSI), expected, 0.001);
-  }
-
-  @Test(expectedExceptions = CloneNotSupportedException.class)
-  public static void testNotClone() throws CloneNotSupportedException {
-    new DerivativeRbyH(new TetrapolarSystem(1.0, 2.0, Units.METRE)).clone();
+    Assert.assertEquals(new DerivativeResistance2LayerByH(system).value(rho1, rho2, hSI), expected, 0.001);
   }
 }

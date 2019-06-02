@@ -1,10 +1,6 @@
 package com.ak.rsm;
 
-import java.util.Arrays;
-import java.util.DoubleSummaryStatistics;
-import java.util.function.DoubleFunction;
 import java.util.logging.Logger;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
@@ -14,7 +10,6 @@ import com.ak.inverse.Inequality;
 import com.ak.math.SimplexTest;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
-import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.Assert;
@@ -24,8 +19,8 @@ import org.testng.annotations.Test;
 import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 
-public class ResistanceTwoLayerTest {
-  private ResistanceTwoLayerTest() {
+public class Resistance2LayerTest {
+  private Resistance2LayerTest() {
   }
 
   @DataProvider(name = "layer-model")
@@ -102,27 +97,12 @@ public class ResistanceTwoLayerTest {
   @Test(dataProvider = "layer-model")
   public static void testLayer(double[] rho, double hmm, double smm, double lmm, double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MILLI(METRE));
-    Assert.assertEquals(new ResistanceTwoLayer(system).value(rho[0], rho[1], Metrics.fromMilli(hmm)), rOhm, 0.001);
-  }
-
-  @Test
-  public static void testRho1ToRho2() {
-    Assert.assertEquals(ResistanceTwoLayer.getRho1ToRho2(1.0), 0.0, Float.MIN_NORMAL);
-    Assert.assertEquals(ResistanceTwoLayer.getRho1ToRho2(0.0), 1.0, Float.MIN_NORMAL);
-    Assert.assertEquals(ResistanceTwoLayer.getRho1ToRho2(-1.0), Double.POSITIVE_INFINITY, Float.MIN_NORMAL);
-    Assert.assertEquals(ResistanceTwoLayer.getRho1ToRho2(0.1), ResistanceTwoLayer.getK12(0.1, 1.0), Float.MIN_NORMAL);
-    Assert.assertEquals(ResistanceTwoLayer.getRho1ToRho2(10.0), ResistanceTwoLayer.getK12(10.0, 1.0), Float.MIN_NORMAL);
-    Assert.assertEquals(ResistanceTwoLayer.getK12(10.0, Double.POSITIVE_INFINITY), 1.0, Float.MIN_NORMAL);
-  }
-
-  @Test(expectedExceptions = CloneNotSupportedException.class)
-  public static void testNotClone() throws CloneNotSupportedException {
-    new ResistanceTwoLayer(new TetrapolarSystem(1, 2, MILLI(METRE))).clone();
+    Assert.assertEquals(new Resistance2Layer(system).value(rho[0], rho[1], Metrics.fromMilli(hmm)), rOhm, 0.001);
   }
 
   @Test(dataProviderClass = LayersProvider.class, dataProvider = "staticParameters", enabled = false)
   public static void testInverseStatic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
-    ResistanceTwoLayer[] predicted = Stream.of(systems).map(ResistanceTwoLayer::new).toArray(ResistanceTwoLayer[]::new);
+    Resistance2Layer[] predicted = Stream.of(systems).map(Resistance2Layer::new).toArray(Resistance2Layer[]::new);
     SimpleBounds bounds = new SimpleBounds(
         new double[] {0.0, 0.0, 0.0},
         new double[] {1000.0, 1000.0, Metrics.fromMilli(100.0)}
@@ -131,44 +111,6 @@ public class ResistanceTwoLayerTest {
             Inequality.absolute().applyAsDouble(rOhms, i -> predicted[i].value(point[0], point[1], point[2])),
         bounds, new double[] {0.01, 0.01, Metrics.fromMilli(0.1)});
     Logger.getAnonymousLogger().warning(toString3(pair, systems.length));
-  }
-
-  @Test(dataProviderClass = LayersProvider.class, dataProvider = "waterDynamicParameters2", enabled = false)
-  public static void testInverseDynamic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
-    TrivariateFunction[] predicted = Stream.of(systems).map(ResistanceTwoLayer::new).toArray(ResistanceTwoLayer[]::new);
-    TrivariateFunction[] predictedDiff = Stream.of(systems).map(DerivativeRbyH::new).toArray(DerivativeRbyH[]::new);
-
-    DoubleSummaryStatistics apparent = IntStream.range(0, systems.length).mapToDouble(i -> systems[i].getApparent(rOhmsBefore[i])).summaryStatistics();
-
-    DoubleFunction<PointValuePair> rho1rho2 = h -> SimplexTest.optimizeNelderMead(rho -> {
-      double rho1 = rho[0];
-      double rho2 = rho[1];
-      return Inequality.proportional().applyAsDouble(rOhmsBefore, i -> predicted[i].value(rho1, rho2, h));
-    }, new double[] {apparent.getMin(), apparent.getMax()}, new double[] {0.1, 0.1});
-
-    PointValuePair hPoint = SimplexTest.optimizeNelderMead(p -> {
-      double h = p[0];
-      double[] dH = new double[rOhmsBefore.length];
-      Arrays.setAll(dH, i -> (systems[i].getL() / rOhmsBefore[i]) * (rOhmsAfter[i] - rOhmsBefore[i]) / dh);
-
-      PointValuePair pair = rho1rho2.apply(h);
-      double rho1 = pair.getPoint()[0];
-      double rho2 = pair.getPoint()[1];
-      Inequality inequality = Inequality.absolute();
-      inequality.applyAsDouble(dH, i -> (systems[i].getL() / predicted[i].value(rho1, rho2, h)) * predictedDiff[i].value(rho1, rho2, h));
-      Logger.getAnonymousLogger().config(
-          String.format("%s1 = %.3f, %s2 = %.3f, h = %.3f mm, e = %.6f, eh = %.6f", Strings.RHO, rho1, Strings.RHO, rho2, h * 1000, pair.getValue(), inequality.getAsDouble())
-      );
-      return inequality.getAsDouble();
-    }, new double[] {Metrics.fromMilli(1.0)}, new double[] {Metrics.fromMilli(0.1)});
-
-    double h = hPoint.getPoint()[0];
-    PointValuePair rho = rho1rho2.apply(h);
-    Logger.getAnonymousLogger().info(
-        String.format("%s1 = %.3f, %s2 = %.3f, h = %.3f mm, e = %.6f, eh = %.6f",
-            Strings.RHO, rho.getPoint()[0], Strings.RHO, rho.getPoint()[1], h * 1000, rho.getValue(), hPoint.getValue()
-        )
-    );
   }
 
   private static String toString3(@Nonnull PointValuePair point, @Nonnegative int avg) {
