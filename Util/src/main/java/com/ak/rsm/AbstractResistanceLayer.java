@@ -15,7 +15,7 @@ abstract class AbstractResistanceLayer<U extends AbstractPotentialLayer> impleme
   }
 
   @Override
-  public double applyAsDouble(ToDoubleFunction<U> potentialValue) {
+  public final double applyAsDouble(ToDoubleFunction<U> potentialValue) {
     return 2.0 * (potentialValue.applyAsDouble(uMns) - potentialValue.applyAsDouble(uPls));
   }
 }
