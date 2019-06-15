@@ -41,7 +41,7 @@ public class LogDerivativeApparent2RhoTest {
                 new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
                 new TetrapolarSystem(10.0, 30.0, MILLI(METRE)),
             },
-            new double[] {0.7, Double.POSITIVE_INFINITY},
+            new double[] {7, 1.0},
             Metrics.fromMilli(5.0),
         },
     };

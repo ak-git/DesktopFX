@@ -15,7 +15,7 @@ final class LogDerivativeApparent2Rho extends AbstractLogApparent2Rho {
 
   @Override
   public double value(double Lh, double sL, double sums) {
-    return log(sums);
+    return log(Math.abs(sums));
   }
 
   @Override
