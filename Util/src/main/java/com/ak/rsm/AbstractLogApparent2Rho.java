@@ -1,6 +1,6 @@
 package com.ak.rsm;
 
-import java.util.function.DoubleBinaryOperator;
+import java.util.function.IntToDoubleFunction;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -18,12 +18,11 @@ abstract class AbstractLogApparent2Rho implements BivariateFunction {
   @Override
   public final double value(double k, @Nonnegative double Lh) {
     double sL = electrodeSystem.sToL();
-    DoubleBinaryOperator sumMns = sum(k, -1);
-    DoubleBinaryOperator sumPls = sum(k, 1);
-    return value(Lh, sL, sumMns.applyAsDouble(Lh, sL) - sumPls.applyAsDouble(Lh, sL));
+    IntToDoubleFunction sum = sum(k, Lh, sL);
+    return value(Lh, sL, sum.applyAsDouble(-1) - sum.applyAsDouble(1));
   }
 
   abstract double value(double Lh, double sL, double sums);
 
-  abstract DoubleBinaryOperator sum(double k, int sign);
+  abstract IntToDoubleFunction sum(double k, double Lh, double sL);
 }

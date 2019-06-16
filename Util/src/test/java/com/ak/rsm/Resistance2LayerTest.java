@@ -2,6 +2,7 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.DoubleSummaryStatistics;
+import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleFunction;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -21,6 +22,7 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static java.lang.StrictMath.log;
 import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 
@@ -154,6 +156,31 @@ public class Resistance2LayerTest {
             Strings.RHO, rho.getPoint()[0], Strings.RHO, rho.getPoint()[1], h * 1000, rho.getValue(), hPoint.getValue()
         )
     );
+  }
+
+  @Test(dataProviderClass = LayersProvider.class, dataProvider = "waterDynamicParameters2", enabled = false)
+  public static void testInverseDynamic2(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
+    DoubleBinaryOperator subtract = (left, right) -> left - right;
+    double subLogApparent = IntStream.range(0, systems.length)
+        .mapToDouble(i -> log(new Resistance1Layer(systems[i]).getApparent(rOhmsBefore[i]))).reduce(subtract).orElseThrow();
+    double subLogDiff = IntStream.range(0, systems.length)
+        .mapToDouble(i -> log(Math.abs((rOhmsAfter[i] - rOhmsBefore[i]) / dh))).reduce(subtract).orElseThrow();
+
+    PointValuePair point = SimplexTest.optimizeNelderMead(p -> {
+          double k = Math.min(Math.max(p[0], -1), 1);
+          double h = p[1];
+          double subLogApparentPredicted = Arrays.stream(systems)
+              .mapToDouble(system -> new Log1pApparent2Rho(system).value(k, system.lToh(h))).reduce(subtract).orElseThrow();
+          double subLogDiffPredicted = Arrays.stream(systems)
+              .mapToDouble(system -> new LogDerivativeApparent2Rho(system).value(k, system.lToh(h))).reduce(subtract).orElseThrow();
+          Inequality inequality = Inequality.absolute();
+          inequality.applyAsDouble(subLogApparent, subLogApparentPredicted);
+          inequality.applyAsDouble(subLogDiff, subLogDiffPredicted);
+          return inequality.getAsDouble();
+        },
+        new double[] {0.0, Metrics.fromMilli(1.0)}, new double[] {0.1, Metrics.fromMilli(0.1)}
+    );
+    Logger.getAnonymousLogger().info(Arrays.toString(point.getPoint()));
   }
 
   private static String toString3(@Nonnull PointValuePair point, @Nonnegative int avg) {

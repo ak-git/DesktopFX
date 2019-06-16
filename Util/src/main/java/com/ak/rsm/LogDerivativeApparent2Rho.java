@@ -1,6 +1,6 @@
 package com.ak.rsm;
 
-import java.util.function.DoubleBinaryOperator;
+import java.util.function.IntToDoubleFunction;
 
 import javax.annotation.Nonnull;
 
@@ -14,12 +14,12 @@ final class LogDerivativeApparent2Rho extends AbstractLogApparent2Rho {
   }
 
   @Override
-  public double value(double Lh, double sL, double sums) {
+  double value(double Lh, double sL, double sums) {
     return log(Math.abs(sums));
   }
 
   @Override
-  DoubleBinaryOperator sum(double k, int sign) {
-    return (Lh, sL) -> Layers.sum(n -> pow(k, n) * pow(n, 2.0), n -> pow(hypot(Lh * (1.0 + sign * sL), 4.0 * n), 3.0));
+  IntToDoubleFunction sum(double k, double Lh, double sL) {
+    return sign -> Layers.sum(n -> pow(k, n) * pow(n, 2.0), n -> pow(hypot(Lh * (1.0 + sign * sL), 4.0 * n), 3.0));
   }
 }
