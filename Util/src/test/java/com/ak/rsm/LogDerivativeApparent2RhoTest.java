@@ -31,14 +31,14 @@ public class LogDerivativeApparent2RhoTest {
         {
             new TetrapolarSystem[] {
                 new TetrapolarSystem(10.0, 30.0, MILLI(METRE)),
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
+                new TetrapolarSystem(50.0, 30.0, MILLI(METRE)),
             },
             new double[] {0.7, Double.POSITIVE_INFINITY},
             Metrics.fromMilli(5.0),
         },
         {
             new TetrapolarSystem[] {
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
+                new TetrapolarSystem(50.0, 30.0, MILLI(METRE)),
                 new TetrapolarSystem(10.0, 30.0, MILLI(METRE)),
             },
             new double[] {7, 1.0},
@@ -55,7 +55,7 @@ public class LogDerivativeApparent2RhoTest {
       return StrictMath.log(Math.abs((resistance2Layer.value(rho[0], rho[1], h + dh) - resistance2Layer.value(rho[0], rho[1], h)) / dh));
     }).reduce((left, right) -> left - right).orElseThrow();
     double logActual = Arrays.stream(systems).mapToDouble(system ->
-        new LogDerivativeApparent2Rho(system).value(Layers.getK12(rho[0], rho[1]), system.lToh(h))
+        new LogDerivativeApparent2Rho(system).value(Layers.getK12(rho[0], rho[1]), 0.03 / h)
     ).reduce((left, right) -> left - right).orElseThrow();
     Assert.assertEquals(logActual, logExpected, 0.001);
   }

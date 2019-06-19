@@ -15,6 +15,7 @@ import com.ak.inverse.Inequality;
 import com.ak.math.SimplexTest;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
+import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
@@ -166,21 +167,22 @@ public class Resistance2LayerTest {
     double subLogDiff = IntStream.range(0, systems.length)
         .mapToDouble(i -> log(Math.abs((rOhmsAfter[i] - rOhmsBefore[i]) / dh))).reduce(subtract).orElseThrow();
 
-    PointValuePair point = SimplexTest.optimizeNelderMead(p -> {
-          double k = Math.min(Math.max(p[0], -1), 1);
-          double h = p[1];
-          double subLogApparentPredicted = Arrays.stream(systems)
-              .mapToDouble(system -> new Log1pApparent2Rho(system).value(k, system.lToh(h))).reduce(subtract).orElseThrow();
-          double subLogDiffPredicted = Arrays.stream(systems)
-              .mapToDouble(system -> new LogDerivativeApparent2Rho(system).value(k, system.lToh(h))).reduce(subtract).orElseThrow();
-          Inequality inequality = Inequality.absolute();
-          inequality.applyAsDouble(subLogApparent, subLogApparentPredicted);
-          inequality.applyAsDouble(subLogDiff, subLogDiffPredicted);
-          return inequality.getAsDouble();
-        },
-        new double[] {0.0, Metrics.fromMilli(1.0)}, new double[] {0.1, Metrics.fromMilli(0.1)}
-    );
-    Logger.getAnonymousLogger().info(Arrays.toString(point.getPoint()));
+    MultivariateFunction multivariateFunction = p -> {
+      double k = Math.min(Math.max(p[0], -1), 1);
+      double Lh = p[1];
+      double subLogApparentPredicted = Arrays.stream(systems)
+          .mapToDouble(system -> new Log1pApparent2Rho(system).value(k, Lh)).reduce(subtract).orElseThrow();
+      double subLogDiffPredicted = Arrays.stream(systems)
+          .mapToDouble(system -> new LogDerivativeApparent2Rho(system).value(k, Lh)).reduce(subtract).orElseThrow();
+      Inequality inequality = Inequality.absolute();
+      inequality.applyAsDouble(subLogApparent, subLogApparentPredicted);
+      inequality.applyAsDouble(subLogDiff, subLogDiffPredicted);
+      return inequality.getAsDouble();
+    };
+
+    PointValuePair p = SimplexTest.optimizeNelderMead(multivariateFunction,
+        new double[] {0.0, 1.0}, new double[] {0.1, 0.1});
+    Logger.getAnonymousLogger().info(String.format("k = %.2f; h = %.1f", p.getPoint()[0], 30.0 / p.getPoint()[1]));
   }
 
   private static String toString3(@Nonnull PointValuePair point, @Nonnegative int avg) {
