@@ -10,12 +10,12 @@ import com.ak.util.LocalFileIO;
 import com.ak.util.LocalIO;
 import com.ak.util.Strings;
 
-public class LogPathBuilder extends LocalFileIO.AbstractBuilder {
-  public LogPathBuilder() {
+class LogPathBuilder extends LocalFileIO.AbstractBuilder {
+  LogPathBuilder() {
     super(Strings.EMPTY);
   }
 
-  public LogPathBuilder(@Nonnull String fileExtension, @Nonnull Class<? extends FileHandler> fileHandlerClass) {
+  LogPathBuilder(@Nonnull String fileExtension, @Nonnull Class<? extends FileHandler> fileHandlerClass) {
     super(fileExtension);
     addPath(Optional.ofNullable(LogManager.getLogManager().getProperty(fileHandlerClass.getName() + ".name")).
         orElse(fileHandlerClass.getSimpleName()));

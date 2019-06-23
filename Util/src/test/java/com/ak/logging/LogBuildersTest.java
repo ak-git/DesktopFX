@@ -1,4 +1,4 @@
-package com.ak.comm.logging;
+package com.ak.logging;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

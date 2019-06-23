@@ -1,7 +1,5 @@
-package com.ak.comm.logging;
+package com.ak.logging;
 
-import com.ak.logging.LocalFileHandler;
-import com.ak.logging.LogPathBuilder;
 import com.ak.util.LocalIO;
 import com.ak.util.Strings;
 
@@ -25,7 +23,6 @@ public enum LogBuilders {
       return newInstance().fileName(fileName).addPath(CONVERTER_FILE.directory).build();
     }
   };
-
 
   private final String directory;
 
