@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
 import com.ak.fx.stage.ScreenResolutionMonitor;
 import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.util.OSDockImage;
-import com.ak.logging.LogPathBuilder;
+import com.ak.logging.LoggingBuilder;
 import com.ak.storage.Storage;
 import com.ak.util.OS;
 import com.ak.util.PropertiesSupport;
@@ -40,8 +40,7 @@ public final class FxApplication extends Application {
   private static final String KEY_APPLICATION_TITLE = "application.title";
   private static final String KEY_APPLICATION_VERSION = "application.version";
   private static final String KEY_APPLICATION_IMAGE = "application.image";
-  private static final String LOGGING_PROPERTIES = "logging.properties";
-  private static final String KEY_PROPERTIES = "keys.properties";
+  private static final String KEY_PROPERTIES = "keys";
 
   @Nonnull
   private ConfigurableApplicationContext context = new GenericApplicationContext();
@@ -114,13 +113,13 @@ public final class FxApplication extends Application {
   }
 
   private static void initLogger() {
-    try (InputStream in = FxApplication.class.getResourceAsStream(KEY_PROPERTIES)) {
+    try (InputStream in = FxApplication.class.getResourceAsStream(PropertiesSupport.addExtension(KEY_PROPERTIES))) {
       Properties keys = new Properties();
       keys.load(in);
-      Path path = new LogPathBuilder().addPath(getApplicationFullName(keys.getProperty(KEY_APPLICATION_TITLE, Strings.EMPTY))).
-          fileName(LOGGING_PROPERTIES).build().getPath();
+      Path path = LoggingBuilder.LOGGING.build(getApplicationFullName(keys.getProperty(KEY_APPLICATION_TITLE, Strings.EMPTY))).getPath();
       if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS) || !PropertiesSupport.CACHE.check()) {
-        Files.copy(FxApplication.class.getResourceAsStream(LOGGING_PROPERTIES), path, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(FxApplication.class.getResourceAsStream(LoggingBuilder.LOGGING.fileName()),
+            path, StandardCopyOption.REPLACE_EXISTING);
       }
       System.setProperty("java.util.logging.config.file", path.toAbsolutePath().toString());
       Logger.getLogger(FxApplication.class.getName()).log(Level.INFO, path.toAbsolutePath().toString());

@@ -13,7 +13,7 @@
     <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:3.0.2" level="project" />
     <orderEntry type="library" name="Gradle: org.scream3r:jssc:2.8.0" level="project" />
-    <orderEntry type="library" name="Gradle: org.testng:testng:7.0.0-beta1" level="project" />
+    <orderEntry type="library" name="Gradle: org.testng:testng:7.0.0-beta3" level="project" />
     <orderEntry type="library" name="Gradle: tec.uom:uom-se:1.0.9" level="project" />
     <orderEntry type="library" name="Gradle: org.glassfish:javax.json:1.1.4" level="project" />
     <orderEntry type="library" name="Gradle: com.beust:jcommander:1.72" level="project" />

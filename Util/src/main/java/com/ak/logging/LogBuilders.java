@@ -1,7 +1,5 @@
-package com.ak.comm.logging;
+package com.ak.logging;
 
-import com.ak.logging.LocalFileHandler;
-import com.ak.logging.LogPathBuilder;
 import com.ak.util.LocalIO;
 import com.ak.util.Strings;
 
@@ -22,10 +20,9 @@ public enum LogBuilders {
   CONVERTER_FILE("converterFileLog") {
     @Override
     public LocalIO build(String fileName) {
-      return newInstance().fileName(fileName).addPath(CONVERTER_FILE.directory).addPathWithDate().build();
+      return newInstance().fileName(fileName).addPath(CONVERTER_FILE.directory).build();
     }
   };
-
 
   private final String directory;
 

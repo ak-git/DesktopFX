@@ -1,4 +1,4 @@
-package com.ak.comm.logging;
+package com.ak.logging;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -41,6 +41,6 @@ public class LogBuildersTest {
         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
     channel.write(ByteBuffer.wrap(LogBuildersTest.class.getName().getBytes(Charset.defaultCharset())));
     channel.close();
-    Files.deleteIfExists(path);
+    Assert.assertTrue(Files.deleteIfExists(path));
   }
 }
