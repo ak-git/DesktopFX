@@ -171,9 +171,9 @@ public class Resistance2LayerTest {
       double k = Math.min(Math.max(p[0], -1), 1);
       double Lh = p[1];
       double subLogApparentPredicted = Arrays.stream(systems)
-          .mapToDouble(system -> new Log1pApparent2Rho(system).value(k, Lh)).reduce(subtract).orElseThrow();
+          .mapToDouble(system -> new Log1pApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
       double subLogDiffPredicted = Arrays.stream(systems)
-          .mapToDouble(system -> new LogDerivativeApparent2Rho(system).value(k, Lh)).reduce(subtract).orElseThrow();
+          .mapToDouble(system -> new LogDerivativeApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
       Inequality inequality = Inequality.absolute();
       inequality.applyAsDouble(subLogApparent, subLogApparentPredicted);
       inequality.applyAsDouble(subLogDiff, subLogDiffPredicted);

@@ -6,10 +6,12 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import com.ak.numbers.CoefficientsUtils;
+
 import static java.lang.StrictMath.hypot;
 
 class Layers {
-  static final int SUM_LIMIT = 1024 * 8;
+  private static final int SUM_LIMIT = 1024 * 8;
 
   private Layers() {
   }
@@ -36,5 +38,24 @@ class Layers {
 
   static IntToDoubleFunction denominator(@Nonnegative double r, @Nonnegative double h) {
     return n -> hypot(r, 2.0 * n * h);
+  }
+
+  static double[] qn(@Nonnegative int p1, @Nonnegative int p2mp1, double k12, double k23) {
+    if (p1 < 1) {
+      throw new IllegalArgumentException(String.format("p1 = %d < 0", p1));
+    }
+    int p2 = p2mp1 + p1;
+
+    double[] bNum = new double[p2 + 1];
+    bNum[p1] += k12;
+    bNum[p2] += k23;
+
+    double[] aDen = new double[p2 + 1];
+    aDen[0] = 1;
+    aDen[p1] -= k12;
+    aDen[p2] -= k23;
+    aDen[p2 - p1] += k12 * k23;
+
+    return CoefficientsUtils.serialize(bNum, aDen, SUM_LIMIT + 1);
   }
 }
