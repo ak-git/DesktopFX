@@ -24,7 +24,7 @@ final class Potential3Layer extends AbstractPotentialLayer {
   public double value(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double rho3, @Nonnegative int p1, @Nonnegative int p2mp1) {
     double k12 = Layers.getK12(rho1, rho2);
     double k23 = Layers.getK12(rho2, rho3);
-    double[] q = Layers.qn(p1, p2mp1, k12, k23);
+    double[] q = Layers.qn(k12, k23, p1, p2mp1);
     return value(rho1, r -> (1.0 / r + 2.0 * Layers.sum(n -> q[n], Layers.denominator(r, hStep))));
   }
 }

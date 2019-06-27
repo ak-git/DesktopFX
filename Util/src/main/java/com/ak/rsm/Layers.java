@@ -40,7 +40,7 @@ class Layers {
     return n -> hypot(r, 2.0 * n * h);
   }
 
-  static double[] qn(@Nonnegative int p1, @Nonnegative int p2mp1, double k12, double k23) {
+  static double[] qn(double k12, double k23, @Nonnegative int p1, @Nonnegative int p2mp1) {
     if (p1 < 1) {
       throw new IllegalArgumentException(String.format("p1 = %d < 0", p1));
     }

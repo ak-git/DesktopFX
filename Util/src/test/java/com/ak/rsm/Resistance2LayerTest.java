@@ -103,7 +103,7 @@ public class Resistance2LayerTest {
   }
 
   @Test(dataProvider = "layer-model")
-  public static void testLayer(double[] rho, double hmm, double smm, double lmm, double rOhm) {
+  public static void testLayer(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MILLI(METRE));
     Assert.assertEquals(new Resistance2Layer(system).value(rho[0], rho[1], Metrics.fromMilli(hmm)), rOhm, 0.001);
   }

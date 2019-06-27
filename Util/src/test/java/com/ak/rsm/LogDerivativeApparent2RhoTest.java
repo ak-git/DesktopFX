@@ -2,6 +2,7 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.util.Metrics;
@@ -48,7 +49,7 @@ public class LogDerivativeApparent2RhoTest {
   }
 
   @Test(dataProvider = "waterDynamicParameters2")
-  public static void testValue(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rho, double h) {
+  public static void testValue(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rho, @Nonnegative double h) {
     double dh = Metrics.fromMilli(0.01);
     double logExpected = Arrays.stream(systems).mapToDouble(system -> {
       TrivariateFunction resistance2Layer = new Resistance2Layer(system);
