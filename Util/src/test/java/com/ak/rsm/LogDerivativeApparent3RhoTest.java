@@ -49,12 +49,11 @@ public class LogDerivativeApparent3RhoTest {
 
   @Test(dataProvider = "waterDynamicParameters3")
   public static void testValue(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rho, @Nonnegative double h, @Nonnegative int[] p) {
-    int dh = 1;
     double logExpected = Arrays.stream(systems).mapToDouble(system -> {
       Resistance3Layer resistance3Layer = new Resistance3Layer(system, h);
       return StrictMath.log(
           Math.abs(
-              (resistance3Layer.value(rho[0], rho[1], rho[2], p[0] + dh, p[1] + dh) - resistance3Layer.value(rho[0], rho[1], rho[2], p[0], p[1])) / (h * dh)
+              (resistance3Layer.value(rho[0], rho[1], rho[2], p[0] + 1, p[1] + 1) - resistance3Layer.value(rho[0], rho[1], rho[2], p[0], p[1])) / h
           )
       );
     }).reduce((left, right) -> left - right).orElseThrow();

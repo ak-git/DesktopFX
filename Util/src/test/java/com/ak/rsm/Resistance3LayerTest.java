@@ -122,6 +122,21 @@ public class Resistance3LayerTest {
             new double[] {16.821, 32.383, 32.383, 9.118},
             -Metrics.fromMilli(10.0 / 200.0)
         },
+        {
+            new TetrapolarSystem[][] {
+                new TetrapolarSystem[] {
+                    new TetrapolarSystem(7.0, 21.0, MILLI(METRE)),
+                    new TetrapolarSystem(35.0, 21.0, MILLI(METRE)),
+                },
+                new TetrapolarSystem[] {
+                    new TetrapolarSystem(21.0, 35.0, MILLI(METRE)),
+                    new TetrapolarSystem(7.0, 35.0, MILLI(METRE)),
+                },
+            },
+            new double[] {88.81, 141.1, 141.1, 34.58},
+            new double[] {88.81 - 0.04, 141.1 - 0.06, 141.1 - 0.06, 34.58 - 0.03},
+            -Metrics.fromMilli(0.1)
+        },
     };
   }
 
@@ -133,7 +148,7 @@ public class Resistance3LayerTest {
     double[] subLogDiff = IntStream.range(0, systems.length).mapToDouble(j -> IntStream.range(0, systems[j].length)
         .mapToDouble(i -> log(Math.abs((rOhmsAfter[j * 2 + i] - rOhmsBefore[j * 2 + i]) / dh))).reduce(subtract).orElseThrow()).toArray();
 
-    double h = Metrics.fromMilli(1);
+    double h = Metrics.fromMilli(0.1);
     MultivariateFunction multivariateFunction = p -> {
       double k12 = Math.min(Math.max(p[0], -1), 1);
       double k23 = Math.min(Math.max(p[1], -1), 1);
@@ -144,7 +159,19 @@ public class Resistance3LayerTest {
           .mapToDouble(system -> new Log1pApparent3Rho(system.sToL(), system.Lh(h)).value(k12, k23, p1, p2mp1)).reduce(subtract).orElseThrow()).toArray();
 
       double[] subLogDiffPredicted = Arrays.stream(systems).mapToDouble(s -> Arrays.stream(s)
-          .mapToDouble(system -> new LogDerivativeApparent3Rho(system.sToL(), system.Lh(h)).value(k12, k23, p1, p2mp1)).reduce(subtract).orElseThrow()).toArray();
+          .mapToDouble(system -> {
+            Resistance3Layer resistance3Layer = new Resistance3Layer(system, h);
+            double rho1 = 1.0;
+            double rho2 = rho1 / Layers.getRho1ToRho2(k12);
+            double rho3 = rho2 / Layers.getRho1ToRho2(k23);
+            return log(
+                Math.abs(
+                    (resistance3Layer.value(rho1, rho2, rho3, p1 + 1, p2mp1 + 1) -
+                        resistance3Layer.value(rho1, rho2, rho3, p1, p2mp1)
+                    ) / (h)
+                )
+            );
+          }).reduce(subtract).orElseThrow()).toArray();
 
       Inequality inequality = Inequality.absolute();
       inequality.applyAsDouble(subLogApparent, i -> subLogApparentPredicted[i]);

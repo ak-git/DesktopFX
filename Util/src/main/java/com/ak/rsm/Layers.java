@@ -31,6 +31,14 @@ class Layers {
     }
   }
 
+  static double getRho1ToRho2(double k) {
+    k = Math.max(-1.0, Math.min(k, 1.0));
+    if (Double.compare(k, -1.0) == 0) {
+      return Double.POSITIVE_INFINITY;
+    }
+    return (1.0 - k) / (1.0 + k);
+  }
+
   static double sum(@Nonnull IntToDoubleFunction nominator, @Nonnull IntToDoubleFunction denominator) {
     return IntStream.rangeClosed(1, SUM_LIMIT).unordered().parallel()
         .mapToDouble(n -> nominator.applyAsDouble(n) / denominator.applyAsDouble(n)).sum();
