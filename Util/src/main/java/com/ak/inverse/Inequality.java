@@ -2,14 +2,13 @@ package com.ak.inverse;
 
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleSupplier;
-import java.util.function.IntToDoubleFunction;
 import java.util.function.ToDoubleBiFunction;
 
 import javax.annotation.Nonnull;
 
 import static java.lang.Math.abs;
 
-public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, ToDoubleBiFunction<double[], IntToDoubleFunction> {
+public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, ToDoubleBiFunction<double[], double[]> {
   private static final DoubleBinaryOperator L2_NORM = StrictMath::hypot;
   private static final DoubleBinaryOperator EXPM = (measured, predicted) -> StrictMath.expm1(abs(measured)) + StrictMath.expm1(abs(predicted));
   private static final DoubleBinaryOperator LOG1P = (measured, predicted) -> abs(StrictMath.log1p(abs(measured)) - StrictMath.log1p(abs(predicted)));
@@ -52,9 +51,9 @@ public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, T
   }
 
   @Override
-  public double applyAsDouble(@Nonnull double[] measured, @Nonnull IntToDoubleFunction selector) {
+  public double applyAsDouble(@Nonnull double[] measured, @Nonnull double[] predicted) {
     for (int i = 0; i < measured.length; i++) {
-      applyAsDouble(measured[i], selector.applyAsDouble(i));
+      applyAsDouble(measured[i], predicted[i]);
     }
     return getAsDouble();
   }

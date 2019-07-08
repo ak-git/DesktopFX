@@ -42,7 +42,10 @@ public class InequalityTest {
     Assert.assertEquals(inequality.applyAsDouble(-1.0, -pow(Math.E, 3.0)), 2.35, 0.01);
     Assert.assertEquals(inequality.getAsDouble(), 2.35, 0.01);
     Assert.assertEquals(inequality.applyAsDouble(pow(Math.E, 4.0), 1.0), 4.07, 0.01);
-    Assert.assertEquals(inequality.applyAsDouble(new double[] {pow(Math.E, 8.0), pow(Math.E, 8.0), pow(Math.E, 4.0)}, i -> 1.0), 11.59, 0.01);
+    Assert.assertEquals(inequality.applyAsDouble(
+        new double[] {pow(Math.E, 8.0), pow(Math.E, 8.0), pow(Math.E, 4.0)},
+        new double[] {1.0, 1.0, 1.0}
+    ), 11.59, 0.01);
     Assert.assertEquals(inequality.applyAsDouble(0.0, 0.0), 11.59, 0.01);
     Assert.assertEquals(inequality.applyAsDouble(-1.0, 0.0), 11.61, 0.01);
   }
@@ -53,7 +56,10 @@ public class InequalityTest {
     Assert.assertEquals(inequality.applyAsDouble(1.0, pow(Math.E, 3.0)), 3.0, 0.01);
     Assert.assertEquals(inequality.getAsDouble(), 3.0, 0.01);
     Assert.assertEquals(inequality.applyAsDouble(pow(Math.E, 4.0), 1.0), 5.0, 0.01);
-    Assert.assertEquals(inequality.applyAsDouble(new double[] {pow(Math.E, 8.0), pow(Math.E, 8.0), pow(Math.E, 4.0)}, i -> 1.0), 13.0, 0.01);
+    Assert.assertEquals(inequality.applyAsDouble(
+        new double[] {pow(Math.E, 8.0), pow(Math.E, 8.0), pow(Math.E, 4.0)},
+        new double[] {1.0, 1.0, 1.0}
+    ), 13.0, 0.01);
     Assert.assertEquals(inequality.applyAsDouble(0.0, 0.0), Double.NaN, 0.01);
     Assert.assertEquals(inequality.applyAsDouble(1.0, 0.0), Double.POSITIVE_INFINITY, 0.01);
   }
@@ -64,7 +70,7 @@ public class InequalityTest {
     Assert.assertEquals(inequality.applyAsDouble(-12, -3), 3.0, 0.01);
     Assert.assertEquals(inequality.getAsDouble(), 3.0, 0.01);
     Assert.assertEquals(inequality.applyAsDouble(20, 4), 5.0, 0.01);
-    Assert.assertEquals(inequality.applyAsDouble(new double[] {8.0 + 1.0, 8.0 + 1.0, 4.0 + 1.0}, i -> 1.0), 13.0, 0.01);
+    Assert.assertEquals(inequality.applyAsDouble(new double[] {8.0 + 1.0, 8.0 + 1.0, 4.0 + 1.0}, new double[] {1.0, 1.0, 1.0}), 13.0, 0.01);
     Assert.assertEquals(inequality.applyAsDouble(0.0, 0.0), Double.NaN, 0.01);
     Assert.assertEquals(inequality.applyAsDouble(1.0, 0.0), Double.POSITIVE_INFINITY, 0.01);
   }
@@ -75,7 +81,7 @@ public class InequalityTest {
     Assert.assertEquals(inequality.applyAsDouble(0.0, -3.0), 3.0, 0.01);
     Assert.assertEquals(inequality.getAsDouble(), 3.0, 0.01);
     Assert.assertEquals(inequality.applyAsDouble(4.0, 0.0), 5.0, 0.01);
-    Assert.assertEquals(inequality.applyAsDouble(new double[] {-1.0, 2.0}, i -> new double[] {-1.0, 2.0}[i]), 5.0, 0.01);
-    Assert.assertEquals(inequality.applyAsDouble(new double[] {8.0, 0.0, 0.0}, i -> new double[] {0.0, 8.0, 4.0}[i]), 13.0, 0.01);
+    Assert.assertEquals(inequality.applyAsDouble(new double[] {-1.0, 2.0}, new double[] {-1.0, 2.0}), 5.0, 0.01);
+    Assert.assertEquals(inequality.applyAsDouble(new double[] {8.0, 0.0, 0.0}, new double[] {0.0, 8.0, 4.0}), 13.0, 0.01);
   }
 }

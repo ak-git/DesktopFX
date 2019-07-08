@@ -131,8 +131,8 @@ public class Resistance3LayerTest {
           .mapToDouble(system -> new LogDerivativeApparent3Rho(system.sToL(), system.Lh(h)).value(k12, k23, p1, p2mp1)).reduce(subtract).orElseThrow()).toArray();
 
       Inequality inequality = Inequality.absolute();
-      inequality.applyAsDouble(subLogApparent, i -> subLogApparentPredicted[i]);
-      inequality.applyAsDouble(subLogDiff, i -> subLogDiffPredicted[i]);
+      inequality.applyAsDouble(subLogApparent, subLogApparentPredicted);
+      inequality.applyAsDouble(subLogDiff, subLogDiffPredicted);
       return inequality.getAsDouble();
     };
 

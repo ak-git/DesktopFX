@@ -116,7 +116,7 @@ public class Resistance2LayerTest {
         new double[] {1000.0, 1000.0, Metrics.fromMilli(100.0)}
     );
     PointValuePair pair = SimplexTest.optimizeCMAES(point ->
-            Inequality.absolute().applyAsDouble(rOhms, i -> predicted[i].value(point[0], point[1], point[2])),
+            Inequality.absolute().applyAsDouble(rOhms, Arrays.stream(predicted).mapToDouble(p -> p.value(point[0], point[1], point[2])).toArray()),
         bounds, new double[] {0.01, 0.01, Metrics.fromMilli(0.1)});
     Logger.getAnonymousLogger().warning(toString3(pair, systems.length));
   }
@@ -128,11 +128,13 @@ public class Resistance2LayerTest {
 
     DoubleSummaryStatistics apparent = IntStream.range(0, systems.length).mapToDouble(i -> new Resistance1Layer(systems[i]).getApparent(rOhmsBefore[i])).summaryStatistics();
 
-    DoubleFunction<PointValuePair> rho1rho2 = h -> SimplexTest.optimizeNelderMead(rho -> {
-      double rho1 = rho[0];
-      double rho2 = rho[1];
-      return Inequality.proportional().applyAsDouble(rOhmsBefore, i -> predicted[i].value(rho1, rho2, h));
-    }, new double[] {apparent.getMin(), apparent.getMax()}, new double[] {0.1, 0.1});
+    DoubleFunction<PointValuePair> rho1rho2 = h ->
+        SimplexTest.optimizeNelderMead(rho ->
+                Inequality.proportional().applyAsDouble(rOhmsBefore,
+                    Arrays.stream(predicted).mapToDouble(p -> p.value(rho[0], rho[1], h)).toArray()
+                ),
+            new double[] {apparent.getMin(), apparent.getMax()}, new double[] {0.1, 0.1}
+        );
 
     PointValuePair hPoint = SimplexTest.optimizeNelderMead(p -> {
       double h = p[0];
@@ -143,7 +145,7 @@ public class Resistance2LayerTest {
       double rho1 = pair.getPoint()[0];
       double rho2 = pair.getPoint()[1];
       Inequality inequality = Inequality.absolute();
-      inequality.applyAsDouble(dH, i -> predictedDiff[i].value(rho1, rho2, h));
+      inequality.applyAsDouble(dH, Arrays.stream(predictedDiff).mapToDouble(pd -> pd.value(rho1, rho2, h)).toArray());
       Logger.getAnonymousLogger().config(
           String.format("%s1 = %.3f, %s2 = %.3f, h = %.3f mm, e = %.6f, eh = %.6f", Strings.RHO, rho1, Strings.RHO, rho2, h * 1000, pair.getValue(), inequality.getAsDouble())
       );
