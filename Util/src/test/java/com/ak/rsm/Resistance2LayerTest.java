@@ -170,16 +170,21 @@ public class Resistance2LayerTest {
         .mapToDouble(i -> log(Math.abs((rOhmsAfter[i] - rOhmsBefore[i]) / dh))).reduce(subtract).orElseThrow();
 
     MultivariateFunction multivariateFunction = p -> {
-      double k = Math.min(Math.max(p[0], -1), 1);
+      double k = p[0];
       double Lh = p[1];
-      double subLogApparentPredicted = Arrays.stream(systems)
-          .mapToDouble(system -> new Log1pApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
-      double subLogDiffPredicted = Arrays.stream(systems)
-          .mapToDouble(system -> new LogDerivativeApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
-      Inequality inequality = Inequality.absolute();
-      inequality.applyAsDouble(subLogApparent, subLogApparentPredicted);
-      inequality.applyAsDouble(subLogDiff, subLogDiffPredicted);
-      return inequality.getAsDouble();
+      if (k > 1.0 || k < -1.0 || Lh <= 0) {
+        return Double.POSITIVE_INFINITY;
+      }
+      else {
+        double subLogApparentPredicted = Arrays.stream(systems)
+            .mapToDouble(system -> new Log1pApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
+        double subLogDiffPredicted = Arrays.stream(systems)
+            .mapToDouble(system -> new LogDerivativeApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
+        Inequality inequality = Inequality.absolute();
+        inequality.applyAsDouble(subLogApparent, subLogApparentPredicted);
+        inequality.applyAsDouble(subLogDiff, subLogDiffPredicted);
+        return inequality.getAsDouble();
+      }
     };
 
     PointValuePair p = SimplexTest.optimizeNelderMead(multivariateFunction,
