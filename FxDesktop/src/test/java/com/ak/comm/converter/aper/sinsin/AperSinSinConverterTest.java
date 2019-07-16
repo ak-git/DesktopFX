@@ -36,7 +36,7 @@ public final class AperSinSinConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {56424, 301742, 1431, 51698, 276467}},
+            new int[] {55732, 301742, 1271, 51064, 276467}},
     };
   }
 

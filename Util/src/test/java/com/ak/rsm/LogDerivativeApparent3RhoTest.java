@@ -53,7 +53,7 @@ public class LogDerivativeApparent3RhoTest {
       Resistance3Layer resistance3Layer = new Resistance3Layer(system, h);
       return StrictMath.log(
           Math.abs(
-              (resistance3Layer.value(rho[0], rho[1], rho[2], p[0] + 1, p[1] + 1) - resistance3Layer.value(rho[0], rho[1], rho[2], p[0], p[1])) / h
+              (resistance3Layer.value(rho[0], rho[1], rho[2], p[0] + 1, p[1]) - resistance3Layer.value(rho[0], rho[1], rho[2], p[0], p[1])) / h
           )
       );
     }).reduce((left, right) -> left - right).orElseThrow();
