@@ -5,7 +5,7 @@
       <configuration />
     </facet>
   </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_10">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_11">
     <output url="file://$MODULE_DIR$/../../../FxDesktop/out/production/classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../FxDesktop/src/main">
@@ -15,22 +15,29 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:3.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-fxml:mac:11.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-controls:mac:11.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-controls:11.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-graphics:mac:11.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-graphics:11.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-base:mac:11.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-base:11.0.2" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-context:5.1.8.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
     <orderEntry type="library" name="Gradle: tec.uom:uom-se:1.0.10" level="project" />
     <orderEntry type="library" name="Gradle: org.glassfish:javax.json:1.1.4" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.scream3r:jssc:2.8.0" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-aop:5.1.8.RELEASE" level="project" />
-    <orderEntry type="module" module-name="Util_main" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-beans:5.1.8.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-expression:5.1.8.RELEASE" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.apache.commons:commons-math3:3.6.1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.scream3r:jssc:2.8.0" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-core:5.1.8.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: tec.uom.lib:uom-lib-common:1.0.3" level="project" />
     <orderEntry type="library" name="Gradle: javax.measure:unit-api:1.0" level="project" />
-    <orderEntry type="module" module-name="Util_main" />
-    <orderEntry type="module" module-name="FxCore_main" />
-    <orderEntry type="module" module-name="Communication_main" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-jcl:5.1.8.RELEASE" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.apache.commons:commons-math3:3.6.1" level="project" />
+    <orderEntry type="module" module-name="Util_main" />
+    <orderEntry type="module" module-name="Util_main" />
+    <orderEntry type="module" module-name="Communication_main" />
+    <orderEntry type="module" module-name="FxCore_main" />
   </component>
 </module>
