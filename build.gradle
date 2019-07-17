@@ -8,13 +8,13 @@ ext.projectIds = ['java': JavaVersion.VERSION_11]
 
 wrapper {
     description 'Setup the Gradle wrapper'
-    gradleVersion = '5.3'
+    gradleVersion = "5.5.1"
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '2019.1'
+    version = '2019.3'
     apply plugin: 'idea'
 }
 
@@ -42,7 +42,7 @@ subprojects {
 
     dependencies {
         implementation 'com.google.code.findbugs:jsr305:3.0.2'
-        testImplementation 'org.testng:testng:7.0.0-beta3'
+        testImplementation 'org.testng:testng:7.0.0-beta7'
     }
 
     test {
@@ -68,7 +68,7 @@ project(':Util') {
     }
 
     dependencies {
-        implementation 'tec.uom:uom-se:1.0.9'
+        implementation 'tec.uom:uom-se:1.0.10'
         implementation 'org.glassfish:javax.json:1.1.4'
         implementation 'org.apache.commons:commons-math3:3.6.1'
     }
@@ -115,7 +115,7 @@ project(':FxCore') {
 
     dependencies {
         api project(':Util')
-        implementation 'org.springframework:spring-context:5.1.5.RELEASE'
+        api 'org.springframework:spring-context:5.1.8.RELEASE'
     }
 }
 
@@ -155,9 +155,9 @@ project(':FxDesktop') {
         implementation project(':FxCore')
         implementation project(':Communication')
 
-        implementation 'org.springframework:spring-context:5.1.5.RELEASE'
+        implementation 'org.springframework:spring-context:5.1.8.RELEASE'
         implementation 'javax.inject:javax.inject:1'
-        implementation 'tec.uom:uom-se:1.0.9'
+        implementation 'tec.uom:uom-se:1.0.10'
         implementation 'org.glassfish:javax.json:1.1.4'
     }
 

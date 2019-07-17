@@ -1,66 +1,20 @@
 package com.ak.rsm;
 
-import java.io.IOException;
-import java.util.stream.DoubleStream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.measure.Quantity;
-import javax.measure.Unit;
-import javax.measure.quantity.ElectricResistance;
-import javax.measure.quantity.Length;
-
-import com.ak.util.LineFileBuilder;
+import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import tec.uom.se.quantity.Quantities;
 
 import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
-import static tec.uom.se.unit.Units.OHM;
 
 public class TetrapolarSystemTest {
   private TetrapolarSystemTest() {
   }
 
-  @DataProvider(name = "system-apparent")
-  public static Object[][] systemApparent() {
-    return new Object[][] {
-        {new TetrapolarSystem(0.030, 0.06, METRE), 1.0, Math.PI * 9.0 / 400.0},
-        {new TetrapolarSystem(30.0, 90.0, MILLI(METRE)), 1.0 / Math.PI, 3.0 / 50.0},
-        {new TetrapolarSystem(40.0, 80.0, MILLI(METRE)), 1.0 / Math.PI, 3.0 / 100.0},
-    };
-  }
-
-  @Test(dataProvider = "system-apparent")
-  public static void testApparentResistivity(TetrapolarSystem system, double resistance,
-                                             double specificResistance) {
-    Assert.assertEquals(system.getApparent(resistance), specificResistance, 1.0e-6);
-  }
-
-  @DataProvider(name = "asymmetric-apparent")
-  public static Object[][] systemApparent2() {
-    return new Object[][] {
-        {7.0, 35.0, 7.0, Quantities.getQuantity(103.6, OHM), 7.811},
-        {20.0, 80.0, 10.0, Quantities.getQuantity(1.0 / Math.PI / 2.0, OHM), 3.0 / 100.0},
-        {40.0, 80.0, 0.0, Quantities.getQuantity(1.0 / Math.PI, OHM), 3.0 / 100.0}
-    };
-  }
-
-  @Test(dataProvider = "asymmetric-apparent")
-  public static void testApparentResistivity2(double smm, double lmm, double centerShift,
-                                              @Nonnull Quantity<ElectricResistance> resistance, double specificResistance) {
-    TetrapolarSystem sP = new TetrapolarSystem(smm + centerShift * 2, lmm, MILLI(METRE));
-    TetrapolarSystem sM = new TetrapolarSystem(smm - centerShift * 2, lmm, MILLI(METRE));
-    double rho = Math.PI * resistance.to(OHM).getValue().doubleValue() /
-        (1.0 / sP.radiusMinus() - 1.0 / sP.radiusPlus() + 1.0 / sM.radiusMinus() - 1.0 / sM.radiusPlus());
-    Assert.assertEquals(rho, specificResistance, 1.0e-3);
-  }
-
   @DataProvider(name = "tetrapolar-systems")
   public static Object[][] tetrapolarSystems() {
-    TetrapolarSystem ts = new TetrapolarSystem(1.0, 2.0, METRE);
+    TetrapolarSystem ts = new TetrapolarSystem(2.0, 1.0, METRE);
     return new Object[][] {
         {ts, ts, true},
         {ts, new TetrapolarSystem(1000.0, 2000.0, MILLI(METRE)), true},
@@ -76,52 +30,21 @@ public class TetrapolarSystemTest {
     Assert.assertNotEquals(new Object(), system1);
   }
 
-  @DataProvider(name = "tetrapolar-systems-with-error")
-  public static Object[][] tetrapolarSystemsWithError() {
-    return new Object[][] {
-        {2.0, 3.0, METRE, Quantities.getQuantity(10.0, MILLI(METRE))},
-        {2000.0, 3000.0, MILLI(METRE), Quantities.getQuantity(0.1, METRE)},
-    };
-  }
-
-  @Test(dataProvider = "tetrapolar-systems-with-error")
-  public static void testWithError(@Nonnegative double sPU, @Nonnegative double lCC, @Nonnull Unit<Length> unit, @Nonnull Quantity<Length> quantity) {
-    TetrapolarSystem[] systems = new TetrapolarSystem(sPU, lCC, unit).newWithError(quantity.getValue().doubleValue(), quantity.getUnit());
-    double error = quantity.to(unit).getValue().doubleValue();
-    Assert.assertEquals(systems[0], new TetrapolarSystem(sPU - error, lCC + error, unit));
-    Assert.assertEquals(systems[1], new TetrapolarSystem(sPU + error, lCC - error, unit));
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public static void testInvalidConstructorError() {
-    new TetrapolarSystem(1.0, 2.0, METRE).newWithError(0.0, METRE);
-  }
-
   @Test
   public static void testNotEquals() {
     Assert.assertNotEquals(new TetrapolarSystem(1.0, 2.0, METRE), new Object());
     Assert.assertNotEquals(new Object(), new TetrapolarSystem(1.0, 2.0, METRE));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public static void testInvalidConstructor() {
-    new TetrapolarSystem(2.0, 1.0, METRE);
+  @Test
+  public static void testStoL() {
+    Assert.assertEquals(new TetrapolarSystem(1.0, 2.0, METRE).sToL(), 0.5);
+    Assert.assertEquals(new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).sToL(), 2.0);
   }
 
-  @Test(enabled = false)
-  public static void testApparent() {
-    DoubleStream.of(1.0 / 3.0, 0.5).forEachOrdered(sToL -> {
-      try {
-        LineFileBuilder.of("%.0f %.0f %.6f").
-            xRange(1.0, 100.0, 1.0).
-            yRange(1.0, 120.0, 1.0).
-            generate(String.format("Apparent_Rho_At_%.2f.txt", sToL),
-                (r, lmm) -> new TetrapolarSystem(lmm * sToL, lmm, MILLI(METRE)).getApparent(r)
-            );
-      }
-      catch (IOException e) {
-        Assert.fail(e.getMessage(), e);
-      }
-    });
+  @Test
+  public static void testLh() {
+    Assert.assertEquals(new TetrapolarSystem(1.0, 2.0, METRE).Lh(1), 2.0);
+    Assert.assertEquals(new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).Lh(Metrics.fromMilli(2.0)), 0.5);
   }
 }

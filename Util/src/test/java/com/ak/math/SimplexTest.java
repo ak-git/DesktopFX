@@ -1,7 +1,10 @@
 package com.ak.math;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -16,16 +19,15 @@ import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.BOBYQAOptimizer;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.math3.random.MersenneTwister;
+import org.apache.commons.math3.util.Pair;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static java.lang.StrictMath.pow;
-import static org.apache.commons.math3.optim.nonlinear.scalar.noderiv.BOBYQAOptimizer.DEFAULT_STOPPING_RADIUS;
 
 public class SimplexTest {
   private SimplexTest() {
@@ -35,18 +37,40 @@ public class SimplexTest {
   public static void testRosenbrockNelderMeadSimplex() {
     PointValuePair optimum = optimizeNelderMead(new Rosenbrock(), new double[] {0.0, 0.0}, new double[] {0.1, 0.1});
     Assert.assertTrue(optimum.getValue() < 1.0e-6);
-    Assert.assertEquals(optimum.getPoint()[0], 1.0, 1.0e-5);
+    Assert.assertEquals(optimum.getPoint()[0], 1.0, 1.0e-3);
   }
 
   public static PointValuePair optimizeNelderMead(@Nonnull MultivariateFunction function,
                                                   @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
-    return new SimplexOptimizer(-1, 1.0e-8).optimize(new MaxEval(10000), new ObjectiveFunction(function), GoalType.MINIMIZE,
+    return new SimplexOptimizer(1.0e-6, 1.0e-6).optimize(new MaxEval(30000), new ObjectiveFunction(function), GoalType.MINIMIZE,
         new NelderMeadSimplex(initialSteps), new InitialGuess(initialGuess));
+  }
+
+  public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds, @Nonnull double[] initialSteps) {
+    return IntStream.rangeClosed(1, 1 << bounds.getLower().length)
+        .mapToObj(n -> {
+          double[] initialGuess = new double[bounds.getLower().length];
+          for (int i = 0; i < initialGuess.length; i++) {
+            if ((n & (1 << i)) == 0) {
+              initialGuess[i] = bounds.getLower()[i];
+            }
+            else {
+              initialGuess[i] = bounds.getUpper()[i];
+            }
+          }
+          return optimizeCMAES(function, bounds, initialGuess, initialSteps);
+        })
+        .parallel()
+        .peek(p -> Logger.getAnonymousLogger().config(
+            String.format("%s %.6f %n", Arrays.stream(p.getPoint()).mapToObj(value -> String.format("%.3f", value)).collect(Collectors.joining(", ", "[", "]")),
+                p.getValue()))
+        )
+        .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
 
   public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
                                              @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
-    return new CMAESOptimizer(30000, 1.0e-11, true, 0,
+    return IntStream.range(0, 1).mapToObj(value -> new CMAESOptimizer(30000, 1.0e-6, true, 0,
         10, new MersenneTwister(), false, null)
         .optimize(
             new MaxEval(30000),
@@ -56,19 +80,11 @@ public class SimplexTest {
             bounds,
             new CMAESOptimizer.Sigma(initialSteps),
             new CMAESOptimizer.PopulationSize(2 * (4 + (int) (3.0 * StrictMath.log(initialGuess.length))))
-        );
-  }
-
-  public static PointValuePair optimizeBOBYQA(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
-                                              @Nonnull double[] initialGuess, @Nonnegative double initialRadius) {
-    return new BOBYQAOptimizer(2 * initialGuess.length + 1, initialRadius, DEFAULT_STOPPING_RADIUS)
-        .optimize(
-            new MaxEval(30000),
-            new ObjectiveFunction(function),
-            GoalType.MINIMIZE,
-            new InitialGuess(initialGuess),
-            bounds
-        );
+        )).parallel()
+        .peek(p -> Logger.getAnonymousLogger().config(
+            String.format("%s %.6f %n", Arrays.stream(p.getPoint()).mapToObj(value -> String.format("%.3f", value)).collect(Collectors.joining(", ", "[", "]")),
+                p.getValue()))
+        ).min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
 
   @Test(invocationCount = 10)
@@ -82,25 +98,9 @@ public class SimplexTest {
     PointValuePair result = optimizeCMAES(new Rosenbrock(), new SimpleBounds(boundaries[0], boundaries[1]), startPoint, inSigma);
 
     Logger.getAnonymousLogger().finest("sol=" + Arrays.toString(result.getPoint()));
-    Assert.assertEquals(expected.getValue(), result.getValue(), 1.0e-10);
+    Assert.assertEquals(expected.getValue(), result.getValue(), 1.0e-6);
     for (int i = 0; i < DIM; i++) {
-      Assert.assertEquals(expected.getPoint()[i], result.getPoint()[i], 1.0e-5);
-    }
-  }
-
-  @Test
-  public void testConstrainedRosenbrockBOBYQAOptimizer() {
-    int DIM = 2;
-    double[] startPoint = point(DIM, 0.1);
-    double[][] boundaries = boundaries(DIM, -(Math.random() + 0.5), 2.0 * (Math.random() + 0.5));
-    PointValuePair expected = new PointValuePair(point(DIM, 1.0), 0.0);
-
-    PointValuePair result = optimizeBOBYQA(new Rosenbrock(), new SimpleBounds(boundaries[0], boundaries[1]), startPoint, 0.1);
-
-    Logger.getAnonymousLogger().finest("sol=" + Arrays.toString(result.getPoint()));
-    Assert.assertEquals(expected.getValue(), result.getValue(), 1.0e-13);
-    for (int i = 0; i < DIM; i++) {
-      Assert.assertEquals(expected.getPoint()[i], result.getPoint()[i], 1.0e-6);
+      Assert.assertEquals(expected.getPoint()[i], result.getPoint()[i], 1.0e-2);
     }
   }
 
