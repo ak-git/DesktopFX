@@ -5,12 +5,12 @@ plugins {
 ext.projectIds = ['java': JavaVersion.VERSION_1_10]
 
 wrapper {
-    gradleVersion = "5.4.1"
+    gradleVersion = "5.5.1"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '2019.2'
+    version = '2019.3'
     apply plugin: 'idea'
 }
 
@@ -38,7 +38,7 @@ subprojects {
 
     dependencies {
         implementation 'com.google.code.findbugs:jsr305:3.0.2'
-        testImplementation 'org.testng:testng:7.0.0-beta3'
+        testImplementation 'org.testng:testng:7.0.0-beta7'
     }
 
     test {
