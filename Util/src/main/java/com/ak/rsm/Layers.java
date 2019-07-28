@@ -11,7 +11,7 @@ import com.ak.numbers.CoefficientsUtils;
 import static java.lang.StrictMath.hypot;
 
 class Layers {
-  private static final int SUM_LIMIT = 1024 * 8;
+  private static final int SUM_LIMIT = 1024 * 512;
 
   private Layers() {
   }
