@@ -6,7 +6,7 @@ public enum PropertiesSupport {
   CACHE {
     @Override
     public boolean check() {
-      return Boolean.valueOf(value());
+      return Boolean.parseBoolean(value());
     }
 
     @Override
