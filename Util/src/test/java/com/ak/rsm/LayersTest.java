@@ -1,6 +1,9 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
+
 import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -38,7 +41,34 @@ public class LayersTest {
   }
 
   @Test(dataProvider = "rho")
-  public void testGetRho1ToRho2(double k, @Nonnegative double rho1ToRho2) {
+  public static void testGetRho1ToRho2(double k, @Nonnegative double rho1ToRho2) {
     Assert.assertEquals(Layers.getRho1ToRho2(k), rho1ToRho2, 0.001);
+  }
+
+
+  @DataProvider(name = "qn")
+  public static Object[][] qn() {
+    return new Object[][] {{
+        0, 0, 1, 4, new double[] {0.0, 0.0, 0.0, 0.0, 0.0}
+    }, {
+        -1, 1, 1, 0, new double[] {Double.NaN}
+    }, {
+        -1, 1, 1, 1, new double[] {-1.0, 1.0}
+    }, {
+        -1, 1, 1, 2, new double[] {-1.0, 1.0, -1.0}
+    }, {
+        -1, 1, 2, 2, new double[] {0.0, -1.0, 0.0, 1.0}
+    }, {
+        -0.5, 0.5, 1, 4, new double[] {-0.5, 0.25, -0.125, 0.0625, 0.34375}
+    }, {
+        0.5, -0.5, 1, 4, new double[] {0.5, 0.25, 0.125, 0.0625, -0.34375}
+    },
+    };
+  }
+
+  @Test(dataProvider = "qn")
+  public static void testQ(double k12, double k23, @Nonnegative int p1, @Nonnegative int p2mp1, @Nonnull double[] expected) {
+    double[] actual = Arrays.copyOfRange(Layers.qn(k12, k23, p1, p2mp1), 1, p1 + p2mp1 + 1);
+    Assert.assertEquals(actual, expected, 1.0e-6, Arrays.toString(actual));
   }
 }
