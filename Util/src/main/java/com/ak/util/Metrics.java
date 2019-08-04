@@ -14,6 +14,10 @@ public enum Metrics {
     return Quantities.getQuantity(mm, MILLI(METRE)).to(METRE).getValue().doubleValue();
   }
 
+  public static double toMilli(double metre) {
+    return Quantities.getQuantity(metre, METRE).to(MILLI(METRE)).getValue().doubleValue();
+  }
+
   public static double fromPercents(double percents) {
     return Quantities.getQuantity(percents, PERCENT).to(ONE).getValue().doubleValue();
   }

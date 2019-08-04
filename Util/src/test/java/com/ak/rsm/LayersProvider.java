@@ -268,6 +268,43 @@ class LayersProvider {
     };
   }
 
+  @DataProvider(name = "dynamicParameters2")
+  public static Object[][] dynamicParameters2() {
+    double e = Metrics.fromMilli(0.0);
+    return new Object[][] {
+        // h = 5 mm
+        {
+            new TetrapolarSystem[] {
+                new TetrapolarSystem(10.0 - e, 30.0 + e, MILLI(METRE)),
+                new TetrapolarSystem(50.0 + e, 30.0 - e, MILLI(METRE)),
+            },
+            new double[] {30.971, 61.860},
+            new double[] {31.278, 62.479},
+            -Metrics.fromMilli(10.0 / 200.0)
+        },
+        // h = 10 mm
+        {
+            new TetrapolarSystem[] {
+                new TetrapolarSystem(10.0 - e, 30.0 + e, MILLI(METRE)),
+                new TetrapolarSystem(50.0 + e, 30.0 - e, MILLI(METRE)),
+            },
+            new double[] {16.761, 32.246},
+            new double[] {16.821, 32.383},
+            -Metrics.fromMilli(10.0 / 200.0)
+        },
+        // h = 15 mm
+        {
+            new TetrapolarSystem[] {
+                new TetrapolarSystem(10.0 - e, 30.0 + e, MILLI(METRE)),
+                new TetrapolarSystem(50.0 + e, 30.0 - e, MILLI(METRE)),
+            },
+            new double[] {13.338, 23.903},
+            new double[] {13.357, 23.953},
+            -Metrics.fromMilli(10.0 / 200.0)
+        },
+    };
+  }
+
   @DataProvider(name = "waterDynamicParameters3")
   public static Object[][] waterDynamicParameters3() {
     return new Object[][] {
