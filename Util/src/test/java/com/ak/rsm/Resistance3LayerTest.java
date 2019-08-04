@@ -80,6 +80,25 @@ public class Resistance3LayerTest {
     Assert.assertEquals(new Resistance3Layer(system, hStepSI).value(rho[0], rho[1], rho[2], p[0], p[1]), rOhm, 0.001, Arrays.toString(rho));
   }
 
+  @DataProvider(name = "layer-model-special")
+  public static Object[][] threeLayerParametersSpecial() {
+    return new Object[][] {
+        {new double[] {10.0, 1.0, 1.0}, Metrics.fromMilli(0.1), new int[] {10, 0}, 10.0, 30.0,
+            new Resistance2Layer(new TetrapolarSystem(10.0, 30.0, MILLI(METRE))).value(10.0, 1.0, Metrics.fromMilli(1))},
+        {new double[] {1.0, 10.0, 1.0}, Metrics.fromMilli(0.1), new int[] {0, 10}, 10.0, 30.0,
+            new Resistance2Layer(new TetrapolarSystem(10.0, 30.0, MILLI(METRE))).value(10.0, 1.0, Metrics.fromMilli(1))},
+        {new double[] {1.0, 1.0, 10.0}, Metrics.fromMilli(0.1), new int[] {0, 0}, 10.0, 30.0,
+            new Resistance1Layer(new TetrapolarSystem(10.0, 30.0, MILLI(METRE))).value(10.0)},
+    };
+  }
+
+  @Test(dataProvider = "layer-model-special")
+  public static void testLayerSpecial(@Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p,
+                                      @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
+    TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MILLI(METRE));
+    Assert.assertEquals(new Resistance3Layer(system, hStepSI).value(rho[0], rho[1], rho[2], p[0], p[1]), rOhm, 0.001, Arrays.toString(rho));
+  }
+
   @Test(enabled = false)
   public static void testContinuous() throws IOException {
     TetrapolarSystem system = new TetrapolarSystem(10.0, 30.0, MILLI(METRE));

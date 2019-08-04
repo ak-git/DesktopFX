@@ -45,13 +45,16 @@ public class LayersTest {
     Assert.assertEquals(Layers.getRho1ToRho2(k), rho1ToRho2, 0.001);
   }
 
-
   @DataProvider(name = "qn")
   public static Object[][] qn() {
     return new Object[][] {{
         0, 0, 1, 4, new double[] {0.0, 0.0, 0.0, 0.0, 0.0}
     }, {
-        -1, 1, 1, 0, new double[] {Double.NaN}
+        -1, 0, 1, 0, new double[] {-1.0}
+    }, {
+        -1, 0.2, 1, 0, new double[] {-1.0}
+    }, {
+        -1, -1, 1, 2, new double[] {-1.0, 1.0, -1.0}
     }, {
         -1, 1, 1, 1, new double[] {-1.0, 1.0}
     }, {
@@ -61,9 +64,8 @@ public class LayersTest {
     }, {
         -0.5, 0.5, 1, 4, new double[] {-0.5, 0.25, -0.125, 0.0625, 0.34375}
     }, {
-        0.5, -0.5, 1, 4, new double[] {0.5, 0.25, 0.125, 0.0625, -0.34375}
-    },
-    };
+        0.5, -0.5, 1, 1, new double[] {0.5, -0.125}
+    }};
   }
 
   @Test(dataProvider = "qn")

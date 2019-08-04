@@ -64,6 +64,12 @@ class Layers {
     aDen[p2] -= k23;
     aDen[p2 - p1] += k12 * k23;
 
-    return CoefficientsUtils.serialize(bNum, aDen, SUM_LIMIT + 1);
+    double[] doubles = CoefficientsUtils.serialize(bNum, aDen, p1 + p2mp1 + 1);
+    double[] q = new double[SUM_LIMIT + 1];
+    System.arraycopy(doubles, 0, q, 0, doubles.length);
+    for (int p2pm = doubles.length; p2pm < q.length; p2pm++) {
+      q[p2pm] = k12 * q[p2pm - p1] + k23 * q[p2pm - p2] - k12 * k23 * q[p2pm - p2 + p1];
+    }
+    return q;
   }
 }
