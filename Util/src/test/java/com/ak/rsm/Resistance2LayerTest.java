@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 import static java.lang.StrictMath.log;
 import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
-import static tec.uom.se.unit.Units.OHM;
 
 public class Resistance2LayerTest {
   private Resistance2LayerTest() {
@@ -206,9 +205,9 @@ public class Resistance2LayerTest {
     double rho2 = rho1 / Layers.getRho1ToRho2(k);
     double h = systems[0].h(Lh);
     Logger.getAnonymousLogger().log(Level.INFO,
-        String.format("%s%s = %.3f %s·m; %s%s = %.3f %s·m; h = %.2f mm",
-            Strings.RHO, Strings.LOW_1, rho1, OHM,
-            Strings.RHO, Strings.LOW_2, rho2, OHM,
+        String.format("%s%s = %.3f %s; %s%s = %.3f %s; h = %.2f mm",
+            Strings.RHO, Strings.LOW_1, rho1, Strings.OHM_METRE,
+            Strings.RHO, Strings.LOW_2, rho2, Strings.OHM_METRE,
             Metrics.toMilli(h)
         )
     );
