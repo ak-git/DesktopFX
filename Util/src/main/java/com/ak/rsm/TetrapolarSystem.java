@@ -39,6 +39,10 @@ final class TetrapolarSystem {
     return lCurrentCarryingSI / h;
   }
 
+  double h(double Lh) {
+    return lCurrentCarryingSI / Lh;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

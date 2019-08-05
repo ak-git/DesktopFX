@@ -1,6 +1,7 @@
 package com.ak.digitalfilter;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nonnegative;
@@ -147,7 +148,7 @@ public class FilterBuilderTest {
         1.5, 1.0
     }, {
         new int[][] {{1, 2}, {3, 4}, {5, 6}},
-        FilterBuilder.of().biOperator(() -> (left, right) -> left + right).buildNoDelay(),
+        FilterBuilder.of().biOperator(() -> Integer::sum).buildNoDelay(),
         new int[][] {{1 + 2}, {3 + 4}, {5 + 6}},
         0.0, 1.0
     }};
@@ -309,7 +310,7 @@ public class FilterBuilderTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "selectedIndexes.*filters.*")
   public static void testInvalidParallel3() {
-    FilterBuilder.parallel(Arrays.asList(new int[] {1}),
+    FilterBuilder.parallel(Collections.singletonList(new int[] {1}),
         FilterBuilder.of().fir(1.0).build(),
         FilterBuilder.of().fir(1.0).build());
   }

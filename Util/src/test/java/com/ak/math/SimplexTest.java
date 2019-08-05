@@ -68,8 +68,8 @@ public class SimplexTest {
         .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
 
-  public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
-                                             @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
+  private static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
+                                              @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
     return IntStream.range(0, 1).mapToObj(value -> new CMAESOptimizer(30000, 1.0e-6, true, 0,
         10, new MersenneTwister(), false, null)
         .optimize(

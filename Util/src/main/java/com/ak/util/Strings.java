@@ -2,6 +2,9 @@ package com.ak.util;
 
 import javax.annotation.Nonnull;
 
+import static tec.uom.se.unit.Units.METRE;
+import static tec.uom.se.unit.Units.OHM;
+
 public enum Strings {
   ;
   public static final String EMPTY = "";
@@ -14,6 +17,7 @@ public enum Strings {
   public static final String RHO = "\u03c1";
   public static final String LOW_1 = "\u2081";
   public static final String LOW_2 = "\u2082";
+  public static final String OHM_METRE = new StringBuilder(OHM.multiply(METRE).toString()).reverse().toString();
 
   public static String numberSuffix(@Nonnull String s) {
     String ignore = s.replaceFirst("\\d*$", EMPTY);

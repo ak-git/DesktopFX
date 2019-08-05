@@ -350,4 +350,58 @@ class LayersProvider {
         },
     };
   }
+
+  @DataProvider(name = "dynamicParameters2")
+  public static Object[][] dynamicParameters2() {
+    return new Object[][] {
+        // h = 5 mm
+        {
+            new TetrapolarSystem[] {
+                new TetrapolarSystem(10.0, 30.0, MILLI(METRE)),
+                new TetrapolarSystem(50.0, 30.0, MILLI(METRE)),
+            },
+            new double[] {30.971, 61.860},
+            new double[] {31.278, 62.479},
+            -Metrics.fromMilli(10.0 / 200.0)
+        },
+        // h = 10 mm
+        {
+            new TetrapolarSystem[] {
+                new TetrapolarSystem(10.0, 30.0, MILLI(METRE)),
+                new TetrapolarSystem(50.0, 30.0, MILLI(METRE)),
+            },
+            new double[] {16.761, 32.246},
+            new double[] {16.821, 32.383},
+            -Metrics.fromMilli(10.0 / 200.0)
+        },
+        // h = 15 mm
+        {
+            new TetrapolarSystem[] {
+                new TetrapolarSystem(10.0, 30.0, MILLI(METRE)),
+                new TetrapolarSystem(50.0, 30.0, MILLI(METRE)),
+            },
+            new double[] {13.338, 23.903},
+            new double[] {13.357, 23.953},
+            -Metrics.fromMilli(10.0 / 200.0)
+        },
+        {
+            new TetrapolarSystem[] {
+                new TetrapolarSystem(7.0, 21.0, MILLI(METRE)),
+                new TetrapolarSystem(35.0, 21.0, MILLI(METRE)),
+            },
+            new double[] {88.81, 141.1},
+            new double[] {88.81 - 0.04, 141.1 - 0.06},
+            -Metrics.fromMilli(0.1)
+        },
+        {
+            new TetrapolarSystem[] {
+                new TetrapolarSystem(7.0, 21.0, MILLI(METRE)),
+                new TetrapolarSystem(35.0, 21.0, MILLI(METRE)),
+            },
+            new double[] {123.3, 176.1},
+            new double[] {123.3 - 0.1, 176.1 - 0.125},
+            -Metrics.fromMilli(0.1)
+        },
+    };
+  }
 }
