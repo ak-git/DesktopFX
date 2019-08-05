@@ -5,7 +5,9 @@ plugins {
 ext.projectIds = ['java': JavaVersion.VERSION_1_10]
 
 wrapper {
+    description 'Setup the Gradle wrapper'
     gradleVersion = "5.5.1"
+    distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 allprojects {
@@ -69,7 +71,7 @@ project(':Communication') {
 project(':FxCore') {
     dependencies {
         api project(':Util')
-        api 'org.springframework:spring-context:5.1.8.RELEASE'
+        api 'org.springframework:spring-context:5.1.9.RELEASE'
     }
 }
 
