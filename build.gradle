@@ -1,10 +1,10 @@
 plugins {
-    id 'org.openjfx.javafxplugin' version '0.0.7'
+    id 'org.openjfx.javafxplugin' version '0.0.8'
     id 'java-library'
     id 'idea'
 }
 
-ext.projectIds = ['java': JavaVersion.VERSION_11]
+ext.projectIds = ['java': JavaVersion.VERSION_12]
 
 wrapper {
     description 'Setup the Gradle wrapper'
@@ -16,6 +16,11 @@ allprojects {
     group = 'com.ak'
     version = '2019.3'
     apply plugin: 'idea'
+    idea {
+        module {
+            inheritOutputDirs = true
+        }
+    }
 }
 
 subprojects {
@@ -90,7 +95,7 @@ project(':Communication') {
     dependencies {
         api project(':Util')
         implementation 'javax.inject:javax.inject:1'
-        implementation 'tec.uom:uom-se:1.0.9'
+        implementation 'tec.uom:uom-se:1.0.10'
         implementation 'org.scream3r:jssc:2.8.0'
     }
 }
@@ -115,7 +120,7 @@ project(':FxCore') {
 
     dependencies {
         api project(':Util')
-        api 'org.springframework:spring-context:5.1.8.RELEASE'
+        api 'org.springframework:spring-context:5.1.9.RELEASE'
     }
 }
 
@@ -155,7 +160,7 @@ project(':FxDesktop') {
         implementation project(':FxCore')
         implementation project(':Communication')
 
-        implementation 'org.springframework:spring-context:5.1.8.RELEASE'
+        implementation 'org.springframework:spring-context:5.1.9.RELEASE'
         implementation 'javax.inject:javax.inject:1'
         implementation 'tec.uom:uom-se:1.0.10'
         implementation 'org.glassfish:javax.json:1.1.4'
