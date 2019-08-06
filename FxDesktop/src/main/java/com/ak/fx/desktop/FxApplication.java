@@ -116,7 +116,8 @@ public final class FxApplication extends Application {
       Path path = LoggingBuilder.LOGGING.build(
           getApplicationFullName(keys.getProperty(KEY_APPLICATION_TITLE, Strings.EMPTY), keys.getProperty(KEY_APPLICATION_VERSION, Strings.EMPTY))
       ).getPath();
-      if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS) || !PropertiesSupport.CACHE.check()) {
+      if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
+        PropertiesSupport.CACHE.set(Boolean.FALSE.toString());
         Files.copy(FxApplication.class.getResourceAsStream(LoggingBuilder.LOGGING.fileName()),
             path, StandardCopyOption.REPLACE_EXISTING);
       }

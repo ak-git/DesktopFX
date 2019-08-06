@@ -28,7 +28,6 @@ import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.logging.LogBuilders;
-import com.ak.util.PropertiesSupport;
 
 import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
 
@@ -65,9 +64,6 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
         if (isChannelProcessed(seekableByteChannel, md5::update)) {
           String md5Code = digestToString(md5);
           Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
-          if (!PropertiesSupport.CACHE.check()) {
-            Files.deleteIfExists(convertedFile);
-          }
           if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(convertedFile, StandardOpenOption.READ);
             Logger.getLogger(getClass().getName()).log(Level.INFO,
