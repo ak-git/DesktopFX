@@ -3,7 +3,6 @@
     <option name="MAIN_CLASS_NAME" value="com.ak.fx.desktop.FxApplication" />
     <module name="FxDesktop_main" />
     <option name="PROGRAM_PARAMETERS" value="--context=rcm" />
-    <option name="VM_PARAMETERS" value="-Dcache=false" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.ak.fx.desktop.*" />

@@ -12,7 +12,7 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.Variable;
-import com.ak.comm.converter.app.AbstractSplineCoefficientsChartApp;
+import com.ak.comm.converter.aper.SplineCoefficientsTest;
 import com.ak.comm.converter.rcm.calibration.RcmCalibrationVariable;
 import com.ak.numbers.rcm.RcmBaseSurfaceCoefficientsChannel1;
 import com.ak.numbers.rcm.RcmBaseSurfaceCoefficientsChannel2;
@@ -136,11 +136,11 @@ public final class RcmConverterTest {
 
   @Test(enabled = false)
   public static void testBaseSplineSurface1() throws IOException {
-    AbstractSplineCoefficientsChartApp.testSplineSurface1(RcmBaseSurfaceCoefficientsChannel1.class);
+    SplineCoefficientsTest.testSplineSurface1(RcmBaseSurfaceCoefficientsChannel1.class);
   }
 
   @Test(enabled = false)
   public static void testBaseSplineSurface2() throws IOException {
-    AbstractSplineCoefficientsChartApp.testSplineSurface2(RcmBaseSurfaceCoefficientsChannel2.class);
+    SplineCoefficientsTest.testSplineSurface2(RcmBaseSurfaceCoefficientsChannel2.class);
   }
 }

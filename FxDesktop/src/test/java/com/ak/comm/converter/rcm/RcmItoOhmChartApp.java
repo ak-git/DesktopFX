@@ -1,7 +1,7 @@
 package com.ak.comm.converter.rcm;
 
 import com.ak.comm.converter.ADCVariable;
-import com.ak.comm.converter.app.AbstractSplineCoefficientsChartApp;
+import com.ak.comm.converter.aper.AbstractSplineCoefficientsChartApp;
 import com.ak.numbers.rcm.RcmCoefficients;
 
 /**
