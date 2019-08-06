@@ -21,6 +21,10 @@ allprojects {
             inheritOutputDirs = true
         }
     }
+
+    sourceSets {
+        main.output.resourcesDir = main.java.outputDir
+    }
 }
 
 subprojects {
@@ -69,6 +73,7 @@ project(':Util') {
                     '--module-path', classpath.asPath,
                     '--patch-module', "$moduleName=" + files(sourceSets.main.resources.srcDirs).asPath
             ]
+            classpath = files()
         }
     }
 
@@ -89,6 +94,7 @@ project(':Communication') {
                     '--module-path', classpath.asPath,
                     '--patch-module', "$moduleName=" + files(sourceSets.main.resources.srcDirs).asPath
             ]
+            classpath = files()
         }
     }
 
@@ -115,6 +121,7 @@ project(':FxCore') {
                     '--module-path', classpath.asPath,
                     '--patch-module', "$moduleName=" + files(sourceSets.main.resources.srcDirs).asPath
             ]
+            classpath = files()
         }
     }
 
@@ -142,6 +149,7 @@ project(':FxDesktop') {
                     '--module-path', classpath.asPath,
                     '--patch-module', "$moduleName=" + files(sourceSets.main.resources.srcDirs).asPath
             ]
+            classpath = files()
         }
     }
 
@@ -151,8 +159,9 @@ project(':FxDesktop') {
             jvmArgs = [
                     '--module-path', classpath.asPath,
                     '--patch-module', "$moduleName=" + files(sourceSets.main.resources.srcDirs).asPath,
-                    '--module', "$mainClassName"
+                    '--module', "$moduleName/$mainClassName"
             ]
+            classpath = files()
         }
     }
 
