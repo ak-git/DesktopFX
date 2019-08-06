@@ -71,7 +71,7 @@ public final class FxApplication extends Application {
           BeanFactoryUtils.beanOfType(context, MessageSource.class), Locale.getDefault()));
       loader.setControllerFactory(clazz -> BeanFactoryUtils.beanOfType(context, clazz));
       stage.setScene(loader.load());
-      String applicationFullName = getApplicationFullName(loader.getResources().getString(KEY_APPLICATION_TITLE));
+      String applicationFullName = getApplicationFullName(loader.getResources().getString(KEY_APPLICATION_TITLE), loader.getResources().getString(KEY_APPLICATION_VERSION));
       stage.setTitle(applicationFullName);
       if (!PropertiesSupport.OUT_CONVERTER_PATH.check()) {
         PropertiesSupport.OUT_CONVERTER_PATH.set(applicationFullName);
@@ -116,7 +116,9 @@ public final class FxApplication extends Application {
     try (InputStream in = FxApplication.class.getResourceAsStream(PropertiesSupport.addExtension(KEY_PROPERTIES))) {
       Properties keys = new Properties();
       keys.load(in);
-      Path path = LoggingBuilder.LOGGING.build(getApplicationFullName(keys.getProperty(KEY_APPLICATION_TITLE, Strings.EMPTY))).getPath();
+      Path path = LoggingBuilder.LOGGING.build(
+          getApplicationFullName(keys.getProperty(KEY_APPLICATION_TITLE, Strings.EMPTY), keys.getProperty(KEY_APPLICATION_VERSION, Strings.EMPTY))
+      ).getPath();
       if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS) || !PropertiesSupport.CACHE.check()) {
         Files.copy(FxApplication.class.getResourceAsStream(LoggingBuilder.LOGGING.fileName()),
             path, StandardCopyOption.REPLACE_EXISTING);
@@ -129,7 +131,7 @@ public final class FxApplication extends Application {
     }
   }
 
-  private static String getApplicationFullName(@Nonnull String name) {
-    return name.replaceFirst(KEY_APPLICATION_VERSION, Strings.EMPTY).trim();
+  private static String getApplicationFullName(@Nonnull String title, @Nonnull String version) {
+    return String.format("%s %s", title, version);
   }
 }

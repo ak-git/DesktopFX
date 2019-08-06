@@ -87,16 +87,4 @@ project(':FxDesktop') {
         implementation project(':FxCore')
         implementation project(':Communication')
     }
-
-    processResources {
-        from(sourceSets.main.resources.srcDirs) {
-            exclude '**/*.properties'
-        }
-        from(sourceSets.main.resources.srcDirs) {
-            include '**/*.properties'
-            filter { String line ->
-                line.replaceAll('application.version', project.version.toString())
-            }
-        }
-    }
 }
