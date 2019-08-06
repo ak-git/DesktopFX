@@ -29,7 +29,7 @@ public class FxClassPathXmlApplicationContextTest {
   }
 
   @Test(expectedExceptions = BeanDefinitionStoreException.class,
-      expectedExceptionsMessageRegExp = ".*cannot be opened because it does not exist")
+      expectedExceptionsMessageRegExp = "IOException parsing XML document from URL.*")
   public static void testInvalidContext() {
     new FxClassPathXmlApplicationContext(Double.toString(Math.PI));
   }
