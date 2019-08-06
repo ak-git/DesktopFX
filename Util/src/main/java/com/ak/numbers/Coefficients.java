@@ -17,7 +17,6 @@ import javax.json.JsonObject;
 
 import com.ak.logging.CalibrateBuilders;
 import com.ak.util.LocalIO;
-import com.ak.util.PropertiesSupport;
 
 public interface Coefficients extends Supplier<double[]> {
   @Override
@@ -27,7 +26,7 @@ public interface Coefficients extends Supplier<double[]> {
     try {
       LocalIO build = CalibrateBuilders.CALIBRATION.build(fileName);
       Path path = build.getPath();
-      if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS) || !PropertiesSupport.CACHE.check()) {
+      if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
         Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
         inputStream.close();
       }

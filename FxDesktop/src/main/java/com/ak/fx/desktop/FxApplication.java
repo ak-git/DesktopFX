@@ -6,9 +6,9 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,9 +30,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.MessageSource;
 import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.context.support.MessageSourceResourceBundle;
 
 public final class FxApplication extends Application {
   private static final String APP_PARAMETER_CONTEXT = "context";
@@ -67,8 +65,7 @@ public final class FxApplication extends Application {
         resource = Optional.ofNullable(
             getClass().getResource(String.format("%s/%s", context.getApplicationName(), SCENE_XML))).orElse(resource);
       }
-      FXMLLoader loader = new FXMLLoader(resource, new MessageSourceResourceBundle(
-          BeanFactoryUtils.beanOfType(context, MessageSource.class), Locale.getDefault()));
+      FXMLLoader loader = new FXMLLoader(resource, ResourceBundle.getBundle(String.format("%s.%s", getClass().getPackageName(), KEY_PROPERTIES)));
       loader.setControllerFactory(clazz -> BeanFactoryUtils.beanOfType(context, clazz));
       stage.setScene(loader.load());
       String applicationFullName = getApplicationFullName(loader.getResources().getString(KEY_APPLICATION_TITLE), loader.getResources().getString(KEY_APPLICATION_VERSION));
@@ -119,7 +116,8 @@ public final class FxApplication extends Application {
       Path path = LoggingBuilder.LOGGING.build(
           getApplicationFullName(keys.getProperty(KEY_APPLICATION_TITLE, Strings.EMPTY), keys.getProperty(KEY_APPLICATION_VERSION, Strings.EMPTY))
       ).getPath();
-      if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS) || !PropertiesSupport.CACHE.check()) {
+      if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
+        PropertiesSupport.CACHE.set(Boolean.FALSE.toString());
         Files.copy(FxApplication.class.getResourceAsStream(LoggingBuilder.LOGGING.fileName()),
             path, StandardCopyOption.REPLACE_EXISTING);
       }

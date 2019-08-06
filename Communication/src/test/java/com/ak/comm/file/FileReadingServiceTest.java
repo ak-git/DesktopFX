@@ -3,7 +3,6 @@ package com.ak.comm.file;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -34,6 +33,7 @@ import com.ak.comm.logging.OutputBuilders;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.logging.LogBuilders;
+import com.ak.util.Clean;
 import com.ak.util.LogUtils;
 import com.ak.util.PropertiesSupport;
 import com.ak.util.Strings;
@@ -58,16 +58,7 @@ public class FileReadingServiceTest {
     };
     for (Path path : paths) {
       Assert.assertNotNull(path);
-      try (DirectoryStream<Path> ds = Files.newDirectoryStream(path, entry -> Files.isRegularFile(entry))) {
-        for (Path file : ds) {
-          try {
-            Files.deleteIfExists(file);
-          }
-          catch (IOException e) {
-            Assert.fail(file.toString(), e);
-          }
-        }
-      }
+      Clean.clean(path);
     }
   }
 

@@ -7,6 +7,9 @@
   </component>
   <component name="FrameworkDetectionExcludesConfiguration" detection-enabled="false" />
   <component name="IdProvider" IDEtalkID="76B6EE955C13237A70C3B7C0299BD30A" />
+  <component name="JavaScriptSettings">
+    <option name="languageLevel" value="ES6" />
+  </component>
   <component name="JavadocGenerationManager">
     <option name="OTHER_OPTIONS" value="" />
   </component>
@@ -38,7 +41,7 @@
     <resource url="http://www.springframework.org/schema/beans" location="$PROJECT_DIR$/SpringBasic/spring-beans-2.0.xsd" />
     <default-html-doctype>http://www.w3.org/1999/xhtml</default-html-doctype>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_10" default="false" project-jdk-name="10" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_12" default="false" project-jdk-name="12" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="StarteamConfiguration">

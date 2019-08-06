@@ -27,7 +27,7 @@ final class FxClassPathXmlApplicationContext extends ClassPathXmlApplicationCont
 
   private static String getContextPath(@Nullable String contextName) {
     contextName = getContextName(contextName);
-    Path path = Paths.get(FxClassPathXmlApplicationContext.class.getPackage().getName().replaceAll("\\.", "/"));
+    Path path = Paths.get(FxClassPathXmlApplicationContext.class.getResource("").toExternalForm());
     if (contextName.isEmpty()) {
       path = path.resolve(CONTEXT_XML);
     }

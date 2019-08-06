@@ -1,9 +1,11 @@
-package com.ak.numbers;
+package com.ak.numbers.common;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Scanner;
 import java.util.function.Supplier;
+
+import com.ak.numbers.CoefficientsUtils;
 
 public interface SimpleCoefficients extends Supplier<double[]> {
   @Override

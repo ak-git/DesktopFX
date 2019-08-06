@@ -1,8 +1,19 @@
 plugins {
+    id 'org.openjfx.javafxplugin' version '0.0.8'
     id 'java-library'
+    id 'idea'
 }
 
-ext.projectIds = ['java': JavaVersion.VERSION_1_10]
+def jsr305 = 'com.google.code.findbugs:jsr305:3.0.2'
+def testNG = 'org.testng:testng:7.0.0-beta7'
+def uom_se = 'tec.uom:uom-se:1.0.10'
+def javax_json = 'org.glassfish:javax.json:1.1.4'
+def commons_math3 = 'org.apache.commons:commons-math3:3.6.1'
+def javax_inject = 'javax.inject:javax.inject:1'
+def jssc = 'org.scream3r:jssc:2.8.0'
+def spring_context = 'org.springframework:spring-context:5.1.9.RELEASE'
+
+ext.projectIds = ['java': JavaVersion.VERSION_12]
 
 wrapper {
     description 'Setup the Gradle wrapper'
@@ -12,8 +23,17 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2019.3'
+    version = '2019.4'
     apply plugin: 'idea'
+    idea {
+        module {
+            inheritOutputDirs = true
+        }
+    }
+
+    sourceSets {
+        main.output.resourcesDir = main.java.outputDir
+    }
 }
 
 subprojects {
@@ -39,8 +59,8 @@ subprojects {
     }
 
     dependencies {
-        implementation 'com.google.code.findbugs:jsr305:3.0.2'
-        testImplementation 'org.testng:testng:7.0.0-beta7'
+        implementation jsr305
+        testImplementation testNG
     }
 
     test {
@@ -53,38 +73,114 @@ subprojects {
 }
 
 project(':Util') {
+    ext.moduleName = 'com.ak.util'
+
+    compileJava {
+        inputs.property("moduleName", 'com.ak.util')
+        doFirst {
+            options.compilerArgs = [
+                    '--module-path', classpath.asPath,
+                    '--patch-module', "$moduleName=" + files(sourceSets.main.resources.srcDirs).asPath
+            ]
+            classpath = files()
+        }
+    }
+
     dependencies {
-        api 'tec.uom:uom-se:1.0.10'
-        api 'org.glassfish:javax.json:1.1.4'
-        implementation 'org.apache.commons:commons-math3:3.6.1'
+        implementation uom_se
+        implementation javax_json
+        implementation commons_math3
     }
 }
 
 project(':Communication') {
+    ext.moduleName = 'com.ak.comm'
+
+    compileJava {
+        inputs.property("moduleName", 'com.ak.comm')
+        doFirst {
+            options.compilerArgs = [
+                    '--module-path', classpath.asPath,
+                    '--patch-module', "$moduleName=" + files(sourceSets.main.resources.srcDirs).asPath
+            ]
+            classpath = files()
+        }
+    }
+
     dependencies {
         api project(':Util')
-        api 'javax.inject:javax.inject:1'
-        implementation 'org.scream3r:jssc:2.8.0'
+        implementation javax_inject
+        implementation uom_se
+        implementation jssc
     }
 }
 
 project(':FxCore') {
+    apply plugin: 'org.openjfx.javafxplugin'
+    ext.moduleName = 'com.ak.fx'
+
+    javafx {
+        modules = ['javafx.graphics']
+    }
+
+    compileJava {
+        inputs.property("moduleName", 'com.ak.fx')
+        doFirst {
+            options.compilerArgs = [
+                    '--module-path', classpath.asPath,
+                    '--patch-module', "$moduleName=" + files(sourceSets.main.resources.srcDirs).asPath
+            ]
+            classpath = files()
+        }
+    }
+
     dependencies {
         api project(':Util')
-        api 'org.springframework:spring-context:5.1.9.RELEASE'
+        api spring_context
     }
 }
 
 project(':FxDesktop') {
+    apply plugin: 'org.openjfx.javafxplugin'
     apply plugin: 'application'
-    mainClassName = 'com.ak.fx.desktop.FxApplication'
+    mainClassName = 'com.ak.fx.desktop/com.ak.fx.desktop.FxApplication'
+
+    ext.moduleName = 'com.ak.fx.desktop'
+
+    javafx {
+        modules = ['javafx.controls', 'javafx.fxml']
+    }
+
+    compileJava {
+        inputs.property("moduleName", 'com.ak.fx.desktop')
+        doFirst {
+            options.compilerArgs = [
+                    '--module-path', classpath.asPath,
+                    '--patch-module', "$moduleName=" + files(sourceSets.main.resources.srcDirs).asPath
+            ]
+            classpath = files()
+        }
+    }
 
     run {
-        jvmArgs '-server', '-Xms512m', '-Xmx1024m'
+        inputs.property("moduleName", 'com.ak.fx.desktop')
+        doFirst {
+            jvmArgs = [
+                    '--module-path', classpath.asPath,
+                    '--patch-module', "$moduleName=" + files(sourceSets.main.resources.srcDirs).asPath,
+                    '--module', "$moduleName/$mainClassName"
+            ]
+            classpath = files()
+        }
     }
 
     dependencies {
         implementation project(':FxCore')
         implementation project(':Communication')
+
+        implementation spring_context
+        implementation javax_inject
+        implementation uom_se
+        implementation javax_json
     }
 }

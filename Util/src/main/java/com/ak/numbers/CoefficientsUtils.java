@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
 public enum CoefficientsUtils {
   ;
 
-  static double[] read(@Nonnull Scanner scanner) {
+  public static double[] read(@Nonnull Scanner scanner) {
     scanner.useLocale(Locale.ROOT);
     Collection<Double> coeffs = new LinkedList<>();
     while (scanner.hasNext() && !scanner.hasNextDouble()) {
