@@ -22,28 +22,38 @@ public enum AperCalibrationVariable implements DependentVariable<AperInVariable,
       return FilterBuilder.of().smoothingImpulsive(10).rrs().build();
     }
   },
-  PU_ADC {
+  PU_ADC_1 {
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.of().smoothingImpulsive(10).rrs().build();
     }
   },
-  PEAK_TO_PEAK_PU_ADC {
+  PU_ADC_2 {
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().peakToPeak(1000).rrs().build();
+      return FilterBuilder.of().smoothingImpulsive(10).rrs().build();
     }
-  },
-  STD_PU_ADC {
+
     @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.of().std(1000).rrs().build();
+    public List<AperInVariable> getInputVariables() {
+      return Collections.singletonList(AperInVariable.R2);
     }
   },
-  PU {
+  PU_1 {
     @Override
     public Set<Option> options() {
       return EnumSet.of(Option.VISIBLE);
+    }
+  },
+  PU_2 {
+    @Override
+    public Set<Option> options() {
+      return EnumSet.of(Option.VISIBLE);
+    }
+
+    @Override
+    public List<AperInVariable> getInputVariables() {
+      return Collections.singletonList(AperInVariable.R2);
     }
   };
 

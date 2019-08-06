@@ -18,6 +18,8 @@
       <module name="DesktopFX-FxCore_test" target="1.10" />
       <module name="DesktopFX-FxDesktop_main" target="1.10" />
       <module name="DesktopFX-FxDesktop_test" target="1.10" />
+      <module name="DesktopFX_main" target="1.10" />
+      <module name="DesktopFX_test" target="1.10" />
       <module name="Util_main" target="1.10" />
       <module name="Util_test" target="1.10" />
     </bytecodeTargetLevel>

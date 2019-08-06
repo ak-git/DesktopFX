@@ -6,7 +6,7 @@ public enum PropertiesSupport {
   CACHE {
     @Override
     public boolean check() {
-      return Boolean.valueOf(value());
+      return Boolean.parseBoolean(value());
     }
 
     @Override
@@ -20,6 +20,8 @@ public enum PropertiesSupport {
       return System.getProperty(key(), OSDirectory.VENDOR_ID).trim();
     }
   };
+
+  private static final String PROPERTIES = "properties";
 
   public boolean check() {
     return !System.getProperty(key(), Strings.EMPTY).isEmpty();
@@ -37,6 +39,10 @@ public enum PropertiesSupport {
 
   String key() {
     return name().toLowerCase();
+  }
+
+  public static String addExtension(String fileName) {
+    return String.format("%s.%s", fileName, PROPERTIES);
   }
 }
 

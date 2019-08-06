@@ -155,18 +155,45 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new IntegrateFilter());
   }
 
-  FilterBuilder rrs(@Nonnegative int averageFactor) {
-    return wrap(String.format("RRS%d", averageFactor),
-        of().comb(averageFactor).integrate().operator(() -> n -> n / averageFactor));
+  /**
+   * Mean by Recursive Running Sum with <b>zero-delay</b>.
+   *
+   * @param averageFactor average factor.
+   * @return FilterBuilder
+   */
+  FilterBuilder recursiveMean(@Nonnegative int averageFactor) {
+    return chain(new MeanFilter(averageFactor));
   }
 
   public FilterBuilder rrs() {
     return chain(new RRSFilter());
   }
 
-  public FilterBuilder std(@Nonnegative int averageFactor) {
-    return wrap(String.format("std%d", averageFactor),
-        of().fork(new NoFilter(), of().rrs(averageFactor).build()).biOperator(() -> (x, mean) -> x - mean).chain(new SqrtSumFilter(averageFactor)));
+  /**
+   * Standard Deviation by Recursive Running Sum with <b>zero-delay</b>.
+   *
+   * @param averageFactor average factor.
+   * @return FilterBuilder
+   */
+  public FilterBuilder recursiveStd(@Nonnegative int averageFactor) {
+    return wrap(String.format("recursiveStd%d", averageFactor),
+        of().fork(new NoFilter(), new MeanFilter(averageFactor)).biOperator(() -> (x, mean) -> x - mean).chain(new SqrtSumFilter(averageFactor)));
+  }
+
+  /**
+   * Mean and Standard Deviation by Recursive Running Sum with <b>zero-delay</b>.
+   *
+   * @param averageFactor average factor.
+   * @return FilterBuilder
+   */
+  FilterBuilder recursiveMeanAndStd(@Nonnegative int averageFactor) {
+    return wrap(String.format("mean-n-std%d", averageFactor),
+        of().fork(new NoFilter(), new MeanFilter(averageFactor))
+            .fork(
+                of().biOperator(() -> (x, mean) -> mean).build(),
+                of().biOperator(() -> (x, mean) -> x - mean).chain(new SqrtSumFilter(averageFactor)).build()
+            )
+    );
   }
 
   public FilterBuilder peakToPeak(@Nonnegative int size) {

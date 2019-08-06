@@ -111,8 +111,8 @@ public class LineFileBuilder<IN> {
       double from = Math.min(start, end);
       double to = Math.max(start, end);
 
-      doubleStreamSupplier = () -> DoubleStream.concat(DoubleStream.iterate(from, operand -> operand * 10.0).takeWhile(value -> value < to).
-          flatMap(scale -> DoubleStream.iterate(scale, operand -> operand + scale / 5).takeWhile(value -> value < to).limit(9 * 5)), DoubleStream.of(to));
+      doubleStreamSupplier = () -> DoubleStream.concat(DoubleStream.iterate(from, value -> value < to, operand -> operand * 10.0).
+          flatMap(scale -> DoubleStream.iterate(scale, value -> value < to, operand -> operand + scale / 5).limit(9 * 5)), DoubleStream.of(to));
       toFile();
     }
 
@@ -121,7 +121,7 @@ public class LineFileBuilder<IN> {
         throw new IllegalArgumentException(String.format(
             String.format("[%1$s .. %1$s] precision %1$s", outFormat), start, end, precision));
       }
-      doubleStreamSupplier = () -> DoubleStream.iterate(start, dl2L -> dl2L + precision).takeWhile(value -> value < end + precision).sequential();
+      doubleStreamSupplier = () -> DoubleStream.iterate(start, value -> value < end + precision, dl2L -> dl2L + precision).sequential();
       toFile();
     }
 

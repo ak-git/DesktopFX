@@ -1,5 +1,6 @@
 package com.ak.comm.converter;
 
+import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -23,7 +24,7 @@ public enum Variables {
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable, int value) {
-    return String.format("%s = %d %s", toString(variable), value, variable.getUnit());
+    return String.format(Locale.getDefault(), "%s = %,d %s", toString(variable), value, variable.getUnit());
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable) {
@@ -74,10 +75,10 @@ public enum Variables {
     else {
       double converted = unit.getConverterTo(displayUnit).convert(value);
       if (Math.abs(converted) < 1.0) {
-        return String.format("%d %s", value, unit);
+        return String.format(Locale.getDefault(), "%,d %s", value, unit);
       }
       else {
-        return String.format(String.format("%%.%df %%s", formatZeros), converted, displayUnit);
+        return String.format(Locale.getDefault(), String.format("%%,.%df %%s", formatZeros), converted, displayUnit);
       }
     }
   }

@@ -31,7 +31,8 @@ public final class AperCalibrationConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {1506, 99500, 1004, 281, 100506}},
+            new int[] {790, 52223, 8717572, 100506, 16777215}
+        },
     };
   }
 
@@ -41,14 +42,18 @@ public final class AperCalibrationConverterTest {
         new ToIntegerConverter<>(AperInVariable.class, 1000), AperCalibrationVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 100000 - 1; i++) {
-      long count = converter.apply(bufferFrame).count();
-      Assert.assertTrue(count == 0 || count == 1 || count == 9 || count == 10, String.format("Index %d, count %d", i, count));
+    for (int i = 0; i < 3000 - 1; i++) {
+      long count = converter.apply(bufferFrame).peek(ints -> {
+        if (!processed.get()) {
+          Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
+          processed.set(true);
+        }
+      }).count();
+      if (processed.get()) {
+        Assert.assertEquals(count, 10);
+        break;
+      }
     }
-    Assert.assertEquals(converter.apply(bufferFrame).peek(ints -> {
-      Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
-      processed.set(true);
-    }).count(), 10);
     Assert.assertTrue(processed.get(), "Data are not converted!");
     Assert.assertEquals(converter.getFrequency(), 1000, 0.1);
   }
@@ -57,8 +62,9 @@ public final class AperCalibrationConverterTest {
   public static void testVariableProperties() {
     EnumSet.allOf(AperCalibrationVariable.class).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
     EnumSet.allOf(AperCalibrationVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), AperInVariable.class));
-    EnumSet.complementOf(EnumSet.of(AperCalibrationVariable.PU)).forEach(variable -> Assert.assertEquals(variable.options(),
+    EnumSet.complementOf(EnumSet.of(AperCalibrationVariable.PU_1, AperCalibrationVariable.PU_2)).forEach(variable -> Assert.assertEquals(variable.options(),
         EnumSet.of(Variable.Option.TEXT_VALUE_BANNER), variable.name()));
-    Assert.assertEquals(AperCalibrationVariable.PU.options(), EnumSet.of(Variable.Option.VISIBLE));
+    EnumSet.of(AperCalibrationVariable.PU_1, AperCalibrationVariable.PU_2).forEach(variable -> Assert.assertEquals(variable.options(),
+        EnumSet.of(Variable.Option.VISIBLE), variable.name()));
   }
 }

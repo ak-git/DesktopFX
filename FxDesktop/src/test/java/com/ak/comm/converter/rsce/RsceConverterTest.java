@@ -3,6 +3,7 @@ package com.ak.comm.converter.rsce;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Locale;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -40,7 +41,7 @@ public class RsceConverterTest {
 
     }, logRecord -> {
       for (int milliOhm : rDozenMilliOhms) {
-        Assert.assertTrue(logRecord.getMessage().contains(Integer.toString(milliOhm)));
+        Assert.assertTrue(logRecord.getMessage().contains(String.format(Locale.getDefault(), "%,d", milliOhm)));
       }
       for (RsceVariable rsceVariable : RsceVariable.values()) {
         Assert.assertTrue(logRecord.getMessage().contains(rsceVariable.name()));
