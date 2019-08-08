@@ -2,7 +2,6 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.DoubleSummaryStatistics;
-import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,10 +12,10 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.inverse.Inequality;
+import com.ak.math.Simplex;
 import com.ak.math.SimplexTest;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
-import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
@@ -24,7 +23,6 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static java.lang.StrictMath.log;
 import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 
@@ -135,14 +133,14 @@ public class Resistance2LayerTest {
     DoubleSummaryStatistics apparent = IntStream.range(0, systems.length).mapToDouble(i -> new Resistance1Layer(systems[i]).getApparent(rOhmsBefore[i])).summaryStatistics();
 
     DoubleFunction<PointValuePair> rho1rho2 = h ->
-        SimplexTest.optimizeNelderMead(rho ->
+        Simplex.optimizeNelderMead(rho ->
                 Inequality.proportional().applyAsDouble(rOhmsBefore,
                     Arrays.stream(predicted).mapToDouble(p -> p.value(rho[0], rho[1], h)).toArray()
                 ),
             new double[] {apparent.getMin(), apparent.getMax()}, new double[] {0.1, 0.1}
         );
 
-    PointValuePair hPoint = SimplexTest.optimizeNelderMead(p -> {
+    PointValuePair hPoint = Simplex.optimizeNelderMead(p -> {
       double h = p[0];
       double[] dH = new double[rOhmsBefore.length];
       Arrays.setAll(dH, i -> (rOhmsAfter[i] - rOhmsBefore[i]) / dh);
@@ -169,47 +167,7 @@ public class Resistance2LayerTest {
 
   @Test(dataProviderClass = LayersProvider.class, dataProvider = "dynamicParameters2", enabled = false)
   public static void testInverseDynamic2(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
-    DoubleBinaryOperator subtract = (left, right) -> left - right;
-    double subLogApparent = IntStream.range(0, systems.length)
-        .mapToDouble(i -> log(new Resistance1Layer(systems[i]).getApparent(rOhmsBefore[i]))).reduce(subtract).orElseThrow();
-    double subLogDiff = IntStream.range(0, systems.length)
-        .mapToDouble(i -> log(Math.abs((rOhmsAfter[i] - rOhmsBefore[i]) / dh))).reduce(subtract).orElseThrow();
-
-    MultivariateFunction multivariateFunction = p -> {
-      double k = p[0];
-      double Lh = p[1];
-      if (k > 1.0 || k < -1.0 || Lh <= 0) {
-        return Double.POSITIVE_INFINITY;
-      }
-      else {
-        double subLogApparentPredicted = Arrays.stream(systems)
-            .mapToDouble(system -> new Log1pApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
-        double subLogDiffPredicted = Arrays.stream(systems)
-            .mapToDouble(system -> new LogDerivativeApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
-        Inequality inequality = Inequality.absolute();
-        inequality.applyAsDouble(subLogApparent, subLogApparentPredicted);
-        inequality.applyAsDouble(subLogDiff, subLogDiffPredicted);
-        return inequality.getAsDouble();
-      }
-    };
-
-    PointValuePair p = SimplexTest.optimizeNelderMead(multivariateFunction, new double[] {0.0, 1.0}, new double[] {0.1, 0.1});
-    double k = p.getPoint()[0];
-    double Lh = p.getPoint()[1];
-
-    double sumLogApparent = IntStream.range(0, systems.length)
-        .mapToDouble(i -> log(new Resistance1Layer(systems[i]).getApparent(rOhmsBefore[i]))).reduce(Double::sum).orElseThrow();
-    double sumLogApparentPredicted = Arrays.stream(systems)
-        .mapToDouble(system -> new Log1pApparent2Rho(system.sToL()).value(k, Lh)).reduce(Double::sum).orElseThrow();
-    double rho1 = StrictMath.exp((sumLogApparent - sumLogApparentPredicted) / 2.0);
-    double rho2 = rho1 / Layers.getRho1ToRho2(k);
-    double h = systems[0].h(Lh);
-    Logger.getAnonymousLogger().log(Level.INFO,
-        String.format("%s%s = %.3f %s; %s%s = %.3f %s; h = %.2f mm",
-            Strings.RHO, Strings.LOW_1, rho1, Strings.OHM_METRE,
-            Strings.RHO, Strings.LOW_2, rho2, Strings.OHM_METRE,
-            Metrics.toMilli(h)
-        )
-    );
+    Resistance2Layer.Medium medium = Resistance2Layer.Medium.inverse(systems, rOhmsBefore, rOhmsAfter, dh);
+    Logger.getAnonymousLogger().log(Level.INFO, medium.toString());
   }
 }

@@ -1,5 +1,10 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 import com.ak.util.Metrics;
 import org.testng.annotations.DataProvider;
 
@@ -402,6 +407,22 @@ class LayersProvider {
             new double[] {123.3 - 0.1, 176.1 - 0.125},
             -Metrics.fromMilli(0.1)
         },
+        generate3Layers(new int[] {10, 30, 50}, new double[] {10.0, 1.0, 5.0}, Metrics.fromMilli(0.1), new int[] {2, 2}),
+        generate3Layers(new int[] {10, 30, 50}, new double[] {10.0, 1.0, 5.0}, Metrics.fromMilli(0.1), new int[] {10, 2}),
+        generate3Layers(new int[] {10, 30, 50}, new double[] {10.0, 1.0, 5.0}, Metrics.fromMilli(0.1), new int[] {20, 2}),
     };
+  }
+
+  private static Object[] generate3Layers(@Nonnull int[] mm, @Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p) {
+    TetrapolarSystem[] tetrapolarSystems = {
+        new TetrapolarSystem(mm[0], mm[1], MILLI(METRE)),
+        new TetrapolarSystem(mm[2], mm[1], MILLI(METRE)),
+    };
+
+    double[] rOhmsBefore = Arrays.stream(tetrapolarSystems)
+        .mapToDouble(s -> new Resistance3Layer(s, hStepSI).value(rho[0], rho[1], rho[2], p[0], p[1])).toArray();
+    double[] rOhmsAfter = Arrays.stream(tetrapolarSystems)
+        .mapToDouble(s -> new Resistance3Layer(s, hStepSI).value(rho[0], rho[1], rho[2], p[0] - 1, p[1])).toArray();
+    return new Object[] {tetrapolarSystems, rOhmsBefore, rOhmsAfter, -hStepSI};
   }
 }

@@ -20,8 +20,6 @@ import org.apache.commons.math3.optim.SimpleBounds;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.util.Pair;
 import org.testng.Assert;
@@ -35,15 +33,9 @@ public class SimplexTest {
 
   @Test(timeOut = 10000)
   public static void testRosenbrockNelderMeadSimplex() {
-    PointValuePair optimum = optimizeNelderMead(new Rosenbrock(), new double[] {0.0, 0.0}, new double[] {0.1, 0.1});
+    PointValuePair optimum = Simplex.optimizeNelderMead(new Rosenbrock(), new double[] {0.0, 0.0}, new double[] {0.1, 0.1});
     Assert.assertTrue(optimum.getValue() < 1.0e-6);
     Assert.assertEquals(optimum.getPoint()[0], 1.0, 1.0e-3);
-  }
-
-  public static PointValuePair optimizeNelderMead(@Nonnull MultivariateFunction function,
-                                                  @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
-    return new SimplexOptimizer(1.0e-6, 1.0e-6).optimize(new MaxEval(30000), new ObjectiveFunction(function), GoalType.MINIMIZE,
-        new NelderMeadSimplex(initialSteps), new InitialGuess(initialGuess));
   }
 
   public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds, @Nonnull double[] initialSteps) {
