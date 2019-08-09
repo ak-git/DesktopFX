@@ -43,9 +43,9 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
 
     @Override
     public String toString() {
-      return String.format("%s%s = %.3f %s; %s%s = %.3f %s; h = %.2f mm",
-          Strings.RHO, Strings.LOW_1, rho1, Strings.OHM_METRE,
-          Strings.RHO, Strings.LOW_2, rho2, Strings.OHM_METRE,
+      return String.format("%s = %.3f %s; %s = %.3f %s; h = %.2f mm",
+          Strings.RHO_1, rho1, Strings.OHM_METRE,
+          Strings.RHO_2, rho2, Strings.OHM_METRE,
           Metrics.toMilli(h));
     }
 
