@@ -14,13 +14,13 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:3.0.2" level="project" />
-    <orderEntry type="library" name="Gradle: org.openjfx:javafx-fxml:mac:12.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: org.openjfx:javafx-controls:mac:12.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: org.openjfx:javafx-controls:12.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: org.openjfx:javafx-graphics:mac:12.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: org.openjfx:javafx-graphics:12.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: org.openjfx:javafx-base:mac:12.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: org.openjfx:javafx-base:12.0.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-fxml:mac:12.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-controls:mac:12.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-controls:12.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-graphics:mac:12.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-graphics:12.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-base:mac:12.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.openjfx:javafx-base:12.0.2" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-context:5.1.9.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
     <orderEntry type="library" name="Gradle: tec.uom:uom-se:1.0.10" level="project" />
