@@ -34,6 +34,10 @@ public enum Strings {
     return s.replace(ignore, EMPTY);
   }
 
+  public static String rho(@Nonnegative double rho) {
+    return String.format("%s = %.3f %s", RHO, rho, OHM_METRE);
+  }
+
   public static String rho1(@Nonnegative double rho1) {
     return rho(rho1, 1);
   }

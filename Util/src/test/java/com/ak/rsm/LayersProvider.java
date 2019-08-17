@@ -1,6 +1,7 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
+import java.util.function.ToDoubleFunction;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -23,6 +24,7 @@ class LayersProvider {
    * @param smm small potential electrode distance, mm.
    * @return two Tetrapolar System.
    */
+  @Nonnull
   private static TetrapolarSystem[] systems2(@Nonnegative double smm) {
     return new TetrapolarSystem[] {
         new TetrapolarSystem(smm, smm * 3.0, MILLI(METRE)),
@@ -38,6 +40,7 @@ class LayersProvider {
    * @param smm small potential electrode distance, mm.
    * @return three Tetrapolar System.
    */
+  @Nonnull
   private static TetrapolarSystem[] systems3(@Nonnegative double smm) {
     return new TetrapolarSystem[] {
         new TetrapolarSystem(smm, smm * 3.0, MILLI(METRE)),
@@ -54,6 +57,7 @@ class LayersProvider {
    * @param smm small potential electrode distance, mm.
    * @return three Tetrapolar System.
    */
+  @Nonnull
   private static TetrapolarSystem[] systems5(@Nonnegative double smm) {
     return new TetrapolarSystem[] {
         new TetrapolarSystem(smm, smm * 3.0, MILLI(METRE)),
@@ -61,6 +65,53 @@ class LayersProvider {
         new TetrapolarSystem(smm, smm * 5.0, MILLI(METRE)),
         new TetrapolarSystem(smm * 2, smm * 4.0, MILLI(METRE)),
         new TetrapolarSystem(smm * 4, smm * 6.0, MILLI(METRE)),
+    };
+  }
+
+  @Nonnull
+  private static ToDoubleFunction<TetrapolarSystem> layer1(@Nonnegative double rho) {
+    return system -> new Resistance1Layer(system).value(rho);
+  }
+
+  @Nonnull
+  private static ToDoubleFunction<TetrapolarSystem> layer2(@Nonnegative double rh1, @Nonnegative double rho2, @Nonnegative double hmm) {
+    return system -> new Resistance2Layer(system).value(rh1, rho2, Metrics.fromMilli(hmm));
+  }
+
+  @Nonnull
+  private static double[] rOhms(@Nonnull TetrapolarSystem[] systems, @Nonnull ToDoubleFunction<TetrapolarSystem> generator) {
+    return Arrays.stream(systems).mapToDouble(generator).toArray();
+  }
+
+  @DataProvider(name = "theoryStaticParameters3")
+  public static Object[][] theoryStaticParameters3() {
+    TetrapolarSystem[] systems3 = systems3(10.0);
+    return new Object[][] {
+        {
+            systems3,
+            rOhms(systems3, layer1(1.0)),
+        },
+        {
+            systems3,
+            rOhms(systems3, layer1(2.0)),
+        },
+        {
+            systems3,
+            rOhms(systems3, layer2(9.0, 9.0, 10.0)),
+        },
+
+        {
+            systems3,
+            rOhms(systems3, layer2(9.0, 1.0, 10.0)),
+        },
+        {
+            systems3,
+            rOhms(systems3, layer2(1.0, 4.0, 7.0)),
+        },
+        {
+            systems3,
+            rOhms(systems3, layer2(0.7, Double.POSITIVE_INFINITY, 30.0)),
+        },
     };
   }
 

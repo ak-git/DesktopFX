@@ -50,6 +50,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
       return String.format("%s; %s; h = %.2f mm", Strings.rho1(rho1), Strings.rho2(rho2), Metrics.toMilli(h));
     }
 
+    @Nonnull
     public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
       DoubleBinaryOperator subtract = (left, right) -> left - right;
       double subLogApparent = IntStream.range(0, systems.length)

@@ -32,6 +32,7 @@ public class StringsTest {
 
   @Test
   public void testRho() {
+    Assert.assertEquals(Strings.rho(2.1234), String.format("\u03c1 = %.3f %s", 2.123, OHM_METRE));
     Assert.assertEquals(Strings.rho1(2.1234), String.format("\u03c1\u2081 = %.3f %s", 2.123, OHM_METRE));
     Assert.assertEquals(Strings.rho2(20.1236), String.format("\u03c1\u2082 = %.3f %s", 20.124, OHM_METRE));
   }
