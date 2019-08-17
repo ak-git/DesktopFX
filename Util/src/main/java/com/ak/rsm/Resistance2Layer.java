@@ -14,6 +14,7 @@ import com.ak.util.Strings;
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.optim.SimpleBounds;
 
 import static java.lang.StrictMath.log;
 
@@ -61,22 +62,20 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
       MultivariateFunction multivariateFunction = p -> {
         double k = p[0];
         double Lh = p[1];
-        if (k > 1.0 || k < -1.0 || Lh <= 0) {
-          return Double.POSITIVE_INFINITY;
-        }
-        else {
-          double subLogApparentPredicted = Arrays.stream(systems)
-              .mapToDouble(system -> new Log1pApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
-          double subLogDiffPredicted = Arrays.stream(systems)
-              .mapToDouble(system -> new LogDerivativeApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
-          Inequality inequality = Inequality.absolute();
-          inequality.applyAsDouble(subLogApparent, subLogApparentPredicted);
-          inequality.applyAsDouble(subLogDiff, subLogDiffPredicted);
-          return inequality.getAsDouble();
-        }
+        double subLogApparentPredicted = Arrays.stream(systems)
+            .mapToDouble(system -> new Log1pApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
+        double subLogDiffPredicted = Arrays.stream(systems)
+            .mapToDouble(system -> new LogDerivativeApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
+        Inequality inequality = Inequality.absolute();
+        inequality.applyAsDouble(subLogApparent, subLogApparentPredicted);
+        inequality.applyAsDouble(subLogDiff, subLogDiffPredicted);
+        return inequality.getAsDouble();
       };
 
-      PointValuePair p = Simplex.optimizeNelderMead(multivariateFunction, new double[] {0.0, 1.0}, new double[] {0.1, 0.1});
+      PointValuePair p = Simplex.optimizeNelderMead(multivariateFunction,
+          new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {1.0, Double.POSITIVE_INFINITY}),
+          new double[] {0.0, 1.0}, new double[] {0.1, 0.1}
+      );
       double k = p.getPoint()[0];
       double Lh = p.getPoint()[1];
 

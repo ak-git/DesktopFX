@@ -33,7 +33,9 @@ public class SimplexTest {
 
   @Test(timeOut = 10000)
   public static void testRosenbrockNelderMeadSimplex() {
-    PointValuePair optimum = Simplex.optimizeNelderMead(new Rosenbrock(), new double[] {0.0, 0.0}, new double[] {0.1, 0.1});
+    PointValuePair optimum = Simplex.optimizeNelderMead(new Rosenbrock(),
+        new SimpleBounds(new double[] {-1.0, -1.0}, new double[] {2.0, 2.0}), new double[] {0.0, 0.0}, new double[] {0.1, 0.1}
+    );
     Assert.assertTrue(optimum.getValue() < 1.0e-6);
     Assert.assertEquals(optimum.getPoint()[0], 1.0, 1.0e-3);
   }
