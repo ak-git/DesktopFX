@@ -17,7 +17,6 @@ import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
-import tec.uom.se.unit.Units;
 
 import static java.lang.StrictMath.log;
 
@@ -34,7 +33,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     return applyAsDouble(u -> u.value(rho1, rho2, h));
   }
 
-  public static class Medium {
+  public static class Medium extends AbstractMedium {
     private final double rho1;
     private final double rho2;
     private final double h;
@@ -54,14 +53,9 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
       return String.format("%s; %s; h = %.2f mm", Strings.rho1(rho1), Strings.rho2(rho2), Metrics.toMilli(h));
     }
 
+    @Override
     public String toString(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
-      double[] predicted = Arrays.stream(systems).mapToDouble(s -> new Resistance2Layer(s).value(rho1, rho2, h)).toArray();
-      return String.format("%s; measured = %s, predicted = %s; L%s = %.6f", toString(),
-          Strings.toString("%.3f", rOhms, Units.OHM),
-          Strings.toString("%.3f", predicted, Units.OHM),
-          Strings.low(2),
-          Inequality.proportional().applyAsDouble(rOhms, predicted) / rOhms.length
-      );
+      return toString(systems, rOhms, s -> new Resistance2Layer(s).value(rho1, rho2, h));
     }
 
     @Nonnull

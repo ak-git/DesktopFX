@@ -1,12 +1,10 @@
 package com.ak.rsm;
 
-import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.inverse.Inequality;
 import com.ak.util.Strings;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
@@ -14,7 +12,6 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.QRDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
-import tec.uom.se.unit.Units;
 
 /**
  * Calculates <b>full</b> resistance R<sub>m-n</sub> (in Ohm) between electrodes for <b>single-layer</b> model.
@@ -45,7 +42,7 @@ final class Resistance1Layer extends AbstractResistanceLayer<Potential1Layer> im
     return rOhms / value(1.0);
   }
 
-  public static class Medium {
+  public static class Medium extends AbstractMedium {
     @Nonnegative
     private final double rho;
 
@@ -62,14 +59,9 @@ final class Resistance1Layer extends AbstractResistanceLayer<Potential1Layer> im
       return Strings.rho(rho);
     }
 
+    @Override
     public String toString(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
-      double[] predicted = Arrays.stream(systems).mapToDouble(s -> new Resistance1Layer(s).value(rho)).toArray();
-      return String.format("%s; measured = %s, predicted = %s; L%s = %.6f", toString(),
-          Strings.toString("%.3f", rOhms, Units.OHM),
-          Strings.toString("%.3f", predicted, Units.OHM),
-          Strings.low(2),
-          Inequality.proportional().applyAsDouble(rOhms, predicted) / rOhms.length
-      );
+      return toString(systems, rOhms, s -> new Resistance1Layer(s).value(rho));
     }
 
     @Nonnull
