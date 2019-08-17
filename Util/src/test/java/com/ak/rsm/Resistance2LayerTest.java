@@ -122,7 +122,7 @@ public class Resistance2LayerTest {
 
   private static String toString3(@Nonnull PointValuePair point, @Nonnegative int avg) {
     double[] v = point.getPoint();
-    return String.format("%s = %.3f, %s = %.3f, h = %.3f mm, e = %.6f", Strings.RHO_1, v[0], Strings.RHO_2, v[1], v[2] * 1000, point.getValue() / Math.sqrt(avg));
+    return String.format("%s, %s, h = %.3f mm, e = %.6f", Strings.rho1(v[0]), Strings.rho2(v[1]), v[2] * 1000, point.getValue() / Math.sqrt(avg));
   }
 
   @Test(dataProviderClass = LayersProvider.class, dataProvider = "waterDynamicParameters2", enabled = false)
@@ -151,7 +151,7 @@ public class Resistance2LayerTest {
       Inequality inequality = Inequality.absolute();
       inequality.applyAsDouble(dH, Arrays.stream(predictedDiff).mapToDouble(pd -> pd.value(rho1, rho2, h)).toArray());
       Logger.getAnonymousLogger().config(
-          String.format("%s = %.3f, %s = %.3f, h = %.3f mm, e = %.6f, eh = %.6f", Strings.RHO_1, rho1, Strings.RHO_2, rho2, h * 1000, pair.getValue(), inequality.getAsDouble())
+          String.format("%s, %s, h = %.3f mm, e = %.6f, eh = %.6f", Strings.rho1(rho1), Strings.rho2(rho2), h * 1000, pair.getValue(), inequality.getAsDouble())
       );
       return inequality.getAsDouble();
     }, new double[] {Metrics.fromMilli(1.0)}, new double[] {Metrics.fromMilli(0.1)});
@@ -159,8 +159,8 @@ public class Resistance2LayerTest {
     double h = hPoint.getPoint()[0];
     PointValuePair rho = rho1rho2.apply(h);
     Logger.getAnonymousLogger().info(
-        String.format("%s = %.3f, %s = %.3f, h = %.3f mm, e = %.6f, eh = %.6f",
-            Strings.RHO_1, rho.getPoint()[0], Strings.RHO_2, rho.getPoint()[1], h * 1000, rho.getValue(), hPoint.getValue()
+        String.format("%s, %s, h = %.3f mm, e = %.6f, eh = %.6f",
+            Strings.rho1(rho.getPoint()[0]), Strings.rho2(rho.getPoint()[1]), h * 1000, rho.getValue(), hPoint.getValue()
         )
     );
   }

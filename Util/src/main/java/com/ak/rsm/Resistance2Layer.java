@@ -47,10 +47,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
 
     @Override
     public String toString() {
-      return String.format("%s = %.2f %s; %s = %.2f %s; h = %.2f mm",
-          Strings.RHO_1, rho1, Strings.OHM_METRE,
-          Strings.RHO_2, rho2, Strings.OHM_METRE,
-          Metrics.toMilli(h));
+      return String.format("%s; %s; h = %.2f mm", Strings.rho1(rho1), Strings.rho2(rho2), Metrics.toMilli(h));
     }
 
     public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {

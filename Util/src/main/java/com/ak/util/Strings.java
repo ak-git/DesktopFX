@@ -1,5 +1,6 @@
 package com.ak.util;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import static tec.uom.se.unit.Units.METRE;
@@ -23,8 +24,6 @@ public enum Strings {
   private static final String LOW_12 = LOW_1 + LOW_2;
   private static final String LOW_23 = LOW_2 + LOW_3;
 
-  public static final String RHO_1 = RHO + LOW_1;
-  public static final String RHO_2 = RHO + LOW_2;
   public static final String K_12 = "k" + LOW_12;
   public static final String K_23 = "k" + LOW_23;
 
@@ -33,5 +32,17 @@ public enum Strings {
   public static String numberSuffix(@Nonnull String s) {
     String ignore = s.replaceFirst("\\d*$", EMPTY);
     return s.replace(ignore, EMPTY);
+  }
+
+  public static String rho1(@Nonnegative double rho1) {
+    return rho(rho1, 1);
+  }
+
+  public static String rho2(@Nonnegative double rho2) {
+    return rho(rho2, 2);
+  }
+
+  private static String rho(@Nonnegative double rho, @Nonnegative int index) {
+    return String.format("%s%s = %.3f %s", RHO, (char) ((int) '\u2080' + index), rho, OHM_METRE);
   }
 }
