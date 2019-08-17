@@ -13,14 +13,8 @@ import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.LUDecomposition;
-import org.apache.commons.math3.optim.InitialGuess;
-import org.apache.commons.math3.optim.MaxEval;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
-import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
-import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer;
-import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.util.Pair;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -52,7 +46,7 @@ public class SimplexTest {
               initialGuess[i] = bounds.getUpper()[i];
             }
           }
-          return optimizeCMAES(function, bounds, initialGuess, initialSteps);
+          return Simplex.optimizeCMAES(function, bounds, initialGuess, initialSteps);
         })
         .parallel()
         .peek(p -> Logger.getAnonymousLogger().config(
@@ -60,25 +54,6 @@ public class SimplexTest {
                 p.getValue()))
         )
         .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
-  }
-
-  private static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
-                                              @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
-    return IntStream.range(0, 1).mapToObj(value -> new CMAESOptimizer(30000, 1.0e-6, true, 0,
-        10, new MersenneTwister(), false, null)
-        .optimize(
-            new MaxEval(30000),
-            new ObjectiveFunction(function),
-            GoalType.MINIMIZE,
-            new InitialGuess(initialGuess),
-            bounds,
-            new CMAESOptimizer.Sigma(initialSteps),
-            new CMAESOptimizer.PopulationSize(2 * (4 + (int) (3.0 * StrictMath.log(initialGuess.length))))
-        )).parallel()
-        .peek(p -> Logger.getAnonymousLogger().config(
-            String.format("%s %.6f %n", Arrays.stream(p.getPoint()).mapToObj(value -> String.format("%.3f", value)).collect(Collectors.joining(", ", "[", "]")),
-                p.getValue()))
-        ).min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
 
   @Test(invocationCount = 10)
@@ -89,7 +64,7 @@ public class SimplexTest {
     double[][] boundaries = boundaries(DIM, -(Math.random() + 0.5), 2.0 * (Math.random() + 0.5));
     PointValuePair expected = new PointValuePair(point(DIM, 1.0), 0.0);
 
-    PointValuePair result = optimizeCMAES(new Rosenbrock(), new SimpleBounds(boundaries[0], boundaries[1]), startPoint, inSigma);
+    PointValuePair result = Simplex.optimizeCMAES(new Rosenbrock(), new SimpleBounds(boundaries[0], boundaries[1]), startPoint, inSigma);
 
     Logger.getAnonymousLogger().finest("sol=" + Arrays.toString(result.getPoint()));
     Assert.assertEquals(expected.getValue(), result.getValue(), 1.0e-6);

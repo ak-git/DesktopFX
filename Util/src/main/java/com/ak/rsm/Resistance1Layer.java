@@ -1,8 +1,11 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import com.ak.inverse.Inequality;
 import com.ak.util.Strings;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
@@ -10,6 +13,7 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
+import tec.uom.se.unit.Units;
 
 /**
  * Calculates <b>full</b> resistance R<sub>m-n</sub> (in Ohm) between electrodes for <b>single-layer</b> model.
@@ -48,9 +52,23 @@ final class Resistance1Layer extends AbstractResistanceLayer<Potential1Layer> im
       this.rho = rho;
     }
 
+    public double getRho() {
+      return rho;
+    }
+
     @Override
     public String toString() {
-      return Strings.rho1(rho);
+      return Strings.rho(rho);
+    }
+
+    public String toString(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
+      double[] predicted = Arrays.stream(systems).mapToDouble(s -> new Resistance1Layer(s).value(rho)).toArray();
+      return String.format("%s; measured = %s, predicted = %s; L%s = %.6f", toString(),
+          Strings.toString("%.3f", rOhms, Units.OHM),
+          Strings.toString("%.3f", predicted, Units.OHM),
+          Strings.low(2),
+          Inequality.proportional().applyAsDouble(rOhms, predicted) / rOhms.length
+      );
     }
 
     @Nonnull
@@ -60,8 +78,9 @@ final class Resistance1Layer extends AbstractResistanceLayer<Potential1Layer> im
         coefficients.setEntry(i, 0, new Resistance1Layer(systems[i]).value(1.0));
       }
       RealVector constants = new ArrayRealVector(rOhms, false);
-      RealVector solution = new SingularValueDecomposition(coefficients).getSolver().solve(constants);
-      return new Medium(solution.getEntry(0));
+
+      double rho = new SingularValueDecomposition(coefficients).getSolver().solve(constants).getEntry(0);
+      return new Medium(rho);
     }
   }
 }

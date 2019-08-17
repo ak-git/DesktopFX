@@ -106,11 +106,11 @@ class LayersProvider {
         },
         {
             systems3,
-            rOhms(systems3, layer2(1.0, 4.0, 7.0)),
+            rOhms(systems3, layer2(1.0, 4.0, 2.0)),
         },
         {
             systems3,
-            rOhms(systems3, layer2(0.7, Double.POSITIVE_INFINITY, 30.0)),
+            rOhms(systems3, layer2(0.7, Double.POSITIVE_INFINITY, 11.0)),
         },
     };
   }

@@ -1,19 +1,12 @@
 package com.ak.rsm;
 
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.inverse.Inequality;
-import com.ak.math.SimplexTest;
 import com.ak.util.Metrics;
-import com.ak.util.Strings;
-import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -102,27 +95,14 @@ public class Resistance2LayerTest {
     Assert.assertEquals(new Resistance2Layer(system).value(rho[0], rho[1], Metrics.fromMilli(hmm)), rOhm, 0.001);
   }
 
-  @Test(dataProviderClass = LayersProvider.class, dataProvider = "staticParameters", enabled = false)
-  public static void testInverseStatic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
-    Resistance2Layer[] predicted = Stream.of(systems).map(Resistance2Layer::new).toArray(Resistance2Layer[]::new);
-    SimpleBounds bounds = new SimpleBounds(
-        new double[] {0.0, 0.0, 0.0},
-        new double[] {1000.0, 1000.0, Metrics.fromMilli(100.0)}
-    );
-    PointValuePair pair = SimplexTest.optimizeCMAES(point ->
-            Inequality.absolute().applyAsDouble(rOhms, Arrays.stream(predicted).mapToDouble(p -> p.value(point[0], point[1], point[2])).toArray()),
-        bounds, new double[] {0.01, 0.01, Metrics.fromMilli(0.1)});
-    Logger.getAnonymousLogger().warning(toString3(pair, systems.length));
-  }
-
-  private static String toString3(@Nonnull PointValuePair point, @Nonnegative int avg) {
-    double[] v = point.getPoint();
-    return String.format("%s, %s, h = %.3f mm, e = %.6f", Strings.rho1(v[0]), Strings.rho2(v[1]), v[2] * 1000, point.getValue() / Math.sqrt(avg));
+  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryStaticParameters3", enabled = false)
+  public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
+    Logger.getAnonymousLogger().log(Level.WARNING, Resistance2Layer.Medium.inverse(systems, rOhms).toString(systems, rOhms));
   }
 
   @Test(dataProviderClass = LayersProvider.class, dataProvider = "dynamicParameters2", enabled = false)
   public static void testInverseDynamic2(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
     Resistance2Layer.Medium medium = Resistance2Layer.Medium.inverse(systems, rOhmsBefore, rOhmsAfter, dh);
-    Logger.getAnonymousLogger().log(Level.INFO, medium.toString());
+    Logger.getAnonymousLogger().log(Level.WARNING, medium.toString());
   }
 }

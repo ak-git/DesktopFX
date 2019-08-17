@@ -1,7 +1,11 @@
 package com.ak.util;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.measure.Unit;
 
 import static tec.uom.se.unit.Units.METRE;
 import static tec.uom.se.unit.Units.OHM;
@@ -18,20 +22,19 @@ public enum Strings {
   public static final String DELTA = "\u03b4";
 
   private static final String RHO = "\u03c1";
-  private static final String LOW_1 = "\u2081";
-  private static final String LOW_2 = "\u2082";
-  private static final String LOW_3 = "\u2083";
-  private static final String LOW_12 = LOW_1 + LOW_2;
-  private static final String LOW_23 = LOW_2 + LOW_3;
 
-  public static final String K_12 = "k" + LOW_12;
-  public static final String K_23 = "k" + LOW_23;
+  public static final String K_12 = "k" + low(1) + low(2);
+  public static final String K_23 = "k" + low(2) + low(3);
 
   public static final String OHM_METRE = new StringBuilder(OHM.multiply(METRE).toString()).reverse().toString();
 
   public static String numberSuffix(@Nonnull String s) {
     String ignore = s.replaceFirst("\\d*$", EMPTY);
     return s.replace(ignore, EMPTY);
+  }
+
+  public static String toString(@Nonnull String format, @Nonnull double[] values, Unit<?> unit) {
+    return Arrays.stream(values).mapToObj(x -> String.format(format, x)).collect(Collectors.joining("; ", "{", "} " + unit));
   }
 
   public static String rho(@Nonnegative double rho) {
@@ -46,7 +49,11 @@ public enum Strings {
     return rho(rho2, 2);
   }
 
+  public static char low(int index) {
+    return (char) ((int) '\u2080' + index);
+  }
+
   private static String rho(@Nonnegative double rho, @Nonnegative int index) {
-    return String.format("%s%s = %.3f %s", RHO, (char) ((int) '\u2080' + index), rho, OHM_METRE);
+    return String.format("%s%s = %.3f %s", RHO, low(index), rho, OHM_METRE);
   }
 }

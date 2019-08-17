@@ -1,5 +1,6 @@
 package com.ak.rsm;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
@@ -50,6 +51,6 @@ public class Resistance1LayerTest {
 
   @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryStaticParameters3", enabled = false)
   public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
-    Logger.getAnonymousLogger().info(Resistance1Layer.Medium.inverse(systems, rOhms).toString());
+    Logger.getAnonymousLogger().log(Level.INFO, Resistance1Layer.Medium.inverse(systems, rOhms).toString(systems, rOhms));
   }
 }

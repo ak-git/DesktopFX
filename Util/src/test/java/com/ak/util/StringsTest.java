@@ -5,6 +5,7 @@ import javax.annotation.Nonnull;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import tec.uom.se.unit.Units;
 
 import static com.ak.util.Strings.OHM_METRE;
 
@@ -28,6 +29,11 @@ public class StringsTest {
   @Test(dataProvider = "strings")
   public void testNumberSuffix(@Nonnull String toExtract, @Nonnull String expected) {
     Assert.assertEquals(Strings.numberSuffix(toExtract), expected);
+  }
+
+  @Test
+  public void testArrayToString() {
+    Assert.assertEquals(Strings.toString("%.3f", new double[] {1.2, 1.23, 1.2345}, Units.OHM), "{1,200; 1,230; 1,235} " + Units.OHM);
   }
 
   @Test

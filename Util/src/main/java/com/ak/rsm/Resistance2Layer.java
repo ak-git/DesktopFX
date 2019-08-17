@@ -2,6 +2,8 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.function.DoubleBinaryOperator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -15,6 +17,7 @@ import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
+import tec.uom.se.unit.Units;
 
 import static java.lang.StrictMath.log;
 
@@ -51,6 +54,39 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
       return String.format("%s; %s; h = %.2f mm", Strings.rho1(rho1), Strings.rho2(rho2), Metrics.toMilli(h));
     }
 
+    public String toString(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
+      double[] predicted = Arrays.stream(systems).mapToDouble(s -> new Resistance2Layer(s).value(rho1, rho2, h)).toArray();
+      return String.format("%s; measured = %s, predicted = %s; L%s = %.6f", toString(),
+          Strings.toString("%.3f", rOhms, Units.OHM),
+          Strings.toString("%.3f", predicted, Units.OHM),
+          Strings.low(2),
+          Inequality.proportional().applyAsDouble(rOhms, predicted) / rOhms.length
+      );
+    }
+
+    @Nonnull
+    public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
+      Resistance1Layer.Medium inverse = Resistance1Layer.Medium.inverse(systems, rOhms);
+      Logger.getAnonymousLogger().log(Level.INFO, Resistance1Layer.Medium.inverse(systems, rOhms).toString(systems, rOhms));
+
+      double rho = inverse.getRho();
+      double maxL = Arrays.stream(systems).mapToDouble(s -> s.Lh(1.0)).max().orElseThrow();
+      double[] measured = IntStream.range(0, systems.length).mapToDouble(i -> new Resistance1Layer(systems[i]).getApparent(rOhms[i])).toArray();
+
+      PointValuePair pointValuePair = Simplex.optimizeCMAES(point -> {
+            double rho1 = point[0];
+            double rho2 = point[1];
+            double h = point[2];
+
+            double[] predicted = Arrays.stream(systems).mapToDouble(s -> new Resistance1Layer(s).getApparent(new Resistance2Layer(s).value(rho1, rho2, h))).toArray();
+            return Inequality.absolute().applyAsDouble(measured, predicted);
+          }, new SimpleBounds(new double[] {0.0, 0.0, 0.0}, new double[] {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, maxL}),
+          new double[] {rho, rho, 0}, new double[] {rho / 10.0, rho / 10.0, maxL / 10.0});
+
+      double[] p = pointValuePair.getPoint();
+      return new Medium(p[0], p[1], p[2]);
+    }
+
     @Nonnull
     public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
       DoubleBinaryOperator subtract = (left, right) -> left - right;
@@ -83,7 +119,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
           .mapToDouble(i -> log(new Resistance1Layer(systems[i]).getApparent(rOhmsBefore[i]))).reduce(Double::sum).orElseThrow();
       double sumLogApparentPredicted = Arrays.stream(systems)
           .mapToDouble(system -> new Log1pApparent2Rho(system.sToL()).value(k, Lh)).reduce(Double::sum).orElseThrow();
-      double rho1 = StrictMath.exp((sumLogApparent - sumLogApparentPredicted) / 2.0);
+      double rho1 = StrictMath.exp((sumLogApparent - sumLogApparentPredicted) / systems.length);
       double rho2 = rho1 / Layers.getRho1ToRho2(k);
       double h = systems[0].h(Lh);
       return new Medium(rho1, rho2, h);
