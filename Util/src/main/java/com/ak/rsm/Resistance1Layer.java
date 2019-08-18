@@ -7,11 +7,6 @@ import javax.annotation.Nonnull;
 
 import com.ak.util.Strings;
 import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.ArrayRealVector;
-import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.RealVector;
-import org.apache.commons.math3.linear.SingularValueDecomposition;
 
 /**
  * Calculates <b>full</b> resistance R<sub>m-n</sub> (in Ohm) between electrodes for <b>single-layer</b> model.
@@ -66,17 +61,7 @@ final class Resistance1Layer extends AbstractResistanceLayer<Potential1Layer> im
 
     @Nonnull
     public static Resistance1Layer.Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
-      RealMatrix coefficients = new Array2DRowRealMatrix(systems.length, 1);
-      for (int i = 0; i < systems.length; i++) {
-        coefficients.setEntry(i, 0, 1.0);
-      }
-      RealVector constants = new ArrayRealVector(
-          IntStream.range(0, systems.length).mapToDouble(i -> new Resistance1Layer(systems[i]).getApparent(rOhms[i])).toArray(),
-          false
-      );
-
-      double rho = new SingularValueDecomposition(coefficients).getSolver().solve(constants).getEntry(0);
-      return new Medium(rho);
+      return new Medium(IntStream.range(0, systems.length).mapToDouble(i -> new Resistance1Layer(systems[i]).getApparent(rOhms[i])).average().orElseThrow());
     }
   }
 }
