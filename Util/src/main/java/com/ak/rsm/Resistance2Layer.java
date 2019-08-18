@@ -2,7 +2,6 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.function.DoubleBinaryOperator;
-import java.util.function.DoubleUnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -84,19 +83,18 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
 
     @Nonnull
     public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
+      double rho = Resistance1Layer.Medium.inverse(systems, rOhmsBefore).getRho();
+      Logger.getAnonymousLogger().log(Level.INFO, Resistance1Layer.Medium.inverse(systems, rOhmsBefore).toString(systems, rOhmsBefore));
+
       DoubleBinaryOperator subtract = (left, right) -> left - right;
-      DoubleUnaryOperator checkFinite = x -> {
-        if (Double.isFinite(x)) {
-          return x;
-        }
-        else {
-          return 0.0;
-        }
-      };
       double subLogApparent = IntStream.range(0, systems.length)
           .mapToDouble(i -> log(new Resistance1Layer(systems[i]).getApparent(rOhmsBefore[i]))).reduce(subtract).orElseThrow();
       double subLogDiff = IntStream.range(0, systems.length)
-          .mapToDouble(i -> log(Math.abs((rOhmsAfter[i] - rOhmsBefore[i]) / dh))).map(checkFinite).reduce(subtract).orElseThrow();
+          .mapToDouble(i -> log(Math.abs((rOhmsAfter[i] - rOhmsBefore[i]) / dh))).reduce(subtract).orElseThrow();
+
+      if (Double.isNaN(subLogDiff)) {
+        return new Medium(rho, rho, 0.0);
+      }
 
       MultivariateFunction multivariateFunction = p -> {
         double k = p[0];
@@ -104,14 +102,14 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
         double subLogApparentPredicted = Arrays.stream(systems)
             .mapToDouble(system -> new Log1pApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
         double subLogDiffPredicted = Arrays.stream(systems)
-            .mapToDouble(system -> new LogDerivativeApparent2Rho(system.sToL()).value(k, Lh)).map(checkFinite).reduce(subtract).orElseThrow();
+            .mapToDouble(system -> new LogDerivativeApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
         Inequality inequality = Inequality.absolute();
         inequality.applyAsDouble(subLogApparent, subLogApparentPredicted);
         inequality.applyAsDouble(subLogDiff, subLogDiffPredicted);
         return inequality.getAsDouble();
       };
 
-      PointValuePair p = Simplex.optimizeCMAES(multivariateFunction,
+      PointValuePair p = Simplex.optimizeNelderMead(multivariateFunction,
           new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {1.0, Double.POSITIVE_INFINITY}),
           new double[] {0.0, 1.0}, new double[] {0.1, 0.1}
       );
