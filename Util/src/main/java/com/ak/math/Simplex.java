@@ -18,17 +18,17 @@ public class Simplex {
   private Simplex() {
   }
 
-  public static PointValuePair optimizeNelderMead(@Nonnull MultivariateFunction function,
-                                                  @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
+  public static PointValuePair optimize(@Nonnull MultivariateFunction function,
+                                        @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
     return new SimplexOptimizer(1.0e-6, 1.0e-6).optimize(new MaxEval(30000), new ObjectiveFunction(function), GoalType.MINIMIZE,
         new NelderMeadSimplex(initialSteps), new InitialGuess(initialGuess));
   }
 
-  public static PointValuePair optimizeNelderMead(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
-                                                  @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
-    return optimizeNelderMead(point -> {
+  public static PointValuePair optimize(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
+                                        @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
+    return optimize(point -> {
       for (int i = 0; i < point.length; i++) {
-        if (bounds.getLower()[i] > point[i] || bounds.getUpper()[i] < point[i]) {
+        if (bounds.getLower()[i] >= point[i] || bounds.getUpper()[i] <= point[i]) {
           return Double.POSITIVE_INFINITY;
         }
       }

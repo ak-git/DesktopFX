@@ -135,7 +135,7 @@ public class Resistance3LayerTest {
     for (int p1 = 1; p1 < 10; p1++) {
       int finalP = p1;
       int p2 = (int) (10.0 / hStep) - p1;
-      PointValuePair pointValuePair = Simplex.optimizeNelderMead(rho1point -> {
+      PointValuePair pointValuePair = Simplex.optimize(rho1point -> {
         double rho1 = rho1point[0];
         return Inequality.logDifference().applyAsDouble(rOhms, Arrays.stream(predicted).mapToDouble(r -> r.value(rho1, 0.7, Double.POSITIVE_INFINITY, finalP, p2)).toArray());
       }, new SimpleBounds(new double[] {0.0}, new double[] {Double.POSITIVE_INFINITY}), new double[] {10.0}, new double[] {0.1});
@@ -219,7 +219,7 @@ public class Resistance3LayerTest {
 
           MultivariateFunction multivariateFunction = point -> {
             double k12 = point[0];
-            PointValuePair pointValuePair = Simplex.optimizeNelderMead(k23point -> {
+            PointValuePair pointValuePair = Simplex.optimize(k23point -> {
               double k23 = k23point[0];
               double[] subLogApparentPredicted = Arrays.stream(systems).mapToDouble(s -> Arrays.stream(s)
                   .mapToDouble(system -> new Log1pApparent3Rho(system.sToL(), system.Lh(dh)).value(k12, k23, p1, p2))
@@ -252,7 +252,7 @@ public class Resistance3LayerTest {
             return v;
           };
 
-          PointValuePair pointValuePair1 = Simplex.optimizeNelderMead(multivariateFunction,
+          PointValuePair pointValuePair1 = Simplex.optimize(multivariateFunction,
               new SimpleBounds(new double[] {-0.999}, new double[] {0.999}), new double[] {-0.1}, new double[] {0.1});
           Logger.getAnonymousLogger().info(Arrays.toString(pointValuePair1.getPoint()));
 

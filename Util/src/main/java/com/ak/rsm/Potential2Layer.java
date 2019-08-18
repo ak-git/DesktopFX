@@ -13,6 +13,13 @@ final class Potential2Layer extends AbstractPotentialLayer implements Trivariate
 
   @Override
   public double value(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double h) {
-    return value(rho1, r -> (1.0 / r + 2.0 * Layers.sum(n -> pow(Layers.getK12(rho1, rho2), n), Layers.denominator(r, h))));
+    return value(rho1, r -> {
+      double k = Layers.getK12(rho1, rho2);
+      double result = 1.0 / r;
+      if (Double.compare(k, 0.0) != 0.0) {
+        result += 2.0 * Layers.sum(n -> pow(k, n), Layers.denominator(r, h));
+      }
+      return result;
+    });
   }
 }

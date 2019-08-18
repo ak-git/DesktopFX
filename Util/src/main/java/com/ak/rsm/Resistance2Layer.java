@@ -2,6 +2,7 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -96,25 +97,29 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
         return new Medium(rho, rho, 0.0);
       }
 
-      MultivariateFunction multivariateFunction = p -> {
-        double k = p[0];
-        double Lh = p[1];
-        double subLogApparentPredicted = Arrays.stream(systems)
-            .mapToDouble(system -> new Log1pApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
-        double subLogDiffPredicted = Arrays.stream(systems)
-            .mapToDouble(system -> new LogDerivativeApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
-        Inequality inequality = Inequality.absolute();
-        inequality.applyAsDouble(subLogApparent, subLogApparentPredicted);
-        inequality.applyAsDouble(subLogDiff, subLogDiffPredicted);
-        return inequality.getAsDouble();
+      DoubleUnaryOperator findK = Lh -> {
+        MultivariateFunction multivariateFunction = p -> {
+          double k = p[0];
+          double subLogApparentPredicted = Arrays.stream(systems)
+              .mapToDouble(system -> new Log1pApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
+          return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
+        };
+        return Simplex.optimize(multivariateFunction, new SimpleBounds(new double[] {-1.0}, new double[] {1.0}), new double[] {0.0}, new double[] {0.1}).getPoint()[0];
       };
 
-      PointValuePair p = Simplex.optimizeNelderMead(multivariateFunction,
-          new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {1.0, Double.POSITIVE_INFINITY}),
-          new double[] {0.0, 1.0}, new double[] {0.1, 0.1}
+      PointValuePair findLh = Simplex.optimize(point -> {
+            double Lh = point[0];
+            double k = findK.applyAsDouble(Lh);
+            double subLogDiffPredicted = Arrays.stream(systems)
+                .mapToDouble(system -> new LogDerivativeApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
+            return Inequality.absolute().applyAsDouble(subLogDiff, subLogDiffPredicted);
+          },
+          new SimpleBounds(new double[] {0.0}, new double[] {Double.POSITIVE_INFINITY}),
+          new double[] {1.0}, new double[] {0.1}
       );
-      double k = p.getPoint()[0];
-      double Lh = p.getPoint()[1];
+
+      double Lh = findLh.getPoint()[0];
+      double k = findK.applyAsDouble(Lh);
 
       double sumLogApparent = IntStream.range(0, systems.length)
           .mapToDouble(i -> log(new Resistance1Layer(systems[i]).getApparent(rOhmsBefore[i]))).reduce(Double::sum).orElseThrow();

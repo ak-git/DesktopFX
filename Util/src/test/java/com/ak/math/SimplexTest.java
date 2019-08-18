@@ -1,13 +1,9 @@
 package com.ak.math;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
@@ -15,7 +11,6 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
-import org.apache.commons.math3.util.Pair;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -27,33 +22,11 @@ public class SimplexTest {
 
   @Test(timeOut = 10000)
   public static void testRosenbrockNelderMeadSimplex() {
-    PointValuePair optimum = Simplex.optimizeNelderMead(new Rosenbrock(),
+    PointValuePair optimum = Simplex.optimize(new Rosenbrock(),
         new SimpleBounds(new double[] {-1.0, -1.0}, new double[] {2.0, 2.0}), new double[] {0.0, 0.0}, new double[] {0.1, 0.1}
     );
     Assert.assertTrue(optimum.getValue() < 1.0e-6);
     Assert.assertEquals(optimum.getPoint()[0], 1.0, 1.0e-3);
-  }
-
-  public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds, @Nonnull double[] initialSteps) {
-    return IntStream.rangeClosed(1, 1 << bounds.getLower().length)
-        .mapToObj(n -> {
-          double[] initialGuess = new double[bounds.getLower().length];
-          for (int i = 0; i < initialGuess.length; i++) {
-            if ((n & (1 << i)) == 0) {
-              initialGuess[i] = bounds.getLower()[i];
-            }
-            else {
-              initialGuess[i] = bounds.getUpper()[i];
-            }
-          }
-          return Simplex.optimizeCMAES(function, bounds, initialGuess, initialSteps);
-        })
-        .parallel()
-        .peek(p -> Logger.getAnonymousLogger().config(
-            String.format("%s %.6f %n", Arrays.stream(p.getPoint()).mapToObj(value -> String.format("%.3f", value)).collect(Collectors.joining(", ", "[", "]")),
-                p.getValue()))
-        )
-        .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
 
   @Test(invocationCount = 10)

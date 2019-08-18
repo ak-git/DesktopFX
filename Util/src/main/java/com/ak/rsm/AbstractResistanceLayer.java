@@ -7,6 +7,7 @@ import java.util.function.ToDoubleFunction;
 import javax.annotation.Nonnull;
 
 import com.ak.inverse.Inequality;
+import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import tec.uom.se.unit.Units;
 
@@ -29,11 +30,12 @@ abstract class AbstractResistanceLayer<U extends AbstractPotentialLayer> impleme
 
     final String toString(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms, @Nonnull ToDoubleFunction<? super TetrapolarSystem> toDoubleFunction) {
       double[] predicted = Arrays.stream(systems).mapToDouble(toDoubleFunction).toArray();
-      return String.format("%s; measured = %s, predicted = %s; L%s = %.6f", toString(),
+      return String.format("%s; measured = %s, predicted = %s; L%s = %.1f %s", toString(),
           Strings.toString("%.3f", rOhms, Units.OHM),
           Strings.toString("%.3f", predicted, Units.OHM),
           Strings.low(2),
-          Inequality.proportional().applyAsDouble(rOhms, predicted) / rOhms.length
+          Metrics.toPercents(Inequality.proportional().applyAsDouble(rOhms, predicted) / rOhms.length),
+          Units.PERCENT
       );
     }
   }

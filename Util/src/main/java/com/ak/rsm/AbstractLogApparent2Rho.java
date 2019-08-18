@@ -13,8 +13,13 @@ abstract class AbstractLogApparent2Rho extends AbstractApparent implements Bivar
 
   @Override
   public final double value(double k, @Nonnegative double Lh) {
-    IntToDoubleFunction sum = sum(k, Lh);
-    return innerValue(Lh, sum.applyAsDouble(-1) - sum.applyAsDouble(1));
+    if (Double.compare(k, 0.0) == 0) {
+      return innerValue(Lh, 0.0);
+    }
+    else {
+      IntToDoubleFunction sum = sum(k, Lh);
+      return innerValue(Lh, sum.applyAsDouble(-1) - sum.applyAsDouble(1));
+    }
   }
 
   abstract double innerValue(double Lh, double sums);

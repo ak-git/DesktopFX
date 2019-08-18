@@ -9,9 +9,9 @@ import com.ak.util.Strings;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
-import org.apache.commons.math3.linear.QRDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.SingularValueDecomposition;
 
 /**
  * Calculates <b>full</b> resistance R<sub>m-n</sub> (in Ohm) between electrodes for <b>single-layer</b> model.
@@ -75,7 +75,7 @@ final class Resistance1Layer extends AbstractResistanceLayer<Potential1Layer> im
           false
       );
 
-      double rho = new QRDecomposition(coefficients).getSolver().solve(constants).getEntry(0);
+      double rho = new SingularValueDecomposition(coefficients).getSolver().solve(constants).getEntry(0);
       return new Medium(rho);
     }
   }
