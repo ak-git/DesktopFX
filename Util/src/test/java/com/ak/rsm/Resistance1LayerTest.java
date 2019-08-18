@@ -49,7 +49,7 @@ public class Resistance1LayerTest {
     Assert.assertEquals(r.getApparent(resistance), specificResistance, 1.0e-6);
   }
 
-  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryStaticParameters3", enabled = false)
+  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryStaticParameters", enabled = false)
   public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
     Logger.getAnonymousLogger().log(Level.INFO, Resistance1Layer.Medium.inverse(systems, rOhms).toString(systems, rOhms));
   }

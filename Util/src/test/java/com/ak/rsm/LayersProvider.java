@@ -83,8 +83,8 @@ class LayersProvider {
     return Arrays.stream(systems).mapToDouble(generator).toArray();
   }
 
-  @DataProvider(name = "theoryStaticParameters3")
-  public static Object[][] theoryStaticParameters3() {
+  @DataProvider(name = "theoryStaticParameters")
+  public static Object[][] theoryStaticParameters() {
     TetrapolarSystem[] systems3 = systems3(10.0);
     return new Object[][] {
         {
@@ -134,8 +134,166 @@ class LayersProvider {
     };
   }
 
-  @DataProvider(name = "dynamicParameters")
-  public static Object[][] dynamicParameters() {
+  @DataProvider(name = "theoryDynamicParameters")
+  public static Object[][] theoryDynamicParameters() {
+    TetrapolarSystem[] systems2 = systems2(10);
+    double dh = -0.1;
+    return new Object[][] {
+        {
+            systems2,
+            rOhms(systems2, layer1(1.0)),
+            rOhms(systems2, layer1(1.0)),
+            Metrics.fromMilli(dh)
+        },
+        {
+            systems2,
+            rOhms(systems2, layer1(2.0)),
+            rOhms(systems2, layer1(2.0)),
+            Metrics.fromMilli(dh)
+        },
+        {
+            systems2,
+            rOhms(systems2, layer2(9.0, 9.0, 10.0)),
+            rOhms(systems2, layer2(9.0, 9.0, 10.0 + dh)),
+            Metrics.fromMilli(dh)
+        },
+
+        {
+            systems2,
+            rOhms(systems2, layer2(9.0, 1.0, 10.0)),
+            rOhms(systems2, layer2(9.0, 1.0, 10.0 + dh)),
+            Metrics.fromMilli(dh)
+        },
+        {
+            systems2,
+            rOhms(systems2, layer2(1.0, 4.0, 2.0)),
+            rOhms(systems2, layer2(1.0, 4.0, 2.0 + dh)),
+            Metrics.fromMilli(dh)
+        },
+        {
+            systems2,
+            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, 11.0)),
+            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, 11.0 + dh)),
+            Metrics.fromMilli(dh)
+        },
+    };
+  }
+
+
+  @DataProvider(name = "waterDynamicParameters2")
+  public static Object[][] waterDynamicParameters2() {
+    double dh = -Metrics.fromMilli(10.0 / 200.0);
+    return new Object[][] {
+        // h = 5 mm, rho1 = 0.7, rho2 = Inf
+        {
+            systems2(10.0),
+            new double[] {30.971, 61.860},
+            new double[] {31.278, 62.479},
+            dh
+        },
+        // h = 10 mm, rho1 = 0.7, rho2 = Inf
+        {
+            systems2(10.0),
+            new double[] {16.761, 32.246},
+            new double[] {16.821, 32.383},
+            dh
+        },
+        // h = 15 mm, rho1 = 0.7, rho2 = Inf
+        {
+            systems2(10.0),
+            new double[] {13.338, 23.903},
+            new double[] {13.357, 23.953},
+            dh
+        },
+        // h = 20 mm, rho1 = 0.7, rho2 = Inf
+        {
+            systems2(10.0),
+            new double[] {12.187, 20.567},
+            new double[] {12.194, 20.589},
+            dh
+        },
+        // h = 25 mm, rho1 = 0.7, rho2 = Inf
+        {
+            systems2(10.0),
+            new double[] {11.710, 18.986},
+            new double[] {11.714, 18.998},
+            dh
+        },
+        // h = 30 mm, rho1 = 0.7, rho2 = Inf
+        {
+            systems2(10.0),
+            new double[] {11.482, 18.152},
+            new double[] {11.484, 18.158},
+            dh
+        },
+        // h = 35 mm, rho1 = 0.7, rho2 = Inf
+        {
+            systems2(10.0),
+            new double[] {11.361, 17.674},
+            new double[] {11.362, 17.678},
+            dh
+        },
+    };
+  }
+
+  @DataProvider(name = "waterDynamicParameters3")
+  public static Object[][] waterDynamicParameters3() {
+    double dh = -Metrics.fromMilli(10.0 / 200.0);
+    return new Object[][] {
+        // h = 5 mm, rho1 = 0.7, rho2 = Inf
+        {
+            systems3(10.0),
+            new double[] {30.971, 61.860, 18.069},
+            new double[] {31.278, 62.479, 18.252},
+            dh
+        },
+        // h = 10 mm, rho1 = 0.7, rho2 = Inf
+        {
+            systems3(10.0),
+            new double[] {16.761, 32.246, 9.074},
+            new double[] {16.821, 32.383, 9.118},
+            dh
+        },
+        // h = 15 mm, rho1 = 0.7, rho2 = Inf
+        {
+            systems3(10.0),
+            new double[] {13.338, 23.903, 6.267},
+            new double[] {13.357, 23.953, 6.284},
+            dh
+        },
+        // h = 20 mm, rho1 = 0.7, rho2 = Inf
+        {
+            systems3(10.0),
+            new double[] {12.187, 20.567, 5.082},
+            new double[] {12.194, 20.589, 5.090},
+            dh
+        },
+        // h = 25 mm, rho1 = 0.7, rho2 = Inf
+        {
+            systems3(10.0),
+            new double[] {11.710, 18.986, 4.514},
+            new double[] {11.714, 18.998, 4.518},
+            dh
+        },
+        // h = 30 mm, rho1 = 0.7, rho2 = Inf
+        {
+            systems3(10.0),
+            new double[] {11.482, 18.152, 4.216},
+            new double[] {11.484, 18.158, 4.218},
+            dh
+        },
+        // h = 35 mm, rho1 = 0.7, rho2 = Inf
+        {
+            systems3(10.0),
+            new double[] {11.361, 17.674, 4.047},
+            new double[] {11.362, 17.678, 4.048},
+            dh
+        },
+    };
+  }
+
+  @DataProvider(name = "dynamicParameters3")
+  public static Object[][] dynamicParameters3() {
     return new Object[][] {
         {
             systems3(7.0),
@@ -156,162 +314,5 @@ class LayersProvider {
             -Metrics.fromMilli(0.1)
         },
     };
-  }
-
-  @DataProvider(name = "waterDynamicParameters2")
-  public static Object[][] waterDynamicParameters2() {
-    return new Object[][] {
-        // h = 5 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems2(10.0),
-            new double[] {30.971, 61.860},
-            new double[] {31.278, 62.479},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        // h = 10 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems2(10.0),
-            new double[] {16.761, 32.246},
-            new double[] {16.821, 32.383},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        // h = 15 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems2(10.0),
-            new double[] {13.338, 23.903},
-            new double[] {13.357, 23.953},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        // h = 20 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems2(10.0),
-            new double[] {12.187, 20.567},
-            new double[] {12.194, 20.589},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        // h = 25 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems2(10.0),
-            new double[] {11.710, 18.986},
-            new double[] {11.714, 18.998},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        // h = 30 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems2(10.0),
-            new double[] {11.482, 18.152},
-            new double[] {11.484, 18.158},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        // h = 35 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems2(10.0),
-            new double[] {11.361, 17.674},
-            new double[] {11.362, 17.678},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-
-        {
-            systems2(7.0),
-            new double[] {88.81, 141.1},
-            new double[] {88.81 - 0.04, 141.1 - 0.06},
-            -Metrics.fromMilli(0.1)
-        },
-        {
-            systems2(7.0),
-            new double[] {123.3, 176.1},
-            new double[] {123.3 - 0.1, 176.1 - 0.125},
-            -Metrics.fromMilli(0.1)
-        },
-    };
-  }
-
-  @DataProvider(name = "waterDynamicParameters3")
-  public static Object[][] waterDynamicParameters3() {
-    return new Object[][] {
-        // h = 5 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems3(10.0),
-            new double[] {30.971, 61.860, 18.069},
-            new double[] {31.278, 62.479, 18.252},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        // h = 10 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems3(10.0),
-            new double[] {16.761, 32.246, 9.074},
-            new double[] {16.821, 32.383, 9.118},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        // h = 15 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems3(10.0),
-            new double[] {13.338, 23.903, 6.267},
-            new double[] {13.357, 23.953, 6.284},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        // h = 20 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems3(10.0),
-            new double[] {12.187, 20.567, 5.082},
-            new double[] {12.194, 20.589, 5.090},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        // h = 25 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems3(10.0),
-            new double[] {11.710, 18.986, 4.514},
-            new double[] {11.714, 18.998, 4.518},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        // h = 30 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems3(10.0),
-            new double[] {11.482, 18.152, 4.216},
-            new double[] {11.484, 18.158, 4.218},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-        // h = 35 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems3(10.0),
-            new double[] {11.361, 17.674, 4.047},
-            new double[] {11.362, 17.678, 4.048},
-            -Metrics.fromMilli(10.0 / 200.0)
-        },
-    };
-  }
-
-  @DataProvider(name = "dynamicParameters2")
-  public static Object[][] dynamicParameters2() {
-    return new Object[][] {
-        {
-            systems2(7.0),
-            new double[] {88.81, 141.1},
-            new double[] {88.81 - 0.04, 141.1 - 0.06},
-            -Metrics.fromMilli(0.1)
-        },
-        {
-            systems2(7.0),
-            new double[] {123.3, 176.1},
-            new double[] {123.3 - 0.1, 176.1 - 0.125},
-            -Metrics.fromMilli(0.1)
-        },
-        generate3Layers(new int[] {10, 30, 50}, new double[] {10.0, 1.0, 5.0}, Metrics.fromMilli(0.1), new int[] {2, 2}),
-        generate3Layers(new int[] {10, 30, 50}, new double[] {10.0, 1.0, 5.0}, Metrics.fromMilli(0.1), new int[] {10, 2}),
-        generate3Layers(new int[] {10, 30, 50}, new double[] {10.0, 1.0, 5.0}, Metrics.fromMilli(0.1), new int[] {20, 2}),
-    };
-  }
-
-  private static Object[] generate3Layers(@Nonnull int[] mm, @Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p) {
-    TetrapolarSystem[] tetrapolarSystems = {
-        new TetrapolarSystem(mm[0], mm[1], MILLI(METRE)),
-        new TetrapolarSystem(mm[2], mm[1], MILLI(METRE)),
-    };
-
-    double[] rOhmsBefore = Arrays.stream(tetrapolarSystems)
-        .mapToDouble(s -> new Resistance3Layer(s, hStepSI).value(rho[0], rho[1], rho[2], p[0], p[1])).toArray();
-    double[] rOhmsAfter = Arrays.stream(tetrapolarSystems)
-        .mapToDouble(s -> new Resistance3Layer(s, hStepSI).value(rho[0], rho[1], rho[2], p[0] - 1, p[1])).toArray();
-    return new Object[] {tetrapolarSystems, rOhmsBefore, rOhmsAfter, -hStepSI};
   }
 }
