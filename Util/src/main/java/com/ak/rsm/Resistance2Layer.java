@@ -84,6 +84,9 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
 
     @Nonnull
     public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
+      if (!Arrays.stream(systems).allMatch(system -> Double.compare(system.Lh(1), systems[0].Lh(1)) == 0)) {
+        throw new IllegalArgumentException(Arrays.toString(systems));
+      }
       double rho = Resistance1Layer.Medium.inverse(systems, rOhmsBefore).getRho();
       Logger.getAnonymousLogger().log(Level.INFO, Resistance1Layer.Medium.inverse(systems, rOhmsBefore).toString(systems, rOhmsBefore));
 

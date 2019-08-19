@@ -7,6 +7,8 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.measure.Unit;
 
+import tec.uom.se.unit.MetricPrefix;
+
 import static tec.uom.se.unit.Units.METRE;
 import static tec.uom.se.unit.Units.OHM;
 
@@ -53,7 +55,11 @@ public enum Strings {
     return (char) ((int) '\u2080' + index);
   }
 
-  private static String rho(@Nonnegative double rho, @Nonnegative int index) {
+  public static String rho(@Nonnegative double rho, @Nonnegative int index) {
     return String.format("%s%s = %.3f %s", RHO, low(index), rho, OHM_METRE);
+  }
+
+  public static String h(@Nonnegative double h, @Nonnegative int index) {
+    return String.format("h%s = %.2f %s", low(index), Metrics.toMilli(h), MetricPrefix.MILLI(METRE));
   }
 }
