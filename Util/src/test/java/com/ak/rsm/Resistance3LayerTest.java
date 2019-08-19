@@ -166,38 +166,6 @@ public class Resistance3LayerTest {
         });
   }
 
-  private static Object[] generate(@Nonnull int[] mm, @Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p) {
-    Logger.getAnonymousLogger().log(Level.INFO,
-        String.format("%s = %.3f; %s = %.3f",
-            Strings.K_12, Layers.getK12(rho[0], rho[1]),
-            Strings.K_23, Layers.getK12(rho[1], rho[2])
-        )
-    );
-    TetrapolarSystem[][] tetrapolarSystems = {
-        new TetrapolarSystem[] {
-            new TetrapolarSystem(mm[0], mm[1], MILLI(METRE)),
-            new TetrapolarSystem(mm[2], mm[1], MILLI(METRE)),
-        },
-        new TetrapolarSystem[] {
-            new TetrapolarSystem(mm[1], mm[2], MILLI(METRE)),
-            new TetrapolarSystem(mm[0], mm[2], MILLI(METRE)),
-        },
-    };
-
-    double[] rOhmsBefore = Arrays.stream(tetrapolarSystems).flatMap(Arrays::stream)
-        .mapToDouble(s -> new Resistance3Layer(s, hStepSI).value(rho[0], rho[1], rho[2], p[0], p[1])).toArray();
-    double[] rOhmsAfter = Arrays.stream(tetrapolarSystems).flatMap(Arrays::stream)
-        .mapToDouble(s -> new Resistance3Layer(s, hStepSI).value(rho[0], rho[1], rho[2], p[0] + 1, p[1])).toArray();
-    return new Object[] {tetrapolarSystems, rOhmsBefore, rOhmsAfter, hStepSI};
-  }
-
-  @DataProvider(name = "dynamicParameters")
-  public static Object[][] waterDynamicParameters3() {
-    return new Object[][] {
-        generate(new int[] {10, 30, 50}, new double[] {9.0, 1.0, 4.0}, Metrics.fromMilli(0.1), new int[] {5, 5}),
-    };
-  }
-
   @Test(dataProvider = "dynamicParameters", enabled = false)
   public static void testInverseDynamic(@Nonnull TetrapolarSystem[][] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) throws IOException {
     Resistance2Layer.Medium inverse2 = Resistance2Layer.Medium.inverse(systems[0], rOhmsBefore, rOhmsAfter, dh);

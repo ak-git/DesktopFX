@@ -28,7 +28,7 @@ public class Simplex {
                                         @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
     return optimize(point -> {
       for (int i = 0; i < point.length; i++) {
-        if (bounds.getLower()[i] >= point[i] || bounds.getUpper()[i] <= point[i]) {
+        if (bounds.getLower()[i] > point[i] || bounds.getUpper()[i] < point[i]) {
           return Double.POSITIVE_INFINITY;
         }
       }
