@@ -45,8 +45,16 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
       this.h = h;
     }
 
+    public double getRho1() {
+      return rho1;
+    }
+
     public double getRho2() {
       return rho2;
+    }
+
+    public double getH() {
+      return h;
     }
 
     @Override
