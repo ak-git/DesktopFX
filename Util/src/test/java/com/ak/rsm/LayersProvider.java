@@ -117,6 +117,10 @@ class LayersProvider {
             systems3,
             rOhms(systems3, layer2(0.7, Double.POSITIVE_INFINITY, 11.0)),
         },
+        {
+            systems3,
+            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, Metrics.fromMilli(1), 10, 10)),
+        },
     };
   }
 

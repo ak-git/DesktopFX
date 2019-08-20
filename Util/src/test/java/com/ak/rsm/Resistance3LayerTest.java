@@ -168,15 +168,13 @@ public class Resistance3LayerTest {
 
   @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryDynamicParameters3", enabled = false)
   public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
-    Resistance3Layer.Medium medium = Resistance3Layer.Medium.inverse(systems, rOhmsBefore, rOhmsAfter, dh);
-    Logger.getAnonymousLogger().log(Level.WARNING, medium.toString(systems, rOhmsBefore));
+    Logger.getAnonymousLogger().log(Level.WARNING, Resistance3Layer.inverse(systems, rOhmsBefore, rOhmsAfter, dh).toString());
   }
 
   @Test(dataProvider = "dynamicParameters", enabled = false)
   public static void testInverseDynamic(@Nonnull TetrapolarSystem[][] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) throws IOException {
-    Resistance2Layer.Medium inverse2 = Resistance2Layer.Medium.inverse(systems[0], rOhmsBefore, rOhmsAfter, dh);
+    Medium inverse2 = Resistance2Layer.inverse(systems[0], rOhmsBefore, rOhmsAfter, dh);
     Logger.getAnonymousLogger().log(Level.INFO, inverse2.toString());
-
 
     DoubleBinaryOperator subtract = (left, right) -> left - right;
     double[] subLogApparent = IntStream.range(0, systems.length).mapToDouble(j -> IntStream.range(0, systems[j].length)

@@ -5,7 +5,6 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.util.Strings;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 
 /**
@@ -37,31 +36,9 @@ final class Resistance1Layer extends AbstractResistanceLayer<Potential1Layer> im
     return rOhms / value(1.0);
   }
 
-  public static class Medium extends AbstractMedium {
-    @Nonnegative
-    private final double rho;
-
-    private Medium(@Nonnegative double rho) {
-      this.rho = rho;
-    }
-
-    public double getRho() {
-      return rho;
-    }
-
-    @Override
-    public String toString() {
-      return Strings.rho(rho);
-    }
-
-    @Override
-    public String toString(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
-      return toString(systems, rOhms, s -> new Resistance1Layer(s).value(rho));
-    }
-
-    @Nonnull
-    public static Resistance1Layer.Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
-      return new Medium(IntStream.range(0, systems.length).mapToDouble(i -> new Resistance1Layer(systems[i]).getApparent(rOhms[i])).average().orElseThrow());
-    }
+  @Nonnull
+  public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
+    double rho = IntStream.range(0, systems.length).mapToDouble(i -> new Resistance1Layer(systems[i]).getApparent(rOhms[i])).average().orElseThrow();
+    return new Medium.Builder(systems, rOhms, s -> new Resistance1Layer(s).value(rho)).build(rho);
   }
 }
