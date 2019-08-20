@@ -1,10 +1,9 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
 import java.util.function.ToDoubleBiFunction;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -41,9 +40,9 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
 
   @Nonnull
   public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
-    Logger.getAnonymousLogger().log(Level.INFO, Resistance2Layer.inverse(systems, rOhmsBefore).toString());
-    Medium inverse2 = Resistance2Layer.inverse(Arrays.copyOf(systems, 2), Arrays.copyOf(rOhmsBefore, 2), Arrays.copyOf(rOhmsAfter, 2), dh);
-    Logger.getAnonymousLogger().log(Level.INFO, inverse2.toString());
+//    Logger.getAnonymousLogger().log(Level.INFO, Resistance2Layer.inverse(systems, rOhmsBefore).toString());
+//    Medium inverse2 = Resistance2Layer.inverse(Arrays.copyOf(systems, 2), Arrays.copyOf(rOhmsBefore, 2), Arrays.copyOf(rOhmsAfter, 2), dh);
+//    Logger.getAnonymousLogger().log(Level.INFO, inverse2.toString());
 
     ToDoubleBiFunction<Integer, IntToDoubleFunction> diff = (i, toDouble) -> toDouble.applyAsDouble(i) - toDouble.applyAsDouble((i + 1) % systems.length);
     double[] subLogApparent = IntStream.range(0, systems.length)
@@ -60,8 +59,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
     int p1 = 5;
     int p2 = 5;
 
-    double k12 = -0.9;
-    if (k12 > -1.0) {
+    DoubleUnaryOperator find = k12 -> {
       PointValuePair k23Point = Simplex.optimize(k23point -> {
         double k23 = k23point[0];
         double[] subLogApparentPredicted = IntStream.range(0, systems.length)
@@ -85,7 +83,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
                       double rho2 = rho1 / Layers.getRho1ToRho2(k12);
                       double rho3 = rho2 / Layers.getRho1ToRho2(k23);
                       return log(Math.abs(
-                          (resistance3Layer.value(rho1, rho2, rho3, p1 + 1, p2) -
+                          (resistance3Layer.value(rho1, rho2, rho3, p1 + (int) Math.signum(dh), p2) -
                               resistance3Layer.value(rho1, rho2, rho3, p1, p2)) / dh
                           )
                       );
@@ -93,14 +91,18 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
                 )
             ).toArray();
         return Inequality.absolute().applyAsDouble(subLogDiff, subLogDiffPredicted);
-      }, new SimpleBounds(new double[] {-1.0}, new double[] {1.0}), k23Point.getPoint(), new double[] {0.1});
-      System.out.println(Arrays.toString(k23Point.getPoint()) + " : " + Arrays.toString(k23PointDiff.getPoint()));
-    }
-    else {
-//      return new Medium.Builder().addLayer(inverse2.getRho1(), )(new double[] {inverse2.getRho1(), inverse2.getRho2(), inverse2.getRho2()},
-//          Math.abs(dh), (int) (inverse2.getH() / Math.abs(dh)), 0);
-      return null;
-    }
+      }, new SimpleBounds(new double[] {-1.0}, new double[] {1.0}), k23Point.getPoint(), new double[] {0.01});
+
+      System.out.printf("%.2f %.2f%n", k12, k23Point.getPoint()[0]);
+      return Inequality.absolute().applyAsDouble(k23Point.getPoint(), k23PointDiff.getPoint());
+    };
+
+    PointValuePair optimize = Simplex.optimize(point -> {
+      double k12 = point[0];
+      return find.applyAsDouble(k12);
+    }, new SimpleBounds(new double[] {-1.0}, new double[] {1.0}), new double[] {-0.1}, new double[] {0.1});
+
+    System.out.printf("%.2f%n", optimize.getPoint()[0], optimize.getValue());
 
     return new Medium.Builder(systems, rOhmsBefore, s -> new Resistance3Layer(s, dh).value(0.0, 0.0, 0.0, 0, 0)).addLayer(0.0, 0.0).addLayer(0.0, 0.0).build(0.0);
   }
