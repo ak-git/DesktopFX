@@ -108,6 +108,6 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     double rho1 = StrictMath.exp((sumLogApparent - sumLogApparentPredicted) / systems.length);
     double rho2 = rho1 / Layers.getRho1ToRho2(k);
     double h = systems[0].h(Lh);
-    return new Medium.Builder(systems, rOhmsBefore, s -> new Resistance2Layer(s).value(rho1, rho2, h)).addLayer(rho1, h).build(rho2);
+    return new Medium.Builder(systems, rOhmsBefore, rOhmsAfter, dh, (s, dH) -> new Resistance2Layer(s).value(rho1, rho2, h + dH)).addLayer(rho1, h).build(rho2);
   }
 }

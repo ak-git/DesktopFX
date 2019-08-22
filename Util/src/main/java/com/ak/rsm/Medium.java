@@ -3,6 +3,7 @@ package com.ak.rsm;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -14,6 +15,7 @@ import javax.annotation.Nonnull;
 import com.ak.inverse.Inequality;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
+import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
 class Medium {
@@ -22,6 +24,10 @@ class Medium {
   @Nonnull
   private final double[] predicted;
   @Nonnull
+  private final double[] measuredDelta;
+  @Nonnull
+  private final double[] predictedDelta;
+  @Nonnull
   private final double[] rho;
   @Nonnull
   private final double[] h;
@@ -29,6 +35,8 @@ class Medium {
   private Medium(Builder b) {
     measured = b.measured;
     predicted = b.predicted;
+    measuredDelta = b.measuredDelta;
+    predictedDelta = b.predictedDelta;
     rho = DoubleStream.concat(b.layers.stream().mapToDouble(value -> value[0]), DoubleStream.of(b.rhoSemiInfinite)).toArray();
     h = b.layers.stream().mapToDouble(value -> value[1]).toArray();
   }
@@ -40,10 +48,6 @@ class Medium {
     else {
       throw new UnsupportedOperationException(Arrays.toString(rho));
     }
-  }
-
-  double getRho1() {
-    return rho[0];
   }
 
   double getRho2() {
@@ -62,20 +66,43 @@ class Medium {
       sb.append(IntStream.range(0, h.length).mapToObj(i -> Strings.h(h[i], i + 1)).collect(Collectors.joining(", ")));
     }
 
-    return String.format("%s; L%s = %.1f %s;%n measured = %s;%npredicted = %s;", sb.toString(),
-        Strings.low(2),
-        Metrics.toPercents(Inequality.proportional().applyAsDouble(measured, predicted) / measured.length),
-        Units.PERCENT,
-        Strings.toString("%.3f", measured, Units.OHM),
-        Strings.toString("%.3f", predicted, Units.OHM)
-    );
+    if (measuredDelta.length == 0 || predictedDelta.length == 0) {
+      return String.format("%s; L%s = %.1f %s;%n measured = %s;%npredicted = %s;", sb.toString(),
+          Strings.low(2),
+          Metrics.toPercents(Inequality.proportional().applyAsDouble(measured, predicted) / measured.length),
+          Units.PERCENT,
+          Strings.toString("%.3f", measured, Units.OHM),
+          Strings.toString("%.3f", predicted, Units.OHM)
+      );
+    }
+    else {
+      double error = Inequality.proportional().applyAsDouble(
+          DoubleStream.concat(Arrays.stream(measured), Arrays.stream(measuredDelta)).toArray(),
+          DoubleStream.concat(Arrays.stream(predicted), Arrays.stream(predictedDelta)).toArray()) / (measured.length + measuredDelta.length);
+
+      return String.format("%s; L%s = %.1f %s;%n measured = %s, \u0394 = %s;%npredicted = %s, \u0394 = %s;", sb.toString(),
+          Strings.low(2),
+          Metrics.toPercents(error),
+          Units.PERCENT,
+          Strings.toString("%.3f", measured, Units.OHM),
+          Strings.toString("%.0f", Arrays.stream(measuredDelta).map(Metrics::toMilli).toArray(), MetricPrefix.MILLI(Units.OHM)),
+          Strings.toString("%.3f", predicted, Units.OHM),
+          Strings.toString("%.0f", Arrays.stream(predictedDelta).map(Metrics::toMilli).toArray(), MetricPrefix.MILLI(Units.OHM))
+      );
+    }
   }
 
   static class Builder {
+    public static final double[] EMPTY = {};
     @Nonnull
     private final double[] measured;
     @Nonnull
     private final double[] predicted;
+    @Nonnull
+    private final double[] measuredDelta;
+    @Nonnull
+    private final double[] predictedDelta;
+    @Nonnull
     private final Collection<double[]> layers = new ArrayList<>();
     @Nonnegative
     private double rhoSemiInfinite = Double.POSITIVE_INFINITY;
@@ -83,6 +110,16 @@ class Medium {
     Builder(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms, @Nonnull ToDoubleFunction<? super TetrapolarSystem> toDoubleFunction) {
       measured = Arrays.copyOf(rOhms, rOhms.length);
       predicted = Arrays.stream(systems).mapToDouble(toDoubleFunction).toArray();
+      measuredDelta = EMPTY;
+      predictedDelta = EMPTY;
+    }
+
+    Builder(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh, @Nonnull ToDoubleBiFunction<? super TetrapolarSystem, Double> toOhms) {
+      measured = Arrays.copyOf(rOhmsBefore, rOhmsBefore.length);
+      predicted = Arrays.stream(systems).mapToDouble(system -> toOhms.applyAsDouble(system, 0.0)).toArray();
+
+      measuredDelta = IntStream.range(0, rOhmsBefore.length).mapToDouble(i -> rOhmsAfter[i] - rOhmsBefore[i]).toArray();
+      predictedDelta = Arrays.stream(systems).mapToDouble(system -> toOhms.applyAsDouble(system, dh) - toOhms.applyAsDouble(system, 0.0)).toArray();
     }
 
     Builder addLayer(@Nonnegative double rho, @Nonnegative double h) {
