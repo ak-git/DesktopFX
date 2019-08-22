@@ -1,10 +1,15 @@
 package com.ak.rsm;
 
+import java.util.function.IntToDoubleFunction;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import com.ak.util.Strings;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 
 /**
@@ -38,7 +43,13 @@ final class Resistance1Layer extends AbstractResistanceLayer<Potential1Layer> im
 
   @Nonnull
   public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
-    double rho = IntStream.range(0, systems.length).mapToDouble(i -> new Resistance1Layer(systems[i]).getApparent(rOhms[i])).average().orElseThrow();
+    IntToDoubleFunction apparent = i -> new Resistance1Layer(systems[i]).getApparent(rOhms[i]);
+    double rho = IntStream.range(0, systems.length).mapToDouble(apparent).average().orElseThrow();
+    Logger.getLogger(Resistance1Layer.class.getName()).log(Level.INFO,
+        IntStream.range(0, systems.length)
+            .mapToObj(i -> String.format("%n%s, %s", systems[i], Strings.rho(apparent.applyAsDouble(i)))).collect(Collectors.joining()
+        )
+    );
     return new Medium.Builder(systems, rOhms, s -> new Resistance1Layer(s).value(rho)).build(rho);
   }
 }

@@ -62,12 +62,12 @@ class Medium {
       sb.append(IntStream.range(0, h.length).mapToObj(i -> Strings.h(h[i], i + 1)).collect(Collectors.joining(", ")));
     }
 
-    return String.format("%s; measured = %s, predicted = %s; L%s = %.1f %s", sb.toString(),
-        Strings.toString("%.3f", measured, Units.OHM),
-        Strings.toString("%.3f", predicted, Units.OHM),
+    return String.format("%s; L%s = %.1f %s;%n measured = %s;%npredicted = %s;", sb.toString(),
         Strings.low(2),
         Metrics.toPercents(Inequality.proportional().applyAsDouble(measured, predicted) / measured.length),
-        Units.PERCENT
+        Units.PERCENT,
+        Strings.toString("%.3f", measured, Units.OHM),
+        Strings.toString("%.3f", predicted, Units.OHM)
     );
   }
 
