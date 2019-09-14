@@ -77,6 +77,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
       return new Medium.Builder(systems, rOhmsBefore, s -> new Resistance2Layer(s).value(rho, rho, 0)).addLayer(rho, 0).build(rho);
     }
 
+    double[] LhInitial = {0.0};
     DoubleUnaryOperator findK = Lh -> {
       MultivariateFunction multivariateFunction = p -> {
         double k = p[0];
@@ -84,7 +85,9 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
             .mapToDouble(system -> new Log1pApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
         return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
       };
-      return Simplex.optimize(multivariateFunction, new SimpleBounds(new double[] {-1.0}, new double[] {1.0}), new double[] {0.0}, new double[] {0.1}).getPoint()[0];
+      double result = Simplex.optimize(multivariateFunction, new SimpleBounds(new double[] {-1.0}, new double[] {1.0}), LhInitial, new double[] {0.1}).getPoint()[0];
+      LhInitial[0] = result;
+      return result;
     };
 
     PointValuePair findLh = Simplex.optimize(point -> {

@@ -70,11 +70,15 @@ public class LineFileBuilder<IN> {
   }
 
   public void generate(@Nonnull String fileName, @Nonnull DoubleBinaryOperator operator) throws IOException {
+    String format = String.format("[%s; %s] %s", xRange.outFormat, yRange.outFormat, outFormat);
     Supplier<DoubleStream> xVar = xRange::build;
     Supplier<DoubleStream> yVar = yRange::build;
-    check(yVar.get().mapToObj(y -> xVar.get().map(x -> operator.applyAsDouble(x, y))).
-        map(stream -> stream.mapToObj(value -> String.format(outFormat, value)).collect(Collectors.joining(Strings.TAB))).
-        collect(new LineFileCollector(Paths.get(fileName), LineFileCollector.Direction.VERTICAL)));
+    check(yVar.get().mapToObj(y -> xVar.get().map(x -> {
+      double v = operator.applyAsDouble(x, y);
+      Logger.getAnonymousLogger().log(Level.INFO, String.format(format, x, y, v));
+      return v;
+    })).map(stream -> stream.mapToObj(value -> String.format(outFormat, value)).collect(Collectors.joining(Strings.TAB)))
+        .collect(new LineFileCollector(Paths.get(fileName), LineFileCollector.Direction.VERTICAL)));
   }
 
   public LineFileBuilder<IN> add(@Nonnull String fileName, @Nonnull ToDoubleFunction<IN> converter) {
