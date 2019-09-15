@@ -2,28 +2,18 @@ package com.ak.rsm;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.function.DoubleBinaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.inverse.Inequality;
-import com.ak.math.Simplex;
 import com.ak.util.LineFileBuilder;
 import com.ak.util.Metrics;
-import com.ak.util.Strings;
-import org.apache.commons.math3.analysis.MultivariateFunction;
-import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static java.lang.StrictMath.log;
 import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 
@@ -111,37 +101,6 @@ public class Resistance3LayerTest {
     Assert.assertEquals(new Resistance3Layer(system, hStepSI).value(rho[0], rho[1], rho[2], p[0], p[1]), rOhm, 0.001, Arrays.toString(rho));
   }
 
-  @DataProvider(name = "staticParametersE6032")
-  public static Object[][] staticParametersE6032() {
-    return new Object[][] {
-        //rho1 = ?, h1 = ?, rho2 = 0.7, h2 = 10 mm, rho3 = Infinity
-        {
-            new TetrapolarSystem[] {
-                new TetrapolarSystem(10.0, 30.0, MILLI(METRE)),
-                new TetrapolarSystem(30.0, 50.0, MILLI(METRE)),
-                new TetrapolarSystem(10.0, 50.0, MILLI(METRE)),
-                new TetrapolarSystem(20.0, 40.0, MILLI(METRE)),
-                new TetrapolarSystem(40.0, 60.0, MILLI(METRE)),
-            },
-            new double[] {15.430, 30.845, 9.310, 24.005, 18.745 * 2}
-        },
-    };
-  }
-
-  @Test(dataProvider = "staticParametersE6032", enabled = false)
-  public static void testInverseStaticE6032(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
-    double hStep = Metrics.fromMilli(1.0);
-    Resistance3Layer[] predicted = Stream.of(systems).map(s -> new Resistance3Layer(s, hStep)).toArray(Resistance3Layer[]::new);
-    for (int p1 = 1; p1 < 10; p1++) {
-      int finalP = p1;
-      int p2 = (int) (10.0 / hStep) - p1;
-      PointValuePair pointValuePair = Simplex.optimize(rho1point -> {
-        double rho1 = rho1point[0];
-        return Inequality.logDifference().applyAsDouble(rOhms, Arrays.stream(predicted).mapToDouble(r -> r.value(rho1, 0.7, Double.POSITIVE_INFINITY, finalP, p2)).toArray());
-      }, new SimpleBounds(new double[] {0.0}, new double[] {Double.POSITIVE_INFINITY}), new double[] {10.0}, new double[] {0.1});
-    }
-  }
-
   @Test(enabled = false)
   public static void testContinuous() throws IOException {
     TetrapolarSystem system = new TetrapolarSystem(10.0, 30.0, MILLI(METRE));
@@ -169,77 +128,5 @@ public class Resistance3LayerTest {
   @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryDynamicParameters3", enabled = false)
   public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
     Logger.getAnonymousLogger().log(Level.WARNING, Resistance3Layer.inverse(systems, rOhmsBefore, rOhmsAfter, dh).toString());
-  }
-
-  @Test(dataProvider = "dynamicParameters", enabled = false)
-  public static void testInverseDynamic(@Nonnull TetrapolarSystem[][] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) throws IOException {
-    Medium inverse2 = Resistance2Layer.inverse(systems[0], rOhmsBefore, rOhmsAfter, dh);
-    Logger.getAnonymousLogger().log(Level.INFO, inverse2.toString());
-
-    DoubleBinaryOperator subtract = (left, right) -> left - right;
-    double[] subLogApparent = IntStream.range(0, systems.length).mapToDouble(j -> IntStream.range(0, systems[j].length)
-        .mapToDouble(i -> log(new Resistance1Layer(systems[j][i]).getApparent(rOhmsBefore[j * 2 + i]))).reduce(subtract).orElseThrow()).toArray();
-    double[] subLogDiff = IntStream.range(0, systems.length).mapToDouble(j -> IntStream.range(0, systems[j].length)
-        .mapToDouble(i -> log(Math.abs((rOhmsAfter[j * 2 + i] - rOhmsBefore[j * 2 + i]) / dh))).reduce(subtract).orElseThrow()).toArray();
-
-    LineFileBuilder.of("%.0f %.0f %.6f")
-        .xRange(3, 9, 2)
-        .yRange(3, 9, 2)
-        .generate("z.txt", (p1d, p2d) -> {
-          int p1 = (int) p1d;
-          int p2 = (int) p2d;
-
-          MultivariateFunction multivariateFunction = point -> {
-            double k12 = point[0];
-            PointValuePair pointValuePair = Simplex.optimize(k23point -> {
-              double k23 = k23point[0];
-              double[] subLogApparentPredicted = Arrays.stream(systems).mapToDouble(s -> Arrays.stream(s)
-                  .mapToDouble(system -> new Log1pApparent3Rho(system.sToL(), system.Lh(dh)).value(k12, k23, p1, p2))
-                  .reduce(subtract).orElseThrow()).toArray();
-              return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
-            }, new double[] {0.0}, new double[] {0.1});
-
-            double k23 = pointValuePair.getPoint()[0];
-
-            double[] subLogDiffPredicted = Arrays.stream(systems).mapToDouble(s -> Arrays.stream(s)
-                .mapToDouble(system -> {
-                  Resistance3Layer resistance3Layer = new Resistance3Layer(system, dh);
-                  double rho1 = 1.0;
-                  double rho2 = rho1 / Layers.getRho1ToRho2(k12);
-                  double rho3 = rho2 / Layers.getRho1ToRho2(k23);
-                  return log(Math.abs(
-                      (resistance3Layer.value(rho1, rho2, rho3, p1 + 1, p2) -
-                          resistance3Layer.value(rho1, rho2, rho3, p1, p2)) / dh
-                      )
-                  );
-                })
-                .reduce(subtract).orElseThrow()).toArray();
-            double v = Inequality.absolute().applyAsDouble(subLogDiff, subLogDiffPredicted);
-            Logger.getAnonymousLogger().log(Level.INFO,
-                String.format("%s = %.3f; %s = %.3f; %.6f",
-                    Strings.K_12, k12,
-                    Strings.K_23, k23, v
-                )
-            );
-            return v;
-          };
-
-          PointValuePair pointValuePair1 = Simplex.optimize(multivariateFunction,
-              new SimpleBounds(new double[] {-0.999}, new double[] {0.999}), new double[] {-0.1}, new double[] {0.1});
-          Logger.getAnonymousLogger().info(Arrays.toString(pointValuePair1.getPoint()));
-
-          double k12 = -0.7;
-          double k23 = multivariateFunction.value(new double[] {k12});
-          double rho3 = inverse2.getRho2();
-          double rho2 = Layers.getRho1ToRho2(k23) * rho3;
-          double rho1 = Layers.getRho1ToRho2(k12) * rho2;
-
-          double[] predicted = Arrays.stream(systems).flatMapToDouble(s ->
-              Arrays.stream(s).mapToDouble(system -> new Resistance3Layer(system, dh).value(rho1, rho2, rho3, p1, p2))).toArray();
-          double v = Inequality.proportional().applyAsDouble(rOhmsBefore, predicted);
-          Logger.getAnonymousLogger().warning(String.format("%.6f %s %s", v,
-              Arrays.toString(rOhmsBefore), Arrays.toString(predicted)));
-          return v;
-        });
   }
 }
