@@ -9,13 +9,13 @@ import static java.lang.StrictMath.log1p;
 import static java.lang.StrictMath.pow;
 
 final class Log1pApparent2Rho extends AbstractLogApparent2Rho {
-  Log1pApparent2Rho(@Nonnegative double sToL) {
-    super(sToL);
+  Log1pApparent2Rho(@Nonnegative double sToL, @Nonnegative double Lh) {
+    super(sToL, Lh);
   }
 
   @Override
-  double innerValue(@Nonnegative double Lh, double sums) {
-    return log1p(electrodesFactor(Lh) * sums);
+  double innerValue(double sums) {
+    return log1p(electrodesFactor() * sums);
   }
 
   @Override
@@ -24,7 +24,7 @@ final class Log1pApparent2Rho extends AbstractLogApparent2Rho {
   }
 
   @Override
-  DoubleBinaryOperator sum(@Nonnegative double Lh) {
-    return (sign, n) -> 1.0 / hypot(Lh * (1.0 + sign * sToL()), 4.0 * n);
+  DoubleBinaryOperator sum() {
+    return (sign, n) -> 1.0 / hypot(Lh() * (1.0 + sign * sToL()), 4.0 * n);
   }
 }

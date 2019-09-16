@@ -92,7 +92,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
       MultivariateFunction multivariateFunction = p -> {
         double k = p[0];
         double subLogApparentPredicted = Arrays.stream(systems)
-            .mapToDouble(system -> new Log1pApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
+            .mapToDouble(system -> new Log1pApparent2Rho(system.sToL(), Lh).value(k)).reduce(subtract).orElseThrow();
         return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
       };
       double result = Simplex.optimize(multivariateFunction, new SimpleBounds(new double[] {-1.0}, new double[] {1.0}), LhInitial, new double[] {0.1}).getPoint()[0];
@@ -104,7 +104,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
           double Lh = point[0];
           double k = findK.applyAsDouble(Lh);
           double subLogDiffPredicted = Arrays.stream(systems)
-              .mapToDouble(system -> new LogDerivativeApparent2Rho(system.sToL()).value(k, Lh)).reduce(subtract).orElseThrow();
+              .mapToDouble(system -> new LogDerivativeApparent2Rho(system.sToL(), Lh).value(k)).reduce(subtract).orElseThrow();
           return Inequality.absolute().applyAsDouble(subLogDiff, subLogDiffPredicted);
         },
         new SimpleBounds(new double[] {0.0}, new double[] {Double.POSITIVE_INFINITY}),
@@ -117,7 +117,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     double sumLogApparent = IntStream.range(0, systems.length)
         .mapToDouble(i -> log(new Resistance1Layer(systems[i]).getApparent(rOhmsBefore[i]))).reduce(Double::sum).orElseThrow();
     double sumLogApparentPredicted = Arrays.stream(systems)
-        .mapToDouble(system -> new Log1pApparent2Rho(system.sToL()).value(k, Lh)).reduce(Double::sum).orElseThrow();
+        .mapToDouble(system -> new Log1pApparent2Rho(system.sToL(), Lh).value(k)).reduce(Double::sum).orElseThrow();
     double rho1 = StrictMath.exp((sumLogApparent - sumLogApparentPredicted) / systems.length);
     double rho2 = rho1 / Layers.getRho1ToRho2(k);
     double h = systems[0].h(Lh);

@@ -9,12 +9,12 @@ import static java.lang.StrictMath.log;
 import static java.lang.StrictMath.pow;
 
 final class LogDerivativeApparent2Rho extends AbstractLogApparent2Rho {
-  LogDerivativeApparent2Rho(@Nonnegative double sToL) {
-    super(sToL);
+  LogDerivativeApparent2Rho(@Nonnegative double sToL, @Nonnegative double Lh) {
+    super(sToL, Lh);
   }
 
   @Override
-  double innerValue(double Lh, double sums) {
+  double innerValue(double sums) {
     return log(Math.abs(sums));
   }
 
@@ -24,7 +24,7 @@ final class LogDerivativeApparent2Rho extends AbstractLogApparent2Rho {
   }
 
   @Override
-  DoubleBinaryOperator sum(@Nonnegative double Lh) {
-    return (sign, n) -> 1.0 / pow(hypot(Lh * (1.0 + sign * sToL()), 4.0 * n), 3.0);
+  DoubleBinaryOperator sum() {
+    return (sign, n) -> 1.0 / pow(hypot(Lh() * (1.0 + sign * sToL()), 4.0 * n), 3.0);
   }
 }

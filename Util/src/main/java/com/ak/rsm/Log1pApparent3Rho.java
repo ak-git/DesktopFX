@@ -15,7 +15,7 @@ final class Log1pApparent3Rho extends AbstractLogApparent3Rho {
 
   @Override
   double innerValue(double sums) {
-    return log1p(electrodesFactor(Lh()) * sums);
+    return log1p(electrodesFactor() * sums);
   }
 
   @Override
