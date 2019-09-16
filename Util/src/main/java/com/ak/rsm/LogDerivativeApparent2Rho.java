@@ -1,6 +1,6 @@
 package com.ak.rsm;
 
-import java.util.function.IntToDoubleFunction;
+import java.util.function.DoubleBinaryOperator;
 
 import javax.annotation.Nonnegative;
 
@@ -19,7 +19,12 @@ final class LogDerivativeApparent2Rho extends AbstractLogApparent2Rho {
   }
 
   @Override
-  IntToDoubleFunction sum(double k, double Lh) {
-    return sign -> Layers.sum(n -> pow(k, n) * pow(n, 2.0), n -> pow(hypot(Lh * (1.0 + sign * sToL()), 4.0 * n), 3.0));
+  double commonFactor(double k, int n) {
+    return pow(k, n) * n * n;
+  }
+
+  @Override
+  DoubleBinaryOperator sum(@Nonnegative double Lh) {
+    return (sign, n) -> 1.0 / pow(hypot(Lh * (1.0 + sign * sToL()), 4.0 * n), 3.0);
   }
 }

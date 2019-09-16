@@ -1,6 +1,6 @@
 package com.ak.rsm;
 
-import java.util.function.IntToDoubleFunction;
+import java.util.function.DoubleBinaryOperator;
 
 import javax.annotation.Nonnegative;
 
@@ -14,8 +14,8 @@ abstract class AbstractLogApparent3Rho extends AbstractApparent {
 
   final double value(double k12, double k23, @Nonnegative int p1, @Nonnegative int p2mp1) {
     double[] q = Layers.qn(k12, k23, p1, p2mp1);
-    IntToDoubleFunction sum = sum(q);
-    return innerValue(sum.applyAsDouble(-1) - sum.applyAsDouble(1));
+    DoubleBinaryOperator sum = sum(q);
+    return innerValue(Layers.sum(n -> q[n] * (sum.applyAsDouble(-1.0, n) - sum.applyAsDouble(1.0, n))));
   }
 
   final double Lh() {
@@ -24,5 +24,5 @@ abstract class AbstractLogApparent3Rho extends AbstractApparent {
 
   abstract double innerValue(double sums);
 
-  abstract IntToDoubleFunction sum(double[] q);
+  abstract DoubleBinaryOperator sum(double[] q);
 }

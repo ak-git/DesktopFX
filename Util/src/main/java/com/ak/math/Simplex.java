@@ -53,7 +53,7 @@ public class Simplex {
           }
         }
         double value = function.value(point);
-        if (Duration.between(prev, LocalTime.now()).getSeconds() >= 2) {
+        if (Duration.between(prev, LocalTime.now()).getSeconds() >= 10) {
           Logger.getLogger(Simplex.class.getName()).log(Level.INFO, String.format("%s; %.6f", Strings.toString("%.3f", point, AbstractUnit.ONE), value));
           prev = LocalTime.now();
         }

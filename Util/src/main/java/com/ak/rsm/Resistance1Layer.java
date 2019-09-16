@@ -27,8 +27,8 @@ final class Resistance1Layer extends AbstractResistanceLayer<Potential1Layer> im
    * @return resistance R<sub>m-n</sub> (in Ohm)
    */
   @Override
-  public double value(double rho) {
-    return applyAsDouble(u -> u.value(rho));
+  public double value(@Nonnegative double rho) {
+    return (rho / Math.PI) * apply(Potential1Layer::value);
   }
 
   /**

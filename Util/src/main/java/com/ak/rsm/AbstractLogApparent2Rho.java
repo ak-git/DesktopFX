@@ -1,6 +1,6 @@
 package com.ak.rsm;
 
-import java.util.function.IntToDoubleFunction;
+import java.util.function.DoubleBinaryOperator;
 
 import javax.annotation.Nonnegative;
 
@@ -14,15 +14,17 @@ abstract class AbstractLogApparent2Rho extends AbstractApparent implements Bivar
   @Override
   public final double value(double k, @Nonnegative double Lh) {
     if (Double.compare(k, 0.0) == 0) {
-      return innerValue(Lh, 0.0);
+      return 0.0;
     }
     else {
-      IntToDoubleFunction sum = sum(k, Lh);
-      return innerValue(Lh, sum.applyAsDouble(-1) - sum.applyAsDouble(1));
+      DoubleBinaryOperator sum = sum(Lh);
+      return innerValue(Lh, Layers.sum(n -> commonFactor(k, n) * (sum.applyAsDouble(-1.0, n) - sum.applyAsDouble(1.0, n))));
     }
   }
 
-  abstract double innerValue(double Lh, double sums);
+  abstract double innerValue(@Nonnegative double Lh, double sums);
 
-  abstract IntToDoubleFunction sum(double k, double Lh);
+  abstract double commonFactor(double k, @Nonnegative int n);
+
+  abstract DoubleBinaryOperator sum(@Nonnegative double Lh);
 }

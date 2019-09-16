@@ -8,8 +8,6 @@ import javax.annotation.Nonnull;
 
 import com.ak.numbers.CoefficientsUtils;
 
-import static java.lang.StrictMath.hypot;
-
 class Layers {
   private static final int SUM_LIMIT = 1024 * 512;
 
@@ -39,13 +37,8 @@ class Layers {
     return (1.0 - k) / (1.0 + k);
   }
 
-  static double sum(@Nonnull IntToDoubleFunction nominator, @Nonnull IntToDoubleFunction denominator) {
-    return IntStream.rangeClosed(1, SUM_LIMIT).unordered().parallel()
-        .mapToDouble(n -> nominator.applyAsDouble(n) / denominator.applyAsDouble(n)).sum();
-  }
-
-  static IntToDoubleFunction denominator(@Nonnegative double r, @Nonnegative double h) {
-    return n -> hypot(r, 2.0 * n * h);
+  static double sum(@Nonnull IntToDoubleFunction function) {
+    return IntStream.rangeClosed(1, SUM_LIMIT).unordered().parallel().mapToDouble(function).sum();
   }
 
   static double[] qn(double k12, double k23, @Nonnegative int p1, @Nonnegative int p2mp1) {

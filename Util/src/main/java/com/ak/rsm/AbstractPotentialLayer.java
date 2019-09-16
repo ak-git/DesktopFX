@@ -13,7 +13,7 @@ abstract class AbstractPotentialLayer {
     this.r = Math.abs(r);
   }
 
-  public final double value(@Nonnegative double rho, @Nonnull DoubleUnaryOperator functionR) {
-    return (rho / (2 * Math.PI)) * functionR.applyAsDouble(r);
+  final double value(@Nonnull DoubleUnaryOperator functionR) {
+    return functionR.applyAsDouble(r);
   }
 }

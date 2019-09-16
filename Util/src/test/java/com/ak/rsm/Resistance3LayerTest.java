@@ -2,8 +2,6 @@ package com.ak.rsm;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -123,10 +121,5 @@ public class Resistance3LayerTest {
             return Double.NaN;
           }
         });
-  }
-
-  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryDynamicParameters3", enabled = false)
-  public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
-    Logger.getAnonymousLogger().log(Level.WARNING, Resistance3Layer.inverse(systems, rOhmsBefore, rOhmsAfter, dh).toString());
   }
 }
