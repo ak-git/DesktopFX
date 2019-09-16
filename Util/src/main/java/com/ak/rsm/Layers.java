@@ -42,9 +42,6 @@ class Layers {
   }
 
   static double[] qn(double k12, double k23, @Nonnegative int p1, @Nonnegative int p2mp1) {
-    if (p1 < 1) {
-      throw new IllegalArgumentException(String.format("p1 = %d < 0", p1));
-    }
     int p2 = p2mp1 + p1;
 
     double[] bNum = new double[p2 + 1];
