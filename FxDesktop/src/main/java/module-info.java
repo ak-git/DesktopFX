@@ -20,10 +20,17 @@ module com.ak.fx.desktop {
 
   opens com.ak.numbers.aper to com.ak.util;
   opens com.ak.numbers.rcm to com.ak.util;
-  exports com.ak.comm.converter.rcm to spring.beans;
-  exports com.ak.comm.interceptor.rcm to spring.beans;
-  exports com.ak.comm.converter.aper to javafx.graphics;
   opens com.ak.fx.desktop to javafx.fxml;
   opens com.ak.fx.scene to javafx.fxml;
+
+  exports com.ak.comm.converter.rcm to spring.beans;
+  exports com.ak.comm.converter.nmis to spring.beans;
+  exports com.ak.comm.converter.rsce to spring.beans;
+  exports com.ak.comm.interceptor.nmisr to spring.beans;
+  exports com.ak.comm.interceptor.nmis to spring.beans;
+  exports com.ak.comm.interceptor.rcm to spring.beans;
+  exports com.ak.fx.desktop.nmisr to spring.beans;
+  exports com.ak.comm.converter.aper to javafx.graphics;
+
   exports com.ak.fx.desktop;
 }
