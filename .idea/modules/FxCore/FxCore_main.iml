@@ -24,8 +24,8 @@
     <orderEntry type="library" scope="RUNTIME" name="Gradle: tec.uom:uom-se:1.0.10" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.glassfish:javax.json:1.1.4" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-core:5.1.9.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework:spring-jcl:5.1.9.RELEASE" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.apache.commons:commons-math3:3.6.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-jcl:5.1.9.RELEASE" level="project" />
     <orderEntry type="module" module-name="Util_main" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: tec.uom.lib:uom-lib-common:1.0.3" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: javax.measure:unit-api:1.0" level="project" />
