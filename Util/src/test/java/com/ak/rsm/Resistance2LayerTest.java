@@ -95,6 +95,11 @@ public class Resistance2LayerTest {
     Assert.assertEquals(new Resistance2Layer(system).value(rho[0], rho[1], Metrics.fromMilli(hmm)), rOhm, 0.001);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public static void testIllegal() {
+    new Resistance2Layer(new TetrapolarSystem(10, 20, MILLI(METRE))).value(new double[] {1});
+  }
+
   @Test(dataProviderClass = LayersProvider.class, dataProvider = "staticParameters", enabled = false)
   public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
     Logger.getAnonymousLogger().log(Level.WARNING, Resistance2Layer.inverse(systems, rOhms).toString());

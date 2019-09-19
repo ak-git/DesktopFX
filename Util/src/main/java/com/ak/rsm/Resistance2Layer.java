@@ -32,6 +32,13 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     resistance1Layer = new Resistance1Layer(electrodeSystem);
   }
 
+  public double value(@Nonnull double[] rho1rho2h) {
+    if (rho1rho2h.length != 3) {
+      throw new IllegalArgumentException(Arrays.toString(rho1rho2h));
+    }
+    return value(rho1rho2h[0], rho1rho2h[1], rho1rho2h[2]);
+  }
+
   @Override
   public double value(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double h) {
     double result = resistance1Layer.value(rho1);
@@ -51,12 +58,8 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     double maxL = Arrays.stream(systems).mapToDouble(s -> s.Lh(1.0)).max().orElseThrow();
     double[] measured = IntStream.range(0, systems.length).mapToDouble(i -> new Resistance1Layer(systems[i]).getApparent(rOhms[i])).toArray();
 
-    PointValuePair pointValuePair = Simplex.optimizeCMAES(point -> {
-          double rho1 = point[0];
-          double rho2 = point[1];
-          double h = point[2];
-
-          double[] predicted = Arrays.stream(systems).mapToDouble(s -> new Resistance1Layer(s).getApparent(new Resistance2Layer(s).value(rho1, rho2, h))).toArray();
+    PointValuePair pointValuePair = Simplex.optimizeCMAES(rho1rho2h -> {
+          double[] predicted = Arrays.stream(systems).mapToDouble(s -> new Resistance1Layer(s).getApparent(new Resistance2Layer(s).value(rho1rho2h))).toArray();
           return Inequality.absolute().applyAsDouble(measured, predicted);
         }, new SimpleBounds(new double[] {0.0, 0.0, 0.0}, new double[] {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, maxL}),
         new double[] {rho, rho, 0}, new double[] {rho / 10.0, rho / 10.0, maxL / 10.0});
@@ -65,7 +68,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     double rho1 = p[0];
     double rho2 = p[1];
     double h1 = p[2];
-    return new Medium.Builder(systems, rOhms, s -> new Resistance2Layer(s).value(rho1, rho2, h1)).addLayer(rho1, h1).build(rho2);
+    return new Medium.Builder(systems, rOhms, s -> new Resistance2Layer(s).value(p)).addLayer(rho1, h1).build(rho2);
   }
 
   @Nonnull
