@@ -237,9 +237,6 @@ public class FilterBuilderTest {
     Assert.assertEquals(filteredCounter.get(), result.length, filter.toString());
 
     Assert.assertEquals(filter.getDelay(), delay, 1.0e-3, filter.toString());
-    Assert.assertEquals(Filters.getDelay(filter, Quantities.getQuantity(0.2, MetricPrefix.KILO(Units.HERTZ))).getValue().doubleValue(),
-        delay / 200.0, 1.0e-3, filter.toString());
-
     Assert.assertEquals(filter.getFrequencyFactor(), frequencyFactor, 1.0e-3, filter.toString());
     Assert.assertEquals(filter.getOutputDataSize(), result[0].length);
   }
