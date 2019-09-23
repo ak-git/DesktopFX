@@ -193,24 +193,24 @@ class LayersProvider {
     TetrapolarSystem[] systems3 = systems3(10);
     double dh = -0.1;
     return new Object[][] {
-//        {
-//            systems3,
-//            rOhms(systems3, layer1(1.0)),
-//            rOhms(systems3, layer1(1.0)),
-//            Metrics.fromMilli(dh)
-//        },
-//        {
-//            systems3,
-//            rOhms(systems3, layer1(2.0)),
-//            rOhms(systems3, layer1(2.0)),
-//            Metrics.fromMilli(dh)
-//        },
-//        {
-//            systems3,
-//            rOhms(systems3, layer2(9.0, 9.0, 10.0)),
-//            rOhms(systems3, layer2(9.0, 9.0, 10.0 + dh)),
-//            Metrics.fromMilli(dh)
-//        },
+        {
+            systems3,
+            rOhms(systems3, layer1(1.0)),
+            rOhms(systems3, layer1(1.0)),
+            Metrics.fromMilli(dh)
+        },
+        {
+            systems3,
+            rOhms(systems3, layer1(2.0)),
+            rOhms(systems3, layer1(2.0)),
+            Metrics.fromMilli(dh)
+        },
+        {
+            systems3,
+            rOhms(systems3, layer2(9.0, 9.0, 10.0)),
+            rOhms(systems3, layer2(9.0, 9.0, 10.0 + dh)),
+            Metrics.fromMilli(dh)
+        },
 
         {
             systems3,
@@ -218,24 +218,24 @@ class LayersProvider {
             rOhms(systems3, layer2(9.0, 1.0, 10.0 + dh)),
             Metrics.fromMilli(dh)
         },
-//        {
-//            systems3,
-//            rOhms(systems3, layer2(1.0, 4.0, 2.0)),
-//            rOhms(systems3, layer2(1.0, 4.0, 2.0 + dh)),
-//            Metrics.fromMilli(dh)
-//        },
-//        {
-//            systems3,
-//            rOhms(systems3, layer2(0.7, Double.POSITIVE_INFINITY, 11.0)),
-//            rOhms(systems3, layer2(0.7, Double.POSITIVE_INFINITY, 11.0 + dh)),
-//            Metrics.fromMilli(dh)
-//        },
-//        {
-//            systems3,
-//            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, dh, 5)),
-//            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, dh, 5 - 1)),
-//            Metrics.fromMilli(dh)
-//        },
+        {
+            systems3,
+            rOhms(systems3, layer2(1.0, 4.0, 2.0)),
+            rOhms(systems3, layer2(1.0, 4.0, 2.0 + dh)),
+            Metrics.fromMilli(dh)
+        },
+        {
+            systems3,
+            rOhms(systems3, layer2(0.7, Double.POSITIVE_INFINITY, 11.0)),
+            rOhms(systems3, layer2(0.7, Double.POSITIVE_INFINITY, 11.0 + dh)),
+            Metrics.fromMilli(dh)
+        },
+        {
+            systems3,
+            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, dh, 5)),
+            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, dh, 5 - 1)),
+            Metrics.fromMilli(dh)
+        },
     };
   }
 
