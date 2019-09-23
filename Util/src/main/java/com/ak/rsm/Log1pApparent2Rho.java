@@ -3,14 +3,15 @@ package com.ak.rsm;
 import java.util.function.DoubleBinaryOperator;
 
 import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 
 import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.log1p;
 import static java.lang.StrictMath.pow;
 
 final class Log1pApparent2Rho extends AbstractLogApparent2Rho {
-  Log1pApparent2Rho(@Nonnegative double sToL, @Nonnegative double Lh) {
-    super(sToL, Lh);
+  Log1pApparent2Rho(@Nonnull TetrapolarSystem system) {
+    super(system);
   }
 
   @Override
@@ -24,7 +25,7 @@ final class Log1pApparent2Rho extends AbstractLogApparent2Rho {
   }
 
   @Override
-  DoubleBinaryOperator sum() {
-    return (sign, n) -> 1.0 / hypot(Lh() * (1.0 + sign * sToL()), 4.0 * n);
+  DoubleBinaryOperator sum(@Nonnegative double h) {
+    return (sign, n) -> 1.0 / hypot(radius(sign), 2.0 * n * h);
   }
 }

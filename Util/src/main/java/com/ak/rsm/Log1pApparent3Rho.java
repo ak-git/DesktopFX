@@ -9,8 +9,8 @@ import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.log1p;
 
 final class Log1pApparent3Rho extends AbstractLogApparent3Rho {
-  Log1pApparent3Rho(@Nonnegative double sToL, @Nonnegative double Lh) {
-    super(sToL, Lh);
+  Log1pApparent3Rho(@Nonnull TetrapolarSystem system) {
+    super(system);
   }
 
   @Override
@@ -19,7 +19,7 @@ final class Log1pApparent3Rho extends AbstractLogApparent3Rho {
   }
 
   @Override
-  DoubleBinaryOperator sum(@Nonnull double[] q) {
-    return (sign, n) -> 1.0 / hypot(Lh() * (1.0 + sign * sToL()), 4.0 * n);
+  DoubleBinaryOperator sum(@Nonnull double[] q, @Nonnegative double h) {
+    return (sign, n) -> 1.0 / hypot(radius(sign), 2.0 * n * h);
   }
 }

@@ -1,37 +1,25 @@
 package com.ak.rsm;
 
-import javax.annotation.Nonnegative;
-
-import static java.lang.StrictMath.abs;
-import static java.lang.StrictMath.pow;
+import javax.annotation.Nonnull;
 
 abstract class AbstractApparent {
-  @Nonnegative
-  private final double sToL;
-  @Nonnegative
-  private final double Lh;
+  @Nonnull
+  private final TetrapolarSystem system;
 
-  AbstractApparent(@Nonnegative double sToL, @Nonnegative double Lh) {
-    this.sToL = sToL;
-    this.Lh = Lh;
-  }
-
-  final double sToL() {
-    return sToL;
-  }
-
-  final double Lh() {
-    return Lh;
+  AbstractApparent(@Nonnull TetrapolarSystem system) {
+    this.system = system;
   }
 
   final double electrodesFactor() {
-    double v = Lh * (1.0 - pow(sToL(), 2.0));
-    if (v > 0) {
-      v /= sToL();
+    return 2.0 / (1.0 / Math.abs(system.radiusMns()) - 1.0 / system.radiusPls());
+  }
+
+  final double radius(double sign) {
+    if (sign < 0) {
+      return system.radiusMns();
     }
     else {
-      v = abs(v);
+      return system.radiusPls();
     }
-    return v;
   }
 }

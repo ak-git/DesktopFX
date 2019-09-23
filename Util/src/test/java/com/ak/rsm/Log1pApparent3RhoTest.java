@@ -20,8 +20,8 @@ public class Log1pApparent3RhoTest {
     TetrapolarSystem system1 = new TetrapolarSystem(smm, lmm, MILLI(METRE));
     TetrapolarSystem system2 = new TetrapolarSystem(lmm, smm, MILLI(METRE));
     double logApparent = log(new Resistance1Layer(system1).getApparent(rOhm)) - log(rho[0]);
-    double logPredicted = new Log1pApparent3Rho(system2.sToL(), system2.Lh(hStepSI)).
-        value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]), p[0], p[1]);
+    double logPredicted = new Log1pApparent3Rho(system2).
+        value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]), hStepSI, p[0], p[1]);
 
     Assert.assertEquals(logApparent, logPredicted, 0.001);
   }

@@ -32,16 +32,9 @@ final class TetrapolarSystem {
     return (lCurrentCarryingSI + sPotentialUnitSI) / 2.0;
   }
 
-  double sToL() {
-    return sPotentialUnitSI / lCurrentCarryingSI;
-  }
-
+  @Nonnegative
   double Lh(double h) {
-    return lCurrentCarryingSI / h;
-  }
-
-  double h(double Lh) {
-    return lCurrentCarryingSI / Lh;
+    return Math.abs(lCurrentCarryingSI / h);
   }
 
   @Override
@@ -68,8 +61,9 @@ final class TetrapolarSystem {
     return String.format("%.0f x %.0f %s", Metrics.toMilli(sPotentialUnitSI), Metrics.toMilli(lCurrentCarryingSI), MetricPrefix.MILLI(METRE));
   }
 
+  @Nonnegative
   private static double toDouble(@Nonnegative double sPU, @Nonnull Unit<Length> unit) {
-    return Quantities.getQuantity(sPU, unit).to(METRE).getValue().doubleValue();
+    return Math.abs(Quantities.getQuantity(sPU, unit).to(METRE).getValue().doubleValue());
   }
 }
 
