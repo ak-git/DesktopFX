@@ -1,8 +1,9 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
-import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
+import java.util.function.ToDoubleBiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -73,31 +74,33 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
 
   @Nonnull
   public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
-    if (!Arrays.stream(systems).allMatch(system -> Double.compare(system.Lh(1), systems[0].Lh(1)) == 0)) {
-      throw new IllegalArgumentException(Arrays.toString(systems));
-    }
     Medium inverse = Resistance1Layer.inverse(systems, rOhmsBefore);
     double rho = inverse.getRho();
     Logger.getLogger(Resistance2Layer.class.getName()).log(Level.INFO, inverse.toString());
 
-    DoubleBinaryOperator subtract = (left, right) -> left - right;
-    double subLogApparent = IntStream.range(0, systems.length)
-        .mapToDouble(i -> log(new Resistance1Layer(systems[i]).getApparent(rOhmsBefore[i]))).reduce(subtract).orElseThrow();
-    double subLogDiff = IntStream.range(0, systems.length)
-        .mapToDouble(i -> {
-          double a = (rOhmsAfter[i] - rOhmsBefore[i]) / Math.abs(dh);
-          return log(Math.abs(a)) * Math.signum(a);
-        }).reduce(subtract).orElseThrow();
+    ToDoubleBiFunction<Integer, IntToDoubleFunction> diff = (i, toDouble) -> toDouble.applyAsDouble(i) - toDouble.applyAsDouble((i + 1) % systems.length);
+    double[] subLogApparent = IntStream.range(0, systems.length)
+        .mapToDouble(i -> diff.applyAsDouble(i, index -> log(new Resistance1Layer(systems[index]).getApparent(rOhmsBefore[index]))))
+        .toArray();
 
-    if (Double.isNaN(subLogDiff)) {
+    double[] subLogDiff = IntStream.range(0, systems.length)
+        .mapToDouble(i ->
+            diff.applyAsDouble(i, index -> {
+              double a = rOhmsAfter[index] - rOhmsBefore[index];
+              return log(Math.abs(a)) * Math.signum(a);
+            }))
+        .toArray();
+
+    if (Arrays.stream(subLogDiff).anyMatch(Double::isNaN)) {
       return new Medium.Builder(systems, rOhmsBefore, s -> new Resistance2Layer(s).value(rho, rho, 0)).addLayer(rho, 0).build(rho);
     }
 
     DoubleUnaryOperator findK = h -> {
       MultivariateFunction multivariateFunction = p -> {
         double k = p[0];
-        double subLogApparentPredicted = Arrays.stream(systems)
-            .mapToDouble(system -> new Log1pApparent2Rho(system).value(k, h)).reduce(subtract).orElseThrow();
+        double[] subLogApparentPredicted = IntStream.range(0, systems.length)
+            .mapToDouble(i -> diff.applyAsDouble(i, index -> new Log1pApparent2Rho(systems[index]).value(k, h)))
+            .toArray();
         return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
       };
       return Simplex.optimize(multivariateFunction, new SimpleBounds(new double[] {-1.0}, new double[] {1.0}), new double[] {0.0}, new double[] {0.1}).getPoint()[0];
@@ -107,8 +110,9 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     PointValuePair findLh = Simplex.optimize(point -> {
           double h = point[0];
           double k = findK.applyAsDouble(h);
-          double subLogDiffPredicted = Arrays.stream(systems)
-              .mapToDouble(system -> new LogDerivativeApparent2Rho(system).value(k, h)).reduce(subtract).orElseThrow();
+          double[] subLogDiffPredicted = IntStream.range(0, systems.length)
+              .mapToDouble(i -> diff.applyAsDouble(i, index -> new LogDerivativeApparent2Rho(systems[index]).value(k, h)))
+              .toArray();
           return Inequality.absolute().applyAsDouble(subLogDiff, subLogDiffPredicted);
         },
         new SimpleBounds(new double[] {0.0}, new double[] {maxL}),
