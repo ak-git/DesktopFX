@@ -87,7 +87,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
         .mapToDouble(i ->
             diff.applyAsDouble(i, index -> {
               double a = rOhmsAfter[index] - rOhmsBefore[index];
-              return log(Math.abs(a)) * Math.signum(a) * Math.signum(dh);
+              return log(Math.abs(a)) * Math.signum(a);
             }))
         .toArray();
 
@@ -111,7 +111,11 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
           double h = point[0];
           double k = findK.applyAsDouble(h);
           double[] subLogDiffPredicted = IntStream.range(0, systems.length)
-              .mapToDouble(i -> diff.applyAsDouble(i, index -> new LogDerivativeApparent2Rho(systems[index]).value(k, h)))
+              .mapToDouble(i -> diff.applyAsDouble(i, index -> {
+                TrivariateFunction resistance = new Resistance2Layer(systems[index]);
+                double a = resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h + dh) - resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h);
+                return log(Math.abs(a)) * Math.signum(a);
+              }))
               .toArray();
           return Inequality.absolute().applyAsDouble(subLogDiff, subLogDiffPredicted);
         },
