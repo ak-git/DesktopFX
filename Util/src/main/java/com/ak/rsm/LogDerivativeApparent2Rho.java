@@ -16,7 +16,7 @@ final class LogDerivativeApparent2Rho extends AbstractLogApparent2Rho {
 
   @Override
   double innerValue(double sums) {
-    return log(Math.abs(sums)) * Math.signum(sums);
+    return log(Math.abs(sums)) * Math.signum(-sums);
   }
 
   @Override

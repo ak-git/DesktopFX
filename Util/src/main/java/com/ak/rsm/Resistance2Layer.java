@@ -87,7 +87,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
         .mapToDouble(i ->
             diff.applyAsDouble(i, index -> {
               double a = rOhmsAfter[index] - rOhmsBefore[index];
-              return log(Math.abs(a)) * Math.signum(a);
+              return log(Math.abs(a)) * Math.signum(a) * Math.signum(dh);
             }))
         .toArray();
 

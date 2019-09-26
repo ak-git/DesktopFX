@@ -68,7 +68,7 @@ public class LogDerivativeApparent2RhoTest {
                 new TetrapolarSystem(30.0, 10.0, MILLI(METRE)),
             },
             new double[] {7, 1.0},
-            Metrics.fromMilli(5.0),
+            -Metrics.fromMilli(5.0),
         },
     };
   }
@@ -78,7 +78,8 @@ public class LogDerivativeApparent2RhoTest {
     double dh = Metrics.fromMilli(0.01);
     double logExpected = Arrays.stream(systems).mapToDouble(system -> {
       TrivariateFunction resistance2Layer = new Resistance2Layer(system);
-      return StrictMath.log(Math.abs((resistance2Layer.value(rho[0], rho[1], h + dh) - resistance2Layer.value(rho[0], rho[1], h)) / dh));
+      double v = resistance2Layer.value(rho[0], rho[1], h + dh) - resistance2Layer.value(rho[0], rho[1], h);
+      return StrictMath.log(Math.abs(v)) * Math.signum(v) * Math.signum(h);
     }).reduce((left, right) -> left - right).orElseThrow();
     double logActual = Arrays.stream(systems).mapToDouble(system ->
         new LogDerivativeApparent2Rho(system).value(Layers.getK12(rho[0], rho[1]), h)
