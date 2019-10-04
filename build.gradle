@@ -13,7 +13,7 @@ def javax_json = 'org.glassfish:javax.json:1.1.4'
 def commons_math3 = 'org.apache.commons:commons-math3:3.6.1'
 def javax_inject = 'javax.inject:javax.inject:1'
 def jssc = 'org.scream3r:jssc:2.8.0'
-def spring_context = 'org.springframework:spring-context:5.1.9.RELEASE'
+def spring_context = 'org.springframework:spring-context:5.2.0.RELEASE'
 
 ext.projectIds = ['java': JavaVersion.VERSION_12]
 
