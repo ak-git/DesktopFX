@@ -2,6 +2,7 @@ package com.ak.math;
 
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.function.DoubleUnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,6 +39,13 @@ public class Simplex {
             new CMAESOptimizer.Sigma(initialSteps),
             new CMAESOptimizer.PopulationSize(2 * (4 + (int) (3.0 * StrictMath.log(initialGuess.length))))
         );
+  }
+
+  public static PointValuePair optimize(@Nonnull DoubleUnaryOperator function, @Nonnull double[] limits,
+                                        double initialGuess, double initialStep) {
+    return optimize(operand -> function.applyAsDouble(operand[0]),
+        new SimpleBounds(new double[] {limits[0]}, new double[] {limits[1]}),
+        new double[] {initialGuess}, new double[] {initialStep});
   }
 
   public static PointValuePair optimize(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,

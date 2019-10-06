@@ -13,7 +13,6 @@ import javax.annotation.Nonnull;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
-import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
@@ -91,20 +90,15 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
       return new Medium.Builder(systems, rOhmsBefore, s -> new Resistance2Layer(s).value(rho, rho, 0)).addLayer(rho, 0).build(rho);
     }
 
-    DoubleUnaryOperator findK = h -> {
-      MultivariateFunction multivariateFunction = p -> {
-        double k = p[0];
-        double[] subLogApparentPredicted = IntStream.range(0, systems.length)
-            .mapToDouble(i -> diff.applyAsDouble(i, index -> new Log1pApparent2Rho(systems[index]).value(k, h)))
-            .limit(systems.length - 1).toArray();
-        return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
-      };
-      return Simplex.optimize(multivariateFunction, new SimpleBounds(new double[] {-1.0}, new double[] {1.0}), new double[] {0.0}, new double[] {0.1}).getPoint()[0];
-    };
+    DoubleUnaryOperator findK = h -> Simplex.optimize(k -> {
+      double[] subLogApparentPredicted = IntStream.range(0, systems.length)
+          .mapToDouble(i -> diff.applyAsDouble(i, index -> new Log1pApparent2Rho(systems[index]).value(k, h)))
+          .limit(systems.length - 1).toArray();
+      return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
+    }, new double[] {-1.0, 1.0}, 0.0, 0.1).getPoint()[0];
 
     double maxL = Arrays.stream(systems).mapToDouble(s -> s.Lh(1.0)).max().orElseThrow();
-    PointValuePair findLh = Simplex.optimize(point -> {
-          double h = point[0];
+    PointValuePair findLh = Simplex.optimize(h -> {
           double k = findK.applyAsDouble(h);
           double[] subLogDiffPredicted = IntStream.range(0, systems.length)
               .mapToDouble(i -> diff.applyAsDouble(i, index -> {
@@ -115,8 +109,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
               .limit(systems.length - 1).toArray();
           return Inequality.absolute().applyAsDouble(subLogDiff, subLogDiffPredicted);
         },
-        new SimpleBounds(new double[] {0.0}, new double[] {maxL}),
-        new double[] {maxL / 2.0}, new double[] {maxL / 10.0}
+        new double[] {0.0, maxL}, maxL / 2.0, maxL / 10.0
     );
 
     double h = findLh.getPoint()[0];
