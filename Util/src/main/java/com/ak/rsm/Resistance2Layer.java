@@ -81,15 +81,11 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     ToDoubleBiFunction<Integer, IntToDoubleFunction> diff = (i, toDouble) -> toDouble.applyAsDouble(i) - toDouble.applyAsDouble((i + 1) % systems.length);
     double[] subLogApparent = IntStream.range(0, systems.length)
         .mapToDouble(i -> diff.applyAsDouble(i, index -> log(new Resistance1Layer(systems[index]).getApparent(rOhmsBefore[index]))))
-        .toArray();
+        .limit(systems.length - 1).toArray();
 
     double[] subLogDiff = IntStream.range(0, systems.length)
-        .mapToDouble(i ->
-            diff.applyAsDouble(i, index -> {
-              double a = rOhmsAfter[index] - rOhmsBefore[index];
-              return log(Math.abs(a)) * Math.signum(a);
-            }))
-        .toArray();
+        .mapToDouble(i -> diff.applyAsDouble(i, index -> log(Math.abs(rOhmsAfter[index] - rOhmsBefore[index]))))
+        .limit(systems.length - 1).toArray();
 
     if (Arrays.stream(subLogDiff).anyMatch(Double::isNaN)) {
       return new Medium.Builder(systems, rOhmsBefore, s -> new Resistance2Layer(s).value(rho, rho, 0)).addLayer(rho, 0).build(rho);
@@ -100,7 +96,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
         double k = p[0];
         double[] subLogApparentPredicted = IntStream.range(0, systems.length)
             .mapToDouble(i -> diff.applyAsDouble(i, index -> new Log1pApparent2Rho(systems[index]).value(k, h)))
-            .toArray();
+            .limit(systems.length - 1).toArray();
         return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
       };
       return Simplex.optimize(multivariateFunction, new SimpleBounds(new double[] {-1.0}, new double[] {1.0}), new double[] {0.0}, new double[] {0.1}).getPoint()[0];
@@ -114,9 +110,9 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
               .mapToDouble(i -> diff.applyAsDouble(i, index -> {
                 TrivariateFunction resistance = new Resistance2Layer(systems[index]);
                 double a = resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h + dh) - resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h);
-                return log(Math.abs(a)) * Math.signum(a);
+                return log(Math.abs(a));
               }))
-              .toArray();
+              .limit(systems.length - 1).toArray();
           return Inequality.absolute().applyAsDouble(subLogDiff, subLogDiffPredicted);
         },
         new SimpleBounds(new double[] {0.0}, new double[] {maxL}),
