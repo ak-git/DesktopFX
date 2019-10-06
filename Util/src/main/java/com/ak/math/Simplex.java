@@ -6,6 +6,7 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.util.Strings;
@@ -20,7 +21,6 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.math3.random.MersenneTwister;
-import tec.uom.se.AbstractUnit;
 
 public class Simplex {
   private Simplex() {
@@ -41,14 +41,14 @@ public class Simplex {
         );
   }
 
-  public static PointValuePair optimize(@Nonnull DoubleUnaryOperator function, @Nonnull double[] limits,
-                                        double initialGuess, double initialStep) {
-    return optimize(operand -> function.applyAsDouble(operand[0]),
+  public static PointValuePair optimize(@Nonnull String logFormat, @Nonnull DoubleUnaryOperator function, @Nonnull double[] limits,
+                                        double initialGuess, @Nonnegative double initialStep) {
+    return optimize(logFormat, operand -> function.applyAsDouble(operand[0]),
         new SimpleBounds(new double[] {limits[0]}, new double[] {limits[1]}),
         new double[] {initialGuess}, new double[] {initialStep});
   }
 
-  public static PointValuePair optimize(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
+  public static PointValuePair optimize(@Nonnull String logFormat, @Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
                                         @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
     return optimize(new MultivariateFunction() {
       private LocalTime prev = LocalTime.now();
@@ -62,7 +62,7 @@ public class Simplex {
         }
         double value = function.value(point);
         if (Duration.between(prev, LocalTime.now()).getSeconds() >= 10) {
-          Logger.getLogger(Simplex.class.getName()).log(Level.INFO, String.format("%s; %.6f", Strings.toString("%.3f", point, AbstractUnit.ONE), value));
+          Logger.getLogger(Simplex.class.getName()).log(Level.INFO, String.format("%s; %.6f", Strings.toString(logFormat, point), value));
           prev = LocalTime.now();
         }
         return value;

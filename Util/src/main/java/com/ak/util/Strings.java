@@ -23,7 +23,7 @@ public enum Strings {
   public static final String CAP_DELTA = "\u0394";
   public static final String DELTA = "\u03b4";
 
-  private static final String RHO = "\u03c1";
+  public static final String RHO = "\u03c1";
 
   public static final String K_12 = "k" + low(1) + low(2);
   public static final String K_23 = "k" + low(2) + low(3);
@@ -35,8 +35,12 @@ public enum Strings {
     return s.replace(ignore, EMPTY);
   }
 
-  public static String toString(@Nonnull String format, @Nonnull double[] values, Unit<?> unit) {
-    return Arrays.stream(values).mapToObj(x -> String.format(format, x)).collect(Collectors.joining("; ", "{", "} " + unit));
+  public static String toString(@Nonnull String format, @Nonnull double[] values) {
+    return Arrays.stream(values).mapToObj(x -> String.format(format, x)).collect(Collectors.joining("; ", "{", "}"));
+  }
+
+  public static String toString(@Nonnull String format, @Nonnull double[] values, @Nonnull Unit<?> unit) {
+    return String.format("%s %s", toString(format, values), unit);
   }
 
   public static String rho(@Nonnegative double rho) {

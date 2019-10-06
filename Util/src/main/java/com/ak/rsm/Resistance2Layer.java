@@ -16,6 +16,7 @@ import com.ak.math.Simplex;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
+import tec.uom.se.unit.Units;
 
 import static java.lang.StrictMath.log;
 import static java.lang.StrictMath.pow;
@@ -90,7 +91,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
       return new Medium.Builder(systems, rOhmsBefore, s -> new Resistance2Layer(s).value(rho, rho, 0)).addLayer(rho, 0).build(rho);
     }
 
-    DoubleUnaryOperator findK = h -> Simplex.optimize(k -> {
+    DoubleUnaryOperator findK = h -> Simplex.optimize("k = %.3f", k -> {
       double[] subLogApparentPredicted = IntStream.range(0, systems.length)
           .mapToDouble(i -> diff.applyAsDouble(i, index -> new Log1pApparent2Rho(systems[index]).value(k, h)))
           .limit(systems.length - 1).toArray();
@@ -98,7 +99,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     }, new double[] {-1.0, 1.0}, 0.0, 0.1).getPoint()[0];
 
     double maxL = Arrays.stream(systems).mapToDouble(s -> s.Lh(1.0)).max().orElseThrow();
-    PointValuePair findLh = Simplex.optimize(h -> {
+    PointValuePair findLh = Simplex.optimize("h = %.4f " + Units.METRE, h -> {
           double k = findK.applyAsDouble(h);
           double[] subLogDiffPredicted = IntStream.range(0, systems.length)
               .mapToDouble(i -> diff.applyAsDouble(i, index -> {
