@@ -8,7 +8,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="Util_main" />
+    <orderEntry type="module" module-name="DesktopFX.Util.main" />
     <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:3.0.2" level="project" />
     <orderEntry type="library" name="Gradle: tec.uom:uom-se:1.0.10" level="project" />
     <orderEntry type="library" name="Gradle: org.glassfish:javax.json:1.1.4" level="project" />
@@ -18,5 +18,5 @@
     <orderEntry type="library" name="Gradle: javax.measure:unit-api:1.0" level="project" />
     <orderEntry type="library" name="Gradle: com.beust:jcommander:1.72" level="project" />
   </component>
-  <component name="TestModuleProperties" production-module="Util_main" />
+  <component name="TestModuleProperties" production-module="DesktopFX.Util.main" />
 </module>

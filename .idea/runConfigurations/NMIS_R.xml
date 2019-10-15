@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="NMIS-R" type="Application" factoryName="Application" singleton="true">
     <option name="MAIN_CLASS_NAME" value="com.ak.fx.desktop.FxApplication" />
-    <module name="FxDesktop_main" />
+    <module name="DesktopFX.FxDesktop.main" />
     <option name="PROGRAM_PARAMETERS" value="--context=nmisr" />
     <extension name="coverage">
       <pattern>
