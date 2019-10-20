@@ -61,7 +61,7 @@ public class Simplex {
           }
         }
         double value = function.value(point);
-        if (Duration.between(prev, LocalTime.now()).getSeconds() >= 10) {
+        if (!logFormat.isEmpty() && Duration.between(prev, LocalTime.now()).getSeconds() >= 60 - 1) {
           Logger.getLogger(Simplex.class.getName()).log(Level.INFO, String.format("%s; %.6f", Strings.toString(logFormat, point), value));
           prev = LocalTime.now();
         }

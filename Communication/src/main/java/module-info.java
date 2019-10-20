@@ -6,6 +6,7 @@ module com.ak.comm {
   requires jssc;
   requires java.logging;
   requires unit.api;
+  requires uom.se;
 
   exports com.ak.comm.bytes;
   exports com.ak.comm;
