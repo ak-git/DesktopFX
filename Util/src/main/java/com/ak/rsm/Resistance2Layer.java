@@ -99,7 +99,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     }, new double[] {-1.0, 1.0}, 0.0, 0.1).getPoint()[0];
 
     double maxL = Arrays.stream(systems).mapToDouble(s -> s.Lh(1.0)).max().orElseThrow();
-    PointValuePair findh = Simplex.optimize("h = %.4f " + Units.METRE, h -> {
+    PointValuePair findH = Simplex.optimize("h = %.4f " + Units.METRE, h -> {
           double k = findK.applyAsDouble(h);
           double[] subLogDiffPredicted = IntStream.range(0, systems.length)
               .mapToDouble(i -> diff.applyAsDouble(i, index -> {
@@ -113,7 +113,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
         new double[] {0.0, maxL}, maxL / 2.0, maxL / 10.0
     );
 
-    double h = findh.getPoint()[0];
+    double h = findH.getPoint()[0];
     double k = findK.applyAsDouble(h);
 
     double sumLogApparent = IntStream.range(0, systems.length)
