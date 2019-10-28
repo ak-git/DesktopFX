@@ -25,7 +25,7 @@ public class KalmanFilterTest {
   public static void test() {
     double dt = 1.0;
     double measurementNoise = 5.0;
-    double velocityNoise2 = 0.0;
+    double velocityNoise2 = 0.1;
 
     RealMatrix A = new Array2DRowRealMatrix(new double[][] {
         {1},
@@ -69,7 +69,8 @@ public class KalmanFilterTest {
       filter.correct(z);
 
       double position = filter.getStateEstimation()[0];
-      Logger.getAnonymousLogger().info(String.format("%.6f\t%.3f\t%.3f\t%.3f %n", u.getEntry(0), x.getEntry(0), z.getEntry(0), position));
+      String format = String.format("%.6f\t%.3f\t%.3f\t%.3f", u.getEntry(0), x.getEntry(0), z.getEntry(0), position);
+      Logger.getAnonymousLogger().info(format);
     }
   }
 
