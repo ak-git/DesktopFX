@@ -50,10 +50,6 @@ class Medium {
     }
   }
 
-  double getRho2() {
-    return rho[1];
-  }
-
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();

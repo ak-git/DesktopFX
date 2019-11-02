@@ -79,8 +79,8 @@ class LayersProvider {
   }
 
   @Nonnull
-  private static ToDoubleFunction<TetrapolarSystem> layer3(@Nonnull double[] rho, double hmmStep, @Nonnegative int p1) {
-    return system -> new Resistance3Layer(system, Math.abs(Metrics.fromMilli(hmmStep))).value(rho[0], rho[1], rho[2], p1, 1);
+  private static ToDoubleFunction<TetrapolarSystem> layer3(@Nonnull double[] rho, double hmmStep, @Nonnegative int p1, @Nonnegative int p2mp1) {
+    return system -> new Resistance3Layer(system, Math.abs(Metrics.fromMilli(hmmStep))).value(rho[0], rho[1], rho[2], p1, p2mp1);
   }
 
   @Nonnull
@@ -119,7 +119,7 @@ class LayersProvider {
         },
         {
             systems3,
-            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, 0.1, 10)),
+            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, 0.1, 10, 1)),
         },
     };
   }
@@ -214,26 +214,14 @@ class LayersProvider {
 
         {
             systems3,
-            rOhms(systems3, layer2(9.0, 1.0, 10.0)),
-            rOhms(systems3, layer2(9.0, 1.0, 10.0 + dh)),
+            rOhms(systems3, layer2(9.0, 1.0, 5.0)),
+            rOhms(systems3, layer2(9.0, 1.0, 5.0 + dh)),
             Metrics.fromMilli(dh)
         },
         {
             systems3,
-            rOhms(systems3, layer2(1.0, 4.0, 2.0)),
-            rOhms(systems3, layer2(1.0, 4.0, 2.0 + dh)),
-            Metrics.fromMilli(dh)
-        },
-        {
-            systems3,
-            rOhms(systems3, layer2(0.7, Double.POSITIVE_INFINITY, 11.0)),
-            rOhms(systems3, layer2(0.7, Double.POSITIVE_INFINITY, 11.0 + dh)),
-            Metrics.fromMilli(dh)
-        },
-        {
-            systems3,
-            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, dh, 5)),
-            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, dh, 5 - 1)),
+            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, dh, 10, 1)),
+            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, dh, 10 - 1, 1)),
             Metrics.fromMilli(dh)
         },
     };

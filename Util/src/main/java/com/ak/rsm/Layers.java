@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import com.ak.numbers.CoefficientsUtils;
 
 class Layers {
-  private static final int SUM_LIMIT = 1024 * 512;
+  private static final int SUM_LIMIT = 1024 * 8 * 2;
 
   private Layers() {
   }

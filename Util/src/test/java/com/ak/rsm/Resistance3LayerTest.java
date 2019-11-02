@@ -2,6 +2,8 @@ package com.ak.rsm;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -72,8 +74,8 @@ public class Resistance3LayerTest {
         {new double[] {5.0, 10.0, 1.0}, Metrics.fromMilli(1), new int[] {5, 5}, 20.0, 40.0, 103.657},// briko: 104.87
         {new double[] {1.0, 5.0, 10.0}, Metrics.fromMilli(1), new int[] {5, 5}, 20.0, 40.0, 49.651},// briko: 53.11
 
-        {new double[] {10.0, 1.0, 10.0}, Metrics.fromMilli(0.1), new int[] {1, 1}, 10.0, 30.0, 156.160},
-        {new double[] {10.0, 1.0, 10.0}, Metrics.fromMilli(0.001), new int[] {3_000, 100}, 10.0, 30.0, 149.637},
+        {new double[] {10.0, 1.0, 10.0}, Metrics.fromMilli(0.1), new int[] {3_0, 1}, 10.0, 30.0, 149.637},
+        {new double[] {10.0, 1.0, 10.0}, Metrics.fromMilli(0.01), new int[] {3_00, 10}, 10.0, 30.0, 149.637},
         {new double[] {10.0, 1.0, 10.0}, Metrics.fromMilli(0.1), new int[] {1000, 1}, 10.0, 30.0, 159.154},
     };
   }
@@ -126,5 +128,10 @@ public class Resistance3LayerTest {
             return Double.NaN;
           }
         });
+  }
+
+  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryDynamicParameters3", enabled = false)
+  public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
+    Logger.getAnonymousLogger().log(Level.WARNING, Resistance3Layer.inverse(systems, rOhmsBefore, rOhmsAfter, dh).toString());
   }
 }

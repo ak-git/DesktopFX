@@ -23,15 +23,18 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.math3.random.MersenneTwister;
 
 public class Simplex {
+  public static final double STOP_FITNESS = 1.0e-12;
+  private static final int MAX_ITERATIONS = 300000;
+
   private Simplex() {
   }
 
   public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
                                              @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
-    return new CMAESOptimizer(30000, 1.0e-6, true, 0,
+    return new CMAESOptimizer(MAX_ITERATIONS, STOP_FITNESS, true, 0,
         10, new MersenneTwister(), false, null)
         .optimize(
-            new MaxEval(30000),
+            new MaxEval(MAX_ITERATIONS),
             new ObjectiveFunction(function),
             GoalType.MINIMIZE,
             new InitialGuess(initialGuess),
@@ -72,7 +75,7 @@ public class Simplex {
 
   private static PointValuePair optimize(@Nonnull MultivariateFunction function,
                                          @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
-    return new SimplexOptimizer(1.0e-6, 1.0e-6).optimize(new MaxEval(30000), new ObjectiveFunction(function), GoalType.MINIMIZE,
+    return new SimplexOptimizer(STOP_FITNESS, STOP_FITNESS).optimize(new MaxEval(MAX_ITERATIONS), new ObjectiveFunction(function), GoalType.MINIMIZE,
         new NelderMeadSimplex(initialSteps), new InitialGuess(initialGuess));
   }
 }
