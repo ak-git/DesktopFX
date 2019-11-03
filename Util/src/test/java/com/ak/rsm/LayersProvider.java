@@ -119,7 +119,7 @@ class LayersProvider {
         },
         {
             systems3,
-            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, 0.1, 10, 1)),
+            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, 0.1, 10, 2)),
         },
     };
   }

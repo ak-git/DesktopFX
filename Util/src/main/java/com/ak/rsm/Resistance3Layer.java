@@ -132,8 +132,8 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
                     .limit(systems.length - 1).toArray();
                 return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
               },
-              new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {0.0, 1.0}),
-              new double[] {Math.random() - 1.0, Math.random()}, new double[] {0.1, 0.1}))
+              new SimpleBounds(new double[] {-0.99, -0.99}, new double[] {0.99, 0.99}),
+              new double[] {(Math.random() * 2 - 1.0) * 0.99, (Math.random() * 2 - 1.0) * 0.99}, new double[] {0.1, 0.1}))
               .peek(r -> Logger.getAnonymousLogger().config(Strings.toString("%.3f", r.getPoint()) + " : " + r.getValue()))
               .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow().getPoint();
 
