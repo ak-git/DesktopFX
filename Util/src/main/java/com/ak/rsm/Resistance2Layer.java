@@ -43,15 +43,24 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     return index -> log(new Resistance1Layer(systems[index]).getApparent(rOhmsBefore[index]));
   }
 
-  static IntToDoubleFunction logDiffFunction(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter) {
-    return index -> log(Math.abs(new Resistance1Layer(systems[index]).getApparent(rOhmsAfter[index] - rOhmsBefore[index])));
+  static double[] subtractSystems(@Nonnegative int length, @Nonnull IntToDoubleFunction mapper) {
+    return IntStream.range(0, length).mapToDouble(mapper).limit(length - 1).toArray();
   }
 
-  static double sumLogApparent(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore) {
-    return IntStream.range(0, systems.length).mapToDouble(logApparentFunction(systems, rOhmsBefore)).reduce(Double::sum).orElseThrow();
+  static double[] logApparent(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore) {
+    ToDoubleBiFunction<Integer, IntToDoubleFunction> diff = newDiff(systems.length);
+    IntToDoubleFunction logApparentFunction = logApparentFunction(systems, rOhmsBefore);
+    return subtractSystems(systems.length, i -> exp(diff.applyAsDouble(i, logApparentFunction)));
   }
 
-  static double sumLogApparentPredicted(@Nonnull TetrapolarSystem[] systems, @Nonnull IntToDoubleFunction logApparentPredictedFunction) {
+  static double[] logDiff(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter) {
+    ToDoubleBiFunction<Integer, IntToDoubleFunction> diff = newDiff(systems.length);
+    IntToDoubleFunction logDiffFunction = index ->
+        log(Math.abs(new Resistance1Layer(systems[index]).getApparent(rOhmsAfter[index] - rOhmsBefore[index])));
+    return subtractSystems(systems.length, i -> exp(diff.applyAsDouble(i, logDiffFunction)));
+  }
+
+  static double sumLog(@Nonnull TetrapolarSystem[] systems, @Nonnull IntToDoubleFunction logApparentPredictedFunction) {
     return IntStream.range(0, systems.length).mapToDouble(logApparentPredictedFunction).reduce(Double::sum).orElseThrow();
   }
 
@@ -99,39 +108,31 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     Medium inverse = Resistance1Layer.inverse(systems, rOhmsBefore);
     Logger.getLogger(Resistance2Layer.class.getName()).log(Level.INFO, inverse.toString());
 
-    ToDoubleBiFunction<Integer, IntToDoubleFunction> diff = newDiff(systems.length);
-    IntToDoubleFunction logDiffFunction = logDiffFunction(systems, rOhmsBefore, rOhmsAfter);
-    double[] subLogDiff = IntStream.range(0, systems.length)
-        .mapToDouble(i -> exp(diff.applyAsDouble(i, logDiffFunction))).limit(systems.length - 1).toArray();
-
+    double[] subLogDiff = logDiff(systems, rOhmsBefore, rOhmsAfter);
     if (Arrays.stream(subLogDiff).anyMatch(Double::isNaN)) {
       double rho = inverse.getRho();
       return new Medium.Builder(systems, rOhmsBefore, s -> new Resistance2Layer(s).value(rho, rho, 0)).addLayer(rho, 0).build(rho);
     }
 
-    IntToDoubleFunction logApparentFunction = logApparentFunction(systems, rOhmsBefore);
-    double[] subLogApparent = IntStream.range(0, systems.length)
-        .mapToDouble(i -> exp(diff.applyAsDouble(i, logApparentFunction))).limit(systems.length - 1).toArray();
+    double[] subLogApparent = logApparent(systems, rOhmsBefore);
     BiFunction<Double, Double, IntToDoubleFunction> logApparentPredictedFunction = (k, h) ->
         index -> new Log1pApparent2Rho(systems[index]).value(k, h);
 
+    ToDoubleBiFunction<Integer, IntToDoubleFunction> diff = newDiff(systems.length);
     DoubleUnaryOperator findK = h -> Simplex.optimize("k = %.3f", k -> {
-      double[] subLogApparentPredicted = IntStream.range(0, systems.length)
-          .mapToDouble(i -> exp(diff.applyAsDouble(i, logApparentPredictedFunction.apply(k, h)))).limit(systems.length - 1).toArray();
+      double[] subLogApparentPredicted = subtractSystems(systems.length, i -> exp(diff.applyAsDouble(i, logApparentPredictedFunction.apply(k, h))));
       return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
     }, new double[] {-1.0, 1.0}, 0.0, 0.1).getPoint()[0];
 
     double maxL = Arrays.stream(systems).mapToDouble(s -> s.Lh(1.0)).max().orElseThrow();
     PointValuePair findH = Simplex.optimize("h = %.4f " + Units.METRE, h -> {
           double k = findK.applyAsDouble(h);
-          double[] subLogDiffPredicted = IntStream.range(0, systems.length)
-              .mapToDouble(i -> exp(diff.applyAsDouble(i, index -> {
-                TrivariateFunction resistance = new Resistance2Layer(systems[index]);
-                double a = resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h + dh) -
-                    resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h);
-                return log(Math.abs(new Resistance1Layer(systems[index]).getApparent(a)));
-              })))
-              .limit(systems.length - 1).toArray();
+          double[] subLogDiffPredicted = subtractSystems(systems.length, i -> exp(diff.applyAsDouble(i, index -> {
+            TrivariateFunction resistance = new Resistance2Layer(systems[index]);
+            double a = resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h + dh) -
+                resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h);
+            return log(Math.abs(new Resistance1Layer(systems[index]).getApparent(a)));
+          })));
           return Inequality.absolute().applyAsDouble(subLogDiff, subLogDiffPredicted);
         },
         new double[] {0.0, maxL}, maxL / 2.0, maxL / 10.0
@@ -140,10 +141,8 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     double h = findH.getPoint()[0];
     double k = findK.applyAsDouble(h);
 
-    double sumLogApparent = sumLogApparent(systems, rOhmsBefore);
-    double sumLogApparentPredicted = sumLogApparentPredicted(systems,
-        index -> logApparentPredictedFunction.apply(k, h).applyAsDouble(index)
-    );
+    double sumLogApparent = sumLog(systems, index -> logApparentFunction(systems, rOhmsBefore).applyAsDouble(index));
+    double sumLogApparentPredicted = sumLog(systems, index -> logApparentPredictedFunction.apply(k, h).applyAsDouble(index));
     double rho1 = exp((sumLogApparent - sumLogApparentPredicted) / systems.length);
     double rho2 = rho1 / Layers.getRho1ToRho2(k);
     return new Medium.Builder(systems, rOhmsBefore, rOhmsAfter, dh,
