@@ -72,13 +72,13 @@ class Medium {
       );
     }
     else {
-      double error = Inequality.proportional().applyAsDouble(
-          DoubleStream.concat(Arrays.stream(measured), Arrays.stream(measuredDelta)).toArray(),
-          DoubleStream.concat(Arrays.stream(predicted), Arrays.stream(predictedDelta)).toArray()) / (measured.length + measuredDelta.length);
+      double error = Inequality.proportional().applyAsDouble(measured, predicted) / measured.length;
+      double error2 = Inequality.proportional().applyAsDouble(measuredDelta, predictedDelta) / measuredDelta.length;
 
-      return String.format("%s; L%s = %.1f %s;%n measured = %s, \u0394 = %s;%npredicted = %s, \u0394 = %s;", sb.toString(),
+      return String.format("%s; L%s = [%.1f; %.1f] %s;%n measured = %s, \u0394 = %s;%npredicted = %s, \u0394 = %s;", sb.toString(),
           Strings.low(2),
           Metrics.toPercents(error),
+          Metrics.toPercents(error2),
           Units.PERCENT,
           Strings.toString("%.3f", measured, Units.OHM),
           Strings.toString("%.0f", Arrays.stream(measuredDelta).map(Metrics::toMilli).toArray(), MetricPrefix.MILLI(Units.OHM)),
