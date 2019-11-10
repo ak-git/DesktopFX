@@ -2,9 +2,11 @@ package com.ak.math;
 
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -21,9 +23,10 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.math3.random.MersenneTwister;
+import org.apache.commons.math3.util.Pair;
 
 public class Simplex {
-  public static final double STOP_FITNESS = 1.0e-12;
+  private static final double STOP_FITNESS = 1.0e-12;
   private static final int MAX_ITERATIONS = 300000;
 
   private Simplex() {
@@ -31,7 +34,7 @@ public class Simplex {
 
   public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
                                              @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
-    return new CMAESOptimizer(MAX_ITERATIONS, STOP_FITNESS, true, 0,
+    return IntStream.range(0, 4).mapToObj(value -> new CMAESOptimizer(MAX_ITERATIONS, STOP_FITNESS, true, 0,
         10, new MersenneTwister(), false, null)
         .optimize(
             new MaxEval(MAX_ITERATIONS),
@@ -41,7 +44,7 @@ public class Simplex {
             bounds,
             new CMAESOptimizer.Sigma(initialSteps),
             new CMAESOptimizer.PopulationSize(2 * (4 + (int) (3.0 * StrictMath.log(initialGuess.length))))
-        );
+        )).min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
 
   public static PointValuePair optimize(@Nonnull String logFormat, @Nonnull DoubleUnaryOperator function, @Nonnull double[] limits,
