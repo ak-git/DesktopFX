@@ -1,8 +1,8 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.function.BiFunction;
-import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
 import java.util.function.ToDoubleBiFunction;
 import java.util.logging.Level;
@@ -17,7 +17,7 @@ import com.ak.math.Simplex;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
-import tec.uom.se.unit.Units;
+import org.apache.commons.math3.util.Pair;
 
 import static java.lang.StrictMath.exp;
 import static java.lang.StrictMath.log;
@@ -116,34 +116,41 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
       return new Medium.Builder(systems, rOhmsBefore, s -> new Resistance2Layer(s).value(rho, rho, 0)).addLayer(rho, 0).build(rho);
     }
 
-    double[] subLogApparent = logApparent(systems, rOhmsBefore);
+    IntToDoubleFunction logApparentFunction = logApparentFunction(systems, rOhmsBefore);
+    double[] logApparent = IntStream.range(0, systems.length).mapToDouble(logApparentFunction).toArray();
+
     BiFunction<Double, Double, IntToDoubleFunction> logApparentPredictedFunction = (k, h) ->
         index -> new Log1pApparent2Rho(systems[index]).value(k, h);
 
-    ToDoubleBiFunction<Integer, IntToDoubleFunction> diff = newDiff(systems.length);
-    DoubleUnaryOperator findK = h -> Simplex.optimize("k = %.3f", k -> {
-      double[] subLogApparentPredicted = subtractSystems(systems.length, i -> diff.applyAsDouble(i, logApparentPredictedFunction.apply(k, h)));
-      return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
-    }, new double[] {-1.0, 1.0}, 0.0, 0.1).getPoint()[0];
-
     double maxL = Arrays.stream(systems).mapToDouble(s -> s.Lh(1.0)).max().orElseThrow();
-    PointValuePair findH = Simplex.optimize("h = %.4f " + Units.METRE, h -> {
-          double k = findK.applyAsDouble(h);
-          double[] subLogDiffPredicted = subtractSystems(systems.length, i -> diff.applyAsDouble(i, index -> {
-            TrivariateFunction resistance = new Resistance2Layer(systems[index]);
+    PointValuePair find = IntStream.range(0, 4).mapToObj(value -> Simplex.optimizeCMAES(p -> {
+          double h = p[0];
+          double k = p[1];
+
+          double[] logDiff = IntStream.range(0, systems.length).mapToDouble(index -> {
+            double apparent = new Resistance1Layer(systems[index]).getApparent((rOhmsAfter[index] - rOhmsBefore[index]) / dh);
+            return log(Math.abs(apparent) * h);
+          }).toArray();
+          double[] measured = IntStream.range(0, systems.length).mapToDouble(i -> logApparent[i] - logDiff[i]).toArray();
+
+          double[] logApparentPredicted = IntStream.range(0, systems.length)
+              .mapToDouble(index -> logApparentPredictedFunction.apply(k, h).applyAsDouble(index)).toArray();
+          double[] logDiffPredicted = Arrays.stream(systems).mapToDouble(system -> {
+            TrivariateFunction resistance = new Resistance2Layer(system);
             double a = resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h + dh) -
                 resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h);
-            return log(Math.abs(new Resistance1Layer(systems[index]).getApparent(a)));
-          }));
-          return Inequality.absolute().applyAsDouble(subLogDiff, subLogDiffPredicted);
+            return log(Math.abs(new Resistance1Layer(system).getApparent(a / dh)) * h);
+          }).toArray();
+          double[] predicted = IntStream.range(0, systems.length).mapToDouble(i -> logApparentPredicted[i] - logDiffPredicted[i]).toArray();
+          return Inequality.absolute().applyAsDouble(measured, predicted);
         },
-        new double[] {0.0, maxL}, maxL / 2.0, maxL / 10.0
-    );
+        new SimpleBounds(new double[] {0.0, -1.0}, new double[] {maxL, 1.0}), new double[] {maxL / 2.0, 0.0}, new double[] {maxL / 10.0, 0.1}
+    )).min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
 
-    double h = findH.getPoint()[0];
-    double k = findK.applyAsDouble(h);
+    double h = find.getPoint()[0];
+    double k = find.getPoint()[1];
 
-    double sumLogApparent = sumLog(systems, index -> logApparentFunction(systems, rOhmsBefore).applyAsDouble(index));
+    double sumLogApparent = sumLog(systems, logApparentFunction);
     double sumLogApparentPredicted = sumLog(systems, index -> logApparentPredictedFunction.apply(k, h).applyAsDouble(index));
     double rho1 = exp((sumLogApparent - sumLogApparentPredicted) / systems.length);
     double rho2 = rho1 / Layers.getRho1ToRho2(k);

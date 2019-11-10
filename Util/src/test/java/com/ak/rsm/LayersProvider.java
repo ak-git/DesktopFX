@@ -220,6 +220,12 @@ class LayersProvider {
         },
         {
             systems3,
+            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, dh, 2, 1)),
+            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, dh, 2 - 1, 1)),
+            Metrics.fromMilli(dh)
+        },
+        {
+            systems3,
             rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, dh, 10, 1)),
             rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, dh, 10 - 1, 1)),
             Metrics.fromMilli(dh)
@@ -347,12 +353,6 @@ class LayersProvider {
             systems3(7.0),
             new double[] {88.81, 141.1, 34.58},
             new double[] {88.81 - 0.04, 141.1 - 0.06, 34.58 - 0.03},
-            -Metrics.fromMilli(0.1)
-        },
-        {
-            systems3(7.0),
-            new double[] {123.3, 176.1, 43.09},
-            new double[] {123.3 - 0.1, 176.1 - 0.125, 43.09 - 0.04},
             -Metrics.fromMilli(0.1)
         },
         {
