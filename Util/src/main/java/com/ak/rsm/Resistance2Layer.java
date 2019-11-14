@@ -77,13 +77,14 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     Medium inverse = Resistance1Layer.inverse(systems, rOhmsBefore);
     Logger.getLogger(Resistance2Layer.class.getName()).log(Level.INFO, inverse.toString());
 
+    IntToDoubleFunction rDiff = index -> (rOhmsAfter[index] - rOhmsBefore[index]) / dh;
+
     DoubleFunction<IntToDoubleFunction> apparentDiffByH = h -> index -> {
-      double apparent = new Resistance1Layer(systems[index]).getApparent((rOhmsAfter[index] - rOhmsBefore[index]) / dh);
+      double apparent = new Resistance1Layer(systems[index]).getApparent(rDiff.applyAsDouble(index));
       return log(Math.abs(apparent) * h);
     };
 
-    double[] subLogDiff = rangeSystems(systems.length, index -> apparentDiffByH.apply(1.0).applyAsDouble(index));
-    if (Arrays.stream(subLogDiff).anyMatch(Double::isInfinite)) {
+    if (Arrays.stream(rangeSystems(systems.length, index1 -> apparentDiffByH.apply(1.0).applyAsDouble(index1))).anyMatch(Double::isInfinite)) {
       double rho = inverse.getRho();
       return new Medium.Builder(systems, rOhmsBefore, s -> new Resistance2Layer(s).value(rho, rho, 0)).addLayer(rho, 0).build(rho);
     }
@@ -103,12 +104,18 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
           double[] measured = rangeSystems(systems.length, i -> logApparent[i] - logDiff[i]);
 
           double[] logApparentPredicted = rangeSystems(systems.length, index -> logApparentPredictedFunction.apply(k, h).applyAsDouble(index));
-          double[] logDiffPredicted = Arrays.stream(systems).mapToDouble(system -> {
-            TrivariateFunction resistance = new Resistance2Layer(system);
+          double[] logDiffPredicted = rangeSystems(systems.length, index -> {
+            TrivariateFunction resistance = new Resistance2Layer(systems[index]);
             double a = resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h + dh) -
                 resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h);
-            return log(Math.abs(new Resistance1Layer(system).getApparent(a / dh)) * h);
-          }).toArray();
+            double apparent = new Resistance1Layer(systems[index]).getApparent(a / dh);
+            if (Double.compare(Math.signum(apparent), Math.signum(rDiff.applyAsDouble(index))) == 0) {
+              return log(Math.abs(apparent) * h);
+            }
+            else {
+              return Double.POSITIVE_INFINITY;
+            }
+          });
           double[] predicted = rangeSystems(systems.length, i -> logApparentPredicted[i] - logDiffPredicted[i]);
           return Inequality.absolute().applyAsDouble(measured, predicted);
         },
