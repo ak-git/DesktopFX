@@ -41,11 +41,12 @@ class LayersProvider {
    * @return three Tetrapolar System.
    */
   @Nonnull
-  private static TetrapolarSystem[] systems3(@Nonnegative double smm) {
+  private static TetrapolarSystem[] systems4(@Nonnegative double smm) {
     return new TetrapolarSystem[] {
         new TetrapolarSystem(smm, smm * 3.0, MILLI(METRE)),
         new TetrapolarSystem(smm * 5.0, smm * 3.0, MILLI(METRE)),
-        new TetrapolarSystem(smm, smm * 5.0, MILLI(METRE)),
+        new TetrapolarSystem(smm * 2.0, smm * 4.0, MILLI(METRE)),
+        new TetrapolarSystem(smm * 4.0, smm * 6.0, MILLI(METRE)),
     };
   }
 
@@ -90,36 +91,36 @@ class LayersProvider {
 
   @DataProvider(name = "theoryStaticParameters")
   public static Object[][] theoryStaticParameters() {
-    TetrapolarSystem[] systems3 = systems3(10.0);
+    TetrapolarSystem[] systems4 = systems4(10.0);
     return new Object[][] {
         {
-            systems3,
-            rOhms(systems3, layer1(1.0)),
+            systems4,
+            rOhms(systems4, layer1(1.0)),
         },
         {
-            systems3,
-            rOhms(systems3, layer1(2.0)),
+            systems4,
+            rOhms(systems4, layer1(2.0)),
         },
         {
-            systems3,
-            rOhms(systems3, layer2(9.0, 9.0, 10.0)),
+            systems4,
+            rOhms(systems4, layer2(9.0, 9.0, 10.0)),
         },
 
         {
-            systems3,
-            rOhms(systems3, layer2(9.0, 1.0, 10.0)),
+            systems4,
+            rOhms(systems4, layer2(9.0, 1.0, 10.0)),
         },
         {
-            systems3,
-            rOhms(systems3, layer2(1.0, 4.0, 2.0)),
+            systems4,
+            rOhms(systems4, layer2(1.0, 4.0, 2.0)),
         },
         {
-            systems3,
-            rOhms(systems3, layer2(0.7, Double.POSITIVE_INFINITY, 11.0)),
+            systems4,
+            rOhms(systems4, layer2(0.7, Double.POSITIVE_INFINITY, 11.0)),
         },
         {
-            systems3,
-            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, 0.1, 10, 2)),
+            systems4,
+            rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, 0.1, 10, 2)),
         },
     };
   }
@@ -127,10 +128,6 @@ class LayersProvider {
   @DataProvider(name = "staticParameters")
   public static Object[][] staticParameters() {
     return new Object[][] {
-        {
-            systems3(7.0),
-            new double[] {88.81, 141.1, 34.58},
-        },
         {
             systems5(7.0),
             new double[] {123.3, 176.1, 43.09, 170.14, 85.84 * 2}
@@ -188,46 +185,39 @@ class LayersProvider {
     };
   }
 
-  @DataProvider(name = "theoryDynamicParameters3")
-  public static Object[][] theoryDynamicParameters3() {
-    TetrapolarSystem[] systems3 = systems3(10);
+  @DataProvider(name = "theoryDynamicParameters4")
+  public static Object[][] theoryDynamicParameters4() {
+    TetrapolarSystem[] systems4 = systems4(10);
     double dh = -0.1;
     return new Object[][] {
         {
-            systems3,
-            rOhms(systems3, layer1(1.0)),
-            rOhms(systems3, layer1(1.0)),
+            systems4,
+            rOhms(systems4, layer1(1.0)),
+            rOhms(systems4, layer1(1.0)),
             Metrics.fromMilli(dh)
         },
         {
-            systems3,
-            rOhms(systems3, layer1(2.0)),
-            rOhms(systems3, layer1(2.0)),
+            systems4,
+            rOhms(systems4, layer1(2.0)),
+            rOhms(systems4, layer1(2.0)),
             Metrics.fromMilli(dh)
         },
         {
-            systems3,
-            rOhms(systems3, layer2(9.0, 9.0, 10.0)),
-            rOhms(systems3, layer2(9.0, 9.0, 10.0 + dh)),
-            Metrics.fromMilli(dh)
-        },
-
-        {
-            systems3,
-            rOhms(systems3, layer2(9.0, 1.0, 5.0)),
-            rOhms(systems3, layer2(9.0, 1.0, 5.0 + dh)),
+            systems4,
+            rOhms(systems4, layer2(9.0, 9.0, 10.0)),
+            rOhms(systems4, layer2(9.0, 9.0, 10.0 + dh)),
             Metrics.fromMilli(dh)
         },
         {
-            systems3,
-            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, dh, 2, 1)),
-            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, dh, 2 - 1, 1)),
+            systems4,
+            rOhms(systems4, layer2(9.0, 1.0, 5.0)),
+            rOhms(systems4, layer2(9.0, 1.0, 5.0 + dh)),
             Metrics.fromMilli(dh)
         },
         {
-            systems3,
-            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, dh, 10, 1)),
-            rOhms(systems3, layer3(new double[] {9.0, 1.0, 4.0}, dh, 10 - 1, 1)),
+            systems4,
+            rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, dh, 10, 2)),
+            rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, dh, 10 - 1, 2)),
             Metrics.fromMilli(dh)
         },
     };
@@ -290,71 +280,9 @@ class LayersProvider {
     };
   }
 
-  @DataProvider(name = "waterDynamicParameters3")
-  public static Object[][] waterDynamicParameters3() {
-    double dh = -Metrics.fromMilli(10.0 / 200.0);
+  @DataProvider(name = "dynamicParameters5")
+  public static Object[][] dynamicParameters5() {
     return new Object[][] {
-        // h = 5 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems3(10.0),
-            new double[] {30.971, 61.860, 18.069},
-            new double[] {31.278, 62.479, 18.252},
-            dh
-        },
-        // h = 10 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems3(10.0),
-            new double[] {16.761, 32.246, 9.074},
-            new double[] {16.821, 32.383, 9.118},
-            dh
-        },
-        // h = 15 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems3(10.0),
-            new double[] {13.338, 23.903, 6.267},
-            new double[] {13.357, 23.953, 6.284},
-            dh
-        },
-        // h = 20 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems3(10.0),
-            new double[] {12.187, 20.567, 5.082},
-            new double[] {12.194, 20.589, 5.090},
-            dh
-        },
-        // h = 25 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems3(10.0),
-            new double[] {11.710, 18.986, 4.514},
-            new double[] {11.714, 18.998, 4.518},
-            dh
-        },
-        // h = 30 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems3(10.0),
-            new double[] {11.482, 18.152, 4.216},
-            new double[] {11.484, 18.158, 4.218},
-            dh
-        },
-        // h = 35 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems3(10.0),
-            new double[] {11.361, 17.674, 4.047},
-            new double[] {11.362, 17.678, 4.048},
-            dh
-        },
-    };
-  }
-
-  @DataProvider(name = "dynamicParameters3")
-  public static Object[][] dynamicParameters3() {
-    return new Object[][] {
-        {
-            systems3(7.0),
-            new double[] {88.81, 141.1, 34.58},
-            new double[] {88.81 - 0.04, 141.1 - 0.06, 34.58 - 0.03},
-            -Metrics.fromMilli(0.1)
-        },
         {
             systems5(7.0),
             new double[] {123.3, 176.1, 43.09, 170.14, 85.84 * 2},

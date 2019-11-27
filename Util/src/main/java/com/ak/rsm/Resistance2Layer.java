@@ -84,7 +84,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
       return log(Math.abs(apparent) * h);
     };
 
-    if (Arrays.stream(rangeSystems(systems.length, index1 -> apparentDiffByH.apply(1.0).applyAsDouble(index1))).anyMatch(Double::isInfinite)) {
+    if (Arrays.stream(rangeSystems(systems.length, index -> apparentDiffByH.apply(1.0).applyAsDouble(index))).anyMatch(Double::isInfinite)) {
       double rho = inverse.getRho();
       return new Medium.Builder(systems, rOhmsBefore, s -> new Resistance2Layer(s).value(rho, rho, 0)).addLayer(rho, 0).build(rho);
     }
@@ -134,11 +134,11 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
         .addLayer(rho1, h).build(rho2);
   }
 
-  private static double sumLog(@Nonnull TetrapolarSystem[] systems, @Nonnull IntToDoubleFunction logApparentPredictedFunction) {
+  static double sumLog(@Nonnull TetrapolarSystem[] systems, @Nonnull IntToDoubleFunction logApparentPredictedFunction) {
     return IntStream.range(0, systems.length).mapToDouble(logApparentPredictedFunction).reduce(Double::sum).orElseThrow();
   }
 
-  private static double[] rangeSystems(@Nonnegative int length, @Nonnull IntToDoubleFunction mapper) {
+  static double[] rangeSystems(@Nonnegative int length, @Nonnull IntToDoubleFunction mapper) {
     return IntStream.range(0, length).mapToDouble(mapper).toArray();
   }
 }
