@@ -135,8 +135,8 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
       );
     };
 
-    PointValuePair f = IntStream.range(1, 100)
-        .mapToObj(p1 -> IntStream.range(1, 100)
+    PointValuePair f = IntStream.range(2, 100)
+        .mapToObj(p1 -> IntStream.range(1, p1)
             .mapToObj(p2mp1 -> {
               PointValuePair kPoint = findK.apply(new int[] {p1, p2mp1});
               return new PointValuePair(new double[] {p1, p2mp1}, kPoint.getValue());
