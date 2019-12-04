@@ -19,7 +19,7 @@ import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
 public enum AperOutVariable implements DependentVariable<AperInVariable, AperOutVariable> {
-  R1 {
+  R {
     @Override
     public List<AperInVariable> getInputVariables() {
       return Arrays.asList(AperInVariable.CCU1, AperInVariable.R1);
@@ -32,10 +32,10 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel1.class).build();
+      return FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel1.class).smoothingImpulsive(10).build();
     }
   },
-  ECG1 {
+  ECG {
     @Override
     public List<AperInVariable> getInputVariables() {
       return Collections.singletonList(AperInVariable.E1);
@@ -46,35 +46,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
       return FilterBuilder.of().fir(CommonCoefficients.ECG).build();
     }
   },
-  MYO1 {
-    @Override
-    public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(AperInVariable.E1);
-    }
-
-    @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.of().iirMATLAB(
-          new double[] {
-              0.9022774304591, 0, 0, 0,
-              0, 0, 0, 0,
-              0, 0, 0, 0,
-              0, 0, 0, 0,
-              0, 0, 0, 0,
-              -0.9022774304591
-          },
-          new double[] {
-              1, 0, 0, 0,
-              0, 0, 0, 0,
-              0, 0, 0, 0,
-              0, 0, 0, 0,
-              0, 0, 0, 0,
-              -0.8045548609183
-          }
-      ).fir(CommonCoefficients.MYO).build();
-    }
-  },
-  CCR1 {
+  CCR {
     @Override
     public List<AperInVariable> getInputVariables() {
       return Collections.singletonList(AperInVariable.CCU1);
@@ -93,36 +65,6 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
     @Override
     public Set<Option> options() {
       return Collections.singleton(Option.TEXT_VALUE_BANNER);
-    }
-  },
-
-  R2 {
-    @Override
-    public List<AperInVariable> getInputVariables() {
-      return Arrays.asList(AperInVariable.CCU2, AperInVariable.R2);
-    }
-
-    @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel2.class).build();
-    }
-  },
-  ECG2 {
-    @Override
-    public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(AperInVariable.E2);
-    }
-  },
-  MYO2 {
-    @Override
-    public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(AperInVariable.E2);
-    }
-  },
-  CCR2 {
-    @Override
-    public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(AperInVariable.CCU2);
     }
   };
 
