@@ -40,7 +40,7 @@ subprojects {
 
     dependencies {
         implementation 'com.google.code.findbugs:jsr305:3.0.2'
-        testImplementation 'org.testng:testng:7.0.0-beta7'
+        testImplementation 'org.testng:testng:7.0.0'
     }
 
     test {
@@ -71,7 +71,7 @@ project(':Communication') {
 project(':FxCore') {
     dependencies {
         api project(':Util')
-        api 'org.springframework:spring-context:5.1.9.RELEASE'
+        api 'org.springframework:spring-context:5.2.1.RELEASE'
     }
 }
 
