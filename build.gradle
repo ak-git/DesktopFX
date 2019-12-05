@@ -15,7 +15,7 @@ def javax_inject = 'javax.inject:javax.inject:1'
 def jssc = 'org.scream3r:jssc:2.8.0'
 def spring_context = 'org.springframework:spring-context:5.2.1.RELEASE'
 
-ext.projectIds = ['java': JavaVersion.VERSION_12]
+ext.projectIds = ['java': JavaVersion.VERSION_13]
 
 wrapper {
     description 'Setup the Gradle wrapper'
