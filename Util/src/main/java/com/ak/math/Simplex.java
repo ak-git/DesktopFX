@@ -3,12 +3,10 @@ package com.ak.math;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Comparator;
-import java.util.function.DoubleUnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.util.Strings;
@@ -45,13 +43,6 @@ public class Simplex {
             new CMAESOptimizer.Sigma(initialSteps),
             new CMAESOptimizer.PopulationSize(2 * (4 + (int) (3.0 * StrictMath.log(initialGuess.length))))
         )).min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
-  }
-
-  public static PointValuePair optimize(@Nonnull String logFormat, @Nonnull DoubleUnaryOperator function, @Nonnull double[] limits,
-                                        double initialGuess, @Nonnegative double initialStep) {
-    return optimize(logFormat, operand -> function.applyAsDouble(operand[0]),
-        new SimpleBounds(new double[] {limits[0]}, new double[] {limits[1]}),
-        new double[] {initialGuess}, new double[] {initialStep});
   }
 
   public static PointValuePair optimize(@Nonnull String logFormat, @Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
