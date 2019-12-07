@@ -41,6 +41,23 @@ class LayersProvider {
    * @return three Tetrapolar System.
    */
   @Nonnull
+  private static TetrapolarSystem[] systems3(@Nonnegative double smm) {
+    return new TetrapolarSystem[] {
+        new TetrapolarSystem(smm, smm * 3.0, MILLI(METRE)),
+        new TetrapolarSystem(smm * 5.0, smm * 3.0, MILLI(METRE)),
+        new TetrapolarSystem(smm, smm * 5.0, MILLI(METRE)),
+    };
+  }
+
+  /**
+   * Generates optimal electrode system pair.
+   * 10 x 30, 30 x 50, 10 x 50 mm,
+   * 7 x 21, 21 x 35, 7 x 35 mm.
+   *
+   * @param smm small potential electrode distance, mm.
+   * @return three Tetrapolar System.
+   */
+  @Nonnull
   private static TetrapolarSystem[] systems4(@Nonnegative double smm) {
     return new TetrapolarSystem[] {
         new TetrapolarSystem(smm, smm * 3.0, MILLI(METRE)),
@@ -129,6 +146,10 @@ class LayersProvider {
   public static Object[][] staticParameters() {
     return new Object[][] {
         {
+            systems3(7.0),
+            new double[] {88.81, 141.1, 34.58},
+        },
+        {
             systems5(7.0),
             new double[] {123.3, 176.1, 43.09, 170.14, 85.84 * 2}
         },
@@ -216,8 +237,8 @@ class LayersProvider {
         },
         {
             systems4,
-            rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, dh, 10, 2)),
-            rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, dh, 10 - 1, 2)),
+            rOhms(systems4, layer3(new double[] {10.0, 2.0, 5.0}, dh, 10, 3)),
+            rOhms(systems4, layer3(new double[] {10.0, 2.0, 5.0}, dh, 10 - 1, 3)),
             Metrics.fromMilli(dh)
         },
     };

@@ -53,28 +53,32 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
   @Nonnull
   public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
     Medium inverse = Resistance1Layer.inverse(systems, rOhms);
-    Logger.getLogger(Resistance2Layer.class.getName()).log(Level.INFO, inverse.toString());
+    if (systems.length > 2) {
+      Logger.getLogger(Resistance2Layer.class.getName()).log(Level.INFO, inverse.toString());
+      double rho = inverse.getRho();
+      double maxL = Arrays.stream(systems).mapToDouble(s -> s.Lh(1.0)).max().orElseThrow();
+      double[] measured = IntStream.range(0, systems.length).mapToDouble(i -> new Resistance1Layer(systems[i]).getApparent(rOhms[i])).toArray();
 
-    double rho = inverse.getRho();
-    double maxL = Arrays.stream(systems).mapToDouble(s -> s.Lh(1.0)).max().orElseThrow();
-    double[] measured = IntStream.range(0, systems.length).mapToDouble(i -> new Resistance1Layer(systems[i]).getApparent(rOhms[i])).toArray();
+      PointValuePair pointValuePair = Simplex.optimizeCMAES(rho1rho2h -> {
+            double[] predicted = Arrays.stream(systems).mapToDouble(s -> new Resistance1Layer(s).getApparent(new Resistance2Layer(s).value(rho1rho2h))).toArray();
+            return Inequality.absolute().applyAsDouble(measured, predicted);
+          }, new SimpleBounds(new double[] {0.0, 0.0, 0.0}, new double[] {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, maxL}),
+          new double[] {rho, rho, 0}, new double[] {rho / 10.0, rho / 10.0, maxL / 10.0});
 
-    PointValuePair pointValuePair = Simplex.optimizeCMAES(rho1rho2h -> {
-          double[] predicted = Arrays.stream(systems).mapToDouble(s -> new Resistance1Layer(s).getApparent(new Resistance2Layer(s).value(rho1rho2h))).toArray();
-          return Inequality.absolute().applyAsDouble(measured, predicted);
-        }, new SimpleBounds(new double[] {0.0, 0.0, 0.0}, new double[] {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, maxL}),
-        new double[] {rho, rho, 0}, new double[] {rho / 10.0, rho / 10.0, maxL / 10.0});
-
-    double[] p = pointValuePair.getPoint();
-    double rho1 = p[0];
-    double rho2 = p[1];
-    double h1 = p[2];
-    return new Medium.Builder(systems, rOhms, s -> new Resistance2Layer(s).value(p)).addLayer(rho1, h1).build(rho2);
+      double[] p = pointValuePair.getPoint();
+      double rho1 = p[0];
+      double rho2 = p[1];
+      double h1 = p[2];
+      return new Medium.Builder(systems, rOhms, s -> new Resistance2Layer(s).value(p)).addLayer(rho1, h1).build(rho2);
+    }
+    else {
+      return inverse;
+    }
   }
 
   @Nonnull
   public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
-    Medium inverse = Resistance1Layer.inverse(systems, rOhmsBefore);
+    Medium inverse = inverse(systems, rOhmsBefore);
     Logger.getLogger(Resistance2Layer.class.getName()).log(Level.INFO, inverse.toString());
 
     IntToDoubleFunction rDiff = index -> (rOhmsAfter[index] - rOhmsBefore[index]) / dh;
