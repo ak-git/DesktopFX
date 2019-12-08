@@ -1,0 +1,16 @@
+apply plugin: 'org.openjfx.javafxplugin'
+
+dependencies {
+    implementation project(':FxCore')
+    implementation project(':Communication')
+
+    implementation spring_context
+    implementation javax_inject
+    implementation uom_se
+    implementation javax_json
+}
+
+javafx {
+    version = '13.0.1'
+    modules = ['javafx.controls', 'javafx.fxml']
+}

@@ -1,0 +1,11 @@
+apply plugin: 'org.openjfx.javafxplugin'
+
+dependencies {
+    api project(':Util')
+    api spring_context
+}
+
+javafx {
+    version = '13.0.1'
+    modules = ['javafx.graphics']
+}
