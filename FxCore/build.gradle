@@ -1,4 +1,6 @@
-apply plugin: 'org.openjfx.javafxplugin'
+plugins {
+    id 'org.openjfx.javafxplugin'
+}
 
 dependencies {
     api project(':Util')
