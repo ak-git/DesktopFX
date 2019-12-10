@@ -19,21 +19,10 @@ javafx {
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
-mainClassName = "com.ak.fx.desktop/com.ak.fx.desktop.FxApplication"
+mainClassName = "$moduleName/com.ak.fx.desktop.FxApplication"
 
 jlink {
-    imageZip = file("$buildDir/image-zip/hellofx.zip")
     options = ['--bind-services', '--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
-
-    if(System.getenv("CI")) {
-        ["win", "linux", "mac"].each { name ->
-            targetPlatform(name) {
-                jdkHome = System.getenv("JDK_HOME_${name.toUpperCase()}")
-                addExtraModulePath(System.getenv("OPENJFX_MODS_${name.toUpperCase()}"))
-            }
-        }
-    }
-
     launcher {
         name = 'com.ak.fx.desktop'
     }
