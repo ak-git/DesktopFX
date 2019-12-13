@@ -18,19 +18,31 @@ module com.ak.fx.desktop {
   requires java.sql;
   requires java.desktop;
 
-  opens com.ak.numbers.aper to com.ak.util;
-  opens com.ak.numbers.rcm to com.ak.util;
-  opens com.ak.fx.desktop to javafx.fxml;
-  opens com.ak.fx.scene to javafx.fxml;
+  opens com.ak.numbers.aper to com.ak.util, org.testng;
+  opens com.ak.numbers.rcm to com.ak.util, org.testng;
+  opens com.ak.fx.desktop to javafx.fxml, org.testng;
+  opens com.ak.fx.scene to javafx.fxml, org.testng;
+  opens com.ak.comm.bytes.nmis to org.testng;
+  opens com.ak.comm.interceptor.rsce to org.testng;
+  opens com.ak.numbers.common to org.testng;
+  opens com.ak.comm.bytes.rsce to org.testng;
+  opens com.ak.comm.interceptor.nmis to org.testng;
+  opens com.ak.comm.interceptor.nmisr to org.testng;
+  opens com.ak.comm.converter.rsce to org.testng;
+  opens com.ak.comm.converter.nmis to org.testng;
+  opens com.ak.comm.interceptor.rcm to org.testng;
 
-  exports com.ak.comm.converter.rcm to spring.beans;
+  exports com.ak.comm.converter.rcm to spring.beans, org.testng;
   exports com.ak.comm.converter.nmis to spring.beans;
   exports com.ak.comm.converter.rsce to spring.beans;
   exports com.ak.comm.interceptor.nmisr to spring.beans;
   exports com.ak.comm.interceptor.nmis to spring.beans;
   exports com.ak.comm.interceptor.rcm to spring.beans;
   exports com.ak.fx.desktop.nmisr to spring.beans;
-  exports com.ak.comm.converter.aper to javafx.graphics;
+  exports com.ak.comm.converter.aper to javafx.graphics, org.testng;
+  exports com.ak.comm.converter.aper.sinsin to org.testng;
+  exports com.ak.comm.converter.aper.sincos to org.testng;
+  exports com.ak.comm.converter.aper.calibration to org.testng;
 
   exports com.ak.fx.desktop;
 }

@@ -13,4 +13,12 @@ module com.ak.comm {
   exports com.ak.comm.converter;
   exports com.ak.comm.interceptor.simple;
   exports com.ak.comm.interceptor;
+
+  opens com.ak.comm.core to org.testng;
+  opens com.ak.comm.converter to org.testng;
+  opens com.ak.comm.file to org.testng;
+  opens com.ak.comm to org.testng;
+  opens com.ak.comm.interceptor.simple to org.testng;
+  opens com.ak.comm.logging to org.testng;
+  opens com.ak.comm.serial to org.testng;
 }

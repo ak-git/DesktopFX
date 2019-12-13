@@ -1,6 +1,5 @@
-package com.ak.comm.converter.inner;
+package com.ak.comm.converter;
 
-import com.ak.comm.converter.Variables;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

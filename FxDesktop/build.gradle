@@ -8,7 +8,6 @@ dependencies {
     implementation project(':FxCore')
     implementation project(':Communication')
 
-    implementation spring_context
     implementation javax_inject
     implementation uom_se
     implementation javax_json
