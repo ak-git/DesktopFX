@@ -63,7 +63,7 @@ class Medium {
     }
 
     if (measuredDelta.length == 0 || predictedDelta.length == 0) {
-      return String.format("%s; L%s = %.1f %s;%n measured = %s;%npredicted = %s;", sb.toString(),
+      return String.format("%s; L%s = %.1f %s;%n measured = %s;%npredicted = %s;", sb,
           Strings.low(2),
           Metrics.toPercents(Inequality.proportional().applyAsDouble(measured, predicted) / measured.length),
           Units.PERCENT,
@@ -75,14 +75,16 @@ class Medium {
       double error = Inequality.proportional().applyAsDouble(measured, predicted) / measured.length;
       double error2 = Inequality.proportional().applyAsDouble(measuredDelta, predictedDelta) / measuredDelta.length;
 
-      return String.format("%s; L%s = [%.1f; %.1f] %s;%n measured = %s, \u0394 = %s;%npredicted = %s, \u0394 = %s;", sb.toString(),
+      return String.format("%s; L%s = [%.1f; %.1f] %s;%n measured = %s, %s = %s;%npredicted = %s, %s = %s;", sb,
           Strings.low(2),
           Metrics.toPercents(error),
           Metrics.toPercents(error2),
           Units.PERCENT,
           Strings.toString("%.3f", measured, Units.OHM),
+          Strings.CAP_DELTA,
           Strings.toString("%.0f", Arrays.stream(measuredDelta).map(Metrics::toMilli).toArray(), MetricPrefix.MILLI(Units.OHM)),
           Strings.toString("%.3f", predicted, Units.OHM),
+          Strings.CAP_DELTA,
           Strings.toString("%.0f", Arrays.stream(predictedDelta).map(Metrics::toMilli).toArray(), MetricPrefix.MILLI(Units.OHM))
       );
     }

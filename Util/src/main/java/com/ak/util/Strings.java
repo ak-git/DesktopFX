@@ -24,10 +24,6 @@ public enum Strings {
   public static final String DELTA = "\u03b4";
 
   public static final String RHO = "\u03c1";
-
-  public static final String K_12 = "k" + low(1) + low(2);
-  public static final String K_23 = "k" + low(2) + low(3);
-
   public static final String OHM_METRE = new StringBuilder(OHM.multiply(METRE).toString()).reverse().toString();
 
   public static String numberSuffix(@Nonnull String s) {

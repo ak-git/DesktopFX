@@ -64,6 +64,7 @@ final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> 
     }
   }
 
+  @SuppressWarnings("rawtypes")
   public static void main(String[] args) {
     try (ConverterApp<?, ?, ?> app = new ConverterApp(args[0]);
          DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), "*.bin")) {
