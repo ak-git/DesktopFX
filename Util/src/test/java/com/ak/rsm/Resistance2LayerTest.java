@@ -105,7 +105,7 @@ public class Resistance2LayerTest {
     Logger.getAnonymousLogger().log(Level.WARNING, Resistance2Layer.inverse(systems, rOhms).toString());
   }
 
-  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryDynamicParameters", enabled = false)
+  @Test(dataProviderClass = LayersProvider.class, dataProvider = "dynamicParameters2", enabled = false)
   public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
     Logger.getAnonymousLogger().log(Level.WARNING, Resistance2Layer.inverse(systems, rOhmsBefore, rOhmsAfter, dh).toString());
   }
