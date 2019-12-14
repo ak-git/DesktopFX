@@ -1,6 +1,6 @@
 package com.ak.fx.desktop;
 
-import java.nio.file.Path;
+import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Optional;
 
@@ -27,14 +27,11 @@ final class FxClassPathXmlApplicationContext extends ClassPathXmlApplicationCont
 
   private static String getContextPath(@Nullable String contextName) {
     contextName = getContextName(contextName);
-    Path path = Paths.get(FxClassPathXmlApplicationContext.class.getResource("").toExternalForm());
-    if (contextName.isEmpty()) {
-      path = path.resolve(CONTEXT_XML);
+    URL resource = FxClassPathXmlApplicationContext.class.getResource(CONTEXT_XML);
+    if (!contextName.isEmpty()) {
+      resource = FxClassPathXmlApplicationContext.class.getResource(String.format("%s/%s", contextName, CONTEXT_XML));
     }
-    else {
-      path = path.resolve(contextName).resolve(CONTEXT_XML);
-    }
-    return path.toString();
+    return Paths.get(resource.toExternalForm()).toString();
   }
 
   private static String getContextName(@Nullable String contextName) {
