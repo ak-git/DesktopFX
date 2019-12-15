@@ -88,6 +88,7 @@ public final class ConcurrentAsyncFileChannel implements Closeable {
     }
     catch (InterruptedException e) {
       Logger.getLogger(getClass().getName()).log(LogUtils.LOG_LEVEL_ERRORS, e.getMessage(), e);
+      Thread.currentThread().interrupt();
     }
     catch (Exception e) {
       Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
