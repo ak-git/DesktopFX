@@ -3,8 +3,8 @@ package com.ak.rsm;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.function.BiFunction;
-import java.util.function.DoubleFunction;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.function.IntToDoubleFunction;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -83,10 +83,10 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
 
     IntToDoubleFunction rDiff = index -> rOhmsAfter[index] - rOhmsBefore[index];
 
-    DoubleFunction<IntToDoubleFunction> apparentDiffByH = p ->
+    IntFunction<IntToDoubleFunction> apparentDiffByH = p ->
         index -> log(Math.abs(new Resistance1Layer(systems[index]).getApparent(rDiff.applyAsDouble(index))) * p);
 
-    if (Arrays.stream(rangeSystems(systems.length, index -> apparentDiffByH.apply(1.0).applyAsDouble(index))).anyMatch(Double::isInfinite)) {
+    if (Arrays.stream(rangeSystems(systems.length, index -> apparentDiffByH.apply(1).applyAsDouble(index))).anyMatch(Double::isInfinite)) {
       double rho = Resistance1Layer.inverse(systems, rOhmsBefore).getRho();
       return new Medium.Builder(systems, rOhmsBefore, s -> new Resistance3Layer(s, dh).value(rho, rho, rho, 0, 0))
           .addLayer(rho, 0).addLayer(rho, 0).build(rho);
