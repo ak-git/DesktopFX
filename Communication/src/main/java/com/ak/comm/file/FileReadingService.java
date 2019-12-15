@@ -40,7 +40,7 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
   @Nonnegative
   private long requestSamples = Long.MAX_VALUE;
   @Nonnull
-  private volatile Callable<AsynchronousFileChannel> convertedFileChannelProvider = () -> null;
+  private Callable<AsynchronousFileChannel> convertedFileChannelProvider = () -> null;
   private volatile boolean disposed;
 
   FileReadingService(@Nonnull Path fileToRead, @Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,

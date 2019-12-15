@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonReader;
 
 import com.ak.logging.CalibrateBuilders;
 import com.ak.util.LocalIO;
@@ -35,7 +36,9 @@ public interface Coefficients extends Supplier<double[]> {
     catch (IOException e) {
       Logger.getLogger(Coefficients.class.getName()).log(Level.WARNING, fileName, e);
     }
-    return CoefficientsUtils.read(new Scanner(readJSON(Json.createReader(inputStream).readObject())));
+    try (JsonReader reader = Json.createReader(inputStream)) {
+      return CoefficientsUtils.read(new Scanner(readJSON(reader.readObject())));
+    }
   }
 
   default double[][] getPairs() {
