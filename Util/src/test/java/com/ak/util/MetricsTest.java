@@ -21,4 +21,10 @@ public class MetricsTest {
     Assert.assertEquals(Metrics.fromPercents(100.0), 1.0, 1.0e-3);
     Assert.assertEquals(Metrics.fromPercents(-3.2), -0.032, 1.0e-3);
   }
+
+  @Test
+  public void testToPercents() {
+    Assert.assertEquals(Metrics.toPercents(1.0), 100.0, 1.0e-3);
+    Assert.assertEquals(Metrics.toPercents(-0.032), -3.2, 1.0e-3);
+  }
 }

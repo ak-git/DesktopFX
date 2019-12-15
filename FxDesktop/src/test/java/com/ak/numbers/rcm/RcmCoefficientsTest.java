@@ -8,7 +8,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.numbers.Interpolators;
-import com.ak.numbers.SimpleCoefficients;
+import com.ak.numbers.common.SimpleCoefficients;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

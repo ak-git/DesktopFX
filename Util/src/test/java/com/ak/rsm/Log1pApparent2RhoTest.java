@@ -1,5 +1,6 @@
 package com.ak.rsm;
 
+import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -16,12 +17,7 @@ public class Log1pApparent2RhoTest {
     TetrapolarSystem system1 = new TetrapolarSystem(smm, lmm, MILLI(METRE));
     TetrapolarSystem system2 = new TetrapolarSystem(lmm, smm, MILLI(METRE));
     double logApparent = log(new Resistance1Layer(system1).getApparent(rOhm)) - log(rho[0]);
-    double logPredicted = new Log1pApparent2Rho(system2.sToL()).value(Layers.getK12(rho[0], rho[1]), smm / hmm);
-    if (Double.compare(hmm, 0.0) == 0) {
-      Assert.assertTrue(Double.isNaN(logPredicted));
-    }
-    else {
-      Assert.assertEquals(logApparent, logPredicted, 0.001);
-    }
+    double logPredicted = new Log1pApparent2Rho(system2).value(Layers.getK12(rho[0], rho[1]), Metrics.fromMilli(hmm));
+    Assert.assertEquals(logApparent, logPredicted, 0.001);
   }
 }

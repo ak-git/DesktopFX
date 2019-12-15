@@ -9,12 +9,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.BufferFrame;
-import com.ak.comm.converter.AbstractSplineCoefficientsChartApp;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.aper.AperInVariable;
+import com.ak.comm.converter.aper.SplineCoefficientsTest;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
 import org.testng.Assert;
@@ -36,7 +36,7 @@ public final class AperSinCosConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55669, -526617, 0, 1270, 301400, -526616, 0, 1713}},
+            new int[] {55788, -526617, 0, 1326, 301400, -526616, 0, 1748}},
     };
   }
 
@@ -82,11 +82,11 @@ public final class AperSinCosConverterTest {
 
   @Test(enabled = false)
   public static void testSplineSurface1() throws IOException {
-    AbstractSplineCoefficientsChartApp.testSplineSurface1(AperSurfaceCoefficientsChannel1.class);
+    SplineCoefficientsTest.testSplineSurface1(AperSurfaceCoefficientsChannel1.class);
   }
 
   @Test(enabled = false)
   public static void testSplineSurface2() throws IOException {
-    AbstractSplineCoefficientsChartApp.testSplineSurface2(AperSurfaceCoefficientsChannel2.class);
+    SplineCoefficientsTest.testSplineSurface2(AperSurfaceCoefficientsChannel2.class);
   }
 }
