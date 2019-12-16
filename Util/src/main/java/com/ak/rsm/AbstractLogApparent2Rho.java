@@ -1,28 +1,28 @@
 package com.ak.rsm;
 
-import java.util.function.IntToDoubleFunction;
+import java.util.function.DoubleBinaryOperator;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import org.apache.commons.math3.analysis.BivariateFunction;
-
-abstract class AbstractLogApparent2Rho implements BivariateFunction {
-  @Nonnull
-  private final TetrapolarSystem electrodeSystem;
-
-  AbstractLogApparent2Rho(@Nonnull TetrapolarSystem electrodeSystem) {
-    this.electrodeSystem = electrodeSystem;
+abstract class AbstractLogApparent2Rho extends AbstractApparent {
+  AbstractLogApparent2Rho(@Nonnull TetrapolarSystem system) {
+    super(system);
   }
 
-  @Override
-  public final double value(double k, @Nonnegative double Lh) {
-    double sL = electrodeSystem.sToL();
-    IntToDoubleFunction sum = sum(k, Lh, sL);
-    return value(Lh, sL, sum.applyAsDouble(-1) - sum.applyAsDouble(1));
+  public final double value(double k, @Nonnegative double h) {
+    if (Double.compare(k, 0.0) == 0 || Double.compare(h, 0.0) == 0) {
+      return 0.0;
+    }
+    else {
+      DoubleBinaryOperator sum = sum(h);
+      return innerValue(Layers.sum(n -> commonFactor(k, n) * (sum.applyAsDouble(-1.0, n) - sum.applyAsDouble(1.0, n))));
+    }
   }
 
-  abstract double value(double Lh, double sL, double sums);
+  abstract double innerValue(double sums);
 
-  abstract IntToDoubleFunction sum(double k, double Lh, double sL);
+  abstract double commonFactor(double k, @Nonnegative int n);
+
+  abstract DoubleBinaryOperator sum(@Nonnegative double h);
 }

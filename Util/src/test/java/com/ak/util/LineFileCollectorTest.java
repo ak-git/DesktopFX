@@ -134,7 +134,7 @@ public class LineFileCollectorTest {
   }
 
   @Test(dataProvider = "invalid-writer")
-  public void testInvalidFinisher(BufferedWriter bufferedWriter) throws IOException {
+  public void testInvalidFinisher(BufferedWriter bufferedWriter) {
     Collector<Object, BufferedWriter, Boolean> collector = new LineFileCollector(out, LineFileCollector.Direction.VERTICAL);
     collector.accumulator().accept(bufferedWriter, Math.PI);
     Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
@@ -143,7 +143,7 @@ public class LineFileCollectorTest {
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
-  public void testCombiner() throws IOException {
+  public void testCombiner() {
     new LineFileCollector(out, LineFileCollector.Direction.HORIZONTAL).combiner().apply(null, null);
   }
 }

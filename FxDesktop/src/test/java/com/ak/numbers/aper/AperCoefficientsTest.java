@@ -16,7 +16,7 @@ public class AperCoefficientsTest {
   @DataProvider(name = "aper-coefficients")
   public static Object[][] aperCoefficients() {
     return new Object[][] {
-        {AperCoefficients.ADC_TO_OHM, 16},
+        {AperCoefficients.ADC_TO_OHM, 18},
         {AperSurfaceCoefficientsChannel1.CCU_VADC_0, 4},
         {AperSurfaceCoefficientsChannel1.CCU_VADC_15100, 16},
         {AperSurfaceCoefficientsChannel1.CCU_VADC_30200, 14},

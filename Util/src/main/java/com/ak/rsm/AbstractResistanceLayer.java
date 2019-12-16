@@ -5,8 +5,10 @@ import java.util.function.ToDoubleFunction;
 
 import javax.annotation.Nonnull;
 
-abstract class AbstractResistanceLayer<U extends AbstractPotentialLayer> implements ToDoubleFunction<ToDoubleFunction<U>> {
+abstract class AbstractResistanceLayer<U extends AbstractPotentialLayer> {
+  @Nonnull
   private final U uMns;
+  @Nonnull
   private final U uPls;
 
   AbstractResistanceLayer(@Nonnull TetrapolarSystem electrodeSystem, DoubleFunction<U> potential) {
@@ -14,8 +16,7 @@ abstract class AbstractResistanceLayer<U extends AbstractPotentialLayer> impleme
     uPls = potential.apply(electrodeSystem.radiusPls());
   }
 
-  @Override
-  public final double applyAsDouble(ToDoubleFunction<U> potentialValue) {
-    return 2.0 * (potentialValue.applyAsDouble(uMns) - potentialValue.applyAsDouble(uPls));
+  final double apply(@Nonnull ToDoubleFunction<U> potentialValue) {
+    return potentialValue.applyAsDouble(uMns) - potentialValue.applyAsDouble(uPls);
   }
 }

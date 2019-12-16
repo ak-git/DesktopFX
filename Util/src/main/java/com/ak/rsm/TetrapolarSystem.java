@@ -7,9 +7,10 @@ import javax.annotation.Nonnull;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 
+import com.ak.util.Metrics;
 import tec.uom.se.quantity.Quantities;
+import tec.uom.se.unit.MetricPrefix;
 
-import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 
 final class TetrapolarSystem {
@@ -31,8 +32,9 @@ final class TetrapolarSystem {
     return (lCurrentCarryingSI + sPotentialUnitSI) / 2.0;
   }
 
-  double sToL() {
-    return sPotentialUnitSI / lCurrentCarryingSI;
+  @Nonnegative
+  double Lh(double h) {
+    return Math.abs(lCurrentCarryingSI / h);
   }
 
   @Override
@@ -56,13 +58,12 @@ final class TetrapolarSystem {
 
   @Override
   public String toString() {
-    return String.format("%s x %s",
-        Quantities.getQuantity(sPotentialUnitSI, METRE).to(MILLI(METRE)),
-        Quantities.getQuantity(lCurrentCarryingSI, METRE).to(MILLI(METRE)));
+    return String.format("%.0f x %.0f %s", Metrics.toMilli(sPotentialUnitSI), Metrics.toMilli(lCurrentCarryingSI), MetricPrefix.MILLI(METRE));
   }
 
+  @Nonnegative
   private static double toDouble(@Nonnegative double sPU, @Nonnull Unit<Length> unit) {
-    return Quantities.getQuantity(sPU, unit).to(METRE).getValue().doubleValue();
+    return Math.abs(Quantities.getQuantity(sPU, unit).to(METRE).getValue().doubleValue());
   }
 }
 

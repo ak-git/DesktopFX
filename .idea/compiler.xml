@@ -12,22 +12,34 @@
       <entry name="!?*.clj" />
     </wildcardResourcePatterns>
     <bytecodeTargetLevel>
-      <module name="Communication_main" target="1.10" />
-      <module name="Communication_test" target="1.10" />
-      <module name="DesktopFX-Communication_main" target="1.10" />
-      <module name="DesktopFX-Communication_test" target="1.10" />
-      <module name="DesktopFX-FxCore_main" target="1.10" />
-      <module name="DesktopFX-FxCore_test" target="1.10" />
-      <module name="DesktopFX-FxDesktop_main" target="1.10" />
-      <module name="DesktopFX-FxDesktop_test" target="1.10" />
-      <module name="DesktopFX_main" target="1.10" />
-      <module name="DesktopFX_test" target="1.10" />
-      <module name="FxCore_main" target="1.10" />
-      <module name="FxCore_test" target="1.10" />
-      <module name="FxDesktop_main" target="1.10" />
-      <module name="FxDesktop_test" target="1.10" />
-      <module name="Util_main" target="1.10" />
-      <module name="Util_test" target="1.10" />
+      <module name="com.ak-FxDesktop_main" target="11" />
+      <module name="com.ak-FxDesktop_test" target="11" />
+      <module name="Communication_main" target="12" />
+      <module name="Communication_test" target="12" />
+      <module name="DesktopFX-Communication_main" target="11" />
+      <module name="DesktopFX-Communication_test" target="11" />
+      <module name="DesktopFX-FxCore_main" target="11" />
+      <module name="DesktopFX-FxCore_test" target="11" />
+      <module name="DesktopFX-FxDesktop_main" target="11" />
+      <module name="DesktopFX-FxDesktop_test" target="11" />
+      <module name="DesktopFX.Communication.main" target="13" />
+      <module name="DesktopFX.Communication.test" target="13" />
+      <module name="DesktopFX.FxCore.main" target="13" />
+      <module name="DesktopFX.FxCore.test" target="13" />
+      <module name="DesktopFX.FxDesktop.main" target="13" />
+      <module name="DesktopFX.FxDesktop.test" target="13" />
+      <module name="DesktopFX.main" target="13" />
+      <module name="DesktopFX.test" target="13" />
+      <module name="DesktopFX.Util.main" target="13" />
+      <module name="DesktopFX.Util.test" target="13" />
+      <module name="DesktopFX_main" target="12" />
+      <module name="DesktopFX_test" target="12" />
+      <module name="FxCore_main" target="12" />
+      <module name="FxCore_test" target="12" />
+      <module name="FxDesktop_main" target="12" />
+      <module name="FxDesktop_test" target="12" />
+      <module name="Util_main" target="12" />
+      <module name="Util_test" target="12" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -33,7 +33,7 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   private volatile boolean cancelled;
   @Nonnull
-  private volatile SerialService serialService;
+  private SerialService serialService;
 
   public CycleSerialService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
                             @Nonnull Converter<RESPONSE, EV> responseConverter) {
@@ -71,8 +71,10 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
 
         @Override
         public void onError(Throwable throwable) {
-          serialService.close();
-          Logger.getLogger(getClass().getName()).log(Level.SEVERE, serialService.toString(), throwable);
+          synchronized (CycleSerialService.this) {
+            serialService.close();
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, serialService.toString(), throwable);
+          }
         }
 
         @Override
@@ -89,30 +91,35 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
           }
         }
       };
-      serialService.subscribe(subscriber);
+      synchronized (this) {
+        serialService.subscribe(subscriber);
+      }
 
       while (!Thread.currentThread().isInterrupted()) {
-        if (!serialService.isOpen() || write(bytesInterceptor().getPingRequest()) == 0) {
-          break;
+        synchronized (this) {
+          if (!serialService.isOpen() || write(bytesInterceptor().getPingRequest()) == 0) {
+            break;
+          }
         }
-        else {
-          okTime.set(Instant.now());
-          try {
-            while (Duration.between(okTime.get(), Instant.now()).minus(UIConstants.UI_DELAY).isNegative()) {
-              if (latch.await(UIConstants.UI_DELAY.toMillis(), TimeUnit.MILLISECONDS)) {
-                break;
-              }
+
+        okTime.set(Instant.now());
+        try {
+          while (Duration.between(okTime.get(), Instant.now()).minus(UIConstants.UI_DELAY).isNegative()) {
+            if (latch.await(UIConstants.UI_DELAY.toMillis(), TimeUnit.MILLISECONDS)) {
+              break;
             }
           }
-          catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
+          synchronized (this) {
             Logger.getLogger(getClass().getName()).log(Level.ALL, serialService.toString(), e);
-            Thread.currentThread().interrupt();
-            break;
           }
+          Thread.currentThread().interrupt();
+          break;
+        }
 
-          if (!workingFlag.getAndSet(false)) {
-            break;
-          }
+        if (!workingFlag.getAndSet(false)) {
+          break;
         }
       }
 
@@ -152,7 +159,9 @@ public final class CycleSerialService<RESPONSE, REQUEST, EV extends Enum<EV> & V
 
   @Override
   public void refresh() {
-    serialService.refresh();
+    synchronized (this) {
+      serialService.refresh();
+    }
     cancelled = false;
     write(bytesInterceptor().getPingRequest());
   }

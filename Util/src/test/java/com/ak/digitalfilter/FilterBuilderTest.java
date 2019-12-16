@@ -1,18 +1,15 @@
 package com.ak.digitalfilter;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.numbers.DiffCoefficients;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import tec.uom.se.quantity.Quantities;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
 
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
@@ -30,11 +27,6 @@ public class FilterBuilderTest {
         FilterBuilder.of().build(),
         new int[][] {{1}, {2}, {4}, {8}, {5}, {2}, {1}},
         0.0, 1.0
-    }, {
-        new int[][] {{1}, {2}, {4}, {8}, {5}, {2}, {1}},
-        FilterBuilder.of().fir(DiffCoefficients.DIFF).build(),
-        new int[][] {{1}, {1}, {2}, {3}, {1}, {-3}, {-2}},
-        1.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {8}, {5}, {2}, {1}},
         FilterBuilder.of().fir(1.0, 2.0).build(),
@@ -147,7 +139,7 @@ public class FilterBuilderTest {
         1.5, 1.0
     }, {
         new int[][] {{1, 2}, {3, 4}, {5, 6}},
-        FilterBuilder.of().biOperator(() -> (left, right) -> left + right).buildNoDelay(),
+        FilterBuilder.of().biOperator(() -> Integer::sum).buildNoDelay(),
         new int[][] {{1 + 2}, {3 + 4}, {5 + 6}},
         0.0, 1.0
     }};
@@ -242,9 +234,6 @@ public class FilterBuilderTest {
     Assert.assertEquals(filteredCounter.get(), result.length, filter.toString());
 
     Assert.assertEquals(filter.getDelay(), delay, 1.0e-3, filter.toString());
-    Assert.assertEquals(Filters.getDelay(filter, Quantities.getQuantity(0.2, MetricPrefix.KILO(Units.HERTZ))).getValue().doubleValue(),
-        delay / 200.0, 1.0e-3, filter.toString());
-
     Assert.assertEquals(filter.getFrequencyFactor(), frequencyFactor, 1.0e-3, filter.toString());
     Assert.assertEquals(filter.getOutputDataSize(), result[0].length);
   }
@@ -309,7 +298,7 @@ public class FilterBuilderTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "selectedIndexes.*filters.*")
   public static void testInvalidParallel3() {
-    FilterBuilder.parallel(Arrays.asList(new int[] {1}),
+    FilterBuilder.parallel(Collections.singletonList(new int[] {1}),
         FilterBuilder.of().fir(1.0).build(),
         FilterBuilder.of().fir(1.0).build());
   }

@@ -36,14 +36,7 @@ final class MultiFileCollector<IN> implements Collector<Stream<IN>, List<LineFil
   @Override
   public Supplier<List<LineFileCollector>> supplier() {
     return () -> paths.stream().
-        map(path -> {
-          try {
-            return new LineFileCollector(path, LineFileCollector.Direction.VERTICAL);
-          }
-          catch (IOException e) {
-            throw new AssertionError(e);
-          }
-        }).collect(Collectors.toList());
+        map(path -> new LineFileCollector(path, LineFileCollector.Direction.VERTICAL)).collect(Collectors.toList());
   }
 
   @Override
