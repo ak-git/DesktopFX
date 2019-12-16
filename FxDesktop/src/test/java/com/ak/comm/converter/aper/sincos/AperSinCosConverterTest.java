@@ -12,7 +12,6 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
-import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.aper.AperInVariable;
 import com.ak.comm.converter.aper.SplineCoefficientsTest;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
@@ -20,8 +19,6 @@ import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
 
 public final class AperSinCosConverterTest {
   @DataProvider(name = "variables")
@@ -36,7 +33,7 @@ public final class AperSinCosConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55788, -526617, 0, 1326, 301400, -526616, 0, 1748}},
+            new int[] {55788, -526617, 1326}},
     };
   }
 
