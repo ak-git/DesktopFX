@@ -256,7 +256,7 @@ public final class RsceCommandFrame extends BufferFrame {
     public RequestBuilder(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType) {
       super(ByteBuffer.allocate(MAX_CAPACITY).order(ByteOrder.LITTLE_ENDIAN));
       codeLength = 3;
-      buffer().put(control.addr).put(codeLength).put((byte) ((actionType.ordinal() << 3) + requestType.code));
+      buffer().put(control.addr).put(codeLength).put((byte) ((actionType.ordinal() << 3) + (requestType.code & 0xff)));
     }
 
     public RequestBuilder addParam(byte value) {

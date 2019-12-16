@@ -1,0 +1,6 @@
+dependencies {
+    api project(':Util')
+    implementation javax_inject
+    implementation uom_se
+    implementation jssc
+}

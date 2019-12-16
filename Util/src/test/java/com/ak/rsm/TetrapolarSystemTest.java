@@ -37,20 +37,8 @@ public class TetrapolarSystemTest {
   }
 
   @Test
-  public static void testStoL() {
-    Assert.assertEquals(new TetrapolarSystem(1.0, 2.0, METRE).sToL(), 0.5);
-    Assert.assertEquals(new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).sToL(), 2.0);
-  }
-
-  @Test
   public static void testLh() {
     Assert.assertEquals(new TetrapolarSystem(1.0, 2.0, METRE).Lh(1), 2.0);
     Assert.assertEquals(new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).Lh(Metrics.fromMilli(2.0)), 0.5);
-  }
-
-  @Test
-  public static void testH() {
-    Assert.assertEquals(new TetrapolarSystem(1.0, 2.0, METRE).h(2), 1);
-    Assert.assertEquals(new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).h(0.5), Metrics.fromMilli(2.0));
   }
 }

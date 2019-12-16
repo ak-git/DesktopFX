@@ -1,5 +1,11 @@
 package com.ak.rsm;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -22,7 +28,7 @@ public class Resistance1LayerTest {
   }
 
   @Test(dataProvider = "layer-model")
-  public static void testOneLayer(double rho, double smm, double lmm, double rOhm) {
+  public static void testOneLayer(@Nonnegative double rho, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MILLI(METRE));
     Assert.assertEquals(new Resistance1Layer(system).value(rho), rOhm, 0.001);
   }
@@ -37,9 +43,14 @@ public class Resistance1LayerTest {
   }
 
   @Test(dataProvider = "system-apparent")
-  public static void testApparentResistivity(TetrapolarSystem system, double resistance,
-                                             double specificResistance) {
+  public static void testApparentResistivity(@Nonnull TetrapolarSystem system, @Nonnegative double resistance,
+                                             @Nonnegative double specificResistance) {
     Resistance1Layer r = new Resistance1Layer(system);
     Assert.assertEquals(r.getApparent(resistance), specificResistance, 1.0e-6);
+  }
+
+  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryStaticParameters", enabled = false)
+  public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
+    Logger.getAnonymousLogger().log(Level.INFO, Resistance1Layer.inverse(systems, rOhms).toString());
   }
 }

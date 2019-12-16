@@ -1,6 +1,5 @@
 package com.ak.util;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.function.BiFunction;
 import java.util.function.DoubleBinaryOperator;
@@ -69,12 +68,16 @@ public class LineFileBuilder<IN> {
     return this;
   }
 
-  public void generate(@Nonnull String fileName, @Nonnull DoubleBinaryOperator operator) throws IOException {
+  public void generate(@Nonnull String fileName, @Nonnull DoubleBinaryOperator operator) {
+    String format = String.format("[%s; %s] %s", xRange.outFormat, yRange.outFormat, outFormat);
     Supplier<DoubleStream> xVar = xRange::build;
     Supplier<DoubleStream> yVar = yRange::build;
-    check(yVar.get().mapToObj(y -> xVar.get().map(x -> operator.applyAsDouble(x, y))).
-        map(stream -> stream.mapToObj(value -> String.format(outFormat, value)).collect(Collectors.joining(Strings.TAB))).
-        collect(new LineFileCollector(Paths.get(fileName), LineFileCollector.Direction.VERTICAL)));
+    check(yVar.get().mapToObj(y -> xVar.get().map(x -> {
+      double v = operator.applyAsDouble(x, y);
+      Logger.getAnonymousLogger().log(Level.INFO, String.format(format, x, y, v));
+      return v;
+    })).map(stream -> stream.mapToObj(value -> String.format(outFormat, value)).collect(Collectors.joining(Strings.TAB)))
+        .collect(new LineFileCollector(Paths.get(fileName), LineFileCollector.Direction.VERTICAL)));
   }
 
   public LineFileBuilder<IN> add(@Nonnull String fileName, @Nonnull ToDoubleFunction<IN> converter) {
@@ -112,7 +115,7 @@ public class LineFileBuilder<IN> {
       double to = Math.max(start, end);
 
       doubleStreamSupplier = () -> DoubleStream.concat(DoubleStream.iterate(from, value -> value < to, operand -> operand * 10.0).
-          flatMap(scale -> DoubleStream.iterate(scale, value -> value < to, operand -> operand + scale / 5).limit(9 * 5)), DoubleStream.of(to));
+          flatMap(scale -> DoubleStream.iterate(scale, value -> value < to, operand -> operand + scale / 5).limit(9 * 5L)), DoubleStream.of(to));
       toFile();
     }
 
@@ -126,14 +129,9 @@ public class LineFileBuilder<IN> {
     }
 
     private void toFile() {
-      try {
-        String fileName = direction == LineFileCollector.Direction.HORIZONTAL ? "x.txt" : "y.txt";
-        check(build().mapToObj(value -> String.format(outFormat, value)).collect(
-            new LineFileCollector(Paths.get(fileName), direction)));
-      }
-      catch (IOException e) {
-        Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
-      }
+      String fileName = direction == LineFileCollector.Direction.HORIZONTAL ? "x.txt" : "y.txt";
+      check(build().mapToObj(value -> String.format(outFormat, value)).collect(
+          new LineFileCollector(Paths.get(fileName), direction)));
     }
 
     @Override

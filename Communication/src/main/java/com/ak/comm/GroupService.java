@@ -36,7 +36,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
   @Nonnull
   private final double frequency;
   @Nonnull
-  private volatile Readable currentReadable;
+  private Readable currentReadable;
 
   @Inject
   public GroupService(@Nonnull Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider,
@@ -99,7 +99,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
 
     int frameSize = variables.size() * Integer.BYTES;
     ByteBuffer buffer = ByteBuffer.allocate(frameSize * (to - from));
-    currentReadable.read(buffer, frameSize * from);
+    currentReadable.read(buffer, (long) frameSize * from);
     buffer.flip();
 
     int count = buffer.limit() / frameSize;

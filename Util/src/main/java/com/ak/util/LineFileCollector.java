@@ -3,6 +3,7 @@ package com.ak.util;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -42,9 +43,16 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
   private boolean startFlag = true;
   private boolean errorFlag;
 
-  public LineFileCollector(@Nonnull Path out, @Nonnull Direction direction) throws IOException {
-    writer = Files.newBufferedWriter(out,
-        StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+  public LineFileCollector(@Nonnull Path out, @Nonnull Direction direction) {
+    BufferedWriter writer;
+    try {
+      writer = Files.newBufferedWriter(out,
+          StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+    catch (IOException ex) {
+      writer = new BufferedWriter(Writer.nullWriter());
+    }
+    this.writer = writer;
     this.direction = direction;
   }
 
