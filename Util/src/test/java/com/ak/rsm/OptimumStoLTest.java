@@ -1,6 +1,5 @@
 package com.ak.rsm;
 
-import java.io.IOException;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.DoubleStream;
 
@@ -120,16 +119,11 @@ public class OptimumStoLTest {
   @Test(enabled = false)
   public static void testRhoErrorsAt() {
     DoubleStream.of(1.0 / 3.0, 0.5, 2.0 / 3.0).forEachOrdered(sToL -> {
-      try {
-        LineFileBuilder.of("%.4f %.6f %.6f").
-            xRange(1.0e-4, 1.0e-1, 1.0e-4).
-            yRange(1.0e-6, 1.0e-3, 1.0e-6).
-            generate(String.format("Rho_ErrorsAt_%.2f.txt", sToL),
-                (dL2L, dRL2rho) -> new InequalityRho(dL2L, dRL2rho).applyAsDouble(sToL));
-      }
-      catch (IOException e) {
-        Assert.fail(e.getMessage(), e);
-      }
+      LineFileBuilder.of("%.4f %.6f %.6f").
+          xRange(1.0e-4, 1.0e-1, 1.0e-4).
+          yRange(1.0e-6, 1.0e-3, 1.0e-6).
+          generate(String.format("Rho_ErrorsAt_%.2f.txt", sToL),
+              (dL2L, dRL2rho) -> new InequalityRho(dL2L, dRL2rho).applyAsDouble(sToL));
     });
   }
 
@@ -146,16 +140,11 @@ public class OptimumStoLTest {
   @Test(enabled = false)
   public static void testDeltaRhoErrorsAt() {
     DoubleStream.of(1.0 / 3.0, 0.5, 2.0 / 3.0).forEachOrdered(sToL -> {
-      try {
-        LineFileBuilder.of("%.4f %.4f %.6f").
-            xRange(1.0e-4, 1.0e-1, 1.0e-4).
-            yRange(1.0e-4, 1.0e-1, 1.0e-4).
-            generate(String.format("DeltaRho_ErrorsAt_%.2f.txt", sToL),
-                (dL2L, dRL2rho) -> new InequalityDeltaRho(dL2L, dRL2rho).applyAsDouble(sToL));
-      }
-      catch (IOException e) {
-        Assert.fail(e.getMessage(), e);
-      }
+      LineFileBuilder.of("%.4f %.4f %.6f").
+          xRange(1.0e-4, 1.0e-1, 1.0e-4).
+          yRange(1.0e-4, 1.0e-1, 1.0e-4).
+          generate(String.format("DeltaRho_ErrorsAt_%.2f.txt", sToL),
+              (dL2L, dRL2rho) -> new InequalityDeltaRho(dL2L, dRL2rho).applyAsDouble(sToL));
     });
   }
 }
