@@ -34,6 +34,11 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
     public DigitalFilter filter() {
       return FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel1.class).build();
     }
+
+    @Override
+    public Set<Option> options() {
+      return Option.addToDefault(Option.TEXT_VALUE_BANNER);
+    }
   },
   ECG1 {
     @Override

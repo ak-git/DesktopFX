@@ -33,7 +33,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 
 public final class FxApplication extends Application {
-  private static final String APP_PARAMETER_CONTEXT = "context";
   private static final String SCENE_XML = "scene.fxml";
   private static final String KEY_APPLICATION_TITLE = "application.title";
   private static final String KEY_APPLICATION_VERSION = "application.version";
@@ -54,7 +53,7 @@ public final class FxApplication extends Application {
   @Override
   public void init() {
     Logger.getLogger(getClass().getName()).log(Level.INFO, getParameters().getRaw().toString());
-    context = new FxClassPathXmlApplicationContext(getParameters().getNamed().get(APP_PARAMETER_CONTEXT));
+    context = new FxClassPathXmlApplicationContext("aper.sincos");
   }
 
   @Override
