@@ -66,6 +66,6 @@ public enum ScreenResolutionMonitor {
   }
 
   private void log() {
-    Logger.getLogger(getClass().getName()).log(Level.CONFIG, String.format("Screen resolution is %d dpi", dpi.get()));
+    Logger.getLogger(getClass().getName()).log(Level.CONFIG, () -> String.format("Screen resolution is %d dpi", dpi.get()));
   }
 }
