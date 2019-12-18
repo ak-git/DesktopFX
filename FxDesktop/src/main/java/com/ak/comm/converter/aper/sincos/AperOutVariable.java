@@ -14,7 +14,6 @@ import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.aper.AperCoefficients;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
-import com.ak.numbers.common.CommonCoefficients;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
@@ -40,18 +39,13 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
       return Option.addToDefault(Option.TEXT_VALUE_BANNER);
     }
   },
-  ECG1 {
+  M1 {
     @Override
     public List<AperInVariable> getInputVariables() {
       return Collections.singletonList(AperInVariable.E1);
-    }
-
-    @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.of().fir(CommonCoefficients.ECG).build();
     }
   },
-  MYO1 {
+  PK_PK_M1 {
     @Override
     public List<AperInVariable> getInputVariables() {
       return Collections.singletonList(AperInVariable.E1);
@@ -59,24 +53,12 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().iirMATLAB(
-          new double[] {
-              0.9022774304591, 0, 0, 0,
-              0, 0, 0, 0,
-              0, 0, 0, 0,
-              0, 0, 0, 0,
-              0, 0, 0, 0,
-              -0.9022774304591
-          },
-          new double[] {
-              1, 0, 0, 0,
-              0, 0, 0, 0,
-              0, 0, 0, 0,
-              0, 0, 0, 0,
-              0, 0, 0, 0,
-              -0.8045548609183
-          }
-      ).fir(CommonCoefficients.MYO).build();
+      return FilterBuilder.of().peakToPeak(2000).build();
+    }
+
+    @Override
+    public Set<Option> options() {
+      return Collections.singleton(Option.TEXT_VALUE_BANNER);
     }
   },
   CCR1 {
@@ -112,13 +94,13 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
       return FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel2.class).build();
     }
   },
-  ECG2 {
+  M2 {
     @Override
     public List<AperInVariable> getInputVariables() {
       return Collections.singletonList(AperInVariable.E2);
     }
   },
-  MYO2 {
+  PK_PK_M2 {
     @Override
     public List<AperInVariable> getInputVariables() {
       return Collections.singletonList(AperInVariable.E2);
