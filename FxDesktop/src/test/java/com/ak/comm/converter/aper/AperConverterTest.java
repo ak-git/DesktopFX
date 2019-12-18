@@ -43,7 +43,6 @@ public final class AperConverterTest {
       Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
       processed.set(true);
     });
-    Assert.assertTrue(processed.get(), "Data are not converted!");
     Assert.assertEquals(converter.getFrequency(), 1000, 0.1);
   }
 
