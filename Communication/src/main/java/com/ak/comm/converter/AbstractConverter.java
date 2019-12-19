@@ -55,7 +55,7 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
       }
       try {
         if (fileCollector == null) {
-          fileCollector = new LineFileCollector(OutputBuilders.build(Strings.EMPTY).getPath(), LineFileCollector.Direction.VERTICAL);
+          fileCollector = new LineFileCollector(OutputBuilders.build(getClass().getSimpleName()).getPath(), LineFileCollector.Direction.VERTICAL);
           fileCollector.accept(variables.stream().map(Variables::toName).collect(Collectors.joining(Strings.TAB)));
         }
       }
