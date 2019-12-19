@@ -48,7 +48,7 @@ public final class FxDesktopTest extends Preloader {
 
   @BeforeClass(timeOut = 5000)
   public void setUp() throws InterruptedException {
-    PropertiesSupport.OUT_CONVERTER_PATH.set(OSDirectory.VENDOR_ID);
+    PropertiesSupport.OUT_CONVERTER_PATH.update(OSDirectory.VENDOR_ID);
     oldPreloader = System.getProperty(JAVAFX_PRELOADER);
     System.setProperty(JAVAFX_PRELOADER, FxDesktopTest.class.getName());
 
@@ -206,7 +206,7 @@ public final class FxDesktopTest extends Preloader {
   @Test
   public static void testScreenResolutionMonitor() {
     try {
-      ScreenResolutionMonitor.setStage(STAGE_REFERENCE.get());
+      ScreenResolutionMonitor.INSTANCE.dpi(() -> STAGE_REFERENCE.get().getScene());
     }
     catch (Exception e) {
       if (!STAGE_REFERENCE.get().isFullScreen()) {

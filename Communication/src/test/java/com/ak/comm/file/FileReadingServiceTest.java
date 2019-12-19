@@ -91,7 +91,7 @@ public class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFile")
   public static void testFile(@Nonnull Path fileToRead, @Nonnegative int bytes, boolean forceClose) {
-    PropertiesSupport.CACHE.set(Boolean.valueOf(!forceClose).toString());
+    PropertiesSupport.CACHE.update(Boolean.valueOf(!forceClose).toString());
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
     FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher = new FileReadingService<>(

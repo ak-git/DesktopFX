@@ -29,7 +29,7 @@ public enum PropertiesSupport {
 
   public abstract String value();
 
-  public final void set(@Nonnull String value) {
+  public final void update(@Nonnull String value) {
     System.setProperty(key(), value);
   }
 

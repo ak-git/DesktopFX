@@ -1,8 +1,8 @@
 package com.ak.fx.stage;
 
 import java.awt.Toolkit;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,8 +18,8 @@ import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.scene.Scene;
 import javafx.stage.Screen;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 
 @Immutable
@@ -27,7 +27,7 @@ import javafx.stage.Window;
 public enum ScreenResolutionMonitor {
   INSTANCE;
 
-  private final AtomicReference<Stage> stage = new AtomicReference<>();
+  private final AtomicReference<Scene> sceneReference = new AtomicReference<>();
   private final IntegerProperty dpi = new SimpleIntegerProperty(Toolkit.getDefaultToolkit().getScreenResolution());
 
   ScreenResolutionMonitor() {
@@ -36,8 +36,8 @@ public enum ScreenResolutionMonitor {
     }
     log();
     Timer timer = new Timer((int) UIConstants.UI_DELAY.toMillis(), e -> {
-      if (stage.get() != null) {
-        Window window = stage.get().getScene().getWindow();
+      if (sceneReference.get() != null) {
+        Window window = sceneReference.get().getWindow();
         ObservableList<Screen> screens = Screen.getScreensForRectangle(window.getX(), window.getY(), window.getWidth(), window.getHeight());
         Screen screen = Screen.getPrimary();
         if (!screens.isEmpty()) {
@@ -50,18 +50,12 @@ public enum ScreenResolutionMonitor {
     dpi.addListener((observable, oldValue, newValue) -> log());
   }
 
-  public static void setStage(@Nonnull Stage stage) {
-    if (!INSTANCE.stage.compareAndSet(null, Objects.requireNonNull(stage))) {
-      throw new IllegalStateException(
-          String.format("Stage %s was already initialized, new stage %s is ignored", INSTANCE.stage.get(), stage));
-    }
-  }
-
   public double getDpi() {
     return dpi.get();
   }
 
-  public ObservableValue<Number> dpi() {
+  public ObservableValue<Number> dpi(@Nonnull Supplier<Scene> sceneSupplier) {
+    sceneReference.set(sceneSupplier.get());
     return ReadOnlyIntegerProperty.readOnlyIntegerProperty(dpi);
   }
 
