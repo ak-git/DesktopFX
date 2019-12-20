@@ -80,11 +80,6 @@ public class LocalStorageTest {
     new LocalStorage<>(LocalStorageTest.class.getName(), "testStringStorage", String.class).update(EMPTY);
   }
 
-  @Test(expectedExceptions = CloneNotSupportedException.class)
-  public static void testNotClone() throws CloneNotSupportedException {
-    new LocalStorage<>(LocalStorageTest.class.getName(), "testStringStorage", String.class).clone();
-  }
-
   @Test
   public static void testInvalidFileName() {
     Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, Level.WARNING,

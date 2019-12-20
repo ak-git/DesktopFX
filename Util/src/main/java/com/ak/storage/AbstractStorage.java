@@ -2,7 +2,7 @@ package com.ak.storage;
 
 import javax.annotation.Nonnull;
 
-public abstract class AbstractStorage<T> implements Storage<T>, Cloneable {
+public abstract class AbstractStorage<T> implements Storage<T> {
   @Nonnull
   private final String filePrefix;
 
@@ -15,10 +15,5 @@ public abstract class AbstractStorage<T> implements Storage<T>, Cloneable {
 
   final String getFilePrefix() {
     return filePrefix;
-  }
-
-  @Override
-  protected final Object clone() throws CloneNotSupportedException {
-    throw new CloneNotSupportedException();
   }
 }

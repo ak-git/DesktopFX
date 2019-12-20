@@ -86,11 +86,6 @@ final class CRC16IBMChecksum implements Checksum {
     return String.format("%#04X", getValue());
   }
 
-  @Override
-  protected Object clone() throws CloneNotSupportedException {
-    throw new CloneNotSupportedException();
-  }
-
   private void update(byte b) {
     lock.writeLock().lock();
     try {

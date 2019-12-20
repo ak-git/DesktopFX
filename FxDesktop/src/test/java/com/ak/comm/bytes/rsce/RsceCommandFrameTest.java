@@ -82,11 +82,6 @@ public class RsceCommandFrameTest {
     new RsceCommandFrame.ResponseBuilder().bufferLimit(ByteBuffer.wrap(bytes));
   }
 
-  @Test(expectedExceptions = CloneNotSupportedException.class)
-  public static void testClone() throws CloneNotSupportedException {
-    RsceCommandFrame.precise(RsceCommandFrame.Control.ALL, RsceCommandFrame.RequestType.EMPTY).clone();
-  }
-
   private static void checkRequest(@Nonnull byte[] expected, @Nonnull RsceCommandFrame request) {
     ByteBuffer byteBuffer = ByteBuffer.allocate(expected.length);
     request.writeTo(byteBuffer);
