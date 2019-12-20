@@ -54,7 +54,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
   public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
     Medium inverse = Resistance1Layer.inverse(systems, rOhms);
     if (systems.length > 2) {
-      Logger.getLogger(Resistance2Layer.class.getName()).log(Level.INFO, () -> inverse.toString());
+      Logger.getLogger(Resistance2Layer.class.getName()).log(Level.INFO, inverse::toString);
       double rho = inverse.getRho();
       double maxL = Arrays.stream(systems).mapToDouble(s -> s.lToH(1.0)).max().orElseThrow();
       double[] measured = IntStream.range(0, systems.length).mapToDouble(i -> new Resistance1Layer(systems[i]).getApparent(rOhms[i])).toArray();
@@ -79,7 +79,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
   @Nonnull
   public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
     Medium inverse = inverse(systems, rOhmsBefore);
-    Logger.getLogger(Resistance2Layer.class.getName()).log(Level.INFO, () -> inverse.toString());
+    Logger.getLogger(Resistance2Layer.class.getName()).log(Level.INFO, inverse::toString);
 
     IntToDoubleFunction rDiff = index -> (rOhmsAfter[index] - rOhmsBefore[index]) / dh;
 

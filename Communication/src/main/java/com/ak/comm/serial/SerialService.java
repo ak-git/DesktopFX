@@ -115,7 +115,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
         if (serialParams.contains(BytesInterceptor.SerialParams.CLEAR_DTR)) {
           serialPort.setDTR(false);
         }
-        LOGGER.log(LOG_LEVEL_ERRORS, String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getPortName(), baudRate));
+        LOGGER.log(LOG_LEVEL_ERRORS, () -> String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getPortName(), baudRate));
         s.onSubscribe(this);
         serialPort.addEventListener(event -> {
           try {
@@ -170,7 +170,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
 
   @Override
   public void refresh() {
-    LOGGER.log(Level.INFO, String.format("#%x Refresh connection [ %s ]", hashCode(), serialPort.getPortName()));
+    LOGGER.log(Level.INFO, () -> String.format("#%x Refresh connection [ %s ]", hashCode(), serialPort.getPortName()));
     refresh = true;
   }
 
@@ -201,7 +201,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
       }
       else {
         String portName = portNames[0];
-        LOGGER.log(LOG_LEVEL_ERRORS, String.format("Found { %s }, the [ %s ] is selected", Arrays.toString(portNames), portName));
+        LOGGER.log(LOG_LEVEL_ERRORS, () -> String.format("Found { %s }, the [ %s ] is selected", Arrays.toString(portNames), portName));
         usedPorts.remove(portName);
         usedPorts.addLast(portName);
         return portName;

@@ -37,7 +37,7 @@ public enum Variables {
       }
       else {
         Logger.getLogger(Variables.class.getName()).log(Level.CONFIG,
-            String.format("Missing resource key %s at file %s.properties", variable.name(), baseName));
+            () -> String.format("Missing resource key %s at file %s.properties", variable.name(), baseName));
         name = variable.name();
       }
     }

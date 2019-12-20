@@ -15,7 +15,7 @@ public final class ScaleYInfo<V extends Enum<V> & Variable<V>> implements IntToD
   private final int scaleFactor;
   private final int scaleFactor10;
 
-  private ScaleYInfo(@Nonnull Builder<V> builder) {
+  private ScaleYInfo(@Nonnull ScaleYInfoBuilder<V> builder) {
     variable = builder.variable;
     mean = builder.mean;
     if (variable.options().contains(Variable.Option.INVERSE)) {
@@ -42,27 +42,27 @@ public final class ScaleYInfo<V extends Enum<V> & Variable<V>> implements IntToD
     return String.format("ScaleYInfo{mean = %d, scaleFactor = %d, scaleFactor10 = %d}", mean, scaleFactor, scaleFactor10);
   }
 
-  static final class Builder<V extends Enum<V> & Variable<V>> implements javafx.util.Builder<ScaleYInfo<V>> {
+  static final class ScaleYInfoBuilder<V extends Enum<V> & Variable<V>> implements javafx.util.Builder<ScaleYInfo<V>> {
     private final V variable;
     private int mean;
     private int scaleFactor = 1;
     private int scaleFactor10 = 1;
 
-    Builder(@Nonnull V variable) {
+    ScaleYInfoBuilder(@Nonnull V variable) {
       this.variable = variable;
     }
 
-    Builder<V> mean(int mean) {
+    ScaleYInfoBuilder<V> mean(int mean) {
       this.mean = mean;
       return this;
     }
 
-    Builder<V> scaleFactor(@Nonnegative int scaleFactor) {
+    ScaleYInfoBuilder<V> scaleFactor(@Nonnegative int scaleFactor) {
       this.scaleFactor = scaleFactor;
       return this;
     }
 
-    Builder<V> scaleFactor10(@Nonnegative int scaleFactor10) {
+    ScaleYInfoBuilder<V> scaleFactor10(@Nonnegative int scaleFactor10) {
       this.scaleFactor10 = scaleFactor10;
       return this;
     }

@@ -58,7 +58,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
 
       LOCK.lock();
       try (SeekableByteChannel seekableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
-        Logger.getLogger(getClass().getName()).log(Level.CONFIG, String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
+        Logger.getLogger(getClass().getName()).log(Level.CONFIG, () -> String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
 
         MessageDigest md5 = MessageDigest.getInstance("MD5");
         if (isChannelProcessed(seekableByteChannel, md5::update)) {
@@ -67,11 +67,11 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
           if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(convertedFile, StandardOpenOption.READ);
             Logger.getLogger(getClass().getName()).log(Level.INFO,
-                String.format("#%x File [ %s ] with MD5 = [ %s ] is already processed", hashCode(), fileToRead, md5Code));
+                () -> String.format("#%x File [ %s ] with MD5 = [ %s ] is already processed", hashCode(), fileToRead, md5Code));
           }
           else {
             Logger.getLogger(getClass().getName()).log(Level.INFO,
-                String.format("#%x Read file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
+                () -> String.format("#%x Read file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
             Path tempConverterFile = LogBuilders.CONVERTER_FILE.build("temp." + md5Code).getPath();
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(tempConverterFile,
                 StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
@@ -112,11 +112,11 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
       }
       finally {
         LOCK.unlock();
-        Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
+        Logger.getLogger(getClass().getName()).log(Level.INFO, () -> "Close file " + fileToRead);
       }
     }
     else {
-      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, String.format("File [ %s ] is not a regular file", fileToRead));
+      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, () -> String.format("File [ %s ] is not a regular file", fileToRead));
     }
   }
 
