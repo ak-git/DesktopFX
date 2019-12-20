@@ -31,8 +31,8 @@ import com.ak.logging.LogBuilders;
 
 import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
 
-final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
-    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Flow.Subscription {
+final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
+    extends AbstractConvertableService<T, R, V> implements Flow.Subscription {
   private static final int CAPACITY_4K = 1024 * 4;
   private static final Lock LOCK = new ReentrantLock();
   @Nonnull
@@ -43,8 +43,8 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
   private Callable<AsynchronousFileChannel> convertedFileChannelProvider = () -> null;
   private volatile boolean disposed;
 
-  FileReadingService(@Nonnull Path fileToRead, @Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
-                     @Nonnull Converter<RESPONSE, EV> responseConverter) {
+  FileReadingService(@Nonnull Path fileToRead, @Nonnull BytesInterceptor<T, R> bytesInterceptor,
+                     @Nonnull Converter<R, V> responseConverter) {
     super(bytesInterceptor, responseConverter);
     Objects.requireNonNull(fileToRead);
     this.fileToRead = fileToRead;

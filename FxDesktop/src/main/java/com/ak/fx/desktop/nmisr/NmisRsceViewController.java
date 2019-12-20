@@ -14,7 +14,7 @@ import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.converter.rsce.RsceVariable;
 import com.ak.fx.desktop.AbstractViewController;
 
-public final class NmisRsceViewController extends AbstractViewController<RsceCommandFrame, NmisRequest, RsceVariable> implements Closeable {
+public final class NmisRsceViewController extends AbstractViewController<NmisRequest, RsceCommandFrame, RsceVariable> implements Closeable {
   private static final NmisRequest.Sequence[] PINGS = {
       NmisRequest.Sequence.CATCH_100, NmisRequest.Sequence.CATCH_60, NmisRequest.Sequence.CATCH_30,
       NmisRequest.Sequence.ROTATE_100, NmisRequest.Sequence.ROTATE_60, NmisRequest.Sequence.ROTATE_30};
@@ -22,7 +22,7 @@ public final class NmisRsceViewController extends AbstractViewController<RsceCom
   private int pingIndex = -1;
 
   @Inject
-  public NmisRsceViewController(@Nonnull GroupService<RsceCommandFrame, NmisRequest, RsceVariable> service) {
+  public NmisRsceViewController(@Nonnull GroupService<NmisRequest, RsceCommandFrame, RsceVariable> service) {
     super(service);
     executorService.scheduleAtFixedRate(() -> service.write(PINGS[(++pingIndex) % PINGS.length].build()), 0, 8, TimeUnit.SECONDS);
   }

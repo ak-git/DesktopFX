@@ -84,7 +84,7 @@ public class NmisBytesInterceptorTest {
   }
 
   private static void testResponse(NmisRequest request, byte[] input, boolean logFlag) {
-    BytesInterceptor<NmisResponseFrame, NmisRequest> interceptor = new NmisBytesInterceptor();
+    BytesInterceptor<NmisRequest, NmisResponseFrame> interceptor = new NmisBytesInterceptor();
 
     Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {
       Collection<NmisResponseFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).collect(Collectors.toList());

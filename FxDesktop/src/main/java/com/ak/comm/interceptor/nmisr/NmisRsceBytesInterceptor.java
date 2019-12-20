@@ -26,8 +26,8 @@ import com.ak.comm.interceptor.rsce.RsceBytesInterceptor;
  * </pre>
  * each 5 ms.
  */
-public final class NmisRsceBytesInterceptor implements BytesInterceptor<RsceCommandFrame, NmisRequest> {
-  private final BytesInterceptor<NmisResponseFrame, NmisRequest> nmis = new NmisBytesInterceptor();
+public final class NmisRsceBytesInterceptor implements BytesInterceptor<NmisRequest, RsceCommandFrame> {
+  private final BytesInterceptor<NmisRequest, NmisResponseFrame> nmis = new NmisBytesInterceptor();
   private final Function<ByteBuffer, Stream<RsceCommandFrame>> rsce = new RsceBytesInterceptor();
   private final ByteBuffer buffer = ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY);
 

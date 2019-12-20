@@ -25,7 +25,7 @@ import com.ak.util.Strings;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ConfigurableApplicationContext;
 
-final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> implements AutoCloseable, Consumer<Path> {
+final class ConverterApp<T, R, V extends Enum<V> & Variable<V>> implements AutoCloseable, Consumer<Path> {
   @Nonnull
   private final ConfigurableApplicationContext context;
 
@@ -41,9 +41,9 @@ final class ConverterApp<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> 
   @Override
   public void accept(@Nonnull Path path) {
     @SuppressWarnings("unchecked")
-    BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor = BeanFactoryUtils.beanOfType(context, BytesInterceptor.class);
+    BytesInterceptor<T, R> bytesInterceptor = BeanFactoryUtils.beanOfType(context, BytesInterceptor.class);
     @SuppressWarnings("unchecked")
-    Converter<RESPONSE, EV> responseConverter = BeanFactoryUtils.beanOfType(context, Converter.class);
+    Converter<R, V> responseConverter = BeanFactoryUtils.beanOfType(context, Converter.class);
     try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
          LineFileCollector collector = new LineFileCollector(
              Paths.get(path.toFile().toString().replaceAll("\\.bin", Strings.EMPTY) + ".txt"),

@@ -9,13 +9,13 @@ import javax.annotation.Nonnull;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 
-public final class ScaleYInfo<EV extends Enum<EV> & Variable<EV>> implements IntToDoubleFunction, DoubleFunction<String> {
-  private final EV variable;
+public final class ScaleYInfo<V extends Enum<V> & Variable<V>> implements IntToDoubleFunction, DoubleFunction<String> {
+  private final V variable;
   private final int mean;
   private final int scaleFactor;
   private final int scaleFactor10;
 
-  private ScaleYInfo(@Nonnull Builder<EV> builder) {
+  private ScaleYInfo(@Nonnull Builder<V> builder) {
     variable = builder.variable;
     mean = builder.mean;
     if (variable.options().contains(Variable.Option.INVERSE)) {
@@ -42,33 +42,33 @@ public final class ScaleYInfo<EV extends Enum<EV> & Variable<EV>> implements Int
     return String.format("ScaleYInfo{mean = %d, scaleFactor = %d, scaleFactor10 = %d}", mean, scaleFactor, scaleFactor10);
   }
 
-  static final class Builder<EV extends Enum<EV> & Variable<EV>> implements javafx.util.Builder<ScaleYInfo<EV>> {
-    private final EV variable;
+  static final class Builder<V extends Enum<V> & Variable<V>> implements javafx.util.Builder<ScaleYInfo<V>> {
+    private final V variable;
     private int mean;
     private int scaleFactor = 1;
     private int scaleFactor10 = 1;
 
-    Builder(@Nonnull EV variable) {
+    Builder(@Nonnull V variable) {
       this.variable = variable;
     }
 
-    Builder<EV> mean(int mean) {
+    Builder<V> mean(int mean) {
       this.mean = mean;
       return this;
     }
 
-    Builder<EV> scaleFactor(@Nonnegative int scaleFactor) {
+    Builder<V> scaleFactor(@Nonnegative int scaleFactor) {
       this.scaleFactor = scaleFactor;
       return this;
     }
 
-    Builder<EV> scaleFactor10(@Nonnegative int scaleFactor10) {
+    Builder<V> scaleFactor10(@Nonnegative int scaleFactor10) {
       this.scaleFactor10 = scaleFactor10;
       return this;
     }
 
     @Override
-    public ScaleYInfo<EV> build() {
+    public ScaleYInfo<V> build() {
       return new ScaleYInfo<>(this);
     }
   }

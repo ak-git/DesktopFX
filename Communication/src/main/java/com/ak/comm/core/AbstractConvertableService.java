@@ -14,19 +14,19 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.interceptor.BytesInterceptor;
 
-public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
+public abstract class AbstractConvertableService<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractService implements Callable<AsynchronousFileChannel>, Flow.Publisher<int[]>, Readable {
   @Nonnull
-  private final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor;
+  private final BytesInterceptor<T, R> bytesInterceptor;
   @Nonnull
-  private final Converter<RESPONSE, EV> responseConverter;
+  private final Converter<R, V> responseConverter;
   @Nonnull
   private final ByteBuffer workingBuffer;
   @Nonnull
   private final ConcurrentAsyncFileChannel convertedLogByteChannel = new ConcurrentAsyncFileChannel(this);
 
-  public AbstractConvertableService(@Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
-                                    @Nonnull Converter<RESPONSE, EV> responseConverter) {
+  public AbstractConvertableService(@Nonnull BytesInterceptor<T, R> bytesInterceptor,
+                                    @Nonnull Converter<R, V> responseConverter) {
     this.bytesInterceptor = bytesInterceptor;
     this.responseConverter = responseConverter;
     workingBuffer = ByteBuffer.allocate(responseConverter.variables().size() * Integer.BYTES);
@@ -61,7 +61,7 @@ public abstract class AbstractConvertableService<RESPONSE, REQUEST, EV extends E
     }
   }
 
-  protected final BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor() {
+  protected final BytesInterceptor<T, R> bytesInterceptor() {
     return bytesInterceptor;
   }
 }

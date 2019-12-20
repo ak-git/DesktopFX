@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 
 public class NmisRsceBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(NmisRsceBytesInterceptor.class.getName());
-  private final BytesInterceptor<RsceCommandFrame, NmisRequest> interceptor = new NmisRsceBytesInterceptor();
+  private final BytesInterceptor<NmisRequest, RsceCommandFrame> interceptor = new NmisRsceBytesInterceptor();
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY);
 
   private NmisRsceBytesInterceptorTest() {
