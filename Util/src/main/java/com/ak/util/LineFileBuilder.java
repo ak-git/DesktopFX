@@ -91,7 +91,7 @@ public class LineFileBuilder<T> {
     check(yVar.get().mapToObj(y -> xVar.get().mapToObj(x -> doubleFunction.apply(x, y))).collect(multiFileBuilder.build()));
   }
 
-  private static void check(@Nonnull Boolean okFlag) {
+  private static void check(boolean okFlag) {
     if (!okFlag) {
       throw new IllegalStateException();
     }
