@@ -95,7 +95,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
         serialService.subscribe(subscriber);
       }
 
-      while (!Thread.currentThread().isInterrupted()) {
+      do {
         synchronized (this) {
           if (!serialService.isOpen() || write(bytesInterceptor().getPingRequest()) == 0) {
             break;
@@ -117,11 +117,8 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
           Thread.currentThread().interrupt();
           break;
         }
-
-        if (!workingFlag.getAndSet(false)) {
-          break;
-        }
       }
+      while (!Thread.currentThread().isInterrupted() && workingFlag.getAndSet(false));
 
       synchronized (this) {
         if (!executor.isShutdown()) {

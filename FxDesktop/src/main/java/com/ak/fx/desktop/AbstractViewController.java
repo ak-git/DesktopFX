@@ -148,7 +148,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   }
 
   private void changed() {
-    Logger.getLogger(getClass().getName()).log(Level.FINE, () -> axisXController.toString());
+    Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController::toString);
     Map<V, int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
     FxUtils.invokeInFx(() -> {
       chartData.forEach((v, ints) -> {
