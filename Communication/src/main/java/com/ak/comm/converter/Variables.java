@@ -20,7 +20,7 @@ public enum Variables {
   ;
 
   public static String toString(@Nonnull Quantity<?> quantity) {
-    return String.format("%s %s", String.valueOf(quantity.getValue()), toString(quantity.getUnit()));
+    return String.format("%s %s", quantity.getValue(), toString(quantity.getUnit()));
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable, int value) {
