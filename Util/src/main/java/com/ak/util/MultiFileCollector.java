@@ -81,15 +81,15 @@ final class MultiFileCollector<T> implements Collector<Stream<T>, List<LineFileC
     return Collections.emptySet();
   }
 
-  public static final class Builder<T> implements com.ak.util.Builder<MultiFileCollector<T>> {
+  public static final class MultiFileCollectorBuilder<T> implements com.ak.util.Builder<MultiFileCollector<T>> {
     @Nonnull
     private final MultiFileCollector<T> multiFileCollector;
 
-    public Builder(@Nonnull String outFormat) {
+    public MultiFileCollectorBuilder(@Nonnull String outFormat) {
       multiFileCollector = new MultiFileCollector<>(outFormat);
     }
 
-    public Builder<T> add(@Nonnull Path out, @Nonnull ToDoubleFunction<T> converter) {
+    public MultiFileCollectorBuilder<T> add(@Nonnull Path out, @Nonnull ToDoubleFunction<T> converter) {
       multiFileCollector.paths.add(out);
       multiFileCollector.functions.add(converter);
       return this;

@@ -29,12 +29,12 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
 
   @Override
   public Path getPath() throws IOException {
-    Path path = osIdEnum.getDirectory().resolve(this.path);
-    Files.createDirectories(path);
+    Path p = osIdEnum.getDirectory().resolve(this.path);
+    Files.createDirectories(p);
     if (!fileName.isEmpty()) {
-      path = path.resolve(fileName);
+      p = p.resolve(fileName);
     }
-    return path;
+    return p;
   }
 
   @Override

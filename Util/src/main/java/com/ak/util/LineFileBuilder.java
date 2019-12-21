@@ -21,7 +21,7 @@ public class LineFileBuilder<T> {
   @Nonnull
   private final Range yRange;
   @Nonnull
-  private final MultiFileCollector.Builder<T> multiFileBuilder;
+  private final MultiFileCollector.MultiFileCollectorBuilder<T> multiFileBuilder;
 
   private LineFileBuilder(@Nonnull String outFormat) {
     String[] formats = outFormat.split(" ");
@@ -31,7 +31,7 @@ public class LineFileBuilder<T> {
     xRange = new Range(formats[0], LineFileCollector.Direction.HORIZONTAL);
     yRange = new Range(formats[1], LineFileCollector.Direction.VERTICAL);
     this.outFormat = formats[2];
-    multiFileBuilder = new MultiFileCollector.Builder<>(this.outFormat);
+    multiFileBuilder = new MultiFileCollector.MultiFileCollectorBuilder<>(this.outFormat);
   }
 
   public static <T> LineFileBuilder<T> of(@Nonnull String outFormat) {

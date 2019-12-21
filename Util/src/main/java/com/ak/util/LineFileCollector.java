@@ -44,15 +44,15 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
   private boolean errorFlag;
 
   public LineFileCollector(@Nonnull Path out, @Nonnull Direction direction) {
-    BufferedWriter writer;
+    BufferedWriter bufferedWriter;
     try {
-      writer = Files.newBufferedWriter(out,
+      bufferedWriter = Files.newBufferedWriter(out,
           StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
     catch (IOException ex) {
-      writer = new BufferedWriter(Writer.nullWriter());
+      bufferedWriter = new BufferedWriter(Writer.nullWriter());
     }
-    this.writer = writer;
+    writer = bufferedWriter;
     this.direction = direction;
   }
 
