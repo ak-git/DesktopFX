@@ -109,4 +109,9 @@ public class Resistance2LayerTest {
   public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
     Logger.getAnonymousLogger().log(Level.WARNING, Resistance2Layer.inverse(systems, rOhmsBefore, rOhmsAfter, dh).toString());
   }
+
+  @Test(dataProviderClass = LayersProvider.class, dataProvider = "waterDynamicParameters2E6275", enabled = false)
+  public static void testInverseE6275(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
+    Logger.getAnonymousLogger().log(Level.WARNING, Resistance2Layer.inverse(systems, rOhmsBefore, rOhmsAfter, dh).toString());
+  }
 }
