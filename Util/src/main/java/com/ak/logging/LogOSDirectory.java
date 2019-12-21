@@ -9,6 +9,8 @@ import java.util.logging.Logger;
 
 import com.ak.util.OSDirectory;
 
+import static com.ak.util.OSDirectories.USER_HOME_PATH;
+import static com.ak.util.OSDirectories.VENDOR_ID;
 import static com.ak.util.Strings.EMPTY;
 
 public enum LogOSDirectory implements OSDirectory {

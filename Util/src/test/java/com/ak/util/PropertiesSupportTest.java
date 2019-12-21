@@ -22,7 +22,7 @@ public class PropertiesSupportTest {
   @Test
   public static void testValue() {
     Assert.assertEquals(PropertiesSupport.CACHE.value(), Boolean.toString(true));
-    Assert.assertEquals(PropertiesSupport.OUT_CONVERTER_PATH.value(), OSDirectory.VENDOR_ID);
+    Assert.assertEquals(PropertiesSupport.OUT_CONVERTER_PATH.value(), OSDirectories.VENDOR_ID);
   }
 
   @Test

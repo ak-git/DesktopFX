@@ -19,6 +19,9 @@ import com.ak.comm.interceptor.BytesInterceptor;
 
 public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractService implements FileFilter, Readable, Flow.Publisher<int[]> {
+  private static final Readable EMPTY_READABLE = (dst, position) -> {
+  };
+
   @Nonnull
   private final ExecutorService service = Executors.newSingleThreadExecutor();
   @Nonnull
@@ -28,7 +31,7 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
   @Nullable
   private Flow.Subscriber<? super int[]> subscriber;
   @Nonnull
-  private Readable readable = Readable.EMPTY_READABLE;
+  private Readable readable = EMPTY_READABLE;
 
   public AutoFileReadingService(@Nonnull Provider<BytesInterceptor<T, R>> interceptorProvider,
                                 @Nonnull Provider<Converter<R, V>> converterProvider) {
@@ -72,6 +75,6 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
 
   private void innerClose() {
     readable.close();
-    readable = Readable.EMPTY_READABLE;
+    readable = EMPTY_READABLE;
   }
 }

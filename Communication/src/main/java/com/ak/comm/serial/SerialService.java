@@ -145,6 +145,9 @@ final class SerialService extends AbstractService implements WritableByteChannel
 
   @Override
   public void request(long n) {
+    if (n < 1) {
+      cancel();
+    }
   }
 
   @Override

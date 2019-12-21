@@ -17,7 +17,7 @@ public enum PropertiesSupport {
   OUT_CONVERTER_PATH {
     @Override
     public String value() {
-      return System.getProperty(key(), OSDirectory.VENDOR_ID).trim();
+      return System.getProperty(key(), OSDirectories.VENDOR_ID).trim();
     }
   };
 

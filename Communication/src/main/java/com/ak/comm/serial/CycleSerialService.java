@@ -91,39 +91,30 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
           }
         }
       };
+
       synchronized (this) {
         serialService.subscribe(subscriber);
-      }
 
-      while (!Thread.currentThread().isInterrupted()) {
-        synchronized (this) {
-          if (!serialService.isOpen() || write(bytesInterceptor().getPingRequest()) == 0) {
+        while (serialService.isOpen() && write(bytesInterceptor().getPingRequest()) != 0) {
+          okTime.set(Instant.now());
+          try {
+            while (Duration.between(okTime.get(), Instant.now()).minus(UIConstants.UI_DELAY).isNegative()) {
+              if (latch.await(UIConstants.UI_DELAY.toMillis(), TimeUnit.MILLISECONDS)) {
+                break;
+              }
+            }
+          }
+          catch (InterruptedException e) {
+            Logger.getLogger(getClass().getName()).log(Level.ALL, serialService.toString(), e);
+            Thread.currentThread().interrupt();
+            workingFlag.set(false);
+          }
+
+          if (!workingFlag.getAndSet(false) || Thread.currentThread().isInterrupted()) {
             break;
           }
         }
 
-        okTime.set(Instant.now());
-        try {
-          while (Duration.between(okTime.get(), Instant.now()).minus(UIConstants.UI_DELAY).isNegative()) {
-            if (latch.await(UIConstants.UI_DELAY.toMillis(), TimeUnit.MILLISECONDS)) {
-              break;
-            }
-          }
-        }
-        catch (InterruptedException e) {
-          synchronized (this) {
-            Logger.getLogger(getClass().getName()).log(Level.ALL, serialService.toString(), e);
-          }
-          Thread.currentThread().interrupt();
-          break;
-        }
-
-        if (!workingFlag.getAndSet(false)) {
-          break;
-        }
-      }
-
-      synchronized (this) {
         if (!executor.isShutdown()) {
           subscriber.onComplete();
           serialService = new SerialService(bytesInterceptor().getBaudRate(), bytesInterceptor().getSerialParams());
@@ -168,6 +159,9 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public void request(long n) {
+    synchronized (this) {
+      serialService.request(n);
+    }
   }
 
   @Override
