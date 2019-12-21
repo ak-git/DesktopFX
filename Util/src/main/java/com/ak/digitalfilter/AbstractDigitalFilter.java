@@ -12,6 +12,8 @@ import static com.ak.util.Strings.NEW_LINE;
 import static com.ak.util.Strings.SPACE;
 
 abstract class AbstractDigitalFilter implements DigitalFilter {
+  private static final IntsAcceptor EMPTY_INTS_ACCEPTOR = values -> {
+  };
   @Nonnull
   private IntsAcceptor after = EMPTY_INTS_ACCEPTOR;
 

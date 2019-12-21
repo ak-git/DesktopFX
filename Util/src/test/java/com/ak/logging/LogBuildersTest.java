@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.EnumSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,5 +43,10 @@ public class LogBuildersTest {
     channel.write(ByteBuffer.wrap(LogBuildersTest.class.getName().getBytes(Charset.defaultCharset())));
     channel.close();
     Assert.assertTrue(Files.deleteIfExists(path));
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public static void testNotToClean() {
+    EnumSet.complementOf(EnumSet.of(LogBuilders.CONVERTER_FILE)).forEach(LogBuilders::clean);
   }
 }

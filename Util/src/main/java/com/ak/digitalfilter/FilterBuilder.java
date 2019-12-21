@@ -65,10 +65,11 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   public FilterBuilder biOperator(@Nonnull Supplier<IntBinaryOperator> operatorSupplier) {
     return chain(new AbstractDigitalFilter() {
       @Nonnull
-      private final IntBinaryOperator operator = operatorSupplier.get();
+      private IntBinaryOperator operator = operatorSupplier.get();
 
       @Override
       public void reset() {
+        operator = operatorSupplier.get();
       }
 
       @Override
@@ -244,12 +245,12 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   public int[] filter(@Nonnull int[] ints) {
-    DigitalFilter filter = build();
-    int[] result = new int[(int) Math.floor(ints.length * filter.getFrequencyFactor())];
+    DigitalFilter f = build();
+    int[] result = new int[(int) Math.floor(ints.length * f.getFrequencyFactor())];
     AtomicInteger index = new AtomicInteger();
-    filter.forEach(values -> result[index.getAndIncrement()] = values[0]);
+    f.forEach(values -> result[index.getAndIncrement()] = values[0]);
     for (int i : ints) {
-      filter.accept(i);
+      f.accept(i);
     }
     return result;
   }
@@ -282,7 +283,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   private FilterBuilder chain(@Nonnull DigitalFilter chain) {
-    filter = Optional.ofNullable(filter).<DigitalFilter>map(filter -> new ChainFilter(filter, chain)).orElse(chain);
+    filter = Optional.ofNullable(filter).<DigitalFilter>map(f -> new ChainFilter(f, chain)).orElse(chain);
     return this;
   }
 
