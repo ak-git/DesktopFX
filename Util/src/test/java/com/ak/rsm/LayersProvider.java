@@ -324,4 +324,18 @@ class LayersProvider {
         },
     };
   }
+
+  @DataProvider(name = "dynamicParameters2")
+  public static Object[][] dynamicParameters2() {
+    TetrapolarSystem[] systems2 = systems2(8);
+    double dh = -0.12;
+    return new Object[][] {
+        {
+            systems2,
+            new double[] {93.5, 162.85},
+            new double[] {93.4, 162.65},
+            Metrics.fromMilli(dh)
+        },
+    };
+  }
 }
