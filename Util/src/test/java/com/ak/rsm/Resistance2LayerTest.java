@@ -100,12 +100,12 @@ public class Resistance2LayerTest {
     new Resistance2Layer(new TetrapolarSystem(10, 20, MILLI(METRE))).value(new double[] {1});
   }
 
-  @Test(dataProviderClass = LayersProvider.class, dataProvider = "staticParameters", enabled = false)
+  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryStaticParameters", enabled = false)
   public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
     Logger.getAnonymousLogger().log(Level.WARNING, Resistance2Layer.inverse(systems, rOhms).toString());
   }
 
-  @Test(dataProviderClass = LayersProvider.class, dataProvider = "dynamicParameters2", enabled = false)
+  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryDynamicParameters2", enabled = false)
   public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
     Logger.getAnonymousLogger().log(Level.WARNING, Resistance2Layer.inverse(systems, rOhmsBefore, rOhmsAfter, dh).toString());
   }
