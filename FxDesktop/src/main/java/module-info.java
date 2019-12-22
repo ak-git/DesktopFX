@@ -17,6 +17,7 @@ module com.ak.fx.desktop {
 
   requires java.sql;
   requires java.desktop;
+  requires commons.cli;
 
   opens com.ak.numbers.aper to com.ak.util, org.testng;
   opens com.ak.numbers.rcm to com.ak.util, org.testng;
