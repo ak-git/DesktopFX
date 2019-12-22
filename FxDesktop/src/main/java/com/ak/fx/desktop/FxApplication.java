@@ -53,7 +53,7 @@ public final class FxApplication extends Application {
   }
 
   public static void main(String[] args) {
-    String[] arguments = Arrays.copyOf(args, args.length);
+    String[] arguments = Optional.ofNullable(args).map(strings -> Arrays.copyOf(strings, strings.length)).orElse(new String[] {Strings.EMPTY});
     Options options = new Options();
     options.addOption(Option.builder().desc("Device context").longOpt(APP_PARAMETER_CONTEXT).type(String.class).hasArg().build());
     try {
