@@ -11,7 +11,6 @@ dependencies {
     implementation javax_inject
     implementation uom_se
     implementation javax_json
-    implementation 'commons-cli:commons-cli:1.4'
 }
 
 javafx {

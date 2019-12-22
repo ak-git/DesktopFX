@@ -2,7 +2,7 @@
   <configuration default="false" name="RCMCalibration" type="Application" factoryName="Application" singleton="true">
     <option name="MAIN_CLASS_NAME" value="com.ak.fx.desktop.FxApplication" />
     <module name="DesktopFX.FxDesktop.main" />
-    <option name="PROGRAM_PARAMETERS" value="--context=rcm.calibration" />
+    <option name="VM_PARAMETERS" value="-Dcache=false -Dcontext=rcm.calibration" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.ak.fx.desktop.*" />

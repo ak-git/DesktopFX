@@ -3,6 +3,12 @@ package com.ak.util;
 import javax.annotation.Nonnull;
 
 public enum PropertiesSupport {
+  CONTEXT {
+    @Override
+    public String value() {
+      return System.getProperty(key(), Strings.EMPTY).trim();
+    }
+  },
   CACHE {
     @Override
     public boolean check() {

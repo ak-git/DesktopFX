@@ -3,7 +3,7 @@
     <option name="ALTERNATIVE_JRE_PATH" value="13" />
     <option name="MAIN_CLASS_NAME" value="com.ak.fx.desktop.FxApplication" />
     <module name="DesktopFX.FxDesktop.main" />
-    <option name="PROGRAM_PARAMETERS" value="--context=aper.sinsin" />
+    <option name="VM_PARAMETERS" value="-Dcontext=aper.sinsin" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.ak.fx.desktop.*" />

@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -28,17 +27,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 
 public final class FxApplication extends Application {
-  private static final String APP_PARAMETER_CONTEXT = "context";
   private static final String SCENE_XML = "scene.fxml";
   private static final String KEY_APPLICATION_TITLE = "application.title";
   private static final String KEY_APPLICATION_VERSION = "application.version";
@@ -53,22 +46,13 @@ public final class FxApplication extends Application {
   }
 
   public static void main(String[] args) {
-    String[] arguments = Optional.ofNullable(args).map(strings -> Arrays.copyOf(strings, strings.length)).orElse(new String[] {Strings.EMPTY});
-    Options options = new Options();
-    options.addOption(Option.builder().desc("Device context").longOpt(APP_PARAMETER_CONTEXT).type(String.class).hasArg().build());
-    try {
-      launch(FxApplication.class, new DefaultParser().parse(options, arguments).getOptionValue(APP_PARAMETER_CONTEXT, Strings.EMPTY));
-    }
-    catch (ParseException e) {
-      new HelpFormatter().printHelp("FxDesktop", options);
-      Platform.exit();
-    }
+    launch(FxApplication.class);
   }
 
   @Override
   public void init() {
-    Logger.getLogger(getClass().getName()).log(Level.INFO, () -> getParameters().getRaw().toString());
-    context = new FxClassPathXmlApplicationContext(getParameters().getRaw().get(0));
+    Logger.getLogger(getClass().getName()).log(Level.INFO, PropertiesSupport.CONTEXT::value);
+    context = new FxClassPathXmlApplicationContext(PropertiesSupport.CONTEXT.value());
   }
 
   @Override
