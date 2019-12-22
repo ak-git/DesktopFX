@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -52,10 +53,11 @@ public final class FxApplication extends Application {
   }
 
   public static void main(String[] args) {
+    String[] arguments = Arrays.copyOf(args, args.length);
     Options options = new Options();
     options.addOption(Option.builder().desc("Device context").longOpt(APP_PARAMETER_CONTEXT).type(String.class).hasArg().build());
     try {
-      launch(FxApplication.class, new DefaultParser().parse(options, args).getOptionValue(APP_PARAMETER_CONTEXT, Strings.EMPTY));
+      launch(FxApplication.class, new DefaultParser().parse(options, arguments).getOptionValue(APP_PARAMETER_CONTEXT, Strings.EMPTY));
     }
     catch (ParseException e) {
       new HelpFormatter().printHelp("FxDesktop", options);
