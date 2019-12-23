@@ -9,7 +9,7 @@ import com.ak.comm.bytes.nmis.NmisResponseFrame;
 import com.ak.comm.bytes.nmis.NmisTestProvider;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variables;
-import com.ak.comm.logging.LogTestUtils;
+import com.ak.comm.log.LogTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import tec.uom.se.unit.MetricPrefix;

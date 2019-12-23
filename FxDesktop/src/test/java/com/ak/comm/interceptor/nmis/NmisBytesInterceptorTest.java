@@ -14,7 +14,7 @@ import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.nmis.NmisResponseFrame;
 import com.ak.comm.bytes.nmis.NmisTestProvider;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.comm.logging.LogTestUtils;
+import com.ak.comm.log.LogTestUtils;
 import com.ak.util.LogUtils;
 import com.ak.util.Strings;
 import org.testng.Assert;

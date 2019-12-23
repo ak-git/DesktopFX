@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.bytes.rsce.RsceTestDataProvider;
 import com.ak.comm.converter.Converter;
-import com.ak.comm.logging.LogTestUtils;
+import com.ak.comm.log.LogTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import tec.uom.se.AbstractUnit;

@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.comm.logging.LogTestUtils;
+import com.ak.comm.log.LogTestUtils;
 import com.ak.util.LogUtils;
 import com.ak.util.Strings;
 import org.testng.Assert;

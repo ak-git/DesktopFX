@@ -13,7 +13,7 @@ import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.nmis.NmisBytesInterceptor;
-import com.ak.comm.logging.LogTestUtils;
+import com.ak.comm.log.LogTestUtils;
 import com.ak.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;

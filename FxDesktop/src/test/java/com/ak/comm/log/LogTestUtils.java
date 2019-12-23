@@ -1,4 +1,4 @@
-package com.ak.comm.logging;
+package com.ak.comm.log;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
