@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.bytes.rsce.RsceTestDataProvider;
 import com.ak.comm.converter.Converter;
-import com.ak.util.LogUtils;
+import com.ak.comm.logging.LogTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import tec.uom.se.AbstractUnit;
@@ -32,7 +32,7 @@ public class RsceConverterTest {
   public static void testApply(@Nonnull byte[] bytes, @Nonnull int[] rDozenMilliOhms, @Nonnull int[] infoOnes) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     Assert.assertNotNull(frame);
-    Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES, () -> {
+    Assert.assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES, () -> {
       Converter<RsceCommandFrame, RsceVariable> converter = new RsceConverter();
       Stream<int[]> stream = converter.apply(frame);
       stream.forEach(ints ->

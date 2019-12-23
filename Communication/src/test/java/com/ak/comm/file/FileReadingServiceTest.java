@@ -29,6 +29,7 @@ import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
+import com.ak.comm.logging.LogTestUtils;
 import com.ak.comm.logging.OutputBuilders;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
@@ -98,7 +99,7 @@ public class FileReadingServiceTest {
         fileToRead,
         new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, frameLength),
         new ToIntegerConverter<>(TwoVariables.class, 200));
-    LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
+    LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
         publisher.subscribe(testSubscriber), logRecord -> {
       if (forceClose) {
         publisher.close();
@@ -117,7 +118,7 @@ public class FileReadingServiceTest {
         new ToIntegerConverter<>(TwoVariables.class, 1000));
     Assert.assertTrue(publisher.toString().contains(fileToRead.toString()));
 
-    Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
+    Assert.assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
         publisher.subscribe(testSubscriber), new Consumer<>() {
       int packCounter;
 
@@ -144,7 +145,7 @@ public class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "filesCanDelete")
   public static void testException(@Nonnull Path fileToRead, int bytes) {
-    Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
+    Assert.assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
       TestSubscriber<int[]> testSubscriber = new TestSubscriber<>(subscription -> {
         try {
           Files.deleteIfExists(fileToRead);

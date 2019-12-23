@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.BufferFrame;
+import com.ak.comm.logging.LogTestUtils;
 import com.ak.util.LogUtils;
 import com.ak.util.Strings;
 import org.testng.Assert;
@@ -142,7 +143,7 @@ final class FrameBytesInterceptorDataProvider {
     buffer.flip();
 
     AtomicReference<String> logMessage = new AtomicReference<>(Strings.EMPTY);
-    Assert.assertTrue(LogUtils.isSubstituteLogLevel(logger, LogUtils.LOG_LEVEL_ERRORS,
+    Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(logger, LogUtils.LOG_LEVEL_ERRORS,
         () -> {
           Stream<BufferFrame> frames = interceptor.apply(buffer);
           Assert.assertEquals(frames.iterator(), Collections.singleton(response).iterator());

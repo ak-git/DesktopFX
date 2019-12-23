@@ -14,6 +14,7 @@ import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.nmis.NmisResponseFrame;
 import com.ak.comm.bytes.nmis.NmisTestProvider;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.logging.LogTestUtils;
 import com.ak.util.LogUtils;
 import com.ak.util.Strings;
 import org.testng.Assert;
@@ -85,7 +86,7 @@ public class NmisBytesInterceptorTest {
   private static void testResponse(NmisRequest request, byte[] input, boolean logFlag) {
     BytesInterceptor<NmisRequest, NmisResponseFrame> interceptor = new NmisBytesInterceptor();
 
-    Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {
+    Assert.assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {
       Collection<NmisResponseFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).collect(Collectors.toList());
       if (!frames.isEmpty()) {
         Assert.assertEquals(frames, Collections.singleton(request.toResponse()));
@@ -94,7 +95,7 @@ public class NmisBytesInterceptorTest {
         request.toResponse().toString().replaceAll(".*" + NmisResponseFrame.class.getSimpleName(), Strings.EMPTY))), logFlag);
 
     AtomicReference<String> logMessage = new AtomicReference<>(Strings.EMPTY);
-    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
+    Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
         () -> {
           int bytesOut = interceptor.putOut(request).remaining();
           Assert.assertTrue(bytesOut > 0);

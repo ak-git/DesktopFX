@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import com.ak.util.LocalFileIO;
-import com.ak.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -63,7 +66,7 @@ public class LocalStorageTest {
     storage.delete();
 
     Files.createFile(testStringStorage);
-    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
+    Assert.assertTrue(isSubstituteLogLevel(() -> {
       Storage<String> storage3 = new LocalStorage<>(LocalStorageTest.class.getName(), "testStringStorage", String.class);
       Assert.assertNull(storage3.get());
       storage3.delete();
@@ -82,12 +85,29 @@ public class LocalStorageTest {
 
   @Test
   public static void testInvalidFileName() {
-    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, Level.WARNING,
+    Assert.assertTrue(isSubstituteLogLevel(
         () -> new LocalStorage<>(LocalStorageTest.class.getName(), "/invalid file ...\\\\/", String.class).save(EMPTY),
         logRecord -> {
           Assert.assertEquals(logRecord.getThrown().getClass(), NoSuchFileException.class);
           Assert.assertTrue(logRecord.getMessage().contains("/invalid file ...\\\\/"));
         })
     );
+  }
+
+  private static boolean isSubstituteLogLevel(Runnable runnable, Consumer<LogRecord> recordConsumer) {
+    Level oldLevel = LOGGER.getLevel();
+    LOGGER.setLevel(Level.WARNING);
+    AtomicBoolean okFlag = new AtomicBoolean();
+    LOGGER.setFilter(record -> {
+      if (Objects.equals(record.getLevel(), Level.WARNING)) {
+        recordConsumer.accept(record);
+        okFlag.set(true);
+      }
+      return false;
+    });
+    runnable.run();
+    LOGGER.setFilter(null);
+    LOGGER.setLevel(oldLevel);
+    return okFlag.get();
   }
 }
