@@ -5,12 +5,15 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SeekableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.security.Key;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Flow;
@@ -22,6 +25,8 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
@@ -59,6 +64,15 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
       LOCK.lock();
       try (SeekableByteChannel seekableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
         Logger.getLogger(getClass().getName()).log(Level.CONFIG, () -> String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
+
+        Mac mac = Mac.getInstance("HmacSHA256");
+        byte[] keyBytes = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+
+        Key key = new SecretKeySpec(keyBytes, "RawBytes");
+        mac.init(key);
+        byte[] data = "abcdefghijklmnopqrstuvxyz".getBytes(StandardCharsets.UTF_8);
+        byte[] macBytes = mac.doFinal(data);
+        Logger.getAnonymousLogger().config(() -> Arrays.toString(macBytes));
 
         MessageDigest md5 = MessageDigest.getInstance("MD5");
         if (isChannelProcessed(seekableByteChannel, md5::update)) {
