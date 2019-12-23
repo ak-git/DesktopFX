@@ -5,15 +5,12 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.security.Key;
-import java.security.MessageDigest;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Flow;
@@ -65,18 +62,11 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
       try (SeekableByteChannel seekableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
         Logger.getLogger(getClass().getName()).log(Level.CONFIG, () -> String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
 
-        Mac mac = Mac.getInstance("HmacSHA256");
-        byte[] keyBytes = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-
-        Key key = new SecretKeySpec(keyBytes, "RawBytes");
+        Mac mac = Mac.getInstance("HmacMD5");
+        Key key = new SecretKeySpec(mac.getAlgorithm().getBytes(), "RawBytes");
         mac.init(key);
-        byte[] data = "abcdefghijklmnopqrstuvxyz".getBytes(StandardCharsets.UTF_8);
-        byte[] macBytes = mac.doFinal(data);
-        Logger.getAnonymousLogger().config(() -> Arrays.toString(macBytes));
-
-        MessageDigest md5 = MessageDigest.getInstance("MD5");
-        if (isChannelProcessed(seekableByteChannel, md5::update)) {
-          String md5Code = digestToString(md5);
+        if (isChannelProcessed(seekableByteChannel, mac::update)) {
+          String md5Code = digestToString(mac.doFinal());
           Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
           if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(convertedFile, StandardOpenOption.READ);
@@ -177,8 +167,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
     return readFlag && !disposed;
   }
 
-  private static String digestToString(@Nonnull MessageDigest messageDigest) {
-    byte[] digest = messageDigest.digest();
+  private static String digestToString(@Nonnull byte[] digest) {
     StringBuilder sb = new StringBuilder(digest.length * 2);
     for (byte b : digest) {
       sb.append(String.format("%x", b));
