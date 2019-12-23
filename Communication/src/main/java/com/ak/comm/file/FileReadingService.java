@@ -60,7 +60,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
       try (SeekableByteChannel seekableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
         Logger.getLogger(getClass().getName()).log(Level.CONFIG, () -> String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
 
-        MessageDigest digest = MessageDigest.getInstance("SHA3-256");
+        MessageDigest digest = MessageDigest.getInstance("SHA3-512");
         if (isChannelProcessed(seekableByteChannel, digest::update)) {
           String md5Code = digestToString(digest);
           Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
