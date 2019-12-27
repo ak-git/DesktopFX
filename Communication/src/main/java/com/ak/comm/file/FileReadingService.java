@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SeekableByteChannel;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -63,7 +64,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
         Logger.getLogger(getClass().getName()).log(Level.CONFIG, () -> String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
 
         Mac mac = Mac.getInstance("HmacMD5");
-        Key key = new SecretKeySpec(mac.getAlgorithm().getBytes(), "RawBytes");
+        Key key = new SecretKeySpec("2019.12".getBytes(Charset.defaultCharset()), "RawBytes");
         mac.init(key);
         if (isChannelProcessed(seekableByteChannel, mac::update)) {
           String md5Code = digestToString(mac.doFinal());
@@ -71,11 +72,11 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
           if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(convertedFile, StandardOpenOption.READ);
             Logger.getLogger(getClass().getName()).log(Level.INFO,
-                () -> String.format("#%x File [ %s ] with MD5 = [ %s ] is already processed", hashCode(), fileToRead, md5Code));
+                () -> String.format("#%x File [ %s ] with hash = [ %s ] is already processed", hashCode(), fileToRead, md5Code));
           }
           else {
             Logger.getLogger(getClass().getName()).log(Level.INFO,
-                () -> String.format("#%x Read file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
+                () -> String.format("#%x Read file [ %s ], hash = [ %s ]", hashCode(), fileToRead, md5Code));
             Path tempConverterFile = LogBuilders.CONVERTER_FILE.build("temp." + md5Code).getPath();
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(tempConverterFile,
                 StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
