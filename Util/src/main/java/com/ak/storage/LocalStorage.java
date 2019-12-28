@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 
 import com.ak.util.LocalFileIO;
 import com.ak.util.LocalIO;
+import com.ak.util.Strings;
 
 public final class LocalStorage<T> extends AbstractStorage<T> {
   private static final LocalFileIO.AbstractBuilder BUILDER = new LocalStorageBuilder().addPath(LocalStorage.class.getSimpleName());
@@ -64,7 +65,7 @@ public final class LocalStorage<T> extends AbstractStorage<T> {
   }
 
   private String fileName() {
-    return String.format("%s_%s", getFilePrefix(), fileSuffix);
+    return Strings.pointConcat(getFilePrefix(), fileSuffix);
   }
 
   private static <T> void load(@Nonnull String fileName, @Nonnull Class<? extends T> clazz, @Nonnull Consumer<? super T> consumer) {

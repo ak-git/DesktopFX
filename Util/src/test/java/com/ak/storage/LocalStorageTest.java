@@ -13,6 +13,7 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import com.ak.util.LocalFileIO;
+import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -62,7 +63,7 @@ public class LocalStorageTest {
     Storage<String> storage2 = new LocalStorage<>(LocalStorageTest.class.getName(), "testStringStorage", String.class);
     Assert.assertEquals(storage2.get(), "last");
     LocalFileIO.AbstractBuilder BUILDER = new LocalStorageBuilder().addPath(LocalStorage.class.getSimpleName());
-    Path testStringStorage = BUILDER.fileName(String.format("%s_%s", LocalStorageTest.class.getName(), "testStringStorage")).build().getPath();
+    Path testStringStorage = BUILDER.fileName(Strings.pointConcat(LocalStorageTest.class.getName(), "testStringStorage")).build().getPath();
     storage.delete();
 
     Files.createFile(testStringStorage);
