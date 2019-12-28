@@ -29,7 +29,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.GenericApplicationContext;
+
+import static com.ak.util.Strings.pointConcat;
 
 public final class FxApplication extends Application {
   private static final String SCENE_XML = "scene.fxml";
@@ -37,9 +38,7 @@ public final class FxApplication extends Application {
   private static final String KEY_APPLICATION_VERSION = "application.version";
   private static final String KEY_APPLICATION_IMAGE = "application.image";
   private static final String KEY_PROPERTIES = "keys";
-
-  @Nonnull
-  private ConfigurableApplicationContext context = new GenericApplicationContext();
+  private final ConfigurableApplicationContext context = new FxClassPathXmlApplicationContext(FxApplication.class);
 
   static {
     initLogger();
@@ -52,17 +51,16 @@ public final class FxApplication extends Application {
   @Override
   public void init() {
     Logger.getLogger(getClass().getName()).log(Level.INFO, PropertiesSupport.CONTEXT::value);
-    context = new FxClassPathXmlApplicationContext(PropertiesSupport.CONTEXT.value());
   }
 
   @Override
   public void start(@Nonnull Stage stage) throws Exception {
     URL resource = getClass().getResource(SCENE_XML);
-    if (!context.getApplicationName().isEmpty()) {
-      resource = Optional.ofNullable(
-          getClass().getResource(String.format("%s/%s", context.getApplicationName(), SCENE_XML))).orElse(resource);
+    String contextName = PropertiesSupport.CONTEXT.value();
+    if (!contextName.isEmpty()) {
+      resource = Optional.ofNullable(getClass().getResource(pointConcat(contextName, SCENE_XML))).orElse(resource);
     }
-    FXMLLoader loader = new FXMLLoader(resource, ResourceBundle.getBundle(String.format("%s.%s", getClass().getPackageName(), KEY_PROPERTIES)));
+    FXMLLoader loader = new FXMLLoader(resource, ResourceBundle.getBundle(pointConcat(getClass().getPackageName(), KEY_PROPERTIES)));
     loader.setControllerFactory(clazz -> BeanFactoryUtils.beanOfType(context, clazz));
     stage.setScene(loader.load());
     String applicationFullName = getApplicationFullName(loader.getResources().getString(KEY_APPLICATION_TITLE), loader.getResources().getString(KEY_APPLICATION_VERSION));

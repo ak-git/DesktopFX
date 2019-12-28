@@ -17,10 +17,11 @@ module com.ak.fx.desktop {
 
   requires java.sql;
   requires java.desktop;
+  requires spring.core;
 
   opens com.ak.numbers.aper to com.ak.util, org.testng;
   opens com.ak.numbers.rcm to com.ak.util, org.testng;
-  opens com.ak.fx.desktop to javafx.fxml, org.testng;
+  opens com.ak.fx.desktop to javafx.fxml, org.testng, spring.core;
   opens com.ak.fx.scene to javafx.fxml, org.testng;
   opens com.ak.comm.bytes.nmis to org.testng;
   opens com.ak.comm.interceptor.rsce to org.testng;

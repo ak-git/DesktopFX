@@ -21,7 +21,6 @@ import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.LineFileCollector;
-import com.ak.util.PropertiesSupport;
 import com.ak.util.Strings;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -30,8 +29,8 @@ final class ConverterApp<T, R, V extends Enum<V> & Variable<V>> implements AutoC
   @Nonnull
   private final ConfigurableApplicationContext context;
 
-  private ConverterApp(@Nonnull String contextName) {
-    context = new FxClassPathXmlApplicationContext(contextName);
+  private ConverterApp() {
+    context = new FxClassPathXmlApplicationContext(ConverterApp.class);
   }
 
   @Override
@@ -67,7 +66,7 @@ final class ConverterApp<T, R, V extends Enum<V> & Variable<V>> implements AutoC
 
   @SuppressWarnings("rawtypes")
   public static void main(String[] args) {
-    try (ConverterApp<?, ?, ?> app = new ConverterApp(PropertiesSupport.CONTEXT.value());
+    try (ConverterApp<?, ?, ?> app = new ConverterApp();
          DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), "*.bin")) {
       paths.forEach(app);
     }

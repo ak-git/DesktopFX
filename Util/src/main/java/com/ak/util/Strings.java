@@ -59,4 +59,8 @@ public enum Strings {
   public static String h(@Nonnegative double h, @Nonnegative int index) {
     return String.format("h%s = %.2f %s", low(index), Metrics.toMilli(h), MetricPrefix.MILLI(METRE));
   }
+
+  public static String pointConcat(@Nonnull String first, @Nonnull String second) {
+    return String.format("%s.%s", first, second);
+  }
 }
