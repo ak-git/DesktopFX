@@ -7,13 +7,12 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 
 import com.ak.fx.util.FxUtils;
-import com.ak.storage.AbstractStorage;
 import com.ak.storage.LocalStorage;
 import com.ak.storage.Storage;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-abstract class AbstractStageStorage extends AbstractStorage<Stage> {
+abstract class AbstractStageStorage implements Storage<Stage> {
   private static final String FULL_SCREEN = "fullScreen";
   private static final String MAXIMIZED = "maximized";
   private static final String BOUNDS = "bounds";
@@ -22,7 +21,6 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
   private final Storage<Rectangle2D.Double> boundsStorage;
 
   AbstractStageStorage(@Nonnull String filePrefix) {
-    super(filePrefix);
     fullScreenStorage = new LocalStorage<>(filePrefix, FULL_SCREEN, Boolean.class);
     maximizedStorage = new LocalStorage<>(filePrefix, MAXIMIZED, Boolean.class);
     boundsStorage = new LocalStorage<>(filePrefix, BOUNDS, Rectangle2D.Double.class);

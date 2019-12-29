@@ -18,9 +18,11 @@ import com.ak.util.LocalFileIO;
 import com.ak.util.LocalIO;
 import com.ak.util.Strings;
 
-public final class LocalStorage<T> extends AbstractStorage<T> {
+public final class LocalStorage<T> implements Storage<T> {
   private static final LocalFileIO.AbstractBuilder BUILDER = new LocalStorageBuilder().addPath(LocalStorage.class.getSimpleName());
 
+  @Nonnull
+  private final String filePrefix;
   @Nonnull
   private final String fileSuffix;
   @Nonnull
@@ -29,7 +31,7 @@ public final class LocalStorage<T> extends AbstractStorage<T> {
   private T t;
 
   public LocalStorage(@Nonnull String filePrefix, @Nonnull String fileSuffix, @Nonnull Class<T> clazz) {
-    super(filePrefix);
+    this.filePrefix = filePrefix;
     this.fileSuffix = fileSuffix;
     this.clazz = clazz;
   }
@@ -65,7 +67,7 @@ public final class LocalStorage<T> extends AbstractStorage<T> {
   }
 
   private String fileName() {
-    return Strings.pointConcat(getFilePrefix(), fileSuffix);
+    return Strings.pointConcat(filePrefix, fileSuffix);
   }
 
   private static <T> void load(@Nonnull String fileName, @Nonnull Class<? extends T> clazz, @Nonnull Consumer<? super T> consumer) {

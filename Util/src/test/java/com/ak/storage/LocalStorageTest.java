@@ -74,11 +74,6 @@ public class LocalStorageTest {
     }, logRecord -> Assert.assertNotNull(logRecord.getMessage())));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public static void testEmptyFileName() {
-    new LocalStorage<>(EMPTY, "testStringStorage", String.class);
-  }
-
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public static void testNotUpdate() {
     new LocalStorage<>(LocalStorageTest.class.getName(), "testStringStorage", String.class).update(EMPTY);
