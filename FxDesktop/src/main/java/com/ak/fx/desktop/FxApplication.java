@@ -15,9 +15,9 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
 import com.ak.fx.storage.OSStageStorage;
+import com.ak.fx.storage.Storage;
 import com.ak.fx.util.OSDockImage;
 import com.ak.logging.LoggingBuilder;
-import com.ak.storage.Storage;
 import com.ak.util.OS;
 import com.ak.util.PropertiesSupport;
 import com.ak.util.Strings;

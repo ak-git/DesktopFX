@@ -10,14 +10,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ak.fx.stage.ScreenResolutionMonitor;
 import com.ak.fx.storage.OSStageStorage;
+import com.ak.fx.storage.Storage;
 import com.ak.fx.util.OSDockImage;
-import com.ak.storage.Storage;
 import com.ak.util.OS;
 import com.ak.util.OSDirectories;
 import com.ak.util.PropertiesSupport;
@@ -47,7 +48,7 @@ public final class FxDesktopTest extends Preloader {
   private String oldPreloader;
 
   @BeforeClass(timeOut = 5000)
-  public void setUp() throws InterruptedException {
+  public void setUp() throws InterruptedException, BackingStoreException {
     PropertiesSupport.OUT_CONVERTER_PATH.update(OSDirectories.VENDOR_ID);
     oldPreloader = System.getProperty(JAVAFX_PRELOADER);
     System.setProperty(JAVAFX_PRELOADER, FxDesktopTest.class.getName());
@@ -59,7 +60,7 @@ public final class FxDesktopTest extends Preloader {
   }
 
   @AfterClass
-  public void tearDown() {
+  public void tearDown() throws BackingStoreException {
     if (oldPreloader != null) {
       System.setProperty(JAVAFX_PRELOADER, oldPreloader);
     }
@@ -67,7 +68,7 @@ public final class FxDesktopTest extends Preloader {
     cleanup();
   }
 
-  private static void cleanup() {
+  private static void cleanup() throws BackingStoreException {
     for (OSStageStorage storage : OSStageStorage.values()) {
       storage.newInstance(FxDesktopTest.class).delete();
     }

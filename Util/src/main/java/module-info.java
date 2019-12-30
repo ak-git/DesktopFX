@@ -15,11 +15,9 @@ module com.ak.util {
   opens com.ak.rsm to org.testng;
   opens com.ak.logging to org.testng;
   opens com.ak.numbers to org.testng;
-  opens com.ak.storage to org.testng;
 
   exports com.ak.util;
   exports com.ak.logging;
   exports com.ak.digitalfilter;
-  exports com.ak.storage;
   exports com.ak.numbers;
 }
