@@ -1,7 +1,7 @@
-package com.ak.comm.converter.aper;
+package com.ak.comm.converter.aper.sinsin;
 
 import com.ak.comm.converter.ADCVariable;
-import com.ak.comm.converter.aper.sinsin.AperOutVariable;
+import com.ak.comm.converter.aper.AbstractSplineCoefficientsChartApp;
 import com.ak.numbers.aper.AperCoefficients;
 
 /**
