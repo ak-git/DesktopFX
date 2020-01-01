@@ -64,7 +64,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
         Logger.getLogger(getClass().getName()).log(Level.CONFIG, () -> String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
 
         Mac mac = Mac.getInstance("HmacMD5");
-        Key key = new SecretKeySpec("2019.12".getBytes(Charset.defaultCharset()), "RawBytes");
+        Key key = new SecretKeySpec("2020.01".getBytes(Charset.defaultCharset()), "RawBytes");
         mac.init(key);
         if (isChannelProcessed(seekableByteChannel, mac::update)) {
           String md5Code = digestToString(mac.doFinal());
