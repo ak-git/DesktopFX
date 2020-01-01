@@ -13,9 +13,9 @@ public final class ScaleYInfoTest {
 
   @Test
   public void testToString() {
-    Assert.assertEquals(new ScaleYInfo.Builder<>(ADCVariable.ADC).mean(-3).scaleFactor(10).scaleFactor10(20).build().toString(),
+    Assert.assertEquals(new ScaleYInfo.ScaleYInfoBuilder<>(ADCVariable.ADC).mean(-3).scaleFactor(10).scaleFactor10(20).build().toString(),
         "ScaleYInfo{mean = -3, scaleFactor = 10, scaleFactor10 = 20}");
-    Assert.assertEquals(new ScaleYInfo.Builder<>(TestInverse.INVERSE).mean(-3).scaleFactor(10).scaleFactor10(20).build().toString(),
+    Assert.assertEquals(new ScaleYInfo.ScaleYInfoBuilder<>(TestInverse.INVERSE).mean(-3).scaleFactor(10).scaleFactor10(20).build().toString(),
         "ScaleYInfo{mean = -3, scaleFactor = -10, scaleFactor10 = 20}");
   }
 

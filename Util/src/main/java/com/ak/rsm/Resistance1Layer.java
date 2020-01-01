@@ -46,9 +46,9 @@ final class Resistance1Layer extends AbstractResistanceLayer<Potential1Layer> im
     IntToDoubleFunction apparent = i -> new Resistance1Layer(systems[i]).getApparent(rOhms[i]);
     double rho = IntStream.range(0, systems.length).mapToDouble(apparent).average().orElseThrow();
     Logger.getLogger(Resistance1Layer.class.getName()).log(Level.INFO,
-        IntStream.range(0, systems.length)
-            .mapToObj(i -> String.format("%n%s, %s", systems[i], Strings.rho(apparent.applyAsDouble(i)))).collect(Collectors.joining()
-        )
+        () -> IntStream.range(0, systems.length)
+            .mapToObj(i -> String.format("%n%s, %s", systems[i], Strings.rho(apparent.applyAsDouble(i))))
+            .collect(Collectors.joining())
     );
     return new Medium.Builder(systems, rOhms, s -> new Resistance1Layer(s).value(rho)).build(rho);
   }

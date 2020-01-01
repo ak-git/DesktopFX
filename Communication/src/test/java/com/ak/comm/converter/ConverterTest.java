@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
-import com.ak.util.LogUtils;
+import com.ak.comm.logging.LogTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -34,14 +34,14 @@ public class ConverterTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public static void testInvalidApply() {
-    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER_INVALID, WARNING,
+    Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER_INVALID, WARNING,
         () -> Assert.assertEquals(INVALID_CONVERTER.apply(1).count(), 1),
         logRecord -> Assert.assertEquals(logRecord.getMessage(), "Invalid variables: [V1, V2] not match [1]")));
   }
 
   @Test
   public static void testValidApply() {
-    Assert.assertFalse(LogUtils.isSubstituteLogLevel(LOGGER_VALID, WARNING,
+    Assert.assertFalse(LogTestUtils.isSubstituteLogLevel(LOGGER_VALID, WARNING,
         () -> Assert.assertEquals(VALID_CONVERTER_0.apply(1).count(), 0),
         logRecord -> Assert.fail(logRecord.getMessage())));
   }

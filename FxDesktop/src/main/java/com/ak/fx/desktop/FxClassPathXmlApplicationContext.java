@@ -1,40 +1,28 @@
 package com.ak.fx.desktop;
 
-import java.net.URL;
-import java.nio.file.Paths;
-import java.util.Optional;
-
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
-import com.ak.util.Strings;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import com.ak.util.PropertiesSupport;
+import org.springframework.context.support.GenericXmlApplicationContext;
+import org.springframework.core.io.ClassPathResource;
 
-final class FxClassPathXmlApplicationContext extends ClassPathXmlApplicationContext {
+import static com.ak.util.Strings.pointConcat;
+
+final class FxClassPathXmlApplicationContext extends GenericXmlApplicationContext {
   private static final String CONTEXT_XML = "context.xml";
-  @Nonnull
-  private final String contextName;
 
-  FxClassPathXmlApplicationContext(@Nullable String contextName) {
-    super(getContextPath(contextName));
-    this.contextName = getContextName(contextName);
+  FxClassPathXmlApplicationContext(@Nonnull Class<?> clazz) {
+    super(new ClassPathResource(getContextPath(), clazz));
   }
 
-  @Override
-  public String getApplicationName() {
-    return contextName;
-  }
-
-  private static String getContextPath(@Nullable String contextName) {
-    contextName = getContextName(contextName);
-    URL resource = FxClassPathXmlApplicationContext.class.getResource(CONTEXT_XML);
-    if (!contextName.isEmpty()) {
-      resource = FxClassPathXmlApplicationContext.class.getResource(String.format("%s/%s", contextName, CONTEXT_XML));
+  private static String getContextPath() {
+    String contextName = PropertiesSupport.CONTEXT.value();
+    if (contextName.isEmpty()) {
+      contextName = CONTEXT_XML;
     }
-    return Paths.get(resource.toExternalForm()).toString();
-  }
-
-  private static String getContextName(@Nullable String contextName) {
-    return Optional.ofNullable(contextName).orElse(Strings.EMPTY).replaceAll("\\.", "/");
+    else {
+      contextName = pointConcat(contextName, CONTEXT_XML);
+    }
+    return contextName;
   }
 }

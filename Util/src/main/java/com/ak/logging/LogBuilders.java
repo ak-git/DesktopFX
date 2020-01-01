@@ -46,7 +46,7 @@ public enum LogBuilders implements Cleaner.Cleanable {
   };
 
   static {
-    Clean.clean(LogBuilders.values());
+    Clean.clean(new Cleaner.Cleanable[] {CONVERTER_FILE});
   }
 
   private final String directory;
@@ -61,6 +61,7 @@ public enum LogBuilders implements Cleaner.Cleanable {
 
   @Override
   public void clean() {
+    throw new UnsupportedOperationException(name());
   }
 
   private static LogPathBuilder newInstance() {

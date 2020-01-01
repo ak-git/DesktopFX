@@ -7,9 +7,6 @@ import javax.annotation.Nonnull;
 
 @FunctionalInterface
 public interface Readable extends AutoCloseable {
-  Readable EMPTY_READABLE = (dst, position) -> {
-  };
-
   void read(@Nonnull ByteBuffer dst, @Nonnegative long position);
 
   @Override

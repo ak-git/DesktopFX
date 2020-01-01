@@ -33,7 +33,7 @@ final class TetrapolarSystem {
   }
 
   @Nonnegative
-  double Lh(double h) {
+  double lToH(double h) {
     return Math.abs(lCurrentCarryingSI / h);
   }
 

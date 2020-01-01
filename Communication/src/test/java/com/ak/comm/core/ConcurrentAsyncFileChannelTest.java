@@ -11,8 +11,8 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.ak.comm.logging.LogTestUtils;
 import com.ak.logging.LogBuilders;
-import com.ak.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -85,7 +85,7 @@ public class ConcurrentAsyncFileChannelTest {
 
   @Test
   public static void testInvalidInitialize() {
-    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
+    Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
       ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> {
         throw new Exception(ConcurrentAsyncFileChannel.class.getSimpleName());
       });

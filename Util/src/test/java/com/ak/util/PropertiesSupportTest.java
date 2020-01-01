@@ -22,13 +22,13 @@ public class PropertiesSupportTest {
   @Test
   public static void testValue() {
     Assert.assertEquals(PropertiesSupport.CACHE.value(), Boolean.toString(true));
-    Assert.assertEquals(PropertiesSupport.OUT_CONVERTER_PATH.value(), OSDirectory.VENDOR_ID);
+    Assert.assertEquals(PropertiesSupport.OUT_CONVERTER_PATH.value(), OSDirectories.VENDOR_ID);
   }
 
   @Test
   public static void testSet() {
     EnumSet.allOf(PropertiesSupport.class).forEach(e -> {
-      e.set(e.name());
+      e.update(e.name());
       Assert.assertEquals(e.value(), e.name());
       e.clear();
     });

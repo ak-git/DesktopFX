@@ -130,7 +130,7 @@ public class Resistance3LayerTest {
         });
   }
 
-  @Test(dataProviderClass = LayersProvider.class, dataProvider = "dynamicParameters3", enabled = false)
+  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryDynamicParameters3", enabled = false)
   public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
     Logger.getAnonymousLogger().log(Level.WARNING, Resistance3Layer.inverse(systems, rOhmsBefore, rOhmsAfter, dh).toString());
   }

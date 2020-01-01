@@ -79,7 +79,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
   @Nonnull
   public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
     Medium inverse = Resistance2Layer.inverse(systems, rOhmsBefore, rOhmsAfter, dh);
-    Logger.getAnonymousLogger().info(inverse.toString());
+    Logger.getAnonymousLogger().info(inverse::toString);
 
     IntToDoubleFunction rDiff = index -> rOhmsAfter[index] - rOhmsBefore[index];
 
@@ -145,7 +145,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
         .peek(pointValuePair -> System.out.printf("%s %.6f %n", Arrays.toString(pointValuePair.getPoint()), pointValuePair.getValue()))
         .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
 
-    Logger.getAnonymousLogger().info(String.format("%s %.6f", Arrays.toString(f.getPoint()), f.getValue()));
+    Logger.getAnonymousLogger().info(() -> String.format("%s %.6f", Arrays.toString(f.getPoint()), f.getValue()));
 
     int[] p = Arrays.stream(f.getPoint()).mapToInt(value -> (int) Math.round(value)).toArray();
     double[] k = findK.apply(p).getPoint();

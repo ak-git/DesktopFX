@@ -21,7 +21,7 @@ public enum Clean {
   }
 
   public static void clean(@Nonnull Path path) {
-    try (DirectoryStream<Path> ds = Files.newDirectoryStream(path, entry -> Files.isRegularFile(entry))) {
+    try (DirectoryStream<Path> ds = Files.newDirectoryStream(path, Files::isRegularFile)) {
       for (Path file : ds) {
         Files.deleteIfExists(file);
       }

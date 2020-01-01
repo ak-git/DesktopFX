@@ -3,6 +3,12 @@ package com.ak.util;
 import javax.annotation.Nonnull;
 
 public enum PropertiesSupport {
+  CONTEXT {
+    @Override
+    public String value() {
+      return System.getProperty(key(), Strings.EMPTY).trim();
+    }
+  },
   CACHE {
     @Override
     public boolean check() {
@@ -17,7 +23,7 @@ public enum PropertiesSupport {
   OUT_CONVERTER_PATH {
     @Override
     public String value() {
-      return System.getProperty(key(), OSDirectory.VENDOR_ID).trim();
+      return System.getProperty(key(), OSDirectories.VENDOR_ID).trim();
     }
   };
 
@@ -29,7 +35,7 @@ public enum PropertiesSupport {
 
   public abstract String value();
 
-  public final void set(@Nonnull String value) {
+  public final void update(@Nonnull String value) {
     System.setProperty(key(), value);
   }
 
@@ -42,7 +48,7 @@ public enum PropertiesSupport {
   }
 
   public static String addExtension(String fileName) {
-    return String.format("%s.%s", fileName, PROPERTIES);
+    return Strings.pointConcat(fileName, PROPERTIES);
   }
 }
 

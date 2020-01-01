@@ -9,7 +9,7 @@ import com.ak.comm.bytes.nmis.NmisResponseFrame;
 import com.ak.comm.bytes.nmis.NmisTestProvider;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variables;
-import com.ak.util.LogUtils;
+import com.ak.comm.log.LogTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import tec.uom.se.unit.MetricPrefix;
@@ -41,7 +41,7 @@ public class NmisConverterTest {
     }
     else {
       Assert.assertNotNull(frame);
-      Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES, () -> {
+      Assert.assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES, () -> {
         Converter<NmisResponseFrame, NmisVariable> converter = new NmisConverter();
         Stream<int[]> stream = converter.apply(frame);
         if (expected.length == 0) {

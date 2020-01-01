@@ -13,6 +13,6 @@ public final class RcmItoOhmChartApp extends AbstractSplineCoefficientsChartApp<
   }
 
   public static void main(String[] args) {
-    launch(args);
+    launch();
   }
 }

@@ -14,7 +14,7 @@ import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.aper.AperInVariable;
-import com.ak.comm.converter.aper.SplineCoefficientsTest;
+import com.ak.comm.converter.aper.SplineCoefficientsUtils;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
 import org.testng.Assert;
@@ -36,7 +36,7 @@ public final class AperSinCosConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55788, -526617, 0, 1326, 301400, -526616, 0, 1748}},
+            new int[] {55699, -526617, 0, 1325, 301400, -526616, 0, 1731}},
     };
   }
 
@@ -82,11 +82,11 @@ public final class AperSinCosConverterTest {
 
   @Test(enabled = false)
   public static void testSplineSurface1() throws IOException {
-    SplineCoefficientsTest.testSplineSurface1(AperSurfaceCoefficientsChannel1.class);
+    SplineCoefficientsUtils.testSplineSurface1(AperSurfaceCoefficientsChannel1.class);
   }
 
   @Test(enabled = false)
   public static void testSplineSurface2() throws IOException {
-    SplineCoefficientsTest.testSplineSurface2(AperSurfaceCoefficientsChannel2.class);
+    SplineCoefficientsUtils.testSplineSurface2(AperSurfaceCoefficientsChannel2.class);
   }
 }

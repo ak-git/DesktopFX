@@ -16,11 +16,13 @@ module com.ak.fx.desktop {
   requires spring.beans;
 
   requires java.sql;
+  requires java.prefs;
   requires java.desktop;
+  requires spring.core;
 
   opens com.ak.numbers.aper to com.ak.util, org.testng;
   opens com.ak.numbers.rcm to com.ak.util, org.testng;
-  opens com.ak.fx.desktop to javafx.fxml, org.testng;
+  opens com.ak.fx.desktop to javafx.fxml, org.testng, spring.core;
   opens com.ak.fx.scene to javafx.fxml, org.testng;
   opens com.ak.comm.bytes.nmis to org.testng;
   opens com.ak.comm.interceptor.rsce to org.testng;
@@ -40,8 +42,8 @@ module com.ak.fx.desktop {
   exports com.ak.comm.interceptor.rcm to spring.beans;
   exports com.ak.fx.desktop.nmisr to spring.beans;
   exports com.ak.comm.converter.aper to javafx.graphics, org.testng;
-  exports com.ak.comm.converter.aper.sinsin to org.testng;
-  exports com.ak.comm.converter.aper.sincos to org.testng;
+  exports com.ak.comm.converter.aper.sinsin to javafx.graphics, org.testng;
+  exports com.ak.comm.converter.aper.sincos to javafx.graphics, org.testng;
   exports com.ak.comm.converter.aper.calibration to org.testng;
 
   exports com.ak.comm.bytes.nmis;

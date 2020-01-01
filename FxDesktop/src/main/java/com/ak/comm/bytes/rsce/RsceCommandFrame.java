@@ -291,13 +291,7 @@ public final class RsceCommandFrame extends BufferFrame {
 
     @Override
     public boolean is(byte b) {
-      boolean okFlag = true;
-      if (buffer().position() <= ProtocolByte.values().length) {
-        if (!ProtocolByte.values()[buffer().position() - 1].isCheckedAndLimitSet(b, buffer())) {
-          okFlag = false;
-        }
-      }
-      return okFlag;
+      return buffer().position() > ProtocolByte.values().length || ProtocolByte.values()[buffer().position() - 1].isCheckedAndLimitSet(b, buffer());
     }
 
     @Nullable

@@ -21,13 +21,13 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
-final class MultiFileCollector<IN> implements Collector<Stream<IN>, List<LineFileCollector>, Boolean> {
+final class MultiFileCollector<T> implements Collector<Stream<T>, List<LineFileCollector>, Boolean> {
   @Nonnull
   private final String outFormat;
   @Nonnull
   private final Collection<Path> paths = new ArrayList<>();
   @Nonnull
-  private final List<ToDoubleFunction<IN>> functions = new ArrayList<>();
+  private final List<ToDoubleFunction<T>> functions = new ArrayList<>();
 
   private MultiFileCollector(@Nonnull String outFormat) {
     this.outFormat = outFormat;
@@ -40,9 +40,9 @@ final class MultiFileCollector<IN> implements Collector<Stream<IN>, List<LineFil
   }
 
   @Override
-  public BiConsumer<List<LineFileCollector>, Stream<IN>> accumulator() {
+  public BiConsumer<List<LineFileCollector>, Stream<T>> accumulator() {
     return (lineFileCollectors, inStream) -> {
-      List<IN> pairs = inStream.collect(Collectors.toList());
+      List<T> pairs = inStream.collect(Collectors.toList());
       for (int i = 0; i < lineFileCollectors.size(); i++) {
         lineFileCollectors.get(i).accept(
             pairs.stream().mapToDouble(functions.get(i)).mapToObj(value -> String.format(outFormat, value)).
@@ -81,22 +81,22 @@ final class MultiFileCollector<IN> implements Collector<Stream<IN>, List<LineFil
     return Collections.emptySet();
   }
 
-  public static final class Builder<IN> implements com.ak.util.Builder<MultiFileCollector<IN>> {
+  public static final class MultiFileCollectorBuilder<T> implements com.ak.util.Builder<MultiFileCollector<T>> {
     @Nonnull
-    private final MultiFileCollector<IN> multiFileCollector;
+    private final MultiFileCollector<T> multiFileCollector;
 
-    public Builder(@Nonnull String outFormat) {
+    public MultiFileCollectorBuilder(@Nonnull String outFormat) {
       multiFileCollector = new MultiFileCollector<>(outFormat);
     }
 
-    public Builder<IN> add(@Nonnull Path out, @Nonnull ToDoubleFunction<IN> converter) {
+    public MultiFileCollectorBuilder<T> add(@Nonnull Path out, @Nonnull ToDoubleFunction<T> converter) {
       multiFileCollector.paths.add(out);
       multiFileCollector.functions.add(converter);
       return this;
     }
 
     @Override
-    public MultiFileCollector<IN> build() {
+    public MultiFileCollector<T> build() {
       return multiFileCollector;
     }
   }

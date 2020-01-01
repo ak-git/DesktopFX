@@ -13,12 +13,12 @@ public class CleanTest {
   @Test
   public static void testClean() {
     boolean oldCache = PropertiesSupport.CACHE.check();
-    PropertiesSupport.CACHE.set(Boolean.FALSE.toString());
+    PropertiesSupport.CACHE.update(Boolean.FALSE.toString());
     AtomicBoolean ok = new AtomicBoolean(false);
     Clean.clean(new Cleaner.Cleanable[] {
         () -> ok.set(true)
     });
     Assert.assertTrue(ok.get());
-    PropertiesSupport.CACHE.set(Boolean.valueOf(oldCache).toString());
+    PropertiesSupport.CACHE.update(Boolean.valueOf(oldCache).toString());
   }
 }
