@@ -1,10 +1,10 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="AperItoOhmChartApp" type="Application" factoryName="Application" singleton="true" nameIsGenerated="true">
-    <option name="MAIN_CLASS_NAME" value="com.ak.comm.converter.aper.sinsin.AperItoOhmChartApp" />
+    <option name="MAIN_CLASS_NAME" value="com.ak.comm.converter.aper.AperItoOhmChartApp" />
     <module name="DesktopFX.FxDesktop.main" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="com.ak.comm.converter.aper.sinsin.*" />
+        <option name="PATTERN" value="com.ak.comm.converter.aper.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
