@@ -7,14 +7,12 @@ import javax.annotation.Nonnull;
 
 final class ExcessBufferFilter extends AbstractBufferFilter {
   private final IntUnaryOperator operator;
-  private final String name;
   private long sum;
   private int length;
 
-  private ExcessBufferFilter(@Nonnegative int size, @Nonnull IntUnaryOperator operator, @Nonnull String name) {
+  private ExcessBufferFilter(@Nonnegative int size, @Nonnull IntUnaryOperator operator) {
     super(size + 1);
     this.operator = operator;
-    this.name = name;
   }
 
   @Nonnegative
@@ -36,14 +34,34 @@ final class ExcessBufferFilter extends AbstractBufferFilter {
 
   @Override
   public String toString() {
-    return toString(name);
+    return toString(operator.toString());
   }
 
   static DigitalFilter mean(@Nonnegative int size) {
-    return new ExcessBufferFilter(size, IntUnaryOperator.identity(), "MeanFilter");
+    return new ExcessBufferFilter(size, new IntUnaryOperator() {
+      @Override
+      public int applyAsInt(int operand) {
+        return operand;
+      }
+
+      @Override
+      public String toString() {
+        return "MeanFilter";
+      }
+    });
   }
 
   static DigitalFilter std2(@Nonnegative int size) {
-    return new ExcessBufferFilter(size, x -> x * x, "Std2Filter");
+    return new ExcessBufferFilter(size, new IntUnaryOperator() {
+      @Override
+      public int applyAsInt(int operand) {
+        return operand * operand;
+      }
+
+      @Override
+      public String toString() {
+        return "Std2Filter";
+      }
+    });
   }
 }
