@@ -28,7 +28,7 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
 
   @Override
   public Path getPath() throws IOException {
-    Path p = osIdEnum.getDirectory().resolve(this.path);
+    Path p = osIdEnum.getDirectory().resolve(path);
     Files.createDirectories(p);
     if (!fileName.isEmpty()) {
       p = p.resolve(fileName);
