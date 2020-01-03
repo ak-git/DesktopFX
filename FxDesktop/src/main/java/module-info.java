@@ -15,7 +15,6 @@ module com.ak.fx.desktop {
   requires spring.context;
   requires spring.beans;
 
-  requires java.sql;
   requires java.prefs;
   requires java.desktop;
   requires spring.core;

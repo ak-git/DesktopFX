@@ -6,7 +6,6 @@ module com.ak.util {
   requires commons.math3;
   requires jsr305;
   requires java.logging;
-  requires java.desktop;
 
   opens com.ak.inverse to org.testng;
   opens com.ak.digitalfilter to org.testng;
