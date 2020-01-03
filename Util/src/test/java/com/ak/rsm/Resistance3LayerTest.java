@@ -1,6 +1,5 @@
 package com.ak.rsm;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -107,7 +106,7 @@ public class Resistance3LayerTest {
   }
 
   @Test(enabled = false)
-  public static void testContinuous() throws IOException {
+  public static void testContinuous() {
     TetrapolarSystem system = new TetrapolarSystem(10.0, 30.0, MILLI(METRE));
     LineFileBuilder.of("%.1f %.0f %.3f")
         .xRange(0.1, 50.0, 0.1)
@@ -132,6 +131,6 @@ public class Resistance3LayerTest {
 
   @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryDynamicParameters3", enabled = false)
   public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
-    Logger.getAnonymousLogger().log(Level.WARNING, Resistance3Layer.inverse(systems, rOhmsBefore, rOhmsAfter, dh).toString());
+    Logger.getAnonymousLogger().log(Level.WARNING, Resistance3Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh).toString());
   }
 }

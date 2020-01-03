@@ -51,6 +51,6 @@ public class Resistance1LayerTest {
 
   @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryStaticParameters")
   public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
-    Logger.getAnonymousLogger().log(Level.INFO, Resistance1Layer.inverse(systems, rOhms).toString());
+    Logger.getAnonymousLogger().log(Level.INFO, Resistance1Layer.inverseStatic(systems, rOhms).toString());
   }
 }

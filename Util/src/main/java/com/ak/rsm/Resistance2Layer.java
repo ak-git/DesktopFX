@@ -51,8 +51,8 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
   }
 
   @Nonnull
-  public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
-    Medium inverse = Resistance1Layer.inverse(systems, rOhms);
+  public static Medium inverseStatic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
+    Medium inverse = Resistance1Layer.inverseStatic(systems, rOhms);
     if (systems.length > 2) {
       Logger.getLogger(Resistance2Layer.class.getName()).log(Level.INFO, inverse::toString);
       double rho = inverse.getRho();
@@ -77,10 +77,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
   }
 
   @Nonnull
-  public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
-    Medium inverse = inverse(systems, rOhmsBefore);
-    Logger.getLogger(Resistance2Layer.class.getName()).log(Level.INFO, inverse::toString);
-
+  public static Medium inverseDynamic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
     IntToDoubleFunction rDiff = index -> (rOhmsAfter[index] - rOhmsBefore[index]) / dh;
 
     DoubleFunction<IntToDoubleFunction> apparentDiffByH = h -> index -> {
@@ -88,9 +85,12 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
       return log(Math.abs(apparent) * h);
     };
 
+    Medium inverse = inverseStatic(systems, rOhmsBefore);
     if (Arrays.stream(rangeSystems(systems.length, index -> apparentDiffByH.apply(1.0).applyAsDouble(index))).anyMatch(Double::isInfinite)) {
-      double rho = inverse.getRho();
-      return new Medium.Builder(systems, rOhmsBefore, s -> new Resistance2Layer(s).value(rho, rho, 0)).addLayer(rho, 0).build(rho);
+      return inverse;
+    }
+    else {
+      Logger.getLogger(Resistance2Layer.class.getName()).log(Level.INFO, inverse::toString);
     }
 
     IntToDoubleFunction logApparentFunction = index -> log(new Resistance1Layer(systems[index]).getApparent(rOhmsBefore[index]));

@@ -42,7 +42,7 @@ final class Resistance1Layer extends AbstractResistanceLayer<Potential1Layer> im
   }
 
   @Nonnull
-  public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
+  public static Medium inverseStatic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
     IntToDoubleFunction apparent = i -> new Resistance1Layer(systems[i]).getApparent(rOhms[i]);
     double rho = IntStream.range(0, systems.length).mapToDouble(apparent).average().orElseThrow();
     Logger.getLogger(Resistance1Layer.class.getName()).log(Level.INFO,
