@@ -52,16 +52,6 @@ final class ExcessBufferFilter extends AbstractBufferFilter {
   }
 
   static DigitalFilter std2(@Nonnegative int size) {
-    return new ExcessBufferFilter(size, new IntUnaryOperator() {
-      @Override
-      public int applyAsInt(int operand) {
-        return operand * operand;
-      }
-
-      @Override
-      public String toString() {
-        return "Std2Filter";
-      }
-    });
+    return new ExcessBufferFilter(size, operand -> operand * operand);
   }
 }

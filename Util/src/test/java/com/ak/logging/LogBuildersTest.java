@@ -49,4 +49,15 @@ public class LogBuildersTest {
   public static void testNotToClean() {
     EnumSet.complementOf(EnumSet.of(LogBuilders.CONVERTER_FILE)).forEach(LogBuilders::clean);
   }
+
+  @Test
+  public static void testClean() throws IOException {
+    Path path = LogBuilders.CONVERTER_FILE.build("02f29f660fa69e6c404c03de0f1e15f91").getPath();
+    WritableByteChannel channel = Files.newByteChannel(path,
+        StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+    channel.write(ByteBuffer.wrap(LogBuildersTest.class.getName().getBytes(Charset.defaultCharset())));
+    channel.close();
+    LogBuilders.CONVERTER_FILE.clean();
+    Assert.assertTrue(Files.notExists(path));
+  }
 }
