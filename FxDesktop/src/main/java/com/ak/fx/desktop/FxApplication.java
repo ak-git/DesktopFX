@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -111,6 +112,7 @@ public final class FxApplication extends Application {
             path, StandardCopyOption.REPLACE_EXISTING);
       }
       System.setProperty("java.util.logging.config.file", path.toAbsolutePath().toString());
+      LogManager.getLogManager().readConfiguration();
       Logger.getLogger(FxApplication.class.getName()).log(Level.INFO, () -> path.toAbsolutePath().toString());
     }
     catch (Exception e) {
