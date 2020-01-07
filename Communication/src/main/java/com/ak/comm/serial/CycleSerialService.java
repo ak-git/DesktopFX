@@ -125,14 +125,14 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public void close() {
-    synchronized (this) {
-      try {
-        executor.shutdownNow();
+    try {
+      executor.shutdownNow();
+      synchronized (this) {
         serialService.close();
       }
-      finally {
-        super.close();
-      }
+    }
+    finally {
+      super.close();
     }
   }
 
