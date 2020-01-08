@@ -9,8 +9,12 @@ import java.util.stream.Stream;
 import static com.ak.util.Strings.EMPTY;
 
 public class OSDirectories {
-  public static final String USER_HOME_PATH = AccessController.doPrivileged(
-      (PrivilegedAction<String>) () -> Optional.ofNullable(System.getProperty("user.home")).orElse(EMPTY));
+  public static final String USER_HOME_PATH;
+
+  static {
+    PrivilegedAction<String> action = () -> Optional.ofNullable(System.getProperty("user.home")).orElse(EMPTY);
+    USER_HOME_PATH = AccessController.doPrivileged(action);
+  }
 
   public static final String VENDOR_ID = Stream.of(OSDirectories.class.getPackage().getName().split("\\.")).limit(2).
       collect(Collectors.joining("."));
