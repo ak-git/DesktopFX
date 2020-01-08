@@ -71,10 +71,8 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
 
         @Override
         public void onError(Throwable throwable) {
-          synchronized (CycleSerialService.this) {
-            serialService.close();
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, serialService.toString(), throwable);
-          }
+          serialService.close();
+          Logger.getLogger(getClass().getName()).log(Level.SEVERE, serialService.toString(), throwable);
         }
 
         @Override
@@ -92,33 +90,31 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
         }
       };
 
-      synchronized (this) {
-        serialService.subscribe(subscriber);
+      serialService.subscribe(subscriber);
 
-        while (serialService.isOpen() && write(bytesInterceptor().getPingRequest()) != 0) {
-          okTime.set(Instant.now());
-          try {
-            while (Duration.between(okTime.get(), Instant.now()).minus(UIConstants.UI_DELAY).isNegative()) {
-              if (latch.await(UIConstants.UI_DELAY.toMillis(), TimeUnit.MILLISECONDS)) {
-                break;
-              }
+      while (serialService.isOpen() && write(bytesInterceptor().getPingRequest()) != 0) {
+        okTime.set(Instant.now());
+        try {
+          while (Duration.between(okTime.get(), Instant.now()).minus(UIConstants.UI_DELAY).isNegative()) {
+            if (latch.await(UIConstants.UI_DELAY.toMillis(), TimeUnit.MILLISECONDS)) {
+              break;
             }
           }
-          catch (InterruptedException e) {
-            Logger.getLogger(getClass().getName()).log(Level.ALL, serialService.toString(), e);
-            Thread.currentThread().interrupt();
-            workingFlag.set(false);
-          }
-
-          if (!workingFlag.getAndSet(false) || Thread.currentThread().isInterrupted()) {
-            break;
-          }
+        }
+        catch (InterruptedException e) {
+          Logger.getLogger(getClass().getName()).log(Level.ALL, serialService.toString(), e);
+          Thread.currentThread().interrupt();
+          workingFlag.set(false);
         }
 
-        if (!executor.isShutdown()) {
-          subscriber.onComplete();
-          serialService = new SerialService(bytesInterceptor().getBaudRate(), bytesInterceptor().getSerialParams());
+        if (!workingFlag.getAndSet(false) || Thread.currentThread().isInterrupted()) {
+          break;
         }
+      }
+
+      if (!executor.isShutdown()) {
+        subscriber.onComplete();
+        serialService = new SerialService(bytesInterceptor().getBaudRate(), bytesInterceptor().getSerialParams());
       }
     }, 0, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
   }
@@ -127,9 +123,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
   public void close() {
     try {
       executor.shutdownNow();
-      synchronized (this) {
-        serialService.close();
-      }
+      serialService.close();
     }
     finally {
       super.close();
@@ -137,9 +131,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
   }
 
   public int write(@Nullable T request) {
-    synchronized (this) {
-      return request == null ? -1 : serialService.write(bytesInterceptor().putOut(request));
-    }
+    return request == null ? -1 : serialService.write(bytesInterceptor().putOut(request));
   }
 
   @Override
@@ -150,18 +142,14 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public void refresh() {
-    synchronized (this) {
-      serialService.refresh();
-    }
+    serialService.refresh();
     cancelled = false;
     write(bytesInterceptor().getPingRequest());
   }
 
   @Override
   public void request(long n) {
-    synchronized (this) {
-      serialService.request(n);
-    }
+    serialService.request(n);
   }
 
   @Override
