@@ -21,7 +21,7 @@ final class MilliGrid extends Pane {
 
   MilliGrid() {
     reinitializePaths();
-    ScreenResolutionMonitor.INSTANCE.dpi().addListener((observable, oldValue, newValue) -> Platform.runLater(this::reinitializePaths));
+    ScreenResolutionMonitor.INSTANCE.dpi(this::getScene).addListener((observable, oldValue, newValue) -> Platform.runLater(this::reinitializePaths));
   }
 
   @Override

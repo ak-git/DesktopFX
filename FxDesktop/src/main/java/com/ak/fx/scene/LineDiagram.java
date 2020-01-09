@@ -42,7 +42,7 @@ final class LineDiagram extends AbstractRegion {
     visibleTextBounds.setVisible(false);
 
     title.setVisible(false);
-    title.fontProperty().bind(Fonts.H1.fontProperty());
+    title.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
     title.setText(name);
 
     polyline.setStroke(Color.BLACK);
@@ -64,7 +64,7 @@ final class LineDiagram extends AbstractRegion {
     yLabels.getChildren().addAll(IntStream.range(0, (int) (Math.rint((height / 2) / SMALL.getStep()) * 2) + 1).mapToObj(i -> {
       Text text = new Text();
       updateText(i, text);
-      text.fontProperty().bind(Fonts.H2.fontProperty());
+      text.fontProperty().bind(Fonts.H2.fontProperty(this::getScene));
       text.relocate(POINTS.getStep() / 4, SMALL.getStep() * i - text.getFont().getSize() - POINTS.getStep() / 4);
       return text;
     }).collect(Collectors.toList()));

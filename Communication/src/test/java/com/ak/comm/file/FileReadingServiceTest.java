@@ -8,6 +8,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -29,6 +30,7 @@ import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
+import com.ak.comm.logging.LogTestUtils;
 import com.ak.comm.logging.OutputBuilders;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
@@ -91,14 +93,14 @@ public class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFile")
   public static void testFile(@Nonnull Path fileToRead, @Nonnegative int bytes, boolean forceClose) {
-    PropertiesSupport.CACHE.set(Boolean.valueOf(!forceClose).toString());
+    PropertiesSupport.CACHE.update(Boolean.valueOf(!forceClose).toString());
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
     FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher = new FileReadingService<>(
         fileToRead,
         new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, frameLength),
         new ToIntegerConverter<>(TwoVariables.class, 200));
-    LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
+    LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
         publisher.subscribe(testSubscriber), logRecord -> {
       if (forceClose) {
         publisher.close();
@@ -117,7 +119,7 @@ public class FileReadingServiceTest {
         new ToIntegerConverter<>(TwoVariables.class, 1000));
     Assert.assertTrue(publisher.toString().contains(fileToRead.toString()));
 
-    Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
+    Assert.assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
         publisher.subscribe(testSubscriber), new Consumer<>() {
       int packCounter;
 
@@ -144,7 +146,7 @@ public class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "filesCanDelete")
   public static void testException(@Nonnull Path fileToRead, int bytes) {
-    Assert.assertEquals(LogUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
+    Assert.assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
       TestSubscriber<int[]> testSubscriber = new TestSubscriber<>(subscription -> {
         try {
           Files.deleteIfExists(fileToRead);
@@ -215,15 +217,11 @@ public class FileReadingServiceTest {
                      Assert.fail();
                    }
                  });
-                 Assert.assertEquals(process(ByteBuffer.allocate(0)).count(), 0);
-                 int[] ints = process(ByteBuffer.wrap(new byte[] {0, 2, 0, 0, 0, 1})).mapToInt(value -> value[0]).toArray();
-                 Assert.assertEquals(ints, new int[] {2});
-                 ints = process(ByteBuffer.wrap(new byte[] {4, 0, 0, 0, 2})).mapToInt(value -> value[0]).toArray();
-                 Assert.assertEquals(ints, new int[] {3});
-
-                 Assert.assertEquals(process(ByteBuffer.allocate(0)).count(), 0);
-                 ints = process(ByteBuffer.wrap(new byte[] {6, 0, 0, 0, 3})).mapToInt(value -> value[0]).toArray();
-                 Assert.assertEquals(ints, new int[] {6});
+                 process(ByteBuffer.allocate(0), ints -> Assert.fail(Arrays.toString(ints)));
+                 process(ByteBuffer.wrap(new byte[] {0, 2, 0, 0, 0, 1}), ints -> Assert.assertEquals(ints, new int[] {2}));
+                 process(ByteBuffer.wrap(new byte[] {4, 0, 0, 0, 2}), ints -> Assert.assertEquals(ints, new int[] {3}));
+                 process(ByteBuffer.allocate(0), ints -> Assert.fail(Arrays.toString(ints)));
+                 process(ByteBuffer.wrap(new byte[] {6, 0, 0, 0, 3}), ints -> Assert.assertEquals(ints, new int[] {6}));
                  subscriber.onComplete();
                }
 

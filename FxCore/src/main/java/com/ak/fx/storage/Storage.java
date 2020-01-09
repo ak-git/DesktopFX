@@ -1,4 +1,6 @@
-package com.ak.storage;
+package com.ak.fx.storage;
+
+import java.util.prefs.BackingStoreException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -11,5 +13,5 @@ public interface Storage<T> {
   @Nullable
   T get();
 
-  void delete();
+  void delete() throws BackingStoreException;
 }

@@ -13,6 +13,7 @@ import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.nmis.NmisBytesInterceptor;
+import com.ak.comm.log.LogTestUtils;
 import com.ak.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -20,7 +21,7 @@ import org.testng.annotations.Test;
 
 public class NmisRsceBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(NmisRsceBytesInterceptor.class.getName());
-  private final BytesInterceptor<RsceCommandFrame, NmisRequest> interceptor = new NmisRsceBytesInterceptor();
+  private final BytesInterceptor<NmisRequest, RsceCommandFrame> interceptor = new NmisRsceBytesInterceptor();
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY);
 
   private NmisRsceBytesInterceptorTest() {
@@ -57,7 +58,7 @@ public class NmisRsceBytesInterceptorTest {
     Assert.assertEquals(interceptor.getBaudRate(), new NmisBytesInterceptor().getBaudRate());
     Assert.assertEquals(interceptor.getPingRequest(), NmisRequest.Sequence.CATCH_100.build());
 
-    Assert.assertFalse(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
+    Assert.assertFalse(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> {
           Stream<RsceCommandFrame> frames = interceptor.apply(byteBuffer);
           if (response == null) {

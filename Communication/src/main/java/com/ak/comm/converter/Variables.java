@@ -20,7 +20,7 @@ public enum Variables {
   ;
 
   public static String toString(@Nonnull Quantity<?> quantity) {
-    return String.format("%s %s", String.valueOf(quantity.getValue()), toString(quantity.getUnit()));
+    return String.format("%s %s", quantity.getValue(), toString(quantity.getUnit()));
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable, int value) {
@@ -37,7 +37,7 @@ public enum Variables {
       }
       else {
         Logger.getLogger(Variables.class.getName()).log(Level.CONFIG,
-            String.format("Missing resource key %s at file %s.properties", variable.name(), baseName));
+            () -> String.format("Missing resource key %s at file %s.properties", variable.name(), baseName));
         name = variable.name();
       }
     }

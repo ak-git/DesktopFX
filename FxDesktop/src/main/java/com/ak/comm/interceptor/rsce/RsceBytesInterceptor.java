@@ -16,7 +16,7 @@ import com.ak.comm.interceptor.AbstractCheckedBytesInterceptor;
  *   2. 0x00 0x09 0xc7 0xRheo1-Low 0xRheo1-High 0xRheo2-Low 0xRheo2-High 0xInfo-Low 0xInfo-High CRC1 CRC2
  * </pre>
  */
-public final class RsceBytesInterceptor extends AbstractCheckedBytesInterceptor<RsceCommandFrame.ResponseBuilder, RsceCommandFrame, RsceCommandFrame> {
+public final class RsceBytesInterceptor extends AbstractCheckedBytesInterceptor<RsceCommandFrame, RsceCommandFrame, RsceCommandFrame.ResponseBuilder> {
   public RsceBytesInterceptor() {
     super(BaudRate.BR_115200, RsceCommandFrame.off(RsceCommandFrame.Control.ALL), new RsceCommandFrame.ResponseBuilder());
   }

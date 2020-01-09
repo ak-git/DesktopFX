@@ -134,7 +134,7 @@ public final class AxisXController {
     decimateFactor = Math.max(1, toInt(frequency / pointsInSec));
     double xStep = decimateFactor * pointsInSec / frequency;
     Logger.getLogger(getClass().getName()).log(Level.CONFIG,
-        String.format("frequency = %.0f Hz; x-zoom = %d mm/s; pixels per sec = %.1f; decimate factor = %d; x-step = %.1f px",
+        () -> String.format("frequency = %.0f Hz; x-zoom = %d mm/s; pixels per sec = %.1f; decimate factor = %d; x-step = %.1f px",
             frequency, zoomProperty.get().mmPerSec, pointsInSec, decimateFactor, xStep));
     return xStep;
   }

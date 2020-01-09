@@ -21,7 +21,7 @@
                 <constructor-arg index="1" value="1000"/>
             </bean>
         </constructor-arg>
-        <constructor-arg index="1" value="com.ak.comm.converter.aper.sinsin.AperOutVariable"/>
+        <constructor-arg index="1" value="com.ak.comm.converter.aper.AperOutVariable"/>
     </bean>
 
     <bean class="com.ak.comm.GroupService" destroy-method="close"/>

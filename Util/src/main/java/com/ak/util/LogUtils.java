@@ -1,11 +1,7 @@
 package com.ak.util;
 
 import java.nio.ByteBuffer;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -56,22 +52,5 @@ public enum LogUtils {
     if (logger.isLoggable(level)) {
       logger.log(level, String.format("#%x %s %s", aThis.hashCode(), toString(aThis.getClass(), buffer), message));
     }
-  }
-
-  public static boolean isSubstituteLogLevel(Logger logger, Level level, Runnable runnable, Consumer<LogRecord> recordConsumer) {
-    Level oldLevel = logger.getLevel();
-    logger.setLevel(level);
-    AtomicBoolean okFlag = new AtomicBoolean();
-    logger.setFilter(record -> {
-      if (Objects.equals(record.getLevel(), level)) {
-        recordConsumer.accept(record);
-        okFlag.set(true);
-      }
-      return false;
-    });
-    runnable.run();
-    logger.setFilter(null);
-    logger.setLevel(oldLevel);
-    return okFlag.get();
   }
 }

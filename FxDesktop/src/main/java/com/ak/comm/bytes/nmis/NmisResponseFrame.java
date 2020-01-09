@@ -10,6 +10,8 @@ import javax.annotation.Nullable;
 import com.ak.comm.bytes.AbstractCheckedBuilder;
 import com.ak.comm.bytes.BufferFrame;
 
+import static com.ak.comm.bytes.nmis.NmisAddress.DATA;
+
 /**
  * Classic <b>NMI Test Stand</b> Response Frame for INEUM protocol.
  * Neuro-Muscular Interface Stand (Test Stand) Format:
@@ -51,12 +53,42 @@ public final class NmisResponseFrame extends BufferFrame {
     this.address = address;
   }
 
-  public void extractData(@Nonnull ByteBuffer destination) {
-    NmisAddress.Extractor.from(address, NmisAddress.FrameField.DATA_WRAPPED).extract(byteBuffer(), destination);
+  /**
+   * <pre>
+   *   0х7Е, 0х45 (address for wrapped frame type), Len, CounterLow, CounterHi, DATA_WRAPPED_RSC_Energia ..., CRC
+   * </pre>
+   * Examples:
+   * <pre>
+   *   NmisResponseFrame[ 0x7e 0x45 0x02 <b>0x80 0x00</b> 0x45 ] DATA
+   *   NmisResponseFrame[ 0x7e 0x45 0x09 <b>0x85 0x00</b> 0x01 0x05 0x0b 0xe0 0xb1 0xe1 0x7a 0x4e ] DATA
+   * </pre>
+   */
+  public IntStream extractTime() {
+    if (DATA == address) {
+      return IntStream.of(byteBuffer().getShort(NmisProtocolByte.DATA_1.ordinal()));
+    }
+    else {
+      return IntStream.empty();
+    }
   }
 
-  public IntStream extractTime() {
-    return NmisAddress.Extractor.from(address, NmisAddress.FrameField.TIME_COUNTER).extract(byteBuffer());
+  /**
+   * <pre>
+   *   0х7Е, 0х45 (address for wrapped frame type), Len, CounterLow, CounterHi, DATA_WRAPPED_RSC_Energia ..., CRC
+   * </pre>
+   * Examples:
+   * <pre>
+   *   NmisResponseFrame[ 0x7e 0x45 0x02 0x80 0x00 0x45 ] DATA
+   *   NmisResponseFrame[ 0x7e 0x45 0x09 0x85 0x00 <b>0x01 0x05 0x0b 0xe0 0xb1 0xe1 0x7a</b> 0x4e ] DATA
+   * </pre>
+   */
+  public void extractData(@Nonnull ByteBuffer destination) {
+    if (DATA == address) {
+      int len = byteBuffer().get(NmisProtocolByte.LEN.ordinal()) - 2;
+      if (len > 0) {
+        destination.put(byteBuffer().array(), NmisProtocolByte.DATA_3.ordinal(), len);
+      }
+    }
   }
 
   @Override

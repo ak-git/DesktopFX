@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="DesktopFX [run]" type="GradleRunConfiguration" factoryName="Gradle" singleton="true">
+  <configuration default="false" name="DesktopFX [sonarqube]" type="GradleRunConfiguration" factoryName="Gradle">
     <ExternalSystemSettings>
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -10,11 +10,14 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value="run" />
+          <option value="clean" />
+          <option value="build" />
+          <option value="sonarqube" />
         </list>
       </option>
       <option name="vmOptions" value="" />
     </ExternalSystemSettings>
-    <method />
+    <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+    <method v="2" />
   </configuration>
 </component>

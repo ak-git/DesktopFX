@@ -2,7 +2,7 @@
   <configuration default="false" name="AperCalibration" type="Application" factoryName="Application" singleton="true">
     <option name="MAIN_CLASS_NAME" value="com.ak.fx.desktop.FxApplication" />
     <module name="DesktopFX.FxDesktop.main" />
-    <option name="PROGRAM_PARAMETERS" value="--context=aper.calibration" />
+    <option name="VM_PARAMETERS" value="-Dcache=false -Dcontext=aper.calibration" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.ak.fx.desktop.*" />

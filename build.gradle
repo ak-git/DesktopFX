@@ -12,7 +12,7 @@ sonarqube {
         property "sonar.organization", "ak-git"
         property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.login", "ec97b4884454351da027c6345043fc8ae9401d53"
-        property "sonar.branch.name", "develop"
+        property "sonar.branch.name", "master"
     }
 }
 
@@ -38,7 +38,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2019.12.1'
+    version = '2020.01'
     apply plugin: 'idea'
     idea {
         module {
