@@ -60,7 +60,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
 
         @Override
         public void onNext(ByteBuffer buffer) {
-          process(buffer).forEach(ints -> {
+          process(buffer, ints -> {
             if (!cancelled) {
               s.onNext(ints);
             }
