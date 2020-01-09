@@ -27,7 +27,7 @@ public class PropertiesSupportTest {
 
   @Test
   public static void testSet() {
-    EnumSet.allOf(PropertiesSupport.class).forEach(e -> {
+    EnumSet.complementOf(EnumSet.of(PropertiesSupport.CONTEXT)).forEach(e -> {
       e.update(e.name());
       Assert.assertEquals(e.value(), e.name());
       e.clear();

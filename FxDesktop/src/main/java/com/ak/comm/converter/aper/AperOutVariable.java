@@ -11,7 +11,6 @@ import com.ak.comm.converter.DependentVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.aper.AperCoefficients;
-import com.ak.numbers.aper.AperRheoCoefficients;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
 import tec.uom.se.unit.MetricPrefix;
@@ -31,21 +30,37 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return AperOutVariable.filter(FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel1.class)).build();
+      return FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel1.class).build();
+    }
+
+    @Override
+    public Set<Option> options() {
+      return Option.addToDefault(Option.TEXT_VALUE_BANNER);
     }
   },
-  R2 {
+  M1 {
     @Override
     public List<AperInVariable> getInputVariables() {
-      return Arrays.asList(AperInVariable.CCU1, AperInVariable.R2);
+      return Collections.singletonList(AperInVariable.E1);
+    }
+  },
+  PK_PK_M1 {
+    @Override
+    public List<AperInVariable> getInputVariables() {
+      return Collections.singletonList(AperInVariable.E1);
     }
 
     @Override
     public DigitalFilter filter() {
-      return AperOutVariable.filter(FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel2.class)).build();
+      return FilterBuilder.of().peakToPeak(2000).build();
+    }
+
+    @Override
+    public Set<Option> options() {
+      return Collections.singleton(Option.TEXT_VALUE_BANNER);
     }
   },
-  CCR {
+  CCR1 {
     @Override
     public List<AperInVariable> getInputVariables() {
       return Collections.singletonList(AperInVariable.CCU1);
@@ -58,7 +73,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return AperOutVariable.filter(FilterBuilder.asFilterBuilder(AperCoefficients.ADC_TO_OHM)).build();
+      return FilterBuilder.asFilterBuilder(AperCoefficients.ADC_TO_OHM).smoothingImpulsive(10).build();
     }
 
     @Override
@@ -66,73 +81,39 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
       return Collections.singleton(Option.TEXT_VALUE_BANNER);
     }
   },
-  R1_AVG {
+
+  R2 {
     @Override
     public List<AperInVariable> getInputVariables() {
-      return Arrays.asList(AperInVariable.CCU1, AperInVariable.R1);
-    }
-
-    @Override
-    public Unit<?> getUnit() {
-      return MetricPrefix.MILLI(Units.OHM);
+      return Arrays.asList(AperInVariable.CCU2, AperInVariable.R2);
     }
 
     @Override
     public DigitalFilter filter() {
-      return AperOutVariable.filter(FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel1.class)).rrs().build();
-    }
-
-    @Override
-    public Set<Option> options() {
-      return Collections.singleton(Option.TEXT_VALUE_BANNER);
+      return FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel2.class).build();
     }
   },
-  R2_AVG {
+  M2 {
     @Override
     public List<AperInVariable> getInputVariables() {
-      return Arrays.asList(AperInVariable.CCU1, AperInVariable.R2);
+      return Collections.singletonList(AperInVariable.E2);
     }
-
+  },
+  PK_PK_M2 {
     @Override
-    public Unit<?> getUnit() {
-      return MetricPrefix.MILLI(Units.OHM);
+    public List<AperInVariable> getInputVariables() {
+      return Collections.singletonList(AperInVariable.E2);
     }
-
+  },
+  CCR2 {
     @Override
-    public DigitalFilter filter() {
-      return AperOutVariable.filter(FilterBuilder.asFilterBuilder(AperSurfaceCoefficientsChannel2.class)).rrs().build();
-    }
-
-    @Override
-    public Set<Option> options() {
-      return Collections.singleton(Option.TEXT_VALUE_BANNER);
+    public List<AperInVariable> getInputVariables() {
+      return Collections.singletonList(AperInVariable.CCU2);
     }
   };
 
   @Override
   public final Class<AperInVariable> getInputVariablesClass() {
     return AperInVariable.class;
-  }
-
-  /**
-   * <p>Filters [dp = 0.01/5, ds = 0.001/5]:
-   * Delay = 157.5 / 1000 Hz = 0.1575 sec
-   * <ol>
-   * <li>32 - 187.5 Hz @ 1000 Hz / 22 coeff</li>
-   * <li>32 - 62.5 Hz @ 250 Hz / 29 coeff</li>
-   * </ol>
-   * </p>
-   * <p>
-   *
-   * @param filterBuilder {@link FilterBuilder}
-   * @return DigitalFilter
-   */
-  private static FilterBuilder filter(FilterBuilder filterBuilder) {
-    return filterBuilder
-        .decimate(AperRheoCoefficients.F_1000_32_187, 4)
-        .decimate(AperRheoCoefficients.F_250_32_62, 2)
-        .smoothingImpulsive(4)
-        .interpolate(2, AperRheoCoefficients.F_250_32_62)
-        .interpolate(4, AperRheoCoefficients.F_1000_32_187);
   }
 }
