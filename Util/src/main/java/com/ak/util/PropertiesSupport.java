@@ -48,7 +48,7 @@ public enum PropertiesSupport {
   }
 
   public static String addExtension(String fileName) {
-    return Strings.pointConcat(fileName, PROPERTIES);
+    return String.format("%s.%s", fileName, PROPERTIES);
   }
 }
 
