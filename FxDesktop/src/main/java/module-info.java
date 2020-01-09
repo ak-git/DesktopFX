@@ -32,6 +32,7 @@ module com.ak.fx.desktop {
   opens com.ak.comm.converter.rsce to org.testng;
   opens com.ak.comm.converter.nmis to org.testng;
   opens com.ak.comm.interceptor.rcm to org.testng;
+  opens com.ak.comm.converter.aper to org.testng;
 
   exports com.ak.comm.converter.rcm to spring.beans, org.testng;
   exports com.ak.comm.converter.nmis to spring.beans;

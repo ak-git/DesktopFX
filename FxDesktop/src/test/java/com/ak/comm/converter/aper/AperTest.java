@@ -21,6 +21,9 @@ import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
 public final class AperTest {
+  private AperTest() {
+  }
+
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -38,7 +41,7 @@ public final class AperTest {
   }
 
   @Test(dataProvider = "variables")
-  public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
+  public static void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
     Converter<BufferFrame, AperOutVariable> converter = new LinkedConverter<>(
         new ToIntegerConverter<>(AperInVariable.class, 1000), AperOutVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
