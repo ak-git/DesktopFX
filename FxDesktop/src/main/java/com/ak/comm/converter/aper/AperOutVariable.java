@@ -1,4 +1,4 @@
-package com.ak.comm.converter.aper.sinsin;
+package com.ak.comm.converter.aper;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,7 +8,6 @@ import java.util.Set;
 import javax.measure.Unit;
 
 import com.ak.comm.converter.DependentVariable;
-import com.ak.comm.converter.aper.AperInVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.aper.AperCoefficients;

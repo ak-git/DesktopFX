@@ -88,7 +88,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
               @Override
               public void accept(@Nonnull ByteBuffer byteBuffer) {
                 logBytes(byteBuffer);
-                process(byteBuffer).forEach(ints -> {
+                process(byteBuffer, ints -> {
                   if (samplesCounter < requestSamples) {
                     s.onNext(ints);
                   }

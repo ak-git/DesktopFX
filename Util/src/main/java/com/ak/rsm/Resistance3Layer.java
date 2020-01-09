@@ -77,8 +77,8 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
   }
 
   @Nonnull
-  public static Medium inverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
-    Medium inverse = Resistance2Layer.inverse(systems, rOhmsBefore, rOhmsAfter, dh);
+  public static Medium inverseDynamic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
+    Medium inverse = Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh);
     Logger.getAnonymousLogger().info(inverse::toString);
 
     IntToDoubleFunction rDiff = index -> rOhmsAfter[index] - rOhmsBefore[index];
@@ -87,7 +87,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
         index -> log(Math.abs(new Resistance1Layer(systems[index]).getApparent(rDiff.applyAsDouble(index))) * p);
 
     if (Arrays.stream(rangeSystems(systems.length, index -> apparentDiffByH.apply(1).applyAsDouble(index))).anyMatch(Double::isInfinite)) {
-      double rho = Resistance1Layer.inverse(systems, rOhmsBefore).getRho();
+      double rho = Resistance1Layer.inverseStatic(systems, rOhmsBefore).getRho();
       return new Medium.Builder(systems, rOhmsBefore, s -> new Resistance3Layer(s, dh).value(rho, rho, rho, 0, 0))
           .addLayer(rho, 0).addLayer(rho, 0).build(rho);
     }
@@ -136,13 +136,13 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
     };
 
     PointValuePair f = IntStream.range(2, 100)
-        .mapToObj(p1 -> IntStream.range(1, p1)
-            .mapToObj(p2mp1 -> {
-              PointValuePair kPoint = findK.apply(new int[] {p1, p2mp1});
-              return new PointValuePair(new double[] {p1, p2mp1}, kPoint.getValue());
-            })
-            .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow())
-        .peek(pointValuePair -> System.out.printf("%s %.6f %n", Arrays.toString(pointValuePair.getPoint()), pointValuePair.getValue()))
+        .mapToObj(p1 -> {
+          PointValuePair minForP1 = IntStream.range(1, p1)
+              .mapToObj(p2mp1 -> new PointValuePair(new double[] {p1, p2mp1}, findK.apply(new int[] {p1, p2mp1}).getValue()))
+              .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
+          Logger.getAnonymousLogger().info(() -> String.format("%s %.6f %n", Arrays.toString(minForP1.getPoint()), minForP1.getValue()));
+          return minForP1;
+        })
         .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
 
     Logger.getAnonymousLogger().info(() -> String.format("%s %.6f", Arrays.toString(f.getPoint()), f.getValue()));

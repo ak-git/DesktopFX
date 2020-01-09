@@ -16,8 +16,7 @@ public class FxClassPathXmlApplicationContextTest {
   public static Object[][] contexts() {
     return new Object[][] {
         {"aper.calibration"},
-        {"aper.sincos"},
-        {"aper.sinsin"},
+        {"aper"},
         {"nmis"},
         {"nmisr"},
         {"rcm.calibration"},

@@ -1,6 +1,5 @@
-package com.ak.comm.converter.aper.sincos;
+package com.ak.comm.converter.aper;
 
-import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -13,8 +12,6 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.Variable;
-import com.ak.comm.converter.aper.AperInVariable;
-import com.ak.comm.converter.aper.SplineCoefficientsUtils;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
 import org.testng.Assert;
@@ -23,7 +20,7 @@ import org.testng.annotations.Test;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public final class AperSinCosConverterTest {
+public final class AperTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -36,7 +33,7 @@ public final class AperSinCosConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55699, -526617, 0, 1325, 301400, -526616, 0, 1731}},
+            new int[] {55762, 301742, 1325, 51091, 276467}},
     };
   }
 
@@ -47,32 +44,31 @@ public final class AperSinCosConverterTest {
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 2000 - 1; i++) {
-      long count = converter.apply(bufferFrame).count();
-      Assert.assertTrue(count == 0 || count == 9 || count == 10, Long.toString(count));
+      int finalI = i;
+      long count = converter.apply(bufferFrame).peek(ints -> {
+        if (finalI > 1900) {
+          if (!processed.get()) {
+            Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
+          }
+          processed.set(true);
+        }
+      }).count();
+      if (processed.get()) {
+        Assert.assertEquals(count, 32);
+        break;
+      }
     }
-    Assert.assertEquals(converter.apply(bufferFrame).peek(ints -> {
-      Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
-      processed.set(true);
-    }).count(), 10);
     Assert.assertTrue(processed.get(), "Data are not converted!");
     Assert.assertEquals(converter.getFrequency(), 1000, 0.1);
   }
 
   @Test
   public static void testVariableProperties() {
-    EnumSet.of(AperOutVariable.R1, AperOutVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MILLI(Units.OHM)));
-    EnumSet.of(AperOutVariable.ECG1, AperOutVariable.ECG2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT)));
-    EnumSet.of(AperOutVariable.MYO1, AperOutVariable.MYO2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT)));
+    Assert.assertEquals(AperOutVariable.CCR.getUnit(), Units.OHM);
+    Assert.assertTrue(AperOutVariable.CCR.options().contains(Variable.Option.TEXT_VALUE_BANNER));
 
-    EnumSet<AperOutVariable> serviceVars = EnumSet.of(AperOutVariable.CCR1, AperOutVariable.CCR2);
-    serviceVars.forEach(t -> Assert.assertEquals(t.getUnit(), Units.OHM));
-
-    Assert.assertEquals(AperOutVariable.R1.filter().toString(), AperOutVariable.R2.filter().toString());
-    Assert.assertEquals(AperOutVariable.ECG1.filter().toString(), AperOutVariable.ECG2.filter().toString());
-    Assert.assertEquals(AperOutVariable.MYO1.filter().toString(), AperOutVariable.MYO2.filter().toString());
-
-    serviceVars.forEach(t -> Assert.assertFalse(t.options().contains(Variable.Option.VISIBLE)));
-    EnumSet.complementOf(serviceVars).forEach(t -> Assert.assertTrue(t.options().contains(Variable.Option.VISIBLE), t.name()));
+    EnumSet.of(AperOutVariable.R1, AperOutVariable.R2).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MILLI(Units.OHM)));
+    EnumSet.of(AperOutVariable.R1, AperOutVariable.R2).forEach(variable -> Assert.assertTrue(variable.options().contains(Variable.Option.VISIBLE)));
   }
 
   @Test
@@ -80,13 +76,27 @@ public final class AperSinCosConverterTest {
     EnumSet.allOf(AperOutVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), AperInVariable.class));
   }
 
+  @DataProvider(name = "filter-delay")
+  public static Object[][] filterDelay() {
+    return new Object[][] {
+        {AperOutVariable.R1, 157.5},
+        {AperOutVariable.R2, 157.5},
+        {AperOutVariable.CCR, 157.5},
+    };
+  }
+
+  @Test(dataProvider = "filter-delay")
+  public static void testFilterDelay(@Nonnull AperOutVariable variable, double delay) {
+    Assert.assertEquals(variable.filter().getDelay(), delay, 0.001, variable.toString());
+  }
+
   @Test(enabled = false)
-  public static void testSplineSurface1() throws IOException {
+  public static void testSplineSurface1() {
     SplineCoefficientsUtils.testSplineSurface1(AperSurfaceCoefficientsChannel1.class);
   }
 
   @Test(enabled = false)
-  public static void testSplineSurface2() throws IOException {
+  public static void testSplineSurface2() {
     SplineCoefficientsUtils.testSplineSurface2(AperSurfaceCoefficientsChannel2.class);
   }
 }

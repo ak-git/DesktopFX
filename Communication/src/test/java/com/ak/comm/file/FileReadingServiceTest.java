@@ -8,6 +8,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -216,15 +217,11 @@ public class FileReadingServiceTest {
                      Assert.fail();
                    }
                  });
-                 Assert.assertEquals(process(ByteBuffer.allocate(0)).count(), 0);
-                 int[] ints = process(ByteBuffer.wrap(new byte[] {0, 2, 0, 0, 0, 1})).mapToInt(value -> value[0]).toArray();
-                 Assert.assertEquals(ints, new int[] {2});
-                 ints = process(ByteBuffer.wrap(new byte[] {4, 0, 0, 0, 2})).mapToInt(value -> value[0]).toArray();
-                 Assert.assertEquals(ints, new int[] {3});
-
-                 Assert.assertEquals(process(ByteBuffer.allocate(0)).count(), 0);
-                 ints = process(ByteBuffer.wrap(new byte[] {6, 0, 0, 0, 3})).mapToInt(value -> value[0]).toArray();
-                 Assert.assertEquals(ints, new int[] {6});
+                 process(ByteBuffer.allocate(0), ints -> Assert.fail(Arrays.toString(ints)));
+                 process(ByteBuffer.wrap(new byte[] {0, 2, 0, 0, 0, 1}), ints -> Assert.assertEquals(ints, new int[] {2}));
+                 process(ByteBuffer.wrap(new byte[] {4, 0, 0, 0, 2}), ints -> Assert.assertEquals(ints, new int[] {3}));
+                 process(ByteBuffer.allocate(0), ints -> Assert.fail(Arrays.toString(ints)));
+                 process(ByteBuffer.wrap(new byte[] {6, 0, 0, 0, 3}), ints -> Assert.assertEquals(ints, new int[] {6}));
                  subscriber.onComplete();
                }
 

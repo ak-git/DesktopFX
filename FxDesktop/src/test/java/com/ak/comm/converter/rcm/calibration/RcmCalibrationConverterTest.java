@@ -29,7 +29,7 @@ public final class RcmCalibrationConverterTest {
     return new Object[][] {
         {
             new byte[] {-10, -36, -125, -72, -5, -60, -125, -124, -111, -94, -7, -98, -127, -128, -5, -78, -127, -10, -127, -128},
-            new int[] {0, 69, -274, -205, 0}
+            new int[] {0, 92, -274, -274, 0}
         },
     };
   }

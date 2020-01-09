@@ -19,7 +19,7 @@ final class Log1pApparent3Rho extends AbstractLogApparent3Rho {
   }
 
   @Override
-  DoubleBinaryOperator sum(@Nonnull double[] q, @Nonnegative double h) {
+  DoubleBinaryOperator sum(@Nonnegative double h) {
     return (sign, n) -> 1.0 / hypot(radius(sign), 2.0 * n * h);
   }
 }

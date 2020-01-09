@@ -2,7 +2,6 @@ package com.ak.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,7 +28,7 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
 
   @Override
   public Path getPath() throws IOException {
-    Path p = osIdEnum.getDirectory().resolve(this.path);
+    Path p = osIdEnum.getDirectory().resolve(path);
     Files.createDirectories(p);
     if (!fileName.isEmpty()) {
       p = p.resolve(fileName);
@@ -40,11 +39,6 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
   @Override
   public InputStream openInputStream() throws IOException {
     return Files.newInputStream(getPath());
-  }
-
-  @Override
-  public OutputStream openOutputStream() throws IOException {
-    return Files.newOutputStream(getPath());
   }
 
   public abstract static class AbstractBuilder implements Builder<LocalIO> {

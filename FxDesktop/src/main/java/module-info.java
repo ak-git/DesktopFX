@@ -15,7 +15,6 @@ module com.ak.fx.desktop {
   requires spring.context;
   requires spring.beans;
 
-  requires java.sql;
   requires java.prefs;
   requires java.desktop;
   requires spring.core;
@@ -42,8 +41,6 @@ module com.ak.fx.desktop {
   exports com.ak.comm.interceptor.rcm to spring.beans;
   exports com.ak.fx.desktop.nmisr to spring.beans;
   exports com.ak.comm.converter.aper to javafx.graphics, org.testng;
-  exports com.ak.comm.converter.aper.sinsin to javafx.graphics, org.testng;
-  exports com.ak.comm.converter.aper.sincos to javafx.graphics, org.testng;
   exports com.ak.comm.converter.aper.calibration to org.testng;
   exports com.ak.comm.converter.rcm.calibration to org.testng;
 

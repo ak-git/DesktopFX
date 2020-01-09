@@ -146,4 +146,9 @@ public class LineFileCollectorTest {
   public void testCombiner() {
     new LineFileCollector(out, LineFileCollector.Direction.HORIZONTAL).combiner().apply(null, null);
   }
+
+  @Test
+  public void testInvalidPath() {
+    new LineFileCollector(Paths.get("/"), LineFileCollector.Direction.VERTICAL);
+  }
 }

@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Flow;
-import java.util.stream.Stream;
+import java.util.function.Consumer;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -43,20 +43,20 @@ public abstract class AbstractConvertableService<T, R, V extends Enum<V> & Varia
     convertedLogByteChannel.read(dst, position);
   }
 
-  protected final Stream<int[]> process(@Nonnull ByteBuffer buffer) {
+  protected final void process(@Nonnull ByteBuffer buffer, @Nonnull Consumer<int[]> doAfter) {
     if (buffer.limit() == 0) {
       convertedLogByteChannel.close();
       responseConverter.refresh();
-      return Stream.empty();
     }
     else {
-      return bytesInterceptor.apply(buffer).flatMap(responseConverter).peek(ints -> {
+      bytesInterceptor.apply(buffer).flatMap(responseConverter).forEach(ints -> {
         workingBuffer.clear();
         for (int i : ints) {
           workingBuffer.putInt(i);
         }
         workingBuffer.flip();
         convertedLogByteChannel.write(workingBuffer);
+        doAfter.accept(ints);
       });
     }
   }

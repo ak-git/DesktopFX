@@ -40,6 +40,7 @@ public class CalibrateBuildersTest {
         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
     channel.write(ByteBuffer.wrap(LogBuildersTest.class.getName().getBytes(Charset.defaultCharset())));
     channel.close();
-    Assert.assertTrue(Files.deleteIfExists(path));
+    CalibrateBuilders.CALIBRATION.clean();
+    Assert.assertTrue(Files.notExists(path));
   }
 }
