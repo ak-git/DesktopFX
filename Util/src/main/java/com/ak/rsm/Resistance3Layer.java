@@ -140,7 +140,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
           PointValuePair minForP1 = IntStream.range(1, p1)
               .mapToObj(p2mp1 -> new PointValuePair(new double[] {p1, p2mp1}, findK.apply(new int[] {p1, p2mp1}).getValue()))
               .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
-          Logger.getAnonymousLogger().info(() -> String.format("%s %.6f %n", Arrays.toString(minForP1.getPoint()), minForP1.getValue()));
+          Logger.getAnonymousLogger().info(() -> String.format("%s %.6f", Arrays.toString(minForP1.getPoint()), minForP1.getValue()));
           return minForP1;
         })
         .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();

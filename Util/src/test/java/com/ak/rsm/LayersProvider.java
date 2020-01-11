@@ -37,11 +37,11 @@ class LayersProvider {
    * 10 x 30, 30 x 50, 10 x 50 mm,
    * 7 x 21, 21 x 35, 7 x 35 mm.
    *
-   * @param smm small potential electrode distance, mm.
    * @return three Tetrapolar System.
    */
   @Nonnull
-  private static TetrapolarSystem[] systems3(@Nonnegative double smm) {
+  private static TetrapolarSystem[] systems3_7mm() {
+    double smm = 7.0;
     return new TetrapolarSystem[] {
         new TetrapolarSystem(smm, smm * 3.0, MILLI(METRE)),
         new TetrapolarSystem(smm * 5.0, smm * 3.0, MILLI(METRE)),
@@ -51,8 +51,8 @@ class LayersProvider {
 
   /**
    * Generates optimal electrode system pair.
-   * 10 x 30, 30 x 50, 10 x 50 mm,
-   * 7 x 21, 21 x 35, 7 x 35 mm.
+   * 10 x 30, 30 x 50, 20 x 40, 40 x 60 mm,
+   * 7 x 21, 21 x 35, 14 x 28, 28 x 42 mm.
    *
    * @param smm small potential electrode distance, mm.
    * @return three Tetrapolar System.
@@ -61,7 +61,7 @@ class LayersProvider {
   private static TetrapolarSystem[] systems4(@Nonnegative double smm) {
     return new TetrapolarSystem[] {
         new TetrapolarSystem(smm, smm * 3.0, MILLI(METRE)),
-        new TetrapolarSystem(smm * 5.0, smm * 3.0, MILLI(METRE)),
+        new TetrapolarSystem(smm * 3.0, smm * 5.0, MILLI(METRE)),
         new TetrapolarSystem(smm * 2.0, smm * 4.0, MILLI(METRE)),
         new TetrapolarSystem(smm * 4.0, smm * 6.0, MILLI(METRE)),
     };
@@ -284,7 +284,7 @@ class LayersProvider {
   public static Object[][] staticParameters() {
     return new Object[][] {
         {
-            systems3(7.0),
+            systems3_7mm(),
             new double[] {88.81, 141.1, 34.58},
         },
         {
@@ -307,6 +307,19 @@ class LayersProvider {
             new double[] {123.3, 176.1, 43.09, 170.14, 85.84 * 2},
             new double[] {123.3 - 0.1, 176.1 - 0.125, 43.09 - 0.04, 170.14 - 0.16, 85.84 * 2 - 0.1 * 2},
             Metrics.fromMilli(-0.1)
+        },
+
+        {
+            systems4(7.0),
+            new double[] {113.575, 167.775, 74.49 * 2, 167.50 * 2 - 74.49 * 2},
+            new double[] {113.405, 167.400, 74.36 * 2, 167.15 * 2 - 74.36 * 2},
+            Metrics.fromMilli(-0.15)
+        },
+        {
+            systems4(7.0),
+            new double[] {110.44, 161.15, 72.49 * 2, 162.15 * 2 - 72.49 * 2},
+            new double[] {110.33, 160.70, 72.36 * 2, 161.70 * 2 - 72.36 * 2},
+            Metrics.fromMilli(-0.15)
         },
     };
   }
