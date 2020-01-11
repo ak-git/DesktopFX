@@ -1,7 +1,7 @@
 package com.ak.rsm;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Arrays;
+import java.util.Random;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -64,8 +64,26 @@ public class Resistance1LayerTest {
     Assert.assertEquals(r.getApparent(resistance), specificResistance, 1.0e-6);
   }
 
-  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryStaticParameters")
+  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryStaticParameters", enabled = false)
   public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
-    Logger.getAnonymousLogger().log(Level.INFO, Resistance1Layer.inverseStatic(systems, rOhms).toString());
+    Resistance1Layer.inverseStatic(systems, rOhms);
+  }
+
+  @DataProvider(name = "layer1")
+  public static Object[][] layer1() {
+    TetrapolarSystem[] systems4 = LayersProvider.systems4(10.0);
+    Random random = new Random();
+    return new Object[][] {
+        {
+            systems4,
+            Arrays.stream(LayersProvider.rOhms(systems4, LayersProvider.layer1(2.0))).map(r -> r + random.nextGaussian()).toArray(),
+            2.0
+        },
+    };
+  }
+
+  @Test(dataProvider = "layer1")
+  public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms, @Nonnegative double expected) {
+    Assert.assertEquals(Resistance1Layer.inverseStatic(systems, rOhms).getRho(), expected, 0.1);
   }
 }

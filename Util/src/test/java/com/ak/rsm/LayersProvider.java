@@ -58,7 +58,7 @@ class LayersProvider {
    * @return three Tetrapolar System.
    */
   @Nonnull
-  private static TetrapolarSystem[] systems4(@Nonnegative double smm) {
+  static TetrapolarSystem[] systems4(@Nonnegative double smm) {
     return new TetrapolarSystem[] {
         new TetrapolarSystem(smm, smm * 3.0, MILLI(METRE)),
         new TetrapolarSystem(smm * 3.0, smm * 5.0, MILLI(METRE)),
@@ -86,7 +86,7 @@ class LayersProvider {
   }
 
   @Nonnull
-  private static ToDoubleFunction<TetrapolarSystem> layer1(@Nonnegative double rho) {
+  static ToDoubleFunction<TetrapolarSystem> layer1(@Nonnegative double rho) {
     return system -> new Resistance1Layer(system).value(rho);
   }
 
@@ -101,7 +101,7 @@ class LayersProvider {
   }
 
   @Nonnull
-  private static double[] rOhms(@Nonnull TetrapolarSystem[] systems, @Nonnull ToDoubleFunction<TetrapolarSystem> generator) {
+  static double[] rOhms(@Nonnull TetrapolarSystem[] systems, @Nonnull ToDoubleFunction<TetrapolarSystem> generator) {
     return Arrays.stream(systems).mapToDouble(generator).toArray();
   }
 
