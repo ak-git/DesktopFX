@@ -91,7 +91,7 @@ class LayersProvider {
   }
 
   @Nonnull
-  private static ToDoubleFunction<TetrapolarSystem> layer2(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double hmm) {
+  static ToDoubleFunction<TetrapolarSystem> layer2(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double hmm) {
     return system -> new Resistance2Layer(system).value(rho1, rho2, Metrics.fromMilli(hmm));
   }
 

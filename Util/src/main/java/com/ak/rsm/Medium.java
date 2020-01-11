@@ -50,6 +50,11 @@ class Medium {
     }
   }
 
+  @Nonnull
+  public double[] getH() {
+    return Arrays.copyOf(h, h.length);
+  }
+
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();

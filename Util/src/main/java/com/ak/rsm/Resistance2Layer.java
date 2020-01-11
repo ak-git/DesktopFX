@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.function.BiFunction;
 import java.util.function.DoubleFunction;
 import java.util.function.IntToDoubleFunction;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
@@ -54,7 +53,6 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
   public static Medium inverseStatic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
     Medium inverse = Resistance1Layer.inverseStatic(systems, rOhms);
     if (systems.length > 2) {
-      Logger.getLogger(Resistance2Layer.class.getName()).log(Level.INFO, inverse::toString);
       double rho = inverse.getRho();
       double maxL = Arrays.stream(systems).mapToDouble(s -> s.lToH(1.0)).max().orElseThrow();
       double[] measured = IntStream.range(0, systems.length).mapToDouble(i -> new Resistance1Layer(systems[i]).getApparent(rOhms[i])).toArray();
@@ -69,7 +67,9 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
       double rho1 = p[0];
       double rho2 = p[1];
       double h1 = p[2];
-      return new Medium.Builder(systems, rOhms, s -> new Resistance2Layer(s).value(p)).addLayer(rho1, h1).build(rho2);
+      Medium medium = new Medium.Builder(systems, rOhms, s -> new Resistance2Layer(s).value(p)).addLayer(rho1, h1).build(rho2);
+      Logger.getLogger(Resistance2Layer.class.getName()).info(medium::toString);
+      return medium;
     }
     else {
       return inverse;
@@ -88,9 +88,6 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     Medium inverse = inverseStatic(systems, rOhmsBefore);
     if (Arrays.stream(rangeSystems(systems.length, index -> apparentDiffByH.apply(1.0).applyAsDouble(index))).anyMatch(Double::isInfinite)) {
       return inverse;
-    }
-    else {
-      Logger.getLogger(Resistance2Layer.class.getName()).log(Level.INFO, inverse::toString);
     }
 
     IntToDoubleFunction logApparentFunction = index -> log(new Resistance1Layer(systems[index]).getApparent(rOhmsBefore[index]));
@@ -133,9 +130,11 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     double sumLogApparentPredicted = sumLog(systems, index -> logApparentPredictedFunction.apply(k, h).applyAsDouble(index));
     double rho1 = exp((sumLogApparent - sumLogApparentPredicted) / systems.length);
     double rho2 = rho1 / Layers.getRho1ToRho2(k);
-    return new Medium.Builder(systems, rOhmsBefore, rOhmsAfter, dh,
+    Medium medium = new Medium.Builder(systems, rOhmsBefore, rOhmsAfter, dh,
         (s, dH) -> new Resistance2Layer(s).value(rho1, rho2, h + dH))
         .addLayer(rho1, h).build(rho2);
+    Logger.getLogger(Resistance2Layer.class.getName()).info(medium::toString);
+    return medium;
   }
 
   static double sumLog(@Nonnull TetrapolarSystem[] systems, @Nonnull IntToDoubleFunction logApparentPredictedFunction) {
