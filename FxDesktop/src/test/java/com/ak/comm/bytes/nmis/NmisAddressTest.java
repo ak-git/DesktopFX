@@ -2,10 +2,14 @@ package com.ak.comm.bytes.nmis;
 
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.BaseStream;
 import java.util.stream.IntStream;
 
+import com.ak.comm.log.LogTestUtils;
+import com.ak.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -17,6 +21,8 @@ import static com.ak.comm.bytes.nmis.NmisAddress.ROTATE_ELBOW;
 import static com.ak.comm.bytes.nmis.NmisAddress.ROTATE_HAND;
 
 public class NmisAddressTest {
+  private static final Logger LOGGER = Logger.getLogger(NmisAddress.class.getName());
+
   private NmisAddressTest() {
   }
 
@@ -36,9 +42,17 @@ public class NmisAddressTest {
     }
   }
 
+  @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "nullResponse")
+  public static void testNotFound(byte[] input) {
+    Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
+        () -> Assert.assertNull(NmisAddress.find(ByteBuffer.wrap(input))),
+        logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith("Address -12 not found"), logRecord.getMessage()))
+    );
+  }
+
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "aliveAndChannelsResponse")
   public static void testFind(NmisAddress address, byte[] input) {
-    Assert.assertEquals(Optional.ofNullable(NmisAddress.find(ByteBuffer.wrap(input))).orElse(ALIVE), address);
+    Assert.assertEquals(Objects.requireNonNull(NmisAddress.find(ByteBuffer.wrap(input))), address);
   }
 
   @Test(dataProviderClass = NmisExtractorTestProvider.class, dataProvider = "extractNone")
