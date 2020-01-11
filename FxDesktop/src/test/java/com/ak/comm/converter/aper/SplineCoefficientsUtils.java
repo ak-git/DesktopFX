@@ -1,6 +1,5 @@
 package com.ak.comm.converter.aper;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.IntSummaryStatistics;
 import java.util.function.Function;
@@ -19,11 +18,11 @@ import com.ak.util.LineFileBuilder;
 import com.ak.util.LineFileCollector;
 import org.testng.Assert;
 
-public class SplineCoefficientsTest {
-  private SplineCoefficientsTest() {
+public class SplineCoefficientsUtils {
+  private SplineCoefficientsUtils() {
   }
 
-  public static <C extends Enum<C> & Coefficients> void testSplineSurface1(Class<C> surfaceCoeffClass) throws IOException {
+  public static <C extends Enum<C> & Coefficients> void testSplineSurface1(Class<C> surfaceCoeffClass) {
     IntBinaryOperator function = Interpolators.interpolator(surfaceCoeffClass).get();
     LineFileBuilder.of("%.0f %.0f %.0f").
         xStream(() -> intRange(surfaceCoeffClass, RangeUtils::rangeX).asDoubleStream()).
@@ -39,7 +38,7 @@ public class SplineCoefficientsTest {
         new LineFileCollector(Paths.get("y-ADC-R.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 
-  public static <C extends Enum<C> & Coefficients> void testSplineSurface2(Class<C> surfaceCoeffClass) throws IOException {
+  public static <C extends Enum<C> & Coefficients> void testSplineSurface2(Class<C> surfaceCoeffClass) {
     IntBinaryOperator function = Interpolators.interpolator(surfaceCoeffClass).get();
     LineFileBuilder.of("%.0f %.0f %.0f").
         xStream(() -> intRange(AperSurfaceCoefficientsChannel2.class, RangeUtils::rangeX).asDoubleStream()).

@@ -1,8 +1,8 @@
 package com.ak.fx.desktop;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
+import com.ak.util.PropertiesSupport;
 import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -15,19 +15,19 @@ public class FxClassPathXmlApplicationContextTest {
   @DataProvider(name = "contexts")
   public static Object[][] contexts() {
     return new Object[][] {
-        {null, Strings.EMPTY},
-        {Strings.EMPTY, Strings.EMPTY},
-        {"aper.calibration", "aper/calibration"},
+        {"aper.calibration"},
+        {"aper"},
+        {"nmis"},
+        {"nmisr"},
+        {"rcm.calibration"},
+        {"rcm"},
     };
   }
 
   @Test(dataProvider = "contexts")
-  public static void testContext(@Nullable String contextName, @Nonnull String expectedName) {
-    Assert.assertEquals(new FxClassPathXmlApplicationContext(contextName).getApplicationName(), expectedName);
-  }
-
-  @Test(expectedExceptions = NullPointerException.class)
-  public static void testInvalidContext() {
-    new FxClassPathXmlApplicationContext(Double.toString(Math.PI));
+  public static void testContext(@Nonnull String contextName) {
+    PropertiesSupport.CONTEXT.update(contextName);
+    Assert.assertEquals(new FxClassPathXmlApplicationContext(FxClassPathXmlApplicationContext.class).getApplicationName(), "");
+    PropertiesSupport.CONTEXT.update(Strings.EMPTY);
   }
 }

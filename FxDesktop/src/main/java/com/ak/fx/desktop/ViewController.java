@@ -6,10 +6,10 @@ import javax.inject.Inject;
 import com.ak.comm.GroupService;
 import com.ak.comm.converter.Variable;
 
-public final class ViewController<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
-    extends AbstractViewController<RESPONSE, REQUEST, EV> {
+public final class ViewController<T, R, V extends Enum<V> & Variable<V>>
+    extends AbstractViewController<T, R, V> {
   @Inject
-  public ViewController(@Nonnull GroupService<RESPONSE, REQUEST, EV> service) {
+  public ViewController(@Nonnull GroupService<T, R, V> service) {
     super(service);
   }
 }

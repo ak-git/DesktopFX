@@ -10,7 +10,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public interface BytesInterceptor<RESPONSE, REQUEST> extends Function<ByteBuffer, Stream<RESPONSE>> {
+public interface BytesInterceptor<T, R> extends Function<ByteBuffer, Stream<R>> {
   enum SerialParams {
     CLEAR_DTR
   }
@@ -19,15 +19,15 @@ public interface BytesInterceptor<RESPONSE, REQUEST> extends Function<ByteBuffer
     BR_38400(115200 / 3), BR_115200(115200), BR_460800(115200 * 4), BR_921600(115200 * 8);
 
     @Nonnegative
-    private final int baudRate;
+    private final int value;
 
-    BaudRate(int baudRate) {
-      this.baudRate = baudRate;
+    BaudRate(int value) {
+      this.value = value;
     }
 
     @Nonnegative
     public final int get() {
-      return baudRate;
+      return value;
     }
   }
 
@@ -47,10 +47,10 @@ public interface BytesInterceptor<RESPONSE, REQUEST> extends Function<ByteBuffer
    */
   @Nonnull
   @Override
-  Stream<RESPONSE> apply(@Nonnull ByteBuffer src);
+  Stream<R> apply(@Nonnull ByteBuffer src);
 
   @Nullable
-  REQUEST getPingRequest();
+  T getPingRequest();
 
   /**
    * Converts object to bytes and puts them into output buffer.
@@ -59,5 +59,5 @@ public interface BytesInterceptor<RESPONSE, REQUEST> extends Function<ByteBuffer
    * @return output bytes buffer with object converted
    */
   @Nonnull
-  ByteBuffer putOut(@Nonnull REQUEST request);
+  ByteBuffer putOut(@Nonnull T request);
 }

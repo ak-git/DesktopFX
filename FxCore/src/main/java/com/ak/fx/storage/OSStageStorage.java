@@ -2,7 +2,6 @@ package com.ak.fx.storage;
 
 import javax.annotation.Nonnull;
 
-import com.ak.storage.Storage;
 import javafx.stage.Stage;
 
 public enum OSStageStorage {
@@ -10,12 +9,12 @@ public enum OSStageStorage {
   MAC {
     @Override
     public Storage<Stage> newInstance(@Nonnull Class<?> clazz) {
-      return new MacStageStorage(clazz.getName());
+      return new MacStageStorage(clazz);
     }
   },
   UNIX;
 
   public Storage<Stage> newInstance(@Nonnull Class<?> clazz) {
-    return new DefaultStageStorage(clazz.getName());
+    return new DefaultStageStorage(clazz);
   }
 }

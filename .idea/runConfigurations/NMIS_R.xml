@@ -2,7 +2,7 @@
   <configuration default="false" name="NMIS-R" type="Application" factoryName="Application" singleton="true">
     <option name="MAIN_CLASS_NAME" value="com.ak.fx.desktop.FxApplication" />
     <module name="DesktopFX.FxDesktop.main" />
-    <option name="PROGRAM_PARAMETERS" value="--context=nmisr" />
+    <option name="VM_PARAMETERS" value="-Dcontext=nmisr" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.ak.fx.desktop.*" />

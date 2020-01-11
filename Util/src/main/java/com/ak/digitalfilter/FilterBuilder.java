@@ -65,10 +65,11 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   public FilterBuilder biOperator(@Nonnull Supplier<IntBinaryOperator> operatorSupplier) {
     return chain(new AbstractDigitalFilter() {
       @Nonnull
-      private final IntBinaryOperator operator = operatorSupplier.get();
+      private IntBinaryOperator operator = operatorSupplier.get();
 
       @Override
       public void reset() {
+        operator = operatorSupplier.get();
       }
 
       @Override
@@ -162,7 +163,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
    * @return FilterBuilder
    */
   FilterBuilder recursiveMean(@Nonnegative int averageFactor) {
-    return chain(new MeanFilter(averageFactor));
+    return chain(ExcessBufferFilter.mean(averageFactor));
   }
 
   public FilterBuilder rrs() {
@@ -177,7 +178,11 @@ public class FilterBuilder implements Builder<DigitalFilter> {
    */
   public FilterBuilder recursiveStd(@Nonnegative int averageFactor) {
     return wrap(String.format("recursiveStd%d", averageFactor),
-        of().fork(new NoFilter(), new MeanFilter(averageFactor)).biOperator(() -> (x, mean) -> x - mean).chain(new SqrtSumFilter(averageFactor)));
+        of().fork(new NoFilter(), ExcessBufferFilter.mean(averageFactor))
+            .biOperator(() -> (x, mean) -> x - mean)
+            .chain(ExcessBufferFilter.std2(averageFactor))
+            .operator(() -> x -> (int) Math.sqrt(x))
+    );
   }
 
   /**
@@ -188,10 +193,11 @@ public class FilterBuilder implements Builder<DigitalFilter> {
    */
   FilterBuilder recursiveMeanAndStd(@Nonnegative int averageFactor) {
     return wrap(String.format("mean-n-std%d", averageFactor),
-        of().fork(new NoFilter(), new MeanFilter(averageFactor))
+        of().fork(new NoFilter(), ExcessBufferFilter.mean(averageFactor))
             .fork(
                 of().biOperator(() -> (x, mean) -> mean).build(),
-                of().biOperator(() -> (x, mean) -> x - mean).chain(new SqrtSumFilter(averageFactor)).build()
+                of().biOperator(() -> (x, mean) -> x - mean).chain(ExcessBufferFilter.std2(averageFactor))
+                    .operator(() -> x -> (int) Math.sqrt(x)).build()
             )
     );
   }
@@ -244,12 +250,12 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   public int[] filter(@Nonnull int[] ints) {
-    DigitalFilter filter = build();
-    int[] result = new int[(int) Math.floor(ints.length * filter.getFrequencyFactor())];
+    DigitalFilter f = build();
+    int[] result = new int[(int) Math.floor(ints.length * f.getFrequencyFactor())];
     AtomicInteger index = new AtomicInteger();
-    filter.forEach(values -> result[index.getAndIncrement()] = values[0]);
+    f.forEach(values -> result[index.getAndIncrement()] = values[0]);
     for (int i : ints) {
-      filter.accept(i);
+      f.accept(i);
     }
     return result;
   }
@@ -282,7 +288,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   private FilterBuilder chain(@Nonnull DigitalFilter chain) {
-    filter = Optional.ofNullable(filter).<DigitalFilter>map(filter -> new ChainFilter(filter, chain)).orElse(chain);
+    filter = Optional.ofNullable(filter).<DigitalFilter>map(f -> new ChainFilter(f, chain)).orElse(chain);
     return this;
   }
 

@@ -33,8 +33,8 @@ public final class Chart extends AbstractRegion {
   public Chart() {
     milliGrid.setManaged(false);
     getChildren().add(milliGrid);
-    xAxisUnit.fontProperty().bind(Fonts.H2.fontProperty());
-    banner.fontProperty().bind(Fonts.H1.fontProperty());
+    xAxisUnit.fontProperty().bind(Fonts.H2.fontProperty(this::getScene));
+    banner.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
     banner.setTextAlignment(TextAlignment.RIGHT);
   }
 

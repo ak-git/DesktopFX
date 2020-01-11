@@ -47,7 +47,7 @@ public final class NmisRequest extends BufferFrame {
     }
 
     public final NmisRequest buildForAll(MyoType myoType, MyoFrequency frequency) {
-      return new Builder(NmisAddress.SINGLE).forAll(ohms).forAll(myoType, frequency).build();
+      return new NmisRequestBuilder(NmisAddress.SINGLE).forAll(ohms).forAll(myoType, frequency).build();
     }
   }
 
@@ -69,13 +69,13 @@ public final class NmisRequest extends BufferFrame {
 
     @Override
     public final NmisRequest build() {
-      return new Builder(NmisAddress.SEQUENCE).sequence(number).forAll(myoType, frequency).build();
+      return new NmisRequestBuilder(NmisAddress.SEQUENCE).sequence(number).forAll(myoType, frequency).build();
     }
   }
 
   private final String toString;
 
-  private NmisRequest(@Nonnull Builder builder) {
+  private NmisRequest(@Nonnull NmisRequestBuilder builder) {
     super(builder.codes, ByteOrder.LITTLE_ENDIAN);
     toString = builder.toStringBuilder.toString();
   }
@@ -101,11 +101,11 @@ public final class NmisRequest extends BufferFrame {
     codes[NmisProtocolByte.CRC.ordinal()] = (byte) (crc & 0xff);
   }
 
-  private static class Builder implements javafx.util.Builder<NmisRequest> {
+  private static class NmisRequestBuilder implements javafx.util.Builder<NmisRequest> {
     private final byte[] codes = new byte[1 + 1 + 1 + 8 + 1];
     private final StringBuilder toStringBuilder = new StringBuilder();
 
-    private Builder(@Nonnull NmisAddress address) {
+    private NmisRequestBuilder(@Nonnull NmisAddress address) {
       codes[NmisProtocolByte.START.ordinal()] = 0x7E;
       codes[NmisProtocolByte.ADDR.ordinal()] = address.getAddrRequest();
       codes[NmisProtocolByte.LEN.ordinal()] = 0x08;
@@ -119,14 +119,14 @@ public final class NmisRequest extends BufferFrame {
       return this;
     }
 
-    Builder forAll(@Nonnull Ohm... ohms) {
-      byte code = (byte) Stream.of(ohms).mapToInt(Builder::toCode).sum();
+    NmisRequestBuilder forAll(@Nonnull Ohm... ohms) {
+      byte code = (byte) Stream.of(ohms).mapToInt(NmisRequestBuilder::toCode).sum();
       Arrays.fill(codes, NmisProtocolByte.DATA_1.ordinal(), NmisProtocolByte.DATA_4.ordinal() + 1, code);
       toStringBuilder.append(Arrays.toString(ohms)).append(SPACE);
       return this;
     }
 
-    Builder sequence(int number) {
+    NmisRequestBuilder sequence(int number) {
       Arrays.fill(codes, NmisProtocolByte.DATA_1.ordinal(), NmisProtocolByte.DATA_4.ordinal() + 1, (byte) 0x00);
       codes[NmisProtocolByte.DATA_1.ordinal()] = (byte) number;
       toStringBuilder.append(number).append(SPACE);

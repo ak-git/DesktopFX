@@ -7,6 +7,8 @@ import java.nio.file.Paths;
 import com.ak.util.OSDirectory;
 import com.ak.util.PropertiesSupport;
 
+import static com.ak.util.OSDirectories.USER_HOME_PATH;
+
 public enum OutputOSDirectory implements OSDirectory {
   WINDOWS, MAC, UNIX;
 

@@ -10,7 +10,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.measure.Unit;
 
-import com.ak.util.LogUtils;
+import com.ak.comm.logging.LogTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -102,18 +102,18 @@ public class VariableTest {
     Assert.assertTrue(adc.endsWith(String.format(Locale.getDefault(), "%,d one", 10000)), adc);
     Assert.assertTrue(Variables.toString(Quantities.getQuantity(1, AbstractUnit.ONE)).startsWith("1 "));
 
-    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
+    Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
         () -> Assert.assertEquals(Variables.toString(ADCVariable.ADC), ADCVariable.ADC.name()),
         logRecord -> {
           Assert.assertTrue(logRecord.getMessage().contains(ADCVariable.ADC.name()));
           Assert.assertNull(logRecord.getThrown());
         }));
 
-    Assert.assertFalse(LogUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
+    Assert.assertFalse(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
         () -> Assert.assertEquals(Variables.toString(TwoVariables.V1), "Variable Name 1"),
         logRecord -> Assert.fail(logRecord.getMessage())));
 
-    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
+    Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
         () -> Assert.assertEquals(Variables.toString(TwoVariables.V2), TwoVariables.V2.name()), logRecord -> {
           Assert.assertTrue(logRecord.getMessage().contains(TwoVariables.V2.name()));
           Assert.assertNull(logRecord.getThrown());

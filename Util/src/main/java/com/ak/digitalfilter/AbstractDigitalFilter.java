@@ -12,6 +12,8 @@ import static com.ak.util.Strings.NEW_LINE;
 import static com.ak.util.Strings.SPACE;
 
 abstract class AbstractDigitalFilter implements DigitalFilter {
+  private static final IntsAcceptor EMPTY_INTS_ACCEPTOR = values -> {
+  };
   @Nonnull
   private IntsAcceptor after = EMPTY_INTS_ACCEPTOR;
 
@@ -53,6 +55,6 @@ abstract class AbstractDigitalFilter implements DigitalFilter {
   }
 
   final void illegalArgumentException(@Nonnull int[] in) {
-    throw new IllegalArgumentException(String.format("%s %s", toString(), Arrays.toString(in)));
+    throw new IllegalArgumentException(String.format("%s %s", this, Arrays.toString(in)));
   }
 }

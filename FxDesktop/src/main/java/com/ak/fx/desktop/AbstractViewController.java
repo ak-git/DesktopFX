@@ -37,19 +37,19 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
 import javafx.util.Duration;
 
-public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
+public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
     implements Initializable, Flow.Subscriber<int[]> {
   @Nonnull
-  private final GroupService<RESPONSE, REQUEST, EV> service;
+  private final GroupService<T, R, V> service;
   private final AxisXController axisXController = new AxisXController(this::changed);
-  private final AxisYController<EV> axisYController = new AxisYController<>();
+  private final AxisYController<V> axisYController = new AxisYController<>();
   @Nullable
   private Flow.Subscription subscription;
   @Nullable
   @FXML
   private Chart chart;
 
-  public AbstractViewController(@Nonnull GroupService<RESPONSE, REQUEST, EV> service) {
+  public AbstractViewController(@Nonnull GroupService<T, R, V> service) {
     this.service = service;
   }
 
@@ -84,7 +84,7 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
           service.refresh();
         }
       });
-      chart.setVariables(service.getVariables().stream().filter(ev -> ev.options().contains(Variable.Option.VISIBLE))
+      chart.setVariables(service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.VISIBLE))
           .map(Variables::toString).collect(Collectors.toList()));
       chart.titleProperty().bind(axisXController.zoomProperty().asString());
       chart.setOnScroll(event -> {
@@ -132,8 +132,8 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
   @Override
   public final void onNext(@Nonnull int[] ints) {
     FxUtils.invokeInFx(() -> Objects.requireNonNull(chart).setBannerText(
-        service.getVariables().stream().filter(ev -> ev.options().contains(Variable.Option.TEXT_VALUE_BANNER))
-            .map(ev -> Variables.toString(ev, ints[ev.ordinal()])).collect(Collectors.joining(Strings.NEW_LINE_2)))
+        service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.TEXT_VALUE_BANNER))
+            .map(v -> Variables.toString(v, ints[v.ordinal()])).collect(Collectors.joining(Strings.NEW_LINE_2)))
     );
   }
 
@@ -148,14 +148,14 @@ public abstract class AbstractViewController<RESPONSE, REQUEST, EV extends Enum<
   }
 
   private void changed() {
-    Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController.toString());
-    Map<EV, int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
+    Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController::toString);
+    Map<V, int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
     FxUtils.invokeInFx(() -> {
-      chartData.forEach((ev, ints) -> {
-        if (ev.options().contains(Variable.Option.VISIBLE)) {
+      chartData.forEach((v, ints) -> {
+        if (v.options().contains(Variable.Option.VISIBLE)) {
           int[] values = FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(ints);
-          ScaleYInfo<EV> scaleInfo = axisYController.scale(ev, values);
-          Objects.requireNonNull(chart).setAll(ev.indexBy(Variable.Option.VISIBLE), IntStream.of(values).unordered().parallel()
+          ScaleYInfo<V> scaleInfo = axisYController.scale(v, values);
+          Objects.requireNonNull(chart).setAll(v.indexBy(Variable.Option.VISIBLE), IntStream.of(values).unordered().parallel()
               .mapToDouble(scaleInfo).toArray(), scaleInfo);
         }
       });

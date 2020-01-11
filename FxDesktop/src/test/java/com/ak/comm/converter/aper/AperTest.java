@@ -1,6 +1,5 @@
-package com.ak.comm.converter.aper.sinsin;
+package com.ak.comm.converter.aper;
 
-import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -13,8 +12,6 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.Variable;
-import com.ak.comm.converter.aper.AperInVariable;
-import com.ak.comm.converter.aper.SplineCoefficientsTest;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
 import org.testng.Assert;
@@ -23,7 +20,7 @@ import org.testng.annotations.Test;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public final class AperSinSinConverterTest {
+public final class AperTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -36,7 +33,7 @@ public final class AperSinSinConverterTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55851, 301742, 1326, 51173, 276467}},
+            new int[] {55762, 301742, 1325, 51091, 276467}},
     };
   }
 
@@ -94,12 +91,12 @@ public final class AperSinSinConverterTest {
   }
 
   @Test(enabled = false)
-  public static void testSplineSurface1() throws IOException {
-    SplineCoefficientsTest.testSplineSurface1(AperSurfaceCoefficientsChannel1.class);
+  public static void testSplineSurface1() {
+    SplineCoefficientsUtils.testSplineSurface1(AperSurfaceCoefficientsChannel1.class);
   }
 
   @Test(enabled = false)
-  public static void testSplineSurface2() throws IOException {
-    SplineCoefficientsTest.testSplineSurface2(AperSurfaceCoefficientsChannel2.class);
+  public static void testSplineSurface2() {
+    SplineCoefficientsUtils.testSplineSurface2(AperSurfaceCoefficientsChannel2.class);
   }
 }

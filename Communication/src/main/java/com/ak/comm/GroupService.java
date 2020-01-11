@@ -25,23 +25,23 @@ import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
 
-public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>> extends AbstractService
+public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends AbstractService
     implements Flow.Publisher<int[]>, Refreshable, FileFilter {
   @Nonnull
-  private final CycleSerialService<RESPONSE, REQUEST, EV> serialService;
+  private final CycleSerialService<T, R, V> serialService;
   @Nonnull
-  private final AutoFileReadingService<RESPONSE, REQUEST, EV> fileReadingService;
+  private final AutoFileReadingService<T, R, V> fileReadingService;
   @Nonnull
-  private final List<EV> variables;
+  private final List<V> variables;
   @Nonnull
   private final double frequency;
   @Nonnull
   private Readable currentReadable;
 
   @Inject
-  public GroupService(@Nonnull Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider,
-                      @Nonnull Provider<Converter<RESPONSE, EV>> converterProvider) {
-    Converter<RESPONSE, EV> converter = converterProvider.get();
+  public GroupService(@Nonnull Provider<BytesInterceptor<T, R>> interceptorProvider,
+                      @Nonnull Provider<Converter<R, V>> converterProvider) {
+    Converter<R, V> converter = converterProvider.get();
     variables = converter.variables();
     frequency = converter.getFrequency();
     serialService = new CycleSerialService<>(interceptorProvider.get(), converter);
@@ -70,16 +70,13 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     currentReadable = serialService;
   }
 
-  public int write(@Nullable REQUEST request) {
+  public void write(@Nullable T request) {
     if (Objects.equals(currentReadable, serialService)) {
-      return serialService.write(request);
-    }
-    else {
-      return -1;
+      serialService.write(request);
     }
   }
 
-  public List<EV> getVariables() {
+  public List<V> getVariables() {
     return Collections.unmodifiableList(variables);
   }
 
@@ -93,7 +90,7 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     fileReadingService.close();
   }
 
-  public Map<EV, int[]> read(@Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
+  public Map<V, int[]> read(@Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
     int from = Math.max(0, Math.min(fromInclusive, toExclusive));
     int to = Math.max(0, Math.max(fromInclusive, toExclusive));
 
@@ -103,9 +100,9 @@ public final class GroupService<RESPONSE, REQUEST, EV extends Enum<EV> & Variabl
     buffer.flip();
 
     int count = buffer.limit() / frameSize;
-    Map<EV, int[]> result = variables.stream().collect(Collectors.toMap(o -> o, o -> new int[count]));
+    Map<V, int[]> result = variables.stream().collect(Collectors.toMap(o -> o, o -> new int[count]));
     for (int i = 0; i < count; i++) {
-      for (EV variable : variables) {
+      for (V variable : variables) {
         result.get(variable)[i] = buffer.getInt();
       }
     }

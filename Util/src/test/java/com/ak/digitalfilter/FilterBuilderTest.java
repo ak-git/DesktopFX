@@ -135,7 +135,7 @@ public class FilterBuilderTest {
             ).build(),
             FilterBuilder.of().fir(2).build()
         ).build(),
-        new int[][] {{0, 1, 0, 0}, {1, 3, 2, 4}, {3, 5, 4, 8}, {5, 7, 6, 12}},
+        new int[][] {{1, 1, 2, 4}, {2, 3, 2, 4}, {3, 5, 4, 8}, {5, 7, 6, 12}},
         1.5, 1.0
     }, {
         new int[][] {{1, 2}, {3, 4}, {5, 6}},
