@@ -33,7 +33,7 @@ public final class AperTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55762, 301742, 1325, 51091, 276467}},
+            new int[] {55699, -526617, 1325}},
     };
   }
 
@@ -54,7 +54,7 @@ public final class AperTest {
         }
       }).count();
       if (processed.get()) {
-        Assert.assertEquals(count, 32);
+        Assert.assertEquals(count, 10);
         break;
       }
     }
@@ -67,8 +67,8 @@ public final class AperTest {
     Assert.assertEquals(AperOutVariable.CCR.getUnit(), Units.OHM);
     Assert.assertTrue(AperOutVariable.CCR.options().contains(Variable.Option.TEXT_VALUE_BANNER));
 
-    EnumSet.of(AperOutVariable.R1, AperOutVariable.R2).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MILLI(Units.OHM)));
-    EnumSet.of(AperOutVariable.R1, AperOutVariable.R2).forEach(variable -> Assert.assertTrue(variable.options().contains(Variable.Option.VISIBLE)));
+    EnumSet.of(AperOutVariable.R).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MILLI(Units.OHM)));
+    EnumSet.of(AperOutVariable.R).forEach(variable -> Assert.assertTrue(variable.options().contains(Variable.Option.VISIBLE)));
   }
 
   @Test
@@ -79,9 +79,8 @@ public final class AperTest {
   @DataProvider(name = "filter-delay")
   public static Object[][] filterDelay() {
     return new Object[][] {
-        {AperOutVariable.R1, 157.5},
-        {AperOutVariable.R2, 157.5},
-        {AperOutVariable.CCR, 157.5},
+        {AperOutVariable.R, 24.5},
+        {AperOutVariable.CCR, 24.5},
     };
   }
 
