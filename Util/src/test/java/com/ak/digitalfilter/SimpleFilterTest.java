@@ -1,6 +1,7 @@
 package com.ak.digitalfilter;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nonnull;
@@ -184,16 +185,16 @@ public class SimpleFilterTest {
   @DataProvider(name = "data-reset")
   public static Object[][] dataWithReset() {
     return new Object[][] {{
-        FilterBuilder.of().fork(FilterBuilder.of().expSum().build(), FilterBuilder.of().fir(new double[] {1.0, 1.0, 1.0}).build()).build(),
+        FilterBuilder.of().fork(FilterBuilder.of().expSum().build(), FilterBuilder.of().fir(new double[] {1.0, 1.0, 1.0}).build()).buildNoDelay(),
         new int[] {100, 110, 120, 130, 140, 150, 160, 170},
         new int[][] {
             {
-                100, 100, 100, 100, 100, 101, 102, 103,
-                100, 100, 100, 100, 100, 101, 102, 103,
+                100, 100, 100, 101, 102, 103,
+                100, 100, 100, 101, 102, 103
             },
             {
-                100, 210, 330, 360, 390, 420, 450, 480,
-                430, 380, 330, 360, 390, 420, 450, 480
+                330, 360, 390, 420, 450, 480,
+                330, 360, 390, 420, 450, 480
             }
         },
     }, {
@@ -220,6 +221,18 @@ public class SimpleFilterTest {
             {
                 0, 70, 69, 78, 69, 74, 74, 73, 73,
                 35, 58, 52, 69, 53, 48, 37, 29, 0
+            }
+        },
+    }, {
+        FilterBuilder.parallel(
+            Collections.singletonList(new int[] {0}),
+            FilterBuilder.of().fir(new double[] {1.0, 1.0, 1.0}).build()
+        ),
+        new int[] {100, -100, 100, -100, 0, -100, 100, -100, 100},
+        new int[][] {
+            {
+                100, -100, 0, -200, 0, -100, 100,
+                100, -100, 0, -200, 0, -100, 100
             }
         },
     }};
