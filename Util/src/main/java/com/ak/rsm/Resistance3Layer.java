@@ -78,9 +78,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
 
   @Nonnull
   public static Medium inverseDynamic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
-    Medium inverse = Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh);
-    Logger.getAnonymousLogger().info(inverse::toString);
-
+    Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh);
     IntToDoubleFunction rDiff = index -> rOhmsAfter[index] - rOhmsBefore[index];
 
     IntFunction<IntToDoubleFunction> apparentDiffByH = p ->

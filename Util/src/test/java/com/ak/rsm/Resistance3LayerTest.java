@@ -1,7 +1,6 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
@@ -13,6 +12,11 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static com.ak.rsm.LayersProvider.layer1;
+import static com.ak.rsm.LayersProvider.layer2;
+import static com.ak.rsm.LayersProvider.layer3;
+import static com.ak.rsm.LayersProvider.rOhms;
+import static com.ak.rsm.LayersProvider.systems4;
 import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 
@@ -129,8 +133,34 @@ public class Resistance3LayerTest {
         });
   }
 
-  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryDynamicParameters3", enabled = false)
+  @DataProvider(name = "theoryDynamicParameters3")
+  public static Object[][] theoryDynamicParameters3() {
+    TetrapolarSystem[] systems4 = systems4(10);
+    double dh = -0.1;
+    return new Object[][] {
+        {
+            systems4,
+            rOhms(systems4, layer1(1.0)),
+            rOhms(systems4, layer1(1.0)),
+            Metrics.fromMilli(dh)
+        },
+        {
+            systems4,
+            rOhms(systems4, layer2(9.0, 1.0, 5.0)),
+            rOhms(systems4, layer2(9.0, 1.0, 5.0 + dh)),
+            Metrics.fromMilli(dh)
+        },
+        {
+            systems4,
+            rOhms(systems4, layer3(new double[] {10.0, 2.0, 5.0}, dh, 10, 2)),
+            rOhms(systems4, layer3(new double[] {10.0, 2.0, 5.0}, dh, 10 - 1, 2)),
+            Metrics.fromMilli(dh)
+        },
+    };
+  }
+
+  @Test(dataProvider = "theoryDynamicParameters3", enabled = false)
   public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
-    Logger.getAnonymousLogger().log(Level.WARNING, Resistance3Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh).toString());
+    Logger.getAnonymousLogger().warning(Resistance3Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh).toString());
   }
 }

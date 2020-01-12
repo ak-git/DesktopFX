@@ -106,11 +106,6 @@ public class Resistance2LayerTest {
     new Resistance2Layer(new TetrapolarSystem(10, 20, MILLI(METRE))).value(new double[] {1});
   }
 
-  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryStaticParameters", enabled = false)
-  public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
-    Resistance2Layer.inverseStatic(systems, rOhms);
-  }
-
   @DataProvider(name = "layer2Static")
   public static Object[][] layer2Static() {
     TetrapolarSystem[] systems1 = {new TetrapolarSystem(10.0, 30.0, MILLI(METRE))};
@@ -129,11 +124,6 @@ public class Resistance2LayerTest {
     Assert.assertEquals(Resistance2Layer.inverseDynamic(systems, rOhms, rOhms, -Metrics.fromMilli(0.1)).getH(), expectedH, Metrics.fromMilli(3));
   }
 
-  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryDynamicParameters2", enabled = false)
-  public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
-    Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh);
-  }
-
   @Test(dataProviderClass = LayersProvider.class, dataProvider = "waterDynamicParameters2E6275", enabled = false)
   public static void testInverseE6275(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
     Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh);
@@ -141,15 +131,30 @@ public class Resistance2LayerTest {
 
   @DataProvider(name = "layer2Dynamic")
   public static Object[][] layer2Dynamic() {
+    TetrapolarSystem[] systems2 = LayersProvider.systems2_10mm();
     TetrapolarSystem[] systems4 = LayersProvider.systems4(10);
     double dh = -0.1;
     return new Object[][] {
+        {
+            systems2,
+            rOhms(systems2, layer1(2.0)),
+            rOhms(systems2, layer1(2.0)),
+            Metrics.fromMilli(dh),
+            EMPTY_DOUBLES
+        },
         {
             systems4,
             rOhms(systems4, layer2(9.0, 1.0, 5.0)),
             rOhms(systems4, layer2(9.0, 1.0, 5.0 + dh)),
             Metrics.fromMilli(dh),
             new double[] {Metrics.fromMilli(5.0)}
+        },
+        {
+            systems2,
+            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, 11.0)),
+            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, 11.0 + dh)),
+            Metrics.fromMilli(dh),
+            new double[] {Metrics.fromMilli(11.0)}
         },
     };
   }
