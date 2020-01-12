@@ -124,7 +124,7 @@ public class Resistance2LayerTest {
     };
   }
 
-  @Test(dataProvider = "layer2Static")
+  @Test(dataProvider = "layer2Static", enabled = false)
   public static void testInverseStatic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms, @Nonnull double[] expectedH) {
     Assert.assertEquals(Resistance2Layer.inverseDynamic(systems, rOhms, rOhms, -Metrics.fromMilli(0.1)).getH(), expectedH, Metrics.fromMilli(3));
   }
@@ -154,7 +154,7 @@ public class Resistance2LayerTest {
     };
   }
 
-  @Test(dataProvider = "layer2Dynamic")
+  @Test(dataProvider = "layer2Dynamic", enabled = false)
   public static void testInverseDynamic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh,
                                         @Nonnull double[] expectedH) {
     Random random = new Random();
