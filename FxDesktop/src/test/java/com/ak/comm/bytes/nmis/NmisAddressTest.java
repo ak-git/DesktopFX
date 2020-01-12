@@ -1,13 +1,15 @@
 package com.ak.comm.bytes.nmis;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.BaseStream;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
+import com.ak.comm.log.LogTestUtils;
+import com.ak.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -19,6 +21,8 @@ import static com.ak.comm.bytes.nmis.NmisAddress.ROTATE_ELBOW;
 import static com.ak.comm.bytes.nmis.NmisAddress.ROTATE_HAND;
 
 public class NmisAddressTest {
+  private static final Logger LOGGER = Logger.getLogger(NmisAddress.class.getName());
+
   private NmisAddressTest() {
   }
 
@@ -38,27 +42,42 @@ public class NmisAddressTest {
     }
   }
 
+  @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "nullResponse")
+  public static void testNotFound(byte[] input) {
+    Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
+        () -> Assert.assertNull(NmisAddress.find(ByteBuffer.wrap(input))),
+        logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith("Address -12 not found"), logRecord.getMessage()))
+    );
+  }
+
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "aliveAndChannelsResponse")
   public static void testFind(NmisAddress address, byte[] input) {
-    Assert.assertEquals(Optional.ofNullable(NmisAddress.find(ByteBuffer.wrap(input))).orElse(ALIVE), address);
+    Assert.assertEquals(Objects.requireNonNull(NmisAddress.find(ByteBuffer.wrap(input))), address);
   }
 
-  @Test(dataProviderClass = NmisExtractorTestProvider.class, dataProvider = "extractorsNone")
+  @Test(dataProviderClass = NmisExtractorTestProvider.class, dataProvider = "extractNone")
   public static void testExtractorNone(byte[] from) {
-    Stream.of(NmisAddress.values()).forEach(address ->
-        Assert.assertEquals(
-            NmisAddress.Extractor.from(address, NmisAddress.FrameField.NONE).extract(ByteBuffer.wrap(from)).count(), 0));
+    NmisResponseFrame response = new NmisResponseFrame.Builder(ByteBuffer.wrap(from)).build();
+    Assert.assertNotNull(response);
+    Assert.assertEquals(response.extractTime().count(), 0);
+    ByteBuffer destination = ByteBuffer.allocate(from.length);
+    response.extractData(destination);
+    Assert.assertEquals(destination.position(), 0);
   }
 
-  @Test(dataProviderClass = NmisExtractorTestProvider.class, dataProvider = "extractorValues")
-  public static void testExtractorValues(NmisAddress.Extractor extractor, byte[] from, BaseStream<Integer, IntStream> expected) {
-    Assert.assertEquals(extractor.extract(ByteBuffer.wrap(from).order(ByteOrder.LITTLE_ENDIAN)).iterator(), expected.iterator());
+  @Test(dataProviderClass = NmisExtractorTestProvider.class, dataProvider = "extractTime")
+  public static void testExtractorValues(byte[] from, BaseStream<Integer, IntStream> expected) {
+    Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(from)).build())
+        .ifPresent(response -> Assert.assertEquals(response.extractTime().iterator(), expected.iterator()));
   }
 
-  @Test(dataProviderClass = NmisExtractorTestProvider.class, dataProvider = "extractorToBuffer")
-  public static void testExtractorToBuffer(NmisAddress.Extractor extractor, byte[] from, byte[] expected) {
+  @Test(dataProviderClass = NmisExtractorTestProvider.class, dataProvider = "extractData")
+  public static void testExtractorToBuffer(byte[] from, byte[] expected) {
     ByteBuffer destination = ByteBuffer.allocate(expected.length);
-    extractor.extract(ByteBuffer.wrap(from), destination);
-    Assert.assertEquals(destination.array(), expected);
+    Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(from)).build())
+        .ifPresent(response -> {
+          response.extractData(destination);
+          Assert.assertEquals(destination.array(), expected);
+        });
   }
 }

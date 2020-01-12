@@ -10,66 +10,52 @@ public class NmisExtractorTestProvider {
   private NmisExtractorTestProvider() {
   }
 
-  @DataProvider(name = "extractorsNone")
-  public static Object[][] extractorsNone() {
+  @DataProvider(name = "extractNone")
+  public static Object[][] extractNone() {
     return new Object[][] {
-        new Object[] {
-            // alive
-            new byte[] {0x7E, -12, 0x7E, 0x40, 0x08, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xC7}
-        },
         new Object[] {
             // channel 41 CATCH_ELBOW
             new byte[] {0x7E, 0x41, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xC7}
         },
-        new Object[] {
-            // NO Data, empty frame
-            new byte[] {0x7e, 0x45, 0x02, 0x3f, 0x00, 0x04}
-        },
     };
   }
 
-  @DataProvider(name = "extractorValues")
-  public static Object[][] extractorValues() {
+  @DataProvider(name = "extractTime")
+  public static Object[][] extractTime() {
     return new Object[][] {
         new Object[] {
             // no Time, alive
-            NmisAddress.Extractor.NONE,
             new byte[] {0x7E, -12, 0x7E, 0x40, 0x08, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xC7},
             IntStream.empty()
         },
         new Object[] {
             // Time, but NO Data, empty frame
-            NmisAddress.Extractor.DATA_TIME,
             new byte[] {0x7e, 0x45, 0x02, 0x3f, 0x00, 0x04},
             IntStream.of(0x3f)
         },
         new Object[] {
             // Time and Data
-            NmisAddress.Extractor.DATA_DATA,
             new byte[] {0x7e, 0x45, 0x09, 0x44, 0x00, 0x01, 0x05, 0x0b, (byte) 0xe0, (byte) 0xb1, (byte) 0xe1, 0x7a, 0x0d},
-            IntStream.empty()
+            IntStream.of(0x44)
         },
     };
   }
 
-  @DataProvider(name = "extractorToBuffer")
-  public static Object[][] extractorToBuffer() {
+  @DataProvider(name = "extractData")
+  public static Object[][] extractData() {
     return new Object[][] {
         new Object[] {
             // no Data, alive
-            NmisAddress.Extractor.NONE,
             new byte[] {0x7E, -12, 0x7E, 0x40, 0x08, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xC7},
             EMPTY_BYTES
         },
         new Object[] {
             // no Data, empty frame
-            NmisAddress.Extractor.DATA_TIME,
             new byte[] {0x7e, 0x45, 0x02, 0x3f, 0x00, 0x04},
             EMPTY_BYTES
         },
         new Object[] {
             // Time and Data
-            NmisAddress.Extractor.DATA_DATA,
             new byte[] {0x7e, 0x45, 0x09, 0x44, 0x00, 0x01, 0x05, 0x0b, (byte) 0xe0, (byte) 0xb1, (byte) 0xe1, 0x7a, 0x0d},
             new byte[] {0x01, 0x05, 0x0b, (byte) 0xe0, (byte) 0xb1, (byte) 0xe1, 0x7a}
         },

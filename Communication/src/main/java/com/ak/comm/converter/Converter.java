@@ -7,11 +7,9 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.comm.core.Refreshable;
-
-public interface Converter<RESPONSE, EV extends Enum<EV> & Variable<EV>> extends Function<RESPONSE, Stream<int[]>>, Refreshable {
+public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<R, Stream<int[]>>, Refreshable {
   @Nonnull
-  List<EV> variables();
+  List<V> variables();
 
   @Nonnegative
   double getFrequency();

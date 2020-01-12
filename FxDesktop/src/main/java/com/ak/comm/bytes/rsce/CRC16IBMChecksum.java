@@ -1,7 +1,5 @@
 package com.ak.comm.bytes.rsce;
 
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.zip.Checksum;
 
 final class CRC16IBMChecksum implements Checksum {
@@ -40,7 +38,6 @@ final class CRC16IBMChecksum implements Checksum {
       0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040
   };
 
-  private final ReadWriteLock lock = new ReentrantReadWriteLock();
   private int crc;
 
   CRC16IBMChecksum() {
@@ -61,24 +58,12 @@ final class CRC16IBMChecksum implements Checksum {
 
   @Override
   public long getValue() {
-    lock.readLock().lock();
-    try {
-      return crc;
-    }
-    finally {
-      lock.readLock().unlock();
-    }
+    return crc;
   }
 
   @Override
   public void reset() {
-    lock.writeLock().lock();
-    try {
-      crc = 0xFFFF;
-    }
-    finally {
-      lock.writeLock().unlock();
-    }
+    crc = 0xFFFF;
   }
 
   @Override
@@ -86,19 +71,8 @@ final class CRC16IBMChecksum implements Checksum {
     return String.format("%#04X", getValue());
   }
 
-  @Override
-  protected Object clone() throws CloneNotSupportedException {
-    throw new CloneNotSupportedException();
-  }
-
   private void update(byte b) {
-    lock.writeLock().lock();
-    try {
-      crc = (crc >> 8) ^ CRC_16_TABLE[((crc & 0xFF) ^ b) & 0xFF];
-    }
-    finally {
-      lock.writeLock().unlock();
-    }
+    crc = (crc >> 8) ^ CRC_16_TABLE[((crc & 0xFF) ^ b) & 0xFF];
   }
 }
 

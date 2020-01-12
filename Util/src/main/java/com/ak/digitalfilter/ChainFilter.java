@@ -43,6 +43,6 @@ final class ChainFilter extends AbstractDigitalFilter {
 
   @Override
   public String toString() {
-    return toString(String.format("%s - ", first.toString()), second);
+    return toString(String.format("%s - ", first), second);
   }
 }

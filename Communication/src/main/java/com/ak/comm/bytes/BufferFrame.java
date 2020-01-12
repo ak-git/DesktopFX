@@ -61,9 +61,4 @@ public class BufferFrame {
   protected final ByteBuffer byteBuffer() {
     return byteBuffer;
   }
-
-  @Override
-  public final Object clone() throws CloneNotSupportedException {
-    throw new CloneNotSupportedException();
-  }
 }

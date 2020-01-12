@@ -49,7 +49,7 @@ public enum Interpolators {
     ).summaryStatistics().getMax();
 
     IntFunction<int[]> samples = limit -> IntStream.concat(
-        IntStream.iterate(0, operand -> operand + Math.max(1, limit / SPLINE_POINTS)).takeWhile(value -> value < limit),
+        IntStream.iterate(0, value -> value < limit, operand -> operand + Math.max(1, limit / SPLINE_POINTS)),
         IntStream.of(limit)
     ).toArray();
 

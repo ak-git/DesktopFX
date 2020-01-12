@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="RCMConverter" type="Application" factoryName="Application" singleton="true">
     <option name="MAIN_CLASS_NAME" value="com.ak.fx.desktop.ConverterApp" />
-    <module name="DesktopFX-FxDesktop_test" />
-    <option name="PROGRAM_PARAMETERS" value="rcm" />
+    <module name="DesktopFX.FxDesktop.main" />
+    <option name="VM_PARAMETERS" value="-Dcontext=rcm" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.ak.fx.desktop.*" />

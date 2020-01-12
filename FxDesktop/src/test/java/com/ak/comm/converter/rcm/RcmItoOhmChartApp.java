@@ -1,7 +1,7 @@
 package com.ak.comm.converter.rcm;
 
 import com.ak.comm.converter.ADCVariable;
-import com.ak.comm.converter.AbstractSplineCoefficientsChartApp;
+import com.ak.comm.converter.aper.AbstractSplineCoefficientsChartApp;
 import com.ak.numbers.rcm.RcmCoefficients;
 
 /**
@@ -13,6 +13,6 @@ public final class RcmItoOhmChartApp extends AbstractSplineCoefficientsChartApp<
   }
 
   public static void main(String[] args) {
-    launch(args);
+    launch();
   }
 }

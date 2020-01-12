@@ -2,7 +2,6 @@ package com.ak.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,22 +28,17 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
 
   @Override
   public Path getPath() throws IOException {
-    Path path = osIdEnum.getDirectory().resolve(this.path);
-    Files.createDirectories(path);
+    Path p = osIdEnum.getDirectory().resolve(path);
+    Files.createDirectories(p);
     if (!fileName.isEmpty()) {
-      path = path.resolve(fileName);
+      p = p.resolve(fileName);
     }
-    return path;
+    return p;
   }
 
   @Override
   public InputStream openInputStream() throws IOException {
     return Files.newInputStream(getPath());
-  }
-
-  @Override
-  public OutputStream openOutputStream() throws IOException {
-    return Files.newOutputStream(getPath());
   }
 
   public abstract static class AbstractBuilder implements Builder<LocalIO> {
@@ -69,7 +63,7 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
     }
 
     public final AbstractBuilder addPathWithDate() {
-      return addPath(localDate("yyyy-MMM-dd"));
+      return addPath(localDate("yyyy-MM-dd"));
     }
 
     public final AbstractBuilder fileName(@Nonnull String fileName) {
@@ -81,7 +75,7 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
     }
 
     public final AbstractBuilder fileNameWithDateTime(@Nonnull String prefix) {
-      fileName(prefix + localDate(" yyyy-MMM-dd HH-mm-ss"));
+      fileName(prefix + localDate(" yyyy-MM-dd HH-mm-ss"));
       return this;
     }
 

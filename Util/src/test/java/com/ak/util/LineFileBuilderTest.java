@@ -89,14 +89,14 @@ public class LineFileBuilderTest {
 
     Path y = Paths.get("y.txt");
     Assert.assertEquals(String.join(Strings.SPACE, Files.readAllLines(y, Charset.forName("windows-1251"))),
-        DoubleStream.iterate(1.0, d -> d + 0.2).takeWhile(d -> d <= 10.0)
+        DoubleStream.iterate(1.0, d -> d <= 10.0, d -> d + 0.2)
             .mapToObj(d -> String.format("%.1f", d)).collect(Collectors.joining(Strings.SPACE)));
     Assert.assertTrue(Files.deleteIfExists(y));
 
     Path z = Paths.get("z.txt");
     Assert.assertEquals(String.join(Strings.TAB, Files.readAllLines(z, Charset.forName("windows-1251"))),
-        DoubleStream.iterate(1.0, operand -> operand + 0.2).takeWhile(value -> value <= 10.0)
-            .flatMap(value -> DoubleStream.iterate(10.0, d -> d + 2).takeWhile(d -> d <= 20.0).map(d -> d + value * 10))
+        DoubleStream.iterate(1.0, value -> value <= 10.0, operand -> operand + 0.2)
+            .flatMap(value -> DoubleStream.iterate(10.0, d -> d <= 20.0, d -> d + 2).map(d -> d + value * 10))
             .mapToObj(value -> String.format("%.0f", value)).collect(Collectors.joining(Strings.TAB)));
     Assert.assertTrue(Files.deleteIfExists(z));
   }

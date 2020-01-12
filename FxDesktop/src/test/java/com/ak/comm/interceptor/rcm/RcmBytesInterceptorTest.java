@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.log.LogTestUtils;
 import com.ak.util.LogUtils;
 import com.ak.util.Strings;
 import org.testng.Assert;
@@ -56,7 +57,7 @@ public class RcmBytesInterceptorTest {
     Assert.assertEquals(interceptor.getSerialParams(), EnumSet.of(BytesInterceptor.SerialParams.CLEAR_DTR));
 
     AtomicReference<String> logMessage = new AtomicReference<>(Strings.EMPTY);
-    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
+    Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
         () -> {
           Stream<BufferFrame> frames = interceptor.apply(buffer);
           Assert.assertEquals(frames.iterator(), Collections.singleton(response).iterator());

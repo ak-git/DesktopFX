@@ -1,18 +1,15 @@
 package com.ak.digitalfilter;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.numbers.DiffCoefficients;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import tec.uom.se.quantity.Quantities;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
 
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
@@ -30,11 +27,6 @@ public class FilterBuilderTest {
         FilterBuilder.of().build(),
         new int[][] {{1}, {2}, {4}, {8}, {5}, {2}, {1}},
         0.0, 1.0
-    }, {
-        new int[][] {{1}, {2}, {4}, {8}, {5}, {2}, {1}},
-        FilterBuilder.of().fir(DiffCoefficients.DIFF).build(),
-        new int[][] {{1}, {1}, {2}, {3}, {1}, {-3}, {-2}},
-        1.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {8}, {5}, {2}, {1}},
         FilterBuilder.of().fir(1.0, 2.0).build(),
@@ -71,9 +63,9 @@ public class FilterBuilderTest {
                 FilterBuilder.of().fir(1.0).build()
             ).build(),
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
-            FilterBuilder.of().rrs(2).build()
+            FilterBuilder.of().recursiveMean(2).build()
         ),
-        new int[][] {{4, 4, 0, 3}, {2, 2, -2, 3}, {2, 2, -1, 2}},
+        new int[][] {{2, 2, 3, 1}, {4, 4, 0, 3}, {2, 2, -2, 3}, {2, 2, -1, 2}},
         -1.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
@@ -105,9 +97,9 @@ public class FilterBuilderTest {
         1.0, 1.0
     }, {
         new int[][] {{1}, {2}, {4}, {2}, {2}, {1}},
-        FilterBuilder.of().rrs(2).build(),
-        new int[][] {{0}, {1}, {3}, {3}, {2}, {1}},
-        0.5, 1.0
+        FilterBuilder.of().recursiveMean(2).build(),
+        new int[][] {{1}, {1}, {3}, {3}, {2}, {1}},
+        0.0, 1.0
     }, {
         new int[][] {{10}, {10}, {10}, {10}, {10}, {10}},
         FilterBuilder.of().decimate(3).build(),
@@ -143,11 +135,11 @@ public class FilterBuilderTest {
             ).build(),
             FilterBuilder.of().fir(2).build()
         ).build(),
-        new int[][] {{0, 1, 0, 0}, {1, 3, 2, 4}, {3, 5, 4, 8}, {5, 7, 6, 12}},
+        new int[][] {{1, 1, 2, 4}, {2, 3, 2, 4}, {3, 5, 4, 8}, {5, 7, 6, 12}},
         1.5, 1.0
     }, {
         new int[][] {{1, 2}, {3, 4}, {5, 6}},
-        FilterBuilder.of().biOperator(() -> (left, right) -> left + right).buildNoDelay(),
+        FilterBuilder.of().biOperator(() -> Integer::sum).buildNoDelay(),
         new int[][] {{1 + 2}, {3 + 4}, {5 + 6}},
         0.0, 1.0
     }};
@@ -171,17 +163,17 @@ public class FilterBuilderTest {
                 FilterBuilder.of().fir(1.0).build()
             ).build(),
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
-            FilterBuilder.of().rrs(4).build()
+            FilterBuilder.of().recursiveMean(4).build()
         ).buildNoDelay(),
         String.format(
             "NoDelayFilter (compensate %.1f delay x 2) - DelayFilter (delay %d) - FIRFilter (delay %.1f)%n" +
                 "                                                                   FIRFilter (delay %.1f)%n" +
-                "                                           DelayFilter (delay %d) - FIRFilter (delay %.1f)%n" +
-                "                                           RRS4 (delay %.1f)",
-            2.0, 2, 0.0,
+                "                                           FIRFilter (delay %.1f)%n" +
+                "                                           DelayFilter (delay %d) - MeanFilter (delay %.1f)",
+            1.0, 1, 0.0,
             0.0,
-            1, 1.0,
-            1.5
+            1.0,
+            1, 0.0
         )
     }, {
         FilterBuilder.parallel(
@@ -190,27 +182,26 @@ public class FilterBuilderTest {
                 FilterBuilder.of().fir(1.0).build()
             ).build(),
             FilterBuilder.of().fir(-1.0, 0.0, 1.0).build(),
-            FilterBuilder.of().rrs(2).build()
+            FilterBuilder.of().recursiveMean(2).build()
         ),
         String.format(
             "NoDelayFilter (compensate %.1f delay x 2) - DelayFilter (delay %d) - SelectFilter (indexes = [0]) - FIRFilter (delay %.1f)%n" +
                 "                                                                                                  FIRFilter (delay %.1f)%n" +
                 "                                           SelectFilter (indexes = [1]) - FIRFilter (delay %.1f)%n" +
-                "                                           DelayFilter (delay %d) - SelectFilter (indexes = [2]) - RRS2 (delay %.1f)",
-            1.5, 1, 0.0,
+                "                                           DelayFilter (delay %d) - SelectFilter (indexes = [2]) - MeanFilter (delay %.1f)",
+            1.0, 1, 0.0,
             0.0,
             1.0,
-            1,
-            0.5
+            1, 0.0
         )
     }, {
         FilterBuilder.parallel(Arrays.asList(new int[] {0}, new int[] {1, 2}),
-            FilterBuilder.of().operator(() -> Integer::bitCount).rrs(10).build(), FilterBuilder.of().biOperator(() -> Integer::compare).build()),
+            FilterBuilder.of().operator(() -> Integer::bitCount).recursiveMean(10).build(), FilterBuilder.of().biOperator(() -> Integer::compare).build()),
         String.format(
-            "NoDelayFilter (compensate %.1f delay x 2) - SelectFilter (indexes = [0]) - Operator  (delay %.1f) - RRS10 (delay %.1f)%n" +
-                "                                           DelayFilter (delay %d) - SelectFilter (indexes = [1, 2]) - BiOperator  (delay %.1f)",
-            5.0, 0.0, 4.5,
-            5, 0.0
+            "NoDelayFilter (compensate %.1f delay x 2) - SelectFilter (indexes = [0]) - Operator  (delay %.1f) - MeanFilter (delay %.1f)%n" +
+                "                                           SelectFilter (indexes = [1, 2]) - BiOperator  (delay %.1f)",
+            0.0, 0.0, 0.0,
+            0.0
         )
     }};
   }
@@ -238,15 +229,11 @@ public class FilterBuilderTest {
     });
     for (int[] anInput : input) {
       filter.accept(anInput);
-      filter.reset();
     }
 
     Assert.assertEquals(filteredCounter.get(), result.length, filter.toString());
 
     Assert.assertEquals(filter.getDelay(), delay, 1.0e-3, filter.toString());
-    Assert.assertEquals(Filters.getDelay(filter, Quantities.getQuantity(0.2, MetricPrefix.KILO(Units.HERTZ))).getValue().doubleValue(),
-        delay / 200.0, 1.0e-3, filter.toString());
-
     Assert.assertEquals(filter.getFrequencyFactor(), frequencyFactor, 1.0e-3, filter.toString());
     Assert.assertEquals(filter.getOutputDataSize(), result[0].length);
   }
@@ -311,7 +298,7 @@ public class FilterBuilderTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "selectedIndexes.*filters.*")
   public static void testInvalidParallel3() {
-    FilterBuilder.parallel(Arrays.asList(new int[] {1}),
+    FilterBuilder.parallel(Collections.singletonList(new int[] {1}),
         FilterBuilder.of().fir(1.0).build(),
         FilterBuilder.of().fir(1.0).build());
   }

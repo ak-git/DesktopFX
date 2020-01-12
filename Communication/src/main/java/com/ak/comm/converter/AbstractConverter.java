@@ -17,11 +17,11 @@ import com.ak.digitalfilter.FilterBuilder;
 
 import static com.ak.util.LogUtils.LOG_LEVEL_VALUES;
 
-public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable<EV>> implements Converter<RESPONSE, EV> {
+public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> implements Converter<R, V> {
   @Nonnull
   private final Logger logger = Logger.getLogger(getClass().getName());
   @Nonnull
-  private final List<EV> variables;
+  private final List<V> variables;
   @Nonnull
   private final DigitalFilter digitalFilter;
   @Nonnegative
@@ -29,11 +29,11 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
   @Nonnull
   private Stream<int[]> filteredValues = Stream.empty();
 
-  public AbstractConverter(@Nonnull Class<EV> evClass, @Nonnegative double frequency) {
-    this(evClass, frequency, EnumSet.allOf(evClass).stream().map(ev -> new int[] {ev.ordinal()}).collect(Collectors.toList()));
+  public AbstractConverter(@Nonnull Class<V> evClass, @Nonnegative double frequency) {
+    this(evClass, frequency, EnumSet.allOf(evClass).stream().map(v -> new int[] {v.ordinal()}).collect(Collectors.toList()));
   }
 
-  AbstractConverter(@Nonnull Class<EV> evClass, @Nonnegative double frequency, @Nonnull List<int[]> selectedIndexes) {
+  AbstractConverter(@Nonnull Class<V> evClass, @Nonnegative double frequency, @Nonnull List<int[]> selectedIndexes) {
     variables = List.copyOf(EnumSet.allOf(evClass));
     List<DigitalFilter> filters = variables.stream().map(Variable::filter).collect(Collectors.toList());
 
@@ -50,7 +50,7 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
   }
 
   @Override
-  public final List<EV> variables() {
+  public final List<V> variables() {
     return Collections.unmodifiableList(variables);
   }
 
@@ -61,7 +61,7 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
   }
 
   @Override
-  public final Stream<int[]> apply(@Nonnull RESPONSE response) {
+  public final Stream<int[]> apply(@Nonnull R response) {
     Objects.requireNonNull(response);
     filteredValues = Stream.empty();
     innerApply(response).forEach(digitalFilter::accept);
@@ -74,5 +74,5 @@ public abstract class AbstractConverter<RESPONSE, EV extends Enum<EV> & Variable
   }
 
   @Nonnull
-  protected abstract Stream<int[]> innerApply(@Nonnull RESPONSE response);
+  protected abstract Stream<int[]> innerApply(@Nonnull R response);
 }

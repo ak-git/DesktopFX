@@ -36,7 +36,6 @@ public class CRC16IBMChecksumTest {
   @Test(dataProvider = "checksum")
   public static void testUpdate(@Nonnull byte[] input, int expectedSum) {
     CRC16IBMChecksum checksum = new CRC16IBMChecksum();
-    Assert.assertThrows(CloneNotSupportedException.class, checksum::clone);
     for (int i = 0, bytesLength = input.length; i < bytesLength; i++) {
       for (int b : input) {
         checksum.update(b);

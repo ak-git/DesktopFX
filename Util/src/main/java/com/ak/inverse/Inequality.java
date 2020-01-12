@@ -6,6 +6,8 @@ import java.util.function.ToDoubleBiFunction;
 
 import javax.annotation.Nonnull;
 
+import static java.lang.Math.abs;
+
 public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, ToDoubleBiFunction<double[], double[]> {
   private static final DoubleBinaryOperator L2_NORM = StrictMath::hypot;
   @Nonnull
@@ -16,16 +18,12 @@ public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, T
     this.errorDefinition = errorDefinition;
   }
 
-  public static Inequality logDifference() {
-    return new Inequality((measured, predicted) -> StrictMath.log(measured) - StrictMath.log(predicted));
-  }
-
   public static Inequality proportional() {
-    return new Inequality((measured, predicted) -> (measured - predicted) / predicted);
+    return new Inequality((measured, predicted) -> abs((measured - predicted) / predicted));
   }
 
   public static Inequality absolute() {
-    return new Inequality((measured, predicted) -> measured - predicted);
+    return new Inequality((measured, predicted) -> abs(measured - predicted));
   }
 
   @Override
@@ -35,7 +33,7 @@ public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, T
   }
 
   @Override
-  public double applyAsDouble(double[] measured, double[] predicted) {
+  public double applyAsDouble(@Nonnull double[] measured, @Nonnull double[] predicted) {
     for (int i = 0; i < measured.length; i++) {
       applyAsDouble(measured[i], predicted[i]);
     }

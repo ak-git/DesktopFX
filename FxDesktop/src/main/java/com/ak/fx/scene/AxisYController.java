@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 
 import com.ak.comm.converter.Variable;
 
-public final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
+public final class AxisYController<V extends Enum<V> & Variable<V>> {
   @Nonnegative
   private int mmHeight = 1;
 
@@ -16,7 +16,7 @@ public final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
     mmHeight = GridCell.mm(lineDiagramHeight);
   }
 
-  public ScaleYInfo<EV> scale(@Nonnull EV variable, @Nonnull int[] values) {
+  public ScaleYInfo<V> scale(@Nonnull V variable, @Nonnull int[] values) {
     IntSummaryStatistics intSummaryStatistics = IntStream.of(values).summaryStatistics();
     if (intSummaryStatistics.getMax() == intSummaryStatistics.getMin()) {
       intSummaryStatistics = IntStream.of(intSummaryStatistics.getMax(), 0).summaryStatistics();
@@ -28,7 +28,7 @@ public final class AxisYController<EV extends Enum<EV> & Variable<EV>> {
       mean = (int) Math.rint((intSummaryStatistics.getMax() + intSummaryStatistics.getMin()) / 2.0 / meanScaleFactor10) * meanScaleFactor10;
     }
     int signalRange = Math.max(Math.abs(intSummaryStatistics.getMax() - mean), Math.abs(intSummaryStatistics.getMin() - mean)) * 2;
-    return new ScaleYInfo.Builder<>(variable).mean(mean).
+    return new ScaleYInfo.ScaleYInfoBuilder<>(variable).mean(mean).
         scaleFactor(optimizeScaleY(mmHeight, signalRange)).
         scaleFactor10(scaleFactor10(mmHeight, signalRange)).
         build();

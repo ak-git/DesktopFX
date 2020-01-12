@@ -1,5 +1,6 @@
 package com.ak.comm.converter;
 
+import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -19,11 +20,11 @@ public enum Variables {
   ;
 
   public static String toString(@Nonnull Quantity<?> quantity) {
-    return String.format("%s %s", String.valueOf(quantity.getValue()), toString(quantity.getUnit()));
+    return String.format("%s %s", quantity.getValue(), toString(quantity.getUnit()));
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable, int value) {
-    return String.format("%s = %d %s", toString(variable), value, variable.getUnit());
+    return String.format(Locale.getDefault(), "%s = %,d %s", toString(variable), value, variable.getUnit());
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable) {
@@ -36,7 +37,7 @@ public enum Variables {
       }
       else {
         Logger.getLogger(Variables.class.getName()).log(Level.CONFIG,
-            String.format("Missing resource key %s at file %s.properties", variable.name(), baseName));
+            () -> String.format("Missing resource key %s at file %s.properties", variable.name(), baseName));
         name = variable.name();
       }
     }
@@ -74,10 +75,10 @@ public enum Variables {
     else {
       double converted = unit.getConverterTo(displayUnit).convert(value);
       if (Math.abs(converted) < 1.0) {
-        return String.format("%d %s", value, unit);
+        return String.format(Locale.getDefault(), "%,d %s", value, unit);
       }
       else {
-        return String.format(String.format("%%.%df %%s", formatZeros), converted, displayUnit);
+        return String.format(Locale.getDefault(), String.format("%%,.%df %%s", formatZeros), converted, displayUnit);
       }
     }
   }

@@ -140,6 +140,26 @@ public class SimpleFilterTest {
         new int[] {10, 11, 9, 11, 9, 11, 9},
         new int[] {10, 11, 10, 10, 10, 10, 10},
         0.0
+    }, {
+        FilterBuilder.of().recursiveMean(7).build(),
+        new int[] {-10, -30, -50, -70, -90, -110, -130, -70 - 10, -70 - 30},
+        new int[] {-10, -20, -30, -40, -50, -60, -70, -80, -90},
+        0.0
+    }, {
+        FilterBuilder.of().recursiveStd(4).build(),
+        new int[] {100, -100, 100, -100, 100, -100, 100, -100, 100, -100, 100, -100, 100, -100},
+        new int[] {0, 70, 69, 78, 92, 92, 100, 100, 100, 100, 100, 100, 100, 100},
+        0.0
+    }, {
+        FilterBuilder.of().recursiveMeanAndStd(7).biOperator(() -> (mean, std) -> mean).build(),
+        new int[] {-10, -30, -50, -70, -90, -110, -130, -70 - 10, -70 - 30},
+        new int[] {-10, -20, -30, -40, -50, -60, -70, -80, -90},
+        0.0
+    }, {
+        FilterBuilder.of().recursiveMeanAndStd(4).biOperator(() -> (mean, std) -> std).build(),
+        new int[] {100, -100, 100, -100, 100, -100, 100, -100, 100, -100, 100, -100, 100, -100},
+        new int[] {0, 70, 69, 78, 92, 92, 100, 100, 100, 100, 100, 100, 100, 100},
+        0.0
     }};
   }
 
@@ -164,29 +184,57 @@ public class SimpleFilterTest {
   @DataProvider(name = "data-reset")
   public static Object[][] dataWithReset() {
     return new Object[][] {{
-        FilterBuilder.of().expSum().build(),
+        FilterBuilder.of().fork(FilterBuilder.of().expSum().build(), FilterBuilder.of().fir(new double[] {1.0, 1.0, 1.0}).build()).build(),
         new int[] {100, 110, 120, 130, 140, 150, 160, 170},
-        new int[] {
-            100, 100, 100, 100, 101, 102, 103, 104,
-            100, 100, 100, 100, 101, 102, 103, 104
+        new int[][] {
+            {
+                100, 100, 100, 100, 100, 101, 102, 103,
+                100, 100, 100, 100, 100, 101, 102, 103,
+            },
+            {
+                100, 210, 330, 360, 390, 420, 450, 480,
+                430, 380, 330, 360, 390, 420, 450, 480
+            }
         },
     }, {
         FilterBuilder.of().rrs().build(),
         new int[] {10, 11, 9, 11, 9, 11, 9},
-        new int[] {
-            10, 11, 10, 10, 10, 10, 10,
-            10, 11, 10, 10, 10, 10, 10
+        new int[][] {
+            {
+                10, 11, 10, 10, 10, 10, 10,
+                10, 11, 10, 10, 10, 10, 10
+            }
+        },
+    }, {
+        FilterBuilder.of().recursiveMean(4).build(),
+        new int[] {4, 2, 0, 2},
+        new int[][] {
+            {
+                4, 3, 2, 2, 0, 0, 0, 0
+            }
+        },
+    }, {
+        FilterBuilder.of().recursiveStd(5).build(),
+        new int[] {100, -100, 100, -100, 0, -100, 100, -100, 100},
+        new int[][] {
+            {
+                0, 70, 69, 78, 69, 74, 74, 73, 73,
+                35, 58, 52, 69, 53, 48, 37, 29, 0
+            }
         },
     }};
   }
 
   @Test(dataProvider = "data-reset")
-  public static void testFilterWithReset(@Nonnull DigitalFilter filter, @Nonnull int[] data, @Nonnull int[] expected) {
+  public static void testFilterWithReset(@Nonnull DigitalFilter filter, @Nonnull int[] data, @Nonnull int[][] expected) {
     AtomicInteger index = new AtomicInteger();
-    int[] actual = new int[expected.length];
+    int[][] actual = new int[expected.length][expected[0].length];
     filter.forEach(values -> {
-      Assert.assertEquals(values.length, 1);
-      actual[index.getAndIncrement()] = values[0];
+      Assert.assertEquals(values.length, expected.length);
+      for (int i = 0; i < values.length; i++) {
+        actual[i][index.get()] = values[i];
+      }
+      index.getAndIncrement();
     });
 
     for (int n : data) {
@@ -197,7 +245,7 @@ public class SimpleFilterTest {
       filter.accept(n);
     }
 
-    Assert.assertEquals(index.get(), expected.length);
-    Assert.assertEquals(actual, expected, Arrays.toString(actual));
+    Assert.assertEquals(index.get(), expected[0].length);
+    Assert.assertEquals(actual, expected, Arrays.deepToString(actual));
   }
 }

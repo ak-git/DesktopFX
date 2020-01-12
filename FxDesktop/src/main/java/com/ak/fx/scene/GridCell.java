@@ -112,7 +112,7 @@ enum GridCell {
     return Collections.unmodifiableList(paths);
   }
 
-  static double mmToScreen(double value) {
+  static double mmToScreen(int value) {
     return value * SMALL.getStep() / 10.0;
   }
 
