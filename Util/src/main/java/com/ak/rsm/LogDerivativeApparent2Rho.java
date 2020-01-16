@@ -6,7 +6,6 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import static java.lang.StrictMath.hypot;
-import static java.lang.StrictMath.log;
 import static java.lang.StrictMath.pow;
 
 final class LogDerivativeApparent2Rho extends AbstractLogApparent2Rho {
@@ -16,7 +15,7 @@ final class LogDerivativeApparent2Rho extends AbstractLogApparent2Rho {
 
   @Override
   double innerValue(double sums) {
-    return log(Math.abs(sums)) * Math.signum(-sums);
+    return StrictMath.log(Math.abs(-4.0 * electrodesFactor() * sums));
   }
 
   @Override
