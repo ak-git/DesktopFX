@@ -18,7 +18,7 @@ public class LogDerivativeApparent2RhoTest {
     double expected = new Resistance1Layer(system).getApparent(
         (resistance2Layer.value(rho[0], rho[1], h + dh) - resistance2Layer.value(rho[0], rho[1], h)) / dh
     );
-    expected = StrictMath.log(Math.abs(expected / rho[0] / h));
+    expected = StrictMath.log(Math.abs(expected) / rho[0]);
     if (!Double.isFinite(expected)) {
       expected = 0.0;
     }

@@ -82,7 +82,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
 
     DoubleFunction<IntToDoubleFunction> apparentDiffByH = h -> index -> {
       double apparent = new Resistance1Layer(systems[index]).getApparent(rDiff.applyAsDouble(index));
-      return log(Math.abs(apparent) * h);
+      return log(Math.abs(apparent));
     };
 
     Medium inverse = inverseStatic(systems, rOhmsBefore);
@@ -107,11 +107,10 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
           double[] logApparentPredicted = rangeSystems(systems.length, index -> logApparentPredictedFunction.apply(k, h).applyAsDouble(index));
           double[] logDiffPredicted = rangeSystems(systems.length, index -> {
             TrivariateFunction resistance = new Resistance2Layer(systems[index]);
-            double a = resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h + dh) -
-                resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h);
-            double apparent = new Resistance1Layer(systems[index]).getApparent(a / dh);
-            if (Double.compare(Math.signum(apparent), Math.signum(rDiff.applyAsDouble(index))) == 0) {
-              return log(Math.abs(apparent) * h);
+            double a = (resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h + dh) -
+                resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h)) / dh;
+            if (Double.compare(Math.signum(a), Math.signum(rDiff.applyAsDouble(index))) == 0) {
+              return new LogDerivativeApparent2Rho(systems[index]).value(k, h);
             }
             else {
               return Double.POSITIVE_INFINITY;

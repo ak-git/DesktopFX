@@ -25,6 +25,6 @@ final class LogDerivativeApparent2Rho extends AbstractLogApparent2Rho {
 
   @Override
   DoubleBinaryOperator sum(@Nonnegative double h) {
-    return (sign, n) -> 1.0 / pow(hypot(radius(sign), 2.0 * n * h), 3.0);
+    return (sign, n) -> h / pow(hypot(radius(sign), 2.0 * n * h), 3.0);
   }
 }

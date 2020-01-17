@@ -150,6 +150,13 @@ public class Resistance2LayerTest {
             new double[] {Metrics.fromMilli(5.0)}
         },
         {
+            systems4,
+            rOhms(systems4, layer2(1.0, 4.0, 3.0)),
+            rOhms(systems4, layer2(1.0, 4.0, 3.0 + dh)),
+            Metrics.fromMilli(dh),
+            new double[] {Metrics.fromMilli(5.0)}
+        },
+        {
             systems2,
             rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, 11.0)),
             rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, 11.0 + dh)),
