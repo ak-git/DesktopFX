@@ -14,9 +14,6 @@ import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 
 public class Resistance1LayerTest {
-  private Resistance1LayerTest() {
-  }
-
   @DataProvider(name = "layer-model")
   public static Object[][] singleLayerParameters() {
     return new Object[][] {
@@ -43,7 +40,7 @@ public class Resistance1LayerTest {
   }
 
   @Test(dataProvider = "layer-model")
-  public static void testOneLayer(@Nonnegative double rho, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
+  public void testOneLayer(@Nonnegative double rho, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MILLI(METRE));
     Assert.assertEquals(new Resistance1Layer(system).value(rho), rOhm, 0.001);
   }
@@ -58,14 +55,14 @@ public class Resistance1LayerTest {
   }
 
   @Test(dataProvider = "system-apparent")
-  public static void testApparentResistivity(@Nonnull TetrapolarSystem system, @Nonnegative double resistance,
-                                             @Nonnegative double specificResistance) {
+  public void testApparentResistivity(@Nonnull TetrapolarSystem system, @Nonnegative double resistance,
+                                      @Nonnegative double specificResistance) {
     Resistance1Layer r = new Resistance1Layer(system);
     Assert.assertEquals(r.getApparent(resistance), specificResistance, 1.0e-6);
   }
 
   @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryStaticParameters", enabled = false)
-  public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
+  public void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
     Resistance1Layer.inverseStatic(systems, rOhms);
   }
 
@@ -83,7 +80,7 @@ public class Resistance1LayerTest {
   }
 
   @Test(dataProvider = "layer1")
-  public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms, @Nonnegative double expected) {
+  public void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms, @Nonnegative double expected) {
     Assert.assertEquals(Resistance1Layer.inverseStatic(systems, rOhms).getRho(), expected, 0.1);
   }
 }

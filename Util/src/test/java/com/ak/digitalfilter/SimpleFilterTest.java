@@ -11,9 +11,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class SimpleFilterTest {
-  private SimpleFilterTest() {
-  }
-
   @DataProvider(name = "data")
   public static Object[][] data() {
     return new Object[][] {{
@@ -166,7 +163,7 @@ public class SimpleFilterTest {
 
 
   @Test(dataProvider = "data")
-  public static void testFilter(@Nonnull DigitalFilter filter, @Nonnull int[] data, @Nonnull int[] expected, double delay) {
+  public void testFilter(@Nonnull DigitalFilter filter, @Nonnull int[] data, @Nonnull int[] expected, double delay) {
     AtomicInteger index = new AtomicInteger();
     int[] actual = new int[expected.length];
     filter.forEach(values -> {
@@ -239,7 +236,7 @@ public class SimpleFilterTest {
   }
 
   @Test(dataProvider = "data-reset")
-  public static void testFilterWithReset(@Nonnull DigitalFilter filter, @Nonnull int[] data, @Nonnull int[][] expected) {
+  public void testFilterWithReset(@Nonnull DigitalFilter filter, @Nonnull int[] data, @Nonnull int[][] expected) {
     AtomicInteger index = new AtomicInteger();
     int[][] actual = new int[expected.length][expected[0].length];
     filter.forEach(values -> {

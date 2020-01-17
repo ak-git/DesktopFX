@@ -17,11 +17,8 @@ import org.testng.annotations.Test;
 import static java.lang.StrictMath.pow;
 
 public class SimplexTest {
-  private SimplexTest() {
-  }
-
   @Test(timeOut = 10000)
-  public static void testRosenbrockNelderMeadSimplex() {
+  public void testRosenbrockNelderMeadSimplex() {
     PointValuePair optimum = Simplex.optimize("%.3f", new Rosenbrock(),
         new SimpleBounds(new double[] {-1.0, -1.0}, new double[] {2.0, 2.0}), new double[] {0.0, 0.0}, new double[] {0.1, 0.1}
     );
@@ -73,7 +70,7 @@ public class SimplexTest {
   }
 
   @Test(enabled = false)
-  public static void testLinearSolve() {
+  public void testLinearSolve() {
     double[][] A = {
         {0.17, 0.44},
         {0.64, 0.79}

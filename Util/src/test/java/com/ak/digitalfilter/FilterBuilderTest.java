@@ -17,9 +17,6 @@ import static java.lang.Integer.MIN_VALUE;
 public class FilterBuilderTest {
   private static final DigitalFilter[] EMPTY_FILTERS = {};
 
-  private FilterBuilderTest() {
-  }
-
   @DataProvider(name = "simple")
   public static Object[][] simple() {
     return new Object[][] {{
@@ -207,13 +204,13 @@ public class FilterBuilderTest {
   }
 
   @Test(dataProvider = "simple")
-  public static void testWithLostZeroFilter(int[][] input, DigitalFilter filter, int[][] result, double delay, double frequencyFactor) {
+  public void testWithLostZeroFilter(int[][] input, DigitalFilter filter, int[][] result, double delay, double frequencyFactor) {
     filter.accept(0);
     testFilter(input, filter, result, delay, frequencyFactor);
   }
 
   @Test(dataProvider = "delay")
-  public static void testFilter(int[][] input, DigitalFilter filter, int[][] result, double delay, double frequencyFactor) {
+  public void testFilter(int[][] input, DigitalFilter filter, int[][] result, double delay, double frequencyFactor) {
     AtomicInteger filteredCounter = new AtomicInteger();
     filter.forEach(new IntsAcceptor() {
       int i;
@@ -239,20 +236,20 @@ public class FilterBuilderTest {
   }
 
   @Test(expectedExceptions = IllegalStateException.class)
-  public static void testInvalidChain() {
+  public void testInvalidChain() {
     DigitalFilter filter = FilterBuilder.of().fir(2.0).build();
     FilterBuilder.of().fork(filter, filter).build();
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public static void testInvalidAccept() {
+  public void testInvalidAccept() {
     DigitalFilter filter1 = FilterBuilder.of().fir(1.0).build();
     DigitalFilter filter2 = FilterBuilder.of().fir(1.0).build();
     FilterBuilder.of().fork(filter1, filter2).fir(1.0).build().accept(1);
   }
 
   @Test(expectedExceptions = IllegalStateException.class)
-  public static void testInvalidForkLeft() {
+  public void testInvalidForkLeft() {
     DigitalFilter filter1 = FilterBuilder.of().fir(1.0).build();
     DigitalFilter filter2 = FilterBuilder.of().fir(2.0).build();
     FilterBuilder.of().fork(filter1, filter2).build();
@@ -263,7 +260,7 @@ public class FilterBuilderTest {
   }
 
   @Test(expectedExceptions = IllegalStateException.class)
-  public static void testInvalidForkRight() {
+  public void testInvalidForkRight() {
     DigitalFilter filter1 = FilterBuilder.of().fir(3.0).build();
     DigitalFilter filter2 = FilterBuilder.of().fir(4.0).build();
     FilterBuilder.of().fork(filter1, filter2).build();
@@ -274,22 +271,22 @@ public class FilterBuilderTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public static void testInvalidFork() {
+  public void testInvalidFork() {
     FilterBuilder.of().fork(EMPTY_FILTERS).build();
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public static void testInvalidFork2() {
+  public void testInvalidFork2() {
     new ForkFilter(new DigitalFilter[] {FilterBuilder.of().build()});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public static void testInvalidParallel() {
+  public void testInvalidParallel() {
     FilterBuilder.parallel(EMPTY_FILTERS);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public static void testInvalidParallel2() {
+  public void testInvalidParallel2() {
     DigitalFilter filter = FilterBuilder.parallel(
         FilterBuilder.of().fir(1.0).build(),
         FilterBuilder.of().fir(1.0).build());
@@ -297,19 +294,19 @@ public class FilterBuilderTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "selectedIndexes.*filters.*")
-  public static void testInvalidParallel3() {
+  public void testInvalidParallel3() {
     FilterBuilder.parallel(Collections.singletonList(new int[] {1}),
         FilterBuilder.of().fir(1.0).build(),
         FilterBuilder.of().fir(1.0).build());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public static void testInvalidDecimateFactor() {
+  public void testInvalidDecimateFactor() {
     FilterBuilder.of().decimate(0).build();
   }
 
   @Test(dataProvider = "strings")
-  public static void testToString(DigitalFilter filter, String toString) {
+  public void testToString(DigitalFilter filter, String toString) {
     Assert.assertEquals(filter.toString(), toString, filter.toString());
   }
 
@@ -329,7 +326,7 @@ public class FilterBuilderTest {
   }
 
   @Test(dataProvider = "sharpingDecimate")
-  public static void testSharpingDecimate(@Nonnull int[] input, @Nonnegative int factor, @Nonnull int[] output) {
+  public void testSharpingDecimate(@Nonnull int[] input, @Nonnegative int factor, @Nonnull int[] output) {
     int[] actual = FilterBuilder.of().sharpingDecimate(factor).filter(input);
     Assert.assertEquals(actual, output, String.format("Actual = %s", Arrays.toString(actual)));
   }

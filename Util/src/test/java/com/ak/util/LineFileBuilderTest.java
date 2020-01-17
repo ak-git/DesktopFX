@@ -12,27 +12,24 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class LineFileBuilderTest {
-  private LineFileBuilderTest() {
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "1 invalid")
-  public static void testOf() {
+  public void testOf() {
     LineFileBuilder.of("%.4f %.2f %.1f");
     LineFileBuilder.of("1 invalid");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public static void testXRange() {
+  public void testXRange() {
     LineFileBuilder.of("%.2f %.2f %.1f").xRange(2.0, 1.0, 0.1);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public static void testYRange() {
+  public void testYRange() {
     LineFileBuilder.of("%.2f %.2f %.1f").yRange(1.0, 10.0, 10.0);
   }
 
   @Test
-  public static void testGenerateRange() throws IOException {
+  public void testGenerateRange() throws IOException {
     LineFileBuilder.of("%.0f %.0f %.0f").
         xRange(1.0, 3.0, 1.0).
         yRange(1.0, 2.0, 1.0).generate("z.txt", (x, y) -> x + y * 10);
@@ -54,7 +51,7 @@ public class LineFileBuilderTest {
   }
 
   @Test
-  public static void testGenerateRange2() throws IOException {
+  public void testGenerateRange2() throws IOException {
     LineFileBuilder.<Double>of("%.0f %.0f %.0f").
         xRange(1.0, 3.0, 1.0).
         yRange(1.0, 2.0, 1.0).
@@ -77,7 +74,7 @@ public class LineFileBuilderTest {
   }
 
   @Test
-  public static void testGenerateLogRange() throws IOException {
+  public void testGenerateLogRange() throws IOException {
     LineFileBuilder.of("%.0f %.1f %.0f").
         xLog10Range(10.0, 20.0).
         yLog10Range(10.0, 1.0).generate("z.txt", (x, y) -> x + y * 10);
@@ -102,7 +99,7 @@ public class LineFileBuilderTest {
   }
 
   @Test
-  public static void testGenerateStream() throws IOException {
+  public void testGenerateStream() throws IOException {
     LineFileBuilder.of("%.0f %.0f %.0f").
         xStream(() -> DoubleStream.of(1.0, 2.0)).
         yStream(() -> DoubleStream.of(1.0, 2.0)).generate("z.txt", (x, y) -> x + y * 2.0);

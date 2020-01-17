@@ -28,9 +28,6 @@ public class LineFileCollectorTest {
   private final AtomicInteger exceptionCounter = new AtomicInteger();
   private Path out;
 
-  private LineFileCollectorTest() {
-  }
-
   @BeforeClass
   public void setUp() {
     out = Paths.get(LineFileCollectorTest.class.getName() + ".txt");

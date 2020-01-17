@@ -18,11 +18,8 @@ import org.testng.annotations.Test;
 import static java.lang.StrictMath.pow;
 
 public class KalmanFilterTest {
-  private KalmanFilterTest() {
-  }
-
-  @Test(enabled = false)
-  public static void test() {
+  @Test
+  public void test() {
     double dt = 1.0;
     double measurementNoise = 5.0;
     double velocityNoise2 = 0.1;
@@ -74,8 +71,8 @@ public class KalmanFilterTest {
     }
   }
 
-  @Test(enabled = false)
-  public static void testConstantVoltage() {
+  @Test
+  public void testConstantVoltage() {
     double constantVoltage = 10.0;
     double measurementNoise = 0.1;
     double processNoise = 1.0e-5;

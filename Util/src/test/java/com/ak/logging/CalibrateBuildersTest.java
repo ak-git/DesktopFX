@@ -17,9 +17,6 @@ import org.testng.annotations.Test;
 public class CalibrateBuildersTest {
   private static final Object[][] EMPTY_OBJECTS = {};
 
-  private CalibrateBuildersTest() {
-  }
-
   @DataProvider(name = "builders")
   public static Object[][] builders() {
     return Stream.of(CalibrateBuilders.values()).
@@ -34,7 +31,7 @@ public class CalibrateBuildersTest {
   }
 
   @Test(dataProvider = "builders")
-  public static void testBuild(Path path) throws IOException {
+  public void testBuild(Path path) throws IOException {
     Assert.assertNotNull(path);
     WritableByteChannel channel = Files.newByteChannel(path,
         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
