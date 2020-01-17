@@ -19,8 +19,8 @@ final class LogDerivativeApparent2Rho extends AbstractLogApparent2Rho {
   }
 
   @Override
-  double commonFactor(double k, int n) {
-    return pow(k, n) * n * n;
+  int commonFactor(int n) {
+    return n * n;
   }
 
   @Override

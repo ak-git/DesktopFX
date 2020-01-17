@@ -7,7 +7,6 @@ import javax.annotation.Nonnull;
 
 import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.log1p;
-import static java.lang.StrictMath.pow;
 
 final class Log1pApparent2Rho extends AbstractLogApparent2Rho {
   Log1pApparent2Rho(@Nonnull TetrapolarSystem system) {
@@ -20,8 +19,8 @@ final class Log1pApparent2Rho extends AbstractLogApparent2Rho {
   }
 
   @Override
-  double commonFactor(double k, @Nonnegative int n) {
-    return pow(k, n);
+  int commonFactor(int n) {
+    return 1;
   }
 
   @Override

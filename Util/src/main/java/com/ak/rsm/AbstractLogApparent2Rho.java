@@ -16,13 +16,13 @@ abstract class AbstractLogApparent2Rho extends AbstractApparent {
     }
     else {
       DoubleBinaryOperator sum = sum(h);
-      return innerValue(Layers.sum(n -> commonFactor(k, n) * (sum.applyAsDouble(-1.0, n) - sum.applyAsDouble(1.0, n))));
+      return innerValue(Layers.sum(n -> StrictMath.pow(k, n) * commonFactor(n) * (sum.applyAsDouble(-1.0, n) - sum.applyAsDouble(1.0, n))));
     }
   }
 
   abstract double innerValue(double sums);
 
-  abstract double commonFactor(double k, @Nonnegative int n);
+  abstract int commonFactor(@Nonnegative int n);
 
   abstract DoubleBinaryOperator sum(@Nonnegative double h);
 }
