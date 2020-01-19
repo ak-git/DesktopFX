@@ -8,7 +8,6 @@ module com.ak.util {
   requires java.logging;
 
   opens com.ak.inverse to org.testng;
-  opens com.ak.math to org.testng;
   opens com.ak.rsm to org.testng;
 
   exports com.ak.util;
