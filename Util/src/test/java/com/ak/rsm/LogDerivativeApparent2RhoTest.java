@@ -1,5 +1,8 @@
 package com.ak.rsm;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 import com.ak.util.Metrics;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.testng.Assert;
@@ -10,7 +13,7 @@ import static tec.uom.se.unit.Units.METRE;
 
 public class LogDerivativeApparent2RhoTest {
   @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
-  public void testValue(double[] rho, double hmm, double smm, double lmm, double rOhm) {
+  public void testValue(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MILLI(METRE));
     double h = Metrics.fromMilli(hmm);
     double dh = Metrics.fromMilli(-0.001);
