@@ -2,8 +2,8 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.function.BiFunction;
-import java.util.function.DoubleFunction;
 import java.util.function.IntToDoubleFunction;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
@@ -80,13 +80,13 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
   public static Medium inverseDynamic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
     IntToDoubleFunction rDiff = index -> (rOhmsAfter[index] - rOhmsBefore[index]) / dh;
 
-    DoubleFunction<IntToDoubleFunction> apparentDiffByH = h -> index -> {
+    Supplier<IntToDoubleFunction> apparentDiffByH = () -> index -> {
       double apparent = new Resistance1Layer(systems[index]).getApparent(rDiff.applyAsDouble(index));
       return log(Math.abs(apparent));
     };
 
     Medium inverse = inverseStatic(systems, rOhmsBefore);
-    if (Arrays.stream(rangeSystems(systems.length, index -> apparentDiffByH.apply(1.0).applyAsDouble(index))).anyMatch(Double::isInfinite)) {
+    if (Arrays.stream(rangeSystems(systems.length, index -> apparentDiffByH.get().applyAsDouble(index))).anyMatch(Double::isInfinite)) {
       return inverse;
     }
 
@@ -101,7 +101,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
           double h = p[0];
           double k = p[1];
 
-          double[] logDiff = rangeSystems(systems.length, apparentDiffByH.apply(h));
+          double[] logDiff = rangeSystems(systems.length, apparentDiffByH.get());
           double[] measured = rangeSystems(systems.length, i -> logApparent[i] - logDiff[i]);
 
           double[] logApparentPredicted = rangeSystems(systems.length, index -> logApparentPredictedFunction.apply(k, h).applyAsDouble(index));
