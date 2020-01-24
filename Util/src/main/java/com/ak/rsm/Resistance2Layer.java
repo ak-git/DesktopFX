@@ -9,6 +9,7 @@ import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
@@ -50,7 +51,8 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
   }
 
   @Nonnull
-  public static Medium inverseStatic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
+  @ParametersAreNonnullByDefault
+  public static Medium inverseStatic(TetrapolarSystem[] systems, double[] rOhms) {
     Medium inverse = Resistance1Layer.inverseStatic(systems, rOhms);
     if (systems.length > 2) {
       double rho = inverse.getRho();
@@ -77,7 +79,8 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
   }
 
   @Nonnull
-  public static Medium inverseDynamic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
+  @ParametersAreNonnullByDefault
+  public static Medium inverseDynamic(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh) {
     IntToDoubleFunction rDiff = index -> (rOhmsAfter[index] - rOhmsBefore[index]) / dh;
 
     Supplier<IntToDoubleFunction> apparentDiffByH = () ->

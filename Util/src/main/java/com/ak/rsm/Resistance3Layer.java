@@ -11,6 +11,7 @@ import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
@@ -77,7 +78,8 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
   }
 
   @Nonnull
-  public static Medium inverseDynamic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter,
+  @ParametersAreNonnullByDefault
+  public static Medium inverseDynamic(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter,
                                       @Nonnegative double h, double dh) {
     IntToDoubleFunction rDiff = index -> (rOhmsAfter[index] - rOhmsBefore[index]) / dh;
 

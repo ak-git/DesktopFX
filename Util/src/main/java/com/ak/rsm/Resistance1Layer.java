@@ -7,6 +7,7 @@ import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.util.Strings;
 import org.apache.commons.math3.analysis.UnivariateFunction;
@@ -41,7 +42,8 @@ final class Resistance1Layer extends AbstractResistanceLayer<Potential1Layer> im
   }
 
   @Nonnull
-  public static Medium inverseStatic(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
+  @ParametersAreNonnullByDefault
+  public static Medium inverseStatic(TetrapolarSystem[] systems, double[] rOhms) {
     IntToDoubleFunction apparent = i -> new Resistance1Layer(systems[i]).getApparent(rOhms[i]);
     double rho = IntStream.range(0, systems.length).mapToDouble(apparent).average().orElseThrow();
     Logger.getLogger(Resistance1Layer.class.getName()).info(
