@@ -12,8 +12,6 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static com.ak.rsm.LayersProvider.layer1;
-import static com.ak.rsm.LayersProvider.layer2;
 import static com.ak.rsm.LayersProvider.layer3;
 import static com.ak.rsm.LayersProvider.rOhms;
 import static com.ak.rsm.LayersProvider.systems4;
@@ -133,31 +131,22 @@ public class Resistance3LayerTest {
   @DataProvider(name = "theoryDynamicParameters3")
   public static Object[][] theoryDynamicParameters3() {
     TetrapolarSystem[] systems4 = systems4(10);
-    double dh = -0.1;
+    double hmm = 0.1;
+    double dHmm = hmm / 100.0;
     return new Object[][] {
         {
             systems4,
-            rOhms(systems4, layer1(1.0)),
-            rOhms(systems4, layer1(1.0)),
-            Metrics.fromMilli(dh)
-        },
-        {
-            systems4,
-            rOhms(systems4, layer2(9.0, 1.0, 5.0)),
-            rOhms(systems4, layer2(9.0, 1.0, 5.0 + dh)),
-            Metrics.fromMilli(dh)
-        },
-        {
-            systems4,
-            rOhms(systems4, layer3(new double[] {10.0, 2.0, 5.0}, dh, 10, 2)),
-            rOhms(systems4, layer3(new double[] {10.0, 2.0, 5.0}, dh, 10 - 1, 2)),
-            Metrics.fromMilli(dh)
+            rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, hmm, 10, 3)),
+            rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, hmm + dHmm, 10, 3)),
+            Metrics.fromMilli(hmm),
+            Metrics.fromMilli(dHmm)
         },
     };
   }
 
   @Test(dataProvider = "theoryDynamicParameters3", enabled = false)
-  public void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
-    Logger.getAnonymousLogger().warning(Resistance3Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh).toString());
+  public void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter,
+                          @Nonnegative double h, double dh) {
+    Logger.getAnonymousLogger().warning(Resistance3Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, h, dh).toString());
   }
 }

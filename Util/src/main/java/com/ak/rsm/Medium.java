@@ -117,7 +117,8 @@ class Medium {
       predictedDelta = EMPTY;
     }
 
-    Builder(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh, @Nonnull ToDoubleBiFunction<? super TetrapolarSystem, Double> toOhms) {
+    Builder(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter,
+            double dh, @Nonnull ToDoubleBiFunction<TetrapolarSystem, Double> toOhms) {
       measured = Arrays.copyOf(rOhmsBefore, rOhmsBefore.length);
       predicted = Arrays.stream(systems).mapToDouble(system -> toOhms.applyAsDouble(system, 0.0)).toArray();
 
