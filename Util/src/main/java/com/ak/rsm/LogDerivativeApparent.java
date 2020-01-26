@@ -14,7 +14,8 @@ final class LogDerivativeApparent extends AbstractApparent {
 
   @Override
   double multiply(double sums) {
-    return StrictMath.log(Math.abs(-4.0 * electrodesFactor() * sums));
+    double a = -4.0 * electrodesFactor() * sums;
+    return Math.signum(a) * StrictMath.log(Math.abs(a));
   }
 
   @Override

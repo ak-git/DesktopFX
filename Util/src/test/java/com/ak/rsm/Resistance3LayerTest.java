@@ -132,7 +132,7 @@ public class Resistance3LayerTest {
   public static Object[][] theoryDynamicParameters3() {
     TetrapolarSystem[] systems4 = systems4(10);
     double hmm = 0.1;
-    double dHmm = hmm / 100.0;
+    double dHmm = hmm / 1000.0;
     return new Object[][] {
         {
             systems4,

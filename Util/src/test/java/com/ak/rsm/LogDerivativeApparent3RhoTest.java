@@ -22,7 +22,7 @@ public class LogDerivativeApparent3RhoTest {
     double expected = new Resistance1Layer(system).getApparent(
         (resistance3LayerAfter.value(rho[0], rho[1], rho[1], p1, 1) - resistance3LayerBefore.value(rho[0], rho[1], rho[1], p1, 1)) / dh
     );
-    expected = StrictMath.log(Math.abs(expected) / rho[0]);
+    expected = Math.signum(expected) * StrictMath.log(Math.abs(expected) / rho[0]);
 
     double actual = new LogDerivativeApparent3Rho(system).value(Layers.getK12(rho[0], rho[1]), 0.0, h, p1, 1);
     Assert.assertEquals(actual, expected, 0.1);
@@ -38,7 +38,7 @@ public class LogDerivativeApparent3RhoTest {
     double expected = new Resistance1Layer(system).getApparent(
         (resistance3LayerAfter.value(rho[0], rho[1], rho[2], p[0], p[1]) - resistance3LayerBefore.value(rho[0], rho[1], rho[2], p[0], p[1])) / dh
     );
-    expected = StrictMath.log(Math.abs(expected) / rho[0]);
+    expected = Math.signum(expected) * StrictMath.log(Math.abs(expected) / rho[0]);
 
     double actual = new LogDerivativeApparent3Rho(system).value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]), h, p[0], p[1]);
     Assert.assertEquals(actual, expected, 0.1);
