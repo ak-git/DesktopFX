@@ -2,7 +2,7 @@
   <configuration default="false" name="Aper2" type="Application" factoryName="Application">
     <option name="ALTERNATIVE_JRE_PATH" value="13" />
     <option name="MAIN_CLASS_NAME" value="com.ak.fx.desktop.FxApplication" />
-    <module name="DesktopFX.FxDesktop.main" />
+    <module name="DesktopFX.main" />
     <option name="VM_PARAMETERS" value="-Dcontext=aper2 -Dcache=false" />
     <extension name="coverage">
       <pattern>
