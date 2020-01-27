@@ -7,11 +7,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class CleanTest {
-  private CleanTest() {
-  }
-
   @Test
-  public static void testClean() {
+  public void testClean() {
     boolean oldCache = PropertiesSupport.CACHE.check();
     PropertiesSupport.CACHE.update(Boolean.FALSE.toString());
     AtomicBoolean ok = new AtomicBoolean(false);

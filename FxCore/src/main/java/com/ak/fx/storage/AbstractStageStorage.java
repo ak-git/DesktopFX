@@ -31,13 +31,12 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
   public void update(@Nonnull Stage stage) {
     stage.maximizedProperty().addListener((observable, oldValue, newValue) -> preferences().putBoolean(MAXIMIZED, newValue));
     Optional.ofNullable(boundsStorage.get()).ifPresent(
-        rectangle -> {
-          javafx.geometry.Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
-          if (visualBounds.contains(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight())) {
-            stage.setX(rectangle.getX());
-            stage.setY(rectangle.getY());
-            stage.setWidth(rectangle.getWidth());
-            stage.setHeight(rectangle.getHeight());
+        r -> {
+          if (Screen.getPrimary().getVisualBounds().contains(r.getX(), r.getY(), r.getWidth(), r.getHeight())) {
+            stage.setX(r.getX());
+            stage.setY(r.getY());
+            stage.setWidth(r.getWidth());
+            stage.setHeight(r.getHeight());
           }
           else {
             stage.setWidth(FxUtils.WIDTH_MIN);

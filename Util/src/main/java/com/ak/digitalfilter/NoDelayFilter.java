@@ -8,10 +8,12 @@ import javax.annotation.Nonnull;
 final class NoDelayFilter extends AbstractDigitalFilter {
   @Nonnull
   private final DigitalFilter filter;
+  @Nonnull
+  private final AtomicInteger skipSamples;
 
   NoDelayFilter(@Nonnull DigitalFilter filter) {
     this.filter = filter;
-    AtomicInteger skipSamples = new AtomicInteger((int) Math.round(filter.getDelay() * 2));
+    skipSamples = new AtomicInteger((int) Math.round(filter.getDelay() * 2));
     filter.forEach(values -> {
       if (skipSamples.get() == 0) {
         publish(values);
@@ -41,6 +43,7 @@ final class NoDelayFilter extends AbstractDigitalFilter {
   @Override
   public void reset() {
     filter.reset();
+    skipSamples.set((int) Math.round(filter.getDelay() * 2));
   }
 
   @Override
