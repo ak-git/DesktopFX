@@ -5,6 +5,7 @@ import java.util.Random;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -62,7 +63,8 @@ public class Resistance1LayerTest {
   }
 
   @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryStaticParameters", enabled = false)
-  public void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms) {
+  @ParametersAreNonnullByDefault
+  public void testInverse(TetrapolarSystem[] systems, double[] rOhms) {
     Resistance1Layer.inverseStatic(systems, rOhms);
   }
 
@@ -80,7 +82,8 @@ public class Resistance1LayerTest {
   }
 
   @Test(dataProvider = "layer1")
-  public void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms, @Nonnegative double expected) {
+  @ParametersAreNonnullByDefault
+  public void testInverse(TetrapolarSystem[] systems, double[] rOhms, @Nonnegative double expected) {
     Assert.assertEquals(Resistance1Layer.inverseStatic(systems, rOhms).getRho(), expected, 0.1);
   }
 }

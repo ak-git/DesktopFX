@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.util.LineFileBuilder;
 import com.ak.util.Metrics;
@@ -145,7 +146,8 @@ public class Resistance3LayerTest {
   }
 
   @Test(dataProvider = "theoryDynamicParameters3", enabled = false)
-  public void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter,
+  @ParametersAreNonnullByDefault
+  public void testInverse(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter,
                           @Nonnegative double h, double dh) {
     Logger.getAnonymousLogger().warning(Resistance3Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, h, dh).toString());
   }

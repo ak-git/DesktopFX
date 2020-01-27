@@ -110,13 +110,9 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
                 index -> logApparentPredictedFunction.apply(new double[] {k12, k23}, new int[] {p1, p2mp1}).applyAsDouble(index)
             );
             double[] logDiffPredicted = rangeSystems(systems.length, index -> {
-              double rho1 = 1.0;
-              double rho2 = rho1 / Layers.getRho1ToRho2(k12);
-              double rho3 = rho2 / Layers.getRho1ToRho2(k23);
-              double a = (new Resistance3Layer(systems[index], h + dh).value(rho1, rho2, rho3, p1, p2mp1) -
-                  new Resistance3Layer(systems[index], h).value(rho1, rho2, rho3, p1, p2mp1)) / dh;
-              if (Double.compare(Math.signum(a), Math.signum(rDiff.applyAsDouble(index))) == 0) {
-                return new LogDerivativeApparent3Rho(systems[index]).value(k12, k23, h, p1, p2mp1);
+              double value = new DerivativeApparent3Rho(systems[index]).value(k12, k23, h, p1, p2mp1);
+              if (Double.compare(Math.signum(value), Math.signum(rDiff.applyAsDouble(index))) == 0) {
+                return log(Math.abs(value));
               }
               else {
                 return Double.POSITIVE_INFINITY;

@@ -108,11 +108,9 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
               index -> logApparentPredictedFunction.apply(k, h).applyAsDouble(index)
           );
           double[] logDiffPredicted = rangeSystems(systems.length, index -> {
-            TrivariateFunction resistance = new Resistance2Layer(systems[index]);
-            double a = (resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h + dh) -
-                resistance.value(1.0, 1.0 / Layers.getRho1ToRho2(k), h)) / dh;
-            if (Double.compare(Math.signum(a), Math.signum(rDiff.applyAsDouble(index))) == 0) {
-              return new LogDerivativeApparent2Rho(systems[index]).value(k, h);
+            double value = new DerivativeApparent2Rho(systems[index]).value(k, h);
+            if (Double.compare(Math.signum(value), Math.signum(rDiff.applyAsDouble(index))) == 0) {
+              return log(Math.abs(value));
             }
             else {
               return Double.POSITIVE_INFINITY;

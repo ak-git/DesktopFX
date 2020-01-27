@@ -7,14 +7,14 @@ import javax.annotation.Nonnull;
 import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.pow;
 
-final class LogDerivativeApparent extends AbstractApparent {
-  LogDerivativeApparent(@Nonnull TetrapolarSystem system) {
+final class DerivativeApparent extends AbstractApparent {
+  DerivativeApparent(@Nonnull TetrapolarSystem system) {
     super(system);
   }
 
   @Override
   double multiply(double sums) {
-    return StrictMath.log(Math.abs(-4.0 * electrodesFactor() * sums));
+    return -4.0 * electrodesFactor() * sums;
   }
 
   @Override
