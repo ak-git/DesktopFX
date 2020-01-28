@@ -11,12 +11,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class InterpolatorsTest {
-  private InterpolatorsTest() {
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class,
       expectedExceptionsMessageRegExp = "Number of points 1 from INTERPOLATOR_TEST_INVALID is too small")
-  public static void testTooLowCoefficients() {
+  public void testTooLowCoefficients() {
     Interpolators.interpolator(InterpolatorCoefficients.INTERPOLATOR_TEST_INVALID);
   }
 
@@ -35,7 +32,7 @@ public class InterpolatorsTest {
   }
 
   @Test(dataProvider = "interpolators")
-  public static <C extends Enum<C> & Coefficients> void testInterpolator(@Nonnull C coefficients, @Nonnull int[] expected) {
+  public <C extends Enum<C> & Coefficients> void testInterpolator(@Nonnull C coefficients, @Nonnull int[] expected) {
     IntUnaryOperator operator = Interpolators.interpolator(coefficients).get();
     int[] actual = IntStream.rangeClosed(1, 15).map(operator).toArray();
     Assert.assertTrue(Arrays.equals(actual, expected), Arrays.toString(actual));

@@ -18,11 +18,8 @@ import com.ak.util.Strings;
 import org.testng.annotations.Test;
 
 public class FiltersTest {
-  private FiltersTest() {
-  }
-
   @Test(enabled = false)
-  public static void textFiles() throws IOException {
+  public void textFiles() throws IOException {
     String filteredPrefix = "Filtered - ";
     int column = 0;
 

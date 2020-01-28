@@ -21,9 +21,6 @@ import static java.lang.StrictMath.pow;
 public class OptimumStoLTest {
   private static final double SQRT_2 = 1.4142135623730951;
 
-  private OptimumStoLTest() {
-  }
-
   private static class InequalityRho implements DoubleUnaryOperator {
     final double dl2L;
     final double dRL2rho;
@@ -93,21 +90,21 @@ public class OptimumStoLTest {
   }
 
   @Test(dataProvider = "dl2L-dRL2rho-Rho")
-  public static void testRho(double dl2L, double dRL2rho, double sToL, double relError) {
+  public void testRho(double dl2L, double dRL2rho, double sToL, double relError) {
     PointValuePair pair = solve(new InequalityRho(dl2L, dRL2rho));
     Assert.assertEquals(pair.getKey()[0], sToL, 0.01);
     Assert.assertEquals(pair.getValue(), relError, 0.01);
   }
 
   @Test(dataProvider = "dl2L-dRL2dRho-DeltaRho")
-  public static void testDeltaRho(double dl2L, double dRL2rho, double sToL, double relError) {
+  public void testDeltaRho(double dl2L, double dRL2rho, double sToL, double relError) {
     PointValuePair pair = solve(new InequalityDeltaRho(dl2L, dRL2rho));
     Assert.assertEquals(pair.getKey()[0], sToL, 0.01);
     Assert.assertEquals(pair.getValue(), relError, 0.01);
   }
 
   @Test(enabled = false)
-  public static void testRhoOptimalStoL() {
+  public void testRhoOptimalStoL() {
     LineFileBuilder.<PointValuePair>of("%.4f %.6f %.6f").
         xRange(1.0e-4, 1.0e-1, 1.0e-4).
         yRange(1.0e-6, 1.0e-3, 1.0e-6).
@@ -117,7 +114,7 @@ public class OptimumStoLTest {
   }
 
   @Test(enabled = false)
-  public static void testRhoErrorsAt() {
+  public void testRhoErrorsAt() {
     DoubleStream.of(1.0 / 3.0, 0.5, 2.0 / 3.0).forEachOrdered(sToL -> LineFileBuilder.of("%.4f %.6f %.6f").
         xRange(1.0e-4, 1.0e-1, 1.0e-4).
         yRange(1.0e-6, 1.0e-3, 1.0e-6).
@@ -126,7 +123,7 @@ public class OptimumStoLTest {
   }
 
   @Test(enabled = false)
-  public static void testDeltaRhoOptimalStoL() {
+  public void testDeltaRhoOptimalStoL() {
     LineFileBuilder.<PointValuePair>of("%.4f %.4f %.6f").
         xRange(1.0e-4, 1.0e-1, 1.0e-4).
         yRange(1.0e-4, 1.0e-1, 1.0e-4).
@@ -136,7 +133,7 @@ public class OptimumStoLTest {
   }
 
   @Test(enabled = false)
-  public static void testDeltaRhoErrorsAt() {
+  public void testDeltaRhoErrorsAt() {
     DoubleStream.of(1.0 / 3.0, 0.5, 2.0 / 3.0).forEachOrdered(sToL -> LineFileBuilder.of("%.4f %.4f %.6f").
         xRange(1.0e-4, 1.0e-1, 1.0e-4).
         yRange(1.0e-4, 1.0e-1, 1.0e-4).

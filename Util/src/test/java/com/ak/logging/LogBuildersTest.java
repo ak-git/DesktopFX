@@ -18,9 +18,6 @@ import org.testng.annotations.Test;
 public class LogBuildersTest {
   private static final Object[][] EMPTY_OBJECTS = {};
 
-  private LogBuildersTest() {
-  }
-
   @DataProvider(name = "logBuilders")
   public static Object[][] logBuilders() {
     return Stream.of(LogBuilders.values()).
@@ -36,7 +33,7 @@ public class LogBuildersTest {
 
 
   @Test(dataProvider = "logBuilders")
-  public static void testLogBuilders(Path path) throws IOException {
+  public void testLogBuilders(Path path) throws IOException {
     Assert.assertNotNull(path);
     WritableByteChannel channel = Files.newByteChannel(path,
         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -46,12 +43,12 @@ public class LogBuildersTest {
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
-  public static void testNotToClean() {
+  public void testNotToClean() {
     EnumSet.complementOf(EnumSet.of(LogBuilders.CONVERTER_FILE)).forEach(LogBuilders::clean);
   }
 
   @Test
-  public static void testClean() throws IOException {
+  public void testClean() throws IOException {
     Path path = LogBuilders.CONVERTER_FILE.build("02f29f660fa69e6c404c03de0f1e15f91").getPath();
     WritableByteChannel channel = Files.newByteChannel(path,
         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
