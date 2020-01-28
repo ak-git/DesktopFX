@@ -18,7 +18,7 @@ public class OutputBuilderTest {
   @Nonnull
   private final Path outPath;
 
-  private OutputBuilderTest() throws IOException {
+  public OutputBuilderTest() throws IOException {
     Path txt = new OutputBuilder("txt").fileNameWithDateTime(OutputBuilderTest.class.getSimpleName()).build().getPath();
     Files.createFile(txt);
     outPath = txt.getParent();

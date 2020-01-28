@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="RCM" type="Application" factoryName="Application" singleton="true">
     <option name="MAIN_CLASS_NAME" value="com.ak.fx.desktop.FxApplication" />
-    <module name="DesktopFX.FxDesktop.main" />
+    <module name="DesktopFX.main" />
     <option name="VM_PARAMETERS" value="-Dcontext=rcm" />
     <extension name="coverage">
       <pattern>

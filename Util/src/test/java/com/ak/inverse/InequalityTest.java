@@ -4,9 +4,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class InequalityTest {
-  private InequalityTest() {
-  }
-
   @Test
   public void testProportional() {
     Inequality inequality = Inequality.proportional();
@@ -19,7 +16,7 @@ public class InequalityTest {
   }
 
   @Test
-  public static void testL2Absolute() {
+  public void testL2Absolute() {
     Inequality inequality = Inequality.absolute();
     Assert.assertEquals(inequality.applyAsDouble(0.0, -3.0), 3.0, 0.01);
     Assert.assertEquals(inequality.getAsDouble(), 3.0, 0.01);

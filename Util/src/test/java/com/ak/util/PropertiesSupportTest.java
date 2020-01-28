@@ -7,11 +7,8 @@ import org.testng.annotations.Test;
 
 
 public class PropertiesSupportTest {
-  private PropertiesSupportTest() {
-  }
-
   @Test
-  public static void testCheck() {
+  public void testCheck() {
     Assert.assertTrue(PropertiesSupport.CACHE.check());
     EnumSet.complementOf(EnumSet.of(PropertiesSupport.CACHE)).forEach(e -> {
       e.clear();
@@ -20,13 +17,13 @@ public class PropertiesSupportTest {
   }
 
   @Test
-  public static void testValue() {
+  public void testValue() {
     Assert.assertEquals(PropertiesSupport.CACHE.value(), Boolean.toString(true));
     Assert.assertEquals(PropertiesSupport.OUT_CONVERTER_PATH.value(), OSDirectories.VENDOR_ID);
   }
 
   @Test
-  public static void testSet() {
+  public void testSet() {
     EnumSet.complementOf(EnumSet.of(PropertiesSupport.CONTEXT)).forEach(e -> {
       e.update(e.name());
       Assert.assertEquals(e.value(), e.name());
@@ -40,7 +37,7 @@ public class PropertiesSupportTest {
   }
 
   @Test
-  public static void testAddExtension() {
+  public void testAddExtension() {
     Assert.assertEquals(PropertiesSupport.addExtension("keys"), "keys.properties");
   }
 }

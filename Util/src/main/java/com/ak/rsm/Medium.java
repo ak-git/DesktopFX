@@ -50,6 +50,11 @@ class Medium {
     }
   }
 
+  @Nonnull
+  public double[] getH() {
+    return Arrays.copyOf(h, h.length);
+  }
+
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
@@ -63,7 +68,7 @@ class Medium {
     }
 
     if (measuredDelta.length == 0 || predictedDelta.length == 0) {
-      return String.format("%s; L%s = %.1f %s;%n measured = %s;%npredicted = %s;", sb,
+      return String.format("%s; L%s = %.1f %s;%nmeasured  = %s;%npredicted = %s;", sb,
           Strings.low(2),
           Metrics.toPercents(Inequality.proportional().applyAsDouble(measured, predicted) / measured.length),
           Units.PERCENT,
@@ -75,7 +80,7 @@ class Medium {
       double error = Inequality.proportional().applyAsDouble(measured, predicted) / measured.length;
       double error2 = Inequality.proportional().applyAsDouble(measuredDelta, predictedDelta) / measuredDelta.length;
 
-      return String.format("%s; L%s = [%.1f; %.1f] %s;%n measured = %s, %s = %s;%npredicted = %s, %s = %s;", sb,
+      return String.format("%s; L%s = [%.1f; %.1f] %s;%nmeasured  = %s, %s = %s;%npredicted = %s, %s = %s;", sb,
           Strings.low(2),
           Metrics.toPercents(error),
           Metrics.toPercents(error2),
@@ -112,7 +117,8 @@ class Medium {
       predictedDelta = EMPTY;
     }
 
-    Builder(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh, @Nonnull ToDoubleBiFunction<? super TetrapolarSystem, Double> toOhms) {
+    Builder(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter,
+            double dh, @Nonnull ToDoubleBiFunction<TetrapolarSystem, Double> toOhms) {
       measured = Arrays.copyOf(rOhmsBefore, rOhmsBefore.length);
       predicted = Arrays.stream(systems).mapToDouble(system -> toOhms.applyAsDouble(system, 0.0)).toArray();
 

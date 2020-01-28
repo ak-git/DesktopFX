@@ -10,9 +10,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class LayersTest {
-  private LayersTest() {
-  }
-
   @DataProvider(name = "k")
   public static Object[][] k() {
     return new Object[][] {
@@ -26,7 +23,7 @@ public class LayersTest {
   }
 
   @Test(dataProvider = "k")
-  public static void testGetK12(@Nonnegative double rho1, @Nonnegative double rho2, double k) {
+  public void testGetK12(@Nonnegative double rho1, @Nonnegative double rho2, double k) {
     Assert.assertEquals(Layers.getK12(rho1, rho2), k);
   }
 
@@ -41,7 +38,7 @@ public class LayersTest {
   }
 
   @Test(dataProvider = "rho")
-  public static void testGetRho1ToRho2(double k, @Nonnegative double rho1ToRho2) {
+  public void testGetRho1ToRho2(double k, @Nonnegative double rho1ToRho2) {
     Assert.assertEquals(Layers.getRho1ToRho2(k), rho1ToRho2, 0.001);
   }
 
@@ -69,7 +66,7 @@ public class LayersTest {
   }
 
   @Test(dataProvider = "qn")
-  public static void testQ(double k12, double k23, @Nonnegative int p1, @Nonnegative int p2mp1, @Nonnull double[] expected) {
+  public void testQ(double k12, double k23, @Nonnegative int p1, @Nonnegative int p2mp1, @Nonnull double[] expected) {
     double[] actual = Arrays.copyOfRange(Layers.qn(k12, k23, p1, p2mp1), 1, p1 + p2mp1 + 1);
     Assert.assertEquals(actual, expected, 1.0e-6, Arrays.toString(actual));
   }

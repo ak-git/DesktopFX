@@ -11,12 +11,9 @@ import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 
 public class Log1pApparent3RhoTest {
-  private Log1pApparent3RhoTest() {
-  }
-
   @Test(dataProviderClass = Resistance3LayerTest.class, dataProvider = "layer-model")
-  public static void testValue(@Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p,
-                               @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
+  public void testValue(@Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p,
+                        @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system1 = new TetrapolarSystem(smm, lmm, MILLI(METRE));
     TetrapolarSystem system2 = new TetrapolarSystem(lmm, smm, MILLI(METRE));
     double logApparent = log(new Resistance1Layer(system1).getApparent(rOhm)) - log(rho[0]);

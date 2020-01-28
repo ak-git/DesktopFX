@@ -18,9 +18,6 @@ import org.testng.annotations.Test;
 public class LoggingBuilderTest {
   private static final Object[][] EMPTY_OBJECTS = {};
 
-  private LoggingBuilderTest() {
-  }
-
   @DataProvider(name = "logBuilders")
   public static Object[][] logBuilders() {
     return Stream.of(LoggingBuilder.values()).
@@ -36,7 +33,7 @@ public class LoggingBuilderTest {
 
 
   @Test(dataProvider = "logBuilders")
-  public static void testBuild(Path path) throws IOException {
+  public void testBuild(Path path) throws IOException {
     Assert.assertNotNull(path);
     WritableByteChannel channel = Files.newByteChannel(path,
         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);

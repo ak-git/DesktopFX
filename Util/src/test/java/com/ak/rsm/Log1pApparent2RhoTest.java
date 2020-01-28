@@ -1,5 +1,8 @@
 package com.ak.rsm;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -9,11 +12,8 @@ import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 
 public class Log1pApparent2RhoTest {
-  private Log1pApparent2RhoTest() {
-  }
-
   @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
-  public static void testValue(double[] rho, double hmm, double smm, double lmm, double rOhm) {
+  public void testValue(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system1 = new TetrapolarSystem(smm, lmm, MILLI(METRE));
     TetrapolarSystem system2 = new TetrapolarSystem(lmm, smm, MILLI(METRE));
     double logApparent = log(new Resistance1Layer(system1).getApparent(rOhm)) - log(rho[0]);
