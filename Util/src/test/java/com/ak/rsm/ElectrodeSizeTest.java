@@ -12,9 +12,6 @@ import static java.lang.StrictMath.asin;
 public class ElectrodeSizeTest {
   private static final double SQRT_2 = 1.4142135623730951;
 
-  private ElectrodeSizeTest() {
-  }
-
   private static class RelativeErrorR implements UnivariateFunction {
     final double sToL;
 
@@ -40,7 +37,7 @@ public class ElectrodeSizeTest {
   }
 
   @Test
-  public static void testValue() {
+  public void testValue() {
     double sToL = 0.5;
     double dToL = 0.1;
     UnivariateFunction errorR = new RelativeErrorR(sToL);
@@ -50,7 +47,7 @@ public class ElectrodeSizeTest {
   }
 
   @Test(enabled = false)
-  public static void testErrorsAt() {
+  public void testErrorsAt() {
     LineFileBuilder.of("%.3f %.3f %.6f").
         xRange(1.0e-2, 1.0, 1.0e-2).
         yStream(() -> DoubleStream.of(1.0 / 3.0, SQRT_2 - 1, 0.5, 2.0 / 3.0)).

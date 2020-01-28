@@ -11,9 +11,6 @@ import tec.uom.se.unit.Units;
 import static com.ak.util.Strings.OHM_METRE;
 
 public class StringsTest {
-  private StringsTest() {
-  }
-
   @DataProvider(name = "strings")
   public static Object[][] strings() {
     return new Object[][] {
@@ -30,17 +27,17 @@ public class StringsTest {
   }
 
   @Test(dataProvider = "strings")
-  public static void testNumberSuffix(@Nonnull String toExtract, @Nonnull String expected) {
+  public void testNumberSuffix(@Nonnull String toExtract, @Nonnull String expected) {
     Assert.assertEquals(Strings.numberSuffix(toExtract), expected);
   }
 
   @Test
-  public static void testArrayToString() {
+  public void testArrayToString() {
     Assert.assertEquals(Strings.toString("%.3f", new double[] {1.2, 1.23, 1.2345}, Units.OHM), "{1,200; 1,230; 1,235} " + Units.OHM);
   }
 
   @Test
-  public static void testRhoH() {
+  public void testRhoH() {
     Assert.assertEquals(Strings.rho(2.1234), String.format("\u03c1 = %.3f %s", 2.123, OHM_METRE));
     Assert.assertEquals(Strings.rho1(2.1234), String.format("\u03c1\u2081 = %.3f %s", 2.123, OHM_METRE));
     Assert.assertEquals(Strings.rho2(20.1236), String.format("\u03c1\u2082 = %.3f %s", 20.124, OHM_METRE));
@@ -48,7 +45,7 @@ public class StringsTest {
   }
 
   @Test
-  public static void testPointConcat() {
+  public void testPointConcat() {
     Assert.assertEquals(Strings.pointConcat(Strings.EMPTY, Strings.EMPTY), ".");
     Assert.assertEquals(Strings.pointConcat("1", Strings.EMPTY), "1.");
     Assert.assertEquals(Strings.pointConcat(Strings.EMPTY, "22"), ".22");

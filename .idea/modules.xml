@@ -9,9 +9,6 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/FxCore/DesktopFX.FxCore.iml" filepath="$PROJECT_DIR$/.idea/modules/FxCore/DesktopFX.FxCore.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/FxCore/DesktopFX.FxCore.main.iml" filepath="$PROJECT_DIR$/.idea/modules/FxCore/DesktopFX.FxCore.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/FxCore/DesktopFX.FxCore.test.iml" filepath="$PROJECT_DIR$/.idea/modules/FxCore/DesktopFX.FxCore.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FxDesktop/DesktopFX.FxDesktop.iml" filepath="$PROJECT_DIR$/.idea/modules/FxDesktop/DesktopFX.FxDesktop.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FxDesktop/DesktopFX.FxDesktop.main.iml" filepath="$PROJECT_DIR$/.idea/modules/FxDesktop/DesktopFX.FxDesktop.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FxDesktop/DesktopFX.FxDesktop.test.iml" filepath="$PROJECT_DIR$/.idea/modules/FxDesktop/DesktopFX.FxDesktop.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Util/DesktopFX.Util.iml" filepath="$PROJECT_DIR$/.idea/modules/Util/DesktopFX.Util.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Util/DesktopFX.Util.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Util/DesktopFX.Util.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Util/DesktopFX.Util.test.iml" filepath="$PROJECT_DIR$/.idea/modules/Util/DesktopFX.Util.test.iml" />

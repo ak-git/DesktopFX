@@ -1,11 +1,11 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.util.LineFileBuilder;
 import com.ak.util.Metrics;
@@ -13,13 +13,13 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static com.ak.rsm.LayersProvider.layer3;
+import static com.ak.rsm.LayersProvider.rOhms;
+import static com.ak.rsm.LayersProvider.systems4;
 import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 
 public class Resistance3LayerTest {
-  private Resistance3LayerTest() {
-  }
-
   @DataProvider(name = "layer-model")
   public static Object[][] threeLayerParameters() {
     return new Object[][] {
@@ -80,8 +80,8 @@ public class Resistance3LayerTest {
   }
 
   @Test(dataProvider = "layer-model")
-  public static void testLayer(@Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p,
-                               @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
+  public void testLayer(@Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p,
+                        @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MILLI(METRE));
     Assert.assertEquals(new Resistance3Layer(system, hStepSI).value(rho[0], rho[1], rho[2], p[0], p[1]), rOhm, 0.001, Arrays.toString(rho));
   }
@@ -99,14 +99,14 @@ public class Resistance3LayerTest {
   }
 
   @Test(dataProvider = "layer-model-special")
-  public static void testLayerSpecial(@Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p,
-                                      @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
+  public void testLayerSpecial(@Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p,
+                               @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MILLI(METRE));
     Assert.assertEquals(new Resistance3Layer(system, hStepSI).value(rho[0], rho[1], rho[2], p[0], p[1]), rOhm, 0.001, Arrays.toString(rho));
   }
 
   @Test(enabled = false)
-  public static void testContinuous() {
+  public void testContinuous() {
     TetrapolarSystem system = new TetrapolarSystem(10.0, 30.0, MILLI(METRE));
     LineFileBuilder.of("%.1f %.0f %.3f")
         .xRange(0.1, 50.0, 0.1)
@@ -129,8 +129,26 @@ public class Resistance3LayerTest {
         });
   }
 
-  @Test(dataProviderClass = LayersProvider.class, dataProvider = "theoryDynamicParameters3", enabled = false)
-  public static void testInverse(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rOhmsAfter, double dh) {
-    Logger.getAnonymousLogger().log(Level.WARNING, Resistance3Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh).toString());
+  @DataProvider(name = "theoryDynamicParameters3")
+  public static Object[][] theoryDynamicParameters3() {
+    TetrapolarSystem[] systems4 = systems4(10);
+    double hmm = 0.1;
+    double dHmm = hmm / 1000.0;
+    return new Object[][] {
+        {
+            systems4,
+            rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, hmm, 10, 3)),
+            rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, hmm + dHmm, 10, 3)),
+            Metrics.fromMilli(hmm),
+            Metrics.fromMilli(dHmm)
+        },
+    };
+  }
+
+  @Test(dataProvider = "theoryDynamicParameters3", enabled = false)
+  @ParametersAreNonnullByDefault
+  public void testInverse(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter,
+                          @Nonnegative double h, double dh) {
+    Logger.getAnonymousLogger().warning(Resistance3Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, h, dh).toString());
   }
 }
