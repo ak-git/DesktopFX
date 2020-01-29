@@ -18,7 +18,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import tec.uom.se.AbstractUnit;
 
-public final class AperCalibrationConverterTest {
+public class AperCalibrationConverterTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -59,7 +59,7 @@ public final class AperCalibrationConverterTest {
   }
 
   @Test
-  public static void testVariableProperties() {
+  public void testVariableProperties() {
     EnumSet.allOf(AperCalibrationVariable.class).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
     EnumSet.allOf(AperCalibrationVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), AperInVariable.class));
     EnumSet.complementOf(EnumSet.of(AperCalibrationVariable.PU_1, AperCalibrationVariable.PU_2)).forEach(variable -> Assert.assertEquals(variable.options(),

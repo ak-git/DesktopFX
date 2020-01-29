@@ -20,10 +20,7 @@ import org.testng.annotations.Test;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public final class AperTest {
-  private AperTest() {
-  }
-
+public class AperTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -41,7 +38,7 @@ public final class AperTest {
   }
 
   @Test(dataProvider = "variables")
-  public static void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
+  public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
     Converter<BufferFrame, AperOutVariable> converter = new LinkedConverter<>(
         new ToIntegerConverter<>(AperInVariable.class, 1000), AperOutVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
@@ -66,7 +63,7 @@ public final class AperTest {
   }
 
   @Test
-  public static void testVariableProperties() {
+  public void testVariableProperties() {
     Assert.assertEquals(AperOutVariable.CCR.getUnit(), Units.OHM);
     Assert.assertTrue(AperOutVariable.CCR.options().contains(Variable.Option.TEXT_VALUE_BANNER));
 
@@ -75,7 +72,7 @@ public final class AperTest {
   }
 
   @Test
-  public static void testInputVariablesClass() {
+  public void testInputVariablesClass() {
     EnumSet.allOf(AperOutVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), AperInVariable.class));
   }
 
@@ -89,17 +86,17 @@ public final class AperTest {
   }
 
   @Test(dataProvider = "filter-delay")
-  public static void testFilterDelay(@Nonnull AperOutVariable variable, double delay) {
+  public void testFilterDelay(@Nonnull AperOutVariable variable, double delay) {
     Assert.assertEquals(variable.filter().getDelay(), delay, 0.001, variable.toString());
   }
 
   @Test(enabled = false)
-  public static void testSplineSurface1() {
+  public void testSplineSurface1() {
     SplineCoefficientsUtils.testSplineSurface1(AperSurfaceCoefficientsChannel1.class);
   }
 
   @Test(enabled = false)
-  public static void testSplineSurface2() {
+  public void testSplineSurface2() {
     SplineCoefficientsUtils.testSplineSurface2(AperSurfaceCoefficientsChannel2.class);
   }
 }

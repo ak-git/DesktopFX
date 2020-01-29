@@ -23,7 +23,7 @@ import static com.ak.comm.converter.rcm.calibration.RcmCalibrationVariable.CC_AD
 import static com.ak.comm.converter.rcm.calibration.RcmCalibrationVariable.MIN_RHEO_ADC;
 import static com.ak.comm.converter.rcm.calibration.RcmCalibrationVariable.RHEO_ADC;
 
-public final class RcmCalibrationConverterTest {
+public class RcmCalibrationConverterTest {
   @DataProvider(name = "calibrable-variables")
   public static Object[][] calibrableVariables() {
     return new Object[][] {
@@ -52,7 +52,7 @@ public final class RcmCalibrationConverterTest {
   }
 
   @Test
-  public static void testVariables() {
+  public void testVariables() {
     EnumSet.allOf(RcmCalibrationVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), RcmInVariable.class));
     EnumSet.of(CC_ADC, BASE_ADC, RHEO_ADC).forEach(v -> Assert.assertTrue(v.options().contains(Variable.Option.VISIBLE), v.options().toString()));
     EnumSet.of(MIN_RHEO_ADC, AVG_RHEO_ADC).forEach(v -> Assert.assertTrue(v.options().contains(Variable.Option.TEXT_VALUE_BANNER), v.options().toString()));

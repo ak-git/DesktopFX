@@ -9,9 +9,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class FxClassPathXmlApplicationContextTest {
-  private FxClassPathXmlApplicationContextTest() {
-  }
-
   @DataProvider(name = "contexts")
   public static Object[][] contexts() {
     return new Object[][] {
@@ -25,7 +22,7 @@ public class FxClassPathXmlApplicationContextTest {
   }
 
   @Test(dataProvider = "contexts")
-  public static void testContext(@Nonnull String contextName) {
+  public void testContext(@Nonnull String contextName) {
     PropertiesSupport.CONTEXT.update(contextName);
     Assert.assertEquals(new FxClassPathXmlApplicationContext(FxClassPathXmlApplicationContext.class).getApplicationName(), "");
     PropertiesSupport.CONTEXT.update(Strings.EMPTY);
