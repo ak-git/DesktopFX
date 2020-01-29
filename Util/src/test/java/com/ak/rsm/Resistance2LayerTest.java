@@ -120,7 +120,8 @@ public class Resistance2LayerTest {
   @Test(dataProvider = "layer2Static", enabled = false)
   @ParametersAreNonnullByDefault
   public void testInverseStatic(TetrapolarSystem[] systems, double[] rOhms, double[] expectedH) {
-    Assert.assertEquals(Resistance2Layer.inverseStatic(systems, rOhms).getH(), expectedH, Metrics.fromMilli(3));
+    Assert.assertEquals(Resistance2Layer.inverseStaticLinear(systems, rOhms).getH(), expectedH, Metrics.fromMilli(3));
+    Assert.assertEquals(Resistance2Layer.inverseStaticLog(systems, rOhms).getH(), expectedH, Metrics.fromMilli(3));
     Assert.assertEquals(Resistance2Layer.inverseDynamic(systems, rOhms, rOhms, -Metrics.fromMilli(0.1)).getH(), expectedH, Metrics.fromMilli(3));
   }
 
@@ -176,7 +177,8 @@ public class Resistance2LayerTest {
       rOhmsBefore[i] += noise[i];
       rOhmsAfter[i] += noise[i];
     }
-    Resistance2Layer.inverseStatic(systems, rOhmsBefore);
+    Resistance2Layer.inverseStaticLinear(systems, rOhmsBefore);
+    Resistance2Layer.inverseStaticLog(systems, rOhmsBefore);
     Assert.assertEquals(Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh).getH(), expectedH, Metrics.fromMilli(2));
   }
 }
