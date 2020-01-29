@@ -41,4 +41,7 @@
     <orderEntry type="module" module-name="DesktopFX.Communication.main" />
     <orderEntry type="module" module-name="DesktopFX.Util.main" />
   </component>
+  <component name="SonarLintModuleSettings">
+    <option name="sqPathPrefix" value="FxDesktop" />
+  </component>
 </module>
