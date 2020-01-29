@@ -19,11 +19,8 @@ import org.testng.annotations.Test;
 public class ConcurrentAsyncFileChannelTest {
   private static final Logger LOGGER = Logger.getLogger(ConcurrentAsyncFileChannel.class.getName());
 
-  private ConcurrentAsyncFileChannelTest() {
-  }
-
   @Test
-  public static void testWriteAndRead() {
+  public void testWriteAndRead() {
     ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> {
       Path path = LogBuilders.TIME.build(ConcurrentAsyncFileChannelTest.class.getSimpleName()).getPath();
       return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
@@ -45,7 +42,7 @@ public class ConcurrentAsyncFileChannelTest {
   }
 
   @Test
-  public static void testParallelWriteAndRead() throws InterruptedException, ExecutionException {
+  public void testParallelWriteAndRead() throws InterruptedException, ExecutionException {
     ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> {
       Path path = LogBuilders.TIME.build(ConcurrentAsyncFileChannelTest.class.getSimpleName() + "Parallel").getPath();
       return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
@@ -84,7 +81,7 @@ public class ConcurrentAsyncFileChannelTest {
   }
 
   @Test
-  public static void testInvalidInitialize() {
+  public void testInvalidInitialize() {
     Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
       ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> {
         throw new Exception(ConcurrentAsyncFileChannel.class.getSimpleName());
@@ -98,7 +95,7 @@ public class ConcurrentAsyncFileChannelTest {
   }
 
   @Test
-  public static void testNullInitialize() {
+  public void testNullInitialize() {
     ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> null);
     ByteBuffer buffer = ByteBuffer.allocate(1);
     channel.write(buffer);

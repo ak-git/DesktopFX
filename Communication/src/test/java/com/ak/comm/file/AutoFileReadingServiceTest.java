@@ -22,9 +22,6 @@ public class AutoFileReadingServiceTest implements Flow.Subscriber<int[]> {
       () -> new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
       () -> new ToIntegerConverter<>(TwoVariables.class, 1000));
 
-  private AutoFileReadingServiceTest() {
-  }
-
   @BeforeClass
   public void setUp() {
     service.subscribe(this);
