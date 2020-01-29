@@ -110,9 +110,15 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
                 index -> logApparentPredictedFunction.apply(new double[] {k12, k23}, new int[] {p1, p2mp1}).applyAsDouble(index)
             );
             double[] logDiffPredicted = rangeSystems(systems.length, index -> {
-              double value = new DerivativeApparent3Rho(systems[index]).value(k12, k23, h, p1, p2mp1);
-              if (Double.compare(Math.signum(value), Math.signum(rDiff.applyAsDouble(index))) == 0) {
-                return log(Math.abs(value));
+              double rho1 = 1.0;
+              double rho2 = rho1 / Layers.getRho1ToRho2(k12);
+              double rho3 = rho2 / Layers.getRho1ToRho2(k23);
+              double a = new Resistance1Layer(systems[index]).getApparent((
+                  new Resistance3Layer(systems[index], h).value(rho1, rho2, rho3, p1 + (int) (dh / h), p2mp1) -
+                      new Resistance3Layer(systems[index], h).value(rho1, rho2, rho3, p1, p2mp1)) / dh
+              );
+              if (Double.compare(Math.signum(a), Math.signum(rDiff.applyAsDouble(index))) == 0) {
+                return log(Math.abs(a));
               }
               else {
                 return Double.POSITIVE_INFINITY;
@@ -150,7 +156,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
     double rho3 = rho2 / Layers.getRho1ToRho2(k[1]);
 
     return new Medium.Builder(systems, rOhmsBefore, rOhmsAfter, dh,
-        (s, deltaH) -> new Resistance3Layer(s, h + deltaH).value(rho1, rho2, rho3, p[0], p[1]))
+        (s, deltaH) -> new Resistance3Layer(s, h).value(rho1, rho2, rho3, p[0] + (int) (deltaH / h), p[1]))
         .addLayer(rho1, p[0] * h)
         .addLayer(rho2, p[1] * h).build(rho3);
   }
