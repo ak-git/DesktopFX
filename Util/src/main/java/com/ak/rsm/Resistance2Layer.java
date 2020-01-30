@@ -96,7 +96,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
             return Inequality.absolute().applyAsDouble(logApparent, subLogApparentPredicted);
           },
           new SimpleBounds(new double[] {0.0, -1.0}, new double[] {maxL, 1.0}),
-          new double[] {Math.random() * maxL / 2.0, Math.random() * 2.0 - 1.0}, new double[] {maxL / 10.0, 0.1}
+          new double[] {maxL / 10.0, 0.0}, new double[] {maxL / 10.0, 0.1}
       );
 
       double h = find.getPoint()[0];
