@@ -147,6 +147,35 @@ public class Resistance3LayerTest {
     };
   }
 
+  @DataProvider(name = "akDynamicParameters3")
+  public static Object[][] akDynamicParameters3() {
+    double hmm = 0.05;
+    double dHmm = 0.15;
+    return new Object[][] {
+        {
+            systems4(6.0),
+            new double[] {134.88, 172.72, 190.50, 154.75},
+            new double[] {134.90, 172.80, 190.60, 154.80},
+            Metrics.fromMilli(hmm),
+            Metrics.fromMilli(dHmm)
+        },
+        {
+            systems4(7.0),
+            new double[] {113.43, 167.50, 148.725, 185.60},
+            new double[] {113.56, 167.80, 148.925, 185.90},
+            Metrics.fromMilli(hmm),
+            Metrics.fromMilli(dHmm)
+        },
+        {
+            systems4(8.0),
+            new double[] {110.30, 164.90, 147.82, 179.85},
+            new double[] {110.36, 165.05, 147.94, 180.05},
+            Metrics.fromMilli(hmm),
+            Metrics.fromMilli(dHmm)
+        },
+    };
+  }
+
   @Test(dataProvider = "theoryDynamicParameters3", enabled = false)
   @ParametersAreNonnullByDefault
   public void testInverse(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter,

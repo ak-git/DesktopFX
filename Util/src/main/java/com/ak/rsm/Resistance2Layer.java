@@ -156,7 +156,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
           double[] predicted = rangeSystems(systems.length, i -> logApparentPredicted[i] - logDiffPredicted[i]);
           return Inequality.absolute().applyAsDouble(measured, predicted);
         },
-        new SimpleBounds(new double[] {0.0, -1.0}, new double[] {maxL, 1.0}), new double[] {maxL / 2.0, 0.0}, new double[] {maxL / 10.0, 0.1}
+        new SimpleBounds(new double[] {0.0, -1.0}, new double[] {maxL, 1.0}), new double[] {Math.random() * maxL / 2.0, 0.0}, new double[] {maxL / 10.0, 0.1}
     );
 
     double h = find.getPoint()[0];
