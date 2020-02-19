@@ -1,0 +1,2 @@
+# DesktopFX
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/6b274b2597334f9f9451284dc8850251)](https://app.codacy.com/manual/ak.mail.ru/DesktopFX?utm_source=github.com&utm_medium=referral&utm_content=ak-git/DesktopFX&utm_campaign=Badge_Grade_Settings)
