@@ -13,12 +13,9 @@ import org.testng.annotations.Test;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public final class AperTest {
-  private AperTest() {
-  }
-
+public class AperTest {
   @Test
-  public static void testVariableProperties() {
+  public void testVariableProperties() {
     Assert.assertEquals(AperOutVariable.CCR1.getUnit(), Units.OHM);
     Assert.assertTrue(AperOutVariable.CCR1.options().contains(Variable.Option.TEXT_VALUE_BANNER));
 
@@ -27,7 +24,7 @@ public final class AperTest {
   }
 
   @Test
-  public static void testInputVariablesClass() {
+  public void testInputVariablesClass() {
     EnumSet.allOf(AperOutVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), AperInVariable.class));
   }
 
@@ -41,17 +38,17 @@ public final class AperTest {
   }
 
   @Test(dataProvider = "filter-delay")
-  public static void testFilterDelay(@Nonnull AperOutVariable variable, double delay) {
+  public void testFilterDelay(@Nonnull AperOutVariable variable, double delay) {
     Assert.assertEquals(variable.filter().getDelay(), delay, 0.001, variable.toString());
   }
 
   @Test(enabled = false)
-  public static void testSplineSurface1() {
+  public void testSplineSurface1() {
     SplineCoefficientsUtils.testSplineSurface1(AperSurfaceCoefficientsChannel1.class);
   }
 
   @Test(enabled = false)
-  public static void testSplineSurface2() {
+  public void testSplineSurface2() {
     SplineCoefficientsUtils.testSplineSurface2(AperSurfaceCoefficientsChannel2.class);
   }
 }

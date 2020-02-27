@@ -22,11 +22,8 @@ import tec.uom.se.unit.Units;
 public class VariableTest {
   private static final Logger LOGGER = Logger.getLogger(Variables.class.getName());
 
-  private VariableTest() {
-  }
-
   @Test
-  public static void testGetUnit() {
+  public void testGetUnit() {
     Variable<ADCVariable> variable = new Variable<>() {
       @Override
       public String name() {
@@ -48,12 +45,12 @@ public class VariableTest {
   }
 
   @Test
-  public static void testGetDependentUnit() {
+  public void testGetDependentUnit() {
     Assert.assertEquals(OperatorVariables2.OUT.getUnit(), AbstractUnit.ONE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*No enum constant.*InvalidName")
-  public static void testInvalidGetVariables() {
+  public void testInvalidGetVariables() {
     DependentVariable<OperatorVariables, ADCVariable> variable = new DependentVariable<>() {
       @Nonnull
       @Override
@@ -82,7 +79,7 @@ public class VariableTest {
   }
 
   @Test
-  public static void testVisibleProperty() {
+  public void testVisibleProperty() {
     Assert.assertTrue(SingleVariables.E1.options().contains(Variable.Option.VISIBLE));
     Assert.assertTrue(OperatorVariables.OUT_PLUS.options().contains(Variable.Option.VISIBLE));
     Assert.assertEquals(OperatorVariables.OUT_PLUS.indexBy(Variable.Option.VISIBLE), 0);
@@ -96,7 +93,7 @@ public class VariableTest {
   }
 
   @Test
-  public static void testToString() {
+  public void testToString() {
     String adc = Variables.toString(ADCVariable.ADC, 10000);
     Assert.assertTrue(adc.startsWith("ADC = "), adc);
     Assert.assertTrue(adc.endsWith(String.format(Locale.getDefault(), "%,d one", 10000)), adc);
@@ -121,7 +118,7 @@ public class VariableTest {
   }
 
   @Test
-  public static void testToName() {
+  public void testToName() {
     Assert.assertTrue(Variables.toName(ADCVariable.ADC).startsWith("ADC, "));
   }
 
@@ -145,7 +142,7 @@ public class VariableTest {
   }
 
   @Test(dataProvider = "formatValues")
-  public static void testFormatValues(int value, @Nonnull Unit<?> unit, @Nonnegative int scaleFactor10, @Nonnull String expected) {
+  public void testFormatValues(int value, @Nonnull Unit<?> unit, @Nonnegative int scaleFactor10, @Nonnull String expected) {
     Assert.assertEquals(Variables.toString(value, unit, scaleFactor10), expected);
   }
 }

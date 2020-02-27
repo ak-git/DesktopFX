@@ -10,9 +10,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class AperCoefficientsTest {
-  private AperCoefficientsTest() {
-  }
-
   @DataProvider(name = "aper-coefficients")
   public static Object[][] aperCoefficients() {
     return new Object[][] {
@@ -32,14 +29,14 @@ public class AperCoefficientsTest {
   }
 
   @Test
-  public static void testCoefficients() {
+  public void testCoefficients() {
     Assert.assertEquals(AperCoefficients.values().length, 1);
     Assert.assertEquals(AperSurfaceCoefficientsChannel1.values().length, 5);
     Assert.assertEquals(AperSurfaceCoefficientsChannel2.values().length, 5);
   }
 
   @Test(dataProvider = "aper-coefficients")
-  public static void testCoefficients(@Nonnull Supplier<double[]> coefficients, @Nonnegative int count) {
+  public void testCoefficients(@Nonnull Supplier<double[]> coefficients, @Nonnegative int count) {
     Assert.assertEquals(coefficients.get().length, count, coefficients.toString());
   }
 }

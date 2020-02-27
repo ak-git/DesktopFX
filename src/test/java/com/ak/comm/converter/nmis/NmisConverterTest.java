@@ -21,16 +21,13 @@ public class NmisConverterTest {
   private static final Logger LOGGER = Logger.getLogger(NmisConverter.class.getName());
   private static final int[] EMPTY_INTS = {};
 
-  private NmisConverterTest() {
-  }
-
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "aliveAndChannelsResponse")
-  public static void testAliveAndChannelsResponse(NmisAddress address, byte[] input) {
+  public void testAliveAndChannelsResponse(NmisAddress address, byte[] input) {
     testConverter(address, input, EMPTY_INTS);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "dataResponse")
-  public static void testDataResponse(byte[] input, int[] expected) {
+  public void testDataResponse(byte[] input, int[] expected) {
     testConverter(NmisAddress.DATA, input, expected);
   }
 

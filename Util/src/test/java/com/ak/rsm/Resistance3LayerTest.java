@@ -1,7 +1,9 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
+import java.util.Random;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -133,12 +135,41 @@ public class Resistance3LayerTest {
   public static Object[][] theoryDynamicParameters3() {
     TetrapolarSystem[] systems4 = systems4(10);
     double hmm = 0.1;
-    double dHmm = hmm / 1000.0;
+    double dHmm = 0.1;
     return new Object[][] {
         {
             systems4,
-            rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, hmm, 10, 3)),
-            rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, hmm + dHmm, 10, 3)),
+            rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, hmm, 60, 40)),
+            rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, hmm + dHmm / 100, 60, 40)),
+            Metrics.fromMilli(hmm),
+            Metrics.fromMilli(dHmm)
+        },
+    };
+  }
+
+  @DataProvider(name = "akDynamicParameters3")
+  public static Object[][] akDynamicParameters3() {
+    double hmm = 0.05;
+    double dHmm = 0.15;
+    return new Object[][] {
+        {
+            systems4(6.0),
+            new double[] {134.88, 172.72, 190.50, 154.75},
+            new double[] {134.90, 172.80, 190.60, 154.80},
+            Metrics.fromMilli(hmm),
+            Metrics.fromMilli(dHmm)
+        },
+        {
+            systems4(7.0),
+            new double[] {113.43, 167.50, 148.725, 185.60},
+            new double[] {113.56, 167.80, 148.925, 185.90},
+            Metrics.fromMilli(hmm),
+            Metrics.fromMilli(dHmm)
+        },
+        {
+            systems4(8.0),
+            new double[] {110.30, 164.90, 147.82, 179.85},
+            new double[] {110.36, 165.05, 147.94, 180.05},
             Metrics.fromMilli(hmm),
             Metrics.fromMilli(dHmm)
         },
@@ -148,7 +179,16 @@ public class Resistance3LayerTest {
   @Test(dataProvider = "theoryDynamicParameters3", enabled = false)
   @ParametersAreNonnullByDefault
   public void testInverse(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter,
-                          @Nonnegative double h, double dh) {
-    Logger.getAnonymousLogger().warning(Resistance3Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, h, dh).toString());
+                          @Nonnegative double h, double dH) {
+    Random random = new Random();
+    double[] noise = IntStream.range(0, systems.length).mapToDouble(value -> random.nextGaussian() / 10).toArray();
+    for (int i = 0; i < noise.length; i++) {
+      rOhmsBefore[i] += noise[i];
+      rOhmsAfter[i] += noise[i];
+    }
+    Resistance2Layer.inverseStaticLinear(systems, rOhmsBefore);
+    Resistance2Layer.inverseStaticLog(systems, rOhmsBefore);
+    Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dH);
+    Logger.getAnonymousLogger().warning(Resistance3Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, h, dH).toString());
   }
 }

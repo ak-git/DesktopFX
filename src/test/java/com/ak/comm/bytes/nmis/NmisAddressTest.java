@@ -23,11 +23,8 @@ import static com.ak.comm.bytes.nmis.NmisAddress.ROTATE_HAND;
 public class NmisAddressTest {
   private static final Logger LOGGER = Logger.getLogger(NmisAddress.class.getName());
 
-  private NmisAddressTest() {
-  }
-
   @Test
-  public static void testGetAddrRequest() {
+  public void testGetAddrRequest() {
     EnumSet<NmisAddress> bad = EnumSet.of(ALIVE, CATCH_ELBOW, ROTATE_ELBOW, CATCH_HAND, ROTATE_HAND);
     for (NmisAddress address : bad) {
       Assert.assertThrows(UnsupportedOperationException.class, address::getAddrRequest);
@@ -43,7 +40,7 @@ public class NmisAddressTest {
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "nullResponse")
-  public static void testNotFound(byte[] input) {
+  public void testNotFound(byte[] input) {
     Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
         () -> Assert.assertNull(NmisAddress.find(ByteBuffer.wrap(input))),
         logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith("Address -12 not found"), logRecord.getMessage()))
@@ -51,12 +48,12 @@ public class NmisAddressTest {
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "aliveAndChannelsResponse")
-  public static void testFind(NmisAddress address, byte[] input) {
+  public void testFind(NmisAddress address, byte[] input) {
     Assert.assertEquals(Objects.requireNonNull(NmisAddress.find(ByteBuffer.wrap(input))), address);
   }
 
   @Test(dataProviderClass = NmisExtractorTestProvider.class, dataProvider = "extractNone")
-  public static void testExtractorNone(byte[] from) {
+  public void testExtractorNone(byte[] from) {
     NmisResponseFrame response = new NmisResponseFrame.Builder(ByteBuffer.wrap(from)).build();
     Assert.assertNotNull(response);
     Assert.assertEquals(response.extractTime().count(), 0);
@@ -66,13 +63,13 @@ public class NmisAddressTest {
   }
 
   @Test(dataProviderClass = NmisExtractorTestProvider.class, dataProvider = "extractTime")
-  public static void testExtractorValues(byte[] from, BaseStream<Integer, IntStream> expected) {
+  public void testExtractorValues(byte[] from, BaseStream<Integer, IntStream> expected) {
     Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(from)).build())
         .ifPresent(response -> Assert.assertEquals(response.extractTime().iterator(), expected.iterator()));
   }
 
   @Test(dataProviderClass = NmisExtractorTestProvider.class, dataProvider = "extractData")
-  public static void testExtractorToBuffer(byte[] from, byte[] expected) {
+  public void testExtractorToBuffer(byte[] from, byte[] expected) {
     ByteBuffer destination = ByteBuffer.allocate(expected.length);
     Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(from)).build())
         .ifPresent(response -> {

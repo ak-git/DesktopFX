@@ -17,7 +17,7 @@ import tec.uom.se.AbstractUnit;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public final class AperConverterTest {
+public class AperConverterTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -47,7 +47,7 @@ public final class AperConverterTest {
   }
 
   @Test
-  public static void testVariableProperties() {
+  public void testVariableProperties() {
     EnumSet.of(AperInVariable.R1, AperInVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
     EnumSet.of(AperInVariable.E1, AperInVariable.E2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT), t.name()));
     EnumSet.of(AperInVariable.CCU1, AperInVariable.CCU2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));

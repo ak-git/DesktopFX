@@ -19,9 +19,6 @@ import org.testng.annotations.Test;
 import tec.uom.se.AbstractUnit;
 
 public class LinkedConverterTest {
-  private LinkedConverterTest() {
-  }
-
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -39,7 +36,7 @@ public class LinkedConverterTest {
   }
 
   @Test(dataProvider = "variables")
-  public static void testApply(BufferFrame frame, int[] output) {
+  public void testApply(BufferFrame frame, int[] output) {
     ToIntegerConverter<TwoVariables> converter = new ToIntegerConverter<>(TwoVariables.class, 200);
     LinkedConverter<BufferFrame, TwoVariables, OperatorVariables> linkedConverter = new LinkedConverter<>(converter, OperatorVariables.class);
     Assert.assertEquals(linkedConverter.variables(), Stream.of(OperatorVariables.values()).collect(Collectors.toList()));
@@ -48,7 +45,7 @@ public class LinkedConverterTest {
   }
 
   @Test(dataProvider = "variables2")
-  public static void testApply2(BufferFrame frame, int[] output) {
+  public void testApply2(BufferFrame frame, int[] output) {
     Function<BufferFrame, Stream<int[]>> linkedConverter =
         new LinkedConverter<>(
             new LinkedConverter<>(new ToIntegerConverter<>(TwoVariables.class, 1000), OperatorVariables.class),
@@ -67,13 +64,13 @@ public class LinkedConverterTest {
   }
 
   @Test
-  public static void testRecursive() {
+  public void testRecursive() {
     Assert.assertEquals(RefreshVariable.OUT.getUnit(), AbstractUnit.ONE);
     Assert.assertEquals(RefreshVariable.OUT.options(), Variable.Option.defaultOptions());
   }
 
   @Test(dataProvider = "refresh-variables")
-  public static void testRefresh(BufferFrame frame) {
+  public void testRefresh(BufferFrame frame) {
     LinkedConverter<BufferFrame, RefreshVariable, RefreshVariable> linkedConverter =
         new LinkedConverter<>(
             new LinkedConverter<>(new ToIntegerConverter<>(RefreshVariable.class, 1), RefreshVariable.class),

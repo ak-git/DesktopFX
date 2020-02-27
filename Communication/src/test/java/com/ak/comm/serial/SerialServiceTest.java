@@ -14,9 +14,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class SerialServiceTest implements Flow.Subscriber<ByteBuffer> {
-  private SerialServiceTest() {
-  }
-
   @Test
   public void test() {
     List<SerialService> services = Arrays.stream(SerialPortList.getPortNames()).map(port -> {

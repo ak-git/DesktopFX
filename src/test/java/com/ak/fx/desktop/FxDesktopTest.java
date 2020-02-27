@@ -150,7 +150,7 @@ public final class FxDesktopTest extends Preloader {
   }
 
   @Test
-  public static void testNames() {
+  public void testNames() {
     for (OS os : OS.values()) {
       OSStageStorage.valueOf(os.name());
       OSDockImage.valueOf(os.name());
@@ -158,7 +158,7 @@ public final class FxDesktopTest extends Preloader {
   }
 
   @Test
-  public static void testInvalidSetIconImage() throws Exception {
+  public void testInvalidSetIconImage() throws Exception {
     AtomicBoolean exceptionFlag = new AtomicBoolean(false);
     OS_DOCK_IMAGE_LOGGER.setFilter(record -> {
       Assert.assertNotNull(record.getThrown());
@@ -189,7 +189,7 @@ public final class FxDesktopTest extends Preloader {
   }
 
   @Test(expectedExceptions = {NullPointerException.class, IllegalArgumentException.class})
-  public static void testInvalidApplicationStart() throws Exception {
+  public void testInvalidApplicationStart() throws Exception {
     FX_APP_LOGGER.setLevel(Level.OFF);
     try {
       APP_REFERENCE.get().start(null);
@@ -205,7 +205,7 @@ public final class FxDesktopTest extends Preloader {
   }
 
   @Test
-  public static void testScreenResolutionMonitor() {
+  public void testScreenResolutionMonitor() {
     try {
       ScreenResolutionMonitor.INSTANCE.dpi(() -> STAGE_REFERENCE.get().getScene());
     }
