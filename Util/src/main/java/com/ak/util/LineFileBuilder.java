@@ -5,7 +5,6 @@ import java.util.function.BiFunction;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -74,7 +73,7 @@ public class LineFileBuilder<T> {
     Supplier<DoubleStream> yVar = yRange::build;
     check(yVar.get().mapToObj(y -> xVar.get().map(x -> {
       double v = operator.applyAsDouble(x, y);
-      Logger.getAnonymousLogger().log(Level.INFO, String.format(format, x, y, v));
+      Logger.getAnonymousLogger().config(() -> String.format(format, x, y, v));
       return v;
     })).map(stream -> stream.mapToObj(value -> String.format(outFormat, value)).collect(Collectors.joining(Strings.TAB)))
         .collect(new LineFileCollector(Paths.get(fileName), LineFileCollector.Direction.VERTICAL)));
