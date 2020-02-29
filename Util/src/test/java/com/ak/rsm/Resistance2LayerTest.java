@@ -2,6 +2,7 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -170,15 +171,18 @@ public class Resistance2LayerTest {
 
   @Test(dataProvider = "layer2Dynamic", enabled = false)
   @ParametersAreNonnullByDefault
-  public void testInverseDynamic(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh, double[] expectedH) {
+  public void testInverse(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh, double[] expectedH) {
     Random random = new Random();
     double[] noise = IntStream.range(0, systems.length).mapToDouble(value -> random.nextGaussian() / 10).toArray();
     for (int i = 0; i < noise.length; i++) {
       rOhmsBefore[i] += noise[i];
       rOhmsAfter[i] += noise[i];
     }
-    Resistance2Layer.inverseStaticLinear(systems, rOhmsBefore);
-    Resistance2Layer.inverseStaticLog(systems, rOhmsBefore);
-    Assert.assertEquals(Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh).getH(), expectedH, Metrics.fromMilli(2));
+    Logger logger = Logger.getLogger(Resistance2LayerTest.class.getName());
+    logger.info(() -> String.format("2 Layers - inverseStaticLinear%n%s", Resistance2Layer.inverseStaticLinear(systems, rOhmsBefore)));
+    logger.info(() -> String.format("2 Layers - inverseStaticLog%n%s", Resistance2Layer.inverseStaticLog(systems, rOhmsBefore)));
+    Medium medium = Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh);
+    logger.warning(() -> String.format("2 Layers - inverseDynamic%n%s", medium));
+    Assert.assertEquals(medium.getH(), expectedH, Metrics.fromMilli(2));
   }
 }

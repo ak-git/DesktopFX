@@ -31,6 +31,8 @@ class Medium {
   private final double[] rho;
   @Nonnull
   private final double[] h;
+  @Nonnegative
+  private final double inequality;
 
   private Medium(Builder b) {
     measured = b.measured;
@@ -39,6 +41,7 @@ class Medium {
     predictedDelta = b.predictedDelta;
     rho = DoubleStream.concat(b.layers.stream().mapToDouble(value -> value[0]), DoubleStream.of(b.rhoSemiInfinite)).toArray();
     h = b.layers.stream().mapToDouble(value -> value[1]).toArray();
+    inequality = b.inequality;
   }
 
   double getRho() {
@@ -48,6 +51,10 @@ class Medium {
     else {
       throw new UnsupportedOperationException(Arrays.toString(rho));
     }
+  }
+
+  double getInequality() {
+    return inequality;
   }
 
   @Nonnull
@@ -109,6 +116,8 @@ class Medium {
     private final Collection<double[]> layers = new ArrayList<>();
     @Nonnegative
     private double rhoSemiInfinite = Double.POSITIVE_INFINITY;
+    @Nonnegative
+    private double inequality;
 
     Builder(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms, @Nonnull ToDoubleFunction<? super TetrapolarSystem> toDoubleFunction) {
       measured = Arrays.copyOf(rOhms, rOhms.length);
@@ -124,6 +133,11 @@ class Medium {
 
       measuredDelta = IntStream.range(0, rOhmsBefore.length).mapToDouble(i -> rOhmsAfter[i] - rOhmsBefore[i]).toArray();
       predictedDelta = Arrays.stream(systems).mapToDouble(system -> toOhms.applyAsDouble(system, dh) - toOhms.applyAsDouble(system, 0.0)).toArray();
+    }
+
+    Builder inequality(double inequality) {
+      this.inequality = inequality;
+      return this;
     }
 
     Builder addLayer(@Nonnegative double rho, @Nonnegative double h) {
