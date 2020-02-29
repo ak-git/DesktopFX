@@ -179,10 +179,10 @@ public class Resistance2LayerTest {
       rOhmsAfter[i] += noise[i];
     }
     Logger logger = Logger.getLogger(Resistance2LayerTest.class.getName());
-    logger.info(() -> String.format("2 Layers - inverseStaticLinear%n%s", Resistance2Layer.inverseStaticLinear(systems, rOhmsBefore)));
-    logger.info(() -> String.format("2 Layers - inverseStaticLog%n%s", Resistance2Layer.inverseStaticLog(systems, rOhmsBefore)));
+    logger.config(() -> String.format("2 Layers - inverseStaticLinear%n%s", Resistance2Layer.inverseStaticLinear(systems, rOhmsBefore)));
+    logger.config(() -> String.format("2 Layers - inverseStaticLog%n%s", Resistance2Layer.inverseStaticLog(systems, rOhmsBefore)));
     Medium medium = Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh);
-    logger.warning(() -> String.format("2 Layers - inverseDynamic%n%s", medium));
+    logger.info(() -> String.format("2 Layers - inverseDynamic%n%s", medium));
     Assert.assertEquals(medium.getH(), expectedH, Metrics.fromMilli(2));
   }
 }

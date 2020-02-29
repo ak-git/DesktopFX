@@ -24,7 +24,7 @@ import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.util.Pair;
 
 public class Simplex {
-  private static final double STOP_FITNESS = 1.0e-12;
+  private static final double STOP_FITNESS = 1.0e-6;
   private static final int MAX_ITERATIONS = 300000;
 
   private Simplex() {

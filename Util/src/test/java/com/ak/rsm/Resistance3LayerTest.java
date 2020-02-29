@@ -157,7 +157,7 @@ public class Resistance3LayerTest {
       rOhmsAfter[i] += noise[i];
     }
     Medium medium = Resistance3Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dH);
-    Logger.getLogger(Resistance3Layer.class.getName()).info(() -> String.format("3 Layers - inverseDynamic%n%s", medium));
+    Logger.getLogger(Resistance3Layer.class.getName()).warning(() -> String.format("3 Layers - inverseDynamic%n%s", medium));
     Assert.assertEquals(medium.getH(), expectedH, Metrics.fromMilli(2));
   }
 
