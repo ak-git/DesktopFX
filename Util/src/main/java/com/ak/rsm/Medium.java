@@ -87,7 +87,13 @@ class Medium {
       double error = Inequality.proportional().applyAsDouble(measured, predicted) / measured.length;
       double error2 = Inequality.proportional().applyAsDouble(measuredDelta, predictedDelta) / measuredDelta.length;
 
-      return String.format("%s; L%s = [%.1f; %.1f] %s;%nmeasured  = %s, %s = %s;%npredicted = %s, %s = %s;", sb,
+      String epsilon = Strings.EMPTY;
+      if (!Double.isNaN(inequality)) {
+        epsilon = String.format("%s = %.6f", Strings.EPSILON, inequality);
+      }
+
+      return String.format("%s; %s; L%s = [%.1f; %.1f] %s;%nmeasured  = %s, %s = %s;%npredicted = %s, %s = %s;", sb,
+          epsilon,
           Strings.low(2),
           Metrics.toPercents(error),
           Metrics.toPercents(error2),
@@ -117,7 +123,7 @@ class Medium {
     @Nonnegative
     private double rhoSemiInfinite = Double.POSITIVE_INFINITY;
     @Nonnegative
-    private double inequality;
+    private double inequality = Double.NaN;
 
     Builder(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms, @Nonnull ToDoubleFunction<? super TetrapolarSystem> toDoubleFunction) {
       measured = Arrays.copyOf(rOhms, rOhms.length);

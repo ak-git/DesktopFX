@@ -188,11 +188,20 @@ public class Resistance3LayerTest {
 
   @Test(dataProvider = "akDynamicParameters3", enabled = false)
   @ParametersAreNonnullByDefault
+  public void testInverse2(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dH) {
+    Logger logger = Logger.getLogger(Resistance3LayerTest.class.getName());
+    logger.config(() -> String.format("2 Layers - inverseStaticLinear%n%s", Resistance2Layer.inverseStaticLinear(systems, rOhmsBefore)));
+    logger.config(() -> String.format("2 Layers - inverseStaticLog%n%s", Resistance2Layer.inverseStaticLog(systems, rOhmsBefore)));
+    logger.info(() -> String.format("2 Layers - inverseDynamic%n%s%n", Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dH)));
+  }
+
+  @Test(dataProvider = "akDynamicParameters3", enabled = false)
+  @ParametersAreNonnullByDefault
   public void testInverse(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dH) {
-    Logger logger = Logger.getLogger(Resistance3Layer.class.getName());
-    logger.info(() -> String.format("2 Layers - inverseStaticLinear%n%s", Resistance2Layer.inverseStaticLinear(systems, rOhmsBefore)));
-    logger.info(() -> String.format("2 Layers - inverseStaticLog%n%s", Resistance2Layer.inverseStaticLog(systems, rOhmsBefore)));
-    logger.info(() -> String.format("2 Layers - inverseDynamic%n%s", Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dH)));
-    logger.warning(() -> String.format("3 Layers - inverseDynamic%n%s", Resistance3Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dH)));
+    Logger.getLogger(Resistance3LayerTest.class.getName()).warning(
+        () -> String.format("3 Layers - inverseDynamic %s %n%s%n",
+            Arrays.toString(systems),
+            Resistance3Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dH))
+    );
   }
 }

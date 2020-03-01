@@ -132,8 +132,8 @@ public class Resistance2LayerTest {
     Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh);
   }
 
-  @DataProvider(name = "layer2Dynamic")
-  public static Object[][] layer2Dynamic() {
+  @DataProvider(name = "theoryDynamicParameters2")
+  public static Object[][] theoryDynamicParameters2() {
     TetrapolarSystem[] systems2 = LayersProvider.systems2_10mm();
     TetrapolarSystem[] systems4 = LayersProvider.systems4(10);
     double dh = -0.1;
@@ -169,7 +169,7 @@ public class Resistance2LayerTest {
     };
   }
 
-  @Test(dataProvider = "layer2Dynamic", enabled = false)
+  @Test(dataProvider = "theoryDynamicParameters2", enabled = false)
   @ParametersAreNonnullByDefault
   public void testInverse(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh, double[] expectedH) {
     Random random = new Random();

@@ -20,6 +20,7 @@ public enum Strings {
   public static final String NEW_LINE_2 = String.format("%n%n");
   public static final String TAB = "\t";
   public static final String CAP_DELTA = "\u0394";
+  public static final String EPSILON = "\u03B5";
   public static final String OHM_METRE = new StringBuilder(OHM.multiply(METRE).toString()).reverse().toString();
   private static final String RHO = "\u03c1";
 

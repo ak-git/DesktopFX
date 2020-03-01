@@ -172,16 +172,16 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
           double rho2 = rho1 / Layers.getRho1ToRho2(k[0]);
           double rho3 = rho2 / Layers.getRho1ToRho2(k[1]);
 
-          Medium m = new Medium.Builder(systems, rOhmsBefore, rOhmsAfter, dH,
+          Medium medium = new Medium.Builder(systems, rOhmsBefore, rOhmsAfter, dH,
               (s, deltaH) -> new Resistance3Layer(s, h).value(rho1, rho2, rho3, p1 + (int) Math.round(Math.signum(deltaH) * divider), p2mp1))
               .inequality(min.getValue())
               .addLayer(rho1, p1 * h)
               .addLayer(rho2, p2mp1 * h)
               .build(rho3);
           Logger.getLogger(Resistance3Layer.class.getName()).info(
-              () -> String.format("/%d %.6f%n%s%n", divider, min.getValue(), m)
+              () -> String.format("/%d%n%s", divider, medium)
           );
-          return m;
+          return medium;
         })
         .min(Comparator.comparingDouble(Medium::getInequality)).orElseThrow();
   }
