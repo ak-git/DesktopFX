@@ -140,7 +140,7 @@ public class Resistance3LayerTest {
         {
             systems4,
             rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, hmm, 60, 30)),
-            rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, hmm, 60 + (int) Math.round(dHmm / hmm), 30)),
+            rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, hmm, 60, 30 + (int) Math.round(dHmm / hmm))),
             Metrics.fromMilli(dHmm),
             new double[] {Metrics.fromMilli(hmm) * 60, Metrics.fromMilli(hmm) * 30}
         },
@@ -197,7 +197,7 @@ public class Resistance3LayerTest {
 
   @Test(dataProvider = "akDynamicParameters3", enabled = false)
   @ParametersAreNonnullByDefault
-  public void testInverse(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dH) {
+  public void testInverse3(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dH) {
     Logger.getLogger(Resistance3LayerTest.class.getName()).warning(
         () -> String.format("3 Layers - inverseDynamic %s %n%s%n",
             Arrays.toString(systems),
