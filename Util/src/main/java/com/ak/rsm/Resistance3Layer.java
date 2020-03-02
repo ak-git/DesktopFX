@@ -10,7 +10,6 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.ToLongFunction;
 import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
-import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -100,7 +99,8 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
     double[] measured = rangeSystems(systems.length, i -> logApparent[i] - logDiff[i]);
 
     int p2 = 200;
-    return DoubleStream.iterate(1, divider -> divider < p2 - 1, divider -> divider * 1.618).mapToInt(divider -> (int) Math.round(divider))
+    return IntStream.iterate(0, i -> i + 1).mapToDouble(divider -> StrictMath.exp(divider / 4.0))
+        .mapToInt(divider -> (int) Math.ceil(divider)).takeWhile(divider -> divider < p2 - 1).distinct()
         .mapToObj(divider -> {
           double h = Math.abs(dH / divider);
           BiFunction<double[], int[], IntToDoubleFunction> logApparentPredictedFunction = (k, p) ->
