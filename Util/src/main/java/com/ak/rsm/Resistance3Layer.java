@@ -3,9 +3,9 @@ package com.ak.rsm;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.function.BiFunction;
+import java.util.function.DoubleFunction;
 import java.util.function.IntFunction;
 import java.util.function.IntToDoubleFunction;
-import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToLongFunction;
 import java.util.function.UnaryOperator;
@@ -85,24 +85,25 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
   public static Medium inverseDynamic(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dH) {
     IntToDoubleFunction rDiff = index -> (rOhmsAfter[index] - rOhmsBefore[index]);
 
-    Supplier<IntToDoubleFunction> apparentDiffByH = () ->
-        index -> log(Math.abs(new Resistance1Layer(systems[index]).getApparent(rDiff.applyAsDouble(index))));
+    DoubleFunction<IntToDoubleFunction> apparentDiffByH = dh ->
+        index -> log(Math.abs(new Resistance1Layer(systems[index]).getApparent(rDiff.applyAsDouble(index) / dh)));
 
-    if (Arrays.stream(rangeSystems(systems.length, index -> apparentDiffByH.get().applyAsDouble(index))).anyMatch(Double::isInfinite)) {
+    if (Arrays.stream(rangeSystems(systems.length, index -> apparentDiffByH.apply(1).applyAsDouble(index))).anyMatch(Double::isInfinite)) {
       return Resistance1Layer.inverseStatic(systems, rOhmsBefore);
     }
 
     IntToDoubleFunction logApparentFunction = index -> log(new Resistance1Layer(systems[index]).getApparent(rOhmsBefore[index]));
     double[] logApparent = rangeSystems(systems.length, logApparentFunction);
 
-    double[] logDiff = rangeSystems(systems.length, apparentDiffByH.get());
-    double[] measured = rangeSystems(systems.length, i -> logApparent[i] - logDiff[i]);
-
     int p2 = 200;
     return IntStream.iterate(0, i -> i + 1).mapToDouble(divider -> StrictMath.exp(divider / 4.0))
         .mapToInt(divider -> (int) Math.ceil(divider)).takeWhile(divider -> divider < p2 - 1).distinct()
         .mapToObj(divider -> {
           double h = Math.abs(dH / divider);
+
+          double[] logDiff = rangeSystems(systems.length, apparentDiffByH.apply(dH / p2));
+          double[] measured = rangeSystems(systems.length, i -> logApparent[i] - logDiff[i]);
+
           BiFunction<double[], int[], IntToDoubleFunction> logApparentPredictedFunction = (k, p) ->
               index -> new Log1pApparent3Rho(systems[index]).value(k[0], k[1], h, p[0], p[1]);
 
@@ -110,15 +111,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
             int p2mp1 = p2 - p1;
 
             UnaryOperator<double[]> diffPredictedFunction =
-                k -> rangeSystems(systems.length, index -> {
-                  double rho1 = 1.0;
-                  double rho2 = rho1 / Layers.getRho1ToRho2(k[0]);
-                  double rho3 = rho2 / Layers.getRho1ToRho2(k[1]);
-                  return new Resistance1Layer(systems[index]).getApparent((
-                      new Resistance3Layer(systems[index], h).value(rho1, rho2, rho3, p1 + (int) Math.round(Math.signum(dH) * divider), p2mp1) -
-                          new Resistance3Layer(systems[index], h).value(rho1, rho2, rho3, p1, p2mp1))
-                  );
-                });
+                k -> rangeSystems(systems.length, index -> new DerivativeApparent3Rho(systems[index]).value(k[0], k[1], h, p1, p2mp1));
 
             ToDoubleFunction<double[]> kIterate =
                 k -> {
@@ -172,8 +165,8 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
           double rho2 = rho1 / Layers.getRho1ToRho2(k[0]);
           double rho3 = rho2 / Layers.getRho1ToRho2(k[1]);
 
-          Medium medium = new Medium.Builder(systems, rOhmsBefore, rOhmsAfter, dH,
-              (s, deltaH) -> new Resistance3Layer(s, h).value(rho1, rho2, rho3, p1 + (int) Math.round(Math.signum(deltaH) * divider), p2mp1))
+          Medium medium = new Medium.Builder(systems, rOhmsBefore, rOhmsAfter, dH / p2,
+              (s, deltaH) -> new Resistance3Layer(s, h + deltaH).value(rho1, rho2, rho3, p1, p2mp1))
               .inequality(min.getValue())
               .addLayer(rho1, p1 * h)
               .addLayer(rho2, p2mp1 * h)
