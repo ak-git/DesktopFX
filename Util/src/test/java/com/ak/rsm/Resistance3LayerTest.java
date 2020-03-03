@@ -135,14 +135,14 @@ public class Resistance3LayerTest {
   public static Object[][] theoryDynamicParameters3() {
     TetrapolarSystem[] systems4 = systems4(10);
     double hmm = 0.1;
-    double dHmm = 0.3;
+    double dHmm = -0.3;
     return new Object[][] {
         {
             systems4,
             rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, hmm, 60, 40)),
             rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, hmm + dHmm / 100, 60, 40)),
             Metrics.fromMilli(dHmm),
-            new double[] {Metrics.fromMilli(hmm) * 60, Metrics.fromMilli(hmm) * 30}
+            new double[] {Metrics.fromMilli(hmm) * 60, Metrics.fromMilli(hmm) * 40}
         },
     };
   }

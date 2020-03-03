@@ -127,7 +127,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
                 point -> {
                   double[] diffPredicted = diffPredictedFunction.apply(point.getPoint());
                   return IntStream.range(0, systems.length)
-                      .mapToObj(index -> Double.compare(Math.signum(rDiff.applyAsDouble(index)), Math.signum(diffPredicted[index])) == 0)
+                      .mapToObj(index -> Double.compare(Math.signum(rDiff.applyAsDouble(index) / dH), Math.signum(diffPredicted[index])) == 0)
                       .filter(Boolean::booleanValue).count();
                 };
 
