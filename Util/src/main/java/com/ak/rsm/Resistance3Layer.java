@@ -100,9 +100,11 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
 
     int p2 = 200;
     return IntStream.iterate(0, i -> i + 1).mapToDouble(divider -> StrictMath.exp(divider / 4.0))
-        .mapToInt(divider -> (int) Math.ceil(divider)).takeWhile(divider -> divider < p2 - 1).distinct()
+        .mapToInt(divider -> (int) Math.ceil(divider)).takeWhile(divider -> divider < p2 / 2.0 - 1).map(divider -> divider * 2).distinct()
         .mapToObj(divider -> {
           double h = Math.abs(dH / divider);
+          int d = (int) Math.round(Math.signum(dH) * divider / 2);
+
           BiFunction<double[], int[], IntToDoubleFunction> logApparentPredictedFunction = (k, p) ->
               index -> new Log1pApparent3Rho(systems[index]).value(k[0], k[1], h, p[0], p[1]);
 
@@ -114,10 +116,9 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
                   double rho1 = 1.0;
                   double rho2 = rho1 / Layers.getRho1ToRho2(k[0]);
                   double rho3 = rho2 / Layers.getRho1ToRho2(k[1]);
-                  return new Resistance1Layer(systems[index]).getApparent((
-                      new Resistance3Layer(systems[index], h).value(rho1, rho2, rho3, p1 + (int) Math.round(Math.signum(dH) * divider), p2mp1) -
-                          new Resistance3Layer(systems[index], h).value(rho1, rho2, rho3, p1, p2mp1))
-                  );
+                  return new Resistance1Layer(systems[index]).getApparent(
+                      new Resistance3Layer(systems[index], h).value(rho1, rho2, rho3, p1 + d, p2mp1 + d) -
+                          new Resistance3Layer(systems[index], h).value(rho1, rho2, rho3, p1, p2mp1));
                 });
 
             ToDoubleFunction<double[]> kIterate =
@@ -148,7 +149,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
             PointValuePair p = new PointValuePair(
                 new double[] {optimizeK.getPoint()[0], optimizeK.getPoint()[1], p1, countSigns.applyAsLong(optimizeK)}, optimizeK.getValue()
             );
-            Logger.getLogger(Resistance3Layer.class.getName()).config(
+            Logger.getLogger(Resistance3Layer.class.getName()).info(
                 () -> {
                   double[] v = p.getPoint();
                   return String.format("/%d [%.2f / %.2f] p1 = %.0f; signs = %.0f; e = %.6f", divider, v[0], v[1], v[2], v[3], p.getValue());
@@ -157,7 +158,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
             return p;
           };
 
-          PointValuePair min = IntStream.range(divider + 1, p2).mapToObj(pIterate)
+          PointValuePair min = IntStream.range(divider / 2 + 1, p2 - divider / 2).mapToObj(pIterate)
               .min(Comparator.<PointValuePair>comparingDouble(o -> o.getPoint()[3]).reversed().thenComparingDouble(Pair::getValue))
               .orElseThrow();
 
@@ -173,7 +174,10 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
           double rho3 = rho2 / Layers.getRho1ToRho2(k[1]);
 
           Medium medium = new Medium.Builder(systems, rOhmsBefore, rOhmsAfter, dH,
-              (s, deltaH) -> new Resistance3Layer(s, h).value(rho1, rho2, rho3, p1 + (int) Math.round(Math.signum(deltaH) * divider), p2mp1))
+              (s, deltaH) -> {
+                int half = (int) Math.round(Math.signum(deltaH) * divider / 2);
+                return new Resistance3Layer(s, h).value(rho1, rho2, rho3, p1 + half, p2mp1 + half);
+              })
               .inequality(min.getValue())
               .addLayer(rho1, p1 * h)
               .addLayer(rho2, p2mp1 * h)
