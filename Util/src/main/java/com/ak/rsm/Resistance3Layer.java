@@ -3,6 +3,7 @@ package com.ak.rsm;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.IntFunction;
 import java.util.function.IntToDoubleFunction;
 import java.util.function.Supplier;
@@ -120,22 +121,30 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
                   );
                 });
 
+            BiPredicate<Integer, double[]> sign =
+                (index, diffPredicted) -> Double.compare(Math.signum(rDiff.applyAsDouble(index)), Math.signum(diffPredicted[index])) == 0;
+
+            ToLongFunction<PointValuePair> countSigns =
+                point -> {
+                  double[] diffPredicted = diffPredictedFunction.apply(point.getPoint());
+                  return IntStream.range(0, systems.length)
+                      .mapToObj(index -> sign.test(index, diffPredicted)).filter(Boolean::booleanValue).count();
+                };
+
             ToDoubleFunction<double[]> kIterate =
                 k -> {
                   double[] logApparentPredicted = rangeSystems(systems.length,
                       index -> logApparentPredictedFunction.apply(k, new int[] {p1, p2mp1}).applyAsDouble(index)
                   );
                   double[] diffPredicted = diffPredictedFunction.apply(k);
-                  double[] predicted = rangeSystems(systems.length, index -> logApparentPredicted[index] - log(Math.abs(diffPredicted[index])));
+                  double[] predicted = rangeSystems(systems.length, index -> {
+                    double result = logApparentPredicted[index] - log(Math.abs(diffPredicted[index]));
+                    if (!sign.test(index, diffPredicted)) {
+                      result *= -1.0;
+                    }
+                    return result;
+                  });
                   return Inequality.absolute().applyAsDouble(measured, predicted);
-                };
-
-            ToLongFunction<PointValuePair> countSigns =
-                point -> {
-                  double[] diffPredicted = diffPredictedFunction.apply(point.getPoint());
-                  return IntStream.range(0, systems.length)
-                      .mapToObj(index -> Double.compare(Math.signum(rDiff.applyAsDouble(index)), Math.signum(diffPredicted[index])) == 0)
-                      .filter(Boolean::booleanValue).count();
                 };
 
             PointValuePair optimizeK = IntStream.range(0, 4)

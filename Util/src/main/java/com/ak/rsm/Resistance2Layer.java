@@ -138,15 +138,14 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     UnaryOperator<double[]> diffPredictedFunction =
         hk -> rangeSystems(systems.length, index -> new DerivativeApparent2Rho(systems[index]).value(hk[1], hk[0]));
 
-    BiPredicate<Integer, Double> sign =
-        (index, diffPredicted) -> Double.compare(Math.signum(rDiff.applyAsDouble(index)), Math.signum(diffPredicted)) == 0;
+    BiPredicate<Integer, double[]> sign =
+        (index, diffPredicted) -> Double.compare(Math.signum(rDiff.applyAsDouble(index)), Math.signum(diffPredicted[index])) == 0;
 
     ToLongFunction<PointValuePair> countSigns =
         point -> {
           double[] diffPredicted = diffPredictedFunction.apply(point.getPoint());
           return IntStream.range(0, systems.length)
-              .mapToObj(index -> sign.test(index, diffPredicted[index]))
-              .filter(Boolean::booleanValue).count();
+              .mapToObj(index -> sign.test(index, diffPredicted)).filter(Boolean::booleanValue).count();
         };
 
     double maxL = Arrays.stream(systems).mapToDouble(s -> s.lToH(1.0)).max().orElseThrow();
@@ -166,7 +165,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
                 double[] diffPredicted = diffPredictedFunction.apply(p);
                 double[] predicted = rangeSystems(systems.length, index -> {
                   double result = logApparentPredicted[index] - log(Math.abs(diffPredicted[index]));
-                  if (!sign.test(index, diffPredicted[index])) {
+                  if (!sign.test(index, diffPredicted)) {
                     result *= -1.0;
                   }
                   return result;
