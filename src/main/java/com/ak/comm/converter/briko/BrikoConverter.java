@@ -11,7 +11,7 @@ import static java.lang.Integer.BYTES;
 
 public final class BrikoConverter extends AbstractConverter<BufferFrame, BrikoVariable> {
   public BrikoConverter() {
-    super(BrikoVariable.class, 200);
+    super(BrikoVariable.class, 1000);
   }
 
   @Override
