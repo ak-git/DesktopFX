@@ -3,12 +3,14 @@ package com.ak.rsm;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.IntToDoubleFunction;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToLongFunction;
 import java.util.function.UnaryOperator;
+import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -17,6 +19,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
+import com.ak.util.Metrics;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
@@ -135,11 +138,14 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     UnaryOperator<double[]> diffPredictedFunction =
         hk -> rangeSystems(systems.length, index -> new DerivativeApparent2Rho(systems[index]).value(hk[1], hk[0]));
 
+    BiPredicate<Integer, Double> sign =
+        (index, diffPredicted) -> Double.compare(Math.signum(rDiff.applyAsDouble(index)), Math.signum(diffPredicted)) == 0;
+
     ToLongFunction<PointValuePair> countSigns =
         point -> {
           double[] diffPredicted = diffPredictedFunction.apply(point.getPoint());
           return IntStream.range(0, systems.length)
-              .mapToObj(index -> Double.compare(Math.signum(rDiff.applyAsDouble(index)), Math.signum(diffPredicted[index])) == 0)
+              .mapToObj(index -> sign.test(index, diffPredicted[index]))
               .filter(Boolean::booleanValue).count();
         };
 
@@ -149,19 +155,35 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
           boolean b1 = (i & 1) == 0;
           return new SimpleBounds(new double[] {0.0, b1 ? 0.0 : -1.0}, new double[] {maxL, b1 ? 1.0 : 0.0});
         })
-        .map(bounds -> Simplex.optimize(p -> {
-              double[] logDiff = rangeSystems(systems.length, apparentDiffByH.get());
-              double[] measured = rangeSystems(systems.length, index -> logApparent[index] - logDiff[index]);
+        .map(bounds -> {
+          PointValuePair pair = Simplex.optimize(p -> {
+                double[] logDiff = rangeSystems(systems.length, apparentDiffByH.get());
+                double[] measured = rangeSystems(systems.length, index -> logApparent[index] - logDiff[index]);
 
-              double[] logApparentPredicted = rangeSystems(systems.length,
-                  index -> logApparentPredictedFunction.apply(p).applyAsDouble(index)
-              );
-              double[] diffPredicted = diffPredictedFunction.apply(p);
-              double[] predicted = rangeSystems(systems.length, index -> logApparentPredicted[index] - log(Math.abs(diffPredicted[index])));
-              return Inequality.absolute().applyAsDouble(measured, predicted);
-            },
-            bounds
-        ))
+                double[] logApparentPredicted = rangeSystems(systems.length,
+                    index -> logApparentPredictedFunction.apply(p).applyAsDouble(index)
+                );
+                double[] diffPredicted = diffPredictedFunction.apply(p);
+                double[] predicted = rangeSystems(systems.length, index -> {
+                  double result = logApparentPredicted[index] - log(Math.abs(diffPredicted[index]));
+                  if (!sign.test(index, diffPredicted[index])) {
+                    result *= -1.0;
+                  }
+                  return result;
+                });
+                return Inequality.absolute().applyAsDouble(measured, predicted);
+              },
+              bounds
+          );
+          Logger.getLogger(Resistance2Layer.class.getName()).config(
+              () -> {
+                double[] v = pair.getPoint();
+                return String.format("k = %.2f; h = %.2f mm; signs = %d; e = %.6f",
+                    v[1], Metrics.toMilli(v[0]), countSigns.applyAsLong(pair), pair.getValue());
+              }
+          );
+          return pair;
+        })
         .min(Comparator.comparingLong(countSigns).reversed().thenComparingDouble(Pair::getValue)).orElseThrow();
 
     double sumLogApparent = sumLog(systems, logApparentFunction);
