@@ -96,7 +96,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
     double[] logApparent = rangeSystems(systems.length, logApparentFunction);
 
     double[] logDiff = rangeSystems(systems.length, apparentDiffByH.get());
-    double[] measured = rangeSystems(systems.length, i -> logApparent[i] - logDiff[i]);
+    double[] measured = rangeSystems(systems.length, index -> logApparent[index] - logDiff[index]);
 
     int p2 = 200;
     return IntStream.iterate(0, i -> i + 1).mapToDouble(divider -> StrictMath.exp(divider / 4.0))
@@ -126,7 +126,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
                       index -> logApparentPredictedFunction.apply(k, new int[] {p1, p2mp1}).applyAsDouble(index)
                   );
                   double[] diffPredicted = diffPredictedFunction.apply(k);
-                  double[] predicted = rangeSystems(systems.length, i -> logApparentPredicted[i] - log(Math.abs(diffPredicted[i])));
+                  double[] predicted = rangeSystems(systems.length, index -> logApparentPredicted[index] - log(Math.abs(diffPredicted[index])));
                   return Inequality.absolute().applyAsDouble(measured, predicted);
                 };
 
