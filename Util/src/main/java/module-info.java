@@ -6,6 +6,7 @@ module com.ak.util {
   requires commons.math3;
   requires jsr305;
   requires java.logging;
+  requires io.jenetics.base;
 
   opens com.ak.inverse to org.testng;
   opens com.ak.rsm to org.testng;

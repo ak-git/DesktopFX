@@ -2,4 +2,5 @@ dependencies {
     implementation uom_se
     implementation javax_json
     implementation commons_math3
+    implementation jenetics
 }
