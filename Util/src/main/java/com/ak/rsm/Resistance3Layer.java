@@ -19,11 +19,21 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
+import io.jenetics.DoubleGene;
+import io.jenetics.MeanAlterer;
+import io.jenetics.Mutator;
+import io.jenetics.Optimize;
+import io.jenetics.Phenotype;
+import io.jenetics.engine.Codecs;
+import io.jenetics.engine.Engine;
+import io.jenetics.engine.Limits;
+import io.jenetics.util.DoubleRange;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 import org.apache.commons.math3.util.Pair;
 
 import static com.ak.rsm.Resistance2Layer.rangeSystems;
+import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 import static java.lang.StrictMath.log;
 
 /**
@@ -99,7 +109,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
     double[] logDiff = rangeSystems(systems.length, apparentDiffByH.get());
     double[] measured = rangeSystems(systems.length, index -> logApparent[index] - logDiff[index]);
 
-    int p2 = 200;
+    int p2 = 30;
     return IntStream.iterate(0, i -> i + 1).mapToDouble(divider -> StrictMath.exp(divider / 4.0))
         .mapToInt(divider -> (int) Math.ceil(divider)).takeWhile(divider -> divider < p2 - 1).distinct()
         .mapToObj(divider -> {
@@ -152,7 +162,21 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
                   boolean b1 = (i & 1) == 0;
                   boolean b2 = (i & 2) == 0;
                   return new SimpleBounds(new double[] {b2 ? 0.0 : -1.0, b1 ? 0.0 : -1.0}, new double[] {b2 ? 1.0 : 0.0, b1 ? 1.0 : 0.0});
-                }).map(bounds -> Simplex.optimize(kIterate::applyAsDouble, bounds))
+                }).map(bounds -> {
+                  Engine<DoubleGene, Double> engine = Engine
+                      .builder(kIterate::applyAsDouble,
+                          Codecs.ofVector(DoubleRange.of(bounds.getLower()[0], bounds.getUpper()[0]),
+                              DoubleRange.of(bounds.getLower()[1], bounds.getUpper()[1]))
+                      )
+                      .populationSize(128)
+                      .optimize(Optimize.MINIMUM)
+                      .alterers(new Mutator<>(0.03), new MeanAlterer<>(0.6))
+                      .build();
+
+                  Phenotype<DoubleGene, Double> best = engine.stream().limit(Limits.bySteadyFitness(10)).collect(toBestPhenotype());
+                  double[] initialGuess = {best.genotype().get(0).get(0).doubleValue(), best.genotype().get(1).get(0).doubleValue()};
+                  return Simplex.optimize("", kIterate::applyAsDouble, bounds, initialGuess);
+                })
                 .min(Comparator.comparingLong(countSigns).reversed().thenComparingDouble(Pair::getValue)).orElseThrow();
             PointValuePair p = new PointValuePair(
                 new double[] {optimizeK.getPoint()[0], optimizeK.getPoint()[1], p1, countSigns.applyAsLong(optimizeK)}, optimizeK.getValue()

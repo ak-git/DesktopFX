@@ -32,8 +32,7 @@ public class Simplex {
 
   public static PointValuePair optimize(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds) {
     double[] initialGuess = IntStream.range(0, bounds.getLower().length).mapToDouble(i -> (bounds.getUpper()[i] + bounds.getLower()[i]) / 2.0).toArray();
-    double[] initialSteps = IntStream.range(0, bounds.getLower().length).mapToDouble(i -> (bounds.getUpper()[i] - bounds.getLower()[i]) / 10.0).toArray();
-    return optimize("", function, bounds, initialGuess, initialSteps);
+    return optimize("", function, bounds, initialGuess);
   }
 
   public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
@@ -52,7 +51,8 @@ public class Simplex {
   }
 
   public static PointValuePair optimize(@Nonnull String logFormat, @Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
-                                        @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
+                                        @Nonnull double[] initialGuess) {
+    double[] initialSteps = IntStream.range(0, bounds.getLower().length).mapToDouble(i -> (bounds.getUpper()[i] - bounds.getLower()[i]) / 10.0).toArray();
     return optimize(new MultivariateFunction() {
       private LocalTime prev = LocalTime.now();
 
