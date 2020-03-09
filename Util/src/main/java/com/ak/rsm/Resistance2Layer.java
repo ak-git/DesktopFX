@@ -149,7 +149,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
         };
 
     double maxL = Arrays.stream(systems).mapToDouble(s -> s.lToH(1.0)).max().orElseThrow();
-    PointValuePair find = IntStream.range(0, 2)
+    PointValuePair min = IntStream.range(0, 2)
         .mapToObj(i -> {
           boolean b1 = (i & 1) == 0;
           return new SimpleBounds(new double[] {0.0, b1 ? 0.0 : -1.0}, new double[] {maxL, b1 ? 1.0 : 0.0});
@@ -186,15 +186,16 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
         .min(Comparator.comparingLong(countSigns).reversed().thenComparingDouble(Pair::getValue)).orElseThrow();
 
     double sumLogApparent = sumLog(systems, logApparentFunction);
-    double sumLogApparentPredicted = sumLog(systems, index -> logApparentPredictedFunction.apply(find.getPoint()).applyAsDouble(index));
+    double sumLogApparentPredicted = sumLog(systems, index -> logApparentPredictedFunction.apply(min.getPoint()).applyAsDouble(index));
 
-    double h = find.getPoint()[0];
-    double k = find.getPoint()[1];
+    double h = min.getPoint()[0];
+    double k = min.getPoint()[1];
 
     double rho1 = exp((sumLogApparent - sumLogApparentPredicted) / systems.length);
     double rho2 = rho1 / Layers.getRho1ToRho2(k);
     return new Medium.Builder(systems, rOhmsBefore, rOhmsAfter, dh,
         (s, dH) -> new Resistance2Layer(s).value(rho1, rho2, h + dH))
+        .inequality(min.getValue())
         .addLayer(rho1, h).build(rho2);
   }
 
