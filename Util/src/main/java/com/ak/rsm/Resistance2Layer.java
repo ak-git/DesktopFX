@@ -8,6 +8,7 @@ import java.util.function.Function;
 import java.util.function.IntToDoubleFunction;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleBiFunction;
+import java.util.function.ToDoubleFunction;
 import java.util.function.ToLongFunction;
 import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
@@ -20,11 +21,21 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
 import com.ak.util.Metrics;
+import io.jenetics.DoubleGene;
+import io.jenetics.MeanAlterer;
+import io.jenetics.Mutator;
+import io.jenetics.Optimize;
+import io.jenetics.Phenotype;
+import io.jenetics.engine.Codecs;
+import io.jenetics.engine.Engine;
+import io.jenetics.engine.Limits;
+import io.jenetics.util.DoubleRange;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 import org.apache.commons.math3.util.Pair;
 
+import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 import static java.lang.StrictMath.exp;
 import static java.lang.StrictMath.log;
 import static java.lang.StrictMath.pow;
@@ -155,25 +166,37 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
           return new SimpleBounds(new double[] {0.0, b1 ? 0.0 : -1.0}, new double[] {maxL, b1 ? 1.0 : 0.0});
         })
         .map(bounds -> {
-          PointValuePair pair = Simplex.optimize(p -> {
-                double[] logDiff = rangeSystems(systems.length, apparentDiffByH.get());
-                double[] measured = rangeSystems(systems.length, index -> logApparent[index] - logDiff[index]);
+          ToDoubleFunction<double[]> hkIterate = hk -> {
+            double[] logDiff = rangeSystems(systems.length, apparentDiffByH.get());
+            double[] measured = rangeSystems(systems.length, index -> logApparent[index] - logDiff[index]);
 
-                double[] logApparentPredicted = rangeSystems(systems.length,
-                    index -> logApparentPredictedFunction.apply(p).applyAsDouble(index)
-                );
-                double[] diffPredicted = diffPredictedFunction.apply(p);
-                double[] predicted = rangeSystems(systems.length, index -> {
-                  double result = logApparentPredicted[index] - log(Math.abs(diffPredicted[index]));
-                  if (!sign.test(index, diffPredicted)) {
-                    result *= -1.0;
-                  }
-                  return result;
-                });
-                return Inequality.absolute().applyAsDouble(measured, predicted);
-              },
-              bounds
-          );
+            double[] logApparentPredicted = rangeSystems(systems.length,
+                index -> logApparentPredictedFunction.apply(hk).applyAsDouble(index)
+            );
+            double[] diffPredicted = diffPredictedFunction.apply(hk);
+            double[] predicted = rangeSystems(systems.length, index -> {
+              double result = logApparentPredicted[index] - log(Math.abs(diffPredicted[index]));
+              if (!sign.test(index, diffPredicted)) {
+                result *= -1.0;
+              }
+              return result;
+            });
+            return Inequality.absolute().applyAsDouble(measured, predicted);
+          };
+
+          Engine<DoubleGene, Double> engine = Engine
+              .builder(hkIterate::applyAsDouble,
+                  Codecs.ofVector(DoubleRange.of(bounds.getLower()[0], bounds.getUpper()[0]),
+                      DoubleRange.of(bounds.getLower()[1], bounds.getUpper()[1]))
+              )
+              .populationSize(128)
+              .optimize(Optimize.MINIMUM)
+              .alterers(new Mutator<>(0.03), new MeanAlterer<>(0.6))
+              .build();
+
+          Phenotype<DoubleGene, Double> best = engine.stream().limit(Limits.bySteadyFitness(10)).collect(toBestPhenotype());
+          double[] initialGuess = {best.genotype().get(0).get(0).doubleValue(), best.genotype().get(1).get(0).doubleValue()};
+          PointValuePair pair = Simplex.optimize("", hkIterate::applyAsDouble, bounds, initialGuess);
           Logger.getLogger(Resistance2Layer.class.getName()).config(
               () -> {
                 double[] v = pair.getPoint();

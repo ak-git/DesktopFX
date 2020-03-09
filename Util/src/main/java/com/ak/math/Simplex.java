@@ -30,11 +30,6 @@ public class Simplex {
   private Simplex() {
   }
 
-  public static PointValuePair optimize(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds) {
-    double[] initialGuess = IntStream.range(0, bounds.getLower().length).mapToDouble(i -> (bounds.getUpper()[i] + bounds.getLower()[i]) / 2.0).toArray();
-    return optimize("", function, bounds, initialGuess);
-  }
-
   public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
                                              @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
     return IntStream.range(0, 8).mapToObj(value -> new CMAESOptimizer(MAX_ITERATIONS, STOP_FITNESS, true, 0,
