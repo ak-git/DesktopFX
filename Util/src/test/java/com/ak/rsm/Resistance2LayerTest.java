@@ -147,24 +147,24 @@ public class Resistance2LayerTest {
         },
         {
             systems4,
-            rOhms(systems4, layer2(9.0, 1.0, 5.0)),
-            rOhms(systems4, layer2(9.0, 1.0, 5.0 + dh)),
+            rOhms(systems4, layer2(9.0, 1.0, 1.0)),
+            rOhms(systems4, layer2(9.0, 1.0, 1.0 + dh)),
             Metrics.fromMilli(dh),
-            new double[] {Metrics.fromMilli(5.0)}
+            new double[] {Metrics.fromMilli(1.0)}
         },
         {
             systems4,
-            rOhms(systems4, layer2(1.0, 4.0, 3.0)),
-            rOhms(systems4, layer2(1.0, 4.0, 3.0 + dh)),
+            rOhms(systems4, layer2(1.0, 4.0, 20.0)),
+            rOhms(systems4, layer2(1.0, 4.0, 20.0 + dh)),
             Metrics.fromMilli(dh),
-            new double[] {Metrics.fromMilli(3.0)}
+            new double[] {Metrics.fromMilli(20.0)}
         },
         {
             systems2,
-            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, 4.0)),
-            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, 4.0 + dh)),
+            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, 1.0)),
+            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, 1.0 + dh)),
             Metrics.fromMilli(dh),
-            new double[] {Metrics.fromMilli(4.0)}
+            new double[] {Metrics.fromMilli(1.0)}
         },
     };
   }
@@ -183,6 +183,6 @@ public class Resistance2LayerTest {
     logger.config(() -> String.format("2 Layers - inverseStaticLog%n%s", Resistance2Layer.inverseStaticLog(systems, rOhmsBefore)));
     Medium medium = Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh);
     logger.info(() -> String.format("2 Layers - inverseDynamic%n%s", medium));
-    Assert.assertEquals(medium.getH(), expectedH, Metrics.fromMilli(2));
+    Assert.assertEquals(medium.getH(), expectedH, Metrics.fromMilli(1));
   }
 }
