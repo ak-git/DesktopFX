@@ -8,11 +8,11 @@ import java.util.function.Function;
 import java.util.function.IntToDoubleFunction;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleBiFunction;
-import java.util.function.ToDoubleFunction;
 import java.util.function.ToLongFunction;
 import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -146,15 +146,27 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     Function<double[], IntToDoubleFunction> logApparentPredictedFunction = hk ->
         index -> new Log1pApparent2Rho(systems[index]).value(hk[1], hk[0]);
 
-    UnaryOperator<double[]> diffPredictedFunction =
+    UnaryOperator<double[]> diffPredictedFunctionTheory =
         hk -> rangeSystems(systems.length, index -> new DerivativeApparent2Rho(systems[index]).value(hk[1], hk[0]));
+
+    UnaryOperator<double[]> diffPredictedFunctionDigital =
+        hk -> rangeSystems(systems.length, index -> {
+          double rho1 = 1.0;
+          double rho2 = rho1 / Layers.getRho1ToRho2(hk[1]);
+          return new Resistance1Layer(systems[index]).getApparent(
+              (
+                  new Resistance2Layer(systems[index]).value(rho1, rho2, hk[0] + dh) -
+                      new Resistance2Layer(systems[index]).value(rho1, rho2, hk[0])
+              ) / dh
+          );
+        });
 
     BiPredicate<Integer, double[]> sign =
         (index, diffPredicted) -> Double.compare(Math.signum(rDiff.applyAsDouble(index)), Math.signum(diffPredicted[index])) == 0;
 
     ToLongFunction<PointValuePair> countSigns =
         point -> {
-          double[] diffPredicted = diffPredictedFunction.apply(point.getPoint());
+          double[] diffPredicted = diffPredictedFunctionTheory.apply(point.getPoint());
           return IntStream.range(0, systems.length)
               .mapToObj(index -> sign.test(index, diffPredicted)).filter(Boolean::booleanValue).count();
         };
@@ -166,7 +178,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
           return new SimpleBounds(new double[] {0.0, b1 ? 0.0 : -1.0}, new double[] {maxL, b1 ? 1.0 : 0.0});
         })
         .map(bounds -> {
-          ToDoubleFunction<double[]> hkIterate = hk -> {
+          ToDoubleBiFunction<double[], UnaryOperator<double[]>> hkIterate = (hk, diffPredictedFunction) -> {
             double[] logDiff = rangeSystems(systems.length, apparentDiffByH.get());
             double[] measured = rangeSystems(systems.length, index -> logApparent[index] - logDiff[index]);
 
@@ -185,7 +197,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
           };
 
           Engine<DoubleGene, Double> engine = Engine
-              .builder(hkIterate::applyAsDouble,
+              .builder(hk -> hkIterate.applyAsDouble(hk, diffPredictedFunctionTheory),
                   Codecs.ofVector(DoubleRange.of(bounds.getLower()[0], bounds.getUpper()[0]),
                       DoubleRange.of(bounds.getLower()[1], bounds.getUpper()[1]))
               )
@@ -196,7 +208,11 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
 
           Phenotype<DoubleGene, Double> best = engine.stream().limit(Limits.bySteadyFitness(10)).collect(toBestPhenotype());
           double[] initialGuess = {best.genotype().get(0).get(0).doubleValue(), best.genotype().get(1).get(0).doubleValue()};
-          PointValuePair pair = Simplex.optimize("", hkIterate::applyAsDouble, bounds, initialGuess);
+          PointValuePair pair = Stream.of(diffPredictedFunctionTheory, diffPredictedFunctionDigital)
+              .map(diffPredicted ->
+                  Simplex.optimize("", hk -> hkIterate.applyAsDouble(hk, diffPredicted), bounds, initialGuess)
+              )
+              .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
           Logger.getLogger(Resistance2Layer.class.getName()).config(
               () -> {
                 double[] v = pair.getPoint();
