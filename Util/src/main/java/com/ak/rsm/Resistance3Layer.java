@@ -190,7 +190,9 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
             return p;
           };
 
-          PointValuePair min = IntStream.range(divider + 1, p2).mapToObj(pIterate)
+          PointValuePair min = IntStream.iterate(0, i -> i + 1).mapToDouble(i -> StrictMath.exp(i / 4.0))
+              .mapToInt(i -> (int) Math.ceil(i)).filter(p1 -> p1 > divider).takeWhile(p1 -> p1 < p2).distinct()
+              .mapToObj(pIterate)
               .min(Comparator.<PointValuePair>comparingDouble(o -> o.getPoint()[3]).reversed().thenComparingDouble(Pair::getValue))
               .orElseThrow();
 

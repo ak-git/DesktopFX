@@ -183,6 +183,18 @@ public class Resistance3LayerTest {
             new double[] {110.30, 164.90, 147.82, 179.85},
             Metrics.fromMilli(dHmm)
         },
+        {
+            systems4(7.0),
+            new double[] {125.74, 168.20, 153.60, 185.20},
+            new double[] {125.77, 168.00, 153.70, 185.10},
+            Metrics.fromMilli(dHmm)
+        },
+        {
+            systems4(7.0),
+            new double[] {127.42, 171.90, 156.42, 190.00},
+            new double[] {127.37, 171.75, 156.30, 189.80},
+            Metrics.fromMilli(dHmm)
+        },
     };
   }
 
