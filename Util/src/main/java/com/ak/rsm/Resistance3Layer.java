@@ -109,7 +109,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
     double[] logDiff = rangeSystems(systems.length, apparentDiffByH.get());
     double[] measured = rangeSystems(systems.length, index -> logApparent[index] - logDiff[index]);
 
-    int p2 = 30;
+    int p2 = 300;
     return IntStream.iterate(0, i -> i + 1).mapToDouble(divider -> StrictMath.exp(divider / 4.0))
         .mapToInt(divider -> (int) Math.ceil(divider)).takeWhile(divider -> divider < p2 - 1).distinct()
         .mapToObj(divider -> {

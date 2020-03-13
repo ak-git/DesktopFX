@@ -209,7 +209,7 @@ public class Resistance3LayerTest {
 
   @Test(dataProvider = "akDynamicParameters3", enabled = false)
   @ParametersAreNonnullByDefault
-  public void testInverse(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dH) {
+  public void testInverse3(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dH) {
     Logger.getLogger(Resistance3LayerTest.class.getName()).warning(
         () -> String.format("3 Layers - inverseDynamic %s %n%s%n",
             Arrays.toString(systems),
