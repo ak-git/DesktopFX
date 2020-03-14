@@ -1,6 +1,5 @@
 package com.ak.fx.desktop.nmisr;
 
-import java.io.Closeable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -14,7 +13,8 @@ import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.converter.rsce.RsceVariable;
 import com.ak.fx.desktop.AbstractViewController;
 
-public final class NmisRsceViewController extends AbstractViewController<NmisRequest, RsceCommandFrame, RsceVariable> implements Closeable {
+public final class NmisRsceViewController extends AbstractViewController<NmisRequest, RsceCommandFrame, RsceVariable>
+    implements AutoCloseable {
   private static final NmisRequest.Sequence[] PINGS = {
       NmisRequest.Sequence.CATCH_100, NmisRequest.Sequence.CATCH_60, NmisRequest.Sequence.CATCH_30,
       NmisRequest.Sequence.ROTATE_100, NmisRequest.Sequence.ROTATE_60, NmisRequest.Sequence.ROTATE_30};

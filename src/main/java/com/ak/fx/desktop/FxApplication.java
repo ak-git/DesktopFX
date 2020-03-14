@@ -63,7 +63,10 @@ public final class FxApplication extends Application {
     FXMLLoader loader = new FXMLLoader(resource, ResourceBundle.getBundle(pointConcat(getClass().getPackageName(), KEY_PROPERTIES)));
     loader.setControllerFactory(clazz -> BeanFactoryUtils.beanOfType(context, clazz));
     stage.setScene(loader.load());
-    String applicationFullName = getApplicationFullName(loader.getResources().getString(KEY_APPLICATION_TITLE), loader.getResources().getString(KEY_APPLICATION_VERSION));
+    String applicationFullName = getApplicationFullName(
+        loader.getResources().getString(KEY_APPLICATION_TITLE),
+        loader.getResources().getString(KEY_APPLICATION_VERSION)
+    );
     stage.setTitle(applicationFullName);
     if (!PropertiesSupport.OUT_CONVERTER_PATH.check()) {
       PropertiesSupport.OUT_CONVERTER_PATH.update(applicationFullName);
