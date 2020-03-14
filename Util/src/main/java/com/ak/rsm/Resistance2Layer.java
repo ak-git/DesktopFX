@@ -2,6 +2,7 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -206,21 +207,40 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
               .alterers(new Mutator<>(0.03), new MeanAlterer<>(0.6))
               .build();
 
-          Phenotype<DoubleGene, Double> best = engine.stream().limit(Limits.bySteadyFitness(10)).collect(toBestPhenotype());
-          double[] initialGuess = {best.genotype().get(0).get(0).doubleValue(), best.genotype().get(1).get(0).doubleValue()};
-          PointValuePair pair = Stream.of(diffPredictedFunctionTheory, diffPredictedFunctionDigital)
-              .map(diffPredicted ->
-                  Simplex.optimize("", hk -> hkIterate.applyAsDouble(hk, diffPredicted), bounds, initialGuess)
-              )
-              .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
-          Logger.getLogger(Resistance2Layer.class.getName()).config(
-              () -> {
-                double[] v = pair.getPoint();
-                return String.format("k = %.2f; h = %.2f mm; signs = %d; e = %.6f",
-                    v[1], Metrics.toMilli(v[0]), countSigns.applyAsLong(pair), pair.getValue());
-              }
-          );
-          return pair;
+          Function<Phenotype<DoubleGene, Double>, PointValuePair> toPoint = phenotype ->
+              Optional.ofNullable(phenotype)
+                  .map(p ->
+                      new PointValuePair(
+                          IntStream.range(0, p.genotype().length())
+                              .mapToDouble(i -> p.genotype().get(i).get(0).doubleValue()).toArray(),
+                          p.fitness())
+                  )
+                  .orElse(new PointValuePair(new double[] {0, 0}, Double.POSITIVE_INFINITY));
+
+          Phenotype<DoubleGene, Double> best = engine.stream()
+              .limit(evolutionResult -> countSigns.applyAsLong(toPoint.apply(evolutionResult.bestPhenotype())) != 0)
+              .limit(Limits.bySteadyFitness(7))
+              .collect(toBestPhenotype());
+
+          PointValuePair initialGuess = toPoint.apply(best);
+          if (best == null) {
+            return initialGuess;
+          }
+          else {
+            PointValuePair pair = Stream.of(diffPredictedFunctionTheory, diffPredictedFunctionDigital)
+                .map(diffPredicted ->
+                    Simplex.optimize("", hk -> hkIterate.applyAsDouble(hk, diffPredicted), bounds, initialGuess.getPoint())
+                )
+                .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
+            Logger.getLogger(Resistance2Layer.class.getName()).config(
+                () -> {
+                  double[] v = pair.getPoint();
+                  return String.format("k = %.2f; h = %.2f mm; signs = %d; e = %.6f",
+                      v[1], Metrics.toMilli(v[0]), countSigns.applyAsLong(pair), pair.getValue());
+                }
+            );
+            return pair;
+          }
         })
         .min(Comparator.comparingLong(countSigns).reversed().thenComparingDouble(Pair::getValue)).orElseThrow();
 
@@ -231,7 +251,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     double k = min.getPoint()[1];
 
     double rho1 = exp((sumLogApparent - sumLogApparentPredicted) / systems.length);
-    double rho2 = rho1 / Layers.getRho1ToRho2(k);
+    double rho2 = k > Layers.getK12(1.0, 1000.0) ? Double.POSITIVE_INFINITY : rho1 / Layers.getRho1ToRho2(k);
     return new Medium.Builder(systems, rOhmsBefore, rOhmsAfter, dh,
         (s, dH) -> new Resistance2Layer(s).value(rho1, rho2, h + dH))
         .inequality(min.getValue())
