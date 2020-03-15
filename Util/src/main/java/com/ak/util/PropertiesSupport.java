@@ -53,7 +53,7 @@ public enum PropertiesSupport {
   }
 
   public static String addExtension(String fileName) {
-    return String.format("%s.%s", fileName, PROPERTIES);
+    return String.join(".", fileName, PROPERTIES);
   }
 }
 

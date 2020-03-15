@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 import com.ak.comm.bytes.AbstractCheckedBuilder;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.bytes.BytesChecker;
+import com.ak.util.Strings;
 
 public final class RsceCommandFrame extends BufferFrame {
   private enum ProtocolByte implements BytesChecker {
@@ -216,7 +217,7 @@ public final class RsceCommandFrame extends BufferFrame {
 
   @Override
   public String toString() {
-    return String.format("%s %s", super.toString(), toType(byteBuffer()));
+    return String.join(Strings.SPACE, super.toString(), toType(byteBuffer()));
   }
 
   public static RsceCommandFrame simple(@Nonnull Control control, @Nonnull RequestType requestType) {
@@ -339,6 +340,6 @@ public final class RsceCommandFrame extends BufferFrame {
   }
 
   private static String toType(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType) {
-    return String.format("%s %s %s", control.name(), actionType.name(), requestType.name());
+    return String.join(Strings.SPACE, control.name(), actionType.name(), requestType.name());
   }
 }

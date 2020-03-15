@@ -49,11 +49,11 @@ final class Resistance1Layer extends AbstractResistanceLayer<Potential1Layer> im
     Medium medium = new Medium.Builder(systems, rOhms, s -> new Resistance1Layer(s).value(rho)).build(rho);
     Logger.getLogger(Resistance1Layer.class.getName()).info(
         () ->
-            String.format("%s%n%s",
+            String.join(Strings.NEW_LINE,
                 IntStream.range(0, systems.length)
                     .mapToObj(i -> String.format("%n%s, %s", systems[i], Strings.rho(apparent.applyAsDouble(i))))
                     .collect(Collectors.joining()),
-                medium
+                medium.toString()
             )
     );
     return medium;

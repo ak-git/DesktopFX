@@ -55,6 +55,6 @@ abstract class AbstractDigitalFilter implements DigitalFilter {
   }
 
   final void illegalArgumentException(@Nonnull int[] in) {
-    throw new IllegalArgumentException(String.format("%s %s", this, Arrays.toString(in)));
+    throw new IllegalArgumentException(String.join(SPACE, toString(), Arrays.toString(in)));
   }
 }
