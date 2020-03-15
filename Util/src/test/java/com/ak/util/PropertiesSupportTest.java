@@ -35,9 +35,4 @@ public class PropertiesSupportTest {
   public void testKey() {
     EnumSet.allOf(PropertiesSupport.class).forEach(e -> Assert.assertEquals(e.key(), e.name().toLowerCase()));
   }
-
-  @Test
-  public void testAddExtension() {
-    Assert.assertEquals(PropertiesSupport.addExtension("keys"), "keys.properties");
-  }
 }

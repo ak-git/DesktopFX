@@ -2,11 +2,12 @@ package com.ak.logging;
 
 import javax.annotation.Nonnull;
 
+import com.ak.util.Extensions;
 import com.ak.util.LocalFileIO;
 import com.ak.util.LocalIO;
 
 public final class OutputBuilder extends LocalFileIO.AbstractBuilder {
-  public OutputBuilder(@Nonnull String fileExtension) {
+  public OutputBuilder(@Nonnull Extensions fileExtension) {
     super(fileExtension);
   }
 
