@@ -75,12 +75,13 @@ class Medium {
     }
 
     if (measuredDelta.length == 0 || predictedDelta.length == 0) {
-      return String.format("%s; L%s = %.1f %s;%nmeasured  = %s;%npredicted = %s;", sb,
-          Strings.low(2),
-          Metrics.toPercents(Inequality.proportional().applyAsDouble(measured, predicted) / measured.length),
-          Units.PERCENT,
-          Strings.toString("%.3f", measured, Units.OHM),
-          Strings.toString("%.3f", predicted, Units.OHM)
+      return String.join("; ",
+          sb,
+          String.format("L%s = %.1f %s",
+              Strings.low(2), Metrics.toPercents(Inequality.proportional().applyAsDouble(measured, predicted) / measured.length),
+              Units.PERCENT),
+          String.format("%nmeasured  = %s", Strings.toString("%.3f", measured, Units.OHM)),
+          String.format("%npredicted = %s", Strings.toString("%.3f", predicted, Units.OHM))
       );
     }
     else {
@@ -92,18 +93,15 @@ class Medium {
         epsilon = String.format("%s = %.6f", Strings.EPSILON, inequality);
       }
 
-      return String.format("%s; %s; L%s = [%.1f; %.1f] %s;%nmeasured  = %s, %s = %s;%npredicted = %s, %s = %s;", sb,
-          epsilon,
-          Strings.low(2),
-          Metrics.toPercents(error),
-          Metrics.toPercents(error2),
-          Units.PERCENT,
-          Strings.toString("%.3f", measured, Units.OHM),
-          Strings.CAP_DELTA,
-          Strings.toString("%.0f", Arrays.stream(measuredDelta).map(Metrics::toMilli).toArray(), MetricPrefix.MILLI(Units.OHM)),
-          Strings.toString("%.3f", predicted, Units.OHM),
-          Strings.CAP_DELTA,
-          Strings.toString("%.0f", Arrays.stream(predictedDelta).map(Metrics::toMilli).toArray(), MetricPrefix.MILLI(Units.OHM))
+      return String.join("; ",
+          sb, epsilon,
+          String.format("L%s = [%.1f; %.1f] %s", Strings.low(2), Metrics.toPercents(error), Metrics.toPercents(error2), Units.PERCENT),
+          String.format("%nmeasured  = %s", Strings.toString("%.3f", measured, Units.OHM)),
+          String.format("%s = %s", Strings.CAP_DELTA,
+              Strings.toString("%.0f", Arrays.stream(measuredDelta).map(Metrics::toMilli).toArray(), MetricPrefix.MILLI(Units.OHM))),
+          String.format("%npredicted = %s", Strings.toString("%.3f", predicted, Units.OHM)),
+          String.format("%s = %s", Strings.CAP_DELTA,
+              Strings.toString("%.0f", Arrays.stream(predictedDelta).map(Metrics::toMilli).toArray(), MetricPrefix.MILLI(Units.OHM)))
       );
     }
   }

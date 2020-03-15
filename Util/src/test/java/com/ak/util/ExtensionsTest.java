@@ -1,5 +1,7 @@
 package com.ak.util;
 
+import java.util.EnumSet;
+
 import javax.annotation.Nonnull;
 
 import org.testng.Assert;
@@ -19,8 +21,9 @@ public class ExtensionsTest {
 
   @Test(dataProvider = "fileNames")
   public void testAttachTo(@Nonnull String name) {
-    for (Extensions e : Extensions.values()) {
+    for (Extensions e : EnumSet.complementOf(EnumSet.of(Extensions.NONE))) {
       Assert.assertEquals(e.attachTo(name), String.join(".", name, e.name().toLowerCase()));
     }
+    Assert.assertEquals(Extensions.NONE.attachTo(name), name);
   }
 }
