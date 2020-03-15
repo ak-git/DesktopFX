@@ -32,8 +32,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.Dragboard;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
 import javafx.util.Duration;
 
@@ -78,11 +76,6 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
         }
         event.setDropCompleted(ok);
         event.consume();
-      });
-      chart.getScene().addEventHandler(KeyEvent.KEY_RELEASED, event -> {
-        if (KeyCombination.keyCombination("Shortcut+N").match(event)) {
-          service.refresh();
-        }
       });
       chart.setVariables(service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.VISIBLE))
           .map(Variables::toString).collect(Collectors.toList()));

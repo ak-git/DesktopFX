@@ -16,7 +16,9 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.ak.comm.converter.Refreshable;
 import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.storage.Storage;
 import com.ak.fx.util.OSDockImage;
@@ -93,21 +95,23 @@ public final class FxApplication extends Application {
     stage.setOnCloseRequest(event -> stageStorage.save(stage));
     stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     stage.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
-      if (KeyCombination.keyCombination(
-          String.join("+", KeyCode.CONTROL.getName(), KeyCode.SHORTCUT.getName(), KeyCode.F.getName())
-      ).match(event)) {
+      if (isMatchEvent(event, KeyCode.CONTROL, KeyCode.SHORTCUT, KeyCode.F)) {
         Platform.runLater(() -> {
           stage.setFullScreen(!stage.isFullScreen());
           stage.setResizable(false);
           stage.setResizable(true);
         });
       }
-
-      for (int i = 0; i < scenes.length; i++) {
-        Scene scene = scenes[i];
-        if (KeyCombination.keyCombination(String.format("%s%d", KeyCode.F.getName(), (i + 1))).match(event)) {
-          Platform.runLater(() -> stage.setScene(scene));
-          break;
+      else if (isMatchEvent(event, KeyCode.SHORTCUT, KeyCode.N)) {
+        contexts.forEach(context -> context.getBeansOfType(Refreshable.class).values().forEach(Refreshable::refresh));
+      }
+      else {
+        for (int i = 0; i < scenes.length; i++) {
+          Scene scene = scenes[i];
+          if (isMatchEvent(event, KeyCode.valueOf(String.format("%s%d", KeyCode.F.getName(), (i + 1))))) {
+            Platform.runLater(() -> stage.setScene(scene));
+            break;
+          }
         }
       }
     });
@@ -147,7 +151,14 @@ public final class FxApplication extends Application {
     }
   }
 
-  private static String getApplicationFullName(@Nonnull String title, @Nonnull String version) {
+  @ParametersAreNonnullByDefault
+  private static String getApplicationFullName(String title, String version) {
     return String.join(Strings.SPACE, title, version);
+  }
+
+  @ParametersAreNonnullByDefault
+  private static boolean isMatchEvent(KeyEvent event, KeyCode... codes) {
+    return KeyCombination.keyCombination(
+        String.join("+", Arrays.stream(codes).map(KeyCode::getName).toArray(String[]::new))).match(event);
   }
 }
