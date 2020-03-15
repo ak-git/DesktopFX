@@ -1,16 +1,19 @@
 package com.ak.fx.desktop;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -24,13 +27,17 @@ import com.ak.util.Strings;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.BeanFactoryUtils;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
 
-import static com.ak.util.Strings.pointConcat;
+import static com.ak.util.Strings.POINT;
 
 public final class FxApplication extends Application {
   private static final String SCENE_XML = "scene.fxml";
@@ -38,7 +45,9 @@ public final class FxApplication extends Application {
   private static final String KEY_APPLICATION_VERSION = "application.version";
   private static final String KEY_APPLICATION_IMAGE = "application.image";
   private static final String KEY_PROPERTIES = "keys";
-  private final ConfigurableApplicationContext context = new FxClassPathXmlApplicationContext(FxApplication.class);
+  private final List<AbstractApplicationContext> contexts = Arrays.stream(PropertiesSupport.CONTEXT.split())
+      .map(s -> new FxClassPathXmlApplicationContext(FxApplication.class, s))
+      .collect(Collectors.toUnmodifiableList());
 
   static {
     initLogger();
@@ -54,35 +63,54 @@ public final class FxApplication extends Application {
   }
 
   @Override
-  public void start(@Nonnull Stage stage) throws Exception {
-    URL resource = getClass().getResource(SCENE_XML);
-    String contextName = PropertiesSupport.CONTEXT.value();
-    if (!contextName.isEmpty()) {
-      resource = Optional.ofNullable(getClass().getResource(pointConcat(contextName, SCENE_XML))).orElse(resource);
+  public void start(@Nonnull Stage stage) throws IOException {
+    List<FXMLLoader> fxmlLoaders = contexts.stream()
+        .map(context -> Optional
+            .ofNullable(getClass().getResource(String.join(POINT, context.getDisplayName(), SCENE_XML)))
+            .orElse(getClass().getResource(SCENE_XML)))
+        .map(url -> new FXMLLoader(url, ResourceBundle.getBundle(String.join(POINT, getClass().getPackageName(), KEY_PROPERTIES))))
+        .collect(Collectors.toUnmodifiableList());
+
+    Scene[] scenes = new Scene[fxmlLoaders.size()];
+    for (int i = 0; i < scenes.length; i++) {
+      ListableBeanFactory context = contexts.get(i);
+      fxmlLoaders.get(i).setControllerFactory(clazz -> BeanFactoryUtils.beanOfType(context, clazz));
+      scenes[i] = fxmlLoaders.get(i).load();
     }
-    FXMLLoader loader = new FXMLLoader(resource, ResourceBundle.getBundle(pointConcat(getClass().getPackageName(), KEY_PROPERTIES)));
-    loader.setControllerFactory(clazz -> BeanFactoryUtils.beanOfType(context, clazz));
-    stage.setScene(loader.load());
-    String applicationFullName = getApplicationFullName(loader.getResources().getString(KEY_APPLICATION_TITLE), loader.getResources().getString(KEY_APPLICATION_VERSION));
+
+    ResourceBundle resourceBundle = fxmlLoaders.get(0).getResources();
+    String applicationFullName = getApplicationFullName(
+        resourceBundle.getString(KEY_APPLICATION_TITLE), resourceBundle.getString(KEY_APPLICATION_VERSION));
     stage.setTitle(applicationFullName);
     if (!PropertiesSupport.OUT_CONVERTER_PATH.check()) {
       PropertiesSupport.OUT_CONVERTER_PATH.update(applicationFullName);
     }
     OSDockImage.valueOf(OS.get().name()).setIconImage(stage,
-        getClass().getResource(loader.getResources().getString(KEY_APPLICATION_IMAGE)));
+        getClass().getResource(resourceBundle.getString(KEY_APPLICATION_IMAGE)));
 
     Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass());
     stage.setOnCloseRequest(event -> stageStorage.save(stage));
     stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     stage.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
-      if (KeyCombination.keyCombination("Ctrl+Shortcut+F").match(event)) {
+      if (KeyCombination.keyCombination(
+          String.join("+", KeyCode.CONTROL.getName(), KeyCode.SHORTCUT.getName(), KeyCode.F.getName())
+      ).match(event)) {
         Platform.runLater(() -> {
           stage.setFullScreen(!stage.isFullScreen());
           stage.setResizable(false);
           stage.setResizable(true);
         });
       }
+
+      for (int i = 0; i < scenes.length; i++) {
+        Scene scene = scenes[i];
+        if (KeyCombination.keyCombination(String.format("%s%d", KeyCode.F.getName(), (i + 1))).match(event)) {
+          Platform.runLater(() -> stage.setScene(scene));
+          break;
+        }
+      }
     });
+    stage.setScene(scenes[0]);
     stage.show();
     stageStorage.update(stage);
   }
@@ -90,10 +118,10 @@ public final class FxApplication extends Application {
   @Override
   public void stop() throws Exception {
     try {
+      contexts.forEach(ConfigurableApplicationContext::close);
       super.stop();
     }
     finally {
-      context.close();
       Platform.exit();
     }
   }
@@ -119,6 +147,6 @@ public final class FxApplication extends Application {
   }
 
   private static String getApplicationFullName(@Nonnull String title, @Nonnull String version) {
-    return String.format("%s %s", title, version);
+    return String.join(Strings.SPACE, title, version);
   }
 }

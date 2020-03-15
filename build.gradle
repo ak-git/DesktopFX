@@ -33,6 +33,7 @@ ext.commons_math3 = 'org.apache.commons:commons-math3:3.6.1'
 ext.javax_inject = 'javax.inject:javax.inject:1'
 ext.jssc = 'org.scream3r:jssc:2.8.0'
 ext.spring_context = 'org.springframework:spring-context:5.2.3.RELEASE'
+ext.jenetics = 'io.jenetics:jenetics:5.2.0'
 ext.projectIds = ['java': JavaVersion.VERSION_13]
 
 wrapper {
@@ -43,7 +44,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2020.01'
+    version = '2020.03'
     apply plugin: 'idea'
     idea {
         module {

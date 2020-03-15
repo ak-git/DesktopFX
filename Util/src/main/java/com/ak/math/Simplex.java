@@ -24,7 +24,7 @@ import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.util.Pair;
 
 public class Simplex {
-  private static final double STOP_FITNESS = 1.0e-12;
+  private static final double STOP_FITNESS = 1.0e-10;
   private static final int MAX_ITERATIONS = 300000;
 
   private Simplex() {
@@ -46,7 +46,8 @@ public class Simplex {
   }
 
   public static PointValuePair optimize(@Nonnull String logFormat, @Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
-                                        @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
+                                        @Nonnull double[] initialGuess) {
+    double[] initialSteps = IntStream.range(0, bounds.getLower().length).mapToDouble(i -> (bounds.getUpper()[i] - bounds.getLower()[i]) / 10.0).toArray();
     return optimize(new MultivariateFunction() {
       private LocalTime prev = LocalTime.now();
 

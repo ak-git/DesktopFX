@@ -21,6 +21,7 @@ import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.LineFileCollector;
+import com.ak.util.PropertiesSupport;
 import com.ak.util.Strings;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -30,7 +31,7 @@ final class ConverterApp<T, R, V extends Enum<V> & Variable<V>> implements AutoC
   private final ConfigurableApplicationContext context;
 
   private ConverterApp() {
-    context = new FxClassPathXmlApplicationContext(ConverterApp.class);
+    context = new FxClassPathXmlApplicationContext(ConverterApp.class, PropertiesSupport.CONTEXT.split()[0]);
   }
 
   @Override
