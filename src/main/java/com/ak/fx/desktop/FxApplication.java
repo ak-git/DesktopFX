@@ -105,7 +105,7 @@ public final class FxApplication extends Application {
       for (int i = 0; i < scenes.length; i++) {
         Scene scene = scenes[i];
         if (KeyCombination.keyCombination(String.format("%s%d", KeyCode.F.getName(), (i + 1))).match(event)) {
-          stage.setScene(scene);
+          Platform.runLater(() -> stage.setScene(scene));
           break;
         }
       }
