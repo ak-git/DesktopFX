@@ -43,6 +43,11 @@ public enum PropertiesSupport {
     System.clearProperty(key());
   }
 
+  @Nonnull
+  public final String[] split() {
+    return value().split(",");
+  }
+
   String key() {
     return name().toLowerCase();
   }

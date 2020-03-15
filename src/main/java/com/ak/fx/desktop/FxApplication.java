@@ -24,13 +24,14 @@ import com.ak.util.Strings;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import static com.ak.util.Strings.pointConcat;
+import static com.ak.util.Strings.POINT;
 
 public final class FxApplication extends Application {
   private static final String SCENE_XML = "scene.fxml";
@@ -38,7 +39,7 @@ public final class FxApplication extends Application {
   private static final String KEY_APPLICATION_VERSION = "application.version";
   private static final String KEY_APPLICATION_IMAGE = "application.image";
   private static final String KEY_PROPERTIES = "keys";
-  private final ConfigurableApplicationContext context = new FxClassPathXmlApplicationContext(FxApplication.class);
+  private final ConfigurableApplicationContext context = new FxClassPathXmlApplicationContext(FxApplication.class, PropertiesSupport.CONTEXT.split()[0]);
 
   static {
     initLogger();
@@ -58,9 +59,9 @@ public final class FxApplication extends Application {
     URL resource = getClass().getResource(SCENE_XML);
     String contextName = PropertiesSupport.CONTEXT.value();
     if (!contextName.isEmpty()) {
-      resource = Optional.ofNullable(getClass().getResource(pointConcat(contextName, SCENE_XML))).orElse(resource);
+      resource = Optional.ofNullable(getClass().getResource(String.join(POINT, contextName, SCENE_XML))).orElse(resource);
     }
-    FXMLLoader loader = new FXMLLoader(resource, ResourceBundle.getBundle(pointConcat(getClass().getPackageName(), KEY_PROPERTIES)));
+    FXMLLoader loader = new FXMLLoader(resource, ResourceBundle.getBundle(String.join(POINT, getClass().getPackageName(), KEY_PROPERTIES)));
     loader.setControllerFactory(clazz -> BeanFactoryUtils.beanOfType(context, clazz));
     stage.setScene(loader.load());
     String applicationFullName = getApplicationFullName(
@@ -78,7 +79,9 @@ public final class FxApplication extends Application {
     stage.setOnCloseRequest(event -> stageStorage.save(stage));
     stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     stage.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
-      if (KeyCombination.keyCombination("Ctrl+Shortcut+F").match(event)) {
+      if (KeyCombination.keyCombination(
+          String.join("+", KeyCode.CONTROL.getName(), KeyCode.SHORTCUT.getName(), KeyCode.F.getName())
+      ).match(event)) {
         Platform.runLater(() -> {
           stage.setFullScreen(!stage.isFullScreen());
           stage.setResizable(false);
@@ -122,6 +125,6 @@ public final class FxApplication extends Application {
   }
 
   private static String getApplicationFullName(@Nonnull String title, @Nonnull String version) {
-    return String.format("%s %s", title, version);
+    return String.join(Strings.SPACE, title, version);
   }
 }

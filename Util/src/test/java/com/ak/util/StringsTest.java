@@ -43,12 +43,4 @@ public class StringsTest {
     Assert.assertEquals(Strings.rho2(20.1236), String.format("\u03c1\u2082 = %.3f %s", 20.124, OHM_METRE));
     Assert.assertEquals(Strings.h(0.21236, 2), String.format("h\u2082 = %.2f %s", 212.36, MetricPrefix.MILLI(Units.METRE)));
   }
-
-  @Test
-  public void testPointConcat() {
-    Assert.assertEquals(Strings.pointConcat(Strings.EMPTY, Strings.EMPTY), ".");
-    Assert.assertEquals(Strings.pointConcat("1", Strings.EMPTY), "1.");
-    Assert.assertEquals(Strings.pointConcat(Strings.EMPTY, "22"), ".22");
-    Assert.assertEquals(Strings.pointConcat("111", "222"), "111.222");
-  }
 }

@@ -18,13 +18,16 @@ public class FxClassPathXmlApplicationContextTest {
         {"nmisr"},
         {"rcm.calibration"},
         {"rcm"},
+        {"aper,aper2"},
     };
   }
 
   @Test(dataProvider = "contexts")
   public void testContext(@Nonnull String contextName) {
     PropertiesSupport.CONTEXT.update(contextName);
-    Assert.assertEquals(new FxClassPathXmlApplicationContext(FxClassPathXmlApplicationContext.class).getApplicationName(), "");
+    for (String context : PropertiesSupport.CONTEXT.split()) {
+      Assert.assertEquals(new FxClassPathXmlApplicationContext(FxClassPathXmlApplicationContext.class, context).getApplicationName(), "");
+    }
     PropertiesSupport.CONTEXT.update(Strings.EMPTY);
   }
 }

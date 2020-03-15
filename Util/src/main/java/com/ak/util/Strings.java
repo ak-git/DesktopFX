@@ -16,6 +16,7 @@ public enum Strings {
   ;
   public static final String EMPTY = "";
   public static final String SPACE = " ";
+  public static final String POINT = ".";
   public static final String NEW_LINE = String.format("%n");
   public static final String NEW_LINE_2 = String.format("%n%n");
   public static final String TAB = "\t";
@@ -34,7 +35,7 @@ public enum Strings {
   }
 
   public static String toString(@Nonnull String format, @Nonnull double[] values, @Nonnull Unit<?> unit) {
-    return String.format("%s %s", toString(format, values), unit);
+    return String.join(SPACE, toString(format, values), unit.toString());
   }
 
   public static String rho(@Nonnegative double rho) {
@@ -59,9 +60,5 @@ public enum Strings {
 
   public static String h(@Nonnegative double h, @Nonnegative int index) {
     return String.format("h%s = %.2f %s", low(index), Metrics.toMilli(h), MetricPrefix.MILLI(METRE));
-  }
-
-  public static String pointConcat(@Nonnull String first, @Nonnull String second) {
-    return String.format("%s.%s", first, second);
   }
 }
