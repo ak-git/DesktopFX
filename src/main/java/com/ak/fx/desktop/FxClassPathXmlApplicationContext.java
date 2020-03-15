@@ -11,6 +11,9 @@ final class FxClassPathXmlApplicationContext extends GenericXmlApplicationContex
 
   FxClassPathXmlApplicationContext(@Nonnull Class<?> clazz, @Nonnull String contextName) {
     super(new ClassPathResource(getContextPath(contextName), clazz));
+    if (!contextName.isEmpty()) {
+      setDisplayName(contextName);
+    }
   }
 
   private static String getContextPath(@Nonnull String contextName) {
