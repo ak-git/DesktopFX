@@ -38,8 +38,8 @@
     <orderEntry type="library" name="Gradle: org.springframework:spring-core:5.2.3.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-jcl:5.2.3.RELEASE" level="project" />
     <orderEntry type="module" module-name="DesktopFX.Util.main" />
-    <orderEntry type="module" module-name="DesktopFX.Util.main" />
     <orderEntry type="module" module-name="DesktopFX.FxCore.main" />
+    <orderEntry type="module" module-name="DesktopFX.Util.main" />
     <orderEntry type="module" module-name="DesktopFX.Communication.main" />
   </component>
   <component name="SonarLintModuleSettings">
