@@ -123,7 +123,7 @@ public class LineFileBuilder<T> {
     }
 
     private void toFile() {
-      String fileName = direction == LineFileCollector.Direction.HORIZONTAL ? "x.txt" : "y.txt";
+      String fileName = Extensions.TXT.attachTo(direction == LineFileCollector.Direction.HORIZONTAL ? "x" : "y");
       check(build().mapToObj(value -> String.format(outFormat, value)).collect(
           new LineFileCollector(Paths.get(fileName), direction)));
     }

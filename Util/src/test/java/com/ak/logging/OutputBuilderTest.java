@@ -8,6 +8,7 @@ import java.util.stream.StreamSupport;
 
 import javax.annotation.Nonnull;
 
+import com.ak.util.Extensions;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.Test;
@@ -19,7 +20,7 @@ public class OutputBuilderTest {
   private final Path outPath;
 
   public OutputBuilderTest() throws IOException {
-    Path txt = new OutputBuilder("txt").fileNameWithDateTime(OutputBuilderTest.class.getSimpleName()).build().getPath();
+    Path txt = new OutputBuilder(Extensions.TXT).fileNameWithDateTime(OutputBuilderTest.class.getSimpleName()).build().getPath();
     Files.createFile(txt);
     outPath = txt.getParent();
   }

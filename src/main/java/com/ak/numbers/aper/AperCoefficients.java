@@ -13,7 +13,7 @@ public enum AperCoefficients implements Coefficients {
     @Override
     public String readJSON(@Nonnull JsonObject object) {
       return object.getJsonObject("Current-carrying electrodes, Ohm : ADC").entrySet().stream()
-          .map(entry -> String.format("%s\t%s", entry.getValue(), entry.getKey()))
+          .map(entry -> String.join(Strings.TAB, entry.getValue().toString(), entry.getKey()))
           .collect(Collectors.joining(Strings.NEW_LINE));
     }
   }
