@@ -6,7 +6,7 @@ public enum PropertiesSupport {
   CONTEXT {
     @Override
     public String value() {
-      return System.getProperty(key(), Strings.EMPTY).trim();
+      return "aper,briko";
     }
   },
   CACHE {

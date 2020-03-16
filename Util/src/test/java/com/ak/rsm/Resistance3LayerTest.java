@@ -107,28 +107,23 @@ public class Resistance3LayerTest {
     Assert.assertEquals(new Resistance3Layer(system, hStepSI).value(rho[0], rho[1], rho[2], p[0], p[1]), rOhm, 0.001, Arrays.toString(rho));
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   public void testContinuous() {
-    TetrapolarSystem system = new TetrapolarSystem(10.0, 30.0, MILLI(METRE));
-    LineFileBuilder.of("%.1f %.0f %.3f")
-        .xRange(0.1, 50.0, 0.1)
-        .yRange(0, 2, 1)
-        .generate("z.txt", (h1mm, index) -> {
-          int i = (int) index;
-          if (i == 0) {
-            int p1 = (int) (h1mm / 0.1);
-            return new Resistance3Layer(system, Metrics.fromMilli(0.1)).value(10.0, 1.0, 10.0, p1, 1);
-          }
-          else if (i == 1) {
-            return new Resistance2Layer(system).value(10.0, 1.0, Metrics.fromMilli(h1mm));
-          }
-          else if (i == 2) {
-            return new Resistance2Layer(system).value(1.0, 10.0, Metrics.fromMilli(h1mm));
-          }
-          else {
-            return Double.NaN;
-          }
-        });
+    for (int a : IntStream.rangeClosed(1, 30).toArray()) {
+      TetrapolarSystem system = new TetrapolarSystem(a, a * 3, MILLI(METRE));
+      for (double rho2 : new double[] {2.7 * 0.95, 2.7, 2.7 * 1.05}) {
+        for (int rho1 : IntStream.iterate(10, x -> x < 70, x -> x + 10).toArray()) {
+          LineFileBuilder.of("%.1f %.1f %.3f")
+              .xRange(0, 20, 0.1)
+              .yRange(0, 50, 0.1)
+              .generate(String.format("rho1 = %d, rho2 = %.3f, a = %d mm.txt", rho1, rho2, a), (h1, h2) -> {
+                int p1 = (int) h1 * 10;
+                int p2mp1 = (int) h2 * 10;
+                return new Resistance3Layer(system, Metrics.fromMilli(0.1)).value(rho1, rho2, 100.0, p1, p2mp1);
+              });
+        }
+      }
+    }
   }
 
   @DataProvider(name = "theoryDynamicParameters3")

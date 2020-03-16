@@ -1,16 +1,9 @@
 package com.ak.comm.converter.aper;
 
-import java.nio.ByteOrder;
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nonnull;
 
-import com.ak.comm.bytes.BufferFrame;
-import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.LinkedConverter;
-import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.Variable;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
@@ -21,51 +14,10 @@ import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
 public class AperTest {
-  @DataProvider(name = "variables")
-  public static Object[][] variables() {
-    return new Object[][] {
-        {new byte[] {1,
-            (byte) 0x9a, (byte) 0x88, 0x01, 0,
-            2, 0, 0, 0,
-            (byte) 0xf1, 0x05, 0, 0,
-
-            (byte) 0xff, (byte) 0xff, (byte) 0xff, 0,
-            5, 0, 0, 0,
-            (byte) 0xd0, 0x07, 0, 0},
-
-            new int[] {55762, 301742, 1325, 51091, 276467}},
-    };
-  }
-
-  @Test(dataProvider = "variables")
-  public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
-    Converter<BufferFrame, AperOutVariable> converter = new LinkedConverter<>(
-        new ToIntegerConverter<>(AperInVariable.class, 1000), AperOutVariable.class);
-    AtomicBoolean processed = new AtomicBoolean();
-    BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 2000 - 1; i++) {
-      int finalI = i;
-      long count = converter.apply(bufferFrame).peek(ints -> {
-        if (finalI > 1900) {
-          if (!processed.get()) {
-            Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
-          }
-          processed.set(true);
-        }
-      }).count();
-      if (processed.get()) {
-        Assert.assertEquals(count, 32);
-        break;
-      }
-    }
-    Assert.assertTrue(processed.get(), "Data are not converted!");
-    Assert.assertEquals(converter.getFrequency(), 1000, 0.1);
-  }
-
   @Test
   public void testVariableProperties() {
-    Assert.assertEquals(AperOutVariable.CCR.getUnit(), Units.OHM);
-    Assert.assertTrue(AperOutVariable.CCR.options().contains(Variable.Option.TEXT_VALUE_BANNER));
+    Assert.assertEquals(AperOutVariable.CCR1.getUnit(), Units.OHM);
+    Assert.assertTrue(AperOutVariable.CCR1.options().contains(Variable.Option.TEXT_VALUE_BANNER));
 
     EnumSet.of(AperOutVariable.R1, AperOutVariable.R2).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MILLI(Units.OHM)));
     EnumSet.of(AperOutVariable.R1, AperOutVariable.R2).forEach(variable -> Assert.assertTrue(variable.options().contains(Variable.Option.VISIBLE)));
@@ -79,9 +31,9 @@ public class AperTest {
   @DataProvider(name = "filter-delay")
   public static Object[][] filterDelay() {
     return new Object[][] {
-        {AperOutVariable.R1, 157.5},
-        {AperOutVariable.R2, 157.5},
-        {AperOutVariable.CCR, 157.5},
+        {AperOutVariable.R1, 0.0},
+        {AperOutVariable.R2, 0.0},
+        {AperOutVariable.CCR1, 24.5},
     };
   }
 

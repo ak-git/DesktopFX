@@ -42,8 +42,8 @@
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.apache.commons:commons-math3:3.6.1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: io.jenetics:jenetics:5.2.0" level="project" />
     <orderEntry type="module" module-name="DesktopFX.Util.main" />
-    <orderEntry type="module" module-name="DesktopFX.Util.main" />
     <orderEntry type="module" module-name="DesktopFX.FxCore.main" />
+    <orderEntry type="module" module-name="DesktopFX.Util.main" />
     <orderEntry type="module" module-name="DesktopFX.Communication.main" />
   </component>
   <component name="SonarLintModuleSettings">

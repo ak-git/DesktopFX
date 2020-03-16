@@ -35,7 +35,7 @@ public enum Aper2OutVariable implements DependentVariable<AperOutVariable, Aper2
   CCR {
     @Override
     public List<AperOutVariable> getInputVariables() {
-      return Collections.singletonList(AperOutVariable.CCR);
+      return Collections.singletonList(AperOutVariable.CCR1);
     }
 
     @Override

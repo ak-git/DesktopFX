@@ -36,6 +36,7 @@ module com.ak.fx.desktop {
   exports com.ak.comm.converter.rcm to spring.beans, org.testng;
   exports com.ak.comm.converter.nmis to spring.beans;
   exports com.ak.comm.converter.rsce to spring.beans;
+  exports com.ak.comm.converter.briko to spring.beans, org.testng;
   exports com.ak.comm.interceptor.nmisr to spring.beans;
   exports com.ak.comm.interceptor.nmis to spring.beans;
   exports com.ak.comm.interceptor.rcm to spring.beans;

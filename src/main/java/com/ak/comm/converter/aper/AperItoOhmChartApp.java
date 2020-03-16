@@ -8,7 +8,7 @@ import com.ak.numbers.aper.AperCoefficients;
  */
 public final class AperItoOhmChartApp extends AbstractSplineCoefficientsChartApp<ADCVariable, AperOutVariable> {
   public AperItoOhmChartApp() {
-    super(AperCoefficients.ADC_TO_OHM, ADCVariable.ADC, AperOutVariable.CCR);
+    super(AperCoefficients.ADC_TO_OHM, ADCVariable.ADC, AperOutVariable.CCR1);
   }
 
   public static void main(String[] args) {
