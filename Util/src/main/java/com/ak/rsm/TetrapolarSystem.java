@@ -13,13 +13,13 @@ import tec.uom.se.unit.MetricPrefix;
 
 import static tec.uom.se.unit.Units.METRE;
 
-final class TetrapolarSystem {
+public final class TetrapolarSystem {
   @Nonnegative
   private final double sPotentialUnitSI;
   @Nonnegative
   private final double lCurrentCarryingSI;
 
-  TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
+  public TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
     sPotentialUnitSI = toDouble(sPU, unit);
     lCurrentCarryingSI = toDouble(lCC, unit);
   }
