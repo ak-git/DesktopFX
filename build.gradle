@@ -98,6 +98,7 @@ dependencies {
     implementation javax_inject
     implementation uom_se
     implementation javax_json
+    implementation 'org.beryx:text-io:3.4.0'
 }
 
 javafx {
@@ -105,7 +106,7 @@ javafx {
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
-mainClassName = "$moduleName/com.ak.fx.desktop.FxApplication"
+mainClassName = "$moduleName/com.ak.fx.desktop.R3Output"
 
 jlink {
     options = ['--bind-services', '--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
