@@ -6,16 +6,16 @@ import java.util.logging.LogManager;
 
 import javax.annotation.Nonnull;
 
-import com.ak.util.Extensions;
+import com.ak.util.Extension;
 import com.ak.util.LocalFileIO;
 import com.ak.util.LocalIO;
 
 class LogPathBuilder extends LocalFileIO.AbstractBuilder {
   LogPathBuilder() {
-    super(Extensions.NONE);
+    super(Extension.NONE);
   }
 
-  LogPathBuilder(@Nonnull Extensions fileExtension, @Nonnull Class<? extends FileHandler> fileHandlerClass) {
+  LogPathBuilder(@Nonnull Extension fileExtension, @Nonnull Class<? extends FileHandler> fileHandlerClass) {
     super(fileExtension);
     addPath(Optional.ofNullable(LogManager.getLogManager().getProperty(fileHandlerClass.getName() + ".name")).
         orElse(fileHandlerClass.getSimpleName()));

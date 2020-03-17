@@ -25,7 +25,7 @@ import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.storage.Storage;
 import com.ak.fx.util.OSDockImage;
 import com.ak.logging.LoggingBuilder;
-import com.ak.util.Extensions;
+import com.ak.util.Extension;
 import com.ak.util.OS;
 import com.ak.util.PropertiesSupport;
 import com.ak.util.Strings;
@@ -127,7 +127,7 @@ public final class FxApplication extends Application {
   }
 
   private static void initLogger() {
-    try (InputStream in = FxApplication.class.getResourceAsStream(Extensions.PROPERTIES.attachTo(KEY_PROPERTIES))) {
+    try (InputStream in = FxApplication.class.getResourceAsStream(Extension.PROPERTIES.attachTo(KEY_PROPERTIES))) {
       Properties keys = new Properties();
       keys.load(in);
       Path path = LoggingBuilder.LOGGING.build(

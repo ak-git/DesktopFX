@@ -17,14 +17,14 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 
 import com.ak.logging.CalibrateBuilders;
-import com.ak.util.Extensions;
+import com.ak.util.Extension;
 import com.ak.util.LocalIO;
 
 public interface Coefficients extends Supplier<double[]> {
   @Override
   default double[] get() {
     String fileName = getClass().getPackageName().replaceFirst(".*\\.", "");
-    InputStream inputStream = getClass().getResourceAsStream(Extensions.JSON.attachTo(fileName));
+    InputStream inputStream = getClass().getResourceAsStream(Extension.JSON.attachTo(fileName));
     try {
       LocalIO build = CalibrateBuilders.CALIBRATION.build(fileName);
       Path path = build.getPath();

@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 public class MultiFileCollectorTest {
   @Test
   public void test() throws IOException {
-    Path out = Paths.get(Extensions.TXT.attachTo(MultiFileCollectorTest.class.getSimpleName()));
+    Path out = Paths.get(Extension.TXT.attachTo(MultiFileCollectorTest.class.getSimpleName()));
     MultiFileCollector<Double> multiFileCollector = new MultiFileCollector.MultiFileCollectorBuilder<Double>("%.0f").
         add(out, value -> value).build();
     Assert.assertTrue(Stream.generate(() -> Stream.of(1.0, 2.0)).limit(1).collect(multiFileCollector));

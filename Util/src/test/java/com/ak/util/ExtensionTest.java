@@ -8,7 +8,7 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class ExtensionsTest {
+public class ExtensionTest {
   @DataProvider(name = "fileNames")
   public static Object[][] fileNames() {
     return new Object[][] {
@@ -21,9 +21,9 @@ public class ExtensionsTest {
 
   @Test(dataProvider = "fileNames")
   public void testAttachTo(@Nonnull String name) {
-    for (Extensions e : EnumSet.complementOf(EnumSet.of(Extensions.NONE))) {
+    for (Extension e : EnumSet.complementOf(EnumSet.of(Extension.NONE))) {
       Assert.assertEquals(e.attachTo(name), String.join(".", name, e.name().toLowerCase()));
     }
-    Assert.assertEquals(Extensions.NONE.attachTo(name), name);
+    Assert.assertEquals(Extension.NONE.attachTo(name), name);
   }
 }

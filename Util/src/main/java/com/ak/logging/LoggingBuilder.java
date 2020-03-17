@@ -1,6 +1,6 @@
 package com.ak.logging;
 
-import com.ak.util.Extensions;
+import com.ak.util.Extension;
 import com.ak.util.LocalIO;
 
 public enum LoggingBuilder {
@@ -11,6 +11,6 @@ public enum LoggingBuilder {
   }
 
   public final String fileName() {
-    return Extensions.PROPERTIES.attachTo(name().toLowerCase());
+    return Extension.PROPERTIES.attachTo(name().toLowerCase());
   }
 }
