@@ -68,9 +68,9 @@ public final class FxDesktopTest extends Preloader {
     cleanup();
   }
 
-  private static void cleanup() throws BackingStoreException {
+  private void cleanup() throws BackingStoreException {
     for (OSStageStorage storage : OSStageStorage.values()) {
-      storage.newInstance(FxDesktopTest.class).delete();
+      storage.newInstance(FxDesktopTest.class, String.format("%x", hashCode())).delete();
     }
   }
 
@@ -103,7 +103,7 @@ public final class FxDesktopTest extends Preloader {
 
   @Test(dataProvider = "os-storage")
   public void testBoundsStorage(OSStageStorage storage) throws Exception {
-    Storage<Stage> stageStorage = storage.newInstance(getClass());
+    Storage<Stage> stageStorage = storage.newInstance(getClass(), String.format("%x", hashCode()));
     Stage stage = STAGE_REFERENCE.get();
 
     boolean maximizedFlag = stage.isMaximized();
@@ -146,7 +146,7 @@ public final class FxDesktopTest extends Preloader {
 
   @Test(dataProvider = "os-storage", expectedExceptions = UnsupportedOperationException.class)
   public void testGet(@Nonnull OSStageStorage storage) {
-    storage.newInstance(getClass()).get();
+    storage.newInstance(getClass(), String.format("%x", hashCode())).get();
   }
 
   @Test

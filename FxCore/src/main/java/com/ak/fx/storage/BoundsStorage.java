@@ -13,8 +13,8 @@ final class BoundsStorage extends AbstractStorage<Rectangle2D.Double> {
   private static final String BOUNDS_WIDTH = "boundsWidth";
   private static final String BOUNDS_HEIGHT = "boundsHeight";
 
-  BoundsStorage(@Nonnull Class<?> c) {
-    super(c);
+  BoundsStorage(@Nonnull Class<?> c, @Nonnull String nodeName) {
+    super(c, nodeName);
   }
 
   @Override

@@ -15,8 +15,8 @@ final class MacStageStorage extends AbstractStageStorage {
   @Nonnull
   private Instant fullScreenEventInstant = Instant.now();
 
-  MacStageStorage(@Nonnull Class<?> c) {
-    super(c);
+  MacStageStorage(@Nonnull Class<?> c, @Nonnull String nodeName) {
+    super(c, nodeName);
   }
 
   @Override
