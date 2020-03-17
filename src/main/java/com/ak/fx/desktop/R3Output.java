@@ -72,13 +72,13 @@ public final class R3Output {
               }
             }
           }
-        }
 
-        if (textIO.newBooleanInputReader().withDefaultValue(true).read("Run again?")) {
-          terminal.resetToBookmark("MAIN");
-        }
-        else {
-          break;
+          if (textIO.newBooleanInputReader().withDefaultValue(true).read("Run again?")) {
+            terminal.resetToBookmark("MAIN");
+          }
+          else {
+            break;
+          }
         }
       }
       else {
