@@ -37,8 +37,8 @@
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.slf4j:slf4j-api:1.7.29" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: jline:jline:2.14.6" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-core:5.2.3.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework:spring-jcl:5.2.3.RELEASE" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.beryx:awt-color-factory:1.0.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-jcl:5.2.3.RELEASE" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.apache.commons:commons-math3:3.6.1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: io.jenetics:jenetics:5.2.0" level="project" />
     <orderEntry type="module" module-name="DesktopFX.Util.main" />

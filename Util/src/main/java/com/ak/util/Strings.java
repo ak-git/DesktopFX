@@ -58,10 +58,6 @@ public enum Strings {
     return String.format("%s%s = %.3f %s", RHO, low(index), rho, OHM_METRE);
   }
 
-  public static String rho(@Nonnegative int index) {
-    return String.format("%s%s, %s", RHO, low(index), OHM_METRE);
-  }
-
   public static String h(@Nonnegative double h, @Nonnegative int index) {
     return String.format("h%s = %.2f %s", low(index), Metrics.toMilli(h), MetricPrefix.MILLI(METRE));
   }
