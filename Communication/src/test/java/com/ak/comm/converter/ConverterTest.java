@@ -29,25 +29,22 @@ public class ConverterTest {
       };
   private static final Logger LOGGER_VALID = Logger.getLogger(VALID_CONVERTER_0.getClass().getName());
 
-  private ConverterTest() {
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public static void testInvalidApply() {
+  public void testInvalidApply() {
     Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER_INVALID, WARNING,
         () -> Assert.assertEquals(INVALID_CONVERTER.apply(1).count(), 1),
         logRecord -> Assert.assertEquals(logRecord.getMessage(), "Invalid variables: [V1, V2] not match [1]")));
   }
 
   @Test
-  public static void testValidApply() {
+  public void testValidApply() {
     Assert.assertFalse(LogTestUtils.isSubstituteLogLevel(LOGGER_VALID, WARNING,
         () -> Assert.assertEquals(VALID_CONVERTER_0.apply(1).count(), 0),
         logRecord -> Assert.fail(logRecord.getMessage())));
   }
 
   @Test
-  public static void testFrequencies() {
+  public void testFrequencies() {
     Assert.assertEquals(INVALID_CONVERTER.getFrequency(), 200, 0.1);
     Assert.assertEquals(VALID_CONVERTER_0.getFrequency(), 1000, 0.1);
   }

@@ -21,21 +21,18 @@ import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_SPEED
 public class RsceBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(RsceBytesInterceptor.class.getName());
 
-  private RsceBytesInterceptorTest() {
-  }
-
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "simpleRequests")
-  public static void testSimpleRequest(@Nonnull byte[] bytes, @Nonnull RsceCommandFrame.Control control, @Nonnull RsceCommandFrame.RequestType type) {
+  public void testSimpleRequest(@Nonnull byte[] bytes, @Nonnull RsceCommandFrame.Control control, @Nonnull RsceCommandFrame.RequestType type) {
     checkResponse(bytes, RsceCommandFrame.simple(control, type));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "offRequests")
-  public static void testOffRequest(@Nonnull byte[] expected, @Nonnull RsceCommandFrame.Control control) {
+  public void testOffRequest(@Nonnull byte[] expected, @Nonnull RsceCommandFrame.Control control) {
     checkResponse(expected, RsceCommandFrame.off(control));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "preciseRequests")
-  public static void testPreciseRequest(@Nonnull byte[] expected, short speed) {
+  public void testPreciseRequest(@Nonnull byte[] expected, short speed) {
     checkResponse(expected, RsceCommandFrame.precise(CATCH, STATUS_I_SPEED_ANGLE, speed));
   }
 

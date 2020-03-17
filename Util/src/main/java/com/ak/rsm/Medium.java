@@ -31,6 +31,8 @@ class Medium {
   private final double[] rho;
   @Nonnull
   private final double[] h;
+  @Nonnegative
+  private final double inequality;
 
   private Medium(Builder b) {
     measured = b.measured;
@@ -39,6 +41,7 @@ class Medium {
     predictedDelta = b.predictedDelta;
     rho = DoubleStream.concat(b.layers.stream().mapToDouble(value -> value[0]), DoubleStream.of(b.rhoSemiInfinite)).toArray();
     h = b.layers.stream().mapToDouble(value -> value[1]).toArray();
+    inequality = b.inequality;
   }
 
   double getRho() {
@@ -48,6 +51,10 @@ class Medium {
     else {
       throw new UnsupportedOperationException(Arrays.toString(rho));
     }
+  }
+
+  double getInequality() {
+    return inequality;
   }
 
   @Nonnull
@@ -68,29 +75,33 @@ class Medium {
     }
 
     if (measuredDelta.length == 0 || predictedDelta.length == 0) {
-      return String.format("%s; L%s = %.1f %s;%nmeasured  = %s;%npredicted = %s;", sb,
-          Strings.low(2),
-          Metrics.toPercents(Inequality.proportional().applyAsDouble(measured, predicted) / measured.length),
-          Units.PERCENT,
-          Strings.toString("%.3f", measured, Units.OHM),
-          Strings.toString("%.3f", predicted, Units.OHM)
+      return String.join("; ",
+          sb,
+          String.format("L%s = %.1f %s",
+              Strings.low(2), Metrics.toPercents(Inequality.proportional().applyAsDouble(measured, predicted) / measured.length),
+              Units.PERCENT),
+          String.format("%nmeasured  = %s", Strings.toString("%.3f", measured, Units.OHM)),
+          String.format("%npredicted = %s", Strings.toString("%.3f", predicted, Units.OHM))
       );
     }
     else {
       double error = Inequality.proportional().applyAsDouble(measured, predicted) / measured.length;
       double error2 = Inequality.proportional().applyAsDouble(measuredDelta, predictedDelta) / measuredDelta.length;
 
-      return String.format("%s; L%s = [%.1f; %.1f] %s;%nmeasured  = %s, %s = %s;%npredicted = %s, %s = %s;", sb,
-          Strings.low(2),
-          Metrics.toPercents(error),
-          Metrics.toPercents(error2),
-          Units.PERCENT,
-          Strings.toString("%.3f", measured, Units.OHM),
-          Strings.CAP_DELTA,
-          Strings.toString("%.0f", Arrays.stream(measuredDelta).map(Metrics::toMilli).toArray(), MetricPrefix.MILLI(Units.OHM)),
-          Strings.toString("%.3f", predicted, Units.OHM),
-          Strings.CAP_DELTA,
-          Strings.toString("%.0f", Arrays.stream(predictedDelta).map(Metrics::toMilli).toArray(), MetricPrefix.MILLI(Units.OHM))
+      String epsilon = Strings.EMPTY;
+      if (!Double.isNaN(inequality)) {
+        epsilon = String.format("%s = %.6f", Strings.EPSILON, inequality);
+      }
+
+      return String.join("; ",
+          sb, epsilon,
+          String.format("L%s = [%.1f; %.1f] %s", Strings.low(2), Metrics.toPercents(error), Metrics.toPercents(error2), Units.PERCENT),
+          String.format("%nmeasured  = %s", Strings.toString("%.3f", measured, Units.OHM)),
+          String.format("%s = %s", Strings.CAP_DELTA,
+              Strings.toString("%.0f", Arrays.stream(measuredDelta).map(Metrics::toMilli).toArray(), MetricPrefix.MILLI(Units.OHM))),
+          String.format("%npredicted = %s", Strings.toString("%.3f", predicted, Units.OHM)),
+          String.format("%s = %s", Strings.CAP_DELTA,
+              Strings.toString("%.0f", Arrays.stream(predictedDelta).map(Metrics::toMilli).toArray(), MetricPrefix.MILLI(Units.OHM)))
       );
     }
   }
@@ -109,6 +120,8 @@ class Medium {
     private final Collection<double[]> layers = new ArrayList<>();
     @Nonnegative
     private double rhoSemiInfinite = Double.POSITIVE_INFINITY;
+    @Nonnegative
+    private double inequality = Double.NaN;
 
     Builder(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhms, @Nonnull ToDoubleFunction<? super TetrapolarSystem> toDoubleFunction) {
       measured = Arrays.copyOf(rOhms, rOhms.length);
@@ -124,6 +137,11 @@ class Medium {
 
       measuredDelta = IntStream.range(0, rOhmsBefore.length).mapToDouble(i -> rOhmsAfter[i] - rOhmsBefore[i]).toArray();
       predictedDelta = Arrays.stream(systems).mapToDouble(system -> toOhms.applyAsDouble(system, dh) - toOhms.applyAsDouble(system, 0.0)).toArray();
+    }
+
+    Builder inequality(double inequality) {
+      this.inequality = inequality;
+      return this;
     }
 
     Builder addLayer(@Nonnegative double rho, @Nonnegative double h) {

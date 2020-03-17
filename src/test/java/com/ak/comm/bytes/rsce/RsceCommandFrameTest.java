@@ -9,26 +9,23 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class RsceCommandFrameTest {
-  private RsceCommandFrameTest() {
-  }
-
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "simpleRequests")
-  public static void testSimpleRequest(@Nonnull byte[] expected, @Nonnull RsceCommandFrame.Control control, @Nonnull RsceCommandFrame.RequestType type) {
+  public void testSimpleRequest(@Nonnull byte[] expected, @Nonnull RsceCommandFrame.Control control, @Nonnull RsceCommandFrame.RequestType type) {
     checkRequest(expected, RsceCommandFrame.simple(control, type));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "offRequests")
-  public static void testOffRequest(@Nonnull byte[] expected, @Nonnull RsceCommandFrame.Control control) {
+  public void testOffRequest(@Nonnull byte[] expected, @Nonnull RsceCommandFrame.Control control) {
     checkRequest(expected, RsceCommandFrame.off(control));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "preciseRequests")
-  public static void testPreciseRequest(@Nonnull byte[] expected, short speed) {
+  public void testPreciseRequest(@Nonnull byte[] expected, short speed) {
     checkRequest(expected, RsceCommandFrame.precise(RsceCommandFrame.Control.CATCH, RsceCommandFrame.RequestType.STATUS_I_SPEED_ANGLE, speed));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "positionCatchRequests")
-  public static void testPositionCatchRequest(@Nonnull byte[] expected, byte position) {
+  public void testPositionCatchRequest(@Nonnull byte[] expected, byte position) {
     checkRequest(expected, RsceCommandFrame.position(RsceCommandFrame.Control.CATCH, position));
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(expected)).build();
     Assert.assertNotNull(frame);
@@ -37,7 +34,7 @@ public class RsceCommandFrameTest {
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "positionRotateRequests")
-  public static void testPositionRotateRequest(@Nonnull byte[] expected, byte position) {
+  public void testPositionRotateRequest(@Nonnull byte[] expected, byte position) {
     checkRequest(expected, RsceCommandFrame.position(RsceCommandFrame.Control.ROTATE, position));
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(expected)).build();
     Assert.assertNotNull(frame);
@@ -46,7 +43,7 @@ public class RsceCommandFrameTest {
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "rheo12-info")
-  public static void testInfoRequest(@Nonnull byte[] bytes, @Nonnull int[] rDozenMilliOhms, @Nonnull int[] infoOnes) {
+  public void testInfoRequest(@Nonnull byte[] bytes, @Nonnull int[] rDozenMilliOhms, @Nonnull int[] infoOnes) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     Assert.assertNotNull(frame);
     Assert.assertEquals(frame.extract(RsceCommandFrame.FrameField.R1_DOZEN_MILLI_OHM, 0), rDozenMilliOhms[0],
@@ -58,7 +55,7 @@ public class RsceCommandFrameTest {
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "finger")
-  public static void testInfoRequest(@Nonnull byte[] bytes, int fingerSpeed) {
+  public void testInfoRequest(@Nonnull byte[] bytes, int fingerSpeed) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     Assert.assertNotNull(frame);
     Assert.assertEquals(frame.extract(RsceCommandFrame.FrameField.FINGER, 0), fingerSpeed,
@@ -66,19 +63,19 @@ public class RsceCommandFrameTest {
   }
 
   @Test
-  public static void testInvalidInfoRequest() {
+  public void testInvalidInfoRequest() {
     RsceCommandFrame frame = new RsceCommandFrame.RequestBuilder(RsceCommandFrame.Control.ALL, RsceCommandFrame.ActionType.NONE, RsceCommandFrame.RequestType.EMPTY).build();
     Assert.assertNotNull(frame);
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "invalidRequests")
-  public static void testInvalidRequests(@Nonnull byte[] bytes) {
+  public void testInvalidRequests(@Nonnull byte[] bytes) {
     Assert.assertNull(new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build(), Arrays.toString(bytes));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "invalidRequests",
       expectedExceptions = UnsupportedOperationException.class)
-  public static void testInvalidMethod(@Nonnull byte[] bytes) {
+  public void testInvalidMethod(@Nonnull byte[] bytes) {
     new RsceCommandFrame.ResponseBuilder().bufferLimit(ByteBuffer.wrap(bytes));
   }
 

@@ -17,6 +17,12 @@ final class PeakToPeakFilter extends AbstractBufferFilter {
     min = new Index(Operator.MIN);
   }
 
+  @Nonnegative
+  @Override
+  public double getDelay() {
+    return 0.0;
+  }
+
   @Override
   int apply(@Nonnegative int nowIndex) {
     return max.applyAsInt(nowIndex) - min.applyAsInt(nowIndex);

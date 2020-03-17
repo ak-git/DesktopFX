@@ -136,7 +136,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public AsynchronousFileChannel call() throws IOException {
-    Path path = LogBuilders.CONVERTER_SERIAL.build(getClass().getSimpleName()).getPath();
+    Path path = LogBuilders.CONVERTER_SERIAL.build(String.format("%x", hashCode())).getPath();
     return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
   }
 

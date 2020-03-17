@@ -14,9 +14,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class RcmCoefficientsTest {
-  private RcmCoefficientsTest() {
-  }
-
   @DataProvider(name = "rcm-coefficients")
   public static Object[][] rcmCoefficients() {
     return new Object[][] {
@@ -28,7 +25,7 @@ public class RcmCoefficientsTest {
   }
 
   @Test
-  public static void testCoefficients() {
+  public void testCoefficients() {
     Assert.assertEquals(RcmCoefficients.values().length, 2);
     Assert.assertEquals(RcmSimpleCoefficients.values().length, 3);
 
@@ -41,7 +38,7 @@ public class RcmCoefficientsTest {
   }
 
   @Test(dataProvider = "rcm-coefficients")
-  public static void testCoefficients(@Nonnull Supplier<double[]> coefficients, @Nonnegative int count) {
+  public void testCoefficients(@Nonnull Supplier<double[]> coefficients, @Nonnegative int count) {
     Assert.assertEquals(coefficients.get().length, count, coefficients.toString());
   }
 
@@ -55,7 +52,7 @@ public class RcmCoefficientsTest {
   }
 
   @Test(dataProvider = "rcm-simple-coefficients")
-  public static void testSimpleCoefficients(@Nonnull SimpleCoefficients coefficients, @Nonnegative int count) {
+  public void testSimpleCoefficients(@Nonnull SimpleCoefficients coefficients, @Nonnegative int count) {
     Assert.assertEquals(coefficients.get().length, count, coefficients.name());
   }
 }

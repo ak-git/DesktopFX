@@ -5,8 +5,6 @@ import java.util.function.BiFunction;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
@@ -69,14 +67,10 @@ public class LineFileBuilder<T> {
   }
 
   public void generate(@Nonnull String fileName, @Nonnull DoubleBinaryOperator operator) {
-    String format = String.format("[%s; %s] %s", xRange.outFormat, yRange.outFormat, outFormat);
     Supplier<DoubleStream> xVar = xRange::build;
     Supplier<DoubleStream> yVar = yRange::build;
-    check(yVar.get().mapToObj(y -> xVar.get().map(x -> {
-      double v = operator.applyAsDouble(x, y);
-      Logger.getAnonymousLogger().log(Level.INFO, String.format(format, x, y, v));
-      return v;
-    })).map(stream -> stream.mapToObj(value -> String.format(outFormat, value)).collect(Collectors.joining(Strings.TAB)))
+    check(yVar.get().mapToObj(y -> xVar.get().map(x -> operator.applyAsDouble(x, y)))
+        .map(stream -> stream.mapToObj(value -> String.format(outFormat, value)).collect(Collectors.joining(Strings.TAB)))
         .collect(new LineFileCollector(Paths.get(fileName), LineFileCollector.Direction.VERTICAL)));
   }
 
@@ -129,7 +123,7 @@ public class LineFileBuilder<T> {
     }
 
     private void toFile() {
-      String fileName = direction == LineFileCollector.Direction.HORIZONTAL ? "x.txt" : "y.txt";
+      String fileName = Extension.TXT.attachTo(direction == LineFileCollector.Direction.HORIZONTAL ? "x" : "y");
       check(build().mapToObj(value -> String.format(outFormat, value)).collect(
           new LineFileCollector(Paths.get(fileName), direction)));
     }

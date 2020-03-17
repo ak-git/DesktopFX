@@ -27,8 +27,6 @@ public enum PropertiesSupport {
     }
   };
 
-  private static final String PROPERTIES = "properties";
-
   public boolean check() {
     return !System.getProperty(key(), Strings.EMPTY).isEmpty();
   }
@@ -43,12 +41,13 @@ public enum PropertiesSupport {
     System.clearProperty(key());
   }
 
-  String key() {
-    return name().toLowerCase();
+  @Nonnull
+  public final String[] split() {
+    return value().split(",");
   }
 
-  public static String addExtension(String fileName) {
-    return String.format("%s.%s", fileName, PROPERTIES);
+  String key() {
+    return name().toLowerCase();
   }
 }
 

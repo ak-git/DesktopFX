@@ -1,6 +1,7 @@
 package com.ak.fx.stage;
 
 import java.awt.Toolkit;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -20,7 +21,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
-import javafx.stage.Window;
 
 @Immutable
 @ThreadSafe
@@ -35,17 +35,17 @@ public enum ScreenResolutionMonitor {
       dpi.setValue(Screen.getPrimary().getDpi());
     }
     log();
-    Timer timer = new Timer((int) UIConstants.UI_DELAY.toMillis(), e -> {
-      if (sceneReference.get() != null) {
-        Window window = sceneReference.get().getWindow();
-        ObservableList<Screen> screens = Screen.getScreensForRectangle(window.getX(), window.getY(), window.getWidth(), window.getHeight());
-        Screen screen = Screen.getPrimary();
-        if (!screens.isEmpty()) {
-          screen = screens.get(0);
-        }
-        dpi.setValue(screen.getDpi());
-      }
-    });
+    Timer timer = new Timer((int) UIConstants.UI_DELAY.toMillis(), e ->
+        Optional.ofNullable(sceneReference.get()).flatMap(scene ->
+            Optional.ofNullable(scene.getWindow())).ifPresent(window -> {
+          ObservableList<Screen> screens = Screen.getScreensForRectangle(window.getX(), window.getY(), window.getWidth(), window.getHeight());
+          Screen screen = Screen.getPrimary();
+          if (!screens.isEmpty()) {
+            screen = screens.get(0);
+          }
+          dpi.setValue(screen.getDpi());
+        })
+    );
     timer.start();
     dpi.addListener((observable, oldValue, newValue) -> log());
   }

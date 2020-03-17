@@ -28,6 +28,6 @@ public enum CommonCoefficients implements SimpleCoefficients {
     String ohms = String.format(Locale.ROOT, "%.1f", Metrics.fromMilli(Double.parseDouble(Strings.numberSuffix(coefficients.name()))));
     String channel = String.format("Channel-%s", Strings.numberSuffix(coefficients.getClass().getName()));
     Set<Map.Entry<String, JsonValue>> entries = object.getJsonObject(name).getJsonObject(ohms).getJsonObject(channel).entrySet();
-    return entries.stream().map(entry -> String.format("%s\t%s", entry.getKey(), entry.getValue())).collect(Collectors.joining(Strings.NEW_LINE));
+    return entries.stream().map(entry -> String.join(Strings.TAB, entry.getKey(), entry.getValue().toString())).collect(Collectors.joining(Strings.NEW_LINE));
   }
 }

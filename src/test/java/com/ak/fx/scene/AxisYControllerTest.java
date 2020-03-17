@@ -9,9 +9,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class AxisYControllerTest {
-  private AxisYControllerTest() {
-  }
-
   @DataProvider(name = "fullData")
   public static Object[][] fullData() {
     return new Object[][] {
@@ -24,7 +21,7 @@ public class AxisYControllerTest {
 
 
   @Test(dataProvider = "fullData")
-  public static void testScale(IntStream data, int mean, int scaleFactor) {
+  public void testScale(IntStream data, int mean, int scaleFactor) {
     AxisYController<ADCVariable> controller = new AxisYController<>();
     controller.setLineDiagramHeight(GridCell.mmToScreen(233));
     ScaleYInfo<ADCVariable> scaleYInfo = controller.scale(ADCVariable.ADC, data.toArray());

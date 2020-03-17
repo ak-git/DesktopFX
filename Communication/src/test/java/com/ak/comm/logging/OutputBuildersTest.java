@@ -17,9 +17,6 @@ import org.testng.annotations.Test;
 public class OutputBuildersTest {
   private static final Object[][] EMPTY_OBJECTS = {};
 
-  private OutputBuildersTest() {
-  }
-
   @DataProvider(name = "outBuilders")
   public static Object[][] outBuilders() {
     return Stream.of(OutputBuilders.values()).
@@ -35,7 +32,7 @@ public class OutputBuildersTest {
 
 
   @Test(dataProvider = "outBuilders")
-  public static void testOutBuilders(Path path) throws IOException {
+  public void testOutBuilders(Path path) throws IOException {
     Assert.assertNotNull(path);
     WritableByteChannel channel = Files.newByteChannel(path,
         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);

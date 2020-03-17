@@ -30,7 +30,7 @@ public class LineFileCollectorTest {
 
   @BeforeClass
   public void setUp() {
-    out = Paths.get(LineFileCollectorTest.class.getName() + ".txt");
+    out = Paths.get(Extension.TXT.attachTo(LineFileCollectorTest.class.getName()));
 
     LOGGER.setFilter(record -> {
       Assert.assertNotNull(record.getThrown());

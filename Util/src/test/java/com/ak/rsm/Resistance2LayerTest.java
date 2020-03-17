@@ -2,6 +2,7 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -120,6 +121,8 @@ public class Resistance2LayerTest {
   @Test(dataProvider = "layer2Static", enabled = false)
   @ParametersAreNonnullByDefault
   public void testInverseStatic(TetrapolarSystem[] systems, double[] rOhms, double[] expectedH) {
+    Assert.assertEquals(Resistance2Layer.inverseStaticLinear(systems, rOhms).getH(), expectedH, Metrics.fromMilli(3));
+    Assert.assertEquals(Resistance2Layer.inverseStaticLog(systems, rOhms).getH(), expectedH, Metrics.fromMilli(3));
     Assert.assertEquals(Resistance2Layer.inverseDynamic(systems, rOhms, rOhms, -Metrics.fromMilli(0.1)).getH(), expectedH, Metrics.fromMilli(3));
   }
 
@@ -129,8 +132,8 @@ public class Resistance2LayerTest {
     Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh);
   }
 
-  @DataProvider(name = "layer2Dynamic")
-  public static Object[][] layer2Dynamic() {
+  @DataProvider(name = "theoryDynamicParameters2")
+  public static Object[][] theoryDynamicParameters2() {
     TetrapolarSystem[] systems2 = LayersProvider.systems2_10mm();
     TetrapolarSystem[] systems4 = LayersProvider.systems4(10);
     double dh = -0.1;
@@ -144,37 +147,42 @@ public class Resistance2LayerTest {
         },
         {
             systems4,
-            rOhms(systems4, layer2(9.0, 1.0, 5.0)),
-            rOhms(systems4, layer2(9.0, 1.0, 5.0 + dh)),
+            rOhms(systems4, layer2(9.0, 1.0, 1.0)),
+            rOhms(systems4, layer2(9.0, 1.0, 1.0 + dh)),
             Metrics.fromMilli(dh),
-            new double[] {Metrics.fromMilli(5.0)}
+            new double[] {Metrics.fromMilli(1.0)}
         },
         {
             systems4,
-            rOhms(systems4, layer2(1.0, 4.0, 3.0)),
-            rOhms(systems4, layer2(1.0, 4.0, 3.0 + dh)),
+            rOhms(systems4, layer2(1.0, 4.0, 20.0)),
+            rOhms(systems4, layer2(1.0, 4.0, 20.0 + dh)),
             Metrics.fromMilli(dh),
-            new double[] {Metrics.fromMilli(3.0)}
+            new double[] {Metrics.fromMilli(20.0)}
         },
         {
             systems2,
-            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, 7.0)),
-            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, 7.0 + dh)),
+            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, 1.0)),
+            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, 1.0 + dh)),
             Metrics.fromMilli(dh),
-            new double[] {Metrics.fromMilli(7.0)}
+            new double[] {Metrics.fromMilli(1.0)}
         },
     };
   }
 
-  @Test(dataProvider = "layer2Dynamic", enabled = false)
+  @Test(dataProvider = "theoryDynamicParameters2", enabled = false)
   @ParametersAreNonnullByDefault
-  public void testInverseDynamic(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh, double[] expectedH) {
+  public void testInverse(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh, double[] expectedH) {
     Random random = new Random();
-    double[] noise = IntStream.range(0, systems.length).mapToDouble(value -> random.nextGaussian()).toArray();
+    double[] noise = IntStream.range(0, systems.length).mapToDouble(value -> random.nextGaussian() / 10).toArray();
     for (int i = 0; i < noise.length; i++) {
       rOhmsBefore[i] += noise[i];
       rOhmsAfter[i] += noise[i];
     }
-    Assert.assertEquals(Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh).getH(), expectedH, Metrics.fromMilli(2));
+    Logger logger = Logger.getLogger(Resistance2LayerTest.class.getName());
+    logger.config(() -> String.format("2 Layers - inverseStaticLinear%n%s", Resistance2Layer.inverseStaticLinear(systems, rOhmsBefore)));
+    logger.config(() -> String.format("2 Layers - inverseStaticLog%n%s", Resistance2Layer.inverseStaticLog(systems, rOhmsBefore)));
+    Medium medium = Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh);
+    logger.info(() -> String.format("2 Layers - inverseDynamic%n%s", medium));
+    Assert.assertEquals(medium.getH(), expectedH, Metrics.fromMilli(1));
   }
 }

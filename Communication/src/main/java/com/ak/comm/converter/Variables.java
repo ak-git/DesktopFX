@@ -20,7 +20,7 @@ public enum Variables {
   ;
 
   public static String toString(@Nonnull Quantity<?> quantity) {
-    return String.format("%s %s", quantity.getValue(), toString(quantity.getUnit()));
+    return String.join(Strings.SPACE, quantity.getValue().toString(), toString(quantity.getUnit()));
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable, int value) {
@@ -84,7 +84,7 @@ public enum Variables {
   }
 
   public static <E extends Enum<E> & Variable<E>> String toName(@Nonnull E variable) {
-    return String.format("%s, %s", variable.name(), variable.getUnit());
+    return String.join(", ", variable.name(), variable.getUnit().toString());
   }
 
   private static String toString(@Nonnull Unit<?> unit) {

@@ -13,10 +13,11 @@ import javafx.stage.Stage;
 abstract class AbstractStageStorage extends AbstractStorage<Stage> {
   private static final String FULL_SCREEN = "fullScreen";
   private static final String MAXIMIZED = "maximized";
-  private final Storage<Rectangle2D.Double> boundsStorage = new BoundsStorage(getClass());
+  private final Storage<Rectangle2D.Double> boundsStorage;
 
-  AbstractStageStorage(@Nonnull Class<?> c) {
-    super(c);
+  AbstractStageStorage(@Nonnull Class<?> c, @Nonnull String nodeName) {
+    super(c, nodeName);
+    boundsStorage = new BoundsStorage(getClass(), nodeName);
   }
 
   @Override

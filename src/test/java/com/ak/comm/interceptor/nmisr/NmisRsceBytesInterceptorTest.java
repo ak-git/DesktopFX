@@ -24,9 +24,6 @@ public class NmisRsceBytesInterceptorTest {
   private final BytesInterceptor<NmisRequest, RsceCommandFrame> interceptor = new NmisRsceBytesInterceptor();
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY);
 
-  private NmisRsceBytesInterceptorTest() {
-  }
-
   @DataProvider(name = "data")
   public static Object[][] data() {
     return new Object[][] {

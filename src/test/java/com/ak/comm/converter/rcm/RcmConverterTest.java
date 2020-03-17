@@ -31,7 +31,7 @@ import static com.ak.comm.converter.rcm.RcmOutVariable.QS_2;
 import static com.ak.comm.converter.rcm.RcmOutVariable.RHEO_1;
 import static com.ak.comm.converter.rcm.RcmOutVariable.RHEO_2;
 
-public final class RcmConverterTest {
+public class RcmConverterTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -75,7 +75,7 @@ public final class RcmConverterTest {
   }
 
   @Test
-  public static void testVariables() {
+  public void testVariables() {
     EnumSet.of(RHEO_1X, RHEO_2X, ECG_X).forEach(variable -> Assert.assertTrue(variable.options().isEmpty(), variable.options().toString()));
     EnumSet.allOf(RcmOutVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), RcmInVariable.class));
     EnumSet.of(RHEO_1, RHEO_2).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MICRO(Units.OHM)));
@@ -102,17 +102,17 @@ public final class RcmConverterTest {
   }
 
   @Test(dataProvider = "filter-delay")
-  public static void testFilterDelay(@Nonnull RcmOutVariable variable, double delay) {
+  public void testFilterDelay(@Nonnull RcmOutVariable variable, double delay) {
     Assert.assertEquals(variable.filter().getDelay(), delay, 0.001, variable.toString());
   }
 
   @Test(enabled = false)
-  public static void testBaseSplineSurface1() {
+  public void testBaseSplineSurface1() {
     SplineCoefficientsUtils.testSplineSurface1(RcmBaseSurfaceCoefficientsChannel1.class);
   }
 
   @Test(enabled = false)
-  public static void testBaseSplineSurface2() {
+  public void testBaseSplineSurface2() {
     SplineCoefficientsUtils.testSplineSurface2(RcmBaseSurfaceCoefficientsChannel2.class);
   }
 }
