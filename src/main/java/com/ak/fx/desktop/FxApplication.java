@@ -100,15 +100,13 @@ public final class FxApplication extends Application {
       Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass(), String.format("%d", i));
       stage.setOnCloseRequest(event -> stageStorage.save(stage));
       stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
-      if (i == 0) {
-        addEventHandler(stage, () ->
-                Platform.runLater(() -> {
-                  stage.setFullScreen(!stage.isFullScreen());
-                  stage.setResizable(false);
-                  stage.setResizable(true);
-                }),
-            KeyCode.CONTROL, KeyCode.SHORTCUT, KeyCode.F);
-      }
+      addEventHandler(stage, () ->
+              Platform.runLater(() -> {
+                stage.setFullScreen(!stage.isFullScreen());
+                stage.setResizable(false);
+                stage.setResizable(true);
+              }),
+          KeyCode.CONTROL, KeyCode.SHORTCUT, KeyCode.F);
       addEventHandler(stage, () ->
               contexts.forEach(c -> c.getBeansOfType(Refreshable.class).values().forEach(Refreshable::refresh)),
           KeyCode.SHORTCUT, KeyCode.N);
