@@ -73,7 +73,7 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.asFilterBuilder(AperCoefficients.ADC_TO_OHM).smoothingImpulsive(10).build();
+      return FilterBuilder.asFilterBuilder(AperCoefficients.ADC_TO_OHM).build();
     }
 
     @Override
