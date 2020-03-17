@@ -1,6 +1,6 @@
 package com.ak.util;
 
-public enum Extensions {
+public enum Extension {
   NONE {
     @Override
     public String attachTo(String fileName) {

@@ -6,7 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ak.util.Clean;
-import com.ak.util.Extensions;
+import com.ak.util.Extension;
 import com.ak.util.LocalFileIO;
 import com.ak.util.LocalIO;
 
@@ -32,6 +32,6 @@ public enum CalibrateBuilders implements Cleaner.Cleanable {
   }
 
   private LocalFileIO.AbstractBuilder newBuilder() {
-    return new LogPathBuilder(Extensions.JSON, LocalFileHandler.class).addPath(name().toLowerCase());
+    return new LogPathBuilder(Extension.JSON, LocalFileHandler.class).addPath(name().toLowerCase());
   }
 }

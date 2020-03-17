@@ -43,12 +43,12 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
 
   public abstract static class AbstractBuilder implements Builder<LocalIO> {
     @Nonnull
-    private final Extensions fileExtension;
+    private final Extension fileExtension;
     private Path relativePath;
     @Nullable
     private String fileName;
 
-    public AbstractBuilder(@Nonnull Extensions fileExtension) {
+    public AbstractBuilder(@Nonnull Extension fileExtension) {
       this.fileExtension = fileExtension;
     }
 
