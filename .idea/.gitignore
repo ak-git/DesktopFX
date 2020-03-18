@@ -7,3 +7,7 @@ sonarlint-state.xml
 /rGraphicsSettings.xml
 /rpackages.xml
 /rSettings.xml
+/workspace.xml
+/modules.xml
+/libraries/*
+*.iml

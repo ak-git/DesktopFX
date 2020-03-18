@@ -20,7 +20,7 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.util.Extensions;
+import com.ak.util.Extension;
 import com.ak.util.LineFileCollector;
 import com.ak.util.PropertiesSupport;
 import com.ak.util.Strings;
@@ -48,7 +48,7 @@ final class ConverterApp<T, R, V extends Enum<V> & Variable<V>> implements AutoC
     Converter<R, V> responseConverter = BeanFactoryUtils.beanOfType(context, Converter.class);
     try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
          LineFileCollector collector = new LineFileCollector(
-             Paths.get(Extensions.TXT.attachTo(path.toFile().toString().replaceAll("\\.bin", Strings.EMPTY))),
+             Paths.get(Extension.TXT.attachTo(path.toFile().toString().replaceAll("\\.bin", Strings.EMPTY))),
              LineFileCollector.Direction.VERTICAL)
     ) {
       collector.accept(responseConverter.variables().stream().map(Variables::toName).collect(Collectors.joining(Strings.TAB)));

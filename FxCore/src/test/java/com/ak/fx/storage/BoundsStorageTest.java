@@ -19,7 +19,7 @@ public final class BoundsStorageTest {
 
   @Test(dataProvider = "storage")
   public void testSave(@Nonnull Rectangle2D.Double rectangle) throws BackingStoreException {
-    Storage<Rectangle2D.Double> storage = new BoundsStorage(BoundsStorageTest.class);
+    Storage<Rectangle2D.Double> storage = new BoundsStorage(BoundsStorageTest.class, String.format("%x", hashCode()));
     storage.save(rectangle);
     Assert.assertEquals(storage.get(), rectangle);
     storage.delete();
@@ -28,6 +28,6 @@ public final class BoundsStorageTest {
 
   @Test(dataProvider = "storage", expectedExceptions = UnsupportedOperationException.class)
   public void testUpdate(Rectangle2D.Double rectangle) {
-    new BoundsStorage(BoundsStorageTest.class).update(rectangle);
+    new BoundsStorage(BoundsStorageTest.class, String.format("%x", hashCode())).update(rectangle);
   }
 }

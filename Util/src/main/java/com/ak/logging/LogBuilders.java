@@ -6,7 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ak.util.Clean;
-import com.ak.util.Extensions;
+import com.ak.util.Extension;
 import com.ak.util.LocalFileIO;
 import com.ak.util.LocalIO;
 import com.ak.util.Strings;
@@ -66,6 +66,6 @@ public enum LogBuilders implements Cleaner.Cleanable {
   }
 
   private static LogPathBuilder newInstance() {
-    return new LogPathBuilder(Extensions.BIN, LocalFileHandler.class);
+    return new LogPathBuilder(Extension.BIN, LocalFileHandler.class);
   }
 }
