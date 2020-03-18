@@ -2,7 +2,6 @@ package com.ak.comm.converter.briko;
 
 import java.nio.ByteOrder;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nonnull;
@@ -12,7 +11,6 @@ import com.ak.comm.converter.Converter;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import tec.uom.se.unit.Units;
 
 public class BrikoConverterTest {
   @DataProvider(name = "variables")
@@ -33,7 +31,7 @@ public class BrikoConverterTest {
             (byte) 0xc6,
             0x20, (byte) 0xbf, 0x02, 0x00,
         },
-            new int[] {2545, 3652, -480, -480, 3119, 3119}},
+            new int[] {2545, 3652, -480, -480, 180, 180}},
     };
   }
 
@@ -49,11 +47,6 @@ public class BrikoConverterTest {
     });
 
     Assert.assertTrue(processed.get(), "Data are not converted!");
-    Assert.assertEquals(converter.getFrequency(), 200, 0.1);
-  }
-
-  @Test
-  public static void testVariableProperties() {
-    EnumSet.allOf(BrikoVariable.class).forEach(t -> Assert.assertEquals(t.getUnit(), Units.GRAM));
+    Assert.assertEquals(converter.getFrequency(), 1000, 0.1);
   }
 }

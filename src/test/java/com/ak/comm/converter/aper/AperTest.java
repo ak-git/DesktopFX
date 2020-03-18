@@ -33,7 +33,7 @@ public class AperTest {
     return new Object[][] {
         {AperOutVariable.R1, 0.0},
         {AperOutVariable.R2, 0.0},
-        {AperOutVariable.CCR1, 24.5},
+        {AperOutVariable.CCR1, 0.0},
     };
   }
 
