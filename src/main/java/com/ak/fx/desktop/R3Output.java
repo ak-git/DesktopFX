@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
 
 import com.ak.rsm.Resistance3Layer;
 import com.ak.rsm.TetrapolarSystem;
-import com.ak.util.Extensions;
+import com.ak.util.Extension;
 import com.ak.util.LineFileCollector;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
@@ -60,7 +60,7 @@ public final class R3Output {
       if (textIO.newBooleanInputReader().withDefaultValue(true).read("Run?")) {
         for (double smm : smmA) {
           TetrapolarSystem system = new TetrapolarSystem(smm, smm * lToS, MILLI(METRE));
-          try (LineFileCollector collector = new LineFileCollector(Paths.get(Extensions.TXT.attachTo("out")), LineFileCollector.Direction.VERTICAL)) {
+          try (LineFileCollector collector = new LineFileCollector(Paths.get(Extension.TXT.attachTo("out")), LineFileCollector.Direction.VERTICAL)) {
             collector.accept("s, mm\tL, mm\trho1, Ohm-m\trho2, Ohm-m\trho3, Ohm-m\th1, mm\th2mm");
             for (double rho1 : rho1A) {
               for (double rho2 : rho2A) {
@@ -84,13 +84,6 @@ public final class R3Output {
           }
           catch (IOException e) {
             System.err.println(e);
-          }
-
-          if (textIO.newBooleanInputReader().withDefaultValue(true).read("Run again?")) {
-            terminal.resetToBookmark("MAIN");
-          }
-          else {
-            break;
           }
         }
       }
