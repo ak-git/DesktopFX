@@ -107,7 +107,7 @@ public class Resistance3LayerTest {
     Assert.assertEquals(new Resistance3Layer(system, hStepSI).value(rho[0], rho[1], rho[2], p[0], p[1]), rOhm, 0.001, Arrays.toString(rho));
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void testContinuous() {
     for (int a : IntStream.rangeClosed(1, 30).toArray()) {
       TetrapolarSystem system = new TetrapolarSystem(a, a * 3, MILLI(METRE));
