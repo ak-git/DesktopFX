@@ -12,7 +12,6 @@
         <list>
           <option value="clean" />
           <option value="build" />
-          <option value="installDist" />
         </list>
       </option>
       <option name="vmOptions" value="" />
