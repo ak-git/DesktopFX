@@ -16,6 +16,8 @@ import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 
 public class Resistance1LayerTest {
+  public static final double SQRT2 = 1.4142135623730951;
+
   @DataProvider(name = "layer-model")
   public static Object[][] singleLayerParameters() {
     return new Object[][] {
@@ -94,8 +96,8 @@ public class Resistance1LayerTest {
         {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)), 6},
         {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)), 6},
         {new TetrapolarSystem(1.0, 3.0, MILLI(METRE)), 6},
-        {new TetrapolarSystem(1.4142135623730951 - 1.0, 1.0, MILLI(METRE)), 3.0 + 2.0 * 1.4142135623730951},
-        {new TetrapolarSystem(1.0 / (1.0 - 1.4142135623730951), 1.0, MILLI(METRE)), 3.0 + 2.0 * 1.4142135623730951},
+        {new TetrapolarSystem(SQRT2 - 1.0, 1.0, MILLI(METRE)), 3.0 + 2.0 * SQRT2},
+        {new TetrapolarSystem(1.0 / (1.0 - SQRT2), 1.0, MILLI(METRE)), 3.0 + 2.0 * SQRT2},
     };
   }
 
