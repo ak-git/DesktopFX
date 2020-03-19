@@ -2,6 +2,7 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -85,5 +86,26 @@ public class Resistance1LayerTest {
   @ParametersAreNonnullByDefault
   public void testInverse(TetrapolarSystem[] systems, double[] rOhms, @Nonnegative double expected) {
     Assert.assertEquals(Resistance1Layer.inverseStatic(systems, rOhms).getRho(), expected, 0.1);
+  }
+
+  @DataProvider(name = "tetrapolarSystemsWithErrors")
+  public static Object[][] tetrapolarSystemWithErrors() {
+    return new Object[][] {
+        {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)), 6},
+        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)), 6},
+        {new TetrapolarSystem(1.0, 3.0, MILLI(METRE)), 6},
+        {new TetrapolarSystem(1.4142135623730951 - 1.0, 1.0, MILLI(METRE)), 3.0 + 2.0 * 1.4142135623730951},
+        {new TetrapolarSystem(1.0 / (1.0 - 1.4142135623730951), 1.0, MILLI(METRE)), 3.0 + 2.0 * 1.4142135623730951},
+    };
+  }
+
+  @Test(dataProvider = "tetrapolarSystemsWithErrors")
+  public void testElectrodeSystemRelativeError(@Nonnull TetrapolarSystem system, double errRiseFactor) {
+    double relativeError = 0.001;
+    double rOhms = new Resistance1Layer(system).value(1.0);
+    double error = IntStream.of(-1, 1).mapToDouble(n -> n * relativeError)
+        .map(relError -> new Resistance1Layer(system.newWithError(relError)).getApparent(rOhms))
+        .map(rho -> Math.abs(rho - 1.0)).average().orElseThrow();
+    Assert.assertEquals(error / relativeError, errRiseFactor, 0.01);
   }
 }

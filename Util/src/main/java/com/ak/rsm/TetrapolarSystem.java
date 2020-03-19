@@ -63,7 +63,9 @@ final class TetrapolarSystem {
 
   @Nonnull
   TetrapolarSystem newWithError(double relativeError) {
-    return new TetrapolarSystem(sPotentialUnitSI * (1.0 - relativeError), lCurrentCarryingSI * (1.0 + relativeError), METRE);
+    double sign = sPotentialUnitSI < lCurrentCarryingSI ? 1.0 : -1.0;
+    double dL = Math.max(sPotentialUnitSI, lCurrentCarryingSI) * relativeError * sign;
+    return new TetrapolarSystem(sPotentialUnitSI - dL, lCurrentCarryingSI + dL, METRE);
   }
 
   @Nonnegative
