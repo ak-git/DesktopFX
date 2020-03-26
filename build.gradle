@@ -38,7 +38,7 @@ ext.projectIds = ['java': JavaVersion.VERSION_13]
 
 wrapper {
     description 'Setup the Gradle wrapper'
-    gradleVersion = "6.2.2"
+    gradleVersion = "6.3"
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
@@ -101,7 +101,7 @@ dependencies {
 }
 
 javafx {
-    version = '13.0.2'
+    version = '14'
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
