@@ -4,7 +4,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 abstract class AbstractApparent2Rho extends AbstractApparentRho {
-  AbstractApparent2Rho(@Nonnull Apparent apparent) {
+  AbstractApparent2Rho(@Nonnull ResistanceSumValue apparent) {
     super(apparent);
   }
 
