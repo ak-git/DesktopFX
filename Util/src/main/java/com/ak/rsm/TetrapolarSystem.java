@@ -25,7 +25,7 @@ final class TetrapolarSystem {
   }
 
   double radiusMns() {
-    return (lCurrentCarryingSI - sPotentialUnitSI) / 2.0;
+    return Math.abs(lCurrentCarryingSI - sPotentialUnitSI) / 2.0;
   }
 
   double radiusPls() {
@@ -59,6 +59,13 @@ final class TetrapolarSystem {
   @Override
   public String toString() {
     return String.format("%.0f x %.0f %s", Metrics.toMilli(sPotentialUnitSI), Metrics.toMilli(lCurrentCarryingSI), MetricPrefix.MILLI(METRE));
+  }
+
+  @Nonnull
+  TetrapolarSystem newWithError(double relativeError) {
+    double sign = sPotentialUnitSI < lCurrentCarryingSI ? 1.0 : -1.0;
+    double dL = Math.max(sPotentialUnitSI, lCurrentCarryingSI) * relativeError * sign;
+    return new TetrapolarSystem(sPotentialUnitSI - dL, lCurrentCarryingSI + dL, METRE);
   }
 
   @Nonnegative

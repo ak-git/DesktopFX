@@ -1,5 +1,7 @@
 package com.ak.rsm;
 
+import javax.annotation.Nonnull;
+
 import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -37,5 +39,23 @@ public class TetrapolarSystemTest {
   public void testLh() {
     Assert.assertEquals(new TetrapolarSystem(1.0, 2.0, METRE).lToH(1), 2.0);
     Assert.assertEquals(new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).lToH(Metrics.fromMilli(2.0)), 0.5);
+  }
+
+  @DataProvider(name = "tetrapolarSystemsWithErrors")
+  public static Object[][] tetrapolarSystemWithErrors() {
+    return new Object[][] {
+        {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)).newWithError(0.5), 0.0015, 0.0015},
+        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).newWithError(0.5), 0.0015, 0.0015},
+
+        {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)).newWithError(-0.5), 0.0005, 0.0015},
+        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).newWithError(-0.5), 0.0005, 0.0015},
+    };
+  }
+
+
+  @Test(dataProvider = "tetrapolarSystemsWithErrors")
+  public void testRelativeError(@Nonnull TetrapolarSystem system, double radiusMns, double radiusPls) {
+    Assert.assertEquals(system.radiusMns(), radiusMns);
+    Assert.assertEquals(system.radiusPls(), radiusPls);
   }
 }

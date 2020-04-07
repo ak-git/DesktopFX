@@ -109,8 +109,8 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
     double[] logDiff = rangeSystems(systems.length, apparentDiffByH.get());
     double[] measured = rangeSystems(systems.length, index -> logApparent[index] - logDiff[index]);
 
-    int p2 = 300;
-    return IntStream.iterate(0, i -> i + 1).mapToDouble(divider -> StrictMath.exp(divider / 5.0))
+    int p2 = 600;
+    return IntStream.iterate(0, i -> i + 1).mapToDouble(i -> StrictMath.exp(i / 10.0))
         .mapToInt(divider -> (int) Math.ceil(divider)).takeWhile(divider -> divider < p2).distinct()
         .mapToObj(divider -> {
           double h = Math.abs(dH / divider);
@@ -189,13 +189,13 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
             Logger.getLogger(Resistance3Layer.class.getName()).config(
                 () -> {
                   double[] v = p.getPoint();
-                  return String.format("/%d [%.2f / %.2f] p1 = %.0f; signs = %.0f; e = %.6f", divider, v[0], v[1], v[2], v[3], p.getValue());
+                  return String.format("%d / %d [%.2f / %.2f] p1 = %.0f; signs = %.0f; e = %.6f", p2, divider, v[0], v[1], v[2], v[3], p.getValue());
                 }
             );
             return p;
           };
 
-          PointValuePair min = IntStream.iterate(0, i -> i + 1).mapToDouble(i -> StrictMath.exp(i / 5.0))
+          PointValuePair min = IntStream.iterate(0, i -> i + 1).mapToDouble(i -> StrictMath.exp(i / 10.0))
               .mapToInt(i -> (int) Math.ceil(i)).takeWhile(p1 -> p1 < p2).distinct()
               .mapToObj(pIterate)
               .min(Comparator.<PointValuePair>comparingDouble(o -> o.getPoint()[3]).reversed().thenComparingDouble(Pair::getValue))
@@ -219,7 +219,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
               .addLayer(rho2, p2mp1 * h)
               .build(rho3);
           Logger.getLogger(Resistance3Layer.class.getName()).info(
-              () -> String.format("/%d%n%s", divider, medium)
+              () -> String.format("%d / %d %n%s", p2, divider, medium)
           );
           return medium;
         })
