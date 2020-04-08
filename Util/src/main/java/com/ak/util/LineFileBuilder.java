@@ -108,17 +108,20 @@ public class LineFileBuilder<T> {
       double from = Math.min(start, end);
       double to = Math.max(start, end);
 
-      doubleStreamSupplier = () -> DoubleStream.concat(DoubleStream.iterate(from, value -> value < to, operand -> operand * 10.0).
-          flatMap(scale -> DoubleStream.iterate(scale, value -> value < to, operand -> operand + scale / 5).limit(9 * 5L)), DoubleStream.of(to));
+      doubleStreamSupplier = () ->
+          DoubleStream.concat(
+              DoubleStream.iterate(from, value -> value < to, operand -> operand * 10.0)
+                  .flatMap(scale ->
+                      DoubleStream.iterate(scale, value -> value < to - scale / 10.0, operand -> operand + scale / 5.0)
+                          .limit(9 * 5L)
+                  ),
+              DoubleStream.of(to)
+          );
       toFile();
     }
 
     private void range(double start, double end, @Nonnegative double precision) {
-      if (end <= start || (end - start < precision)) {
-        throw new IllegalArgumentException(String.format(
-            String.format("[%1$s .. %1$s] precision %1$s", outFormat), start, end, precision));
-      }
-      doubleStreamSupplier = () -> DoubleStream.iterate(start, value -> value < end + precision, dl2L -> dl2L + precision).sequential();
+      doubleStreamSupplier = () -> DoubleStream.iterate(start, value -> value < end + precision / 2.0, dl2L -> dl2L + precision).sequential();
       toFile();
     }
 

@@ -44,18 +44,18 @@ public class TetrapolarSystemTest {
   @DataProvider(name = "tetrapolarSystemsWithErrors")
   public static Object[][] tetrapolarSystemWithErrors() {
     return new Object[][] {
-        {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)).newWithError(0.5), 0.0015, 0.0015},
-        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).newWithError(0.5), 0.0015, 0.0015},
+        {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)).newWithError(0.1), 7.0e-4, 0.0015},
+        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).newWithError(0.1), 4.0e-4, 0.0015},
 
-        {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)).newWithError(-0.5), 0.0005, 0.0015},
-        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).newWithError(-0.5), 0.0005, 0.0015},
+        {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)).newWithError(-0.1), 3.0e-4, 0.0015},
+        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).newWithError(-0.1), 6.0e-4, 0.0015},
     };
   }
 
 
   @Test(dataProvider = "tetrapolarSystemsWithErrors")
   public void testRelativeError(@Nonnull TetrapolarSystem system, double radiusMns, double radiusPls) {
-    Assert.assertEquals(system.radiusMns(), radiusMns);
-    Assert.assertEquals(system.radiusPls(), radiusPls);
+    Assert.assertEquals(system.radiusMns(), radiusMns, 1.0e-5);
+    Assert.assertEquals(system.radiusPls(), radiusPls, 1.0e-5);
   }
 }

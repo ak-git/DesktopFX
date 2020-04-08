@@ -53,6 +53,10 @@ class Medium {
     }
   }
 
+  double[] getRhos() {
+    return Arrays.copyOf(rho, rho.length);
+  }
+
   double getInequality() {
     return inequality;
   }
@@ -137,6 +141,15 @@ class Medium {
 
       measuredDelta = IntStream.range(0, rOhmsBefore.length).mapToDouble(i -> rOhmsAfter[i] - rOhmsBefore[i]).toArray();
       predictedDelta = Arrays.stream(systems).mapToDouble(system -> toOhms.applyAsDouble(system, dh) - toOhms.applyAsDouble(system, 0.0)).toArray();
+    }
+
+    Builder(@Nonnull TetrapolarSystem[] systems, @Nonnull double[] rOhmsBefore, @Nonnull double[] rDiff,
+            @Nonnull ToDoubleBiFunction<TetrapolarSystem, Double> toOhms, @Nonnull ToDoubleFunction<TetrapolarSystem> toOhmsDiff) {
+      measured = Arrays.copyOf(rOhmsBefore, rOhmsBefore.length);
+      predicted = Arrays.stream(systems).mapToDouble(system -> toOhms.applyAsDouble(system, 0.0)).toArray();
+
+      measuredDelta = Arrays.copyOf(rDiff, rDiff.length);
+      predictedDelta = Arrays.stream(systems).mapToDouble(toOhmsDiff).toArray();
     }
 
     Builder inequality(double inequality) {

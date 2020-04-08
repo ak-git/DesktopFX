@@ -18,16 +18,6 @@ public class LineFileBuilderTest {
     LineFileBuilder.of("1 invalid");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testXRange() {
-    LineFileBuilder.of("%.2f %.2f %.1f").xRange(2.0, 1.0, 0.1);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testYRange() {
-    LineFileBuilder.of("%.2f %.2f %.1f").yRange(1.0, 10.0, 10.0);
-  }
-
   @Test
   public void testGenerateRange() throws IOException {
     LineFileBuilder.of("%.0f %.0f %.0f").

@@ -94,10 +94,9 @@ public class Resistance1LayerTest {
   public static Object[][] tetrapolarSystemWithErrors() {
     return new Object[][] {
         {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)), 6},
-        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)), 6},
+        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)), 3},
         {new TetrapolarSystem(1.0, 3.0, MILLI(METRE)), 6},
         {new TetrapolarSystem(SQRT2 - 1.0, 1.0, MILLI(METRE)), 3.0 + 2.0 * SQRT2},
-        {new TetrapolarSystem(1.0 / (1.0 - SQRT2), 1.0, MILLI(METRE)), 3.0 + 2.0 * SQRT2},
     };
   }
 
