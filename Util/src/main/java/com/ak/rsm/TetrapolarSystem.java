@@ -42,11 +42,10 @@ final class TetrapolarSystem {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof TetrapolarSystem)) {
+    if (!(o instanceof TetrapolarSystem that)) {
       return false;
     }
 
-    TetrapolarSystem that = (TetrapolarSystem) o;
     return Objects.equals(Math.min(sPotentialUnitSI, lCurrentCarryingSI), Math.min(that.sPotentialUnitSI, that.lCurrentCarryingSI)) &&
         Objects.equals(Math.max(sPotentialUnitSI, lCurrentCarryingSI), Math.max(that.sPotentialUnitSI, that.lCurrentCarryingSI));
   }
@@ -62,9 +61,10 @@ final class TetrapolarSystem {
   }
 
   @Nonnull
-  TetrapolarSystem newWithError(double relativeError) {
-    double dL = lCurrentCarryingSI * relativeError;
-    return new TetrapolarSystem(sPotentialUnitSI - dL, lCurrentCarryingSI + dL, METRE);
+  TetrapolarSystem newWithError(@Nonnegative double absErrorSI, int signS, int signL) {
+    return new TetrapolarSystem(
+        sPotentialUnitSI + Math.signum(signS) * absErrorSI,
+        lCurrentCarryingSI + Math.signum(signL) * absErrorSI, METRE);
   }
 
   @Nonnegative

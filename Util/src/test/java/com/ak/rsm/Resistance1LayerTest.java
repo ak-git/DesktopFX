@@ -8,6 +8,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.ak.inverse.Inequality;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -75,11 +76,12 @@ public class Resistance1LayerTest {
   public static Object[][] layer1() {
     TetrapolarSystem[] systems4 = LayersProvider.systems4(10.0);
     Random random = new Random();
+    int rho = random.nextInt(9) + 1;
     return new Object[][] {
         {
             systems4,
-            Arrays.stream(LayersProvider.rOhms(systems4, LayersProvider.layer1(2.0))).map(r -> r + random.nextGaussian()).toArray(),
-            2.0
+            Arrays.stream(LayersProvider.rOhms(systems4, LayersProvider.layer1(rho))).map(r -> r + random.nextGaussian()).toArray(),
+            rho
         },
     };
   }
@@ -102,11 +104,16 @@ public class Resistance1LayerTest {
 
   @Test(dataProvider = "tetrapolarSystemsWithErrors")
   public void testElectrodeSystemRelativeError(@Nonnull TetrapolarSystem system, double errRiseFactor) {
-    double relativeError = 0.001;
+    double relError = 0.0001;
+    double absError = system.lToH(1.0) * relError;
     double rOhms = new Resistance1Layer(system).value(1.0);
-    double error = IntStream.of(-1, 1).mapToDouble(n -> n * relativeError)
-        .map(relError -> new Resistance1Layer(system.newWithError(relError)).getApparent(rOhms))
-        .map(rho -> Math.abs(rho - 1.0)).average().orElseThrow();
-    Assert.assertEquals(error / relativeError, errRiseFactor, 0.01);
+    double error = IntStream.range(0, 1 << 2)
+        .mapToDouble(n -> {
+          int signS = (n & 1) == 0 ? 1 : -1;
+          int signL = (n & (1 << 1)) == 0 ? 1 : -1;
+          return new Resistance1Layer(system.newWithError(absError, signS, signL)).getApparent(rOhms);
+        })
+        .map(rho -> Inequality.proportional().applyAsDouble(rho, 1.0)).max().orElseThrow();
+    Assert.assertEquals(error / relError, errRiseFactor, 0.01);
   }
 }

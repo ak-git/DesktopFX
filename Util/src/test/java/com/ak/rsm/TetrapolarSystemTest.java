@@ -44,11 +44,11 @@ public class TetrapolarSystemTest {
   @DataProvider(name = "tetrapolarSystemsWithErrors")
   public static Object[][] tetrapolarSystemWithErrors() {
     return new Object[][] {
-        {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)).newWithError(0.1), 7.0e-4, 0.0015},
-        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).newWithError(0.1), 4.0e-4, 0.0015},
+        {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)).newWithError(Metrics.fromMilli(0.1), 1, -1), 4.0e-4, 0.0015},
+        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).newWithError(Metrics.fromMilli(0.1), -1, 1), 4.0e-4, 0.0015},
 
-        {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)).newWithError(-0.1), 3.0e-4, 0.0015},
-        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).newWithError(-0.1), 6.0e-4, 0.0015},
+        {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)).newWithError(Metrics.fromMilli(0.1), -1, 1), 6.0e-4, 0.0015},
+        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).newWithError(Metrics.fromMilli(0.1), 1, -1), 6.0e-4, 0.0015},
     };
   }
 
