@@ -169,7 +169,7 @@ public class Resistance2LayerTest {
     };
   }
 
-  @Test(dataProvider = "theoryDynamicParameters2")
+  @Test(dataProvider = "theoryDynamicParameters2", enabled = false)
   @ParametersAreNonnullByDefault
   public void testInverse(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh, double[] expectedH) {
     Random random = new Random();
