@@ -73,13 +73,8 @@ class LayersProvider {
   }
 
   @Nonnull
-  static ToDoubleFunction<TetrapolarSystem> layer2(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double hmm) {
-    return system -> new Resistance2Layer(system).value(rho1, rho2, Metrics.fromMilli(hmm));
-  }
-
-  @Nonnull
-  static ToDoubleFunction<TetrapolarSystem> layer2Diff(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double hmm) {
-    return system -> new DerivativeR2ByH(system).value(rho1, rho2, Metrics.fromMilli(hmm));
+  static ToDoubleFunction<TetrapolarSystem> layer2(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double h) {
+    return system -> new Resistance2Layer(system).value(rho1, rho2, h);
   }
 
   @Nonnull

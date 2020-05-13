@@ -147,29 +147,29 @@ public class Resistance2LayerTest {
         },
         {
             systems4,
-            rOhms(systems4, layer2(9.0, 1.0, 1.0)),
-            rOhms(systems4, layer2(9.0, 1.0, 1.0 + dh)),
+            rOhms(systems4, layer2(9.0, 1.0, Metrics.fromMilli(1.0))),
+            rOhms(systems4, layer2(9.0, 1.0, Metrics.fromMilli(1.0 + dh))),
             Metrics.fromMilli(dh),
             new double[] {Metrics.fromMilli(1.0)}
         },
         {
             systems4,
-            rOhms(systems4, layer2(1.0, 4.0, 20.0)),
-            rOhms(systems4, layer2(1.0, 4.0, 20.0 + dh)),
+            rOhms(systems4, layer2(1.0, 4.0, Metrics.fromMilli(20.0))),
+            rOhms(systems4, layer2(1.0, 4.0, Metrics.fromMilli(20.0 + dh))),
             Metrics.fromMilli(dh),
             new double[] {Metrics.fromMilli(20.0)}
         },
         {
             systems2,
-            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, 1.0)),
-            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, 1.0 + dh)),
+            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, Metrics.fromMilli(1.0))),
+            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, Metrics.fromMilli(1.0 + dh))),
             Metrics.fromMilli(dh),
             new double[] {Metrics.fromMilli(1.0)}
         },
     };
   }
 
-  @Test(dataProvider = "theoryDynamicParameters2", enabled = false)
+  @Test(dataProvider = "theoryDynamicParameters2")
   @ParametersAreNonnullByDefault
   public void testInverse(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh, double[] expectedH) {
     Random random = new Random();
