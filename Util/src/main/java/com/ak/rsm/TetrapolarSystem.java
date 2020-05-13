@@ -42,10 +42,11 @@ final class TetrapolarSystem {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof TetrapolarSystem that)) {
+    if (!(o instanceof TetrapolarSystem)) {
       return false;
     }
 
+    TetrapolarSystem that = (TetrapolarSystem) o;
     return Objects.equals(Math.min(sPotentialUnitSI, lCurrentCarryingSI), Math.min(that.sPotentialUnitSI, that.lCurrentCarryingSI)) &&
         Objects.equals(Math.max(sPotentialUnitSI, lCurrentCarryingSI), Math.max(that.sPotentialUnitSI, that.lCurrentCarryingSI));
   }
