@@ -24,12 +24,8 @@ final class TetrapolarSystem {
     lCurrentCarryingSI = toDouble(lCC, unit);
   }
 
-  double radiusMns() {
-    return Math.abs(lCurrentCarryingSI - sPotentialUnitSI) / 2.0;
-  }
-
-  double radiusPls() {
-    return (lCurrentCarryingSI + sPotentialUnitSI) / 2.0;
+  double radius(double sign) {
+    return Math.abs(lCurrentCarryingSI + Math.signum(sign) * sPotentialUnitSI) / 2.0;
   }
 
   @Nonnegative

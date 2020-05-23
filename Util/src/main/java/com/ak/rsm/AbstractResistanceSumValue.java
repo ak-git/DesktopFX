@@ -15,12 +15,7 @@ abstract class AbstractResistanceSumValue implements ResistanceSumValue {
   }
 
   final double radius(double sign) {
-    if (sign < 0) {
-      return system.radiusMns();
-    }
-    else {
-      return system.radiusPls();
-    }
+    return system.radius(sign);
   }
 
   @Override

@@ -55,7 +55,7 @@ public class TetrapolarSystemTest {
 
   @Test(dataProvider = "tetrapolarSystemsWithErrors")
   public void testRelativeError(@Nonnull TetrapolarSystem system, double radiusMns, double radiusPls) {
-    Assert.assertEquals(system.radiusMns(), radiusMns, 1.0e-5);
-    Assert.assertEquals(system.radiusPls(), radiusPls, 1.0e-5);
+    Assert.assertEquals(system.radius(-1.0), radiusMns, 1.0e-5);
+    Assert.assertEquals(system.radius(1.0), radiusPls, 1.0e-5);
   }
 }
