@@ -20,8 +20,8 @@ final class TetrapolarSystem {
   private final double lCurrentCarryingSI;
 
   TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
-    sPotentialUnitSI = toDouble(sPU, unit);
-    lCurrentCarryingSI = toDouble(lCC, unit);
+    sPotentialUnitSI = toDouble(Math.min(sPU, lCC), unit);
+    lCurrentCarryingSI = toDouble(Math.max(sPU, lCC), unit);
   }
 
   double radius(double sign) {
@@ -29,8 +29,8 @@ final class TetrapolarSystem {
   }
 
   @Nonnegative
-  double lToH(double h) {
-    return Math.abs(lCurrentCarryingSI / h);
+  double getL() {
+    return lCurrentCarryingSI;
   }
 
   @Override

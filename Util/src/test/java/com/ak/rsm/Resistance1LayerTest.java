@@ -96,7 +96,7 @@ public class Resistance1LayerTest {
   public static Object[][] tetrapolarSystemWithErrors() {
     return new Object[][] {
         {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)), 6},
-        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)), 3},
+        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)), 6},
         {new TetrapolarSystem(1.0, 3.0, MILLI(METRE)), 6},
         {new TetrapolarSystem(SQRT2 - 1.0, 1.0, MILLI(METRE)), 3.0 + 2.0 * SQRT2},
     };
@@ -105,7 +105,7 @@ public class Resistance1LayerTest {
   @Test(dataProvider = "tetrapolarSystemsWithErrors")
   public void testElectrodeSystemRelativeError(@Nonnull TetrapolarSystem system, double errRiseFactor) {
     double relError = 0.0001;
-    double absError = system.lToH(1.0) * relError;
+    double absError = system.getL() * relError;
     double rOhms = new Resistance1Layer(system).value(1.0);
     double error = IntStream.range(0, 1 << 2)
         .mapToDouble(n -> {

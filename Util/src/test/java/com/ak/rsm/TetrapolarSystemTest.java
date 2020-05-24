@@ -36,19 +36,19 @@ public class TetrapolarSystemTest {
   }
 
   @Test
-  public void testLh() {
-    Assert.assertEquals(new TetrapolarSystem(1.0, 2.0, METRE).lToH(1), 2.0);
-    Assert.assertEquals(new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).lToH(Metrics.fromMilli(2.0)), 0.5);
+  public void testL() {
+    Assert.assertEquals(new TetrapolarSystem(2.0, 1.0, METRE).getL(), 2.0);
+    Assert.assertEquals(new TetrapolarSystem(2.0, 10.0, METRE).getL(), 10.0);
   }
 
   @DataProvider(name = "tetrapolarSystemsWithErrors")
   public static Object[][] tetrapolarSystemWithErrors() {
     return new Object[][] {
         {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)).newWithError(Metrics.fromMilli(0.1), 1, -1), 4.0e-4, 0.0015},
-        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).newWithError(Metrics.fromMilli(0.1), -1, 1), 4.0e-4, 0.0015},
+        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).newWithError(Metrics.fromMilli(0.1), -1, 1), 6.0e-4, 0.0015},
 
         {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)).newWithError(Metrics.fromMilli(0.1), -1, 1), 6.0e-4, 0.0015},
-        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).newWithError(Metrics.fromMilli(0.1), 1, -1), 6.0e-4, 0.0015},
+        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).newWithError(Metrics.fromMilli(0.1), 1, -1), 4.0e-4, 0.0015},
     };
   }
 
