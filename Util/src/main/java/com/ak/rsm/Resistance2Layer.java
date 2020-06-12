@@ -76,7 +76,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
     Medium inverse = Resistance1Layer.inverseStatic(systems, rOhms);
     if (systems.length > 2) {
       double rho = inverse.getRho();
-      double maxL = Arrays.stream(systems).mapToDouble(s -> s.lToH(1.0)).max().orElseThrow();
+      double maxL = Arrays.stream(systems).mapToDouble(TetrapolarSystem::getL).max().orElseThrow();
       double[] measured = IntStream.range(0, systems.length).mapToDouble(i -> new Resistance1Layer(systems[i]).getApparent(rOhms[i])).toArray();
 
       PointValuePair pointValuePair = Simplex.optimizeCMAES(rho1rho2h -> {
@@ -103,7 +103,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
       double[] logApparent = logApparent(systems, rOhms);
       BiFunction<Double, Double, IntToDoubleFunction> logApparentPredictedFunction = logApparentPredictedFunction(systems);
       ToDoubleBiFunction<Integer, IntToDoubleFunction> diff = newDiff(systems.length);
-      double maxL = Arrays.stream(systems).mapToDouble(s -> s.lToH(1.0)).max().orElseThrow();
+      double maxL = Arrays.stream(systems).mapToDouble(TetrapolarSystem::getL).max().orElseThrow();
 
       PointValuePair find = Simplex.optimizeCMAES(p -> {
             double h = p[0];
@@ -172,7 +172,7 @@ final class Resistance2Layer extends AbstractResistanceLayer<Potential2Layer> im
               .mapToObj(index -> sign.test(index, diffPredicted)).filter(Boolean::booleanValue).count();
         };
 
-    double maxL = Arrays.stream(systems).mapToDouble(s -> s.lToH(1.0)).max().orElseThrow();
+    double maxL = Arrays.stream(systems).mapToDouble(TetrapolarSystem::getL).max().orElseThrow() * 10;
     PointValuePair min = IntStream.range(0, 2)
         .mapToObj(i -> {
           boolean b1 = (i & 1) == 0;
