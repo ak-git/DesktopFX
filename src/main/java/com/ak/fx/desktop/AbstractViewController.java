@@ -84,7 +84,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
         axisXController.scroll(event.getDeltaX());
         event.consume();
       });
-      chart.setOnZoomStarted(event -> {
+      chart.setOnZoom(event -> {
         axisXController.zoom(event.getZoomFactor());
         axisXController.preventEnd(chart.diagramWidthProperty().doubleValue());
         changed();
