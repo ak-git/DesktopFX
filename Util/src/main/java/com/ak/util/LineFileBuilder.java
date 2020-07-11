@@ -1,12 +1,14 @@
 package com.ak.util;
 
 import java.nio.file.Paths;
+import java.util.Locale;
 import java.util.function.BiFunction;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -74,6 +76,24 @@ public class LineFileBuilder<T> {
         .collect(new LineFileCollector(Paths.get(fileName), LineFileCollector.Direction.VERTICAL)));
   }
 
+  public void generateR(@Nonnull String fileName, @Nonnull DoubleBinaryOperator operator) {
+    Supplier<DoubleStream> xVar = xRange::build;
+    Supplier<DoubleStream> yVar = yRange::build;
+    check(
+        Stream.concat(
+            Stream.of(
+                Stream.concat(Stream.of("\"\""), xVar.get().mapToObj(xRange::format))),
+            yVar.get()
+                .mapToObj(right ->
+                    Stream.concat(Stream.of(yRange.format(right)),
+                        xVar.get().map(left -> operator.applyAsDouble(left, right))
+                            .mapToObj(value -> String.format(Locale.ROOT, outFormat, value))
+                    )
+                )
+        ).map(stream -> stream.collect(Collectors.joining(Strings.COMMA)))
+            .collect(new LineFileCollector(Paths.get(fileName), LineFileCollector.Direction.VERTICAL)));
+  }
+
   public LineFileBuilder<T> add(@Nonnull String fileName, @Nonnull ToDoubleFunction<T> converter) {
     multiFileBuilder.add(Paths.get(fileName), converter);
     return this;
@@ -129,6 +149,10 @@ public class LineFileBuilder<T> {
       String fileName = Extension.TXT.attachTo(direction == LineFileCollector.Direction.HORIZONTAL ? "x" : "y");
       check(build().mapToObj(value -> String.format(outFormat, value)).collect(
           new LineFileCollector(Paths.get(fileName), direction)));
+    }
+
+    private String format(double value) {
+      return String.format(Locale.ROOT, String.format("\"%s\"", outFormat), value);
     }
 
     @Override
