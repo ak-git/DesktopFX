@@ -27,7 +27,7 @@ class LayersProvider {
     double smm = 10.0;
     return new TetrapolarSystem[] {
         new TetrapolarSystem(smm, smm * 3.0, MILLI(METRE)),
-        new TetrapolarSystem(smm * 5.0, smm * 3.0, MILLI(METRE)),
+        new TetrapolarSystem(smm * 3.0, smm * 5.0, MILLI(METRE)),
     };
   }
 
@@ -83,7 +83,7 @@ class LayersProvider {
   }
 
   @Nonnull
-  static double[] rOhms(@Nonnull TetrapolarSystem[] systems, @Nonnull ToDoubleFunction<TetrapolarSystem> generator) {
+  static double[] rangeSystems(@Nonnull TetrapolarSystem[] systems, @Nonnull ToDoubleFunction<TetrapolarSystem> generator) {
     return Arrays.stream(systems).mapToDouble(generator).toArray();
   }
 

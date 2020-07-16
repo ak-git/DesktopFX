@@ -80,7 +80,7 @@ public class Resistance1LayerTest {
     return new Object[][] {
         {
             systems4,
-            Arrays.stream(LayersProvider.rOhms(systems4, LayersProvider.layer1(rho))).map(r -> r + random.nextGaussian()).toArray(),
+            Arrays.stream(LayersProvider.rangeSystems(systems4, LayersProvider.layer1(rho))).map(r -> r + random.nextGaussian()).toArray(),
             rho
         },
     };

@@ -16,7 +16,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static com.ak.rsm.LayersProvider.layer3;
-import static com.ak.rsm.LayersProvider.rOhms;
+import static com.ak.rsm.LayersProvider.rangeSystems;
 import static com.ak.rsm.LayersProvider.systems4;
 import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
@@ -139,8 +139,8 @@ public class Resistance3LayerTest {
     return new Object[][] {
         {
             systems4,
-            rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, hmm, 60, 30)),
-            rOhms(systems4, layer3(new double[] {9.0, 1.0, 4.0}, hmm, 60 + (int) Math.round(dHmm / hmm), 30)),
+            rangeSystems(systems4, layer3(new double[] {9.0, 1.0, 4.0}, hmm, 60, 30)),
+            rangeSystems(systems4, layer3(new double[] {9.0, 1.0, 4.0}, hmm, 60 + (int) Math.round(dHmm / hmm), 30)),
             Metrics.fromMilli(dHmm),
             new double[] {Metrics.fromMilli(hmm) * 60, Metrics.fromMilli(hmm) * 30}
         },

@@ -71,7 +71,7 @@ public class LineFileBuilder<T> {
   public void generate(@Nonnull String fileName, @Nonnull DoubleBinaryOperator operator) {
     Supplier<DoubleStream> xVar = xRange::build;
     Supplier<DoubleStream> yVar = yRange::build;
-    check(yVar.get().mapToObj(y -> xVar.get().map(x -> operator.applyAsDouble(x, y)))
+    check(yVar.get().mapToObj(right -> xVar.get().map(left -> operator.applyAsDouble(left, right)))
         .map(stream -> stream.mapToObj(value -> String.format(outFormat, value)).collect(Collectors.joining(Strings.TAB)))
         .collect(new LineFileCollector(Paths.get(fileName), LineFileCollector.Direction.VERTICAL)));
   }
