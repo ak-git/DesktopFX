@@ -161,8 +161,6 @@ public class Resistance2LayerTest {
 
   @Test(enabled = false)
   public void testInverseErrorByH() {
-    PointValuePair pair = Simplex.optimize("", s -> calculate(1.0e-6, s, -1.0, 1.0)[0],
-        new SimpleBounds(new double[] {0.1, 0.1}, new double[] {0.9, 0.9}), new double[] {0.2, 0.6});
     LineFileBuilder.<double[]>of("%.3f %.3f %.15f")
         .xStream(() -> DoubleStream.of(-1, -0.1, 0.1, 1.0))
         .yLog10Range(0.005, 0.5)
