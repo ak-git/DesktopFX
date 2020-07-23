@@ -32,7 +32,7 @@ public class Simplex {
 
   public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
                                              @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
-    return IntStream.range(0, 8).mapToObj(value -> new CMAESOptimizer(MAX_ITERATIONS, STOP_FITNESS, true, 0,
+    return IntStream.range(0, 3).mapToObj(value -> new CMAESOptimizer(MAX_ITERATIONS, STOP_FITNESS, true, 0,
         10, new MersenneTwister(), false, null)
         .optimize(
             new MaxEval(MAX_ITERATIONS),
@@ -42,7 +42,7 @@ public class Simplex {
             bounds,
             new CMAESOptimizer.Sigma(initialSteps),
             new CMAESOptimizer.PopulationSize(2 * (4 + (int) (3.0 * StrictMath.log(initialGuess.length))))
-        )).min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
+        )).parallel().min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
 
   public static PointValuePair optimize(@Nonnull String logFormat, @Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,

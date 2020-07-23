@@ -1,28 +1,33 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
-import java.util.Random;
+import java.util.Comparator;
+import java.util.function.IntToDoubleFunction;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.ak.inverse.Inequality;
+import com.ak.math.Simplex;
+import com.ak.util.LineFileBuilder;
 import com.ak.util.Metrics;
+import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static com.ak.rsm.LayersProvider.layer1;
 import static com.ak.rsm.LayersProvider.layer2;
-import static com.ak.rsm.LayersProvider.rOhms;
+import static java.lang.StrictMath.log;
 import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 
 public class Resistance2LayerTest {
-  private static final double[] EMPTY_DOUBLES = {};
-
   @DataProvider(name = "layer-model")
   public static Object[][] twoLayerParameters() {
     return new Object[][] {
@@ -100,89 +105,75 @@ public class Resistance2LayerTest {
     Assert.assertEquals(new Resistance2Layer(system).value(rho[0], rho[1], Metrics.fromMilli(hmm)), rOhm, 0.001);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testIllegal() {
-    new Resistance2Layer(new TetrapolarSystem(10, 20, MILLI(METRE))).value(new double[] {1});
-  }
+  private static double[] calculate(@Nonnegative double relativeError, @Nonnull double[] sToL, double k, @Nonnegative double hToL) {
+    final double L = 1.0;
 
-  @DataProvider(name = "layer2Static")
-  public static Object[][] layer2Static() {
-    TetrapolarSystem[] systems1 = {new TetrapolarSystem(10.0, 30.0, MILLI(METRE))};
-    Random random = new Random();
-    return new Object[][] {
-        {
-            systems1,
-            Arrays.stream(rOhms(systems1, layer1(1.0))).map(r -> r + random.nextGaussian()).toArray(),
-            EMPTY_DOUBLES
-        },
+    TetrapolarSystem[] systems = {
+        new TetrapolarSystem(L * sToL[0], L * sToL[1], METRE),
+        new TetrapolarSystem(L * sToL[1], L, METRE),
     };
+    double[] rho = {1.0, 1.0 / Layers.getRho1ToRho2(k)};
+    return IntStream.of(2, 5).mapToObj(n -> {
+      int signS1 = (n & 1) == 0 ? 1 : -1;
+      int signL = (n & 2) == 0 ? 1 : -1;
+      int signS2 = (n & 4) == 0 ? 1 : -1;
+
+      TetrapolarSystem[] systemsError = {
+          systems[0].newWithError(relativeError, signS1, signL),
+          systems[1].newWithError(relativeError, signL, signS2)
+      };
+
+      double[] rOhms = LayersProvider.rangeSystems(systemsError, layer2(rho[0], rho[1], hToL));
+      double[] rDiff = LayersProvider.rangeSystems(systems, s -> new DerivativeApparent2Rho(s).value(k, hToL));
+
+      double[] logApparent = rangeSystems(systems.length,
+          index -> log(systems[index].getApparent(rOhms[index])));
+      double[] logDiff = rangeSystems(systems.length,
+          index -> log(Math.abs(rDiff[index])));
+
+      double[] measured = rangeSystems(systems.length, index -> logApparent[index] - logDiff[index]);
+
+      PointValuePair optimize = Simplex.optimizeCMAES(hk -> {
+        double[] logApparentPredicted = rangeSystems(systems.length,
+            index -> new Log1pApparent2Rho(systems[index]).value(hk[1], hk[0])
+        );
+        double[] diffPredicted = rangeSystems(systems.length, index -> new DerivativeApparent2Rho(systems[index]).value(hk[1], hk[0]));
+        double[] predicted = rangeSystems(systems.length, index -> logApparentPredicted[index] - log(Math.abs(diffPredicted[index])));
+        return Inequality.absolute().applyAsDouble(measured, predicted);
+      }, new SimpleBounds(new double[] {0.0, -1.0}, new double[] {hToL, 1.0}), new double[] {hToL, k}, new double[] {0.001, 0.001});
+
+      double eH = Inequality.absolute().applyAsDouble(optimize.getPoint()[0], hToL) / relativeError;
+      double eK = Inequality.absolute().applyAsDouble(optimize.getPoint()[1], k) / relativeError;
+      Logger.getAnonymousLogger().info(() ->
+          String.format("%d [%+d %+d %+d]\th / L = %.4f; eH = %.15f; eK = %.15f; [%s]",
+              n, signS1, signL, signS2, hToL, eH, eK,
+              Arrays.toString(sToL))
+      );
+      return new double[] {eH, eK};
+    }).parallel().collect(Collectors.teeing(
+        Collectors.maxBy(Comparator.comparingDouble(value -> value[0])),
+        Collectors.maxBy(Comparator.comparingDouble(value -> value[1])),
+        (doubles, doubles2) -> Stream.of(doubles, doubles2)
+            .map(d -> d.orElse(new double[] {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY}))
+            .reduce((d1, d2) -> IntStream.range(0, d1.length).mapToDouble(i -> Math.max(d1[i], d2[i])).toArray())
+    )).orElseThrow();
   }
 
-  @Test(dataProvider = "layer2Static", enabled = false)
-  @ParametersAreNonnullByDefault
-  public void testInverseStatic(TetrapolarSystem[] systems, double[] rOhms, double[] expectedH) {
-    Assert.assertEquals(Resistance2Layer.inverseStaticLinear(systems, rOhms).getH(), expectedH, Metrics.fromMilli(3));
-    Assert.assertEquals(Resistance2Layer.inverseStaticLog(systems, rOhms).getH(), expectedH, Metrics.fromMilli(3));
-    Assert.assertEquals(Resistance2Layer.inverseDynamic(systems, rOhms, rOhms, -Metrics.fromMilli(0.1)).getH(), expectedH, Metrics.fromMilli(3));
+  @Test(enabled = false)
+  public void testInverseErrorByH() {
+    PointValuePair pair = Simplex.optimize("", s -> calculate(1.0e-6, s, -1.0, 1.0)[0],
+        new SimpleBounds(new double[] {0.1, 0.1}, new double[] {0.9, 0.9}), new double[] {0.2, 0.6});
+    LineFileBuilder.<double[]>of("%.3f %.3f %.15f")
+        .xStream(() -> DoubleStream.of(-1, -0.1, 0.1, 1.0))
+        .yLog10Range(0.005, 0.5)
+        .add("h.txt", value -> value[0])
+        .add("k.txt", value -> value[1])
+        .generate((k, hToL) -> calculate(1.0e-6,
+            new double[] {0.2, 0.6}, k, hToL)
+        );
   }
 
-  @Test(dataProviderClass = LayersProvider.class, dataProvider = "waterDynamicParameters2E6275", enabled = false)
-  @ParametersAreNonnullByDefault
-  public void testInverseE6275(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh) {
-    Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh);
-  }
-
-  @DataProvider(name = "theoryDynamicParameters2")
-  public static Object[][] theoryDynamicParameters2() {
-    TetrapolarSystem[] systems2 = LayersProvider.systems2_10mm();
-    TetrapolarSystem[] systems4 = LayersProvider.systems4(10);
-    double dh = -0.1;
-    return new Object[][] {
-        {
-            systems2,
-            rOhms(systems2, layer1(2.0)),
-            rOhms(systems2, layer1(2.0)),
-            Metrics.fromMilli(dh),
-            EMPTY_DOUBLES
-        },
-        {
-            systems4,
-            rOhms(systems4, layer2(9.0, 1.0, Metrics.fromMilli(1.0))),
-            rOhms(systems4, layer2(9.0, 1.0, Metrics.fromMilli(1.0 + dh))),
-            Metrics.fromMilli(dh),
-            new double[] {Metrics.fromMilli(1.0)}
-        },
-        {
-            systems4,
-            rOhms(systems4, layer2(1.0, 4.0, Metrics.fromMilli(20.0))),
-            rOhms(systems4, layer2(1.0, 4.0, Metrics.fromMilli(20.0 + dh))),
-            Metrics.fromMilli(dh),
-            new double[] {Metrics.fromMilli(20.0)}
-        },
-        {
-            systems2,
-            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, Metrics.fromMilli(1.0))),
-            rOhms(systems2, layer2(0.7, Double.POSITIVE_INFINITY, Metrics.fromMilli(1.0 + dh))),
-            Metrics.fromMilli(dh),
-            new double[] {Metrics.fromMilli(1.0)}
-        },
-    };
-  }
-
-  @Test(dataProvider = "theoryDynamicParameters2", enabled = false)
-  @ParametersAreNonnullByDefault
-  public void testInverse(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh, double[] expectedH) {
-    Random random = new Random();
-    double[] noise = IntStream.range(0, systems.length).mapToDouble(value -> random.nextGaussian() / 10).toArray();
-    for (int i = 0; i < noise.length; i++) {
-      rOhmsBefore[i] += noise[i];
-      rOhmsAfter[i] += noise[i];
-    }
-    Logger logger = Logger.getLogger(Resistance2LayerTest.class.getName());
-    logger.config(() -> String.format("2 Layers - inverseStaticLinear%n%s", Resistance2Layer.inverseStaticLinear(systems, rOhmsBefore)));
-    logger.config(() -> String.format("2 Layers - inverseStaticLog%n%s", Resistance2Layer.inverseStaticLog(systems, rOhmsBefore)));
-    Medium medium = Resistance2Layer.inverseDynamic(systems, rOhmsBefore, rOhmsAfter, dh);
-    logger.info(() -> String.format("2 Layers - inverseDynamic%n%s", medium));
-    Assert.assertEquals(medium.getH(), expectedH, Metrics.fromMilli(1));
+  private static double[] rangeSystems(@Nonnegative int length, @Nonnull IntToDoubleFunction mapper) {
+    return IntStream.range(0, length).mapToDouble(mapper).toArray();
   }
 }

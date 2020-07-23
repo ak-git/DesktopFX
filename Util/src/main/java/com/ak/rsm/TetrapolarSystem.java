@@ -33,6 +33,16 @@ final class TetrapolarSystem {
     return lCurrentCarryingSI;
   }
 
+  /**
+   * Gets <b>apparent</b> specific resistance which is correspond to 1-layer model.
+   *
+   * @param rOhms in Ohms.
+   * @return <b>apparent</b> specific resistance in Ohm-m.
+   */
+  double getApparent(@Nonnegative double rOhms) {
+    return rOhms * Math.PI / (Math.abs(1.0 / radius(-1.0)) - Math.abs(1.0 / radius(1.0)));
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -54,7 +64,9 @@ final class TetrapolarSystem {
 
   @Override
   public String toString() {
-    return String.format("%.0f x %.0f %s", Metrics.toMilli(sPotentialUnitSI), Metrics.toMilli(lCurrentCarryingSI), MetricPrefix.MILLI(METRE));
+    return String.format("%2.0f x %2.0f %s",
+        Metrics.toMilli(sPotentialUnitSI), Metrics.toMilli(lCurrentCarryingSI), MetricPrefix.MILLI(METRE)
+    );
   }
 
   @Nonnull
