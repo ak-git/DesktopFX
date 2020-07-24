@@ -51,7 +51,7 @@ final class Layer2Medium extends AbstractMediumLayers<Layer2Medium> {
     }
 
     Layer2MediumBuilder layer2(@Nonnegative double rho2) {
-      this.rho2 = rho2 > 1000.0 ? Double.POSITIVE_INFINITY : rho2;
+      this.rho2 = Layers.getK12(rho, rho2) > 0.99 ? Double.POSITIVE_INFINITY : rho2;
       return this;
     }
 
