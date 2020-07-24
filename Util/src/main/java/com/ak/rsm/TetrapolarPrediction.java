@@ -18,14 +18,12 @@ final class TetrapolarPrediction implements Prediction {
   }
 
   @Override
-  public double[] getInequalityL2() {
-    return new double[] {
-        Inequality.absolute().applyAsDouble(measurement.getResistivity(), resistivityPredicted)
-    };
+  public double getInequalityL2() {
+    return Inequality.proportional().applyAsDouble(measurement.getResistivity(), resistivityPredicted);
   }
 
   @Override
   public String toString() {
-    return String.format("%s; pred \u03c1 = %.3f %s", measurement, resistivityPredicted, Strings.OHM_METRE);
+    return String.format("%s; pred %s", measurement, Strings.rho(resistivityPredicted));
   }
 }

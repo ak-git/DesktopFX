@@ -1,8 +1,8 @@
 package com.ak.rsm;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nonnegative;
 
 interface Prediction {
-  @Nonnull
-  double[] getInequalityL2();
+  @Nonnegative
+  double getInequalityL2();
 }

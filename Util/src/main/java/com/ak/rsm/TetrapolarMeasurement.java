@@ -38,7 +38,7 @@ final class TetrapolarMeasurement implements Measurement {
 
   @Override
   public String toString() {
-    return String.format("%s; meas \u03c1 = %.3f %s", system, resistivity, Strings.OHM_METRE);
+    return String.format("%s; meas %s", system, Strings.rho(resistivity));
   }
 
   @Nonnull

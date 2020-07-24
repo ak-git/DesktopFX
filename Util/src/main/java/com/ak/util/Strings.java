@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.measure.Unit;
 
 import tec.uom.se.unit.MetricPrefix;
 
@@ -21,8 +20,6 @@ public enum Strings {
   public static final String NEW_LINE = String.format("%n");
   public static final String NEW_LINE_2 = String.format("%n%n");
   public static final String TAB = "\t";
-  public static final String CAP_DELTA = "\u0394";
-  public static final String EPSILON = "\u03B5";
   public static final String OHM_METRE = new StringBuilder(OHM.multiply(METRE).toString()).reverse().toString();
   private static final String RHO = "\u03c1";
 
@@ -35,8 +32,12 @@ public enum Strings {
     return Arrays.stream(values).mapToObj(x -> String.format(format, x)).collect(Collectors.joining("; ", "{", "}"));
   }
 
-  public static String toString(@Nonnull String format, @Nonnull double[] values, @Nonnull Unit<?> unit) {
-    return String.join(SPACE, toString(format, values), unit.toString());
+  public static String h(@Nonnegative double h, @Nonnegative int index) {
+    return String.format("h%s = %.2f %s", low(index), Metrics.toMilli(h), MetricPrefix.MILLI(METRE));
+  }
+
+  public static String dRhoByH(double v) {
+    return String.format("d\u03c1/dh = %.0f %s", v, OHM);
   }
 
   public static String rho(@Nonnegative double rho) {
@@ -55,11 +56,7 @@ public enum Strings {
     return (char) ((int) '\u2080' + index);
   }
 
-  public static String rho(@Nonnegative double rho, @Nonnegative int index) {
+  private static String rho(@Nonnegative double rho, @Nonnegative int index) {
     return String.format("%s%s = %.3f %s", RHO, low(index), rho, OHM_METRE);
-  }
-
-  public static String h(@Nonnegative double h, @Nonnegative int index) {
-    return String.format("h%s = %.2f %s", low(index), Metrics.toMilli(h), MetricPrefix.MILLI(METRE));
   }
 }

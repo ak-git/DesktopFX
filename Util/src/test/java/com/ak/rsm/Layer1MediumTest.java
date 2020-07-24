@@ -48,7 +48,7 @@ public class Layer1MediumTest {
   @Test(dataProvider = "layer1Medium")
   public void testToString(@Nonnull MediumLayers layers, @Nonnegative double expected) {
     Assert.assertTrue(layers.toString().startsWith(Strings.rho(expected)), layers.toString());
-    double l2 = Arrays.stream(new double[] {0.000018, 0.014643, 0.054960, 0.065956}).reduce(StrictMath::hypot).orElse(Double.NaN);
+    double l2 = Arrays.stream(new double[] {4.0E-4, 0.333, 1.249, 1.499}).reduce(StrictMath::hypot).orElse(Double.NaN);
     Assert.assertTrue(layers.toString().contains(String.format("%.2f %%", Metrics.toPercents(l2))), layers.toString());
   }
 }

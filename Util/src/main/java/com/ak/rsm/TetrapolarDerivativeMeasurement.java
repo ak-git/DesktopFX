@@ -8,7 +8,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import tec.uom.se.unit.Units;
+import com.ak.util.Strings;
 
 final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
   @Nonnull
@@ -49,7 +49,7 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
 
   @Override
   public String toString() {
-    return String.format("%s, d\u03c1/dh = %.0f %s", measurement, dRhoBydH, Units.OHM);
+    return String.format("%s, %s", measurement, Strings.dRhoByH(dRhoBydH));
   }
 
   @Nonnull

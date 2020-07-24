@@ -1,6 +1,5 @@
 package com.ak.rsm;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -41,8 +40,7 @@ abstract class AbstractMediumLayers<T extends AbstractMediumLayers<T>> implement
     double rho;
 
     AbstractMediumBuilder(@Nonnull Collection<Prediction> predictions) {
-      double l2 = predictions.stream().flatMapToDouble(prediction -> Arrays.stream(prediction.getInequalityL2()))
-          .reduce(StrictMath::hypot).orElse(Double.NaN);
+      double l2 = predictions.stream().map(Prediction::getInequalityL2).reduce(StrictMath::hypot).orElse(Double.NaN);
       toString = String.format("L%s = %.2f %% %n%s", Strings.low(2), Metrics.toPercents(l2),
           predictions.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)));
     }
