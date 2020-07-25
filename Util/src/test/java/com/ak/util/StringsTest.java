@@ -9,6 +9,7 @@ import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
 import static com.ak.util.Strings.OHM_METRE;
+import static tec.uom.se.unit.Units.OHM;
 
 public class StringsTest {
   @DataProvider(name = "strings")
@@ -32,15 +33,11 @@ public class StringsTest {
   }
 
   @Test
-  public void testArrayToString() {
-    Assert.assertEquals(Strings.toString("%.3f", new double[] {1.2, 1.23, 1.2345}, Units.OHM), "{1,200; 1,230; 1,235} " + Units.OHM);
-  }
-
-  @Test
   public void testRhoH() {
     Assert.assertEquals(Strings.rho(2.1234), String.format("\u03c1 = %.3f %s", 2.123, OHM_METRE));
     Assert.assertEquals(Strings.rho1(2.1234), String.format("\u03c1\u2081 = %.3f %s", 2.123, OHM_METRE));
     Assert.assertEquals(Strings.rho2(20.1236), String.format("\u03c1\u2082 = %.3f %s", 20.124, OHM_METRE));
     Assert.assertEquals(Strings.h(0.21236, 2), String.format("h\u2082 = %.2f %s", 212.36, MetricPrefix.MILLI(Units.METRE)));
+    Assert.assertEquals(Strings.dRhoByH(1.21), String.format("d\u03c1/dh = %.0f %s", 1.0, OHM));
   }
 }

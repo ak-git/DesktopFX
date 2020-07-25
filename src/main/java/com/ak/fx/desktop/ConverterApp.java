@@ -48,7 +48,7 @@ final class ConverterApp<T, R, V extends Enum<V> & Variable<V>> implements AutoC
     Converter<R, V> responseConverter = BeanFactoryUtils.beanOfType(context, Converter.class);
     try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
          LineFileCollector collector = new LineFileCollector(
-             Paths.get(Extension.TXT.attachTo(path.toFile().toString().replaceAll("\\.bin", Strings.EMPTY))),
+             Paths.get(Extension.TXT.attachTo(path.toFile().toString().replace("\\.bin", Strings.EMPTY))),
              LineFileCollector.Direction.VERTICAL)
     ) {
       collector.accept(responseConverter.variables().stream().map(Variables::toName).collect(Collectors.joining(Strings.TAB)));

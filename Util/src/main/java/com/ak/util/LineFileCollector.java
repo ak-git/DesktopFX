@@ -24,13 +24,13 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
   public enum Direction {
     HORIZONTAL {
       @Override
-      public void acceptWriter(BufferedWriter writer) throws IOException {
+      public void acceptWriter(@Nonnull BufferedWriter writer) throws IOException {
         writer.write(Strings.TAB);
       }
     },
     VERTICAL {
       @Override
-      public void acceptWriter(BufferedWriter writer) throws IOException {
+      public void acceptWriter(@Nonnull BufferedWriter writer) throws IOException {
         writer.newLine();
       }
     };
@@ -97,6 +97,7 @@ public final class LineFileCollector implements Collector<Object, BufferedWriter
     return bufferedWriter -> {
       if (!errorFlag) {
         try {
+          bufferedWriter.write(Strings.NEW_LINE);
           bufferedWriter.flush();
           bufferedWriter.close();
         }

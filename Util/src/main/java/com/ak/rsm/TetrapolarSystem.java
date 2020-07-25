@@ -20,21 +20,27 @@ final class TetrapolarSystem {
   private final double lCurrentCarryingSI;
 
   TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
-    sPotentialUnitSI = toDouble(sPU, unit);
-    lCurrentCarryingSI = toDouble(lCC, unit);
+    sPotentialUnitSI = toDouble(Math.min(sPU, lCC), unit);
+    lCurrentCarryingSI = toDouble(Math.max(sPU, lCC), unit);
   }
 
-  double radiusMns() {
-    return (lCurrentCarryingSI - sPotentialUnitSI) / 2.0;
-  }
-
-  double radiusPls() {
-    return (lCurrentCarryingSI + sPotentialUnitSI) / 2.0;
+  double radius(double sign) {
+    return Math.abs(lCurrentCarryingSI + Math.signum(sign) * sPotentialUnitSI) / 2.0;
   }
 
   @Nonnegative
-  double lToH(double h) {
-    return Math.abs(lCurrentCarryingSI / h);
+  double getL() {
+    return lCurrentCarryingSI;
+  }
+
+  /**
+   * Gets <b>apparent</b> specific resistance which is correspond to 1-layer model.
+   *
+   * @param rOhms in Ohms.
+   * @return <b>apparent</b> specific resistance in Ohm-m.
+   */
+  double getApparent(@Nonnegative double rOhms) {
+    return rOhms * Math.PI / (Math.abs(1.0 / radius(-1.0)) - Math.abs(1.0 / radius(1.0)));
   }
 
   @Override
@@ -58,7 +64,16 @@ final class TetrapolarSystem {
 
   @Override
   public String toString() {
-    return String.format("%.0f x %.0f %s", Metrics.toMilli(sPotentialUnitSI), Metrics.toMilli(lCurrentCarryingSI), MetricPrefix.MILLI(METRE));
+    return String.format("%2.0f x %2.0f %s",
+        Metrics.toMilli(sPotentialUnitSI), Metrics.toMilli(lCurrentCarryingSI), MetricPrefix.MILLI(METRE)
+    );
+  }
+
+  @Nonnull
+  TetrapolarSystem newWithError(@Nonnegative double absErrorSI, int signS, int signL) {
+    return new TetrapolarSystem(
+        sPotentialUnitSI + Math.signum(signS) * absErrorSI,
+        lCurrentCarryingSI + Math.signum(signL) * absErrorSI, METRE);
   }
 
   @Nonnegative

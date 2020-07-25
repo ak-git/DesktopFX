@@ -1,13 +1,13 @@
 plugins {
-    id "org.javamodularity.moduleplugin" version "1.5.0"
+    id "org.javamodularity.moduleplugin" version "1.7.0"
     id 'java-library'
     id 'idea'
-    id "org.sonarqube" version "2.8"
+    id "org.sonarqube" version "3.0"
     id 'jacoco'
 
     id "application"
-    id 'org.openjfx.javafxplugin' version '0.0.8'
-    id "org.beryx.jlink" version "2.17.3"
+    id 'org.openjfx.javafxplugin' version '0.0.9'
+    id "org.beryx.jlink" version "2.21.0"
 }
 
 sonarqube {
@@ -32,19 +32,18 @@ ext.javax_json = 'org.glassfish:javax.json:1.1.4'
 ext.commons_math3 = 'org.apache.commons:commons-math3:3.6.1'
 ext.javax_inject = 'javax.inject:javax.inject:1'
 ext.jssc = 'org.scream3r:jssc:2.8.0'
-ext.spring_context = 'org.springframework:spring-context:5.2.4.RELEASE'
-ext.jenetics = 'io.jenetics:jenetics:5.2.0'
-ext.projectIds = ['java': JavaVersion.VERSION_13]
+ext.spring_context = 'org.springframework:spring-context:5.2.8.RELEASE'
+ext.projectIds = ['java': JavaVersion.VERSION_14]
 
 wrapper {
     description 'Setup the Gradle wrapper'
-    gradleVersion = "6.2.2"
+    gradleVersion = "6.5.1"
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '2020.03'
+    version = '2020.07.23'
     apply plugin: 'idea'
     idea {
         module {
@@ -101,11 +100,11 @@ dependencies {
 }
 
 javafx {
-    version = '13.0.2'
+    version = '14'
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
-mainClassName = "$moduleName/com.ak.fx.desktop.FxApplication"
+mainClassName = "com.ak.fx.desktop.FxApplication"
 
 jlink {
     options = ['--bind-services', '--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
