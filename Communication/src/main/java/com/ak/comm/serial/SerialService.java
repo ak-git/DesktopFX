@@ -160,7 +160,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
     try {
       synchronized (serialPort) {
         if (isOpen()) {
-          LOGGER.log(LOG_LEVEL_ERRORS, "Close connection " + serialPort.getPortName());
+          LOGGER.log(LOG_LEVEL_ERRORS, () -> String.format("Close connection %s", serialPort.getPortName()));
           serialPort.closePort();
         }
       }
