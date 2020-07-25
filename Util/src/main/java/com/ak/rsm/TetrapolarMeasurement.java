@@ -27,11 +27,6 @@ final class TetrapolarMeasurement implements Measurement {
   }
 
   @Override
-  public double getLogResistivity() {
-    return StrictMath.log(resistivity);
-  }
-
-  @Override
   public TetrapolarSystem getSystem() {
     return system;
   }

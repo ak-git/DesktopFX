@@ -28,18 +28,8 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
   }
 
   @Override
-  public double getLogResistivity() {
-    return measurement.getLogResistivity();
-  }
-
-  @Override
   public double getDerivativeResistivity() {
     return dRhoBydH;
-  }
-
-  @Override
-  public double getDerivativeLogResistivity() {
-    return StrictMath.log(Math.abs(dRhoBydH));
   }
 
   @Override

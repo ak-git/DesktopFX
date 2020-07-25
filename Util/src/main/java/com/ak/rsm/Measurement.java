@@ -7,7 +7,9 @@ interface Measurement {
   @Nonnegative
   double getResistivity();
 
-  double getLogResistivity();
+  default double getLogResistivity() {
+    return StrictMath.log(getResistivity());
+  }
 
   @Nonnull
   TetrapolarSystem getSystem();
