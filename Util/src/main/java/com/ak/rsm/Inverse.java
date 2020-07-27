@@ -77,13 +77,13 @@ enum Inverse {
     double[] kMinMax = derivativeMeasurements.stream().allMatch(d -> d.getDerivativeResistivity() > 0) ?
         new double[] {-1.0, 0.0} : new double[] {0.0, 1.0};
 
-    PointValuePair find = Simplex.optimizeCMAES(kh -> {
+    PointValuePair find = Simplex.optimize("", kh -> {
           double[] subLogPredicted = derivativeMeasurements.stream()
               .mapToDouble(m -> LOG_APPARENT_PREDICTED.applyAsDouble(m, kh) - LOG_DIFF_APPARENT_PREDICTED.applyAsDouble(m, kh))
               .toArray();
           return Inequality.absolute().applyAsDouble(subLog, subLogPredicted);
         },
-        new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], maxL}),
+        new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], Double.POSITIVE_INFINITY}),
         new double[] {(kMinMax[1] + kMinMax[0]) / 2.0, maxL / 10.0}, new double[] {0.01, maxL / 100.0}
     );
     return new Layer2RelativeMedium(find.getPoint()[0], find.getPoint()[1]);
