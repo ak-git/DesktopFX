@@ -54,12 +54,13 @@ public enum Variables {
       displayScale++;
     }
 
+    double sf10 = scaleFactor10;
     if (scaleFactor10 == 1 && value != 0) {
       for (int i = value; i % 10 == 0; i /= 10) {
-        scaleFactor10 *= 10;
+        sf10 *= 10;
       }
     }
-    int formatZeros = Math.max(0, (displayScale - scale) - (int) Math.rint(StrictMath.log10(scaleFactor10)));
+    int formatZeros = Math.max(0, (displayScale - scale) - (int) Math.rint(StrictMath.log10(sf10)));
 
     Unit<Q> displayUnit = unit.getSystemUnit();
     for (MetricPrefix metricPrefix : MetricPrefix.values()) {
@@ -70,7 +71,7 @@ public enum Variables {
     }
 
     if (value == 0) {
-      return String.format("%d %s", value, scaleFactor10 > 10 ? displayUnit : unit);
+      return String.format("%d %s", value, sf10 > 10 ? displayUnit : unit);
     }
     else {
       double converted = unit.getConverterTo(displayUnit).convert(value);
