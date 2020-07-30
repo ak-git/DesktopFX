@@ -112,8 +112,6 @@ public final class FxDesktopTest extends Preloader {
     Platform.runLater(() -> {
       try {
         stageStorage.update(stage);
-        checkStage();
-
         stageStorage.save(stage);
         setStageBounds(STAGE_X / 2.0, STAGE_Y / 2.0, STAGE_WIDTH / 2.0, STAGE_HEIGHT / 2.0);
         stageStorage.update(stage);
