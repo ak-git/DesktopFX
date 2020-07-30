@@ -1,6 +1,7 @@
 package com.ak.rsm;
 
 import java.util.Collection;
+import java.util.function.Function;
 import java.util.function.ToDoubleBiFunction;
 import java.util.stream.Collectors;
 
@@ -27,7 +28,13 @@ enum Inverse {
   @Nonnull
   public static MediumLayers inverseStatic(@Nonnull Collection<? extends Measurement> measurements) {
     if (measurements.size() > 2) {
-      RelativeMediumLayers kh = inverseStaticRelative(measurements);
+      RelativeMediumLayers kh = inverseStaticRelative(measurements, values -> {
+        double[] sub = new double[values.length - 1];
+        for (int i = 0; i < sub.length; i++) {
+          sub[i] = values[i + 1] - values[i];
+        }
+        return sub;
+      });
       double sumLogApparent = measurements.stream().mapToDouble(Measurement::getLogResistivity).sum();
       double sumLogApparentPredicted = measurements.stream()
           .mapToDouble(m -> LOG_APPARENT_PREDICTED.applyAsDouble(m, new double[] {kh.k12(), kh.h()})).sum();
@@ -90,11 +97,12 @@ enum Inverse {
   }
 
   @Nonnull
-  private static RelativeMediumLayers inverseStaticRelative(@Nonnull Collection<? extends Measurement> measurements) {
-    double[] subLogApparent = subtract(measurements.stream().mapToDouble(Measurement::getLogResistivity).toArray());
+  public static RelativeMediumLayers inverseStaticRelative(@Nonnull Collection<? extends Measurement> measurements,
+                                                           @Nonnull Function<double[], double[]> subtract) {
+    double[] subLogApparent = subtract.apply(measurements.stream().mapToDouble(Measurement::getLogResistivity).toArray());
     double maxL = getMaxL(measurements);
     PointValuePair find = Simplex.optimizeCMAES(kh -> {
-          double[] subLogApparentPredicted = subtract(measurements.stream()
+          double[] subLogApparentPredicted = subtract.apply(measurements.stream()
               .mapToDouble(m -> LOG_APPARENT_PREDICTED.applyAsDouble(m, kh))
               .toArray()
           );
@@ -109,14 +117,5 @@ enum Inverse {
   @Nonnegative
   private static double getMaxL(@Nonnull Collection<? extends Measurement> measurements) {
     return measurements.stream().mapToDouble(m -> m.getSystem().getL()).max().orElseThrow();
-  }
-
-  @Nonnull
-  private static double[] subtract(@Nonnull double[] values) {
-    double[] sub = new double[values.length - 1];
-    for (int i = 0; i < sub.length; i++) {
-      sub[i] = values[i + 1] - values[i];
-    }
-    return sub;
   }
 }
