@@ -53,12 +53,6 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   }
 
   @Override
-  @OverridingMethodsMustInvokeSuper
-  public void close() {
-    service.close();
-  }
-
-  @Override
   public final void initialize(@Nullable URL location, @Nullable ResourceBundle resources) {
     if (chart != null) {
       chart.setOnDragOver(event -> {
@@ -145,6 +139,17 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @Override
   public final void onComplete() {
     changed();
+  }
+
+  @Override
+  @OverridingMethodsMustInvokeSuper
+  public void close() {
+    service.close();
+  }
+
+  @Nonnull
+  protected final GroupService<T, R, V> service() {
+    return service;
   }
 
   private void changed() {
