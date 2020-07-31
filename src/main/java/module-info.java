@@ -45,6 +45,8 @@ module com.ak.fx.desktop {
   exports com.ak.comm.converter.aper.calibration to org.testng;
   exports com.ak.comm.converter.rcm.calibration to org.testng;
 
+  exports com.ak.fx.desktop.rcm to spring.beans;
+
   exports com.ak.comm.bytes.nmis;
   exports com.ak.comm.bytes.rsce;
   exports com.ak.fx.desktop;
