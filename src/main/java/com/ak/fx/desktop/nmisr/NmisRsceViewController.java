@@ -13,8 +13,7 @@ import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.converter.rsce.RsceVariable;
 import com.ak.fx.desktop.AbstractViewController;
 
-public final class NmisRsceViewController extends AbstractViewController<NmisRequest, RsceCommandFrame, RsceVariable>
-    implements AutoCloseable {
+public final class NmisRsceViewController extends AbstractViewController<NmisRequest, RsceCommandFrame, RsceVariable> {
   private static final NmisRequest.Sequence[] PINGS = {
       NmisRequest.Sequence.CATCH_100, NmisRequest.Sequence.CATCH_60, NmisRequest.Sequence.CATCH_30,
       NmisRequest.Sequence.ROTATE_100, NmisRequest.Sequence.ROTATE_60, NmisRequest.Sequence.ROTATE_30};
@@ -30,5 +29,6 @@ public final class NmisRsceViewController extends AbstractViewController<NmisReq
   @Override
   public void close() {
     executorService.shutdownNow();
+    super.close();
   }
 }

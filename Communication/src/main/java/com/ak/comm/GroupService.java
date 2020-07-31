@@ -91,8 +91,8 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
   }
 
   public Map<V, int[]> read(@Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
-    int from = Math.max(0, Math.min(fromInclusive, toExclusive));
-    int to = Math.max(0, Math.max(fromInclusive, toExclusive));
+    int from = Math.min(fromInclusive, toExclusive);
+    int to = Math.max(fromInclusive, toExclusive);
 
     int frameSize = variables.size() * Integer.BYTES;
     ByteBuffer buffer = ByteBuffer.allocate(frameSize * (to - from));

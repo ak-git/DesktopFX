@@ -12,12 +12,14 @@ module com.ak.fx.desktop {
 
   requires javafx.fxml;
   requires javafx.controls;
+  requires spring.boot;
+  requires spring.boot.autoconfigure;
   requires spring.context;
-  requires spring.beans;
+  requires spring.core;
 
   requires java.prefs;
   requires java.desktop;
-  requires spring.core;
+  requires spring.beans;
 
   opens com.ak.numbers.aper to com.ak.util, org.testng;
   opens com.ak.numbers.rcm to com.ak.util, org.testng;
