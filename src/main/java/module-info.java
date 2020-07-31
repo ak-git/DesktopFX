@@ -44,6 +44,7 @@ module com.ak.fx.desktop {
   exports com.ak.comm.interceptor.nmis to spring.beans;
   exports com.ak.comm.interceptor.rcm to spring.beans;
 
+  exports com.ak.fx.desktop.nmis to spring.beans;
   exports com.ak.fx.desktop.nmisr to spring.beans;
   exports com.ak.fx.desktop.rcm to spring.beans;
 
