@@ -18,7 +18,7 @@ import com.ak.comm.core.Readable;
 import com.ak.comm.interceptor.BytesInterceptor;
 
 public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
-    extends AbstractService implements FileFilter, Readable, Flow.Publisher<int[]> {
+    extends AbstractService<int[]> implements FileFilter, Readable {
   private static final Readable EMPTY_READABLE = (dst, position) -> {
   };
 
@@ -60,6 +60,10 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
     else {
       return false;
     }
+  }
+
+  @Override
+  public void refresh() {
   }
 
   @Override

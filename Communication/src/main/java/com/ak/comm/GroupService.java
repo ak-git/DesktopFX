@@ -13,11 +13,9 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Inject;
 import javax.inject.Provider;
 
 import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.Refreshable;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.Readable;
@@ -25,8 +23,7 @@ import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
 
-public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends AbstractService
-    implements Flow.Publisher<int[]>, Refreshable, FileFilter {
+public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends AbstractService<int[]> implements FileFilter {
   @Nonnull
   private final CycleSerialService<T, R, V> serialService;
   @Nonnull
@@ -38,7 +35,6 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
   @Nonnull
   private Readable currentReadable;
 
-  @Inject
   public GroupService(@Nonnull Provider<BytesInterceptor<T, R>> interceptorProvider,
                       @Nonnull Provider<Converter<R, V>> converterProvider) {
     Converter<R, V> converter = converterProvider.get();
