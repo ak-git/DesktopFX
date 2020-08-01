@@ -4,9 +4,13 @@ import java.util.EnumSet;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.inject.Named;
 
 import com.ak.comm.interceptor.simple.AbstractFixedFrameBytesInterceptor;
+import org.springframework.context.annotation.Profile;
 
+@Named
+@Profile("rcm")
 public final class RcmBytesInterceptor extends AbstractFixedFrameBytesInterceptor {
   public RcmBytesInterceptor() {
     super(BaudRate.BR_38400, 20);
