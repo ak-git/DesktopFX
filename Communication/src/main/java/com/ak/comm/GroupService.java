@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Flow;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Provider;
 
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
@@ -35,8 +35,8 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
   @Nonnull
   private Readable currentReadable;
 
-  public GroupService(@Nonnull Provider<BytesInterceptor<T, R>> interceptorProvider,
-                      @Nonnull Provider<Converter<R, V>> converterProvider) {
+  public GroupService(@Nonnull Supplier<BytesInterceptor<T, R>> interceptorProvider,
+                      @Nonnull Supplier<Converter<R, V>> converterProvider) {
     Converter<R, V> converter = converterProvider.get();
     variables = converter.variables();
     frequency = converter.getFrequency();
