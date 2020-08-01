@@ -99,7 +99,7 @@ public final class RsceCommandFrame extends BufferFrame {
     @Override
     @Nullable
     public RequestType find(byte b) {
-      return Stream.of(RequestType.values()).filter(type -> type.code == (byte) (b & 0b00000_111)).findAny().orElse(null);
+      return Stream.of(values()).filter(type -> type.code == (byte) (b & 0b00000_111)).findAny().orElse(null);
     }
 
     private static RequestType find(@Nonnull ByteBuffer buffer) {
