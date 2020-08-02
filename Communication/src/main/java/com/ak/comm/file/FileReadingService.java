@@ -136,6 +136,10 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
+  public void refresh() {
+  }
+
+  @Override
   public void cancel() {
     close();
   }

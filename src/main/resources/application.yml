@@ -1,0 +1,10 @@
+spring:
+  main:
+    web-application-type: none
+    banner-mode: off
+  profiles:
+    active: default
+logging:
+  level:
+    org:
+      springframework: info
