@@ -1,8 +1,8 @@
 package com.ak.rsm;
 
 import java.util.Collection;
-import java.util.function.Function;
 import java.util.function.ToDoubleBiFunction;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
@@ -98,7 +98,7 @@ enum Inverse {
 
   @Nonnull
   public static RelativeMediumLayers inverseStaticRelative(@Nonnull Collection<? extends Measurement> measurements,
-                                                           @Nonnull Function<double[], double[]> subtract) {
+                                                           @Nonnull UnaryOperator<double[]> subtract) {
     double[] subLogApparent = subtract.apply(measurements.stream().mapToDouble(Measurement::getLogResistivity).toArray());
     double maxL = getMaxL(measurements);
     PointValuePair find = Simplex.optimizeCMAES(kh -> {

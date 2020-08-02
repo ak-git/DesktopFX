@@ -10,14 +10,14 @@ import org.apache.commons.math3.analysis.TrivariateFunction;
  */
 final class Resistance2Layer implements TrivariateFunction {
   @Nonnull
-  private final NormalizedResistance2Layer resistance2Layer;
+  private final NormalizedResistance2Layer resistance;
 
   Resistance2Layer(@Nonnull TetrapolarSystem electrodeSystem) {
-    resistance2Layer = new NormalizedResistance2Layer(electrodeSystem);
+    resistance = new NormalizedResistance2Layer(electrodeSystem);
   }
 
   @Override
   public double value(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double h) {
-    return rho1 * resistance2Layer.applyAsDouble(Layers.getK12(rho1, rho2), h);
+    return rho1 * resistance.applyAsDouble(Layers.getK12(rho1, rho2), h);
   }
 }

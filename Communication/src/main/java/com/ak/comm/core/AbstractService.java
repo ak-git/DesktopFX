@@ -11,10 +11,15 @@ import com.ak.util.LogUtils;
 
 import static com.ak.util.LogUtils.LOG_LEVEL_BYTES;
 
-public abstract class AbstractService<FP> implements AutoCloseable, Flow.Publisher<FP>, Refreshable {
+public abstract class AbstractService<F> implements AutoCloseable, Flow.Publisher<F>, Refreshable {
   private final Logger logger = Logger.getLogger(getClass().getName());
 
   protected final void logBytes(@Nonnull ByteBuffer buffer) {
     LogUtils.logBytes(logger, LOG_LEVEL_BYTES, this, buffer, "IN from hardware");
+  }
+
+  @Override
+  public void refresh() {
+    throw new UnsupportedOperationException();
   }
 }

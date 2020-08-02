@@ -63,10 +63,6 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
-  public void refresh() {
-  }
-
-  @Override
   public void close() {
     innerClose();
     service.shutdownNow();

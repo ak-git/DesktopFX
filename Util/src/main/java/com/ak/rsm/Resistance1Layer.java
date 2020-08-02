@@ -10,10 +10,10 @@ import org.apache.commons.math3.analysis.UnivariateFunction;
  */
 final class Resistance1Layer implements UnivariateFunction {
   @Nonnull
-  private final NormalizedResistance1Layer resistance1Layer;
+  private final NormalizedResistance1Layer resistance;
 
   Resistance1Layer(@Nonnull TetrapolarSystem electrodeSystem) {
-    resistance1Layer = new NormalizedResistance1Layer(electrodeSystem);
+    resistance = new NormalizedResistance1Layer(electrodeSystem);
   }
 
   /**
@@ -24,6 +24,6 @@ final class Resistance1Layer implements UnivariateFunction {
    */
   @Override
   public double value(@Nonnegative double rho) {
-    return rho * resistance1Layer.getAsDouble();
+    return rho * resistance.getAsDouble();
   }
 }
