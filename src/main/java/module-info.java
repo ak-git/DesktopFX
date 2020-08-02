@@ -24,9 +24,6 @@ module com.ak.fx.desktop {
   opens com.ak.numbers.aper to com.ak.util, org.testng;
   opens com.ak.numbers.rcm to com.ak.util, org.testng;
   opens com.ak.numbers.common to org.testng;
-  opens com.ak.fx.desktop.aper to spring.core;
-  opens com.ak.fx.desktop.dft to spring.core;
-  opens com.ak.fx.desktop.rcm to spring.core;
   opens com.ak.fx.desktop to javafx.fxml, spring.core;
   opens com.ak.fx.scene to javafx.fxml, org.testng;
   opens com.ak.comm.interceptor.nmis to spring.beans, org.testng;
@@ -43,10 +40,7 @@ module com.ak.fx.desktop {
   exports com.ak.comm.converter.rcm to org.testng;
   exports com.ak.comm.converter.rcm.calibration to org.testng;
 
-  exports com.ak.fx.desktop.aper to spring.beans, spring.context;
-  exports com.ak.fx.desktop.dft to spring.beans, spring.context;
   exports com.ak.fx.desktop.nmisr to spring.beans;
-  exports com.ak.fx.desktop.rcm to spring.beans, spring.context;
 
   exports com.ak.comm.bytes.nmis;
   exports com.ak.comm.bytes.rsce;
