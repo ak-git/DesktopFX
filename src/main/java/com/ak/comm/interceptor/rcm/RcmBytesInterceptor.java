@@ -10,7 +10,7 @@ import com.ak.comm.interceptor.simple.AbstractFixedFrameBytesInterceptor;
 import org.springframework.context.annotation.Profile;
 
 @Named
-@Profile("rcm")
+@Profile({"rcm", "rcm-calibration"})
 public final class RcmBytesInterceptor extends AbstractFixedFrameBytesInterceptor {
   public RcmBytesInterceptor() {
     super(BaudRate.BR_38400, 20);
