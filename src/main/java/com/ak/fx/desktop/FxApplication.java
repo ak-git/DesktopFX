@@ -2,6 +2,7 @@ package com.ak.fx.desktop;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import javax.annotation.Nonnull;
@@ -44,8 +45,16 @@ public class FxApplication extends Application {
   public void start(@Nonnull Stage stage) throws IOException {
     String profile = Arrays.stream(applicationContext.getEnvironment().getActiveProfiles()).findFirst().orElse("default");
     ResourceBundle resourceBundle = ResourceBundle.getBundle(String.join(".", getClass().getPackageName(), KEY_PROPERTIES));
-    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(String.join(".", profile, "fxml")),
-        resourceBundle);
+    FXMLLoader fxmlLoader = new FXMLLoader(
+        Optional
+            .ofNullable(
+                getClass().getResource(String.join(".", profile, "fxml"))
+            )
+            .orElse(
+                getClass().getResource(String.join(".", "default", "fxml"))
+            ),
+        resourceBundle
+    );
     fxmlLoader.setControllerFactory(applicationContext::getBean);
     stage.setScene(fxmlLoader.load());
 
