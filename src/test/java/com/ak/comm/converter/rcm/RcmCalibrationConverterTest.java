@@ -1,4 +1,4 @@
-package com.ak.comm.converter.rcm.calibration;
+package com.ak.comm.converter.rcm;
 
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -11,17 +11,15 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.Variable;
-import com.ak.comm.converter.rcm.RcmConverter;
-import com.ak.comm.converter.rcm.RcmInVariable;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static com.ak.comm.converter.rcm.calibration.RcmCalibrationVariable.AVG_RHEO_ADC;
-import static com.ak.comm.converter.rcm.calibration.RcmCalibrationVariable.BASE_ADC;
-import static com.ak.comm.converter.rcm.calibration.RcmCalibrationVariable.CC_ADC;
-import static com.ak.comm.converter.rcm.calibration.RcmCalibrationVariable.MIN_RHEO_ADC;
-import static com.ak.comm.converter.rcm.calibration.RcmCalibrationVariable.RHEO_ADC;
+import static com.ak.comm.converter.rcm.RcmCalibrationVariable.AVG_RHEO_ADC;
+import static com.ak.comm.converter.rcm.RcmCalibrationVariable.BASE_ADC;
+import static com.ak.comm.converter.rcm.RcmCalibrationVariable.CC_ADC;
+import static com.ak.comm.converter.rcm.RcmCalibrationVariable.MIN_RHEO_ADC;
+import static com.ak.comm.converter.rcm.RcmCalibrationVariable.RHEO_ADC;
 
 public class RcmCalibrationConverterTest {
   @DataProvider(name = "calibrable-variables")

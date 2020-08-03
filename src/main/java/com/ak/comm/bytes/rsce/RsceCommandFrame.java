@@ -20,6 +20,10 @@ import com.ak.comm.bytes.BytesChecker;
 import com.ak.util.Strings;
 
 public final class RsceCommandFrame extends BufferFrame {
+  private static final int MAX_CAPACITY = 12;
+  private static final int NON_LEN_BYTES = 2;
+  private static final Map<String, RsceCommandFrame> SERVOMOTOR_REQUEST_MAP = new ConcurrentHashMap<>();
+
   private enum ProtocolByte implements BytesChecker {
     ADDR {
       @Override
@@ -202,10 +206,6 @@ public final class RsceCommandFrame extends BufferFrame {
       }
     }
   }
-
-  private static final int MAX_CAPACITY = 12;
-  private static final int NON_LEN_BYTES = 2;
-  private static final Map<String, RsceCommandFrame> SERVOMOTOR_REQUEST_MAP = new ConcurrentHashMap<>();
 
   private RsceCommandFrame(@Nonnull AbstractCheckedBuilder<RsceCommandFrame> builder) {
     super(builder.buffer());
