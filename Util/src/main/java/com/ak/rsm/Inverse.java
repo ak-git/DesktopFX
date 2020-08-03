@@ -2,6 +2,7 @@ package com.ak.rsm;
 
 import java.util.Collection;
 import java.util.function.ToDoubleBiFunction;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
@@ -27,7 +28,13 @@ enum Inverse {
   @Nonnull
   public static MediumLayers inverseStatic(@Nonnull Collection<? extends Measurement> measurements) {
     if (measurements.size() > 2) {
-      RelativeMediumLayers kh = inverseStaticRelative(measurements);
+      RelativeMediumLayers kh = inverseStaticRelative(measurements, values -> {
+        double[] sub = new double[values.length - 1];
+        for (int i = 0; i < sub.length; i++) {
+          sub[i] = values[i + 1] - values[i];
+        }
+        return sub;
+      });
       double sumLogApparent = measurements.stream().mapToDouble(Measurement::getLogResistivity).sum();
       double sumLogApparentPredicted = measurements.stream()
           .mapToDouble(m -> LOG_APPARENT_PREDICTED.applyAsDouble(m, new double[] {kh.k12(), kh.h()})).sum();
@@ -77,24 +84,25 @@ enum Inverse {
     double[] kMinMax = derivativeMeasurements.stream().allMatch(d -> d.getDerivativeResistivity() > 0) ?
         new double[] {-1.0, 0.0} : new double[] {0.0, 1.0};
 
-    PointValuePair find = Simplex.optimizeCMAES(kh -> {
+    PointValuePair find = Simplex.optimize("", kh -> {
           double[] subLogPredicted = derivativeMeasurements.stream()
               .mapToDouble(m -> LOG_APPARENT_PREDICTED.applyAsDouble(m, kh) - LOG_DIFF_APPARENT_PREDICTED.applyAsDouble(m, kh))
               .toArray();
           return Inequality.absolute().applyAsDouble(subLog, subLogPredicted);
         },
-        new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], maxL}),
+        new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], Double.POSITIVE_INFINITY}),
         new double[] {(kMinMax[1] + kMinMax[0]) / 2.0, maxL / 10.0}, new double[] {0.01, maxL / 100.0}
     );
     return new Layer2RelativeMedium(find.getPoint()[0], find.getPoint()[1]);
   }
 
   @Nonnull
-  private static RelativeMediumLayers inverseStaticRelative(@Nonnull Collection<? extends Measurement> measurements) {
-    double[] subLogApparent = subtract(measurements.stream().mapToDouble(Measurement::getLogResistivity).toArray());
+  public static RelativeMediumLayers inverseStaticRelative(@Nonnull Collection<? extends Measurement> measurements,
+                                                           @Nonnull UnaryOperator<double[]> subtract) {
+    double[] subLogApparent = subtract.apply(measurements.stream().mapToDouble(Measurement::getLogResistivity).toArray());
     double maxL = getMaxL(measurements);
     PointValuePair find = Simplex.optimizeCMAES(kh -> {
-          double[] subLogApparentPredicted = subtract(measurements.stream()
+          double[] subLogApparentPredicted = subtract.apply(measurements.stream()
               .mapToDouble(m -> LOG_APPARENT_PREDICTED.applyAsDouble(m, kh))
               .toArray()
           );
@@ -109,14 +117,5 @@ enum Inverse {
   @Nonnegative
   private static double getMaxL(@Nonnull Collection<? extends Measurement> measurements) {
     return measurements.stream().mapToDouble(m -> m.getSystem().getL()).max().orElseThrow();
-  }
-
-  @Nonnull
-  private static double[] subtract(@Nonnull double[] values) {
-    double[] sub = new double[values.length - 1];
-    for (int i = 0; i < sub.length; i++) {
-      sub[i] = values[i + 1] - values[i];
-    }
-    return sub;
   }
 }

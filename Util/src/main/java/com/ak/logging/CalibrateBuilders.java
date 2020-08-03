@@ -14,7 +14,7 @@ public enum CalibrateBuilders implements Cleaner.Cleanable {
   CALIBRATION;
 
   static {
-    Clean.clean(CalibrateBuilders.values());
+    Clean.clean(values());
   }
 
   @Override

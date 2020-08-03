@@ -46,8 +46,7 @@ public class Simplex {
   }
 
   public static PointValuePair optimize(@Nonnull String logFormat, @Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
-                                        @Nonnull double[] initialGuess) {
-    double[] initialSteps = IntStream.range(0, bounds.getLower().length).mapToDouble(i -> (bounds.getUpper()[i] - bounds.getLower()[i]) / 10.0).toArray();
+                                        @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
     return optimize(new MultivariateFunction() {
       private LocalTime prev = LocalTime.now();
 

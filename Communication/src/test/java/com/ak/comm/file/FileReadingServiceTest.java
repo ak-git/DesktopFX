@@ -227,6 +227,10 @@ public class FileReadingServiceTest {
                  return AsynchronousFileChannel.open(LogBuilders.CONVERTER_FILE.build(TestVariable.V_RRS.name()).getPath(),
                      StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
                }
+
+               @Override
+               public void refresh() {
+               }
              }) {
       TestSubscriber<int[]> subscriber = new TestSubscriber<>();
       convertableService.subscribe(subscriber);

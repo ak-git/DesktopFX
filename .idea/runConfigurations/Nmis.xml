@@ -1,10 +1,10 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Aper" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+  <configuration default="false" name="Nmis" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <module name="DesktopFX.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.ak.fx.desktop.FxApplication" />
     <option name="ENABLE_LAUNCH_OPTIMIZATION" value="false" />
     <option name="ENABLE_JMX_AGENT" value="false" />
-    <option name="ACTIVE_PROFILES" value="aper" />
+    <option name="ACTIVE_PROFILES" value="nmis" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <method v="2">
       <option name="Make" enabled="true" />

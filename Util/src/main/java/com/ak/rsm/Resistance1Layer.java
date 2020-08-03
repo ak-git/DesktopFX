@@ -8,9 +8,12 @@ import org.apache.commons.math3.analysis.UnivariateFunction;
 /**
  * Calculates <b>full</b> resistance R<sub>m-n</sub> (in Ohm) between electrodes for <b>single-layer</b> model.
  */
-final class Resistance1Layer extends AbstractResistanceLayer<Potential1Layer> implements UnivariateFunction {
+final class Resistance1Layer implements UnivariateFunction {
+  @Nonnull
+  private final NormalizedResistance1Layer resistance;
+
   Resistance1Layer(@Nonnull TetrapolarSystem electrodeSystem) {
-    super(electrodeSystem, Potential1Layer::new);
+    resistance = new NormalizedResistance1Layer(electrodeSystem);
   }
 
   /**
@@ -21,6 +24,6 @@ final class Resistance1Layer extends AbstractResistanceLayer<Potential1Layer> im
    */
   @Override
   public double value(@Nonnegative double rho) {
-    return (rho / Math.PI) * apply(Potential1Layer::value);
+    return rho * resistance.getAsDouble();
   }
 }
