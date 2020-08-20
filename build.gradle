@@ -122,4 +122,4 @@ processResources {
     }
 }
 
-mainClassName = "com.ak.fx.desktop.FxApplication"
+mainClassName = "com.ak.fx.desktop.SpringFxApplication"
