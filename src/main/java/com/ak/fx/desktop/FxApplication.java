@@ -3,6 +3,9 @@ package com.ak.fx.desktop;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -11,6 +14,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.storage.Storage;
 import com.ak.fx.util.OSDockImage;
+import com.ak.logging.LoggingBuilder;
 import com.ak.util.OS;
 import com.ak.util.PropertiesSupport;
 import javafx.application.Application;
@@ -25,6 +29,15 @@ public class FxApplication extends Application {
   private static final String KEY_PROPERTIES = "keys";
   private static final String KEY_APPLICATION_TITLE = "application.title";
   private static final String KEY_APPLICATION_IMAGE = "application.image";
+
+  static {
+    try {
+      LogManager.getLogManager().readConfiguration(FxApplication.class.getResourceAsStream(LoggingBuilder.LOGGING.fileName()));
+    }
+    catch (IOException e) {
+      Logger.getGlobal().log(Level.WARNING, e, e::getMessage);
+    }
+  }
 
   @Override
   @OverridingMethodsMustInvokeSuper
