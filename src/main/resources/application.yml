@@ -4,13 +4,6 @@ spring:
     banner-mode: off
   profiles:
     active: default
-
-# OFF, SEVERE, WARNING, INFO,
-# CONFIG - protocol events (OUT to hardware, invalid frame or other non-critical errors),
-# FINE - protocol top-level values, (com.ak.comm.converter)
-# FINER - protocol low-level lexemes, (com.ak.comm.interceptor)
-# FINEST - pure bytes, (IN from hardware, com.ak.comm.core)
-# ALL
 logging:
   level:
     org:
