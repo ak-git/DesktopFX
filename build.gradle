@@ -117,8 +117,7 @@ configurations {
 }
 
 processResources {
-    exclude("**/logging.properties")
-    filesMatching("**/*.properties") {
+    filesMatching("**/keys*.properties") {
         expand(project.properties)
     }
 }
