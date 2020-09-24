@@ -66,7 +66,7 @@ public class FxApplication extends Application {
   }
 
   @OverridingMethodsMustInvokeSuper
-  FXMLLoader getFXMLLoader(@Nonnull ResourceBundle resourceBundle) throws IOException {
+  FXMLLoader getFXMLLoader(@Nonnull ResourceBundle resourceBundle) {
     return new FXMLLoader(getClass().getResource(String.join(".", "default", "fxml")), resourceBundle);
   }
 

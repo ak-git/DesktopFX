@@ -58,7 +58,7 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Override
-  FXMLLoader getFXMLLoader(@Nonnull ResourceBundle resourceBundle) throws IOException {
+  FXMLLoader getFXMLLoader(@Nonnull ResourceBundle resourceBundle) {
     String profile = Arrays.stream(applicationContext.getEnvironment().getActiveProfiles()).findFirst().orElse("default");
     FXMLLoader fxmlLoader = super.getFXMLLoader(resourceBundle);
     URL fxml = getClass().getResource(String.join(".", profile, "fxml"));
