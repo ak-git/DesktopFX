@@ -8,7 +8,9 @@ import java.util.stream.Stream;
 
 import static com.ak.util.Strings.EMPTY;
 
-public class OSDirectories {
+public enum OSDirectories {
+  ;
+
   public static final String USER_HOME_PATH;
 
   static {
@@ -18,7 +20,4 @@ public class OSDirectories {
 
   public static final String VENDOR_ID = Stream.of(OSDirectories.class.getPackage().getName().split("\\.")).limit(2).
       collect(Collectors.joining("."));
-
-  private OSDirectories() {
-  }
 }
