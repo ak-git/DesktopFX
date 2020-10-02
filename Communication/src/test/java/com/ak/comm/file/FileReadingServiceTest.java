@@ -31,7 +31,6 @@ import com.ak.comm.interceptor.AbstractBytesInterceptor;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.logging.LogTestUtils;
-import com.ak.comm.logging.OutputBuilders;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.logging.LogBuilders;
@@ -51,14 +50,9 @@ public class FileReadingServiceTest {
   @BeforeSuite
   @AfterSuite
   public void setUp() throws IOException {
-    Path[] paths = {
-        LogBuilders.CONVERTER_FILE.build(Strings.EMPTY).getPath().getParent(),
-        OutputBuilders.build(Strings.EMPTY).getPath().getParent()
-    };
-    for (Path path : paths) {
-      Assert.assertNotNull(path);
-      Clean.clean(path);
-    }
+    Path path = LogBuilders.CONVERTER_FILE.build(Strings.EMPTY).getPath().getParent();
+    Assert.assertNotNull(path);
+    Clean.clean(path);
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")

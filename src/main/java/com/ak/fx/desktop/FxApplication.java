@@ -12,7 +12,6 @@ import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.storage.Storage;
 import com.ak.fx.util.OSDockImage;
 import com.ak.util.OS;
-import com.ak.util.PropertiesSupport;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -31,12 +30,10 @@ public class FxApplication extends Application {
   public void start(@Nonnull Stage stage) throws IOException {
     ResourceBundle resourceBundle = ResourceBundle.getBundle(String.join(".", getClass().getPackageName(), KEY_PROPERTIES));
     stage.setScene(getFXMLLoader(resourceBundle).load());
-
-    String applicationFullName = resourceBundle.getString(KEY_APPLICATION_TITLE);
-    stage.setTitle(applicationFullName);
-    PropertiesSupport.OUT_CONVERTER_PATH.update(applicationFullName);
+    stage.setTitle(resourceBundle.getString(KEY_APPLICATION_TITLE));
     OSDockImage.valueOf(OS.get().name()).setIconImage(stage,
-        getClass().getResource(resourceBundle.getString(KEY_APPLICATION_IMAGE)));
+        getClass().getResource(resourceBundle.getString(KEY_APPLICATION_IMAGE))
+    );
 
     Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass(), String.format("%d", 0));
     stage.setOnCloseRequest(event -> stageStorage.save(stage));

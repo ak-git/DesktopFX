@@ -15,6 +15,5 @@ module com.ak.comm {
 
   opens com.ak.comm.core to org.testng;
   opens com.ak.comm.file to org.testng;
-  opens com.ak.comm.logging to org.testng;
   opens com.ak.comm.serial to org.testng;
 }

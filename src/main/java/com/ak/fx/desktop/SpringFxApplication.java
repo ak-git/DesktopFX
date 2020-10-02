@@ -24,6 +24,7 @@ import com.ak.comm.converter.rcm.RcmOutVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.FixedFrameBytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
+import com.ak.logging.LocalFileHandler;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.input.KeyCode;
@@ -46,6 +47,7 @@ public class SpringFxApplication extends FxApplication {
 
   @Override
   public void init() {
+    System.setProperty(LocalFileHandler.class.getName(), "FxDesktop");
     applicationContext = new SpringApplicationBuilder(SpringFxApplication.class).headless(false).run();
   }
 

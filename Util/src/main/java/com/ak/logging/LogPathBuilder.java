@@ -2,7 +2,6 @@ package com.ak.logging;
 
 import java.util.Optional;
 import java.util.logging.FileHandler;
-import java.util.logging.LogManager;
 
 import javax.annotation.Nonnull;
 
@@ -17,8 +16,10 @@ class LogPathBuilder extends LocalFileIO.AbstractBuilder {
 
   LogPathBuilder(@Nonnull Extension fileExtension, @Nonnull Class<? extends FileHandler> fileHandlerClass) {
     super(fileExtension);
-    addPath(Optional.ofNullable(LogManager.getLogManager().getProperty(fileHandlerClass.getName() + ".name")).
-        orElse(fileHandlerClass.getSimpleName()));
+    addPath(Optional
+        .ofNullable(System.getProperty(fileHandlerClass.getName()))
+        .orElse(fileHandlerClass.getSimpleName())
+    );
   }
 
   /**

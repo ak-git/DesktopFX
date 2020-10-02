@@ -1,42 +1,19 @@
 package com.ak.util;
 
 import javax.annotation.Nonnull;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 public enum PropertiesSupport {
-  CACHE {
-    @Override
-    public boolean check() {
-      return Boolean.parseBoolean(value());
-    }
+  CACHE;
 
-    @Override
-    public String value() {
-      return System.getProperty(key(), Boolean.TRUE.toString()).trim();
-    }
-  },
-  OUT_CONVERTER_PATH {
-    @Override
-    public String value() {
-      return System.getProperty(key(), OSDirectories.VENDOR_ID).trim();
-    }
-
-    @Override
-    public void update(@Nonnull String value) {
-      if (!check()) {
-        super.update(value);
-      }
-    }
-  };
-
-  public boolean check() {
-    return !System.getProperty(key(), Strings.EMPTY).isEmpty();
+  public final boolean check() {
+    return Boolean.parseBoolean(value());
   }
 
-  public abstract String value();
+  public final String value() {
+    return System.getProperty(key(), Boolean.TRUE.toString()).trim();
+  }
 
-  @OverridingMethodsMustInvokeSuper
-  public void update(@Nonnull String value) {
+  public final void update(@Nonnull String value) {
     System.setProperty(key(), value);
   }
 
@@ -49,7 +26,7 @@ public enum PropertiesSupport {
     return value().split(",");
   }
 
-  String key() {
+  private String key() {
     return name().toLowerCase();
   }
 }
