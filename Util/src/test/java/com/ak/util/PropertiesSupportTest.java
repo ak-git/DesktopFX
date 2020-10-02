@@ -5,7 +5,6 @@ import java.util.EnumSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-
 public class PropertiesSupportTest {
   @Test
   public void testCheck() {
@@ -19,7 +18,6 @@ public class PropertiesSupportTest {
   @Test
   public void testValue() {
     Assert.assertEquals(PropertiesSupport.CACHE.value(), Boolean.toString(true));
-    Assert.assertEquals(PropertiesSupport.OUT_CONVERTER_PATH.value(), OSDirectories.VENDOR_ID);
   }
 
   @Test
@@ -29,10 +27,5 @@ public class PropertiesSupportTest {
       Assert.assertEquals(e.value(), e.name());
       e.clear();
     });
-  }
-
-  @Test
-  public void testKey() {
-    EnumSet.allOf(PropertiesSupport.class).forEach(e -> Assert.assertEquals(e.key(), e.name().toLowerCase()));
   }
 }

@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import com.ak.comm.GroupService;
+import com.ak.comm.converter.Refreshable;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.digitalfilter.FilterBuilder;
@@ -37,7 +38,7 @@ import javafx.scene.input.TransferMode;
 import javafx.util.Duration;
 
 public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
-    implements Initializable, Flow.Subscriber<int[]>, AutoCloseable {
+    implements Initializable, Flow.Subscriber<int[]>, AutoCloseable, Refreshable {
   @Nonnull
   private final GroupService<T, R, V> service;
   private final AxisXController axisXController = new AxisXController(this::changed);
@@ -145,6 +146,11 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @OverridingMethodsMustInvokeSuper
   public void close() {
     service.close();
+  }
+
+  @Override
+  public final void refresh() {
+    service.refresh();
   }
 
   @Nonnull

@@ -8,3 +8,14 @@ logging:
   level:
     org:
       springframework: info
+    com:
+      ak:
+        fx: info
+        #
+        # OFF, SEVERE, WARNING, INFO,
+        # info / CONFIG - protocol events (OUT to hardware, invalid frame or other non-critical errors),
+        # debug / FINE - protocol top-level values, (com.ak.comm.converter)
+        # debug / FINER - protocol low-level lexemes, (com.ak.comm.interceptor)
+        # trace / FINEST - pure bytes, (IN from hardware, com.ak.comm.core)
+        # ALL
+        comm: info

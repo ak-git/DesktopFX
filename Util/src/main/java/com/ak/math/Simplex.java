@@ -23,12 +23,11 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.util.Pair;
 
-public class Simplex {
+public enum Simplex {
+  ;
+
   private static final double STOP_FITNESS = 1.0e-10;
   private static final int MAX_ITERATIONS = 300000;
-
-  private Simplex() {
-  }
 
   public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
                                              @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
