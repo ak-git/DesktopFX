@@ -23,15 +23,6 @@ public class PropertiesSupportTest {
   }
 
   @Test
-  public void testSet() {
-    EnumSet.complementOf(EnumSet.of(PropertiesSupport.CONTEXT)).forEach(e -> {
-      e.update(e.name());
-      Assert.assertEquals(e.value(), e.name());
-      e.clear();
-    });
-  }
-
-  @Test
   public void testKey() {
     EnumSet.allOf(PropertiesSupport.class).forEach(e -> Assert.assertEquals(e.key(), e.name().toLowerCase()));
   }

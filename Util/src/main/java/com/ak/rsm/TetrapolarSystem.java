@@ -13,7 +13,7 @@ import tec.uom.se.unit.MetricPrefix;
 
 import static tec.uom.se.unit.Units.METRE;
 
-final class TetrapolarSystem {
+public final class TetrapolarSystem {
   @Nonnegative
   private final double sPotentialUnitSI;
   @Nonnegative
