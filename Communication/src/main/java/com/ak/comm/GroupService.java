@@ -8,16 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Flow;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Inject;
-import javax.inject.Provider;
 
 import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.Refreshable;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.Readable;
@@ -25,8 +23,7 @@ import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
 
-public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends AbstractService
-    implements Flow.Publisher<int[]>, Refreshable, FileFilter {
+public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends AbstractService<int[]> implements FileFilter {
   @Nonnull
   private final CycleSerialService<T, R, V> serialService;
   @Nonnull
@@ -38,9 +35,8 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
   @Nonnull
   private Readable currentReadable;
 
-  @Inject
-  public GroupService(@Nonnull Provider<BytesInterceptor<T, R>> interceptorProvider,
-                      @Nonnull Provider<Converter<R, V>> converterProvider) {
+  public GroupService(@Nonnull Supplier<BytesInterceptor<T, R>> interceptorProvider,
+                      @Nonnull Supplier<Converter<R, V>> converterProvider) {
     Converter<R, V> converter = converterProvider.get();
     variables = converter.variables();
     frequency = converter.getFrequency();
@@ -91,8 +87,8 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
   }
 
   public Map<V, int[]> read(@Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
-    int from = Math.max(0, Math.min(fromInclusive, toExclusive));
-    int to = Math.max(0, Math.max(fromInclusive, toExclusive));
+    int from = Math.min(fromInclusive, toExclusive);
+    int to = Math.max(fromInclusive, toExclusive);
 
     int frameSize = variables.size() * Integer.BYTES;
     ByteBuffer buffer = ByteBuffer.allocate(frameSize * (to - from));

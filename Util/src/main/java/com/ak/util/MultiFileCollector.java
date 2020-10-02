@@ -81,7 +81,7 @@ final class MultiFileCollector<T> implements Collector<Stream<T>, List<LineFileC
     return Collections.emptySet();
   }
 
-  public static final class MultiFileCollectorBuilder<T> implements com.ak.util.Builder<MultiFileCollector<T>> {
+  public static final class MultiFileCollectorBuilder<T> implements Builder<MultiFileCollector<T>> {
     @Nonnull
     private final MultiFileCollector<T> multiFileCollector;
 

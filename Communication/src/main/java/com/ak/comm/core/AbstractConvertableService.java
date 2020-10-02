@@ -3,7 +3,6 @@ package com.ak.comm.core;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Flow;
 import java.util.function.Consumer;
 
 import javax.annotation.Nonnegative;
@@ -15,7 +14,7 @@ import com.ak.comm.converter.Variable;
 import com.ak.comm.interceptor.BytesInterceptor;
 
 public abstract class AbstractConvertableService<T, R, V extends Enum<V> & Variable<V>>
-    extends AbstractService implements Callable<AsynchronousFileChannel>, Flow.Publisher<int[]>, Readable {
+    extends AbstractService<int[]> implements Callable<AsynchronousFileChannel>, Readable {
   @Nonnull
   private final BytesInterceptor<T, R> bytesInterceptor;
   @Nonnull

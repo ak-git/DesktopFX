@@ -4,10 +4,9 @@ plugins {
 
 dependencies {
     api project(':Util')
-    api spring_context
 }
 
 javafx {
-    version = '13.0.2'
+    version = '14'
     modules = ['javafx.graphics']
 }

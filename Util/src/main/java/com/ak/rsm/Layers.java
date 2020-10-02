@@ -29,11 +29,8 @@ class Layers {
     }
   }
 
-  static double getRho1ToRho2(double k) {
-    k = Math.max(-1.0, Math.min(k, 1.0));
-    if (Double.compare(k, -1.0) == 0) {
-      return Double.POSITIVE_INFINITY;
-    }
+  static double getRho1ToRho2(double k12) {
+    double k = Math.max(-1.0, Math.min(k12, 1.0));
     return (1.0 - k) / (1.0 + k);
   }
 

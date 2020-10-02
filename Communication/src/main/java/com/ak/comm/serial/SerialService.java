@@ -18,7 +18,6 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.comm.converter.Refreshable;
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.ConcurrentAsyncFileChannel;
 import com.ak.comm.interceptor.BytesInterceptor;
@@ -30,7 +29,7 @@ import jssc.SerialPortList;
 
 import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
 
-final class SerialService extends AbstractService implements WritableByteChannel, Flow.Publisher<ByteBuffer>, Refreshable, Flow.Subscription {
+final class SerialService extends AbstractService<ByteBuffer> implements WritableByteChannel, Flow.Subscription {
   private static final Logger LOGGER = Logger.getLogger(SerialService.class.getName());
   private static final String SERIAL_PORT_NOT_FOUND = "Serial port not found";
 
@@ -160,7 +159,7 @@ final class SerialService extends AbstractService implements WritableByteChannel
     try {
       synchronized (serialPort) {
         if (isOpen()) {
-          LOGGER.log(LOG_LEVEL_ERRORS, "Close connection " + serialPort.getPortName());
+          LOGGER.log(LOG_LEVEL_ERRORS, () -> String.format("Close connection %s", serialPort.getPortName()));
           serialPort.closePort();
         }
       }

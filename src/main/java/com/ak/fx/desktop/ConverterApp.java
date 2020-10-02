@@ -22,17 +22,17 @@ import com.ak.comm.converter.Variables;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.Extension;
 import com.ak.util.LineFileCollector;
-import com.ak.util.PropertiesSupport;
 import com.ak.util.Strings;
-import org.springframework.beans.factory.BeanFactoryUtils;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
-final class ConverterApp<T, R, V extends Enum<V> & Variable<V>> implements AutoCloseable, Consumer<Path> {
-  @Nonnull
+@SpringBootApplication
+public class ConverterApp<T, R, V extends Enum<V> & Variable<V>> implements AutoCloseable, Consumer<Path> {
   private final ConfigurableApplicationContext context;
 
-  private ConverterApp() {
-    context = new FxClassPathXmlApplicationContext(ConverterApp.class, PropertiesSupport.CONTEXT.split()[0]);
+  public ConverterApp(ConfigurableApplicationContext context) {
+    this.context = context;
   }
 
   @Override
@@ -40,15 +40,26 @@ final class ConverterApp<T, R, V extends Enum<V> & Variable<V>> implements AutoC
     context.close();
   }
 
+  @SuppressWarnings("rawtypes")
+  public static void main(String[] args) {
+    try (ConverterApp<?, ?, ?> app = new ConverterApp(SpringApplication.run(ConverterApp.class, args));
+         DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), "*.bin")) {
+      paths.forEach(app);
+    }
+    catch (IOException e) {
+      Logger.getLogger(ConverterApp.class.getName()).log(Level.WARNING, e.getMessage(), e);
+    }
+  }
+
   @Override
   public void accept(@Nonnull Path path) {
     @SuppressWarnings("unchecked")
-    BytesInterceptor<T, R> bytesInterceptor = BeanFactoryUtils.beanOfType(context, BytesInterceptor.class);
+    BytesInterceptor<T, R> bytesInterceptor = context.getBean(BytesInterceptor.class);
     @SuppressWarnings("unchecked")
-    Converter<R, V> responseConverter = BeanFactoryUtils.beanOfType(context, Converter.class);
+    Converter<R, V> responseConverter = context.getBean(Converter.class);
     try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
          LineFileCollector collector = new LineFileCollector(
-             Paths.get(Extension.TXT.attachTo(path.toFile().toString().replaceAll("\\.bin", Strings.EMPTY))),
+             Paths.get(Extension.TXT.attachTo(path.toFile().toString().replace("\\.bin", Strings.EMPTY))),
              LineFileCollector.Direction.VERTICAL)
     ) {
       collector.accept(responseConverter.variables().stream().map(Variables::toName).collect(Collectors.joining(Strings.TAB)));
@@ -63,17 +74,6 @@ final class ConverterApp<T, R, V extends Enum<V> & Variable<V>> implements AutoC
     }
     catch (IOException e) {
       Logger.getLogger(getClass().getName()).log(Level.INFO, e.getMessage(), e);
-    }
-  }
-
-  @SuppressWarnings("rawtypes")
-  public static void main(String[] args) {
-    try (ConverterApp<?, ?, ?> app = new ConverterApp();
-         DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), "*.bin")) {
-      paths.forEach(app);
-    }
-    catch (IOException e) {
-      Logger.getLogger(ConverterApp.class.getName()).log(Level.WARNING, e.getMessage(), e);
     }
   }
 }

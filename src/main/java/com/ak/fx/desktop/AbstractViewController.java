@@ -13,8 +13,10 @@ import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import com.ak.comm.GroupService;
+import com.ak.comm.converter.Refreshable;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.digitalfilter.FilterBuilder;
@@ -36,7 +38,7 @@ import javafx.scene.input.TransferMode;
 import javafx.util.Duration;
 
 public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
-    implements Initializable, Flow.Subscriber<int[]> {
+    implements Initializable, Flow.Subscriber<int[]>, AutoCloseable, Refreshable {
   @Nonnull
   private final GroupService<T, R, V> service;
   private final AxisXController axisXController = new AxisXController(this::changed);
@@ -84,7 +86,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
         axisXController.scroll(event.getDeltaX());
         event.consume();
       });
-      chart.setOnZoomStarted(event -> {
+      chart.setOnZoom(event -> {
         axisXController.zoom(event.getZoomFactor());
         axisXController.preventEnd(chart.diagramWidthProperty().doubleValue());
         changed();
@@ -138,6 +140,22 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @Override
   public final void onComplete() {
     changed();
+  }
+
+  @Override
+  @OverridingMethodsMustInvokeSuper
+  public void close() {
+    service.close();
+  }
+
+  @Override
+  public final void refresh() {
+    service.refresh();
+  }
+
+  @Nonnull
+  protected final GroupService<T, R, V> service() {
+    return service;
   }
 
   private void changed() {
