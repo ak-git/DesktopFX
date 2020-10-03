@@ -73,6 +73,10 @@ public enum RcmCalibrationVariable implements DependentVariable<RcmInVariable, R
     }
   };
 
+  static final RcmInVariable VAR_RHEO = RcmInVariable.RHEO_1;
+  static final RcmInVariable VAR_BASE = RcmInVariable.BASE_1;
+  static final RcmInVariable VAR_QS = RcmInVariable.QS_1;
+
   @Override
   public DigitalFilter filter() {
     return FilterBuilder.of().rrs().build();
@@ -88,8 +92,4 @@ public enum RcmCalibrationVariable implements DependentVariable<RcmInVariable, R
   public Class<RcmInVariable> getInputVariablesClass() {
     return RcmInVariable.class;
   }
-
-  static final RcmInVariable VAR_RHEO = RcmInVariable.RHEO_1;
-  static final RcmInVariable VAR_BASE = RcmInVariable.BASE_1;
-  static final RcmInVariable VAR_QS = RcmInVariable.QS_1;
 }
