@@ -9,6 +9,11 @@ public interface BytesChecker {
     throw new UnsupportedOperationException(getClass().getName());
   }
 
+  /**
+   * Default implementation does nothing with buffer.
+   *
+   * @param buffer input buffer
+   */
   default void bufferLimit(@Nonnull ByteBuffer buffer) {
   }
 
