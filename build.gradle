@@ -34,7 +34,7 @@ ext.javax_inject = 'javax.inject:javax.inject:1'
 ext.jssc = 'org.scream3r:jssc:2.8.0'
 ext.spring_context = 'org.springframework:spring-context:5.2.5.RELEASE'
 ext.jenetics = 'io.jenetics:jenetics:5.2.0'
-ext.projectIds = ['java': JavaVersion.VERSION_13]
+ext.projectIds = ['java': JavaVersion.VERSION_14]
 
 wrapper {
     description 'Setup the Gradle wrapper'
