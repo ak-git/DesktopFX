@@ -44,7 +44,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2020.04.07'
+    version = '2020.10.08'
     apply plugin: 'idea'
     idea {
         module {
