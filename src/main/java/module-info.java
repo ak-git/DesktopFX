@@ -27,6 +27,7 @@ module com.ak.fx.desktop {
   opens com.ak.fx.desktop to javafx.fxml, spring.core;
   opens com.ak.fx.scene to javafx.fxml, org.testng;
   opens com.ak.comm.interceptor.nmis to spring.beans, org.testng;
+  opens com.ak.comm.interceptor.suntech to spring.beans, org.testng;
   opens com.ak.comm.interceptor.nmisr to org.testng;
   opens com.ak.comm.interceptor.rcm to spring.beans, org.testng;
   opens com.ak.comm.interceptor.rsce to org.testng;

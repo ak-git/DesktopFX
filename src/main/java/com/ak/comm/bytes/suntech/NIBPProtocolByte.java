@@ -23,6 +23,12 @@ enum NIBPProtocolByte implements BytesChecker {
     public void bufferLimit(@Nonnull ByteBuffer buffer) {
       buffer.limit(buffer.get(ordinal()));
     }
+  },
+  DATA {
+    @Override
+    public boolean is(byte b) {
+      return true;
+    }
   };
 
   static final int MAX_CAPACITY = 0x43;
