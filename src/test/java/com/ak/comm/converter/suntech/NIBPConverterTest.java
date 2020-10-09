@@ -12,7 +12,7 @@ import com.ak.comm.converter.Variables;
 import com.ak.comm.log.LogTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import tec.uom.se.AbstractUnit;
+import tec.uom.se.unit.Units;
 
 import static com.ak.util.LogUtils.LOG_LEVEL_VALUES;
 
@@ -43,7 +43,7 @@ public class NIBPConverterTest {
       }
       for (NIBPVariable v : NIBPVariable.values()) {
         Assert.assertTrue(logRecord.getMessage().contains(Variables.toString(v)), logRecord.getMessage());
-        Assert.assertEquals(v.getUnit().getSystemUnit(), AbstractUnit.ONE);
+        Assert.assertEquals(v.getUnit().getSystemUnit(), Units.PASCAL);
       }
     }), expected.length > 0);
   }
