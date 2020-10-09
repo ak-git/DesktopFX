@@ -11,7 +11,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-import java.security.Key;
+import java.security.MessageDigest;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Flow;
@@ -23,8 +23,6 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
@@ -63,11 +61,9 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
       try (SeekableByteChannel seekableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
         Logger.getLogger(getClass().getName()).log(Level.CONFIG, () -> String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
 
-        Mac mac = Mac.getInstance("HmacMD5");
-        Key key = new SecretKeySpec("2020.10.04".getBytes(Charset.defaultCharset()), "RawBytes");
-        mac.init(key);
-        if (isChannelProcessed(seekableByteChannel, mac::update)) {
-          String md5Code = digestToString(mac.doFinal());
+        MessageDigest md = MessageDigest.getInstance("SHA-512");
+        if (isChannelProcessed(seekableByteChannel, md::update)) {
+          String md5Code = digestToString(md.digest("2020.10.09".getBytes(Charset.defaultCharset())));
           Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
           if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(convertedFile, StandardOpenOption.READ);
@@ -173,6 +169,6 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
     for (byte b : digest) {
       sb.append(String.format("%x", b));
     }
-    return sb.toString();
+    return sb.substring(0, sb.length() / 4);
   }
 }

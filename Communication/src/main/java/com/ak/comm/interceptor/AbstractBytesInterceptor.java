@@ -27,7 +27,7 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
   @Nullable
   private final T pingRequest;
 
-  public AbstractBytesInterceptor(@Nonnull BaudRate baudRate, @Nullable T pingRequest, int ignoreBufferLimit) {
+  protected AbstractBytesInterceptor(@Nonnull BaudRate baudRate, @Nullable T pingRequest, int ignoreBufferLimit) {
     outBuffer = ByteBuffer.allocate(baudRate.get());
     ignoreBuffer = ByteBuffer.allocate(ignoreBufferLimit);
     this.baudRate = baudRate;

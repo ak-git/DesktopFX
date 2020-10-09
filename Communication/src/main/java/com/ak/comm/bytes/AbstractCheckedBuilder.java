@@ -14,7 +14,7 @@ public abstract class AbstractCheckedBuilder<T> implements BytesChecker, Builder
   @Nonnull
   private final ByteBuffer buffer;
 
-  public AbstractCheckedBuilder(@Nonnull ByteBuffer buffer) {
+  protected AbstractCheckedBuilder(@Nonnull ByteBuffer buffer) {
     this.buffer = buffer;
   }
 
