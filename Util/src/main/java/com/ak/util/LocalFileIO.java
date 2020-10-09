@@ -48,7 +48,7 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
     @Nullable
     private String fileName;
 
-    public AbstractBuilder(@Nonnull Extension fileExtension) {
+    protected AbstractBuilder(@Nonnull Extension fileExtension) {
       this.fileExtension = fileExtension;
     }
 

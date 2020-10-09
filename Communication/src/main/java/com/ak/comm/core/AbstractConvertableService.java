@@ -24,8 +24,8 @@ public abstract class AbstractConvertableService<T, R, V extends Enum<V> & Varia
   @Nonnull
   private final ConcurrentAsyncFileChannel convertedLogByteChannel = new ConcurrentAsyncFileChannel(this);
 
-  public AbstractConvertableService(@Nonnull BytesInterceptor<T, R> bytesInterceptor,
-                                    @Nonnull Converter<R, V> responseConverter) {
+  protected AbstractConvertableService(@Nonnull BytesInterceptor<T, R> bytesInterceptor,
+                                       @Nonnull Converter<R, V> responseConverter) {
     this.bytesInterceptor = bytesInterceptor;
     this.responseConverter = responseConverter;
     workingBuffer = ByteBuffer.allocate(responseConverter.variables().size() * Integer.BYTES);

@@ -27,20 +27,24 @@ module com.ak.fx.desktop {
   opens com.ak.fx.desktop to javafx.fxml, spring.core;
   opens com.ak.fx.scene to javafx.fxml, org.testng;
   opens com.ak.comm.interceptor.nmis to spring.beans, org.testng;
+  opens com.ak.comm.interceptor.suntech to spring.beans, org.testng;
   opens com.ak.comm.interceptor.nmisr to org.testng;
   opens com.ak.comm.interceptor.rcm to spring.beans, org.testng;
   opens com.ak.comm.interceptor.rsce to org.testng;
+  opens com.ak.comm.converter.suntech to org.testng;
   opens com.ak.comm.converter.rsce to org.testng;
   opens com.ak.comm.converter.nmis to org.testng;
   opens com.ak.comm.converter.aper to org.testng;
 
   exports com.ak.comm.converter.aper to javafx.graphics, org.testng;
   exports com.ak.comm.converter.aper.calibration to org.testng;
+  exports com.ak.comm.converter.suntech to spring.beans;
   exports com.ak.comm.converter.nmis to spring.beans;
   exports com.ak.comm.converter.rcm to org.testng;
 
   exports com.ak.fx.desktop.nmisr to spring.beans;
 
+  exports com.ak.comm.bytes.suntech;
   exports com.ak.comm.bytes.nmis;
   exports com.ak.comm.bytes.rsce;
   exports com.ak.fx.desktop;

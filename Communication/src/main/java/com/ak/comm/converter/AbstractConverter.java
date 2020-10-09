@@ -29,7 +29,7 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
   @Nonnull
   private Stream<int[]> filteredValues = Stream.empty();
 
-  public AbstractConverter(@Nonnull Class<V> evClass, @Nonnegative double frequency) {
+  protected AbstractConverter(@Nonnull Class<V> evClass, @Nonnegative double frequency) {
     this(evClass, frequency, EnumSet.allOf(evClass).stream().map(v -> new int[] {v.ordinal()}).collect(Collectors.toList()));
   }
 

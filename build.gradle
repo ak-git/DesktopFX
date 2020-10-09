@@ -9,7 +9,7 @@ plugins {
     id "application"
     id 'org.openjfx.javafxplugin' version '0.0.9'
 
-    id 'org.springframework.boot' version '2.3.3.RELEASE'
+    id 'org.springframework.boot' version '2.3.4.RELEASE'
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
 }
 
@@ -47,7 +47,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2020.10.02'
+    version = '2020.10.09'
     apply plugin: 'idea'
     idea {
         module {

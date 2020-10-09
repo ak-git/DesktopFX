@@ -49,7 +49,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @FXML
   private Chart chart;
 
-  public AbstractViewController(@Nonnull GroupService<T, R, V> service) {
+  protected AbstractViewController(@Nonnull GroupService<T, R, V> service) {
     this.service = service;
   }
 
