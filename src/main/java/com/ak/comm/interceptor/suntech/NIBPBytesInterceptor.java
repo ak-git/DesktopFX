@@ -11,6 +11,6 @@ import org.springframework.context.annotation.Profile;
 @Profile("suntech")
 public final class NIBPBytesInterceptor extends AbstractCheckedBytesInterceptor<NIBPRequest, NIBPResponse, NIBPResponse.Builder> {
   public NIBPBytesInterceptor() {
-    super(BaudRate.BR_115200, NIBPRequest.GET_CUFF_PRESSURE, new NIBPResponse.Builder());
+    super(BaudRate.BR_9600, NIBPRequest.GET_CUFF_PRESSURE, new NIBPResponse.Builder());
   }
 }
