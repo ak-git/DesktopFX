@@ -12,12 +12,16 @@ import org.springframework.context.annotation.Profile;
 @Named
 @Profile("suntech")
 public final class NIBPConverter extends AbstractConverter<NIBPResponse, NIBPVariable> {
+  private final int[] out = new int[NIBPVariable.values().length];
+
   public NIBPConverter() {
     super(NIBPVariable.class, 10);
   }
 
   @Override
   protected Stream<int[]> innerApply(@Nonnull NIBPResponse response) {
-    return response.extractPressure().mapToObj(value -> new int[] {value});
+    response.extractPressure(value -> out[NIBPVariable.PRESSURE.ordinal()] = value);
+    response.extractData(value -> System.arraycopy(value, 0, out, NIBPVariable.SYS.ordinal(), value.length));
+    return Stream.of(out);
   }
 }
