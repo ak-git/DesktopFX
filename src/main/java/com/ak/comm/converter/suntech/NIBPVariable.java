@@ -46,12 +46,12 @@ public enum NIBPVariable implements Variable<NIBPVariable> {
     }
   };
 
+  private static final Unit<Dimensionless> MM_HG = new TransformedUnit<>(AbstractUnit.ONE, IDENTITY);
+
   @Override
   public Unit<?> getUnit() {
     return MM_HG;
   }
-
-  private static final Unit<Dimensionless> MM_HG = new TransformedUnit<>(AbstractUnit.ONE, IDENTITY);
 
   static {
     SimpleUnitFormat.getInstance().label(MM_HG, "mm Hg");
