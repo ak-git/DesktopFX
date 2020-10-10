@@ -8,10 +8,11 @@ import com.ak.comm.bytes.suntech.NIBPResponse;
 import com.ak.comm.converter.AbstractConverter;
 
 public final class NIBPConverter extends AbstractConverter<NIBPResponse, NIBPVariable> {
+  public static final int FREQUENCY = 10;
   private final int[] out = new int[NIBPVariable.values().length];
 
   public NIBPConverter() {
-    super(NIBPVariable.class, 10);
+    super(NIBPVariable.class, FREQUENCY);
   }
 
   @Override

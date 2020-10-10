@@ -16,6 +16,7 @@ import com.ak.fx.desktop.AbstractViewController;
 import org.springframework.context.annotation.Profile;
 
 import static com.ak.comm.bytes.suntech.NIBPRequest.GET_CUFF_PRESSURE;
+import static com.ak.comm.converter.suntech.NIBPConverter.FREQUENCY;
 
 @Named
 @Profile("suntech")
@@ -24,7 +25,7 @@ public final class NIBPViewController extends AbstractViewController<NIBPRequest
 
   public NIBPViewController() {
     super(new GroupService<>(NIBPBytesInterceptor::new, NIBPConverter::new));
-    executorService.scheduleAtFixedRate(() -> service().write(GET_CUFF_PRESSURE), 0, 100, TimeUnit.MILLISECONDS);
+    executorService.scheduleAtFixedRate(() -> service().write(GET_CUFF_PRESSURE), 0, 1000 / FREQUENCY, TimeUnit.MILLISECONDS);
   }
 
   @Override
