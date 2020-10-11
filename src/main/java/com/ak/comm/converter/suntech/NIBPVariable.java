@@ -54,6 +54,6 @@ public enum NIBPVariable implements Variable<NIBPVariable> {
   }
 
   static {
-    SimpleUnitFormat.getInstance().label(MM_HG, "mm Hg");
+    SimpleUnitFormat.getInstance().label(MM_HG, "mmHg");
   }
 }

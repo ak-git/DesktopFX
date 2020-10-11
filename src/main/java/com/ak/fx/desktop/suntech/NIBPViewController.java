@@ -33,4 +33,12 @@ public final class NIBPViewController extends AbstractViewController<NIBPRequest
     executorService.shutdownNow();
     super.close();
   }
+
+  public void start() {
+    service().write(NIBPRequest.START_BP);
+  }
+
+  public void getBPData() {
+    service().write(NIBPRequest.GET_BP_DATA);
+  }
 }

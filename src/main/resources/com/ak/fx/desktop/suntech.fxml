@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.ak.fx.scene.Chart?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.Scene?>
 <Scene xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ak.fx.desktop.suntech.NIBPViewController">
     <BorderPane xmlns:fx="http://javafx.com/fxml/1" prefWidth="1024" prefHeight="768">
+        <top>
+            <FlowPane alignment="CENTER">
+                <Button text="Start" onAction="#start"/>
+                <Button text="Get Data" onAction="#getBPData"/>
+            </FlowPane>
+        </top>
         <center>
             <Chart fx:id="chart" style="-fx-border-color: white; -fx-border-width: 3px;"/>
         </center>
