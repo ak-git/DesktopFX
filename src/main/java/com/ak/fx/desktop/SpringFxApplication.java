@@ -1,9 +1,10 @@
 package com.ak.fx.desktop;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -62,15 +63,25 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Override
-  FXMLLoader getFXMLLoader(@Nonnull ResourceBundle resourceBundle) {
-    String profile = Arrays.stream(applicationContext.getEnvironment().getActiveProfiles()).findFirst().orElse("default");
-    FXMLLoader fxmlLoader = super.getFXMLLoader(resourceBundle);
-    URL fxml = getClass().getResource(String.join(".", profile, "fxml"));
-    if (fxml != null) {
-      fxmlLoader = new FXMLLoader(fxml, resourceBundle);
+  List<FXMLLoader> getFXMLLoader(@Nonnull ResourceBundle resourceBundle) {
+    String[] profiles = applicationContext.getEnvironment().getActiveProfiles();
+    if (profiles.length == 0) {
+      profiles = applicationContext.getEnvironment().getDefaultProfiles();
     }
-    fxmlLoader.setControllerFactory(applicationContext::getBean);
-    return fxmlLoader;
+    FXMLLoader defaultFxmlLoader = super.getFXMLLoader(resourceBundle).get(0);
+    List<FXMLLoader> fxmlLoaders = Arrays.stream(profiles)
+        .map(profile -> getClass().getResource(String.join(".", profile, "fxml")))
+        .map(fxml -> {
+          if (fxml == null) {
+            return defaultFxmlLoader;
+          }
+          else {
+            return new FXMLLoader(fxml, resourceBundle);
+          }
+        })
+        .collect(Collectors.toUnmodifiableList());
+    fxmlLoaders.forEach(fxmlLoader -> fxmlLoader.setControllerFactory(applicationContext::getBean));
+    return fxmlLoaders;
   }
 
   @Override

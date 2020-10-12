@@ -2,6 +2,8 @@ package com.ak.fx.desktop;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.annotation.Nonnull;
@@ -29,7 +31,7 @@ public class FxApplication extends Application {
   @OverridingMethodsMustInvokeSuper
   public void start(@Nonnull Stage stage) throws IOException {
     ResourceBundle resourceBundle = ResourceBundle.getBundle(String.join(".", getClass().getPackageName(), KEY_PROPERTIES));
-    stage.setScene(getFXMLLoader(resourceBundle).load());
+    stage.setScene(getFXMLLoader(resourceBundle).get(0).load());
     stage.setTitle(resourceBundle.getString(KEY_APPLICATION_TITLE));
     OSDockImage.valueOf(OS.get().name()).setIconImage(stage,
         getClass().getResource(resourceBundle.getString(KEY_APPLICATION_IMAGE))
@@ -50,8 +52,10 @@ public class FxApplication extends Application {
   }
 
   @OverridingMethodsMustInvokeSuper
-  FXMLLoader getFXMLLoader(@Nonnull ResourceBundle resourceBundle) {
-    return new FXMLLoader(getClass().getResource(String.join(".", "default", "fxml")), resourceBundle);
+  List<FXMLLoader> getFXMLLoader(@Nonnull ResourceBundle resourceBundle) {
+    return Collections.singletonList(
+        new FXMLLoader(getClass().getResource(String.join(".", "default", "fxml")), resourceBundle)
+    );
   }
 
   @Override
