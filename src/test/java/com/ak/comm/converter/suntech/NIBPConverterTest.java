@@ -1,6 +1,8 @@
 package com.ak.comm.converter.suntech;
 
 import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -8,6 +10,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.comm.bytes.suntech.NIBPResponse;
 import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.comm.log.LogTestUtils;
 import org.testng.Assert;
@@ -59,6 +62,17 @@ public class NIBPConverterTest {
         });
   }
 
+  @Test
+  public void testInvalidFrame() {
+    byte[] input = {
+        0x3E, // MODULE START BYTE = the ">" character (0x3E)
+        0x00, // INVALID
+        0x02, 0x01, // 258 mm Hg
+        (byte) 0xBA // 0x100 - modulo 256 (Start byte + Packet byte + Data bytes)
+    };
+    Assert.assertNull(new NIBPResponse.Builder(ByteBuffer.wrap(input)).build());
+  }
+
   @ParametersAreNonnullByDefault
   private static void testConverter(byte[] input, int[] expected) {
     NIBPResponse frame = new NIBPResponse.Builder(ByteBuffer.wrap(input)).build();
@@ -78,9 +92,16 @@ public class NIBPConverterTest {
       }
       for (NIBPVariable v : NIBPVariable.values()) {
         Assert.assertTrue(logRecord.getMessage().contains(Variables.toString(v)), logRecord.getMessage());
-        Assert.assertTrue(v.getUnit().getSystemUnit().equals(AbstractUnit.ONE) ||
-            v.getUnit().getSystemUnit().equals(AbstractUnit.ONE.divide(Units.SECOND)));
       }
     }), expected.length > 0);
+  }
+
+  @Test
+  public void testVariableProperties() {
+    EnumSet.complementOf(EnumSet.of(NIBPVariable.PRESSURE))
+        .forEach(variable -> Assert.assertEquals(variable.options(), Collections.singleton(Variable.Option.TEXT_VALUE_BANNER)));
+    EnumSet.complementOf(EnumSet.of(NIBPVariable.PULSE))
+        .forEach(variable -> Assert.assertEquals(variable.getUnit(), NIBPVariable.PRESSURE.getUnit()));
+    Assert.assertEquals(NIBPVariable.PULSE.getUnit(), AbstractUnit.ONE.divide(Units.MINUTE));
   }
 }
