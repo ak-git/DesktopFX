@@ -48,9 +48,7 @@ public final class NIBPViewController extends AbstractViewController<NIBPRequest
     isStartBPEnable = ints[NIBPVariable.PRESSURE.ordinal()] < 5;
   }
 
-  @Override
-  public void onKeyReleased(KeyEvent keyEvent) {
-    super.onKeyReleased(keyEvent);
+  public void onKey(KeyEvent keyEvent) {
     if (isMatchEvent(keyEvent, KeyCode.N) && isStartBPEnable) {
       service().write(NIBPRequest.START_BP);
     }

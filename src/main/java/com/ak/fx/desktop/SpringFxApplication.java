@@ -1,5 +1,6 @@
 package com.ak.fx.desktop;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -12,6 +13,7 @@ import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.DependentVariable;
 import com.ak.comm.converter.LinkedConverter;
+import com.ak.comm.converter.Refreshable;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.aper.Aper2OutVariable;
 import com.ak.comm.converter.aper.AperInVariable;
@@ -26,6 +28,8 @@ import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.logging.LocalFileHandler;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.input.KeyCode;
+import javafx.stage.Stage;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -48,6 +52,14 @@ public class SpringFxApplication extends FxApplication {
   public void init() {
     System.setProperty(LocalFileHandler.class.getName(), "FxDesktop");
     applicationContext = new SpringApplicationBuilder(SpringFxApplication.class).headless(false).run();
+  }
+
+  @Override
+  public void start(@Nonnull Stage stage) throws IOException {
+    super.start(stage);
+    addEventHandler(stage, () ->
+            applicationContext.getBeansOfType(Refreshable.class).values().forEach(Refreshable::refresh),
+        KeyCode.SHORTCUT, KeyCode.N);
   }
 
   @Override

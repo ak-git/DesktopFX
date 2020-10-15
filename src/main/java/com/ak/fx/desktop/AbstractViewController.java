@@ -34,12 +34,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.Dragboard;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
 import javafx.util.Duration;
-
-import static com.ak.fx.desktop.FxApplication.isMatchEvent;
 
 public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
     implements Initializable, Flow.Subscriber<int[]>, AutoCloseable, Refreshable {
@@ -156,13 +152,6 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @Override
   public final void refresh() {
     service.refresh();
-  }
-
-  @OverridingMethodsMustInvokeSuper
-  public void onKeyReleased(KeyEvent keyEvent) {
-    if (isMatchEvent(keyEvent, KeyCode.SHORTCUT, KeyCode.N)) {
-      refresh();
-    }
   }
 
   @Nonnull
