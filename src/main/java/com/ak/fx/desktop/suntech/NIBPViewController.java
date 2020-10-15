@@ -4,6 +4,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nonnull;
 import javax.inject.Named;
 
 import com.ak.comm.GroupService;
@@ -38,7 +39,11 @@ public final class NIBPViewController extends AbstractViewController<NIBPRequest
     service().write(NIBPRequest.START_BP);
   }
 
-  public void getBPData() {
-    service().write(NIBPRequest.GET_BP_DATA);
+  @Override
+  public void onNext(@Nonnull int[] ints) {
+    super.onNext(ints);
+    if (ints[NIBPVariable.IS_COMPLETED.ordinal()] == 1) {
+      service().write(NIBPRequest.GET_BP_DATA);
+    }
   }
 }

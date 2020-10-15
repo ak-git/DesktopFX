@@ -33,7 +33,7 @@ public class NIBPConverterTest {
             0x02, 0x01, // 258 mm Hg
             (byte) 0xBA // 0x100 - modulo 256 (Start byte + Packet byte + Data bytes)
         }, new int[] {
-            258, 0, 0, 0, 0
+            258, 0, 0, 0, 0, 0
         });
 
     testConverter(
@@ -58,7 +58,7 @@ public class NIBPConverterTest {
             0x00, // Spare byte (not used)
             (byte) 0xe9 // 0x100 - modulo 256 (Start byte + Packet byte + Data bytes)
         }, new int[] {
-            0, 115, 74, 85, 88
+            0, 115, 74, 85, 88, 0
         });
   }
 
@@ -98,10 +98,11 @@ public class NIBPConverterTest {
 
   @Test
   public void testVariableProperties() {
-    EnumSet.complementOf(EnumSet.of(NIBPVariable.PRESSURE))
+    EnumSet.complementOf(EnumSet.of(NIBPVariable.PRESSURE, NIBPVariable.IS_COMPLETED))
         .forEach(variable -> Assert.assertEquals(variable.options(), Collections.singleton(Variable.Option.TEXT_VALUE_BANNER)));
     EnumSet.complementOf(EnumSet.of(NIBPVariable.PULSE))
         .forEach(variable -> Assert.assertEquals(variable.getUnit(), NIBPVariable.PRESSURE.getUnit()));
     Assert.assertEquals(NIBPVariable.PULSE.getUnit(), AbstractUnit.ONE.divide(Units.MINUTE));
+    Assert.assertEquals(NIBPVariable.IS_COMPLETED.options(), Collections.emptySet());
   }
 }

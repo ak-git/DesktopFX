@@ -17,8 +17,10 @@ public final class NIBPConverter extends AbstractConverter<NIBPResponse, NIBPVar
 
   @Override
   protected Stream<int[]> innerApply(@Nonnull NIBPResponse response) {
+    out[NIBPVariable.IS_COMPLETED.ordinal()] = 0;
     response.extractPressure(value -> out[NIBPVariable.PRESSURE.ordinal()] = value);
     response.extractData(value -> System.arraycopy(value, 0, out, NIBPVariable.SYS.ordinal(), value.length));
+    response.extractIsCompleted(() -> out[NIBPVariable.IS_COMPLETED.ordinal()] = 1);
     return Stream.of(out);
   }
 }

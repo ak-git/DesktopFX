@@ -125,7 +125,8 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   }
 
   @Override
-  public final void onNext(@Nonnull int[] ints) {
+  @OverridingMethodsMustInvokeSuper
+  public void onNext(@Nonnull int[] ints) {
     FxUtils.invokeInFx(() -> Objects.requireNonNull(chart).setBannerText(
         service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.TEXT_VALUE_BANNER))
             .map(v -> Variables.toString(v, ints[v.ordinal()])).collect(Collectors.joining(Strings.NEW_LINE_2)))

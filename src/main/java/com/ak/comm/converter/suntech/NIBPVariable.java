@@ -44,6 +44,12 @@ public enum NIBPVariable implements Variable<NIBPVariable> {
     public Set<Option> options() {
       return Collections.singleton(Option.TEXT_VALUE_BANNER);
     }
+  },
+  IS_COMPLETED {
+    @Override
+    public Set<Option> options() {
+      return Collections.emptySet();
+    }
   };
 
   private static final Unit<Dimensionless> MM_HG = new TransformedUnit<>(AbstractUnit.ONE, IDENTITY);

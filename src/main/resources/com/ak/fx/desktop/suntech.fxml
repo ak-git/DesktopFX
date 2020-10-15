@@ -10,7 +10,6 @@
         <top>
             <FlowPane alignment="CENTER">
                 <Button text="Start" onAction="#start"/>
-                <Button text="Get Data" onAction="#getBPData"/>
             </FlowPane>
         </top>
         <center>

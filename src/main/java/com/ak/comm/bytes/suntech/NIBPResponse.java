@@ -25,6 +25,12 @@ public class NIBPResponse extends BufferFrame {
     }
   }
 
+  public void extractIsCompleted(@Nonnull Runnable ifExist) {
+    if (get(NIBPProtocolByte.LEN.ordinal()) == 4 && get(NIBPProtocolByte.DATA.ordinal()) == 0x4b) {
+      ifExist.run();
+    }
+  }
+
   public void extractData(@Nonnull Consumer<int[]> ifExist) {
     if (get(NIBPProtocolByte.LEN.ordinal()) == 0x18) {
       ifExist.accept(new int[] {
