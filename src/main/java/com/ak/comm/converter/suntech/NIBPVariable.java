@@ -15,7 +15,12 @@ import tec.uom.se.unit.Units;
 import static tec.uom.se.AbstractConverter.IDENTITY;
 
 public enum NIBPVariable implements Variable<NIBPVariable> {
-  PRESSURE,
+  PRESSURE {
+    @Override
+    public Set<Option> options() {
+      return Option.addToDefault(Option.TEXT_VALUE_BANNER);
+    }
+  },
   SYS {
     @Override
     public Set<Option> options() {

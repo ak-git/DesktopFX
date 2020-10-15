@@ -98,8 +98,8 @@ public class NIBPConverterTest {
 
   @Test
   public void testVariableProperties() {
-    EnumSet.complementOf(EnumSet.of(NIBPVariable.PRESSURE, NIBPVariable.IS_COMPLETED))
-        .forEach(variable -> Assert.assertEquals(variable.options(), Collections.singleton(Variable.Option.TEXT_VALUE_BANNER)));
+    EnumSet.complementOf(EnumSet.of(NIBPVariable.IS_COMPLETED))
+        .forEach(variable -> Assert.assertTrue(variable.options().contains(Variable.Option.TEXT_VALUE_BANNER)));
     EnumSet.complementOf(EnumSet.of(NIBPVariable.PULSE))
         .forEach(variable -> Assert.assertEquals(variable.getUnit(), NIBPVariable.PRESSURE.getUnit()));
     Assert.assertEquals(NIBPVariable.PULSE.getUnit(), AbstractUnit.ONE.divide(Units.MINUTE));

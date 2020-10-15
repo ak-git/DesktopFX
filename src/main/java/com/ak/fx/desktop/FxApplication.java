@@ -89,7 +89,7 @@ public class FxApplication extends Application {
   }
 
   @ParametersAreNonnullByDefault
-  private static boolean isMatchEvent(KeyEvent event, KeyCode... codes) {
+  public static boolean isMatchEvent(KeyEvent event, KeyCode... codes) {
     return KeyCombination.keyCombination(
         String.join("+", Arrays.stream(codes).map(KeyCode::getName).toArray(String[]::new))).match(event);
   }
