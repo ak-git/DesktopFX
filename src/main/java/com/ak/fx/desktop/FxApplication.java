@@ -32,8 +32,7 @@ public class FxApplication extends Application {
   private static final String KEY_APPLICATION_IMAGE = "application.image";
 
   @Override
-  @OverridingMethodsMustInvokeSuper
-  public void start(@Nonnull Stage mainStage) throws IOException {
+  public final void start(@Nonnull Stage mainStage) throws IOException {
     ResourceBundle resourceBundle = ResourceBundle.getBundle(String.join(".", getClass().getPackageName(), KEY_PROPERTIES));
     List<FXMLLoader> fxmlLoaders = getFXMLLoader(resourceBundle);
     OSDockImage.valueOf(OS.get().name()).setIconImage(mainStage,
@@ -61,6 +60,7 @@ public class FxApplication extends Application {
                 stage.setResizable(true);
               }),
           KeyCode.CONTROL, KeyCode.SHORTCUT, KeyCode.F);
+      addEventHandler(stage, this::refresh, KeyCode.SHORTCUT, KeyCode.N);
       stage.show();
       stageStorage.update(stage);
     }
@@ -79,18 +79,23 @@ public class FxApplication extends Application {
     Platform.exit();
   }
 
-  @ParametersAreNonnullByDefault
-  static void addEventHandler(Stage stage, Runnable runnable, KeyCode... codes) {
-    stage.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
-      if (isMatchEvent(event, codes)) {
-        runnable.run();
-      }
-    });
+  @OverridingMethodsMustInvokeSuper
+  public void refresh() {
+    // works in subclasses
   }
 
   @ParametersAreNonnullByDefault
   public static boolean isMatchEvent(KeyEvent event, KeyCode... codes) {
     return KeyCombination.keyCombination(
         String.join("+", Arrays.stream(codes).map(KeyCode::getName).toArray(String[]::new))).match(event);
+  }
+
+  @ParametersAreNonnullByDefault
+  private static void addEventHandler(Stage stage, Runnable runnable, KeyCode... codes) {
+    stage.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
+      if (isMatchEvent(event, codes)) {
+        runnable.run();
+      }
+    });
   }
 }
