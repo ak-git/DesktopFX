@@ -11,14 +11,11 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
-import com.ak.comm.converter.Variable;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
 
 public class AperTest {
   @DataProvider(name = "variables")
@@ -63,15 +60,6 @@ public class AperTest {
   }
 
   @Test
-  public void testVariableProperties() {
-    Assert.assertEquals(AperOutVariable.CCR.getUnit(), Units.OHM);
-    Assert.assertTrue(AperOutVariable.CCR.options().contains(Variable.Option.TEXT_VALUE_BANNER));
-
-    EnumSet.of(AperOutVariable.R1, AperOutVariable.R2).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MILLI(Units.OHM)));
-    EnumSet.of(AperOutVariable.R1, AperOutVariable.R2).forEach(variable -> Assert.assertTrue(variable.options().contains(Variable.Option.VISIBLE)));
-  }
-
-  @Test
   public void testInputVariablesClass() {
     EnumSet.allOf(AperOutVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), AperInVariable.class));
   }
@@ -81,7 +69,6 @@ public class AperTest {
     return new Object[][] {
         {AperOutVariable.R1, 157.5},
         {AperOutVariable.R2, 157.5},
-        {AperOutVariable.CCR, 157.5},
     };
   }
 

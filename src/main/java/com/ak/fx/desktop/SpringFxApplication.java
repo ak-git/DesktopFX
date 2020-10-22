@@ -106,6 +106,7 @@ public class SpringFxApplication extends FxApplication {
     return new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_460800, 25);
   }
 
+
   @Bean
   @Profile("aper")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
