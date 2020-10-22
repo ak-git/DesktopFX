@@ -6,10 +6,10 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Provider;
 
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
@@ -18,23 +18,23 @@ import com.ak.comm.core.Readable;
 import com.ak.comm.interceptor.BytesInterceptor;
 
 public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
-    extends AbstractService implements FileFilter, Readable, Flow.Publisher<int[]> {
+    extends AbstractService<int[]> implements FileFilter, Readable {
   private static final Readable EMPTY_READABLE = (dst, position) -> {
   };
 
   @Nonnull
   private final ExecutorService service = Executors.newSingleThreadExecutor();
   @Nonnull
-  private final Provider<BytesInterceptor<T, R>> interceptorProvider;
+  private final Supplier<BytesInterceptor<T, R>> interceptorProvider;
   @Nonnull
-  private final Provider<Converter<R, V>> converterProvider;
+  private final Supplier<Converter<R, V>> converterProvider;
   @Nullable
   private Flow.Subscriber<? super int[]> subscriber;
   @Nonnull
   private Readable readable = EMPTY_READABLE;
 
-  public AutoFileReadingService(@Nonnull Provider<BytesInterceptor<T, R>> interceptorProvider,
-                                @Nonnull Provider<Converter<R, V>> converterProvider) {
+  public AutoFileReadingService(@Nonnull Supplier<BytesInterceptor<T, R>> interceptorProvider,
+                                @Nonnull Supplier<Converter<R, V>> converterProvider) {
     this.interceptorProvider = interceptorProvider;
     this.converterProvider = converterProvider;
   }

@@ -1,5 +1,7 @@
 package com.ak.fx.scene;
 
+import java.util.EnumSet;
+import java.util.function.DoublePredicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,9 +52,33 @@ public final class AxisXController {
     }
   }
 
+  private enum ZoomXEvent implements DoublePredicate {
+    ZOOM_OUT {
+      @Override
+      public boolean test(double value) {
+        return value < 1.0;
+      }
+    }, ZOOM_IN {
+      @Override
+      public boolean test(double value) {
+        return value > 1.0;
+      }
+    }, ZOOM_STOP {
+      @Override
+      public boolean test(double value) {
+        return true;
+      }
+    };
+
+    static ZoomXEvent find(double zoom) {
+      return EnumSet.allOf(ZoomXEvent.class).stream().filter(zoomXEvent -> zoomXEvent.test(zoom)).findFirst().orElse(ZOOM_STOP);
+    }
+  }
+
   private final IntegerProperty startProperty = new SimpleIntegerProperty();
   private final IntegerProperty lengthProperty = new SimpleIntegerProperty();
   private final ObjectProperty<ZoomX> zoomProperty = new SimpleObjectProperty<>(ZoomX.Z_25);
+  private final ObjectProperty<ZoomXEvent> zoomEvent = new SimpleObjectProperty<>(ZoomXEvent.ZOOM_STOP);
   private final DoubleProperty stepProperty = new SimpleDoubleProperty();
   @Nonnegative
   private int decimateFactor = 1;
@@ -60,6 +86,14 @@ public final class AxisXController {
   public AxisXController(@Nonnull Runnable onUpdate) {
     startProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
     lengthProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
+    zoomEvent.addListener((observable, oldValue, newValue) -> {
+      if (oldValue == ZoomXEvent.ZOOM_IN) {
+        zoomProperty.setValue(zoomProperty.get().next());
+      }
+      else if (oldValue == ZoomXEvent.ZOOM_OUT) {
+        zoomProperty.setValue(zoomProperty.get().prev());
+      }
+    });
   }
 
   @Override
@@ -90,12 +124,7 @@ public final class AxisXController {
   }
 
   public void zoom(double zoomFactor) {
-    if (zoomFactor > 1) {
-      zoomProperty.setValue(zoomProperty.get().next());
-    }
-    else if (zoomFactor < 1) {
-      zoomProperty.setValue(zoomProperty.get().prev());
-    }
+    zoomEvent.setValue(ZoomXEvent.find(zoomFactor));
   }
 
   public void checkLength(@Nonnegative int realDataLen) {

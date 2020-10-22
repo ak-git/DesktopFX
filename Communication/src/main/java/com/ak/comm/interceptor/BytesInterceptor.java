@@ -16,7 +16,7 @@ public interface BytesInterceptor<T, R> extends Function<ByteBuffer, Stream<R>> 
   }
 
   enum BaudRate {
-    BR_38400(115200 / 3), BR_115200(115200), BR_460800(115200 * 4), BR_921600(115200 * 8);
+    BR_9600(115200 / 12), BR_38400(115200 / 3), BR_115200(115200), BR_460800(115200 * 4), BR_921600(115200 * 8);
 
     @Nonnegative
     private final int value;

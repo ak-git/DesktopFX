@@ -91,13 +91,12 @@ public class RcmConverterTest {
   public static Object[][] filterDelay() {
     return new Object[][] {
         {RHEO_1, 3.5},
-        {BASE_1, 341.0},
+        {BASE_1, 377.0},
         {QS_1, 3.5},
         {ECG, 3.5},
         {RHEO_2, 3.5},
-        {BASE_2, 341.0},
+        {BASE_2, 377.0},
         {QS_2, 3.5},
-
     };
   }
 

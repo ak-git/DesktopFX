@@ -11,5 +11,6 @@ public interface Readable extends AutoCloseable {
 
   @Override
   default void close() {
+    //Empty implementation to remove Exception inherited from AutoCloseable.
   }
 }

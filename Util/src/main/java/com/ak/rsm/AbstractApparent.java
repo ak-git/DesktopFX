@@ -8,6 +8,6 @@ abstract class AbstractApparent extends AbstractResistanceSumValue {
   }
 
   final double electrodesFactor() {
-    return 2.0 / (1.0 / Math.abs(radius(-1.0)) - 1.0 / radius(1.0));
+    return 2.0 / (1.0 / Math.abs(radius(-1)) - 1.0 / radius(1));
   }
 }

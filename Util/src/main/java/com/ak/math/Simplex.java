@@ -23,16 +23,15 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.util.Pair;
 
-public class Simplex {
+public enum Simplex {
+  ;
+
   private static final double STOP_FITNESS = 1.0e-10;
   private static final int MAX_ITERATIONS = 300000;
 
-  private Simplex() {
-  }
-
   public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
                                              @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
-    return IntStream.range(0, 8).mapToObj(value -> new CMAESOptimizer(MAX_ITERATIONS, STOP_FITNESS, true, 0,
+    return IntStream.range(0, 2).mapToObj(value -> new CMAESOptimizer(MAX_ITERATIONS, STOP_FITNESS, true, 0,
         10, new MersenneTwister(), false, null)
         .optimize(
             new MaxEval(MAX_ITERATIONS),
@@ -42,12 +41,11 @@ public class Simplex {
             bounds,
             new CMAESOptimizer.Sigma(initialSteps),
             new CMAESOptimizer.PopulationSize(2 * (4 + (int) (3.0 * StrictMath.log(initialGuess.length))))
-        )).min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
+        )).parallel().min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
 
   public static PointValuePair optimize(@Nonnull String logFormat, @Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
-                                        @Nonnull double[] initialGuess) {
-    double[] initialSteps = IntStream.range(0, bounds.getLower().length).mapToDouble(i -> (bounds.getUpper()[i] - bounds.getLower()[i]) / 10.0).toArray();
+                                        @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
     return optimize(new MultivariateFunction() {
       private LocalTime prev = LocalTime.now();
 

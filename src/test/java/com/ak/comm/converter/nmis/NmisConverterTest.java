@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import com.ak.comm.bytes.nmis.NmisAddress;
 import com.ak.comm.bytes.nmis.NmisResponseFrame;
 import com.ak.comm.bytes.nmis.NmisTestProvider;
@@ -22,15 +24,18 @@ public class NmisConverterTest {
   private static final int[] EMPTY_INTS = {};
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "aliveAndChannelsResponse")
+  @ParametersAreNonnullByDefault
   public void testAliveAndChannelsResponse(NmisAddress address, byte[] input) {
     testConverter(address, input, EMPTY_INTS);
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "dataResponse")
+  @ParametersAreNonnullByDefault
   public void testDataResponse(byte[] input, int[] expected) {
     testConverter(NmisAddress.DATA, input, expected);
   }
 
+  @ParametersAreNonnullByDefault
   private static void testConverter(NmisAddress address, byte[] input, int[] expected) {
     NmisResponseFrame frame = new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build();
     if (NmisAddress.ALIVE == address) {
