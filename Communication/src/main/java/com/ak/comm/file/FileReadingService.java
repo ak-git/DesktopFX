@@ -63,7 +63,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
 
         MessageDigest md = MessageDigest.getInstance("SHA-512");
         if (isChannelProcessed(seekableByteChannel, md::update)) {
-          String md5Code = digestToString(md.digest("2020.10.09".getBytes(Charset.defaultCharset())));
+          String md5Code = digestToString(md.digest("2020.10.23".getBytes(Charset.defaultCharset())));
           Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
           if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(convertedFile, StandardOpenOption.READ);
