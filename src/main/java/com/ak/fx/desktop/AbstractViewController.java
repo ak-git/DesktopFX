@@ -1,6 +1,5 @@
 package com.ak.fx.desktop;
 
-import java.io.File;
 import java.net.URL;
 import java.util.Map;
 import java.util.Objects;
@@ -33,7 +32,6 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.util.Duration;
 
@@ -57,8 +55,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   public final void initialize(@Nullable URL location, @Nullable ResourceBundle resources) {
     if (chart != null) {
       chart.setOnDragOver(event -> {
-        Dragboard db = event.getDragboard();
-        if (db.hasFiles()) {
+        if (event.getDragboard().hasFiles()) {
           event.acceptTransferModes(TransferMode.COPY);
         }
         else {
@@ -66,17 +63,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
         }
       });
       chart.setOnDragDropped(event -> {
-        Dragboard db = event.getDragboard();
-        boolean ok = false;
-        if (db.hasFiles()) {
-          for (File file : db.getFiles()) {
-            if (service.accept(file)) {
-              ok = true;
-              break;
-            }
-          }
-        }
-        event.setDropCompleted(ok);
+        event.setDropCompleted(event.getDragboard().getFiles().stream().anyMatch(service::accept));
         event.consume();
       });
       chart.setVariables(service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.VISIBLE))

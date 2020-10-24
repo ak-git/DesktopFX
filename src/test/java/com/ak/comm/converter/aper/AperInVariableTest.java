@@ -17,7 +17,7 @@ import tec.uom.se.AbstractUnit;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public class AperConverterTest {
+public class AperInVariableTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
