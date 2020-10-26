@@ -3,6 +3,7 @@ package com.ak.comm.converter.aper;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.measure.Unit;
 
@@ -80,6 +81,11 @@ public enum AperStage2UnitsVariable implements DependentVariable<AperStage1Varia
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.asFilterBuilder(AperCoefficients.ADC_TO_OHM).build();
+    }
+
+    @Override
+    public Set<Option> options() {
+      return Collections.singleton(Option.TEXT_VALUE_BANNER);
     }
   },
   CCR2 {

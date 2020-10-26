@@ -1,8 +1,5 @@
 package com.ak.comm.converter.aper;
 
-import java.util.Collections;
-import java.util.Set;
-
 import com.ak.comm.converter.DependentVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
@@ -16,12 +13,7 @@ public enum AperStage3Current2Variable implements DependentVariable<AperStage2Un
       return FilterBuilder.of().fir(CommonCoefficients.ECG).build();
     }
   },
-  CCR1 {
-    @Override
-    public Set<Option> options() {
-      return Collections.singleton(Option.TEXT_VALUE_BANNER);
-    }
-  },
+  CCR1,
   R2, ECG2, CCR2;
 
   @Override

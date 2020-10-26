@@ -14,7 +14,7 @@ public enum AperStage4Current2NIBPVariable implements DependentVariable<AperStag
   }
 
   @Override
-  public DigitalFilter filter() {
+  public final DigitalFilter filter() {
     return FilterBuilder.of()
         .decimate(AperRheoCoefficients.F_1000_32_187, 4)
         .decimate(AperRheoCoefficients.F_250_32_62, 2)
