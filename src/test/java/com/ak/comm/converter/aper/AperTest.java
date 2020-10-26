@@ -39,8 +39,8 @@ public class AperTest {
 
   @Test(dataProvider = "variables")
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
-    Converter<BufferFrame, AperOutVariable> converter = new LinkedConverter<>(
-        new ToIntegerConverter<>(AperInVariable.class, 1000), AperOutVariable.class);
+    Converter<BufferFrame, AperOutVariable> converter = LinkedConverter.of(
+        new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperOutVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 2000 - 1; i++) {
@@ -73,7 +73,7 @@ public class AperTest {
 
   @Test
   public void testInputVariablesClass() {
-    EnumSet.allOf(AperOutVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), AperInVariable.class));
+    EnumSet.allOf(AperOutVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), AperStage1Variable.class));
   }
 
   @DataProvider(name = "filter-delay")

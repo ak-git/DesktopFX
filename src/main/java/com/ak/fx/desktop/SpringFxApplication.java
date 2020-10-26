@@ -10,14 +10,13 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.DependentVariable;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.Refreshable;
 import com.ak.comm.converter.ToIntegerConverter;
-import com.ak.comm.converter.aper.Aper2OutVariable;
-import com.ak.comm.converter.aper.AperInVariable;
-import com.ak.comm.converter.aper.AperOutVariable;
-import com.ak.comm.converter.aper.calibration.AperCalibrationVariable;
+import com.ak.comm.converter.aper.AperStage1Variable;
+import com.ak.comm.converter.aper.AperStage2UnitsVariable;
+import com.ak.comm.converter.aper.AperStage3Current2Variable;
+import com.ak.comm.converter.aper.AperStage4Current2NIBPVariable;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
@@ -100,48 +99,32 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
-  @Profile({"aper", "aper-calibration", "aper2"})
+  @Profile({"aper2-nibp"})
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorAper() {
     return new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_460800, 25);
   }
 
   @Bean
-  @Profile("aper")
+  @Profile("aper2-nibp")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, AperOutVariable> converterAper() {
-    return converterAper(AperOutVariable.class);
+  static Converter<BufferFrame, AperStage4Current2NIBPVariable> converterAper() {
+    return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
+        .chainInstance(AperStage3Current2Variable.class).chainInstance(AperStage4Current2NIBPVariable.class);
   }
 
-  @Bean
-  @Profile("aper-calibration")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, AperCalibrationVariable> converterAperCalibration() {
-    return converterAper(AperCalibrationVariable.class);
-  }
-
-  @Bean
-  @Profile("aper2")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, Aper2OutVariable> converterAper2() {
-    return new LinkedConverter<>(converterAper(), Aper2OutVariable.class);
-  }
-
-  private static <O extends Enum<O> & DependentVariable<AperInVariable, O>> Converter<BufferFrame, O> converterAper(Class<O> aClass) {
-    return new LinkedConverter<>(new ToIntegerConverter<>(AperInVariable.class, 1000), aClass);
-  }
 
   @Bean
   @Profile("rcm")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, RcmOutVariable> converterRcm() {
-    return new LinkedConverter<>(new RcmConverter(), RcmOutVariable.class);
+    return LinkedConverter.of(new RcmConverter(), RcmOutVariable.class);
   }
 
   @Bean
   @Profile("rcm-calibration")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, RcmCalibrationVariable> converterRcmCalibration() {
-    return new LinkedConverter<>(new RcmConverter(), RcmCalibrationVariable.class);
+    return LinkedConverter.of(new RcmConverter(), RcmCalibrationVariable.class);
   }
 }

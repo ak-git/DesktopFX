@@ -17,11 +17,11 @@ import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public enum AperOutVariable implements DependentVariable<AperInVariable, AperOutVariable> {
+public enum AperOutVariable implements DependentVariable<AperStage1Variable, AperOutVariable> {
   R1 {
     @Override
-    public List<AperInVariable> getInputVariables() {
-      return Arrays.asList(AperInVariable.CCU1, AperInVariable.R1);
+    public List<AperStage1Variable> getInputVariables() {
+      return Arrays.asList(AperStage1Variable.CCU1, AperStage1Variable.R1);
     }
 
     @Override
@@ -36,8 +36,8 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
   },
   R2 {
     @Override
-    public List<AperInVariable> getInputVariables() {
-      return Arrays.asList(AperInVariable.CCU1, AperInVariable.R2);
+    public List<AperStage1Variable> getInputVariables() {
+      return Arrays.asList(AperStage1Variable.CCU1, AperStage1Variable.R2);
     }
 
     @Override
@@ -47,8 +47,8 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
   },
   CCR {
     @Override
-    public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(AperInVariable.CCU1);
+    public List<AperStage1Variable> getInputVariables() {
+      return Collections.singletonList(AperStage1Variable.CCU1);
     }
 
     @Override
@@ -68,8 +68,8 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
   },
   R1_AVG {
     @Override
-    public List<AperInVariable> getInputVariables() {
-      return Arrays.asList(AperInVariable.CCU1, AperInVariable.R1);
+    public List<AperStage1Variable> getInputVariables() {
+      return Arrays.asList(AperStage1Variable.CCU1, AperStage1Variable.R1);
     }
 
     @Override
@@ -89,8 +89,8 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
   },
   R2_AVG {
     @Override
-    public List<AperInVariable> getInputVariables() {
-      return Arrays.asList(AperInVariable.CCU1, AperInVariable.R2);
+    public List<AperStage1Variable> getInputVariables() {
+      return Arrays.asList(AperStage1Variable.CCU1, AperStage1Variable.R2);
     }
 
     @Override
@@ -110,8 +110,8 @@ public enum AperOutVariable implements DependentVariable<AperInVariable, AperOut
   };
 
   @Override
-  public final Class<AperInVariable> getInputVariablesClass() {
-    return AperInVariable.class;
+  public final Class<AperStage1Variable> getInputVariablesClass() {
+    return AperStage1Variable.class;
   }
 
   /**
