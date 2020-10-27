@@ -37,7 +37,6 @@ module com.ak.fx.desktop {
 
   exports com.ak.comm.interceptor.suntech to org.testng;
   exports com.ak.comm.converter.aper to javafx.graphics, org.testng;
-  exports com.ak.comm.converter.aper.calibration to org.testng;
   exports com.ak.comm.converter.rcm to javafx.graphics, org.testng;
   exports com.ak.comm.converter.nmis to spring.beans;
   exports com.ak.comm.converter.suntech to org.testng;

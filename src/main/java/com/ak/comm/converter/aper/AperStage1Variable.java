@@ -8,7 +8,7 @@ import com.ak.digitalfilter.FilterBuilder;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public enum AperInVariable implements Variable<AperInVariable> {
+public enum AperStage1Variable implements Variable<AperStage1Variable> {
   R1,
   E1 {
     @Override

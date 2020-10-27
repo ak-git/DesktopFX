@@ -34,7 +34,7 @@ public class RcmCalibrationConverterTest {
 
   @Test(dataProvider = "calibrable-variables")
   public void testApplyCalibrator(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
-    Converter<BufferFrame, RcmCalibrationVariable> converter = new LinkedConverter<>(new RcmConverter(), RcmCalibrationVariable.class);
+    Converter<BufferFrame, RcmCalibrationVariable> converter = LinkedConverter.of(new RcmConverter(), RcmCalibrationVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 800 - 1; i++) {
