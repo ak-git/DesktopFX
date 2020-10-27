@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="SunTech-NIBP" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+  <configuration default="false" name="SunTechNIBP-Aper2" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <module name="DesktopFX.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.ak.fx.desktop.SpringFxApplication" />
     <option name="ENABLE_LAUNCH_OPTIMIZATION" value="false" />
