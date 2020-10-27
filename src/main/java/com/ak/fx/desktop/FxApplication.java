@@ -60,7 +60,7 @@ public class FxApplication extends Application {
                 stage.setResizable(true);
               }),
           KeyCode.CONTROL, KeyCode.SHORTCUT, KeyCode.F);
-      addEventHandler(stage, this::refresh, KeyCode.F1);
+      addEventHandler(stage, this::refresh, KeyCode.F12);
       stage.show();
       stageStorage.update(stage);
     }
