@@ -12,7 +12,7 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import org.springframework.context.annotation.Profile;
 
 @Named
-@Profile({"default", "rcm", "rcm-calibration", "nmis", "aper2-nibp"})
+@Profile({"default", "rcm", "rcm-calibration", "nmis", "aper2-nibp", "aper1"})
 public final class ViewController<T, R, V extends Enum<V> & Variable<V>> extends AbstractViewController<T, R, V> {
   @Inject
   public ViewController(@Nonnull Provider<BytesInterceptor<T, R>> interceptorProvider,
