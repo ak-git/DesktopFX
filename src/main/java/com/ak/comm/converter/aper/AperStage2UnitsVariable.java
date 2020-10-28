@@ -13,6 +13,7 @@ import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.aper.AperCoefficients;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
+import com.ak.numbers.common.CommonCoefficients;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
@@ -59,6 +60,11 @@ public enum AperStage2UnitsVariable implements DependentVariable<AperStage1Varia
     @Override
     public List<AperStage1Variable> getInputVariables() {
       return Collections.singletonList(AperStage1Variable.E1);
+    }
+
+    @Override
+    public DigitalFilter filter() {
+      return FilterBuilder.of().fir(CommonCoefficients.ECG).build();
     }
   },
   ECG2 {

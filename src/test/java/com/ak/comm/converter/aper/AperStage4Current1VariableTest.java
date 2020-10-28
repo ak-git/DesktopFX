@@ -35,7 +35,7 @@ public class AperStage4Current1VariableTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55678, 301742, 111356, 492128, 1296}},
+            new int[] {55678, -527215, 301742, -527214, 1296}},
     };
   }
 
@@ -43,7 +43,7 @@ public class AperStage4Current1VariableTest {
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
     Converter<BufferFrame, AperStage4Current1Variable> converter = LinkedConverter
         .of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
-        .chainInstance(AperStage3Current1Variable.class)
+        .chainInstance(AperStage3Variable.class)
         .chainInstance(AperStage4Current1Variable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
@@ -65,9 +65,8 @@ public class AperStage4Current1VariableTest {
 
   @Test
   public void testGetInputVariables() {
-    int[] actual = EnumSet.allOf(AperStage4Current1Variable.class).stream().mapToInt(value -> value.getInputVariables().size()).toArray();
-    int[] expected = {1, 1, 1, 2, 1};
-    Assert.assertEquals(actual, expected, Arrays.toString(actual));
+    Assert.assertTrue(EnumSet.allOf(AperStage4Current1Variable.class).stream().mapToInt(value -> value.getInputVariables().size())
+        .allMatch(value -> value == 1));
   }
 
   @Test
@@ -76,7 +75,8 @@ public class AperStage4Current1VariableTest {
         .map(DependentVariable::getUnit).collect(Collectors.toList());
     Assert.assertEquals(actual,
         Arrays.asList(
-            MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM),
+            MetricPrefix.MILLI(Units.OHM), MetricPrefix.MICRO(Units.VOLT),
+            MetricPrefix.MILLI(Units.OHM), MetricPrefix.MICRO(Units.VOLT),
             Units.OHM
         ),
         actual.toString()
@@ -89,7 +89,8 @@ public class AperStage4Current1VariableTest {
         .flatMap(v -> v.options().stream()).collect(Collectors.toList());
     Assert.assertEquals(actual,
         Arrays.asList(
-            Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE,
+            Variable.Option.VISIBLE, Variable.Option.VISIBLE,
+            Variable.Option.VISIBLE, Variable.Option.VISIBLE,
             Variable.Option.TEXT_VALUE_BANNER
         ),
         actual.toString()
@@ -106,6 +107,6 @@ public class AperStage4Current1VariableTest {
   @Test
   public void testInputVariablesClass() {
     Assert.assertTrue(EnumSet.allOf(AperStage4Current1Variable.class).stream().map(AperStage4Current1Variable::getInputVariablesClass)
-        .allMatch(AperStage3Current1Variable.class::equals));
+        .allMatch(AperStage3Variable.class::equals));
   }
 }

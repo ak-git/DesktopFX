@@ -1,42 +1,35 @@
 package com.ak.comm.converter.aper;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import com.ak.comm.converter.DependentVariable;
-import com.ak.digitalfilter.DigitalFilter;
-import com.ak.digitalfilter.FilterBuilder;
 
-public enum AperStage4Current1Variable implements DependentVariable<AperStage3Current1Variable, AperStage4Current1Variable> {
+public enum AperStage4Current1Variable implements DependentVariable<AperStage3Variable, AperStage4Current1Variable> {
   R1,
-  R2,
-  R3 {
+  ECG1,
+  R2 {
     @Override
-    public List<AperStage3Current1Variable> getInputVariables() {
-      return Collections.singletonList(AperStage3Current1Variable.R1);
+    public List<AperStage3Variable> getInputVariables() {
+      return Collections.singletonList(AperStage3Variable.R3);
+    }
+  },
+  ECG2,
+  CCR {
+    @Override
+    public List<AperStage3Variable> getInputVariables() {
+      return Collections.singletonList(AperStage3Variable.CCR1);
     }
 
     @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.of().operator(() -> x -> x * 2).build();
+    public Set<Option> options() {
+      return Collections.singleton(Option.TEXT_VALUE_BANNER);
     }
-  },
-  R4 {
-    @Override
-    public List<AperStage3Current1Variable> getInputVariables() {
-      return Arrays.asList(AperStage3Current1Variable.R2, AperStage3Current1Variable.R1);
-    }
-
-    @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.of().biOperator(() -> (r2, r1) -> (r2 - r1) * 2).build();
-    }
-  },
-  CCR;
+  };
 
   @Override
-  public final Class<AperStage3Current1Variable> getInputVariablesClass() {
-    return AperStage3Current1Variable.class;
+  public final Class<AperStage3Variable> getInputVariablesClass() {
+    return AperStage3Variable.class;
   }
 }

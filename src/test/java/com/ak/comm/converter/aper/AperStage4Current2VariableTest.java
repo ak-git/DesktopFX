@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public class AperStage3Current2VariableTest {
+public class AperStage4Current2VariableTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -35,18 +35,19 @@ public class AperStage3Current2VariableTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55615, -526617, 1296, 301400, -526616, 1726}},
+            new int[] {55678, -527215, 1296, 301742, -527214, 1728}},
     };
   }
 
   @Test(dataProvider = "variables")
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
-    Converter<BufferFrame, AperStage3Current2Variable> converter = LinkedConverter
+    Converter<BufferFrame, AperStage4Current2Variable> converter = LinkedConverter
         .of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
-        .chainInstance(AperStage3Current2Variable.class);
+        .chainInstance(AperStage3Variable.class)
+        .chainInstance(AperStage4Current2Variable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 62 - 1; i++) {
+    for (int i = 0; i < 400 - 1; i++) {
       long count = converter.apply(bufferFrame).peek(ints -> {
         if (!processed.get()) {
           Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
@@ -54,7 +55,7 @@ public class AperStage3Current2VariableTest {
         }
       }).count();
       if (processed.get()) {
-        Assert.assertEquals(count, 1);
+        Assert.assertEquals(count, 5);
         break;
       }
     }
@@ -64,14 +65,13 @@ public class AperStage3Current2VariableTest {
 
   @Test
   public void testGetInputVariables() {
-    int[] actual = EnumSet.allOf(AperStage3Current2Variable.class).stream().mapToInt(value -> value.getInputVariables().size()).toArray();
-    int[] expected = {1, 1, 1, 1, 1, 1};
-    Assert.assertEquals(actual, expected, Arrays.toString(actual));
+    Assert.assertTrue(EnumSet.allOf(AperStage4Current2Variable.class).stream().mapToInt(value -> value.getInputVariables().size())
+        .allMatch(value -> value == 1));
   }
 
   @Test
   public void testGetUnit() {
-    List<? extends Unit<?>> actual = EnumSet.allOf(AperStage3Current2Variable.class).stream()
+    List<? extends Unit<?>> actual = EnumSet.allOf(AperStage4Current2Variable.class).stream()
         .map(DependentVariable::getUnit).collect(Collectors.toList());
     Assert.assertEquals(actual,
         Arrays.asList(
@@ -84,7 +84,7 @@ public class AperStage3Current2VariableTest {
 
   @Test
   public void testOptions() {
-    List<Variable.Option> actual = EnumSet.allOf(AperStage3Current2Variable.class).stream()
+    List<Variable.Option> actual = EnumSet.allOf(AperStage4Current2Variable.class).stream()
         .flatMap(v -> v.options().stream()).collect(Collectors.toList());
     Assert.assertEquals(actual,
         Arrays.asList(
@@ -97,14 +97,14 @@ public class AperStage3Current2VariableTest {
 
   @Test
   public void testFilterDelay() {
-    double[] actual = EnumSet.allOf(AperStage3Current2Variable.class).stream().mapToDouble(value -> value.filter().getDelay()).toArray();
-    double[] expected = {0.0, 30.0, 0.0, 0.0, 30.0, 0.0};
-    Assert.assertEquals(actual, expected, Arrays.toString(actual));
+    Assert.assertTrue(EnumSet.allOf(AperStage4Current2Variable.class).stream().mapToDouble(value -> value.filter().getDelay())
+        .allMatch(value -> Double.compare(value, 0.0) == 0)
+    );
   }
 
   @Test
   public void testInputVariablesClass() {
-    Assert.assertTrue(EnumSet.allOf(AperStage3Current2Variable.class).stream().map(AperStage3Current2Variable::getInputVariablesClass)
-        .allMatch(AperStage2UnitsVariable.class::equals));
+    Assert.assertTrue(EnumSet.allOf(AperStage4Current2Variable.class).stream().map(AperStage4Current2Variable::getInputVariablesClass)
+        .allMatch(AperStage3Variable.class::equals));
   }
 }

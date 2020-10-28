@@ -5,12 +5,12 @@ import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.aper.AperRheoCoefficients;
 
-public enum AperStage4Current2NIBPVariable implements DependentVariable<AperStage3Current2Variable, AperStage4Current2NIBPVariable> {
+public enum AperStage3Current2NIBPVariable implements DependentVariable<AperStage2UnitsVariable, AperStage3Current2NIBPVariable> {
   R1, ECG1, R2, ECG2, CCR1, CCR2;
 
   @Override
-  public final Class<AperStage3Current2Variable> getInputVariablesClass() {
-    return AperStage3Current2Variable.class;
+  public final Class<AperStage2UnitsVariable> getInputVariablesClass() {
+    return AperStage2UnitsVariable.class;
   }
 
   @Override
