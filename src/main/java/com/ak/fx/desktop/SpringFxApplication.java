@@ -101,7 +101,7 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
-  @Profile({"aper2-nibp", "aper1"})
+  @Profile({"aper2-nibp", "aper1", "aper2"})
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorAper() {
     return new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_460800, 25);
@@ -121,6 +121,14 @@ public class SpringFxApplication extends FxApplication {
   static Converter<BufferFrame, AperStage4Current1Variable> converterAper1() {
     return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
         .chainInstance(AperStage3Current1Variable.class).chainInstance(AperStage4Current1Variable.class);
+  }
+
+  @Bean
+  @Profile("aper2")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<BufferFrame, AperStage3Current2Variable> converterAper2() {
+    return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
+        .chainInstance(AperStage3Current2Variable.class);
   }
 
   @Bean
