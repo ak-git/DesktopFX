@@ -53,7 +53,7 @@ public final class NIBPViewController extends AbstractViewController<NIBPRequest
   }
 
   public void onKey(KeyEvent keyEvent) {
-    if (isMatchEvent(keyEvent, KeyCode.F11) && isStartBPEnable) {
+    if (isMatchEvent(keyEvent, KeyCode.N) && isStartBPEnable) {
       service().write(NIBPRequest.START_BP);
     }
   }
