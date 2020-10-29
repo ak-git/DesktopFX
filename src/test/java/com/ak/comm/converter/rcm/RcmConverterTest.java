@@ -44,7 +44,7 @@ public class RcmConverterTest {
 
   @Test(dataProvider = "variables")
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
-    Converter<BufferFrame, RcmOutVariable> converter = new LinkedConverter<>(new RcmConverter(), RcmOutVariable.class);
+    Converter<BufferFrame, RcmOutVariable> converter = LinkedConverter.of(new RcmConverter(), RcmOutVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 2000 - 1; i++) {

@@ -5,14 +5,16 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
+import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 
 import com.ak.comm.GroupService;
 import com.ak.comm.bytes.suntech.NIBPRequest;
 import com.ak.comm.bytes.suntech.NIBPResponse;
-import com.ak.comm.converter.suntech.NIBPConverter;
+import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.suntech.NIBPVariable;
-import com.ak.comm.interceptor.suntech.NIBPBytesInterceptor;
+import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.fx.desktop.AbstractViewController;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -28,8 +30,10 @@ public final class NIBPViewController extends AbstractViewController<NIBPRequest
   private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
   private volatile boolean isStartBPEnable;
 
-  public NIBPViewController() {
-    super(new GroupService<>(NIBPBytesInterceptor::new, NIBPConverter::new));
+  @Inject
+  public NIBPViewController(@Nonnull Provider<BytesInterceptor<NIBPRequest, NIBPResponse>> interceptorProvider,
+                            @Nonnull Provider<Converter<NIBPResponse, NIBPVariable>> converterProvider) {
+    super(new GroupService<>(interceptorProvider::get, converterProvider::get));
     executorService.scheduleAtFixedRate(() -> service().write(GET_CUFF_PRESSURE), 0, 1000 / FREQUENCY, TimeUnit.MILLISECONDS);
   }
 

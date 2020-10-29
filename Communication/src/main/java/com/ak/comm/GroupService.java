@@ -62,8 +62,11 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
 
   @Override
   public void refresh() {
-    serialService.refresh();
-    currentReadable = serialService;
+    currentReadable.refresh();
+    if (!Objects.equals(currentReadable, serialService)) {
+      serialService.refresh();
+      currentReadable = serialService;
+    }
   }
 
   public void write(@Nullable T request) {

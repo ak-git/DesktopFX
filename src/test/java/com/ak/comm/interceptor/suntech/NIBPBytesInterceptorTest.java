@@ -24,6 +24,7 @@ public class NIBPBytesInterceptorTest {
   public void test() {
     testResponse(new byte[] {0x3E, 0x05, 0x02, 0x01, (byte) 0xBA}, new int[] {258}, true);
     testResponse(new byte[] {0x3E, 0x05, 0x02, 0x01, (byte) 0xB1}, EMPTY, false);
+    testResponse(new byte[] {0x3E, 0x04, 0x4B, 0x73}, EMPTY, true);
     testResponse(
         // The Module will reply with a data packet containing 21 data bytes,
         // consisting of systolic, diastolic, heart rate, and other parameter data.
@@ -56,6 +57,8 @@ public class NIBPBytesInterceptorTest {
       if (!frames.isEmpty()) {
         frames.get(0).extractPressure(value -> Assert.assertEquals(new int[] {value}, expected));
         frames.get(0).extractData(value -> Assert.assertEquals(value, expected));
+        frames.get(0).extractIsCompleted(() -> {
+        });
       }
     }, logRecord -> Assert.assertNotNull(logRecord.getMessage().replaceAll(".*" + NIBPResponse.class.getSimpleName(), Strings.EMPTY))), logFlag);
   }

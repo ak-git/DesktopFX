@@ -147,6 +147,11 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
+  public void refresh() {
+    LogBuilders.CONVERTER_FILE.clean();
+  }
+
+  @Override
   public AsynchronousFileChannel call() throws Exception {
     return convertedFileChannelProvider.call();
   }
