@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.BufferFrame;
+import com.ak.comm.bytes.suntech.NIBPRequest;
+import com.ak.comm.bytes.suntech.NIBPResponse;
 import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
@@ -23,9 +25,12 @@ import com.ak.comm.converter.aper.AperStage5Current1Variable;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
+import com.ak.comm.converter.suntech.NIBPConverter;
+import com.ak.comm.converter.suntech.NIBPVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.FixedFrameBytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
+import com.ak.comm.interceptor.suntech.NIBPBytesInterceptor;
 import com.ak.logging.LocalFileHandler;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -35,6 +40,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 
@@ -104,6 +110,7 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile({"aper2-nibp", "aper1", "aper2", "aper4"})
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  @Primary
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorAper() {
     return new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_460800, 25);
   }
@@ -111,9 +118,24 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("aper2-nibp")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  @Primary
   static Converter<BufferFrame, AperStage3Current2NIBPVariable> converterAper2NIBP() {
     return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
         .chainInstance(AperStage3Current2NIBPVariable.class);
+  }
+
+  @Bean
+  @Profile("suntech")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static BytesInterceptor<NIBPRequest, NIBPResponse> bytesInterceptorNIBP() {
+    return new NIBPBytesInterceptor();
+  }
+
+  @Bean
+  @Profile("suntech")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<NIBPResponse, NIBPVariable> converterNIBP() {
+    return new NIBPConverter();
   }
 
   @Bean
