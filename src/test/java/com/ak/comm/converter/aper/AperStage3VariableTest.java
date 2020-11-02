@@ -35,7 +35,7 @@ public class AperStage3VariableTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55678, 301742, 301742, -527215, -527214, 1296, 1728}},
+            new int[] {55678, 301742, 301742, -527215, -527214, 1044, 1044, 1296, 1728}},
     };
   }
 
@@ -76,6 +76,7 @@ public class AperStage3VariableTest {
         Arrays.asList(
             MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM),
             MetricPrefix.MICRO(Units.VOLT), MetricPrefix.MICRO(Units.VOLT),
+            MetricPrefix.MICRO(Units.VOLT), MetricPrefix.MICRO(Units.VOLT),
             Units.OHM, Units.OHM
         ),
         actual.toString()
@@ -88,7 +89,9 @@ public class AperStage3VariableTest {
         .flatMap(v -> v.options().stream()).collect(Collectors.toList());
     Assert.assertEquals(actual,
         Arrays.asList(
-            Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE,
+            Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE,
+            Variable.Option.VISIBLE, Variable.Option.VISIBLE,
+            Variable.Option.VISIBLE, Variable.Option.VISIBLE,
             Variable.Option.TEXT_VALUE_BANNER, Variable.Option.TEXT_VALUE_BANNER
         ),
         actual.toString()

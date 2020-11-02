@@ -73,6 +73,23 @@ public enum AperStage2UnitsVariable implements DependentVariable<AperStage1Varia
       return Collections.singletonList(AperStage1Variable.E2);
     }
   },
+  MYO1 {
+    @Override
+    public List<AperStage1Variable> getInputVariables() {
+      return Collections.singletonList(AperStage1Variable.E1);
+    }
+
+    @Override
+    public DigitalFilter filter() {
+      return FilterBuilder.of().fir(CommonCoefficients.MYO).build();
+    }
+  },
+  MYO2 {
+    @Override
+    public List<AperStage1Variable> getInputVariables() {
+      return Collections.singletonList(AperStage1Variable.E2);
+    }
+  },
   CCR1 {
     @Override
     public List<AperStage1Variable> getInputVariables() {

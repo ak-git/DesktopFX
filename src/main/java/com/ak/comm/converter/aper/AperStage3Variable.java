@@ -6,7 +6,7 @@ import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.aper.AperRheoCoefficients;
 
 public enum AperStage3Variable implements DependentVariable<AperStage2UnitsVariable, AperStage3Variable> {
-  R1, R2, R3, ECG1, ECG2, CCR1, CCR2;
+  R1, R2, R3, ECG1, ECG2, MYO1, MYO2, CCR1, CCR2;
 
   @Override
   public final Class<AperStage2UnitsVariable> getInputVariablesClass() {

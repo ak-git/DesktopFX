@@ -8,14 +8,14 @@ import com.ak.comm.converter.DependentVariable;
 
 public enum AperStage4Current1Variable implements DependentVariable<AperStage3Variable, AperStage4Current1Variable> {
   R1,
-  ECG1,
+  MYO1,
   R2 {
     @Override
     public List<AperStage3Variable> getInputVariables() {
       return Collections.singletonList(AperStage3Variable.R3);
     }
   },
-  ECG2,
+  MYO2,
   CCR {
     @Override
     public List<AperStage3Variable> getInputVariables() {
