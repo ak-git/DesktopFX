@@ -94,17 +94,17 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
-  @Profile("default")
+  @Profile("loopback")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptor() {
-    return new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_460800, 224);
+    return new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_460800, 1 + Integer.BYTES);
   }
 
   @Bean
-  @Profile("default")
+  @Profile("loopback")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, ADCVariable> converter() {
-    return new ToIntegerConverter<>(ADCVariable.class, 1000);
+    return new ToIntegerConverter<>(ADCVariable.class, 5);
   }
 
   @Bean
