@@ -22,13 +22,13 @@ public class SerialServiceTest implements Flow.Subscriber<ByteBuffer> {
       Assert.assertEquals(serialService.write(ByteBuffer.allocate(0)), 0);
       return serialService;
     }).collect(Collectors.toList());
+    services.forEach(SerialService::close);
 
     SerialService singleService = new SerialService(115200, EnumSet.of(BytesInterceptor.SerialParams.CLEAR_DTR));
     singleService.subscribe(this);
     singleService.close();
-    Assert.assertTrue(singleService.toString().contains("serialPort"));
+    Assert.assertTrue(singleService.toString().contains(String.format("%x", singleService.hashCode())), singleService.toString());
     Assert.assertFalse(singleService.isOpen());
-    services.forEach(SerialService::close);
   }
 
   @Override
