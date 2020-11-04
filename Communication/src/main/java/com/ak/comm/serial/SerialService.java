@@ -114,7 +114,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
         if (serialParams.contains(BytesInterceptor.SerialParams.CLEAR_DTR)) {
           serialPort.setDTR(false);
         }
-        LOGGER.log(LOG_LEVEL_ERRORS, () -> String.format("#%x Open port [ %s ], baudRate = %d bps", hashCode(), serialPort.getPortName(), baudRate));
+        LOGGER.log(Level.INFO, () -> String.format("%s Open port, baudRate = %d bps", this, baudRate));
         s.onSubscribe(this);
         serialPort.addEventListener(event -> {
           try {
@@ -159,7 +159,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
     try {
       synchronized (serialPort) {
         if (isOpen()) {
-          LOGGER.log(LOG_LEVEL_ERRORS, () -> String.format("Close connection %s", serialPort.getPortName()));
+          LOGGER.log(Level.INFO, () -> String.format("%s Close connection", this));
           serialPort.closePort();
         }
       }
@@ -172,13 +172,13 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
 
   @Override
   public void refresh() {
-    LOGGER.log(Level.INFO, () -> String.format("#%x Refresh connection [ %s ]", hashCode(), serialPort.getPortName()));
+    LOGGER.log(Level.INFO, () -> String.format("%s Refresh connection", this));
     refresh = true;
   }
 
   @Override
   public String toString() {
-    return String.format("%s@%x{serialPort = %s}", getClass().getSimpleName(), hashCode(), serialPort.getPortName());
+    return String.format("%x %s", hashCode(), serialPort.getPortName());
   }
 
   private void logErrorAndComplete(Flow.Subscriber<?> s, @Nonnull Exception ex) {
