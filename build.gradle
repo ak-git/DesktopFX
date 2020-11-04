@@ -36,7 +36,7 @@ ext {
     javax_json = 'org.glassfish:javax.json:1.1.4'
     commons_math3 = 'org.apache.commons:commons-math3:3.6.1'
     jssc = 'org.scream3r:jssc:2.8.0'
-    javaVersion = JavaVersion.VERSION_14
+    javaVersion = JavaVersion.VERSION_15
 }
 
 wrapper {
@@ -105,7 +105,7 @@ dependencies {
 }
 
 javafx {
-    version = '14'
+    version = '15'
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
