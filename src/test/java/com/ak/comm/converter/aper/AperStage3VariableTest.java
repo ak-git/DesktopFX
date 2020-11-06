@@ -35,7 +35,7 @@ public class AperStage3VariableTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55678, 301742, 301742, -527215, -527214, 1044, 1044, 1296, 1728}},
+            new int[] {55678, 301742, 301742, -527215, -527214, -512, -512, 1296, 1728}},
     };
   }
 
@@ -46,7 +46,7 @@ public class AperStage3VariableTest {
         .chainInstance(AperStage3Variable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 400 - 1; i++) {
+    for (int i = 0; i < 500 - 1; i++) {
       long count = converter.apply(bufferFrame).peek(ints -> {
         if (!processed.get()) {
           Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
@@ -54,7 +54,7 @@ public class AperStage3VariableTest {
         }
       }).count();
       if (processed.get()) {
-        Assert.assertEquals(count, 5);
+        Assert.assertEquals(count, 4);
         break;
       }
     }
@@ -100,9 +100,9 @@ public class AperStage3VariableTest {
 
   @Test
   public void testFilterDelay() {
-    Assert.assertTrue(EnumSet.allOf(AperStage3Variable.class).stream().mapToDouble(value -> value.filter().getDelay())
-        .allMatch(value -> Double.compare(value, 157.5) == 0)
-    );
+    double[] actual = EnumSet.allOf(AperStage3Variable.class).stream().mapToDouble(value -> value.filter().getDelay()).toArray();
+    double[] expected = {157.5, 157.5, 157.5, 157.5, 157.5, 0.0, 0.0, 157.5, 157.5};
+    Assert.assertEquals(actual, expected, Arrays.toString(actual));
   }
 
   @Test
