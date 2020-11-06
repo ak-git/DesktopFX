@@ -2,10 +2,7 @@
 
 <?import com.ak.fx.scene.Chart?>
 <?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.Scene?>
-<Scene xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ak.fx.desktop.suntech.NIBPViewController"
-       onKeyReleased="#onKey">
-    <StackPane prefWidth="1024" prefHeight="768">
-        <Chart fx:id="chart" style="-fx-border-color: white; -fx-border-width: 3px;"/>
-    </StackPane>
-</Scene>
+<StackPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ak.fx.desktop.suntech.NIBPViewController"
+           onKeyReleased="#onKey">
+    <Chart fx:id="chart" style="-fx-border-color: white; -fx-border-width: 3px;"/>
+</StackPane>
