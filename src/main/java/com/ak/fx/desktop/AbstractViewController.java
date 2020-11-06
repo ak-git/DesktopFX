@@ -35,7 +35,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.input.TransferMode;
 import javafx.util.Duration;
 
-abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
+public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
     implements Initializable, Flow.Subscriber<int[]>, AutoCloseable, Refreshable {
   @Nonnull
   private final GroupService<T, R, V> service;
@@ -47,7 +47,7 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   @FXML
   private Chart chart;
 
-  AbstractViewController(@Nonnull GroupService<T, R, V> service) {
+  protected AbstractViewController(@Nonnull GroupService<T, R, V> service) {
     this.service = service;
   }
 
