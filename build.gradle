@@ -35,7 +35,7 @@ ext {
     uom_se = 'tec.uom:uom-se:1.0.10'
     javax_json = 'org.glassfish:javax.json:1.1.4'
     commons_math3 = 'org.apache.commons:commons-math3:3.6.1'
-    jssc = 'org.scream3r:jssc:2.8.0'
+    jSerialComm = 'com.fazecast:jSerialComm:[2.0.0,3.0.0)'
     javaVersion = JavaVersion.VERSION_15
 }
 
