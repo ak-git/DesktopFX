@@ -1,4 +1,4 @@
-package com.ak.comm.converter.aper.calibration;
+package com.ak.comm.converter.aper;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -6,14 +6,13 @@ import java.util.List;
 import java.util.Set;
 
 import com.ak.comm.converter.DependentVariable;
-import com.ak.comm.converter.aper.AperInVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 
-public enum AperCalibrationVariable implements DependentVariable<AperInVariable, AperCalibrationVariable> {
+public enum AperCalibrationVariable implements DependentVariable<AperStage1Variable, AperCalibrationVariable> {
   CC_ADC {
     @Override
-    public List<AperInVariable> getInputVariables() {
+    public List<AperStage1Variable> getInputVariables() {
       return Collections.singletonList(VAR_CC);
     }
 
@@ -35,8 +34,8 @@ public enum AperCalibrationVariable implements DependentVariable<AperInVariable,
     }
 
     @Override
-    public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(AperInVariable.R2);
+    public List<AperStage1Variable> getInputVariables() {
+      return Collections.singletonList(AperStage1Variable.R2);
     }
   },
   PU_1 {
@@ -52,21 +51,21 @@ public enum AperCalibrationVariable implements DependentVariable<AperInVariable,
     }
 
     @Override
-    public List<AperInVariable> getInputVariables() {
-      return Collections.singletonList(AperInVariable.R2);
+    public List<AperStage1Variable> getInputVariables() {
+      return Collections.singletonList(AperStage1Variable.R2);
     }
   };
 
-  static final AperInVariable VAR_CC = AperInVariable.CCU1;
-  static final AperInVariable VAR_PU = AperInVariable.R1;
+  static final AperStage1Variable VAR_CC = AperStage1Variable.CCU1;
+  static final AperStage1Variable VAR_PU = AperStage1Variable.R1;
 
   @Override
-  public final Class<AperInVariable> getInputVariablesClass() {
-    return AperInVariable.class;
+  public final Class<AperStage1Variable> getInputVariablesClass() {
+    return AperStage1Variable.class;
   }
 
   @Override
-  public List<AperInVariable> getInputVariables() {
+  public List<AperStage1Variable> getInputVariables() {
     return Collections.singletonList(VAR_PU);
   }
 

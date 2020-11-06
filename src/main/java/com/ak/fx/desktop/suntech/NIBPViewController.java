@@ -1,19 +1,16 @@
 package com.ak.fx.desktop.suntech;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import javax.annotation.Nonnull;
+import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 
-import com.ak.comm.GroupService;
 import com.ak.comm.bytes.suntech.NIBPRequest;
 import com.ak.comm.bytes.suntech.NIBPResponse;
-import com.ak.comm.converter.suntech.NIBPConverter;
+import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.suntech.NIBPVariable;
-import com.ak.comm.interceptor.suntech.NIBPBytesInterceptor;
-import com.ak.fx.desktop.AbstractViewController;
+import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.fx.desktop.AbstractScheduledViewController;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import org.springframework.context.annotation.Profile;
@@ -24,19 +21,13 @@ import static com.ak.fx.desktop.FxApplication.isMatchEvent;
 
 @Named
 @Profile("suntech")
-public final class NIBPViewController extends AbstractViewController<NIBPRequest, NIBPResponse, NIBPVariable> {
-  private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+public final class NIBPViewController extends AbstractScheduledViewController<NIBPRequest, NIBPResponse, NIBPVariable> {
   private volatile boolean isStartBPEnable;
 
-  public NIBPViewController() {
-    super(new GroupService<>(NIBPBytesInterceptor::new, NIBPConverter::new));
-    executorService.scheduleAtFixedRate(() -> service().write(GET_CUFF_PRESSURE), 0, 1000 / FREQUENCY, TimeUnit.MILLISECONDS);
-  }
-
-  @Override
-  public void close() {
-    executorService.shutdownNow();
-    super.close();
+  @Inject
+  public NIBPViewController(@Nonnull Provider<BytesInterceptor<NIBPRequest, NIBPResponse>> interceptorProvider,
+                            @Nonnull Provider<Converter<NIBPResponse, NIBPVariable>> converterProvider) {
+    super(interceptorProvider, converterProvider, () -> GET_CUFF_PRESSURE, FREQUENCY);
   }
 
   @Override

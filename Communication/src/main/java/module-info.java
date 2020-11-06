@@ -2,7 +2,7 @@ module com.ak.comm {
   requires com.ak.util;
 
   requires jsr305;
-  requires jssc;
+  requires com.fazecast.jSerialComm;
   requires java.logging;
   requires unit.api;
   requires uom.se;

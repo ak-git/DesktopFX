@@ -17,7 +17,7 @@ import tec.uom.se.AbstractUnit;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public class AperConverterTest {
+public class AperStage1VariableTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -36,7 +36,7 @@ public class AperConverterTest {
 
   @Test(dataProvider = "variables")
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
-    Converter<BufferFrame, AperInVariable> converter = new ToIntegerConverter<>(AperInVariable.class, 1000);
+    Converter<BufferFrame, AperStage1Variable> converter = new ToIntegerConverter<>(AperStage1Variable.class, 1000);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     converter.apply(bufferFrame).forEach(ints -> {
@@ -48,8 +48,8 @@ public class AperConverterTest {
 
   @Test
   public void testVariableProperties() {
-    EnumSet.of(AperInVariable.R1, AperInVariable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
-    EnumSet.of(AperInVariable.E1, AperInVariable.E2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT), t.name()));
-    EnumSet.of(AperInVariable.CCU1, AperInVariable.CCU2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
+    EnumSet.of(AperStage1Variable.R1, AperStage1Variable.R2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
+    EnumSet.of(AperStage1Variable.E1, AperStage1Variable.E2).forEach(t -> Assert.assertEquals(t.getUnit(), MetricPrefix.MICRO(Units.VOLT), t.name()));
+    EnumSet.of(AperStage1Variable.CCU1, AperStage1Variable.CCU2).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
   }
 }

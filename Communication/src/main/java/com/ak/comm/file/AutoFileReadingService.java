@@ -69,6 +69,12 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
+  public void refresh() {
+    innerClose();
+    readable.refresh();
+  }
+
+  @Override
   public void read(@Nonnull ByteBuffer dst, long position) {
     readable.read(dst, position);
   }

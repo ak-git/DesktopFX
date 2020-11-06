@@ -41,7 +41,7 @@ public class VariableTest {
       }
     };
     Assert.assertEquals(variable.getUnit(), AbstractUnit.ONE);
-    Assert.assertEqualsDeep(variable.options(), Collections.singleton(Variable.Option.VISIBLE), variable.name());
+    Assert.assertEquals(variable.options(), Collections.singleton(Variable.Option.VISIBLE), variable.name());
   }
 
   @Test
@@ -89,7 +89,7 @@ public class VariableTest {
     Assert.assertEquals(OperatorVariables.OUT_DIV.indexBy(Variable.Option.VISIBLE), 1);
 
     EnumSet.allOf(OperatorVariables2.class).forEach(v ->
-        Assert.assertEqualsDeep(v.options(), EnumSet.of(Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER), Variables.toName(v)));
+        Assert.assertEquals(v.options(), EnumSet.of(Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER), Variables.toName(v)));
   }
 
   @Test
