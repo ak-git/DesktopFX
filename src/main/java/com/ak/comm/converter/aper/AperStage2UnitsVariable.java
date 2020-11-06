@@ -81,7 +81,24 @@ public enum AperStage2UnitsVariable implements DependentVariable<AperStage1Varia
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().fir(CommonCoefficients.MYO).build();
+      return FilterBuilder.of().iirMATLAB(
+          new double[] {
+              0.9022774304591, 0, 0, 0,
+              0, 0, 0, 0,
+              0, 0, 0, 0,
+              0, 0, 0, 0,
+              0, 0, 0, 0,
+              -0.9022774304591
+          },
+          new double[] {
+              1, 0, 0, 0,
+              0, 0, 0, 0,
+              0, 0, 0, 0,
+              0, 0, 0, 0,
+              0, 0, 0, 0,
+              -0.8045548609183
+          }
+      ).fir(CommonCoefficients.MYO).build();
     }
   },
   MYO2 {
