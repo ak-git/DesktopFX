@@ -40,6 +40,7 @@ module com.ak.fx.desktop {
   exports com.ak.comm.converter.rcm to javafx.graphics, org.testng;
   exports com.ak.comm.converter.rsce to spring.beans;
   exports com.ak.comm.converter.nmis to spring.beans;
+  exports com.ak.comm.converter.briko to org.testng;
   exports com.ak.comm.converter.suntech to org.testng;
   exports com.ak.comm.bytes.suntech to org.testng;
 

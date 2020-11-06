@@ -4,7 +4,6 @@ plugins {
     id 'java-library'
     id 'idea'
     id "org.sonarqube" version "3.0"
-    id 'jacoco'
 
     id "application"
     id 'org.openjfx.javafxplugin' version '0.0.9'
@@ -20,12 +19,7 @@ sonarqube {
         property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.login", "ec97b4884454351da027c6345043fc8ae9401d53"
         property "sonar.branch.name", "briko"
-        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml'
     }
-}
-
-jacoco {
-    toolVersion = "0.8.5"
 }
 
 ext {
@@ -62,7 +56,6 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'org.javamodularity.moduleplugin'
-    apply plugin: 'jacoco'
 
     sourceCompatibility = javaVersion
     targetCompatibility = javaVersion
@@ -74,12 +67,6 @@ allprojects {
             url = 'https://plugins.gradle.org/m2/'
         }
         jcenter()
-    }
-
-    jacocoTestReport {
-        reports {
-            xml.enabled true
-        }
     }
 
     dependencies {
