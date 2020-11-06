@@ -3,7 +3,7 @@ spring:
     web-application-type: none
     banner-mode: off
   profiles:
-    active: briko, aper2
+    active: aper2, briko
 logging:
   level:
     org:
