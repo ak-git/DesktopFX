@@ -73,6 +73,40 @@ public enum AperStage2UnitsVariable implements DependentVariable<AperStage1Varia
       return Collections.singletonList(AperStage1Variable.E2);
     }
   },
+  MYO1 {
+    @Override
+    public List<AperStage1Variable> getInputVariables() {
+      return Collections.singletonList(AperStage1Variable.E1);
+    }
+
+    @Override
+    public DigitalFilter filter() {
+      return FilterBuilder.of().iirMATLAB(
+          new double[] {
+              0.9022774304591, 0, 0, 0,
+              0, 0, 0, 0,
+              0, 0, 0, 0,
+              0, 0, 0, 0,
+              0, 0, 0, 0,
+              -0.9022774304591
+          },
+          new double[] {
+              1, 0, 0, 0,
+              0, 0, 0, 0,
+              0, 0, 0, 0,
+              0, 0, 0, 0,
+              0, 0, 0, 0,
+              -0.8045548609183
+          }
+      ).fir(CommonCoefficients.MYO).build();
+    }
+  },
+  MYO2 {
+    @Override
+    public List<AperStage1Variable> getInputVariables() {
+      return Collections.singletonList(AperStage1Variable.E2);
+    }
+  },
   CCR1 {
     @Override
     public List<AperStage1Variable> getInputVariables() {

@@ -20,6 +20,7 @@ import com.ak.util.OS;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
@@ -49,7 +50,7 @@ public class FxApplication extends Application {
     for (int i = 0; i < stages.size(); i++) {
       Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass(), String.format("%d", i));
       Stage stage = stages.get(i);
-      stage.setScene(fxmlLoaders.get(i).load());
+      stage.setScene(new Scene(fxmlLoaders.get(i).load(), 1024, 768));
       stage.setTitle(resourceBundle.getString(KEY_APPLICATION_TITLE));
       stage.setOnCloseRequest(event -> stageStorage.save(stage));
       stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);

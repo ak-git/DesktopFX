@@ -35,7 +35,7 @@ public class AperStage3Current2NIBPVariableTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55647, -526916, 301571, -526915, 1296, 1727}},
+            new int[] {55647, 301571, -526915, 1296, 1727}},
     };
   }
 
@@ -74,7 +74,7 @@ public class AperStage3Current2NIBPVariableTest {
         .map(DependentVariable::getUnit).collect(Collectors.toList());
     Assert.assertEquals(actual,
         Arrays.asList(
-            MetricPrefix.MILLI(Units.OHM), MetricPrefix.MICRO(Units.VOLT),
+            MetricPrefix.MILLI(Units.OHM),
             MetricPrefix.MILLI(Units.OHM), MetricPrefix.MICRO(Units.VOLT),
             Units.OHM, Units.OHM
         ),
@@ -88,7 +88,7 @@ public class AperStage3Current2NIBPVariableTest {
         .flatMap(v -> v.options().stream()).collect(Collectors.toList());
     Assert.assertEquals(actual,
         Arrays.asList(
-            Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE,
+            Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE,
             Variable.Option.TEXT_VALUE_BANNER, Variable.Option.TEXT_VALUE_BANNER
         ),
         actual.toString()

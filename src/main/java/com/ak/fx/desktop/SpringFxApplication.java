@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.BufferFrame;
+import com.ak.comm.bytes.nmis.NmisRequest;
+import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.bytes.suntech.NIBPRequest;
 import com.ak.comm.bytes.suntech.NIBPResponse;
 import com.ak.comm.converter.ADCVariable;
@@ -25,9 +27,12 @@ import com.ak.comm.converter.aper.AperStage5Current1Variable;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
+import com.ak.comm.converter.rsce.RsceConverter;
+import com.ak.comm.converter.rsce.RsceVariable;
 import com.ak.comm.converter.suntech.NIBPConverter;
 import com.ak.comm.converter.suntech.NIBPVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor;
 import com.ak.comm.interceptor.simple.FixedFrameBytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.interceptor.suntech.NIBPBytesInterceptor;
@@ -94,17 +99,31 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
-  @Profile("default")
+  @Profile("loopback")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptor() {
-    return new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_460800, 224);
+    return new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_460800, 1 + Integer.BYTES);
   }
 
   @Bean
-  @Profile("default")
+  @Profile("loopback")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, ADCVariable> converter() {
-    return new ToIntegerConverter<>(ADCVariable.class, 1000);
+    return new ToIntegerConverter<>(ADCVariable.class, 5);
+  }
+
+  @Bean
+  @Profile("nmis-rsce")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static BytesInterceptor<NmisRequest, RsceCommandFrame> bytesInterceptorNmisRsce() {
+    return new NmisRsceBytesInterceptor();
+  }
+
+  @Bean
+  @Profile("nmis-rsce")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<RsceCommandFrame, RsceVariable> converterNmisRsce() {
+    return new RsceConverter();
   }
 
   @Bean

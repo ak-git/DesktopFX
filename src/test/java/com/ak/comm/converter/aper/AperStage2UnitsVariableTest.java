@@ -37,7 +37,7 @@ public class AperStage2UnitsVariableTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55615, 301400, 301400, -526617, -526616, 1296, 1726}},
+            new int[] {55615, 301400, 301400, -526617, -526616, 3969, 3969, 1296, 1726}},
     };
   }
 
@@ -47,7 +47,7 @@ public class AperStage2UnitsVariableTest {
         .of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 62 - 1; i++) {
+    for (int i = 0; i < 82 - 1; i++) {
       long count = converter.apply(bufferFrame).peek(ints -> {
         if (!processed.get()) {
           Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
@@ -66,7 +66,7 @@ public class AperStage2UnitsVariableTest {
   @Test
   public void testGetInputVariables() {
     int[] actual = EnumSet.allOf(AperStage2UnitsVariable.class).stream().mapToInt(value -> value.getInputVariables().size()).toArray();
-    int[] expected = {2, 2, 2, 1, 1, 1, 1};
+    int[] expected = {2, 2, 2, 1, 1, 1, 1, 1, 1};
     Assert.assertEquals(actual, expected, Arrays.toString(actual));
   }
 
@@ -77,6 +77,7 @@ public class AperStage2UnitsVariableTest {
     Assert.assertEquals(actual,
         Arrays.asList(
             MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM),
+            MetricPrefix.MICRO(Units.VOLT), MetricPrefix.MICRO(Units.VOLT),
             MetricPrefix.MICRO(Units.VOLT), MetricPrefix.MICRO(Units.VOLT),
             Units.OHM, Units.OHM
         ),
@@ -90,7 +91,9 @@ public class AperStage2UnitsVariableTest {
         .flatMap(aperStage2UnitsVariable -> aperStage2UnitsVariable.options().stream()).collect(Collectors.toList());
     Assert.assertEquals(actual,
         Arrays.asList(
-            Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE,
+            Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE,
+            Variable.Option.VISIBLE, Variable.Option.VISIBLE,
+            Variable.Option.VISIBLE, Variable.Option.VISIBLE,
             Variable.Option.TEXT_VALUE_BANNER, Variable.Option.TEXT_VALUE_BANNER
         ),
         actual.toString()
@@ -100,7 +103,7 @@ public class AperStage2UnitsVariableTest {
   @Test
   public void testFilterDelay() {
     double[] actual = EnumSet.allOf(AperStage2UnitsVariable.class).stream().mapToDouble(value -> value.filter().getDelay()).toArray();
-    double[] expected = {0.0, 0.0, 0.0, 30.0, 30.0, 0.0, 0.0};
+    double[] expected = {0.0, 0.0, 0.0, 30.0, 30.0, 40.0, 40.0, 0.0, 0.0};
     Assert.assertEquals(actual, expected, Arrays.toString(actual));
   }
 

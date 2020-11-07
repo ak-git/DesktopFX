@@ -47,7 +47,7 @@ public class AperStage4Current2VariableTest {
         .chainInstance(AperStage4Current2Variable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 400 - 1; i++) {
+    for (int i = 0; i < 500 - 1; i++) {
       long count = converter.apply(bufferFrame).peek(ints -> {
         if (!processed.get()) {
           Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
@@ -55,7 +55,7 @@ public class AperStage4Current2VariableTest {
         }
       }).count();
       if (processed.get()) {
-        Assert.assertEquals(count, 5);
+        Assert.assertEquals(count, 4);
         break;
       }
     }
