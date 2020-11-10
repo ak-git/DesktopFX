@@ -4,6 +4,7 @@ plugins {
     id 'java-library'
     id 'idea'
     id "org.sonarqube" version "3.0"
+    id 'jacoco'
 
     id "application"
     id 'org.openjfx.javafxplugin' version '0.0.9'
@@ -20,6 +21,10 @@ sonarqube {
         property "sonar.login", "ec97b4884454351da027c6345043fc8ae9401d53"
         property "sonar.branch.name", "briko"
     }
+}
+
+jacoco {
+    toolVersion = "0.8.6"
 }
 
 ext {
@@ -41,7 +46,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2020.11.06'
+    version = '2020.11.07'
     apply plugin: 'idea'
     idea {
         module {

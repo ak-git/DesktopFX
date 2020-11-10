@@ -195,6 +195,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
     @Nullable
     synchronized SerialPort next() {
       Collection<SerialPort> serialPorts = Arrays.stream(SerialPort.getCommPorts())
+          .sorted(Comparator.comparing(port -> port.toString().toLowerCase().indexOf("usb")).reversed())
           .sorted(Comparator.comparingInt(value -> usedPorts.indexOf(value.getSystemPortName()))).collect(Collectors.toUnmodifiableList());
       if (serialPorts.isEmpty()) {
         return null;
