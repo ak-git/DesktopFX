@@ -1,5 +1,6 @@
 package com.ak.numbers.common;
 
+import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -26,7 +27,7 @@ public enum CommonCoefficients implements SimpleCoefficients {
 
   private static <C extends Enum<C> & Coefficients> String readCalibration(@Nonnull JsonObject object, @Nonnull C coefficients, @Nonnull String name) {
     String ohms = String.format(Locale.ROOT, "%.1f", Metrics.fromMilli(Double.parseDouble(Strings.numberSuffix(coefficients.name()))));
-    String channel = String.format("Channel-%s", Strings.numberSuffix(coefficients.getClass().getName()));
+    String channel = MessageFormat.format("Channel-{0}", Strings.numberSuffix(coefficients.getClass().getName()));
     Set<Map.Entry<String, JsonValue>> entries = object.getJsonObject(name).getJsonObject(ohms).getJsonObject(channel).entrySet();
     return entries.stream().map(entry -> String.join(Strings.TAB, entry.getKey(), entry.getValue().toString())).collect(Collectors.joining(Strings.NEW_LINE));
   }

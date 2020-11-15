@@ -56,7 +56,7 @@ public class LineFileCollectorTest {
   @DataProvider(name = "stream")
   public static Object[][] intStream() {
     return new Object[][] {
-        {(Supplier<Stream<String>>) () -> IntStream.rangeClosed(-1, 1).mapToObj(value -> String.format("%d", value))}
+        {(Supplier<Stream<String>>) () -> IntStream.rangeClosed(-1, 1).mapToObj("%d"::formatted)}
     };
   }
 

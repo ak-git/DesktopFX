@@ -10,7 +10,7 @@ abstract class AbstractRateConversionFilter extends AbstractUnaryFilter {
       this.factor = factor;
     }
     else {
-      throw new IllegalArgumentException(String.format("factor must be > 0, but found %d", factor));
+      throw new IllegalArgumentException("factor must be > 0, but found %d".formatted(factor));
     }
   }
 }

@@ -59,7 +59,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
 
       LOCK.lock();
       try (SeekableByteChannel seekableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
-        Logger.getLogger(getClass().getName()).log(Level.CONFIG, () -> String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
+        Logger.getLogger(getClass().getName()).log(Level.CONFIG, () -> "#%x Open file [ %s ]".formatted(hashCode(), fileToRead));
 
         MessageDigest md = MessageDigest.getInstance("SHA-512");
         if (isChannelProcessed(seekableByteChannel, md::update)) {
@@ -68,11 +68,11 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
           if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(convertedFile, StandardOpenOption.READ);
             Logger.getLogger(getClass().getName()).log(Level.INFO,
-                () -> String.format("#%x File [ %s ] with hash = [ %s ] is already processed", hashCode(), fileToRead, md5Code));
+                () -> "#%x File [ %s ] with hash = [ %s ] is already processed".formatted(hashCode(), fileToRead, md5Code));
           }
           else {
             Logger.getLogger(getClass().getName()).log(Level.INFO,
-                () -> String.format("#%x Read file [ %s ], hash = [ %s ]", hashCode(), fileToRead, md5Code));
+                () -> "#%x Read file [ %s ], hash = [ %s ]".formatted(hashCode(), fileToRead, md5Code));
             Path tempConverterFile = LogBuilders.CONVERTER_FILE.build("temp." + md5Code).getPath();
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(tempConverterFile,
                 StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
@@ -117,13 +117,13 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
       }
     }
     else {
-      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, () -> String.format("File [ %s ] is not a regular file", fileToRead));
+      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, () -> "File [ %s ] is not a regular file".formatted(fileToRead));
     }
   }
 
   @Override
   public String toString() {
-    return String.format("%s@%x{file = %s}", getClass().getSimpleName(), hashCode(), fileToRead);
+    return "%s@%x{file = %s}".formatted(getClass().getSimpleName(), hashCode(), fileToRead);
   }
 
   @Override
@@ -172,7 +172,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
   private static String digestToString(@Nonnull byte[] digest) {
     StringBuilder sb = new StringBuilder(digest.length * 2);
     for (byte b : digest) {
-      sb.append(String.format("%x", b));
+      sb.append("%x".formatted(b));
     }
     return sb.substring(0, sb.length() / 4);
   }

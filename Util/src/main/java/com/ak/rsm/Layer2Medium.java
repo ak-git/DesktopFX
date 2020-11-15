@@ -31,7 +31,7 @@ final class Layer2Medium extends AbstractMediumLayers<Layer2Medium> {
 
   @Override
   public String toString() {
-    return String.format("%s; %s; %s; %s", Strings.rho1(rho1()), Strings.rho2(rho2()), layer2RelativeMedium, super.toString());
+    return "%s; %s; %s; %s".formatted(Strings.rho1(rho1()), Strings.rho2(rho2()), layer2RelativeMedium, super.toString());
   }
 
   static final class Layer2MediumBuilder extends AbstractMediumBuilder<Layer2Medium> {

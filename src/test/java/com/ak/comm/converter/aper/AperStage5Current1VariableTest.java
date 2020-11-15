@@ -51,7 +51,7 @@ public class AperStage5Current1VariableTest {
     for (int i = 0; i < 500 - 1; i++) {
       long count = converter.apply(bufferFrame).peek(ints -> {
         if (!processed.get()) {
-          Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
+          Assert.assertEquals(ints, outputInts, "expected = %s, actual = %s".formatted(Arrays.toString(outputInts), Arrays.toString(ints)));
           processed.set(true);
         }
       }).count();

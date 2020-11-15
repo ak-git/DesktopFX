@@ -68,7 +68,7 @@ final class CRC16IBMChecksum implements Checksum {
 
   @Override
   public String toString() {
-    return String.format("%#04X", getValue());
+    return "%#04X".formatted(getValue());
   }
 
   private void update(byte b) {
