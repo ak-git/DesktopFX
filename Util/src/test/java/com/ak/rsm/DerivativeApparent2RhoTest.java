@@ -18,7 +18,7 @@ public class DerivativeApparent2RhoTest {
     double h = Metrics.fromMilli(hmm);
     double dh = Metrics.fromMilli(-0.001);
     TrivariateFunction resistance2Layer = new Resistance2Layer(system);
-    double expected = new Resistance1Layer(system).getApparent(
+    double expected = system.getApparent(
         (resistance2Layer.value(rho[0], rho[1], h + dh) - resistance2Layer.value(rho[0], rho[1], h)) / dh
     );
     expected /= rho[0];

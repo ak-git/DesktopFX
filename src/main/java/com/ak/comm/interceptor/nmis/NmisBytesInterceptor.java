@@ -1,8 +1,11 @@
 package com.ak.comm.interceptor.nmis;
 
+import javax.inject.Named;
+
 import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.nmis.NmisResponseFrame;
 import com.ak.comm.interceptor.AbstractCheckedBytesInterceptor;
+import org.springframework.context.annotation.Profile;
 
 /**
  * Neuro-Muscular Interface Stand (Test Stand) Format:
@@ -72,6 +75,8 @@ import com.ak.comm.interceptor.AbstractCheckedBytesInterceptor;
  * </tr>
  * </table>
  */
+@Named
+@Profile("nmis")
 public final class NmisBytesInterceptor extends AbstractCheckedBytesInterceptor<NmisRequest, NmisResponseFrame, NmisResponseFrame.Builder> {
   public NmisBytesInterceptor() {
     super(BaudRate.BR_115200, NmisRequest.Sequence.CATCH_100.build(), new NmisResponseFrame.Builder());

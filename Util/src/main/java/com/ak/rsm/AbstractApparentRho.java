@@ -5,11 +5,11 @@ import java.util.function.IntToDoubleFunction;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-abstract class AbstractApparentRho implements Apparent {
+abstract class AbstractApparentRho implements ResistanceSumValue {
   @Nonnull
-  private final Apparent apparent;
+  private final ResistanceSumValue apparent;
 
-  AbstractApparentRho(@Nonnull Apparent apparent) {
+  AbstractApparentRho(@Nonnull ResistanceSumValue apparent) {
     this.apparent = apparent;
   }
 

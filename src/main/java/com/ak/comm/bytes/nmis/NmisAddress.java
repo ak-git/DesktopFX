@@ -54,7 +54,7 @@ public enum NmisAddress {
       }
     }
     Logger.getLogger(NmisAddress.class.getName()).log(LogUtils.LOG_LEVEL_ERRORS,
-        () -> String.format("%s Address %d not found", LogUtils.toString(NmisAddress.class, byteBuffer), addr));
+        () -> "%s Address %d not found".formatted(LogUtils.toString(NmisAddress.class, byteBuffer), addr));
     return null;
   }
 }

@@ -15,9 +15,7 @@ public enum Clean {
   ;
 
   public static void clean(@Nonnull Cleaner.Cleanable[] toClean) {
-    if (!PropertiesSupport.CACHE.check()) {
-      Arrays.stream(toClean).forEach(Cleaner.Cleanable::clean);
-    }
+    Arrays.stream(toClean).forEach(Cleaner.Cleanable::clean);
   }
 
   public static void clean(@Nonnull Path path) {

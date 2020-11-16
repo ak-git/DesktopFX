@@ -25,7 +25,7 @@ public class AxisYControllerTest {
     AxisYController<ADCVariable> controller = new AxisYController<>();
     controller.setLineDiagramHeight(GridCell.mmToScreen(233));
     ScaleYInfo<ADCVariable> scaleYInfo = controller.scale(ADCVariable.ADC, data.toArray());
-    Assert.assertTrue(scaleYInfo.toString().startsWith(String.format("ScaleYInfo{mean = %d, scaleFactor = %d", mean, scaleFactor)), scaleYInfo.toString());
+    Assert.assertTrue(scaleYInfo.toString().startsWith("ScaleYInfo{mean = %d, scaleFactor = %d".formatted(mean, scaleFactor)), scaleYInfo.toString());
     Assert.assertEquals(GridCell.mm(scaleYInfo.applyAsDouble(0)), (0.0 - mean) / scaleFactor, 0.1, scaleYInfo.toString());
     Assert.assertEquals(scaleYInfo.apply(0.0), Variables.toString(mean, ADCVariable.ADC.getUnit(), scaleFactor), scaleYInfo.toString());
   }

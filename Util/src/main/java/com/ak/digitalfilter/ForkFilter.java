@@ -53,8 +53,8 @@ final class ForkFilter extends AbstractDigitalFilter {
 
         if (bufferIndex >= intBuffers.size()) {
           if (initializedFlag.get()) {
-            throw new IllegalStateException(String.format("Invalid fork [ %s ] for filter {%n%s%n}, values = %s", filter,
-                this, Arrays.toString(values)));
+            throw new IllegalStateException("Invalid fork [ %s ] for filter {%n%s%n}, values = %s"
+                .formatted(filter, this, Arrays.toString(values)));
           }
           else {
             intBuffers.add(new int[getOutputDataSize()]);

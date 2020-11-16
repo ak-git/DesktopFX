@@ -4,7 +4,7 @@
     <module name="DesktopFX.main" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="com.ak.comm.converter.aper.*" />
+        <option name="PATTERN" value="com.ak.comm.converter.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

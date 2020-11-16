@@ -150,8 +150,8 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
         .decimate(RcmSimpleCoefficients.BR_F200, 8)
         .decimate(RcmSimpleCoefficients.BR_F025, 5)
         .fir(RcmSimpleCoefficients.BR_F005)
-        .interpolate(8, RcmSimpleCoefficients.BR_F025)
-        .interpolate(5, RcmSimpleCoefficients.BR_F200)
+        .interpolate(5, RcmSimpleCoefficients.BR_F025)
+        .interpolate(8, RcmSimpleCoefficients.BR_F200)
     );
   }
 

@@ -76,7 +76,7 @@ public class StreamFilterTest {
   }
 
 
-  @Test(dataProvider = "stream", successPercentage = 80, invocationCount = 100)
+  @Test(dataProvider = "stream", invocationCount = 100)
   public void testFilter(@Nonnull DigitalFilter filter, @Nonnull IntStream data, int min, int max) {
     AtomicInteger lastValue = new AtomicInteger();
     filter.forEach(values -> {
@@ -84,6 +84,6 @@ public class StreamFilterTest {
       lastValue.set(values[0]);
     });
     data.forEach(filter::accept);
-    Assert.assertTrue(lastValue.get() >= min && lastValue.get() <= max, String.format("%d - %s - %d", min, lastValue.get(), max));
+    Assert.assertTrue(lastValue.get() >= min && lastValue.get() <= max, "%d - %s - %d".formatted(min, lastValue.get(), max));
   }
 }

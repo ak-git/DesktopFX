@@ -8,8 +8,8 @@ import javax.annotation.Nonnull;
 abstract class AbstractStorage<T> implements Storage<T> {
   private final Preferences preferences;
 
-  AbstractStorage(@Nonnull Class<?> c) {
-    preferences = Preferences.userNodeForPackage(c);
+  AbstractStorage(@Nonnull Class<?> c, @Nonnull String nodeName) {
+    preferences = Preferences.userNodeForPackage(c).node(nodeName);
   }
 
   final Preferences preferences() {

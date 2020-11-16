@@ -19,7 +19,7 @@ public class DerivativeApparent3RhoTest {
     int p1 = (int) hmm;
     Resistance3Layer resistance3LayerAfter = new Resistance3Layer(system, h + dh);
     Resistance3Layer resistance3LayerBefore = new Resistance3Layer(system, h);
-    double expected = new Resistance1Layer(system).getApparent(
+    double expected = system.getApparent(
         (resistance3LayerAfter.value(rho[0], rho[1], rho[1], p1, 1) - resistance3LayerBefore.value(rho[0], rho[1], rho[1], p1, 1)) / dh
     );
     expected /= rho[0];
@@ -36,7 +36,7 @@ public class DerivativeApparent3RhoTest {
     double dh = h / 1000.0;
     Resistance3Layer resistance3LayerAfter = new Resistance3Layer(system, h + dh);
     Resistance3Layer resistance3LayerBefore = new Resistance3Layer(system, h);
-    double expected = new Resistance1Layer(system).getApparent(
+    double expected = system.getApparent(
         (resistance3LayerAfter.value(rho[0], rho[1], rho[2], p[0], p[1]) - resistance3LayerBefore.value(rho[0], rho[1], rho[2], p[0], p[1])) / dh
     );
     expected /= rho[0];

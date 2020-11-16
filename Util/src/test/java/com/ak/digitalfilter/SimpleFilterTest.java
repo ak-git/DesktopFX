@@ -122,17 +122,17 @@ public class SimpleFilterTest {
         FilterBuilder.of().peakToPeak(3).build(),
         new int[] {1, 2, 3, 4, 5, 6, 7, 8},
         new int[] {1, 2, 2, 2, 2, 2, 2, 2},
-        1.0
+        0.0
     }, {
         FilterBuilder.of().peakToPeak(3).build(),
         new int[] {-1, -2, -3, -4, -5, -6, -7, -8},
         new int[] {1, 2, 2, 2, 2, 2, 2, 2},
-        1.0
+        0.0
     }, {
         FilterBuilder.of().peakToPeak(3).build(),
         new int[] {1, -2, 3, -4, 5, -6, 7, -8},
         new int[] {1, 3, 5, 7, 9, 11, 13, 15},
-        1.0
+        0.0
     }, {
         FilterBuilder.of().rrs().build(),
         new int[] {10, 11, 9, 11, 9, 11, 9},

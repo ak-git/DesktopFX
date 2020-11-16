@@ -18,7 +18,7 @@ public class BufferFrame {
     this.byteBuffer.flip();
   }
 
-  public BufferFrame(@Nonnull byte[] bytes, ByteOrder byteOrder) {
+  public BufferFrame(@Nonnull byte[] bytes, @Nonnull ByteOrder byteOrder) {
     byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
   }
 

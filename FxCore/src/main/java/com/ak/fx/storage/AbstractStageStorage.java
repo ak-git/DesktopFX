@@ -6,17 +6,17 @@ import java.util.prefs.BackingStoreException;
 
 import javax.annotation.Nonnull;
 
-import com.ak.fx.util.FxUtils;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 abstract class AbstractStageStorage extends AbstractStorage<Stage> {
   private static final String FULL_SCREEN = "fullScreen";
   private static final String MAXIMIZED = "maximized";
-  private final Storage<Rectangle2D.Double> boundsStorage = new BoundsStorage(getClass());
+  private final Storage<Rectangle2D.Double> boundsStorage;
 
-  AbstractStageStorage(@Nonnull Class<?> c) {
-    super(c);
+  AbstractStageStorage(@Nonnull Class<?> c, @Nonnull String nodeName) {
+    super(c, nodeName);
+    boundsStorage = new BoundsStorage(getClass(), nodeName);
   }
 
   @Override
@@ -30,7 +30,7 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
   @Override
   public void update(@Nonnull Stage stage) {
     stage.maximizedProperty().addListener((observable, oldValue, newValue) -> preferences().putBoolean(MAXIMIZED, newValue));
-    Optional.ofNullable(boundsStorage.get()).ifPresent(
+    Optional.ofNullable(boundsStorage.get()).ifPresentOrElse(
         r -> {
           if (Screen.getPrimary().getVisualBounds().contains(r.getX(), r.getY(), r.getWidth(), r.getHeight())) {
             stage.setX(r.getX());
@@ -39,12 +39,11 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
             stage.setHeight(r.getHeight());
           }
           else {
-            stage.setWidth(FxUtils.WIDTH_MIN);
-            stage.setHeight(FxUtils.HEIGHT_MIN);
-            stage.centerOnScreen();
+            centerOnScreen(stage);
           }
         }
-    );
+        , () -> {
+        });
     stage.setMaximized(preferences().getBoolean(MAXIMIZED, false));
     stage.setFullScreen(preferences().getBoolean(FULL_SCREEN, false));
   }
@@ -62,5 +61,11 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
 
   final void saveFullScreenState(boolean state) {
     preferences().putBoolean(FULL_SCREEN, state);
+  }
+
+  private static void centerOnScreen(@Nonnull Stage stage) {
+    stage.setWidth(Screen.getPrimary().getVisualBounds().getWidth());
+    stage.setHeight(Screen.getPrimary().getVisualBounds().getHeight());
+    stage.centerOnScreen();
   }
 }
