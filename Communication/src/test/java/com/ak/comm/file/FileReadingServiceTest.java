@@ -31,13 +31,11 @@ import com.ak.comm.interceptor.AbstractBytesInterceptor;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.logging.LogTestUtils;
-import com.ak.comm.logging.OutputBuilders;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.logging.LogBuilders;
 import com.ak.util.Clean;
 import com.ak.util.LogUtils;
-import com.ak.util.PropertiesSupport;
 import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
@@ -51,14 +49,9 @@ public class FileReadingServiceTest {
   @BeforeSuite
   @AfterSuite
   public void setUp() throws IOException {
-    Path[] paths = {
-        LogBuilders.CONVERTER_FILE.build(Strings.EMPTY).getPath().getParent(),
-        OutputBuilders.build(Strings.EMPTY).getPath().getParent()
-    };
-    for (Path path : paths) {
-      Assert.assertNotNull(path);
-      Clean.clean(path);
-    }
+    Path path = LogBuilders.CONVERTER_FILE.build(Strings.EMPTY).getPath().getParent();
+    Assert.assertNotNull(path);
+    Clean.clean(path);
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
@@ -90,7 +83,6 @@ public class FileReadingServiceTest {
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFile")
   public void testFile(@Nonnull Path fileToRead, @Nonnegative int bytes, boolean forceClose) {
-    PropertiesSupport.CACHE.update(Boolean.valueOf(!forceClose).toString());
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
     FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher = new FileReadingService<>(
@@ -104,7 +96,6 @@ public class FileReadingServiceTest {
       }
     });
     testSubscriber.assertValueCount(bytes / frameLength);
-    PropertiesSupport.CACHE.clear();
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")

@@ -110,9 +110,8 @@ public class Electrode2LayerTest {
 
             @Override
             public String toString() {
-              return String.format("%d [%+d %+d %+d]\th / L = %.4f; eK = %.6f; eH = %.6f; [%s]",
-                  n, signS1, signL, signS2, hToL, k12(), h(),
-                  Arrays.toString(sToL));
+              return "%d [%+d %+d %+d]\th / L = %.4f; eK = %.6f; eH = %.6f; [%s]"
+                  .formatted(n, signS1, signL, signS2, hToL, k12(), h(), Arrays.toString(sToL));
             }
           };
         })
@@ -134,8 +133,7 @@ public class Electrode2LayerTest {
 
                   @Override
                   public String toString() {
-                    return String.format("h / L = %.4f; eK = %.6f; eH = %.6f; [%s]",
-                        hToL, k12(), h(), Arrays.toString(sToL));
+                    return "h / L = %.4f; eK = %.6f; eH = %.6f; [%s]".formatted(hToL, k12(), h(), Arrays.toString(sToL));
                   }
                 }
             )

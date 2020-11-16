@@ -44,13 +44,13 @@ abstract class AbstractDigitalFilter implements DigitalFilter {
 
   final String toString(@Nonnull String filterName) {
     if (getFrequencyFactor() > 1) {
-      return String.format("%s (f \u00b7 %.1f)", filterName, getFrequencyFactor());
+      return "%s (f \u00b7 %.1f)".formatted(filterName, getFrequencyFactor());
     }
     else if (getFrequencyFactor() < 1) {
-      return String.format("%s (f / %.1f)", filterName, 1.0 / getFrequencyFactor());
+      return "%s (f / %.1f)".formatted(filterName, 1.0 / getFrequencyFactor());
     }
     else {
-      return String.format("%s (delay %.1f)", filterName, getDelay());
+      return "%s (delay %.1f)".formatted(filterName, getDelay());
     }
   }
 

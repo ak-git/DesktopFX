@@ -20,6 +20,6 @@ public class SelectableConverterTest {
   public void testApply(int[] input, int[] output) {
     Function<Stream<int[]>, Stream<int[]>> converter = new SelectableConverter<>(OperatorVariables.class, 1000);
     Assert.assertEquals(converter.apply(Stream.of(input)).peek(ints -> Assert.assertEquals(ints, output,
-        String.format("Actual %s, Expected %s", Arrays.toString(ints), Arrays.toString(output)))).count(), 1);
+        "Actual %s, Expected %s".formatted(Arrays.toString(ints), Arrays.toString(output)))).count(), 1);
   }
 }

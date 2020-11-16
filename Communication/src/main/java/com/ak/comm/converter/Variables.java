@@ -37,7 +37,7 @@ public enum Variables {
       }
       else {
         Logger.getLogger(Variables.class.getName()).log(Level.CONFIG,
-            () -> String.format("Missing resource key %s at file %s.properties", variable.name(), baseName));
+            () -> "Missing resource key %s at file %s.properties".formatted(variable.name(), baseName));
         name = variable.name();
       }
     }
@@ -71,7 +71,7 @@ public enum Variables {
     }
 
     if (value == 0) {
-      return String.format("%d %s", value, sf10 > 10 ? displayUnit : unit);
+      return "%d %s".formatted(value, sf10 > 10 ? displayUnit : unit);
     }
     else {
       double converted = unit.getConverterTo(displayUnit).convert(value);

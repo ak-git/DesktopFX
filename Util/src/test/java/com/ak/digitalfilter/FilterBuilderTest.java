@@ -146,13 +146,13 @@ public class FilterBuilderTest {
   public static Object[][] strings() {
     return new Object[][] {{
         FilterBuilder.of().build(),
-        String.format("NoFilter (delay %.1f)", 0.0),
+        "NoFilter (delay %.1f)".formatted(0.0),
     }, {
         FilterBuilder.of().decimate(7).build(),
-        String.format("LinearDecimationFilter (f / %.1f)", 7.0)
+        "LinearDecimationFilter (f / %.1f)".formatted(7.0)
     }, {
         FilterBuilder.of().interpolate(7).buildNoDelay(),
-        String.format("NoDelayFilter (compensate %.1f delay x 2) - LinearInterpolationFilter (f \u00b7 %.1f)", 10.0, 7.0)
+        "NoDelayFilter (compensate %.1f delay x 2) - LinearInterpolationFilter (f \u00b7 %.1f)".formatted(10.0, 7.0)
     }, {
         FilterBuilder.of().fork(
             FilterBuilder.of().fork(
@@ -219,7 +219,7 @@ public class FilterBuilderTest {
       public void accept(int... value) {
         filteredCounter.incrementAndGet();
         Assert.assertEquals(value, result[i],
-            String.format("Output Sample %d of %d, Actual %s, expected %s", filteredCounter.get() - 1, result.length,
+            "Output Sample %d of %d, Actual %s, expected %s".formatted(filteredCounter.get() - 1, result.length,
                 Arrays.toString(value), Arrays.toString(result[i])));
         i++;
       }
@@ -328,6 +328,6 @@ public class FilterBuilderTest {
   @Test(dataProvider = "sharpingDecimate")
   public void testSharpingDecimate(@Nonnull int[] input, @Nonnegative int factor, @Nonnull int[] output) {
     int[] actual = FilterBuilder.of().sharpingDecimate(factor).filter(input);
-    Assert.assertEquals(actual, output, String.format("Actual = %s", Arrays.toString(actual)));
+    Assert.assertEquals(actual, output, "Actual = %s".formatted(Arrays.toString(actual)));
   }
 }

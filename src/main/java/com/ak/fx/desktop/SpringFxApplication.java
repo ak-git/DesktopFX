@@ -1,42 +1,56 @@
 package com.ak.fx.desktop;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.BufferFrame;
+import com.ak.comm.bytes.nmis.NmisRequest;
+import com.ak.comm.bytes.rsce.RsceCommandFrame;
+import com.ak.comm.bytes.suntech.NIBPRequest;
+import com.ak.comm.bytes.suntech.NIBPResponse;
 import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.DependentVariable;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.Refreshable;
 import com.ak.comm.converter.ToIntegerConverter;
-import com.ak.comm.converter.aper.Aper2OutVariable;
-import com.ak.comm.converter.aper.AperInVariable;
-import com.ak.comm.converter.aper.AperOutVariable;
-import com.ak.comm.converter.aper.calibration.AperCalibrationVariable;
+import com.ak.comm.converter.aper.AperStage1Variable;
+import com.ak.comm.converter.aper.AperStage2UnitsVariable;
+import com.ak.comm.converter.aper.AperStage3Current2NIBPVariable;
+import com.ak.comm.converter.aper.AperStage3Variable;
+import com.ak.comm.converter.aper.AperStage4Current1Variable;
+import com.ak.comm.converter.aper.AperStage4Current2Variable;
+import com.ak.comm.converter.aper.AperStage5Current1Variable;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
+import com.ak.comm.converter.rsce.RsceConverter;
+import com.ak.comm.converter.rsce.RsceVariable;
+import com.ak.comm.converter.suntech.NIBPConverter;
+import com.ak.comm.converter.suntech.NIBPVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor;
 import com.ak.comm.interceptor.simple.FixedFrameBytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
+import com.ak.comm.interceptor.suntech.NIBPBytesInterceptor;
+import com.ak.logging.LocalFileHandler;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.input.KeyCode;
-import javafx.stage.Stage;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 
 @SpringBootApplication
+@ComponentScan(basePackages = {"com.ak.comm", "com.ak.fx.desktop"})
 public class SpringFxApplication extends FxApplication {
   private ConfigurableApplicationContext applicationContext;
 
@@ -46,27 +60,36 @@ public class SpringFxApplication extends FxApplication {
 
   @Override
   public void init() {
+    System.setProperty(LocalFileHandler.class.getName(), "FxDesktop");
     applicationContext = new SpringApplicationBuilder(SpringFxApplication.class).headless(false).run();
   }
 
   @Override
-  public void start(@Nonnull Stage stage) throws IOException {
-    super.start(stage);
-    addEventHandler(stage, () ->
-            applicationContext.getBeansOfType(Refreshable.class).values().forEach(Refreshable::refresh),
-        KeyCode.SHORTCUT, KeyCode.N);
+  public void refresh() {
+    super.refresh();
+    applicationContext.getBeansOfType(Refreshable.class).values().forEach(Refreshable::refresh);
   }
 
   @Override
-  FXMLLoader getFXMLLoader(@Nonnull ResourceBundle resourceBundle) {
-    String profile = Arrays.stream(applicationContext.getEnvironment().getActiveProfiles()).findFirst().orElse("default");
-    FXMLLoader fxmlLoader = super.getFXMLLoader(resourceBundle);
-    URL fxml = getClass().getResource(String.join(".", profile, "fxml"));
-    if (fxml != null) {
-      fxmlLoader = new FXMLLoader(fxml, resourceBundle);
+  List<FXMLLoader> getFXMLLoader(@Nonnull ResourceBundle resourceBundle) {
+    String[] profiles = applicationContext.getEnvironment().getActiveProfiles();
+    if (profiles.length == 0) {
+      profiles = applicationContext.getEnvironment().getDefaultProfiles();
     }
-    fxmlLoader.setControllerFactory(applicationContext::getBean);
-    return fxmlLoader;
+    FXMLLoader defaultFxmlLoader = super.getFXMLLoader(resourceBundle).get(0);
+    List<FXMLLoader> fxmlLoaders = Arrays.stream(profiles)
+        .map(profile -> getClass().getResource(String.join(".", profile, "fxml")))
+        .map(fxml -> {
+          if (fxml == null) {
+            return defaultFxmlLoader;
+          }
+          else {
+            return new FXMLLoader(fxml, resourceBundle);
+          }
+        })
+        .collect(Collectors.toUnmodifiableList());
+    fxmlLoaders.forEach(fxmlLoader -> fxmlLoader.setControllerFactory(applicationContext::getBean));
+    return fxmlLoaders;
   }
 
   @Override
@@ -76,62 +99,100 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
-  @Profile("default")
+  @Profile("loopback")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptor() {
-    return new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_460800, 224);
+    return new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_460800, 1 + Integer.BYTES);
   }
 
   @Bean
-  @Profile("default")
+  @Profile("loopback")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, ADCVariable> converter() {
-    return new ToIntegerConverter<>(ADCVariable.class, 1000);
+    return new ToIntegerConverter<>(ADCVariable.class, 5);
   }
 
   @Bean
-  @Profile({"aper", "aper-calibration", "aper2"})
+  @Profile("nmis-rsce")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static BytesInterceptor<NmisRequest, RsceCommandFrame> bytesInterceptorNmisRsce() {
+    return new NmisRsceBytesInterceptor();
+  }
+
+  @Bean
+  @Profile("nmis-rsce")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<RsceCommandFrame, RsceVariable> converterNmisRsce() {
+    return new RsceConverter();
+  }
+
+  @Bean
+  @Profile({"aper2-nibp", "aper1", "aper2", "aper4"})
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  @Primary
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorAper() {
     return new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_460800, 25);
   }
 
   @Bean
-  @Profile("aper")
+  @Profile("aper2-nibp")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, AperOutVariable> converterAper() {
-    return converterAper(AperOutVariable.class);
+  @Primary
+  static Converter<BufferFrame, AperStage3Current2NIBPVariable> converterAper2NIBP() {
+    return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
+        .chainInstance(AperStage3Current2NIBPVariable.class);
   }
 
   @Bean
-  @Profile("aper-calibration")
+  @Profile("suntech")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, AperCalibrationVariable> converterAperCalibration() {
-    return converterAper(AperCalibrationVariable.class);
+  static BytesInterceptor<NIBPRequest, NIBPResponse> bytesInterceptorNIBP() {
+    return new NIBPBytesInterceptor();
+  }
+
+  @Bean
+  @Profile("suntech")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<NIBPResponse, NIBPVariable> converterNIBP() {
+    return new NIBPConverter();
+  }
+
+  @Bean
+  @Profile("aper1")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<BufferFrame, AperStage4Current1Variable> converterAper1() {
+    return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
+        .chainInstance(AperStage3Variable.class).chainInstance(AperStage4Current1Variable.class);
   }
 
   @Bean
   @Profile("aper2")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, Aper2OutVariable> converterAper2() {
-    return new LinkedConverter<>(converterAper(), Aper2OutVariable.class);
+  static Converter<BufferFrame, AperStage4Current2Variable> converterAper2() {
+    return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
+        .chainInstance(AperStage3Variable.class).chainInstance(AperStage4Current2Variable.class);
   }
 
-  private static <O extends Enum<O> & DependentVariable<AperInVariable, O>> Converter<BufferFrame, O> converterAper(Class<O> aClass) {
-    return new LinkedConverter<>(new ToIntegerConverter<>(AperInVariable.class, 1000), aClass);
+  @Bean
+  @Profile("aper4")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<BufferFrame, AperStage5Current1Variable> converterAper4() {
+    return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
+        .chainInstance(AperStage3Variable.class).chainInstance(AperStage4Current1Variable.class)
+        .chainInstance(AperStage5Current1Variable.class);
   }
 
   @Bean
   @Profile("rcm")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, RcmOutVariable> converterRcm() {
-    return new LinkedConverter<>(new RcmConverter(), RcmOutVariable.class);
+    return LinkedConverter.of(new RcmConverter(), RcmOutVariable.class);
   }
 
   @Bean
   @Profile("rcm-calibration")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, RcmCalibrationVariable> converterRcmCalibration() {
-    return new LinkedConverter<>(new RcmConverter(), RcmCalibrationVariable.class);
+    return LinkedConverter.of(new RcmConverter(), RcmCalibrationVariable.class);
   }
 }

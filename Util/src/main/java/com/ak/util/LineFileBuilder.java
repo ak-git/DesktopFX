@@ -72,7 +72,7 @@ public class LineFileBuilder<T> {
     Supplier<DoubleStream> xVar = xRange::build;
     Supplier<DoubleStream> yVar = yRange::build;
     check(yVar.get().mapToObj(right -> xVar.get().map(left -> operator.applyAsDouble(left, right)))
-        .map(stream -> stream.mapToObj(value -> String.format(outFormat, value)).collect(Collectors.joining(Strings.TAB)))
+        .map(stream -> stream.mapToObj(outFormat::formatted).collect(Collectors.joining(Strings.TAB)))
         .collect(new LineFileCollector(Paths.get(fileName), LineFileCollector.Direction.VERTICAL)));
   }
 
@@ -147,7 +147,7 @@ public class LineFileBuilder<T> {
 
     private void toFile() {
       String fileName = Extension.TXT.attachTo(direction == LineFileCollector.Direction.HORIZONTAL ? "x" : "y");
-      check(build().mapToObj(value -> String.format(outFormat, value)).collect(
+      check(build().mapToObj(outFormat::formatted).collect(
           new LineFileCollector(Paths.get(fileName), direction)));
     }
 

@@ -177,7 +177,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
    * @return FilterBuilder
    */
   public FilterBuilder recursiveStd(@Nonnegative int averageFactor) {
-    return wrap(String.format("recursiveStd%d", averageFactor),
+    return wrap("recursiveStd%d".formatted(averageFactor),
         of().fork(new NoFilter(), ExcessBufferFilter.mean(averageFactor))
             .biOperator(() -> (x, mean) -> x - mean)
             .chain(ExcessBufferFilter.std2(averageFactor))
@@ -192,7 +192,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
    * @return FilterBuilder
    */
   FilterBuilder recursiveMeanAndStd(@Nonnegative int averageFactor) {
-    return wrap(String.format("mean-n-std%d", averageFactor),
+    return wrap("mean-n-std%d".formatted(averageFactor),
         of().fork(new NoFilter(), ExcessBufferFilter.mean(averageFactor))
             .fork(
                 of().biOperator(() -> (x, mean) -> mean).build(),
@@ -272,8 +272,8 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     }
     else {
       if (selectedIndexes.size() != filters.length) {
-        throw new IllegalArgumentException(String.format("selectedIndexes.length [%s] != filters.length [%s]",
-            selectedIndexes.stream().map(Arrays::toString).collect(Collectors.joining()), Arrays.toString(filters)));
+        throw new IllegalArgumentException("selectedIndexes.length [%s] != filters.length [%s]"
+            .formatted(selectedIndexes.stream().map(Arrays::toString).collect(Collectors.joining()), Arrays.toString(filters)));
       }
       wrappedFilters = new DigitalFilter[filters.length];
       for (int i = 0; i < wrappedFilters.length; i++) {

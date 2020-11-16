@@ -8,11 +8,10 @@ import javax.annotation.Nonnull;
 
 import com.ak.numbers.CoefficientsUtils;
 
-class Layers {
-  private static final int SUM_LIMIT = 1024 * 8 * 2;
+enum Layers {
+  ;
 
-  private Layers() {
-  }
+  private static final int SUM_LIMIT = 1024 * 8 * 2;
 
   static double getK12(@Nonnegative double rho1, @Nonnegative double rho2) {
     if (Double.compare(rho1, rho2) == 0) {

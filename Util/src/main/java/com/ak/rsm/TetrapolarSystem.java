@@ -64,9 +64,7 @@ public final class TetrapolarSystem {
 
   @Override
   public String toString() {
-    return String.format("%2.0f x %2.0f %s",
-        Metrics.toMilli(sPotentialUnitSI), Metrics.toMilli(lCurrentCarryingSI), MetricPrefix.MILLI(METRE)
-    );
+    return "%2.0f x %2.0f %s".formatted(Metrics.toMilli(sPotentialUnitSI), Metrics.toMilli(lCurrentCarryingSI), MetricPrefix.MILLI(METRE));
   }
 
   @Nonnull

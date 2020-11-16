@@ -41,7 +41,7 @@ abstract class AbstractMediumLayers<T extends AbstractMediumLayers<T>> implement
 
     AbstractMediumBuilder(@Nonnull Collection<Prediction> predictions) {
       double l2 = predictions.stream().map(Prediction::getInequalityL2).reduce(StrictMath::hypot).orElse(Double.NaN);
-      toString = String.format("L%s = %.2f %% %n%s", Strings.low(2), Metrics.toPercents(l2),
+      toString = "L%s = %.2f %% %n%s".formatted(Strings.low(2), Metrics.toPercents(l2),
           predictions.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)));
     }
   }

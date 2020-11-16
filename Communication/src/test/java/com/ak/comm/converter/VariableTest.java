@@ -41,7 +41,7 @@ public class VariableTest {
       }
     };
     Assert.assertEquals(variable.getUnit(), AbstractUnit.ONE);
-    Assert.assertEqualsDeep(variable.options(), Collections.singleton(Variable.Option.VISIBLE), variable.name());
+    Assert.assertEquals(variable.options(), Collections.singleton(Variable.Option.VISIBLE), variable.name());
   }
 
   @Test
@@ -89,7 +89,7 @@ public class VariableTest {
     Assert.assertEquals(OperatorVariables.OUT_DIV.indexBy(Variable.Option.VISIBLE), 1);
 
     EnumSet.allOf(OperatorVariables2.class).forEach(v ->
-        Assert.assertEqualsDeep(v.options(), EnumSet.of(Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER), Variables.toName(v)));
+        Assert.assertEquals(v.options(), EnumSet.of(Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER), Variables.toName(v)));
   }
 
   @Test
@@ -127,17 +127,17 @@ public class VariableTest {
     return new Object[][] {
         {1234, MetricPrefix.CENTI(Units.HERTZ), 1, String.format(Locale.getDefault(), "%,.2f Hz", 12.34)},
         {-1234, MetricPrefix.CENTI(Units.HERTZ), 10, String.format(Locale.getDefault(), "%,.1f Hz", -12.3)},
-        {1234, MetricPrefix.CENTI(Units.HERTZ), 100, String.format("%.0f Hz", 12.0)},
+        {1234, MetricPrefix.CENTI(Units.HERTZ), 100, "%.0f Hz".formatted(12.0)},
         {-1234, Units.HERTZ, 1, String.format(Locale.getDefault(), "%,.3f kHz", -1.234)},
         {1234, Units.HERTZ, 10, String.format(Locale.getDefault(), "%,.2f kHz", 1.23)},
         {-1234, Units.HERTZ, 100, String.format(Locale.getDefault(), "%,.1f kHz", -1.2)},
-        {1234, Units.HERTZ, 1000, String.format("%.0f kHz", 1.0)},
-        {-123, Units.HERTZ, 1, String.format("%.0f Hz", -123.0)},
+        {1234, Units.HERTZ, 1000, "%.0f kHz".formatted(1.0)},
+        {-123, Units.HERTZ, 1, "%.0f Hz".formatted(-123.0)},
         {-3140, Units.VOLT, 1, String.format(Locale.getDefault(), "%,.2f kV", -3.14)},
         {3100, Units.VOLT, 1, String.format(Locale.getDefault(), "%,.1f kV", 3.1)},
-        {-3000, Units.VOLT, 1, String.format("%.0f kV", -3.0)},
-        {0, Units.VOLT, 1, String.format("%.0f V", 0.0)},
-        {0, Units.VOLT, 1000, String.format("%.0f kV", 0.0)}
+        {-3000, Units.VOLT, 1, "%.0f kV".formatted(-3.0)},
+        {0, Units.VOLT, 1, "%.0f V".formatted(0.0)},
+        {0, Units.VOLT, 1000, "%.0f kV".formatted(0.0)}
     };
   }
 

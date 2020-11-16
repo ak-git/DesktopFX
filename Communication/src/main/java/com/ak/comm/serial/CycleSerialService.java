@@ -43,7 +43,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
   @Override
   public void subscribe(@Nonnull Flow.Subscriber<? super int[]> s) {
     s.onSubscribe(this);
-    executor.scheduleAtFixedRate(() -> {
+    executor.scheduleWithFixedDelay(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();
       AtomicReference<Instant> okTime = new AtomicReference<>(Instant.now());
       CountDownLatch latch = new CountDownLatch(1);
@@ -115,7 +115,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
         subscriber.onComplete();
         serialService = new SerialService(bytesInterceptor().getBaudRate(), bytesInterceptor().getSerialParams());
       }
-    }, 0, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
+    }, 1, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
   }
 
   @Override
@@ -135,7 +135,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public AsynchronousFileChannel call() throws IOException {
-    Path path = LogBuilders.CONVERTER_SERIAL.build(String.format("%x", hashCode())).getPath();
+    Path path = LogBuilders.CONVERTER_SERIAL.build("%x".formatted(hashCode())).getPath();
     return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
   }
 

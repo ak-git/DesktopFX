@@ -9,7 +9,7 @@ plugins {
     id "application"
     id 'org.openjfx.javafxplugin' version '0.0.9'
 
-    id 'org.springframework.boot' version '2.3.3.RELEASE'
+    id 'org.springframework.boot' version '2.3.5.RELEASE'
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
 }
 
@@ -25,29 +25,29 @@ sonarqube {
 }
 
 jacoco {
-    toolVersion = "0.8.5"
+    toolVersion = "0.8.6"
 }
 
 ext {
-    testNG = 'org.testng:testng:7.1.0'
+    testNG = 'org.testng:testng:7.3.0'
     jsr305 = 'com.google.code.findbugs:jsr305:3.0.2'
     javax_inject = 'javax.inject:javax.inject:1'
     uom_se = 'tec.uom:uom-se:1.0.10'
     javax_json = 'org.glassfish:javax.json:1.1.4'
     commons_math3 = 'org.apache.commons:commons-math3:3.6.1'
-    jssc = 'org.scream3r:jssc:2.8.0'
-    javaVersion = JavaVersion.VERSION_14
+    jSerialComm = 'com.fazecast:jSerialComm:[2.0.0,3.0.0)'
+    javaVersion = JavaVersion.VERSION_15
 }
 
 wrapper {
     description 'Setup the Gradle wrapper'
-    gradleVersion = "6.6.1"
+    gradleVersion = "6.7"
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '2020.10.02'
+    version = '2020.11.07'
     apply plugin: 'idea'
     idea {
         module {
@@ -106,7 +106,7 @@ dependencies {
 }
 
 javafx {
-    version = '14'
+    version = '15'
     modules = ['javafx.controls', 'javafx.fxml']
 }
 

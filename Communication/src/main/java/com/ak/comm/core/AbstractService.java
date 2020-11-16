@@ -17,9 +17,4 @@ public abstract class AbstractService<F> implements AutoCloseable, Flow.Publishe
   protected final void logBytes(@Nonnull ByteBuffer buffer) {
     LogUtils.logBytes(logger, LOG_LEVEL_BYTES, this, buffer, "IN from hardware");
   }
-
-  @Override
-  public void refresh() {
-    throw new UnsupportedOperationException();
-  }
 }
