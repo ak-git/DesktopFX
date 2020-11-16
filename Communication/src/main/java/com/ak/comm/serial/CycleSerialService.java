@@ -21,7 +21,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.Refreshable;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
@@ -29,7 +28,7 @@ import com.ak.logging.LogBuilders;
 import com.ak.util.UIConstants;
 
 public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
-    extends AbstractConvertableService<T, R, V> implements Refreshable, Flow.Subscription {
+    extends AbstractConvertableService<T, R, V> implements Flow.Subscription {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   private volatile boolean cancelled;
   @Nonnull
@@ -44,7 +43,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
   @Override
   public void subscribe(@Nonnull Flow.Subscriber<? super int[]> s) {
     s.onSubscribe(this);
-    executor.scheduleAtFixedRate(() -> {
+    executor.scheduleWithFixedDelay(() -> {
       AtomicBoolean workingFlag = new AtomicBoolean();
       AtomicReference<Instant> okTime = new AtomicReference<>(Instant.now());
       CountDownLatch latch = new CountDownLatch(1);
@@ -72,7 +71,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
         @Override
         public void onError(Throwable throwable) {
           serialService.close();
-          Logger.getLogger(getClass().getName()).log(Level.SEVERE, serialService.toString(), throwable);
+          Logger.getLogger(CycleSerialService.class.getName()).log(Level.SEVERE, serialService.toString(), throwable);
         }
 
         @Override
@@ -85,7 +84,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
             }
           }
           catch (Exception e) {
-            Logger.getLogger(getClass().getName()).log(Level.INFO, e.getMessage(), e);
+            Logger.getLogger(CycleSerialService.class.getName()).log(Level.INFO, e.getMessage(), e);
           }
         }
       };
@@ -116,7 +115,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
         subscriber.onComplete();
         serialService = new SerialService(bytesInterceptor().getBaudRate(), bytesInterceptor().getSerialParams());
       }
-    }, 0, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
+    }, 1, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
   }
 
   @Override
@@ -136,7 +135,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public AsynchronousFileChannel call() throws IOException {
-    Path path = LogBuilders.CONVERTER_SERIAL.build(getClass().getSimpleName()).getPath();
+    Path path = LogBuilders.CONVERTER_SERIAL.build("%x".formatted(hashCode())).getPath();
     return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
   }
 

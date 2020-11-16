@@ -7,10 +7,7 @@ import com.ak.comm.converter.Variable;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public final class ScaleYInfoTest {
-  private ScaleYInfoTest() {
-  }
-
+public class ScaleYInfoTest {
   @Test
   public void testToString() {
     Assert.assertEquals(new ScaleYInfo.ScaleYInfoBuilder<>(ADCVariable.ADC).mean(-3).scaleFactor(10).scaleFactor10(20).build().toString(),

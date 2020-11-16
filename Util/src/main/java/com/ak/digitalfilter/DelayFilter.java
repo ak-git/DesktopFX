@@ -53,6 +53,6 @@ final class DelayFilter extends AbstractDigitalFilter {
 
   @Override
   public String toString() {
-    return toString(String.format("%s (delay %d) - ", getClass().getSimpleName(), buffer.length), filter);
+    return toString("%s (delay %d) - ".formatted(getClass().getSimpleName(), buffer.length), filter);
   }
 }

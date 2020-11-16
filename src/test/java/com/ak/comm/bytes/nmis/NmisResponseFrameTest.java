@@ -7,11 +7,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class NmisResponseFrameTest {
-  private NmisResponseFrameTest() {
-  }
-
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "invalidTestByteResponse")
-  public static void testNewInstance(byte[] input) {
+  public void testNewInstance(byte[] input) {
     ByteBuffer byteBuffer = ByteBuffer.wrap(input);
     Assert.assertNotNull(NmisAddress.find(byteBuffer), Arrays.toString(input));
     Assert.assertTrue(NmisProtocolByte.checkCRC(byteBuffer), Arrays.toString(input));
@@ -19,7 +16,7 @@ public class NmisResponseFrameTest {
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "sequenceResponse")
-  public static void testEquals(NmisRequest request, byte[] input) {
+  public void testEquals(NmisRequest request, byte[] input) {
     NmisResponseFrame nmisResponseFrame = new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build();
     Assert.assertNotNull(nmisResponseFrame);
     Assert.assertNotEquals(request, nmisResponseFrame, Arrays.toString(input));

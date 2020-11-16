@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.measure.Unit;
 
 import tec.uom.se.unit.MetricPrefix;
 
@@ -16,10 +15,10 @@ public enum Strings {
   ;
   public static final String EMPTY = "";
   public static final String SPACE = " ";
+  public static final String COMMA = ",";
   public static final String NEW_LINE = String.format("%n");
   public static final String NEW_LINE_2 = String.format("%n%n");
   public static final String TAB = "\t";
-  public static final String CAP_DELTA = "\u0394";
   public static final String OHM_METRE = new StringBuilder(OHM.multiply(METRE).toString()).reverse().toString();
   private static final String RHO = "\u03c1";
 
@@ -29,15 +28,19 @@ public enum Strings {
   }
 
   public static String toString(@Nonnull String format, @Nonnull double[] values) {
-    return Arrays.stream(values).mapToObj(x -> String.format(format, x)).collect(Collectors.joining("; ", "{", "}"));
+    return Arrays.stream(values).mapToObj(format::formatted).collect(Collectors.joining("; ", "{", "}"));
   }
 
-  public static String toString(@Nonnull String format, @Nonnull double[] values, @Nonnull Unit<?> unit) {
-    return String.format("%s %s", toString(format, values), unit);
+  public static String h(@Nonnegative double h, @Nonnegative int index) {
+    return "h%s = %.2f %s".formatted(low(index), Metrics.toMilli(h), MetricPrefix.MILLI(METRE));
+  }
+
+  public static String dRhoByH(double v) {
+    return "d\u03c1/dh = %.0f %s".formatted(v, OHM);
   }
 
   public static String rho(@Nonnegative double rho) {
-    return String.format("%s = %.3f %s", RHO, rho, OHM_METRE);
+    return "%s = %.3f %s".formatted(RHO, rho, OHM_METRE);
   }
 
   public static String rho1(@Nonnegative double rho1) {
@@ -52,15 +55,7 @@ public enum Strings {
     return (char) ((int) '\u2080' + index);
   }
 
-  public static String rho(@Nonnegative double rho, @Nonnegative int index) {
-    return String.format("%s%s = %.3f %s", RHO, low(index), rho, OHM_METRE);
-  }
-
-  public static String h(@Nonnegative double h, @Nonnegative int index) {
-    return String.format("h%s = %.2f %s", low(index), Metrics.toMilli(h), MetricPrefix.MILLI(METRE));
-  }
-
-  public static String pointConcat(@Nonnull String first, @Nonnull String second) {
-    return String.format("%s.%s", first, second);
+  private static String rho(@Nonnegative double rho, @Nonnegative int index) {
+    return "%s%s = %.3f %s".formatted(RHO, low(index), rho, OHM_METRE);
   }
 }

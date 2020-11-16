@@ -25,9 +25,6 @@ public class RcmBytesInterceptorTest {
   private final BytesInterceptor<BufferFrame, BufferFrame> interceptor = new RcmBytesInterceptor();
   private final ByteBuffer buffer = ByteBuffer.allocate(100);
 
-  private RcmBytesInterceptorTest() {
-  }
-
   @DataProvider(name = "rcm-data")
   public static Object[][] data() {
     return new Object[][] {

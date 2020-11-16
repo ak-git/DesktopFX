@@ -5,8 +5,8 @@ import javax.annotation.Nonnull;
 import javafx.stage.Stage;
 
 final class DefaultStageStorage extends AbstractStageStorage {
-  DefaultStageStorage(@Nonnull Class<?> c) {
-    super(c);
+  DefaultStageStorage(@Nonnull Class<?> c, @Nonnull String nodeName) {
+    super(c, nodeName);
   }
 
   @Override

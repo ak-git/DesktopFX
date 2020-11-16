@@ -89,7 +89,7 @@ public final class NmisRequest extends BufferFrame {
 
   @Override
   public String toString() {
-    return String.format("%s %s", super.toString(), toString);
+    return String.join(SPACE, super.toString(), toString);
   }
 
   private static void saveCRC(@Nonnull byte[] codes) {

@@ -31,7 +31,7 @@ import static com.ak.comm.converter.rcm.RcmOutVariable.QS_2;
 import static com.ak.comm.converter.rcm.RcmOutVariable.RHEO_1;
 import static com.ak.comm.converter.rcm.RcmOutVariable.RHEO_2;
 
-public final class RcmConverterTest {
+public class RcmConverterTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -44,14 +44,14 @@ public final class RcmConverterTest {
 
   @Test(dataProvider = "variables")
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
-    Converter<BufferFrame, RcmOutVariable> converter = new LinkedConverter<>(new RcmConverter(), RcmOutVariable.class);
+    Converter<BufferFrame, RcmOutVariable> converter = LinkedConverter.of(new RcmConverter(), RcmOutVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 2000 - 1; i++) {
       int finalI = i;
       long count = converter.apply(bufferFrame).peek(ints -> {
         if (finalI > 1900) {
-          Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
+          Assert.assertEquals(ints, outputInts, "expected = %s, actual = %s".formatted(Arrays.toString(outputInts), Arrays.toString(ints)));
           processed.set(true);
         }
       }).count();
@@ -75,7 +75,7 @@ public final class RcmConverterTest {
   }
 
   @Test
-  public static void testVariables() {
+  public void testVariables() {
     EnumSet.of(RHEO_1X, RHEO_2X, ECG_X).forEach(variable -> Assert.assertTrue(variable.options().isEmpty(), variable.options().toString()));
     EnumSet.allOf(RcmOutVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), RcmInVariable.class));
     EnumSet.of(RHEO_1, RHEO_2).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MICRO(Units.OHM)));
@@ -91,28 +91,27 @@ public final class RcmConverterTest {
   public static Object[][] filterDelay() {
     return new Object[][] {
         {RHEO_1, 3.5},
-        {BASE_1, 341.0},
+        {BASE_1, 377.0},
         {QS_1, 3.5},
         {ECG, 3.5},
         {RHEO_2, 3.5},
-        {BASE_2, 341.0},
+        {BASE_2, 377.0},
         {QS_2, 3.5},
-
     };
   }
 
   @Test(dataProvider = "filter-delay")
-  public static void testFilterDelay(@Nonnull RcmOutVariable variable, double delay) {
+  public void testFilterDelay(@Nonnull RcmOutVariable variable, double delay) {
     Assert.assertEquals(variable.filter().getDelay(), delay, 0.001, variable.toString());
   }
 
   @Test(enabled = false)
-  public static void testBaseSplineSurface1() {
+  public void testBaseSplineSurface1() {
     SplineCoefficientsUtils.testSplineSurface1(RcmBaseSurfaceCoefficientsChannel1.class);
   }
 
   @Test(enabled = false)
-  public static void testBaseSplineSurface2() {
+  public void testBaseSplineSurface2() {
     SplineCoefficientsUtils.testSplineSurface2(RcmBaseSurfaceCoefficientsChannel2.class);
   }
 }

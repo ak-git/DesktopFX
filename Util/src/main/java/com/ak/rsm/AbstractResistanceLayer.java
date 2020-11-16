@@ -12,8 +12,8 @@ abstract class AbstractResistanceLayer<U extends AbstractPotentialLayer> {
   private final U uPls;
 
   AbstractResistanceLayer(@Nonnull TetrapolarSystem electrodeSystem, DoubleFunction<U> potential) {
-    uMns = potential.apply(electrodeSystem.radiusMns());
-    uPls = potential.apply(electrodeSystem.radiusPls());
+    uMns = potential.apply(electrodeSystem.radius(-1.0));
+    uPls = potential.apply(electrodeSystem.radius(1.0));
   }
 
   final double apply(@Nonnull ToDoubleFunction<U> potentialValue) {

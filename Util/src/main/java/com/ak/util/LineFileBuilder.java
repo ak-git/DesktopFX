@@ -1,14 +1,14 @@
 package com.ak.util;
 
 import java.nio.file.Paths;
+import java.util.Locale;
 import java.util.function.BiFunction;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -69,15 +69,29 @@ public class LineFileBuilder<T> {
   }
 
   public void generate(@Nonnull String fileName, @Nonnull DoubleBinaryOperator operator) {
-    String format = String.format("[%s; %s] %s", xRange.outFormat, yRange.outFormat, outFormat);
     Supplier<DoubleStream> xVar = xRange::build;
     Supplier<DoubleStream> yVar = yRange::build;
-    check(yVar.get().mapToObj(y -> xVar.get().map(x -> {
-      double v = operator.applyAsDouble(x, y);
-      Logger.getAnonymousLogger().log(Level.INFO, String.format(format, x, y, v));
-      return v;
-    })).map(stream -> stream.mapToObj(value -> String.format(outFormat, value)).collect(Collectors.joining(Strings.TAB)))
+    check(yVar.get().mapToObj(right -> xVar.get().map(left -> operator.applyAsDouble(left, right)))
+        .map(stream -> stream.mapToObj(outFormat::formatted).collect(Collectors.joining(Strings.TAB)))
         .collect(new LineFileCollector(Paths.get(fileName), LineFileCollector.Direction.VERTICAL)));
+  }
+
+  public void generateR(@Nonnull String fileName, @Nonnull DoubleBinaryOperator operator) {
+    Supplier<DoubleStream> xVar = xRange::build;
+    Supplier<DoubleStream> yVar = yRange::build;
+    check(
+        Stream.concat(
+            Stream.of(
+                Stream.concat(Stream.of("\"\""), xVar.get().mapToObj(xRange::format))),
+            yVar.get()
+                .mapToObj(right ->
+                    Stream.concat(Stream.of(yRange.format(right)),
+                        xVar.get().map(left -> operator.applyAsDouble(left, right))
+                            .mapToObj(value -> String.format(Locale.ROOT, outFormat, value))
+                    )
+                )
+        ).map(stream -> stream.collect(Collectors.joining(Strings.COMMA)))
+            .collect(new LineFileCollector(Paths.get(fileName), LineFileCollector.Direction.VERTICAL)));
   }
 
   public LineFileBuilder<T> add(@Nonnull String fileName, @Nonnull ToDoubleFunction<T> converter) {
@@ -114,24 +128,31 @@ public class LineFileBuilder<T> {
       double from = Math.min(start, end);
       double to = Math.max(start, end);
 
-      doubleStreamSupplier = () -> DoubleStream.concat(DoubleStream.iterate(from, value -> value < to, operand -> operand * 10.0).
-          flatMap(scale -> DoubleStream.iterate(scale, value -> value < to, operand -> operand + scale / 5).limit(9 * 5L)), DoubleStream.of(to));
+      doubleStreamSupplier = () ->
+          DoubleStream.concat(
+              DoubleStream.iterate(from, value -> value < to, operand -> operand * 10.0)
+                  .flatMap(scale ->
+                      DoubleStream.iterate(scale, value -> value < to - scale / 10.0, operand -> operand + scale / 5.0)
+                          .limit(9 * 5L)
+                  ),
+              DoubleStream.of(to)
+          );
       toFile();
     }
 
     private void range(double start, double end, @Nonnegative double precision) {
-      if (end <= start || (end - start < precision)) {
-        throw new IllegalArgumentException(String.format(
-            String.format("[%1$s .. %1$s] precision %1$s", outFormat), start, end, precision));
-      }
-      doubleStreamSupplier = () -> DoubleStream.iterate(start, value -> value < end + precision, dl2L -> dl2L + precision).sequential();
+      doubleStreamSupplier = () -> DoubleStream.iterate(start, value -> value < end + precision / 2.0, dl2L -> dl2L + precision).sequential();
       toFile();
     }
 
     private void toFile() {
-      String fileName = direction == LineFileCollector.Direction.HORIZONTAL ? "x.txt" : "y.txt";
-      check(build().mapToObj(value -> String.format(outFormat, value)).collect(
+      String fileName = Extension.TXT.attachTo(direction == LineFileCollector.Direction.HORIZONTAL ? "x" : "y");
+      check(build().mapToObj(outFormat::formatted).collect(
           new LineFileCollector(Paths.get(fileName), direction)));
+    }
+
+    private String format(double value) {
+      return String.format(Locale.ROOT, String.format("\"%s\"", outFormat), value);
     }
 
     @Override

@@ -29,7 +29,7 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
   @Nonnull
   private Stream<int[]> filteredValues = Stream.empty();
 
-  public AbstractConverter(@Nonnull Class<V> evClass, @Nonnegative double frequency) {
+  protected AbstractConverter(@Nonnull Class<V> evClass, @Nonnegative double frequency) {
     this(evClass, frequency, EnumSet.allOf(evClass).stream().map(v -> new int[] {v.ordinal()}).collect(Collectors.toList()));
   }
 
@@ -40,7 +40,7 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
     digitalFilter = FilterBuilder.parallel(selectedIndexes, filters.toArray(new DigitalFilter[variables.size()]));
     digitalFilter.forEach(ints -> {
       if (logger.isLoggable(LOG_LEVEL_VALUES)) {
-        logger.log(LOG_LEVEL_VALUES, String.format("#%x [ %s ]", hashCode(),
+        logger.log(LOG_LEVEL_VALUES, "#%x [ %s ]".formatted(hashCode(),
             IntStream.iterate(0, operand -> operand + 1).limit(variables.size()).mapToObj(
                 idx -> Variables.toString(variables.get(idx), ints[idx])).collect(Collectors.joining(", "))));
       }
