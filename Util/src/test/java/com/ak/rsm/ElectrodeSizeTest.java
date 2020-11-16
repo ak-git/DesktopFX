@@ -1,6 +1,5 @@
 package com.ak.rsm;
 
-import java.io.IOException;
 import java.util.stream.DoubleStream;
 
 import com.ak.util.LineFileBuilder;
@@ -12,9 +11,6 @@ import static java.lang.StrictMath.asin;
 
 public class ElectrodeSizeTest {
   private static final double SQRT_2 = 1.4142135623730951;
-
-  private ElectrodeSizeTest() {
-  }
 
   private static class RelativeErrorR implements UnivariateFunction {
     final double sToL;
@@ -41,17 +37,17 @@ public class ElectrodeSizeTest {
   }
 
   @Test
-  public static void testValue() {
+  public void testValue() {
     double sToL = 0.5;
     double dToL = 0.1;
     UnivariateFunction errorR = new RelativeErrorR(sToL);
-    Assert.assertEquals(0.01, errorR.value(dToL), 0.001);
-    Assert.assertEquals(0.846, errorR.value(0.5), 0.001);
-    Assert.assertEquals(0.846, errorR.value(0.9), 0.001);
+    Assert.assertEquals(errorR.value(dToL), 0.01, 0.001);
+    Assert.assertEquals(errorR.value(0.5), 0.846, 0.001);
+    Assert.assertEquals(errorR.value(0.9), 0.846, 0.001);
   }
 
   @Test(enabled = false)
-  public static void testErrorsAt() throws IOException {
+  public void testErrorsAt() {
     LineFileBuilder.of("%.3f %.3f %.6f").
         xRange(1.0e-2, 1.0, 1.0e-2).
         yStream(() -> DoubleStream.of(1.0 / 3.0, SQRT_2 - 1, 0.5, 2.0 / 3.0)).

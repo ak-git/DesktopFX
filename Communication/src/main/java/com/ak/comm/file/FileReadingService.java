@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SeekableByteChannel;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -27,13 +28,12 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.comm.logging.LogBuilders;
-import com.ak.util.PropertiesSupport;
+import com.ak.logging.LogBuilders;
 
 import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
 
-final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
-    extends AbstractConvertableService<RESPONSE, REQUEST, EV> implements Flow.Subscription {
+final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
+    extends AbstractConvertableService<T, R, V> implements Flow.Subscription {
   private static final int CAPACITY_4K = 1024 * 4;
   private static final Lock LOCK = new ReentrantLock();
   @Nonnull
@@ -41,11 +41,11 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
   @Nonnegative
   private long requestSamples = Long.MAX_VALUE;
   @Nonnull
-  private volatile Callable<AsynchronousFileChannel> convertedFileChannelProvider = () -> null;
+  private Callable<AsynchronousFileChannel> convertedFileChannelProvider = () -> null;
   private volatile boolean disposed;
 
-  FileReadingService(@Nonnull Path fileToRead, @Nonnull BytesInterceptor<RESPONSE, REQUEST> bytesInterceptor,
-                     @Nonnull Converter<RESPONSE, EV> responseConverter) {
+  FileReadingService(@Nonnull Path fileToRead, @Nonnull BytesInterceptor<T, R> bytesInterceptor,
+                     @Nonnull Converter<R, V> responseConverter) {
     super(bytesInterceptor, responseConverter);
     Objects.requireNonNull(fileToRead);
     this.fileToRead = fileToRead;
@@ -59,23 +59,20 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
 
       LOCK.lock();
       try (SeekableByteChannel seekableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
-        Logger.getLogger(getClass().getName()).log(Level.CONFIG, String.format("#%x Open file [ %s ]", hashCode(), fileToRead));
+        Logger.getLogger(getClass().getName()).log(Level.CONFIG, () -> "#%x Open file [ %s ]".formatted(hashCode(), fileToRead));
 
-        MessageDigest md5 = MessageDigest.getInstance("MD5");
-        if (isChannelProcessed(seekableByteChannel, md5::update)) {
-          String md5Code = digestToString(md5);
+        MessageDigest md = MessageDigest.getInstance("SHA-512");
+        if (isChannelProcessed(seekableByteChannel, md::update)) {
+          String md5Code = digestToString(md.digest("2020.11.07".getBytes(Charset.defaultCharset())));
           Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
-          if (!PropertiesSupport.CACHE.check()) {
-            Files.deleteIfExists(convertedFile);
-          }
           if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(convertedFile, StandardOpenOption.READ);
             Logger.getLogger(getClass().getName()).log(Level.INFO,
-                String.format("#%x File [ %s ] with MD5 = [ %s ] is already processed", hashCode(), fileToRead, md5Code));
+                () -> "#%x File [ %s ] with hash = [ %s ] is already processed".formatted(hashCode(), fileToRead, md5Code));
           }
           else {
             Logger.getLogger(getClass().getName()).log(Level.INFO,
-                String.format("#%x Read file [ %s ], MD5 = [ %s ]", hashCode(), fileToRead, md5Code));
+                () -> "#%x Read file [ %s ], hash = [ %s ]".formatted(hashCode(), fileToRead, md5Code));
             Path tempConverterFile = LogBuilders.CONVERTER_FILE.build("temp." + md5Code).getPath();
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(tempConverterFile,
                 StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
@@ -87,7 +84,7 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
               @Override
               public void accept(@Nonnull ByteBuffer byteBuffer) {
                 logBytes(byteBuffer);
-                process(byteBuffer).forEach(ints -> {
+                process(byteBuffer, ints -> {
                   if (samplesCounter < requestSamples) {
                     s.onNext(ints);
                   }
@@ -116,17 +113,17 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
       }
       finally {
         LOCK.unlock();
-        Logger.getLogger(getClass().getName()).log(Level.INFO, "Close file " + fileToRead);
+        Logger.getLogger(getClass().getName()).log(Level.INFO, () -> "Close file " + fileToRead);
       }
     }
     else {
-      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, String.format("File [ %s ] is not a regular file", fileToRead));
+      Logger.getLogger(getClass().getName()).log(LOG_LEVEL_ERRORS, () -> "File [ %s ] is not a regular file".formatted(fileToRead));
     }
   }
 
   @Override
   public String toString() {
-    return String.format("%s@%x{file = %s}", getClass().getSimpleName(), hashCode(), fileToRead);
+    return "%s@%x{file = %s}".formatted(getClass().getSimpleName(), hashCode(), fileToRead);
   }
 
   @Override
@@ -150,6 +147,11 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
   }
 
   @Override
+  public void refresh() {
+    LogBuilders.CONVERTER_FILE.clean();
+  }
+
+  @Override
   public AsynchronousFileChannel call() throws Exception {
     return convertedFileChannelProvider.call();
   }
@@ -167,12 +169,11 @@ final class FileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable
     return readFlag && !disposed;
   }
 
-  private static String digestToString(@Nonnull MessageDigest messageDigest) {
-    byte[] digest = messageDigest.digest();
+  private static String digestToString(@Nonnull byte[] digest) {
     StringBuilder sb = new StringBuilder(digest.length * 2);
     for (byte b : digest) {
-      sb.append(String.format("%x", b));
+      sb.append("%x".formatted(b));
     }
-    return sb.toString();
+    return sb.substring(0, sb.length() / 4);
   }
 }

@@ -14,20 +14,20 @@ import com.ak.util.LogUtils;
 
 import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
 
-public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedBuilder<RESPONSE>, RESPONSE, REQUEST extends BufferFrame>
-    extends AbstractBytesInterceptor<RESPONSE, REQUEST> {
+public abstract class AbstractCheckedBytesInterceptor<T extends BufferFrame, R, B extends AbstractCheckedBuilder<R>>
+    extends AbstractBytesInterceptor<T, R> {
   private final Logger logger = Logger.getLogger(getClass().getName());
   @Nonnull
   private final B responseBuilder;
 
-  protected AbstractCheckedBytesInterceptor(@Nonnull BaudRate baudRate, @Nullable REQUEST pingRequest, @Nonnull B responseBuilder) {
+  protected AbstractCheckedBytesInterceptor(@Nonnull BaudRate baudRate, @Nullable T pingRequest, @Nonnull B responseBuilder) {
     super(baudRate, pingRequest, responseBuilder.buffer().limit() + IGNORE_LIMIT);
     this.responseBuilder = responseBuilder;
   }
 
   @Override
-  protected final Collection<RESPONSE> innerProcessIn(@Nonnull ByteBuffer src) {
-    Collection<RESPONSE> responses = new LinkedList<>();
+  protected final Collection<R> innerProcessIn(@Nonnull ByteBuffer src) {
+    Collection<R> responses = new LinkedList<>();
     ByteBuffer buffer = responseBuilder.buffer();
     while (src.hasRemaining()) {
       byte b = src.get();
@@ -54,7 +54,7 @@ public abstract class AbstractCheckedBytesInterceptor<B extends AbstractCheckedB
       if (!buffer.hasRemaining()) {
         logSkippedBytes(true);
 
-        RESPONSE response = responseBuilder.build();
+        R response = responseBuilder.build();
         if (response == null) {
           LogUtils.logBytes(logger, LOG_LEVEL_ERRORS, this, buffer, "INVALID FRAME");
         }

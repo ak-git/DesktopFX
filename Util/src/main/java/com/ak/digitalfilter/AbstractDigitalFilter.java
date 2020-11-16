@@ -12,6 +12,8 @@ import static com.ak.util.Strings.NEW_LINE;
 import static com.ak.util.Strings.SPACE;
 
 abstract class AbstractDigitalFilter implements DigitalFilter {
+  private static final IntsAcceptor EMPTY_INTS_ACCEPTOR = values -> {
+  };
   @Nonnull
   private IntsAcceptor after = EMPTY_INTS_ACCEPTOR;
 
@@ -42,17 +44,17 @@ abstract class AbstractDigitalFilter implements DigitalFilter {
 
   final String toString(@Nonnull String filterName) {
     if (getFrequencyFactor() > 1) {
-      return String.format("%s (f \u00b7 %.1f)", filterName, getFrequencyFactor());
+      return "%s (f \u00b7 %.1f)".formatted(filterName, getFrequencyFactor());
     }
     else if (getFrequencyFactor() < 1) {
-      return String.format("%s (f / %.1f)", filterName, 1.0 / getFrequencyFactor());
+      return "%s (f / %.1f)".formatted(filterName, 1.0 / getFrequencyFactor());
     }
     else {
-      return String.format("%s (delay %.1f)", filterName, getDelay());
+      return "%s (delay %.1f)".formatted(filterName, getDelay());
     }
   }
 
   final void illegalArgumentException(@Nonnull int[] in) {
-    throw new IllegalArgumentException(String.format("%s %s", toString(), Arrays.toString(in)));
+    throw new IllegalArgumentException(String.join(SPACE, toString(), Arrays.toString(in)));
   }
 }

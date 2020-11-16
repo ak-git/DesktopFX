@@ -13,8 +13,8 @@ import org.testng.annotations.Test;
 public class MultiFileCollectorTest {
   @Test
   public void test() throws IOException {
-    Path out = Paths.get(MultiFileCollectorTest.class.getSimpleName() + ".txt");
-    MultiFileCollector<Double> multiFileCollector = new MultiFileCollector.Builder<Double>("%.0f").
+    Path out = Paths.get(Extension.TXT.attachTo(MultiFileCollectorTest.class.getSimpleName()));
+    MultiFileCollector<Double> multiFileCollector = new MultiFileCollector.MultiFileCollectorBuilder<Double>("%.0f").
         add(out, value -> value).build();
     Assert.assertTrue(Stream.generate(() -> Stream.of(1.0, 2.0)).limit(1).collect(multiFileCollector));
 
@@ -25,6 +25,6 @@ public class MultiFileCollectorTest {
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testInvalidCombiner() {
-    new MultiFileCollector.Builder<Double>("%.2f").build().combiner().apply(null, null);
+    new MultiFileCollector.MultiFileCollectorBuilder<Double>("%.2f").build().combiner().apply(null, null);
   }
 }

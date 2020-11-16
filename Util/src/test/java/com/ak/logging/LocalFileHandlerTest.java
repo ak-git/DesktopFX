@@ -20,7 +20,7 @@ public class LocalFileHandlerTest {
   @Nonnull
   private final Path logPath;
 
-  private LocalFileHandlerTest() throws IOException {
+  public LocalFileHandlerTest() throws IOException {
     logPath = new LogPathBuilder().addPath(LocalFileHandler.class.getSimpleName()).addPath("testSubDir").
         build().getPath().getParent();
   }

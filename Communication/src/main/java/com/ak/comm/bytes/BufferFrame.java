@@ -18,7 +18,7 @@ public class BufferFrame {
     this.byteBuffer.flip();
   }
 
-  public BufferFrame(@Nonnull byte[] bytes, ByteOrder byteOrder) {
+  public BufferFrame(@Nonnull byte[] bytes, @Nonnull ByteOrder byteOrder) {
     byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
   }
 
@@ -60,10 +60,5 @@ public class BufferFrame {
 
   protected final ByteBuffer byteBuffer() {
     return byteBuffer;
-  }
-
-  @Override
-  public final Object clone() throws CloneNotSupportedException {
-    throw new CloneNotSupportedException();
   }
 }

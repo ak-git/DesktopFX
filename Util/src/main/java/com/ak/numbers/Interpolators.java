@@ -49,7 +49,7 @@ public enum Interpolators {
     ).summaryStatistics().getMax();
 
     IntFunction<int[]> samples = limit -> IntStream.concat(
-        IntStream.iterate(0, operand -> operand + Math.max(1, limit / SPLINE_POINTS)).takeWhile(value -> value < limit),
+        IntStream.iterate(0, value -> value < limit, operand -> operand + Math.max(1, limit / SPLINE_POINTS)),
         IntStream.of(limit)
     ).toArray();
 
@@ -85,14 +85,14 @@ public enum Interpolators {
   public static Supplier<IntUnaryOperator> interpolator(@Nonnull Coefficients coefficients) {
     double[][] pairs = coefficients.getPairs();
     return EnumSet.allOf(Interpolators.class).stream().filter(i -> pairs.length >= i.minPoints).findFirst().
-        orElseThrow(() -> new IllegalArgumentException(String.format("Number of points %d from %s is too small", pairs.length, coefficients))).
+        orElseThrow(() -> new IllegalArgumentException("Number of points %d from %s is too small".formatted(pairs.length, coefficients))).
         interpolate(pairs);
   }
 
   private static Supplier<IntUnaryOperator> interpolator(@Nonnull double[] abscissValues, @Nonnull double[] ordinateValues) {
     int length = Math.min(abscissValues.length, ordinateValues.length);
     return EnumSet.allOf(Interpolators.class).stream().filter(i -> length >= i.minPoints).findFirst().
-        orElseThrow(() -> new IllegalArgumentException(String.format("Number of points %d is too small", length))).
+        orElseThrow(() -> new IllegalArgumentException("Number of points %d is too small".formatted(length))).
         interpolate(abscissValues, ordinateValues);
   }
 

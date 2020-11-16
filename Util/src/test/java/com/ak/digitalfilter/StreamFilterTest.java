@@ -13,9 +13,6 @@ import org.testng.annotations.Test;
 public class StreamFilterTest {
   private static final Random RANDOM = new Random();
 
-  private StreamFilterTest() {
-  }
-
   @DataProvider(name = "stream")
   public static Object[][] data() {
     return new Object[][] {{
@@ -79,14 +76,14 @@ public class StreamFilterTest {
   }
 
 
-  @Test(dataProvider = "stream")
-  public static void testFilter(@Nonnull DigitalFilter filter, @Nonnull IntStream data, int min, int max) {
+  @Test(dataProvider = "stream", invocationCount = 100)
+  public void testFilter(@Nonnull DigitalFilter filter, @Nonnull IntStream data, int min, int max) {
     AtomicInteger lastValue = new AtomicInteger();
     filter.forEach(values -> {
       Assert.assertEquals(values.length, 1);
       lastValue.set(values[0]);
     });
     data.forEach(filter::accept);
-    Assert.assertTrue(lastValue.get() >= min && lastValue.get() <= max, String.format("%d - %s - %d", min, lastValue.get(), max));
+    Assert.assertTrue(lastValue.get() >= min && lastValue.get() <= max, "%d - %s - %d".formatted(min, lastValue.get(), max));
   }
 }

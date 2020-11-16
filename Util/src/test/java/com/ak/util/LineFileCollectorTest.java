@@ -28,12 +28,9 @@ public class LineFileCollectorTest {
   private final AtomicInteger exceptionCounter = new AtomicInteger();
   private Path out;
 
-  private LineFileCollectorTest() {
-  }
-
   @BeforeClass
   public void setUp() {
-    out = Paths.get(LineFileCollectorTest.class.getName() + ".txt");
+    out = Paths.get(Extension.TXT.attachTo(LineFileCollectorTest.class.getName()));
 
     LOGGER.setFilter(record -> {
       Assert.assertNotNull(record.getThrown());
@@ -59,7 +56,7 @@ public class LineFileCollectorTest {
   @DataProvider(name = "stream")
   public static Object[][] intStream() {
     return new Object[][] {
-        {(Supplier<Stream<String>>) () -> IntStream.rangeClosed(-1, 1).mapToObj(value -> String.format("%d", value))}
+        {(Supplier<Stream<String>>) () -> IntStream.rangeClosed(-1, 1).mapToObj("%d"::formatted)}
     };
   }
 
@@ -134,7 +131,7 @@ public class LineFileCollectorTest {
   }
 
   @Test(dataProvider = "invalid-writer")
-  public void testInvalidFinisher(BufferedWriter bufferedWriter) throws IOException {
+  public void testInvalidFinisher(BufferedWriter bufferedWriter) {
     Collector<Object, BufferedWriter, Boolean> collector = new LineFileCollector(out, LineFileCollector.Direction.VERTICAL);
     collector.accumulator().accept(bufferedWriter, Math.PI);
     Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
@@ -143,7 +140,12 @@ public class LineFileCollectorTest {
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
-  public void testCombiner() throws IOException {
+  public void testCombiner() {
     new LineFileCollector(out, LineFileCollector.Direction.HORIZONTAL).combiner().apply(null, null);
+  }
+
+  @Test
+  public void testInvalidPath() {
+    new LineFileCollector(Paths.get("/"), LineFileCollector.Direction.VERTICAL);
   }
 }

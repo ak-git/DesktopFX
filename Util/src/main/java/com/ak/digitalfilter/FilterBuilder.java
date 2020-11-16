@@ -29,12 +29,6 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   private FilterBuilder() {
   }
 
-  public static DigitalFilter parallel(@Nonnull int[] selectedIndexes, @Nonnull Supplier<DigitalFilter> copied) {
-    List<int[]> selectors = Arrays.stream(selectedIndexes).mapToObj(i -> new int[] {i}).collect(Collectors.toList());
-    DigitalFilter[] filters = Stream.generate(copied).limit(selectedIndexes.length).toArray(DigitalFilter[]::new);
-    return parallel(selectors, filters);
-  }
-
   public static DigitalFilter parallel(@Nonnull List<int[]> selectedIndexes, @Nonnull DigitalFilter... filters) {
     if (selectedIndexes.isEmpty()) {
       throw new IllegalArgumentException(Arrays.deepToString(filters));
@@ -71,10 +65,11 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   public FilterBuilder biOperator(@Nonnull Supplier<IntBinaryOperator> operatorSupplier) {
     return chain(new AbstractDigitalFilter() {
       @Nonnull
-      private final IntBinaryOperator operator = operatorSupplier.get();
+      private IntBinaryOperator operator = operatorSupplier.get();
 
       @Override
       public void reset() {
+        operator = operatorSupplier.get();
       }
 
       @Override
@@ -168,7 +163,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
    * @return FilterBuilder
    */
   FilterBuilder recursiveMean(@Nonnegative int averageFactor) {
-    return chain(new MeanFilter(averageFactor));
+    return chain(ExcessBufferFilter.mean(averageFactor));
   }
 
   public FilterBuilder rrs() {
@@ -182,13 +177,11 @@ public class FilterBuilder implements Builder<DigitalFilter> {
    * @return FilterBuilder
    */
   public FilterBuilder recursiveStd(@Nonnegative int averageFactor) {
-    IntUnaryOperator sqrtSumFilter = new SqrtSumFilter(averageFactor);
-    return wrap(String.format("recursiveStd%d", averageFactor),
-        of().fork(new NoFilter(), new MeanFilter(averageFactor))
-            .biOperator(() -> (x, mean) -> {
-              long sqrtSum = sqrtSumFilter.applyAsInt(x);
-              return (int) Math.sqrt(sqrtSum * sqrtSum - (long) mean * (long) mean);
-            })
+    return wrap("recursiveStd%d".formatted(averageFactor),
+        of().fork(new NoFilter(), ExcessBufferFilter.mean(averageFactor))
+            .biOperator(() -> (x, mean) -> x - mean)
+            .chain(ExcessBufferFilter.std2(averageFactor))
+            .operator(() -> x -> (int) Math.sqrt(x))
     );
   }
 
@@ -199,15 +192,12 @@ public class FilterBuilder implements Builder<DigitalFilter> {
    * @return FilterBuilder
    */
   FilterBuilder recursiveMeanAndStd(@Nonnegative int averageFactor) {
-    IntUnaryOperator sqrtSumFilter = new SqrtSumFilter(averageFactor);
-    return wrap(String.format("mean-n-std%d", averageFactor),
-        of().fork(new NoFilter(), new MeanFilter(averageFactor))
+    return wrap("mean-n-std%d".formatted(averageFactor),
+        of().fork(new NoFilter(), ExcessBufferFilter.mean(averageFactor))
             .fork(
                 of().biOperator(() -> (x, mean) -> mean).build(),
-                of().biOperator(() -> (x, mean) -> {
-                  long sqrtSum = sqrtSumFilter.applyAsInt(x);
-                  return (int) Math.sqrt(sqrtSum * sqrtSum - (long) mean * (long) mean);
-                }).build()
+                of().biOperator(() -> (x, mean) -> x - mean).chain(ExcessBufferFilter.std2(averageFactor))
+                    .operator(() -> x -> (int) Math.sqrt(x)).build()
             )
     );
   }
@@ -260,12 +250,12 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   public int[] filter(@Nonnull int[] ints) {
-    DigitalFilter filter = build();
-    int[] result = new int[(int) Math.floor(ints.length * filter.getFrequencyFactor())];
+    DigitalFilter f = build();
+    int[] result = new int[(int) Math.floor(ints.length * f.getFrequencyFactor())];
     AtomicInteger index = new AtomicInteger();
-    filter.forEach(values -> result[index.getAndIncrement()] = values[0]);
+    f.forEach(values -> result[index.getAndIncrement()] = values[0]);
     for (int i : ints) {
-      filter.accept(i);
+      f.accept(i);
     }
     return result;
   }
@@ -282,8 +272,8 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     }
     else {
       if (selectedIndexes.size() != filters.length) {
-        throw new IllegalArgumentException(String.format("selectedIndexes.length [%s] != filters.length [%s]",
-            selectedIndexes.stream().map(Arrays::toString).collect(Collectors.joining()), Arrays.toString(filters)));
+        throw new IllegalArgumentException("selectedIndexes.length [%s] != filters.length [%s]"
+            .formatted(selectedIndexes.stream().map(Arrays::toString).collect(Collectors.joining()), Arrays.toString(filters)));
       }
       wrappedFilters = new DigitalFilter[filters.length];
       for (int i = 0; i < wrappedFilters.length; i++) {
@@ -298,7 +288,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   private FilterBuilder chain(@Nonnull DigitalFilter chain) {
-    filter = Optional.ofNullable(filter).<DigitalFilter>map(filter -> new ChainFilter(filter, chain)).orElse(chain);
+    filter = Optional.ofNullable(filter).<DigitalFilter>map(f -> new ChainFilter(f, chain)).orElse(chain);
     return this;
   }
 

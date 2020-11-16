@@ -6,10 +6,10 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Provider;
 
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
@@ -17,21 +17,24 @@ import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.Readable;
 import com.ak.comm.interceptor.BytesInterceptor;
 
-public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV> & Variable<EV>>
-    extends AbstractService implements FileFilter, Readable, Flow.Publisher<int[]> {
+public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
+    extends AbstractService<int[]> implements FileFilter, Readable {
+  private static final Readable EMPTY_READABLE = (dst, position) -> {
+  };
+
   @Nonnull
   private final ExecutorService service = Executors.newSingleThreadExecutor();
   @Nonnull
-  private final Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider;
+  private final Supplier<BytesInterceptor<T, R>> interceptorProvider;
   @Nonnull
-  private final Provider<Converter<RESPONSE, EV>> converterProvider;
+  private final Supplier<Converter<R, V>> converterProvider;
   @Nullable
   private Flow.Subscriber<? super int[]> subscriber;
   @Nonnull
-  private Readable readable = Readable.EMPTY_READABLE;
+  private Readable readable = EMPTY_READABLE;
 
-  public AutoFileReadingService(@Nonnull Provider<BytesInterceptor<RESPONSE, REQUEST>> interceptorProvider,
-                                @Nonnull Provider<Converter<RESPONSE, EV>> converterProvider) {
+  public AutoFileReadingService(@Nonnull Supplier<BytesInterceptor<T, R>> interceptorProvider,
+                                @Nonnull Supplier<Converter<R, V>> converterProvider) {
     this.interceptorProvider = interceptorProvider;
     this.converterProvider = converterProvider;
   }
@@ -45,7 +48,7 @@ public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV>
   public boolean accept(@Nonnull File file) {
     if (file.isFile() && file.getName().toLowerCase().endsWith(".bin")) {
       innerClose();
-      FileReadingService<RESPONSE, REQUEST, EV> source = new FileReadingService<>(file.toPath(),
+      FileReadingService<T, R, V> source = new FileReadingService<>(file.toPath(),
           interceptorProvider.get(), converterProvider.get()
       );
       readable = source;
@@ -66,12 +69,18 @@ public final class AutoFileReadingService<RESPONSE, REQUEST, EV extends Enum<EV>
   }
 
   @Override
+  public void refresh() {
+    innerClose();
+    readable.refresh();
+  }
+
+  @Override
   public void read(@Nonnull ByteBuffer dst, long position) {
     readable.read(dst, position);
   }
 
   private void innerClose() {
     readable.close();
-    readable = Readable.EMPTY_READABLE;
+    readable = EMPTY_READABLE;
   }
 }

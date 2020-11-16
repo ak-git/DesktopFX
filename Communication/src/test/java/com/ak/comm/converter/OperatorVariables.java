@@ -10,7 +10,7 @@ import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 
 public enum OperatorVariables implements DependentVariable<TwoVariables, OperatorVariables> {
-  OUT_PLUS((left, right) -> left + right),
+  OUT_PLUS(Integer::sum),
   OUT_MINUS((left, right) -> left - right) {
     @Override
     public Set<Option> options() {

@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
@@ -21,7 +20,6 @@ final class ForkFilter extends AbstractDigitalFilter {
   private final List<DigitalFilter> filters = new LinkedList<>();
 
   ForkFilter(@Nonnull DigitalFilter[] filters) {
-    Objects.requireNonNull(filters);
     if (filters.length < 2) {
       throw new IllegalArgumentException(Arrays.deepToString(filters));
     }
@@ -55,8 +53,8 @@ final class ForkFilter extends AbstractDigitalFilter {
 
         if (bufferIndex >= intBuffers.size()) {
           if (initializedFlag.get()) {
-            throw new IllegalStateException(String.format("Invalid fork [ %s ] for filter {%n%s%n}, values = %s", filter,
-                this, Arrays.toString(values)));
+            throw new IllegalStateException("Invalid fork [ %s ] for filter {%n%s%n}, values = %s"
+                .formatted(filter, this, Arrays.toString(values)));
           }
           else {
             intBuffers.add(new int[getOutputDataSize()]);

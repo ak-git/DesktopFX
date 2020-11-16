@@ -11,9 +11,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class CoefficientsTest {
-  private CoefficientsTest() {
-  }
-
   @DataProvider(name = "coefficients")
   public static Object[][] coefficients() {
     return new Object[][] {
@@ -23,13 +20,13 @@ public class CoefficientsTest {
   }
 
   @Test(dataProvider = "coefficients")
-  public static void testCoefficients(@Nonnull IntSummaryStatistics statistics, int min, int max) {
+  public void testCoefficients(@Nonnull IntSummaryStatistics statistics, int min, int max) {
     Assert.assertEquals(statistics.getMin(), min, statistics.toString());
     Assert.assertEquals(statistics.getMax(), max, statistics.toString());
   }
 
   @Test
-  public static void testReverseOrder() {
+  public void testReverseOrder() {
     Assert.assertEquals(RangeUtils.reverseOrder(new double[] {1.0, 2.0, -10.0, 3.0}), new double[] {3.0, -10.0, 2.0, 1.0});
   }
 
@@ -43,7 +40,7 @@ public class CoefficientsTest {
   }
 
   @Test(dataProvider = "count-coefficients")
-  public static void testCoefficients(@Nonnull Supplier<double[]> coefficients, @Nonnegative int count) {
+  public void testCoefficients(@Nonnull Supplier<double[]> coefficients, @Nonnegative int count) {
     Assert.assertEquals(coefficients.get().length, count, coefficients.toString());
   }
 }

@@ -15,7 +15,7 @@ import com.ak.util.LogUtils;
 import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
 import static com.ak.util.LogUtils.LOG_LEVEL_LEXEMES;
 
-public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST extends BufferFrame> implements BytesInterceptor<RESPONSE, REQUEST> {
+public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> implements BytesInterceptor<T, R> {
   protected static final int IGNORE_LIMIT = 16;
   private final Logger logger = Logger.getLogger(getClass().getName());
   @Nonnull
@@ -25,9 +25,9 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST extends BufferF
   @Nonnull
   private final BaudRate baudRate;
   @Nullable
-  private final REQUEST pingRequest;
+  private final T pingRequest;
 
-  public AbstractBytesInterceptor(@Nonnull BaudRate baudRate, @Nullable REQUEST pingRequest, int ignoreBufferLimit) {
+  protected AbstractBytesInterceptor(@Nonnull BaudRate baudRate, @Nullable T pingRequest, int ignoreBufferLimit) {
     outBuffer = ByteBuffer.allocate(baudRate.get());
     ignoreBuffer = ByteBuffer.allocate(ignoreBufferLimit);
     this.baudRate = baudRate;
@@ -35,31 +35,31 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST extends BufferF
   }
 
   @Override
-  public final Stream<RESPONSE> apply(@Nonnull ByteBuffer src) {
-    Collection<RESPONSE> responses = innerProcessIn(src);
+  public final Stream<R> apply(@Nonnull ByteBuffer src) {
+    Collection<R> responses = innerProcessIn(src);
     if (logger.isLoggable(LOG_LEVEL_LEXEMES)) {
-      responses.forEach(response -> logger.log(LOG_LEVEL_LEXEMES, String.format("#%x %s", hashCode(), response)));
+      responses.forEach(response -> logger.log(LOG_LEVEL_LEXEMES, "#%x %s".formatted(hashCode(), response)));
     }
     return responses.stream();
   }
 
   @Nullable
   @Override
-  public final REQUEST getPingRequest() {
+  public final T getPingRequest() {
     return pingRequest;
   }
 
   @Override
-  public final ByteBuffer putOut(@Nonnull REQUEST request) {
+  public final ByteBuffer putOut(@Nonnull T request) {
     outBuffer.clear();
     request.writeTo(outBuffer);
     outBuffer.flip();
     if (logger.isLoggable(LOG_LEVEL_ERRORS)) {
       if (outBuffer.limit() > 1) {
-        logger.log(LOG_LEVEL_ERRORS, String.format("#%x %s - %d bytes OUT to hardware", hashCode(), request, outBuffer.limit()));
+        logger.log(LOG_LEVEL_ERRORS, "#%x %s - %d bytes OUT to hardware".formatted(hashCode(), request, outBuffer.limit()));
       }
       else {
-        logger.log(LOG_LEVEL_ERRORS, String.format("#%x %s - OUT to hardware", hashCode(), request));
+        logger.log(LOG_LEVEL_ERRORS, "#%x %s - OUT to hardware".formatted(hashCode(), request));
       }
     }
     return outBuffer;
@@ -72,7 +72,7 @@ public abstract class AbstractBytesInterceptor<RESPONSE, REQUEST extends BufferF
   }
 
   @Nonnull
-  protected abstract Collection<RESPONSE> innerProcessIn(@Nonnull ByteBuffer src);
+  protected abstract Collection<R> innerProcessIn(@Nonnull ByteBuffer src);
 
   protected final ByteBuffer ignoreBuffer() {
     return ignoreBuffer;

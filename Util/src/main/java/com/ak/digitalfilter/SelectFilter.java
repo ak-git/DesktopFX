@@ -52,6 +52,6 @@ final class SelectFilter extends AbstractDigitalFilter {
 
   @Override
   public String toString() {
-    return toString(String.format("%s (indexes = %s) - ", getClass().getSimpleName(), Arrays.toString(selectedIndexes)), outFilter);
+    return toString("%s (indexes = %s) - ".formatted(getClass().getSimpleName(), Arrays.toString(selectedIndexes)), outFilter);
   }
 }

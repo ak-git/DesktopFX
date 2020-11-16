@@ -1,0 +1,12 @@
+plugins {
+    id 'org.openjfx.javafxplugin'
+}
+
+dependencies {
+    api project(':Util')
+}
+
+javafx {
+    version = '15'
+    modules = ['javafx.graphics']
+}

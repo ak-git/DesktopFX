@@ -9,11 +9,11 @@ import javax.measure.Unit;
 
 import tec.uom.se.AbstractUnit;
 
-public interface DependentVariable<IN extends Enum<IN> & Variable<IN>, OUT extends Enum<OUT> & Variable<OUT>> extends Variable<OUT> {
+public interface DependentVariable<I extends Enum<I> & Variable<I>, O extends Enum<O> & Variable<O>> extends Variable<O> {
   @Nonnull
-  Class<IN> getInputVariablesClass();
+  Class<I> getInputVariablesClass();
 
-  default List<IN> getInputVariables() {
+  default List<I> getInputVariables() {
     return Collections.singletonList(Enum.valueOf(getInputVariablesClass(), name()));
   }
 

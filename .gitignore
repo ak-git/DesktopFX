@@ -18,6 +18,5 @@ xcuserdata
 CVS
 */build/*
 */out/*
-.idea/workspace.xml
-.idea/libraries/*
+out/*
 .gradle

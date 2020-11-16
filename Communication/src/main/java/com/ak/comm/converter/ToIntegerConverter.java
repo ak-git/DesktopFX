@@ -9,8 +9,8 @@ import com.ak.comm.bytes.BufferFrame;
 
 import static java.lang.Integer.BYTES;
 
-public final class ToIntegerConverter<EV extends Enum<EV> & Variable<EV>> extends AbstractConverter<BufferFrame, EV> {
-  public ToIntegerConverter(@Nonnull Class<EV> evClass, @Nonnegative int frequency) {
+public final class ToIntegerConverter<V extends Enum<V> & Variable<V>> extends AbstractConverter<BufferFrame, V> {
+  public ToIntegerConverter(@Nonnull Class<V> evClass, @Nonnegative int frequency) {
     super(evClass, frequency);
   }
 

@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.logging.LogTestUtils;
 import com.ak.util.LogUtils;
 import com.ak.util.Strings;
 import org.testng.Assert;
@@ -25,35 +26,32 @@ public class RampBytesInterceptorTest {
   private final Function<ByteBuffer, Stream<BufferFrame>> interceptor =
       new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 9);
 
-  private RampBytesInterceptorTest() {
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public static void testInvalidInterceptorProperties() {
+  public void testInvalidInterceptorProperties() {
     new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 0);
   }
 
   @Test
-  public static void testInterceptorProperties() {
+  public void testInterceptorProperties() {
     BytesInterceptor<BufferFrame, BufferFrame> interceptor = new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1);
     Assert.assertEquals(interceptor.getBaudRate(), 115200);
     Assert.assertNull(interceptor.getPingRequest());
   }
 
   @Test(dataProviderClass = FrameBytesInterceptorDataProvider.class, dataProvider = "ramp-data")
-  public static void testRampBytesInterceptor(@Nonnull byte[] input, @Nonnull BufferFrame testFrame, @Nonnull String ignoredMessage) {
+  public void testRampBytesInterceptor(@Nonnull byte[] input, @Nonnull BufferFrame testFrame, @Nonnull CharSequence ignoredMessage) {
     BytesInterceptor<BufferFrame, BufferFrame> interceptor = new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, 9);
 
-    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
+    Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> {
           Collection<BufferFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).collect(Collectors.toList());
           Assert.assertEquals(frames, Collections.singleton(testFrame));
         },
         logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(testFrame.toString()),
-            String.format("[ %s ] must ends with [ %s ]", logRecord.getMessage(), testFrame.toString()))));
+            "[ %s ] must ends with [ %s ]".formatted(logRecord.getMessage(), testFrame))));
 
     AtomicReference<String> logMessage = new AtomicReference<>(Strings.EMPTY);
-    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
+    Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
         () -> {
           int bytesOut = interceptor.putOut(testFrame).remaining();
           Assert.assertTrue(bytesOut > 0);
@@ -64,7 +62,7 @@ public class RampBytesInterceptorTest {
         logRecord -> logMessage.set(logRecord.getMessage().replaceAll(".*" + BufferFrame.class.getSimpleName(), Strings.EMPTY))));
 
     BufferFrame singleByte = new BufferFrame(new byte[] {input[0]}, ByteOrder.nativeOrder());
-    Assert.assertTrue(LogUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
+    Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
         () -> Assert.assertTrue(interceptor.putOut(singleByte).remaining() > 0),
         logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(singleByte + " - OUT to hardware"), logRecord.getMessage())));
 
