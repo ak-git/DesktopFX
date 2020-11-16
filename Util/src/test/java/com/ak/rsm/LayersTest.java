@@ -30,6 +30,7 @@ public class LayersTest {
   @DataProvider(name = "rho")
   public static Object[][] rho() {
     return new Object[][] {
+        {1.0, 0.0},
         {0.0, 1.0},
         {-1.0, Double.POSITIVE_INFINITY},
         {-9.0 / 11.0, 10.0},

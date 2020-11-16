@@ -19,6 +19,4 @@ CVS
 */build/*
 */out/*
 out/*
-.idea/workspace.xml
-.idea/libraries/*
 .gradle

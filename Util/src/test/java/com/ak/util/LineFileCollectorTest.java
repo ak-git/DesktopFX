@@ -30,7 +30,7 @@ public class LineFileCollectorTest {
 
   @BeforeClass
   public void setUp() {
-    out = Paths.get(LineFileCollectorTest.class.getName() + ".txt");
+    out = Paths.get(Extension.TXT.attachTo(LineFileCollectorTest.class.getName()));
 
     LOGGER.setFilter(record -> {
       Assert.assertNotNull(record.getThrown());
@@ -56,7 +56,7 @@ public class LineFileCollectorTest {
   @DataProvider(name = "stream")
   public static Object[][] intStream() {
     return new Object[][] {
-        {(Supplier<Stream<String>>) () -> IntStream.rangeClosed(-1, 1).mapToObj(value -> String.format("%d", value))}
+        {(Supplier<Stream<String>>) () -> IntStream.rangeClosed(-1, 1).mapToObj("%d"::formatted)}
     };
   }
 

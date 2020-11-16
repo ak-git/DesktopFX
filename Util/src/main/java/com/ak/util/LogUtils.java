@@ -33,7 +33,7 @@ public enum LogUtils {
     buffer.rewind();
     StringBuilder sb = new StringBuilder(clazz.getSimpleName()).append("[ ");
     while (buffer.hasRemaining()) {
-      sb.append(String.format("%#04x", (buffer.get() & 0xFF)));
+      sb.append("%#04x".formatted((buffer.get() & 0xFF)));
       if (buffer.hasRemaining()) {
         sb.append(',');
       }
@@ -50,7 +50,7 @@ public enum LogUtils {
   public static void logBytes(@Nonnull Logger logger, @Nonnull Level level, @Nonnull Object aThis, @Nonnull ByteBuffer buffer,
                               @Nonnull String message) {
     if (logger.isLoggable(level)) {
-      logger.log(level, String.format("#%x %s %s", aThis.hashCode(), toString(aThis.getClass(), buffer), message));
+      logger.log(level, "#%x %s %s".formatted(aThis.hashCode(), toString(aThis.getClass(), buffer), message));
     }
   }
 }

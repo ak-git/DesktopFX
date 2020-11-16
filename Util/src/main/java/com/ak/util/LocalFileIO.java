@@ -43,12 +43,12 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
 
   public abstract static class AbstractBuilder implements Builder<LocalIO> {
     @Nonnull
-    private final String fileExtension;
+    private final Extension fileExtension;
     private Path relativePath;
     @Nullable
     private String fileName;
 
-    public AbstractBuilder(@Nonnull String fileExtension) {
+    protected AbstractBuilder(@Nonnull Extension fileExtension) {
       this.fileExtension = fileExtension;
     }
 
@@ -67,15 +67,12 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
     }
 
     public final AbstractBuilder fileName(@Nonnull String fileName) {
-      this.fileName = fileName;
-      if (!fileExtension.isEmpty()) {
-        this.fileName += "." + fileExtension;
-      }
+      this.fileName = fileExtension.attachTo(fileName);
       return this;
     }
 
-    public final AbstractBuilder fileNameWithDateTime(@Nonnull String prefix) {
-      fileName(prefix + localDate(" yyyy-MM-dd HH-mm-ss"));
+    public final AbstractBuilder fileNameWithDateTime(@Nonnull String suffix) {
+      fileName(localDate("yyyy-MM-dd HH-mm-ss ") + suffix);
       return this;
     }
 

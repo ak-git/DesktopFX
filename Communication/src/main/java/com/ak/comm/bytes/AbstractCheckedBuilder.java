@@ -14,7 +14,7 @@ public abstract class AbstractCheckedBuilder<T> implements BytesChecker, Builder
   @Nonnull
   private final ByteBuffer buffer;
 
-  public AbstractCheckedBuilder(@Nonnull ByteBuffer buffer) {
+  protected AbstractCheckedBuilder(@Nonnull ByteBuffer buffer) {
     this.buffer = buffer;
   }
 
@@ -29,6 +29,6 @@ public abstract class AbstractCheckedBuilder<T> implements BytesChecker, Builder
 
   protected final void logWarning() {
     Logger.getLogger(BufferFrame.class.getName()).log(LOG_LEVEL_ERRORS,
-        () -> String.format("Invalid response format: {%s}", Arrays.toString(buffer.array())));
+        () -> "Invalid response format: {%s}".formatted(Arrays.toString(buffer.array())));
   }
 }

@@ -41,9 +41,9 @@ public class ElectrodeSizeTest {
     double sToL = 0.5;
     double dToL = 0.1;
     UnivariateFunction errorR = new RelativeErrorR(sToL);
-    Assert.assertEquals(0.01, errorR.value(dToL), 0.001);
-    Assert.assertEquals(0.846, errorR.value(0.5), 0.001);
-    Assert.assertEquals(0.846, errorR.value(0.9), 0.001);
+    Assert.assertEquals(errorR.value(dToL), 0.01, 0.001);
+    Assert.assertEquals(errorR.value(0.5), 0.846, 0.001);
+    Assert.assertEquals(errorR.value(0.9), 0.846, 0.001);
   }
 
   @Test(enabled = false)

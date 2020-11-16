@@ -13,7 +13,7 @@ enum InterpolatorCoefficients implements Coefficients {
   @Override
   public final String readJSON(@Nonnull JsonObject object) {
     return object.getJsonObject(name() + ", x : y").entrySet().stream()
-        .map(entry -> String.format("%s\t%s", entry.getKey(), entry.getValue()))
+        .map(entry -> String.join(Strings.TAB, entry.getKey(), entry.getValue().toString()))
         .collect(Collectors.joining(Strings.NEW_LINE));
   }
 }
