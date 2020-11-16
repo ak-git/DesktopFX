@@ -84,6 +84,6 @@ public class StreamFilterTest {
       lastValue.set(values[0]);
     });
     data.forEach(filter::accept);
-    Assert.assertTrue(lastValue.get() >= min && lastValue.get() <= max, String.format("%d - %s - %d", min, lastValue.get(), max));
+    Assert.assertTrue(lastValue.get() >= min && lastValue.get() <= max, "%d - %s - %d".formatted(min, lastValue.get(), max));
   }
 }

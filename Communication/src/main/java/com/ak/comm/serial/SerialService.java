@@ -67,7 +67,7 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
   @Nonnull
   private final Set<BytesInterceptor.SerialParams> serialParams;
   private final ConcurrentAsyncFileChannel binaryLogChannel = new ConcurrentAsyncFileChannel(() ->
-      AsynchronousFileChannel.open(LogBuilders.SERIAL_BYTES.build(String.format("%x", hashCode())).getPath(),
+      AsynchronousFileChannel.open(LogBuilders.SERIAL_BYTES.build("%x".formatted(hashCode())).getPath(),
           StandardOpenOption.CREATE, StandardOpenOption.WRITE));
   private volatile boolean refresh;
 

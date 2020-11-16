@@ -58,7 +58,7 @@ public enum Simplex {
         }
         double value = function.value(point);
         if (!logFormat.isEmpty() && Duration.between(prev, LocalTime.now()).getSeconds() >= 60 - 1) {
-          Logger.getLogger(Simplex.class.getName()).log(Level.INFO, String.format("%s; %.6f", Strings.toString(logFormat, point), value));
+          Logger.getLogger(Simplex.class.getName()).log(Level.INFO, "%s; %.6f".formatted(Strings.toString(logFormat, point), value));
           prev = LocalTime.now();
         }
         return value;

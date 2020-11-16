@@ -51,7 +51,7 @@ public class RcmConverterTest {
       int finalI = i;
       long count = converter.apply(bufferFrame).peek(ints -> {
         if (finalI > 1900) {
-          Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
+          Assert.assertEquals(ints, outputInts, "expected = %s, actual = %s".formatted(Arrays.toString(outputInts), Arrays.toString(ints)));
           processed.set(true);
         }
       }).count();

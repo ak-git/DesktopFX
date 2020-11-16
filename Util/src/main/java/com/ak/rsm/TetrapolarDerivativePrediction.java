@@ -26,6 +26,6 @@ final class TetrapolarDerivativePrediction implements Prediction {
 
   @Override
   public String toString() {
-    return String.format("%s, %s", prediction, Strings.dRhoByH(diffResistivityPredicted));
+    return "%s, %s".formatted(String.valueOf(prediction), Strings.dRhoByH(diffResistivityPredicted));
   }
 }

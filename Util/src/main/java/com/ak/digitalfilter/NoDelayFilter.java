@@ -53,6 +53,6 @@ final class NoDelayFilter extends AbstractDigitalFilter {
 
   @Override
   public String toString() {
-    return toString(String.format("%s (compensate %.1f delay x 2) - ", getClass().getSimpleName(), filter.getDelay()), filter);
+    return toString("%s (compensate %.1f delay x 2) - ".formatted(getClass().getSimpleName(), filter.getDelay()), filter);
   }
 }

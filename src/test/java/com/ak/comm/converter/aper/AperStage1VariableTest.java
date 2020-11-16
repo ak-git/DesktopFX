@@ -40,7 +40,7 @@ public class AperStage1VariableTest {
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     converter.apply(bufferFrame).forEach(ints -> {
-      Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
+      Assert.assertEquals(ints, outputInts, "expected = %s, actual = %s".formatted(Arrays.toString(outputInts), Arrays.toString(ints)));
       processed.set(true);
     });
     Assert.assertEquals(converter.getFrequency(), 1000, 0.1);

@@ -48,7 +48,7 @@ public class FxApplication extends Application {
         .collect(Collectors.toUnmodifiableList());
 
     for (int i = 0; i < stages.size(); i++) {
-      Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass(), String.format("%d", i));
+      Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass(), "%d".formatted(i));
       Stage stage = stages.get(i);
       stage.setScene(new Scene(fxmlLoaders.get(i).load(), 1024, 768));
       stage.setTitle(resourceBundle.getString(KEY_APPLICATION_TITLE));

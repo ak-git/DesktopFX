@@ -26,7 +26,6 @@ final class Layer2RelativeMedium implements RelativeMediumLayers {
 
   @Override
   public String toString() {
-    return String.format("k%s%s = %+.3f; %s",
-        Strings.low(1), Strings.low(2), k12(), Strings.h(h(), 1));
+    return "k%s%s = %+.3f; %s".formatted(Strings.low(1), Strings.low(2), k12(), Strings.h(h(), 1));
   }
 }

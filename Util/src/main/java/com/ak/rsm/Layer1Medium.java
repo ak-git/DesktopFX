@@ -14,7 +14,7 @@ final class Layer1Medium extends AbstractMediumLayers<Layer1Medium> {
 
   @Override
   public String toString() {
-    return String.format("%s; %s", Strings.rho(rho()), super.toString());
+    return "%s; %s".formatted(Strings.rho(rho()), super.toString());
   }
 
   static final class Layer1MediumBuilder extends AbstractMediumBuilder<Layer1Medium> {

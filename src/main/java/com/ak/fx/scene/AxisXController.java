@@ -98,8 +98,8 @@ public final class AxisXController {
 
   @Override
   public String toString() {
-    return String.format("axis-x size = %d [%d - %d]; x-zoom = %d mm/s; decimate factor = %d",
-        getLength(), getStart(), getEnd(), zoomProperty.get().mmPerSec, decimateFactor);
+    return "axis-x size = %d [%d - %d]; x-zoom = %d mm/s; decimate factor = %d".
+        formatted(getLength(), getStart(), getEnd(), zoomProperty.get().mmPerSec, decimateFactor);
   }
 
   public void setFrequency(@Nonnegative double frequency) {
@@ -163,8 +163,8 @@ public final class AxisXController {
     decimateFactor = Math.max(1, toInt(frequency / pointsInSec));
     double xStep = decimateFactor * pointsInSec / frequency;
     Logger.getLogger(getClass().getName()).log(Level.CONFIG,
-        () -> String.format("frequency = %.0f Hz; x-zoom = %d mm/s; pixels per sec = %.1f; decimate factor = %d; x-step = %.1f px",
-            frequency, zoomProperty.get().mmPerSec, pointsInSec, decimateFactor, xStep));
+        () -> "frequency = %.0f Hz; x-zoom = %d mm/s; pixels per sec = %.1f; decimate factor = %d; x-step = %.1f px"
+            .formatted(frequency, zoomProperty.get().mmPerSec, pointsInSec, decimateFactor, xStep));
     return xStep;
   }
 
