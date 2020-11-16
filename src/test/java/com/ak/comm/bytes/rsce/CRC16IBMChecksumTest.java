@@ -37,11 +37,11 @@ public class CRC16IBMChecksumTest {
       for (int b : input) {
         checksum.update(b);
       }
-      Assert.assertEquals(checksum.getValue(), expectedSum, String.format("Test [%d], checksum %s", i, checksum));
+      Assert.assertEquals(checksum.getValue(), expectedSum, "Test [%d], checksum %s".formatted(i, checksum));
       checksum.reset();
 
       checksum.update(input, 0, input.length);
-      Assert.assertEquals(checksum.getValue(), expectedSum, String.format("Test [%d], checksum %s", i, checksum));
+      Assert.assertEquals(checksum.getValue(), expectedSum, "Test [%d], checksum %s".formatted(i, checksum));
       checksum.reset();
     }
   }

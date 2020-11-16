@@ -1,9 +1,8 @@
 module com.ak.comm {
   requires com.ak.util;
-  requires javax.inject;
 
   requires jsr305;
-  requires jssc;
+  requires com.fazecast.jSerialComm;
   requires java.logging;
   requires unit.api;
   requires uom.se;
@@ -16,6 +15,5 @@ module com.ak.comm {
 
   opens com.ak.comm.core to org.testng;
   opens com.ak.comm.file to org.testng;
-  opens com.ak.comm.logging to org.testng;
   opens com.ak.comm.serial to org.testng;
 }

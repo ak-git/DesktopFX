@@ -39,7 +39,7 @@ public class RampBytesInterceptorTest {
   }
 
   @Test(dataProviderClass = FrameBytesInterceptorDataProvider.class, dataProvider = "ramp-data")
-  public void testRampBytesInterceptor(@Nonnull byte[] input, @Nonnull BufferFrame testFrame, @Nonnull String ignoredMessage) {
+  public void testRampBytesInterceptor(@Nonnull byte[] input, @Nonnull BufferFrame testFrame, @Nonnull CharSequence ignoredMessage) {
     BytesInterceptor<BufferFrame, BufferFrame> interceptor = new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, 9);
 
     Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
@@ -48,7 +48,7 @@ public class RampBytesInterceptorTest {
           Assert.assertEquals(frames, Collections.singleton(testFrame));
         },
         logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(testFrame.toString()),
-            String.format("[ %s ] must ends with [ %s ]", logRecord.getMessage(), testFrame))));
+            "[ %s ] must ends with [ %s ]".formatted(logRecord.getMessage(), testFrame))));
 
     AtomicReference<String> logMessage = new AtomicReference<>(Strings.EMPTY);
     Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,

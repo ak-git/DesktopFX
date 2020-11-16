@@ -44,14 +44,14 @@ public class RcmConverterTest {
 
   @Test(dataProvider = "variables")
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
-    Converter<BufferFrame, RcmOutVariable> converter = new LinkedConverter<>(new RcmConverter(), RcmOutVariable.class);
+    Converter<BufferFrame, RcmOutVariable> converter = LinkedConverter.of(new RcmConverter(), RcmOutVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 2000 - 1; i++) {
       int finalI = i;
       long count = converter.apply(bufferFrame).peek(ints -> {
         if (finalI > 1900) {
-          Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
+          Assert.assertEquals(ints, outputInts, "expected = %s, actual = %s".formatted(Arrays.toString(outputInts), Arrays.toString(ints)));
           processed.set(true);
         }
       }).count();
@@ -91,13 +91,12 @@ public class RcmConverterTest {
   public static Object[][] filterDelay() {
     return new Object[][] {
         {RHEO_1, 3.5},
-        {BASE_1, 341.0},
+        {BASE_1, 377.0},
         {QS_1, 3.5},
         {ECG, 3.5},
         {RHEO_2, 3.5},
-        {BASE_2, 341.0},
+        {BASE_2, 377.0},
         {QS_2, 3.5},
-
     };
   }
 
