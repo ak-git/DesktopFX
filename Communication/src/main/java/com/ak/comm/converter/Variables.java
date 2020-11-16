@@ -20,7 +20,7 @@ public enum Variables {
   ;
 
   public static String toString(@Nonnull Quantity<?> quantity) {
-    return String.format("%s %s", quantity.getValue(), toString(quantity.getUnit()));
+    return String.join(Strings.SPACE, quantity.getValue().toString(), toString(quantity.getUnit()));
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable, int value) {
@@ -37,7 +37,7 @@ public enum Variables {
       }
       else {
         Logger.getLogger(Variables.class.getName()).log(Level.CONFIG,
-            () -> String.format("Missing resource key %s at file %s.properties", variable.name(), baseName));
+            () -> "Missing resource key %s at file %s.properties".formatted(variable.name(), baseName));
         name = variable.name();
       }
     }
@@ -54,12 +54,13 @@ public enum Variables {
       displayScale++;
     }
 
+    double sf10 = scaleFactor10;
     if (scaleFactor10 == 1 && value != 0) {
       for (int i = value; i % 10 == 0; i /= 10) {
-        scaleFactor10 *= 10;
+        sf10 *= 10;
       }
     }
-    int formatZeros = Math.max(0, (displayScale - scale) - (int) Math.rint(StrictMath.log10(scaleFactor10)));
+    int formatZeros = Math.max(0, (displayScale - scale) - (int) Math.rint(StrictMath.log10(sf10)));
 
     Unit<Q> displayUnit = unit.getSystemUnit();
     for (MetricPrefix metricPrefix : MetricPrefix.values()) {
@@ -70,7 +71,7 @@ public enum Variables {
     }
 
     if (value == 0) {
-      return String.format("%d %s", value, scaleFactor10 > 10 ? displayUnit : unit);
+      return "%d %s".formatted(value, sf10 > 10 ? displayUnit : unit);
     }
     else {
       double converted = unit.getConverterTo(displayUnit).convert(value);
@@ -84,7 +85,7 @@ public enum Variables {
   }
 
   public static <E extends Enum<E> & Variable<E>> String toName(@Nonnull E variable) {
-    return String.format("%s, %s", variable.name(), variable.getUnit());
+    return String.join(", ", variable.name(), variable.getUnit().toString());
   }
 
   private static String toString(@Nonnull Unit<?> unit) {

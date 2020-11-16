@@ -25,9 +25,6 @@ public class RsceBytesInterceptor2Test {
   private final BytesInterceptor<RsceCommandFrame, RsceCommandFrame> interceptor = new RsceBytesInterceptor();
   private final ByteBuffer byteBuffer = ByteBuffer.allocate(1);
 
-  private RsceBytesInterceptor2Test() {
-  }
-
   @DataProvider(name = "data")
   public static Object[][] data() {
     return new Object[][] {

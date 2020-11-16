@@ -26,9 +26,6 @@ public class GroupServiceTest implements Flow.Subscriber<int[]> {
   @Nullable
   private Flow.Subscription subscription;
 
-  private GroupServiceTest() {
-  }
-
   @BeforeClass
   public void setUp() {
     service.subscribe(this);

@@ -10,11 +10,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class NmisProtocolByteTest {
-  private NmisProtocolByteTest() {
-  }
-
   @Test
-  public static void testIs() {
+  public void testIs() {
     Assert.assertFalse(NmisProtocolByte.START.is((byte) 0x00));
     Assert.assertTrue(NmisProtocolByte.START.is((byte) 0x7E));
 
@@ -27,26 +24,26 @@ public class NmisProtocolByteTest {
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "allOhmsMyoOffResponse")
-  public static void testResponseOhmsCRC(@Nonnull NmisRequest request, @Nonnull byte[] input) {
+  public void testResponseOhmsCRC(@Nonnull NmisRequest request, @Nonnull byte[] input) {
     Assert.assertNotNull(request);
     Assert.assertTrue(NmisProtocolByte.checkCRC(ByteBuffer.wrap(Arrays.copyOfRange(input, 1, input.length))), Arrays.toString(input));
     Assert.assertFalse(NmisProtocolByte.checkCRC(ByteBuffer.wrap(input)), Arrays.toString(input));
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "360OhmsMyoHzResponse")
-  public static void testResponseMyoCRC(@Nonnull NmisRequest request, @Nonnull byte[] input) {
+  public void testResponseMyoCRC(@Nonnull NmisRequest request, @Nonnull byte[] input) {
     Assert.assertNotNull(request);
     Assert.assertTrue(NmisProtocolByte.checkCRC(ByteBuffer.wrap(input)), Arrays.toString(input));
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "sequenceResponse")
-  public static void testResponseSequenceCRC(@Nonnull NmisRequest request, @Nonnull byte[] input) {
+  public void testResponseSequenceCRC(@Nonnull NmisRequest request, @Nonnull byte[] input) {
     Assert.assertNotNull(request);
     Assert.assertTrue(NmisProtocolByte.checkCRC(ByteBuffer.wrap(input)), Arrays.toString(input));
   }
 
   @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "aliveAndChannelsResponse")
-  public static void testResponseAliveAndChannelsCRC(@Nonnull NmisAddress address, @Nonnull byte[] input) {
+  public void testResponseAliveAndChannelsCRC(@Nonnull NmisAddress address, @Nonnull byte[] input) {
     if (NmisAddress.CHANNELS.contains(address)) {
       Assert.assertTrue(NmisProtocolByte.checkCRC(ByteBuffer.wrap(input)), Arrays.toString(input));
     }

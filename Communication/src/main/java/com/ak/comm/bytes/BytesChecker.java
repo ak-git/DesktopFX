@@ -10,6 +10,7 @@ public interface BytesChecker {
   }
 
   default void bufferLimit(@Nonnull ByteBuffer buffer) {
+    //Default implementation does nothing with buffer.
   }
 
   default boolean isCheckedAndLimitSet(byte b, @Nonnull ByteBuffer buffer) {

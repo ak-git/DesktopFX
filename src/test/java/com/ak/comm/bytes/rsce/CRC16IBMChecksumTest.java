@@ -7,9 +7,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class CRC16IBMChecksumTest {
-  private CRC16IBMChecksumTest() {
-  }
-
   @DataProvider(name = "checksum", parallel = true)
   public static Object[][] checksum() {
     byte[][] input = {
@@ -34,17 +31,17 @@ public class CRC16IBMChecksumTest {
   }
 
   @Test(dataProvider = "checksum")
-  public static void testUpdate(@Nonnull byte[] input, int expectedSum) {
+  public void testUpdate(@Nonnull byte[] input, int expectedSum) {
     CRC16IBMChecksum checksum = new CRC16IBMChecksum();
     for (int i = 0, bytesLength = input.length; i < bytesLength; i++) {
       for (int b : input) {
         checksum.update(b);
       }
-      Assert.assertEquals(checksum.getValue(), expectedSum, String.format("Test [%d], checksum %s", i, checksum));
+      Assert.assertEquals(checksum.getValue(), expectedSum, "Test [%d], checksum %s".formatted(i, checksum));
       checksum.reset();
 
       checksum.update(input, 0, input.length);
-      Assert.assertEquals(checksum.getValue(), expectedSum, String.format("Test [%d], checksum %s", i, checksum));
+      Assert.assertEquals(checksum.getValue(), expectedSum, "Test [%d], checksum %s".formatted(i, checksum));
       checksum.reset();
     }
   }

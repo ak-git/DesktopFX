@@ -1,6 +1,5 @@
 package com.ak.fx.desktop;
 
-import java.io.File;
 import java.net.URL;
 import java.util.Map;
 import java.util.Objects;
@@ -13,8 +12,10 @@ import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import com.ak.comm.GroupService;
+import com.ak.comm.converter.Refreshable;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.digitalfilter.FilterBuilder;
@@ -31,14 +32,11 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
 import javafx.util.Duration;
 
-public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
-    implements Initializable, Flow.Subscriber<int[]> {
+abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
+    implements Initializable, Flow.Subscriber<int[]>, AutoCloseable, Refreshable {
   @Nonnull
   private final GroupService<T, R, V> service;
   private final AxisXController axisXController = new AxisXController(this::changed);
@@ -49,7 +47,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @FXML
   private Chart chart;
 
-  public AbstractViewController(@Nonnull GroupService<T, R, V> service) {
+  AbstractViewController(@Nonnull GroupService<T, R, V> service) {
     this.service = service;
   }
 
@@ -57,8 +55,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   public final void initialize(@Nullable URL location, @Nullable ResourceBundle resources) {
     if (chart != null) {
       chart.setOnDragOver(event -> {
-        Dragboard db = event.getDragboard();
-        if (db.hasFiles()) {
+        if (event.getDragboard().hasFiles()) {
           event.acceptTransferModes(TransferMode.COPY);
         }
         else {
@@ -66,23 +63,8 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
         }
       });
       chart.setOnDragDropped(event -> {
-        Dragboard db = event.getDragboard();
-        boolean ok = false;
-        if (db.hasFiles()) {
-          for (File file : db.getFiles()) {
-            if (service.accept(file)) {
-              ok = true;
-              break;
-            }
-          }
-        }
-        event.setDropCompleted(ok);
+        event.setDropCompleted(event.getDragboard().getFiles().stream().anyMatch(service::accept));
         event.consume();
-      });
-      chart.getScene().addEventHandler(KeyEvent.KEY_RELEASED, event -> {
-        if (KeyCombination.keyCombination("Shortcut+N").match(event)) {
-          service.refresh();
-        }
       });
       chart.setVariables(service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.VISIBLE))
           .map(Variables::toString).collect(Collectors.toList()));
@@ -91,7 +73,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
         axisXController.scroll(event.getDeltaX());
         event.consume();
       });
-      chart.setOnZoomStarted(event -> {
+      chart.setOnZoom(event -> {
         axisXController.zoom(event.getZoomFactor());
         axisXController.preventEnd(chart.diagramWidthProperty().doubleValue());
         changed();
@@ -130,7 +112,8 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   }
 
   @Override
-  public final void onNext(@Nonnull int[] ints) {
+  @OverridingMethodsMustInvokeSuper
+  public void onNext(@Nonnull int[] ints) {
     FxUtils.invokeInFx(() -> Objects.requireNonNull(chart).setBannerText(
         service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.TEXT_VALUE_BANNER))
             .map(v -> Variables.toString(v, ints[v.ordinal()])).collect(Collectors.joining(Strings.NEW_LINE_2)))
@@ -145,6 +128,22 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @Override
   public final void onComplete() {
     changed();
+  }
+
+  @Override
+  @OverridingMethodsMustInvokeSuper
+  public void close() {
+    service.close();
+  }
+
+  @Override
+  public final void refresh() {
+    service.refresh();
+  }
+
+  @Nonnull
+  protected final GroupService<T, R, V> service() {
+    return service;
   }
 
   private void changed() {

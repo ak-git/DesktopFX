@@ -39,7 +39,7 @@ public final class ScaleYInfo<V extends Enum<V> & Variable<V>> implements IntToD
 
   @Override
   public String toString() {
-    return String.format("ScaleYInfo{mean = %d, scaleFactor = %d, scaleFactor10 = %d}", mean, scaleFactor, scaleFactor10);
+    return "ScaleYInfo{mean = %d, scaleFactor = %d, scaleFactor10 = %d}".formatted(mean, scaleFactor, scaleFactor10);
   }
 
   static final class ScaleYInfoBuilder<V extends Enum<V> & Variable<V>> implements javafx.util.Builder<ScaleYInfo<V>> {

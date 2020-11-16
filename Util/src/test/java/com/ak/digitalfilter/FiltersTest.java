@@ -29,7 +29,7 @@ public class FiltersTest {
           DigitalFilter filter = FilterBuilder.of().smoothingImpulsive(10).buildNoDelay();
 
           try (LineFileCollector collector = new LineFileCollector(
-              Paths.get(String.format("%s%s", filteredPrefix, path.getFileName())), LineFileCollector.Direction.VERTICAL)) {
+              Paths.get(String.join(Strings.EMPTY, filteredPrefix, path.getFileName().toString())), LineFileCollector.Direction.VERTICAL)) {
             filter.forEach(values ->
                 collector.accept(Arrays.stream(values).mapToObj(String::valueOf).collect(Collectors.joining(Strings.TAB))));
 

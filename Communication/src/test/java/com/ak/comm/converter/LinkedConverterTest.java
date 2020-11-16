@@ -19,9 +19,6 @@ import org.testng.annotations.Test;
 import tec.uom.se.AbstractUnit;
 
 public class LinkedConverterTest {
-  private LinkedConverterTest() {
-  }
-
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -39,24 +36,22 @@ public class LinkedConverterTest {
   }
 
   @Test(dataProvider = "variables")
-  public static void testApply(BufferFrame frame, int[] output) {
-    ToIntegerConverter<TwoVariables> converter = new ToIntegerConverter<>(TwoVariables.class, 200);
-    LinkedConverter<BufferFrame, TwoVariables, OperatorVariables> linkedConverter = new LinkedConverter<>(converter, OperatorVariables.class);
+  public void testApply(BufferFrame frame, int[] output) {
+    Converter<BufferFrame, TwoVariables> converter = new ToIntegerConverter<>(TwoVariables.class, 200);
+    LinkedConverter<BufferFrame, TwoVariables, OperatorVariables> linkedConverter = LinkedConverter.of(converter, OperatorVariables.class);
     Assert.assertEquals(linkedConverter.variables(), Stream.of(OperatorVariables.values()).collect(Collectors.toList()));
     Assert.assertEquals(linkedConverter.apply(frame).peek(ints -> Assert.assertEquals(ints, output,
-        String.format("Actual %s, Expected %s", Arrays.toString(ints), Arrays.toString(output)))).count(), 1);
+        "Actual %s, Expected %s".formatted(Arrays.toString(ints), Arrays.toString(output)))).count(), 1);
   }
 
   @Test(dataProvider = "variables2")
-  public static void testApply2(BufferFrame frame, int[] output) {
+  public void testApply2(BufferFrame frame, int[] output) {
     Function<BufferFrame, Stream<int[]>> linkedConverter =
-        new LinkedConverter<>(
-            new LinkedConverter<>(new ToIntegerConverter<>(TwoVariables.class, 1000), OperatorVariables.class),
-            OperatorVariables2.class
-        );
+        LinkedConverter.of(new ToIntegerConverter<>(TwoVariables.class, 1000), OperatorVariables.class)
+            .chainInstance(OperatorVariables2.class);
 
     Assert.assertEquals(linkedConverter.apply(frame).peek(ints -> Assert.assertEquals(ints, output,
-        String.format("Actual %s, Expected %s", Arrays.toString(ints), Arrays.toString(output)))).count(), 1);
+        "Actual %s, Expected %s".formatted(Arrays.toString(ints), Arrays.toString(output)))).count(), 1);
   }
 
   @DataProvider(name = "refresh-variables")
@@ -67,18 +62,16 @@ public class LinkedConverterTest {
   }
 
   @Test
-  public static void testRecursive() {
+  public void testRecursive() {
     Assert.assertEquals(RefreshVariable.OUT.getUnit(), AbstractUnit.ONE);
     Assert.assertEquals(RefreshVariable.OUT.options(), Variable.Option.defaultOptions());
   }
 
   @Test(dataProvider = "refresh-variables")
-  public static void testRefresh(BufferFrame frame) {
+  public void testRefresh(BufferFrame frame) {
     LinkedConverter<BufferFrame, RefreshVariable, RefreshVariable> linkedConverter =
-        new LinkedConverter<>(
-            new LinkedConverter<>(new ToIntegerConverter<>(RefreshVariable.class, 1), RefreshVariable.class),
-            RefreshVariable.class
-        );
+        LinkedConverter.of(new ToIntegerConverter<>(RefreshVariable.class, 1), RefreshVariable.class)
+            .chainInstance(RefreshVariable.class);
 
     linkedConverter.refresh();
     Assert.assertEquals(linkedConverter.apply(frame).count(), 0);

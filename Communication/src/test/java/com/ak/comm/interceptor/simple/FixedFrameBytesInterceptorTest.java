@@ -26,23 +26,20 @@ public class FixedFrameBytesInterceptorTest {
   private final Function<ByteBuffer, Stream<BufferFrame>> interceptor =
       new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 9);
 
-  private FixedFrameBytesInterceptorTest() {
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public static void testInvalidInterceptorProperties() {
+  public void testInvalidInterceptorProperties() {
     new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 0);
   }
 
   @Test
-  public static void testInterceptorProperties() {
+  public void testInterceptorProperties() {
     BytesInterceptor<BufferFrame, BufferFrame> interceptor = new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1);
     Assert.assertEquals(interceptor.getBaudRate(), 115200);
     Assert.assertNull(interceptor.getPingRequest());
   }
 
   @Test(dataProviderClass = FrameBytesInterceptorDataProvider.class, dataProvider = "fixed-start-data")
-  public static void testFixedBytesInterceptor(@Nonnull byte[] input, @Nonnull BufferFrame testFrame, @Nonnull String ignoredMessage) {
+  public void testFixedBytesInterceptor(@Nonnull byte[] input, @Nonnull BufferFrame testFrame, @Nonnull CharSequence ignoredMessage) {
     BytesInterceptor<BufferFrame, BufferFrame> interceptor = new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, 9);
 
     Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
@@ -51,7 +48,7 @@ public class FixedFrameBytesInterceptorTest {
           Assert.assertEquals(frames, Collections.singleton(testFrame));
         },
         logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(testFrame.toString()),
-            String.format("[ %s ] must ends with [ %s ]", logRecord.getMessage(), testFrame))));
+            "[ %s ] must ends with [ %s ]".formatted(logRecord.getMessage(), testFrame))));
 
     AtomicReference<String> logMessage = new AtomicReference<>(Strings.EMPTY);
     Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,

@@ -2,6 +2,7 @@ package com.ak.comm.bytes.rsce;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Map;
@@ -17,8 +18,13 @@ import javax.annotation.Nullable;
 import com.ak.comm.bytes.AbstractCheckedBuilder;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.bytes.BytesChecker;
+import com.ak.util.Strings;
 
 public final class RsceCommandFrame extends BufferFrame {
+  private static final int MAX_CAPACITY = 12;
+  private static final int NON_LEN_BYTES = 2;
+  private static final Map<String, RsceCommandFrame> SERVOMOTOR_REQUEST_MAP = new ConcurrentHashMap<>();
+
   private enum ProtocolByte implements BytesChecker {
     ADDR {
       @Override
@@ -98,7 +104,7 @@ public final class RsceCommandFrame extends BufferFrame {
     @Override
     @Nullable
     public RequestType find(byte b) {
-      return Stream.of(RequestType.values()).filter(type -> type.code == (byte) (b & 0b00000_111)).findAny().orElse(null);
+      return Stream.of(values()).filter(type -> type.code == (byte) (b & 0b00000_111)).findAny().orElse(null);
     }
 
     private static RequestType find(@Nonnull ByteBuffer buffer) {
@@ -202,10 +208,6 @@ public final class RsceCommandFrame extends BufferFrame {
     }
   }
 
-  private static final int MAX_CAPACITY = 12;
-  private static final int NON_LEN_BYTES = 2;
-  private static final Map<String, RsceCommandFrame> SERVOMOTOR_REQUEST_MAP = new ConcurrentHashMap<>();
-
   private RsceCommandFrame(@Nonnull AbstractCheckedBuilder<RsceCommandFrame> builder) {
     super(builder.buffer());
   }
@@ -216,7 +218,7 @@ public final class RsceCommandFrame extends BufferFrame {
 
   @Override
   public String toString() {
-    return String.format("%s %s", super.toString(), toType(byteBuffer()));
+    return String.join(Strings.SPACE, super.toString(), toType(byteBuffer()));
   }
 
   public static RsceCommandFrame simple(@Nonnull Control control, @Nonnull RequestType requestType) {
@@ -318,7 +320,7 @@ public final class RsceCommandFrame extends BufferFrame {
   }
 
   private static RsceCommandFrame getInstance(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType) {
-    String key = String.format("%s(%s)_%s(%s)_%s(%s)",
+    String key = MessageFormat.format("{0}({1})_{2}({3})_{4}({5})",
         control.getClass().getSimpleName(), control.name(),
         actionType.getClass().getSimpleName(), actionType.name(),
         requestType.getClass().getSimpleName(), requestType.name());
@@ -339,6 +341,6 @@ public final class RsceCommandFrame extends BufferFrame {
   }
 
   private static String toType(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType) {
-    return String.format("%s %s %s", control.name(), actionType.name(), requestType.name());
+    return String.join(Strings.SPACE, control.name(), actionType.name(), requestType.name());
   }
 }

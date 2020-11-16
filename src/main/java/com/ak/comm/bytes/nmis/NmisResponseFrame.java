@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.AbstractCheckedBuilder;
 import com.ak.comm.bytes.BufferFrame;
+import com.ak.util.Strings;
 
 import static com.ak.comm.bytes.nmis.NmisAddress.DATA;
 
@@ -93,7 +94,7 @@ public final class NmisResponseFrame extends BufferFrame {
 
   @Override
   public String toString() {
-    return String.format("%s %s", super.toString(), address);
+    return String.join(Strings.SPACE, super.toString(), address.toString());
   }
 
   public static class Builder extends AbstractCheckedBuilder<NmisResponseFrame> {
