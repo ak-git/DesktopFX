@@ -33,7 +33,7 @@ module com.ak.fx.desktop {
   opens com.ak.comm.interceptor.rsce to org.testng;
   opens com.ak.comm.converter.rsce to org.testng;
   opens com.ak.comm.converter.nmis to com.ak.comm, org.testng;
-  opens com.ak.comm.converter.aper to org.testng;
+  opens com.ak.comm.converter.aper to com.ak.comm, org.testng;
 
   exports com.ak.comm.interceptor.suntech to org.testng;
   exports com.ak.comm.converter.aper to javafx.graphics, org.testng;

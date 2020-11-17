@@ -13,7 +13,7 @@ import static tec.uom.se.unit.Units.METRE;
 import static tec.uom.se.unit.Units.OHM;
 
 public enum AperStage6Current1Variable implements DependentVariable<AperStage5Current1Variable, AperStage6Current1Variable> {
-  APPARENT_RHO_1 {
+  APPARENT_RHO_CHANNEL_1 {
     @Override
     public List<AperStage5Current1Variable> getInputVariables() {
       return Collections.singletonList(AperStage5Current1Variable.R1);
@@ -29,7 +29,7 @@ public enum AperStage6Current1Variable implements DependentVariable<AperStage5Cu
       return FilterBuilder.of().operator(() -> r -> r * 2).build();
     }
   },
-  APPARENT_RHO_2 {
+  APPARENT_RHO_CHANNEL_2 {
     @Override
     public List<AperStage5Current1Variable> getInputVariables() {
       return Collections.singletonList(AperStage5Current1Variable.R2);
