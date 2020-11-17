@@ -31,7 +31,7 @@ public enum Variables {
     String baseName = variable.getClass().getPackage().getName() + ".variables";
     String name;
     try {
-      ResourceBundle resourceBundle = ResourceBundle.getBundle(baseName);
+      ResourceBundle resourceBundle = ResourceBundle.getBundle(baseName, Locale.getDefault(), variable.getClass().getModule());
       if (resourceBundle.containsKey(variable.name())) {
         name = Objects.toString(resourceBundle.getString(variable.name()), Strings.EMPTY);
       }
