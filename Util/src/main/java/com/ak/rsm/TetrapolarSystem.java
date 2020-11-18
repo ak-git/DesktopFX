@@ -13,13 +13,13 @@ import tec.uom.se.unit.MetricPrefix;
 
 import static tec.uom.se.unit.Units.METRE;
 
-final class TetrapolarSystem {
+public final class TetrapolarSystem {
   @Nonnegative
   private final double sPotentialUnitSI;
   @Nonnegative
   private final double lCurrentCarryingSI;
 
-  TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
+  public TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
     sPotentialUnitSI = toDouble(Math.min(sPU, lCC), unit);
     lCurrentCarryingSI = toDouble(Math.max(sPU, lCC), unit);
   }
@@ -39,7 +39,7 @@ final class TetrapolarSystem {
    * @param rOhms in Ohms.
    * @return <b>apparent</b> specific resistance in Ohm-m.
    */
-  double getApparent(@Nonnegative double rOhms) {
+  public double getApparent(@Nonnegative double rOhms) {
     return rOhms * Math.PI / (Math.abs(1.0 / radius(-1.0)) - Math.abs(1.0 / radius(1.0)));
   }
 

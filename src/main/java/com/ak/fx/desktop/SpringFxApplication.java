@@ -25,7 +25,7 @@ import com.ak.comm.converter.aper.AperStage3Variable;
 import com.ak.comm.converter.aper.AperStage4Current1Variable;
 import com.ak.comm.converter.aper.AperStage4Current2Variable;
 import com.ak.comm.converter.aper.AperStage5Current1Variable;
-import com.ak.comm.converter.aper.AperStage6Current1Variable;
+import com.ak.comm.converter.aper.AperStage6Current1Variable7;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
@@ -129,7 +129,7 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
-  @Profile({"aper2-nibp", "aper1-myo", "aper2-ecg", "aper1-R4", "aper1-2Rho", "aper1-calibration"})
+  @Profile({"aper2-nibp", "aper1-myo", "aper2-ecg", "aper1-R4", "aper1-2Rho-7mm", "aper1-calibration"})
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   @Primary
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorAper() {
@@ -175,10 +175,10 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
-  @Profile("aper1-2Rho")
+  @Profile("aper1-2Rho-7mm")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, AperStage6Current1Variable> converterAper1To2Rho() {
-    return converterAper1R4().chainInstance(AperStage6Current1Variable.class);
+  static Converter<BufferFrame, AperStage6Current1Variable7> converterAper1To2Rho() {
+    return converterAper1R4().chainInstance(AperStage6Current1Variable7.class);
   }
 
   @Bean
