@@ -19,18 +19,13 @@ import static tec.uom.se.unit.Units.OHM;
  * Electrode systems: [7 x 21 mm] and [21 x 35 mm]
  */
 public enum AperStage6Current1Variable7 implements DependentVariable<AperStage5Current1Variable, AperStage6Current1Variable7> {
-  APPARENT_RHO_CHANNEL_1(7.0, 7.0 * 3.0) {
+  APPARENT_RHO_07_21_CHANNEL(7.0, 7.0 * 3.0) {
     @Override
     public List<AperStage5Current1Variable> getInputVariables() {
       return Collections.singletonList(AperStage5Current1Variable.R1);
     }
-
-    @Override
-    public Unit<?> getUnit() {
-      return MetricPrefix.MILLI(OHM).multiply(METRE);
-    }
   },
-  APPARENT_RHO_CHANNEL_2(7.0 * 3.0, 7.0 * 5.0) {
+  APPARENT_RHO_21_35_CHANNEL(7.0 * 3.0, 7.0 * 5.0) {
     @Override
     public List<AperStage5Current1Variable> getInputVariables() {
       return Collections.singletonList(AperStage5Current1Variable.R2);
@@ -38,8 +33,13 @@ public enum AperStage6Current1Variable7 implements DependentVariable<AperStage5C
   },
   CCR(0.0, 0.0) {
     @Override
+    public Unit<?> getUnit() {
+      return AperStage5Current1Variable.CCR.getUnit();
+    }
+
+    @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().build();
+      return AperStage5Current1Variable.CCR.filter();
     }
   };
 
@@ -52,6 +52,11 @@ public enum AperStage6Current1Variable7 implements DependentVariable<AperStage5C
   @Override
   public final Class<AperStage5Current1Variable> getInputVariablesClass() {
     return AperStage5Current1Variable.class;
+  }
+
+  @Override
+  public Unit<?> getUnit() {
+    return MetricPrefix.MILLI(OHM).multiply(METRE);
   }
 
   @Override
