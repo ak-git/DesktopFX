@@ -21,7 +21,8 @@ import org.testng.annotations.Test;
 
 public class GroupServiceTest implements Flow.Subscriber<int[]> {
   private final GroupService<BufferFrame, BufferFrame, TwoVariables> service = new GroupService<>(
-      () -> new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
+      () -> new RampBytesInterceptor(getClass().getName(),
+          BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
       () -> new ToIntegerConverter<>(TwoVariables.class, 1000));
   @Nullable
   private Flow.Subscription subscription;

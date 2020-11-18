@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedList;
-import java.util.Set;
 import java.util.concurrent.Flow;
 import java.util.logging.Filter;
 import java.util.logging.Level;
@@ -16,7 +15,6 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -59,21 +57,19 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
 
   @Nullable
   private final SerialPort serialPort = Ports.INSTANCE.next();
-  @Nonnegative
-  private final int baudRate;
+  @Nonnull
+  private final BytesInterceptor<T, R> bytesInterceptor;
   @Nonnull
   private final ByteBuffer buffer;
-  @Nonnull
-  private final Set<BytesInterceptor.SerialParams> serialParams;
-  private final ConcurrentAsyncFileChannel binaryLogChannel = new ConcurrentAsyncFileChannel(() ->
-      AsynchronousFileChannel.open(LogBuilders.SERIAL_BYTES.build("%x".formatted(hashCode())).getPath(),
-          StandardOpenOption.CREATE, StandardOpenOption.WRITE));
+  private final ConcurrentAsyncFileChannel binaryLogChannel;
   private volatile boolean refresh;
 
   SerialService(@Nonnull BytesInterceptor<T, R> bytesInterceptor) {
-    baudRate = bytesInterceptor.getBaudRate();
-    buffer = ByteBuffer.allocate(baudRate);
-    serialParams = bytesInterceptor.getSerialParams();
+    this.bytesInterceptor = bytesInterceptor;
+    buffer = ByteBuffer.allocate(bytesInterceptor.getBaudRate());
+    binaryLogChannel = new ConcurrentAsyncFileChannel(() ->
+        AsynchronousFileChannel.open(LogBuilders.SERIAL_BYTES.build(bytesInterceptor.name()).getPath(),
+            StandardOpenOption.CREATE, StandardOpenOption.WRITE));
   }
 
   @Override
@@ -100,11 +96,11 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
     }
     else {
       serialPort.openPort();
-      serialPort.setBaudRate(baudRate);
-      if (serialParams.contains(BytesInterceptor.SerialParams.CLEAR_DTR)) {
+      serialPort.setBaudRate(bytesInterceptor.getBaudRate());
+      if (bytesInterceptor.getSerialParams().contains(BytesInterceptor.SerialParams.CLEAR_DTR)) {
         serialPort.clearDTR();
       }
-      LOGGER.log(Level.INFO, () -> "%s Open port, baudRate = %d bps".formatted(this, baudRate));
+      LOGGER.log(Level.INFO, () -> "%s Open port, baudRate = %d bps".formatted(this, bytesInterceptor.getBaudRate()));
       s.onSubscribe(this);
 
       serialPort.addDataListener(new SerialPortDataListener() {

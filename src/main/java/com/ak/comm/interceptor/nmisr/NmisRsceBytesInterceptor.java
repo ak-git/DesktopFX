@@ -31,6 +31,12 @@ public final class NmisRsceBytesInterceptor implements BytesInterceptor<NmisRequ
   private final Function<ByteBuffer, Stream<RsceCommandFrame>> rsce = new RsceBytesInterceptor();
   private final ByteBuffer buffer = ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY);
 
+  @Nonnull
+  @Override
+  public String name() {
+    return "NMIS-RSC Energia";
+  }
+
   @Override
   public int getBaudRate() {
     return nmis.getBaudRate();

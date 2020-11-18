@@ -20,8 +20,9 @@ public abstract class AbstractCheckedBytesInterceptor<T extends BufferFrame, R, 
   @Nonnull
   private final B responseBuilder;
 
-  protected AbstractCheckedBytesInterceptor(@Nonnull BaudRate baudRate, @Nullable T pingRequest, @Nonnull B responseBuilder) {
-    super(baudRate, pingRequest, responseBuilder.buffer().limit() + IGNORE_LIMIT);
+  protected AbstractCheckedBytesInterceptor(@Nonnull String name, @Nonnull BaudRate baudRate,
+                                            @Nullable T pingRequest, @Nonnull B responseBuilder) {
+    super(name, baudRate, pingRequest, responseBuilder.buffer().limit() + IGNORE_LIMIT);
     this.responseBuilder = responseBuilder;
   }
 

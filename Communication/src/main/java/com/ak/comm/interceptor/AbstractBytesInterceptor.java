@@ -19,6 +19,8 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
   protected static final int IGNORE_LIMIT = 16;
   private final Logger logger = Logger.getLogger(getClass().getName());
   @Nonnull
+  private final String name;
+  @Nonnull
   private final ByteBuffer outBuffer;
   @Nonnull
   private final ByteBuffer ignoreBuffer;
@@ -27,7 +29,8 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
   @Nullable
   private final T pingRequest;
 
-  protected AbstractBytesInterceptor(@Nonnull BaudRate baudRate, @Nullable T pingRequest, int ignoreBufferLimit) {
+  protected AbstractBytesInterceptor(@Nonnull String name, @Nonnull BaudRate baudRate, @Nullable T pingRequest, int ignoreBufferLimit) {
+    this.name = name;
     outBuffer = ByteBuffer.allocate(baudRate.get());
     ignoreBuffer = ByteBuffer.allocate(ignoreBufferLimit);
     this.baudRate = baudRate;
@@ -63,6 +66,12 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
       }
     }
     return outBuffer;
+  }
+
+  @Nonnull
+  @Override
+  public final String name() {
+    return name;
   }
 
   @Nonnegative
