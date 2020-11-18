@@ -24,7 +24,7 @@ public enum Variables {
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable, int value) {
-    return String.format(Locale.getDefault(), "%s = %,d %s", toString(variable), value, variable.getUnit());
+    return "%s = %,d %s".formatted(toString(variable), value, variable.getUnit());
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable) {
@@ -76,10 +76,10 @@ public enum Variables {
     else {
       double converted = unit.getConverterTo(displayUnit).convert(value);
       if (Math.abs(converted) < 1.0) {
-        return String.format(Locale.getDefault(), "%,d %s", value, unit);
+        return "%,d %s".formatted(value, unit);
       }
       else {
-        return String.format(Locale.getDefault(), String.format("%%,.%df %%s", formatZeros), converted, displayUnit);
+        return "%%,.%df %%s".formatted(formatZeros).formatted(converted, displayUnit);
       }
     }
   }
