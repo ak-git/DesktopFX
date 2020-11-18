@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Profile;
 @Profile("briko")
 public final class BrikoViewController extends AbstractViewController<BufferFrame, BufferFrame, BrikoVariable> {
   public BrikoViewController() {
-    super(new GroupService<>(() -> new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, 32), BrikoConverter::new));
+    super(new GroupService<>(() -> new RampBytesInterceptor("Briko-Stand",
+        BytesInterceptor.BaudRate.BR_921600, 32), BrikoConverter::new)
+    );
   }
 }
