@@ -19,19 +19,21 @@ import tec.uom.se.unit.MetricPrefix;
 public enum Variables {
   ;
 
+  private static final String M = "m·";
+
   public static String toString(@Nonnull Quantity<?> quantity) {
-    return String.join(Strings.SPACE, quantity.getValue().toString(), toString(quantity.getUnit()));
+    return String.join(Strings.SPACE, quantity.getValue().toString(), LocalUnitFormat.getInstance().format(quantity.getUnit()));
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable, int value) {
-    return String.format(Locale.getDefault(), "%s = %,d %s", toString(variable), value, variable.getUnit());
+    return "%s = %,d %s".formatted(toString(variable), value, variable.getUnit());
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable) {
     String baseName = variable.getClass().getPackage().getName() + ".variables";
     String name;
     try {
-      ResourceBundle resourceBundle = ResourceBundle.getBundle(baseName);
+      ResourceBundle resourceBundle = ResourceBundle.getBundle(baseName, Locale.getDefault(), variable.getClass().getModule());
       if (resourceBundle.containsKey(variable.name())) {
         name = Objects.toString(resourceBundle.getString(variable.name()), Strings.EMPTY);
       }
@@ -71,15 +73,15 @@ public enum Variables {
     }
 
     if (value == 0) {
-      return "%d %s".formatted(value, sf10 > 10 ? displayUnit : unit);
+      return "%d %s".formatted(value, fixUnit(sf10 > 10 ? displayUnit : unit));
     }
     else {
       double converted = unit.getConverterTo(displayUnit).convert(value);
       if (Math.abs(converted) < 1.0) {
-        return String.format(Locale.getDefault(), "%,d %s", value, unit);
+        return "%,d %s".formatted(value, fixUnit(unit));
       }
       else {
-        return String.format(Locale.getDefault(), String.format("%%,.%df %%s", formatZeros), converted, displayUnit);
+        return "%%,.%df %%s".formatted(formatZeros).formatted(converted, fixUnit(displayUnit));
       }
     }
   }
@@ -88,7 +90,13 @@ public enum Variables {
     return String.join(", ", variable.name(), variable.getUnit().toString());
   }
 
-  private static String toString(@Nonnull Unit<?> unit) {
-    return LocalUnitFormat.getInstance().format(unit);
+  private static String fixUnit(@Nonnull Unit<?> unit) {
+    String s = unit.toString();
+    if (s.startsWith(M) && Character.getType(s.charAt(s.length() - 1)) == Character.UPPERCASE_LETTER) {
+      return "%s·m".formatted(s.substring(M.length()));
+    }
+    else {
+      return s;
+    }
   }
 }

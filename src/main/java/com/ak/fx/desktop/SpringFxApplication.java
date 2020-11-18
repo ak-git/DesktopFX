@@ -17,6 +17,7 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.Refreshable;
 import com.ak.comm.converter.ToIntegerConverter;
+import com.ak.comm.converter.aper.AperCalibrationCurrent1Variable;
 import com.ak.comm.converter.aper.AperStage1Variable;
 import com.ak.comm.converter.aper.AperStage2UnitsVariable;
 import com.ak.comm.converter.aper.AperStage3Current2NIBPVariable;
@@ -24,6 +25,7 @@ import com.ak.comm.converter.aper.AperStage3Variable;
 import com.ak.comm.converter.aper.AperStage4Current1Variable;
 import com.ak.comm.converter.aper.AperStage4Current2Variable;
 import com.ak.comm.converter.aper.AperStage5Current1Variable;
+import com.ak.comm.converter.aper.AperStage6Current1Variable7;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
@@ -50,7 +52,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.ak.comm", "com.ak.fx.desktop"})
+@ComponentScan(basePackages = {"com.ak.fx.desktop", "com.ak.comm.interceptor.nmis", "com.ak.comm.converter.nmis"})
 public class SpringFxApplication extends FxApplication {
   private ConfigurableApplicationContext applicationContext;
 
@@ -127,13 +129,12 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
-  @Profile({"aper2-nibp", "aper1", "aper2", "aper4"})
+  @Profile({"aper2-nibp", "aper1-myo", "aper2-myo", "aper1-R4", "aper1-2Rho-7mm", "aper1-calibration"})
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   @Primary
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorAper() {
     return new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_460800, 25);
   }
-
 
   @Bean
   @Profile("aper2-nibp")
@@ -159,28 +160,41 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
-  @Profile("aper1")
+  @Profile("aper1-myo")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, AperStage4Current1Variable> converterAper1() {
+  static LinkedConverter<BufferFrame, AperStage3Variable, AperStage4Current1Variable> converterAper1Myo() {
     return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
         .chainInstance(AperStage3Variable.class).chainInstance(AperStage4Current1Variable.class);
   }
 
   @Bean
-  @Profile("aper2")
+  @Profile("aper1-R4")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static LinkedConverter<BufferFrame, AperStage4Current1Variable, AperStage5Current1Variable> converterAper1R4() {
+    return converterAper1Myo().chainInstance(AperStage5Current1Variable.class);
+  }
+
+  @Bean
+  @Profile("aper1-2Rho-7mm")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<BufferFrame, AperStage6Current1Variable7> converterAper1To2Rho() {
+    return converterAper1R4().chainInstance(AperStage6Current1Variable7.class);
+  }
+
+  @Bean
+  @Profile("aper1-calibration")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<BufferFrame, AperCalibrationCurrent1Variable> converterAper1Calibration() {
+    return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000),
+        AperCalibrationCurrent1Variable.class);
+  }
+
+  @Bean
+  @Profile("aper2-myo")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, AperStage4Current2Variable> converterAper2() {
     return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
         .chainInstance(AperStage3Variable.class).chainInstance(AperStage4Current2Variable.class);
-  }
-
-  @Bean
-  @Profile("aper4")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, AperStage5Current1Variable> converterAper4() {
-    return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
-        .chainInstance(AperStage3Variable.class).chainInstance(AperStage4Current1Variable.class)
-        .chainInstance(AperStage5Current1Variable.class);
   }
 
   @Bean

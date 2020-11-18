@@ -6,7 +6,6 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Set;
@@ -31,7 +30,7 @@ import com.fazecast.jSerialComm.SerialPortEvent;
 
 import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
 
-final class SerialService extends AbstractService<ByteBuffer> implements WritableByteChannel, Flow.Subscription {
+final class SerialService<T, R> extends AbstractService<ByteBuffer> implements WritableByteChannel, Flow.Subscription {
   private static final Logger LOGGER = Logger.getLogger(SerialService.class.getName());
   private static final String SERIAL_PORT_NOT_FOUND = "Serial port not found";
 
@@ -71,10 +70,10 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
           StandardOpenOption.CREATE, StandardOpenOption.WRITE));
   private volatile boolean refresh;
 
-  SerialService(@Nonnegative int baudRate, Set<BytesInterceptor.SerialParams> serialParams) {
-    this.baudRate = baudRate;
+  SerialService(@Nonnull BytesInterceptor<T, R> bytesInterceptor) {
+    baudRate = bytesInterceptor.getBaudRate();
     buffer = ByteBuffer.allocate(baudRate);
-    this.serialParams = Collections.unmodifiableSet(serialParams);
+    serialParams = bytesInterceptor.getSerialParams();
   }
 
   @Override
