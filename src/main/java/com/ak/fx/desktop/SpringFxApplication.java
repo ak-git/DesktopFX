@@ -52,7 +52,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.ak.comm", "com.ak.fx.desktop"})
+@ComponentScan(basePackages = {"com.ak.fx.desktop", "com.ak.comm.interceptor.nmis", "com.ak.comm.converter.nmis"})
 public class SpringFxApplication extends FxApplication {
   private ConfigurableApplicationContext applicationContext;
 
