@@ -19,8 +19,10 @@ import tec.uom.se.unit.MetricPrefix;
 public enum Variables {
   ;
 
+  private static final String M = "m·";
+
   public static String toString(@Nonnull Quantity<?> quantity) {
-    return String.join(Strings.SPACE, quantity.getValue().toString(), toString(quantity.getUnit()));
+    return String.join(Strings.SPACE, quantity.getValue().toString(), LocalUnitFormat.getInstance().format(quantity.getUnit()));
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable, int value) {
@@ -71,15 +73,15 @@ public enum Variables {
     }
 
     if (value == 0) {
-      return "%d %s".formatted(value, sf10 > 10 ? displayUnit : unit);
+      return "%d %s".formatted(value, fixUnit(sf10 > 10 ? displayUnit : unit));
     }
     else {
       double converted = unit.getConverterTo(displayUnit).convert(value);
       if (Math.abs(converted) < 1.0) {
-        return "%,d %s".formatted(value, unit);
+        return "%,d %s".formatted(value, fixUnit(unit));
       }
       else {
-        return "%%,.%df %%s".formatted(formatZeros).formatted(converted, displayUnit);
+        return "%%,.%df %%s".formatted(formatZeros).formatted(converted, fixUnit(displayUnit));
       }
     }
   }
@@ -88,7 +90,13 @@ public enum Variables {
     return String.join(", ", variable.name(), variable.getUnit().toString());
   }
 
-  private static String toString(@Nonnull Unit<?> unit) {
-    return LocalUnitFormat.getInstance().format(unit);
+  private static String fixUnit(@Nonnull Unit<?> unit) {
+    String s = unit.toString();
+    if (s.startsWith(M) && Character.getType(s.charAt(s.length() - 1)) == Character.UPPERCASE_LETTER) {
+      return "%s·m".formatted(s.substring(M.length()));
+    }
+    else {
+      return s;
+    }
   }
 }
