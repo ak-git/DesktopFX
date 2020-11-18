@@ -17,8 +17,8 @@ public abstract class AbstractFixedFrameBytesInterceptor extends AbstractBytesIn
   private final byte[] buffer;
   private int position = -1;
 
-  protected AbstractFixedFrameBytesInterceptor(@Nonnull BaudRate baudRate, @Nonnegative int frameLength) {
-    super(baudRate, null, IGNORE_LIMIT);
+  protected AbstractFixedFrameBytesInterceptor(@Nonnull String name, @Nonnull BaudRate baudRate, @Nonnegative int frameLength) {
+    super(name, baudRate, null, IGNORE_LIMIT);
     if (frameLength < 1) {
       throw new IllegalArgumentException("frameLength must be > 0, but found %d".formatted(frameLength));
     }

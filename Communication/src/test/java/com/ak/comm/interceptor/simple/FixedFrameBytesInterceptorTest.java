@@ -24,23 +24,23 @@ import org.testng.annotations.Test;
 public class FixedFrameBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(FixedFrameBytesInterceptor.class.getName());
   private final Function<ByteBuffer, Stream<BufferFrame>> interceptor =
-      new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 9);
+      new FixedFrameBytesInterceptor(getClass().getName(), BytesInterceptor.BaudRate.BR_115200, 9);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidInterceptorProperties() {
-    new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 0);
+    new FixedFrameBytesInterceptor(getClass().getName(), BytesInterceptor.BaudRate.BR_115200, 0);
   }
 
   @Test
   public void testInterceptorProperties() {
-    BytesInterceptor<BufferFrame, BufferFrame> interceptor = new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1);
+    BytesInterceptor<BufferFrame, BufferFrame> interceptor = new FixedFrameBytesInterceptor(getClass().getName(), BytesInterceptor.BaudRate.BR_115200, 1);
     Assert.assertEquals(interceptor.getBaudRate(), 115200);
     Assert.assertNull(interceptor.getPingRequest());
   }
 
   @Test(dataProviderClass = FrameBytesInterceptorDataProvider.class, dataProvider = "fixed-start-data")
   public void testFixedBytesInterceptor(@Nonnull byte[] input, @Nonnull BufferFrame testFrame, @Nonnull CharSequence ignoredMessage) {
-    BytesInterceptor<BufferFrame, BufferFrame> interceptor = new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, 9);
+    BytesInterceptor<BufferFrame, BufferFrame> interceptor = new FixedFrameBytesInterceptor(getClass().getName(), BytesInterceptor.BaudRate.BR_921600, 9);
 
     Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> {

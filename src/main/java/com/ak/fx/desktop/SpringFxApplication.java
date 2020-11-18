@@ -104,7 +104,7 @@ public class SpringFxApplication extends FxApplication {
   @Profile("loopback")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptor() {
-    return new FixedFrameBytesInterceptor(BytesInterceptor.BaudRate.BR_460800, 1 + Integer.BYTES);
+    return new FixedFrameBytesInterceptor("loopback", BytesInterceptor.BaudRate.BR_460800, 1 + Integer.BYTES);
   }
 
   @Bean
@@ -133,7 +133,7 @@ public class SpringFxApplication extends FxApplication {
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   @Primary
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorAper() {
-    return new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_460800, 25);
+    return new RampBytesInterceptor("aper", BytesInterceptor.BaudRate.BR_460800, 25);
   }
 
   @Bean
