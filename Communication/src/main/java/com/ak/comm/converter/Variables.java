@@ -19,7 +19,8 @@ import tec.uom.se.unit.MetricPrefix;
 public enum Variables {
   ;
 
-  private static final String M = "m·";
+  private static final String M_POINT = "m·";
+  private static final String M_PAR = "m(";
 
   public static String toString(@Nonnull Quantity<?> quantity) {
     return String.join(Strings.SPACE, quantity.getValue().toString(), LocalUnitFormat.getInstance().format(quantity.getUnit()));
@@ -92,8 +93,11 @@ public enum Variables {
 
   private static String fixUnit(@Nonnull Unit<?> unit) {
     String s = unit.toString();
-    if (s.startsWith(M) && Character.getType(s.charAt(s.length() - 1)) == Character.UPPERCASE_LETTER) {
-      return "%s·m".formatted(s.substring(M.length()));
+    if (s.startsWith(M_PAR)) {
+      return "m%s".formatted(fixUnit(unit.getSystemUnit()));
+    }
+    else if (s.startsWith(M_POINT) && Character.getType(s.charAt(s.length() - 1)) == Character.UPPERCASE_LETTER) {
+      return "%s·m".formatted(s.substring(M_POINT.length()));
     }
     else {
       return s;

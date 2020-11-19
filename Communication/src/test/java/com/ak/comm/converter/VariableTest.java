@@ -138,7 +138,8 @@ public class VariableTest {
         {-3000, Units.VOLT, 1, "%.0f kV".formatted(-3.0)},
         {0, Units.VOLT, 1, "%.0f V".formatted(0.0)},
         {0, Units.VOLT, 1000, "%.0f kV".formatted(0.0)},
-        {1, Units.OHM.multiply(Units.METRE), 10, "%.0f Ω·m".formatted(1.0)}
+        {1, Units.OHM.multiply(Units.METRE), 10, "%.0f Ω·m".formatted(1.0)},
+        {41235, MetricPrefix.MILLI(Units.OHM).multiply(MetricPrefix.DECI(Units.METRE)), 10, "%,.0f mΩ·m".formatted(4123.5)}
     };
   }
 
