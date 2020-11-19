@@ -37,7 +37,7 @@ public class AperStage6Current1Variable7Test {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {3503, 8848, 1649}},
+            new int[] {24488, 88475, 1296}},
     };
   }
 
@@ -80,7 +80,7 @@ public class AperStage6Current1Variable7Test {
         .map(DependentVariable::getUnit).collect(Collectors.toList());
     Assert.assertEquals(actual,
         Arrays.asList(
-            MetricPrefix.MILLI(OHM).multiply(METRE), MetricPrefix.MILLI(OHM).multiply(METRE),
+            MetricPrefix.MILLI(OHM).multiply(MetricPrefix.DECI(METRE)), MetricPrefix.MILLI(OHM).multiply(MetricPrefix.DECI(METRE)),
             OHM
         ),
         actual.toString()

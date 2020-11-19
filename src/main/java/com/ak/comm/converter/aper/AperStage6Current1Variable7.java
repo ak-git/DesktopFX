@@ -56,11 +56,11 @@ public enum AperStage6Current1Variable7 implements DependentVariable<AperStage5C
 
   @Override
   public Unit<?> getUnit() {
-    return MetricPrefix.MILLI(OHM).multiply(METRE);
+    return MetricPrefix.MILLI(OHM).multiply(MetricPrefix.DECI(METRE));
   }
 
   @Override
   public DigitalFilter filter() {
-    return FilterBuilder.of().operator(() -> rMilli -> (int) Math.round(system.getApparent(rMilli))).build();
+    return FilterBuilder.of().operator(() -> rMilli -> (int) Math.round(system.getApparent(rMilli * 10.0))).build();
   }
 }
