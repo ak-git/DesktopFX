@@ -28,19 +28,19 @@ public enum Strings {
   }
 
   public static String toString(@Nonnull String format, @Nonnull double[] values) {
-    return Arrays.stream(values).mapToObj(x -> String.format(format, x)).collect(Collectors.joining("; ", "{", "}"));
+    return Arrays.stream(values).mapToObj(format::formatted).collect(Collectors.joining("; ", "{", "}"));
   }
 
   public static String h(@Nonnegative double h, @Nonnegative int index) {
-    return String.format("h%s = %.2f %s", low(index), Metrics.toMilli(h), MetricPrefix.MILLI(METRE));
+    return "h%s = %.2f %s".formatted(low(index), Metrics.toMilli(h), MetricPrefix.MILLI(METRE));
   }
 
   public static String dRhoByH(double v) {
-    return String.format("d\u03c1/dh = %.0f %s", v, OHM);
+    return "d\u03c1/dh = %.0f %s".formatted(v, OHM);
   }
 
   public static String rho(@Nonnegative double rho) {
-    return String.format("%s = %.3f %s", RHO, rho, OHM_METRE);
+    return "%s = %.3f %s".formatted(RHO, rho, OHM_METRE);
   }
 
   public static String rho1(@Nonnegative double rho1) {
@@ -56,6 +56,6 @@ public enum Strings {
   }
 
   private static String rho(@Nonnegative double rho, @Nonnegative int index) {
-    return String.format("%s%s = %.3f %s", RHO, low(index), rho, OHM_METRE);
+    return "%s%s = %.3f %s".formatted(RHO, low(index), rho, OHM_METRE);
   }
 }

@@ -45,7 +45,7 @@ final class MultiFileCollector<T> implements Collector<Stream<T>, List<LineFileC
       List<T> pairs = inStream.collect(Collectors.toList());
       for (int i = 0; i < lineFileCollectors.size(); i++) {
         lineFileCollectors.get(i).accept(
-            pairs.stream().mapToDouble(functions.get(i)).mapToObj(value -> String.format(outFormat, value)).
+            pairs.stream().mapToDouble(functions.get(i)).mapToObj(outFormat::formatted).
                 collect(Collectors.joining(Strings.TAB))
         );
       }

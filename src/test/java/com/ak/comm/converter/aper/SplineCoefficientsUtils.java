@@ -30,11 +30,11 @@ public class SplineCoefficientsUtils {
         generate("z.txt", (adc, rII) -> function.applyAsInt(Double.valueOf(adc).intValue(), Double.valueOf(rII).intValue()));
 
     Supplier<DoubleStream> xVar = () -> intRange(surfaceCoeffClass, RangeUtils::rangeX).asDoubleStream();
-    Assert.assertTrue(xVar.get().mapToObj(sToL -> String.format("%.2f", sToL)).collect(
+    Assert.assertTrue(xVar.get().mapToObj("%.2f"::formatted).collect(
         new LineFileCollector(Paths.get("x-CC-R.txt"), LineFileCollector.Direction.HORIZONTAL)));
 
     Supplier<DoubleStream> yVar = () -> intRange(surfaceCoeffClass, RangeUtils::rangeY).asDoubleStream();
-    Assert.assertTrue(yVar.get().mapToObj(sToL -> String.format("%.2f", sToL)).collect(
+    Assert.assertTrue(yVar.get().mapToObj("%.2f"::formatted).collect(
         new LineFileCollector(Paths.get("y-ADC-R.txt"), LineFileCollector.Direction.VERTICAL)));
   }
 

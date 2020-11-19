@@ -58,7 +58,7 @@ public class FileReadingServiceTest {
   public void testNoDataConverted(@Nonnull Path fileToRead, int bytes) {
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
     Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead,
-        new AbstractBytesInterceptor<>(
+        new AbstractBytesInterceptor<>(getClass().getName(),
             BytesInterceptor.BaudRate.BR_921600, null, 1) {
           @Nonnull
           @Override
@@ -87,7 +87,7 @@ public class FileReadingServiceTest {
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
     FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher = new FileReadingService<>(
         fileToRead,
-        new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, frameLength),
+        new RampBytesInterceptor(getClass().getName(), BytesInterceptor.BaudRate.BR_921600, frameLength),
         new ToIntegerConverter<>(TwoVariables.class, 200));
     LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
         publisher.subscribe(testSubscriber), logRecord -> {
@@ -102,7 +102,7 @@ public class FileReadingServiceTest {
   public void testFiles(@Nonnull Path fileToRead, int bytes) {
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
-    Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
+    Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(getClass().getName(),
         BytesInterceptor.BaudRate.BR_921600, frameLength),
         new ToIntegerConverter<>(TwoVariables.class, 1000));
     Assert.assertTrue(publisher.toString().contains(fileToRead.toString()));
@@ -144,7 +144,7 @@ public class FileReadingServiceTest {
         }
       });
 
-      Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
+      Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(getClass().getName(),
           BytesInterceptor.BaudRate.BR_921600, 1 + TwoVariables.values().length * Integer.BYTES),
           new ToIntegerConverter<>(TwoVariables.class, 200));
       publisher.subscribe(testSubscriber);
@@ -164,7 +164,7 @@ public class FileReadingServiceTest {
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
   public void testCancel(@Nonnull Path fileToRead, int bytes) {
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>(Flow.Subscription::cancel);
-    Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(
+    Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(getClass().getName(),
         BytesInterceptor.BaudRate.BR_921600, 1 + TwoVariables.values().length * Integer.BYTES),
         new ToIntegerConverter<>(TwoVariables.class, 1000));
     publisher.subscribe(testSubscriber);
@@ -181,7 +181,7 @@ public class FileReadingServiceTest {
 
   @Test
   public void testInvalidChannelCall() throws Exception {
-    Assert.assertNull(new FileReadingService<>(Paths.get(Strings.EMPTY), new RampBytesInterceptor(
+    Assert.assertNull(new FileReadingService<>(Paths.get(Strings.EMPTY), new RampBytesInterceptor(getClass().getName(),
         BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
         new ToIntegerConverter<>(TwoVariables.class, 200)).call());
   }
@@ -189,7 +189,7 @@ public class FileReadingServiceTest {
   @Test
   public void testAbstractConvertableService() {
     try (AbstractConvertableService<BufferFrame, BufferFrame, TestVariable> convertableService =
-             new AbstractConvertableService<>(new RampBytesInterceptor(
+             new AbstractConvertableService<>(new RampBytesInterceptor(getClass().getName(),
                  BytesInterceptor.BaudRate.BR_460800, 1 + TestVariable.values().length * Integer.BYTES),
                  new ToIntegerConverter<>(TestVariable.class, 2)) {
                @Override

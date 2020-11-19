@@ -24,6 +24,6 @@ final class TetrapolarPrediction implements Prediction {
 
   @Override
   public String toString() {
-    return String.format("%s; pred %s", measurement, Strings.rho(resistivityPredicted));
+    return "%s; pred %s".formatted(String.valueOf(measurement), Strings.rho(resistivityPredicted));
   }
 }

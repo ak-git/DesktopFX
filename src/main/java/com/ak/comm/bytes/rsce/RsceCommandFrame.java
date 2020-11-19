@@ -2,6 +2,7 @@ package com.ak.comm.bytes.rsce;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Map;
@@ -319,7 +320,7 @@ public final class RsceCommandFrame extends BufferFrame {
   }
 
   private static RsceCommandFrame getInstance(@Nonnull Control control, @Nonnull ActionType actionType, @Nonnull RequestType requestType) {
-    String key = String.format("%s(%s)_%s(%s)_%s(%s)",
+    String key = MessageFormat.format("{0}({1})_{2}({3})_{4}({5})",
         control.getClass().getSimpleName(), control.name(),
         actionType.getClass().getSimpleName(), actionType.name(),
         requestType.getClass().getSimpleName(), requestType.name());

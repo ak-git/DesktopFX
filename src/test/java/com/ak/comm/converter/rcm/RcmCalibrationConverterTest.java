@@ -39,10 +39,10 @@ public class RcmCalibrationConverterTest {
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 800 - 1; i++) {
       long count = converter.apply(bufferFrame).count();
-      Assert.assertTrue(count == 0 || count == 1, String.format("index %d, count %d", i, count));
+      Assert.assertTrue(count == 0 || count == 1, "index %d, count %d".formatted(i, count));
     }
     Assert.assertEquals(converter.apply(bufferFrame).peek(ints -> {
-      Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
+      Assert.assertEquals(ints, outputInts, "expected = %s, actual = %s".formatted(Arrays.toString(outputInts), Arrays.toString(ints)));
       processed.set(true);
     }).count(), 1);
     Assert.assertTrue(processed.get(), "Data are not converted!");

@@ -32,12 +32,12 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   private volatile boolean cancelled;
   @Nonnull
-  private SerialService serialService;
+  private SerialService<T, R> serialService;
 
   public CycleSerialService(@Nonnull BytesInterceptor<T, R> bytesInterceptor,
                             @Nonnull Converter<R, V> responseConverter) {
     super(bytesInterceptor, responseConverter);
-    serialService = new SerialService(bytesInterceptor.getBaudRate(), bytesInterceptor.getSerialParams());
+    serialService = new SerialService<>(bytesInterceptor);
   }
 
   @Override
@@ -113,7 +113,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
 
       if (!executor.isShutdown()) {
         subscriber.onComplete();
-        serialService = new SerialService(bytesInterceptor().getBaudRate(), bytesInterceptor().getSerialParams());
+        serialService = new SerialService<>(bytesInterceptor());
       }
     }, 1, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
   }
@@ -135,7 +135,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public AsynchronousFileChannel call() throws IOException {
-    Path path = LogBuilders.CONVERTER_SERIAL.build(String.format("%x", hashCode())).getPath();
+    Path path = LogBuilders.CONVERTER_SERIAL.build("%x".formatted(hashCode())).getPath();
     return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
   }
 

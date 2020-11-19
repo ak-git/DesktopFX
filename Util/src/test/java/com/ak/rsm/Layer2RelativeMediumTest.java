@@ -27,7 +27,7 @@ public class Layer2RelativeMediumTest {
   @Test(dataProvider = "layer2Medium")
   @ParametersAreNonnullByDefault
   public void testToString(RelativeMediumLayers layers, double[] expected) {
-    Assert.assertTrue(layers.toString().contains(String.format("%.3f", expected[0])), layers.toString());
+    Assert.assertTrue(layers.toString().contains("%.3f".formatted(expected[0])), layers.toString());
     Assert.assertTrue(layers.toString().contains(Strings.h(expected[1], 1)), layers.toString());
   }
 }

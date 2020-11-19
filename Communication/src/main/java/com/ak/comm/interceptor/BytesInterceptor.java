@@ -31,6 +31,9 @@ public interface BytesInterceptor<T, R> extends Function<ByteBuffer, Stream<R>> 
     }
   }
 
+  @Nonnull
+  String name();
+
   @Nonnegative
   int getBaudRate();
 

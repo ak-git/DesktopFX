@@ -27,7 +27,7 @@ public class LineFileBuilderTest {
         .yRange(1.0, 2.0, 1.0)
         .generate("z.txt", (x, y) -> x + y * 10);
     checkFilesExists(
-        DoubleStream.of(11, 12, 13, 21, 22, 23).mapToObj(n -> String.format("%.3f", n)).collect(Collectors.joining(Strings.TAB))
+        DoubleStream.of(11, 12, 13, 21, 22, 23).mapToObj("%.3f"::formatted).collect(Collectors.joining(Strings.TAB))
     );
 
     LineFileBuilder.<Double>of("%.1f %.2f %.3f")
@@ -36,7 +36,7 @@ public class LineFileBuilderTest {
         .add("z.txt", value -> value)
         .generate((x, y) -> x + y * 10);
     checkFilesExists(
-        DoubleStream.of(11, 12, 13, 21, 22, 23).mapToObj(n -> String.format("%.3f", n)).collect(Collectors.joining(Strings.TAB))
+        DoubleStream.of(11, 12, 13, 21, 22, 23).mapToObj("%.3f"::formatted).collect(Collectors.joining(Strings.TAB))
     );
 
     LineFileBuilder.of("%.1f %.2f %.3f")
@@ -51,12 +51,12 @@ public class LineFileBuilderTest {
   private static void checkFilesExists(@Nonnull String expected) throws IOException {
     Path x = Paths.get("x.txt");
     Assert.assertEquals(String.join("", Files.readAllLines(x, Charset.forName("windows-1251"))),
-        DoubleStream.of(1, 2, 3).mapToObj(n -> String.format("%.1f", n)).collect(Collectors.joining(Strings.TAB)));
+        DoubleStream.of(1, 2, 3).mapToObj("%.1f"::formatted).collect(Collectors.joining(Strings.TAB)));
     Assert.assertTrue(Files.deleteIfExists(x));
 
     Path y = Paths.get("y.txt");
     Assert.assertEquals(String.join(Strings.SPACE, Files.readAllLines(y, Charset.forName("windows-1251"))),
-        DoubleStream.of(1, 2).mapToObj(n -> String.format("%.2f", n)).collect(Collectors.joining(Strings.SPACE)));
+        DoubleStream.of(1, 2).mapToObj("%.2f"::formatted).collect(Collectors.joining(Strings.SPACE)));
     Assert.assertTrue(Files.deleteIfExists(y));
 
     Path z = Paths.get("z.txt");
@@ -78,14 +78,14 @@ public class LineFileBuilderTest {
     Path y = Paths.get("y.txt");
     Assert.assertEquals(String.join(Strings.SPACE, Files.readAllLines(y, Charset.forName("windows-1251"))),
         DoubleStream.iterate(1.0, d -> d <= 10.0, d -> d + 0.2)
-            .mapToObj(d -> String.format("%.1f", d)).collect(Collectors.joining(Strings.SPACE)));
+            .mapToObj("%.1f"::formatted).collect(Collectors.joining(Strings.SPACE)));
     Assert.assertTrue(Files.deleteIfExists(y));
 
     Path z = Paths.get("z.txt");
     Assert.assertEquals(String.join(Strings.TAB, Files.readAllLines(z, Charset.forName("windows-1251"))),
         DoubleStream.iterate(1.0, value -> value <= 10.0, operand -> operand + 0.2)
             .flatMap(value -> DoubleStream.iterate(10.0, d -> d <= 20.0, d -> d + 2).map(d -> d + value * 10))
-            .mapToObj(value -> String.format("%.0f", value)).collect(Collectors.joining(Strings.TAB)));
+            .mapToObj("%.0f"::formatted).collect(Collectors.joining(Strings.TAB)));
     Assert.assertTrue(Files.deleteIfExists(z));
   }
 
@@ -101,7 +101,7 @@ public class LineFileBuilderTest {
 
     Path z = Paths.get("z.txt");
     Assert.assertEquals(String.join(Strings.TAB, Files.readAllLines(z, Charset.forName("windows-1251"))),
-        DoubleStream.of(3, 4, 5, 6).mapToObj(n -> String.format("%.1f", n)).collect(Collectors.joining(Strings.TAB)));
+        DoubleStream.of(3, 4, 5, 6).mapToObj("%.1f"::formatted).collect(Collectors.joining(Strings.TAB)));
     Assert.assertTrue(Files.deleteIfExists(z));
   }
 }

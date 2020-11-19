@@ -17,7 +17,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import tec.uom.se.AbstractUnit;
 
-public class AperCalibrationConverterTest {
+public class AperCalibrationCurrent1VariableTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -37,14 +37,14 @@ public class AperCalibrationConverterTest {
 
   @Test(dataProvider = "variables")
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
-    Converter<BufferFrame, AperCalibrationVariable> converter = LinkedConverter.of(
-        new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperCalibrationVariable.class);
+    Converter<BufferFrame, AperCalibrationCurrent1Variable> converter = LinkedConverter.of(
+        new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperCalibrationCurrent1Variable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 3000 - 1; i++) {
       long count = converter.apply(bufferFrame).peek(ints -> {
         if (!processed.get()) {
-          Assert.assertEquals(ints, outputInts, String.format("expected = %s, actual = %s", Arrays.toString(outputInts), Arrays.toString(ints)));
+          Assert.assertEquals(ints, outputInts, "expected = %s, actual = %s".formatted(Arrays.toString(outputInts), Arrays.toString(ints)));
           processed.set(true);
         }
       }).count();
@@ -59,11 +59,11 @@ public class AperCalibrationConverterTest {
 
   @Test
   public void testVariableProperties() {
-    EnumSet.allOf(AperCalibrationVariable.class).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
-    EnumSet.allOf(AperCalibrationVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), AperStage1Variable.class));
-    EnumSet.complementOf(EnumSet.of(AperCalibrationVariable.PU_1, AperCalibrationVariable.PU_2)).forEach(variable -> Assert.assertEquals(variable.options(),
+    EnumSet.allOf(AperCalibrationCurrent1Variable.class).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
+    EnumSet.allOf(AperCalibrationCurrent1Variable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), AperStage1Variable.class));
+    EnumSet.complementOf(EnumSet.of(AperCalibrationCurrent1Variable.PU_1, AperCalibrationCurrent1Variable.PU_2)).forEach(variable -> Assert.assertEquals(variable.options(),
         EnumSet.of(Variable.Option.TEXT_VALUE_BANNER), variable.name()));
-    EnumSet.of(AperCalibrationVariable.PU_1, AperCalibrationVariable.PU_2).forEach(variable -> Assert.assertEquals(variable.options(),
+    EnumSet.of(AperCalibrationCurrent1Variable.PU_1, AperCalibrationCurrent1Variable.PU_2).forEach(variable -> Assert.assertEquals(variable.options(),
         EnumSet.of(Variable.Option.VISIBLE), variable.name()));
   }
 }

@@ -41,7 +41,7 @@ public class LinkedConverterTest {
     LinkedConverter<BufferFrame, TwoVariables, OperatorVariables> linkedConverter = LinkedConverter.of(converter, OperatorVariables.class);
     Assert.assertEquals(linkedConverter.variables(), Stream.of(OperatorVariables.values()).collect(Collectors.toList()));
     Assert.assertEquals(linkedConverter.apply(frame).peek(ints -> Assert.assertEquals(ints, output,
-        String.format("Actual %s, Expected %s", Arrays.toString(ints), Arrays.toString(output)))).count(), 1);
+        "Actual %s, Expected %s".formatted(Arrays.toString(ints), Arrays.toString(output)))).count(), 1);
   }
 
   @Test(dataProvider = "variables2")
@@ -51,7 +51,7 @@ public class LinkedConverterTest {
             .chainInstance(OperatorVariables2.class);
 
     Assert.assertEquals(linkedConverter.apply(frame).peek(ints -> Assert.assertEquals(ints, output,
-        String.format("Actual %s, Expected %s", Arrays.toString(ints), Arrays.toString(output)))).count(), 1);
+        "Actual %s, Expected %s".formatted(Arrays.toString(ints), Arrays.toString(output)))).count(), 1);
   }
 
   @DataProvider(name = "refresh-variables")
