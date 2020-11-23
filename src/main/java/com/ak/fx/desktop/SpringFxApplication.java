@@ -25,7 +25,7 @@ import com.ak.comm.converter.aper.AperStage3Variable;
 import com.ak.comm.converter.aper.AperStage4Current1Variable;
 import com.ak.comm.converter.aper.AperStage4Current2Variable;
 import com.ak.comm.converter.aper.AperStage5Current1Variable;
-import com.ak.comm.converter.aper.AperStage6Current1Variable7;
+import com.ak.comm.converter.aper.AperStage5Current1Variable7x21x35;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
@@ -177,8 +177,8 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("aper1-2Rho-7mm")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, AperStage6Current1Variable7> converterAper1To2Rho() {
-    return converterAper1R4().chainInstance(AperStage6Current1Variable7.class);
+  static Converter<BufferFrame, AperStage5Current1Variable7x21x35> converterAper1To2Rho() {
+    return converterAper1Myo().chainInstance(AperStage5Current1Variable7x21x35.class);
   }
 
   @Bean
