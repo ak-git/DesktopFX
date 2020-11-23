@@ -20,6 +20,7 @@ import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.aper.AperCalibrationCurrent1Variable;
 import com.ak.comm.converter.aper.AperStage1Variable;
 import com.ak.comm.converter.aper.AperStage2UnitsVariable;
+import com.ak.comm.converter.aper.AperStage3Current1NIBPVariable;
 import com.ak.comm.converter.aper.AperStage3Current2NIBPVariable;
 import com.ak.comm.converter.aper.AperStage3Variable;
 import com.ak.comm.converter.aper.AperStage4Current1Variable;
@@ -129,7 +130,7 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
-  @Profile({"aper2-nibp", "aper1-myo", "aper2-ecg", "aper1-R4", "aper1-2Rho-7mm", "aper1-calibration"})
+  @Profile({"aper2-nibp", "aper1-nibp", "aper1-myo", "aper2-ecg", "aper1-R4", "aper1-2Rho-7mm", "aper1-calibration"})
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   @Primary
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorAper() {
@@ -143,6 +144,15 @@ public class SpringFxApplication extends FxApplication {
   static Converter<BufferFrame, AperStage3Current2NIBPVariable> converterAper2NIBP() {
     return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
         .chainInstance(AperStage3Current2NIBPVariable.class);
+  }
+
+  @Bean
+  @Profile("aper1-nibp")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  @Primary
+  static Converter<BufferFrame, AperStage3Current1NIBPVariable> converterAper1NIBP() {
+    return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
+        .chainInstance(AperStage3Current1NIBPVariable.class);
   }
 
   @Bean
