@@ -1,5 +1,8 @@
 package com.ak.fx.desktop.suntech;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -11,13 +14,11 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.suntech.NIBPVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.fx.desktop.AbstractScheduledViewController;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
+import com.ak.util.UIConstants;
 import org.springframework.context.annotation.Profile;
 
 import static com.ak.comm.bytes.suntech.NIBPRequest.GET_CUFF_PRESSURE;
 import static com.ak.comm.converter.suntech.NIBPConverter.FREQUENCY;
-import static com.ak.fx.desktop.FxApplication.isMatchEvent;
 
 @Named
 @Profile("suntech")
@@ -39,9 +40,14 @@ public final class NIBPViewController extends AbstractScheduledViewController<NI
     isStartBPEnable = ints[NIBPVariable.PRESSURE.ordinal()] < 5;
   }
 
-  public void onKey(KeyEvent keyEvent) {
-    if (isMatchEvent(keyEvent, KeyCode.N) && isStartBPEnable) {
-      service().write(NIBPRequest.START_BP);
-    }
+  @Override
+  public void refresh() {
+    super.refresh();
+    CompletableFuture.delayedExecutor(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS)
+        .execute(() -> {
+          if (isStartBPEnable) {
+            service().write(NIBPRequest.START_BP);
+          }
+        });
   }
 }
