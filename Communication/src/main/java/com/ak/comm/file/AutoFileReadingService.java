@@ -16,6 +16,7 @@ import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.Readable;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.logging.LogBuilders;
 
 public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractService<int[]> implements FileFilter, Readable {
@@ -71,7 +72,7 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
   @Override
   public void refresh() {
     innerClose();
-    readable.refresh();
+    LogBuilders.CONVERTER_FILE.clean();
   }
 
   @Override
