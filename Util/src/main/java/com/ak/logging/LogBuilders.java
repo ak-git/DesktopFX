@@ -2,7 +2,6 @@ package com.ak.logging;
 
 import java.io.IOException;
 import java.lang.ref.Cleaner;
-import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,9 +29,7 @@ public enum LogBuilders implements Cleaner.Cleanable {
     @Override
     public void clean() {
       try {
-        Path path = newBuilder().build().getPath();
-        Logger.getLogger(getClass().getName()).log(Level.INFO, () -> "Clean directory %s".formatted(path));
-        Clean.clean(path);
+        Clean.clean(newBuilder().build().getPath());
       }
       catch (IOException e) {
         Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);

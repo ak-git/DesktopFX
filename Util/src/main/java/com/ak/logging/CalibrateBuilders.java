@@ -13,10 +13,6 @@ import com.ak.util.LocalIO;
 public enum CalibrateBuilders implements Cleaner.Cleanable {
   CALIBRATION;
 
-  static {
-    Clean.clean(values());
-  }
-
   @Override
   public void clean() {
     try {
