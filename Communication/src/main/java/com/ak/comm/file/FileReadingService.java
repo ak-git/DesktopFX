@@ -20,6 +20,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -165,10 +167,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
   }
 
   private static String digestToString(@Nonnull byte[] digest) {
-    StringBuilder sb = new StringBuilder(digest.length * 2);
-    for (byte b : digest) {
-      sb.append("%x".formatted(b));
-    }
-    return sb.substring(0, sb.length() / 4);
+    return IntStream.range(0, digest.length).filter(value -> value % 4 == 0)
+        .mapToObj(i -> "%02x".formatted(digest[i])).collect(Collectors.joining());
   }
 }
