@@ -1,9 +1,11 @@
 package com.ak.util;
 
 import java.io.IOException;
+import java.lang.ref.Cleaner;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,6 +13,10 @@ import javax.annotation.Nonnull;
 
 public enum Clean {
   ;
+
+  public static void clean(@Nonnull Cleaner.Cleanable[] toClean) {
+    Arrays.stream(toClean).forEach(Cleaner.Cleanable::clean);
+  }
 
   public static void clean(@Nonnull Path path) {
     Logger.getLogger(Clean.class.getName()).log(Level.INFO, () -> "Clean directory %s".formatted(path));
