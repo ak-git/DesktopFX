@@ -159,10 +159,12 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
                 .mapToDouble(scaleInfo).toArray(), scaleInfo);
           }
         }
-        onNext(service.getVariables().stream().mapToInt(e -> {
-          int[] ints = chartData[e.ordinal()];
-          return ints[ints.length - 1];
-        }).toArray());
+        onNext(service.getVariables().stream().mapToInt(
+            e -> {
+              int[] ints = chartData[e.ordinal()];
+              return ints[ints.length - 1];
+            }).toArray()
+        );
       }
       axisXController.checkLength(chartData[0].length);
     });
