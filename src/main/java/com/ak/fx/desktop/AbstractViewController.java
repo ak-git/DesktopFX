@@ -150,8 +150,8 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   private void changed() {
     Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController::toString);
     Map<V, int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
-    if (chartData.values().stream().noneMatch(ints -> ints.length == 0)) {
-      FxUtils.invokeInFx(() -> {
+    FxUtils.invokeInFx(() -> {
+      if (chartData.values().stream().noneMatch(ints -> ints.length == 0)) {
         chartData.forEach((v, ints) -> {
           if (v.options().contains(Variable.Option.VISIBLE)) {
             int[] values = FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(ints);
@@ -162,8 +162,8 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
         });
         onNext(chartData.entrySet().stream().sorted(Map.Entry.comparingByKey())
             .mapToInt(e -> e.getValue()[e.getValue().length - 1]).toArray());
-        axisXController.checkLength(chartData.values().iterator().next().length);
-      });
-    }
+      }
+      axisXController.checkLength(chartData.values().iterator().next().length);
+    });
   }
 }
