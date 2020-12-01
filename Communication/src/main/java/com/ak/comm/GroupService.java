@@ -22,7 +22,6 @@ import com.ak.comm.core.Readable;
 import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
-import com.ak.logging.CalibrateBuilders;
 import com.ak.logging.LogBuilders;
 
 public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends AbstractService<int[]> implements FileFilter {
@@ -70,7 +69,6 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
       currentReadable = serialService;
     }
     LogBuilders.CONVERTER_FILE.clean();
-    CalibrateBuilders.CALIBRATION.clean();
   }
 
   public void write(@Nullable T request) {
