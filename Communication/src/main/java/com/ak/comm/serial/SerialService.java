@@ -175,10 +175,10 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
   @Override
   public String toString() {
     if (serialPort == null) {
-      return "%x %s".formatted(hashCode(), SERIAL_PORT_NOT_FOUND);
+      return "%08x %s".formatted(hashCode(), SERIAL_PORT_NOT_FOUND);
     }
     else {
-      return "%x [%s] %s".formatted(hashCode(), serialPort.getSystemPortName(), serialPort.getDescriptivePortName());
+      return "%08x [%s] %s".formatted(hashCode(), serialPort.getSystemPortName(), serialPort.getDescriptivePortName());
     }
   }
 

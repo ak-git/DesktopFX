@@ -61,7 +61,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
 
       LOCK.lock();
       try (SeekableByteChannel seekableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
-        Logger.getLogger(getClass().getName()).log(Level.CONFIG, () -> "#%x Open file [ %s ]".formatted(hashCode(), fileToRead));
+        Logger.getLogger(getClass().getName()).log(Level.CONFIG, () -> "#%08x Open file [ %s ]".formatted(hashCode(), fileToRead));
 
         MessageDigest md = MessageDigest.getInstance("SHA-512");
         if (isChannelProcessed(seekableByteChannel, md::update)) {
@@ -70,11 +70,11 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
           if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(convertedFile, StandardOpenOption.READ);
             Logger.getLogger(getClass().getName()).log(Level.INFO,
-                () -> "#%x File [ %s ] with hash = [ %s ] is already processed".formatted(hashCode(), fileToRead, md5Code));
+                () -> "#%08x File [ %s ] with hash = [ %s ] is already processed".formatted(hashCode(), fileToRead, md5Code));
           }
           else {
             Logger.getLogger(getClass().getName()).log(Level.INFO,
-                () -> "#%x Read file [ %s ], hash = [ %s ]".formatted(hashCode(), fileToRead, md5Code));
+                () -> "#%08x Read file [ %s ], hash = [ %s ]".formatted(hashCode(), fileToRead, md5Code));
             Path tempConverterFile = LogBuilders.CONVERTER_FILE.build("temp." + md5Code).getPath();
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(tempConverterFile,
                 StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
@@ -125,7 +125,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public String toString() {
-    return "%s@%x{file = %s}".formatted(getClass().getSimpleName(), hashCode(), fileToRead);
+    return "%s@%08x{file = %s}".formatted(getClass().getSimpleName(), hashCode(), fileToRead);
   }
 
   @Override
