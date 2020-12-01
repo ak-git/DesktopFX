@@ -2,7 +2,6 @@ package com.ak.comm;
 
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.concurrent.Flow;
 
 import javax.annotation.Nonnull;
@@ -38,17 +37,17 @@ public class GroupServiceTest implements Flow.Subscriber<int[]> {
     while (!Thread.currentThread().isInterrupted()) {
       int countFrames = 10;
       int shift = 2;
-      Map<TwoVariables, int[]> ints = service.read(shift, countFrames + shift);
-      if (!ints.isEmpty()) {
-        for (int i = 0; i < ints.get(TwoVariables.V1).length; i++) {
+      int[][] ints = service.read(shift, countFrames + shift);
+      if (ints.length != 0) {
+        for (int i = 0; i < ints[TwoVariables.V1.ordinal()].length; i++) {
           for (TwoVariables v : TwoVariables.values()) {
-            Assert.assertEquals(ints.get(v)[i], i + v.ordinal() + shift, Arrays.toString(ints.get(v)));
+            Assert.assertEquals(ints[v.ordinal()][i], i + v.ordinal() + shift, Arrays.toString(ints[v.ordinal()]));
           }
         }
         break;
       }
     }
-    service.read(0, 0).forEach((twoVariables, ints) -> Assert.assertEquals(ints.length, 0));
+    Assert.assertTrue(Arrays.stream(service.read(0, 0)).allMatch(ints -> ints.length == 0));
     service.refresh();
   }
 

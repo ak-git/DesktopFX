@@ -5,11 +5,9 @@ import java.io.FileFilter;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Flow;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -91,20 +89,21 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
     fileReadingService.close();
   }
 
-  public Map<V, int[]> read(@Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
+  public int[][] read(@Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
     int from = Math.min(fromInclusive, toExclusive);
     int to = Math.max(fromInclusive, toExclusive);
 
-    int frameSize = variables.size() * Integer.BYTES;
+    int countVariables = variables.size();
+    int frameSize = countVariables * Integer.BYTES;
     ByteBuffer buffer = ByteBuffer.allocate(frameSize * (to - from));
     currentReadable.read(buffer, (long) frameSize * from);
     buffer.flip();
 
-    int count = buffer.limit() / frameSize;
-    Map<V, int[]> result = variables.stream().collect(Collectors.toMap(o -> o, o -> new int[count]));
-    for (int i = 0; i < count; i++) {
-      for (V variable : variables) {
-        result.get(variable)[i] = buffer.getInt();
+    int countData = buffer.limit() / frameSize;
+    int[][] result = new int[countVariables][countData];
+    for (int i = 0; i < countData; i++) {
+      for (int j = 0; j < countVariables; j++) {
+        result[j][i] = buffer.getInt();
       }
     }
     return result;

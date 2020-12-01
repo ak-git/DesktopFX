@@ -1,7 +1,6 @@
 package com.ak.fx.desktop;
 
 import java.net.URL;
-import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.Flow;
@@ -149,21 +148,23 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
 
   private void changed() {
     Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController::toString);
-    Map<V, int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
+    int[][] chartData = service.read(axisXController.getStart(), axisXController.getEnd());
     FxUtils.invokeInFx(() -> {
-      if (chartData.values().stream().noneMatch(ints -> ints.length == 0)) {
-        chartData.forEach((v, ints) -> {
+      if (chartData[0].length > 0) {
+        for (V v : service.getVariables()) {
           if (v.options().contains(Variable.Option.VISIBLE)) {
-            int[] values = FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(ints);
+            int[] values = FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(chartData[v.ordinal()]);
             ScaleYInfo<V> scaleInfo = axisYController.scale(v, values);
             Objects.requireNonNull(chart).setAll(v.indexBy(Variable.Option.VISIBLE), IntStream.of(values).unordered().parallel()
                 .mapToDouble(scaleInfo).toArray(), scaleInfo);
           }
-        });
-        onNext(chartData.entrySet().stream().sorted(Map.Entry.comparingByKey())
-            .mapToInt(e -> e.getValue()[e.getValue().length - 1]).toArray());
+        }
+        onNext(service.getVariables().stream().mapToInt(e -> {
+          int[] ints = chartData[e.ordinal()];
+          return ints[ints.length - 1];
+        }).toArray());
       }
-      axisXController.checkLength(chartData.values().iterator().next().length);
+      axisXController.checkLength(chartData[0].length);
     });
   }
 }
