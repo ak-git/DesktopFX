@@ -17,14 +17,12 @@ import com.ak.util.OS;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Orientation;
 import javafx.scene.Scene;
+import javafx.scene.control.SplitPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.RowConstraints;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -41,26 +39,14 @@ public class FxApplication extends Application {
         getClass().getResource(resourceBundle.getString(KEY_APPLICATION_IMAGE))
     );
 
-    Pane pane;
-    if (fxmlLoaders.size() == 1) {
-      pane = fxmlLoaders.get(0).load();
-    }
-    else {
-      GridPane root = new GridPane();
-      ColumnConstraints columnConstraints = new ColumnConstraints();
-      columnConstraints.setPercentWidth(100);
-      root.getColumnConstraints().add(columnConstraints);
-      for (int i = 0; i < fxmlLoaders.size(); i++) {
-        root.add(fxmlLoaders.get(i).load(), 0, i);
-        RowConstraints row = new RowConstraints();
-        row.setPercentHeight(100.0 / fxmlLoaders.size());
-        root.getRowConstraints().add(row);
-      }
-      pane = root;
+    SplitPane root = new SplitPane();
+    root.setOrientation(Orientation.VERTICAL);
+    for (FXMLLoader fxmlLoader : fxmlLoaders) {
+      root.getItems().add(fxmlLoader.load());
     }
 
     Stage stage = new Stage(StageStyle.DECORATED);
-    stage.setScene(new Scene(pane, 1024, 768));
+    stage.setScene(new Scene(root, 1024, 768));
     stage.setTitle(resourceBundle.getString(KEY_APPLICATION_TITLE));
     stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     addEventHandler(stage, () ->
