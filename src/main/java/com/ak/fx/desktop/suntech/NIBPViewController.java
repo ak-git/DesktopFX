@@ -1,6 +1,7 @@
 package com.ak.fx.desktop.suntech;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
@@ -23,6 +24,7 @@ import static com.ak.comm.converter.suntech.NIBPConverter.FREQUENCY;
 @Named
 @Profile("suntech")
 public final class NIBPViewController extends AbstractScheduledViewController<NIBPRequest, NIBPResponse, NIBPVariable> {
+  private final Executor delayedExecutor = CompletableFuture.delayedExecutor(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
   private volatile boolean isStartBPEnable;
 
   @Inject
@@ -43,11 +45,10 @@ public final class NIBPViewController extends AbstractScheduledViewController<NI
   @Override
   public void refresh() {
     super.refresh();
-    CompletableFuture.delayedExecutor(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS)
-        .execute(() -> {
-          if (isStartBPEnable) {
-            service().write(NIBPRequest.START_BP);
-          }
-        });
+    delayedExecutor.execute(() -> {
+      if (isStartBPEnable) {
+        service().write(NIBPRequest.START_BP);
+      }
+    });
   }
 }

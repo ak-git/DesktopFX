@@ -88,15 +88,15 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
           chart.setMaxSamples(newValue.intValue() / axisXController.getDecimateFactor())
       );
       axisXController.setFrequency(service.getFrequency());
-
-      Timeline timeline = new Timeline();
-      timeline.getKeyFrames().add(new KeyFrame(Duration.millis(100), (ActionEvent actionEvent) -> axisXController.scroll(-1000)));
-      timeline.setCycleCount(Animation.INDEFINITE);
-      SequentialTransition animation;
-      animation = new SequentialTransition();
-      animation.getChildren().addAll(timeline);
-      animation.play();
     }
+
+    Timeline timeline = new Timeline();
+    timeline.getKeyFrames().add(new KeyFrame(Duration.millis(100), (ActionEvent actionEvent) -> axisXController.scroll(-1000)));
+    timeline.setCycleCount(Animation.INDEFINITE);
+    SequentialTransition animation;
+    animation = new SequentialTransition();
+    animation.getChildren().addAll(timeline);
+    animation.play();
     service.subscribe(this);
   }
 
