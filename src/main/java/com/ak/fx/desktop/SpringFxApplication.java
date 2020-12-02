@@ -70,7 +70,7 @@ public class SpringFxApplication extends FxApplication {
   @Override
   public void refresh() {
     super.refresh();
-    applicationContext.getBeansOfType(Refreshable.class).values().forEach(Refreshable::refresh);
+    applicationContext.getBeansOfType(Refreshable.class).values().parallelStream().forEach(Refreshable::refresh);
   }
 
   @Override

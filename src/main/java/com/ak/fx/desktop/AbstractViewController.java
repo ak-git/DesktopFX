@@ -93,8 +93,7 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
     Timeline timeline = new Timeline();
     timeline.getKeyFrames().add(new KeyFrame(Duration.millis(100), (ActionEvent actionEvent) -> axisXController.scroll(-1000)));
     timeline.setCycleCount(Animation.INDEFINITE);
-    SequentialTransition animation;
-    animation = new SequentialTransition();
+    SequentialTransition animation = new SequentialTransition();
     animation.getChildren().addAll(timeline);
     animation.play();
     service.subscribe(this);
