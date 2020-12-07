@@ -3,6 +3,7 @@ package com.ak.fx.desktop;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -15,7 +16,6 @@ import com.ak.comm.bytes.suntech.NIBPResponse;
 import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.LinkedConverter;
-import com.ak.comm.converter.Refreshable;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.aper.AperCalibrationCurrent1Variable;
 import com.ak.comm.converter.aper.AperStage1Variable;
@@ -42,6 +42,7 @@ import com.ak.comm.interceptor.suntech.NIBPBytesInterceptor;
 import com.ak.logging.LocalFileHandler;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.input.ZoomEvent;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -69,8 +70,19 @@ public class SpringFxApplication extends FxApplication {
 
   @Override
   public void refresh() {
-    super.refresh();
-    applicationContext.getBeansOfType(Refreshable.class).values().parallelStream().forEach(Refreshable::refresh);
+    processEvent(ViewController::refresh);
+  }
+
+  @Override
+  public void zoom(ZoomEvent event) {
+    processEvent(viewController -> viewController.zoom(event));
+    super.zoom(event);
+  }
+
+  private void processEvent(Consumer<? super ViewController> action) {
+    if (applicationContext != null) {
+      applicationContext.getBeansOfType(ViewController.class).values().parallelStream().forEach(action);
+    }
   }
 
   @Override

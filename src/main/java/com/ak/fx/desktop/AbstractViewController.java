@@ -14,7 +14,6 @@ import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import com.ak.comm.GroupService;
-import com.ak.comm.converter.Refreshable;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.digitalfilter.FilterBuilder;
@@ -32,10 +31,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.TransferMode;
+import javafx.scene.input.ZoomEvent;
 import javafx.util.Duration;
 
 abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
-    implements Initializable, Flow.Subscriber<int[]>, AutoCloseable, Refreshable {
+    implements Initializable, Flow.Subscriber<int[]>, AutoCloseable, ViewController {
   @Nonnull
   private final GroupService<T, R, V> service;
   private final AxisXController axisXController = new AxisXController(this::changed);
@@ -70,12 +70,6 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
       chart.titleProperty().bind(axisXController.zoomProperty().asString());
       chart.setOnScroll(event -> {
         axisXController.scroll(event.getDeltaX());
-        event.consume();
-      });
-      chart.setOnZoom(event -> {
-        axisXController.zoom(event.getZoomFactor());
-        axisXController.preventEnd(chart.diagramWidthProperty().doubleValue());
-        changed();
         event.consume();
       });
       chart.diagramHeightProperty().addListener((observable, oldValue, newValue) -> {
@@ -138,6 +132,15 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   @OverridingMethodsMustInvokeSuper
   public void refresh() {
     service.refresh();
+  }
+
+  @Override
+  public void zoom(ZoomEvent event) {
+    if (chart != null) {
+      axisXController.zoom(event.getZoomFactor());
+      axisXController.preventEnd(chart.diagramWidthProperty().doubleValue());
+      changed();
+    }
   }
 
   @Nonnull

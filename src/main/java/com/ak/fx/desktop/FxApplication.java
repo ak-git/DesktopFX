@@ -26,7 +26,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-public class FxApplication extends Application {
+public class FxApplication extends Application implements ViewController {
   private static final String KEY_PROPERTIES = "keys";
   private static final String KEY_APPLICATION_TITLE = "application.title";
   private static final String KEY_APPLICATION_IMAGE = "application.image";
@@ -49,6 +49,7 @@ public class FxApplication extends Application {
     stage.setScene(new Scene(root, 1024, 768));
     stage.setTitle(resourceBundle.getString(KEY_APPLICATION_TITLE));
     stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+    stage.getScene().setOnZoom(this::zoom);
     addEventHandler(stage, () ->
             Platform.runLater(() -> {
               stage.setFullScreen(!stage.isFullScreen());
@@ -75,11 +76,6 @@ public class FxApplication extends Application {
   @OverridingMethodsMustInvokeSuper
   public void stop() {
     Platform.exit();
-  }
-
-  @OverridingMethodsMustInvokeSuper
-  public void refresh() {
-    // works in subclasses
   }
 
   @ParametersAreNonnullByDefault
