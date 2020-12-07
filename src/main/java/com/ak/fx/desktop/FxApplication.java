@@ -50,6 +50,7 @@ public class FxApplication extends Application implements ViewController {
     stage.setTitle(resourceBundle.getString(KEY_APPLICATION_TITLE));
     stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     stage.getScene().setOnZoom(this::zoom);
+    stage.getScene().setOnScroll(this::scroll);
     addEventHandler(stage, () ->
             Platform.runLater(() -> {
               stage.setFullScreen(!stage.isFullScreen());

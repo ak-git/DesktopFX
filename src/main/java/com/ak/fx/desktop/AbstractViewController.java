@@ -30,6 +30,7 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.input.ZoomEvent;
 import javafx.util.Duration;
@@ -68,10 +69,6 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
       chart.setVariables(service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.VISIBLE))
           .map(Variables::toString).collect(Collectors.toList()));
       chart.titleProperty().bind(axisXController.zoomProperty().asString());
-      chart.setOnScroll(event -> {
-        axisXController.scroll(event.getDeltaX());
-        event.consume();
-      });
       chart.diagramHeightProperty().addListener((observable, oldValue, newValue) -> {
         axisYController.setLineDiagramHeight(newValue.doubleValue());
         changed();
@@ -135,12 +132,17 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
-  public void zoom(ZoomEvent event) {
+  public final void zoom(ZoomEvent event) {
     if (chart != null) {
       axisXController.zoom(event.getZoomFactor());
       axisXController.preventEnd(chart.diagramWidthProperty().doubleValue());
       changed();
     }
+  }
+
+  @Override
+  public final void scroll(ScrollEvent event) {
+    axisXController.scroll(event.getDeltaX());
   }
 
   @Nonnull

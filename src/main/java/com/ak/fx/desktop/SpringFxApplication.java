@@ -42,6 +42,7 @@ import com.ak.comm.interceptor.suntech.NIBPBytesInterceptor;
 import com.ak.logging.LocalFileHandler;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.ZoomEvent;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -79,10 +80,16 @@ public class SpringFxApplication extends FxApplication {
     super.zoom(event);
   }
 
+  @Override
+  public void scroll(ScrollEvent event) {
+    processEvent(viewController -> viewController.scroll(event));
+    super.scroll(event);
+  }
+
   private void processEvent(Consumer<? super ViewController> action) {
-    if (applicationContext != null) {
-      applicationContext.getBeansOfType(ViewController.class).values().parallelStream().forEach(action);
-    }
+    applicationContext.getBeansOfType(ViewController.class).values().parallelStream()
+        .filter(viewController -> !SpringFxApplication.class.isAssignableFrom(viewController.getClass()))
+        .forEach(action);
   }
 
   @Override
