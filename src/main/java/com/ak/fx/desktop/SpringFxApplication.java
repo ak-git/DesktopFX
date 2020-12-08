@@ -175,14 +175,14 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
-  @Profile("suntech")
+  @Profile({"suntech", "suntech-test"})
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static BytesInterceptor<NIBPRequest, NIBPResponse> bytesInterceptorNIBP() {
     return new NIBPBytesInterceptor();
   }
 
   @Bean
-  @Profile("suntech")
+  @Profile({"suntech", "suntech-test"})
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<NIBPResponse, NIBPVariable> converterNIBP() {
     return new NIBPConverter();
