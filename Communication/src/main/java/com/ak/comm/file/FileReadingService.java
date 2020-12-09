@@ -36,7 +36,6 @@ import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
 
 final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractConvertableService<T, R, V> implements Flow.Subscription {
-  private static final int CAPACITY_4K = 1024 * 4;
   private static final Lock LOCK = new ReentrantLock();
   @Nonnull
   private final Path fileToRead;
@@ -62,9 +61,9 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
       LOCK.lock();
       try (SeekableByteChannel seekableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
         Logger.getLogger(getClass().getName()).log(Level.CONFIG, () -> "#%08x Open file [ %s ]".formatted(hashCode(), fileToRead));
-
+        int blockSize = (int) Files.getFileStore(fileToRead).getBlockSize();
         MessageDigest md = MessageDigest.getInstance("SHA-512");
-        if (isChannelProcessed(seekableByteChannel, md::update)) {
+        if (isChannelProcessed(blockSize, seekableByteChannel, md::update)) {
           String md5Code = digestToString(md.digest("2020.11.07".getBytes(Charset.defaultCharset())));
           Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
           if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
@@ -79,7 +78,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(tempConverterFile,
                 StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
 
-            boolean processed = isChannelProcessed(seekableByteChannel, new Consumer<>() {
+            boolean processed = isChannelProcessed(blockSize, seekableByteChannel, new Consumer<>() {
               @Nonnegative
               private long samplesCounter;
 
@@ -153,8 +152,9 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
     return convertedFileChannelProvider.call();
   }
 
-  private boolean isChannelProcessed(@Nonnull SeekableByteChannel seekableByteChannel, @Nonnull Consumer<ByteBuffer> consumer) throws IOException {
-    ByteBuffer buffer = ByteBuffer.allocate(CAPACITY_4K);
+  private boolean isChannelProcessed(@Nonnegative int blockSize, @Nonnull SeekableByteChannel seekableByteChannel,
+                                     @Nonnull Consumer<ByteBuffer> consumer) throws IOException {
+    ByteBuffer buffer = ByteBuffer.allocate(blockSize);
     boolean readFlag = false;
     seekableByteChannel.position(0);
     while (seekableByteChannel.read(buffer) > 0 && !disposed) {
