@@ -129,6 +129,7 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   @OverridingMethodsMustInvokeSuper
   public void refresh() {
     service.refresh();
+    changed();
   }
 
   @Override
@@ -154,15 +155,15 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
     Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController::toString);
     int[][] chartData = service.read(axisXController.getStart(), axisXController.getEnd());
     FxUtils.invokeInFx(() -> {
-      if (chartData[0].length > 0) {
-        for (V v : service.getVariables()) {
-          if (v.options().contains(Variable.Option.VISIBLE)) {
-            int[] values = FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(chartData[v.ordinal()]);
-            ScaleYInfo<V> scaleInfo = axisYController.scale(v, values);
-            Objects.requireNonNull(chart).setAll(v.indexBy(Variable.Option.VISIBLE), IntStream.of(values).unordered().parallel()
-                .mapToDouble(scaleInfo).toArray(), scaleInfo);
-          }
+      for (V v : service.getVariables()) {
+        if (v.options().contains(Variable.Option.VISIBLE)) {
+          int[] values = FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(chartData[v.ordinal()]);
+          ScaleYInfo<V> scaleInfo = axisYController.scale(v, values);
+          Objects.requireNonNull(chart).setAll(v.indexBy(Variable.Option.VISIBLE), IntStream.of(values).unordered().parallel()
+              .mapToDouble(scaleInfo).toArray(), scaleInfo);
         }
+      }
+      if (chartData[0].length > 0) {
         onNext(service.getVariables().stream().mapToInt(
             e -> {
               int[] ints = chartData[e.ordinal()];
