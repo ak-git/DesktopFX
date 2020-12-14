@@ -46,10 +46,6 @@ public enum LogBuilders implements Cleaner.Cleanable {
     }
   };
 
-  static {
-    Clean.clean(new Cleaner.Cleanable[] {CONVERTER_FILE});
-  }
-
   private final String directory;
 
   LogBuilders(String directory) {
