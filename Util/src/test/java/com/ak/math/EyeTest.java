@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
 import com.ak.eye.PointLoader;
-import javafx.util.Builder;
+import com.ak.util.Builder;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
