@@ -16,8 +16,8 @@ import com.ak.comm.interceptor.BytesInterceptor;
  * </p>
  */
 public final class RampBytesInterceptor extends AbstractFixedFrameBytesInterceptor {
-  public RampBytesInterceptor(@Nonnull BytesInterceptor.BaudRate baudRate, @Nonnegative int frameLength) {
-    super(baudRate, frameLength);
+  public RampBytesInterceptor(@Nonnull String name, @Nonnull BytesInterceptor.BaudRate baudRate, @Nonnegative int frameLength) {
+    super(name, baudRate, frameLength);
   }
 
   @Override

@@ -73,7 +73,7 @@ final class LineDiagram extends AbstractRegion {
       title.setVisible(false);
       if (yLabels.getChildren().get(i).isVisible()) {
         title.setVisible(true);
-        title.relocate(x + SMALL.getStep() * 1.5, y + SMALL.getStep() * i - title.getFont().getSize() - POINTS.getStep() / 4);
+        title.relocate(x + SMALL.getStep() * 2.1, y + SMALL.getStep() * i - title.getFont().getSize() - POINTS.getStep() / 4);
         break;
       }
     }
