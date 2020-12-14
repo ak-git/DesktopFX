@@ -1,10 +1,10 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Aper1-R4" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+  <configuration default="false" name="Briko" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <module name="DesktopFX.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.ak.fx.desktop.SpringFxApplication" />
     <option name="ENABLE_LAUNCH_OPTIMIZATION" value="false" />
     <option name="ENABLE_JMX_AGENT" value="false" />
-    <option name="ACTIVE_PROFILES" value="aper1-R4" />
+    <option name="ACTIVE_PROFILES" value="aper2-myo, briko" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <method v="2">
       <option name="Make" enabled="true" />

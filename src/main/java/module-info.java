@@ -20,7 +20,6 @@ module com.ak.fx.desktop {
   requires java.prefs;
   requires java.desktop;
   requires spring.beans;
-  requires org.beryx.textio;
 
   opens com.ak.numbers.aper to com.ak.util, org.testng;
   opens com.ak.numbers.rcm to com.ak.util, org.testng;
@@ -41,9 +40,11 @@ module com.ak.fx.desktop {
   exports com.ak.comm.converter.rcm to javafx.graphics, org.testng;
   exports com.ak.comm.converter.rsce to spring.beans;
   exports com.ak.comm.converter.nmis to spring.beans;
+  exports com.ak.comm.converter.briko to org.testng;
   exports com.ak.comm.converter.suntech to org.testng;
   exports com.ak.comm.bytes.suntech to org.testng;
 
+  exports com.ak.fx.desktop.briko to spring.beans;
   exports com.ak.fx.desktop.nmisr to spring.beans;
   exports com.ak.fx.desktop.suntech to spring.beans;
 
