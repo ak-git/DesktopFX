@@ -24,23 +24,23 @@ import org.testng.annotations.Test;
 public class RampBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(RampBytesInterceptor.class.getName());
   private final Function<ByteBuffer, Stream<BufferFrame>> interceptor =
-      new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 9);
+      new RampBytesInterceptor(getClass().getName(), BytesInterceptor.BaudRate.BR_115200, 9);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidInterceptorProperties() {
-    new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 0);
+    new RampBytesInterceptor(getClass().getName(), BytesInterceptor.BaudRate.BR_115200, 0);
   }
 
   @Test
   public void testInterceptorProperties() {
-    BytesInterceptor<BufferFrame, BufferFrame> interceptor = new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1);
+    BytesInterceptor<BufferFrame, BufferFrame> interceptor = new RampBytesInterceptor(getClass().getName(), BytesInterceptor.BaudRate.BR_115200, 1);
     Assert.assertEquals(interceptor.getBaudRate(), 115200);
     Assert.assertNull(interceptor.getPingRequest());
   }
 
   @Test(dataProviderClass = FrameBytesInterceptorDataProvider.class, dataProvider = "ramp-data")
   public void testRampBytesInterceptor(@Nonnull byte[] input, @Nonnull BufferFrame testFrame, @Nonnull CharSequence ignoredMessage) {
-    BytesInterceptor<BufferFrame, BufferFrame> interceptor = new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_921600, 9);
+    BytesInterceptor<BufferFrame, BufferFrame> interceptor = new RampBytesInterceptor(getClass().getName(), BytesInterceptor.BaudRate.BR_921600, 9);
 
     Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> {
