@@ -14,6 +14,7 @@ import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.storage.Storage;
 import com.ak.fx.util.OSDockImage;
 import com.ak.util.OS;
+import com.ak.util.Strings;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -61,7 +62,7 @@ public class FxApplication extends Application implements ViewController {
     addEventHandler(stage, this::refresh, KeyCode.SHORTCUT, KeyCode.N);
     stage.show();
 
-    Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass(), "%d".formatted(0));
+    Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass(), Strings.EMPTY);
     stage.setOnCloseRequest(event -> stageStorage.save(stage));
     stageStorage.update(stage);
   }
