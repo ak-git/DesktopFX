@@ -39,7 +39,7 @@ public final class TetrapolarSystem {
    * @param rOhms in Ohms.
    * @return <b>apparent</b> specific resistance in Ohm-m.
    */
-  double getApparent(@Nonnegative double rOhms) {
+  public double getApparent(@Nonnegative double rOhms) {
     return rOhms * Math.PI / (Math.abs(1.0 / radius(-1.0)) - Math.abs(1.0 / radius(1.0)));
   }
 

@@ -79,6 +79,6 @@ import org.springframework.context.annotation.Profile;
 @Profile("nmis")
 public final class NmisBytesInterceptor extends AbstractCheckedBytesInterceptor<NmisRequest, NmisResponseFrame, NmisResponseFrame.Builder> {
   public NmisBytesInterceptor() {
-    super(BaudRate.BR_115200, NmisRequest.Sequence.CATCH_100.build(), new NmisResponseFrame.Builder());
+    super("NMIS", BaudRate.BR_115200, NmisRequest.Sequence.CATCH_100.build(), new NmisResponseFrame.Builder());
   }
 }
