@@ -6,10 +6,8 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
-import java.util.Set;
 import java.util.concurrent.Flow;
 import java.util.logging.Filter;
 import java.util.logging.Level;
@@ -17,7 +15,6 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -31,7 +28,7 @@ import com.fazecast.jSerialComm.SerialPortEvent;
 
 import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
 
-final class SerialService extends AbstractService<ByteBuffer> implements WritableByteChannel, Flow.Subscription {
+final class SerialService<T, R> extends AbstractService<ByteBuffer> implements WritableByteChannel, Flow.Subscription {
   private static final Logger LOGGER = Logger.getLogger(SerialService.class.getName());
   private static final String SERIAL_PORT_NOT_FOUND = "Serial port not found";
 
@@ -60,21 +57,19 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
 
   @Nullable
   private final SerialPort serialPort = Ports.INSTANCE.next();
-  @Nonnegative
-  private final int baudRate;
+  @Nonnull
+  private final BytesInterceptor<T, R> bytesInterceptor;
   @Nonnull
   private final ByteBuffer buffer;
-  @Nonnull
-  private final Set<BytesInterceptor.SerialParams> serialParams;
-  private final ConcurrentAsyncFileChannel binaryLogChannel = new ConcurrentAsyncFileChannel(() ->
-      AsynchronousFileChannel.open(LogBuilders.SERIAL_BYTES.build("%x".formatted(hashCode())).getPath(),
-          StandardOpenOption.CREATE, StandardOpenOption.WRITE));
+  private final ConcurrentAsyncFileChannel binaryLogChannel;
   private volatile boolean refresh;
 
-  SerialService(@Nonnegative int baudRate, Set<BytesInterceptor.SerialParams> serialParams) {
-    this.baudRate = baudRate;
-    buffer = ByteBuffer.allocate(baudRate);
-    this.serialParams = Collections.unmodifiableSet(serialParams);
+  SerialService(@Nonnull BytesInterceptor<T, R> bytesInterceptor) {
+    this.bytesInterceptor = bytesInterceptor;
+    buffer = ByteBuffer.allocate(bytesInterceptor.getBaudRate());
+    binaryLogChannel = new ConcurrentAsyncFileChannel(() ->
+        AsynchronousFileChannel.open(LogBuilders.SERIAL_BYTES.build(bytesInterceptor.name()).getPath(),
+            StandardOpenOption.CREATE, StandardOpenOption.WRITE));
   }
 
   @Override
@@ -101,11 +96,11 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
     }
     else {
       serialPort.openPort();
-      serialPort.setBaudRate(baudRate);
-      if (serialParams.contains(BytesInterceptor.SerialParams.CLEAR_DTR)) {
+      serialPort.setBaudRate(bytesInterceptor.getBaudRate());
+      if (bytesInterceptor.getSerialParams().contains(BytesInterceptor.SerialParams.CLEAR_DTR)) {
         serialPort.clearDTR();
       }
-      LOGGER.log(Level.INFO, () -> "%s Open port, baudRate = %d bps".formatted(this, baudRate));
+      LOGGER.log(Level.INFO, () -> "%s Open port, baudRate = %d bps".formatted(this, bytesInterceptor.getBaudRate()));
       s.onSubscribe(this);
 
       serialPort.addDataListener(new SerialPortDataListener() {
@@ -180,10 +175,10 @@ final class SerialService extends AbstractService<ByteBuffer> implements Writabl
   @Override
   public String toString() {
     if (serialPort == null) {
-      return "%x %s".formatted(hashCode(), SERIAL_PORT_NOT_FOUND);
+      return "%08x %s".formatted(hashCode(), SERIAL_PORT_NOT_FOUND);
     }
     else {
-      return "%x [%s] %s".formatted(hashCode(), serialPort.getSystemPortName(), serialPort.getDescriptivePortName());
+      return "%08x [%s] %s".formatted(hashCode(), serialPort.getSystemPortName(), serialPort.getDescriptivePortName());
     }
   }
 

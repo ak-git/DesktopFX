@@ -1,7 +1,6 @@
 package com.ak.fx.desktop;
 
 import java.net.URL;
-import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.Flow;
@@ -15,7 +14,6 @@ import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import com.ak.comm.GroupService;
-import com.ak.comm.converter.Refreshable;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.digitalfilter.FilterBuilder;
@@ -32,11 +30,13 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.TransferMode;
+import javafx.scene.input.ZoomEvent;
 import javafx.util.Duration;
 
 abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
-    implements Initializable, Flow.Subscriber<int[]>, AutoCloseable, Refreshable {
+    implements Initializable, Flow.Subscriber<int[]>, AutoCloseable, ViewController {
   @Nonnull
   private final GroupService<T, R, V> service;
   private final AxisXController axisXController = new AxisXController(this::changed);
@@ -69,16 +69,6 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
       chart.setVariables(service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.VISIBLE))
           .map(Variables::toString).collect(Collectors.toList()));
       chart.titleProperty().bind(axisXController.zoomProperty().asString());
-      chart.setOnScroll(event -> {
-        axisXController.scroll(event.getDeltaX());
-        event.consume();
-      });
-      chart.setOnZoom(event -> {
-        axisXController.zoom(event.getZoomFactor());
-        axisXController.preventEnd(chart.diagramWidthProperty().doubleValue());
-        changed();
-        event.consume();
-      });
       chart.diagramHeightProperty().addListener((observable, oldValue, newValue) -> {
         axisYController.setLineDiagramHeight(newValue.doubleValue());
         changed();
@@ -89,15 +79,14 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
           chart.setMaxSamples(newValue.intValue() / axisXController.getDecimateFactor())
       );
       axisXController.setFrequency(service.getFrequency());
-
-      Timeline timeline = new Timeline();
-      timeline.getKeyFrames().add(new KeyFrame(Duration.millis(100), (ActionEvent actionEvent) -> axisXController.scroll(-1000)));
-      timeline.setCycleCount(Animation.INDEFINITE);
-      SequentialTransition animation;
-      animation = new SequentialTransition();
-      animation.getChildren().addAll(timeline);
-      animation.play();
     }
+
+    Timeline timeline = new Timeline();
+    timeline.getKeyFrames().add(new KeyFrame(Duration.millis(100), (ActionEvent actionEvent) -> axisXController.scroll(-1000)));
+    timeline.setCycleCount(Animation.INDEFINITE);
+    SequentialTransition animation = new SequentialTransition();
+    animation.getChildren().addAll(timeline);
+    animation.play();
     service.subscribe(this);
   }
 
@@ -137,8 +126,24 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
-  public final void refresh() {
+  @OverridingMethodsMustInvokeSuper
+  public void refresh() {
     service.refresh();
+    changed();
+  }
+
+  @Override
+  public final void zoom(ZoomEvent event) {
+    if (chart != null) {
+      axisXController.zoom(event.getZoomFactor());
+      axisXController.preventEnd(chart.diagramWidthProperty().doubleValue());
+      changed();
+    }
+  }
+
+  @Override
+  public final void scroll(ScrollEvent event) {
+    axisXController.scroll(event.getDeltaX());
   }
 
   @Nonnull
@@ -148,17 +153,25 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
 
   private void changed() {
     Logger.getLogger(getClass().getName()).log(Level.FINE, axisXController::toString);
-    Map<V, int[]> chartData = service.read(axisXController.getStart(), axisXController.getEnd());
+    int[][] chartData = service.read(axisXController.getStart(), axisXController.getEnd());
     FxUtils.invokeInFx(() -> {
-      chartData.forEach((v, ints) -> {
+      for (V v : service.getVariables()) {
         if (v.options().contains(Variable.Option.VISIBLE)) {
-          int[] values = FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(ints);
+          int[] values = FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(chartData[v.ordinal()]);
           ScaleYInfo<V> scaleInfo = axisYController.scale(v, values);
           Objects.requireNonNull(chart).setAll(v.indexBy(Variable.Option.VISIBLE), IntStream.of(values).unordered().parallel()
               .mapToDouble(scaleInfo).toArray(), scaleInfo);
         }
-      });
-      axisXController.checkLength(chartData.values().iterator().next().length);
+      }
+      if (chartData[0].length > 0) {
+        onNext(service.getVariables().stream().mapToInt(
+            e -> {
+              int[] ints = chartData[e.ordinal()];
+              return ints[ints.length - 1];
+            }).toArray()
+        );
+      }
+      axisXController.checkLength(chartData[0].length);
     });
   }
 }

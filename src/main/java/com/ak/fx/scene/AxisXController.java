@@ -26,7 +26,7 @@ import tec.uom.se.unit.Units;
 import static com.ak.fx.scene.GridCell.SMALL;
 
 public final class AxisXController {
-  public enum ZoomX {
+  private enum ZoomX {
     Z_10(10), Z_25(25), Z_50(50);
 
     @Nonnegative
