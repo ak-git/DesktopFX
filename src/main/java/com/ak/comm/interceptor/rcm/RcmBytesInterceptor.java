@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Profile;
 @Profile({"rcm", "rcm-calibration"})
 public final class RcmBytesInterceptor extends AbstractFixedFrameBytesInterceptor {
   public RcmBytesInterceptor() {
-    super(BaudRate.BR_38400, 20);
+    super("RheoCardioMonitor", BaudRate.BR_38400, 20);
   }
 
   @Nonnull

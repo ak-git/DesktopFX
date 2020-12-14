@@ -22,7 +22,7 @@ public class CycleSerialServiceTest {
     CountDownLatch latch = new CountDownLatch(1);
 
     CycleSerialService<BufferFrame, BufferFrame, ADCVariable> service =
-        new CycleSerialService<>(new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 2),
+        new CycleSerialService<>(new RampBytesInterceptor(getClass().getName(), BytesInterceptor.BaudRate.BR_115200, 2),
             new ToIntegerConverter<>(ADCVariable.class, 1000));
     service.subscribe(new Flow.Subscriber<>() {
       @Override
