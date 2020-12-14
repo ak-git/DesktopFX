@@ -14,8 +14,8 @@ import javax.annotation.Nonnull;
  * </p>
  */
 public final class FixedFrameBytesInterceptor extends AbstractFixedFrameBytesInterceptor {
-  public FixedFrameBytesInterceptor(@Nonnull BaudRate baudRate, @Nonnegative int frameLength) {
-    super(baudRate, frameLength);
+  public FixedFrameBytesInterceptor(@Nonnull String name, @Nonnull BaudRate baudRate, @Nonnegative int frameLength) {
+    super(name, baudRate, frameLength);
   }
 
   @Override

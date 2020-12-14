@@ -125,19 +125,21 @@ public class VariableTest {
   @DataProvider(name = "formatValues")
   public static Object[][] formatValues() {
     return new Object[][] {
-        {1234, MetricPrefix.CENTI(Units.HERTZ), 1, String.format(Locale.getDefault(), "%,.2f Hz", 12.34)},
-        {-1234, MetricPrefix.CENTI(Units.HERTZ), 10, String.format(Locale.getDefault(), "%,.1f Hz", -12.3)},
+        {1234, MetricPrefix.CENTI(Units.HERTZ), 1, "%,.2f Hz".formatted(12.34)},
+        {-1234, MetricPrefix.CENTI(Units.HERTZ), 10, "%,.1f Hz".formatted(-12.3)},
         {1234, MetricPrefix.CENTI(Units.HERTZ), 100, "%.0f Hz".formatted(12.0)},
-        {-1234, Units.HERTZ, 1, String.format(Locale.getDefault(), "%,.3f kHz", -1.234)},
-        {1234, Units.HERTZ, 10, String.format(Locale.getDefault(), "%,.2f kHz", 1.23)},
-        {-1234, Units.HERTZ, 100, String.format(Locale.getDefault(), "%,.1f kHz", -1.2)},
+        {-1234, Units.HERTZ, 1, "%,.3f kHz".formatted(-1.234)},
+        {1234, Units.HERTZ, 10, "%,.2f kHz".formatted(1.23)},
+        {-1234, Units.HERTZ, 100, "%,.1f kHz".formatted(-1.2)},
         {1234, Units.HERTZ, 1000, "%.0f kHz".formatted(1.0)},
         {-123, Units.HERTZ, 1, "%.0f Hz".formatted(-123.0)},
-        {-3140, Units.VOLT, 1, String.format(Locale.getDefault(), "%,.2f kV", -3.14)},
-        {3100, Units.VOLT, 1, String.format(Locale.getDefault(), "%,.1f kV", 3.1)},
+        {-3140, Units.VOLT, 1, "%,.2f kV".formatted(-3.14)},
+        {3100, Units.VOLT, 1, "%,.1f kV".formatted(3.1)},
         {-3000, Units.VOLT, 1, "%.0f kV".formatted(-3.0)},
         {0, Units.VOLT, 1, "%.0f V".formatted(0.0)},
-        {0, Units.VOLT, 1000, "%.0f kV".formatted(0.0)}
+        {0, Units.VOLT, 1000, "%.0f kV".formatted(0.0)},
+        {1, Units.OHM.multiply(Units.METRE), 10, "%.0f Ω·m".formatted(1.0)},
+        {41235, MetricPrefix.MILLI(Units.OHM).multiply(MetricPrefix.DECI(Units.METRE)), 10, "%,.0f mΩ·m".formatted(4123.5)}
     };
   }
 

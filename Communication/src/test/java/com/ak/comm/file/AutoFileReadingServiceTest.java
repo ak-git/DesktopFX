@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 
 public class AutoFileReadingServiceTest implements Flow.Subscriber<int[]> {
   private final AutoFileReadingService<BufferFrame, BufferFrame, TwoVariables> service = new AutoFileReadingService<>(
-      () -> new RampBytesInterceptor(BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
+      () -> new RampBytesInterceptor(getClass().getName(), BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
       () -> new ToIntegerConverter<>(TwoVariables.class, 1000));
 
   @BeforeClass
