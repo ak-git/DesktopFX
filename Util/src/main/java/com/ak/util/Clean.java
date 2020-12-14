@@ -19,6 +19,7 @@ public enum Clean {
   }
 
   public static void clean(@Nonnull Path path) {
+    Logger.getLogger(Clean.class.getName()).log(Level.INFO, () -> "Clean directory %s".formatted(path));
     try (DirectoryStream<Path> ds = Files.newDirectoryStream(path, Files::isRegularFile)) {
       for (Path file : ds) {
         Files.deleteIfExists(file);

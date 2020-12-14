@@ -41,7 +41,7 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
   public final Stream<R> apply(@Nonnull ByteBuffer src) {
     Collection<R> responses = innerProcessIn(src);
     if (logger.isLoggable(LOG_LEVEL_LEXEMES)) {
-      responses.forEach(response -> logger.log(LOG_LEVEL_LEXEMES, "#%x %s".formatted(hashCode(), response)));
+      responses.forEach(response -> logger.log(LOG_LEVEL_LEXEMES, "#%08x %s".formatted(hashCode(), response)));
     }
     return responses.stream();
   }
@@ -59,10 +59,10 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
     outBuffer.flip();
     if (logger.isLoggable(LOG_LEVEL_ERRORS)) {
       if (outBuffer.limit() > 1) {
-        logger.log(LOG_LEVEL_ERRORS, "#%x %s - %d bytes OUT to hardware".formatted(hashCode(), request, outBuffer.limit()));
+        logger.log(LOG_LEVEL_ERRORS, "#%08x %s - %d bytes OUT to hardware".formatted(hashCode(), request, outBuffer.limit()));
       }
       else {
-        logger.log(LOG_LEVEL_ERRORS, "#%x %s - OUT to hardware".formatted(hashCode(), request));
+        logger.log(LOG_LEVEL_ERRORS, "#%08x %s - OUT to hardware".formatted(hashCode(), request));
       }
     }
     return outBuffer;
