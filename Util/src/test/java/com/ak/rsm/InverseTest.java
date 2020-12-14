@@ -2,6 +2,7 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -11,13 +12,14 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static com.ak.rsm.LayersProvider.systems2;
 import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 
 public class InverseTest {
   @DataProvider(name = "layer1")
   public static Object[][] layer1() {
-    TetrapolarSystem[] systems2 = LayersProvider.systems2_10mm();
+    TetrapolarSystem[] systems2 = systems2(10.0);
     Random random = new Random();
     int rho = random.nextInt(9) + 1;
     return new Object[][] {
@@ -39,8 +41,8 @@ public class InverseTest {
 
   @DataProvider(name = "layer2")
   public static Object[][] layer2() {
-    TetrapolarSystem[] systems2 = LayersProvider.systems2_10mm();
-    TetrapolarSystem[] systems4 = LayersProvider.systems4(10);
+    TetrapolarSystem[] systems2 = systems2(10.0);
+    TetrapolarSystem[] systems4 = LayersProvider.systems4(10.0);
     return new Object[][] {
         {
             systems2,
@@ -81,7 +83,7 @@ public class InverseTest {
     TetrapolarSystem[] systems1 = {
         new TetrapolarSystem(10.0, 20.0, MILLI(METRE))
     };
-    TetrapolarSystem[] systems2 = LayersProvider.systems2_10mm();
+    TetrapolarSystem[] systems2 = systems2(10.0);
     TetrapolarSystem[] systems4 = LayersProvider.systems4(7.0);
     double dh = Metrics.fromMilli(-0.001);
     double h = Metrics.fromMilli(5.0);
@@ -110,12 +112,30 @@ public class InverseTest {
     };
   }
 
-  @Test(dataProvider = "theoryDynamicParameters2")
+  @DataProvider(name = "dynamicParameters2")
+  public static Object[][] dynamicParameters2() {
+    return new Object[][] {
+        {
+            systems2(7.0),
+            new double[] {113.341, 167.385},
+            new double[] {113.341 + 0.091, 167.385 + 0.273},
+            Metrics.fromMilli(0.15),
+            new double[] {5.211, -0.534, Metrics.fromMilli(15.28)}
+        },
+    };
+  }
+
+  @DataProvider(name = "allDynamicParameters2")
+  public static Object[][] allDynamicParameters2() {
+    return Stream.concat(Arrays.stream(theoryDynamicParameters2()), Arrays.stream(dynamicParameters2())).toArray(Object[][]::new);
+  }
+
+  @Test(dataProvider = "allDynamicParameters2")
   @ParametersAreNonnullByDefault
   public void testInverseDynamicLayer2(TetrapolarSystem[] systems, double[] rOhms, double[] rOhmsAfter, double dh, double[] expected) {
     MediumLayers medium = Inverse.inverseDynamic(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
     Assert.assertEquals(medium.rho1(), expected[0], 0.1, medium.toString());
     Assert.assertEquals(medium.k12(), expected[1], 0.1, medium.toString());
-    Assert.assertEquals(medium.h(), expected[2], 0.1, medium.toString());
+    Assert.assertEquals(Metrics.toMilli(medium.h()), Metrics.toMilli(expected[2]), 0.01, medium.toString());
   }
 }

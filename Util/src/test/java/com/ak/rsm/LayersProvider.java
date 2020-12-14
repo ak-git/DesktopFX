@@ -18,13 +18,12 @@ class LayersProvider {
 
   /**
    * Generates optimal electrode system pair.
-   * 10 x 30, 50 x 30 mm,
+   * For 10 mm: 10 x 30, 50 x 30 mm,
    *
    * @return two Tetrapolar System.
    */
   @Nonnull
-  static TetrapolarSystem[] systems2_10mm() {
-    double smm = 10.0;
+  static TetrapolarSystem[] systems2(double smm) {
     return new TetrapolarSystem[] {
         new TetrapolarSystem(smm, smm * 3.0, MILLI(METRE)),
         new TetrapolarSystem(smm * 3.0, smm * 5.0, MILLI(METRE)),
