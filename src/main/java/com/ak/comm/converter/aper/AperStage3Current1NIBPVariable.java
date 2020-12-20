@@ -19,9 +19,8 @@ public enum AperStage3Current1NIBPVariable implements DependentVariable<AperStag
 
     @Override
     public Set<Option> options() {
-      return Collections.singleton(Option.TEXT_VALUE_BANNER);
+      return AperStage2UnitsVariable.CCR1.options();
     }
-
   };
 
   @Override
