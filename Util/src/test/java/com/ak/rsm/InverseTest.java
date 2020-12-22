@@ -139,16 +139,6 @@ public class InverseTest {
         // h = 5 mm, rho1 = 0.7, rho2 = Inf
         {
             systems2(10.0),
-            new double[] {29.47, 65.68},
-            new double[] {29.75, 66.35},
-            dh,
-            new double[] {0.694, 1.0, Metrics.fromMilli(5.0)}
-        },
-
-
-        // h = 5 mm, rho1 = 0.7, rho2 = Inf
-        {
-            systems2(10.0),
             new double[] {30.971, 61.860},
             new double[] {31.278, 62.479},
             dh,
