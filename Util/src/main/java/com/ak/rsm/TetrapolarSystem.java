@@ -24,6 +24,7 @@ public final class TetrapolarSystem {
     lCurrentCarryingSI = toDouble(Math.max(sPU, lCC), unit);
   }
 
+  @Nonnegative
   double radius(double sign) {
     return Math.abs(lCurrentCarryingSI + Math.signum(sign) * sPotentialUnitSI) / 2.0;
   }
@@ -39,6 +40,7 @@ public final class TetrapolarSystem {
    * @param rOhms in Ohms.
    * @return <b>apparent</b> specific resistance in Ohm-m.
    */
+  @Nonnegative
   public double getApparent(@Nonnegative double rOhms) {
     return rOhms * Math.PI / (Math.abs(1.0 / radius(-1.0)) - Math.abs(1.0 / radius(1.0)));
   }

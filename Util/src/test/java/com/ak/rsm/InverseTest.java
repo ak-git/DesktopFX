@@ -72,7 +72,9 @@ public class InverseTest {
     Random random = new Random();
     MediumLayers medium = Inverse.inverseStatic(
         TetrapolarMeasurement.of(systems,
-            Arrays.stream(rOhms).map(x -> x + random.nextGaussian() / x / 10.0).toArray()));
+            Arrays.stream(rOhms).map(x -> x + random.nextGaussian() / x / 10.0).toArray()
+        )
+    );
     Assert.assertEquals(medium.rho1(), expected[0], 0.1, medium.toString());
     Assert.assertEquals(medium.rho2(), expected[1], 0.1, medium.toString());
     Assert.assertEquals(medium.h(), expected[2], 0.1, medium.toString());
@@ -139,8 +141,8 @@ public class InverseTest {
         // h = 5 mm, rho1 = 0.7, rho2 = Inf
         {
             systems2(10.0),
-            new double[] {30.971, 61.860},
-            new double[] {31.278, 62.479},
+            new double[] {29.47, 65.68},
+            new double[] {29.75, 66.35},
             dh,
             new double[] {0.694, 1.0, Metrics.fromMilli(4.96)}
         },
