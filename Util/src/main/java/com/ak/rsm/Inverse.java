@@ -18,11 +18,11 @@ import static java.lang.StrictMath.exp;
 enum Inverse {
   ;
 
-  private static final ToDoubleBiFunction<? super Measurement, double[]> LOG_APPARENT_PREDICTED = (m, kh) ->
-      new Log1pApparent2Rho(m.getSystem()).value(kh[0], kh[1]);
+  private static final ToDoubleBiFunction<? super TetrapolarSystem, double[]> LOG_APPARENT_PREDICTED = (s, kh) ->
+      new Log1pApparent2Rho(s).value(kh[0], kh[1]);
 
-  private static final ToDoubleBiFunction<? super Measurement, double[]> LOG_DIFF_APPARENT_PREDICTED = (m, kh) ->
-      StrictMath.log(Math.abs(new DerivativeApparent2Rho(m.getSystem()).value(kh[0], kh[1])));
+  private static final ToDoubleBiFunction<? super TetrapolarSystem, double[]> LOG_DIFF_APPARENT_PREDICTED = (s, kh) ->
+      StrictMath.log(Math.abs(new DerivativeApparent2Rho(s).value(kh[0], kh[1])));
 
 
   @Nonnull
@@ -35,10 +35,7 @@ enum Inverse {
         }
         return sub;
       });
-      double sumLogApparent = measurements.stream().mapToDouble(Measurement::getLogResistivity).sum();
-      double sumLogApparentPredicted = measurements.stream()
-          .mapToDouble(m -> LOG_APPARENT_PREDICTED.applyAsDouble(m, new double[] {kh.k12(), kh.h()})).sum();
-      double rho1 = exp((sumLogApparent - sumLogApparentPredicted) / measurements.size());
+      double rho1 = getRho1(measurements, kh);
       return new Layer2Medium.Layer2MediumBuilder(
           measurements.stream()
               .map(m -> new TetrapolarPrediction(m, new NormalizedApparent2Rho(m.getSystem()).value(kh.k12(), kh.h()) * rho1))
@@ -69,10 +66,7 @@ enum Inverse {
         }
       };
       RelativeMediumLayers kh = inverseDynamicRelative(measurements, initial);
-      double sumLogApparent = measurements.stream().mapToDouble(Measurement::getLogResistivity).sum();
-      double sumLogApparentPredicted = measurements.stream()
-          .mapToDouble(m -> LOG_APPARENT_PREDICTED.applyAsDouble(m, new double[] {kh.k12(), kh.h()})).sum();
-      double rho1 = exp((sumLogApparent - sumLogApparentPredicted) / measurements.size());
+      double rho1 = getRho1(measurements, kh);
       return new Layer2Medium.Layer2MediumBuilder(
           measurements.stream()
               .map(m -> new TetrapolarDerivativePrediction(m,
@@ -101,7 +95,10 @@ enum Inverse {
     double[] subLog = derivativeMeasurements.stream().mapToDouble(d -> d.getLogResistivity() - d.getDerivativeLogResistivity()).toArray();
     PointValuePair find = Simplex.optimize("", kh -> {
           double[] subLogPredicted = derivativeMeasurements.stream()
-              .mapToDouble(m -> LOG_APPARENT_PREDICTED.applyAsDouble(m, kh) - LOG_DIFF_APPARENT_PREDICTED.applyAsDouble(m, kh))
+              .mapToDouble(m ->
+                  LOG_APPARENT_PREDICTED.applyAsDouble(m.getSystem(), kh) -
+                      LOG_DIFF_APPARENT_PREDICTED.applyAsDouble(m.getSystem(), kh)
+              )
               .toArray();
           return Inequality.absolute().applyAsDouble(subLog, subLogPredicted);
         },
@@ -118,7 +115,7 @@ enum Inverse {
     double maxL = getMaxL(measurements);
     PointValuePair find = Simplex.optimizeCMAES(kh -> {
           double[] subLogApparentPredicted = subtract.apply(measurements.stream()
-              .mapToDouble(m -> LOG_APPARENT_PREDICTED.applyAsDouble(m, kh))
+              .mapToDouble(m -> LOG_APPARENT_PREDICTED.applyAsDouble(m.getSystem(), kh))
               .toArray()
           );
           return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
@@ -129,8 +126,15 @@ enum Inverse {
     return new Layer2RelativeMedium(find.getPoint()[0], find.getPoint()[1]);
   }
 
+  private static double getRho1(@Nonnull Collection<? extends Measurement> measurements, RelativeMediumLayers kh) {
+    double sumLogApparent = measurements.stream().mapToDouble(Measurement::getLogResistivity).sum();
+    double sumLogApparentPredicted = measurements.stream()
+        .mapToDouble(m -> LOG_APPARENT_PREDICTED.applyAsDouble(m.getSystem(), new double[] {kh.k12(), kh.h()})).sum();
+    return exp((sumLogApparent - sumLogApparentPredicted) / measurements.size());
+  }
+
   @Nonnegative
   private static double getMaxL(@Nonnull Collection<? extends Measurement> measurements) {
-    return measurements.stream().mapToDouble(m -> m.getSystem().getL()).max().orElseThrow();
+    return measurements.stream().mapToDouble(m -> m.getSystem().getMaxL()).max().orElseThrow();
   }
 }

@@ -20,8 +20,8 @@ public final class TetrapolarSystem {
   private final double lCurrentCarryingSI;
 
   public TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
-    sPotentialUnitSI = toDouble(Math.min(sPU, lCC), unit);
-    lCurrentCarryingSI = toDouble(Math.max(sPU, lCC), unit);
+    sPotentialUnitSI = toDouble(sPU, unit);
+    lCurrentCarryingSI = toDouble(lCC, unit);
   }
 
   @Nonnegative
@@ -30,8 +30,8 @@ public final class TetrapolarSystem {
   }
 
   @Nonnegative
-  double getL() {
-    return lCurrentCarryingSI;
+  double getMaxL() {
+    return Math.max(sPotentialUnitSI, lCurrentCarryingSI);
   }
 
   /**
