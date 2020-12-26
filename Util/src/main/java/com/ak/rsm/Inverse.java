@@ -95,10 +95,8 @@ enum Inverse {
     double[] subLog = derivativeMeasurements.stream().mapToDouble(d -> d.getLogResistivity() - d.getDerivativeLogResistivity()).toArray();
     PointValuePair find = Simplex.optimize("", kh -> {
           double[] subLogPredicted = derivativeMeasurements.stream()
-              .mapToDouble(m ->
-                  LOG_APPARENT_PREDICTED.applyAsDouble(m.getSystem(), kh) -
-                      LOG_DIFF_APPARENT_PREDICTED.applyAsDouble(m.getSystem(), kh)
-              )
+              .map(Measurement::getSystem)
+              .mapToDouble(s -> LOG_APPARENT_PREDICTED.applyAsDouble(s, kh) - LOG_DIFF_APPARENT_PREDICTED.applyAsDouble(s, kh))
               .toArray();
           return Inequality.absolute().applyAsDouble(subLog, subLogPredicted);
         },
@@ -115,7 +113,8 @@ enum Inverse {
     double maxL = getMaxL(measurements);
     PointValuePair find = Simplex.optimizeCMAES(kh -> {
           double[] subLogApparentPredicted = subtract.apply(measurements.stream()
-              .mapToDouble(m -> LOG_APPARENT_PREDICTED.applyAsDouble(m.getSystem(), kh))
+              .map(Measurement::getSystem)
+              .mapToDouble(s -> LOG_APPARENT_PREDICTED.applyAsDouble(s, kh))
               .toArray()
           );
           return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
@@ -129,7 +128,8 @@ enum Inverse {
   private static double getRho1(@Nonnull Collection<? extends Measurement> measurements, RelativeMediumLayers kh) {
     double sumLogApparent = measurements.stream().mapToDouble(Measurement::getLogResistivity).sum();
     double sumLogApparentPredicted = measurements.stream()
-        .mapToDouble(m -> LOG_APPARENT_PREDICTED.applyAsDouble(m.getSystem(), new double[] {kh.k12(), kh.h()})).sum();
+        .map(Measurement::getSystem)
+        .mapToDouble(s -> LOG_APPARENT_PREDICTED.applyAsDouble(s, new double[] {kh.k12(), kh.h()})).sum();
     return exp((sumLogApparent - sumLogApparentPredicted) / measurements.size());
   }
 
