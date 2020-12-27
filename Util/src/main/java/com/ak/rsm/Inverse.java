@@ -18,11 +18,11 @@ import static java.lang.StrictMath.exp;
 enum Inverse {
   ;
 
-  private static final ToDoubleBiFunction<? super TetrapolarSystem, double[]> LOG_APPARENT_PREDICTED = (s, kh) ->
-      new Log1pApparent2Rho(s).value(kh[0], kh[1]);
+  private static final ToDoubleBiFunction<? super TetrapolarSystem, double[]> LOG_APPARENT_PREDICTED =
+      (s, kh) -> new Log1pApparent2Rho(s).value(kh[0], kh[1]);
 
-  private static final ToDoubleBiFunction<? super TetrapolarSystem, double[]> LOG_DIFF_APPARENT_PREDICTED = (s, kh) ->
-      StrictMath.log(Math.abs(new DerivativeApparent2Rho(s).value(kh[0], kh[1])));
+  private static final ToDoubleBiFunction<? super TetrapolarSystem, double[]> LOG_DIFF_APPARENT_PREDICTED =
+      (s, kh) -> StrictMath.log(Math.abs(new DerivativeApparent2Rho(s).value(kh[0], kh[1])));
 
 
   @Nonnull
@@ -125,7 +125,8 @@ enum Inverse {
     return new Layer2RelativeMedium(find.getPoint()[0], find.getPoint()[1]);
   }
 
-  private static double getRho1(@Nonnull Collection<? extends Measurement> measurements, RelativeMediumLayers kh) {
+  @Nonnegative
+  private static double getRho1(@Nonnull Collection<? extends Measurement> measurements, @Nonnull RelativeMediumLayers kh) {
     double sumLogApparent = measurements.stream().mapToDouble(Measurement::getLogResistivity).sum();
     double sumLogApparentPredicted = measurements.stream()
         .map(Measurement::getSystem)
