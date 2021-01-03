@@ -1,5 +1,7 @@
 package com.ak.rsm;
 
+import javax.annotation.Nonnegative;
+
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -30,15 +32,30 @@ public class RelativeTetrapolarSystemTest {
     Assert.assertNotEquals(new Object(), system);
   }
 
-  @Test
-  public void testToString() {
-    RelativeTetrapolarSystem system = new RelativeTetrapolarSystem(1.0 / 3.0);
-    Assert.assertEquals(system.toString(), "s / L = %.3f".formatted(1.0 / 3.0), system.toString());
+  @DataProvider(name = "relative-tetrapolar-systems")
+  public static Object[][] relativeTetrapolarSystems() {
+    return new Object[][] {
+        {2.0},
+        {0.5},
+        {1.0 / 3.0}
+    };
   }
 
-  @Test
-  public void testHash() {
-    RelativeTetrapolarSystem system = new RelativeTetrapolarSystem(3.0);
-    Assert.assertEquals(system.hashCode(), Double.hashCode(1.0 / 3.0), system.toString());
+  @Test(dataProvider = "relative-tetrapolar-systems")
+  public void testToString(@Nonnegative double sToL) {
+    RelativeTetrapolarSystem system = new RelativeTetrapolarSystem(sToL);
+    Assert.assertEquals(system.toString(), "s / L = %.3f".formatted(sToL), system.toString());
+  }
+
+  @Test(dataProvider = "relative-tetrapolar-systems")
+  public void testHash(@Nonnegative double sToL) {
+    RelativeTetrapolarSystem system = new RelativeTetrapolarSystem(sToL);
+    Assert.assertEquals(system.hashCode(), Double.hashCode(Math.min(sToL, 1.0 / sToL)), system.toString());
+  }
+
+  @Test(dataProvider = "relative-tetrapolar-systems")
+  public void testSToL(@Nonnegative double sToL) {
+    RelativeTetrapolarSystem system = new RelativeTetrapolarSystem(sToL);
+    Assert.assertEquals(system.sToL(), sToL, 1.0e-3, system.toString());
   }
 }

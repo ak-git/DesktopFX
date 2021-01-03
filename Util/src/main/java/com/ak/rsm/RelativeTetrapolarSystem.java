@@ -10,6 +10,10 @@ class RelativeTetrapolarSystem {
     this.sToL = Math.abs(sToL);
   }
 
+  final double sToL() {
+    return sToL;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
