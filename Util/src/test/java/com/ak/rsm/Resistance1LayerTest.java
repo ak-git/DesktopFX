@@ -10,9 +10,6 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static tec.uom.se.unit.MetricPrefix.MILLI;
-import static tec.uom.se.unit.Units.METRE;
-
 public class Resistance1LayerTest {
   public static final double SQRT2 = 1.4142135623730951;
 
@@ -43,17 +40,17 @@ public class Resistance1LayerTest {
 
   @Test(dataProvider = "layer-model")
   public void testOneLayer(@Nonnegative double rho, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MILLI(METRE));
+    TetrapolarSystem system = TetrapolarSystem.milli().s(smm).l(lmm);
     Assert.assertEquals(new Resistance1Layer(system).value(rho), rOhm, 0.001);
   }
 
   @DataProvider(name = "tetrapolarSystemsWithErrors")
   public static Object[][] tetrapolarSystemWithErrors() {
     return new Object[][] {
-        {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)), 6},
-        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)), 6},
-        {new TetrapolarSystem(1.0, 3.0, MILLI(METRE)), 6},
-        {new TetrapolarSystem(SQRT2 - 1.0, 1.0, MILLI(METRE)), 3.0 + 2.0 * SQRT2},
+        {TetrapolarSystem.milli().s(1.0).l(2.0), 6},
+        {TetrapolarSystem.milli().s(2.0).l(1.0), 6},
+        {TetrapolarSystem.milli().s(1.0).l(3.0), 6},
+        {TetrapolarSystem.milli().s(SQRT2 - 1.0).l(1.0), 3.0 + 2.0 * SQRT2},
     };
   }
 

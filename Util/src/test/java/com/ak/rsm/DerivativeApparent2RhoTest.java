@@ -8,13 +8,10 @@ import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static tec.uom.se.unit.MetricPrefix.MILLI;
-import static tec.uom.se.unit.Units.METRE;
-
 public class DerivativeApparent2RhoTest {
   @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
   public void testValue(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MILLI(METRE));
+    TetrapolarSystem system = TetrapolarSystem.milli().s(smm).l(lmm);
     double h = Metrics.fromMilli(hmm);
     double dh = Metrics.fromMilli(-0.001);
     TrivariateFunction resistance2Layer = new Resistance2Layer(system);

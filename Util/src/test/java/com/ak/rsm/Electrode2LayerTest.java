@@ -16,8 +16,6 @@ import com.ak.inverse.Inequality;
 import com.ak.util.LineFileBuilder;
 import org.testng.annotations.Test;
 
-import static tec.uom.se.unit.Units.METRE;
-
 public class Electrode2LayerTest {
   @Test(enabled = false)
   public void test() {
@@ -57,8 +55,8 @@ public class Electrode2LayerTest {
     final double L = 1.0;
     final double absErrorL = 1.0E-6 * L;
     TetrapolarSystem[] systems = {
-        new TetrapolarSystem(L * sToL[0], L * sToL[1], METRE),
-        new TetrapolarSystem(L * sToL[1], L, METRE),
+        TetrapolarSystem.milli().s(L * sToL[0]).l(L * sToL[1]),
+        TetrapolarSystem.milli().s(L * sToL[1]).l(L),
     };
 
     return IntStream.of(2, 5)

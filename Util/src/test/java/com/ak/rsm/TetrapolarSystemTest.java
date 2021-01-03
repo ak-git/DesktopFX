@@ -8,17 +8,14 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static tec.uom.se.unit.MetricPrefix.MILLI;
-import static tec.uom.se.unit.Units.METRE;
-
 public class TetrapolarSystemTest {
   @DataProvider(name = "tetrapolar-systems")
   public static Object[][] tetrapolarSystems() {
-    TetrapolarSystem ts = new TetrapolarSystem(2.0, 1.0, METRE);
+    TetrapolarSystem ts = TetrapolarSystem.milli().s(2000.0).l(1000.0);
     return new Object[][] {
         {ts, ts, true},
-        {ts, new TetrapolarSystem(1000.0, 2000.0, MILLI(METRE)), true},
-        {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)), new TetrapolarSystem(1.0, 3.0, MILLI(METRE)), false}
+        {ts, TetrapolarSystem.milli().s(1000.0).l(2000.0), true},
+        {TetrapolarSystem.milli().s(1.0).l(2.0), TetrapolarSystem.milli().s(1.0).l(3.0), false}
     };
   }
 
@@ -32,24 +29,24 @@ public class TetrapolarSystemTest {
 
   @Test
   public void testNotEquals() {
-    Assert.assertNotEquals(new TetrapolarSystem(1.0, 2.0, METRE), new Object());
-    Assert.assertNotEquals(new Object(), new TetrapolarSystem(1.0, 2.0, METRE));
+    Assert.assertNotEquals(TetrapolarSystem.milli().s(1.0).l(2.0), new Object());
+    Assert.assertNotEquals(new Object(), TetrapolarSystem.milli().s(1.0).l(2.0));
   }
 
   @Test
   public void testL() {
-    Assert.assertEquals(new TetrapolarSystem(2.0, 1.0, METRE).getMaxL(), 2.0);
-    Assert.assertEquals(new TetrapolarSystem(2.0, 10.0, METRE).getMaxL(), 10.0);
+    Assert.assertEquals(TetrapolarSystem.milli().s(2000.0).l(1000.0).getMaxL(), 2.0);
+    Assert.assertEquals(TetrapolarSystem.milli().s(2000.0).l(10000.0).getMaxL(), 10.0);
   }
 
   @DataProvider(name = "tetrapolarSystemsWithErrors")
   public static Object[][] tetrapolarSystemWithErrors() {
     return new Object[][] {
-        {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)).newWithError(Metrics.fromMilli(0.1), 1, -1), 4.0e-4, 0.0015},
-        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).newWithError(Metrics.fromMilli(0.1), -1, 1), 4.0e-4, 0.0015},
+        {TetrapolarSystem.milli().s(1.0).l(2.0).newWithError(Metrics.fromMilli(0.1), 1, -1), 4.0e-4, 0.0015},
+        {TetrapolarSystem.milli().s(2.0).l(1.0).newWithError(Metrics.fromMilli(0.1), -1, 1), 4.0e-4, 0.0015},
 
-        {new TetrapolarSystem(1.0, 2.0, MILLI(METRE)).newWithError(Metrics.fromMilli(0.1), -1, 1), 6.0e-4, 0.0015},
-        {new TetrapolarSystem(2.0, 1.0, MILLI(METRE)).newWithError(Metrics.fromMilli(0.1), 1, -1), 6.0e-4, 0.0015},
+        {TetrapolarSystem.milli().s(1.0).l(2.0).newWithError(Metrics.fromMilli(0.1), -1, 1), 6.0e-4, 0.0015},
+        {TetrapolarSystem.milli().s(2.0).l(1.0).newWithError(Metrics.fromMilli(0.1), 1, -1), 6.0e-4, 0.0015},
     };
   }
 
@@ -62,9 +59,9 @@ public class TetrapolarSystemTest {
   @DataProvider(name = "system-apparent")
   public static Object[][] systemApparent() {
     return new Object[][] {
-        {new TetrapolarSystem(0.030, 0.06, METRE), 1.0, Math.PI * 9.0 / 400.0},
-        {new TetrapolarSystem(90.0, 30.0, MILLI(METRE)), 1.0 / Math.PI, 3.0 / 50.0},
-        {new TetrapolarSystem(40.0, 80.0, MILLI(METRE)), 1.0 / Math.PI, 3.0 / 100.0},
+        {TetrapolarSystem.milli().s(30.0).l(60.0), 1.0, Math.PI * 9.0 / 400.0},
+        {TetrapolarSystem.milli().s(90.0).l(30.0), 1.0 / Math.PI, 3.0 / 50.0},
+        {TetrapolarSystem.milli().s(40.0).l(80.0), 1.0 / Math.PI, 3.0 / 100.0},
     };
   }
 

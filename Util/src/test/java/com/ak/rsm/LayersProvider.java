@@ -9,9 +9,6 @@ import javax.annotation.Nonnull;
 import com.ak.util.Metrics;
 import org.testng.annotations.DataProvider;
 
-import static tec.uom.se.unit.MetricPrefix.MILLI;
-import static tec.uom.se.unit.Units.METRE;
-
 class LayersProvider {
   private LayersProvider() {
   }
@@ -25,8 +22,8 @@ class LayersProvider {
   @Nonnull
   static TetrapolarSystem[] systems2(double smm) {
     return new TetrapolarSystem[] {
-        new TetrapolarSystem(smm, smm * 3.0, MILLI(METRE)),
-        new TetrapolarSystem(smm * 3.0, smm * 5.0, MILLI(METRE)),
+        TetrapolarSystem.milli().s(smm).l(smm * 3.0),
+        TetrapolarSystem.milli().s(smm * 3.0).l(smm * 5.0),
     };
   }
 
@@ -41,10 +38,10 @@ class LayersProvider {
   @Nonnull
   static TetrapolarSystem[] systems4(@Nonnegative double smm) {
     return new TetrapolarSystem[] {
-        new TetrapolarSystem(smm, smm * 3.0, MILLI(METRE)),
-        new TetrapolarSystem(smm * 3.0, smm * 5.0, MILLI(METRE)),
-        new TetrapolarSystem(smm * 2.0, smm * 4.0, MILLI(METRE)),
-        new TetrapolarSystem(smm * 4.0, smm * 6.0, MILLI(METRE)),
+        TetrapolarSystem.milli().s(smm).l(smm * 3.0),
+        TetrapolarSystem.milli().s(smm * 3.0).l(smm * 5.0),
+        TetrapolarSystem.milli().s(smm * 2.0).l(smm * 4.0),
+        TetrapolarSystem.milli().s(smm * 4.0).l(smm * 6.0),
     };
   }
 
@@ -58,11 +55,11 @@ class LayersProvider {
   private static TetrapolarSystem[] systems5_7mm() {
     double smm = 7.0;
     return new TetrapolarSystem[] {
-        new TetrapolarSystem(smm, smm * 3.0, MILLI(METRE)),
-        new TetrapolarSystem(smm * 3.0, smm * 5.0, MILLI(METRE)),
-        new TetrapolarSystem(smm, smm * 5.0, MILLI(METRE)),
-        new TetrapolarSystem(smm * 2, smm * 4.0, MILLI(METRE)),
-        new TetrapolarSystem(smm * 4, smm * 6.0, MILLI(METRE)),
+        TetrapolarSystem.milli().s(smm).l(smm * 3.0),
+        TetrapolarSystem.milli().s(smm * 3.0).l(smm * 5.0),
+        TetrapolarSystem.milli().s(smm).l(smm * 5.0),
+        TetrapolarSystem.milli().s(smm * 2.0).l(smm * 4.0),
+        TetrapolarSystem.milli().s(smm * 4.0).l(smm * 6.0),
     };
   }
 

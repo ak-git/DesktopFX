@@ -2,6 +2,7 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
@@ -13,10 +14,10 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static com.ak.rsm.LayersProvider.systems2;
-import static tec.uom.se.unit.MetricPrefix.MILLI;
-import static tec.uom.se.unit.Units.METRE;
 
 public class InverseTest {
+  private static final Logger LOGGER = Logger.getLogger(InverseTest.class.getName());
+
   @DataProvider(name = "layer1")
   public static Object[][] layer1() {
     TetrapolarSystem[] systems2 = systems2(10.0);
@@ -37,6 +38,7 @@ public class InverseTest {
   public void testInverseLayer1(TetrapolarSystem[] systems, double[] rOhms, @Nonnegative double expected) {
     MediumLayers medium = Inverse.inverseStatic(TetrapolarMeasurement.of(systems, rOhms));
     Assert.assertEquals(medium.rho(), expected, 0.2, medium.toString());
+    LOGGER.info(medium::toString);
   }
 
   @DataProvider(name = "layer2")
@@ -78,12 +80,13 @@ public class InverseTest {
     Assert.assertEquals(medium.rho1(), expected[0], 0.1, medium.toString());
     Assert.assertEquals(medium.rho2(), expected[1], 0.1, medium.toString());
     Assert.assertEquals(medium.h(), expected[2], 0.1, medium.toString());
+    LOGGER.info(medium::toString);
   }
 
   @DataProvider(name = "theoryDynamicParameters2")
   public static Object[][] theoryDynamicParameters2() {
     TetrapolarSystem[] systems1 = {
-        new TetrapolarSystem(10.0, 20.0, MILLI(METRE))
+        TetrapolarSystem.milli().s(10.0).l(20.0)
     };
     TetrapolarSystem[] systems2 = systems2(10.0);
     TetrapolarSystem[] systems4 = LayersProvider.systems4(7.0);
@@ -209,5 +212,6 @@ public class InverseTest {
     Assert.assertEquals(medium.rho1(), expected[0], 0.1, medium.toString());
     Assert.assertEquals(medium.k12(), expected[1], 0.1, medium.toString());
     Assert.assertEquals(Metrics.toMilli(medium.h()), Metrics.toMilli(expected[2]), 0.01, medium.toString());
+    LOGGER.info(medium::toString);
   }
 }

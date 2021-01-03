@@ -4,11 +4,8 @@ import java.util.Objects;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.measure.Unit;
-import javax.measure.quantity.Length;
 
 import com.ak.util.Metrics;
-import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.MetricPrefix;
 
 import static tec.uom.se.unit.Units.METRE;
@@ -19,9 +16,9 @@ public final class TetrapolarSystem {
   @Nonnegative
   private final double lCurrentCarryingSI;
 
-  public TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
-    sPotentialUnitSI = toDouble(sPU, unit);
-    lCurrentCarryingSI = toDouble(lCC, unit);
+  private TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC) {
+    sPotentialUnitSI = Math.abs(sPU);
+    lCurrentCarryingSI = Math.abs(lCC);
   }
 
   @Nonnegative
@@ -73,12 +70,26 @@ public final class TetrapolarSystem {
   TetrapolarSystem newWithError(@Nonnegative double absErrorSI, int signS, int signL) {
     return new TetrapolarSystem(
         sPotentialUnitSI + Math.signum(signS) * absErrorSI,
-        lCurrentCarryingSI + Math.signum(signL) * absErrorSI, METRE);
+        lCurrentCarryingSI + Math.signum(signL) * absErrorSI
+    );
   }
 
-  @Nonnegative
-  private static double toDouble(@Nonnegative double sPU, @Nonnull Unit<Length> unit) {
-    return Math.abs(Quantities.getQuantity(sPU, unit).to(METRE).getValue().doubleValue());
+  public static MilliBuilder milli() {
+    return new MilliBuilder();
+  }
+
+  public static class MilliBuilder {
+    @Nonnegative
+    private double s;
+
+    public MilliBuilder s(@Nonnegative double smm) {
+      s = Metrics.fromMilli(smm);
+      return this;
+    }
+
+    public TetrapolarSystem l(@Nonnegative double lmm) {
+      return new TetrapolarSystem(s, Metrics.fromMilli(lmm));
+    }
   }
 }
 

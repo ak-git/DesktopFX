@@ -3,13 +3,12 @@ package com.ak.rsm;
 import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import tec.uom.se.unit.Units;
 
 public class PredictionTest {
 
   @Test
   public void testGetInequalityL2() {
-    TetrapolarSystem system = new TetrapolarSystem(1, 2, Units.METRE);
+    TetrapolarSystem system = TetrapolarSystem.milli().s(1.0).l(2.0);
     Measurement measurement = new TetrapolarMeasurement(system, new Resistance1Layer(system).value(1.0));
 
     Prediction prediction = new TetrapolarPrediction(measurement, 10.0);
@@ -18,7 +17,7 @@ public class PredictionTest {
 
   @Test
   public void testGetInequalityL2Diff() {
-    TetrapolarSystem system = new TetrapolarSystem(1, 2, Units.METRE);
+    TetrapolarSystem system = TetrapolarSystem.milli().s(1.0).l(2.0);
 
     Measurement measurementBefore = new TetrapolarMeasurement(system, new Resistance1Layer(system).value(1.0));
     Measurement measurementAfter = new TetrapolarMeasurement(system, new Resistance1Layer(system).value(2.0));
