@@ -46,9 +46,10 @@ enum Inverse {
     else {
       double rho = measurements.stream().mapToDouble(Measurement::getResistivity).average().orElseThrow();
       return new Layer1Medium.Layer1MediumBuilder(
-          measurements.stream().map(m -> new TetrapolarPrediction(m, rho))
-              .collect(Collectors.toUnmodifiableList())
-      ).layer1(rho).build();
+          measurements.stream()
+              .map(m -> new TetrapolarPrediction(m, rho))
+              .collect(Collectors.toUnmodifiableList()))
+          .layer1(rho).build();
     }
   }
 
