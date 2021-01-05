@@ -9,9 +9,8 @@ import javax.annotation.Nonnull;
 import com.ak.util.Metrics;
 import org.testng.annotations.DataProvider;
 
-class LayersProvider {
-  private LayersProvider() {
-  }
+enum LayersProvider {
+  ;
 
   /**
    * Generates optimal electrode system pair.
@@ -45,24 +44,6 @@ class LayersProvider {
     };
   }
 
-  /**
-   * Generates optimal electrode system pair.
-   * 7 x 21, 21 x 35, 7 x 35, 14 x 28, 28 x 42 mm.
-   *
-   * @return three Tetrapolar System.
-   */
-  @Nonnull
-  private static TetrapolarSystem[] systems5_7mm() {
-    double smm = 7.0;
-    return new TetrapolarSystem[] {
-        TetrapolarSystem.milli().s(smm).l(smm * 3.0),
-        TetrapolarSystem.milli().s(smm * 3.0).l(smm * 5.0),
-        TetrapolarSystem.milli().s(smm).l(smm * 5.0),
-        TetrapolarSystem.milli().s(smm * 2.0).l(smm * 4.0),
-        TetrapolarSystem.milli().s(smm * 4.0).l(smm * 6.0),
-    };
-  }
-
   @Nonnull
   static ToDoubleFunction<TetrapolarSystem> layer1(@Nonnegative double rho) {
     return system -> new Resistance1Layer(system).value(rho);
@@ -86,13 +67,6 @@ class LayersProvider {
   @DataProvider(name = "dynamicParameters3")
   public static Object[][] dynamicParameters3() {
     return new Object[][] {
-        {
-            systems5_7mm(),
-            new double[] {123.3, 176.1, 43.09, 170.14, 85.84 * 2},
-            new double[] {123.3 - 0.1, 176.1 - 0.125, 43.09 - 0.04, 170.14 - 0.16, 85.84 * 2 - 0.1 * 2},
-            Metrics.fromMilli(-0.1)
-        },
-
         {
             systems4(7.0),
             new double[] {113.575, 167.775, 149.0, 186.0},
