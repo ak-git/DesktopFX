@@ -39,9 +39,7 @@ enum Inverse {
       double rho1 = getRho1(measurements, kh);
       return new Layer2Medium.Layer2MediumBuilder(
           measurements.stream()
-              .map(m -> new TetrapolarPrediction(m,
-                  new NormalizedApparent2Rho(m.getSystem())
-                      .value(kh.k12(), kh.h() / m.getSystem().getL()) * rho1))
+              .map(m -> TetrapolarPrediction.of(m, kh, rho1))
               .collect(Collectors.toUnmodifiableList()))
           .layer1(rho1, kh.h()).layer2(rho1 / Layers.getRho1ToRho2(kh.k12())).build();
     }
@@ -72,10 +70,7 @@ enum Inverse {
       double rho1 = getRho1(measurements, kh);
       return new Layer2Medium.Layer2MediumBuilder(
           measurements.stream()
-              .map(m -> new TetrapolarDerivativePrediction(m,
-                  new NormalizedApparent2Rho(m.getSystem()).value(kh.k12(), kh.h() / m.getSystem().getL()) * rho1,
-                  new DerivativeApparent2Rho(m.getSystem()).value(kh.k12(), kh.h() / m.getSystem().getL()) * rho1)
-              )
+              .map(m -> TetrapolarDerivativePrediction.of(m, kh, rho1))
               .collect(Collectors.toUnmodifiableList()))
           .layer1(rho1, kh.h()).layer2(rho1 / Layers.getRho1ToRho2(kh.k12())).build();
     }

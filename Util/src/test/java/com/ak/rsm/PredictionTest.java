@@ -12,6 +12,7 @@ public class PredictionTest {
     Measurement measurement = new TetrapolarMeasurement(system, new Resistance1Layer(system).value(1.0));
 
     Prediction prediction = new TetrapolarPrediction(measurement, 10.0);
+    Assert.assertEquals(prediction.getResistivityPredicted(), 10.0, 0.001, prediction.toString());
     Assert.assertEquals(prediction.getInequalityL2(), 9.0 / 10.0, 0.001, prediction.toString());
   }
 
@@ -24,6 +25,7 @@ public class PredictionTest {
     DerivativeMeasurement measurement = new TetrapolarDerivativeMeasurement(measurementBefore, measurementAfter, Metrics.fromMilli(1.0));
 
     Prediction prediction = new TetrapolarDerivativePrediction(measurement, 10.0, 1.0);
+    Assert.assertEquals(prediction.getResistivityPredicted(), 1.0, 0.001, prediction.toString());
     Assert.assertEquals(prediction.getInequalityL2(), 999.0, 0.001, prediction.toString());
   }
 }

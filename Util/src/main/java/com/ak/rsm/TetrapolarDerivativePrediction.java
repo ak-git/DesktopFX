@@ -2,6 +2,7 @@ package com.ak.rsm;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
 import com.ak.util.Strings;
@@ -25,7 +26,22 @@ final class TetrapolarDerivativePrediction implements Prediction {
   }
 
   @Override
+  public double getResistivityPredicted() {
+    return diffResistivityPredicted;
+  }
+
+  @Override
   public String toString() {
     return "%s, %s".formatted(String.valueOf(prediction), Strings.dRhoByH(diffResistivityPredicted));
+  }
+
+  @Nonnull
+  @ParametersAreNonnullByDefault
+  static Prediction of(DerivativeMeasurement m, RelativeMediumLayers layers, @Nonnegative double rho1) {
+    TetrapolarSystem system = m.getSystem();
+    return new TetrapolarDerivativePrediction(m,
+        TetrapolarPrediction.of(m, layers, rho1).getResistivityPredicted(),
+        new DerivativeApparent2Rho(system).value(layers.k12(), layers.h() / system.getL()) * rho1
+    );
   }
 }

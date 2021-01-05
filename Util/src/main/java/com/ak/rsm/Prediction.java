@@ -5,4 +5,6 @@ import javax.annotation.Nonnegative;
 interface Prediction {
   @Nonnegative
   double getInequalityL2();
+
+  double getResistivityPredicted();
 }
