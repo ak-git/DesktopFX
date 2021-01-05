@@ -21,7 +21,8 @@ public class DerivativeApparent3RhoTest {
     );
     expected /= rho[0];
 
-    double actual = new DerivativeApparent3Rho(system).value(Layers.getK12(rho[0], rho[1]), 0.0, h, p1, 1);
+    double actual = new DerivativeApparent3Rho(system).value(Layers.getK12(rho[0], rho[1]), 0.0,
+        h / Metrics.fromMilli(lmm), p1, 1);
     Assert.assertEquals(StrictMath.log(Math.abs(actual)), StrictMath.log(Math.abs(expected)), 0.1);
     Assert.assertEquals(Math.signum(actual), Math.signum(expected), 0.1);
   }
@@ -38,7 +39,8 @@ public class DerivativeApparent3RhoTest {
     );
     expected /= rho[0];
 
-    double actual = new DerivativeApparent3Rho(system).value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]), h, p[0], p[1]);
+    double actual = new DerivativeApparent3Rho(system).value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]),
+        h / Metrics.fromMilli(lmm), p[0], p[1]);
     Assert.assertEquals(StrictMath.log(Math.abs(actual)), StrictMath.log(Math.abs(expected)), 0.1);
     Assert.assertEquals(Math.signum(actual), Math.signum(expected), 0.1);
   }

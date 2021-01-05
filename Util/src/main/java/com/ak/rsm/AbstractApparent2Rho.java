@@ -8,12 +8,12 @@ abstract class AbstractApparent2Rho extends AbstractApparentRho {
     super(apparent);
   }
 
-  double value(double k, @Nonnegative double h) {
-    if (Double.compare(k, 0.0) == 0 || Double.compare(h, 0.0) == 0) {
-      return value(h, value -> 0.0);
+  double value(double k, @Nonnegative double hToL) {
+    if (Double.compare(k, 0.0) == 0 || Double.compare(hToL, 0.0) == 0) {
+      return value(hToL, value -> 0.0);
     }
     else {
-      return value(h, n -> StrictMath.pow(k, n) * sumFactor(n));
+      return value(hToL, n -> StrictMath.pow(k, n) * sumFactor(n));
     }
   }
 }

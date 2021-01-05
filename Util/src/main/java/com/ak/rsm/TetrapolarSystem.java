@@ -23,8 +23,12 @@ public final class TetrapolarSystem extends RelativeTetrapolarSystem {
   }
 
   @Nonnegative
-  double radius(double sign) {
-    return lCC * Math.abs(1.0 + Math.signum(sign) * sToL()) / 2.0;
+  public double radius(double sign) {
+    return lCC * factor(sign) / 2.0;
+  }
+
+  public double getL() {
+    return lCC;
   }
 
   @Nonnegative
@@ -40,7 +44,7 @@ public final class TetrapolarSystem extends RelativeTetrapolarSystem {
    */
   @Nonnegative
   public double getApparent(@Nonnegative double rOhms) {
-    return rOhms * Math.PI / (Math.abs(1.0 / radius(-1.0)) - Math.abs(1.0 / radius(1.0)));
+    return (rOhms * Math.PI * lCC / 2) / (1.0 / factor(-1.0) - 1.0 / factor(1.0));
   }
 
   @Override

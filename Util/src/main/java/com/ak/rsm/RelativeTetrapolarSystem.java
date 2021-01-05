@@ -10,6 +10,11 @@ class RelativeTetrapolarSystem {
     this.sToL = Math.abs(sToL);
   }
 
+  @Nonnegative
+  public final double factor(double sign) {
+    return Math.abs(1.0 + Math.signum(sign) * sToL());
+  }
+
   final double sToL() {
     return sToL;
   }

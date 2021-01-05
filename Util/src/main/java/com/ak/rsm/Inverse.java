@@ -18,11 +18,11 @@ import static java.lang.StrictMath.exp;
 enum Inverse {
   ;
 
-  private static final ToDoubleBiFunction<? super TetrapolarSystem, double[]> LOG_APPARENT_PREDICTED =
-      (s, kh) -> new Log1pApparent2Rho(s).value(kh[0], kh[1]);
+  private static final ToDoubleBiFunction<? super RelativeTetrapolarSystem, double[]> LOG_APPARENT_PREDICTED =
+      (s, kw) -> new Log1pApparent2Rho(s).value(kw[0], kw[1]);
 
   private static final ToDoubleBiFunction<? super TetrapolarSystem, double[]> LOG_DIFF_APPARENT_PREDICTED =
-      (s, kh) -> StrictMath.log(Math.abs(new DerivativeApparent2Rho(s).value(kh[0], kh[1])));
+      (s, kw) -> StrictMath.log(Math.abs(new DerivativeApparent2Rho(s).value(kw[0], kw[1])));
 
 
   @Nonnull
@@ -111,10 +111,10 @@ enum Inverse {
                                                            @Nonnull UnaryOperator<double[]> subtract) {
     double[] subLogApparent = subtract.apply(measurements.stream().mapToDouble(Measurement::getLogResistivity).toArray());
     double maxL = getMaxL(measurements);
-    PointValuePair find = Simplex.optimizeCMAES(kh -> {
+    PointValuePair khOptimal = Simplex.optimizeCMAES(kw -> {
           double[] subLogApparentPredicted = subtract.apply(measurements.stream()
               .map(Measurement::getSystem)
-              .mapToDouble(s -> LOG_APPARENT_PREDICTED.applyAsDouble(s, kh))
+              .mapToDouble(s -> LOG_APPARENT_PREDICTED.applyAsDouble(s, kw))
               .toArray()
           );
           return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
@@ -122,7 +122,7 @@ enum Inverse {
         new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {1.0, Double.POSITIVE_INFINITY}),
         new double[] {0.0, maxL / 10.0}, new double[] {0.01, maxL / 100.0}
     );
-    return new Layer2RelativeMedium(find.getPoint()[0], find.getPoint()[1]);
+    return new Layer2RelativeMedium(khOptimal.getPoint()[0], khOptimal.getPoint()[1]);
   }
 
   @Nonnegative

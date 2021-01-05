@@ -16,7 +16,7 @@ public class NormalizedDerivativeR2ByHTest {
     double dh = Metrics.fromMilli(-0.00001);
     TrivariateFunction resistance2Layer = new Resistance2Layer(system);
     double expected = (resistance2Layer.value(rho[0], rho[1], h + dh) - resistance2Layer.value(rho[0], rho[1], h)) / dh / rho[0];
-    double actual = new NormalizedDerivativeR2ByH(system).value(Layers.getK12(rho[0], rho[1]), Metrics.fromMilli(hmm));
+    double actual = new NormalizedDerivativeR2ByH(system).value(Layers.getK12(rho[0], rho[1]), hmm / lmm);
     Assert.assertEquals(actual, expected, 0.1);
   }
 }
