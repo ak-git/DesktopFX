@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
@@ -18,11 +19,11 @@ import static java.lang.StrictMath.exp;
 enum Inverse {
   ;
 
-  private static final ToDoubleBiFunction<? super RelativeTetrapolarSystem, double[]> LOG_APPARENT_PREDICTED =
-      (s, kw) -> new Log1pApparent2Rho(s).value(kw[0], kw[1]);
+  private static final ToDoubleBiFunction<? super TetrapolarSystem, double[]> LOG_APPARENT_PREDICTED =
+      (s, kh) -> new Log1pApparent2Rho(s).value(kh[0], kh[1] / s.getL());
 
   private static final ToDoubleBiFunction<? super TetrapolarSystem, double[]> LOG_DIFF_APPARENT_PREDICTED =
-      (s, kw) -> StrictMath.log(Math.abs(new DerivativeApparent2Rho(s).value(kw[0], kw[1])));
+      (s, kh) -> StrictMath.log(Math.abs(new DerivativeApparent2Rho(s).value(kh[0], kh[1] / s.getL())));
 
 
   @Nonnull
@@ -38,7 +39,9 @@ enum Inverse {
       double rho1 = getRho1(measurements, kh);
       return new Layer2Medium.Layer2MediumBuilder(
           measurements.stream()
-              .map(m -> new TetrapolarPrediction(m, new NormalizedApparent2Rho(m.getSystem()).value(kh.k12(), kh.h()) * rho1))
+              .map(m -> new TetrapolarPrediction(m,
+                  new NormalizedApparent2Rho(m.getSystem())
+                      .value(kh.k12(), kh.h() / m.getSystem().getL()) * rho1))
               .collect(Collectors.toUnmodifiableList()))
           .layer1(rho1, kh.h()).layer2(rho1 / Layers.getRho1ToRho2(kh.k12())).build();
     }
@@ -70,8 +73,8 @@ enum Inverse {
       return new Layer2Medium.Layer2MediumBuilder(
           measurements.stream()
               .map(m -> new TetrapolarDerivativePrediction(m,
-                  new NormalizedApparent2Rho(m.getSystem()).value(kh.k12(), kh.h()) * rho1,
-                  new DerivativeApparent2Rho(m.getSystem()).value(kh.k12(), kh.h()) * rho1)
+                  new NormalizedApparent2Rho(m.getSystem()).value(kh.k12(), kh.h() / m.getSystem().getL()) * rho1,
+                  new DerivativeApparent2Rho(m.getSystem()).value(kh.k12(), kh.h() / m.getSystem().getL()) * rho1)
               )
               .collect(Collectors.toUnmodifiableList()))
           .layer1(rho1, kh.h()).layer2(rho1 / Layers.getRho1ToRho2(kh.k12())).build();
@@ -82,8 +85,9 @@ enum Inverse {
   }
 
   @Nonnull
-  public static RelativeMediumLayers inverseDynamicRelative(@Nonnull Collection<DerivativeMeasurement> derivativeMeasurements,
-                                                            @Nonnull RelativeMediumLayers initial) {
+  @ParametersAreNonnullByDefault
+  public static RelativeMediumLayers inverseDynamicRelative(Collection<DerivativeMeasurement> derivativeMeasurements,
+                                                            RelativeMediumLayers initial) {
     double[] kMinMax = {-1.0, 1.0};
     if (initial.k12() > 0.0) {
       kMinMax = new double[] {0.0, 1.0};
@@ -93,40 +97,46 @@ enum Inverse {
     }
 
     double[] subLog = derivativeMeasurements.stream().mapToDouble(d -> d.getLogResistivity() - d.getDerivativeLogResistivity()).toArray();
-    PointValuePair find = Simplex.optimize("", kh -> {
+    double maxL = getMaxL(derivativeMeasurements);
+    PointValuePair kwOptimal = Simplex.optimize("", kw -> {
           double[] subLogPredicted = derivativeMeasurements.stream()
               .map(Measurement::getSystem)
-              .mapToDouble(s -> LOG_APPARENT_PREDICTED.applyAsDouble(s, kh) - LOG_DIFF_APPARENT_PREDICTED.applyAsDouble(s, kh))
+              .mapToDouble(s -> {
+                double[] kh = {kw[0], kw[1] * maxL};
+                return LOG_APPARENT_PREDICTED.applyAsDouble(s, kh) - LOG_DIFF_APPARENT_PREDICTED.applyAsDouble(s, kh);
+              })
               .toArray();
           return Inequality.absolute().applyAsDouble(subLog, subLogPredicted);
         },
-        new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], Double.POSITIVE_INFINITY}),
-        new double[] {initial.k12(), initial.h()}, new double[] {0.01, initial.h() / 100.0}
+        new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], 1.0}),
+        new double[] {initial.k12(), initial.h() / maxL}, new double[] {0.01, initial.h() / maxL / 100.0}
     );
-    return new Layer2RelativeMedium(find.getPoint()[0], find.getPoint()[1]);
+    return new Layer2RelativeMedium(kwOptimal.getPoint()[0], kwOptimal.getPoint()[1] * maxL);
   }
 
   @Nonnull
-  public static RelativeMediumLayers inverseStaticRelative(@Nonnull Collection<? extends Measurement> measurements,
-                                                           @Nonnull UnaryOperator<double[]> subtract) {
+  @ParametersAreNonnullByDefault
+  public static RelativeMediumLayers inverseStaticRelative(Collection<? extends Measurement> measurements,
+                                                           UnaryOperator<double[]> subtract) {
     double[] subLogApparent = subtract.apply(measurements.stream().mapToDouble(Measurement::getLogResistivity).toArray());
     double maxL = getMaxL(measurements);
-    PointValuePair khOptimal = Simplex.optimizeCMAES(kw -> {
+    PointValuePair kwOptimal = Simplex.optimizeCMAES(kw -> {
           double[] subLogApparentPredicted = subtract.apply(measurements.stream()
               .map(Measurement::getSystem)
-              .mapToDouble(s -> LOG_APPARENT_PREDICTED.applyAsDouble(s, kw))
+              .mapToDouble(s -> LOG_APPARENT_PREDICTED.applyAsDouble(s, new double[] {kw[0], kw[1] * maxL}))
               .toArray()
           );
           return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
         },
-        new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {1.0, Double.POSITIVE_INFINITY}),
-        new double[] {0.0, maxL / 10.0}, new double[] {0.01, maxL / 100.0}
+        new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {1.0, 1.0}),
+        new double[] {0.0, 0.1}, new double[] {0.01, 0.01}
     );
-    return new Layer2RelativeMedium(khOptimal.getPoint()[0], khOptimal.getPoint()[1]);
+    return new Layer2RelativeMedium(kwOptimal.getPoint()[0], kwOptimal.getPoint()[1] * maxL);
   }
 
   @Nonnegative
-  private static double getRho1(@Nonnull Collection<? extends Measurement> measurements, @Nonnull RelativeMediumLayers kh) {
+  @ParametersAreNonnullByDefault
+  private static double getRho1(Collection<? extends Measurement> measurements, RelativeMediumLayers kh) {
     double sumLogApparent = measurements.stream().mapToDouble(Measurement::getLogResistivity).sum();
     double sumLogApparentPredicted = measurements.stream()
         .map(Measurement::getSystem)
@@ -135,7 +145,8 @@ enum Inverse {
   }
 
   @Nonnegative
-  private static double getMaxL(@Nonnull Collection<? extends Measurement> measurements) {
-    return measurements.stream().mapToDouble(m -> m.getSystem().getMaxL()).max().orElseThrow();
+  @ParametersAreNonnullByDefault
+  private static double getMaxL(Collection<? extends Measurement> measurements) {
+    return measurements.stream().mapToDouble(m -> m.getSystem().getL()).max().orElseThrow();
   }
 }

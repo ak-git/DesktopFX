@@ -98,7 +98,7 @@ public class InverseTest {
             LayersProvider.rangeSystems(systems1, LayersProvider.layer2(1.0, 9.0, h)),
             LayersProvider.rangeSystems(systems1, LayersProvider.layer2(1.0, 9.0, h + dh)),
             dh,
-            new double[] {new NormalizedApparent2Rho(systems1[0]).value(0.8, h), 0.0, Double.NaN}
+            new double[] {new NormalizedApparent2Rho(systems1[0]).value(0.8, h / systems1[0].getL()), 0.0, Double.NaN}
         },
         {
             systems2,
@@ -205,7 +205,7 @@ public class InverseTest {
     return Stream.concat(Arrays.stream(theoryDynamicParameters2()), Arrays.stream(dynamicParameters2())).toArray(Object[][]::new);
   }
 
-  @Test(dataProvider = "dynamicParameters2")
+  @Test(dataProvider = "theoryDynamicParameters2")
   @ParametersAreNonnullByDefault
   public void testInverseDynamicLayer2(TetrapolarSystem[] systems, double[] rOhms, double[] rOhmsAfter, double dh, double[] expected) {
     MediumLayers medium = Inverse.inverseDynamic(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
