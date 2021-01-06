@@ -52,10 +52,4 @@ public class RelativeTetrapolarSystemTest {
     RelativeTetrapolarSystem system = new RelativeTetrapolarSystem(sToL);
     Assert.assertEquals(system.hashCode(), Double.hashCode(Math.min(sToL, 1.0 / sToL)), system.toString());
   }
-
-  @Test(dataProvider = "relative-tetrapolar-systems")
-  public void testSToL(@Nonnegative double sToL) {
-    RelativeTetrapolarSystem system = new RelativeTetrapolarSystem(sToL);
-    Assert.assertEquals(system.sToL(), sToL, 1.0e-3, system.toString());
-  }
 }
