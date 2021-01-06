@@ -22,11 +22,6 @@ public final class TetrapolarSystem extends RelativeTetrapolarSystem {
     this.lCC = Math.abs(lCC);
   }
 
-  @Nonnegative
-  public double radius(double sign) {
-    return lCC * factor(sign) / 2.0;
-  }
-
   public double getL() {
     return lCC;
   }
