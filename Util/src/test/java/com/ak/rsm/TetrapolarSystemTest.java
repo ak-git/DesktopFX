@@ -37,8 +37,12 @@ public class TetrapolarSystemTest {
   public void testL() {
     Assert.assertEquals(TetrapolarSystem.milli().s(2000.0).l(1000.0).getL(), 1.0);
     Assert.assertEquals(TetrapolarSystem.milli().s(2000.0).l(10000.0).getL(), 10.0);
-    Assert.assertEquals(TetrapolarSystem.milli().s(2000.0).l(1000.0).getMaxL(), 2.0);
-    Assert.assertEquals(TetrapolarSystem.milli().s(2000.0).l(10000.0).getMaxL(), 10.0);
+  }
+
+  @Test
+  public void testToRelative() {
+    Assert.assertEquals(TetrapolarSystem.milli().s(2000.0).l(1000.0).toRelative(), new RelativeTetrapolarSystem(2.0));
+    Assert.assertEquals(TetrapolarSystem.milli().s(2000.0).l(10000.0).toRelative(), new RelativeTetrapolarSystem(0.2));
   }
 
   @DataProvider(name = "tetrapolarSystemsWithErrors")
