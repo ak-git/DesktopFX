@@ -2,7 +2,7 @@ package com.ak.rsm;
 
 import javax.annotation.Nonnegative;
 
-class RelativeTetrapolarSystem {
+final class RelativeTetrapolarSystem {
   @Nonnegative
   private final double sToL;
 
@@ -11,7 +11,7 @@ class RelativeTetrapolarSystem {
   }
 
   @Nonnegative
-  public final double factor(double sign) {
+  double factor(double sign) {
     return Math.abs(1.0 + Math.signum(sign) * sToL);
   }
 

@@ -10,19 +10,30 @@ import tec.uom.se.unit.MetricPrefix;
 
 import static tec.uom.se.unit.Units.METRE;
 
-public final class TetrapolarSystem extends RelativeTetrapolarSystem {
+public final class TetrapolarSystem {
   @Nonnegative
   private final double sPU;
   @Nonnegative
   private final double lCC;
+  @Nonnull
+  private final RelativeTetrapolarSystem relativeSystem;
 
   private TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC) {
-    super(sPU / lCC);
     this.sPU = Math.abs(sPU);
     this.lCC = Math.abs(lCC);
+    relativeSystem = new RelativeTetrapolarSystem(sPU / lCC);
   }
 
-  public double getL() {
+  @Nonnull
+  RelativeTetrapolarSystem toRelative() {
+    return relativeSystem;
+  }
+
+  double factor(double sign) {
+    return Math.abs(lCC + Math.signum(sign) * sPU) / 2.0;
+  }
+
+  double getL() {
     return lCC;
   }
 
@@ -39,7 +50,7 @@ public final class TetrapolarSystem extends RelativeTetrapolarSystem {
    */
   @Nonnegative
   public double getApparent(@Nonnegative double rOhms) {
-    return (rOhms * Math.PI * lCC / 2) / (1.0 / factor(-1.0) - 1.0 / factor(1.0));
+    return rOhms * Math.PI / (Math.abs(1.0 / factor(-1.0)) - Math.abs(1.0 / factor(1.0)));
   }
 
   @Override
@@ -52,12 +63,13 @@ public final class TetrapolarSystem extends RelativeTetrapolarSystem {
     }
 
     TetrapolarSystem that = (TetrapolarSystem) o;
-    return super.equals(that) && Double.compare(getMaxL(), that.getMaxL()) == 0;
+    return Double.compare(Math.min(sPU, lCC), Math.min(that.sPU, that.lCC)) == 0 &&
+        Double.compare(Math.max(sPU, lCC), Math.max(that.sPU, that.lCC)) == 0;
   }
 
   @Override
   public int hashCode() {
-    return Arrays.hashCode(new int[] {super.hashCode(), Double.hashCode(getMaxL())});
+    return Arrays.hashCode(new double[] {Math.min(sPU, lCC), Math.max(sPU, lCC)});
   }
 
   @Override

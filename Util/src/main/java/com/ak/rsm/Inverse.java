@@ -20,7 +20,7 @@ enum Inverse {
   ;
 
   private static final ToDoubleBiFunction<? super TetrapolarSystem, double[]> LOG_APPARENT_PREDICTED =
-      (s, kh) -> new Log1pApparent2Rho(s).value(kh[0], kh[1] / s.getL());
+      (s, kh) -> new Log1pApparent2Rho(s.toRelative()).value(kh[0], kh[1] / s.getL());
 
   private static final ToDoubleBiFunction<? super TetrapolarSystem, double[]> LOG_DIFF_APPARENT_PREDICTED =
       (s, kh) -> StrictMath.log(Math.abs(new DerivativeApparent2Rho(s).value(kh[0], kh[1] / s.getL())));

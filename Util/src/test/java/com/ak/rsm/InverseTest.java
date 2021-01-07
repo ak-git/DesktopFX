@@ -98,7 +98,7 @@ public class InverseTest {
             LayersProvider.rangeSystems(systems1, LayersProvider.layer2(1.0, 9.0, h)),
             LayersProvider.rangeSystems(systems1, LayersProvider.layer2(1.0, 9.0, h + dh)),
             dh,
-            new double[] {new NormalizedApparent2Rho(systems1[0]).value(0.8, h / systems1[0].getL()), 0.0, Double.NaN}
+            new double[] {new NormalizedApparent2Rho(systems1[0].toRelative()).value(0.8, h / systems1[0].getL()), 0.0, Double.NaN}
         },
         {
             systems2,

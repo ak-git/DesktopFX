@@ -37,7 +37,8 @@ final class TetrapolarPrediction implements Prediction {
   @ParametersAreNonnullByDefault
   static Prediction of(Measurement m, RelativeMediumLayers layers, @Nonnegative double rho1) {
     TetrapolarSystem system = m.getSystem();
-    double resistivityPredicted = new NormalizedApparent2Rho(system).value(layers.k12(), layers.h() / system.getL()) * rho1;
+    double resistivityPredicted = new NormalizedApparent2Rho(system.toRelative())
+        .value(layers.k12(), layers.h() / system.getL()) * rho1;
     return new TetrapolarPrediction(m, resistivityPredicted);
   }
 }

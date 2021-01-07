@@ -13,7 +13,7 @@ abstract class AbstractDerivativeApparent extends AbstractApparent {
   private final double lCC;
 
   AbstractDerivativeApparent(@Nonnull TetrapolarSystem system) {
-    super(system);
+    super(system.toRelative());
     lCC = system.getL();
   }
 

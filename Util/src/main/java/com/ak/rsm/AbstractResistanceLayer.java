@@ -13,16 +13,12 @@ abstract class AbstractResistanceLayer<U extends AbstractPotentialLayer> {
   private final U uPls;
 
   @ParametersAreNonnullByDefault
-  AbstractResistanceLayer(TetrapolarSystem system, DoubleFunction<U> potential) {
-    uMns = potential.apply(radius(system, -1.0));
-    uPls = potential.apply(radius(system, 1.0));
+  AbstractResistanceLayer(TetrapolarSystem electrodeSystem, DoubleFunction<U> potential) {
+    uMns = potential.apply(electrodeSystem.factor(-1.0));
+    uPls = potential.apply(electrodeSystem.factor(1.0));
   }
 
   final double apply(@Nonnull ToDoubleFunction<U> potentialValue) {
     return potentialValue.applyAsDouble(uMns) - potentialValue.applyAsDouble(uPls);
-  }
-
-  private static double radius(@Nonnull TetrapolarSystem system, double sign) {
-    return system.getL() * system.factor(sign) / 2.0;
   }
 }
