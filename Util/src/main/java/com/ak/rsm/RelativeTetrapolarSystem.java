@@ -15,6 +15,11 @@ final class RelativeTetrapolarSystem {
     return Math.abs(1.0 + Math.signum(sign) * sToL);
   }
 
+  double errorFactor() {
+    double x = Math.min(sToL, 1.0 / sToL);
+    return (1.0 + x) / (x * (1.0 - x));
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

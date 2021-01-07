@@ -54,9 +54,9 @@ public class Electrode2LayerTest {
                                                   @Nonnull Function<Collection<DerivativeMeasurement>, RelativeMediumLayers> inverse) {
     final double L = 1.0;
     final double absErrorL = 1.0E-6 * L;
-    TetrapolarSystem[] systems = {
-        TetrapolarSystem.milli().s(L * sToL[0]).l(L * sToL[1]),
-        TetrapolarSystem.milli().s(L * sToL[1]).l(L),
+    InexactTetrapolarSystem[] systems = {
+        InexactTetrapolarSystem.si(absErrorL).s(L * sToL[0]).l(L * sToL[1]),
+        InexactTetrapolarSystem.si(absErrorL).s(L * sToL[1]).l(L),
     };
 
     return IntStream.of(2, 5)
@@ -66,8 +66,8 @@ public class Electrode2LayerTest {
           int signS2 = (n & 4) == 0 ? 1 : -1;
 
           TetrapolarSystem[] systemsError = {
-              systems[0].newWithError(absErrorL, signS1, signL),
-              systems[1].newWithError(absErrorL, signL, signS2)
+              systems[0].shift(signS1, signL),
+              systems[1].shift(signL, signS2)
           };
 
           Collection<DerivativeMeasurement> measurements = IntStream.range(0, systems.length)
@@ -86,7 +86,7 @@ public class Electrode2LayerTest {
                     @Nonnull
                     @Override
                     public TetrapolarSystem getSystem() {
-                      return systems[i];
+                      return systems[i].getSystem();
                     }
                   })
               .collect(Collectors.toUnmodifiableList());

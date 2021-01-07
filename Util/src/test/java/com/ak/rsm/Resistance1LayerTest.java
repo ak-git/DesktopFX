@@ -46,26 +46,25 @@ public class Resistance1LayerTest {
 
   @DataProvider(name = "tetrapolarSystemsWithErrors")
   public static Object[][] tetrapolarSystemWithErrors() {
+    double relError = 0.0001;
     return new Object[][] {
-        {TetrapolarSystem.milli().s(1.0).l(2.0), 6},
-        {TetrapolarSystem.milli().s(2.0).l(1.0), 6},
-        {TetrapolarSystem.milli().s(1.0).l(3.0), 6},
-        {TetrapolarSystem.milli().s(SQRT2 - 1.0).l(1.0), 3.0 + 2.0 * SQRT2},
+        {InexactTetrapolarSystem.si(2.0 * relError).s(1.0).l(2.0), 6 * relError},
+        {InexactTetrapolarSystem.si(2.0 * relError).s(2.0).l(1.0), 6 * relError},
+        {InexactTetrapolarSystem.si(3.0 * relError).s(1.0).l(3.0), 6 * relError},
+        {InexactTetrapolarSystem.si(relError).s(SQRT2 - 1.0).l(1.0), (3.0 + 2.0 * SQRT2) * relError},
     };
   }
 
   @Test(dataProvider = "tetrapolarSystemsWithErrors")
-  public void testElectrodeSystemRelativeError(@Nonnull TetrapolarSystem system, double errRiseFactor) {
-    double relError = 0.0001;
-    double absError = system.getMaxL() * relError;
-    double rOhms = new Resistance1Layer(system).value(1.0);
+  public void testElectrodeSystemRelativeError(@Nonnull InexactTetrapolarSystem system, @Nonnegative double expectedError) {
+    double rOhms = new Resistance1Layer(system.getSystem()).value(1.0);
     double error = IntStream.range(0, 1 << 2)
         .mapToDouble(n -> {
           int signS = (n & 1) == 0 ? 1 : -1;
           int signL = (n & (1 << 1)) == 0 ? 1 : -1;
-          return system.newWithError(absError, signS, signL).getApparent(rOhms);
+          return system.shift(signS, signL).getApparent(rOhms);
         })
         .map(rho -> Inequality.proportional().applyAsDouble(rho, 1.0)).max().orElseThrow();
-    Assert.assertEquals(error / relError, errRiseFactor, 0.01);
+    Assert.assertEquals(error, expectedError, 0.01);
   }
 }

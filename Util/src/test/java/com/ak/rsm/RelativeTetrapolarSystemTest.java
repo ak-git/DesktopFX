@@ -37,7 +37,8 @@ public class RelativeTetrapolarSystemTest {
     return new Object[][] {
         {2.0},
         {0.5},
-        {1.0 / 3.0}
+        {1.0 / 3.0},
+        {3.0}
     };
   }
 
@@ -51,5 +52,11 @@ public class RelativeTetrapolarSystemTest {
   public void testHash(@Nonnegative double sToL) {
     RelativeTetrapolarSystem system = new RelativeTetrapolarSystem(sToL);
     Assert.assertEquals(system.hashCode(), Double.hashCode(Math.min(sToL, 1.0 / sToL)), system.toString());
+  }
+
+  @Test(dataProvider = "relative-tetrapolar-systems")
+  public void testErrorFactor(@Nonnegative double sToL) {
+    RelativeTetrapolarSystem system = new RelativeTetrapolarSystem(sToL);
+    Assert.assertEquals(system.errorFactor(), 6.0, 0.1);
   }
 }

@@ -1,6 +1,7 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
+import java.util.function.DoubleUnaryOperator;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -24,6 +25,10 @@ public final class TetrapolarSystem {
     relativeSystem = new RelativeTetrapolarSystem(sPU / lCC);
   }
 
+  TetrapolarSystem shift(double deltaS, double deltaL) {
+    return new TetrapolarSystem(sPU + deltaS, lCC + deltaL);
+  }
+
   @Nonnull
   RelativeTetrapolarSystem toRelative() {
     return relativeSystem;
@@ -35,11 +40,6 @@ public final class TetrapolarSystem {
 
   double getL() {
     return lCC;
-  }
-
-  @Nonnegative
-  double getMaxL() {
-    return Math.max(sPU, lCC);
   }
 
   /**
@@ -77,29 +77,40 @@ public final class TetrapolarSystem {
     return "%2.0f x %2.0f %s".formatted(Metrics.toMilli(sPU), Metrics.toMilli(lCC), MetricPrefix.MILLI(METRE));
   }
 
-  @Nonnull
-  TetrapolarSystem newWithError(@Nonnegative double absErrorSI, int signS, int signL) {
-    return new TetrapolarSystem(
-        sPU + Math.signum(signS) * absErrorSI,
-        lCC + Math.signum(signL) * absErrorSI
-    );
+  public static Builder milli() {
+    return new Builder(Metrics.MILLI);
   }
 
-  public static MilliBuilder milli() {
-    return new MilliBuilder();
+  static Builder si() {
+    return new Builder(DoubleUnaryOperator.identity());
   }
 
-  public static class MilliBuilder {
+  abstract static class AbstractBuilder<T> {
+    @Nonnull
+    final DoubleUnaryOperator converter;
     @Nonnegative
-    private double s;
+    double s;
 
-    public MilliBuilder s(@Nonnegative double smm) {
-      s = Metrics.fromMilli(smm);
+    protected AbstractBuilder(@Nonnull DoubleUnaryOperator converter) {
+      this.converter = converter;
+    }
+
+    public abstract T l(@Nonnegative double l);
+  }
+
+  public static class Builder extends AbstractBuilder<TetrapolarSystem> {
+    public Builder(@Nonnull DoubleUnaryOperator converter) {
+      super(converter);
+    }
+
+    public final Builder s(@Nonnegative double s) {
+      this.s = converter.applyAsDouble(s);
       return this;
     }
 
-    public TetrapolarSystem l(@Nonnegative double lmm) {
-      return new TetrapolarSystem(s, Metrics.fromMilli(lmm));
+    @Override
+    public TetrapolarSystem l(@Nonnegative double l) {
+      return new TetrapolarSystem(s, converter.applyAsDouble(l));
     }
   }
 }

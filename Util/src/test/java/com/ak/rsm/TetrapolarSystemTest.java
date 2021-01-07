@@ -3,7 +3,6 @@ package com.ak.rsm;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -11,7 +10,7 @@ import org.testng.annotations.Test;
 public class TetrapolarSystemTest {
   @DataProvider(name = "tetrapolar-systems")
   public static Object[][] tetrapolarSystems() {
-    TetrapolarSystem ts = TetrapolarSystem.milli().s(2000.0).l(1000.0);
+    TetrapolarSystem ts = TetrapolarSystem.si().s(2.0).l(1.0);
     return new Object[][] {
         {ts, ts, true},
         {ts, TetrapolarSystem.milli().s(1000.0).l(2000.0), true},
@@ -35,25 +34,22 @@ public class TetrapolarSystemTest {
 
   @Test
   public void testL() {
-    Assert.assertEquals(TetrapolarSystem.milli().s(2000.0).l(1000.0).getL(), 1.0);
+    Assert.assertEquals(TetrapolarSystem.si().s(2.0).l(1.0).getL(), 1.0);
     Assert.assertEquals(TetrapolarSystem.milli().s(2000.0).l(10000.0).getL(), 10.0);
   }
 
   @Test
   public void testToRelative() {
     Assert.assertEquals(TetrapolarSystem.milli().s(2000.0).l(1000.0).toRelative(), new RelativeTetrapolarSystem(2.0));
-    Assert.assertEquals(TetrapolarSystem.milli().s(2000.0).l(10000.0).toRelative(), new RelativeTetrapolarSystem(0.2));
+    Assert.assertEquals(TetrapolarSystem.si().s(2.0).l(10.0).toRelative(), new RelativeTetrapolarSystem(0.2));
   }
 
-  @DataProvider(name = "tetrapolarSystemsWithErrors")
-  public static Object[][] tetrapolarSystemWithErrors() {
-    return new Object[][] {
-        {TetrapolarSystem.milli().s(1.0).l(2.0).newWithError(Metrics.fromMilli(0.1), 1, -1), 4.0e-4, 0.0015},
-        {TetrapolarSystem.milli().s(2.0).l(1.0).newWithError(Metrics.fromMilli(0.1), -1, 1), 4.0e-4, 0.0015},
-
-        {TetrapolarSystem.milli().s(1.0).l(2.0).newWithError(Metrics.fromMilli(0.1), -1, 1), 6.0e-4, 0.0015},
-        {TetrapolarSystem.milli().s(2.0).l(1.0).newWithError(Metrics.fromMilli(0.1), 1, -1), 6.0e-4, 0.0015},
-    };
+  @Test
+  public void testToShift() {
+    Assert.assertEquals(TetrapolarSystem.milli().s(2000.0).l(1500.0).shift(1.0, -1.0),
+        TetrapolarSystem.milli().s(3000.0).l(500.0));
+    Assert.assertEquals(TetrapolarSystem.si().s(2.0).l(1.0).shift(-0.1, 0.1),
+        TetrapolarSystem.milli().s(1100.0).l(1900.0));
   }
 
   @DataProvider(name = "system-apparent")
