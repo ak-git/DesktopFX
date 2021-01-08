@@ -49,7 +49,7 @@ enum Inverse {
           measurements.stream()
               .map(m -> new TetrapolarPrediction(m, average.getResistivity()))
               .collect(Collectors.toUnmodifiableList()))
-          .layer1(average.getResistivity()).build();
+          .layer1(average).build();
     }
   }
 
