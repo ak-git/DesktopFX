@@ -3,7 +3,6 @@ package com.ak.rsm;
 import java.util.Arrays;
 import java.util.function.ToDoubleFunction;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.util.Metrics;
@@ -13,21 +12,6 @@ import static com.ak.rsm.TetrapolarSystem.systems4;
 
 enum LayersProvider {
   ;
-
-  @Nonnull
-  static ToDoubleFunction<TetrapolarSystem> layer1(@Nonnegative double rho) {
-    return system -> new Resistance1Layer(system).value(rho);
-  }
-
-  @Nonnull
-  static ToDoubleFunction<TetrapolarSystem> layer2(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double h) {
-    return system -> new Resistance2Layer(system).value(rho1, rho2, h);
-  }
-
-  @Nonnull
-  static ToDoubleFunction<TetrapolarSystem> layer3(@Nonnull double[] rho, double hmmStep, @Nonnegative int p1, @Nonnegative int p2mp1) {
-    return system -> new Resistance3Layer(system, Math.abs(Metrics.fromMilli(hmmStep))).value(rho[0], rho[1], rho[2], p1, p2mp1);
-  }
 
   @Nonnull
   static double[] rangeSystems(@Nonnull TetrapolarSystem[] systems, @Nonnull ToDoubleFunction<TetrapolarSystem> generator) {

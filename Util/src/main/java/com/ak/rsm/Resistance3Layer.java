@@ -1,7 +1,11 @@
 package com.ak.rsm;
 
+import java.util.function.ToDoubleFunction;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+
+import com.ak.util.Metrics;
 
 /**
  * Calculates <b>full</b> resistance R<sub>m-n</sub> (in Ohm) between electrodes for <b>3-layer</b> model.
@@ -56,5 +60,10 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
     else {
       return resistance1Layer.value(rho1);
     }
+  }
+
+  @Nonnull
+  static ToDoubleFunction<TetrapolarSystem> layer3(@Nonnull double[] rho, double hmmStep, @Nonnegative int p1, @Nonnegative int p2mp1) {
+    return system -> new Resistance3Layer(system, Math.abs(Metrics.fromMilli(hmmStep))).value(rho[0], rho[1], rho[2], p1, p2mp1);
   }
 }

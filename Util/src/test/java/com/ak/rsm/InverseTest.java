@@ -27,7 +27,7 @@ public class InverseTest {
     return new Object[][] {
         {
             systems2,
-            Arrays.stream(LayersProvider.rangeSystems(systems2, LayersProvider.layer1(rho)))
+            Arrays.stream(LayersProvider.rangeSystems(systems2, Resistance1Layer.layer1(rho)))
                 .map(r -> r + random.nextGaussian()).toArray(),
             rho
         },
@@ -49,20 +49,20 @@ public class InverseTest {
     return new Object[][] {
         {
             systems2,
-            Arrays.stream(LayersProvider.rangeSystems(systems2, LayersProvider.layer1(10.0))).toArray(),
+            Arrays.stream(LayersProvider.rangeSystems(systems2, Resistance1Layer.layer1(10.0))).toArray(),
             new double[] {10.0, 10.0, Double.NaN}
         },
         {
             systems4,
             Arrays.stream(LayersProvider.rangeSystems(systems4,
-                LayersProvider.layer2(10.0, 1.0, Metrics.fromMilli(10.0)))
+                Resistance2Layer.layer2(10.0, 1.0, Metrics.fromMilli(10.0)))
             ).toArray(),
             new double[] {10.0, 1.0, Metrics.fromMilli(10.0)}
         },
         {
             systems4,
             Arrays.stream(LayersProvider.rangeSystems(systems4,
-                LayersProvider.layer2(1.0, 10.0, Metrics.fromMilli(5.0)))
+                Resistance2Layer.layer2(1.0, 10.0, Metrics.fromMilli(5.0)))
             ).toArray(),
             new double[] {1.0, 10.0, Metrics.fromMilli(5.0)}
         },
@@ -96,22 +96,22 @@ public class InverseTest {
     return new Object[][] {
         {
             systems1,
-            LayersProvider.rangeSystems(systems1, LayersProvider.layer2(1.0, 9.0, h)),
-            LayersProvider.rangeSystems(systems1, LayersProvider.layer2(1.0, 9.0, h + dh)),
+            LayersProvider.rangeSystems(systems1, Resistance2Layer.layer2(1.0, 9.0, h)),
+            LayersProvider.rangeSystems(systems1, Resistance2Layer.layer2(1.0, 9.0, h + dh)),
             dh,
             new double[] {new NormalizedApparent2Rho(systems1[0].toRelative()).value(0.8, h / systems1[0].getL()), 0.0, Double.NaN}
         },
         {
             systems2,
-            LayersProvider.rangeSystems(systems2, LayersProvider.layer2(1.0, Double.POSITIVE_INFINITY, h)),
-            LayersProvider.rangeSystems(systems2, LayersProvider.layer2(1.0, Double.POSITIVE_INFINITY, h + dh)),
+            LayersProvider.rangeSystems(systems2, Resistance2Layer.layer2(1.0, Double.POSITIVE_INFINITY, h)),
+            LayersProvider.rangeSystems(systems2, Resistance2Layer.layer2(1.0, Double.POSITIVE_INFINITY, h + dh)),
             dh,
             new double[] {1.0, 1.0, h}
         },
         {
             systems4,
-            LayersProvider.rangeSystems(systems4, LayersProvider.layer2(10.0, 0.0, h)),
-            LayersProvider.rangeSystems(systems4, LayersProvider.layer2(10.0, 0.0, h + dh)),
+            LayersProvider.rangeSystems(systems4, Resistance2Layer.layer2(10.0, 0.0, h)),
+            LayersProvider.rangeSystems(systems4, Resistance2Layer.layer2(10.0, 0.0, h + dh)),
             dh,
             new double[] {10.0, -1.0, h}
         },
