@@ -19,10 +19,10 @@ final class InexactTetrapolarSystem {
   @Nonnull
   private final TetrapolarSystem system;
 
-  private InexactTetrapolarSystem(@Nonnegative double absError, @Nonnegative double maxLen, @Nonnull TetrapolarSystem system) {
-    this.absError = absError;
-    relError = absError / maxLen;
-    this.system = system;
+  private InexactTetrapolarSystem(@Nonnull Builder builder) {
+    absError = builder.absError;
+    relError = absError / Math.max(builder.s, builder.l);
+    system = TetrapolarSystem.si().s(builder.s).l(builder.l);
   }
 
   @Nonnull
@@ -78,21 +78,23 @@ final class InexactTetrapolarSystem {
   static class Builder extends TetrapolarSystem.AbstractBuilder<InexactTetrapolarSystem> {
     @Nonnegative
     private final double absError;
+    @Nonnegative
+    private double l;
 
-    protected Builder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
+    private Builder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
       super(converter);
       this.absError = converter.applyAsDouble(absError);
     }
 
-    public final Builder s(@Nonnegative double s) {
+    final Builder s(@Nonnegative double s) {
       this.s = converter.applyAsDouble(s);
       return this;
     }
 
     @Override
-    public InexactTetrapolarSystem l(@Nonnegative double l) {
-      double lCC = converter.applyAsDouble(l);
-      return new InexactTetrapolarSystem(absError, Math.max(s, lCC), TetrapolarSystem.si().s(s).l(lCC));
+    InexactTetrapolarSystem l(@Nonnegative double l) {
+      this.l = converter.applyAsDouble(l);
+      return new InexactTetrapolarSystem(this);
     }
   }
 }

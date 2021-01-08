@@ -77,6 +77,38 @@ public final class TetrapolarSystem {
     return "%2.0f x %2.0f %s".formatted(Metrics.toMilli(sPU), Metrics.toMilli(lCC), MetricPrefix.MILLI(METRE));
   }
 
+  /**
+   * Generates optimal electrode system pair.
+   * For 10 mm: 10 x 30, 50 x 30 mm,
+   *
+   * @return two Tetrapolar System.
+   */
+  @Nonnull
+  static TetrapolarSystem[] systems2(double smm) {
+    return new TetrapolarSystem[] {
+        milli().s(smm).l(smm * 3.0),
+        milli().s(smm * 3.0).l(smm * 5.0),
+    };
+  }
+
+  /**
+   * Generates optimal electrode system pair.
+   * 10 x 30, 30 x 50, 20 x 40, 40 x 60 mm,
+   * 7 x 21, 21 x 35, 14 x 28, 28 x 42 mm.
+   *
+   * @param smm small potential electrode distance, mm.
+   * @return three Tetrapolar System.
+   */
+  @Nonnull
+  static TetrapolarSystem[] systems4(@Nonnegative double smm) {
+    return new TetrapolarSystem[] {
+        milli().s(smm).l(smm * 3.0),
+        milli().s(smm * 3.0).l(smm * 5.0),
+        milli().s(smm * 2.0).l(smm * 4.0),
+        milli().s(smm * 4.0).l(smm * 6.0),
+    };
+  }
+
   public static Builder milli() {
     return new Builder(Metrics.MILLI);
   }
@@ -95,11 +127,11 @@ public final class TetrapolarSystem {
       this.converter = converter;
     }
 
-    public abstract T l(@Nonnegative double l);
+    abstract T l(@Nonnegative double l);
   }
 
   public static class Builder extends AbstractBuilder<TetrapolarSystem> {
-    public Builder(@Nonnull DoubleUnaryOperator converter) {
+    private Builder(@Nonnull DoubleUnaryOperator converter) {
       super(converter);
     }
 

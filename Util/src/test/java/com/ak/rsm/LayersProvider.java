@@ -9,40 +9,10 @@ import javax.annotation.Nonnull;
 import com.ak.util.Metrics;
 import org.testng.annotations.DataProvider;
 
+import static com.ak.rsm.TetrapolarSystem.systems4;
+
 enum LayersProvider {
   ;
-
-  /**
-   * Generates optimal electrode system pair.
-   * For 10 mm: 10 x 30, 50 x 30 mm,
-   *
-   * @return two Tetrapolar System.
-   */
-  @Nonnull
-  static TetrapolarSystem[] systems2(double smm) {
-    return new TetrapolarSystem[] {
-        TetrapolarSystem.milli().s(smm).l(smm * 3.0),
-        TetrapolarSystem.milli().s(smm * 3.0).l(smm * 5.0),
-    };
-  }
-
-  /**
-   * Generates optimal electrode system pair.
-   * 10 x 30, 30 x 50, 20 x 40, 40 x 60 mm,
-   * 7 x 21, 21 x 35, 14 x 28, 28 x 42 mm.
-   *
-   * @param smm small potential electrode distance, mm.
-   * @return three Tetrapolar System.
-   */
-  @Nonnull
-  static TetrapolarSystem[] systems4(@Nonnegative double smm) {
-    return new TetrapolarSystem[] {
-        TetrapolarSystem.milli().s(smm).l(smm * 3.0),
-        TetrapolarSystem.milli().s(smm * 3.0).l(smm * 5.0),
-        TetrapolarSystem.milli().s(smm * 2.0).l(smm * 4.0),
-        TetrapolarSystem.milli().s(smm * 4.0).l(smm * 6.0),
-    };
-  }
 
   @Nonnull
   static ToDoubleFunction<TetrapolarSystem> layer1(@Nonnegative double rho) {

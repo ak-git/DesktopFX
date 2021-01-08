@@ -13,7 +13,8 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static com.ak.rsm.LayersProvider.systems2;
+import static com.ak.rsm.TetrapolarSystem.systems2;
+import static com.ak.rsm.TetrapolarSystem.systems4;
 
 public class InverseTest {
   private static final Logger LOGGER = Logger.getLogger(InverseTest.class.getName());
@@ -44,7 +45,7 @@ public class InverseTest {
   @DataProvider(name = "layer2")
   public static Object[][] layer2() {
     TetrapolarSystem[] systems2 = systems2(10.0);
-    TetrapolarSystem[] systems4 = LayersProvider.systems4(10.0);
+    TetrapolarSystem[] systems4 = systems4(10.0);
     return new Object[][] {
         {
             systems2,
@@ -89,7 +90,7 @@ public class InverseTest {
         TetrapolarSystem.milli().s(10.0).l(20.0)
     };
     TetrapolarSystem[] systems2 = systems2(10.0);
-    TetrapolarSystem[] systems4 = LayersProvider.systems4(7.0);
+    TetrapolarSystem[] systems4 = systems4(7.0);
     double dh = Metrics.fromMilli(-0.001);
     double h = Metrics.fromMilli(5.0);
     return new Object[][] {
