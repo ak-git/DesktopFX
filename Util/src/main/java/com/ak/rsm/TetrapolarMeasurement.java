@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.annotation.concurrent.ThreadSafe;
 
+import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
 @ThreadSafe
@@ -37,7 +38,9 @@ final class TetrapolarMeasurement implements Measurement {
 
   @Override
   public String toString() {
-    return "%s; %s".formatted(String.valueOf(system), Strings.rho(resistivity));
+    return "%s; %s (%.0f %%)".formatted(String.valueOf(system),
+        Strings.rho(resistivity, system.getDeltaApparent()),
+        Metrics.toPercents(system.getDeltaApparent()));
   }
 
   @Nonnull

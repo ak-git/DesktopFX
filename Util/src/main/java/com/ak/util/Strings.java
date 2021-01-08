@@ -21,6 +21,7 @@ public enum Strings {
   public static final String TAB = "\t";
   public static final String OHM_METRE = new StringBuilder(OHM.multiply(METRE).toString()).reverse().toString();
   private static final String RHO = "\u03c1";
+  private static final String PLUS_MINUS = "\u00B1";
 
   public static String numberSuffix(@Nonnull String s) {
     String ignore = s.replaceFirst("\\d*$", EMPTY);
@@ -41,6 +42,10 @@ public enum Strings {
 
   public static String rho(@Nonnegative double rho) {
     return "%s = %.3f %s".formatted(RHO, rho, OHM_METRE);
+  }
+
+  public static String rho(@Nonnegative double rho, @Nonnegative double relError) {
+    return "%s = %.3f %s %.3f %s".formatted(RHO, rho, PLUS_MINUS, relError * rho, OHM_METRE);
   }
 
   public static String rho1(@Nonnegative double rho1) {
