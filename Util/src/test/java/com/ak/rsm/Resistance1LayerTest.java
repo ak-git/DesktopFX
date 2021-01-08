@@ -57,7 +57,7 @@ public class Resistance1LayerTest {
 
   @Test(dataProvider = "tetrapolarSystemsWithErrors")
   public void testElectrodeSystemRelativeError(@Nonnull InexactTetrapolarSystem system, @Nonnegative double expectedError) {
-    double rOhms = new Resistance1Layer(system.getSystem()).value(1.0);
+    double rOhms = new Resistance1Layer(system.toExact()).value(1.0);
     double error = IntStream.range(0, 1 << 2)
         .mapToDouble(n -> {
           int signS = (n & 1) == 0 ? 1 : -1;

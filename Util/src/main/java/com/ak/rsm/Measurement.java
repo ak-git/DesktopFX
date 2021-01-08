@@ -12,5 +12,5 @@ interface Measurement {
   }
 
   @Nonnull
-  TetrapolarSystem getSystem();
+  InexactTetrapolarSystem getSystem();
 }

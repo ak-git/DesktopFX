@@ -7,28 +7,32 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.concurrent.ThreadSafe;
 
 import com.ak.util.Strings;
 
+@ThreadSafe
 final class TetrapolarMeasurement implements Measurement {
   @Nonnull
-  private final TetrapolarSystem system;
+  private final InexactTetrapolarSystem system;
   @Nonnegative
   private final double resistivity;
 
-  TetrapolarMeasurement(@Nonnull TetrapolarSystem system, @Nonnegative double rOhms) {
+  TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem system, @Nonnegative double rOhms) {
     this.system = system;
-    resistivity = system.getApparent(rOhms);
+    resistivity = system.toExact().getApparent(rOhms);
   }
 
   @Override
+  @Nonnull
+  public InexactTetrapolarSystem getSystem() {
+    return system;
+  }
+
+  @Override
+  @Nonnegative
   public double getResistivity() {
     return resistivity;
-  }
-
-  @Override
-  public TetrapolarSystem getSystem() {
-    return system;
   }
 
   @Override
@@ -38,7 +42,7 @@ final class TetrapolarMeasurement implements Measurement {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  static Collection<Measurement> of(TetrapolarSystem[] systems, double[] ohms) {
+  static Collection<Measurement> of(InexactTetrapolarSystem[] systems, double[] ohms) {
     return IntStream.range(0, systems.length)
         .mapToObj(i -> new TetrapolarMeasurement(systems[i], ohms[i]))
         .collect(Collectors.toUnmodifiableList());

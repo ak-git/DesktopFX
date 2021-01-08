@@ -75,18 +75,18 @@ public class Electrode2LayerTest {
                   new DerivativeMeasurement() {
                     @Override
                     public double getDerivativeResistivity() {
-                      return getSystem().getApparent(new NormalizedDerivativeR2ByH(systemsError[i]).value(k, hToL));
+                      return getSystem().toExact().getApparent(new NormalizedDerivativeR2ByH(systemsError[i]).value(k, hToL));
                     }
 
                     @Override
                     public double getResistivity() {
-                      return getSystem().getApparent(new NormalizedResistance2Layer(systemsError[i]).applyAsDouble(k, hToL));
+                      return getSystem().toExact().getApparent(new NormalizedResistance2Layer(systemsError[i]).applyAsDouble(k, hToL));
                     }
 
                     @Nonnull
                     @Override
-                    public TetrapolarSystem getSystem() {
-                      return systems[i].getSystem();
+                    public InexactTetrapolarSystem getSystem() {
+                      return systems[i];
                     }
                   })
               .collect(Collectors.toUnmodifiableList());

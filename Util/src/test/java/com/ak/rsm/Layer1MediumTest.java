@@ -12,14 +12,14 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static com.ak.rsm.TetrapolarSystem.systems4;
+import static com.ak.rsm.InexactTetrapolarSystem.systems4;
 
 public class Layer1MediumTest {
   @DataProvider(name = "layer1Medium")
   public static Object[][] layer1Medium() {
     return new Object[][] {
         {new Layer1Medium.Layer1MediumBuilder(
-            TetrapolarMeasurement.of(systems4(7.0), new double[] {1.0, 2.0, 3.0, 4.0}).stream()
+            TetrapolarMeasurement.of(systems4(0.1, 7.0), new double[] {1.0, 2.0, 3.0, 4.0}).stream()
                 .map(m -> new TetrapolarPrediction(m, 0.044)).collect(Collectors.toList()))
             .layer1(0.044).build(), 0.044},
     };

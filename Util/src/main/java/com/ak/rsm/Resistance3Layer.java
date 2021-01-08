@@ -63,7 +63,7 @@ final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
   }
 
   @Nonnull
-  static ToDoubleFunction<TetrapolarSystem> layer3(@Nonnull double[] rho, double hmmStep, @Nonnegative int p1, @Nonnegative int p2mp1) {
-    return system -> new Resistance3Layer(system, Math.abs(Metrics.fromMilli(hmmStep))).value(rho[0], rho[1], rho[2], p1, p2mp1);
+  static ToDoubleFunction<InexactTetrapolarSystem> layer3(@Nonnull double[] rho, double hmmStep, @Nonnegative int p1, @Nonnegative int p2mp1) {
+    return system -> new Resistance3Layer(system.toExact(), Math.abs(Metrics.fromMilli(hmmStep))).value(rho[0], rho[1], rho[2], p1, p2mp1);
   }
 }

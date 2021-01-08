@@ -16,7 +16,7 @@ enum LayersProvider {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  static double[] rangeSystems(TetrapolarSystem[] systems, ToDoubleFunction<TetrapolarSystem> generator) {
+  static double[] rangeSystems(InexactTetrapolarSystem[] systems, ToDoubleFunction<InexactTetrapolarSystem> generator) {
     return Arrays.stream(systems).mapToDouble(generator).toArray();
   }
 

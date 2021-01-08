@@ -1,5 +1,6 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.DoubleUnaryOperator;
 
@@ -14,19 +15,16 @@ import static tec.uom.se.unit.Units.METRE;
 final class InexactTetrapolarSystem {
   @Nonnegative
   private final double absError;
-  @Nonnegative
-  private final double relError;
   @Nonnull
   private final TetrapolarSystem system;
 
-  private InexactTetrapolarSystem(@Nonnull Builder builder) {
-    absError = builder.absError;
-    relError = absError / Math.max(builder.s, builder.l);
-    system = TetrapolarSystem.si().s(builder.s).l(builder.l);
+  private InexactTetrapolarSystem(@Nonnegative double absError, @Nonnull TetrapolarSystem system) {
+    this.absError = absError;
+    this.system = system;
   }
 
   @Nonnull
-  TetrapolarSystem getSystem() {
+  TetrapolarSystem toExact() {
     return system;
   }
 
@@ -42,7 +40,7 @@ final class InexactTetrapolarSystem {
    */
   @Nonnegative
   double getDeltaApparent() {
-    return system.toRelative().errorFactor() * relError;
+    return system.toRelative().errorFactor() * system.getRelativeErrorL(absError);
   }
 
   @Override
@@ -67,6 +65,37 @@ final class InexactTetrapolarSystem {
     return Objects.hash(absError, system);
   }
 
+  /**
+   * Generates optimal electrode system pair.
+   * For 10 mm: 10 x 30, 50 x 30 mm,
+   *
+   * @return two Inexact Tetrapolar System.
+   */
+  @Nonnull
+  static InexactTetrapolarSystem[] systems2(@Nonnegative double absError, @Nonnegative double smm) {
+    return toInexactMilli(absError, TetrapolarSystem.systems2(smm));
+  }
+
+  /**
+   * Generates optimal electrode system pair.
+   * 10 x 30, 30 x 50, 20 x 40, 40 x 60 mm,
+   * 7 x 21, 21 x 35, 14 x 28, 28 x 42 mm.
+   *
+   * @param smm small potential electrode distance, mm.
+   * @return three Tetrapolar System.
+   */
+  @Nonnull
+  static InexactTetrapolarSystem[] systems4(@Nonnegative double absError, @Nonnegative double smm) {
+    return toInexactMilli(absError, TetrapolarSystem.systems4(smm));
+  }
+
+  @Nonnull
+  private static InexactTetrapolarSystem[] toInexactMilli(@Nonnegative double absErrorL, @Nonnull TetrapolarSystem[] systems) {
+    return Arrays.stream(systems)
+        .map(system -> new InexactTetrapolarSystem(Metrics.fromMilli(absErrorL), system))
+        .toArray(InexactTetrapolarSystem[]::new);
+  }
+
   static Builder milli(@Nonnegative double absError) {
     return new Builder(Metrics.MILLI, absError);
   }
@@ -78,8 +107,6 @@ final class InexactTetrapolarSystem {
   static class Builder extends TetrapolarSystem.AbstractBuilder<InexactTetrapolarSystem> {
     @Nonnegative
     private final double absError;
-    @Nonnegative
-    private double l;
 
     private Builder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
       super(converter);
@@ -93,8 +120,7 @@ final class InexactTetrapolarSystem {
 
     @Override
     InexactTetrapolarSystem l(@Nonnegative double l) {
-      this.l = converter.applyAsDouble(l);
-      return new InexactTetrapolarSystem(this);
+      return new InexactTetrapolarSystem(absError, TetrapolarSystem.si().s(s).l(converter.applyAsDouble(l)));
     }
   }
 }

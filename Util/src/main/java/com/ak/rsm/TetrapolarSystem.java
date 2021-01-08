@@ -34,6 +34,11 @@ public final class TetrapolarSystem {
     return relativeSystem;
   }
 
+  @Nonnegative
+  double getRelativeErrorL(@Nonnegative double absErrorL) {
+    return absErrorL / Math.max(sPU, lCC);
+  }
+
   double factor(double sign) {
     return Math.abs(lCC + Math.signum(sign) * sPU) / 2.0;
   }
@@ -84,7 +89,7 @@ public final class TetrapolarSystem {
    * @return two Tetrapolar System.
    */
   @Nonnull
-  static TetrapolarSystem[] systems2(double smm) {
+  static TetrapolarSystem[] systems2(@Nonnegative double smm) {
     return new TetrapolarSystem[] {
         milli().s(smm).l(smm * 3.0),
         milli().s(smm * 3.0).l(smm * 5.0),

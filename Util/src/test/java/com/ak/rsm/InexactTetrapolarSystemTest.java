@@ -42,7 +42,7 @@ public class InexactTetrapolarSystemTest {
 
   @Test(dataProvider = "inexact-tetrapolar-systems")
   public void testToString(@Nonnull InexactTetrapolarSystem system) {
-    Assert.assertTrue(system.toString().startsWith(system.getSystem().toString()), system.toString());
+    Assert.assertTrue(system.toString().startsWith(system.toExact().toString()), system.toString());
     Assert.assertTrue(system.toString().contains("%.1f".formatted(0.1)), system.toString());
   }
 
@@ -54,7 +54,7 @@ public class InexactTetrapolarSystemTest {
   @Test
   public void testShift() {
     InexactTetrapolarSystem initial = InexactTetrapolarSystem.milli(0.1).s(20.0).l(10.0);
-    Assert.assertEquals(initial.getSystem().toRelative().errorFactor(), 6.0, 0.01);
+    Assert.assertEquals(initial.toExact().toRelative().errorFactor(), 6.0, 0.01);
     Assert.assertEquals(initial.shift(1, -1).toRelative().errorFactor(), 5.97, 0.01);
     Assert.assertEquals(initial.shift(-1, -1).toRelative().errorFactor(), 5.99, 0.01);
     Assert.assertEquals(initial.shift(1, 1).toRelative().errorFactor(), 6.01, 0.01);

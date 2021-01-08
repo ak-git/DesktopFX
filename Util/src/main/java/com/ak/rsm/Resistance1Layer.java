@@ -30,7 +30,7 @@ final class Resistance1Layer implements UnivariateFunction {
   }
 
   @Nonnull
-  static ToDoubleFunction<TetrapolarSystem> layer1(@Nonnegative double rho) {
-    return system -> new Resistance1Layer(system).value(rho);
+  static ToDoubleFunction<InexactTetrapolarSystem> layer1(@Nonnegative double rho) {
+    return system -> new Resistance1Layer(system.toExact()).value(rho);
   }
 }

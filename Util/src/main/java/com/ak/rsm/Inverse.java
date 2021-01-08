@@ -99,7 +99,8 @@ enum Inverse {
               .map(Measurement::getSystem)
               .mapToDouble(s -> {
                 double[] kh = {kw[0], kw[1] * maxL};
-                return LOG_APPARENT_PREDICTED.applyAsDouble(s, kh) - LOG_DIFF_APPARENT_PREDICTED.applyAsDouble(s, kh);
+                return LOG_APPARENT_PREDICTED.applyAsDouble(s.toExact(), kh) -
+                    LOG_DIFF_APPARENT_PREDICTED.applyAsDouble(s.toExact(), kh);
               })
               .toArray();
           return Inequality.absolute().applyAsDouble(subLog, subLogPredicted);
@@ -119,7 +120,7 @@ enum Inverse {
     PointValuePair kwOptimal = Simplex.optimizeCMAES(kw -> {
           double[] subLogApparentPredicted = subtract.apply(measurements.stream()
               .map(Measurement::getSystem)
-              .mapToDouble(s -> LOG_APPARENT_PREDICTED.applyAsDouble(s, new double[] {kw[0], kw[1] * maxL}))
+              .mapToDouble(s -> LOG_APPARENT_PREDICTED.applyAsDouble(s.toExact(), new double[] {kw[0], kw[1] * maxL}))
               .toArray()
           );
           return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
@@ -136,13 +137,13 @@ enum Inverse {
     double sumLogApparent = measurements.stream().mapToDouble(Measurement::getLogResistivity).sum();
     double sumLogApparentPredicted = measurements.stream()
         .map(Measurement::getSystem)
-        .mapToDouble(s -> LOG_APPARENT_PREDICTED.applyAsDouble(s, new double[] {kh.k12(), kh.h()})).sum();
+        .mapToDouble(s -> LOG_APPARENT_PREDICTED.applyAsDouble(s.toExact(), new double[] {kh.k12(), kh.h()})).sum();
     return exp((sumLogApparent - sumLogApparentPredicted) / measurements.size());
   }
 
   @Nonnegative
   @ParametersAreNonnullByDefault
   private static double getMaxL(Collection<? extends Measurement> measurements) {
-    return measurements.stream().mapToDouble(m -> m.getSystem().getL()).max().orElseThrow();
+    return measurements.stream().mapToDouble(m -> m.getSystem().toExact().getL()).max().orElseThrow();
   }
 }
