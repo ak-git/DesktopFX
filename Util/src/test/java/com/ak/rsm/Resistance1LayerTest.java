@@ -65,6 +65,11 @@ public class Resistance1LayerTest {
           return system.shift(signS, signL).getApparent(rOhms);
         })
         .map(rho -> Inequality.proportional().applyAsDouble(rho, 1.0)).max().orElseThrow();
-    Assert.assertEquals(error, expectedError, 0.01);
+    Assert.assertEquals(error, expectedError, 1.0e-6, system.toString());
+  }
+
+  @Test(dataProvider = "tetrapolarSystemsWithErrors")
+  public void testElectrodeSystemRelativeError2(@Nonnull InexactTetrapolarSystem system, @Nonnegative double expectedError) {
+    Assert.assertEquals(system.getDeltaApparent(), expectedError, 1.0e-6, system.toString());
   }
 }
