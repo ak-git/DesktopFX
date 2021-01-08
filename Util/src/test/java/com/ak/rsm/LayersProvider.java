@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.function.ToDoubleFunction;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.util.Metrics;
 import org.testng.annotations.DataProvider;
@@ -14,7 +15,8 @@ enum LayersProvider {
   ;
 
   @Nonnull
-  static double[] rangeSystems(@Nonnull TetrapolarSystem[] systems, @Nonnull ToDoubleFunction<TetrapolarSystem> generator) {
+  @ParametersAreNonnullByDefault
+  static double[] rangeSystems(TetrapolarSystem[] systems, ToDoubleFunction<TetrapolarSystem> generator) {
     return Arrays.stream(systems).mapToDouble(generator).toArray();
   }
 
