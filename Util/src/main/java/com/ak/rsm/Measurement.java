@@ -4,6 +4,9 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 interface Measurement {
+  @Nonnull
+  InexactTetrapolarSystem getSystem();
+
   @Nonnegative
   double getResistivity();
 
@@ -12,5 +15,7 @@ interface Measurement {
   }
 
   @Nonnull
-  InexactTetrapolarSystem getSystem();
+  default Measurement merge(@Nonnull Measurement that) {
+    throw new UnsupportedOperationException(that.toString());
+  }
 }

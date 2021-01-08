@@ -19,8 +19,13 @@ final class InexactTetrapolarSystem {
   private final TetrapolarSystem system;
 
   private InexactTetrapolarSystem(@Nonnegative double absError, @Nonnull TetrapolarSystem system) {
-    this.absError = absError;
+    this.absError = Math.abs(absError);
     this.system = system;
+  }
+
+  @Nonnegative
+  double getAbsError() {
+    return absError;
   }
 
   @Nonnull

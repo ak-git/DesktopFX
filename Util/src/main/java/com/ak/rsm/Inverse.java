@@ -27,7 +27,7 @@ enum Inverse {
 
 
   @Nonnull
-  public static MediumLayers inverseStatic(@Nonnull Collection<? extends Measurement> measurements) {
+  public static MediumLayers inverseStatic(@Nonnull Collection<Measurement> measurements) {
     if (measurements.size() > 2) {
       RelativeMediumLayers kh = inverseStaticRelative(measurements, values -> {
         double[] sub = new double[values.length - 1];
@@ -44,12 +44,12 @@ enum Inverse {
           .layer1(rho1, kh.h()).layer2(rho1 / Layers.getRho1ToRho2(kh.k12())).build();
     }
     else {
-      double rho = measurements.stream().mapToDouble(Measurement::getResistivity).average().orElseThrow();
+      Measurement average = measurements.stream().reduce(Measurement::merge).orElseThrow();
       return new Layer1Medium.Layer1MediumBuilder(
           measurements.stream()
-              .map(m -> new TetrapolarPrediction(m, rho))
+              .map(m -> new TetrapolarPrediction(m, average.getResistivity()))
               .collect(Collectors.toUnmodifiableList()))
-          .layer1(rho).build();
+          .layer1(average.getResistivity()).build();
     }
   }
 
@@ -76,7 +76,7 @@ enum Inverse {
           .layer1(rho1, kh.h()).layer2(rho1 / Layers.getRho1ToRho2(kh.k12())).build();
     }
     else {
-      return inverseStatic(measurements);
+      return inverseStatic(measurements.stream().collect(Collectors.<Measurement>toUnmodifiableList()));
     }
   }
 

@@ -11,8 +11,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class Resistance1LayerTest {
-  public static final double SQRT2 = 1.4142135623730951;
-
   @DataProvider(name = "layer-model")
   public static Object[][] singleLayerParameters() {
     return new Object[][] {
@@ -51,7 +49,7 @@ public class Resistance1LayerTest {
         {InexactTetrapolarSystem.si(2.0 * relError).s(1.0).l(2.0), 6 * relError},
         {InexactTetrapolarSystem.si(2.0 * relError).s(2.0).l(1.0), 6 * relError},
         {InexactTetrapolarSystem.si(3.0 * relError).s(1.0).l(3.0), 6 * relError},
-        {InexactTetrapolarSystem.si(relError).s(SQRT2 - 1.0).l(1.0), (3.0 + 2.0 * SQRT2) * relError},
+        {InexactTetrapolarSystem.si(relError).s(RelativeTetrapolarSystem.OPTIMAL_SL).l(1.0), RelativeTetrapolarSystem.MIN_ERROR_FACTOR * relError},
     };
   }
 

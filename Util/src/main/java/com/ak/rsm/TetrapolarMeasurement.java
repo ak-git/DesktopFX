@@ -1,6 +1,8 @@
 package com.ak.rsm;
 
 import java.util.Collection;
+import java.util.Objects;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -14,6 +16,8 @@ import com.ak.util.Strings;
 
 @ThreadSafe
 final class TetrapolarMeasurement implements Measurement {
+  private static final ToDoubleFunction<Measurement> POW2 =
+      m -> StrictMath.pow(m.getResistivity() * m.getSystem().getDeltaApparent(), 2.0);
   @Nonnull
   private final InexactTetrapolarSystem system;
   @Nonnegative
@@ -36,11 +40,46 @@ final class TetrapolarMeasurement implements Measurement {
     return resistivity;
   }
 
+  @Nonnull
+  @Override
+  public Measurement merge(@Nonnull Measurement that) {
+    double sigma1Q = POW2.applyAsDouble(this);
+    double sigma2Q = POW2.applyAsDouble(that);
+    double k = sigma2Q / (sigma1Q + sigma2Q);
+    double avg = k * resistivity + (1.0 - k) * that.getResistivity();
+    double sigmaAvg = 1.0 / Math.sqrt((1.0 / sigma1Q + 1.0 / sigma2Q));
+
+    double relErrorRho = sigmaAvg / avg;
+    double dL = Math.min(system.getAbsError(), that.getSystem().getAbsError());
+    double lCC = RelativeTetrapolarSystem.MIN_ERROR_FACTOR * dL / relErrorRho;
+    double sPU = RelativeTetrapolarSystem.OPTIMAL_SL * lCC;
+    InexactTetrapolarSystem system = InexactTetrapolarSystem.si(dL).s(sPU).l(lCC);
+    return new TetrapolarMeasurement(system, Resistance1Layer.layer1(avg).applyAsDouble(system));
+  }
+
   @Override
   public String toString() {
     return "%s; %s (%.0f %%)".formatted(String.valueOf(system),
         Strings.rho(resistivity, system.getDeltaApparent()),
-        Metrics.toPercents(system.getDeltaApparent()));
+        Metrics.toPercents(system.getDeltaApparent())
+    );
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || !getClass().equals(o.getClass())) {
+      return false;
+    }
+    TetrapolarMeasurement that = (TetrapolarMeasurement) o;
+    return Double.compare(that.resistivity, resistivity) == 0 && system.equals(that.system);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(system, resistivity);
   }
 
   @Nonnull

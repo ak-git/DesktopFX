@@ -3,6 +3,8 @@ package com.ak.rsm;
 import javax.annotation.Nonnegative;
 
 final class RelativeTetrapolarSystem {
+  public static final double OPTIMAL_SL = 1.4142135623730951 - 1.0;
+  public static final double MIN_ERROR_FACTOR = new RelativeTetrapolarSystem(OPTIMAL_SL).errorFactor();
   @Nonnegative
   private final double sToL;
 

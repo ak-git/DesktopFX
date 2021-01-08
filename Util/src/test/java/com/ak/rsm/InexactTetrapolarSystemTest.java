@@ -2,6 +2,7 @@ package com.ak.rsm;
 
 import javax.annotation.Nonnull;
 
+import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -44,6 +45,11 @@ public class InexactTetrapolarSystemTest {
   public void testToString(@Nonnull InexactTetrapolarSystem system) {
     Assert.assertTrue(system.toString().startsWith(system.toExact().toString()), system.toString());
     Assert.assertTrue(system.toString().contains("%.1f".formatted(0.1)), system.toString());
+  }
+
+  @Test(dataProvider = "inexact-tetrapolar-systems")
+  public void testAbsError(@Nonnull InexactTetrapolarSystem system) {
+    Assert.assertEquals(system.getAbsError(), Metrics.fromMilli(0.1), 0.01, system.toString());
   }
 
   @Test(dataProvider = "inexact-tetrapolar-systems")
