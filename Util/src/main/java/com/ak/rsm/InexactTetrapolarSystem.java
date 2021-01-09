@@ -24,8 +24,8 @@ final class InexactTetrapolarSystem {
   }
 
   @Nonnegative
-  double getHMax() {
-    return system.getHMax(absError);
+  double getHMax(double k) {
+    return system.getHMax(k, absError);
   }
 
   @Nonnegative
@@ -57,7 +57,7 @@ final class InexactTetrapolarSystem {
   public String toString() {
     return "%s / %.1f %s; max = %.0f %s".formatted(
         system.toString(), Metrics.toMilli(absError), MetricPrefix.MILLI(METRE),
-        Metrics.toMilli(getHMax()), MetricPrefix.MILLI(METRE));
+        Metrics.toMilli(getHMax(1.0)), MetricPrefix.MILLI(METRE));
   }
 
   @Override

@@ -2,6 +2,8 @@ package com.ak.rsm;
 
 import javax.annotation.Nonnegative;
 
+import static java.lang.StrictMath.pow;
+
 final class RelativeTetrapolarSystem {
   public static final double OPTIMAL_SL = 1.4142135623730951 - 1.0;
   public static final double MIN_ERROR_FACTOR = new RelativeTetrapolarSystem(OPTIMAL_SL).errorFactor();
@@ -26,9 +28,10 @@ final class RelativeTetrapolarSystem {
   }
 
   @Nonnegative
-  double hMaxFactor() {
-    double result = x * StrictMath.pow(1.0 - x, 2.0) * 1.20206 / 32.0;
-    return StrictMath.pow(result, 1.0 / 3.0);
+  double hMaxFactor(double k) {
+    double zeta3 = Math.abs(Layers.sum(n -> pow(k, n) / pow(n, 3.0)));
+    double result = x * pow(1.0 - x, 2.0) * zeta3 / 32.0;
+    return pow(result, 1.0 / 3.0);
   }
 
   @Override

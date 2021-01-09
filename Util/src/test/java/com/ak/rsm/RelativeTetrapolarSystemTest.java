@@ -67,7 +67,7 @@ public class RelativeTetrapolarSystemTest {
 
   @Test
   public void testHMaxFactor() {
-    PointValuePair pair = Simplex.optimizeCMAES(x -> 1.0 - new RelativeTetrapolarSystem(x[0]).hMaxFactor(),
+    PointValuePair pair = Simplex.optimize("", x -> 1.0 - new RelativeTetrapolarSystem(x[0]).hMaxFactor(1.0),
         new SimpleBounds(new double[] {0.0}, new double[] {1.0}), new double[] {0.5}, new double[] {0.01}
     );
     Assert.assertEquals(pair.getPoint()[0], 1.0 / 3.0, 0.001, Arrays.toString(pair.getPoint()));

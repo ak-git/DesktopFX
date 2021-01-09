@@ -41,8 +41,8 @@ public final class TetrapolarSystem {
   }
 
   @Nonnegative
-  double getHMax(@Nonnegative double absErrorL) {
-    return relativeSystem.hMaxFactor() * Math.max(sPU, lCC) / StrictMath.pow(getLRelativeError(absErrorL), 1.0 / 3.0);
+  double getHMax(double k, @Nonnegative double absErrorL) {
+    return relativeSystem.hMaxFactor(k) * Math.max(sPU, lCC) / StrictMath.pow(getLRelativeError(absErrorL), 1.0 / 3.0);
   }
 
   @Nonnegative

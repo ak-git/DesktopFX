@@ -1,8 +1,16 @@
 package com.ak.rsm;
 
+import java.util.function.DoubleUnaryOperator;
+import java.util.stream.DoubleStream;
+
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import com.ak.inverse.Inequality;
+import com.ak.math.Simplex;
 import com.ak.util.Metrics;
+import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -59,7 +67,7 @@ public class InexactTetrapolarSystemTest {
 
   @Test(dataProvider = "inexact-tetrapolar-systems")
   public void testGetHMax(@Nonnull InexactTetrapolarSystem system) {
-    Assert.assertEquals(system.getHMax(), 0.177 * 0.03 / StrictMath.pow(0.1 / 30.0, 1.0 / 3.0), 1.0e-3, system.toString());
+    Assert.assertEquals(system.getHMax(1.0), 0.177 * 0.03 / StrictMath.pow(0.1 / 30.0, 1.0 / 3.0), 1.0e-3, system.toString());
   }
 
   @Test
@@ -70,5 +78,33 @@ public class InexactTetrapolarSystemTest {
     Assert.assertEquals(initial.shift(-1, -1).toRelative().errorFactor(), 5.99, 0.01);
     Assert.assertEquals(initial.shift(1, 1).toRelative().errorFactor(), 6.01, 0.01);
     Assert.assertEquals(initial.shift(-1, 1).toRelative().errorFactor(), 6.03, 0.01);
+  }
+
+  @DataProvider(name = "rho1rho2")
+  public static Object[][] rho1rho2() {
+    return new Object[][] {
+        {1.0, Double.POSITIVE_INFINITY},
+        {10.0, Double.POSITIVE_INFINITY},
+        {0.1, Double.POSITIVE_INFINITY},
+        {1.0, 2.0},
+        {2.0, 1.0},
+    };
+  }
+
+  @Test(dataProvider = "rho1rho2")
+  public void testHMax(@Nonnegative double rho1, @Nonnegative double rho2) {
+    InexactTetrapolarSystem system = InexactTetrapolarSystem.milli(0.1).s(10.0).l(30.0);
+    DoubleUnaryOperator rhoAtHMax = sign -> (1.0 + Math.signum(sign) * system.getApparentRelativeError()) * rho1;
+    PointValuePair optimize = Simplex.optimize("", hToL -> {
+          double rhoApparent = system.toExact().getApparent(Resistance2Layer.layer2(rho1, rho2, hToL[0] * system.toExact().getL()).applyAsDouble(system));
+          return DoubleStream.of(-1.0, 1.0)
+              .map(sign -> Inequality.absolute().applyAsDouble(rhoAtHMax.applyAsDouble(sign), rhoApparent))
+              .min().orElseThrow();
+        },
+        new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / system.toExact().getL()}),
+        new double[] {0.0}, new double[] {0.01}
+    );
+    Assert.assertEquals(optimize.getPoint()[0], system.getHMax(Layers.getK12(rho1, rho2)) / system.toExact().getL(),
+        0.1, system.toString());
   }
 }

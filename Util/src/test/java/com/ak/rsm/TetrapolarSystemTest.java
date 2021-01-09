@@ -70,6 +70,6 @@ public class TetrapolarSystemTest {
   @Test
   public void testHMax() {
     TetrapolarSystem system = TetrapolarSystem.si().s(1.0 / 3.0).l(1.0);
-    Assert.assertEquals(system.getHMax(1.0), 0.177, 0.001, system.toString());
+    Assert.assertEquals(system.getHMax(1.0, 1.0), 0.177, 0.001, system.toString());
   }
 }
