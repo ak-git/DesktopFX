@@ -66,4 +66,10 @@ public class TetrapolarSystemTest {
                                       @Nonnegative double specificResistance) {
     Assert.assertEquals(system.getApparent(resistance), specificResistance, 1.0e-6);
   }
+
+  @Test
+  public void testHMax() {
+    TetrapolarSystem system = TetrapolarSystem.si().s(1.0 / 3.0).l(1.0);
+    Assert.assertEquals(system.getHMax(1.0), 0.177, 0.001, system.toString());
+  }
 }

@@ -36,8 +36,8 @@ public class InexactTetrapolarSystemTest {
   @DataProvider(name = "inexact-tetrapolar-systems")
   public static Object[][] inexactTetrapolarSystems() {
     return new Object[][] {
-        {InexactTetrapolarSystem.milli(0.1).s(10.0).l(20.0)},
-        {InexactTetrapolarSystem.milli(0.1).s(20.0).l(10.0)},
+        {InexactTetrapolarSystem.milli(0.1).s(10.0).l(30.0)},
+        {InexactTetrapolarSystem.milli(0.1).s(30.0).l(10.0)},
     };
   }
 
@@ -54,7 +54,12 @@ public class InexactTetrapolarSystemTest {
 
   @Test(dataProvider = "inexact-tetrapolar-systems")
   public void testGetDeltaApparent(@Nonnull InexactTetrapolarSystem system) {
-    Assert.assertEquals(system.getDeltaApparent(), 6.0 * 0.1 / 20.0, 1.0e-6, system.toString());
+    Assert.assertEquals(system.getApparentRelativeError(), 6.0 * 0.1 / 30.0, 1.0e-6, system.toString());
+  }
+
+  @Test(dataProvider = "inexact-tetrapolar-systems")
+  public void testGetHMax(@Nonnull InexactTetrapolarSystem system) {
+    Assert.assertEquals(system.getHMax(), 0.177 * 0.03 / StrictMath.pow(0.1 / 30.0, 1.0 / 3.0), 1.0e-3, system.toString());
   }
 
   @Test

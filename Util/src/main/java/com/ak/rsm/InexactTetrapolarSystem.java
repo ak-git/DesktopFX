@@ -24,6 +24,11 @@ final class InexactTetrapolarSystem {
   }
 
   @Nonnegative
+  double getHMax() {
+    return system.getHMax(absError);
+  }
+
+  @Nonnegative
   double getAbsError() {
     return absError;
   }
@@ -44,8 +49,8 @@ final class InexactTetrapolarSystem {
    * @return relative apparent error
    */
   @Nonnegative
-  double getDeltaApparent() {
-    return system.toRelative().errorFactor() * system.getRelativeErrorL(absError);
+  double getApparentRelativeError() {
+    return system.toRelative().errorFactor() * system.getLRelativeError(absError);
   }
 
   @Override

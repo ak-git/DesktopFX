@@ -1,7 +1,12 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
+
 import javax.annotation.Nonnegative;
 
+import com.ak.math.Simplex;
+import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -58,5 +63,13 @@ public class RelativeTetrapolarSystemTest {
   public void testErrorFactor(@Nonnegative double sToL) {
     RelativeTetrapolarSystem system = new RelativeTetrapolarSystem(sToL);
     Assert.assertEquals(system.errorFactor(), 6.0, 0.1);
+  }
+
+  @Test
+  public void testHMaxFactor() {
+    PointValuePair pair = Simplex.optimizeCMAES(x -> 1.0 - new RelativeTetrapolarSystem(x[0]).hMaxFactor(),
+        new SimpleBounds(new double[] {0.0}, new double[] {1.0}), new double[] {0.5}, new double[] {0.01}
+    );
+    Assert.assertEquals(pair.getPoint()[0], 1.0 / 3.0, 0.001, Arrays.toString(pair.getPoint()));
   }
 }

@@ -68,6 +68,6 @@ public class Resistance1LayerTest {
 
   @Test(dataProvider = "tetrapolarSystemsWithErrors")
   public void testElectrodeSystemRelativeError2(@Nonnull InexactTetrapolarSystem system, @Nonnegative double expectedError) {
-    Assert.assertEquals(system.getDeltaApparent(), expectedError, 1.0e-6, system.toString());
+    Assert.assertEquals(system.getApparentRelativeError(), expectedError, 1.0e-6, system.toString());
   }
 }

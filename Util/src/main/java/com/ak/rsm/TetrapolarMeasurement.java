@@ -17,7 +17,7 @@ import com.ak.util.Strings;
 @ThreadSafe
 final class TetrapolarMeasurement implements Measurement {
   private static final ToDoubleFunction<Measurement> POW2 =
-      m -> StrictMath.pow(m.getResistivity() * m.getSystem().getDeltaApparent(), 2.0);
+      m -> StrictMath.pow(m.getResistivity() * m.getSystem().getApparentRelativeError(), 2.0);
   @Nonnull
   private final InexactTetrapolarSystem system;
   @Nonnegative
@@ -53,15 +53,15 @@ final class TetrapolarMeasurement implements Measurement {
     double dL = Math.min(system.getAbsError(), that.getSystem().getAbsError());
     double lCC = RelativeTetrapolarSystem.MIN_ERROR_FACTOR * dL / relErrorRho;
     double sPU = RelativeTetrapolarSystem.OPTIMAL_SL * lCC;
-    InexactTetrapolarSystem system = InexactTetrapolarSystem.si(dL).s(sPU).l(lCC);
-    return new TetrapolarMeasurement(system, Resistance1Layer.layer1(avg).applyAsDouble(system));
+    InexactTetrapolarSystem merged = InexactTetrapolarSystem.si(dL).s(sPU).l(lCC);
+    return new TetrapolarMeasurement(merged, Resistance1Layer.layer1(avg).applyAsDouble(merged));
   }
 
   @Override
   public String toString() {
     return "%s; %s (%.0f %%)".formatted(String.valueOf(system),
-        Strings.rho(resistivity, system.getDeltaApparent()),
-        Metrics.toPercents(system.getDeltaApparent())
+        Strings.rho(resistivity, system.getApparentRelativeError()),
+        Metrics.toPercents(system.getApparentRelativeError())
     );
   }
 

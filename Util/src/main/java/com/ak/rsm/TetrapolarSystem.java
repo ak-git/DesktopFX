@@ -25,6 +25,7 @@ public final class TetrapolarSystem {
     relativeSystem = new RelativeTetrapolarSystem(sPU / lCC);
   }
 
+  @Nonnull
   TetrapolarSystem shift(double deltaS, double deltaL) {
     return new TetrapolarSystem(sPU + deltaS, lCC + deltaL);
   }
@@ -35,14 +36,21 @@ public final class TetrapolarSystem {
   }
 
   @Nonnegative
-  double getRelativeErrorL(@Nonnegative double absErrorL) {
+  double getLRelativeError(@Nonnegative double absErrorL) {
     return absErrorL / Math.max(sPU, lCC);
   }
 
+  @Nonnegative
+  double getHMax(@Nonnegative double absErrorL) {
+    return relativeSystem.hMaxFactor() * Math.max(sPU, lCC) / StrictMath.pow(getLRelativeError(absErrorL), 1.0 / 3.0);
+  }
+
+  @Nonnegative
   double factor(double sign) {
     return Math.abs(lCC + Math.signum(sign) * sPU) / 2.0;
   }
 
+  @Nonnegative
   double getL() {
     return lCC;
   }
