@@ -29,6 +29,11 @@ final class InexactTetrapolarSystem {
   }
 
   @Nonnegative
+  double getHMin(double k) {
+    return system.getHMin(k, absError);
+  }
+
+  @Nonnegative
   double getAbsError() {
     return absError;
   }

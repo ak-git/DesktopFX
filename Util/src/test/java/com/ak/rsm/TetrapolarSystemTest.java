@@ -3,6 +3,7 @@ package com.ak.rsm;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -71,5 +72,12 @@ public class TetrapolarSystemTest {
   public void testHMax() {
     TetrapolarSystem system = TetrapolarSystem.si().s(1.0 / 3.0).l(1.0);
     Assert.assertEquals(system.getHMax(1.0, 1.0), 0.177, 0.001, system.toString());
+  }
+
+  @Test
+  public void testHMin() {
+    TetrapolarSystem system = TetrapolarSystem.milli().s(10.0).l(30.0);
+    Assert.assertEquals(system.getHMin(1.0 / 3.0, Metrics.fromMilli(0.1)) / Metrics.fromMilli(30.0),
+        0.02, 0.001, system.toString());
   }
 }

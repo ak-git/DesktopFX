@@ -46,6 +46,11 @@ public final class TetrapolarSystem {
   }
 
   @Nonnegative
+  double getHMin(double k, @Nonnegative double absErrorL) {
+    return Math.max(sPU, lCC) * Math.sqrt(getLRelativeError(absErrorL)) * relativeSystem.hMinFactor(k);
+  }
+
+  @Nonnegative
   double factor(double sign) {
     return Math.abs(lCC + Math.signum(sign) * sPU) / 2.0;
   }

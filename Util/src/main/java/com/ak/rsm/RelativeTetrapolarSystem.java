@@ -34,6 +34,14 @@ final class RelativeTetrapolarSystem {
     return pow(result, 1.0 / 3.0);
   }
 
+  @Nonnegative
+  double hMinFactor(double k) {
+    double result = (1.0 + k) / (1.0 - k);
+    result *= (1.0 - x) * pow(1.0 + x, 3.0) / (x * (pow(x, 2.0) + 3.0));
+    result /= Math.abs(Layers.sum(n -> pow(k, n) * pow(n, 2.0)));
+    return Math.sqrt(result) / 4.0;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

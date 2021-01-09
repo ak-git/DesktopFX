@@ -72,4 +72,12 @@ public class RelativeTetrapolarSystemTest {
     );
     Assert.assertEquals(pair.getPoint()[0], 1.0 / 3.0, 0.001, Arrays.toString(pair.getPoint()));
   }
+
+  @Test
+  public void testHMinFactor() {
+    PointValuePair pair = Simplex.optimize("", ks -> new RelativeTetrapolarSystem(ks[1]).hMinFactor(ks[0]),
+        new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {0.0, 0.9}), new double[] {-0.5, 0.1}, new double[] {0.01, 0.1}
+    );
+    Assert.assertEquals(pair.getPoint()[0], -1.0, 0.001, Arrays.toString(pair.getPoint()));
+  }
 }

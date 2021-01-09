@@ -107,4 +107,23 @@ public class InexactTetrapolarSystemTest {
     Assert.assertEquals(optimize.getPoint()[0], system.getHMax(Layers.getK12(rho1, rho2)) / system.toExact().getL(),
         0.1, system.toString());
   }
+
+  @Test(dataProvider = "rho1rho2")
+  public void testHMin(@Nonnegative double rho1, @Nonnegative double rho2) {
+    if (Double.isFinite(rho2)) {
+      InexactTetrapolarSystem system = InexactTetrapolarSystem.milli(0.1).s(10.0).l(30.0);
+      DoubleUnaryOperator rhoAtHMin = sign -> (1.0 + Math.signum(sign) * system.getApparentRelativeError()) * rho2;
+      PointValuePair optimize = Simplex.optimize("", hToL -> {
+            double rhoApparent = system.toExact().getApparent(Resistance2Layer.layer2(rho1, rho2, hToL[0] * system.toExact().getL()).applyAsDouble(system));
+            return DoubleStream.of(-1.0, 1.0)
+                .map(sign -> Inequality.absolute().applyAsDouble(rhoAtHMin.applyAsDouble(sign), rhoApparent))
+                .min().orElseThrow();
+          },
+          new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / system.toExact().getL()}),
+          new double[] {0.0}, new double[] {0.01}
+      );
+      Assert.assertEquals(optimize.getPoint()[0], system.getHMin(Layers.getK12(rho1, rho2)) / system.toExact().getL(),
+          0.01, system.toString());
+    }
+  }
 }
