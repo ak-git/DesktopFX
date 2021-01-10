@@ -23,7 +23,8 @@ public class Layer1MediumTest {
     return new Object[][] {
         {new Layer1Medium.Layer1MediumBuilder(
             measurements.stream()
-                .map(m -> new TetrapolarPrediction(m, avg.getResistivity())).collect(Collectors.toList()))
+                .map(m -> new TetrapolarPrediction(m, RelativeMediumLayers.SINGLE_LAYER, avg.getResistivity()))
+                .collect(Collectors.toList()))
             .layer1(avg).build(), 0.065},
     };
   }

@@ -21,7 +21,7 @@ public class PredictionTest {
     Assert.assertEquals(measurement2.merge(measurement1), measurement1.merge(measurement2));
     Assert.assertEquals(measurement1.merge(measurement2).hashCode(), measurement2.merge(measurement1).hashCode());
 
-    Prediction prediction = new TetrapolarPrediction(measurement1.merge(measurement2), 10.0);
+    Prediction prediction = new TetrapolarPrediction(measurement1.merge(measurement2), RelativeMediumLayers.SINGLE_LAYER, 10.0);
     Assert.assertEquals(prediction.getResistivityPredicted(), 10.0, 0.001, prediction.toString());
     Assert.assertEquals(prediction.getInequalityL2(), 9.0 / 10.0, 0.001, prediction.toString());
   }
@@ -36,7 +36,8 @@ public class PredictionTest {
 
     Assert.assertThrows(UnsupportedOperationException.class, () -> measurement.merge(measurement));
 
-    Prediction prediction = new TetrapolarDerivativePrediction(measurement, 10.0, 1.0);
+    Prediction prediction = new TetrapolarDerivativePrediction(measurement,
+        new TetrapolarPrediction(measurement, RelativeMediumLayers.SINGLE_LAYER, 10.0), 1.0);
     Assert.assertEquals(prediction.getResistivityPredicted(), 1.0, 0.001, prediction.toString());
     Assert.assertEquals(prediction.getInequalityL2(), 999.0, 0.001, prediction.toString());
   }

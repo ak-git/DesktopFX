@@ -23,12 +23,6 @@ final class TetrapolarPrediction implements Prediction {
   @Nonnull
   private final double[] horizons;
 
-  TetrapolarPrediction(@Nonnull Measurement measurement, @Nonnegative double resistivityPredicted) {
-    this.measurement = measurement;
-    this.resistivityPredicted = resistivityPredicted;
-    horizons = EMPTY;
-  }
-
   @ParametersAreNonnullByDefault
   TetrapolarPrediction(Measurement measurement, RelativeMediumLayers layers, @Nonnegative double rho1) {
     double resistivityPredicted = rho1;
