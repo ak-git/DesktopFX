@@ -94,7 +94,12 @@ public class FileReadingServiceTest {
         publisher.close();
       }
     });
-    testSubscriber.assertValueCount(bytes / frameLength);
+    if (forceClose) {
+      testSubscriber.assertValueCount(getBlockSize(fileToRead) / frameLength);
+    }
+    else {
+      testSubscriber.assertValueCount(bytes / frameLength);
+    }
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
@@ -112,13 +117,7 @@ public class FileReadingServiceTest {
 
       @Override
       public void accept(LogRecord logRecord) {
-        int blockSize = 0;
-        try {
-          blockSize = (int) Files.getFileStore(fileToRead).getBlockSize();
-        }
-        catch (IOException e) {
-          Assert.fail(fileToRead.toString(), e);
-        }
+        int blockSize = getBlockSize(fileToRead);
         int bytesCount = (bytes - packCounter * blockSize) >= blockSize ? blockSize : bytes % blockSize;
         Assert.assertTrue(logRecord.getMessage().endsWith(bytesCount + " bytes IN from hardware"), logRecord.getMessage());
         packCounter++;
@@ -239,6 +238,18 @@ public class FileReadingServiceTest {
     catch (Exception ex) {
       Assert.fail();
     }
+  }
+
+  @Nonnegative
+  private static int getBlockSize(@Nonnull Path fileToRead) {
+    int blockSize = 0;
+    try {
+      blockSize = (int) Files.getFileStore(fileToRead).getBlockSize();
+    }
+    catch (IOException e) {
+      Assert.fail(fileToRead.toString(), e);
+    }
+    return blockSize;
   }
 
   private enum TestVariable implements Variable<TestVariable> {
