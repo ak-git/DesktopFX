@@ -44,7 +44,6 @@ import org.testng.annotations.Test;
 
 public class FileReadingServiceTest {
   private static final Logger LOGGER = Logger.getLogger(FileReadingService.class.getName());
-  private static final int CAPACITY_4K = 4096;
 
   @BeforeSuite
   @AfterSuite
@@ -113,7 +112,14 @@ public class FileReadingServiceTest {
 
       @Override
       public void accept(LogRecord logRecord) {
-        int bytesCount = (bytes - packCounter * CAPACITY_4K) >= CAPACITY_4K ? CAPACITY_4K : bytes % CAPACITY_4K;
+        int blockSize = 0;
+        try {
+          blockSize = (int) Files.getFileStore(fileToRead).getBlockSize();
+        }
+        catch (IOException e) {
+          Assert.fail(fileToRead.toString(), e);
+        }
+        int bytesCount = (bytes - packCounter * blockSize) >= blockSize ? blockSize : bytes % blockSize;
         Assert.assertTrue(logRecord.getMessage().endsWith(bytesCount + " bytes IN from hardware"), logRecord.getMessage());
         packCounter++;
       }
