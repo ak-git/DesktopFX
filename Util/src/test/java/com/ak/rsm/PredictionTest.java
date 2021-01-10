@@ -22,6 +22,7 @@ public class PredictionTest {
     Assert.assertEquals(measurement1.merge(measurement2).hashCode(), measurement2.merge(measurement1).hashCode());
 
     Prediction prediction = new TetrapolarPrediction(measurement1.merge(measurement2), RelativeMediumLayers.SINGLE_LAYER, 10.0);
+    Assert.assertEquals(prediction.getHorizons(), new double[] {Double.POSITIVE_INFINITY, 0.0}, prediction.toString());
     Assert.assertEquals(prediction.getResistivityPredicted(), 10.0, 0.001, prediction.toString());
     Assert.assertEquals(prediction.getInequalityL2(), 9.0 / 10.0, 0.001, prediction.toString());
   }
@@ -38,6 +39,7 @@ public class PredictionTest {
 
     Prediction prediction = new TetrapolarDerivativePrediction(measurement,
         new TetrapolarPrediction(measurement, RelativeMediumLayers.SINGLE_LAYER, 10.0), 1.0);
+    Assert.assertEquals(prediction.getHorizons(), new double[] {Double.POSITIVE_INFINITY, 0.0}, prediction.toString());
     Assert.assertEquals(prediction.getResistivityPredicted(), 1.0, 0.001, prediction.toString());
     Assert.assertEquals(prediction.getInequalityL2(), 999.0, 0.001, prediction.toString());
   }
