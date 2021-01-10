@@ -27,17 +27,17 @@ final class TetrapolarPrediction implements Prediction {
 
   @ParametersAreNonnullByDefault
   TetrapolarPrediction(Measurement measurement, RelativeMediumLayers layers, @Nonnegative double rho1) {
-    double resistivityPredicted = rho1;
+    double predicted = rho1;
 
     InexactTetrapolarSystem inexact = measurement.getSystem();
     if (Double.compare(layers.k12(), 0.0) != 0) {
       TetrapolarSystem system = inexact.toExact();
-      resistivityPredicted = new NormalizedApparent2Rho(system.toRelative())
+      predicted = new NormalizedApparent2Rho(system.toRelative())
           .value(layers.k12(), layers.h() / system.getL()) * rho1;
     }
 
     this.measurement = measurement;
-    this.resistivityPredicted = resistivityPredicted;
+    resistivityPredicted = predicted;
     horizons = new double[] {inexact.getHMin(layers.k12()), inexact.getHMax(layers.k12())};
   }
 
