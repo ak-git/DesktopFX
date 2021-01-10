@@ -15,6 +15,7 @@ import com.ak.math.Simplex;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 
+import static com.ak.rsm.RelativeMediumLayers.SINGLE_LAYER;
 import static java.lang.StrictMath.exp;
 
 enum Inverse {
@@ -39,7 +40,7 @@ enum Inverse {
       double rho1 = getRho1(measurements, kh);
       return new Layer2Medium.Layer2MediumBuilder(
           measurements.stream()
-              .map(m -> TetrapolarPrediction.of(m, kh, rho1))
+              .map(m -> new TetrapolarPrediction(m, kh, rho1))
               .collect(Collectors.toUnmodifiableList()))
           .layer1(rho1, kh.h()).layer2(rho1 / Layers.getRho1ToRho2(kh.k12())).build();
     }
@@ -47,7 +48,7 @@ enum Inverse {
       Measurement average = measurements.stream().reduce(Measurement::merge).orElseThrow();
       return new Layer1Medium.Layer1MediumBuilder(
           measurements.stream()
-              .map(m -> new TetrapolarPrediction(m, average.getResistivity()))
+              .map(m -> new TetrapolarPrediction(m, SINGLE_LAYER, average.getResistivity()))
               .collect(Collectors.toUnmodifiableList()))
           .layer1(average).build();
     }

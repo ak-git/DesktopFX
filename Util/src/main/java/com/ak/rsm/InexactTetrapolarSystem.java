@@ -60,7 +60,7 @@ final class InexactTetrapolarSystem {
 
   @Override
   public String toString() {
-    return "%s / %.1f %s; max = %.0f %s".formatted(
+    return "%s / %.1f %s; \u2195 %.0f %s".formatted(
         system.toString(), Metrics.toMilli(absError), MetricPrefix.MILLI(METRE),
         Metrics.toMilli(getHMax(1.0)), MetricPrefix.MILLI(METRE));
   }
