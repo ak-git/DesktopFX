@@ -20,11 +20,9 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import tec.uom.se.unit.MetricPrefix;
+import tec.uom.se.unit.Units;
 
-import static tec.uom.se.unit.Units.METRE;
-import static tec.uom.se.unit.Units.OHM;
-
-public class AperStage6Current1Variable7Test {
+public class AperStage3Current1NIBPVariableTest {
   @DataProvider(name = "variables")
   public static Object[][] variables() {
     return new Object[][] {
@@ -37,21 +35,18 @@ public class AperStage6Current1Variable7Test {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {24488, 88475, 1296}},
+            new int[] {55647, 301571, 1296}},
     };
   }
 
   @Test(dataProvider = "variables")
   public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
-    Converter<BufferFrame, AperStage6Current1Variable7> converter = LinkedConverter
+    Converter<BufferFrame, AperStage3Current1NIBPVariable> converter = LinkedConverter
         .of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
-        .chainInstance(AperStage3Variable.class)
-        .chainInstance(AperStage4Current1Variable.class)
-        .chainInstance(AperStage5Current1Variable.class)
-        .chainInstance(AperStage6Current1Variable7.class);
+        .chainInstance(AperStage3Current1NIBPVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 500 - 1; i++) {
+    for (int i = 0; i < 400 - 1; i++) {
       long count = converter.apply(bufferFrame).peek(ints -> {
         if (!processed.get()) {
           Assert.assertEquals(ints, outputInts, "expected = %s, actual = %s".formatted(Arrays.toString(outputInts), Arrays.toString(ints)));
@@ -59,29 +54,29 @@ public class AperStage6Current1Variable7Test {
         }
       }).count();
       if (processed.get()) {
-        Assert.assertEquals(count, 4);
+        Assert.assertEquals(count, 1);
         break;
       }
     }
     Assert.assertTrue(processed.get(), "Data are not converted!");
-    Assert.assertEquals(converter.getFrequency(), 1000, 0.1);
+    Assert.assertEquals(converter.getFrequency(), 125, 0.1);
   }
 
   @Test
   public void testGetInputVariables() {
-    int[] actual = EnumSet.allOf(AperStage6Current1Variable7.class).stream().mapToInt(value -> value.getInputVariables().size()).toArray();
-    int[] expected = {1, 1, 1};
-    Assert.assertEquals(actual, expected, Arrays.toString(actual));
+    Assert.assertTrue(EnumSet.allOf(AperStage3Current1NIBPVariable.class).stream().mapToInt(value -> value.getInputVariables().size())
+        .allMatch(value -> value == 1));
   }
 
   @Test
   public void testGetUnit() {
-    List<? extends Unit<?>> actual = EnumSet.allOf(AperStage6Current1Variable7.class).stream()
+    List<? extends Unit<?>> actual = EnumSet.allOf(AperStage3Current1NIBPVariable.class).stream()
         .map(DependentVariable::getUnit).collect(Collectors.toList());
     Assert.assertEquals(actual,
         Arrays.asList(
-            MetricPrefix.MILLI(OHM).multiply(MetricPrefix.DECI(METRE)), MetricPrefix.MILLI(OHM).multiply(MetricPrefix.DECI(METRE)),
-            OHM
+            MetricPrefix.MILLI(Units.OHM),
+            MetricPrefix.MILLI(Units.OHM),
+            Units.OHM
         ),
         actual.toString()
     );
@@ -89,7 +84,7 @@ public class AperStage6Current1Variable7Test {
 
   @Test
   public void testOptions() {
-    List<Variable.Option> actual = EnumSet.allOf(AperStage6Current1Variable7.class).stream()
+    List<Variable.Option> actual = EnumSet.allOf(AperStage3Current1NIBPVariable.class).stream()
         .flatMap(v -> v.options().stream()).collect(Collectors.toList());
     Assert.assertEquals(actual,
         Arrays.asList(
@@ -102,14 +97,14 @@ public class AperStage6Current1Variable7Test {
 
   @Test
   public void testFilterDelay() {
-    Assert.assertTrue(EnumSet.allOf(AperStage6Current1Variable7.class).stream().mapToDouble(value -> value.filter().getDelay())
-        .allMatch(value -> Double.compare(value, 0.0) == 0)
+    Assert.assertTrue(EnumSet.allOf(AperStage3Current1NIBPVariable.class).stream().mapToDouble(value -> value.filter().getDelay())
+        .allMatch(value -> Double.compare(value, 7.875) == 0)
     );
   }
 
   @Test
   public void testInputVariablesClass() {
-    Assert.assertTrue(EnumSet.allOf(AperStage6Current1Variable7.class).stream().map(AperStage6Current1Variable7::getInputVariablesClass)
-        .allMatch(AperStage5Current1Variable.class::equals));
+    Assert.assertTrue(EnumSet.allOf(AperStage3Current1NIBPVariable.class).stream().map(AperStage3Current1NIBPVariable::getInputVariablesClass)
+        .allMatch(AperStage2UnitsVariable.class::equals));
   }
 }

@@ -33,7 +33,7 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
   }
 
   @Override
-  public TetrapolarSystem getSystem() {
+  public InexactTetrapolarSystem getSystem() {
     return measurement.getSystem();
   }
 
@@ -44,7 +44,7 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  static Collection<DerivativeMeasurement> of(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh) {
+  static Collection<DerivativeMeasurement> of(InexactTetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh) {
     return IntStream.range(0, systems.length)
         .mapToObj(i -> new TetrapolarDerivativeMeasurement(
             new TetrapolarMeasurement(systems[i], rOhmsBefore[i]),

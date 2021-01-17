@@ -50,7 +50,7 @@ public enum LogUtils {
   public static void logBytes(@Nonnull Logger logger, @Nonnull Level level, @Nonnull Object aThis, @Nonnull ByteBuffer buffer,
                               @Nonnull String message) {
     if (logger.isLoggable(level)) {
-      logger.log(level, "#%x %s %s".formatted(aThis.hashCode(), toString(aThis.getClass(), buffer), message));
+      logger.log(level, "#%08x %s %s".formatted(aThis.hashCode(), toString(aThis.getClass(), buffer), message));
     }
   }
 }

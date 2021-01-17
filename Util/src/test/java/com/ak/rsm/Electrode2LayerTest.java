@@ -16,8 +16,6 @@ import com.ak.inverse.Inequality;
 import com.ak.util.LineFileBuilder;
 import org.testng.annotations.Test;
 
-import static tec.uom.se.unit.Units.METRE;
-
 public class Electrode2LayerTest {
   @Test(enabled = false)
   public void test() {
@@ -56,9 +54,9 @@ public class Electrode2LayerTest {
                                                   @Nonnull Function<Collection<DerivativeMeasurement>, RelativeMediumLayers> inverse) {
     final double L = 1.0;
     final double absErrorL = 1.0E-6 * L;
-    TetrapolarSystem[] systems = {
-        new TetrapolarSystem(L * sToL[0], L * sToL[1], METRE),
-        new TetrapolarSystem(L * sToL[1], L, METRE),
+    InexactTetrapolarSystem[] systems = {
+        InexactTetrapolarSystem.si(absErrorL).s(L * sToL[0]).l(L * sToL[1]),
+        InexactTetrapolarSystem.si(absErrorL).s(L * sToL[1]).l(L),
     };
 
     return IntStream.of(2, 5)
@@ -68,8 +66,8 @@ public class Electrode2LayerTest {
           int signS2 = (n & 4) == 0 ? 1 : -1;
 
           TetrapolarSystem[] systemsError = {
-              systems[0].newWithError(absErrorL, signS1, signL),
-              systems[1].newWithError(absErrorL, signL, signS2)
+              systems[0].shift(signS1, signL),
+              systems[1].shift(signL, signS2)
           };
 
           Collection<DerivativeMeasurement> measurements = IntStream.range(0, systems.length)
@@ -77,17 +75,17 @@ public class Electrode2LayerTest {
                   new DerivativeMeasurement() {
                     @Override
                     public double getDerivativeResistivity() {
-                      return getSystem().getApparent(new NormalizedDerivativeR2ByH(systemsError[i]).value(k, hToL));
+                      return getSystem().toExact().getApparent(new NormalizedDerivativeR2ByH(systemsError[i]).value(k, hToL));
                     }
 
                     @Override
                     public double getResistivity() {
-                      return getSystem().getApparent(new NormalizedResistance2Layer(systemsError[i]).applyAsDouble(k, hToL));
+                      return getSystem().toExact().getApparent(new NormalizedResistance2Layer(systemsError[i]).applyAsDouble(k, hToL));
                     }
 
                     @Nonnull
                     @Override
-                    public TetrapolarSystem getSystem() {
+                    public InexactTetrapolarSystem getSystem() {
                       return systems[i];
                     }
                   })

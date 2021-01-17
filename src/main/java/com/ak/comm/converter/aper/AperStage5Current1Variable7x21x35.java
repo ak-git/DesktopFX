@@ -18,17 +18,17 @@ import static tec.uom.se.unit.Units.OHM;
 /**
  * Electrode systems: [7 x 21 mm] and [21 x 35 mm]
  */
-public enum AperStage6Current1Variable7 implements DependentVariable<AperStage5Current1Variable, AperStage6Current1Variable7> {
+public enum AperStage5Current1Variable7x21x35 implements DependentVariable<AperStage4Current1Variable, AperStage5Current1Variable7x21x35> {
   APPARENT_RHO_07_21_CHANNEL(7.0, 7.0 * 3.0) {
     @Override
-    public List<AperStage5Current1Variable> getInputVariables() {
-      return Collections.singletonList(AperStage5Current1Variable.R1);
+    public List<AperStage4Current1Variable> getInputVariables() {
+      return Collections.singletonList(AperStage4Current1Variable.R1);
     }
   },
   APPARENT_RHO_21_35_CHANNEL(7.0 * 3.0, 7.0 * 5.0) {
     @Override
-    public List<AperStage5Current1Variable> getInputVariables() {
-      return Collections.singletonList(AperStage5Current1Variable.R2);
+    public List<AperStage4Current1Variable> getInputVariables() {
+      return Collections.singletonList(AperStage4Current1Variable.R2);
     }
   },
   CCR(0.0, 0.0) {
@@ -45,13 +45,13 @@ public enum AperStage6Current1Variable7 implements DependentVariable<AperStage5C
 
   private final TetrapolarSystem system;
 
-  AperStage6Current1Variable7(@Nonnegative double smm, @Nonnegative double lmm) {
-    system = new TetrapolarSystem(smm, lmm, MetricPrefix.MILLI(METRE));
+  AperStage5Current1Variable7x21x35(@Nonnegative double smm, @Nonnegative double lmm) {
+    system = TetrapolarSystem.milli().s(smm).l(lmm);
   }
 
   @Override
-  public final Class<AperStage5Current1Variable> getInputVariablesClass() {
-    return AperStage5Current1Variable.class;
+  public final Class<AperStage4Current1Variable> getInputVariablesClass() {
+    return AperStage4Current1Variable.class;
   }
 
   @Override
@@ -61,6 +61,6 @@ public enum AperStage6Current1Variable7 implements DependentVariable<AperStage5C
 
   @Override
   public DigitalFilter filter() {
-    return FilterBuilder.of().operator(() -> rMilli -> (int) Math.round(system.getApparent(rMilli * 10.0))).build();
+    return FilterBuilder.of().operator(() -> rMilli -> (int) Math.round(system.getApparent(rMilli) * 10.0)).build();
   }
 }

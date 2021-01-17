@@ -5,8 +5,6 @@ import java.util.List;
 
 import com.ak.comm.converter.DependentVariable;
 import com.ak.digitalfilter.DigitalFilter;
-import com.ak.digitalfilter.FilterBuilder;
-import com.ak.numbers.aper.AperRheoCoefficients;
 
 public enum AperStage3Current2NIBPVariable implements DependentVariable<AperStage2UnitsVariable, AperStage3Current2NIBPVariable> {
   R1, R2,
@@ -24,9 +22,6 @@ public enum AperStage3Current2NIBPVariable implements DependentVariable<AperStag
 
   @Override
   public final DigitalFilter filter() {
-    return FilterBuilder.of()
-        .decimate(AperRheoCoefficients.F_1000_32_187, 4)
-        .decimate(AperRheoCoefficients.F_250_32_62, 2)
-        .build();
+    return AperStage3Current1NIBPVariable.CCR.filter();
   }
 }

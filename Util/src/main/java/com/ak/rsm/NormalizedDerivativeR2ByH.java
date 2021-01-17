@@ -9,7 +9,7 @@ final class NormalizedDerivativeR2ByH extends AbstractApparent2Rho {
   }
 
   @Override
-  double value(double k, @Nonnegative double h) {
-    return super.value(k, h) / Math.PI;
+  double value(double k, @Nonnegative double hToL) {
+    return super.value(k, hToL) / Math.PI;
   }
 }

@@ -10,13 +10,16 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static com.ak.rsm.InexactTetrapolarSystem.systems4;
+
 public class Layer2MediumTest {
   @DataProvider(name = "layer2Medium")
   public static Object[][] layer2Medium() {
     return new Object[][] {
         {new Layer2Medium.Layer2MediumBuilder(
-            TetrapolarMeasurement.of(LayersProvider.systems4(7.0), new double[] {1.0, 2.0, 3.0, 4.0}).stream()
-                .map(m -> new TetrapolarPrediction(m, 2.001)).collect(Collectors.toList()))
+            TetrapolarMeasurement.of(systems4(0.1, 7.0), new double[] {1.0, 2.0, 3.0, 4.0}).stream()
+                .map(m -> new TetrapolarPrediction(m, RelativeMediumLayers.SINGLE_LAYER, 2.001))
+                .collect(Collectors.toList()))
             .layer1(2.0012, Metrics.fromMilli(5.0)).layer2(11.0).build(),
             new double[] {2.001, 11.0, Metrics.fromMilli(5.0)}},
     };
