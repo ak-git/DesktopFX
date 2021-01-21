@@ -71,6 +71,7 @@ public class ConverterApp<T, R, V extends Enum<V> & Variable<V>> implements Auto
             collector.accept(Arrays.stream(ints).mapToObj(Integer::toString).collect(Collectors.joining(Strings.TAB))));
         buffer.clear();
       }
+      Logger.getLogger(getClass().getName()).info(() -> "Converted %s".formatted(path));
     }
     catch (IOException e) {
       Logger.getLogger(getClass().getName()).log(Level.INFO, e.getMessage(), e);
