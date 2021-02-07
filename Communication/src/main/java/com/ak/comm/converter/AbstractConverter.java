@@ -1,6 +1,5 @@
 package com.ak.comm.converter;
 
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -51,7 +50,7 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
 
   @Override
   public final List<V> variables() {
-    return Collections.unmodifiableList(variables);
+    return variables;
   }
 
   @Nonnegative
