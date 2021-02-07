@@ -27,6 +27,9 @@ public class PureLogicBytesInterceptorTest {
         "  STEP+ 00320  \r\n".getBytes(StandardCharsets.UTF_8),
         new int[] {300}, true);
     testResponse(
+        new byte[] {83, 84, 69, 80, 43, 32, 48, 48, 51, 50, 48, 32, 32, 13, 10},
+        new int[] {300}, true);
+    testResponse(
         "STEP+ 00016  \r\nSTEP- 00016  \r\n".getBytes(StandardCharsets.UTF_8),
         new int[] {15, -15}, true);
     testResponse(

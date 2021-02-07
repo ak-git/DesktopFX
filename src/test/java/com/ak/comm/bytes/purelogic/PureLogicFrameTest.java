@@ -13,10 +13,10 @@ public class PureLogicFrameTest {
   @DataProvider(name = "requests")
   public static Object[][] requests() {
     return new Object[][] {
-        {PureLogicFrame.StepCommand.MICRON_015.action(true), "STEP -00016\n"},
-        {PureLogicFrame.StepCommand.MICRON_015.action(false), "STEP +00016\n"},
-        {PureLogicFrame.StepCommand.MICRON_150.action(true), "STEP -00160\n"},
-        {PureLogicFrame.StepCommand.MICRON_150.action(false), "STEP +00160\n"},
+        {PureLogicFrame.StepCommand.MICRON_015.action(true), "STEP -00016\r\n"},
+        {PureLogicFrame.StepCommand.MICRON_015.action(false), "STEP +00016\r\n"},
+        {PureLogicFrame.StepCommand.MICRON_150.action(true), "STEP -00160\r\n"},
+        {PureLogicFrame.StepCommand.MICRON_150.action(false), "STEP +00160\r\n"},
     };
   }
 
