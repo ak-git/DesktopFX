@@ -18,4 +18,4 @@ logging:
         # debug / FINER - protocol low-level lexemes, (com.ak.comm.interceptor)
         # trace / FINEST - pure bytes, (IN from hardware, com.ak.comm.core)
         # ALL
-        comm: info
+        comm: trace

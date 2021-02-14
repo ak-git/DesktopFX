@@ -5,18 +5,23 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import javax.annotation.Nonnull;
+import javax.inject.Named;
 
 import com.ak.comm.bytes.purelogic.PureLogicFrame;
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.util.Strings;
+import org.springframework.context.annotation.Profile;
 
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.FRAME_LEN;
 
+@Named
+@Profile("purelogic")
 public final class PureLogicBytesInterceptor extends AbstractBytesInterceptor<PureLogicFrame, PureLogicFrame> {
   private final StringBuilder frame = new StringBuilder(FRAME_LEN);
 
   public PureLogicBytesInterceptor() {
-    super("PureLogic", BytesInterceptor.BaudRate.BR_115200, PureLogicFrame.StepCommand.MICRON_015.action(false), FRAME_LEN);
+    super("PureLogic", BytesInterceptor.BaudRate.BR_115200, null, FRAME_LEN);
   }
 
   @Nonnull
@@ -35,7 +40,7 @@ public final class PureLogicBytesInterceptor extends AbstractBytesInterceptor<Pu
         else {
           logSkippedBytes(true);
           responses.add(pureLogicFrame);
-          frame.delete(0, frame.length());
+          frame.delete(0, frame.indexOf(Strings.NEW_LINE) + 1);
         }
       }
     }

@@ -3,12 +3,16 @@ package com.ak.comm.converter.purelogic;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
+import javax.inject.Named;
 
 import com.ak.comm.bytes.purelogic.PureLogicFrame;
 import com.ak.comm.converter.AbstractConverter;
+import org.springframework.context.annotation.Profile;
 
+@Named
+@Profile("purelogic")
 public final class PureLogicConverter extends AbstractConverter<PureLogicFrame, PureLogicVariable> {
-  public static final int FREQUENCY = 1;
+  public static final double FREQUENCY = 1;
 
   public PureLogicConverter() {
     super(PureLogicVariable.class, FREQUENCY);

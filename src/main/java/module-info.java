@@ -42,12 +42,13 @@ module com.ak.fx.desktop {
   exports com.ak.comm.converter.nmis to spring.beans;
   exports com.ak.comm.converter.suntech to org.testng;
   exports com.ak.comm.bytes.suntech to org.testng;
-  exports com.ak.comm.interceptor.purelogic to org.testng;
-  exports com.ak.comm.converter.purelogic to org.testng;
+  exports com.ak.comm.interceptor.purelogic to spring.beans, org.testng;
+  exports com.ak.comm.converter.purelogic to spring.beans, org.testng;
   exports com.ak.comm.bytes.purelogic to org.testng;
 
   exports com.ak.fx.desktop.nmisr to spring.beans;
   exports com.ak.fx.desktop.suntech to spring.beans;
+  exports com.ak.fx.desktop.purelogic to spring.beans;
 
   exports com.ak.comm.bytes.nmis;
   exports com.ak.comm.bytes.rsce;
