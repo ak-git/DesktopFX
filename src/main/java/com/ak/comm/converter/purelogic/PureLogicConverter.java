@@ -1,6 +1,5 @@
 package com.ak.comm.converter.purelogic;
 
-import java.util.Arrays;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -23,9 +22,7 @@ public final class PureLogicConverter extends AbstractConverter<PureLogicFrame, 
 
   @Override
   protected Stream<int[]> innerApply(@Nonnull PureLogicFrame response) {
-    position += response.getMicrons();
-    int[] data = new int[DATA_FREQUENCY];
-    Arrays.fill(data, position);
-    return Stream.of(data);
+    position -= response.getMicrons();
+    return Stream.generate(() -> new int[] {position}).limit(DATA_FREQUENCY);
   }
 }

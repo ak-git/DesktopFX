@@ -1,5 +1,6 @@
 package com.ak.fx.desktop.purelogic;
 
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
@@ -23,17 +24,16 @@ import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
 @Named
 @Profile("purelogic")
 public final class PureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
-  private static final PureLogicFrame[] PINGS = {
-      PureLogicFrame.StepCommand.MICRON_150.action(true), PureLogicFrame.StepCommand.MICRON_150.action(false),
-      PureLogicFrame.StepCommand.MICRON_015.action(true), PureLogicFrame.StepCommand.MICRON_015.action(false)
-  };
+  private static final PureLogicFrame.StepCommand[] PINGS = EnumSet.allOf(PureLogicFrame.StepCommand.class)
+      .toArray(PureLogicFrame.StepCommand[]::new);
 
   @Inject
   public PureLogicViewController(@Nonnull Provider<BytesInterceptor<PureLogicFrame, PureLogicFrame>> interceptorProvider,
                                  @Nonnull Provider<Converter<PureLogicFrame, PureLogicVariable>> converterProvider) {
     super(interceptorProvider, converterProvider, new Supplier<>() {
       private final Random random = new Random();
-      private final Queue<PureLogicFrame> frames = new LinkedList<>();
+      private final Queue<PureLogicFrame.StepCommand> frames = new LinkedList<>();
+      private boolean up = true;
 
       @Override
       public PureLogicFrame get() {
@@ -43,7 +43,12 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
                   .mapToObj(value -> PINGS[value]).collect(Collectors.toList())
           );
         }
-        return frames.poll();
+        PureLogicFrame action = frames.element().action(up);
+        if (!up) {
+          frames.remove();
+        }
+        up = !up;
+        return action;
       }
     }, FREQUENCY);
   }

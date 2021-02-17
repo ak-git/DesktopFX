@@ -21,8 +21,8 @@ public class PureLogicConverterTest {
 
   @Test
   public void testDataResponse() {
-    testConverter("STEP+ 00320  \r\n", 300);
-    testConverter("STEP- 00016  \r\n", -15);
+    testConverter("STEP+ 00320  \r\n", -300);
+    testConverter("STEP- 00016  \r\n", 15);
   }
 
   @Test
@@ -41,7 +41,7 @@ public class PureLogicConverterTest {
           stream.forEach(ints -> Assert.assertEquals(ints, new int[] {expected}));
         },
         logRecord -> {
-          Assert.assertTrue(logRecord.getMessage().contains(Integer.toString(expected)));
+          Assert.assertTrue(logRecord.getMessage().contains(Integer.toString(expected)), logRecord.getMessage());
           for (PureLogicVariable v : PureLogicVariable.values()) {
             Assert.assertTrue(logRecord.getMessage().contains(Variables.toString(v)), logRecord.getMessage());
           }
