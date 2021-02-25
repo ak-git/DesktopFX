@@ -24,7 +24,7 @@ import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
 @Named
 @Profile("purelogic")
 public final class PureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
-  private static final PureLogicFrame.StepCommand[] PINGS = EnumSet.allOf(PureLogicFrame.StepCommand.class)
+  private static final PureLogicFrame.StepCommand[] PINGS = EnumSet.complementOf(EnumSet.of(PureLogicFrame.StepCommand.MICRON_450))
       .toArray(PureLogicFrame.StepCommand[]::new);
 
   @Inject
@@ -52,5 +52,15 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
         return action;
       }
     }, FREQUENCY);
+  }
+
+  @Override
+  public void up() {
+    service().write(PureLogicFrame.StepCommand.MICRON_450.action(true));
+  }
+
+  @Override
+  public void down() {
+    service().write(PureLogicFrame.StepCommand.MICRON_450.action(false));
   }
 }
