@@ -2,7 +2,7 @@ package com.ak.fx.desktop.nmisr;
 
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -23,8 +23,9 @@ public final class NmisRsceViewController extends AbstractScheduledViewControlle
       NmisRequest.Sequence.ROTATE_100, NmisRequest.Sequence.ROTATE_60, NmisRequest.Sequence.ROTATE_30};
 
   @Inject
-  public NmisRsceViewController(@Nonnull Provider<BytesInterceptor<NmisRequest, RsceCommandFrame>> interceptorProvider,
-                                @Nonnull Provider<Converter<RsceCommandFrame, RsceVariable>> converterProvider) {
+  @ParametersAreNonnullByDefault
+  public NmisRsceViewController(Provider<BytesInterceptor<NmisRequest, RsceCommandFrame>> interceptorProvider,
+                                Provider<Converter<RsceCommandFrame, RsceVariable>> converterProvider) {
     super(interceptorProvider, converterProvider, new Supplier<>() {
       private int pingIndex = -1;
 

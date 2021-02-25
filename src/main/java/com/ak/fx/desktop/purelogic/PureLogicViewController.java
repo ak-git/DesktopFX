@@ -7,7 +7,7 @@ import java.util.Random;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -28,8 +28,9 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
       .toArray(PureLogicFrame.StepCommand[]::new);
 
   @Inject
-  public PureLogicViewController(@Nonnull Provider<BytesInterceptor<PureLogicFrame, PureLogicFrame>> interceptorProvider,
-                                 @Nonnull Provider<Converter<PureLogicFrame, PureLogicVariable>> converterProvider) {
+  @ParametersAreNonnullByDefault
+  public PureLogicViewController(Provider<BytesInterceptor<PureLogicFrame, PureLogicFrame>> interceptorProvider,
+                                 Provider<Converter<PureLogicFrame, PureLogicVariable>> converterProvider) {
     super(interceptorProvider, converterProvider, new Supplier<>() {
       private final Random random = new Random();
       private final Queue<PureLogicFrame.StepCommand> frames = new LinkedList<>();

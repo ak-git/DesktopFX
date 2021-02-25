@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Provider;
 
 import com.ak.comm.GroupService;
@@ -17,9 +17,10 @@ import com.ak.comm.interceptor.BytesInterceptor;
 public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & Variable<V>> extends AbstractViewController<T, R, V> {
   private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
-  protected AbstractScheduledViewController(@Nonnull Provider<BytesInterceptor<T, R>> interceptorProvider,
-                                            @Nonnull Provider<Converter<R, V>> converterProvider,
-                                            @Nonnull Supplier<T> writeRequest,
+  @ParametersAreNonnullByDefault
+  protected AbstractScheduledViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
+                                            Provider<Converter<R, V>> converterProvider,
+                                            Supplier<T> writeRequest,
                                             @Nonnegative double frequencyHz) {
     super(new GroupService<>(interceptorProvider::get, converterProvider::get));
     executorService.scheduleAtFixedRate(() -> service().write(writeRequest.get()),

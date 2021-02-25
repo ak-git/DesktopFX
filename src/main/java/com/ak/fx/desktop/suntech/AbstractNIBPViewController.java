@@ -2,6 +2,7 @@ package com.ak.fx.desktop.suntech;
 
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
@@ -17,8 +18,9 @@ import static com.ak.comm.converter.suntech.NIBPConverter.FREQUENCY;
 
 abstract class AbstractNIBPViewController extends AbstractScheduledViewController<NIBPRequest, NIBPResponse, NIBPVariable> {
   @Inject
-  AbstractNIBPViewController(@Nonnull Provider<BytesInterceptor<NIBPRequest, NIBPResponse>> interceptorProvider,
-                             @Nonnull Provider<Converter<NIBPResponse, NIBPVariable>> converterProvider) {
+  @ParametersAreNonnullByDefault
+  AbstractNIBPViewController(Provider<BytesInterceptor<NIBPRequest, NIBPResponse>> interceptorProvider,
+                             Provider<Converter<NIBPResponse, NIBPVariable>> converterProvider) {
     super(interceptorProvider, converterProvider, () -> GET_CUFF_PRESSURE, FREQUENCY);
   }
 
