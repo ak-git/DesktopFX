@@ -4,7 +4,6 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -26,32 +25,15 @@ import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
 public final class PureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
   private static final PureLogicFrame.StepCommand[] PINGS = EnumSet.complementOf(EnumSet.of(PureLogicFrame.StepCommand.MICRON_450))
       .toArray(PureLogicFrame.StepCommand[]::new);
+  private final Random random = new Random();
+  private final Queue<PureLogicFrame.StepCommand> frames = new LinkedList<>();
+  private boolean up = true;
 
   @Inject
   @ParametersAreNonnullByDefault
   public PureLogicViewController(Provider<BytesInterceptor<PureLogicFrame, PureLogicFrame>> interceptorProvider,
                                  Provider<Converter<PureLogicFrame, PureLogicVariable>> converterProvider) {
-    super(interceptorProvider, converterProvider, new Supplier<>() {
-      private final Random random = new Random();
-      private final Queue<PureLogicFrame.StepCommand> frames = new LinkedList<>();
-      private boolean up = true;
-
-      @Override
-      public PureLogicFrame get() {
-        if (frames.isEmpty()) {
-          frames.addAll(
-              random.ints(0, PINGS.length).distinct().limit(PINGS.length)
-                  .mapToObj(value -> PINGS[value]).collect(Collectors.toList())
-          );
-        }
-        PureLogicFrame action = frames.element().action(up);
-        if (!up) {
-          frames.remove();
-        }
-        up = !up;
-        return action;
-      }
-    }, FREQUENCY);
+    super(interceptorProvider, converterProvider, FREQUENCY);
   }
 
   @Override
@@ -62,5 +44,21 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
   @Override
   public void down() {
     service().write(PureLogicFrame.StepCommand.MICRON_450.action(false));
+  }
+
+  @Override
+  public PureLogicFrame get() {
+    if (frames.isEmpty()) {
+      frames.addAll(
+          random.ints(0, PINGS.length).distinct().limit(PINGS.length)
+              .mapToObj(value -> PINGS[value]).collect(Collectors.toList())
+      );
+    }
+    PureLogicFrame action = frames.element().action(up);
+    if (!up) {
+      frames.remove();
+    }
+    up = !up;
+    return action;
   }
 }

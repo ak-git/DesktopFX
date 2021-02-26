@@ -21,7 +21,7 @@ abstract class AbstractNIBPViewController extends AbstractScheduledViewControlle
   @ParametersAreNonnullByDefault
   AbstractNIBPViewController(Provider<BytesInterceptor<NIBPRequest, NIBPResponse>> interceptorProvider,
                              Provider<Converter<NIBPResponse, NIBPVariable>> converterProvider) {
-    super(interceptorProvider, converterProvider, () -> GET_CUFF_PRESSURE, FREQUENCY);
+    super(interceptorProvider, converterProvider, FREQUENCY);
   }
 
   @Override
@@ -31,5 +31,10 @@ abstract class AbstractNIBPViewController extends AbstractScheduledViewControlle
     if (ints[NIBPVariable.IS_COMPLETED.ordinal()] == 1) {
       service().write(NIBPRequest.GET_BP_DATA);
     }
+  }
+
+  @Override
+  public final NIBPRequest get() {
+    return GET_CUFF_PRESSURE;
   }
 }

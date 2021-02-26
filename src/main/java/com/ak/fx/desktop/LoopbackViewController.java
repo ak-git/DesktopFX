@@ -20,7 +20,11 @@ public final class LoopbackViewController extends AbstractScheduledViewControlle
   @ParametersAreNonnullByDefault
   public LoopbackViewController(Provider<BytesInterceptor<BufferFrame, BufferFrame>> interceptorProvider,
                                 Provider<Converter<BufferFrame, ADCVariable>> converterProvider) {
-    super(interceptorProvider, converterProvider,
-        () -> new BufferFrame(new byte[] {(byte) 0xAA, 0, 0, 1, 0}, ByteOrder.LITTLE_ENDIAN), 5.0);
+    super(interceptorProvider, converterProvider, 5.0);
+  }
+
+  @Override
+  public BufferFrame get() {
+    return new BufferFrame(new byte[] {(byte) 0xAA, 0, 0, 1, 0}, ByteOrder.LITTLE_ENDIAN);
   }
 }

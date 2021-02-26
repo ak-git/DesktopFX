@@ -14,16 +14,16 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.interceptor.BytesInterceptor;
 
-public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & Variable<V>> extends AbstractViewController<T, R, V> {
+public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & Variable<V>>
+    extends AbstractViewController<T, R, V> implements Supplier<T> {
   private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
   @ParametersAreNonnullByDefault
   protected AbstractScheduledViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
                                             Provider<Converter<R, V>> converterProvider,
-                                            Supplier<T> writeRequest,
                                             @Nonnegative double frequencyHz) {
     super(new GroupService<>(interceptorProvider::get, converterProvider::get));
-    executorService.scheduleAtFixedRate(() -> service().write(writeRequest.get()),
+    executorService.scheduleAtFixedRate(() -> service().write(get()),
         0, Math.round(1000 / frequencyHz), TimeUnit.MILLISECONDS);
 
   }
