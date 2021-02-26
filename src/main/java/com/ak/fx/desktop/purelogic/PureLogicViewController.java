@@ -4,6 +4,7 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -28,6 +29,7 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
   private final Random random = new Random();
   private final Queue<PureLogicFrame.StepCommand> frames = new LinkedList<>();
   private boolean up = true;
+  private final AtomicInteger handDirection = new AtomicInteger();
 
   @Inject
   @ParametersAreNonnullByDefault
@@ -38,16 +40,26 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
 
   @Override
   public void up() {
-    service().write(PureLogicFrame.StepCommand.MICRON_450.action(true));
+    handDirection.incrementAndGet();
   }
 
   @Override
   public void down() {
-    service().write(PureLogicFrame.StepCommand.MICRON_450.action(false));
+    handDirection.decrementAndGet();
   }
 
   @Override
   public PureLogicFrame get() {
+    if (up) {
+      int hand = handDirection.get();
+      if (hand > 0) {
+        return PureLogicFrame.StepCommand.MICRON_450.action(handDirection.getAndDecrement() > 0);
+      }
+      else if (hand < 0) {
+        return PureLogicFrame.StepCommand.MICRON_450.action(handDirection.getAndIncrement() > 0);
+      }
+    }
+
     if (frames.isEmpty()) {
       frames.addAll(
           random.ints(0, PINGS.length).distinct().limit(PINGS.length)
