@@ -1,6 +1,7 @@
 package com.ak.util;
 
 import java.util.Arrays;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
@@ -45,7 +46,11 @@ public enum Strings {
   }
 
   public static String rho(@Nonnegative double rho, @Nonnegative double relError) {
-    return "%s = %.3f %s %.3f %s".formatted(RHO, rho, PLUS_MINUS, relError * rho, OHM_METRE);
+    int afterZero = (int) Math.abs(Math.min(Math.floor(StrictMath.log10(relError * rho)), 0));
+    return new StringJoiner(SPACE)
+        .add(RHO).add("=").add("%%.%df".formatted(afterZero).formatted(rho))
+        .add(PLUS_MINUS).add("%%.%df".formatted(afterZero + 1).formatted(relError * rho))
+        .add(OHM_METRE).toString();
   }
 
   public static String rho1(@Nonnegative double rho1) {

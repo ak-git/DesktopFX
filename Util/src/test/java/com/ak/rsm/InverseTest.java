@@ -135,6 +135,13 @@ public class InverseTest {
             Metrics.fromMilli(0.12),
             new double[] {5.302, -0.094, Metrics.fromMilli(7.89)}
         },
+        {
+            systems2(0.1, 7.0),
+            new double[] {136.5, 207.05},
+            new double[] {136.65, 207.4},
+            Metrics.fromMilli(0.15),
+            new double[] {6.332, -0.205, Metrics.fromMilli(10.43)}
+        },
     };
   }
 

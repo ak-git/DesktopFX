@@ -18,7 +18,9 @@ final class TetrapolarDerivativePrediction implements Prediction {
                                  @Nonnegative Prediction prediction, double diffResistivityPredicted) {
     this.prediction = prediction;
     this.diffResistivityPredicted = diffResistivityPredicted;
-    l2Diff = Inequality.proportional().applyAsDouble(measurement.getDerivativeResistivity(), diffResistivityPredicted);
+    l2Diff = StrictMath.hypot(
+        Inequality.proportional().applyAsDouble(measurement.getDerivativeResistivity(), diffResistivityPredicted),
+        prediction.getInequalityL2());
   }
 
   @Override
