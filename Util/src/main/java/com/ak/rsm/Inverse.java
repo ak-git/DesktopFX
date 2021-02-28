@@ -57,12 +57,17 @@ enum Inverse {
   @Nonnull
   public static MediumLayers inverseDynamic(@Nonnull Collection<DerivativeMeasurement> measurements) {
     if (measurements.size() > 1) {
-      RelativeMediumLayers initial = newLayerFunction(measurements).apply(
-          new double[] {
-              measurements.stream().allMatch(d -> d.getDerivativeResistivity() > 0) ? -1.0 : 1.0,
-              getMaxHToL(measurements) / getBaseL(measurements)
-          }
-      );
+      RelativeMediumLayers initial = new RelativeMediumLayers() {
+        @Override
+        public double k12() {
+          return measurements.stream().allMatch(d -> d.getDerivativeResistivity() > 0) ? -1.0 : 1.0;
+        }
+
+        @Override
+        public double h() {
+          return getMaxHToL(measurements);
+        }
+      };
       RelativeMediumLayers kh = inverseDynamicRelative(measurements, initial);
       double rho1 = getRho1(measurements, kh);
       return new Layer2Medium.Layer2MediumBuilder(
@@ -146,11 +151,6 @@ enum Inverse {
         .mapToDouble(measurement -> measurement.getSystem().getHMax(1.0)).min().orElseThrow() / getBaseL(measurements);
   }
 
-  @Nonnegative
-  private static double getBaseL(@Nonnull Collection<? extends Measurement> measurements) {
-    return measurements.parallelStream().mapToDouble(m -> m.getSystem().toExact().getL()).max().orElseThrow();
-  }
-
   @Nonnull
   private static Function<double[], RelativeMediumLayers> newLayerFunction(@Nonnull Collection<? extends Measurement> measurements) {
     return kw -> new RelativeMediumLayers() {
@@ -166,5 +166,10 @@ enum Inverse {
         return kw[1] * baseL;
       }
     };
+  }
+
+  @Nonnegative
+  private static double getBaseL(@Nonnull Collection<? extends Measurement> measurements) {
+    return measurements.parallelStream().mapToDouble(m -> m.getSystem().toExact().getL()).max().orElseThrow();
   }
 }
