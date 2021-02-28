@@ -1,5 +1,6 @@
 package com.ak.fx.desktop.purelogic;
 
+import java.security.SecureRandom;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -31,7 +32,7 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
           PureLogicFrame.StepCommand.MICRON_150
       )
       .toArray(PureLogicFrame.StepCommand[]::new);
-  private final Random random = new Random();
+  private final Random random = new SecureRandom();
   private final Queue<PureLogicFrame.StepCommand> frames = new LinkedList<>();
   private boolean up = true;
   private final AtomicInteger handDirection = new AtomicInteger();
