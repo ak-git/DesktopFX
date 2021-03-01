@@ -21,8 +21,8 @@ import org.testng.annotations.Test;
 
 public class Electrode2LayerTest {
   private static final Logger LOGGER = Logger.getLogger(Electrode2LayerTest.class.getName());
-  private static final double OVERALL_DIM = 1.0;
-  private static final double ABS_ERROR_OVERALL_DIM = 1.0E-6 * OVERALL_DIM;
+  private static final double OVERALL_DIM = 0.001;
+  private static final double ABS_ERROR_OVERALL_DIM = 1.0E-3 * OVERALL_DIM;
 
   @Test(enabled = false)
   public void test() {
@@ -69,9 +69,12 @@ public class Electrode2LayerTest {
                 return k;
               }
 
+              /**
+               * @return h / L
+               */
               @Override
               public double h() {
-                return hToDim * OVERALL_DIM;
+                return hToDim * Arrays.stream(sToL).reduce(1.0, Math::max);
               }
             })
     );
@@ -80,10 +83,11 @@ public class Electrode2LayerTest {
   @ParametersAreNonnullByDefault
   private static RelativeMediumLayers errorsScale(double[] sToL, double k, @Nonnegative double hToDim,
                                                   Function<Collection<DerivativeMeasurement>, RelativeMediumLayers> inverse) {
-    double maxRelDim = Arrays.stream(sToL).reduce(OVERALL_DIM, Math::max);
-    double s1 = sToL[0] / maxRelDim;
-    double s2 = sToL[1] / maxRelDim;
-    double L = 1.0 / maxRelDim;
+    double maxRelDim = Arrays.stream(sToL).reduce(1.0, Math::max);
+    DoubleUnaryOperator converterToAbs = rel -> OVERALL_DIM * rel / maxRelDim;
+    double s1 = converterToAbs.applyAsDouble(sToL[0]);
+    double s2 = converterToAbs.applyAsDouble(sToL[1]);
+    double L = converterToAbs.applyAsDouble(1.0);
 
     InexactTetrapolarSystem[] systems = {
         InexactTetrapolarSystem.si(ABS_ERROR_OVERALL_DIM).s(s1).l(L),
@@ -141,7 +145,7 @@ public class Electrode2LayerTest {
           }
         })
         .peek(errorFactors -> logger.config(
-            () -> "s/L = [%.3f; %.3f]; k = %.3f; h/D = %.3f; \u03b4k/\u03b4D = %.3f; \u0394h/D/\u03b4D = %.3f"
+            () -> "s/L = [%.3f; %.3f]; k = %.3f; h/D = %.3f; \u03b4k = %.3f; \u0394(h/D) = %.3f"
                 .formatted(s1 / L, s2 / L, k, hToDim, errorFactors.k12(), errorFactors.h()))
         )
         .parallel()
@@ -162,7 +166,7 @@ public class Electrode2LayerTest {
 
                   @Override
                   public String toString() {
-                    return "s/L = [%.3f; %.3f]; k = %.3f; h/D = %.3f; \u03b4k/\u03b4D = %.3f; \u0394h/D/\u03b4D = %.3f"
+                    return "s/L = [%.3f; %.3f]; k = %.3f; h/D = %.3f; \u03b4k = %.3f; \u0394(h/D) = %.3f"
                         .formatted(s1 / L, s2 / L, k, hToDim, k12(), h());
                   }
                 }
