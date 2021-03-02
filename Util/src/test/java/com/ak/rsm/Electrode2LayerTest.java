@@ -31,8 +31,7 @@ public class Electrode2LayerTest {
         .yRange(-1.0, 1.0, 0.1)
         .add("k1.txt", RelativeMediumLayers::k12)
         .add("h1.txt", RelativeMediumLayers::h)
-        .generate((hToL, k) -> errorsScale(new double[] {0.2, 0.6}, k, hToL)
-        );
+        .generate((hToL, k) -> errorsScale(new double[] {0.2, 0.6}, k, hToL));
 
     LineFileBuilder.<RelativeMediumLayers>of("%.3f %.3f %.6f")
         .xStream(() -> DoubleStream.of(0.5))
@@ -46,11 +45,11 @@ public class Electrode2LayerTest {
 
   @Test(enabled = false)
   public void testSingle() {
-    double maxH = TetrapolarSystem.si().s(OVERALL_DIM / 3.0).l(OVERALL_DIM).getHMax(1.0, ABS_ERROR_OVERALL_DIM);
-    LOGGER.info(() -> errorsScale(new double[] {0.2, 0.6}, -1.0, maxH).toString());
-    LOGGER.info(() -> errorsScale(new double[] {0.2, 0.6}, -0.5, maxH).toString());
-    LOGGER.info(() -> errorsScale(new double[] {0.2, 0.6}, 0.5, maxH).toString());
-    LOGGER.info(() -> errorsScale(new double[] {0.2, 0.6}, 1.0, maxH).toString());
+    double hToDimMax = TetrapolarSystem.si().s(OVERALL_DIM / 3.0).l(OVERALL_DIM).getHMax(1.0, ABS_ERROR_OVERALL_DIM) / OVERALL_DIM;
+    LOGGER.info(() -> errorsScale(new double[] {0.2, 0.6}, -1.0, hToDimMax).toString());
+    LOGGER.info(() -> errorsScale(new double[] {0.2, 0.6}, -0.5, hToDimMax).toString());
+    LOGGER.info(() -> errorsScale(new double[] {0.2, 0.6}, 0.5, hToDimMax).toString());
+    LOGGER.info(() -> errorsScale(new double[] {0.2, 0.6}, 1.0, hToDimMax).toString());
   }
 
   @Test(enabled = false)
