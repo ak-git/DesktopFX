@@ -24,7 +24,7 @@ final class Resistance2Layer implements TrivariateFunction {
   }
 
   @Nonnull
-  static ToDoubleFunction<InexactTetrapolarSystem> layer2(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double h) {
-    return system -> new Resistance2Layer(system.toExact()).value(rho1, rho2, h);
+  static ToDoubleFunction<TetrapolarSystem> layer2(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double h) {
+    return system -> new Resistance2Layer(system).value(rho1, rho2, h);
   }
 }
