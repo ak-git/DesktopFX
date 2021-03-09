@@ -21,8 +21,8 @@ public class PureLogicConverterTest {
 
   @Test
   public void testDataResponse() {
-    testConverter("STEP+ 00320  \r\n", -300);
-    testConverter("STEP- 00016  \r\n", 15);
+    testConverter("STEP+ 00320  \r\n", 300);
+    testConverter("STEP- 00016  \r\n", -15);
   }
 
   @Test

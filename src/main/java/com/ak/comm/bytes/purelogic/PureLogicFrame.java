@@ -30,10 +30,7 @@ public final class PureLogicFrame extends BufferFrame {
    */
   public enum StepCommand {
     MICRON_015(16),
-    MICRON_030(MICRON_015.steps * 2),
-    MICRON_060(MICRON_015.steps * 4),
     MICRON_090(MICRON_015.steps * 6),
-    MICRON_120(MICRON_015.steps * 8),
     MICRON_150(MICRON_015.steps * 10),
     MICRON_450(MICRON_150.steps * 3);
 
@@ -44,7 +41,7 @@ public final class PureLogicFrame extends BufferFrame {
     }
 
     public PureLogicFrame action(boolean up) {
-      int sign = up ? -1 : 1;
+      int sign = up ? 1 : -1;
       return new PureLogicFrame(steps * sign);
     }
   }

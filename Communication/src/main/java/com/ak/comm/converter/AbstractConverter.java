@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
@@ -68,7 +69,8 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
   }
 
   @Override
-  public final void refresh() {
+  @OverridingMethodsMustInvokeSuper
+  public void refresh() {
     digitalFilter.reset();
   }
 

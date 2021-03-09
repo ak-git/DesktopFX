@@ -22,7 +22,13 @@ public final class PureLogicConverter extends AbstractConverter<PureLogicFrame, 
 
   @Override
   protected Stream<int[]> innerApply(@Nonnull PureLogicFrame response) {
-    position -= response.getMicrons();
+    position += response.getMicrons();
     return Stream.generate(() -> new int[] {position}).limit(DATA_FREQUENCY);
+  }
+
+  @Override
+  public void refresh() {
+    position = 0;
+    super.refresh();
   }
 }

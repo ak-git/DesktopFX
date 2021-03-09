@@ -23,8 +23,8 @@ public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & 
                                             Provider<Converter<R, V>> converterProvider,
                                             @Nonnegative double frequencyHz) {
     super(new GroupService<>(interceptorProvider::get, converterProvider::get));
-    executorService.scheduleAtFixedRate(() -> service().write(get()),
-        0, Math.round(1000 / frequencyHz), TimeUnit.MILLISECONDS);
+    long delay = Math.round(1000 / frequencyHz);
+    executorService.scheduleAtFixedRate(() -> service().write(get()), delay, delay, TimeUnit.MILLISECONDS);
 
   }
 

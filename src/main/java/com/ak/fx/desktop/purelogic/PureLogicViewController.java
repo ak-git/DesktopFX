@@ -27,14 +27,13 @@ import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
 public final class PureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
   private static final PureLogicFrame.StepCommand[] PINGS = EnumSet
       .of(
-          PureLogicFrame.StepCommand.MICRON_030,
           PureLogicFrame.StepCommand.MICRON_090,
           PureLogicFrame.StepCommand.MICRON_150
       )
       .toArray(PureLogicFrame.StepCommand[]::new);
   private final Random random = new SecureRandom();
   private final Queue<PureLogicFrame.StepCommand> frames = new LinkedList<>();
-  private boolean up = true;
+  private boolean up;
   private final AtomicInteger handDirection = new AtomicInteger();
 
   @Inject
