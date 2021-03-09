@@ -12,6 +12,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
+import com.ak.util.Strings;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 
@@ -95,7 +96,7 @@ enum Inverse {
 
     double[] subLog = derivativeMeasurements.stream().mapToDouble(d -> d.getLogResistivity() - d.getDerivativeLogResistivity()).toArray();
     Function<double[], RelativeMediumLayers> layersFunction = newLayerFunction(derivativeMeasurements);
-    PointValuePair kwOptimal = Simplex.optimize("", kw -> {
+    PointValuePair kwOptimal = Simplex.optimize(Strings.EMPTY, kw -> {
           double[] subLogPredicted = derivativeMeasurements.stream()
               .map(Measurement::getSystem)
               .mapToDouble(s -> {
@@ -107,7 +108,7 @@ enum Inverse {
           return Inequality.absolute().applyAsDouble(subLog, subLogPredicted);
         },
         new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], initialRelative.h()}),
-        new double[] {initialRelative.k12(), initialRelative.h() / 10.0}, new double[] {0.01, initialRelative.h() / 100.0}
+        new double[] {initialRelative.k12(), initialRelative.h()}, new double[] {0.01, 0.01}
     );
     RelativeMediumLayers layers = layersFunction.apply(kwOptimal.getPoint());
     return new Layer2RelativeMedium(layers.k12(), layers.h());
@@ -153,9 +154,8 @@ enum Inverse {
 
   @Nonnull
   private static Function<double[], RelativeMediumLayers> newLayerFunction(@Nonnull Collection<? extends Measurement> measurements) {
+    double baseL = getBaseL(measurements);
     return kw -> new RelativeMediumLayers() {
-      private final double baseL = getBaseL(measurements);
-
       @Override
       public double k12() {
         return kw[0];
