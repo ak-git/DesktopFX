@@ -140,7 +140,7 @@ public class Electrode2LayerTest {
 
           @Override
           public double h() {
-            return Inequality.absolute().applyAsDouble(solution.h(), hToDim);
+            return Inequality.absolute().applyAsDouble(solution.h() / OVERALL_DIM, hToDim);
           }
         })
         .peek(errorFactors -> logger.config(
