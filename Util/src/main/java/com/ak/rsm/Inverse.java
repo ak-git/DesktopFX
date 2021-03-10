@@ -155,17 +155,7 @@ enum Inverse {
   @Nonnull
   private static Function<double[], RelativeMediumLayers> newLayerFunction(@Nonnull Collection<? extends Measurement> measurements) {
     double baseL = getBaseL(measurements);
-    return kw -> new RelativeMediumLayers() {
-      @Override
-      public double k12() {
-        return kw[0];
-      }
-
-      @Override
-      public double h() {
-        return kw[1] * baseL;
-      }
-    };
+    return kw -> new Layer2RelativeMedium(kw[0], kw[1] * baseL);
   }
 
   @Nonnegative

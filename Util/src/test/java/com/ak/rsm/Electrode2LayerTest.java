@@ -17,6 +17,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
 import com.ak.util.LineFileBuilder;
+import com.ak.util.Strings;
 import org.testng.annotations.Test;
 
 public class Electrode2LayerTest {
@@ -75,6 +76,11 @@ public class Electrode2LayerTest {
               public double h() {
                 return hToDim * Arrays.stream(sToL).reduce(1.0, Math::max);
               }
+
+              @Override
+              public String toString() {
+                return "k%s%s = %+.3f; h/L = %.3f".formatted(Strings.low(1), Strings.low(2), k12(), h());
+              }
             })
     );
   }
@@ -123,6 +129,11 @@ public class Electrode2LayerTest {
 
                     private double hToL() {
                       return hToDim * OVERALL_DIM / getSystem().toExact().getL();
+                    }
+
+                    @Override
+                    public String toString() {
+                      return "%s; h/L = %.3f; %s; %s".formatted(getSystem(), hToL(), Strings.rho(getResistivity()), Strings.dRhoByH(getDerivativeResistivity()));
                     }
                   })
               .collect(Collectors.toUnmodifiableList());
