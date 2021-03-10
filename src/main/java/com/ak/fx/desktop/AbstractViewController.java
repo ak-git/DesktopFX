@@ -93,7 +93,8 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
-  public final void onSubscribe(@Nonnull Flow.Subscription s) {
+  @OverridingMethodsMustInvokeSuper
+  public void onSubscribe(@Nonnull Flow.Subscription s) {
     if (subscription != null) {
       subscription.cancel();
     }

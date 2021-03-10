@@ -33,8 +33,9 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
       .toArray(PureLogicFrame.StepCommand[]::new);
   private final Random random = new SecureRandom();
   private final Queue<PureLogicFrame.StepCommand> frames = new LinkedList<>();
-  private boolean up;
   private final AtomicInteger handDirection = new AtomicInteger();
+  private boolean up = true;
+  private boolean isRefresh;
 
   @Inject
   @ParametersAreNonnullByDefault
@@ -55,6 +56,12 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
 
   @Override
   public PureLogicFrame get() {
+    if (isRefresh) {
+      isRefresh = false;
+      up = true;
+      frames.clear();
+    }
+
     if (up) {
       int hand = handDirection.get();
       if (hand > 0) {
@@ -77,5 +84,11 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
     }
     up = !up;
     return action;
+  }
+
+  @Override
+  public void refresh() {
+    isRefresh = true;
+    super.refresh();
   }
 }
