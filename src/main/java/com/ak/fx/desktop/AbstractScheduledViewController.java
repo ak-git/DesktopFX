@@ -33,7 +33,14 @@ public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & 
   @Override
   public final void onSubscribe(@Nonnull Flow.Subscription s) {
     super.onSubscribe(s);
-    executorService.scheduleAtFixedRate(() -> service().write(get()),
+    executorService.scheduleAtFixedRate(() -> {
+          try {
+            service().write(get());
+          }
+          catch (Exception e) {
+            onError(e);
+          }
+        },
         0, Math.round(1000 / frequencyHz), TimeUnit.MILLISECONDS);
   }
 
