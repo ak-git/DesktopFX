@@ -2,7 +2,6 @@ package com.ak.comm.converter;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -15,6 +14,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import com.ak.comm.logging.OutputBuilders;
 import com.ak.digitalfilter.DigitalFilter;
@@ -70,7 +70,7 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
 
   @Override
   public final List<V> variables() {
-    return Collections.unmodifiableList(variables);
+    return variables;
   }
 
   @Nonnegative
@@ -88,7 +88,8 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
   }
 
   @Override
-  public final void refresh() {
+  @OverridingMethodsMustInvokeSuper
+  public void refresh() {
     digitalFilter.reset();
     try {
       if (fileCollector != null) {
