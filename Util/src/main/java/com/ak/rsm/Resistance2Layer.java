@@ -1,5 +1,7 @@
 package com.ak.rsm;
 
+import java.util.function.ToDoubleFunction;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -19,5 +21,10 @@ final class Resistance2Layer implements TrivariateFunction {
   @Override
   public double value(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double h) {
     return rho1 * resistance.applyAsDouble(Layers.getK12(rho1, rho2), h);
+  }
+
+  @Nonnull
+  static ToDoubleFunction<TetrapolarSystem> layer2(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double h) {
+    return system -> new Resistance2Layer(system).value(rho1, rho2, h);
   }
 }

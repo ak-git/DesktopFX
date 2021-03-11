@@ -3,14 +3,29 @@ plugins {
     id 'java'
     id 'java-library'
     id 'idea'
-    id "org.sonarqube" version "3.0"
+    id "org.sonarqube" version "3.1.1"
     id 'jacoco'
 
     id "application"
     id 'org.openjfx.javafxplugin' version '0.0.9'
 
-    id 'org.springframework.boot' version '2.4.1'
-    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'org.springframework.boot' version '2.4.2'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id "com.github.spotbugs" version "4.6.0"
+}
+
+spotbugs {
+    reportLevel = 'high'
+}
+
+spotbugsMain {
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/main/spotbugs.html")
+            stylesheet = 'fancy-hist.xsl'
+        }
+    }
 }
 
 sonarqube {
@@ -29,7 +44,6 @@ jacoco {
 
 ext {
     testNG = 'org.testng:testng:7.3.0'
-    jsr305 = 'com.google.code.findbugs:jsr305:3.0.2'
     javax_inject = 'javax.inject:javax.inject:1'
     uom_se = 'tec.uom:uom-se:1.0.10'
     javax_json = 'org.glassfish:javax.json:1.1.4'
@@ -40,13 +54,13 @@ ext {
 
 wrapper {
     description 'Setup the Gradle wrapper'
-    gradleVersion = "6.7.1"
+    gradleVersion = "6.8"
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '2020.11.19'
+    version = '2021.01.17'
     apply plugin: 'idea'
     idea {
         module {
@@ -61,6 +75,7 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'org.javamodularity.moduleplugin'
+    apply plugin: 'jacoco'
 
     sourceCompatibility = javaVersion
     targetCompatibility = javaVersion
@@ -74,8 +89,13 @@ allprojects {
         jcenter()
     }
 
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+        }
+    }
+
     dependencies {
-        implementation jsr305
         implementation testNG
     }
 

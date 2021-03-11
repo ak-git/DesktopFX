@@ -46,7 +46,7 @@ public enum AperStage5Current1Variable7x21x35 implements DependentVariable<AperS
   private final TetrapolarSystem system;
 
   AperStage5Current1Variable7x21x35(@Nonnegative double smm, @Nonnegative double lmm) {
-    system = new TetrapolarSystem(smm, lmm, MetricPrefix.MILLI(METRE));
+    system = TetrapolarSystem.milli().s(smm).l(lmm);
   }
 
   @Override
@@ -61,6 +61,6 @@ public enum AperStage5Current1Variable7x21x35 implements DependentVariable<AperS
 
   @Override
   public DigitalFilter filter() {
-    return FilterBuilder.of().operator(() -> rMilli -> (int) Math.round(system.getApparent(rMilli * 10.0))).build();
+    return FilterBuilder.of().operator(() -> rMilli -> (int) Math.round(system.getApparent(rMilli) * 10.0)).build();
   }
 }

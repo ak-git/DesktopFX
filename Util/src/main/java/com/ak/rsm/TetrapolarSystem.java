@@ -1,36 +1,63 @@
 package com.ak.rsm;
 
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.function.DoubleUnaryOperator;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.measure.Unit;
-import javax.measure.quantity.Length;
 
 import com.ak.util.Metrics;
-import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.MetricPrefix;
 
 import static tec.uom.se.unit.Units.METRE;
 
 public final class TetrapolarSystem {
   @Nonnegative
-  private final double sPotentialUnitSI;
+  private final double sPU;
   @Nonnegative
-  private final double lCurrentCarryingSI;
+  private final double lCC;
+  @Nonnull
+  private final RelativeTetrapolarSystem relativeSystem;
 
-  public TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC, @Nonnull Unit<Length> unit) {
-    sPotentialUnitSI = toDouble(Math.min(sPU, lCC), unit);
-    lCurrentCarryingSI = toDouble(Math.max(sPU, lCC), unit);
+  private TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC) {
+    this.sPU = Math.abs(sPU);
+    this.lCC = Math.abs(lCC);
+    relativeSystem = new RelativeTetrapolarSystem(sPU / lCC);
   }
 
-  double radius(double sign) {
-    return Math.abs(lCurrentCarryingSI + Math.signum(sign) * sPotentialUnitSI) / 2.0;
+  @Nonnull
+  TetrapolarSystem shift(double deltaS, double deltaL) {
+    return new TetrapolarSystem(sPU + deltaS, lCC + deltaL);
+  }
+
+  @Nonnull
+  RelativeTetrapolarSystem toRelative() {
+    return relativeSystem;
+  }
+
+  @Nonnegative
+  double getLRelativeError(@Nonnegative double absErrorL) {
+    return absErrorL / Math.max(sPU, lCC);
+  }
+
+  @Nonnegative
+  double getHMax(double k, @Nonnegative double absErrorL) {
+    return relativeSystem.hMaxFactor(k) * Math.max(sPU, lCC) / StrictMath.pow(getLRelativeError(absErrorL), 1.0 / 3.0);
+  }
+
+  @Nonnegative
+  double getHMin(double k, @Nonnegative double absErrorL) {
+    return Math.max(sPU, lCC) * Math.sqrt(getLRelativeError(absErrorL)) * relativeSystem.hMinFactor(k);
+  }
+
+  @Nonnegative
+  double factor(double sign) {
+    return Math.abs(lCC + Math.signum(sign) * sPU) / 2.0;
   }
 
   @Nonnegative
   double getL() {
-    return lCurrentCarryingSI;
+    return lCC;
   }
 
   /**
@@ -39,8 +66,9 @@ public final class TetrapolarSystem {
    * @param rOhms in Ohms.
    * @return <b>apparent</b> specific resistance in Ohm-m.
    */
+  @Nonnegative
   public double getApparent(@Nonnegative double rOhms) {
-    return rOhms * Math.PI / (Math.abs(1.0 / radius(-1.0)) - Math.abs(1.0 / radius(1.0)));
+    return rOhms * Math.PI / (Math.abs(1.0 / factor(-1.0)) - Math.abs(1.0 / factor(1.0)));
   }
 
   @Override
@@ -53,30 +81,93 @@ public final class TetrapolarSystem {
     }
 
     TetrapolarSystem that = (TetrapolarSystem) o;
-    return Objects.equals(Math.min(sPotentialUnitSI, lCurrentCarryingSI), Math.min(that.sPotentialUnitSI, that.lCurrentCarryingSI)) &&
-        Objects.equals(Math.max(sPotentialUnitSI, lCurrentCarryingSI), Math.max(that.sPotentialUnitSI, that.lCurrentCarryingSI));
+    return Double.compare(Math.min(sPU, lCC), Math.min(that.sPU, that.lCC)) == 0 &&
+        Double.compare(Math.max(sPU, lCC), Math.max(that.sPU, that.lCC)) == 0;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(Math.min(sPotentialUnitSI, lCurrentCarryingSI), Math.max(sPotentialUnitSI, lCurrentCarryingSI));
+    return Arrays.hashCode(new double[] {Math.min(sPU, lCC), Math.max(sPU, lCC)});
   }
 
   @Override
   public String toString() {
-    return "%2.0f x %2.0f %s".formatted(Metrics.toMilli(sPotentialUnitSI), Metrics.toMilli(lCurrentCarryingSI), MetricPrefix.MILLI(METRE));
+    return "%2.0f x %2.0f %s".formatted(Metrics.toMilli(sPU), Metrics.toMilli(lCC), MetricPrefix.MILLI(METRE));
   }
 
+  /**
+   * Generates optimal electrode system pair.
+   * <p>
+   * For 10 mm: <b>10 x 30, 50 x 30 mm</b>
+   * </p>
+   *
+   * @return two Tetrapolar System.
+   */
   @Nonnull
-  TetrapolarSystem newWithError(@Nonnegative double absErrorSI, int signS, int signL) {
-    return new TetrapolarSystem(
-        sPotentialUnitSI + Math.signum(signS) * absErrorSI,
-        lCurrentCarryingSI + Math.signum(signL) * absErrorSI, METRE);
+  static TetrapolarSystem[] systems2(@Nonnegative double smm) {
+    return new TetrapolarSystem[] {
+        milli().s(smm).l(smm * 3.0),
+        milli().s(smm * 5.0).l(smm * 3.0),
+    };
   }
 
-  @Nonnegative
-  private static double toDouble(@Nonnegative double sPU, @Nonnull Unit<Length> unit) {
-    return Math.abs(Quantities.getQuantity(sPU, unit).to(METRE).getValue().doubleValue());
+  /**
+   * Generates optimal electrode system pair.
+   * <p>
+   *   For 10 mm: <b>10 x 30, 50 x 50, 20 x 40, 60 x 40 mm</b>
+   * </p>
+   * <p>
+   *   For 7 mm: <b>7 x 21, 35 x 21, 14 x 28, 42 x 28 mm</b>
+   * </p>
+   *
+   * @param smm small potential electrode distance, mm.
+   * @return three Tetrapolar System.
+   */
+  @Nonnull
+  static TetrapolarSystem[] systems4(@Nonnegative double smm) {
+    return new TetrapolarSystem[] {
+        milli().s(smm).l(smm * 3.0),
+        milli().s(smm * 5.0).l(smm * 3.0),
+        milli().s(smm * 2.0).l(smm * 4.0),
+        milli().s(smm * 6.0).l(smm * 4.0),
+    };
+  }
+
+  public static Builder milli() {
+    return new Builder(Metrics.MILLI);
+  }
+
+  static Builder si() {
+    return new Builder(DoubleUnaryOperator.identity());
+  }
+
+  abstract static class AbstractBuilder<T> {
+    @Nonnull
+    final DoubleUnaryOperator converter;
+    @Nonnegative
+    double s;
+
+    protected AbstractBuilder(@Nonnull DoubleUnaryOperator converter) {
+      this.converter = converter;
+    }
+
+    abstract T l(@Nonnegative double l);
+  }
+
+  public static class Builder extends AbstractBuilder<TetrapolarSystem> {
+    private Builder(@Nonnull DoubleUnaryOperator converter) {
+      super(converter);
+    }
+
+    public final Builder s(@Nonnegative double s) {
+      this.s = converter.applyAsDouble(s);
+      return this;
+    }
+
+    @Override
+    public TetrapolarSystem l(@Nonnegative double l) {
+      return new TetrapolarSystem(s, converter.applyAsDouble(l));
+    }
   }
 }
 

@@ -1,6 +1,7 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
@@ -12,14 +13,19 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static com.ak.rsm.InexactTetrapolarSystem.systems4;
+
 public class Layer1MediumTest {
   @DataProvider(name = "layer1Medium")
   public static Object[][] layer1Medium() {
+    Collection<Measurement> measurements = TetrapolarMeasurement.of(systems4(0.1, 7.0), new double[] {1.0, 2.0, 3.0, 4.0});
+    Measurement avg = measurements.stream().reduce(Measurement::merge).orElseThrow();
     return new Object[][] {
         {new Layer1Medium.Layer1MediumBuilder(
-            TetrapolarMeasurement.of(LayersProvider.systems4(7.0), new double[] {1.0, 2.0, 3.0, 4.0}).stream()
-                .map(m -> new TetrapolarPrediction(m, 0.044)).collect(Collectors.toList()))
-            .layer1(0.044).build(), 0.044},
+            measurements.stream()
+                .map(m -> new TetrapolarPrediction(m, RelativeMediumLayers.SINGLE_LAYER, avg.getResistivity()))
+                .collect(Collectors.toList()))
+            .layer1(avg).build(), 0.065},
     };
   }
 
@@ -47,8 +53,9 @@ public class Layer1MediumTest {
 
   @Test(dataProvider = "layer1Medium")
   public void testToString(@Nonnull MediumLayers layers, @Nonnegative double expected) {
-    Assert.assertTrue(layers.toString().startsWith(Strings.rho(expected)), layers.toString());
-    double l2 = Arrays.stream(new double[] {4.0E-4, 0.333, 1.249, 1.499}).reduce(StrictMath::hypot).orElse(Double.NaN);
+    Assert.assertTrue(layers.toString().contains(Strings.rho(expected)), layers.toString());
+    double l2 = Arrays.stream(new double[] {0.3277112113340609, 0.10361494844541479, 0.5126497744983622, 0.6807219716648473})
+        .reduce(StrictMath::hypot).orElse(Double.NaN);
     Assert.assertTrue(layers.toString().contains("%.2f %%".formatted(Metrics.toPercents(l2))), layers.toString());
   }
 }

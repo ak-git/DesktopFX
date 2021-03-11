@@ -1,6 +1,7 @@
 package com.ak.util;
 
 import java.util.Arrays;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
@@ -21,6 +22,7 @@ public enum Strings {
   public static final String TAB = "\t";
   public static final String OHM_METRE = new StringBuilder(OHM.multiply(METRE).toString()).reverse().toString();
   private static final String RHO = "\u03c1";
+  private static final String PLUS_MINUS = "\u00B1";
 
   public static String numberSuffix(@Nonnull String s) {
     String ignore = s.replaceFirst("\\d*$", EMPTY);
@@ -41,6 +43,14 @@ public enum Strings {
 
   public static String rho(@Nonnegative double rho) {
     return "%s = %.3f %s".formatted(RHO, rho, OHM_METRE);
+  }
+
+  public static String rho(@Nonnegative double rho, @Nonnegative double relError) {
+    int afterZero = (int) Math.abs(Math.min(Math.floor(StrictMath.log10(relError * rho)), 0));
+    return new StringJoiner(SPACE)
+        .add(RHO).add("=").add("%%.%df".formatted(afterZero).formatted(rho))
+        .add(PLUS_MINUS).add("%%.%df".formatted(afterZero + 1).formatted(relError * rho))
+        .add(OHM_METRE).toString();
   }
 
   public static String rho1(@Nonnegative double rho1) {
