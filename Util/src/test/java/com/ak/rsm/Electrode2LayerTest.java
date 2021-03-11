@@ -23,7 +23,8 @@ import org.testng.annotations.Test;
 public class Electrode2LayerTest {
   private static final Logger LOGGER = Logger.getLogger(Electrode2LayerTest.class.getName());
   private static final double OVERALL_DIM = 1.0;
-  private static final double ABS_ERROR_OVERALL_DIM = 1.0E-3 * OVERALL_DIM;
+  private static final double REL_ERROR_OVERALL_DIM = 1.0E-6;
+  private static final double ABS_ERROR_OVERALL_DIM = REL_ERROR_OVERALL_DIM * OVERALL_DIM;
 
   @Test(enabled = false)
   public void test() {
@@ -46,7 +47,7 @@ public class Electrode2LayerTest {
 
   @Test(enabled = false)
   public void testSingle() {
-    double hToDimMax = TetrapolarSystem.si().s(OVERALL_DIM / 3.0).l(OVERALL_DIM).getHMax(1.0, ABS_ERROR_OVERALL_DIM) / OVERALL_DIM;
+    double hToDimMax = TetrapolarSystem.si().s(OVERALL_DIM / 3.0).l(OVERALL_DIM).getHMax(1.0, ABS_ERROR_OVERALL_DIM) / OVERALL_DIM / 3.0;
     LOGGER.info(() -> errorsScale(new double[] {0.2, 0.6}, -1.0, hToDimMax).toString());
     LOGGER.info(() -> errorsScale(new double[] {0.2, 0.6}, -0.5, hToDimMax).toString());
     LOGGER.info(() -> errorsScale(new double[] {0.2, 0.6}, 0.5, hToDimMax).toString());
@@ -146,12 +147,12 @@ public class Electrode2LayerTest {
         .map(solution -> new RelativeMediumLayers() {
           @Override
           public double k12() {
-            return Inequality.proportional().applyAsDouble(solution.k12(), k);
+            return Inequality.proportional().applyAsDouble(solution.k12(), k) / REL_ERROR_OVERALL_DIM;
           }
 
           @Override
           public double h() {
-            return Inequality.absolute().applyAsDouble(solution.h() / OVERALL_DIM, hToDim);
+            return Inequality.absolute().applyAsDouble(solution.h() / OVERALL_DIM, hToDim) / REL_ERROR_OVERALL_DIM;
           }
         })
         .peek(errorFactors -> logger.config(
