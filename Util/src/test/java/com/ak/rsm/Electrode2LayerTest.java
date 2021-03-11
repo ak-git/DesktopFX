@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 
 public class Electrode2LayerTest {
   private static final Logger LOGGER = Logger.getLogger(Electrode2LayerTest.class.getName());
-  private static final double OVERALL_DIM = 0.001;
+  private static final double OVERALL_DIM = 1.0;
   private static final double ABS_ERROR_OVERALL_DIM = 1.0E-3 * OVERALL_DIM;
 
   @Test(enabled = false)
@@ -113,12 +113,12 @@ public class Electrode2LayerTest {
 
                     @Override
                     public double getDerivativeResistivity() {
-                      return toResistivity.applyAsDouble(new NormalizedDerivativeR2ByH(systemsError[i]).value(k, hToL()));
+                      return toResistivity.applyAsDouble(new NormalizedDerivativeR2ByH(systemsError[i]).value(k, h() / getSystem().toExact().getL()));
                     }
 
                     @Override
                     public double getResistivity() {
-                      return toResistivity.applyAsDouble(new NormalizedResistance2Layer(systemsError[i]).applyAsDouble(k, hToL()));
+                      return toResistivity.applyAsDouble(new NormalizedResistance2Layer(systemsError[i]).applyAsDouble(k, h()));
                     }
 
                     @Nonnull
@@ -127,13 +127,13 @@ public class Electrode2LayerTest {
                       return systems[i];
                     }
 
-                    private double hToL() {
-                      return hToDim * OVERALL_DIM / getSystem().toExact().getL();
+                    private double h() {
+                      return hToDim * OVERALL_DIM;
                     }
 
                     @Override
                     public String toString() {
-                      return "%s; h/L = %.3f; %s; %s".formatted(getSystem(), hToL(), Strings.rho(getResistivity()), Strings.dRhoByH(getDerivativeResistivity()));
+                      return "%s; h = %.3f; %s; %s".formatted(getSystem(), h(), Strings.rho(getResistivity()), Strings.dRhoByH(getDerivativeResistivity()));
                     }
                   })
               .collect(Collectors.toUnmodifiableList());
