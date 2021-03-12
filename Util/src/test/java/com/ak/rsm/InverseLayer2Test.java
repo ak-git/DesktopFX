@@ -5,7 +5,6 @@ import java.util.Random;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.util.Metrics;
@@ -16,31 +15,8 @@ import org.testng.annotations.Test;
 import static com.ak.rsm.InexactTetrapolarSystem.systems2;
 import static com.ak.rsm.InexactTetrapolarSystem.systems4;
 
-public class InverseTest {
-  private static final Logger LOGGER = Logger.getLogger(InverseTest.class.getName());
-
-  @DataProvider(name = "layer1")
-  public static Object[][] layer1() {
-    InexactTetrapolarSystem[] systems2 = systems2(0.1, 10.0);
-    Random random = new Random();
-    int rho = random.nextInt(9) + 1;
-    return new Object[][] {
-        {
-            systems2,
-            Arrays.stream(systems2).mapToDouble(its -> Resistance1Layer.layer1(rho).applyAsDouble(its.toExact()))
-                .map(r -> r + random.nextGaussian()).toArray(),
-            rho
-        },
-    };
-  }
-
-  @Test(dataProvider = "layer1")
-  @ParametersAreNonnullByDefault
-  public void testInverseLayer1(InexactTetrapolarSystem[] systems, double[] rOhms, @Nonnegative double expected) {
-    MediumLayers medium = Inverse.inverseStatic(TetrapolarMeasurement.of(systems, rOhms));
-    Assert.assertEquals(medium.rho(), expected, 0.2, medium.toString());
-    LOGGER.info(medium::toString);
-  }
+public class InverseLayer2Test {
+  private static final Logger LOGGER = Logger.getLogger(InverseLayer2Test.class.getName());
 
   @DataProvider(name = "layer2")
   public static Object[][] layer2() {
