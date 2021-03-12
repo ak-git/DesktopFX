@@ -27,7 +27,7 @@ public class InverseTest {
     return new Object[][] {
         {
             systems2,
-            Arrays.stream(LayersProvider.rangeSystems(systems2, its -> Resistance1Layer.layer1(rho).applyAsDouble(its.toExact())))
+            Arrays.stream(systems2).mapToDouble(its -> Resistance1Layer.layer1(rho).applyAsDouble(its.toExact()))
                 .map(r -> r + random.nextGaussian()).toArray(),
             rho
         },
@@ -49,21 +49,20 @@ public class InverseTest {
     return new Object[][] {
         {
             systems2,
-            Arrays.stream(LayersProvider.rangeSystems(systems2, its -> Resistance1Layer.layer1(10.0).applyAsDouble(its.toExact()))).toArray(),
+            Arrays.stream(systems2)
+                .mapToDouble(s -> Resistance1Layer.layer1(10.0).applyAsDouble(s.toExact())).toArray(),
             new double[] {10.0, 10.0, Double.NaN}
         },
         {
             systems4,
-            Arrays.stream(LayersProvider.rangeSystems(systems4,
-                its -> Resistance2Layer.layer2(10.0, 1.0, Metrics.fromMilli(10.0)).applyAsDouble(its.toExact()))
-            ).toArray(),
+            Arrays.stream(systems4)
+                .mapToDouble(s -> Resistance2Layer.layer2(10.0, 1.0, Metrics.fromMilli(10.0)).applyAsDouble(s.toExact())).toArray(),
             new double[] {10.0, 1.0, Metrics.fromMilli(10.0)}
         },
         {
             systems4,
-            Arrays.stream(LayersProvider.rangeSystems(systems4,
-                its -> Resistance2Layer.layer2(1.0, 10.0, Metrics.fromMilli(5.0)).applyAsDouble(its.toExact()))
-            ).toArray(),
+            Arrays.stream(systems4)
+                .mapToDouble(s -> Resistance2Layer.layer2(1.0, 10.0, Metrics.fromMilli(5.0)).applyAsDouble(s.toExact())).toArray(),
             new double[] {1.0, 10.0, Metrics.fromMilli(5.0)}
         },
     };
@@ -96,22 +95,28 @@ public class InverseTest {
     return new Object[][] {
         {
             systems1,
-            LayersProvider.rangeSystems(systems1, its -> Resistance2Layer.layer2(1.0, 9.0, h).applyAsDouble(its.toExact())),
-            LayersProvider.rangeSystems(systems1, its -> Resistance2Layer.layer2(1.0, 9.0, h + dh).applyAsDouble(its.toExact())),
+            Arrays.stream(systems1)
+                .mapToDouble(s -> Resistance2Layer.layer2(1.0, 9.0, h).applyAsDouble(s.toExact())).toArray(),
+            Arrays.stream(systems1)
+                .mapToDouble(s -> Resistance2Layer.layer2(1.0, 9.0, h + dh).applyAsDouble(s.toExact())).toArray(),
             dh,
             new double[] {new NormalizedApparent2Rho(systems1[0].toExact().toRelative()).value(0.8, h / systems1[0].toExact().getL()), 0.0, Double.NaN}
         },
         {
             systems2,
-            LayersProvider.rangeSystems(systems2, its -> Resistance2Layer.layer2(1.0, Double.POSITIVE_INFINITY, h).applyAsDouble(its.toExact())),
-            LayersProvider.rangeSystems(systems2, its -> Resistance2Layer.layer2(1.0, Double.POSITIVE_INFINITY, h + dh).applyAsDouble(its.toExact())),
+            Arrays.stream(systems2)
+                .mapToDouble(s -> Resistance2Layer.layer2(1.0, Double.POSITIVE_INFINITY, h).applyAsDouble(s.toExact())).toArray(),
+            Arrays.stream(systems2)
+                .mapToDouble(s -> Resistance2Layer.layer2(1.0, Double.POSITIVE_INFINITY, h + dh).applyAsDouble(s.toExact())).toArray(),
             dh,
             new double[] {1.0, 1.0, h}
         },
         {
             systems4,
-            LayersProvider.rangeSystems(systems4, its -> Resistance2Layer.layer2(10.0, 0.0, h).applyAsDouble(its.toExact())),
-            LayersProvider.rangeSystems(systems4, its -> Resistance2Layer.layer2(10.0, 0.0, h + dh).applyAsDouble(its.toExact())),
+            Arrays.stream(systems4)
+                .mapToDouble(s -> Resistance2Layer.layer2(10.0, 0.0, h).applyAsDouble(s.toExact())).toArray(),
+            Arrays.stream(systems4)
+                .mapToDouble(s -> Resistance2Layer.layer2(10.0, 0.0, h + dh).applyAsDouble(s.toExact())).toArray(),
             dh,
             new double[] {10.0, -1.0, h}
         },
