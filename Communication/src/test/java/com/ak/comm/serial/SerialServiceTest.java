@@ -83,13 +83,6 @@ public class SerialServiceTest {
           }
         }
       });
-
-      int MM_3 = 200 * 16;
-      int MM_FACTOR = 2;
-      int value = MM_3 / MM_FACTOR;
-
-      byte[] buffer = "STEP %+d%n".formatted(value).getBytes(StandardCharsets.UTF_8);
-      comPort.writeBytes(buffer, buffer.length);
       semaphore.acquireUninterruptibly();
     }
   }
