@@ -101,7 +101,7 @@ public class Electrode2LayerTest {
     };
 
     Logger logger = Logger.getLogger(Electrode2LayerTest.class.getName());
-    return getTetrapolarSystemCombination(systems).stream()
+    return InexactTetrapolarSystem.getTetrapolarSystemCombination(systems).stream()
         .peek(systemsError -> logger.config(
             () -> "s/L = [%.3f; %.3f]; k = %.3f; h/D = %.3f; %s"
                 .formatted(s1 / L, s2 / L, k, hToDim, Arrays.deepToString(systemsError)))
@@ -183,21 +183,5 @@ public class Electrode2LayerTest {
                 }
             )
         );
-  }
-
-  @Nonnull
-  private static Collection<TetrapolarSystem[]> getTetrapolarSystemCombination(@Nonnull InexactTetrapolarSystem[] systems) {
-    return IntStream.range(0, 8)
-        .mapToObj(n -> {
-          int signS1 = (n & 1) == 0 ? 1 : -1;
-          int signL = (n & 2) == 0 ? 1 : -1;
-          int signS2 = (n & 4) == 0 ? 1 : -1;
-
-          return new TetrapolarSystem[] {
-              systems[0].shift(signS1, signL),
-              systems[1].shift(signS2, signL)
-          };
-        })
-        .collect(Collectors.toUnmodifiableList());
   }
 }
