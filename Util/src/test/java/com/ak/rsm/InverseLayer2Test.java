@@ -26,7 +26,7 @@ public class InverseLayer2Test {
         {
             systems2,
             Arrays.stream(systems2)
-                .mapToDouble(s -> Resistance1Layer.layer1(10.0).applyAsDouble(s.toExact())).toArray(),
+                .mapToDouble(s -> new Resistance1Layer(s.toExact()).value(10.0)).toArray(),
             new double[] {10.0, 10.0, Double.NaN}
         },
         {

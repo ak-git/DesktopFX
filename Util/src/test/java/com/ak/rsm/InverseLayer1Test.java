@@ -24,7 +24,7 @@ public class InverseLayer1Test {
     return new Object[][] {
         {
             systems2,
-            Arrays.stream(systems2).mapToDouble(its -> Resistance1Layer.layer1(rho).applyAsDouble(its.toExact()))
+            Arrays.stream(systems2).mapToDouble(its -> new Resistance1Layer(its.toExact()).value(rho))
                 .map(r -> r + random.nextGaussian()).toArray(),
             rho
         },
