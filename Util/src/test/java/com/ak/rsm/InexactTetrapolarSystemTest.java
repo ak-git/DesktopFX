@@ -97,7 +97,7 @@ public class InexactTetrapolarSystemTest {
     DoubleUnaryOperator rhoAtHMax = sign -> (1.0 + Math.signum(sign) * system.getApparentRelativeError()) * rho1;
     TetrapolarSystem exact = system.toExact();
     PointValuePair optimize = Simplex.optimize("", hToL -> {
-          double rhoApparent = exact.getApparent(Resistance2Layer.layer2(rho1, rho2, hToL[0] * exact.getL()).applyAsDouble(exact));
+          double rhoApparent = exact.getApparent(new Resistance2Layer(exact).value(rho1, rho2, hToL[0] * exact.getL()));
           return DoubleStream.of(-1.0, 1.0)
               .map(sign -> Inequality.absolute().applyAsDouble(rhoAtHMax.applyAsDouble(sign), rhoApparent))
               .min().orElseThrow();
@@ -116,7 +116,7 @@ public class InexactTetrapolarSystemTest {
       DoubleUnaryOperator rhoAtHMin = sign -> (1.0 + Math.signum(sign) * system.getApparentRelativeError()) * rho2;
       TetrapolarSystem exact = system.toExact();
       PointValuePair optimize = Simplex.optimize("", hToL -> {
-            double rhoApparent = exact.getApparent(Resistance2Layer.layer2(rho1, rho2, hToL[0] * exact.getL()).applyAsDouble(exact));
+            double rhoApparent = exact.getApparent(new Resistance2Layer(exact).value(rho1, rho2, hToL[0] * exact.getL()));
             return DoubleStream.of(-1.0, 1.0)
                 .map(sign -> Inequality.absolute().applyAsDouble(rhoAtHMin.applyAsDouble(sign), rhoApparent))
                 .min().orElseThrow();

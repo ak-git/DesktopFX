@@ -32,13 +32,13 @@ public class InverseLayer2Test {
         {
             systems4,
             Arrays.stream(systems4)
-                .mapToDouble(s -> Resistance2Layer.layer2(10.0, 1.0, Metrics.fromMilli(10.0)).applyAsDouble(s.toExact())).toArray(),
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(10.0, 1.0, Metrics.fromMilli(10.0))).toArray(),
             new double[] {10.0, 1.0, Metrics.fromMilli(10.0)}
         },
         {
             systems4,
             Arrays.stream(systems4)
-                .mapToDouble(s -> Resistance2Layer.layer2(1.0, 10.0, Metrics.fromMilli(5.0)).applyAsDouble(s.toExact())).toArray(),
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, 10.0, Metrics.fromMilli(5.0))).toArray(),
             new double[] {1.0, 10.0, Metrics.fromMilli(5.0)}
         },
     };
@@ -72,27 +72,27 @@ public class InverseLayer2Test {
         {
             systems1,
             Arrays.stream(systems1)
-                .mapToDouble(s -> Resistance2Layer.layer2(1.0, 9.0, h).applyAsDouble(s.toExact())).toArray(),
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, 9.0, h)).toArray(),
             Arrays.stream(systems1)
-                .mapToDouble(s -> Resistance2Layer.layer2(1.0, 9.0, h + dh).applyAsDouble(s.toExact())).toArray(),
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, 9.0, h + dh)).toArray(),
             dh,
             new double[] {new NormalizedApparent2Rho(systems1[0].toExact().toRelative()).value(0.8, h / systems1[0].toExact().getL()), 0.0, Double.NaN}
         },
         {
             systems2,
             Arrays.stream(systems2)
-                .mapToDouble(s -> Resistance2Layer.layer2(1.0, Double.POSITIVE_INFINITY, h).applyAsDouble(s.toExact())).toArray(),
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, Double.POSITIVE_INFINITY, h)).toArray(),
             Arrays.stream(systems2)
-                .mapToDouble(s -> Resistance2Layer.layer2(1.0, Double.POSITIVE_INFINITY, h + dh).applyAsDouble(s.toExact())).toArray(),
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, Double.POSITIVE_INFINITY, h + dh)).toArray(),
             dh,
             new double[] {1.0, 1.0, h}
         },
         {
             systems4,
             Arrays.stream(systems4)
-                .mapToDouble(s -> Resistance2Layer.layer2(10.0, 0.0, h).applyAsDouble(s.toExact())).toArray(),
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(10.0, 0.0, h)).toArray(),
             Arrays.stream(systems4)
-                .mapToDouble(s -> Resistance2Layer.layer2(10.0, 0.0, h + dh).applyAsDouble(s.toExact())).toArray(),
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(10.0, 0.0, h + dh)).toArray(),
             dh,
             new double[] {10.0, -1.0, h}
         },
