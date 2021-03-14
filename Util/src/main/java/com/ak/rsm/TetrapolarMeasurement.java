@@ -54,7 +54,7 @@ final class TetrapolarMeasurement implements Measurement {
     double lCC = RelativeTetrapolarSystem.MIN_ERROR_FACTOR * dL / relErrorRho;
     double sPU = RelativeTetrapolarSystem.OPTIMAL_SL * lCC;
     InexactTetrapolarSystem merged = InexactTetrapolarSystem.si(dL).s(sPU).l(lCC);
-    return new TetrapolarMeasurement(merged, Resistance1Layer.layer1(avg).applyAsDouble(merged.toExact()));
+    return new TetrapolarMeasurement(merged, new Resistance1Layer(merged.toExact()).value(avg));
   }
 
   @Override

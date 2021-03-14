@@ -35,16 +35,18 @@ module com.ak.fx.desktop {
   opens com.ak.comm.converter.nmis to com.ak.comm, org.testng;
   opens com.ak.comm.converter.aper to com.ak.comm, org.testng;
 
-  exports com.ak.comm.interceptor.suntech to spring.beans, org.testng;
   exports com.ak.comm.converter.aper to javafx.graphics, org.testng;
   exports com.ak.comm.converter.rcm to javafx.graphics, org.testng;
   exports com.ak.comm.converter.rsce to spring.beans;
   exports com.ak.comm.converter.nmis to spring.beans;
   exports com.ak.comm.converter.briko to org.testng;
   exports com.ak.comm.converter.suntech to spring.beans, org.testng;
-  exports com.ak.comm.bytes.suntech to org.testng;
-  exports com.ak.comm.interceptor.purelogic to spring.beans, org.testng;
   exports com.ak.comm.converter.purelogic to spring.beans, org.testng;
+  exports com.ak.comm.converter.kleiber to org.testng;
+  exports com.ak.comm.interceptor.suntech to spring.beans, org.testng;
+  exports com.ak.comm.interceptor.purelogic to spring.beans, org.testng;
+  exports com.ak.comm.interceptor.kleiber to org.testng;
+  exports com.ak.comm.bytes.suntech to org.testng;
   exports com.ak.comm.bytes.purelogic to org.testng;
 
   exports com.ak.fx.desktop.briko to spring.beans;

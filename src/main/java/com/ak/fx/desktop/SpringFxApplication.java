@@ -13,6 +13,7 @@ import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.FloatToIntegerConverter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.aper.AperCalibrationCurrent1Variable;
@@ -25,12 +26,14 @@ import com.ak.comm.converter.aper.AperStage4Current1Variable;
 import com.ak.comm.converter.aper.AperStage4Current2Variable;
 import com.ak.comm.converter.aper.AperStage5Current1Variable;
 import com.ak.comm.converter.aper.AperStage5Current1Variable7x21x35;
+import com.ak.comm.converter.kleiber.KleiberVariable;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
 import com.ak.comm.converter.rsce.RsceConverter;
 import com.ak.comm.converter.rsce.RsceVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.interceptor.kleiber.KleiberBytesInterceptor;
 import com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor;
 import com.ak.comm.interceptor.simple.FixedFrameBytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
@@ -142,6 +145,20 @@ public class SpringFxApplication extends FxApplication {
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, ADCVariable> converter() {
     return new ToIntegerConverter<>(ADCVariable.class, 5);
+  }
+
+  @Bean
+  @Profile("kleiber-myo")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorKleiber() {
+    return new KleiberBytesInterceptor();
+  }
+
+  @Bean
+  @Profile("kleiber-myo")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<BufferFrame, KleiberVariable> converterKleiber() {
+    return new FloatToIntegerConverter<>(KleiberVariable.class, 1000);
   }
 
   @Bean

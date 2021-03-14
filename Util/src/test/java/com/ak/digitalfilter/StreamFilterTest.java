@@ -63,7 +63,7 @@ public class StreamFilterTest {
         IntStream.generate(() -> RANDOM.nextInt(1000)).limit(3000), 900, 1000
     }, {
         FilterBuilder.of().peakToPeak(2000).build(),
-        IntStream.generate(() -> (int) Math.round(RANDOM.nextGaussian() * 1000)).limit(4000), 5000, 9000
+        IntStream.generate(() -> (int) Math.round(RANDOM.nextGaussian() * 1000)).limit(4000), 5000, 10000
     }, {
         FilterBuilder.of().rrs().build(),
         IntStream.generate(() -> 1000).limit(3000), 1000, 1000

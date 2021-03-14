@@ -9,9 +9,9 @@ plugins {
     id "application"
     id 'org.openjfx.javafxplugin' version '0.0.9'
 
-    id 'org.springframework.boot' version '2.4.2'
+    id 'org.springframework.boot' version '2.4.3'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id "com.github.spotbugs" version "4.6.0"
+    id "com.github.spotbugs" version "4.7.0"
 }
 
 spotbugs {
@@ -43,7 +43,8 @@ jacoco {
 }
 
 ext {
-    testNG = 'org.testng:testng:7.3.0'
+    testNG = 'org.testng:testng:7.4.0'
+    jsr305 = 'com.google.code.findbugs:jsr305:3.0.2'
     javax_inject = 'javax.inject:javax.inject:1'
     uom_se = 'tec.uom:uom-se:1.0.10'
     javax_json = 'org.glassfish:javax.json:1.1.4'
@@ -54,13 +55,13 @@ ext {
 
 wrapper {
     description 'Setup the Gradle wrapper'
-    gradleVersion = "6.8"
+    gradleVersion = "6.8.3"
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '2021.01.17'
+    version = '2021.03.12'
     apply plugin: 'idea'
     idea {
         module {
@@ -96,6 +97,7 @@ allprojects {
     }
 
     dependencies {
+        implementation jsr305
         implementation testNG
     }
 

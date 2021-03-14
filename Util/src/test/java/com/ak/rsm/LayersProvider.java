@@ -1,11 +1,5 @@
 package com.ak.rsm;
 
-import java.util.Arrays;
-import java.util.function.ToDoubleFunction;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.util.Metrics;
 import org.testng.annotations.DataProvider;
 
@@ -13,12 +7,6 @@ import static com.ak.rsm.TetrapolarSystem.systems4;
 
 enum LayersProvider {
   ;
-
-  @Nonnull
-  @ParametersAreNonnullByDefault
-  static double[] rangeSystems(InexactTetrapolarSystem[] systems, ToDoubleFunction<InexactTetrapolarSystem> generator) {
-    return Arrays.stream(systems).mapToDouble(generator).toArray();
-  }
 
   @DataProvider(name = "dynamicParameters3")
   public static Object[][] dynamicParameters3() {

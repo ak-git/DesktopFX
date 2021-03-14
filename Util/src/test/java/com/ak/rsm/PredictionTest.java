@@ -10,8 +10,8 @@ public class PredictionTest {
   public void testGetInequalityL2() {
     InexactTetrapolarSystem system1 = InexactTetrapolarSystem.milli(0.1).s(1.0).l(3.0);
     InexactTetrapolarSystem system2 = InexactTetrapolarSystem.milli(0.01).s(5.0).l(3.0);
-    Measurement measurement1 = new TetrapolarMeasurement(system1, Resistance1Layer.layer1(1.0).applyAsDouble(system1.toExact()));
-    Measurement measurement2 = new TetrapolarMeasurement(system2, Resistance1Layer.layer1(1.0).applyAsDouble(system2.toExact()));
+    Measurement measurement1 = new TetrapolarMeasurement(system1, new Resistance1Layer(system1.toExact()).value(1.0));
+    Measurement measurement2 = new TetrapolarMeasurement(system2, new Resistance1Layer(system2.toExact()).value(1.0));
 
     Assert.assertNotEquals(measurement1, measurement2);
     Assert.assertNotEquals(measurement1, new Object());

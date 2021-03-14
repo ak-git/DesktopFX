@@ -18,12 +18,13 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.ak.inverse.Inequality;
 import com.ak.util.LineFileBuilder;
 import com.ak.util.Strings;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class Electrode2LayerTest {
   private static final Logger LOGGER = Logger.getLogger(Electrode2LayerTest.class.getName());
   private static final double OVERALL_DIM = 1.0;
-  private static final double REL_ERROR_OVERALL_DIM = 1.0E-6;
+  private static final double REL_ERROR_OVERALL_DIM = 1.0e-5;
   private static final double ABS_ERROR_OVERALL_DIM = REL_ERROR_OVERALL_DIM * OVERALL_DIM;
 
   @Test(enabled = false)
@@ -45,13 +46,11 @@ public class Electrode2LayerTest {
         );
   }
 
-  @Test(enabled = false)
+  @Test
   public void testSingle() {
-    double hToDimMax = TetrapolarSystem.si().s(OVERALL_DIM / 3.0).l(OVERALL_DIM).getHMax(1.0, ABS_ERROR_OVERALL_DIM) / OVERALL_DIM / 3.0;
-    LOGGER.info(() -> errorsScale(new double[] {0.2, 0.6}, -1.0, hToDimMax).toString());
-    LOGGER.info(() -> errorsScale(new double[] {0.2, 0.6}, -0.5, hToDimMax).toString());
-    LOGGER.info(() -> errorsScale(new double[] {0.2, 0.6}, 0.5, hToDimMax).toString());
-    LOGGER.info(() -> errorsScale(new double[] {0.2, 0.6}, 1.0, hToDimMax).toString());
+    RelativeMediumLayers errorsScale = errorsScale(new double[] {10.0 / 30.0, 50.0 / 30.0}, Layers.getK12(1.0, 4.0), 5.0 / 50.0);
+    Assert.assertEquals(errorsScale.k12(), 1.607, 1.0e-3, errorsScale.toString());
+    Assert.assertEquals(errorsScale.h(), 0.319, 1.0e-3, errorsScale.toString());
   }
 
   @Test(enabled = false)
@@ -101,7 +100,7 @@ public class Electrode2LayerTest {
     };
 
     Logger logger = Logger.getLogger(Electrode2LayerTest.class.getName());
-    return getTetrapolarSystemCombination(systems).stream()
+    return InexactTetrapolarSystem.getTetrapolarSystemCombination(systems).stream()
         .peek(systemsError -> logger.config(
             () -> "s/L = [%.3f; %.3f]; k = %.3f; h/D = %.3f; %s"
                 .formatted(s1 / L, s2 / L, k, hToDim, Arrays.deepToString(systemsError)))
@@ -114,7 +113,10 @@ public class Electrode2LayerTest {
 
                     @Override
                     public double getDerivativeResistivity() {
-                      return toResistivity.applyAsDouble(new NormalizedDerivativeR2ByH(systemsError[i]).value(k, h() / getSystem().toExact().getL()));
+                      double dh = ABS_ERROR_OVERALL_DIM / 1000.0;
+                      double r0 = new Resistance2Layer(systemsError[i]).value(1.0, 1.0 / Layers.getRho1ToRho2(k), h());
+                      double r1 = new Resistance2Layer(systemsError[i]).value(1.0, 1.0 / Layers.getRho1ToRho2(k), h() + dh);
+                      return toResistivity.applyAsDouble((r1 - r0) / dh);
                     }
 
                     @Override
@@ -147,7 +149,7 @@ public class Electrode2LayerTest {
         .map(solution -> new RelativeMediumLayers() {
           @Override
           public double k12() {
-            return Inequality.proportional().applyAsDouble(solution.k12(), k) / REL_ERROR_OVERALL_DIM;
+            return Inequality.absolute().applyAsDouble(solution.k12(), k) / REL_ERROR_OVERALL_DIM;
           }
 
           @Override
@@ -183,21 +185,5 @@ public class Electrode2LayerTest {
                 }
             )
         );
-  }
-
-  @Nonnull
-  private static Collection<TetrapolarSystem[]> getTetrapolarSystemCombination(@Nonnull InexactTetrapolarSystem[] systems) {
-    return IntStream.range(0, 8)
-        .mapToObj(n -> {
-          int signS1 = (n & 1) == 0 ? 1 : -1;
-          int signL = (n & 2) == 0 ? 1 : -1;
-          int signS2 = (n & 4) == 0 ? 1 : -1;
-
-          return new TetrapolarSystem[] {
-              systems[0].shift(signS1, signL),
-              systems[1].shift(signS2, signL)
-          };
-        })
-        .collect(Collectors.toUnmodifiableList());
   }
 }
