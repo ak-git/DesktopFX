@@ -106,7 +106,7 @@ enum Inverse {
               .toArray();
           return Inequality.absolute().applyAsDouble(subLog, subLogPredicted);
         },
-        new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], initialRelative.h()}),
+        new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], Double.POSITIVE_INFINITY}),
         new double[] {initialRelative.k12(), initialRelative.h()}, new double[] {0.01, 0.01}
     );
     RelativeMediumLayers layers = layersFunction.apply(kwOptimal.getPoint());
