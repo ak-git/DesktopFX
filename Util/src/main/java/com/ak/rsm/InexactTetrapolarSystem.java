@@ -134,10 +134,15 @@ final class InexactTetrapolarSystem {
   }
 
   @Nonnull
-  private static InexactTetrapolarSystem[] toInexactMilli(@Nonnegative double absErrorL, @Nonnull TetrapolarSystem[] systems) {
+  static InexactTetrapolarSystem[] toInexact(@Nonnegative double absErrorL, @Nonnull TetrapolarSystem[] systems) {
     return Arrays.stream(systems)
-        .map(system -> new InexactTetrapolarSystem(Metrics.fromMilli(absErrorL), system))
+        .map(system -> new InexactTetrapolarSystem(absErrorL, system))
         .toArray(InexactTetrapolarSystem[]::new);
+  }
+
+  @Nonnull
+  private static InexactTetrapolarSystem[] toInexactMilli(@Nonnegative double absErrorL, @Nonnull TetrapolarSystem[] systems) {
+    return toInexact(Metrics.fromMilli(absErrorL), systems);
   }
 
   static class Builder extends TetrapolarSystem.AbstractBuilder<InexactTetrapolarSystem> {
