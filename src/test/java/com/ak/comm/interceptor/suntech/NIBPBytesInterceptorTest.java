@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 
 public class NIBPBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(NIBPBytesInterceptor.class.getName());
-  public static final int[] EMPTY = {};
+  private static final int[] EMPTY = {};
 
   @Test
   public void test() {

@@ -1,7 +1,5 @@
 package com.ak.rsm;
 
-import java.util.function.ToDoubleFunction;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -27,10 +25,5 @@ final class Resistance1Layer implements UnivariateFunction {
   @Override
   public double value(@Nonnegative double rho) {
     return rho * resistance.getAsDouble();
-  }
-
-  @Nonnull
-  static ToDoubleFunction<InexactTetrapolarSystem> layer1(@Nonnegative double rho) {
-    return system -> new Resistance1Layer(system.toExact()).value(rho);
   }
 }

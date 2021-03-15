@@ -12,6 +12,7 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
+import javax.annotation.ParametersAreNullableByDefault;
 
 import com.ak.comm.GroupService;
 import com.ak.comm.converter.Variable;
@@ -52,7 +53,8 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
-  public final void initialize(@Nullable URL location, @Nullable ResourceBundle resources) {
+  @ParametersAreNullableByDefault
+  public final void initialize(URL location, ResourceBundle resources) {
     if (chart != null) {
       chart.setOnDragOver(event -> {
         if (event.getDragboard().hasFiles()) {
@@ -82,7 +84,7 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
     }
 
     Timeline timeline = new Timeline();
-    timeline.getKeyFrames().add(new KeyFrame(Duration.millis(100), (ActionEvent actionEvent) -> axisXController.scroll(-1000)));
+    timeline.getKeyFrames().add(new KeyFrame(Duration.millis(50), (ActionEvent actionEvent) -> axisXController.scroll(-500)));
     timeline.setCycleCount(Animation.INDEFINITE);
     SequentialTransition animation = new SequentialTransition();
     animation.getChildren().addAll(timeline);
@@ -91,7 +93,8 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
-  public final void onSubscribe(@Nonnull Flow.Subscription s) {
+  @OverridingMethodsMustInvokeSuper
+  public void onSubscribe(@Nonnull Flow.Subscription s) {
     if (subscription != null) {
       subscription.cancel();
     }

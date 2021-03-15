@@ -190,7 +190,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
     @Nullable
     synchronized SerialPort next() {
       Collection<SerialPort> serialPorts = Arrays.stream(SerialPort.getCommPorts())
-          .sorted(Comparator.comparing(port -> port.toString().toLowerCase().indexOf("usb")).reversed())
+          .sorted(Comparator.<SerialPort, Integer>comparing(port -> port.getSystemPortName().toLowerCase().indexOf("usb")).reversed())
           .sorted(Comparator.comparingInt(value -> usedPorts.indexOf(value.getSystemPortName()))).collect(Collectors.toUnmodifiableList());
       if (serialPorts.isEmpty()) {
         return null;

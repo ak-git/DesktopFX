@@ -5,7 +5,6 @@ import java.util.Random;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.util.Metrics;
@@ -16,31 +15,8 @@ import org.testng.annotations.Test;
 import static com.ak.rsm.InexactTetrapolarSystem.systems2;
 import static com.ak.rsm.InexactTetrapolarSystem.systems4;
 
-public class InverseTest {
-  private static final Logger LOGGER = Logger.getLogger(InverseTest.class.getName());
-
-  @DataProvider(name = "layer1")
-  public static Object[][] layer1() {
-    InexactTetrapolarSystem[] systems2 = systems2(0.1, 10.0);
-    Random random = new Random();
-    int rho = random.nextInt(9) + 1;
-    return new Object[][] {
-        {
-            systems2,
-            Arrays.stream(LayersProvider.rangeSystems(systems2, Resistance1Layer.layer1(rho)))
-                .map(r -> r + random.nextGaussian()).toArray(),
-            rho
-        },
-    };
-  }
-
-  @Test(dataProvider = "layer1")
-  @ParametersAreNonnullByDefault
-  public void testInverseLayer1(InexactTetrapolarSystem[] systems, double[] rOhms, @Nonnegative double expected) {
-    MediumLayers medium = Inverse.inverseStatic(TetrapolarMeasurement.of(systems, rOhms));
-    Assert.assertEquals(medium.rho(), expected, 0.2, medium.toString());
-    LOGGER.info(medium::toString);
-  }
+public class InverseLayer2Test {
+  private static final Logger LOGGER = Logger.getLogger(InverseLayer2Test.class.getName());
 
   @DataProvider(name = "layer2")
   public static Object[][] layer2() {
@@ -49,21 +25,20 @@ public class InverseTest {
     return new Object[][] {
         {
             systems2,
-            Arrays.stream(LayersProvider.rangeSystems(systems2, Resistance1Layer.layer1(10.0))).toArray(),
+            Arrays.stream(systems2)
+                .mapToDouble(s -> new Resistance1Layer(s.toExact()).value(10.0)).toArray(),
             new double[] {10.0, 10.0, Double.NaN}
         },
         {
             systems4,
-            Arrays.stream(LayersProvider.rangeSystems(systems4,
-                Resistance2Layer.layer2(10.0, 1.0, Metrics.fromMilli(10.0)))
-            ).toArray(),
+            Arrays.stream(systems4)
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(10.0, 1.0, Metrics.fromMilli(10.0))).toArray(),
             new double[] {10.0, 1.0, Metrics.fromMilli(10.0)}
         },
         {
             systems4,
-            Arrays.stream(LayersProvider.rangeSystems(systems4,
-                Resistance2Layer.layer2(1.0, 10.0, Metrics.fromMilli(5.0)))
-            ).toArray(),
+            Arrays.stream(systems4)
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, 10.0, Metrics.fromMilli(5.0))).toArray(),
             new double[] {1.0, 10.0, Metrics.fromMilli(5.0)}
         },
     };
@@ -96,22 +71,28 @@ public class InverseTest {
     return new Object[][] {
         {
             systems1,
-            LayersProvider.rangeSystems(systems1, Resistance2Layer.layer2(1.0, 9.0, h)),
-            LayersProvider.rangeSystems(systems1, Resistance2Layer.layer2(1.0, 9.0, h + dh)),
+            Arrays.stream(systems1)
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, 9.0, h)).toArray(),
+            Arrays.stream(systems1)
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, 9.0, h + dh)).toArray(),
             dh,
             new double[] {new NormalizedApparent2Rho(systems1[0].toExact().toRelative()).value(0.8, h / systems1[0].toExact().getL()), 0.0, Double.NaN}
         },
         {
             systems2,
-            LayersProvider.rangeSystems(systems2, Resistance2Layer.layer2(1.0, Double.POSITIVE_INFINITY, h)),
-            LayersProvider.rangeSystems(systems2, Resistance2Layer.layer2(1.0, Double.POSITIVE_INFINITY, h + dh)),
+            Arrays.stream(systems2)
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, Double.POSITIVE_INFINITY, h)).toArray(),
+            Arrays.stream(systems2)
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, Double.POSITIVE_INFINITY, h + dh)).toArray(),
             dh,
             new double[] {1.0, 1.0, h}
         },
         {
             systems4,
-            LayersProvider.rangeSystems(systems4, Resistance2Layer.layer2(10.0, 0.0, h)),
-            LayersProvider.rangeSystems(systems4, Resistance2Layer.layer2(10.0, 0.0, h + dh)),
+            Arrays.stream(systems4)
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(10.0, 0.0, h)).toArray(),
+            Arrays.stream(systems4)
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(10.0, 0.0, h + dh)).toArray(),
             dh,
             new double[] {10.0, -1.0, h}
         },
@@ -134,6 +115,13 @@ public class InverseTest {
             new double[] {93.5, 162.85},
             Metrics.fromMilli(0.12),
             new double[] {5.302, -0.094, Metrics.fromMilli(7.89)}
+        },
+        {
+            systems2(0.1, 7.0),
+            new double[] {136.5, 207.05},
+            new double[] {136.65, 207.4},
+            Metrics.fromMilli(0.15),
+            new double[] {6.332, -0.205, Metrics.fromMilli(10.43)}
         },
     };
   }

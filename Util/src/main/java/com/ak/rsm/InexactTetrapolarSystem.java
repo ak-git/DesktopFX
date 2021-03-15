@@ -1,8 +1,11 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.DoubleUnaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -106,19 +109,40 @@ final class InexactTetrapolarSystem {
     return toInexactMilli(absError, TetrapolarSystem.systems4(smm));
   }
 
-  @Nonnull
-  private static InexactTetrapolarSystem[] toInexactMilli(@Nonnegative double absErrorL, @Nonnull TetrapolarSystem[] systems) {
-    return Arrays.stream(systems)
-        .map(system -> new InexactTetrapolarSystem(Metrics.fromMilli(absErrorL), system))
-        .toArray(InexactTetrapolarSystem[]::new);
-  }
-
   static Builder milli(@Nonnegative double absError) {
     return new Builder(Metrics.MILLI, absError);
   }
 
   static Builder si(@Nonnegative double absError) {
     return new Builder(DoubleUnaryOperator.identity(), absError);
+  }
+
+  @Nonnull
+  static List<TetrapolarSystem[]> getTetrapolarSystemCombination(@Nonnull InexactTetrapolarSystem[] systems) {
+    return IntStream.range(0, 8)
+        .mapToObj(n -> {
+          int signS1 = (n & 1) == 0 ? 1 : -1;
+          int signL = (n & 2) == 0 ? 1 : -1;
+          int signS2 = (n & 4) == 0 ? 1 : -1;
+
+          return new TetrapolarSystem[] {
+              systems[0].shift(signS1, signL),
+              systems[1].shift(signS2, signL)
+          };
+        })
+        .collect(Collectors.toUnmodifiableList());
+  }
+
+  @Nonnull
+  static InexactTetrapolarSystem[] toInexact(@Nonnegative double absErrorL, @Nonnull TetrapolarSystem[] systems) {
+    return Arrays.stream(systems)
+        .map(system -> new InexactTetrapolarSystem(absErrorL, system))
+        .toArray(InexactTetrapolarSystem[]::new);
+  }
+
+  @Nonnull
+  private static InexactTetrapolarSystem[] toInexactMilli(@Nonnegative double absErrorL, @Nonnull TetrapolarSystem[] systems) {
+    return toInexact(Metrics.fromMilli(absErrorL), systems);
   }
 
   static class Builder extends TetrapolarSystem.AbstractBuilder<InexactTetrapolarSystem> {

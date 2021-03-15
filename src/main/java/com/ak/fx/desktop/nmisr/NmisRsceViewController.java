@@ -1,8 +1,6 @@
 package com.ak.fx.desktop.nmisr;
 
-import java.util.function.Supplier;
-
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -21,17 +19,17 @@ public final class NmisRsceViewController extends AbstractScheduledViewControlle
   private static final NmisRequest.Sequence[] PINGS = {
       NmisRequest.Sequence.CATCH_100, NmisRequest.Sequence.CATCH_60, NmisRequest.Sequence.CATCH_30,
       NmisRequest.Sequence.ROTATE_100, NmisRequest.Sequence.ROTATE_60, NmisRequest.Sequence.ROTATE_30};
+  private int pingIndex = -1;
 
   @Inject
-  public NmisRsceViewController(@Nonnull Provider<BytesInterceptor<NmisRequest, RsceCommandFrame>> interceptorProvider,
-                                @Nonnull Provider<Converter<RsceCommandFrame, RsceVariable>> converterProvider) {
-    super(interceptorProvider, converterProvider, new Supplier<>() {
-      private int pingIndex = -1;
+  @ParametersAreNonnullByDefault
+  public NmisRsceViewController(Provider<BytesInterceptor<NmisRequest, RsceCommandFrame>> interceptorProvider,
+                                Provider<Converter<RsceCommandFrame, RsceVariable>> converterProvider) {
+    super(interceptorProvider, converterProvider, 1.0 / 8.0);
+  }
 
-      @Override
-      public NmisRequest get() {
-        return PINGS[(++pingIndex) % PINGS.length].build();
-      }
-    }, 1.0 / 8.0);
+  @Override
+  public NmisRequest get() {
+    return PINGS[(++pingIndex) % PINGS.length].build();
   }
 }

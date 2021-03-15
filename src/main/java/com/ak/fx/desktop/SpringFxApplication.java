@@ -11,10 +11,9 @@ import javax.annotation.Nonnull;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
-import com.ak.comm.bytes.suntech.NIBPRequest;
-import com.ak.comm.bytes.suntech.NIBPResponse;
 import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.FloatToIntegerConverter;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.aper.AperCalibrationCurrent1Variable;
@@ -27,18 +26,17 @@ import com.ak.comm.converter.aper.AperStage4Current1Variable;
 import com.ak.comm.converter.aper.AperStage4Current2Variable;
 import com.ak.comm.converter.aper.AperStage5Current1Variable;
 import com.ak.comm.converter.aper.AperStage5Current1Variable7x21x35;
+import com.ak.comm.converter.kleiber.KleiberVariable;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
 import com.ak.comm.converter.rsce.RsceConverter;
 import com.ak.comm.converter.rsce.RsceVariable;
-import com.ak.comm.converter.suntech.NIBPConverter;
-import com.ak.comm.converter.suntech.NIBPVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.interceptor.kleiber.KleiberBytesInterceptor;
 import com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor;
 import com.ak.comm.interceptor.simple.FixedFrameBytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
-import com.ak.comm.interceptor.suntech.NIBPBytesInterceptor;
 import com.ak.logging.LocalFileHandler;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -55,7 +53,12 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.ak.fx.desktop", "com.ak.comm.interceptor.nmis", "com.ak.comm.converter.nmis"})
+@ComponentScan(basePackages = {
+    "com.ak.fx.desktop",
+    "com.ak.comm.interceptor.nmis", "com.ak.comm.converter.nmis",
+    "com.ak.comm.interceptor.purelogic", "com.ak.comm.converter.purelogic",
+    "com.ak.comm.interceptor.suntech", "com.ak.comm.converter.suntech",
+})
 public class SpringFxApplication extends FxApplication {
   private ConfigurableApplicationContext applicationContext;
 
@@ -72,6 +75,16 @@ public class SpringFxApplication extends FxApplication {
   @Override
   public void refresh() {
     processEvent(ViewController::refresh);
+  }
+
+  @Override
+  public void up() {
+    processEvent(ViewController::up);
+  }
+
+  @Override
+  public void down() {
+    processEvent(ViewController::down);
   }
 
   @Override
@@ -135,6 +148,20 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
+  @Profile("kleiber-myo")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorKleiber() {
+    return new KleiberBytesInterceptor();
+  }
+
+  @Bean
+  @Profile("kleiber-myo")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<BufferFrame, KleiberVariable> converterKleiber() {
+    return new FloatToIntegerConverter<>(KleiberVariable.class, 2000);
+  }
+
+  @Bean
   @Profile("nmis-rsce")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static BytesInterceptor<NmisRequest, RsceCommandFrame> bytesInterceptorNmisRsce() {
@@ -172,20 +199,6 @@ public class SpringFxApplication extends FxApplication {
   static Converter<BufferFrame, AperStage3Current1NIBPVariable> converterAper1NIBP() {
     return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
         .chainInstance(AperStage3Current1NIBPVariable.class);
-  }
-
-  @Bean
-  @Profile({"suntech", "suntech-test"})
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static BytesInterceptor<NIBPRequest, NIBPResponse> bytesInterceptorNIBP() {
-    return new NIBPBytesInterceptor();
-  }
-
-  @Bean
-  @Profile({"suntech", "suntech-test"})
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<NIBPResponse, NIBPVariable> converterNIBP() {
-    return new NIBPConverter();
   }
 
   @Bean
