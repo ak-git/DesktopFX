@@ -49,7 +49,7 @@ public class Electrode2LayerTest {
   @Test
   public void testSingle() {
     RelativeMediumLayers errorsScale = errorsScale(new double[] {10.0 / 30.0, 50.0 / 30.0}, Layers.getK12(1.0, 4.0), 5.0 / 50.0);
-    Assert.assertEquals(errorsScale.k12(), 1.607, 1.0e-3, errorsScale.toString());
+    Assert.assertEquals(errorsScale.k12(), 1.608, 1.0e-3, errorsScale.toString());
     Assert.assertEquals(errorsScale.h(), 0.319, 1.0e-3, errorsScale.toString());
   }
 
@@ -109,25 +109,23 @@ public class Electrode2LayerTest {
           Collection<DerivativeMeasurement> measurements = IntStream.range(0, systems.length)
               .mapToObj(i ->
                   new DerivativeMeasurement() {
-                    private final DoubleUnaryOperator toResistivity = operand -> getSystem().toExact().getApparent(operand);
+                    private final DoubleUnaryOperator toResistivity = operand -> systemsError[i].getApparent(operand);
+                    private final TetrapolarSystem system = systems[i].toExact();
 
                     @Override
                     public double getDerivativeResistivity() {
-                      double dh = ABS_ERROR_OVERALL_DIM / 1000.0;
-                      double r0 = new Resistance2Layer(systemsError[i]).value(1.0, 1.0 / Layers.getRho1ToRho2(k), h());
-                      double r1 = new Resistance2Layer(systemsError[i]).value(1.0, 1.0 / Layers.getRho1ToRho2(k), h() + dh);
-                      return toResistivity.applyAsDouble((r1 - r0) / dh);
+                      return toResistivity.applyAsDouble(new NormalizedDerivativeR2ByH(system).value(k, h() / system.getL()));
                     }
 
                     @Override
                     public double getResistivity() {
-                      return toResistivity.applyAsDouble(new NormalizedResistance2Layer(systemsError[i]).applyAsDouble(k, h()));
+                      return toResistivity.applyAsDouble(new NormalizedResistance2Layer(system).applyAsDouble(k, h()));
                     }
 
                     @Nonnull
                     @Override
                     public InexactTetrapolarSystem getSystem() {
-                      return systems[i];
+                      return InexactTetrapolarSystem.toInexact(ABS_ERROR_OVERALL_DIM, systemsError)[i];
                     }
 
                     private double h() {
