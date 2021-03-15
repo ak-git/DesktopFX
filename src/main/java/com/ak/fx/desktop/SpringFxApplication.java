@@ -158,7 +158,7 @@ public class SpringFxApplication extends FxApplication {
   @Profile("kleiber-myo")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, KleiberVariable> converterKleiber() {
-    return new FloatToIntegerConverter<>(KleiberVariable.class, 1000);
+    return new FloatToIntegerConverter<>(KleiberVariable.class, 2000);
   }
 
   @Bean
