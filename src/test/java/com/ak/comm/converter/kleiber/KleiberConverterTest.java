@@ -36,7 +36,7 @@ public class KleiberConverterTest {
         (byte) 0xbb,
 
         (byte) 0xaa,
-    }, new int[] {1, 1, 1, 1, 1, 1, 1, 1});
+    }, new int[] {10, 10, 10, 10, 10, 10, 10, 10});
   }
 
   @ParametersAreNonnullByDefault
