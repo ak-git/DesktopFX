@@ -25,7 +25,15 @@ public enum KleiberVariable implements Variable<KleiberVariable> {
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().operator(() -> x -> x * 10).build();
+      return FilterBuilder.of().operator(() -> x -> {
+        int mV = x * 10;
+        if (mV == NO_CONNECT) {
+          mV = 0;
+        }
+        return mV;
+      }).build();
     }
-  }, M2, M3, M4, M5, M6, M7, M8
+  }, M2, M3, M4, M5, M6, M7, M8;
+
+  private static final int NO_CONNECT = -1250;
 }

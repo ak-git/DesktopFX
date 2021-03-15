@@ -32,11 +32,11 @@ public class KleiberConverterTest {
         0, 0, (byte) 0x80, 0x3f,
         0, 0, (byte) 0x80, 0x3f,
         0, 0, (byte) 0x80, 0x3f,
-        0, 0, (byte) 0x80, 0x3f,
+        0, 0, (byte) 0xfa, (byte) 0xc2,
         (byte) 0xbb,
 
         (byte) 0xaa,
-    }, new int[] {10, 10, 10, 10, 10, 10, 10, 10});
+    }, new int[] {10, 10, 10, 10, 10, 10, 10, 0});
   }
 
   @ParametersAreNonnullByDefault
