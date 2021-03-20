@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.BufferFrame;
-import com.ak.comm.bytes.nmis.NmisRequest;
-import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.FloatToIntegerConverter;
@@ -30,10 +28,7 @@ import com.ak.comm.converter.kleiber.KleiberVariable;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
-import com.ak.comm.converter.rsce.RsceConverter;
-import com.ak.comm.converter.rsce.RsceVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor;
 import com.ak.comm.interceptor.simple.FixedFrameBytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.logging.LocalFileHandler;
@@ -151,20 +146,6 @@ public class SpringFxApplication extends FxApplication {
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, KleiberVariable> converterKleiber() {
     return new FloatToIntegerConverter<>(KleiberVariable.class, 2000);
-  }
-
-  @Bean
-  @Profile("nmis-rsce")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static BytesInterceptor<NmisRequest, RsceCommandFrame> bytesInterceptorNmisRsce() {
-    return new NmisRsceBytesInterceptor();
-  }
-
-  @Bean
-  @Profile("nmis-rsce")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<RsceCommandFrame, RsceVariable> converterNmisRsce() {
-    return new RsceConverter();
   }
 
   @Bean
