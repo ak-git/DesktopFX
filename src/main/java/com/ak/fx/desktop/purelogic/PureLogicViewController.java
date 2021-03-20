@@ -8,15 +8,12 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Provider;
 
 import com.ak.comm.bytes.purelogic.PureLogicFrame;
-import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.purelogic.PureLogicConverter;
 import com.ak.comm.converter.purelogic.PureLogicVariable;
-import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.interceptor.purelogic.PureLogicBytesInterceptor;
 import com.ak.fx.desktop.AbstractScheduledViewController;
 import org.springframework.context.annotation.Profile;
 
@@ -37,11 +34,8 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
   private boolean up = true;
   private boolean isRefresh;
 
-  @Inject
-  @ParametersAreNonnullByDefault
-  public PureLogicViewController(Provider<BytesInterceptor<PureLogicFrame, PureLogicFrame>> interceptorProvider,
-                                 Provider<Converter<PureLogicFrame, PureLogicVariable>> converterProvider) {
-    super(interceptorProvider, converterProvider, FREQUENCY);
+  public PureLogicViewController() {
+    super(PureLogicBytesInterceptor::new, PureLogicConverter::new, FREQUENCY);
   }
 
   @Override
