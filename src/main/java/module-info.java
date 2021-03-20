@@ -44,7 +44,7 @@ module com.ak.fx.desktop {
   exports com.ak.comm.converter.kleiber to org.testng;
   exports com.ak.comm.interceptor.suntech to spring.beans, org.testng;
   exports com.ak.comm.interceptor.purelogic to spring.beans, org.testng;
-  exports com.ak.comm.interceptor.kleiber to org.testng;
+  exports com.ak.comm.interceptor.kleiber to spring.beans, org.testng;
   exports com.ak.comm.bytes.suntech to org.testng;
   exports com.ak.comm.bytes.purelogic to org.testng;
 
