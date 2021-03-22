@@ -35,7 +35,7 @@ public class AperStage4Current2VariableTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55505, -703270, 1293, 331367, -703269, 1640}},
+            new int[] {55505, -702471, 1293, 331367, -702470, 1640}},
     };
   }
 

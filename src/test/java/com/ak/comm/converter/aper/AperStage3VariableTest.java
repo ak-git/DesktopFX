@@ -35,7 +35,7 @@ public class AperStage3VariableTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55505, 331367, 331367, -703270, -703269, -683, -683, 1293, 1640}},
+            new int[] {55505, 331367, 331367, -702471, -702470, -683, -683, 1293, 1640}},
     };
   }
 
@@ -101,7 +101,7 @@ public class AperStage3VariableTest {
   @Test
   public void testFilterDelay() {
     double[] actual = EnumSet.allOf(AperStage3Variable.class).stream().mapToDouble(value -> value.filter().getDelay()).toArray();
-    double[] expected = {157.5, 157.5, 157.5, 157.5, 157.5, 0.0, 0.0, 157.5, 157.5};
+    double[] expected = {157.5, 157.5, 157.5, 0.0, 0.0, 0.0, 0.0, 157.5, 157.5};
     Assert.assertEquals(actual, expected, Arrays.toString(actual));
   }
 
