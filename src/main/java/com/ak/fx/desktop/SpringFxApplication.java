@@ -82,6 +82,11 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Override
+  public void escape() {
+    processEvent(ViewController::escape);
+  }
+
+  @Override
   public void zoom(ZoomEvent event) {
     processEvent(viewController -> viewController.zoom(event));
     super.zoom(event);
