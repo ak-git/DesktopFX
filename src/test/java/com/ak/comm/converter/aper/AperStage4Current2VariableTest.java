@@ -35,7 +35,7 @@ public class AperStage4Current2VariableTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55505, -702471, 1293, 331367, -702470, 1640}},
+            new int[] {55442, -702471, 1293, 330990, -702470, 1638}},
     };
   }
 
@@ -55,7 +55,7 @@ public class AperStage4Current2VariableTest {
         }
       }).count();
       if (processed.get()) {
-        Assert.assertEquals(count, 4);
+        Assert.assertEquals(count, 16);
         break;
       }
     }

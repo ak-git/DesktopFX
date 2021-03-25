@@ -51,6 +51,7 @@ import org.springframework.context.annotation.Scope;
     "com.ak.fx.desktop",
     "com.ak.comm.interceptor.nmis", "com.ak.comm.converter.nmis",
     "com.ak.comm.interceptor.suntech", "com.ak.comm.converter.suntech",
+    "com.ak.comm.interceptor.purelogic", "com.ak.comm.converter.purelogic",
     "com.ak.comm.interceptor.kleiber",
 })
 public class SpringFxApplication extends FxApplication {

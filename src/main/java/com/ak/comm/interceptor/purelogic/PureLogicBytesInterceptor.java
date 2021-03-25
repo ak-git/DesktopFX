@@ -5,14 +5,18 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import javax.annotation.Nonnull;
+import javax.inject.Named;
 
 import com.ak.comm.bytes.purelogic.PureLogicFrame;
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.Strings;
+import org.springframework.context.annotation.Profile;
 
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.FRAME_LEN;
 
+@Named
+@Profile("purelogic")
 public final class PureLogicBytesInterceptor extends AbstractBytesInterceptor<PureLogicFrame, PureLogicFrame> {
   private final StringBuilder frame = new StringBuilder(FRAME_LEN);
 
