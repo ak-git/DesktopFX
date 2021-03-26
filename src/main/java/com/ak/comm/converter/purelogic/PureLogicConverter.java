@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Profile;
 @Profile("purelogic")
 public final class PureLogicConverter extends AbstractConverter<PureLogicFrame, PureLogicVariable> {
   public static final int FREQUENCY = 1;
-  private static final int DATA_FREQUENCY = FREQUENCY * 100;
+  private static final int DATA_FREQUENCY = FREQUENCY * 1000;
   private int position;
 
   public PureLogicConverter() {

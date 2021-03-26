@@ -3,11 +3,13 @@ package com.ak.fx.desktop;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Provider;
 
@@ -21,6 +23,17 @@ public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & 
   private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
   @Nonnegative
   private final double frequencyHz;
+  private final Runnable command = () -> {
+    try {
+      service().write(get());
+    }
+    catch (Exception e) {
+      onError(e);
+    }
+  };
+  @Nullable
+  private ScheduledFuture<?> scheduledFuture;
+
 
   @ParametersAreNonnullByDefault
   protected AbstractScheduledViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
@@ -33,20 +46,30 @@ public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & 
   @Override
   public final void onSubscribe(@Nonnull Flow.Subscription s) {
     super.onSubscribe(s);
-    executorService.scheduleAtFixedRate(() -> {
-          try {
-            service().write(get());
-          }
-          catch (Exception e) {
-            onError(e);
-          }
-        },
-        0, Math.round(1000 / frequencyHz), TimeUnit.MILLISECONDS);
+    innerRefresh();
+  }
+
+  @Override
+  public void refresh() {
+    super.refresh();
+    innerRefresh();
   }
 
   @Override
   public final void close() {
+    innerCancel();
     executorService.shutdownNow();
     super.close();
+  }
+
+  private void innerRefresh() {
+    innerCancel();
+    scheduledFuture = executorService.scheduleAtFixedRate(command, 0, Math.round(1000 / frequencyHz), TimeUnit.MILLISECONDS);
+  }
+
+  private void innerCancel() {
+    if (scheduledFuture != null) {
+      scheduledFuture.cancel(true);
+    }
   }
 }
