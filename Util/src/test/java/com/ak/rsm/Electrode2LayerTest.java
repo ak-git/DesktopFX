@@ -48,9 +48,9 @@ public class Electrode2LayerTest {
 
   @Test
   public void testSingle() {
-    RelativeMediumLayers errorsScale = errorsScale(new double[] {10.0 / 30.0, 50.0 / 30.0}, Layers.getK12(1.0, 4.0), 5.0 / 50.0);
-    Assert.assertEquals(errorsScale.k12(), 1.608, 1.0e-3, errorsScale.toString());
-    Assert.assertEquals(errorsScale.h(), 0.319, 1.0e-3, errorsScale.toString());
+    RelativeMediumLayers errorsScale = errorsScale(new double[] {10.0 / 30.0, 50.0 / 30.0}, Layers.getK12(1.0, 4.0), 10.0 / 50.0);
+    Assert.assertEquals(errorsScale.k12(), 10.0, 0.1, errorsScale.toString());
+    Assert.assertEquals(errorsScale.h(), 2.0, 0.1, errorsScale.toString());
   }
 
   @Test(enabled = false)
@@ -99,9 +99,8 @@ public class Electrode2LayerTest {
         InexactTetrapolarSystem.si(ABS_ERROR_OVERALL_DIM).s(s2).l(L),
     };
 
-    Logger logger = Logger.getLogger(Electrode2LayerTest.class.getName());
     return InexactTetrapolarSystem.getTetrapolarSystemCombination(systems).stream()
-        .peek(systemsError -> logger.config(
+        .peek(systemsError -> LOGGER.config(
             () -> "s/L = [%.3f; %.3f]; k = %.3f; h/D = %.3f; %s"
                 .formatted(s1 / L, s2 / L, k, hToDim, Arrays.deepToString(systemsError)))
         )
@@ -140,8 +139,8 @@ public class Electrode2LayerTest {
               .collect(Collectors.toUnmodifiableList());
           return inverse.apply(measurements);
         })
-        .peek(solution -> logger.config(
-            () -> "s/L = [%.3f; %.3f]; k = %.3f; h/D = %.3f; k = %.3f; h = %.3f"
+        .peek(solution -> LOGGER.config(
+            () -> "s/L = [%.3f; %.3f]; k = %.3f; h/D = %.3f; k = %.3f; h = %.6f"
                 .formatted(s1 / L, s2 / L, k, hToDim, solution.k12(), solution.h()))
         )
         .map(solution -> new RelativeMediumLayers() {
@@ -155,7 +154,7 @@ public class Electrode2LayerTest {
             return Inequality.absolute().applyAsDouble(solution.h() / OVERALL_DIM, hToDim) / REL_ERROR_OVERALL_DIM;
           }
         })
-        .peek(errorFactors -> logger.config(
+        .peek(errorFactors -> LOGGER.config(
             () -> "s/L = [%.3f; %.3f]; k = %.3f; h/D = %.3f; \u03b4k = %.3f; \u0394(h/D) = %.3f"
                 .formatted(s1 / L, s2 / L, k, hToDim, errorFactors.k12(), errorFactors.h()))
         )
