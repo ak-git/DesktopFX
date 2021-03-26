@@ -48,9 +48,13 @@ public class Electrode2LayerTest {
 
   @Test
   public void testSingle() {
-    RelativeMediumLayers errorsScale = errorsScale(new double[] {10.0 / 30.0, 50.0 / 30.0}, Layers.getK12(1.0, 4.0), 10.0 / 50.0);
+    var errorsScale = errorsScale(new double[] {10.0 / 30.0, 50.0 / 30.0}, Layers.getK12(1.0, 4.0), 10.0 / 50.0);
     Assert.assertEquals(errorsScale.k12(), 10.0, 0.1, errorsScale.toString());
     Assert.assertEquals(errorsScale.h(), 2.0, 0.1, errorsScale.toString());
+
+    errorsScale = errorsScale(new double[] {10.0 / 30.0, 30.0 / 50.0}, Layers.getK12(1.0, 4.0), 10.0 / 50.0);
+    Assert.assertEquals(errorsScale.k12(), 5.7, 0.1, errorsScale.toString());
+    Assert.assertEquals(errorsScale.h(), 1.6, 0.1, errorsScale.toString());
   }
 
   @Test(enabled = false)
