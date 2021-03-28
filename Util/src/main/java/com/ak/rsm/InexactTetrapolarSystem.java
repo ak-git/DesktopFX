@@ -1,6 +1,7 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -51,8 +52,8 @@ final class InexactTetrapolarSystem {
   }
 
   @Nonnull
-  TetrapolarSystem shift(int signS, int signL) {
-    return system.shift(Math.signum(signS) * absError, Math.signum(signL) * absError);
+  InexactTetrapolarSystem shift(int signS, int signL) {
+    return new InexactTetrapolarSystem(absError, system.shift(Math.signum(signS) * absError, Math.signum(signL) * absError));
   }
 
   /**
@@ -122,18 +123,18 @@ final class InexactTetrapolarSystem {
   }
 
   @Nonnull
-  static List<TetrapolarSystem[]> getTetrapolarSystemCombination(@Nonnull InexactTetrapolarSystem[] systems) {
-    ToLongFunction<TetrapolarSystem[]> distinctSizes = ts -> Arrays.stream(ts).flatMap(s -> DoubleStream.of(s.getS(), s.getL()).boxed()).distinct().count();
-    long initialSizes = distinctSizes.applyAsLong(Arrays.stream(systems).map(InexactTetrapolarSystem::toExact).toArray(TetrapolarSystem[]::new));
-    return IntStream.range(0, 2 << (2 * (systems.length - 1) + 1))
+  static List<InexactTetrapolarSystem[]> getTetrapolarSystemCombination(@Nonnull Collection<InexactTetrapolarSystem> systems) {
+    ToLongFunction<InexactTetrapolarSystem[]> distinctSizes = ts -> Arrays.stream(ts).flatMap(s -> DoubleStream.of(s.toExact().getS(), s.toExact().getL()).boxed()).distinct().count();
+    long initialSizes = distinctSizes.applyAsLong(systems.toArray(InexactTetrapolarSystem[]::new));
+    return IntStream.range(0, 2 << (2 * (systems.size() - 1) + 1))
         .mapToObj(n -> {
           AtomicInteger signIndex = new AtomicInteger();
           IntUnaryOperator sign = index -> (n & (1 << index)) == 0 ? 1 : -1;
-          return Arrays.stream(systems)
+          return systems.stream()
               .map(s -> s.shift(
                   sign.applyAsInt(signIndex.getAndIncrement()),
                   sign.applyAsInt(signIndex.getAndIncrement())))
-              .toArray(TetrapolarSystem[]::new);
+              .toArray(InexactTetrapolarSystem[]::new);
         })
         .filter(s -> initialSizes == distinctSizes.applyAsLong(s))
         .collect(Collectors.toUnmodifiableList());

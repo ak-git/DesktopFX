@@ -60,7 +60,7 @@ final class TetrapolarMeasurement implements Measurement {
   @Override
   public String toString() {
     return "%s; %s (%.0f %%)".formatted(String.valueOf(system),
-        Strings.rho(resistivity, system.getApparentRelativeError()),
+        Strings.rho(resistivity),
         Metrics.toPercents(system.getApparentRelativeError())
     );
   }

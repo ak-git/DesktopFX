@@ -1,9 +1,5 @@
 package com.ak.util;
 
-import java.util.Arrays;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -21,16 +17,12 @@ public enum Strings {
   public static final String NEW_LINE_2 = String.format("%n%n");
   public static final String TAB = "\t";
   public static final String OHM_METRE = new StringBuilder(OHM.multiply(METRE).toString()).reverse().toString();
+  public static final String PLUS_MINUS = "\u00B1";
   private static final String RHO = "\u03c1";
-  private static final String PLUS_MINUS = "\u00B1";
 
   public static String numberSuffix(@Nonnull String s) {
     String ignore = s.replaceFirst("\\d*$", EMPTY);
     return s.replace(ignore, EMPTY);
-  }
-
-  public static String toString(@Nonnull String format, @Nonnull double[] values) {
-    return Arrays.stream(values).mapToObj(format::formatted).collect(Collectors.joining("; ", "{", "}"));
   }
 
   public static String h(@Nonnegative double h, @Nonnegative int index) {
@@ -45,27 +37,11 @@ public enum Strings {
     return "%s = %.3f %s".formatted(RHO, rho, OHM_METRE);
   }
 
-  public static String rho(@Nonnegative double rho, @Nonnegative double relError) {
-    int afterZero = (int) Math.abs(Math.min(Math.floor(StrictMath.log10(relError * rho)), 0));
-    return new StringJoiner(SPACE)
-        .add(RHO).add("=").add("%%.%df".formatted(afterZero).formatted(rho))
-        .add(PLUS_MINUS).add("%%.%df".formatted(afterZero + 1).formatted(relError * rho))
-        .add(OHM_METRE).toString();
-  }
-
-  public static String rho1(@Nonnegative double rho1) {
-    return rho(rho1, 1);
-  }
-
-  public static String rho2(@Nonnegative double rho2) {
-    return rho(rho2, 2);
-  }
-
   public static char low(int index) {
     return (char) ((int) '\u2080' + index);
   }
 
-  private static String rho(@Nonnegative double rho, @Nonnegative int index) {
-    return "%s%s = %.3f %s".formatted(RHO, low(index), rho, OHM_METRE);
+  public static String rho(@Nonnull Object rho, @Nonnegative int index) {
+    return "%s%s = %s %s".formatted(RHO, low(index), rho, OHM_METRE);
   }
 }

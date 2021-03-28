@@ -60,7 +60,7 @@ public class Resistance1LayerTest {
         .mapToDouble(n -> {
           int signS = (n & 1) == 0 ? 1 : -1;
           int signL = (n & (1 << 1)) == 0 ? 1 : -1;
-          return system.shift(signS, signL).getApparent(rOhms);
+          return system.shift(signS, signL).toExact().getApparent(rOhms);
         })
         .map(rho -> Inequality.proportional().applyAsDouble(rho, 1.0)).max().orElseThrow();
     Assert.assertEquals(error, expectedError, 1.0e-6, system.toString());

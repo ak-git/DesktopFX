@@ -26,7 +26,7 @@ final class TetrapolarPrediction implements Prediction {
   private final double[] horizons;
 
   @ParametersAreNonnullByDefault
-  TetrapolarPrediction(Measurement measurement, RelativeMediumLayers layers, @Nonnegative double rho1) {
+  TetrapolarPrediction(Measurement measurement, RelativeMediumLayers<Double> layers, @Nonnegative double rho1) {
     double predicted = rho1;
 
     InexactTetrapolarSystem inexact = measurement.getSystem();

@@ -1,6 +1,7 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.DoubleStream;
 
@@ -75,10 +76,10 @@ public class InexactTetrapolarSystemTest {
   public void testShift() {
     InexactTetrapolarSystem initial = InexactTetrapolarSystem.milli(0.1).s(20.0).l(10.0);
     Assert.assertEquals(initial.toExact().toRelative().errorFactor(), 6.0, 0.01);
-    Assert.assertEquals(initial.shift(1, -1).toRelative().errorFactor(), 5.97, 0.01);
-    Assert.assertEquals(initial.shift(-1, -1).toRelative().errorFactor(), 5.99, 0.01);
-    Assert.assertEquals(initial.shift(1, 1).toRelative().errorFactor(), 6.01, 0.01);
-    Assert.assertEquals(initial.shift(-1, 1).toRelative().errorFactor(), 6.03, 0.01);
+    Assert.assertEquals(initial.shift(1, -1).toExact().toRelative().errorFactor(), 5.97, 0.01);
+    Assert.assertEquals(initial.shift(-1, -1).toExact().toRelative().errorFactor(), 5.99, 0.01);
+    Assert.assertEquals(initial.shift(1, 1).toExact().toRelative().errorFactor(), 6.01, 0.01);
+    Assert.assertEquals(initial.shift(-1, 1).toExact().toRelative().errorFactor(), 6.03, 0.01);
   }
 
   @DataProvider(name = "rho1rho2")
@@ -134,40 +135,40 @@ public class InexactTetrapolarSystemTest {
   public static Object[][] inexactTetrapolarSystemsCombinations() {
     return new Object[][] {
         {
-            new InexactTetrapolarSystem[] {
+            Arrays.asList(
                 InexactTetrapolarSystem.milli(0.1).s(10.0).l(30.0),
                 InexactTetrapolarSystem.milli(0.1).s(20.0).l(30.0)
-            },
+            ),
             8
         },
         {
-            new InexactTetrapolarSystem[] {
+            Arrays.asList(
                 InexactTetrapolarSystem.milli(0.1).s(10.0).l(30.0),
                 InexactTetrapolarSystem.milli(0.1).s(10.0).l(40.0)
-            },
+            ),
             8
         },
         {
-            new InexactTetrapolarSystem[] {
+            Arrays.asList(
                 InexactTetrapolarSystem.milli(0.1).s(10.0).l(30.0),
                 InexactTetrapolarSystem.milli(0.1).s(50.0).l(30.0),
                 InexactTetrapolarSystem.milli(0.1).s(30.0).l(60.0)
-            },
+            ),
             16
         },
         {
-            new InexactTetrapolarSystem[] {
+            Arrays.asList(
                 InexactTetrapolarSystem.milli(0.1).s(10.0).l(30.0),
                 InexactTetrapolarSystem.milli(0.1).s(50.0).l(40.0),
                 InexactTetrapolarSystem.milli(0.1).s(60.0).l(80.0)
-            },
+            ),
             64
         },
     };
   }
 
   @Test(dataProvider = "inexact-tetrapolar-systems-combinations")
-  public void testTetrapolarSystemCombination(@Nonnull InexactTetrapolarSystem[] systems, @Nonnegative int expected) {
-    Assert.assertEquals(InexactTetrapolarSystem.getTetrapolarSystemCombination(systems).size(), expected, Arrays.toString(systems));
+  public void testTetrapolarSystemCombination(@Nonnull Collection<InexactTetrapolarSystem> systems, @Nonnegative int expected) {
+    Assert.assertEquals(InexactTetrapolarSystem.getTetrapolarSystemCombination(systems).size(), expected, systems.toString());
   }
 }
