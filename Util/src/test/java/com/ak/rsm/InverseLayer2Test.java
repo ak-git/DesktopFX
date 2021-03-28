@@ -23,10 +23,10 @@ public class InverseLayer2Test {
   @DataProvider(name = "layer2")
   public static Object[][] layer2() {
     InexactTetrapolarSystem[] systems2 = systems2(0.1, 10.0);
-    InexactTetrapolarSystem[] systems4 = toInexact(Metrics.fromMilli(0.1), new TetrapolarSystem[] {
+    InexactTetrapolarSystem[] systems3 = toInexact(Metrics.fromMilli(0.1), new TetrapolarSystem[] {
         TetrapolarSystem.milli().s(10.0).l(20.0),
         TetrapolarSystem.milli().s(20.0).l(30.0),
-        TetrapolarSystem.milli().s(30.0).l(40.0),
+        TetrapolarSystem.milli().s(10.0).l(30.0),
     });
     return new Object[][] {
         {
@@ -36,8 +36,8 @@ public class InverseLayer2Test {
             new ValuePair[] {new ValuePair(10.0, 0.11), new ValuePair(10.0, 0.11), new ValuePair(Double.NaN)}
         },
         {
-            systems4,
-            Arrays.stream(systems4)
+            systems3,
+            Arrays.stream(systems3)
                 .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(10.0, 1.0, Metrics.fromMilli(10.0))).toArray(),
             new ValuePair[] {
                 new ValuePair(10.0, 3.3),

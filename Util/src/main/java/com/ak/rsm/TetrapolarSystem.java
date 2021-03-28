@@ -126,10 +126,10 @@ public final class TetrapolarSystem {
   /**
    * Generates optimal electrode system pair.
    * <p>
-   *   For 10 mm: <b>10 x 30, 50 x 50, 20 x 40, 60 x 40 mm</b>
+   * For 10 mm: <b>10 x 30, 50 x 30, 20 x 40, 60 x 40 mm</b>
    * </p>
    * <p>
-   *   For 7 mm: <b>7 x 21, 35 x 21, 14 x 28, 42 x 28 mm</b>
+   * For 7 mm: <b>7 x 21, 35 x 21, 14 x 28, 42 x 28 mm</b>
    * </p>
    *
    * @param smm small potential electrode distance, mm.
