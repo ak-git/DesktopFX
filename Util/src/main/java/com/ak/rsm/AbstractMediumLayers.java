@@ -46,7 +46,6 @@ abstract class AbstractMediumLayers<D, T extends AbstractMediumLayers<D, T>> imp
       implements Builder<T> {
     @Nonnull
     private final Collection<Prediction> predictions;
-    @Nonnull
     D rho;
 
     AbstractMediumBuilder(@Nonnull Collection<Prediction> predictions) {

@@ -45,16 +45,6 @@ public class InverseLayer2Test {
                 new ValuePair(Metrics.fromMilli(10.0), Metrics.fromMilli(3.1))
             }
         },
-        {
-            systems4,
-            Arrays.stream(systems4)
-                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, 10.0, Metrics.fromMilli(10.0))).toArray(),
-            new ValuePair[] {
-                new ValuePair(1.0, 1.0),
-                new ValuePair(10.0, Double.POSITIVE_INFINITY),
-                new ValuePair(Metrics.fromMilli(10.0), Metrics.fromMilli(10.0))
-            }
-        },
     };
   }
 
