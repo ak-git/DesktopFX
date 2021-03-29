@@ -81,35 +81,37 @@ public class Electrode2LayerTest {
     };
 
     Collection<DerivativeMeasurement> measurements = Arrays.stream(systems)
-        .map(s -> new DerivativeMeasurement() {
-          private final TetrapolarSystem system = getSystem().toExact();
+        .map(
+            s -> new DerivativeMeasurement() {
+              private final TetrapolarSystem system = getSystem().toExact();
 
-          @Override
-          public double getDerivativeResistivity() {
-            return system.getApparent(new NormalizedDerivativeR2ByH(system).value(k, h() / system.getL()));
-          }
+              @Override
+              public double getDerivativeResistivity() {
+                return system.getApparent(new NormalizedDerivativeR2ByH(system).value(k, h() / system.getL()));
+              }
 
-          @Override
-          public double getResistivity() {
-            return system.getApparent(new NormalizedResistance2Layer(system).applyAsDouble(k, h()));
-          }
+              @Override
+              public double getResistivity() {
+                return system.getApparent(new NormalizedResistance2Layer(system).applyAsDouble(k, h()));
+              }
 
-          @Nonnull
-          @Override
-          public InexactTetrapolarSystem getSystem() {
-            return s;
-          }
+              @Nonnull
+              @Override
+              public InexactTetrapolarSystem getSystem() {
+                return s;
+              }
 
-          private double h() {
-            return hToDim * OVERALL_DIM;
-          }
+              private double h() {
+                return hToDim * OVERALL_DIM;
+              }
 
-          @Override
-          public String toString() {
-            return "%s; h = %.3f; %s; %s"
-                .formatted(getSystem(), h(), Strings.rho(getResistivity()), Strings.dRhoByH(getDerivativeResistivity()));
-          }
-        })
+              @Override
+              public String toString() {
+                return "%s; h = %.3f; %s; %s"
+                    .formatted(getSystem(), h(), Strings.rho(getResistivity()), Strings.dRhoByH(getDerivativeResistivity()));
+              }
+            }
+        )
         .collect(Collectors.toUnmodifiableList());
 
     Function<Collection<DerivativeMeasurement>, Layer2Medium<Double>> layer2MediumFunction =
