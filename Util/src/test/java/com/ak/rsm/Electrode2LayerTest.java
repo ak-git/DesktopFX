@@ -2,21 +2,17 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
-import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import com.ak.inverse.Inequality;
-import com.ak.util.LineFileBuilder;
+import com.ak.math.ValuePair;
 import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -27,30 +23,15 @@ public class Electrode2LayerTest {
   private static final double REL_ERROR_OVERALL_DIM = 1.0e-5;
   private static final double ABS_ERROR_OVERALL_DIM = REL_ERROR_OVERALL_DIM * OVERALL_DIM;
 
-  @Test(enabled = false)
-  public void test() {
-    LineFileBuilder.<RelativeMediumLayers>of("%.3f %.3f %.6f")
-        .xStream(() -> DoubleStream.of(0.5))
-        .yRange(-1.0, 1.0, 0.1)
-        .add("k1.txt", RelativeMediumLayers::k12)
-        .add("h1.txt", RelativeMediumLayers::h)
-        .generate((hToL, k) -> errorsScale(new double[] {0.2, 0.6}, k, hToL));
-
-    LineFileBuilder.<RelativeMediumLayers>of("%.3f %.3f %.6f")
-        .xStream(() -> DoubleStream.of(0.5))
-        .yRange(-1.0, 1.0, 0.1)
-        .add("k2.txt", RelativeMediumLayers::k12)
-        .add("h2.txt", RelativeMediumLayers::h)
-        .generate((hToL, k) -> errorsScale(new double[] {0.2, 0.6}, k, hToL,
-            derivativeMeasurements -> Inverse.inverseStaticRelative(derivativeMeasurements, UnaryOperator.identity()))
-        );
-  }
-
   @Test
   public void testSingle() {
-    RelativeMediumLayers errorsScale = errorsScale(new double[] {10.0 / 30.0, 50.0 / 30.0}, Layers.getK12(1.0, 4.0), 5.0 / 50.0);
-    Assert.assertEquals(errorsScale.k12(), 1.608, 1.0e-3, errorsScale.toString());
-    Assert.assertEquals(errorsScale.h(), 0.319, 1.0e-3, errorsScale.toString());
+    var errorsScale = errorsScale(new double[] {10.0 / 30.0, 50.0 / 30.0}, Layers.getK12(1.0, 4.0), 10.0 / 50.0);
+    Assert.assertEquals(errorsScale.k12().getAbsError() / REL_ERROR_OVERALL_DIM, 10.0, 0.1, errorsScale.toString());
+    Assert.assertEquals(errorsScale.h().getAbsError() / REL_ERROR_OVERALL_DIM, 1.9, 0.1, errorsScale.toString());
+
+    errorsScale = errorsScale(new double[] {10.0 / 30.0, 30.0 / 50.0}, Layers.getK12(1.0, 4.0), 10.0 / 50.0);
+    Assert.assertEquals(errorsScale.k12().getAbsError() / REL_ERROR_OVERALL_DIM, 5.7, 0.1, errorsScale.toString());
+    Assert.assertEquals(errorsScale.h().getAbsError() / REL_ERROR_OVERALL_DIM, 1.6, 0.1, errorsScale.toString());
   }
 
   @Test(enabled = false)
@@ -60,12 +41,12 @@ public class Electrode2LayerTest {
   }
 
   @ParametersAreNonnullByDefault
-  private static RelativeMediumLayers errorsScale(double[] sToL, double k, @Nonnegative double hToDim) {
+  private static RelativeMediumLayers<ValuePair> errorsScale(double[] sToL, double k, @Nonnegative double hToDim) {
     return errorsScale(sToL, k, hToDim,
         derivativeMeasurements -> Inverse.inverseDynamicRelative(derivativeMeasurements,
-            new RelativeMediumLayers() {
+            new RelativeMediumLayers<>() {
               @Override
-              public double k12() {
+              public Double k12() {
                 return k;
               }
 
@@ -73,7 +54,7 @@ public class Electrode2LayerTest {
                * @return h / L
                */
               @Override
-              public double h() {
+              public Double h() {
                 return hToDim * Arrays.stream(sToL).reduce(1.0, Math::max);
               }
 
@@ -86,8 +67,8 @@ public class Electrode2LayerTest {
   }
 
   @ParametersAreNonnullByDefault
-  private static RelativeMediumLayers errorsScale(double[] sToL, double k, @Nonnegative double hToDim,
-                                                  Function<Collection<DerivativeMeasurement>, RelativeMediumLayers> inverse) {
+  private static RelativeMediumLayers<ValuePair> errorsScale(double[] sToL, double k, @Nonnegative double hToDim,
+                                                             Function<Collection<DerivativeMeasurement>, RelativeMediumLayers<Double>> inverse) {
     double maxRelDim = Arrays.stream(sToL).reduce(1.0, Math::max);
     DoubleUnaryOperator converterToAbs = rel -> OVERALL_DIM * rel / maxRelDim;
     double s1 = converterToAbs.applyAsDouble(sToL[0]);
@@ -99,89 +80,50 @@ public class Electrode2LayerTest {
         InexactTetrapolarSystem.si(ABS_ERROR_OVERALL_DIM).s(s2).l(L),
     };
 
-    Logger logger = Logger.getLogger(Electrode2LayerTest.class.getName());
-    return InexactTetrapolarSystem.getTetrapolarSystemCombination(systems).stream()
-        .peek(systemsError -> logger.config(
-            () -> "s/L = [%.3f; %.3f]; k = %.3f; h/D = %.3f; %s"
-                .formatted(s1 / L, s2 / L, k, hToDim, Arrays.deepToString(systemsError)))
+    Collection<DerivativeMeasurement> measurements = Arrays.stream(systems)
+        .map(
+            s -> new DerivativeMeasurement() {
+              private final TetrapolarSystem system = getSystem().toExact();
+
+              @Override
+              public double getDerivativeResistivity() {
+                return system.getApparent(new NormalizedDerivativeR2ByH(system).value(k, h() / system.getL()));
+              }
+
+              @Override
+              public double getResistivity() {
+                return system.getApparent(new NormalizedResistance2Layer(system).applyAsDouble(k, h()));
+              }
+
+              @Nonnull
+              @Override
+              public InexactTetrapolarSystem getSystem() {
+                return s;
+              }
+
+              private double h() {
+                return hToDim * OVERALL_DIM;
+              }
+
+              @Override
+              public String toString() {
+                return "%s; h = %.3f; %s; %s"
+                    .formatted(getSystem(), h(), Strings.rho(getResistivity()), Strings.dRhoByH(getDerivativeResistivity()));
+              }
+            }
         )
-        .map(systemsError -> {
-          Collection<DerivativeMeasurement> measurements = IntStream.range(0, systems.length)
-              .mapToObj(i ->
-                  new DerivativeMeasurement() {
-                    private final DoubleUnaryOperator toResistivity = operand -> systemsError[i].getApparent(operand);
-                    private final TetrapolarSystem system = systems[i].toExact();
+        .collect(Collectors.toUnmodifiableList());
 
-                    @Override
-                    public double getDerivativeResistivity() {
-                      return toResistivity.applyAsDouble(new NormalizedDerivativeR2ByH(system).value(k, h() / system.getL()));
-                    }
+    Function<Collection<DerivativeMeasurement>, Layer2Medium<Double>> layer2MediumFunction =
+        ms -> {
+          RelativeMediumLayers<Double> kh = inverse.apply(ms);
+          double rho1 = 1.0;
+          double rho2 = rho1 / Layers.getRho1ToRho2(kh.k12());
+          return new Layer2Medium.DoubleLayer2MediumBuilder(
+              ms.stream().map(m -> TetrapolarDerivativePrediction.of(m, kh, rho1)).collect(Collectors.toUnmodifiableList()))
+              .layer1(rho1, kh.h()).layer2(rho2).build();
+        };
 
-                    @Override
-                    public double getResistivity() {
-                      return toResistivity.applyAsDouble(new NormalizedResistance2Layer(system).applyAsDouble(k, h()));
-                    }
-
-                    @Nonnull
-                    @Override
-                    public InexactTetrapolarSystem getSystem() {
-                      return InexactTetrapolarSystem.toInexact(ABS_ERROR_OVERALL_DIM, systemsError)[i];
-                    }
-
-                    private double h() {
-                      return hToDim * OVERALL_DIM;
-                    }
-
-                    @Override
-                    public String toString() {
-                      return "%s; h = %.3f; %s; %s".formatted(getSystem(), h(), Strings.rho(getResistivity()), Strings.dRhoByH(getDerivativeResistivity()));
-                    }
-                  })
-              .collect(Collectors.toUnmodifiableList());
-          return inverse.apply(measurements);
-        })
-        .peek(solution -> logger.config(
-            () -> "s/L = [%.3f; %.3f]; k = %.3f; h/D = %.3f; k = %.3f; h = %.3f"
-                .formatted(s1 / L, s2 / L, k, hToDim, solution.k12(), solution.h()))
-        )
-        .map(solution -> new RelativeMediumLayers() {
-          @Override
-          public double k12() {
-            return Inequality.absolute().applyAsDouble(solution.k12(), k) / REL_ERROR_OVERALL_DIM;
-          }
-
-          @Override
-          public double h() {
-            return Inequality.absolute().applyAsDouble(solution.h() / OVERALL_DIM, hToDim) / REL_ERROR_OVERALL_DIM;
-          }
-        })
-        .peek(errorFactors -> logger.config(
-            () -> "s/L = [%.3f; %.3f]; k = %.3f; h/D = %.3f; \u03b4k = %.3f; \u0394(h/D) = %.3f"
-                .formatted(s1 / L, s2 / L, k, hToDim, errorFactors.k12(), errorFactors.h()))
-        )
-        .parallel()
-        .collect(
-            Collectors.teeing(
-                Collectors.maxBy(Comparator.comparingDouble(RelativeMediumLayers::k12)),
-                Collectors.maxBy(Comparator.comparingDouble(RelativeMediumLayers::h)),
-                (r1, r2) -> new RelativeMediumLayers() {
-                  @Override
-                  public double k12() {
-                    return Math.max(r1.orElseThrow().k12(), r2.orElseThrow().k12());
-                  }
-
-                  @Override
-                  public double h() {
-                    return Math.max(r1.orElseThrow().h(), r2.orElseThrow().h());
-                  }
-
-                  @Override
-                  public String toString() {
-                    return "s/L = [%.3f; %.3f]; k = %.3f; h/D = %.3f; \u03b4k = %.3f; \u0394(h/D) = %.3f"
-                        .formatted(s1 / L, s2 / L, k, hToDim, k12(), h());
-                  }
-                }
-            )
-        );
+    return Inverse.getPairLayer2Medium(measurements, layer2MediumFunction, DerivativeMeasurement::newInstance);
   }
 }

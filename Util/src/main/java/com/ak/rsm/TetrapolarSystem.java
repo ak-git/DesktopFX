@@ -37,22 +37,27 @@ public final class TetrapolarSystem {
 
   @Nonnegative
   double getLRelativeError(@Nonnegative double absErrorL) {
-    return absErrorL / Math.max(sPU, lCC);
+    return absErrorL / l();
   }
 
   @Nonnegative
   double getHMax(double k, @Nonnegative double absErrorL) {
-    return relativeSystem.hMaxFactor(k) * Math.max(sPU, lCC) / StrictMath.pow(getLRelativeError(absErrorL), 1.0 / 3.0);
+    return relativeSystem.hMaxFactor(k) * l() / StrictMath.pow(getLRelativeError(absErrorL), 1.0 / 3.0);
   }
 
   @Nonnegative
   double getHMin(double k, @Nonnegative double absErrorL) {
-    return Math.max(sPU, lCC) * Math.sqrt(getLRelativeError(absErrorL)) * relativeSystem.hMinFactor(k);
+    return l() * Math.sqrt(getLRelativeError(absErrorL)) * relativeSystem.hMinFactor(k);
   }
 
   @Nonnegative
   double factor(double sign) {
     return Math.abs(lCC + Math.signum(sign) * sPU) / 2.0;
+  }
+
+  @Nonnegative
+  double getS() {
+    return sPU;
   }
 
   @Nonnegative
@@ -81,18 +86,25 @@ public final class TetrapolarSystem {
     }
 
     TetrapolarSystem that = (TetrapolarSystem) o;
-    return Double.compare(Math.min(sPU, lCC), Math.min(that.sPU, that.lCC)) == 0 &&
-        Double.compare(Math.max(sPU, lCC), Math.max(that.sPU, that.lCC)) == 0;
+    return Double.compare(s(), that.s()) == 0 && Double.compare(l(), that.l()) == 0;
   }
 
   @Override
   public int hashCode() {
-    return Arrays.hashCode(new double[] {Math.min(sPU, lCC), Math.max(sPU, lCC)});
+    return Arrays.hashCode(new double[] {s(), l()});
   }
 
   @Override
   public String toString() {
-    return "%2.0f x %2.0f %s".formatted(Metrics.toMilli(sPU), Metrics.toMilli(lCC), MetricPrefix.MILLI(METRE));
+    return "%2.3f x %2.3f %s".formatted(Metrics.toMilli(sPU), Metrics.toMilli(lCC), MetricPrefix.MILLI(METRE));
+  }
+
+  private double s() {
+    return Math.min(sPU, lCC);
+  }
+
+  private double l() {
+    return Math.max(sPU, lCC);
   }
 
   /**
@@ -114,10 +126,10 @@ public final class TetrapolarSystem {
   /**
    * Generates optimal electrode system pair.
    * <p>
-   *   For 10 mm: <b>10 x 30, 50 x 50, 20 x 40, 60 x 40 mm</b>
+   * For 10 mm: <b>10 x 30, 50 x 30, 20 x 40, 60 x 40 mm</b>
    * </p>
    * <p>
-   *   For 7 mm: <b>7 x 21, 35 x 21, 14 x 28, 42 x 28 mm</b>
+   * For 7 mm: <b>7 x 21, 35 x 21, 14 x 28, 42 x 28 mm</b>
    * </p>
    *
    * @param smm small potential electrode distance, mm.

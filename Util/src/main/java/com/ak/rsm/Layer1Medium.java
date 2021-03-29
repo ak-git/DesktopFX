@@ -4,7 +4,10 @@ import java.util.Collection;
 
 import javax.annotation.Nonnull;
 
-final class Layer1Medium extends AbstractMediumLayers<Layer1Medium> {
+import com.ak.math.ValuePair;
+import com.ak.util.Strings;
+
+final class Layer1Medium extends AbstractMediumLayers<ValuePair, Layer1Medium> {
   @Nonnull
   private final Measurement measurement;
 
@@ -14,11 +17,21 @@ final class Layer1Medium extends AbstractMediumLayers<Layer1Medium> {
   }
 
   @Override
-  public String toString() {
-    return "%s; %s".formatted(measurement, super.toString());
+  public ValuePair k12() {
+    return new ValuePair(0.0);
   }
 
-  static final class Layer1MediumBuilder extends AbstractMediumBuilder<Layer1Medium> {
+  @Override
+  public ValuePair h() {
+    return new ValuePair(Double.NaN);
+  }
+
+  @Override
+  public String toString() {
+    return "%s; %s; %s".formatted(Strings.rho(rho(), 1), measurement, super.toString());
+  }
+
+  static final class Layer1MediumBuilder extends AbstractMediumBuilder<ValuePair, Layer1Medium> {
     private Measurement measurement;
 
     Layer1MediumBuilder(@Nonnull Collection<Prediction> predictions) {
@@ -27,7 +40,10 @@ final class Layer1Medium extends AbstractMediumLayers<Layer1Medium> {
 
     Layer1MediumBuilder layer1(@Nonnull Measurement measurement) {
       this.measurement = measurement;
-      rho = measurement.getResistivity();
+      rho = new ValuePair(
+          measurement.getResistivity(),
+          measurement.getResistivity() * measurement.getSystem().getApparentRelativeError()
+      );
       return this;
     }
 

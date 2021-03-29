@@ -45,7 +45,7 @@ final class TetrapolarDerivativePrediction implements Prediction {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  static Prediction of(DerivativeMeasurement m, RelativeMediumLayers layers, @Nonnegative double rho1) {
+  static Prediction of(DerivativeMeasurement m, RelativeMediumLayers<Double> layers, @Nonnegative double rho1) {
     TetrapolarSystem system = m.getSystem().toExact();
     return new TetrapolarDerivativePrediction(m, new TetrapolarPrediction(m, layers, rho1),
         new DerivativeApparent2Rho(system).value(layers.k12(), layers.h() / system.getL()) * rho1
