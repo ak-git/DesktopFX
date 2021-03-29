@@ -3,8 +3,6 @@ package com.ak.util;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import tec.uom.se.unit.MetricPrefix;
-
 import static tec.uom.se.unit.Units.METRE;
 import static tec.uom.se.unit.Units.OHM;
 
@@ -23,10 +21,6 @@ public enum Strings {
   public static String numberSuffix(@Nonnull String s) {
     String ignore = s.replaceFirst("\\d*$", EMPTY);
     return s.replace(ignore, EMPTY);
-  }
-
-  public static String h(@Nonnegative double h, @Nonnegative int index) {
-    return "h%s = %.2f %s".formatted(low(index), Metrics.toMilli(h), MetricPrefix.MILLI(METRE));
   }
 
   public static String dRhoByH(double v) {
