@@ -32,7 +32,7 @@ enum Inverse {
       (s, kh) -> StrictMath.log(Math.abs(new DerivativeApparent2Rho(s).value(kh.k12(), kh.h() / s.getL())));
 
   @Nonnull
-  public static MediumLayers<ValuePair> inverseStatic(@Nonnull Collection<Measurement> measurements) {
+  static MediumLayers<ValuePair> inverseStatic(@Nonnull Collection<Measurement> measurements) {
     if (measurements.size() > 2) {
       Function<Collection<Measurement>, Layer2Medium<Double>> layer2MediumFunction =
           ms -> {
@@ -63,7 +63,7 @@ enum Inverse {
   }
 
   @Nonnull
-  public static MediumLayers<ValuePair> inverseDynamic(@Nonnull Collection<DerivativeMeasurement> measurements) {
+  static MediumLayers<ValuePair> inverseDynamic(@Nonnull Collection<DerivativeMeasurement> measurements) {
     if (measurements.size() > 1) {
       RelativeMediumLayers<Double> initial = new RelativeMediumLayers<>() {
         @Override
@@ -96,13 +96,13 @@ enum Inverse {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  private static <T extends Measurement> Layer2Medium<ValuePair> getPairLayer2Medium(
+  static <T extends Measurement> Layer2Medium<ValuePair> getPairLayer2Medium(
       Collection<T> measurements,
       Function<Collection<T>, Layer2Medium<Double>> layer2MediumFunction,
-      BiFunction<T, InexactTetrapolarSystem, T> newInstanceDerivative) {
+      BiFunction<T, InexactTetrapolarSystem, T> newInstanceMeasurement) {
 
     Layer2Medium<Double> center = layer2MediumFunction.apply(measurements);
-    return Measurement.getMeasurementsCombination(measurements, newInstanceDerivative)
+    return Measurement.getMeasurementsCombination(measurements, newInstanceMeasurement)
         .stream()
         .map(layer2MediumFunction)
         .map(m -> {
@@ -133,8 +133,8 @@ enum Inverse {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  public static RelativeMediumLayers<Double> inverseDynamicRelative(Collection<? extends DerivativeMeasurement> derivativeMeasurements,
-                                                                    RelativeMediumLayers<Double> initialRelative) {
+  static RelativeMediumLayers<Double> inverseDynamicRelative(Collection<? extends DerivativeMeasurement> derivativeMeasurements,
+                                                             RelativeMediumLayers<Double> initialRelative) {
     double[] kMinMax = {-1.0, 1.0};
     if (initialRelative.k12() > 0.0) {
       kMinMax[0] = 0.0;
@@ -171,8 +171,8 @@ enum Inverse {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  public static RelativeMediumLayers<Double> inverseStaticRelative(Collection<? extends Measurement> measurements,
-                                                                   UnaryOperator<double[]> subtract) {
+  static RelativeMediumLayers<Double> inverseStaticRelative(Collection<? extends Measurement> measurements,
+                                                            UnaryOperator<double[]> subtract) {
     double[] subLogApparent = subtract.apply(measurements.stream().mapToDouble(Measurement::getLogResistivity).toArray());
     Function<double[], RelativeMediumLayers<Double>> layersFunction = newLayerFunction(measurements);
     double maxHToL = getMaxHToL(measurements);
