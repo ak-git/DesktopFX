@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
+import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -13,6 +15,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.math.ValuePair;
+import com.ak.util.LineFileBuilder;
 import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -22,16 +25,38 @@ public class Electrode2LayerTest {
   private static final double OVERALL_DIM = 1.0;
   private static final double REL_ERROR_OVERALL_DIM = 1.0e-5;
   private static final double ABS_ERROR_OVERALL_DIM = REL_ERROR_OVERALL_DIM * OVERALL_DIM;
+  private static final ToDoubleFunction<ValuePair> ERR = value -> value.getAbsError() / REL_ERROR_OVERALL_DIM;
+  private static final ToDoubleFunction<RelativeMediumLayers<ValuePair>> K = value -> ERR.applyAsDouble(value.k12());
+  private static final ToDoubleFunction<RelativeMediumLayers<ValuePair>> H = value -> ERR.applyAsDouble(value.h());
+
+  @Test(enabled = false)
+  public void test() {
+    LineFileBuilder.<RelativeMediumLayers<ValuePair>>of("%.3f %.3f %.6f")
+        .xStream(() -> DoubleStream.of(0.5))
+        .yRange(-1.0, 1.0, 0.1)
+        .add("k1.txt", K)
+        .add("h1.txt", H)
+        .generate((hToL, k) -> errorsScale(new double[] {0.2, 0.6}, k, hToL));
+
+    LineFileBuilder.<RelativeMediumLayers<ValuePair>>of("%.3f %.3f %.6f")
+        .xStream(() -> DoubleStream.of(0.5))
+        .yRange(-1.0, 1.0, 0.1)
+        .add("k2.txt", K)
+        .add("h2.txt", H)
+        .generate((hToL, k) -> errorsScale(new double[] {0.2, 0.6}, k, hToL,
+            derivativeMeasurements -> Inverse.inverseStaticRelative(derivativeMeasurements, UnaryOperator.identity()))
+        );
+  }
 
   @Test
   public void testSingle() {
     var errorsScale = errorsScale(new double[] {10.0 / 30.0, 50.0 / 30.0}, Layers.getK12(1.0, 4.0), 10.0 / 50.0);
-    Assert.assertEquals(errorsScale.k12().getAbsError() / REL_ERROR_OVERALL_DIM, 10.0, 0.1, errorsScale.toString());
-    Assert.assertEquals(errorsScale.h().getAbsError() / REL_ERROR_OVERALL_DIM, 1.9, 0.1, errorsScale.toString());
+    Assert.assertEquals(K.applyAsDouble(errorsScale), 10.0, 0.1, errorsScale.toString());
+    Assert.assertEquals(H.applyAsDouble(errorsScale), 1.9, 0.1, errorsScale.toString());
 
     errorsScale = errorsScale(new double[] {10.0 / 30.0, 30.0 / 50.0}, Layers.getK12(1.0, 4.0), 10.0 / 50.0);
-    Assert.assertEquals(errorsScale.k12().getAbsError() / REL_ERROR_OVERALL_DIM, 5.7, 0.1, errorsScale.toString());
-    Assert.assertEquals(errorsScale.h().getAbsError() / REL_ERROR_OVERALL_DIM, 1.6, 0.1, errorsScale.toString());
+    Assert.assertEquals(K.applyAsDouble(errorsScale), 5.7, 0.1, errorsScale.toString());
+    Assert.assertEquals(H.applyAsDouble(errorsScale), 1.6, 0.1, errorsScale.toString());
   }
 
   @Test(enabled = false)
