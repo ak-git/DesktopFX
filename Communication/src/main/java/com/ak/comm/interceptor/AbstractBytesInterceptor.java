@@ -10,10 +10,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.BufferFrame;
-import com.ak.util.LogUtils;
+import com.ak.comm.core.LogUtils;
 
-import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
-import static com.ak.util.LogUtils.LOG_LEVEL_LEXEMES;
+import static com.ak.comm.core.LogUtils.LOG_LEVEL_ERRORS;
+import static com.ak.comm.core.LogUtils.LOG_LEVEL_LEXEMES;
 
 public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> implements BytesInterceptor<T, R> {
   protected static final int IGNORE_LIMIT = 16;
