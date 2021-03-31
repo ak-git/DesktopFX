@@ -23,7 +23,7 @@ import com.ak.util.LocalIO;
 public interface Coefficients extends Supplier<double[]> {
   @Override
   default double[] get() {
-    String fileName = getClass().getPackageName().replaceFirst(".*\\.", "");
+    String fileName = getClass().getPackageName().substring(getClass().getPackageName().lastIndexOf(".") + 1);
     InputStream inputStream = getClass().getResourceAsStream(Extension.JSON.attachTo(fileName));
     try {
       LocalIO build = CalibrateBuilders.CALIBRATION.build(fileName);

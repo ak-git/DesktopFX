@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnegative;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.ak.math.ValuePair;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -34,8 +35,11 @@ public class InverseLayer1Test {
   @Test(dataProvider = "layer1")
   @ParametersAreNonnullByDefault
   public void testInverseLayer1(InexactTetrapolarSystem[] systems, double[] rOhms, @Nonnegative double expected) {
-    MediumLayers medium = Inverse.inverseStatic(TetrapolarMeasurement.of(systems, rOhms));
-    Assert.assertEquals(medium.rho(), expected, 0.2, medium.toString());
+    MediumLayers<ValuePair> medium = Inverse.inverseStatic(TetrapolarMeasurement.of(systems, rOhms));
+    Assert.assertEquals(medium.rho().getValue(), expected, 0.2, medium.toString());
+    for (InexactTetrapolarSystem system : systems) {
+      Assert.assertTrue(medium.rho().getAbsError() / medium.rho().getValue() < system.getApparentRelativeError(), medium.toString());
+    }
     LOGGER.info(medium::toString);
   }
 }

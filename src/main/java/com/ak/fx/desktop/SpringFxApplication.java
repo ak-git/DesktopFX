@@ -9,12 +9,11 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.BufferFrame;
-import com.ak.comm.bytes.nmis.NmisRequest;
-import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.FloatToIntegerConverter;
 import com.ak.comm.converter.LinkedConverter;
+import com.ak.comm.converter.StringToIntegerConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.aper.AperCalibrationCurrent1Variable;
 import com.ak.comm.converter.aper.AperStage1Variable;
@@ -30,11 +29,7 @@ import com.ak.comm.converter.kleiber.KleiberVariable;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
-import com.ak.comm.converter.rsce.RsceConverter;
-import com.ak.comm.converter.rsce.RsceVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.comm.interceptor.kleiber.KleiberBytesInterceptor;
-import com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor;
 import com.ak.comm.interceptor.simple.FixedFrameBytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.logging.LocalFileHandler;
@@ -56,8 +51,10 @@ import org.springframework.context.annotation.Scope;
 @ComponentScan(basePackages = {
     "com.ak.fx.desktop",
     "com.ak.comm.interceptor.nmis", "com.ak.comm.converter.nmis",
-    "com.ak.comm.interceptor.purelogic", "com.ak.comm.converter.purelogic",
     "com.ak.comm.interceptor.suntech", "com.ak.comm.converter.suntech",
+    "com.ak.comm.interceptor.purelogic", "com.ak.comm.converter.purelogic",
+    "com.ak.comm.interceptor.kleiber",
+    "com.ak.comm.interceptor.prv",
 })
 public class SpringFxApplication extends FxApplication {
   private ConfigurableApplicationContext applicationContext;
@@ -85,6 +82,11 @@ public class SpringFxApplication extends FxApplication {
   @Override
   public void down() {
     processEvent(ViewController::down);
+  }
+
+  @Override
+  public void escape() {
+    processEvent(ViewController::escape);
   }
 
   @Override
@@ -150,29 +152,15 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("kleiber-myo")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorKleiber() {
-    return new KleiberBytesInterceptor();
-  }
-
-  @Bean
-  @Profile("kleiber-myo")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, KleiberVariable> converterKleiber() {
     return new FloatToIntegerConverter<>(KleiberVariable.class, 2000);
   }
 
   @Bean
-  @Profile("nmis-rsce")
+  @Profile("prv")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static BytesInterceptor<NmisRequest, RsceCommandFrame> bytesInterceptorNmisRsce() {
-    return new NmisRsceBytesInterceptor();
-  }
-
-  @Bean
-  @Profile("nmis-rsce")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<RsceCommandFrame, RsceVariable> converterNmisRsce() {
-    return new RsceConverter();
+  static Converter<BufferFrame, ADCVariable> converterPrv() {
+    return new StringToIntegerConverter<>(ADCVariable.class, 32);
   }
 
   @Bean
@@ -212,7 +200,8 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("aper1-R4")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static LinkedConverter<BufferFrame, AperStage4Current1Variable, AperStage5Current1Variable> converterAper1R4() {
+  @Primary
+  static Converter<BufferFrame, AperStage5Current1Variable> converterAper1R4() {
     return converterAper1Myo().chainInstance(AperStage5Current1Variable.class);
   }
 

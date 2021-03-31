@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import com.ak.comm.bytes.BufferFrame;
 import tec.uom.se.unit.MetricPrefix;
 
-import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
+import static com.ak.comm.core.LogUtils.LOG_LEVEL_ERRORS;
 import static com.ak.util.Strings.NEW_LINE;
 import static com.ak.util.Strings.SPACE;
 import static tec.uom.se.unit.Units.METRE;

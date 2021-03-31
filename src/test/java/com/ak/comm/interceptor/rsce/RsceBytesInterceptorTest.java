@@ -8,9 +8,9 @@ import javax.annotation.Nonnull;
 
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.bytes.rsce.RsceTestDataProvider;
+import com.ak.comm.core.LogUtils;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.log.LogTestUtils;
-import com.ak.util.LogUtils;
 import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.Test;

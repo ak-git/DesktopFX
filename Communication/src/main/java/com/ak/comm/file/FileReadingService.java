@@ -32,7 +32,7 @@ import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.logging.LogBuilders;
 
-import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
+import static com.ak.comm.core.LogUtils.LOG_LEVEL_ERRORS;
 
 final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractConvertableService<T, R, V> implements Flow.Subscription {
@@ -64,7 +64,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
         int blockSize = (int) Files.getFileStore(fileToRead).getBlockSize();
         MessageDigest md = MessageDigest.getInstance("SHA-512");
         if (isChannelProcessed(blockSize, seekableByteChannel, md::update)) {
-          String md5Code = digestToString(md.digest("2021.03.16".getBytes(Charset.defaultCharset())));
+          String md5Code = digestToString(md.digest("2021.03.24".getBytes(Charset.defaultCharset())));
           Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
           if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(convertedFile, StandardOpenOption.READ);

@@ -1,15 +1,12 @@
 package com.ak.fx.desktop.nmisr;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Provider;
 
 import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
-import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.rsce.RsceConverter;
 import com.ak.comm.converter.rsce.RsceVariable;
-import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor;
 import com.ak.fx.desktop.AbstractScheduledViewController;
 import org.springframework.context.annotation.Profile;
 
@@ -21,11 +18,8 @@ public final class NmisRsceViewController extends AbstractScheduledViewControlle
       NmisRequest.Sequence.ROTATE_100, NmisRequest.Sequence.ROTATE_60, NmisRequest.Sequence.ROTATE_30};
   private int pingIndex = -1;
 
-  @Inject
-  @ParametersAreNonnullByDefault
-  public NmisRsceViewController(Provider<BytesInterceptor<NmisRequest, RsceCommandFrame>> interceptorProvider,
-                                Provider<Converter<RsceCommandFrame, RsceVariable>> converterProvider) {
-    super(interceptorProvider, converterProvider, 1.0 / 8.0);
+  public NmisRsceViewController() {
+    super(NmisRsceBytesInterceptor::new, RsceConverter::new, 1.0 / 8.0);
   }
 
   @Override

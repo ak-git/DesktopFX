@@ -1,5 +1,6 @@
 package com.ak.rsm;
 
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Logger;
@@ -7,13 +8,14 @@ import java.util.stream.Stream;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.ak.math.ValuePair;
 import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static com.ak.rsm.InexactTetrapolarSystem.systems2;
-import static com.ak.rsm.InexactTetrapolarSystem.systems4;
+import static com.ak.rsm.InexactTetrapolarSystem.toInexact;
 
 public class InverseLayer2Test {
   private static final Logger LOGGER = Logger.getLogger(InverseLayer2Test.class.getName());
@@ -21,41 +23,43 @@ public class InverseLayer2Test {
   @DataProvider(name = "layer2")
   public static Object[][] layer2() {
     InexactTetrapolarSystem[] systems2 = systems2(0.1, 10.0);
-    InexactTetrapolarSystem[] systems4 = systems4(0.1, 10.0);
+    InexactTetrapolarSystem[] systems3 = toInexact(Metrics.fromMilli(0.1), new TetrapolarSystem[] {
+        TetrapolarSystem.milli().s(10.0).l(20.0),
+        TetrapolarSystem.milli().s(20.0).l(30.0),
+        TetrapolarSystem.milli().s(10.0).l(30.0),
+    });
     return new Object[][] {
         {
             systems2,
             Arrays.stream(systems2)
                 .mapToDouble(s -> new Resistance1Layer(s.toExact()).value(10.0)).toArray(),
-            new double[] {10.0, 10.0, Double.NaN}
+            new ValuePair[] {new ValuePair(10.0, 0.11), new ValuePair(10.0, 0.11), new ValuePair(Double.NaN)}
         },
         {
-            systems4,
-            Arrays.stream(systems4)
+            systems3,
+            Arrays.stream(systems3)
                 .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(10.0, 1.0, Metrics.fromMilli(10.0))).toArray(),
-            new double[] {10.0, 1.0, Metrics.fromMilli(10.0)}
-        },
-        {
-            systems4,
-            Arrays.stream(systems4)
-                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, 10.0, Metrics.fromMilli(5.0))).toArray(),
-            new double[] {1.0, 10.0, Metrics.fromMilli(5.0)}
+            new ValuePair[] {
+                new ValuePair(10.0, 3.3),
+                new ValuePair(1.0, 1.0),
+                new ValuePair(Metrics.fromMilli(10.0), Metrics.fromMilli(3.1))
+            }
         },
     };
   }
 
   @Test(dataProvider = "layer2")
   @ParametersAreNonnullByDefault
-  public void testInverseLayer2(InexactTetrapolarSystem[] systems, double[] rOhms, double[] expected) {
-    Random random = new Random();
-    MediumLayers medium = Inverse.inverseStatic(
+  public void testInverseLayer2(InexactTetrapolarSystem[] systems, double[] rOhms, ValuePair[] expected) {
+    Random random = new SecureRandom();
+    MediumLayers<ValuePair> medium = Inverse.inverseStatic(
         TetrapolarMeasurement.of(systems,
             Arrays.stream(rOhms).map(x -> x + random.nextGaussian() / x / 10.0).toArray()
         )
     );
-    Assert.assertEquals(medium.rho1(), expected[0], 0.1, medium.toString());
-    Assert.assertEquals(medium.rho2(), expected[1], 0.1, medium.toString());
-    Assert.assertEquals(medium.h(), expected[2], 0.1, medium.toString());
+    Assert.assertEquals(medium.rho1().getValue(), expected[0].getValue(), 0.1, medium.toString());
+    Assert.assertEquals(medium.rho2().getValue(), expected[1].getValue(), 0.1, medium.toString());
+    Assert.assertEquals(medium.h().getValue(), expected[2].getValue(), 0.1, medium.toString());
     LOGGER.info(medium::toString);
   }
 
@@ -65,7 +69,6 @@ public class InverseLayer2Test {
         InexactTetrapolarSystem.milli(0.1).s(10.0).l(20.0)
     };
     InexactTetrapolarSystem[] systems2 = systems2(0.1, 10.0);
-    InexactTetrapolarSystem[] systems4 = systems4(0.1, 7.0);
     double dh = Metrics.fromMilli(-0.001);
     double h = Metrics.fromMilli(5.0);
     return new Object[][] {
@@ -88,10 +91,10 @@ public class InverseLayer2Test {
             new double[] {1.0, 1.0, h}
         },
         {
-            systems4,
-            Arrays.stream(systems4)
+            systems2,
+            Arrays.stream(systems2)
                 .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(10.0, 0.0, h)).toArray(),
-            Arrays.stream(systems4)
+            Arrays.stream(systems2)
                 .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(10.0, 0.0, h + dh)).toArray(),
             dh,
             new double[] {10.0, -1.0, h}
@@ -197,10 +200,10 @@ public class InverseLayer2Test {
   @Test(dataProvider = "allDynamicParameters2")
   @ParametersAreNonnullByDefault
   public void testInverseDynamicLayer2(InexactTetrapolarSystem[] systems, double[] rOhms, double[] rOhmsAfter, double dh, double[] expected) {
-    MediumLayers medium = Inverse.inverseDynamic(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
-    Assert.assertEquals(medium.rho1(), expected[0], 0.1, medium.toString());
-    Assert.assertEquals(medium.k12(), expected[1], 0.1, medium.toString());
-    Assert.assertEquals(Metrics.toMilli(medium.h()), Metrics.toMilli(expected[2]), 0.01, medium.toString());
+    var medium = Inverse.inverseDynamic(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
+    Assert.assertEquals(medium.rho1().getValue(), expected[0], 0.1, medium.toString());
+    Assert.assertEquals(medium.k12().getValue(), expected[1], 0.1, medium.toString());
+    Assert.assertEquals(Metrics.toMilli(medium.h().getValue()), Metrics.toMilli(expected[2]), 0.01, medium.toString());
     LOGGER.info(medium::toString);
   }
 }

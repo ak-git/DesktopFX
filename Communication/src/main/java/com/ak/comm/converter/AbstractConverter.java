@@ -22,7 +22,7 @@ import com.ak.digitalfilter.FilterBuilder;
 import com.ak.util.LineFileCollector;
 import com.ak.util.Strings;
 
-import static com.ak.util.LogUtils.LOG_LEVEL_VALUES;
+import static com.ak.comm.core.LogUtils.LOG_LEVEL_VALUES;
 
 public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> implements Converter<R, V> {
   @Nonnull

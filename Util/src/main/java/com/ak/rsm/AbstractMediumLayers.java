@@ -1,9 +1,9 @@
 package com.ak.rsm;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
@@ -11,40 +11,45 @@ import com.ak.util.Builder;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
-abstract class AbstractMediumLayers<T extends AbstractMediumLayers<T>> implements MediumLayers {
-  @Nonnegative
-  private final double rho;
+abstract class AbstractMediumLayers<D, T extends AbstractMediumLayers<D, T>> implements MediumLayers<D> {
   @Nonnull
-  private final String toString;
+  private final D rho;
+  @Nonnull
+  private final Collection<Prediction> predictions;
 
-  AbstractMediumLayers(@Nonnull AbstractMediumBuilder<T> builder) {
+  AbstractMediumLayers(@Nonnull AbstractMediumBuilder<D, T> builder) {
     rho = builder.rho;
-    toString = builder.toString;
+    predictions = builder.predictions;
   }
 
   @Override
-  public final double rho() {
+  public final D rho() {
     return rho;
+  }
+
+  @Nonnull
+  final Collection<Prediction> getPredictions() {
+    return Collections.unmodifiableCollection(predictions);
   }
 
   @Override
   @OverridingMethodsMustInvokeSuper
   public String toString() {
-    return toString;
+    double l2 = predictions.stream().map(Prediction::getInequalityL2).reduce(StrictMath::hypot).orElse(Double.NaN);
+    return "%s; L%s = %.2f %% %n%s".formatted(
+        TetrapolarPrediction.toStringHorizons(TetrapolarPrediction.mergeHorizons(predictions)),
+        Strings.low(2), Metrics.toPercents(l2),
+        predictions.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)));
   }
 
-  abstract static class AbstractMediumBuilder<T extends AbstractMediumLayers<T>> implements Builder<T> {
+  abstract static class AbstractMediumBuilder<D, T extends AbstractMediumLayers<D, T>>
+      implements Builder<T> {
     @Nonnull
-    private final String toString;
-    @Nonnegative
-    double rho;
+    private final Collection<Prediction> predictions;
+    D rho;
 
     AbstractMediumBuilder(@Nonnull Collection<Prediction> predictions) {
-      double l2 = predictions.stream().map(Prediction::getInequalityL2).reduce(StrictMath::hypot).orElse(Double.NaN);
-      toString = "%s; L%s = %.2f %% %n%s".formatted(
-          TetrapolarPrediction.toStringHorizons(TetrapolarPrediction.mergeHorizons(predictions)),
-          Strings.low(2), Metrics.toPercents(l2),
-          predictions.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)));
+      this.predictions = Collections.unmodifiableCollection(predictions);
     }
   }
 }

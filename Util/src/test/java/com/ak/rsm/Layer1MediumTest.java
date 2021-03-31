@@ -4,11 +4,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.ak.math.ValuePair;
 import com.ak.util.Metrics;
-import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -25,35 +24,30 @@ public class Layer1MediumTest {
             measurements.stream()
                 .map(m -> new TetrapolarPrediction(m, RelativeMediumLayers.SINGLE_LAYER, avg.getResistivity()))
                 .collect(Collectors.toList()))
-            .layer1(avg).build(), 0.065},
+            .layer1(avg).build(), new ValuePair(0.0654, 0.00072)},
     };
   }
 
   @Test(dataProvider = "layer1Medium")
-  public void testRho(@Nonnull MediumLayers layers, @Nonnegative double expected) {
-    Assert.assertEquals(layers.rho(), expected, 0.001);
+  @ParametersAreNonnullByDefault
+  public void testRho(MediumLayers<ValuePair> layers, ValuePair expected) {
+    Assert.assertEquals(layers.rho(), expected, expected.toString());
+    Assert.assertEquals(layers.rho1(), expected, expected.toString());
+    Assert.assertEquals(layers.rho2(), expected, expected.toString());
   }
 
   @Test(dataProvider = "layer1Medium")
-  public void testRho1(@Nonnull MediumLayers layers, @Nonnegative double expected) {
-    Assert.assertEquals(layers.rho1(), expected, 0.001);
+  @ParametersAreNonnullByDefault
+  public void testH(RelativeMediumLayers<ValuePair> layers, ValuePair expected) {
+    Assert.assertEquals(layers.k12(), new ValuePair(0.0), layers.toString());
+    Assert.assertTrue(Double.isNaN(layers.h().getValue()));
+    Assert.assertNotNull(expected);
   }
 
   @Test(dataProvider = "layer1Medium")
-  public void testRho2(@Nonnull MediumLayers layers, @Nonnegative double expected) {
-    Assert.assertEquals(layers.rho2(), expected, 0.001);
-  }
-
-  @Test(dataProvider = "layer1Medium")
-  public void testH(@Nonnull RelativeMediumLayers layers, @Nonnegative double expected) {
-    Assert.assertEquals(layers.k12(), 0.0, 0.001, layers.toString());
-    Assert.assertTrue(Double.isNaN(layers.h()));
-    Assert.assertTrue(expected > 0);
-  }
-
-  @Test(dataProvider = "layer1Medium")
-  public void testToString(@Nonnull MediumLayers layers, @Nonnegative double expected) {
-    Assert.assertTrue(layers.toString().contains(Strings.rho(expected)), layers.toString());
+  @ParametersAreNonnullByDefault
+  public void testToString(MediumLayers<ValuePair> layers, ValuePair expected) {
+    Assert.assertTrue(layers.toString().contains(expected.toString()), layers.toString());
     double l2 = Arrays.stream(new double[] {0.3277112113340609, 0.10361494844541479, 0.5126497744983622, 0.6807219716648473})
         .reduce(StrictMath::hypot).orElse(Double.NaN);
     Assert.assertTrue(layers.toString().contains("%.2f %%".formatted(Metrics.toPercents(l2))), layers.toString());

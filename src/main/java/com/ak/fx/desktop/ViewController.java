@@ -16,6 +16,10 @@ public interface ViewController {
     // works in subclasses
   }
 
+  default void escape() {
+    // works in subclasses
+  }
+
   default void zoom(ZoomEvent event) {
     event.consume();
   }
