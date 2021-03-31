@@ -13,6 +13,7 @@ import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.FloatToIntegerConverter;
 import com.ak.comm.converter.LinkedConverter;
+import com.ak.comm.converter.StringToIntegerConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.aper.AperCalibrationCurrent1Variable;
 import com.ak.comm.converter.aper.AperStage1Variable;
@@ -53,6 +54,7 @@ import org.springframework.context.annotation.Scope;
     "com.ak.comm.interceptor.suntech", "com.ak.comm.converter.suntech",
     "com.ak.comm.interceptor.purelogic", "com.ak.comm.converter.purelogic",
     "com.ak.comm.interceptor.kleiber",
+    "com.ak.comm.interceptor.prv",
 })
 public class SpringFxApplication extends FxApplication {
   private ConfigurableApplicationContext applicationContext;
@@ -152,6 +154,13 @@ public class SpringFxApplication extends FxApplication {
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, KleiberVariable> converterKleiber() {
     return new FloatToIntegerConverter<>(KleiberVariable.class, 2000);
+  }
+
+  @Bean
+  @Profile("prv")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<BufferFrame, ADCVariable> converterPrv() {
+    return new StringToIntegerConverter<>(ADCVariable.class, 32);
   }
 
   @Bean
