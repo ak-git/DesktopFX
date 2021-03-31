@@ -77,7 +77,7 @@ public final class AxisXController {
 
   private final IntegerProperty startProperty = new SimpleIntegerProperty();
   private final IntegerProperty lengthProperty = new SimpleIntegerProperty();
-  private final ObjectProperty<ZoomX> zoomProperty = new SimpleObjectProperty<>(ZoomX.Z_25);
+  private final ObjectProperty<ZoomX> zoomProperty = new SimpleObjectProperty<>(ZoomX.Z_10);
   private final ObjectProperty<ZoomXEvent> zoomEvent = new SimpleObjectProperty<>(ZoomXEvent.ZOOM_STOP);
   private final DoubleProperty stepProperty = new SimpleDoubleProperty();
   @Nonnegative
