@@ -15,6 +15,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import javax.inject.Provider;
 
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
@@ -28,7 +30,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication
-public class ConverterApp<T, R, V extends Enum<V> & Variable<V>> implements AutoCloseable, Consumer<Path> {
+public class ConverterApp implements AutoCloseable, Consumer<Path> {
+  private static final Logger LOGGER = Logger.getLogger(ConverterApp.class.getName());
   private final ConfigurableApplicationContext context;
 
   public ConverterApp(ConfigurableApplicationContext context) {
@@ -40,41 +43,47 @@ public class ConverterApp<T, R, V extends Enum<V> & Variable<V>> implements Auto
     context.close();
   }
 
-  @SuppressWarnings("rawtypes")
   public static void main(String[] args) {
-    try (ConverterApp<?, ?, ?> app = new ConverterApp(SpringApplication.run(ConverterApp.class, args));
+    try (ConverterApp app = new ConverterApp(SpringApplication.run(ConverterApp.class, args));
          DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), "*.bin")) {
       paths.forEach(app);
     }
     catch (IOException e) {
-      Logger.getLogger(ConverterApp.class.getName()).log(Level.WARNING, e.getMessage(), e);
+      LOGGER.log(Level.WARNING, e.getMessage(), e);
     }
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public void accept(@Nonnull Path path) {
-    @SuppressWarnings("unchecked")
-    BytesInterceptor<T, R> bytesInterceptor = context.getBean(BytesInterceptor.class);
-    @SuppressWarnings("unchecked")
-    Converter<R, V> responseConverter = context.getBean(Converter.class);
-    try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
-         LineFileCollector collector = new LineFileCollector(
-             Paths.get(Extension.TXT.attachTo(path.toFile().toString().replace(".bin", Strings.EMPTY))),
-             LineFileCollector.Direction.VERTICAL)
-    ) {
-      collector.accept(responseConverter.variables().stream().map(Variables::toName).collect(Collectors.joining(Strings.TAB)));
+    doConvert(() -> context.getBean(BytesInterceptor.class), () -> context.getBean(Converter.class), path);
+  }
 
-      ByteBuffer buffer = ByteBuffer.allocate(1024);
-      while (readableByteChannel.read(buffer) > 0) {
-        buffer.flip();
-        bytesInterceptor.apply(buffer).flatMap(responseConverter).forEach(ints ->
-            collector.accept(Arrays.stream(ints).mapToObj(Integer::toString).collect(Collectors.joining(Strings.TAB))));
-        buffer.clear();
+  @ParametersAreNonnullByDefault
+  public static <T, R, V extends Enum<V> & Variable<V>> void doConvert(Provider<BytesInterceptor<T, R>> interceptorProvider,
+                                                                       Provider<Converter<R, V>> converterProvider, Path path) {
+    BytesInterceptor<T, R> bytesInterceptor = interceptorProvider.get();
+    Converter<R, V> responseConverter = converterProvider.get();
+    String fileName = path.toFile().getName();
+    if (fileName.endsWith(Extension.BIN.attachTo(bytesInterceptor.name()))) {
+      try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
+           LineFileCollector collector = new LineFileCollector(
+               Paths.get(Extension.TXT.attachTo(Extension.BIN.clean(fileName))),
+               LineFileCollector.Direction.VERTICAL)
+      ) {
+        collector.accept(responseConverter.variables().stream().map(Variables::toName).collect(Collectors.joining(Strings.TAB)));
+        ByteBuffer buffer = ByteBuffer.allocate((int) Files.getFileStore(path).getBlockSize());
+        while (readableByteChannel.read(buffer) > 0) {
+          buffer.flip();
+          bytesInterceptor.apply(buffer).flatMap(responseConverter).forEach(ints ->
+              collector.accept(Arrays.stream(ints).mapToObj(Integer::toString).collect(Collectors.joining(Strings.TAB))));
+          buffer.clear();
+        }
+        LOGGER.info(() -> "Converted %s as '%s'".formatted(path, bytesInterceptor.name()));
       }
-      Logger.getLogger(getClass().getName()).info(() -> "Converted %s".formatted(path));
-    }
-    catch (IOException e) {
-      Logger.getLogger(getClass().getName()).log(Level.INFO, e.getMessage(), e);
+      catch (IOException e) {
+        LOGGER.log(Level.WARNING, e.getMessage(), e);
+      }
     }
   }
 }

@@ -13,7 +13,6 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Provider;
 
-import com.ak.comm.GroupService;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.interceptor.BytesInterceptor;
@@ -39,7 +38,7 @@ public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & 
   protected AbstractScheduledViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
                                             Provider<Converter<R, V>> converterProvider,
                                             @Nonnegative double frequencyHz) {
-    super(new GroupService<>(interceptorProvider::get, converterProvider::get));
+    super(interceptorProvider, converterProvider);
     this.frequencyHz = frequencyHz;
   }
 

@@ -5,7 +5,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 
-import com.ak.comm.GroupService;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.interceptor.BytesInterceptor;
@@ -18,6 +17,6 @@ public final class DefaultViewController<T, R, V extends Enum<V> & Variable<V>> 
   @Inject
   @ParametersAreNonnullByDefault
   public DefaultViewController(Provider<BytesInterceptor<T, R>> interceptorProvider, Provider<Converter<R, V>> converterProvider) {
-    super(new GroupService<>(interceptorProvider::get, converterProvider::get));
+    super(interceptorProvider, converterProvider);
   }
 }

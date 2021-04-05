@@ -1,8 +1,13 @@
 package com.ak.fx.desktop;
 
 import java.net.URL;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,11 +17,15 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.annotation.ParametersAreNullableByDefault;
+import javax.inject.Provider;
 
 import com.ak.comm.GroupService;
+import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
+import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.fx.scene.AxisXController;
 import com.ak.fx.scene.AxisYController;
@@ -36,7 +45,7 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.input.ZoomEvent;
 import javafx.util.Duration;
 
-public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
+abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
     implements Initializable, Flow.Subscriber<int[]>, AutoCloseable, ViewController {
   @Nonnull
   private final GroupService<T, R, V> service;
@@ -48,8 +57,18 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @FXML
   private Chart chart;
 
-  protected AbstractViewController(@Nonnull GroupService<T, R, V> service) {
-    this.service = service;
+  @ParametersAreNonnullByDefault
+  AbstractViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
+                         Provider<Converter<R, V>> converterProvider) {
+    service = new GroupService<>(interceptorProvider::get, converterProvider::get);
+    Executors.newSingleThreadExecutor().execute(() -> {
+      try (DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), "*.bin")) {
+        paths.forEach(path -> ConverterApp.doConvert(interceptorProvider, converterProvider, path));
+      }
+      catch (IOException e) {
+        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+      }
+    });
   }
 
   @Override
