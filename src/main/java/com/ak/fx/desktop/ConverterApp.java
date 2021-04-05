@@ -64,23 +64,26 @@ public class ConverterApp implements AutoCloseable, Consumer<Path> {
                                                                        Provider<Converter<R, V>> converterProvider, Path path) {
     BytesInterceptor<T, R> bytesInterceptor = interceptorProvider.get();
     Converter<R, V> responseConverter = converterProvider.get();
-    try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
-         LineFileCollector collector = new LineFileCollector(
-             Paths.get(Extension.TXT.attachTo(path.toFile().toString().replace(".bin", Strings.EMPTY))),
-             LineFileCollector.Direction.VERTICAL)
-    ) {
-      collector.accept(responseConverter.variables().stream().map(Variables::toName).collect(Collectors.joining(Strings.TAB)));
-      ByteBuffer buffer = ByteBuffer.allocate((int) Files.getFileStore(path).getBlockSize());
-      while (readableByteChannel.read(buffer) > 0) {
-        buffer.flip();
-        bytesInterceptor.apply(buffer).flatMap(responseConverter).forEach(ints ->
-            collector.accept(Arrays.stream(ints).mapToObj(Integer::toString).collect(Collectors.joining(Strings.TAB))));
-        buffer.clear();
+    String fileName = path.toFile().getName();
+    if (fileName.endsWith(Extension.BIN.attachTo(bytesInterceptor.name()))) {
+      try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
+           LineFileCollector collector = new LineFileCollector(
+               Paths.get(Extension.TXT.attachTo(Extension.BIN.clean(fileName))),
+               LineFileCollector.Direction.VERTICAL)
+      ) {
+        collector.accept(responseConverter.variables().stream().map(Variables::toName).collect(Collectors.joining(Strings.TAB)));
+        ByteBuffer buffer = ByteBuffer.allocate((int) Files.getFileStore(path).getBlockSize());
+        while (readableByteChannel.read(buffer) > 0) {
+          buffer.flip();
+          bytesInterceptor.apply(buffer).flatMap(responseConverter).forEach(ints ->
+              collector.accept(Arrays.stream(ints).mapToObj(Integer::toString).collect(Collectors.joining(Strings.TAB))));
+          buffer.clear();
+        }
+        LOGGER.info(() -> "Converted %s as '%s'".formatted(path, bytesInterceptor.name()));
       }
-      LOGGER.info(() -> "Converted %s".formatted(path));
-    }
-    catch (IOException e) {
-      LOGGER.log(Level.WARNING, e.getMessage(), e);
+      catch (IOException e) {
+        LOGGER.log(Level.WARNING, e.getMessage(), e);
+      }
     }
   }
 }
