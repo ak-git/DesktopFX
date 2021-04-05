@@ -1,5 +1,6 @@
 package com.ak.fx.desktop;
 
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -45,7 +46,7 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.input.ZoomEvent;
 import javafx.util.Duration;
 
-abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
+public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
     implements Initializable, Flow.Subscriber<int[]>, AutoCloseable, ViewController {
   @Nonnull
   private final GroupService<T, R, V> service;
@@ -58,8 +59,8 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   private Chart chart;
 
   @ParametersAreNonnullByDefault
-  AbstractViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
-                         Provider<Converter<R, V>> converterProvider) {
+  protected AbstractViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
+                                   Provider<Converter<R, V>> converterProvider) {
     service = new GroupService<>(interceptorProvider::get, converterProvider::get);
     Executors.newSingleThreadExecutor().execute(() -> {
       try (DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), "*.bin")) {
