@@ -36,8 +36,8 @@ public final class PrvBytesInterceptor extends AbstractBytesInterceptor<BufferFr
       if (in == STOP) {
         if (byteBuffer.get(0) == START) {
           logSkippedBytes(true);
-          byteBuffer.flip();
-          byte[] array = new byte[byteBuffer.limit()];
+          byte[] array = new byte[byteBuffer.position()];
+          byteBuffer.rewind();
           byteBuffer.get(array);
           responses.add(new BufferFrame(array, byteBuffer.order()));
         }

@@ -18,7 +18,11 @@ public final class StringToIntegerConverter<V extends Enum<V> & Variable<V>> ext
     for (int i = 0; i < values.length; i++) {
       StringBuilder sb = new StringBuilder(Integer.BYTES);
       for (int j = 0; j < Integer.BYTES; j++) {
-        sb.append((char) frame.get(1 + i * Integer.BYTES * Byte.BYTES + j));
+        char c = (char) frame.get(1 + i * Integer.BYTES * Byte.BYTES + j);
+        if (c == '\r') {
+          break;
+        }
+        sb.append(c);
       }
       values[i] = Integer.parseInt(sb.toString(), 16);
     }
