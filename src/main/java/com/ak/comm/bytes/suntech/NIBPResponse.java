@@ -36,7 +36,7 @@ public class NIBPResponse extends BufferFrame {
       ifExist.accept(new int[] {
           byteBuffer().getShort(2),
           byteBuffer().getShort(2 + 2),
-          byteBuffer().get(2 + 2 + 2 + 1 + 1 + 8),
+          Byte.toUnsignedInt(byteBuffer().get(2 + 2 + 2 + 1 + 1 + 8)),
           byteBuffer().getShort(2 + 2 + 2 + 1 + 1 + 8 + 1 + 1)
       });
     }

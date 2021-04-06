@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-import static com.ak.util.LogUtils.LOG_LEVEL_VALUES;
+import static com.ak.comm.core.LogUtils.LOG_LEVEL_VALUES;
 
 public class NmisConverterTest {
   private static final Logger LOGGER = Logger.getLogger(NmisConverter.class.getName());

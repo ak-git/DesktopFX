@@ -27,6 +27,7 @@ import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.TwoVariables;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
+import com.ak.comm.core.LogUtils;
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
@@ -35,7 +36,6 @@ import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.logging.LogBuilders;
 import com.ak.util.Clean;
-import com.ak.util.LogUtils;
 import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
@@ -44,7 +44,6 @@ import org.testng.annotations.Test;
 
 public class FileReadingServiceTest {
   private static final Logger LOGGER = Logger.getLogger(FileReadingService.class.getName());
-  private static final int CAPACITY_4K = 4096;
 
   @BeforeSuite
   @AfterSuite
@@ -95,7 +94,12 @@ public class FileReadingServiceTest {
         publisher.close();
       }
     });
-    testSubscriber.assertValueCount(bytes / frameLength);
+    if (forceClose) {
+      testSubscriber.assertValueCount(getBlockSize(fileToRead) / frameLength);
+    }
+    else {
+      testSubscriber.assertValueCount(bytes / frameLength);
+    }
   }
 
   @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
@@ -113,7 +117,8 @@ public class FileReadingServiceTest {
 
       @Override
       public void accept(LogRecord logRecord) {
-        int bytesCount = (bytes - packCounter * CAPACITY_4K) >= CAPACITY_4K ? CAPACITY_4K : bytes % CAPACITY_4K;
+        int blockSize = getBlockSize(fileToRead);
+        int bytesCount = (bytes - packCounter * blockSize) >= blockSize ? blockSize : bytes % blockSize;
         Assert.assertTrue(logRecord.getMessage().endsWith(bytesCount + " bytes IN from hardware"), logRecord.getMessage());
         packCounter++;
       }
@@ -233,6 +238,18 @@ public class FileReadingServiceTest {
     catch (Exception ex) {
       Assert.fail();
     }
+  }
+
+  @Nonnegative
+  private static int getBlockSize(@Nonnull Path fileToRead) {
+    int blockSize = 0;
+    try {
+      blockSize = (int) Files.getFileStore(fileToRead).getBlockSize();
+    }
+    catch (IOException e) {
+      Assert.fail(fileToRead.toString(), e);
+    }
+    return blockSize;
   }
 
   private enum TestVariable implements Variable<TestVariable> {

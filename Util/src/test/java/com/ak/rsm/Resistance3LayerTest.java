@@ -1,7 +1,6 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
-import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -11,9 +10,6 @@ import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import static tec.uom.se.unit.MetricPrefix.MILLI;
-import static tec.uom.se.unit.Units.METRE;
 
 public class Resistance3LayerTest {
   @DataProvider(name = "layer-model")
@@ -28,30 +24,30 @@ public class Resistance3LayerTest {
         {new double[] {8.0, 1.0, 1.0}, Metrics.fromMilli(10), new int[] {1, 5}, 10.0, 20.0, 309.342},
 
         {new double[] {8.0, 8.0, 8.0}, Metrics.fromMilli(10), new int[] {1, 5}, 10.0, 20.0,
-            new Resistance1Layer(new TetrapolarSystem(10.0, 20.0, MILLI(METRE))).value(8.0)
+            new Resistance1Layer(TetrapolarSystem.milli().s(10.0).l(20.0)).value(8.0)
         },
         {new double[] {8.0, 8.0, 8.0}, Metrics.fromMilli(10), new int[] {0, 0}, 10.0, 20.0,
-            new Resistance1Layer(new TetrapolarSystem(10.0, 20.0, MILLI(METRE))).value(8.0)
+            new Resistance1Layer(TetrapolarSystem.milli().s(10.0).l(20.0)).value(8.0)
         },
         {new double[] {8.0, 8.0, 1.0}, Metrics.fromMilli(10), new int[] {30, 30}, 10.0, 20.0,
-            new Resistance1Layer(new TetrapolarSystem(10.0, 20.0, MILLI(METRE))).value(8.0)
+            new Resistance1Layer(TetrapolarSystem.milli().s(10.0).l(20.0)).value(8.0)
         },
 
         {new double[] {8.0, 1.0, 1.0}, Metrics.fromMilli(5), new int[] {1, 1}, 10.0, 20.0,
-            new Resistance2Layer(new TetrapolarSystem(10.0, 20.0, MILLI(METRE))).value(8.0, 1.0, Metrics.fromMilli(5))},
+            new Resistance2Layer(TetrapolarSystem.milli().s(10.0).l(20.0)).value(8.0, 1.0, Metrics.fromMilli(5))},
         {new double[] {8.0, 2.0, 1.0}, Metrics.fromMilli(5), new int[] {1, 1}, 10.0, 20.0, 242.751},
         {new double[] {8.0, 3.0, 1.0}, Metrics.fromMilli(5), new int[] {1, 1}, 10.0, 20.0, 257.079},
         {new double[] {8.0, 4.0, 1.0}, Metrics.fromMilli(5), new int[] {1, 1}, 10.0, 20.0, 269.694},
         {new double[] {8.0, 5.0, 1.0}, Metrics.fromMilli(5), new int[] {1, 1}, 10.0, 20.0, 281.017},
         {new double[] {8.0, 8.0, 1.0}, Metrics.fromMilli(5), new int[] {1, 1}, 10.0, 20.0,
-            new Resistance2Layer(new TetrapolarSystem(10.0, 20.0, MILLI(METRE))).value(8.0, 1.0, Metrics.fromMilli(10))},
+            new Resistance2Layer(TetrapolarSystem.milli().s(10.0).l(20.0)).value(8.0, 1.0, Metrics.fromMilli(10))},
 
         {new double[] {1.0, 1.0, 1.0}, Metrics.fromMilli(10), new int[] {1, 5}, 10.0, 20.0,
-            new Resistance1Layer(new TetrapolarSystem(10.0, 20.0, MILLI(METRE))).value(1.0)
+            new Resistance1Layer(TetrapolarSystem.milli().s(10.0).l(20.0)).value(1.0)
         },
 
         {new double[] {8.0, 1.0, 1.0}, Metrics.fromMilli(0.01), new int[] {1, 1}, 10.0, 20.0,
-            new Resistance1Layer(new TetrapolarSystem(10.0, 20.0, MILLI(METRE))).value(1.0)
+            new Resistance1Layer(TetrapolarSystem.milli().s(10.0).l(20.0)).value(1.0)
         },
 
         {new double[] {1.0, 1.0, 5.0}, Metrics.fromMilli(5), new int[] {1, 1}, 10.0, 20.0, 46.568},
@@ -78,7 +74,7 @@ public class Resistance3LayerTest {
   @Test(dataProvider = "layer-model")
   public void testLayer(@Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p,
                         @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MILLI(METRE));
+    TetrapolarSystem system = TetrapolarSystem.milli().s(smm).l(lmm);
     Assert.assertEquals(new Resistance3Layer(system, hStepSI).value(rho[0], rho[1], rho[2], p[0], p[1]), rOhm, 0.001, Arrays.toString(rho));
   }
 
@@ -86,37 +82,42 @@ public class Resistance3LayerTest {
   public static Object[][] threeLayerParametersSpecial() {
     return new Object[][] {
         {new double[] {10.0, 1.0, 1.0}, Metrics.fromMilli(0.1), new int[] {10, 0}, 10.0, 30.0,
-            new Resistance2Layer(new TetrapolarSystem(10.0, 30.0, MILLI(METRE))).value(10.0, 1.0, Metrics.fromMilli(1))},
+            new Resistance2Layer(TetrapolarSystem.milli().s(10.0).l(30.0)).value(10.0, 1.0, Metrics.fromMilli(1))},
         {new double[] {1.0, 10.0, 1.0}, Metrics.fromMilli(0.1), new int[] {0, 10}, 10.0, 30.0,
-            new Resistance2Layer(new TetrapolarSystem(10.0, 30.0, MILLI(METRE))).value(10.0, 1.0, Metrics.fromMilli(1))},
+            new Resistance2Layer(TetrapolarSystem.milli().s(10.0).l(30.0)).value(10.0, 1.0, Metrics.fromMilli(1))},
         {new double[] {1.0, 1.0, 10.0}, Metrics.fromMilli(0.1), new int[] {0, 0}, 10.0, 30.0,
-            new Resistance1Layer(new TetrapolarSystem(10.0, 30.0, MILLI(METRE))).value(10.0)},
+            new Resistance1Layer(TetrapolarSystem.milli().s(10.0).l(30.0)).value(10.0)},
     };
   }
 
   @Test(dataProvider = "layer-model-special")
   public void testLayerSpecial(@Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p,
                                @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MILLI(METRE));
+    TetrapolarSystem system = TetrapolarSystem.milli().s(smm).l(lmm);
     Assert.assertEquals(new Resistance3Layer(system, hStepSI).value(rho[0], rho[1], rho[2], p[0], p[1]), rOhm, 0.001, Arrays.toString(rho));
   }
 
   @Test(enabled = false)
   public void testContinuous() {
-    for (int a : IntStream.rangeClosed(1, 30).toArray()) {
-      TetrapolarSystem system = new TetrapolarSystem(a, a * 3, MILLI(METRE));
-      for (double rho2 : new double[] {2.7 * 0.95, 2.7, 2.7 * 1.05}) {
-        for (int rho1 : IntStream.iterate(10, x -> x < 70, x -> x + 10).toArray()) {
-          LineFileBuilder.of("%.1f %.1f %.3f")
-              .xRange(0, 20, 0.1)
-              .yRange(0, 50, 0.1)
-              .generate(String.format("rho1 = %d, rho2 = %.3f, a = %d mm.txt", rho1, rho2, a), (h1, h2) -> {
-                int p1 = (int) h1 * 10;
-                int p2mp1 = (int) h2 * 10;
-                return new Resistance3Layer(system, Metrics.fromMilli(0.1)).value(rho1, rho2, 100.0, p1, p2mp1);
-              });
-        }
-      }
-    }
+    TetrapolarSystem system = TetrapolarSystem.milli().s(10.0).l(30.0);
+    LineFileBuilder.of("%.1f %.0f %.3f")
+        .xRange(0.1, 50.0, 0.1)
+        .yRange(0, 2, 1)
+        .generate("z.txt", (h1mm, index) -> {
+          int i = (int) index;
+          if (i == 0) {
+            int p1 = (int) (h1mm / 0.1);
+            return new Resistance3Layer(system, Metrics.fromMilli(0.1)).value(10.0, 1.0, 10.0, p1, 1);
+          }
+          else if (i == 1) {
+            return new Resistance2Layer(system).value(10.0, 1.0, Metrics.fromMilli(h1mm));
+          }
+          else if (i == 2) {
+            return new Resistance2Layer(system).value(1.0, 10.0, Metrics.fromMilli(h1mm));
+          }
+          else {
+            return Double.NaN;
+          }
+        });
   }
 }

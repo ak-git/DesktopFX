@@ -15,16 +15,16 @@ public class AperCoefficientsTest {
     return new Object[][] {
         {AperCoefficients.ADC_TO_OHM, 18},
         {AperSurfaceCoefficientsChannel1.CCU_VADC_0, 4},
-        {AperSurfaceCoefficientsChannel1.CCU_VADC_15100, 16},
-        {AperSurfaceCoefficientsChannel1.CCU_VADC_30200, 14},
-        {AperSurfaceCoefficientsChannel1.CCU_VADC_90400, 12},
-        {AperSurfaceCoefficientsChannel1.CCU_VADC_301400, 10},
+        {AperSurfaceCoefficientsChannel1.CCU_VADC_15148, 16},
+        {AperSurfaceCoefficientsChannel1.CCU_VADC_30129, 14},
+        {AperSurfaceCoefficientsChannel1.CCU_VADC_90333, 12},
+        {AperSurfaceCoefficientsChannel1.CCU_VADC_330990, 10},
 
         {AperSurfaceCoefficientsChannel2.CCU_VADC_0, 4},
-        {AperSurfaceCoefficientsChannel2.CCU_VADC_15100, 16},
-        {AperSurfaceCoefficientsChannel2.CCU_VADC_30200, 14},
-        {AperSurfaceCoefficientsChannel2.CCU_VADC_90400, 12},
-        {AperSurfaceCoefficientsChannel2.CCU_VADC_301400, 10},
+        {AperSurfaceCoefficientsChannel2.CCU_VADC_15148, 16},
+        {AperSurfaceCoefficientsChannel2.CCU_VADC_30129, 14},
+        {AperSurfaceCoefficientsChannel2.CCU_VADC_90333, 12},
+        {AperSurfaceCoefficientsChannel2.CCU_VADC_330990, 10},
     };
   }
 

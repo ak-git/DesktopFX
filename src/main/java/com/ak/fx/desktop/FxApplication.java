@@ -59,7 +59,10 @@ public class FxApplication extends Application implements ViewController {
               stage.setResizable(true);
             }),
         KeyCode.CONTROL, KeyCode.SHORTCUT, KeyCode.F);
-    addEventHandler(stage, this::refresh, KeyCode.SHORTCUT, KeyCode.N);
+    addEventHandler(stage, this::refresh, KeyCode.N);
+    addEventHandler(stage, this::up, KeyCode.UP);
+    addEventHandler(stage, this::down, KeyCode.DOWN);
+    addEventHandler(stage, this::escape, KeyCode.ESCAPE);
     stage.show();
 
     Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass(), Strings.EMPTY);

@@ -8,23 +8,23 @@ import javax.annotation.Nonnull;
 
 abstract class AbstractResistanceSumValue implements ResistanceSumValue {
   @Nonnull
-  private final TetrapolarSystem system;
+  private final RelativeTetrapolarSystem system;
 
-  AbstractResistanceSumValue(@Nonnull TetrapolarSystem system) {
+  AbstractResistanceSumValue(@Nonnull RelativeTetrapolarSystem system) {
     this.system = system;
   }
 
-  final double radius(double sign) {
-    return system.radius(sign);
+  final double factor(double sign) {
+    return system.factor(sign);
   }
 
   @Override
-  public final double value(@Nonnegative double h, @Nonnull IntToDoubleFunction qn) {
-    DoubleBinaryOperator sum = sum(h);
+  public final double value(@Nonnegative double hToL, @Nonnull IntToDoubleFunction qn) {
+    DoubleBinaryOperator sum = sum(hToL);
     return multiply(Layers.sum(n -> qn.applyAsDouble(n) * (sum.applyAsDouble(-1.0, n) - sum.applyAsDouble(1.0, n))));
   }
 
   abstract double multiply(double sums);
 
-  abstract DoubleBinaryOperator sum(@Nonnegative double h);
+  abstract DoubleBinaryOperator sum(@Nonnegative double hToL);
 }

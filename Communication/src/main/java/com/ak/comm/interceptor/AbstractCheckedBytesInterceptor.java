@@ -10,9 +10,9 @@ import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.AbstractCheckedBuilder;
 import com.ak.comm.bytes.BufferFrame;
-import com.ak.util.LogUtils;
+import com.ak.comm.core.LogUtils;
 
-import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
+import static com.ak.comm.core.LogUtils.LOG_LEVEL_ERRORS;
 
 public abstract class AbstractCheckedBytesInterceptor<T extends BufferFrame, R, B extends AbstractCheckedBuilder<R>>
     extends AbstractBytesInterceptor<T, R> {

@@ -3,28 +3,44 @@ package com.ak.rsm;
 import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import tec.uom.se.unit.Units;
 
 public class PredictionTest {
 
   @Test
   public void testGetInequalityL2() {
-    TetrapolarSystem system = new TetrapolarSystem(1, 2, Units.METRE);
-    Measurement measurement = new TetrapolarMeasurement(system, new Resistance1Layer(system).value(1.0));
+    InexactTetrapolarSystem system1 = InexactTetrapolarSystem.milli(0.1).s(1.0).l(3.0);
+    InexactTetrapolarSystem system2 = InexactTetrapolarSystem.milli(0.01).s(5.0).l(3.0);
+    Measurement measurement1 = new TetrapolarMeasurement(system1, new Resistance1Layer(system1.toExact()).value(1.0));
+    Measurement measurement2 = new TetrapolarMeasurement(system2, new Resistance1Layer(system2.toExact()).value(1.0));
 
-    Prediction prediction = new TetrapolarPrediction(measurement, 10.0);
+    Assert.assertNotEquals(measurement1, measurement2);
+    Assert.assertNotEquals(measurement1, new Object());
+    Assert.assertNotEquals(new Object(), measurement2);
+    Assert.assertNotEquals(measurement1.hashCode(), measurement2.hashCode());
+    Assert.assertEquals(measurement1, measurement1);
+    Assert.assertEquals(measurement2.merge(measurement1), measurement1.merge(measurement2));
+    Assert.assertEquals(measurement1.merge(measurement2).hashCode(), measurement2.merge(measurement1).hashCode());
+
+    Prediction prediction = new TetrapolarPrediction(measurement1.merge(measurement2), RelativeMediumLayers.SINGLE_LAYER, 10.0);
+    Assert.assertEquals(prediction.getHorizons(), new double[] {Double.POSITIVE_INFINITY, 0.0}, prediction.toString());
+    Assert.assertEquals(prediction.getResistivityPredicted(), 10.0, 0.001, prediction.toString());
     Assert.assertEquals(prediction.getInequalityL2(), 9.0 / 10.0, 0.001, prediction.toString());
   }
 
   @Test
   public void testGetInequalityL2Diff() {
-    TetrapolarSystem system = new TetrapolarSystem(1, 2, Units.METRE);
+    InexactTetrapolarSystem system = InexactTetrapolarSystem.milli(0.1).s(1.0).l(2.0);
 
-    Measurement measurementBefore = new TetrapolarMeasurement(system, new Resistance1Layer(system).value(1.0));
-    Measurement measurementAfter = new TetrapolarMeasurement(system, new Resistance1Layer(system).value(2.0));
+    Measurement measurementBefore = new TetrapolarMeasurement(system, new Resistance1Layer(system.toExact()).value(1.0));
+    Measurement measurementAfter = new TetrapolarMeasurement(system, new Resistance1Layer(system.toExact()).value(2.0));
     DerivativeMeasurement measurement = new TetrapolarDerivativeMeasurement(measurementBefore, measurementAfter, Metrics.fromMilli(1.0));
 
-    Prediction prediction = new TetrapolarDerivativePrediction(measurement, 10.0, 1.0);
+    Assert.assertThrows(UnsupportedOperationException.class, () -> measurement.merge(measurement));
+
+    Prediction prediction = new TetrapolarDerivativePrediction(measurement,
+        new TetrapolarPrediction(measurement, RelativeMediumLayers.SINGLE_LAYER, 10.0), 1.0);
+    Assert.assertEquals(prediction.getHorizons(), new double[] {Double.POSITIVE_INFINITY, 0.0}, prediction.toString());
+    Assert.assertEquals(prediction.getResistivityPredicted(), 1.0, 0.001, prediction.toString());
     Assert.assertEquals(prediction.getInequalityL2(), 999.0, 0.001, prediction.toString());
   }
 }

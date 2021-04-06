@@ -26,4 +26,12 @@ public class ExtensionTest {
     }
     Assert.assertEquals(Extension.NONE.attachTo(name), name);
   }
+
+  @Test(dataProvider = "fileNames")
+  public void testReplace(@Nonnull String name) {
+    for (Extension e : EnumSet.allOf(Extension.class)) {
+      Assert.assertEquals(e.clean(e.attachTo(name)), name);
+      Assert.assertEquals(e.clean(name), name);
+    }
+  }
 }

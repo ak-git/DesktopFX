@@ -1,10 +1,14 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="ConverterAper" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <module name="DesktopFX.main" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.ak.fx.desktop.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.ak.fx.desktop.ConverterApp" />
-    <option name="ENABLE_LAUNCH_OPTIMIZATION" value="false" />
-    <option name="ENABLE_JMX_AGENT" value="false" />
-    <option name="ACTIVE_PROFILES" value="aper2-myo" />
+    <option name="ACTIVE_PROFILES" value="aper2-ecg" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <method v="2">
       <option name="Make" enabled="true" />

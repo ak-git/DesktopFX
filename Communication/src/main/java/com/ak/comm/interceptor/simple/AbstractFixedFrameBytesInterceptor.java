@@ -34,20 +34,18 @@ public abstract class AbstractFixedFrameBytesInterceptor extends AbstractBytesIn
       if (position < buffer.length) {
         buffer[position] = in;
       }
+      else if (check(buffer, in)) {
+        logSkippedBytes(true);
+        responses.add(new BufferFrame(Arrays.copyOf(buffer, buffer.length), ByteOrder.LITTLE_ENDIAN));
+        position = 0;
+        buffer[position] = in;
+      }
       else {
-        if (check(buffer, in)) {
-          logSkippedBytes(true);
-          responses.add(new BufferFrame(Arrays.copyOf(buffer, buffer.length), ByteOrder.LITTLE_ENDIAN));
-          position = 0;
-          buffer[position] = in;
-        }
-        else {
-          ignoreBuffer().put(buffer[0]);
-          logSkippedBytes(false);
-          System.arraycopy(buffer, 1, buffer, 0, buffer.length - 1);
-          buffer[buffer.length - 1] = in;
-          position = buffer.length - 1;
-        }
+        ignoreBuffer().put(buffer[0]);
+        logSkippedBytes(false);
+        System.arraycopy(buffer, 1, buffer, 0, buffer.length - 1);
+        buffer[buffer.length - 1] = in;
+        position = buffer.length - 1;
       }
     }
     return responses;

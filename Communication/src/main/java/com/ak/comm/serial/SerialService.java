@@ -26,7 +26,7 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
 
-import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
+import static com.ak.comm.core.LogUtils.LOG_LEVEL_ERRORS;
 
 final class SerialService<T, R> extends AbstractService<ByteBuffer> implements WritableByteChannel, Flow.Subscription {
   private static final Logger LOGGER = Logger.getLogger(SerialService.class.getName());
@@ -190,7 +190,8 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
     @Nullable
     synchronized SerialPort next() {
       Collection<SerialPort> serialPorts = Arrays.stream(SerialPort.getCommPorts())
-          .sorted(Comparator.comparing(port -> port.toString().toLowerCase().indexOf("usb")).reversed())
+          .filter(port -> !port.getSystemPortName().toLowerCase().contains("bluetooth"))
+          .sorted(Comparator.<SerialPort, Integer>comparing(port -> port.getSystemPortName().toLowerCase().indexOf("usb")).reversed())
           .sorted(Comparator.comparingInt(value -> usedPorts.indexOf(value.getSystemPortName()))).collect(Collectors.toUnmodifiableList());
       if (serialPorts.isEmpty()) {
         return null;

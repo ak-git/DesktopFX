@@ -10,15 +10,15 @@ import java.util.stream.Stream;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.comm.bytes.suntech.NIBPResponse;
+import com.ak.comm.core.LogUtils;
 import com.ak.comm.log.LogTestUtils;
-import com.ak.util.LogUtils;
 import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class NIBPBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(NIBPBytesInterceptor.class.getName());
-  public static final int[] EMPTY = {};
+  private static final int[] EMPTY = {};
 
   @Test
   public void test() {

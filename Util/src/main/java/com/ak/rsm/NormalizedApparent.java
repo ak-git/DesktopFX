@@ -3,7 +3,7 @@ package com.ak.rsm;
 import javax.annotation.Nonnull;
 
 final class NormalizedApparent extends AbstractNormalizedApparent {
-  NormalizedApparent(@Nonnull TetrapolarSystem system) {
+  NormalizedApparent(@Nonnull RelativeTetrapolarSystem system) {
     super(system);
   }
 
