@@ -35,7 +35,7 @@ public class AperStage4Current2VariableTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55442, -702471, 1293, 330990, -702470, 1638}},
+            new int[] {55442, 3872, 3872, 1293, 330990, 3872, 3872, 1638}},
     };
   }
 
@@ -75,8 +75,8 @@ public class AperStage4Current2VariableTest {
         .map(DependentVariable::getUnit).collect(Collectors.toList());
     Assert.assertEquals(actual,
         Arrays.asList(
-            MetricPrefix.MILLI(Units.OHM), MetricPrefix.MICRO(Units.VOLT), Units.OHM,
-            MetricPrefix.MILLI(Units.OHM), MetricPrefix.MICRO(Units.VOLT), Units.OHM
+            MetricPrefix.MILLI(Units.OHM), MetricPrefix.MICRO(Units.VOLT), MetricPrefix.MICRO(Units.VOLT), Units.OHM,
+            MetricPrefix.MILLI(Units.OHM), MetricPrefix.MICRO(Units.VOLT), MetricPrefix.MICRO(Units.VOLT), Units.OHM
         ),
         actual.toString()
     );
@@ -88,8 +88,8 @@ public class AperStage4Current2VariableTest {
         .flatMap(v -> v.options().stream()).collect(Collectors.toList());
     Assert.assertEquals(actual,
         Arrays.asList(
-            Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER,
-            Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER
+            Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER, Variable.Option.TEXT_VALUE_BANNER,
+            Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER, Variable.Option.TEXT_VALUE_BANNER
         ),
         actual.toString()
     );
