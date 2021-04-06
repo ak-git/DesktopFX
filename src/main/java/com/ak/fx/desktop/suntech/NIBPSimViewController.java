@@ -1,6 +1,6 @@
 package com.ak.fx.desktop.suntech;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -18,8 +18,9 @@ import static com.ak.comm.bytes.suntech.NIBPRequest.CONTROL_PNEUMATICS_ALL_CLOSE
 @Profile("suntech-test")
 public final class NIBPSimViewController extends AbstractNIBPViewController {
   @Inject
-  public NIBPSimViewController(@Nonnull Provider<BytesInterceptor<NIBPRequest, NIBPResponse>> interceptorProvider,
-                               @Nonnull Provider<Converter<NIBPResponse, NIBPVariable>> converterProvider) {
+  @ParametersAreNonnullByDefault
+  public NIBPSimViewController(Provider<BytesInterceptor<NIBPRequest, NIBPResponse>> interceptorProvider,
+                               Provider<Converter<NIBPResponse, NIBPVariable>> converterProvider) {
     super(interceptorProvider, converterProvider);
   }
 

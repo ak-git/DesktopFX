@@ -10,6 +10,8 @@ module com.ak.util {
   opens com.ak.inverse to org.testng;
   opens com.ak.rsm to org.testng;
 
+  exports com.ak.math to org.testng;
+
   exports com.ak.util;
   exports com.ak.logging;
   exports com.ak.digitalfilter;

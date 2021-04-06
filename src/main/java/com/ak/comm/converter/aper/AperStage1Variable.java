@@ -18,7 +18,7 @@ public enum AperStage1Variable implements Variable<AperStage1Variable> {
 
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().operator(() -> adc -> (int) Math.round((adc - ((1 << 17) * 25)) / 6.0)).build();
+      return FilterBuilder.of().operator(() -> adc -> (int) Math.round((adc - ((1 << 17) * 25)) * 0.2223218)).build();
     }
   },
   CCU1,

@@ -6,7 +6,7 @@ import java.nio.ByteOrder;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.util.LogUtils;
+import com.ak.comm.core.LogUtils;
 
 public class BufferFrame {
   @Nonnull
@@ -52,6 +52,10 @@ public class BufferFrame {
 
   public final int getInt(@Nonnegative int index) {
     return byteBuffer.getInt(index);
+  }
+
+  public final float getFloat(@Nonnegative int index) {
+    return byteBuffer.getFloat(index);
   }
 
   public final int get(@Nonnegative int index) {

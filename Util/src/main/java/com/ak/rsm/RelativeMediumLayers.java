@@ -1,12 +1,23 @@
 package com.ak.rsm;
 
-import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 
-interface RelativeMediumLayers {
-  double k12();
+interface RelativeMediumLayers<D> {
+  RelativeMediumLayers<Double> SINGLE_LAYER = new RelativeMediumLayers<>() {
+    @Override
+    public Double k12() {
+      return 0.0;
+    }
 
-  @Nonnegative
-  default double h() {
-    return Double.NaN;
-  }
+    @Override
+    public Double h() {
+      return Double.NaN;
+    }
+  };
+
+  @Nonnull
+  D k12();
+
+  @Nonnull
+  D h();
 }

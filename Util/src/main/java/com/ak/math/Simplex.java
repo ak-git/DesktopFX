@@ -1,15 +1,10 @@
 package com.ak.math;
 
-import java.time.Duration;
-import java.time.LocalTime;
 import java.util.Comparator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 
-import com.ak.util.Strings;
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.optim.InitialGuess;
 import org.apache.commons.math3.optim.MaxEval;
@@ -44,25 +39,15 @@ public enum Simplex {
         )).parallel().min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
 
-  public static PointValuePair optimize(@Nonnull String logFormat, @Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
+  public static PointValuePair optimize(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
                                         @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
-    return optimize(new MultivariateFunction() {
-      private LocalTime prev = LocalTime.now();
-
-      @Override
-      public double value(double[] point) {
-        for (int i = 0; i < point.length; i++) {
-          if (bounds.getLower()[i] > point[i] || bounds.getUpper()[i] < point[i]) {
-            return Double.POSITIVE_INFINITY;
-          }
+    return optimize(point -> {
+      for (int i = 0; i < point.length; i++) {
+        if (bounds.getLower()[i] > point[i] || bounds.getUpper()[i] < point[i]) {
+          return Double.POSITIVE_INFINITY;
         }
-        double value = function.value(point);
-        if (!logFormat.isEmpty() && Duration.between(prev, LocalTime.now()).getSeconds() >= 60 - 1) {
-          Logger.getLogger(Simplex.class.getName()).log(Level.INFO, "%s; %.6f".formatted(Strings.toString(logFormat, point), value));
-          prev = LocalTime.now();
-        }
-        return value;
       }
+      return function.value(point);
     }, initialGuess, initialSteps);
   }
 

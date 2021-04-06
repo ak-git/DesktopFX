@@ -10,7 +10,7 @@ import com.ak.digitalfilter.FilterBuilder;
 import com.ak.numbers.aper.AperRheoCoefficients;
 
 public enum AperStage3Current1NIBPVariable implements DependentVariable<AperStage2UnitsVariable, AperStage3Current1NIBPVariable> {
-  R1, R2,
+  R1,
   CCR {
     @Override
     public List<AperStage2UnitsVariable> getInputVariables() {
@@ -19,9 +19,8 @@ public enum AperStage3Current1NIBPVariable implements DependentVariable<AperStag
 
     @Override
     public Set<Option> options() {
-      return Collections.singleton(Option.TEXT_VALUE_BANNER);
+      return AperStage2UnitsVariable.CCR1.options();
     }
-
   };
 
   @Override

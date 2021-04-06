@@ -14,8 +14,8 @@ abstract class AbstractApparentRho implements ResistanceSumValue {
   }
 
   @Override
-  public final double value(@Nonnegative double h, @Nonnegative IntToDoubleFunction qn) {
-    return apparent.value(h, qn);
+  public final double value(@Nonnegative double hToL, @Nonnegative IntToDoubleFunction qn) {
+    return apparent.value(hToL, qn);
   }
 
   @Override

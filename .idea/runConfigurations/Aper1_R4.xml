@@ -5,6 +5,7 @@
     <option name="ENABLE_LAUNCH_OPTIMIZATION" value="false" />
     <option name="ENABLE_JMX_AGENT" value="false" />
     <option name="ACTIVE_PROFILES" value="aper1-R4" />
+    <option name="VM_PARAMETERS" value="-Duser.language=en" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <method v="2">
       <option name="Make" enabled="true" />
