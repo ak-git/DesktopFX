@@ -47,7 +47,7 @@ enum Inverse {
             double rho1 = getRho1(ms, kh);
             return new Layer2Medium.DoubleLayer2MediumBuilder(
                 ms.stream().map(m -> new TetrapolarPrediction(m, kh, rho1)).collect(Collectors.toUnmodifiableList()))
-                .layer1(rho1, kh.h()).layer2(rho1 / Layers.getRho1ToRho2(kh.k12())).build();
+                .layer1(rho1, kh.h()).k12(kh.k12()).build();
           };
 
       return getPairLayer2Medium(measurements, layer2MediumFunction, Measurement::newInstance);
@@ -81,10 +81,9 @@ enum Inverse {
           ms -> {
             RelativeMediumLayers<Double> kh = inverseDynamicRelative(ms, initial);
             double rho1 = getRho1(ms, kh);
-            double rho2 = rho1 / Layers.getRho1ToRho2(kh.k12());
             return new Layer2Medium.DoubleLayer2MediumBuilder(
                 ms.stream().map(m -> TetrapolarDerivativePrediction.of(m, kh, rho1)).collect(Collectors.toUnmodifiableList()))
-                .layer1(rho1, kh.h()).layer2(rho2).build();
+                .layer1(rho1, kh.h()).k12(kh.k12()).build();
           };
 
       return getPairLayer2Medium(measurements, layer2MediumFunction, DerivativeMeasurement::newInstance);
@@ -107,9 +106,10 @@ enum Inverse {
         .map(layer2MediumFunction)
         .map(m -> {
           Function<ToDoubleFunction<Layer2Medium<Double>>, ValuePair> getVar =
-              f -> new ValuePair(f.applyAsDouble(center),
-                  Inequality.absolute().applyAsDouble(f.applyAsDouble(m), f.applyAsDouble(center))
-              );
+              f -> {
+                double c = f.applyAsDouble(center);
+                return new ValuePair(c, Inequality.absolute().applyAsDouble(f.applyAsDouble(m), c));
+              };
           return new Layer2Medium.Layer2MediumBuilder(center.getPredictions())
               .layer1(getVar.apply(MediumLayers::rho1), getVar.apply(MediumLayers::h))
               .layer2(getVar.apply(MediumLayers::rho2))

@@ -16,6 +16,7 @@ import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.Readable;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.util.Extension;
 
 public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractService<int[]> implements FileFilter, Readable {
@@ -46,7 +47,7 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public boolean accept(@Nonnull File file) {
-    if (file.isFile() && file.getName().toLowerCase().endsWith(".bin")) {
+    if (file.isFile() && Extension.BIN.is(file.getName())) {
       refresh();
       FileReadingService<T, R, V> source = new FileReadingService<>(file.toPath(),
           interceptorProvider.get(), converterProvider.get()

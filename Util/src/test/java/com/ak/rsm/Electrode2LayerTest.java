@@ -32,11 +32,11 @@ public class Electrode2LayerTest {
   @Test(enabled = false)
   public void test() {
     LineFileBuilder.<RelativeMediumLayers<ValuePair>>of("%.3f %.3f %.6f")
-        .xStream(() -> DoubleStream.of(0.5))
-        .yRange(-1.0, 1.0, 0.1)
+        .xRange(0.1, 1.5, 0.1)
+        .yStream(() -> DoubleStream.of(-1.0, -Layers.getK12(1.0, 4.0), Layers.getK12(1.0, 4.0), 1.0))
         .add("k1.txt", K)
         .add("h1.txt", H)
-        .generate((hToL, k) -> errorsScale(new double[] {0.2, 0.6}, k, hToL));
+        .generate((hToL, k) -> errorsScale(new double[] {10.0 / 30.0, 50.0 / 30.0}, k, hToL));
 
     LineFileBuilder.<RelativeMediumLayers<ValuePair>>of("%.3f %.3f %.6f")
         .xStream(() -> DoubleStream.of(0.5))
@@ -50,11 +50,15 @@ public class Electrode2LayerTest {
 
   @Test
   public void testSingle() {
-    var errorsScale = errorsScale(new double[] {10.0 / 30.0, 50.0 / 30.0}, Layers.getK12(1.0, 4.0), 10.0 / 50.0);
+    RelativeMediumLayers<ValuePair> errorsScale = errorsScale(
+        new double[] {10.0 / 30.0, 50.0 / 30.0}, Layers.getK12(1.0, 4.0), 10.0 / 50.0
+    );
     Assert.assertEquals(K.applyAsDouble(errorsScale), 10.0, 0.1, errorsScale.toString());
     Assert.assertEquals(H.applyAsDouble(errorsScale), 1.9, 0.1, errorsScale.toString());
 
-    errorsScale = errorsScale(new double[] {10.0 / 30.0, 30.0 / 50.0}, Layers.getK12(1.0, 4.0), 10.0 / 50.0);
+    errorsScale = errorsScale(
+        new double[] {10.0 / 30.0, 30.0 / 50.0}, Layers.getK12(1.0, 4.0), 10.0 / 50.0
+    );
     Assert.assertEquals(K.applyAsDouble(errorsScale), 5.7, 0.1, errorsScale.toString());
     Assert.assertEquals(H.applyAsDouble(errorsScale), 1.6, 0.1, errorsScale.toString());
   }
@@ -143,10 +147,9 @@ public class Electrode2LayerTest {
         ms -> {
           RelativeMediumLayers<Double> kh = inverse.apply(ms);
           double rho1 = 1.0;
-          double rho2 = rho1 / Layers.getRho1ToRho2(kh.k12());
           return new Layer2Medium.DoubleLayer2MediumBuilder(
               ms.stream().map(m -> TetrapolarDerivativePrediction.of(m, kh, rho1)).collect(Collectors.toUnmodifiableList()))
-              .layer1(rho1, kh.h()).layer2(rho2).build();
+              .layer1(rho1, kh.h()).k12(kh.k12()).build();
         };
 
     return Inverse.getPairLayer2Medium(measurements, layer2MediumFunction, DerivativeMeasurement::newInstance);

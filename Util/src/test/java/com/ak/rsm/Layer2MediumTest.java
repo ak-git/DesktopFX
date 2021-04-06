@@ -19,8 +19,8 @@ public class Layer2MediumTest {
             TetrapolarMeasurement.of(systems4(0.1, 7.0), new double[] {1.0, 2.0, 3.0, 4.0}).stream()
                 .map(m -> new TetrapolarPrediction(m, RelativeMediumLayers.SINGLE_LAYER, 2.001))
                 .collect(Collectors.toList()))
-            .layer1(2.0012, Metrics.fromMilli(5.0)).layer2(11.0).build(),
-            new double[] {2.001, 11.0, Metrics.fromMilli(5.0)}},
+            .layer1(2.0012, Metrics.fromMilli(5.0)).k12(Layers.getK12(2.0012, 11.0)).build(),
+            new double[] {2.001, 10.999, Metrics.fromMilli(5.0)}},
     };
   }
 
