@@ -1,5 +1,8 @@
 package com.ak.util;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -21,6 +24,10 @@ public enum Strings {
   public static String numberSuffix(@Nonnull String s) {
     String ignore = s.replaceFirst("\\d*$", EMPTY);
     return s.replace(ignore, EMPTY);
+  }
+
+  public static String toString(@Nonnull String format, @Nonnull double[] values) {
+    return Arrays.stream(values).mapToObj(format::formatted).collect(Collectors.joining("; ", "{", "}"));
   }
 
   public static String dRhoByH(double v) {

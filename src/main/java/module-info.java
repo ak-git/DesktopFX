@@ -20,6 +20,7 @@ module com.ak.fx.desktop {
   requires java.prefs;
   requires java.desktop;
   requires spring.beans;
+  requires org.beryx.textio;
 
   opens com.ak.numbers.aper to com.ak.util, org.testng;
   opens com.ak.numbers.rcm to com.ak.util, org.testng;

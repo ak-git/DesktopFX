@@ -17,9 +17,6 @@ import com.ak.util.Strings;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.system.SystemTextTerminal;
 
-import static tec.uom.se.unit.MetricPrefix.MILLI;
-import static tec.uom.se.unit.Units.METRE;
-
 public final class R3Output {
   private static final String REGEX = "(.*:.*:.*)|(.* .* .*)|(\\S*)";
 
@@ -60,7 +57,7 @@ public final class R3Output {
         collector.accept("s, mm\tL, mm\trho1, Ohm-m\trho2, Ohm-m\trho3, Ohm-m\th1, mm\th2mm");
 
         for (double smm : smmA) {
-          TetrapolarSystem system = new TetrapolarSystem(smm, smm * lToS, MILLI(METRE));
+          TetrapolarSystem system = TetrapolarSystem.milli().s(smm).l(smm * lToS);
           for (double rho1 : rho1A) {
             for (double rho2 : rho2A) {
               for (double rho3 : rho3A) {
