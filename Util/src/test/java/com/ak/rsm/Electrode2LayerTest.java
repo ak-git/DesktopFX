@@ -23,17 +23,18 @@ import org.testng.annotations.Test;
 public class Electrode2LayerTest {
   private static final Logger LOGGER = Logger.getLogger(Electrode2LayerTest.class.getName());
   private static final double OVERALL_DIM = 1.0;
-  private static final double REL_ERROR_OVERALL_DIM = 1.0e-5;
+  private static final double REL_ERROR_OVERALL_DIM = 1.0e-6;
   private static final double ABS_ERROR_OVERALL_DIM = REL_ERROR_OVERALL_DIM * OVERALL_DIM;
-  private static final ToDoubleFunction<ValuePair> ERR = value -> value.getAbsError() / REL_ERROR_OVERALL_DIM;
-  private static final ToDoubleFunction<RelativeMediumLayers<ValuePair>> K = value -> ERR.applyAsDouble(value.k12());
-  private static final ToDoubleFunction<RelativeMediumLayers<ValuePair>> H = value -> ERR.applyAsDouble(value.h());
+  private static final ToDoubleFunction<RelativeMediumLayers<ValuePair>> K =
+      value -> Math.abs(value.k12().getAbsError() / value.k12().getValue()) / REL_ERROR_OVERALL_DIM;
+  private static final ToDoubleFunction<RelativeMediumLayers<ValuePair>> H =
+      value -> value.h().getAbsError() / REL_ERROR_OVERALL_DIM;
 
   @Test(enabled = false)
   public void test() {
     LineFileBuilder.<RelativeMediumLayers<ValuePair>>of("%.3f %.3f %.6f")
-        .xRange(0.1, 1.5, 0.1)
-        .yStream(() -> DoubleStream.of(-1.0, -Layers.getK12(1.0, 4.0), Layers.getK12(1.0, 4.0), 1.0))
+        .xRange(0.1, 1.0, 0.1)
+        .yRange(-1.0, 1.0, 0.1)
         .add("k1.txt", K)
         .add("h1.txt", H)
         .generate((hToL, k) -> errorsScale(new double[] {10.0 / 30.0, 50.0 / 30.0}, k, hToL));
@@ -50,17 +51,13 @@ public class Electrode2LayerTest {
 
   @Test
   public void testSingle() {
-    RelativeMediumLayers<ValuePair> errorsScale = errorsScale(
-        new double[] {10.0 / 30.0, 50.0 / 30.0}, Layers.getK12(1.0, 4.0), 10.0 / 50.0
-    );
-    Assert.assertEquals(K.applyAsDouble(errorsScale), 10.0, 0.1, errorsScale.toString());
-    Assert.assertEquals(H.applyAsDouble(errorsScale), 1.9, 0.1, errorsScale.toString());
+    var errorsScale = errorsScale(new double[] {10.0 / 30.0, 50.0 / 30.0}, Layers.getK12(1.0, 4.0), 1.0);
+    Assert.assertEquals(K.applyAsDouble(errorsScale), 161.3, 0.1, errorsScale.toString());
+    Assert.assertEquals(H.applyAsDouble(errorsScale), 47.8, 0.1, errorsScale.toString());
 
-    errorsScale = errorsScale(
-        new double[] {10.0 / 30.0, 30.0 / 50.0}, Layers.getK12(1.0, 4.0), 10.0 / 50.0
-    );
-    Assert.assertEquals(K.applyAsDouble(errorsScale), 5.7, 0.1, errorsScale.toString());
-    Assert.assertEquals(H.applyAsDouble(errorsScale), 1.6, 0.1, errorsScale.toString());
+    errorsScale = errorsScale(new double[] {10.0 / 30.0, 30.0 / 50.0}, Layers.getK12(1.0, 4.0), 1.0);
+    Assert.assertEquals(K.applyAsDouble(errorsScale), 210.4, 0.1, errorsScale.toString());
+    Assert.assertEquals(H.applyAsDouble(errorsScale), 62.9, 0.1, errorsScale.toString());
   }
 
   @Test(enabled = false)
@@ -116,12 +113,12 @@ public class Electrode2LayerTest {
 
               @Override
               public double getDerivativeResistivity() {
-                return system.getApparent(new NormalizedDerivativeR2ByH(system).value(k, h() / system.getL()));
+                return new DerivativeApparent2Rho(system).value(k, h() / system.getL());
               }
 
               @Override
               public double getResistivity() {
-                return system.getApparent(new NormalizedResistance2Layer(system).applyAsDouble(k, h()));
+                return new NormalizedApparent2Rho(system.toRelative()).value(k, h() / system.getL());
               }
 
               @Nonnull

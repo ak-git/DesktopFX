@@ -116,6 +116,7 @@ enum Inverse {
               .k12(getVar.apply(MediumLayers::k12))
               .build();
         })
+        .parallel()
         .reduce((m1, m2) -> {
           ToDoubleFunction<Function<Layer2Medium<ValuePair>, ValuePair>> getVar =
               f -> Math.max(f.apply(m1).getAbsError(), f.apply(m2).getAbsError());
