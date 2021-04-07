@@ -170,7 +170,7 @@ enum Inverse {
                   .toArray();
               return Inequality.absolute().applyAsDouble(subLog, subLogPredicted);
             },
-            new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], maxHToL}),
+            new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], maxHToL + 0.01}),
             new double[] {initialRelative.k12(), initialRelative.h()}, new double[] {0.01 * Math.signum(initialRelative.k12()), 0.01}
         );
 
@@ -199,7 +199,7 @@ enum Inverse {
           );
           return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
         },
-        new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {1.0, maxHToL}),
+        new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {1.0, maxHToL + 0.01}),
         new double[] {initialRelative.k12(), initialRelative.h()}, new double[] {0.01, 0.01}
     );
     RelativeMediumLayers<Double> layers = layersFunction.apply(kwOptimal.getPoint());
