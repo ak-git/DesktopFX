@@ -12,7 +12,6 @@ import java.util.stream.DoubleStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.math.ValuePair;
 import com.ak.util.LineFileBuilder;
@@ -37,66 +36,65 @@ public class Electrode2LayerTest {
         .yRange(-1.0, 1.0, 0.1)
         .add("k1.txt", K)
         .add("h1.txt", H)
-        .generate((hToL, k) -> errorsScale(new double[] {10.0 / 30.0, 50.0 / 30.0}, k, hToL));
+        .generate((hToL, k) -> errorsScaleDynamic(new double[] {10.0 / 30.0, 50.0 / 30.0}, k, hToL));
 
     LineFileBuilder.<RelativeMediumLayers<ValuePair>>of("%.3f %.3f %.6f")
         .xStream(() -> DoubleStream.of(0.5))
         .yRange(-1.0, 1.0, 0.1)
         .add("k2.txt", K)
         .add("h2.txt", H)
-        .generate((hToL, k) -> errorsScale(new double[] {0.2, 0.6}, k, hToL,
-            derivativeMeasurements -> Inverse.inverseStaticRelative(derivativeMeasurements, UnaryOperator.identity()))
-        );
+        .generate((hToL, k) -> errorsScaleStatic(new double[] {0.2, 0.6}, k, hToL));
   }
 
   @Test
   public void testSingle() {
     double k = Layers.getK12(1.0, 4.0);
     double hToDim = 1.0;
-    var errorsScale = errorsScale(new double[] {10.0 / 30.0, 50.0 / 30.0}, k, hToDim);
+    double[] sToL = {10.0 / 30.0, 50.0 / 30.0};
+    var errorsScale = errorsScaleDynamic(sToL, k, hToDim);
     Assert.assertEquals(K.applyAsDouble(errorsScale), 161.3, 0.1, errorsScale.toString());
     Assert.assertEquals(H.applyAsDouble(errorsScale), 47.8, 0.1, errorsScale.toString());
 
-    errorsScale = errorsScale(new double[] {10.0 / 30.0, 30.0 / 50.0}, k, hToDim);
+    errorsScale = errorsScaleDynamic(new double[] {10.0 / 30.0, 30.0 / 50.0}, k, hToDim);
     Assert.assertEquals(K.applyAsDouble(errorsScale), 210.4, 0.1, errorsScale.toString());
     Assert.assertEquals(H.applyAsDouble(errorsScale), 62.9, 0.1, errorsScale.toString());
   }
 
-  @Test(enabled = false)
-  public void testByH() {
-    DoubleStream.iterate(0.2, h -> h < 1.0, h -> h += 0.2)
-        .forEach(hToDim -> LOGGER.info(() -> errorsScale(new double[] {1.0 / 3.0, 5.0 / 3.0}, 1.0, hToDim).toString()));
+  @Nonnull
+  private static RelativeMediumLayers<ValuePair> errorsScaleStatic(@Nonnull double[] sToL, double k, @Nonnegative double hToDim) {
+    return errorsScale(sToL, k, hToDim, m -> Inverse.inverseStaticRelative(m, initialRelative(sToL, k, hToDim), UnaryOperator.identity()));
   }
 
-  @ParametersAreNonnullByDefault
-  private static RelativeMediumLayers<ValuePair> errorsScale(double[] sToL, double k, @Nonnegative double hToDim) {
-    return errorsScale(sToL, k, hToDim,
-        derivativeMeasurements -> Inverse.inverseDynamicRelative(derivativeMeasurements,
-            new RelativeMediumLayers<>() {
-              @Override
-              public Double k12() {
-                return k;
-              }
-
-              /**
-               * @return h / L
-               */
-              @Override
-              public Double h() {
-                return hToDim * Arrays.stream(sToL).reduce(1.0, Math::max);
-              }
-
-              @Override
-              public String toString() {
-                return "k%s%s = %+.3f; h/L = %.3f".formatted(Strings.low(1), Strings.low(2), k12(), h());
-              }
-            })
-    );
+  @Nonnull
+  private static RelativeMediumLayers<ValuePair> errorsScaleDynamic(@Nonnull double[] sToL, double k, @Nonnegative double hToDim) {
+    return errorsScale(sToL, k, hToDim, dm -> Inverse.inverseDynamicRelative(dm, initialRelative(sToL, k, hToDim)));
   }
 
-  @ParametersAreNonnullByDefault
-  private static RelativeMediumLayers<ValuePair> errorsScale(double[] sToL, double k, @Nonnegative double hToDim,
-                                                             Function<Collection<DerivativeMeasurement>, RelativeMediumLayers<Double>> inverse) {
+  @Nonnull
+  private static RelativeMediumLayers<Double> initialRelative(@Nonnull double[] sToL, double k, @Nonnegative double hToDim) {
+    return new RelativeMediumLayers<>() {
+      @Override
+      public Double k12() {
+        return k;
+      }
+
+      /**
+       * @return h / L
+       */
+      @Override
+      public Double h() {
+        return hToDim * Arrays.stream(sToL).reduce(1.0, Math::max);
+      }
+
+      @Override
+      public String toString() {
+        return "k%s%s = %+.3f; h/L = %.3f".formatted(Strings.low(1), Strings.low(2), k12(), h());
+      }
+    };
+  }
+
+  private static RelativeMediumLayers<ValuePair> errorsScale(@Nonnull double[] sToL, double k, @Nonnegative double hToDim,
+                                                             @Nonnull Function<Collection<DerivativeMeasurement>, RelativeMediumLayers<Double>> inverse) {
     double maxRelDim = Arrays.stream(sToL).reduce(1.0, Math::max);
     DoubleUnaryOperator converterToAbs = rel -> OVERALL_DIM * rel / maxRelDim;
     double s1 = converterToAbs.applyAsDouble(sToL[0]);
