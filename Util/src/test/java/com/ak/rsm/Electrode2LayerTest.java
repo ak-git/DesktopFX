@@ -51,11 +51,13 @@ public class Electrode2LayerTest {
 
   @Test
   public void testSingle() {
-    var errorsScale = errorsScale(new double[] {10.0 / 30.0, 50.0 / 30.0}, Layers.getK12(1.0, 4.0), 1.0);
+    double k = Layers.getK12(1.0, 4.0);
+    double hToDim = 1.0;
+    var errorsScale = errorsScale(new double[] {10.0 / 30.0, 50.0 / 30.0}, k, hToDim);
     Assert.assertEquals(K.applyAsDouble(errorsScale), 161.3, 0.1, errorsScale.toString());
     Assert.assertEquals(H.applyAsDouble(errorsScale), 47.8, 0.1, errorsScale.toString());
 
-    errorsScale = errorsScale(new double[] {10.0 / 30.0, 30.0 / 50.0}, Layers.getK12(1.0, 4.0), 1.0);
+    errorsScale = errorsScale(new double[] {10.0 / 30.0, 30.0 / 50.0}, k, hToDim);
     Assert.assertEquals(K.applyAsDouble(errorsScale), 210.4, 0.1, errorsScale.toString());
     Assert.assertEquals(H.applyAsDouble(errorsScale), 62.9, 0.1, errorsScale.toString());
   }
