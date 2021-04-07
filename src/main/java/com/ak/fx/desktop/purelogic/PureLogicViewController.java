@@ -19,7 +19,6 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.fx.desktop.AbstractScheduledViewController;
 import org.springframework.context.annotation.Profile;
 
-import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_090;
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_150;
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_450;
 import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
@@ -27,7 +26,7 @@ import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
 @Named
 @Profile("purelogic")
 public final class PureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
-  private static final PureLogicFrame.StepCommand[] PINGS = {MICRON_090, MICRON_150};
+  private static final PureLogicFrame.StepCommand[] PINGS = {MICRON_150};
   private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE = {MICRON_150, MICRON_150, MICRON_150, MICRON_450};
   private final Random random = new SecureRandom();
   private final Queue<PureLogicFrame.StepCommand> frames = new LinkedList<>();
