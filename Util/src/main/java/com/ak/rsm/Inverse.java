@@ -1,6 +1,5 @@
 package com.ak.rsm;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -160,22 +159,20 @@ enum Inverse {
     double[] subLog = derivativeMeasurements.stream().mapToDouble(d -> d.getLogResistivity() - d.getDerivativeLogResistivity()).toArray();
     Function<double[], RelativeMediumLayers<Double>> layersFunction = newLayerFunction(derivativeMeasurements);
     double maxHToL = getMaxHToL(derivativeMeasurements);
-    Function<TetrapolarSystem[], PointValuePair> find =
-        systems -> Simplex.optimize(kw -> {
-              double[] subLogPredicted = Arrays.stream(systems)
-                  .mapToDouble(s -> {
-                    RelativeMediumLayers<Double> kh = layersFunction.apply(kw);
-                    return LOG_APPARENT_PREDICTED.applyAsDouble(s, kh) - LOG_DIFF_APPARENT_PREDICTED.applyAsDouble(s, kh);
-                  })
-                  .toArray();
-              return Inequality.absolute().applyAsDouble(subLog, subLogPredicted);
-            },
-            new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], maxHToL + 0.01}),
-            new double[] {initialRelative.k12(), initialRelative.h()}, new double[] {0.01 * Math.signum(initialRelative.k12()), 0.01}
-        );
-
-    PointValuePair kwOptimal = find.apply(
-        derivativeMeasurements.stream().map(m -> m.getSystem().toExact()).toArray(TetrapolarSystem[]::new)
+    PointValuePair kwOptimal = Simplex.optimize(
+        kw -> {
+          double[] subLogPredicted = derivativeMeasurements.stream()
+              .map(Measurement::getSystem)
+              .map(InexactTetrapolarSystem::toExact)
+              .mapToDouble(s -> {
+                RelativeMediumLayers<Double> kh = layersFunction.apply(kw);
+                return LOG_APPARENT_PREDICTED.applyAsDouble(s, kh) - LOG_DIFF_APPARENT_PREDICTED.applyAsDouble(s, kh);
+              })
+              .toArray();
+          return Inequality.absolute().applyAsDouble(subLog, subLogPredicted);
+        },
+        new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], maxHToL + 0.01}),
+        new double[] {initialRelative.k12(), initialRelative.h()}, new double[] {0.01 * Math.signum(initialRelative.k12()), 0.01}
     );
 
     RelativeMediumLayers<Double> layers = layersFunction.apply(kwOptimal.getPoint());
@@ -190,11 +187,13 @@ enum Inverse {
     double[] subLogApparent = subtract.apply(measurements.stream().mapToDouble(Measurement::getLogResistivity).toArray());
     Function<double[], RelativeMediumLayers<Double>> layersFunction = newLayerFunction(measurements);
     double maxHToL = getMaxHToL(measurements);
-    PointValuePair kwOptimal = Simplex.optimizeCMAES(kw -> {
+    PointValuePair kwOptimal = Simplex.optimizeCMAES(
+        kw -> {
           double[] subLogApparentPredicted = subtract.apply(
               measurements.stream()
                   .map(Measurement::getSystem)
-                  .mapToDouble(s -> LOG_APPARENT_PREDICTED.applyAsDouble(s.toExact(), layersFunction.apply(kw)))
+                  .map(InexactTetrapolarSystem::toExact)
+                  .mapToDouble(s -> LOG_APPARENT_PREDICTED.applyAsDouble(s, layersFunction.apply(kw)))
                   .toArray()
           );
           return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
