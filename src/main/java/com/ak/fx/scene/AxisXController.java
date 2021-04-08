@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import javax.measure.quantity.Speed;
 
 import com.ak.comm.converter.Variables;
+import com.ak.util.Strings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -27,13 +28,13 @@ import static com.ak.fx.scene.GridCell.SMALL;
 
 public final class AxisXController {
   private enum ZoomX {
-    Z_10(10), Z_25(25), Z_50(50);
+    Z_10, Z_25, Z_50;
 
     @Nonnegative
     private final int mmPerSec;
 
-    ZoomX(int mmPerSec) {
-      this.mmPerSec = mmPerSec;
+    ZoomX() {
+      mmPerSec = Integer.parseInt(Strings.numberSuffix(name()));
     }
 
     ZoomX prev() {
