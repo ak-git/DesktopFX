@@ -155,6 +155,9 @@ enum Inverse {
     else if (initialRelative.k12() < 0.0) {
       kMinMax[1] = 0.0;
     }
+    else {
+      return inverseStaticRelative(derivativeMeasurements, initialRelative, UnaryOperator.identity());
+    }
 
     double[] subLog = derivativeMeasurements.stream().mapToDouble(d -> d.getLogResistivity() - d.getDerivativeLogResistivity()).toArray();
     Function<double[], RelativeMediumLayers<Double>> layersFunction = newLayerFunction(derivativeMeasurements);

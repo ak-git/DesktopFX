@@ -6,7 +6,6 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
@@ -20,7 +19,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class Electrode2LayerTest {
-  private static final Logger LOGGER = Logger.getLogger(Electrode2LayerTest.class.getName());
   private static final double OVERALL_DIM = 1.0;
   private static final double REL_ERROR_OVERALL_DIM = 1.0e-6;
   private static final double ABS_ERROR_OVERALL_DIM = REL_ERROR_OVERALL_DIM * OVERALL_DIM;
