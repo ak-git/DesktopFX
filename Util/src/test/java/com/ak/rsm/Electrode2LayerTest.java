@@ -38,14 +38,14 @@ public class Electrode2LayerTest {
         .yRange(-1.0, 1.0, 0.1)
         .add("k1.txt", K)
         .add("h1.txt", H)
-        .generate((hToL, k) -> errorsScaleDynamic(new double[] {10.0 / 30.0, 50.0 / 30.0}, k, hToL));
+        .generate((hToDim, k) -> errorsScaleDynamic(new double[] {10.0 / 30.0, 50.0 / 30.0}, k, hToDim));
 
     LineFileBuilder.<RelativeMediumLayers<ValuePair>>of("%.3f %.3f %.6f")
         .xStream(() -> DoubleStream.of(0.5))
         .yRange(-1.0, 1.0, 0.1)
         .add("k2.txt", K)
         .add("h2.txt", H)
-        .generate((hToL, k) -> errorsScaleStatic(new double[] {0.2, 0.6}, k, hToL));
+        .generate((hToDim, k) -> errorsScaleStatic(new double[] {0.2, 0.6}, k, hToDim));
   }
 
   @Test
