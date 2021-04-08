@@ -88,7 +88,7 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
   }
 
   protected final void logSkippedBytes(boolean force) {
-    if (force || ignoreBuffer.position() >= IGNORE_LIMIT) {
+    if (force || ignoreBuffer.position() >= ignoreBuffer.capacity()) {
       ignoreBuffer.flip();
       if (ignoreBuffer.limit() > 0) {
         LogUtils.logBytes(logger, LOG_LEVEL_ERRORS, this, ignoreBuffer, "IGNORED");

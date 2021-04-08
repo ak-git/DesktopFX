@@ -32,6 +32,7 @@ import com.ak.comm.converter.rcm.RcmOutVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.FixedFrameBytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
+import com.ak.comm.interceptor.simple.StringBytesInterceptor;
 import com.ak.logging.LocalFileHandler;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -54,7 +55,6 @@ import org.springframework.context.annotation.Scope;
     "com.ak.comm.interceptor.suntech", "com.ak.comm.converter.suntech",
     "com.ak.comm.interceptor.purelogic", "com.ak.comm.converter.purelogic",
     "com.ak.comm.interceptor.kleiber",
-    "com.ak.comm.interceptor.prv",
 })
 public class SpringFxApplication extends FxApplication {
   private ConfigurableApplicationContext applicationContext;
@@ -159,7 +159,14 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("prv")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, ADCVariable> converterPrv() {
+  static BytesInterceptor<BufferFrame, String> bytesInterceptorPrv() {
+    return new StringBytesInterceptor("prv");
+  }
+
+  @Bean
+  @Profile("prv")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<String, ADCVariable> converterPrv() {
     return new StringToIntegerConverter<>(ADCVariable.class, 32);
   }
 
