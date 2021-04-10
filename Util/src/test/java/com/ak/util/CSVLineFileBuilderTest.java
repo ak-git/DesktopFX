@@ -16,12 +16,12 @@ import org.testng.annotations.Test;
 public class CSVLineFileBuilderTest {
   @Test
   public void testGenerateRange() throws IOException {
-    new CSVLineFileBuilder<Double>("h1", "H2", "h3")
+    new CSVLineFileBuilder<Double>()
         .xRange(1.0, 3.0, 1.0)
         .yRange(1.0, 2.0, 1.0)
         .add("z", x -> x)
         .generate((x, y) -> x + y * 10);
-    checkFilesExists("z", "h1,H2,h3,11.0,12.0,13.0,21.0,22.0,23.0");
+    checkFilesExists("z", "11.0,12.0,13.0,21.0,22.0,23.0");
   }
 
   @Test
@@ -42,12 +42,12 @@ public class CSVLineFileBuilderTest {
 
   @Test
   public void testGenerateStream() throws IOException {
-    new CSVLineFileBuilder<Double>("h-1", "H-2", "h,3")
+    new CSVLineFileBuilder<Double>()
         .xStream(() -> DoubleStream.of(1.0, 2.0))
         .yStream(() -> DoubleStream.of(1.0, 2.0, 0.0))
         .add("streamZ", x -> x)
         .generate((x, y) -> x + y * 2.0);
-    checkFilesExists("streamZ", "h-1,H-2,\"h,3\",3.0,4.0,5.0,6.0,1.0,2.0");
+    checkFilesExists("streamZ", "3.0,4.0,5.0,6.0,1.0,2.0");
   }
 
   @ParametersAreNonnullByDefault

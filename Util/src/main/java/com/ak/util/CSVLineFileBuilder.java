@@ -12,12 +12,7 @@ import javax.annotation.Nonnull;
 public final class CSVLineFileBuilder<T> {
   private final Range xRange = new Range();
   private final Range yRange = new Range();
-  @Nonnull
-  private final CSVMultiFileCollector.Builder<T> multiFileBuilder;
-
-  public CSVLineFileBuilder(@Nonnull String... headers) {
-    multiFileBuilder = new CSVMultiFileCollector.Builder<>(headers);
-  }
+  private final CSVMultiFileCollector.Builder<T> multiFileBuilder = new CSVMultiFileCollector.Builder<>();
 
   public CSVLineFileBuilder<T> xStream(Supplier<DoubleStream> doubleStreamSupplier) {
     xRange.doubleStreamSupplier = doubleStreamSupplier;
