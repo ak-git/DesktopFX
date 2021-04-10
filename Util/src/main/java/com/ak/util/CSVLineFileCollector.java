@@ -40,6 +40,7 @@ public final class CSVLineFileCollector implements Collector<Object, CSVPrinter,
     }
     catch (IOException ex) {
       Logger.getLogger(getClass().getName()).log(Level.WARNING, out, ex);
+      errorFlag = true;
     }
   }
 

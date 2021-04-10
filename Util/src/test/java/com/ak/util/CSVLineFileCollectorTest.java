@@ -29,13 +29,12 @@ import org.testng.annotations.Test;
 
 public class CSVLineFileCollectorTest {
   private static final Logger LOGGER = Logger.getLogger(CSVLineFileCollector.class.getName());
-  private static final String OUT = CSVLineFileCollectorTest.class.getName();
+  private static final String OUT_FILE_NAME = CSVLineFileCollectorTest.class.getName();
+  private static final Path OUT_PATH = Paths.get(Extension.CSV.attachTo(OUT_FILE_NAME));
   private final AtomicInteger exceptionCounter = new AtomicInteger();
-  private Path out;
 
   @BeforeClass
   public void setUp() {
-    out = Paths.get(Extension.CSV.attachTo(CSVLineFileCollectorTest.class.getName()));
     LOGGER.setFilter(record -> {
       Assert.assertNotNull(record.getThrown());
       exceptionCounter.incrementAndGet();
@@ -46,10 +45,13 @@ public class CSVLineFileCollectorTest {
 
   @AfterClass
   public void tearDown() throws IOException {
-    Files.deleteIfExists(out);
-
-    LOGGER.setFilter(null);
-    LOGGER.setLevel(Level.INFO);
+    try {
+      Files.deleteIfExists(OUT_PATH);
+    }
+    finally {
+      LOGGER.setFilter(null);
+      LOGGER.setLevel(Level.INFO);
+    }
   }
 
   @BeforeMethod
@@ -66,25 +68,25 @@ public class CSVLineFileCollectorTest {
 
   @Test(dataProvider = "stream")
   public void testConsumer(@Nonnull Supplier<Stream<String>> stream) throws IOException {
-    try (CSVLineFileCollector collector = new CSVLineFileCollector(OUT)) {
+    try (CSVLineFileCollector collector = new CSVLineFileCollector(OUT_FILE_NAME)) {
       collector.accept(stream.get().toArray(String[]::new));
     }
-    Assert.assertEquals(Files.readString(out, Charset.forName("windows-1251")).trim(),
+    Assert.assertEquals(Files.readString(OUT_PATH, Charset.forName("windows-1251")).trim(),
         stream.get().collect(Collectors.joining(",")));
     Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
   }
 
   @Test(dataProvider = "stream")
   public void testVertical(@Nonnull Supplier<Stream<String>> stream) throws IOException {
-    Assert.assertTrue(stream.get().collect(new CSVLineFileCollector(OUT, "header")));
-    Assert.assertEquals(String.join("", Files.readAllLines(out, Charset.forName("windows-1251"))),
+    Assert.assertTrue(stream.get().collect(new CSVLineFileCollector(OUT_FILE_NAME, "header")));
+    Assert.assertEquals(String.join("", Files.readAllLines(OUT_PATH, Charset.forName("windows-1251"))),
         Stream.concat(Stream.of("header"), stream.get()).collect(Collectors.joining()));
     Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
   }
 
   @Test(dataProvider = "stream")
   public void testInvalidClose(@Nonnull Supplier<Stream<String>> stream) throws Throwable {
-    CSVLineFileCollector collector = new CSVLineFileCollector(OUT);
+    CSVLineFileCollector collector = new CSVLineFileCollector(OUT_FILE_NAME);
     collector.close();
     Assert.assertFalse(stream.get().collect(collector));
     Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown");
@@ -120,20 +122,21 @@ public class CSVLineFileCollectorTest {
 
   @Test(dataProvider = "invalid-writer")
   public void testInvalidFinisher(@Nonnull CSVPrinter printer) {
-    Collector<Object, CSVPrinter, Boolean> collector = new CSVLineFileCollector(OUT);
+    Collector<Object, CSVPrinter, Boolean> collector = new CSVLineFileCollector(OUT_FILE_NAME);
     collector.accumulator().accept(printer, Double.toString(Math.PI));
     Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
     collector.finisher().apply(printer);
-    Assert.assertEquals(exceptionCounter.get(), 1, "Exception must NOT be thrown");
+    Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown");
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testCombiner() {
-    new CSVLineFileCollector(OUT).combiner().apply(null, null);
+    new CSVLineFileCollector(OUT_FILE_NAME).combiner().apply(null, null);
   }
 
   @Test
-  public void testInvalidPath() {
-    new CSVLineFileCollector("/");
+  public void testInvalidPath() throws IOException {
+    new CSVLineFileCollector("/").close();
+    Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown");
   }
 }
