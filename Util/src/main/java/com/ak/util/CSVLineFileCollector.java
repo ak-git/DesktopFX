@@ -44,7 +44,7 @@ public final class CSVLineFileCollector implements Collector<Object, CSVPrinter,
   }
 
   @Override
-  public void accept(Object[] s) {
+  public void accept(@Nonnull Object[] s) {
     if (!errorFlag) {
       try {
         Objects.requireNonNull(csvPrinter).printRecord(s);
