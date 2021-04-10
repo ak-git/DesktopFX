@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -22,8 +21,8 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.util.CSVLineFileCollector;
 import com.ak.util.Extension;
-import com.ak.util.LineFileCollector;
 import com.ak.util.Strings;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -32,9 +31,10 @@ import org.springframework.context.ConfigurableApplicationContext;
 @SpringBootApplication
 public class ConverterApp implements AutoCloseable, Consumer<Path> {
   private static final Logger LOGGER = Logger.getLogger(ConverterApp.class.getName());
+  @Nonnull
   private final ConfigurableApplicationContext context;
 
-  public ConverterApp(ConfigurableApplicationContext context) {
+  public ConverterApp(@Nonnull ConfigurableApplicationContext context) {
     this.context = context;
   }
 
@@ -67,16 +67,15 @@ public class ConverterApp implements AutoCloseable, Consumer<Path> {
     String fileName = path.toFile().getName();
     if (fileName.endsWith(Extension.BIN.attachTo(bytesInterceptor.name()))) {
       try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
-           LineFileCollector collector = new LineFileCollector(
-               Paths.get(Extension.TXT.attachTo(Extension.BIN.clean(fileName))),
-               LineFileCollector.Direction.VERTICAL)
+           CSVLineFileCollector collector = new CSVLineFileCollector(Extension.BIN.clean(fileName),
+               responseConverter.variables().stream().map(Variables::toName).toArray(String[]::new))
       ) {
-        collector.accept(responseConverter.variables().stream().map(Variables::toName).collect(Collectors.joining(Strings.TAB)));
         ByteBuffer buffer = ByteBuffer.allocate((int) Files.getFileStore(path).getBlockSize());
         while (readableByteChannel.read(buffer) > 0) {
           buffer.flip();
-          bytesInterceptor.apply(buffer).flatMap(responseConverter).forEach(ints ->
-              collector.accept(Arrays.stream(ints).mapToObj(Integer::toString).collect(Collectors.joining(Strings.TAB))));
+          bytesInterceptor.apply(buffer).flatMap(responseConverter).forEach(
+              ints -> collector.accept(Arrays.stream(ints).boxed().toArray())
+          );
           buffer.clear();
         }
         LOGGER.info(() -> "Converted %s as '%s'".formatted(path, bytesInterceptor.name()));
