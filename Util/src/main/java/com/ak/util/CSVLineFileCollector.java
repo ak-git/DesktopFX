@@ -31,15 +31,11 @@ public final class CSVLineFileCollector implements Collector<Object, CSVPrinter,
 
   public CSVLineFileCollector(@Nonnull String out, @Nonnull String... header) {
     try {
-      CSVFormat format = CSVFormat.DEFAULT;
-      if (header.length > 0) {
-        format = format.withHeader(header);
-      }
       csvPrinter = new CSVPrinter(
           Files.newBufferedWriter(Paths.get(Extension.CSV.attachTo(out)),
               StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
           ),
-          format
+          CSVFormat.DEFAULT.withHeader(header.length > 0 ? header : null)
       );
     }
     catch (IOException ex) {
