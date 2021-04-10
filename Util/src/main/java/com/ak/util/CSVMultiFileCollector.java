@@ -2,6 +2,7 @@ package com.ak.util;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -25,10 +26,16 @@ final class CSVMultiFileCollector<T> implements Collector<Stream<T>, List<CSVLin
   private final Collection<String> paths = new ArrayList<>();
   @Nonnull
   private final List<Function<T, Object>> functions = new ArrayList<>();
+  @Nonnull
+  private final String[] headers;
+
+  private CSVMultiFileCollector(@Nonnull String... headers) {
+    this.headers = Arrays.copyOf(headers, headers.length);
+  }
 
   @Override
   public Supplier<List<CSVLineFileCollector>> supplier() {
-    return () -> paths.stream().map(CSVLineFileCollector::new).collect(Collectors.toList());
+    return () -> paths.stream().map(s -> new CSVLineFileCollector(s, headers)).collect(Collectors.toList());
   }
 
   @Override
@@ -71,7 +78,11 @@ final class CSVMultiFileCollector<T> implements Collector<Stream<T>, List<CSVLin
   }
 
   public static final class Builder<T> implements com.ak.util.Builder<CSVMultiFileCollector<T>> {
-    private final CSVMultiFileCollector<T> multiFileCollector = new CSVMultiFileCollector<>();
+    private final CSVMultiFileCollector<T> multiFileCollector;
+
+    public Builder(@Nonnull String... headers) {
+      multiFileCollector = new CSVMultiFileCollector<>(headers);
+    }
 
     @ParametersAreNonnullByDefault
     public Builder<T> add(String outFileName, Function<T, Object> converter) {

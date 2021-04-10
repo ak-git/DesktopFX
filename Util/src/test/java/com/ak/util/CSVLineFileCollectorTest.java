@@ -72,14 +72,14 @@ public class CSVLineFileCollectorTest {
       collector.accept(stream.get().toArray(String[]::new));
     }
     Assert.assertEquals(Files.readString(OUT_PATH, Charset.forName("windows-1251")).trim(),
-        stream.get().collect(Collectors.joining(",")));
+        stream.get().collect(Collectors.joining(Strings.COMMA)));
     Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
   }
 
   @Test(dataProvider = "stream")
   public void testVertical(@Nonnull Supplier<Stream<String>> stream) throws IOException {
     Assert.assertTrue(stream.get().collect(new CSVLineFileCollector(OUT_FILE_NAME, "header")));
-    Assert.assertEquals(String.join("", Files.readAllLines(OUT_PATH, Charset.forName("windows-1251"))),
+    Assert.assertEquals(String.join(Strings.EMPTY, Files.readAllLines(OUT_PATH, Charset.forName("windows-1251"))),
         Stream.concat(Stream.of("header"), stream.get()).collect(Collectors.joining()));
     Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
   }
