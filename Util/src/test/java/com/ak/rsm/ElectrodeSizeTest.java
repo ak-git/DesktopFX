@@ -1,6 +1,5 @@
 package com.ak.rsm;
 
-import java.util.function.Function;
 import java.util.stream.DoubleStream;
 
 import com.ak.util.CSVLineFileBuilder;
@@ -49,10 +48,10 @@ public class ElectrodeSizeTest {
 
   @Test(enabled = false)
   public void testErrorsAt() {
-    new CSVLineFileBuilder<>()
+    CSVLineFileBuilder.of((dToL, sToL) -> new RelativeErrorR(sToL).value(dToL))
         .xRange(1.0e-2, 1.0, 1.0e-2)
         .yStream(() -> DoubleStream.of(1.0 / 3.0, SQRT_2 - 1, 0.5, 2.0 / 3.0))
-        .saveTo("ErrorsAtDtoL", Function.identity())
-        .generate((dToL, sToL) -> new RelativeErrorR(sToL).value(dToL));
+        .saveTo("ErrorsAtDtoL", aDouble -> aDouble)
+        .generate();
   }
 }

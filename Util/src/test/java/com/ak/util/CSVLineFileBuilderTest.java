@@ -16,21 +16,21 @@ import org.testng.annotations.Test;
 public class CSVLineFileBuilderTest {
   @Test
   public void testGenerateRange() throws IOException {
-    new CSVLineFileBuilder<Double>()
+    CSVLineFileBuilder.of((x, y) -> x + y * 10)
         .xRange(1.0, 3.0, 1.0)
         .yRange(1.0, 2.0, 1.0)
         .saveTo("z", x -> x)
-        .generate((x, y) -> x + y * 10);
+        .generate();
     checkFilesExists("z", "\"\",1.0,2.0,3.0,1.0,11.0,12.0,13.0,2.0,21.0,22.0,23.0");
   }
 
   @Test
   public void testGenerateLogRange() throws IOException {
-    new CSVLineFileBuilder<Double>()
+    CSVLineFileBuilder.of(Double::sum)
         .xLog10Range(10.0, 20.0)
         .yLog10Range(100.0, 10.0)
         .saveTo("logZ", aDouble -> aDouble)
-        .generate(Double::sum);
+        .generate();
     checkFilesExists("logZ",
         "\"\",10.0,12.0,14.0,16.0,18.0,20.0,%s" .formatted(
             DoubleStream
@@ -48,11 +48,11 @@ public class CSVLineFileBuilderTest {
 
   @Test
   public void testGenerateStream() throws IOException {
-    new CSVLineFileBuilder<Double>()
+    CSVLineFileBuilder.of((x, y) -> x + y * 2.0)
         .xStream(() -> DoubleStream.of(1.0, 2.0))
         .yStream(() -> DoubleStream.of(1.0, 2.0, 0.0))
         .saveTo("streamZ", x -> x)
-        .generate((x, y) -> x + y * 2.0);
+        .generate();
     checkFilesExists("streamZ", "\"\",1.0,2.0,1.0,3.0,4.0,2.0,5.0,6.0,0.0,1.0,2.0");
   }
 

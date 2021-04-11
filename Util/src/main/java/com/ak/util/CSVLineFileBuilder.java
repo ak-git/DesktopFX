@@ -14,8 +14,18 @@ import javax.annotation.Nullable;
 public final class CSVLineFileBuilder<T> {
   private final Range xRange = new Range();
   private final Range yRange = new Range();
+  @Nonnull
+  private final BiFunction<Double, Double, T> doubleFunction;
   @Nullable
   private CSVMultiFileCollector.Builder<Double, T> multiFileBuilder;
+
+  private CSVLineFileBuilder(@Nonnull BiFunction<Double, Double, T> doubleFunction) {
+    this.doubleFunction = doubleFunction;
+  }
+
+  public static <T> CSVLineFileBuilder<T> of(@Nonnull BiFunction<Double, Double, T> doubleFunction) {
+    return new CSVLineFileBuilder<>(doubleFunction);
+  }
 
   public CSVLineFileBuilder<T> xStream(Supplier<DoubleStream> doubleStreamSupplier) {
     xRange.doubleStreamSupplier = doubleStreamSupplier;
@@ -58,7 +68,7 @@ public final class CSVLineFileBuilder<T> {
     return this;
   }
 
-  public void generate(@Nonnull BiFunction<Double, Double, T> doubleFunction) {
+  public void generate() {
     Supplier<DoubleStream> xVar = xRange::build;
     Supplier<DoubleStream> yVar = yRange::build;
     Objects.requireNonNull(

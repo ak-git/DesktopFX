@@ -33,19 +33,19 @@ public class Electrode2LayerTest {
 
   @Test(enabled = false)
   public void test() {
-    new CSVLineFileBuilder<RelativeMediumLayers<ValuePair>>()
+    CSVLineFileBuilder.of((hToDim, k) -> errorsScaleDynamic(new double[] {10.0 / 30.0, 50.0 / 30.0}, k, hToDim))
         .xRange(0.1, 1.0, 0.1)
         .yRange(-1.0, 1.0, 0.1)
         .saveTo("k1", K::applyAsDouble)
         .saveTo("h1", H::applyAsDouble)
-        .generate((hToDim, k) -> errorsScaleDynamic(new double[] {10.0 / 30.0, 50.0 / 30.0}, k, hToDim));
+        .generate();
 
-    new CSVLineFileBuilder<RelativeMediumLayers<ValuePair>>()
+    CSVLineFileBuilder.of((hToDim, k) -> errorsScaleStatic(new double[] {0.2, 0.6}, k, hToDim))
         .xStream(() -> DoubleStream.of(0.5))
         .yRange(-1.0, 1.0, 0.1)
         .saveTo("k2", K::applyAsDouble)
         .saveTo("h2", H::applyAsDouble)
-        .generate((hToDim, k) -> errorsScaleStatic(new double[] {0.2, 0.6}, k, hToDim));
+        .generate();
   }
 
   @Test
