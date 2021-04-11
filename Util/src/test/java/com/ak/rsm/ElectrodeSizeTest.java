@@ -1,8 +1,9 @@
 package com.ak.rsm;
 
+import java.util.function.Function;
 import java.util.stream.DoubleStream;
 
-import com.ak.util.LineFileBuilder;
+import com.ak.util.CSVLineFileBuilder;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -48,9 +49,10 @@ public class ElectrodeSizeTest {
 
   @Test(enabled = false)
   public void testErrorsAt() {
-    LineFileBuilder.of("%.3f %.3f %.6f").
-        xRange(1.0e-2, 1.0, 1.0e-2).
-        yStream(() -> DoubleStream.of(1.0 / 3.0, SQRT_2 - 1, 0.5, 2.0 / 3.0)).
-        generate("ErrorsAtDtoL.txt", (dToL, sToL) -> new RelativeErrorR(sToL).value(dToL));
+    new CSVLineFileBuilder<>()
+        .xRange(1.0e-2, 1.0, 1.0e-2)
+        .yStream(() -> DoubleStream.of(1.0 / 3.0, SQRT_2 - 1, 0.5, 2.0 / 3.0))
+        .saveTo("ErrorsAtDtoL", Function.identity())
+        .generate((dToL, sToL) -> new RelativeErrorR(sToL).value(dToL));
   }
 }

@@ -14,7 +14,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.math.ValuePair;
-import com.ak.util.LineFileBuilder;
+import com.ak.util.CSVLineFileBuilder;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import org.testng.Assert;
@@ -33,18 +33,18 @@ public class Electrode2LayerTest {
 
   @Test(enabled = false)
   public void test() {
-    LineFileBuilder.<RelativeMediumLayers<ValuePair>>of("%.3f %.3f %.6f")
+    new CSVLineFileBuilder<RelativeMediumLayers<ValuePair>>()
         .xRange(0.1, 1.0, 0.1)
         .yRange(-1.0, 1.0, 0.1)
-        .add("k1.txt", K)
-        .add("h1.txt", H)
+        .saveTo("k1", K::applyAsDouble)
+        .saveTo("h1", H::applyAsDouble)
         .generate((hToDim, k) -> errorsScaleDynamic(new double[] {10.0 / 30.0, 50.0 / 30.0}, k, hToDim));
 
-    LineFileBuilder.<RelativeMediumLayers<ValuePair>>of("%.3f %.3f %.6f")
+    new CSVLineFileBuilder<RelativeMediumLayers<ValuePair>>()
         .xStream(() -> DoubleStream.of(0.5))
         .yRange(-1.0, 1.0, 0.1)
-        .add("k2.txt", K)
-        .add("h2.txt", H)
+        .saveTo("k2", K::applyAsDouble)
+        .saveTo("h2", H::applyAsDouble)
         .generate((hToDim, k) -> errorsScaleStatic(new double[] {0.2, 0.6}, k, hToDim));
   }
 

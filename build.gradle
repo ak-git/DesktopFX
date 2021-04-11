@@ -118,6 +118,7 @@ dependencies {
     implementation uom_se
     implementation javax_json
     implementation 'org.springframework.boot:spring-boot-starter'
+    testImplementation commons_csv
 }
 
 javafx {
