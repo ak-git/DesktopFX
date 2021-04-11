@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.testng.Assert;
@@ -50,16 +51,16 @@ public class CSVMultiFileCollectorTest {
 
   @Test
   public void test() throws IOException {
-    CSVMultiFileCollector<Double> multiFileCollector = new CSVMultiFileCollector.Builder<Double>("var1", "var2").
+    CSVMultiFileCollector<Integer, Double> multiFileCollector = new CSVMultiFileCollector.Builder<Integer, Double>(
+        IntStream.of(1, 2).boxed(), "var1", "var2").
         add(OUT_FILE_NAME, value -> value).build();
     Assert.assertTrue(Stream.of(Stream.of(1.0, 1.1), Stream.of(2.0, 2.1)).collect(multiFileCollector));
     Assert.assertEquals(String.join(Strings.SPACE, Files.readAllLines(OUT_PATH, Charset.forName("windows-1251"))),
-        "var1,var2 1.0,1.1 2.0,2.1");
-    Assert.assertTrue(Files.deleteIfExists(OUT_PATH));
+        "var1,var2 1,1.0,1.1 2,2.0,2.1");
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testInvalidCombiner() {
-    new CSVMultiFileCollector.Builder<Double>().build().combiner().apply(null, null);
+    new CSVMultiFileCollector.Builder<Object, Double>(Stream.empty()).build().combiner().apply(null, null);
   }
 }

@@ -5,6 +5,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -14,7 +15,7 @@ public final class CSVLineFileBuilder<T> {
   private final Range xRange = new Range();
   private final Range yRange = new Range();
   @Nullable
-  private CSVMultiFileCollector.Builder<T> multiFileBuilder;
+  private CSVMultiFileCollector.Builder<Double, T> multiFileBuilder;
 
   public CSVLineFileBuilder<T> xStream(Supplier<DoubleStream> doubleStreamSupplier) {
     xRange.doubleStreamSupplier = doubleStreamSupplier;
@@ -48,7 +49,10 @@ public final class CSVLineFileBuilder<T> {
 
   public CSVLineFileBuilder<T> saveTo(@Nonnull String fileName, @Nonnull Function<T, Object> converter) {
     if (multiFileBuilder == null) {
-      multiFileBuilder = new CSVMultiFileCollector.Builder<>(xRange.build().mapToObj(Double::toString).toArray(String[]::new));
+      multiFileBuilder = new CSVMultiFileCollector.Builder<>(
+          yRange.build().boxed(),
+          Stream.concat(Stream.of(Strings.EMPTY), xRange.build().mapToObj(Double::toString)).toArray(String[]::new)
+      );
     }
     multiFileBuilder.add(fileName, converter);
     return this;
@@ -58,9 +62,10 @@ public final class CSVLineFileBuilder<T> {
     Supplier<DoubleStream> xVar = xRange::build;
     Supplier<DoubleStream> yVar = yRange::build;
     Objects.requireNonNull(
-        yVar.get().mapToObj(
-            y -> xVar.get().mapToObj(x -> doubleFunction.apply(x, y))
-        )
+        yVar.get()
+            .mapToObj(
+                y -> xVar.get().mapToObj(x -> doubleFunction.apply(x, y))
+            )
             .collect(Objects.requireNonNull(multiFileBuilder).build())
     );
   }
