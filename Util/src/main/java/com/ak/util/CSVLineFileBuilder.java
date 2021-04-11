@@ -8,11 +8,13 @@ import java.util.stream.DoubleStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public final class CSVLineFileBuilder<T> {
   private final Range xRange = new Range();
   private final Range yRange = new Range();
-  private final CSVMultiFileCollector.Builder<T> multiFileBuilder = new CSVMultiFileCollector.Builder<>();
+  @Nullable
+  private CSVMultiFileCollector.Builder<T> multiFileBuilder;
 
   public CSVLineFileBuilder<T> xStream(Supplier<DoubleStream> doubleStreamSupplier) {
     xRange.doubleStreamSupplier = doubleStreamSupplier;
@@ -44,7 +46,10 @@ public final class CSVLineFileBuilder<T> {
     return this;
   }
 
-  public CSVLineFileBuilder<T> add(@Nonnull String fileName, @Nonnull Function<T, Object> converter) {
+  public CSVLineFileBuilder<T> saveTo(@Nonnull String fileName, @Nonnull Function<T, Object> converter) {
+    if (multiFileBuilder == null) {
+      multiFileBuilder = new CSVMultiFileCollector.Builder<>(xRange.build().mapToObj(Double::toString).toArray(String[]::new));
+    }
     multiFileBuilder.add(fileName, converter);
     return this;
   }
@@ -52,7 +57,12 @@ public final class CSVLineFileBuilder<T> {
   public void generate(@Nonnull BiFunction<Double, Double, T> doubleFunction) {
     Supplier<DoubleStream> xVar = xRange::build;
     Supplier<DoubleStream> yVar = yRange::build;
-    Objects.requireNonNull(yVar.get().mapToObj(y -> xVar.get().mapToObj(x -> doubleFunction.apply(x, y))).collect(multiFileBuilder.build()));
+    Objects.requireNonNull(
+        yVar.get().mapToObj(
+            y -> xVar.get().mapToObj(x -> doubleFunction.apply(x, y))
+        )
+            .collect(Objects.requireNonNull(multiFileBuilder).build())
+    );
   }
 
   private static final class Range implements Builder<DoubleStream> {
@@ -74,8 +84,8 @@ public final class CSVLineFileBuilder<T> {
           );
     }
 
-    private void range(double start, double end, @Nonnegative double precision) {
-      doubleStreamSupplier = () -> DoubleStream.iterate(start, value -> value < end + precision / 2.0, dl2L -> dl2L + precision).sequential();
+    private void range(double start, double end, @Nonnegative double step) {
+      doubleStreamSupplier = () -> DoubleStream.iterate(start, value -> value < end + step / 2.0, dl2L -> dl2L + step);
     }
 
     @Override
