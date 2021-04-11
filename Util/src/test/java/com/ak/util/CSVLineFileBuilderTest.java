@@ -1,6 +1,8 @@
 package com.ak.util;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,18 +30,18 @@ public class CSVLineFileBuilderTest {
   public void testGenerateLogRange() throws IOException {
     CSVLineFileBuilder.of(Double::sum)
         .xLog10Range(10.0, 20.0)
-        .yLog10Range(100.0, 10.0)
+        .yLog10Range(10.0, 1.0)
         .saveTo("logZ", aDouble -> aDouble)
         .generate();
     checkFilesExists("logZ",
         "\"\",10.0,12.0,14.0,16.0,18.0,20.0,%s" .formatted(
             DoubleStream
-                .iterate(10.0, value -> value <= 100.0, operand -> operand + 2.0)
+                .iterate(1.0, value -> value <= 10.0, operand -> operand + 0.2)
                 .flatMap(value -> DoubleStream.concat(
                     DoubleStream.of(value),
                     DoubleStream.iterate(10.0, d -> d <= 20.0, d -> d + 2.0).map(d -> d + value))
                 )
-                .map(value -> (int) Math.round(value))
+                .map(value -> BigDecimal.valueOf(value).setScale(1, RoundingMode.HALF_EVEN).doubleValue())
                 .mapToObj(Double::toString)
                 .collect(Collectors.joining(Strings.COMMA))
         )

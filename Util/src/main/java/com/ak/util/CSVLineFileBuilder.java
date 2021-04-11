@@ -1,7 +1,10 @@
 package com.ak.util;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.DoubleStream;
@@ -91,16 +94,25 @@ public final class CSVLineFileBuilder<T> {
       doubleStreamSupplier = () ->
           DoubleStream.concat(
               DoubleStream.iterate(from, value -> value < to, operand -> operand * 10.0)
-                  .flatMap(scale ->
-                      DoubleStream.iterate(scale, value -> value < to - scale / 10.0, operand -> operand + scale / 5.0)
-                          .limit(9 * 5L)
+                  .flatMap(scale -> {
+                        double step = scale / 5.0;
+                        return DoubleStream
+                            .iterate(scale, value -> value < to - scale / 10.0, operand -> operand + step)
+                            .limit(9 * 5L).map(round(step).get());
+                      }
                   ),
               DoubleStream.of(to)
           );
     }
 
     private void range(double start, double end, @Nonnegative double step) {
-      doubleStreamSupplier = () -> DoubleStream.iterate(start, value -> value < end + step / 2.0, dl2L -> dl2L + step);
+      doubleStreamSupplier = () ->
+          DoubleStream.iterate(start, value -> value < end + step / 2.0, dl2L -> dl2L + step).map(round(step).get());
+    }
+
+    private static Supplier<DoubleUnaryOperator> round(@Nonnegative double step) {
+      int afterZero = (int) -Math.floor(StrictMath.log10(step));
+      return () -> x -> BigDecimal.valueOf(x).setScale(afterZero, RoundingMode.HALF_EVEN).doubleValue();
     }
 
     @Override
