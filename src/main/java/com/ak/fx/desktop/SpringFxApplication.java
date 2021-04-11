@@ -13,6 +13,7 @@ import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.FloatToIntegerConverter;
 import com.ak.comm.converter.LinkedConverter;
+import com.ak.comm.converter.StringToIntegerConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.aper.AperCalibrationCurrent1Variable;
 import com.ak.comm.converter.aper.AperStage1Variable;
@@ -31,6 +32,7 @@ import com.ak.comm.converter.rcm.RcmOutVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.FixedFrameBytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
+import com.ak.comm.interceptor.simple.StringBytesInterceptor;
 import com.ak.logging.LocalFileHandler;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -152,6 +154,20 @@ public class SpringFxApplication extends FxApplication {
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, KleiberVariable> converterKleiber() {
     return new FloatToIntegerConverter<>(KleiberVariable.class, 2000);
+  }
+
+  @Bean
+  @Profile("prv")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static BytesInterceptor<BufferFrame, String> bytesInterceptorPrv() {
+    return new StringBytesInterceptor("prv");
+  }
+
+  @Bean
+  @Profile("prv")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<String, ADCVariable> converterPrv() {
+    return new StringToIntegerConverter<>(ADCVariable.class, 32);
   }
 
   @Bean

@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 import tec.uom.se.AbstractUnit;
 import tec.uom.se.unit.Units;
 
-import static com.ak.util.LogUtils.LOG_LEVEL_VALUES;
+import static com.ak.comm.core.LogUtils.LOG_LEVEL_VALUES;
 
 public class NIBPConverterTest {
   private static final Logger LOGGER = Logger.getLogger(NIBPConverter.class.getName());

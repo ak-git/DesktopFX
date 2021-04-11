@@ -5,7 +5,6 @@ import java.util.Arrays;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.util.LineFileBuilder;
 import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -95,29 +94,5 @@ public class Resistance3LayerTest {
                                @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system = TetrapolarSystem.milli().s(smm).l(lmm);
     Assert.assertEquals(new Resistance3Layer(system, hStepSI).value(rho[0], rho[1], rho[2], p[0], p[1]), rOhm, 0.001, Arrays.toString(rho));
-  }
-
-  @Test(enabled = false)
-  public void testContinuous() {
-    TetrapolarSystem system = TetrapolarSystem.milli().s(10.0).l(30.0);
-    LineFileBuilder.of("%.1f %.0f %.3f")
-        .xRange(0.1, 50.0, 0.1)
-        .yRange(0, 2, 1)
-        .generate("z.txt", (h1mm, index) -> {
-          int i = (int) index;
-          if (i == 0) {
-            int p1 = (int) (h1mm / 0.1);
-            return new Resistance3Layer(system, Metrics.fromMilli(0.1)).value(10.0, 1.0, 10.0, p1, 1);
-          }
-          else if (i == 1) {
-            return new Resistance2Layer(system).value(10.0, 1.0, Metrics.fromMilli(h1mm));
-          }
-          else if (i == 2) {
-            return new Resistance2Layer(system).value(1.0, 10.0, Metrics.fromMilli(h1mm));
-          }
-          else {
-            return Double.NaN;
-          }
-        });
   }
 }

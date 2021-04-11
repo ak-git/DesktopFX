@@ -12,8 +12,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.BufferFrame;
+import com.ak.comm.core.LogUtils;
 import com.ak.comm.logging.LogTestUtils;
-import com.ak.util.LogUtils;
 import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -136,8 +136,8 @@ final class FrameBytesInterceptorDataProvider {
     };
   }
 
-  void testInterceptor(@Nonnull byte[] bytes, @Nullable BufferFrame response, @Nonnull String ignoredMessage,
-                       @Nonnull Logger logger, Function<ByteBuffer, Stream<BufferFrame>> interceptor) {
+  <T> void testInterceptor(@Nonnull byte[] bytes, @Nullable T response, @Nonnull String ignoredMessage,
+                           @Nonnull Logger logger, Function<ByteBuffer, Stream<T>> interceptor) {
     buffer.clear();
     buffer.put(bytes);
     buffer.flip();
@@ -145,7 +145,7 @@ final class FrameBytesInterceptorDataProvider {
     AtomicReference<String> logMessage = new AtomicReference<>(Strings.EMPTY);
     Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(logger, LogUtils.LOG_LEVEL_ERRORS,
         () -> {
-          Stream<BufferFrame> frames = interceptor.apply(buffer);
+          Stream<T> frames = interceptor.apply(buffer);
           Assert.assertEquals(frames.iterator(), Collections.singleton(response).iterator());
           Assert.assertTrue(logMessage.get().endsWith(ignoredMessage), logMessage.get());
         },

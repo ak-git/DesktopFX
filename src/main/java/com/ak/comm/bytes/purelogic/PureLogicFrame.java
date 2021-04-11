@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import com.ak.comm.bytes.BufferFrame;
 import tec.uom.se.unit.MetricPrefix;
 
-import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
+import static com.ak.comm.core.LogUtils.LOG_LEVEL_ERRORS;
 import static com.ak.util.Strings.NEW_LINE;
 import static com.ak.util.Strings.SPACE;
 import static tec.uom.se.unit.Units.METRE;
@@ -30,7 +30,6 @@ public final class PureLogicFrame extends BufferFrame {
    */
   public enum StepCommand {
     MICRON_015(16),
-    MICRON_090(MICRON_015.steps * 6),
     MICRON_150(MICRON_015.steps * 10),
     MICRON_450(MICRON_150.steps * 3);
 

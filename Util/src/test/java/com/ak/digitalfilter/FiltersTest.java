@@ -10,10 +10,9 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.ak.util.LineFileCollector;
+import com.ak.util.CSVLineFileCollector;
 import com.ak.util.Strings;
 import org.testng.annotations.Test;
 
@@ -28,10 +27,10 @@ public class FiltersTest {
         if (!path.toString().startsWith(filteredPrefix)) {
           DigitalFilter filter = FilterBuilder.of().smoothingImpulsive(10).buildNoDelay();
 
-          try (LineFileCollector collector = new LineFileCollector(
-              Paths.get(String.join(Strings.EMPTY, filteredPrefix, path.getFileName().toString())), LineFileCollector.Direction.VERTICAL)) {
+          try (CSVLineFileCollector collector = new CSVLineFileCollector(
+              String.join(Strings.EMPTY, filteredPrefix, path.getFileName().toString()))) {
             filter.forEach(values ->
-                collector.accept(Arrays.stream(values).mapToObj(String::valueOf).collect(Collectors.joining(Strings.TAB))));
+                collector.accept(Arrays.stream(values).mapToObj(String::valueOf).toArray()));
 
             try (Stream<String> lines = Files.lines(path)) {
               lines.filter(s -> s.matches("\\d+.*")).mapToInt(value -> {

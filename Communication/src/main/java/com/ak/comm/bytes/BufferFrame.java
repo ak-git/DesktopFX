@@ -6,7 +6,7 @@ import java.nio.ByteOrder;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.util.LogUtils;
+import com.ak.comm.core.LogUtils;
 
 public class BufferFrame {
   @Nonnull
