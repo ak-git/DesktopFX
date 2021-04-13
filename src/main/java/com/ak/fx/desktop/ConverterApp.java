@@ -1,6 +1,8 @@
 package com.ak.fx.desktop;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.DirectoryStream;
@@ -9,15 +11,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Provider;
 
 import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.TimeVariable;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.comm.interceptor.BytesInterceptor;
@@ -68,13 +73,21 @@ public class ConverterApp implements AutoCloseable, Consumer<Path> {
     if (fileName.endsWith(Extension.BIN.attachTo(bytesInterceptor.name()))) {
       try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
            CSVLineFileCollector collector = new CSVLineFileCollector(Extension.BIN.clean(fileName),
-               responseConverter.variables().stream().map(Variables::toName).toArray(String[]::new))
+               Stream.concat(
+                   Stream.of(TimeVariable.TIME).map(Variables::toName),
+                   responseConverter.variables().stream().map(Variables::toName)
+               ).toArray(String[]::new))
       ) {
         ByteBuffer buffer = ByteBuffer.allocate((int) Files.getFileStore(path).getBlockSize());
+        AtomicInteger timeCounter = new AtomicInteger();
         while (readableByteChannel.read(buffer) > 0) {
           buffer.flip();
           bytesInterceptor.apply(buffer).flatMap(responseConverter).forEach(
-              ints -> collector.accept(Arrays.stream(ints).boxed().toArray())
+              ints -> {
+                double time = BigDecimal.valueOf(timeCounter.getAndIncrement() / responseConverter.getFrequency())
+                    .setScale(3, RoundingMode.HALF_EVEN).doubleValue();
+                collector.accept(Stream.concat(Stream.of(time), Arrays.stream(ints).boxed()).toArray());
+              }
           );
           buffer.clear();
         }
