@@ -147,4 +147,10 @@ public class VariableTest {
   public void testFormatValues(int value, @Nonnull Unit<?> unit, @Nonnegative int scaleFactor10, @Nonnull String expected) {
     Assert.assertEquals(Variables.toString(value, unit, scaleFactor10), expected);
   }
+
+  @Test
+  public void testTimeVariable() {
+    Assert.assertEquals(TimeVariable.values().length, 1, EnumSet.allOf(TimeVariable.class).toString());
+    EnumSet.allOf(TimeVariable.class).forEach(t -> Assert.assertEquals(t.getUnit(), Units.SECOND, t.name()));
+  }
 }

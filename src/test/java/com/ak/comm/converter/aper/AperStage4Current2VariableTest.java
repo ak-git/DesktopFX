@@ -55,7 +55,7 @@ public class AperStage4Current2VariableTest {
         }
       }).count();
       if (processed.get()) {
-        Assert.assertEquals(count, 16);
+        Assert.assertEquals(count, 10);
         break;
       }
     }

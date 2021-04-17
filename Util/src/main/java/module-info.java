@@ -2,10 +2,12 @@ module com.ak.util {
   requires uom.se;
   requires unit.api;
   requires java.json;
+  requires java.logging;
+  requires java.sql;
 
   requires commons.math3;
+  requires commons.csv;
   requires jsr305;
-  requires java.logging;
 
   opens com.ak.inverse to org.testng;
   opens com.ak.rsm to org.testng;

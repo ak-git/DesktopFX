@@ -126,10 +126,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @Override
   @OverridingMethodsMustInvokeSuper
   public void onNext(@Nonnull int[] ints) {
-    FxUtils.invokeInFx(() -> Objects.requireNonNull(chart).setBannerText(
-        service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.TEXT_VALUE_BANNER))
-            .map(v -> Variables.toString(v, ints[v.ordinal()])).collect(Collectors.joining(Strings.NEW_LINE_2)))
-    );
+    displayBanner(ints);
   }
 
   @Override
@@ -156,7 +153,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   }
 
   @Override
-  public final void zoom(ZoomEvent event) {
+  public final void zoom(@Nonnull ZoomEvent event) {
     if (chart != null) {
       axisXController.zoom(event.getZoomFactor());
       axisXController.preventEnd(chart.diagramWidthProperty().doubleValue());
@@ -165,7 +162,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   }
 
   @Override
-  public final void scroll(ScrollEvent event) {
+  public final void scroll(@Nonnull ScrollEvent event) {
     axisXController.scroll(event.getDeltaX());
   }
 
@@ -182,19 +179,31 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
         if (v.options().contains(Variable.Option.VISIBLE)) {
           int[] values = FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(chartData[v.ordinal()]);
           ScaleYInfo<V> scaleInfo = axisYController.scale(v, values);
-          Objects.requireNonNull(chart).setAll(v.indexBy(Variable.Option.VISIBLE), IntStream.of(values).unordered().parallel()
-              .mapToDouble(scaleInfo).toArray(), scaleInfo);
+          Objects.requireNonNull(chart).setAll(
+              v.indexBy(Variable.Option.VISIBLE),
+              IntStream.of(values).unordered().parallel().mapToDouble(scaleInfo).toArray(),
+              scaleInfo
+          );
         }
       }
       if (chartData[0].length > 0) {
-        onNext(service.getVariables().stream().mapToInt(
-            e -> {
-              int[] ints = chartData[e.ordinal()];
-              return ints[ints.length - 1];
-            }).toArray()
+        displayBanner(service.getVariables().stream()
+            .mapToInt(
+                e -> {
+                  int[] ints = chartData[e.ordinal()];
+                  return ints[ints.length - 1];
+                })
+            .toArray()
         );
       }
       axisXController.checkLength(chartData[0].length);
     });
+  }
+
+  private void displayBanner(@Nonnull int[] ints) {
+    FxUtils.invokeInFx(() -> Objects.requireNonNull(chart).setBannerText(
+        service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.TEXT_VALUE_BANNER))
+            .map(v -> Variables.toString(v, ints[v.ordinal()])).collect(Collectors.joining(Strings.NEW_LINE_2)))
+    );
   }
 }
