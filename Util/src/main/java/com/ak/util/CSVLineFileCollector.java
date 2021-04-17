@@ -32,10 +32,10 @@ public final class CSVLineFileCollector implements Collector<Object, CSVPrinter,
   public CSVLineFileCollector(@Nonnull String out, @Nonnull String... header) {
     try {
       csvPrinter = new CSVPrinter(
-          Files.newBufferedWriter(Paths.get(Extension.CSV.attachTo(out)),
+          Files.newBufferedWriter(Paths.get(Extension.TXT.attachTo(out)),
               StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
           ),
-          CSVFormat.DEFAULT.withHeader(header.length > 0 ? header : null)
+          CSVFormat.TDF.withHeader(header.length > 0 ? header : null)
       );
     }
     catch (IOException ex) {

@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 public class CSVLineFileCollectorTest {
   private static final Logger LOGGER = Logger.getLogger(CSVLineFileCollector.class.getName());
   private static final String OUT_FILE_NAME = CSVLineFileCollectorTest.class.getName();
-  private static final Path OUT_PATH = Paths.get(Extension.CSV.attachTo(OUT_FILE_NAME));
+  private static final Path OUT_PATH = Paths.get(Extension.TXT.attachTo(OUT_FILE_NAME));
   private final AtomicInteger exceptionCounter = new AtomicInteger();
 
   @BeforeClass
@@ -72,7 +72,7 @@ public class CSVLineFileCollectorTest {
       collector.accept(stream.get().toArray(String[]::new));
     }
     Assert.assertEquals(Files.readString(OUT_PATH, Charset.forName("windows-1251")).trim(),
-        stream.get().collect(Collectors.joining(Strings.COMMA)));
+        stream.get().collect(Collectors.joining(Strings.TAB)));
     Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
   }
 
@@ -114,7 +114,7 @@ public class CSVLineFileCollectorTest {
                       public void close() {
                       }
                     }),
-                CSVFormat.DEFAULT
+                CSVFormat.TDF
             )
         }
     };

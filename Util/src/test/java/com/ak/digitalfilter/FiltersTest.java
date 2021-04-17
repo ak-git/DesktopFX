@@ -23,7 +23,7 @@ public class FiltersTest {
     String filteredPrefix = "Filtered - ";
     int column = 0;
 
-    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*"))) {
+    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.TXT.attachTo("*"))) {
       directoryStream.forEach(path -> {
         if (!path.toString().startsWith(filteredPrefix)) {
           DigitalFilter filter = FilterBuilder.of().smoothingImpulsive(10).buildNoDelay();

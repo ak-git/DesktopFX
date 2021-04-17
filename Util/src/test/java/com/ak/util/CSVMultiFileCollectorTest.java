@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 public class CSVMultiFileCollectorTest {
   private static final Logger LOGGER = Logger.getLogger(CSVMultiFileCollectorTest.class.getName());
   private static final String OUT_FILE_NAME = CSVMultiFileCollectorTest.class.getSimpleName();
-  private static final Path OUT_PATH = Paths.get(Extension.CSV.attachTo(OUT_FILE_NAME));
+  private static final Path OUT_PATH = Paths.get(Extension.TXT.attachTo(OUT_FILE_NAME));
   private final AtomicInteger exceptionCounter = new AtomicInteger();
 
   @BeforeClass
@@ -55,8 +55,8 @@ public class CSVMultiFileCollectorTest {
         IntStream.of(1, 2).boxed(), "var1", "var2").
         add(OUT_FILE_NAME, value -> value).build();
     Assert.assertTrue(Stream.of(Stream.of(1.0, 1.1), Stream.of(2.0, 2.1)).collect(multiFileCollector));
-    Assert.assertEquals(String.join(Strings.SPACE, Files.readAllLines(OUT_PATH, Charset.forName("windows-1251"))),
-        "var1,var2 1,1.0,1.1 2,2.0,2.1");
+    Assert.assertEquals(String.join(Strings.TAB, Files.readAllLines(OUT_PATH, Charset.forName("windows-1251"))),
+        "var1\tvar2\t1\t1.0\t1.1\t2\t2.0\t2.1");
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
