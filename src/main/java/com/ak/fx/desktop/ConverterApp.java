@@ -26,7 +26,6 @@ import com.ak.comm.converter.TimeVariable;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.logging.OutputBuilders;
 import com.ak.util.CSVLineFileCollector;
 import com.ak.util.Extension;
 import com.ak.util.Strings;
@@ -51,7 +50,7 @@ public class ConverterApp implements AutoCloseable, Consumer<Path> {
 
   public static void main(String[] args) {
     try (ConverterApp app = new ConverterApp(SpringApplication.run(ConverterApp.class, args));
-         DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.BIN.attachTo("*."))) {
+         DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.BIN.attachTo("*"))) {
       paths.forEach(app);
     }
     catch (IOException e) {
@@ -73,7 +72,7 @@ public class ConverterApp implements AutoCloseable, Consumer<Path> {
     String fileName = path.toFile().getName();
     if (fileName.endsWith(Extension.BIN.attachTo(bytesInterceptor.name()))) {
       try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
-           CSVLineFileCollector collector = new CSVLineFileCollector(OutputBuilders.CONVERT.build(Extension.BIN.clean(fileName)).getPath(),
+           CSVLineFileCollector collector = new CSVLineFileCollector(Paths.get(Extension.CSV.attachTo(Extension.BIN.clean(fileName))),
                Stream.concat(
                    Stream.of(TimeVariable.TIME).map(Variables::toName),
                    responseConverter.variables().stream().map(Variables::toName)

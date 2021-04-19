@@ -64,7 +64,7 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
                          Provider<Converter<R, V>> converterProvider) {
     service = new GroupService<>(interceptorProvider::get, converterProvider::get);
     Executors.newSingleThreadExecutor().execute(() -> {
-      try (DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.BIN.attachTo("*."))) {
+      try (DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.BIN.attachTo("*"))) {
         paths.forEach(path -> ConverterApp.doConvert(interceptorProvider, converterProvider, path));
       }
       catch (IOException e) {
