@@ -5,7 +5,6 @@ import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
@@ -33,6 +32,7 @@ import com.ak.fx.scene.AxisYController;
 import com.ak.fx.scene.Chart;
 import com.ak.fx.scene.ScaleYInfo;
 import com.ak.fx.util.FxUtils;
+import com.ak.logging.OutputBuilders;
 import com.ak.util.Extension;
 import com.ak.util.Strings;
 import javafx.animation.Animation;
@@ -64,7 +64,9 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
                          Provider<Converter<R, V>> converterProvider) {
     service = new GroupService<>(interceptorProvider::get, converterProvider::get);
     Executors.newSingleThreadExecutor().execute(() -> {
-      try (DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.BIN.attachTo("*"))) {
+      try (DirectoryStream<Path> paths = Files.newDirectoryStream(
+          OutputBuilders.build(Strings.EMPTY).getPath().getParent(), Extension.BIN.attachTo("*"))
+      ) {
         paths.forEach(path -> ConverterApp.doConvert(interceptorProvider, converterProvider, path));
       }
       catch (IOException e) {

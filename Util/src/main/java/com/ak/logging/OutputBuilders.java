@@ -7,6 +7,6 @@ public enum OutputBuilders {
   ;
 
   public static LocalIO build(String fileName) {
-    return new OutputBuilder(Extension.CSV).addPathWithDate().fileNameWithDateTime(fileName).build();
+    return new OutputBuilder(Extension.CSV).fileName(fileName).build();
   }
 }
