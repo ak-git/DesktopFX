@@ -29,7 +29,7 @@ public class FiltersTest {
           DigitalFilter filter = FilterBuilder.of().smoothingImpulsive(10).buildNoDelay();
 
           try (CSVLineFileCollector collector = new CSVLineFileCollector(
-              String.join(Strings.EMPTY, filteredPrefix, path.getFileName().toString()))) {
+              Paths.get(String.join(Strings.EMPTY, filteredPrefix, path.getFileName().toString())))) {
             filter.forEach(values ->
                 collector.accept(Arrays.stream(values).mapToObj(String::valueOf).toArray()));
 

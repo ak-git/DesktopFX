@@ -3,8 +3,7 @@ package com.ak.util;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
@@ -24,22 +23,24 @@ import javax.annotation.Nullable;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
+
 public final class CSVLineFileCollector implements Collector<Object, CSVPrinter, Boolean>, Closeable, Consumer<Object[]> {
   @Nullable
   private CSVPrinter csvPrinter;
   private boolean errorFlag;
 
-  public CSVLineFileCollector(@Nonnull String out, @Nonnull String... header) {
+  public CSVLineFileCollector(@Nonnull Path out, @Nonnull String... header) {
     try {
       csvPrinter = new CSVPrinter(
-          Files.newBufferedWriter(Paths.get(Extension.CSV.attachTo(out)),
-              StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
-          ),
+          Files.newBufferedWriter(out, WRITE, CREATE, TRUNCATE_EXISTING),
           CSVFormat.DEFAULT.withHeader(header.length > 0 ? header : null)
       );
     }
     catch (IOException ex) {
-      Logger.getLogger(getClass().getName()).log(Level.WARNING, out, ex);
+      Logger.getLogger(getClass().getName()).log(Level.WARNING, out.toString(), ex);
       errorFlag = true;
     }
   }

@@ -33,6 +33,7 @@ import com.ak.fx.scene.AxisYController;
 import com.ak.fx.scene.Chart;
 import com.ak.fx.scene.ScaleYInfo;
 import com.ak.fx.util.FxUtils;
+import com.ak.util.Extension;
 import com.ak.util.Strings;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -63,7 +64,7 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
                          Provider<Converter<R, V>> converterProvider) {
     service = new GroupService<>(interceptorProvider::get, converterProvider::get);
     Executors.newSingleThreadExecutor().execute(() -> {
-      try (DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), "*.bin")) {
+      try (DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.BIN.attachTo("*."))) {
         paths.forEach(path -> ConverterApp.doConvert(interceptorProvider, converterProvider, path));
       }
       catch (IOException e) {
