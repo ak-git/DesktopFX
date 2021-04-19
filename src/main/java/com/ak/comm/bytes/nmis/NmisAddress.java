@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ak.comm.core.LogUtils;
+import com.ak.comm.bytes.LogUtils;
 
 public enum NmisAddress {
   SINGLE(0x81, 0x91),

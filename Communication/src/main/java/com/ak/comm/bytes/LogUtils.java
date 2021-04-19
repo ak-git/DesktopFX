@@ -1,4 +1,4 @@
-package com.ak.comm.core;
+package com.ak.comm.bytes;
 
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
