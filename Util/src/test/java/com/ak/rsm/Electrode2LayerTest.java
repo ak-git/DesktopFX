@@ -18,6 +18,7 @@ import com.ak.util.CSVLineFileBuilder;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static com.ak.rsm.InexactTetrapolarSystem.systems2;
@@ -48,14 +49,20 @@ public class Electrode2LayerTest {
         .generate();
   }
 
-  @Test
-  public void testSingle() {
-    double k = Layers.getK12(1.0, 4.0);
+  @DataProvider(name = "single")
+  public static Object[][] single() {
+    return new Object[][] {
+        {
+            Layers.getK12(1.0, 4.0),
+        },
+    };
+  }
+
+  @Test(dataProvider = "single")
+  public void testSingle(double k) {
     double hToDim = 0.5;
     double[] sToL = {10.0 / 30.0, 50.0 / 30.0};
     var errorsScale = errorsScaleDynamic(sToL, k, hToDim);
-    Assert.assertEquals(K.applyAsDouble(errorsScale), 53.0, 0.1, errorsScale.toString());
-    Assert.assertEquals(H.applyAsDouble(errorsScale), 9.1, 0.1, errorsScale.toString());
 
     InexactTetrapolarSystem[] systems2 = systems2(0.1, 10.0);
     double dh = Metrics.fromMilli(-0.001);
@@ -68,8 +75,10 @@ public class Electrode2LayerTest {
     var medium = Inverse.inverseDynamic(
         TetrapolarDerivativeMeasurement.of(systems2, rOhms.apply(h), rOhms.apply(h + dh), dh)
     );
-    Assert.assertEquals((medium.k12().getAbsError() / medium.k12().getValue()) / (0.1 / 50.0), 56.7, 0.1, medium.toString());
-    Assert.assertEquals((medium.h().getAbsError() / Metrics.fromMilli(10.0 * 5)) / (0.1 / 50.0), 9.5, 0.1, medium.toString());
+    Assert.assertEquals(K.applyAsDouble(errorsScale),
+        (medium.k12().getAbsError() / medium.k12().getValue()) / (0.1 / 50.0), 5.0, medium.toString());
+    Assert.assertEquals(H.applyAsDouble(errorsScale),
+        (medium.h().getAbsError() / Metrics.fromMilli(50.0)) / (0.1 / 50.0), 0.5, medium.toString());
   }
 
   @Nonnull
