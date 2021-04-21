@@ -1,6 +1,8 @@
 package com.ak.math;
 
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
@@ -26,23 +28,35 @@ public enum Simplex {
 
   public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
                                              @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
-    return IntStream.range(0, 2).mapToObj(value -> new CMAESOptimizer(MAX_ITERATIONS, STOP_FITNESS, true, 0,
-        10, new MersenneTwister(), false, null)
-        .optimize(
-            new MaxEval(MAX_ITERATIONS),
-            new ObjectiveFunction(function),
-            GoalType.MINIMIZE,
-            new InitialGuess(initialGuess),
-            bounds,
-            new CMAESOptimizer.Sigma(initialSteps),
-            new CMAESOptimizer.PopulationSize(2 * (4 + (int) (3.0 * StrictMath.log(initialGuess.length))))
-        )).parallel().min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
+    return IntStream.range(0, 2)
+        .mapToObj(value -> {
+              try {
+                return new CMAESOptimizer(MAX_ITERATIONS, STOP_FITNESS, true, 0,
+                    10, new MersenneTwister(), false, null)
+                    .optimize(
+                        new MaxEval(MAX_ITERATIONS),
+                        new ObjectiveFunction(function),
+                        GoalType.MINIMIZE,
+                        new InitialGuess(initialGuess),
+                        bounds,
+                        new CMAESOptimizer.Sigma(DoubleStream.of(initialSteps).map(Math::abs).toArray()),
+                        new CMAESOptimizer.PopulationSize(4 + (int) (3.0 * StrictMath.log(initialGuess.length)))
+                    );
+              }
+              catch (Exception e) {
+                var nan = new double[initialGuess.length];
+                Arrays.fill(nan, Double.NaN);
+                return new PointValuePair(nan, Double.NaN);
+              }
+            }
+        )
+        .parallel().min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
 
   public static PointValuePair optimize(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
                                         @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
     return optimize(point -> {
-      for (int i = 0; i < point.length; i++) {
+      for (var i = 0; i < point.length; i++) {
         if (bounds.getLower()[i] > point[i] || bounds.getUpper()[i] < point[i]) {
           return Double.POSITIVE_INFINITY;
         }

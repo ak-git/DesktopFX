@@ -1,21 +1,37 @@
 package com.ak.rsm;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.math.ValuePair;
+import com.ak.util.CSVLineFileCollector;
 import com.ak.util.Metrics;
+import com.ak.util.Strings;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import tec.uom.se.unit.MetricPrefix;
+import tec.uom.se.unit.Units;
 
 import static com.ak.rsm.InexactTetrapolarSystem.systems2;
 import static com.ak.rsm.InexactTetrapolarSystem.toInexact;
+import static com.ak.util.Strings.PLUS_MINUS;
+import static com.ak.util.Strings.low;
 
 public class InverseLayer2Test {
   private static final Logger LOGGER = Logger.getLogger(InverseLayer2Test.class.getName());
@@ -205,5 +221,54 @@ public class InverseLayer2Test {
     Assert.assertEquals(medium.k12().getValue(), expected[1], 0.1, medium.toString());
     Assert.assertEquals(Metrics.toMilli(medium.h().getValue()), Metrics.toMilli(expected[2]), 0.01, medium.toString());
     LOGGER.info(medium::toString);
+  }
+
+  @Test(enabled = false)
+  public void testInverseDynamicLayerFile() {
+    String T = "TIME, s";
+    String R1 = "R1, mΩ";
+    String R2 = "R2, mΩ";
+    String POS = "POSITION, µm";
+
+    String RHO_1 = Strings.rho(null, 1);
+    String RHO_2 = Strings.rho(null, 2);
+    String H = "h, %s".formatted(MetricPrefix.MILLI(Units.METRE));
+
+    InexactTetrapolarSystem[] systems = systems2(0.1, 7.0);
+
+    Path path = Paths.get("2021-04-12 20-08-08.csv");
+    try (CSVParser parser = CSVParser.parse(new BufferedReader(new FileReader(path.toFile())),
+        CSVFormat.DEFAULT.withHeader(T, R1, R2, "CCR, Ω", POS))) {
+      List<CSVRecord> records = parser.getRecords();
+      CSVLineFileCollector collector = new CSVLineFileCollector(Paths.get("inverse " + path), T, POS,
+          RHO_1, PLUS_MINUS + RHO_1,
+          RHO_2, PLUS_MINUS + RHO_2,
+          "k", PLUS_MINUS + "k",
+          H, PLUS_MINUS + H,
+          "L" + low(2)
+      );
+      for (int i = 1; i < records.size() - 1; i++) {
+        CSVRecord record1 = records.get(i);
+        CSVRecord record2 = records.get(i + 1);
+        double[] rOhms = {Double.parseDouble(record1.get(R1)) / 1000.0, Double.parseDouble(record1.get(R2)) / 1000.0};
+        double[] rOhmsAfter = {Double.parseDouble(record2.get(R1)) / 1000.0, Double.parseDouble(record2.get(R2)) / 1000.0};
+        double dh = Metrics.fromMilli((Double.parseDouble(record2.get(POS)) - Double.parseDouble(record1.get(POS))) / 1000.0);
+        var medium = Inverse.inverseDynamic(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
+        LOGGER.info(() -> "%.2f sec; %s µm; %s".formatted(Double.parseDouble(record1.get(T)), record1.get(POS), medium));
+        if (medium.getL2() < 1.0) {
+          collector.accept(new Object[] {record1.get(T), record1.get(POS),
+              medium.rho1().getValue(), medium.rho1().getAbsError(),
+              medium.rho2().getValue(), medium.rho2().getAbsError(),
+              medium.k12().getValue(), medium.k12().getAbsError(),
+              Metrics.toMilli(medium.h().getValue()), Metrics.toMilli(medium.h().getAbsError()),
+              medium.getL2()
+          });
+        }
+      }
+      collector.close();
+    }
+    catch (IOException ex) {
+      Logger.getLogger(getClass().getName()).log(Level.WARNING, path.toAbsolutePath().toString(), ex);
+    }
   }
 }

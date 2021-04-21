@@ -50,6 +50,7 @@ public class Layer1MediumTest {
     Assert.assertTrue(layers.toString().contains(expected.toString()), layers.toString());
     double l2 = Arrays.stream(new double[] {0.3277112113340609, 0.10361494844541479, 0.5126497744983622, 0.6807219716648473})
         .reduce(StrictMath::hypot).orElse(Double.NaN);
+    Assert.assertEquals(layers.getL2(), l2, 0.001, layers.toString());
     Assert.assertTrue(layers.toString().contains("%.2f %%".formatted(Metrics.toPercents(l2))), layers.toString());
   }
 }

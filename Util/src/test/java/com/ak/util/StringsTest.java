@@ -35,4 +35,10 @@ public class StringsTest {
     Assert.assertEquals(Strings.rho(2.1234), "\u03c1 = %.3f %s".formatted(2.123, OHM_METRE));
     Assert.assertEquals(Strings.dRhoByH(1.21), "d\u03c1/dh = %.0f %s".formatted(1.0, OHM));
   }
+
+  @Test
+  public void testRho() {
+    Assert.assertEquals(Strings.rho(2.1234, 1), "ρ₁ = 2.1234 Ω·m");
+    Assert.assertEquals(Strings.rho(null, 2), "ρ₂, Ω·m");
+  }
 }

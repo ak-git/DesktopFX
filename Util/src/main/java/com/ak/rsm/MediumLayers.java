@@ -1,5 +1,6 @@
 package com.ak.rsm;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 interface MediumLayers<D> extends RelativeMediumLayers<D> {
@@ -15,4 +16,7 @@ interface MediumLayers<D> extends RelativeMediumLayers<D> {
   default D rho2() {
     return rho();
   }
+
+  @Nonnegative
+  double getL2();
 }
