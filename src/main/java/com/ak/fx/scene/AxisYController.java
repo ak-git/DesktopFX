@@ -41,8 +41,8 @@ public final class AxisYController<V extends Enum<V> & Variable<V>> {
     int scaleFactor10 = scaleFactor10(range, signalRange);
     int scaleFactor = scaleFactor10;
     int scaledRange = Math.max(1, signalRange / scaleFactor10);
-    if (range / scaledRange >= 5) {
-      scaleFactor = scaleFactor10 / 5;
+    if (range / scaledRange >= 7) {
+      scaleFactor = scaleFactor10 / 10;
     }
     return Math.max(1, scaleFactor);
   }
