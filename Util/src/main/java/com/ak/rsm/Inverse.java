@@ -80,7 +80,15 @@ enum Inverse {
       RelativeMediumLayers<Double> initial = new RelativeMediumLayers<>() {
         @Override
         public Double k12() {
-          return measurements.stream().allMatch(d -> d.getDerivativeResistivity() > 0) ? -1.0 : 1.0;
+          if (measurements.stream().allMatch(d -> d.getDerivativeResistivity() > 0)) {
+            return -1.0;
+          }
+          else if (measurements.stream().allMatch(d -> d.getDerivativeResistivity() < 0)) {
+            return 1.0;
+          }
+          else {
+            return 0.0;
+          }
         }
 
         @Override

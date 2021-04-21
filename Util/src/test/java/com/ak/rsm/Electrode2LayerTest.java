@@ -55,6 +55,9 @@ public class Electrode2LayerTest {
         {
             Layers.getK12(1.0, 4.0),
         },
+        {
+            0.0,
+        },
     };
   }
 
