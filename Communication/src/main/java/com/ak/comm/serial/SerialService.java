@@ -37,8 +37,8 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
       private boolean notFoundFlag;
 
       @Override
-      public boolean isLoggable(LogRecord record) {
-        if (SERIAL_PORT_NOT_FOUND.equals(record.getMessage())) {
+      public boolean isLoggable(LogRecord logRecord) {
+        if (SERIAL_PORT_NOT_FOUND.equals(logRecord.getMessage())) {
           if (notFoundFlag) {
             return false;
           }
@@ -80,7 +80,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
   @Override
   public int write(@Nonnull ByteBuffer src) {
     synchronized (this) {
-      int countBytes = 0;
+      var countBytes = 0;
       if (isOpen() && serialPort != null) {
         src.rewind();
         countBytes = serialPort.writeBytes(src.array(), src.limit());
@@ -197,7 +197,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
         return null;
       }
       else {
-        SerialPort serialPort = serialPorts.iterator().next();
+        var serialPort = serialPorts.iterator().next();
         String portName = serialPort.getSystemPortName();
         LOGGER.log(LOG_LEVEL_ERRORS, () -> "Found { %s }, the [ %s ] is selected".formatted(serialPorts, portName));
         usedPorts.remove(portName);

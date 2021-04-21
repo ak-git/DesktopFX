@@ -43,8 +43,8 @@ final class TetrapolarMeasurement implements Measurement {
   @Nonnull
   @Override
   public Measurement merge(@Nonnull Measurement that) {
-    double sigma1Q = POW2.applyAsDouble(this);
-    double sigma2Q = POW2.applyAsDouble(that);
+    var sigma1Q = POW2.applyAsDouble(this);
+    var sigma2Q = POW2.applyAsDouble(that);
     double k = sigma2Q / (sigma1Q + sigma2Q);
     double avg = k * resistivity + (1.0 - k) * that.getResistivity();
     double sigmaAvg = 1.0 / Math.sqrt((1.0 / sigma1Q + 1.0 / sigma2Q));

@@ -112,7 +112,7 @@ public class SpringFxApplication extends FxApplication {
     if (profiles.length == 0) {
       profiles = applicationContext.getEnvironment().getDefaultProfiles();
     }
-    FXMLLoader defaultFxmlLoader = super.getFXMLLoader(resourceBundle).get(0);
+    var defaultFxmlLoader = super.getFXMLLoader(resourceBundle).get(0);
     List<FXMLLoader> fxmlLoaders = Arrays.stream(profiles)
         .map(profile -> getClass().getResource(String.join(".", profile, "fxml")))
         .map(fxml -> {

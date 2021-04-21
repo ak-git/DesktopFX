@@ -47,7 +47,7 @@ public enum NmisAddress {
 
   @Nullable
   static NmisAddress find(@Nonnull ByteBuffer byteBuffer) {
-    byte addr = byteBuffer.get(NmisProtocolByte.ADDR.ordinal());
+    var addr = byteBuffer.get(NmisProtocolByte.ADDR.ordinal());
     for (NmisAddress nmisAddress : values()) {
       if (nmisAddress.addrRequest == addr || nmisAddress.addrResponse == addr) {
         return nmisAddress;

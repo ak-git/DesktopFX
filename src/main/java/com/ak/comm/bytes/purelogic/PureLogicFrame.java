@@ -63,7 +63,7 @@ public final class PureLogicFrame extends BufferFrame {
   @Nullable
   public static PureLogicFrame of(@Nonnull StringBuilder buffer) {
     if (buffer.indexOf(STEP_COMMAND) == 0) {
-      String substring = buffer.substring(STEP_COMMAND.length(), buffer.indexOf(NEW_LINE)).strip().replaceAll(SPACE, "");
+      var substring = buffer.substring(STEP_COMMAND.length(), buffer.indexOf(NEW_LINE)).strip().replaceAll(SPACE, "");
       try {
         return new PureLogicFrame(Integer.parseInt(substring));
       }

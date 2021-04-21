@@ -1,6 +1,5 @@
 package com.ak.fx.scene;
 
-import java.util.IntSummaryStatistics;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -17,13 +16,13 @@ public final class AxisYController<V extends Enum<V> & Variable<V>> {
   }
 
   public ScaleYInfo<V> scale(@Nonnull V variable, @Nonnull int[] values) {
-    IntSummaryStatistics intSummaryStatistics = IntStream.of(values).summaryStatistics();
+    var intSummaryStatistics = IntStream.of(values).summaryStatistics();
     if (intSummaryStatistics.getMax() == intSummaryStatistics.getMin()) {
       intSummaryStatistics = IntStream.of(intSummaryStatistics.getMax(), 0).summaryStatistics();
     }
 
     int meanScaleFactor10 = scaleFactor10(mmHeight, intSummaryStatistics.getMax() - intSummaryStatistics.getMin()) * 10;
-    int mean = 0;
+    var mean = 0;
     if (!variable.options().contains(Variable.Option.FORCE_ZERO_IN_RANGE)) {
       mean = (int) Math.rint((intSummaryStatistics.getMax() + intSummaryStatistics.getMin()) / 2.0 / meanScaleFactor10) * meanScaleFactor10;
     }

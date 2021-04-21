@@ -12,8 +12,8 @@ public final class StringToIntegerConverter<V extends Enum<V> & Variable<V>> ext
 
   @Override
   protected Stream<int[]> innerApply(@Nonnull String frame) {
-    int[] values = new int[variables().size()];
-    for (int i = 0; i < values.length; i++) {
+    var values = new int[variables().size()];
+    for (var i = 0; i < values.length; i++) {
       values[i] = Integer.parseInt(frame, 16);
     }
     return Stream.of(values);

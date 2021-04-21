@@ -48,8 +48,8 @@ final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSV
   public BiConsumer<List<CSVLineFileCollector>, Stream<T>> accumulator() {
     return (lineFileCollectors, inStream) -> {
       Collection<T> pairs = inStream.collect(Collectors.toUnmodifiableList());
-      Y y = yVarIterator.next();
-      for (int i = 0; i < lineFileCollectors.size(); i++) {
+      var y = yVarIterator.next();
+      for (var i = 0; i < lineFileCollectors.size(); i++) {
         lineFileCollectors.get(i).accept(Stream.concat(Stream.of(y), pairs.stream().map(functions.get(i))).toArray());
       }
     };
@@ -65,7 +65,7 @@ final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSV
   @Override
   public Function<List<CSVLineFileCollector>, Boolean> finisher() {
     return lineFileCollectors -> {
-      AtomicBoolean okFlag = new AtomicBoolean(true);
+      var okFlag = new AtomicBoolean(true);
       lineFileCollectors.forEach(lineFileCollector -> {
         try {
           lineFileCollector.close();

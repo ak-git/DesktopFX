@@ -137,7 +137,7 @@ public final class Chart extends AbstractRegion {
   }
 
   public void add(@Nonnull double[] values) {
-    for (int i = 0; i < values.length; i++) {
+    for (var i = 0; i < values.length; i++) {
       lineDiagrams.get(i).add(values[i]);
     }
   }

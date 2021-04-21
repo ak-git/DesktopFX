@@ -62,14 +62,14 @@ final class LineDiagram extends AbstractRegion {
 
     yLabels.getChildren().clear();
     yLabels.getChildren().addAll(IntStream.range(0, (int) (Math.rint((height / 2) / SMALL.getStep()) * 2) + 1).mapToObj(i -> {
-      Text text = new Text();
+      var text = new Text();
       updateText(i, text);
       text.fontProperty().bind(Fonts.H2.fontProperty(this::getScene));
       text.relocate(POINTS.getStep() / 4, SMALL.getStep() * i - text.getFont().getSize() - POINTS.getStep() / 4);
       return text;
     }).collect(Collectors.toList()));
 
-    for (int i = 0; i < yLabels.getChildren().size(); i++) {
+    for (var i = 0; i < yLabels.getChildren().size(); i++) {
       title.setVisible(false);
       if (yLabels.getChildren().get(i).isVisible()) {
         title.setVisible(true);
@@ -81,18 +81,18 @@ final class LineDiagram extends AbstractRegion {
 
   void setAll(@Nonnull double[] y, @Nonnull DoubleFunction<String> positionToStringConverter) {
     this.positionToStringConverter = positionToStringConverter;
-    for (int i = 0; i < yLabels.getChildren().size(); i++) {
+    for (var i = 0; i < yLabels.getChildren().size(); i++) {
       updateText(i, (Text) yLabels.getChildren().get(i));
     }
 
     if (polyline.getPoints().size() / 2 == y.length) {
-      for (int i = 0; i < y.length; i++) {
+      for (var i = 0; i < y.length; i++) {
         polyline.getPoints().set(i * 2 + 1, -y[i]);
       }
     }
     else {
       polyline.getPoints().clear();
-      for (int i = 0; i < y.length; i++) {
+      for (var i = 0; i < y.length; i++) {
         polyline.getPoints().add(xStep * i);
         polyline.getPoints().add(-y[i]);
       }
@@ -149,7 +149,7 @@ final class LineDiagram extends AbstractRegion {
   private void updateText(int i, Text label) {
     double posY = i * SMALL.getStep();
     label.setVisible(posY > visibleTextBounds.getY() && posY < visibleTextBounds.getY() + visibleTextBounds.getHeight());
-    String text = positionToStringConverter.apply(getHeight() / 2 - i * SMALL.getStep());
+    var text = positionToStringConverter.apply(getHeight() / 2 - i * SMALL.getStep());
     label.setText(label.isVisible() ? text : Strings.EMPTY);
   }
 }

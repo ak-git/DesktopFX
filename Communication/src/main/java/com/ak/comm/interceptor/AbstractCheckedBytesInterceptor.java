@@ -33,7 +33,7 @@ public abstract class AbstractCheckedBytesInterceptor<T extends BufferFrame, R, 
     while (src.hasRemaining()) {
       byte b = src.get();
 
-      for (int i = 0; i < 2; i++) {
+      for (var i = 0; i < 2; i++) {
         buffer.put(b);
         if (responseBuilder.is(b)) {
           if (i == 1) {
@@ -55,7 +55,7 @@ public abstract class AbstractCheckedBytesInterceptor<T extends BufferFrame, R, 
       if (!buffer.hasRemaining()) {
         logSkippedBytes(true);
 
-        R response = responseBuilder.build();
+        var response = responseBuilder.build();
         if (response == null) {
           LogUtils.logBytes(logger, LOG_LEVEL_ERRORS, this, buffer, "INVALID FRAME");
         }

@@ -34,9 +34,9 @@ enum NIBPProtocolByte implements BytesChecker {
   static final int MAX_CAPACITY = 0x43;
 
   static boolean checkCRC(@Nonnull ByteBuffer byteBuffer) {
-    int crc = 0;
+    var crc = 0;
     byteBuffer.rewind();
-    for (int i = 0; i < byteBuffer.limit(); i++) {
+    for (var i = 0; i < byteBuffer.limit(); i++) {
       crc += byteBuffer.get();
     }
     byteBuffer.rewind();
