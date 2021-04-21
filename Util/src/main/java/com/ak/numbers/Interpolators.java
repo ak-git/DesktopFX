@@ -56,8 +56,8 @@ public enum Interpolators {
     int[] xs = samples.apply(limitX);
     int[] ys = samples.apply(limitY);
 
-    double[][] z = new double[xs.length][ys.length];
-    for (int i = 0; i < xs.length; i++) {
+    var z = new double[xs.length][ys.length];
+    for (var i = 0; i < xs.length; i++) {
       int finalX = xs[i];
       List<C> sliceAlongY = coeffSplineMap.entrySet().stream().sorted(
           Comparator.comparingInt(o -> o.getValue().applyAsInt(finalX))
@@ -67,7 +67,7 @@ public enum Interpolators {
       double[] zValues = sliceAlongY.stream().mapToDouble(c -> Double.parseDouble(Strings.numberSuffix(c.name()))).toArray();
 
       IntUnaryOperator operator = interpolator(yValues, zValues).get();
-      for (int j = 0; j < ys.length; j++) {
+      for (var j = 0; j < ys.length; j++) {
         z[i][j] = operator.applyAsInt(ys[j]);
       }
     }
@@ -98,10 +98,10 @@ public enum Interpolators {
 
   private Supplier<IntUnaryOperator> interpolate(@Nonnull double[][] coefficients) {
     double[][] sorted = Arrays.stream(coefficients).sorted(Comparator.comparingDouble(o -> o[0])).toArray(value -> new double[value][0]);
-    double[] xValues = new double[sorted.length];
-    double[] yValues = new double[sorted.length];
+    var xValues = new double[sorted.length];
+    var yValues = new double[sorted.length];
 
-    for (int i = 0; i < xValues.length; i++) {
+    for (var i = 0; i < xValues.length; i++) {
       xValues[i] = sorted[i][0];
       yValues[i] = sorted[i][1];
     }

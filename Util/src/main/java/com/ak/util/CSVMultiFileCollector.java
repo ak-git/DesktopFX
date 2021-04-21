@@ -1,6 +1,7 @@
 package com.ak.util;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,7 +26,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSVLineFileCollector>, Boolean> {
   @Nonnull
-  private final Collection<String> paths = new ArrayList<>();
+  private final Collection<Path> paths = new ArrayList<>();
   @Nonnull
   private final List<Function<T, Object>> functions = new ArrayList<>();
   @Nonnull
@@ -47,8 +48,8 @@ final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSV
   public BiConsumer<List<CSVLineFileCollector>, Stream<T>> accumulator() {
     return (lineFileCollectors, inStream) -> {
       Collection<T> pairs = inStream.collect(Collectors.toUnmodifiableList());
-      Y y = yVarIterator.next();
-      for (int i = 0; i < lineFileCollectors.size(); i++) {
+      var y = yVarIterator.next();
+      for (var i = 0; i < lineFileCollectors.size(); i++) {
         lineFileCollectors.get(i).accept(Stream.concat(Stream.of(y), pairs.stream().map(functions.get(i))).toArray());
       }
     };
@@ -64,7 +65,7 @@ final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSV
   @Override
   public Function<List<CSVLineFileCollector>, Boolean> finisher() {
     return lineFileCollectors -> {
-      AtomicBoolean okFlag = new AtomicBoolean(true);
+      var okFlag = new AtomicBoolean(true);
       lineFileCollectors.forEach(lineFileCollector -> {
         try {
           lineFileCollector.close();
@@ -91,7 +92,7 @@ final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSV
     }
 
     @ParametersAreNonnullByDefault
-    public Builder<Y, T> add(String outFileName, Function<T, Object> converter) {
+    public Builder<Y, T> add(Path outFileName, Function<T, Object> converter) {
       multiFileCollector.paths.add(outFileName);
       multiFileCollector.functions.add(converter);
       return this;

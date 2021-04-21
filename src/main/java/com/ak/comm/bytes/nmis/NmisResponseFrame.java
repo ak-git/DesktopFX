@@ -108,7 +108,7 @@ public final class NmisResponseFrame extends BufferFrame {
 
     @Override
     public boolean is(byte b) {
-      boolean okFlag = true;
+      var okFlag = true;
       for (NmisProtocolByte protocolByte : NmisProtocolByte.CHECKED_BYTES) {
         if (buffer().position() - 1 == protocolByte.ordinal()) {
           if (!protocolByte.isCheckedAndLimitSet(b, buffer())) {
@@ -132,7 +132,7 @@ public final class NmisResponseFrame extends BufferFrame {
         }
       }
 
-      NmisAddress address = NmisAddress.find(buffer());
+      var address = NmisAddress.find(buffer());
       if (address != null) {
         if (NmisProtocolByte.checkCRC(buffer())) {
           return new NmisResponseFrame(buffer(), address);

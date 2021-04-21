@@ -32,7 +32,7 @@ import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.logging.LogBuilders;
 
-import static com.ak.comm.core.LogUtils.LOG_LEVEL_ERRORS;
+import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
 
 final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractConvertableService<T, R, V> implements Flow.Subscription {
@@ -59,13 +59,13 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
       s.onSubscribe(this);
 
       LOCK.lock();
-      try (SeekableByteChannel seekableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
+      try (var seekableByteChannel = Files.newByteChannel(fileToRead, StandardOpenOption.READ)) {
         Logger.getLogger(getClass().getName()).log(Level.CONFIG, () -> "#%08x Open file [ %s ]".formatted(hashCode(), fileToRead));
         int blockSize = (int) Files.getFileStore(fileToRead).getBlockSize();
-        MessageDigest md = MessageDigest.getInstance("SHA-512");
+        var md = MessageDigest.getInstance("SHA-512");
         if (isChannelProcessed(blockSize, seekableByteChannel, md::update)) {
-          String md5Code = digestToString(md.digest("2021.04.11" .getBytes(Charset.defaultCharset())));
-          Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
+          var md5Code = digestToString(md.digest("2021.04.19".getBytes(Charset.defaultCharset())));
+          var convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
           if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(convertedFile, StandardOpenOption.READ);
             Logger.getLogger(getClass().getName()).log(Level.INFO,
@@ -74,7 +74,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
           else {
             Logger.getLogger(getClass().getName()).log(Level.INFO,
                 () -> "#%08x Read file [ %s ], hash = [ %s ]".formatted(hashCode(), fileToRead, md5Code));
-            Path tempConverterFile = LogBuilders.CONVERTER_FILE.build("temp." + md5Code).getPath();
+            var tempConverterFile = LogBuilders.CONVERTER_FILE.build("temp." + md5Code).getPath();
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(tempConverterFile,
                 StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
 
@@ -154,8 +154,8 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
 
   private boolean isChannelProcessed(@Nonnegative int blockSize, @Nonnull SeekableByteChannel seekableByteChannel,
                                      @Nonnull Consumer<ByteBuffer> consumer) throws IOException {
-    ByteBuffer buffer = ByteBuffer.allocate(blockSize);
-    boolean readFlag = false;
+    var buffer = ByteBuffer.allocate(blockSize);
+    var readFlag = false;
     seekableByteChannel.position(0);
     while (seekableByteChannel.read(buffer) > 0 && !disposed) {
       buffer.flip();

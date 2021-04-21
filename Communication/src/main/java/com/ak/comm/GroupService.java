@@ -95,14 +95,14 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
 
     int countVariables = variables.size();
     int frameSize = countVariables * Integer.BYTES;
-    ByteBuffer buffer = ByteBuffer.allocate(frameSize * (to - from));
+    var buffer = ByteBuffer.allocate(frameSize * (to - from));
     currentReadable.read(buffer, (long) frameSize * from);
     buffer.flip();
 
     int countData = buffer.limit() / frameSize;
-    int[][] result = new int[countVariables][countData];
-    for (int i = 0; i < countData; i++) {
-      for (int j = 0; j < countVariables; j++) {
+    var result = new int[countVariables][countData];
+    for (var i = 0; i < countData; i++) {
+      for (var j = 0; j < countVariables; j++) {
         result[j][i] = buffer.getInt();
       }
     }

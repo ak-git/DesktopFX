@@ -46,8 +46,8 @@ enum Inverse {
       };
 
       UnaryOperator<double[]> subtract = values -> {
-        double[] sub = new double[values.length - 1];
-        for (int i = 0; i < sub.length; i++) {
+        var sub = new double[values.length - 1];
+        for (var i = 0; i < sub.length; i++) {
           sub[i] = values[i + 1] - values[i];
         }
         return sub;
@@ -119,7 +119,7 @@ enum Inverse {
         .map(m -> {
           Function<ToDoubleFunction<Layer2Medium<Double>>, ValuePair> getVar =
               f -> {
-                double c = f.applyAsDouble(center);
+                var c = f.applyAsDouble(center);
                 return new ValuePair(c, Inequality.absolute().applyAsDouble(f.applyAsDouble(m), c));
               };
           return new Layer2Medium.Layer2MediumBuilder(center.getPredictions())
@@ -148,7 +148,7 @@ enum Inverse {
   @ParametersAreNonnullByDefault
   static RelativeMediumLayers<Double> inverseDynamicRelative(Collection<? extends DerivativeMeasurement> derivativeMeasurements,
                                                              RelativeMediumLayers<Double> initialRelative) {
-    double[] kMinMax = {-1.0, 1.0};
+    var kMinMax = new double[] {-1.0, 1.0};
     if (initialRelative.k12() > 0.0) {
       kMinMax[0] = 0.0;
     }

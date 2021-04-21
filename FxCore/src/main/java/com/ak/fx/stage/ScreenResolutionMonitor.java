@@ -35,11 +35,11 @@ public enum ScreenResolutionMonitor {
       dpi.setValue(Screen.getPrimary().getDpi());
     }
     log();
-    Timer timer = new Timer((int) UIConstants.UI_DELAY.toMillis(), e ->
+    var timer = new Timer((int) UIConstants.UI_DELAY.toMillis(), e ->
         Optional.ofNullable(sceneReference.get()).flatMap(scene ->
             Optional.ofNullable(scene.getWindow())).ifPresent(window -> {
           ObservableList<Screen> screens = Screen.getScreensForRectangle(window.getX(), window.getY(), window.getWidth(), window.getHeight());
-          Screen screen = Screen.getPrimary();
+          var screen = Screen.getPrimary();
           if (!screens.isEmpty()) {
             screen = screens.get(0);
           }

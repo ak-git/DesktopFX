@@ -35,7 +35,7 @@ public class AperStage5Current1VariableTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55442, 330990, 110884, 551096, 1293}},
+            new int[] {55442, 330990, 1293}},
     };
   }
 
@@ -56,7 +56,7 @@ public class AperStage5Current1VariableTest {
         }
       }).count();
       if (processed.get()) {
-        Assert.assertEquals(count, 16);
+        Assert.assertEquals(count, 10);
         break;
       }
     }
@@ -67,7 +67,7 @@ public class AperStage5Current1VariableTest {
   @Test
   public void testGetInputVariables() {
     int[] actual = EnumSet.allOf(AperStage5Current1Variable.class).stream().mapToInt(value -> value.getInputVariables().size()).toArray();
-    int[] expected = {1, 1, 1, 2, 1};
+    int[] expected = {1, 1, 1};
     Assert.assertEquals(actual, expected, Arrays.toString(actual));
   }
 
@@ -77,7 +77,7 @@ public class AperStage5Current1VariableTest {
         .map(DependentVariable::getUnit).collect(Collectors.toList());
     Assert.assertEquals(actual,
         Arrays.asList(
-            MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM),
+            MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM),
             Units.OHM
         ),
         actual.toString()
@@ -90,7 +90,7 @@ public class AperStage5Current1VariableTest {
         .flatMap(v -> v.options().stream()).collect(Collectors.toList());
     Assert.assertEquals(actual,
         Arrays.asList(
-            Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE,
+            Variable.Option.VISIBLE, Variable.Option.VISIBLE,
             Variable.Option.TEXT_VALUE_BANNER
         ),
         actual.toString()

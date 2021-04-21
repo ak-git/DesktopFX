@@ -95,14 +95,14 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   public FilterBuilder smoothingImpulsive(@Nonnegative int size) {
-    HoldFilter holdFilter = new HoldFilter.Builder(size).lostCount((size - Integer.highestOneBit(size)) / 2);
+    var holdFilter = new HoldFilter.Builder(size).lostCount((size - Integer.highestOneBit(size)) / 2);
     return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> operand -> {
       int[] sorted = holdFilter.getSorted();
       double mean = Arrays.stream(sorted).average().orElse(0.0);
 
-      int posCount = 0;
-      int negCount = 0;
-      double distances = 0.0;
+      var posCount = 0;
+      var negCount = 0;
+      var distances = 0.0;
       for (int n : sorted) {
         if (n > mean) {
           posCount++;
@@ -117,7 +117,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   public FilterBuilder sharpingDecimate(@Nonnegative int size) {
-    HoldFilter holdFilter = new HoldFilter.Builder(size).lostCount(0);
+    var holdFilter = new HoldFilter.Builder(size).lostCount(0);
     return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> new IntUnaryOperator() {
       private int prev;
 
@@ -251,8 +251,8 @@ public class FilterBuilder implements Builder<DigitalFilter> {
 
   public int[] filter(@Nonnull int[] ints) {
     DigitalFilter f = build();
-    int[] result = new int[(int) Math.floor(ints.length * f.getFrequencyFactor())];
-    AtomicInteger index = new AtomicInteger();
+    var result = new int[(int) Math.floor(ints.length * f.getFrequencyFactor())];
+    var index = new AtomicInteger();
     f.forEach(values -> result[index.getAndIncrement()] = values[0]);
     for (int i : ints) {
       f.accept(i);
@@ -276,7 +276,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
             .formatted(selectedIndexes.stream().map(Arrays::toString).collect(Collectors.joining()), Arrays.toString(filters)));
       }
       wrappedFilters = new DigitalFilter[filters.length];
-      for (int i = 0; i < wrappedFilters.length; i++) {
+      for (var i = 0; i < wrappedFilters.length; i++) {
         int[] ints = selectedIndexes.get(i);
         if (ints.length == 0) {
           ints = new int[] {i};

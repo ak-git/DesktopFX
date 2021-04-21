@@ -63,7 +63,7 @@ public abstract class AbstractSplineCoefficientsChartApp<X extends Enum<X> & Var
 
     ObservableList<XYChart.Data<Number, Number>> splineData = FXCollections.observableArrayList();
     IntUnaryOperator f = Interpolators.interpolator(coefficients).get();
-    for (int i = 0; i < xAndY[xAndY.length - 1][0]; i++) {
+    for (var i = 0; i < xAndY[xAndY.length - 1][0]; i++) {
       splineData.add(new XYChart.Data<>(i, f.applyAsInt(i)));
     }
 

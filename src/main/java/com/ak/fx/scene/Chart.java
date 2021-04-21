@@ -57,18 +57,18 @@ public final class Chart extends AbstractRegion {
     if (dHeight >= SMALL.getStep() * 2) {
       diagramHeight.setValue(dHeight);
       lineDiagrams.forEach(lineDiagram -> lineDiagram.resizeRelocate(x, y, width, dHeight));
-      for (int i = 0; i < lineDiagrams.size() / 2; i++) {
+      for (var i = 0; i < lineDiagrams.size() / 2; i++) {
         lineDiagrams.get(i).relocate(x, y + SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i);
       }
       if ((lineDiagrams.size() & 1) != 0) {
         lineDiagrams.get(lineDiagrams.size() / 2).relocate(x, y + height / 2 - dHeight / 2);
       }
-      for (int i = 0; i < lineDiagrams.size() / 2; i++) {
+      for (var i = 0; i < lineDiagrams.size() / 2; i++) {
         lineDiagrams.get(lineDiagrams.size() - 1 - i).
             relocate(x, y + height - dHeight - SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i);
       }
 
-      for (int i = 0; i < lineDiagrams.size(); i++) {
+      for (var i = 0; i < lineDiagrams.size(); i++) {
         double visibleY = 0;
         if (i > 0) {
           double approveLineG = (lineDiagrams.get(i).getLayoutY() + lineDiagrams.get(i - 1).getLayoutY() + dHeight) / 2;
@@ -137,7 +137,7 @@ public final class Chart extends AbstractRegion {
   }
 
   public void add(@Nonnull double[] values) {
-    for (int i = 0; i < values.length; i++) {
+    for (var i = 0; i < values.length; i++) {
       lineDiagrams.get(i).add(values[i]);
     }
   }

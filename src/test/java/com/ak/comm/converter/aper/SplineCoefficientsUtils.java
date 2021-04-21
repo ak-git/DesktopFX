@@ -1,5 +1,6 @@
 package com.ak.comm.converter.aper;
 
+import java.nio.file.Paths;
 import java.util.IntSummaryStatistics;
 import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
@@ -30,11 +31,11 @@ public enum SplineCoefficientsUtils {
 
     Supplier<DoubleStream> xVar = () -> intRange(surfaceCoeffClass, RangeUtils::rangeX).asDoubleStream();
     Assert.assertTrue(xVar.get().mapToObj("%.2f"::formatted).collect(
-        new CSVLineFileCollector("x-CC-R")));
+        new CSVLineFileCollector(Paths.get("x-CC-R"))));
 
     Supplier<DoubleStream> yVar = () -> intRange(surfaceCoeffClass, RangeUtils::rangeY).asDoubleStream();
     Assert.assertTrue(yVar.get().mapToObj("%.2f"::formatted).collect(
-        new CSVLineFileCollector("y-ADC-R")));
+        new CSVLineFileCollector(Paths.get("y-ADC-R"))));
   }
 
   public static <C extends Enum<C> & Coefficients> void testSplineSurface2(Class<C> surfaceCoeffClass) {

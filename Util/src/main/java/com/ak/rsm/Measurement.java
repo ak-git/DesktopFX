@@ -55,10 +55,10 @@ interface Measurement {
       Collection<T> systems, BiFunction<T, InexactTetrapolarSystem, T> newInstance) {
     ToLongFunction<Collection<InexactTetrapolarSystem>> distinctSizes =
         ts -> ts.stream().flatMap(s -> DoubleStream.of(s.toExact().getS(), s.toExact().getL()).boxed()).distinct().count();
-    long initialSizes = distinctSizes.applyAsLong(systems.stream().map(Measurement::getSystem).collect(Collectors.toUnmodifiableList()));
+    var initialSizes = distinctSizes.applyAsLong(systems.stream().map(Measurement::getSystem).collect(Collectors.toUnmodifiableList()));
     return IntStream.range(0, 2 << (2 * (systems.size() - 1) + 1))
         .mapToObj(n -> {
-          AtomicInteger signIndex = new AtomicInteger();
+          var signIndex = new AtomicInteger();
           IntUnaryOperator sign = index -> (n & (1 << index)) == 0 ? 1 : -1;
           return systems.stream()
               .map(s -> s.getSystem().shift(

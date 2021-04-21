@@ -24,11 +24,11 @@ enum GridCell {
 
     @Override
     Path newPath() {
-      Path path = super.newPath();
+      var path = super.newPath();
       path.setStrokeDashOffset(getStep());
 
       path.getStrokeDashArray().addAll(0.0, getStep() * 2);
-      for (int i = 0; i < FACTOR - 2; i++) {
+      for (var i = 0; i < FACTOR - 2; i++) {
         path.getStrokeDashArray().addAll(0.0, getStep());
       }
       return path;
@@ -85,7 +85,7 @@ enum GridCell {
   }
 
   Path newPath() {
-    Path p = new Path();
+    var p = new Path();
     p.setStroke(COLOR);
     p.setStrokeWidth(getStrokeWidth());
     return p;

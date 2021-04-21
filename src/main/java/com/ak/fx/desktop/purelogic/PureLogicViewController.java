@@ -19,15 +19,15 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.fx.desktop.AbstractScheduledViewController;
 import org.springframework.context.annotation.Profile;
 
-import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_150;
-import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_450;
+import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_210;
+import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_420;
 import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
 
 @Named
 @Profile("purelogic")
 public final class PureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
-  private static final PureLogicFrame.StepCommand[] PINGS = {MICRON_150};
-  private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE = {MICRON_150, MICRON_150, MICRON_150, MICRON_450};
+  private static final PureLogicFrame.StepCommand[] PINGS = {MICRON_210};
+  private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE = {MICRON_210, MICRON_420};
   private final Random random = new SecureRandom();
   private final Queue<PureLogicFrame.StepCommand> frames = new LinkedList<>();
   private final AtomicInteger handDirection = new AtomicInteger();
@@ -57,7 +57,6 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
   public void escape() {
     handDirection.set(0);
     autoDirection.set(0);
-    up = true;
     isRefresh = false;
     autoSequenceIndex = -1;
     frames.clear();
@@ -74,7 +73,7 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
       if (hand != 0) {
         int direction = handDirection.getAndAdd(hand > 0 ? -1 : 1);
         autoDirection.set(direction);
-        return MICRON_450.action(direction > 0);
+        return AUTO_SEQUENCE[AUTO_SEQUENCE.length - 1].action(direction > 0);
       }
       else if (autoDirection.get() != 0) {
         autoSequenceIndex++;

@@ -40,18 +40,18 @@ enum Layers {
   static double[] qn(double k12, double k23, @Nonnegative int p1, @Nonnegative int p2mp1) {
     int p2 = p2mp1 + p1;
 
-    double[] bNum = new double[p2 + 1];
+    var bNum = new double[p2 + 1];
     bNum[p1] += k12;
     bNum[p2] += k23;
 
-    double[] aDen = new double[p2 + 1];
+    var aDen = new double[p2 + 1];
     aDen[0] = 1;
     aDen[p1] -= k12;
     aDen[p2] -= k23;
     aDen[p2 - p1] += k12 * k23;
 
     double[] doubles = CoefficientsUtils.serialize(bNum, aDen, p1 + p2mp1 + 1);
-    double[] q = new double[SUM_LIMIT + 1];
+    var q = new double[SUM_LIMIT + 1];
     System.arraycopy(doubles, 0, q, 0, doubles.length);
     for (int p2pm = doubles.length; p2pm < q.length; p2pm++) {
       q[p2pm] = k12 * q[p2pm - p1] + k23 * q[p2pm - p2] - k12 * k23 * q[p2pm - p2 + p1];

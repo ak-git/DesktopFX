@@ -9,11 +9,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import com.ak.comm.bytes.LogUtils;
 import com.ak.comm.bytes.nmis.NmisAddress;
 import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.nmis.NmisResponseFrame;
 import com.ak.comm.bytes.nmis.NmisTestProvider;
-import com.ak.comm.core.LogUtils;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.log.LogTestUtils;
 import com.ak.util.Strings;

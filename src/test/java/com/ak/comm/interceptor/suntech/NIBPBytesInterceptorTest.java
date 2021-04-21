@@ -9,8 +9,8 @@ import java.util.stream.Stream;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.ak.comm.bytes.LogUtils;
 import com.ak.comm.bytes.suntech.NIBPResponse;
-import com.ak.comm.core.LogUtils;
 import com.ak.comm.log.LogTestUtils;
 import com.ak.util.Strings;
 import org.testng.Assert;

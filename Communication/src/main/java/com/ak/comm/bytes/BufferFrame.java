@@ -6,8 +6,6 @@ import java.nio.ByteOrder;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.comm.core.LogUtils;
-
 public class BufferFrame {
   @Nonnull
   private final ByteBuffer byteBuffer;

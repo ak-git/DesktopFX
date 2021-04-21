@@ -52,7 +52,7 @@ public final class ValuePair {
     if (o == null || !getClass().equals(o.getClass())) {
       return false;
     }
-    ValuePair valuePair = (ValuePair) o;
+    var valuePair = (ValuePair) o;
     return toString().equals(valuePair.toString());
   }
 
