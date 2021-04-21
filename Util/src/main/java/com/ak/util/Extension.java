@@ -25,7 +25,7 @@ public enum Extension {
     }
   }
 
-  public boolean is(@Nonnull String fileName) {
+  public final boolean is(@Nonnull String fileName) {
     return fileName.toLowerCase().endsWith(attachTo(Strings.EMPTY));
   }
 }
