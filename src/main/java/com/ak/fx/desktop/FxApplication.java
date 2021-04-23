@@ -53,6 +53,7 @@ public class FxApplication extends Application implements ViewController {
     stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     stage.getScene().setOnZoom(this::zoom);
     stage.getScene().setOnScroll(this::scroll);
+
     addEventHandler(stage, () ->
             Platform.runLater(() -> {
               stage.setFullScreen(!stage.isFullScreen());
@@ -64,11 +65,15 @@ public class FxApplication extends Application implements ViewController {
     addEventHandler(stage, this::up, KeyCode.UP);
     addEventHandler(stage, this::down, KeyCode.DOWN);
     addEventHandler(stage, this::escape, KeyCode.ESCAPE);
-    stage.show();
 
     Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass(), Strings.EMPTY);
     stage.setOnCloseRequest(event -> stageStorage.save(stage));
-    stageStorage.update(stage);
+    stage.showingProperty().addListener((observable, oldValue, newValue) -> {
+      if (stage.isShowing()) {
+        stageStorage.update(stage);
+      }
+    });
+    stage.show();
   }
 
   @OverridingMethodsMustInvokeSuper
