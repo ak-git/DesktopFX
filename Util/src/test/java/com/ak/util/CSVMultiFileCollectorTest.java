@@ -17,6 +17,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import static com.ak.util.CSVLineFileBuilderTest.LINE_JOINER;
+import static com.ak.util.CSVLineFileBuilderTest.ROW_DELIMITER;
+
 public class CSVMultiFileCollectorTest {
   private static final Logger LOGGER = Logger.getLogger(CSVMultiFileCollectorTest.class.getName());
   private static final Path OUT_PATH = Paths.get(Extension.CSV.attachTo(CSVMultiFileCollectorTest.class.getSimpleName()));
@@ -54,8 +57,13 @@ public class CSVMultiFileCollectorTest {
         IntStream.of(1, 2).boxed(), "var1", "var2").
         add(OUT_PATH, value -> value).build();
     Assert.assertTrue(Stream.of(Stream.of(1.0, 1.1), Stream.of(2.0, 2.1)).collect(multiFileCollector));
-    Assert.assertEquals(String.join(Strings.SPACE, Files.readAllLines(OUT_PATH, Charset.forName("windows-1251"))),
-        "var1,var2 1,1.0,1.1 2,2.0,2.1");
+    Assert.assertEquals(String.join(LINE_JOINER, Files.readAllLines(OUT_PATH, Charset.forName("windows-1251"))),
+        String.join(LINE_JOINER,
+            String.join(ROW_DELIMITER, "var1", "var2"),
+            String.join(ROW_DELIMITER, "1", "1.0", "1.1"),
+            String.join(ROW_DELIMITER, "2", "2.0", "2.1")
+        )
+    );
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)

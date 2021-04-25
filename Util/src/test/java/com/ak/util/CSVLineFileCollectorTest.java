@@ -27,6 +27,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static com.ak.util.CSVLineFileBuilderTest.ROW_DELIMITER;
+
 public class CSVLineFileCollectorTest {
   private static final Logger LOGGER = Logger.getLogger(CSVLineFileCollector.class.getName());
   private static final Path OUT_PATH = Paths.get(Extension.CSV.attachTo(CSVLineFileCollectorTest.class.getName()));
@@ -71,7 +73,7 @@ public class CSVLineFileCollectorTest {
       collector.accept(stream.get().toArray(String[]::new));
     }
     Assert.assertEquals(Files.readString(OUT_PATH, Charset.forName("windows-1251")).trim(),
-        stream.get().collect(Collectors.joining(Strings.COMMA)));
+        stream.get().collect(Collectors.joining(ROW_DELIMITER)));
     Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
   }
 
