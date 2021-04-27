@@ -20,7 +20,9 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
+
+import static tec.uom.se.unit.Units.METRE;
+import static tec.uom.se.unit.Units.OHM;
 
 public class AperStage5Current1VariableTest {
   @DataProvider(name = "variables")
@@ -35,7 +37,7 @@ public class AperStage5Current1VariableTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55442, 330990, 1293}},
+            new int[] {55442, 330990, 2438, 9705, 1293}},
     };
   }
 
@@ -67,7 +69,7 @@ public class AperStage5Current1VariableTest {
   @Test
   public void testGetInputVariables() {
     int[] actual = EnumSet.allOf(AperStage5Current1Variable.class).stream().mapToInt(value -> value.getInputVariables().size()).toArray();
-    int[] expected = {1, 1, 1};
+    int[] expected = {1, 1, 1, 1, 1};
     Assert.assertEquals(actual, expected, Arrays.toString(actual));
   }
 
@@ -77,8 +79,9 @@ public class AperStage5Current1VariableTest {
         .map(DependentVariable::getUnit).collect(Collectors.toList());
     Assert.assertEquals(actual,
         Arrays.asList(
-            MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM),
-            Units.OHM
+            MetricPrefix.MILLI(OHM), MetricPrefix.MILLI(OHM),
+            MetricPrefix.MILLI(OHM).multiply(METRE), MetricPrefix.MILLI(OHM).multiply(METRE),
+            OHM
         ),
         actual.toString()
     );
@@ -91,6 +94,7 @@ public class AperStage5Current1VariableTest {
     Assert.assertEquals(actual,
         Arrays.asList(
             Variable.Option.VISIBLE, Variable.Option.VISIBLE,
+            Variable.Option.TEXT_VALUE_BANNER, Variable.Option.TEXT_VALUE_BANNER,
             Variable.Option.TEXT_VALUE_BANNER
         ),
         actual.toString()
