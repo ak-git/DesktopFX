@@ -1,6 +1,9 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.function.DoubleUnaryOperator;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 import javax.annotation.Nonnegative;
@@ -9,6 +12,7 @@ import javax.annotation.Nonnull;
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
 import com.ak.util.Metrics;
+import com.ak.util.Strings;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.Assert;
@@ -127,5 +131,24 @@ public class InexactTetrapolarSystemTest {
       Assert.assertEquals(optimize.getPoint()[0], system.getHMin(Layers.getK12(rho1, rho2)) / exact.getL(),
           0.01, system.toString());
     }
+  }
+
+  @DataProvider(name = "combinations")
+  public static Object[][] combinations() {
+    return new Object[][] {
+        {
+            Arrays.asList(
+                InexactTetrapolarSystem.milli(0.1).s(11.0).l(30.0),
+                InexactTetrapolarSystem.milli(0.1).s(50.0).l(30.0)
+            ),
+            8
+        },
+    };
+  }
+
+  @Test(dataProvider = "combinations")
+  public void testCombinations(@Nonnull Collection<InexactTetrapolarSystem> systems, @Nonnegative int expected) {
+    Collection<Collection<InexactTetrapolarSystem>> c = InexactTetrapolarSystem.getMeasurementsCombination(systems);
+    Assert.assertEquals(c.size(), expected, c.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)));
   }
 }
