@@ -86,6 +86,10 @@ enum Inverse {
           else if (measurements.stream().allMatch(d -> d.getDerivativeResistivity() < 0)) {
             return 1.0;
           }
+          else if (measurements.stream().anyMatch(d -> d.getDerivativeResistivity() > 0) &&
+              measurements.stream().anyMatch(d -> d.getDerivativeResistivity() < 0)) {
+            return Double.NaN;
+          }
           else {
             return 0.0;
           }
@@ -162,6 +166,9 @@ enum Inverse {
     }
     else if (initialRelative.k12() < 0.0) {
       kMinMax[1] = 0.0;
+    }
+    else if (Double.isNaN(initialRelative.k12())) {
+      return new Layer2RelativeMedium<>(Double.NaN, Double.NaN);
     }
     else {
       return inverseStaticRelative(derivativeMeasurements, initialRelative, UnaryOperator.identity());

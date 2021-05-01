@@ -115,6 +115,13 @@ public class InverseLayer2Test {
             dh,
             new double[] {10.0, -1.0, h}
         },
+        {
+            systems2,
+            new double[] {100.0, 150.0},
+            new double[] {90.0, 160.0},
+            dh,
+            new double[] {Double.NaN, 0.0, Double.NaN}
+        },
     };
   }
 
