@@ -13,9 +13,9 @@ import java.util.stream.DoubleStream;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import com.ak.inverse.Inequality;
 import com.ak.math.ValuePair;
 import com.ak.util.CSVLineFileBuilder;
-import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -53,35 +53,65 @@ public class Electrode2LayerTest {
   public static Object[][] single() {
     return new Object[][] {
         {
-            Layers.getK12(1.0, 4.0),
+            0.0,
+            systems2(0.1, 20.0)
         },
         {
-            0.0,
+            Layers.getK12(1.0, 4.0),
+            new InexactTetrapolarSystem[] {
+                InexactTetrapolarSystem.milli(0.1).s(20.0).l(60.0),
+                InexactTetrapolarSystem.milli(0.1).s(100.0).l(60.0),
+            }
+        },
+        {
+            Layers.getK12(1.0, 4.0),
+            new InexactTetrapolarSystem[] {
+                InexactTetrapolarSystem.milli(0.1).s(20.0).l(100.0),
+                InexactTetrapolarSystem.milli(0.1).s(60.0).l(100.0),
+            }
         },
     };
   }
 
   @Test(dataProvider = "single")
-  public void testSingle(double k) {
+  public void testSingle(double k, @Nonnull InexactTetrapolarSystem[] systems) {
     double hToDim = 0.5;
-    double[] sToL = {10.0 / 30.0, 50.0 / 30.0};
-    var errorsScale = errorsScaleDynamic(sToL, k, hToDim);
+    var errorsScale = errorsScaleDynamic(
+        Arrays.stream(systems).map(InexactTetrapolarSystem::toExact).mapToDouble(s -> s.getS() / s.getL()).toArray(),
+        k, hToDim);
 
-    InexactTetrapolarSystem[] systems2 = systems2(0.1, 10.0);
-    double dh = Metrics.fromMilli(-0.001);
-    double h = Metrics.fromMilli(10.0 * 5) * hToDim;
+    double absError = Arrays.stream(systems).mapToDouble(InexactTetrapolarSystem::getAbsError).max().orElseThrow();
+    double dim = Arrays.stream(systems).map(InexactTetrapolarSystem::toExact).mapToDouble(s -> Math.max(s.getS(), s.getL())).max().orElseThrow();
+    double h = dim * hToDim;
+    double dh = -0.0001 * dim;
 
-    DoubleFunction<double[]> rOhms = hx -> Arrays.stream(systems2)
+    DoubleFunction<double[]> rOhms = hx -> Arrays.stream(systems)
         .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, 1.0 / Layers.getRho1ToRho2(k), hx))
         .toArray();
 
     var medium = Inverse.inverseDynamic(
-        TetrapolarDerivativeMeasurement.of(systems2, rOhms.apply(h), rOhms.apply(h + dh), dh)
+        TetrapolarDerivativeMeasurement.of(systems, rOhms.apply(h), rOhms.apply(h + dh), dh)
     );
-    Assert.assertEquals(K.applyAsDouble(errorsScale),
-        (medium.k12().getAbsError() / medium.k12().getValue()) / (0.1 / 50.0), 5.0, medium.toString());
-    Assert.assertEquals(H.applyAsDouble(errorsScale),
-        (medium.h().getAbsError() / Metrics.fromMilli(50.0)) / (0.1 / 50.0), 0.5, medium.toString());
+
+    if (Double.compare(k, 0.0) == 0) {
+      Assert.assertEquals(K.applyAsDouble(errorsScale),
+          (medium.k12().getAbsError() / medium.k12().getValue()) / (absError / dim),
+          0.01,
+          "%n%s%n%s".formatted(errorsScale, medium));
+    }
+    else {
+      Assert.assertEquals(
+          Inequality.proportional().applyAsDouble(
+              (medium.k12().getAbsError() / medium.k12().getValue()) / (absError / dim),
+              K.applyAsDouble(errorsScale)
+          ), 0.1, 0.1,
+          "%n%s%n%s".formatted(errorsScale, medium));
+
+      Assert.assertEquals(
+          Inequality.proportional().applyAsDouble(medium.h().getAbsError() / absError,
+              H.applyAsDouble(errorsScale)), 0.1, 0.1,
+          "%n%s%n%s".formatted(errorsScale, medium));
+    }
   }
 
   @Nonnull
