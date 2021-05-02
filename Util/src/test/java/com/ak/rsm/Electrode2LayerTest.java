@@ -58,10 +58,11 @@ public class Electrode2LayerTest {
         },
         {
             Layers.getK12(1.0, 4.0),
-            new InexactTetrapolarSystem[] {
-                InexactTetrapolarSystem.milli(0.1).s(20.0).l(60.0),
-                InexactTetrapolarSystem.milli(0.1).s(100.0).l(60.0),
-            }
+            systems2(0.1, 10.0)
+        },
+        {
+            Layers.getK12(4.0, 1.0),
+            systems2(0.1, 10.0)
         },
         {
             Layers.getK12(1.0, 4.0),
@@ -102,7 +103,7 @@ public class Electrode2LayerTest {
     else {
       Assert.assertEquals(
           Inequality.proportional().applyAsDouble(
-              (medium.k12().getAbsError() / medium.k12().getValue()) / (absError / dim),
+              Math.abs((medium.k12().getAbsError() / medium.k12().getValue()) / (absError / dim)),
               K.applyAsDouble(errorsScale)
           ), 0.1, 0.1,
           "%n%s%n%s".formatted(errorsScale, medium));
