@@ -58,17 +58,17 @@ public class Electrode2LayerTest {
         },
         {
             Layers.getK12(1.0, 4.0),
-            systems2(0.1, 10.0)
+            systems2(0.01, 10.0)
         },
         {
             Layers.getK12(4.0, 1.0),
-            systems2(0.1, 10.0)
+            systems2(0.01, 10.0)
         },
         {
             Layers.getK12(1.0, 4.0),
             new InexactTetrapolarSystem[] {
-                InexactTetrapolarSystem.milli(0.1).s(20.0).l(100.0),
-                InexactTetrapolarSystem.milli(0.1).s(60.0).l(100.0),
+                InexactTetrapolarSystem.milli(0.01).s(60.0).l(20.0),
+                InexactTetrapolarSystem.milli(0.01).s(100.0).l(20.0),
             }
         },
     };

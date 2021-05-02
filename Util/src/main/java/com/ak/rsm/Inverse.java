@@ -81,10 +81,10 @@ enum Inverse {
         @Override
         public Double k12() {
           if (measurements.stream().allMatch(d -> d.getDerivativeResistivity() > 0)) {
-            return -1.0;
+            return -0.5;
           }
           else if (measurements.stream().allMatch(d -> d.getDerivativeResistivity() < 0)) {
-            return 1.0;
+            return 0.5;
           }
           else if (measurements.stream().anyMatch(d -> d.getDerivativeResistivity() > 0) &&
               measurements.stream().anyMatch(d -> d.getDerivativeResistivity() < 0)) {
