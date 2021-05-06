@@ -8,7 +8,6 @@ import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -41,8 +40,8 @@ public class Electrode2LayerTest {
         .saveTo("k1", K::applyAsDouble)
         .generate();
 
-    CSVLineFileBuilder.of((hToDim, k) -> errorsScaleStatic(new double[] {0.2, 0.6}, k, hToDim))
-        .xStream(() -> DoubleStream.of(0.5))
+    CSVLineFileBuilder.of((hToDim, k) -> errorsScaleStatic(new double[] {10.0 / 30.0, 50.0 / 30.0}, k, hToDim))
+        .xRange(0.1, 1.0, 0.1)
         .yRange(-1.0, 1.0, 0.1)
         .saveTo("h2", H::applyAsDouble)
         .saveTo("k2", K::applyAsDouble)

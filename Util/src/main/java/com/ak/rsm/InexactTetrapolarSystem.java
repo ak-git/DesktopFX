@@ -2,6 +2,7 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.DoubleUnaryOperator;
@@ -134,7 +135,7 @@ final class InexactTetrapolarSystem {
   }
 
   @Nonnull
-  static Collection<Collection<InexactTetrapolarSystem>> getMeasurementsCombination(@Nonnull Collection<InexactTetrapolarSystem> systems) {
+  static Collection<Collection<InexactTetrapolarSystem>> getMeasurementsCombination(@Nonnull List<InexactTetrapolarSystem> systems) {
     ToLongFunction<Collection<InexactTetrapolarSystem>> distinctSizes =
         ts -> ts.stream().flatMap(s -> DoubleStream.of(s.toExact().getS(), s.toExact().getL()).boxed()).distinct().count();
     var initialSizes = distinctSizes.applyAsLong(systems.stream().collect(Collectors.toUnmodifiableList()));
@@ -149,6 +150,16 @@ final class InexactTetrapolarSystem {
               .collect(Collectors.toUnmodifiableList());
         })
         .filter(s -> initialSizes == distinctSizes.applyAsLong(s))
+        .filter(s -> {
+          for (var i = 0; i < systems.size(); i++) {
+            TetrapolarSystem sBefore = systems.get(i).toExact();
+            TetrapolarSystem sAfter = s.get(i).toExact();
+            if (Double.compare(Math.signum(sBefore.getS() - sAfter.getS()), Math.signum(sBefore.getL() - sAfter.getL())) != 0) {
+              return true;
+            }
+          }
+          return false;
+        })
         .collect(Collectors.toUnmodifiableList());
   }
 
