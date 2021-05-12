@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.optim.InitialGuess;
@@ -26,9 +26,10 @@ public enum Simplex {
   private static final double STOP_FITNESS = 1.0e-10;
   private static final int MAX_ITERATIONS = 300000;
 
-  public static PointValuePair optimizeCMAES(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
-                                             @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
-    return IntStream.range(0, 2)
+  @ParametersAreNonnullByDefault
+  public static PointValuePair optimizeCMAES(MultivariateFunction function, SimpleBounds bounds,
+                                             double[] initialGuess, double[] initialSteps) {
+    return IntStream.range(0, 1)
         .mapToObj(value -> {
               try {
                 return new CMAESOptimizer(MAX_ITERATIONS, STOP_FITNESS, true, 0,
@@ -53,8 +54,9 @@ public enum Simplex {
         .parallel().min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
 
-  public static PointValuePair optimize(@Nonnull MultivariateFunction function, @Nonnull SimpleBounds bounds,
-                                        @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
+  @ParametersAreNonnullByDefault
+  public static PointValuePair optimize(MultivariateFunction function, SimpleBounds bounds,
+                                        double[] initialGuess, double[] initialSteps) {
     return optimize(point -> {
       for (var i = 0; i < point.length; i++) {
         if (bounds.getLower()[i] > point[i] || bounds.getUpper()[i] < point[i]) {
@@ -65,8 +67,8 @@ public enum Simplex {
     }, initialGuess, initialSteps);
   }
 
-  private static PointValuePair optimize(@Nonnull MultivariateFunction function,
-                                         @Nonnull double[] initialGuess, @Nonnull double[] initialSteps) {
+  @ParametersAreNonnullByDefault
+  private static PointValuePair optimize(MultivariateFunction function, double[] initialGuess, double[] initialSteps) {
     return new SimplexOptimizer(STOP_FITNESS, STOP_FITNESS).optimize(new MaxEval(MAX_ITERATIONS), new ObjectiveFunction(function), GoalType.MINIMIZE,
         new NelderMeadSimplex(initialSteps), new InitialGuess(initialGuess));
   }
