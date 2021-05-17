@@ -27,7 +27,7 @@ import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 
-public final class CSVLineFileCollector implements Collector<Object, CSVPrinter, Boolean>, Closeable, Consumer<Object[]> {
+public final class CSVLineFileCollector implements Collector<Object[], CSVPrinter, Boolean>, Closeable, Consumer<Object[]> {
   @Nullable
   private CSVPrinter csvPrinter;
   private boolean errorFlag;
@@ -64,8 +64,8 @@ public final class CSVLineFileCollector implements Collector<Object, CSVPrinter,
   }
 
   @Override
-  public BiConsumer<CSVPrinter, Object> accumulator() {
-    return (p, object) -> accept(new Object[] {object});
+  public BiConsumer<CSVPrinter, Object[]> accumulator() {
+    return (p, objects) -> accept(objects);
   }
 
   @Override

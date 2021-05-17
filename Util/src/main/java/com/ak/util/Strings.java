@@ -36,7 +36,7 @@ public enum Strings {
     return (char) ((int) '\u2080' + index);
   }
 
-  public static String rho(@Nullable Object rho, @Nonnegative int index) {
+  public static String rho(@Nonnegative int index, @Nullable Object rho) {
     if (rho == null) {
       return "%s%s, %s".formatted(RHO, low(index), OHM_METRE);
     }

@@ -3,4 +3,5 @@ dependencies {
     implementation javax_json
     implementation commons_math3
     implementation commons_csv
+    implementation jenetics
 }

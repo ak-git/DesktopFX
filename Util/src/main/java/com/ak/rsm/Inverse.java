@@ -1,10 +1,8 @@
 package com.ak.rsm;
 
 import java.util.Collection;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.ToDoubleBiFunction;
-import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -33,18 +31,6 @@ enum Inverse {
   @Nonnull
   static MediumLayers<ValuePair> inverseStatic(@Nonnull Collection<Measurement> measurements) {
     if (measurements.size() > 2) {
-      RelativeMediumLayers<Double> initial = new RelativeMediumLayers<>() {
-        @Override
-        public Double k12() {
-          return 0.0;
-        }
-
-        @Override
-        public Double h() {
-          return getMaxHToL(measurements);
-        }
-      };
-
       UnaryOperator<double[]> subtract = values -> {
         var sub = new double[values.length - 1];
         for (var i = 0; i < sub.length; i++) {
@@ -55,14 +41,14 @@ enum Inverse {
 
       Function<Collection<Measurement>, Layer2Medium<Double>> layer2MediumFunction =
           ms -> {
-            RelativeMediumLayers<Double> kh = inverseStaticRelative(ms, initial, subtract);
+            RelativeMediumLayers<Double> kh = inverseStaticRelative(ms, subtract);
             double rho1 = getRho1(ms, kh);
             return new Layer2Medium.DoubleLayer2MediumBuilder(
                 ms.stream().map(m -> new TetrapolarPrediction(m, kh, rho1)).collect(Collectors.toUnmodifiableList()))
                 .layer1(rho1, kh.h()).k12(kh.k12()).build();
           };
 
-      return getPairLayer2Medium(measurements, layer2MediumFunction, Measurement::newInstance);
+      return getPairLayer2Medium(measurements, layer2MediumFunction);
     }
     else {
       Measurement average = measurements.stream().reduce(Measurement::merge).orElseThrow();
@@ -81,10 +67,10 @@ enum Inverse {
         @Override
         public Double k12() {
           if (measurements.stream().allMatch(d -> d.getDerivativeResistivity() > 0)) {
-            return -0.5;
+            return -1.0;
           }
           else if (measurements.stream().allMatch(d -> d.getDerivativeResistivity() < 0)) {
-            return 0.5;
+            return 1.0;
           }
           else if (measurements.stream().anyMatch(d -> d.getDerivativeResistivity() > 0) &&
               measurements.stream().anyMatch(d -> d.getDerivativeResistivity() < 0)) {
@@ -110,7 +96,7 @@ enum Inverse {
                 .layer1(rho1, kh.h()).k12(kh.k12()).build();
           };
 
-      return getPairLayer2Medium(measurements, layer2MediumFunction, DerivativeMeasurement::newInstance);
+      return getPairLayer2Medium(measurements, layer2MediumFunction);
     }
     else {
       return inverseStatic(measurements.stream().collect(Collectors.<Measurement>toUnmodifiableList()));
@@ -121,39 +107,42 @@ enum Inverse {
   @ParametersAreNonnullByDefault
   static <T extends Measurement> Layer2Medium<ValuePair> getPairLayer2Medium(
       Collection<T> measurements,
-      Function<Collection<T>, Layer2Medium<Double>> layer2MediumFunction,
-      BiFunction<T, InexactTetrapolarSystem, T> newInstanceMeasurement) {
+      Function<Collection<T>, Layer2Medium<Double>> layer2MediumFunction) {
 
     Layer2Medium<Double> center = layer2MediumFunction.apply(measurements);
-    return Measurement.getMeasurementsCombination(measurements, newInstanceMeasurement)
-        .stream()
-        .map(layer2MediumFunction)
-        .map(m -> {
-          Function<ToDoubleFunction<Layer2Medium<Double>>, ValuePair> getVar =
-              f -> {
-                var c = f.applyAsDouble(center);
-                return new ValuePair(c, Inequality.absolute().applyAsDouble(f.applyAsDouble(m), c));
-              };
-          return new Layer2Medium.Layer2MediumBuilder(center.getPredictions())
-              .layer1(getVar.apply(MediumLayers::rho1), getVar.apply(MediumLayers::h))
-              .layer2(getVar.apply(MediumLayers::rho2))
-              .k12(getVar.apply(MediumLayers::k12))
-              .build();
-        })
-        .parallel()
-        .reduce((m1, m2) -> {
-          ToDoubleFunction<Function<Layer2Medium<ValuePair>, ValuePair>> getVar =
-              f -> Math.max(f.apply(m1).getAbsError(), f.apply(m2).getAbsError());
-          return new Layer2Medium.Layer2MediumBuilder(center.getPredictions())
-              .layer1(
-                  new ValuePair(center.rho1(), getVar.applyAsDouble(MediumLayers::rho1)),
-                  new ValuePair(center.h(), getVar.applyAsDouble(Layer2Medium::h))
-              )
-              .layer2(new ValuePair(center.rho2(), getVar.applyAsDouble(MediumLayers::rho2)))
-              .k12(new ValuePair(center.k12(), getVar.applyAsDouble(MediumLayers::k12)))
-              .build();
-        })
-        .orElseThrow();
+
+    double minH = TetrapolarPrediction.mergeHorizons(center.getPredictions())[0];
+    double maxH = TetrapolarPrediction.mergeHorizons(center.getPredictions())[1];
+    if (center.h() < minH) {
+      return new Layer2Medium.Layer2MediumBuilder(center.getPredictions())
+          .layer1(
+              new ValuePair(center.rho2(), 0.0),
+              new ValuePair(0.0, 0.0)
+          )
+          .layer2(new ValuePair(center.rho2(), 0.0))
+          .k12(new ValuePair(0.0, 0.0))
+          .build();
+    }
+    else if (center.h() > maxH) {
+      return new Layer2Medium.Layer2MediumBuilder(center.getPredictions())
+          .layer1(
+              new ValuePair(center.rho1(), 0.0),
+              new ValuePair(0.0, 0.0)
+          )
+          .layer2(new ValuePair(center.rho1(), 0.0))
+          .k12(new ValuePair(0.0, 0.0))
+          .build();
+    }
+    else {
+      return new Layer2Medium.Layer2MediumBuilder(center.getPredictions())
+          .layer1(
+              new ValuePair(center.rho1(), 0.0),
+              new ValuePair(center.h(), 0.0)
+          )
+          .layer2(new ValuePair(center.rho2(), 0.0))
+          .k12(new ValuePair(center.k12(), 0.0))
+          .build();
+    }
   }
 
   @Nonnull
@@ -171,13 +160,13 @@ enum Inverse {
       return new Layer2RelativeMedium<>(Double.NaN, Double.NaN);
     }
     else {
-      return inverseStaticRelative(derivativeMeasurements, initialRelative, UnaryOperator.identity());
+      return inverseStaticRelative(derivativeMeasurements, UnaryOperator.identity());
     }
 
     double[] subLog = derivativeMeasurements.stream().mapToDouble(d -> d.getLogResistivity() - d.getDerivativeLogResistivity()).toArray();
     Function<double[], RelativeMediumLayers<Double>> layersFunction = newLayerFunction(derivativeMeasurements);
     double maxHToL = getMaxHToL(derivativeMeasurements);
-    PointValuePair kwOptimal = Simplex.optimize(
+    PointValuePair kwOptimal = Simplex.optimizeAll(
         kw -> {
           double[] subLogPredicted = derivativeMeasurements.stream()
               .map(Measurement::getSystem)
@@ -189,8 +178,7 @@ enum Inverse {
               .toArray();
           return Inequality.absolute().applyAsDouble(subLog, subLogPredicted);
         },
-        new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], maxHToL + 0.01}),
-        new double[] {initialRelative.k12(), initialRelative.h()}, new double[] {0.01 * Math.signum(initialRelative.k12()), 0.01}
+        new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], maxHToL}), new double[] {0.01, 0.01}
     );
 
     RelativeMediumLayers<Double> layers = layersFunction.apply(kwOptimal.getPoint());
@@ -199,14 +187,11 @@ enum Inverse {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  static RelativeMediumLayers<Double> inverseStaticRelative(Collection<? extends Measurement> measurements,
-                                                            RelativeMediumLayers<Double> initialRelative,
-                                                            UnaryOperator<double[]> subtract) {
+  static RelativeMediumLayers<Double> inverseStaticRelative(Collection<? extends Measurement> measurements, UnaryOperator<double[]> subtract) {
     double[] subLogApparent = subtract.apply(measurements.stream().mapToDouble(Measurement::getLogResistivity).toArray());
     Function<double[], RelativeMediumLayers<Double>> layersFunction = newLayerFunction(measurements);
     double maxHToL = getMaxHToL(measurements);
-    PointValuePair kwOptimal = Simplex.optimizeCMAES(
-        kw -> {
+    PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
           double[] subLogApparentPredicted = subtract.apply(
               measurements.stream()
                   .map(Measurement::getSystem)
@@ -216,8 +201,7 @@ enum Inverse {
           );
           return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
         },
-        new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {1.0, maxHToL + 0.01}),
-        new double[] {initialRelative.k12(), initialRelative.h()}, new double[] {0.01, 0.01}
+        new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {1.0, maxHToL}), new double[] {0.01, 0.01}
     );
     RelativeMediumLayers<Double> layers = layersFunction.apply(kwOptimal.getPoint());
     return new Layer2RelativeMedium<>(layers.k12(), layers.h());

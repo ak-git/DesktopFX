@@ -101,14 +101,13 @@ public class InexactTetrapolarSystemTest {
     InexactTetrapolarSystem system = InexactTetrapolarSystem.milli(0.1).s(10.0).l(30.0);
     DoubleUnaryOperator rhoAtHMax = sign -> (1.0 + Math.signum(sign) * system.getApparentRelativeError()) * rho1;
     TetrapolarSystem exact = system.toExact();
-    PointValuePair optimize = Simplex.optimize(hToL -> {
+    PointValuePair optimize = Simplex.optimizeAll(hToL -> {
           double rhoApparent = exact.getApparent(new Resistance2Layer(exact).value(rho1, rho2, hToL[0] * exact.getL()));
           return DoubleStream.of(-1.0, 1.0)
               .map(sign -> Inequality.absolute().applyAsDouble(rhoAtHMax.applyAsDouble(sign), rhoApparent))
               .min().orElseThrow();
         },
-        new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / exact.getL()}),
-        new double[] {0.0}, new double[] {0.01}
+        new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / exact.getL()}), new double[] {0.01}
     );
     Assert.assertEquals(optimize.getPoint()[0], system.getHMax(Layers.getK12(rho1, rho2)) / exact.getL(),
         0.1, system.toString());
@@ -120,14 +119,13 @@ public class InexactTetrapolarSystemTest {
       InexactTetrapolarSystem system = InexactTetrapolarSystem.milli(0.1).s(10.0).l(30.0);
       DoubleUnaryOperator rhoAtHMin = sign -> (1.0 + Math.signum(sign) * system.getApparentRelativeError()) * rho2;
       TetrapolarSystem exact = system.toExact();
-      PointValuePair optimize = Simplex.optimize(hToL -> {
+      PointValuePair optimize = Simplex.optimizeAll(hToL -> {
             double rhoApparent = exact.getApparent(new Resistance2Layer(exact).value(rho1, rho2, hToL[0] * exact.getL()));
             return DoubleStream.of(-1.0, 1.0)
                 .map(sign -> Inequality.absolute().applyAsDouble(rhoAtHMin.applyAsDouble(sign), rhoApparent))
                 .min().orElseThrow();
           },
-          new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / exact.getL()}),
-          new double[] {0.0}, new double[] {0.01}
+          new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / exact.getL()}), new double[] {0.01}
       );
       Assert.assertEquals(optimize.getPoint()[0], system.getHMin(Layers.getK12(rho1, rho2)) / exact.getL(),
           0.01, system.toString());

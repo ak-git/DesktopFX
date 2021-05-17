@@ -123,7 +123,7 @@ public class Electrode2LayerTest {
 
   @Nonnull
   private static RelativeMediumLayers<ValuePair> errorsScaleStatic(@Nonnull double[] sToL, double k, @Nonnegative double hToDim) {
-    return errorsScale(sToL, k, hToDim, m -> Inverse.inverseStaticRelative(m, initialRelative(sToL, k, hToDim), UnaryOperator.identity()));
+    return errorsScale(sToL, k, hToDim, m -> Inverse.inverseStaticRelative(m, UnaryOperator.identity()));
   }
 
   @Nonnull
@@ -210,6 +210,6 @@ public class Electrode2LayerTest {
               .layer1(rho1, kh.h()).k12(kh.k12()).build();
         };
 
-    return Inverse.getPairLayer2Medium(measurements, layer2MediumFunction, DerivativeMeasurement::newInstance);
+    return Inverse.getPairLayer2Medium(measurements, layer2MediumFunction);
   }
 }

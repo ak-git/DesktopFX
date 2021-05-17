@@ -79,7 +79,7 @@ public class CSVLineFileCollectorTest {
 
   @Test(dataProvider = "stream")
   public void testVertical(@Nonnull Supplier<Stream<String>> stream) throws IOException {
-    Assert.assertTrue(stream.get().collect(new CSVLineFileCollector(OUT_PATH, "header")));
+    Assert.assertTrue(stream.get().map(s -> new Object[] {s}).collect(new CSVLineFileCollector(OUT_PATH, "header")));
     Assert.assertEquals(String.join(Strings.EMPTY, Files.readAllLines(OUT_PATH, Charset.forName("windows-1251"))),
         Stream.concat(Stream.of("header"), stream.get()).collect(Collectors.joining()));
     Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
@@ -89,7 +89,7 @@ public class CSVLineFileCollectorTest {
   public void testInvalidClose(@Nonnull Supplier<Stream<String>> stream) throws Throwable {
     CSVLineFileCollector collector = new CSVLineFileCollector(OUT_PATH);
     collector.close();
-    Assert.assertFalse(stream.get().collect(collector));
+    Assert.assertFalse(stream.get().map(s -> new Object[] {s}).collect(collector));
     Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown");
     collector.close();
     Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown only once");
@@ -123,8 +123,8 @@ public class CSVLineFileCollectorTest {
 
   @Test(dataProvider = "invalid-writer")
   public void testInvalidFinisher(@Nonnull CSVPrinter printer) {
-    Collector<Object, CSVPrinter, Boolean> collector = new CSVLineFileCollector(OUT_PATH);
-    collector.accumulator().accept(printer, Double.toString(Math.PI));
+    Collector<Object[], CSVPrinter, Boolean> collector = new CSVLineFileCollector(OUT_PATH);
+    collector.accumulator().accept(printer, new Object[] {Double.toString(Math.PI)});
     Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
     collector.finisher().apply(printer);
     Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown");

@@ -7,21 +7,22 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.math.ValuePair;
 import com.ak.util.CSVLineFileCollector;
+import com.ak.util.Extension;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -30,7 +31,6 @@ import tec.uom.se.unit.Units;
 
 import static com.ak.rsm.InexactTetrapolarSystem.systems2;
 import static com.ak.rsm.InexactTetrapolarSystem.toInexact;
-import static com.ak.util.Strings.PLUS_MINUS;
 import static com.ak.util.Strings.low;
 
 public class InverseLayer2Test {
@@ -58,6 +58,16 @@ public class InverseLayer2Test {
             new ValuePair[] {
                 new ValuePair(10.0, 3.3),
                 new ValuePair(1.0, 1.0),
+                new ValuePair(Metrics.fromMilli(10.0), Metrics.fromMilli(3.1))
+            }
+        },
+        {
+            systems3,
+            Arrays.stream(systems3)
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, 10.0, Metrics.fromMilli(10.0))).toArray(),
+            new ValuePair[] {
+                new ValuePair(1.0, 3.3),
+                new ValuePair(10.0, 1.0),
                 new ValuePair(Metrics.fromMilli(10.0), Metrics.fromMilli(3.1))
             }
         },
@@ -230,49 +240,52 @@ public class InverseLayer2Test {
     LOGGER.info(medium::toString);
   }
 
-  @Test(enabled = false)
+  @Test
   public void testInverseDynamicLayerFile() {
     String T = "TIME, s";
-    String R1 = "R1, mΩ";
-    String R2 = "R2, mΩ";
+    String R1_BEFORE = "R1, Ω";
+    String R1_AFTER = "R1`, Ω";
+    String R2_BEFORE = "R2, Ω";
+    String R2_AFTER = "R2`, Ω";
     String POS = "POSITION, µm";
 
-    String RHO_1 = Strings.rho(null, 1);
-    String RHO_2 = Strings.rho(null, 2);
+    String RHO_1 = Strings.rho(1, null);
+    String RHO_2 = Strings.rho(2, null);
     String H = "h, %s".formatted(MetricPrefix.MILLI(Units.METRE));
+    String L2 = "L" + low(2);
 
     InexactTetrapolarSystem[] systems = systems2(0.1, 7.0);
 
-    Path path = Paths.get("2021-04-12 20-08-08.csv");
-    try (CSVParser parser = CSVParser.parse(new BufferedReader(new FileReader(path.toFile())),
-        CSVFormat.DEFAULT.withHeader(T, R1, R2, "CCR, Ω", POS))) {
-      List<CSVRecord> records = parser.getRecords();
-      CSVLineFileCollector collector = new CSVLineFileCollector(Paths.get("inverse " + path), T, POS,
-          RHO_1, PLUS_MINUS + RHO_1,
-          RHO_2, PLUS_MINUS + RHO_2,
-          "k", PLUS_MINUS + "k",
-          H, PLUS_MINUS + H,
-          "L" + low(2)
-      );
-      for (int i = 1; i < records.size() - 1; i++) {
-        CSVRecord record1 = records.get(i);
-        CSVRecord record2 = records.get(i + 1);
-        double[] rOhms = {Double.parseDouble(record1.get(R1)) / 1000.0, Double.parseDouble(record1.get(R2)) / 1000.0};
-        double[] rOhmsAfter = {Double.parseDouble(record2.get(R1)) / 1000.0, Double.parseDouble(record2.get(R2)) / 1000.0};
-        double dh = Metrics.fromMilli((Double.parseDouble(record2.get(POS)) - Double.parseDouble(record1.get(POS))) / 1000.0);
-        var medium = Inverse.inverseDynamic(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
-        LOGGER.info(() -> "%.2f sec; %s µm; %s".formatted(Double.parseDouble(record1.get(T)), record1.get(POS), medium));
-        if (medium.getL2() < 1.0) {
-          collector.accept(new Object[] {record1.get(T), record1.get(POS),
-              medium.rho1().getValue(), medium.rho1().getAbsError(),
-              medium.rho2().getValue(), medium.rho2().getAbsError(),
-              medium.k12().getValue(), medium.k12().getAbsError(),
-              Metrics.toMilli(medium.h().getValue()), Metrics.toMilli(medium.h().getAbsError()),
-              medium.getL2()
-          });
-        }
-      }
-      collector.close();
+    String fileName = "2021-05-12 19-03-11";
+    Path path = Paths.get(Extension.CSV.attachTo(fileName));
+    String[] HEADERS = {T, POS, RHO_1, RHO_2, H, L2};
+    try (CSVParser parser = CSVParser.parse(
+        new BufferedReader(new FileReader(path.toFile())),
+        CSVFormat.DEFAULT.withHeader(T, R1_BEFORE, R1_AFTER, R2_BEFORE, R2_AFTER, POS));
+         CSVLineFileCollector collector = new CSVLineFileCollector(
+             Paths.get(Extension.CSV.attachTo("%s inverse".formatted(fileName))),
+             HEADERS
+         )
+    ) {
+      Assert.assertTrue(StreamSupport.stream(parser.spliterator(), false)
+          .filter(r -> r.getRecordNumber() > 1)
+          .map(r -> {
+            double[] rOhms = {Double.parseDouble(r.get(R1_BEFORE)), Double.parseDouble(r.get(R2_BEFORE))};
+            double[] rOhmsAfter = {Double.parseDouble(r.get(R1_AFTER)), Double.parseDouble(r.get(R2_AFTER))};
+            double dh = Metrics.fromMilli(Double.parseDouble(r.get(POS)) / 1000.0);
+            var medium = Inverse.inverseDynamic(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
+            LOGGER.info(() -> "%.2f sec; %s µm; %s".formatted(Double.parseDouble(r.get(T)), r.get(POS), medium));
+            return Map.ofEntries(
+                Map.entry(T, r.get(T)),
+                Map.entry(POS, r.get(POS)),
+                Map.entry(RHO_1, medium.rho1().getValue()),
+                Map.entry(RHO_2, medium.rho2().getValue()),
+                Map.entry(H, Metrics.toMilli(medium.h().getValue())),
+                Map.entry(L2, medium.getL2())
+            );
+          })
+          .map(stringMap -> Arrays.stream(HEADERS).map(stringMap::get).toArray())
+          .collect(collector));
     }
     catch (IOException ex) {
       Logger.getLogger(getClass().getName()).log(Level.WARNING, path.toAbsolutePath().toString(), ex);
