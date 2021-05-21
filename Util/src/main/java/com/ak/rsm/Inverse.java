@@ -110,39 +110,14 @@ enum Inverse {
       Function<Collection<T>, Layer2Medium<Double>> layer2MediumFunction) {
 
     Layer2Medium<Double> center = layer2MediumFunction.apply(measurements);
-
-    double minH = TetrapolarPrediction.mergeHorizons(center.getPredictions())[0];
-    double maxH = TetrapolarPrediction.mergeHorizons(center.getPredictions())[1];
-    if (center.h() < minH) {
-      return new Layer2Medium.Layer2MediumBuilder(center.getPredictions())
-          .layer1(
-              new ValuePair(center.rho2(), 0.0),
-              new ValuePair(0.0, 0.0)
-          )
-          .layer2(new ValuePair(center.rho2(), 0.0))
-          .k12(new ValuePair(0.0, 0.0))
-          .build();
-    }
-    else if (center.h() > maxH) {
-      return new Layer2Medium.Layer2MediumBuilder(center.getPredictions())
-          .layer1(
-              new ValuePair(center.rho1(), 0.0),
-              new ValuePair(0.0, 0.0)
-          )
-          .layer2(new ValuePair(center.rho1(), 0.0))
-          .k12(new ValuePair(0.0, 0.0))
-          .build();
-    }
-    else {
-      return new Layer2Medium.Layer2MediumBuilder(center.getPredictions())
-          .layer1(
-              new ValuePair(center.rho1(), 0.0),
-              new ValuePair(center.h(), 0.0)
-          )
-          .layer2(new ValuePair(center.rho2(), 0.0))
-          .k12(new ValuePair(center.k12(), 0.0))
-          .build();
-    }
+    return new Layer2Medium.Layer2MediumBuilder(center.getPredictions())
+        .layer1(
+            new ValuePair(center.rho1(), 0.0),
+            new ValuePair(center.h(), 0.0)
+        )
+        .layer2(new ValuePair(center.rho2(), 0.0))
+        .k12(new ValuePair(center.k12(), 0.0))
+        .build();
   }
 
   @Nonnull

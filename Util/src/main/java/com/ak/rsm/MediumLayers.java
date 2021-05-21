@@ -18,5 +18,5 @@ interface MediumLayers<D> extends RelativeMediumLayers<D> {
   }
 
   @Nonnegative
-  double getL2();
+  double getInequalityL2();
 }

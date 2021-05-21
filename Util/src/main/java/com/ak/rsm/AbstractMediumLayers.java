@@ -28,7 +28,7 @@ abstract class AbstractMediumLayers<D, T extends AbstractMediumLayers<D, T>> imp
   }
 
   @Override
-  public final double getL2() {
+  public final double getInequalityL2() {
     return predictions.stream().map(Prediction::getInequalityL2).reduce(StrictMath::hypot).orElse(Double.NaN);
   }
 
@@ -42,7 +42,7 @@ abstract class AbstractMediumLayers<D, T extends AbstractMediumLayers<D, T>> imp
   public String toString() {
     return "%s; L%s = %.2f %% %n%s".formatted(
         TetrapolarPrediction.toStringHorizons(TetrapolarPrediction.mergeHorizons(predictions)),
-        Strings.low(2), Metrics.toPercents(getL2()),
+        Strings.low(2), Metrics.toPercents(getInequalityL2()),
         predictions.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)));
   }
 
