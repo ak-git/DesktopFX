@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 
 interface Prediction {
   @Nonnegative
-  double getInequalityL2();
+  double[] getInequalityL2();
 
   @Nonnegative
   double getResistivityPredicted();

@@ -1,5 +1,6 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -28,8 +29,15 @@ abstract class AbstractMediumLayers<D, T extends AbstractMediumLayers<D, T>> imp
   }
 
   @Override
-  public final double getInequalityL2() {
-    return predictions.stream().map(Prediction::getInequalityL2).reduce(StrictMath::hypot).orElse(Double.NaN);
+  public final double[] getInequalityL2() {
+    return predictions.stream().map(Prediction::getInequalityL2)
+        .reduce((doubles, doubles2) -> {
+          var merge = new double[Math.max(doubles.length, doubles2.length)];
+          for (var i = 0; i < merge.length; i++) {
+            merge[i] = StrictMath.hypot(doubles[i], doubles2[i]);
+          }
+          return merge;
+        }).orElseThrow();
   }
 
   @Nonnull
@@ -40,9 +48,10 @@ abstract class AbstractMediumLayers<D, T extends AbstractMediumLayers<D, T>> imp
   @Override
   @OverridingMethodsMustInvokeSuper
   public String toString() {
-    return "%s; L%s = %.2f %% %n%s".formatted(
+    return "%s; L%s = %s %% %n%s".formatted(
         TetrapolarPrediction.toStringHorizons(TetrapolarPrediction.mergeHorizons(predictions)),
-        Strings.low(2), Metrics.toPercents(getInequalityL2()),
+        Strings.low(2), Arrays.stream(getInequalityL2()).map(Metrics::toPercents).mapToObj("%.1f"::formatted).
+            collect(Collectors.joining("; ", "[", "]")),
         predictions.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)));
   }
 

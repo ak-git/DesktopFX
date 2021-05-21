@@ -1,5 +1,8 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
+import java.util.stream.DoubleStream;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -12,20 +15,21 @@ final class TetrapolarDerivativePrediction implements Prediction {
   private final Prediction prediction;
   private final double diffResistivityPredicted;
   @Nonnegative
-  private final double l2Diff;
+  private final double[] l2Diff;
 
   TetrapolarDerivativePrediction(@Nonnull DerivativeMeasurement measurement,
                                  @Nonnegative Prediction prediction, double diffResistivityPredicted) {
     this.prediction = prediction;
     this.diffResistivityPredicted = diffResistivityPredicted;
-    l2Diff = StrictMath.hypot(
-        Inequality.proportional().applyAsDouble(measurement.getDerivativeResistivity(), diffResistivityPredicted),
-        prediction.getInequalityL2());
+    l2Diff = DoubleStream.concat(
+        Arrays.stream(prediction.getInequalityL2()),
+        DoubleStream.of(Inequality.absolute().applyAsDouble(measurement.getDerivativeResistivity(), diffResistivityPredicted))
+    ).toArray();
   }
 
   @Override
-  public double getInequalityL2() {
-    return l2Diff;
+  public double[] getInequalityL2() {
+    return Arrays.copyOf(l2Diff, l2Diff.length);
   }
 
   @Override
