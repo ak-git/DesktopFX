@@ -79,6 +79,9 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
       catch (IOException e) {
         Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
       }
+      finally {
+        Logger.getLogger(getClass().getName()).info(() -> "Conversion finished");
+      }
     });
   }
 

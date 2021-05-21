@@ -56,6 +56,9 @@ public class ConverterApp implements AutoCloseable, Consumer<Path> {
     catch (IOException e) {
       LOGGER.log(Level.WARNING, e.getMessage(), e);
     }
+    finally {
+      LOGGER.info(() -> "Conversion finished");
+    }
   }
 
   @Override
