@@ -23,7 +23,7 @@ final class TetrapolarDerivativePrediction implements Prediction {
     this.diffResistivityPredicted = diffResistivityPredicted;
     l2Diff = DoubleStream.concat(
         Arrays.stream(prediction.getInequalityL2()),
-        DoubleStream.of(Inequality.absolute().applyAsDouble(measurement.getDerivativeResistivity(), diffResistivityPredicted))
+        DoubleStream.of(Inequality.proportional().applyAsDouble(measurement.getDerivativeResistivity(), diffResistivityPredicted))
     ).toArray();
   }
 

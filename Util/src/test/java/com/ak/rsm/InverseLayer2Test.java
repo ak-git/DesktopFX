@@ -80,7 +80,7 @@ public class InverseLayer2Test {
     Random random = new SecureRandom();
     MediumLayers<ValuePair> medium = Inverse.inverseStatic(
         TetrapolarMeasurement.of(systems,
-            Arrays.stream(rOhms).map(x -> x + random.nextGaussian() / x / 10.0).toArray()
+            Arrays.stream(rOhms).map(x -> x + random.nextGaussian() / x / 20.0).toArray()
         )
     );
     Assert.assertEquals(medium.rho1().getValue(), expected[0].getValue(), 0.1, medium.toString());

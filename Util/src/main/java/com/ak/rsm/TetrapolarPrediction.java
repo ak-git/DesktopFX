@@ -43,7 +43,7 @@ final class TetrapolarPrediction implements Prediction {
 
   @Override
   public double[] getInequalityL2() {
-    return new double[] {Inequality.absolute().applyAsDouble(measurement.getResistivity(), resistivityPredicted)};
+    return new double[] {Inequality.proportional().applyAsDouble(measurement.getResistivity(), resistivityPredicted)};
   }
 
   @Override
