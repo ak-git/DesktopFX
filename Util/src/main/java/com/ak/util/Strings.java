@@ -24,8 +24,8 @@ public enum Strings {
     return s.replace(ignore, EMPTY);
   }
 
-  public static String dRhoByH(double v) {
-    return "d\u03c1/dh = %.0f %s".formatted(v, OHM);
+  public static String dRhoByPhi(double v) {
+    return "d%s/d\u03C8 = %.3f %s".formatted(RHO, v, OHM_METRE);
   }
 
   public static String rho(@Nonnegative double rho) {

@@ -195,7 +195,7 @@ public class Electrode2LayerTest {
               @Override
               public String toString() {
                 return "%s; h = %.3f; %s; %s"
-                    .formatted(getSystem(), h(), Strings.rho(getResistivity()), Strings.dRhoByH(getDerivativeResistivity()));
+                    .formatted(getSystem(), h(), Strings.rho(getResistivity()), Strings.dRhoByPhi(getDerivativeResistivity()));
               }
             }
         )
