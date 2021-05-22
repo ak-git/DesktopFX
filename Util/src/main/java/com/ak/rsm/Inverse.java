@@ -26,7 +26,10 @@ enum Inverse {
       (s, kh) -> new Log1pApparent2Rho(s.toRelative()).value(kh.k12(), kh.h() / s.getL());
 
   private static final ToDoubleBiFunction<? super TetrapolarSystem, RelativeMediumLayers<Double>> LOG_DIFF_APPARENT_PREDICTED =
-      (s, kh) -> StrictMath.log(Math.abs(new DerivativeApparent2Rho(s).value(kh.k12(), kh.h() / s.getL())));
+      (s, kh) -> {
+        double value = new DerivativeApparent2Rho(s.toRelative()).value(kh.k12(), kh.h() / s.getL());
+        return StrictMath.log(Math.abs(value / s.getL()));
+      };
 
   @Nonnull
   static MediumLayers<ValuePair> inverseStatic(@Nonnull Collection<Measurement> measurements) {

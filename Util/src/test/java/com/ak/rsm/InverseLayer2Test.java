@@ -240,7 +240,7 @@ public class InverseLayer2Test {
     LOGGER.info(medium::toString);
   }
 
-  @Test
+  @Test(enabled = false)
   public void testInverseDynamicLayerFile() {
     String T = "TIME, s";
     String R1_BEFORE = "R1, Ω";

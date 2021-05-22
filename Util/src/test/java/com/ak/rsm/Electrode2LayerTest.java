@@ -174,7 +174,7 @@ public class Electrode2LayerTest {
 
               @Override
               public double getDerivativeResistivity() {
-                return new DerivativeApparent2Rho(system).value(k, h() / system.getL());
+                return new DerivativeApparent2Rho(system.toRelative()).value(k, h() / system.getL());
               }
 
               @Override
