@@ -2,7 +2,6 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -140,13 +139,13 @@ public class InexactTetrapolarSystemTest {
                 InexactTetrapolarSystem.milli(0.1).s(11.0).l(30.0),
                 InexactTetrapolarSystem.milli(0.1).s(50.0).l(30.0)
             ),
-            6
+            8
         },
     };
   }
 
   @Test(dataProvider = "combinations")
-  public void testCombinations(@Nonnull List<InexactTetrapolarSystem> systems, @Nonnegative int expected) {
+  public void testCombinations(@Nonnull Collection<InexactTetrapolarSystem> systems, @Nonnegative int expected) {
     Collection<Collection<InexactTetrapolarSystem>> c = InexactTetrapolarSystem.getMeasurementsCombination(systems);
     Assert.assertEquals(c.size(), expected, c.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)));
   }
