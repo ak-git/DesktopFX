@@ -32,8 +32,7 @@ final class TetrapolarPrediction implements Prediction {
     InexactTetrapolarSystem inexact = measurement.getSystem();
     if (Double.compare(layers.k12(), 0.0) != 0) {
       TetrapolarSystem system = inexact.toExact();
-      predicted = new NormalizedApparent2Rho(system.toRelative())
-          .value(layers.k12(), layers.h() / system.getL()) * rho1;
+      predicted = new NormalizedApparent2Rho(system.toRelative()).value(layers.k12(), layers.hToL()) * rho1;
     }
 
     this.measurement = measurement;

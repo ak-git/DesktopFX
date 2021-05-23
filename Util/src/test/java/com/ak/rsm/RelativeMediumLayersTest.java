@@ -11,6 +11,6 @@ public class RelativeMediumLayersTest {
 
   @Test
   public void testH() {
-    Assert.assertEquals(RelativeMediumLayers.SINGLE_LAYER.h(), Double.NaN, 0.1);
+    Assert.assertEquals(RelativeMediumLayers.SINGLE_LAYER.hToL(), Double.NaN, 0.1);
   }
 }

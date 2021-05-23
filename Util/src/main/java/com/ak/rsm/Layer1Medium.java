@@ -17,12 +17,7 @@ final class Layer1Medium extends AbstractMediumLayers<ValuePair, Layer1Medium> {
   }
 
   @Override
-  public ValuePair k12() {
-    return new ValuePair(0.0);
-  }
-
-  @Override
-  public ValuePair h() {
+  public ValuePair h1() {
     return new ValuePair(Double.NaN);
   }
 

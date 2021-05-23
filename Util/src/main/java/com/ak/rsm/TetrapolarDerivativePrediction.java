@@ -17,10 +17,10 @@ final class TetrapolarDerivativePrediction implements Prediction {
   @Nonnegative
   private final double[] l2Diff;
 
-  TetrapolarDerivativePrediction(@Nonnull DerivativeMeasurement measurement,
-                                 @Nonnegative Prediction prediction, double diffResistivityPredicted) {
-    this.prediction = prediction;
-    this.diffResistivityPredicted = diffResistivityPredicted;
+  @ParametersAreNonnullByDefault
+  TetrapolarDerivativePrediction(DerivativeMeasurement measurement, RelativeMediumLayers<Double> layers, @Nonnegative double rho1) {
+    prediction = new TetrapolarPrediction(measurement, layers, rho1);
+    diffResistivityPredicted = new DerivativeApparent2Rho(measurement.getSystem().toExact().toRelative()).value(layers.k12(), layers.hToL()) * rho1;
     l2Diff = DoubleStream.concat(
         Arrays.stream(prediction.getInequalityL2()),
         DoubleStream.of(Inequality.proportional().applyAsDouble(measurement.getDerivativeResistivity(), diffResistivityPredicted))
@@ -45,14 +45,5 @@ final class TetrapolarDerivativePrediction implements Prediction {
   @Override
   public String toString() {
     return "%s, %s".formatted(String.valueOf(prediction), Strings.dRhoByPhi(diffResistivityPredicted));
-  }
-
-  @Nonnull
-  @ParametersAreNonnullByDefault
-  static Prediction of(DerivativeMeasurement m, RelativeMediumLayers<Double> layers, @Nonnegative double rho1) {
-    TetrapolarSystem system = m.getSystem().toExact();
-    return new TetrapolarDerivativePrediction(m, new TetrapolarPrediction(m, layers, rho1),
-        new DerivativeApparent2Rho(system.toRelative()).value(layers.k12(), layers.h() / system.getL()) * rho1
-    );
   }
 }

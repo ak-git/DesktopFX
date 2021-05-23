@@ -3,9 +3,12 @@ package com.ak.rsm;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-interface MediumLayers<D> extends RelativeMediumLayers<D> {
+interface MediumLayers<D> {
   @Nonnull
   D rho();
+
+  @Nonnull
+  D h1();
 
   @Nonnull
   default D rho1() {

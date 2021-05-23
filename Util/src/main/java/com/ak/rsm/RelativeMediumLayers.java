@@ -10,7 +10,7 @@ interface RelativeMediumLayers<D> {
     }
 
     @Override
-    public Double h() {
+    public Double hToL() {
       return Double.NaN;
     }
   };
@@ -19,5 +19,5 @@ interface RelativeMediumLayers<D> {
   D k12();
 
   @Nonnull
-  D h();
+  D hToL();
 }

@@ -38,9 +38,8 @@ public class Layer1MediumTest {
 
   @Test(dataProvider = "layer1Medium")
   @ParametersAreNonnullByDefault
-  public void testH(RelativeMediumLayers<ValuePair> layers, ValuePair expected) {
-    Assert.assertEquals(layers.k12(), new ValuePair(0.0), layers.toString());
-    Assert.assertTrue(Double.isNaN(layers.h().getValue()));
+  public void testH(MediumLayers<ValuePair> layers, ValuePair expected) {
+    Assert.assertTrue(Double.isNaN(layers.h1().getValue()));
     Assert.assertNotNull(expected);
   }
 

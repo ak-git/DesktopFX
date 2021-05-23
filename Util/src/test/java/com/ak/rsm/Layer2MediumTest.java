@@ -15,11 +15,11 @@ public class Layer2MediumTest {
   @DataProvider(name = "layer2Medium")
   public static Object[][] layer2Medium() {
     return new Object[][] {
-        {new Layer2Medium.DoubleLayer2MediumBuilder(
+        {new Layer2Medium.Layer2MediumBuilder<Double>(
             TetrapolarMeasurement.of(systems4(0.1, 7.0), new double[] {1.0, 2.0, 3.0, 4.0}).stream()
                 .map(m -> new TetrapolarPrediction(m, RelativeMediumLayers.SINGLE_LAYER, 2.001))
                 .collect(Collectors.toList()))
-            .layer1(2.0012, Metrics.fromMilli(5.0)).k12(Layers.getK12(2.0012, 11.0)).build(),
+            .layer1(2.0012, Metrics.fromMilli(5.0)).layer2(10.999).build(),
             new double[] {2.001, 10.999, Metrics.fromMilli(5.0)}},
     };
   }
@@ -30,7 +30,7 @@ public class Layer2MediumTest {
     Assert.assertEquals(layers.rho(), expected[0], 0.001);
     Assert.assertEquals(layers.rho1(), expected[0], 0.001);
     Assert.assertEquals(layers.rho2(), expected[1], 0.001);
-    Assert.assertEquals(layers.h(), expected[2], 0.001);
+    Assert.assertEquals(layers.h1(), expected[2], 0.001);
   }
 
   @Test(dataProvider = "layer2Medium")

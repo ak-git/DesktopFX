@@ -37,10 +37,9 @@ public class PredictionTest {
 
     Assert.assertThrows(UnsupportedOperationException.class, () -> measurement.merge(measurement));
 
-    Prediction prediction = new TetrapolarDerivativePrediction(measurement,
-        new TetrapolarPrediction(measurement, RelativeMediumLayers.SINGLE_LAYER, 10.0), 1.0);
+    Prediction prediction = new TetrapolarDerivativePrediction(measurement, RelativeMediumLayers.SINGLE_LAYER, 10.0);
     Assert.assertEquals(prediction.getHorizons(), new double[] {Double.POSITIVE_INFINITY, 0.0}, prediction.toString());
-    Assert.assertEquals(prediction.getResistivityPredicted(), 1.0, 0.001, prediction.toString());
-    Assert.assertEquals(prediction.getInequalityL2(), new double[] {0.9, 1.0}, 0.001, prediction.toString());
+    Assert.assertEquals(prediction.getResistivityPredicted(), Double.NaN, 0.001, prediction.toString());
+    Assert.assertEquals(prediction.getInequalityL2(), new double[] {0.9, Double.NaN}, 0.001, prediction.toString());
   }
 }

@@ -17,6 +17,7 @@ public enum Strings {
   public static final String TAB = "\t";
   public static final String OHM_METRE = new StringBuilder(OHM.multiply(METRE).toString()).reverse().toString();
   public static final String PLUS_MINUS = "\u00B1";
+  public static final String PHI = "\u03C8";
   private static final String RHO = "\u03c1";
 
   public static String numberSuffix(@Nonnull String s) {
@@ -25,7 +26,7 @@ public enum Strings {
   }
 
   public static String dRhoByPhi(double v) {
-    return "d%s/d\u03C8 = %.3f %s".formatted(RHO, v, OHM_METRE);
+    return "d%s/d%s = %.3f %s".formatted(RHO, PHI, v, OHM_METRE);
   }
 
   public static String rho(@Nonnegative double rho) {
