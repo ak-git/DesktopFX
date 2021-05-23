@@ -10,7 +10,6 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import com.ak.inverse.Inequality;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import tec.uom.se.unit.MetricPrefix;
@@ -18,31 +17,21 @@ import tec.uom.se.unit.MetricPrefix;
 import static tec.uom.se.unit.Units.METRE;
 
 final class TetrapolarPrediction implements Prediction {
-  @Nonnull
-  private final Measurement measurement;
   @Nonnegative
   private final double resistivityPredicted;
   @Nonnull
   private final double[] horizons;
 
   @ParametersAreNonnullByDefault
-  TetrapolarPrediction(Measurement measurement, RelativeMediumLayers<Double> layers, @Nonnegative double rho1) {
+  TetrapolarPrediction(InexactTetrapolarSystem system, RelativeMediumLayers<Double> layers, @Nonnegative double rho1) {
     double predicted = rho1;
 
-    InexactTetrapolarSystem inexact = measurement.getSystem();
     if (Double.compare(layers.k12(), 0.0) != 0) {
-      TetrapolarSystem system = inexact.toExact();
-      predicted = new NormalizedApparent2Rho(system.toRelative()).value(layers.k12(), layers.hToL()) * rho1;
+      predicted = new NormalizedApparent2Rho(system.toExact().toRelative()).value(layers.k12(), layers.hToL()) * rho1;
     }
 
-    this.measurement = measurement;
     resistivityPredicted = predicted;
-    horizons = new double[] {inexact.getHMin(layers.k12()), inexact.getHMax(layers.k12())};
-  }
-
-  @Override
-  public double[] getInequalityL2() {
-    return new double[] {Inequality.proportional().applyAsDouble(measurement.getResistivity(), resistivityPredicted)};
+    horizons = new double[] {system.getHMin(layers.k12()), system.getHMax(layers.k12())};
   }
 
   @Override
@@ -57,7 +46,7 @@ final class TetrapolarPrediction implements Prediction {
 
   @Override
   public String toString() {
-    return "%s; predicted %s; %s".formatted(String.valueOf(measurement), Strings.rho(resistivityPredicted), toStringHorizons(horizons));
+    return "predicted %s; %s".formatted(Strings.rho(resistivityPredicted), toStringHorizons(horizons));
   }
 
   @Nonnull

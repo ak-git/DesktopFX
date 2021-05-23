@@ -15,6 +15,7 @@ import com.ak.math.ValuePair;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 
+import static com.ak.rsm.Measurement.getBaseL;
 import static com.ak.rsm.RelativeMediumLayers.SINGLE_LAYER;
 import static java.lang.StrictMath.exp;
 
@@ -33,25 +34,10 @@ enum Inverse {
       };
 
       RelativeMediumLayers<Double> kw = inverseStaticRelative(measurements, subtract);
-      double rho1 = getRho1(measurements, kw);
-      double rho2 = rho1 / Layers.getRho1ToRho2(kw.k12());
-
-      return new Layer2Medium.Layer2MediumBuilder<ValuePair>(
-          measurements.stream().map(m -> new TetrapolarPrediction(m, kw, rho1)).collect(Collectors.toUnmodifiableList()))
-          .layer1(
-              new ValuePair(rho1),
-              new ValuePair(kw.hToL() * getBaseL(measurements))
-          )
-          .layer2(new ValuePair(rho2))
-          .build();
+      return new Layer2Medium(measurements, kw, getRho1(measurements, kw));
     }
     else {
-      Measurement average = measurements.stream().reduce(Measurement::merge).orElseThrow();
-      return new Layer1Medium.Layer1MediumBuilder(
-          measurements.stream()
-              .map(m -> new TetrapolarPrediction(m, SINGLE_LAYER, average.getResistivity()))
-              .collect(Collectors.toUnmodifiableList()))
-          .layer1(average).build();
+      return new Layer1Medium(measurements);
     }
   }
 
@@ -59,17 +45,7 @@ enum Inverse {
   static MediumLayers<ValuePair> inverseDynamic(@Nonnull Collection<DerivativeMeasurement> measurements) {
     if (measurements.size() > 1) {
       RelativeMediumLayers<Double> kw = inverseDynamicRelative(measurements);
-      double rho1 = getRho1(measurements, kw);
-      double rho2 = rho1 / Layers.getRho1ToRho2(kw.k12());
-
-      return new Layer2Medium.Layer2MediumBuilder<ValuePair>(
-          measurements.stream().map(m -> new TetrapolarDerivativePrediction(m, kw, rho1)).collect(Collectors.toUnmodifiableList()))
-          .layer1(
-              new ValuePair(rho1),
-              new ValuePair(kw.hToL() * getBaseL(measurements))
-          )
-          .layer2(new ValuePair(rho2))
-          .build();
+      return new Layer2Medium(measurements, kw, getRho1(measurements, kw));
     }
     else {
       return inverseStatic(measurements.stream().collect(Collectors.<Measurement>toUnmodifiableList()));
@@ -158,10 +134,5 @@ enum Inverse {
   private static ToDoubleBiFunction<TetrapolarSystem, double[]> logDiffApparentPredicted(@Nonnull Collection<? extends Measurement> measurements) {
     double baseL = getBaseL(measurements);
     return (s, kw) -> StrictMath.log(Math.abs(new DerivativeApparent2Rho(s.toRelative()).value(kw[0], kw[1] * baseL / s.getL())));
-  }
-
-  @Nonnegative
-  private static double getBaseL(@Nonnull Collection<? extends Measurement> measurements) {
-    return measurements.parallelStream().mapToDouble(m -> m.getSystem().toExact().getL()).max().orElseThrow();
   }
 }

@@ -7,13 +7,19 @@ import javax.annotation.Nonnull;
 import com.ak.math.ValuePair;
 import com.ak.util.Strings;
 
-final class Layer1Medium extends AbstractMediumLayers<ValuePair, Layer1Medium> {
+final class Layer1Medium extends AbstractMediumLayers<Layer1Medium> {
   @Nonnull
-  private final Measurement measurement;
+  private final ValuePair rho;
 
-  private Layer1Medium(@Nonnull Layer1MediumBuilder builder) {
-    super(builder);
-    measurement = builder.measurement;
+  Layer1Medium(@Nonnull Collection<Measurement> measurements) {
+    super(measurements, measurement -> measurement.toPrediction(RelativeMediumLayers.SINGLE_LAYER, getRho(measurements).getValue()));
+    rho = getRho(measurements);
+  }
+
+  @Nonnull
+  @Override
+  public ValuePair rho() {
+    return rho;
   }
 
   @Override
@@ -23,28 +29,13 @@ final class Layer1Medium extends AbstractMediumLayers<ValuePair, Layer1Medium> {
 
   @Override
   public String toString() {
-    return "%s; %s; %s".formatted(Strings.rho(1, rho()), measurement, super.toString());
+    return "%s; %s".formatted(Strings.rho(1, rho()), super.toString());
   }
 
-  static final class Layer1MediumBuilder extends AbstractMediumBuilder<ValuePair, Layer1Medium> {
-    private Measurement measurement;
-
-    Layer1MediumBuilder(@Nonnull Collection<Prediction> predictions) {
-      super(predictions);
-    }
-
-    Layer1MediumBuilder layer1(@Nonnull Measurement measurement) {
-      this.measurement = measurement;
-      rho = new ValuePair(
-          measurement.getResistivity(),
-          measurement.getResistivity() * measurement.getSystem().getApparentRelativeError()
-      );
-      return this;
-    }
-
-    @Override
-    public Layer1Medium build() {
-      return new Layer1Medium(this);
-    }
+  @Nonnull
+  private static ValuePair getRho(@Nonnull Collection<Measurement> measurements) {
+    Measurement average = measurements.stream().reduce(Measurement::merge).orElseThrow();
+    double rho = average.getResistivity();
+    return new ValuePair(rho, rho * average.getSystem().getApparentRelativeError());
   }
 }

@@ -1,6 +1,6 @@
 package com.ak.rsm;
 
-import java.util.stream.Collectors;
+import java.util.Collection;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -14,13 +14,12 @@ import static com.ak.rsm.InexactTetrapolarSystem.systems4;
 public class Layer2MediumTest {
   @DataProvider(name = "layer2Medium")
   public static Object[][] layer2Medium() {
+    Collection<Measurement> measurements = TetrapolarMeasurement.of(systems4(0.1, 7.0), new double[] {1.0, 2.0, 3.0, 4.0});
     return new Object[][] {
-        {new Layer2Medium.Layer2MediumBuilder<Double>(
-            TetrapolarMeasurement.of(systems4(0.1, 7.0), new double[] {1.0, 2.0, 3.0, 4.0}).stream()
-                .map(m -> new TetrapolarPrediction(m, RelativeMediumLayers.SINGLE_LAYER, 2.001))
-                .collect(Collectors.toList()))
-            .layer1(2.0012, Metrics.fromMilli(5.0)).layer2(10.999).build(),
-            new double[] {2.001, 10.999, Metrics.fromMilli(5.0)}},
+        {
+            new Layer2Medium(measurements, RelativeMediumLayers.SINGLE_LAYER, 2.001),
+            new double[] {2.001, 10.999, Metrics.fromMilli(5.0)}
+        },
     };
   }
 

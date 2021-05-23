@@ -2,61 +2,52 @@ package com.ak.rsm;
 
 import java.util.Collection;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.ak.math.ValuePair;
 import com.ak.util.Strings;
 
-final class Layer2Medium<D> extends AbstractMediumLayers<D, Layer2Medium<D>> {
+final class Layer2Medium extends AbstractMediumLayers<Layer2Medium> {
   @Nonnull
-  private final D h1;
+  private final ValuePair rho1;
   @Nonnull
-  private final D rho2;
+  private final ValuePair rho2;
+  @Nonnull
+  private final ValuePair h1;
 
-  private Layer2Medium(@Nonnull Layer2MediumBuilder<D> builder) {
-    super(builder);
-    h1 = builder.h1;
-    rho2 = builder.rho2;
+  @ParametersAreNonnullByDefault
+  Layer2Medium(Collection<? extends Measurement> measurements, RelativeMediumLayers<Double> kw, @Nonnegative double rho1) {
+    super(measurements, measurement -> measurement.toPrediction(kw, rho1));
+    this.rho1 = new ValuePair(rho1);
+    rho2 = new ValuePair(rho1 / Layers.getRho1ToRho2(kw.k12()));
+    h1 = new ValuePair(kw.hToL() * Measurement.getBaseL(measurements));
   }
 
   @Override
-  public D h1() {
-    return h1;
+  public ValuePair rho() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Nonnull
+  @Override
+  public ValuePair rho1() {
+    return rho1;
   }
 
   @Override
-  public D rho2() {
+  public ValuePair rho2() {
     return rho2;
+  }
+
+  @Override
+  public ValuePair h1() {
+    return h1;
   }
 
   @Override
   public String toString() {
     return "%s; %s; h = %s; %s".formatted(Strings.rho(1, rho1()), Strings.rho(2, rho2()), h1, super.toString());
-  }
-
-  static final class Layer2MediumBuilder<D> extends AbstractMediumBuilder<D, Layer2Medium<D>> {
-    D rho2;
-    D h1;
-
-    Layer2MediumBuilder(@Nonnull Collection<Prediction> predictions) {
-      super(predictions);
-    }
-
-    @ParametersAreNonnullByDefault
-    Layer2MediumBuilder<D> layer1(D rho1, D h1) {
-      rho = rho1;
-      this.h1 = h1;
-      return this;
-    }
-
-    Layer2MediumBuilder<D> layer2(@Nonnull D rho2) {
-      this.rho2 = rho2;
-      return this;
-    }
-
-    @Override
-    public Layer2Medium<D> build() {
-      return new Layer2Medium<>(this);
-    }
   }
 }
