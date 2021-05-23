@@ -14,7 +14,7 @@ final class TetrapolarDerivativePrediction implements Prediction {
   @Nonnull
   private final Prediction prediction;
   private final double diffResistivityPredicted;
-  @Nonnegative
+  @Nonnull
   private final double[] l2Diff;
 
   @ParametersAreNonnullByDefault
