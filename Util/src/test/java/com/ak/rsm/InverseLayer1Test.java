@@ -34,7 +34,7 @@ public class InverseLayer1Test {
   @Test(dataProvider = "layer1")
   @ParametersAreNonnullByDefault
   public void testInverseLayer1(InexactTetrapolarSystem[] systems, double[] rOhms, @Nonnegative double expected) {
-    MediumLayers medium = Inverse.inverseStatic(TetrapolarMeasurement.of(systems, rOhms));
+    MediumLayers medium = InverseStatic.INSTANCE.inverse(TetrapolarMeasurement.of(systems, rOhms));
     Assert.assertEquals(medium.rho().getValue(), expected, 0.2, medium.toString());
     for (InexactTetrapolarSystem system : systems) {
       Assert.assertTrue(medium.rho().getAbsError() / medium.rho().getValue() < system.getApparentRelativeError(), medium.toString());

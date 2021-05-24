@@ -75,7 +75,7 @@ public class InverseLayer2Test {
   @ParametersAreNonnullByDefault
   public void testInverseLayer2(InexactTetrapolarSystem[] systems, double[] rOhms, ValuePair[] expected) {
     Random random = new SecureRandom();
-    MediumLayers medium = Inverse.inverseStatic(
+    MediumLayers medium = InverseStatic.INSTANCE.inverse(
         TetrapolarMeasurement.of(systems,
             Arrays.stream(rOhms).map(x -> x + random.nextGaussian() / x / 20.0).toArray()
         )
@@ -242,7 +242,7 @@ public class InverseLayer2Test {
   @Test(dataProvider = "allDynamicParameters2")
   @ParametersAreNonnullByDefault
   public void testInverseDynamicLayer2(InexactTetrapolarSystem[] systems, double[] rOhms, double[] rOhmsAfter, double dh, double[] expected) {
-    var medium = Inverse.inverseDynamic(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
+    var medium = InverseDynamic.INSTANCE.inverse(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
     Assert.assertEquals(medium.rho1().getValue(), expected[0], 0.1, medium.toString());
     Assert.assertEquals(Math.min(medium.rho2().getValue(), 1000), expected[1], 0.1, medium.toString());
     Assert.assertEquals(Metrics.toMilli(medium.h1().getValue()), Metrics.toMilli(expected[2]), 0.01, medium.toString());
@@ -282,7 +282,7 @@ public class InverseLayer2Test {
             double[] rOhms = {Double.parseDouble(r.get(R1_BEFORE)), Double.parseDouble(r.get(R2_BEFORE))};
             double[] rOhmsAfter = {Double.parseDouble(r.get(R1_AFTER)), Double.parseDouble(r.get(R2_AFTER))};
             double dh = Metrics.fromMilli(Double.parseDouble(r.get(POS)) / 1000.0);
-            var medium = Inverse.inverseDynamic(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
+            var medium = InverseDynamic.INSTANCE.inverse(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
             LOGGER.info(() -> "%.2f sec; %s µm; %s".formatted(Double.parseDouble(r.get(T)), r.get(POS), medium));
             return Map.ofEntries(
                 Map.entry(T, r.get(T)),
