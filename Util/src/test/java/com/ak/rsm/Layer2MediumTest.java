@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import com.ak.math.ValuePair;
 import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -34,7 +33,7 @@ public class Layer2MediumTest {
 
   @Test(dataProvider = "layer2Medium")
   @ParametersAreNonnullByDefault
-  public void testRho(MediumLayers<ValuePair> layers, double[] expected) {
+  public void testRho(MediumLayers layers, double[] expected) {
     Assert.assertEquals(layers.rho().getValue(), expected[0], 0.001);
     Assert.assertEquals(layers.rho1().getValue(), expected[0], 0.001);
     Assert.assertEquals(layers.rho2().getValue(), expected[1], 0.001);
@@ -43,7 +42,7 @@ public class Layer2MediumTest {
 
   @Test(dataProvider = "layer2Medium")
   @ParametersAreNonnullByDefault
-  public void testToString(MediumLayers<ValuePair> layers, double[] expected) {
+  public void testToString(MediumLayers layers, double[] expected) {
     Assert.assertTrue(layers.toString().contains(Double.toString(expected[0])), layers.toString());
     Assert.assertTrue(layers.toString().contains(Double.toString(expected[1])), layers.toString());
     Assert.assertTrue(layers.toString().contains(Double.toString(expected[2])), layers.toString());

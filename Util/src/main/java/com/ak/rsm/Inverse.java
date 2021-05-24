@@ -9,7 +9,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
-import com.ak.math.ValuePair;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 
@@ -22,7 +21,7 @@ enum Inverse {
   ;
 
   @Nonnull
-  static MediumLayers<ValuePair> inverseStatic(@Nonnull Collection<Measurement> measurements) {
+  static MediumLayers inverseStatic(@Nonnull Collection<Measurement> measurements) {
     if (measurements.size() > 2) {
       UnaryOperator<double[]> subtract = values -> {
         var sub = new double[values.length - 1];
@@ -41,7 +40,7 @@ enum Inverse {
   }
 
   @Nonnull
-  static MediumLayers<ValuePair> inverseDynamic(@Nonnull Collection<DerivativeMeasurement> measurements) {
+  static MediumLayers inverseDynamic(@Nonnull Collection<DerivativeMeasurement> measurements) {
     if (measurements.size() > 1) {
       RelativeMediumLayers<Double> kw = inverseDynamicRelative(measurements);
       return new Layer2Medium(measurements, kw);

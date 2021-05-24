@@ -24,7 +24,7 @@ public class Layer1MediumTest {
 
   @Test(dataProvider = "layer1Medium")
   @ParametersAreNonnullByDefault
-  public void testRho(MediumLayers<ValuePair> layers, ValuePair expected) {
+  public void testRho(MediumLayers layers, ValuePair expected) {
     Assert.assertEquals(layers.rho(), expected, expected.toString());
     Assert.assertEquals(layers.rho1(), expected, expected.toString());
     Assert.assertEquals(layers.rho2(), expected, expected.toString());
@@ -32,14 +32,14 @@ public class Layer1MediumTest {
 
   @Test(dataProvider = "layer1Medium")
   @ParametersAreNonnullByDefault
-  public void testH(MediumLayers<ValuePair> layers, ValuePair expected) {
+  public void testH(MediumLayers layers, ValuePair expected) {
     Assert.assertTrue(Double.isNaN(layers.h1().getValue()));
     Assert.assertNotNull(expected);
   }
 
   @Test(dataProvider = "layer1Medium")
   @ParametersAreNonnullByDefault
-  public void testToString(MediumLayers<ValuePair> layers, ValuePair expected) {
+  public void testToString(MediumLayers layers, ValuePair expected) {
     Assert.assertTrue(layers.toString().contains(expected.toString()), layers.toString());
     double l2 = Arrays.stream(new double[] {0.3277112113340609, 0.10361494844541479, 0.5126497744983622, 0.6807219716648473})
         .reduce(StrictMath::hypot).orElse(Double.NaN);

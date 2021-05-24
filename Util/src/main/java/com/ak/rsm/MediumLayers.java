@@ -3,20 +3,22 @@ package com.ak.rsm;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-interface MediumLayers<D> {
+import com.ak.math.ValuePair;
+
+interface MediumLayers {
   @Nonnull
-  D rho();
+  ValuePair rho();
 
   @Nonnull
-  D h1();
+  ValuePair h1();
 
   @Nonnull
-  default D rho1() {
+  default ValuePair rho1() {
     return rho();
   }
 
   @Nonnull
-  default D rho2() {
+  default ValuePair rho2() {
     return rho();
   }
 

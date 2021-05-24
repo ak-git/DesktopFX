@@ -17,7 +17,7 @@ import com.ak.util.Strings;
 
 import static com.ak.rsm.Measurements.getRho1;
 
-abstract class AbstractMediumLayers implements MediumLayers<ValuePair> {
+abstract class AbstractMediumLayers implements MediumLayers {
   @Nonnull
   private final ValuePair rho;
   @Nonnull

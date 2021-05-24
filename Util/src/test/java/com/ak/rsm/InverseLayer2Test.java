@@ -75,7 +75,7 @@ public class InverseLayer2Test {
   @ParametersAreNonnullByDefault
   public void testInverseLayer2(InexactTetrapolarSystem[] systems, double[] rOhms, ValuePair[] expected) {
     Random random = new SecureRandom();
-    MediumLayers<ValuePair> medium = Inverse.inverseStatic(
+    MediumLayers medium = Inverse.inverseStatic(
         TetrapolarMeasurement.of(systems,
             Arrays.stream(rOhms).map(x -> x + random.nextGaussian() / x / 20.0).toArray()
         )
