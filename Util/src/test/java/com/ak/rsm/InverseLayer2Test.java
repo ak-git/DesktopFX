@@ -112,6 +112,15 @@ public class InverseLayer2Test {
             Arrays.stream(systems2)
                 .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, Double.POSITIVE_INFINITY, h)).toArray(),
             Arrays.stream(systems2)
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, Double.POSITIVE_INFINITY, h)).toArray(),
+            dh,
+            new double[] {1.0, 1000.0, h}
+        },
+        {
+            systems2,
+            Arrays.stream(systems2)
+                .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, Double.POSITIVE_INFINITY, h)).toArray(),
+            Arrays.stream(systems2)
                 .mapToDouble(s -> new Resistance2Layer(s.toExact()).value(1.0, Double.POSITIVE_INFINITY, h + dh)).toArray(),
             dh,
             new double[] {1.0, 1000.0, h}
