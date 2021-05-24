@@ -1,20 +1,31 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
+import java.util.stream.DoubleStream;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.ak.inverse.Inequality;
 import com.ak.util.Strings;
 
 final class TetrapolarDerivativePrediction implements Prediction {
   @Nonnull
   private final Prediction prediction;
   private final double diffResistivityPredicted;
+  @Nonnull
+  private final double[] inequalityL2;
 
   @ParametersAreNonnullByDefault
-  TetrapolarDerivativePrediction(InexactTetrapolarSystem system, RelativeMediumLayers<Double> layers, @Nonnegative double rho1) {
-    prediction = new TetrapolarPrediction(system, layers, rho1);
+  TetrapolarDerivativePrediction(InexactTetrapolarSystem system, RelativeMediumLayers<Double> layers, @Nonnegative double rho1,
+                                 double[] measured) {
+    prediction = new TetrapolarPrediction(system, layers, rho1, measured[0]);
     diffResistivityPredicted = new DerivativeApparent2Rho(system.toExact().toRelative()).value(layers.k12(), layers.hToL()) * rho1;
+    inequalityL2 = DoubleStream.concat(
+        Arrays.stream(prediction.getInequalityL2()),
+        DoubleStream.of(Inequality.proportional().applyAsDouble(measured[1], diffResistivityPredicted))
+    ).toArray();
   }
 
   @Override
@@ -25,6 +36,11 @@ final class TetrapolarDerivativePrediction implements Prediction {
   @Override
   public double[] getHorizons() {
     return prediction.getHorizons();
+  }
+
+  @Override
+  public double[] getInequalityL2() {
+    return Arrays.copyOf(inequalityL2, inequalityL2.length);
   }
 
   @Override

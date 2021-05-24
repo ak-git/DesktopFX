@@ -18,10 +18,13 @@ public class PredictionTest {
     Assert.assertNotEquals(new Object(), measurement2);
     Assert.assertNotEquals(measurement1.hashCode(), measurement2.hashCode());
     Assert.assertEquals(measurement1, measurement1);
-    Assert.assertEquals(measurement2.merge(measurement1), measurement1.merge(measurement2));
-    Assert.assertEquals(measurement1.merge(measurement2).hashCode(), measurement2.merge(measurement1).hashCode());
 
-    Prediction prediction = new TetrapolarPrediction(measurement1.merge(measurement2).getSystem(), RelativeMediumLayers.SINGLE_LAYER, 10.0);
+    Measurement merge = measurement1.merge(measurement2);
+    Assert.assertEquals(measurement2.merge(measurement1), merge);
+    Assert.assertEquals(merge.hashCode(), measurement2.merge(measurement1).hashCode());
+
+    Prediction prediction = new TetrapolarPrediction(
+        merge.getSystem(), RelativeMediumLayers.SINGLE_LAYER, 10.0, merge.getResistivity());
     Assert.assertEquals(prediction.getHorizons(), new double[] {Double.POSITIVE_INFINITY, 0.0}, prediction.toString());
     Assert.assertEquals(prediction.getResistivityPredicted(), 10.0, 0.001, prediction.toString());
   }
@@ -32,11 +35,12 @@ public class PredictionTest {
 
     Measurement measurementBefore = new TetrapolarMeasurement(system, new Resistance1Layer(system.toExact()).value(1.0));
     Measurement measurementAfter = new TetrapolarMeasurement(system, new Resistance1Layer(system.toExact()).value(2.0));
-    Measurement measurement = new TetrapolarDerivativeMeasurement(measurementBefore, measurementAfter, Metrics.fromMilli(1.0));
+    DerivativeMeasurement measurement = new TetrapolarDerivativeMeasurement(measurementBefore, measurementAfter, Metrics.fromMilli(1.0));
 
     Assert.assertThrows(UnsupportedOperationException.class, () -> measurement.merge(measurement));
 
-    Prediction prediction = new TetrapolarDerivativePrediction(measurement.getSystem(), RelativeMediumLayers.SINGLE_LAYER, 10.0);
+    Prediction prediction = new TetrapolarDerivativePrediction(measurement.getSystem(), RelativeMediumLayers.SINGLE_LAYER, 10.0,
+        new double[] {measurement.getResistivity(), measurement.getDerivativeResistivity()});
     Assert.assertEquals(prediction.getHorizons(), new double[] {Double.POSITIVE_INFINITY, 0.0}, prediction.toString());
     Assert.assertEquals(prediction.getResistivityPredicted(), Double.NaN, 0.001, prediction.toString());
   }

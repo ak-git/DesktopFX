@@ -35,7 +35,7 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
   @Override
   @Nonnull
   public Prediction toPrediction(@Nonnull RelativeMediumLayers<Double> kw, @Nonnegative double rho1) {
-    return new TetrapolarDerivativePrediction(getSystem(), kw, rho1);
+    return new TetrapolarDerivativePrediction(getSystem(), kw, rho1, new double[] {getResistivity(), getDerivativeResistivity()});
   }
 
   @Override

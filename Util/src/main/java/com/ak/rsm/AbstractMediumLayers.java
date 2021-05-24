@@ -39,7 +39,14 @@ abstract class AbstractMediumLayers implements MediumLayers<ValuePair> {
 
   @Override
   public final double[] getInequalityL2() {
-    return new double[] {Double.NaN};
+    return predictions.stream().map(Prediction::getInequalityL2)
+        .reduce((doubles, doubles2) -> {
+          var merge = new double[Math.max(doubles.length, doubles2.length)];
+          for (var i = 0; i < merge.length; i++) {
+            merge[i] = StrictMath.hypot(doubles[i], doubles2[i]);
+          }
+          return merge;
+        }).orElseThrow();
   }
 
   @Override

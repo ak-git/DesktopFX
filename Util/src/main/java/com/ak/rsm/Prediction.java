@@ -9,4 +9,7 @@ interface Prediction {
 
   @Nonnull
   double[] getHorizons();
+
+  @Nonnull
+  double[] getInequalityL2();
 }

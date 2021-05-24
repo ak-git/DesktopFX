@@ -10,6 +10,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.ak.inverse.Inequality;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import tec.uom.se.unit.MetricPrefix;
@@ -21,17 +22,20 @@ final class TetrapolarPrediction implements Prediction {
   private final double resistivityPredicted;
   @Nonnull
   private final double[] horizons;
+  @Nonnegative
+  private final double inequalityL2;
 
   @ParametersAreNonnullByDefault
-  TetrapolarPrediction(InexactTetrapolarSystem system, RelativeMediumLayers<Double> layers, @Nonnegative double rho1) {
-    double predicted = rho1;
-
-    if (Double.compare(layers.k12(), 0.0) != 0) {
-      predicted = new NormalizedApparent2Rho(system.toExact().toRelative()).value(layers.k12(), layers.hToL()) * rho1;
+  TetrapolarPrediction(InexactTetrapolarSystem system, RelativeMediumLayers<Double> layers,
+                       @Nonnegative double rho1, @Nonnegative double measured) {
+    if (Double.compare(layers.k12(), 0.0) == 0) {
+      resistivityPredicted = rho1;
     }
-
-    resistivityPredicted = predicted;
+    else {
+      resistivityPredicted = new NormalizedApparent2Rho(system.toExact().toRelative()).value(layers.k12(), layers.hToL()) * rho1;
+    }
     horizons = new double[] {system.getHMin(layers.k12()), system.getHMax(layers.k12())};
+    inequalityL2 = Inequality.proportional().applyAsDouble(measured, resistivityPredicted);
   }
 
   @Override
@@ -42,6 +46,11 @@ final class TetrapolarPrediction implements Prediction {
   @Override
   public double[] getHorizons() {
     return Arrays.copyOf(horizons, horizons.length);
+  }
+
+  @Override
+  public double[] getInequalityL2() {
+    return new double[] {inequalityL2};
   }
 
   @Override
