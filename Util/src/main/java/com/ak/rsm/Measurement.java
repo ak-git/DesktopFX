@@ -15,9 +15,7 @@ interface Measurement {
   }
 
   @Nonnull
-  default Prediction toPrediction(@Nonnull RelativeMediumLayers<Double> kw, @Nonnegative double rho1) {
-    return new TetrapolarPrediction(getSystem(), kw, rho1);
-  }
+  Prediction toPrediction(@Nonnull RelativeMediumLayers<Double> kw, @Nonnegative double rho1);
 
   @Nonnull
   default Measurement merge(@Nonnull Measurement that) {
