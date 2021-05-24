@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.StringJoiner;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -16,16 +15,26 @@ import com.ak.math.ValuePair;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
-abstract class AbstractMediumLayers<T extends AbstractMediumLayers<T>> implements MediumLayers<ValuePair> {
+import static com.ak.rsm.Measurements.getRho1;
+
+abstract class AbstractMediumLayers implements MediumLayers<ValuePair> {
+  @Nonnull
+  private final ValuePair rho;
   @Nonnull
   private final Collection<Measurement> measurements;
   @Nonnull
   private final Collection<Prediction> predictions;
 
   @ParametersAreNonnullByDefault
-  AbstractMediumLayers(Collection<? extends Measurement> measurements, Function<Measurement, Prediction> predictionFunction) {
+  AbstractMediumLayers(Collection<? extends Measurement> measurements, RelativeMediumLayers<Double> kw) {
+    rho = getRho1(measurements, kw);
     this.measurements = Collections.unmodifiableCollection(measurements);
-    predictions = measurements.stream().map(predictionFunction).collect(Collectors.toUnmodifiableList());
+    predictions = measurements.stream().map(m -> m.toPrediction(kw, rho.getValue())).collect(Collectors.toUnmodifiableList());
+  }
+
+  @Override
+  public final ValuePair rho() {
+    return rho;
   }
 
   @Override

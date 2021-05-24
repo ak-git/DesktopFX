@@ -17,7 +17,7 @@ public class Layer2MediumTest {
     Collection<Measurement> measurements = TetrapolarMeasurement.of(systems4(0.1, 7.0), new double[] {1.0, 2.0, 3.0, 4.0});
     return new Object[][] {
         {
-            new Layer2Medium(measurements, RelativeMediumLayers.SINGLE_LAYER, 2.001),
+            new Layer2Medium(measurements, RelativeMediumLayers.SINGLE_LAYER),
             new double[] {2.001, 10.999, Metrics.fromMilli(5.0)}
         },
     };

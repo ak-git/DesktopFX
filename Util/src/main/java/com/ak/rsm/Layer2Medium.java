@@ -2,38 +2,23 @@ package com.ak.rsm;
 
 import java.util.Collection;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.math.ValuePair;
 import com.ak.util.Strings;
 
-final class Layer2Medium extends AbstractMediumLayers<Layer2Medium> {
-  @Nonnull
-  private final ValuePair rho1;
+final class Layer2Medium extends AbstractMediumLayers {
   @Nonnull
   private final ValuePair rho2;
   @Nonnull
   private final ValuePair h1;
 
   @ParametersAreNonnullByDefault
-  Layer2Medium(Collection<? extends Measurement> measurements, RelativeMediumLayers<Double> kw, @Nonnegative double rho1) {
-    super(measurements, measurement -> measurement.toPrediction(kw, rho1));
-    this.rho1 = new ValuePair(rho1);
-    rho2 = new ValuePair(rho1 / Layers.getRho1ToRho2(kw.k12()));
-    h1 = new ValuePair(kw.hToL() * Measurement.getBaseL(measurements));
-  }
-
-  @Override
-  public ValuePair rho() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Nonnull
-  @Override
-  public ValuePair rho1() {
-    return rho1;
+  Layer2Medium(Collection<? extends Measurement> measurements, RelativeMediumLayers<Double> kw) {
+    super(measurements, kw);
+    rho2 = new ValuePair(rho1().getValue() / Layers.getRho1ToRho2(kw.k12()));
+    h1 = new ValuePair(kw.hToL() * Measurements.getBaseL(measurements));
   }
 
   @Override

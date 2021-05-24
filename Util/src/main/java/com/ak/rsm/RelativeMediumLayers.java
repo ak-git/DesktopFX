@@ -14,6 +14,17 @@ interface RelativeMediumLayers<D> {
       return Double.NaN;
     }
   };
+  RelativeMediumLayers<Double> NAN = new RelativeMediumLayers<>() {
+    @Override
+    public Double k12() {
+      return Double.NaN;
+    }
+
+    @Override
+    public Double hToL() {
+      return Double.NaN;
+    }
+  };
 
   @Nonnull
   D k12();
