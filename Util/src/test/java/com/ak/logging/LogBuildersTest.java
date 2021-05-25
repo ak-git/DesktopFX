@@ -29,7 +29,6 @@ public class LogBuildersTest {
         .toArray(Object[][]::new);
   }
 
-
   @Test(dataProvider = "logBuilders")
   public void testLogBuilders(Path path) throws IOException {
     Assert.assertNotNull(path);
