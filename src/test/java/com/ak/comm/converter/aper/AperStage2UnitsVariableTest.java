@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.measure.Unit;
@@ -73,7 +72,7 @@ public class AperStage2UnitsVariableTest {
   @Test
   public void testGetUnit() {
     List<? extends Unit<?>> actual = EnumSet.allOf(AperStage2UnitsVariable.class).stream()
-        .map(DependentVariable::getUnit).collect(Collectors.toList());
+        .map(DependentVariable::getUnit).toList();
     Assert.assertEquals(actual,
         Arrays.asList(
             MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM),
@@ -88,7 +87,7 @@ public class AperStage2UnitsVariableTest {
   @Test
   public void testOptions() {
     List<Variable.Option> actual = EnumSet.allOf(AperStage2UnitsVariable.class).stream()
-        .flatMap(aperStage2UnitsVariable -> aperStage2UnitsVariable.options().stream()).collect(Collectors.toList());
+        .flatMap(aperStage2UnitsVariable -> aperStage2UnitsVariable.options().stream()).toList();
     Assert.assertEquals(actual,
         Arrays.asList(
             Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE,

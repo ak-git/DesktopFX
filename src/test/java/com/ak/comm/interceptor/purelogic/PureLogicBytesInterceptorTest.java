@@ -41,7 +41,7 @@ public class PureLogicBytesInterceptorTest {
   private static void testResponse(byte[] input, int[] expected, boolean logFlag) {
     Function<ByteBuffer, Stream<PureLogicFrame>> interceptor = new PureLogicBytesInterceptor();
     Assert.assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {
-      List<PureLogicFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).collect(Collectors.toList());
+      List<PureLogicFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).toList();
       if (!frames.isEmpty()) {
         Assert.assertEquals(frames.stream().mapToInt(PureLogicFrame::getMicrons).toArray(), expected,
             frames.stream().map(PureLogicFrame::toString).collect(Collectors.joining()));

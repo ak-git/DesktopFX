@@ -191,7 +191,8 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
       Collection<SerialPort> serialPorts = Arrays.stream(SerialPort.getCommPorts())
           .filter(port -> !port.getSystemPortName().toLowerCase().contains("bluetooth"))
           .sorted(Comparator.<SerialPort, Integer>comparing(port -> port.getSystemPortName().toLowerCase().indexOf("usb")).reversed())
-          .sorted(Comparator.comparingInt(value -> usedPorts.indexOf(value.getSystemPortName()))).toList();
+          .sorted(Comparator.comparingInt(value -> usedPorts.indexOf(value.getSystemPortName())))
+          .toList();
       if (serialPorts.isEmpty()) {
         return null;
       }

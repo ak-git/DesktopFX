@@ -18,7 +18,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.BaseStream;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -41,7 +40,7 @@ final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSV
 
   @Override
   public Supplier<List<CSVLineFileCollector>> supplier() {
-    return () -> paths.stream().map(s -> new CSVLineFileCollector(s, headers)).collect(Collectors.toList());
+    return () -> paths.stream().map(s -> new CSVLineFileCollector(s, headers)).toList();
   }
 
   @Override

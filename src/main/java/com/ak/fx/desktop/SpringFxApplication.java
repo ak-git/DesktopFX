@@ -121,7 +121,8 @@ public class SpringFxApplication extends FxApplication {
           else {
             return new FXMLLoader(fxml, resourceBundle);
           }
-        }).toList();
+        })
+        .toList();
     fxmlLoaders.forEach(fxmlLoader -> fxmlLoader.setControllerFactory(applicationContext::getBean));
     return fxmlLoaders;
   }

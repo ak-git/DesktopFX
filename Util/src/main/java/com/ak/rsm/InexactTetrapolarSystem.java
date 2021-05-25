@@ -137,7 +137,7 @@ final class InexactTetrapolarSystem {
   static Collection<List<InexactTetrapolarSystem>> getMeasurementsCombination(@Nonnull Collection<InexactTetrapolarSystem> systems) {
     ToLongFunction<Collection<InexactTetrapolarSystem>> distinctSizes =
         ts -> ts.stream().flatMap(s -> DoubleStream.of(s.toExact().getS(), s.toExact().getL()).boxed()).distinct().count();
-    var initialSizes = distinctSizes.applyAsLong(systems.stream().toList());
+    var initialSizes = distinctSizes.applyAsLong(systems);
     return IntStream.range(0, 2 << (2 * (systems.size() - 1) + 1))
         .mapToObj(n -> {
           var signIndex = new AtomicInteger();

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.DoubleFunction;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -93,7 +92,7 @@ public final class Chart extends AbstractRegion {
   }
 
   public void setVariables(@Nonnull Collection<String> variables) {
-    lineDiagrams.addAll(variables.stream().map(LineDiagram::new).collect(Collectors.toList()));
+    lineDiagrams.addAll(variables.stream().map(LineDiagram::new).toList());
     lineDiagrams.forEach(lineDiagram -> lineDiagram.setManaged(false));
     getChildren().addAll(lineDiagrams);
     getChildren().add(xAxisUnit);
