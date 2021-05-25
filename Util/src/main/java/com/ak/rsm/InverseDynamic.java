@@ -25,7 +25,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
       return new Layer2Medium(measurements, kw);
     }
     else {
-      return InverseStatic.INSTANCE.inverse(measurements.stream().toList());
+      return InverseStatic.INSTANCE.inverse(measurements);
     }
   }
 
