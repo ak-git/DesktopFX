@@ -8,7 +8,7 @@ import com.ak.math.ValuePair;
 import com.ak.util.Strings;
 
 final class Layer1Medium extends AbstractMediumLayers {
-  Layer1Medium(@Nonnull Collection<Measurement> measurements) {
+  Layer1Medium(@Nonnull Collection<? extends Measurement> measurements) {
     super(measurements, RelativeMediumLayers.SINGLE_LAYER);
   }
 

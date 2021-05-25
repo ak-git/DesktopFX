@@ -19,7 +19,7 @@ enum InverseStatic implements Inverseable<Measurement> {
 
   @Nonnull
   @Override
-  public MediumLayers inverse(@Nonnull Collection<Measurement> measurements) {
+  public MediumLayers inverse(@Nonnull Collection<? extends Measurement> measurements) {
     if (measurements.size() > 2) {
       UnaryOperator<double[]> subtract = values -> {
         var sub = new double[values.length - 1];

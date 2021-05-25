@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 
 interface Inverseable<M extends Measurement> {
   @Nonnull
-  MediumLayers inverse(@Nonnull Collection<M> measurements);
+  MediumLayers inverse(@Nonnull Collection<? extends M> measurements);
 
   @Nonnull
   RelativeMediumLayers<Double> inverseRelative(@Nonnull Collection<? extends M> measurements);
