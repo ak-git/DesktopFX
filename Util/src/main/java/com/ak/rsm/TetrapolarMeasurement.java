@@ -40,6 +40,12 @@ final class TetrapolarMeasurement implements Measurement {
     return resistivity;
   }
 
+  @Override
+  @Nonnull
+  public Prediction toPrediction(@Nonnull RelativeMediumLayers<Double> kw, @Nonnegative double rho1) {
+    return new TetrapolarPrediction(getSystem(), kw, rho1, resistivity);
+  }
+
   @Nonnull
   @Override
   public Measurement merge(@Nonnull Measurement that) {

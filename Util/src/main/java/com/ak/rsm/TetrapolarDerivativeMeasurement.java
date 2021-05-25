@@ -14,12 +14,12 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
   @Nonnull
   private final Measurement measurement;
   @Nonnegative
-  private final double dRhoBydH;
+  private final double dRhoBydPhi;
 
   TetrapolarDerivativeMeasurement(@Nonnull Measurement measurementBefore,
                                   @Nonnull Measurement measurementAfter, double dh) {
     measurement = measurementBefore;
-    dRhoBydH = (measurementAfter.getResistivity() - measurement.getResistivity()) / dh;
+    dRhoBydPhi = (measurementAfter.getResistivity() - measurement.getResistivity()) / (dh / getSystem().toExact().getL());
   }
 
   @Override
@@ -29,7 +29,13 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
 
   @Override
   public double getDerivativeResistivity() {
-    return dRhoBydH;
+    return dRhoBydPhi;
+  }
+
+  @Override
+  @Nonnull
+  public Prediction toPrediction(@Nonnull RelativeMediumLayers<Double> kw, @Nonnegative double rho1) {
+    return new TetrapolarDerivativePrediction(getSystem(), kw, rho1, new double[] {getResistivity(), getDerivativeResistivity()});
   }
 
   @Override
@@ -39,7 +45,7 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
 
   @Override
   public String toString() {
-    return "%s, %s".formatted(String.valueOf(measurement), Strings.dRhoByH(dRhoBydH));
+    return "%s, %s".formatted(String.valueOf(measurement), Strings.dRhoByPhi(dRhoBydPhi));
   }
 
   @Nonnull

@@ -37,6 +37,7 @@
       <w>clearable</w>
       <w>closeables</w>
       <w>closureable</w>
+      <w>cmaes</w>
       <w>codehaus</w>
       <w>coeff</w>
       <w>coeffs</w>
@@ -72,10 +73,12 @@
       <w>interpolator</w>
       <w>interpolators</w>
       <w>ints</w>
+      <w>inverseable</w>
       <w>iterable</w>
       <w>javaw</w>
       <w>javax</w>
       <w>jdesktop</w>
+      <w>jenetics</w>
       <w>jfree</w>
       <w>jfreechart</w>
       <w>jhlabs</w>

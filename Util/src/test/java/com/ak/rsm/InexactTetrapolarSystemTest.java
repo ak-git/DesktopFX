@@ -1,6 +1,9 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.function.DoubleUnaryOperator;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 import javax.annotation.Nonnegative;
@@ -9,6 +12,7 @@ import javax.annotation.Nonnull;
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
 import com.ak.util.Metrics;
+import com.ak.util.Strings;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.Assert;
@@ -96,14 +100,13 @@ public class InexactTetrapolarSystemTest {
     InexactTetrapolarSystem system = InexactTetrapolarSystem.milli(0.1).s(10.0).l(30.0);
     DoubleUnaryOperator rhoAtHMax = sign -> (1.0 + Math.signum(sign) * system.getApparentRelativeError()) * rho1;
     TetrapolarSystem exact = system.toExact();
-    PointValuePair optimize = Simplex.optimize(hToL -> {
+    PointValuePair optimize = Simplex.optimizeAll(hToL -> {
           double rhoApparent = exact.getApparent(new Resistance2Layer(exact).value(rho1, rho2, hToL[0] * exact.getL()));
           return DoubleStream.of(-1.0, 1.0)
               .map(sign -> Inequality.absolute().applyAsDouble(rhoAtHMax.applyAsDouble(sign), rhoApparent))
               .min().orElseThrow();
         },
-        new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / exact.getL()}),
-        new double[] {0.0}, new double[] {0.01}
+        new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / exact.getL()}), new double[] {0.01}
     );
     Assert.assertEquals(optimize.getPoint()[0], system.getHMax(Layers.getK12(rho1, rho2)) / exact.getL(),
         0.1, system.toString());
@@ -115,17 +118,35 @@ public class InexactTetrapolarSystemTest {
       InexactTetrapolarSystem system = InexactTetrapolarSystem.milli(0.1).s(10.0).l(30.0);
       DoubleUnaryOperator rhoAtHMin = sign -> (1.0 + Math.signum(sign) * system.getApparentRelativeError()) * rho2;
       TetrapolarSystem exact = system.toExact();
-      PointValuePair optimize = Simplex.optimize(hToL -> {
+      PointValuePair optimize = Simplex.optimizeAll(hToL -> {
             double rhoApparent = exact.getApparent(new Resistance2Layer(exact).value(rho1, rho2, hToL[0] * exact.getL()));
             return DoubleStream.of(-1.0, 1.0)
                 .map(sign -> Inequality.absolute().applyAsDouble(rhoAtHMin.applyAsDouble(sign), rhoApparent))
                 .min().orElseThrow();
           },
-          new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / exact.getL()}),
-          new double[] {0.0}, new double[] {0.01}
+          new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / exact.getL()}), new double[] {0.01}
       );
       Assert.assertEquals(optimize.getPoint()[0], system.getHMin(Layers.getK12(rho1, rho2)) / exact.getL(),
           0.01, system.toString());
     }
+  }
+
+  @DataProvider(name = "combinations")
+  public static Object[][] combinations() {
+    return new Object[][] {
+        {
+            Arrays.asList(
+                InexactTetrapolarSystem.milli(0.1).s(11.0).l(30.0),
+                InexactTetrapolarSystem.milli(0.1).s(50.0).l(30.0)
+            ),
+            8
+        },
+    };
+  }
+
+  @Test(dataProvider = "combinations")
+  public void testCombinations(@Nonnull Collection<InexactTetrapolarSystem> systems, @Nonnegative int expected) {
+    Collection<Collection<InexactTetrapolarSystem>> c = InexactTetrapolarSystem.getMeasurementsCombination(systems);
+    Assert.assertEquals(c.size(), expected, c.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)));
   }
 }

@@ -114,12 +114,8 @@ public class AperStage2UnitsVariableTest {
   }
 
   @Test(enabled = false)
-  public void testSplineSurface1() {
-    SplineCoefficientsUtils.testSplineSurface1(AperSurfaceCoefficientsChannel1.class);
-  }
-
-  @Test(enabled = false)
-  public void testSplineSurface2() {
-    SplineCoefficientsUtils.testSplineSurface2(AperSurfaceCoefficientsChannel2.class);
+  public void testSplineSurface() {
+    SplineCoefficientsUtils.testSplineSurface(AperSurfaceCoefficientsChannel1.class);
+    SplineCoefficientsUtils.testSplineSurface(AperSurfaceCoefficientsChannel2.class);
   }
 }

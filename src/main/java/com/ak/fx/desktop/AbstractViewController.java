@@ -7,13 +7,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -58,6 +61,10 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   @Nullable
   @FXML
   private Chart chart;
+  @Nonnegative
+  private long countSamples;
+  @Nullable
+  private SequentialTransition transition;
 
   @ParametersAreNonnullByDefault
   AbstractViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
@@ -71,6 +78,9 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
       }
       catch (IOException e) {
         Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+      }
+      finally {
+        Logger.getLogger(getClass().getName()).info(() -> "Conversion finished");
       }
     });
   }
@@ -100,18 +110,25 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
       });
       chart.diagramWidthProperty().addListener((observable, oldValue, newValue) -> axisXController.preventEnd(newValue.doubleValue()));
       axisXController.stepProperty().addListener((observable, oldValue, newValue) -> chart.setXStep(newValue.doubleValue()));
+      axisXController.startProperty().addListener((observable, oldValue, newValue) -> changed());
       axisXController.lengthProperty().addListener((observable, oldValue, newValue) ->
           chart.setMaxSamples(newValue.intValue() / axisXController.getDecimateFactor())
       );
       axisXController.setFrequency(service.getFrequency());
     }
 
-    var timeline = new Timeline();
-    timeline.getKeyFrames().add(new KeyFrame(Duration.millis(50), (ActionEvent actionEvent) -> axisXController.scroll(-500)));
+    var timeline = new Timeline(
+        new KeyFrame(Duration.millis(50),
+            (ActionEvent actionEvent) -> {
+              int start = (int) (Math.max(0, countSamples - axisXController.getLength()));
+              axisXController.setStart(start);
+              if (start == 0) {
+                changed();
+              }
+            })
+    );
     timeline.setCycleCount(Animation.INDEFINITE);
-    var animation = new SequentialTransition();
-    animation.getChildren().addAll(timeline);
-    animation.play();
+    transition = new SequentialTransition(timeline);
     service.subscribe(this);
   }
 
@@ -122,13 +139,17 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
       subscription.cancel();
     }
     subscription = s;
-    changed();
     subscription.request(axisXController.getLength());
+    countSamples = 0;
+    Objects.requireNonNull(transition).play();
+    changed();
+    CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS).execute(this::changed);
   }
 
   @Override
   @OverridingMethodsMustInvokeSuper
   public void onNext(@Nonnull int[] ints) {
+    countSamples++;
     displayBanner(ints);
   }
 
@@ -139,6 +160,7 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public final void onComplete() {
+    Objects.requireNonNull(transition).stop();
     changed();
   }
 
@@ -152,6 +174,8 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   @OverridingMethodsMustInvokeSuper
   public void refresh() {
     service.refresh();
+    countSamples = 0;
+    Objects.requireNonNull(transition).play();
     changed();
   }
 
