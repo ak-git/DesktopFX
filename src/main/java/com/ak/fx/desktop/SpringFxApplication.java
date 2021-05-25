@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -122,8 +121,7 @@ public class SpringFxApplication extends FxApplication {
           else {
             return new FXMLLoader(fxml, resourceBundle);
           }
-        })
-        .collect(Collectors.toUnmodifiableList());
+        }).toList();
     fxmlLoaders.forEach(fxmlLoader -> fxmlLoader.setControllerFactory(applicationContext::getBean));
     return fxmlLoaders;
   }

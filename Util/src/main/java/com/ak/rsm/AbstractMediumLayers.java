@@ -29,7 +29,7 @@ abstract class AbstractMediumLayers implements MediumLayers {
   AbstractMediumLayers(Collection<? extends Measurement> measurements, RelativeMediumLayers<Double> kw) {
     rho = getRho1(measurements, kw);
     this.measurements = Collections.unmodifiableCollection(measurements);
-    predictions = measurements.stream().map(m -> m.toPrediction(kw, rho.getValue())).collect(Collectors.toUnmodifiableList());
+    predictions = measurements.stream().map(m -> m.toPrediction(kw, rho.getValue())).toList();
   }
 
   @Override

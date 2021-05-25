@@ -12,12 +12,7 @@ import static java.lang.StrictMath.asin;
 public class ElectrodeSizeTest {
   private static final double SQRT_2 = 1.4142135623730951;
 
-  private static class RelativeErrorR implements UnivariateFunction {
-    final double sToL;
-
-    private RelativeErrorR(double sToL) {
-      this.sToL = sToL;
-    }
+  private record RelativeErrorR(double sToL) implements UnivariateFunction {
 
     @Override
     public double value(double dToL) {

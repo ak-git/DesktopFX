@@ -81,11 +81,10 @@ public final class TetrapolarSystem {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof TetrapolarSystem)) {
+    if (!(o instanceof TetrapolarSystem that)) {
       return false;
     }
 
-    TetrapolarSystem that = (TetrapolarSystem) o;
     return Double.compare(s(), that.s()) == 0 && Double.compare(l(), that.l()) == 0;
   }
 

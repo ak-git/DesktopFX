@@ -5,20 +5,11 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.util.Strings;
 
-final class Layer2RelativeMedium<D> implements RelativeMediumLayers<D> {
-  private final D k12;
-  @Nonnull
-  private final D hToL;
-
+record Layer2RelativeMedium<D>(D k12, @Nonnull D hToL) implements RelativeMediumLayers<D> {
   @ParametersAreNonnullByDefault
   Layer2RelativeMedium(D k12, D hToL) {
     this.k12 = k12;
     this.hToL = hToL;
-  }
-
-  @Override
-  public D k12() {
-    return k12;
   }
 
   @Override

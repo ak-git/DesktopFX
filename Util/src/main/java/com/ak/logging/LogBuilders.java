@@ -41,7 +41,7 @@ public enum LogBuilders implements Cleaner.Cleanable {
       return newBuilder().fileName(fileName).build();
     }
 
-    private LocalFileIO.AbstractBuilder newBuilder() {
+    private static LocalFileIO.AbstractBuilder newBuilder() {
       return newInstance().addPath(CONVERTER_FILE.directory);
     }
   };

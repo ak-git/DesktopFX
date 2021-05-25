@@ -2,12 +2,12 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntUnaryOperator;
 import java.util.function.ToLongFunction;
-import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
@@ -134,10 +134,10 @@ final class InexactTetrapolarSystem {
   }
 
   @Nonnull
-  static Collection<Collection<InexactTetrapolarSystem>> getMeasurementsCombination(@Nonnull Collection<InexactTetrapolarSystem> systems) {
+  static Collection<List<InexactTetrapolarSystem>> getMeasurementsCombination(@Nonnull Collection<InexactTetrapolarSystem> systems) {
     ToLongFunction<Collection<InexactTetrapolarSystem>> distinctSizes =
         ts -> ts.stream().flatMap(s -> DoubleStream.of(s.toExact().getS(), s.toExact().getL()).boxed()).distinct().count();
-    var initialSizes = distinctSizes.applyAsLong(systems.stream().collect(Collectors.toUnmodifiableList()));
+    var initialSizes = distinctSizes.applyAsLong(systems.stream().toList());
     return IntStream.range(0, 2 << (2 * (systems.size() - 1) + 1))
         .mapToObj(n -> {
           var signIndex = new AtomicInteger();
@@ -145,11 +145,9 @@ final class InexactTetrapolarSystem {
           return systems.stream()
               .map(s -> s.shift(
                   sign.applyAsInt(signIndex.getAndIncrement()),
-                  sign.applyAsInt(signIndex.getAndIncrement())))
-              .collect(Collectors.toUnmodifiableList());
+                  sign.applyAsInt(signIndex.getAndIncrement()))).toList();
         })
-        .filter(s -> initialSizes == distinctSizes.applyAsLong(s))
-        .collect(Collectors.toUnmodifiableList());
+        .filter(s -> initialSizes == distinctSizes.applyAsLong(s)).toList();
   }
 
   static class Builder extends TetrapolarSystem.AbstractBuilder<InexactTetrapolarSystem> {

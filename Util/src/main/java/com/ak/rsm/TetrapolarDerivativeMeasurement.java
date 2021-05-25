@@ -1,7 +1,6 @@
 package com.ak.rsm;
 
-import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -50,13 +49,14 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  static Collection<DerivativeMeasurement> of(InexactTetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh) {
+  static List<DerivativeMeasurement> of(InexactTetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh) {
     return IntStream.range(0, systems.length)
         .mapToObj(i -> new TetrapolarDerivativeMeasurement(
             new TetrapolarMeasurement(systems[i], rOhmsBefore[i]),
             new TetrapolarMeasurement(systems[i], rOhmsAfter[i]),
             dh
         ))
-        .collect(Collectors.toUnmodifiableList());
+        .map(DerivativeMeasurement.class::cast)
+        .toList();
   }
 }

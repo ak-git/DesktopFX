@@ -17,8 +17,6 @@ module com.ak.fx.desktop {
   requires spring.context;
   requires spring.core;
 
-  requires java.prefs;
-  requires java.desktop;
   requires spring.beans;
 
   opens com.ak.numbers.aper to com.ak.util, org.testng;

@@ -1,9 +1,8 @@
 package com.ak.rsm;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.ToDoubleFunction;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -90,9 +89,8 @@ final class TetrapolarMeasurement implements Measurement {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  static Collection<Measurement> of(InexactTetrapolarSystem[] systems, double[] ohms) {
+  static List<Measurement> of(InexactTetrapolarSystem[] systems, double[] ohms) {
     return IntStream.range(0, systems.length)
-        .mapToObj(i -> new TetrapolarMeasurement(systems[i], ohms[i]))
-        .collect(Collectors.toUnmodifiableList());
+        .mapToObj(i -> new TetrapolarMeasurement(systems[i], ohms[i])).map(Measurement.class::cast).toList();
   }
 }

@@ -29,7 +29,7 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
   @Nullable
   private final T pingRequest;
 
-  protected AbstractBytesInterceptor(@Nonnull String name, @Nonnull BaudRate baudRate, @Nullable T pingRequest, int ignoreBufferLimit) {
+  protected AbstractBytesInterceptor(@Nonnull String name, @Nonnull BaudRate baudRate, @Nullable T pingRequest, @Nonnegative int ignoreBufferLimit) {
     this.name = name;
     outBuffer = ByteBuffer.allocate(baudRate.get());
     ignoreBuffer = ByteBuffer.allocate(ignoreBufferLimit);
@@ -83,6 +83,7 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
   @Nonnull
   protected abstract Collection<R> innerProcessIn(@Nonnull ByteBuffer src);
 
+  @Nonnull
   protected final ByteBuffer ignoreBuffer() {
     return ignoreBuffer;
   }
