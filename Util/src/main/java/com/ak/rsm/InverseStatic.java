@@ -28,9 +28,7 @@ enum InverseStatic implements Inverseable<Measurement> {
         }
         return sub;
       };
-
-      RelativeMediumLayers<Double> kw = inverseRelative(measurements, subtract);
-      return new Layer2Medium(measurements, kw);
+      return new Layer2Medium(measurements, inverseRelative(measurements, subtract));
     }
     else {
       return new Layer1Medium(measurements);

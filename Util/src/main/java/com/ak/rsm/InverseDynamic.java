@@ -21,8 +21,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
   @Override
   public MediumLayers inverse(@Nonnull Collection<? extends DerivativeMeasurement> measurements) {
     if (measurements.size() > 1) {
-      RelativeMediumLayers<Double> kw = inverseRelative(measurements);
-      return new Layer2Medium(measurements, kw);
+      return new Layer2Medium(measurements, inverseRelative(measurements));
     }
     else {
       return InverseStatic.INSTANCE.inverse(measurements);
