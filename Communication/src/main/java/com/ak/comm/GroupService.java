@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
@@ -34,8 +35,8 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
   @Nonnull
   private Readable currentReadable;
 
-  public GroupService(@Nonnull Supplier<BytesInterceptor<T, R>> interceptorProvider,
-                      @Nonnull Supplier<Converter<R, V>> converterProvider) {
+  @ParametersAreNonnullByDefault
+  public GroupService(Supplier<BytesInterceptor<T, R>> interceptorProvider, Supplier<Converter<R, V>> converterProvider) {
     Converter<R, V> converter = converterProvider.get();
     variables = converter.variables();
     frequency = converter.getFrequency();
