@@ -30,7 +30,7 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
   private final AutoFileReadingService<T, R, V> fileReadingService;
   @Nonnull
   private final List<V> variables;
-  @Nonnull
+  @Nonnegative
   private final double frequency;
   @Nonnull
   private Readable currentReadable;
@@ -76,10 +76,12 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
     }
   }
 
+  @Nonnull
   public List<V> getVariables() {
     return Collections.unmodifiableList(variables);
   }
 
+  @Nonnegative
   public double getFrequency() {
     return frequency;
   }
@@ -90,6 +92,7 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
     fileReadingService.close();
   }
 
+  @Nonnull
   public int[][] read(@Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
     int from = Math.min(fromInclusive, toExclusive);
     int to = Math.max(fromInclusive, toExclusive);
