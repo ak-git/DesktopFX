@@ -1,17 +1,9 @@
 package com.ak.rsm;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.util.Strings;
 
-record Layer2RelativeMedium<D>(D k12, @Nonnull D hToL) implements RelativeMediumLayers<D> {
-  @ParametersAreNonnullByDefault
-  Layer2RelativeMedium(D k12, D hToL) {
-    this.k12 = k12;
-    this.hToL = hToL;
-  }
-
+record Layer2RelativeMedium<D>(D k12, D hToL) implements RelativeMediumLayers<D> {
   @Override
   public D hToL() {
     return hToL;
