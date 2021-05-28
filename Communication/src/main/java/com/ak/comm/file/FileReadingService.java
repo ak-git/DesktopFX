@@ -64,7 +64,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
         int blockSize = (int) Files.getFileStore(fileToRead).getBlockSize();
         MessageDigest md = MessageDigest.getInstance("SHA-512");
         if (isChannelProcessed(blockSize, seekableByteChannel, md::update)) {
-          String md5Code = digestToString(md.digest("2021.04.06".getBytes(Charset.defaultCharset())));
+          String md5Code = digestToString(md.digest("2021.05.28".getBytes(Charset.defaultCharset())));
           Path convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
           if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(convertedFile, StandardOpenOption.READ);
