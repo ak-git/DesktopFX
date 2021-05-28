@@ -10,10 +10,6 @@ interface Measurement {
   @Nonnegative
   double getResistivity();
 
-  default double getLogResistivity() {
-    return StrictMath.log(getResistivity());
-  }
-
   @Nonnull
   Prediction toPrediction(@Nonnull RelativeMediumLayers<Double> kw, @Nonnegative double rho1);
 

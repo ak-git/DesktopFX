@@ -10,6 +10,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.ak.math.ValuePair;
 
 import static java.lang.StrictMath.exp;
+import static java.lang.StrictMath.log;
 
 enum Measurements {
   ;
@@ -34,7 +35,7 @@ enum Measurements {
   @Nonnull
   static ToDoubleBiFunction<TetrapolarSystem, double[]> logDiffApparentPredicted(@Nonnull Collection<? extends Measurement> measurements) {
     double baseL = getBaseL(measurements);
-    return (s, kw) -> StrictMath.log(Math.abs(new DerivativeApparent2Rho(s.toRelative()).value(kw[0], kw[1] * baseL / s.getL())));
+    return (s, kw) -> log(Math.abs(new DerivativeApparent2Rho(s.toRelative()).value(kw[0], kw[1] * baseL / s.getL())));
   }
 
   @Nonnull
@@ -45,12 +46,13 @@ enum Measurements {
       double rho = average.getResistivity();
       return new ValuePair(rho, rho * average.getSystem().getApparentRelativeError());
     }
-
-    double sumLogApparent = measurements.stream().mapToDouble(Measurement::getLogResistivity).sum();
-    var logApparentPredicted = logApparentPredicted(measurements);
-    double sumLogApparentPredicted = measurements.stream()
-        .map(measurement -> measurement.getSystem().toExact())
-        .mapToDouble(s -> logApparentPredicted.applyAsDouble(s, new double[] {kw.k12(), kw.hToL()})).sum();
-    return new ValuePair(exp((sumLogApparent - sumLogApparentPredicted) / measurements.size()));
+    else {
+      double sumLogApparent = measurements.stream().mapToDouble(x -> log(x.getResistivity())).sum();
+      var logApparentPredicted = logApparentPredicted(measurements);
+      double sumLogApparentPredicted = measurements.stream()
+          .map(measurement -> measurement.getSystem().toExact())
+          .mapToDouble(s -> logApparentPredicted.applyAsDouble(s, new double[] {kw.k12(), kw.hToL()})).sum();
+      return new ValuePair(exp((sumLogApparent - sumLogApparentPredicted) / measurements.size()));
+    }
   }
 }

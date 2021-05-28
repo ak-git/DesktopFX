@@ -13,6 +13,8 @@ import static com.ak.rsm.Measurements.getMaxHToL;
 import static com.ak.rsm.Measurements.logApparentPredicted;
 import static com.ak.rsm.Measurements.logDiffApparentPredicted;
 import static com.ak.rsm.RelativeMediumLayers.NAN;
+import static java.lang.StrictMath.abs;
+import static java.lang.StrictMath.log;
 
 enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
   INSTANCE;
@@ -30,35 +32,35 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
 
   @Nonnull
   @Override
-  public RelativeMediumLayers<Double> inverseRelative(@Nonnull Collection<? extends DerivativeMeasurement> derivativeMeasurements) {
+  public RelativeMediumLayers<Double> inverseRelative(@Nonnull Collection<? extends DerivativeMeasurement> measurements) {
     var kMinMax = new double[] {-1.0, 1.0};
-    if (derivativeMeasurements.stream().allMatch(d -> d.getDerivativeResistivity() > 0)) {
+    if (measurements.stream().allMatch(d -> d.getDerivativeResistivity() > 0)) {
       kMinMax[1] = 0.0;
     }
-    else if (derivativeMeasurements.stream().allMatch(d -> d.getDerivativeResistivity() < 0)) {
+    else if (measurements.stream().allMatch(d -> d.getDerivativeResistivity() < 0)) {
       kMinMax[0] = 0.0;
     }
-    else if (derivativeMeasurements.stream().anyMatch(d -> d.getDerivativeResistivity() > 0) &&
-        derivativeMeasurements.stream().anyMatch(d -> d.getDerivativeResistivity() < 0)) {
+    else if (measurements.stream().anyMatch(d -> d.getDerivativeResistivity() > 0) &&
+        measurements.stream().anyMatch(d -> d.getDerivativeResistivity() < 0)) {
       return NAN;
     }
     else {
-      return InverseStatic.INSTANCE.inverseRelative(derivativeMeasurements);
+      return InverseStatic.INSTANCE.inverseRelative(measurements);
     }
 
-    double[] subLog = derivativeMeasurements.stream().mapToDouble(d -> d.getLogResistivity() - d.getDerivativeLogResistivity()).toArray();
-    var logApparentPredicted = logApparentPredicted(derivativeMeasurements);
-    var logDiffApparentPredicted = logDiffApparentPredicted(derivativeMeasurements);
+    double[] subLog = measurements.stream().mapToDouble(d -> log(d.getResistivity()) - log(abs(d.getDerivativeResistivity()))).toArray();
+    var logApparentPredicted = logApparentPredicted(measurements);
+    var logDiffApparentPredicted = logDiffApparentPredicted(measurements);
 
     PointValuePair kwOptimal = Simplex.optimizeAll(
         kw -> {
-          double[] subLogPredicted = derivativeMeasurements.stream()
+          double[] subLogPredicted = measurements.stream()
               .map(measurement -> measurement.getSystem().toExact())
               .mapToDouble(s -> logApparentPredicted.applyAsDouble(s, kw) - logDiffApparentPredicted.applyAsDouble(s, kw))
               .toArray();
           return Inequality.absolute().applyAsDouble(subLog, subLogPredicted);
         },
-        new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], getMaxHToL(derivativeMeasurements)}),
+        new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], getMaxHToL(measurements)}),
         new double[] {0.01, 0.01}
     );
     return new Layer2RelativeMedium<>(kwOptimal.getPoint()[0], kwOptimal.getPoint()[1]);

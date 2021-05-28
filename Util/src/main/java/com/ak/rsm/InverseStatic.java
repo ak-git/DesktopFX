@@ -13,6 +13,7 @@ import org.apache.commons.math3.optim.SimpleBounds;
 
 import static com.ak.rsm.Measurements.getMaxHToL;
 import static com.ak.rsm.Measurements.logApparentPredicted;
+import static java.lang.StrictMath.log;
 
 enum InverseStatic implements Inverseable<Measurement> {
   INSTANCE;
@@ -44,7 +45,7 @@ enum InverseStatic implements Inverseable<Measurement> {
   @Nonnull
   @ParametersAreNonnullByDefault
   private static RelativeMediumLayers<Double> inverseRelative(Collection<? extends Measurement> measurements, UnaryOperator<double[]> subtract) {
-    double[] subLogApparent = subtract.apply(measurements.stream().mapToDouble(Measurement::getLogResistivity).toArray());
+    double[] subLogApparent = subtract.apply(measurements.stream().mapToDouble(x -> log(x.getResistivity())).toArray());
     var logApparentPredicted = logApparentPredicted(measurements);
 
     PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
