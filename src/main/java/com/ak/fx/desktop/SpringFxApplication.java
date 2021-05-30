@@ -26,6 +26,7 @@ import com.ak.comm.converter.aper.AperStage4Current2Variable;
 import com.ak.comm.converter.aper.AperStage5Current1Variable;
 import com.ak.comm.converter.aper.AperStage5Current1Variable7x21x35;
 import com.ak.comm.converter.kleiber.KleiberVariable;
+import com.ak.comm.converter.prv.PrvVariable;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
@@ -113,7 +114,7 @@ public class SpringFxApplication extends FxApplication {
     if (profiles.length == 0) {
       profiles = applicationContext.getEnvironment().getDefaultProfiles();
     }
-    FXMLLoader defaultFxmlLoader = super.getFXMLLoader(resourceBundle).get(0);
+    var defaultFxmlLoader = super.getFXMLLoader(resourceBundle).get(0);
     List<FXMLLoader> fxmlLoaders = Arrays.stream(profiles)
         .map(profile -> getClass().getResource(String.join(".", profile, "fxml")))
         .map(fxml -> {
@@ -166,8 +167,8 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("prv")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<String, ADCVariable> converterPrv() {
-    return new StringToIntegerConverter<>(ADCVariable.class, 32);
+  static Converter<String, PrvVariable> converterPrv() {
+    return new StringToIntegerConverter<>(PrvVariable.class, 32);
   }
 
   @Bean
