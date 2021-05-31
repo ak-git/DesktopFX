@@ -107,11 +107,7 @@ public class RcmConverterTest {
 
   @Test(enabled = false)
   public void testBaseSplineSurface1() {
-    SplineCoefficientsUtils.testSplineSurface1(RcmBaseSurfaceCoefficientsChannel1.class);
-  }
-
-  @Test(enabled = false)
-  public void testBaseSplineSurface2() {
-    SplineCoefficientsUtils.testSplineSurface2(RcmBaseSurfaceCoefficientsChannel2.class);
+    SplineCoefficientsUtils.testSplineSurface(RcmBaseSurfaceCoefficientsChannel1.class);
+    SplineCoefficientsUtils.testSplineSurface(RcmBaseSurfaceCoefficientsChannel2.class);
   }
 }

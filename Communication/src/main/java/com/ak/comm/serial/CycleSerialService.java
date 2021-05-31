@@ -3,7 +3,6 @@ package com.ak.comm.serial;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
-import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.time.Instant;
@@ -19,6 +18,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
@@ -34,8 +34,8 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
   @Nonnull
   private SerialService<T, R> serialService;
 
-  public CycleSerialService(@Nonnull BytesInterceptor<T, R> bytesInterceptor,
-                            @Nonnull Converter<R, V> responseConverter) {
+  @ParametersAreNonnullByDefault
+  public CycleSerialService(BytesInterceptor<T, R> bytesInterceptor, Converter<R, V> responseConverter) {
     super(bytesInterceptor, responseConverter);
     serialService = new SerialService<>(bytesInterceptor);
   }
@@ -44,9 +44,9 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
   public void subscribe(@Nonnull Flow.Subscriber<? super int[]> s) {
     s.onSubscribe(this);
     executor.scheduleWithFixedDelay(() -> {
-      AtomicBoolean workingFlag = new AtomicBoolean();
+      var workingFlag = new AtomicBoolean();
       AtomicReference<Instant> okTime = new AtomicReference<>(Instant.now());
-      CountDownLatch latch = new CountDownLatch(1);
+      var latch = new CountDownLatch(1);
 
       Flow.Subscriber<ByteBuffer> subscriber = new Flow.Subscriber<>() {
         @Nullable
@@ -135,7 +135,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public AsynchronousFileChannel call() throws IOException {
-    Path path = LogBuilders.CONVERTER_SERIAL.build("%08x".formatted(hashCode())).getPath();
+    var path = LogBuilders.CONVERTER_SERIAL.build("%08x".formatted(hashCode())).getPath();
     return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
   }
 

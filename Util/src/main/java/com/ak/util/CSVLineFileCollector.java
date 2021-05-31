@@ -3,8 +3,7 @@ package com.ak.util;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
@@ -24,22 +23,24 @@ import javax.annotation.Nullable;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
-public final class CSVLineFileCollector implements Collector<Object, CSVPrinter, Boolean>, Closeable, Consumer<Object[]> {
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
+
+public final class CSVLineFileCollector implements Collector<Object[], CSVPrinter, Boolean>, Closeable, Consumer<Object[]> {
   @Nullable
   private CSVPrinter csvPrinter;
   private boolean errorFlag;
 
-  public CSVLineFileCollector(@Nonnull String out, @Nonnull String... header) {
+  public CSVLineFileCollector(@Nonnull Path out, @Nonnull String... header) {
     try {
       csvPrinter = new CSVPrinter(
-          Files.newBufferedWriter(Paths.get(Extension.TXT.attachTo(out)),
-              StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
-          ),
-          CSVFormat.TDF.withHeader(header.length > 0 ? header : null)
+          Files.newBufferedWriter(out, WRITE, CREATE, TRUNCATE_EXISTING),
+          CSVFormat.DEFAULT.withHeader(header.length > 0 ? header : null)
       );
     }
     catch (IOException ex) {
-      Logger.getLogger(getClass().getName()).log(Level.WARNING, out, ex);
+      Logger.getLogger(getClass().getName()).log(Level.WARNING, out.toString(), ex);
       errorFlag = true;
     }
   }
@@ -63,8 +64,8 @@ public final class CSVLineFileCollector implements Collector<Object, CSVPrinter,
   }
 
   @Override
-  public BiConsumer<CSVPrinter, Object> accumulator() {
-    return (p, object) -> accept(new Object[] {object});
+  public BiConsumer<CSVPrinter, Object[]> accumulator() {
+    return (p, objects) -> accept(objects);
   }
 
   @Override
@@ -79,8 +80,7 @@ public final class CSVLineFileCollector implements Collector<Object, CSVPrinter,
     return printer -> {
       if (!errorFlag) {
         try {
-          printer.flush();
-          printer.close();
+          printer.close(true);
         }
         catch (IOException e) {
           Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
@@ -99,7 +99,7 @@ public final class CSVLineFileCollector implements Collector<Object, CSVPrinter,
   @Override
   public void close() throws IOException {
     if (!errorFlag) {
-      Objects.requireNonNull(csvPrinter).close();
+      Objects.requireNonNull(csvPrinter).close(true);
     }
   }
 }

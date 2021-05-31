@@ -33,9 +33,9 @@ public enum NmisProtocolByte implements BytesChecker {
   static final Collection<NmisProtocolByte> CHECKED_BYTES = Collections.unmodifiableCollection(EnumSet.of(START, LEN));
 
   static boolean checkCRC(@Nonnull ByteBuffer byteBuffer) {
-    int crc = 0;
+    var crc = 0;
     byteBuffer.rewind();
-    for (int i = 0; i < byteBuffer.limit() - 1; i++) {
+    for (var i = 0; i < byteBuffer.limit() - 1; i++) {
       crc += byteBuffer.get();
     }
     byteBuffer.rewind();

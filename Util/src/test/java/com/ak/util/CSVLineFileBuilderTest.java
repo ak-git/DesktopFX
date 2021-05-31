@@ -16,6 +16,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class CSVLineFileBuilderTest {
+  public static final String LINE_JOINER = Strings.NEW_LINE;
+  public static final String ROW_DELIMITER = Strings.COMMA;
+
   @Test
   public void testGenerateRange() throws IOException {
     CSVLineFileBuilder.of((x, y) -> x + y * 10)
@@ -23,7 +26,13 @@ public class CSVLineFileBuilderTest {
         .yRange(1.0, 2.0, 1.0)
         .saveTo("z", x -> x)
         .generate();
-    checkFilesExists("z", "\"\"\t1.0\t2.0\t3.0\t1.0\t11.0\t12.0\t13.0\t2.0\t21.0\t22.0\t23.0");
+    checkFilesExists("z",
+        String.join(LINE_JOINER,
+            String.join(ROW_DELIMITER, "\"\"", "1.0", "2.0", "3.0"),
+            String.join(ROW_DELIMITER, "1.0", "11.0", "12.0", "13.0"),
+            String.join(ROW_DELIMITER, "2.0", "21.0", "22.0", "23.0")
+        )
+    );
   }
 
   @Test
@@ -34,16 +43,19 @@ public class CSVLineFileBuilderTest {
         .saveTo("logZ", aDouble -> aDouble)
         .generate();
     checkFilesExists("logZ",
-        "\"\"\t10.0\t12.0\t14.0\t16.0\t18.0\t20.0\t%s".formatted(
+        String.join(LINE_JOINER,
+            String.join(ROW_DELIMITER, "\"\"", "10.0", "12.0", "14.0", "16.0", "18.0", "20.0"),
             DoubleStream
                 .iterate(1.0, value -> value <= 10.0, operand -> operand + 0.2)
-                .flatMap(value -> DoubleStream.concat(
-                    DoubleStream.of(value),
-                    DoubleStream.iterate(10.0, d -> d <= 20.0, d -> d + 2.0).map(d -> d + value))
+                .mapToObj(value ->
+                    DoubleStream
+                        .concat(
+                            DoubleStream.of(value),
+                            DoubleStream.iterate(10.0, d -> d <= 20.0, d -> d + 2.0).map(d -> d + value))
+                        .map(x -> BigDecimal.valueOf(x).setScale(1, RoundingMode.HALF_EVEN).doubleValue())
+                        .mapToObj(Double::toString).collect(Collectors.joining(ROW_DELIMITER))
                 )
-                .map(value -> BigDecimal.valueOf(value).setScale(1, RoundingMode.HALF_EVEN).doubleValue())
-                .mapToObj(Double::toString)
-                .collect(Collectors.joining(Strings.TAB))
+                .collect(Collectors.joining(LINE_JOINER))
         )
     );
   }
@@ -55,13 +67,20 @@ public class CSVLineFileBuilderTest {
         .yStream(() -> DoubleStream.of(1.0, 2.0, 0.0))
         .saveTo("streamZ", x -> x)
         .generate();
-    checkFilesExists("streamZ", "\"\"\t1.0\t2.0\t1.0\t3.0\t4.0\t2.0\t5.0\t6.0\t0.0\t1.0\t2.0");
+    checkFilesExists("streamZ",
+        String.join(LINE_JOINER,
+            String.join(ROW_DELIMITER, "\"\"", "1.0", "2.0"),
+            String.join(ROW_DELIMITER, "1.0", "3.0", "4.0"),
+            String.join(ROW_DELIMITER, "2.0", "5.0", "6.0"),
+            String.join(ROW_DELIMITER, "0.0", "1.0", "2.0")
+        )
+    );
   }
 
   @ParametersAreNonnullByDefault
   private static void checkFilesExists(String fileName, String expected) throws IOException {
-    Path z = Paths.get(Extension.TXT.attachTo(fileName));
-    Assert.assertEquals(String.join(Strings.TAB, Files.readAllLines(z, Charset.forName("windows-1251"))), expected);
+    Path z = Paths.get(Extension.CSV.attachTo(fileName));
+    Assert.assertEquals(String.join(LINE_JOINER, Files.readAllLines(z, Charset.forName("windows-1251"))), expected);
     Assert.assertTrue(Files.deleteIfExists(z));
   }
 }

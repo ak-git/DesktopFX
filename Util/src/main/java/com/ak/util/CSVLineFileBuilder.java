@@ -2,6 +2,7 @@ package com.ak.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.DoubleUnaryOperator;
@@ -67,7 +68,7 @@ public final class CSVLineFileBuilder<T> {
           Stream.concat(Stream.of(Strings.EMPTY), xRange.build().mapToObj(Double::toString)).toArray(String[]::new)
       );
     }
-    multiFileBuilder.add(fileName, converter);
+    multiFileBuilder.add(Paths.get(Extension.CSV.attachTo(fileName)), converter);
     return this;
   }
 

@@ -127,6 +127,10 @@ public final class AxisXController {
     return stepProperty;
   }
 
+  public ReadOnlyIntegerProperty startProperty() {
+    return startProperty;
+  }
+
   public ReadOnlyIntegerProperty lengthProperty() {
     return lengthProperty;
   }
@@ -180,7 +184,7 @@ public final class AxisXController {
     return xStep;
   }
 
-  private void setStart(int start) {
+  public void setStart(int start) {
     startProperty.setValue(Math.max(0, toInt(start / (decimateFactor * 1.0)) * decimateFactor));
   }
 

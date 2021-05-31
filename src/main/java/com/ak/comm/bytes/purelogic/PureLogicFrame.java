@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import com.ak.comm.bytes.BufferFrame;
 import tec.uom.se.unit.MetricPrefix;
 
-import static com.ak.comm.core.LogUtils.LOG_LEVEL_ERRORS;
+import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
 import static com.ak.util.Strings.NEW_LINE;
 import static com.ak.util.Strings.SPACE;
 import static tec.uom.se.unit.Units.METRE;
@@ -63,7 +63,7 @@ public final class PureLogicFrame extends BufferFrame {
   @Nullable
   public static PureLogicFrame of(@Nonnull StringBuilder buffer) {
     if (buffer.indexOf(STEP_COMMAND) == 0) {
-      String substring = buffer.substring(STEP_COMMAND.length(), buffer.indexOf(NEW_LINE)).strip().replaceAll(SPACE, "");
+      var substring = buffer.substring(STEP_COMMAND.length(), buffer.indexOf(NEW_LINE)).strip().replaceAll(SPACE, "");
       try {
         return new PureLogicFrame(Integer.parseInt(substring));
       }

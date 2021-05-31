@@ -10,10 +10,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.BufferFrame;
-import com.ak.comm.core.LogUtils;
+import com.ak.comm.bytes.LogUtils;
 
-import static com.ak.comm.core.LogUtils.LOG_LEVEL_ERRORS;
-import static com.ak.comm.core.LogUtils.LOG_LEVEL_LEXEMES;
+import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
+import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_LEXEMES;
 
 public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> implements BytesInterceptor<T, R> {
   protected static final int IGNORE_LIMIT = 16;
@@ -29,7 +29,7 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
   @Nullable
   private final T pingRequest;
 
-  protected AbstractBytesInterceptor(@Nonnull String name, @Nonnull BaudRate baudRate, @Nullable T pingRequest, int ignoreBufferLimit) {
+  protected AbstractBytesInterceptor(@Nonnull String name, @Nonnull BaudRate baudRate, @Nullable T pingRequest, @Nonnegative int ignoreBufferLimit) {
     this.name = name;
     outBuffer = ByteBuffer.allocate(baudRate.get());
     ignoreBuffer = ByteBuffer.allocate(ignoreBufferLimit);
@@ -83,6 +83,7 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
   @Nonnull
   protected abstract Collection<R> innerProcessIn(@Nonnull ByteBuffer src);
 
+  @Nonnull
   protected final ByteBuffer ignoreBuffer() {
     return ignoreBuffer;
   }

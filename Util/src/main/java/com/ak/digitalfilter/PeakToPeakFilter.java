@@ -59,7 +59,7 @@ final class PeakToPeakFilter extends AbstractBufferFilter {
     public int applyAsInt(int nowIndex) {
       if (nowIndex == extremalIndex) {
         int extremal = get(0);
-        for (int i = 0; i < length(); i++) {
+        for (var i = 0; i < length(); i++) {
           int candidate = get(i);
           if (operator.is(extremal, candidate)) {
             extremal = candidate;

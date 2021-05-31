@@ -27,7 +27,7 @@ public class Layer2RelativeMediumTest {
   @ParametersAreNonnullByDefault
   public <T> void test(RelativeMediumLayers<T> layers, T[] expected) {
     Assert.assertEquals(layers.k12(), expected[0]);
-    Assert.assertEquals(layers.h(), expected[1]);
+    Assert.assertEquals(layers.hToL(), expected[1]);
   }
 
   @Test(dataProvider = "layer2Medium")

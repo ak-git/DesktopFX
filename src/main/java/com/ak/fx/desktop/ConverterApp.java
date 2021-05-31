@@ -49,12 +49,15 @@ public class ConverterApp implements AutoCloseable, Consumer<Path> {
   }
 
   public static void main(String[] args) {
-    try (ConverterApp app = new ConverterApp(SpringApplication.run(ConverterApp.class, args));
-         DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), "*.bin")) {
+    try (var app = new ConverterApp(SpringApplication.run(ConverterApp.class, args));
+         DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.BIN.attachTo("*"))) {
       paths.forEach(app);
     }
     catch (IOException e) {
       LOGGER.log(Level.WARNING, e.getMessage(), e);
+    }
+    finally {
+      LOGGER.info(() -> "Conversion finished");
     }
   }
 
@@ -69,22 +72,22 @@ public class ConverterApp implements AutoCloseable, Consumer<Path> {
                                                                        Provider<Converter<R, V>> converterProvider, Path path) {
     BytesInterceptor<T, R> bytesInterceptor = interceptorProvider.get();
     Converter<R, V> responseConverter = converterProvider.get();
-    String fileName = path.toFile().getName();
+    String fileName = path.toFile().getPath();
     if (fileName.endsWith(Extension.BIN.attachTo(bytesInterceptor.name()))) {
       try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
-           CSVLineFileCollector collector = new CSVLineFileCollector(Extension.BIN.clean(fileName),
+           var collector = new CSVLineFileCollector(Paths.get(Extension.CSV.attachTo(Extension.BIN.clean(fileName))),
                Stream.concat(
                    Stream.of(TimeVariable.TIME).map(Variables::toName),
                    responseConverter.variables().stream().map(Variables::toName)
                ).toArray(String[]::new))
       ) {
-        ByteBuffer buffer = ByteBuffer.allocate((int) Files.getFileStore(path).getBlockSize());
-        AtomicInteger timeCounter = new AtomicInteger();
+        var buffer = ByteBuffer.allocate((int) Files.getFileStore(path).getBlockSize());
+        var timeCounter = new AtomicInteger();
         while (readableByteChannel.read(buffer) > 0) {
           buffer.flip();
           bytesInterceptor.apply(buffer).flatMap(responseConverter).forEach(
               ints -> {
-                double time = BigDecimal.valueOf(timeCounter.getAndIncrement() / responseConverter.getFrequency())
+                var time = BigDecimal.valueOf(timeCounter.getAndIncrement() / responseConverter.getFrequency())
                     .setScale(3, RoundingMode.HALF_EVEN).doubleValue();
                 collector.accept(Stream.concat(Stream.of(time), Arrays.stream(ints).boxed()).toArray());
               }

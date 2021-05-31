@@ -28,8 +28,8 @@ final class SelectFilter extends AbstractDigitalFilter {
 
   @Override
   public void accept(@Nonnull int... values) {
-    int[] selected = new int[selectedIndexes.length];
-    for (int i = 0; i < selected.length; i++) {
+    var selected = new int[selectedIndexes.length];
+    for (var i = 0; i < selected.length; i++) {
       if (selectedIndexes[i] < values.length) {
         selected[i] = values[selectedIndexes[i]];
       }

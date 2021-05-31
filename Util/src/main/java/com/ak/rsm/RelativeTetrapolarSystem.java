@@ -47,11 +47,10 @@ final class RelativeTetrapolarSystem {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof RelativeTetrapolarSystem)) {
+    if (!(o instanceof RelativeTetrapolarSystem that)) {
       return false;
     }
 
-    RelativeTetrapolarSystem that = (RelativeTetrapolarSystem) o;
     return Double.compare(x, that.x) == 0;
   }
 

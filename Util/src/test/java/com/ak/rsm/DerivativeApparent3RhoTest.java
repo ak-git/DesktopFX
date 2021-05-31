@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 public class DerivativeApparent3RhoTest {
   @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
   public void testValue2(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    TetrapolarSystem system = TetrapolarSystem.milli().s(smm).l(lmm);
+    TetrapolarSystem system = TetrapolarSystem.milli(0.0).s(smm).l(lmm);
     double h = Metrics.fromMilli(1);
     double dh = h / 1000.0;
     int p1 = (int) hmm;
@@ -21,8 +21,8 @@ public class DerivativeApparent3RhoTest {
     );
     expected /= rho[0];
 
-    double actual = new DerivativeApparent3Rho(system).value(Layers.getK12(rho[0], rho[1]), 0.0,
-        h / Metrics.fromMilli(lmm), p1, 1);
+    double actual = new DerivativeApparent3Rho(system.toRelative()).value(Layers.getK12(rho[0], rho[1]), 0.0,
+        h / Metrics.fromMilli(lmm), p1, 1) / system.getL();
     Assert.assertEquals(StrictMath.log(Math.abs(actual)), StrictMath.log(Math.abs(expected)), 0.1);
     Assert.assertEquals(Math.signum(actual), Math.signum(expected), 0.1);
   }
@@ -30,7 +30,7 @@ public class DerivativeApparent3RhoTest {
   @Test(dataProviderClass = Resistance3LayerTest.class, dataProvider = "layer-model")
   public void testValue3(@Nonnull double[] rho, @Nonnegative double h, @Nonnull int[] p,
                          @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    TetrapolarSystem system = TetrapolarSystem.milli().s(smm).l(lmm);
+    TetrapolarSystem system = TetrapolarSystem.milli(0.0).s(smm).l(lmm);
     double dh = h / 1000.0;
     Resistance3Layer resistance3LayerAfter = new Resistance3Layer(system, h + dh);
     Resistance3Layer resistance3LayerBefore = new Resistance3Layer(system, h);
@@ -39,8 +39,8 @@ public class DerivativeApparent3RhoTest {
     );
     expected /= rho[0];
 
-    double actual = new DerivativeApparent3Rho(system).value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]),
-        h / Metrics.fromMilli(lmm), p[0], p[1]);
+    double actual = new DerivativeApparent3Rho(system.toRelative()).value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]),
+        h / Metrics.fromMilli(lmm), p[0], p[1]) / system.getL();
     Assert.assertEquals(StrictMath.log(Math.abs(actual)), StrictMath.log(Math.abs(expected)), 0.1);
     Assert.assertEquals(Math.signum(actual), Math.signum(expected), 0.1);
   }

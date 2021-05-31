@@ -13,7 +13,7 @@ public class Log1pApparent3RhoTest {
   @Test(dataProviderClass = Resistance3LayerTest.class, dataProvider = "layer-model")
   public void testValue(@Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p,
                         @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    TetrapolarSystem system = TetrapolarSystem.milli().s(smm).l(lmm);
+    TetrapolarSystem system = TetrapolarSystem.milli(0.1).s(smm).l(lmm);
     double logApparent = log(system.getApparent(rOhm)) - log(rho[0]);
     double logPredicted = new Log1pApparent3Rho(new RelativeTetrapolarSystem(lmm / smm)).
         value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]), hStepSI / Metrics.fromMilli(smm), p[0], p[1]);

@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -53,7 +52,7 @@ import org.springframework.context.annotation.Scope;
     "com.ak.comm.interceptor.nmis", "com.ak.comm.converter.nmis",
     "com.ak.comm.interceptor.suntech", "com.ak.comm.converter.suntech",
     "com.ak.comm.interceptor.purelogic", "com.ak.comm.converter.purelogic",
-    "com.ak.comm.interceptor.kleiber",
+    "com.ak.comm.interceptor.kleiber", "com.ak.comm.interceptor.rcm"
 })
 public class SpringFxApplication extends FxApplication {
   private ConfigurableApplicationContext applicationContext;
@@ -112,7 +111,7 @@ public class SpringFxApplication extends FxApplication {
     if (profiles.length == 0) {
       profiles = applicationContext.getEnvironment().getDefaultProfiles();
     }
-    FXMLLoader defaultFxmlLoader = super.getFXMLLoader(resourceBundle).get(0);
+    var defaultFxmlLoader = super.getFXMLLoader(resourceBundle).get(0);
     List<FXMLLoader> fxmlLoaders = Arrays.stream(profiles)
         .map(profile -> getClass().getResource(String.join(".", profile, "fxml")))
         .map(fxml -> {
@@ -123,7 +122,7 @@ public class SpringFxApplication extends FxApplication {
             return new FXMLLoader(fxml, resourceBundle);
           }
         })
-        .collect(Collectors.toUnmodifiableList());
+        .toList();
     fxmlLoaders.forEach(fxmlLoader -> fxmlLoader.setControllerFactory(applicationContext::getBean));
     return fxmlLoaders;
   }

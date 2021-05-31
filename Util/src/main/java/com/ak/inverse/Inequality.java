@@ -34,7 +34,7 @@ public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, T
 
   @Override
   public double applyAsDouble(@Nonnull double[] measured, @Nonnull double[] predicted) {
-    for (int i = 0; i < measured.length; i++) {
+    for (var i = 0; i < measured.length; i++) {
       applyAsDouble(measured[i], predicted[i]);
     }
     return getAsDouble();

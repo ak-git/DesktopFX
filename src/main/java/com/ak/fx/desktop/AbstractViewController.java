@@ -5,16 +5,18 @@ import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -33,6 +35,8 @@ import com.ak.fx.scene.AxisYController;
 import com.ak.fx.scene.Chart;
 import com.ak.fx.scene.ScaleYInfo;
 import com.ak.fx.util.FxUtils;
+import com.ak.logging.OutputBuilders;
+import com.ak.util.Extension;
 import com.ak.util.Strings;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -57,17 +61,26 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @Nullable
   @FXML
   private Chart chart;
+  @Nonnegative
+  private long countSamples;
+  @Nullable
+  private SequentialTransition transition;
 
   @ParametersAreNonnullByDefault
   protected AbstractViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
                                    Provider<Converter<R, V>> converterProvider) {
     service = new GroupService<>(interceptorProvider::get, converterProvider::get);
     Executors.newSingleThreadExecutor().execute(() -> {
-      try (DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), "*.bin")) {
+      try (DirectoryStream<Path> paths = Files.newDirectoryStream(
+          OutputBuilders.build(Strings.EMPTY).getPath().getParent(), Extension.BIN.attachTo("*"))
+      ) {
         paths.forEach(path -> ConverterApp.doConvert(interceptorProvider, converterProvider, path));
       }
       catch (IOException e) {
         Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+      }
+      finally {
+        Logger.getLogger(getClass().getName()).info(() -> "Conversion finished");
       }
     });
   }
@@ -89,7 +102,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
         event.consume();
       });
       chart.setVariables(service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.VISIBLE))
-          .map(Variables::toString).collect(Collectors.toList()));
+          .map(Variables::toString).toList());
       chart.titleProperty().bind(axisXController.zoomProperty().asString());
       chart.diagramHeightProperty().addListener((observable, oldValue, newValue) -> {
         axisYController.setLineDiagramHeight(newValue.doubleValue());
@@ -97,18 +110,25 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
       });
       chart.diagramWidthProperty().addListener((observable, oldValue, newValue) -> axisXController.preventEnd(newValue.doubleValue()));
       axisXController.stepProperty().addListener((observable, oldValue, newValue) -> chart.setXStep(newValue.doubleValue()));
+      axisXController.startProperty().addListener((observable, oldValue, newValue) -> changed());
       axisXController.lengthProperty().addListener((observable, oldValue, newValue) ->
           chart.setMaxSamples(newValue.intValue() / axisXController.getDecimateFactor())
       );
       axisXController.setFrequency(service.getFrequency());
     }
 
-    Timeline timeline = new Timeline();
-    timeline.getKeyFrames().add(new KeyFrame(Duration.millis(50), (ActionEvent actionEvent) -> axisXController.scroll(-500)));
+    var timeline = new Timeline(
+        new KeyFrame(Duration.millis(50),
+            (ActionEvent actionEvent) -> {
+              int start = (int) (Math.max(0, countSamples - axisXController.getLength()));
+              axisXController.setStart(start);
+              if (start == 0) {
+                changed();
+              }
+            })
+    );
     timeline.setCycleCount(Animation.INDEFINITE);
-    SequentialTransition animation = new SequentialTransition();
-    animation.getChildren().addAll(timeline);
-    animation.play();
+    transition = new SequentialTransition(timeline);
     service.subscribe(this);
   }
 
@@ -119,13 +139,17 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
       subscription.cancel();
     }
     subscription = s;
-    changed();
     subscription.request(axisXController.getLength());
+    countSamples = 0;
+    Objects.requireNonNull(transition).play();
+    changed();
+    CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS).execute(this::changed);
   }
 
   @Override
   @OverridingMethodsMustInvokeSuper
   public void onNext(@Nonnull int[] ints) {
+    countSamples++;
     displayBanner(ints);
   }
 
@@ -136,6 +160,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
 
   @Override
   public final void onComplete() {
+    Objects.requireNonNull(transition).stop();
     changed();
   }
 
@@ -149,6 +174,8 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @OverridingMethodsMustInvokeSuper
   public void refresh() {
     service.refresh();
+    countSamples = 0;
+    Objects.requireNonNull(transition).play();
     changed();
   }
 

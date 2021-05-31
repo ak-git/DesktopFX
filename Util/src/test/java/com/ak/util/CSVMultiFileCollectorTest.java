@@ -17,10 +17,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import static com.ak.util.CSVLineFileBuilderTest.LINE_JOINER;
+import static com.ak.util.CSVLineFileBuilderTest.ROW_DELIMITER;
+
 public class CSVMultiFileCollectorTest {
   private static final Logger LOGGER = Logger.getLogger(CSVMultiFileCollectorTest.class.getName());
-  private static final String OUT_FILE_NAME = CSVMultiFileCollectorTest.class.getSimpleName();
-  private static final Path OUT_PATH = Paths.get(Extension.TXT.attachTo(OUT_FILE_NAME));
+  private static final Path OUT_PATH = Paths.get(Extension.CSV.attachTo(CSVMultiFileCollectorTest.class.getSimpleName()));
   private final AtomicInteger exceptionCounter = new AtomicInteger();
 
   @BeforeClass
@@ -53,10 +55,15 @@ public class CSVMultiFileCollectorTest {
   public void test() throws IOException {
     CSVMultiFileCollector<Integer, Double> multiFileCollector = new CSVMultiFileCollector.Builder<Integer, Double>(
         IntStream.of(1, 2).boxed(), "var1", "var2").
-        add(OUT_FILE_NAME, value -> value).build();
+        add(OUT_PATH, value -> value).build();
     Assert.assertTrue(Stream.of(Stream.of(1.0, 1.1), Stream.of(2.0, 2.1)).collect(multiFileCollector));
-    Assert.assertEquals(String.join(Strings.TAB, Files.readAllLines(OUT_PATH, Charset.forName("windows-1251"))),
-        "var1\tvar2\t1\t1.0\t1.1\t2\t2.0\t2.1");
+    Assert.assertEquals(String.join(LINE_JOINER, Files.readAllLines(OUT_PATH, Charset.forName("windows-1251"))),
+        String.join(LINE_JOINER,
+            String.join(ROW_DELIMITER, "var1", "var2"),
+            String.join(ROW_DELIMITER, "1", "1.0", "1.1"),
+            String.join(ROW_DELIMITER, "2", "2.0", "2.1")
+        )
+    );
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)

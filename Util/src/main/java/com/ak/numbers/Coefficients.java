@@ -1,11 +1,10 @@
 package com.ak.numbers;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
-import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -23,11 +22,11 @@ import com.ak.util.LocalIO;
 public interface Coefficients extends Supplier<double[]> {
   @Override
   default double[] get() {
-    String fileName = getClass().getPackageName().substring(getClass().getPackageName().lastIndexOf(".") + 1);
-    InputStream inputStream = getClass().getResourceAsStream(Extension.JSON.attachTo(fileName));
+    var fileName = getClass().getPackageName().substring(getClass().getPackageName().lastIndexOf(".") + 1);
+    var inputStream = Objects.requireNonNull(getClass().getResourceAsStream(Extension.JSON.attachTo(fileName)));
     try {
       LocalIO build = CalibrateBuilders.CALIBRATION.build(fileName);
-      Path path = build.getPath();
+      var path = build.getPath();
       if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
         Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
         inputStream.close();
@@ -44,9 +43,9 @@ public interface Coefficients extends Supplier<double[]> {
 
   default double[][] getPairs() {
     double[] xAndY = get();
-    double[][] pairs = new double[xAndY.length / 2][2];
+    var pairs = new double[xAndY.length / 2][2];
 
-    for (int i = 0; i < pairs.length; i++) {
+    for (var i = 0; i < pairs.length; i++) {
       pairs[i][0] = xAndY[i * 2];
       pairs[i][1] = xAndY[i * 2 + 1];
     }

@@ -64,7 +64,7 @@ final class MilliGrid extends Pane {
     public final void addToPath(@Nonnull Path path, @Nonnull GridCell gridCell) {
       double contentSize = contentSize();
       int factor = (int) Math.round(GridCell.SMALL.getStep() / gridCell.getStep());
-      int i = 0;
+      var i = 0;
       for (double c = gridCell.minCoordinate(contentSize); c < maxValue(contentSize) + 1.0; c += gridCell.getStep()) {
         if (!(gridCell == GridCell.POINTS && i % factor == 0)) {
           path.getElements().addAll(moveTo(c, gridCell), lineTo(gridCell));

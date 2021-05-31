@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
@@ -89,7 +88,7 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
     if (frames.isEmpty()) {
       frames.addAll(
           random.ints(0, PINGS.length).distinct().limit(PINGS.length)
-              .mapToObj(value -> PINGS[value]).collect(Collectors.toList())
+              .mapToObj(value -> PINGS[value]).toList()
       );
     }
     PureLogicFrame action = frames.element().action(up);
