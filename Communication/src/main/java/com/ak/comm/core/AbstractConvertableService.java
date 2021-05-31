@@ -34,6 +34,7 @@ public abstract class AbstractConvertableService<T, R, V extends Enum<V> & Varia
   @OverridingMethodsMustInvokeSuper
   @Override
   public void close() {
+    responseConverter.close();
     convertedLogByteChannel.close();
   }
 

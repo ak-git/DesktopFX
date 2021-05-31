@@ -8,13 +8,8 @@ import javax.annotation.Nonnull;
 import com.ak.comm.converter.Refreshable;
 
 @FunctionalInterface
-public interface Readable extends AutoCloseable, Refreshable {
+public interface Readable extends Refreshable {
   void read(@Nonnull ByteBuffer dst, @Nonnegative long position);
-
-  @Override
-  default void close() {
-    //Empty implementation to remove Exception inherited from AutoCloseable.
-  }
 
   @Override
   default void refresh() {
