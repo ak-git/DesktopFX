@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 public class NormalizedDerivativeR2ByHTest {
   @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
   public void testValue(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    TetrapolarSystem system = TetrapolarSystem.milli().s(smm).l(lmm);
+    TetrapolarSystem system = TetrapolarSystem.milli(0.1).s(smm).l(lmm);
     double h = Metrics.fromMilli(hmm);
     double dh = Metrics.fromMilli(-0.00001);
     TrivariateFunction resistance2Layer = new Resistance2Layer(system);

@@ -17,7 +17,7 @@ enum Measurements {
 
   @Nonnegative
   static double getBaseL(@Nonnull Collection<? extends Measurement> measurements) {
-    return measurements.parallelStream().mapToDouble(m -> m.getSystem().toExact().getL()).max().orElseThrow();
+    return measurements.parallelStream().mapToDouble(m -> m.getSystem().getL()).max().orElseThrow();
   }
 
   @Nonnegative
@@ -50,7 +50,7 @@ enum Measurements {
       double sumLogApparent = measurements.stream().mapToDouble(x -> log(x.getResistivity())).sum();
       var logApparentPredicted = logApparentPredicted(measurements);
       double sumLogApparentPredicted = measurements.stream()
-          .map(measurement -> measurement.getSystem().toExact())
+          .map(Measurement::getSystem)
           .mapToDouble(s -> logApparentPredicted.applyAsDouble(s, new double[] {kw.k12(), kw.hToL()})).sum();
       return new ValuePair(exp((sumLogApparent - sumLogApparentPredicted) / measurements.size()));
     }

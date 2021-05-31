@@ -18,7 +18,7 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
   TetrapolarDerivativeMeasurement(@Nonnull Measurement measurementBefore,
                                   @Nonnull Measurement measurementAfter, double dh) {
     measurement = measurementBefore;
-    dRhoBydPhi = (measurementAfter.getResistivity() - measurement.getResistivity()) / (dh / getSystem().toExact().getL());
+    dRhoBydPhi = (measurementAfter.getResistivity() - measurement.getResistivity()) / (dh / getSystem().getL());
   }
 
   @Override
@@ -38,7 +38,7 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
   }
 
   @Override
-  public InexactTetrapolarSystem getSystem() {
+  public TetrapolarSystem getSystem() {
     return measurement.getSystem();
   }
 
@@ -49,7 +49,7 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  static List<DerivativeMeasurement> of(InexactTetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh) {
+  static List<DerivativeMeasurement> of(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh) {
     return IntStream.range(0, systems.length)
         .mapToObj(i -> new TetrapolarDerivativeMeasurement(
             new TetrapolarMeasurement(systems[i], rOhmsBefore[i]),

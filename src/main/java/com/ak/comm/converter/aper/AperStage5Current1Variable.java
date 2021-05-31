@@ -58,7 +58,7 @@ public enum AperStage5Current1Variable implements DependentVariable<AperStage4Cu
   private final TetrapolarSystem system;
 
   AperStage5Current1Variable(@Nonnegative double smm, @Nonnegative double lmm) {
-    system = TetrapolarSystem.milli().s(smm).l(lmm);
+    system = TetrapolarSystem.milli(0.1).s(smm).l(lmm);
   }
 
   AperStage5Current1Variable() {

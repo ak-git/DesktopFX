@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 
 interface Measurement {
   @Nonnull
-  InexactTetrapolarSystem getSystem();
+  TetrapolarSystem getSystem();
 
   @Nonnegative
   double getResistivity();

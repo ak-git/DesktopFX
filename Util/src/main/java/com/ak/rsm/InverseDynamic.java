@@ -55,7 +55,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
     PointValuePair kwOptimal = Simplex.optimizeAll(
         kw -> {
           double[] subLogPredicted = measurements.stream()
-              .map(measurement -> measurement.getSystem().toExact())
+              .map(Measurement::getSystem)
               .mapToDouble(s -> logApparentPredicted.applyAsDouble(s, kw) - logDiffApparentPredicted.applyAsDouble(s, kw))
               .toArray();
           return Inequality.absolute().applyAsDouble(subLog, subLogPredicted);

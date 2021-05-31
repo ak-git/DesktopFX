@@ -51,7 +51,7 @@ enum InverseStatic implements Inverseable<Measurement> {
     PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
           double[] subLogApparentPredicted = subtract.apply(
               measurements.stream()
-                  .map(measurement -> measurement.getSystem().toExact())
+                  .map(Measurement::getSystem)
                   .mapToDouble(s -> logApparentPredicted.applyAsDouble(s, kw))
                   .toArray()
           );

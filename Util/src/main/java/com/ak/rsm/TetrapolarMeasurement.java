@@ -18,18 +18,18 @@ final class TetrapolarMeasurement implements Measurement {
   private static final ToDoubleFunction<Measurement> POW2 =
       m -> StrictMath.pow(m.getResistivity() * m.getSystem().getApparentRelativeError(), 2.0);
   @Nonnull
-  private final InexactTetrapolarSystem system;
+  private final TetrapolarSystem system;
   @Nonnegative
   private final double resistivity;
 
-  TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem system, @Nonnegative double rOhms) {
+  TetrapolarMeasurement(@Nonnull TetrapolarSystem system, @Nonnegative double rOhms) {
     this.system = system;
-    resistivity = system.toExact().getApparent(rOhms);
+    resistivity = system.getApparent(rOhms);
   }
 
   @Override
   @Nonnull
-  public InexactTetrapolarSystem getSystem() {
+  public TetrapolarSystem getSystem() {
     return system;
   }
 
@@ -58,8 +58,8 @@ final class TetrapolarMeasurement implements Measurement {
     double dL = Math.min(system.getAbsError(), that.getSystem().getAbsError());
     double lCC = RelativeTetrapolarSystem.MIN_ERROR_FACTOR * dL / relErrorRho;
     double sPU = RelativeTetrapolarSystem.OPTIMAL_SL * lCC;
-    InexactTetrapolarSystem merged = InexactTetrapolarSystem.si(dL).s(sPU).l(lCC);
-    return new TetrapolarMeasurement(merged, new Resistance1Layer(merged.toExact()).value(avg));
+    TetrapolarSystem merged = TetrapolarSystem.si(dL).s(sPU).l(lCC);
+    return new TetrapolarMeasurement(merged, new Resistance1Layer(merged).value(avg));
   }
 
   @Override
@@ -89,7 +89,7 @@ final class TetrapolarMeasurement implements Measurement {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  static List<Measurement> of(InexactTetrapolarSystem[] systems, double[] ohms) {
+  static List<Measurement> of(TetrapolarSystem[] systems, double[] ohms) {
     return IntStream.range(0, systems.length)
         .mapToObj(i -> new TetrapolarMeasurement(systems[i], ohms[i])).map(Measurement.class::cast).toList();
   }

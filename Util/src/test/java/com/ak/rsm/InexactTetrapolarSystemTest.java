@@ -23,16 +23,16 @@ import org.testng.annotations.Test;
 public class InexactTetrapolarSystemTest {
   @DataProvider(name = "tetrapolar-systems")
   public static Object[][] tetrapolarSystems() {
-    InexactTetrapolarSystem ts = InexactTetrapolarSystem.si(0.1).s(10.0).l(20.0);
+    TetrapolarSystem ts = TetrapolarSystem.si(0.1).s(10.0).l(20.0);
     return new Object[][] {
         {ts, ts, true},
-        {ts, InexactTetrapolarSystem.si(0.1).s(20.0).l(10.0), true},
-        {ts, InexactTetrapolarSystem.si(0.1).s(20.0).l(30.0), false}
+        {ts, TetrapolarSystem.si(0.1).s(20.0).l(10.0), true},
+        {ts, TetrapolarSystem.si(0.1).s(20.0).l(30.0), false}
     };
   }
 
   @Test(dataProvider = "tetrapolar-systems")
-  public void testEquals(InexactTetrapolarSystem system1, InexactTetrapolarSystem system2, boolean equals) {
+  public void testEquals(TetrapolarSystem system1, TetrapolarSystem system2, boolean equals) {
     Assert.assertEquals(system1.equals(system2), equals, "%s compared with %s".formatted(String.valueOf(system1), system2));
     Assert.assertEquals(system1.hashCode() == system2.hashCode(), equals, "%s compared with %s".formatted(String.valueOf(system1), system2));
     Assert.assertNotEquals(system1, new Object());
@@ -41,7 +41,7 @@ public class InexactTetrapolarSystemTest {
 
   @Test
   public void testNotEquals() {
-    InexactTetrapolarSystem system = InexactTetrapolarSystem.milli(0.01).s(10.0).l(30.0);
+    TetrapolarSystem system = TetrapolarSystem.milli(0.01).s(10.0).l(30.0);
     Assert.assertNotEquals(system, new Object());
     Assert.assertNotEquals(new Object(), system);
   }
@@ -49,40 +49,40 @@ public class InexactTetrapolarSystemTest {
   @DataProvider(name = "inexact-tetrapolar-systems")
   public static Object[][] inexactTetrapolarSystems() {
     return new Object[][] {
-        {InexactTetrapolarSystem.milli(0.1).s(10.0).l(30.0)},
-        {InexactTetrapolarSystem.milli(0.1).s(30.0).l(10.0)},
+        {TetrapolarSystem.milli(0.1).s(10.0).l(30.0)},
+        {TetrapolarSystem.milli(0.1).s(30.0).l(10.0)},
     };
   }
 
   @Test(dataProvider = "inexact-tetrapolar-systems")
-  public void testToString(@Nonnull InexactTetrapolarSystem system) {
-    Assert.assertTrue(system.toString().startsWith(system.toExact().toString()), system.toString());
+  public void testToString(@Nonnull TetrapolarSystem system) {
+    Assert.assertTrue(system.toString().startsWith(system.toString()), system.toString());
     Assert.assertTrue(system.toString().contains("%.1f".formatted(0.1)), system.toString());
   }
 
   @Test(dataProvider = "inexact-tetrapolar-systems")
-  public void testAbsError(@Nonnull InexactTetrapolarSystem system) {
+  public void testAbsError(@Nonnull TetrapolarSystem system) {
     Assert.assertEquals(system.getAbsError(), Metrics.fromMilli(0.1), 0.01, system.toString());
   }
 
   @Test(dataProvider = "inexact-tetrapolar-systems")
-  public void testGetDeltaApparent(@Nonnull InexactTetrapolarSystem system) {
+  public void testGetDeltaApparent(@Nonnull TetrapolarSystem system) {
     Assert.assertEquals(system.getApparentRelativeError(), 6.0 * 0.1 / 30.0, 1.0e-6, system.toString());
   }
 
   @Test(dataProvider = "inexact-tetrapolar-systems")
-  public void testGetHMax(@Nonnull InexactTetrapolarSystem system) {
+  public void testGetHMax(@Nonnull TetrapolarSystem system) {
     Assert.assertEquals(system.getHMax(1.0), 0.177 * 0.03 / StrictMath.pow(0.1 / 30.0, 1.0 / 3.0), 1.0e-3, system.toString());
   }
 
   @Test
   public void testShift() {
-    InexactTetrapolarSystem initial = InexactTetrapolarSystem.milli(0.1).s(20.0).l(10.0);
-    Assert.assertEquals(initial.toExact().toRelative().errorFactor(), 6.0, 0.01);
-    Assert.assertEquals(initial.shift(1, -1).toExact().toRelative().errorFactor(), 5.97, 0.01);
-    Assert.assertEquals(initial.shift(-1, -1).toExact().toRelative().errorFactor(), 5.99, 0.01);
-    Assert.assertEquals(initial.shift(1, 1).toExact().toRelative().errorFactor(), 6.01, 0.01);
-    Assert.assertEquals(initial.shift(-1, 1).toExact().toRelative().errorFactor(), 6.03, 0.01);
+    TetrapolarSystem initial = TetrapolarSystem.milli(0.1).s(20.0).l(10.0);
+    Assert.assertEquals(initial.toRelative().errorFactor(), 6.0, 0.01);
+    Assert.assertEquals(initial.shift(1, -1).toRelative().errorFactor(), 5.97, 0.01);
+    Assert.assertEquals(initial.shift(-1, -1).toRelative().errorFactor(), 5.99, 0.01);
+    Assert.assertEquals(initial.shift(1, 1).toRelative().errorFactor(), 6.01, 0.01);
+    Assert.assertEquals(initial.shift(-1, 1).toRelative().errorFactor(), 6.03, 0.01);
   }
 
   @DataProvider(name = "rho1rho2")
@@ -98,36 +98,34 @@ public class InexactTetrapolarSystemTest {
 
   @Test(dataProvider = "rho1rho2")
   public void testHMax(@Nonnegative double rho1, @Nonnegative double rho2) {
-    InexactTetrapolarSystem system = InexactTetrapolarSystem.milli(0.1).s(10.0).l(30.0);
+    TetrapolarSystem system = TetrapolarSystem.milli(0.1).s(10.0).l(30.0);
     DoubleUnaryOperator rhoAtHMax = sign -> (1.0 + Math.signum(sign) * system.getApparentRelativeError()) * rho1;
-    TetrapolarSystem exact = system.toExact();
     PointValuePair optimize = Simplex.optimizeAll(hToL -> {
-          double rhoApparent = exact.getApparent(new Resistance2Layer(exact).value(rho1, rho2, hToL[0] * exact.getL()));
+          double rhoApparent = system.getApparent(new Resistance2Layer(system).value(rho1, rho2, hToL[0] * system.getL()));
           return DoubleStream.of(-1.0, 1.0)
               .map(sign -> Inequality.absolute().applyAsDouble(rhoAtHMax.applyAsDouble(sign), rhoApparent))
               .min().orElseThrow();
         },
-        new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / exact.getL()}), new double[] {0.01}
+        new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / system.getL()}), new double[] {0.01}
     );
-    Assert.assertEquals(optimize.getPoint()[0], system.getHMax(Layers.getK12(rho1, rho2)) / exact.getL(),
+    Assert.assertEquals(optimize.getPoint()[0], system.getHMax(Layers.getK12(rho1, rho2)) / system.getL(),
         0.1, system.toString());
   }
 
   @Test(dataProvider = "rho1rho2")
   public void testHMin(@Nonnegative double rho1, @Nonnegative double rho2) {
     if (Double.isFinite(rho2)) {
-      InexactTetrapolarSystem system = InexactTetrapolarSystem.milli(0.1).s(10.0).l(30.0);
+      TetrapolarSystem system = TetrapolarSystem.milli(0.1).s(10.0).l(30.0);
       DoubleUnaryOperator rhoAtHMin = sign -> (1.0 + Math.signum(sign) * system.getApparentRelativeError()) * rho2;
-      TetrapolarSystem exact = system.toExact();
       PointValuePair optimize = Simplex.optimizeAll(hToL -> {
-            double rhoApparent = exact.getApparent(new Resistance2Layer(exact).value(rho1, rho2, hToL[0] * exact.getL()));
+            double rhoApparent = system.getApparent(new Resistance2Layer(system).value(rho1, rho2, hToL[0] * system.getL()));
             return DoubleStream.of(-1.0, 1.0)
                 .map(sign -> Inequality.absolute().applyAsDouble(rhoAtHMin.applyAsDouble(sign), rhoApparent))
                 .min().orElseThrow();
           },
-          new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / exact.getL()}), new double[] {0.01}
+          new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / system.getL()}), new double[] {0.01}
       );
-      Assert.assertEquals(optimize.getPoint()[0], system.getHMin(Layers.getK12(rho1, rho2)) / exact.getL(),
+      Assert.assertEquals(optimize.getPoint()[0], system.getHMin(Layers.getK12(rho1, rho2)) / system.getL(),
           0.01, system.toString());
     }
   }
@@ -137,8 +135,8 @@ public class InexactTetrapolarSystemTest {
     return new Object[][] {
         {
             Arrays.asList(
-                InexactTetrapolarSystem.milli(0.1).s(11.0).l(30.0),
-                InexactTetrapolarSystem.milli(0.1).s(50.0).l(30.0)
+                TetrapolarSystem.milli(0.1).s(11.0).l(30.0),
+                TetrapolarSystem.milli(0.1).s(50.0).l(30.0)
             ),
             8
         },
@@ -146,8 +144,8 @@ public class InexactTetrapolarSystemTest {
   }
 
   @Test(dataProvider = "combinations")
-  public void testCombinations(@Nonnull Collection<InexactTetrapolarSystem> systems, @Nonnegative int expected) {
-    Collection<List<InexactTetrapolarSystem>> c = InexactTetrapolarSystem.getMeasurementsCombination(systems);
+  public void testCombinations(@Nonnull Collection<TetrapolarSystem> systems, @Nonnegative int expected) {
+    Collection<List<TetrapolarSystem>> c = TetrapolarSystem.getMeasurementsCombination(systems);
     Assert.assertEquals(c.size(), expected, c.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)));
   }
 }

@@ -9,7 +9,7 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static com.ak.rsm.InexactTetrapolarSystem.systems4;
+import static com.ak.rsm.TetrapolarSystem.systems4;
 
 public class Layer2MediumTest {
   @DataProvider(name = "layer2Medium")

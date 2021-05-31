@@ -18,10 +18,10 @@ final class TetrapolarDerivativePrediction implements Prediction {
   private final double[] inequalityL2;
 
   @ParametersAreNonnullByDefault
-  TetrapolarDerivativePrediction(InexactTetrapolarSystem system, RelativeMediumLayers<Double> layers, @Nonnegative double rho1,
+  TetrapolarDerivativePrediction(TetrapolarSystem system, RelativeMediumLayers<Double> layers, @Nonnegative double rho1,
                                  double[] measured) {
     prediction = new TetrapolarPrediction(system, layers, rho1, measured[0]);
-    diffResistivityPredicted = new DerivativeApparent2Rho(system.toExact().toRelative()).value(layers.k12(), layers.hToL()) * rho1;
+    diffResistivityPredicted = new DerivativeApparent2Rho(system.toRelative()).value(layers.k12(), layers.hToL()) * rho1;
     inequalityL2 = DoubleStream.concat(
         Arrays.stream(prediction.getInequalityL2()),
         DoubleStream.of(Inequality.proportional().applyAsDouble(measured[1], diffResistivityPredicted))

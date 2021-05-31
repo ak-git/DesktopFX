@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 public class DerivativeApparent3RhoTest {
   @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
   public void testValue2(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    TetrapolarSystem system = TetrapolarSystem.milli().s(smm).l(lmm);
+    TetrapolarSystem system = TetrapolarSystem.milli(0.0).s(smm).l(lmm);
     double h = Metrics.fromMilli(1);
     double dh = h / 1000.0;
     int p1 = (int) hmm;
@@ -30,7 +30,7 @@ public class DerivativeApparent3RhoTest {
   @Test(dataProviderClass = Resistance3LayerTest.class, dataProvider = "layer-model")
   public void testValue3(@Nonnull double[] rho, @Nonnegative double h, @Nonnull int[] p,
                          @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    TetrapolarSystem system = TetrapolarSystem.milli().s(smm).l(lmm);
+    TetrapolarSystem system = TetrapolarSystem.milli(0.0).s(smm).l(lmm);
     double dh = h / 1000.0;
     Resistance3Layer resistance3LayerAfter = new Resistance3Layer(system, h + dh);
     Resistance3Layer resistance3LayerBefore = new Resistance3Layer(system, h);

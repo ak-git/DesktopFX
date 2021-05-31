@@ -8,10 +8,10 @@ public class PredictionTest {
 
   @Test
   public void testGetInequalityL2() {
-    InexactTetrapolarSystem system1 = InexactTetrapolarSystem.milli(0.1).s(1.0).l(3.0);
-    InexactTetrapolarSystem system2 = InexactTetrapolarSystem.milli(0.01).s(5.0).l(3.0);
-    Measurement measurement1 = new TetrapolarMeasurement(system1, new Resistance1Layer(system1.toExact()).value(1.0));
-    Measurement measurement2 = new TetrapolarMeasurement(system2, new Resistance1Layer(system2.toExact()).value(1.0));
+    TetrapolarSystem system1 = TetrapolarSystem.milli(0.1).s(1.0).l(3.0);
+    TetrapolarSystem system2 = TetrapolarSystem.milli(0.01).s(5.0).l(3.0);
+    Measurement measurement1 = new TetrapolarMeasurement(system1, new Resistance1Layer(system1).value(1.0));
+    Measurement measurement2 = new TetrapolarMeasurement(system2, new Resistance1Layer(system2).value(1.0));
 
     Assert.assertNotEquals(measurement1, measurement2);
     Assert.assertNotEquals(measurement1, new Object());
@@ -31,10 +31,10 @@ public class PredictionTest {
 
   @Test
   public void testGetInequalityL2Diff() {
-    InexactTetrapolarSystem system = InexactTetrapolarSystem.milli(0.1).s(1.0).l(2.0);
+    TetrapolarSystem system = TetrapolarSystem.milli(0.1).s(1.0).l(2.0);
 
-    Measurement measurementBefore = new TetrapolarMeasurement(system, new Resistance1Layer(system.toExact()).value(1.0));
-    Measurement measurementAfter = new TetrapolarMeasurement(system, new Resistance1Layer(system.toExact()).value(2.0));
+    Measurement measurementBefore = new TetrapolarMeasurement(system, new Resistance1Layer(system).value(1.0));
+    Measurement measurementAfter = new TetrapolarMeasurement(system, new Resistance1Layer(system).value(2.0));
     DerivativeMeasurement measurement = new TetrapolarDerivativeMeasurement(measurementBefore, measurementAfter, Metrics.fromMilli(1.0));
 
     Assert.assertThrows(UnsupportedOperationException.class, () -> measurement.merge(measurement));
