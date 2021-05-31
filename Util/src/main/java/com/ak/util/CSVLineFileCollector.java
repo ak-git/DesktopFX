@@ -80,8 +80,7 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
     return printer -> {
       if (!errorFlag) {
         try {
-          printer.flush();
-          printer.close();
+          printer.close(true);
         }
         catch (IOException e) {
           Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
@@ -100,7 +99,7 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
   @Override
   public void close() throws IOException {
     if (!errorFlag) {
-      Objects.requireNonNull(csvPrinter).close();
+      Objects.requireNonNull(csvPrinter).close(true);
     }
   }
 }
