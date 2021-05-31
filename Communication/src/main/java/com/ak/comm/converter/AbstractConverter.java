@@ -91,6 +91,11 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
   @OverridingMethodsMustInvokeSuper
   public void refresh() {
     digitalFilter.reset();
+    close();
+  }
+
+  @Override
+  public final void close() {
     try {
       if (fileCollector != null) {
         fileCollector.close();
