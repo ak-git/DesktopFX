@@ -62,7 +62,7 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
       catch (IOException e) {
         Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
       }
-      fileCollector.accept(Arrays.stream(ints).mapToObj(Integer::toString).toArray());
+      fileCollector.accept(Arrays.stream(ints).boxed().toArray());
       filteredValues = Stream.concat(filteredValues, Stream.of(ints));
     });
     this.frequency = frequency * digitalFilter.getFrequencyFactor();
