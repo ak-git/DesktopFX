@@ -19,8 +19,7 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import com.ak.comm.logging.OutputBuilders;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
-import com.ak.util.LineFileCollector;
-import com.ak.util.Strings;
+import com.ak.util.CSVLineFileCollector;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 
@@ -36,7 +35,7 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
   @Nonnull
   private Stream<int[]> filteredValues = Stream.empty();
   @Nullable
-  private LineFileCollector fileCollector;
+  private CSVLineFileCollector fileCollector;
 
   protected AbstractConverter(@Nonnull Class<V> evClass, @Nonnegative double frequency) {
     this(evClass, frequency, EnumSet.allOf(evClass).stream().map(v -> new int[] {v.ordinal()}).toList());
@@ -55,14 +54,15 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
       }
       try {
         if (fileCollector == null) {
-          fileCollector = new LineFileCollector(OutputBuilders.build(getClass().getSimpleName()).getPath(), LineFileCollector.Direction.VERTICAL);
-          fileCollector.accept(variables.stream().map(Variables::toName).collect(Collectors.joining(Strings.TAB)));
+          fileCollector = new CSVLineFileCollector(OutputBuilders.build(getClass().getSimpleName()).getPath(),
+              variables.stream().map(Variables::toName).toArray(String[]::new)
+          );
         }
       }
       catch (IOException e) {
         Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
       }
-      fileCollector.accept(Arrays.stream(ints).mapToObj(Integer::toString).collect(Collectors.joining(Strings.TAB)));
+      fileCollector.accept(Arrays.stream(ints).mapToObj(Integer::toString).toArray());
       filteredValues = Stream.concat(filteredValues, Stream.of(ints));
     });
     this.frequency = frequency * digitalFilter.getFrequencyFactor();
