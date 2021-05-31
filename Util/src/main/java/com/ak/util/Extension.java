@@ -8,7 +8,7 @@ public enum Extension {
     public String attachTo(String fileName) {
       return fileName;
     }
-  }, PROPERTIES, TXT, JSON, LOG, BIN;
+  }, PROPERTIES, TXT, JSON, LOG, BIN, CSV;
 
   public String attachTo(@Nonnull String fileName) {
     if (fileName.endsWith(".%s".formatted(name().toLowerCase()))) {
