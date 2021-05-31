@@ -16,8 +16,8 @@ public final class BrikoConverter extends AbstractConverter<BufferFrame, BrikoVa
 
   @Override
   protected Stream<int[]> innerApply(@Nonnull BufferFrame frame) {
-    int[] values = new int[variables().size()];
-    for (int i = 0; i < values.length; i++) {
+    var values = new int[variables().size()];
+    for (var i = 0; i < values.length; i++) {
       values[i] = frame.getInt(2 + (i + 1) + i * BYTES);
     }
     return Stream.of(values);

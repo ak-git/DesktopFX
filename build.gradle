@@ -34,7 +34,8 @@ sonarqube {
         property "sonar.organization", "ak-git"
         property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.login", "ec97b4884454351da027c6345043fc8ae9401d53"
-        property "sonar.branch.name", "briko"
+        property "sonar.branch.name", "prv"
+        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml'
     }
 }
 
@@ -63,7 +64,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2021.05.25'
+    version = '2021.05.31'
     apply plugin: 'idea'
     idea {
         module {

@@ -54,8 +54,9 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
       }
       try {
         if (fileCollector == null) {
-          fileCollector = new CSVLineFileCollector(OutputBuilders.build(getClass().getSimpleName()).getPath().toString(),
-              variables.stream().map(Variables::toName).toArray(String[]::new));
+          fileCollector = new CSVLineFileCollector(OutputBuilders.build(getClass().getSimpleName()).getPath(),
+              variables.stream().map(Variables::toName).toArray(String[]::new)
+          );
         }
       }
       catch (IOException e) {
@@ -90,6 +91,11 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
   @OverridingMethodsMustInvokeSuper
   public void refresh() {
     digitalFilter.reset();
+    close();
+  }
+
+  @Override
+  public final void close() {
     try {
       if (fileCollector != null) {
         fileCollector.close();

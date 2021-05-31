@@ -24,6 +24,7 @@ import com.ak.comm.converter.aper.AperStage4Current1Variable;
 import com.ak.comm.converter.aper.AperStage4Current2Variable;
 import com.ak.comm.converter.aper.AperStage5Current1Variable;
 import com.ak.comm.converter.kleiber.KleiberVariable;
+import com.ak.comm.converter.prv.PrvVariable;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
@@ -137,7 +138,7 @@ public class SpringFxApplication extends FxApplication {
   @Profile("loopback")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptor() {
-    return new FixedFrameBytesInterceptor("loopback", BytesInterceptor.BaudRate.BR_460800, 1 + Integer.BYTES);
+    return new FixedFrameBytesInterceptor("loopback", BytesInterceptor.BaudRate.BR_115200, 1 + Integer.BYTES);
   }
 
   @Bean
@@ -164,8 +165,8 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("prv")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<String, ADCVariable> converterPrv() {
-    return new StringToIntegerConverter<>(ADCVariable.class, 32);
+  static Converter<String, PrvVariable> converterPrv() {
+    return new StringToIntegerConverter<>(PrvVariable.class, 32);
   }
 
   @Bean
