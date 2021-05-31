@@ -35,16 +35,16 @@ final class ForkFilter extends AbstractDigitalFilter {
       }
     }
 
-    int[] bufferPositions = new int[this.filters.size()];
+    var bufferPositions = new int[this.filters.size()];
     bufferPositions[0] = 0;
-    for (int i = 1; i < this.filters.size(); i++) {
+    for (var i = 1; i < this.filters.size(); i++) {
       bufferPositions[i] = bufferPositions[i - 1] + this.filters.get(i - 1).getOutputDataSize();
     }
-    int[] bufferIndexes = new int[this.filters.size()];
+    var bufferIndexes = new int[this.filters.size()];
 
-    AtomicBoolean initializedFlag = new AtomicBoolean();
+    var initializedFlag = new AtomicBoolean();
     List<int[]> intBuffers = new ArrayList<>();
-    for (int i = 0; i < this.filters.size(); i++) {
+    for (var i = 0; i < this.filters.size(); i++) {
       DigitalFilter filter = this.filters.get(i);
       int filterI = i;
       filter.forEach(values -> {

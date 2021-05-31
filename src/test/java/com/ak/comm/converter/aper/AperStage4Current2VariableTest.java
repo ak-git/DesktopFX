@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.measure.Unit;
@@ -55,7 +54,7 @@ public class AperStage4Current2VariableTest {
         }
       }).count();
       if (processed.get()) {
-        Assert.assertEquals(count, 16);
+        Assert.assertEquals(count, 10);
         break;
       }
     }
@@ -71,8 +70,7 @@ public class AperStage4Current2VariableTest {
 
   @Test
   public void testGetUnit() {
-    List<? extends Unit<?>> actual = EnumSet.allOf(AperStage4Current2Variable.class).stream()
-        .map(DependentVariable::getUnit).collect(Collectors.toList());
+    List<? extends Unit<?>> actual = EnumSet.allOf(AperStage4Current2Variable.class).stream().map(DependentVariable::getUnit).toList();
     Assert.assertEquals(actual,
         Arrays.asList(
             MetricPrefix.MILLI(Units.OHM), MetricPrefix.MICRO(Units.VOLT), MetricPrefix.MICRO(Units.VOLT), Units.OHM,
@@ -84,8 +82,7 @@ public class AperStage4Current2VariableTest {
 
   @Test
   public void testOptions() {
-    List<Variable.Option> actual = EnumSet.allOf(AperStage4Current2Variable.class).stream()
-        .flatMap(v -> v.options().stream()).collect(Collectors.toList());
+    List<Variable.Option> actual = EnumSet.allOf(AperStage4Current2Variable.class).stream().flatMap(v -> v.options().stream()).toList();
     Assert.assertEquals(actual,
         Arrays.asList(
             Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER, Variable.Option.TEXT_VALUE_BANNER,

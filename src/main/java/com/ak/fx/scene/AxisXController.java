@@ -1,5 +1,6 @@
 package com.ak.fx.scene;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.function.DoublePredicate;
 import java.util.logging.Level;
@@ -10,6 +11,8 @@ import javax.annotation.Nonnull;
 import javax.measure.quantity.Speed;
 
 import com.ak.comm.converter.Variables;
+import com.ak.fx.storage.Storage;
+import com.ak.fx.storage.StringStorage;
 import com.ak.util.Strings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
@@ -28,7 +31,7 @@ import static com.ak.fx.scene.GridCell.SMALL;
 
 public final class AxisXController {
   private enum ZoomX {
-    Z_10, Z_25, Z_50;
+    Z_5, Z_10, Z_25, Z_50, Z_100;
 
     @Nonnegative
     private final int mmPerSec;
@@ -80,6 +83,7 @@ public final class AxisXController {
   private final IntegerProperty lengthProperty = new SimpleIntegerProperty();
   private final ObjectProperty<ZoomX> zoomProperty = new SimpleObjectProperty<>(ZoomX.Z_10);
   private final ObjectProperty<ZoomXEvent> zoomEvent = new SimpleObjectProperty<>(ZoomXEvent.ZOOM_STOP);
+  private final Storage<String> zoomStorage = new StringStorage(AxisXController.class, ZoomX.class.getName());
   private final DoubleProperty stepProperty = new SimpleDoubleProperty();
   @Nonnegative
   private int decimateFactor = 1;
@@ -95,6 +99,10 @@ public final class AxisXController {
         zoomProperty.setValue(zoomProperty.get().prev());
       }
     });
+    String zoomValue = zoomStorage.get();
+    if (Arrays.stream(ZoomX.values()).anyMatch(zoomX -> zoomX.name().equals(zoomValue))) {
+      zoomProperty.setValue(ZoomX.valueOf(zoomValue));
+    }
   }
 
   @Override
@@ -105,7 +113,10 @@ public final class AxisXController {
 
   public void setFrequency(@Nonnegative double frequency) {
     setStep(frequency);
-    zoomProperty.addListener((observable, oldValue, newValue) -> setStep(frequency));
+    zoomProperty.addListener((observable, oldValue, newValue) -> {
+      setStep(frequency);
+      zoomStorage.save(newValue.name());
+    });
   }
 
   public ReadOnlyObjectProperty<ZoomX> zoomProperty() {
@@ -114,6 +125,10 @@ public final class AxisXController {
 
   public ReadOnlyDoubleProperty stepProperty() {
     return stepProperty;
+  }
+
+  public ReadOnlyIntegerProperty startProperty() {
+    return startProperty;
   }
 
   public ReadOnlyIntegerProperty lengthProperty() {
@@ -169,7 +184,7 @@ public final class AxisXController {
     return xStep;
   }
 
-  private void setStart(int start) {
+  public void setStart(int start) {
     startProperty.setValue(Math.max(0, toInt(start / (decimateFactor * 1.0)) * decimateFactor));
   }
 

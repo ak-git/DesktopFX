@@ -14,8 +14,8 @@ public final class FloatToIntegerConverter<V extends Enum<V> & Variable<V>> exte
 
   @Override
   protected Stream<int[]> innerApply(@Nonnull BufferFrame frame) {
-    int[] values = new int[variables().size()];
-    for (int i = 0; i < values.length; i++) {
+    var values = new int[variables().size()];
+    for (var i = 0; i < values.length; i++) {
       values[i] = Math.round(frame.getFloat(1 + i * Float.BYTES));
     }
     return Stream.of(values);

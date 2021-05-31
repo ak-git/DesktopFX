@@ -7,13 +7,12 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
+import com.ak.comm.bytes.LogUtils;
 import com.ak.comm.bytes.nmis.NmisAddress;
 import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.nmis.NmisResponseFrame;
 import com.ak.comm.bytes.nmis.NmisTestProvider;
-import com.ak.comm.core.LogUtils;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.log.LogTestUtils;
 import com.ak.util.Strings;
@@ -84,7 +83,7 @@ public class NmisBytesInterceptorTest {
     BytesInterceptor<NmisRequest, NmisResponseFrame> interceptor = new NmisBytesInterceptor();
 
     Assert.assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {
-      Collection<NmisResponseFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).collect(Collectors.toList());
+      Collection<NmisResponseFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).toList();
       if (!frames.isEmpty()) {
         Assert.assertEquals(frames, Collections.singleton(request.toResponse()));
       }

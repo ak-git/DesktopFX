@@ -13,7 +13,6 @@ import java.util.logging.Filter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,7 +25,7 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
 
-import static com.ak.comm.core.LogUtils.LOG_LEVEL_ERRORS;
+import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
 
 final class SerialService<T, R> extends AbstractService<ByteBuffer> implements WritableByteChannel, Flow.Subscription {
   private static final Logger LOGGER = Logger.getLogger(SerialService.class.getName());
@@ -37,8 +36,8 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
       private boolean notFoundFlag;
 
       @Override
-      public boolean isLoggable(LogRecord record) {
-        if (SERIAL_PORT_NOT_FOUND.equals(record.getMessage())) {
+      public boolean isLoggable(LogRecord logRecord) {
+        if (SERIAL_PORT_NOT_FOUND.equals(logRecord.getMessage())) {
           if (notFoundFlag) {
             return false;
           }
@@ -80,7 +79,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
   @Override
   public int write(@Nonnull ByteBuffer src) {
     synchronized (this) {
-      int countBytes = 0;
+      var countBytes = 0;
       if (isOpen() && serialPort != null) {
         src.rewind();
         countBytes = serialPort.writeBytes(src.array(), src.limit());
@@ -192,12 +191,13 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
       Collection<SerialPort> serialPorts = Arrays.stream(SerialPort.getCommPorts())
           .filter(port -> !port.getSystemPortName().toLowerCase().contains("bluetooth"))
           .sorted(Comparator.<SerialPort, Integer>comparing(port -> port.getSystemPortName().toLowerCase().indexOf("usb")).reversed())
-          .sorted(Comparator.comparingInt(value -> usedPorts.indexOf(value.getSystemPortName()))).collect(Collectors.toUnmodifiableList());
+          .sorted(Comparator.comparingInt(value -> usedPorts.indexOf(value.getSystemPortName())))
+          .toList();
       if (serialPorts.isEmpty()) {
         return null;
       }
       else {
-        SerialPort serialPort = serialPorts.iterator().next();
+        var serialPort = serialPorts.iterator().next();
         String portName = serialPort.getSystemPortName();
         LOGGER.log(LOG_LEVEL_ERRORS, () -> "Found { %s }, the [ %s ] is selected".formatted(serialPorts, portName));
         usedPorts.remove(portName);

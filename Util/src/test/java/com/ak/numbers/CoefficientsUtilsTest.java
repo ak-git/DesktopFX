@@ -2,6 +2,7 @@ package com.ak.numbers;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.Objects;
 import java.util.Scanner;
 
 import com.ak.util.Extension;
@@ -18,7 +19,7 @@ public class CoefficientsUtilsTest {
   @Test
   public void testRead() {
     InputStream resourceAsStream = getClass().getResourceAsStream(Extension.TXT.attachTo("DIFF"));
-    Scanner scanner = new Scanner(resourceAsStream, Charset.defaultCharset().name());
+    Scanner scanner = new Scanner(Objects.requireNonNull(resourceAsStream), Charset.defaultCharset().name());
     Assert.assertEquals(CoefficientsUtils.read(scanner), new double[] {-1.0, 0.0, 1.0});
   }
 }

@@ -11,8 +11,7 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import org.springframework.context.annotation.Profile;
 
 @Named
-@Profile({"rcm", "rcm-calibration", "nmis", "aper2-nibp", "aper1-nibp", "aper1-myo", "aper2-ecg", "aper1-R4",
-    "aper1-2Rho-7mm", "aper1-calibration", "kleiber-myo", "prv"})
+@Profile({"rcm", "rcm-calibration", "nmis", "aper2-nibp", "aper1-nibp", "aper1-myo", "aper2-ecg", "aper1-R2", "aper1-calibration", "kleiber-myo", "prv"})
 public final class DefaultViewController<T, R, V extends Enum<V> & Variable<V>> extends AbstractViewController<T, R, V> {
   @Inject
   @ParametersAreNonnullByDefault

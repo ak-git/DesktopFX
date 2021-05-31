@@ -23,6 +23,7 @@ public class ExtensionTest {
   public void testAttachTo(@Nonnull String name) {
     for (Extension e : EnumSet.complementOf(EnumSet.of(Extension.NONE))) {
       Assert.assertEquals(e.attachTo(name), String.join(".", name, e.name().toLowerCase()));
+      Assert.assertTrue(e.is(e.attachTo(name)), name);
     }
     Assert.assertEquals(Extension.NONE.attachTo(name), name);
   }

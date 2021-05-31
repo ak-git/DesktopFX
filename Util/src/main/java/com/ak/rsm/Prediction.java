@@ -5,11 +5,11 @@ import javax.annotation.Nonnull;
 
 interface Prediction {
   @Nonnegative
-  double getInequalityL2();
-
-  @Nonnegative
   double getResistivityPredicted();
 
   @Nonnull
   double[] getHorizons();
+
+  @Nonnull
+  double[] getInequalityL2();
 }

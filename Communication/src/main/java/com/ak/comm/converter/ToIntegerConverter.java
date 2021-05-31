@@ -16,8 +16,8 @@ public final class ToIntegerConverter<V extends Enum<V> & Variable<V>> extends A
 
   @Override
   protected Stream<int[]> innerApply(@Nonnull BufferFrame frame) {
-    int[] values = new int[variables().size()];
-    for (int i = 0; i < values.length; i++) {
+    var values = new int[variables().size()];
+    for (var i = 0; i < values.length; i++) {
       values[i] = frame.getInt(1 + i * BYTES);
     }
     return Stream.of(values);

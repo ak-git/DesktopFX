@@ -22,7 +22,7 @@ import com.ak.digitalfilter.FilterBuilder;
 import com.ak.util.LineFileCollector;
 import com.ak.util.Strings;
 
-import static com.ak.comm.core.LogUtils.LOG_LEVEL_VALUES;
+import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 
 public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> implements Converter<R, V> {
   @Nonnull
@@ -39,12 +39,12 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
   private LineFileCollector fileCollector;
 
   protected AbstractConverter(@Nonnull Class<V> evClass, @Nonnegative double frequency) {
-    this(evClass, frequency, EnumSet.allOf(evClass).stream().map(v -> new int[] {v.ordinal()}).collect(Collectors.toList()));
+    this(evClass, frequency, EnumSet.allOf(evClass).stream().map(v -> new int[] {v.ordinal()}).toList());
   }
 
   AbstractConverter(@Nonnull Class<V> evClass, @Nonnegative double frequency, @Nonnull List<int[]> selectedIndexes) {
     variables = List.copyOf(EnumSet.allOf(evClass));
-    List<DigitalFilter> filters = variables.stream().map(Variable::filter).collect(Collectors.toList());
+    List<DigitalFilter> filters = variables.stream().map(Variable::filter).toList();
 
     digitalFilter = FilterBuilder.parallel(selectedIndexes, filters.toArray(new DigitalFilter[variables.size()]));
     digitalFilter.forEach(ints -> {

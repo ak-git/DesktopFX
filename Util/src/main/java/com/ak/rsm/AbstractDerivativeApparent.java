@@ -9,16 +9,8 @@ import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.pow;
 
 abstract class AbstractDerivativeApparent extends AbstractApparent {
-  @Nonnegative
-  private final double lCC;
-
-  AbstractDerivativeApparent(@Nonnull TetrapolarSystem system) {
-    super(system.toRelative());
-    lCC = system.getL();
-  }
-
-  final double getL() {
-    return lCC;
+  AbstractDerivativeApparent(@Nonnull RelativeTetrapolarSystem system) {
+    super(system);
   }
 
   @Override

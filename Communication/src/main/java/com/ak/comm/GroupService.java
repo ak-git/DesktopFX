@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
@@ -29,13 +30,13 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
   private final AutoFileReadingService<T, R, V> fileReadingService;
   @Nonnull
   private final List<V> variables;
-  @Nonnull
+  @Nonnegative
   private final double frequency;
   @Nonnull
   private Readable currentReadable;
 
-  public GroupService(@Nonnull Supplier<BytesInterceptor<T, R>> interceptorProvider,
-                      @Nonnull Supplier<Converter<R, V>> converterProvider) {
+  @ParametersAreNonnullByDefault
+  public GroupService(Supplier<BytesInterceptor<T, R>> interceptorProvider, Supplier<Converter<R, V>> converterProvider) {
     Converter<R, V> converter = converterProvider.get();
     variables = converter.variables();
     frequency = converter.getFrequency();
@@ -75,10 +76,12 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
     }
   }
 
+  @Nonnull
   public List<V> getVariables() {
     return Collections.unmodifiableList(variables);
   }
 
+  @Nonnegative
   public double getFrequency() {
     return frequency;
   }
@@ -89,20 +92,21 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
     fileReadingService.close();
   }
 
+  @Nonnull
   public int[][] read(@Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
     int from = Math.min(fromInclusive, toExclusive);
     int to = Math.max(fromInclusive, toExclusive);
 
     int countVariables = variables.size();
     int frameSize = countVariables * Integer.BYTES;
-    ByteBuffer buffer = ByteBuffer.allocate(frameSize * (to - from));
+    var buffer = ByteBuffer.allocate(frameSize * (to - from));
     currentReadable.read(buffer, (long) frameSize * from);
     buffer.flip();
 
     int countData = buffer.limit() / frameSize;
-    int[][] result = new int[countVariables][countData];
-    for (int i = 0; i < countData; i++) {
-      for (int j = 0; j < countVariables; j++) {
+    var result = new int[countVariables][countData];
+    for (var i = 0; i < countData; i++) {
+      for (var j = 0; j < countVariables; j++) {
         result[j][i] = buffer.getInt();
       }
     }
