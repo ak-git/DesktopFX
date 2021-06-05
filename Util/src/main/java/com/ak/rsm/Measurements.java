@@ -1,6 +1,8 @@
 package com.ak.rsm;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.function.ToDoubleBiFunction;
 
 import javax.annotation.Nonnegative;
@@ -35,7 +37,7 @@ enum Measurements {
   @Nonnull
   static ToDoubleBiFunction<TetrapolarSystem, double[]> logDiffApparentPredicted(@Nonnull Collection<? extends Measurement> measurements) {
     double baseL = getBaseL(measurements);
-    return (s, kw) -> log(Math.abs(new DerivativeApparent2Rho(s.toRelative()).value(kw[0], kw[1] * baseL / s.getL())));
+    return (s, kw) -> log(Math.abs(new DerivativeApparentByPhi2Rho(s.toRelative()).value(kw[0], kw[1] * baseL / s.getL())));
   }
 
   @Nonnull
@@ -54,5 +56,20 @@ enum Measurements {
           .mapToDouble(s -> logApparentPredicted.applyAsDouble(s, new double[] {kw.k12(), kw.hToL()})).sum();
       return new ValuePair(exp((sumLogApparent - sumLogApparentPredicted) / measurements.size()));
     }
+  }
+
+  @Nonnull
+  static Collection<Collection<Measurement>> errors(@Nonnull Collection<? extends Measurement> measurements) {
+    return TetrapolarSystem.getMeasurementsCombination(measurements.stream().map(Measurement::getSystem).toList())
+        .stream().map(systems -> {
+          Collection<Measurement> ms = new ArrayList<>(systems.size());
+          Iterator<TetrapolarSystem> tsIterator = systems.iterator();
+          Iterator<? extends Measurement> mIterator = measurements.iterator();
+          while (tsIterator.hasNext() && mIterator.hasNext()) {
+            ms.add(mIterator.next().newInstance(tsIterator.next()));
+          }
+          return ms;
+        })
+        .toList();
   }
 }

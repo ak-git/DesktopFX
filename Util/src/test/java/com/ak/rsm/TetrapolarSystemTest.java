@@ -7,6 +7,9 @@ import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import tec.uom.se.unit.MetricPrefix;
+
+import static tec.uom.se.unit.Units.METRE;
 
 public class TetrapolarSystemTest {
   @DataProvider(name = "tetrapolar-systems")
@@ -85,5 +88,11 @@ public class TetrapolarSystemTest {
     TetrapolarSystem system = TetrapolarSystem.milli(0.1).s(10.0).l(30.0);
     Assert.assertEquals(system.getHMin(1.0 / 3.0) / Metrics.fromMilli(30.0),
         0.02, 0.001, system.toString());
+  }
+
+  @Test
+  public void testToString() {
+    TetrapolarSystem ts = TetrapolarSystem.milli(0.0).s(20.0).l(15.0);
+    Assert.assertEquals(ts.toString(), "%2.3f x %2.3f %s".formatted(20.0, 15.0, MetricPrefix.MILLI(METRE)));
   }
 }

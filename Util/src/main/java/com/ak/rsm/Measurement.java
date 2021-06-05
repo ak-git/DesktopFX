@@ -7,6 +7,9 @@ interface Measurement {
   @Nonnull
   TetrapolarSystem getSystem();
 
+  @Nonnull
+  Measurement newInstance(@Nonnull TetrapolarSystem system);
+
   @Nonnegative
   double getResistivity();
 

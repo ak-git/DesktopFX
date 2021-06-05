@@ -34,6 +34,11 @@ final class TetrapolarMeasurement implements Measurement {
   }
 
   @Override
+  public Measurement newInstance(TetrapolarSystem system) {
+    return new TetrapolarMeasurement(system, new Resistance1Layer(system).value(resistivity));
+  }
+
+  @Override
   @Nonnegative
   public double getResistivity() {
     return resistivity;

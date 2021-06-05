@@ -12,12 +12,16 @@ import com.ak.util.Strings;
 final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
   @Nonnull
   private final Measurement measurement;
-  @Nonnegative
+  @Nonnull
+  private final Measurement measurementAfter;
+  private final double dh;
   private final double dRhoBydPhi;
 
   TetrapolarDerivativeMeasurement(@Nonnull Measurement measurementBefore,
                                   @Nonnull Measurement measurementAfter, double dh) {
     measurement = measurementBefore;
+    this.measurementAfter = measurementAfter;
+    this.dh = dh;
     dRhoBydPhi = (measurementAfter.getResistivity() - measurement.getResistivity()) / (dh / getSystem().getL());
   }
 
@@ -40,6 +44,12 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
   @Override
   public TetrapolarSystem getSystem() {
     return measurement.getSystem();
+  }
+
+  @Nonnull
+  @Override
+  public Measurement newInstance(@Nonnull TetrapolarSystem system) {
+    return new TetrapolarDerivativeMeasurement(measurement.newInstance(system), measurementAfter.newInstance(system), dh);
   }
 
   @Override
