@@ -26,7 +26,7 @@ abstract class AbstractMediumLayers implements MediumLayers {
   private final Collection<Prediction> predictions;
 
   @ParametersAreNonnullByDefault
-  AbstractMediumLayers(Collection<? extends Measurement> measurements, RelativeMediumLayers<Double> kw) {
+  AbstractMediumLayers(Collection<? extends Measurement> measurements, RelativeMediumLayers kw) {
     rho = getRho1(measurements, kw);
     this.measurements = Collections.unmodifiableCollection(measurements);
     predictions = measurements.stream().map(m -> m.toPrediction(kw, rho.getValue())).toList();

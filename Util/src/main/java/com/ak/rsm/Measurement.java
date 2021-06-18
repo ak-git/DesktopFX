@@ -14,7 +14,7 @@ interface Measurement {
   double getResistivity();
 
   @Nonnull
-  Prediction toPrediction(@Nonnull RelativeMediumLayers<Double> kw, @Nonnegative double rho1);
+  Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1);
 
   @Nonnull
   default Measurement merge(@Nonnull Measurement that) {

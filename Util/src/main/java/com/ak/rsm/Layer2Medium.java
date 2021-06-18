@@ -15,10 +15,11 @@ final class Layer2Medium extends AbstractMediumLayers {
   private final ValuePair h1;
 
   @ParametersAreNonnullByDefault
-  Layer2Medium(Collection<? extends Measurement> measurements, RelativeMediumLayers<Double> kw) {
+  Layer2Medium(Collection<? extends Measurement> measurements, RelativeMediumLayers kw) {
     super(measurements, kw);
     rho2 = new ValuePair(rho1().getValue() / Layers.getRho1ToRho2(kw.k12()));
-    h1 = new ValuePair(kw.hToL() * Measurements.getBaseL(measurements));
+    double baseL = Measurements.getBaseL(measurements);
+    h1 = new ValuePair(kw.hToL() * baseL, kw.hToLAbsError() * baseL);
   }
 
   @Override

@@ -20,10 +20,13 @@ final class TetrapolarMeasurement implements Measurement {
   @Nonnull
   private final TetrapolarSystem system;
   @Nonnegative
+  private final double rOhms;
+  @Nonnegative
   private final double resistivity;
 
   TetrapolarMeasurement(@Nonnull TetrapolarSystem system, @Nonnegative double rOhms) {
     this.system = system;
+    this.rOhms = rOhms;
     resistivity = system.getApparent(rOhms);
   }
 
@@ -34,8 +37,8 @@ final class TetrapolarMeasurement implements Measurement {
   }
 
   @Override
-  public Measurement newInstance(TetrapolarSystem system) {
-    return new TetrapolarMeasurement(system, new Resistance1Layer(system).value(resistivity));
+  public Measurement newInstance(@Nonnull TetrapolarSystem system) {
+    return new TetrapolarMeasurement(system, rOhms);
   }
 
   @Override
@@ -46,7 +49,7 @@ final class TetrapolarMeasurement implements Measurement {
 
   @Override
   @Nonnull
-  public Prediction toPrediction(@Nonnull RelativeMediumLayers<Double> kw, @Nonnegative double rho1) {
+  public Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1) {
     return new TetrapolarPrediction(getSystem(), kw, rho1, resistivity);
   }
 

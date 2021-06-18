@@ -11,7 +11,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.math.ValuePair;
 
-import static java.lang.StrictMath.exp;
 import static java.lang.StrictMath.log;
 
 enum Measurements {
@@ -42,19 +41,21 @@ enum Measurements {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  static ValuePair getRho1(Collection<? extends Measurement> measurements, RelativeMediumLayers<Double> kw) {
+  static ValuePair getRho1(Collection<? extends Measurement> measurements, RelativeMediumLayers kw) {
     if (RelativeMediumLayers.SINGLE_LAYER.equals(kw)) {
       Measurement average = measurements.stream().map(Measurement.class::cast).reduce(Measurement::merge).orElseThrow();
       double rho = average.getResistivity();
       return new ValuePair(rho, rho * average.getSystem().getApparentRelativeError());
     }
     else {
-      double sumLogApparent = measurements.stream().mapToDouble(x -> log(x.getResistivity())).sum();
-      var logApparentPredicted = logApparentPredicted(measurements);
-      double sumLogApparentPredicted = measurements.stream()
-          .map(Measurement::getSystem)
-          .mapToDouble(s -> logApparentPredicted.applyAsDouble(s, new double[] {kw.k12(), kw.hToL()})).sum();
-      return new ValuePair(exp((sumLogApparent - sumLogApparentPredicted) / measurements.size()));
+      double baseL = getBaseL(measurements);
+      double meanRho = measurements.stream().parallel()
+          .mapToDouble(measurement -> {
+            TetrapolarSystem s = measurement.getSystem();
+            return measurement.getResistivity() / new NormalizedApparent2Rho(s.toRelative()).value(kw.k12(), kw.hToL() * baseL / s.getL());
+          })
+          .average().orElseThrow();
+      return new ValuePair(meanRho);
     }
   }
 

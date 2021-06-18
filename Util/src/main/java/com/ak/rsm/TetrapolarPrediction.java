@@ -26,7 +26,7 @@ final class TetrapolarPrediction implements Prediction {
   private final double inequalityL2;
 
   @ParametersAreNonnullByDefault
-  TetrapolarPrediction(TetrapolarSystem system, RelativeMediumLayers<Double> layers,
+  TetrapolarPrediction(TetrapolarSystem system, RelativeMediumLayers layers,
                        @Nonnegative double rho1, @Nonnegative double measured) {
     if (Double.compare(layers.k12(), 0.0) == 0) {
       resistivityPredicted = rho1;

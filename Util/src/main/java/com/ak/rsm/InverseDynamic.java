@@ -1,11 +1,12 @@
 package com.ak.rsm;
 
-import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
+import com.ak.math.ValuePair;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 
@@ -21,7 +22,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
 
   @Nonnull
   @Override
-  public MediumLayers inverse(@Nonnull Collection<? extends DerivativeMeasurement> measurements) {
+  public MediumLayers inverse(@Nonnull List<? extends DerivativeMeasurement> measurements) {
     if (measurements.size() > 1) {
       return new Layer2Medium(measurements, inverseRelative(measurements));
     }
@@ -32,7 +33,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
 
   @Nonnull
   @Override
-  public RelativeMediumLayers<Double> inverseRelative(@Nonnull Collection<? extends DerivativeMeasurement> measurements) {
+  public RelativeMediumLayers inverseRelative(@Nonnull List<? extends DerivativeMeasurement> measurements) {
     var kMinMax = new double[] {-1.0, 1.0};
     if (measurements.stream().allMatch(d -> d.getDerivativeResistivity() > 0)) {
       kMinMax[1] = 0.0;
@@ -63,6 +64,6 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
         new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], getMaxHToL(measurements)}),
         new double[] {0.01, 0.01}
     );
-    return new Layer2RelativeMedium<>(kwOptimal.getPoint()[0], kwOptimal.getPoint()[1]);
+    return new Layer2RelativeMedium(new ValuePair(kwOptimal.getPoint()[0]), new ValuePair(kwOptimal.getPoint()[1]));
   }
 }
