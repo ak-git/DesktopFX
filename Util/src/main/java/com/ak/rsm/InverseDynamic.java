@@ -1,6 +1,6 @@
 package com.ak.rsm;
 
-import java.util.List;
+import java.util.Collection;
 
 import javax.annotation.Nonnull;
 
@@ -22,7 +22,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
 
   @Nonnull
   @Override
-  public MediumLayers inverse(@Nonnull List<? extends DerivativeMeasurement> measurements) {
+  public MediumLayers inverse(@Nonnull Collection<? extends DerivativeMeasurement> measurements) {
     if (measurements.size() > 1) {
       return new Layer2Medium(measurements, inverseRelative(measurements));
     }
@@ -33,7 +33,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
 
   @Nonnull
   @Override
-  public RelativeMediumLayers inverseRelative(@Nonnull List<? extends DerivativeMeasurement> measurements) {
+  public RelativeMediumLayers inverseRelative(@Nonnull Collection<? extends DerivativeMeasurement> measurements) {
     var kMinMax = new double[] {-1.0, 1.0};
     if (measurements.stream().allMatch(d -> d.getDerivativeResistivity() > 0)) {
       kMinMax[1] = 0.0;
