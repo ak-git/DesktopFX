@@ -2,6 +2,8 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.DoubleSupplier;
+import java.util.function.ToDoubleBiFunction;
 import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
 
@@ -87,18 +89,19 @@ enum InverseStatic implements Inverseable<Measurement> {
             }
           }
 
+          ToDoubleBiFunction<RelativeTetrapolarSystem, DoubleSupplier> function =
+              (system, doubleSupplier) -> doubleSupplier.getAsDouble() / new NormalizedApparent2Rho(system).value(layers.k12(), layers.hToL());
+
           double[] derivativeApparentByK2Rho = subtract.apply(measurements.stream()
-              .mapToDouble(m -> {
-                double factor = 1.0 / new NormalizedApparent2Rho(m.getSystem().toRelative()).value(layers.k12(), layers.hToL());
-                return factor * new DerivativeApparentByK2Rho(m.getSystem().toRelative()).value(layers.k12(), layers.hToL());
-              })
+              .map(Measurement::getSystem).map(TetrapolarSystem::toRelative)
+              .mapToDouble(system ->
+                  function.applyAsDouble(system, () -> new DerivativeApparentByK2Rho(system).value(layers.k12(), layers.hToL())))
               .toArray());
 
           double[] derivativeApparentByPhi2Rho = subtract.apply(measurements.stream()
-              .mapToDouble(m -> {
-                double factor = 1.0 / new NormalizedApparent2Rho(m.getSystem().toRelative()).value(layers.k12(), layers.hToL());
-                return factor * new DerivativeApparentByPhi2Rho(m.getSystem().toRelative()).value(layers.k12(), layers.hToL());
-              })
+              .map(Measurement::getSystem).map(TetrapolarSystem::toRelative)
+              .mapToDouble(system ->
+                  function.applyAsDouble(system, () -> new DerivativeApparentByPhi2Rho(system).value(layers.k12(), layers.hToL())))
               .toArray());
 
           RealMatrix a = new Array2DRowRealMatrix(logRhoAbsErrors.length, 2);
