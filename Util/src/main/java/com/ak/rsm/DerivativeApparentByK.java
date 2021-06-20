@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 /**
  * dRho(apparent) by k
  */
-final class DerivativeApparentByK extends AbstractApparent {
+final class DerivativeApparentByK extends AbstractResistanceSumValue {
   DerivativeApparentByK(@Nonnull RelativeTetrapolarSystem system) {
     super(system);
   }

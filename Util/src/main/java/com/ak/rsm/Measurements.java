@@ -1,8 +1,6 @@
 package com.ak.rsm;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.function.ToDoubleBiFunction;
 
 import javax.annotation.Nonnegative;
@@ -12,6 +10,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.ak.math.ValuePair;
 
 import static java.lang.StrictMath.log;
+import static java.lang.StrictMath.pow;
 
 enum Measurements {
   ;
@@ -49,28 +48,19 @@ enum Measurements {
     }
     else {
       double baseL = getBaseL(measurements);
-      double meanRho = measurements.stream().parallel()
-          .mapToDouble(measurement -> {
+      return measurements.stream().parallel()
+          .map(measurement -> {
             TetrapolarSystem s = measurement.getSystem();
-            return measurement.getResistivity() / new NormalizedApparent2Rho(s.toRelative()).value(kw.k12(), kw.hToL() * baseL / s.getL());
-          })
-          .average().orElseThrow();
-      return new ValuePair(meanRho);
-    }
-  }
+            double normApparent = new NormalizedApparent2Rho(s.toRelative()).value(kw.k12(), kw.hToL() * baseL / s.getL());
 
-  @Nonnull
-  static Collection<Collection<Measurement>> errors(@Nonnull Collection<? extends Measurement> measurements) {
-    return TetrapolarSystem.getMeasurementsCombination(measurements.stream().map(Measurement::getSystem).toList())
-        .stream().map(systems -> {
-          Collection<Measurement> ms = new ArrayList<>(systems.size());
-          Iterator<TetrapolarSystem> tsIterator = systems.iterator();
-          Iterator<? extends Measurement> mIterator = measurements.iterator();
-          while (tsIterator.hasNext() && mIterator.hasNext()) {
-            ms.add(mIterator.next().newInstance(tsIterator.next()));
-          }
-          return ms;
-        })
-        .toList();
+            double fK = Math.abs(new DerivativeApparentByK2Rho(s.toRelative()).value(kw.k12(), kw.hToL()) * kw.k12AbsError());
+            double fPhi = Math.abs(new DerivativeApparentByPhi2Rho(s.toRelative()).value(kw.k12(), kw.hToL()) * kw.hToLAbsError());
+
+            return new ValuePair(measurement.getResistivity() / normApparent,
+                (fK + fPhi) * measurement.getResistivity() / pow(normApparent, 2.0)
+            );
+          })
+          .reduce(ValuePair::mergeWith).orElseThrow();
+    }
   }
 }

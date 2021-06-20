@@ -19,12 +19,14 @@ public class PredictionTest {
     Assert.assertNotEquals(measurement1.hashCode(), measurement2.hashCode());
     Assert.assertEquals(measurement1, measurement1);
 
-    Measurement merge = measurement1.merge(measurement2);
-    Assert.assertEquals(measurement2.merge(measurement1), merge);
-    Assert.assertEquals(merge.hashCode(), measurement2.merge(measurement1).hashCode());
+    Measurement merge1 = measurement1.merge(measurement2);
+    Measurement merge2 = measurement2.merge(measurement1);
+    Assert.assertEquals(merge1.getSystem().getS(), merge2.getSystem().getS(), 1.0e-6);
+    Assert.assertEquals(merge1.getSystem().getL(), merge2.getSystem().getL(), 1.0e-6);
+    Assert.assertEquals(merge1.getResistivity(), merge2.getResistivity(), 1.0e-6);
 
     Prediction prediction = new TetrapolarPrediction(
-        merge.getSystem(), RelativeMediumLayers.SINGLE_LAYER, 10.0, merge.getResistivity());
+        merge1.getSystem(), RelativeMediumLayers.SINGLE_LAYER, 10.0, merge1.getResistivity());
     Assert.assertEquals(prediction.getHorizons(), new double[] {Double.POSITIVE_INFINITY, 0.0}, prediction.toString());
     Assert.assertEquals(prediction.getResistivityPredicted(), 10.0, 0.001, prediction.toString());
   }

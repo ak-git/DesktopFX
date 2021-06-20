@@ -2,7 +2,7 @@ package com.ak.rsm;
 
 import javax.annotation.Nonnull;
 
-abstract class AbstractNormalizedApparent extends AbstractApparent {
+abstract class AbstractNormalizedApparent extends AbstractResistanceSumValue {
   AbstractNormalizedApparent(@Nonnull RelativeTetrapolarSystem system) {
     super(system);
   }

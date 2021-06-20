@@ -11,7 +11,7 @@ import static java.lang.StrictMath.pow;
 /**
  * dRho(apparent) by dPhi. phi = h / L
  */
-final class DerivativeApparentByPhi extends AbstractApparent {
+final class DerivativeApparentByPhi extends AbstractResistanceSumValue {
   DerivativeApparentByPhi(@Nonnull RelativeTetrapolarSystem system) {
     super(system);
   }

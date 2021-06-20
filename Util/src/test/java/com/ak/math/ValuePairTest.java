@@ -40,4 +40,15 @@ public class ValuePairTest {
     Assert.assertEquals(new ValuePair(1.23451, 0.19).hashCode(), new ValuePair(1.23452, 0.19).hashCode());
     Assert.assertNotEquals(new ValuePair(1.3, 0.1).hashCode(), new ValuePair(1.23452, 0.1).hashCode());
   }
+
+  @Test
+  public void testMerge() {
+    ValuePair v1 = new ValuePair(10.0, 1.0);
+    ValuePair v2 = new ValuePair(30.0, 2.0);
+    ValuePair v3 = new ValuePair(50.0, 1.0);
+
+    ValuePair merged = v1.mergeWith(v2).mergeWith(v3);
+    Assert.assertEquals(merged.getValue(), 30.0, 0.1, merged.toString());
+    Assert.assertEquals(merged.getAbsError(), 0.33, 0.1, merged.toString());
+  }
 }

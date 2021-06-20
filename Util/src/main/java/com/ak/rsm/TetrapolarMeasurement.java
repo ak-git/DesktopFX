@@ -2,7 +2,7 @@ package com.ak.rsm;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.ToDoubleFunction;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -10,13 +10,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.annotation.concurrent.ThreadSafe;
 
+import com.ak.math.ValuePair;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
 @ThreadSafe
 final class TetrapolarMeasurement implements Measurement {
-  private static final ToDoubleFunction<Measurement> POW2 =
-      m -> StrictMath.pow(m.getResistivity() * m.getSystem().getApparentRelativeError(), 2.0);
+  private static final Function<Measurement, ValuePair> TO_VALUE =
+      m -> new ValuePair(m.getResistivity(), m.getResistivity() * m.getSystem().getApparentRelativeError());
   @Nonnull
   private final TetrapolarSystem system;
   @Nonnegative
@@ -42,6 +43,11 @@ final class TetrapolarMeasurement implements Measurement {
   }
 
   @Override
+  public double getR() {
+    return rOhms;
+  }
+
+  @Override
   @Nonnegative
   public double getResistivity() {
     return resistivity;
@@ -56,18 +62,13 @@ final class TetrapolarMeasurement implements Measurement {
   @Nonnull
   @Override
   public Measurement merge(@Nonnull Measurement that) {
-    var sigma1Q = POW2.applyAsDouble(this);
-    var sigma2Q = POW2.applyAsDouble(that);
-    double k = sigma2Q / (sigma1Q + sigma2Q);
-    double avg = k * resistivity + (1.0 - k) * that.getResistivity();
-    double sigmaAvg = 1.0 / Math.sqrt((1.0 / sigma1Q + 1.0 / sigma2Q));
-
-    double relErrorRho = sigmaAvg / avg;
+    var avg = TO_VALUE.apply(this).mergeWith(TO_VALUE.apply(that));
+    double relErrorRho = avg.getAbsError() / avg.getValue();
     double dL = Math.min(system.getAbsError(), that.getSystem().getAbsError());
     double lCC = RelativeTetrapolarSystem.MIN_ERROR_FACTOR * dL / relErrorRho;
     double sPU = RelativeTetrapolarSystem.OPTIMAL_SL * lCC;
     TetrapolarSystem merged = TetrapolarSystem.si(dL).s(sPU).l(lCC);
-    return new TetrapolarMeasurement(merged, new Resistance1Layer(merged).value(avg));
+    return new TetrapolarMeasurement(merged, new Resistance1Layer(merged).value(avg.getValue()));
   }
 
   @Override

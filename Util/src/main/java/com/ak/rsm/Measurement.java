@@ -11,6 +11,9 @@ interface Measurement {
   Measurement newInstance(@Nonnull TetrapolarSystem system);
 
   @Nonnegative
+  double getR();
+
+  @Nonnegative
   double getResistivity();
 
   @Nonnull

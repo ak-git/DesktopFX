@@ -26,6 +26,11 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
   }
 
   @Override
+  public double getR() {
+    return measurement.getR();
+  }
+
+  @Override
   public double getResistivity() {
     return measurement.getResistivity();
   }
