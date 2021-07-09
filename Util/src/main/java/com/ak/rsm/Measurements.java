@@ -44,7 +44,7 @@ enum Measurements {
     if (RelativeMediumLayers.SINGLE_LAYER.equals(kw)) {
       Measurement average = measurements.stream().map(Measurement.class::cast).reduce(Measurement::merge).orElseThrow();
       double rho = average.getResistivity();
-      return new ValuePair(rho, rho * average.getSystem().getApparentRelativeError());
+      return ValuePair.Name.RHO_1.of(rho, rho * average.getSystem().getApparentRelativeError());
     }
     else {
       double baseL = getBaseL(measurements);
@@ -56,7 +56,7 @@ enum Measurements {
             double fK = Math.abs(new DerivativeApparentByK2Rho(s.toRelative()).value(kw.k12(), kw.hToL()) * kw.k12AbsError());
             double fPhi = Math.abs(new DerivativeApparentByPhi2Rho(s.toRelative()).value(kw.k12(), kw.hToL()) * kw.hToLAbsError());
 
-            return new ValuePair(measurement.getResistivity() / normApparent,
+            return ValuePair.Name.RHO_1.of(measurement.getResistivity() / normApparent,
                 (fK + fPhi) * measurement.getResistivity() / pow(normApparent, 2.0)
             );
           })

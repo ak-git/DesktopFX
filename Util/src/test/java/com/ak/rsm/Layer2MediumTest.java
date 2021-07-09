@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.ak.math.ValuePair;
 import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -17,16 +18,22 @@ public class Layer2MediumTest {
     Collection<Measurement> measurements = TetrapolarMeasurement.of(systems4(0.1, 7.0), new double[] {1.0, 2.0, 3.0, 4.0});
     return new Object[][] {
         {
-            new Layer2Medium(measurements, new Layer2RelativeMedium(0.6, 0.2)),
-            new double[] {0.0469, 0.1879, Metrics.fromMilli(7.0 * 4 * 0.2)}
+            new Layer2Medium(measurements, new Layer2RelativeMedium(
+                ValuePair.Name.K12.of(0.6, 0.01),
+                ValuePair.Name.H.of(0.2, 0.01))
+            ),
+            new double[] {0.0429, 0.1716, Metrics.fromMilli(7.0 * 4 * 0.2)}
         },
         {
-            new Layer2Medium(measurements, new Layer2RelativeMedium(-0.6, 0.1)),
-            new double[] {0.1978, 0.0494, Metrics.fromMilli(7.0 * 4 * 0.1)}
+            new Layer2Medium(measurements, new Layer2RelativeMedium(
+                ValuePair.Name.K12.of(-0.6, 0.001),
+                ValuePair.Name.H.of(0.1, 0.001))
+            ),
+            new double[] {0.1453, 0.0363, Metrics.fromMilli(7.0 * 4 * 0.1)}
         },
         {
             new Layer2Medium(measurements, RelativeMediumLayers.SINGLE_LAYER),
-            new double[] {0.065, 0.065, Double.NaN}
+            new double[] {0.0654, 0.065, Double.NaN}
         },
     };
   }
@@ -43,8 +50,8 @@ public class Layer2MediumTest {
   @Test(dataProvider = "layer2Medium")
   @ParametersAreNonnullByDefault
   public void testToString(MediumLayers layers, double[] expected) {
-    Assert.assertTrue(layers.toString().contains(Double.toString(expected[0])), layers.toString());
-    Assert.assertTrue(layers.toString().contains(Double.toString(expected[1])), layers.toString());
-    Assert.assertTrue(layers.toString().contains(Double.toString(expected[2])), layers.toString());
+    Assert.assertTrue(layers.toString().contains("%.4f".formatted(expected[0])), layers.toString());
+    Assert.assertTrue(layers.toString().contains("%.1f".formatted(expected[1])), layers.toString());
+    Assert.assertTrue(layers.toString().contains("%.1f".formatted(expected[2])), layers.toString());
   }
 }

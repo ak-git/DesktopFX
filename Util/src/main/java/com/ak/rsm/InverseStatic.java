@@ -119,6 +119,6 @@ enum InverseStatic implements Inverseable<Measurement> {
           return max;
         })
         .orElseThrow();
-    return new Layer2RelativeMedium(new ValuePair(layers.k12(), kwErrors[0]), new ValuePair(layers.hToL(), kwErrors[1]));
+    return new Layer2RelativeMedium(ValuePair.Name.K12.of(layers.k12(), kwErrors[0]), ValuePair.Name.H_L.of(layers.hToL(), kwErrors[1]));
   }
 }

@@ -14,11 +14,11 @@ public class Layer2RelativeMediumTest {
     return new Object[][] {
         {
             new Layer2RelativeMedium(1.0, Metrics.fromMilli(5.0)),
-            new ValuePair[] {new ValuePair(1.0), new ValuePair(Metrics.fromMilli(5.0))}
+            new ValuePair[] {ValuePair.Name.NONE.of(1.0, 0.0), ValuePair.Name.NONE.of(Metrics.fromMilli(5.0), 0.0)}
         },
         {
-            new Layer2RelativeMedium(new ValuePair(1.0), new ValuePair(Metrics.fromMilli(5.0), Metrics.fromMilli(0.1))),
-            new ValuePair[] {new ValuePair(1.0), new ValuePair(Metrics.fromMilli(5.0), Metrics.fromMilli(0.1))}
+            new Layer2RelativeMedium(ValuePair.Name.NONE.of(1.0, 0.0), ValuePair.Name.NONE.of(Metrics.fromMilli(5.0), Metrics.fromMilli(0.1))),
+            new ValuePair[] {ValuePair.Name.NONE.of(1.0, 0.0), ValuePair.Name.NONE.of(Metrics.fromMilli(5.0), Metrics.fromMilli(0.1))}
         },
     };
   }

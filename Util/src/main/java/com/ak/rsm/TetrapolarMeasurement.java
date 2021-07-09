@@ -17,7 +17,7 @@ import com.ak.util.Strings;
 @ThreadSafe
 final class TetrapolarMeasurement implements Measurement {
   private static final Function<Measurement, ValuePair> TO_VALUE =
-      m -> new ValuePair(m.getResistivity(), m.getResistivity() * m.getSystem().getApparentRelativeError());
+      m -> ValuePair.Name.RHO_1.of(m.getResistivity(), m.getResistivity() * m.getSystem().getApparentRelativeError());
   @Nonnull
   private final TetrapolarSystem system;
   @Nonnegative

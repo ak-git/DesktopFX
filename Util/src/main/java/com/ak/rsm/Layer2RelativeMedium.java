@@ -6,7 +6,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.math.ValuePair;
-import com.ak.util.Strings;
 
 final class Layer2RelativeMedium implements RelativeMediumLayers {
   @Nonnull
@@ -21,8 +20,8 @@ final class Layer2RelativeMedium implements RelativeMediumLayers {
   }
 
   Layer2RelativeMedium(double k12, @Nonnegative double hToL) {
-    this.k12 = new ValuePair(k12, 0.0);
-    this.hToL = new ValuePair(hToL, 0.0);
+    this.k12 = ValuePair.Name.K12.of(k12, 0.0);
+    this.hToL = ValuePair.Name.H_L.of(hToL, 0.0);
   }
 
   Layer2RelativeMedium(@Nonnull double[] kw) {
@@ -31,7 +30,7 @@ final class Layer2RelativeMedium implements RelativeMediumLayers {
 
   @Override
   public String toString() {
-    return "k%s%s = %s; %s = %s".formatted(Strings.low(1), Strings.low(2), k12, Strings.PHI, hToL);
+    return "%s; %s".formatted(k12, hToL);
   }
 
   @Override

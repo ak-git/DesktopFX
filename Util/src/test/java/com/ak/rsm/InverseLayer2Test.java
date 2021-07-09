@@ -46,16 +46,20 @@ public class InverseLayer2Test {
             systems2,
             Arrays.stream(systems2)
                 .mapToDouble(s -> new Resistance1Layer(s).value(10.0)).toArray(),
-            new ValuePair[] {new ValuePair(10.0, 0.11), new ValuePair(10.0, 0.11), new ValuePair(Double.NaN)}
+            new ValuePair[] {
+                ValuePair.Name.NONE.of(10.0, 0.11),
+                ValuePair.Name.NONE.of(10.0, 0.11),
+                ValuePair.Name.NONE.of(Double.NaN, 0.0)
+            }
         },
         {
             systems4,
             Arrays.stream(systems4)
                 .mapToDouble(s -> new Resistance2Layer(s).value(10.0, 1.0, Metrics.fromMilli(10.0))).toArray(),
             new ValuePair[] {
-                new ValuePair(10.0, 3.3),
-                new ValuePair(1.0, 1.0),
-                new ValuePair(Metrics.fromMilli(10.0), Metrics.fromMilli(3.1))
+                ValuePair.Name.NONE.of(10.0, 3.3),
+                ValuePair.Name.NONE.of(1.0, 1.0),
+                ValuePair.Name.NONE.of(Metrics.fromMilli(10.0), Metrics.fromMilli(3.1))
             }
         },
         {
@@ -63,9 +67,9 @@ public class InverseLayer2Test {
             Arrays.stream(systems4)
                 .mapToDouble(s -> new Resistance2Layer(s).value(1.0, 10.0, Metrics.fromMilli(10.0))).toArray(),
             new ValuePair[] {
-                new ValuePair(1.0, 3.3),
-                new ValuePair(10.0, 1.0),
-                new ValuePair(Metrics.fromMilli(10.0), Metrics.fromMilli(3.1))
+                ValuePair.Name.NONE.of(1.0, 3.3),
+                ValuePair.Name.NONE.of(10.0, 1.0),
+                ValuePair.Name.NONE.of(Metrics.fromMilli(10.0), Metrics.fromMilli(3.1))
             }
         },
     };
@@ -248,7 +252,7 @@ public class InverseLayer2Test {
     return Stream.concat(Arrays.stream(theoryDynamicParameters2()), Arrays.stream(dynamicParameters2())).toArray(Object[][]::new);
   }
 
-  @Test(dataProvider = "allDynamicParameters2")
+  @Test(dataProvider = "theoryDynamicParameters2")
   @ParametersAreNonnullByDefault
   public void testInverseDynamicLayer2(TetrapolarSystem[] systems, double[] rOhms, double[] rOhmsAfter, double dh, double[] expected) {
     var medium = InverseDynamic.INSTANCE.inverse(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));

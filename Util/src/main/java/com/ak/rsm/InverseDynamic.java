@@ -64,6 +64,9 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
         new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], getMaxHToL(measurements)}),
         new double[] {0.01, 0.01}
     );
-    return new Layer2RelativeMedium(new ValuePair(kwOptimal.getPoint()[0]), new ValuePair(kwOptimal.getPoint()[1]));
+    return new Layer2RelativeMedium(
+        ValuePair.Name.K12.of(kwOptimal.getPoint()[0], 0.0),
+        ValuePair.Name.H_L.of(kwOptimal.getPoint()[1], 0.0)
+    );
   }
 }
