@@ -59,10 +59,10 @@ enum InverseStatic implements Inverseable<Measurement> {
     double[] subLogApparent = subtract.apply(measurements.stream().mapToDouble(x -> log(x.getResistivity())).toArray());
     var logApparentPredicted = logApparentPredicted(measurements);
 
+    Collection<TetrapolarSystem> tetrapolarSystems = measurements.stream().map(Measurement::getSystem).toList();
     PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
           double[] subLogApparentPredicted = subtract.apply(
-              measurements.stream()
-                  .map(Measurement::getSystem)
+              tetrapolarSystems.stream()
                   .mapToDouble(s -> logApparentPredicted.applyAsDouble(s, kw))
                   .toArray()
           );
@@ -71,14 +71,14 @@ enum InverseStatic implements Inverseable<Measurement> {
         new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {1.0, getMaxHToL(measurements)}),
         new double[] {0.01, 0.01}
     );
-    return errors(measurements, new Layer2RelativeMedium(kwOptimal.getPoint()), subtract);
+    return errors(tetrapolarSystems, new Layer2RelativeMedium(kwOptimal.getPoint()), subtract);
   }
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  private static RelativeMediumLayers errors(Collection<? extends Measurement> measurements, RelativeMediumLayers layers,
+  private static RelativeMediumLayers errors(Collection<TetrapolarSystem> systems, RelativeMediumLayers layers,
                                              UnaryOperator<double[]> subtract) {
-    double[] logRhoAbsErrors = subtract.apply(measurements.stream().mapToDouble(m -> new ApparentAbsError(m).getAsDouble() / m.getResistivity()).toArray());
+    double[] logRhoAbsErrors = subtract.apply(systems.stream().mapToDouble(s -> new ApparentRelativeError(s).getAsDouble()).toArray());
 
     double[] kwErrors = IntStream.range(0, 1 << (logRhoAbsErrors.length - 1))
         .mapToObj(n -> {
@@ -92,14 +92,14 @@ enum InverseStatic implements Inverseable<Measurement> {
           ToDoubleBiFunction<RelativeTetrapolarSystem, DoubleSupplier> function =
               (system, doubleSupplier) -> doubleSupplier.getAsDouble() / new NormalizedApparent2Rho(system).value(layers.k12(), layers.hToL());
 
-          double[] derivativeApparentByK2Rho = subtract.apply(measurements.stream()
-              .map(Measurement::getSystem).map(TetrapolarSystem::toRelative)
+          double[] derivativeApparentByK2Rho = subtract.apply(systems.stream()
+              .map(TetrapolarSystem::toRelative)
               .mapToDouble(system ->
                   function.applyAsDouble(system, () -> new DerivativeApparentByK2Rho(system).value(layers.k12(), layers.hToL())))
               .toArray());
 
-          double[] derivativeApparentByPhi2Rho = subtract.apply(measurements.stream()
-              .map(Measurement::getSystem).map(TetrapolarSystem::toRelative)
+          double[] derivativeApparentByPhi2Rho = subtract.apply(systems.stream()
+              .map(TetrapolarSystem::toRelative)
               .mapToDouble(system ->
                   function.applyAsDouble(system, () -> new DerivativeApparentByPhi2Rho(system).value(layers.k12(), layers.hToL())))
               .toArray());

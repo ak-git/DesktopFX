@@ -11,8 +11,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import javax.annotation.concurrent.ThreadSafe;
 
 import com.ak.math.ValuePair;
-import com.ak.util.Metrics;
-import com.ak.util.Strings;
 
 @ThreadSafe
 final class TetrapolarMeasurement implements Measurement {
@@ -73,9 +71,8 @@ final class TetrapolarMeasurement implements Measurement {
 
   @Override
   public String toString() {
-    return "%s; %s (%.0f %%)".formatted(String.valueOf(system),
-        Strings.rho(resistivity),
-        Metrics.toPercents(system.getApparentRelativeError())
+    return "%s; %s".formatted(String.valueOf(system),
+        ValuePair.Name.RHO_1.of(resistivity, resistivity * system.getApparentRelativeError())
     );
   }
 
