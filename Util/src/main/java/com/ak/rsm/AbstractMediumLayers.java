@@ -19,6 +19,8 @@ import static com.ak.rsm.Measurements.getRho1;
 
 abstract class AbstractMediumLayers implements MediumLayers {
   @Nonnull
+  private RelativeMediumLayers kw;
+  @Nonnull
   private final ValuePair rho;
   @Nonnull
   private final Collection<Measurement> measurements;
@@ -27,6 +29,7 @@ abstract class AbstractMediumLayers implements MediumLayers {
 
   @ParametersAreNonnullByDefault
   AbstractMediumLayers(Collection<? extends Measurement> measurements, RelativeMediumLayers kw) {
+    this.kw = kw;
     rho = getRho1(measurements, kw);
     this.measurements = Collections.unmodifiableCollection(measurements);
     predictions = measurements.stream().map(m -> m.toPrediction(kw, rho.getValue())).toList();
@@ -59,7 +62,8 @@ abstract class AbstractMediumLayers implements MediumLayers {
       data.add(mIterator.next().toString()).add("; %s".formatted(pIterator.next())).add(Strings.NEW_LINE);
     }
 
-    return "%s; L%s = %s %% %n%s".formatted(
+    return "%s; %s; L%s = %s %% %n%s".formatted(
+        kw,
         TetrapolarPrediction.toStringHorizons(TetrapolarPrediction.mergeHorizons(predictions)), Strings.low(2),
         Arrays.stream(getInequalityL2()).map(Metrics::toPercents).mapToObj("%.1f"::formatted).collect(Collectors.joining("; ", "[", "]")),
         data);

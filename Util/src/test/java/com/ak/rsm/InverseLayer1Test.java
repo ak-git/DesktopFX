@@ -1,5 +1,6 @@
 package com.ak.rsm;
 
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Logger;
@@ -19,7 +20,7 @@ public class InverseLayer1Test {
   @DataProvider(name = "layer1")
   public static Object[][] layer1() {
     TetrapolarSystem[] systems2 = systems2(0.1, 10.0);
-    Random random = new Random();
+    Random random = new SecureRandom();
     int rho = random.nextInt(9) + 1;
     return new Object[][] {
         {

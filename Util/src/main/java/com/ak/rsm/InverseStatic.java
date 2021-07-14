@@ -2,6 +2,7 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleSupplier;
 import java.util.function.ToDoubleBiFunction;
 import java.util.function.UnaryOperator;
@@ -28,13 +29,8 @@ import static java.lang.StrictMath.log;
 enum InverseStatic implements Inverseable<Measurement> {
   INSTANCE;
 
-  private static final UnaryOperator<double[]> SUBTRACT = values -> {
-    var sub = new double[values.length - 1];
-    for (var i = 0; i < sub.length; i++) {
-      sub[i] = values[i + 1] - values[i];
-    }
-    return sub;
-  };
+  private static final UnaryOperator<double[]> SUBTRACT = newSubtract((left, right) -> left - right);
+  private static final UnaryOperator<double[]> PLUS_ERRORS = newSubtract((left, right) -> Math.abs(left) + Math.abs(right));
 
   @Nonnull
   @Override
@@ -71,7 +67,7 @@ enum InverseStatic implements Inverseable<Measurement> {
         new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {1.0, getMaxHToL(measurements)}),
         new double[] {0.01, 0.01}
     );
-    return errors(tetrapolarSystems, new Layer2RelativeMedium(kwOptimal.getPoint()), subtract);
+    return errors(tetrapolarSystems, new Layer2RelativeMedium(kwOptimal.getPoint()), subtract.equals(SUBTRACT) ? PLUS_ERRORS : subtract);
   }
 
   @Nonnull
@@ -120,5 +116,16 @@ enum InverseStatic implements Inverseable<Measurement> {
         })
         .orElseThrow();
     return new Layer2RelativeMedium(ValuePair.Name.K12.of(layers.k12(), kwErrors[0]), ValuePair.Name.H_L.of(layers.hToL(), kwErrors[1]));
+  }
+
+  @Nonnull
+  private static UnaryOperator<double[]> newSubtract(@Nonnull DoubleBinaryOperator operator) {
+    return values -> {
+      var sub = new double[values.length - 1];
+      for (var i = 0; i < sub.length; i++) {
+        sub[i] = operator.applyAsDouble(values[i + 1], values[i]);
+      }
+      return sub;
+    };
   }
 }
