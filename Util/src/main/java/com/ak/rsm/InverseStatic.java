@@ -67,14 +67,15 @@ enum InverseStatic implements Inverseable<Measurement> {
         new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {1.0, getMaxHToL(measurements)}),
         new double[] {0.01, 0.01}
     );
-    return errors(tetrapolarSystems, new Layer2RelativeMedium(kwOptimal.getPoint()), subtract.equals(SUBTRACT) ? PLUS_ERRORS : subtract);
+    return errors(tetrapolarSystems, new Layer2RelativeMedium(kwOptimal.getPoint()), subtract);
   }
 
   @Nonnull
   @ParametersAreNonnullByDefault
   private static RelativeMediumLayers errors(Collection<TetrapolarSystem> systems, RelativeMediumLayers layers,
                                              UnaryOperator<double[]> subtract) {
-    double[] logRhoAbsErrors = subtract.apply(systems.stream().mapToDouble(TetrapolarSystem::getApparentRelativeError).toArray());
+    var plusErrors = subtract.equals(SUBTRACT) ? PLUS_ERRORS : subtract;
+    double[] logRhoAbsErrors = plusErrors.apply(systems.stream().mapToDouble(TetrapolarSystem::getApparentRelativeError).toArray());
 
     double[] kwErrors = IntStream.range(0, 1 << (logRhoAbsErrors.length - 1))
         .mapToObj(n -> {
