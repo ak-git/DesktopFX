@@ -9,7 +9,9 @@ import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.pow;
 
 final class SecondDerivativeApparentByPhiPhi2Rho implements DoubleBinaryOperator {
+  @Nonnull
   private final DoubleBinaryOperator apparentByPhi2Rho;
+  @Nonnull
   private final DoubleBinaryOperator secondPart;
 
   SecondDerivativeApparentByPhiPhi2Rho(@Nonnull RelativeTetrapolarSystem system) {
