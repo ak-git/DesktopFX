@@ -39,19 +39,8 @@ public class InverseLayer2Test {
 
   @DataProvider(name = "layer2")
   public static Object[][] layer2() {
-    TetrapolarSystem[] systems2 = systems2(0.1, 10.0);
     TetrapolarSystem[] systems4 = systems4(0.1, 10.0);
     return new Object[][] {
-        {
-            systems2,
-            Arrays.stream(systems2)
-                .mapToDouble(s -> new Resistance1Layer(s).value(10.0)).toArray(),
-            new ValuePair[] {
-                ValuePair.Name.NONE.of(10.0, 0.11),
-                ValuePair.Name.NONE.of(10.0, 0.11),
-                ValuePair.Name.NONE.of(Double.NaN, 0.0)
-            }
-        },
         {
             systems4,
             Arrays.stream(systems4)
@@ -107,8 +96,8 @@ public class InverseLayer2Test {
                 .mapToDouble(s -> new Resistance2Layer(s).value(1.0, 9.0, h + dh)).toArray(),
             dh,
             new double[] {
-                new NormalizedApparent2Rho(systems1[0].toRelative()).value(0.8, h / systems1[0].getL()),
-                new NormalizedApparent2Rho(systems1[0].toRelative()).value(0.8, h / systems1[0].getL()),
+                Apparent2Rho.newNormalizedApparent2Rho(systems1[0].toRelative()).applyAsDouble(0.8, h / systems1[0].getL()),
+                Apparent2Rho.newNormalizedApparent2Rho(systems1[0].toRelative()).applyAsDouble(0.8, h / systems1[0].getL()),
                 Double.NaN}
         },
         {
@@ -118,7 +107,16 @@ public class InverseLayer2Test {
             Arrays.stream(systems2)
                 .mapToDouble(s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h)).toArray(),
             dh,
-            new double[] {1.0, 1000.0, h}
+            new double[] {1.0, Double.POSITIVE_INFINITY, h}
+        },
+        {
+            systems2,
+            Arrays.stream(systems2)
+                .mapToDouble(s -> new Resistance2Layer(s).value(10.0, Double.POSITIVE_INFINITY, h)).toArray(),
+            Arrays.stream(systems2)
+                .mapToDouble(s -> new Resistance2Layer(s).value(10.0, Double.POSITIVE_INFINITY, h)).toArray(),
+            dh,
+            new double[] {1.0, Double.POSITIVE_INFINITY, h / 10.0}
         },
         {
             systems2,
@@ -127,7 +125,7 @@ public class InverseLayer2Test {
             Arrays.stream(systems2)
                 .mapToDouble(s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h + dh)).toArray(),
             dh,
-            new double[] {1.0, 1000.0, h}
+            new double[] {1.0, Double.POSITIVE_INFINITY, h}
         },
         {
             systems2,
@@ -257,7 +255,7 @@ public class InverseLayer2Test {
   public void testInverseDynamicLayer2(TetrapolarSystem[] systems, double[] rOhms, double[] rOhmsAfter, double dh, double[] expected) {
     var medium = InverseDynamic.INSTANCE.inverse(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
     Assert.assertEquals(medium.rho1().getValue(), expected[0], 0.1, medium.toString());
-    Assert.assertEquals(Math.min(medium.rho2().getValue(), 1000), expected[1], 0.1, medium.toString());
+    Assert.assertEquals(medium.rho2().getValue() > 1000 ? Double.POSITIVE_INFINITY : medium.rho2().getValue(), expected[1], 0.1, medium.toString());
     Assert.assertEquals(Metrics.toMilli(medium.h1().getValue()), Metrics.toMilli(expected[2]), 0.01, medium.toString());
     LOGGER.info(medium::toString);
   }

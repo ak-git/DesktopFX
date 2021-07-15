@@ -1,12 +1,21 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.DoubleSupplier;
+import java.util.function.ToDoubleBiFunction;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
 import com.ak.math.ValuePair;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.SingularValueDecomposition;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 
@@ -53,10 +62,10 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
     var logApparentPredicted = logApparentPredicted(measurements);
     var logDiffApparentPredicted = logDiffApparentPredicted(measurements);
 
+    Collection<TetrapolarSystem> tetrapolarSystems = measurements.stream().map(Measurement::getSystem).toList();
     PointValuePair kwOptimal = Simplex.optimizeAll(
         kw -> {
-          double[] subLogPredicted = measurements.stream()
-              .map(Measurement::getSystem)
+          double[] subLogPredicted = tetrapolarSystems.stream()
               .mapToDouble(s -> logApparentPredicted.applyAsDouble(s, kw) - logDiffApparentPredicted.applyAsDouble(s, kw))
               .toArray();
           return Inequality.absolute().applyAsDouble(subLog, subLogPredicted);
@@ -64,9 +73,53 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
         new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], getMaxHToL(measurements)}),
         new double[] {0.01, 0.01}
     );
-    return new Layer2RelativeMedium(
-        ValuePair.Name.K12.of(kwOptimal.getPoint()[0], 0.0),
-        ValuePair.Name.H_L.of(kwOptimal.getPoint()[1], 0.0)
-    );
+    return errors(tetrapolarSystems, new Layer2RelativeMedium(kwOptimal.getPoint()));
+  }
+
+  @Nonnull
+  @ParametersAreNonnullByDefault
+  private static RelativeMediumLayers errors(Collection<TetrapolarSystem> systems, RelativeMediumLayers layers) {
+    double[] logRhoAbsErrors = systems.stream().mapToDouble(TetrapolarSystem::getApparentRelativeError).toArray();
+
+    double[] kwErrors = IntStream.range(0, 1 << (logRhoAbsErrors.length - 1))
+        .mapToObj(n -> {
+          var b = Arrays.copyOf(logRhoAbsErrors, logRhoAbsErrors.length);
+          for (var i = 0; i < logRhoAbsErrors.length; i++) {
+            if ((n & (1 << i)) == 1) {
+              b[i] *= -1.0;
+            }
+          }
+
+          ToDoubleBiFunction<RelativeTetrapolarSystem, DoubleSupplier> function =
+              (system, doubleSupplier) -> doubleSupplier.getAsDouble() / Apparent2Rho.newNormalizedApparent2Rho(system).applyAsDouble(layers.k12(), layers.hToL());
+
+          double[] derivativeApparentByK2Rho = systems.stream()
+              .map(TetrapolarSystem::toRelative)
+              .mapToDouble(system ->
+                  function.applyAsDouble(system, () -> new DerivativeApparentByK2Rho(system).applyAsDouble(layers.k12(), layers.hToL())))
+              .toArray();
+
+          double[] derivativeApparentByPhi2Rho = systems.stream()
+              .map(TetrapolarSystem::toRelative)
+              .mapToDouble(system ->
+                  function.applyAsDouble(system, () -> Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers.k12(), layers.hToL())))
+              .toArray();
+
+          RealMatrix a = new Array2DRowRealMatrix(logRhoAbsErrors.length, 2);
+          for (var i = 0; i < logRhoAbsErrors.length; i++) {
+            a.setEntry(i, 0, abs(derivativeApparentByK2Rho[i]));
+            a.setEntry(i, 1, abs(derivativeApparentByPhi2Rho[i]));
+          }
+          return new SingularValueDecomposition(a).getSolver().solve(new ArrayRealVector(b)).toArray();
+        })
+        .reduce((v1, v2) -> {
+          var max = new double[v1.length];
+          for (var i = 0; i < max.length; i++) {
+            max[i] = Math.max(Math.abs(v1[i]), Math.abs(v2[i]));
+          }
+          return max;
+        })
+        .orElseThrow();
+    return new Layer2RelativeMedium(ValuePair.Name.K12.of(layers.k12(), kwErrors[0]), ValuePair.Name.H_L.of(layers.hToL(), kwErrors[1]));
   }
 }

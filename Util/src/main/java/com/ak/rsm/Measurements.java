@@ -29,13 +29,13 @@ enum Measurements {
   @Nonnull
   static ToDoubleBiFunction<TetrapolarSystem, double[]> logApparentPredicted(@Nonnull Collection<? extends Measurement> measurements) {
     double baseL = getBaseL(measurements);
-    return (s, kw) -> new Log1pApparent2Rho(s.toRelative()).value(kw[0], kw[1] * baseL / s.getL());
+    return (s, kw) -> Apparent2Rho.newLog1pApparent2Rho(s.toRelative()).applyAsDouble(kw[0], kw[1] * baseL / s.getL());
   }
 
   @Nonnull
   static ToDoubleBiFunction<TetrapolarSystem, double[]> logDiffApparentPredicted(@Nonnull Collection<? extends Measurement> measurements) {
     double baseL = getBaseL(measurements);
-    return (s, kw) -> log(Math.abs(new DerivativeApparentByPhi2Rho(s.toRelative()).value(kw[0], kw[1] * baseL / s.getL())));
+    return (s, kw) -> log(Math.abs(Apparent2Rho.newDerivativeApparentByPhi2Rho(s.toRelative()).applyAsDouble(kw[0], kw[1] * baseL / s.getL())));
   }
 
   @Nonnull
@@ -51,10 +51,10 @@ enum Measurements {
       return measurements.stream().parallel()
           .map(measurement -> {
             TetrapolarSystem s = measurement.getSystem();
-            double normApparent = new NormalizedApparent2Rho(s.toRelative()).value(kw.k12(), kw.hToL() * baseL / s.getL());
+            double normApparent = Apparent2Rho.newNormalizedApparent2Rho(s.toRelative()).applyAsDouble(kw.k12(), kw.hToL() * baseL / s.getL());
 
-            double fK = Math.abs(new DerivativeApparentByK2Rho(s.toRelative()).value(kw.k12(), kw.hToL()) * kw.k12AbsError());
-            double fPhi = Math.abs(new DerivativeApparentByPhi2Rho(s.toRelative()).value(kw.k12(), kw.hToL()) * kw.hToLAbsError());
+            double fK = Math.abs(new DerivativeApparentByK2Rho(s.toRelative()).applyAsDouble(kw.k12(), kw.hToL()) * kw.k12AbsError());
+            double fPhi = Math.abs(Apparent2Rho.newDerivativeApparentByPhi2Rho(s.toRelative()).applyAsDouble(kw.k12(), kw.hToL()) * kw.hToLAbsError());
 
             return ValuePair.Name.RHO_1.of(measurement.getResistivity() / normApparent,
                 (fK + fPhi) * measurement.getResistivity() / pow(normApparent, 2.0)

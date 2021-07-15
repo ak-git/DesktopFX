@@ -3,7 +3,7 @@ package com.ak.rsm;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-final class DerivativeApparentByK2Rho extends AbstractApparent2Rho {
+final class DerivativeApparentByK2Rho extends Apparent2Rho {
   DerivativeApparentByK2Rho(@Nonnull RelativeTetrapolarSystem system) {
     super(new DerivativeApparentByK(system));
   }
