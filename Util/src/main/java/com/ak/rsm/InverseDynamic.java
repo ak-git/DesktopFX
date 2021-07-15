@@ -92,23 +92,29 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
 
           ToDoubleBiFunction<RelativeTetrapolarSystem, DoubleSupplier> function =
               (system, doubleSupplier) -> doubleSupplier.getAsDouble() / Apparent2Rho.newNormalizedApparent2Rho(system).applyAsDouble(layers.k12(), layers.hToL());
+          ToDoubleBiFunction<RelativeTetrapolarSystem, DoubleSupplier> function2 =
+              (system, doubleSupplier) -> doubleSupplier.getAsDouble() / Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers.k12(), layers.hToL());
 
-          double[] derivativeApparentByK2Rho = systems.stream()
+          double[] derivativeByK2Rho = systems.stream()
               .map(TetrapolarSystem::toRelative)
               .mapToDouble(system ->
-                  function.applyAsDouble(system, () -> new DerivativeApparentByK2Rho(system).applyAsDouble(layers.k12(), layers.hToL())))
+                  function.applyAsDouble(system, () -> new DerivativeApparentByK2Rho(system).applyAsDouble(layers.k12(), layers.hToL())) -
+                      function2.applyAsDouble(system, () -> new SecondDerivativeApparentByPhiK2Rho(system).applyAsDouble(layers.k12(), layers.hToL()))
+              )
               .toArray();
 
-          double[] derivativeApparentByPhi2Rho = systems.stream()
+          double[] derivativeByPhi2Rho = systems.stream()
               .map(TetrapolarSystem::toRelative)
               .mapToDouble(system ->
-                  function.applyAsDouble(system, () -> Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers.k12(), layers.hToL())))
+                  function.applyAsDouble(system, () -> Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers.k12(), layers.hToL())) -
+                      function2.applyAsDouble(system, () -> new SecondDerivativeApparentByPhiPhi2Rho(system).applyAsDouble(layers.k12(), layers.hToL()))
+              )
               .toArray();
 
           RealMatrix a = new Array2DRowRealMatrix(logRhoAbsErrors.length, 2);
           for (var i = 0; i < logRhoAbsErrors.length; i++) {
-            a.setEntry(i, 0, abs(derivativeApparentByK2Rho[i]));
-            a.setEntry(i, 1, abs(derivativeApparentByPhi2Rho[i]));
+            a.setEntry(i, 0, abs(derivativeByK2Rho[i]));
+            a.setEntry(i, 1, abs(derivativeByPhi2Rho[i]));
           }
           return new SingularValueDecomposition(a).getSolver().solve(new ArrayRealVector(b)).toArray();
         })
