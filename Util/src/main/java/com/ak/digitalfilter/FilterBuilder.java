@@ -38,7 +38,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
 
   static DigitalFilter parallel(@Nonnull DigitalFilter... filters) {
     Objects.requireNonNull(filters);
-    return parallel(Stream.generate(() -> EMPTY_INTS).limit(filters.length).collect(Collectors.toList()), filters);
+    return parallel(Stream.generate(() -> EMPTY_INTS).limit(filters.length).toList(), filters);
   }
 
   public static FilterBuilder of() {

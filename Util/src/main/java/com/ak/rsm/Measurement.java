@@ -5,17 +5,13 @@ import javax.annotation.Nonnull;
 
 interface Measurement {
   @Nonnull
-  InexactTetrapolarSystem getSystem();
+  TetrapolarSystem getSystem();
 
   @Nonnegative
   double getResistivity();
 
-  default double getLogResistivity() {
-    return StrictMath.log(getResistivity());
-  }
-
   @Nonnull
-  Prediction toPrediction(@Nonnull RelativeMediumLayers<Double> kw, @Nonnegative double rho1);
+  Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1);
 
   @Nonnull
   default Measurement merge(@Nonnull Measurement that) {

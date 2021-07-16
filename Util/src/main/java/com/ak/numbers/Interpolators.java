@@ -61,7 +61,7 @@ public enum Interpolators {
       int finalX = xs[i];
       List<C> sliceAlongY = coeffSplineMap.entrySet().stream().sorted(
           Comparator.comparingInt(o -> o.getValue().applyAsInt(finalX))
-      ).map(Map.Entry::getKey).collect(Collectors.toList());
+      ).map(Map.Entry::getKey).toList();
 
       double[] yValues = sliceAlongY.stream().mapToDouble(c -> coeffSplineMap.get(c).applyAsInt(finalX)).toArray();
       double[] zValues = sliceAlongY.stream().mapToDouble(c -> Double.parseDouble(Strings.numberSuffix(c.name()))).toArray();

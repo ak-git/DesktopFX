@@ -13,7 +13,6 @@ import java.util.logging.Filter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -192,7 +191,8 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
       Collection<SerialPort> serialPorts = Arrays.stream(SerialPort.getCommPorts())
           .filter(port -> !port.getSystemPortName().toLowerCase().contains("bluetooth"))
           .sorted(Comparator.<SerialPort, Integer>comparing(port -> port.getSystemPortName().toLowerCase().indexOf("usb")).reversed())
-          .sorted(Comparator.comparingInt(value -> usedPorts.indexOf(value.getSystemPortName()))).collect(Collectors.toUnmodifiableList());
+          .sorted(Comparator.comparingInt(value -> usedPorts.indexOf(value.getSystemPortName())))
+          .toList();
       if (serialPorts.isEmpty()) {
         return null;
       }

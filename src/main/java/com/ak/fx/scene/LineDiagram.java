@@ -1,7 +1,6 @@
 package com.ak.fx.scene;
 
 import java.util.function.DoubleFunction;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -67,7 +66,7 @@ final class LineDiagram extends AbstractRegion {
       text.fontProperty().bind(Fonts.H2.fontProperty(this::getScene));
       text.relocate(POINTS.getStep() / 4, SMALL.getStep() * i - text.getFont().getSize() - POINTS.getStep() / 4);
       return text;
-    }).collect(Collectors.toList()));
+    }).toList());
 
     for (var i = 0; i < yLabels.getChildren().size(); i++) {
       title.setVisible(false);

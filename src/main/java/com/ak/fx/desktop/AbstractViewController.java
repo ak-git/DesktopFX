@@ -102,7 +102,7 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
         event.consume();
       });
       chart.setVariables(service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.VISIBLE))
-          .map(Variables::toString).collect(Collectors.toList()));
+          .map(Variables::toString).toList());
       chart.titleProperty().bind(axisXController.zoomProperty().asString());
       chart.diagramHeightProperty().addListener((observable, oldValue, newValue) -> {
         axisYController.setLineDiagramHeight(newValue.doubleValue());

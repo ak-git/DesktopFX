@@ -8,34 +8,32 @@ import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class DerivativeApparent2RhoTest {
+public class DerivativeApparentByPhi2RhoTest {
   @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
   public void testValueSL(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    TetrapolarSystem system = TetrapolarSystem.milli().s(smm).l(lmm);
+    TetrapolarSystem system = TetrapolarSystem.milli(0.0).s(smm).l(lmm);
     double h = Metrics.fromMilli(hmm);
     double dh = Metrics.fromMilli(-0.00001);
     TrivariateFunction resistance2Layer = new Resistance2Layer(system);
     double expected = system.getApparent(
         (resistance2Layer.value(rho[0], rho[1], h + dh) - resistance2Layer.value(rho[0], rho[1], h)) / dh
     );
-    expected /= rho[0];
-    double actual = new DerivativeApparent2Rho(system.toRelative()).value(Layers.getK12(rho[0], rho[1]), hmm / lmm) / system.getL();
-    Assert.assertEquals(StrictMath.log(Math.abs(actual)), StrictMath.log(Math.abs(expected)), 0.1);
-    Assert.assertEquals(Math.signum(actual), Math.signum(expected), 1.0e-6);
+    expected *= system.getL() / rho[0];
+    double actual = Apparent2Rho.newDerivativeApparentByPhi2Rho(system.toRelative()).applyAsDouble(new Layer2RelativeMedium(Layers.getK12(rho[0], rho[1]), hmm / lmm));
+    Assert.assertEquals(actual, expected, 0.1);
   }
 
   @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
   public void testValueLS(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    TetrapolarSystem system = TetrapolarSystem.milli().s(lmm).l(smm);
+    TetrapolarSystem system = TetrapolarSystem.milli(0.0).s(lmm).l(smm);
     double h = Metrics.fromMilli(hmm);
     double dh = Metrics.fromMilli(-0.00001);
     TrivariateFunction resistance2Layer = new Resistance2Layer(system);
     double expected = system.getApparent(
         (resistance2Layer.value(rho[0], rho[1], h + dh) - resistance2Layer.value(rho[0], rho[1], h)) / dh
     );
-    expected /= rho[0];
-    double actual = new DerivativeApparent2Rho(system.toRelative()).value(Layers.getK12(rho[0], rho[1]), hmm / smm) / system.getL();
-    Assert.assertEquals(StrictMath.log(Math.abs(actual)), StrictMath.log(Math.abs(expected)), 0.1);
-    Assert.assertEquals(Math.signum(actual), Math.signum(expected), 1.0e-6);
+    expected *= system.getL() / rho[0];
+    double actual = Apparent2Rho.newDerivativeApparentByPhi2Rho(system.toRelative()).applyAsDouble(new Layer2RelativeMedium(Layers.getK12(rho[0], rho[1]), hmm / smm));
+    Assert.assertEquals(actual, expected, 0.1);
   }
 }

@@ -2,9 +2,16 @@ package com.ak.rsm;
 
 import javax.annotation.Nonnull;
 
-abstract class AbstractApparent extends AbstractResistanceSumValue {
+abstract class AbstractApparent {
+  @Nonnull
+  private final RelativeTetrapolarSystem system;
+
   AbstractApparent(@Nonnull RelativeTetrapolarSystem system) {
-    super(system);
+    this.system = system;
+  }
+
+  final double factor(double sign) {
+    return system.factor(sign);
   }
 
   final double electrodesFactor() {

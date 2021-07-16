@@ -25,11 +25,9 @@ public class BufferFrame {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof BufferFrame)) {
+    if (!(o instanceof BufferFrame that)) {
       return false;
     }
-
-    BufferFrame that = (BufferFrame) o;
     return byteBuffer.equals(that.byteBuffer);
   }
 

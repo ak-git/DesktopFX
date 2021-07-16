@@ -24,6 +24,7 @@ import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
@@ -48,15 +49,15 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
   private Callable<AsynchronousFileChannel> convertedFileChannelProvider = () -> null;
   private volatile boolean disposed;
 
-  FileReadingService(@Nonnull Path fileToRead, @Nonnull BytesInterceptor<T, R> bytesInterceptor,
-                     @Nonnull Converter<R, V> responseConverter) {
+  @ParametersAreNonnullByDefault
+  FileReadingService(Path fileToRead, BytesInterceptor<T, R> bytesInterceptor, Converter<R, V> responseConverter) {
     super(bytesInterceptor, responseConverter);
     Objects.requireNonNull(fileToRead);
     this.fileToRead = fileToRead;
   }
 
   @Override
-  public void subscribe(Flow.Subscriber<? super int[]> s) {
+  public void subscribe(@Nonnull Flow.Subscriber<? super int[]> s) {
     if (Files.isRegularFile(fileToRead, LinkOption.NOFOLLOW_LINKS) && Files.exists(fileToRead, LinkOption.NOFOLLOW_LINKS) &&
         Files.isReadable(fileToRead)) {
       s.onSubscribe(this);
@@ -67,7 +68,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
         int blockSize = (int) Files.getFileStore(fileToRead).getBlockSize();
         var md = MessageDigest.getInstance("SHA-512");
         if (isChannelProcessed(blockSize, seekableByteChannel, md::update)) {
-          var md5Code = digestToString(md.digest("2021.05.25".getBytes(Charset.defaultCharset())));
+          var md5Code = digestToString(md.digest("2021.07.15".getBytes(Charset.defaultCharset())));
           var convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
           if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
             convertedFileChannelProvider = () -> AsynchronousFileChannel.open(convertedFile, READ);

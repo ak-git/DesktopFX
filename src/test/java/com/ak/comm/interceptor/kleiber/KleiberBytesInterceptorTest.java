@@ -48,7 +48,7 @@ public class KleiberBytesInterceptorTest {
   private static void testResponse(byte[] input, double[] expected, boolean logFlag) {
     Function<ByteBuffer, Stream<BufferFrame>> interceptor = new KleiberBytesInterceptor();
     Assert.assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {
-      List<BufferFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).collect(Collectors.toList());
+      List<BufferFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).toList();
       if (!frames.isEmpty()) {
         Assert.assertEquals(frames.stream().mapToDouble(value -> value.getFloat(1)).toArray(), expected, 0.001,
             frames.stream().map(BufferFrame::toString).collect(Collectors.joining()));

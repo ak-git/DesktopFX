@@ -1,6 +1,8 @@
 package com.ak.rsm;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.function.DoubleBinaryOperator;
 import java.util.function.UnaryOperator;
 
 import javax.annotation.Nonnull;
@@ -8,29 +10,27 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 
+import static com.ak.rsm.Measurements.getLayer2RelativeMedium;
 import static com.ak.rsm.Measurements.getMaxHToL;
 import static com.ak.rsm.Measurements.logApparentPredicted;
+import static java.lang.StrictMath.log;
 
 enum InverseStatic implements Inverseable<Measurement> {
   INSTANCE;
 
+  private static final UnaryOperator<double[]> SUBTRACT = newSubtract((left, right) -> left - right);
+  private static final UnaryOperator<double[]> PLUS_ERRORS = newSubtract((left, right) -> Math.abs(left) + Math.abs(right));
+
   @Nonnull
   @Override
-  public MediumLayers inverse(@Nonnull Collection<Measurement> measurements) {
+  public MediumLayers inverse(@Nonnull Collection<? extends Measurement> measurements) {
     if (measurements.size() > 2) {
-      UnaryOperator<double[]> subtract = values -> {
-        var sub = new double[values.length - 1];
-        for (var i = 0; i < sub.length; i++) {
-          sub[i] = values[i + 1] - values[i];
-        }
-        return sub;
-      };
-
-      RelativeMediumLayers<Double> kw = inverseRelative(measurements, subtract);
-      return new Layer2Medium(measurements, kw);
+      return new Layer2Medium(measurements, inverseRelative(measurements, SUBTRACT));
     }
     else {
       return new Layer1Medium(measurements);
@@ -39,20 +39,20 @@ enum InverseStatic implements Inverseable<Measurement> {
 
   @Nonnull
   @Override
-  public RelativeMediumLayers<Double> inverseRelative(@Nonnull Collection<? extends Measurement> measurements) {
+  public RelativeMediumLayers inverseRelative(@Nonnull Collection<? extends Measurement> measurements) {
     return inverseRelative(measurements, UnaryOperator.identity());
   }
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  private static RelativeMediumLayers<Double> inverseRelative(Collection<? extends Measurement> measurements, UnaryOperator<double[]> subtract) {
-    double[] subLogApparent = subtract.apply(measurements.stream().mapToDouble(Measurement::getLogResistivity).toArray());
+  private static RelativeMediumLayers inverseRelative(Collection<? extends Measurement> measurements, UnaryOperator<double[]> subtract) {
+    double[] subLogApparent = subtract.apply(measurements.stream().mapToDouble(x -> log(x.getResistivity())).toArray());
     var logApparentPredicted = logApparentPredicted(measurements);
 
+    List<TetrapolarSystem> tetrapolarSystems = measurements.stream().map(Measurement::getSystem).toList();
     PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
           double[] subLogApparentPredicted = subtract.apply(
-              measurements.stream()
-                  .map(measurement -> measurement.getSystem().toExact())
+              tetrapolarSystems.stream()
                   .mapToDouble(s -> logApparentPredicted.applyAsDouble(s, kw))
                   .toArray()
           );
@@ -61,6 +61,38 @@ enum InverseStatic implements Inverseable<Measurement> {
         new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {1.0, getMaxHToL(measurements)}),
         new double[] {0.01, 0.01}
     );
-    return new Layer2RelativeMedium<>(kwOptimal.getPoint()[0], kwOptimal.getPoint()[1]);
+    return errors(tetrapolarSystems, new Layer2RelativeMedium(kwOptimal.getPoint()), subtract);
+  }
+
+  @Nonnull
+  @ParametersAreNonnullByDefault
+  private static RelativeMediumLayers errors(List<TetrapolarSystem> systems, RelativeMediumLayers layers,
+                                             UnaryOperator<double[]> subtract) {
+    var plusErrors = subtract.equals(SUBTRACT) ? PLUS_ERRORS : subtract;
+    double[] logRhoAbsErrors = plusErrors.apply(systems.stream().mapToDouble(TetrapolarSystem::getApparentRelativeError).toArray());
+    RealMatrix a = getAMatrix(systems, layers, logRhoAbsErrors);
+    return getLayer2RelativeMedium(layers, a, logRhoAbsErrors);
+  }
+
+  static RealMatrix getAMatrix(List<TetrapolarSystem> systems, RelativeMediumLayers layers, double[] logRhoAbsErrors) {
+    RealMatrix a = new Array2DRowRealMatrix(logRhoAbsErrors.length, 2);
+    for (var i = 0; i < logRhoAbsErrors.length; i++) {
+      RelativeTetrapolarSystem system = systems.get(i).toRelative();
+      double denominator = Apparent2Rho.newNormalizedApparent2Rho(system).applyAsDouble(layers);
+      a.setEntry(i, 0, Apparent2Rho.newDerivativeApparentByK2Rho(system).applyAsDouble(layers) / denominator);
+      a.setEntry(i, 1, Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers) / denominator);
+    }
+    return a;
+  }
+
+  @Nonnull
+  private static UnaryOperator<double[]> newSubtract(@Nonnull DoubleBinaryOperator operator) {
+    return values -> {
+      var sub = new double[values.length - 1];
+      for (var i = 0; i < sub.length; i++) {
+        sub[i] = operator.applyAsDouble(values[i + 1], values[i]);
+      }
+      return sub;
+    };
   }
 }

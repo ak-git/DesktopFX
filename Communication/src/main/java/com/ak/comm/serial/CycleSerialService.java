@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
@@ -33,8 +34,8 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
   @Nonnull
   private SerialService<T, R> serialService;
 
-  public CycleSerialService(@Nonnull BytesInterceptor<T, R> bytesInterceptor,
-                            @Nonnull Converter<R, V> responseConverter) {
+  @ParametersAreNonnullByDefault
+  public CycleSerialService(BytesInterceptor<T, R> bytesInterceptor, Converter<R, V> responseConverter) {
     super(bytesInterceptor, responseConverter);
     serialService = new SerialService<>(bytesInterceptor);
   }

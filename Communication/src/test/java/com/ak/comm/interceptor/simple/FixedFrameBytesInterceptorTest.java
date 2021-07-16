@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -44,7 +43,7 @@ public class FixedFrameBytesInterceptorTest {
 
     Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> {
-          Collection<BufferFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).collect(Collectors.toList());
+          Collection<BufferFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).toList();
           Assert.assertEquals(frames, Collections.singleton(testFrame));
         },
         logRecord -> Assert.assertTrue(logRecord.getMessage().endsWith(testFrame.toString()),

@@ -38,7 +38,7 @@ public class Resistance1LayerTest {
 
   @Test(dataProvider = "layer-model")
   public void testOneLayer(@Nonnegative double rho, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    TetrapolarSystem system = TetrapolarSystem.milli().s(smm).l(lmm);
+    TetrapolarSystem system = TetrapolarSystem.milli(0.1).s(smm).l(lmm);
     Assert.assertEquals(new Resistance1Layer(system).value(rho), rOhm, 0.001);
   }
 
@@ -46,28 +46,28 @@ public class Resistance1LayerTest {
   public static Object[][] tetrapolarSystemWithErrors() {
     double relError = 0.0001;
     return new Object[][] {
-        {InexactTetrapolarSystem.si(2.0 * relError).s(1.0).l(2.0), 6 * relError},
-        {InexactTetrapolarSystem.si(2.0 * relError).s(2.0).l(1.0), 6 * relError},
-        {InexactTetrapolarSystem.si(3.0 * relError).s(1.0).l(3.0), 6 * relError},
-        {InexactTetrapolarSystem.si(relError).s(RelativeTetrapolarSystem.OPTIMAL_SL).l(1.0), RelativeTetrapolarSystem.MIN_ERROR_FACTOR * relError},
+        {TetrapolarSystem.si(2.0 * relError).s(1.0).l(2.0), 6 * relError},
+        {TetrapolarSystem.si(2.0 * relError).s(2.0).l(1.0), 6 * relError},
+        {TetrapolarSystem.si(3.0 * relError).s(1.0).l(3.0), 6 * relError},
+        {TetrapolarSystem.si(relError).s(RelativeTetrapolarSystem.OPTIMAL_SL).l(1.0), RelativeTetrapolarSystem.MIN_ERROR_FACTOR * relError},
     };
   }
 
   @Test(dataProvider = "tetrapolarSystemsWithErrors")
-  public void testElectrodeSystemRelativeError(@Nonnull InexactTetrapolarSystem system, @Nonnegative double expectedError) {
-    double rOhms = new Resistance1Layer(system.toExact()).value(1.0);
+  public void testElectrodeSystemRelativeError(@Nonnull TetrapolarSystem system, @Nonnegative double expectedError) {
+    double rOhms = new Resistance1Layer(system).value(1.0);
     double error = IntStream.range(0, 1 << 2)
         .mapToDouble(n -> {
           int signS = (n & 1) == 0 ? 1 : -1;
           int signL = (n & (1 << 1)) == 0 ? 1 : -1;
-          return system.shift(signS, signL).toExact().getApparent(rOhms);
+          return system.shift(signS, signL).getApparent(rOhms);
         })
         .map(rho -> Inequality.proportional().applyAsDouble(rho, 1.0)).max().orElseThrow();
     Assert.assertEquals(error, expectedError, 1.0e-6, system.toString());
   }
 
   @Test(dataProvider = "tetrapolarSystemsWithErrors")
-  public void testElectrodeSystemRelativeError2(@Nonnull InexactTetrapolarSystem system, @Nonnegative double expectedError) {
+  public void testElectrodeSystemRelativeError2(@Nonnull TetrapolarSystem system, @Nonnegative double expectedError) {
     Assert.assertEquals(system.getApparentRelativeError(), expectedError, 1.0e-6, system.toString());
   }
 }

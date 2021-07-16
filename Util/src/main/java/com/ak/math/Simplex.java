@@ -52,7 +52,7 @@ public enum Simplex {
 
     @Nonnull
     @ParametersAreNonnullByDefault
-    private PointValuePair optimize(MultivariateFunction function, double[] initialGuess, double[] initialSteps) {
+    private static PointValuePair optimize(MultivariateFunction function, double[] initialGuess, double[] initialSteps) {
       return new SimplexOptimizer(STOP_FITNESS, STOP_FITNESS)
           .optimize(
               new MaxEval(MAX_ITERATIONS),

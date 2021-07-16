@@ -5,20 +5,19 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 
 import com.ak.math.ValuePair;
-import com.ak.util.Strings;
 
 final class Layer1Medium extends AbstractMediumLayers {
-  Layer1Medium(@Nonnull Collection<Measurement> measurements) {
+  Layer1Medium(@Nonnull Collection<? extends Measurement> measurements) {
     super(measurements, RelativeMediumLayers.SINGLE_LAYER);
   }
 
   @Override
   public ValuePair h1() {
-    return new ValuePair(Double.NaN);
+    return ValuePair.Name.H.of(Double.NaN, 0.0);
   }
 
   @Override
   public String toString() {
-    return "%s; %s".formatted(Strings.rho(1, rho()), super.toString());
+    return "%s; %s".formatted(rho(), super.toString());
   }
 }

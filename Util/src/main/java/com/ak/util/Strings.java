@@ -11,7 +11,6 @@ public enum Strings {
   ;
   public static final String EMPTY = "";
   public static final String SPACE = " ";
-  public static final String COMMA = ",";
   public static final String NEW_LINE = String.format("%n");
   public static final String NEW_LINE_2 = String.format("%n%n");
   public static final String TAB = "\t";
@@ -34,7 +33,8 @@ public enum Strings {
   }
 
   public static char low(int index) {
-    return (char) ((int) '\u2080' + index);
+    int i = '\u2080';
+    return (char) (i + index);
   }
 
   public static String rho(@Nonnegative int index, @Nullable Object rho) {
