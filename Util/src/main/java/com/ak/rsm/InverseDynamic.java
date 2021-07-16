@@ -1,24 +1,19 @@
 package com.ak.rsm;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
-import com.ak.math.ValuePair;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.ArrayRealVector;
-import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.SingularValueDecomposition;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 
+import static com.ak.rsm.Measurements.getLayer2RelativeMedium;
 import static com.ak.rsm.Measurements.getMaxHToL;
 import static com.ak.rsm.Measurements.logApparentPredicted;
 import static com.ak.rsm.Measurements.logDiffApparentPredicted;
@@ -80,7 +75,6 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
   @ParametersAreNonnullByDefault
   private static RelativeMediumLayers errors(List<TetrapolarSystem> systems, RelativeMediumLayers layers) {
     double[] logRhoAbsErrors = systems.stream().mapToDouble(TetrapolarSystem::getApparentRelativeError).toArray();
-
     RealMatrix a = new Array2DRowRealMatrix(logRhoAbsErrors.length, 2);
     for (var i = 0; i < logRhoAbsErrors.length; i++) {
       RelativeTetrapolarSystem system = systems.get(i).toRelative();
@@ -94,26 +88,6 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
       a.setEntry(i, 1, Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers) / denominator1 -
           Apparent2Rho.newSecondDerivativeApparentByPhiPhi2Rho(system).applyAsDouble(layers) / denominator2);
     }
-    DecompositionSolver solver = new SingularValueDecomposition(a).getSolver();
-
-    double[] kwErrors = IntStream.range(0, 1 << (logRhoAbsErrors.length - 1))
-        .mapToObj(n -> {
-          var b = Arrays.copyOf(logRhoAbsErrors, logRhoAbsErrors.length);
-          for (var i = 0; i < logRhoAbsErrors.length; i++) {
-            if ((n & (1 << i)) == 1) {
-              b[i] *= -1.0;
-            }
-          }
-          return solver.solve(new ArrayRealVector(b)).toArray();
-        })
-        .reduce((v1, v2) -> {
-          var max = new double[v1.length];
-          for (var i = 0; i < max.length; i++) {
-            max[i] = Math.max(Math.abs(v1[i]), Math.abs(v2[i]));
-          }
-          return max;
-        })
-        .orElseThrow();
-    return new Layer2RelativeMedium(ValuePair.Name.K12.of(layers.k12(), kwErrors[0]), ValuePair.Name.H_L.of(layers.hToL(), kwErrors[1]));
+    return getLayer2RelativeMedium(layers, a, logRhoAbsErrors);
   }
 }
