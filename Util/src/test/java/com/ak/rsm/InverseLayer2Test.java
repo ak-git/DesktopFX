@@ -81,7 +81,7 @@ public class InverseLayer2Test {
   }
 
   @DataProvider(name = "relativeStaticLayer2")
-  public static Object[][] relativeLayer2() {
+  public static Object[][] relativeStaticLayer2() {
     TetrapolarSystem[] systems2 = systems2(0.1, 10.0);
     TetrapolarSystem[] systems4 = systems4(0.1, 10.0);
     double dh = Metrics.fromMilli(0.001);
@@ -114,6 +114,36 @@ public class InverseLayer2Test {
   @ParametersAreNonnullByDefault
   public void testInverseRelativeStaticLayer2(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
     var medium = InverseStatic.INSTANCE.inverseRelative(measurements);
+    Assert.assertEquals(medium.k12(), expected.k12(), 0.001, medium.toString());
+    Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), 0.001, medium.toString());
+    Assert.assertEquals(medium.hToL(), expected.hToL(), 0.001, medium.toString());
+    Assert.assertEquals(medium.hToLAbsError(), expected.hToLAbsError(), 0.001, medium.toString());
+    LOGGER.info(medium::toString);
+  }
+
+  @DataProvider(name = "relativeDynamicLayer2")
+  public static Object[][] relativeDynamicLayer2() {
+    TetrapolarSystem[] systems2 = systems2(0.1, 10.0);
+    double dh = Metrics.fromMilli(0.001);
+    double h = Metrics.fromMilli(5.0);
+    return new Object[][] {
+        {
+            TetrapolarDerivativeMeasurement.of(systems2,
+                Arrays.stream(systems2)
+                    .mapToDouble(s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h)).toArray(),
+                Arrays.stream(systems2)
+                    .mapToDouble(s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h + dh)).toArray(),
+                dh
+            ),
+            new Layer2RelativeMedium(ValuePair.Name.K12.of(1.0, 0.043), ValuePair.Name.H_L.of(5.0 / 30.0, 0.013))
+        },
+    };
+  }
+
+  @Test(dataProvider = "relativeDynamicLayer2")
+  @ParametersAreNonnullByDefault
+  public void testInverseRelativeDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
+    var medium = InverseDynamic.INSTANCE.inverseRelative(measurements);
     Assert.assertEquals(medium.k12(), expected.k12(), 0.001, medium.toString());
     Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), 0.001, medium.toString());
     Assert.assertEquals(medium.hToL(), expected.hToL(), 0.001, medium.toString());

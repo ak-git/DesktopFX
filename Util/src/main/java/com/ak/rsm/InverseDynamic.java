@@ -2,8 +2,7 @@ package com.ak.rsm;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.function.DoubleSupplier;
-import java.util.function.ToDoubleBiFunction;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
@@ -14,6 +13,7 @@ import com.ak.math.Simplex;
 import com.ak.math.ValuePair;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
 import org.apache.commons.math3.optim.PointValuePair;
@@ -62,7 +62,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
     var logApparentPredicted = logApparentPredicted(measurements);
     var logDiffApparentPredicted = logDiffApparentPredicted(measurements);
 
-    Collection<TetrapolarSystem> tetrapolarSystems = measurements.stream().map(Measurement::getSystem).toList();
+    List<TetrapolarSystem> tetrapolarSystems = measurements.stream().map(Measurement::getSystem).toList();
     PointValuePair kwOptimal = Simplex.optimizeAll(
         kw -> {
           double[] subLogPredicted = tetrapolarSystems.stream()
@@ -78,8 +78,23 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  private static RelativeMediumLayers errors(Collection<TetrapolarSystem> systems, RelativeMediumLayers layers) {
+  private static RelativeMediumLayers errors(List<TetrapolarSystem> systems, RelativeMediumLayers layers) {
     double[] logRhoAbsErrors = systems.stream().mapToDouble(TetrapolarSystem::getApparentRelativeError).toArray();
+
+    RealMatrix a = new Array2DRowRealMatrix(logRhoAbsErrors.length, 2);
+    for (var i = 0; i < logRhoAbsErrors.length; i++) {
+      RelativeTetrapolarSystem system = systems.get(i).toRelative();
+      double denominator1 = Apparent2Rho.newNormalizedApparent2Rho(system).applyAsDouble(layers);
+      double denominator2 = Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers);
+
+      a.setEntry(i, 0,
+          Apparent2Rho.newDerivativeApparentByK2Rho(system).applyAsDouble(layers) / denominator1 -
+              Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(system).applyAsDouble(layers) / denominator2
+      );
+      a.setEntry(i, 1, Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers) / denominator1 -
+          Apparent2Rho.newSecondDerivativeApparentByPhiPhi2Rho(system).applyAsDouble(layers) / denominator2);
+    }
+    DecompositionSolver solver = new SingularValueDecomposition(a).getSolver();
 
     double[] kwErrors = IntStream.range(0, 1 << (logRhoAbsErrors.length - 1))
         .mapToObj(n -> {
@@ -89,34 +104,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
               b[i] *= -1.0;
             }
           }
-
-          ToDoubleBiFunction<RelativeTetrapolarSystem, DoubleSupplier> function =
-              (system, doubleSupplier) -> doubleSupplier.getAsDouble() / Apparent2Rho.newNormalizedApparent2Rho(system).applyAsDouble(layers);
-          ToDoubleBiFunction<RelativeTetrapolarSystem, DoubleSupplier> function2 =
-              (system, doubleSupplier) -> doubleSupplier.getAsDouble() / Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers);
-
-          double[] derivativeByK2Rho = systems.stream()
-              .map(TetrapolarSystem::toRelative)
-              .mapToDouble(system ->
-                  function.applyAsDouble(system, () -> Apparent2Rho.newDerivativeApparentByK2Rho(system).applyAsDouble(layers)) -
-                      function2.applyAsDouble(system, () -> Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(system).applyAsDouble(layers))
-              )
-              .toArray();
-
-          double[] derivativeByPhi2Rho = systems.stream()
-              .map(TetrapolarSystem::toRelative)
-              .mapToDouble(system ->
-                  function.applyAsDouble(system, () -> Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers)) -
-                      function2.applyAsDouble(system, () -> Apparent2Rho.newSecondDerivativeApparentByPhiPhi2Rho(system).applyAsDouble(layers))
-              )
-              .toArray();
-
-          RealMatrix a = new Array2DRowRealMatrix(logRhoAbsErrors.length, 2);
-          for (var i = 0; i < logRhoAbsErrors.length; i++) {
-            a.setEntry(i, 0, abs(derivativeByK2Rho[i]));
-            a.setEntry(i, 1, abs(derivativeByPhi2Rho[i]));
-          }
-          return new SingularValueDecomposition(a).getSolver().solve(new ArrayRealVector(b)).toArray();
+          return solver.solve(new ArrayRealVector(b)).toArray();
         })
         .reduce((v1, v2) -> {
           var max = new double[v1.length];
