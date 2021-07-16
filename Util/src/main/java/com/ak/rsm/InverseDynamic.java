@@ -8,7 +8,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
@@ -75,18 +74,12 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
   @ParametersAreNonnullByDefault
   private static RelativeMediumLayers errors(List<TetrapolarSystem> systems, RelativeMediumLayers layers) {
     double[] logRhoAbsErrors = systems.stream().mapToDouble(TetrapolarSystem::getApparentRelativeError).toArray();
-    RealMatrix a = new Array2DRowRealMatrix(logRhoAbsErrors.length, 2);
-    for (var i = 0; i < logRhoAbsErrors.length; i++) {
+    RealMatrix a = InverseStatic.getAMatrix(systems, layers, logRhoAbsErrors);
+    for (var i = 0; i < a.getRowDimension(); i++) {
       RelativeTetrapolarSystem system = systems.get(i).toRelative();
-      double denominator1 = Apparent2Rho.newNormalizedApparent2Rho(system).applyAsDouble(layers);
       double denominator2 = Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers);
-
-      a.setEntry(i, 0,
-          Apparent2Rho.newDerivativeApparentByK2Rho(system).applyAsDouble(layers) / denominator1 -
-              Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(system).applyAsDouble(layers) / denominator2
-      );
-      a.setEntry(i, 1, Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers) / denominator1 -
-          Apparent2Rho.newSecondDerivativeApparentByPhiPhi2Rho(system).applyAsDouble(layers) / denominator2);
+      a.addToEntry(i, 0, -Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(system).applyAsDouble(layers) / denominator2);
+      a.addToEntry(i, 1, -Apparent2Rho.newSecondDerivativeApparentByPhiPhi2Rho(system).applyAsDouble(layers) / denominator2);
     }
     return getLayer2RelativeMedium(layers, a, logRhoAbsErrors);
   }

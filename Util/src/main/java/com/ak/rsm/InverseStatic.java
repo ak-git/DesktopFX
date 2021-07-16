@@ -70,6 +70,11 @@ enum InverseStatic implements Inverseable<Measurement> {
                                              UnaryOperator<double[]> subtract) {
     var plusErrors = subtract.equals(SUBTRACT) ? PLUS_ERRORS : subtract;
     double[] logRhoAbsErrors = plusErrors.apply(systems.stream().mapToDouble(TetrapolarSystem::getApparentRelativeError).toArray());
+    RealMatrix a = getAMatrix(systems, layers, logRhoAbsErrors);
+    return getLayer2RelativeMedium(layers, a, logRhoAbsErrors);
+  }
+
+  static RealMatrix getAMatrix(List<TetrapolarSystem> systems, RelativeMediumLayers layers, double[] logRhoAbsErrors) {
     RealMatrix a = new Array2DRowRealMatrix(logRhoAbsErrors.length, 2);
     for (var i = 0; i < logRhoAbsErrors.length; i++) {
       RelativeTetrapolarSystem system = systems.get(i).toRelative();
@@ -77,7 +82,7 @@ enum InverseStatic implements Inverseable<Measurement> {
       a.setEntry(i, 0, Apparent2Rho.newDerivativeApparentByK2Rho(system).applyAsDouble(layers) / denominator);
       a.setEntry(i, 1, Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers) / denominator);
     }
-    return getLayer2RelativeMedium(layers, a, logRhoAbsErrors);
+    return a;
   }
 
   @Nonnull
