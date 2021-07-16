@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 
 public class CSVLineFileBuilderTest {
   public static final String LINE_JOINER = Strings.NEW_LINE;
-  public static final String ROW_DELIMITER = Strings.COMMA;
+  public static final String ROW_DELIMITER = ",";
 
   @Test
   public void testGenerateRange() throws IOException {

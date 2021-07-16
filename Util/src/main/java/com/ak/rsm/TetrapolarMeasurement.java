@@ -19,13 +19,10 @@ final class TetrapolarMeasurement implements Measurement {
   @Nonnull
   private final TetrapolarSystem system;
   @Nonnegative
-  private final double rOhms;
-  @Nonnegative
   private final double resistivity;
 
   TetrapolarMeasurement(@Nonnull TetrapolarSystem system, @Nonnegative double rOhms) {
     this.system = system;
-    this.rOhms = rOhms;
     resistivity = system.getApparent(rOhms);
   }
 
@@ -33,16 +30,6 @@ final class TetrapolarMeasurement implements Measurement {
   @Nonnull
   public TetrapolarSystem getSystem() {
     return system;
-  }
-
-  @Override
-  public Measurement newInstance(@Nonnull TetrapolarSystem system) {
-    return new TetrapolarMeasurement(system, rOhms);
-  }
-
-  @Override
-  public double getR() {
-    return rOhms;
   }
 
   @Override
