@@ -1,9 +1,7 @@
 package com.ak.fx.desktop.purelogic;
 
-import java.security.SecureRandom;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -25,9 +23,8 @@ import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
 @Named
 @Profile("purelogic")
 public final class PureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
-  private static final PureLogicFrame.StepCommand[] PINGS = {MICRON_210};
+  private static final PureLogicFrame.StepCommand PING = MICRON_210;
   private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE = {MICRON_210, MICRON_420};
-  private final Random random = new SecureRandom();
   private final Queue<PureLogicFrame.StepCommand> frames = new LinkedList<>();
   private final AtomicInteger handDirection = new AtomicInteger();
   private final AtomicInteger autoDirection = new AtomicInteger();
@@ -86,10 +83,7 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
     }
 
     if (frames.isEmpty()) {
-      frames.addAll(
-          random.ints(0, PINGS.length).distinct().limit(PINGS.length)
-              .mapToObj(value -> PINGS[value]).toList()
-      );
+      frames.add(PING);
     }
     PureLogicFrame action = frames.element().action(up);
     if (!up) {
