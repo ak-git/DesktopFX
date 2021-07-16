@@ -98,8 +98,8 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
           double[] derivativeByK2Rho = systems.stream()
               .map(TetrapolarSystem::toRelative)
               .mapToDouble(system ->
-                  function.applyAsDouble(system, () -> new DerivativeApparentByK2Rho(system).applyAsDouble(layers.k12(), layers.hToL())) -
-                      function2.applyAsDouble(system, () -> new SecondDerivativeApparentByPhiK2Rho(system).applyAsDouble(layers.k12(), layers.hToL()))
+                  function.applyAsDouble(system, () -> Apparent2Rho.newDerivativeApparentByK2Rho(system).applyAsDouble(layers.k12(), layers.hToL())) -
+                      function2.applyAsDouble(system, () -> Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(system).applyAsDouble(layers.k12(), layers.hToL()))
               )
               .toArray();
 
@@ -107,7 +107,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
               .map(TetrapolarSystem::toRelative)
               .mapToDouble(system ->
                   function.applyAsDouble(system, () -> Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers.k12(), layers.hToL())) -
-                      function2.applyAsDouble(system, () -> new SecondDerivativeApparentByPhiPhi2Rho(system).applyAsDouble(layers.k12(), layers.hToL()))
+                      function2.applyAsDouble(system, () -> Apparent2Rho.newSecondDerivativeApparentByPhiPhi2Rho(system).applyAsDouble(layers.k12(), layers.hToL()))
               )
               .toArray();
 

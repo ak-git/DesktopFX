@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
@@ -76,6 +77,32 @@ public class InverseLayer2Test {
     Assert.assertEquals(medium.rho1().getValue(), expected[0].getValue(), 0.1, medium.toString());
     Assert.assertEquals(medium.rho2().getValue(), expected[1].getValue(), 0.1, medium.toString());
     Assert.assertEquals(medium.h1().getValue(), expected[2].getValue(), 0.1, medium.toString());
+    LOGGER.info(medium::toString);
+  }
+
+  @DataProvider(name = "relativeDynamicLayer2")
+  public static Object[][] relativeLayer2() {
+    TetrapolarSystem[] systems2 = systems2(0.1, 10.0);
+    double dh = Metrics.fromMilli(0.001);
+    double h = Metrics.fromMilli(5.0);
+    return new Object[][] {
+        {
+            TetrapolarDerivativeMeasurement.of(systems2,
+                Arrays.stream(systems2)
+                    .mapToDouble(s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h)).toArray(),
+                Arrays.stream(systems2)
+                    .mapToDouble(s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h + dh)).toArray(),
+                dh
+            ),
+            new Layer2RelativeMedium(ValuePair.Name.K12.of(1.0, 0.0), ValuePair.Name.H_L.of(1.0, 0.0))
+        },
+    };
+  }
+
+  @Test(dataProvider = "relativeDynamicLayer2")
+  @ParametersAreNonnullByDefault
+  public void testInverseRelativeDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
+    var medium = InverseDynamic.INSTANCE.inverseRelative(measurements);
     LOGGER.info(medium::toString);
   }
 

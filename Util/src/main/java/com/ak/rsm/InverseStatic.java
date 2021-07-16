@@ -92,7 +92,7 @@ enum InverseStatic implements Inverseable<Measurement> {
           double[] derivativeApparentByK2Rho = subtract.apply(systems.stream()
               .map(TetrapolarSystem::toRelative)
               .mapToDouble(system ->
-                  function.applyAsDouble(system, () -> new DerivativeApparentByK2Rho(system).applyAsDouble(layers.k12(), layers.hToL())))
+                  function.applyAsDouble(system, () -> Apparent2Rho.newDerivativeApparentByK2Rho(system).applyAsDouble(layers.k12(), layers.hToL())))
               .toArray());
 
           double[] derivativeApparentByPhi2Rho = subtract.apply(systems.stream()

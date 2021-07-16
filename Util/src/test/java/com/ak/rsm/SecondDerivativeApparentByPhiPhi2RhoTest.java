@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 public class SecondDerivativeApparentByPhiPhi2RhoTest {
   @Test
   public void test() {
-    DoubleBinaryOperator operator = new SecondDerivativeApparentByPhiPhi2Rho(new RelativeTetrapolarSystem(10.0 / 30.0));
+    DoubleBinaryOperator operator = Apparent2Rho.newSecondDerivativeApparentByPhiPhi2Rho(new RelativeTetrapolarSystem(10.0 / 30.0));
     Assert.assertEquals(operator.applyAsDouble(0.9, 5.0 / 30.0), 143.0, 0.1);
   }
 
@@ -24,7 +24,7 @@ public class SecondDerivativeApparentByPhiPhi2RhoTest {
     double actual = Apparent2Rho.newDerivativeApparentByPhi2Rho(system.toRelative()).applyAsDouble(k12, phi + dPhi) -
         Apparent2Rho.newDerivativeApparentByPhi2Rho(system.toRelative()).applyAsDouble(k12, phi);
     actual /= dPhi;
-    Assert.assertEquals(actual, new SecondDerivativeApparentByPhiPhi2Rho(system.toRelative()).applyAsDouble(k12, phi), 0.6);
+    Assert.assertEquals(actual, Apparent2Rho.newSecondDerivativeApparentByPhiPhi2Rho(system.toRelative()).applyAsDouble(k12, phi), 0.6);
   }
 
   @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
@@ -36,6 +36,6 @@ public class SecondDerivativeApparentByPhiPhi2RhoTest {
     double actual = Apparent2Rho.newDerivativeApparentByPhi2Rho(system.toRelative()).applyAsDouble(k12, phi + dPhi) -
         Apparent2Rho.newDerivativeApparentByPhi2Rho(system.toRelative()).applyAsDouble(k12, phi);
     actual /= dPhi;
-    Assert.assertEquals(actual, new SecondDerivativeApparentByPhiPhi2Rho(system.toRelative()).applyAsDouble(k12, phi), Math.abs(actual / 10.0));
+    Assert.assertEquals(actual, Apparent2Rho.newSecondDerivativeApparentByPhiPhi2Rho(system.toRelative()).applyAsDouble(k12, phi), Math.abs(actual / 10.0));
   }
 }

@@ -53,7 +53,7 @@ enum Measurements {
             TetrapolarSystem s = measurement.getSystem();
             double normApparent = Apparent2Rho.newNormalizedApparent2Rho(s.toRelative()).applyAsDouble(kw.k12(), kw.hToL() * baseL / s.getL());
 
-            double fK = Math.abs(new DerivativeApparentByK2Rho(s.toRelative()).applyAsDouble(kw.k12(), kw.hToL()) * kw.k12AbsError());
+            double fK = Math.abs(Apparent2Rho.newDerivativeApparentByK2Rho(s.toRelative()).applyAsDouble(kw.k12(), kw.hToL()) * kw.k12AbsError());
             double fPhi = Math.abs(Apparent2Rho.newDerivativeApparentByPhi2Rho(s.toRelative()).applyAsDouble(kw.k12(), kw.hToL()) * kw.hToLAbsError());
 
             return ValuePair.Name.RHO_1.of(measurement.getResistivity() / normApparent,
