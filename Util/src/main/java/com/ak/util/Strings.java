@@ -34,7 +34,8 @@ public enum Strings {
   }
 
   public static char low(int index) {
-    return (char) ((int) '\u2080' + index);
+    int i = '\u2080';
+    return (char) (i + index);
   }
 
   public static String rho(@Nonnegative int index, @Nullable Object rho) {
