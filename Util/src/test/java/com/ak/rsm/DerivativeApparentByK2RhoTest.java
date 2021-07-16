@@ -22,7 +22,7 @@ public class DerivativeApparentByK2RhoTest {
               resistance2Layer.value(rho[0], rho[0] / Layers.getRho1ToRho2(k12 - dk), h)) / dk
       );
       expected /= rho[0];
-      double actual = Apparent2Rho.newDerivativeApparentByK2Rho(system.toRelative()).applyAsDouble(k12, hmm / lmm);
+      double actual = Apparent2Rho.newDerivativeApparentByK2Rho(system.toRelative()).applyAsDouble(new Layer2RelativeMedium(k12, hmm / lmm));
       Assert.assertEquals(actual, expected, 0.1);
     }
   }
@@ -40,7 +40,7 @@ public class DerivativeApparentByK2RhoTest {
               resistance2Layer.value(rho[0], rho[0] / Layers.getRho1ToRho2(k12 - dk), h)) / dk
       );
       expected /= rho[0];
-      double actual = Apparent2Rho.newDerivativeApparentByK2Rho(system.toRelative()).applyAsDouble(k12, hmm / smm);
+      double actual = Apparent2Rho.newDerivativeApparentByK2Rho(system.toRelative()).applyAsDouble(new Layer2RelativeMedium(k12, hmm / smm));
       Assert.assertEquals(actual, expected, 0.1);
     }
   }

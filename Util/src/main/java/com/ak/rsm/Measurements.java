@@ -29,13 +29,13 @@ enum Measurements {
   @Nonnull
   static ToDoubleBiFunction<TetrapolarSystem, double[]> logApparentPredicted(@Nonnull Collection<? extends Measurement> measurements) {
     double baseL = getBaseL(measurements);
-    return (s, kw) -> Apparent2Rho.newLog1pApparent2Rho(s.toRelative()).applyAsDouble(kw[0], kw[1] * baseL / s.getL());
+    return (s, kw) -> Apparent2Rho.newLog1pApparent2Rho(s.toRelative()).applyAsDouble(new Layer2RelativeMedium(kw[0], kw[1] * baseL / s.getL()));
   }
 
   @Nonnull
   static ToDoubleBiFunction<TetrapolarSystem, double[]> logDiffApparentPredicted(@Nonnull Collection<? extends Measurement> measurements) {
     double baseL = getBaseL(measurements);
-    return (s, kw) -> log(Math.abs(Apparent2Rho.newDerivativeApparentByPhi2Rho(s.toRelative()).applyAsDouble(kw[0], kw[1] * baseL / s.getL())));
+    return (s, kw) -> log(Math.abs(Apparent2Rho.newDerivativeApparentByPhi2Rho(s.toRelative()).applyAsDouble(new Layer2RelativeMedium(kw[0], kw[1] * baseL / s.getL()))));
   }
 
   @Nonnull
@@ -51,10 +51,10 @@ enum Measurements {
       return measurements.stream().parallel()
           .map(measurement -> {
             TetrapolarSystem s = measurement.getSystem();
-            double normApparent = Apparent2Rho.newNormalizedApparent2Rho(s.toRelative()).applyAsDouble(kw.k12(), kw.hToL() * baseL / s.getL());
+            double normApparent = Apparent2Rho.newNormalizedApparent2Rho(s.toRelative()).applyAsDouble(new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / s.getL()));
 
-            double fK = Math.abs(Apparent2Rho.newDerivativeApparentByK2Rho(s.toRelative()).applyAsDouble(kw.k12(), kw.hToL()) * kw.k12AbsError());
-            double fPhi = Math.abs(Apparent2Rho.newDerivativeApparentByPhi2Rho(s.toRelative()).applyAsDouble(kw.k12(), kw.hToL()) * kw.hToLAbsError());
+            double fK = Math.abs(Apparent2Rho.newDerivativeApparentByK2Rho(s.toRelative()).applyAsDouble(kw) * kw.k12AbsError());
+            double fPhi = Math.abs(Apparent2Rho.newDerivativeApparentByPhi2Rho(s.toRelative()).applyAsDouble(kw) * kw.hToLAbsError());
 
             return ValuePair.Name.RHO_1.of(measurement.getResistivity() / normApparent,
                 (fK + fPhi) * measurement.getResistivity() / pow(normApparent, 2.0)

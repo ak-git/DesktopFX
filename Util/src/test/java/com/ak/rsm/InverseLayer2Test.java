@@ -123,8 +123,8 @@ public class InverseLayer2Test {
                 .mapToDouble(s -> new Resistance2Layer(s).value(1.0, 9.0, h + dh)).toArray(),
             dh,
             new double[] {
-                Apparent2Rho.newNormalizedApparent2Rho(systems1[0].toRelative()).applyAsDouble(0.8, h / systems1[0].getL()),
-                Apparent2Rho.newNormalizedApparent2Rho(systems1[0].toRelative()).applyAsDouble(0.8, h / systems1[0].getL()),
+                Apparent2Rho.newNormalizedApparent2Rho(systems1[0].toRelative()).applyAsDouble(new Layer2RelativeMedium(0.8, h / systems1[0].getL())),
+                Apparent2Rho.newNormalizedApparent2Rho(systems1[0].toRelative()).applyAsDouble(new Layer2RelativeMedium(0.8, h / systems1[0].getL())),
                 Double.NaN}
         },
         {

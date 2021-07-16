@@ -1,6 +1,6 @@
 package com.ak.rsm;
 
-import java.util.function.DoubleBinaryOperator;
+import java.util.function.ToDoubleFunction;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -11,8 +11,8 @@ import org.testng.annotations.Test;
 public class SecondDerivativeApparentByPhiK2RhoTest {
   @Test
   public void test() {
-    DoubleBinaryOperator operator = Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(new RelativeTetrapolarSystem(10.0 / 30.0));
-    Assert.assertEquals(operator.applyAsDouble(0.9, 5.0 / 30.0), -30.855, 0.001);
+    ToDoubleFunction<RelativeMediumLayers> operator = Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(new RelativeTetrapolarSystem(10.0 / 30.0));
+    Assert.assertEquals(operator.applyAsDouble(new Layer2RelativeMedium(0.9, 5.0 / 30.0)), -30.855, 0.001);
   }
 
   @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
@@ -21,10 +21,10 @@ public class SecondDerivativeApparentByPhiK2RhoTest {
     double phi = hmm / lmm;
     double dK = 1.0e-6;
     double k12 = Layers.getK12(rho[0], rho[1]);
-    double actual = Apparent2Rho.newDerivativeApparentByPhi2Rho(system.toRelative()).applyAsDouble(k12 + dK, phi) -
-        Apparent2Rho.newDerivativeApparentByPhi2Rho(system.toRelative()).applyAsDouble(k12, phi);
+    double actual = Apparent2Rho.newDerivativeApparentByPhi2Rho(system.toRelative()).applyAsDouble(new Layer2RelativeMedium(k12 + dK, phi)) -
+        Apparent2Rho.newDerivativeApparentByPhi2Rho(system.toRelative()).applyAsDouble(new Layer2RelativeMedium(k12, phi));
     actual /= dK;
-    Assert.assertEquals(actual, Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(system.toRelative()).applyAsDouble(k12, phi), 0.9);
+    Assert.assertEquals(actual, Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(system.toRelative()).applyAsDouble(new Layer2RelativeMedium(k12, phi)), 0.9);
   }
 
   @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
@@ -33,9 +33,9 @@ public class SecondDerivativeApparentByPhiK2RhoTest {
     double phi = hmm / lmm;
     double dK = 1.0e-6;
     double k12 = Layers.getK12(rho[0], rho[1]);
-    double actual = Apparent2Rho.newDerivativeApparentByPhi2Rho(system.toRelative()).applyAsDouble(k12 + dK, phi) -
-        Apparent2Rho.newDerivativeApparentByPhi2Rho(system.toRelative()).applyAsDouble(k12, phi);
+    double actual = Apparent2Rho.newDerivativeApparentByPhi2Rho(system.toRelative()).applyAsDouble(new Layer2RelativeMedium(k12 + dK, phi)) -
+        Apparent2Rho.newDerivativeApparentByPhi2Rho(system.toRelative()).applyAsDouble(new Layer2RelativeMedium(k12, phi));
     actual /= dK;
-    Assert.assertEquals(actual, Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(system.toRelative()).applyAsDouble(k12, phi), Math.abs(actual / 10.0));
+    Assert.assertEquals(actual, Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(system.toRelative()).applyAsDouble(new Layer2RelativeMedium(k12, phi)), Math.abs(actual / 10.0));
   }
 }

@@ -87,18 +87,18 @@ enum InverseStatic implements Inverseable<Measurement> {
           }
 
           ToDoubleBiFunction<RelativeTetrapolarSystem, DoubleSupplier> function =
-              (system, doubleSupplier) -> doubleSupplier.getAsDouble() / Apparent2Rho.newNormalizedApparent2Rho(system).applyAsDouble(layers.k12(), layers.hToL());
+              (system, doubleSupplier) -> doubleSupplier.getAsDouble() / Apparent2Rho.newNormalizedApparent2Rho(system).applyAsDouble(layers);
 
           double[] derivativeApparentByK2Rho = subtract.apply(systems.stream()
               .map(TetrapolarSystem::toRelative)
               .mapToDouble(system ->
-                  function.applyAsDouble(system, () -> Apparent2Rho.newDerivativeApparentByK2Rho(system).applyAsDouble(layers.k12(), layers.hToL())))
+                  function.applyAsDouble(system, () -> Apparent2Rho.newDerivativeApparentByK2Rho(system).applyAsDouble(layers)))
               .toArray());
 
           double[] derivativeApparentByPhi2Rho = subtract.apply(systems.stream()
               .map(TetrapolarSystem::toRelative)
               .mapToDouble(system ->
-                  function.applyAsDouble(system, () -> Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers.k12(), layers.hToL())))
+                  function.applyAsDouble(system, () -> Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers)))
               .toArray());
 
           RealMatrix a = new Array2DRowRealMatrix(logRhoAbsErrors.length, 2);

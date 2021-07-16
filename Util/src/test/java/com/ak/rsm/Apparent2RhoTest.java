@@ -16,11 +16,11 @@ public class Apparent2RhoTest {
     double logApparent = log(TetrapolarSystem.milli(0.0).s(smm).l(lmm).getApparent(rOhm)) - log(rho[0]);
 
     double logPredicted = Apparent2Rho.newLog1pApparent2Rho(new RelativeTetrapolarSystem(lmm / smm))
-        .applyAsDouble(Layers.getK12(rho[0], rho[1]), hmm / smm);
+        .applyAsDouble(new Layer2RelativeMedium(Layers.getK12(rho[0], rho[1]), hmm / smm));
     Assert.assertEquals(logApparent, logPredicted, 0.001);
 
     double logPredicted2 = Apparent2Rho.newLog1pApparent2Rho(new RelativeTetrapolarSystem(smm / lmm))
-        .applyAsDouble(Layers.getK12(rho[0], rho[1]), hmm / lmm);
+        .applyAsDouble(new Layer2RelativeMedium(Layers.getK12(rho[0], rho[1]), hmm / lmm));
     Assert.assertEquals(logApparent, logPredicted2, 0.001);
   }
 
@@ -30,11 +30,11 @@ public class Apparent2RhoTest {
     double apparent = TetrapolarSystem.milli(0.0).s(smm).l(lmm).getApparent(rOhm) / rho[0];
 
     double predicted = Apparent2Rho.newNormalizedApparent2Rho(new RelativeTetrapolarSystem(lmm / smm))
-        .applyAsDouble(Layers.getK12(rho[0], rho[1]), hmm / smm);
+        .applyAsDouble(new Layer2RelativeMedium(Layers.getK12(rho[0], rho[1]), hmm / smm));
     Assert.assertEquals(apparent, predicted, 0.001);
 
     double predicted2 = Apparent2Rho.newNormalizedApparent2Rho(new RelativeTetrapolarSystem(smm / lmm))
-        .applyAsDouble(Layers.getK12(rho[0], rho[1]), hmm / lmm);
+        .applyAsDouble(new Layer2RelativeMedium(Layers.getK12(rho[0], rho[1]), hmm / lmm));
     Assert.assertEquals(apparent, predicted2, 0.001);
   }
 
@@ -44,7 +44,7 @@ public class Apparent2RhoTest {
     TetrapolarSystem system = TetrapolarSystem.milli(0.0).s(smm).l(lmm);
     double k = Layers.getK12(rho[0], rho[1]);
     double apparent1 = log(system.getApparent(new NormalizedResistance2Layer(system).applyAsDouble(k, Metrics.fromMilli(hmm))));
-    double apparent2 = Apparent2Rho.newLog1pApparent2Rho(system.toRelative()).applyAsDouble(k, hmm / lmm);
+    double apparent2 = Apparent2Rho.newLog1pApparent2Rho(system.toRelative()).applyAsDouble(new Layer2RelativeMedium(k, hmm / lmm));
     Assert.assertEquals(apparent1, apparent2, 0.001);
   }
 }

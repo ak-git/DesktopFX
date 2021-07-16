@@ -91,23 +91,23 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
           }
 
           ToDoubleBiFunction<RelativeTetrapolarSystem, DoubleSupplier> function =
-              (system, doubleSupplier) -> doubleSupplier.getAsDouble() / Apparent2Rho.newNormalizedApparent2Rho(system).applyAsDouble(layers.k12(), layers.hToL());
+              (system, doubleSupplier) -> doubleSupplier.getAsDouble() / Apparent2Rho.newNormalizedApparent2Rho(system).applyAsDouble(layers);
           ToDoubleBiFunction<RelativeTetrapolarSystem, DoubleSupplier> function2 =
-              (system, doubleSupplier) -> doubleSupplier.getAsDouble() / Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers.k12(), layers.hToL());
+              (system, doubleSupplier) -> doubleSupplier.getAsDouble() / Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers);
 
           double[] derivativeByK2Rho = systems.stream()
               .map(TetrapolarSystem::toRelative)
               .mapToDouble(system ->
-                  function.applyAsDouble(system, () -> Apparent2Rho.newDerivativeApparentByK2Rho(system).applyAsDouble(layers.k12(), layers.hToL())) -
-                      function2.applyAsDouble(system, () -> Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(system).applyAsDouble(layers.k12(), layers.hToL()))
+                  function.applyAsDouble(system, () -> Apparent2Rho.newDerivativeApparentByK2Rho(system).applyAsDouble(layers)) -
+                      function2.applyAsDouble(system, () -> Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(system).applyAsDouble(layers))
               )
               .toArray();
 
           double[] derivativeByPhi2Rho = systems.stream()
               .map(TetrapolarSystem::toRelative)
               .mapToDouble(system ->
-                  function.applyAsDouble(system, () -> Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers.k12(), layers.hToL())) -
-                      function2.applyAsDouble(system, () -> Apparent2Rho.newSecondDerivativeApparentByPhiPhi2Rho(system).applyAsDouble(layers.k12(), layers.hToL()))
+                  function.applyAsDouble(system, () -> Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers)) -
+                      function2.applyAsDouble(system, () -> Apparent2Rho.newSecondDerivativeApparentByPhiPhi2Rho(system).applyAsDouble(layers))
               )
               .toArray();
 

@@ -32,7 +32,7 @@ final class TetrapolarPrediction implements Prediction {
       resistivityPredicted = rho1;
     }
     else {
-      resistivityPredicted = Apparent2Rho.newNormalizedApparent2Rho(system.toRelative()).applyAsDouble(layers.k12(), layers.hToL()) * rho1;
+      resistivityPredicted = Apparent2Rho.newNormalizedApparent2Rho(system.toRelative()).applyAsDouble(layers) * rho1;
     }
     horizons = new double[] {system.getHMin(layers.k12()), system.getHMax(layers.k12())};
     inequalityL2 = Inequality.proportional().applyAsDouble(measured, resistivityPredicted);
