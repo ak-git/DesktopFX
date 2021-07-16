@@ -3,8 +3,8 @@ package com.ak.rsm;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-final class Apparent3Rho extends AbstractApparentRho {
-  Apparent3Rho(@Nonnull ResistanceSumValue apparent) {
+class Apparent3Rho extends AbstractApparentRho {
+  private Apparent3Rho(@Nonnull ResistanceSumValue apparent) {
     super(apparent);
   }
 
