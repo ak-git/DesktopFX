@@ -64,9 +64,9 @@ public class InverseLayer2Test {
   @ParametersAreNonnullByDefault
   public void testInverseLayer2(Collection<? extends Measurement> measurements, ValuePair[] expected) {
     MediumLayers medium = InverseStatic.INSTANCE.inverse(measurements);
-    Assert.assertEquals(medium.rho1().getValue(), expected[0].getValue(), 0.1, medium.toString());
-    Assert.assertEquals(medium.rho2().getValue(), expected[1].getValue(), 0.1, medium.toString());
-    Assert.assertEquals(medium.h1().getValue(), expected[2].getValue(), 0.1, medium.toString());
+    Assert.assertEquals(medium.rho1().getValue(), expected[0].getValue(), medium.rho1().getAbsError(), medium.toString());
+    Assert.assertEquals(medium.rho2().getValue(), expected[1].getValue(), medium.rho2().getAbsError(), medium.toString());
+    Assert.assertEquals(medium.h1().getValue(), expected[2].getValue(), medium.h1().getAbsError(), medium.toString());
     LOGGER.info(medium::toString);
   }
 
@@ -75,12 +75,24 @@ public class InverseLayer2Test {
     double h = Metrics.fromMilli(5.0);
     return new Object[][] {
         {
-            TetrapolarMeasurement.of(systems2(0.1, 10.0), s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h)),
-            new Layer2RelativeMedium(ValuePair.Name.K12.of(1.0, 0.046), ValuePair.Name.H_L.of(5.0 / 30.0, 0.014))
+            TetrapolarMeasurement.of(systems2(0.1, 10.0), s -> new Resistance2Layer(s).value(1.0, 4.0, h)),
+            new Layer2RelativeMedium(
+                ValuePair.Name.K12.of(0.6, 0.087),
+                ValuePair.Name.H_L.of(5.0 / 30.0, 0.031)
+            )
         },
         {
-            TetrapolarMeasurement.of(systems4(0.1, 10.0), s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h)),
-            new Layer2RelativeMedium(ValuePair.Name.K12.of(1.0, 0.033), ValuePair.Name.H_L.of(5.0 / 40.0, 0.0095))
+            TetrapolarMeasurement.of(new TetrapolarSystem[] {
+                    milli(0.1).s(10.0 + 0.1).l(10.0 * 3.0 - 0.1),
+                    milli(0.1).s(10.0 * 5.0 + 0.1).l(10.0 * 3.0 - 0.1)
+                },
+                Arrays.stream(systems2(0.1, 10.0)).
+                    mapToDouble(s -> new Resistance2Layer(s).value(1.0, 4.0, h)).toArray()
+            ),
+            new Layer2RelativeMedium(
+                ValuePair.Name.K12.of(0.6 + 0.07, 0.092),
+                ValuePair.Name.H_L.of(5.0 / 30.0 + 0.025, 0.03)
+            )
         },
     };
   }
