@@ -72,21 +72,23 @@ public class InverseLayer2Test {
 
   @DataProvider(name = "relativeStaticLayer2")
   public static Object[][] relativeStaticLayer2() {
+    TetrapolarSystem[] systems2 = systems2(0.1, 10.0);
     double h = Metrics.fromMilli(5.0);
     return new Object[][] {
         {
-            TetrapolarMeasurement.of(systems2(0.1, 10.0), s -> new Resistance2Layer(s).value(1.0, 4.0, h)),
+            TetrapolarMeasurement.of(systems2, s -> new Resistance2Layer(s).value(1.0, 4.0, h)),
             new Layer2RelativeMedium(
                 ValuePair.Name.K12.of(0.6, 0.087),
                 ValuePair.Name.H_L.of(5.0 / 30.0, 0.031)
             )
         },
         {
-            TetrapolarMeasurement.of(new TetrapolarSystem[] {
+            TetrapolarMeasurement.of(
+                new TetrapolarSystem[] {
                     milli(0.1).s(10.0 + 0.1).l(10.0 * 3.0 - 0.1),
                     milli(0.1).s(10.0 * 5.0 + 0.1).l(10.0 * 3.0 - 0.1)
                 },
-                Arrays.stream(systems2(0.1, 10.0)).
+                Arrays.stream(systems2).
                     mapToDouble(s -> new Resistance2Layer(s).value(1.0, 4.0, h)).toArray()
             ),
             new Layer2RelativeMedium(
@@ -117,11 +119,28 @@ public class InverseLayer2Test {
         {
             TetrapolarDerivativeMeasurement.of(
                 systems2,
-                s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h),
-                s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h + dh),
+                s -> new Resistance2Layer(s).value(1.0, 4.0, h),
+                s -> new Resistance2Layer(s).value(1.0, 4.0, h + dh),
                 dh
             ),
-            new Layer2RelativeMedium(ValuePair.Name.K12.of(1.0, 0.043), ValuePair.Name.H_L.of(5.0 / 30.0, 0.013))
+            new Layer2RelativeMedium(ValuePair.Name.K12.of(0.6, 0.067), ValuePair.Name.H_L.of(5.0 / 30.0, 0.024))
+        },
+        {
+            TetrapolarDerivativeMeasurement.of(
+                new TetrapolarSystem[] {
+                    milli(0.1).s(10.0 + 0.1).l(10.0 * 3.0 - 0.1),
+                    milli(0.1).s(10.0 * 5.0 + 0.1).l(10.0 * 3.0 - 0.1)
+                },
+                Arrays.stream(systems2).
+                    mapToDouble(s -> new Resistance2Layer(s).value(1.0, 4.0, h)).toArray(),
+                Arrays.stream(systems2).
+                    mapToDouble(s -> new Resistance2Layer(s).value(1.0, 4.0, h + dh)).toArray(),
+                dh
+            ),
+            new Layer2RelativeMedium(
+                ValuePair.Name.K12.of(0.6 + 0.002, 0.063),
+                ValuePair.Name.H_L.of(5.0 / 30.0 + 0.0011, 0.022)
+            )
         },
     };
   }
