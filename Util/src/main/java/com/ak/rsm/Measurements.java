@@ -94,5 +94,4 @@ enum Measurements {
         .orElseThrow();
     return new Layer2RelativeMedium(ValuePair.Name.K12.of(layers.k12(), kwErrors[0]), ValuePair.Name.H_L.of(layers.hToL(), kwErrors[1]));
   }
-
 }

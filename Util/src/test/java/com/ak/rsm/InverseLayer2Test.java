@@ -5,11 +5,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -40,12 +38,10 @@ public class InverseLayer2Test {
 
   @DataProvider(name = "layer2")
   public static Object[][] layer2() {
-    TetrapolarSystem[] systems4 = systems4(0.1, 10.0);
     return new Object[][] {
         {
-            systems4,
-            Arrays.stream(systems4)
-                .mapToDouble(s -> new Resistance2Layer(s).value(10.0, 1.0, Metrics.fromMilli(10.0))).toArray(),
+            TetrapolarMeasurement.of(systems4(0.1, 10.0),
+                s -> new Resistance2Layer(s).value(10.0, 1.0, Metrics.fromMilli(10.0))),
             new ValuePair[] {
                 ValuePair.Name.NONE.of(10.0, 3.3),
                 ValuePair.Name.NONE.of(1.0, 1.0),
@@ -53,9 +49,8 @@ public class InverseLayer2Test {
             }
         },
         {
-            systems4,
-            Arrays.stream(systems4)
-                .mapToDouble(s -> new Resistance2Layer(s).value(1.0, 10.0, Metrics.fromMilli(10.0))).toArray(),
+            TetrapolarMeasurement.of(systems4(0.1, 20.0),
+                s -> new Resistance2Layer(s).value(1.0, 10.0, Metrics.fromMilli(10.0))),
             new ValuePair[] {
                 ValuePair.Name.NONE.of(1.0, 3.3),
                 ValuePair.Name.NONE.of(10.0, 1.0),
@@ -67,13 +62,8 @@ public class InverseLayer2Test {
 
   @Test(dataProvider = "layer2")
   @ParametersAreNonnullByDefault
-  public void testInverseLayer2(TetrapolarSystem[] systems, double[] rOhms, ValuePair[] expected) {
-    Random random = new SecureRandom();
-    MediumLayers medium = InverseStatic.INSTANCE.inverse(
-        TetrapolarMeasurement.of(systems,
-            Arrays.stream(rOhms).map(x -> x + random.nextGaussian() / x / 20.0).toArray()
-        )
-    );
+  public void testInverseLayer2(Collection<? extends Measurement> measurements, ValuePair[] expected) {
+    MediumLayers medium = InverseStatic.INSTANCE.inverse(measurements);
     Assert.assertEquals(medium.rho1().getValue(), expected[0].getValue(), 0.1, medium.toString());
     Assert.assertEquals(medium.rho2().getValue(), expected[1].getValue(), 0.1, medium.toString());
     Assert.assertEquals(medium.h1().getValue(), expected[2].getValue(), 0.1, medium.toString());
@@ -82,29 +72,14 @@ public class InverseLayer2Test {
 
   @DataProvider(name = "relativeStaticLayer2")
   public static Object[][] relativeStaticLayer2() {
-    TetrapolarSystem[] systems2 = systems2(0.1, 10.0);
-    TetrapolarSystem[] systems4 = systems4(0.1, 10.0);
-    double dh = Metrics.fromMilli(0.001);
     double h = Metrics.fromMilli(5.0);
     return new Object[][] {
         {
-            TetrapolarDerivativeMeasurement.of(systems2,
-                Arrays.stream(systems2)
-                    .mapToDouble(s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h)).toArray(),
-                Arrays.stream(systems2)
-                    .mapToDouble(s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h + dh)).toArray(),
-                dh
-            ),
+            TetrapolarMeasurement.of(systems2(0.1, 10.0), s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h)),
             new Layer2RelativeMedium(ValuePair.Name.K12.of(1.0, 0.046), ValuePair.Name.H_L.of(5.0 / 30.0, 0.014))
         },
         {
-            TetrapolarDerivativeMeasurement.of(systems4,
-                Arrays.stream(systems4)
-                    .mapToDouble(s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h)).toArray(),
-                Arrays.stream(systems4)
-                    .mapToDouble(s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h + dh)).toArray(),
-                dh
-            ),
+            TetrapolarMeasurement.of(systems4(0.1, 10.0), s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h)),
             new Layer2RelativeMedium(ValuePair.Name.K12.of(1.0, 0.033), ValuePair.Name.H_L.of(5.0 / 40.0, 0.0095))
         },
     };
@@ -112,7 +87,7 @@ public class InverseLayer2Test {
 
   @Test(dataProvider = "relativeStaticLayer2")
   @ParametersAreNonnullByDefault
-  public void testInverseRelativeStaticLayer2(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
+  public void testInverseRelativeStaticLayer2(Collection<? extends Measurement> measurements, RelativeMediumLayers expected) {
     var medium = InverseStatic.INSTANCE.inverseRelative(measurements);
     Assert.assertEquals(medium.k12(), expected.k12(), 0.001, medium.toString());
     Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), 0.001, medium.toString());

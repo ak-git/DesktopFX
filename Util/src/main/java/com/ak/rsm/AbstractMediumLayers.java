@@ -19,7 +19,7 @@ import static com.ak.rsm.Measurements.getRho1;
 
 abstract class AbstractMediumLayers implements MediumLayers {
   @Nonnull
-  private RelativeMediumLayers kw;
+  private final RelativeMediumLayers kw;
   @Nonnull
   private final ValuePair rho;
   @Nonnull
@@ -32,7 +32,15 @@ abstract class AbstractMediumLayers implements MediumLayers {
     this.kw = kw;
     rho = getRho1(measurements, kw);
     this.measurements = Collections.unmodifiableCollection(measurements);
-    predictions = measurements.stream().map(m -> m.toPrediction(kw, rho.getValue())).toList();
+    double baseL = Measurements.getBaseL(measurements);
+    predictions = measurements.stream()
+        .map(m ->
+            m.toPrediction(
+                new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / m.getSystem().getL()),
+                rho.getValue()
+            )
+        )
+        .toList();
   }
 
   @Override
