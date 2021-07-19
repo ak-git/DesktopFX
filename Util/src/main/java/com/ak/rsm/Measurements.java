@@ -73,11 +73,6 @@ enum Measurements {
   @Nonnull
   @ParametersAreNonnullByDefault
   static Layer2RelativeMedium getLayer2RelativeMedium(RelativeMediumLayers layers, RealMatrix a, double[] logRhoAbsErrors) {
-    for (int i = 0; i < a.getRowDimension(); i++) {
-      for (int j = 0; j < a.getColumnDimension(); j++) {
-        a.setEntry(i, j, Math.abs(a.getEntry(i, j)));
-      }
-    }
     DecompositionSolver solver = new SingularValueDecomposition(a).getSolver();
     double[] kwErrors = IntStream.range(0, 1 << (logRhoAbsErrors.length - 1))
         .mapToObj(n -> {
