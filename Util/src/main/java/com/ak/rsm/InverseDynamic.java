@@ -73,7 +73,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
   @Nonnull
   @ParametersAreNonnullByDefault
   private static RelativeMediumLayers errors(List<TetrapolarSystem> systems, RelativeMediumLayers layers) {
-    double[] logRhoAbsErrors = systems.stream().mapToDouble(TetrapolarSystem::getApparentRelativeError).toArray();
+    double[] logRhoAbsErrors = systems.stream().mapToDouble(TetrapolarSystem::getLRelativeError).toArray();
     RealMatrix a = InverseStatic.getAMatrix(systems, layers, logRhoAbsErrors);
     for (var i = 0; i < a.getRowDimension(); i++) {
       RelativeTetrapolarSystem system = systems.get(i).toRelative();

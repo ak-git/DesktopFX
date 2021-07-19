@@ -151,7 +151,7 @@ public final class TetrapolarSystem {
   }
 
   @Nonnegative
-  private double getLRelativeError() {
+  double getLRelativeError() {
     return absError / l();
   }
 

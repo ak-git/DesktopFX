@@ -123,7 +123,10 @@ public class InverseLayer2Test {
                 s -> new Resistance2Layer(s).value(1.0, 4.0, h + dh),
                 dh
             ),
-            new Layer2RelativeMedium(ValuePair.Name.K12.of(0.6, 0.067), ValuePair.Name.H_L.of(5.0 / 30.0, 0.024))
+            new Layer2RelativeMedium(
+                ValuePair.Name.K12.of(0.6, 0.01),
+                ValuePair.Name.H_L.of(5.0 / 30.0, 0.0038)
+            )
         },
         {
             TetrapolarDerivativeMeasurement.of(
@@ -138,8 +141,8 @@ public class InverseLayer2Test {
                 dh
             ),
             new Layer2RelativeMedium(
-                ValuePair.Name.K12.of(0.6 + 0.002, 0.063),
-                ValuePair.Name.H_L.of(5.0 / 30.0 + 0.0011, 0.022)
+                ValuePair.Name.K12.of(0.6 + 0.002, 0.01),
+                ValuePair.Name.H_L.of(5.0 / 30.0 + 0.0011, 0.0036)
             )
         },
     };
