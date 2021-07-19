@@ -2,6 +2,7 @@ package com.ak.rsm;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -12,6 +13,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 
+import static com.ak.rsm.Measurements.getAMatrix;
 import static com.ak.rsm.Measurements.getLayer2RelativeMedium;
 import static com.ak.rsm.Measurements.getMaxHToL;
 import static com.ak.rsm.Measurements.logApparentPredicted;
@@ -74,7 +76,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
   @ParametersAreNonnullByDefault
   private static RelativeMediumLayers errors(List<TetrapolarSystem> systems, RelativeMediumLayers layers) {
     double[] logRhoAbsErrors = systems.stream().mapToDouble(TetrapolarSystem::getLRelativeError).toArray();
-    RealMatrix a = InverseStatic.getAMatrix(systems, layers, logRhoAbsErrors);
+    RealMatrix a = getAMatrix(systems, layers, UnaryOperator.identity());
     for (var i = 0; i < a.getRowDimension(); i++) {
       RelativeTetrapolarSystem system = systems.get(i).toRelative();
       double denominator2 = Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers);

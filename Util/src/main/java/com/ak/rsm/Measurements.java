@@ -3,6 +3,7 @@ package com.ak.rsm;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.ToDoubleBiFunction;
+import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -10,6 +11,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.math.ValuePair;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -68,6 +70,29 @@ enum Measurements {
           })
           .reduce(ValuePair::mergeWith).orElseThrow();
     }
+  }
+
+  @Nonnull
+  @ParametersAreNonnullByDefault
+  static RealMatrix getAMatrix(Collection<TetrapolarSystem> systems, RelativeMediumLayers layers, UnaryOperator<double[]> subtract) {
+    double[] doublesK = subtract.apply(systems.stream().mapToDouble(s -> {
+      RelativeTetrapolarSystem system = s.toRelative();
+      double denominator = Apparent2Rho.newNormalizedApparent2Rho(system).applyAsDouble(layers);
+      return Apparent2Rho.newDerivativeApparentByK2Rho(system).applyAsDouble(layers) / denominator;
+    }).toArray());
+
+    double[] doublesPhi = subtract.apply(systems.stream().mapToDouble(s -> {
+      RelativeTetrapolarSystem system = s.toRelative();
+      double denominator = Apparent2Rho.newNormalizedApparent2Rho(system).applyAsDouble(layers);
+      return Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers) / denominator;
+    }).toArray());
+
+    RealMatrix a = new Array2DRowRealMatrix(doublesK.length, 2);
+    for (var i = 0; i < a.getRowDimension(); i++) {
+      a.setEntry(i, 0, doublesK[i]);
+      a.setEntry(i, 1, doublesPhi[i]);
+    }
+    return a;
   }
 
   @Nonnull

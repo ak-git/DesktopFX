@@ -10,11 +10,11 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 
+import static com.ak.rsm.Measurements.getAMatrix;
 import static com.ak.rsm.Measurements.getLayer2RelativeMedium;
 import static com.ak.rsm.Measurements.getMaxHToL;
 import static com.ak.rsm.Measurements.logApparentPredicted;
@@ -66,23 +66,12 @@ enum InverseStatic implements Inverseable<Measurement> {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  private static RelativeMediumLayers errors(List<TetrapolarSystem> systems, RelativeMediumLayers layers,
+  private static RelativeMediumLayers errors(Collection<TetrapolarSystem> systems, RelativeMediumLayers layers,
                                              UnaryOperator<double[]> subtract) {
     var plusErrors = subtract.equals(SUBTRACT) ? PLUS_ERRORS : subtract;
     double[] logRhoAbsErrors = plusErrors.apply(systems.stream().mapToDouble(TetrapolarSystem::getApparentRelativeError).toArray());
-    RealMatrix a = getAMatrix(systems, layers, logRhoAbsErrors);
+    RealMatrix a = getAMatrix(systems, layers, subtract);
     return getLayer2RelativeMedium(layers, a, logRhoAbsErrors);
-  }
-
-  static RealMatrix getAMatrix(List<TetrapolarSystem> systems, RelativeMediumLayers layers, double[] logRhoAbsErrors) {
-    RealMatrix a = new Array2DRowRealMatrix(logRhoAbsErrors.length, 2);
-    for (var i = 0; i < logRhoAbsErrors.length; i++) {
-      RelativeTetrapolarSystem system = systems.get(i).toRelative();
-      double denominator = Apparent2Rho.newNormalizedApparent2Rho(system).applyAsDouble(layers);
-      a.setEntry(i, 0, Apparent2Rho.newDerivativeApparentByK2Rho(system).applyAsDouble(layers) / denominator);
-      a.setEntry(i, 1, Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers) / denominator);
-    }
-    return a;
   }
 
   @Nonnull
