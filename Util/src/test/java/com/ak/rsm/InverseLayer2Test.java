@@ -159,6 +159,20 @@ public class InverseLayer2Test {
     LOGGER.info(medium::toString);
   }
 
+  @Test(dataProvider = "relativeDynamicLayer2")
+  @ParametersAreNonnullByDefault
+  public void testInverseAbsoluteDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers kw) {
+    MediumLayers expected = new Layer2Medium(measurements, kw);
+    var medium = InverseDynamic.INSTANCE.inverse(measurements);
+    Assert.assertEquals(medium.rho1().getValue(), expected.rho1().getValue(), 0.001, medium.toString());
+    Assert.assertEquals(medium.rho1().getAbsError(), expected.rho1().getAbsError(), 0.001, medium.toString());
+    Assert.assertEquals(medium.rho2().getValue(), expected.rho2().getValue(), 0.001, medium.toString());
+    Assert.assertEquals(medium.rho2().getAbsError(), expected.rho2().getAbsError(), 0.02, medium.toString());
+    Assert.assertEquals(medium.h1().getValue(), expected.h1().getValue(), 0.001, medium.toString());
+    Assert.assertEquals(medium.h1().getAbsError(), expected.h1().getAbsError(), 0.001, medium.toString());
+    LOGGER.info(medium::toString);
+  }
+
   @DataProvider(name = "theoryDynamicParameters2")
   public static Object[][] theoryDynamicParameters2() {
     TetrapolarSystem[] systems1 = {
