@@ -1,14 +1,7 @@
 package com.ak.rsm;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.IntUnaryOperator;
-import java.util.function.ToLongFunction;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -38,11 +31,6 @@ public final class TetrapolarSystem {
   @Nonnegative
   double getAbsError() {
     return absError;
-  }
-
-  @Nonnull
-  TetrapolarSystem shift(int signS, int signL) {
-    return new TetrapolarSystem(absError, sPU + Math.signum(signS) * absError, lCC + Math.signum(signL) * absError);
   }
 
   @Nonnull
@@ -123,23 +111,6 @@ public final class TetrapolarSystem {
     else {
       return s;
     }
-  }
-
-  @Nonnull
-  static Collection<List<TetrapolarSystem>> getMeasurementsCombination(@Nonnull Collection<TetrapolarSystem> systems) {
-    ToLongFunction<Collection<TetrapolarSystem>> distinctSizes =
-        ts -> ts.stream().flatMap(s -> DoubleStream.of(s.getS(), s.getL()).boxed()).distinct().count();
-    var initialSizes = distinctSizes.applyAsLong(systems);
-    return IntStream.range(0, 2 << (2 * (systems.size() - 1) + 1))
-        .mapToObj(n -> {
-          var signIndex = new AtomicInteger();
-          IntUnaryOperator sign = index -> (n & (1 << index)) == 0 ? 1 : -1;
-          return systems.stream()
-              .map(s -> s.shift(
-                  sign.applyAsInt(signIndex.getAndIncrement()),
-                  sign.applyAsInt(signIndex.getAndIncrement()))).toList();
-        })
-        .filter(s -> initialSizes == distinctSizes.applyAsLong(s)).toList();
   }
 
   private double s() {

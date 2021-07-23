@@ -1,10 +1,6 @@
 package com.ak.rsm;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 import java.util.function.DoubleUnaryOperator;
-import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 import javax.annotation.Nonnegative;
@@ -13,7 +9,6 @@ import javax.annotation.Nonnull;
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
 import com.ak.util.Metrics;
-import com.ak.util.Strings;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.Assert;
@@ -79,10 +74,6 @@ public class InexactTetrapolarSystemTest {
   public void testShift() {
     TetrapolarSystem initial = TetrapolarSystem.milli(0.1).s(20.0).l(10.0);
     Assert.assertEquals(initial.toRelative().errorFactor(), 6.0, 0.01);
-    Assert.assertEquals(initial.shift(1, -1).toRelative().errorFactor(), 5.97, 0.01);
-    Assert.assertEquals(initial.shift(-1, -1).toRelative().errorFactor(), 5.99, 0.01);
-    Assert.assertEquals(initial.shift(1, 1).toRelative().errorFactor(), 6.01, 0.01);
-    Assert.assertEquals(initial.shift(-1, 1).toRelative().errorFactor(), 6.03, 0.01);
   }
 
   @DataProvider(name = "rho1rho2")
@@ -128,24 +119,5 @@ public class InexactTetrapolarSystemTest {
       Assert.assertEquals(optimize.getPoint()[0], system.getHMin(Layers.getK12(rho1, rho2)) / system.getL(),
           0.01, system.toString());
     }
-  }
-
-  @DataProvider(name = "combinations")
-  public static Object[][] combinations() {
-    return new Object[][] {
-        {
-            Arrays.asList(
-                TetrapolarSystem.milli(0.1).s(11.0).l(30.0),
-                TetrapolarSystem.milli(0.1).s(50.0).l(30.0)
-            ),
-            8
-        },
-    };
-  }
-
-  @Test(dataProvider = "combinations")
-  public void testCombinations(@Nonnull Collection<TetrapolarSystem> systems, @Nonnegative int expected) {
-    Collection<List<TetrapolarSystem>> c = TetrapolarSystem.getMeasurementsCombination(systems);
-    Assert.assertEquals(c.size(), expected, c.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)));
   }
 }
