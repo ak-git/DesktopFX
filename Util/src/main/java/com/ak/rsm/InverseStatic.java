@@ -64,6 +64,13 @@ enum InverseStatic implements Inverseable<Measurement> {
     return errors(tetrapolarSystems, new Layer2RelativeMedium(kwOptimal.getPoint()), subtract);
   }
 
+  @Override
+  @Nonnull
+  @ParametersAreNonnullByDefault
+  public RelativeMediumLayers errors(List<TetrapolarSystem> systems, RelativeMediumLayers layers) {
+    return errors(systems, layers, UnaryOperator.identity());
+  }
+
   @Nonnull
   @ParametersAreNonnullByDefault
   private static RelativeMediumLayers errors(Collection<TetrapolarSystem> systems, RelativeMediumLayers layers,
