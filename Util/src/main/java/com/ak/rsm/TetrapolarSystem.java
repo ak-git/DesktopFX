@@ -55,7 +55,12 @@ public final class TetrapolarSystem {
    */
   @Nonnegative
   double getApparentRelativeError() {
-    return relativeSystem.errorFactor() * getLRelativeError();
+    return Math.abs(relativeSystem.errorFactor() * getLRelativeError());
+  }
+
+  @Nonnegative
+  double getDiffApparentRelativeError() {
+    return (Math.abs(relativeSystem.errorFactor()) + 1) * getLRelativeError();
   }
 
   @Nonnegative

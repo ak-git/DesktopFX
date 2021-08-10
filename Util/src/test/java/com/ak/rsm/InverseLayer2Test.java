@@ -72,28 +72,43 @@ public class InverseLayer2Test {
 
   @DataProvider(name = "relativeStaticLayer2")
   public static Object[][] relativeStaticLayer2() {
-    TetrapolarSystem[] systems2 = systems2(0.1, 10.0);
-    double h = Metrics.fromMilli(5.0);
+    double absErrorMilli = 0.001;
+    TetrapolarSystem[] systems2 = systems2(absErrorMilli, 10.0);
+    double h = Metrics.fromMilli(15.0);
     return new Object[][] {
         {
             TetrapolarMeasurement.of(systems2, s -> new Resistance2Layer(s).value(1.0, 4.0, h)),
             new Layer2RelativeMedium(
-                ValuePair.Name.K12.of(0.6, 0.087),
-                ValuePair.Name.H_L.of(5.0 / 30.0, 0.031)
+                ValuePair.Name.K12.of(0.6, 0.0051),
+                ValuePair.Name.H_L.of(15.0 / 30.0, 0.0024)
             )
         },
         {
             TetrapolarMeasurement.of(
                 new TetrapolarSystem[] {
-                    milli(0.1).s(10.0 + 0.1).l(10.0 * 3.0 - 0.1),
-                    milli(0.1).s(10.0 * 5.0 + 0.1).l(10.0 * 3.0 - 0.1)
+                    milli(absErrorMilli).s(10.0 - absErrorMilli).l(10.0 * 3.0 + absErrorMilli),
+                    milli(absErrorMilli).s(10.0 * 5.0 - absErrorMilli).l(10.0 * 3.0 + absErrorMilli)
                 },
                 Arrays.stream(systems2).
                     mapToDouble(s -> new Resistance2Layer(s).value(1.0, 4.0, h)).toArray()
             ),
             new Layer2RelativeMedium(
-                ValuePair.Name.K12.of(0.6 + 0.07, 0.092),
-                ValuePair.Name.H_L.of(5.0 / 30.0 + 0.025, 0.03)
+                ValuePair.Name.K12.of(0.6 - 0.005, 0.005),
+                ValuePair.Name.H_L.of(15.0 / 30.0 - 0.002, 0.0024)
+            )
+        },
+        {
+            TetrapolarMeasurement.of(
+                new TetrapolarSystem[] {
+                    milli(absErrorMilli).s(10.0 + absErrorMilli).l(10.0 * 3.0 - absErrorMilli),
+                    milli(absErrorMilli).s(10.0 * 5.0 + absErrorMilli).l(10.0 * 3.0 - absErrorMilli)
+                },
+                Arrays.stream(systems2).
+                    mapToDouble(s -> new Resistance2Layer(s).value(1.0, 1.0 / 4.0, h)).toArray()
+            ),
+            new Layer2RelativeMedium(
+                ValuePair.Name.K12.of(-0.6 + 0.0065, 0.0065),
+                ValuePair.Name.H_L.of(15.0 / 30.0 - 0.0026, 0.0026)
             )
         },
     };
@@ -112,37 +127,46 @@ public class InverseLayer2Test {
 
   @DataProvider(name = "relativeDynamicLayer2")
   public static Object[][] relativeDynamicLayer2() {
-    TetrapolarSystem[] systems2 = systems2(0.1, 10.0);
-    double dh = Metrics.fromMilli(0.001);
-    double h = Metrics.fromMilli(5.0);
+    double absErrorMilli = 0.01;
+    TetrapolarSystem[] systems2 = systems2(absErrorMilli, 10.0);
+    TetrapolarSystem[] systems2Err = {
+        milli(absErrorMilli).s(10.0 + absErrorMilli).l(10.0 * 3.0 - absErrorMilli),
+        milli(absErrorMilli).s(10.0 * 5.0 + absErrorMilli).l(10.0 * 3.0 - absErrorMilli)
+    };
+    double dh = Metrics.fromMilli(0.000001);
+    double h = Metrics.fromMilli(15.0);
+    double rho1 = 1.0;
+    double k = 0.6;
+    double rho2 = rho1 / Layers.getRho1ToRho2(k);
     return new Object[][] {
         {
             TetrapolarDerivativeMeasurement.of(
                 systems2,
-                s -> new Resistance2Layer(s).value(1.0, 4.0, h),
-                s -> new Resistance2Layer(s).value(1.0, 4.0, h + dh),
+                s -> new Resistance2Layer(s).value(rho1, rho2, h),
+                s -> new Resistance2Layer(s).value(rho1, rho2, h + dh),
                 dh
             ),
             new Layer2RelativeMedium(
-                ValuePair.Name.K12.of(0.6, 0.01),
-                ValuePair.Name.H_L.of(5.0 / 30.0, 0.0038)
+                ValuePair.Name.K12.of(Layers.getK12(rho1, rho2), 0.020),
+                ValuePair.Name.H_L.of(15.0 / 30.0, 0.00055)
             )
         },
         {
             TetrapolarDerivativeMeasurement.of(
-                new TetrapolarSystem[] {
-                    milli(0.1).s(10.0 + 0.1).l(10.0 * 3.0 - 0.1),
-                    milli(0.1).s(10.0 * 5.0 + 0.1).l(10.0 * 3.0 - 0.1)
-                },
+                systems2Err,
                 Arrays.stream(systems2).
-                    mapToDouble(s -> new Resistance2Layer(s).value(1.0, 4.0, h)).toArray(),
+                    mapToDouble(s -> new Resistance2Layer(s).value(rho1, rho2, h)).toArray(),
                 Arrays.stream(systems2).
-                    mapToDouble(s -> new Resistance2Layer(s).value(1.0, 4.0, h + dh)).toArray(),
+                    mapToDouble(s -> {
+                      double dRho = Apparent2Rho.newDerivativeApparentByPhi2Rho(s.toRelative())
+                          .applyAsDouble(new Layer2RelativeMedium(k, h / s.getL())) * rho1;
+                      return new Resistance2Layer(s).value(rho1, rho2, h) + new Resistance1Layer(s).value(dRho * (dh / s.getL()));
+                    }).toArray(),
                 dh
             ),
             new Layer2RelativeMedium(
-                ValuePair.Name.K12.of(0.6 + 0.002, 0.01),
-                ValuePair.Name.H_L.of(5.0 / 30.0 + 0.0011, 0.0036)
+                ValuePair.Name.K12.of(Layers.getK12(rho1, rho2) + 0.016, 0.02),
+                ValuePair.Name.H_L.of(15.0 / 30.0 - 0.0009, 0.00054)
             )
         },
     };
@@ -166,7 +190,7 @@ public class InverseLayer2Test {
     var medium = InverseDynamic.INSTANCE.inverse(measurements);
     Assert.assertEquals(medium.rho1().getValue(), expected.rho1().getValue(), 0.001, medium.toString());
     Assert.assertEquals(medium.rho1().getAbsError(), expected.rho1().getAbsError(), 0.001, medium.toString());
-    Assert.assertEquals(medium.rho2().getValue(), expected.rho2().getValue(), 0.001, medium.toString());
+    Assert.assertEquals(medium.rho2().getValue(), expected.rho2().getValue(), 0.01, medium.toString());
     Assert.assertEquals(medium.rho2().getAbsError(), expected.rho2().getAbsError(), 0.02, medium.toString());
     Assert.assertEquals(medium.h1().getValue(), expected.h1().getValue(), 0.001, medium.toString());
     Assert.assertEquals(medium.h1().getAbsError(), expected.h1().getAbsError(), 0.001, medium.toString());
