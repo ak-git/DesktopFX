@@ -10,11 +10,10 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 
-import static com.ak.rsm.Measurements.getAMatrix;
-import static com.ak.rsm.Measurements.getLayer2RelativeMedium;
 import static com.ak.rsm.Measurements.getMaxHToL;
 import static com.ak.rsm.Measurements.logApparentPredicted;
 import static com.ak.rsm.Measurements.logDiffApparentPredicted;
@@ -76,7 +75,6 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
   @Nonnull
   @ParametersAreNonnullByDefault
   public RelativeMediumLayers errors(Collection<TetrapolarSystem> systems, RelativeMediumLayers layers) {
-    double[] logRhoAbsErrors = systems.stream().mapToDouble(s -> s.getApparentRelativeError() + s.getDiffApparentRelativeError()).toArray();
     double[][] a2 = systems.stream().map(s -> {
       RelativeTetrapolarSystem system = s.toRelative();
       double denominator2 = Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers);
@@ -86,8 +84,10 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
       };
     }).toArray(double[][]::new);
 
-    double[][] a = new Array2DRowRealMatrix(getAMatrix(systems, layers, UnaryOperator.identity()), false)
-        .add(new Array2DRowRealMatrix(a2, false)).getData();
-    return getLayer2RelativeMedium(layers, a, logRhoAbsErrors);
+    double[] logRhoAbsErrors2 = systems.stream().mapToDouble(TetrapolarSystem::getDiffApparentRelativeError).toArray();
+
+    return InverseStatic.errors(systems, layers, UnaryOperator.identity(),
+        a -> new Array2DRowRealMatrix(a).add(new Array2DRowRealMatrix(a2)).getData(),
+        b -> new ArrayRealVector(b).subtract(new ArrayRealVector(logRhoAbsErrors2)).toArray());
   }
 }

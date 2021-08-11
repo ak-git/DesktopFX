@@ -27,7 +27,7 @@ public class InverseErrorsTest {
 
   @Test(dataProvider = "inverseable", enabled = false)
   public void testCSV(@Nonnull Inverseable<? extends Measurement> inverseable) {
-    double absErrorMilli = 0.0001;
+    double absErrorMilli = 0.001;
     CSVLineFileBuilder
         .of((k, hToL) -> inverseable.errors(
             Arrays.asList(TetrapolarSystem.systems2(absErrorMilli, 10.0)),
@@ -47,24 +47,29 @@ public class InverseErrorsTest {
   @Test(enabled = false)
   public void test() {
     PointValuePair opt = Simplex.optimizeAll(InverseErrorsTest::single,
-        new SimpleBounds(new double[] {0.0, 1.0}, new double[] {1.0, 10.0}),
+        new SimpleBounds(new double[] {0.0, 0.0}, new double[] {3.0, 3.0}),
         new double[] {0.1, 0.1}
     );
     LOGGER.info(Arrays.toString(opt.getPoint()));
   }
 
-  @Test(enabled = false)
-  public void testSingle() {
-    System.out.println(single(new double[] {0.001, 1.1}));
-    System.out.println(single(new double[] {0.1, 1.1}));
-    System.out.println(single(new double[] {1.0 / 3.0, 5.0 / 3.0}));
-    System.out.println(single(new double[] {0.4294791323313937, 2.3694004622450833}));
-    System.out.println(single(new double[] {3.8005570040214423, 2.1667428317097985}));
+  @DataProvider(name = "single")
+  public static Object[][] single() {
+    return new Object[][] {
+        {1.782422328929079, 0.280802508104057},
+        {1.0 / 3.0, 5.0 / 3.0},
+        {0.4142135623730951, 1.0 / 0.4142135623730951},
+    };
+  }
+
+  @Test(dataProvider = "single")
+  public void testSingle(@Nonnegative double sToL1, @Nonnegative double sToL2) {
+    LOGGER.info("%.1f".formatted(single(new double[] {sToL1, sToL2})));
   }
 
   private static double single(@Nonnull double[] p) {
-    return DoubleStream.iterate(0.1, h -> h < 1.0, h -> h += 0.1)
-        .map(h -> single(p, h)).parallel().sum();
+    return DoubleStream.iterate(0.01, h -> h < 1.0, h -> h += 0.01)
+        .map(h -> single(p, h)).parallel().average().orElseThrow();
   }
 
   private static double single(@Nonnull double[] p, @Nonnegative double h) {
