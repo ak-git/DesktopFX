@@ -122,6 +122,7 @@ public class InverseLayer2Test {
     Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), 0.001, medium.toString());
     Assert.assertEquals(medium.hToL(), expected.hToL(), 0.001, medium.toString());
     Assert.assertEquals(medium.hToLAbsError(), expected.hToLAbsError(), 0.001, medium.toString());
+    Assert.assertEquals(medium, InverseStatic.INSTANCE.errors(measurements.stream().map(Measurement::getSystem).toList(), medium));
     LOGGER.info(medium::toString);
   }
 

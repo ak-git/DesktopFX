@@ -62,7 +62,7 @@ public class InverseErrorsTest {
     };
   }
 
-  @Test(dataProvider = "single")
+  @Test(dataProvider = "single", enabled = false)
   public void testSingle(@Nonnegative double sToL1, @Nonnegative double sToL2) {
     LOGGER.info("%.1f".formatted(single(new double[] {sToL1, sToL2})));
   }

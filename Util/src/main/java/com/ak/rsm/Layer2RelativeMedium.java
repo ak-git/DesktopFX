@@ -1,6 +1,8 @@
 package com.ak.rsm;
 
 
+import java.util.Objects;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -51,5 +53,22 @@ final class Layer2RelativeMedium implements RelativeMediumLayers {
   @Override
   public double hToLAbsError() {
     return hToL.getAbsError();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || !getClass().equals(o.getClass())) {
+      return false;
+    }
+    Layer2RelativeMedium that = (Layer2RelativeMedium) o;
+    return k12.equals(that.k12) && hToL.equals(that.hToL);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(k12, hToL);
   }
 }
