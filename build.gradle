@@ -9,7 +9,7 @@ plugins {
     id "application"
     id 'org.openjfx.javafxplugin' version '0.0.10'
 
-    id 'org.springframework.boot' version '2.5.2'
+    id 'org.springframework.boot' version '2.5.3'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id "com.github.spotbugs" version "4.7.2"
 }
@@ -50,7 +50,7 @@ ext {
     uom_se = 'tec.uom:uom-se:1.0.10'
     javax_json = 'org.glassfish:javax.json:1.1.4'
     commons_math3 = 'org.apache.commons:commons-math3:3.6.1'
-    commons_csv = 'org.apache.commons:commons-csv:1.8'
+    commons_csv = 'org.apache.commons:commons-csv:1.9.0'
     jSerialComm = 'com.fazecast:jSerialComm:[2.0.0,3.0.0)'
     jenetics = 'io.jenetics:jenetics:6.2.0'
     javaVersion = JavaVersion.VERSION_16
@@ -64,7 +64,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2021.07.15'
+    version = '2021.08.11'
     apply plugin: 'idea'
     idea {
         module {

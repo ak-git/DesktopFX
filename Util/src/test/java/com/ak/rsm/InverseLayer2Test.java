@@ -416,7 +416,7 @@ public class InverseLayer2Test {
     String[] HEADERS = {T, POS, RHO_1, RHO_2, H, L2};
     try (CSVParser parser = CSVParser.parse(
         new BufferedReader(new FileReader(path.toFile())),
-        CSVFormat.DEFAULT.withHeader(T, R1_BEFORE, R1_AFTER, R2_BEFORE, R2_AFTER, POS));
+        CSVFormat.Builder.create().setHeader(T, R1_BEFORE, R1_AFTER, R2_BEFORE, R2_AFTER, POS).build());
          CSVLineFileCollector collector = new CSVLineFileCollector(
              Paths.get(Extension.CSV.attachTo("%s inverse".formatted(fileName))),
              HEADERS
