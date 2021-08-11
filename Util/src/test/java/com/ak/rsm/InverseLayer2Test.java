@@ -127,7 +127,7 @@ public class InverseLayer2Test {
 
   @DataProvider(name = "relativeDynamicLayer2")
   public static Object[][] relativeDynamicLayer2() {
-    double absErrorMilli = 0.01;
+    double absErrorMilli = 0.001;
     TetrapolarSystem[] systems2 = systems2(absErrorMilli, 10.0);
     TetrapolarSystem[] systems2Err = {
         milli(absErrorMilli).s(10.0 + absErrorMilli).l(10.0 * 3.0 - absErrorMilli),
@@ -147,8 +147,8 @@ public class InverseLayer2Test {
                 dh
             ),
             new Layer2RelativeMedium(
-                ValuePair.Name.K12.of(Layers.getK12(rho1, rho2), 0.020),
-                ValuePair.Name.H_L.of(15.0 / 30.0, 0.00055)
+                ValuePair.Name.K12.of(Layers.getK12(rho1, rho2), 0.000073),
+                ValuePair.Name.H_L.of(15.0 / 30.0, 0.000098)
             )
         },
         {
@@ -165,8 +165,8 @@ public class InverseLayer2Test {
                 dh
             ),
             new Layer2RelativeMedium(
-                ValuePair.Name.K12.of(Layers.getK12(rho1, rho2) + 0.016, 0.02),
-                ValuePair.Name.H_L.of(15.0 / 30.0 - 0.0009, 0.00054)
+                ValuePair.Name.K12.of(Layers.getK12(rho1, rho2) + 0.00044, 0.000073),
+                ValuePair.Name.H_L.of(15.0 / 30.0 - 0.0001, 0.000098)
             )
         },
     };
