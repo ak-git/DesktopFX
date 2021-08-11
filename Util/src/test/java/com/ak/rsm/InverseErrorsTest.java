@@ -90,6 +90,6 @@ public class InverseErrorsTest {
         ),
         new Layer2RelativeMedium(k, h / L)
     );
-    return errors.k12AbsError() / absError;
+    return errors.hToLAbsError() * L / absError;
   }
 }
