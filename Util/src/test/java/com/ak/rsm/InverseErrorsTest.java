@@ -1,6 +1,7 @@
 package com.ak.rsm;
 
 import java.util.Arrays;
+import java.util.logging.Logger;
 import java.util.stream.DoubleStream;
 
 import javax.annotation.Nonnegative;
@@ -14,6 +15,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class InverseErrorsTest {
+  private static final Logger LOGGER = Logger.getLogger(InverseErrorsTest.class.getName());
+
   @DataProvider(name = "inverseable")
   public static Object[][] inverseable() {
     return new Object[][] {
@@ -47,7 +50,7 @@ public class InverseErrorsTest {
         new SimpleBounds(new double[] {0.0, 1.0}, new double[] {1.0, 10.0}),
         new double[] {0.1, 0.1}
     );
-    System.out.println(Arrays.toString(opt.getPoint()));
+    LOGGER.info(Arrays.toString(opt.getPoint()));
   }
 
   @Test(enabled = false)

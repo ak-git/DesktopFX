@@ -77,9 +77,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
   @ParametersAreNonnullByDefault
   public RelativeMediumLayers errors(Collection<TetrapolarSystem> systems, RelativeMediumLayers layers) {
     double[] logRhoAbsErrors = systems.stream().mapToDouble(s -> s.getApparentRelativeError() + s.getDiffApparentRelativeError()).toArray();
-    double[][] a = getAMatrix(systems, layers, UnaryOperator.identity());
-
-    double[][] doubles = systems.stream().map(s -> {
+    double[][] a2 = systems.stream().map(s -> {
       RelativeTetrapolarSystem system = s.toRelative();
       double denominator2 = Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers);
       return new double[] {
@@ -88,8 +86,8 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
       };
     }).toArray(double[][]::new);
 
-    return getLayer2RelativeMedium(layers,
-        new Array2DRowRealMatrix(a, false).add(new Array2DRowRealMatrix(doubles, false)).getData(),
-        logRhoAbsErrors);
+    double[][] a = new Array2DRowRealMatrix(getAMatrix(systems, layers, UnaryOperator.identity()), false)
+        .add(new Array2DRowRealMatrix(a2, false)).getData();
+    return getLayer2RelativeMedium(layers, a, logRhoAbsErrors);
   }
 }
