@@ -63,7 +63,7 @@ public class InverseLayer2Test {
   @Test(dataProvider = "layer2")
   @ParametersAreNonnullByDefault
   public void testInverseLayer2(Collection<? extends Measurement> measurements, ValuePair[] expected) {
-    MediumLayers medium = InverseStatic.INSTANCE.inverse(measurements);
+    MediumLayers medium = InverseStatic.THEORY.inverse(measurements);
     Assert.assertEquals(medium.rho1().getValue(), expected[0].getValue(), medium.rho1().getAbsError(), medium.toString());
     Assert.assertEquals(medium.rho2().getValue(), expected[1].getValue(), medium.rho2().getAbsError(), medium.toString());
     Assert.assertEquals(medium.h1().getValue(), expected[2].getValue(), medium.h1().getAbsError(), medium.toString());
@@ -117,12 +117,12 @@ public class InverseLayer2Test {
   @Test(dataProvider = "relativeStaticLayer2")
   @ParametersAreNonnullByDefault
   public void testInverseRelativeStaticLayer2(Collection<? extends Measurement> measurements, RelativeMediumLayers expected) {
-    var medium = InverseStatic.INSTANCE.inverseRelative(measurements);
+    var medium = InverseStatic.THEORY.inverseRelative(measurements);
     Assert.assertEquals(medium.k12(), expected.k12(), 0.001, medium.toString());
     Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), 0.001, medium.toString());
     Assert.assertEquals(medium.hToL(), expected.hToL(), 0.001, medium.toString());
     Assert.assertEquals(medium.hToLAbsError(), expected.hToLAbsError(), 0.001, medium.toString());
-    Assert.assertEquals(medium, InverseStatic.INSTANCE.errors(measurements.stream().map(Measurement::getSystem).toList(), medium));
+    Assert.assertEquals(medium, InverseStatic.THEORY.errors(measurements.stream().map(Measurement::getSystem).toList(), medium));
     LOGGER.info(medium::toString);
   }
 
@@ -176,7 +176,7 @@ public class InverseLayer2Test {
   @Test(dataProvider = "relativeDynamicLayer2")
   @ParametersAreNonnullByDefault
   public void testInverseRelativeDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
-    var medium = InverseDynamic.INSTANCE.inverseRelative(measurements);
+    var medium = InverseDynamic.THEORY.inverseRelative(measurements);
     Assert.assertEquals(medium.k12(), expected.k12(), 0.001, medium.toString());
     Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), 0.00001, medium.toString());
     Assert.assertEquals(medium.hToL(), expected.hToL(), 0.001, medium.toString());
@@ -212,7 +212,7 @@ public class InverseLayer2Test {
   @Test(dataProvider = "relativeDynamicLayer2Hard")
   @ParametersAreNonnullByDefault
   public void testInverseRelativeDynamicLayer2Hard(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
-    var medium = InverseDynamic.HARD.inverseRelative(measurements);
+    var medium = InverseDynamic.PRACTICE.inverseRelative(measurements);
     Assert.assertEquals(medium.k12(), expected.k12(), 0.001, medium.toString());
     Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), 0.00001, medium.toString());
     Assert.assertEquals(medium.hToL(), expected.hToL(), 0.001, medium.toString());
@@ -224,7 +224,7 @@ public class InverseLayer2Test {
   @ParametersAreNonnullByDefault
   public void testInverseAbsoluteDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers kw) {
     MediumLayers expected = new Layer2Medium(measurements, kw);
-    var medium = InverseDynamic.INSTANCE.inverse(measurements);
+    var medium = InverseDynamic.THEORY.inverse(measurements);
     Assert.assertEquals(medium.rho1().getValue(), expected.rho1().getValue(), 0.001, medium.toString());
     Assert.assertEquals(medium.rho1().getAbsError(), expected.rho1().getAbsError(), 0.001, medium.toString());
     Assert.assertEquals(medium.rho2().getValue(), expected.rho2().getValue(), 0.01, medium.toString());
@@ -425,7 +425,7 @@ public class InverseLayer2Test {
   @Test(dataProvider = "allDynamicParameters2")
   @ParametersAreNonnullByDefault
   public void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, double[] expected) {
-    var medium = InverseDynamic.INSTANCE.inverse(measurements);
+    var medium = InverseDynamic.THEORY.inverse(measurements);
     Assert.assertEquals(medium.rho1().getValue(), expected[0], 0.1, medium.toString());
     Assert.assertEquals(medium.rho2().getValue() > 1000 ? Double.POSITIVE_INFINITY : medium.rho2().getValue(), expected[1], 0.1, medium.toString());
     Assert.assertEquals(Metrics.toMilli(medium.h1().getValue()), Metrics.toMilli(expected[2]), 0.01, medium.toString());
@@ -465,7 +465,7 @@ public class InverseLayer2Test {
             double[] rOhms = {Double.parseDouble(r.get(R1_BEFORE)), Double.parseDouble(r.get(R2_BEFORE))};
             double[] rOhmsAfter = {Double.parseDouble(r.get(R1_AFTER)), Double.parseDouble(r.get(R2_AFTER))};
             double dh = Metrics.fromMilli(Double.parseDouble(r.get(POS)) / 1000.0);
-            var medium = InverseDynamic.INSTANCE.inverse(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
+            var medium = InverseDynamic.THEORY.inverse(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
             LOGGER.info(() -> "%.2f sec; %s µm; %s".formatted(Double.parseDouble(r.get(T)), r.get(POS), medium));
             return Map.ofEntries(
                 Map.entry(T, r.get(T)),

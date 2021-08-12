@@ -20,8 +20,8 @@ public class InverseErrorsTest {
   @DataProvider(name = "inverseable")
   public static Object[][] inverseable() {
     return new Object[][] {
-        {InverseStatic.INSTANCE},
-        {InverseDynamic.INSTANCE},
+        {InverseStatic.THEORY},
+        {InverseDynamic.THEORY},
     };
   }
 
@@ -83,7 +83,7 @@ public class InverseErrorsTest {
     double s1 = s1L * L;
     double absError = 0.001;
 
-    RelativeMediumLayers errors = InverseDynamic.INSTANCE.errors(
+    RelativeMediumLayers errors = InverseDynamic.THEORY.errors(
         Arrays.asList(
             TetrapolarSystem.si(absError).s(s1).l(L),
             TetrapolarSystem.si(absError).s(s2).l(L)

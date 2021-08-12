@@ -23,7 +23,7 @@ import static java.lang.StrictMath.abs;
 import static java.lang.StrictMath.log;
 
 enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
-  INSTANCE {
+  THEORY {
     @Override
     @Nonnull
     @ParametersAreNonnullByDefault
@@ -45,7 +45,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
       );
     }
   },
-  HARD {
+  PRACTICE {
     @Override
     @Nonnull
     @ParametersAreNonnullByDefault
@@ -66,7 +66,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
       }).toArray();
 
       return TetrapolarSystem.getMeasurementsCombination(systems).stream()
-          .map(systemList -> INSTANCE.inverseRelative(
+          .map(systemList -> THEORY.inverseRelative(
                   TetrapolarDerivativeMeasurement.of(systemList.toArray(TetrapolarSystem[]::new), rOhmsBefore, rOhmsAfter, dh)
               )
           )
@@ -86,7 +86,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
       return new Layer2Medium(measurements, inverseRelative(measurements));
     }
     else {
-      return InverseStatic.INSTANCE.inverse(measurements);
+      return InverseStatic.THEORY.inverse(measurements);
     }
   }
 
@@ -105,7 +105,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
       return NAN;
     }
     else {
-      return InverseStatic.INSTANCE.inverseRelative(measurements);
+      return InverseStatic.THEORY.inverseRelative(measurements);
     }
 
     double[] subLog = measurements.stream().mapToDouble(d -> log(d.getResistivity()) - log(abs(d.getDerivativeResistivity()))).toArray();

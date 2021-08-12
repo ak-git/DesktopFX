@@ -26,7 +26,7 @@ import static com.ak.rsm.Measurements.logApparentPredicted;
 import static java.lang.StrictMath.log;
 
 enum InverseStatic implements Inverseable<Measurement> {
-  INSTANCE;
+  THEORY;
 
   static final BinaryOperator<Layer2RelativeMedium> MAX_ERROR = (v1, v2) -> {
     double kEMax = Math.max(v1.k12AbsError(), v2.k12AbsError());
