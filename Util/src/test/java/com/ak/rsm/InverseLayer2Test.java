@@ -148,8 +148,8 @@ public class InverseLayer2Test {
                 dh
             ),
             new Layer2RelativeMedium(
-                ValuePair.Name.K12.of(Layers.getK12(rho1, rho2), 0.000073),
-                ValuePair.Name.H_L.of(15.0 / 30.0, 0.000098)
+                ValuePair.Name.K12.of(Layers.getK12(rho1, rho2), 0.00058),
+                ValuePair.Name.H_L.of(15.0 / 30.0, 0.00017)
             )
         },
         {
@@ -166,8 +166,8 @@ public class InverseLayer2Test {
                 dh
             ),
             new Layer2RelativeMedium(
-                ValuePair.Name.K12.of(Layers.getK12(rho1, rho2) + 0.00044, 0.000073),
-                ValuePair.Name.H_L.of(15.0 / 30.0 - 0.0001, 0.000098)
+                ValuePair.Name.K12.of(Layers.getK12(rho1, rho2) + 0.00044, 0.00058),
+                ValuePair.Name.H_L.of(15.0 / 30.0 - 0.0001, 0.00017)
             )
         },
     };
@@ -178,9 +178,45 @@ public class InverseLayer2Test {
   public void testInverseRelativeDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
     var medium = InverseDynamic.INSTANCE.inverseRelative(measurements);
     Assert.assertEquals(medium.k12(), expected.k12(), 0.001, medium.toString());
-    Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), 0.001, medium.toString());
+    Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), 0.00001, medium.toString());
     Assert.assertEquals(medium.hToL(), expected.hToL(), 0.001, medium.toString());
-    Assert.assertEquals(medium.hToLAbsError(), expected.hToLAbsError(), 0.001, medium.toString());
+    Assert.assertEquals(medium.hToLAbsError(), expected.hToLAbsError(), 0.00001, medium.toString());
+    LOGGER.info(medium::toString);
+  }
+
+  @DataProvider(name = "relativeDynamicLayer2Hard")
+  public static Object[][] relativeDynamicLayer2Hard() {
+    double absErrorMilli = 0.001;
+    TetrapolarSystem[] systems2 = systems2(absErrorMilli, 10.0);
+    double dh = Metrics.fromMilli(0.000001);
+    double h = Metrics.fromMilli(15.0);
+    double rho1 = 1.0;
+    double k = 0.6;
+    double rho2 = rho1 / Layers.getRho1ToRho2(k);
+    return new Object[][] {
+        {
+            TetrapolarDerivativeMeasurement.of(
+                systems2,
+                s -> new Resistance2Layer(s).value(rho1, rho2, h),
+                s -> new Resistance2Layer(s).value(rho1, rho2, h + dh),
+                dh
+            ),
+            new Layer2RelativeMedium(
+                ValuePair.Name.K12.of(Layers.getK12(rho1, rho2), 0.00034),
+                ValuePair.Name.H_L.of(15.0 / 30.0, 0.0001)
+            )
+        },
+    };
+  }
+
+  @Test(dataProvider = "relativeDynamicLayer2Hard")
+  @ParametersAreNonnullByDefault
+  public void testInverseRelativeDynamicLayer2Hard(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
+    var medium = InverseDynamic.HARD.inverseRelative(measurements);
+    Assert.assertEquals(medium.k12(), expected.k12(), 0.001, medium.toString());
+    Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), 0.00001, medium.toString());
+    Assert.assertEquals(medium.hToL(), expected.hToL(), 0.001, medium.toString());
+    Assert.assertEquals(medium.hToLAbsError(), expected.hToLAbsError(), 0.00001, medium.toString());
     LOGGER.info(medium::toString);
   }
 

@@ -3,6 +3,7 @@ package com.ak.rsm;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BinaryOperator;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
@@ -26,6 +27,12 @@ import static java.lang.StrictMath.log;
 
 enum InverseStatic implements Inverseable<Measurement> {
   INSTANCE;
+
+  static final BinaryOperator<Layer2RelativeMedium> MAX_ERROR = (v1, v2) -> {
+    double kEMax = Math.max(v1.k12AbsError(), v2.k12AbsError());
+    double hToLEMax = Math.max(v1.hToLAbsError(), v2.hToLAbsError());
+    return new Layer2RelativeMedium(ValuePair.Name.K12.of(v1.k12(), kEMax), ValuePair.Name.H_L.of(v1.hToL(), hToLEMax));
+  };
 
   private static final UnaryOperator<double[]> SUBTRACT = newSubtract((left, right) -> left - right);
   private static final UnaryOperator<double[][]> SUBTRACT_MATRIX = newMatrixSubtract((left, right) -> left - right);
@@ -97,11 +104,7 @@ enum InverseStatic implements Inverseable<Measurement> {
           double[] kwErrors = solver.solve(new ArrayRealVector(fixB.apply(b))).toArray();
           return new Layer2RelativeMedium(ValuePair.Name.K12.of(layers.k12(), kwErrors[0]), ValuePair.Name.H_L.of(layers.hToL(), kwErrors[1]));
         })
-        .reduce((v1, v2) -> {
-          double kEMax = Math.max(v1.k12AbsError(), v2.k12AbsError());
-          double hToLEMax = Math.max(v1.hToLAbsError(), v2.hToLAbsError());
-          return new Layer2RelativeMedium(ValuePair.Name.K12.of(layers.k12(), kEMax), ValuePair.Name.H_L.of(layers.hToL(), hToLEMax));
-        })
+        .reduce(MAX_ERROR)
         .orElseThrow();
   }
 

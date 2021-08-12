@@ -1,7 +1,14 @@
 package com.ak.rsm;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntUnaryOperator;
+import java.util.function.ToLongFunction;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -116,6 +123,29 @@ public final class TetrapolarSystem {
     else {
       return s;
     }
+  }
+
+  @Nonnull
+  static Collection<List<TetrapolarSystem>> getMeasurementsCombination(@Nonnull Collection<TetrapolarSystem> systems) {
+    ToLongFunction<Collection<TetrapolarSystem>> distinctSizes =
+        ts -> ts.stream().flatMap(s -> DoubleStream.of(s.getS(), s.getL()).boxed()).distinct().count();
+    var initialSizes = distinctSizes.applyAsLong(systems);
+    return IntStream.range(0, 1 << (systems.size() - 1))
+        .mapToObj(n -> {
+          var signIndex = new AtomicInteger();
+          IntUnaryOperator sign = index -> (n & (1 << index)) == 0 ? 1 : -1;
+          return systems.stream().map(s -> s.shift(sign.applyAsInt(signIndex.getAndIncrement()))).toList();
+        })
+        .filter(s -> initialSizes == distinctSizes.applyAsLong(s)).toList();
+  }
+
+  @Nonnull
+  private TetrapolarSystem shift(int sign) {
+    double err = Math.signum(sign) * absError;
+    if (sPU < lCC) {
+      err *= -1.0;
+    }
+    return new TetrapolarSystem(absError, sPU + err, lCC - err);
   }
 
   private double s() {
