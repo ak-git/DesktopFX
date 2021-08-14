@@ -77,11 +77,8 @@ public class InverseLayer2Test {
     double h = Metrics.fromMilli(15.0);
     return new Object[][] {
         {
-            TetrapolarMeasurement.of(systems2, s -> new Resistance2Layer(s).value(1.0, 4.0, h)),
-            new Layer2RelativeMedium(
-                ValuePair.Name.K12.of(0.6, 0.0051),
-                ValuePair.Name.H_L.of(15.0 / 30.0, 0.0024)
-            )
+            TetrapolarMeasurement.of(systems2, s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h)),
+            new double[] {159.9, 35.8}
         },
         {
             TetrapolarMeasurement.of(
@@ -90,12 +87,9 @@ public class InverseLayer2Test {
                     milli(absErrorMilli).s(10.0 * 5.0 - absErrorMilli).l(10.0 * 3.0 + absErrorMilli)
                 },
                 Arrays.stream(systems2).
-                    mapToDouble(s -> new Resistance2Layer(s).value(1.0, 4.0, h)).toArray()
+                    mapToDouble(s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h)).toArray()
             ),
-            new Layer2RelativeMedium(
-                ValuePair.Name.K12.of(0.6 - 0.005, 0.005),
-                ValuePair.Name.H_L.of(15.0 / 30.0 - 0.002, 0.0024)
-            )
+            new double[] {162.2, 36.1}
         },
         {
             TetrapolarMeasurement.of(
@@ -104,30 +98,29 @@ public class InverseLayer2Test {
                     milli(absErrorMilli).s(10.0 * 5.0 + absErrorMilli).l(10.0 * 3.0 - absErrorMilli)
                 },
                 Arrays.stream(systems2).
-                    mapToDouble(s -> new Resistance2Layer(s).value(1.0, 1.0 / 4.0, h)).toArray()
+                    mapToDouble(s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h)).toArray()
             ),
-            new Layer2RelativeMedium(
-                ValuePair.Name.K12.of(-0.6 + 0.0065, 0.0065),
-                ValuePair.Name.H_L.of(15.0 / 30.0 - 0.0026, 0.0026)
-            )
+            new double[] {159.9, 35.9}
         },
     };
   }
 
   @Test(dataProvider = "relativeStaticLayer2")
   @ParametersAreNonnullByDefault
-  public void testInverseRelativeStaticLayer2(Collection<? extends Measurement> measurements, RelativeMediumLayers expected) {
+  public void testInverseRelativeStaticLayer2(Collection<? extends Measurement> measurements, double[] riseErrors) {
+    double absError = measurements.stream().mapToDouble(m -> m.getSystem().getAbsError()).average().orElseThrow();
+    double L = Measurements.getBaseL(measurements);
+    double dim = measurements.stream().mapToDouble(m -> Math.max(m.getSystem().getL(), m.getSystem().getS())).max().orElseThrow();
+
     var medium = InverseStatic.THEORY.inverseRelative(measurements);
-    Assert.assertEquals(medium.k12(), expected.k12(), 0.001, medium.toString());
-    Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), 0.001, medium.toString());
-    Assert.assertEquals(medium.hToL(), expected.hToL(), 0.001, medium.toString());
-    Assert.assertEquals(medium.hToLAbsError(), expected.hToLAbsError(), 0.001, medium.toString());
+    Assert.assertEquals(medium.k12AbsError() / (absError / dim), riseErrors[0], 0.1, medium.toString());
+    Assert.assertEquals(medium.hToLAbsError() / (absError / L), riseErrors[1], 0.1, medium.toString());
     Assert.assertEquals(medium, InverseStatic.THEORY.errors(measurements.stream().map(Measurement::getSystem).toList(), medium));
     LOGGER.info(medium::toString);
   }
 
-  @DataProvider(name = "relativeDynamicLayer2")
-  public static Object[][] relativeDynamicLayer2() {
+  @DataProvider(name = "relativeDynamicLayer2Theory")
+  public static Object[][] relativeDynamicLayer2Theory() {
     double absErrorMilli = 0.001;
     TetrapolarSystem[] systems2 = systems2(absErrorMilli, 10.0);
     TetrapolarSystem[] systems2Err = {
@@ -173,9 +166,9 @@ public class InverseLayer2Test {
     };
   }
 
-  @Test(dataProvider = "relativeDynamicLayer2")
+  @Test(dataProvider = "relativeDynamicLayer2Theory")
   @ParametersAreNonnullByDefault
-  public void testInverseRelativeDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
+  public void testInverseRelativeDynamicLayer2Theory(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
     var medium = InverseDynamic.THEORY.inverseRelative(measurements);
     Assert.assertEquals(medium.k12(), expected.k12(), 0.001, medium.toString());
     Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), 0.00001, medium.toString());
@@ -184,8 +177,8 @@ public class InverseLayer2Test {
     LOGGER.info(medium::toString);
   }
 
-  @DataProvider(name = "relativeDynamicLayer2Hard")
-  public static Object[][] relativeDynamicLayer2Hard() {
+  @DataProvider(name = "relativeDynamicLayer2Practice")
+  public static Object[][] relativeDynamicLayer2Practice() {
     double absErrorMilli = 0.001;
     TetrapolarSystem[] systems2 = systems2(absErrorMilli, 10.0);
     double dh = Metrics.fromMilli(0.000001);
@@ -209,9 +202,9 @@ public class InverseLayer2Test {
     };
   }
 
-  @Test(dataProvider = "relativeDynamicLayer2Hard")
+  @Test(dataProvider = "relativeDynamicLayer2Practice")
   @ParametersAreNonnullByDefault
-  public void testInverseRelativeDynamicLayer2Hard(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
+  public void testInverseRelativeDynamicLayer2Practice(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
     var medium = InverseDynamic.PRACTICE.inverseRelative(measurements);
     Assert.assertEquals(medium.k12(), expected.k12(), 0.001, medium.toString());
     Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), 0.00001, medium.toString());
@@ -220,7 +213,7 @@ public class InverseLayer2Test {
     LOGGER.info(medium::toString);
   }
 
-  @Test(dataProvider = "relativeDynamicLayer2")
+  @Test(dataProvider = "relativeDynamicLayer2Theory")
   @ParametersAreNonnullByDefault
   public void testInverseAbsoluteDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers kw) {
     MediumLayers expected = new Layer2Medium(measurements, kw);
