@@ -35,8 +35,8 @@ enum InverseStatic implements Inverseable<Measurement> {
   };
 
   private static final UnaryOperator<double[]> SUBTRACT = newSubtract((left, right) -> left - right);
-  private static final UnaryOperator<double[][]> SUBTRACT_MATRIX = newMatrixSubtract((left, right) -> left - right);
-  private static final UnaryOperator<double[]> PLUS_ERRORS = newSubtract((left, right) -> Math.abs(left) + Math.abs(right));
+  private static final UnaryOperator<double[][]> ADD_MATRIX = newMatrix(Double::sum);
+  private static final UnaryOperator<double[]> PLUS_ERRORS = newSubtract(Double::sum);
 
   @Nonnull
   @Override
@@ -89,17 +89,19 @@ enum InverseStatic implements Inverseable<Measurement> {
                                      UnaryOperator<double[]> subtract, UnaryOperator<double[][]> fixA, UnaryOperator<double[]> fixB) {
     UnaryOperator<double[]> plusErrors = subtract.equals(SUBTRACT) ? PLUS_ERRORS : UnaryOperator.identity();
     double[] logRhoAbsErrors = plusErrors.apply(systems.stream().mapToDouble(TetrapolarSystem::getApparentRelativeError).toArray());
-    double[][] a = getAMatrix(systems, layers, subtract.equals(SUBTRACT) ? SUBTRACT_MATRIX : fixA);
+    double[][] a = getAMatrix(systems, layers, subtract.equals(SUBTRACT) ? ADD_MATRIX : fixA);
 
     return IntStream.range(0, 1 << (logRhoAbsErrors.length - 1))
         .mapToObj(n -> {
           var b = Arrays.copyOf(logRhoAbsErrors, logRhoAbsErrors.length);
-          for (var i = 0; i < logRhoAbsErrors.length; i++) {
+          for (var i = 1; i < logRhoAbsErrors.length; i++) {
             if ((n & (1 << i)) == 0) {
               b[i] *= -1.0;
             }
           }
-
+          return b;
+        })
+        .map(b -> {
           DecompositionSolver solver = new SingularValueDecomposition(new Array2DRowRealMatrix(a)).getSolver();
           double[] kwErrors = solver.solve(new ArrayRealVector(fixB.apply(b))).toArray();
           return new Layer2RelativeMedium(ValuePair.Name.K12.of(layers.k12(), kwErrors[0]), ValuePair.Name.H_L.of(layers.hToL(), kwErrors[1]));
@@ -115,8 +117,8 @@ enum InverseStatic implements Inverseable<Measurement> {
       RelativeTetrapolarSystem system = s.toRelative();
       double denominator = Apparent2Rho.newNormalizedApparent2Rho(system).applyAsDouble(layers);
       return new double[] {
-          Apparent2Rho.newDerivativeApparentByK2Rho(system).applyAsDouble(layers) / denominator,
-          Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers) / denominator
+          Math.abs(Apparent2Rho.newDerivativeApparentByK2Rho(system).applyAsDouble(layers) / denominator),
+          Math.abs(Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers) / denominator)
       };
     }).toArray(double[][]::new));
   }
@@ -133,7 +135,7 @@ enum InverseStatic implements Inverseable<Measurement> {
   }
 
   @Nonnull
-  private static UnaryOperator<double[][]> newMatrixSubtract(@Nonnull DoubleBinaryOperator operator) {
+  private static UnaryOperator<double[][]> newMatrix(@Nonnull DoubleBinaryOperator operator) {
     return values -> {
       var sub = new double[values.length - 1][values[0].length];
       for (var i = 0; i < sub.length; i++) {

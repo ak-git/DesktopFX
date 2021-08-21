@@ -136,7 +136,7 @@ public class InexactTetrapolarSystemTest {
     return new Object[][] {
         {
             Arrays.asList(TetrapolarSystem.systems2(0.1, 10.0)),
-            1
+            2
         },
     };
   }

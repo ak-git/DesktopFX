@@ -9,7 +9,6 @@ import javax.annotation.Nonnull;
 import static java.lang.Math.abs;
 
 public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, ToDoubleBiFunction<double[], double[]> {
-  private static final DoubleBinaryOperator L2_NORM = StrictMath::hypot;
   @Nonnull
   private final DoubleBinaryOperator errorDefinition;
   private double errorNorm;
@@ -28,7 +27,7 @@ public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, T
 
   @Override
   public double applyAsDouble(double measured, double predicted) {
-    errorNorm = L2_NORM.applyAsDouble(errorNorm, errorDefinition.applyAsDouble(measured, predicted));
+    errorNorm = StrictMath.hypot(errorNorm, errorDefinition.applyAsDouble(measured, predicted));
     return errorNorm;
   }
 

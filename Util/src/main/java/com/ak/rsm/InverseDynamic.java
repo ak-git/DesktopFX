@@ -32,8 +32,8 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
         RelativeTetrapolarSystem system = s.toRelative();
         double denominator2 = Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers);
         return new double[] {
-            -Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(system).applyAsDouble(layers) / denominator2,
-            -Apparent2Rho.newSecondDerivativeApparentByPhiPhi2Rho(system).applyAsDouble(layers) / denominator2
+            Math.abs(Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(system).applyAsDouble(layers) / denominator2),
+            Math.abs(Apparent2Rho.newSecondDerivativeApparentByPhiPhi2Rho(system).applyAsDouble(layers) / denominator2)
         };
       }).toArray(double[][]::new);
 

@@ -67,7 +67,7 @@ public final class TetrapolarSystem {
 
   @Nonnegative
   double getDiffApparentRelativeError() {
-    return (Math.abs(relativeSystem.errorFactor()) + 1) * getLRelativeError();
+    return Math.abs(relativeSystem.errorFactor()) * getLRelativeError() + absError / getL();
   }
 
   @Nonnegative
@@ -130,7 +130,7 @@ public final class TetrapolarSystem {
     ToLongFunction<Collection<TetrapolarSystem>> distinctSizes =
         ts -> ts.stream().flatMap(s -> DoubleStream.of(s.getS(), s.getL()).boxed()).distinct().count();
     var initialSizes = distinctSizes.applyAsLong(systems);
-    return IntStream.range(0, 1 << (systems.size() - 1))
+    return IntStream.range(0, 1 << systems.size())
         .mapToObj(n -> {
           var signIndex = new AtomicInteger();
           IntUnaryOperator sign = index -> (n & (1 << index)) == 0 ? 1 : -1;
