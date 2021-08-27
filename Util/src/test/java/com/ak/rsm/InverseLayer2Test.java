@@ -74,6 +74,10 @@ public class InverseLayer2Test {
   public static Object[][] relativeStaticLayer2() {
     double absErrorMilli = 0.001;
     TetrapolarSystem[] systems2 = systems2(absErrorMilli, 10.0);
+    TetrapolarSystem[] systems2Err = {
+        milli(absErrorMilli).s(10.0 - absErrorMilli).l(10.0 * 3.0 + absErrorMilli),
+        milli(absErrorMilli).s(10.0 * 5.0 - absErrorMilli).l(10.0 * 3.0 + absErrorMilli)
+    };
     double h = Metrics.fromMilli(15.0);
     return new Object[][] {
         {
@@ -82,10 +86,7 @@ public class InverseLayer2Test {
         },
         {
             TetrapolarMeasurement.of(
-                new TetrapolarSystem[] {
-                    milli(absErrorMilli).s(10.0 - absErrorMilli).l(10.0 * 3.0 + absErrorMilli),
-                    milli(absErrorMilli).s(10.0 * 5.0 - absErrorMilli).l(10.0 * 3.0 + absErrorMilli)
-                },
+                systems2Err,
                 Arrays.stream(systems2).
                     mapToDouble(s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h)).toArray()
             ),
@@ -93,11 +94,8 @@ public class InverseLayer2Test {
         },
         {
             TetrapolarMeasurement.of(
-                new TetrapolarSystem[] {
-                    milli(absErrorMilli).s(10.0 + absErrorMilli).l(10.0 * 3.0 - absErrorMilli),
-                    milli(absErrorMilli).s(10.0 * 5.0 + absErrorMilli).l(10.0 * 3.0 - absErrorMilli)
-                },
-                Arrays.stream(systems2).
+                systems2,
+                Arrays.stream(systems2Err).
                     mapToDouble(s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h)).toArray()
             ),
             new double[] {159.9, 35.9}

@@ -117,8 +117,8 @@ enum InverseStatic implements Inverseable<Measurement> {
       RelativeTetrapolarSystem system = s.toRelative();
       double denominator = Apparent2Rho.newNormalizedApparent2Rho(system).applyAsDouble(layers);
       return new double[] {
-          Math.abs(Apparent2Rho.newDerivativeApparentByK2Rho(system).applyAsDouble(layers) / denominator),
-          Math.abs(Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers) / denominator)
+          Apparent2Rho.newDerivativeApparentByK2Rho(system).applyAsDouble(layers) / denominator,
+          Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers) / denominator
       };
     }).toArray(double[][]::new));
   }
