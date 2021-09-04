@@ -29,13 +29,19 @@ enum Measurements {
   @Nonnull
   static ToDoubleBiFunction<TetrapolarSystem, double[]> logApparentPredicted(@Nonnull Collection<? extends Measurement> measurements) {
     double baseL = getBaseL(measurements);
-    return (s, kw) -> Apparent2Rho.newLog1pApparent2Rho(s.toRelative()).applyAsDouble(new Layer2RelativeMedium(kw[0], kw[1] * baseL / s.getL()));
+    return (s, kw) -> {
+      RelativeMediumLayers relativeMedium = new Layer2RelativeMedium(kw[0], kw[1] * baseL / s.getL());
+      return Apparent2Rho.newLog1pApparent2Rho(s.toRelative()).applyAsDouble(relativeMedium);
+    };
   }
 
   @Nonnull
   static ToDoubleBiFunction<TetrapolarSystem, double[]> logDiffApparentPredicted(@Nonnull Collection<? extends Measurement> measurements) {
     double baseL = getBaseL(measurements);
-    return (s, kw) -> log(Math.abs(Apparent2Rho.newDerivativeApparentByPhi2Rho(s.toRelative()).applyAsDouble(new Layer2RelativeMedium(kw[0], kw[1] * baseL / s.getL()))));
+    return (s, kw) -> {
+      RelativeMediumLayers relativeMedium = new Layer2RelativeMedium(kw[0], kw[1] * baseL / s.getL());
+      return log(Math.abs(Apparent2Rho.newDerivativeApparentByPhi2Rho(s.toRelative()).applyAsDouble(relativeMedium)));
+    };
   }
 
   @Nonnull
