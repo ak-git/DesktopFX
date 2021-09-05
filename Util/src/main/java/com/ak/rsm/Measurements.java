@@ -17,7 +17,7 @@ enum Measurements {
 
   @Nonnegative
   static double getBaseL(@Nonnull Collection<? extends Measurement> measurements) {
-    return measurements.parallelStream().mapToDouble(m -> m.getSystem().getL()).max().orElseThrow();
+    return measurements.stream().mapToDouble(m -> m.getSystem().getL()).max().orElseThrow();
   }
 
   @Nonnegative

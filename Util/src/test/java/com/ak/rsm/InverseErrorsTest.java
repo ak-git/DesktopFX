@@ -20,8 +20,8 @@ public class InverseErrorsTest {
   @DataProvider(name = "inverseable")
   public static Object[][] inverseable() {
     return new Object[][] {
-        {InverseStatic.THEORY},
-        {InverseDynamic.THEORY},
+        {InverseStatic.INSTANCE},
+        {InverseDynamic.INSTANCE},
     };
   }
 
@@ -44,10 +44,10 @@ public class InverseErrorsTest {
         .generate();
   }
 
-  @Test(enabled = false)
-  public void test() {
-    PointValuePair opt = Simplex.optimizeAll(InverseErrorsTest::single,
-        new SimpleBounds(new double[] {0.0, 0.0}, new double[] {3.0, 3.0}),
+  @Test(dataProvider = "inverseable", enabled = false)
+  public void testTheory(@Nonnull Inverseable<? extends Measurement> inverseable) {
+    PointValuePair opt = Simplex.optimizeAll(point -> single(point, inverseable),
+        new SimpleBounds(new double[] {0.0, 1.0}, new double[] {1.0, 3.0}),
         new double[] {0.1, 0.1}
     );
     LOGGER.info(Arrays.toString(opt.getPoint()));
@@ -56,23 +56,23 @@ public class InverseErrorsTest {
   @DataProvider(name = "single")
   public static Object[][] single() {
     return new Object[][] {
-        {1.782422328929079, 0.280802508104057},
         {1.0 / 3.0, 5.0 / 3.0},
-        {0.4142135623730951, 1.0 / 0.4142135623730951},
+        {0.2964648042963249, 1.4039961460075951},
     };
   }
 
   @Test(dataProvider = "single", enabled = false)
   public void testSingle(@Nonnegative double sToL1, @Nonnegative double sToL2) {
-    LOGGER.info("%.1f".formatted(single(new double[] {sToL1, sToL2})));
+    LOGGER.info("%.5f".formatted(single(new double[] {sToL1, sToL2}, 15.0 / 50.0, InverseStatic.INSTANCE)));
+    LOGGER.info("%.5f".formatted(single(new double[] {sToL1, sToL2}, 15.0 / 50.0, InverseDynamic.INSTANCE)));
   }
 
-  private static double single(@Nonnull double[] p) {
-    return DoubleStream.iterate(0.01, h -> h < 1.0, h -> h += 0.01)
-        .map(h -> single(p, h)).parallel().average().orElseThrow();
+  private static double single(@Nonnull double[] p, @Nonnull Inverseable<? extends Measurement> inverse) {
+    return DoubleStream.iterate(0.02, h -> h < 1.0, h -> h += 0.02)
+        .map(h -> single(p, h, inverse)).parallel().sum();
   }
 
-  private static double single(@Nonnull double[] p, @Nonnegative double h) {
+  private static double single(@Nonnull double[] p, @Nonnegative double h, @Nonnull Inverseable<?> inverseable) {
     double k = 1.0;
 
     double s1L = Math.min(p[0], p[1]);
@@ -83,13 +83,13 @@ public class InverseErrorsTest {
     double s1 = s1L * L;
     double absError = 0.001;
 
-    RelativeMediumLayers errors = InverseDynamic.THEORY.errors(
+    RelativeMediumLayers errors = inverseable.errors(
         Arrays.asList(
             TetrapolarSystem.si(absError).s(s1).l(L),
             TetrapolarSystem.si(absError).s(s2).l(L)
         ),
         new Layer2RelativeMedium(k, h / L)
     );
-    return errors.hToLAbsError() * L / absError;
+    return errors.k12AbsError() / absError;
   }
 }

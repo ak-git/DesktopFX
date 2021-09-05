@@ -31,7 +31,7 @@ public class InverseLayer1Test {
 
   @Test(dataProvider = "layer1")
   public void testInverseLayer1(@Nonnull Collection<? extends Measurement> measurements, @Nonnegative double expected) {
-    MediumLayers medium = InverseStatic.THEORY.inverse(measurements);
+    MediumLayers medium = InverseStatic.INSTANCE.inverse(measurements);
     Assert.assertEquals(medium.rho().getValue(), expected, 0.2, medium.toString());
     for (Measurement m : measurements) {
       Assert.assertTrue(medium.rho().getAbsError() / medium.rho().getValue() < m.getSystem().getApparentRelativeError(), medium.toString());

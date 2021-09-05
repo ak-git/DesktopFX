@@ -71,11 +71,6 @@ public class InexactTetrapolarSystemTest {
   }
 
   @Test(dataProvider = "inexact-tetrapolar-systems")
-  public void testGetDiffDeltaApparent(@Nonnull TetrapolarSystem system) {
-    Assert.assertEquals(system.getDiffApparentRelativeError(), 7.0 * 0.1 / 30.0, 1.0e-6, system.toString());
-  }
-
-  @Test(dataProvider = "inexact-tetrapolar-systems")
   public void testGetHMax(@Nonnull TetrapolarSystem system) {
     Assert.assertEquals(system.getHMax(1.0), 0.177 * 0.03 / StrictMath.pow(0.1 / 30.0, 1.0 / 3.0), 1.0e-3, system.toString());
   }

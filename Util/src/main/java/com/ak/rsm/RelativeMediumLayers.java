@@ -2,6 +2,8 @@ package com.ak.rsm;
 
 import javax.annotation.Nonnegative;
 
+import com.ak.util.Strings;
+
 interface RelativeMediumLayers {
   RelativeMediumLayers SINGLE_LAYER = new RelativeMediumLayers() {
     @Override
@@ -12,6 +14,11 @@ interface RelativeMediumLayers {
     @Override
     public double hToL() {
       return Double.NaN;
+    }
+
+    @Override
+    public String toString() {
+      return Strings.EMPTY;
     }
   };
   RelativeMediumLayers NAN = new RelativeMediumLayers() {

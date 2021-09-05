@@ -2,6 +2,8 @@ package com.ak.rsm;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import javax.annotation.Nonnull;
@@ -9,9 +11,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
-import com.ak.math.ValuePair;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 
@@ -23,61 +23,7 @@ import static java.lang.StrictMath.abs;
 import static java.lang.StrictMath.log;
 
 enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
-  THEORY {
-    @Override
-    @Nonnull
-    @ParametersAreNonnullByDefault
-    public RelativeMediumLayers errors(Collection<TetrapolarSystem> systems, RelativeMediumLayers layers) {
-      double[][] a2 = systems.stream().map(s -> {
-        RelativeTetrapolarSystem system = s.toRelative();
-        double denominator2 = Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers);
-        return new double[] {
-            Math.abs(Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(system).applyAsDouble(layers) / denominator2),
-            Math.abs(Apparent2Rho.newSecondDerivativeApparentByPhiPhi2Rho(system).applyAsDouble(layers) / denominator2)
-        };
-      }).toArray(double[][]::new);
-
-      double[] logRhoAbsErrors2 = systems.stream().mapToDouble(TetrapolarSystem::getDiffApparentRelativeError).toArray();
-
-      return InverseStatic.errors(systems, layers, UnaryOperator.identity(),
-          a -> new Array2DRowRealMatrix(a).add(new Array2DRowRealMatrix(a2)).getData(),
-          b -> new ArrayRealVector(b).subtract(new ArrayRealVector(logRhoAbsErrors2)).toArray()
-      );
-    }
-  },
-  PRACTICE {
-    @Override
-    @Nonnull
-    @ParametersAreNonnullByDefault
-    public RelativeMediumLayers errors(Collection<TetrapolarSystem> systems, RelativeMediumLayers layers) {
-      double rho1 = 1.0;
-      double rho2 = rho1 / Layers.getRho1ToRho2(layers.k12());
-      double dh = systems.stream().mapToDouble(TetrapolarSystem::getL).max().orElseThrow() * 0.001;
-
-      double[] rOhmsBefore = systems.stream()
-          .mapToDouble(s -> new Resistance2Layer(s).value(rho1, rho2, layers.hToL() * s.getL()))
-          .toArray();
-      double[] rOhmsAfter = systems.stream().mapToDouble(s -> {
-        double dRho = Apparent2Rho.newDerivativeApparentByPhi2Rho(s.toRelative())
-            .applyAsDouble(new Layer2RelativeMedium(layers.k12(), layers.hToL())) * rho1;
-        return new Resistance2Layer(s).value(rho1, rho2,
-            layers.hToL() * s.getL()) + new Resistance1Layer(s).value(dRho * (dh / s.getL())
-        );
-      }).toArray();
-
-      return TetrapolarSystem.getMeasurementsCombination(systems).stream()
-          .map(systemList -> THEORY.inverseRelative(
-                  TetrapolarDerivativeMeasurement.of(systemList.toArray(TetrapolarSystem[]::new), rOhmsBefore, rOhmsAfter, dh)
-              )
-          )
-          .map(relativeMediumLayers -> new Layer2RelativeMedium(
-                  ValuePair.Name.K12.of(layers.k12(), relativeMediumLayers.k12() - layers.k12()),
-                  ValuePair.Name.H_L.of(layers.hToL(), relativeMediumLayers.hToL() - layers.hToL())
-              )
-          )
-          .reduce(InverseStatic.MAX_ERROR).orElseThrow();
-    }
-  };
+  INSTANCE;
 
   @Nonnull
   @Override
@@ -86,7 +32,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
       return new Layer2Medium(measurements, inverseRelative(measurements));
     }
     else {
-      return InverseStatic.THEORY.inverse(measurements);
+      return InverseStatic.INSTANCE.inverse(measurements);
     }
   }
 
@@ -105,7 +51,7 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
       return NAN;
     }
     else {
-      return InverseStatic.THEORY.inverseRelative(measurements);
+      return InverseStatic.INSTANCE.inverseRelative(measurements);
     }
 
     double[] subLog = measurements.stream().mapToDouble(d -> log(d.getResistivity()) - log(abs(d.getDerivativeResistivity()))).toArray();
@@ -124,5 +70,51 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
         new double[] {0.01, 0.01}
     );
     return errors(tetrapolarSystems, new Layer2RelativeMedium(kwOptimal.getPoint()));
+  }
+
+  @Override
+  @Nonnull
+  @ParametersAreNonnullByDefault
+  public RelativeMediumLayers errors(Collection<TetrapolarSystem> systems, RelativeMediumLayers layers) {
+    double[][] a2 = systems.stream().map(s -> {
+      RelativeTetrapolarSystem system = s.toRelative();
+      double denominator2 = Apparent2Rho.newDerivativeApparentByPhi2Rho(system).applyAsDouble(layers);
+      return new double[] {
+          Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(system).applyAsDouble(layers) / denominator2,
+          Apparent2Rho.newSecondDerivativeApparentByPhiPhi2Rho(system).applyAsDouble(layers) / denominator2
+      };
+    }).toArray(double[][]::new);
+
+    double baseL = systems.stream().mapToDouble(TetrapolarSystem::getL).max().orElseThrow();
+    double rho1 = 1.0;
+    double rho2 = rho1 / Layers.getRho1ToRho2(layers.k12());
+    double h = layers.hToL() * baseL;
+    double dh = h * 1.0e-4;
+
+    Function<Collection<TetrapolarSystem>, List<DerivativeMeasurement>> toMeasurements =
+        ts -> TetrapolarDerivativeMeasurement.of(systems.toArray(TetrapolarSystem[]::new),
+            ts.stream()
+                .mapToDouble(s -> new Resistance2Layer(s).value(rho1, rho2, h)).toArray(),
+            ts.stream()
+                .mapToDouble(s -> new Resistance2Layer(s).value(rho1, rho2, h + dh)).toArray(),
+            dh
+        );
+
+    DoubleUnaryOperator logAbs = x -> log(Math.abs(x));
+
+    var baseM = toMeasurements.apply(systems);
+    return InverseStatic.errors(systems, layers, UnaryOperator.identity(),
+        a -> new Array2DRowRealMatrix(a).subtract(new Array2DRowRealMatrix(a2)).getData(),
+        (ts, b) -> {
+          var measurements = toMeasurements.apply(ts);
+          double[] b2 = new double[baseM.size()];
+          for (int i = 0; i < baseM.size(); i++) {
+            b2[i] = b[i];
+            b2[i] -= logAbs.applyAsDouble(measurements.get(i).getDerivativeResistivity()) -
+                logAbs.applyAsDouble(baseM.get(i).getDerivativeResistivity());
+          }
+          return b2;
+        }
+    );
   }
 }

@@ -66,11 +66,6 @@ public final class TetrapolarSystem {
   }
 
   @Nonnegative
-  double getDiffApparentRelativeError() {
-    return Math.abs(relativeSystem.errorFactor()) * getLRelativeError() + absError / getL();
-  }
-
-  @Nonnegative
   double factor(double sign) {
     return Math.abs(lCC + Math.signum(sign) * sPU) / 2.0;
   }
