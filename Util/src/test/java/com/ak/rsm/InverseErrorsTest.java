@@ -45,12 +45,22 @@ public class InverseErrorsTest {
   }
 
   @Test(dataProvider = "inverseable", enabled = false)
-  public void testTheory(@Nonnull Inverseable<? extends Measurement> inverseable) {
+  public void testOptimalSL(@Nonnull Inverseable<? extends Measurement> inverseable) {
     PointValuePair opt = Simplex.optimizeAll(point -> single(point, inverseable),
-        new SimpleBounds(new double[] {0.0, 1.0}, new double[] {1.0, 3.0}),
+        new SimpleBounds(new double[] {0.1, 0.9}, new double[] {1.1, 2.0}),
         new double[] {0.1, 0.1}
     );
     LOGGER.info(Arrays.toString(opt.getPoint()));
+  }
+
+  @Test(dataProvider = "inverseable", enabled = false)
+  public void testCSVasSL(@Nonnull Inverseable<? extends Measurement> inverseable) {
+    CSVLineFileBuilder
+        .of((sToL1, sToL2) -> single(new double[] {sToL1, sToL2}, inverseable))
+        .xRange(0.1, 0.9, 0.1)
+        .yRange(1.1, 2.0, 0.1)
+        .saveTo("k %s".formatted(inverseable.getClass().getSimpleName()), "%.4f"::formatted)
+        .generate();
   }
 
   @DataProvider(name = "single")
@@ -90,6 +100,6 @@ public class InverseErrorsTest {
         ),
         new Layer2RelativeMedium(k, h / L)
     );
-    return errors.k12AbsError() / absError;
+    return errors.hToLAbsError();
   }
 }
