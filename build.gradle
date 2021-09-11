@@ -64,7 +64,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2021.09.04'
+    version = '2021.09.11'
     apply plugin: 'idea'
     idea {
         module {
@@ -73,7 +73,7 @@ allprojects {
     }
 
     sourceSets {
-        main.output.resourcesDir = main.java.outputDir
+        main.output.resourcesDir = main.java.classesDirectory
     }
 
     apply plugin: 'java'
@@ -119,6 +119,8 @@ dependencies {
     implementation javax_json
     implementation 'org.springframework.boot:spring-boot-starter'
     testImplementation commons_csv
+
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 }
 
 javafx {
@@ -138,5 +140,7 @@ processResources {
         expand(project.properties)
     }
 }
+
+compileJava.inputs.files(processResources)
 
 mainClassName = "com.ak.fx.desktop.SpringFxApplication"

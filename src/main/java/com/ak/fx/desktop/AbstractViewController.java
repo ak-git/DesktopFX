@@ -49,6 +49,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.input.ZoomEvent;
 import javafx.util.Duration;
+import org.springframework.beans.factory.annotation.Value;
 
 abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
     implements Initializable, Flow.Subscriber<int[]>, AutoCloseable, ViewController {
@@ -65,11 +66,15 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   private long countSamples;
   @Nullable
   private SequentialTransition transition;
+  @Nonnull
+  @Value("${version}")
+  private final String version;
 
   @ParametersAreNonnullByDefault
   AbstractViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
                          Provider<Converter<R, V>> converterProvider) {
     service = new GroupService<>(interceptorProvider::get, converterProvider::get);
+    version = "${version}";
     Executors.newSingleThreadExecutor().execute(() -> {
       try (DirectoryStream<Path> paths = Files.newDirectoryStream(
           OutputBuilders.build(Strings.EMPTY).getPath().getParent(), Extension.BIN.attachTo("*"))
@@ -83,6 +88,11 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
         Logger.getLogger(getClass().getName()).info(() -> "Conversion finished");
       }
     });
+  }
+
+  @Override
+  public final String toString() {
+    return "ViewController{version='%s'}".formatted(version);
   }
 
   @Override
