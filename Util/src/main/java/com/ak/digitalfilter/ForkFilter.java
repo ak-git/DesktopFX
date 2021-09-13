@@ -24,22 +24,9 @@ final class ForkFilter extends AbstractDigitalFilter {
       throw new IllegalArgumentException(Arrays.deepToString(filters));
     }
     this.filters.addAll(Arrays.asList(filters));
+    equalizeDelay();
 
-    double maxDelay = getDelay();
-    ListIterator<DigitalFilter> listIterator = this.filters.listIterator();
-    while (listIterator.hasNext()) {
-      DigitalFilter filter = listIterator.next();
-      int delay = (int) Math.round(maxDelay - filter.getDelay());
-      if (delay != 0) {
-        listIterator.set(new DelayFilter(filter, delay));
-      }
-    }
-
-    var bufferPositions = new int[this.filters.size()];
-    bufferPositions[0] = 0;
-    for (var i = 1; i < this.filters.size(); i++) {
-      bufferPositions[i] = bufferPositions[i - 1] + this.filters.get(i - 1).getOutputDataSize();
-    }
+    int[] bufferPositions = getBufferPositions(this.filters);
     var bufferIndexes = new int[this.filters.size()];
 
     var initializedFlag = new AtomicBoolean();
@@ -106,6 +93,27 @@ final class ForkFilter extends AbstractDigitalFilter {
   @Override
   public String toString() {
     return filters.stream().map(Object::toString).collect(Collectors.joining(NEW_LINE, EMPTY, EMPTY));
+  }
+
+  private void equalizeDelay() {
+    double maxDelay = getDelay();
+    ListIterator<DigitalFilter> listIterator = filters.listIterator();
+    while (listIterator.hasNext()) {
+      DigitalFilter filter = listIterator.next();
+      int delay = (int) Math.round(maxDelay - filter.getDelay());
+      if (delay != 0) {
+        listIterator.set(new DelayFilter(filter, delay));
+      }
+    }
+  }
+
+  private static int[] getBufferPositions(@Nonnull List<DigitalFilter> filters) {
+    var bufferPositions = new int[filters.size()];
+    bufferPositions[0] = 0;
+    for (var i = 1; i < filters.size(); i++) {
+      bufferPositions[i] = bufferPositions[i - 1] + filters.get(i - 1).getOutputDataSize();
+    }
+    return bufferPositions;
   }
 
   private double findMax(@Nonnull ToDoubleFunction<? super DigitalFilter> mapper) {
