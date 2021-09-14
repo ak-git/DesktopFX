@@ -2,9 +2,9 @@ package com.ak.digitalfilter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
@@ -12,6 +12,7 @@ import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import static com.ak.util.Strings.EMPTY;
 import static com.ak.util.Strings.NEW_LINE;
@@ -23,8 +24,7 @@ final class ForkFilter extends AbstractDigitalFilter {
     if (filters.length < 2) {
       throw new IllegalArgumentException(Arrays.deepToString(filters));
     }
-    this.filters.addAll(Arrays.asList(filters));
-    equalizeDelay();
+    this.filters.addAll(equalizeDelay(filters));
 
     int[] bufferPositions = getBufferPositions(this.filters);
     var bufferIndexes = new int[this.filters.size()];
@@ -65,13 +65,13 @@ final class ForkFilter extends AbstractDigitalFilter {
 
   @Override
   public double getDelay() {
-    return findMax(DigitalFilter::getDelay);
+    return findMax(filters, DigitalFilter::getDelay);
   }
 
   @Nonnegative
   @Override
   public double getFrequencyFactor() {
-    return findMax(DigitalFilter::getFrequencyFactor);
+    return findMax(filters, DigitalFilter::getFrequencyFactor);
   }
 
   @Override
@@ -95,18 +95,25 @@ final class ForkFilter extends AbstractDigitalFilter {
     return filters.stream().map(Object::toString).collect(Collectors.joining(NEW_LINE, EMPTY, EMPTY));
   }
 
-  private void equalizeDelay() {
-    double maxDelay = getDelay();
-    ListIterator<DigitalFilter> listIterator = filters.listIterator();
-    while (listIterator.hasNext()) {
-      DigitalFilter filter = listIterator.next();
-      int delay = (int) Math.round(maxDelay - filter.getDelay());
-      if (delay != 0) {
-        listIterator.set(new DelayFilter(filter, delay));
-      }
-    }
+  @Nonnull
+  private static List<DigitalFilter> equalizeDelay(@Nonnull DigitalFilter[] filters) {
+    List<DigitalFilter> filterList = Arrays.asList(filters);
+    double maxDelay = findMax(filterList, DigitalFilter::getDelay);
+
+    return filterList.stream()
+        .map(filter -> {
+          int delay = (int) Math.round(maxDelay - filter.getDelay());
+          if (delay == 0) {
+            return filter;
+          }
+          else {
+            return new DelayFilter(filter, delay);
+          }
+        })
+        .toList();
   }
 
+  @Nonnull
   private static int[] getBufferPositions(@Nonnull List<DigitalFilter> filters) {
     var bufferPositions = new int[filters.size()];
     bufferPositions[0] = 0;
@@ -116,7 +123,8 @@ final class ForkFilter extends AbstractDigitalFilter {
     return bufferPositions;
   }
 
-  private double findMax(@Nonnull ToDoubleFunction<? super DigitalFilter> mapper) {
+  @ParametersAreNonnullByDefault
+  private static double findMax(Collection<DigitalFilter> filters, ToDoubleFunction<? super DigitalFilter> mapper) {
     return filters.stream().mapToDouble(mapper).max().orElseThrow(IllegalStateException::new);
   }
 }
