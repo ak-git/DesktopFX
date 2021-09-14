@@ -34,7 +34,7 @@ public class InverseErrorsTest {
             new Layer2RelativeMedium(k, hToL)
         ))
         .xRange(-1.0, 1.0, 0.2)
-        .yLog10Range(0.01, 1.0)
+        .yLogRange(0.01, 1.0)
         .saveTo("k %s".formatted(inverseable.getClass().getSimpleName()),
             layers -> "%.4f".formatted(Math.abs(layers.k12AbsError() / layers.k12()) / (absErrorMilli / 50.0)))
         .saveTo("dk %s".formatted(inverseable.getClass().getSimpleName()),
