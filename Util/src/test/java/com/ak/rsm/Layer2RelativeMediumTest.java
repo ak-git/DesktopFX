@@ -14,7 +14,7 @@ public class Layer2RelativeMediumTest {
     return new Object[][] {
         {
             new Layer2RelativeMedium(1.0, Metrics.fromMilli(5.0)),
-            new ValuePair[] {ValuePair.Name.NONE.of(1.0, 0.0), ValuePair.Name.NONE.of(Metrics.fromMilli(5.0), 0.0)}
+            new ValuePair[] {ValuePair.Name.K12.of(1.0, 0.0), ValuePair.Name.H_L.of(Metrics.fromMilli(5.0), 0.0)}
         },
         {
             new Layer2RelativeMedium(ValuePair.Name.NONE.of(1.0, 0.0), ValuePair.Name.NONE.of(Metrics.fromMilli(5.0), Metrics.fromMilli(0.1))),
@@ -37,5 +37,20 @@ public class Layer2RelativeMediumTest {
   public <T> void testToString(RelativeMediumLayers layers, T[] expected) {
     Assert.assertTrue(layers.toString().contains(expected[0].toString()), layers.toString());
     Assert.assertTrue(layers.toString().contains(expected[1].toString()), layers.toString());
+  }
+
+  @Test(dataProvider = "layer2Medium")
+  @ParametersAreNonnullByDefault
+  public void testEquals(RelativeMediumLayers layers, ValuePair[] expected) {
+    Assert.assertEquals(layers, layers, layers.toString());
+    Assert.assertEquals(layers.hashCode(), layers.hashCode(), layers.toString());
+
+    RelativeMediumLayers copy = new Layer2RelativeMedium(expected[0], expected[1]);
+    Assert.assertEquals(layers, copy, layers.toString());
+    Assert.assertEquals(copy, layers, layers.toString());
+
+    Assert.assertNotEquals(layers, null, layers.toString());
+    Assert.assertNotEquals(new Object(), layers, layers.toString());
+    Assert.assertNotEquals(layers, new Object(), layers.toString());
   }
 }

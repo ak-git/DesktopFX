@@ -54,14 +54,6 @@ public class TetrapolarSystemTest {
     Assert.assertEquals(TetrapolarSystem.si(0.1).s(2.0).l(10.0).toRelative(), new RelativeTetrapolarSystem(0.2));
   }
 
-  @Test
-  public void testToShift() {
-    Assert.assertEquals(TetrapolarSystem.milli(1000.0).s(2000.0).l(1500.0).shift(1, -1),
-        TetrapolarSystem.milli(1000.0).s(3000.0).l(500.0));
-    Assert.assertEquals(TetrapolarSystem.si(0.1).s(2.0).l(1.0).shift(-1, 1),
-        TetrapolarSystem.milli(100.0).s(1100.0).l(1900.0));
-  }
-
   @DataProvider(name = "system-apparent")
   public static Object[][] systemApparent() {
     return new Object[][] {

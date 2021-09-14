@@ -56,15 +56,14 @@ public final class Chart extends AbstractRegion {
     if (dHeight >= SMALL.getStep() * 2) {
       diagramHeight.setValue(dHeight);
       lineDiagrams.forEach(lineDiagram -> lineDiagram.resizeRelocate(x, y, width, dHeight));
+
       for (var i = 0; i < lineDiagrams.size() / 2; i++) {
-        lineDiagrams.get(i).relocate(x, y + SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i);
+        double v = SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i;
+        lineDiagrams.get(i).relocate(x, y + v);
+        lineDiagrams.get(lineDiagrams.size() - 1 - i).relocate(x, y + height - dHeight - v);
       }
       if ((lineDiagrams.size() & 1) != 0) {
         lineDiagrams.get(lineDiagrams.size() / 2).relocate(x, y + height / 2 - dHeight / 2);
-      }
-      for (var i = 0; i < lineDiagrams.size() / 2; i++) {
-        lineDiagrams.get(lineDiagrams.size() - 1 - i).
-            relocate(x, y + height - dHeight - SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i);
       }
 
       for (var i = 0; i < lineDiagrams.size(); i++) {
@@ -125,19 +124,5 @@ public final class Chart extends AbstractRegion {
 
   public void setAll(@Nonnegative int chartIndex, @Nonnull double[] values, @Nonnull DoubleFunction<String> positionToStringConverter) {
     lineDiagrams.get(chartIndex).setAll(values, positionToStringConverter);
-  }
-
-  public void shiftRight(@Nonnegative int chartIndex, @Nonnull double[] values) {
-    lineDiagrams.get(chartIndex).shiftRight(values);
-  }
-
-  public void shiftLeft(@Nonnegative int chartIndex, @Nonnull double[] values) {
-    lineDiagrams.get(chartIndex).shiftLeft(values);
-  }
-
-  public void add(@Nonnull double[] values) {
-    for (var i = 0; i < values.length; i++) {
-      lineDiagrams.get(i).add(values[i]);
-    }
   }
 }

@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
@@ -37,22 +38,23 @@ public class CSVLineFileBuilderTest {
 
   @Test
   public void testGenerateLogRange() throws IOException {
+    DoubleUnaryOperator round = x -> BigDecimal.valueOf(x).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
     CSVLineFileBuilder.of(Double::sum)
-        .xLog10Range(10.0, 20.0)
-        .yLog10Range(10.0, 1.0)
-        .saveTo("logZ", aDouble -> aDouble)
+        .xLogRange(10.0, 20.0)
+        .yLogRange(10.0, 1.0)
+        .saveTo("logZ", round::applyAsDouble)
         .generate();
     checkFilesExists("logZ",
         String.join(LINE_JOINER,
-            String.join(ROW_DELIMITER, "\"\"", "10.0", "12.0", "14.0", "16.0", "18.0", "20.0"),
+            String.join(ROW_DELIMITER, "\"\"", "10.0", "10.8", "11.7", "12.6", "13.6", "14.7", "15.9", "17.1", "18.5", "20.0"),
             DoubleStream
-                .iterate(1.0, value -> value <= 10.0, operand -> operand + 0.2)
+                .of(1.0, 1.29, 1.67, 2.15, 2.8, 3.6, 4.6, 6.0, 7.7, 10.0)
                 .mapToObj(value ->
                     DoubleStream
                         .concat(
                             DoubleStream.of(value),
-                            DoubleStream.iterate(10.0, d -> d <= 20.0, d -> d + 2.0).map(d -> d + value))
-                        .map(x -> BigDecimal.valueOf(x).setScale(1, RoundingMode.HALF_EVEN).doubleValue())
+                            DoubleStream.of(10.0, 10.8, 11.7, 12.6, 13.6, 14.7, 15.9, 17.1, 18.5, 20.0).map(d -> d + value))
+                        .map(round)
                         .mapToObj(Double::toString).collect(Collectors.joining(ROW_DELIMITER))
                 )
                 .collect(Collectors.joining(LINE_JOINER))

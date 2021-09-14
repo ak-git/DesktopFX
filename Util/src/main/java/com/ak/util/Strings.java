@@ -21,7 +21,7 @@ public enum Strings {
 
   public static String numberSuffix(@Nonnull String s) {
     String ignore = s.replaceFirst("\\d*$", EMPTY);
-    return s.replace(ignore, EMPTY);
+    return s.substring(ignore.length());
   }
 
   public static String dRhoByPhi(double v) {
