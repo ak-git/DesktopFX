@@ -51,13 +51,17 @@ final class ForkFilter extends AbstractDigitalFilter {
         System.arraycopy(values, 0, intBuffers.get(bufferIndex), bufferPositions[filterI], values.length);
 
         if (IntStream.of(bufferIndexes).allMatch(value -> value > 0)) {
-          initializedFlag.set(true);
-          if (IntStream.of(bufferIndexes).allMatch(value -> value == bufferIndexes[0])) {
-            intBuffers.forEach(this::publish);
-            Arrays.fill(bufferIndexes, 0);
-            intBuffers.clear();
-            initializedFlag.set(false);
-          }
+          IntStream.of(bufferIndexes).filter(value -> value != bufferIndexes[0])
+              .findAny()
+              .ifPresentOrElse(
+                  v -> initializedFlag.set(true),
+                  () -> {
+                    intBuffers.forEach(this::publish);
+                    Arrays.fill(bufferIndexes, 0);
+                    intBuffers.clear();
+                    initializedFlag.set(false);
+                  }
+              );
         }
       });
     }
@@ -75,7 +79,7 @@ final class ForkFilter extends AbstractDigitalFilter {
   }
 
   @Override
-  public void accept(int... in) {
+  public void accept(@Nonnull int... in) {
     filters.forEach(filter -> filter.accept(in));
   }
 
