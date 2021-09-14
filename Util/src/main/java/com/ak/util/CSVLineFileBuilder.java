@@ -109,7 +109,7 @@ public final class CSVLineFileBuilder<T> {
                   DoubleStream.of(start, end)
               )
               .sorted()
-              .map(x -> round((x - exp(log(x) - step)) / 5).applyAsDouble(x));
+              .map(x -> round((x - exp(log(x) - step)) / 5.0).applyAsDouble(x));
     }
 
     private void range(double start, double end, @Nonnegative double step) {
