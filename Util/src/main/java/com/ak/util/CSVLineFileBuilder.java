@@ -100,7 +100,7 @@ public final class CSVLineFileBuilder<T> {
     private void rangeLog(@Nonnegative double start, @Nonnegative double end) {
       double from = log(Math.min(start, end));
       double to = log(Math.max(start, end));
-      long len = Math.round(log10(Math.abs(start - end)) * 10.0);
+      long len = Math.max(Math.abs(Math.round(log10(start / end))), Math.round(log10(Math.abs(start - end)))) * 10;
       double step = (to - from) / (len - 1);
       doubleStreamSupplier = () ->
           DoubleStream
