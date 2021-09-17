@@ -79,10 +79,6 @@ public class InexactTetrapolarSystemTest {
   public void testShift() {
     TetrapolarSystem initial = TetrapolarSystem.milli(0.1).s(20.0).l(10.0);
     Assert.assertEquals(initial.toRelative().errorFactor(), 6.0, 0.01);
-    Assert.assertEquals(initial.shift(1, -1).toRelative().errorFactor(), 5.97, 0.01);
-    Assert.assertEquals(initial.shift(-1, -1).toRelative().errorFactor(), 5.99, 0.01);
-    Assert.assertEquals(initial.shift(1, 1).toRelative().errorFactor(), 6.01, 0.01);
-    Assert.assertEquals(initial.shift(-1, 1).toRelative().errorFactor(), 6.03, 0.01);
   }
 
   @DataProvider(name = "rho1rho2")
@@ -134,11 +130,8 @@ public class InexactTetrapolarSystemTest {
   public static Object[][] combinations() {
     return new Object[][] {
         {
-            Arrays.asList(
-                TetrapolarSystem.milli(0.1).s(11.0).l(30.0),
-                TetrapolarSystem.milli(0.1).s(50.0).l(30.0)
-            ),
-            8
+            Arrays.asList(TetrapolarSystem.systems2(0.1, 10.0)),
+            2
         },
     };
   }

@@ -41,18 +41,8 @@ public final class TetrapolarSystem {
   }
 
   @Nonnull
-  TetrapolarSystem shift(int signS, int signL) {
-    return new TetrapolarSystem(absError, sPU + Math.signum(signS) * absError, lCC + Math.signum(signL) * absError);
-  }
-
-  @Nonnull
   RelativeTetrapolarSystem toRelative() {
     return relativeSystem;
-  }
-
-  @Nonnegative
-  double getLRelativeError() {
-    return absError / l();
   }
 
   @Nonnegative
@@ -72,7 +62,7 @@ public final class TetrapolarSystem {
    */
   @Nonnegative
   double getApparentRelativeError() {
-    return relativeSystem.errorFactor() * getLRelativeError();
+    return Math.abs(relativeSystem.errorFactor() * getLRelativeError());
   }
 
   @Nonnegative
@@ -135,16 +125,22 @@ public final class TetrapolarSystem {
     ToLongFunction<Collection<TetrapolarSystem>> distinctSizes =
         ts -> ts.stream().flatMap(s -> DoubleStream.of(s.getS(), s.getL()).boxed()).distinct().count();
     var initialSizes = distinctSizes.applyAsLong(systems);
-    return IntStream.range(0, 2 << (2 * (systems.size() - 1) + 1))
+    return IntStream.range(0, 1 << systems.size())
         .mapToObj(n -> {
           var signIndex = new AtomicInteger();
           IntUnaryOperator sign = index -> (n & (1 << index)) == 0 ? 1 : -1;
-          return systems.stream()
-              .map(s -> s.shift(
-                  sign.applyAsInt(signIndex.getAndIncrement()),
-                  sign.applyAsInt(signIndex.getAndIncrement()))).toList();
+          return systems.stream().map(s -> s.shift(sign.applyAsInt(signIndex.getAndIncrement()))).toList();
         })
         .filter(s -> initialSizes == distinctSizes.applyAsLong(s)).toList();
+  }
+
+  @Nonnull
+  private TetrapolarSystem shift(int sign) {
+    double err = Math.signum(sign) * absError;
+    if (sPU < lCC) {
+      err *= -1.0;
+    }
+    return new TetrapolarSystem(absError, sPU + err, lCC - err);
   }
 
   private double s() {
@@ -153,6 +149,11 @@ public final class TetrapolarSystem {
 
   private double l() {
     return Math.max(sPU, lCC);
+  }
+
+  @Nonnegative
+  double getLRelativeError() {
+    return absError / l();
   }
 
   /**

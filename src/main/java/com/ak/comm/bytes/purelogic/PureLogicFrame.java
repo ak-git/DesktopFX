@@ -46,7 +46,7 @@ public final class PureLogicFrame extends BufferFrame {
   }
 
   private PureLogicFrame(int step16) {
-    super("%s %+06d\r\n".formatted(STEP_COMMAND, step16).getBytes(StandardCharsets.UTF_8), ByteOrder.LITTLE_ENDIAN);
+    super("%s %+06d%c%c".formatted(STEP_COMMAND, step16, 13, 10).getBytes(StandardCharsets.UTF_8), ByteOrder.LITTLE_ENDIAN);
     microns = (3000 / 200) * (step16 / 16);
   }
 

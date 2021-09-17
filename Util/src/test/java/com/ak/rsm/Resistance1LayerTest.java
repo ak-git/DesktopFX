@@ -1,11 +1,8 @@
 package com.ak.rsm;
 
-import java.util.stream.IntStream;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.inverse.Inequality;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -51,19 +48,6 @@ public class Resistance1LayerTest {
         {TetrapolarSystem.si(3.0 * relError).s(1.0).l(3.0), 6 * relError},
         {TetrapolarSystem.si(relError).s(RelativeTetrapolarSystem.OPTIMAL_SL).l(1.0), RelativeTetrapolarSystem.MIN_ERROR_FACTOR * relError},
     };
-  }
-
-  @Test(dataProvider = "tetrapolarSystemsWithErrors")
-  public void testElectrodeSystemRelativeError(@Nonnull TetrapolarSystem system, @Nonnegative double expectedError) {
-    double rOhms = new Resistance1Layer(system).value(1.0);
-    double error = IntStream.range(0, 1 << 2)
-        .mapToDouble(n -> {
-          int signS = (n & 1) == 0 ? 1 : -1;
-          int signL = (n & (1 << 1)) == 0 ? 1 : -1;
-          return system.shift(signS, signL).getApparent(rOhms);
-        })
-        .map(rho -> Inequality.proportional().applyAsDouble(rho, 1.0)).max().orElseThrow();
-    Assert.assertEquals(error, expectedError, 1.0e-6, system.toString());
   }
 
   @Test(dataProvider = "tetrapolarSystemsWithErrors")
