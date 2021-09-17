@@ -11,6 +11,15 @@
       <entry name="!?*.kt" />
       <entry name="!?*.clj" />
     </wildcardResourcePatterns>
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/2.5.4/aaddc23ff2517732cbafb9dafbfe30a6714112b0/spring-boot-configuration-processor-2.5.4.jar" />
+        </processorPath>
+        <module name="DesktopFX.main" />
+      </profile>
+    </annotationProcessing>
     <bytecodeTargetLevel target="16" />
   </component>
 </project>

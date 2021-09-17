@@ -270,7 +270,6 @@ public class FileReadingServiceTest {
     private Throwable throwable;
     private int count;
 
-
     TestSubscriber() {
       this(subscription -> subscription.request(Long.MAX_VALUE));
     }
@@ -298,6 +297,11 @@ public class FileReadingServiceTest {
     @Override
     public void onComplete() {
       completeFlag = true;
+    }
+
+    @Override
+    public String toString() {
+      return "TestSubscriber-${version}";
     }
 
     void assertSubscribed() {

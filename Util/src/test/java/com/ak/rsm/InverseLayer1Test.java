@@ -1,11 +1,12 @@
 package com.ak.rsm;
 
-import java.util.Arrays;
+import java.security.SecureRandom;
+import java.util.Collection;
 import java.util.Random;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.Nonnull;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -18,26 +19,22 @@ public class InverseLayer1Test {
 
   @DataProvider(name = "layer1")
   public static Object[][] layer1() {
-    TetrapolarSystem[] systems2 = systems2(0.1, 10.0);
-    Random random = new Random();
+    Random random = new SecureRandom();
     int rho = random.nextInt(9) + 1;
     return new Object[][] {
         {
-            systems2,
-            Arrays.stream(systems2).mapToDouble(its -> new Resistance1Layer(its).value(rho))
-                .map(r -> r + random.nextGaussian()).toArray(),
+            TetrapolarMeasurement.of(systems2(0.1, 10.0), its -> new Resistance1Layer(its).value(rho) + random.nextGaussian()),
             rho
         },
     };
   }
 
   @Test(dataProvider = "layer1")
-  @ParametersAreNonnullByDefault
-  public void testInverseLayer1(TetrapolarSystem[] systems, double[] rOhms, @Nonnegative double expected) {
-    MediumLayers medium = InverseStatic.INSTANCE.inverse(TetrapolarMeasurement.of(systems, rOhms));
+  public void testInverseLayer1(@Nonnull Collection<? extends Measurement> measurements, @Nonnegative double expected) {
+    MediumLayers medium = InverseStatic.INSTANCE.inverse(measurements);
     Assert.assertEquals(medium.rho().getValue(), expected, 0.2, medium.toString());
-    for (TetrapolarSystem system : systems) {
-      Assert.assertTrue(medium.rho().getAbsError() / medium.rho().getValue() < system.getApparentRelativeError(), medium.toString());
+    for (Measurement m : measurements) {
+      Assert.assertTrue(medium.rho().getAbsError() / medium.rho().getValue() < m.getSystem().getApparentRelativeError(), medium.toString());
     }
     LOGGER.info(medium::toString);
   }

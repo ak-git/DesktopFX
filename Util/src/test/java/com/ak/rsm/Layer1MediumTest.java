@@ -18,16 +18,16 @@ public class Layer1MediumTest {
   public static Object[][] layer1Medium() {
     Collection<Measurement> measurements = TetrapolarMeasurement.of(systems4(0.1, 7.0), new double[] {1.0, 2.0, 3.0, 4.0});
     return new Object[][] {
-        {new Layer1Medium(measurements), new ValuePair(0.0654, 0.00072)},
+        {new Layer1Medium(measurements), ValuePair.Name.RHO_1.of(0.0654, 0.00072)},
     };
   }
 
   @Test(dataProvider = "layer1Medium")
   @ParametersAreNonnullByDefault
   public void testRho(MediumLayers layers, ValuePair expected) {
-    Assert.assertEquals(layers.rho(), expected, expected.toString());
-    Assert.assertEquals(layers.rho1(), expected, expected.toString());
-    Assert.assertEquals(layers.rho2(), expected, expected.toString());
+    Assert.assertEquals(layers.rho(), expected, layers.toString());
+    Assert.assertEquals(layers.rho1(), expected, layers.toString());
+    Assert.assertEquals(layers.rho2(), expected, layers.toString());
   }
 
   @Test(dataProvider = "layer1Medium")

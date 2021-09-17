@@ -1,6 +1,8 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -12,7 +14,6 @@ import com.ak.util.Strings;
 final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
   @Nonnull
   private final Measurement measurement;
-  @Nonnegative
   private final double dRhoBydPhi;
 
   TetrapolarDerivativeMeasurement(@Nonnull Measurement measurementBefore,
@@ -33,7 +34,7 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
 
   @Override
   @Nonnull
-  public Prediction toPrediction(@Nonnull RelativeMediumLayers<Double> kw, @Nonnegative double rho1) {
+  public Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1) {
     return new TetrapolarDerivativePrediction(getSystem(), kw, rho1, new double[] {getResistivity(), getDerivativeResistivity()});
   }
 
@@ -58,5 +59,20 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
         ))
         .map(DerivativeMeasurement.class::cast)
         .toList();
+  }
+
+  @Nonnull
+  @ParametersAreNonnullByDefault
+  static List<Measurement> of(TetrapolarSystem[] systems,
+                              ToDoubleFunction<TetrapolarSystem> toOhmsBefore,
+                              ToDoubleFunction<TetrapolarSystem> toOhmsAfter,
+                              double dh) {
+    return Arrays.stream(systems)
+        .map(s -> new TetrapolarDerivativeMeasurement(
+            new TetrapolarMeasurement(s, toOhmsBefore.applyAsDouble(s)),
+            new TetrapolarMeasurement(s, toOhmsAfter.applyAsDouble(s)),
+            dh)
+        )
+        .map(Measurement.class::cast).toList();
   }
 }

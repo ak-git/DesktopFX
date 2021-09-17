@@ -31,24 +31,7 @@ public abstract class AbstractCheckedBytesInterceptor<T extends BufferFrame, R, 
     Collection<R> responses = new LinkedList<>();
     ByteBuffer buffer = responseBuilder.buffer();
     while (src.hasRemaining()) {
-      byte b = src.get();
-
-      for (var i = 0; i < 2; i++) {
-        buffer.put(b);
-        if (responseBuilder.is(b)) {
-          if (i == 1) {
-            ignoreBuffer().position(ignoreBuffer().position() - 1);
-          }
-          break;
-        }
-        else {
-          buffer.flip().rewind();
-          if (i == 0) {
-            ignoreBuffer().put(buffer);
-          }
-          buffer.clear();
-        }
-      }
+      check(src.get(), buffer);
 
       logSkippedBytes(false);
 
@@ -66,5 +49,24 @@ public abstract class AbstractCheckedBytesInterceptor<T extends BufferFrame, R, 
       }
     }
     return responses;
+  }
+
+  private void check(byte b, @Nonnull ByteBuffer buffer) {
+    for (var i = 0; i < 2; i++) {
+      buffer.put(b);
+      if (responseBuilder.is(b)) {
+        if (i == 1) {
+          ignoreBuffer().position(ignoreBuffer().position() - 1);
+        }
+        break;
+      }
+      else {
+        buffer.flip().rewind();
+        if (i == 0) {
+          ignoreBuffer().put(buffer);
+        }
+        buffer.clear();
+      }
+    }
   }
 }

@@ -26,13 +26,13 @@ final class TetrapolarPrediction implements Prediction {
   private final double inequalityL2;
 
   @ParametersAreNonnullByDefault
-  TetrapolarPrediction(TetrapolarSystem system, RelativeMediumLayers<Double> layers,
+  TetrapolarPrediction(TetrapolarSystem system, RelativeMediumLayers layers,
                        @Nonnegative double rho1, @Nonnegative double measured) {
     if (Double.compare(layers.k12(), 0.0) == 0) {
       resistivityPredicted = rho1;
     }
     else {
-      resistivityPredicted = new NormalizedApparent2Rho(system.toRelative()).value(layers.k12(), layers.hToL()) * rho1;
+      resistivityPredicted = Apparent2Rho.newNormalizedApparent2Rho(system.toRelative()).applyAsDouble(layers) * rho1;
     }
     horizons = new double[] {system.getHMin(layers.k12()), system.getHMax(layers.k12())};
     inequalityL2 = Inequality.proportional().applyAsDouble(measured, resistivityPredicted);
