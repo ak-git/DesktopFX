@@ -27,7 +27,7 @@ public enum Variables {
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable, int value) {
-    return "%s = %,d %s".formatted(toString(variable), value, variable.getUnit());
+    return "%s = %,d %s".formatted(toString(variable), value, fixUnit(variable.getUnit()));
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable) {
