@@ -5,7 +5,7 @@
     <option name="ENABLE_LAUNCH_OPTIMIZATION" value="false" />
     <option name="ENABLE_JMX_AGENT" value="false" />
     <option name="ACTIVE_PROFILES" value="aper1-R2" />
-    <option name="VM_PARAMETERS" value="-Duser.language=en" />
+    <option name="VM_PARAMETERS" value="-Duser.language=ru" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <option name="SHORTEN_COMMAND_LINE" value="NONE" />
     <method v="2">

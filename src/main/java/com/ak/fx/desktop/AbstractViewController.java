@@ -3,11 +3,17 @@ package com.ak.fx.desktop;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
 import java.util.concurrent.TimeUnit;
@@ -69,13 +75,14 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @Nonnull
   @Value("${version}")
   private final String version;
+  private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
   @ParametersAreNonnullByDefault
   protected AbstractViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
                                    Provider<Converter<R, V>> converterProvider) {
     service = new GroupService<>(interceptorProvider::get, converterProvider::get);
     version = "${version}";
-    Executors.newSingleThreadExecutor().execute(() -> {
+    executorService.execute(() -> {
       try (DirectoryStream<Path> paths = Files.newDirectoryStream(
           OutputBuilders.build(Strings.EMPTY).getPath().getParent(), Extension.BIN.attachTo("*"))
       ) {
@@ -86,6 +93,24 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
       }
       finally {
         Logger.getLogger(getClass().getName()).info(() -> "Conversion finished");
+      }
+
+      try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
+        Path parent = OutputBuilders.build(Strings.EMPTY).getPath().getParent();
+        parent.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
+        for (WatchKey key = watchService.take(); key != null; key = watchService.take()) {
+          key.pollEvents().stream().map(WatchEvent::context).map(Path.class::cast).
+              filter(path -> Extension.BIN.is(path.toString()))
+              .forEach(path -> ConverterApp.doConvert(interceptorProvider, converterProvider, parent.resolve(path)));
+          key.reset();
+        }
+      }
+      catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+      }
+      catch (IOException e) {
+        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
       }
     });
   }
@@ -177,6 +202,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @Override
   @OverridingMethodsMustInvokeSuper
   public void close() {
+    executorService.shutdownNow();
     service.close();
   }
 

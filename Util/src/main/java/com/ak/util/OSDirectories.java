@@ -3,8 +3,6 @@ package com.ak.util;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,8 +18,7 @@ public enum OSDirectories {
   private static final String USER_HOME_PATH;
 
   static {
-    PrivilegedAction<String> action = () -> Optional.ofNullable(System.getProperty("user.home")).orElse(EMPTY);
-    USER_HOME_PATH = AccessController.doPrivileged(action);
+    USER_HOME_PATH = Optional.ofNullable(System.getProperty("user.home")).orElse(EMPTY);
   }
 
   public static final String VENDOR_ID = Stream.of(OSDirectories.class.getPackage().getName().split("\\.")).limit(2).

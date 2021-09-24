@@ -100,7 +100,8 @@ enum InverseStatic implements Inverseable<Measurement> {
   @Nonnull
   @ParametersAreNonnullByDefault
   static RelativeMediumLayers errors(Collection<TetrapolarSystem> systems, RelativeMediumLayers layers,
-                                     UnaryOperator<double[]> subtract, UnaryOperator<double[][]> fixA, BiFunction<Collection<TetrapolarSystem>, double[], double[]> fixB) {
+                                     UnaryOperator<double[]> subtract, UnaryOperator<double[][]> fixA,
+                                     BiFunction<Collection<TetrapolarSystem>, double[], double[]> fixB) {
     double[][] a = getAMatrix(systems, layers, subtract.equals(SUBTRACT) ? SUBTRACT_MATRIX : fixA);
 
     double baseL = systems.stream().mapToDouble(TetrapolarSystem::getL).max().orElseThrow();
