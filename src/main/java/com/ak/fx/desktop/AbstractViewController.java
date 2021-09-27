@@ -123,6 +123,31 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   @Override
   @ParametersAreNullableByDefault
   public final void initialize(URL location, ResourceBundle resources) {
+    var timeline = new Timeline(
+        new KeyFrame(Duration.millis(50),
+            (ActionEvent actionEvent) -> {
+              int start = (int) (Math.max(0, countSamples - axisXController.getLength()));
+              axisXController.setStart(start);
+              if (start == 0) {
+                changed();
+              }
+            })
+    );
+    timeline.setCycleCount(Animation.INDEFINITE);
+    transition = new SequentialTransition(timeline);
+    service.subscribe(this);
+  }
+
+  @Override
+  @OverridingMethodsMustInvokeSuper
+  public void onSubscribe(@Nonnull Flow.Subscription s) {
+    if (subscription != null) {
+      subscription.cancel();
+    }
+    subscription = s;
+    subscription.request(axisXController.getLength());
+    countSamples = 0;
+
     if (chart != null) {
       chart.setOnDragOver(event -> {
         if (event.getDragboard().hasFiles()) {
@@ -152,30 +177,6 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
       axisXController.setFrequency(service.getFrequency());
     }
 
-    var timeline = new Timeline(
-        new KeyFrame(Duration.millis(50),
-            (ActionEvent actionEvent) -> {
-              int start = (int) (Math.max(0, countSamples - axisXController.getLength()));
-              axisXController.setStart(start);
-              if (start == 0) {
-                changed();
-              }
-            })
-    );
-    timeline.setCycleCount(Animation.INDEFINITE);
-    transition = new SequentialTransition(timeline);
-    service.subscribe(this);
-  }
-
-  @Override
-  @OverridingMethodsMustInvokeSuper
-  public void onSubscribe(@Nonnull Flow.Subscription s) {
-    if (subscription != null) {
-      subscription.cancel();
-    }
-    subscription = s;
-    subscription.request(axisXController.getLength());
-    countSamples = 0;
     Objects.requireNonNull(transition).play();
     changed();
     CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS).execute(this::changed);
