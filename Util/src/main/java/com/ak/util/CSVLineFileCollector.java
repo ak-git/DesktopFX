@@ -112,7 +112,6 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
   @Override
   public void close() throws IOException {
     if (!errorFlag) {
-      Objects.requireNonNull(csvPrinter).flush();
       Objects.requireNonNull(csvPrinter).close(true);
       Files.move(Objects.requireNonNull(tempFile), out, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
     }

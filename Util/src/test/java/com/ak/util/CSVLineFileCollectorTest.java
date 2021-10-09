@@ -106,8 +106,7 @@ public class CSVLineFileCollectorTest {
                       }
 
                       @Override
-                      public void flush() throws IOException {
-                        throw new IOException(getClass().getSimpleName());
+                      public void flush() {
                       }
 
                       @Override
