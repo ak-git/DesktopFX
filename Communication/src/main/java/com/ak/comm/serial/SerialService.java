@@ -60,6 +60,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
   private final BytesInterceptor<T, R> bytesInterceptor;
   @Nonnull
   private final ByteBuffer buffer;
+  @Nonnull
   private final ConcurrentAsyncFileChannel binaryLogChannel;
   private volatile boolean refresh;
 
@@ -89,7 +90,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
   }
 
   @Override
-  public void subscribe(Flow.Subscriber<? super ByteBuffer> s) {
+  public void subscribe(@Nonnull Flow.Subscriber<? super ByteBuffer> s) {
     if (serialPort == null) {
       LOGGER.log(Level.INFO, SERIAL_PORT_NOT_FOUND);
     }
