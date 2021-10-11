@@ -68,7 +68,13 @@ public class FxApplication extends Application implements ViewController {
 
     Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass(), Strings.EMPTY);
     stage.setOnCloseRequest(event -> stageStorage.save(stage));
-    stage.getScene().getWindow().setOnShown(event -> stageStorage.update(stage));
+    stage.getScene().addPostLayoutPulseListener(new Runnable() {
+      @Override
+      public void run() {
+        stageStorage.update(stage);
+        stage.getScene().removePostLayoutPulseListener(this);
+      }
+    });
     stage.show();
   }
 
