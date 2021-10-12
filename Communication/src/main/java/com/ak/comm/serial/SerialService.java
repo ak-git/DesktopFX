@@ -3,7 +3,6 @@ package com.ak.comm.serial;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.WritableByteChannel;
-import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -26,6 +25,8 @@ import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.WRITE;
 
 final class SerialService<T, R> extends AbstractService<ByteBuffer> implements WritableByteChannel, Flow.Subscription {
   private static final Logger LOGGER = Logger.getLogger(SerialService.class.getName());
@@ -67,9 +68,9 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
   SerialService(@Nonnull BytesInterceptor<T, R> bytesInterceptor) {
     this.bytesInterceptor = bytesInterceptor;
     buffer = ByteBuffer.allocate(bytesInterceptor.getBaudRate());
-    binaryLogChannel = new ConcurrentAsyncFileChannel(() ->
-        AsynchronousFileChannel.open(LogBuilders.SERIAL_BYTES.build(bytesInterceptor.name()).getPath(),
-            StandardOpenOption.CREATE, StandardOpenOption.WRITE));
+    binaryLogChannel = new ConcurrentAsyncFileChannel(
+        () -> AsynchronousFileChannel.open(LogBuilders.SERIAL_BYTES.build(bytesInterceptor.name()).getPath(), CREATE, WRITE)
+    );
   }
 
   @Override
