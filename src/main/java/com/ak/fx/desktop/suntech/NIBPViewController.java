@@ -38,8 +38,8 @@ public final class NIBPViewController extends AbstractNIBPViewController {
   }
 
   @Override
-  public void refresh() {
-    super.refresh();
+  public void refresh(boolean force) {
+    super.refresh(force);
     delayedExecutor.execute(() -> {
       if (isStartBPEnable) {
         service().write(NIBPRequest.START_BP);

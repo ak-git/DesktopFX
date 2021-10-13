@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedList;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Filter;
@@ -72,7 +72,8 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
   private final ConcurrentAsyncFileChannel binaryLogChannel;
   @Nonnull
   private final AtomicReference<Path> saveFilePath = new AtomicReference<>();
-  private volatile boolean refresh;
+  @Nullable
+  private Runnable refreshAction;
 
   SerialService(@Nonnull BytesInterceptor<T, R> bytesInterceptor) {
     this.bytesInterceptor = bytesInterceptor;
@@ -126,18 +127,11 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
         @Override
         public void serialEvent(SerialPortEvent event) {
           try {
-            if (refresh) {
-              refresh = false;
+            if (refreshAction != null) {
               s.onNext(ByteBuffer.allocate(0));
               binaryLogChannel.close();
-              Optional.ofNullable(saveFilePath.get()).ifPresent(path -> {
-                try {
-                  Files.copy(saveFilePath.get(), OutputBuilders.NONE.build(path.toFile().getName()).getPath(), REPLACE_EXISTING);
-                }
-                catch (IOException e) {
-                  Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-                }
-              });
+              refreshAction.run();
+              refreshAction = null;
             }
             buffer.clear();
             buffer.put(event.getReceivedData());
@@ -148,13 +142,9 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
             s.onNext(buffer);
           }
           catch (Exception ex) {
-            try {
-              LOGGER.log(LOG_LEVEL_ERRORS, ex, SerialService.this::toString);
-              close();
-            }
-            finally {
-              s.onComplete();
-            }
+            LOGGER.log(LOG_LEVEL_ERRORS, ex, SerialService.this::toString);
+            close();
+            s.onComplete();
           }
         }
       });
@@ -189,9 +179,28 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
   }
 
   @Override
-  public void refresh() {
+  public void refresh(boolean save) {
     LOGGER.log(Level.INFO, () -> "%s Refresh connection".formatted(this));
-    refresh = true;
+    refreshAction = () -> {
+      if (save) {
+        try {
+          Path source = saveFilePath.get();
+          Path userCopy = OutputBuilders.NONE.build(source.toFile().getName()).getPath();
+          CompletableFuture.runAsync(() -> {
+            try {
+              Files.copy(source, userCopy, REPLACE_EXISTING);
+              LOGGER.log(Level.INFO, () -> "%s saved at %s".formatted(this, userCopy));
+            }
+            catch (IOException e) {
+              Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+            }
+          });
+        }
+        catch (IOException e) {
+          Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+        }
+      }
+    };
   }
 
   @Override

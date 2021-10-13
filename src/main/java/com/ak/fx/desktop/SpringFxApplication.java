@@ -68,8 +68,8 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Override
-  public void refresh() {
-    processEvent(ViewController::refresh);
+  public void refresh(boolean force) {
+    processEvent(viewController -> viewController.refresh(force));
   }
 
   @Override

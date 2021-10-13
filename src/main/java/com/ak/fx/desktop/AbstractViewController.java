@@ -208,8 +208,8 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   @OverridingMethodsMustInvokeSuper
-  public void refresh() {
-    service.refresh();
+  public void refresh(boolean force) {
+    service.refresh(force);
     countSamples = 0;
     Objects.requireNonNull(transition).play();
     changed();

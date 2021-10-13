@@ -70,7 +70,7 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
 
   @Override
   @OverridingMethodsMustInvokeSuper
-  public void refresh() {
+  public void refresh(boolean force) {
     digitalFilter.reset();
   }
 
