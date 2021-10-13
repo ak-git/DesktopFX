@@ -72,7 +72,7 @@ public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
     }
 
     public final AbstractBuilder fileNameWithDateTime(@Nonnull String suffix) {
-      fileName(localDate("yyyy-MM-dd HH-mm-ss ") + suffix);
+      fileName(localDate("yyyy-MM-dd HH-mm-ss SSS ") + suffix);
       return this;
     }
 

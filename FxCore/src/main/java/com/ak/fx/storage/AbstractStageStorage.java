@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 abstract class AbstractStageStorage extends AbstractStorage<Stage> {
   private static final String FULL_SCREEN = "fullScreen";
   private static final String MAXIMIZED = "maximized";
+  @Nonnull
   private final Storage<Rectangle2D.Double> boundsStorage;
 
   AbstractStageStorage(@Nonnull Class<?> c, @Nonnull String nodeName) {
@@ -41,9 +42,10 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
           else {
             centerOnScreen(stage);
           }
+        },
+        () -> {
         }
-        , () -> {
-        });
+    );
     stage.setMaximized(preferences().getBoolean(MAXIMIZED, false));
     stage.setFullScreen(preferences().getBoolean(FULL_SCREEN, false));
   }

@@ -16,7 +16,7 @@ import com.ak.comm.log.LogTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static com.ak.comm.core.LogUtils.LOG_LEVEL_VALUES;
+import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 
 public class KleiberConverterTest {
   private static final Logger LOGGER = Logger.getLogger(FloatToIntegerConverter.class.getName());

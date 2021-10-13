@@ -23,11 +23,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.BufferFrame;
+import com.ak.comm.bytes.LogUtils;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.TwoVariables;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.core.AbstractConvertableService;
-import com.ak.comm.core.LogUtils;
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
@@ -225,7 +225,7 @@ public class FileReadingServiceTest {
                }
 
                @Override
-               public void refresh() {
+               public void refresh(boolean force) {
                }
              }) {
       TestSubscriber<int[]> subscriber = new TestSubscriber<>();
@@ -270,7 +270,6 @@ public class FileReadingServiceTest {
     private Throwable throwable;
     private int count;
 
-
     TestSubscriber() {
       this(subscription -> subscription.request(Long.MAX_VALUE));
     }
@@ -298,6 +297,11 @@ public class FileReadingServiceTest {
     @Override
     public void onComplete() {
       completeFlag = true;
+    }
+
+    @Override
+    public String toString() {
+      return "TestSubscriber-${version}";
     }
 
     void assertSubscribed() {

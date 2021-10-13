@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.DoubleFunction;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -57,18 +56,17 @@ public final class Chart extends AbstractRegion {
     if (dHeight >= SMALL.getStep() * 2) {
       diagramHeight.setValue(dHeight);
       lineDiagrams.forEach(lineDiagram -> lineDiagram.resizeRelocate(x, y, width, dHeight));
-      for (int i = 0; i < lineDiagrams.size() / 2; i++) {
-        lineDiagrams.get(i).relocate(x, y + SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i);
+
+      for (var i = 0; i < lineDiagrams.size() / 2; i++) {
+        double v = SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i;
+        lineDiagrams.get(i).relocate(x, y + v);
+        lineDiagrams.get(lineDiagrams.size() - 1 - i).relocate(x, y + height - dHeight - v);
       }
       if ((lineDiagrams.size() & 1) != 0) {
         lineDiagrams.get(lineDiagrams.size() / 2).relocate(x, y + height / 2 - dHeight / 2);
       }
-      for (int i = 0; i < lineDiagrams.size() / 2; i++) {
-        lineDiagrams.get(lineDiagrams.size() - 1 - i).
-            relocate(x, y + height - dHeight - SMALL.roundCoordinate(height / (lineDiagrams.size() + 1)) * i);
-      }
 
-      for (int i = 0; i < lineDiagrams.size(); i++) {
+      for (var i = 0; i < lineDiagrams.size(); i++) {
         double visibleY = 0;
         if (i > 0) {
           double approveLineG = (lineDiagrams.get(i).getLayoutY() + lineDiagrams.get(i - 1).getLayoutY() + dHeight) / 2;
@@ -93,7 +91,7 @@ public final class Chart extends AbstractRegion {
   }
 
   public void setVariables(@Nonnull Collection<String> variables) {
-    lineDiagrams.addAll(variables.stream().map(LineDiagram::new).collect(Collectors.toList()));
+    lineDiagrams.addAll(variables.stream().map(LineDiagram::new).toList());
     lineDiagrams.forEach(lineDiagram -> lineDiagram.setManaged(false));
     getChildren().addAll(lineDiagrams);
     getChildren().add(xAxisUnit);
@@ -126,19 +124,5 @@ public final class Chart extends AbstractRegion {
 
   public void setAll(@Nonnegative int chartIndex, @Nonnull double[] values, @Nonnull DoubleFunction<String> positionToStringConverter) {
     lineDiagrams.get(chartIndex).setAll(values, positionToStringConverter);
-  }
-
-  public void shiftRight(@Nonnegative int chartIndex, @Nonnull double[] values) {
-    lineDiagrams.get(chartIndex).shiftRight(values);
-  }
-
-  public void shiftLeft(@Nonnegative int chartIndex, @Nonnull double[] values) {
-    lineDiagrams.get(chartIndex).shiftLeft(values);
-  }
-
-  public void add(@Nonnull double[] values) {
-    for (int i = 0; i < values.length; i++) {
-      lineDiagrams.get(i).add(values[i]);
-    }
   }
 }

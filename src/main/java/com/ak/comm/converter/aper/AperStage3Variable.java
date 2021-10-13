@@ -8,7 +8,7 @@ public enum AperStage3Variable implements DependentVariable<AperStage2UnitsVaria
   R1 {
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().smoothingImpulsive(4 * 4).build();
+      return FilterBuilder.of().smoothingImpulsive(10).build();
     }
   }, R2, R3,
   ECG1, ECG2,

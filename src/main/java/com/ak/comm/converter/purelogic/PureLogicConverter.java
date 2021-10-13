@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Profile;
 @Named
 @Profile("purelogic")
 public final class PureLogicConverter extends AbstractConverter<PureLogicFrame, PureLogicVariable> {
-  public static final int FREQUENCY = 1;
-  private static final int DATA_FREQUENCY = FREQUENCY * 1000;
+  public static final int FREQUENCY = 2;
+  private static final int DATA_FREQUENCY = 1000;
   private int position;
 
   public PureLogicConverter() {
@@ -23,12 +23,12 @@ public final class PureLogicConverter extends AbstractConverter<PureLogicFrame, 
   @Override
   protected Stream<int[]> innerApply(@Nonnull PureLogicFrame response) {
     position += response.getMicrons();
-    return Stream.generate(() -> new int[] {position}).limit(DATA_FREQUENCY);
+    return Stream.generate(() -> new int[] {position}).limit(DATA_FREQUENCY / FREQUENCY);
   }
 
   @Override
-  public void refresh() {
+  public void refresh(boolean force) {
     position = 0;
-    super.refresh();
+    super.refresh(force);
   }
 }

@@ -4,7 +4,8 @@ import java.nio.file.Path;
 
 import com.ak.util.OSDirectories;
 import com.ak.util.OSDirectory;
-import com.ak.util.PropertiesSupport;
+
+import static com.ak.util.OSDirectories.VENDOR_ID;
 
 public enum OutputOSDirectory implements OSDirectory {
   WINDOWS, MAC, UNIX;
@@ -13,6 +14,6 @@ public enum OutputOSDirectory implements OSDirectory {
 
   @Override
   public Path getDirectory() {
-    return OSDirectories.getDirectory(CANDIDATES).resolve(PropertiesSupport.OUT_CONVERTER_PATH.value());
+    return OSDirectories.getDirectory(CANDIDATES).resolve(VENDOR_ID);
   }
 }

@@ -21,7 +21,7 @@ final class NormalizedResistance2Layer extends AbstractResistanceLayer<Potential
 
   @Override
   public double applyAsDouble(double k, @Nonnegative double h) {
-    double result = 0.0;
+    var result = 0.0;
     if (Double.compare(k, 0.0) != 0.0) {
       result += Layers.sum(n -> pow(k, n) * apply(r -> r.value(n, h)));
     }

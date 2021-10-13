@@ -10,9 +10,9 @@ import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.AbstractCheckedBuilder;
 import com.ak.comm.bytes.BufferFrame;
-import com.ak.comm.core.LogUtils;
+import com.ak.comm.bytes.LogUtils;
 
-import static com.ak.comm.core.LogUtils.LOG_LEVEL_ERRORS;
+import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
 
 public abstract class AbstractCheckedBytesInterceptor<T extends BufferFrame, R, B extends AbstractCheckedBuilder<R>>
     extends AbstractBytesInterceptor<T, R> {
@@ -31,31 +31,14 @@ public abstract class AbstractCheckedBytesInterceptor<T extends BufferFrame, R, 
     Collection<R> responses = new LinkedList<>();
     ByteBuffer buffer = responseBuilder.buffer();
     while (src.hasRemaining()) {
-      byte b = src.get();
-
-      for (int i = 0; i < 2; i++) {
-        buffer.put(b);
-        if (responseBuilder.is(b)) {
-          if (i == 1) {
-            ignoreBuffer().position(ignoreBuffer().position() - 1);
-          }
-          break;
-        }
-        else {
-          buffer.flip().rewind();
-          if (i == 0) {
-            ignoreBuffer().put(buffer);
-          }
-          buffer.clear();
-        }
-      }
+      check(src.get(), buffer);
 
       logSkippedBytes(false);
 
       if (!buffer.hasRemaining()) {
         logSkippedBytes(true);
 
-        R response = responseBuilder.build();
+        var response = responseBuilder.build();
         if (response == null) {
           LogUtils.logBytes(logger, LOG_LEVEL_ERRORS, this, buffer, "INVALID FRAME");
         }
@@ -66,5 +49,24 @@ public abstract class AbstractCheckedBytesInterceptor<T extends BufferFrame, R, 
       }
     }
     return responses;
+  }
+
+  private void check(byte b, @Nonnull ByteBuffer buffer) {
+    for (var i = 0; i < 2; i++) {
+      buffer.put(b);
+      if (responseBuilder.is(b)) {
+        if (i == 1) {
+          ignoreBuffer().position(ignoreBuffer().position() - 1);
+        }
+        break;
+      }
+      else {
+        buffer.flip().rewind();
+        if (i == 0) {
+          ignoreBuffer().put(buffer);
+        }
+        buffer.clear();
+      }
+    }
   }
 }

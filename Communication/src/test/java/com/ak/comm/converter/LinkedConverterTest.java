@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -39,7 +38,7 @@ public class LinkedConverterTest {
   public void testApply(BufferFrame frame, int[] output) {
     Converter<BufferFrame, TwoVariables> converter = new ToIntegerConverter<>(TwoVariables.class, 200);
     LinkedConverter<BufferFrame, TwoVariables, OperatorVariables> linkedConverter = LinkedConverter.of(converter, OperatorVariables.class);
-    Assert.assertEquals(linkedConverter.variables(), Stream.of(OperatorVariables.values()).collect(Collectors.toList()));
+    Assert.assertEquals(linkedConverter.variables(), Stream.of(OperatorVariables.values()).toList());
     Assert.assertEquals(linkedConverter.apply(frame).peek(ints -> Assert.assertEquals(ints, output,
         "Actual %s, Expected %s".formatted(Arrays.toString(ints), Arrays.toString(output)))).count(), 1);
   }
@@ -73,7 +72,7 @@ public class LinkedConverterTest {
         LinkedConverter.of(new ToIntegerConverter<>(RefreshVariable.class, 1), RefreshVariable.class)
             .chainInstance(RefreshVariable.class);
 
-    linkedConverter.refresh();
+    linkedConverter.refresh(false);
     Assert.assertEquals(linkedConverter.apply(frame).count(), 0);
   }
 

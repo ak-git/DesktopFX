@@ -9,6 +9,7 @@
       <w>&amp;нижний</w>
       <w>&amp;правый</w>
       <w>MMMMM</w>
+      <w>absciss</w>
       <w>addr</w>
       <w>advisor</w>
       <w>akima</w>
@@ -36,6 +37,7 @@
       <w>clearable</w>
       <w>closeables</w>
       <w>closureable</w>
+      <w>cmaes</w>
       <w>codehaus</w>
       <w>coeff</w>
       <w>coeffs</w>
@@ -71,10 +73,12 @@
       <w>interpolator</w>
       <w>interpolators</w>
       <w>ints</w>
+      <w>inverseable</w>
       <w>iterable</w>
       <w>javaw</w>
       <w>javax</w>
       <w>jdesktop</w>
+      <w>jenetics</w>
       <w>jfree</w>
       <w>jfreechart</w>
       <w>jhlabs</w>
@@ -147,6 +151,7 @@
       <w>rheo</w>
       <w>rheogram</w>
       <w>richclient</w>
+      <w>rosen</w>
       <w>rosenbrock</w>
       <w>rsce</w>
       <w>runnables</w>

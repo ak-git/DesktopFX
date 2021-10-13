@@ -31,7 +31,7 @@ public final class PureLogicBytesInterceptor extends AbstractBytesInterceptor<Pu
     while (src.hasRemaining()) {
       frame.append((char) src.get());
       if (frame.length() == FRAME_LEN) {
-        PureLogicFrame pureLogicFrame = PureLogicFrame.of(frame);
+        var pureLogicFrame = PureLogicFrame.of(frame);
         if (pureLogicFrame == null) {
           ignoreBuffer().putChar(frame.charAt(0));
           logSkippedBytes(false);

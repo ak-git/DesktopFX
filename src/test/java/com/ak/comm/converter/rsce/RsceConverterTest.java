@@ -20,7 +20,7 @@ import tec.uom.se.AbstractUnit;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-import static com.ak.comm.core.LogUtils.LOG_LEVEL_VALUES;
+import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 
 public class RsceConverterTest {
   private static final Logger LOGGER = Logger.getLogger(RsceConverter.class.getName());

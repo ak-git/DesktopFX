@@ -15,8 +15,8 @@ public class PureLogicFrameTest {
     return new Object[][] {
         {PureLogicFrame.StepCommand.MICRON_015.action(false), "STEP -00016\r\n"},
         {PureLogicFrame.StepCommand.MICRON_015.action(true), "STEP +00016\r\n"},
-        {PureLogicFrame.StepCommand.MICRON_150.action(false), "STEP -00160\r\n"},
-        {PureLogicFrame.StepCommand.MICRON_150.action(true), "STEP +00160\r\n"},
+        {PureLogicFrame.StepCommand.MICRON_210.action(false), "STEP -00224\r\n"},
+        {PureLogicFrame.StepCommand.MICRON_420.action(true), "STEP +00448\r\n"},
     };
   }
 

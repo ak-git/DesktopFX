@@ -1,18 +1,27 @@
 package com.ak.rsm;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-interface MediumLayers<D> extends RelativeMediumLayers<D> {
+import com.ak.math.ValuePair;
+
+interface MediumLayers {
   @Nonnull
-  D rho();
+  ValuePair rho();
 
   @Nonnull
-  default D rho1() {
+  ValuePair h1();
+
+  @Nonnull
+  default ValuePair rho1() {
     return rho();
   }
 
   @Nonnull
-  default D rho2() {
+  default ValuePair rho2() {
     return rho();
   }
+
+  @Nonnegative
+  double[] getRMS();
 }

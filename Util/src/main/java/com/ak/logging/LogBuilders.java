@@ -24,7 +24,8 @@ public enum LogBuilders implements Cleaner.Cleanable {
       return newInstance().fileNameWithDateTime(fileName).build();
     }
   },
-  SERIAL_BYTES("serialBytesLog"), CONVERTER_SERIAL("converterSerialLog"),
+  SERIAL_BYTES("serialBytesLog"),
+  CONVERTER_SERIAL("converterSerialLog"),
   CONVERTER_FILE("converterFileLog") {
     @Override
     public void clean() {
@@ -41,7 +42,7 @@ public enum LogBuilders implements Cleaner.Cleanable {
       return newBuilder().fileName(fileName).build();
     }
 
-    private LocalFileIO.AbstractBuilder newBuilder() {
+    private static LocalFileIO.AbstractBuilder newBuilder() {
       return newInstance().addPath(CONVERTER_FILE.directory);
     }
   };

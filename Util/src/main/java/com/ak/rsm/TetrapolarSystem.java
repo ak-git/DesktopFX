@@ -1,7 +1,14 @@
 package com.ak.rsm;
 
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntUnaryOperator;
+import java.util.function.ToLongFunction;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -16,18 +23,21 @@ public final class TetrapolarSystem {
   private final double sPU;
   @Nonnegative
   private final double lCC;
+  @Nonnegative
+  private final double absError;
   @Nonnull
   private final RelativeTetrapolarSystem relativeSystem;
 
-  private TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC) {
+  private TetrapolarSystem(@Nonnegative double absError, @Nonnegative double sPU, @Nonnegative double lCC) {
+    this.absError = Math.abs(absError);
     this.sPU = Math.abs(sPU);
     this.lCC = Math.abs(lCC);
     relativeSystem = new RelativeTetrapolarSystem(sPU / lCC);
   }
 
-  @Nonnull
-  TetrapolarSystem shift(double deltaS, double deltaL) {
-    return new TetrapolarSystem(sPU + deltaS, lCC + deltaL);
+  @Nonnegative
+  double getAbsError() {
+    return absError;
   }
 
   @Nonnull
@@ -36,18 +46,23 @@ public final class TetrapolarSystem {
   }
 
   @Nonnegative
-  double getLRelativeError(@Nonnegative double absErrorL) {
-    return absErrorL / l();
+  double getHMax(double k) {
+    return relativeSystem.hMaxFactor(k) * l() / StrictMath.pow(getLRelativeError(), 1.0 / 3.0);
   }
 
   @Nonnegative
-  double getHMax(double k, @Nonnegative double absErrorL) {
-    return relativeSystem.hMaxFactor(k) * l() / StrictMath.pow(getLRelativeError(absErrorL), 1.0 / 3.0);
+  double getHMin(double k) {
+    return l() * Math.sqrt(getLRelativeError()) * relativeSystem.hMinFactor(k);
   }
 
+  /**
+   * dRho / Rho = E * dL / L
+   *
+   * @return relative apparent error
+   */
   @Nonnegative
-  double getHMin(double k, @Nonnegative double absErrorL) {
-    return l() * Math.sqrt(getLRelativeError(absErrorL)) * relativeSystem.hMinFactor(k);
+  double getApparentRelativeError() {
+    return Math.abs(relativeSystem.errorFactor() * getLRelativeError());
   }
 
   @Nonnegative
@@ -81,22 +96,51 @@ public final class TetrapolarSystem {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof TetrapolarSystem)) {
+    if (!(o instanceof TetrapolarSystem that)) {
       return false;
     }
-
-    TetrapolarSystem that = (TetrapolarSystem) o;
-    return Double.compare(s(), that.s()) == 0 && Double.compare(l(), that.l()) == 0;
+    return Double.compare(that.s(), s()) == 0 && Double.compare(that.l(), l()) == 0 && Double.compare(that.absError, absError) == 0;
   }
 
   @Override
   public int hashCode() {
-    return Arrays.hashCode(new double[] {s(), l()});
+    return Objects.hash(s(), l(), absError);
   }
 
   @Override
   public String toString() {
-    return "%2.3f x %2.3f %s".formatted(Metrics.toMilli(sPU), Metrics.toMilli(lCC), MetricPrefix.MILLI(METRE));
+    String s = "%2.3f x %2.3f %s".formatted(Metrics.toMilli(sPU), Metrics.toMilli(lCC), MetricPrefix.MILLI(METRE));
+    if (absError > 0) {
+      return "%s / %.1f %s; \u2195 %.0f %s".formatted(
+          s, Metrics.toMilli(absError), MetricPrefix.MILLI(METRE),
+          Metrics.toMilli(getHMax(1.0)), MetricPrefix.MILLI(METRE));
+    }
+    else {
+      return s;
+    }
+  }
+
+  @Nonnull
+  static Collection<List<TetrapolarSystem>> getMeasurementsCombination(@Nonnull Collection<TetrapolarSystem> systems) {
+    ToLongFunction<Collection<TetrapolarSystem>> distinctSizes =
+        ts -> ts.stream().flatMap(s -> DoubleStream.of(s.getS(), s.getL()).boxed()).distinct().count();
+    var initialSizes = distinctSizes.applyAsLong(systems);
+    return IntStream.range(0, 1 << systems.size())
+        .mapToObj(n -> {
+          var signIndex = new AtomicInteger();
+          IntUnaryOperator sign = index -> (n & (1 << index)) == 0 ? 1 : -1;
+          return systems.stream().map(s -> s.shift(sign.applyAsInt(signIndex.getAndIncrement()))).toList();
+        })
+        .filter(s -> initialSizes == distinctSizes.applyAsLong(s)).toList();
+  }
+
+  @Nonnull
+  private TetrapolarSystem shift(int sign) {
+    double err = Math.signum(sign) * absError;
+    if (sPU < lCC) {
+      err *= -1.0;
+    }
+    return new TetrapolarSystem(absError, sPU + err, lCC - err);
   }
 
   private double s() {
@@ -105,6 +149,11 @@ public final class TetrapolarSystem {
 
   private double l() {
     return Math.max(sPU, lCC);
+  }
+
+  @Nonnegative
+  double getLRelativeError() {
+    return absError / l();
   }
 
   /**
@@ -116,10 +165,10 @@ public final class TetrapolarSystem {
    * @return two Tetrapolar System.
    */
   @Nonnull
-  static TetrapolarSystem[] systems2(@Nonnegative double smm) {
+  static TetrapolarSystem[] systems2(@Nonnegative double absErrorMilli, @Nonnegative double smm) {
     return new TetrapolarSystem[] {
-        milli().s(smm).l(smm * 3.0),
-        milli().s(smm * 5.0).l(smm * 3.0),
+        milli(absErrorMilli).s(smm).l(smm * 3.0),
+        milli(absErrorMilli).s(smm * 5.0).l(smm * 3.0),
     };
   }
 
@@ -136,49 +185,43 @@ public final class TetrapolarSystem {
    * @return three Tetrapolar System.
    */
   @Nonnull
-  static TetrapolarSystem[] systems4(@Nonnegative double smm) {
+  static TetrapolarSystem[] systems4(@Nonnegative double absErrorMilli, @Nonnegative double smm) {
     return new TetrapolarSystem[] {
-        milli().s(smm).l(smm * 3.0),
-        milli().s(smm * 5.0).l(smm * 3.0),
-        milli().s(smm * 2.0).l(smm * 4.0),
-        milli().s(smm * 6.0).l(smm * 4.0),
+        milli(absErrorMilli).s(smm).l(smm * 3.0),
+        milli(absErrorMilli).s(smm * 5.0).l(smm * 3.0),
+        milli(absErrorMilli).s(smm * 2.0).l(smm * 4.0),
+        milli(absErrorMilli).s(smm * 6.0).l(smm * 4.0),
     };
   }
 
-  public static Builder milli() {
-    return new Builder(Metrics.MILLI);
+  public static Builder milli(@Nonnegative double absErrorMilli) {
+    return new Builder(Metrics.MILLI, absErrorMilli);
   }
 
-  static Builder si() {
-    return new Builder(DoubleUnaryOperator.identity());
+  static Builder si(@Nonnegative double absError) {
+    return new Builder(DoubleUnaryOperator.identity(), absError);
   }
 
-  abstract static class AbstractBuilder<T> {
+  public static class Builder {
     @Nonnull
-    final DoubleUnaryOperator converter;
+    private final DoubleUnaryOperator converter;
     @Nonnegative
-    double s;
+    private final double absError;
+    @Nonnegative
+    private double s;
 
-    protected AbstractBuilder(@Nonnull DoubleUnaryOperator converter) {
+    private Builder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
       this.converter = converter;
+      this.absError = absError;
     }
 
-    abstract T l(@Nonnegative double l);
-  }
-
-  public static class Builder extends AbstractBuilder<TetrapolarSystem> {
-    private Builder(@Nonnull DoubleUnaryOperator converter) {
-      super(converter);
-    }
-
-    public final Builder s(@Nonnegative double s) {
-      this.s = converter.applyAsDouble(s);
+    public Builder s(@Nonnegative double s) {
+      this.s = s;
       return this;
     }
 
-    @Override
     public TetrapolarSystem l(@Nonnegative double l) {
-      return new TetrapolarSystem(s, converter.applyAsDouble(l));
+      return new TetrapolarSystem(converter.applyAsDouble(absError), converter.applyAsDouble(s), converter.applyAsDouble(l));
     }
   }
 }

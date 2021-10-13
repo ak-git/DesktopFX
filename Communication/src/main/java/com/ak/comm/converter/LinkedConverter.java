@@ -29,9 +29,9 @@ public final class LinkedConverter<R, I extends Enum<I> & Variable<I>, O extends
   }
 
   @Override
-  public void refresh() {
-    responseConverter.refresh();
-    outConverter.refresh();
+  public void refresh(boolean force) {
+    responseConverter.refresh(force);
+    outConverter.refresh(force);
   }
 
   public static <R, I extends Enum<I> & Variable<I>, O extends Enum<O> & DependentVariable<I, O>>

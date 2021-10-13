@@ -1,11 +1,8 @@
 package com.ak.comm.converter.aper;
 
-import java.nio.file.Paths;
 import java.util.IntSummaryStatistics;
 import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
-import java.util.function.Supplier;
-import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
@@ -13,37 +10,18 @@ import javax.annotation.Nonnull;
 import com.ak.numbers.Coefficients;
 import com.ak.numbers.Interpolators;
 import com.ak.numbers.RangeUtils;
-import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
-import com.ak.util.LineFileBuilder;
-import com.ak.util.LineFileCollector;
-import org.testng.Assert;
+import com.ak.util.CSVLineFileBuilder;
 
-public class SplineCoefficientsUtils {
-  private SplineCoefficientsUtils() {
-  }
+public enum SplineCoefficientsUtils {
+  ;
 
-  public static <C extends Enum<C> & Coefficients> void testSplineSurface1(Class<C> surfaceCoeffClass) {
+  public static <C extends Enum<C> & Coefficients> void testSplineSurface(Class<C> surfaceCoeffClass) {
     IntBinaryOperator function = Interpolators.interpolator(surfaceCoeffClass).get();
-    LineFileBuilder.of("%.0f %.0f %.0f").
-        xStream(() -> intRange(surfaceCoeffClass, RangeUtils::rangeX).asDoubleStream()).
-        yStream(() -> intRange(surfaceCoeffClass, RangeUtils::rangeY).asDoubleStream()).
-        generate("z.txt", (adc, rII) -> function.applyAsInt(Double.valueOf(adc).intValue(), Double.valueOf(rII).intValue()));
-
-    Supplier<DoubleStream> xVar = () -> intRange(surfaceCoeffClass, RangeUtils::rangeX).asDoubleStream();
-    Assert.assertTrue(xVar.get().mapToObj("%.2f"::formatted).collect(
-        new LineFileCollector(Paths.get("x-CC-R.txt"), LineFileCollector.Direction.HORIZONTAL)));
-
-    Supplier<DoubleStream> yVar = () -> intRange(surfaceCoeffClass, RangeUtils::rangeY).asDoubleStream();
-    Assert.assertTrue(yVar.get().mapToObj("%.2f"::formatted).collect(
-        new LineFileCollector(Paths.get("y-ADC-R.txt"), LineFileCollector.Direction.VERTICAL)));
-  }
-
-  public static <C extends Enum<C> & Coefficients> void testSplineSurface2(Class<C> surfaceCoeffClass) {
-    IntBinaryOperator function = Interpolators.interpolator(surfaceCoeffClass).get();
-    LineFileBuilder.of("%.0f %.0f %.0f").
-        xStream(() -> intRange(AperSurfaceCoefficientsChannel2.class, RangeUtils::rangeX).asDoubleStream()).
-        yStream(() -> intRange(AperSurfaceCoefficientsChannel2.class, RangeUtils::rangeY).asDoubleStream()).
-        generate("z.txt", (adc, rII) -> function.applyAsInt(Double.valueOf(adc).intValue(), Double.valueOf(rII).intValue()));
+    CSVLineFileBuilder.of((adc, rII) -> function.applyAsInt(adc.intValue(), rII.intValue()))
+        .xStream(() -> intRange(surfaceCoeffClass, RangeUtils::rangeX).asDoubleStream())
+        .yStream(() -> intRange(surfaceCoeffClass, RangeUtils::rangeY).asDoubleStream())
+        .saveTo(surfaceCoeffClass.getName(), integer -> integer)
+        .generate();
   }
 
   private static <C extends Enum<C> & Coefficients> IntStream intRange(@Nonnull Class<C> coeffClass,

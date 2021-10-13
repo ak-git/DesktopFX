@@ -16,13 +16,20 @@ public class ExtensionTest {
         {""},
         {"file.test."},
         {".ignore"},
+        {".txt"},
     };
   }
 
   @Test(dataProvider = "fileNames")
   public void testAttachTo(@Nonnull String name) {
     for (Extension e : EnumSet.complementOf(EnumSet.of(Extension.NONE))) {
-      Assert.assertEquals(e.attachTo(name), String.join(".", name, e.name().toLowerCase()));
+      if (name.toUpperCase().endsWith(e.name())) {
+        Assert.assertEquals(e.attachTo(name), ".%s".formatted(e.name().toLowerCase()));
+      }
+      else {
+        Assert.assertEquals(e.attachTo(name), String.join(".", name, e.name().toLowerCase()));
+      }
+      Assert.assertTrue(e.is(e.attachTo(name)), name);
     }
     Assert.assertEquals(Extension.NONE.attachTo(name), name);
   }
@@ -30,8 +37,12 @@ public class ExtensionTest {
   @Test(dataProvider = "fileNames")
   public void testReplace(@Nonnull String name) {
     for (Extension e : EnumSet.allOf(Extension.class)) {
-      Assert.assertEquals(e.clean(e.attachTo(name)), name);
-      Assert.assertEquals(e.clean(name), name);
+      String expected = name;
+      if (name.toUpperCase().endsWith(e.name())) {
+        expected = name.substring(0, name.lastIndexOf(".%s".formatted(e.name().toLowerCase())));
+      }
+      Assert.assertEquals(e.clean(e.attachTo(name)), expected);
+      Assert.assertEquals(e.clean(name), expected);
     }
   }
 }

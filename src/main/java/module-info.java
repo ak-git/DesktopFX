@@ -17,8 +17,6 @@ module com.ak.fx.desktop {
   requires spring.context;
   requires spring.core;
 
-  requires java.prefs;
-  requires java.desktop;
   requires spring.beans;
   requires org.beryx.textio;
 
@@ -47,7 +45,6 @@ module com.ak.fx.desktop {
   exports com.ak.comm.interceptor.suntech to spring.beans, org.testng;
   exports com.ak.comm.interceptor.purelogic to spring.beans, org.testng;
   exports com.ak.comm.interceptor.kleiber to spring.beans, org.testng;
-  exports com.ak.comm.interceptor.prv to spring.beans, org.testng;
   exports com.ak.comm.bytes.suntech to org.testng;
   exports com.ak.comm.bytes.purelogic to org.testng;
 

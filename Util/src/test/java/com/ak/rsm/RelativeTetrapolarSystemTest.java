@@ -24,8 +24,8 @@ public class RelativeTetrapolarSystemTest {
 
   @Test(dataProvider = "tetrapolar-systems")
   public void testEquals(RelativeTetrapolarSystem system1, RelativeTetrapolarSystem system2, boolean equals) {
-    Assert.assertEquals(system1.equals(system2), equals, "%s compared with %s".formatted(String.valueOf(system1), system2));
-    Assert.assertEquals(system1.hashCode() == system2.hashCode(), equals, "%s compared with %s".formatted(String.valueOf(system1), system2));
+    Assert.assertEquals(system1.equals(system2), equals, "%s compared with %s".formatted(system1, system2));
+    Assert.assertEquals(system1.hashCode() == system2.hashCode(), equals, "%s compared with %s".formatted(system1, system2));
     Assert.assertNotEquals(system1, new Object());
     Assert.assertNotEquals(new Object(), system1);
   }
@@ -67,17 +67,17 @@ public class RelativeTetrapolarSystemTest {
 
   @Test
   public void testHMaxFactor() {
-    PointValuePair pair = Simplex.optimize(x -> 1.0 - new RelativeTetrapolarSystem(x[0]).hMaxFactor(1.0),
-        new SimpleBounds(new double[] {0.0}, new double[] {1.0}), new double[] {0.5}, new double[] {0.01}
+    PointValuePair pair = Simplex.optimizeAll(x -> 1.0 - new RelativeTetrapolarSystem(x[0]).hMaxFactor(1.0),
+        new SimpleBounds(new double[] {0.0}, new double[] {1.0}), new double[] {0.01}
     );
     Assert.assertEquals(pair.getPoint()[0], 1.0 / 3.0, 0.001, Arrays.toString(pair.getPoint()));
   }
 
   @Test
   public void testHMinFactor() {
-    PointValuePair pair = Simplex.optimize(ks -> new RelativeTetrapolarSystem(ks[1]).hMinFactor(ks[0]),
-        new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {0.0, 0.9}), new double[] {-0.5, 0.1}, new double[] {0.01, 0.1}
+    PointValuePair pair = Simplex.optimizeAll(ks -> new RelativeTetrapolarSystem(ks[1]).hMinFactor(ks[0]),
+        new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {0.0, 0.9}), new double[] {0.01, 0.1}
     );
-    Assert.assertEquals(pair.getPoint()[0], -1.0, 0.001, Arrays.toString(pair.getPoint()));
+    Assert.assertEquals(pair.getPoint()[0], -1.0, 0.01, Arrays.toString(pair.getPoint()));
   }
 }

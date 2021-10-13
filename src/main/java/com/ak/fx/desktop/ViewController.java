@@ -4,7 +4,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.ZoomEvent;
 
 public interface ViewController {
-  default void refresh() {
+  default void refresh(boolean force) {
     // works in subclasses
   }
 

@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
@@ -34,8 +35,8 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
   @Nonnull
   private Readable readable = EMPTY_READABLE;
 
-  public AutoFileReadingService(@Nonnull Supplier<BytesInterceptor<T, R>> interceptorProvider,
-                                @Nonnull Supplier<Converter<R, V>> converterProvider) {
+  @ParametersAreNonnullByDefault
+  public AutoFileReadingService(Supplier<BytesInterceptor<T, R>> interceptorProvider, Supplier<Converter<R, V>> converterProvider) {
     this.interceptorProvider = interceptorProvider;
     this.converterProvider = converterProvider;
   }
@@ -48,7 +49,7 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
   @Override
   public boolean accept(@Nonnull File file) {
     if (file.isFile() && Extension.BIN.is(file.getName())) {
-      refresh();
+      refresh(false);
       FileReadingService<T, R, V> source = new FileReadingService<>(file.toPath(),
           interceptorProvider.get(), converterProvider.get()
       );
@@ -65,12 +66,12 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public void close() {
-    refresh();
+    refresh(false);
     service.shutdownNow();
   }
 
   @Override
-  public void refresh() {
+  public void refresh(boolean force) {
     readable.close();
     readable = EMPTY_READABLE;
   }

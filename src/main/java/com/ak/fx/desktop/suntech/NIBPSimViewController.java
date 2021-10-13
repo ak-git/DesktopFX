@@ -25,8 +25,8 @@ public final class NIBPSimViewController extends AbstractNIBPViewController {
   }
 
   @Override
-  public void refresh() {
-    super.refresh();
+  public void refresh(boolean force) {
+    super.refresh(force);
     service().write(CONTROL_PNEUMATICS_ALL_CLOSED);
   }
 }

@@ -69,4 +69,9 @@ public class AutoFileReadingServiceTest implements Flow.Subscriber<int[]> {
   @Override
   public void onComplete() {
   }
+
+  @Override
+  public String toString() {
+    return "AutoFileReadingServiceTest-${version}}";
+  }
 }

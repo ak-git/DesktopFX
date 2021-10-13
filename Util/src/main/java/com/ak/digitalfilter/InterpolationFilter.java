@@ -15,7 +15,7 @@ final class InterpolationFilter extends AbstractRateConversionFilter {
 
   @Override
   void publishUnary(int in) {
-    for (int i = 0; i < factor; i++) {
+    for (var i = 0; i < factor; i++) {
       publish(in);
     }
   }

@@ -1,9 +1,10 @@
 package com.ak.rsm;
 
-import java.util.Collection;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -11,26 +12,25 @@ import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.annotation.concurrent.ThreadSafe;
 
-import com.ak.util.Metrics;
-import com.ak.util.Strings;
+import com.ak.math.ValuePair;
 
 @ThreadSafe
 final class TetrapolarMeasurement implements Measurement {
-  private static final ToDoubleFunction<Measurement> POW2 =
-      m -> StrictMath.pow(m.getResistivity() * m.getSystem().getApparentRelativeError(), 2.0);
+  private static final Function<Measurement, ValuePair> TO_VALUE =
+      m -> ValuePair.Name.RHO_1.of(m.getResistivity(), m.getResistivity() * m.getSystem().getApparentRelativeError());
   @Nonnull
-  private final InexactTetrapolarSystem system;
+  private final TetrapolarSystem system;
   @Nonnegative
   private final double resistivity;
 
-  TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem system, @Nonnegative double rOhms) {
+  TetrapolarMeasurement(@Nonnull TetrapolarSystem system, @Nonnegative double rOhms) {
     this.system = system;
-    resistivity = system.toExact().getApparent(rOhms);
+    resistivity = system.getApparent(rOhms);
   }
 
   @Override
   @Nonnull
-  public InexactTetrapolarSystem getSystem() {
+  public TetrapolarSystem getSystem() {
     return system;
   }
 
@@ -40,28 +40,28 @@ final class TetrapolarMeasurement implements Measurement {
     return resistivity;
   }
 
+  @Override
+  @Nonnull
+  public Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1) {
+    return new TetrapolarPrediction(getSystem(), kw, rho1, resistivity);
+  }
+
   @Nonnull
   @Override
   public Measurement merge(@Nonnull Measurement that) {
-    double sigma1Q = POW2.applyAsDouble(this);
-    double sigma2Q = POW2.applyAsDouble(that);
-    double k = sigma2Q / (sigma1Q + sigma2Q);
-    double avg = k * resistivity + (1.0 - k) * that.getResistivity();
-    double sigmaAvg = 1.0 / Math.sqrt((1.0 / sigma1Q + 1.0 / sigma2Q));
-
-    double relErrorRho = sigmaAvg / avg;
+    var avg = TO_VALUE.apply(this).mergeWith(TO_VALUE.apply(that));
+    double relErrorRho = avg.getAbsError() / avg.getValue();
     double dL = Math.min(system.getAbsError(), that.getSystem().getAbsError());
     double lCC = RelativeTetrapolarSystem.MIN_ERROR_FACTOR * dL / relErrorRho;
     double sPU = RelativeTetrapolarSystem.OPTIMAL_SL * lCC;
-    InexactTetrapolarSystem merged = InexactTetrapolarSystem.si(dL).s(sPU).l(lCC);
-    return new TetrapolarMeasurement(merged, new Resistance1Layer(merged.toExact()).value(avg));
+    TetrapolarSystem merged = TetrapolarSystem.si(dL).s(sPU).l(lCC);
+    return new TetrapolarMeasurement(merged, new Resistance1Layer(merged).value(avg.getValue()));
   }
 
   @Override
   public String toString() {
-    return "%s; %s (%.0f %%)".formatted(String.valueOf(system),
-        Strings.rho(resistivity),
-        Metrics.toPercents(system.getApparentRelativeError())
+    return "%s; %s".formatted(system,
+        ValuePair.Name.RHO_1.of(resistivity, resistivity * system.getApparentRelativeError())
     );
   }
 
@@ -84,9 +84,14 @@ final class TetrapolarMeasurement implements Measurement {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  static Collection<Measurement> of(InexactTetrapolarSystem[] systems, double[] ohms) {
+  static List<Measurement> of(TetrapolarSystem[] systems, double[] ohms) {
     return IntStream.range(0, systems.length)
-        .mapToObj(i -> new TetrapolarMeasurement(systems[i], ohms[i]))
-        .collect(Collectors.toUnmodifiableList());
+        .mapToObj(i -> new TetrapolarMeasurement(systems[i], ohms[i])).map(Measurement.class::cast).toList();
+  }
+
+  @Nonnull
+  @ParametersAreNonnullByDefault
+  static List<Measurement> of(TetrapolarSystem[] systems, ToDoubleFunction<TetrapolarSystem> toOhms) {
+    return Arrays.stream(systems).map(s -> new TetrapolarMeasurement(s, toOhms.applyAsDouble(s))).map(Measurement.class::cast).toList();
   }
 }

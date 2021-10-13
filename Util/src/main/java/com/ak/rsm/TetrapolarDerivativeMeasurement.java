@@ -1,7 +1,8 @@
 package com.ak.rsm;
 
-import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
@@ -13,13 +14,12 @@ import com.ak.util.Strings;
 final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
   @Nonnull
   private final Measurement measurement;
-  @Nonnegative
-  private final double dRhoBydH;
+  private final double dRhoBydPhi;
 
   TetrapolarDerivativeMeasurement(@Nonnull Measurement measurementBefore,
                                   @Nonnull Measurement measurementAfter, double dh) {
     measurement = measurementBefore;
-    dRhoBydH = (measurementAfter.getResistivity() - measurement.getResistivity()) / dh;
+    dRhoBydPhi = (measurementAfter.getResistivity() - measurement.getResistivity()) / (dh / getSystem().getL());
   }
 
   @Override
@@ -29,28 +29,50 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
 
   @Override
   public double getDerivativeResistivity() {
-    return dRhoBydH;
+    return dRhoBydPhi;
   }
 
   @Override
-  public InexactTetrapolarSystem getSystem() {
+  @Nonnull
+  public Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1) {
+    return new TetrapolarDerivativePrediction(getSystem(), kw, rho1, new double[] {getResistivity(), getDerivativeResistivity()});
+  }
+
+  @Override
+  public TetrapolarSystem getSystem() {
     return measurement.getSystem();
   }
 
   @Override
   public String toString() {
-    return "%s, %s".formatted(String.valueOf(measurement), Strings.dRhoByH(dRhoBydH));
+    return "%s, %s".formatted(measurement, Strings.dRhoByPhi(dRhoBydPhi));
   }
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  static Collection<DerivativeMeasurement> of(InexactTetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh) {
+  static List<DerivativeMeasurement> of(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh) {
     return IntStream.range(0, systems.length)
         .mapToObj(i -> new TetrapolarDerivativeMeasurement(
             new TetrapolarMeasurement(systems[i], rOhmsBefore[i]),
             new TetrapolarMeasurement(systems[i], rOhmsAfter[i]),
             dh
         ))
-        .collect(Collectors.toUnmodifiableList());
+        .map(DerivativeMeasurement.class::cast)
+        .toList();
+  }
+
+  @Nonnull
+  @ParametersAreNonnullByDefault
+  static List<Measurement> of(TetrapolarSystem[] systems,
+                              ToDoubleFunction<TetrapolarSystem> toOhmsBefore,
+                              ToDoubleFunction<TetrapolarSystem> toOhmsAfter,
+                              double dh) {
+    return Arrays.stream(systems)
+        .map(s -> new TetrapolarDerivativeMeasurement(
+            new TetrapolarMeasurement(s, toOhmsBefore.applyAsDouble(s)),
+            new TetrapolarMeasurement(s, toOhmsAfter.applyAsDouble(s)),
+            dh)
+        )
+        .map(Measurement.class::cast).toList();
   }
 }

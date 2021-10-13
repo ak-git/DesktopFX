@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import com.ak.comm.bytes.BufferFrame;
 import tec.uom.se.unit.MetricPrefix;
 
-import static com.ak.comm.core.LogUtils.LOG_LEVEL_ERRORS;
+import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
 import static com.ak.util.Strings.NEW_LINE;
 import static com.ak.util.Strings.SPACE;
 import static tec.uom.se.unit.Units.METRE;
@@ -30,9 +30,8 @@ public final class PureLogicFrame extends BufferFrame {
    */
   public enum StepCommand {
     MICRON_015(16),
-    MICRON_090(MICRON_015.steps * 6),
-    MICRON_150(MICRON_015.steps * 10),
-    MICRON_450(MICRON_150.steps * 3);
+    MICRON_210(MICRON_015.steps * 14),
+    MICRON_420(MICRON_210.steps * 2);
 
     private final int steps;
 
@@ -47,7 +46,7 @@ public final class PureLogicFrame extends BufferFrame {
   }
 
   private PureLogicFrame(int step16) {
-    super("%s %+06d\r\n".formatted(STEP_COMMAND, step16).getBytes(StandardCharsets.UTF_8), ByteOrder.LITTLE_ENDIAN);
+    super("%s %+06d%c%c".formatted(STEP_COMMAND, step16, 13, 10).getBytes(StandardCharsets.UTF_8), ByteOrder.LITTLE_ENDIAN);
     microns = (3000 / 200) * (step16 / 16);
   }
 
@@ -64,7 +63,7 @@ public final class PureLogicFrame extends BufferFrame {
   @Nullable
   public static PureLogicFrame of(@Nonnull StringBuilder buffer) {
     if (buffer.indexOf(STEP_COMMAND) == 0) {
-      String substring = buffer.substring(STEP_COMMAND.length(), buffer.indexOf(NEW_LINE)).strip().replaceAll(SPACE, "");
+      var substring = buffer.substring(STEP_COMMAND.length(), buffer.indexOf(NEW_LINE)).strip().replaceAll(SPACE, "");
       try {
         return new PureLogicFrame(Integer.parseInt(substring));
       }
