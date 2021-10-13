@@ -41,9 +41,9 @@ public class Layer1MediumTest {
   @ParametersAreNonnullByDefault
   public void testToString(MediumLayers layers, ValuePair expected) {
     Assert.assertTrue(layers.toString().contains(expected.toString()), layers.toString());
-    double l2 = Arrays.stream(new double[] {0.3277112113340609, 0.10361494844541479, 0.5126497744983622, 0.6807219716648473})
-        .reduce(StrictMath::hypot).orElse(Double.NaN);
-    Assert.assertEquals(layers.getInequalityL2(), new double[] {l2}, 0.001, layers.toString());
-    Assert.assertTrue(layers.toString().contains("[%.1f] %%".formatted(Metrics.toPercents(l2))), layers.toString());
+    double[] array = {0.3277112113340609, 0.10361494844541479, 0.5126497744983622, 0.6807219716648473};
+    double rms = Arrays.stream(array).reduce(StrictMath::hypot).orElse(Double.NaN) / Math.sqrt(array.length);
+    Assert.assertEquals(layers.getRMS(), new double[] {rms}, 0.001, layers.toString());
+    Assert.assertTrue(layers.toString().contains("[%.1f] %%".formatted(Metrics.toPercents(rms))), layers.toString());
   }
 }

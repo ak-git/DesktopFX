@@ -49,8 +49,8 @@ abstract class AbstractMediumLayers implements MediumLayers {
   }
 
   @Override
-  public final double[] getInequalityL2() {
-    return predictions.stream().map(Prediction::getInequalityL2)
+  public final double[] getRMS() {
+    double[] l2 = predictions.stream().map(Prediction::getInequalityL2)
         .reduce((doubles, doubles2) -> {
           var merge = new double[Math.max(doubles.length, doubles2.length)];
           for (var i = 0; i < merge.length; i++) {
@@ -58,6 +58,7 @@ abstract class AbstractMediumLayers implements MediumLayers {
           }
           return merge;
         }).orElseThrow();
+    return Arrays.stream(l2).map(operand -> operand / Math.sqrt(predictions.size())).toArray();
   }
 
   @Override
@@ -76,9 +77,8 @@ abstract class AbstractMediumLayers implements MediumLayers {
     }
     return joiner
         .add(TetrapolarPrediction.toStringHorizons(TetrapolarPrediction.mergeHorizons(predictions)))
-        .add("L%s = %s %% %n%s".formatted(
-            Strings.low(2),
-            Arrays.stream(getInequalityL2()).map(Metrics::toPercents).mapToObj("%.1f"::formatted)
+        .add("RMS = %s %% %n%s".formatted(
+            Arrays.stream(getRMS()).map(Metrics::toPercents).mapToObj("%.1f"::formatted)
                 .collect(Collectors.joining("; ", "[", "]")),
             data))
         .toString();

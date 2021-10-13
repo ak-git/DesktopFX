@@ -30,7 +30,7 @@ public class RsceCommandFrameTest {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(expected)).build();
     Assert.assertNotNull(frame);
     Assert.assertEquals(frame.extract(RsceCommandFrame.FrameField.OPEN_PERCENT, -1), position,
-        "%s, Position = %d".formatted(String.valueOf(frame), frame.extract(RsceCommandFrame.FrameField.OPEN_PERCENT, -1)));
+        "%s, Position = %d".formatted(frame, frame.extract(RsceCommandFrame.FrameField.OPEN_PERCENT, -1)));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "positionRotateRequests")
@@ -39,7 +39,7 @@ public class RsceCommandFrameTest {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(expected)).build();
     Assert.assertNotNull(frame);
     Assert.assertEquals(frame.extract(RsceCommandFrame.FrameField.ROTATE_PERCENT, -1), position,
-        "%s, Position = %d".formatted(String.valueOf(frame), frame.extract(RsceCommandFrame.FrameField.ROTATE_PERCENT, -1)));
+        "%s, Position = %d".formatted(frame, frame.extract(RsceCommandFrame.FrameField.ROTATE_PERCENT, -1)));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "rheo12-info")
@@ -47,11 +47,11 @@ public class RsceCommandFrameTest {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     Assert.assertNotNull(frame);
     Assert.assertEquals(frame.extract(RsceCommandFrame.FrameField.R1_DOZEN_MILLI_OHM, 0), rDozenMilliOhms[0],
-        "%s, Ohms = %d".formatted(String.valueOf(frame), frame.extract(RsceCommandFrame.FrameField.R1_DOZEN_MILLI_OHM, 0)));
+        "%s, Ohms = %d".formatted(frame, frame.extract(RsceCommandFrame.FrameField.R1_DOZEN_MILLI_OHM, 0)));
     Assert.assertEquals(frame.extract(RsceCommandFrame.FrameField.R2_DOZEN_MILLI_OHM, 0), rDozenMilliOhms[1],
-        "%s, Ohms = %d".formatted(String.valueOf(frame), frame.extract(RsceCommandFrame.FrameField.R2_DOZEN_MILLI_OHM, 0)));
+        "%s, Ohms = %d".formatted(frame, frame.extract(RsceCommandFrame.FrameField.R2_DOZEN_MILLI_OHM, 0)));
     Assert.assertEquals(frame.extract(RsceCommandFrame.FrameField.ACCELEROMETER, 0), infoOnes[0],
-        "%s, Info = %d".formatted(String.valueOf(frame), frame.extract(RsceCommandFrame.FrameField.ACCELEROMETER, 0)));
+        "%s, Info = %d".formatted(frame, frame.extract(RsceCommandFrame.FrameField.ACCELEROMETER, 0)));
   }
 
   @Test(dataProviderClass = RsceTestDataProvider.class, dataProvider = "finger")
@@ -59,7 +59,7 @@ public class RsceCommandFrameTest {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     Assert.assertNotNull(frame);
     Assert.assertEquals(frame.extract(RsceCommandFrame.FrameField.FINGER, 0), fingerSpeed,
-        "%s, finger = %d".formatted(String.valueOf(frame), frame.extract(RsceCommandFrame.FrameField.FINGER, 0)));
+        "%s, finger = %d".formatted(frame, frame.extract(RsceCommandFrame.FrameField.FINGER, 0)));
   }
 
   @Test

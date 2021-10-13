@@ -49,7 +49,7 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
   @Override
   public boolean accept(@Nonnull File file) {
     if (file.isFile() && Extension.BIN.is(file.getName())) {
-      refresh();
+      refresh(false);
       FileReadingService<T, R, V> source = new FileReadingService<>(file.toPath(),
           interceptorProvider.get(), converterProvider.get()
       );
@@ -66,12 +66,12 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public void close() {
-    refresh();
+    refresh(false);
     service.shutdownNow();
   }
 
   @Override
-  public void refresh() {
+  public void refresh(boolean force) {
     readable.close();
     readable = EMPTY_READABLE;
   }

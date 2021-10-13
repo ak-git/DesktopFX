@@ -72,7 +72,7 @@ public class LinkedConverterTest {
         LinkedConverter.of(new ToIntegerConverter<>(RefreshVariable.class, 1), RefreshVariable.class)
             .chainInstance(RefreshVariable.class);
 
-    linkedConverter.refresh();
+    linkedConverter.refresh(false);
     Assert.assertEquals(linkedConverter.apply(frame).count(), 0);
   }
 

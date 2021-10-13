@@ -61,10 +61,10 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
   }
 
   @Override
-  public void refresh() {
-    currentReadable.refresh();
+  public void refresh(boolean force) {
+    currentReadable.refresh(force);
     if (!Objects.equals(currentReadable, serialService)) {
-      serialService.refresh();
+      serialService.refresh(force);
       currentReadable = serialService;
     }
     LogBuilders.CONVERTER_FILE.clean();

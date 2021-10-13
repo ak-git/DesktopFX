@@ -526,7 +526,7 @@ public class InverseLayer2Test {
                 Map.entry(RHO_1, medium.rho1().getValue()),
                 Map.entry(RHO_2, medium.rho2().getValue()),
                 Map.entry(H, Metrics.toMilli(medium.h1().getValue())),
-                Map.entry(L2, medium.getInequalityL2())
+                Map.entry(L2, medium.getRMS())
             );
           })
           .map(stringMap -> Arrays.stream(HEADERS).map(stringMap::get).toArray())
