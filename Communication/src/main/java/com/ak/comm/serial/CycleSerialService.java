@@ -82,8 +82,8 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
-  public void refresh() {
-    serialService.refresh();
+  public void refresh(boolean force) {
+    serialService.refresh(force);
     cancelled = false;
     write(bytesInterceptor().getPingRequest());
   }

@@ -2,7 +2,7 @@ package com.ak.comm.converter;
 
 @FunctionalInterface
 public interface Refreshable extends AutoCloseable {
-  void refresh();
+  void refresh(boolean force);
 
   @Override
   default void close() {

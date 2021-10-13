@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -107,8 +106,7 @@ public class CSVLineFileCollectorTest {
                       }
 
                       @Override
-                      public void flush() throws IOException {
-                        throw new IOException(getClass().getSimpleName());
+                      public void flush() {
                       }
 
                       @Override
@@ -123,21 +121,29 @@ public class CSVLineFileCollectorTest {
 
   @Test(dataProvider = "invalid-writer")
   public void testInvalidFinisher(@Nonnull CSVPrinter printer) {
-    Collector<Object[], CSVPrinter, Boolean> collector = new CSVLineFileCollector(OUT_PATH);
-    collector.accumulator().accept(printer, new Object[] {Double.toString(Math.PI)});
-    Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
-    collector.finisher().apply(printer);
-    Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown");
-  }
-
-  @Test(expectedExceptions = UnsupportedOperationException.class)
-  public void testCombiner() {
-    new CSVLineFileCollector(OUT_PATH).combiner().apply(null, null);
+    try (CSVLineFileCollector collector = new CSVLineFileCollector(OUT_PATH)) {
+      collector.accumulator().accept(printer, new Object[] {Double.toString(Math.PI)});
+      Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
+      collector.finisher().apply(printer);
+    }
+    catch (IOException | IllegalArgumentException e) {
+      Assert.assertTrue(e.getMessage().contains("CSVPrinter"));
+    }
   }
 
   @Test
-  public void testInvalidPath() throws IOException {
-    new CSVLineFileCollector(Paths.get("/")).close();
-    Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown");
+  public void testCombiner() throws IOException {
+    try (CSVLineFileCollector lineFileCollector = new CSVLineFileCollector(OUT_PATH)) {
+      lineFileCollector.combiner().apply(null, null);
+      Assert.fail();
+    }
+    catch (UnsupportedOperationException e) {
+      Assert.assertNull(e.getMessage());
+    }
+  }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void testInvalidPath() {
+    new CSVLineFileCollector(Paths.get("/"));
   }
 }

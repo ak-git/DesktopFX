@@ -27,8 +27,8 @@ public final class PureLogicConverter extends AbstractConverter<PureLogicFrame, 
   }
 
   @Override
-  public void refresh() {
+  public void refresh(boolean force) {
     position = 0;
-    super.refresh();
+    super.refresh(force);
   }
 }

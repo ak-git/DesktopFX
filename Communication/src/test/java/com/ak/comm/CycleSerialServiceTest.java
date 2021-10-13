@@ -44,7 +44,7 @@ public class CycleSerialServiceTest {
       }
     });
     service.write(new BufferFrame(new byte[] {1, 2}, ByteOrder.nativeOrder()));
-    service.refresh();
+    service.refresh(false);
     Assert.assertFalse(latch.await(UI_DELAY.getSeconds(), TimeUnit.SECONDS));
     service.close();
   }

@@ -45,7 +45,7 @@ final class TetrapolarDerivativeMeasurement implements DerivativeMeasurement {
 
   @Override
   public String toString() {
-    return "%s, %s".formatted(String.valueOf(measurement), Strings.dRhoByPhi(dRhoBydPhi));
+    return "%s, %s".formatted(measurement, Strings.dRhoByPhi(dRhoBydPhi));
   }
 
   @Nonnull

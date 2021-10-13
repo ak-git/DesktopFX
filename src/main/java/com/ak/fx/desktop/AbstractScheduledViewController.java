@@ -49,8 +49,8 @@ public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & 
   }
 
   @Override
-  public void refresh() {
-    super.refresh();
+  public void refresh(boolean force) {
+    super.refresh(force);
     innerRefresh();
   }
 

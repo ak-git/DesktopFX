@@ -1,5 +1,5 @@
 plugins {
-    id "org.javamodularity.moduleplugin" version "1.8.9"
+    id "org.javamodularity.moduleplugin" version "1.8.10"
     id 'java'
     id 'java-library'
     id 'idea'
@@ -9,9 +9,9 @@ plugins {
     id "application"
     id 'org.openjfx.javafxplugin' version '0.0.10'
 
-    id 'org.springframework.boot' version '2.5.4'
+    id 'org.springframework.boot' version '2.5.5'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id "com.github.spotbugs" version "4.7.5"
+    id "com.github.spotbugs" version "5.0.0-beta.3"
 }
 
 spotbugs {
@@ -64,7 +64,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2021.09.14'
+    version = '2021.10.13'
     apply plugin: 'idea'
     idea {
         module {

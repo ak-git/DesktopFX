@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
@@ -28,14 +29,21 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 
 public final class CSVLineFileCollector implements Collector<Object[], CSVPrinter, Boolean>, Closeable, Consumer<Object[]> {
+  @Nonnull
+  private final Path out;
+  @Nullable
+  private final Path tempFile;
   @Nullable
   private CSVPrinter csvPrinter;
   private boolean errorFlag;
 
   public CSVLineFileCollector(@Nonnull Path out, @Nonnull String... header) {
+    this.out = out;
+    Path temp = null;
     try {
+      temp = Files.createTempFile(out.toAbsolutePath().getParent(), out.toFile().getName() + Strings.SPACE, Strings.EMPTY);
       csvPrinter = new CSVPrinter(
-          Files.newBufferedWriter(out, WRITE, CREATE, TRUNCATE_EXISTING),
+          Files.newBufferedWriter(temp, WRITE, CREATE, TRUNCATE_EXISTING),
           CSVFormat.Builder.create().setHeader(header.length > 0 ? header : null).build()
       );
     }
@@ -43,6 +51,7 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
       Logger.getLogger(getClass().getName()).log(Level.WARNING, out.toString(), ex);
       errorFlag = true;
     }
+    tempFile = temp;
   }
 
   @Override
@@ -78,9 +87,13 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
   @Override
   public Function<CSVPrinter, Boolean> finisher() {
     return printer -> {
+      if (!printer.equals(csvPrinter)) {
+        throw new IllegalArgumentException(printer.toString());
+      }
+
       if (!errorFlag) {
         try {
-          printer.close(true);
+          close();
         }
         catch (IOException e) {
           Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
@@ -100,6 +113,7 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
   public void close() throws IOException {
     if (!errorFlag) {
       Objects.requireNonNull(csvPrinter).close(true);
+      Files.move(Objects.requireNonNull(tempFile), out, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
     }
   }
 }
