@@ -178,7 +178,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
     try {
       synchronized (this) {
         if (isOpen() && serialPort != null) {
-          LOGGER.log(Level.INFO, () -> "%s Close connection".formatted(String.valueOf(this)));
+          LOGGER.log(Level.INFO, () -> "%s Close connection".formatted(this));
           serialPort.closePort();
         }
       }
@@ -190,7 +190,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
 
   @Override
   public void refresh() {
-    LOGGER.log(Level.INFO, () -> "%s Refresh connection".formatted(String.valueOf(this)));
+    LOGGER.log(Level.INFO, () -> "%s Refresh connection".formatted(this));
     refresh = true;
   }
 

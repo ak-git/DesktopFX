@@ -33,8 +33,8 @@ public class InexactTetrapolarSystemTest {
 
   @Test(dataProvider = "tetrapolar-systems")
   public void testEquals(TetrapolarSystem system1, TetrapolarSystem system2, boolean equals) {
-    Assert.assertEquals(system1.equals(system2), equals, "%s compared with %s".formatted(String.valueOf(system1), system2));
-    Assert.assertEquals(system1.hashCode() == system2.hashCode(), equals, "%s compared with %s".formatted(String.valueOf(system1), system2));
+    Assert.assertEquals(system1.equals(system2), equals, "%s compared with %s".formatted(system1, system2));
+    Assert.assertEquals(system1.hashCode() == system2.hashCode(), equals, "%s compared with %s".formatted(system1, system2));
     Assert.assertNotEquals(system1, new Object());
     Assert.assertNotEquals(new Object(), system1);
   }
