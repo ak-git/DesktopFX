@@ -1,11 +1,8 @@
 package com.ak.comm.converter;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -13,13 +10,10 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
-import com.ak.comm.logging.OutputBuilders;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
-import com.ak.util.CSVLineFileCollector;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 
@@ -34,8 +28,6 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
   private final double frequency;
   @Nonnull
   private Stream<int[]> filteredValues = Stream.empty();
-  @Nullable
-  private CSVLineFileCollector fileCollector;
 
   protected AbstractConverter(@Nonnull Class<V> evClass, @Nonnegative double frequency) {
     this(evClass, frequency, EnumSet.allOf(evClass).stream().map(v -> new int[] {v.ordinal()}).toList());
@@ -52,17 +44,6 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
             IntStream.iterate(0, operand -> operand + 1).limit(variables.size()).mapToObj(
                 idx -> Variables.toString(variables.get(idx), ints[idx])).collect(Collectors.joining(", "))));
       }
-      try {
-        if (fileCollector == null) {
-          fileCollector = new CSVLineFileCollector(OutputBuilders.build(getClass().getSimpleName()).getPath(),
-              variables.stream().map(Variables::toName).toArray(String[]::new)
-          );
-        }
-      }
-      catch (IOException e) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-      }
-      fileCollector.accept(Arrays.stream(ints).boxed().toArray());
       filteredValues = Stream.concat(filteredValues, Stream.of(ints));
     });
     this.frequency = frequency * digitalFilter.getFrequencyFactor();
@@ -91,22 +72,6 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
   @OverridingMethodsMustInvokeSuper
   public void refresh(boolean force) {
     digitalFilter.reset();
-    close();
-  }
-
-  @Override
-  public final void close() {
-    try {
-      if (fileCollector != null) {
-        fileCollector.close();
-      }
-    }
-    catch (IOException e) {
-      Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-    }
-    finally {
-      fileCollector = null;
-    }
   }
 
   @Nonnull
