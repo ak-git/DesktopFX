@@ -12,7 +12,7 @@ public interface Readable extends Refreshable {
   void read(@Nonnull ByteBuffer dst, @Nonnegative long position);
 
   @Override
-  default void refresh() {
+  default void refresh(boolean force) {
     close();
   }
 }

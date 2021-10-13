@@ -94,8 +94,8 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
   }
 
   @Override
-  public void refresh() {
+  public void refresh(boolean force) {
     isRefresh = true;
-    super.refresh();
+    super.refresh(force);
   }
 }

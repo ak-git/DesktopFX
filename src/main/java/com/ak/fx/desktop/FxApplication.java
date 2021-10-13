@@ -61,14 +61,21 @@ public class FxApplication extends Application implements ViewController {
               stage.setResizable(true);
             }),
         KeyCode.CONTROL, KeyCode.SHORTCUT, KeyCode.F);
-    addEventHandler(stage, this::refresh, KeyCode.N);
+    addEventHandler(stage, () -> refresh(false), KeyCode.N);
+    addEventHandler(stage, () -> refresh(true), KeyCode.S);
     addEventHandler(stage, this::up, KeyCode.UP);
     addEventHandler(stage, this::down, KeyCode.DOWN);
     addEventHandler(stage, this::escape, KeyCode.ESCAPE);
 
     Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass(), Strings.EMPTY);
     stage.setOnCloseRequest(event -> stageStorage.save(stage));
-    stage.getScene().getWindow().setOnShown(event -> stageStorage.update(stage));
+    stage.getScene().addPostLayoutPulseListener(new Runnable() {
+      @Override
+      public void run() {
+        stageStorage.update(stage);
+        stage.getScene().removePostLayoutPulseListener(this);
+      }
+    });
     stage.show();
   }
 

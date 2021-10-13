@@ -225,7 +225,7 @@ public class FileReadingServiceTest {
                }
 
                @Override
-               public void refresh() {
+               public void refresh(boolean force) {
                }
              }) {
       TestSubscriber<int[]> subscriber = new TestSubscriber<>();

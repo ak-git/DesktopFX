@@ -4,12 +4,14 @@ import javax.annotation.Nonnull;
 
 public enum Extension {
   NONE {
+    @Nonnull
     @Override
-    public String attachTo(String fileName) {
+    public String attachTo(@Nonnull String fileName) {
       return fileName;
     }
   }, PROPERTIES, TXT, JSON, LOG, BIN, CSV;
 
+  @Nonnull
   public String attachTo(@Nonnull String fileName) {
     if (fileName.endsWith(".%s".formatted(name().toLowerCase()))) {
       return fileName;
@@ -19,6 +21,7 @@ public enum Extension {
     }
   }
 
+  @Nonnull
   public final String clean(@Nonnull String fileName) {
     String lowCase = fileName.toLowerCase();
     String remove = attachTo(Strings.EMPTY);

@@ -33,7 +33,7 @@ public class OutputBuilderTest {
   @Test
   public void testLocalFileHandler() throws IOException {
     try (DirectoryStream<Path> paths = Files.newDirectoryStream(outPath, "*.txt")) {
-      Assert.assertTrue(StreamSupport.stream(paths.spliterator(), true).count() > 0, outPath.toString());
+      Assert.assertTrue(StreamSupport.stream(paths.spliterator(), true).findAny().isPresent(), outPath.toString());
     }
   }
 }

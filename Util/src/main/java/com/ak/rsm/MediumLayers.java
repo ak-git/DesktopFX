@@ -23,5 +23,5 @@ interface MediumLayers {
   }
 
   @Nonnegative
-  double[] getInequalityL2();
+  double[] getRMS();
 }

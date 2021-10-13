@@ -84,7 +84,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
     version = "${version}";
     executorService.execute(() -> {
       try (DirectoryStream<Path> paths = Files.newDirectoryStream(
-          OutputBuilders.build(Strings.EMPTY).getPath().getParent(), Extension.BIN.attachTo("*"))
+          OutputBuilders.NONE.build(Strings.EMPTY).getPath(), Extension.BIN.attachTo("*"))
       ) {
         paths.forEach(path -> ConverterApp.doConvert(interceptorProvider, converterProvider, path));
       }
@@ -96,7 +96,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
       }
 
       try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
-        Path parent = OutputBuilders.build(Strings.EMPTY).getPath().getParent();
+        Path parent = OutputBuilders.NONE.build(Strings.EMPTY).getPath();
         parent.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
         for (WatchKey key = watchService.take(); key != null; key = watchService.take()) {
           key.pollEvents().stream().map(WatchEvent::context).map(Path.class::cast).
@@ -208,8 +208,8 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
 
   @Override
   @OverridingMethodsMustInvokeSuper
-  public void refresh() {
-    service.refresh();
+  public void refresh(boolean force) {
+    service.refresh(force);
     countSamples = 0;
     Objects.requireNonNull(transition).play();
     changed();

@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.security.NoSuchAlgorithmException;
 import java.util.EnumSet;
 import java.util.stream.Stream;
 
@@ -20,9 +21,9 @@ public class LogBuildersTest {
     return Stream.of(LogBuilders.values())
         .map(binaryLogBuilder -> {
           try {
-            return new Object[] {binaryLogBuilder.build("02f29f660fa69e6c404c03de0f1e15f9").getPath()};
+            return new Object[] {binaryLogBuilder.build(OutputBuildersTest.randomFileName()).getPath()};
           }
-          catch (IOException e) {
+          catch (IOException | NoSuchAlgorithmException e) {
             return new Object[] {null};
           }
         })
@@ -45,8 +46,8 @@ public class LogBuildersTest {
   }
 
   @Test
-  public void testClean() throws IOException {
-    Path path = LogBuilders.CONVERTER_FILE.build("02f29f660fa69e6c404c03de0f1e15f91").getPath();
+  public void testClean() throws IOException, NoSuchAlgorithmException {
+    Path path = LogBuilders.CONVERTER_FILE.build(OutputBuildersTest.randomFileName()).getPath();
     WritableByteChannel channel = Files.newByteChannel(path,
         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
     channel.write(ByteBuffer.wrap(LogBuildersTest.class.getName().getBytes(Charset.defaultCharset())));
