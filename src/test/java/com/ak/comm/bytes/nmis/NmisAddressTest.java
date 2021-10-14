@@ -8,8 +8,8 @@ import java.util.logging.Logger;
 import java.util.stream.BaseStream;
 import java.util.stream.IntStream;
 
+import com.ak.comm.bytes.LogUtils;
 import com.ak.comm.log.LogTestUtils;
-import com.ak.util.LogUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

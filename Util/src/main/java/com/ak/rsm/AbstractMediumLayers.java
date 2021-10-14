@@ -1,48 +1,86 @@
 package com.ak.rsm;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import com.ak.util.Builder;
+import com.ak.math.ValuePair;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
-abstract class AbstractMediumLayers<T extends AbstractMediumLayers<T>> implements MediumLayers {
-  @Nonnegative
-  private final double rho;
-  @Nonnull
-  private final String toString;
+import static com.ak.rsm.Measurements.getRho1;
 
-  AbstractMediumLayers(@Nonnull AbstractMediumBuilder<T> builder) {
-    rho = builder.rho;
-    toString = builder.toString;
+abstract class AbstractMediumLayers implements MediumLayers {
+  @Nonnull
+  private final RelativeMediumLayers kw;
+  @Nonnull
+  private final ValuePair rho;
+  @Nonnull
+  private final Collection<Measurement> measurements;
+  @Nonnull
+  private final Collection<Prediction> predictions;
+
+  @ParametersAreNonnullByDefault
+  AbstractMediumLayers(Collection<? extends Measurement> measurements, RelativeMediumLayers kw) {
+    this.kw = kw;
+    rho = getRho1(measurements, kw);
+    this.measurements = Collections.unmodifiableCollection(measurements);
+    double baseL = Measurements.getBaseL(measurements);
+    predictions = measurements.stream()
+        .map(m ->
+            m.toPrediction(
+                new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / m.getSystem().getL()),
+                rho.getValue()
+            )
+        )
+        .toList();
   }
 
   @Override
-  public final double rho() {
+  public final ValuePair rho() {
     return rho;
+  }
+
+  @Override
+  public final double[] getRMS() {
+    double[] l2 = predictions.stream().map(Prediction::getInequalityL2)
+        .reduce((doubles, doubles2) -> {
+          var merge = new double[Math.max(doubles.length, doubles2.length)];
+          for (var i = 0; i < merge.length; i++) {
+            merge[i] = StrictMath.hypot(doubles[i], doubles2[i]);
+          }
+          return merge;
+        }).orElseThrow();
+    return Arrays.stream(l2).map(operand -> operand / Math.sqrt(predictions.size())).toArray();
   }
 
   @Override
   @OverridingMethodsMustInvokeSuper
   public String toString() {
-    return toString;
-  }
-
-  abstract static class AbstractMediumBuilder<T extends AbstractMediumLayers<T>> implements Builder<T> {
-    @Nonnull
-    private final String toString;
-    @Nonnegative
-    double rho;
-
-    AbstractMediumBuilder(@Nonnull Collection<Prediction> predictions) {
-      double l2 = predictions.stream().map(Prediction::getInequalityL2).reduce(StrictMath::hypot).orElse(Double.NaN);
-      toString = "L%s = %.2f %% %n%s".formatted(Strings.low(2), Metrics.toPercents(l2),
-          predictions.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)));
+    var data = new StringJoiner(Strings.EMPTY);
+    Iterator<Measurement> mIterator = measurements.iterator();
+    Iterator<Prediction> pIterator = predictions.iterator();
+    while (mIterator.hasNext() && pIterator.hasNext()) {
+      data.add(mIterator.next().toString()).add("; %s".formatted(pIterator.next())).add(Strings.NEW_LINE);
     }
+
+    StringJoiner joiner = new StringJoiner("; ");
+    if (!kw.toString().isEmpty()) {
+      joiner.add(kw.toString());
+    }
+    return joiner
+        .add(TetrapolarPrediction.toStringHorizons(TetrapolarPrediction.mergeHorizons(predictions)))
+        .add("RMS = %s %% %n%s".formatted(
+            Arrays.stream(getRMS()).map(Metrics::toPercents).mapToObj("%.1f"::formatted)
+                .collect(Collectors.joining("; ", "[", "]")),
+            data))
+        .toString();
   }
 }

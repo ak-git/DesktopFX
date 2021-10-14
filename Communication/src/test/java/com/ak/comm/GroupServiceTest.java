@@ -48,7 +48,7 @@ public class GroupServiceTest implements Flow.Subscriber<int[]> {
       }
     }
     Assert.assertTrue(Arrays.stream(service.read(0, 0)).allMatch(ints -> ints.length == 0));
-    service.refresh();
+    service.refresh(false);
   }
 
   @AfterClass

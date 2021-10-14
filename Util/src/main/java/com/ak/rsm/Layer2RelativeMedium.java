@@ -1,31 +1,74 @@
 package com.ak.rsm;
 
-import javax.annotation.Nonnegative;
 
-import com.ak.util.Strings;
+import java.util.Objects;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.ak.math.ValuePair;
 
 final class Layer2RelativeMedium implements RelativeMediumLayers {
-  private final double k12;
-  @Nonnegative
-  private final double h;
+  @Nonnull
+  private final ValuePair k12;
+  @Nonnull
+  private final ValuePair hToL;
 
-  Layer2RelativeMedium(double k12, double h) {
+  @ParametersAreNonnullByDefault
+  Layer2RelativeMedium(ValuePair k12, ValuePair hToL) {
     this.k12 = k12;
-    this.h = h;
+    this.hToL = hToL;
   }
 
-  @Override
-  public double k12() {
-    return k12;
+  Layer2RelativeMedium(double k12, @Nonnegative double hToL) {
+    this.k12 = ValuePair.Name.K12.of(k12, 0.0);
+    this.hToL = ValuePair.Name.H_L.of(hToL, 0.0);
   }
 
-  @Override
-  public double h() {
-    return h;
+  Layer2RelativeMedium(@Nonnull double[] kw) {
+    this(kw[0], kw[1]);
   }
 
   @Override
   public String toString() {
-    return "k%s%s = %+.3f; %s".formatted(Strings.low(1), Strings.low(2), k12(), Strings.h(h(), 1));
+    return "%s; %s".formatted(k12, hToL);
+  }
+
+  @Override
+  public double k12() {
+    return k12.getValue();
+  }
+
+  @Override
+  public double hToL() {
+    return hToL.getValue();
+  }
+
+  @Override
+  public double k12AbsError() {
+    return k12.getAbsError();
+  }
+
+  @Override
+  public double hToLAbsError() {
+    return hToL.getAbsError();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || !getClass().equals(o.getClass())) {
+      return false;
+    }
+    Layer2RelativeMedium that = (Layer2RelativeMedium) o;
+    return k12.equals(that.k12) && hToL.equals(that.hToL);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(k12, hToL);
   }
 }

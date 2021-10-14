@@ -14,6 +14,11 @@ public class SimpleFilterTest {
   @DataProvider(name = "data")
   public static Object[][] data() {
     return new Object[][] {{
+        FilterBuilder.of().fir(() -> new double[] {1.0, 1.0, 1.0}).build(),
+        new int[] {1, 2, 3, 4, 5, 6},
+        new int[] {1, 3, 6, 9, 12, 15},
+        1.0
+    }, {
         FilterBuilder.of().smoothingImpulsive(3).build(),
         new int[] {1, 2, 3, 4, 5, 6},
         new int[] {0, 1, 2, 3, 4, 5},

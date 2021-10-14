@@ -6,8 +6,6 @@ import java.nio.ByteOrder;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.util.LogUtils;
-
 public class BufferFrame {
   @Nonnull
   private final ByteBuffer byteBuffer;
@@ -27,11 +25,9 @@ public class BufferFrame {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof BufferFrame)) {
+    if (!(o instanceof BufferFrame that)) {
       return false;
     }
-
-    BufferFrame that = (BufferFrame) o;
     return byteBuffer.equals(that.byteBuffer);
   }
 
@@ -52,6 +48,10 @@ public class BufferFrame {
 
   public final int getInt(@Nonnegative int index) {
     return byteBuffer.getInt(index);
+  }
+
+  public final float getFloat(@Nonnegative int index) {
+    return byteBuffer.getFloat(index);
   }
 
   public final int get(@Nonnegative int index) {

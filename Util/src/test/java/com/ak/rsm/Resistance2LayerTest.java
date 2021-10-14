@@ -8,9 +8,6 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static tec.uom.se.unit.MetricPrefix.MILLI;
-import static tec.uom.se.unit.Units.METRE;
-
 public class Resistance2LayerTest {
   @DataProvider(name = "layer-model")
   public static Object[][] twoLayerParameters() {
@@ -85,7 +82,7 @@ public class Resistance2LayerTest {
 
   @Test(dataProvider = "layer-model")
   public void testLayer(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    TetrapolarSystem system = new TetrapolarSystem(smm, lmm, MILLI(METRE));
+    TetrapolarSystem system = TetrapolarSystem.milli(0.1).s(smm).l(lmm);
     Assert.assertEquals(new Resistance2Layer(system).value(rho[0], rho[1], Metrics.fromMilli(hmm)), rOhm, 0.001);
   }
 }

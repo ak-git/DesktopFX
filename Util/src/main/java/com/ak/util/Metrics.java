@@ -1,5 +1,7 @@
 package com.ak.util;
 
+import java.util.function.DoubleUnaryOperator;
+
 import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.MetricPrefix;
 
@@ -9,6 +11,8 @@ import static tec.uom.se.unit.Units.PERCENT;
 
 public enum Metrics {
   ;
+
+  public static final DoubleUnaryOperator MILLI = Metrics::fromMilli;
 
   public static double fromMilli(double mm) {
     return Quantities.getQuantity(mm, MetricPrefix.MILLI(METRE)).to(METRE).getValue().doubleValue();

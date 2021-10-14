@@ -2,62 +2,41 @@ package com.ak.rsm;
 
 import java.util.Collection;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import com.ak.util.Strings;
+import com.ak.math.ValuePair;
 
-final class Layer2Medium extends AbstractMediumLayers<Layer2Medium> {
-  @Nonnegative
-  private final double rho2;
+final class Layer2Medium extends AbstractMediumLayers {
   @Nonnull
-  private final Layer2RelativeMedium layer2RelativeMedium;
+  private final ValuePair rho2;
+  @Nonnull
+  private final ValuePair h1;
 
-  private Layer2Medium(@Nonnull Layer2MediumBuilder builder) {
-    super(builder);
-    rho2 = builder.rho2;
-    layer2RelativeMedium = new Layer2RelativeMedium(Layers.getK12(builder.rho, rho2), builder.h);
+  @ParametersAreNonnullByDefault
+  Layer2Medium(Collection<? extends Measurement> measurements, RelativeMediumLayers kw) {
+    super(measurements, kw);
+
+    var dRho2 = 2.0 * kw.k12AbsError() / StrictMath.pow(1.0 - kw.k12(), 2.0);
+    dRho2 += rho1().getAbsError() / Layers.getRho1ToRho2(kw.k12());
+
+    rho2 = ValuePair.Name.RHO_2.of(rho1().getValue() / Layers.getRho1ToRho2(kw.k12()), dRho2);
+    double baseL = Measurements.getBaseL(measurements);
+    h1 = ValuePair.Name.H.of(kw.hToL() * baseL, kw.hToLAbsError() * baseL);
   }
 
   @Override
-  public double rho2() {
+  public ValuePair rho2() {
     return rho2;
   }
 
   @Override
-  public double h() {
-    return layer2RelativeMedium.h();
+  public ValuePair h1() {
+    return h1;
   }
 
   @Override
   public String toString() {
-    return "%s; %s; %s; %s".formatted(Strings.rho1(rho1()), Strings.rho2(rho2()), layer2RelativeMedium, super.toString());
-  }
-
-  static final class Layer2MediumBuilder extends AbstractMediumBuilder<Layer2Medium> {
-    @Nonnegative
-    private double rho2;
-    @Nonnegative
-    private double h;
-
-    Layer2MediumBuilder(@Nonnull Collection<Prediction> predictions) {
-      super(predictions);
-    }
-
-    Layer2MediumBuilder layer1(@Nonnegative double rho1, @Nonnegative double h) {
-      rho = rho1;
-      this.h = h;
-      return this;
-    }
-
-    Layer2MediumBuilder layer2(@Nonnegative double rho2) {
-      this.rho2 = Layers.getK12(rho, rho2) > 0.99 ? Double.POSITIVE_INFINITY : rho2;
-      return this;
-    }
-
-    @Override
-    public Layer2Medium build() {
-      return new Layer2Medium(this);
-    }
+    return "%s; %s; %s; %s".formatted(rho1(), rho2, h1, super.toString());
   }
 }

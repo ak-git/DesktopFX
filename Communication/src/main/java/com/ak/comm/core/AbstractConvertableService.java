@@ -34,6 +34,7 @@ public abstract class AbstractConvertableService<T, R, V extends Enum<V> & Varia
   @OverridingMethodsMustInvokeSuper
   @Override
   public void close() {
+    responseConverter.close();
     convertedLogByteChannel.close();
   }
 
@@ -45,7 +46,7 @@ public abstract class AbstractConvertableService<T, R, V extends Enum<V> & Varia
   protected final void process(@Nonnull ByteBuffer buffer, @Nonnull Consumer<int[]> doAfter) {
     if (buffer.limit() == 0) {
       convertedLogByteChannel.close();
-      responseConverter.refresh();
+      responseConverter.refresh(false);
     }
     else {
       bytesInterceptor.apply(buffer).flatMap(responseConverter).forEach(ints -> {

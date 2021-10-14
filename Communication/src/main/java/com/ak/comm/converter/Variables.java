@@ -27,14 +27,14 @@ public enum Variables {
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable, int value) {
-    return "%s = %,d %s".formatted(toString(variable), value, variable.getUnit());
+    return "%s = %,d %s".formatted(toString(variable), value, fixUnit(variable.getUnit()));
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable) {
     String baseName = variable.getClass().getPackage().getName() + ".variables";
     String name;
     try {
-      ResourceBundle resourceBundle = ResourceBundle.getBundle(baseName, Locale.getDefault(), variable.getClass().getModule());
+      var resourceBundle = ResourceBundle.getBundle(baseName, Locale.getDefault(), variable.getClass().getModule());
       if (resourceBundle.containsKey(variable.name())) {
         name = Objects.toString(resourceBundle.getString(variable.name()), Strings.EMPTY);
       }
@@ -92,7 +92,7 @@ public enum Variables {
   }
 
   private static String fixUnit(@Nonnull Unit<?> unit) {
-    String s = unit.toString();
+    var s = unit.toString();
     if (s.startsWith(M_PAR)) {
       return "m%s".formatted(fixUnit(unit.getSystemUnit()));
     }

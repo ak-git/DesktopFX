@@ -37,7 +37,7 @@ public class RcmConverterTest {
     return new Object[][] {
         {
             new byte[] {-10, -36, -125, -72, -5, -60, -125, -124, -111, -94, -7, -98, -127, -128, -5, -78, -127, -10, -127, -128},
-            new int[] {-67590, 5457, 0, 66, -38791, 31612, 0}
+            new int[] {-67590, 5493, 0, 66, -38791, 31534, 0}
         },
     };
   }
@@ -107,11 +107,7 @@ public class RcmConverterTest {
 
   @Test(enabled = false)
   public void testBaseSplineSurface1() {
-    SplineCoefficientsUtils.testSplineSurface1(RcmBaseSurfaceCoefficientsChannel1.class);
-  }
-
-  @Test(enabled = false)
-  public void testBaseSplineSurface2() {
-    SplineCoefficientsUtils.testSplineSurface2(RcmBaseSurfaceCoefficientsChannel2.class);
+    SplineCoefficientsUtils.testSplineSurface(RcmBaseSurfaceCoefficientsChannel1.class);
+    SplineCoefficientsUtils.testSplineSurface(RcmBaseSurfaceCoefficientsChannel2.class);
   }
 }

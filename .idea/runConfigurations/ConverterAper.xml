@@ -8,8 +8,9 @@
       </pattern>
     </extension>
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.ak.fx.desktop.ConverterApp" />
-    <option name="ACTIVE_PROFILES" value="aper" />
+    <option name="ACTIVE_PROFILES" value="aper2-ecg" />
     <option name="ALTERNATIVE_JRE_PATH" />
+    <option name="SHORTEN_COMMAND_LINE" value="NONE" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

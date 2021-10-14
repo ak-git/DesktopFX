@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.measure.Unit;
@@ -37,7 +36,7 @@ public class AperStage2UnitsVariableTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55615, 301400, 301400, -526617, -526616, 3969, 3969, 1296, 1726}},
+            new int[] {55442, 330990, 330990, -702471, -702470, 5295, 5295, 1293, 1638}},
     };
   }
 
@@ -73,7 +72,7 @@ public class AperStage2UnitsVariableTest {
   @Test
   public void testGetUnit() {
     List<? extends Unit<?>> actual = EnumSet.allOf(AperStage2UnitsVariable.class).stream()
-        .map(DependentVariable::getUnit).collect(Collectors.toList());
+        .map(DependentVariable::getUnit).toList();
     Assert.assertEquals(actual,
         Arrays.asList(
             MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM),
@@ -88,7 +87,7 @@ public class AperStage2UnitsVariableTest {
   @Test
   public void testOptions() {
     List<Variable.Option> actual = EnumSet.allOf(AperStage2UnitsVariable.class).stream()
-        .flatMap(aperStage2UnitsVariable -> aperStage2UnitsVariable.options().stream()).collect(Collectors.toList());
+        .flatMap(aperStage2UnitsVariable -> aperStage2UnitsVariable.options().stream()).toList();
     Assert.assertEquals(actual,
         Arrays.asList(
             Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE,
@@ -114,12 +113,8 @@ public class AperStage2UnitsVariableTest {
   }
 
   @Test(enabled = false)
-  public void testSplineSurface1() {
-    SplineCoefficientsUtils.testSplineSurface1(AperSurfaceCoefficientsChannel1.class);
-  }
-
-  @Test(enabled = false)
-  public void testSplineSurface2() {
-    SplineCoefficientsUtils.testSplineSurface2(AperSurfaceCoefficientsChannel2.class);
+  public void testSplineSurface() {
+    SplineCoefficientsUtils.testSplineSurface(AperSurfaceCoefficientsChannel1.class);
+    SplineCoefficientsUtils.testSplineSurface(AperSurfaceCoefficientsChannel2.class);
   }
 }

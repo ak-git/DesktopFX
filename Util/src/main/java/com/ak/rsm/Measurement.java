@@ -4,13 +4,17 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 interface Measurement {
+  @Nonnull
+  TetrapolarSystem getSystem();
+
   @Nonnegative
   double getResistivity();
 
-  default double getLogResistivity() {
-    return StrictMath.log(getResistivity());
-  }
+  @Nonnull
+  Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1);
 
   @Nonnull
-  TetrapolarSystem getSystem();
+  default Measurement merge(@Nonnull Measurement that) {
+    throw new UnsupportedOperationException(that.toString());
+  }
 }

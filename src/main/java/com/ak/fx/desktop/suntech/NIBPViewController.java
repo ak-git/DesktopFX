@@ -5,6 +5,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -24,8 +25,9 @@ public final class NIBPViewController extends AbstractNIBPViewController {
   private volatile boolean isStartBPEnable;
 
   @Inject
-  public NIBPViewController(@Nonnull Provider<BytesInterceptor<NIBPRequest, NIBPResponse>> interceptorProvider,
-                            @Nonnull Provider<Converter<NIBPResponse, NIBPVariable>> converterProvider) {
+  @ParametersAreNonnullByDefault
+  public NIBPViewController(Provider<BytesInterceptor<NIBPRequest, NIBPResponse>> interceptorProvider,
+                            Provider<Converter<NIBPResponse, NIBPVariable>> converterProvider) {
     super(interceptorProvider, converterProvider);
   }
 
@@ -36,8 +38,8 @@ public final class NIBPViewController extends AbstractNIBPViewController {
   }
 
   @Override
-  public void refresh() {
-    super.refresh();
+  public void refresh(boolean force) {
+    super.refresh(force);
     delayedExecutor.execute(() -> {
       if (isStartBPEnable) {
         service().write(NIBPRequest.START_BP);

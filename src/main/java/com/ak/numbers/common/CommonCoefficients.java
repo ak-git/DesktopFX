@@ -26,7 +26,7 @@ public enum CommonCoefficients implements SimpleCoefficients {
   }
 
   private static <C extends Enum<C> & Coefficients> String readCalibration(@Nonnull JsonObject object, @Nonnull C coefficients, @Nonnull String name) {
-    String ohms = String.format(Locale.ROOT, "%.1f", Metrics.fromMilli(Double.parseDouble(Strings.numberSuffix(coefficients.name()))));
+    var ohms = String.format(Locale.ROOT, "%.3f", Metrics.fromMilli(Double.parseDouble(Strings.numberSuffix(coefficients.name()))));
     String channel = MessageFormat.format("Channel-{0}", Strings.numberSuffix(coefficients.getClass().getName()));
     Set<Map.Entry<String, JsonValue>> entries = object.getJsonObject(name).getJsonObject(ohms).getJsonObject(channel).entrySet();
     return entries.stream().map(entry -> String.join(Strings.TAB, entry.getKey(), entry.getValue().toString())).collect(Collectors.joining(Strings.NEW_LINE));

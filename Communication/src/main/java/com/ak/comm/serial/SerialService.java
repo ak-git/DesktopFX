@@ -1,19 +1,22 @@
 package com.ak.comm.serial;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.WritableByteChannel;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Filter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,11 +25,15 @@ import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.ConcurrentAsyncFileChannel;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.logging.LogBuilders;
+import com.ak.logging.OutputBuilders;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
 
-import static com.ak.util.LogUtils.LOG_LEVEL_ERRORS;
+import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.WRITE;
 
 final class SerialService<T, R> extends AbstractService<ByteBuffer> implements WritableByteChannel, Flow.Subscription {
   private static final Logger LOGGER = Logger.getLogger(SerialService.class.getName());
@@ -37,8 +44,8 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
       private boolean notFoundFlag;
 
       @Override
-      public boolean isLoggable(LogRecord record) {
-        if (SERIAL_PORT_NOT_FOUND.equals(record.getMessage())) {
+      public boolean isLoggable(LogRecord logRecord) {
+        if (SERIAL_PORT_NOT_FOUND.equals(logRecord.getMessage())) {
           if (notFoundFlag) {
             return false;
           }
@@ -61,15 +68,23 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
   private final BytesInterceptor<T, R> bytesInterceptor;
   @Nonnull
   private final ByteBuffer buffer;
+  @Nonnull
   private final ConcurrentAsyncFileChannel binaryLogChannel;
-  private volatile boolean refresh;
+  @Nonnull
+  private final AtomicReference<Path> saveFilePath = new AtomicReference<>();
+  @Nullable
+  private Runnable refreshAction;
 
   SerialService(@Nonnull BytesInterceptor<T, R> bytesInterceptor) {
     this.bytesInterceptor = bytesInterceptor;
     buffer = ByteBuffer.allocate(bytesInterceptor.getBaudRate());
-    binaryLogChannel = new ConcurrentAsyncFileChannel(() ->
-        AsynchronousFileChannel.open(LogBuilders.SERIAL_BYTES.build(bytesInterceptor.name()).getPath(),
-            StandardOpenOption.CREATE, StandardOpenOption.WRITE));
+    binaryLogChannel = new ConcurrentAsyncFileChannel(
+        () -> {
+          Path path = LogBuilders.SERIAL_BYTES.build(bytesInterceptor.name()).getPath();
+          saveFilePath.set(path);
+          return AsynchronousFileChannel.open(path, CREATE, WRITE);
+        }
+    );
   }
 
   @Override
@@ -80,7 +95,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
   @Override
   public int write(@Nonnull ByteBuffer src) {
     synchronized (this) {
-      int countBytes = 0;
+      var countBytes = 0;
       if (isOpen() && serialPort != null) {
         src.rewind();
         countBytes = serialPort.writeBytes(src.array(), src.limit());
@@ -90,7 +105,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
   }
 
   @Override
-  public void subscribe(Flow.Subscriber<? super ByteBuffer> s) {
+  public void subscribe(@Nonnull Flow.Subscriber<? super ByteBuffer> s) {
     if (serialPort == null) {
       LOGGER.log(Level.INFO, SERIAL_PORT_NOT_FOUND);
     }
@@ -112,10 +127,11 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
         @Override
         public void serialEvent(SerialPortEvent event) {
           try {
-            if (refresh) {
-              refresh = false;
+            if (refreshAction != null) {
               s.onNext(ByteBuffer.allocate(0));
               binaryLogChannel.close();
+              refreshAction.run();
+              refreshAction = null;
             }
             buffer.clear();
             buffer.put(event.getReceivedData());
@@ -126,13 +142,9 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
             s.onNext(buffer);
           }
           catch (Exception ex) {
-            try {
-              LOGGER.log(LOG_LEVEL_ERRORS, ex, SerialService.this::toString);
-              close();
-            }
-            finally {
-              s.onComplete();
-            }
+            LOGGER.log(LOG_LEVEL_ERRORS, ex, SerialService.this::toString);
+            close();
+            s.onComplete();
           }
         }
       });
@@ -156,7 +168,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
     try {
       synchronized (this) {
         if (isOpen() && serialPort != null) {
-          LOGGER.log(Level.INFO, () -> "%s Close connection".formatted(String.valueOf(this)));
+          LOGGER.log(Level.INFO, () -> "%s Close connection".formatted(this));
           serialPort.closePort();
         }
       }
@@ -167,9 +179,28 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
   }
 
   @Override
-  public void refresh() {
-    LOGGER.log(Level.INFO, () -> "%s Refresh connection".formatted(String.valueOf(this)));
-    refresh = true;
+  public void refresh(boolean save) {
+    LOGGER.log(Level.INFO, () -> "%s Refresh connection".formatted(this));
+    refreshAction = () -> {
+      if (save) {
+        try {
+          Path source = saveFilePath.get();
+          Path userCopy = OutputBuilders.NONE.build(source.toFile().getName()).getPath();
+          CompletableFuture.runAsync(() -> {
+            try {
+              Files.copy(source, userCopy, REPLACE_EXISTING);
+              LOGGER.log(Level.INFO, () -> "%s saved at %s".formatted(this, userCopy));
+            }
+            catch (IOException e) {
+              Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+            }
+          });
+        }
+        catch (IOException e) {
+          Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+        }
+      }
+    };
   }
 
   @Override
@@ -190,13 +221,15 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
     @Nullable
     synchronized SerialPort next() {
       Collection<SerialPort> serialPorts = Arrays.stream(SerialPort.getCommPorts())
-          .sorted(Comparator.comparing(port -> port.toString().toLowerCase().indexOf("usb")).reversed())
-          .sorted(Comparator.comparingInt(value -> usedPorts.indexOf(value.getSystemPortName()))).collect(Collectors.toUnmodifiableList());
+          .filter(port -> !port.getSystemPortName().toLowerCase().contains("bluetooth"))
+          .sorted(Comparator.<SerialPort, Integer>comparing(port -> port.getSystemPortName().toLowerCase().indexOf("usb")).reversed())
+          .sorted(Comparator.comparingInt(value -> usedPorts.indexOf(value.getSystemPortName())))
+          .toList();
       if (serialPorts.isEmpty()) {
         return null;
       }
       else {
-        SerialPort serialPort = serialPorts.iterator().next();
+        var serialPort = serialPorts.iterator().next();
         String portName = serialPort.getSystemPortName();
         LOGGER.log(LOG_LEVEL_ERRORS, () -> "Found { %s }, the [ %s ] is selected".formatted(serialPorts, portName));
         usedPorts.remove(portName);

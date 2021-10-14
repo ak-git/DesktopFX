@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ak.util.LogUtils;
+import com.ak.comm.bytes.LogUtils;
 
 public enum NmisAddress {
   SINGLE(0x81, 0x91),
@@ -47,7 +47,7 @@ public enum NmisAddress {
 
   @Nullable
   static NmisAddress find(@Nonnull ByteBuffer byteBuffer) {
-    byte addr = byteBuffer.get(NmisProtocolByte.ADDR.ordinal());
+    var addr = byteBuffer.get(NmisProtocolByte.ADDR.ordinal());
     for (NmisAddress nmisAddress : values()) {
       if (nmisAddress.addrRequest == addr || nmisAddress.addrResponse == addr) {
         return nmisAddress;

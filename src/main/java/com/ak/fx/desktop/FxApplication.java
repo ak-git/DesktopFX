@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 import javax.annotation.Nonnull;
@@ -34,24 +35,25 @@ public class FxApplication extends Application implements ViewController {
 
   @Override
   public final void start(@Nonnull Stage mainStage) throws IOException {
-    ResourceBundle resourceBundle = ResourceBundle.getBundle(String.join(".", getClass().getPackageName(), KEY_PROPERTIES));
+    var resourceBundle = ResourceBundle.getBundle(String.join(".", getClass().getPackageName(), KEY_PROPERTIES));
     List<FXMLLoader> fxmlLoaders = getFXMLLoader(resourceBundle);
     OSDockImage.valueOf(OS.get().name()).setIconImage(mainStage,
-        getClass().getResource(resourceBundle.getString(KEY_APPLICATION_IMAGE))
+        Objects.requireNonNull(getClass().getResource(resourceBundle.getString(KEY_APPLICATION_IMAGE)))
     );
 
-    SplitPane root = new SplitPane();
+    var root = new SplitPane();
     root.setOrientation(Orientation.VERTICAL);
     for (FXMLLoader fxmlLoader : fxmlLoaders) {
       root.getItems().add(fxmlLoader.load());
     }
 
-    Stage stage = new Stage(StageStyle.DECORATED);
+    var stage = new Stage(StageStyle.DECORATED);
     stage.setScene(new Scene(root, 1024, 768));
     stage.setTitle(resourceBundle.getString(KEY_APPLICATION_TITLE));
     stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
     stage.getScene().setOnZoom(this::zoom);
     stage.getScene().setOnScroll(this::scroll);
+
     addEventHandler(stage, () ->
             Platform.runLater(() -> {
               stage.setFullScreen(!stage.isFullScreen());
@@ -59,12 +61,22 @@ public class FxApplication extends Application implements ViewController {
               stage.setResizable(true);
             }),
         KeyCode.CONTROL, KeyCode.SHORTCUT, KeyCode.F);
-    addEventHandler(stage, this::refresh, KeyCode.SHORTCUT, KeyCode.N);
-    stage.show();
+    addEventHandler(stage, () -> refresh(false), KeyCode.N);
+    addEventHandler(stage, () -> refresh(true), KeyCode.S);
+    addEventHandler(stage, this::up, KeyCode.UP);
+    addEventHandler(stage, this::down, KeyCode.DOWN);
+    addEventHandler(stage, this::escape, KeyCode.ESCAPE);
 
     Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass(), Strings.EMPTY);
     stage.setOnCloseRequest(event -> stageStorage.save(stage));
-    stageStorage.update(stage);
+    stage.getScene().addPostLayoutPulseListener(new Runnable() {
+      @Override
+      public void run() {
+        stageStorage.update(stage);
+        stage.getScene().removePostLayoutPulseListener(this);
+      }
+    });
+    stage.show();
   }
 
   @OverridingMethodsMustInvokeSuper
@@ -84,7 +96,7 @@ public class FxApplication extends Application implements ViewController {
   private static void addEventHandler(Stage stage, Runnable runnable, KeyCode... codes) {
     stage.addEventHandler(KeyEvent.KEY_RELEASED,
         event -> {
-          String combination = String.join("+", Arrays.stream(codes).map(KeyCode::getName).toArray(String[]::new));
+          var combination = String.join("+", Arrays.stream(codes).map(KeyCode::getName).toArray(String[]::new));
           if (KeyCombination.keyCombination(combination).match(event)) {
             runnable.run();
           }

@@ -1,27 +1,48 @@
 package com.ak.fx.desktop;
 
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
+import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.ParametersAreNullableByDefault;
+import javax.inject.Provider;
 
 import com.ak.comm.GroupService;
+import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
+import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.fx.scene.AxisXController;
 import com.ak.fx.scene.AxisYController;
 import com.ak.fx.scene.Chart;
 import com.ak.fx.scene.ScaleYInfo;
 import com.ak.fx.util.FxUtils;
+import com.ak.logging.OutputBuilders;
+import com.ak.util.Extension;
 import com.ak.util.Strings;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -34,6 +55,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.input.ZoomEvent;
 import javafx.util.Duration;
+import org.springframework.beans.factory.annotation.Value;
 
 abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
     implements Initializable, Flow.Subscriber<int[]>, AutoCloseable, ViewController {
@@ -46,13 +68,61 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   @Nullable
   @FXML
   private Chart chart;
+  @Nonnegative
+  private long countSamples;
+  @Nullable
+  private SequentialTransition transition;
+  @Nonnull
+  @Value("${version}")
+  private final String version;
+  private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-  AbstractViewController(@Nonnull GroupService<T, R, V> service) {
-    this.service = service;
+  @ParametersAreNonnullByDefault
+  AbstractViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
+                         Provider<Converter<R, V>> converterProvider) {
+    service = new GroupService<>(interceptorProvider::get, converterProvider::get);
+    version = "${version}";
+    executorService.execute(() -> {
+      try (DirectoryStream<Path> paths = Files.newDirectoryStream(
+          OutputBuilders.NONE.build(Strings.EMPTY).getPath(), Extension.BIN.attachTo("*"))
+      ) {
+        paths.forEach(path -> ConverterApp.doConvert(interceptorProvider, converterProvider, path));
+      }
+      catch (IOException e) {
+        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+      }
+      finally {
+        Logger.getLogger(getClass().getName()).info(() -> "Conversion finished");
+      }
+
+      try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
+        Path parent = OutputBuilders.NONE.build(Strings.EMPTY).getPath();
+        parent.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
+        for (WatchKey key = watchService.take(); key != null; key = watchService.take()) {
+          key.pollEvents().stream().map(WatchEvent::context).map(Path.class::cast).
+              filter(path -> Extension.BIN.is(path.toString()))
+              .forEach(path -> ConverterApp.doConvert(interceptorProvider, converterProvider, parent.resolve(path)));
+          key.reset();
+        }
+      }
+      catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+      }
+      catch (IOException e) {
+        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+      }
+    });
   }
 
   @Override
-  public final void initialize(@Nullable URL location, @Nullable ResourceBundle resources) {
+  public final String toString() {
+    return "ViewController{version='%s'}".formatted(version);
+  }
+
+  @Override
+  @ParametersAreNullableByDefault
+  public final void initialize(URL location, ResourceBundle resources) {
     if (chart != null) {
       chart.setOnDragOver(event -> {
         if (event.getDragboard().hasFiles()) {
@@ -67,7 +137,7 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
         event.consume();
       });
       chart.setVariables(service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.VISIBLE))
-          .map(Variables::toString).collect(Collectors.toList()));
+          .map(Variables::toString).toList());
       chart.titleProperty().bind(axisXController.zoomProperty().asString());
       chart.diagramHeightProperty().addListener((observable, oldValue, newValue) -> {
         axisYController.setLineDiagramHeight(newValue.doubleValue());
@@ -75,38 +145,47 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
       });
       chart.diagramWidthProperty().addListener((observable, oldValue, newValue) -> axisXController.preventEnd(newValue.doubleValue()));
       axisXController.stepProperty().addListener((observable, oldValue, newValue) -> chart.setXStep(newValue.doubleValue()));
+      axisXController.startProperty().addListener((observable, oldValue, newValue) -> changed());
       axisXController.lengthProperty().addListener((observable, oldValue, newValue) ->
           chart.setMaxSamples(newValue.intValue() / axisXController.getDecimateFactor())
       );
       axisXController.setFrequency(service.getFrequency());
     }
 
-    Timeline timeline = new Timeline();
-    timeline.getKeyFrames().add(new KeyFrame(Duration.millis(100), (ActionEvent actionEvent) -> axisXController.scroll(-1000)));
+    var timeline = new Timeline(
+        new KeyFrame(Duration.millis(50),
+            (ActionEvent actionEvent) -> {
+              int start = (int) (Math.max(0, countSamples - axisXController.getLength()));
+              axisXController.setStart(start);
+              if (start == 0) {
+                changed();
+              }
+            })
+    );
     timeline.setCycleCount(Animation.INDEFINITE);
-    SequentialTransition animation = new SequentialTransition();
-    animation.getChildren().addAll(timeline);
-    animation.play();
+    transition = new SequentialTransition(timeline);
     service.subscribe(this);
   }
 
   @Override
-  public final void onSubscribe(@Nonnull Flow.Subscription s) {
+  @OverridingMethodsMustInvokeSuper
+  public void onSubscribe(@Nonnull Flow.Subscription s) {
     if (subscription != null) {
       subscription.cancel();
     }
     subscription = s;
-    changed();
     subscription.request(axisXController.getLength());
+    countSamples = 0;
+    Objects.requireNonNull(transition).play();
+    changed();
+    CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS).execute(this::changed);
   }
 
   @Override
   @OverridingMethodsMustInvokeSuper
   public void onNext(@Nonnull int[] ints) {
-    FxUtils.invokeInFx(() -> Objects.requireNonNull(chart).setBannerText(
-        service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.TEXT_VALUE_BANNER))
-            .map(v -> Variables.toString(v, ints[v.ordinal()])).collect(Collectors.joining(Strings.NEW_LINE_2)))
-    );
+    countSamples++;
+    displayBanner(ints);
   }
 
   @Override
@@ -116,24 +195,28 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public final void onComplete() {
+    Objects.requireNonNull(transition).stop();
     changed();
   }
 
   @Override
   @OverridingMethodsMustInvokeSuper
   public void close() {
+    executorService.shutdownNow();
     service.close();
   }
 
   @Override
   @OverridingMethodsMustInvokeSuper
-  public void refresh() {
-    service.refresh();
+  public void refresh(boolean force) {
+    service.refresh(force);
+    countSamples = 0;
+    Objects.requireNonNull(transition).play();
     changed();
   }
 
   @Override
-  public final void zoom(ZoomEvent event) {
+  public final void zoom(@Nonnull ZoomEvent event) {
     if (chart != null) {
       axisXController.zoom(event.getZoomFactor());
       axisXController.preventEnd(chart.diagramWidthProperty().doubleValue());
@@ -142,7 +225,7 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
-  public final void scroll(ScrollEvent event) {
+  public final void scroll(@Nonnull ScrollEvent event) {
     axisXController.scroll(event.getDeltaX());
   }
 
@@ -159,19 +242,31 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
         if (v.options().contains(Variable.Option.VISIBLE)) {
           int[] values = FilterBuilder.of().sharpingDecimate(axisXController.getDecimateFactor()).filter(chartData[v.ordinal()]);
           ScaleYInfo<V> scaleInfo = axisYController.scale(v, values);
-          Objects.requireNonNull(chart).setAll(v.indexBy(Variable.Option.VISIBLE), IntStream.of(values).unordered().parallel()
-              .mapToDouble(scaleInfo).toArray(), scaleInfo);
+          Objects.requireNonNull(chart).setAll(
+              v.indexBy(Variable.Option.VISIBLE),
+              IntStream.of(values).unordered().parallel().mapToDouble(scaleInfo).toArray(),
+              scaleInfo
+          );
         }
       }
       if (chartData[0].length > 0) {
-        onNext(service.getVariables().stream().mapToInt(
-            e -> {
-              int[] ints = chartData[e.ordinal()];
-              return ints[ints.length - 1];
-            }).toArray()
+        displayBanner(service.getVariables().stream()
+            .mapToInt(
+                e -> {
+                  int[] ints = chartData[e.ordinal()];
+                  return ints[ints.length - 1];
+                })
+            .toArray()
         );
       }
       axisXController.checkLength(chartData[0].length);
     });
+  }
+
+  private void displayBanner(@Nonnull int[] ints) {
+    FxUtils.invokeInFx(() -> Objects.requireNonNull(chart).setBannerText(
+        service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.TEXT_VALUE_BANNER))
+            .map(v -> Variables.toString(v, ints[v.ordinal()])).collect(Collectors.joining(Strings.NEW_LINE_2)))
+    );
   }
 }

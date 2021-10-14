@@ -1,8 +1,15 @@
 package com.ak.rsm;
 
 import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 
 interface Prediction {
   @Nonnegative
-  double getInequalityL2();
+  double getResistivityPredicted();
+
+  @Nonnull
+  double[] getHorizons();
+
+  @Nonnull
+  double[] getInequalityL2();
 }

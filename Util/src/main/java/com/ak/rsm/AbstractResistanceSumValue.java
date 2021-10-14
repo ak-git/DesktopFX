@@ -6,25 +6,22 @@ import java.util.function.IntToDoubleFunction;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-abstract class AbstractResistanceSumValue implements ResistanceSumValue {
-  @Nonnull
-  private final TetrapolarSystem system;
+import static java.lang.StrictMath.hypot;
 
-  AbstractResistanceSumValue(@Nonnull TetrapolarSystem system) {
-    this.system = system;
-  }
-
-  final double radius(double sign) {
-    return system.radius(sign);
+abstract class AbstractResistanceSumValue extends AbstractApparent implements ResistanceSumValue {
+  AbstractResistanceSumValue(@Nonnull RelativeTetrapolarSystem system) {
+    super(system);
   }
 
   @Override
-  public final double value(@Nonnegative double h, @Nonnull IntToDoubleFunction qn) {
-    DoubleBinaryOperator sum = sum(h);
+  public final double value(@Nonnegative double hToL, @Nonnull IntToDoubleFunction qn) {
+    DoubleBinaryOperator sum = sum(hToL);
     return multiply(Layers.sum(n -> qn.applyAsDouble(n) * (sum.applyAsDouble(-1.0, n) - sum.applyAsDouble(1.0, n))));
   }
 
-  abstract double multiply(double sums);
+  DoubleBinaryOperator sum(double hToL) {
+    return (sign, n) -> 1.0 / hypot(factor(sign), 4.0 * n * hToL);
+  }
 
-  abstract DoubleBinaryOperator sum(@Nonnegative double h);
+  abstract double multiply(double sums);
 }

@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.measure.Unit;
@@ -35,7 +34,7 @@ public class AperStage3Current1NIBPVariableTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55647, 301571, 1296}},
+            new int[] {55473, 1293}},
     };
   }
 
@@ -71,10 +70,9 @@ public class AperStage3Current1NIBPVariableTest {
   @Test
   public void testGetUnit() {
     List<? extends Unit<?>> actual = EnumSet.allOf(AperStage3Current1NIBPVariable.class).stream()
-        .map(DependentVariable::getUnit).collect(Collectors.toList());
+        .map(DependentVariable::getUnit).toList();
     Assert.assertEquals(actual,
         Arrays.asList(
-            MetricPrefix.MILLI(Units.OHM),
             MetricPrefix.MILLI(Units.OHM),
             Units.OHM
         ),
@@ -85,10 +83,10 @@ public class AperStage3Current1NIBPVariableTest {
   @Test
   public void testOptions() {
     List<Variable.Option> actual = EnumSet.allOf(AperStage3Current1NIBPVariable.class).stream()
-        .flatMap(v -> v.options().stream()).collect(Collectors.toList());
+        .flatMap(v -> v.options().stream()).toList();
     Assert.assertEquals(actual,
         Arrays.asList(
-            Variable.Option.VISIBLE, Variable.Option.VISIBLE,
+            Variable.Option.VISIBLE,
             Variable.Option.TEXT_VALUE_BANNER
         ),
         actual.toString()

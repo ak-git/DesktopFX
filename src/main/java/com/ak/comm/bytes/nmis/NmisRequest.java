@@ -94,7 +94,7 @@ public final class NmisRequest extends BufferFrame {
 
   private static void saveCRC(@Nonnull byte[] codes) {
     codes[NmisProtocolByte.CRC.ordinal()] = 0;
-    int crc = 0;
+    var crc = 0;
     for (byte code : codes) {
       crc += code;
     }
