@@ -5,13 +5,14 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
 import com.ak.rsm.Resistance3Layer;
 import com.ak.rsm.TetrapolarSystem;
+import com.ak.util.CSVLineFileCollector;
 import com.ak.util.Extension;
-import com.ak.util.LineFileCollector;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import org.beryx.textio.TextIO;
@@ -53,15 +54,14 @@ public final class R3Output {
       terminal.println(String.format("h2 = %s mm", Strings.toString("%.1f", h2mh1A)));
       terminal.println();
 
-      try (LineFileCollector collector = new LineFileCollector(Paths.get(Extension.TXT.attachTo("out")), LineFileCollector.Direction.VERTICAL)) {
-        collector.accept("s, mm\tL, mm\trho1, Ohm-m\trho2, Ohm-m\trho3, Ohm-m\th1, mm\th2mm");
-
+      try (CSVLineFileCollector collector = new CSVLineFileCollector(Paths.get(Extension.TXT.attachTo("out")),
+          "s, mm", "L, mm", "rho1, Ohm-m", "rho2, Ohm-m", "rho3, Ohm-m", "h1, mm", "h2mm")) {
         for (double smm : smmA) {
-          TetrapolarSystem system = TetrapolarSystem.milli().s(smm).l(smm * lToS);
+          TetrapolarSystem system = TetrapolarSystem.milli(0.0).s(smm).l(smm * lToS);
           for (double rho1 : rho1A) {
             for (double rho2 : rho2A) {
               for (double rho3 : rho3A) {
-                terminal.println(String.format("Calculating s = %.1f mm; rho1 = %.1f; rho2 = %.1f; rho3 = %.1f.txt", smm, rho1, rho2, rho3));
+                terminal.println(String.format("Calculating s = %.1f mm; rho1 = %.1f; rho2 = %.1f; rho3 = %.1f", smm, rho1, rho2, rho3));
 
                 for (double h1 : h1A) {
                   for (double h2mh1 : h2mh1A) {
@@ -69,8 +69,10 @@ public final class R3Output {
                     int p2mp1 = (int) h2mh1 * 10;
                     double result = new Resistance3Layer(system, Metrics.fromMilli(0.1)).value(rho1, rho2, rho3, p1, p2mp1);
                     collector.accept(
-                        String.format("%.1f\t%.1f\t%.2f\t%.2f\t%.2f\t%.1f\t%.1f\t%.12f",
-                            smm, smm * lToS, rho1, rho2, rho3, h1, h2mh1, result)
+                        Stream.concat(
+                            Stream.of(smm, smm * lToS, rho1, rho2, rho3, h1, h2mh1).map("%.2f"::formatted),
+                            Stream.of("%.12f".formatted(result))
+                        ).toArray()
                     );
                   }
                 }
