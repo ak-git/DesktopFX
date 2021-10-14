@@ -73,9 +73,10 @@ public class ConverterApp implements AutoCloseable, Consumer<Path> {
     BytesInterceptor<T, R> bytesInterceptor = interceptorProvider.get();
     Converter<R, V> responseConverter = converterProvider.get();
     String fileName = path.toFile().getPath();
-    if (fileName.endsWith(Extension.BIN.attachTo(bytesInterceptor.name()))) {
+    Path out = Paths.get(Extension.CSV.attachTo(Extension.BIN.clean(fileName)));
+    if (fileName.endsWith(Extension.BIN.attachTo(bytesInterceptor.name())) && Files.notExists(out)) {
       try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
-           var collector = new CSVLineFileCollector(Paths.get(Extension.CSV.attachTo(Extension.BIN.clean(fileName))),
+           var collector = new CSVLineFileCollector(out,
                Stream.concat(
                    Stream.of(TimeVariable.TIME).map(Variables::toName),
                    responseConverter.variables().stream().map(Variables::toName)
