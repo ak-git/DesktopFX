@@ -2,9 +2,7 @@ package com.ak.fx.desktop;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
@@ -83,18 +81,6 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
     service = new GroupService<>(interceptorProvider::get, converterProvider::get);
     version = "${version}";
     executorService.execute(() -> {
-      try (DirectoryStream<Path> paths = Files.newDirectoryStream(
-          OutputBuilders.NONE.build(Strings.EMPTY).getPath(), Extension.BIN.attachTo("*"))
-      ) {
-        paths.forEach(path -> ConverterApp.doConvert(interceptorProvider, converterProvider, path));
-      }
-      catch (IOException e) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-      }
-      finally {
-        Logger.getLogger(getClass().getName()).info(() -> "Conversion finished");
-      }
-
       try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
         Path parent = OutputBuilders.NONE.build(Strings.EMPTY).getPath();
         parent.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);

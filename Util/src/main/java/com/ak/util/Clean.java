@@ -18,15 +18,19 @@ public enum Clean {
     Arrays.stream(toClean).forEach(Cleaner.Cleanable::clean);
   }
 
-  public static void clean(@Nonnull Path path) {
-    Logger.getLogger(Clean.class.getName()).log(Level.INFO, () -> "Clean directory %s".formatted(path));
-    try (DirectoryStream<Path> ds = Files.newDirectoryStream(path, Files::isRegularFile)) {
+  public static void clean(@Nonnull Path root) {
+    Logger.getLogger(Clean.class.getName()).log(Level.INFO, () -> "Clean directory %s".formatted(root));
+    try (DirectoryStream<Path> ds = Files.newDirectoryStream(root)) {
       for (Path file : ds) {
+        if (Files.isDirectory(file)) {
+          clean(file);
+        }
         Files.deleteIfExists(file);
       }
+      Files.deleteIfExists(root);
     }
-    catch (IOException ex) {
-      Logger.getLogger(Clean.class.getName()).log(Level.WARNING, path.toString(), ex.getMessage());
+    catch (IOException e) {
+      Logger.getLogger(Clean.class.getName()).log(Level.WARNING, root.toString(), e.getMessage());
     }
   }
 }

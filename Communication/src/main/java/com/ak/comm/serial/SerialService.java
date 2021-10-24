@@ -185,7 +185,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
       if (save) {
         try {
           Path source = saveFilePath.get();
-          Path userCopy = OutputBuilders.NONE.build(source.toFile().getName()).getPath();
+          Path userCopy = OutputBuilders.NONE_WITH_DATE.build(source.toFile().getName()).getPath();
           CompletableFuture.runAsync(() -> {
             try {
               Files.copy(source, userCopy, REPLACE_EXISTING);
