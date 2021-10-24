@@ -1,5 +1,6 @@
 package com.ak.fx.desktop;
 
+import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
 import java.util.concurrent.ScheduledExecutorService;
@@ -55,7 +56,7 @@ public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & 
   }
 
   @Override
-  public final void close() {
+  public final void close() throws IOException {
     innerCancel();
     executorService.shutdownNow();
     super.close();

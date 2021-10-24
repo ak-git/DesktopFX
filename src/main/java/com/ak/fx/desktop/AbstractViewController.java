@@ -1,18 +1,13 @@
 package com.ak.fx.desktop;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -34,13 +29,13 @@ import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.digitalfilter.FilterBuilder;
+import com.ak.file.RecursiveWatcher;
 import com.ak.fx.scene.AxisXController;
 import com.ak.fx.scene.AxisYController;
 import com.ak.fx.scene.Chart;
 import com.ak.fx.scene.ScaleYInfo;
 import com.ak.fx.util.FxUtils;
 import com.ak.logging.OutputBuilders;
-import com.ak.util.Extension;
 import com.ak.util.Strings;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -73,32 +68,27 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   @Nonnull
   @Value("${version}")
   private final String version;
-  private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+  @Nonnull
+  private Closeable fileWatcher = () -> {
+  };
 
   @ParametersAreNonnullByDefault
   AbstractViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
                          Provider<Converter<R, V>> converterProvider) {
     service = new GroupService<>(interceptorProvider::get, converterProvider::get);
     version = "${version}";
-    executorService.execute(() -> {
-      try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
-        Path parent = OutputBuilders.NONE.build(Strings.EMPTY).getPath();
-        parent.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
-        for (WatchKey key = watchService.take(); key != null; key = watchService.take()) {
-          key.pollEvents().stream().map(WatchEvent::context).map(Path.class::cast).
-              filter(path -> Extension.BIN.is(path.toString()))
-              .forEach(path -> ConverterApp.doConvert(interceptorProvider, converterProvider, parent.resolve(path)));
-          key.reset();
-        }
-      }
-      catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-      }
-      catch (IOException e) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-      }
-    });
+    try {
+      fileWatcher = new RecursiveWatcher(OutputBuilders.NONE.build(Strings.EMPTY).getPath(),
+          path -> {
+            if (Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)) {
+              ConverterApp.doConvert(interceptorProvider, converterProvider, path);
+            }
+          }
+      );
+    }
+    catch (IOException e) {
+      Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+    }
   }
 
   @Override
@@ -187,9 +177,13 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   @OverridingMethodsMustInvokeSuper
-  public void close() {
-    executorService.shutdownNow();
-    service.close();
+  public void close() throws IOException {
+    try {
+      fileWatcher.close();
+    }
+    finally {
+      service.close();
+    }
   }
 
   @Override
