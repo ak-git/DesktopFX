@@ -31,7 +31,7 @@ public class RecursiveWatcherTest {
 
   @Test
   public void test() throws IOException, InterruptedException {
-    Files.createDirectories(path);
+    Files.createTempFile(Files.createDirectories(path), Strings.EMPTY, Extension.TXT.attachTo(Strings.EMPTY));
     Path subDir = Files.createTempDirectory(path, Strings.EMPTY);
     CountDownLatch latch = new CountDownLatch(2);
     Closeable watcher = new RecursiveWatcher(path, p -> latch.countDown(), Extension.TXT);
