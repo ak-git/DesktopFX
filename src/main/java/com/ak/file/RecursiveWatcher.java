@@ -34,20 +34,17 @@ public final class RecursiveWatcher implements Closeable {
   @Nonnull
   private final WatchService watchService;
   private final Map<WatchKey, Path> directories = new HashMap<>();
+  @Nonnull
+  private final String glob;
 
   @ParametersAreNonnullByDefault
   public RecursiveWatcher(Path start, Consumer<Path> doSome, Extension extension) throws IOException {
     watchService = FileSystems.getDefault().newWatchService();
+    glob = extension.attachTo("*");
 
     BiConsumer<Path, Consumer<Path>> register = (child, consumer) -> {
       if (Files.isDirectory(child, LinkOption.NOFOLLOW_LINKS)) {
-        registerTree(child);
-        try (DirectoryStream<Path> files = Files.newDirectoryStream(child, extension.attachTo("*"))) {
-          files.forEach(consumer);
-        }
-        catch (IOException e) {
-          Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-        }
+        registerTree(child, doSome);
       }
       else if (Files.isRegularFile(child, LinkOption.NOFOLLOW_LINKS)) {
         consumer.accept(child);
@@ -56,8 +53,8 @@ public final class RecursiveWatcher implements Closeable {
 
     service.execute(() -> {
       try (watchService) {
-        registerTree(start);
-        for (WatchKey key = watchService.take(); key != null; key = watchService.take()) {
+        registerTree(start, doSome);
+        for (WatchKey key = watchService.take(); key != null && !directories.isEmpty(); key = watchService.take()) {
           WatchKey finalKey = key;
           key.pollEvents().stream()
               .filter(watchEvent -> watchEvent.kind().equals(StandardWatchEventKinds.ENTRY_CREATE))
@@ -68,9 +65,6 @@ public final class RecursiveWatcher implements Closeable {
 
           if (!key.reset()) {
             directories.remove(key);
-            if (directories.isEmpty()) {
-              break;
-            }
           }
         }
       }
@@ -94,12 +88,19 @@ public final class RecursiveWatcher implements Closeable {
     }
   }
 
-  private void registerTree(@Nonnull Path start) {
+  @ParametersAreNonnullByDefault
+  private void registerTree(Path start, Consumer<Path> doSome) {
     try {
       Files.walkFileTree(start, new SimpleFileVisitor<>() {
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
           directories.put(dir.register(watchService, StandardWatchEventKinds.ENTRY_CREATE), dir);
+          try (DirectoryStream<Path> files = Files.newDirectoryStream(dir, glob)) {
+            files.forEach(doSome);
+          }
+          catch (IOException e) {
+            Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+          }
           return FileVisitResult.CONTINUE;
         }
       });
