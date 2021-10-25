@@ -3,7 +3,6 @@ package com.ak.file;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -35,13 +34,9 @@ public class RecursiveWatcherTest {
     Files.createDirectories(path);
     Path subDir = Files.createTempDirectory(path, Strings.EMPTY);
     CountDownLatch latch = new CountDownLatch(2);
-    Closeable watcher = new RecursiveWatcher(path, p -> {
-      if (Files.isDirectory(p, LinkOption.NOFOLLOW_LINKS)) {
-        latch.countDown();
-      }
-    });
+    Closeable watcher = new RecursiveWatcher(path, p -> latch.countDown(), Extension.TXT);
     while (!latch.await(2, TimeUnit.SECONDS)) {
-      Files.createTempFile(Files.createTempDirectory(subDir, Strings.EMPTY), Strings.EMPTY, "." + Extension.TXT.name().toLowerCase());
+      Files.createTempFile(Files.createTempDirectory(subDir, Strings.EMPTY), Strings.EMPTY, Extension.TXT.attachTo(Strings.EMPTY));
     }
     watcher.close();
   }

@@ -3,6 +3,7 @@ package com.ak.file;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.ClosedWatchServiceException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -26,6 +27,8 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.ak.util.Extension;
+
 public final class RecursiveWatcher implements Closeable {
   private final ExecutorService service = Executors.newSingleThreadExecutor();
   @Nonnull
@@ -33,14 +36,22 @@ public final class RecursiveWatcher implements Closeable {
   private final Map<WatchKey, Path> directories = new HashMap<>();
 
   @ParametersAreNonnullByDefault
-  public RecursiveWatcher(Path start, Consumer<Path> doSome) throws IOException {
+  public RecursiveWatcher(Path start, Consumer<Path> doSome, Extension extension) throws IOException {
     watchService = FileSystems.getDefault().newWatchService();
 
     BiConsumer<Path, Consumer<Path>> register = (child, consumer) -> {
       if (Files.isDirectory(child, LinkOption.NOFOLLOW_LINKS)) {
         registerTree(child);
+        try (DirectoryStream<Path> files = Files.newDirectoryStream(child, extension.attachTo("*"))) {
+          files.forEach(consumer);
+        }
+        catch (IOException e) {
+          Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+        }
       }
-      consumer.accept(child);
+      else if (Files.isRegularFile(child, LinkOption.NOFOLLOW_LINKS)) {
+        consumer.accept(child);
+      }
     };
 
     service.execute(() -> {

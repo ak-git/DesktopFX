@@ -36,6 +36,7 @@ import com.ak.fx.scene.Chart;
 import com.ak.fx.scene.ScaleYInfo;
 import com.ak.fx.util.FxUtils;
 import com.ak.logging.OutputBuilders;
+import com.ak.util.Extension;
 import com.ak.util.Strings;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -83,7 +84,7 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
             if (Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)) {
               ConverterApp.doConvert(interceptorProvider, converterProvider, path);
             }
-          }
+          }, Extension.BIN
       );
     }
     catch (IOException e) {
