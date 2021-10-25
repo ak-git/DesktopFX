@@ -36,7 +36,7 @@ public enum AperStage5Current1Variable implements DependentVariable<AperStage4Cu
       return Collections.singleton(Option.TEXT_VALUE_BANNER);
     }
   },
-  APPARENT_RHO_21_35_CHANNEL(7.0 * 3.0, 7.0 * 5.0) {
+  APPARENT_RHO_35_21_CHANNEL(7.0 * 3.0, 7.0 * 5.0) {
     @Override
     public List<AperStage4Current1Variable> getInputVariables() {
       return Collections.singletonList(AperStage4Current1Variable.R2);
