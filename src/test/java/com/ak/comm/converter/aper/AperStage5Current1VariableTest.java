@@ -36,7 +36,7 @@ public class AperStage5Current1VariableTest {
             5, 0, 0, 0,
             (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55442, 330990, 2438, 9705, 1293}},
+            new int[] {55442, 330990, 2090, 8319, 2438, 9705, 1293}},
     };
   }
 
@@ -68,7 +68,7 @@ public class AperStage5Current1VariableTest {
   @Test
   public void testGetInputVariables() {
     int[] actual = EnumSet.allOf(AperStage5Current1Variable.class).stream().mapToInt(value -> value.getInputVariables().size()).toArray();
-    int[] expected = {1, 1, 1, 1, 1};
+    int[] expected = {1, 1, 1, 1, 1, 1, 1};
     Assert.assertEquals(actual, expected, Arrays.toString(actual));
   }
 
@@ -78,6 +78,7 @@ public class AperStage5Current1VariableTest {
     Assert.assertEquals(actual,
         Arrays.asList(
             MetricPrefix.MILLI(OHM), MetricPrefix.MILLI(OHM),
+            MetricPrefix.MILLI(OHM).multiply(METRE), MetricPrefix.MILLI(OHM).multiply(METRE),
             MetricPrefix.MILLI(OHM).multiply(METRE), MetricPrefix.MILLI(OHM).multiply(METRE),
             OHM
         ),
@@ -91,6 +92,7 @@ public class AperStage5Current1VariableTest {
     Assert.assertEquals(actual,
         Arrays.asList(
             Variable.Option.VISIBLE, Variable.Option.VISIBLE,
+            Variable.Option.TEXT_VALUE_BANNER, Variable.Option.TEXT_VALUE_BANNER,
             Variable.Option.TEXT_VALUE_BANNER, Variable.Option.TEXT_VALUE_BANNER,
             Variable.Option.TEXT_VALUE_BANNER
         ),
