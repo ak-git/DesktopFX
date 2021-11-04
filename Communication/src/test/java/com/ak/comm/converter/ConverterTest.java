@@ -85,7 +85,7 @@ public class ConverterTest {
     Path out = Paths.get(Extension.CSV.attachTo(Extension.BIN.clean(tempFile.toAbsolutePath().toString())));
     List<String> result = Files.readAllLines(out, StandardCharsets.UTF_8);
     Assert.assertEquals(result.size(), 2);
-    Assert.assertEquals(result.get(0), "\"TIME, s\",\"ADC, one\"");
-    Assert.assertEquals(result.get(1), "0.0,16373");
+    Assert.assertEquals(result.get(0), "TIME,ADC");
+    Assert.assertEquals(result.get(1), "0.0,16373.0");
   }
 }

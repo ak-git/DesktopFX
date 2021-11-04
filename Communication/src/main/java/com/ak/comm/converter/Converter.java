@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.measure.IncommensurableException;
 
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.CSVLineFileCollector;
@@ -44,21 +45,40 @@ public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<
       try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
            var collector = new CSVLineFileCollector(out,
                Stream.concat(
-                   Stream.of(TimeVariable.TIME).map(Variables::toName),
-                   responseConverter.variables().stream().map(Variables::toName)
+                   Stream.of(TimeVariable.TIME).map(Variable::name),
+                   responseConverter.variables().stream().map(Variable::name)
                ).toArray(String[]::new))
       ) {
         var buffer = ByteBuffer.allocate((int) Files.getFileStore(path).getBlockSize());
         var timeCounter = new AtomicInteger();
+
+        double[] pow = responseConverter.variables().stream().map(Variable::getUnit)
+            .mapToDouble(unit -> {
+              try {
+                return Math.min(unit.getSystemUnit().getConverterToAny(unit).convert(1.0), 1000.0);
+              }
+              catch (IncommensurableException e) {
+                return 1.0;
+              }
+            })
+            .toArray();
+
         while (readableByteChannel.read(buffer) > 0) {
           buffer.flip();
-          bytesInterceptor.apply(buffer).flatMap(responseConverter).forEach(
-              ints -> {
-                var time = BigDecimal.valueOf(timeCounter.getAndIncrement() / responseConverter.getFrequency())
-                    .setScale(3, RoundingMode.HALF_EVEN).doubleValue();
-                collector.accept(Stream.concat(Stream.of(time), Arrays.stream(ints).boxed()).toArray());
-              }
-          );
+          bytesInterceptor.apply(buffer).flatMap(responseConverter)
+              .map(ints -> {
+                double[] doubles = new double[ints.length];
+                for (int i = 0; i < ints.length; i++) {
+                  doubles[i] = round3(ints[i] / pow[i]);
+                }
+                return doubles;
+              })
+              .forEach(
+                  doubles -> {
+                    var time = round3(timeCounter.getAndIncrement() / responseConverter.getFrequency());
+                    collector.accept(Stream.concat(Stream.of(time), Arrays.stream(doubles).boxed()).toArray());
+                  }
+              );
           buffer.clear();
         }
         Logger.getLogger(Converter.class.getName()).info(() -> "Converted %s as '%s'".formatted(path, bytesInterceptor.name()));
@@ -67,5 +87,9 @@ public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<
         Logger.getLogger(Converter.class.getName()).log(Level.WARNING, e.getMessage(), e);
       }
     }
+  }
+
+  private static double round3(double d) {
+    return BigDecimal.valueOf(d).setScale(3, RoundingMode.HALF_EVEN).doubleValue();
   }
 }

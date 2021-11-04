@@ -89,7 +89,7 @@ public class VariableTest {
     Assert.assertEquals(OperatorVariables.OUT_DIV.indexBy(Variable.Option.VISIBLE), 1);
 
     EnumSet.allOf(OperatorVariables2.class).forEach(v ->
-        Assert.assertEquals(v.options(), EnumSet.of(Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER), Variables.toName(v)));
+        Assert.assertEquals(v.options(), EnumSet.of(Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER), v.name()));
   }
 
   @Test
@@ -115,11 +115,6 @@ public class VariableTest {
           Assert.assertTrue(logRecord.getMessage().contains(TwoVariables.V2.name()));
           Assert.assertNull(logRecord.getThrown());
         }));
-  }
-
-  @Test
-  public void testToName() {
-    Assert.assertTrue(Variables.toName(ADCVariable.ADC).startsWith("ADC, "));
   }
 
   @DataProvider(name = "formatValues")
