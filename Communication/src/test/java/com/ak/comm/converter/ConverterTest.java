@@ -1,17 +1,38 @@
 package com.ak.comm.converter;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
+import com.ak.comm.bytes.BufferFrame;
+import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.interceptor.simple.StringBytesInterceptor;
 import com.ak.comm.logging.LogTestUtils;
+import com.ak.logging.OutputBuilders;
+import com.ak.util.Clean;
+import com.ak.util.Extension;
+import com.ak.util.Strings;
 import org.testng.Assert;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.Test;
 
 import static java.util.logging.Level.WARNING;
 
 public class ConverterTest {
+  @Nonnull
+  private final Path path;
+
+  public ConverterTest() throws IOException {
+    path = OutputBuilders.NONE.build(Strings.EMPTY).getPath();
+  }
+
   private static final Converter<Integer, TwoVariables> INVALID_CONVERTER =
       new AbstractConverter<>(TwoVariables.class, 200) {
         @Override
@@ -47,5 +68,24 @@ public class ConverterTest {
   public void testFrequencies() {
     Assert.assertEquals(INVALID_CONVERTER.getFrequency(), 200, 0.1);
     Assert.assertEquals(VALID_CONVERTER_0.getFrequency(), 1000, 0.1);
+  }
+
+  @AfterSuite
+  public void cleanUp() {
+    Clean.clean(path);
+  }
+
+  @Test
+  public void testFileConvert() throws IOException {
+    Path tempFile = Files.createTempFile(path, Strings.EMPTY, Extension.BIN.attachTo(getClass().getSimpleName()));
+    Files.write(tempFile, new byte[] {51, 102, 102, 53, '\r', '\n'});
+    BytesInterceptor<BufferFrame, String> interceptor = new StringBytesInterceptor(getClass().getSimpleName());
+    Converter<String, ADCVariable> converter = new StringToIntegerConverter<>(ADCVariable.class, 1);
+    Converter.doConvert(interceptor, converter, tempFile);
+    Path out = Paths.get(Extension.CSV.attachTo(Extension.BIN.clean(tempFile.toAbsolutePath().toString())));
+    List<String> result = Files.readAllLines(out, StandardCharsets.UTF_8);
+    Assert.assertEquals(result.size(), 2);
+    Assert.assertEquals(result.get(0), "\"TIME, s\",\"ADC, one\"");
+    Assert.assertEquals(result.get(1), "0.0,16373");
   }
 }

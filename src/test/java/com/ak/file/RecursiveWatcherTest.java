@@ -25,7 +25,7 @@ public class RecursiveWatcherTest {
   }
 
   @AfterSuite
-  public void setUp() {
+  public void cleanUp() {
     Clean.clean(path);
   }
 

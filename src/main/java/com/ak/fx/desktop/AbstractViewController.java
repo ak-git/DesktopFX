@@ -3,8 +3,6 @@ package com.ak.fx.desktop;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
@@ -79,12 +77,10 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
     service = new GroupService<>(interceptorProvider::get, converterProvider::get);
     version = "${version}";
     try {
-      fileWatcher = new RecursiveWatcher(OutputBuilders.NONE.build(Strings.EMPTY).getPath(),
-          path -> {
-            if (Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)) {
-              ConverterApp.doConvert(interceptorProvider, converterProvider, path);
-            }
-          }, Extension.BIN
+      fileWatcher = new RecursiveWatcher(
+          OutputBuilders.NONE.build(Strings.EMPTY).getPath(),
+          path -> Converter.doConvert(interceptorProvider.get(), converterProvider.get(), path),
+          Extension.BIN
       );
     }
     catch (IOException e) {
