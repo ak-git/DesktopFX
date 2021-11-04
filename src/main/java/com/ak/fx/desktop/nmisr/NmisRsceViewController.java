@@ -8,13 +8,10 @@ import com.ak.comm.converter.rsce.RsceConverter;
 import com.ak.comm.converter.rsce.RsceVariable;
 import com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor;
 import com.ak.fx.desktop.AbstractScheduledViewController;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.Scope;
 
 @Named
 @Profile("nmis-rsce")
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class NmisRsceViewController extends AbstractScheduledViewController<NmisRequest, RsceCommandFrame, RsceVariable> {
   private static final NmisRequest.Sequence[] PINGS = {
       NmisRequest.Sequence.CATCH_100, NmisRequest.Sequence.CATCH_60, NmisRequest.Sequence.CATCH_30,
