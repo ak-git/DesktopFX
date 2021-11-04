@@ -11,10 +11,13 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.interceptor.BytesInterceptor;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 
 @Named
 @Profile("loopback")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class LoopbackViewController extends AbstractScheduledViewController<BufferFrame, BufferFrame, ADCVariable> {
   @Inject
   @ParametersAreNonnullByDefault

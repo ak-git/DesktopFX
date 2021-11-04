@@ -11,12 +11,15 @@ import com.ak.comm.bytes.purelogic.PureLogicFrame;
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.Strings;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.FRAME_LEN;
 
 @Named
 @Profile("purelogic")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class PureLogicBytesInterceptor extends AbstractBytesInterceptor<PureLogicFrame, PureLogicFrame> {
   private final StringBuilder frame = new StringBuilder(FRAME_LEN);
 

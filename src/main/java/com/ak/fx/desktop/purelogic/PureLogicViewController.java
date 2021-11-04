@@ -14,7 +14,9 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.purelogic.PureLogicVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.fx.desktop.AbstractScheduledViewController;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_210;
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_420;
@@ -22,6 +24,7 @@ import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
 
 @Named
 @Profile("purelogic")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class PureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
   private static final PureLogicFrame.StepCommand PING = MICRON_210;
   private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE = {MICRON_210, MICRON_420};

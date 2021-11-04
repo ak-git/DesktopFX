@@ -10,12 +10,15 @@ import com.ak.comm.bytes.suntech.NIBPResponse;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.suntech.NIBPVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 
 import static com.ak.comm.bytes.suntech.NIBPRequest.CONTROL_PNEUMATICS_ALL_CLOSED;
 
 @Named
 @Profile("suntech-test")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class NIBPSimViewController extends AbstractNIBPViewController {
   @Inject
   @ParametersAreNonnullByDefault

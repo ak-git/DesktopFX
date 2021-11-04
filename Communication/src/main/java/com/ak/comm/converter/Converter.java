@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
+import java.util.PrimitiveIterator;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -66,17 +67,15 @@ public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<
         while (readableByteChannel.read(buffer) > 0) {
           buffer.flip();
           bytesInterceptor.apply(buffer).flatMap(responseConverter)
-              .map(ints -> {
-                double[] doubles = new double[ints.length];
-                for (int i = 0; i < ints.length; i++) {
-                  doubles[i] = round3(ints[i] / pow[i]);
-                }
-                return doubles;
-              })
               .forEach(
-                  doubles -> {
-                    var time = round3(timeCounter.getAndIncrement() / responseConverter.getFrequency());
-                    collector.accept(Stream.concat(Stream.of(time), Arrays.stream(doubles).boxed()).toArray());
+                  ints -> {
+                    PrimitiveIterator.OfDouble iterator = Arrays.stream(pow).iterator();
+                    collector.accept(
+                        Stream.concat(
+                            Stream.of(round3(timeCounter.getAndIncrement() / responseConverter.getFrequency())),
+                            Arrays.stream(ints).mapToDouble(value -> round3(value / iterator.nextDouble())).boxed()
+                        ).toArray()
+                    );
                   }
               );
           buffer.clear();
