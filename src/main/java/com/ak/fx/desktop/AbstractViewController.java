@@ -195,7 +195,7 @@ abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
   @Override
   public final void zoom(@Nonnull ZoomEvent event) {
     if (chart != null) {
-      axisXController.zoom(event.getZoomFactor());
+      axisXController.zoom(event.getTotalZoomFactor());
       axisXController.preventEnd(chart.diagramWidthProperty().doubleValue());
       changed();
     }
