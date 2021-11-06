@@ -1,5 +1,7 @@
 package com.ak.fx.desktop;
 
+import javax.annotation.Nonnull;
+
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.ZoomEvent;
 
@@ -20,11 +22,11 @@ public interface ViewController {
     // works in subclasses
   }
 
-  default void zoom(ZoomEvent event) {
+  default void zoom(@Nonnull ZoomEvent event) {
     event.consume();
   }
 
-  default void scroll(ScrollEvent event) {
+  default void scroll(@Nonnull ScrollEvent event) {
     event.consume();
   }
 }
