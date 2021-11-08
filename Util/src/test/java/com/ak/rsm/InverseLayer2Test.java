@@ -517,7 +517,7 @@ public class InverseLayer2Test {
             double[] rOhmsAfter = {Double.parseDouble(r.get(R1_AFTER)), Double.parseDouble(r.get(R2_AFTER))};
             double dh = Metrics.fromMilli(Double.parseDouble(r.get(DH)));
             var medium = InverseDynamic.INSTANCE.inverse(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
-            LOGGER.info(() -> "%.2f sec; %s µm; %s".formatted(Double.parseDouble(r.get(T)), r.get(DH), medium));
+            LOGGER.info(() -> "%.2f sec; %s mm; %s µm; %s".formatted(Double.parseDouble(r.get(T)), r.get(POSITION), r.get(DH), medium));
             return Map.ofEntries(
                 Map.entry(T, r.get(T)),
                 Map.entry(POSITION, r.get(POSITION)),

@@ -68,19 +68,26 @@ abstract class AbstractMediumLayers implements MediumLayers {
     Iterator<Measurement> mIterator = measurements.iterator();
     Iterator<Prediction> pIterator = predictions.iterator();
     while (mIterator.hasNext() && pIterator.hasNext()) {
-      data.add(mIterator.next().toString()).add("; %s".formatted(pIterator.next())).add(Strings.NEW_LINE);
+      data.add(mIterator.next().toString());
+      if (!Double.isNaN(rho1().getValue())) {
+        data.add("; %s".formatted(pIterator.next()));
+      }
+      data.add(Strings.NEW_LINE);
     }
 
     StringJoiner joiner = new StringJoiner("; ");
-    if (!kw.toString().isEmpty()) {
-      joiner.add(kw.toString());
+    if (!Double.isNaN(rho1().getValue())) {
+      if (!kw.toString().isEmpty()) {
+        joiner.add(kw.toString());
+      }
+      joiner.add(TetrapolarPrediction.toStringHorizons(TetrapolarPrediction.mergeHorizons(predictions)))
+          .add("RMS = %s %%".formatted(
+                  Arrays.stream(getRMS())
+                      .map(Metrics::toPercents).mapToObj("%.1f"::formatted)
+                      .collect(Collectors.joining("; ", "[", "]"))
+              )
+          );
     }
-    return joiner
-        .add(TetrapolarPrediction.toStringHorizons(TetrapolarPrediction.mergeHorizons(predictions)))
-        .add("RMS = %s %% %n%s".formatted(
-            Arrays.stream(getRMS()).map(Metrics::toPercents).mapToObj("%.1f"::formatted)
-                .collect(Collectors.joining("; ", "[", "]")),
-            data))
-        .toString();
+    return joiner.add("%n%s".formatted(data.toString())).toString();
   }
 }

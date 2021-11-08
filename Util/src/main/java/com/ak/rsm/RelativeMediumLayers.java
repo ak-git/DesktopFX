@@ -31,6 +31,11 @@ interface RelativeMediumLayers {
     public double hToL() {
       return Double.NaN;
     }
+
+    @Override
+    public String toString() {
+      return String.valueOf(Double.NaN);
+    }
   };
 
   double k12();
