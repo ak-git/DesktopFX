@@ -38,6 +38,5 @@ public class StringsTest {
   @Test
   public void testRho() {
     Assert.assertEquals(Strings.rho(1, 2.1234), "ρ₁ = 2.1234 Ω·m");
-    Assert.assertEquals(Strings.rho(2, null), "ρ₂, Ω·m");
   }
 }

@@ -19,14 +19,11 @@ import com.ak.math.ValuePair;
 import com.ak.util.CSVLineFileCollector;
 import com.ak.util.Extension;
 import com.ak.util.Metrics;
-import com.ak.util.Strings;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
 
 import static com.ak.rsm.TetrapolarSystem.milli;
 import static com.ak.rsm.TetrapolarSystem.systems2;
@@ -494,9 +491,9 @@ public class InverseLayer2Test {
     String POSITION = "POSITION";
     String DH = "dh";
 
-    String RHO_1 = Strings.rho(1, null);
-    String RHO_2 = Strings.rho(2, null);
-    String H = "h, %s".formatted(MetricPrefix.MILLI(Units.METRE));
+    String RHO_1 = "rho1";
+    String RHO_2 = "rho2";
+    String H = "h";
     String RMS = "RMS";
 
     TetrapolarSystem[] systems = systems2(0.1, 7.0);
