@@ -494,13 +494,14 @@ public class InverseLayer2Test {
     String RHO_1 = "rho1";
     String RHO_2 = "rho2";
     String H = "h";
-    String RMS = "RMS";
+    String RMS_BASE = "RMS_BASE";
+    String RMS_DIFF = "RMS_DIFF";
 
     TetrapolarSystem[] systems = systems2(0.1, 7.0);
 
     String fileName = "2021-10-25 17-23-43";
     Path path = Paths.get(Extension.CSV.attachTo(fileName));
-    String[] HEADERS = {T, DH, RHO_1, RHO_2, H, RMS};
+    String[] HEADERS = {T, POSITION, DH, RHO_1, RHO_2, H, RMS_BASE, RMS_DIFF};
     try (CSVParser parser = CSVParser.parse(
         new BufferedReader(new FileReader(path.toFile())),
         CSVFormat.Builder.create().setHeader(T, R1_BEFORE, R1_AFTER, R2_BEFORE, R2_AFTER, POSITION, DH).build());
@@ -519,11 +520,13 @@ public class InverseLayer2Test {
             LOGGER.info(() -> "%.2f sec; %s µm; %s".formatted(Double.parseDouble(r.get(T)), r.get(DH), medium));
             return Map.ofEntries(
                 Map.entry(T, r.get(T)),
+                Map.entry(POSITION, r.get(POSITION)),
                 Map.entry(DH, r.get(DH)),
                 Map.entry(RHO_1, medium.rho1().getValue()),
                 Map.entry(RHO_2, medium.rho2().getValue()),
                 Map.entry(H, Metrics.toMilli(medium.h1().getValue())),
-                Map.entry(RMS, Arrays.toString(medium.getRMS()))
+                Map.entry(RMS_BASE, medium.getRMS()[0]),
+                Map.entry(RMS_DIFF, medium.getRMS()[1])
             );
           })
           .map(stringMap -> Arrays.stream(HEADERS).map(stringMap::get).toArray())
