@@ -512,22 +512,24 @@ public class InverseLayer2Test {
     ) {
       Assert.assertTrue(StreamSupport.stream(parser.spliterator(), false)
           .filter(r -> r.getRecordNumber() > 1)
-          .map(r -> {
+          .<Map<String, Object>>mapMulti((r, consumer) -> {
             double[] rOhms = {Double.parseDouble(r.get(R1_BEFORE)), Double.parseDouble(r.get(R2_BEFORE))};
             double[] rOhmsAfter = {Double.parseDouble(r.get(R1_AFTER)), Double.parseDouble(r.get(R2_AFTER))};
             double dh = Metrics.fromMilli(Double.parseDouble(r.get(DH)));
             var medium = InverseDynamic.INSTANCE.inverse(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
             LOGGER.info(() -> "%.2f sec; %s mm; %s µm; %s".formatted(Double.parseDouble(r.get(T)), r.get(POSITION), r.get(DH), medium));
-            return Map.ofEntries(
-                Map.entry(T, r.get(T)),
-                Map.entry(POSITION, r.get(POSITION)),
-                Map.entry(DH, r.get(DH)),
-                Map.entry(RHO_1, medium.rho1().getValue()),
-                Map.entry(RHO_2, medium.rho2().getValue()),
-                Map.entry(H, Metrics.toMilli(medium.h1().getValue())),
-                Map.entry(RMS_BASE, medium.getRMS()[0]),
-                Map.entry(RMS_DIFF, medium.getRMS()[1])
-            );
+            if (!Double.isNaN(medium.rho1().getValue())) {
+              consumer.accept(Map.ofEntries(
+                  Map.entry(T, r.get(T)),
+                  Map.entry(POSITION, r.get(POSITION)),
+                  Map.entry(DH, r.get(DH)),
+                  Map.entry(RHO_1, medium.rho1().getValue()),
+                  Map.entry(RHO_2, medium.rho2().getValue()),
+                  Map.entry(H, Metrics.toMilli(medium.h1().getValue())),
+                  Map.entry(RMS_BASE, medium.getRMS()[0]),
+                  Map.entry(RMS_DIFF, medium.getRMS()[1])
+              ));
+            }
           })
           .map(stringMap -> Arrays.stream(HEADERS).map(stringMap::get).toArray())
           .collect(collector));
