@@ -31,7 +31,6 @@ import tec.uom.se.unit.Units;
 import static com.ak.rsm.TetrapolarSystem.milli;
 import static com.ak.rsm.TetrapolarSystem.systems2;
 import static com.ak.rsm.TetrapolarSystem.systems4;
-import static com.ak.util.Strings.low;
 
 public class InverseLayer2Test {
   private static final Logger LOGGER = Logger.getLogger(InverseLayer2Test.class.getName());
@@ -487,26 +486,27 @@ public class InverseLayer2Test {
 
   @Test(enabled = false)
   public void testInverseDynamicLayerFile() {
-    String T = "TIME, s";
-    String R1_BEFORE = "R1, Ω";
-    String R1_AFTER = "R1`, Ω";
-    String R2_BEFORE = "R2, Ω";
-    String R2_AFTER = "R2`, Ω";
-    String POS = "POSITION, µm";
+    String T = "TIME";
+    String R1_BEFORE = "R1";
+    String R1_AFTER = "R1`";
+    String R2_BEFORE = "R2";
+    String R2_AFTER = "R2`";
+    String POSITION = "POSITION";
+    String DH = "dh";
 
     String RHO_1 = Strings.rho(1, null);
     String RHO_2 = Strings.rho(2, null);
     String H = "h, %s".formatted(MetricPrefix.MILLI(Units.METRE));
-    String L2 = "L" + low(2);
+    String RMS = "RMS";
 
     TetrapolarSystem[] systems = systems2(0.1, 7.0);
 
-    String fileName = "2021-05-12 19-03-11";
+    String fileName = "2021-10-25 17-23-43";
     Path path = Paths.get(Extension.CSV.attachTo(fileName));
-    String[] HEADERS = {T, POS, RHO_1, RHO_2, H, L2};
+    String[] HEADERS = {T, DH, RHO_1, RHO_2, H, RMS};
     try (CSVParser parser = CSVParser.parse(
         new BufferedReader(new FileReader(path.toFile())),
-        CSVFormat.Builder.create().setHeader(T, R1_BEFORE, R1_AFTER, R2_BEFORE, R2_AFTER, POS).build());
+        CSVFormat.Builder.create().setHeader(T, R1_BEFORE, R1_AFTER, R2_BEFORE, R2_AFTER, POSITION, DH).build());
          CSVLineFileCollector collector = new CSVLineFileCollector(
              Paths.get(Extension.CSV.attachTo("%s inverse".formatted(fileName))),
              HEADERS
@@ -517,16 +517,16 @@ public class InverseLayer2Test {
           .map(r -> {
             double[] rOhms = {Double.parseDouble(r.get(R1_BEFORE)), Double.parseDouble(r.get(R2_BEFORE))};
             double[] rOhmsAfter = {Double.parseDouble(r.get(R1_AFTER)), Double.parseDouble(r.get(R2_AFTER))};
-            double dh = Metrics.fromMilli(Double.parseDouble(r.get(POS)) / 1000.0);
+            double dh = Metrics.fromMilli(Double.parseDouble(r.get(DH)));
             var medium = InverseDynamic.INSTANCE.inverse(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
-            LOGGER.info(() -> "%.2f sec; %s µm; %s".formatted(Double.parseDouble(r.get(T)), r.get(POS), medium));
+            LOGGER.info(() -> "%.2f sec; %s µm; %s".formatted(Double.parseDouble(r.get(T)), r.get(DH), medium));
             return Map.ofEntries(
                 Map.entry(T, r.get(T)),
-                Map.entry(POS, r.get(POS)),
+                Map.entry(DH, r.get(DH)),
                 Map.entry(RHO_1, medium.rho1().getValue()),
                 Map.entry(RHO_2, medium.rho2().getValue()),
                 Map.entry(H, Metrics.toMilli(medium.h1().getValue())),
-                Map.entry(L2, medium.getRMS())
+                Map.entry(RMS, Arrays.toString(medium.getRMS()))
             );
           })
           .map(stringMap -> Arrays.stream(HEADERS).map(stringMap::get).toArray())

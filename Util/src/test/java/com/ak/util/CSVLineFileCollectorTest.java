@@ -88,7 +88,7 @@ public class CSVLineFileCollectorTest {
   public void testInvalidClose(@Nonnull Supplier<Stream<String>> stream) throws Throwable {
     CSVLineFileCollector collector = new CSVLineFileCollector(OUT_PATH);
     collector.close();
-    Assert.assertFalse(stream.get().map(s -> new Object[] {s}).collect(collector));
+    Assert.assertTrue(stream.get().map(s -> new Object[] {s}).collect(collector));
     Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown");
     collector.close();
     Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown only once");
