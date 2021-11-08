@@ -489,7 +489,7 @@ public class InverseLayer2Test {
     String R2_BEFORE = "R2";
     String R2_AFTER = "R2`";
     String POSITION = "POSITION";
-    String DH = "dh";
+    String DH = "dH";
 
     String RHO_1 = "rho1";
     String RHO_2 = "rho2";
