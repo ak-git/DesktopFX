@@ -497,7 +497,7 @@ public class InverseLayer2Test {
     String RMS_BASE = "RMS_BASE";
     String RMS_DIFF = "RMS_DIFF";
 
-    TetrapolarSystem[] systems = systems2(0.1, 7.0);
+    TetrapolarSystem[] systems = systems2(0.1, 6.0);
 
     String fileName = "2021-10-25 17-23-43";
     Path path = Paths.get(Extension.CSV.attachTo(fileName));
