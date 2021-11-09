@@ -20,7 +20,7 @@ import static tec.uom.se.unit.Units.OHM;
 public enum AperStage5Current1Variable implements DependentVariable<AperStage4Current1Variable, AperStage5Current1Variable> {
   R1,
   R2,
-  APPARENT_RHO_06_18(6.0, 6.0 * 3.0) {
+  APPARENT_06_18_RHO(6.0, 6.0 * 3.0) {
     @Override
     public List<AperStage4Current1Variable> getInputVariables() {
       return Collections.singletonList(AperStage4Current1Variable.R1);
@@ -36,7 +36,7 @@ public enum AperStage5Current1Variable implements DependentVariable<AperStage4Cu
       return Collections.singleton(Option.TEXT_VALUE_BANNER);
     }
   },
-  APPARENT_RHO_30_18(6.0 * 3.0, 6.0 * 5.0) {
+  APPARENT_30_18_RHO(6.0 * 3.0, 6.0 * 5.0) {
     @Override
     public List<AperStage4Current1Variable> getInputVariables() {
       return Collections.singletonList(AperStage4Current1Variable.R2);
@@ -44,15 +44,15 @@ public enum AperStage5Current1Variable implements DependentVariable<AperStage4Cu
 
     @Override
     public Unit<?> getUnit() {
-      return APPARENT_RHO_06_18.getUnit();
+      return APPARENT_06_18_RHO.getUnit();
     }
 
     @Override
     public Set<Option> options() {
-      return APPARENT_RHO_06_18.options();
+      return APPARENT_06_18_RHO.options();
     }
   },
-  APPARENT_RHO_07_21(7.0, 7.0 * 3.0) {
+  APPARENT_07_21_RHO(7.0, 7.0 * 3.0) {
     @Override
     public List<AperStage4Current1Variable> getInputVariables() {
       return Collections.singletonList(AperStage4Current1Variable.R1);
@@ -68,7 +68,7 @@ public enum AperStage5Current1Variable implements DependentVariable<AperStage4Cu
       return Collections.singleton(Option.TEXT_VALUE_BANNER);
     }
   },
-  APPARENT_RHO_35_21(7.0 * 3.0, 7.0 * 5.0) {
+  APPARENT_35_21_RHO(7.0 * 3.0, 7.0 * 5.0) {
     @Override
     public List<AperStage4Current1Variable> getInputVariables() {
       return Collections.singletonList(AperStage4Current1Variable.R2);
@@ -76,12 +76,12 @@ public enum AperStage5Current1Variable implements DependentVariable<AperStage4Cu
 
     @Override
     public Unit<?> getUnit() {
-      return APPARENT_RHO_07_21.getUnit();
+      return APPARENT_07_21_RHO.getUnit();
     }
 
     @Override
     public Set<Option> options() {
-      return APPARENT_RHO_07_21.options();
+      return APPARENT_07_21_RHO.options();
     }
   },
   CCR;
