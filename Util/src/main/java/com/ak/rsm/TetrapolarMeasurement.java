@@ -10,40 +10,17 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.annotation.concurrent.ThreadSafe;
 
 import com.ak.math.ValuePair;
 
-@ThreadSafe
-final class TetrapolarMeasurement implements Measurement {
+record TetrapolarMeasurement(@Nonnull TetrapolarSystem system, @Nonnegative double resistivity) implements Measurement {
   private static final Function<Measurement, ValuePair> TO_VALUE =
-      m -> ValuePair.Name.RHO_1.of(m.getResistivity(), m.getResistivity() * m.getSystem().getApparentRelativeError());
-  @Nonnull
-  private final TetrapolarSystem system;
-  @Nonnegative
-  private final double resistivity;
-
-  TetrapolarMeasurement(@Nonnull TetrapolarSystem system, @Nonnegative double rOhms) {
-    this.system = system;
-    resistivity = system.getApparent(rOhms);
-  }
-
-  @Override
-  @Nonnull
-  public TetrapolarSystem getSystem() {
-    return system;
-  }
-
-  @Override
-  @Nonnegative
-  public double getResistivity() {
-    return resistivity;
-  }
+      m -> ValuePair.Name.RHO_1.of(m.resistivity(), m.resistivity() * m.system().getApparentRelativeError());
 
   @Override
   @Nonnull
   public Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1) {
-    return new TetrapolarPrediction(getSystem(), kw, rho1, resistivity);
+    return new TetrapolarPrediction(system, kw, rho1, resistivity);
   }
 
   @Nonnull
@@ -51,11 +28,11 @@ final class TetrapolarMeasurement implements Measurement {
   public Measurement merge(@Nonnull Measurement that) {
     var avg = TO_VALUE.apply(this).mergeWith(TO_VALUE.apply(that));
     double relErrorRho = avg.getAbsError() / avg.getValue();
-    double dL = Math.min(system.getAbsError(), that.getSystem().getAbsError());
+    double dL = Math.min(system.getAbsError(), that.system().getAbsError());
     double lCC = RelativeTetrapolarSystem.MIN_ERROR_FACTOR * dL / relErrorRho;
     double sPU = RelativeTetrapolarSystem.OPTIMAL_SL * lCC;
     TetrapolarSystem merged = TetrapolarSystem.si(dL).s(sPU).l(lCC);
-    return new TetrapolarMeasurement(merged, new Resistance1Layer(merged).value(avg.getValue()));
+    return new TetrapolarMeasurement(merged, avg.getValue());
   }
 
   @Override
@@ -86,12 +63,14 @@ final class TetrapolarMeasurement implements Measurement {
   @ParametersAreNonnullByDefault
   static List<Measurement> of(TetrapolarSystem[] systems, double[] ohms) {
     return IntStream.range(0, systems.length)
-        .mapToObj(i -> new TetrapolarMeasurement(systems[i], ohms[i])).map(Measurement.class::cast).toList();
+        .mapToObj(i -> new TetrapolarMeasurement(systems[i], systems[i].getApparent(ohms[i])))
+        .map(Measurement.class::cast).toList();
   }
 
   @Nonnull
   @ParametersAreNonnullByDefault
   static List<Measurement> of(TetrapolarSystem[] systems, ToDoubleFunction<TetrapolarSystem> toOhms) {
-    return Arrays.stream(systems).map(s -> new TetrapolarMeasurement(s, toOhms.applyAsDouble(s))).map(Measurement.class::cast).toList();
+    return Arrays.stream(systems).map(s -> new TetrapolarMeasurement(s, s.getApparent(toOhms.applyAsDouble(s))))
+        .map(Measurement.class::cast).toList();
   }
 }

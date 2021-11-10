@@ -36,7 +36,7 @@ abstract class AbstractMediumLayers implements MediumLayers {
     predictions = measurements.stream()
         .map(m ->
             m.toPrediction(
-                new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / m.getSystem().getL()),
+                new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / m.system().getL()),
                 rho.getValue()
             )
         )

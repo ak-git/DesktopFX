@@ -40,25 +40,25 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
   @Override
   public RelativeMediumLayers inverseRelative(@Nonnull Collection<? extends DerivativeMeasurement> measurements) {
     var kMinMax = new double[] {-1.0, 1.0};
-    if (measurements.stream().allMatch(d -> d.getDerivativeResistivity() > 0)) {
+    if (measurements.stream().allMatch(d -> d.derivativeResistivity() > 0)) {
       kMinMax[1] = 0.0;
     }
-    else if (measurements.stream().allMatch(d -> d.getDerivativeResistivity() < 0)) {
+    else if (measurements.stream().allMatch(d -> d.derivativeResistivity() < 0)) {
       kMinMax[0] = 0.0;
     }
-    else if (measurements.stream().anyMatch(d -> d.getDerivativeResistivity() > 0) &&
-        measurements.stream().anyMatch(d -> d.getDerivativeResistivity() < 0)) {
+    else if (measurements.stream().anyMatch(d -> d.derivativeResistivity() > 0) &&
+        measurements.stream().anyMatch(d -> d.derivativeResistivity() < 0)) {
       return NAN;
     }
     else {
       return InverseStatic.INSTANCE.inverseRelative(measurements);
     }
 
-    double[] subLog = measurements.stream().mapToDouble(d -> log(d.getResistivity()) - log(abs(d.getDerivativeResistivity()))).toArray();
+    double[] subLog = measurements.stream().mapToDouble(d -> log(d.resistivity()) - log(abs(d.derivativeResistivity()))).toArray();
     var logApparentPredicted = logApparentPredicted(measurements);
     var logDiffApparentPredicted = logDiffApparentPredicted(measurements);
 
-    List<TetrapolarSystem> tetrapolarSystems = measurements.stream().map(Measurement::getSystem).toList();
+    List<TetrapolarSystem> tetrapolarSystems = measurements.stream().map(Measurement::system).toList();
     PointValuePair kwOptimal = Simplex.optimizeAll(
         kw -> {
           double[] subLogPredicted = tetrapolarSystems.stream()
@@ -110,8 +110,8 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
           double[] b2 = new double[baseM.size()];
           for (int i = 0; i < baseM.size(); i++) {
             b2[i] = b[i];
-            b2[i] -= logAbs.applyAsDouble(measurements.get(i).getDerivativeResistivity()) -
-                logAbs.applyAsDouble(baseM.get(i).getDerivativeResistivity());
+            b2[i] -= logAbs.applyAsDouble(measurements.get(i).derivativeResistivity()) -
+                logAbs.applyAsDouble(baseM.get(i).derivativeResistivity());
           }
           return b2;
         }

@@ -105,14 +105,14 @@ public class InverseLayer2Test {
   @Test(dataProvider = "relativeStaticLayer2RiseErrors")
   @ParametersAreNonnullByDefault
   public void testInverseRelativeStaticLayer2RiseErrors(Collection<? extends Measurement> measurements, double[] riseErrors) {
-    double absError = measurements.stream().mapToDouble(m -> m.getSystem().getAbsError()).average().orElseThrow();
+    double absError = measurements.stream().mapToDouble(m -> m.system().getAbsError()).average().orElseThrow();
     double L = Measurements.getBaseL(measurements);
-    double dim = measurements.stream().mapToDouble(m -> Math.max(m.getSystem().getL(), m.getSystem().getS())).max().orElseThrow();
+    double dim = measurements.stream().mapToDouble(m -> Math.max(m.system().getL(), m.system().getS())).max().orElseThrow();
 
     var medium = InverseStatic.INSTANCE.inverseRelative(measurements);
     Assert.assertEquals(medium.k12AbsError() / (absError / dim), riseErrors[0], 0.1, medium.toString());
     Assert.assertEquals(medium.hToLAbsError() / (absError / L), riseErrors[1], 0.1, medium.toString());
-    Assert.assertEquals(medium, InverseStatic.INSTANCE.errors(measurements.stream().map(Measurement::getSystem).toList(), medium));
+    Assert.assertEquals(medium, InverseStatic.INSTANCE.errors(measurements.stream().map(Measurement::system).toList(), medium));
     LOGGER.info(medium::toString);
   }
 

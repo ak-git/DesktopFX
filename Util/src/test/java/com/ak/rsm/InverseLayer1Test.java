@@ -34,7 +34,7 @@ public class InverseLayer1Test {
     MediumLayers medium = InverseStatic.INSTANCE.inverse(measurements);
     Assert.assertEquals(medium.rho().getValue(), expected, 0.2, medium.toString());
     for (Measurement m : measurements) {
-      Assert.assertTrue(medium.rho().getAbsError() / medium.rho().getValue() < m.getSystem().getApparentRelativeError(), medium.toString());
+      Assert.assertTrue(medium.rho().getAbsError() / medium.rho().getValue() < m.system().getApparentRelativeError(), medium.toString());
     }
     LOGGER.info(medium::toString);
   }

@@ -72,10 +72,10 @@ enum InverseStatic implements Inverseable<Measurement> {
   @Nonnull
   @ParametersAreNonnullByDefault
   private static RelativeMediumLayers inverseRelative(Collection<? extends Measurement> measurements, UnaryOperator<double[]> subtract) {
-    double[] subLogApparent = subtract.apply(measurements.stream().mapToDouble(x -> log(x.getResistivity())).toArray());
+    double[] subLogApparent = subtract.apply(measurements.stream().mapToDouble(x -> log(x.resistivity())).toArray());
     var logApparentPredicted = logApparentPredicted(measurements);
 
-    List<TetrapolarSystem> tetrapolarSystems = measurements.stream().map(Measurement::getSystem).toList();
+    List<TetrapolarSystem> tetrapolarSystems = measurements.stream().map(Measurement::system).toList();
     PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
           double[] subLogApparentPredicted = subtract.apply(
               tetrapolarSystems.stream()
@@ -120,7 +120,7 @@ enum InverseStatic implements Inverseable<Measurement> {
           var measurements = toMeasurements.apply(systemList);
           double[] b = new double[baseM.size()];
           for (int i = 0; i < baseM.size(); i++) {
-            b[i] = log(measurements.get(i).getResistivity()) - log(baseM.get(i).getResistivity());
+            b[i] = log(measurements.get(i).resistivity()) - log(baseM.get(i).resistivity());
           }
           return fixB.apply(systemList, b);
         })

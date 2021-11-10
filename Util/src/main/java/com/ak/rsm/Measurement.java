@@ -5,10 +5,10 @@ import javax.annotation.Nonnull;
 
 interface Measurement {
   @Nonnull
-  TetrapolarSystem getSystem();
+  TetrapolarSystem system();
 
   @Nonnegative
-  double getResistivity();
+  double resistivity();
 
   @Nonnull
   Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1);

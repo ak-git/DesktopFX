@@ -17,13 +17,13 @@ enum Measurements {
 
   @Nonnegative
   static double getBaseL(@Nonnull Collection<? extends Measurement> measurements) {
-    return measurements.stream().mapToDouble(m -> m.getSystem().getL()).max().orElseThrow();
+    return measurements.stream().mapToDouble(m -> m.system().getL()).max().orElseThrow();
   }
 
   @Nonnegative
   static double getMaxHToL(@Nonnull Collection<? extends Measurement> measurements) {
     return measurements.parallelStream()
-        .mapToDouble(measurement -> measurement.getSystem().getHMax(1.0)).min().orElseThrow() / getBaseL(measurements);
+        .mapToDouble(measurement -> measurement.system().getHMax(1.0)).min().orElseThrow() / getBaseL(measurements);
   }
 
   @Nonnull
@@ -49,21 +49,21 @@ enum Measurements {
   static ValuePair getRho1(Collection<? extends Measurement> measurements, RelativeMediumLayers kw) {
     if (RelativeMediumLayers.SINGLE_LAYER.equals(kw)) {
       Measurement average = measurements.stream().map(Measurement.class::cast).reduce(Measurement::merge).orElseThrow();
-      double rho = average.getResistivity();
-      return ValuePair.Name.RHO_1.of(rho, rho * average.getSystem().getApparentRelativeError());
+      double rho = average.resistivity();
+      return ValuePair.Name.RHO_1.of(rho, rho * average.system().getApparentRelativeError());
     }
     else {
       double baseL = getBaseL(measurements);
       return measurements.stream().parallel()
           .map(measurement -> {
-            TetrapolarSystem s = measurement.getSystem();
+            TetrapolarSystem s = measurement.system();
             double normApparent = Apparent2Rho.newNormalizedApparent2Rho(s.toRelative()).applyAsDouble(new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / s.getL()));
 
             double fK = Math.abs(Apparent2Rho.newDerivativeApparentByK2Rho(s.toRelative()).applyAsDouble(kw) * kw.k12AbsError());
             double fPhi = Math.abs(Apparent2Rho.newDerivativeApparentByPhi2Rho(s.toRelative()).applyAsDouble(kw) * kw.hToLAbsError());
 
-            return ValuePair.Name.RHO_1.of(measurement.getResistivity() / normApparent,
-                (fK + fPhi) * measurement.getResistivity() / pow(normApparent, 2.0)
+            return ValuePair.Name.RHO_1.of(measurement.resistivity() / normApparent,
+                (fK + fPhi) * measurement.resistivity() / pow(normApparent, 2.0)
             );
           })
           .reduce(ValuePair::mergeWith).orElseThrow();
