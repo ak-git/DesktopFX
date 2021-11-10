@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
-import java.util.stream.IntStream;
+import java.util.stream.DoubleStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -62,8 +62,9 @@ record TetrapolarMeasurement(@Nonnull TetrapolarSystem system, @Nonnegative doub
   @Nonnull
   @ParametersAreNonnullByDefault
   static List<Measurement> of(TetrapolarSystem[] systems, double[] ohms) {
-    return IntStream.range(0, systems.length)
-        .mapToObj(i -> new TetrapolarMeasurement(systems[i], systems[i].getApparent(ohms[i])))
+    var ohmsIt = DoubleStream.of(ohms).iterator();
+    return Arrays.stream(systems)
+        .map(s -> new TetrapolarMeasurement(s, s.getApparent(ohmsIt.nextDouble())))
         .map(Measurement.class::cast).toList();
   }
 

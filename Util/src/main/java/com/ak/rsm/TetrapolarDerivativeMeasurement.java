@@ -3,7 +3,7 @@ package com.ak.rsm;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.ToDoubleFunction;
-import java.util.stream.IntStream;
+import java.util.stream.DoubleStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -44,12 +44,32 @@ record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, @Nonnul
   @Nonnull
   @ParametersAreNonnullByDefault
   static List<DerivativeMeasurement> of(TetrapolarSystem[] systems, double[] rOhmsBefore, double[] rOhmsAfter, double dh) {
-    return IntStream.range(0, systems.length)
-        .mapToObj(i -> new TetrapolarDerivativeMeasurement(
-            new TetrapolarMeasurement(systems[i], systems[i].getApparent(rOhmsBefore[i])),
-            new TetrapolarMeasurement(systems[i], systems[i].getApparent(rOhmsAfter[i])),
-            dh
-        ))
+    var rOhmsBeforeIt = DoubleStream.of(rOhmsBefore).iterator();
+    var rOhmsAfterIt = DoubleStream.of(rOhmsAfter).iterator();
+
+    return Arrays.stream(systems)
+        .map(s ->
+            new TetrapolarDerivativeMeasurement(
+                new TetrapolarMeasurement(s, s.getApparent(rOhmsBeforeIt.nextDouble())),
+                new TetrapolarMeasurement(s, s.getApparent(rOhmsAfterIt.nextDouble())),
+                dh
+            )
+        )
+        .map(DerivativeMeasurement.class::cast)
+        .toList();
+  }
+
+  @Nonnull
+  @ParametersAreNonnullByDefault
+  static List<DerivativeMeasurement> ofResistivity(TetrapolarSystem[] systems, double[] resistivity, double[] resistivityDiff) {
+    var rIt = DoubleStream.of(resistivity).iterator();
+    var rDiffIt = DoubleStream.of(resistivityDiff).iterator();
+    return Arrays.stream(systems)
+        .map(s ->
+            new TetrapolarDerivativeMeasurement(
+                new TetrapolarMeasurement(s, rIt.nextDouble()), rDiffIt.nextDouble()
+            )
+        )
         .map(DerivativeMeasurement.class::cast)
         .toList();
   }
@@ -61,10 +81,12 @@ record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, @Nonnul
                               ToDoubleFunction<TetrapolarSystem> toOhmsAfter,
                               double dh) {
     return Arrays.stream(systems)
-        .map(s -> new TetrapolarDerivativeMeasurement(
-            new TetrapolarMeasurement(s, s.getApparent(toOhmsBefore.applyAsDouble(s))),
-            new TetrapolarMeasurement(s, s.getApparent(toOhmsAfter.applyAsDouble(s))),
-            dh)
+        .map(s ->
+            new TetrapolarDerivativeMeasurement(
+                new TetrapolarMeasurement(s, s.getApparent(toOhmsBefore.applyAsDouble(s))),
+                new TetrapolarMeasurement(s, s.getApparent(toOhmsAfter.applyAsDouble(s))),
+                dh
+            )
         )
         .map(Measurement.class::cast).toList();
   }

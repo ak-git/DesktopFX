@@ -484,12 +484,11 @@ public class InverseLayer2Test {
   @Test(enabled = false)
   public void testInverseDynamicLayerFile() {
     String T = "TIME";
-    String R1_BEFORE = "R1";
-    String R1_AFTER = "R1`";
-    String R2_BEFORE = "R2";
-    String R2_AFTER = "R2`";
     String POSITION = "POSITION";
-    String DH = "dH";
+    String RHO_S1 = "RHO_S1";
+    String RHO_S1_DIFF = "RHO_S1_DIFF";
+    String RHO_S2 = "RHO_S2";
+    String RHO_S2_DIFF = "RHO_S2_DIFF";
 
     String RHO_1 = "rho1";
     String RHO_2 = "rho2";
@@ -501,10 +500,10 @@ public class InverseLayer2Test {
 
     String fileName = "2021-10-25 17-23-43";
     Path path = Paths.get(Extension.CSV.attachTo(fileName));
-    String[] HEADERS = {T, POSITION, DH, RHO_1, RHO_2, H, RMS_BASE, RMS_DIFF};
+    String[] HEADERS = {T, POSITION, RHO_1, RHO_2, H, RMS_BASE, RMS_DIFF};
     try (CSVParser parser = CSVParser.parse(
         new BufferedReader(new FileReader(path.toFile())),
-        CSVFormat.Builder.create().setHeader(T, R1_BEFORE, R1_AFTER, R2_BEFORE, R2_AFTER, POSITION, DH).build());
+        CSVFormat.Builder.create().setHeader(T, POSITION, RHO_S1, RHO_S1_DIFF, RHO_S2, RHO_S2_DIFF).build());
          CSVLineFileCollector collector = new CSVLineFileCollector(
              Paths.get(Extension.CSV.attachTo("%s inverse".formatted(fileName))),
              HEADERS
@@ -513,16 +512,14 @@ public class InverseLayer2Test {
       Assert.assertTrue(StreamSupport.stream(parser.spliterator(), false)
           .filter(r -> r.getRecordNumber() > 1)
           .<Map<String, Object>>mapMulti((r, consumer) -> {
-            double[] rOhms = {Double.parseDouble(r.get(R1_BEFORE)), Double.parseDouble(r.get(R2_BEFORE))};
-            double[] rOhmsAfter = {Double.parseDouble(r.get(R1_AFTER)), Double.parseDouble(r.get(R2_AFTER))};
-            double dh = Metrics.fromMilli(Double.parseDouble(r.get(DH)));
-            var medium = InverseDynamic.INSTANCE.inverse(TetrapolarDerivativeMeasurement.of(systems, rOhms, rOhmsAfter, dh));
-            LOGGER.info(() -> "%.2f sec; %s mm; %s µm; %s".formatted(Double.parseDouble(r.get(T)), r.get(POSITION), r.get(DH), medium));
+            double[] rho = {Double.parseDouble(r.get(RHO_S1)), Double.parseDouble(r.get(RHO_S2))};
+            double[] rhoDiff = {Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))};
+            var medium = InverseDynamic.INSTANCE.inverse(TetrapolarDerivativeMeasurement.ofResistivity(systems, rho, rhoDiff));
+            LOGGER.info(() -> "%.2f sec; %s mm; %s".formatted(Double.parseDouble(r.get(T)), r.get(POSITION), medium));
             if (!Double.isNaN(medium.rho1().getValue())) {
               consumer.accept(Map.ofEntries(
                   Map.entry(T, r.get(T)),
                   Map.entry(POSITION, r.get(POSITION)),
-                  Map.entry(DH, r.get(DH)),
                   Map.entry(RHO_1, medium.rho1().getValue()),
                   Map.entry(RHO_2, medium.rho2().getValue()),
                   Map.entry(H, Metrics.toMilli(medium.h1().getValue())),
