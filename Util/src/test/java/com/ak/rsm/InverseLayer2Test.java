@@ -3,6 +3,8 @@ package com.ak.rsm;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -13,12 +15,14 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.math.ValuePair;
 import com.ak.util.CSVLineFileCollector;
 import com.ak.util.Extension;
 import com.ak.util.Metrics;
+import com.ak.util.Strings;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.testng.Assert;
@@ -480,8 +484,21 @@ public class InverseLayer2Test {
     LOGGER.info(medium::toString);
   }
 
-  @Test(enabled = false)
-  public void testInverseDynamicLayerFileResistivity() {
+  @DataProvider(name = "cvsFiles")
+  public static Object[][] cvsFiles() throws IOException {
+    Object[][] paths;
+    try (DirectoryStream<Path> p = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*"))) {
+      Object[] csv = StreamSupport.stream(p.spliterator(), true).map(Path::toString).toArray();
+      paths = new Object[csv.length][1];
+      for (int i = 0; i < csv.length; i++) {
+        paths[i][0] = csv[i];
+      }
+    }
+    return paths;
+  }
+
+  @Test(enabled = false, dataProvider = "cvsFiles")
+  public void testInverseDynamicLayerFileResistivity(@Nonnull String fileName) {
     String T = "TIME";
     String POSITION = "POSITION";
     String RHO_S1 = "RHO_S1";
@@ -495,9 +512,9 @@ public class InverseLayer2Test {
     String RMS_BASE = "RMS_BASE";
     String RMS_DIFF = "RMS_DIFF";
 
-    TetrapolarSystem[] systems = systems2(0.1, 6.0);
+    String[] mm = fileName.split(Strings.SPACE);
+    TetrapolarSystem[] systems = systems2(0.1, Integer.parseInt(mm[mm.length - 2]));
 
-    String fileName = "2021-10-25 17-23-43";
     Path path = Paths.get(Extension.CSV.attachTo(fileName));
     String[] HEADERS = {T, POSITION, RHO_1, RHO_2, H, RMS_BASE, RMS_DIFF};
     try (CSVParser parser = CSVParser.parse(
