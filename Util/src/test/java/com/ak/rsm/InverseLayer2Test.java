@@ -481,7 +481,7 @@ public class InverseLayer2Test {
   }
 
   @Test(enabled = false)
-  public void testInverseDynamicLayerFile() {
+  public void testInverseDynamicLayerFileResistivity() {
     String T = "TIME";
     String POSITION = "POSITION";
     String RHO_S1 = "RHO_S1";
