@@ -61,7 +61,7 @@ record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, @Nonnul
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  static List<DerivativeMeasurement> ofResistivity(TetrapolarSystem[] systems, double[] resistivity, double[] resistivityDiff) {
+  static List<DerivativeMeasurement> of(TetrapolarSystem[] systems, double[] resistivity, double[] resistivityDiff) {
     var rIt = DoubleStream.of(resistivity).iterator();
     var rDiffIt = DoubleStream.of(resistivityDiff).iterator();
     return Arrays.stream(systems)

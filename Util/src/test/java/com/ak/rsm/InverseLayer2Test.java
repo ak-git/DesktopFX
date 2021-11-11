@@ -307,9 +307,11 @@ public class InverseLayer2Test {
         {
             TetrapolarDerivativeMeasurement.of(
                 systems2,
-                s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h),
-                s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h),
-                dh
+                new double[] {
+                    systems2[0].getApparent(new Resistance2Layer(systems2[0]).value(1.0, Double.POSITIVE_INFINITY, h)),
+                    systems2[1].getApparent(new Resistance2Layer(systems2[1]).value(1.0, Double.POSITIVE_INFINITY, h)),
+                },
+                new double[] {0.0, 0.0}
             ),
             new double[] {1.0, Double.POSITIVE_INFINITY, h}
         },
@@ -324,10 +326,7 @@ public class InverseLayer2Test {
         },
         {
             TetrapolarDerivativeMeasurement.of(
-                systems2,
-                s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h),
-                s -> new Resistance2Layer(s).value(1.0, Double.POSITIVE_INFINITY, h + dh),
-                dh
+                systems2, new double[] {2.78, 3.70}, new double[] {-16.385, -22.016}
             ),
             new double[] {1.0, Double.POSITIVE_INFINITY, h}
         },
@@ -401,7 +400,7 @@ public class InverseLayer2Test {
                 new double[] {29.75, 66.35},
                 dh
             ),
-            new double[] {0.694, 1.0, Metrics.fromMilli(4.96)}
+            new double[] {0.694, Double.POSITIVE_INFINITY, Metrics.fromMilli(5.01)}
         },
         // h = 10 mm, rho1 = 0.7, rho2 = Inf
         {
@@ -411,7 +410,7 @@ public class InverseLayer2Test {
                 new double[] {16.821, 32.383},
                 dh
             ),
-            new double[] {0.699, 1.0, Metrics.fromMilli(9.98)}
+            new double[] {0.7, Double.POSITIVE_INFINITY, Metrics.fromMilli(9.98)}
         },
         // h = 15 mm, rho1 = 0.7, rho2 = Inf
         {
@@ -421,7 +420,7 @@ public class InverseLayer2Test {
                 new double[] {13.357, 23.953},
                 dh
             ),
-            new double[] {0.698, 1.0, Metrics.fromMilli(14.48)}
+            new double[] {0.698, 33.428, Metrics.fromMilli(14.48)}
         },
         // h = 20 mm, rho1 = 0.7, rho2 = Inf
         {
@@ -431,7 +430,7 @@ public class InverseLayer2Test {
                 new double[] {12.194, 20.589},
                 dh
             ),
-            new double[] {0.7, 1.0, Metrics.fromMilli(19.95)}
+            new double[] {0.7, 383.867, Metrics.fromMilli(19.95)}
         },
         // h = 25 mm, rho1 = 0.7, rho2 = Inf
         {
@@ -441,7 +440,7 @@ public class InverseLayer2Test {
                 new double[] {11.714, 18.998},
                 dh
             ),
-            new double[] {0.7, 1.0, Metrics.fromMilli(25.0)}
+            new double[] {0.7, 3.0, Metrics.fromMilli(19.81)}
         },
         // h = 30 mm, rho1 = 0.7, rho2 = Inf
         {
@@ -451,7 +450,7 @@ public class InverseLayer2Test {
                 new double[] {11.484, 18.158},
                 dh
             ),
-            new double[] {0.7, 1.0, Metrics.fromMilli(30.0)}
+            new double[] {0.7, 1.5, Metrics.fromMilli(20.4)}
         },
         // h = 35 mm, rho1 = 0.7, rho2 = Inf
         {
@@ -461,7 +460,7 @@ public class InverseLayer2Test {
                 new double[] {11.362, 17.678},
                 dh
             ),
-            new double[] {0.698, 1.0, Metrics.fromMilli(34.06)}
+            new double[] {0.698, Double.POSITIVE_INFINITY, Metrics.fromMilli(34.06)}
         },
     };
   }
@@ -514,7 +513,7 @@ public class InverseLayer2Test {
           .<Map<String, Object>>mapMulti((r, consumer) -> {
             double[] rho = {Double.parseDouble(r.get(RHO_S1)), Double.parseDouble(r.get(RHO_S2))};
             double[] rhoDiff = {Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))};
-            var medium = InverseDynamic.INSTANCE.inverse(TetrapolarDerivativeMeasurement.ofResistivity(systems, rho, rhoDiff));
+            var medium = InverseDynamic.INSTANCE.inverse(TetrapolarDerivativeMeasurement.of(systems, rho, rhoDiff));
             LOGGER.info(() -> "%.2f sec; %s mm; %s".formatted(Double.parseDouble(r.get(T)), r.get(POSITION), medium));
             if (!Double.isNaN(medium.rho1().getValue())) {
               consumer.accept(Map.ofEntries(
