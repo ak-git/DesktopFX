@@ -487,7 +487,7 @@ public class InverseLayer2Test {
   @DataProvider(name = "cvsFiles")
   public static Object[][] cvsFiles() throws IOException {
     Object[][] paths;
-    try (DirectoryStream<Path> p = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*"))) {
+    try (DirectoryStream<Path> p = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*mm"))) {
       Object[] csv = StreamSupport.stream(p.spliterator(), true).map(Path::toString).toArray();
       paths = new Object[csv.length][1];
       for (int i = 0; i < csv.length; i++) {
@@ -521,7 +521,7 @@ public class InverseLayer2Test {
         new BufferedReader(new FileReader(path.toFile())),
         CSVFormat.Builder.create().setHeader(T, POSITION, RHO_S1, RHO_S1_DIFF, RHO_S2, RHO_S2_DIFF).build());
          CSVLineFileCollector collector = new CSVLineFileCollector(
-             Paths.get(Extension.CSV.attachTo("%s inverse".formatted(fileName))),
+             Paths.get(Extension.CSV.attachTo("%s inverse".formatted(Extension.CSV.clean(fileName)))),
              HEADERS
          )
     ) {
