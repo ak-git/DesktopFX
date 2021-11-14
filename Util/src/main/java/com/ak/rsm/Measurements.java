@@ -10,7 +10,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.ak.math.ValuePair;
 
 import static java.lang.StrictMath.log;
-import static java.lang.StrictMath.pow;
 
 enum Measurements {
   ;
@@ -57,14 +56,11 @@ enum Measurements {
       return measurements.stream().parallel()
           .map(measurement -> {
             TetrapolarSystem s = measurement.system();
-            double normApparent = Apparent2Rho.newNormalizedApparent2Rho(s.toRelative()).applyAsDouble(new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / s.getL()));
+            double normApparent = Apparent2Rho.newNormalizedApparent2Rho(s.toRelative())
+                .applyAsDouble(new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / s.getL()));
 
-            double fK = Math.abs(Apparent2Rho.newDerivativeApparentByK2Rho(s.toRelative()).applyAsDouble(kw) * kw.k12AbsError());
-            double fPhi = Math.abs(Apparent2Rho.newDerivativeApparentByPhi2Rho(s.toRelative()).applyAsDouble(kw) * kw.hToLAbsError());
-
-            return ValuePair.Name.RHO_1.of(measurement.resistivity() / normApparent,
-                (fK + fPhi) * measurement.resistivity() / pow(normApparent, 2.0)
-            );
+            double rho1 = measurement.resistivity() / normApparent;
+            return ValuePair.Name.RHO_1.of(rho1, rho1 * s.getApparentRelativeError());
           })
           .reduce(ValuePair::mergeWith).orElseThrow();
     }

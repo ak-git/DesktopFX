@@ -26,10 +26,10 @@ public class Layer2MediumTest {
         },
         {
             new Layer2Medium(measurements, new Layer2RelativeMedium(
-                ValuePair.Name.K12.of(-0.6, 0.001),
-                ValuePair.Name.H.of(0.1, 0.001))
+                ValuePair.Name.K12.of(-0.6, 0.01),
+                ValuePair.Name.H.of(0.3, 0.01))
             ),
-            new double[] {0.1453, 0.0363, Metrics.fromMilli(7.0 * 4 * 0.1)}
+            new double[] {0.0809, 0.020, Metrics.fromMilli(7.0 * 4 * 0.3)}
         },
         {
             new Layer2Medium(measurements, RelativeMediumLayers.SINGLE_LAYER),
