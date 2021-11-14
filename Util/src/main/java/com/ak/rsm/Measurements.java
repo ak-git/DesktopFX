@@ -57,7 +57,8 @@ enum Measurements {
       return measurements.stream().parallel()
           .map(measurement -> {
             TetrapolarSystem s = measurement.system();
-            double normApparent = Apparent2Rho.newNormalizedApparent2Rho(s.toRelative()).applyAsDouble(new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / s.getL()));
+            double normApparent = Apparent2Rho.newNormalizedApparent2Rho(s.toRelative())
+                .applyAsDouble(new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / s.getL()));
 
             double fK = Math.abs(Apparent2Rho.newDerivativeApparentByK2Rho(s.toRelative()).applyAsDouble(kw) * kw.k12AbsError());
             double fPhi = Math.abs(Apparent2Rho.newDerivativeApparentByPhi2Rho(s.toRelative()).applyAsDouble(kw) * kw.hToLAbsError());
