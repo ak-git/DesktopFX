@@ -46,8 +46,8 @@ public class InverseLayer2Test {
             TetrapolarMeasurement.of(systems4,
                 s -> new Resistance2Layer(s).value(1.0, 4.0, h)),
             new ValuePair[] {
-                ValuePair.Name.RHO_1.of(1.0, 0.000073),
-                ValuePair.Name.RHO_2.of(4.0, 0.0068),
+                ValuePair.Name.RHO_1.of(1.0, 0.0022),
+                ValuePair.Name.RHO_2.of(4.0, 0.015),
                 ValuePair.Name.H.of(h, Metrics.fromMilli(0.050))
             }
         },
@@ -55,8 +55,8 @@ public class InverseLayer2Test {
             TetrapolarMeasurement.of(systems4,
                 s -> new Resistance2Layer(s).value(4.0, 1.0, h)),
             new ValuePair[] {
-                ValuePair.Name.RHO_1.of(4.0, 0.00029),
-                ValuePair.Name.RHO_2.of(1.0, 0.00078),
+                ValuePair.Name.RHO_1.of(4.0, 0.0055),
+                ValuePair.Name.RHO_2.of(1.0, 0.0021),
                 ValuePair.Name.H.of(h, Metrics.fromMilli(0.019))
             }
         },
@@ -268,8 +268,8 @@ public class InverseLayer2Test {
                 dh
             ),
             new ValuePair[] {
-                ValuePair.Name.RHO_1.of(4.0, 0.00044),
-                ValuePair.Name.RHO_2.of(1.0, 0.00027),
+                ValuePair.Name.RHO_1.of(4.0, 0.00097),
+                ValuePair.Name.RHO_2.of(1.0, 0.00040),
                 ValuePair.Name.H.of(h, Metrics.fromMilli(0.0018))
             }
         },
@@ -378,7 +378,7 @@ public class InverseLayer2Test {
                 new double[] {93.5, 162.85},
                 Metrics.fromMilli(0.12)
             ),
-            new double[] {5.425, 4.49, Metrics.fromMilli(7.88)}
+            new double[] {5.118, 4.235, Metrics.fromMilli(7.89)}
         },
         {
             TetrapolarDerivativeMeasurement.of(
