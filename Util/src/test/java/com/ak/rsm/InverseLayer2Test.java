@@ -532,19 +532,17 @@ public class InverseLayer2Test {
             double[] rhoDiff = {Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))};
             var medium = InverseDynamic.INSTANCE.inverse(TetrapolarDerivativeMeasurement.of(systems, rho, rhoDiff));
             LOGGER.info(() -> "%.2f sec; %s mm; %s".formatted(Double.parseDouble(r.get(T)), r.get(POSITION), medium));
-            if (!Double.isNaN(medium.rho1().getValue())) {
-              consumer.accept(
-                  Map.ofEntries(
-                      Map.entry(T, r.get(T)),
-                      Map.entry(POSITION, r.get(POSITION)),
-                      Map.entry(RHO_1, medium.rho1().getValue()),
-                      Map.entry(RHO_2, medium.rho2().getValue()),
-                      Map.entry(H, Metrics.toMilli(medium.h1().getValue())),
-                      Map.entry(RMS_BASE, medium.getRMS()[0]),
-                      Map.entry(RMS_DIFF, medium.getRMS()[1])
-                  )
-              );
-            }
+            consumer.accept(
+                Map.ofEntries(
+                    Map.entry(T, r.get(T)),
+                    Map.entry(POSITION, r.get(POSITION)),
+                    Map.entry(RHO_1, medium.rho1().getValue()),
+                    Map.entry(RHO_2, medium.rho2().getValue()),
+                    Map.entry(H, Metrics.toMilli(medium.h1().getValue())),
+                    Map.entry(RMS_BASE, medium.getRMS()[0]),
+                    Map.entry(RMS_DIFF, medium.getRMS()[1])
+                )
+            );
           })
           .map(stringMap -> Arrays.stream(HEADERS).map(stringMap::get).toArray())
           .collect(collector));
