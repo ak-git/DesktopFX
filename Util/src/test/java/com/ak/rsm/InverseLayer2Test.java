@@ -67,10 +67,10 @@ public class InverseLayer2Test {
   @ParametersAreNonnullByDefault
   public void testInverseLayer2(Collection<? extends Measurement> measurements, ValuePair[] expected) {
     var medium = InverseStatic.INSTANCE.inverse(measurements);
+    LOGGER.info(medium::toString);
     Assert.assertEquals(medium.rho1(), expected[0], medium.toString());
     Assert.assertEquals(medium.rho2(), expected[1], medium.toString());
     Assert.assertEquals(medium.h1(), expected[2], medium.toString());
-    LOGGER.info(medium::toString);
   }
 
   @DataProvider(name = "relativeStaticLayer2RiseErrors")
@@ -114,10 +114,10 @@ public class InverseLayer2Test {
     double dim = measurements.stream().mapToDouble(m -> Math.max(m.system().getL(), m.system().getS())).max().orElseThrow();
 
     var medium = InverseStatic.INSTANCE.inverseRelative(measurements);
+    LOGGER.info(medium::toString);
     Assert.assertEquals(medium.k12AbsError() / (absError / dim), riseErrors[0], 0.1, medium.toString());
     Assert.assertEquals(medium.hToLAbsError() / (absError / L), riseErrors[1], 0.1, medium.toString());
     Assert.assertEquals(medium, InverseStatic.INSTANCE.errors(measurements.stream().map(Measurement::system).toList(), medium));
-    LOGGER.info(medium::toString);
   }
 
   @DataProvider(name = "relativeStaticLayer2")
@@ -165,11 +165,11 @@ public class InverseLayer2Test {
   @ParametersAreNonnullByDefault
   public void testInverseRelativeStaticLayer2(Collection<? extends Measurement> measurements, RelativeMediumLayers expected) {
     var medium = InverseStatic.INSTANCE.inverseRelative(measurements);
+    LOGGER.info(medium::toString);
     Assert.assertEquals(medium.k12(), expected.k12(), expected.k12AbsError(), medium.toString());
     Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), expected.k12AbsError() * 0.1, medium.toString());
     Assert.assertEquals(medium.hToL(), expected.hToL(), expected.hToLAbsError(), medium.toString());
     Assert.assertEquals(medium.hToLAbsError(), expected.hToLAbsError(), expected.hToLAbsError() * 0.1, medium.toString());
-    LOGGER.info(medium::toString);
   }
 
   @DataProvider(name = "relativeDynamicLayer2")
@@ -233,11 +233,11 @@ public class InverseLayer2Test {
   @ParametersAreNonnullByDefault
   public void testInverseRelativeDynamicLayer2Theory(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
     var medium = InverseDynamic.INSTANCE.inverseRelative(measurements);
+    LOGGER.info(medium::toString);
     Assert.assertEquals(medium.k12(), expected.k12(), expected.k12AbsError(), medium.toString());
     Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), expected.k12AbsError() * 0.1, medium.toString());
     Assert.assertEquals(medium.hToL(), expected.hToL(), expected.hToLAbsError(), medium.toString());
     Assert.assertEquals(medium.hToLAbsError(), expected.hToLAbsError(), expected.hToLAbsError() * 0.1, medium.toString());
-    LOGGER.info(medium::toString);
   }
 
   @DataProvider(name = "absoluteDynamicLayer2")
@@ -281,10 +281,10 @@ public class InverseLayer2Test {
   @ParametersAreNonnullByDefault
   public void testInverseAbsoluteDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, ValuePair[] expected) {
     var medium = InverseDynamic.INSTANCE.inverse(measurements);
+    LOGGER.info(medium::toString);
     Assert.assertEquals(medium.rho1(), expected[0], medium.toString());
     Assert.assertEquals(medium.rho2(), expected[1], medium.toString());
     Assert.assertEquals(medium.h1(), expected[2], medium.toString());
-    LOGGER.info(medium::toString);
   }
 
   @DataProvider(name = "theoryDynamicParameters2")
@@ -478,10 +478,10 @@ public class InverseLayer2Test {
   @ParametersAreNonnullByDefault
   public void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, double[] expected) {
     var medium = InverseDynamic.INSTANCE.inverse(measurements);
+    LOGGER.info(medium::toString);
     Assert.assertEquals(medium.rho1().getValue(), expected[0], 0.1, medium.toString());
     Assert.assertEquals(medium.rho2().getValue() > 1000 ? Double.POSITIVE_INFINITY : medium.rho2().getValue(), expected[1], 0.1, medium.toString());
     Assert.assertEquals(Metrics.toMilli(medium.h1().getValue()), Metrics.toMilli(expected[2]), 0.01, medium.toString());
-    LOGGER.info(medium::toString);
   }
 
   @DataProvider(name = "cvsFiles")
