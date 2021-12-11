@@ -37,9 +37,9 @@ public class TetrapolarSystemTest {
   }
 
   @Test
-  public void testS() {
-    Assert.assertEquals(TetrapolarSystem.si(0.1).s(2.0).l(1.0).getS(), 2.0);
-    Assert.assertEquals(TetrapolarSystem.milli(0.1).s(2000.0).l(10000.0).getS(), 2.0);
+  public void testDim() {
+    Assert.assertEquals(TetrapolarSystem.si(0.1).s(2.0).l(1.0).getDim(), 2.0);
+    Assert.assertEquals(TetrapolarSystem.milli(0.1).s(2000.0).l(10000.0).getDim(), 10.0);
   }
 
   @Test

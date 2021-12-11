@@ -71,8 +71,8 @@ public final class TetrapolarSystem {
   }
 
   @Nonnegative
-  double getS() {
-    return sPU;
+  double getDim() {
+    return Math.max(sPU, lCC);
   }
 
   @Nonnegative
@@ -123,7 +123,7 @@ public final class TetrapolarSystem {
   @Nonnull
   static Collection<List<TetrapolarSystem>> getMeasurementsCombination(@Nonnull Collection<TetrapolarSystem> systems) {
     ToLongFunction<Collection<TetrapolarSystem>> distinctSizes =
-        ts -> ts.stream().flatMap(s -> DoubleStream.of(s.getS(), s.getL()).boxed()).distinct().count();
+        ts -> ts.stream().flatMap(s -> DoubleStream.of(s.sPU, s.lCC).boxed()).distinct().count();
     var initialSizes = distinctSizes.applyAsLong(systems);
     return IntStream.range(0, 1 << systems.size())
         .mapToObj(n -> {

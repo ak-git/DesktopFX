@@ -111,7 +111,7 @@ public class InverseLayer2Test {
   public void testInverseRelativeStaticLayer2RiseErrors(Collection<? extends Measurement> measurements, double[] riseErrors) {
     double absError = measurements.stream().mapToDouble(m -> m.system().getAbsError()).average().orElseThrow();
     double L = Measurements.getBaseL(measurements);
-    double dim = measurements.stream().mapToDouble(m -> Math.max(m.system().getL(), m.system().getS())).max().orElseThrow();
+    double dim = measurements.stream().mapToDouble(m -> m.system().getDim()).max().orElseThrow();
 
     var medium = InverseStatic.INSTANCE.inverseRelative(measurements);
     LOGGER.info(medium::toString);
@@ -275,7 +275,6 @@ public class InverseLayer2Test {
         },
     };
   }
-
 
   @Test(dataProvider = "absoluteDynamicLayer2")
   @ParametersAreNonnullByDefault

@@ -21,7 +21,7 @@ public class PredictionTest {
 
     Measurement merge1 = measurement1.merge(measurement2);
     Measurement merge2 = measurement2.merge(measurement1);
-    Assert.assertEquals(merge1.system().getS(), merge2.system().getS(), 1.0e-6);
+    Assert.assertEquals(merge1.system().getDim(), merge2.system().getDim(), 1.0e-6);
     Assert.assertEquals(merge1.system().getL(), merge2.system().getL(), 1.0e-6);
     Assert.assertEquals(merge1.resistivity(), merge2.resistivity(), 1.0e-6);
 

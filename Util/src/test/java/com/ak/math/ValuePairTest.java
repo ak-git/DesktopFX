@@ -1,14 +1,14 @@
 package com.ak.math;
 
 import java.security.SecureRandom;
-import java.util.Random;
+import java.util.random.RandomGenerator;
 
 import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class ValuePairTest {
-  private static final Random RND = new SecureRandom();
+  private static final RandomGenerator RND = new SecureRandom();
 
   @Test
   public void testGetValue() {

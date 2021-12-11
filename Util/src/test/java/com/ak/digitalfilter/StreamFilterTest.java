@@ -1,8 +1,8 @@
 package com.ak.digitalfilter;
 
 import java.security.SecureRandom;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.random.RandomGenerator;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
@@ -12,7 +12,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class StreamFilterTest {
-  private static final Random RANDOM = new SecureRandom();
+  private static final RandomGenerator RANDOM = new SecureRandom();
 
   @DataProvider(name = "stream")
   public static Object[][] data() {

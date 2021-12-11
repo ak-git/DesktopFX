@@ -2,8 +2,8 @@ package com.ak.rsm;
 
 import java.security.SecureRandom;
 import java.util.Collection;
-import java.util.Random;
 import java.util.logging.Logger;
+import java.util.random.RandomGenerator;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -19,7 +19,7 @@ public class InverseLayer1Test {
 
   @DataProvider(name = "layer1")
   public static Object[][] layer1() {
-    Random random = new SecureRandom();
+    RandomGenerator random = new SecureRandom();
     int rho = random.nextInt(9) + 1;
     return new Object[][] {
         {
