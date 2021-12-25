@@ -11,7 +11,6 @@ module com.ak.util {
   requires io.jenetics.base;
 
   opens com.ak.inverse to org.testng;
-  opens com.ak.rsm to org.testng;
 
   exports com.ak.math to org.testng;
 
@@ -19,5 +18,10 @@ module com.ak.util {
   exports com.ak.logging;
   exports com.ak.digitalfilter;
   exports com.ak.numbers;
-  exports com.ak.rsm;
+  exports com.ak.rsm.resistance;
+  opens com.ak.rsm.resistance to org.testng;
+  exports com.ak.rsm.system;
+  opens com.ak.rsm.system to org.testng;
+  exports com.ak.rsm.measurement;
+  opens com.ak.rsm.measurement to org.testng;
 }
