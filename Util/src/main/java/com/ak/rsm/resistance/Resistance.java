@@ -12,6 +12,11 @@ public interface Resistance {
   @Nonnegative
   double ohms();
 
+  /**
+   * Gets <b>apparent</b> specific ohms which is corresponding to 1-layer model.
+   *
+   * @return <b>apparent</b> specific ohms in Ohm-m.
+   */
   @Nonnegative
   double resistivity();
 }

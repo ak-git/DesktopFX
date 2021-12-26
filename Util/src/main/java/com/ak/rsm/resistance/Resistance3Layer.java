@@ -10,7 +10,7 @@ import com.ak.rsm.system.TetrapolarSystem;
 /**
  * Calculates <b>full</b> ohms R<sub>m-n</sub> (in Ohm) between electrodes for <b>3-layer</b> model.
  */
-public final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
+final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
   @Nonnull
   private final Resistance1Layer resistance1Layer;
   @Nonnull
@@ -18,7 +18,7 @@ public final class Resistance3Layer extends AbstractResistanceLayer<Potential3La
   @Nonnegative
   private final double hStep;
 
-  public Resistance3Layer(@Nonnull TetrapolarSystem electrodeSystem, double hStep) {
+  Resistance3Layer(@Nonnull TetrapolarSystem electrodeSystem, @Nonnegative double hStep) {
     super(electrodeSystem, value -> new Potential3Layer(value, hStep));
     resistance1Layer = new Resistance1Layer(electrodeSystem);
     resistance2Layer = new Resistance2Layer(electrodeSystem);

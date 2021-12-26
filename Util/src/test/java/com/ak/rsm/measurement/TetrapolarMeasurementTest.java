@@ -40,6 +40,11 @@ public class TetrapolarMeasurementTest {
             "10 000   30 000      0 1       36          3 39   0 068",
             3.39
         },
+        {
+            TetrapolarMeasurement.milli(0.1).system(10.0, 20.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
+            "10 000   20 000      0 1       20          5 7   0 17",
+            5.72,
+        },
 
         {
             TetrapolarMeasurement.milli(0.1).system(30.0, 60.0).ofOhms(1.0 / Math.PI),

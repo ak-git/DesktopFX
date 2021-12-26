@@ -4,8 +4,8 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.rsm.resistance.Resistance2LayerTest;
-import com.ak.rsm.resistance.Resistance3Layer;
 import com.ak.rsm.resistance.Resistance3LayerTest;
+import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
@@ -19,11 +19,9 @@ public class DerivativeApparentByPhi3RhoTest {
     double h = Metrics.fromMilli(1);
     double dh = h / 1000.0;
     int p1 = (int) hmm;
-    Resistance3Layer resistance3LayerAfter = new Resistance3Layer(system, h + dh);
-    Resistance3Layer resistance3LayerBefore = new Resistance3Layer(system, h);
-    double expected = system.getApparent(
-        (resistance3LayerAfter.value(rho[0], rho[1], rho[1], p1, 1) - resistance3LayerBefore.value(rho[0], rho[1], rho[1], p1, 1)) / dh
-    );
+    double rAfter = TetrapolarResistance.of(system).rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(h + dh).p(p1, 1).resistivity();
+    double rBefore = TetrapolarResistance.of(system).rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(h).p(p1, 1).resistivity();
+    double expected = (rAfter - rBefore) / dh;
     expected /= rho[0];
 
     double actual = Apparent3Rho.newDerivativeApparentByPhi3Rho(system.relativeSystem()).value(Layers.getK12(rho[0], rho[1]), 0.0,
@@ -37,11 +35,9 @@ public class DerivativeApparentByPhi3RhoTest {
                          @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.fromMilli(smm), Metrics.fromMilli(lmm));
     double dh = h / 1000.0;
-    Resistance3Layer resistance3LayerAfter = new Resistance3Layer(system, h + dh);
-    Resistance3Layer resistance3LayerBefore = new Resistance3Layer(system, h);
-    double expected = system.getApparent(
-        (resistance3LayerAfter.value(rho[0], rho[1], rho[2], p[0], p[1]) - resistance3LayerBefore.value(rho[0], rho[1], rho[2], p[0], p[1])) / dh
-    );
+    double rAfter = TetrapolarResistance.of(system).rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(h + dh).p(p[0], p[1]).resistivity();
+    double rBefore = TetrapolarResistance.of(system).rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(h).p(p[0], p[1]).resistivity();
+    double expected = (rAfter - rBefore) / dh;
     expected /= rho[0];
 
     double actual = Apparent3Rho.newDerivativeApparentByPhi3Rho(system.relativeSystem()).value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]),

@@ -26,17 +26,6 @@ public record TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC,
     return l();
   }
 
-  /**
-   * Gets <b>apparent</b> specific ohms which is correspond to 1-layer model.
-   *
-   * @param rOhms in Ohms.
-   * @return <b>apparent</b> specific ohms in Ohm-m.
-   */
-  @Nonnegative
-  public double getApparent(@Nonnegative double rOhms) {
-    return rOhms * Math.PI / (Math.abs(1.0 / factor(-1.0)) - Math.abs(1.0 / factor(1.0)));
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {

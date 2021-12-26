@@ -82,7 +82,13 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem system,
     @Override
     @Nonnull
     public Measurement build() {
-      return new TetrapolarMeasurement(inexact, TetrapolarResistance.of(inexact.system()).rho1(rho1).rho2(rho2).h(h).resistivity());
+      if (Double.isNaN(hStep)) {
+        return new TetrapolarMeasurement(inexact, TetrapolarResistance.of(inexact.system()).rho1(rho1).rho2(rho2).h(h).resistivity());
+      }
+      else {
+        return new TetrapolarMeasurement(inexact,
+            TetrapolarResistance.of(inexact.system()).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1).resistivity());
+      }
     }
   }
 }

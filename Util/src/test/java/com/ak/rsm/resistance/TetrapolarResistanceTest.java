@@ -48,6 +48,12 @@ public class TetrapolarResistanceTest {
             53.901,
             3.39,
         },
+        {
+            TetrapolarResistance.milli(10.0, 20.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
+            "10 000   20 000     242 751        5 720",
+            242.751,
+            5.72,
+        },
 
         {
             TetrapolarResistance.milli(30.0, 60.0).ofOhms(1.0 / Math.PI),
