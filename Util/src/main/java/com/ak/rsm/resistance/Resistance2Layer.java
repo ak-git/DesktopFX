@@ -10,11 +10,11 @@ import org.apache.commons.math3.analysis.TrivariateFunction;
 /**
  * Calculates <b>full</b> ohms R<sub>m-n</sub> (in Ohm) between electrodes for <b>2-layer</b> model.
  */
-public final class Resistance2Layer implements TrivariateFunction {
+final class Resistance2Layer implements TrivariateFunction {
   @Nonnull
   private final NormalizedResistance2Layer resistance;
 
-  public Resistance2Layer(@Nonnull TetrapolarSystem electrodeSystem) {
+  Resistance2Layer(@Nonnull TetrapolarSystem electrodeSystem) {
     resistance = new NormalizedResistance2Layer(electrodeSystem);
   }
 

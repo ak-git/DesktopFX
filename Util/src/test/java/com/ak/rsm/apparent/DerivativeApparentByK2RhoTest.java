@@ -4,12 +4,10 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.rsm.medium.Layer2RelativeMedium;
-import com.ak.rsm.resistance.Resistance2Layer;
 import com.ak.rsm.resistance.Resistance2LayerTest;
+import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.Layers;
-import com.ak.rsm.system.TetrapolarSystem;
-import com.ak.util.Metrics;
-import org.apache.commons.math3.analysis.TrivariateFunction;
+import com.ak.rsm.system.RelativeTetrapolarSystem;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -17,17 +15,16 @@ public class DerivativeApparentByK2RhoTest {
   @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
   public void testValueSL(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     if (Double.compare(rho[0], rho[1]) != 0) {
-      TetrapolarSystem system = new TetrapolarSystem(Metrics.fromMilli(smm), Metrics.fromMilli(lmm));
-      double h = Metrics.fromMilli(hmm);
       double k12 = Layers.getK12(rho[0], rho[1]);
       double dk = 0.00001;
-      TrivariateFunction resistance2Layer = new Resistance2Layer(system);
-      double expected = system.getApparent(
-          (resistance2Layer.value(rho[0], rho[0] / Layers.getRho1ToRho2(k12), h) -
-              resistance2Layer.value(rho[0], rho[0] / Layers.getRho1ToRho2(k12 - dk), h)) / dk
-      );
+      var b = TetrapolarResistance.milli(smm, lmm);
+      double expected = (
+          b.rho1(rho[0]).rho2(rho[0] / Layers.getRho1ToRho2(k12)).h(hmm).build().resistivity() -
+              b.rho1(rho[0]).rho2(rho[0] / Layers.getRho1ToRho2(k12 - dk)).h(hmm).build().resistivity()
+      ) / dk;
       expected /= rho[0];
-      double actual = Apparent2Rho.newDerivativeApparentByK2Rho(system.relativeSystem()).applyAsDouble(new Layer2RelativeMedium(k12, hmm / lmm));
+      double actual = Apparent2Rho.newDerivativeApparentByK2Rho(new RelativeTetrapolarSystem(smm / lmm))
+          .applyAsDouble(new Layer2RelativeMedium(k12, hmm / lmm));
       Assert.assertEquals(actual, expected, 0.1);
     }
   }
@@ -35,17 +32,16 @@ public class DerivativeApparentByK2RhoTest {
   @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
   public void testValueLS(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     if (Double.compare(rho[0], rho[1]) != 0) {
-      TetrapolarSystem system = new TetrapolarSystem(Metrics.fromMilli(lmm), Metrics.fromMilli(smm));
-      double h = Metrics.fromMilli(hmm);
       double k12 = Layers.getK12(rho[0], rho[1]);
       double dk = 0.00001;
-      TrivariateFunction resistance2Layer = new Resistance2Layer(system);
-      double expected = system.getApparent(
-          (resistance2Layer.value(rho[0], rho[0] / Layers.getRho1ToRho2(k12), h) -
-              resistance2Layer.value(rho[0], rho[0] / Layers.getRho1ToRho2(k12 - dk), h)) / dk
-      );
+      var b = TetrapolarResistance.milli(lmm, smm);
+      double expected = (
+          b.rho1(rho[0]).rho2(rho[0] / Layers.getRho1ToRho2(k12)).h(hmm).build().resistivity() -
+              b.rho1(rho[0]).rho2(rho[0] / Layers.getRho1ToRho2(k12 - dk)).h(hmm).build().resistivity()
+      ) / dk;
       expected /= rho[0];
-      double actual = Apparent2Rho.newDerivativeApparentByK2Rho(system.relativeSystem()).applyAsDouble(new Layer2RelativeMedium(k12, hmm / smm));
+      double actual = Apparent2Rho.newDerivativeApparentByK2Rho(new RelativeTetrapolarSystem(lmm / smm))
+          .applyAsDouble(new Layer2RelativeMedium(k12, hmm / smm));
       Assert.assertEquals(actual, expected, 0.1);
     }
   }

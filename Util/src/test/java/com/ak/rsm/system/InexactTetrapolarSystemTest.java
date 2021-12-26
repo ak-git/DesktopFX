@@ -13,7 +13,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
-import com.ak.rsm.resistance.Resistance2Layer;
+import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import org.apache.commons.math3.optim.PointValuePair;
@@ -96,9 +96,8 @@ public class InexactTetrapolarSystemTest {
     InexactTetrapolarSystem system = new InexactTetrapolarSystem(0.1, new TetrapolarSystem(10.0, 30.0));
     DoubleUnaryOperator rhoAtHMax = sign -> (1.0 + Math.signum(sign) * system.getApparentRelativeError()) * rho1;
     PointValuePair optimize = Simplex.optimizeAll(hToL -> {
-          double rhoApparent = system.system().getApparent(
-              new Resistance2Layer(system.system()).value(rho1, rho2, hToL[0] * system.system().lCC())
-          );
+          double rhoApparent = TetrapolarResistance
+              .of(system.system()).rho1(rho1).rho2(rho2).h(hToL[0] * system.system().lCC()).build().resistivity();
           return DoubleStream.of(-1.0, 1.0)
               .map(sign -> Inequality.absolute().applyAsDouble(rhoAtHMax.applyAsDouble(sign), rhoApparent))
               .min().orElseThrow();
@@ -115,9 +114,8 @@ public class InexactTetrapolarSystemTest {
       InexactTetrapolarSystem system = new InexactTetrapolarSystem(0.1, new TetrapolarSystem(10.0, 30.0));
       DoubleUnaryOperator rhoAtHMin = sign -> (1.0 + Math.signum(sign) * system.getApparentRelativeError()) * rho2;
       PointValuePair optimize = Simplex.optimizeAll(hToL -> {
-            double rhoApparent = system.system().getApparent(
-                new Resistance2Layer(system.system()).value(rho1, rho2, hToL[0] * system.system().lCC())
-            );
+            double rhoApparent = TetrapolarResistance
+                .of(system.system()).rho1(rho1).rho2(rho2).h(hToL[0] * system.system().lCC()).build().resistivity();
             return DoubleStream.of(-1.0, 1.0)
                 .map(sign -> Inequality.absolute().applyAsDouble(rhoAtHMin.applyAsDouble(sign), rhoApparent))
                 .min().orElseThrow();
