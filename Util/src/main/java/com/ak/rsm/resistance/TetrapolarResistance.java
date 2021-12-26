@@ -50,20 +50,20 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
     LayersBuilder2<T> rho2(@Nonnegative double rho2);
   }
 
-  public interface LayersBuilder2<T> extends com.ak.util.Builder<T> {
+  public interface LayersBuilder2<T> {
     @Nonnull
     T h(@Nonnegative double h);
   }
 
-  public abstract static class AbstractBuilder<T> implements PreBuilder<T>, LayersBuilder1<T>, LayersBuilder2<T> {
+  public abstract static class AbstractBuilder<T> implements PreBuilder<T>, LayersBuilder1<T>, LayersBuilder2<T>, com.ak.util.Builder<T> {
     @Nonnull
     protected final DoubleUnaryOperator converter;
     @Nonnegative
     protected double rho1;
     @Nonnegative
-    protected double rho2 = Double.NaN;
+    protected double rho2;
     @Nonnegative
-    protected double h = Double.NaN;
+    protected double h;
 
     protected AbstractBuilder(@Nonnull DoubleUnaryOperator converter) {
       this.converter = converter;
@@ -120,15 +120,7 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
     @Override
     @Nonnull
     public Resistance build() {
-      if (Double.isNaN(rho2) || Double.isNaN(h)) {
-        throw new IllegalStateException(toString());
-      }
       return ofOhms(new Resistance2Layer(system).value(rho1, rho2, h));
-    }
-
-    @Override
-    public String toString() {
-      return "Builder{%s; %s; %s; h = %.3f}".formatted(system, Strings.rho(1, rho1), Strings.rho(2, rho2), h);
     }
   }
 }

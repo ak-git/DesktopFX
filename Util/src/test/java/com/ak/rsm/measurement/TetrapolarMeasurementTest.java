@@ -1,9 +1,7 @@
 package com.ak.rsm.measurement;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import com.ak.rsm.resistance.TetrapolarResistance;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -79,18 +77,5 @@ public class TetrapolarMeasurementTest {
 
     Assert.assertEquals(m1.merge(m2).resistivity(), 9.91, 0.01);
     Assert.assertEquals(m2.merge(m1).system().getApparentRelativeError(), 0.002, 0.01);
-  }
-
-  @DataProvider(name = "tetrapolar-measurements-invalid")
-  public static Object[][] tetrapolarMeasurementsInvalid() {
-    return new Object[][] {
-        {TetrapolarMeasurement.si(0.1).system(1.0, 2.0).rho1(900.1)},
-        {TetrapolarMeasurement.milli(0.0).system(1.0, 2.0).rho1(900.1).rho2(1.0)},
-    };
-  }
-
-  @Test(dataProvider = "tetrapolar-measurements-invalid", expectedExceptions = IllegalStateException.class)
-  public void testInvalid(@Nonnull TetrapolarResistance.LayersBuilder2<Measurement> builder) {
-    builder.build();
   }
 }

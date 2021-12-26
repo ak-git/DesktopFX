@@ -12,7 +12,6 @@ import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
-import com.ak.util.Strings;
 
 public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem system,
                                     @Nonnegative double resistivity) implements Measurement {
@@ -83,15 +82,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem system,
     @Override
     @Nonnull
     public Measurement build() {
-      if (Double.isNaN(rho2) || Double.isNaN(h)) {
-        throw new IllegalStateException(toString());
-      }
       return new TetrapolarMeasurement(inexact, TetrapolarResistance.of(inexact.system()).rho1(rho1).rho2(rho2).h(h).resistivity());
-    }
-
-    @Override
-    public String toString() {
-      return "Builder{%s; %s; %s; h = %.3f}".formatted(inexact, Strings.rho(1, rho1), Strings.rho(2, rho2), h);
     }
   }
 }

@@ -1,6 +1,5 @@
 package com.ak.rsm.resistance;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.rsm.system.TetrapolarSystem;
@@ -84,18 +83,5 @@ public class TetrapolarResistanceTest {
     Assert.assertEquals(tResistance.toString().replaceAll("\\D", " ").strip(), expected, tResistance.toString());
     Assert.assertEquals(tResistance.ohms(), ohms, 0.01, tResistance.toString());
     Assert.assertEquals(tResistance.resistivity(), resistivity, 0.01, tResistance.toString());
-  }
-
-  @DataProvider(name = "tetrapolar-resistivity-invalid")
-  public static Object[][] tetrapolarResistivityInvalid() {
-    return new Object[][] {
-        {TetrapolarResistance.si(1.0, 2.0).rho1(900.1)},
-        {TetrapolarResistance.milli(1.0, 2.0).rho1(900.1).rho2(1.0)},
-    };
-  }
-
-  @Test(dataProvider = "tetrapolar-resistivity-invalid", expectedExceptions = IllegalStateException.class)
-  public void testInvalid(@Nonnull TetrapolarResistance.LayersBuilder2<Resistance> builder) {
-    builder.build();
   }
 }
