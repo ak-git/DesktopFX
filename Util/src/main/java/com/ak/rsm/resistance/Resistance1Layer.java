@@ -9,12 +9,9 @@ import org.apache.commons.math3.analysis.UnivariateFunction;
 /**
  * Calculates <b>full</b> ohms R<sub>m-n</sub> (in Ohm) between electrodes for <b>single-layer</b> model.
  */
-final class Resistance1Layer implements UnivariateFunction {
-  @Nonnull
-  private final NormalizedResistance1Layer resistance;
-
+record Resistance1Layer(@Nonnull NormalizedResistance1Layer resistance) implements UnivariateFunction {
   Resistance1Layer(@Nonnull TetrapolarSystem electrodeSystem) {
-    resistance = new NormalizedResistance1Layer(electrodeSystem);
+    this(new NormalizedResistance1Layer(electrodeSystem));
   }
 
   /**

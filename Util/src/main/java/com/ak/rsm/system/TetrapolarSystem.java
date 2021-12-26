@@ -10,12 +10,7 @@ import tec.uom.se.unit.MetricPrefix;
 
 import static tec.uom.se.unit.Units.METRE;
 
-public record TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC,
-                               @Nonnull RelativeTetrapolarSystem relativeSystem) {
-  public TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC) {
-    this(Math.abs(sPU), Math.abs(lCC), new RelativeTetrapolarSystem(sPU / lCC));
-  }
-
+public record TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC) {
   @Nonnegative
   public double factor(double sign) {
     return Math.abs(lCC + Math.signum(sign) * sPU) / 2.0;
@@ -24,6 +19,11 @@ public record TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC,
   @Nonnegative
   public double getDim() {
     return l();
+  }
+
+  @Nonnull
+  public RelativeTetrapolarSystem relativeSystem() {
+    return new RelativeTetrapolarSystem(sPU / lCC);
   }
 
   @Override
