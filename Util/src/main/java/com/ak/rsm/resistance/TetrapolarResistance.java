@@ -42,21 +42,20 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
     T ofOhms(@Nonnegative double rOhms);
 
     @Nonnull
-    LayersBuilder<T> rho1(@Nonnegative double rho1);
+    LayersBuilder1<T> rho1(@Nonnegative double rho1);
   }
 
-  public interface LayersBuilder<T> extends com.ak.util.Builder<T> {
+  public interface LayersBuilder1<T> {
     @Nonnull
-    LayersBuilder<T> rho1(@Nonnegative double rho1);
-
-    @Nonnull
-    LayersBuilder<T> rho2(@Nonnegative double rho2);
-
-    @Nonnull
-    LayersBuilder<T> h(@Nonnegative double h);
+    LayersBuilder2<T> rho2(@Nonnegative double rho2);
   }
 
-  public abstract static class AbstractBuilder<T> implements PreBuilder<T>, LayersBuilder<T> {
+  public interface LayersBuilder2<T> extends com.ak.util.Builder<T> {
+    @Nonnull
+    T h(@Nonnegative double h);
+  }
+
+  public abstract static class AbstractBuilder<T> implements PreBuilder<T>, LayersBuilder1<T>, LayersBuilder2<T> {
     @Nonnull
     protected final DoubleUnaryOperator converter;
     @Nonnegative
@@ -72,23 +71,23 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
 
     @Override
     @Nonnull
-    public LayersBuilder<T> rho1(@Nonnegative double rho1) {
+    public LayersBuilder1<T> rho1(@Nonnegative double rho1) {
       this.rho1 = rho1;
       return this;
     }
 
     @Override
     @Nonnull
-    public LayersBuilder<T> rho2(@Nonnegative double rho2) {
+    public LayersBuilder2<T> rho2(@Nonnegative double rho2) {
       this.rho2 = rho2;
       return this;
     }
 
     @Override
     @Nonnull
-    public LayersBuilder<T> h(@Nonnegative double h) {
+    public T h(@Nonnegative double h) {
       this.h = converter.applyAsDouble(h);
-      return this;
+      return build();
     }
   }
 

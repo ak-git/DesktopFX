@@ -33,12 +33,12 @@ public class TetrapolarMeasurementTest {
             8.2
         },
         {
-            TetrapolarMeasurement.milli(0.1).system(10.0, 30.0).rho1(1.0).rho2(1.0).h(Math.random()).build(),
+            TetrapolarMeasurement.milli(0.1).system(10.0, 30.0).rho1(1.0).rho2(1.0).h(Math.random()),
             "10 000   30 000      0 1       36          1 00   0 020",
             1.0
         },
         {
-            TetrapolarMeasurement.milli(0.1).system(10.0, 30.0).rho1(10.0).rho2(1.0).h(5.0).build(),
+            TetrapolarMeasurement.milli(0.1).system(10.0, 30.0).rho1(10.0).rho2(1.0).h(5.0),
             "10 000   30 000      0 1       36          3 39   0 068",
             3.39
         },
@@ -85,13 +85,12 @@ public class TetrapolarMeasurementTest {
   public static Object[][] tetrapolarMeasurementsInvalid() {
     return new Object[][] {
         {TetrapolarMeasurement.si(0.1).system(1.0, 2.0).rho1(900.1)},
-        {TetrapolarMeasurement.milli(0.0).system(1.0, 2.0).rho1(900.1).h(1.0)},
         {TetrapolarMeasurement.milli(0.0).system(1.0, 2.0).rho1(900.1).rho2(1.0)},
     };
   }
 
   @Test(dataProvider = "tetrapolar-measurements-invalid", expectedExceptions = IllegalStateException.class)
-  public void testInvalid(@Nonnull TetrapolarResistance.LayersBuilder<Measurement> builder) {
+  public void testInvalid(@Nonnull TetrapolarResistance.LayersBuilder2<Measurement> builder) {
     builder.build();
   }
 }

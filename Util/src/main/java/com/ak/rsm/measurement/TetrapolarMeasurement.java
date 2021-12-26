@@ -86,7 +86,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem system,
       if (Double.isNaN(rho2) || Double.isNaN(h)) {
         throw new IllegalStateException(toString());
       }
-      return new TetrapolarMeasurement(inexact, TetrapolarResistance.of(inexact.system()).rho1(rho1).rho2(rho2).h(h).build().resistivity());
+      return new TetrapolarMeasurement(inexact, TetrapolarResistance.of(inexact.system()).rho1(rho1).rho2(rho2).h(h).resistivity());
     }
 
     @Override

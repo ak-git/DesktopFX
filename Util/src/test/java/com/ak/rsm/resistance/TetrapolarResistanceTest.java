@@ -38,13 +38,13 @@ public class TetrapolarResistanceTest {
             8.2,
         },
         {
-            TetrapolarResistance.milli(10.0, 30.0).rho1(1.0).rho2(1.0).h(Math.random()).build(),
+            TetrapolarResistance.milli(10.0, 30.0).rho1(1.0).rho2(1.0).h(Math.random()),
             "10 000   30 000     15 915        1 000",
             15.915,
             1.0,
         },
         {
-            TetrapolarResistance.milli(10.0, 30.0).rho1(10.0).rho2(1.0).h(5.0).build(),
+            TetrapolarResistance.milli(10.0, 30.0).rho1(10.0).rho2(1.0).h(5.0),
             "10 000   30 000     53 901        3 387",
             53.901,
             3.39,
@@ -90,13 +90,12 @@ public class TetrapolarResistanceTest {
   public static Object[][] tetrapolarResistivityInvalid() {
     return new Object[][] {
         {TetrapolarResistance.si(1.0, 2.0).rho1(900.1)},
-        {TetrapolarResistance.milli(1.0, 2.0).rho1(900.1).h(1.0)},
         {TetrapolarResistance.milli(1.0, 2.0).rho1(900.1).rho2(1.0)},
     };
   }
 
   @Test(dataProvider = "tetrapolar-resistivity-invalid", expectedExceptions = IllegalStateException.class)
-  public void testInvalid(@Nonnull TetrapolarResistance.LayersBuilder<Resistance> builder) {
+  public void testInvalid(@Nonnull TetrapolarResistance.LayersBuilder2<Resistance> builder) {
     builder.build();
   }
 }

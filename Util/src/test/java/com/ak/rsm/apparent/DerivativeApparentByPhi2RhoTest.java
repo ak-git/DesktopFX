@@ -20,8 +20,8 @@ public class DerivativeApparentByPhi2RhoTest {
     double dh = Metrics.fromMilli(-0.00001);
     var b = TetrapolarResistance.of(system);
     double expected = (
-        b.rho1(rho[0]).rho2(rho[1]).h(h + dh).build().resistivity() -
-            b.rho1(rho[0]).rho2(rho[1]).h(h).build().resistivity()
+        b.rho1(rho[0]).rho2(rho[1]).h(h + dh).resistivity() -
+            b.rho1(rho[0]).rho2(rho[1]).h(h).resistivity()
     ) / dh;
     expected *= system.lCC() / rho[0];
     double actual = Apparent2Rho.newDerivativeApparentByPhi2Rho(system.relativeSystem())
@@ -36,8 +36,8 @@ public class DerivativeApparentByPhi2RhoTest {
     double dh = Metrics.fromMilli(-0.00001);
     var b = TetrapolarResistance.of(system);
     double expected = (
-        b.rho1(rho[0]).rho2(rho[1]).h(h + dh).build().resistivity() -
-            b.rho1(rho[0]).rho2(rho[1]).h(h).build().resistivity()
+        b.rho1(rho[0]).rho2(rho[1]).h(h + dh).resistivity() -
+            b.rho1(rho[0]).rho2(rho[1]).h(h).resistivity()
     ) / dh;
     expected *= system.lCC() / rho[0];
     double actual = Apparent2Rho.newDerivativeApparentByPhi2Rho(system.relativeSystem())
