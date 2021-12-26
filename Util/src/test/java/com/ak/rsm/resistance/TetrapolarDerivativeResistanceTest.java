@@ -4,6 +4,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.rsm.system.TetrapolarSystem;
+import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -92,6 +93,15 @@ public class TetrapolarDerivativeResistanceTest {
             3.0 / 100.0,
             0.0,
             new TetrapolarSystem(0.04, 0.08)
+        },
+
+        {
+            TetrapolarDerivativeResistance.of(new TetrapolarSystem(Metrics.fromMilli(10.0), Metrics.fromMilli(30.0))).dh(0.1).rho(8.1),
+            "10 000   30 000     128 916        8 100              0 000",
+            128.916,
+            8.1,
+            0.0,
+            new TetrapolarSystem(0.01, 0.03)
         },
     };
   }

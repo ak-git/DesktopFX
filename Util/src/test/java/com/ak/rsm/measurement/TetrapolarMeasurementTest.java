@@ -1,7 +1,11 @@
 package com.ak.rsm.measurement;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.ak.rsm.system.InexactTetrapolarSystem;
+import com.ak.rsm.system.TetrapolarSystem;
+import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -61,12 +65,20 @@ public class TetrapolarMeasurementTest {
             "40 000   80 000      0 1       124          0 0300   0 00023",
             3.0 / 100.0
         },
+
+        {
+            TetrapolarMeasurement.of(
+                new InexactTetrapolarSystem(0.1, new TetrapolarSystem(Metrics.fromMilli(10.0), Metrics.fromMilli(30.0)))
+            ).rho(8.1),
+            "10 000   30 000      100 0       4          8   162 0",
+            8.1
+        },
     };
   }
 
   @Test(dataProvider = "tetrapolar-measurements")
   @ParametersAreNonnullByDefault
-  public void test(Measurement measurement, String expected, double resistivity) {
+  public void test(Measurement measurement, String expected, @Nonnegative double resistivity) {
     Assert.assertEquals(measurement.toString().replaceAll("\\D", " ").strip(), expected, measurement.toString());
     Assert.assertEquals(measurement.resistivity(), resistivity, 0.01, measurement.toString());
   }

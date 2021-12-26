@@ -1,5 +1,6 @@
 package com.ak.rsm.resistance;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.rsm.system.TetrapolarSystem;
@@ -85,9 +86,9 @@ public class TetrapolarResistanceTest {
 
   @Test(dataProvider = "tetrapolar-resistivity")
   @ParametersAreNonnullByDefault
-  public void test(Resistance tResistance, String expected, double ohms, double resistivity) {
-    Assert.assertEquals(tResistance.toString().replaceAll("\\D", " ").strip(), expected, tResistance.toString());
-    Assert.assertEquals(tResistance.ohms(), ohms, 0.01, tResistance.toString());
-    Assert.assertEquals(tResistance.resistivity(), resistivity, 0.01, tResistance.toString());
+  public void test(Resistance t, String expected, @Nonnegative double ohms, @Nonnegative double resistivity) {
+    Assert.assertEquals(t.toString().replaceAll("\\D", " ").strip(), expected, t.toString());
+    Assert.assertEquals(t.ohms(), ohms, 0.01, t.toString());
+    Assert.assertEquals(t.resistivity(), resistivity, 0.01, t.toString());
   }
 }

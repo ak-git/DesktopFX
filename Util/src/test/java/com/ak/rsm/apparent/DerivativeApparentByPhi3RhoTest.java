@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 
 import com.ak.rsm.resistance.Resistance2LayerTest;
 import com.ak.rsm.resistance.Resistance3LayerTest;
-import com.ak.rsm.resistance.TetrapolarResistance;
+import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
@@ -19,13 +19,10 @@ public class DerivativeApparentByPhi3RhoTest {
     double h = Metrics.fromMilli(1);
     double dh = h / 1000.0;
     int p1 = (int) hmm;
-    double rAfter = TetrapolarResistance.of(system).rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(h + dh).p(p1, 1).resistivity();
-    double rBefore = TetrapolarResistance.of(system).rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(h).p(p1, 1).resistivity();
-    double expected = (rAfter - rBefore) / dh;
-    expected /= rho[0];
-
+    double expected = TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(h).p(p1, 1)
+        .derivativeResistivity() / rho[0];
     double actual = Apparent3Rho.newDerivativeApparentByPhi3Rho(system.relativeSystem()).value(Layers.getK12(rho[0], rho[1]), 0.0,
-        h / Metrics.fromMilli(lmm), p1, 1) / system.lCC();
+        h / Metrics.fromMilli(lmm), p1, 1);
     Assert.assertEquals(StrictMath.log(Math.abs(actual)), StrictMath.log(Math.abs(expected)), 0.1);
     Assert.assertEquals(Math.signum(actual), Math.signum(expected), 0.1);
   }
@@ -35,13 +32,11 @@ public class DerivativeApparentByPhi3RhoTest {
                          @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.fromMilli(smm), Metrics.fromMilli(lmm));
     double dh = h / 1000.0;
-    double rAfter = TetrapolarResistance.of(system).rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(h + dh).p(p[0], p[1]).resistivity();
-    double rBefore = TetrapolarResistance.of(system).rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(h).p(p[0], p[1]).resistivity();
-    double expected = (rAfter - rBefore) / dh;
-    expected /= rho[0];
+    double expected = TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(h).p(p[0], p[1])
+        .derivativeResistivity() / rho[0];
 
     double actual = Apparent3Rho.newDerivativeApparentByPhi3Rho(system.relativeSystem()).value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]),
-        h / Metrics.fromMilli(lmm), p[0], p[1]) / system.lCC();
+        h / Metrics.fromMilli(lmm), p[0], p[1]);
     Assert.assertEquals(StrictMath.log(Math.abs(actual)), StrictMath.log(Math.abs(expected)), 0.1);
     Assert.assertEquals(Math.signum(actual), Math.signum(expected), 0.1);
   }

@@ -21,7 +21,7 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
 
   @Nonnull
   public static PreBuilder<Resistance> of(@Nonnull TetrapolarSystem system) {
-    return new Builder(DoubleUnaryOperator.identity(), system);
+    return new Builder(system);
   }
 
   @Nonnull
@@ -140,7 +140,7 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
     protected final TetrapolarSystem system;
 
     @ParametersAreNonnullByDefault
-    private AbstractTetrapolarBuilder(DoubleUnaryOperator converter, TetrapolarSystem system) {
+    protected AbstractTetrapolarBuilder(DoubleUnaryOperator converter, TetrapolarSystem system) {
       super(converter);
       this.system = system;
     }
@@ -152,12 +152,12 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
 
   private static final class Builder extends AbstractTetrapolarBuilder<Resistance> {
     @ParametersAreNonnullByDefault
-    private Builder(DoubleUnaryOperator converter, TetrapolarSystem system) {
-      super(converter, system);
+    private Builder(@Nonnull TetrapolarSystem system) {
+      super(DoubleUnaryOperator.identity(), system);
     }
 
     private Builder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double sPU, @Nonnegative double lCC) {
-      this(converter, new TetrapolarSystem(converter.applyAsDouble(sPU), converter.applyAsDouble(lCC)));
+      super(converter, new TetrapolarSystem(converter.applyAsDouble(sPU), converter.applyAsDouble(lCC)));
     }
 
     @Nonnull

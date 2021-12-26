@@ -18,6 +18,11 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem system,
   private static final Function<Measurement, ValuePair> TO_VALUE =
       m -> ValuePair.Name.RHO_1.of(m.resistivity(), m.resistivity() * m.system().getApparentRelativeError());
 
+  @Override
+  public String toString() {
+    return "%s; %s".formatted(system, ValuePair.Name.RHO_1.of(resistivity, resistivity * system.getApparentRelativeError()));
+  }
+
   @Nonnull
   @Override
   public Measurement merge(@Nonnull Measurement that) {
@@ -30,41 +35,57 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem system,
     return new TetrapolarMeasurement(merged, avg.getValue());
   }
 
-  @Override
-  public String toString() {
-    return "%s; %s".formatted(system, ValuePair.Name.RHO_1.of(resistivity, resistivity * system.getApparentRelativeError()));
+  @Nonnull
+  public static TetrapolarResistance.PreBuilder<Measurement> of(@Nonnull InexactTetrapolarSystem inexact) {
+    return new Builder(inexact);
   }
 
   @Nonnull
-  public static PreBuilder milli(@Nonnegative double absError) {
+  public static PreBuilder<Measurement> milli(@Nonnegative double absError) {
     return new Builder(Metrics.MILLI, absError);
   }
 
   @Nonnull
-  public static PreBuilder si(@Nonnegative double absError) {
+  public static PreBuilder<Measurement> si(@Nonnegative double absError) {
     return new Builder(DoubleUnaryOperator.identity(), absError);
   }
 
-  public interface PreBuilder extends TetrapolarResistance.PreBuilder<Measurement> {
+  public interface PreBuilder<T> {
     @Nonnull
-    TetrapolarResistance.PreBuilder<Measurement> system(@Nonnegative double sPU, @Nonnegative double lCC);
+    TetrapolarResistance.PreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC);
   }
 
-  private static class Builder extends TetrapolarResistance.AbstractBuilder<Measurement> implements PreBuilder {
+  abstract static class AbstractBuilder<T> extends TetrapolarResistance.AbstractBuilder<T> implements PreBuilder<T> {
     @Nonnegative
-    private final double absError;
-    private InexactTetrapolarSystem inexact;
+    protected final double absError;
+    protected InexactTetrapolarSystem inexact;
 
-    private Builder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
+    AbstractBuilder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
       super(converter);
       this.absError = converter.applyAsDouble(absError);
     }
 
+    AbstractBuilder(@Nonnull InexactTetrapolarSystem inexact) {
+      super(DoubleUnaryOperator.identity());
+      absError = inexact.absError();
+      this.inexact = inexact;
+    }
+
     @Nonnull
     @Override
-    public TetrapolarResistance.PreBuilder<Measurement> system(@Nonnegative double sPU, @Nonnegative double lCC) {
+    public final TetrapolarResistance.PreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC) {
       inexact = new InexactTetrapolarSystem(absError, new TetrapolarSystem(converter.applyAsDouble(sPU), converter.applyAsDouble(lCC)));
       return this;
+    }
+  }
+
+  private static class Builder extends AbstractBuilder<Measurement> {
+    private Builder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
+      super(converter, absError);
+    }
+
+    private Builder(@Nonnull InexactTetrapolarSystem inexact) {
+      super(inexact);
     }
 
     @Nonnull
@@ -83,11 +104,14 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem system,
     @Nonnull
     public Measurement build() {
       if (Double.isNaN(hStep)) {
-        return new TetrapolarMeasurement(inexact, TetrapolarResistance.of(inexact.system()).rho1(rho1).rho2(rho2).h(h).resistivity());
+        return new TetrapolarMeasurement(inexact,
+            TetrapolarResistance.of(inexact.system()).rho1(rho1).rho2(rho2).h(h).resistivity()
+        );
       }
       else {
         return new TetrapolarMeasurement(inexact,
-            TetrapolarResistance.of(inexact.system()).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1).resistivity());
+            TetrapolarResistance.of(inexact.system()).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1).resistivity()
+        );
       }
     }
   }

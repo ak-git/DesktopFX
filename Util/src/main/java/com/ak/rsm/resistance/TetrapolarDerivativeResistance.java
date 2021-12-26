@@ -9,9 +9,9 @@ import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
-public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance,
-                                             double derivativeResistivity) implements DerivativeResistance {
-  public TetrapolarDerivativeResistance(@Nonnull Resistance resistance, @Nonnull Resistance resistanceAfter, double dh) {
+public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, double derivativeResistivity)
+    implements DerivativeResistance {
+  private TetrapolarDerivativeResistance(@Nonnull Resistance resistance, @Nonnull Resistance resistanceAfter, double dh) {
     this(resistance, (resistanceAfter.resistivity() - resistance.resistivity()) / (dh / resistance.system().lCC()));
   }
 
@@ -37,6 +37,11 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance,
   }
 
   @Nonnull
+  public static PreBuilder of(@Nonnull TetrapolarSystem system) {
+    return new Builder(system);
+  }
+
+  @Nonnull
   public static PreBuilder milli(@Nonnegative double sPU, @Nonnegative double lCC) {
     return new Builder(Metrics.MILLI, sPU, lCC);
   }
@@ -53,6 +58,10 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance,
 
   private static class Builder extends TetrapolarResistance.AbstractTetrapolarBuilder<DerivativeResistance> implements PreBuilder {
     private double dh;
+
+    private Builder(@Nonnull TetrapolarSystem system) {
+      super(DoubleUnaryOperator.identity(), system);
+    }
 
     private Builder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double sPU, @Nonnegative double lCC) {
       super(converter, sPU, lCC);
