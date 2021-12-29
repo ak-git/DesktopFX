@@ -2,6 +2,7 @@ package com.ak.rsm.prediction;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.rsm.medium.Layer2RelativeMedium;
@@ -28,6 +29,13 @@ public class TetrapolarPredictionTest {
         {prediction1, prediction3, false},
         {prediction1, new Object(), false},
         {new Object(), prediction1, false},
+        {new AbstractPrediction(0.0, new double[] {0.0}) {
+          @Nonnull
+          @Override
+          public double[] getHorizons() {
+            return getInequalityL2();
+          }
+        }, new Object(), false},
     };
   }
 
@@ -58,7 +66,7 @@ public class TetrapolarPredictionTest {
     List<Prediction> predictions = List.of(prediction1, prediction2);
     Assert.assertEquals(prediction1.getHorizons(), new double[] {0.378, 27.210}, 0.001, prediction1.toString());
     Assert.assertEquals(prediction2.getHorizons(), new double[] {0.504, 36.929}, 0.001, prediction2.toString());
-    Assert.assertEquals(TetrapolarPrediction.mergeHorizons(predictions), new double[] {0.504, 27.210}, 0.001,
+    Assert.assertEquals(AbstractPrediction.mergeHorizons(predictions), new double[] {0.504, 27.210}, 0.001,
         predictions.toString());
   }
 }

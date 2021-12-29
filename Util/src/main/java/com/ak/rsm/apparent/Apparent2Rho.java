@@ -42,7 +42,7 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
     return new Apparent2Rho(new NormalizedApparent(system));
   }
 
-  static ToDoubleFunction<RelativeMediumLayers> newDerivativeApparentByPhi2Rho(@Nonnull RelativeTetrapolarSystem system) {
+  public static ToDoubleFunction<RelativeMediumLayers> newDerivativeApparentByPhi2Rho(@Nonnull RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new DerivativeApparentByPhi(system));
   }
 

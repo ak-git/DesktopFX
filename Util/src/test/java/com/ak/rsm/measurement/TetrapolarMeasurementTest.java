@@ -3,6 +3,8 @@ package com.ak.rsm.measurement;
 import javax.annotation.Nonnegative;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.ak.rsm.medium.RelativeMediumLayers;
+import com.ak.rsm.prediction.TetrapolarPrediction;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
@@ -81,6 +83,8 @@ public class TetrapolarMeasurementTest {
   public void test(Measurement measurement, String expected, @Nonnegative double resistivity) {
     Assert.assertEquals(measurement.toString().replaceAll("\\D", " ").strip(), expected, measurement.toString());
     Assert.assertEquals(measurement.resistivity(), resistivity, 0.01, measurement.toString());
+    Assert.assertEquals(measurement.toPrediction(RelativeMediumLayers.SINGLE_LAYER, 1.0),
+        TetrapolarPrediction.of(measurement.system(), RelativeMediumLayers.SINGLE_LAYER, 1.0, measurement.resistivity()));
   }
 
   @Test
@@ -94,5 +98,10 @@ public class TetrapolarMeasurementTest {
 
     Assert.assertEquals(m1.merge(m2).resistivity(), 9.91, 0.01);
     Assert.assertEquals(m2.merge(m1).system().getApparentRelativeError(), 0.002, 0.01);
+  }
+
+  @Test
+  public void testToPrediction() {
+    Measurement measurement = TetrapolarMeasurement.milli(0.1).system(30.0, 60.0).ofOhms(1.0 / Math.PI);
   }
 }

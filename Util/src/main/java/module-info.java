@@ -19,9 +19,11 @@ module com.ak.util {
   exports com.ak.digitalfilter;
   exports com.ak.numbers;
   exports com.ak.rsm.resistance;
-  opens com.ak.rsm.resistance to org.testng;
   exports com.ak.rsm.system;
-  opens com.ak.rsm.system to org.testng;
   exports com.ak.rsm.measurement;
+  exports com.ak.rsm.prediction;
+  exports com.ak.rsm.medium;
+  opens com.ak.rsm.resistance to org.testng;
+  opens com.ak.rsm.system to org.testng;
   opens com.ak.rsm.measurement to org.testng;
 }

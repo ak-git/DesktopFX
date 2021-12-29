@@ -5,8 +5,12 @@ import java.util.function.Function;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.math.ValuePair;
+import com.ak.rsm.medium.RelativeMediumLayers;
+import com.ak.rsm.prediction.Prediction;
+import com.ak.rsm.prediction.TetrapolarPrediction;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
@@ -33,6 +37,13 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem system,
     double sPU = RelativeTetrapolarSystem.OPTIMAL_SL * lCC;
     InexactTetrapolarSystem merged = new InexactTetrapolarSystem(dL, new TetrapolarSystem(sPU, lCC));
     return new TetrapolarMeasurement(merged, avg.getValue());
+  }
+
+  @Nonnull
+  @Override
+  @ParametersAreNonnullByDefault
+  public Prediction toPrediction(RelativeMediumLayers kw, @Nonnegative double rho1) {
+    return TetrapolarPrediction.of(system, kw, rho1, resistivity);
   }
 
   @Nonnull

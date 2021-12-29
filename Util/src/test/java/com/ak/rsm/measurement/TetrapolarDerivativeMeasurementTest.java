@@ -3,6 +3,8 @@ package com.ak.rsm.measurement;
 import javax.annotation.Nonnegative;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import com.ak.rsm.medium.RelativeMediumLayers;
+import com.ak.rsm.prediction.TetrapolarDerivativePrediction;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 import org.testng.Assert;
@@ -96,6 +98,9 @@ public class TetrapolarDerivativeMeasurementTest {
     Assert.assertEquals(d.resistivity(), resistivity, 0.01, d.toString());
     Assert.assertEquals(d.derivativeResistivity(), derivativeResistivity, 0.01, d.toString());
     Assert.assertEquals(d.system(), system, d.toString());
+    Assert.assertEquals(d.toPrediction(RelativeMediumLayers.SINGLE_LAYER, 1.0),
+        TetrapolarDerivativePrediction.of(d.system(), RelativeMediumLayers.SINGLE_LAYER, 1.0,
+            new double[] {d.resistivity(), d.derivativeResistivity()}));
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
