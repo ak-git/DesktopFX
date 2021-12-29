@@ -18,18 +18,18 @@ import static tec.uom.se.unit.Units.METRE;
 
 abstract class AbstractPrediction implements Prediction {
   @Nonnegative
-  private final double resistivityPredicted;
+  private final double predicted;
   @Nonnull
   private final double[] inequalityL2;
 
-  protected AbstractPrediction(@Nonnegative double resistivityPredicted, @Nonnull double[] inequalityL2) {
-    this.resistivityPredicted = resistivityPredicted;
+  protected AbstractPrediction(@Nonnegative double predicted, @Nonnull double[] inequalityL2) {
+    this.predicted = predicted;
     this.inequalityL2 = Arrays.copyOf(inequalityL2, inequalityL2.length);
   }
 
   @Override
-  public final double getResistivityPredicted() {
-    return resistivityPredicted;
+  public final double getPredicted() {
+    return predicted;
   }
 
   @Override
@@ -43,13 +43,13 @@ abstract class AbstractPrediction implements Prediction {
     if (!(o instanceof AbstractPrediction that)) {
       return false;
     }
-    return Double.compare(that.resistivityPredicted, resistivityPredicted) == 0 && Arrays.equals(inequalityL2, that.inequalityL2);
+    return Double.compare(that.predicted, predicted) == 0 && Arrays.equals(inequalityL2, that.inequalityL2);
   }
 
   @Override
   @OverridingMethodsMustInvokeSuper
   public int hashCode() {
-    int result = Objects.hash(resistivityPredicted);
+    int result = Objects.hash(predicted);
     result = 31 * result + Arrays.hashCode(inequalityL2);
     return result;
   }

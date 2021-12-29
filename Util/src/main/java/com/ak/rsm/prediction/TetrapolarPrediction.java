@@ -44,7 +44,7 @@ public final class TetrapolarPrediction extends AbstractPrediction {
 
   @Override
   public String toString() {
-    return "predicted %s; %s".formatted(Strings.rho(getResistivityPredicted()), toStringHorizons(horizons));
+    return "predicted %s; %s".formatted(Strings.rho(getPredicted()), toStringHorizons(horizons));
   }
 
   @Override

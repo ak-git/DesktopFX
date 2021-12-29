@@ -44,7 +44,7 @@ public class TetrapolarDerivativePrediction extends AbstractPrediction {
 
   @Override
   public String toString() {
-    return "%s, %s".formatted(prediction, Strings.dRhoByPhi(getResistivityPredicted()));
+    return "%s, %s".formatted(prediction, Strings.dRhoByPhi(getPredicted()));
   }
 
   @Override

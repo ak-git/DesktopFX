@@ -65,7 +65,7 @@ public class TetrapolarDerivativePredictionTest {
         new InexactTetrapolarSystem(0.1, new TetrapolarSystem(10.0, 20.0)),
         new Layer2RelativeMedium(1.0, 1.0), 10.0, new double[] {100.0, 101.0});
     Assert.assertEquals(prediction.getHorizons(), new double[] {Double.POSITIVE_INFINITY, 19.58}, 0.01, prediction.toString());
-    Assert.assertEquals(prediction.getResistivityPredicted(), -0.723, 0.001, prediction.toString());
+    Assert.assertEquals(prediction.getPredicted(), -0.723, 0.001, prediction.toString());
     Assert.assertEquals(prediction.getInequalityL2(), new double[] {8.75, 140.766}, 0.001, prediction.toString());
   }
 

@@ -52,7 +52,7 @@ public class TetrapolarPredictionTest {
     Prediction prediction = TetrapolarPrediction.of(new InexactTetrapolarSystem(0.1, new TetrapolarSystem(10.0, 20.0)),
         RelativeMediumLayers.SINGLE_LAYER, 10.0, 100.0);
     Assert.assertEquals(prediction.getHorizons(), new double[] {Double.POSITIVE_INFINITY, 0.0}, prediction.toString());
-    Assert.assertEquals(prediction.getResistivityPredicted(), 10.0, 0.001, prediction.toString());
+    Assert.assertEquals(prediction.getPredicted(), 10.0, 0.001, prediction.toString());
     Assert.assertEquals(prediction.getInequalityL2(), new double[] {9.0}, 0.001, prediction.toString());
   }
 
