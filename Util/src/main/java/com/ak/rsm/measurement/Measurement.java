@@ -10,7 +10,7 @@ import com.ak.rsm.system.InexactTetrapolarSystem;
 
 public interface Measurement {
   @Nonnull
-  InexactTetrapolarSystem system();
+  InexactTetrapolarSystem inexact();
 
   @Nonnegative
   double resistivity();

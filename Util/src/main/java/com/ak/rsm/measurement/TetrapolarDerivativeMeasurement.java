@@ -21,8 +21,8 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, 
 
   @Nonnull
   @Override
-  public InexactTetrapolarSystem system() {
-    return measurement.system();
+  public InexactTetrapolarSystem inexact() {
+    return measurement.inexact();
   }
 
   @Override
@@ -39,7 +39,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, 
   @Nonnull
   @Override
   public Prediction toPrediction(RelativeMediumLayers kw, double rho1) {
-    return TetrapolarDerivativePrediction.of(system(), kw, rho1, new double[] {resistivity(), derivativeResistivity()});
+    return TetrapolarDerivativePrediction.of(inexact(), kw, rho1, new double[] {resistivity(), derivativeResistivity()});
   }
 
   @Nonnull

@@ -84,20 +84,20 @@ public class TetrapolarMeasurementTest {
     Assert.assertEquals(measurement.toString().replaceAll("\\D", " ").strip(), expected, measurement.toString());
     Assert.assertEquals(measurement.resistivity(), resistivity, 0.01, measurement.toString());
     Assert.assertEquals(measurement.toPrediction(RelativeMediumLayers.SINGLE_LAYER, 1.0),
-        TetrapolarPrediction.of(measurement.system(), RelativeMediumLayers.SINGLE_LAYER, 1.0, measurement.resistivity()));
+        TetrapolarPrediction.of(measurement.inexact(), RelativeMediumLayers.SINGLE_LAYER, 1.0, measurement.resistivity()));
   }
 
   @Test
   public void testMerge() {
     Measurement m1 = TetrapolarMeasurement.milli(0.1).system(10.0, 30.0).rho(1.0);
     Assert.assertEquals(m1.merge(m1).resistivity(), 1.0, 0.001, m1.toString());
-    Assert.assertEquals(m1.merge(m1).system().getApparentRelativeError(), 0.014, 0.001, m1.toString());
+    Assert.assertEquals(m1.merge(m1).inexact().getApparentRelativeError(), 0.014, 0.001, m1.toString());
 
     Measurement m2 = TetrapolarMeasurement.milli(0.001).system(10.0, 30.0).rho(10.0);
     Assert.assertEquals(m1.merge(m2).toString(), m2.merge(m1).toString());
 
     Assert.assertEquals(m1.merge(m2).resistivity(), 9.91, 0.01);
-    Assert.assertEquals(m2.merge(m1).system().getApparentRelativeError(), 0.002, 0.01);
+    Assert.assertEquals(m2.merge(m1).inexact().getApparentRelativeError(), 0.002, 0.01);
   }
 
   @Test
