@@ -1,4 +1,4 @@
-package com.ak.rsm.medium;
+package com.ak.rsm.relative;
 
 
 import java.util.Objects;

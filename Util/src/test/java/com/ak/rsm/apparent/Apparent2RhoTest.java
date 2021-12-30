@@ -3,7 +3,7 @@ package com.ak.rsm.apparent;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.rsm.medium.Layer2RelativeMedium;
+import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.resistance.NormalizedResistance2Layer;
 import com.ak.rsm.resistance.Resistance2LayerTest;
 import com.ak.rsm.resistance.TetrapolarResistance;

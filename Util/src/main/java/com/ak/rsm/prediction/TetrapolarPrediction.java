@@ -8,7 +8,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
 import com.ak.rsm.apparent.Apparent2Rho;
-import com.ak.rsm.medium.RelativeMediumLayers;
+import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.util.Strings;
 
@@ -44,7 +44,7 @@ public final class TetrapolarPrediction extends AbstractPrediction {
 
   @Override
   public String toString() {
-    return "predicted %s; %s".formatted(Strings.rho(getPredicted()), toStringHorizons(horizons));
+    return "predicted %s; %s".formatted(Strings.rho(getPredicted()), Prediction.toStringHorizons(horizons));
   }
 
   @Override

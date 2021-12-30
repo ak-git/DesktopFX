@@ -5,8 +5,8 @@ import java.util.function.ToDoubleFunction;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.rsm.medium.Layer2RelativeMedium;
-import com.ak.rsm.medium.RelativeMediumLayers;
+import com.ak.rsm.relative.Layer2RelativeMedium;
+import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistance2LayerTest;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.RelativeTetrapolarSystem;

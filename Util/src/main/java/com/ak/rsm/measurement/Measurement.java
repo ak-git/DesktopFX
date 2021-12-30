@@ -4,8 +4,8 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import com.ak.rsm.medium.RelativeMediumLayers;
 import com.ak.rsm.prediction.Prediction;
+import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 
 public interface Measurement {

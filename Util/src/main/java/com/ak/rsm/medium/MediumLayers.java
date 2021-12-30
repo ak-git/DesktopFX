@@ -1,6 +1,5 @@
 package com.ak.rsm.medium;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.math.ValuePair;
@@ -22,6 +21,6 @@ interface MediumLayers {
     return rho();
   }
 
-  @Nonnegative
+  @Nonnull
   double[] getRMS();
 }

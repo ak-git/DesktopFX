@@ -6,7 +6,7 @@ import java.util.function.ToDoubleFunction;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.rsm.medium.RelativeMediumLayers;
+import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
 
 import static java.lang.StrictMath.hypot;
@@ -31,7 +31,7 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
     return pow(k, n) * sumFactor(n);
   }
 
-  static ToDoubleFunction<RelativeMediumLayers> newLog1pApparent2Rho(@Nonnull RelativeTetrapolarSystem system) {
+  public static ToDoubleFunction<RelativeMediumLayers> newLog1pApparent2Rho(@Nonnull RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new Log1pApparent(system));
   }
 
@@ -46,7 +46,7 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
     return new Apparent2Rho(new DerivativeApparentByPhi(system));
   }
 
-  static ToDoubleFunction<RelativeMediumLayers> newDerivativeApparentByK2Rho(@Nonnull RelativeTetrapolarSystem system) {
+  public static ToDoubleFunction<RelativeMediumLayers> newDerivativeApparentByK2Rho(@Nonnull RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new DerivativeApparentByK(system)) {
       @Override
       double kFactor(double k, @Nonnegative int n) {

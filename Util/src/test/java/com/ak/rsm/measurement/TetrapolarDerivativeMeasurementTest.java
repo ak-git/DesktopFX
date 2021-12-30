@@ -3,8 +3,8 @@ package com.ak.rsm.measurement;
 import javax.annotation.Nonnegative;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import com.ak.rsm.medium.RelativeMediumLayers;
 import com.ak.rsm.prediction.TetrapolarDerivativePrediction;
+import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 import org.testng.Assert;

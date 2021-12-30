@@ -5,8 +5,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import com.ak.rsm.medium.Layer2RelativeMedium;
-import com.ak.rsm.medium.RelativeMediumLayers;
+import com.ak.rsm.relative.Layer2RelativeMedium;
+import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 import org.testng.Assert;
@@ -66,7 +66,7 @@ public class TetrapolarPredictionTest {
     List<Prediction> predictions = List.of(prediction1, prediction2);
     Assert.assertEquals(prediction1.getHorizons(), new double[] {0.378, 27.210}, 0.001, prediction1.toString());
     Assert.assertEquals(prediction2.getHorizons(), new double[] {0.504, 36.929}, 0.001, prediction2.toString());
-    Assert.assertEquals(AbstractPrediction.mergeHorizons(predictions), new double[] {0.504, 27.210}, 0.001,
+    Assert.assertEquals(Prediction.mergeHorizons(predictions), new double[] {0.504, 27.210}, 0.001,
         predictions.toString());
   }
 }
