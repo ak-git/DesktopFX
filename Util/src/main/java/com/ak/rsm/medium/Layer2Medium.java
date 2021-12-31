@@ -11,14 +11,14 @@ import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.Layers;
 
-final class Layer2Medium extends AbstractMediumLayers {
+public final class Layer2Medium extends AbstractMediumLayers {
   @Nonnull
   private final ValuePair rho2;
   @Nonnull
   private final ValuePair h1;
 
   @ParametersAreNonnullByDefault
-  Layer2Medium(Collection<? extends Measurement> measurements, RelativeMediumLayers kw) {
+  public Layer2Medium(Collection<? extends Measurement> measurements, RelativeMediumLayers kw) {
     super(measurements, kw);
 
     var dRho2 = 2.0 * kw.k12AbsError() / StrictMath.pow(1.0 - kw.k12(), 2.0);

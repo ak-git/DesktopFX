@@ -61,7 +61,7 @@ public record InexactTetrapolarSystem(@Nonnegative double absError, @Nonnull Tet
   }
 
   @Nonnull
-  static Collection<List<InexactTetrapolarSystem>> getMeasurementsCombination(@Nonnull Collection<InexactTetrapolarSystem> systems) {
+  public static Collection<List<InexactTetrapolarSystem>> getMeasurementsCombination(@Nonnull Collection<InexactTetrapolarSystem> systems) {
     ToLongFunction<Collection<InexactTetrapolarSystem>> distinctSizes =
         ts -> ts.stream().flatMap(s -> DoubleStream.of(s.system.sPU(), s.system.lCC()).boxed()).distinct().count();
     var initialSizes = distinctSizes.applyAsLong(systems);

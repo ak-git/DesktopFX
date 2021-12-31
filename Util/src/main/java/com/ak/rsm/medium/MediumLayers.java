@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 
 import com.ak.math.ValuePair;
 
-interface MediumLayers {
+public interface MediumLayers {
   @Nonnull
   ValuePair rho();
 

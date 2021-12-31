@@ -8,8 +8,8 @@ import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.relative.RelativeMediumLayers;
 
-final class Layer1Medium extends AbstractMediumLayers {
-  Layer1Medium(@Nonnull Collection<? extends Measurement> measurements) {
+public final class Layer1Medium extends AbstractMediumLayers {
+  public Layer1Medium(@Nonnull Collection<? extends Measurement> measurements) {
     super(measurements, RelativeMediumLayers.SINGLE_LAYER);
   }
 
