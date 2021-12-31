@@ -57,7 +57,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, 
     TetrapolarMeasurement.PreBuilder<DerivativeMeasurement> dh(double dh);
   }
 
-  private static class Builder extends TetrapolarMeasurement.AbstractBuilder<DerivativeMeasurement>
+  private static class Builder extends TetrapolarMeasurement.AbstractSingleBuilder<DerivativeMeasurement>
       implements PreBuilder {
     private double dh;
 
@@ -80,7 +80,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, 
 
     @Nonnull
     @Override
-    public DerivativeMeasurement ofOhms(@Nonnegative double rOhms) {
+    public DerivativeMeasurement ofOhms(@Nonnull double... rOhms) {
       return new TetrapolarDerivativeMeasurement(TetrapolarMeasurement.of(inexact).ofOhms(rOhms), 0.0);
     }
 

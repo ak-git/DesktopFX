@@ -82,7 +82,7 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
 
     @Nonnull
     @Override
-    public DerivativeResistance ofOhms(@Nonnegative double rOhms) {
+    public DerivativeResistance ofOhms(@Nonnull double... rOhms) {
       return new TetrapolarDerivativeResistance(TetrapolarResistance.of(system).ofOhms(rOhms), 0.0);
     }
 

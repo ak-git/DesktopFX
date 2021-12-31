@@ -91,4 +91,9 @@ public class TetrapolarResistanceTest {
     Assert.assertEquals(t.ohms(), ohms, 0.01, t.toString());
     Assert.assertEquals(t.resistivity(), resistivity, 0.01, t.toString());
   }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInvalidOhms() {
+    TetrapolarResistance.milli(40.0, 80.0).ofOhms(1.0 / Math.PI, 1.0 / Math.PI);
+  }
 }

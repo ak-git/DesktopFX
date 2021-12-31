@@ -1,5 +1,9 @@
 package com.ak.rsm.measurement;
 
+import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -8,6 +12,7 @@ import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
+import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -100,8 +105,45 @@ public class TetrapolarMeasurementTest {
     Assert.assertEquals(m2.merge(m1).inexact().getApparentRelativeError(), 0.002, 0.01);
   }
 
-  @Test
-  public void testToPrediction() {
-    Measurement measurement = TetrapolarMeasurement.milli(0.1).system(30.0, 60.0).ofOhms(1.0 / Math.PI);
+  @DataProvider(name = "tetrapolar-multi-measurements")
+  public static Object[][] tetrapolarMultiMeasurements() {
+    return new Object[][] {
+        {
+            TetrapolarMeasurement.milli2(0.1, 6.0).rho(1.0),
+            "60001800001181000033 300001800001311000022",
+            new double[] {1.0, 1.0},
+        },
+        {
+            TetrapolarMeasurement.milli2(0.1, 7.0).rho1(10.0).rho2(1.0).h(5.0),
+            "700021000012255016 350002100001384300082",
+            new double[] {5.46, 4.30}
+        },
+        {
+            TetrapolarMeasurement.milli2(0.1, 8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
+            "800024000012645011 400002400001453620060",
+            new double[] {4.45, 3.62},
+        },
+        {
+            TetrapolarMeasurement.milli2(0.1, 10.0).ofOhms(15.915, 23.873),
+            "100003000001361000020 500003000001611000013",
+            new double[] {1.0, 1.0}
+        },
+    };
+  }
+
+  @Test(dataProvider = "tetrapolar-multi-measurements")
+  @ParametersAreNonnullByDefault
+  public void testMulti(Collection<Measurement> ms, String expected, double[] resistivity) {
+    Assert.assertEquals(
+        ms.stream().map(
+            m -> m.toString().replaceAll("\\D", " ").strip().replaceAll(Strings.SPACE, Strings.EMPTY)
+        ).collect(Collectors.joining(Strings.SPACE)), expected, ms.toString());
+    Assert.assertEquals(ms.stream().mapToDouble(Measurement::resistivity).toArray(), resistivity, 0.01, ms.toString());
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, invocationCount = 3)
+  public void testInvalidOhms() {
+    TetrapolarMeasurement.milli2(0.01, 10.0).ofOhms(DoubleStream.generate(Math::random)
+        .limit(Math.random() > 0.5 ? 1 : 3).toArray());
   }
 }

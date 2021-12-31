@@ -1,5 +1,10 @@
 package com.ak.rsm.measurement;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 
@@ -61,24 +66,41 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
     return new Builder(DoubleUnaryOperator.identity(), absError);
   }
 
+  @Nonnull
+  public static TetrapolarResistance.PreBuilder<Collection<Measurement>> milli2(@Nonnegative double absError, @Nonnegative double sBase) {
+    return new MultiBuilder(Metrics.MILLI, absError)
+        .system(sBase, sBase * 3.0).system(sBase * 5.0, sBase * 3.0);
+  }
+
   public interface PreBuilder<T> {
     @Nonnull
     TetrapolarResistance.PreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC);
   }
 
-  abstract static class AbstractBuilder<T> extends TetrapolarResistance.AbstractBuilder<T> implements PreBuilder<T> {
+  public interface MultiPreBuilder<T> extends TetrapolarResistance.PreBuilder<T> {
+    @Nonnull
+    MultiPreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC);
+  }
+
+  abstract static class AbstractBuilder<T> extends TetrapolarResistance.AbstractBuilder<T> {
     @Nonnegative
     protected final double absError;
-    protected InexactTetrapolarSystem inexact;
 
     AbstractBuilder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
       super(converter);
       this.absError = converter.applyAsDouble(absError);
     }
+  }
 
-    AbstractBuilder(@Nonnull InexactTetrapolarSystem inexact) {
-      super(DoubleUnaryOperator.identity());
-      absError = inexact.absError();
+  abstract static class AbstractSingleBuilder<T> extends AbstractBuilder<T> implements PreBuilder<T> {
+    protected InexactTetrapolarSystem inexact;
+
+    AbstractSingleBuilder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
+      super(converter, absError);
+    }
+
+    AbstractSingleBuilder(@Nonnull InexactTetrapolarSystem inexact) {
+      super(DoubleUnaryOperator.identity(), inexact.absError());
       this.inexact = inexact;
     }
 
@@ -90,7 +112,27 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
     }
   }
 
-  private static class Builder extends AbstractBuilder<Measurement> {
+  abstract static class AbstractMultiBuilder<T> extends AbstractBuilder<T> implements MultiPreBuilder<T> {
+    @Nonnull
+    protected final Deque<InexactTetrapolarSystem> inexact = new LinkedList<>();
+
+    AbstractMultiBuilder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
+      super(converter, absError);
+    }
+
+    @Nonnull
+    @Override
+    public final MultiPreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC) {
+      inexact.add(
+          new InexactTetrapolarSystem(absError,
+              new TetrapolarSystem(converter.applyAsDouble(sPU), converter.applyAsDouble(lCC))
+          )
+      );
+      return this;
+    }
+  }
+
+  private static class Builder extends AbstractSingleBuilder<Measurement> {
     private Builder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
       super(converter, absError);
     }
@@ -107,7 +149,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
 
     @Nonnull
     @Override
-    public Measurement ofOhms(@Nonnegative double rOhms) {
+    public Measurement ofOhms(@Nonnull double... rOhms) {
       return new TetrapolarMeasurement(inexact, TetrapolarResistance.of(inexact.system()).ofOhms(rOhms).resistivity());
     }
 
@@ -123,6 +165,41 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
         return new TetrapolarMeasurement(inexact,
             TetrapolarResistance.of(inexact.system()).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1).resistivity()
         );
+      }
+    }
+  }
+
+  private static class MultiBuilder extends AbstractMultiBuilder<Collection<Measurement>> {
+    private MultiBuilder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
+      super(converter, absError);
+    }
+
+    @Nonnull
+    @Override
+    public Collection<Measurement> rho(@Nonnegative double rho) {
+      return inexact.stream().map(s -> new Builder(s).rho(rho)).toList();
+    }
+
+    @Nonnull
+    @Override
+    public Collection<Measurement> ofOhms(@Nonnull double... rOhms) {
+      if (inexact.size() == rOhms.length) {
+        Iterator<InexactTetrapolarSystem> iterator = inexact.iterator();
+        return Arrays.stream(rOhms).mapToObj(rOhm -> new Builder(iterator.next()).ofOhms(rOhm)).toList();
+      }
+      else {
+        throw new IllegalArgumentException(Arrays.toString(rOhms));
+      }
+    }
+
+    @Nonnull
+    @Override
+    public Collection<Measurement> build() {
+      if (Double.isNaN(hStep)) {
+        return inexact.stream().map(s -> new Builder(s).rho1(rho1).rho2(rho2).h(h)).toList();
+      }
+      else {
+        return inexact.stream().map(s -> new Builder(s).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1)).toList();
       }
     }
   }

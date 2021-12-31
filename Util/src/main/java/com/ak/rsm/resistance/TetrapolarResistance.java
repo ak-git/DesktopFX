@@ -1,5 +1,6 @@
 package com.ak.rsm.resistance;
 
+import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
 import javax.annotation.Nonnegative;
@@ -39,7 +40,7 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
     T rho(@Nonnegative double rho);
 
     @Nonnull
-    T ofOhms(@Nonnegative double rOhms);
+    T ofOhms(@Nonnull double... rOhms);
 
     @Nonnull
     LayersBuilder1<T> rho1(@Nonnegative double rho1);
@@ -157,7 +158,7 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
     }
 
     private Builder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double sPU, @Nonnegative double lCC) {
-      super(converter, new TetrapolarSystem(converter.applyAsDouble(sPU), converter.applyAsDouble(lCC)));
+      super(converter, sPU, lCC);
     }
 
     @Nonnull
@@ -168,8 +169,13 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
 
     @Nonnull
     @Override
-    public Resistance ofOhms(@Nonnegative double rOhms) {
-      return new TetrapolarResistance(system, rOhms, rOhms / new Resistance1Layer(system).value(1.0));
+    public Resistance ofOhms(@Nonnull double... rOhms) {
+      if (rOhms.length == 1) {
+        return new TetrapolarResistance(system, rOhms[0], rOhms[0] / new Resistance1Layer(system).value(1.0));
+      }
+      else {
+        throw new IllegalArgumentException(Arrays.toString(rOhms));
+      }
     }
 
     @Override
