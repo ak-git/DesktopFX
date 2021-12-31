@@ -2,7 +2,6 @@ package com.ak.rsm.measurement;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.rsm.prediction.Prediction;
 import com.ak.rsm.relative.RelativeMediumLayers;
@@ -19,6 +18,5 @@ public interface Measurement {
   Measurement merge(@Nonnull Measurement that);
 
   @Nonnull
-  @ParametersAreNonnullByDefault
-  Prediction toPrediction(RelativeMediumLayers kw, @Nonnegative double rho1);
+  Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1);
 }

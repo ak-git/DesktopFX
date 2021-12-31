@@ -10,7 +10,6 @@ import java.util.function.Function;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.math.ValuePair;
 import com.ak.rsm.prediction.Prediction;
@@ -46,8 +45,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
 
   @Nonnull
   @Override
-  @ParametersAreNonnullByDefault
-  public Prediction toPrediction(RelativeMediumLayers kw, @Nonnegative double rho1) {
+  public Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1) {
     return TetrapolarPrediction.of(inexact, kw, rho1, resistivity);
   }
 
