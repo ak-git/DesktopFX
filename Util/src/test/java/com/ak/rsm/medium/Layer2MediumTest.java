@@ -22,14 +22,14 @@ public class Layer2MediumTest {
         {
             new Layer2Medium(measurements, new Layer2RelativeMedium(
                 ValuePair.Name.K12.of(0.6, 0.01),
-                ValuePair.Name.H.of(0.2, 0.01))
+                ValuePair.Name.H_L.of(0.2, 0.01))
             ),
             new double[] {0.0287, 0.1149, Metrics.fromMilli(7.0 * 3 * 0.2)}
         },
         {
             new Layer2Medium(measurements, new Layer2RelativeMedium(
                 ValuePair.Name.K12.of(-0.6, 0.001),
-                ValuePair.Name.H.of(0.1, 0.001))
+                ValuePair.Name.H_L.of(0.1, 0.001))
             ),
             new double[] {0.1601, 0.0400, Metrics.fromMilli(7.0 * 3 * 0.1)}
         },
