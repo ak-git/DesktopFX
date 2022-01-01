@@ -1,6 +1,9 @@
 package com.ak.rsm.resistance;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.function.DoubleUnaryOperator;
 
 import javax.annotation.Nonnegative;
@@ -33,6 +36,26 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
   @Nonnull
   public static PreBuilder<Resistance> si(@Nonnegative double sPU, @Nonnegative double lCC) {
     return new Builder(DoubleUnaryOperator.identity(), sPU, lCC);
+  }
+
+  /**
+   * Generates optimal electrode system pair.
+   * <p>
+   * For 10 mm: <b>10 x 30, 50 x 30 mm</b>
+   * </p>
+   *
+   * @param sBase small sPU base in millimeters.
+   * @return builder to make two measurements.
+   */
+  @Nonnull
+  public static PreBuilder<Collection<Resistance>> milli2(@Nonnegative double sBase) {
+    return new MultiBuilder(Metrics.MILLI)
+        .system(sBase, sBase * 3.0).system(sBase * 5.0, sBase * 3.0);
+  }
+
+  public interface MultiPreBuilder<T> extends PreBuilder<T> {
+    @Nonnull
+    MultiPreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC);
   }
 
   public interface PreBuilder<T> {
@@ -151,6 +174,23 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
     }
   }
 
+  public abstract static class AbstractMultiTetrapolarBuilder<T> extends AbstractBuilder<T> implements MultiPreBuilder<T> {
+    @Nonnull
+    protected final Collection<TetrapolarSystem> systems = new LinkedList<>();
+
+    @ParametersAreNonnullByDefault
+    protected AbstractMultiTetrapolarBuilder(DoubleUnaryOperator converter) {
+      super(converter);
+    }
+
+    @Nonnull
+    @Override
+    public final MultiPreBuilder<T> system(double sPU, double lCC) {
+      systems.add(new TetrapolarSystem(converter.applyAsDouble(sPU), converter.applyAsDouble(lCC)));
+      return this;
+    }
+  }
+
   private static final class Builder extends AbstractTetrapolarBuilder<Resistance> {
     @ParametersAreNonnullByDefault
     private Builder(@Nonnull TetrapolarSystem system) {
@@ -187,6 +227,40 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
       else {
         return ofOhms(new Resistance3Layer(system, hStep).value(rho1, rho2, rho3, p1, p2mp1));
       }
+    }
+  }
+
+  private static class MultiBuilder extends AbstractMultiTetrapolarBuilder<Collection<Resistance>> {
+    private MultiBuilder(@Nonnull DoubleUnaryOperator converter) {
+      super(converter);
+    }
+
+    @Nonnull
+    @Override
+    public Collection<Resistance> rho(@Nonnegative double rho) {
+      return systems.stream().map(s -> new Builder(s).rho(rho)).toList();
+    }
+
+    @Nonnull
+    @Override
+    public Collection<Resistance> ofOhms(@Nonnull double... rOhms) {
+      if (systems.size() == rOhms.length) {
+        Iterator<TetrapolarSystem> iterator = systems.iterator();
+        return Arrays.stream(rOhms).mapToObj(rOhm -> new Builder(iterator.next()).ofOhms(rOhm)).toList();
+      }
+      else {
+        throw new IllegalArgumentException(Arrays.toString(rOhms));
+      }
+    }
+
+    @Nonnull
+    @Override
+    public Collection<Resistance> build() {
+      return systems.stream().map(s -> {
+        Builder builder = new Builder(s);
+        builder.h = h;
+        return builder.rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1);
+      }).toList();
     }
   }
 }

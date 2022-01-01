@@ -2,7 +2,6 @@ package com.ak.rsm.measurement;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.DoubleUnaryOperator;
@@ -139,7 +138,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
 
   abstract static class AbstractMultiBuilder<T> extends AbstractBuilder<T> implements MultiPreBuilder<T> {
     @Nonnull
-    protected final Deque<InexactTetrapolarSystem> inexact = new LinkedList<>();
+    protected final Collection<InexactTetrapolarSystem> inexact = new LinkedList<>();
 
     AbstractMultiBuilder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
       super(converter, absError);
@@ -220,12 +219,11 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
     @Nonnull
     @Override
     public Collection<Measurement> build() {
-      if (Double.isNaN(hStep)) {
-        return inexact.stream().map(s -> new Builder(s).rho1(rho1).rho2(rho2).h(h)).toList();
-      }
-      else {
-        return inexact.stream().map(s -> new Builder(s).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1)).toList();
-      }
+      return inexact.stream().map(s -> {
+        Builder builder = new Builder(s);
+        builder.h(h);
+        return builder.rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1);
+      }).toList();
     }
   }
 }

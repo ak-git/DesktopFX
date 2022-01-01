@@ -1,10 +1,15 @@
 package com.ak.rsm.resistance;
 
+import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
+import com.ak.util.Strings;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -92,8 +97,50 @@ public class TetrapolarResistanceTest {
     Assert.assertEquals(t.resistivity(), resistivity, 0.01, t.toString());
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @DataProvider(name = "tetrapolar-multi-resistivity")
+  public static Object[][] tetrapolarMultiResistivity() {
+    return new Object[][] {
+        {
+            TetrapolarResistance.milli2(6.0).rho(1.0),
+            "600018000265261000 3000018000397891000",
+            new double[] {1.0, 1.0},
+        },
+        {
+            TetrapolarResistance.milli2(7.0).rho1(10.0).rho2(1.0).h(5.0),
+            "7000210001241605461 35000210001467104302",
+            new double[] {5.46, 4.30}
+        },
+        {
+            TetrapolarResistance.milli2(8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
+            "800024000886174454 40000240001079853619",
+            new double[] {4.45, 3.62},
+        },
+        {
+            TetrapolarResistance.milli2(10.0).ofOhms(15.915, 23.873),
+            "1000030000159151000 5000030000238731000",
+            new double[] {1.0, 1.0}
+        },
+    };
+  }
+
+  @Test(dataProvider = "tetrapolar-multi-resistivity")
+  @ParametersAreNonnullByDefault
+  public void testMulti(Collection<Resistance> ms, String expected, double[] resistivity) {
+    Assert.assertEquals(
+        ms.stream().map(
+            m -> m.toString().replaceAll("\\D", " ").strip().replaceAll(Strings.SPACE, Strings.EMPTY)
+        ).collect(Collectors.joining(Strings.SPACE)), expected, ms.toString());
+    Assert.assertEquals(ms.stream().mapToDouble(Resistance::resistivity).toArray(), resistivity, 0.01, ms.toString());
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, invocationCount = 3)
   public void testInvalidOhms() {
+    TetrapolarResistance.milli2(10.0).ofOhms(DoubleStream.generate(Math::random)
+        .limit(Math.random() > 0.5 ? 1 : 3).toArray());
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInvalidOhms2() {
     TetrapolarResistance.milli(40.0, 80.0).ofOhms(1.0 / Math.PI, 1.0 / Math.PI);
   }
 }
