@@ -7,6 +7,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.Measurement;
+import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.measurement.TetrapolarMeasurement;
 import com.ak.util.Metrics;
 import org.testng.Assert;
@@ -47,6 +48,32 @@ public class InverseLayer2Test {
     Assert.assertEquals(medium.rho1(), expected[0], medium.toString());
     Assert.assertEquals(medium.rho2(), expected[1], medium.toString());
     Assert.assertEquals(medium.h1(), expected[2], medium.toString());
+    LOGGER.info(medium::toString);
+  }
+
+  @DataProvider(name = "relativeStaticLayer2RiseErrors")
+  public static Object[][] relativeStaticLayer2RiseErrors() {
+    double absErrorMilli = 0.001;
+    double hmm = 15.0;
+    return new Object[][] {
+        {
+            TetrapolarMeasurement.milli2(absErrorMilli, 10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
+            new double[] {23.1, 4.9}
+        },
+    };
+  }
+
+  @Test(dataProvider = "relativeStaticLayer2RiseErrors")
+  @ParametersAreNonnullByDefault
+  public void testInverseRelativeStaticLayer2RiseErrors(Collection<? extends Measurement> measurements, double[] riseErrors) {
+    double absError = measurements.stream().mapToDouble(m -> m.inexact().absError()).average().orElseThrow();
+    double L = Measurements.getBaseL(measurements);
+    double dim = measurements.stream().mapToDouble(m -> m.inexact().system().getDim()).max().orElseThrow();
+
+    var medium = InverseStatic.INSTANCE.inverseRelative(measurements);
+    Assert.assertEquals(medium.k12AbsError() / (absError / dim), riseErrors[0], 0.1, medium.toString());
+    Assert.assertEquals(medium.hToLAbsError() / (absError / L), riseErrors[1], 0.1, medium.toString());
+    Assert.assertEquals(medium, InverseStatic.INSTANCE.errors(measurements.stream().map(Measurement::inexact).toList(), medium), medium.toString());
     LOGGER.info(medium::toString);
   }
 }

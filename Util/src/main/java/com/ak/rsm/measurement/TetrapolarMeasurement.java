@@ -85,13 +85,10 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
    * <p>
    * For 10 mm: <b>10 x 30, 50 x 30, 20 x 40, 60 x 40 mm</b>
    * </p>
-   * <p>
-   * For 7 mm: <b>7 x 21, 35 x 21, 14 x 28, 42 x 28 mm</b>
-   * </p>
    *
    * @param absError absolute error in millimeters.
    * @param sBase    small sPU base in millimeters.
-   * @return builder to make two measurements.
+   * @return builder to make four measurements.
    */
   @Nonnull
   public static TetrapolarResistance.PreBuilder<Collection<Measurement>> milli4(@Nonnegative double absError, @Nonnegative double sBase) {
