@@ -16,8 +16,8 @@ public class Layer1MediumTest {
   public static Object[][] layer1Medium() {
     return new Object[][] {
         {
-            new Layer1Medium(TetrapolarMeasurement.milli2(0.1, 7.0).ofOhms(1.0, 2.0)),
-            ValuePair.Name.RHO_1.of(0.0522, 0.00083)
+            new Layer1Medium(TetrapolarMeasurement.milli4(0.1, 7.0).ofOhms(1.0, 2.0, 3.0, 4.0)),
+            ValuePair.Name.RHO_1.of(0.0654, 0.00072)
         },
     };
   }
@@ -41,7 +41,7 @@ public class Layer1MediumTest {
   @ParametersAreNonnullByDefault
   public void testToString(MediumLayers layers, ValuePair expected) {
     Assert.assertTrue(layers.toString().contains(expected.toString()), layers.toString());
-    double[] array = {0.15697674418604646, 0.12403100775193777};
+    double[] array = {0.3277112113340609, 0.10361494844541479, 0.5126497744983622, 0.6807219716648473};
     double rms = Arrays.stream(array).reduce(StrictMath::hypot).orElse(Double.NaN) / Math.sqrt(array.length);
     Assert.assertEquals(layers.getRMS(), new double[] {rms}, 0.001, layers.toString());
     Assert.assertTrue(layers.toString().contains("[%.1f] %%".formatted(Metrics.toPercents(rms))), layers.toString());
