@@ -9,6 +9,8 @@ import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.measurement.TetrapolarMeasurement;
+import com.ak.rsm.resistance.Resistance;
+import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -59,6 +61,13 @@ public class InverseLayer2Test {
         {
             TetrapolarMeasurement.milli2(absErrorMilli, 10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
             new double[] {23.1, 4.9}
+        },
+        {
+            TetrapolarMeasurement.milli2Err(-absErrorMilli, 10.0).ofOhms(
+                TetrapolarResistance.milli2(10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm)
+                    .stream().mapToDouble(Resistance::ohms).toArray()
+            ),
+            new double[] {23.5, 4.9}
         },
     };
   }

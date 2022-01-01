@@ -79,6 +79,12 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
         .system(sBase, sBase * 3.0).system(sBase * 5.0, sBase * 3.0);
   }
 
+  @Nonnull
+  public static TetrapolarResistance.PreBuilder<Collection<Measurement>> milli2Err(double absError, @Nonnegative double sBase) {
+    return new MultiBuilder(Metrics.MILLI, absError)
+        .system(sBase + absError, sBase * 3.0 - absError).system(sBase * 5.0 + absError, sBase * 3.0 - absError);
+  }
+
   /**
    * Generates optimal electrode system pair.
    * <p>
