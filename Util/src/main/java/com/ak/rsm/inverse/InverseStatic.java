@@ -119,7 +119,7 @@ enum InverseStatic implements Inverseable<Measurement> {
   @ParametersAreNonnullByDefault
   static RelativeMediumLayers errors(Collection<InexactTetrapolarSystem> inexactSystems, RelativeMediumLayers layers,
                                      UnaryOperator<double[]> subtract, UnaryOperator<double[][]> fixA,
-                                     BiFunction<Collection<InexactTetrapolarSystem>, double[], double[]> fixB) {
+                                     BiFunction<Collection<TetrapolarSystem>, double[], double[]> fixB) {
     Collection<TetrapolarSystem> systems = inexactSystems.stream().map(InexactTetrapolarSystem::system).toList();
     double[][] a = getAMatrix(
         systems.stream().map(TetrapolarSystem::relativeSystem).toList(),
@@ -143,7 +143,7 @@ enum InverseStatic implements Inverseable<Measurement> {
     var baseM = toMeasurements.apply(systems);
     return InexactTetrapolarSystem.getMeasurementsCombination(inexactSystems).stream()
         .map(systemList -> {
-          var measurements = toMeasurements.apply(systemList.stream().map(InexactTetrapolarSystem::system).toList());
+          var measurements = toMeasurements.apply(systemList);
           double[] b = new double[baseM.size()];
           for (int i = 0; i < baseM.size(); i++) {
             b[i] = log(measurements.get(i).resistivity()) - log(baseM.get(i).resistivity());

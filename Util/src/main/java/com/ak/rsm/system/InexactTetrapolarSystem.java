@@ -61,15 +61,15 @@ public record InexactTetrapolarSystem(@Nonnegative double absError, @Nonnull Tet
   }
 
   @Nonnull
-  public static Collection<List<InexactTetrapolarSystem>> getMeasurementsCombination(@Nonnull Collection<InexactTetrapolarSystem> systems) {
-    ToLongFunction<Collection<InexactTetrapolarSystem>> distinctSizes =
-        ts -> ts.stream().flatMap(s -> DoubleStream.of(s.system.sPU(), s.system.lCC()).boxed()).distinct().count();
-    var initialSizes = distinctSizes.applyAsLong(systems);
+  public static Collection<List<TetrapolarSystem>> getMeasurementsCombination(@Nonnull Collection<InexactTetrapolarSystem> systems) {
+    ToLongFunction<Collection<TetrapolarSystem>> distinctSizes =
+        ts -> ts.stream().flatMap(s -> DoubleStream.of(s.sPU(), s.lCC()).boxed()).distinct().count();
+    var initialSizes = distinctSizes.applyAsLong(systems.stream().map(InexactTetrapolarSystem::system).toList());
     return IntStream.range(0, 1 << systems.size())
         .mapToObj(n -> {
           var signIndex = new AtomicInteger();
           IntUnaryOperator sign = index -> (n & (1 << index)) == 0 ? 1 : -1;
-          return systems.stream().map(s -> s.shift(sign.applyAsInt(signIndex.getAndIncrement()))).toList();
+          return systems.stream().map(s -> s.shift(sign.applyAsInt(signIndex.getAndIncrement())).system).toList();
         })
         .filter(s -> initialSizes == distinctSizes.applyAsLong(s)).toList();
   }

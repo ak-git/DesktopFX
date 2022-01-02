@@ -142,7 +142,7 @@ public class InexactTetrapolarSystemTest {
 
   @Test(dataProvider = "combinations")
   public void testCombinations(@Nonnull Collection<InexactTetrapolarSystem> systems, @Nonnegative int expected) {
-    Collection<List<InexactTetrapolarSystem>> c = InexactTetrapolarSystem.getMeasurementsCombination(systems);
+    Collection<List<TetrapolarSystem>> c = InexactTetrapolarSystem.getMeasurementsCombination(systems);
     Assert.assertEquals(c.size(), expected, c.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)));
   }
 }
