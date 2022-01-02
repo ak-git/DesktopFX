@@ -2,7 +2,6 @@ package com.ak.rsm.resistance;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -115,11 +114,6 @@ public class TetrapolarResistanceTest {
             "800024000886174454 40000240001079853619",
             new double[] {4.45, 3.62},
         },
-        {
-            TetrapolarResistance.milli2(10.0).ofOhms(15.915, 23.873),
-            "1000030000159151000 5000030000238731000",
-            new double[] {1.0, 1.0}
-        },
     };
   }
 
@@ -133,10 +127,9 @@ public class TetrapolarResistanceTest {
     Assert.assertEquals(ms.stream().mapToDouble(Resistance::resistivity).toArray(), resistivity, 0.01, ms.toString());
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, invocationCount = 3)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testInvalidOhms() {
-    TetrapolarResistance.milli2(10.0).ofOhms(DoubleStream.generate(Math::random)
-        .limit(Math.random() > 0.5 ? 1 : 3).toArray());
+    TetrapolarResistance.milli2(10.0).ofOhms(1.0, 2.0, 3.0);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

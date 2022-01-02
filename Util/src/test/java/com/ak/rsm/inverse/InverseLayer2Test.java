@@ -27,17 +27,9 @@ public class InverseLayer2Test {
         {
             TetrapolarMeasurement.milli4(absErrorMilli, 10.0).rho1(1.0).rho2(4.0).h(hmm),
             new ValuePair[] {
-                ValuePair.Name.RHO_1.of(1.0, 0.00047),
-                ValuePair.Name.RHO_2.of(4.0, 0.0042),
-                ValuePair.Name.H.of(Metrics.fromMilli(hmm), Metrics.fromMilli(0.009999))
-            }
-        },
-        {
-            TetrapolarMeasurement.milli4(absErrorMilli, 10.0).rho1(4.0).rho2(1.0).h(hmm),
-            new ValuePair[] {
-                ValuePair.Name.RHO_1.of(4.0, 0.0012),
-                ValuePair.Name.RHO_2.of(1.0, 0.00049),
-                ValuePair.Name.H.of(Metrics.fromMilli(hmm), Metrics.fromMilli(0.0041))
+                ValuePair.Name.RHO_1.of(1.0, 0.0022),
+                ValuePair.Name.RHO_2.of(4.0, 0.015),
+                ValuePair.Name.H.of(Metrics.fromMilli(hmm), Metrics.fromMilli(0.050))
             }
         },
     };
@@ -60,14 +52,14 @@ public class InverseLayer2Test {
     return new Object[][] {
         {
             TetrapolarMeasurement.milli2(absErrorMilli, 10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
-            new double[] {23.1, 4.9}
+            new double[] {136.7, 31.0}
         },
         {
             TetrapolarMeasurement.milli2Err(-absErrorMilli, 10.0).ofOhms(
                 TetrapolarResistance.milli2(10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm)
                     .stream().mapToDouble(Resistance::ohms).toArray()
             ),
-            new double[] {23.5, 4.9}
+            new double[] {138.7, 31.2}
         },
     };
   }
@@ -76,7 +68,7 @@ public class InverseLayer2Test {
   @ParametersAreNonnullByDefault
   public void testInverseRelativeStaticLayer2RiseErrors(Collection<? extends Measurement> measurements, double[] riseErrors) {
     double absError = measurements.stream().mapToDouble(m -> m.inexact().absError()).average().orElseThrow();
-    double L = Measurements.getBaseL(measurements);
+    double L = Measurements.getBaseL(Measurements.toSystems(measurements));
     double dim = measurements.stream().mapToDouble(m -> m.inexact().system().getDim()).max().orElseThrow();
 
     var medium = InverseStatic.INSTANCE.inverseRelative(measurements);

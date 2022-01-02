@@ -225,11 +225,12 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
     @Nonnull
     @Override
     public Collection<Measurement> build() {
-      return inexact.stream().map(s -> {
-        Builder builder = new Builder(s);
-        builder.h(h);
-        return builder.rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1);
-      }).toList();
+      if (Double.isNaN(hStep)) {
+        return inexact.stream().map(s -> new Builder(s).rho1(rho1).rho2(rho2).h(h)).toList();
+      }
+      else {
+        return inexact.stream().map(s -> new Builder(s).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1)).toList();
+      }
     }
   }
 }

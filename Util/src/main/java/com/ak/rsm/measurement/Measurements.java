@@ -14,15 +14,19 @@ import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 
-import static java.lang.StrictMath.log;
 import static java.lang.StrictMath.pow;
 
 public enum Measurements {
   ;
 
+  @Nonnull
+  public static Collection<TetrapolarSystem> toSystems(@Nonnull Collection<? extends Measurement> measurements) {
+    return measurements.stream().map(Measurement::inexact).map(InexactTetrapolarSystem::system).toList();
+  }
+
   @Nonnegative
-  public static double getBaseL(@Nonnull Collection<? extends Measurement> measurements) {
-    return measurements.stream().mapToDouble(m -> m.inexact().system().lCC()).max().orElseThrow();
+  public static double getBaseL(@Nonnull Collection<TetrapolarSystem> systems) {
+    return systems.stream().mapToDouble(TetrapolarSystem::lCC).max().orElseThrow();
   }
 
   @Nonnull
@@ -34,7 +38,7 @@ public enum Measurements {
       return ValuePair.Name.RHO_1.of(rho, rho * average.inexact().getApparentRelativeError());
     }
     else {
-      double baseL = getBaseL(measurements);
+      double baseL = getBaseL(toSystems(measurements));
       return measurements.stream().parallel()
           .map(measurement -> {
             TetrapolarSystem s = measurement.inexact().system();
@@ -53,26 +57,17 @@ public enum Measurements {
   }
 
   @Nonnegative
-  public static double getMaxHToL(@Nonnull Collection<? extends Measurement> measurements) {
-    return measurements.parallelStream()
-        .mapToDouble(measurement -> measurement.inexact().getHMax(1.0)).min().orElseThrow() / getBaseL(measurements);
+  public static double getMaxHToL(@Nonnull Collection<InexactTetrapolarSystem> systems) {
+    return systems.parallelStream()
+        .mapToDouble(s -> s.getHMax(1.0)).min().orElseThrow() / getBaseL(systems.stream().map(InexactTetrapolarSystem::system).toList());
   }
 
   @Nonnull
-  public static ToDoubleBiFunction<InexactTetrapolarSystem, double[]> logApparentPredicted(@Nonnull Collection<? extends Measurement> measurements) {
-    double baseL = getBaseL(measurements);
+  public static ToDoubleBiFunction<InexactTetrapolarSystem, double[]> logApparentPredicted(@Nonnull Collection<TetrapolarSystem> systems) {
+    double baseL = getBaseL(systems);
     return (s, kw) -> {
       RelativeMediumLayers relativeMedium = new Layer2RelativeMedium(kw[0], kw[1] * baseL / s.system().lCC());
       return Apparent2Rho.newLog1pApparent2Rho(s.system().relativeSystem()).applyAsDouble(relativeMedium);
-    };
-  }
-
-  @Nonnull
-  static ToDoubleBiFunction<TetrapolarSystem, double[]> logDiffApparentPredicted(@Nonnull Collection<? extends Measurement> measurements) {
-    double baseL = getBaseL(measurements);
-    return (s, kw) -> {
-      RelativeMediumLayers relativeMedium = new Layer2RelativeMedium(kw[0], kw[1] * baseL / s.lCC());
-      return log(Math.abs(Apparent2Rho.newDerivativeApparentByPhi2Rho(s.relativeSystem()).applyAsDouble(relativeMedium)));
     };
   }
 }

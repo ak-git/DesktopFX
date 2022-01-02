@@ -25,7 +25,7 @@ public final class Layer2Medium extends AbstractMediumLayers {
     dRho2 += rho1().getAbsError() / Layers.getRho1ToRho2(kw.k12());
 
     rho2 = ValuePair.Name.RHO_2.of(rho1().getValue() / Layers.getRho1ToRho2(kw.k12()), dRho2);
-    double baseL = Measurements.getBaseL(measurements);
+    double baseL = Measurements.getBaseL(Measurements.toSystems(measurements));
     h1 = ValuePair.Name.H.of(kw.hToL() * baseL, kw.hToLAbsError() * baseL);
   }
 

@@ -1,6 +1,7 @@
 package com.ak.rsm.inverse;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -15,6 +16,7 @@ import com.ak.math.Simplex;
 import com.ak.math.ValuePair;
 import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.measurement.Measurement;
+import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.medium.Layer1Medium;
 import com.ak.rsm.medium.Layer2Medium;
 import com.ak.rsm.medium.MediumLayers;
@@ -85,22 +87,25 @@ enum InverseStatic implements Inverseable<Measurement> {
   @Nonnull
   @ParametersAreNonnullByDefault
   private static RelativeMediumLayers inverseRelative(Collection<? extends Measurement> measurements, UnaryOperator<double[]> subtract) {
+    List<InexactTetrapolarSystem> inexactSystems = measurements.stream().map(Measurement::inexact).toList();
     double[] subLogApparent = subtract.apply(measurements.stream().map(Measurement::resistivity).mapToDouble(StrictMath::log).toArray());
-    var logApparentPredicted = logApparentPredicted(measurements);
+    var logApparentPredicted =
+        logApparentPredicted(
+            inexactSystems.stream().map(InexactTetrapolarSystem::system).toList()
+        );
 
-    List<InexactTetrapolarSystem> tetrapolarSystems = measurements.stream().map(Measurement::inexact).toList();
     PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
           double[] subLogApparentPredicted = subtract.apply(
-              tetrapolarSystems.stream()
+              inexactSystems.stream()
                   .mapToDouble(s -> logApparentPredicted.applyAsDouble(s, kw))
                   .toArray()
           );
           return Inequality.absolute().applyAsDouble(subLogApparent, subLogApparentPredicted);
         },
-        new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {1.0, getMaxHToL(measurements)}),
+        new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {1.0, getMaxHToL(inexactSystems)}),
         new double[] {0.01, 0.01}
     );
-    return errors(tetrapolarSystems, new Layer2RelativeMedium(kwOptimal.getPoint()), subtract, identity(), (ts, b) -> b);
+    return errors(inexactSystems, new Layer2RelativeMedium(kwOptimal.getPoint()), subtract, identity(), (ts, b) -> b);
   }
 
   @Override
@@ -112,25 +117,33 @@ enum InverseStatic implements Inverseable<Measurement> {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  static RelativeMediumLayers errors(Collection<InexactTetrapolarSystem> inexact, RelativeMediumLayers layers,
+  static RelativeMediumLayers errors(Collection<InexactTetrapolarSystem> inexactSystems, RelativeMediumLayers layers,
                                      UnaryOperator<double[]> subtract, UnaryOperator<double[][]> fixA,
                                      BiFunction<Collection<InexactTetrapolarSystem>, double[], double[]> fixB) {
+    Collection<TetrapolarSystem> systems = inexactSystems.stream().map(InexactTetrapolarSystem::system).toList();
     double[][] a = getAMatrix(
-        inexact.stream().map(InexactTetrapolarSystem::system).map(TetrapolarSystem::relativeSystem).toList(),
+        systems.stream().map(TetrapolarSystem::relativeSystem).toList(),
         layers, subtract.equals(SUBTRACT) ? SUBTRACT_MATRIX : fixA
     );
 
-    double baseL = inexact.stream().map(InexactTetrapolarSystem::system).mapToDouble(TetrapolarSystem::lCC).max().orElseThrow();
-    double rho2 = 1.0 / Layers.getRho1ToRho2(layers.k12());
+    double baseL = Measurements.getBaseL(systems);
+    double rho1 = 1.0;
+    double rho2 = rho1 / Layers.getRho1ToRho2(layers.k12());
     double h = layers.hToL() * baseL;
+    Function<Collection<TetrapolarSystem>, List<Resistance>> toMeasurements =
+        ts -> ts.stream().map(
+            s -> {
+              Iterator<TetrapolarSystem> iterator = systems.iterator();
+              return TetrapolarResistance
+                  .of(iterator.next())
+                  .ofOhms(TetrapolarResistance.of(s).rho1(rho1).rho2(rho2).h(h).ohms());
+            }
+        ).toList();
 
-    Function<Collection<InexactTetrapolarSystem>, List<Resistance>> toMeasurements =
-        ts -> ts.stream().map(s -> TetrapolarResistance.of(s.system()).rho1(1.0).rho2(rho2).h(h)).toList();
-
-    var baseM = toMeasurements.apply(inexact);
-    return InexactTetrapolarSystem.getMeasurementsCombination(inexact).stream()
+    var baseM = toMeasurements.apply(systems);
+    return InexactTetrapolarSystem.getMeasurementsCombination(inexactSystems).stream()
         .map(systemList -> {
-          var measurements = toMeasurements.apply(systemList);
+          var measurements = toMeasurements.apply(systemList.stream().map(InexactTetrapolarSystem::system).toList());
           double[] b = new double[baseM.size()];
           for (int i = 0; i < baseM.size(); i++) {
             b[i] = log(measurements.get(i).resistivity()) - log(baseM.get(i).resistivity());
@@ -148,7 +161,8 @@ enum InverseStatic implements Inverseable<Measurement> {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  private static double[][] getAMatrix(Collection<RelativeTetrapolarSystem> systems, RelativeMediumLayers layers, UnaryOperator<double[][]> subtract) {
+  private static double[][] getAMatrix(Collection<RelativeTetrapolarSystem> systems, RelativeMediumLayers layers,
+                                       UnaryOperator<double[][]> subtract) {
     return subtract.apply(systems.stream().map(s -> {
       double denominator = Apparent2Rho.newNormalizedApparent2Rho(s).applyAsDouble(layers);
       return new double[] {

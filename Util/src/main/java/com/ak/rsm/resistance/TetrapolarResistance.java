@@ -2,7 +2,6 @@ package com.ak.rsm.resistance;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.DoubleUnaryOperator;
 
@@ -48,7 +47,7 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
    * @return builder to make two measurements.
    */
   @Nonnull
-  public static PreBuilder<Collection<Resistance>> milli2(@Nonnegative double sBase) {
+  public static MultiPreBuilder<Collection<Resistance>> milli2(@Nonnegative double sBase) {
     return new MultiBuilder(Metrics.MILLI)
         .system(sBase, sBase * 3.0).system(sBase * 5.0, sBase * 3.0);
   }
@@ -56,6 +55,12 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
   public interface MultiPreBuilder<T> extends PreBuilder<T> {
     @Nonnull
     MultiPreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC);
+
+    @Nonnull
+    @Override
+    default T ofOhms(@Nonnull double... rOhms) {
+      throw new UnsupportedOperationException(Arrays.toString(rOhms));
+    }
   }
 
   public interface PreBuilder<T> {
@@ -239,18 +244,6 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
     @Override
     public Collection<Resistance> rho(@Nonnegative double rho) {
       return systems.stream().map(s -> new Builder(s).rho(rho)).toList();
-    }
-
-    @Nonnull
-    @Override
-    public Collection<Resistance> ofOhms(@Nonnull double... rOhms) {
-      if (systems.size() == rOhms.length) {
-        Iterator<TetrapolarSystem> iterator = systems.iterator();
-        return Arrays.stream(rOhms).mapToObj(rOhm -> new Builder(iterator.next()).ofOhms(rOhm)).toList();
-      }
-      else {
-        throw new IllegalArgumentException(Arrays.toString(rOhms));
-      }
     }
 
     @Nonnull

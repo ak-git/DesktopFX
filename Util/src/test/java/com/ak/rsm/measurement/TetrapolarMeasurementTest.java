@@ -123,6 +123,18 @@ public class TetrapolarMeasurementTest {
             "800024000012645011 400002400001453620060",
             new double[] {4.45, 3.62},
         },
+
+        {
+            TetrapolarMeasurement.milli2Err(-0.1, 8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
+            "790024100012744011 399002410001453660061",
+            new double[] {4.42, 3.65},
+        },
+        {
+            TetrapolarMeasurement.milli2Err(0.1, 8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
+            "810023900012645011 401002390001463580059",
+            new double[] {4.49, 3.58},
+        },
+
         {
             TetrapolarMeasurement.milli2(0.1, 10.0).ofOhms(15.915, 23.873),
             "100003000001361000020 500003000001611000013",
