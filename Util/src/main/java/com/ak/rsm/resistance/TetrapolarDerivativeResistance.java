@@ -78,9 +78,10 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
     TetrapolarResistance.MultiPreBuilder<Collection<DerivativeResistance>> dh(double dh);
   }
 
-  public record DhHolder(double dh) {
+  public record DhHolder(@Nonnull DoubleUnaryOperator converter, double dh) {
     public DhHolder(@Nonnull DoubleUnaryOperator converter, double dh) {
-      this(converter.applyAsDouble(dh));
+      this.converter = converter;
+      this.dh = converter.applyAsDouble(dh);
     }
   }
 
