@@ -86,7 +86,7 @@ public class InverseStaticTest {
         },
         {
             TetrapolarMeasurement.milli2Err(-absErrorMilli, 10.0).ofOhms(
-                TetrapolarResistance.milli2(10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm)
+                TetrapolarResistance.milli().system2(10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm)
                     .stream().mapToDouble(Resistance::ohms).toArray()
             ),
             new double[] {138.7, 31.2}
@@ -125,7 +125,7 @@ public class InverseStaticTest {
         },
         {
             TetrapolarMeasurement.milli2Err(-absErrorMilli, 10.0).ofOhms(
-                TetrapolarResistance.milli2(10.0).rho1(rho1).rho2(rho2).h(hmm)
+                TetrapolarResistance.milli().system2(10.0).rho1(rho1).rho2(rho2).h(hmm)
                     .stream().mapToDouble(Resistance::ohms).toArray()
             ),
             new Layer2RelativeMedium(

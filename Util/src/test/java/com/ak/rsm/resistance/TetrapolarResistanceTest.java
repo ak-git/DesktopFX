@@ -100,17 +100,17 @@ public class TetrapolarResistanceTest {
   public static Object[][] tetrapolarMultiResistivity() {
     return new Object[][] {
         {
-            TetrapolarResistance.milli2(6.0).rho(1.0),
+            TetrapolarResistance.milli().system2(6.0).rho(1.0),
             "600018000265261000 3000018000397891000",
             new double[] {1.0, 1.0}
         },
         {
-            TetrapolarResistance.milli2(7.0).rho1(10.0).rho2(1.0).h(5.0),
+            TetrapolarResistance.milli().system2(7.0).rho1(10.0).rho2(1.0).h(5.0),
             "7000210001241605461 35000210001467104302",
             new double[] {5.46, 4.30}
         },
         {
-            TetrapolarResistance.milli2(8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
+            TetrapolarResistance.milli().system2(8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
             "800024000886174454 40000240001079853619",
             new double[] {4.45, 3.62}
         },
@@ -129,7 +129,7 @@ public class TetrapolarResistanceTest {
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testInvalidOhms() {
-    TetrapolarResistance.milli2(10.0).ofOhms(1.0, 2.0, 3.0);
+    TetrapolarResistance.milli().system2(10.0).ofOhms(1.0, 2.0, 3.0);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
