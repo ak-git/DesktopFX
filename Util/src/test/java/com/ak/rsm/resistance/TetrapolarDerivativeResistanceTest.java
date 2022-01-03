@@ -126,22 +126,22 @@ public class TetrapolarDerivativeResistanceTest {
   public static Object[][] tetrapolarMultiResistivity() {
     return new Object[][] {
         {
-            TetrapolarDerivativeResistance.milli2(6.0).rho(1.0),
+            TetrapolarDerivativeResistance.milli2(6.0, 0.1).rho(1.0),
             "6000180002652610000000 30000180003978910000000",
             new double[] {1.0, 1.0},
             new double[] {0.0, 0.0}
         },
         {
-            TetrapolarDerivativeResistance.milli2(7.0).rho1(10.0).rho2(1.0).h(5.0),
-            "700021000124160546125055 3500021000146710430220999",
+            TetrapolarDerivativeResistance.milli2(7.0, 0.2).rho1(10.0).rho2(1.0).h(5.0),
+            "700021000124160546124760 3500021000146710430220852",
             new double[] {5.46, 4.30},
-            new double[] {25.055, 20.999}
+            new double[] {24.760, 20.852}
         },
         {
-            TetrapolarDerivativeResistance.milli2(8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
-            "80002400088617445420629 4000024000107985361917533",
+            TetrapolarDerivativeResistance.milli2(8.0, 0.3).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
+            "80002400088617445420189 4000024000107985361917296",
             new double[] {4.45, 3.62},
-            new double[] {20.629, 17.533}
+            new double[] {20.189, 17.296}
         },
     };
   }
@@ -159,6 +159,6 @@ public class TetrapolarDerivativeResistanceTest {
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testInvalidOhms() {
-    TetrapolarDerivativeResistance.milli2(10.0).ofOhms(1.0, 2.0, 3.0);
+    TetrapolarDerivativeResistance.milli2(10.0, 0.01).ofOhms(1.0, 2.0, 3.0);
   }
 }

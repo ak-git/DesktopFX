@@ -62,9 +62,9 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
    * @return builder to make two measurements.
    */
   @Nonnull
-  public static TetrapolarResistance.MultiPreBuilder<Collection<DerivativeResistance>> milli2(@Nonnegative double sBase) {
+  public static TetrapolarResistance.MultiPreBuilder<Collection<DerivativeResistance>> milli2(@Nonnegative double sBase, double dhMilli) {
     return new MultiBuilder(Metrics.MILLI)
-        .dh(0.1)
+        .dh(dhMilli)
         .system(sBase, sBase * 3.0).system(sBase * 5.0, sBase * 3.0);
   }
 
