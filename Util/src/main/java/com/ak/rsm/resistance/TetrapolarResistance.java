@@ -48,8 +48,7 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
    */
   @Nonnull
   public static MultiPreBuilder<Collection<Resistance>> milli2(@Nonnegative double sBase) {
-    return new MultiBuilder(Metrics.MILLI)
-        .system(sBase, sBase * 3.0).system(sBase * 5.0, sBase * 3.0);
+    return new MultiBuilder(Metrics.MILLI).system2(sBase);
   }
 
   public interface PreBuilder<T> {
@@ -64,8 +63,17 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
   }
 
   public interface MultiPreBuilder<T> extends PreBuilder<T> {
+    /**
+     * Generates optimal electrode system pair.
+     * <p>
+     * For 10 mm: <b>10 x 30, 50 x 30 mm</b>
+     * </p>
+     *
+     * @param sBase small sPU base.
+     * @return builder to make two measurements.
+     */
     @Nonnull
-    MultiPreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC);
+    MultiPreBuilder<T> system2(@Nonnegative double sBase);
 
     @Nonnull
     @Override
@@ -190,8 +198,9 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
 
     @Nonnull
     @Override
-    public final MultiPreBuilder<T> system(double sPU, double lCC) {
-      systems.add(new TetrapolarSystem(converter.applyAsDouble(sPU), converter.applyAsDouble(lCC)));
+    public final MultiPreBuilder<T> system2(@Nonnegative double sBase) {
+      systems.add(new TetrapolarSystem(converter.applyAsDouble(sBase), converter.applyAsDouble(sBase * 3.0)));
+      systems.add(new TetrapolarSystem(converter.applyAsDouble(sBase * 5.0), converter.applyAsDouble(sBase * 3.0)));
       return this;
     }
   }

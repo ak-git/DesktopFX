@@ -52,20 +52,9 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
     return new Builder(DoubleUnaryOperator.identity(), sPU, lCC);
   }
 
-  /**
-   * Generates optimal electrode system pair.
-   * <p>
-   * For 10 mm: <b>10 x 30, 50 x 30 mm</b>
-   * </p>
-   *
-   * @param sBase small sPU base in millimeters.
-   * @return builder to make two measurements.
-   */
   @Nonnull
-  public static TetrapolarResistance.MultiPreBuilder<Collection<DerivativeResistance>> milli2(@Nonnegative double sBase, double dhMilli) {
-    return new MultiBuilder(Metrics.MILLI)
-        .dh(dhMilli)
-        .system(sBase, sBase * 3.0).system(sBase * 5.0, sBase * 3.0);
+  public static MultiPreBuilder milli() {
+    return new MultiBuilder(Metrics.MILLI);
   }
 
   public interface PreBuilder {
