@@ -38,17 +38,17 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
   }
 
   @Nonnull
-  public static PreBuilder<DerivativeResistance> of(@Nonnull TetrapolarSystem system) {
+  public static PreBuilder of(@Nonnull TetrapolarSystem system) {
     return new Builder(system);
   }
 
   @Nonnull
-  public static PreBuilder<DerivativeResistance> milli(@Nonnegative double sPU, @Nonnegative double lCC) {
+  public static PreBuilder milli(@Nonnegative double sPU, @Nonnegative double lCC) {
     return new Builder(Metrics.MILLI, sPU, lCC);
   }
 
   @Nonnull
-  public static PreBuilder<DerivativeResistance> si(@Nonnegative double sPU, @Nonnegative double lCC) {
+  public static PreBuilder si(@Nonnegative double sPU, @Nonnegative double lCC) {
     return new Builder(DoubleUnaryOperator.identity(), sPU, lCC);
   }
 
@@ -68,24 +68,24 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
         .system(sBase, sBase * 3.0).system(sBase * 5.0, sBase * 3.0);
   }
 
-  public interface PreBuilder<T> {
+  public interface PreBuilder {
     @Nonnull
-    TetrapolarResistance.PreBuilder<T> dh(double dh);
+    TetrapolarResistance.PreBuilder<DerivativeResistance> dh(double dh);
   }
 
-  public interface MultiPreBuilder<T> extends TetrapolarResistance.MultiPreBuilder<T> {
+  public interface MultiPreBuilder extends TetrapolarResistance.MultiPreBuilder<Collection<DerivativeResistance>> {
     @Nonnull
-    MultiPreBuilder<T> dh(double dh);
+    MultiPreBuilder dh(double dh);
   }
 
-  private record DhHolder(double dh) {
-    private DhHolder(@Nonnull DoubleUnaryOperator converter, double dh) {
+  public record DhHolder(double dh) {
+    public DhHolder(@Nonnull DoubleUnaryOperator converter, double dh) {
       this(converter.applyAsDouble(dh));
     }
   }
 
   private static class Builder extends TetrapolarResistance.AbstractTetrapolarBuilder<DerivativeResistance>
-      implements PreBuilder<DerivativeResistance> {
+      implements PreBuilder {
     private DhHolder dhHolder;
 
     private Builder(@Nonnull TetrapolarSystem system) {
@@ -132,7 +132,7 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
 
   private static class MultiBuilder
       extends TetrapolarResistance.AbstractMultiTetrapolarBuilder<Collection<DerivativeResistance>>
-      implements MultiPreBuilder<Collection<DerivativeResistance>> {
+      implements MultiPreBuilder {
     private DhHolder dhHolder;
 
     protected MultiBuilder(@Nonnull DoubleUnaryOperator converter) {
@@ -141,7 +141,7 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
 
     @Nonnull
     @Override
-    public MultiPreBuilder<Collection<DerivativeResistance>> dh(double dh) {
+    public MultiPreBuilder dh(double dh) {
       dhHolder = new DhHolder(converter, dh);
       return this;
     }

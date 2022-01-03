@@ -59,7 +59,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, 
 
   private static class Builder extends TetrapolarMeasurement.AbstractSingleBuilder<DerivativeMeasurement>
       implements PreBuilder {
-    private double dh;
+    private TetrapolarDerivativeResistance.DhHolder dhHolder;
 
     private Builder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
       super(converter, absError);
@@ -68,7 +68,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, 
     @Nonnull
     @Override
     public TetrapolarMeasurement.PreBuilder<DerivativeMeasurement> dh(double dh) {
-      this.dh = converter.applyAsDouble(dh);
+      dhHolder = new TetrapolarDerivativeResistance.DhHolder(converter, dh);
       return this;
     }
 
@@ -90,14 +90,16 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, 
       if (Double.isNaN(hStep)) {
         return new TetrapolarDerivativeMeasurement(
             TetrapolarMeasurement.of(inexact).rho1(rho1).rho2(rho2).h(h),
-            TetrapolarDerivativeResistance.of(inexact.system()).dh(dh).rho1(rho1).rho2(rho2).h(h).derivativeResistivity()
+            TetrapolarDerivativeResistance.of(inexact.system()).dh(dhHolder.dh())
+                .rho1(rho1).rho2(rho2).h(h).derivativeResistivity()
         );
       }
       else {
         return new TetrapolarDerivativeMeasurement(
             TetrapolarMeasurement.of(inexact).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1),
             TetrapolarDerivativeResistance
-                .of(inexact.system()).dh(dh).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1).derivativeResistivity()
+                .of(inexact.system()).dh(dhHolder.dh())
+                .rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1).derivativeResistivity()
         );
       }
     }
