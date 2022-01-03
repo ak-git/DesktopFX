@@ -52,17 +52,6 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
         .system(sBase, sBase * 3.0).system(sBase * 5.0, sBase * 3.0);
   }
 
-  public interface MultiPreBuilder<T> extends PreBuilder<T> {
-    @Nonnull
-    MultiPreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC);
-
-    @Nonnull
-    @Override
-    default T ofOhms(@Nonnull double... rOhms) {
-      throw new UnsupportedOperationException(Arrays.toString(rOhms));
-    }
-  }
-
   public interface PreBuilder<T> {
     @Nonnull
     T rho(@Nonnegative double rho);
@@ -72,6 +61,17 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
 
     @Nonnull
     LayersBuilder1<T> rho1(@Nonnegative double rho1);
+  }
+
+  public interface MultiPreBuilder<T> extends PreBuilder<T> {
+    @Nonnull
+    MultiPreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC);
+
+    @Nonnull
+    @Override
+    default T ofOhms(@Nonnull double... rOhms) {
+      throw new UnsupportedOperationException(Arrays.toString(rOhms));
+    }
   }
 
   public interface LayersBuilder1<T> {

@@ -73,7 +73,7 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
     TetrapolarResistance.PreBuilder<DerivativeResistance> dh(double dh);
   }
 
-  public interface MultiPreBuilder extends TetrapolarResistance.MultiPreBuilder<Collection<DerivativeResistance>> {
+  public interface MultiPreBuilder {
     @Nonnull
     TetrapolarResistance.MultiPreBuilder<Collection<DerivativeResistance>> dh(double dh);
   }

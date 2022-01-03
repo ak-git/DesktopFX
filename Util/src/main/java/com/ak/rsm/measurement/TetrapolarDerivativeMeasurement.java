@@ -85,7 +85,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
     TetrapolarMeasurement.PreBuilder<DerivativeMeasurement> dh(double dh);
   }
 
-  public interface MultiPreBuilder extends TetrapolarMeasurement.MultiPreBuilder<Collection<DerivativeMeasurement>> {
+  public interface MultiPreBuilder {
     @Nonnull
     TetrapolarMeasurement.MultiPreBuilder<Collection<DerivativeMeasurement>> dh(double dh);
   }
