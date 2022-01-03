@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.function.BiFunction;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 
@@ -80,9 +81,9 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
   }
 
   @Nonnull
-  public static TetrapolarResistance.PreBuilder<Collection<Measurement>> milli2Err(double absError, @Nonnegative double sBase) {
-    return new MultiBuilder(Metrics.MILLI, absError)
-        .system(sBase + absError, sBase * 3.0 - absError).system(sBase * 5.0 + absError, sBase * 3.0 - absError);
+  public static TetrapolarResistance.PreBuilder<Collection<Measurement>> milli2Err(double error, @Nonnegative double sBase) {
+    return new MultiBuilder(Metrics.MILLI, Math.abs(error))
+        .system(sBase + error, sBase * 3.0 - error).system(sBase * 5.0 + error, sBase * 3.0 - error);
   }
 
   /**
@@ -102,7 +103,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
         .system(sBase * 2.0, sBase * 4.0).system(sBase * 6.0, sBase * 4.0);
   }
 
-  public interface PreBuilder<T> {
+  public interface PreBuilder<T> extends TetrapolarResistance.PreBuilder<T> {
     @Nonnull
     TetrapolarResistance.PreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC);
   }
@@ -160,6 +161,16 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
       );
       return this;
     }
+
+    static <T, R> Collection<R> ofOhms(Collection<T> systems, BiFunction<Double, T, R> function, @Nonnull double... rOhms) {
+      if (systems.size() == rOhms.length) {
+        Iterator<T> iterator = systems.iterator();
+        return Arrays.stream(rOhms).mapToObj(rOhm -> function.apply(rOhm, iterator.next())).toList();
+      }
+      else {
+        throw new IllegalArgumentException(Arrays.toString(rOhms));
+      }
+    }
   }
 
   private static class Builder extends AbstractSingleBuilder<Measurement> {
@@ -213,13 +224,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
     @Nonnull
     @Override
     public Collection<Measurement> ofOhms(@Nonnull double... rOhms) {
-      if (inexact.size() == rOhms.length) {
-        Iterator<InexactTetrapolarSystem> iterator = inexact.iterator();
-        return Arrays.stream(rOhms).mapToObj(rOhm -> new Builder(iterator.next()).ofOhms(rOhm)).toList();
-      }
-      else {
-        throw new IllegalArgumentException(Arrays.toString(rOhms));
-      }
+      return ofOhms(inexact, (rOhm, system) -> new Builder(system).ofOhms(rOhm), rOhms);
     }
 
     @Nonnull

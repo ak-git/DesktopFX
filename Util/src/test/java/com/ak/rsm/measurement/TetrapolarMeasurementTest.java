@@ -111,7 +111,7 @@ public class TetrapolarMeasurementTest {
         {
             TetrapolarMeasurement.milli2(0.1, 6.0).rho(1.0),
             "60001800001181000033 300001800001311000022",
-            new double[] {1.0, 1.0},
+            new double[] {1.0, 1.0}
         },
         {
             TetrapolarMeasurement.milli2(0.1, 7.0).rho1(10.0).rho2(1.0).h(5.0),
@@ -121,18 +121,18 @@ public class TetrapolarMeasurementTest {
         {
             TetrapolarMeasurement.milli2(0.1, 8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
             "800024000012645011 400002400001453620060",
-            new double[] {4.45, 3.62},
+            new double[] {4.45, 3.62}
         },
 
         {
             TetrapolarMeasurement.milli2Err(-0.1, 8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
             "790024100012744011 399002410001453660061",
-            new double[] {4.42, 3.65},
+            new double[] {4.42, 3.65}
         },
         {
             TetrapolarMeasurement.milli2Err(0.1, 8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
             "810023900012645011 401002390001463580059",
-            new double[] {4.49, 3.58},
+            new double[] {4.49, 3.58}
         },
 
         {
