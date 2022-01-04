@@ -14,6 +14,7 @@ import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 
+import static java.lang.StrictMath.log;
 import static java.lang.StrictMath.pow;
 
 public enum Measurements {
@@ -63,11 +64,20 @@ public enum Measurements {
   }
 
   @Nonnull
-  public static ToDoubleBiFunction<InexactTetrapolarSystem, double[]> logApparentPredicted(@Nonnull Collection<TetrapolarSystem> systems) {
+  public static ToDoubleBiFunction<TetrapolarSystem, double[]> logApparentPredicted(@Nonnull Collection<TetrapolarSystem> systems) {
     double baseL = getBaseL(systems);
     return (s, kw) -> {
-      RelativeMediumLayers relativeMedium = new Layer2RelativeMedium(kw[0], kw[1] * baseL / s.system().lCC());
-      return Apparent2Rho.newLog1pApparent2Rho(s.system().relativeSystem()).applyAsDouble(relativeMedium);
+      RelativeMediumLayers relativeMedium = new Layer2RelativeMedium(kw[0], kw[1] * baseL / s.lCC());
+      return Apparent2Rho.newLog1pApparent2Rho(s.relativeSystem()).applyAsDouble(relativeMedium);
+    };
+  }
+
+  @Nonnull
+  public static ToDoubleBiFunction<TetrapolarSystem, double[]> logDiffApparentPredicted(@Nonnull Collection<TetrapolarSystem> measurements) {
+    double baseL = getBaseL(measurements);
+    return (s, kw) -> {
+      RelativeMediumLayers relativeMedium = new Layer2RelativeMedium(kw[0], kw[1] * baseL / s.lCC());
+      return log(Math.abs(Apparent2Rho.newDerivativeApparentByPhi2Rho(s.relativeSystem()).applyAsDouble(relativeMedium)));
     };
   }
 }
