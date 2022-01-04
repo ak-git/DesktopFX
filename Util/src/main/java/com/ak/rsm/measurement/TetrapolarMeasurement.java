@@ -60,7 +60,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
   }
 
   @Nonnull
-  public static MultiPreBuilder<Collection<Measurement>> milli(double absError) {
+  public static MultiPreBuilder<Measurement> milli(double absError) {
     return new MultiBuilder(Metrics.MILLI, absError);
   }
 
@@ -74,10 +74,10 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
     MultiPreBuilder<T> withShiftError();
 
     @Nonnull
-    TetrapolarResistance.PreBuilder<T> system2(@Nonnegative double sBase);
+    TetrapolarResistance.PreBuilder<Collection<T>> system2(@Nonnegative double sBase);
 
     @Nonnull
-    TetrapolarResistance.PreBuilder<T> system4(@Nonnegative double sBase);
+    TetrapolarResistance.PreBuilder<Collection<T>> system4(@Nonnegative double sBase);
   }
 
   abstract static class AbstractBuilder<T> extends TetrapolarResistance.AbstractBuilder<T> {
@@ -110,7 +110,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
     }
   }
 
-  abstract static class AbstractMultiBuilder<T> extends AbstractBuilder<T> implements MultiPreBuilder<T> {
+  abstract static class AbstractMultiBuilder<T> extends AbstractBuilder<Collection<T>> implements MultiPreBuilder<T> {
     @Nonnull
     protected final Collection<InexactTetrapolarSystem> inexact = new LinkedList<>();
     private boolean shiftErrorFlag;
@@ -128,7 +128,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
 
     @Nonnull
     @Override
-    public final TetrapolarResistance.PreBuilder<T> system2(@Nonnegative double sBase) {
+    public final TetrapolarResistance.PreBuilder<Collection<T>> system2(@Nonnegative double sBase) {
       inexact.addAll(
           TetrapolarResistance.AbstractMultiTetrapolarBuilder.system2(converter, sBase).stream().map(toInexact()).toList()
       );
@@ -137,7 +137,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
 
     @Nonnull
     @Override
-    public final TetrapolarResistance.PreBuilder<T> system4(@Nonnegative double sBase) {
+    public final TetrapolarResistance.PreBuilder<Collection<T>> system4(@Nonnegative double sBase) {
       inexact.addAll(
           TetrapolarResistance.AbstractMultiTetrapolarBuilder.system4(converter, sBase).stream().map(toInexact()).toList()
       );
@@ -199,7 +199,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
     }
   }
 
-  private static class MultiBuilder extends AbstractMultiBuilder<Collection<Measurement>> {
+  private static class MultiBuilder extends AbstractMultiBuilder<Measurement> {
     private MultiBuilder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
       super(converter, absError);
     }

@@ -39,7 +39,7 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
   }
 
   @Nonnull
-  public static MultiPreBuilder<Collection<Resistance>> milli() {
+  public static MultiPreBuilder<Resistance> milli() {
     return new MultiBuilder(Metrics.MILLI);
   }
 
@@ -65,7 +65,7 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
      * @return builder to make two measurements.
      */
     @Nonnull
-    PreBuilder<T> system2(@Nonnegative double sBase);
+    PreBuilder<Collection<T>> system2(@Nonnegative double sBase);
 
     /**
      * Generates optimal electrode system pair.
@@ -76,7 +76,7 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
      * @param sBase small sPU base in millimeters.
      * @return builder to make four measurements.
      */
-    PreBuilder<T> system4(@Nonnegative double sBase);
+    PreBuilder<Collection<T>> system4(@Nonnegative double sBase);
   }
 
   public interface LayersBuilder1<T> {
@@ -183,7 +183,7 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
     }
   }
 
-  public abstract static class AbstractMultiTetrapolarBuilder<T> extends AbstractBuilder<T> implements MultiPreBuilder<T> {
+  public abstract static class AbstractMultiTetrapolarBuilder<T> extends AbstractBuilder<Collection<T>> implements MultiPreBuilder<T> {
     @Nonnull
     protected final Collection<TetrapolarSystem> systems = new LinkedList<>();
 
@@ -194,14 +194,14 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
 
     @Nonnull
     @Override
-    public final PreBuilder<T> system2(@Nonnegative double sBase) {
+    public final PreBuilder<Collection<T>> system2(@Nonnegative double sBase) {
       systems.addAll(system2(converter, sBase));
       return this;
     }
 
     @Nonnull
     @Override
-    public final PreBuilder<T> system4(@Nonnegative double sBase) {
+    public final PreBuilder<Collection<T>> system4(@Nonnegative double sBase) {
       systems.addAll(system4(converter, sBase));
       return this;
     }
@@ -262,7 +262,7 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
     }
   }
 
-  private static class MultiBuilder extends AbstractMultiTetrapolarBuilder<Collection<Resistance>> {
+  private static class MultiBuilder extends AbstractMultiTetrapolarBuilder<Resistance> {
     private MultiBuilder(@Nonnull DoubleUnaryOperator converter) {
       super(converter);
     }
