@@ -3,6 +3,7 @@ package com.ak.rsm.resistance;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
 import javax.annotation.Nonnegative;
@@ -15,8 +16,8 @@ import com.ak.util.Strings;
 
 import static tec.uom.se.unit.Units.OHM;
 
-public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
-                                   @Nonnegative double ohms, @Nonnegative double resistivity) implements Resistance {
+public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegative double ohms,
+                                   @Nonnegative double resistivity) implements Resistance {
   @Override
   public String toString() {
     return "%s; %.3f %s; %s".formatted(system, ohms, OHM, Strings.rho(resistivity));
@@ -53,7 +54,7 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
     LayersBuilder1<T> rho1(@Nonnegative double rho1);
   }
 
-  public interface MultiPreBuilder<T> extends PreBuilder<T> {
+  public interface MultiPreBuilder<T> {
     /**
      * Generates optimal electrode system pair.
      * <p>
@@ -64,13 +65,7 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
      * @return builder to make two measurements.
      */
     @Nonnull
-    MultiPreBuilder<T> system2(@Nonnegative double sBase);
-
-    @Nonnull
-    @Override
-    default T ofOhms(@Nonnull double... rOhms) {
-      throw new UnsupportedOperationException(Arrays.toString(rOhms));
-    }
+    PreBuilder<T> system2(@Nonnegative double sBase);
   }
 
   public interface LayersBuilder1<T> {
@@ -96,8 +91,7 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
     T p(@Nonnegative int p1, @Nonnegative int p2mp1);
   }
 
-  public abstract static class AbstractBuilder<T>
-      implements PreBuilder<T>, LayersBuilder1<T>, LayersBuilder2<T>, LayersBuilder3<T>, LayersBuilder4<T>, com.ak.util.Builder<T> {
+  public abstract static class AbstractBuilder<T> implements PreBuilder<T>, LayersBuilder1<T>, LayersBuilder2<T>, LayersBuilder3<T>, LayersBuilder4<T>, com.ak.util.Builder<T> {
     @Nonnull
     protected final DoubleUnaryOperator converter;
     @Nonnegative
@@ -189,10 +183,25 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
 
     @Nonnull
     @Override
-    public final MultiPreBuilder<T> system2(@Nonnegative double sBase) {
-      systems.add(new TetrapolarSystem(converter.applyAsDouble(sBase), converter.applyAsDouble(sBase * 3.0)));
-      systems.add(new TetrapolarSystem(converter.applyAsDouble(sBase * 5.0), converter.applyAsDouble(sBase * 3.0)));
+    public final PreBuilder<T> system2(@Nonnegative double sBase) {
+      systems.addAll(system2(converter, sBase));
       return this;
+    }
+
+    public static Collection<TetrapolarSystem> system2(@Nonnull DoubleUnaryOperator converter, @Nonnegative double sBase) {
+      return List.of(
+          new TetrapolarSystem(converter.applyAsDouble(sBase), converter.applyAsDouble(sBase * 3.0)),
+          new TetrapolarSystem(converter.applyAsDouble(sBase * 5.0), converter.applyAsDouble(sBase * 3.0))
+      );
+    }
+
+    public static Collection<TetrapolarSystem> system4(@Nonnull DoubleUnaryOperator converter, @Nonnegative double sBase) {
+      return List.of(
+          new TetrapolarSystem(converter.applyAsDouble(sBase), converter.applyAsDouble(sBase * 3.0)),
+          new TetrapolarSystem(converter.applyAsDouble(sBase * 5.0), converter.applyAsDouble(sBase * 3.0)),
+          new TetrapolarSystem(converter.applyAsDouble(sBase * 2.0), converter.applyAsDouble(sBase * 4.0)),
+          new TetrapolarSystem(converter.applyAsDouble(sBase * 6.0), converter.applyAsDouble(sBase * 4.0))
+      );
     }
   }
 
@@ -244,6 +253,12 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system,
     @Override
     public Collection<Resistance> rho(@Nonnegative double rho) {
       return systems.stream().map(s -> new Builder(s).rho(rho)).toList();
+    }
+
+    @Nonnull
+    @Override
+    public Collection<Resistance> ofOhms(@Nonnull double... rOhms) {
+      throw new UnsupportedOperationException(Arrays.toString(rOhms));
     }
 
     @Nonnull

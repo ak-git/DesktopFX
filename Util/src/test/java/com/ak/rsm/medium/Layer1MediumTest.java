@@ -16,7 +16,7 @@ public class Layer1MediumTest {
   public static Object[][] layer1Medium() {
     return new Object[][] {
         {
-            new Layer1Medium(TetrapolarMeasurement.milli4(0.1, 7.0).ofOhms(1.0, 2.0, 3.0, 4.0)),
+            new Layer1Medium(TetrapolarMeasurement.milli(0.1).system4(7.0).ofOhms(1.0, 2.0, 3.0, 4.0)),
             ValuePair.Name.RHO_1.of(0.0654, 0.00072)
         },
     };

@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 public class Layer2MediumTest {
   @DataProvider(name = "layer2Medium")
   public static Object[][] layer2Medium() {
-    Collection<Measurement> measurements = TetrapolarMeasurement.milli2(0.1, 7.0).ofOhms(1.0, 2.0);
+    Collection<Measurement> measurements = TetrapolarMeasurement.milli(0.1).system2(7.0).ofOhms(1.0, 2.0);
     return new Object[][] {
         {
             new Layer2Medium(measurements, new Layer2RelativeMedium(

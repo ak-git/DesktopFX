@@ -55,62 +55,29 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
   }
 
   @Nonnull
-  public static PreBuilder<Measurement> milli(@Nonnegative double absError) {
-    return new Builder(Metrics.MILLI, absError);
-  }
-
-  @Nonnull
   public static PreBuilder<Measurement> si(@Nonnegative double absError) {
     return new Builder(DoubleUnaryOperator.identity(), absError);
   }
 
-  /**
-   * Generates optimal electrode system pair.
-   * <p>
-   * For 10 mm: <b>10 x 30, 50 x 30 mm</b>
-   * </p>
-   *
-   * @param absError absolute error in millimeters.
-   * @param sBase    small sPU base in millimeters.
-   * @return builder to make two measurements.
-   */
   @Nonnull
-  public static TetrapolarResistance.PreBuilder<Collection<Measurement>> milli2(@Nonnegative double absError, @Nonnegative double sBase) {
-    return new MultiBuilder(Metrics.MILLI, absError)
-        .system(sBase, sBase * 3.0).system(sBase * 5.0, sBase * 3.0);
+  public static MultiPreBuilder<Collection<Measurement>> milli(double absError) {
+    return new MultiBuilder(Metrics.MILLI, absError);
   }
 
-  @Nonnull
-  public static TetrapolarResistance.PreBuilder<Collection<Measurement>> milli2Err(double error, @Nonnegative double sBase) {
-    return new MultiBuilder(Metrics.MILLI, Math.abs(error))
-        .system(sBase + error, sBase * 3.0 - error).system(sBase * 5.0 + error, sBase * 3.0 - error);
-  }
-
-  /**
-   * Generates optimal electrode system pair.
-   * <p>
-   * For 10 mm: <b>10 x 30, 50 x 30, 20 x 40, 60 x 40 mm</b>
-   * </p>
-   *
-   * @param absError absolute error in millimeters.
-   * @param sBase    small sPU base in millimeters.
-   * @return builder to make four measurements.
-   */
-  @Nonnull
-  public static TetrapolarResistance.PreBuilder<Collection<Measurement>> milli4(@Nonnegative double absError, @Nonnegative double sBase) {
-    return new MultiBuilder(Metrics.MILLI, absError)
-        .system(sBase, sBase * 3.0).system(sBase * 5.0, sBase * 3.0)
-        .system(sBase * 2.0, sBase * 4.0).system(sBase * 6.0, sBase * 4.0);
-  }
-
-  public interface PreBuilder<T> extends TetrapolarResistance.PreBuilder<T> {
+  public interface PreBuilder<T> {
     @Nonnull
     TetrapolarResistance.PreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC);
   }
 
-  public interface MultiPreBuilder<T> extends TetrapolarResistance.PreBuilder<T> {
+  public interface MultiPreBuilder<T> {
     @Nonnull
-    MultiPreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC);
+    MultiPreBuilder<T> withShiftError();
+
+    @Nonnull
+    TetrapolarResistance.PreBuilder<T> system2(@Nonnegative double sBase);
+
+    @Nonnull
+    TetrapolarResistance.PreBuilder<T> system4(@Nonnegative double sBase);
   }
 
   abstract static class AbstractBuilder<T> extends TetrapolarResistance.AbstractBuilder<T> {
@@ -146,6 +113,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
   abstract static class AbstractMultiBuilder<T> extends AbstractBuilder<T> implements MultiPreBuilder<T> {
     @Nonnull
     protected final Collection<InexactTetrapolarSystem> inexact = new LinkedList<>();
+    private boolean shiftErrorFlag;
 
     AbstractMultiBuilder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
       super(converter, absError);
@@ -153,13 +121,34 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
 
     @Nonnull
     @Override
-    public final MultiPreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC) {
-      inexact.add(
-          new InexactTetrapolarSystem(absError,
-              new TetrapolarSystem(converter.applyAsDouble(sPU), converter.applyAsDouble(lCC))
-          )
+    public final MultiPreBuilder<T> withShiftError() {
+      shiftErrorFlag = true;
+      return this;
+    }
+
+    @Nonnull
+    @Override
+    public final TetrapolarResistance.PreBuilder<T> system2(@Nonnegative double sBase) {
+      inexact.addAll(
+          TetrapolarResistance.AbstractMultiTetrapolarBuilder.system2(converter, sBase).stream().map(toInexact()).toList()
       );
       return this;
+    }
+
+    @Nonnull
+    @Override
+    public final TetrapolarResistance.PreBuilder<T> system4(@Nonnegative double sBase) {
+      inexact.addAll(
+          TetrapolarResistance.AbstractMultiTetrapolarBuilder.system4(converter, sBase).stream().map(toInexact()).toList()
+      );
+      return this;
+    }
+
+    private Function<TetrapolarSystem, InexactTetrapolarSystem> toInexact() {
+      return system -> {
+        TetrapolarSystem s = shiftErrorFlag ? new TetrapolarSystem(system.sPU() + absError, system.lCC() - absError) : system;
+        return new InexactTetrapolarSystem(absError, s);
+      };
     }
 
     static <T, R> Collection<R> ofOhms(Collection<T> systems, BiFunction<Double, T, R> function, @Nonnull double... rOhms) {

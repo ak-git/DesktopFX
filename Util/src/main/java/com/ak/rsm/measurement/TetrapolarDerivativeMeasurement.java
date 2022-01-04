@@ -10,7 +10,6 @@ import com.ak.rsm.prediction.Prediction;
 import com.ak.rsm.prediction.TetrapolarDerivativePrediction;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
-import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
@@ -45,39 +44,13 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
   }
 
   @Nonnull
-  public static PreBuilder milli(@Nonnegative double absError) {
-    return new Builder(Metrics.MILLI, absError);
-  }
-
-  @Nonnull
   public static PreBuilder si(@Nonnegative double absError) {
     return new Builder(DoubleUnaryOperator.identity(), absError);
   }
 
-  /**
-   * Generates optimal electrode system pair.
-   * <p>
-   * For 10 mm: <b>10 x 30, 50 x 30 mm</b>
-   * </p>
-   *
-   * @param absError absolute error in millimeters.
-   * @param sBase    small sPU base in millimeters.
-   * @return builder to make two measurements.
-   */
   @Nonnull
-  public static TetrapolarResistance.PreBuilder<Collection<DerivativeMeasurement>> milli2(
-      @Nonnegative double absError, @Nonnegative double sBase, double dh) {
-    return new MultiBuilder(Metrics.MILLI, absError)
-        .dh(dh)
-        .system(sBase, sBase * 3.0).system(sBase * 5.0, sBase * 3.0);
-  }
-
-  @Nonnull
-  public static TetrapolarResistance.PreBuilder<Collection<DerivativeMeasurement>> milli2Err(
-      double error, @Nonnegative double sBase, double dh) {
-    return new MultiBuilder(Metrics.MILLI, Math.abs(error))
-        .dh(dh)
-        .system(sBase + error, sBase * 3.0 - error).system(sBase * 5.0 + error, sBase * 3.0 - error);
+  public static MultiPreBuilder milli(double absError) {
+    return new MultiBuilder(Metrics.MILLI, absError);
   }
 
   public interface PreBuilder {
@@ -149,7 +122,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
     @Nonnull
     @Override
     public Collection<DerivativeMeasurement> rho(@Nonnegative double rho) {
-      return inexact.stream().map(system -> new Builder(system).dh(dhHolder.dh()).rho(rho)).toList();
+      return inexact.stream().map(system -> new Builder(system).rho(rho)).toList();
     }
 
     @Nonnull
@@ -162,10 +135,18 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
     @Override
     public Collection<DerivativeMeasurement> build() {
       if (Double.isNaN(hStep)) {
-        return inexact.stream().map(s -> new Builder(s).dh(dhHolder.dh()).rho1(rho1).rho2(rho2).h(h)).toList();
+        return inexact.stream().map(s -> {
+          Builder builder = new Builder(s);
+          builder.dhHolder = dhHolder;
+          return builder.rho1(rho1).rho2(rho2).h(h);
+        }).toList();
       }
       else {
-        return inexact.stream().map(s -> new Builder(s).dh(dhHolder.dh()).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1)).toList();
+        return inexact.stream().map(s -> {
+          Builder builder = new Builder(s);
+          builder.dhHolder = dhHolder;
+          return builder.rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1);
+        }).toList();
       }
     }
   }

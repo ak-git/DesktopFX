@@ -1,5 +1,6 @@
 package com.ak.rsm.resistance;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.DoubleUnaryOperator;
 
@@ -140,6 +141,12 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
     @Override
     public Collection<DerivativeResistance> rho(@Nonnegative double rho) {
       return systems.stream().map(system -> new Builder(system).dh(dhHolder.dh).rho(rho)).toList();
+    }
+
+    @Nonnull
+    @Override
+    public Collection<DerivativeResistance> ofOhms(@Nonnull double... rOhms) {
+      throw new UnsupportedOperationException(Arrays.toString(rOhms));
     }
 
     @Nonnull

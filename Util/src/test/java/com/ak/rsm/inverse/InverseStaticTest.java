@@ -33,7 +33,7 @@ public class InverseStaticTest {
     int rho = random.nextInt(9) + 1;
     return new Object[][] {
         {
-            TetrapolarMeasurement.milli2(0.1, 10.0).rho(rho),
+            TetrapolarMeasurement.milli(0.1).system2(10.0).rho(rho),
             rho
         },
     };
@@ -55,7 +55,7 @@ public class InverseStaticTest {
     double hmm = 15.0 / 2.0;
     return new Object[][] {
         {
-            TetrapolarMeasurement.milli4(absErrorMilli, 10.0).rho1(1.0).rho2(4.0).h(hmm),
+            TetrapolarMeasurement.milli(absErrorMilli).system4(10.0).rho1(1.0).rho2(4.0).h(hmm),
             new ValuePair[] {
                 ValuePair.Name.RHO_1.of(1.0, 0.0022),
                 ValuePair.Name.RHO_2.of(4.0, 0.015),
@@ -81,11 +81,11 @@ public class InverseStaticTest {
     double hmm = 15.0;
     return new Object[][] {
         {
-            TetrapolarMeasurement.milli2(absErrorMilli, 10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
+            TetrapolarMeasurement.milli(absErrorMilli).system2(10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
             new double[] {136.7, 31.0}
         },
         {
-            TetrapolarMeasurement.milli2Err(-absErrorMilli, 10.0).ofOhms(
+            TetrapolarMeasurement.milli(-absErrorMilli).withShiftError().system2(10.0).ofOhms(
                 TetrapolarResistance.milli().system2(10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm)
                     .stream().mapToDouble(Resistance::ohms).toArray()
             ),
@@ -117,14 +117,14 @@ public class InverseStaticTest {
     double rho2 = rho1 / Layers.getRho1ToRho2(k);
     return new Object[][] {
         {
-            TetrapolarMeasurement.milli2(absErrorMilli, 10.0).rho1(1.0).rho2(rho2).h(hmm),
+            TetrapolarMeasurement.milli(absErrorMilli).system2(10.0).rho1(1.0).rho2(rho2).h(hmm),
             new Layer2RelativeMedium(
                 ValuePair.Name.K12.of(0.6, 0.0010),
                 ValuePair.Name.H_L.of(0.25, 0.00039)
             )
         },
         {
-            TetrapolarMeasurement.milli2Err(-absErrorMilli, 10.0).ofOhms(
+            TetrapolarMeasurement.milli(-absErrorMilli).withShiftError().system2(10.0).ofOhms(
                 TetrapolarResistance.milli().system2(10.0).rho1(rho1).rho2(rho2).h(hmm)
                     .stream().mapToDouble(Resistance::ohms).toArray()
             ),
