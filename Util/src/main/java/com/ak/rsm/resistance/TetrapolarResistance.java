@@ -66,6 +66,17 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
      */
     @Nonnull
     PreBuilder<T> system2(@Nonnegative double sBase);
+
+    /**
+     * Generates optimal electrode system pair.
+     * <p>
+     * For 10 mm: <b>10 x 30, 50 x 30, 20 x 40, 60 x 40 mm</b>
+     * </p>
+     *
+     * @param sBase small sPU base in millimeters.
+     * @return builder to make four measurements.
+     */
+    PreBuilder<T> system4(@Nonnegative double sBase);
   }
 
   public interface LayersBuilder1<T> {
@@ -185,6 +196,13 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
     @Override
     public final PreBuilder<T> system2(@Nonnegative double sBase) {
       systems.addAll(system2(converter, sBase));
+      return this;
+    }
+
+    @Nonnull
+    @Override
+    public final PreBuilder<T> system4(@Nonnegative double sBase) {
+      systems.addAll(system4(converter, sBase));
       return this;
     }
 
