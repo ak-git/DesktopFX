@@ -2,9 +2,8 @@ package com.ak.rsm.measurement;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.function.BiFunction;
+import java.util.PrimitiveIterator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 
@@ -150,16 +149,6 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
         return new InexactTetrapolarSystem(absError, s);
       };
     }
-
-    static <T, R> Collection<R> ofOhms(Collection<T> systems, BiFunction<Double, T, R> function, @Nonnull double... rOhms) {
-      if (systems.size() == rOhms.length) {
-        Iterator<T> iterator = systems.iterator();
-        return Arrays.stream(rOhms).mapToObj(rOhm -> function.apply(rOhm, iterator.next())).toList();
-      }
-      else {
-        throw new IllegalArgumentException(Arrays.toString(rOhms));
-      }
-    }
   }
 
   private static class Builder extends AbstractSingleBuilder<Measurement> {
@@ -213,7 +202,13 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
     @Nonnull
     @Override
     public Collection<Measurement> ofOhms(@Nonnull double... rOhms) {
-      return ofOhms(inexact, (rOhm, system) -> new Builder(system).ofOhms(rOhm), rOhms);
+      if (inexact.size() == rOhms.length) {
+        PrimitiveIterator.OfDouble ofDouble = Arrays.stream(rOhms).iterator();
+        return inexact.stream().map(s -> new Builder(s).ofOhms(ofDouble.nextDouble())).toList();
+      }
+      else {
+        throw new IllegalArgumentException(Arrays.toString(rOhms));
+      }
     }
 
     @Nonnull

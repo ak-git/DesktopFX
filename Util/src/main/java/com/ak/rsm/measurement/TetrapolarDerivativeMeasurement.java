@@ -1,7 +1,10 @@
 package com.ak.rsm.measurement;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.PrimitiveIterator;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -10,6 +13,7 @@ import com.ak.rsm.prediction.Prediction;
 import com.ak.rsm.prediction.TetrapolarDerivativePrediction;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
+import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
@@ -90,7 +94,15 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
     @Nonnull
     @Override
     public DerivativeMeasurement ofOhms(@Nonnull double... rOhms) {
-      return new TetrapolarDerivativeMeasurement(TetrapolarMeasurement.of(inexact).ofOhms(rOhms), 0.0);
+      if (rOhms.length == 2) {
+        return new TetrapolarDerivativeMeasurement(
+            TetrapolarMeasurement.of(inexact).ofOhms(rOhms[0]),
+            TetrapolarDerivativeResistance.of(inexact.system()).dh(dhHolder.dh()).ofOhms(rOhms).derivativeResistivity()
+        );
+      }
+      else {
+        throw new IllegalArgumentException(Arrays.toString(rOhms));
+      }
     }
 
     @Nonnull
@@ -136,25 +148,32 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
     @Nonnull
     @Override
     public Collection<DerivativeMeasurement> ofOhms(@Nonnull double... rOhms) {
-      return ofOhms(inexact, (rOhm, system) -> new Builder(system).ofOhms(rOhm), rOhms);
+      PrimitiveIterator.OfDouble ohmsBefore = Arrays.stream(rOhms).limit(rOhms.length / 2).iterator();
+      PrimitiveIterator.OfDouble ohmsAfter = Arrays.stream(rOhms).skip(rOhms.length / 2).iterator();
+      return inexact.stream()
+          .map(system -> {
+            Builder builder = new Builder(system);
+            builder.dhHolder = dhHolder;
+            return builder.ofOhms(ohmsBefore.nextDouble(), ohmsAfter.nextDouble());
+          })
+          .toList();
     }
 
     @Nonnull
     @Override
     public Collection<DerivativeMeasurement> build() {
+      Function<InexactTetrapolarSystem, TetrapolarResistance.LayersBuilder2<DerivativeMeasurement>> builder2Function =
+          s -> {
+            Builder builder = new Builder(s);
+            builder.dhHolder = dhHolder;
+            return builder.rho1(rho1).rho2(rho2);
+          };
+
       if (Double.isNaN(hStep)) {
-        return inexact.stream().map(s -> {
-          Builder builder = new Builder(s);
-          builder.dhHolder = dhHolder;
-          return builder.rho1(rho1).rho2(rho2).h(h);
-        }).toList();
+        return inexact.stream().map(s -> builder2Function.apply(s).h(h)).toList();
       }
       else {
-        return inexact.stream().map(s -> {
-          Builder builder = new Builder(s);
-          builder.dhHolder = dhHolder;
-          return builder.rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1);
-        }).toList();
+        return inexact.stream().map(s -> builder2Function.apply(s).rho3(rho3).hStep(hStep).p(p1, p2mp1)).toList();
       }
     }
   }
