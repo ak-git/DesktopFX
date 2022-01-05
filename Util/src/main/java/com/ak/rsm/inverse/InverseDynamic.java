@@ -22,6 +22,7 @@ import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.DerivativeResistance;
 import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
+import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
@@ -112,8 +113,9 @@ enum InverseDynamic implements Inverseable<DerivativeMeasurement> {
           Iterator<TetrapolarSystem> iterator = systems.iterator();
           return ts.stream().map(
               s -> {
-                double ohms = TetrapolarDerivativeResistance.of(s).dh(dh).rho1(rho1).rho2(rho2).h(h).ohms();
-                return TetrapolarDerivativeResistance.of(iterator.next()).dh(dh).ofOhms(ohms);
+                double ohmsBefore = TetrapolarResistance.of(s).rho1(rho1).rho2(rho2).h(h).ohms();
+                double ohmsAfter = TetrapolarResistance.of(s).rho1(rho1).rho2(rho2).h(h + dh).ohms();
+                return TetrapolarDerivativeResistance.of(iterator.next()).dh(dh).ofOhms(ohmsBefore, ohmsAfter);
               }
           ).toList();
         };

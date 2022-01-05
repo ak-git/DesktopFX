@@ -2,6 +2,7 @@ package com.ak.rsm.inverse;
 
 import java.util.Collection;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -10,6 +11,8 @@ import com.ak.rsm.measurement.DerivativeMeasurement;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
+import com.ak.rsm.resistance.Resistance;
+import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.Layers;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -32,6 +35,18 @@ public class InverseDynamicTest {
             new Layer2RelativeMedium(
                 ValuePair.Name.K12.of(k, 0.00011),
                 ValuePair.Name.H_L.of(0.25, 0.000035)
+            )
+        },
+        {
+            TetrapolarDerivativeMeasurement.milli(-absErrorMilli).dh(dhMilli).withShiftError().system2(10.0).ofOhms(
+                Stream.concat(
+                    TetrapolarResistance.milli().system2(10.0).rho1(rho1).rho2(rho2).h(hmm).stream(),
+                    TetrapolarResistance.milli().system2(10.0).rho1(rho1).rho2(rho2).h(hmm + dhMilli).stream()
+                ).mapToDouble(Resistance::ohms).toArray()
+            ),
+            new Layer2RelativeMedium(
+                ValuePair.Name.K12.of(k + 0.00011, 0.00011),
+                ValuePair.Name.H_L.of(0.25 + 0.000035, 0.000035)
             )
         },
     };
