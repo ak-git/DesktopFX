@@ -97,10 +97,18 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
     @Override
     public DerivativeMeasurement build() {
       if (Double.isNaN(hStep)) {
-        return new TetrapolarDerivativeMeasurement(TetrapolarMeasurement.of(inexact).rho1(rho1).rho2(rho2).h(h), TetrapolarDerivativeResistance.of(inexact.system()).dh(dhHolder.dh()).rho1(rho1).rho2(rho2).h(h).derivativeResistivity());
+        return new TetrapolarDerivativeMeasurement(
+            TetrapolarMeasurement.of(inexact).rho1(rho1).rho2(rho2).h(h),
+            TetrapolarDerivativeResistance.of(inexact.system()).dh(dhHolder.dh())
+                .rho1(rho1).rho2(rho2).h(h).derivativeResistivity()
+        );
       }
       else {
-        return new TetrapolarDerivativeMeasurement(TetrapolarMeasurement.of(inexact).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1), TetrapolarDerivativeResistance.of(inexact.system()).dh(dhHolder.dh()).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1).derivativeResistivity());
+        return new TetrapolarDerivativeMeasurement(
+            TetrapolarMeasurement.of(inexact).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1),
+            TetrapolarDerivativeResistance.of(inexact.system()).dh(dhHolder.dh())
+                .rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1).derivativeResistivity()
+        );
       }
     }
   }

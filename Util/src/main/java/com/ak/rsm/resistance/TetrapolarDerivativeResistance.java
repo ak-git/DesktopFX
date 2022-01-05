@@ -2,6 +2,7 @@ package com.ak.rsm.resistance;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.PrimitiveIterator;
 import java.util.function.DoubleUnaryOperator;
 
 import javax.annotation.Nonnegative;
@@ -103,7 +104,13 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
     @Nonnull
     @Override
     public DerivativeResistance ofOhms(@Nonnull double... rOhms) {
-      return new TetrapolarDerivativeResistance(TetrapolarResistance.of(system).ofOhms(rOhms), 0.0);
+      if (rOhms.length == 2) {
+        TetrapolarResistance.PreBuilder<Resistance> b = TetrapolarResistance.of(system);
+        return new TetrapolarDerivativeResistance(b.ofOhms(rOhms[0]), b.ofOhms(rOhms[1]), dhHolder.dh);
+      }
+      else {
+        throw new IllegalArgumentException(Arrays.toString(rOhms));
+      }
     }
 
     @Nonnull
@@ -146,18 +153,25 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
     @Nonnull
     @Override
     public Collection<DerivativeResistance> ofOhms(@Nonnull double... rOhms) {
-      throw new UnsupportedOperationException(Arrays.toString(rOhms));
+      PrimitiveIterator.OfDouble ohmsBefore = Arrays.stream(rOhms).limit(rOhms.length / 2).iterator();
+      PrimitiveIterator.OfDouble ohmsAfter = Arrays.stream(rOhms).skip(rOhms.length / 2).iterator();
+      return systems.stream()
+          .map(system -> new Builder(system).dh(dhHolder.dh).ofOhms(ohmsBefore.nextDouble(), ohmsAfter.nextDouble()))
+          .toList();
     }
 
     @Nonnull
     @Override
     public Collection<DerivativeResistance> build() {
-      return systems.stream().map(s -> {
-        Builder builder = new Builder(s);
-        builder.h = h;
-        builder.dhHolder = dhHolder;
-        return builder.rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1);
-      }).toList();
+      return systems.stream()
+          .map(
+              s -> {
+                Builder builder = new Builder(s);
+                builder.h = h;
+                builder.dhHolder = dhHolder;
+                return builder.rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1);
+              })
+          .toList();
     }
   }
 }

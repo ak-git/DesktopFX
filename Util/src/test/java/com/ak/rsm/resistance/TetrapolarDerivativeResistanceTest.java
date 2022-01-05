@@ -75,27 +75,27 @@ public class TetrapolarDerivativeResistanceTest {
         },
 
         {
-            TetrapolarDerivativeResistance.milli(30.0, 60.0).dh(0.01).ofOhms(1.0 / Math.PI),
-            "30 000   60 000     0 318        0 023              0 000",
+            TetrapolarDerivativeResistance.milli(30.0, 60.0).dh(0.01).ofOhms(1.0 / Math.PI, 2.0 / Math.PI),
+            "30 000   60 000     0 318        0 023              135 000",
             0.318,
             9.0 / 400.0,
-            0.0,
+            9.0 / 400.0 * (60.0 / 0.01),
             new TetrapolarSystem(0.03, 0.06)
         },
         {
-            TetrapolarDerivativeResistance.milli(90.0, 30.0).dh(0.01).ofOhms(1.0 / Math.PI),
-            "90 000   30 000     0 318        0 060              0 000",
+            TetrapolarDerivativeResistance.milli(90.0, 30.0).dh(0.01).ofOhms(1.0 / Math.PI, 0.5 / Math.PI),
+            "90 000   30 000     0 318        0 060               90 000",
             0.318,
             3.0 / 50.0,
-            0.0,
+            3.0 / 50.0 * (-30.0 / 0.01 / 2.0),
             new TetrapolarSystem(0.09, 0.03)
         },
         {
-            TetrapolarDerivativeResistance.milli(40.0, 80.0).dh(0.01).ofOhms(1.0 / Math.PI),
-            "40 000   80 000     0 318        0 030              0 000",
+            TetrapolarDerivativeResistance.milli(40.0, 80.0).dh(0.01).ofOhms(1.0 / Math.PI, 3.0 / Math.PI),
+            "40 000   80 000     0 318        0 030              480 000",
             0.318,
             3.0 / 100.0,
-            0.0,
+            3.0 / 100.0 * (80.0 / 0.01 * 2.0),
             new TetrapolarSystem(0.04, 0.08)
         },
 
@@ -143,6 +143,14 @@ public class TetrapolarDerivativeResistanceTest {
             new double[] {4.45, 3.62},
             new double[] {20.189, 17.296}
         },
+        {
+            TetrapolarDerivativeResistance.milli().dh(0.01).system2(10.0)
+                .ofOhms(1.0 / Math.PI, 2.0 / Math.PI,
+                2.0 / Math.PI, 1.0 / Math.PI),
+            "10000300000318002060000 50000300000637002740000",
+            new double[] {0.02, 0.027},
+            new double[] {60.0, -40.0}
+        },
     };
   }
 
@@ -157,8 +165,8 @@ public class TetrapolarDerivativeResistanceTest {
     Assert.assertEquals(ms.stream().mapToDouble(DerivativeResistance::derivativeResistivity).toArray(), derivativeResistivity, 0.01, ms.toString());
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidOhms() {
-    TetrapolarDerivativeResistance.milli().dh(0.01).system2(10.0).ofOhms(1.0, 2.0, 3.0);
+    TetrapolarDerivativeResistance.milli(10.0, 30.0).dh(0.01).ofOhms(1.0);
   }
 }
