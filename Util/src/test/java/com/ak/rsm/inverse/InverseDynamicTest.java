@@ -1,5 +1,6 @@
 package com.ak.rsm.inverse;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
@@ -146,7 +147,82 @@ public class InverseDynamicTest {
     };
   }
 
-  @Test(dataProvider = "theoryDynamicParameters2")
+  @DataProvider(name = "dynamicParameters2")
+  public static Object[][] dynamicParameters2() {
+    return new Object[][] {
+        {
+            TetrapolarDerivativeMeasurement.milli(0.1)
+                .dh(0.15).system2(7.0)
+                .ofOhms(113.341, 167.385, 113.341 + 0.091, 167.385 + 0.273),
+            new double[] {5.211, 1.584, Metrics.fromMilli(15.28)}
+        },
+        {
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(0.12).system2(8.0).ofOhms(93.4, 162.65, 93.5, 162.85),
+            new double[] {5.118, 4.235, Metrics.fromMilli(7.89)}
+        },
+        {
+            TetrapolarDerivativeMeasurement.milli(0.1)
+                .dh(0.15).system2(7.0).ofOhms(136.5, 207.05, 136.65, 207.4),
+            new double[] {6.332, 4.180, Metrics.fromMilli(10.43)}
+        },
+    };
+  }
+
+  @DataProvider(name = "waterDynamicParameters2-E5731")
+  public static Object[][] waterDynamicParameters2() {
+    double dh = -10.0 / 200.0;
+    return new Object[][] {
+        // h = 5 mm, rho1 = 0.7, rho2 = Inf
+        {
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+                .ofOhms(29.47, 65.68, 29.75, 66.35),
+            new double[] {0.694, Double.POSITIVE_INFINITY, Metrics.fromMilli(5.01)}
+        },
+        // h = 10 mm, rho1 = 0.7, rho2 = Inf
+        {
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+                .ofOhms(16.761, 32.246, 16.821, 32.383),
+            new double[] {0.7, Double.POSITIVE_INFINITY, Metrics.fromMilli(9.98)}
+        },
+        // h = 15 mm, rho1 = 0.7, rho2 = Inf
+        {
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+                .ofOhms(13.338, 23.903, 13.357, 23.953),
+            new double[] {0.698, 33.428, Metrics.fromMilli(14.48)}
+        },
+        // h = 20 mm, rho1 = 0.7, rho2 = Inf
+        {
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+                .ofOhms(12.187, 20.567, 12.194, 20.589),
+            new double[] {0.7, 383.867, Metrics.fromMilli(19.95)}
+        },
+        // h = 25 mm, rho1 = 0.7, rho2 = Inf
+        {
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+                .ofOhms(11.710, 18.986, 11.714, 18.998),
+            new double[] {0.7, 3.0, Metrics.fromMilli(19.81)}
+        },
+        // h = 30 mm, rho1 = 0.7, rho2 = Inf
+        {
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+                .ofOhms(11.482, 18.152, 11.484, 18.158),
+            new double[] {0.7, 1.5, Metrics.fromMilli(20.4)}
+        },
+        // h = 35 mm, rho1 = 0.7, rho2 = Inf
+        {
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+                .ofOhms(11.361, 17.674, 11.362, 17.678),
+            new double[] {0.698, Double.POSITIVE_INFINITY, Metrics.fromMilli(34.06)}
+        },
+    };
+  }
+
+  @DataProvider(name = "allDynamicParameters2")
+  public static Object[][] allDynamicParameters2() {
+    return Stream.concat(Arrays.stream(theoryDynamicParameters2()), Arrays.stream(dynamicParameters2())).toArray(Object[][]::new);
+  }
+
+  @Test(dataProvider = "allDynamicParameters2")
   @ParametersAreNonnullByDefault
   public void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, double[] expected) {
     var medium = InverseDynamic.INSTANCE.inverse(measurements);
