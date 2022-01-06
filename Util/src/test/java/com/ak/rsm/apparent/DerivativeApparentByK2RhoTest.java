@@ -17,7 +17,7 @@ public class DerivativeApparentByK2RhoTest {
     if (Double.compare(rho[0], rho[1]) != 0) {
       double k12 = Layers.getK12(rho[0], rho[1]);
       double dk = 0.00001;
-      var b = TetrapolarResistance.milli(smm, lmm);
+      var b = TetrapolarResistance.ofMilli(smm, lmm);
       double expected = (
           b.rho1(rho[0]).rho2(rho[0] / Layers.getRho1ToRho2(k12)).h(hmm).resistivity() -
               b.rho1(rho[0]).rho2(rho[0] / Layers.getRho1ToRho2(k12 - dk)).h(hmm).resistivity()
@@ -34,7 +34,7 @@ public class DerivativeApparentByK2RhoTest {
     if (Double.compare(rho[0], rho[1]) != 0) {
       double k12 = Layers.getK12(rho[0], rho[1]);
       double dk = 0.00001;
-      var b = TetrapolarResistance.milli(lmm, smm);
+      var b = TetrapolarResistance.ofMilli(lmm, smm);
       double expected = (
           b.rho1(rho[0]).rho2(rho[0] / Layers.getRho1ToRho2(k12)).h(hmm).resistivity() -
               b.rho1(rho[0]).rho2(rho[0] / Layers.getRho1ToRho2(k12 - dk)).h(hmm).resistivity()

@@ -22,53 +22,54 @@ public class TetrapolarMeasurementTest {
   public static Object[][] tetrapolarMeasurements() {
     return new Object[][] {
         {
-            TetrapolarMeasurement.si(0.01).system(1.0, 2.0).rho(900.1),
+            TetrapolarMeasurement.ofSI(0.01).system(1.0, 2.0).rho(900.1),
             "1000 000   2000 000      10 0       1959          900   27 0",
             900.1
         },
         {
-            TetrapolarMeasurement.si(0.1).system(2.0, 1.0).rho(900.2),
+            TetrapolarMeasurement.ofSI(0.1).system(2.0, 1.0).rho(900.2),
             "2000 000   1000 000      100 0       909          900   270 1",
             900.2
         },
         {
-            TetrapolarMeasurement.si(0.01).system(10.0, 30.0).rho(8.1),
+            TetrapolarMeasurement.ofMilli(0.01).system(10.0, 30.0).rho(8.1),
             "10000 000   30000 000      10 0       76675          8 10   0 016",
             8.1
         },
         {
-            TetrapolarMeasurement.si(0.1).system(50.0, 30.0).rho(8.2),
+            TetrapolarMeasurement.ofMilli(0.1).system(50.0, 30.0).rho(8.2),
             "50000 000   30000 000      100 0       60857          8 2   0 11",
             8.2
         },
         {
-            TetrapolarMeasurement.si(0.1).system(10.0, 30.0).rho1(1.0).rho2(1.0).h(Math.random()),
+            TetrapolarMeasurement.ofMilli(0.1).system(10.0, 30.0).rho1(1.0).rho2(1.0).h(Math.random()),
             "10000 000   30000 000      100 0       35589          1 00   0 020",
             1.0
         },
         {
-            TetrapolarMeasurement.si(0.1).system(10.0, 30.0).rho1(10.0).rho2(1.0).h(5.0),
+            TetrapolarMeasurement.ofMilli(0.1).system(10.0, 30.0).rho1(10.0).rho2(1.0).h(5.0),
             "10000 000   30000 000      100 0       35589          3 39   0 068",
             3.39
         },
         {
-            TetrapolarMeasurement.si(0.1).system(10.0, 20.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
+            TetrapolarMeasurement.ofMilli(0.1).system(10.0, 20.0)
+                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
             "10000 000   20000 000      100 0       19586          5 7   0 17",
             5.72,
         },
 
         {
-            TetrapolarMeasurement.si(0.1).system(30.0, 60.0).ofOhms(1.0 / Math.PI),
+            TetrapolarMeasurement.ofMilli(0.1).system(30.0, 60.0).ofOhms(1.0 / Math.PI),
             "30000 000   60000 000      100 0       84742          22 5   0 23",
             9.0 / 0.40
         },
         {
-            TetrapolarMeasurement.si(0.1).system(90.0, 30.0).ofOhms(1.0 / Math.PI),
+            TetrapolarMeasurement.ofMilli(0.1).system(90.0, 30.0).ofOhms(1.0 / Math.PI),
             "90000 000   30000 000      100 0       153986          60 0   0 40",
             3.0 / 0.05
         },
         {
-            TetrapolarMeasurement.si(0.1).system(40.0, 80.0).ofOhms(1.0 / Math.PI),
+            TetrapolarMeasurement.ofMilli(0.1).system(40.0, 80.0).ofOhms(1.0 / Math.PI),
             "40000 000   80000 000      100 0       124360          30 0   0 22",
             3.0 / 0.1
         },
@@ -94,11 +95,11 @@ public class TetrapolarMeasurementTest {
 
   @Test
   public void testMerge() {
-    Measurement m1 = TetrapolarMeasurement.si(0.1).system(10.0, 30.0).rho(1.0);
+    Measurement m1 = TetrapolarMeasurement.ofSI(0.1).system(10.0, 30.0).rho(1.0);
     Assert.assertEquals(m1.merge(m1).resistivity(), 1.0, 0.001, m1.toString());
     Assert.assertEquals(m1.merge(m1).inexact().getApparentRelativeError(), 0.014, 0.001, m1.toString());
 
-    Measurement m2 = TetrapolarMeasurement.si(0.001).system(10.0, 30.0).rho(10.0);
+    Measurement m2 = TetrapolarMeasurement.ofSI(0.001).system(10.0, 30.0).rho(10.0);
     Assert.assertEquals(m1.merge(m2).toString(), m2.merge(m1).toString());
 
     Assert.assertEquals(m1.merge(m2).resistivity(), 9.91, 0.01);

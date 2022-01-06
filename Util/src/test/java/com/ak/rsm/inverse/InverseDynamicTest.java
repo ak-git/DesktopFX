@@ -1,11 +1,22 @@
 package com.ak.rsm.inverse;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.math.ValuePair;
@@ -18,7 +29,12 @@ import com.ak.rsm.resistance.Resistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
+import com.ak.util.CSVLineFileCollector;
+import com.ak.util.Extension;
 import com.ak.util.Metrics;
+import com.ak.util.Strings;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -102,7 +118,7 @@ public class InverseDynamicTest {
     return new Object[][] {
         {
             List.of(
-                TetrapolarDerivativeMeasurement.si(Metrics.fromMilli(0.1)).dh(Metrics.fromMilli(dhMilli))
+                TetrapolarDerivativeMeasurement.ofSI(Metrics.fromMilli(0.1)).dh(Metrics.fromMilli(dhMilli))
                     .system(0.01, 0.02).rho1(1.0).rho2(9.0).h(Metrics.fromMilli(hmm))
             ),
             new double[] {
@@ -230,5 +246,74 @@ public class InverseDynamicTest {
     Assert.assertEquals(medium.rho2().getValue() > 1000 ? Double.POSITIVE_INFINITY : medium.rho2().getValue(), expected[1], 0.1, medium.toString());
     Assert.assertEquals(Metrics.toMilli(medium.h1().getValue()), Metrics.toMilli(expected[2]), 0.01, medium.toString());
     LOGGER.info(medium::toString);
+  }
+
+  @DataProvider(name = "cvsFiles")
+  public static Object[][] cvsFiles() throws IOException {
+    Object[][] paths;
+    try (DirectoryStream<Path> p = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*mm"))) {
+      Object[] csv = StreamSupport.stream(p.spliterator(), true).map(Path::toString).toArray();
+      paths = new Object[csv.length][1];
+      for (int i = 0; i < csv.length; i++) {
+        paths[i][0] = csv[i];
+      }
+    }
+    return paths;
+  }
+
+  @Test(enabled = false, dataProvider = "cvsFiles")
+  public void testInverseDynamicLayerFileResistivity(@Nonnull String fileName) {
+    String T = "TIME";
+    String POSITION = "POSITION";
+    String RHO_S1 = "RHO_S1";
+    String RHO_S1_DIFF = "RHO_S1_DIFF";
+    String RHO_S2 = "RHO_S2";
+    String RHO_S2_DIFF = "RHO_S2_DIFF";
+
+    String RHO_1 = "rho1";
+    String RHO_2 = "rho2";
+    String H = "h";
+    String RMS_BASE = "RMS_BASE";
+    String RMS_DIFF = "RMS_DIFF";
+
+    String[] mm = fileName.split(Strings.SPACE);
+
+    Path path = Paths.get(Extension.CSV.attachTo(fileName));
+    String[] HEADERS = {T, POSITION, RHO_1, RHO_2, H, RMS_BASE, RMS_DIFF};
+    try (CSVParser parser = CSVParser.parse(
+        new BufferedReader(new FileReader(path.toFile())),
+        CSVFormat.Builder.create().setHeader(T, POSITION, RHO_S1, RHO_S1_DIFF, RHO_S2, RHO_S2_DIFF).build());
+         CSVLineFileCollector collector = new CSVLineFileCollector(
+             Paths.get(Extension.CSV.attachTo("%s inverse".formatted(Extension.CSV.clean(fileName)))),
+             HEADERS
+         )
+    ) {
+      Assert.assertTrue(StreamSupport.stream(parser.spliterator(), false)
+          .filter(r -> r.getRecordNumber() > 1)
+          .<Map<String, Object>>mapMulti((r, consumer) -> {
+            var medium = InverseDynamic.INSTANCE.inverse(TetrapolarDerivativeMeasurement.milli(0.1)
+                .dh(0.0).system2(Integer.parseInt(mm[mm.length - 2])).ofOhms(
+                    Double.parseDouble(r.get(RHO_S1)), Double.parseDouble(r.get(RHO_S2)),
+                    Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))
+                ));
+            LOGGER.info(() -> "%.2f sec; %s mm; %s".formatted(Double.parseDouble(r.get(T)), r.get(POSITION), medium));
+            consumer.accept(
+                Map.ofEntries(
+                    Map.entry(T, r.get(T)),
+                    Map.entry(POSITION, r.get(POSITION)),
+                    Map.entry(RHO_1, medium.rho1().getValue()),
+                    Map.entry(RHO_2, medium.rho2().getValue()),
+                    Map.entry(H, Metrics.toMilli(medium.h1().getValue())),
+                    Map.entry(RMS_BASE, medium.getRMS()[0]),
+                    Map.entry(RMS_DIFF, medium.getRMS()[1])
+                )
+            );
+          })
+          .map(stringMap -> Arrays.stream(HEADERS).map(stringMap::get).toArray())
+          .collect(collector));
+    }
+    catch (IOException ex) {
+      Logger.getLogger(getClass().getName()).log(Level.WARNING, path.toAbsolutePath().toString(), ex);
+    }
   }
 }

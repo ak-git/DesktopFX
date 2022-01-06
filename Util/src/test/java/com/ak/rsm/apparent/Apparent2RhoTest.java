@@ -20,7 +20,7 @@ public class Apparent2RhoTest {
   @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
   public void testValueLog(@Nonnull double[] rho,
                            @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    double logApparent = log(TetrapolarResistance.milli(smm, lmm).ofOhms(rOhm).resistivity()) - log(rho[0]);
+    double logApparent = log(TetrapolarResistance.ofMilli(smm, lmm).ofOhms(rOhm).resistivity()) - log(rho[0]);
 
     double logPredicted = Apparent2Rho.newLog1pApparent2Rho(new RelativeTetrapolarSystem(lmm / smm))
         .applyAsDouble(new Layer2RelativeMedium(Layers.getK12(rho[0], rho[1]), hmm / smm));
@@ -34,7 +34,7 @@ public class Apparent2RhoTest {
   @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
   public void testValueNormalized(@Nonnull double[] rho,
                                   @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    double apparent = TetrapolarResistance.milli(smm, lmm).ofOhms(rOhm).resistivity() / rho[0];
+    double apparent = TetrapolarResistance.ofMilli(smm, lmm).ofOhms(rOhm).resistivity() / rho[0];
 
     double predicted = Apparent2Rho.newNormalizedApparent2Rho(new RelativeTetrapolarSystem(lmm / smm))
         .applyAsDouble(new Layer2RelativeMedium(Layers.getK12(rho[0], rho[1]), hmm / smm));
@@ -50,7 +50,7 @@ public class Apparent2RhoTest {
                                        @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.fromMilli(smm), Metrics.fromMilli(lmm));
     double k = Layers.getK12(rho[0], rho[1]);
-    double apparent1 = log(TetrapolarResistance.milli(smm, lmm).ofOhms(
+    double apparent1 = log(TetrapolarResistance.ofMilli(smm, lmm).ofOhms(
         new NormalizedResistance2Layer(system).applyAsDouble(k, Metrics.fromMilli(hmm))
     ).resistivity());
     double apparent2 = Apparent2Rho.newLog1pApparent2Rho(system.relativeSystem()).applyAsDouble(new Layer2RelativeMedium(k, hmm / lmm));

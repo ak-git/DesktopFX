@@ -18,62 +18,62 @@ public class TetrapolarResistanceTest {
   public static Object[][] tetrapolarResistivity() {
     return new Object[][] {
         {
-            TetrapolarResistance.si(1.0, 2.0).rho(900.1),
+            TetrapolarResistance.ofSI(1.0, 2.0).rho(900.1),
             "1000 000   2000 000     382 014        900 100",
             382.014,
             900.1,
         },
         {
-            TetrapolarResistance.si(2.0, 1.0).rho(900.2),
+            TetrapolarResistance.ofSI(2.0, 1.0).rho(900.2),
             "2000 000   1000 000     382 057        900 200",
             382.057,
             900.2,
         },
         {
-            TetrapolarResistance.milli(10.0, 30.0).rho(8.1),
+            TetrapolarResistance.ofMilli(10.0, 30.0).rho(8.1),
             "10 000   30 000     128 916        8 100",
             128.916,
             8.1,
         },
         {
-            TetrapolarResistance.milli(50.0, 30.0).rho(8.2),
+            TetrapolarResistance.ofMilli(50.0, 30.0).rho(8.2),
             "50 000   30 000     195 761        8 200",
             195.761,
             8.2,
         },
         {
-            TetrapolarResistance.milli(10.0, 30.0).rho1(1.0).rho2(1.0).h(Math.random()),
+            TetrapolarResistance.ofMilli(10.0, 30.0).rho1(1.0).rho2(1.0).h(Math.random()),
             "10 000   30 000     15 915        1 000",
             15.915,
             1.0,
         },
         {
-            TetrapolarResistance.milli(10.0, 30.0).rho1(10.0).rho2(1.0).h(5.0),
+            TetrapolarResistance.ofMilli(10.0, 30.0).rho1(10.0).rho2(1.0).h(5.0),
             "10 000   30 000     53 901        3 387",
             53.901,
             3.39,
         },
         {
-            TetrapolarResistance.milli(10.0, 20.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
+            TetrapolarResistance.ofMilli(10.0, 20.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
             "10 000   20 000     242 751        5 720",
             242.751,
             5.72,
         },
 
         {
-            TetrapolarResistance.milli(30.0, 60.0).ofOhms(1.0 / Math.PI),
+            TetrapolarResistance.ofMilli(30.0, 60.0).ofOhms(1.0 / Math.PI),
             "30 000   60 000     0 318        0 023",
             0.318,
             9.0 / 400.0,
         },
         {
-            TetrapolarResistance.milli(90.0, 30.0).ofOhms(1.0 / Math.PI),
+            TetrapolarResistance.ofMilli(90.0, 30.0).ofOhms(1.0 / Math.PI),
             "90 000   30 000     0 318        0 060",
             0.318,
             3.0 / 50.0,
         },
         {
-            TetrapolarResistance.milli(40.0, 80.0).ofOhms(1.0 / Math.PI),
+            TetrapolarResistance.ofMilli(40.0, 80.0).ofOhms(1.0 / Math.PI),
             "40 000   80 000     0 318        0 030",
             0.318,
             3.0 / 100.0,
@@ -150,6 +150,6 @@ public class TetrapolarResistanceTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidOhms2() {
-    TetrapolarResistance.milli(40.0, 80.0).ofOhms(1.0 / Math.PI, 1.0 / Math.PI);
+    TetrapolarResistance.ofMilli(40.0, 80.0).ofOhms(1.0 / Math.PI, 1.0 / Math.PI);
   }
 }

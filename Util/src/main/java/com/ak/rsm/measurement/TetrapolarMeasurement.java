@@ -54,7 +54,12 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
   }
 
   @Nonnull
-  public static PreBuilder<Measurement> si(@Nonnegative double absError) {
+  public static PreBuilder<Measurement> ofSI(@Nonnegative double absError) {
+    return new Builder(DoubleUnaryOperator.identity(), absError);
+  }
+
+  @Nonnull
+  public static PreBuilder<Measurement> ofMilli(@Nonnegative double absError) {
     return new Builder(DoubleUnaryOperator.identity(), absError);
   }
 

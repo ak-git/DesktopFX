@@ -91,7 +91,7 @@ public enum AperStage5Current1Variable implements DependentVariable<AperStage4Cu
   private final TetrapolarResistance.PreBuilder<Resistance> builder;
 
   AperStage5Current1Variable(@Nonnegative double smm, @Nonnegative double lmm) {
-    builder = TetrapolarResistance.milli(smm, lmm);
+    builder = TetrapolarResistance.ofMilli(smm, lmm);
   }
 
   AperStage5Current1Variable() {

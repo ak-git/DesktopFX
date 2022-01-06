@@ -48,7 +48,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
   }
 
   @Nonnull
-  public static PreBuilder si(@Nonnegative double absError) {
+  public static PreBuilder ofSI(@Nonnegative double absError) {
     return new Builder(DoubleUnaryOperator.identity(), absError);
   }
 

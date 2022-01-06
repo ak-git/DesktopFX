@@ -85,6 +85,6 @@ public class Resistance2LayerTest {
   public void testLayer(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.fromMilli(smm), Metrics.fromMilli(lmm));
     Assert.assertEquals(new Resistance2Layer(system).value(rho[0], rho[1], Metrics.fromMilli(hmm)), rOhm, 0.001);
-    Assert.assertEquals(TetrapolarResistance.milli(smm, lmm).rho1(rho[0]).rho2(rho[1]).h(hmm).ohms(), rOhm, 0.001);
+    Assert.assertEquals(TetrapolarResistance.ofMilli(smm, lmm).rho1(rho[0]).rho2(rho[1]).h(hmm).ohms(), rOhm, 0.001);
   }
 }

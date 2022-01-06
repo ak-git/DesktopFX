@@ -38,6 +38,6 @@ public class Resistance1LayerTest {
   public void testOneLayer(@Nonnegative double rho, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.fromMilli(smm), Metrics.fromMilli(lmm));
     Assert.assertEquals(new Resistance1Layer(system).value(rho), rOhm, 0.001);
-    Assert.assertEquals(TetrapolarResistance.milli(smm, lmm).rho(rho).ohms(), rOhm, 0.001);
+    Assert.assertEquals(TetrapolarResistance.ofMilli(smm, lmm).rho(rho).ohms(), rOhm, 0.001);
   }
 }

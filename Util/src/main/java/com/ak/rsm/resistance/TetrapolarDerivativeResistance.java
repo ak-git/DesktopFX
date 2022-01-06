@@ -45,12 +45,12 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
   }
 
   @Nonnull
-  public static PreBuilder milli(@Nonnegative double sPU, @Nonnegative double lCC) {
+  public static PreBuilder ofMilli(@Nonnegative double sPU, @Nonnegative double lCC) {
     return new Builder(Metrics.MILLI, sPU, lCC);
   }
 
   @Nonnull
-  public static PreBuilder si(@Nonnegative double sPU, @Nonnegative double lCC) {
+  public static PreBuilder ofSI(@Nonnegative double sPU, @Nonnegative double lCC) {
     return new Builder(DoubleUnaryOperator.identity(), sPU, lCC);
   }
 
