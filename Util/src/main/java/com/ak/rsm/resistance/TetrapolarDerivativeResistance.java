@@ -61,6 +61,9 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
 
   public interface PreBuilder {
     @Nonnull
+    DerivativeResistance ofResistivity(@Nonnegative double resistivity, double derivativeResistivity);
+
+    @Nonnull
     TetrapolarResistance.PreBuilder<DerivativeResistance> dh(double dh);
   }
 
@@ -86,6 +89,12 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
 
     private Builder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double sPU, @Nonnegative double lCC) {
       super(converter, sPU, lCC);
+    }
+
+    @Nonnull
+    @Override
+    public DerivativeResistance ofResistivity(@Nonnegative double resistivity, double derivativeResistivity) {
+      return new TetrapolarDerivativeResistance(TetrapolarResistance.of(system).rho(resistivity), derivativeResistivity);
     }
 
     @Nonnull
