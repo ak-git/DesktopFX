@@ -292,11 +292,15 @@ public class InverseDynamicTest {
       Assert.assertTrue(StreamSupport.stream(parser.spliterator(), false)
           .filter(r -> r.getRecordNumber() > 1)
           .<Map<String, Object>>mapMulti((r, consumer) -> {
-            var medium = InverseDynamic.INSTANCE.inverse(TetrapolarDerivativeMeasurement.milli(0.1)
-                .dh(Double.parseDouble(r.get(DH_MM))).system2(Integer.parseInt(mm[mm.length - 2])).ofOhms(
-                    Double.parseDouble(r.get(R_S1)), Double.parseDouble(r.get(R_S2)),
-                    Double.parseDouble(r.get(R_S1_DIFF)), Double.parseDouble(r.get(R_S2_DIFF))
-                ));
+            var medium = InverseDynamic.INSTANCE.inverse(
+                TetrapolarDerivativeMeasurement.milli(0.1)
+                    .dh(Double.parseDouble(r.get(DH_MM)))
+                    .system2(Integer.parseInt(mm[mm.length - 2]))
+                    .ofOhms(
+                        Double.parseDouble(r.get(R_S1)), Double.parseDouble(r.get(R_S2)),
+                        Double.parseDouble(r.get(R_S1_DIFF)), Double.parseDouble(r.get(R_S2_DIFF))
+                    )
+            );
             LOGGER.info(() -> "%.2f sec; %s mm; %s".formatted(Double.parseDouble(r.get(T)), r.get(POSITION), medium));
             consumer.accept(
                 Map.ofEntries(
