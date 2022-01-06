@@ -8,12 +8,11 @@ import java.util.stream.StreamSupport;
 
 import javax.annotation.Nonnull;
 
+import com.ak.util.Clean;
 import com.ak.util.Extension;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.Test;
-
-import static com.ak.logging.LocalFileHandlerTest.delete;
 
 public class OutputBuilderTest {
   @Nonnull
@@ -26,8 +25,8 @@ public class OutputBuilderTest {
   }
 
   @AfterSuite
-  public void setUp() throws Exception {
-    delete(outPath);
+  public void setUp() {
+    Clean.clean(outPath);
   }
 
   @Test

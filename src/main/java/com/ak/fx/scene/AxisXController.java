@@ -82,7 +82,6 @@ public final class AxisXController {
   private final IntegerProperty startProperty = new SimpleIntegerProperty();
   private final IntegerProperty lengthProperty = new SimpleIntegerProperty();
   private final ObjectProperty<ZoomX> zoomProperty = new SimpleObjectProperty<>(ZoomX.Z_25);
-  private final ObjectProperty<ZoomXEvent> zoomEvent = new SimpleObjectProperty<>(ZoomXEvent.ZOOM_STOP);
   private final Storage<String> zoomStorage = new StringStorage(AxisXController.class, ZoomX.class.getName());
   private final DoubleProperty stepProperty = new SimpleDoubleProperty();
   @Nonnegative
@@ -91,14 +90,6 @@ public final class AxisXController {
   public AxisXController(@Nonnull Runnable onUpdate) {
     startProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
     lengthProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
-    zoomEvent.addListener((observable, oldValue, newValue) -> {
-      if (oldValue == ZoomXEvent.ZOOM_IN) {
-        zoomProperty.setValue(zoomProperty.get().next());
-      }
-      else if (oldValue == ZoomXEvent.ZOOM_OUT) {
-        zoomProperty.setValue(zoomProperty.get().prev());
-      }
-    });
     String zoomValue = zoomStorage.get();
     if (Arrays.stream(ZoomX.values()).anyMatch(zoomX -> zoomX.name().equals(zoomValue))) {
       zoomProperty.setValue(ZoomX.valueOf(zoomValue));
@@ -140,7 +131,13 @@ public final class AxisXController {
   }
 
   public void zoom(double zoomFactor) {
-    zoomEvent.setValue(ZoomXEvent.find(zoomFactor));
+    ZoomXEvent zoomXEvent = ZoomXEvent.find(zoomFactor);
+    if (zoomXEvent == ZoomXEvent.ZOOM_IN) {
+      zoomProperty.setValue(zoomProperty.get().next());
+    }
+    else if (zoomXEvent == ZoomXEvent.ZOOM_OUT) {
+      zoomProperty.setValue(zoomProperty.get().prev());
+    }
   }
 
   public void checkLength(@Nonnegative int realDataLen) {

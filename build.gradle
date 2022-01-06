@@ -9,9 +9,9 @@ plugins {
     id "application"
     id 'org.openjfx.javafxplugin' version '0.0.10'
 
-    id 'org.springframework.boot' version '2.5.5'
+    id 'org.springframework.boot' version '2.6.2'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id "com.github.spotbugs" version "5.0.0-beta.3"
+    id "com.github.spotbugs" version "5.0.3"
 }
 
 spotbugs {
@@ -21,8 +21,6 @@ spotbugs {
 spotbugsMain {
     reports {
         html {
-            enabled = true
-            destination = file("$buildDir/reports/spotbugs/main/spotbugs.html")
             stylesheet = 'fancy-hist.xsl'
         }
     }
@@ -53,18 +51,18 @@ ext {
     commons_csv = 'org.apache.commons:commons-csv:1.9.0'
     jSerialComm = 'com.fazecast:jSerialComm:[2.7.0,3.0.0)'
     jenetics = 'io.jenetics:jenetics:6.3.0'
-    javaVersion = JavaVersion.VERSION_16
+    javaVersion = JavaVersion.VERSION_17
 }
 
 wrapper {
     description 'Setup the Gradle wrapper'
-    gradleVersion = "7.2"
+    gradleVersion = "7.3.3"
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '2021.10.13'
+    version = '2022.01.06'
     apply plugin: 'idea'
     idea {
         module {
@@ -143,4 +141,7 @@ processResources {
 
 compileJava.inputs.files(processResources)
 
-mainClassName = "com.ak.fx.desktop.SpringFxApplication"
+application {
+    mainModule = 'com.ak.fx.desktop'
+    mainClass = 'com.ak.fx.desktop.SpringFxApplication'
+}

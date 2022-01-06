@@ -16,8 +16,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Flow;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,7 +41,6 @@ import static java.nio.file.StandardOpenOption.WRITE;
 
 final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractConvertableService<T, R, V> implements Flow.Subscription {
-  private static final Lock LOCK = new ReentrantLock();
   @Nonnull
   private final Path fileToRead;
   @Nonnegative
@@ -64,7 +61,6 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
     if (Files.isReadable(fileToRead)) {
       s.onSubscribe(this);
 
-      LOCK.lock();
       try (var seekableByteChannel = Files.newByteChannel(fileToRead, READ)) {
         checkThenOpen(s.toString(), seekableByteChannel, new Consumer<>() {
           @Nonnegative
@@ -93,7 +89,6 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
         s.onError(e);
       }
       finally {
-        LOCK.unlock();
         Logger.getLogger(getClass().getName()).log(Level.INFO, () -> "Close file " + fileToRead);
       }
     }

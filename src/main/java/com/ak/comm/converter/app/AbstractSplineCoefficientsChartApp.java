@@ -5,7 +5,6 @@ import java.util.function.IntUnaryOperator;
 import javax.annotation.Nonnull;
 
 import com.ak.comm.converter.Variable;
-import com.ak.comm.converter.Variables;
 import com.ak.numbers.Coefficients;
 import com.ak.numbers.Interpolators;
 import javafx.application.Application;
@@ -49,11 +48,11 @@ public abstract class AbstractSplineCoefficientsChartApp<X extends Enum<X> & Var
   private Parent createContent() {
     double[][] xAndY = coefficients.getPairs();
     ValueAxis<Number> xAxis = new NumberAxis();
-    xAxis.setLabel(Variables.toName(xVariable));
+    xAxis.setLabel(xVariable.name());
     xAxis.setAutoRanging(true);
 
     Axis<Number> yAxis = new NumberAxis();
-    yAxis.setLabel(Variables.toName(yVariable));
+    yAxis.setLabel(yVariable.name());
     yAxis.setAutoRanging(true);
 
     ObservableList<XYChart.Data<Number, Number>> pureData = FXCollections.observableArrayList();

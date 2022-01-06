@@ -17,10 +17,10 @@ import org.testng.annotations.Test;
 
 public class OutputBuildersTest {
   @Test
-  public void testOutputBuilderCSV() throws IOException, NoSuchAlgorithmException {
+  public void testOutputBuilderDate() throws IOException, NoSuchAlgorithmException {
     String fileName = randomFileName();
-    Path path = OutputBuilders.CSV.build(fileName).getPath();
-    Assert.assertTrue(path.toFile().getName().endsWith(Extension.CSV.name().toLowerCase()), path.toString());
+    Path path = OutputBuilders.NONE_WITH_DATE.build(fileName).getPath();
+    Assert.assertFalse(path.toFile().getName().contains("."), path.toString());
   }
 
   @Test

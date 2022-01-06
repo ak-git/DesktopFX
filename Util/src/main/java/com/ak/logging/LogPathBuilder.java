@@ -10,10 +10,6 @@ import com.ak.util.LocalFileIO;
 import com.ak.util.LocalIO;
 
 class LogPathBuilder extends LocalFileIO.AbstractBuilder {
-  LogPathBuilder() {
-    super(Extension.NONE);
-  }
-
   LogPathBuilder(@Nonnull Extension fileExtension, @Nonnull Class<? extends FileHandler> fileHandlerClass) {
     super(fileExtension);
     addPath(Optional

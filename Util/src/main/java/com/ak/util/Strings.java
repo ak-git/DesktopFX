@@ -2,7 +2,6 @@ package com.ak.util;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import static tec.uom.se.unit.Units.METRE;
 import static tec.uom.se.unit.Units.OHM;
@@ -37,12 +36,7 @@ public enum Strings {
     return (char) (i + index);
   }
 
-  public static String rho(@Nonnegative int index, @Nullable Object rho) {
-    if (rho == null) {
-      return "%s%s, %s".formatted(RHO, low(index), OHM_METRE);
-    }
-    else {
-      return "%s%s = %s %s".formatted(RHO, low(index), rho, OHM_METRE);
-    }
+  public static String rho(@Nonnegative int index, @Nonnull Object rho) {
+    return "%s%s = %s %s".formatted(RHO, low(index), rho, OHM_METRE);
   }
 }
