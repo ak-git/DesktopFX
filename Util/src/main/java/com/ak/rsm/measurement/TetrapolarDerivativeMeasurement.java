@@ -53,6 +53,11 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
   }
 
   @Nonnull
+  public static PreBuilder ofMilli(@Nonnegative double absError) {
+    return new Builder(Metrics.MILLI, absError);
+  }
+
+  @Nonnull
   public static MultiPreBuilder milli(double absError) {
     return new MultiBuilder(Metrics.MILLI, absError);
   }

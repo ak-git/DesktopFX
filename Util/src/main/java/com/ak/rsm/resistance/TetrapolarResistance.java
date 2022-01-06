@@ -29,13 +29,13 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
   }
 
   @Nonnull
-  public static PreBuilder<Resistance> ofMilli(@Nonnegative double sPU, @Nonnegative double lCC) {
-    return new Builder(Metrics.MILLI, sPU, lCC);
+  public static PreBuilder<Resistance> ofSI(@Nonnegative double sPU, @Nonnegative double lCC) {
+    return new Builder(DoubleUnaryOperator.identity(), sPU, lCC);
   }
 
   @Nonnull
-  public static PreBuilder<Resistance> ofSI(@Nonnegative double sPU, @Nonnegative double lCC) {
-    return new Builder(DoubleUnaryOperator.identity(), sPU, lCC);
+  public static PreBuilder<Resistance> ofMilli(@Nonnegative double sPU, @Nonnegative double lCC) {
+    return new Builder(Metrics.MILLI, sPU, lCC);
   }
 
   @Nonnull

@@ -60,7 +60,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
 
   @Nonnull
   public static PreBuilder<Measurement> ofMilli(@Nonnegative double absError) {
-    return new Builder(DoubleUnaryOperator.identity(), absError);
+    return new Builder(Metrics.MILLI, absError);
   }
 
   @Nonnull

@@ -118,8 +118,8 @@ public class InverseDynamicTest {
     return new Object[][] {
         {
             List.of(
-                TetrapolarDerivativeMeasurement.ofSI(Metrics.fromMilli(0.1)).dh(Metrics.fromMilli(dhMilli))
-                    .system(0.01, 0.02).rho1(1.0).rho2(9.0).h(Metrics.fromMilli(hmm))
+                TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(dhMilli)
+                    .system(10.0, 20.0).rho1(1.0).rho2(9.0).h(hmm)
             ),
             new double[] {
                 Apparent2Rho.newNormalizedApparent2Rho(new RelativeTetrapolarSystem(0.5))

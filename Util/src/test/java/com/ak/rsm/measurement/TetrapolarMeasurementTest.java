@@ -33,45 +33,45 @@ public class TetrapolarMeasurementTest {
         },
         {
             TetrapolarMeasurement.ofMilli(0.01).system(10.0, 30.0).rho(8.1),
-            "10000 000   30000 000      10 0       76675          8 10   0 016",
+            "10 000   30 000      0 0       77          8 10   0 016",
             8.1
         },
         {
             TetrapolarMeasurement.ofMilli(0.1).system(50.0, 30.0).rho(8.2),
-            "50000 000   30000 000      100 0       60857          8 2   0 11",
+            "50 000   30 000      0 1       61          8 2   0 11",
             8.2
         },
         {
             TetrapolarMeasurement.ofMilli(0.1).system(10.0, 30.0).rho1(1.0).rho2(1.0).h(Math.random()),
-            "10000 000   30000 000      100 0       35589          1 00   0 020",
+            "10 000   30 000      0 1       36          1 00   0 020",
             1.0
         },
         {
             TetrapolarMeasurement.ofMilli(0.1).system(10.0, 30.0).rho1(10.0).rho2(1.0).h(5.0),
-            "10000 000   30000 000      100 0       35589          3 39   0 068",
+            "10 000   30 000      0 1       36          3 39   0 068",
             3.39
         },
         {
             TetrapolarMeasurement.ofMilli(0.1).system(10.0, 20.0)
                 .rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
-            "10000 000   20000 000      100 0       19586          5 7   0 17",
+            "10 000   20 000      0 1       20          5 7   0 17",
             5.72,
         },
 
         {
             TetrapolarMeasurement.ofMilli(0.1).system(30.0, 60.0).ofOhms(1.0 / Math.PI),
-            "30000 000   60000 000      100 0       84742          22 5   0 23",
-            9.0 / 0.40
+            "30 000   60 000      0 1       85          0 0225   0 00023",
+            9.0 / 400.0
         },
         {
             TetrapolarMeasurement.ofMilli(0.1).system(90.0, 30.0).ofOhms(1.0 / Math.PI),
-            "90000 000   30000 000      100 0       153986          60 0   0 40",
-            3.0 / 0.05
+            "90 000   30 000      0 1       154          0 0600   0 00040",
+            3.0 / 50.0
         },
         {
             TetrapolarMeasurement.ofMilli(0.1).system(40.0, 80.0).ofOhms(1.0 / Math.PI),
-            "40000 000   80000 000      100 0       124360          30 0   0 22",
-            3.0 / 0.1
+            "40 000   80 000      0 1       124          0 0300   0 00023",
+            3.0 / 100.0
         },
 
         {

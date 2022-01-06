@@ -107,15 +107,6 @@ public class TetrapolarDerivativeResistanceTest {
             0.0,
             new TetrapolarSystem(0.01, 0.03)
         },
-
-        {
-            TetrapolarDerivativeResistance.ofMilli(10.0, 20.0).ofResistivity(1.0, -1.0),
-            "10 000   20 000     42 441        1 000               1 000",
-            42.441,
-            1.0,
-            -1.0,
-            new TetrapolarSystem(0.01, 0.02)
-        },
     };
   }
 
