@@ -11,7 +11,8 @@ import javax.measure.Unit;
 import com.ak.comm.converter.DependentVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
-import com.ak.rsm.TetrapolarSystem;
+import com.ak.rsm.resistance.Resistance;
+import com.ak.rsm.resistance.TetrapolarResistance;
 import tec.uom.se.unit.MetricPrefix;
 
 import static tec.uom.se.unit.Units.METRE;
@@ -87,23 +88,23 @@ public enum AperStage5Current1Variable implements DependentVariable<AperStage4Cu
   CCR;
 
   @Nullable
-  private final TetrapolarSystem system;
+  private final TetrapolarResistance.PreBuilder<Resistance> builder;
 
   AperStage5Current1Variable(@Nonnegative double smm, @Nonnegative double lmm) {
-    system = TetrapolarSystem.milli(0.1).s(smm).l(lmm);
+    builder = TetrapolarResistance.ofMilli(smm, lmm);
   }
 
   AperStage5Current1Variable() {
-    system = null;
+    builder = null;
   }
 
   @Override
   public final DigitalFilter filter() {
-    if (system == null) {
+    if (builder == null) {
       return DependentVariable.super.filter();
     }
     else {
-      return FilterBuilder.of().operator(() -> rMilli -> (int) Math.round(system.getApparent(rMilli))).build();
+      return FilterBuilder.of().operator(() -> rMilli -> (int) Math.round(builder.ofOhms(rMilli).resistivity())).build();
     }
   }
 
