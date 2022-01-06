@@ -168,7 +168,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
     @Nonnull
     @Override
     public Measurement rho(@Nonnegative double rho) {
-      return new TetrapolarMeasurement(inexact, TetrapolarResistance.of(inexact.system()).rho(rho).resistivity());
+      return new TetrapolarMeasurement(inexact, rho);
     }
 
     @Nonnull

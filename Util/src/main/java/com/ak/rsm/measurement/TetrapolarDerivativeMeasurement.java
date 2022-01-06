@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import com.ak.rsm.prediction.Prediction;
 import com.ak.rsm.prediction.TetrapolarDerivativePrediction;
 import com.ak.rsm.relative.RelativeMediumLayers;
+import com.ak.rsm.resistance.DerivativeResistance;
 import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.InexactTetrapolarSystem;
@@ -113,18 +114,16 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
     @Nonnull
     @Override
     public DerivativeMeasurement build() {
+      TetrapolarResistance.LayersBuilder2<Measurement> b = TetrapolarMeasurement.of(inexact).rho1(rho1).rho2(rho2);
+      TetrapolarResistance.LayersBuilder2<DerivativeResistance> d = TetrapolarDerivativeResistance.of(inexact.system())
+          .dh(dhHolder.dh()).rho1(rho1).rho2(rho2);
+
       if (Double.isNaN(hStep)) {
-        return new TetrapolarDerivativeMeasurement(
-            TetrapolarMeasurement.of(inexact).rho1(rho1).rho2(rho2).h(h),
-            TetrapolarDerivativeResistance.of(inexact.system()).dh(dhHolder.dh())
-                .rho1(rho1).rho2(rho2).h(h).derivativeResistivity()
-        );
+        return new TetrapolarDerivativeMeasurement(b.h(h), d.h(h).derivativeResistivity());
       }
       else {
         return new TetrapolarDerivativeMeasurement(
-            TetrapolarMeasurement.of(inexact).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1),
-            TetrapolarDerivativeResistance.of(inexact.system()).dh(dhHolder.dh())
-                .rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1).derivativeResistivity()
+            b.rho3(rho3).hStep(hStep).p(p1, p2mp1), d.rho3(rho3).hStep(hStep).p(p1, p2mp1).derivativeResistivity()
         );
       }
     }

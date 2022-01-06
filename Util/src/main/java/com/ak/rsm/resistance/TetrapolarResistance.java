@@ -43,7 +43,7 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
     return new MultiBuilder(Metrics.MILLI);
   }
 
-  public interface PreBuilder<T> {
+  public interface PreBuilder<T> extends com.ak.util.Builder<T> {
     @Nonnull
     T rho(@Nonnegative double rho);
 
@@ -102,7 +102,8 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
     T p(@Nonnegative int p1, @Nonnegative int p2mp1);
   }
 
-  public abstract static class AbstractBuilder<T> implements PreBuilder<T>, LayersBuilder1<T>, LayersBuilder2<T>, LayersBuilder3<T>, LayersBuilder4<T>, com.ak.util.Builder<T> {
+  public abstract static class AbstractBuilder<T>
+      implements PreBuilder<T>, LayersBuilder1<T>, LayersBuilder2<T>, LayersBuilder3<T>, LayersBuilder4<T> {
     @Nonnull
     protected final DoubleUnaryOperator converter;
     @Nonnegative
