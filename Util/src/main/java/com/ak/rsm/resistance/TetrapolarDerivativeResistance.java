@@ -156,7 +156,7 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
     @Nonnull
     @Override
     public Collection<DerivativeResistance> rho(@Nonnegative double rho) {
-      return systems.stream().map(system -> new Builder(system).dh(dhHolder.dh).rho(rho)).toList();
+      return systems.stream().map(s -> new Builder(s).dh(dhHolder.dh).rho(rho)).toList();
     }
 
     @Nonnull
@@ -165,7 +165,7 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
       PrimitiveIterator.OfDouble ohmsBefore = Arrays.stream(rOhms).limit(rOhms.length / 2).iterator();
       PrimitiveIterator.OfDouble ohmsAfter = Arrays.stream(rOhms).skip(rOhms.length / 2).iterator();
       return systems.stream()
-          .map(system -> new Builder(system).dh(dhHolder.dh).ofOhms(ohmsBefore.nextDouble(), ohmsAfter.nextDouble()))
+          .map(s -> new Builder(s).dh(dhHolder.dh).ofOhms(ohmsBefore.nextDouble(), ohmsAfter.nextDouble()))
           .toList();
     }
 
