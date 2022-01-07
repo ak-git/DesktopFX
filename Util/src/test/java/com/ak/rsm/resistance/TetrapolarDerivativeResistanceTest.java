@@ -18,35 +18,35 @@ public class TetrapolarDerivativeResistanceTest {
   public static Object[][] tetrapolarResistivity() {
     return new Object[][] {
         {
-            TetrapolarDerivativeResistance.ofSI(1.0, 2.0).dh(0.1).rho(900.1),
-            "1000 000   2000 000     382 014        900 100              0 000",
+            TetrapolarDerivativeResistance.ofSI(1.0, 2.0).dh(Double.NaN).rho(900.1, 1.0),
+            "1000 000   2000 000     382 014        900 100              1 000",
             382.014,
             900.1,
-            0.0,
+            1.0,
             new TetrapolarSystem(1.0, 2.0)
         },
         {
-            TetrapolarDerivativeResistance.ofSI(2.0, 1.0).dh(0.2).rho(900.2),
-            "2000 000   1000 000     382 057        900 200              0 000",
+            TetrapolarDerivativeResistance.ofSI(2.0, 1.0).dh(Double.NaN).rho(900.2, -2.0),
+            "2000 000   1000 000     382 057        900 200               2 000",
             382.057,
             900.2,
-            0.0,
+            -2.0,
             new TetrapolarSystem(1.0, 2.0)
         },
         {
-            TetrapolarDerivativeResistance.ofMilli(10.0, 30.0).dh(-0.1).rho(8.1),
-            "10 000   30 000     128 916        8 100              0 000",
+            TetrapolarDerivativeResistance.ofMilli(10.0, 30.0).dh(Double.NaN).rho(8.1, -1.0),
+            "10 000   30 000     128 916        8 100               1 000",
             128.916,
             8.1,
-            0.0,
+            -1.0,
             new TetrapolarSystem(0.01, 0.03)
         },
         {
-            TetrapolarDerivativeResistance.ofMilli(50.0, 30.0).dh(0.0).rho(8.2),
-            "50 000   30 000     195 761        8 200              0 000",
+            TetrapolarDerivativeResistance.ofMilli(50.0, 30.0).dh(Double.NaN).rho(8.2, 2.0),
+            "50 000   30 000     195 761        8 200              2 000",
             195.761,
             8.2,
-            0.0,
+            2.0,
             new TetrapolarSystem(0.03, 0.05)
         },
         {
@@ -100,11 +100,12 @@ public class TetrapolarDerivativeResistanceTest {
         },
 
         {
-            TetrapolarDerivativeResistance.of(new TetrapolarSystem(Metrics.fromMilli(10.0), Metrics.fromMilli(30.0))).dh(0.1).rho(8.1),
-            "10 000   30 000     128 916        8 100              0 000",
+            TetrapolarDerivativeResistance.of(new TetrapolarSystem(Metrics.fromMilli(10.0), Metrics.fromMilli(30.0)))
+                .dh(Double.NaN).rho(8.1, -8.1),
+            "10 000   30 000     128 916        8 100               8 100",
             128.916,
             8.1,
-            0.0,
+            -8.1,
             new TetrapolarSystem(0.01, 0.03)
         },
     };
@@ -126,10 +127,10 @@ public class TetrapolarDerivativeResistanceTest {
   public static Object[][] tetrapolarMultiResistivity() {
     return new Object[][] {
         {
-            TetrapolarDerivativeResistance.milli().dh(0.1).system2(6.0).rho(1.0),
-            "6000180002652610000000 30000180003978910000000",
-            new double[] {1.0, 1.0},
-            new double[] {0.0, 0.0}
+            TetrapolarDerivativeResistance.milli().dh(Double.NaN).system2(6.0).rho(1.0, 2.0, 3.0, 4.0),
+            "6000180002652610003000 30000180007957720004000",
+            new double[] {1.0, 2.0},
+            new double[] {3.0, 4.0}
         },
         {
             TetrapolarDerivativeResistance.milli().dh(0.2).system2(7.0).rho1(10.0).rho2(1.0).h(5.0),
@@ -166,7 +167,27 @@ public class TetrapolarDerivativeResistanceTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInvalidRhos() {
+    TetrapolarDerivativeResistance.milli().dh(0.1).system2(10.0).rho(1.0);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInvalidRhos2() {
+    TetrapolarDerivativeResistance.milli().dh(0.01).system2(10.0).rho(1.0, 2.0, 3.0);
+  }
+
+  @Test(expectedExceptions = IllegalStateException.class)
+  public void testInvalidRhos3() {
+    TetrapolarDerivativeResistance.milli().dh(0.01).system2(10.0).rho(1.0, 2.0, 3.0, 4.0);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidOhms() {
-    TetrapolarDerivativeResistance.ofMilli(10.0, 30.0).dh(0.01).ofOhms(1.0);
+    TetrapolarDerivativeResistance.milli().dh(0.0).system2(10.0).ofOhms(1.0, 2.0, 3.0);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInvalidOhms2() {
+    TetrapolarDerivativeResistance.ofMilli(40.0, 80.0).dh(-0.1).ofOhms(1.0);
   }
 }

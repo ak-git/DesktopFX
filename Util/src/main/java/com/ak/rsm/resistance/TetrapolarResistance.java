@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.PrimitiveIterator;
+import java.util.function.BiFunction;
+import java.util.function.DoubleFunction;
 import java.util.function.DoubleUnaryOperator;
 
 import javax.annotation.Nonnegative;
@@ -45,13 +48,23 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
 
   public interface PreBuilder<T> extends com.ak.util.Builder<T> {
     @Nonnull
-    T rho(@Nonnegative double rho);
+    T rho(@Nonnull double... rhos);
 
     @Nonnull
     T ofOhms(@Nonnull double... rOhms);
 
     @Nonnull
     LayersBuilder1<T> rho1(@Nonnegative double rho1);
+
+    @ParametersAreNonnullByDefault
+    static <T> T check(double[] values, DoubleFunction<T> function) {
+      if (values.length == 1) {
+        return function.apply(values[0]);
+      }
+      else {
+        throw new IllegalArgumentException(Arrays.toString(values));
+      }
+    }
   }
 
   public interface MultiPreBuilder<T> {
@@ -77,6 +90,17 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
      * @return builder to make four measurements.
      */
     PreBuilder<Collection<T>> system4(@Nonnegative double sBase);
+
+    @ParametersAreNonnullByDefault
+    static <R, S> Collection<R> iterate(Collection<S> systems, double[] values, BiFunction<S, double[], R> function) {
+      if (systems.size() == values.length) {
+        PrimitiveIterator.OfDouble it = Arrays.stream(values).iterator();
+        return systems.stream().map(s -> function.apply(s, new double[] {it.nextDouble()})).toList();
+      }
+      else {
+        throw new IllegalArgumentException("%s %s".formatted(systems, Arrays.toString(values)));
+      }
+    }
   }
 
   public interface LayersBuilder1<T> {
@@ -236,19 +260,14 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
 
     @Nonnull
     @Override
-    public Resistance rho(@Nonnegative double rho) {
-      return new TetrapolarResistance(system, new Resistance1Layer(system).value(rho), rho);
+    public Resistance rho(@Nonnull double... rhos) {
+      return PreBuilder.check(rhos, rho -> new TetrapolarResistance(system, new Resistance1Layer(system).value(rho), rho));
     }
 
     @Nonnull
     @Override
     public Resistance ofOhms(@Nonnull double... rOhms) {
-      if (rOhms.length == 1) {
-        return new TetrapolarResistance(system, rOhms[0], rOhms[0] / new Resistance1Layer(system).value(1.0));
-      }
-      else {
-        throw new IllegalArgumentException(Arrays.toString(rOhms));
-      }
+      return PreBuilder.check(rOhms, r -> new TetrapolarResistance(system, r, r / new Resistance1Layer(system).value(1.0)));
     }
 
     @Override
@@ -270,14 +289,14 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
 
     @Nonnull
     @Override
-    public Collection<Resistance> rho(@Nonnegative double rho) {
-      return systems.stream().map(s -> new Builder(s).rho(rho)).toList();
+    public Collection<Resistance> rho(@Nonnull double... rhos) {
+      return MultiPreBuilder.iterate(systems, rhos, (s, rho) -> new Builder(s).rho(rho));
     }
 
     @Nonnull
     @Override
     public Collection<Resistance> ofOhms(@Nonnull double... rOhms) {
-      throw new UnsupportedOperationException(Arrays.toString(rOhms));
+      return MultiPreBuilder.iterate(systems, rOhms, (s, ohm) -> new Builder(s).ofOhms(ohm));
     }
 
     @Nonnull

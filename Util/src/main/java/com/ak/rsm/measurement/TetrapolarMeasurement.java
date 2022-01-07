@@ -167,8 +167,8 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
 
     @Nonnull
     @Override
-    public Measurement rho(@Nonnegative double rho) {
-      return new TetrapolarMeasurement(inexact, rho);
+    public Measurement rho(@Nonnull double... rhos) {
+      return TetrapolarResistance.PreBuilder.check(rhos, rho -> new TetrapolarMeasurement(inexact, rho));
     }
 
     @Nonnull
@@ -200,8 +200,8 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
 
     @Nonnull
     @Override
-    public Collection<Measurement> rho(@Nonnegative double rho) {
-      return inexact.stream().map(s -> new Builder(s).rho(rho)).toList();
+    public Collection<Measurement> rho(@Nonnull double... rhos) {
+      return inexact.stream().map(s -> new Builder(s).rho(rhos)).toList();
     }
 
     @Nonnull

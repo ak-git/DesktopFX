@@ -85,6 +85,13 @@ public class TetrapolarResistanceTest {
             128.916,
             8.1,
         },
+
+        {
+            TetrapolarResistance.ofSI(1.0, 2.0).ofOhms(382.014),
+            "1000 000   2000 000     382 014        900 099",
+            382.014,
+            900.1,
+        },
     };
   }
 
@@ -100,9 +107,9 @@ public class TetrapolarResistanceTest {
   public static Object[][] tetrapolarMultiResistivity() {
     return new Object[][] {
         {
-            TetrapolarResistance.milli().system2(6.0).rho(1.0),
-            "600018000265261000 3000018000397891000",
-            new double[] {1.0, 1.0}
+            TetrapolarResistance.milli().system2(6.0).rho(1.0, 2.0),
+            "600018000265261000 3000018000795772000",
+            new double[] {1.0, 2.0}
         },
         {
             TetrapolarResistance.milli().system2(7.0).rho1(10.0).rho2(1.0).h(5.0),
@@ -116,9 +123,9 @@ public class TetrapolarResistanceTest {
         },
 
         {
-            TetrapolarResistance.milli().system4(6.0).rho(1.0),
-            "600018000265261000 3000018000397891000 1200024000353681000 3600024000424411000",
-            new double[] {1.0, 1.0, 1.0, 1.0}
+            TetrapolarResistance.milli().system4(6.0).rho(1.0, 2.0, 3.0, 4.0),
+            "600018000265261000 3000018000795772000 12000240001061033000 36000240001697654000",
+            new double[] {1.0, 2.0, 3.0, 4.0}
         },
         {
             TetrapolarResistance.milli().system4(7.0).rho1(10.0).rho2(1.0).h(5.0),
@@ -129,6 +136,12 @@ public class TetrapolarResistanceTest {
             TetrapolarResistance.milli().system4(8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
             "800024000886174454 40000240001079853619 16000320001031643889 48000320001103903468",
             new double[] {4.454, 3.619, 3.889, 3.468}
+        },
+
+        {
+            TetrapolarResistance.milli().system2(10.0).ofOhms(128.916, 195.761),
+            "10000300001289168100 50000300001957618200",
+            new double[] {8.1, 8.2}
         },
     };
   }
@@ -143,7 +156,17 @@ public class TetrapolarResistanceTest {
     Assert.assertEquals(ms.stream().mapToDouble(Resistance::resistivity).toArray(), resistivity, 0.01, ms.toString());
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInvalidRhos() {
+    TetrapolarResistance.milli().system2(10.0).rho(1.0);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testInvalidRhos2() {
+    TetrapolarResistance.milli().system2(10.0).rho(1.0, 2.0, 3.0);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidOhms() {
     TetrapolarResistance.milli().system2(10.0).ofOhms(1.0, 2.0, 3.0);
   }
