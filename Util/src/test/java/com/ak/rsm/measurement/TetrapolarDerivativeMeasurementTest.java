@@ -21,31 +21,31 @@ public class TetrapolarDerivativeMeasurementTest {
   public static Object[][] tetrapolarMeasurements() {
     return new Object[][] {
         {
-            TetrapolarDerivativeMeasurement.ofSI(0.1).dh(0.1).system(1.0, 2.0).rho(900.1),
-            "1000 000   2000 000      100 0       909          900   270 0              0 000",
+            TetrapolarDerivativeMeasurement.ofSI(0.1).dh(Double.NaN).system(1.0, 2.0).rho(900.1, 1.0),
+            "1000 000   2000 000      100 0       909          900   270 0              1 000",
             900.1,
-            0.0,
+            1.0,
             new InexactTetrapolarSystem(0.1, new TetrapolarSystem(1.0, 2.0))
         },
         {
-            TetrapolarDerivativeMeasurement.ofSI(0.1).dh(0.2).system(2.0, 1.0).rho(900.2),
-            "2000 000   1000 000      100 0       909          900   270 1              0 000",
+            TetrapolarDerivativeMeasurement.ofSI(0.1).dh(Double.NaN).system(2.0, 1.0).rho(900.2, -1.0),
+            "2000 000   1000 000      100 0       909          900   270 1               1 000",
             900.2,
-            0.0,
+            -1.0,
             new InexactTetrapolarSystem(0.1, new TetrapolarSystem(1.0, 2.0))
         },
         {
-            TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(-0.1).system(10.0, 30.0).rho(8.1),
-            "10 000   30 000      0 1       36          8 1   0 16              0 000",
+            TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(Double.NaN).system(10.0, 30.0).rho(8.1, 2.0),
+            "10 000   30 000      0 1       36          8 1   0 16              2 000",
             8.1,
-            0.0,
+            2.0,
             new InexactTetrapolarSystem(0.0001, new TetrapolarSystem(0.01, 0.03))
         },
         {
-            TetrapolarDerivativeMeasurement.ofMilli(1.0).dh(0.0).system(50.0, 30.0).rho(8.2),
-            "50 000   30 000      1 0       28          8   1 1              0 000",
+            TetrapolarDerivativeMeasurement.ofMilli(1.0).dh(Double.NaN).system(50.0, 30.0).rho(8.2, -2.0),
+            "50 000   30 000      1 0       28          8   1 1               2 000",
             8.2,
-            0.0,
+            -2.0,
             new InexactTetrapolarSystem(0.001, new TetrapolarSystem(0.03, 0.05))
         },
         {
@@ -115,7 +115,7 @@ public class TetrapolarDerivativeMeasurementTest {
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testMerge() {
-    Measurement m1 = TetrapolarDerivativeMeasurement.ofSI(0.1).dh(0.1).system(10.0, 30.0).rho(1.0);
+    Measurement m1 = TetrapolarDerivativeMeasurement.ofSI(0.1).dh(Double.NaN).system(10.0, 30.0).rho(1.0, 2.0);
     m1.merge(m1);
   }
 
@@ -123,10 +123,10 @@ public class TetrapolarDerivativeMeasurementTest {
   public static Object[][] tetrapolarMultiMeasurements() {
     return new Object[][] {
         {
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(0.1).system2(6.0).rho(1.0),
-            "600018000011810000330000 3000018000013110000220000",
-            new double[] {1.0, 1.0},
-            new double[] {0.0, 0.0}
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(Double.NaN).system2(6.0).rho(1.0, 2.0, 3.0, 4.0),
+            "600018000011810000333000 3000018000013120000444000",
+            new double[] {1.0, 2.0},
+            new double[] {3.0, 4.0}
         },
         {
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.2).system2(7.0).rho1(10.0).rho2(1.0).h(5.0),
@@ -183,5 +183,10 @@ public class TetrapolarDerivativeMeasurementTest {
   public void testInvalidOhms() {
     TetrapolarDerivativeMeasurement.ofSI(0.01).dh(0.1).system(10, 20.0)
         .ofOhms(DoubleStream.generate(Math::random).limit(Math.random() > 0.5 ? 1 : 3).toArray());
+  }
+
+  @Test(expectedExceptions = IllegalStateException.class)
+  public void testInvalidRhos() {
+    TetrapolarDerivativeMeasurement.ofSI(0.01).dh(0.1).system(10, 20.0).rho(1.0, 2.0, 3.0, 4.0);
   }
 }

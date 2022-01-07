@@ -3,10 +3,13 @@ package com.ak.rsm.resistance;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.PrimitiveIterator;
+import java.util.function.BiFunction;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
@@ -62,11 +65,35 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
   public interface PreBuilder {
     @Nonnull
     TetrapolarResistance.PreBuilder<DerivativeResistance> dh(double dh);
+
+    @ParametersAreNonnullByDefault
+    static <T> T check(double[] values, Supplier<T> supplier) {
+      if (values.length == 2) {
+        return supplier.get();
+      }
+      else {
+        throw new IllegalArgumentException(Arrays.toString(values));
+      }
+    }
   }
 
   public interface MultiPreBuilder {
     @Nonnull
     TetrapolarResistance.MultiPreBuilder<DerivativeResistance> dh(double dh);
+
+    @ParametersAreNonnullByDefault
+    static <R, S> Collection<R> split(Collection<S> systems, double[] values, BiFunction<S, double[], R> function) {
+      if (systems.size() * 2 == values.length) {
+        PrimitiveIterator.OfDouble before = Arrays.stream(values).limit(values.length / 2).iterator();
+        PrimitiveIterator.OfDouble after = Arrays.stream(values).skip(values.length / 2).iterator();
+        return systems.stream()
+            .map(s -> function.apply(s, new double[] {before.nextDouble(), after.nextDouble()}))
+            .toList();
+      }
+      else {
+        throw new IllegalArgumentException("%s %s".formatted(systems, Arrays.toString(values)));
+      }
+    }
   }
 
   public record DhHolder(@Nonnull DoubleUnaryOperator converter, double dh) {
@@ -97,20 +124,26 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
 
     @Nonnull
     @Override
-    public DerivativeResistance rho(@Nonnegative double rho) {
-      return new TetrapolarDerivativeResistance(TetrapolarResistance.of(system).rho(rho), 0.0);
+    public DerivativeResistance rho(@Nonnull double... rhos) {
+      if (Double.isNaN(dhHolder.dh)) {
+        return PreBuilder.check(rhos,
+            () -> new TetrapolarDerivativeResistance(TetrapolarResistance.of(system).rho(rhos[0]), rhos[1])
+        );
+      }
+      else {
+        throw new IllegalStateException(Double.toString(dhHolder.dh));
+      }
     }
 
     @Nonnull
     @Override
     public DerivativeResistance ofOhms(@Nonnull double... rOhms) {
-      if (rOhms.length == 2) {
-        TetrapolarResistance.PreBuilder<Resistance> b = TetrapolarResistance.of(system);
-        return new TetrapolarDerivativeResistance(b.ofOhms(rOhms[0]), b.ofOhms(rOhms[1]), dhHolder.dh);
-      }
-      else {
-        throw new IllegalArgumentException(Arrays.toString(rOhms));
-      }
+      return PreBuilder.check(rOhms,
+          () -> {
+            TetrapolarResistance.PreBuilder<Resistance> b = TetrapolarResistance.of(system);
+            return new TetrapolarDerivativeResistance(b.ofOhms(rOhms[0]), b.ofOhms(rOhms[1]), dhHolder.dh);
+          }
+      );
     }
 
     @Nonnull
@@ -146,18 +179,14 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
 
     @Nonnull
     @Override
-    public Collection<DerivativeResistance> rho(@Nonnegative double rho) {
-      return systems.stream().map(s -> new Builder(s).dh(dhHolder.dh).rho(rho)).toList();
+    public Collection<DerivativeResistance> rho(@Nonnull double... rhos) {
+      return MultiPreBuilder.split(systems, rhos, (s, rho) -> new Builder(s).dh(dhHolder.dh).rho(rho));
     }
 
     @Nonnull
     @Override
     public Collection<DerivativeResistance> ofOhms(@Nonnull double... rOhms) {
-      PrimitiveIterator.OfDouble ohmsBefore = Arrays.stream(rOhms).limit(rOhms.length / 2).iterator();
-      PrimitiveIterator.OfDouble ohmsAfter = Arrays.stream(rOhms).skip(rOhms.length / 2).iterator();
-      return systems.stream()
-          .map(s -> new Builder(s).dh(dhHolder.dh).ofOhms(ohmsBefore.nextDouble(), ohmsAfter.nextDouble()))
-          .toList();
+      return MultiPreBuilder.split(systems, rOhms, (s, ohms) -> new Builder(s).dh(dhHolder.dh).ofOhms(ohms));
     }
 
     @Nonnull
