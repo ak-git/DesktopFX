@@ -12,7 +12,7 @@ import com.ak.util.Metrics;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class DerivativeApparentByPhi2RhoTest {
+public class DerivativeApparent2ByPhi2RhoTest {
   @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
   public void testValueSL(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.fromMilli(smm), Metrics.fromMilli(lmm));

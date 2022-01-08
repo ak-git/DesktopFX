@@ -11,7 +11,7 @@ import com.ak.rsm.system.RelativeTetrapolarSystem;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class DerivativeApparentByK2RhoTest {
+public class DerivativeApparent2ByK2RhoTest {
   @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
   public void testValueSL(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     if (Double.compare(rho[0], rho[1]) != 0) {
