@@ -10,7 +10,6 @@ module com.ak.util {
   requires jsr305;
   requires io.jenetics.base;
 
-  opens com.ak.inverse to org.testng;
 
   exports com.ak.math to org.testng;
 
@@ -23,10 +22,12 @@ module com.ak.util {
   exports com.ak.rsm.measurement;
   exports com.ak.rsm.prediction;
   exports com.ak.rsm.relative;
+  exports com.ak.rsm.apparent;
+
+  opens com.ak.inverse to org.testng;
   opens com.ak.rsm.resistance to org.testng;
   opens com.ak.rsm.system to org.testng;
   opens com.ak.rsm.measurement to org.testng;
   opens com.ak.rsm.relative to org.testng;
-  exports com.ak.rsm.apparent;
   opens com.ak.rsm.apparent to org.testng;
 }

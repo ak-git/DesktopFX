@@ -100,7 +100,7 @@ public enum Simplex {
                       .toArray(DoubleRange[]::new)
               )
           )
-          .populationSize(256)
+          .populationSize(128 + (int) (128.0 * StrictMath.log(initialGuess.length) / StrictMath.log(2.0)))
           .optimize(Optimize.MINIMUM)
           .alterers(new Mutator<>(0.03), new MeanAlterer<>(0.6))
           .build().stream()
