@@ -21,7 +21,7 @@ public class DerivativeApparentByPhi3RhoTest {
     int p1 = (int) hmm;
     double expected = TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(h).p(p1, 1)
         .derivativeResistivity() / rho[0];
-    double actual = Apparent3Rho.newDerivativeApparentByPhi3Rho(system.relativeSystem()).value(Layers.getK12(rho[0], rho[1]), 0.0,
+    double actual = Apparent3Rho.newDerivativeApparentByPhi2Rho(system.relativeSystem()).value(Layers.getK12(rho[0], rho[1]), 0.0,
         h / Metrics.fromMilli(lmm), p1, 1);
     Assert.assertEquals(StrictMath.log(Math.abs(actual)), StrictMath.log(Math.abs(expected)), 0.1);
     Assert.assertEquals(Math.signum(actual), Math.signum(expected), 0.1);
@@ -35,7 +35,7 @@ public class DerivativeApparentByPhi3RhoTest {
     double expected = TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(h).p(p[0], p[1])
         .derivativeResistivity() / rho[0];
 
-    double actual = Apparent3Rho.newDerivativeApparentByPhi3Rho(system.relativeSystem()).value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]),
+    double actual = Apparent3Rho.newDerivativeApparentByPhi2Rho(system.relativeSystem()).value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]),
         h / Metrics.fromMilli(lmm), p[0], p[1]);
     Assert.assertEquals(StrictMath.log(Math.abs(actual)), StrictMath.log(Math.abs(expected)), 0.1);
     Assert.assertEquals(Math.signum(actual), Math.signum(expected), 0.1);

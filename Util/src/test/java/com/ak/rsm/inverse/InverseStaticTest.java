@@ -13,7 +13,6 @@ import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.measurement.TetrapolarMeasurement;
-import com.ak.rsm.medium.MediumLayers;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistance;
@@ -41,7 +40,7 @@ public class InverseStaticTest {
 
   @Test(dataProvider = "layer1")
   public void testInverseLayer1(@Nonnull Collection<? extends Measurement> measurements, @Nonnegative double expected) {
-    MediumLayers medium = InverseStatic.INSTANCE.inverse(measurements);
+    var medium = new StaticAbsolute(measurements).get();
     Assert.assertEquals(medium.rho().getValue(), expected, 0.2, medium.toString());
     for (Measurement m : measurements) {
       Assert.assertTrue(medium.rho().getAbsError() / medium.rho().getValue() < m.inexact().getApparentRelativeError(), medium.toString());
@@ -68,7 +67,7 @@ public class InverseStaticTest {
   @Test(dataProvider = "layer2")
   @ParametersAreNonnullByDefault
   public void testInverseLayer2(Collection<? extends Measurement> measurements, ValuePair[] expected) {
-    var medium = InverseStatic.INSTANCE.inverse(measurements);
+    var medium = new StaticAbsolute(measurements).get();
     Assert.assertEquals(medium.rho1(), expected[0], medium.toString());
     Assert.assertEquals(medium.rho2(), expected[1], medium.toString());
     Assert.assertEquals(medium.h1(), expected[2], medium.toString());
@@ -101,10 +100,10 @@ public class InverseStaticTest {
     double L = Measurements.getBaseL(Measurements.toSystems(measurements));
     double dim = measurements.stream().mapToDouble(m -> m.inexact().system().getDim()).max().orElseThrow();
 
-    var medium = InverseStatic.INSTANCE.inverseRelative(measurements);
+    var medium = new StaticRelative(measurements).get();
     Assert.assertEquals(medium.k12AbsError() / (absError / dim), riseErrors[0], 0.1, medium.toString());
     Assert.assertEquals(medium.hToLAbsError() / (absError / L), riseErrors[1], 0.1, medium.toString());
-    Assert.assertEquals(medium, InverseStatic.INSTANCE.errors(measurements.stream().map(Measurement::inexact).toList(), medium), medium.toString());
+    Assert.assertEquals(medium, new StaticAbsolute(measurements).apply(medium), medium.toString());
     LOGGER.info(medium::toString);
   }
 
@@ -139,7 +138,7 @@ public class InverseStaticTest {
   @Test(dataProvider = "relativeStaticLayer2")
   @ParametersAreNonnullByDefault
   public void testInverseRelativeStaticLayer2(Collection<? extends Measurement> measurements, RelativeMediumLayers expected) {
-    var medium = InverseStatic.INSTANCE.inverseRelative(measurements);
+    var medium = new StaticRelative(measurements).get();
     Assert.assertEquals(medium.k12(), expected.k12(), expected.k12AbsError(), medium.toString());
     Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), expected.k12AbsError() * 0.1, medium.toString());
     Assert.assertEquals(medium.hToL(), expected.hToL(), expected.hToLAbsError(), medium.toString());
