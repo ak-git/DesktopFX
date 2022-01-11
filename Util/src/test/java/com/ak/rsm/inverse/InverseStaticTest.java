@@ -42,9 +42,12 @@ public class InverseStaticTest {
   public void testInverseLayer1(@Nonnull Collection<? extends Measurement> measurements, @Nonnegative double expected) {
     var medium = new StaticAbsolute(measurements).get();
     Assert.assertEquals(medium.rho().getValue(), expected, 0.2, medium.toString());
-    for (Measurement m : measurements) {
-      Assert.assertTrue(medium.rho().getAbsError() / medium.rho().getValue() < m.inexact().getApparentRelativeError(), medium.toString());
-    }
+    measurements.forEach(m ->
+        Assert.assertTrue(
+            medium.rho().getAbsError() / medium.rho().getValue() < m.inexact().getApparentRelativeError(),
+            medium.toString()
+        )
+    );
     LOGGER.info(medium::toString);
   }
 

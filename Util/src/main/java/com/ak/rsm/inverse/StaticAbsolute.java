@@ -10,14 +10,13 @@ import com.ak.rsm.medium.Layer2Medium;
 import com.ak.rsm.medium.MediumLayers;
 import com.ak.rsm.relative.RelativeMediumLayers;
 
-import static com.ak.rsm.inverse.StaticRelative.SUBTRACT;
+import static com.ak.rsm.inverse.StaticErrors.SUBTRACT;
 
-class StaticAbsolute extends AbstractInverse<Measurement, MediumLayers> {
+class StaticAbsolute implements Inverse<MediumLayers> {
   @Nonnull
   private final StaticRelative inverseRelative;
 
   StaticAbsolute(@Nonnull Collection<? extends Measurement> measurements) {
-    super(measurements);
     inverseRelative = new StaticRelative(measurements);
   }
 
@@ -30,11 +29,11 @@ class StaticAbsolute extends AbstractInverse<Measurement, MediumLayers> {
   @Nonnull
   @Override
   public MediumLayers get() {
-    if (measurements().size() > 2) {
-      return new Layer2Medium(measurements(), inverseRelative.inverseRelative(SUBTRACT));
+    if (inverseRelative.measurements().size() > 2) {
+      return new Layer2Medium(inverseRelative.measurements(), inverseRelative.inverseRelative(SUBTRACT));
     }
     else {
-      return new Layer1Medium(measurements());
+      return new Layer1Medium(inverseRelative.measurements());
     }
   }
 }

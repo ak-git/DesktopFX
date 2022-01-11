@@ -81,6 +81,7 @@ public class InverseDynamicTest {
     Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), expected.k12AbsError() * 0.1, medium.toString());
     Assert.assertEquals(medium.hToL(), expected.hToL(), expected.hToLAbsError(), medium.toString());
     Assert.assertEquals(medium.hToLAbsError(), expected.hToLAbsError(), expected.hToLAbsError() * 0.1, medium.toString());
+    Assert.assertEquals(medium, new DynamicAbsolute(measurements).apply(medium), medium.toString());
     LOGGER.info(medium::toString);
   }
 
