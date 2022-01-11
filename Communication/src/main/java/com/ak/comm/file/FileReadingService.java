@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Flow;
@@ -173,7 +174,8 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
   }
 
   private static String digestToString(@Nonnull byte[] digest) {
-    return IntStream.range(0, digest.length).filter(value -> value % 4 == 0)
-        .mapToObj(i -> "%02x".formatted(digest[i])).collect(Collectors.joining());
+    String s = HexFormat.of().formatHex(digest);
+    return IntStream.range(0, s.length()).filter(value -> value % 4 == 0)
+        .mapToObj(i -> s.subSequence(i, i + 1)).collect(Collectors.joining());
   }
 }
