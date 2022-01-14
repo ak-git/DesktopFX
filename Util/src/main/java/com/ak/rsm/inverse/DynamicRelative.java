@@ -23,12 +23,6 @@ final class DynamicRelative extends AbstractInverse<DerivativeMeasurement, Relat
 
   @Nonnull
   @Override
-  public RelativeMediumLayers apply(@Nonnull RelativeMediumLayers layers) {
-    return new DynamicErrors(inexactSystems()).apply(layers);
-  }
-
-  @Nonnull
-  @Override
   public RelativeMediumLayers get() {
     var kMinMax = new double[] {-1.0, 1.0};
     if (measurements().stream().allMatch(d -> d.derivativeResistivity() > 0)) {
@@ -61,5 +55,11 @@ final class DynamicRelative extends AbstractInverse<DerivativeMeasurement, Relat
         new double[] {0.01, 0.01}
     );
     return apply(new Layer2RelativeMedium(kwOptimal.getPoint()));
+  }
+
+  @Nonnull
+  @Override
+  public RelativeMediumLayers apply(@Nonnull RelativeMediumLayers layers) {
+    return new DynamicErrors(inexactSystems()).apply(layers);
   }
 }

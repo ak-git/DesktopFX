@@ -22,15 +22,15 @@ final class StaticRelative extends AbstractInverse<Measurement, RelativeMediumLa
     staticErrors = new StaticErrors(inexactSystems());
   }
 
+  @Override
+  public RelativeMediumLayers get() {
+    return inverseRelative(UnaryOperator.identity());
+  }
+
   @Nonnull
   @Override
   public RelativeMediumLayers apply(@Nonnull RelativeMediumLayers layers) {
     return staticErrors.apply(layers);
-  }
-
-  @Override
-  public RelativeMediumLayers get() {
-    return inverseRelative(UnaryOperator.identity());
   }
 
   @Nonnull
