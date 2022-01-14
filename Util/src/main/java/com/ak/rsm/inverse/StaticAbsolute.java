@@ -22,18 +22,19 @@ class StaticAbsolute implements Inverse<MediumLayers> {
 
   @Nonnull
   @Override
-  public RelativeMediumLayers apply(@Nonnull RelativeMediumLayers layers) {
-    return inverseRelative.apply(layers);
+  public MediumLayers get() {
+    Collection<Measurement> measurements = inverseRelative.measurements();
+    if (measurements.size() > 2) {
+      return new Layer2Medium(measurements, inverseRelative.inverseRelative(SUBTRACT));
+    }
+    else {
+      return new Layer1Medium(measurements);
+    }
   }
 
   @Nonnull
   @Override
-  public MediumLayers get() {
-    if (inverseRelative.measurements().size() > 2) {
-      return new Layer2Medium(inverseRelative.measurements(), inverseRelative.inverseRelative(SUBTRACT));
-    }
-    else {
-      return new Layer1Medium(inverseRelative.measurements());
-    }
+  public RelativeMediumLayers apply(@Nonnull RelativeMediumLayers layers) {
+    return inverseRelative.apply(layers);
   }
 }
