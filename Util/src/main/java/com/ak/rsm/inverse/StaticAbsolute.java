@@ -17,7 +17,7 @@ class StaticAbsolute implements Inverse<MediumLayers> {
   private final StaticRelative inverseRelative;
 
   StaticAbsolute(@Nonnull Collection<? extends Measurement> measurements) {
-    inverseRelative = new StaticRelative(measurements);
+    inverseRelative = new StaticRelative(measurements, SUBTRACT);
   }
 
   @Nonnull
@@ -25,7 +25,7 @@ class StaticAbsolute implements Inverse<MediumLayers> {
   public MediumLayers get() {
     Collection<Measurement> measurements = inverseRelative.measurements();
     if (measurements.size() > 2) {
-      return new Layer2Medium(measurements, inverseRelative.inverseRelative(SUBTRACT));
+      return new Layer2Medium(measurements, inverseRelative.get());
     }
     else {
       return new Layer1Medium(measurements);
