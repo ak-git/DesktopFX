@@ -1,6 +1,5 @@
 package com.ak.rsm.inverse;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;
@@ -18,20 +17,35 @@ import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.system.TetrapolarSystem;
 
-abstract class AbstractInverseFunction extends AbstractInverse implements ToDoubleFunction<double[]>, UnaryOperator<double[]> {
+abstract class AbstractInverseFunction<R extends Resistivity> extends AbstractInverse
+    implements ToDoubleFunction<double[]>, UnaryOperator<double[]> {
   @Nonnull
   private final BiFunction<TetrapolarSystem, double[], RelativeMediumLayers> layersBiFunction;
   @Nonnull
   private final ToDoubleBiFunction<TetrapolarSystem, double[]> logApparentPredicted;
   @Nonnull
   private final double[] subLog;
+  @Nonnull
+  private final UnaryOperator<double[]> subtract;
 
   @ParametersAreNonnullByDefault
-  AbstractInverseFunction(Collection<? extends Resistivity> r, double[] subLog) {
+  AbstractInverseFunction(Collection<? extends R> r, ToDoubleFunction<? super R> function, UnaryOperator<double[]> subtract) {
     super(r.stream().map(Resistivity::system).toList());
-    this.subLog = Arrays.copyOf(subLog, subLog.length);
+    this.subtract = subtract;
+    subLog = subtract.apply(r.stream().mapToDouble(function).toArray());
     layersBiFunction = (s1, kw1) -> new Layer2RelativeMedium(kw1[0], kw1[1] * baseL() / s1.lCC());
     logApparentPredicted = (s, kw) -> Apparent2Rho.newLog1pApparent2Rho(s.relativeSystem()).applyAsDouble(layersBiFunction.apply(s, kw));
+  }
+
+  @Nonnegative
+  @Override
+  public final double applyAsDouble(@Nonnull double[] kw) {
+    return Inequality.absolute().applyAsDouble(subLog, subtract.apply(apply(kw)));
+  }
+
+  @Nonnull
+  final UnaryOperator<double[]> subtract() {
+    return subtract;
   }
 
   @Nonnull
@@ -40,13 +54,7 @@ abstract class AbstractInverseFunction extends AbstractInverse implements ToDoub
   }
 
   @Nonnull
-  public ToDoubleBiFunction<TetrapolarSystem, double[]> logApparentPredicted() {
+  final ToDoubleBiFunction<TetrapolarSystem, double[]> logApparentPredicted() {
     return logApparentPredicted;
-  }
-
-  @Nonnegative
-  @Override
-  public final double applyAsDouble(@Nonnull double[] kw) {
-    return Inequality.absolute().applyAsDouble(subLog, apply(kw));
   }
 }

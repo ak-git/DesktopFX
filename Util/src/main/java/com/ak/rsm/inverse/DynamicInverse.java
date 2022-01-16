@@ -2,6 +2,7 @@ package com.ak.rsm.inverse;
 
 import java.util.Collection;
 import java.util.function.ToDoubleBiFunction;
+import java.util.function.UnaryOperator;
 
 import javax.annotation.Nonnull;
 
@@ -12,7 +13,7 @@ import com.ak.rsm.system.TetrapolarSystem;
 import static java.lang.StrictMath.abs;
 import static java.lang.StrictMath.log;
 
-final class DynamicInverse extends AbstractInverseFunction {
+final class DynamicInverse extends AbstractInverseFunction<DerivativeResistivity> {
   @Nonnull
   private final ToDoubleBiFunction<TetrapolarSystem, double[]> logDiffApparentPredicted = (s, kw) ->
       log(
@@ -22,11 +23,11 @@ final class DynamicInverse extends AbstractInverseFunction {
       );
 
   DynamicInverse(@Nonnull Collection<? extends DerivativeResistivity> r) {
-    super(r, r.stream().mapToDouble(d -> log(d.resistivity()) - log(abs(d.derivativeResistivity()))).toArray());
+    super(r, d -> log(d.resistivity()) - log(abs(d.derivativeResistivity())), UnaryOperator.identity());
   }
 
   @Override
-  public double[] apply(double[] kw) {
+  public double[] apply(@Nonnull double[] kw) {
     return systems().stream()
         .mapToDouble(s -> logApparentPredicted().applyAsDouble(s, kw) - logDiffApparentPredicted.applyAsDouble(s, kw))
         .toArray();

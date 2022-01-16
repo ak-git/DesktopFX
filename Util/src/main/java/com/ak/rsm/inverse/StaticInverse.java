@@ -8,25 +8,14 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.rsm.resistance.Resistivity;
 
-final class StaticInverse extends AbstractInverseFunction {
-  @Nonnull
-  private final UnaryOperator<double[]> subtract;
-
+final class StaticInverse extends AbstractInverseFunction<Resistivity> {
   @ParametersAreNonnullByDefault
   StaticInverse(Collection<? extends Resistivity> r, UnaryOperator<double[]> subtract) {
-    super(r, subtract.apply(r.stream().map(Resistivity::resistivity).mapToDouble(StrictMath::log).toArray()));
-    this.subtract = subtract;
+    super(r, value -> StrictMath.log(value.resistivity()), subtract);
   }
 
   @Override
   public double[] apply(@Nonnull double[] kw) {
-    return subtract.apply(
-        systems().stream().mapToDouble(s -> logApparentPredicted().applyAsDouble(s, kw)).toArray()
-    );
-  }
-
-  @Nonnull
-  UnaryOperator<double[]> subtract() {
-    return subtract;
+    return systems().stream().mapToDouble(s -> logApparentPredicted().applyAsDouble(s, kw)).toArray();
   }
 }
