@@ -8,7 +8,10 @@ import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 
-public interface Measurement extends Resistivity<InexactTetrapolarSystem> {
+public interface Measurement extends Resistivity {
+  @Nonnull
+  InexactTetrapolarSystem inexact();
+
   @Nonnull
   Measurement merge(@Nonnull Measurement that);
 

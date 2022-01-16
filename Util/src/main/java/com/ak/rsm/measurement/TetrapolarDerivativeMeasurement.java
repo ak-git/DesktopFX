@@ -15,6 +15,7 @@ import com.ak.rsm.resistance.DerivativeResistance;
 import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.InexactTetrapolarSystem;
+import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
@@ -26,13 +27,19 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
 
   @Nonnull
   @Override
-  public InexactTetrapolarSystem system() {
-    return measurement.system();
+  public InexactTetrapolarSystem inexact() {
+    return measurement.inexact();
   }
 
   @Override
   public double resistivity() {
     return measurement.resistivity();
+  }
+
+  @Nonnull
+  @Override
+  public TetrapolarSystem system() {
+    return measurement.system();
   }
 
   @Nonnull
@@ -44,7 +51,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
   @Nonnull
   @Override
   public Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1) {
-    return TetrapolarDerivativePrediction.of(system(), kw, rho1, new double[] {resistivity(), derivativeResistivity()});
+    return TetrapolarDerivativePrediction.of(inexact(), kw, rho1, new double[] {resistivity(), derivativeResistivity()});
   }
 
   @Nonnull

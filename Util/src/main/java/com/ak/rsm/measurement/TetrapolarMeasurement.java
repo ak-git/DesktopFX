@@ -20,14 +20,20 @@ import com.ak.rsm.system.RelativeTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 
-public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem system,
+public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
                                     @Nonnegative double resistivity) implements Measurement {
   private static final Function<Measurement, ValuePair> TO_VALUE =
-      m -> ValuePair.Name.RHO_1.of(m.resistivity(), m.resistivity() * m.system().getApparentRelativeError());
+      m -> ValuePair.Name.RHO_1.of(m.resistivity(), m.resistivity() * m.inexact().getApparentRelativeError());
 
   @Override
   public String toString() {
-    return "%s; %s".formatted(system, ValuePair.Name.RHO_1.of(resistivity, resistivity * system.getApparentRelativeError()));
+    return "%s; %s".formatted(inexact, ValuePair.Name.RHO_1.of(resistivity, resistivity * inexact.getApparentRelativeError()));
+  }
+
+  @Nonnull
+  @Override
+  public TetrapolarSystem system() {
+    return inexact.system();
   }
 
   @Nonnull
@@ -35,7 +41,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem system,
   public Measurement merge(@Nonnull Measurement that) {
     var avg = TO_VALUE.apply(this).mergeWith(TO_VALUE.apply(that));
     double relErrorRho = avg.getAbsError() / avg.getValue();
-    double dL = Math.min(system.absError(), that.system().absError());
+    double dL = Math.min(inexact.absError(), that.inexact().absError());
     double lCC = RelativeTetrapolarSystem.MIN_ERROR_FACTOR * dL / relErrorRho;
     double sPU = RelativeTetrapolarSystem.OPTIMAL_SL * lCC;
     InexactTetrapolarSystem merged = new InexactTetrapolarSystem(dL, new TetrapolarSystem(sPU, lCC));
@@ -45,7 +51,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem system,
   @Nonnull
   @Override
   public Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1) {
-    return TetrapolarPrediction.of(system, kw, rho1, resistivity);
+    return TetrapolarPrediction.of(inexact, kw, rho1, resistivity);
   }
 
   @Nonnull

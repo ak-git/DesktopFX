@@ -25,7 +25,7 @@ abstract class AbstractRelative<M extends Measurement, L> extends AbstractErrors
   private final BiFunction<TetrapolarSystem, double[], RelativeMediumLayers> layersBiFunction;
 
   AbstractRelative(@Nonnull Collection<? extends M> measurements) {
-    super(measurements.stream().map(Measurement::system).toList());
+    super(measurements.stream().map(Measurement::inexact).toList());
     this.measurements = Collections.unmodifiableCollection(measurements);
     maxHToL = inexactSystems().parallelStream().mapToDouble(s -> s.getHMax(1.0)).min().orElseThrow() / baseL();
     layersBiFunction = (s1, kw1) -> new Layer2RelativeMedium(kw1[0], kw1[1] * baseL() / s1.lCC());
