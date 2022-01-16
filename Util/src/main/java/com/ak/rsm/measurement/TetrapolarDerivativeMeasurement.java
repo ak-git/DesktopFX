@@ -15,7 +15,6 @@ import com.ak.rsm.resistance.DerivativeResistance;
 import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.InexactTetrapolarSystem;
-import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
@@ -34,12 +33,6 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
   @Override
   public double resistivity() {
     return measurement.resistivity();
-  }
-
-  @Nonnull
-  @Override
-  public TetrapolarSystem system() {
-    return measurement.system();
   }
 
   @Nonnull

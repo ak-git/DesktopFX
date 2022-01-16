@@ -32,12 +32,6 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
 
   @Nonnull
   @Override
-  public TetrapolarSystem system() {
-    return inexact.system();
-  }
-
-  @Nonnull
-  @Override
   public Measurement merge(@Nonnull Measurement that) {
     var avg = TO_VALUE.apply(this).mergeWith(TO_VALUE.apply(that));
     double relErrorRho = avg.getAbsError() / avg.getValue();
