@@ -5,18 +5,10 @@ import javax.annotation.Nonnull;
 
 import com.ak.rsm.system.TetrapolarSystem;
 
-public interface Resistance {
+public interface Resistance extends Resistivity {
   @Nonnull
   TetrapolarSystem system();
 
   @Nonnegative
   double ohms();
-
-  /**
-   * Gets <b>apparent</b> specific ohms which is corresponding to 1-layer model.
-   *
-   * @return <b>apparent</b> specific ohms in Ohm-m.
-   */
-  @Nonnegative
-  double resistivity();
 }

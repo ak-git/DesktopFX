@@ -16,7 +16,7 @@ import com.ak.rsm.system.TetrapolarSystem;
 
 import static java.lang.StrictMath.log;
 
-abstract class AbstractInverse<M extends Measurement, L> extends AbstractErrors implements Inverse<L> {
+abstract class AbstractRelative<M extends Measurement, L> extends AbstractErrors implements Inverse<L> {
   @Nonnull
   private final Collection<M> measurements;
   @Nonnegative
@@ -24,7 +24,7 @@ abstract class AbstractInverse<M extends Measurement, L> extends AbstractErrors 
   @Nonnull
   private final BiFunction<TetrapolarSystem, double[], RelativeMediumLayers> layersBiFunction;
 
-  AbstractInverse(@Nonnull Collection<? extends M> measurements) {
+  AbstractRelative(@Nonnull Collection<? extends M> measurements) {
     super(measurements.stream().map(Measurement::inexact).toList());
     this.measurements = Collections.unmodifiableCollection(measurements);
     maxHToL = inexactSystems().parallelStream().mapToDouble(s -> s.getHMax(1.0)).min().orElseThrow() / baseL();

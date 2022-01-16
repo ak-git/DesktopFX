@@ -5,14 +5,12 @@ import javax.annotation.Nonnull;
 
 import com.ak.rsm.prediction.Prediction;
 import com.ak.rsm.relative.RelativeMediumLayers;
+import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 
-public interface Measurement {
+public interface Measurement extends Resistivity {
   @Nonnull
   InexactTetrapolarSystem inexact();
-
-  @Nonnegative
-  double resistivity();
 
   @Nonnull
   Measurement merge(@Nonnull Measurement that);

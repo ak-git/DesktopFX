@@ -16,7 +16,7 @@ import static com.ak.rsm.relative.RelativeMediumLayers.NAN;
 import static java.lang.StrictMath.abs;
 import static java.lang.StrictMath.log;
 
-final class DynamicRelative extends AbstractInverse<DerivativeMeasurement, RelativeMediumLayers> {
+final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, RelativeMediumLayers> {
   DynamicRelative(@Nonnull Collection<? extends DerivativeMeasurement> measurements) {
     super(measurements);
   }

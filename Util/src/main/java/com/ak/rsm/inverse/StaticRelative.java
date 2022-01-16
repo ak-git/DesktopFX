@@ -13,7 +13,7 @@ import com.ak.rsm.relative.RelativeMediumLayers;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 
-final class StaticRelative extends AbstractInverse<Measurement, RelativeMediumLayers> {
+final class StaticRelative extends AbstractRelative<Measurement, RelativeMediumLayers> {
   @Nonnull
   private final StaticErrors staticErrors;
 
