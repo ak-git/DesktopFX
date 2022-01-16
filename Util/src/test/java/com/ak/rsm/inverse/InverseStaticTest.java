@@ -44,7 +44,7 @@ public class InverseStaticTest {
     Assert.assertEquals(medium.rho().getValue(), expected, 0.2, medium.toString());
     measurements.forEach(m ->
         Assert.assertTrue(
-            medium.rho().getAbsError() / medium.rho().getValue() < m.inexact().getApparentRelativeError(),
+            medium.rho().getAbsError() / medium.rho().getValue() < m.system().getApparentRelativeError(),
             medium.toString()
         )
     );
@@ -99,9 +99,9 @@ public class InverseStaticTest {
   @Test(dataProvider = "relativeStaticLayer2RiseErrors")
   @ParametersAreNonnullByDefault
   public void testInverseRelativeStaticLayer2RiseErrors(Collection<? extends Measurement> measurements, double[] riseErrors) {
-    double absError = measurements.stream().mapToDouble(m -> m.inexact().absError()).average().orElseThrow();
+    double absError = measurements.stream().mapToDouble(m -> m.system().absError()).average().orElseThrow();
     double L = Measurements.getBaseL(Measurements.toSystems(measurements));
-    double dim = measurements.stream().mapToDouble(m -> m.inexact().system().getDim()).max().orElseThrow();
+    double dim = measurements.stream().mapToDouble(m -> m.system().system().getDim()).max().orElseThrow();
 
     var medium = new StaticRelative(measurements).get();
     Assert.assertEquals(medium.k12AbsError() / (absError / dim), riseErrors[0], 0.1, medium.toString());

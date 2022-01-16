@@ -17,7 +17,7 @@ import com.ak.util.Strings;
 
 public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, double derivativeResistivity)
     implements DerivativeResistance {
-  private TetrapolarDerivativeResistance(@Nonnull Resistance resistance, @Nonnull Resistance resistanceAfter, double dh) {
+  private TetrapolarDerivativeResistance(@Nonnull Resistance resistance, @Nonnull Resistivity<TetrapolarSystem> resistanceAfter, double dh) {
     this(resistance, (resistanceAfter.resistivity() - resistance.resistivity()) / (dh / resistance.system().lCC()));
   }
 

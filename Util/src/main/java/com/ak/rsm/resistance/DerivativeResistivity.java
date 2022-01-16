@@ -1,5 +1,5 @@
 package com.ak.rsm.resistance;
 
-public interface DerivativeResistivity extends Resistivity {
+public interface DerivativeResistivity<T> extends Resistivity<T> {
   double derivativeResistivity();
 }

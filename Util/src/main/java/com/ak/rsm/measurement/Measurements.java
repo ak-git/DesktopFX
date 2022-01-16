@@ -20,7 +20,7 @@ public enum Measurements {
 
   @Nonnull
   public static Collection<TetrapolarSystem> toSystems(@Nonnull Collection<? extends Measurement> measurements) {
-    return measurements.stream().map(Measurement::inexact).map(InexactTetrapolarSystem::system).toList();
+    return measurements.stream().map(Measurement::system).map(InexactTetrapolarSystem::system).toList();
   }
 
   @Nonnegative
@@ -34,13 +34,13 @@ public enum Measurements {
     if (RelativeMediumLayers.SINGLE_LAYER.equals(kw)) {
       Measurement average = measurements.stream().map(Measurement.class::cast).reduce(Measurement::merge).orElseThrow();
       double rho = average.resistivity();
-      return ValuePair.Name.RHO_1.of(rho, rho * average.inexact().getApparentRelativeError());
+      return ValuePair.Name.RHO_1.of(rho, rho * average.system().getApparentRelativeError());
     }
     else {
       double baseL = getBaseL(toSystems(measurements));
       return measurements.stream().parallel()
           .map(measurement -> {
-            TetrapolarSystem s = measurement.inexact().system();
+            TetrapolarSystem s = measurement.system().system();
             double normApparent = Apparent2Rho.newNormalizedApparent2Rho(s.relativeSystem())
                 .applyAsDouble(new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / s.lCC()));
 

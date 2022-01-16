@@ -1,4 +1,6 @@
 package com.ak.rsm.resistance;
 
-public interface DerivativeResistance extends Resistance, DerivativeResistivity {
+import com.ak.rsm.system.TetrapolarSystem;
+
+public interface DerivativeResistance extends Resistance, DerivativeResistivity<TetrapolarSystem> {
 }
