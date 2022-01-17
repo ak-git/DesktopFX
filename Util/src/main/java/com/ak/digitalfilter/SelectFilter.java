@@ -11,7 +11,7 @@ final class SelectFilter extends AbstractDigitalFilter {
   private final int[] selectedIndexes;
 
   SelectFilter(@Nonnull int[] selectedIndexes, @Nonnull DigitalFilter outFilter) {
-    this.selectedIndexes = Arrays.copyOf(selectedIndexes, selectedIndexes.length);
+    this.selectedIndexes = selectedIndexes.clone();
     this.outFilter = outFilter;
     outFilter.forEach(this::publish);
   }

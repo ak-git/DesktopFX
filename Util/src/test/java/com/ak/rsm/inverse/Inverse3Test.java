@@ -65,13 +65,13 @@ public class Inverse3Test {
               .mapToDouble(s -> logApparentPredicted.applyAsDouble(s, kw) - logDiffApparentPredicted.applyAsDouble(s, kw))
               .toArray();
 
-          double[] kw105 = Arrays.copyOf(kw, kw.length);
+          double[] kw105 = kw.clone();
           kw105[layer] = kw[layer] - step;
           double[] subLogPredicted105 = systems.stream()
               .mapToDouble(s -> logApparentPredicted.applyAsDouble(s, kw105) - logDiffApparentPredicted.applyAsDouble(s, kw105))
               .toArray();
 
-          double[] kw210 = Arrays.copyOf(kw, kw.length);
+          double[] kw210 = kw.clone();
           kw105[layer] = kw[layer] - step * 2;
           double[] subLogPredicted210 = systems.stream()
               .mapToDouble(s -> logApparentPredicted.applyAsDouble(s, kw210) - logDiffApparentPredicted.applyAsDouble(s, kw210))

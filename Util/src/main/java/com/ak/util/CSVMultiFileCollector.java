@@ -3,7 +3,6 @@ package com.ak.util;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -34,7 +33,7 @@ final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSV
   private final String[] headers;
 
   private CSVMultiFileCollector(@Nonnull Iterator<Y> yVarIterator, @Nonnull String... headers) {
-    this.headers = Arrays.copyOf(headers, headers.length);
+    this.headers = headers.clone();
     this.yVarIterator = yVarIterator;
   }
 

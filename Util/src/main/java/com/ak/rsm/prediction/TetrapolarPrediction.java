@@ -19,7 +19,7 @@ public final class TetrapolarPrediction extends AbstractPrediction {
   private TetrapolarPrediction(@Nonnegative double resistivityPredicted, @Nonnull double[] horizons,
                                @Nonnegative double inequalityL2) {
     super(resistivityPredicted, new double[] {inequalityL2});
-    this.horizons = Arrays.copyOf(horizons, horizons.length);
+    this.horizons = horizons.clone();
   }
 
   @ParametersAreNonnullByDefault
@@ -39,7 +39,7 @@ public final class TetrapolarPrediction extends AbstractPrediction {
 
   @Override
   public double[] getHorizons() {
-    return Arrays.copyOf(horizons, horizons.length);
+    return horizons.clone();
   }
 
   @Override
