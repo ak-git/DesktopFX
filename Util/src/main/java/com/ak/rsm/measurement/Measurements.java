@@ -10,6 +10,7 @@ import com.ak.math.ValuePair;
 import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
+import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.system.TetrapolarSystem;
 
 import static java.lang.StrictMath.pow;
@@ -17,14 +18,9 @@ import static java.lang.StrictMath.pow;
 public enum Measurements {
   ;
 
-  @Nonnull
-  public static Collection<TetrapolarSystem> toSystems(@Nonnull Collection<? extends Measurement> measurements) {
-    return measurements.stream().map(Measurement::system).toList();
-  }
-
   @Nonnegative
-  public static double getBaseL(@Nonnull Collection<TetrapolarSystem> systems) {
-    return systems.stream().mapToDouble(TetrapolarSystem::lCC).max().orElseThrow();
+  public static double getBaseL(@Nonnull Collection<? extends Resistivity> measurements) {
+    return measurements.stream().map(Resistivity::system).mapToDouble(TetrapolarSystem::lCC).max().orElseThrow();
   }
 
   @Nonnull
@@ -36,7 +32,7 @@ public enum Measurements {
       return ValuePair.Name.RHO_1.of(rho, rho * average.inexact().getApparentRelativeError());
     }
     else {
-      double baseL = getBaseL(toSystems(measurements));
+      double baseL = getBaseL(measurements);
       return measurements.stream().parallel()
           .map(measurement -> {
             TetrapolarSystem s = measurement.system();

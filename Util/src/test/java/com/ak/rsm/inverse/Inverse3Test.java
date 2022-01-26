@@ -20,7 +20,7 @@ import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.annotations.Test;
 
-import static com.ak.rsm.measurement.Measurements.getBaseL;
+import static com.ak.rsm.inverse.AbstractInverse.getBaseL;
 import static java.lang.StrictMath.abs;
 import static java.lang.StrictMath.log;
 

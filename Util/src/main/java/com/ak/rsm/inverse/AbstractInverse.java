@@ -6,7 +6,6 @@ import java.util.Collections;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.system.TetrapolarSystem;
 
 abstract class AbstractInverse {
@@ -17,7 +16,7 @@ abstract class AbstractInverse {
 
   AbstractInverse(@Nonnull Collection<TetrapolarSystem> systems) {
     this.systems = Collections.unmodifiableCollection(systems);
-    baseL = Measurements.getBaseL(systems);
+    baseL = getBaseL(systems);
   }
 
   @Nonnegative
@@ -28,5 +27,10 @@ abstract class AbstractInverse {
   @Nonnull
   final Collection<TetrapolarSystem> systems() {
     return systems;
+  }
+
+  @Nonnegative
+  public static double getBaseL(@Nonnull Collection<TetrapolarSystem> systems) {
+    return systems.stream().mapToDouble(TetrapolarSystem::lCC).max().orElseThrow();
   }
 }

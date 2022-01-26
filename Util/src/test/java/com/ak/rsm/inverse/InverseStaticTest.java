@@ -100,7 +100,7 @@ public class InverseStaticTest {
   @ParametersAreNonnullByDefault
   public void testInverseRelativeStaticLayer2RiseErrors(Collection<? extends Measurement> measurements, double[] riseErrors) {
     double absError = measurements.stream().mapToDouble(m -> m.inexact().absError()).average().orElseThrow();
-    double L = Measurements.getBaseL(Measurements.toSystems(measurements));
+    double L = Measurements.getBaseL(measurements);
     double dim = measurements.stream().mapToDouble(m -> m.system().getDim()).max().orElseThrow();
 
     var medium = new StaticRelative(measurements).get();
