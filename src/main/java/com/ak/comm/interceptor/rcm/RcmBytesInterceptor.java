@@ -7,10 +7,13 @@ import javax.annotation.Nonnull;
 import javax.inject.Named;
 
 import com.ak.comm.interceptor.simple.AbstractFixedFrameBytesInterceptor;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 
 @Named
 @Profile({"rcm", "rcm-calibration"})
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class RcmBytesInterceptor extends AbstractFixedFrameBytesInterceptor {
   public RcmBytesInterceptor() {
     super("RheoCardioMonitor", BaudRate.BR_38400, 20);

@@ -35,7 +35,7 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
   private final Path tempFile;
   @Nullable
   private CSVPrinter csvPrinter;
-  private boolean errorFlag;
+  private boolean finished;
 
   public CSVLineFileCollector(@Nonnull Path out, @Nonnull String... header) {
     this.out = out;
@@ -49,20 +49,20 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
     }
     catch (IOException ex) {
       Logger.getLogger(getClass().getName()).log(Level.WARNING, out.toString(), ex);
-      errorFlag = true;
+      finished = true;
     }
     tempFile = temp;
   }
 
   @Override
   public void accept(@Nonnull Object[] s) {
-    if (!errorFlag) {
+    if (!finished) {
       try {
         Objects.requireNonNull(csvPrinter).printRecord(s);
       }
       catch (IOException e) {
         Logger.getLogger(getClass().getName()).log(Level.WARNING, "Exception when writing object: %s".formatted(Arrays.toString(s)), e);
-        errorFlag = true;
+        finished = true;
       }
     }
   }
@@ -91,16 +91,18 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
         throw new IllegalArgumentException(printer.toString());
       }
 
-      if (!errorFlag) {
+      if (!finished) {
         try {
           close();
         }
         catch (IOException e) {
           Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-          errorFlag = true;
+        }
+        finally {
+          finished = true;
         }
       }
-      return !errorFlag;
+      return finished;
     };
   }
 
@@ -111,7 +113,7 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
 
   @Override
   public void close() throws IOException {
-    if (!errorFlag) {
+    if (!finished) {
       Objects.requireNonNull(csvPrinter).close(true);
       Files.move(Objects.requireNonNull(tempFile), out, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
     }

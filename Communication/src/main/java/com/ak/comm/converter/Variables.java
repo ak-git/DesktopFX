@@ -87,10 +87,6 @@ public enum Variables {
     }
   }
 
-  public static <E extends Enum<E> & Variable<E>> String toName(@Nonnull E variable) {
-    return String.join(", ", variable.name(), variable.getUnit().toString());
-  }
-
   private static String fixUnit(@Nonnull Unit<?> unit) {
     var s = unit.toString();
     if (s.startsWith(M_PAR)) {

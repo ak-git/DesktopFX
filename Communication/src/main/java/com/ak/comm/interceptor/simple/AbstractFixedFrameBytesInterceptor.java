@@ -2,7 +2,6 @@ package com.ak.comm.interceptor.simple;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -25,6 +24,7 @@ public abstract class AbstractFixedFrameBytesInterceptor extends AbstractBytesIn
     buffer = new byte[frameLength];
   }
 
+  @Nonnull
   @Override
   protected final Collection<BufferFrame> innerProcessIn(@Nonnull ByteBuffer src) {
     Collection<BufferFrame> responses = new LinkedList<>();
@@ -36,7 +36,7 @@ public abstract class AbstractFixedFrameBytesInterceptor extends AbstractBytesIn
       }
       else if (check(buffer, in)) {
         logSkippedBytes(true);
-        responses.add(new BufferFrame(Arrays.copyOf(buffer, buffer.length), ByteOrder.LITTLE_ENDIAN));
+        responses.add(new BufferFrame(buffer.clone(), ByteOrder.LITTLE_ENDIAN));
         position = 0;
         buffer[position] = in;
       }

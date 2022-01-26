@@ -10,6 +10,8 @@ import java.util.logging.LogRecord;
 
 import javax.annotation.Nonnull;
 
+import com.ak.util.Clean;
+import com.ak.util.Extension;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
@@ -21,14 +23,13 @@ public class LocalFileHandlerTest {
   private final Path logPath;
 
   public LocalFileHandlerTest() throws IOException {
-    logPath = new LogPathBuilder().addPath(LocalFileHandler.class.getSimpleName()).addPath("testSubDir").
-        build().getPath().getParent();
+    logPath = new LogPathBuilder(Extension.NONE, LocalFileHandler.class).addPath("testSubDir").build().getPath().getParent();
   }
 
   @BeforeSuite
   @AfterSuite
-  public void setUp() throws Exception {
-    delete(logPath);
+  public void setUp() {
+    Clean.clean(logPath);
   }
 
   @Test
@@ -48,19 +49,5 @@ public class LocalFileHandlerTest {
       }
       Assert.assertEquals(count, 1, "Must be the only one .log file in " + logPath);
     }
-  }
-
-  static void delete(@Nonnull Path root) throws Exception {
-    try (DirectoryStream<Path> ds = Files.newDirectoryStream(root)) {
-      for (Path file : ds) {
-        if (Files.isDirectory(file)) {
-          delete(file);
-        }
-        else {
-          Files.delete(file);
-        }
-      }
-    }
-    Files.delete(root);
   }
 }

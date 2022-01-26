@@ -10,10 +10,10 @@ public enum OutputBuilders {
       return new OutputBuilder(Extension.NONE).fileName(fileName).build();
     }
   },
-  CSV {
+  NONE_WITH_DATE {
     @Override
     public LocalIO build(String fileName) {
-      return new OutputBuilder(Extension.CSV).fileName(fileName).build();
+      return new OutputBuilder(Extension.NONE).addPathWithDate().fileName(fileName).build();
     }
   };
 

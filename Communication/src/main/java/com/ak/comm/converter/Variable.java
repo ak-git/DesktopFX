@@ -6,6 +6,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.measure.Unit;
 
 import com.ak.digitalfilter.DigitalFilter;
@@ -38,7 +39,7 @@ public interface Variable<E extends Enum<E> & Variable<E>> {
     return tryFindSame(Variable::options, Option::defaultOptions);
   }
 
-  default int indexBy(Option option) {
+  default int indexBy(@Nonnull Option option) {
     if (options().contains(option)) {
       return EnumSet.allOf(getDeclaringClass()).stream().filter(e -> e.options().contains(option)).mapToInt(Enum::ordinal).sorted()
           .reduce(-1, (acc, now) -> now > ordinal() ? acc : acc + 1);
@@ -54,7 +55,8 @@ public interface Variable<E extends Enum<E> & Variable<E>> {
 
   Class<E> getDeclaringClass();
 
-  default <T> T tryFindSame(@Nonnull Function<E, T> function, @Nonnull Supplier<T> orElse) {
+  @ParametersAreNonnullByDefault
+  default <T> T tryFindSame(Function<E, T> function, Supplier<T> orElse) {
     var s = Strings.numberSuffix(name());
     if (s.isEmpty() || Integer.parseInt(s) == 1) {
       return orElse.get();

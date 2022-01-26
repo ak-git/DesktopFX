@@ -51,7 +51,7 @@ public class FxApplication extends Application implements ViewController {
     stage.setScene(new Scene(root, 1024, 768));
     stage.setTitle(resourceBundle.getString(KEY_APPLICATION_TITLE));
     stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
-    stage.getScene().setOnZoom(this::zoom);
+    stage.getScene().setOnZoomFinished(this::zoom);
     stage.getScene().setOnScroll(this::scroll);
 
     addEventHandler(stage, () ->
@@ -68,7 +68,6 @@ public class FxApplication extends Application implements ViewController {
     addEventHandler(stage, this::escape, KeyCode.ESCAPE);
 
     Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass(), Strings.EMPTY);
-    stageStorage.update(stage);
     stage.setOnCloseRequest(event -> stageStorage.save(stage));
     stage.getScene().addPostLayoutPulseListener(new Runnable() {
       @Override

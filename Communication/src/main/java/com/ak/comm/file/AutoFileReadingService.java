@@ -3,10 +3,13 @@ package com.ak.comm.file;
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.ByteBuffer;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,13 +53,19 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
   public boolean accept(@Nonnull File file) {
     if (file.isFile() && Extension.BIN.is(file.getName())) {
       refresh(false);
-      FileReadingService<T, R, V> source = new FileReadingService<>(file.toPath(),
-          interceptorProvider.get(), converterProvider.get()
-      );
-      readable = source;
-      if (subscriber != null) {
-        service.submit(() -> source.subscribe(subscriber));
-      }
+      CompletableFuture
+          .supplyAsync(() -> new FileReadingService<>(file.toPath(), interceptorProvider.get(), converterProvider.get()))
+          .whenComplete((source, throwable) -> {
+            if (throwable == null) {
+              readable = source;
+              if (subscriber != null) {
+                service.submit(() -> source.subscribe(subscriber));
+              }
+            }
+            else {
+              Logger.getLogger(FileReadingService.class.getName()).log(Level.WARNING, file.getName(), throwable);
+            }
+          }).join();
       return true;
     }
     else {

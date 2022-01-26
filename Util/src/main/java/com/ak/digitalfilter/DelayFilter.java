@@ -45,7 +45,7 @@ final class DelayFilter extends AbstractDigitalFilter {
   public void accept(@Nonnull int... values) {
     bufferIndex = (++bufferIndex) % buffer.length;
     if (buffer[bufferIndex].length == 0) {
-      Arrays.fill(buffer, Arrays.copyOf(values, values.length));
+      Arrays.fill(buffer, values.clone());
     }
     filter.accept(buffer[bufferIndex]);
     buffer[bufferIndex] = values;
