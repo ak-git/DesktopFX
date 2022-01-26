@@ -101,8 +101,8 @@ public class Inverse3Test {
 
   @Nonnull
   public static ToDoubleBiFunction<TetrapolarSystem, double[]> logDiffApparentPredicted(
-      @Nonnull Collection<TetrapolarSystem> measurements) {
-    double baseL = getBaseL(measurements);
+      @Nonnull Collection<TetrapolarSystem> systems) {
+    double baseL = getBaseL(systems);
     return (s, kw) -> log(
         Math.abs(
             Apparent3Rho.newDerivativeApparentByPhi2Rho(s.relativeSystem())
