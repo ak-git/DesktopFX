@@ -6,6 +6,8 @@ import java.util.DoubleSummaryStatistics;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
@@ -73,24 +75,23 @@ public class Inverse2Test {
         {
             List.of(
                 TetrapolarDerivativeResistance.milli().dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0),
-                TetrapolarDerivativeResistance.milli().dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 - 0.5),
-                TetrapolarDerivativeResistance.milli().dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 - 0.5 * 2)
+                TetrapolarDerivativeResistance.milli().dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 - 0.4),
+                TetrapolarDerivativeResistance.milli().dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 - 1.0)
             ),
             Metrics.fromMilli(-1.0)
         },
         {
             List.of(
                 TetrapolarDerivativeResistance.milli().dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0),
-                TetrapolarDerivativeResistance.milli().dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 + 0.1),
-                TetrapolarDerivativeResistance.milli().dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 + 0.1 * 2)
+                TetrapolarDerivativeResistance.milli().dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 + 0.4),
+                TetrapolarDerivativeResistance.milli().dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 + 1.0)
             ),
             Metrics.fromMilli(1.0)
         },
     };
   }
 
-
-  @Test(dataProvider = "derivative-resistance-with-unknown-indent", enabled = false)
+  @Test(dataProvider = "derivative-resistance-with-unknown-indent", invocationCount = 2)
   public void test(@Nonnull Collection<Collection<? extends DerivativeResistivity>> ms, double maxIndent) {
     List<DynamicInverse> dynamicInverses = ms.stream().map(DynamicInverse::new).toList();
 
@@ -100,22 +101,43 @@ public class Inverse2Test {
     }
 
     double L = statisticsL.getAverage();
+    double[] lB = DoubleStream
+        .concat(
+            DoubleStream.of(-1.0, 0.0), DoubleStream.generate(() -> Math.min(maxIndent, 0.0)).limit(dynamicInverses.size() - 1)
+        )
+        .toArray();
+
+    double[] uB = DoubleStream
+        .concat(
+            DoubleStream.of(1.0, 1.0), DoubleStream.generate(() -> Math.max(maxIndent, 0.0)).limit(dynamicInverses.size() - 1)
+        )
+        .toArray();
+
+    double[] initialSteps = IntStream.range(0, Math.max(lB.length, uB.length))
+        .mapToDouble(i ->
+            Math.abs(uB[i] - lB[i]) / 100.0
+        ).toArray();
+
     PointValuePair kwOptimal = Simplex.optimizeAll(
         kw -> {
           Iterator<double[]> iterator = IntStream.range(0, dynamicInverses.size()).mapToObj(i -> {
-            double[] kwIndent = kw.clone();
-            kwIndent[1] += kwIndent[2] * i / L;
+            double[] kwIndent = Arrays.copyOf(kw, 2);
+            if (i > 0) {
+              kwIndent[1] += kw[kwIndent.length + (i - 1)] / L;
+            }
             return kwIndent;
           }).iterator();
 
           return dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(iterator.next()))
               .reduce(StrictMath::hypot).orElseThrow();
         },
-        new SimpleBounds(new double[] {-1.0, 0.0, Math.min(maxIndent, 0.0)}, new double[] {1.0, 1.0, Math.max(maxIndent, 0.0)}),
-        new double[] {0.01, 0.01, Math.abs(maxIndent) / 100.0}
+        new SimpleBounds(lB, uB), initialSteps
     );
-    Logger.getAnonymousLogger().info(() -> "%.6f; h = %.1f mm; indent = %.1f mm"
-        .formatted(kwOptimal.getValue(), Metrics.toMilli(kwOptimal.getPoint()[1] * L), Metrics.toMilli(kwOptimal.getPoint()[2]))
+    Logger.getAnonymousLogger().info(() -> "%.6f; h = %.1f mm; indent = %s mm"
+        .formatted(kwOptimal.getValue(), Metrics.toMilli(kwOptimal.getPoint()[1] * L),
+            Arrays.stream(Arrays.copyOfRange(kwOptimal.getPoint(), 2, kwOptimal.getPoint().length)).map(Metrics::toMilli)
+                .mapToObj("%.2f"::formatted).collect(Collectors.joining("; ", "[", "]"))
+        )
     );
   }
 }
