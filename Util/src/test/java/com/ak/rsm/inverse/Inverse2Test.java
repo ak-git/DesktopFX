@@ -88,10 +88,30 @@ public class Inverse2Test {
             ),
             Metrics.fromMilli(1.0)
         },
+        {
+            List.of(
+                TetrapolarDerivativeResistance.milli().dh(Double.NaN).system2(6.0)
+                    .rho(
+                        4.36484833090749, 4.49332876699692,
+                        -0.168318891626108, -0.182683171577791
+                    ),
+                TetrapolarDerivativeResistance.milli().dh(Double.NaN).system2(6.0)
+                    .rho(
+                        4.37027448440132, 4.4985260054503,
+                        -0.196894129863152, -0.243242343614173
+                    ),
+                TetrapolarDerivativeResistance.milli().dh(Double.NaN).system2(6.0)
+                    .rho(
+                        4.37794989890251, 4.50886362514046,
+                        -0.224049353755586, -0.310504288925638
+                    )
+            ),
+            Metrics.fromMilli(-10.0)
+        },
     };
   }
 
-  @Test(dataProvider = "derivative-resistance-with-unknown-indent", invocationCount = 2)
+  @Test(dataProvider = "derivative-resistance-with-unknown-indent", invocationCount = 3, enabled = false)
   public void test(@Nonnull Collection<Collection<? extends DerivativeResistivity>> ms, double maxIndent) {
     List<DynamicInverse> dynamicInverses = ms.stream().map(DynamicInverse::new).toList();
 
@@ -133,8 +153,8 @@ public class Inverse2Test {
         },
         new SimpleBounds(lB, uB), initialSteps
     );
-    Logger.getAnonymousLogger().info(() -> "%.6f; h = %.1f mm; indent = %s mm"
-        .formatted(kwOptimal.getValue(), Metrics.toMilli(kwOptimal.getPoint()[1] * L),
+    Logger.getAnonymousLogger().info(() -> "%.6f; k = %.2f; h = %.1f mm; indent = %s mm"
+        .formatted(kwOptimal.getValue(), kwOptimal.getPoint()[0], Metrics.toMilli(kwOptimal.getPoint()[1] * L),
             Arrays.stream(Arrays.copyOfRange(kwOptimal.getPoint(), 2, kwOptimal.getPoint().length)).map(Metrics::toMilli)
                 .mapToObj("%.2f"::formatted).collect(Collectors.joining("; ", "[", "]"))
         )
