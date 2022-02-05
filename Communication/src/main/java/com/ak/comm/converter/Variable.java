@@ -18,7 +18,7 @@ public interface Variable<E extends Enum<E> & Variable<E>> {
   enum Option {
     VISIBLE, TEXT_VALUE_BANNER, INVERSE, FORCE_ZERO_IN_RANGE;
 
-    static Set<Option> defaultOptions() {
+    public static Set<Option> defaultOptions() {
       return EnumSet.of(VISIBLE);
     }
 

@@ -22,7 +22,6 @@ import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
 import static com.ak.rsm.measurement.Measurements.getRho1;
-import static com.ak.rsm.measurement.Measurements.toSystems;
 
 abstract class AbstractMediumLayers implements MediumLayers {
   @Nonnull
@@ -41,7 +40,7 @@ abstract class AbstractMediumLayers implements MediumLayers {
     this.kw = kw;
     rho = getRho1(measurements, kw);
     this.measurements = Collections.unmodifiableCollection(measurements);
-    baseL = Measurements.getBaseL(toSystems(measurements));
+    baseL = Measurements.getBaseL(measurements);
     predictions = measurements.stream()
         .map(m ->
             m.toPrediction(
