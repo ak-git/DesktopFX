@@ -7,11 +7,11 @@ plugins {
     id 'jacoco'
 
     id "application"
-    id 'org.openjfx.javafxplugin' version '0.0.10'
+    id 'org.openjfx.javafxplugin' version '0.0.12'
 
-    id 'org.springframework.boot' version '2.6.2'
+    id 'org.springframework.boot' version '2.6.3'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id "com.github.spotbugs" version "5.0.4"
+    id "com.github.spotbugs" version "5.0.6"
 }
 
 spotbugs {
@@ -50,19 +50,19 @@ ext {
     commons_math3 = 'org.apache.commons:commons-math3:3.6.1'
     commons_csv = 'org.apache.commons:commons-csv:1.9.0'
     jSerialComm = 'com.fazecast:jSerialComm:[2.7.0,3.0.0)'
-    jenetics = 'io.jenetics:jenetics:6.3.0'
+    jenetics = 'io.jenetics:jenetics:7.0.0'
     javaVersion = JavaVersion.VERSION_17
 }
 
 wrapper {
     description 'Setup the Gradle wrapper'
-    gradleVersion = "7.3.3"
+    gradleVersion = "7.4"
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '2022.02.11'
+    version = '2022.02.23'
     apply plugin: 'idea'
     idea {
         module {
