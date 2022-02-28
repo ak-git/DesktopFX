@@ -5,6 +5,8 @@ spring:
   profiles:
     active: loopback
 logging:
+  file:
+    name: spring.log
   level:
     org:
       springframework: info
