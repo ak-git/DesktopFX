@@ -21,8 +21,6 @@ import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.medium.Layer2Medium;
 import com.ak.rsm.medium.MediumLayers;
 import com.ak.rsm.relative.Layer2RelativeMedium;
-import com.ak.rsm.resistance.DerivativeResistivity;
-import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
 import com.ak.util.Metrics;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
@@ -36,9 +34,10 @@ public class Inverse2Test {
         {
             List.of(
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 - 0.5),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 - 1.0)
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(6.0).rho1(4.0).rho2(1.0).h(2.0 - 0.5),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(6.0).rho1(4.0).rho2(1.0).h(2.0 - 1.0)
             ),
+            0.2,
             new double[] {0.0, Metrics.fromMilli(-0.5), Metrics.fromMilli(-1.0)}
         },
     };
@@ -47,34 +46,70 @@ public class Inverse2Test {
 
   @Test(dataProvider = "derivative-resistance-with-fixed-indent", enabled = false)
   @ParametersAreNonnullByDefault
-  public void test(Collection<Collection<? extends DerivativeMeasurement>> ms, double[] indentations) {
+  public void test(Collection<Collection<? extends DerivativeMeasurement>> ms, double maxKChanges, double[] indentations) {
     List<DynamicInverse> dynamicInverses = ms.stream().map(DynamicInverse::new).toList();
 
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
     if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
       throw new IllegalStateException(statisticsL.toString());
     }
-
     double L = statisticsL.getAverage();
+
+    double[] lB = DoubleStream
+        .concat(
+            DoubleStream.of(-1.0, 0.0),
+            DoubleStream.generate(() -> Math.min(maxKChanges, 0.0)).limit(dynamicInverses.size() - 1)
+        )
+        .toArray();
+
+    double[] uB = DoubleStream
+        .concat(
+            DoubleStream.of(1.0, 1.0),
+            DoubleStream.generate(() -> Math.max(maxKChanges, 0.0)).limit(dynamicInverses.size() - 1)
+        )
+        .toArray();
+
+    double[] initialSteps = IntStream.range(0, Math.max(lB.length, uB.length))
+        .mapToDouble(i ->
+            Math.abs(uB[i] - lB[i]) / 100.0
+        )
+        .toArray();
+
     PointValuePair kwOptimal = Simplex.optimizeAll(
         kw -> {
-          Iterator<double[]> iterator = Arrays.stream(indentations).mapToObj(x -> {
-            double[] kwIndent = kw.clone();
-            kwIndent[1] += x / L;
+          Iterator<double[]> iterator = IntStream.range(0, dynamicInverses.size()).mapToObj(i -> {
+            double[] kwIndent = Arrays.copyOf(kw, 2);
+            double[] changes = Arrays.copyOfRange(kw, kwIndent.length, kw.length);
+            for (int j = 0; j <= i - 1; j++) {
+              kwIndent[0] += changes[j];
+            }
+            kwIndent[1] += indentations[i] / L;
             return kwIndent;
           }).iterator();
 
           return dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(iterator.next()))
               .reduce(StrictMath::hypot).orElseThrow();
         },
-        new SimpleBounds(new double[] {-1.0, 0}, new double[] {1.0, 1.0}),
-        new double[] {0.01, 0.01}
+        new SimpleBounds(lB, uB), initialSteps
     );
+
     List<Layer2Medium> mediumList = ms.stream().map(dm -> new Layer2Medium(dm, new Layer2RelativeMedium(kwOptimal.getPoint()))).toList();
     var rho1 = mediumList.stream().map(MediumLayers::rho1).reduce(ValuePair::mergeWith).orElseThrow();
     var rho2 = mediumList.stream().map(MediumLayers::rho2).reduce(ValuePair::mergeWith).orElseThrow();
     var h = mediumList.stream().map(MediumLayers::h1).reduce(ValuePair::mergeWith).orElseThrow();
     Logger.getAnonymousLogger().info(() -> "%.6f; %s; %s; %s".formatted(kwOptimal.getValue(), rho1, rho2, h));
+    Logger.getAnonymousLogger().info(() -> {
+          double[] changes = Arrays.copyOfRange(kwOptimal.getPoint(), 2, kwOptimal.getPoint().length);
+          String kChanges = Arrays.stream(changes)
+              .mapToObj("%.2f"::formatted).collect(Collectors.joining("; ", "[", "]"));
+          String hIndent = Arrays.stream(indentations).map(Metrics::toMilli)
+              .mapToObj("%.2f"::formatted).collect(Collectors.joining("; ", "[", "]"));
+          return "%.6f; k = %.2f; h = %.1f mm; kChanges = %s; indent = %s mm%n"
+              .formatted(kwOptimal.getValue(), kwOptimal.getPoint()[0], Metrics.toMilli(kwOptimal.getPoint()[1] * L),
+                  kChanges, hIndent
+              );
+        }
+    );
   }
 
   @DataProvider(name = "derivative-resistance-with-unknown-indent")
@@ -82,76 +117,62 @@ public class Inverse2Test {
     return new Object[][] {
         {
             List.of(
-                TetrapolarDerivativeResistance.milli().dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0),
-                TetrapolarDerivativeResistance.milli().dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 - 0.4),
-                TetrapolarDerivativeResistance.milli().dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 - 1.0)
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(6.0).rho1(4.0).rho2(1.0).h(2.0 - 0.4),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(6.0).rho1(4.0).rho2(1.0).h(2.0 - 1.0)
             ),
+            0.1,
             Metrics.fromMilli(-1.0)
-        },
-        {
-            List.of(
-                TetrapolarDerivativeResistance.milli().dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0),
-                TetrapolarDerivativeResistance.milli().dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 + 0.4),
-                TetrapolarDerivativeResistance.milli().dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 + 1.0)
-            ),
-            Metrics.fromMilli(1.0)
-        },
-        {
-            List.of(
-                TetrapolarDerivativeResistance.milli().dh(Double.NaN).system2(6.0)
-                    .rho(
-                        4.36484833090749, 4.49332876699692,
-                        -0.168318891626108, -0.182683171577791
-                    ),
-                TetrapolarDerivativeResistance.milli().dh(Double.NaN).system2(6.0)
-                    .rho(
-                        4.37027448440132, 4.4985260054503,
-                        -0.196894129863152, -0.243242343614173
-                    ),
-                TetrapolarDerivativeResistance.milli().dh(Double.NaN).system2(6.0)
-                    .rho(
-                        4.37794989890251, 4.50886362514046,
-                        -0.224049353755586, -0.310504288925638
-                    )
-            ),
-            Metrics.fromMilli(-10.0)
         },
     };
   }
 
-  @Test(dataProvider = "derivative-resistance-with-unknown-indent", invocationCount = 3, enabled = false)
-  public void test2(@Nonnull Collection<Collection<? extends DerivativeResistivity>> ms, double maxIndent) {
+  @Test(dataProvider = "derivative-resistance-with-unknown-indent", enabled = false)
+  public void test2(@Nonnull Collection<Collection<? extends DerivativeMeasurement>> ms, double maxKChanges, double maxIndent) {
     List<DynamicInverse> dynamicInverses = ms.stream().map(DynamicInverse::new).toList();
 
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
     if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
       throw new IllegalStateException(statisticsL.toString());
     }
-
     double L = statisticsL.getAverage();
+
     double[] lB = DoubleStream
         .concat(
-            DoubleStream.of(-1.0, 0.0), DoubleStream.generate(() -> Math.min(maxIndent, 0.0)).limit(dynamicInverses.size() - 1)
+            DoubleStream.of(-1.0, 0.0),
+            DoubleStream.concat(
+                DoubleStream.generate(() -> Math.min(maxKChanges, 0.0)).limit(dynamicInverses.size() - 1),
+                DoubleStream.generate(() -> Math.min(maxIndent, 0.0)).limit(dynamicInverses.size() - 1)
+            )
         )
         .toArray();
 
     double[] uB = DoubleStream
         .concat(
-            DoubleStream.of(1.0, 1.0), DoubleStream.generate(() -> Math.max(maxIndent, 0.0)).limit(dynamicInverses.size() - 1)
+            DoubleStream.of(1.0, 1.0),
+            DoubleStream.concat(
+                DoubleStream.generate(() -> Math.max(maxKChanges, 0.0)).limit(dynamicInverses.size() - 1),
+                DoubleStream.generate(() -> Math.max(maxIndent, 0.0)).limit(dynamicInverses.size() - 1)
+            )
         )
         .toArray();
 
     double[] initialSteps = IntStream.range(0, Math.max(lB.length, uB.length))
         .mapToDouble(i ->
             Math.abs(uB[i] - lB[i]) / 100.0
-        ).toArray();
+        )
+        .toArray();
 
     PointValuePair kwOptimal = Simplex.optimizeAll(
         kw -> {
           Iterator<double[]> iterator = IntStream.range(0, dynamicInverses.size()).mapToObj(i -> {
             double[] kwIndent = Arrays.copyOf(kw, 2);
-            if (i > 0) {
-              kwIndent[1] += kw[kwIndent.length + (i - 1)] / L;
+            double[] changes = Arrays.copyOfRange(kw, kwIndent.length, kw.length);
+            for (int j = 0; j <= i - 1; j++) {
+              kwIndent[0] += changes[j];
+            }
+            for (int j = 0; j <= i - 1; j++) {
+              kwIndent[1] += changes[changes.length / 2 + j] / L;
             }
             return kwIndent;
           }).iterator();
@@ -161,11 +182,25 @@ public class Inverse2Test {
         },
         new SimpleBounds(lB, uB), initialSteps
     );
-    Logger.getAnonymousLogger().info(() -> "%.6f; k = %.2f; h = %.1f mm; indent = %s mm"
-        .formatted(kwOptimal.getValue(), kwOptimal.getPoint()[0], Metrics.toMilli(kwOptimal.getPoint()[1] * L),
-            Arrays.stream(Arrays.copyOfRange(kwOptimal.getPoint(), 2, kwOptimal.getPoint().length)).map(Metrics::toMilli)
-                .mapToObj("%.2f"::formatted).collect(Collectors.joining("; ", "[", "]"))
-        )
+
+    List<Layer2Medium> mediumList = ms.stream().map(dm -> new Layer2Medium(dm, new Layer2RelativeMedium(kwOptimal.getPoint()))).toList();
+    var rho1 = mediumList.stream().map(MediumLayers::rho1).reduce(ValuePair::mergeWith).orElseThrow();
+    var rho2 = mediumList.stream().map(MediumLayers::rho2).reduce(ValuePair::mergeWith).orElseThrow();
+    var h = mediumList.stream().map(MediumLayers::h1).reduce(ValuePair::mergeWith).orElseThrow();
+    Logger.getAnonymousLogger().info(() -> "%.6f; %s; %s; %s".formatted(kwOptimal.getValue(), rho1, rho2, h));
+
+    Logger.getAnonymousLogger().info(() -> {
+          double[] changes = Arrays.copyOfRange(kwOptimal.getPoint(), 2, kwOptimal.getPoint().length);
+          String kChanges = Arrays.stream(changes).limit(changes.length / 2)
+              .mapToObj("%.2f"::formatted).collect(Collectors.joining("; ", "[", "]"));
+          String hIndent = Arrays.stream(changes).skip(changes.length / 2).map(Metrics::toMilli)
+              .mapToObj("%.2f"::formatted).collect(Collectors.joining("; ", "[", "]"));
+
+          return "%.6f; k = %.2f; h = %.1f mm; kChanges = %s; indent = %s mm%n"
+              .formatted(kwOptimal.getValue(), kwOptimal.getPoint()[0], Metrics.toMilli(kwOptimal.getPoint()[1] * L),
+                  kChanges, hIndent
+              );
+        }
     );
   }
 }
