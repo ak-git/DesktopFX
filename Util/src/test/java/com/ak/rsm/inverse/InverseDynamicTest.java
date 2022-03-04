@@ -76,11 +76,12 @@ public class InverseDynamicTest {
   @Test(dataProvider = "relativeDynamicLayer2")
   @ParametersAreNonnullByDefault
   public void testInverseRelativeDynamicLayer2Theory(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
-    var medium = InverseDynamic.INSTANCE.inverseRelative(measurements);
+    var medium = new DynamicRelative(measurements).get();
     Assert.assertEquals(medium.k12(), expected.k12(), expected.k12AbsError(), medium.toString());
     Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), expected.k12AbsError() * 0.1, medium.toString());
     Assert.assertEquals(medium.hToL(), expected.hToL(), expected.hToLAbsError(), medium.toString());
     Assert.assertEquals(medium.hToLAbsError(), expected.hToLAbsError(), expected.hToLAbsError() * 0.1, medium.toString());
+    Assert.assertEquals(medium, new DynamicAbsolute(measurements).apply(medium), medium.toString());
     LOGGER.info(medium::toString);
   }
 
@@ -104,7 +105,7 @@ public class InverseDynamicTest {
   @Test(dataProvider = "absoluteDynamicLayer2")
   @ParametersAreNonnullByDefault
   public void testInverseAbsoluteDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, ValuePair[] expected) {
-    var medium = InverseDynamic.INSTANCE.inverse(measurements);
+    var medium = new DynamicAbsolute(measurements).get();
     Assert.assertEquals(medium.rho1(), expected[0], medium.toString());
     Assert.assertEquals(medium.rho2(), expected[1], medium.toString());
     Assert.assertEquals(medium.h1(), expected[2], medium.toString());
@@ -241,7 +242,7 @@ public class InverseDynamicTest {
   @Test(dataProvider = "allDynamicParameters2")
   @ParametersAreNonnullByDefault
   public void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, double[] expected) {
-    var medium = InverseDynamic.INSTANCE.inverse(measurements);
+    var medium = new DynamicAbsolute(measurements).get();
     Assert.assertEquals(medium.rho1().getValue(), expected[0], 0.1, medium.toString());
     Assert.assertEquals(medium.rho2().getValue() > 1000 ? Double.POSITIVE_INFINITY : medium.rho2().getValue(), expected[1], 0.1, medium.toString());
     Assert.assertEquals(Metrics.toMilli(medium.h1().getValue()), Metrics.toMilli(expected[2]), 0.01, medium.toString());
@@ -261,28 +262,31 @@ public class InverseDynamicTest {
     return paths;
   }
 
-  @Test(enabled = false, dataProvider = "cvsFiles")
+  @Test(dataProvider = "cvsFiles", enabled = false)
   public void testInverseDynamicLayerFileResistivity(@Nonnull String fileName) {
     String T = "TIME";
     String POSITION = "POSITION";
-    String RHO_S1 = "RHO_S1";
-    String RHO_S1_DIFF = "RHO_S1_DIFF";
-    String RHO_S2 = "RHO_S2";
-    String RHO_S2_DIFF = "RHO_S2_DIFF";
+    String RHO_S1 = "A1";
+    String RHO_S1_DIFF = "DA1";
+    String RHO_S2 = "A2";
+    String RHO_S2_DIFF = "DA2";
 
     String RHO_1 = "rho1";
+    String RHO_1_ABS_ERROR = "rho1AbsError";
     String RHO_2 = "rho2";
+    String RHO_2_ABS_ERROR = "rho2AbsError";
     String H = "h";
+    String H_ABS_ERROR = "hAbsError";
     String RMS_BASE = "RMS_BASE";
     String RMS_DIFF = "RMS_DIFF";
 
     String[] mm = fileName.split(Strings.SPACE);
 
     Path path = Paths.get(Extension.CSV.attachTo(fileName));
-    String[] HEADERS = {T, POSITION, RHO_1, RHO_2, H, RMS_BASE, RMS_DIFF};
+    String[] HEADERS = {T, POSITION, RHO_1, RHO_1_ABS_ERROR, RHO_2, RHO_2_ABS_ERROR, H, H_ABS_ERROR, RMS_BASE, RMS_DIFF};
     try (CSVParser parser = CSVParser.parse(
         new BufferedReader(new FileReader(path.toFile())),
-        CSVFormat.Builder.create().setHeader(T, POSITION, RHO_S1, RHO_S1_DIFF, RHO_S2, RHO_S2_DIFF).build());
+        CSVFormat.Builder.create().setHeader(T, POSITION, RHO_S1, RHO_S2, RHO_S1_DIFF, RHO_S2_DIFF).build());
          CSVLineFileCollector collector = new CSVLineFileCollector(
              Paths.get(Extension.CSV.attachTo("%s inverse".formatted(Extension.CSV.clean(fileName)))),
              HEADERS
@@ -291,20 +295,23 @@ public class InverseDynamicTest {
       Assert.assertTrue(StreamSupport.stream(parser.spliterator(), false)
           .filter(r -> r.getRecordNumber() > 1)
           .<Map<String, Object>>mapMulti((r, consumer) -> {
-            var medium = InverseDynamic.INSTANCE.inverse(TetrapolarDerivativeMeasurement.milli(0.1)
+            var medium = new DynamicAbsolute(TetrapolarDerivativeMeasurement.milli(0.1)
                 .dh(Double.NaN).system2(Integer.parseInt(mm[mm.length - 2]))
                 .rho(
                     Double.parseDouble(r.get(RHO_S1)), Double.parseDouble(r.get(RHO_S2)),
                     Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))
-                ));
+                )).get();
             LOGGER.info(() -> "%.2f sec; %s mm; %s".formatted(Double.parseDouble(r.get(T)), r.get(POSITION), medium));
             consumer.accept(
                 Map.ofEntries(
                     Map.entry(T, r.get(T)),
                     Map.entry(POSITION, r.get(POSITION)),
                     Map.entry(RHO_1, medium.rho1().getValue()),
+                    Map.entry(RHO_1_ABS_ERROR, medium.rho1().getAbsError()),
                     Map.entry(RHO_2, medium.rho2().getValue()),
+                    Map.entry(RHO_2_ABS_ERROR, medium.rho2().getAbsError()),
                     Map.entry(H, Metrics.toMilli(medium.h1().getValue())),
+                    Map.entry(H_ABS_ERROR, Metrics.toMilli(medium.h1().getAbsError())),
                     Map.entry(RMS_BASE, medium.getRMS()[0]),
                     Map.entry(RMS_DIFF, medium.getRMS()[1])
                 )

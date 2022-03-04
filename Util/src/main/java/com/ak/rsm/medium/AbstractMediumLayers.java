@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -21,13 +22,14 @@ import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
 import static com.ak.rsm.measurement.Measurements.getRho1;
-import static com.ak.rsm.measurement.Measurements.toSystems;
 
 abstract class AbstractMediumLayers implements MediumLayers {
   @Nonnull
   private final RelativeMediumLayers kw;
   @Nonnull
   private final ValuePair rho;
+  @Nonnegative
+  private final double baseL;
   @Nonnull
   private final Collection<Measurement> measurements;
   @Nonnull
@@ -38,11 +40,11 @@ abstract class AbstractMediumLayers implements MediumLayers {
     this.kw = kw;
     rho = getRho1(measurements, kw);
     this.measurements = Collections.unmodifiableCollection(measurements);
-    double baseL = Measurements.getBaseL(toSystems(measurements));
+    baseL = Measurements.getBaseL(measurements);
     predictions = measurements.stream()
         .map(m ->
             m.toPrediction(
-                new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / m.inexact().system().lCC()),
+                new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / m.system().lCC()),
                 rho.getValue()
             )
         )
@@ -52,6 +54,16 @@ abstract class AbstractMediumLayers implements MediumLayers {
   @Override
   public final ValuePair rho() {
     return rho;
+  }
+
+  @Nonnull
+  final RelativeMediumLayers kw() {
+    return kw;
+  }
+
+  @Nonnegative
+  final double baseL() {
+    return baseL;
   }
 
   @Override

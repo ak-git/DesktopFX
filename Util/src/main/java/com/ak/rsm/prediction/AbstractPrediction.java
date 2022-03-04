@@ -15,7 +15,7 @@ public abstract class AbstractPrediction implements Prediction {
 
   protected AbstractPrediction(@Nonnegative double predicted, @Nonnull double[] inequalityL2) {
     this.predicted = predicted;
-    this.inequalityL2 = Arrays.copyOf(inequalityL2, inequalityL2.length);
+    this.inequalityL2 = inequalityL2.clone();
   }
 
   @Override
@@ -25,7 +25,7 @@ public abstract class AbstractPrediction implements Prediction {
 
   @Override
   public final double[] getInequalityL2() {
-    return Arrays.copyOf(inequalityL2, inequalityL2.length);
+    return inequalityL2.clone();
   }
 
   @Override

@@ -41,7 +41,7 @@ public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<
     String fileName = path.toFile().getPath();
     Path out = Paths.get(Extension.CSV.attachTo(Extension.BIN.clean(fileName)));
     if (Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS) &&
-        fileName.endsWith(Extension.BIN.attachTo(bytesInterceptor.name())) &&
+        fileName.lastIndexOf(bytesInterceptor.name()) != -1 &&
         Files.notExists(out)) {
       try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
            var collector = new CSVLineFileCollector(out,

@@ -113,7 +113,10 @@ public final class ValuePair {
   public ValuePair mergeWith(@Nonnull ValuePair that) {
     var sigma1Q = StrictMath.pow(absError, 2.0);
     var sigma2Q = StrictMath.pow(that.absError, 2.0);
-    double k = sigma2Q / (sigma1Q + sigma2Q);
+    double k = 0.5;
+    if (sigma1Q > 0 && sigma2Q > 0) {
+      k = sigma2Q / (sigma1Q + sigma2Q);
+    }
     double avg = k * value + (1.0 - k) * that.value;
     double sigmaAvg = 1.0 / Math.sqrt((1.0 / sigma1Q + 1.0 / sigma2Q));
     return new ValuePair(name, avg, sigmaAvg);

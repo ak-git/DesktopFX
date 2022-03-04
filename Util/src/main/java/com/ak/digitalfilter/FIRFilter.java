@@ -1,7 +1,5 @@
 package com.ak.digitalfilter;
 
-import java.util.Arrays;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -11,7 +9,7 @@ final class FIRFilter extends AbstractBufferFilter {
 
   FIRFilter(@Nonnull double[] coefficients) {
     super(coefficients.length);
-    this.coefficients = Arrays.copyOf(coefficients, coefficients.length);
+    this.coefficients = coefficients.clone();
   }
 
   @Override
