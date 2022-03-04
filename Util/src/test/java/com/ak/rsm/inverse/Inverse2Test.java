@@ -28,8 +28,55 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class Inverse2Test {
-  @DataProvider(name = "derivative-resistance-with-fixed-indent")
-  public static Object[][] derivativeResistanceWithFixedIndent() {
+  @DataProvider(name = "noChanged")
+  public static Object[][] noChanged() {
+    return new Object[][] {
+        {
+            List.of(
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 - 0.5),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 - 1.0)
+            ),
+            new double[] {0.0, Metrics.fromMilli(-0.5), Metrics.fromMilli(-1.0)}
+        },
+    };
+  }
+
+
+  @Test(dataProvider = "noChanged", enabled = false)
+  @ParametersAreNonnullByDefault
+  public void testNoChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, double[] indentations) {
+    List<DynamicInverse> dynamicInverses = ms.stream().map(DynamicInverse::new).toList();
+
+    DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
+    if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
+      throw new IllegalStateException("L is not equal for all electrode systems %s".formatted(statisticsL));
+    }
+
+    double L = statisticsL.getAverage();
+    PointValuePair kwOptimal = Simplex.optimizeAll(
+        kw -> {
+          Iterator<double[]> iterator = Arrays.stream(indentations).mapToObj(x -> {
+            double[] kwIndent = kw.clone();
+            kwIndent[1] += x / L;
+            return kwIndent;
+          }).iterator();
+
+          return dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(iterator.next()))
+              .reduce(StrictMath::hypot).orElseThrow();
+        },
+        new SimpleBounds(new double[] {-1.0, 0}, new double[] {1.0, 1.0}),
+        new double[] {0.01, 0.01}
+    );
+    List<Layer2Medium> mediumList = ms.stream().map(dm -> new Layer2Medium(dm, new Layer2RelativeMedium(kwOptimal.getPoint()))).toList();
+    var rho1 = mediumList.stream().map(MediumLayers::rho1).reduce(ValuePair::mergeWith).orElseThrow();
+    var rho2 = mediumList.stream().map(MediumLayers::rho2).reduce(ValuePair::mergeWith).orElseThrow();
+    var h = mediumList.stream().map(MediumLayers::h1).reduce(ValuePair::mergeWith).orElseThrow();
+    Logger.getAnonymousLogger().info(() -> "%.6f; %s; %s; %s".formatted(kwOptimal.getValue(), rho1, rho2, h));
+  }
+
+  @DataProvider(name = "kChanged")
+  public static Object[][] kChanged() {
     return new Object[][] {
         {
             List.of(
@@ -44,9 +91,9 @@ public class Inverse2Test {
   }
 
 
-  @Test(dataProvider = "derivative-resistance-with-fixed-indent", enabled = false)
+  @Test(dataProvider = "kChanged", enabled = false)
   @ParametersAreNonnullByDefault
-  public void test(Collection<Collection<? extends DerivativeMeasurement>> ms, double maxKChanges, double[] indentations) {
+  public void testKChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, double maxKChanges, double[] indentations) {
     List<DynamicInverse> dynamicInverses = ms.stream().map(DynamicInverse::new).toList();
 
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
@@ -112,8 +159,8 @@ public class Inverse2Test {
     );
   }
 
-  @DataProvider(name = "derivative-resistance-with-unknown-indent")
-  public static Object[][] derivativeResistanceWithUnknownIndent() {
+  @DataProvider(name = "kAndPhiChanged")
+  public static Object[][] kAndPhiChanged() {
     return new Object[][] {
         {
             List.of(
@@ -127,8 +174,8 @@ public class Inverse2Test {
     };
   }
 
-  @Test(dataProvider = "derivative-resistance-with-unknown-indent", enabled = false)
-  public void test2(@Nonnull Collection<Collection<? extends DerivativeMeasurement>> ms, double maxKChanges, double maxIndent) {
+  @Test(dataProvider = "kAndPhiChanged", enabled = false)
+  public void testKAndPhiChanged(@Nonnull Collection<Collection<? extends DerivativeMeasurement>> ms, double maxKChanges, double maxIndent) {
     List<DynamicInverse> dynamicInverses = ms.stream().map(DynamicInverse::new).toList();
 
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
