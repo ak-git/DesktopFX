@@ -30,18 +30,17 @@ import org.testng.annotations.Test;
 public class Inverse2Test {
   @DataProvider(name = "noChanged")
   public static Object[][] noChanged() {
+    double[] indentationsMilli = {0, -0.5, -1.0};
     return new Object[][] {
         {
-            List.of(
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 - 0.5),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(6.0).rho1(5.0).rho2(1.0).h(2.0 - 1.0)
-            ),
-            new double[] {0.0, Metrics.fromMilli(-0.5), Metrics.fromMilli(-1.0)}
+            Arrays.stream(indentationsMilli).mapToObj(mm ->
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(6.0)
+                    .rho1(9.0).rho2(1.0).h(2.0 - mm)
+            ).toList(),
+            Arrays.stream(indentationsMilli).map(Metrics::fromMilli).toArray()
         },
     };
   }
-
 
   @Test(dataProvider = "noChanged", enabled = false)
   @ParametersAreNonnullByDefault
@@ -54,7 +53,7 @@ public class Inverse2Test {
     }
 
     double L = statisticsL.getAverage();
-    PointValuePair kwOptimal = Simplex.optimizeAll(
+    PointValuePair kwOptimal = Simplex.optimize(
         kw -> {
           Iterator<double[]> iterator = Arrays.stream(indentations).mapToObj(x -> {
             double[] kwIndent = kw.clone();
@@ -122,7 +121,7 @@ public class Inverse2Test {
         )
         .toArray();
 
-    PointValuePair kwOptimal = Simplex.optimizeAll(
+    PointValuePair kwOptimal = Simplex.optimize(
         kw -> {
           Iterator<double[]> iterator = IntStream.range(0, dynamicInverses.size()).mapToObj(i -> {
             double[] kwIndent = Arrays.copyOf(kw, 2);
@@ -210,7 +209,7 @@ public class Inverse2Test {
         )
         .toArray();
 
-    PointValuePair kwOptimal = Simplex.optimizeAll(
+    PointValuePair kwOptimal = Simplex.optimize(
         kw -> {
           Iterator<double[]> iterator = IntStream.range(0, dynamicInverses.size()).mapToObj(i -> {
             double[] kwIndent = Arrays.copyOf(kw, 2);

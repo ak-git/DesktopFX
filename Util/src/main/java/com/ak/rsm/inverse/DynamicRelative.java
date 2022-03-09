@@ -43,7 +43,7 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
       return new StaticRelative(measurements()).get();
     }
 
-    PointValuePair kwOptimal = Simplex.optimizeAll(dynamicInverse::applyAsDouble,
+    PointValuePair kwOptimal = Simplex.optimize(dynamicInverse::applyAsDouble,
         new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], getMaxHToL()}),
         new double[] {0.01, 0.01}
     );

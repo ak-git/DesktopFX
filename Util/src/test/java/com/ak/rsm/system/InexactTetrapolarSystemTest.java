@@ -95,7 +95,7 @@ public class InexactTetrapolarSystemTest {
   public void testHMax(@Nonnegative double rho1, @Nonnegative double rho2) {
     InexactTetrapolarSystem system = new InexactTetrapolarSystem(0.1, new TetrapolarSystem(10.0, 30.0));
     DoubleUnaryOperator rhoAtHMax = sign -> (1.0 + Math.signum(sign) * system.getApparentRelativeError()) * rho1;
-    PointValuePair optimize = Simplex.optimizeAll(hToL -> {
+    PointValuePair optimize = Simplex.optimize(hToL -> {
           double rhoApparent = TetrapolarResistance
               .of(system.system()).rho1(rho1).rho2(rho2).h(hToL[0] * system.system().lCC()).resistivity();
           return DoubleStream.of(-1.0, 1.0)
@@ -113,7 +113,7 @@ public class InexactTetrapolarSystemTest {
     if (Double.isFinite(rho2)) {
       InexactTetrapolarSystem system = new InexactTetrapolarSystem(0.1, new TetrapolarSystem(10.0, 30.0));
       DoubleUnaryOperator rhoAtHMin = sign -> (1.0 + Math.signum(sign) * system.getApparentRelativeError()) * rho2;
-      PointValuePair optimize = Simplex.optimizeAll(hToL -> {
+      PointValuePair optimize = Simplex.optimize(hToL -> {
             double rhoApparent = TetrapolarResistance
                 .of(system.system()).rho1(rho1).rho2(rho2).h(hToL[0] * system.system().lCC()).resistivity();
             return DoubleStream.of(-1.0, 1.0)

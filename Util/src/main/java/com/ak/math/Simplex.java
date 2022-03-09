@@ -100,7 +100,7 @@ public enum Simplex {
                       .toArray(DoubleRange[]::new)
               )
           )
-          .populationSize(Math.max(256, 1 << Math.max(0, (initialGuess.length - 1) * 2)))
+          .populationSize(1 << (6 + initialGuess.length))
           .optimize(Optimize.MINIMUM)
           .alterers(new Mutator<>(0.03), new MeanAlterer<>(0.6))
           .build().stream()
@@ -122,7 +122,7 @@ public enum Simplex {
                                    double[] initialGuess, double[] initialSteps);
 
   @ParametersAreNonnullByDefault
-  public static PointValuePair optimizeAll(MultivariateFunction function, SimpleBounds bounds, double[] initialSteps) {
+  public static PointValuePair optimize(MultivariateFunction function, SimpleBounds bounds, double[] initialSteps) {
     double[] initialGuess = JENETICS.optimize(function, bounds, initialSteps, initialSteps).getPoint();
     return EnumSet.complementOf(EnumSet.of(JENETICS)).stream()
         .map(simplex -> simplex.optimize(function, bounds, initialGuess, initialSteps))
