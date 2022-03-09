@@ -14,7 +14,6 @@ import com.ak.math.Simplex;
 import com.ak.rsm.measurement.DerivativeMeasurement;
 import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
-import com.ak.util.Metrics;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.annotations.DataProvider;
@@ -33,7 +32,7 @@ public class Inverse3Test {
 
   @Test(dataProvider = "single", invocationCount = 5, enabled = false)
   public void testSingle(@Nonnull Collection<? extends DerivativeMeasurement> ms) {
-    DynamicInverse3DL1 dynamicInverse = new DynamicInverse3DL1(ms, Metrics.fromMilli(1.0));
+    DynamicInverse dynamicInverse = new DynamicInverse(ms);
     PointValuePair kwOptimal = Simplex.optimize(dynamicInverse::applyAsDouble,
         new SimpleBounds(new double[] {-1.0, -1.0, 1, 1}, new double[] {1.0, 1.0, 10, 10}),
         new double[] {0.01, 0.01, 1, 1}
@@ -85,7 +84,7 @@ public class Inverse3Test {
   @Test(dataProvider = "noChanged", invocationCount = 5, enabled = false)
   @ParametersAreNonnullByDefault
   public void testNoChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, int[] indentations) {
-    List<DynamicInverse3DL1> dynamicInverses = ms.stream().map(dm -> new DynamicInverse3DL1(dm, Metrics.fromMilli(0.1))).toList();
+    List<DynamicInverse> dynamicInverses = ms.stream().map(DynamicInverse::new).toList();
 
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
     if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
