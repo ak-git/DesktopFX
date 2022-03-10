@@ -1,7 +1,6 @@
 package com.ak.rsm.inverse;
 
 import java.util.Collection;
-import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
@@ -11,18 +10,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.inverse.Inequality;
-import com.ak.rsm.apparent.Apparent2Rho;
-import com.ak.rsm.relative.Layer2RelativeMedium;
-import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.system.TetrapolarSystem;
 
 abstract class AbstractInverseFunction<R extends Resistivity> extends AbstractInverse
-    implements ToDoubleFunction<double[]>, UnaryOperator<double[]> {
-  @Nonnull
-  private final BiFunction<TetrapolarSystem, double[], RelativeMediumLayers> layersBiFunction;
-  @Nonnull
-  private final ToDoubleBiFunction<TetrapolarSystem, double[]> logApparentPredicted;
+    implements ToDoubleFunction<double[]>, ToDoubleBiFunction<TetrapolarSystem, double[]> {
   @Nonnull
   private final double[] subLog;
   @Nonnull
@@ -33,28 +25,18 @@ abstract class AbstractInverseFunction<R extends Resistivity> extends AbstractIn
     super(r.stream().map(Resistivity::system).toList());
     this.subtract = subtract;
     subLog = subtract.apply(r.stream().mapToDouble(function).toArray());
-    layersBiFunction = (s, kw) -> new Layer2RelativeMedium(kw[0], kw[1] * baseL() / s.lCC());
-    logApparentPredicted = (s, kw) -> Apparent2Rho.newLog1pApparent2Rho(s.relativeSystem()).applyAsDouble(layersBiFunction.apply(s, kw));
   }
 
   @Nonnegative
   @Override
   public final double applyAsDouble(@Nonnull double[] kw) {
-    return Inequality.absolute().applyAsDouble(subLog, subtract.apply(apply(kw)));
+    return Inequality.absolute().applyAsDouble(subLog,
+        subtract.apply(systems().stream().mapToDouble(s -> applyAsDouble(s, kw)).toArray())
+    );
   }
 
   @Nonnull
   final UnaryOperator<double[]> subtract() {
     return subtract;
-  }
-
-  @Nonnull
-  final BiFunction<TetrapolarSystem, double[], RelativeMediumLayers> layersBiFunction() {
-    return layersBiFunction;
-  }
-
-  @Nonnull
-  final ToDoubleBiFunction<TetrapolarSystem, double[]> logApparentPredicted() {
-    return logApparentPredicted;
   }
 }
