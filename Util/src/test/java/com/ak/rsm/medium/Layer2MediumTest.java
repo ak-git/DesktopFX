@@ -43,10 +43,10 @@ public class Layer2MediumTest {
   @Test(dataProvider = "layer2Medium")
   @ParametersAreNonnullByDefault
   public void testRho(MediumLayers layers, double[] expected) {
-    Assert.assertEquals(layers.rho().getValue(), expected[0], 0.001);
-    Assert.assertEquals(layers.rho1().getValue(), expected[0], 0.001);
-    Assert.assertEquals(layers.rho2().getValue(), expected[1], 0.001);
-    Assert.assertEquals(layers.h1().getValue(), expected[2], 0.001);
+    Assert.assertEquals(layers.rho().value(), expected[0], 0.001);
+    Assert.assertEquals(layers.rho1().value(), expected[0], 0.001);
+    Assert.assertEquals(layers.rho2().value(), expected[1], 0.001);
+    Assert.assertEquals(layers.h1().value(), expected[2], 0.001);
   }
 
   @Test(dataProvider = "layer2Medium")

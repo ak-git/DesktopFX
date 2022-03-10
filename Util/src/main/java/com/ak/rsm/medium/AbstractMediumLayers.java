@@ -45,7 +45,7 @@ abstract class AbstractMediumLayers implements MediumLayers {
         .map(m ->
             m.toPrediction(
                 new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / m.system().lCC()),
-                rho.getValue()
+                rho.value()
             )
         )
         .toList();
@@ -87,14 +87,14 @@ abstract class AbstractMediumLayers implements MediumLayers {
     Iterator<Prediction> pIterator = predictions.iterator();
     while (mIterator.hasNext() && pIterator.hasNext()) {
       data.add(mIterator.next().toString());
-      if (!Double.isNaN(rho1().getValue())) {
+      if (!Double.isNaN(rho1().value())) {
         data.add("; %s".formatted(pIterator.next()));
       }
       data.add(Strings.NEW_LINE);
     }
 
     StringJoiner joiner = new StringJoiner("; ");
-    if (!Double.isNaN(rho1().getValue())) {
+    if (!Double.isNaN(rho1().value())) {
       if (!kw.toString().isEmpty()) {
         joiner.add(kw.toString());
       }

@@ -243,9 +243,9 @@ public class InverseDynamicTest {
   @ParametersAreNonnullByDefault
   public void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, double[] expected) {
     var medium = new DynamicAbsolute(measurements).get();
-    Assert.assertEquals(medium.rho1().getValue(), expected[0], 0.1, medium.toString());
-    Assert.assertEquals(medium.rho2().getValue() > 1000 ? Double.POSITIVE_INFINITY : medium.rho2().getValue(), expected[1], 0.1, medium.toString());
-    Assert.assertEquals(Metrics.toMilli(medium.h1().getValue()), Metrics.toMilli(expected[2]), 0.01, medium.toString());
+    Assert.assertEquals(medium.rho1().value(), expected[0], 0.1, medium.toString());
+    Assert.assertEquals(medium.rho2().value() > 1000 ? Double.POSITIVE_INFINITY : medium.rho2().value(), expected[1], 0.1, medium.toString());
+    Assert.assertEquals(Metrics.toMilli(medium.h1().value()), Metrics.toMilli(expected[2]), 0.01, medium.toString());
     LOGGER.info(medium::toString);
   }
 
@@ -306,12 +306,12 @@ public class InverseDynamicTest {
                 Map.ofEntries(
                     Map.entry(T, r.get(T)),
                     Map.entry(POSITION, r.get(POSITION)),
-                    Map.entry(RHO_1, medium.rho1().getValue()),
-                    Map.entry(RHO_1_ABS_ERROR, medium.rho1().getAbsError()),
-                    Map.entry(RHO_2, medium.rho2().getValue()),
-                    Map.entry(RHO_2_ABS_ERROR, medium.rho2().getAbsError()),
-                    Map.entry(H, Metrics.toMilli(medium.h1().getValue())),
-                    Map.entry(H_ABS_ERROR, Metrics.toMilli(medium.h1().getAbsError())),
+                    Map.entry(RHO_1, medium.rho1().value()),
+                    Map.entry(RHO_1_ABS_ERROR, medium.rho1().absError()),
+                    Map.entry(RHO_2, medium.rho2().value()),
+                    Map.entry(RHO_2_ABS_ERROR, medium.rho2().absError()),
+                    Map.entry(H, Metrics.toMilli(medium.h1().value())),
+                    Map.entry(H_ABS_ERROR, Metrics.toMilli(medium.h1().absError())),
                     Map.entry(RMS_BASE, medium.getRMS()[0]),
                     Map.entry(RMS_DIFF, medium.getRMS()[1])
                 )

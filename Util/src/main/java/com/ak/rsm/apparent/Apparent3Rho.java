@@ -16,10 +16,17 @@ public class Apparent3Rho extends AbstractApparentRho {
     return value(hToL, n -> qn[n] * sumFactor(n));
   }
 
+  @Nonnull
   public static Apparent3Rho newLog1pApparent3Rho(@Nonnull RelativeTetrapolarSystem system) {
     return new Apparent3Rho(new Log1pApparent(system));
   }
 
+  @Nonnull
+  public static Apparent3Rho newNormalizedApparent2Rho(@Nonnull RelativeTetrapolarSystem system) {
+    return new Apparent3Rho(new NormalizedApparent(system));
+  }
+
+  @Nonnull
   public static Apparent3Rho newDerivativeApparentByPhi2Rho(@Nonnull RelativeTetrapolarSystem system) {
     return new Apparent3Rho(new DerivativeApparentByPhi(system));
   }

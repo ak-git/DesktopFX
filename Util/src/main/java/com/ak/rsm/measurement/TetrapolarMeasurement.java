@@ -34,12 +34,12 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
   @Override
   public Measurement merge(@Nonnull Measurement that) {
     var avg = TO_VALUE.apply(this).mergeWith(TO_VALUE.apply(that));
-    double relErrorRho = avg.getAbsError() / avg.getValue();
+    double relErrorRho = avg.absError() / avg.value();
     double dL = Math.min(inexact.absError(), that.inexact().absError());
     double lCC = RelativeTetrapolarSystem.MIN_ERROR_FACTOR * dL / relErrorRho;
     double sPU = RelativeTetrapolarSystem.OPTIMAL_SL * lCC;
     InexactTetrapolarSystem merged = new InexactTetrapolarSystem(dL, new TetrapolarSystem(sPU, lCC));
-    return new TetrapolarMeasurement(merged, avg.getValue());
+    return new TetrapolarMeasurement(merged, avg.value());
   }
 
   @Nonnull

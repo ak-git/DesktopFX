@@ -30,10 +30,10 @@ public class Layer2RelativeMediumTest {
   @Test(dataProvider = "layer2Medium")
   @ParametersAreNonnullByDefault
   public <T> void test(RelativeMediumLayers layers, ValuePair[] expected) {
-    Assert.assertEquals(layers.k12(), expected[0].getValue());
-    Assert.assertEquals(layers.k12AbsError(), expected[0].getAbsError());
-    Assert.assertEquals(layers.hToL(), expected[1].getValue());
-    Assert.assertEquals(layers.hToLAbsError(), expected[1].getAbsError());
+    Assert.assertEquals(layers.k12(), expected[0].value());
+    Assert.assertEquals(layers.k12AbsError(), expected[0].absError());
+    Assert.assertEquals(layers.hToL(), expected[1].value());
+    Assert.assertEquals(layers.hToLAbsError(), expected[1].absError());
   }
 
   @Test(dataProvider = "layer2Medium")

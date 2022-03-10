@@ -7,13 +7,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.math.Simplex;
+import com.ak.math.ValuePair;
+import com.ak.rsm.apparent.Apparent3Rho;
 import com.ak.rsm.measurement.DerivativeMeasurement;
 import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
+import com.ak.rsm.system.Layers;
+import com.ak.rsm.system.TetrapolarSystem;
+import com.ak.util.Metrics;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.annotations.DataProvider;
@@ -24,7 +30,7 @@ public class Inverse3Test {
   public static Object[][] single() {
     return new Object[][] {
         {
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(0.01).system4(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(0.001).system4(10.0)
                 .rho1(9.0).rho2(1.0).rho3(9.0).hStep(1.0).p(5, 5),
         },
     };
@@ -32,12 +38,19 @@ public class Inverse3Test {
 
   @Test(dataProvider = "single", invocationCount = 5, enabled = false)
   public void testSingle(@Nonnull Collection<? extends DerivativeMeasurement> ms) {
+    double hStep = Metrics.fromMilli(1.0);
     DynamicInverse dynamicInverse = new DynamicInverse(ms);
     PointValuePair kwOptimal = Simplex.optimize(dynamicInverse::applyAsDouble,
         new SimpleBounds(new double[] {-1.0, -1.0, 1, 1}, new double[] {1.0, 1.0, 10, 10}),
         new double[] {0.01, 0.01, 1, 1}
     );
-    Logger.getAnonymousLogger().info(() -> "%.6f %s".formatted(kwOptimal.getValue(), Arrays.toString(kwOptimal.getPoint())));
+
+    double[] point = kwOptimal.getPoint();
+    var rho1 = getRho1(ms, point, hStep);
+    var rho2 = ValuePair.Name.RHO_2.of(rho1.value() / Layers.getRho1ToRho2(point[0]), 0.0);
+    var rho3 = ValuePair.Name.RHO_3.of(rho2.value() / Layers.getRho1ToRho2(point[1]), 0.0);
+    Logger.getAnonymousLogger().info(() -> "%.6f %s; %s; %s; %s"
+        .formatted(kwOptimal.getValue(), Arrays.toString(point), rho1, rho2, rho3));
   }
 
   @DataProvider(name = "noChanged")
@@ -50,6 +63,32 @@ public class Inverse3Test {
                     .rho1(9.0).rho2(1.0).rho3(9.0).hStep(0.1).p(10, 50 + i)
             ).toList(),
             indentations
+        },
+//              2021-04-12
+        {
+            List.of(
+//                30.25,5.88,
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(Double.NaN).system2(7.0)
+                    .rho(
+                        4.87509719427543, 5.58515358260383, 2.12116314267622, 2.61165533651347
+                    ),
+//                35.25,4.83,
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(Double.NaN).system2(7.0)
+                    .rho(
+                        4.76758560388577, 5.46361838357859, 2.13595703768954, 2.22405069904159
+                    ),
+//                40.25,3.78,
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(Double.NaN).system2(7.0)
+                    .rho(
+                        4.6390602584027, 5.34096316575764, 1.15603890004521, 0.956072585426832
+                    ),
+//                45.25,2.73,
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(Double.NaN).system2(7.0)
+                    .rho(
+                        4.57664583015763, 5.34045587048988, 0.296461111350822, 0.383939854573196
+                    )
+            ),
+            new int[] {0, -10, -21, -31}
         },
 
 //                2021-10-22
@@ -84,6 +123,7 @@ public class Inverse3Test {
   @Test(dataProvider = "noChanged", invocationCount = 5, enabled = false)
   @ParametersAreNonnullByDefault
   public void testNoChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, int[] indentations) {
+    double hStep = Metrics.fromMilli(0.1);
     List<DynamicInverse> dynamicInverses = ms.stream().map(DynamicInverse::new).toList();
 
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
@@ -106,6 +146,30 @@ public class Inverse3Test {
             new double[] {1.0, 1.0, 100, 100}),
         new double[] {0.01, 0.01, 10, 10}
     );
-    Logger.getAnonymousLogger().info(() -> "%.6f %s".formatted(kwOptimal.getValue(), Arrays.toString(kwOptimal.getPoint())));
+
+    var rho1 = ms.stream().map(dm -> getRho1(dm, kwOptimal.getPoint(), hStep)).reduce(ValuePair::mergeWith).orElseThrow();
+    var rho2 = ValuePair.Name.RHO_2.of(rho1.value() / Layers.getRho1ToRho2(kwOptimal.getPoint()[0]), 0.0);
+    var rho3 = ValuePair.Name.RHO_3.of(rho2.value() / Layers.getRho1ToRho2(kwOptimal.getPoint()[1]), 0.0);
+    Logger.getAnonymousLogger().info(() -> "%.6f %s; %s; %s; %s"
+        .formatted(kwOptimal.getValue(), Arrays.toString(kwOptimal.getPoint()), rho1, rho2, rho3));
+  }
+
+  @Nonnegative
+  @ParametersAreNonnullByDefault
+  private static ValuePair getRho1(Collection<? extends DerivativeMeasurement> measurements, double[] kw, @Nonnegative double hStep) {
+    return measurements.stream().parallel()
+        .map(measurement -> {
+          TetrapolarSystem s = measurement.system();
+          double normApparent = Apparent3Rho.newNormalizedApparent2Rho(s.relativeSystem())
+              .value(
+                  kw[0], kw[1],
+                  hStep / s.lCC(),
+                  (int) Math.round(kw[2]), (int) Math.round(kw[3])
+              );
+          return ValuePair.Name.RHO_1.of(measurement.resistivity() / normApparent,
+              0.0
+          );
+        })
+        .reduce(ValuePair::mergeWith).orElseThrow();
   }
 }

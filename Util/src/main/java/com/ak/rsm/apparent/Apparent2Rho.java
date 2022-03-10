@@ -31,6 +31,7 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
     return pow(k, n) * sumFactor(n);
   }
 
+  @Nonnull
   public static ToDoubleFunction<RelativeMediumLayers> newLog1pApparent2Rho(@Nonnull RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new Log1pApparent(system));
   }
@@ -38,14 +39,17 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
   /**
    * Calculates Apparent Resistance divided by Rho1
    */
+  @Nonnull
   public static ToDoubleFunction<RelativeMediumLayers> newNormalizedApparent2Rho(@Nonnull RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new NormalizedApparent(system));
   }
 
+  @Nonnull
   public static ToDoubleFunction<RelativeMediumLayers> newDerivativeApparentByPhi2Rho(@Nonnull RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new DerivativeApparentByPhi(system));
   }
 
+  @Nonnull
   public static ToDoubleFunction<RelativeMediumLayers> newDerivativeApparentByK2Rho(@Nonnull RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new DerivativeApparentByK(system)) {
       @Override
@@ -55,6 +59,7 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
     };
   }
 
+  @Nonnull
   public static ToDoubleFunction<RelativeMediumLayers> newSecondDerivativeApparentByPhiK2Rho(@Nonnull RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new SecondDerivativeApparentByPhiK(system)) {
       @Override
@@ -64,6 +69,7 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
     };
   }
 
+  @Nonnull
   public static ToDoubleFunction<RelativeMediumLayers> newSecondDerivativeApparentByPhiPhi2Rho(@Nonnull RelativeTetrapolarSystem system) {
     return new ToDoubleFunction<>() {
       @Nonnull

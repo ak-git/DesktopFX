@@ -17,8 +17,8 @@ public final class Layer2RelativeMedium implements RelativeMediumLayers {
 
   @ParametersAreNonnullByDefault
   public Layer2RelativeMedium(ValuePair k12, ValuePair hToL) {
-    this.k12 = k12;
-    this.hToL = hToL;
+    this.k12 = Objects.requireNonNull(k12);
+    this.hToL = Objects.requireNonNull(hToL);
   }
 
   public Layer2RelativeMedium(double k12, @Nonnegative double hToL) {
@@ -37,22 +37,22 @@ public final class Layer2RelativeMedium implements RelativeMediumLayers {
 
   @Override
   public double k12() {
-    return k12.getValue();
+    return k12.value();
   }
 
   @Override
   public double hToL() {
-    return hToL.getValue();
+    return hToL.value();
   }
 
   @Override
   public double k12AbsError() {
-    return k12.getAbsError();
+    return k12.absError();
   }
 
   @Override
   public double hToLAbsError() {
-    return hToL.getAbsError();
+    return hToL.absError();
   }
 
   @Override
