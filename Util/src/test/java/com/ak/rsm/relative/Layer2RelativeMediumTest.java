@@ -17,6 +17,10 @@ public class Layer2RelativeMediumTest {
             new ValuePair[] {ValuePair.Name.K12.of(1.0, 0.0), ValuePair.Name.H_L.of(Metrics.fromMilli(5.0), 0.0)}
         },
         {
+            new Layer2RelativeMedium(new double[] {1.0, Double.POSITIVE_INFINITY}, Metrics.fromMilli(5.0)),
+            new ValuePair[] {ValuePair.Name.K12.of(1.0, 0.0), ValuePair.Name.H_L.of(Metrics.fromMilli(5.0), 0.0)}
+        },
+        {
             new Layer2RelativeMedium(new double[] {-1.0, Metrics.fromMilli(5.0)}),
             new ValuePair[] {ValuePair.Name.K12.of(-1.0, 0.0), ValuePair.Name.H_L.of(Metrics.fromMilli(5.0), 0.0)}
         },

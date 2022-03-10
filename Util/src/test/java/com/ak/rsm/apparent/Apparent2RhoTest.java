@@ -23,11 +23,11 @@ public class Apparent2RhoTest {
     double logApparent = log(TetrapolarResistance.ofMilli(smm, lmm).ofOhms(rOhm).resistivity()) - log(rho[0]);
 
     double logPredicted = Apparent2Rho.newLog1pApparent2Rho(new RelativeTetrapolarSystem(lmm / smm))
-        .applyAsDouble(new Layer2RelativeMedium(Layers.getK12(rho[0], rho[1]), hmm / smm));
+        .applyAsDouble(new Layer2RelativeMedium(rho, hmm / smm));
     Assert.assertEquals(logApparent, logPredicted, 0.001);
 
     double logPredicted2 = Apparent2Rho.newLog1pApparent2Rho(new RelativeTetrapolarSystem(smm / lmm))
-        .applyAsDouble(new Layer2RelativeMedium(Layers.getK12(rho[0], rho[1]), hmm / lmm));
+        .applyAsDouble(new Layer2RelativeMedium(rho, hmm / lmm));
     Assert.assertEquals(logApparent, logPredicted2, 0.001);
   }
 
@@ -37,11 +37,11 @@ public class Apparent2RhoTest {
     double apparent = TetrapolarResistance.ofMilli(smm, lmm).ofOhms(rOhm).resistivity() / rho[0];
 
     double predicted = Apparent2Rho.newNormalizedApparent2Rho(new RelativeTetrapolarSystem(lmm / smm))
-        .applyAsDouble(new Layer2RelativeMedium(Layers.getK12(rho[0], rho[1]), hmm / smm));
+        .applyAsDouble(new Layer2RelativeMedium(rho, hmm / smm));
     Assert.assertEquals(apparent, predicted, 0.001);
 
     double predicted2 = Apparent2Rho.newNormalizedApparent2Rho(new RelativeTetrapolarSystem(smm / lmm))
-        .applyAsDouble(new Layer2RelativeMedium(Layers.getK12(rho[0], rho[1]), hmm / lmm));
+        .applyAsDouble(new Layer2RelativeMedium(rho, hmm / lmm));
     Assert.assertEquals(apparent, predicted2, 0.001);
   }
 
