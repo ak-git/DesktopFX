@@ -8,10 +8,12 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.rsm.resistance.Resistivity;
 
+import static java.lang.StrictMath.log;
+
 final class StaticInverse extends AbstractInverseFunction<Resistivity> {
   @ParametersAreNonnullByDefault
   StaticInverse(Collection<? extends Resistivity> r, UnaryOperator<double[]> subtract) {
-    super(r, value -> StrictMath.log(value.resistivity()), subtract);
+    super(r, d -> log(d.resistivity()), subtract);
   }
 
   @Override

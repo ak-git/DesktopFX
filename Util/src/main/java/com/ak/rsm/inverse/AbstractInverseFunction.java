@@ -33,7 +33,7 @@ abstract class AbstractInverseFunction<R extends Resistivity> extends AbstractIn
     super(r.stream().map(Resistivity::system).toList());
     this.subtract = subtract;
     subLog = subtract.apply(r.stream().mapToDouble(function).toArray());
-    layersBiFunction = (s1, kw1) -> new Layer2RelativeMedium(kw1[0], kw1[1] * baseL() / s1.lCC());
+    layersBiFunction = (s, kw) -> new Layer2RelativeMedium(kw[0], kw[1] * baseL() / s.lCC());
     logApparentPredicted = (s, kw) -> Apparent2Rho.newLog1pApparent2Rho(s.relativeSystem()).applyAsDouble(layersBiFunction.apply(s, kw));
   }
 
