@@ -1,6 +1,7 @@
 package com.ak.rsm.inverse;
 
 import java.util.Collection;
+import java.util.function.Function;
 import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
@@ -19,12 +20,16 @@ abstract class AbstractInverseFunction<R extends Resistivity> extends AbstractIn
   private final double[] subLog;
   @Nonnull
   private final UnaryOperator<double[]> subtract;
+  @Nonnull
+  final ToDoubleBiFunction<TetrapolarSystem, double[]> predicted;
 
   @ParametersAreNonnullByDefault
-  AbstractInverseFunction(Collection<? extends R> r, ToDoubleFunction<? super R> function, UnaryOperator<double[]> subtract) {
+  AbstractInverseFunction(Collection<? extends R> r, ToDoubleFunction<? super R> function, UnaryOperator<double[]> subtract,
+                          Function<Collection<TetrapolarSystem>, ToDoubleBiFunction<TetrapolarSystem, double[]>> toPredicted) {
     super(r.stream().map(Resistivity::system).toList());
     this.subtract = subtract;
     subLog = subtract.apply(r.stream().mapToDouble(function).toArray());
+    predicted = toPredicted.apply(systems());
   }
 
   @Nonnegative
@@ -33,6 +38,12 @@ abstract class AbstractInverseFunction<R extends Resistivity> extends AbstractIn
     return Inequality.absolute().applyAsDouble(subLog,
         subtract.apply(systems().stream().mapToDouble(s -> applyAsDouble(s, kw)).toArray())
     );
+  }
+
+  @Override
+  @ParametersAreNonnullByDefault
+  public final double applyAsDouble(TetrapolarSystem s, double[] kw) {
+    return predicted.applyAsDouble(s, kw);
   }
 
   @Nonnull

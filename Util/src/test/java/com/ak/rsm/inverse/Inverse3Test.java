@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.DoubleSummaryStatistics;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.ToDoubleFunction;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
@@ -39,7 +40,7 @@ public class Inverse3Test {
   @Test(dataProvider = "single", invocationCount = 5, enabled = false)
   public void testSingle(@Nonnull Collection<? extends DerivativeMeasurement> ms) {
     double hStep = Metrics.fromMilli(1.0);
-    DynamicInverse dynamicInverse = new DynamicInverse(ms);
+    ToDoubleFunction<double[]> dynamicInverse = DynamicInverse.of(ms);
     PointValuePair kwOptimal = Simplex.optimize(dynamicInverse::applyAsDouble,
         new SimpleBounds(new double[] {-1.0, -1.0, 1, 1}, new double[] {1.0, 1.0, 10, 10}),
         new double[] {0.01, 0.01, 1, 1}
@@ -124,7 +125,7 @@ public class Inverse3Test {
   @ParametersAreNonnullByDefault
   public void testNoChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, int[] indentations) {
     double hStep = Metrics.fromMilli(0.1);
-    List<DynamicInverse> dynamicInverses = ms.stream().map(DynamicInverse::new).toList();
+    List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(DynamicInverse::of).toList();
 
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
     if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {

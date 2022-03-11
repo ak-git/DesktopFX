@@ -1,6 +1,8 @@
 package com.ak.rsm.inverse;
 
 import java.util.Collection;
+import java.util.function.ToDoubleFunction;
+import java.util.function.UnaryOperator;
 
 import javax.annotation.Nonnull;
 
@@ -15,13 +17,13 @@ import static com.ak.rsm.relative.RelativeMediumLayers.NAN;
 
 final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, RelativeMediumLayers> {
   @Nonnull
-  private final DynamicInverse dynamicInverse;
+  private final ToDoubleFunction<double[]> dynamicInverse;
   @Nonnull
-  private final DynamicErrors dynamicErrors;
+  private final UnaryOperator<RelativeMediumLayers> dynamicErrors;
 
   DynamicRelative(@Nonnull Collection<? extends DerivativeMeasurement> measurements) {
     super(measurements);
-    dynamicInverse = new DynamicInverse(measurements);
+    dynamicInverse = DynamicInverse.of(measurements);
     dynamicErrors = new DynamicErrors(inexactSystems());
   }
 

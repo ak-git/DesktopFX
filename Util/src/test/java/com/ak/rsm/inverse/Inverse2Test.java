@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.DoubleSummaryStatistics;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.ToDoubleFunction;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -45,7 +46,7 @@ public class Inverse2Test {
   @Test(dataProvider = "noChanged", enabled = false)
   @ParametersAreNonnullByDefault
   public void testNoChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, double[] indentations) {
-    List<DynamicInverse> dynamicInverses = ms.stream().map(DynamicInverse::new).toList();
+    List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(DynamicInverse::of).toList();
 
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
     if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
@@ -93,7 +94,7 @@ public class Inverse2Test {
   @Test(dataProvider = "kChanged", enabled = false)
   @ParametersAreNonnullByDefault
   public void testKChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, double maxKChanges, double[] indentations) {
-    List<DynamicInverse> dynamicInverses = ms.stream().map(DynamicInverse::new).toList();
+    List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(DynamicInverse::of).toList();
 
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
     if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
@@ -175,7 +176,7 @@ public class Inverse2Test {
 
   @Test(dataProvider = "kAndPhiChanged", enabled = false)
   public void testKAndPhiChanged(@Nonnull Collection<Collection<? extends DerivativeMeasurement>> ms, double maxKChanges, double maxIndent) {
-    List<DynamicInverse> dynamicInverses = ms.stream().map(DynamicInverse::new).toList();
+    List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(DynamicInverse::of).toList();
 
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
     if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
