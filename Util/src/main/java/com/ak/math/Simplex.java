@@ -3,7 +3,6 @@ package com.ak.math;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
@@ -39,7 +38,7 @@ public enum Simplex {
     @Nonnull
     @Override
     @ParametersAreNonnullByDefault
-    PointValuePair optimize(MultivariateFunction function, SimpleBounds bounds, double[] initialGuess, double[] initialSteps) {
+    PointValuePair optimize(MultivariateFunction function, SimpleBounds bounds, double[] initialGuess) {
       return optimize(point -> {
         for (var i = 0; i < point.length; i++) {
           if (bounds.getLower()[i] > point[i] || bounds.getUpper()[i] < point[i]) {
@@ -47,7 +46,7 @@ public enum Simplex {
           }
         }
         return function.value(point);
-      }, initialGuess, initialSteps);
+      }, initialGuess, Simplex.toInitialSteps(bounds));
     }
 
     @Nonnull
@@ -66,7 +65,7 @@ public enum Simplex {
     @Nonnull
     @Override
     @ParametersAreNonnullByDefault
-    PointValuePair optimize(MultivariateFunction function, SimpleBounds bounds, double[] initialGuess, double[] initialSteps) {
+    PointValuePair optimize(MultivariateFunction function, SimpleBounds bounds, double[] initialGuess) {
       try {
         return new CMAESOptimizer(MAX_ITERATIONS, STOP_FITNESS, true, 0,
             10, new MersenneTwister(), false, null)
@@ -76,7 +75,7 @@ public enum Simplex {
                 GoalType.MINIMIZE,
                 new InitialGuess(initialGuess),
                 bounds,
-                new CMAESOptimizer.Sigma(DoubleStream.of(initialSteps).map(Math::abs).toArray()),
+                new CMAESOptimizer.Sigma(Simplex.toInitialSteps(bounds)),
                 new CMAESOptimizer.PopulationSize(4 + (int) (3.0 * StrictMath.log(initialGuess.length)))
             );
       }
@@ -91,11 +90,11 @@ public enum Simplex {
     @Nonnull
     @Override
     @ParametersAreNonnullByDefault
-    PointValuePair optimize(MultivariateFunction function, SimpleBounds bounds, double[] initialGuess, double[] initialSteps) {
+    PointValuePair optimize(MultivariateFunction function, SimpleBounds bounds, double[] initialGuess) {
       Phenotype<DoubleGene, Double> phenotype = Engine
           .builder(function::value,
               Codecs.ofVector(
-                  IntStream.range(0, Math.min(initialGuess.length, initialSteps.length))
+                  IntStream.range(0, initialGuess.length)
                       .mapToObj(i -> DoubleRange.of(bounds.getLower()[i], bounds.getUpper()[i]))
                       .toArray(DoubleRange[]::new)
               )
@@ -118,14 +117,20 @@ public enum Simplex {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  abstract PointValuePair optimize(MultivariateFunction function, SimpleBounds bounds,
-                                   double[] initialGuess, double[] initialSteps);
+  abstract PointValuePair optimize(MultivariateFunction function, SimpleBounds bounds, double[] initialGuess);
 
   @ParametersAreNonnullByDefault
-  public static PointValuePair optimize(MultivariateFunction function, SimpleBounds bounds, double[] initialSteps) {
-    double[] initialGuess = JENETICS.optimize(function, bounds, initialSteps, initialSteps).getPoint();
+  public static PointValuePair optimize(MultivariateFunction function, SimpleBounds bounds) {
+    double[] initialGuess = JENETICS.optimize(function, bounds, bounds.getUpper()).getPoint();
     return EnumSet.complementOf(EnumSet.of(JENETICS)).stream()
-        .map(simplex -> simplex.optimize(function, bounds, initialGuess, initialSteps))
+        .map(simplex -> simplex.optimize(function, bounds, initialGuess))
         .parallel().min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
+  }
+
+  @Nonnull
+  private static double[] toInitialSteps(@Nonnull SimpleBounds bounds) {
+    return IntStream.range(0, Math.max(bounds.getUpper().length, bounds.getLower().length))
+        .mapToDouble(i -> Math.abs((bounds.getUpper()[i] - bounds.getLower()[i]) / 100.0))
+        .toArray();
   }
 }

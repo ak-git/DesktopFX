@@ -102,7 +102,7 @@ public class InexactTetrapolarSystemTest {
               .map(sign -> Inequality.absolute().applyAsDouble(rhoAtHMax.applyAsDouble(sign), rhoApparent))
               .min().orElseThrow();
         },
-        new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / system.system().lCC()}), new double[] {0.01}
+        new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / system.system().lCC()})
     );
     Assert.assertEquals(optimize.getPoint()[0], system.getHMax(Layers.getK12(rho1, rho2)) / system.system().lCC(),
         0.1, system.toString());
@@ -120,7 +120,7 @@ public class InexactTetrapolarSystemTest {
                 .map(sign -> Inequality.absolute().applyAsDouble(rhoAtHMin.applyAsDouble(sign), rhoApparent))
                 .min().orElseThrow();
           },
-          new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / system.system().lCC()}), new double[] {0.01}
+          new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / system.system().lCC()})
       );
       Assert.assertEquals(optimize.getPoint()[0], system.getHMin(Layers.getK12(rho1, rho2)) / system.system().lCC(),
           0.01, system.toString());

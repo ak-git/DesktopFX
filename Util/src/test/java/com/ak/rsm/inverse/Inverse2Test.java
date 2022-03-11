@@ -65,8 +65,7 @@ public class Inverse2Test {
           return dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(iterator.next()))
               .reduce(StrictMath::hypot).orElseThrow();
         },
-        new SimpleBounds(new double[] {-1.0, 0}, new double[] {1.0, 1.0}),
-        new double[] {0.01, 0.01}
+        new SimpleBounds(new double[] {-1.0, 0}, new double[] {1.0, 1.0})
     );
     List<Layer2Medium> mediumList = ms.stream().map(dm -> new Layer2Medium(dm, new Layer2RelativeMedium(kwOptimal.getPoint()))).toList();
     var rho1 = mediumList.stream().map(MediumLayers::rho1).reduce(ValuePair::mergeWith).orElseThrow();
@@ -116,12 +115,6 @@ public class Inverse2Test {
         )
         .toArray();
 
-    double[] initialSteps = IntStream.range(0, Math.max(lB.length, uB.length))
-        .mapToDouble(i ->
-            Math.abs(uB[i] - lB[i]) / 100.0
-        )
-        .toArray();
-
     PointValuePair kwOptimal = Simplex.optimize(
         kw -> {
           Iterator<double[]> iterator = IntStream.range(0, dynamicInverses.size()).mapToObj(i -> {
@@ -137,7 +130,7 @@ public class Inverse2Test {
           return dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(iterator.next()))
               .reduce(StrictMath::hypot).orElseThrow();
         },
-        new SimpleBounds(lB, uB), initialSteps
+        new SimpleBounds(lB, uB)
     );
 
     List<Layer2Medium> mediumList = ms.stream().map(dm -> new Layer2Medium(dm, new Layer2RelativeMedium(kwOptimal.getPoint()))).toList();
@@ -204,12 +197,6 @@ public class Inverse2Test {
         )
         .toArray();
 
-    double[] initialSteps = IntStream.range(0, Math.max(lB.length, uB.length))
-        .mapToDouble(i ->
-            Math.abs(uB[i] - lB[i]) / 100.0
-        )
-        .toArray();
-
     PointValuePair kwOptimal = Simplex.optimize(
         kw -> {
           Iterator<double[]> iterator = IntStream.range(0, dynamicInverses.size()).mapToObj(i -> {
@@ -227,7 +214,7 @@ public class Inverse2Test {
           return dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(iterator.next()))
               .reduce(StrictMath::hypot).orElseThrow();
         },
-        new SimpleBounds(lB, uB), initialSteps
+        new SimpleBounds(lB, uB)
     );
 
     List<Layer2Medium> mediumList = ms.stream().map(dm -> new Layer2Medium(dm, new Layer2RelativeMedium(kwOptimal.getPoint()))).toList();

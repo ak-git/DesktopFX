@@ -22,14 +22,14 @@ public class SimplexTest {
   @Test
   public void testOptimizeCMAES() {
     PointValuePair valuePair = Simplex.CMAES.optimize(new Rosen(),
-        SimpleBounds.unbounded(2), new double[] {0.0, 0.0}, new double[] {10.0, 10.0});
+        new SimpleBounds(new double[] {-10.0, -10.0}, new double[] {10.0, 10.0}), new double[] {0.0, 0.0});
     Assert.assertEquals(valuePair.getPoint(), new double[] {1.0, 1.0}, 0.1);
   }
 
   @Test
   public void testInvalid() {
     PointValuePair valuePair = Simplex.CMAES.optimize(new Rosen(),
-        SimpleBounds.unbounded(2), new double[] {0.0}, new double[] {10.0});
+        SimpleBounds.unbounded(2), new double[] {0.0});
     Assert.assertEquals(valuePair.getPoint(), new double[] {Double.NaN}, 0.1);
     Assert.assertEquals(valuePair.getValue(), Double.NaN, 0.1);
   }

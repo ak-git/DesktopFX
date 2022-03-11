@@ -42,8 +42,7 @@ public class Inverse3Test {
     double hStep = Metrics.fromMilli(1.0);
     ToDoubleFunction<double[]> dynamicInverse = DynamicInverse.of(ms, hStep);
     PointValuePair kwOptimal = Simplex.optimize(dynamicInverse::applyAsDouble,
-        new SimpleBounds(new double[] {-1.0, -1.0, 1, 1}, new double[] {1.0, 1.0, 10, 10}),
-        new double[] {0.01, 0.01, 1, 1}
+        new SimpleBounds(new double[] {-1.0, -1.0, 1, 1}, new double[] {1.0, 1.0, 10, 10})
     );
 
     double[] point = kwOptimal.getPoint();
@@ -91,8 +90,7 @@ public class Inverse3Test {
               .reduce(StrictMath::hypot).orElseThrow();
         },
         new SimpleBounds(new double[] {-1.0, -1.0, 1, 1 + Arrays.stream(indentations).map(Math::abs).max().orElse(0)},
-            new double[] {1.0, 1.0, 100, 100}),
-        new double[] {0.01, 0.01, 10, 10}
+            new double[] {1.0, 1.0, 100, 100})
     );
 
     var rho1 = ms.stream().map(dm -> getRho1(dm, kwOptimal.getPoint(), hStep)).reduce(ValuePair::mergeWith).orElseThrow();
