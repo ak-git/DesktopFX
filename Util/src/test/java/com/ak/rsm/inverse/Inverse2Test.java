@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.function.ToDoubleFunction;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -24,7 +24,6 @@ import com.ak.rsm.medium.MediumLayers;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.util.Metrics;
 import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -54,7 +53,7 @@ public class Inverse2Test {
     }
 
     double L = statisticsL.getAverage();
-    PointValuePair kwOptimal = Simplex.optimize(
+    PointValuePair kwOptimal = Simplex.optimizeAll(
         kw -> {
           Iterator<double[]> iterator = Arrays.stream(indentations).mapToObj(x -> {
             double[] kwIndent = kw.clone();
@@ -65,7 +64,7 @@ public class Inverse2Test {
           return dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(iterator.next()))
               .reduce(StrictMath::hypot).orElseThrow();
         },
-        new SimpleBounds(new double[] {-1.0, 0}, new double[] {1.0, 1.0})
+        new double[] {-1.0, 1.0}, new double[] {0.0, 1.0}
     );
     List<Layer2Medium> mediumList = ms.stream().map(dm -> new Layer2Medium(dm, new Layer2RelativeMedium(kwOptimal.getPoint()))).toList();
     var rho1 = mediumList.stream().map(MediumLayers::rho1).reduce(ValuePair::mergeWith).orElseThrow();
@@ -101,21 +100,12 @@ public class Inverse2Test {
     }
     double L = statisticsL.getAverage();
 
-    double[] lB = DoubleStream
-        .concat(
-            DoubleStream.of(-1.0, 0.0),
-            DoubleStream.generate(() -> Math.min(maxKChanges, 0.0)).limit(dynamicInverses.size() - 1)
-        )
-        .toArray();
+    double[][] minMax = Stream.concat(
+        Stream.of(new double[] {-1.0, 1.0}, new double[] {0.0, 1.0}),
+        Stream.generate(() -> new double[] {Math.min(maxKChanges, 0.0), Math.max(maxKChanges, 0.0)}).limit(dynamicInverses.size() - 1)
+    ).toArray(double[][]::new);
 
-    double[] uB = DoubleStream
-        .concat(
-            DoubleStream.of(1.0, 1.0),
-            DoubleStream.generate(() -> Math.max(maxKChanges, 0.0)).limit(dynamicInverses.size() - 1)
-        )
-        .toArray();
-
-    PointValuePair kwOptimal = Simplex.optimize(
+    PointValuePair kwOptimal = Simplex.optimizeAll(
         kw -> {
           Iterator<double[]> iterator = IntStream.range(0, dynamicInverses.size()).mapToObj(i -> {
             double[] kwIndent = Arrays.copyOf(kw, 2);
@@ -130,7 +120,7 @@ public class Inverse2Test {
           return dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(iterator.next()))
               .reduce(StrictMath::hypot).orElseThrow();
         },
-        new SimpleBounds(lB, uB)
+        minMax
     );
 
     List<Layer2Medium> mediumList = ms.stream().map(dm -> new Layer2Medium(dm, new Layer2RelativeMedium(kwOptimal.getPoint()))).toList();
@@ -177,27 +167,15 @@ public class Inverse2Test {
     }
     double L = statisticsL.getAverage();
 
-    double[] lB = DoubleStream
-        .concat(
-            DoubleStream.of(-1.0, 0.0),
-            DoubleStream.concat(
-                DoubleStream.generate(() -> Math.min(maxKChanges, 0.0)).limit(dynamicInverses.size() - 1),
-                DoubleStream.generate(() -> Math.min(maxIndent, 0.0)).limit(dynamicInverses.size() - 1)
-            )
+    double[][] minMax = Stream.concat(
+        Stream.of(new double[] {-1.0, 1.0}, new double[] {0.0, 1.0}),
+        Stream.concat(
+            Stream.generate(() -> new double[] {Math.min(maxKChanges, 0.0), Math.max(maxKChanges, 0.0)}).limit(dynamicInverses.size() - 1),
+            Stream.generate(() -> new double[] {Math.min(maxIndent, 0.0), Math.max(maxIndent, 0.0)}).limit(dynamicInverses.size() - 1)
         )
-        .toArray();
+    ).toArray(double[][]::new);
 
-    double[] uB = DoubleStream
-        .concat(
-            DoubleStream.of(1.0, 1.0),
-            DoubleStream.concat(
-                DoubleStream.generate(() -> Math.max(maxKChanges, 0.0)).limit(dynamicInverses.size() - 1),
-                DoubleStream.generate(() -> Math.max(maxIndent, 0.0)).limit(dynamicInverses.size() - 1)
-            )
-        )
-        .toArray();
-
-    PointValuePair kwOptimal = Simplex.optimize(
+    PointValuePair kwOptimal = Simplex.optimizeAll(
         kw -> {
           Iterator<double[]> iterator = IntStream.range(0, dynamicInverses.size()).mapToObj(i -> {
             double[] kwIndent = Arrays.copyOf(kw, 2);
@@ -214,7 +192,7 @@ public class Inverse2Test {
           return dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(iterator.next()))
               .reduce(StrictMath::hypot).orElseThrow();
         },
-        new SimpleBounds(lB, uB)
+        minMax
     );
 
     List<Layer2Medium> mediumList = ms.stream().map(dm -> new Layer2Medium(dm, new Layer2RelativeMedium(kwOptimal.getPoint()))).toList();

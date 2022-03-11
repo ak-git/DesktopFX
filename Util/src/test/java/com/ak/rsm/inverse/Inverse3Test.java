@@ -22,7 +22,6 @@ import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -41,8 +40,8 @@ public class Inverse3Test {
   public void testSingle(@Nonnull Collection<? extends DerivativeMeasurement> ms) {
     double hStep = Metrics.fromMilli(1.0);
     ToDoubleFunction<double[]> dynamicInverse = DynamicInverse.of(ms, hStep);
-    PointValuePair kwOptimal = Simplex.optimize(dynamicInverse::applyAsDouble,
-        new SimpleBounds(new double[] {-1.0, -1.0, 1, 1}, new double[] {1.0, 1.0, 10, 10})
+    PointValuePair kwOptimal = Simplex.optimizeAll(dynamicInverse::applyAsDouble,
+        new double[] {-1.0, 1.0}, new double[] {-1.0, 1.0}, new double[] {1, 10}, new double[] {1, 10}
     );
 
     double[] point = kwOptimal.getPoint();
@@ -78,7 +77,7 @@ public class Inverse3Test {
       throw new IllegalStateException("L is not equal for all electrode systems %s".formatted(statisticsL));
     }
 
-    PointValuePair kwOptimal = Simplex.optimize(
+    PointValuePair kwOptimal = Simplex.optimizeAll(
         kw -> {
           Iterator<double[]> iterator = Arrays.stream(indentations).mapToObj(x -> {
             double[] kwIndent = kw.clone();
@@ -89,8 +88,8 @@ public class Inverse3Test {
           return dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(iterator.next()))
               .reduce(StrictMath::hypot).orElseThrow();
         },
-        new SimpleBounds(new double[] {-1.0, -1.0, 1, 1 + Arrays.stream(indentations).map(Math::abs).max().orElse(0)},
-            new double[] {1.0, 1.0, 100, 100})
+        new double[] {-1.0, 1.0}, new double[] {-1.0, 1.0},
+        new double[] {1, 100}, new double[] {1 + Arrays.stream(indentations).map(Math::abs).max().orElse(0), 100}
     );
 
     var rho1 = ms.stream().map(dm -> getRho1(dm, kwOptimal.getPoint(), hStep)).reduce(ValuePair::mergeWith).orElseThrow();

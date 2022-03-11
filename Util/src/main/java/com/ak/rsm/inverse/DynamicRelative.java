@@ -11,7 +11,6 @@ import com.ak.rsm.measurement.DerivativeMeasurement;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.SimpleBounds;
 
 import static com.ak.rsm.relative.RelativeMediumLayers.NAN;
 
@@ -45,8 +44,8 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
       return new StaticRelative(measurements()).get();
     }
 
-    PointValuePair kwOptimal = Simplex.optimize(dynamicInverse::applyAsDouble,
-        new SimpleBounds(new double[] {kMinMax[0], 0.0}, new double[] {kMinMax[1], getMaxHToL()})
+    PointValuePair kwOptimal = Simplex.optimizeAll(dynamicInverse::applyAsDouble,
+        kMinMax, new double[] {0.0, getMaxHToL()}
     );
     return apply(new Layer2RelativeMedium(kwOptimal.getPoint()));
   }

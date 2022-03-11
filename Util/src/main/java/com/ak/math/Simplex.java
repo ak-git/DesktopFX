@@ -38,7 +38,8 @@ public enum Simplex {
     @Nonnull
     @Override
     @ParametersAreNonnullByDefault
-    PointValuePair optimize(MultivariateFunction function, SimpleBounds bounds, double[] initialGuess) {
+    PointValuePair optimize(MultivariateFunction function, double[]... minInitialMax) {
+      SimpleBounds bounds = Simplex.toBounds(minInitialMax);
       return optimize(point -> {
         for (var i = 0; i < point.length; i++) {
           if (bounds.getLower()[i] > point[i] || bounds.getUpper()[i] < point[i]) {
@@ -46,7 +47,7 @@ public enum Simplex {
           }
         }
         return function.value(point);
-      }, initialGuess, Simplex.toInitialSteps(bounds));
+      }, Simplex.toInitialGuess(minInitialMax), Simplex.toInitialSteps(bounds));
     }
 
     @Nonnull
@@ -65,7 +66,8 @@ public enum Simplex {
     @Nonnull
     @Override
     @ParametersAreNonnullByDefault
-    PointValuePair optimize(MultivariateFunction function, SimpleBounds bounds, double[] initialGuess) {
+    PointValuePair optimize(MultivariateFunction function, double[]... minInitialMax) {
+      SimpleBounds bounds = Simplex.toBounds(minInitialMax);
       try {
         return new CMAESOptimizer(MAX_ITERATIONS, STOP_FITNESS, true, 0,
             10, new MersenneTwister(), false, null)
@@ -73,14 +75,14 @@ public enum Simplex {
                 new MaxEval(MAX_ITERATIONS),
                 new ObjectiveFunction(function),
                 GoalType.MINIMIZE,
-                new InitialGuess(initialGuess),
+                new InitialGuess(Simplex.toInitialGuess(minInitialMax)),
                 bounds,
                 new CMAESOptimizer.Sigma(Simplex.toInitialSteps(bounds)),
-                new CMAESOptimizer.PopulationSize(4 + (int) (3.0 * StrictMath.log(initialGuess.length)))
+                new CMAESOptimizer.PopulationSize(4 + (int) (3.0 * StrictMath.log(minInitialMax.length)))
             );
       }
       catch (Exception e) {
-        var nan = new double[initialGuess.length];
+        var nan = new double[minInitialMax.length];
         Arrays.fill(nan, Double.NaN);
         return new PointValuePair(nan, Double.NaN);
       }
@@ -90,16 +92,16 @@ public enum Simplex {
     @Nonnull
     @Override
     @ParametersAreNonnullByDefault
-    PointValuePair optimize(MultivariateFunction function, SimpleBounds bounds, double[] initialGuess) {
+    PointValuePair optimize(MultivariateFunction function, double[]... minInitialMax) {
       Phenotype<DoubleGene, Double> phenotype = Engine
           .builder(function::value,
               Codecs.ofVector(
-                  IntStream.range(0, initialGuess.length)
-                      .mapToObj(i -> DoubleRange.of(bounds.getLower()[i], bounds.getUpper()[i]))
+                  Arrays.stream(minInitialMax)
+                      .map(initialMax -> DoubleRange.of(initialMax[0], initialMax[initialMax.length - 1]))
                       .toArray(DoubleRange[]::new)
               )
           )
-          .populationSize(1 << (6 + initialGuess.length))
+          .populationSize(1 << (6 + minInitialMax.length))
           .optimize(Optimize.MINIMUM)
           .alterers(new Mutator<>(0.03), new MeanAlterer<>(0.6))
           .build().stream()
@@ -117,13 +119,16 @@ public enum Simplex {
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  abstract PointValuePair optimize(MultivariateFunction function, SimpleBounds bounds, double[] initialGuess);
+  abstract PointValuePair optimize(MultivariateFunction function, double[]... minInitialMax);
 
   @ParametersAreNonnullByDefault
-  public static PointValuePair optimize(MultivariateFunction function, SimpleBounds bounds) {
-    double[] initialGuess = JENETICS.optimize(function, bounds, bounds.getUpper()).getPoint();
+  public static PointValuePair optimizeAll(MultivariateFunction function, double[]... bounds) {
+    double[] initialGuess = JENETICS.optimize(function, bounds).getPoint();
+    double[][] minInitialMax = IntStream.range(0, initialGuess.length)
+        .mapToObj(i -> new double[] {bounds[i][0], initialGuess[i], bounds[i][bounds[i].length - 1]})
+        .toArray(double[][]::new);
     return EnumSet.complementOf(EnumSet.of(JENETICS)).stream()
-        .map(simplex -> simplex.optimize(function, bounds, initialGuess))
+        .map(simplex -> simplex.optimize(function, minInitialMax))
         .parallel().min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
 
@@ -132,5 +137,21 @@ public enum Simplex {
     return IntStream.range(0, Math.max(bounds.getUpper().length, bounds.getLower().length))
         .mapToDouble(i -> Math.abs((bounds.getUpper()[i] - bounds.getLower()[i]) / 100.0))
         .toArray();
+  }
+
+  @Nonnull
+  private static double[] toInitialGuess(@Nonnull double[][] minInitialMax) {
+    return Arrays.stream(minInitialMax).mapToDouble(value -> value[1]).toArray();
+  }
+
+  @Nonnull
+  private static SimpleBounds toBounds(@Nonnull double[][] minInitialMax) {
+    if (Arrays.stream(minInitialMax).anyMatch(doubles -> doubles.length != 3)) {
+      throw new IllegalArgumentException(Arrays.deepToString(minInitialMax));
+    }
+    return new SimpleBounds(
+        Arrays.stream(minInitialMax).mapToDouble(value -> value[0]).toArray(),
+        Arrays.stream(minInitialMax).mapToDouble(value -> value[value.length - 1]).toArray()
+    );
   }
 }

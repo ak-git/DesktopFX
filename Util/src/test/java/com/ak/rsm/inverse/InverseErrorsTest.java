@@ -19,7 +19,6 @@ import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.CSVLineFileBuilder;
 import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -86,8 +85,8 @@ public class InverseErrorsTest {
 
   @Test(dataProvider = "inverseable", enabled = false)
   public void testOptimalSL(@Nonnull Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
-    PointValuePair opt = Simplex.optimize(point -> single(point, builder),
-        new SimpleBounds(new double[] {0.1, 0.9}, new double[] {1.1, 2.0})
+    PointValuePair opt = Simplex.optimizeAll(point -> single(point, builder),
+        new double[] {0.1, 1.1}, new double[] {0.9, 2.0}
     );
     LOGGER.info(Arrays.toString(opt.getPoint()));
   }
