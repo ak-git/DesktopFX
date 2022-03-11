@@ -40,7 +40,7 @@ public class Inverse3Test {
   @Test(dataProvider = "single", invocationCount = 5, enabled = false)
   public void testSingle(@Nonnull Collection<? extends DerivativeMeasurement> ms) {
     double hStep = Metrics.fromMilli(1.0);
-    ToDoubleFunction<double[]> dynamicInverse = DynamicInverse.of(ms);
+    ToDoubleFunction<double[]> dynamicInverse = DynamicInverse.of(ms, hStep);
     PointValuePair kwOptimal = Simplex.optimize(dynamicInverse::applyAsDouble,
         new SimpleBounds(new double[] {-1.0, -1.0, 1, 1}, new double[] {1.0, 1.0, 10, 10}),
         new double[] {0.01, 0.01, 1, 1}
@@ -65,59 +65,6 @@ public class Inverse3Test {
             ).toList(),
             indentations
         },
-//              2021-04-12
-        {
-            List.of(
-//                30.25,5.88,
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(Double.NaN).system2(7.0)
-                    .rho(
-                        4.87509719427543, 5.58515358260383, 2.12116314267622, 2.61165533651347
-                    ),
-//                35.25,4.83,
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(Double.NaN).system2(7.0)
-                    .rho(
-                        4.76758560388577, 5.46361838357859, 2.13595703768954, 2.22405069904159
-                    ),
-//                40.25,3.78,
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(Double.NaN).system2(7.0)
-                    .rho(
-                        4.6390602584027, 5.34096316575764, 1.15603890004521, 0.956072585426832
-                    ),
-//                45.25,2.73,
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(Double.NaN).system2(7.0)
-                    .rho(
-                        4.57664583015763, 5.34045587048988, 0.296461111350822, 0.383939854573196
-                    )
-            ),
-            new int[] {0, -10, -21, -31}
-        },
-
-//                2021-10-22
-        {
-            List.of(
-//                189.75, 0,
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(Double.NaN).system2(6.0)
-                    .rho(
-                        4.36561500845104, 4.49418992805016, -0.178420874720668, -0.183605798682716
-                    ),
-//                199.75, -2.1,
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(Double.NaN).system2(6.0)
-                    .rho(
-                        4.37968045714554, 4.51061464886706, -0.244006351213963, -0.29392479021624
-                    ),
-//                209.75, -4.2,
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(Double.NaN).system2(6.0)
-                    .rho(
-                        4.40723928934415, 4.54541460187173, -0.391702185525521, -0.383635767588383
-                    ),
-//                214.25, -5.46,
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(Double.NaN).system2(6.0)
-                    .rho(
-                        4.41859231744725, 4.55430142272032, -0.466863160010698, -0.409174798561001
-                    )
-            ),
-            new int[] {0, -21, -42, -55}
-        },
     };
   }
 
@@ -125,7 +72,7 @@ public class Inverse3Test {
   @ParametersAreNonnullByDefault
   public void testNoChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, int[] indentations) {
     double hStep = Metrics.fromMilli(0.1);
-    List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(DynamicInverse::of).toList();
+    List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(dm -> DynamicInverse.of(dm, hStep)).toList();
 
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
     if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
