@@ -123,10 +123,21 @@ public enum Simplex {
 
   @ParametersAreNonnullByDefault
   public static PointValuePair optimizeAll(MultivariateFunction function, double[]... bounds) {
-    double[] initialGuess = JENETICS.optimize(function, bounds).getPoint();
-    double[][] minInitialMax = IntStream.range(0, initialGuess.length)
-        .mapToObj(i -> new double[] {bounds[i][0], initialGuess[i], bounds[i][bounds[i].length - 1]})
-        .toArray(double[][]::new);
+    double[][] minInitialMax;
+
+    if (Arrays.stream(bounds).allMatch(doubles -> doubles.length == 2)) {
+      double[] initialGuess = JENETICS.optimize(function, bounds).getPoint();
+      minInitialMax = IntStream.range(0, initialGuess.length)
+          .mapToObj(i -> new double[] {bounds[i][0], initialGuess[i], bounds[i][bounds[i].length - 1]})
+          .toArray(double[][]::new);
+    }
+    else if (Arrays.stream(bounds).allMatch(doubles -> doubles.length == 3)) {
+      minInitialMax = bounds.clone();
+    }
+    else {
+      throw new IllegalArgumentException(Arrays.deepToString(bounds));
+    }
+
     return EnumSet.complementOf(EnumSet.of(JENETICS)).stream()
         .map(simplex -> simplex.optimize(function, minInitialMax))
         .parallel().min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
@@ -146,9 +157,6 @@ public enum Simplex {
 
   @Nonnull
   private static SimpleBounds toBounds(@Nonnull double[][] minInitialMax) {
-    if (Arrays.stream(minInitialMax).anyMatch(doubles -> doubles.length != 3)) {
-      throw new IllegalArgumentException(Arrays.deepToString(minInitialMax));
-    }
     return new SimpleBounds(
         Arrays.stream(minInitialMax).mapToDouble(value -> value[0]).toArray(),
         Arrays.stream(minInitialMax).mapToDouble(value -> value[value.length - 1]).toArray()

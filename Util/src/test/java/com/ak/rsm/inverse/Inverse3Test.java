@@ -5,8 +5,10 @@ import java.util.Collection;
 import java.util.DoubleSummaryStatistics;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -20,10 +22,23 @@ import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
+import com.ak.util.ConcurrentCache;
 import com.ak.util.Metrics;
+import io.jenetics.Genotype;
+import io.jenetics.IntegerGene;
+import io.jenetics.MeanAlterer;
+import io.jenetics.Mutator;
+import io.jenetics.Optimize;
+import io.jenetics.Phenotype;
+import io.jenetics.engine.Codecs;
+import io.jenetics.engine.Engine;
+import io.jenetics.engine.Limits;
+import io.jenetics.util.IntRange;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 
 public class Inverse3Test {
   @DataProvider(name = "single")
@@ -36,20 +51,65 @@ public class Inverse3Test {
     };
   }
 
-  @Test(dataProvider = "single", invocationCount = 5, enabled = false)
+  @Test(dataProvider = "single", enabled = false)
   public void testSingle(@Nonnull Collection<? extends DerivativeMeasurement> ms) {
     double hStep = Metrics.fromMilli(1.0);
     ToDoubleFunction<double[]> dynamicInverse = DynamicInverse.of(ms, hStep);
-    PointValuePair kwOptimal = Simplex.optimizeAll(dynamicInverse::applyAsDouble,
-        new double[] {-1.0, 1.0}, new double[] {-1.0, 1.0}, new double[] {1, 10}, new double[] {1, 10}
+
+    int[] lB = {1, 1};
+    int[] uB = {100, 100};
+
+    record P(int p1, int p2mp1) {
+      P(int[] p) {
+        this(p[0], p[1]);
+      }
+
+      P(double[] p) {
+        this((int) Math.round(p[0]), (int) Math.round(p[1]));
+      }
+    }
+
+    Function<P, PointValuePair> cache = new ConcurrentCache<>(p -> {
+      Logger.getAnonymousLogger().info(p::toString);
+      return Simplex.optimizeAll(
+          kw -> dynamicInverse.applyAsDouble(new double[] {kw[0], kw[1], p.p1, p.p2mp1}),
+          new double[] {-1.0, 1.0}, new double[] {-1.0, 1.0}
+      );
+    });
+
+    Phenotype<IntegerGene, Double> phenotype = Engine
+        .builder(
+            p -> cache.apply(new P(p)).getValue(),
+            Codecs.ofVector(
+                IntStream.range(0, lB.length)
+                    .mapToObj(i -> IntRange.of(lB[i], uB[i]))
+                    .toArray(IntRange[]::new)
+            )
+        )
+        .populationSize(1 << 4)
+        .optimize(Optimize.MINIMUM)
+        .alterers(new Mutator<>(0.03), new MeanAlterer<>(0.6))
+        .build().stream()
+        .limit(Limits.bySteadyFitness(7))
+        .limit(100)
+        .peek(r -> Logger.getAnonymousLogger().info(() -> r.bestPhenotype().toString()))
+        .collect(toBestPhenotype());
+
+    Genotype<IntegerGene> best = phenotype.genotype();
+    PointValuePair pOptimal = new PointValuePair(
+        IntStream.range(0, best.length()).mapToDouble(i -> best.get(i).get(0).doubleValue()).toArray(),
+        phenotype.fitness()
     );
 
-    double[] point = kwOptimal.getPoint();
-    var rho1 = getRho1(ms, point, hStep);
-    var rho2 = ValuePair.Name.RHO_2.of(rho1.value() / Layers.getRho1ToRho2(point[0]), 0.0);
-    var rho3 = ValuePair.Name.RHO_3.of(rho2.value() / Layers.getRho1ToRho2(point[1]), 0.0);
+    double[] point = pOptimal.getPoint();
+    PointValuePair kwOptimal = cache.apply(new P(point));
+
+    double[] kwpp = {kwOptimal.getPoint()[0], kwOptimal.getPoint()[1], point[0], point[1]};
+    var rho1 = getRho1(ms, kwpp, hStep);
+    var rho2 = ValuePair.Name.RHO_2.of(rho1.value() / Layers.getRho1ToRho2(kwpp[0]), 0.0);
+    var rho3 = ValuePair.Name.RHO_3.of(rho2.value() / Layers.getRho1ToRho2(kwpp[1]), 0.0);
     Logger.getAnonymousLogger().info(() -> "%.6f %s; %s; %s; %s"
-        .formatted(kwOptimal.getValue(), Arrays.toString(point), rho1, rho2, rho3));
+        .formatted(kwOptimal.getValue(), Arrays.toString(kwpp), rho1, rho2, rho3));
   }
 
   @DataProvider(name = "noChanged")

@@ -1,5 +1,7 @@
 package com.ak.math;
 
+import java.util.Arrays;
+
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.testng.Assert;
@@ -25,9 +27,11 @@ public class SimplexTest {
     Assert.assertEquals(valuePair.getPoint(), new double[] {1.0, 1.0}, 0.1);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testInvalid() {
-    Simplex.CMAES.optimize(new Rosen(),
+    PointValuePair valuePair = Simplex.CMAES.optimize(new Rosen(),
         new double[] {-10.0, 0.0, 10.0}, new double[] {-10.0, 0.0, 10.0}, new double[] {0.0});
+    Assert.assertEquals(valuePair.getPoint(), new double[] {Double.NaN, Double.NaN, Double.NaN}, 0.1, Arrays.toString(valuePair.getPoint()));
+    Assert.assertEquals(valuePair.getValue(), Double.NaN, 0.1);
   }
 }
