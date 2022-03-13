@@ -38,16 +38,16 @@ public enum Simplex {
     @Nonnull
     @Override
     @ParametersAreNonnullByDefault
-    PointValuePair optimize(MultivariateFunction function, double[]... minInitialMax) {
-      SimpleBounds bounds = Simplex.toBounds(minInitialMax);
+    PointValuePair optimize(MultivariateFunction function, Bounds... bounds) {
+      SimpleBounds simpleBounds = Simplex.toBounds(bounds);
       return optimize(point -> {
         for (var i = 0; i < point.length; i++) {
-          if (bounds.getLower()[i] > point[i] || bounds.getUpper()[i] < point[i]) {
+          if (simpleBounds.getLower()[i] > point[i] || simpleBounds.getUpper()[i] < point[i]) {
             return Double.POSITIVE_INFINITY;
           }
         }
         return function.value(point);
-      }, Simplex.toInitialGuess(minInitialMax), Simplex.toInitialSteps(bounds));
+      }, Simplex.toInitialGuess(bounds), Simplex.toInitialSteps(simpleBounds));
     }
 
     @Nonnull
@@ -66,8 +66,8 @@ public enum Simplex {
     @Nonnull
     @Override
     @ParametersAreNonnullByDefault
-    PointValuePair optimize(MultivariateFunction function, double[]... minInitialMax) {
-      SimpleBounds bounds = Simplex.toBounds(minInitialMax);
+    PointValuePair optimize(MultivariateFunction function, Bounds... bounds) {
+      SimpleBounds simpleBounds = Simplex.toBounds(bounds);
       try {
         return new CMAESOptimizer(MAX_ITERATIONS, STOP_FITNESS, true, 0,
             10, new MersenneTwister(), false, null)
@@ -75,14 +75,14 @@ public enum Simplex {
                 new MaxEval(MAX_ITERATIONS),
                 new ObjectiveFunction(function),
                 GoalType.MINIMIZE,
-                new InitialGuess(Simplex.toInitialGuess(minInitialMax)),
-                bounds,
-                new CMAESOptimizer.Sigma(Simplex.toInitialSteps(bounds)),
-                new CMAESOptimizer.PopulationSize(4 + (int) (3.0 * StrictMath.log(minInitialMax.length)))
+                new InitialGuess(Simplex.toInitialGuess(bounds)),
+                simpleBounds,
+                new CMAESOptimizer.Sigma(Simplex.toInitialSteps(simpleBounds)),
+                new CMAESOptimizer.PopulationSize(4 + (int) (3.0 * StrictMath.log(bounds.length)))
             );
       }
       catch (Exception e) {
-        var nan = new double[minInitialMax.length];
+        var nan = new double[bounds.length];
         Arrays.fill(nan, Double.NaN);
         return new PointValuePair(nan, Double.NaN);
       }
@@ -92,16 +92,12 @@ public enum Simplex {
     @Nonnull
     @Override
     @ParametersAreNonnullByDefault
-    PointValuePair optimize(MultivariateFunction function, double[]... minInitialMax) {
+    PointValuePair optimize(MultivariateFunction function, Bounds... bounds) {
       Phenotype<DoubleGene, Double> phenotype = Engine
           .builder(function::value,
-              Codecs.ofVector(
-                  Arrays.stream(minInitialMax)
-                      .map(initialMax -> DoubleRange.of(initialMax[0], initialMax[initialMax.length - 1]))
-                      .toArray(DoubleRange[]::new)
-              )
+              Codecs.ofVector(Arrays.stream(bounds).map(b -> DoubleRange.of(b.min, b.max)).toArray(DoubleRange[]::new))
           )
-          .populationSize(1 << (6 + minInitialMax.length))
+          .populationSize(1 << (6 + bounds.length))
           .optimize(Optimize.MINIMUM)
           .alterers(new Mutator<>(0.03), new MeanAlterer<>(0.6))
           .build().stream()
@@ -114,24 +110,36 @@ public enum Simplex {
     }
   };
 
+  public record Bounds(double min, double initialGuess, double max) {
+    public Bounds(double min, double initialGuess, double max) {
+      this.min = Math.min(min, max);
+      this.initialGuess = Math.min(Math.max(min, initialGuess), max);
+      this.max = Math.max(min, max);
+    }
+
+    public Bounds(double min, double max) {
+      this(min, Double.NaN, max);
+    }
+  }
+
   private static final double STOP_FITNESS = 1.0e-10;
   private static final int MAX_ITERATIONS = 300000;
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  abstract PointValuePair optimize(MultivariateFunction function, double[]... minInitialMax);
+  abstract PointValuePair optimize(MultivariateFunction function, Bounds... bounds);
 
   @ParametersAreNonnullByDefault
-  public static PointValuePair optimizeAll(MultivariateFunction function, double[]... bounds) {
-    double[][] minInitialMax;
+  public static PointValuePair optimizeAll(MultivariateFunction function, Bounds... bounds) {
+    Bounds[] minInitialMax;
 
-    if (Arrays.stream(bounds).allMatch(doubles -> doubles.length == 2)) {
+    if (Arrays.stream(bounds).allMatch(b -> Double.isNaN(b.initialGuess))) {
       double[] initialGuess = JENETICS.optimize(function, bounds).getPoint();
       minInitialMax = IntStream.range(0, initialGuess.length)
-          .mapToObj(i -> new double[] {bounds[i][0], initialGuess[i], bounds[i][bounds[i].length - 1]})
-          .toArray(double[][]::new);
+          .mapToObj(i -> new Bounds(bounds[i].min, initialGuess[i], bounds[i].max))
+          .toArray(Bounds[]::new);
     }
-    else if (Arrays.stream(bounds).allMatch(doubles -> doubles.length == 3)) {
+    else if (Arrays.stream(bounds).noneMatch(b -> Double.isNaN(b.initialGuess))) {
       minInitialMax = bounds.clone();
     }
     else {
@@ -151,15 +159,15 @@ public enum Simplex {
   }
 
   @Nonnull
-  private static double[] toInitialGuess(@Nonnull double[][] minInitialMax) {
-    return Arrays.stream(minInitialMax).mapToDouble(value -> value[1]).toArray();
+  private static double[] toInitialGuess(@Nonnull Bounds[] bounds) {
+    return Arrays.stream(bounds).mapToDouble(Bounds::initialGuess).toArray();
   }
 
   @Nonnull
-  private static SimpleBounds toBounds(@Nonnull double[][] minInitialMax) {
+  private static SimpleBounds toBounds(@Nonnull Bounds[] bounds) {
     return new SimpleBounds(
-        Arrays.stream(minInitialMax).mapToDouble(value -> value[0]).toArray(),
-        Arrays.stream(minInitialMax).mapToDouble(value -> value[value.length - 1]).toArray()
+        Arrays.stream(bounds).mapToDouble(Bounds::min).toArray(),
+        Arrays.stream(bounds).mapToDouble(Bounds::max).toArray()
     );
   }
 }

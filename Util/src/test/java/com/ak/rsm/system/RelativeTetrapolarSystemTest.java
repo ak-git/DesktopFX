@@ -78,7 +78,7 @@ public class RelativeTetrapolarSystemTest {
   public void testHMaxFactor() {
     double random = new Random().nextDouble(-1.0, 1.0);
     PointValuePair pair = Simplex.optimizeAll(x -> 1.0 - new RelativeTetrapolarSystem(x[0]).hMaxFactor(random),
-        new double[] {-1.0, 1.0}
+        new Simplex.Bounds(-1.0, 1.0)
     );
     Assert.assertEquals(pair.getPoint()[0], 1.0 / 3.0, 0.001, Arrays.toString(pair.getPoint()));
   }
@@ -86,7 +86,7 @@ public class RelativeTetrapolarSystemTest {
   @Test
   public void testHMinFactor() {
     PointValuePair pair = Simplex.optimizeAll(ks -> new RelativeTetrapolarSystem(ks[1]).hMinFactor(ks[0]),
-        new double[] {-1.0, 0.0}, new double[] {0.0, 0.9}
+        new Simplex.Bounds(-1.0, 0.0), new Simplex.Bounds(0.0, 0.9)
     );
     Assert.assertEquals(pair.getPoint()[0], -1.0, 0.01, Arrays.toString(pair.getPoint()));
   }

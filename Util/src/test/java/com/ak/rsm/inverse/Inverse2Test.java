@@ -64,7 +64,7 @@ public class Inverse2Test {
           return dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(iterator.next()))
               .reduce(StrictMath::hypot).orElseThrow();
         },
-        new double[] {-1.0, 1.0}, new double[] {0.0, 1.0}
+        new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, 1.0)
     );
     List<Layer2Medium> mediumList = ms.stream().map(dm -> new Layer2Medium(dm, new Layer2RelativeMedium(kwOptimal.getPoint()))).toList();
     var rho1 = mediumList.stream().map(MediumLayers::rho1).reduce(ValuePair::mergeWith).orElseThrow();
@@ -100,10 +100,10 @@ public class Inverse2Test {
     }
     double L = statisticsL.getAverage();
 
-    double[][] minMax = Stream.concat(
-        Stream.of(new double[] {-1.0, 1.0}, new double[] {0.0, 1.0}),
-        Stream.generate(() -> new double[] {Math.min(maxKChanges, 0.0), Math.max(maxKChanges, 0.0)}).limit(dynamicInverses.size() - 1)
-    ).toArray(double[][]::new);
+    Simplex.Bounds[] minMax = Stream.concat(
+        Stream.of(new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, 1.0)),
+        Stream.generate(() -> new Simplex.Bounds(Math.min(maxKChanges, 0.0), Math.max(maxKChanges, 0.0))).limit(dynamicInverses.size() - 1)
+    ).toArray(Simplex.Bounds[]::new);
 
     PointValuePair kwOptimal = Simplex.optimizeAll(
         kw -> {
@@ -167,13 +167,13 @@ public class Inverse2Test {
     }
     double L = statisticsL.getAverage();
 
-    double[][] minMax = Stream.concat(
-        Stream.of(new double[] {-1.0, 1.0}, new double[] {0.0, 1.0}),
+    Simplex.Bounds[] minMax = Stream.concat(
+        Stream.of(new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, 1.0)),
         Stream.concat(
-            Stream.generate(() -> new double[] {Math.min(maxKChanges, 0.0), Math.max(maxKChanges, 0.0)}).limit(dynamicInverses.size() - 1),
-            Stream.generate(() -> new double[] {Math.min(maxIndent, 0.0), Math.max(maxIndent, 0.0)}).limit(dynamicInverses.size() - 1)
+            Stream.generate(() -> new Simplex.Bounds(Math.min(maxKChanges, 0.0), Math.max(maxKChanges, 0.0))).limit(dynamicInverses.size() - 1),
+            Stream.generate(() -> new Simplex.Bounds(Math.min(maxIndent, 0.0), Math.max(maxIndent, 0.0))).limit(dynamicInverses.size() - 1)
         )
-    ).toArray(double[][]::new);
+    ).toArray(Simplex.Bounds[]::new);
 
     PointValuePair kwOptimal = Simplex.optimizeAll(
         kw -> {

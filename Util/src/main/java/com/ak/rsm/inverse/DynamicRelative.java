@@ -29,12 +29,12 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
   @Nonnull
   @Override
   public RelativeMediumLayers get() {
-    var kMinMax = new double[] {-1.0, 1.0};
+    Simplex.Bounds kMinMax;
     if (measurements().stream().allMatch(d -> d.derivativeResistivity() > 0)) {
-      kMinMax[1] = 0.0;
+      kMinMax = new Simplex.Bounds(-1.0, 0.0);
     }
     else if (measurements().stream().allMatch(d -> d.derivativeResistivity() < 0)) {
-      kMinMax[0] = 0.0;
+      kMinMax = new Simplex.Bounds(0.0, 1.0);
     }
     else if (measurements().stream().anyMatch(d -> d.derivativeResistivity() > 0) &&
         measurements().stream().anyMatch(d -> d.derivativeResistivity() < 0)) {
@@ -45,7 +45,7 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
     }
 
     PointValuePair kwOptimal = Simplex.optimizeAll(dynamicInverse::applyAsDouble,
-        kMinMax, new double[] {0.0, getMaxHToL()}
+        kMinMax, new Simplex.Bounds(0.0, getMaxHToL())
     );
     return apply(new Layer2RelativeMedium(kwOptimal.getPoint()));
   }

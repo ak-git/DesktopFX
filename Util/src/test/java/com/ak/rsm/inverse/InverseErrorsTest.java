@@ -86,7 +86,7 @@ public class InverseErrorsTest {
   @Test(dataProvider = "inverseable", enabled = false)
   public void testOptimalSL(@Nonnull Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
     PointValuePair opt = Simplex.optimizeAll(point -> single(point, builder),
-        new double[] {0.1, 1.1}, new double[] {0.9, 2.0}
+        new Simplex.Bounds(0.1, 1.1), new Simplex.Bounds(0.9, 2.0)
     );
     LOGGER.info(Arrays.toString(opt.getPoint()));
   }

@@ -73,7 +73,7 @@ public class Inverse3Test {
       Logger.getAnonymousLogger().info(p::toString);
       return Simplex.optimizeAll(
           kw -> dynamicInverse.applyAsDouble(new double[] {kw[0], kw[1], p.p1, p.p2mp1}),
-          new double[] {-1.0, 1.0}, new double[] {-1.0, 1.0}
+          new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(-1.0, 1.0)
       );
     });
 
@@ -148,8 +148,8 @@ public class Inverse3Test {
           return dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(iterator.next()))
               .reduce(StrictMath::hypot).orElseThrow();
         },
-        new double[] {-1.0, 1.0}, new double[] {-1.0, 1.0},
-        new double[] {1, 100}, new double[] {1 + Arrays.stream(indentations).map(Math::abs).max().orElse(0), 100}
+        new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(-1.0, 1.0),
+        new Simplex.Bounds(1, 100), new Simplex.Bounds(1 + Arrays.stream(indentations).map(Math::abs).max().orElse(0), 100)
     );
 
     var rho1 = ms.stream().map(dm -> getRho1(dm, kwOptimal.getPoint(), hStep)).reduce(ValuePair::mergeWith).orElseThrow();
