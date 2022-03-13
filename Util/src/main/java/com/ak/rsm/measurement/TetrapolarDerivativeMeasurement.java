@@ -75,7 +75,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
   private static class Builder extends TetrapolarMeasurement.AbstractSingleBuilder<DerivativeMeasurement> implements PreBuilder {
     private TetrapolarDerivativeResistance.DhHolder dhHolder;
 
-    private Builder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
+    private Builder(@Nonnull DoubleUnaryOperator converter, double absError) {
       super(converter, absError);
     }
 
@@ -138,7 +138,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
   private static class MultiBuilder extends TetrapolarMeasurement.AbstractMultiBuilder<DerivativeMeasurement> implements MultiPreBuilder {
     private TetrapolarDerivativeResistance.DhHolder dhHolder;
 
-    private MultiBuilder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
+    private MultiBuilder(@Nonnull DoubleUnaryOperator converter, double absError) {
       super(converter, absError);
     }
 

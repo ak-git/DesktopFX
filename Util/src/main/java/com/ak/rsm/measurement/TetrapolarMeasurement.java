@@ -85,19 +85,18 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
   }
 
   abstract static class AbstractBuilder<T> extends TetrapolarResistance.AbstractBuilder<T> {
-    @Nonnegative
     protected final double absError;
 
-    AbstractBuilder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
+    AbstractBuilder(@Nonnull DoubleUnaryOperator converter, double absError) {
       super(converter);
-      this.absError = Math.abs(converter.applyAsDouble(absError));
+      this.absError = converter.applyAsDouble(absError);
     }
   }
 
   abstract static class AbstractSingleBuilder<T> extends AbstractBuilder<T> implements PreBuilder<T> {
     protected InexactTetrapolarSystem inexact;
 
-    AbstractSingleBuilder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
+    AbstractSingleBuilder(@Nonnull DoubleUnaryOperator converter, double absError) {
       super(converter, absError);
     }
 
@@ -119,7 +118,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
     protected final Collection<InexactTetrapolarSystem> inexact = new LinkedList<>();
     private boolean shiftErrorFlag;
 
-    AbstractMultiBuilder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
+    AbstractMultiBuilder(@Nonnull DoubleUnaryOperator converter, double absError) {
       super(converter, absError);
     }
 
@@ -157,7 +156,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
   }
 
   private static class Builder extends AbstractSingleBuilder<Measurement> {
-    private Builder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
+    private Builder(@Nonnull DoubleUnaryOperator converter, double absError) {
       super(converter, absError);
     }
 
@@ -194,7 +193,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
   }
 
   private static class MultiBuilder extends AbstractMultiBuilder<Measurement> {
-    private MultiBuilder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
+    private MultiBuilder(@Nonnull DoubleUnaryOperator converter, double absError) {
       super(converter, absError);
     }
 
