@@ -69,22 +69,17 @@ public class Inverse3Test {
       }
     }
 
-    Function<P, PointValuePair> cache = new ConcurrentCache<>(p -> {
-      Logger.getAnonymousLogger().info(p::toString);
-      return Simplex.optimizeAll(
-          kw -> dynamicInverse.applyAsDouble(new double[] {kw[0], kw[1], p.p1, p.p2mp1}),
-          new Simplex.Bounds(-1.0, 0.0, 1.0), new Simplex.Bounds(-1.0, 0.0, 1.0)
-      );
-    });
+    Function<P, PointValuePair> cache = new ConcurrentCache<>(
+        p -> Simplex.optimizeAll(
+            kw -> dynamicInverse.applyAsDouble(new double[] {kw[0], kw[1], p.p1, p.p2mp1}),
+            new Simplex.Bounds(-1.0, 0.0, 1.0), new Simplex.Bounds(-1.0, 0.0, 1.0)
+        )
+    );
 
     Phenotype<IntegerGene, Double> phenotype = Engine
         .builder(
             p -> cache.apply(new P(p)).getValue(),
-            Codecs.ofVector(
-                IntStream.range(0, lB.length)
-                    .mapToObj(i -> IntRange.of(lB[i], uB[i]))
-                    .toArray(IntRange[]::new)
-            )
+            Codecs.ofVector(IntStream.range(0, lB.length).mapToObj(i -> IntRange.of(lB[i], uB[i])).toArray(IntRange[]::new))
         )
         .populationSize(1 << 5)
         .optimize(Optimize.MINIMUM)
@@ -126,7 +121,7 @@ public class Inverse3Test {
     };
   }
 
-  @Test(dataProvider = "noChanged")
+  @Test(dataProvider = "noChanged", enabled = false)
   @ParametersAreNonnullByDefault
   public void testNoChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, int[] indentations) {
     double hStep = Metrics.fromMilli(0.1);
