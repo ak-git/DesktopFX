@@ -39,15 +39,14 @@ public enum Simplex {
     @Override
     @ParametersAreNonnullByDefault
     PointValuePair optimize(MultivariateFunction function, Bounds... bounds) {
-      SimpleBounds simpleBounds = Simplex.toBounds(bounds);
       return optimize(point -> {
         for (var i = 0; i < point.length; i++) {
-          if (simpleBounds.getLower()[i] > point[i] || simpleBounds.getUpper()[i] < point[i]) {
+          if (bounds[i].min > point[i] || bounds[i].max < point[i]) {
             return Double.POSITIVE_INFINITY;
           }
         }
         return function.value(point);
-      }, Simplex.toInitialGuess(bounds), Simplex.toInitialSteps(simpleBounds));
+      }, Simplex.toInitialGuess(bounds), Simplex.toInitialSteps(bounds));
     }
 
     @Nonnull
@@ -67,7 +66,10 @@ public enum Simplex {
     @Override
     @ParametersAreNonnullByDefault
     PointValuePair optimize(MultivariateFunction function, Bounds... bounds) {
-      SimpleBounds simpleBounds = Simplex.toBounds(bounds);
+      SimpleBounds simpleBounds = new SimpleBounds(
+          Arrays.stream(bounds).mapToDouble(Bounds::min).toArray(),
+          Arrays.stream(bounds).mapToDouble(Bounds::max).toArray()
+      );
       try {
         return new CMAESOptimizer(MAX_ITERATIONS, STOP_FITNESS, true, 0,
             10, new MersenneTwister(), false, null)
@@ -77,7 +79,7 @@ public enum Simplex {
                 GoalType.MINIMIZE,
                 new InitialGuess(Simplex.toInitialGuess(bounds)),
                 simpleBounds,
-                new CMAESOptimizer.Sigma(Simplex.toInitialSteps(simpleBounds)),
+                new CMAESOptimizer.Sigma(Simplex.toInitialSteps(bounds)),
                 new CMAESOptimizer.PopulationSize(4 + (int) (3.0 * StrictMath.log(bounds.length)))
             );
       }
@@ -152,22 +154,12 @@ public enum Simplex {
   }
 
   @Nonnull
-  private static double[] toInitialSteps(@Nonnull SimpleBounds bounds) {
-    return IntStream.range(0, Math.max(bounds.getUpper().length, bounds.getLower().length))
-        .mapToDouble(i -> Math.abs((bounds.getUpper()[i] - bounds.getLower()[i]) / 100.0))
-        .toArray();
+  private static double[] toInitialSteps(@Nonnull Bounds[] bounds) {
+    return Arrays.stream(bounds).mapToDouble(b -> Math.abs((b.max - b.min) / 100.0)).toArray();
   }
 
   @Nonnull
   private static double[] toInitialGuess(@Nonnull Bounds[] bounds) {
     return Arrays.stream(bounds).mapToDouble(Bounds::initialGuess).toArray();
-  }
-
-  @Nonnull
-  private static SimpleBounds toBounds(@Nonnull Bounds[] bounds) {
-    return new SimpleBounds(
-        Arrays.stream(bounds).mapToDouble(Bounds::min).toArray(),
-        Arrays.stream(bounds).mapToDouble(Bounds::max).toArray()
-    );
   }
 }
