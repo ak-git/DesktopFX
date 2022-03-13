@@ -56,7 +56,7 @@ public class Inverse3Test {
     double hStep = Metrics.fromMilli(1.0);
     ToDoubleFunction<double[]> dynamicInverse = DynamicInverse.of(ms, hStep);
 
-    int[] lB = {1, 1};
+    int[] lB = {2, 2};
     int[] uB = {100, 100};
 
     record P(@Nonnegative int p1, @Nonnegative int p2mp1) {
@@ -81,7 +81,7 @@ public class Inverse3Test {
             p -> cache.apply(new P(p)).getValue(),
             Codecs.ofVector(IntStream.range(0, lB.length).mapToObj(i -> IntRange.of(lB[i], uB[i])).toArray(IntRange[]::new))
         )
-        .populationSize(1 << 5)
+        .populationSize(1 << 6)
         .optimize(Optimize.MINIMUM)
         .alterers(new Mutator<>(0.03), new MeanAlterer<>(0.6))
         .build().stream()

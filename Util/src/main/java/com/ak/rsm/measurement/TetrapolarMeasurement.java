@@ -90,7 +90,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
 
     AbstractBuilder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
       super(converter);
-      this.absError = converter.applyAsDouble(absError);
+      this.absError = Math.abs(converter.applyAsDouble(absError));
     }
   }
 
