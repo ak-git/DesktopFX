@@ -59,12 +59,12 @@ public class Inverse3Test {
     int[] lB = {1, 1};
     int[] uB = {100, 100};
 
-    record P(int p1, int p2mp1) {
-      P(int[] p) {
+    record P(@Nonnegative int p1, @Nonnegative int p2mp1) {
+      P(@Nonnull int[] p) {
         this(p[0], p[1]);
       }
 
-      P(double[] p) {
+      P(@Nonnull double[] p) {
         this((int) Math.round(p[0]), (int) Math.round(p[1]));
       }
     }
@@ -126,7 +126,7 @@ public class Inverse3Test {
     };
   }
 
-  @Test(dataProvider = "noChanged", invocationCount = 5, enabled = false)
+  @Test(dataProvider = "noChanged")
   @ParametersAreNonnullByDefault
   public void testNoChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, int[] indentations) {
     double hStep = Metrics.fromMilli(0.1);
