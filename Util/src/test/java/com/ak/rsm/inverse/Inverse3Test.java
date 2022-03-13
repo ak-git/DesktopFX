@@ -73,7 +73,7 @@ public class Inverse3Test {
       Logger.getAnonymousLogger().info(p::toString);
       return Simplex.optimizeAll(
           kw -> dynamicInverse.applyAsDouble(new double[] {kw[0], kw[1], p.p1, p.p2mp1}),
-          new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(-1.0, 1.0)
+          new Simplex.Bounds(-1.0, 0.0, 1.0), new Simplex.Bounds(-1.0, 0.0, 1.0)
       );
     });
 
@@ -86,7 +86,7 @@ public class Inverse3Test {
                     .toArray(IntRange[]::new)
             )
         )
-        .populationSize(1 << 4)
+        .populationSize(1 << 5)
         .optimize(Optimize.MINIMUM)
         .alterers(new Mutator<>(0.03), new MeanAlterer<>(0.6))
         .build().stream()
