@@ -53,35 +53,22 @@ public class Inverse3Test {
 
   @Test(dataProvider = "single", enabled = false)
   public void testSingle(@Nonnull Collection<? extends DerivativeMeasurement> ms) {
-    double hStep = Metrics.fromMilli(1.0);
-    ToDoubleFunction<double[]> dynamicInverse = DynamicInverse.of(ms, hStep);
-
-    int[] lB = {2, 2};
-    int[] uB = {100, 100};
-
-    record P(@Nonnegative int p1, @Nonnegative int p2mp1) {
-      P(@Nonnull int[] p) {
-        this(p[0], p[1]);
-      }
-
-      P(@Nonnull double[] p) {
-        this((int) Math.round(p[0]), (int) Math.round(p[1]));
-      }
-    }
-
-    Function<P, PointValuePair> cache = new ConcurrentCache<>(
-        p -> Simplex.optimizeAll(
-            kw -> dynamicInverse.applyAsDouble(new double[] {kw[0], kw[1], p.p1, p.p2mp1}),
-            new Simplex.Bounds(-1.0, 0.0, 1.0), new Simplex.Bounds(-1.0, 0.0, 1.0)
+    int p1 = 5;
+    Function<Integer, PointValuePair> cache = new ConcurrentCache<>(
+        p2mp1 -> Simplex.optimizeAll(
+            kw -> DynamicInverse.of(ms, kw[2]).applyAsDouble(new double[] {kw[0], kw[1], p1, p2mp1}),
+            new Simplex.Bounds(-1.0, 0.0, 1.0),
+            new Simplex.Bounds(-1.0, 0.0, 1.0),
+            new Simplex.Bounds(Metrics.fromMilli(0.01), Metrics.fromMilli(0.1), Metrics.fromMilli(2.0))
         )
     );
 
     Phenotype<IntegerGene, Double> phenotype = Engine
         .builder(
-            p -> cache.apply(new P(p)).getValue(),
-            Codecs.ofVector(IntStream.range(0, lB.length).mapToObj(i -> IntRange.of(lB[i], uB[i])).toArray(IntRange[]::new))
+            p2mp1 -> cache.apply(p2mp1[0]).getValue(),
+            Codecs.ofVector(IntRange.of(2, 25))
         )
-        .populationSize(1 << 6)
+        .populationSize(1 << 3)
         .optimize(Optimize.MINIMUM)
         .alterers(new Mutator<>(0.03), new MeanAlterer<>(0.6))
         .build().stream()
@@ -96,15 +83,20 @@ public class Inverse3Test {
         phenotype.fitness()
     );
 
-    double[] point = pOptimal.getPoint();
-    PointValuePair kwOptimal = cache.apply(new P(point));
-
-    double[] kwpp = {kwOptimal.getPoint()[0], kwOptimal.getPoint()[1], point[0], point[1]};
+    int p2mp1 = (int) pOptimal.getPoint()[0];
+    PointValuePair kwOptimal = cache.apply(p2mp1);
+    double[] kwpp = {kwOptimal.getPoint()[0], kwOptimal.getPoint()[1], p1, p2mp1};
+    double hStep = kwOptimal.getPoint()[2];
     var rho1 = getRho1(ms, kwpp, hStep);
     var rho2 = ValuePair.Name.RHO_2.of(rho1.value() / Layers.getRho1ToRho2(kwpp[0]), 0.0);
     var rho3 = ValuePair.Name.RHO_3.of(rho2.value() / Layers.getRho1ToRho2(kwpp[1]), 0.0);
-    Logger.getAnonymousLogger().info(() -> "%.6f %s; %s; %s; %s"
-        .formatted(kwOptimal.getValue(), Arrays.toString(kwpp), rho1, rho2, rho3));
+    Logger.getAnonymousLogger().info(
+        () -> "%.6f %s; %s; %s; %s; %s; %s; %s".formatted(
+            kwOptimal.getValue(), ValuePair.Name.K12.of(kwpp[0], 0.0), ValuePair.Name.K23.of(kwpp[1], 0.0),
+            ValuePair.Name.H.of(hStep, 0.0),
+            Arrays.stream(kwpp).skip(2).map(p -> p * hStep).mapToObj(h -> ValuePair.Name.H.of(h, 0.0)).toList(),
+            rho1, rho2, rho3)
+    );
   }
 
   @DataProvider(name = "noChanged")
