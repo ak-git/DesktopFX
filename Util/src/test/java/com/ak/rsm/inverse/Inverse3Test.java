@@ -24,6 +24,7 @@ import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.ConcurrentCache;
 import com.ak.util.Metrics;
+import io.jenetics.GaussianMutator;
 import io.jenetics.Genotype;
 import io.jenetics.IntegerGene;
 import io.jenetics.MeanAlterer;
@@ -45,32 +46,32 @@ public class Inverse3Test {
   public static Object[][] single() {
     return new Object[][] {
         {
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(0.001).system4(10.0)
-                .rho1(9.0).rho2(1.0).rho3(9.0).hStep(1.0).p(5, 5),
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(0.1).system4(10.0)
+                .rho1(9.0).rho2(1.0).rho3(9.0).hStep(0.1).p(50, 50),
         },
     };
   }
 
   @Test(dataProvider = "single", enabled = false)
   public void testSingle(@Nonnull Collection<? extends DerivativeMeasurement> ms) {
-    int p1 = 5;
+    int pTotal = 100;
     Function<Integer, PointValuePair> cache = new ConcurrentCache<>(
-        p2mp1 -> Simplex.optimizeAll(
-            kw -> DynamicInverse.of(ms, kw[2]).applyAsDouble(new double[] {kw[0], kw[1], p1, p2mp1}),
-            new Simplex.Bounds(-1.0, 0.0, 1.0),
-            new Simplex.Bounds(-1.0, 0.0, 1.0),
-            new Simplex.Bounds(Metrics.fromMilli(0.01), Metrics.fromMilli(0.1), Metrics.fromMilli(2.0))
+        p1 -> Simplex.optimizeAll(
+            kw -> DynamicInverse.of(ms, kw[2]).applyAsDouble(new double[] {kw[0], kw[1], p1, pTotal - p1}),
+            new Simplex.Bounds(-1.0, 1.0),
+            new Simplex.Bounds(-1.0, 1.0),
+            new Simplex.Bounds(Metrics.fromMilli(0.01), Metrics.fromMilli(1.0))
         )
     );
 
     Phenotype<IntegerGene, Double> phenotype = Engine
         .builder(
-            p2mp1 -> cache.apply(p2mp1[0]).getValue(),
-            Codecs.ofVector(IntRange.of(2, 25))
+            p1 -> cache.apply(p1[0]).getValue(),
+            Codecs.ofVector(IntRange.of(1, 99))
         )
         .populationSize(1 << 3)
         .optimize(Optimize.MINIMUM)
-        .alterers(new Mutator<>(0.03), new MeanAlterer<>(0.6))
+        .alterers(new GaussianMutator<>(0.5), new Mutator<>(0.03), new MeanAlterer<>(0.6))
         .build().stream()
         .limit(Limits.bySteadyFitness(7))
         .limit(100)
@@ -83,9 +84,9 @@ public class Inverse3Test {
         phenotype.fitness()
     );
 
-    int p2mp1 = (int) pOptimal.getPoint()[0];
-    PointValuePair kwOptimal = cache.apply(p2mp1);
-    double[] kwpp = {kwOptimal.getPoint()[0], kwOptimal.getPoint()[1], p1, p2mp1};
+    int p1 = (int) pOptimal.getPoint()[0];
+    PointValuePair kwOptimal = cache.apply(p1);
+    double[] kwpp = {kwOptimal.getPoint()[0], kwOptimal.getPoint()[1], p1, pTotal - p1};
     double hStep = kwOptimal.getPoint()[2];
     var rho1 = getRho1(ms, kwpp, hStep);
     var rho2 = ValuePair.Name.RHO_2.of(rho1.value() / Layers.getRho1ToRho2(kwpp[0]), 0.0);
@@ -101,54 +102,63 @@ public class Inverse3Test {
 
   @DataProvider(name = "noChanged")
   public static Object[][] noChanged() {
-    int[] indentations = {0, -5, -10};
+    double[] indentationsMilli = {0, -0.5, -1.0};
     return new Object[][] {
         {
-            Arrays.stream(indentations).mapToObj(i ->
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.0001).system2(6.0)
-                    .rho1(9.0).rho2(1.0).rho3(9.0).hStep(0.1).p(10, 50 + i)
+            Arrays.stream(indentationsMilli).mapToObj(i ->
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.1).system2(6.0)
+                    .rho1(9.0).rho2(1.0).rho3(9.0).hStep(0.1).p(50, 50 + Math.toIntExact(Math.round(i / 0.1)))
             ).toList(),
-            indentations
+            indentationsMilli
         },
     };
   }
 
   @Test(dataProvider = "noChanged", enabled = false)
   @ParametersAreNonnullByDefault
-  public void testNoChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, int[] indentations) {
+  public void testNoChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, double[] indentationsMilli) {
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
     if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
       throw new IllegalStateException("L is not equal for all electrode systems %s".formatted(statisticsL));
     }
 
-    int p1 = 10;
-    Function<Integer, PointValuePair> cache = new ConcurrentCache<>(
-        p2mp1 -> Simplex.optimizeAll(
+    double hStep = Metrics.fromMilli(0.1);
+    List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(dm -> DynamicInverse.of(dm, hStep)).toList();
+
+    record P(@Nonnegative int p1, @Nonnegative int p2mp1) {
+      P(@Nonnull int[] p) {
+        this(p[0], p[1]);
+      }
+
+      P(@Nonnull double[] p) {
+        this((int) Math.round(p[0]), (int) Math.round(p[1]));
+      }
+    }
+
+    Function<P, PointValuePair> cache = new ConcurrentCache<>(
+        p -> Simplex.optimizeAll(
             kw -> {
-              double hStep = kw[2];
-              List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(dm -> DynamicInverse.of(dm, hStep)).toList();
-              Iterator<double[]> iterator = Arrays.stream(indentations)
+              Iterator<double[]> iterator = Arrays.stream(indentationsMilli)
                   .mapToObj(
-                      x -> new double[] {kw[0], kw[1], p1, p2mp1 + x}
+                      x -> new double[] {kw[0], kw[1], p.p1, p.p2mp1 + x / 0.1}
                   )
                   .iterator();
               return dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(iterator.next()))
                   .reduce(StrictMath::hypot).orElseThrow();
             },
-            new Simplex.Bounds(-1.0, 0.0, 1.0),
-            new Simplex.Bounds(-1.0, 0.0, 1.0),
-            new Simplex.Bounds(Metrics.fromMilli(0.001), Metrics.fromMilli(0.1), Metrics.fromMilli(2.0))
+            new Simplex.Bounds(-1.0, 1.0),
+            new Simplex.Bounds(-1.0, 1.0)
         )
     );
 
     Phenotype<IntegerGene, Double> phenotype = Engine
         .builder(
-            p2mp1 -> cache.apply(p2mp1[0]).getValue(),
-            Codecs.ofVector(IntRange.of(25, 100))
+            p -> cache.apply(new P(p)).getValue(),
+            Codecs.ofVector(new IntRange[] {IntRange.of(15, 100), IntRange.of(15, 100)})
         )
         .populationSize(1 << 3)
         .optimize(Optimize.MINIMUM)
-        .alterers(new Mutator<>(0.03), new MeanAlterer<>(0.6))
+        .alterers(new GaussianMutator<>(0.5), new Mutator<>(0.03), new MeanAlterer<>(0.6))
         .build().stream()
         .limit(Limits.bySteadyFitness(7))
         .limit(100)
@@ -161,10 +171,10 @@ public class Inverse3Test {
         phenotype.fitness()
     );
 
-    int p2mp1 = (int) pOptimal.getPoint()[0];
-    PointValuePair kwOptimal = cache.apply(p2mp1);
+    int p1 = (int) pOptimal.getPoint()[0];
+    int p2mp1 = (int) pOptimal.getPoint()[1];
+    PointValuePair kwOptimal = cache.apply(new P(pOptimal.getPoint()));
     double[] kwpp = {kwOptimal.getPoint()[0], kwOptimal.getPoint()[1], p1, p2mp1};
-    double hStep = kwOptimal.getPoint()[2];
 
     var rho1 = ms.stream().map(dm -> getRho1(dm, kwpp, hStep)).reduce(ValuePair::mergeWith).orElseThrow();
     var rho2 = ValuePair.Name.RHO_2.of(rho1.value() / Layers.getRho1ToRho2(kwpp[0]), 0.0);
