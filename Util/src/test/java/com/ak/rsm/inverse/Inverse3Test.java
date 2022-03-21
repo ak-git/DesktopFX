@@ -122,39 +122,30 @@ public class Inverse3Test {
       throw new IllegalStateException("L is not equal for all electrode systems %s".formatted(statisticsL));
     }
 
-    double hStep = Metrics.fromMilli(0.1);
-    List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(dm -> DynamicInverse.of(dm, hStep)).toList();
-
-    record P(@Nonnegative int p1, @Nonnegative int p2mp1) {
-      P(@Nonnull int[] p) {
-        this(p[0], p[1]);
-      }
-
-      P(@Nonnull double[] p) {
-        this((int) Math.round(p[0]), (int) Math.round(p[1]));
-      }
-    }
-
-    Function<P, PointValuePair> cache = new ConcurrentCache<>(
-        p -> Simplex.optimizeAll(
+    int pTotal = 100;
+    Function<Integer, PointValuePair> cache = new ConcurrentCache<>(
+        p1 -> Simplex.optimizeAll(
             kw -> {
+              double hStep = kw[2];
+              List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(dm -> DynamicInverse.of(dm, hStep)).toList();
               Iterator<double[]> iterator = Arrays.stream(indentationsMilli)
                   .mapToObj(
-                      x -> new double[] {kw[0], kw[1], p.p1, p.p2mp1 + x / 0.1}
+                      x -> new double[] {kw[0], kw[1], p1, Math.max(1, pTotal - p1 + Metrics.fromMilli(x) / hStep)}
                   )
                   .iterator();
               return dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(iterator.next()))
                   .reduce(StrictMath::hypot).orElseThrow();
             },
             new Simplex.Bounds(-1.0, 1.0),
-            new Simplex.Bounds(-1.0, 1.0)
+            new Simplex.Bounds(-1.0, 1.0),
+            new Simplex.Bounds(Metrics.fromMilli(0.01), Metrics.fromMilli(1.0))
         )
     );
 
     Phenotype<IntegerGene, Double> phenotype = Engine
         .builder(
-            p -> cache.apply(new P(p)).getValue(),
-            Codecs.ofVector(new IntRange[] {IntRange.of(15, 100), IntRange.of(15, 100)})
+            p1 -> cache.apply(p1[0]).getValue(),
+            Codecs.ofVector(IntRange.of(1, 75))
         )
         .populationSize(1 << 3)
         .optimize(Optimize.MINIMUM)
@@ -172,10 +163,9 @@ public class Inverse3Test {
     );
 
     int p1 = (int) pOptimal.getPoint()[0];
-    int p2mp1 = (int) pOptimal.getPoint()[1];
-    PointValuePair kwOptimal = cache.apply(new P(pOptimal.getPoint()));
-    double[] kwpp = {kwOptimal.getPoint()[0], kwOptimal.getPoint()[1], p1, p2mp1};
-
+    PointValuePair kwOptimal = cache.apply(p1);
+    double[] kwpp = {kwOptimal.getPoint()[0], kwOptimal.getPoint()[1], p1, pTotal - p1};
+    double hStep = kwOptimal.getPoint()[2];
     var rho1 = ms.stream().map(dm -> getRho1(dm, kwpp, hStep)).reduce(ValuePair::mergeWith).orElseThrow();
     var rho2 = ValuePair.Name.RHO_2.of(rho1.value() / Layers.getRho1ToRho2(kwpp[0]), 0.0);
     var rho3 = ValuePair.Name.RHO_3.of(rho2.value() / Layers.getRho1ToRho2(kwpp[1]), 0.0);
