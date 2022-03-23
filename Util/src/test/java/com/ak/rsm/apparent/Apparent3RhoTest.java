@@ -36,4 +36,14 @@ public class Apparent3RhoTest {
         .value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]), hStepSI / Metrics.fromMilli(lmm), p[0], p[1]);
     Assert.assertEquals(apparent, predicted2, 0.001);
   }
+
+  @Test
+  public void testApparent3Rho() {
+    int factor = 100;
+    double value1 = Apparent3Rho.newNormalizedApparent2Rho(new RelativeTetrapolarSystem(10.0 / 20.0))
+        .value(0.0, 1.0, 1.0 / 20.0 / factor, 5 * factor, 5 * factor);
+    double value2 = Apparent3Rho.newNormalizedApparent2Rho(new RelativeTetrapolarSystem(10.0 / 20.0))
+        .value(0.0, 1.0, 1.0 / 20.0, 5, 5);
+    Assert.assertEquals(value1, value2, 1.0e-4);
+  }
 }
