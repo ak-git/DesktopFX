@@ -9,7 +9,7 @@ public record RelativeTetrapolarSystem(@Nonnegative double sToL, @Nonnegative do
   public static final double MIN_ERROR_FACTOR = new RelativeTetrapolarSystem(OPTIMAL_SL).errorFactor();
 
   public RelativeTetrapolarSystem(@Nonnegative double sToL) {
-    this(Math.abs(sToL), Math.min(sToL, 1.0 / sToL));
+    this(Math.abs(sToL), Math.min(Math.abs(sToL), Math.abs(1.0 / sToL)));
   }
 
   @Nonnegative

@@ -154,9 +154,12 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
         return new TetrapolarDerivativeResistance(builder.h(h), builder.h(h + dhHolder.dh), dhHolder.dh);
       }
       else {
+        int scale = Math.toIntExact(Math.max(1, Math.round(Math.abs(hStep / dhHolder.dh))));
+        double hs = Math.min(hStep, Math.abs(dhHolder.dh));
         return new TetrapolarDerivativeResistance(
-            builder.rho3(rho3).hStep(hStep).p(p1, p2mp1),
-            builder.rho3(rho3).hStep(hStep + dhHolder.dh).p(p1, p2mp1), dhHolder.dh);
+            builder.rho3(rho3).hStep(hs).p(scale * p1, scale * p2mp1),
+            builder.rho3(rho3).hStep(hs).p(scale * p1 + Math.toIntExact(Math.round(scale * dhHolder.dh / hStep)), scale * p2mp1),
+            dhHolder.dh);
       }
     }
   }
