@@ -95,11 +95,17 @@ public enum Simplex {
     @Override
     @ParametersAreNonnullByDefault
     PointValuePair optimize(MultivariateFunction function, Bounds... bounds) {
+      int populationSize = 1 << (2 * bounds.length);
+
+      if (Arrays.stream(bounds).noneMatch(b -> Double.isNaN(b.initialGuess))) {
+        populationSize = 1 << (6 + bounds.length);
+      }
+
       Phenotype<DoubleGene, Double> phenotype = Engine
           .builder(function::value,
               Codecs.ofVector(Arrays.stream(bounds).map(b -> DoubleRange.of(b.min, b.max)).toArray(DoubleRange[]::new))
           )
-          .populationSize(1 << (6 + bounds.length))
+          .populationSize(populationSize)
           .optimize(Optimize.MINIMUM)
           .alterers(new Mutator<>(0.03), new MeanAlterer<>(0.6))
           .build().stream()
@@ -133,20 +139,10 @@ public enum Simplex {
 
   @ParametersAreNonnullByDefault
   public static PointValuePair optimizeAll(MultivariateFunction function, Bounds... bounds) {
-    Bounds[] minInitialMax;
-
-    if (Arrays.stream(bounds).allMatch(b -> Double.isNaN(b.initialGuess))) {
-      double[] initialGuess = JENETICS.optimize(function, bounds).getPoint();
-      minInitialMax = IntStream.range(0, initialGuess.length)
-          .mapToObj(i -> new Bounds(bounds[i].min, initialGuess[i], bounds[i].max))
-          .toArray(Bounds[]::new);
-    }
-    else if (Arrays.stream(bounds).noneMatch(b -> Double.isNaN(b.initialGuess))) {
-      minInitialMax = bounds.clone();
-    }
-    else {
-      throw new IllegalArgumentException(Arrays.deepToString(bounds));
-    }
+    double[] initialGuess = JENETICS.optimize(function, bounds).getPoint();
+    Bounds[] minInitialMax = IntStream.range(0, initialGuess.length)
+        .mapToObj(i -> new Bounds(bounds[i].min, initialGuess[i], bounds[i].max))
+        .toArray(Bounds[]::new);
 
     return EnumSet.complementOf(EnumSet.of(JENETICS)).stream()
         .map(simplex -> simplex.optimize(function, minInitialMax))

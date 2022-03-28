@@ -154,7 +154,7 @@ public class Inverse3Test {
     return new Object[][] {
         {
             Arrays.stream(indentationsMilli).mapToObj(i ->
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.001).system2(6.0)
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.1).system2(6.0)
                     .rho1(9.0).rho2(1.0).rho3(9.0).hStep(0.1).p(50, 50 + Math.toIntExact(Math.round(i / 0.1)))
             ).toList(),
             indentationsMilli,
@@ -182,16 +182,20 @@ public class Inverse3Test {
 
   @Test(dataProvider = "noChanged", enabled = false)
   @ParametersAreNonnullByDefault
-  public void testNoChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, double[] indentationsMilli, int pTotal) {
+  public void testNoChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, double[] indentationsMilli, @Nonnegative int pTotal) {
+    if (ms.size() != indentationsMilli.length) {
+      throw new IllegalArgumentException(Arrays.toString(indentationsMilli));
+    }
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
     if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
       throw new IllegalStateException("L is not equal for all electrode systems %s".formatted(statisticsL));
     }
 
-    double hStep = Metrics.fromMilli(0.1);
+    double hSI = Metrics.fromMilli(0.1);
     Function<Integer, PointValuePair> cache = new ConcurrentCache<>(
         p1 -> Simplex.optimizeAll(
             kw -> {
+              double hStep = kw[2];
               List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(dm -> DynamicInverse.of(dm, hStep)).toList();
               Iterator<double[]> iterator = Arrays.stream(indentationsMilli)
                   .mapToObj(
@@ -202,15 +206,16 @@ public class Inverse3Test {
                   .reduce(StrictMath::hypot).orElseThrow();
             },
             new Simplex.Bounds(-1.0, 1.0),
-            new Simplex.Bounds(-1.0, 1.0)
+            new Simplex.Bounds(-1.0, 1.0),
+            new Simplex.Bounds(hSI * (pTotal - 1) / pTotal, hSI, hSI * (pTotal + 1) / pTotal)
         )
     );
 
     int upperShift = Arrays.stream(indentationsMilli).filter(value -> value < 0)
-        .map(x -> Metrics.fromMilli(x) / hStep).mapToLong(Math::round).mapToInt(Math::toIntExact).min().orElse(0);
+        .map(x -> Metrics.fromMilli(x) / Metrics.fromMilli(0.09)).mapToLong(Math::round).mapToInt(Math::toIntExact).min().orElse(0);
 
     Phenotype<IntegerGene, Double> phenotype = Engine
-        .builder(p1 -> cache.apply(p1[0]).getValue(), Codecs.ofVector(IntRange.of(2, pTotal - 2 + upperShift)))
+        .builder(p1 -> cache.apply(p1[0]).getValue(), Codecs.ofVector(IntRange.of(1, pTotal - 1 + upperShift)))
         .populationSize(1 << 3)
         .optimize(Optimize.MINIMUM)
         .alterers(new GaussianMutator<>(0.6), new Mutator<>(0.03), new MeanAlterer<>(0.6))
@@ -228,6 +233,7 @@ public class Inverse3Test {
     int p1 = (int) pOptimal.getPoint()[0];
     PointValuePair kwOptimal = cache.apply(p1);
     double[] kwpp = {kwOptimal.getPoint()[0], kwOptimal.getPoint()[1], p1, pTotal - p1};
+    double hStep = kwOptimal.getPoint()[2];
     var rho1 = ms.stream().map(dm -> getRho1(dm, kwpp, hStep)).reduce(ValuePair::mergeWith).orElseThrow();
     var rho2 = ValuePair.Name.RHO_2.of(rho1.value() / Layers.getRho1ToRho2(kwpp[0]), 0.0);
     var rho3 = ValuePair.Name.RHO_3.of(rho2.value() / Layers.getRho1ToRho2(kwpp[1]), 0.0);

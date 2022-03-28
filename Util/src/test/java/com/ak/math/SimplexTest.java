@@ -46,9 +46,4 @@ public class SimplexTest {
     Assert.assertEquals(valuePair.getPoint(), new double[] {Double.NaN, Double.NaN, Double.NaN}, 0.1, Arrays.toString(valuePair.getPoint()));
     Assert.assertEquals(valuePair.getValue(), Double.NaN, 0.1);
   }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testInvalidBounds() {
-    Simplex.optimizeAll(new Rosen(), new Bounds(-10.0, 0.0, 10.0), new Bounds(-10.0, 0.0));
-  }
 }
