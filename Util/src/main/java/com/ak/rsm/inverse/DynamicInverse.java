@@ -20,7 +20,12 @@ final class DynamicInverse extends AbstractInverseFunction<DerivativeResistivity
   @ParametersAreNonnullByDefault
   private DynamicInverse(Collection<? extends DerivativeResistivity> r,
                          Function<Collection<TetrapolarSystem>, ToDoubleBiFunction<TetrapolarSystem, double[]>> toPredicted) {
-    super(r, d -> log(d.resistivity()) - log(abs(d.derivativeResistivity())), UnaryOperator.identity(), toPredicted);
+    super(r,
+        d -> {
+          double dR = d.derivativeResistivity();
+          return Math.signum(dR) * (log(d.resistivity()) - log(abs(dR)));
+        },
+        UnaryOperator.identity(), toPredicted);
   }
 
   static ToDoubleFunction<double[]> of(@Nonnull Collection<? extends DerivativeResistivity> r) {
