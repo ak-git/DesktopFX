@@ -14,10 +14,9 @@ final class Layer2DynamicInverse extends AbstractLayerInverse {
   Layer2DynamicInverse(@Nonnull Collection<TetrapolarSystem> systems) {
     super(systems, () -> {
       Layer2StaticInverse logApparentPredicted = new Layer2StaticInverse(systems);
-      ToDoubleBiFunction<TetrapolarSystem, double[]> diffApparentPredicted =
-          (s, kw) ->
-              Apparent2Rho.newDerivativeApparentByPhi2Rho(s.relativeSystem())
-                  .applyAsDouble(logApparentPredicted.layersBiFunction().apply(s, kw));
+      ToDoubleBiFunction<TetrapolarSystem, double[]> diffApparentPredicted = (s, kw) ->
+          Apparent2Rho.newDerivativeApparentByPhi2Rho(s.relativeSystem())
+              .applyAsDouble(logApparentPredicted.layersBiFunction().apply(s, kw));
 
       return (s, kw) -> {
         double dR = diffApparentPredicted.applyAsDouble(s, kw);
