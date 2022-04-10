@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 
 import com.ak.rsm.apparent.Apparent3Rho;
 import com.ak.rsm.system.TetrapolarSystem;
+import org.apache.commons.math3.complex.Complex;
 
 import static java.lang.StrictMath.log;
 
@@ -25,7 +26,8 @@ final class Layer3DynamicInverse extends AbstractLayerInverse {
               .applyAsInt(kw[2]), ROUND_TO_INT.applyAsInt(kw[3]));
       return (s, kw) -> {
         double dR = diffApparentPredicted.applyAsDouble(s, kw);
-        return Math.signum(dR) * (logApparentPredicted.applyAsDouble(s, kw) - log(Math.abs(dR)));
+        double real = logApparentPredicted.applyAsDouble(s, kw) - log(Math.abs(dR));
+        return new Complex(real, real * Math.signum(dR));
       };
     });
   }

@@ -42,7 +42,7 @@ public class Inverse2Test {
     };
   }
 
-  @Test(dataProvider = "noChanged", enabled = false)
+  @Test(dataProvider = "noChanged", invocationCount = 10, enabled = false)
   @ParametersAreNonnullByDefault
   public void testNoChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, double[] indentations) {
     List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(DynamicInverse::of).toList();

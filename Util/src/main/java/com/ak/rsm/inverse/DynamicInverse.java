@@ -1,8 +1,8 @@
 package com.ak.rsm.inverse;
 
 import java.util.Collection;
+import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
 
@@ -12,6 +12,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.rsm.resistance.DerivativeResistivity;
 import com.ak.rsm.system.TetrapolarSystem;
+import org.apache.commons.math3.complex.Complex;
 
 import static java.lang.StrictMath.abs;
 import static java.lang.StrictMath.log;
@@ -19,11 +20,12 @@ import static java.lang.StrictMath.log;
 final class DynamicInverse extends AbstractInverseFunction<DerivativeResistivity> {
   @ParametersAreNonnullByDefault
   private DynamicInverse(Collection<? extends DerivativeResistivity> r,
-                         Function<Collection<TetrapolarSystem>, ToDoubleBiFunction<TetrapolarSystem, double[]>> toPredicted) {
+                         Function<Collection<TetrapolarSystem>, BiFunction<TetrapolarSystem, double[], Complex>> toPredicted) {
     super(r,
         d -> {
           double dR = d.derivativeResistivity();
-          return Math.signum(dR) * (log(d.resistivity()) - log(abs(dR)));
+          double real = log(d.resistivity()) - log(abs(dR));
+          return new Complex(real, real * Math.signum(dR));
         },
         UnaryOperator.identity(), toPredicted);
   }

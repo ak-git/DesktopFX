@@ -10,8 +10,9 @@ import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.TetrapolarSystem;
+import org.apache.commons.math3.complex.Complex;
 
-final class Layer2StaticInverse extends AbstractInverse implements ToDoubleBiFunction<TetrapolarSystem, double[]> {
+final class Layer2StaticInverse extends AbstractInverse implements BiFunction<TetrapolarSystem, double[], Complex> {
   @Nonnull
   private final BiFunction<TetrapolarSystem, double[], RelativeMediumLayers> layersBiFunction;
   @Nonnull
@@ -25,8 +26,8 @@ final class Layer2StaticInverse extends AbstractInverse implements ToDoubleBiFun
   }
 
   @Override
-  public double applyAsDouble(TetrapolarSystem s, double[] kw) {
-    return logApparentPredicted.applyAsDouble(s, kw);
+  public Complex apply(TetrapolarSystem s, double[] kw) {
+    return new Complex(logApparentPredicted.applyAsDouble(s, kw));
   }
 
   @Nonnull
