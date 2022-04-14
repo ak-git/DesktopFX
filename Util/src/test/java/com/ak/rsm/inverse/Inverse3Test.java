@@ -47,7 +47,8 @@ public class Inverse3Test {
     return new Object[][] {
         {
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.1).system4(10.0)
-                .rho1(9.0).rho2(1.0).rho3(9.0).hStep(0.1).p(51, 50),
+                .rho1(9.0).rho2(1.0).rho3(9.0).hStep(0.1).p(11, 10),
+            11 + 10
         },
     };
   }
@@ -62,8 +63,7 @@ public class Inverse3Test {
    * INFO: 0,000000 k₁₂ = -0,800000; k₂₃ = 0,800000; h = 0,100000 mm; [h = 5,000000 mm, h = 5,000000 mm]; ρ₁ = 9,000000 Ω·m; ρ₂ = 1,000000 Ω·m; ρ₃ = 9,000000 Ω·m
    */
   @Test(dataProvider = "single", enabled = false)
-  public void testSingle(@Nonnull Collection<? extends DerivativeMeasurement> ms) {
-    int pTotal = 101;
+  public void testSingle1(@Nonnull Collection<? extends DerivativeMeasurement> ms, @Nonnegative int pTotal) {
     Function<Integer, PointValuePair> cache = new ConcurrentCache<>(
         p1 -> Simplex.optimizeAll(
             kw -> DynamicInverse.of(ms, kw[2]).applyAsDouble(new double[] {kw[0], kw[1], p1, pTotal - p1}),
@@ -74,7 +74,7 @@ public class Inverse3Test {
     );
 
     Phenotype<IntegerGene, Double> phenotype = Engine
-        .builder(p1 -> cache.apply(p1[0]).getValue(), Codecs.ofVector(IntRange.of(1, 99)))
+        .builder(p1 -> cache.apply(p1[0]).getValue(), Codecs.ofVector(IntRange.of(1, pTotal - 1)))
         .populationSize(1 << 3)
         .optimize(Optimize.MINIMUM)
         .alterers(new GaussianMutator<>(0.6), new Mutator<>(0.03), new MeanAlterer<>(0.6))
@@ -106,8 +106,7 @@ public class Inverse3Test {
   }
 
   @Test(dataProvider = "single", enabled = false)
-  public void testSingle2(@Nonnull Collection<? extends DerivativeMeasurement> ms) {
-    int pTotal = 101;
+  public void testSingle2(@Nonnull Collection<? extends DerivativeMeasurement> ms, @Nonnegative int pTotal) {
     double hStep = Metrics.fromMilli(0.1);
     Function<Integer, PointValuePair> cache = new ConcurrentCache<>(
         p1 -> Simplex.optimizeAll(
