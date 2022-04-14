@@ -1,6 +1,6 @@
 package com.ak.util;
 
-import java.io.Closeable;
+import java.lang.ref.Cleaner;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
-public final class ConcurrentCache<A, V> implements Function<A, V>, Closeable {
+public final class ConcurrentCache<A, V> implements Function<A, V>, Cleaner.Cleanable {
   @Nonnull
   private final ConcurrentMap<A, Future<V>> cache = new ConcurrentHashMap<>();
   @Nonnull
@@ -60,7 +60,7 @@ public final class ConcurrentCache<A, V> implements Function<A, V>, Closeable {
   }
 
   @Override
-  public void close() {
+  public void clean() {
     cache.forEach((a, future) -> future.cancel(true));
   }
 }
