@@ -37,14 +37,14 @@ public class Inverse2Test {
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(6.0)
                     .rho1(9.0).rho2(1.0).h(2.0 - mm)
             ).toList(),
-            Arrays.stream(indentationsMilli).map(Metrics::fromMilli).toArray()
+            indentationsMilli
         },
     };
   }
 
   @Test(dataProvider = "noChanged", invocationCount = 10, enabled = false)
   @ParametersAreNonnullByDefault
-  public void testNoChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, double[] indentations) {
+  public void testNoChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, double[] indentationsMilli) {
     List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(DynamicInverse::of).toList();
 
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
@@ -55,7 +55,7 @@ public class Inverse2Test {
     double L = statisticsL.getAverage();
     PointValuePair kwOptimal = Simplex.optimizeAll(
         kw -> {
-          Iterator<double[]> iterator = Arrays.stream(indentations).mapToObj(x -> {
+          Iterator<double[]> iterator = Arrays.stream(indentationsMilli).map(Metrics::fromMilli).mapToObj(x -> {
             double[] kwIndent = kw.clone();
             kwIndent[1] += x / L;
             return kwIndent;
@@ -83,7 +83,7 @@ public class Inverse2Test {
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(6.0).rho1(4.0).rho2(1.0).h(2.0 - 1.0)
             ),
             0.2,
-            new double[] {0.0, Metrics.fromMilli(-0.5), Metrics.fromMilli(-1.0)}
+            new double[] {0, -0.5, -1.0}
         },
     };
   }
@@ -91,7 +91,7 @@ public class Inverse2Test {
 
   @Test(dataProvider = "kChanged", enabled = false)
   @ParametersAreNonnullByDefault
-  public void testKChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, double maxKChanges, double[] indentations) {
+  public void testKChanged(Collection<Collection<? extends DerivativeMeasurement>> ms, double maxKChanges, double[] indentationsMilli) {
     List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(DynamicInverse::of).toList();
 
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
@@ -113,7 +113,7 @@ public class Inverse2Test {
             for (int j = 0; j <= i - 1; j++) {
               kwIndent[0] += changes[j];
             }
-            kwIndent[1] += indentations[i] / L;
+            kwIndent[1] += Metrics.fromMilli(indentationsMilli[i]) / L;
             return kwIndent;
           }).iterator();
 
@@ -130,10 +130,10 @@ public class Inverse2Test {
     Logger.getAnonymousLogger().info(() -> "%.6f; %s; %s; %s".formatted(kwOptimal.getValue(), rho1, rho2, h));
     Logger.getAnonymousLogger().info(() -> {
           double[] changes = Arrays.copyOfRange(kwOptimal.getPoint(), 2, kwOptimal.getPoint().length);
-          String kChanges = Arrays.stream(changes)
-              .mapToObj("%.2f"::formatted).collect(Collectors.joining("; ", "[", "]"));
-          String hIndent = Arrays.stream(indentations).map(Metrics::toMilli)
-              .mapToObj("%.2f"::formatted).collect(Collectors.joining("; ", "[", "]"));
+      String kChanges = Arrays.stream(changes)
+          .mapToObj("%.2f"::formatted).collect(Collectors.joining("; ", "[", "]"));
+      String hIndent = Arrays.stream(indentationsMilli)
+          .mapToObj("%.2f"::formatted).collect(Collectors.joining("; ", "[", "]"));
           return "%.6f; k = %.2f; h = %.1f mm; kChanges = %s; indent = %s mm%n"
               .formatted(kwOptimal.getValue(), kwOptimal.getPoint()[0], Metrics.toMilli(kwOptimal.getPoint()[1] * L),
                   kChanges, hIndent
