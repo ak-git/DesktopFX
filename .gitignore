@@ -20,4 +20,4 @@ CVS
 */out/*
 out/*
 .gradle
-/spring.log
+/spring.log*

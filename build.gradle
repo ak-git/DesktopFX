@@ -51,7 +51,7 @@ ext {
     commons_csv = 'org.apache.commons:commons-csv:1.9.0'
     jSerialComm = 'com.fazecast:jSerialComm:[2.9.0,3.0.0)'
     jenetics = 'io.jenetics:jenetics:7.0.0'
-    javaVersion = JavaVersion.VERSION_17
+    javaVersion = JavaVersion.VERSION_18
 }
 
 wrapper {
@@ -62,7 +62,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2022.03.27'
+    version = '2022.04.16'
     apply plugin: 'idea'
     idea {
         module {
@@ -122,7 +122,7 @@ dependencies {
 }
 
 javafx {
-    version = '17.0.2'
+    version = '18'
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
