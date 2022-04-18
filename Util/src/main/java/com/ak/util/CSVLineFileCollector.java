@@ -102,7 +102,7 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
           finished = true;
         }
       }
-      return finished;
+      return true;
     };
   }
 
