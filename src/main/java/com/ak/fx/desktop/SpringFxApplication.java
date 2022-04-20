@@ -39,7 +39,6 @@ import com.ak.logging.LocalFileHandler;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.input.ZoomEvent;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -92,9 +91,8 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Override
-  public void zoom(ZoomEvent event) {
-    processEvent(viewController -> viewController.zoom(event));
-    super.zoom(event);
+  public void zoom(double zoomFactor) {
+    processEvent(viewController -> viewController.zoom(zoomFactor));
   }
 
   @Override

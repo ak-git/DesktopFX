@@ -45,7 +45,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.TransferMode;
-import javafx.scene.input.ZoomEvent;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -193,9 +192,9 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   }
 
   @Override
-  public final void zoom(@Nonnull ZoomEvent event) {
+  public final void zoom(double zoomFactor) {
     if (chart != null) {
-      axisXController.zoom(event.getTotalZoomFactor());
+      axisXController.zoom(zoomFactor);
       axisXController.preventEnd(chart.diagramWidthProperty().doubleValue());
       changed();
     }
