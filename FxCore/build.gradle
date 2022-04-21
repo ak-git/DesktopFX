@@ -7,6 +7,6 @@ dependencies {
 }
 
 javafx {
-    version = '18'
+    version = '18.0.1'
     modules = ['javafx.graphics']
 }
