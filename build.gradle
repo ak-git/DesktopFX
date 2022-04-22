@@ -1,9 +1,9 @@
 plugins {
-    id "org.javamodularity.moduleplugin" version "1.8.10"
+    id "org.javamodularity.moduleplugin" version '1.8.10'
     id 'java'
     id 'java-library'
     id 'idea'
-    id "org.sonarqube" version "3.3"
+    id "org.sonarqube" version '3.3'
     id 'jacoco'
 
     id "application"
@@ -11,7 +11,7 @@ plugins {
 
     id 'org.springframework.boot' version '2.6.6'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id "com.github.spotbugs" version "5.0.6"
+    id "com.github.spotbugs" version '5.0.6'
 }
 
 spotbugs {
@@ -38,7 +38,7 @@ sonarqube {
 }
 
 jacoco {
-    toolVersion = "0.8.7"
+    toolVersion = "0.8.8"
 }
 
 ext {

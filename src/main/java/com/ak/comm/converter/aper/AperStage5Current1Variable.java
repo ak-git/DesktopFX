@@ -117,6 +117,38 @@ public enum AperStage5Current1Variable implements DependentVariable<AperStage4Cu
       return APPARENT_08_24_RHO.options();
     }
   },
+  APPARENT_10_30_RHO(10.0, 10.0 * 3.0) {
+    @Override
+    public List<AperStage4Current1Variable> getInputVariables() {
+      return Collections.singletonList(AperStage4Current1Variable.R1);
+    }
+
+    @Override
+    public Unit<?> getUnit() {
+      return MetricPrefix.MILLI(OHM).multiply(METRE);
+    }
+
+    @Override
+    public Set<Option> options() {
+      return Collections.singleton(Option.TEXT_VALUE_BANNER);
+    }
+  },
+  APPARENT_50_30_RHO(10.0 * 3.0, 10.0 * 5.0) {
+    @Override
+    public List<AperStage4Current1Variable> getInputVariables() {
+      return Collections.singletonList(AperStage4Current1Variable.R2);
+    }
+
+    @Override
+    public Unit<?> getUnit() {
+      return APPARENT_10_30_RHO.getUnit();
+    }
+
+    @Override
+    public Set<Option> options() {
+      return APPARENT_10_30_RHO.options();
+    }
+  },
   CCR;
 
   @Nullable
