@@ -130,10 +130,10 @@ public class Inverse2Test {
     Logger.getAnonymousLogger().info(() -> "%.6f; %s; %s; %s".formatted(kwOptimal.getValue(), rho1, rho2, h));
     Logger.getAnonymousLogger().info(() -> {
           double[] changes = Arrays.copyOfRange(kwOptimal.getPoint(), 2, kwOptimal.getPoint().length);
-      String kChanges = Arrays.stream(changes)
-          .mapToObj("%.2f"::formatted).collect(Collectors.joining("; ", "[", "]"));
-      String hIndent = Arrays.stream(indentationsMilli)
-          .mapToObj("%.2f"::formatted).collect(Collectors.joining("; ", "[", "]"));
+          String kChanges = Arrays.stream(changes)
+              .mapToObj("%.2f"::formatted).collect(Collectors.joining("; ", "[", "]"));
+          String hIndent = Arrays.stream(indentationsMilli)
+              .mapToObj("%.2f"::formatted).collect(Collectors.joining("; ", "[", "]"));
           return "%.6f; k = %.2f; h = %.1f mm; kChanges = %s; indent = %s mm%n"
               .formatted(kwOptimal.getValue(), kwOptimal.getPoint()[0], Metrics.toMilli(kwOptimal.getPoint()[1] * L),
                   kChanges, hIndent
