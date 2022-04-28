@@ -3,6 +3,7 @@ package com.ak.fx.desktop.purelogic;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
@@ -16,6 +17,7 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.fx.desktop.AbstractScheduledViewController;
 import org.springframework.context.annotation.Profile;
 
+import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_1050;
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_210;
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_420;
 import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
@@ -24,7 +26,9 @@ import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
 @Profile("purelogic")
 public final class PureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
   private static final PureLogicFrame.StepCommand PING = MICRON_210;
-  private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE = {MICRON_210, MICRON_420};
+  private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE =
+      Stream.concat(Stream.generate(() -> MICRON_210).limit(7), Stream.of(MICRON_420))
+          .toArray(PureLogicFrame.StepCommand[]::new);
   private final Queue<PureLogicFrame.StepCommand> frames = new LinkedList<>();
   private final AtomicInteger handDirection = new AtomicInteger();
   private final AtomicInteger autoDirection = new AtomicInteger();
@@ -69,7 +73,7 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
       if (hand != 0) {
         int direction = handDirection.getAndAdd(hand > 0 ? -1 : 1);
         autoDirection.set(direction);
-        return AUTO_SEQUENCE[AUTO_SEQUENCE.length - 1].action(direction > 0);
+        return MICRON_1050.action(direction > 0);
       }
       else if (autoDirection.get() != 0) {
         autoSequenceIndex++;
