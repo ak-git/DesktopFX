@@ -27,7 +27,7 @@ import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
 public final class PureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
   private static final PureLogicFrame.StepCommand PING = MICRON_210;
   private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE =
-      Stream.concat(Stream.generate(() -> MICRON_210).limit(7), Stream.of(MICRON_420))
+      Stream.concat(Stream.generate(() -> MICRON_210).limit(5), Stream.of(MICRON_420))
           .toArray(PureLogicFrame.StepCommand[]::new);
   private final Queue<PureLogicFrame.StepCommand> frames = new LinkedList<>();
   private final AtomicInteger handDirection = new AtomicInteger();

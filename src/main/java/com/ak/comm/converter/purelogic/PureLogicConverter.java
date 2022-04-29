@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Scope;
 @Profile("purelogic")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class PureLogicConverter extends AbstractConverter<PureLogicFrame, PureLogicVariable> {
-  public static final int FREQUENCY = 2;
+  public static final int FREQUENCY = 1;
   private static final int DATA_FREQUENCY = 1000;
   private int position;
 
