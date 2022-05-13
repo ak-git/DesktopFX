@@ -3,7 +3,6 @@ package com.ak.fx.desktop.purelogic;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
@@ -19,16 +18,24 @@ import org.springframework.context.annotation.Profile;
 
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_1050;
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_210;
+import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_315;
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_420;
+import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_525;
+import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_630;
+import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_735;
+import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_840;
 import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
 
 @Named
 @Profile("purelogic")
 public final class PureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
   private static final PureLogicFrame.StepCommand PING = MICRON_210;
-  private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE =
-      Stream.concat(Stream.generate(() -> MICRON_210).limit(5), Stream.of(MICRON_420))
-          .toArray(PureLogicFrame.StepCommand[]::new);
+  private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE = {
+      MICRON_210, MICRON_210, MICRON_210, MICRON_210,
+      MICRON_315, MICRON_315, MICRON_420, MICRON_420,
+      MICRON_525, MICRON_525, MICRON_630, MICRON_630,
+      MICRON_735, MICRON_735, MICRON_840, MICRON_840
+  };
   private final Queue<PureLogicFrame.StepCommand> frames = new LinkedList<>();
   private final AtomicInteger handDirection = new AtomicInteger();
   private final AtomicInteger autoDirection = new AtomicInteger();
@@ -78,7 +85,7 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
       else if (autoDirection.get() != 0) {
         autoSequenceIndex++;
         autoSequenceIndex %= AUTO_SEQUENCE.length;
-        boolean sequenceDirection = (autoSequenceIndex & 1) != 0;
+        boolean sequenceDirection = (autoSequenceIndex & 1) == 0;
         if (autoDirection.get() < 0) {
           sequenceDirection = !sequenceDirection;
         }
