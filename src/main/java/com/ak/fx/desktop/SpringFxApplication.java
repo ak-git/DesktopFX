@@ -39,7 +39,6 @@ import com.ak.comm.interceptor.simple.StringBytesInterceptor;
 import com.ak.logging.LocalFileHandler;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.input.ScrollEvent;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -97,9 +96,8 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Override
-  public void scroll(ScrollEvent event) {
-    processEvent(viewController -> viewController.scroll(event));
-    super.scroll(event);
+  public void scroll(double deltaX) {
+    processEvent(viewController -> viewController.scroll(deltaX));
   }
 
   private void processEvent(Consumer<? super ViewController> action) {
@@ -109,6 +107,7 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Override
+  @Nonnull
   List<FXMLLoader> getFXMLLoader(@Nonnull ResourceBundle resourceBundle) {
     String[] profiles = applicationContext.getEnvironment().getActiveProfiles();
     if (profiles.length == 0) {

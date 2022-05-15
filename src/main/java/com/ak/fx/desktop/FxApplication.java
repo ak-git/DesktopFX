@@ -55,7 +55,10 @@ public class FxApplication extends Application implements ViewController {
       zoom(event.getTotalZoomFactor());
       event.consume();
     });
-    stage.getScene().setOnScroll(this::scroll);
+    stage.getScene().setOnScroll(event -> {
+      scroll(event.getDeltaX());
+      event.consume();
+    });
 
     addEventHandler(stage, () ->
             Platform.runLater(() -> {

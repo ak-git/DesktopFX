@@ -43,7 +43,6 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.TransferMode;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Value;
@@ -201,8 +200,8 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   }
 
   @Override
-  public final void scroll(@Nonnull ScrollEvent event) {
-    axisXController.scroll(event.getDeltaX());
+  public final void scroll(double deltaX) {
+    axisXController.scroll(deltaX);
   }
 
   @Nonnull
