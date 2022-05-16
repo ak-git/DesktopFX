@@ -18,11 +18,7 @@ import org.springframework.context.annotation.Profile;
 
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_1050;
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_210;
-import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_315;
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_420;
-import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_525;
-import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_630;
-import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_735;
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_840;
 import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
 
@@ -32,9 +28,7 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
   private static final PureLogicFrame.StepCommand PING = MICRON_210;
   private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE = {
       MICRON_210, MICRON_210, MICRON_210, MICRON_210,
-      MICRON_315, MICRON_315, MICRON_420, MICRON_420,
-      MICRON_525, MICRON_525, MICRON_630, MICRON_630,
-      MICRON_735, MICRON_735, MICRON_840, MICRON_840
+      MICRON_420, MICRON_420, MICRON_840, MICRON_840
   };
   private final Queue<PureLogicFrame.StepCommand> frames = new LinkedList<>();
   private final AtomicInteger handDirection = new AtomicInteger();
