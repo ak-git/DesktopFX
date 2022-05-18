@@ -76,18 +76,19 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
         autoDirection.set(direction);
         return MICRON_1050.action(direction > 0);
       }
-      else if (autoDirection.get() != 0) {
-        autoSequenceIndex++;
-        if (autoSequenceIndex == AUTO_SEQUENCE.length) {
-          autoDirection.set(-autoDirection.get());
-        }
-        autoSequenceIndex %= AUTO_SEQUENCE.length;
-        boolean sequenceDirection = (autoSequenceIndex & 1) == 0;
-        if (autoDirection.get() < 0) {
-          sequenceDirection = !sequenceDirection;
-        }
-        return AUTO_SEQUENCE[autoSequenceIndex].action(sequenceDirection);
+    }
+
+    if (autoDirection.get() != 0) {
+      autoSequenceIndex++;
+      if (autoSequenceIndex == AUTO_SEQUENCE.length) {
+        autoDirection.set(-autoDirection.get());
       }
+      autoSequenceIndex %= AUTO_SEQUENCE.length;
+      boolean sequenceDirection = (autoSequenceIndex & 1) == 0;
+      if (autoDirection.get() < 0) {
+        sequenceDirection = !sequenceDirection;
+      }
+      return AUTO_SEQUENCE[autoSequenceIndex].action(sequenceDirection);
     }
 
     if (frames.isEmpty()) {
