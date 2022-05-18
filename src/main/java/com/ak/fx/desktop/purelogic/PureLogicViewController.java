@@ -78,6 +78,9 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
       }
       else if (autoDirection.get() != 0) {
         autoSequenceIndex++;
+        if (autoSequenceIndex == AUTO_SEQUENCE.length) {
+          autoDirection.set(-autoDirection.get());
+        }
         autoSequenceIndex %= AUTO_SEQUENCE.length;
         boolean sequenceDirection = (autoSequenceIndex & 1) == 0;
         if (autoDirection.get() < 0) {
