@@ -21,8 +21,8 @@ final class Layer2DynamicInverse extends AbstractLayerInverse {
 
       return (s, kw) -> {
         double dR = diffApparentPredicted.applyAsDouble(s, kw);
-        double real = logApparentPredicted.apply(s, kw).getReal() - log(Math.abs(dR));
-        return new Complex(real, real * Math.signum(dR));
+        double log = logApparentPredicted.apply(s, kw).getReal() - log(Math.abs(dR));
+        return new Complex(log, log * Math.signum(dR));
       };
     });
   }

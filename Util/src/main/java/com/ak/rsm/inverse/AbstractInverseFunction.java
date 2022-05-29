@@ -17,8 +17,7 @@ import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.system.TetrapolarSystem;
 import org.apache.commons.math3.complex.Complex;
 
-abstract class AbstractInverseFunction<R extends Resistivity> extends AbstractInverse
-    implements ToDoubleFunction<double[]>, BiFunction<TetrapolarSystem, double[], Complex> {
+abstract class AbstractInverseFunction<R extends Resistivity> extends AbstractInverse implements ToDoubleFunction<double[]> {
   @Nonnull
   private final Complex[] subLog;
   @Nonnull
@@ -31,22 +30,23 @@ abstract class AbstractInverseFunction<R extends Resistivity> extends AbstractIn
                           Function<Collection<TetrapolarSystem>, BiFunction<TetrapolarSystem, double[], Complex>> toPredicted) {
     super(r.stream().map(Resistivity::system).toList());
     this.subtract = subtract;
-    subLog = getLog(f -> r.stream().mapToDouble(value -> f.applyAsDouble(toModel.apply(value))).toArray());
+    subLog = getLog(
+        f -> r.stream().mapToDouble(
+            value -> f.applyAsDouble(toModel.apply(value))
+        ).toArray());
     predicted = toPredicted.apply(systems());
   }
 
   @Nonnegative
   @Override
   public final double applyAsDouble(@Nonnull double[] kw) {
-    Complex[] subLogPredicted = getLog(f -> systems().stream().mapToDouble(s -> f.applyAsDouble(apply(s, kw))).toArray());
+    Complex[] subLogPredicted = getLog(
+        f -> systems().stream().mapToDouble(
+            s -> f.applyAsDouble(predicted.apply(s, kw))
+        ).toArray()
+    );
     return IntStream.range(0, subLog.length).mapToDouble(i -> subLog[i].subtract(subLogPredicted[i]).abs())
         .reduce(Math::hypot).orElseThrow();
-  }
-
-  @Override
-  @ParametersAreNonnullByDefault
-  public final Complex apply(TetrapolarSystem s, double[] kw) {
-    return predicted.apply(s, kw);
   }
 
   @Nonnull
