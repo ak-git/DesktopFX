@@ -16,6 +16,7 @@ public enum Strings {
   public static final String OHM_METRE = new StringBuilder(OHM.multiply(METRE).toString()).reverse().toString();
   public static final String PLUS_MINUS = "\u00B1";
   public static final String PHI = "\u03C8";
+  public static final String CAP_DELTA = "\u0394";
   private static final String RHO = "\u03c1";
 
   public static String numberSuffix(@Nonnull String s) {
