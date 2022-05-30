@@ -26,13 +26,13 @@ abstract class AbstractInverseFunction<R extends Resistivity> extends AbstractIn
   final BiFunction<TetrapolarSystem, double[], Complex> predicted;
 
   @ParametersAreNonnullByDefault
-  AbstractInverseFunction(Collection<? extends R> r, Function<? super R, Complex> toModel, UnaryOperator<double[]> subtract,
+  AbstractInverseFunction(Collection<? extends R> r, Function<? super R, Complex> toData, UnaryOperator<double[]> subtract,
                           Function<Collection<TetrapolarSystem>, BiFunction<TetrapolarSystem, double[], Complex>> toPredicted) {
     super(r.stream().map(Resistivity::system).toList());
     this.subtract = subtract;
     subLog = getLog(
         f -> r.stream().mapToDouble(
-            value -> f.applyAsDouble(toModel.apply(value))
+            value -> f.applyAsDouble(toData.apply(value))
         ).toArray());
     predicted = toPredicted.apply(systems());
   }
