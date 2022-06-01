@@ -47,6 +47,15 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
   }
 
   public interface PreBuilder<T> extends com.ak.util.Builder<T> {
+    /**
+     * <pre>
+     *   rho[0], rho[1] ... rho[n];
+     *   dRho[0], dRho[1] ... dRho[n]
+     * </pre>
+     *
+     * @param rhos rho[0], rho[1] ... rho[n]; dRho[0], dRho[1] ... dRho[n]
+     * @return exact builder
+     */
     @Nonnull
     T rho(@Nonnull double... rhos);
 
