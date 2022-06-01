@@ -51,7 +51,7 @@ public class TetrapolarDerivativeResistanceTest {
         },
         {
             TetrapolarDerivativeResistance.ofMilli(10.0, 30.0).dh(0.1).rho1(1.0).rho2(1.0).h(Math.random()),
-            "10 000   30 000     15 915        1 000              0 000          0 000         0 100",
+            "10 000   30 000     15 915        1 000              0 000",
             15.915,
             1.0,
             0.0,
@@ -59,7 +59,7 @@ public class TetrapolarDerivativeResistanceTest {
         },
         {
             TetrapolarDerivativeResistance.ofMilli(10.0, 30.0).dh(0.1).rho1(10.0).rho2(1.0).h(5.0),
-            "10 000   30 000     53 901        3 387              31 312          1 661         0 100",
+            "10 000   30 000     53 901        3 387              31 312",
             53.901,
             3.39,
             31.312,
@@ -67,7 +67,7 @@ public class TetrapolarDerivativeResistanceTest {
         },
         {
             TetrapolarDerivativeResistance.ofMilli(10.0, 20.0).dh(0.1).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
-            "10 000   20 000     242 751        5 720              13 215          2 804         0 100",
+            "10 000   20 000     242 751        5 720              13 215",
             242.751,
             5.72,
             13.215,
@@ -76,7 +76,7 @@ public class TetrapolarDerivativeResistanceTest {
 
         {
             TetrapolarDerivativeResistance.ofMilli(30.0, 60.0).dh(0.01).ofOhms(1.0 / Math.PI, 2.0 / Math.PI),
-            "30 000   60 000     0 318        0 023              135 000          0 318         0 010",
+            "30 000   60 000     0 318        0 023              135 000",
             0.318,
             9.0 / 400.0,
             9.0 / 400.0 * (60.0 / 0.01),
@@ -84,7 +84,7 @@ public class TetrapolarDerivativeResistanceTest {
         },
         {
             TetrapolarDerivativeResistance.ofMilli(90.0, 30.0).dh(0.01).ofOhms(1.0 / Math.PI, 0.5 / Math.PI),
-            "90 000   30 000     0 318        0 060               90 000           0 159         0 010",
+            "90 000   30 000     0 318        0 060               90 000",
             0.318,
             3.0 / 50.0,
             3.0 / 50.0 * (-30.0 / 0.01 / 2.0),
@@ -92,7 +92,7 @@ public class TetrapolarDerivativeResistanceTest {
         },
         {
             TetrapolarDerivativeResistance.ofMilli(40.0, 80.0).dh(0.01).ofOhms(1.0 / Math.PI, 3.0 / Math.PI),
-            "40 000   80 000     0 318        0 030              480 000          0 637         0 010",
+            "40 000   80 000     0 318        0 030              480 000",
             0.318,
             3.0 / 100.0,
             3.0 / 100.0 * (80.0 / 0.01 * 2.0),
@@ -134,13 +134,13 @@ public class TetrapolarDerivativeResistanceTest {
         },
         {
             TetrapolarDerivativeResistance.milli().dh(0.2).system2(7.0).rho1(10.0).rho2(1.0).h(5.0),
-            "70002100012416054612476053610200 350002100014671043022085267730200",
+            "700021000124160546124760 3500021000146710430220852",
             new double[] {5.46, 4.30},
             new double[] {24.760, 20.852}
         },
         {
             TetrapolarDerivativeResistance.milli().dh(0.3).system2(8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
-            "8000240009032745401857546190300 400002400011016536921564958370300",
+            "80002400090327454018575 4000024000110165369215649",
             new double[] {4.54, 3.69},
             new double[] {18.574, 15.649}
         },
@@ -148,7 +148,7 @@ public class TetrapolarDerivativeResistanceTest {
             TetrapolarDerivativeResistance.milli().dh(0.01).system2(10.0)
                 .ofOhms(1.0 / Math.PI, 2.0 / Math.PI,
                 2.0 / Math.PI, 1.0 / Math.PI),
-            "1000030000031800206000003180010 5000030000063700274000003180010",
+            "10000300000318002060000 50000300000637002740000",
             new double[] {0.02, 0.027},
             new double[] {60.0, -40.0}
         },
@@ -164,23 +164,6 @@ public class TetrapolarDerivativeResistanceTest {
         ).collect(Collectors.joining(Strings.SPACE)), expected, ms.toString());
     Assert.assertEquals(ms.stream().mapToDouble(Resistance::resistivity).toArray(), resistivity, 0.01, ms.toString());
     Assert.assertEquals(ms.stream().mapToDouble(DerivativeResistance::derivativeResistivity).toArray(), derivativeResistivity, 0.01, ms.toString());
-  }
-
-  @DataProvider(name = "d-resistivity")
-  public static Object[][] dResistivity() {
-    return new Object[][] {
-        {0.7, Double.POSITIVE_INFINITY, 10.0, 0.1},
-        {0.7, Double.POSITIVE_INFINITY, 20.0, -0.1},
-        {1.0, 1.0, 30.0, -0.1},
-    };
-  }
-
-  @Test(dataProvider = "d-resistivity")
-  public void testDResistivity(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double hmm, double dHmm) {
-    double dRExpected = TetrapolarResistance.ofMilli(10.0, 30.0).rho1(rho1).rho2(rho2).h(hmm + dHmm).ohms() -
-        TetrapolarResistance.ofMilli(10.0, 30.0).rho1(rho1).rho2(rho2).h(hmm).ohms();
-    DerivativeResistance dR = TetrapolarDerivativeResistance.ofMilli(10.0, 30.0).dh(dHmm).rho1(rho1).rho2(rho2).h(hmm);
-    Assert.assertEquals(dR.dOhms(), dRExpected, 0.001, "%s".formatted(dR));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

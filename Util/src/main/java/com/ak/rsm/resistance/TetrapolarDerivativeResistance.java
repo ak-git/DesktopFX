@@ -15,23 +15,15 @@ import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
-import static tec.uom.se.unit.Units.OHM;
-
-public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, double derivativeResistivity, double dh)
+public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, double derivativeResistivity)
     implements DerivativeResistance {
   private TetrapolarDerivativeResistance(@Nonnull Resistance resistance, @Nonnull Resistivity resistanceAfter, double dh) {
-    this(resistance, (resistanceAfter.resistivity() - resistance.resistivity()) / (dh / resistance.system().lCC()), dh);
+    this(resistance, (resistanceAfter.resistivity() - resistance.resistivity()) / (dh / resistance.system().lCC()));
   }
 
   @Override
   public String toString() {
-    String s = "%s; %s".formatted(resistance, Strings.dRhoByPhi(derivativeResistivity));
-    if (Double.isNaN(dh)) {
-      return s;
-    }
-    else {
-      return "%s; %s = %.3f %s; dh = %.3f mm".formatted(s, Strings.CAP_DELTA, dOhms(), OHM, Metrics.toMilli(dh));
-    }
+    return "%s; %s".formatted(resistance, Strings.dRhoByPhi(derivativeResistivity));
   }
 
   @Nonnull
@@ -48,11 +40,6 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
   @Override
   public double resistivity() {
     return resistance.resistivity();
-  }
-
-  @Override
-  public double dOhms() {
-    return TetrapolarResistance.of(system()).rho(derivativeResistivity * dh / resistance.system().lCC()).ohms();
   }
 
   @Nonnull
@@ -140,7 +127,7 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
     public DerivativeResistance rho(@Nonnull double... rhos) {
       if (Double.isNaN(dhHolder.dh)) {
         return PreBuilder.check(rhos,
-            () -> new TetrapolarDerivativeResistance(TetrapolarResistance.of(system).rho(rhos[0]), rhos[1], Double.NaN)
+            () -> new TetrapolarDerivativeResistance(TetrapolarResistance.of(system).rho(rhos[0]), rhos[1])
         );
       }
       else {
