@@ -16,13 +16,13 @@ public class DynamicInverseTest {
   public static Object[][] kw() {
     return new Object[][] {
         {
-            new double[] {Layers.getK12(9.0, 1.0), 2.0 / 18.0,}, 0.075
+            new double[] {Layers.getK12(9.0, 1.0), 2.0 / 18.0,}, 0.0
         },
         {
-            new double[] {Layers.getK12(1.585601, 1.753970), 6.831488 / 18.0}, 6.835
+            new double[] {Layers.getK12(1.585601, 1.753970), 6.831488 / 18.0}, 6.859
         },
         {
-            new double[] {Layers.getK12(0.246123, 1.902301), 0.345480 / 18.0}, 6.835
+            new double[] {Layers.getK12(0.246123, 1.902301), 0.345480 / 18.0}, 6.782
         },
         {
             new double[] {Layers.getK12(1.323014, 2.406517), 4.647438 / 18.0}, 4.833

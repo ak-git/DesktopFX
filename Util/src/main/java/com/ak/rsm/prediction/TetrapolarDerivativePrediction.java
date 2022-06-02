@@ -36,7 +36,6 @@ public class TetrapolarDerivativePrediction extends AbstractPrediction {
     return new TetrapolarDerivativePrediction(diffResistivityPredicted, inequalityL2, prediction);
   }
 
-
   @Override
   public double[] getHorizons() {
     return prediction.getHorizons();

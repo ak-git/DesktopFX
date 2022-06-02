@@ -88,11 +88,20 @@ public class InverseDynamicTest {
   @DataProvider(name = "absoluteDynamicLayer2")
   public static Object[][] absoluteDynamicLayer2() {
     double absErrorMilli = 0.001;
-    double dhMilli = 0.000001;
+    double dhMilli = 0.21;
     double hmm = 15.0 / 2;
     return new Object[][] {
         {
             TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(dhMilli).system2(10.0).rho1(1.0).rho2(4.0).h(hmm),
+            new ValuePair[] {
+                ValuePair.Name.RHO_1.of(1.0, 0.00011),
+                ValuePair.Name.RHO_2.of(4.0, 0.0018),
+                ValuePair.Name.H.of(Metrics.fromMilli(hmm), Metrics.fromMilli(0.0011))
+            }
+        },
+        {
+            TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(Double.NaN).system2(10.0)
+                .rho(1.4441429093546185, 1.6676102911913226, -3.0215753166196184, -3.49269170918376),
             new ValuePair[] {
                 ValuePair.Name.RHO_1.of(1.0, 0.00011),
                 ValuePair.Name.RHO_2.of(4.0, 0.0018),
@@ -171,16 +180,16 @@ public class InverseDynamicTest {
             TetrapolarDerivativeMeasurement.milli(0.1)
                 .dh(0.15).system2(7.0)
                 .ofOhms(113.341, 167.385, 113.341 + 0.091, 167.385 + 0.273),
-            new double[] {5.211, 1.584, Metrics.fromMilli(15.28)}
+            new double[] {5.211, 1.584, Metrics.fromMilli(15.19)}
         },
         {
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.12).system2(8.0).ofOhms(93.4, 162.65, 93.5, 162.85),
-            new double[] {5.118, 4.235, Metrics.fromMilli(7.89)}
+            new double[] {5.118, 4.235, Metrics.fromMilli(7.82)}
         },
         {
             TetrapolarDerivativeMeasurement.milli(0.1)
                 .dh(0.15).system2(7.0).ofOhms(136.5, 207.05, 136.65, 207.4),
-            new double[] {6.332, 4.180, Metrics.fromMilli(10.43)}
+            new double[] {6.332, 4.180, Metrics.fromMilli(10.35)}
         },
     };
   }

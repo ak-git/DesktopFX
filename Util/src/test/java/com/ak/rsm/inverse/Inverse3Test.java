@@ -37,6 +37,62 @@ import org.testng.annotations.Test;
 import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 
 public class Inverse3Test {
+  @DataProvider(name = "fixedP")
+  public static Object[][] fixedP() {
+    int p1 = 25;
+    int p2mp1 = 130;
+    return new Object[][] {
+        {
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system4(7.0)
+                .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
+                122.3 + 0.1, 199.0 + 0.4, (66.0 + 0.1) * 2, (202.0 + 0.25) * 2 - (66.0 + 0.1) * 2),
+            p1, p2mp1
+        },
+        {
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 2).system4(7.0)
+                .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
+                122.3 + 0.3, 199.0 + 0.75, (66.0 + 0.2) * 2, (202.0 + 0.75) * 2 - (66.0 + 0.2) * 2),
+            p1, p2mp1
+        },
+        {
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 4).system4(7.0)
+                .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
+                122.3 + 0.6, 199.0 + 2.0, (66.0 + 0.6) * 2, (202.0 + 1.75) * 2 - (66.0 + 0.6) * 2),
+            p1, p2mp1
+        },
+        {
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 4).system4(7.0)
+                .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
+                122.3 - 0.3, 199.0 - 1.5, (66.0 - 0.3) * 2, (202.0 - 1.0) * 2 - (66.0 - 0.3) * 2),
+            p1, p2mp1
+        },
+    };
+  }
+
+  @Test(dataProvider = "fixedP", enabled = false)
+  public void testFixed(@Nonnull Collection<? extends DerivativeMeasurement> ms, @Nonnegative int p1, @Nonnegative int p2mp1) {
+    double hStep = Metrics.fromMilli(0.1);
+
+    PointValuePair kwOptimal = Simplex.optimizeAll(
+        kw -> DynamicInverse.of(ms, hStep).applyAsDouble(new double[] {kw[0], kw[1], p1, p2mp1}),
+        new Simplex.Bounds(-1.0, 1.0),
+        new Simplex.Bounds(-1.0, 1.0)
+    );
+
+    double[] kwpp = {kwOptimal.getPoint()[0], kwOptimal.getPoint()[1], p1, p2mp1};
+
+    var rho1 = getRho1(ms, kwpp, hStep);
+    var rho2 = ValuePair.Name.RHO_2.of(rho1.value() / Layers.getRho1ToRho2(kwpp[0]), 0.0);
+    var rho3 = ValuePair.Name.RHO_3.of(rho2.value() / Layers.getRho1ToRho2(kwpp[1]), 0.0);
+    Logger.getAnonymousLogger().info(
+        () -> "%.6f %s; %s; %s; %s; %s; %s; %s".formatted(
+            kwOptimal.getValue(), ValuePair.Name.K12.of(kwpp[0], 0.0), ValuePair.Name.K23.of(kwpp[1], 0.0),
+            ValuePair.Name.H.of(hStep, 0.0),
+            Arrays.stream(kwpp).skip(2).map(p -> p * hStep).mapToObj(h -> ValuePair.Name.H.of(h, 0.0)).toList(),
+            rho1, rho2, rho3)
+    );
+  }
+
   @DataProvider(name = "single")
   public static Object[][] single() {
     return new Object[][] {
@@ -72,7 +128,8 @@ public class Inverse3Test {
     extracted(ms, pTotal, cache, phenotype);
   }
 
-  private static void extracted(Collection<? extends DerivativeMeasurement> ms, int pTotal, Function<Integer, PointValuePair> cache, Phenotype<IntegerGene, Double> phenotype) {
+  private static void extracted(Collection<? extends DerivativeMeasurement> ms, int pTotal,
+                                Function<Integer, PointValuePair> cache, Phenotype<IntegerGene, Double> phenotype) {
     Genotype<IntegerGene> best = phenotype.genotype();
     PointValuePair pOptimal = new PointValuePair(
         IntStream.range(0, best.length()).mapToDouble(i -> best.get(i).get(0).doubleValue()).toArray(),
