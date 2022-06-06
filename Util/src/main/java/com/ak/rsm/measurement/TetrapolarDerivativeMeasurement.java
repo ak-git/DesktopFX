@@ -57,7 +57,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, 
   @Nonnull
   @Override
   public Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1) {
-    return TetrapolarDerivativePrediction.of(inexact(), kw, rho1, new double[] {resistivity(), derivativeResistivity()});
+    return TetrapolarDerivativePrediction.of(this, kw, rho1);
   }
 
   @Nonnull

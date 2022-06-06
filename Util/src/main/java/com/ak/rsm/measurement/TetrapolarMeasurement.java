@@ -45,7 +45,7 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
   @Nonnull
   @Override
   public Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1) {
-    return TetrapolarPrediction.of(inexact, kw, rho1, resistivity);
+    return TetrapolarPrediction.of(this, kw, rho1);
   }
 
   @Nonnull

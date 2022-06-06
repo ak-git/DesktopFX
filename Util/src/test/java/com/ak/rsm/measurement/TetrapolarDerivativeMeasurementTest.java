@@ -112,8 +112,7 @@ public class TetrapolarDerivativeMeasurementTest {
     Assert.assertEquals(d.derivativeResistivity(), derivativeResistivity, 0.01, d.toString());
     Assert.assertEquals(d.inexact(), system, d.toString());
     Assert.assertEquals(d.toPrediction(RelativeMediumLayers.SINGLE_LAYER, 1.0),
-        TetrapolarDerivativePrediction.of(d.inexact(), RelativeMediumLayers.SINGLE_LAYER, 1.0,
-            new double[] {d.resistivity(), d.derivativeResistivity()}));
+        TetrapolarDerivativePrediction.of(d, RelativeMediumLayers.SINGLE_LAYER, 1.0));
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
