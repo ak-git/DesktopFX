@@ -49,14 +49,14 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
 
   @Nonnull
   public static ToDoubleFunction<RelativeMediumLayers> newDerivativeApparentByPhi2Rho(@Nonnull TetrapolarSystem system, double dh) {
-    return Double.isNaN(dh) ?
-        newDerivativeApparentByPhi2Rho(system.relativeSystem())
-        :
-        kw -> {
-          double rho1 = 1.0;
-          double rho2 = rho1 / Layers.getRho1ToRho2(kw.k12());
-          return TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho1).rho2(rho2).h(kw.hToL() * system.lCC()).derivativeResistivity();
-        };
+    if (Double.isNaN(dh)) {
+      return newDerivativeApparentByPhi2Rho(system.relativeSystem());
+    }
+    return kw -> {
+      double rho1 = 1.0;
+      double rho2 = rho1 / Layers.getRho1ToRho2(kw.k12());
+      return TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho1).rho2(rho2).h(kw.hToL() * system.lCC()).derivativeResistivity();
+    };
   }
 
   public static ToDoubleFunction<RelativeMediumLayers> newDerivativeApparentByPhi2Rho(@Nonnull RelativeTetrapolarSystem system) {
