@@ -11,7 +11,6 @@ import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.SimpleBounds;
 
 final class StaticRelative extends AbstractRelative<Measurement, RelativeMediumLayers> {
   @Nonnull
@@ -34,8 +33,7 @@ final class StaticRelative extends AbstractRelative<Measurement, RelativeMediumL
   @Override
   public RelativeMediumLayers get() {
     PointValuePair kwOptimal = Simplex.optimizeAll(staticInverse::applyAsDouble,
-        new SimpleBounds(new double[] {-1.0, 0.0}, new double[] {1.0, getMaxHToL()}),
-        new double[] {0.01, 0.01}
+        new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, getMaxHToL())
     );
     return staticErrors.errors(new Layer2RelativeMedium(kwOptimal.getPoint()), staticInverse.subtract(),
         UnaryOperator.identity(), (ts, b) -> b);

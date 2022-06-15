@@ -88,11 +88,20 @@ public class InverseDynamicTest {
   @DataProvider(name = "absoluteDynamicLayer2")
   public static Object[][] absoluteDynamicLayer2() {
     double absErrorMilli = 0.001;
-    double dhMilli = 0.000001;
+    double dhMilli = 0.21;
     double hmm = 15.0 / 2;
     return new Object[][] {
         {
             TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(dhMilli).system2(10.0).rho1(1.0).rho2(4.0).h(hmm),
+            new ValuePair[] {
+                ValuePair.Name.RHO_1.of(1.0, 0.00011),
+                ValuePair.Name.RHO_2.of(4.0, 0.0018),
+                ValuePair.Name.H.of(Metrics.fromMilli(hmm), Metrics.fromMilli(0.0011))
+            }
+        },
+        {
+            TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(Double.NaN).system2(10.0)
+                .rho(1.4441429093546185, 1.6676102911913226, -3.0215753166196184, -3.49269170918376),
             new ValuePair[] {
                 ValuePair.Name.RHO_1.of(1.0, 0.00011),
                 ValuePair.Name.RHO_2.of(4.0, 0.0018),
@@ -171,16 +180,16 @@ public class InverseDynamicTest {
             TetrapolarDerivativeMeasurement.milli(0.1)
                 .dh(0.15).system2(7.0)
                 .ofOhms(113.341, 167.385, 113.341 + 0.091, 167.385 + 0.273),
-            new double[] {5.211, 1.584, Metrics.fromMilli(15.28)}
+            new double[] {5.211, 1.584, Metrics.fromMilli(15.19)}
         },
         {
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.12).system2(8.0).ofOhms(93.4, 162.65, 93.5, 162.85),
-            new double[] {5.118, 4.235, Metrics.fromMilli(7.89)}
+            new double[] {5.118, 4.235, Metrics.fromMilli(7.82)}
         },
         {
             TetrapolarDerivativeMeasurement.milli(0.1)
                 .dh(0.15).system2(7.0).ofOhms(136.5, 207.05, 136.65, 207.4),
-            new double[] {6.332, 4.180, Metrics.fromMilli(10.43)}
+            new double[] {6.332, 4.180, Metrics.fromMilli(10.35)}
         },
     };
   }
@@ -243,9 +252,9 @@ public class InverseDynamicTest {
   @ParametersAreNonnullByDefault
   public void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, double[] expected) {
     var medium = new DynamicAbsolute(measurements).get();
-    Assert.assertEquals(medium.rho1().getValue(), expected[0], 0.1, medium.toString());
-    Assert.assertEquals(medium.rho2().getValue() > 1000 ? Double.POSITIVE_INFINITY : medium.rho2().getValue(), expected[1], 0.1, medium.toString());
-    Assert.assertEquals(Metrics.toMilli(medium.h1().getValue()), Metrics.toMilli(expected[2]), 0.01, medium.toString());
+    Assert.assertEquals(medium.rho1().value(), expected[0], 0.1, medium.toString());
+    Assert.assertEquals(medium.rho2().value() > 1000 ? Double.POSITIVE_INFINITY : medium.rho2().value(), expected[1], 0.1, medium.toString());
+    Assert.assertEquals(Metrics.toMilli(medium.h1().value()), Metrics.toMilli(expected[2]), 0.01, medium.toString());
     LOGGER.info(medium::toString);
   }
 
@@ -262,28 +271,31 @@ public class InverseDynamicTest {
     return paths;
   }
 
-  @Test(enabled = false, dataProvider = "cvsFiles")
+  @Test(dataProvider = "cvsFiles", enabled = false)
   public void testInverseDynamicLayerFileResistivity(@Nonnull String fileName) {
     String T = "TIME";
     String POSITION = "POSITION";
-    String RHO_S1 = "RHO_S1";
-    String RHO_S1_DIFF = "RHO_S1_DIFF";
-    String RHO_S2 = "RHO_S2";
-    String RHO_S2_DIFF = "RHO_S2_DIFF";
+    String RHO_S1 = "A1";
+    String RHO_S1_DIFF = "DA1";
+    String RHO_S2 = "A2";
+    String RHO_S2_DIFF = "DA2";
 
     String RHO_1 = "rho1";
+    String RHO_1_ABS_ERROR = "rho1AbsError";
     String RHO_2 = "rho2";
+    String RHO_2_ABS_ERROR = "rho2AbsError";
     String H = "h";
+    String H_ABS_ERROR = "hAbsError";
     String RMS_BASE = "RMS_BASE";
     String RMS_DIFF = "RMS_DIFF";
 
     String[] mm = fileName.split(Strings.SPACE);
 
     Path path = Paths.get(Extension.CSV.attachTo(fileName));
-    String[] HEADERS = {T, POSITION, RHO_1, RHO_2, H, RMS_BASE, RMS_DIFF};
+    String[] HEADERS = {T, POSITION, RHO_1, RHO_1_ABS_ERROR, RHO_2, RHO_2_ABS_ERROR, H, H_ABS_ERROR, RMS_BASE, RMS_DIFF};
     try (CSVParser parser = CSVParser.parse(
         new BufferedReader(new FileReader(path.toFile())),
-        CSVFormat.Builder.create().setHeader(T, POSITION, RHO_S1, RHO_S1_DIFF, RHO_S2, RHO_S2_DIFF).build());
+        CSVFormat.Builder.create().setHeader(T, POSITION, RHO_S1, RHO_S2, RHO_S1_DIFF, RHO_S2_DIFF).build());
          CSVLineFileCollector collector = new CSVLineFileCollector(
              Paths.get(Extension.CSV.attachTo("%s inverse".formatted(Extension.CSV.clean(fileName)))),
              HEADERS
@@ -303,9 +315,12 @@ public class InverseDynamicTest {
                 Map.ofEntries(
                     Map.entry(T, r.get(T)),
                     Map.entry(POSITION, r.get(POSITION)),
-                    Map.entry(RHO_1, medium.rho1().getValue()),
-                    Map.entry(RHO_2, medium.rho2().getValue()),
-                    Map.entry(H, Metrics.toMilli(medium.h1().getValue())),
+                    Map.entry(RHO_1, medium.rho1().value()),
+                    Map.entry(RHO_1_ABS_ERROR, medium.rho1().absError()),
+                    Map.entry(RHO_2, medium.rho2().value()),
+                    Map.entry(RHO_2_ABS_ERROR, medium.rho2().absError()),
+                    Map.entry(H, Metrics.toMilli(medium.h1().value())),
+                    Map.entry(H_ABS_ERROR, Metrics.toMilli(medium.h1().absError())),
                     Map.entry(RMS_BASE, medium.getRMS()[0]),
                     Map.entry(RMS_DIFF, medium.getRMS()[1])
                 )

@@ -1,35 +1,42 @@
 package com.ak.rsm.inverse;
 
 import java.util.Collection;
-import java.util.function.ToDoubleBiFunction;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.resistance.DerivativeResistivity;
 import com.ak.rsm.system.TetrapolarSystem;
+import org.apache.commons.math3.complex.Complex;
 
 import static java.lang.StrictMath.abs;
 import static java.lang.StrictMath.log;
 
 final class DynamicInverse extends AbstractInverseFunction<DerivativeResistivity> {
-  @Nonnull
-  private final ToDoubleBiFunction<TetrapolarSystem, double[]> logDiffApparentPredicted = (s, kw) ->
-      log(
-          Math.abs(
-              Apparent2Rho.newDerivativeApparentByPhi2Rho(s.relativeSystem()).applyAsDouble(layersBiFunction().apply(s, kw))
-          )
-      );
-
-  DynamicInverse(@Nonnull Collection<? extends DerivativeResistivity> r) {
-    super(r, d -> log(d.resistivity()) - log(abs(d.derivativeResistivity())), UnaryOperator.identity());
+  @ParametersAreNonnullByDefault
+  private DynamicInverse(Collection<? extends DerivativeResistivity> r,
+                         Function<Collection<TetrapolarSystem>, BiFunction<TetrapolarSystem, double[], Complex>> toPredicted) {
+    super(r,
+        d -> {
+          double dR = d.derivativeResistivity();
+          double real = log(d.resistivity()) - log(abs(dR));
+          return new Complex(real, real * Math.signum(dR));
+        },
+        UnaryOperator.identity(), toPredicted);
   }
 
-  @Override
-  public double[] apply(@Nonnull double[] kw) {
-    return systems().stream()
-        .mapToDouble(s -> logApparentPredicted().applyAsDouble(s, kw) - logDiffApparentPredicted.applyAsDouble(s, kw))
-        .toArray();
+  static ToDoubleFunction<double[]> of(@Nonnull Collection<? extends DerivativeResistivity> r) {
+    double dh = r.stream().mapToDouble(DerivativeResistivity::dh)
+        .reduce((left, right) -> Double.compare(left, right) == 0 ? left : Double.NaN).orElse(Double.NaN);
+    return new DynamicInverse(r, systems -> new Layer2DynamicInverse(systems, dh));
+  }
+
+  static ToDoubleFunction<double[]> of(@Nonnull Collection<? extends DerivativeResistivity> r, @Nonnegative double hStep) {
+    return new DynamicInverse(r, systems -> new Layer3DynamicInverse(systems, hStep));
   }
 }

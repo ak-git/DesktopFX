@@ -90,7 +90,7 @@ public class TetrapolarMeasurementTest {
     Assert.assertEquals(measurement.toString().replaceAll("\\D", " ").strip(), expected, measurement.toString());
     Assert.assertEquals(measurement.resistivity(), resistivity, 0.01, measurement.toString());
     Assert.assertEquals(measurement.toPrediction(RelativeMediumLayers.SINGLE_LAYER, 1.0),
-        TetrapolarPrediction.of(measurement.inexact(), RelativeMediumLayers.SINGLE_LAYER, 1.0, measurement.resistivity()));
+        TetrapolarPrediction.of(measurement, RelativeMediumLayers.SINGLE_LAYER, 1.0));
   }
 
   @Test

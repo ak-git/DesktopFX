@@ -23,6 +23,8 @@ import com.ak.comm.converter.aper.AperStage3Variable;
 import com.ak.comm.converter.aper.AperStage4Current1Variable;
 import com.ak.comm.converter.aper.AperStage4Current2Variable;
 import com.ak.comm.converter.aper.AperStage5Current1Variable;
+import com.ak.comm.converter.aper.AperStage6Current1Variable;
+import com.ak.comm.converter.aper.AperStage6Current1Variable10mm;
 import com.ak.comm.converter.aper.AperStage6Current1Variable6mm;
 import com.ak.comm.converter.aper.AperStage6Current1Variable7mm;
 import com.ak.comm.converter.aper.AperStage6Current1Variable8mm;
@@ -38,8 +40,6 @@ import com.ak.comm.interceptor.simple.StringBytesInterceptor;
 import com.ak.logging.LocalFileHandler;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.input.ScrollEvent;
-import javafx.scene.input.ZoomEvent;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -92,15 +92,13 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Override
-  public void zoom(ZoomEvent event) {
-    processEvent(viewController -> viewController.zoom(event));
-    super.zoom(event);
+  public void zoom(double zoomFactor) {
+    processEvent(viewController -> viewController.zoom(zoomFactor));
   }
 
   @Override
-  public void scroll(ScrollEvent event) {
-    processEvent(viewController -> viewController.scroll(event));
-    super.scroll(event);
+  public void scroll(double deltaX) {
+    processEvent(viewController -> viewController.scroll(deltaX));
   }
 
   private void processEvent(Consumer<? super ViewController> action) {
@@ -110,6 +108,7 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Override
+  @Nonnull
   List<FXMLLoader> getFXMLLoader(@Nonnull ResourceBundle resourceBundle) {
     String[] profiles = applicationContext.getEnvironment().getActiveProfiles();
     if (profiles.length == 0) {
@@ -173,7 +172,8 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
-  @Profile({"aper2-nibp", "aper1-nibp", "aper1-myo", "aper2-ecg", "aper1-R2-6mm", "aper1-R2-7mm", "aper1-R2-8mm", "aper1-calibration"})
+  @Profile({"aper2-nibp", "aper1-nibp", "aper1-myo", "aper2-ecg", "aper1-R2-6mm", "aper1-R2-7mm", "aper1-R2-8mm", "aper1-R2-10mm",
+      "aper1-R1", "aper1-calibration"})
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   @Primary
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorAper() {
@@ -232,6 +232,22 @@ public class SpringFxApplication extends FxApplication {
   @Primary
   static Converter<BufferFrame, AperStage6Current1Variable8mm> converterAper1R8() {
     return converterAper1R().chainInstance(AperStage6Current1Variable8mm.class);
+  }
+
+  @Bean
+  @Profile("aper1-R2-10mm")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  @Primary
+  static Converter<BufferFrame, AperStage6Current1Variable10mm> converterAper1R10() {
+    return converterAper1R().chainInstance(AperStage6Current1Variable10mm.class);
+  }
+
+  @Bean
+  @Profile("aper1-R1")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  @Primary
+  static Converter<BufferFrame, AperStage6Current1Variable> converterAper1R1() {
+    return converterAper1R().chainInstance(AperStage6Current1Variable.class);
   }
 
   @Bean

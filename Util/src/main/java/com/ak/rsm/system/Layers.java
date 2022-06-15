@@ -11,7 +11,7 @@ import com.ak.numbers.CoefficientsUtils;
 public enum Layers {
   ;
 
-  private static final int SUM_LIMIT = 1024 * 8 * 2;
+  private static final int SUM_LIMIT = 1 << 15;
 
   public static double getK12(@Nonnegative double rho1, @Nonnegative double rho2) {
     if (Double.compare(rho1, rho2) == 0) {

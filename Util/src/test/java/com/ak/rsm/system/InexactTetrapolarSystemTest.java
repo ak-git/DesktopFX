@@ -17,7 +17,6 @@ import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -102,7 +101,7 @@ public class InexactTetrapolarSystemTest {
               .map(sign -> Inequality.absolute().applyAsDouble(rhoAtHMax.applyAsDouble(sign), rhoApparent))
               .min().orElseThrow();
         },
-        new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / system.system().lCC()}), new double[] {0.01}
+        new Simplex.Bounds(0.0, system.getHMax(1.0) / system.system().lCC())
     );
     Assert.assertEquals(optimize.getPoint()[0], system.getHMax(Layers.getK12(rho1, rho2)) / system.system().lCC(),
         0.1, system.toString());
@@ -120,7 +119,7 @@ public class InexactTetrapolarSystemTest {
                 .map(sign -> Inequality.absolute().applyAsDouble(rhoAtHMin.applyAsDouble(sign), rhoApparent))
                 .min().orElseThrow();
           },
-          new SimpleBounds(new double[] {0.0}, new double[] {system.getHMax(1.0) / system.system().lCC()}), new double[] {0.01}
+          new Simplex.Bounds(0.0, system.getHMax(1.0) / system.system().lCC())
       );
       Assert.assertEquals(optimize.getPoint()[0], system.getHMin(Layers.getK12(rho1, rho2)) / system.system().lCC(),
           0.01, system.toString());

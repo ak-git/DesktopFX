@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.math.ValuePair;
+import com.ak.rsm.system.Layers;
 
 public final class Layer2RelativeMedium implements RelativeMediumLayers {
   @Nonnull
@@ -17,17 +18,21 @@ public final class Layer2RelativeMedium implements RelativeMediumLayers {
 
   @ParametersAreNonnullByDefault
   public Layer2RelativeMedium(ValuePair k12, ValuePair hToL) {
-    this.k12 = k12;
-    this.hToL = hToL;
+    this.k12 = Objects.requireNonNull(k12);
+    this.hToL = Objects.requireNonNull(hToL);
   }
 
   public Layer2RelativeMedium(double k12, @Nonnegative double hToL) {
     this.k12 = ValuePair.Name.K12.of(k12, 0.0);
-    this.hToL = ValuePair.Name.H_L.of(hToL, 0.0);
+    this.hToL = ValuePair.Name.H_L.of(Math.abs(hToL), 0.0);
   }
 
   public Layer2RelativeMedium(@Nonnull double[] kw) {
     this(kw[0], kw[1]);
+  }
+
+  public Layer2RelativeMedium(@Nonnull double[] rho, @Nonnegative double hToL) {
+    this(Layers.getK12(rho[0], rho[1]), hToL);
   }
 
   @Override
@@ -37,22 +42,22 @@ public final class Layer2RelativeMedium implements RelativeMediumLayers {
 
   @Override
   public double k12() {
-    return k12.getValue();
+    return k12.value();
   }
 
   @Override
   public double hToL() {
-    return hToL.getValue();
+    return hToL.value();
   }
 
   @Override
   public double k12AbsError() {
-    return k12.getAbsError();
+    return k12.absError();
   }
 
   @Override
   public double hToLAbsError() {
-    return hToL.getAbsError();
+    return hToL.absError();
   }
 
   @Override

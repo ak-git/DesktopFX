@@ -1,17 +1,17 @@
 plugins {
-    id "org.javamodularity.moduleplugin" version "1.8.10"
+    id "org.javamodularity.moduleplugin" version '1.8.11'
     id 'java'
     id 'java-library'
     id 'idea'
-    id "org.sonarqube" version "3.3"
+    id "org.sonarqube" version '3.3'
     id 'jacoco'
 
     id "application"
-    id 'org.openjfx.javafxplugin' version '0.0.10'
+    id 'org.openjfx.javafxplugin' version '0.0.13'
 
-    id 'org.springframework.boot' version '2.6.2'
+    id 'org.springframework.boot' version '2.7.0'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id "com.github.spotbugs" version "5.0.4"
+    id "com.github.spotbugs" version '5.0.7'
 }
 
 spotbugs {
@@ -38,31 +38,31 @@ sonarqube {
 }
 
 jacoco {
-    toolVersion = "0.8.7"
+    toolVersion = "0.8.8"
 }
 
 ext {
-    testNG = 'org.testng:testng:7.5'
+    testNG = 'org.testng:testng:7.6.0'
     jsr305 = 'com.google.code.findbugs:jsr305:3.0.2'
     javax_inject = 'javax.inject:javax.inject:1'
     uom_se = 'tec.uom:uom-se:1.0.10'
     javax_json = 'org.glassfish:javax.json:1.1.4'
     commons_math3 = 'org.apache.commons:commons-math3:3.6.1'
     commons_csv = 'org.apache.commons:commons-csv:1.9.0'
-    jSerialComm = 'com.fazecast:jSerialComm:[2.7.0,3.0.0)'
-    jenetics = 'io.jenetics:jenetics:6.3.0'
-    javaVersion = JavaVersion.VERSION_17
+    jSerialComm = 'com.fazecast:jSerialComm:[2.9.0,3.0.0)'
+    jenetics = 'io.jenetics:jenetics:7.0.0'
+    javaVersion = JavaVersion.VERSION_18
 }
 
 wrapper {
     description 'Setup the Gradle wrapper'
-    gradleVersion = "7.3.3"
+    gradleVersion = "7.4.2"
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '2022.01.06'
+    version = '2022.05.27'
     apply plugin: 'idea'
     idea {
         module {
@@ -122,7 +122,7 @@ dependencies {
 }
 
 javafx {
-    version = '16'
+    version = '18.0.1'
     modules = ['javafx.controls', 'javafx.fxml']
 }
 

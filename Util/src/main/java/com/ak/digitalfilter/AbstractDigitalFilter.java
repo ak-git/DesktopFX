@@ -37,7 +37,7 @@ abstract class AbstractDigitalFilter implements DigitalFilter {
     return toString(getClass().getSimpleName());
   }
 
-  static String toString(@Nonnull String base, @Nonnull DigitalFilter filter) {
+  static String toString(@Nonnull CharSequence base, @Nonnull DigitalFilter filter) {
     return base + filter.toString().replaceAll(NEW_LINE,
         Stream.generate(() -> SPACE).limit(base.length()).collect(Collectors.joining(EMPTY, NEW_LINE, EMPTY)));
   }
