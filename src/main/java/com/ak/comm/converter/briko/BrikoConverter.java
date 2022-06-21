@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Scope;
 
 import static java.lang.Integer.BYTES;
 
-@Named
+@Named("briko-converter")
 @Profile("briko")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class BrikoConverter extends AbstractConverter<BufferFrame, BrikoVariable> {

@@ -48,6 +48,7 @@ module com.ak.fx.desktop {
   exports com.ak.comm.bytes.suntech to org.testng;
   exports com.ak.comm.bytes.purelogic to org.testng;
 
+  exports com.ak.fx.desktop.briko to spring.beans;
   exports com.ak.fx.desktop.nmisr to spring.beans;
   exports com.ak.fx.desktop.suntech to spring.beans;
   exports com.ak.fx.desktop.purelogic to spring.beans;
