@@ -21,8 +21,9 @@ public enum BrikoVariable implements Variable<BrikoVariable> {
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.of().smoothingImpulsive(10)
-          .operator(() -> adc -> Math.toIntExact(Math.round(0.0013 * adc + 46.664)))
-          .operator(() -> gram -> Math.max(Math.toIntExact(Math.round(gram / 1000.0 / (Metrics.fromMilli(100.0) * Metrics.fromMilli(60.0)))), 0))
+          .operator(() -> adc -> Math.toIntExact(Math.round(-0.0135 * adc + 10771)))
+          .operator(() -> gram -> Math.toIntExact(Math.round(gram / 1000.0 / (Metrics.fromMilli(100.0) * Metrics.fromMilli(60.0)))))
+          .operator(() -> x -> -x + 2420)
           .build();
     }
 
