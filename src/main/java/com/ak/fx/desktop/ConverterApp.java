@@ -36,7 +36,7 @@ public class ConverterApp implements AutoCloseable, Consumer<Path> {
 
   public static void main(String[] args) {
     try (var app = new ConverterApp(SpringApplication.run(ConverterApp.class, args));
-         DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.BIN.attachTo("*"))) {
+         DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.RR.attachTo("*"))) {
       paths.forEach(app);
     }
     catch (IOException e) {

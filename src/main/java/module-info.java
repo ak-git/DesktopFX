@@ -38,6 +38,7 @@ module com.ak.fx.desktop {
   exports com.ak.comm.converter.rsce to spring.beans;
   exports com.ak.comm.converter.nmis to spring.beans;
   exports com.ak.comm.converter.briko to spring.beans, org.testng;
+  exports com.ak.comm.converter.prv_rr to spring.beans, org.testng;
   exports com.ak.comm.converter.suntech to spring.beans, org.testng;
   exports com.ak.comm.converter.purelogic to spring.beans, org.testng;
   exports com.ak.comm.converter.kleiber to org.testng;

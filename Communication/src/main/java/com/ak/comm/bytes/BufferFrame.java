@@ -50,6 +50,10 @@ public class BufferFrame {
     return byteBuffer.getInt(index);
   }
 
+  public final int getShort(@Nonnegative int index) {
+    return byteBuffer.getShort(index);
+  }
+
   public final float getFloat(@Nonnegative int index) {
     return byteBuffer.getFloat(index);
   }

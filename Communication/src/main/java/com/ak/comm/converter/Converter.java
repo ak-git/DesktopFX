@@ -13,7 +13,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.PrimitiveIterator;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,19 +38,15 @@ public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<
   static <T, R, V extends Enum<V> & Variable<V>> void doConvert(BytesInterceptor<T, R> bytesInterceptor,
                                                                 Converter<R, V> responseConverter, Path path) {
     String fileName = path.toFile().getPath();
-    Path out = Paths.get(Extension.CSV.attachTo(Extension.BIN.clean(fileName)));
+    Path out = Paths.get(Extension.CSV.attachTo(Extension.RR.clean(fileName)));
     if (Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS) &&
-        fileName.lastIndexOf(bytesInterceptor.name()) != -1 &&
         Files.notExists(out)) {
       try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
            var collector = new CSVLineFileCollector(out,
-               Stream.concat(
-                   Stream.of(TimeVariable.TIME).map(Variable::name),
-                   responseConverter.variables().stream().map(Variable::name)
-               ).toArray(String[]::new))
+               responseConverter.variables().stream().map(Variable::name).toArray(String[]::new)
+           )
       ) {
         var buffer = ByteBuffer.allocate((int) Files.getFileStore(path).getBlockSize());
-        var timeCounter = new AtomicInteger();
 
         double[] pow = responseConverter.variables().stream().map(Variable::getUnit)
             .mapToDouble(unit -> {
@@ -71,10 +66,7 @@ public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<
                   ints -> {
                     PrimitiveIterator.OfDouble iterator = Arrays.stream(pow).iterator();
                     collector.accept(
-                        Stream.concat(
-                            Stream.of(round3(timeCounter.getAndIncrement() / responseConverter.getFrequency())),
-                            Arrays.stream(ints).mapToDouble(value -> round3(value / iterator.nextDouble())).boxed()
-                        ).toArray()
+                        Arrays.stream(ints).mapToDouble(value -> round3(value / iterator.nextDouble())).boxed().toArray()
                     );
                   }
               );

@@ -63,6 +63,6 @@ public enum LogBuilders implements Cleaner.Cleanable {
   }
 
   private static LogPathBuilder newInstance() {
-    return new LogPathBuilder(Extension.BIN, LocalFileHandler.class);
+    return new LogPathBuilder(Extension.RR, LocalFileHandler.class);
   }
 }

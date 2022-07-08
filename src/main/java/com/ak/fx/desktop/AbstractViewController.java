@@ -78,7 +78,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
       fileWatcher = new RecursiveWatcher(
           OutputBuilders.NONE.build(Strings.EMPTY).getPath(),
           path -> Converter.doConvert(interceptorProvider.get(), converterProvider.get(), path),
-          Extension.BIN
+          Extension.RR
       );
     }
     catch (IOException e) {

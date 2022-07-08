@@ -29,10 +29,13 @@ import com.ak.comm.converter.aper.AperStage6Current1Variable6mm;
 import com.ak.comm.converter.aper.AperStage6Current1Variable7mm;
 import com.ak.comm.converter.aper.AperStage6Current1Variable8mm;
 import com.ak.comm.converter.kleiber.KleiberVariable;
+import com.ak.comm.converter.prv_rr.PrvRRConverter;
+import com.ak.comm.converter.prv_rr.PrvRROutputVariable;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.interceptor.simple.AbstractFixedFrameBytesInterceptor;
 import com.ak.comm.interceptor.simple.FixedFrameBytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.interceptor.simple.StringBytesInterceptor;
@@ -165,6 +168,25 @@ public class SpringFxApplication extends FxApplication {
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<String, ADCVariable> converterPrv() {
     return new StringToIntegerConverter<>(ADCVariable.class, 32);
+  }
+
+  @Bean
+  @Profile("prv_rr")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorPrvRR() {
+    return new AbstractFixedFrameBytesInterceptor("prv_rr", BytesInterceptor.BaudRate.BR_115200, 6) {
+      @Override
+      protected boolean check(@Nonnull byte[] buffer, byte nextFrameStartByte) {
+        return true;
+      }
+    };
+  }
+
+  @Bean
+  @Profile("prv_rr")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<BufferFrame, PrvRROutputVariable> converterPrvRR() {
+    return LinkedConverter.of(new PrvRRConverter(), PrvRROutputVariable.class);
   }
 
   @Bean

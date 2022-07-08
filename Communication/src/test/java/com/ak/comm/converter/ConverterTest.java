@@ -77,15 +77,15 @@ public class ConverterTest {
 
   @Test
   public void testFileConvert() throws IOException {
-    Path tempFile = Files.createTempFile(path, Strings.EMPTY, Extension.BIN.attachTo(getClass().getSimpleName()));
+    Path tempFile = Files.createTempFile(path, Strings.EMPTY, Extension.RR.attachTo(getClass().getSimpleName()));
     Files.write(tempFile, new byte[] {51, 102, 102, 53, '\r', '\n'});
     BytesInterceptor<BufferFrame, String> interceptor = new StringBytesInterceptor(getClass().getSimpleName());
     Converter<String, ADCVariable> converter = new StringToIntegerConverter<>(ADCVariable.class, 1);
     Converter.doConvert(interceptor, converter, tempFile);
-    Path out = Paths.get(Extension.CSV.attachTo(Extension.BIN.clean(tempFile.toAbsolutePath().toString())));
+    Path out = Paths.get(Extension.CSV.attachTo(Extension.RR.clean(tempFile.toAbsolutePath().toString())));
     List<String> result = Files.readAllLines(out, StandardCharsets.UTF_8);
     Assert.assertEquals(result.size(), 2);
-    Assert.assertEquals(result.get(0), "TIME,ADC");
-    Assert.assertEquals(result.get(1), "0.0,16373.0");
+    Assert.assertEquals(result.get(0), "ADC");
+    Assert.assertEquals(result.get(1), "16373.0");
   }
 }
