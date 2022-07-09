@@ -106,6 +106,12 @@ allprojects {
         useTestNG()
         maxHeapSize = '1G'
     }
+
+    tasks.withType(Test.class).configureEach {
+        jacoco {
+            includes = ["com.ak.*"]
+        }
+    }
 }
 
 dependencies {
