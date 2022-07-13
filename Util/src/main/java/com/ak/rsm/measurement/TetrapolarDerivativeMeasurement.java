@@ -18,10 +18,18 @@ import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
-public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
-                                              double derivativeResistivity) implements DerivativeMeasurement {
+import static tec.uom.se.unit.Units.OHM;
+
+public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, double derivativeResistivity, double dh)
+    implements DerivativeMeasurement {
   public String toString() {
-    return "%s; %s".formatted(measurement, Strings.dRhoByPhi(derivativeResistivity));
+    String s = "%s; %s".formatted(measurement, Strings.dRhoByPhi(derivativeResistivity));
+    if (Double.isNaN(dh)) {
+      return s;
+    }
+    else {
+      return "%s; %s = %.3f %s; dh = %.3f mm".formatted(s, Strings.CAP_DELTA, dOhms(), OHM, Metrics.toMilli(dh));
+    }
   }
 
   @Nonnull
@@ -35,6 +43,11 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
     return measurement.resistivity();
   }
 
+  @Override
+  public double dOhms() {
+    return TetrapolarResistance.of(system()).rho(derivativeResistivity * dh / measurement.system().lCC()).ohms();
+  }
+
   @Nonnull
   @Override
   public Measurement merge(@Nonnull Measurement that) {
@@ -44,7 +57,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
   @Nonnull
   @Override
   public Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1) {
-    return TetrapolarDerivativePrediction.of(inexact(), kw, rho1, new double[] {resistivity(), derivativeResistivity()});
+    return TetrapolarDerivativePrediction.of(this, kw, rho1);
   }
 
   @Nonnull
@@ -75,7 +88,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
   private static class Builder extends TetrapolarMeasurement.AbstractSingleBuilder<DerivativeMeasurement> implements PreBuilder {
     private TetrapolarDerivativeResistance.DhHolder dhHolder;
 
-    private Builder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
+    private Builder(@Nonnull DoubleUnaryOperator converter, double absError) {
       super(converter, absError);
     }
 
@@ -95,7 +108,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
     public DerivativeMeasurement rho(@Nonnull double... rhos) {
       if (Double.isNaN(dhHolder.dh())) {
         return TetrapolarDerivativeResistance.PreBuilder.check(rhos,
-            () -> new TetrapolarDerivativeMeasurement(TetrapolarMeasurement.of(inexact).rho(rhos[0]), rhos[1])
+            () -> new TetrapolarDerivativeMeasurement(TetrapolarMeasurement.of(inexact).rho(rhos[0]), rhos[1], Double.NaN)
         );
       }
       else {
@@ -109,7 +122,8 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
       if (rOhms.length == 2) {
         return new TetrapolarDerivativeMeasurement(
             TetrapolarMeasurement.of(inexact).ofOhms(rOhms[0]),
-            TetrapolarDerivativeResistance.of(inexact.system()).dh(dhHolder.dh()).ofOhms(rOhms).derivativeResistivity()
+            TetrapolarDerivativeResistance.of(inexact.system()).dh(dhHolder.dh()).ofOhms(rOhms).derivativeResistivity(),
+            dhHolder.dh()
         );
       }
       else {
@@ -125,11 +139,12 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
           .dh(dhHolder.dh()).rho1(rho1).rho2(rho2);
 
       if (Double.isNaN(hStep)) {
-        return new TetrapolarDerivativeMeasurement(b.h(h), d.h(h).derivativeResistivity());
+        return new TetrapolarDerivativeMeasurement(b.h(h), d.h(h).derivativeResistivity(), dhHolder.dh());
       }
       else {
         return new TetrapolarDerivativeMeasurement(
-            b.rho3(rho3).hStep(hStep).p(p1, p2mp1), d.rho3(rho3).hStep(hStep).p(p1, p2mp1).derivativeResistivity()
+            b.rho3(rho3).hStep(hStep).p(p1, p2mp1), d.rho3(rho3).hStep(hStep).p(p1, p2mp1).derivativeResistivity(),
+            dhHolder.dh()
         );
       }
     }
@@ -138,7 +153,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement,
   private static class MultiBuilder extends TetrapolarMeasurement.AbstractMultiBuilder<DerivativeMeasurement> implements MultiPreBuilder {
     private TetrapolarDerivativeResistance.DhHolder dhHolder;
 
-    private MultiBuilder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double absError) {
+    private MultiBuilder(@Nonnull DoubleUnaryOperator converter, double absError) {
       super(converter, absError);
     }
 

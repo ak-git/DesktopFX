@@ -3,7 +3,6 @@ package com.ak.comm.serial;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -47,8 +46,6 @@ public class SerialServiceTest {
           comPort.writeBytes(buffer, buffer.length);
           try {
             semaphore.acquire();
-            double factor = value > 0 ? 1.0 : 1.618;
-            TimeUnit.MILLISECONDS.sleep(Math.round(1000 * factor));
           }
           catch (InterruptedException e) {
             Logger.getLogger(getClass().getName()).log(Level.WARNING, e, () ->

@@ -45,7 +45,7 @@ public class LayersTest {
 
   @Test
   public void testSum() {
-    Assert.assertEquals(Layers.sum(x -> x), (1024 * 8) * (1024 * 8 * 2 + 1));
+    Assert.assertEquals(Layers.sum(x -> x), (1 << 14) * ((1 << 15) + 1.0));
   }
 
   @DataProvider(name = "qn")

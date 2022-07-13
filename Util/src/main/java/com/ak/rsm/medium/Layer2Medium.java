@@ -16,12 +16,12 @@ public final class Layer2Medium extends AbstractMediumLayers {
   public Layer2Medium(Collection<? extends Measurement> measurements, RelativeMediumLayers kw) {
     super(measurements, kw);
     dRho2 = 2.0 * kw.k12AbsError() / StrictMath.pow(1.0 - kw.k12(), 2.0) +
-        (rho1().getAbsError() / Layers.getRho1ToRho2(kw.k12()));
+        (rho1().absError() / Layers.getRho1ToRho2(kw.k12()));
   }
 
   @Override
   public ValuePair rho2() {
-    return ValuePair.Name.RHO_2.of(rho1().getValue() / Layers.getRho1ToRho2(kw().k12()), dRho2);
+    return ValuePair.Name.RHO_2.of(rho1().value() / Layers.getRho1ToRho2(kw().k12()), dRho2);
   }
 
   @Override

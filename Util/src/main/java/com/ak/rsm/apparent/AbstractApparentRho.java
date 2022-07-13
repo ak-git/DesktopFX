@@ -1,5 +1,6 @@
 package com.ak.rsm.apparent;
 
+import java.util.Objects;
 import java.util.function.IntToDoubleFunction;
 
 import javax.annotation.Nonnegative;
@@ -10,7 +11,7 @@ abstract class AbstractApparentRho implements ResistanceSumValue {
   private final ResistanceSumValue apparent;
 
   AbstractApparentRho(@Nonnull ResistanceSumValue apparent) {
-    this.apparent = apparent;
+    this.apparent = Objects.requireNonNull(apparent);
   }
 
   @Override

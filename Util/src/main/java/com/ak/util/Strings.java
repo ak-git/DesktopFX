@@ -16,17 +16,21 @@ public enum Strings {
   public static final String OHM_METRE = new StringBuilder(OHM.multiply(METRE).toString()).reverse().toString();
   public static final String PLUS_MINUS = "\u00B1";
   public static final String PHI = "\u03C8";
+  public static final String CAP_DELTA = "\u0394";
   private static final String RHO = "\u03c1";
 
+  @Nonnull
   public static String numberSuffix(@Nonnull String s) {
-    String ignore = s.replaceFirst("\\d*$", EMPTY);
-    return s.substring(ignore.length());
+    int numCount = Math.toIntExact(new StringBuilder(s).reverse().chars().takeWhile(Character::isDigit).count());
+    return s.substring(s.length() - numCount);
   }
 
+  @Nonnull
   public static String dRhoByPhi(double v) {
     return "d%s/d%s = %.3f %s".formatted(RHO, PHI, v, OHM_METRE);
   }
 
+  @Nonnull
   public static String rho(@Nonnegative double rho) {
     return "%s = %.3f %s".formatted(RHO, rho, OHM_METRE);
   }
@@ -36,6 +40,7 @@ public enum Strings {
     return (char) (i + index);
   }
 
+  @Nonnull
   public static String rho(@Nonnegative int index, @Nonnull Object rho) {
     return "%s%s = %s %s".formatted(RHO, low(index), rho, OHM_METRE);
   }

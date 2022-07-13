@@ -14,16 +14,24 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
+import tec.uom.se.unit.MetricPrefix;
+import tec.uom.se.unit.Units;
 
-public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, double derivativeResistivity)
+public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, double derivativeResistivity, double dh)
     implements DerivativeResistance {
   private TetrapolarDerivativeResistance(@Nonnull Resistance resistance, @Nonnull Resistivity resistanceAfter, double dh) {
-    this(resistance, (resistanceAfter.resistivity() - resistance.resistivity()) / (dh / resistance.system().lCC()));
+    this(resistance, (resistanceAfter.resistivity() - resistance.resistivity()) / (dh / resistance.system().lCC()), dh);
   }
 
   @Override
   public String toString() {
-    return "%s; %s".formatted(resistance, Strings.dRhoByPhi(derivativeResistivity));
+    String s = "%s; %s".formatted(resistance, Strings.dRhoByPhi(derivativeResistivity));
+    if (Double.isNaN(dh)) {
+      return s;
+    }
+    else {
+      return "%s; dh = %.3f %s".formatted(s, Metrics.toMilli(dh), MetricPrefix.MILLI(Units.METRE));
+    }
   }
 
   @Nonnull
@@ -127,7 +135,7 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
     public DerivativeResistance rho(@Nonnull double... rhos) {
       if (Double.isNaN(dhHolder.dh)) {
         return PreBuilder.check(rhos,
-            () -> new TetrapolarDerivativeResistance(TetrapolarResistance.of(system).rho(rhos[0]), rhos[1])
+            () -> new TetrapolarDerivativeResistance(TetrapolarResistance.of(system).rho(rhos[0]), rhos[1], Double.NaN)
         );
       }
       else {
@@ -154,9 +162,12 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
         return new TetrapolarDerivativeResistance(builder.h(h), builder.h(h + dhHolder.dh), dhHolder.dh);
       }
       else {
+        int scale = Math.toIntExact(Math.max(1, Math.round(Math.abs(hStep / dhHolder.dh))));
+        double hs = Math.min(hStep, Math.abs(dhHolder.dh));
         return new TetrapolarDerivativeResistance(
-            builder.rho3(rho3).hStep(hStep).p(p1, p2mp1),
-            builder.rho3(rho3).hStep(hStep + dhHolder.dh).p(p1, p2mp1), dhHolder.dh);
+            builder.rho3(rho3).hStep(hs).p(scale * p1, scale * p2mp1),
+            builder.rho3(rho3).hStep(hs).p(scale * p1 + Math.toIntExact(Math.round(scale * dhHolder.dh / hStep)), scale * p2mp1),
+            dhHolder.dh);
       }
     }
   }

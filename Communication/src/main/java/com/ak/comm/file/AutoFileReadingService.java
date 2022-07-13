@@ -53,19 +53,17 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
   public boolean accept(@Nonnull File file) {
     if (file.isFile() && Extension.BIN.is(file.getName())) {
       refresh(false);
-      CompletableFuture
+      readable = CompletableFuture
           .supplyAsync(() -> new FileReadingService<>(file.toPath(), interceptorProvider.get(), converterProvider.get()))
           .whenComplete((source, throwable) -> {
-            if (throwable == null) {
-              readable = source;
-              if (subscriber != null) {
-                service.submit(() -> source.subscribe(subscriber));
-              }
-            }
-            else {
+            if (throwable != null) {
               Logger.getLogger(FileReadingService.class.getName()).log(Level.WARNING, file.getName(), throwable);
             }
-          }).join();
+            else if (subscriber != null) {
+              service.submit(() -> source.subscribe(subscriber));
+            }
+          })
+          .join();
       return true;
     }
     else {

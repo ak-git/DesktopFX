@@ -1,8 +1,11 @@
 package com.ak.math;
 
+import java.util.Arrays;
+
+import com.ak.inverse.Inequality;
+import com.ak.math.Simplex.Bounds;
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.SimpleBounds;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -20,17 +23,27 @@ public class SimplexTest {
   }
 
   @Test
-  public void testOptimizeCMAES() {
-    PointValuePair valuePair = Simplex.CMAES.optimize(new Rosen(),
-        SimpleBounds.unbounded(2), new double[] {0.0, 0.0}, new double[] {10.0, 10.0});
+  public void testOptimizeWithInitialGuessAndBounds() {
+    PointValuePair valuePair = Simplex.optimizeAll(new Rosen(),
+        new Bounds(10.0, 20.0, 30.0), new Bounds(10.0, 20.0, 30.0));
+    Assert.assertTrue(
+        Arrays.stream(valuePair.getPoint()).anyMatch(value -> Inequality.absolute().applyAsDouble(value, 10.0) < 0.1),
+        Arrays.toString(valuePair.getPoint())
+    );
+  }
+
+  @Test
+  public void testOptimizeWithBounds() {
+    PointValuePair valuePair = Simplex.optimizeAll(new Rosen(),
+        new Bounds(-10.0, 10.0), new Bounds(-10.0, 10.0));
     Assert.assertEquals(valuePair.getPoint(), new double[] {1.0, 1.0}, 0.1);
   }
 
   @Test
   public void testInvalid() {
     PointValuePair valuePair = Simplex.CMAES.optimize(new Rosen(),
-        SimpleBounds.unbounded(2), new double[] {0.0}, new double[] {10.0});
-    Assert.assertEquals(valuePair.getPoint(), new double[] {Double.NaN}, 0.1);
+        new Bounds(-10.0, 0.0, 10.0), new Bounds(-10.0, 0.0, 10.0), new Bounds(-10.0, 0.0));
+    Assert.assertEquals(valuePair.getPoint(), new double[] {Double.NaN, Double.NaN, Double.NaN}, 0.1, Arrays.toString(valuePair.getPoint()));
     Assert.assertEquals(valuePair.getValue(), Double.NaN, 0.1);
   }
 }

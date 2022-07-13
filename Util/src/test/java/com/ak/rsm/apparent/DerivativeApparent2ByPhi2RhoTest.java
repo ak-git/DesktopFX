@@ -6,7 +6,6 @@ import javax.annotation.Nonnull;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.resistance.Resistance2LayerTest;
 import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
-import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import org.testng.Assert;
@@ -20,7 +19,7 @@ public class DerivativeApparent2ByPhi2RhoTest {
     double dh = Metrics.fromMilli(-0.00001);
     double expected = TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho[0]).rho2(rho[1]).h(h).derivativeResistivity() / rho[0];
     double actual = Apparent2Rho.newDerivativeApparentByPhi2Rho(system.relativeSystem())
-        .applyAsDouble(new Layer2RelativeMedium(Layers.getK12(rho[0], rho[1]), hmm / lmm));
+        .applyAsDouble(new Layer2RelativeMedium(rho, hmm / lmm));
     Assert.assertEquals(actual, expected, 0.1);
   }
 
@@ -31,7 +30,7 @@ public class DerivativeApparent2ByPhi2RhoTest {
     double dh = Metrics.fromMilli(-0.00001);
     double expected = TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho[0]).rho2(rho[1]).h(h).derivativeResistivity() / rho[0];
     double actual = Apparent2Rho.newDerivativeApparentByPhi2Rho(system.relativeSystem())
-        .applyAsDouble(new Layer2RelativeMedium(Layers.getK12(rho[0], rho[1]), hmm / smm));
+        .applyAsDouble(new Layer2RelativeMedium(rho, hmm / smm));
     Assert.assertEquals(actual, expected, 0.1);
   }
 }

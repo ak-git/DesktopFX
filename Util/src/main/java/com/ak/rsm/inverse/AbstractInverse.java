@@ -16,7 +16,7 @@ abstract class AbstractInverse {
 
   AbstractInverse(@Nonnull Collection<TetrapolarSystem> systems) {
     this.systems = Collections.unmodifiableCollection(systems);
-    baseL = getBaseL(systems);
+    baseL = systems.stream().mapToDouble(TetrapolarSystem::lCC).max().orElseThrow();
   }
 
   @Nonnegative
@@ -27,10 +27,5 @@ abstract class AbstractInverse {
   @Nonnull
   final Collection<TetrapolarSystem> systems() {
     return systems;
-  }
-
-  @Nonnegative
-  public static double getBaseL(@Nonnull Collection<TetrapolarSystem> systems) {
-    return systems.stream().mapToDouble(TetrapolarSystem::lCC).max().orElseThrow();
   }
 }

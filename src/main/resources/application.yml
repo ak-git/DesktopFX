@@ -5,8 +5,7 @@ spring:
   profiles:
     active: loopback
 logging:
-  file:
-    name: spring.log
+  file.name: spring.log
   level:
     org:
       springframework: info
@@ -21,4 +20,4 @@ logging:
         # trace / FINEST - pure bytes, (IN from hardware, com.ak.comm.core)
         # ALL
         comm: info
-version: 2022.03.04
+version: 2022.07.10
