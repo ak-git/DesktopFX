@@ -29,8 +29,48 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class Inverse2Test {
-  @DataProvider(name = "E-7694")
-  public static Object[][] e7694() {
+  @DataProvider(name = "E-7694-system2")
+  public static Object[][] e7694system2() {
+    return new Object[][] {
+        {
+            List.of(
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system2(7.0)
+                    .ofOhms(122.3, 199.0, 122.3 + 0.1, 199.0 + 0.4),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 2).system2(7.0)
+                    .ofOhms(122.3, 199.0, 122.3 + 0.3, 199.0 + 0.75),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 4).system2(7.0)
+                    .ofOhms(122.3, 199.0, 122.3 + 0.6, 199.0 + 2.0),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 4).system2(7.0)
+                    .ofOhms(122.3, 199.0, 122.3 - 0.3, 199.0 - 1.5)
+            )
+        },
+    };
+  }
+
+  @DataProvider(name = "E-7694-105plus-system2")
+  public static Object[][] e7694plus105system2() {
+    return new Object[][] {
+        {
+            List.of(
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system2(7.0)
+                    .ofOhms(120.8, 195.0, 120.8 + 0.15, 195.0 + 0.5),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 2).system2(7.0)
+                    .ofOhms(120.8, 195.0, 120.8 + 0.4, 195.0 + 1.0),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 4).system2(7.0)
+                    .ofOhms(120.8, 195.0, 120.8 + 1.1, 195.0 + 2.5),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21).system2(7.0)
+                    .ofOhms(120.8, 195.0, 120.8 - 0.15, 195.0 - 0.5),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 2).system2(7.0)
+                    .ofOhms(120.8, 195.0, 120.8 - 0.3, 195.0 - 1.0),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 4).system2(7.0)
+                    .ofOhms(120.8, 195.0, 120.8 - 0.6, 195.0 - 1.5)
+            )
+        },
+    };
+  }
+
+  @DataProvider(name = "E-7694-system4")
+  public static Object[][] e7694system4() {
     return new Object[][] {
         {
             List.of(
@@ -51,8 +91,8 @@ public class Inverse2Test {
     };
   }
 
-  @DataProvider(name = "E-7694-105plus")
-  public static Object[][] e7694plus105() {
+  @DataProvider(name = "E-7694-105plus-system4")
+  public static Object[][] e7694plus105system4() {
     return new Object[][] {
         {
             List.of(
