@@ -201,7 +201,7 @@ class NmisTestProvider {
     };
     Arguments[] values = new Arguments[input.length];
     for (int i = 0; i < input.length; i++) {
-      values[i] = arguments(input[i]);
+      values[i] = arguments(ByteBuffer.wrap(input[i]));
     }
     return Stream.of(values);
   }
