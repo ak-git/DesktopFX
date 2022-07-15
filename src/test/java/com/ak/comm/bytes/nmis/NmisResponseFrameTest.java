@@ -3,24 +3,31 @@ package com.ak.comm.bytes.nmis;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public class NmisResponseFrameTest {
-  @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "invalidTestByteResponse")
-  public void testNewInstance(byte[] input) {
-    ByteBuffer byteBuffer = ByteBuffer.wrap(input);
-    Assert.assertNotNull(NmisAddress.find(byteBuffer), Arrays.toString(input));
-    Assert.assertTrue(NmisProtocolByte.checkCRC(byteBuffer), Arrays.toString(input));
-    Assert.assertNull(new NmisResponseFrame.Builder(byteBuffer).build(), Arrays.toString(input));
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+
+class NmisResponseFrameTest {
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#invalidTestByteResponse")
+  void testNewInstance(@Nonnull ByteBuffer byteBuffer) {
+    assertAll(Arrays.toString(byteBuffer.array()),
+        () -> assertThat(NmisAddress.find(byteBuffer)).isNotNull(),
+        () -> assertThat(NmisProtocolByte.checkCRC(byteBuffer)).isTrue(),
+        () -> assertThat(new NmisResponseFrame.Builder(byteBuffer).build()).isNull());
   }
 
-  @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "sequenceResponse")
-  public void testEquals(NmisRequest request, byte[] input) {
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#sequenceResponse")
+  @ParametersAreNonnullByDefault
+  void testEquals(NmisRequest request, byte[] input) {
     NmisResponseFrame nmisResponseFrame = new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build();
-    Assert.assertNotNull(nmisResponseFrame);
-    Assert.assertNotEquals(request, nmisResponseFrame, Arrays.toString(input));
-    Assert.assertEquals(nmisResponseFrame, nmisResponseFrame, nmisResponseFrame.toString());
-    Assert.assertEquals(request.toResponse().hashCode(), nmisResponseFrame.hashCode());
+    assertThat(nmisResponseFrame).isNotNull().withFailMessage(nmisResponseFrame::toString)
+        .isNotEqualTo(request).hasSameHashCodeAs(request.toResponse());
   }
 }
