@@ -1,58 +1,62 @@
 package com.ak.numbers.rcm;
 
-import java.util.Arrays;
 import java.util.function.IntUnaryOperator;
-import java.util.function.Supplier;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.numbers.Interpolators;
 import com.ak.numbers.common.SimpleCoefficients;
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class RcmCoefficientsTest {
-  @DataProvider(name = "rcm-coefficients")
-  public static Object[][] rcmCoefficients() {
-    return new Object[][] {
-        {RcmCoefficients.CC_ADC_TO_OHM.of(1), 20},
-        {RcmCoefficients.CC_ADC_TO_OHM.of(2), 20},
-        {RcmCoefficients.RHEO_ADC_TO_260_MILLI.of(1), 16},
-        {RcmCoefficients.RHEO_ADC_TO_260_MILLI.of(2), 16},
-    };
-  }
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+class RcmCoefficientsTest {
   @Test
-  public void testCoefficients() {
-    Assert.assertEquals(RcmCoefficients.values().length, 2);
-    Assert.assertEquals(RcmSimpleCoefficients.values().length, 3);
+  void testCoefficients() {
+    assertThat(RcmCoefficients.values()).hasSize(2);
+    assertThat(RcmSimpleCoefficients.values()).hasSize(3);
 
     IntUnaryOperator rheo260ADC = Interpolators.interpolator(RcmCoefficients.RHEO_ADC_TO_260_MILLI.of(1)).get();
-    Assert.assertEquals(rheo260ADC.applyAsInt(100), 1054);
-    Assert.assertEquals(rheo260ADC.applyAsInt(1300), 911);
+    assertThat(rheo260ADC.applyAsInt(100)).isEqualTo(1054);
+    assertThat(rheo260ADC.applyAsInt(1300)).isEqualTo(911);
 
-    Assert.assertFalse(Arrays.equals(RcmCoefficients.CC_ADC_TO_OHM.of(1).get(), RcmCoefficients.CC_ADC_TO_OHM.of(2).get()));
-    Assert.assertFalse(Arrays.equals(RcmCoefficients.RHEO_ADC_TO_260_MILLI.of(1).get(), RcmCoefficients.RHEO_ADC_TO_260_MILLI.of(2).get()));
+    assertThat(RcmCoefficients.CC_ADC_TO_OHM.of(1).get())
+        .isNotEqualTo(RcmCoefficients.CC_ADC_TO_OHM.of(2).get());
+    assertThat(RcmCoefficients.RHEO_ADC_TO_260_MILLI.of(1).get())
+        .isNotEqualTo(RcmCoefficients.RHEO_ADC_TO_260_MILLI.of(2).get());
   }
 
-  @Test(dataProvider = "rcm-coefficients")
-  public void testCoefficients(@Nonnull Supplier<double[]> coefficients, @Nonnegative int count) {
-    Assert.assertEquals(coefficients.get().length, count, coefficients.toString());
+  @ParameterizedTest
+  @EnumSource(names = "CC_ADC_TO_OHM")
+  void testCC(@Nonnull RcmCoefficients c) {
+    assertThat(IntStream.of(1, 2)).isNotEmpty().allSatisfy(cNum -> assertThat(c.of(cNum).get()).hasSize(20));
   }
 
-  @DataProvider(name = "rcm-simple-coefficients")
-  public static Object[][] rcmSimpleCoefficients() {
-    return new Object[][] {
-        {RcmSimpleCoefficients.BR_F005, 10},
-        {RcmSimpleCoefficients.BR_F025, 25},
-        {RcmSimpleCoefficients.BR_F200, 22},
-    };
+  @ParameterizedTest
+  @EnumSource(names = "RHEO_ADC_TO_260_MILLI")
+  void testRheo(@Nonnull RcmCoefficients c) {
+    assertThat(IntStream.of(1, 2)).isNotEmpty().allSatisfy(cNum -> assertThat(c.of(cNum).get()).hasSize(16));
   }
 
-  @Test(dataProvider = "rcm-simple-coefficients")
-  public void testSimpleCoefficients(@Nonnull SimpleCoefficients coefficients, @Nonnegative int count) {
-    Assert.assertEquals(coefficients.get().length, count, coefficients.name());
+  static Stream<Arguments> rcmSimpleCoefficients() {
+    return Stream.of(
+        arguments(RcmSimpleCoefficients.BR_F005, 10),
+        arguments(RcmSimpleCoefficients.BR_F025, 25),
+        arguments(RcmSimpleCoefficients.BR_F200, 22)
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("rcmSimpleCoefficients")
+  void testCoefficients(@Nonnull SimpleCoefficients coefficients, @Nonnegative int count) {
+    assertThat(coefficients.get()).hasSize(count);
   }
 }

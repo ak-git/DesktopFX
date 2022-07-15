@@ -42,7 +42,7 @@ jacoco {
 }
 
 ext {
-    testNG = 'org.testng:testng:7.6.1'
+    junit = 'org.junit:junit-bom:5.8.2'
     jsr305 = 'com.google.code.findbugs:jsr305:3.0.2'
     javax_inject = 'javax.inject:javax.inject:1'
     uom_se = 'tec.uom:uom-se:1.0.10'
@@ -98,12 +98,17 @@ allprojects {
 
     dependencies {
         implementation jsr305
-        implementation testNG
+        testImplementation(platform(junit))
+        testImplementation('org.junit.jupiter:junit-jupiter')
+        testImplementation("org.assertj:assertj-core:3.23.1")
     }
 
     test {
+        useJUnitPlatform()
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
         forkEvery = 5
-        useTestNG()
         maxHeapSize = '1G'
     }
 
