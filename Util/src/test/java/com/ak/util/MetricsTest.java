@@ -1,30 +1,32 @@
 package com.ak.util;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.assertj.core.data.Offset;
+import org.junit.jupiter.api.Test;
 
-public class MetricsTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class MetricsTest {
   @Test
-  public void testFromMilli() {
-    Assert.assertEquals(Metrics.fromMilli(1.0), 0.001, 1.0e-3);
-    Assert.assertEquals(Metrics.fromMilli(-2.1), -0.0021, 1.0e-4);
+  void testFromMilli() {
+    assertThat(Metrics.fromMilli(1.0)).isEqualTo(0.001, Offset.offset(1.0e-3));
+    assertThat(Metrics.fromMilli(-2.1)).isEqualTo(-0.0021, Offset.offset(1.0e-4));
   }
 
   @Test
-  public void testToMilli() {
-    Assert.assertEquals(Metrics.toMilli(1.0), 1000.0, 1.0e-3);
-    Assert.assertEquals(Metrics.toMilli(-2.1), -2100.0, 1.0e-4);
+  void testToMilli() {
+    assertThat(Metrics.toMilli(1.0)).isEqualTo(1000.0);
+    assertThat(Metrics.toMilli(-2.1)).isEqualTo(-2100.0);
   }
 
   @Test
-  public void testFromPercents() {
-    Assert.assertEquals(Metrics.fromPercents(100.0), 1.0, 1.0e-3);
-    Assert.assertEquals(Metrics.fromPercents(-3.2), -0.032, 1.0e-3);
+  void testFromPercents() {
+    assertThat(Metrics.fromPercents(100.0)).isEqualTo(1.0);
+    assertThat(Metrics.fromPercents(-3.2)).isEqualTo(-0.032);
   }
 
   @Test
-  public void testToPercents() {
-    Assert.assertEquals(Metrics.toPercents(1.0), 100.0, 1.0e-3);
-    Assert.assertEquals(Metrics.toPercents(-0.032), -3.2, 1.0e-3);
+  void testToPercents() {
+    assertThat(Metrics.toPercents(1.0)).isEqualTo(100.0);
+    assertThat(Metrics.toPercents(-0.032)).isEqualTo(-3.2);
   }
 }
