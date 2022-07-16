@@ -10,15 +10,18 @@ import javax.annotation.Nullable;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.TwoVariables;
-import com.ak.comm.file.FileDataProvider;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class GroupServiceTest implements Flow.Subscriber<int[]> {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+class GroupServiceTest implements Flow.Subscriber<int[]> {
   private final GroupService<BufferFrame, BufferFrame, TwoVariables> service = new GroupService<>(
       () -> new RampBytesInterceptor(getClass().getName(),
           BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
@@ -26,14 +29,15 @@ public class GroupServiceTest implements Flow.Subscriber<int[]> {
   @Nullable
   private Flow.Subscription subscription;
 
-  @BeforeClass
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     service.subscribe(this);
   }
 
-  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles2", invocationCount = 2, singleThreaded = true)
-  public void testRead(@Nonnull Path file) {
-    Assert.assertTrue(service.accept(file.toFile()));
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.file.FileDataProvider#rampFiles2")
+  void testRead(@Nonnull Path file) {
+    assertTrue(service.accept(file.toFile()));
     while (!Thread.currentThread().isInterrupted()) {
       int countFrames = 10;
       int shift = 2;
@@ -41,18 +45,18 @@ public class GroupServiceTest implements Flow.Subscriber<int[]> {
       if (ints.length != 0) {
         for (int i = 0; i < ints[TwoVariables.V1.ordinal()].length; i++) {
           for (TwoVariables v : TwoVariables.values()) {
-            Assert.assertEquals(ints[v.ordinal()][i], i + v.ordinal() + shift, Arrays.toString(ints[v.ordinal()]));
+            assertThat(ints[v.ordinal()][i]).as(Arrays.toString(ints[v.ordinal()])).isEqualTo(i + v.ordinal() + shift);
           }
         }
         break;
       }
     }
-    Assert.assertTrue(Arrays.stream(service.read(0, 0)).allMatch(ints -> ints.length == 0));
+    assertTrue(Arrays.stream(service.read(0, 0)).allMatch(ints -> ints.length == 0));
     service.refresh(false);
   }
 
-  @AfterClass
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     service.close();
   }
 
@@ -70,7 +74,7 @@ public class GroupServiceTest implements Flow.Subscriber<int[]> {
 
   @Override
   public void onError(Throwable t) {
-    Assert.fail(t.getMessage(), t);
+    fail(t.getMessage(), t);
   }
 
   @Override

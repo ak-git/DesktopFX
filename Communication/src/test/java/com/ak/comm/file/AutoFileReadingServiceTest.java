@@ -13,23 +13,30 @@ import com.ak.comm.converter.TwoVariables;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.util.Strings;
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class AutoFileReadingServiceTest implements Flow.Subscriber<int[]> {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+class AutoFileReadingServiceTest implements Flow.Subscriber<int[]> {
   private final AutoFileReadingService<BufferFrame, BufferFrame, TwoVariables> service = new AutoFileReadingService<>(
       () -> new RampBytesInterceptor(getClass().getName(), BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
       () -> new ToIntegerConverter<>(TwoVariables.class, 1000));
 
-  @BeforeClass
+  @BeforeEach
   public void setUp() {
     service.subscribe(this);
   }
 
-  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "parallelRampFiles", invocationCount = 10)
-  public void testAccept(@Nonnull Path file) {
-    Assert.assertTrue(service.accept(file.toFile()));
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.file.FileDataProvider#parallelRampFiles")
+  void testAccept(@Nonnull Path file) {
+    assertTrue(service.accept(file.toFile()));
     int countFrames = 10;
     ByteBuffer buffer = ByteBuffer.allocate(TwoVariables.values().length * Integer.BYTES * countFrames);
     while (!Thread.currentThread().isInterrupted()) {
@@ -39,7 +46,7 @@ public class AutoFileReadingServiceTest implements Flow.Subscriber<int[]> {
       if (buffer.limit() == buffer.capacity()) {
         for (int i = 0; i < countFrames; i++) {
           for (int j = 0; j < TwoVariables.values().length; j++) {
-            Assert.assertEquals(buffer.getInt(), i + j);
+            assertThat(buffer.getInt()).isEqualTo(i + j);
           }
         }
         break;
@@ -48,8 +55,8 @@ public class AutoFileReadingServiceTest implements Flow.Subscriber<int[]> {
   }
 
   @Test
-  public void testNotAccept() {
-    Assert.assertFalse(service.accept(Paths.get(Strings.EMPTY).toFile()));
+  void testNotAccept() {
+    assertFalse(service.accept(Paths.get(Strings.EMPTY).toFile()));
   }
 
   @Override
@@ -63,7 +70,7 @@ public class AutoFileReadingServiceTest implements Flow.Subscriber<int[]> {
 
   @Override
   public void onError(Throwable t) {
-    Assert.fail(t.getMessage(), t);
+    fail(t.getMessage(), t);
   }
 
   @Override
