@@ -37,12 +37,14 @@ class RsceConverterTest {
             () -> {
               Converter<RsceCommandFrame, RsceVariable> converter = new RsceConverter();
               Stream<int[]> stream = converter.apply(frame);
-              stream.forEach(ints ->
-                  assertThat(ints).containsExactly(
+              assertThat(stream).isNotEmpty().allSatisfy(
+                  ints -> assertThat(ints).containsExactly(
                       IntStream.concat(
                           IntStream.concat(Arrays.stream(rDozenMilliOhms), Arrays.stream(infoOnes)),
                           IntStream.of(0, 0, 0)
-                      ).toArray()));
+                      ).toArray()
+                  )
+              );
             },
             logRecord -> {
               for (int milliOhm : rDozenMilliOhms) {

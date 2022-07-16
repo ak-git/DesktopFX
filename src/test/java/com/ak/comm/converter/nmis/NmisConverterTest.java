@@ -55,7 +55,7 @@ class NmisConverterTest {
           assertThat(stream.count()).isZero();
         }
         else {
-          stream.forEach(ints -> assertThat(ints).containsExactly(expected));
+          assertThat(stream).isNotEmpty().allSatisfy(ints -> assertThat(ints).containsExactly(expected));
         }
       }, logRecord -> {
         for (int v : expected) {
