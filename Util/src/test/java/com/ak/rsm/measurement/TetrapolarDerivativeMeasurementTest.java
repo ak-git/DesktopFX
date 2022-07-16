@@ -202,7 +202,7 @@ class TetrapolarDerivativeMeasurementTest {
   @Test
   void testInvalidRhos() {
     var builder = TetrapolarDerivativeMeasurement.ofSI(0.01).dh(0.1).system(10, 20.0);
-    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.rho(1.0, 2.0, 3.0, 4.0));
+    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> builder.rho(1.0, 2.0, 3.0, 4.0));
   }
 
   static Stream<Arguments> derivativeMeasurements() {
