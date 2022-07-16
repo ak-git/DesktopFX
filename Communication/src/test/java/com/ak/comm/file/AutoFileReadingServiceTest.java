@@ -30,7 +30,8 @@ class AutoFileReadingServiceTest {
               AutoFileReadingServiceTest.class.getName(),
               BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES
           ),
-      () -> new ToIntegerConverter<>(TwoVariables.class, 1000));
+      () -> new ToIntegerConverter<>(TwoVariables.class, 1000)
+  );
 
   @BeforeAll
   static void setUp() {
