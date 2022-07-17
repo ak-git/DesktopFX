@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -31,46 +32,51 @@ import io.jenetics.engine.Engine;
 import io.jenetics.engine.Limits;
 import io.jenetics.util.IntRange;
 import org.apache.commons.math3.optim.PointValuePair;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-public class Inverse3Test {
-  @DataProvider(name = "fixedP")
-  public static Object[][] fixedP() {
+class Inverse3Test {
+  static Stream<Arguments> fixedP() {
     int p1 = 25;
     int p2mp1 = 130;
-    return new Object[][] {
-        {
+    return Stream.of(
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system4(7.0)
                 .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
-                122.3 + 0.1, 199.0 + 0.4, (66.0 + 0.1) * 2, (202.0 + 0.25) * 2 - (66.0 + 0.1) * 2),
+                    122.3 + 0.1, 199.0 + 0.4, (66.0 + 0.1) * 2, (202.0 + 0.25) * 2 - (66.0 + 0.1) * 2),
             p1, p2mp1
-        },
-        {
+        ),
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 2).system4(7.0)
                 .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
-                122.3 + 0.3, 199.0 + 0.75, (66.0 + 0.2) * 2, (202.0 + 0.75) * 2 - (66.0 + 0.2) * 2),
+                    122.3 + 0.3, 199.0 + 0.75, (66.0 + 0.2) * 2, (202.0 + 0.75) * 2 - (66.0 + 0.2) * 2),
             p1, p2mp1
-        },
-        {
+        ),
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 4).system4(7.0)
                 .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
-                122.3 + 0.6, 199.0 + 2.0, (66.0 + 0.6) * 2, (202.0 + 1.75) * 2 - (66.0 + 0.6) * 2),
+                    122.3 + 0.6, 199.0 + 2.0, (66.0 + 0.6) * 2, (202.0 + 1.75) * 2 - (66.0 + 0.6) * 2),
             p1, p2mp1
-        },
-        {
+        ),
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 4).system4(7.0)
                 .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
-                122.3 - 0.3, 199.0 - 1.5, (66.0 - 0.3) * 2, (202.0 - 1.0) * 2 - (66.0 - 0.3) * 2),
+                    122.3 - 0.3, 199.0 - 1.5, (66.0 - 0.3) * 2, (202.0 - 1.0) * 2 - (66.0 - 0.3) * 2),
             p1, p2mp1
-        },
-    };
+        )
+    );
   }
 
-  @Test(dataProvider = "fixedP", enabled = false)
-  public void testFixed(@Nonnull Collection<? extends DerivativeMeasurement> ms, @Nonnegative int p1, @Nonnegative int p2mp1) {
+  @ParameterizedTest
+  @MethodSource("fixedP")
+  @Disabled("ignored com.ak.rsm.inverse.Inverse3Test.testFixed")
+  void testFixed(@Nonnull Collection<? extends DerivativeMeasurement> ms, @Nonnegative int p1, @Nonnegative int p2mp1) {
     double hStep = Metrics.fromMilli(0.1);
 
     PointValuePair kwOptimal = Simplex.optimizeAll(
@@ -78,7 +84,7 @@ public class Inverse3Test {
         new Simplex.Bounds(-1.0, 1.0),
         new Simplex.Bounds(-1.0, 1.0)
     );
-
+    assertNotNull(kwOptimal);
     double[] kwpp = {kwOptimal.getPoint()[0], kwOptimal.getPoint()[1], p1, p2mp1};
 
     var rho1 = getRho1(ms, kwpp, hStep);
@@ -93,19 +99,20 @@ public class Inverse3Test {
     );
   }
 
-  @DataProvider(name = "single")
-  public static Object[][] single() {
-    return new Object[][] {
-        {
+  static Stream<Arguments> single() {
+    return Stream.of(
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.1).system4(10.0)
                 .rho1(9.0).rho2(1.0).rho3(9.0).hStep(0.1).p(11, 10),
             11 + 10
-        },
-    };
+        )
+    );
   }
 
-  @Test(dataProvider = "single", enabled = false)
-  public void testSingle1(@Nonnull Collection<? extends DerivativeMeasurement> ms, @Nonnegative int pTotal) {
+  @ParameterizedTest
+  @MethodSource("single")
+  @Disabled("ignored com.ak.rsm.inverse.Inverse3Test.testSingle1")
+  void testSingle1(@Nonnull Collection<? extends DerivativeMeasurement> ms, @Nonnegative int pTotal) {
     Function<Integer, PointValuePair> cache = new ConcurrentCache<>(
         p1 -> Simplex.optimizeAll(
             kw -> DynamicInverse.of(ms, kw[2]).applyAsDouble(new double[] {kw[0], kw[1], p1, pTotal - p1}),
@@ -124,7 +131,7 @@ public class Inverse3Test {
         .limit(Limits.bySteadyFitness(3)).limit(100)
         .peek(r -> extracted(ms, pTotal, cache, r.bestPhenotype()))
         .collect(toBestPhenotype());
-
+    assertNotNull(phenotype);
     extracted(ms, pTotal, cache, phenotype);
   }
 
@@ -152,8 +159,10 @@ public class Inverse3Test {
     );
   }
 
-  @Test(dataProvider = "single", enabled = false)
-  public void testSingle2(@Nonnull Collection<? extends DerivativeMeasurement> ms, @Nonnegative int pTotal) {
+  @ParameterizedTest
+  @MethodSource("single")
+  @Disabled("ignored com.ak.rsm.inverse.Inverse3Test.testSingle2")
+  void testSingle2(@Nonnull Collection<? extends DerivativeMeasurement> ms, @Nonnegative int pTotal) {
     double hStep = Metrics.fromMilli(0.1);
     Function<Integer, PointValuePair> cache = new ConcurrentCache<>(
         p1 -> Simplex.optimizeAll(
@@ -172,7 +181,7 @@ public class Inverse3Test {
         .limit(Limits.bySteadyFitness(3)).limit(100)
         .peek(r -> Logger.getAnonymousLogger().info(() -> r.bestPhenotype().toString()))
         .collect(toBestPhenotype());
-
+    assertNotNull(phenotype);
     Genotype<IntegerGene> best = phenotype.genotype();
     PointValuePair pOptimal = new PointValuePair(
         IntStream.range(0, best.length()).mapToDouble(i -> best.get(i).get(0).doubleValue()).toArray(),

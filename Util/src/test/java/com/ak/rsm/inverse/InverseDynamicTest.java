@@ -35,30 +35,37 @@ import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class InverseDynamicTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.byLessThan;
+import static org.assertj.core.api.Assertions.withinPercentage;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
+class InverseDynamicTest {
   private static final Logger LOGGER = Logger.getLogger(InverseDynamicTest.class.getName());
 
-  @DataProvider(name = "relativeDynamicLayer2")
-  public static Object[][] relativeDynamicLayer2() {
+  static Stream<Arguments> relativeDynamicLayer2() {
     double absErrorMilli = 0.001;
     double dhMilli = 0.000001;
     double hmm = 15.0 / 2.0;
     double rho1 = 1.0;
     double k = 0.6;
     double rho2 = rho1 / Layers.getRho1ToRho2(k);
-    return new Object[][] {
-        {
+    return Stream.of(
+        arguments(
             TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(dhMilli).system2(10.0).rho1(rho1).rho2(rho2).h(hmm),
             new Layer2RelativeMedium(
                 ValuePair.Name.K12.of(k, 0.00011),
                 ValuePair.Name.H_L.of(0.25, 0.000035)
             )
-        },
-        {
+        ),
+        arguments(
             TetrapolarDerivativeMeasurement.milli(-absErrorMilli).dh(dhMilli).withShiftError().system2(10.0).ofOhms(
                 Stream.concat(
                     TetrapolarResistance.milli().system2(10.0).rho1(rho1).rho2(rho2).h(hmm).stream(),
@@ -69,37 +76,40 @@ public class InverseDynamicTest {
                 ValuePair.Name.K12.of(k + 0.00011, 0.00011),
                 ValuePair.Name.H_L.of(0.25 + 0.000035, 0.000035)
             )
-        },
-    };
+        )
+    );
   }
 
-  @Test(dataProvider = "relativeDynamicLayer2")
+  @ParameterizedTest
+  @MethodSource("relativeDynamicLayer2")
   @ParametersAreNonnullByDefault
-  public void testInverseRelativeDynamicLayer2Theory(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
+  void testInverseRelativeDynamicLayer2Theory(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
     var medium = new DynamicRelative(measurements).get();
-    Assert.assertEquals(medium.k12(), expected.k12(), expected.k12AbsError(), medium.toString());
-    Assert.assertEquals(medium.k12AbsError(), expected.k12AbsError(), expected.k12AbsError() * 0.1, medium.toString());
-    Assert.assertEquals(medium.hToL(), expected.hToL(), expected.hToLAbsError(), medium.toString());
-    Assert.assertEquals(medium.hToLAbsError(), expected.hToLAbsError(), expected.hToLAbsError() * 0.1, medium.toString());
-    Assert.assertEquals(medium, new DynamicAbsolute(measurements).apply(medium), medium.toString());
+
+    assertAll(medium.toString(),
+        () -> assertThat(medium.k12()).isCloseTo(expected.k12(), byLessThan(expected.k12AbsError())),
+        () -> assertThat(medium.k12AbsError()).isCloseTo(expected.k12AbsError(), withinPercentage(10.0)),
+        () -> assertThat(medium.hToL()).isCloseTo(expected.hToL(), byLessThan(expected.hToLAbsError())),
+        () -> assertThat(medium.hToLAbsError()).isCloseTo(expected.hToLAbsError(), withinPercentage(10.0)),
+        () -> assertThat(medium).isEqualTo(new DynamicAbsolute(measurements).apply(medium))
+    );
     LOGGER.info(medium::toString);
   }
 
-  @DataProvider(name = "absoluteDynamicLayer2")
-  public static Object[][] absoluteDynamicLayer2() {
+  static Stream<Arguments> absoluteDynamicLayer2() {
     double absErrorMilli = 0.001;
     double dhMilli = 0.21;
     double hmm = 15.0 / 2;
-    return new Object[][] {
-        {
+    return Stream.of(
+        arguments(
             TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(dhMilli).system2(10.0).rho1(1.0).rho2(4.0).h(hmm),
             new ValuePair[] {
                 ValuePair.Name.RHO_1.of(1.0, 0.00011),
                 ValuePair.Name.RHO_2.of(4.0, 0.0018),
                 ValuePair.Name.H.of(Metrics.fromMilli(hmm), Metrics.fromMilli(0.0011))
             }
-        },
-        {
+        ),
+        arguments(
             TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(Double.NaN).system2(10.0)
                 .rho(1.4441429093546185, 1.6676102911913226, -3.0215753166196184, -3.49269170918376),
             new ValuePair[] {
@@ -107,26 +117,29 @@ public class InverseDynamicTest {
                 ValuePair.Name.RHO_2.of(4.0, 0.0018),
                 ValuePair.Name.H.of(Metrics.fromMilli(hmm), Metrics.fromMilli(0.0011))
             }
-        },
-    };
+        )
+    );
   }
 
-  @Test(dataProvider = "absoluteDynamicLayer2")
+  @ParameterizedTest
+  @MethodSource("absoluteDynamicLayer2")
   @ParametersAreNonnullByDefault
-  public void testInverseAbsoluteDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, ValuePair[] expected) {
+  void testInverseAbsoluteDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, ValuePair[] expected) {
     var medium = new DynamicAbsolute(measurements).get();
-    Assert.assertEquals(medium.rho1(), expected[0], medium.toString());
-    Assert.assertEquals(medium.rho2(), expected[1], medium.toString());
-    Assert.assertEquals(medium.h1(), expected[2], medium.toString());
+    assertAll(medium.toString(),
+        () -> assertThat(medium.rho()).isEqualTo(expected[0]),
+        () -> assertThat(medium.rho1()).isEqualTo(expected[0]),
+        () -> assertThat(medium.rho2()).isEqualTo(expected[1]),
+        () -> assertThat(medium.h1()).isEqualTo(expected[2])
+    );
     LOGGER.info(medium::toString);
   }
 
-  @DataProvider(name = "theoryDynamicParameters2")
-  public static Object[][] theoryDynamicParameters2() {
+  static Stream<Arguments> theoryDynamicParameters2() {
     double dhMilli = -0.001;
     double hmm = 5.0;
-    return new Object[][] {
-        {
+    return Stream.of(
+        arguments(
             List.of(
                 TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(dhMilli)
                     .system(10.0, 20.0).rho1(1.0).rho2(9.0).h(hmm)
@@ -137,18 +150,18 @@ public class InverseDynamicTest {
                 Apparent2Rho.newNormalizedApparent2Rho(new RelativeTetrapolarSystem(0.5))
                     .applyAsDouble(new Layer2RelativeMedium(0.8, hmm / 20.0)),
                 Double.NaN}
-        },
-        {
+        ),
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.0).system2(10.0)
                 .rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
             new double[] {1.0, Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)}
-        },
-        {
+        ),
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.0).system2(10.0)
                 .rho1(10.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
             new double[] {1.0, Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm / 10.0)}
-        },
-        {
+        ),
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dhMilli).system2(10.0).ofOhms(
                 Stream.concat(
                     TetrapolarResistance.milli().system2(10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm).stream(),
@@ -156,123 +169,122 @@ public class InverseDynamicTest {
                 ).mapToDouble(Resistance::ohms).toArray()
             ),
             new double[] {1.0, Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)}
-        },
-        {
+        ),
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dhMilli).system2(10.0).rho1(4.0).rho2(1.0).h(hmm),
             new double[] {4.0, 1.0, Metrics.fromMilli(hmm)}
-        },
-        {
+        ),
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dhMilli).system2(10.0).rho1(1.0).rho2(4.0).h(hmm),
             new double[] {1.0, 4.0, Metrics.fromMilli(hmm)}
-        },
-        {
+        ),
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.01).dh(dhMilli).system2(10.0)
                 .ofOhms(100.0, 150.0, 90.0, 160.0),
             new double[] {Double.NaN, Double.NaN, Double.NaN}
-        },
-    };
+        )
+    );
   }
 
-  @DataProvider(name = "dynamicParameters2")
-  public static Object[][] dynamicParameters2() {
-    return new Object[][] {
-        {
+  static Stream<Arguments> dynamicParameters2() {
+    return Stream.of(
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1)
                 .dh(0.15).system2(7.0)
                 .ofOhms(113.341, 167.385, 113.341 + 0.091, 167.385 + 0.273),
             new double[] {5.211, 1.584, Metrics.fromMilli(15.19)}
-        },
-        {
+        ),
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.12).system2(8.0).ofOhms(93.4, 162.65, 93.5, 162.85),
             new double[] {5.118, 4.235, Metrics.fromMilli(7.82)}
-        },
-        {
+        ),
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1)
                 .dh(0.15).system2(7.0).ofOhms(136.5, 207.05, 136.65, 207.4),
             new double[] {6.332, 4.180, Metrics.fromMilli(10.35)}
-        },
-    };
+        )
+    );
   }
 
-  @DataProvider(name = "waterDynamicParameters2-E5731")
-  public static Object[][] waterDynamicParameters2() {
+  static Stream<Arguments> waterDynamicParameters2() {
     double dh = -10.0 / 200.0;
-    return new Object[][] {
+    return Stream.of(
         // h = 5 mm, rho1 = 0.7, rho2 = Inf
-        {
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(29.47, 65.68, 29.75, 66.35),
             new double[] {0.694, Double.POSITIVE_INFINITY, Metrics.fromMilli(5.01)}
-        },
+        ),
         // h = 10 mm, rho1 = 0.7, rho2 = Inf
-        {
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(16.761, 32.246, 16.821, 32.383),
             new double[] {0.7, Double.POSITIVE_INFINITY, Metrics.fromMilli(9.98)}
-        },
+        ),
         // h = 15 mm, rho1 = 0.7, rho2 = Inf
-        {
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(13.338, 23.903, 13.357, 23.953),
             new double[] {0.698, 33.428, Metrics.fromMilli(14.48)}
-        },
+        ),
         // h = 20 mm, rho1 = 0.7, rho2 = Inf
-        {
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(12.187, 20.567, 12.194, 20.589),
             new double[] {0.7, 383.867, Metrics.fromMilli(19.95)}
-        },
+        ),
         // h = 25 mm, rho1 = 0.7, rho2 = Inf
-        {
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(11.710, 18.986, 11.714, 18.998),
             new double[] {0.7, 3.0, Metrics.fromMilli(19.81)}
-        },
+        ),
         // h = 30 mm, rho1 = 0.7, rho2 = Inf
-        {
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(11.482, 18.152, 11.484, 18.158),
             new double[] {0.7, 1.5, Metrics.fromMilli(20.4)}
-        },
+        ),
         // h = 35 mm, rho1 = 0.7, rho2 = Inf
-        {
+        arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(11.361, 17.674, 11.362, 17.678),
             new double[] {0.698, Double.POSITIVE_INFINITY, Metrics.fromMilli(34.06)}
-        },
-    };
+        )
+    );
   }
 
-  @DataProvider(name = "allDynamicParameters2")
-  public static Object[][] allDynamicParameters2() {
-    return Stream.concat(Arrays.stream(theoryDynamicParameters2()), Arrays.stream(dynamicParameters2())).toArray(Object[][]::new);
+  static Stream<Arguments> allDynamicParameters2() {
+    return Stream.concat(theoryDynamicParameters2(), dynamicParameters2());
   }
 
-  @Test(dataProvider = "allDynamicParameters2")
+  @ParameterizedTest
+  @MethodSource("allDynamicParameters2")
   @ParametersAreNonnullByDefault
-  public void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, double[] expected) {
+  void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, double[] expected) {
     var medium = new DynamicAbsolute(measurements).get();
-    Assert.assertEquals(medium.rho1().value(), expected[0], 0.1, medium.toString());
-    Assert.assertEquals(medium.rho2().value() > 1000 ? Double.POSITIVE_INFINITY : medium.rho2().value(), expected[1], 0.1, medium.toString());
-    Assert.assertEquals(Metrics.toMilli(medium.h1().value()), Metrics.toMilli(expected[2]), 0.01, medium.toString());
+    assertAll(medium.toString(),
+        () -> assertThat(medium.rho().value()).isCloseTo(expected[0], byLessThan(0.1)),
+        () -> assertThat(medium.rho1().value()).isCloseTo(expected[0], byLessThan(0.1)),
+        () -> assertThat(medium.rho2().value() > 1000 ? Double.POSITIVE_INFINITY : medium.rho2().value())
+            .isCloseTo(expected[1], byLessThan(0.1)),
+        () -> assertThat(Metrics.toMilli(medium.h1().value())).isCloseTo(Metrics.toMilli(expected[2]), byLessThan(0.1))
+    );
     LOGGER.info(medium::toString);
   }
 
-  @DataProvider(name = "cvsFiles")
-  public static Object[][] cvsFiles() throws IOException {
-    Object[][] paths;
+  static Stream<String> cvsFiles() throws IOException {
+    Stream<String> paths = Stream.empty();
     try (DirectoryStream<Path> p = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*mm"))) {
-      Object[] csv = StreamSupport.stream(p.spliterator(), true).map(Path::toString).toArray();
-      paths = new Object[csv.length][1];
-      for (int i = 0; i < csv.length; i++) {
-        paths[i][0] = csv[i];
-      }
+      paths = Stream.concat(paths, StreamSupport.stream(p.spliterator(), true).map(Path::toString));
     }
     return paths;
   }
 
-  @Test(dataProvider = "cvsFiles", enabled = false)
-  public void testInverseDynamicLayerFileResistivity(@Nonnull String fileName) {
+  @ParameterizedTest
+  @MethodSource("cvsFiles")
+  @Disabled("ingored com.ak.rsm.inverse.InverseDynamicTest.testInverseDynamicLayerFileResistivity")
+  void testInverseDynamicLayerFileResistivity(@Nonnull String fileName) {
     String T = "TIME";
     String POSITION = "POSITION";
     String RHO_S1 = "A1";
@@ -301,7 +313,7 @@ public class InverseDynamicTest {
              HEADERS
          )
     ) {
-      Assert.assertTrue(StreamSupport.stream(parser.spliterator(), false)
+      assertTrue(StreamSupport.stream(parser.spliterator(), false)
           .filter(r -> r.getRecordNumber() > 1)
           .<Map<String, Object>>mapMulti((r, consumer) -> {
             var medium = new DynamicAbsolute(TetrapolarDerivativeMeasurement.milli(0.1)
