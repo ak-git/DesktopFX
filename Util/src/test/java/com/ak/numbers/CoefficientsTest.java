@@ -2,45 +2,51 @@ package com.ak.numbers;
 
 import java.util.IntSummaryStatistics;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class CoefficientsTest {
-  @DataProvider(name = "coefficients")
-  public static Object[][] coefficients() {
-    return new Object[][] {
-        {RangeUtils.rangeX(InterpolatorCoefficients.class), 1, 16},
-        {RangeUtils.rangeY(InterpolatorCoefficients.class), -100, 100},
-    };
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
+class CoefficientsTest {
+  static Stream<Arguments> coefficients() {
+    return Stream.of(
+        arguments(RangeUtils.rangeX(InterpolatorCoefficients.class), 1, 16),
+        arguments(RangeUtils.rangeY(InterpolatorCoefficients.class), -100, 100)
+    );
   }
 
-  @Test(dataProvider = "coefficients")
-  public void testCoefficients(@Nonnull IntSummaryStatistics statistics, int min, int max) {
-    Assert.assertEquals(statistics.getMin(), min, statistics.toString());
-    Assert.assertEquals(statistics.getMax(), max, statistics.toString());
+  @ParameterizedTest
+  @MethodSource("coefficients")
+  void testCoefficients(@Nonnull IntSummaryStatistics statistics, int min, int max) {
+    assertThat(statistics.getMin()).isEqualTo(min);
+    assertThat(statistics.getMax()).isEqualTo(max);
   }
 
   @Test
-  public void testReverseOrder() {
-    Assert.assertEquals(RangeUtils.reverseOrder(new double[] {1.0, 2.0, -10.0, 3.0}), new double[] {3.0, -10.0, 2.0, 1.0});
+  void testReverseOrder() {
+    assertThat(RangeUtils.reverseOrder(new double[] {1.0, 2.0, -10.0, 3.0})).containsExactly(3.0, -10.0, 2.0, 1.0);
   }
 
-  @DataProvider(name = "count-coefficients")
-  public static Object[][] countCoefficients() {
-    return new Object[][] {
-        {InterpolatorCoefficients.INTERPOLATOR_TEST_AKIMA, 10},
-        {InterpolatorCoefficients.INTERPOLATOR_TEST_LINEAR, 8},
-        {InterpolatorCoefficients.INTERPOLATOR_TEST_INVALID, 2},
-    };
+
+  static Stream<Arguments> countCoefficients() {
+    return Stream.of(
+        arguments(InterpolatorCoefficients.INTERPOLATOR_TEST_AKIMA, 10),
+        arguments(InterpolatorCoefficients.INTERPOLATOR_TEST_LINEAR, 8),
+        arguments(InterpolatorCoefficients.INTERPOLATOR_TEST_INVALID, 2)
+    );
   }
 
-  @Test(dataProvider = "count-coefficients")
-  public void testCoefficients(@Nonnull Supplier<double[]> coefficients, @Nonnegative int count) {
-    Assert.assertEquals(coefficients.get().length, count, coefficients.toString());
+  @ParameterizedTest
+  @MethodSource("countCoefficients")
+  void testCoefficients(@Nonnull Supplier<double[]> coefficients, @Nonnegative int count) {
+    assertThat(coefficients.get()).hasSize(count);
   }
 }

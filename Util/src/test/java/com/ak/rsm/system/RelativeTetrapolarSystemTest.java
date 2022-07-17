@@ -83,7 +83,7 @@ class RelativeTetrapolarSystemTest {
   @ParameterizedTest
   @MethodSource("relativeTetrapolarSystems")
   void testHMaxFactor() {
-    double random = new Random().nextDouble(-1.0, 1.0);
+    double random = new Random().nextDouble(-0.5, 0.5);
     PointValuePair pair = Simplex.optimizeAll(x -> 1.0 - new RelativeTetrapolarSystem(x[0]).hMaxFactor(random),
         new Simplex.Bounds(-1.0, 1.0)
     );
