@@ -150,8 +150,20 @@ class Inverse2Test {
 
   @ParameterizedTest
   @MethodSource("e7694_2")
-  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testNoChanged")
-  void testNoChanged(Collection<Collection<DerivativeMeasurement>> ms) {
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.test")
+  void test(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
+    IntStream.range(1, ms.size())
+        .mapToObj(value ->
+            StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(CombinatoricsUtils.combinationsIterator(ms.size(), value), Spliterator.ORDERED),
+                false)
+        )
+        .flatMap(Function.identity())
+        .map(ints -> IntStream.of(ints).mapToObj(ms::get).collect(Collectors.toList()))
+        .forEach(Inverse2Test::calcNoChanged);
+  }
+
+  static void calcNoChanged(Collection<Collection<DerivativeMeasurement>> ms) {
     List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(DynamicInverse::of).toList();
 
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
@@ -170,20 +182,5 @@ class Inverse2Test {
     var rho2 = mediumList.stream().map(MediumLayers::rho2).reduce(ValuePair::mergeWith).orElseThrow();
     var h = mediumList.stream().map(MediumLayers::h1).reduce(ValuePair::mergeWith).orElseThrow();
     Logger.getAnonymousLogger().info(() -> "%.6f; %s; %s; %s".formatted(kwOptimal.getValue(), rho1, rho2, h));
-  }
-
-  @ParameterizedTest
-  @MethodSource("e7694_2")
-  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.test")
-  void test(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
-    IntStream.range(1, ms.size())
-        .mapToObj(value ->
-            StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(CombinatoricsUtils.combinationsIterator(ms.size(), value), Spliterator.ORDERED),
-                false)
-        )
-        .flatMap(Function.identity())
-        .map(ints -> IntStream.of(ints).mapToObj(ms::get).collect(Collectors.toList()))
-        .forEach(this::testNoChanged);
   }
 }
