@@ -295,7 +295,7 @@ class FilterBuilderTest {
     filter1.accept(1);
     filter1.accept(2);
     filter2.accept(1);
-    assertThatIllegalArgumentException().isThrownBy(() -> filter1.accept(3));
+    assertThatIllegalStateException().isThrownBy(() -> filter1.accept(3));
   }
 
   @Test
