@@ -13,16 +13,17 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.ak.comm.bytes.LogUtils;
 import com.ak.comm.bytes.purelogic.PureLogicFrame;
 import com.ak.comm.log.LogTestUtils;
-import com.ak.util.Strings;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-public class PureLogicBytesInterceptorTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class PureLogicBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(PureLogicBytesInterceptor.class.getName());
   private static final int[] EMPTY = {};
 
   @Test
-  public void test() {
+  void test() {
     testResponse(
         "  STEP+ 00320  \r\n".getBytes(StandardCharsets.UTF_8),
         new int[] {300}, true);
@@ -40,14 +41,13 @@ public class PureLogicBytesInterceptorTest {
   @ParametersAreNonnullByDefault
   private static void testResponse(byte[] input, int[] expected, boolean logFlag) {
     Function<ByteBuffer, Stream<PureLogicFrame>> interceptor = new PureLogicBytesInterceptor();
-    Assert.assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {
+    assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {
       List<PureLogicFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).toList();
       if (!frames.isEmpty()) {
-        Assert.assertEquals(frames.stream().mapToInt(PureLogicFrame::getMicrons).toArray(), expected,
-            frames.stream().map(PureLogicFrame::toString).collect(Collectors.joining()));
+        assertThat(frames.stream().mapToInt(PureLogicFrame::getMicrons).toArray())
+            .withFailMessage(() -> frames.stream().map(PureLogicFrame::toString).collect(Collectors.joining()))
+            .containsExactly(expected);
       }
-    }, logRecord -> Assert.assertNotNull(
-        logRecord.getMessage().replaceAll(".*" + PureLogicFrame.class.getSimpleName(), Strings.EMPTY)
-    )), logFlag);
+    }, logRecord -> assertThat(logRecord.getMessage()).contains(PureLogicFrame.class.getSimpleName())), logFlag);
   }
 }

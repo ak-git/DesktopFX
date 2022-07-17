@@ -1,16 +1,20 @@
 package com.ak.comm.bytes.nmis;
 
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
+import java.nio.ByteBuffer;
+import java.util.stream.Stream;
 
-public class NmisTestProvider {
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.params.provider.Arguments;
+
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
+class NmisTestProvider {
   private static final int[] EMPTY_INTS = {};
 
   private NmisTestProvider() {
   }
 
-  @DataProvider(name = "allOhmsMyoOff")
-  public static Object[][] ohms() {
+  static Stream<Arguments> allOhmsMyoOff() {
     byte[][] expected = {
         {0x7E, (byte) 0x81, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07},
         {0x7E, (byte) 0x81, 0x08, 0x08, 0x08, 0x08, 0x08, 0x00, 0x00, 0x00, 0x00, 0x27},
@@ -21,17 +25,18 @@ public class NmisTestProvider {
         {0x7E, (byte) 0x81, 0x08, 0x3F, 0x3F, 0x3F, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x03}
     };
 
-    Assert.assertEquals(expected.length, NmisRequest.Single.values().length);
-    Object[][] values = new Object[expected.length][2];
+    Assertions.assertEquals(expected.length, NmisRequest.Single.values().length);
+    Arguments[] values = new Arguments[expected.length];
     for (int i = 0; i < expected.length; i++) {
-      values[i] = new Object[] {NmisRequest.Single.values()[i].
-          buildForAll(NmisRequest.MyoType.OFF, NmisRequest.MyoFrequency.OFF), expected[i]};
+      values[i] = arguments(
+          NmisRequest.Single.values()[i].buildForAll(NmisRequest.MyoType.OFF, NmisRequest.MyoFrequency.OFF),
+          expected[i]
+      );
     }
-    return values;
+    return Stream.of(values);
   }
 
-  @DataProvider(name = "360OhmsMyoHz")
-  public static Object[][] myo() {
+  static Stream<Arguments> myo() {
     byte[][] expected = {
         {0x7E, (byte) 0x81, 0x08, 0x00, 0x00, 0x00, 0x00, (byte) 0x81, (byte) 0x81, (byte) 0x81, (byte) 0x81, 0x0B},
         {0x7E, (byte) 0x81, 0x08, 0x00, 0x00, 0x00, 0x00, (byte) 0x82, (byte) 0x82, (byte) 0x82, (byte) 0x82, 0x0F},
@@ -42,17 +47,16 @@ public class NmisTestProvider {
 
     NmisRequest.MyoFrequency[] frequencies = {NmisRequest.MyoFrequency.HZ_50, NmisRequest.MyoFrequency.HZ_100,
         NmisRequest.MyoFrequency.HZ_200, NmisRequest.MyoFrequency.HZ_500, NmisRequest.MyoFrequency.HZ_1000};
-    Assert.assertEquals(expected.length, frequencies.length);
+    Assertions.assertEquals(expected.length, frequencies.length);
 
-    Object[][] values = new Object[expected.length][2];
+    Arguments[] values = new Arguments[expected.length];
     for (int i = 0; i < expected.length; i++) {
-      values[i] = new Object[] {NmisRequest.Single.Z_360.buildForAll(NmisRequest.MyoType.MV1, frequencies[i]), expected[i]};
+      values[i] = arguments(NmisRequest.Single.Z_360.buildForAll(NmisRequest.MyoType.MV1, frequencies[i]), expected[i]);
     }
-    return values;
+    return Stream.of(values);
   }
 
-  @DataProvider(name = "sequence")
-  public static Object[][] sequence() {
+  static Stream<Arguments> sequence() {
     byte[][] expected = {
         {0x7E, (byte) 0x82, 0x08, 0x01, 0x00, 0x00, 0x00, (byte) 0x84, (byte) 0x84, (byte) 0x84, (byte) 0x84, 0x19},
         {0x7E, (byte) 0x82, 0x08, 0x02, 0x00, 0x00, 0x00, (byte) 0x84, (byte) 0x84, (byte) 0x84, (byte) 0x84, 0x1A},
@@ -64,16 +68,15 @@ public class NmisTestProvider {
         {0x7E, (byte) 0x82, 0x08, 0x08, 0x00, 0x00, 0x00, 0x60, 0x60, 0x60, 0x60, (byte) 0x90}
     };
 
-    Assert.assertEquals(expected.length, NmisRequest.Sequence.values().length);
-    Object[][] values = new Object[expected.length][2];
+    Assertions.assertEquals(expected.length, NmisRequest.Sequence.values().length);
+    Arguments[] values = new Arguments[expected.length];
     for (int i = 0; i < expected.length; i++) {
-      values[i] = new Object[] {NmisRequest.Sequence.values()[i].build(), expected[i]};
+      values[i] = arguments(NmisRequest.Sequence.values()[i].build(), expected[i]);
     }
-    return values;
+    return Stream.of(values);
   }
 
-  @DataProvider(name = "allOhmsMyoOffResponse")
-  public static Object[][] ohmsResponse() {
+  static Stream<Arguments> allOhmsMyoOffResponse() {
     //all inputs contain error in the first byte
     byte[][] input = {
         {0x01, 0x7E, (byte) 0x91, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x17},
@@ -85,17 +88,18 @@ public class NmisTestProvider {
         {0x07, 0x7E, (byte) 0x91, 0x08, 0x3F, 0x3F, 0x3F, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x13}
     };
 
-    Assert.assertEquals(input.length, NmisRequest.Single.values().length);
-    Object[][] values = new Object[input.length][2];
+    Assertions.assertEquals(input.length, NmisRequest.Single.values().length);
+    Arguments[] values = new Arguments[input.length];
     for (int i = 0; i < input.length; i++) {
-      values[i] = new Object[] {NmisRequest.Single.values()[i].
-          buildForAll(NmisRequest.MyoType.OFF, NmisRequest.MyoFrequency.OFF), input[i]};
+      values[i] = arguments(
+          NmisRequest.Single.values()[i].buildForAll(NmisRequest.MyoType.OFF, NmisRequest.MyoFrequency.OFF),
+          input[i]
+      );
     }
-    return values;
+    return Stream.of(values);
   }
 
-  @DataProvider(name = "360OhmsMyoHzResponse")
-  public static Object[][] myoResponse() {
+  static Stream<Arguments> myoResponse() {
     byte[][] input = {
         {0x7E, (byte) 0x91, 0x08, 0x00, 0x00, 0x00, 0x00, (byte) 0x81, (byte) 0x81, (byte) 0x81, (byte) 0x81, 0x1B},
         {0x7E, (byte) 0x91, 0x08, 0x00, 0x00, 0x00, 0x00, (byte) 0x82, (byte) 0x82, (byte) 0x82, (byte) 0x82, 0x1F},
@@ -106,17 +110,16 @@ public class NmisTestProvider {
 
     NmisRequest.MyoFrequency[] frequencies = {NmisRequest.MyoFrequency.HZ_50, NmisRequest.MyoFrequency.HZ_100,
         NmisRequest.MyoFrequency.HZ_200, NmisRequest.MyoFrequency.HZ_500, NmisRequest.MyoFrequency.HZ_1000};
-    Assert.assertEquals(input.length, frequencies.length);
+    Assertions.assertEquals(input.length, frequencies.length);
 
-    Object[][] values = new Object[input.length][2];
+    Arguments[] values = new Arguments[input.length];
     for (int i = 0; i < input.length; i++) {
-      values[i] = new Object[] {NmisRequest.Single.Z_360.buildForAll(NmisRequest.MyoType.MV1, frequencies[i]), input[i]};
+      values[i] = arguments(NmisRequest.Single.Z_360.buildForAll(NmisRequest.MyoType.MV1, frequencies[i]), input[i]);
     }
-    return values;
+    return Stream.of(values);
   }
 
-  @DataProvider(name = "sequenceResponse")
-  public static Object[][] sequenceResponse() {
+  static Stream<Arguments> sequenceResponse() {
     byte[][] input = {
         {0x7E, (byte) 0x92, 0x08, 0x01, 0x00, 0x00, 0x00, (byte) 0x84, (byte) 0x84, (byte) 0x84, (byte) 0x84, 0x29},
         {0x7E, (byte) 0x92, 0x08, 0x02, 0x00, 0x00, 0x00, (byte) 0x84, (byte) 0x84, (byte) 0x84, (byte) 0x84, 0x2A},
@@ -128,23 +131,23 @@ public class NmisTestProvider {
         {0x7E, (byte) 0x92, 0x08, 0x08, 0x00, 0x00, 0x00, 0x60, 0x60, 0x60, 0x60, (byte) 0xA0}
     };
 
-    Assert.assertEquals(input.length, NmisRequest.Sequence.values().length);
-    Object[][] values = new Object[input.length][2];
+    Assertions.assertEquals(input.length, NmisRequest.Sequence.values().length);
+    Arguments[] values = new Arguments[input.length];
     for (int i = 0; i < input.length; i++) {
-      values[i] = new Object[] {NmisRequest.Sequence.values()[i].build(), input[i]};
+      values[i] = arguments(NmisRequest.Sequence.values()[i].build(), input[i]);
     }
-    return values;
+    return Stream.of(values);
   }
 
-  @DataProvider(name = "nullResponse")
-  public static Object[][] nullResponse() {
-    return new Object[][] {
-        new Object[] {new byte[] {0x7E, -12, 0x7E, 0x40, 0x08, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xC7}},
-    };
+  static Stream<Arguments> nullResponse() {
+    return Stream.of(
+        arguments(
+            ByteBuffer.wrap(new byte[] {0x7E, -12, 0x7E, 0x40, 0x08, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xC7})
+        )
+    );
   }
 
-  @DataProvider(name = "aliveAndChannelsResponse")
-  public static Object[][] aliveAndChannelsResponse() {
+  static Stream<Arguments> aliveAndChannelsResponse() {
     byte[][] input = {
         {0x7E, 0x41, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xC7},
         {0x7E, 0x42, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xC8},
@@ -153,12 +156,12 @@ public class NmisTestProvider {
     };
     NmisAddress[] addresses = {NmisAddress.CATCH_ELBOW, NmisAddress.ROTATE_ELBOW, NmisAddress.CATCH_HAND, NmisAddress.ROTATE_HAND};
 
-    Assert.assertEquals(input.length, addresses.length);
-    Object[][] values = new Object[input.length][2];
+    Assertions.assertEquals(input.length, addresses.length);
+    Arguments[] values = new Arguments[input.length];
     for (int i = 0; i < input.length; i++) {
-      values[i] = new Object[] {addresses[i], input[i]};
+      values[i] = arguments(addresses[i], input[i]);
     }
-    return values;
+    return Stream.of(values);
   }
 
   /**
@@ -176,48 +179,45 @@ public class NmisTestProvider {
    *
    * @return bytes to test
    */
-  @DataProvider(name = "invalidTestByteResponse")
-  public static Object[][] invalidTestByteResponse() {
+  static Stream<Arguments> invalidTestByteResponse() {
     byte[][] input = {
         {0x7A, 0x41, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xC3},
         {0x7E, 0x42, NmisProtocolByte.MAX_CAPACITY + 1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x01},
         {0x7E, 0x43, -1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xC0},
     };
-    Object[][] values = new Object[input.length][2];
+    Arguments[] values = new Arguments[input.length];
     for (int i = 0; i < input.length; i++) {
-      values[i] = new Object[] {input[i]};
+      values[i] = arguments(ByteBuffer.wrap(input[i]));
     }
-    return values;
+    return Stream.of(values);
   }
 
-  @DataProvider(name = "invalidCRCResponse")
-  public static Object[][] invalidCRCResponse() {
+  static Stream<Arguments> invalidCRCResponse() {
     byte[][] input = {
         {0x7E, 0x41, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
         {0x7E, 0x42, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
         {0x7E, 0x43, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
         {0x7E, 0x44, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
     };
-    Object[][] values = new Object[input.length][2];
+    Arguments[] values = new Arguments[input.length];
     for (int i = 0; i < input.length; i++) {
-      values[i] = new Object[] {input[i]};
+      values[i] = arguments(ByteBuffer.wrap(input[i]));
     }
-    return values;
+    return Stream.of(values);
   }
 
-  @DataProvider(name = "dataResponse")
-  public static Object[][] data() {
-    return new Object[][] {
-        new Object[] {new byte[] {
+  static Stream<Arguments> dataResponse() {
+    return Stream.of(
+        arguments(new byte[] {
             // NO Data, empty frame
-            0x7e, 0x45, 0x02, 0x3f, 0x00, 0x04}, new int[] {0x3f}},
-        new Object[] {new byte[] {
-            0x7e, 0x45, 0x08, 0x3f, 0x00, 0x03, 0x04, 0x18, 0x32, (byte) 0xca, 0x74, (byte) 0x99}, new int[] {0x3f}},
-        new Object[] {new byte[] {
-            0x7e, 0x45, 0x09, 0x44, 0x00, 0x01, 0x05, 0x0b, (byte) 0xe0, (byte) 0xb1, (byte) 0xe1, 0x7a, 0x0d}, new int[] {0x44}},
-        new Object[] {new byte[] {
+            0x7e, 0x45, 0x02, 0x3f, 0x00, 0x04}, new int[] {0x3f}),
+        arguments(new byte[] {
+            0x7e, 0x45, 0x08, 0x3f, 0x00, 0x03, 0x04, 0x18, 0x32, (byte) 0xca, 0x74, (byte) 0x99}, new int[] {0x3f}),
+        arguments(new byte[] {
+            0x7e, 0x45, 0x09, 0x44, 0x00, 0x01, 0x05, 0x0b, (byte) 0xe0, (byte) 0xb1, (byte) 0xe1, 0x7a, 0x0d}, new int[] {0x44}),
+        arguments(new byte[] {
             // NO Data, invalid frame
-            0x7e, (byte) 0x92, 0x08, 0x01, 0x00, 0x00, 0x00, (byte) 0x84, (byte) 0x84, (byte) 0x84, (byte) 0x84, 0x29}, EMPTY_INTS},
-    };
+            0x7e, (byte) 0x92, 0x08, 0x01, 0x00, 0x00, 0x00, (byte) 0x84, (byte) 0x84, (byte) 0x84, (byte) 0x84, 0x29}, EMPTY_INTS)
+    );
   }
 }

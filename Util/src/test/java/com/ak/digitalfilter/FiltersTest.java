@@ -15,11 +15,14 @@ import java.util.stream.Stream;
 import com.ak.util.CSVLineFileCollector;
 import com.ak.util.Extension;
 import com.ak.util.Strings;
-import org.testng.annotations.Test;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-public class FiltersTest {
-  @Test(enabled = false)
-  public void textFiles() throws IOException {
+class FiltersTest {
+  @Test
+  @Disabled("generate Filtered- .csv file")
+  void textFiles() {
     String filteredPrefix = "Filtered - ";
     int column = 0;
 
@@ -53,6 +56,9 @@ public class FiltersTest {
           }
         }
       });
+    }
+    catch (IOException e) {
+      Assertions.fail(e.getMessage(), e);
     }
   }
 }

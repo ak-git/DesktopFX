@@ -10,10 +10,10 @@ import java.util.function.ToDoubleFunction;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.math.Simplex;
 import com.ak.math.ValuePair;
@@ -25,14 +25,18 @@ import com.ak.rsm.medium.MediumLayers;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.util.CombinatoricsUtils;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class Inverse2Test {
-  @DataProvider(name = "E-7694-system2")
-  public static Object[][] e7694system2() {
-    return new Object[][] {
-        {
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
+class Inverse2Test {
+  static Stream<Arguments> e7694system2() {
+    return Stream.of(
+        arguments(
             List.of(
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system2(7.0)
                     .ofOhms(122.3, 199.0, 122.3 + 0.1, 199.0 + 0.4),
@@ -43,14 +47,13 @@ public class Inverse2Test {
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 4).system2(7.0)
                     .ofOhms(122.3, 199.0, 122.3 - 0.3, 199.0 - 1.5)
             )
-        },
-    };
+        )
+    );
   }
 
-  @DataProvider(name = "E-7694-105plus-system2")
-  public static Object[][] e7694plus105system2() {
-    return new Object[][] {
-        {
+  static Stream<Arguments> e7694plus105system2() {
+    return Stream.of(
+        arguments(
             List.of(
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system2(7.0)
                     .ofOhms(120.8, 195.0, 120.8 + 0.15, 195.0 + 0.5),
@@ -65,14 +68,13 @@ public class Inverse2Test {
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 4).system2(7.0)
                     .ofOhms(120.8, 195.0, 120.8 - 0.6, 195.0 - 1.5)
             )
-        },
-    };
+        )
+    );
   }
 
-  @DataProvider(name = "E-7694-system4")
-  public static Object[][] e7694system4() {
-    return new Object[][] {
-        {
+  static Stream<Arguments> e7694system4() {
+    return Stream.of(
+        arguments(
             List.of(
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system4(7.0)
                     .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
@@ -87,14 +89,13 @@ public class Inverse2Test {
                     .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
                         122.3 - 0.3, 199.0 - 1.5, (66.0 - 0.3) * 2, (202.0 - 1.0) * 2 - (66.0 - 0.3) * 2)
             )
-        },
-    };
+        )
+    );
   }
 
-  @DataProvider(name = "E-7694-105plus-system4")
-  public static Object[][] e7694plus105system4() {
-    return new Object[][] {
-        {
+  static Stream<Arguments> e7694plus105system4() {
+    return Stream.of(
+        arguments(
             List.of(
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system4(7.0)
                     .ofOhms(120.8, 195.0, 66.9 * 2, 198.5 * 2 - 66.9 * 2,
@@ -115,14 +116,13 @@ public class Inverse2Test {
                     .ofOhms(120.8, 195.0, 66.9 * 2, 198.5 * 2 - 66.9 * 2,
                         120.8 - 0.6, 195.0 - 1.5, (66.9 - 0.5) * 2, (198.5 - 1.5) * 2 - (66.9 - 0.5) * 2)
             )
-        },
-    };
+        )
+    );
   }
 
-  @DataProvider(name = "E-7694-2")
-  public static Object[][] e7694_2() {
-    return new Object[][] {
-        {
+  static Stream<Arguments> e7694_2() {
+    return Stream.of(
+        arguments(
             List.of(
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system4(7.0)
                     .ofOhms(123.5, 198.0, 68.0 * 2, 202.0 * 2 - 68.0 * 2,
@@ -144,14 +144,14 @@ public class Inverse2Test {
                     .ofOhms(123.5, 198.0, 68.0 * 2, 202.0 * 2 - 68.0 * 2,
                         123.5 - 1.25, 198.0 - 3.0, (68.0 - 0.75) * 2, (202.0 - 3.5) * 2 - (68.0 - 0.75) * 2)
             )
-        },
-    };
+        )
+    );
   }
 
-
-  @Test(dataProvider = "E-7694-2", enabled = false)
-  @ParametersAreNonnullByDefault
-  public void testNoChanged(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
+  @ParameterizedTest
+  @MethodSource("e7694_2")
+  @Disabled("com.ak.rsm.inverse.Inverse2Test.testNoChanged")
+  void testNoChanged(Collection<Collection<DerivativeMeasurement>> ms) {
     List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(DynamicInverse::of).toList();
 
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
@@ -164,6 +164,7 @@ public class Inverse2Test {
             .reduce(StrictMath::hypot).orElseThrow(),
         new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, 1.0)
     );
+    assertNotNull(kwOptimal);
     List<Layer2Medium> mediumList = ms.stream().map(dm -> new Layer2Medium(dm, new Layer2RelativeMedium(kwOptimal.getPoint()))).toList();
     var rho1 = mediumList.stream().map(MediumLayers::rho1).reduce(ValuePair::mergeWith).orElseThrow();
     var rho2 = mediumList.stream().map(MediumLayers::rho2).reduce(ValuePair::mergeWith).orElseThrow();
@@ -171,8 +172,10 @@ public class Inverse2Test {
     Logger.getAnonymousLogger().info(() -> "%.6f; %s; %s; %s".formatted(kwOptimal.getValue(), rho1, rho2, h));
   }
 
-  @Test(dataProvider = "E-7694-2", enabled = false)
-  public void test(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
+  @ParameterizedTest
+  @MethodSource("e7694_2")
+  @Disabled("com.ak.rsm.inverse.Inverse2Test.test")
+  void test(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
     IntStream.range(1, ms.size())
         .mapToObj(value ->
             StreamSupport.stream(

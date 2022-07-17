@@ -10,32 +10,34 @@ import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 import java.util.stream.Stream;
 
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class CalibrateBuildersTest {
-  @DataProvider(name = "builders")
-  public static Object[][] builders() {
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class CalibrateBuildersTest {
+  static Stream<Path> builders() {
     return Stream.of(CalibrateBuilders.values()).
         map(builder -> {
           try {
-            return new Object[] {builder.build(OutputBuildersTest.randomFileName()).getPath()};
+            return builder.build(OutputBuildersTest.randomFileName()).getPath();
           }
           catch (IOException | NoSuchAlgorithmException e) {
-            return new Object[] {null};
+            return null;
           }
-        }).toArray(Object[][]::new);
+        });
   }
 
-  @Test(dataProvider = "builders")
-  public void testBuild(Path path) throws IOException {
-    Assert.assertNotNull(path);
+  @ParameterizedTest
+  @MethodSource("builders")
+  void testBuild(Path path) throws IOException {
+    assertNotNull(path);
     WritableByteChannel channel = Files.newByteChannel(path,
         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
     channel.write(ByteBuffer.wrap(LogBuildersTest.class.getName().getBytes(Charset.defaultCharset())));
     channel.close();
     CalibrateBuilders.CALIBRATION.clean();
-    Assert.assertTrue(Files.notExists(path));
+    assertTrue(Files.notExists(path));
   }
 }

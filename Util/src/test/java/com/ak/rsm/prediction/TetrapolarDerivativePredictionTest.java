@@ -1,18 +1,25 @@
 package com.ak.rsm.prediction;
 
+import java.util.stream.Stream;
+
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.resistance.DerivativeResistivity;
 import com.ak.rsm.system.TetrapolarSystem;
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class TetrapolarDerivativePredictionTest {
-  @DataProvider(name = "predictions")
-  public static Object[][] predictions() {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.byLessThan;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
+class TetrapolarDerivativePredictionTest {
+  static Stream<Arguments> predictions() {
     Prediction prediction1 = TetrapolarDerivativePrediction.of(
         new DerivativeResistivity() {
           @Override
@@ -86,30 +93,33 @@ public class TetrapolarDerivativePredictionTest {
           }
         },
         new Layer2RelativeMedium(0.5, 1.0), 10.0);
-    return new Object[][] {
-        {prediction1, prediction1, true},
-        {prediction1, prediction2, true},
-        {prediction1, prediction3, false},
-        {prediction1, new Object(), false},
-        {new Object(), prediction1, false},
-        {
+    return Stream.of(
+        arguments(prediction1, prediction1, true),
+        arguments(prediction1, prediction2, true),
+        arguments(prediction1, prediction3, false),
+        arguments(prediction1, new Object(), false),
+        arguments(new Object(), prediction1, false),
+        arguments(
             new AbstractPrediction(0.0, new double[] {0.0}) {
             },
             new Object(), false
-        },
-    };
+        )
+    );
   }
 
-  @Test(dataProvider = "predictions")
+  @ParameterizedTest
+  @MethodSource("predictions")
   @ParametersAreNonnullByDefault
-  public void testEquals(Object o1, Object o2, boolean equals) {
-    Assert.assertEquals(o1.equals(o2), equals, "%s compared with %s".formatted(o1, o2));
-    Assert.assertEquals(o1.hashCode() == o2.hashCode(), equals, "%s compared with %s".formatted(o1, o2));
-    Assert.assertNotEquals(o1, null);
+  void testEquals(Object o1, Object o2, boolean equals) {
+    assertAll("%s compared with %s".formatted(o1, o2),
+        () -> assertThat(o1.equals(o2)).isEqualTo(equals),
+        () -> assertThat(o1.hashCode() == o2.hashCode()).isEqualTo(equals)
+    );
+    assertThat(o1).isNotEqualTo(null);
   }
 
   @Test
-  public void testPrediction() {
+  void testPrediction() {
     Prediction prediction = TetrapolarDerivativePrediction.of(
         new DerivativeResistivity() {
           @Override
@@ -134,7 +144,9 @@ public class TetrapolarDerivativePredictionTest {
           }
         },
         new Layer2RelativeMedium(1.0, 1.0), 10.0);
-    Assert.assertEquals(prediction.getPredicted(), -0.723, 0.001, prediction.toString());
-    Assert.assertEquals(prediction.getInequalityL2(), new double[] {8.75, 140.766}, 0.001, prediction.toString());
+    assertAll(prediction.toString(),
+        () -> assertThat(prediction.getPredicted()).isCloseTo(-0.723, byLessThan(0.001)),
+        () -> assertThat(prediction.getInequalityL2()).containsExactly(new double[] {8.75, 140.766}, byLessThan(0.001))
+    );
   }
 }

@@ -11,7 +11,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.concurrent.Flow;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -37,26 +36,34 @@ import com.ak.digitalfilter.FilterBuilder;
 import com.ak.logging.LogBuilders;
 import com.ak.util.Clean;
 import com.ak.util.Strings;
-import org.testng.Assert;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class FileReadingServiceTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+class FileReadingServiceTest {
   private static final Logger LOGGER = Logger.getLogger(FileReadingService.class.getName());
 
-  @BeforeSuite
-  @AfterSuite
-  public void setUp() throws IOException {
+  @BeforeAll
+  @AfterAll
+  static void setUp() throws IOException {
     Path path = LogBuilders.CONVERTER_FILE.build(Strings.EMPTY).getPath().getParent();
-    Assert.assertNotNull(path);
+    assertNotNull(path);
     Clean.clean(path);
   }
 
-  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
-  public void testNoDataConverted(@Nonnull Path fileToRead, int bytes) {
-    TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
-    Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead,
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.file.FileDataProvider#rampFiles")
+  void testNoDataConverted(@Nonnull Path fileToRead, int bytes) {
+    try (FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher = new FileReadingService<>(fileToRead,
         new AbstractBytesInterceptor<>(getClass().getName(),
             BytesInterceptor.BaudRate.BR_921600, null, 1) {
           @Nonnull
@@ -66,34 +73,38 @@ public class FileReadingServiceTest {
           }
         },
         new ToIntegerConverter<>(TwoVariables.class, 1000)
-    );
-    publisher.subscribe(testSubscriber);
-    testSubscriber.assertNoErrors();
-    testSubscriber.assertNoValues();
-    if (bytes < 0) {
-      testSubscriber.assertNotComplete();
-      testSubscriber.assertNotSubscribed();
-    }
-    else {
-      testSubscriber.assertComplete();
-      testSubscriber.assertSubscribed();
+    )) {
+      TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
+      publisher.subscribe(testSubscriber);
+      testSubscriber.assertNoErrors();
+      testSubscriber.assertNoValues();
+      if (bytes < 0) {
+        testSubscriber.assertNotComplete();
+        testSubscriber.assertNotSubscribed();
+      }
+      else {
+        testSubscriber.assertComplete();
+        testSubscriber.assertSubscribed();
+      }
     }
   }
 
-  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFile")
-  public void testFile(@Nonnull Path fileToRead, @Nonnegative int bytes, boolean forceClose) {
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.file.FileDataProvider#rampFile")
+  void testFile(@Nonnull Path fileToRead, @Nonnegative int bytes, boolean forceClose) {
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
-    FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher = new FileReadingService<>(
+    try (FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher = new FileReadingService<>(
         fileToRead,
         new RampBytesInterceptor(getClass().getName(), BytesInterceptor.BaudRate.BR_921600, frameLength),
-        new ToIntegerConverter<>(TwoVariables.class, 200));
-    LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
-        publisher.subscribe(testSubscriber), logRecord -> {
-      if (forceClose) {
-        publisher.close();
-      }
-    });
+        new ToIntegerConverter<>(TwoVariables.class, 200))) {
+      LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
+          publisher.subscribe(testSubscriber), logRecord -> {
+        if (forceClose) {
+          publisher.close();
+        }
+      });
+    }
     if (forceClose) {
       testSubscriber.assertValueCount(getBlockSize(fileToRead) / frameLength);
     }
@@ -102,28 +113,30 @@ public class FileReadingServiceTest {
     }
   }
 
-  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
-  public void testFiles(@Nonnull Path fileToRead, int bytes) {
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.file.FileDataProvider#rampFiles")
+  void testFiles(@Nonnull Path fileToRead, int bytes) {
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
-    Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(getClass().getName(),
-        BytesInterceptor.BaudRate.BR_921600, frameLength),
-        new ToIntegerConverter<>(TwoVariables.class, 1000));
-    Assert.assertTrue(publisher.toString().contains(fileToRead.toString()));
+    try (FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher =
+             new FileReadingService<>(fileToRead, new RampBytesInterceptor(getClass().getName(),
+                 BytesInterceptor.BaudRate.BR_921600, frameLength),
+                 new ToIntegerConverter<>(TwoVariables.class, 1000))) {
+      assertThat(publisher.toString()).contains(fileToRead.toString());
 
-    Assert.assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
-        publisher.subscribe(testSubscriber), new Consumer<>() {
-      int packCounter;
+      assertThat(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
+          publisher.subscribe(testSubscriber), new Consumer<>() {
+        int packCounter;
 
-      @Override
-      public void accept(LogRecord logRecord) {
-        int blockSize = getBlockSize(fileToRead);
-        int bytesCount = (bytes - packCounter * blockSize) >= blockSize ? blockSize : bytes % blockSize;
-        Assert.assertTrue(logRecord.getMessage().endsWith(bytesCount + " bytes IN from hardware"), logRecord.getMessage());
-        packCounter++;
-      }
-    }), bytes > 0);
-
+        @Override
+        public void accept(LogRecord logRecord) {
+          int blockSize = getBlockSize(fileToRead);
+          int bytesCount = (bytes - packCounter * blockSize) >= blockSize ? blockSize : bytes % blockSize;
+          assertThat(logRecord.getMessage()).endsWith(bytesCount + " bytes IN from hardware");
+          packCounter++;
+        }
+      })).isEqualTo(bytes > 0);
+    }
     testSubscriber.assertNoErrors();
     if (bytes < 0) {
       testSubscriber.assertNoValues();
@@ -137,42 +150,50 @@ public class FileReadingServiceTest {
     }
   }
 
-  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "filesCanDelete")
-  public void testException(@Nonnull Path fileToRead, int bytes) {
-    Assert.assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.file.FileDataProvider#filesCanDelete")
+  void testException(@Nonnull Path fileToRead, int bytes) {
+    assertThat(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
       TestSubscriber<int[]> testSubscriber = new TestSubscriber<>(subscription -> {
         try {
           Files.deleteIfExists(fileToRead);
         }
         catch (IOException e) {
-          Assert.fail(fileToRead.toString(), e);
+          fail(fileToRead.toString(), e);
         }
       });
 
-      Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(getClass().getName(),
-          BytesInterceptor.BaudRate.BR_921600, 1 + TwoVariables.values().length * Integer.BYTES),
-          new ToIntegerConverter<>(TwoVariables.class, 200));
-      publisher.subscribe(testSubscriber);
+      try (FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher =
+               new FileReadingService<>(fileToRead, new RampBytesInterceptor(getClass().getName(),
+                   BytesInterceptor.BaudRate.BR_921600, 1 + TwoVariables.values().length * Integer.BYTES),
+                   new ToIntegerConverter<>(TwoVariables.class, 200))
+      ) {
+        publisher.subscribe(testSubscriber);
+      }
       if (bytes < 0) {
         testSubscriber.assertNoErrors();
         testSubscriber.assertNotSubscribed();
       }
       else {
-        Assert.assertEquals(Objects.requireNonNull(testSubscriber.throwable).getClass(), NoSuchFileException.class);
+        assertThat(testSubscriber.throwable).isNotNull().extracting(Throwable::getClass).isEqualTo(NoSuchFileException.class);
         testSubscriber.assertSubscribed();
       }
       testSubscriber.assertNoValues();
       testSubscriber.assertNotComplete();
-    }, logRecord -> Assert.assertEquals(logRecord.getMessage(), fileToRead.toString())), bytes > -1);
+    }, logRecord -> assertThat(fileToRead).hasToString(logRecord.getMessage()))).isEqualTo(bytes > -1);
   }
 
-  @Test(dataProviderClass = FileDataProvider.class, dataProvider = "rampFiles")
-  public void testCancel(@Nonnull Path fileToRead, int bytes) {
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.file.FileDataProvider#rampFiles")
+  void testCancel(@Nonnull Path fileToRead, int bytes) {
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>(Flow.Subscription::cancel);
-    Flow.Publisher<int[]> publisher = new FileReadingService<>(fileToRead, new RampBytesInterceptor(getClass().getName(),
-        BytesInterceptor.BaudRate.BR_921600, 1 + TwoVariables.values().length * Integer.BYTES),
-        new ToIntegerConverter<>(TwoVariables.class, 1000));
-    publisher.subscribe(testSubscriber);
+    try (FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher =
+             new FileReadingService<>(fileToRead, new RampBytesInterceptor(getClass().getName(),
+                 BytesInterceptor.BaudRate.BR_921600, 1 + TwoVariables.values().length * Integer.BYTES),
+                 new ToIntegerConverter<>(TwoVariables.class, 1000))
+    ) {
+      publisher.subscribe(testSubscriber);
+    }
     testSubscriber.assertNoErrors();
     testSubscriber.assertNoValues();
     testSubscriber.assertNotComplete();
@@ -185,14 +206,17 @@ public class FileReadingServiceTest {
   }
 
   @Test
-  public void testInvalidChannelCall() throws Exception {
-    Assert.assertNull(new FileReadingService<>(Paths.get(Strings.EMPTY), new RampBytesInterceptor(getClass().getName(),
+  void testInvalidChannelCall() throws Exception {
+    try (var s = new FileReadingService<>(Paths.get(Strings.EMPTY), new RampBytesInterceptor(getClass().getName(),
         BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
-        new ToIntegerConverter<>(TwoVariables.class, 200)).call());
+        new ToIntegerConverter<>(TwoVariables.class, 200))
+    ) {
+      assertNull(s.call());
+    }
   }
 
   @Test
-  public void testAbstractConvertableService() {
+  void testAbstractConvertableService() {
     try (AbstractConvertableService<BufferFrame, BufferFrame, TestVariable> convertableService =
              new AbstractConvertableService<>(new RampBytesInterceptor(getClass().getName(),
                  BytesInterceptor.BaudRate.BR_460800, 1 + TestVariable.values().length * Integer.BYTES),
@@ -202,19 +226,19 @@ public class FileReadingServiceTest {
                  subscriber.onSubscribe(new Flow.Subscription() {
                    @Override
                    public void request(long n) {
-                     Assert.assertEquals(n, Long.MAX_VALUE);
+                     assertThat(n).isEqualTo(Long.MAX_VALUE);
                    }
 
                    @Override
                    public void cancel() {
-                     Assert.fail();
+                     fail();
                    }
                  });
-                 process(ByteBuffer.allocate(0), ints -> Assert.fail(Arrays.toString(ints)));
-                 process(ByteBuffer.wrap(new byte[] {0, 2, 0, 0, 0, 1}), ints -> Assert.assertEquals(ints, new int[] {2}));
-                 process(ByteBuffer.wrap(new byte[] {4, 0, 0, 0, 2}), ints -> Assert.assertEquals(ints, new int[] {3}));
-                 process(ByteBuffer.allocate(0), ints -> Assert.fail(Arrays.toString(ints)));
-                 process(ByteBuffer.wrap(new byte[] {6, 0, 0, 0, 3}), ints -> Assert.assertEquals(ints, new int[] {6}));
+                 process(ByteBuffer.allocate(0), ints -> fail(Arrays.toString(ints)));
+                 process(ByteBuffer.wrap(new byte[] {0, 2, 0, 0, 0, 1}), ints -> assertThat(ints).containsExactly(new int[] {2}));
+                 process(ByteBuffer.wrap(new byte[] {4, 0, 0, 0, 2}), ints -> assertThat(ints).containsExactly(new int[] {3}));
+                 process(ByteBuffer.allocate(0), ints -> fail(Arrays.toString(ints)));
+                 process(ByteBuffer.wrap(new byte[] {6, 0, 0, 0, 3}), ints -> assertThat(ints).containsExactly(new int[] {6}));
                  subscriber.onComplete();
                }
 
@@ -236,7 +260,7 @@ public class FileReadingServiceTest {
       subscriber.assertValueCount(0);
     }
     catch (Exception ex) {
-      Assert.fail();
+      fail();
     }
   }
 
@@ -247,7 +271,7 @@ public class FileReadingServiceTest {
       blockSize = (int) Files.getFileStore(fileToRead).getBlockSize();
     }
     catch (IOException e) {
-      Assert.fail(fileToRead.toString(), e);
+      fail(fileToRead.toString(), e);
     }
     return blockSize;
   }
@@ -305,19 +329,19 @@ public class FileReadingServiceTest {
     }
 
     void assertSubscribed() {
-      Assert.assertTrue(subscribeFlag);
+      assertTrue(subscribeFlag);
     }
 
     void assertNotSubscribed() {
-      Assert.assertFalse(subscribeFlag);
+      assertFalse(subscribeFlag);
     }
 
     void assertComplete() {
-      Assert.assertTrue(completeFlag);
+      assertTrue(completeFlag);
     }
 
     void assertNotComplete() {
-      Assert.assertFalse(completeFlag);
+      assertFalse(completeFlag);
     }
 
     void assertNoValues() {
@@ -325,12 +349,12 @@ public class FileReadingServiceTest {
     }
 
     void assertValueCount(int n) {
-      Assert.assertEquals(count, n);
+      assertThat(count).isEqualTo(n);
     }
 
     void assertNoErrors() {
       if (throwable != null) {
-        Assert.fail(throwable.getMessage(), throwable);
+        fail(throwable.getMessage(), throwable);
       }
     }
   }

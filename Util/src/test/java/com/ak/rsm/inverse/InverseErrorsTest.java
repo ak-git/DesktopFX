@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
 import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -19,16 +20,22 @@ import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.CSVLineFileBuilder;
 import org.apache.commons.math3.optim.PointValuePair;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class InverseErrorsTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
+class InverseErrorsTest {
   private static final Logger LOGGER = Logger.getLogger(InverseErrorsTest.class.getName());
 
-  @DataProvider(name = "inverseable")
-  public static Object[][] inverseable() {
-    return new Object[][] {
-        {
+  static Stream<Arguments> inverseable() {
+    return Stream.of(
+        arguments(
             new Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>() {
               @Override
               public UnaryOperator<RelativeMediumLayers> apply(Collection<InexactTetrapolarSystem> inexactSystems) {
@@ -40,8 +47,8 @@ public class InverseErrorsTest {
                 return "StaticErrors";
               }
             }
-        },
-        {
+        ),
+        arguments(
             new Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>() {
               @Override
               public UnaryOperator<RelativeMediumLayers> apply(Collection<InexactTetrapolarSystem> inexactSystems) {
@@ -53,72 +60,98 @@ public class InverseErrorsTest {
                 return "DynamicErrors";
               }
             }
-        }
-    };
+        )
+    );
   }
 
-  @Test(dataProvider = "inverseable", enabled = false)
-  public void testCSV(@Nonnull Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
-    CSVLineFileBuilder
-        .of((k, hToDim) -> single(new double[] {0.1, 1.9}, k, hToDim, builder))
-        .xRange(-1.0, 1.0, 0.2)
-        .yLogRange(0.001, 1.0)
-        .saveTo("kRise %s".formatted(builder.toString()),
-            layers -> "%.4f".formatted(layers[0]))
-        .saveTo("hRise %s".formatted(builder.toString()),
-            layers -> "%.4f".formatted(layers[1]))
-        .generate();
+  @ParameterizedTest
+  @MethodSource("inverseable")
+  @Disabled("ignored com.ak.rsm.inverse.InverseErrorsTest.testCSV")
+  void testCSV(@Nonnull Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
+    assertThatNoException().isThrownBy(() ->
+        CSVLineFileBuilder
+            .of((k, hToDim) -> single(new double[] {0.1, 1.9}, k, hToDim, builder))
+            .xRange(-1.0, 1.0, 0.2)
+            .yLogRange(0.001, 1.0)
+            .saveTo("kRise %s".formatted(builder.toString()),
+                layers -> "%.4f".formatted(layers[0]))
+            .saveTo("hRise %s".formatted(builder.toString()),
+                layers -> "%.4f".formatted(layers[1]))
+            .generate()
+    );
   }
 
-  @Test(dataProvider = "inverseable", enabled = false)
-  public void testCSV2(@Nonnull Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
-    CSVLineFileBuilder
-        .of((k, hToDim) -> single(new double[] {1.0 / 3.0, 5.0 / 3.0}, k, hToDim, builder))
-        .xRange(-1.0, 1.0, 0.2)
-        .yLogRange(0.001, 1.0)
-        .saveTo("k2Rise %s".formatted(builder.toString()),
-            layers -> "%.4f".formatted(layers[0]))
-        .saveTo("h2Rise %s".formatted(builder.toString()),
-            layers -> "%.4f".formatted(layers[1]))
-        .generate();
+  @ParameterizedTest
+  @MethodSource("inverseable")
+  @Disabled("ignored com.ak.rsm.inverse.InverseErrorsTest.testCSV2")
+  void testCSV2(@Nonnull Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
+    assertThatNoException().isThrownBy(() ->
+        CSVLineFileBuilder
+            .of((k, hToDim) -> single(new double[] {1.0 / 3.0, 5.0 / 3.0}, k, hToDim, builder))
+            .xRange(-1.0, 1.0, 0.2)
+            .yLogRange(0.001, 1.0)
+            .saveTo("k2Rise %s".formatted(builder.toString()),
+                layers -> "%.4f".formatted(layers[0]))
+            .saveTo("h2Rise %s".formatted(builder.toString()),
+                layers -> "%.4f".formatted(layers[1]))
+            .generate()
+    );
   }
 
-  @Test(dataProvider = "inverseable", enabled = false)
-  public void testOptimalSL(@Nonnull Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
+  @ParameterizedTest
+  @MethodSource("inverseable")
+  @Disabled("ignored com.ak.rsm.inverse.InverseErrorsTest.testOptimalSL")
+  void testOptimalSL(@Nonnull Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
     PointValuePair opt = Simplex.optimizeAll(point -> single(point, builder),
         new Simplex.Bounds(0.1, 1.1), new Simplex.Bounds(0.9, 2.0)
     );
+    assertNotNull(opt);
     LOGGER.info(Arrays.toString(opt.getPoint()));
   }
 
-  @Test(dataProvider = "inverseable", enabled = false)
-  public void testCSVasSL(@Nonnull Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
-    CSVLineFileBuilder
-        .of((sToL1, sToL2) -> single(new double[] {sToL1, sToL2}, builder))
-        .xRange(0.1, 0.9, 0.1)
-        .yRange(1.1, 2.0, 0.1)
-        .saveTo("k %s".formatted(builder.toString()), "%.4f"::formatted)
-        .generate();
+  @ParameterizedTest
+  @MethodSource("inverseable")
+  @Disabled("ignored com.ak.rsm.inverse.InverseErrorsTest.testCSVasSL")
+  void testCSVasSL(@Nonnull Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
+    assertThatNoException().isThrownBy(() ->
+        CSVLineFileBuilder
+            .of((sToL1, sToL2) -> single(new double[] {sToL1, sToL2}, builder))
+            .xRange(0.1, 0.9, 0.1)
+            .yRange(1.1, 2.0, 0.1)
+            .saveTo("k %s".formatted(builder.toString()), "%.4f"::formatted)
+            .generate()
+    );
   }
 
-  @DataProvider(name = "single")
-  public static Object[][] single() {
-    return new Object[][] {
-        {1.0 / 3.0, 5.0 / 3.0, (Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>) DynamicErrors::new},
-        {0.1, 1.9, (Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>) StaticErrors::new},
-    };
+  static Stream<Arguments> single() {
+    return Stream.of(
+        arguments(
+            1.0 / 3.0, 5.0 / 3.0, (Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>) DynamicErrors::new
+        ),
+        arguments(
+            0.1, 1.9, (Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>) StaticErrors::new
+        )
+    );
   }
 
-  @Test(dataProvider = "single", enabled = false)
-  public void testSingle(@Nonnegative double sToL1, @Nonnegative double sToL2,
-                         @Nonnull Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
-    LOGGER.info(Arrays.toString(single(new double[] {sToL1, sToL2}, 1.0, 25.0 / 50.0, builder)));
+  @ParameterizedTest
+  @MethodSource("single")
+  @Disabled("ignored com.ak.rsm.inverse.InverseErrorsTest.testSingle")
+  void testSingle(@Nonnegative double sToL1, @Nonnegative double sToL2,
+                  @Nonnull Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
+    double[] single = single(new double[] {sToL1, sToL2}, 1.0, 25.0 / 50.0, builder);
+    assertThat(single).isNotEmpty();
+    LOGGER.info(Arrays.toString(single));
   }
 
-  @Test(dataProvider = "single", enabled = false)
-  public void testSingleSum(@Nonnegative double sToL1, @Nonnegative double sToL2,
-                            @Nonnull Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
-    LOGGER.info("%.3f".formatted(single(new double[] {sToL1, sToL2}, builder)));
+  @ParameterizedTest
+  @MethodSource("single")
+  @Disabled("ignored com.ak.rsm.inverse.InverseErrorsTest.testSingleSum")
+  void testSingleSum(@Nonnegative double sToL1, @Nonnegative double sToL2,
+                     @Nonnull Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
+    double single = single(new double[] {sToL1, sToL2}, builder);
+    assertThat(single).isPositive();
+    LOGGER.info("%.3f".formatted(single));
   }
 
   @ParametersAreNonnullByDefault

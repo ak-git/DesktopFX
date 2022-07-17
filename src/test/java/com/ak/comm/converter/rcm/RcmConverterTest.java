@@ -2,27 +2,29 @@ package com.ak.comm.converter.rcm;
 
 import java.nio.ByteOrder;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.DependentVariable;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.aper.SplineCoefficientsUtils;
 import com.ak.numbers.rcm.RcmBaseSurfaceCoefficientsChannel1;
 import com.ak.numbers.rcm.RcmBaseSurfaceCoefficientsChannel2;
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-import static com.ak.comm.converter.rcm.RcmInVariable.ECG_X;
-import static com.ak.comm.converter.rcm.RcmInVariable.RHEO_1X;
-import static com.ak.comm.converter.rcm.RcmInVariable.RHEO_2X;
 import static com.ak.comm.converter.rcm.RcmOutVariable.BASE_1;
 import static com.ak.comm.converter.rcm.RcmOutVariable.BASE_2;
 import static com.ak.comm.converter.rcm.RcmOutVariable.ECG;
@@ -30,20 +32,25 @@ import static com.ak.comm.converter.rcm.RcmOutVariable.QS_1;
 import static com.ak.comm.converter.rcm.RcmOutVariable.QS_2;
 import static com.ak.comm.converter.rcm.RcmOutVariable.RHEO_1;
 import static com.ak.comm.converter.rcm.RcmOutVariable.RHEO_2;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-public class RcmConverterTest {
-  @DataProvider(name = "variables")
-  public static Object[][] variables() {
-    return new Object[][] {
-        {
+class RcmConverterTest {
+  static Stream<Arguments> variables() {
+    return Stream.of(
+        arguments(
             new byte[] {-10, -36, -125, -72, -5, -60, -125, -124, -111, -94, -7, -98, -127, -128, -5, -78, -127, -10, -127, -128},
             new int[] {-67590, 5493, 0, 66, -38791, 31534, 0}
-        },
-    };
+        )
+    );
   }
 
-  @Test(dataProvider = "variables")
-  public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
+  @ParameterizedTest
+  @MethodSource("variables")
+  @ParametersAreNonnullByDefault
+  void testApply(byte[] inputBytes, int[] outputInts) {
     Converter<BufferFrame, RcmOutVariable> converter = LinkedConverter.of(new RcmConverter(), RcmOutVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
@@ -51,62 +58,99 @@ public class RcmConverterTest {
       int finalI = i;
       long count = converter.apply(bufferFrame).peek(ints -> {
         if (finalI > 1900) {
-          Assert.assertEquals(ints, outputInts, "expected = %s, actual = %s".formatted(Arrays.toString(outputInts), Arrays.toString(ints)));
+          assertThat(ints)
+              .withFailMessage(() -> "expected = %s, actual = %s".formatted(Arrays.toString(outputInts), Arrays.toString(ints)))
+              .containsExactly(outputInts);
           processed.set(true);
         }
       }).count();
       if (processed.get()) {
-        Assert.assertEquals(count, 40);
+        assertThat(count).isEqualTo(40);
         break;
       }
     }
-    Assert.assertTrue(processed.get(), "Data are not converted!");
-    Assert.assertEquals(converter.getFrequency(), 200, 0.1);
+    assertTrue(processed.get(), "Data are not converted!");
+    assertThat(converter.getFrequency()).isEqualTo(200.0);
   }
 
-  @DataProvider(name = "calibrable-variables")
-  public static Object[][] calibrableVariables() {
-    return new Object[][] {
-        {
+  public static Stream<Arguments> calibrableVariables() {
+    return Stream.of(
+        arguments(
             new byte[] {-10, -36, -125, -72, -5, -60, -125, -124, -111, -94, -7, -98, -127, -128, -5, -78, -127, -10, -127, -128},
             new int[] {0, 69, -274, -205, 0}
-        },
-    };
+        )
+    );
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = RcmInVariable.class, names = {"RHEO_1X", "RHEO_2X", "ECG_X"})
+  void testX(@Nonnull Variable<RcmInVariable> variable) {
+    assertThat(variable.options()).isEmpty();
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = RcmOutVariable.class)
+  void testInputVariablesClass(@Nonnull DependentVariable<RcmInVariable, RcmOutVariable> variable) {
+    assertThat(variable.getInputVariablesClass()).isEqualTo(RcmInVariable.class);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = RcmOutVariable.class, names = {"RHEO_1", "RHEO_2"})
+  void testRheoChannels(@Nonnull Variable<RcmOutVariable> variable) {
+    assertAll(variable.name(),
+        () -> assertThat(variable.getUnit()).isEqualTo(MetricPrefix.MICRO(Units.OHM)),
+        () -> assertThat(variable.options()).contains(Variable.Option.INVERSE)
+    );
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = RcmOutVariable.class, names = {"RHEO_1", "RHEO_2", "ECG"})
+  void testZeroInRange(@Nonnull Variable<RcmOutVariable> variable) {
+    assertThat(variable.options()).contains(Variable.Option.FORCE_ZERO_IN_RANGE);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = RcmOutVariable.class, names = {"BASE_1", "BASE_2"})
+  void testBaseChannels(@Nonnull Variable<RcmOutVariable> variable) {
+    assertThat(variable.getUnit()).isEqualTo(MetricPrefix.MILLI(Units.OHM));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = RcmOutVariable.class, names = {"QS_1", "QS_2"})
+  void testQoSChannels(@Nonnull Variable<RcmOutVariable> variable) {
+    assertAll(variable.name(),
+        () -> assertThat(variable.getUnit()).isEqualTo(Units.OHM),
+        () -> assertThat(variable.options()).contains(Variable.Option.TEXT_VALUE_BANNER)
+    );
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = RcmOutVariable.class, names = {"ECG"})
+  void testECGChannel(@Nonnull Variable<RcmOutVariable> variable) {
+    assertThat(variable.getUnit()).isEqualTo(MetricPrefix.MILLI(Units.VOLT));
+  }
+
+  static Stream<Arguments> filterDelay() {
+    return Stream.of(
+        arguments(RHEO_1, 3.5),
+        arguments(BASE_1, 377.0),
+        arguments(QS_1, 3.5),
+        arguments(ECG, 3.5),
+        arguments(RHEO_2, 3.5),
+        arguments(BASE_2, 377.0),
+        arguments(QS_2, 3.5)
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("filterDelay")
+  void testFilterDelay(@Nonnull Variable<RcmOutVariable> variable, double delay) {
+    assertThat(variable.filter().getDelay()).isEqualTo(delay);
   }
 
   @Test
-  public void testVariables() {
-    EnumSet.of(RHEO_1X, RHEO_2X, ECG_X).forEach(variable -> Assert.assertTrue(variable.options().isEmpty(), variable.options().toString()));
-    EnumSet.allOf(RcmOutVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), RcmInVariable.class));
-    EnumSet.of(RHEO_1, RHEO_2).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MICRO(Units.OHM)));
-    EnumSet.of(RHEO_1, RHEO_2).forEach(variable -> Assert.assertTrue(variable.options().contains(Variable.Option.INVERSE)));
-    EnumSet.of(RHEO_1, RHEO_2, ECG).forEach(variable -> Assert.assertTrue(variable.options().contains(Variable.Option.FORCE_ZERO_IN_RANGE)));
-    EnumSet.of(BASE_1, BASE_2).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MILLI(Units.OHM)));
-    EnumSet.of(QS_1, QS_2).forEach(variable -> Assert.assertEquals(variable.getUnit(), Units.OHM));
-    EnumSet.of(ECG).forEach(variable -> Assert.assertEquals(variable.getUnit(), MetricPrefix.MILLI(Units.VOLT)));
-    EnumSet.of(QS_1, QS_2).forEach(v -> Assert.assertEquals(v.options(), EnumSet.of(Variable.Option.TEXT_VALUE_BANNER), v.options().toString()));
-  }
-
-  @DataProvider(name = "filter-delay")
-  public static Object[][] filterDelay() {
-    return new Object[][] {
-        {RHEO_1, 3.5},
-        {BASE_1, 377.0},
-        {QS_1, 3.5},
-        {ECG, 3.5},
-        {RHEO_2, 3.5},
-        {BASE_2, 377.0},
-        {QS_2, 3.5},
-    };
-  }
-
-  @Test(dataProvider = "filter-delay")
-  public void testFilterDelay(@Nonnull RcmOutVariable variable, double delay) {
-    Assert.assertEquals(variable.filter().getDelay(), delay, 0.001, variable.toString());
-  }
-
-  @Test(enabled = false)
-  public void testBaseSplineSurface1() {
+  @Disabled("generate csv files")
+  void testBaseSplineSurface1() {
     SplineCoefficientsUtils.testSplineSurface(RcmBaseSurfaceCoefficientsChannel1.class);
     SplineCoefficientsUtils.testSplineSurface(RcmBaseSurfaceCoefficientsChannel2.class);
   }

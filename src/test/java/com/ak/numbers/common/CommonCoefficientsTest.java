@@ -1,28 +1,22 @@
 package com.ak.numbers.common;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
-public class CommonCoefficientsTest {
-  @DataProvider(name = "coefficients")
-  public static Object[][] coefficients() {
-    return new Object[][] {
-        {CommonCoefficients.MYO, 61},
-        {CommonCoefficients.ECG, 61},
-    };
-  }
+import static org.assertj.core.api.Assertions.assertThat;
 
+class CommonCoefficientsTest {
   @Test
-  public void testCoefficients() {
-    Assert.assertEquals(CommonCoefficients.values().length, coefficients().length);
+  void testCoefficients() {
+    assertThat(CommonCoefficients.values()).hasSize(2);
   }
 
-  @Test(dataProvider = "coefficients")
-  public void testCoefficients(@Nonnull SimpleCoefficients coefficients, @Nonnegative int count) {
-    Assert.assertEquals(coefficients.get().length, count, coefficients.name());
+  @ParameterizedTest
+  @EnumSource(CommonCoefficients.class)
+  void testSize(@Nonnull SimpleCoefficients c) {
+    assertThat(c.get()).hasSize(61);
   }
 }

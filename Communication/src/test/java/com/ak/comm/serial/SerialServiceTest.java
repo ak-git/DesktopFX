@@ -10,10 +10,14 @@ import java.util.stream.IntStream;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-public class SerialServiceTest {
-  @Test(enabled = false)
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+class SerialServiceTest {
+  @Test
+  @Disabled("use serial port")
   void testCycle() {
     SerialPort comPort = SerialPort.getCommPorts()[3];
     Logger.getLogger(getClass().getName()).info("[%s] %s".formatted(comPort.getSystemPortName(), comPort.getDescriptivePortName()));
@@ -31,6 +35,7 @@ public class SerialServiceTest {
         public void serialEvent(SerialPortEvent event) {
           if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_RECEIVED) {
             byte[] newData = event.getReceivedData();
+            assertNotNull(newData);
             Logger.getLogger(getClass().getName()).info("%s : %s%n%s".formatted(event.getSerialPort(), Arrays.toString(newData),
                 new String(newData, StandardCharsets.UTF_8)));
             semaphore.release();
@@ -56,7 +61,8 @@ public class SerialServiceTest {
     }
   }
 
-  @Test(enabled = false)
+  @Test
+  @Disabled("use serial port")
   void testSingle() {
     SerialPort comPort = SerialPort.getCommPorts()[3];
     Logger.getLogger(getClass().getName()).info("[%s] %s".formatted(comPort.getSystemPortName(), comPort.getDescriptivePortName()));
@@ -74,6 +80,7 @@ public class SerialServiceTest {
         public void serialEvent(SerialPortEvent event) {
           if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_RECEIVED) {
             byte[] newData = event.getReceivedData();
+            assertNotNull(newData);
             Logger.getLogger(getClass().getName()).info("%s : %s%n%s".formatted(event.getSerialPort(), Arrays.toString(newData),
                 new String(newData, StandardCharsets.UTF_8)));
             semaphore.release();

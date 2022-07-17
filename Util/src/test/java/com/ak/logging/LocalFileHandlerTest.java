@@ -7,35 +7,36 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.logging.SimpleFormatter;
 
 import javax.annotation.Nonnull;
 
 import com.ak.util.Clean;
 import com.ak.util.Extension;
-import org.testng.Assert;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Test;
-import org.testng.log.TextFormatter;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class LocalFileHandlerTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class LocalFileHandlerTest {
   @Nonnull
   private final Path logPath;
 
-  public LocalFileHandlerTest() throws IOException {
+  LocalFileHandlerTest() throws IOException {
     logPath = new LogPathBuilder(Extension.NONE, LocalFileHandler.class).addPath("testSubDir").build().getPath().getParent();
   }
 
-  @BeforeSuite
-  @AfterSuite
+  @BeforeEach
+  @AfterEach
   public void setUp() {
     Clean.clean(logPath);
   }
 
   @Test
-  public void testLocalFileHandler() throws IOException {
+  void testLocalFileHandler() throws IOException {
     LocalFileHandler handler = new LocalFileHandler();
-    handler.setFormatter(new TextFormatter());
+    handler.setFormatter(new SimpleFormatter());
     handler.publish(new LogRecord(Level.ALL, LocalFileHandler.class.getName()));
     handler.close();
 
@@ -43,11 +44,11 @@ public class LocalFileHandlerTest {
       int count = 0;
       for (Path file : ds) {
         List<String> strings = Files.readAllLines(file);
-        Assert.assertEquals(strings.size(), 1);
-        Assert.assertEquals(strings.get(0), LocalFileHandler.class.getName());
+        assertThat(strings).hasSize(2);
+        assertThat(strings.get(1)).contains(LocalFileHandler.class.getName());
         count++;
       }
-      Assert.assertEquals(count, 1, "Must be the only one .log file in " + logPath);
+      assertThat(count).withFailMessage("Must be the only one .log file in " + logPath).isEqualTo(1);
     }
   }
 }
