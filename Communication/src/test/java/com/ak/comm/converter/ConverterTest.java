@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import static java.util.logging.Level.WARNING;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -63,7 +63,7 @@ class ConverterTest {
   void testInvalidApply() {
     Runnable runnable = () -> assertThat(INVALID_CONVERTER.apply(1)).hasSize(1);
     Consumer<LogRecord> consumer = logRecord -> assertThat(logRecord.getMessage()).isEqualTo("Invalid variables: [V1, V2] not match [1]");
-    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
+    assertThatIllegalArgumentException().isThrownBy(
         () -> LogTestUtils.isSubstituteLogLevel(LOGGER_INVALID, WARNING, runnable, consumer)
     );
   }

@@ -24,6 +24,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.byLessThan;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -196,13 +198,13 @@ class TetrapolarDerivativeMeasurementTest {
   void testInvalidOhms() {
     var builder = TetrapolarDerivativeMeasurement.ofSI(0.01).dh(0.1).system(10, 20.0);
     double[] rOhms = DoubleStream.generate(Math::random).limit(Math.random() > 0.5 ? 1 : 3).toArray();
-    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.ofOhms(rOhms));
+    assertThatIllegalArgumentException().isThrownBy(() -> builder.ofOhms(rOhms));
   }
 
   @Test
   void testInvalidRhos() {
     var builder = TetrapolarDerivativeMeasurement.ofSI(0.01).dh(0.1).system(10, 20.0);
-    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> builder.rho(1.0, 2.0, 3.0, 4.0));
+    assertThatIllegalStateException().isThrownBy(() -> builder.rho(1.0, 2.0, 3.0, 4.0));
   }
 
   static Stream<Arguments> derivativeMeasurements() {

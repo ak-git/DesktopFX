@@ -28,7 +28,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import static com.ak.util.CSVLineFileBuilderTest.ROW_DELIMITER;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -152,7 +152,7 @@ class CSVLineFileCollectorTest {
   @Test
   void testInvalidPath() {
     Path out = Paths.get("/");
-    assertThatExceptionOfType(NullPointerException.class)
+    assertThatNullPointerException()
         .isThrownBy(() -> {
           try (var ignored = new CSVLineFileCollector(out)) {
             fail();

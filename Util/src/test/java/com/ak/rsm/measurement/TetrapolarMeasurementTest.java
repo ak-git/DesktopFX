@@ -21,7 +21,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.byLessThan;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -182,6 +182,6 @@ class TetrapolarMeasurementTest {
     var builder = TetrapolarMeasurement.milli(0.01).system2(10.0);
     double[] rOhms = DoubleStream.generate(Math::random)
         .limit(Math.random() > 0.5 ? 1 : 3).toArray();
-    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.ofOhms(rOhms));
+    assertThatIllegalArgumentException().isThrownBy(() -> builder.ofOhms(rOhms));
   }
 }

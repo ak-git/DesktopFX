@@ -16,7 +16,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.byLessThan;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -180,21 +181,21 @@ class TetrapolarDerivativeResistanceTest {
   @Test
   void testInvalidRhos() {
     var builder = TetrapolarDerivativeResistance.milli().dh(0.1).system2(10.0);
-    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.rho(1.0));
-    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.rho(1.0, 2.0, 3.0));
-    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> builder.rho(1.0, 2.0, 3.0, 4.0));
+    assertThatIllegalArgumentException().isThrownBy(() -> builder.rho(1.0));
+    assertThatIllegalArgumentException().isThrownBy(() -> builder.rho(1.0, 2.0, 3.0));
+    assertThatIllegalStateException().isThrownBy(() -> builder.rho(1.0, 2.0, 3.0, 4.0));
   }
 
   @Test
   void testInvalidOhms() {
     var builder = TetrapolarDerivativeResistance.milli().dh(0.0).system2(10.0);
-    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.ofOhms(1.0, 2.0, 3.0));
+    assertThatIllegalArgumentException().isThrownBy(() -> builder.ofOhms(1.0, 2.0, 3.0));
   }
 
   //
   @Test
   void testInvalidOhms2() {
     var builder = TetrapolarDerivativeResistance.ofMilli(40.0, 80.0).dh(-0.1);
-    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.ofOhms(1.0));
+    assertThatIllegalArgumentException().isThrownBy(() -> builder.ofOhms(1.0));
   }
 }

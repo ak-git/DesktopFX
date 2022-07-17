@@ -43,6 +43,7 @@ jacoco {
 
 ext {
     junit = 'org.junit:junit-bom:5.8.2'
+    assertj = 'org.assertj:assertj-core:3.23.1'
     jsr305 = 'com.google.code.findbugs:jsr305:3.0.2'
     javax_inject = 'javax.inject:javax.inject:1'
     uom_se = 'tec.uom:uom-se:1.0.10'
@@ -100,7 +101,7 @@ allprojects {
         implementation jsr305
         testImplementation(platform(junit))
         testImplementation('org.junit.jupiter:junit-jupiter')
-        testImplementation("org.assertj:assertj-core:3.23.1")
+        testImplementation(assertj)
     }
 
     test {
@@ -110,12 +111,6 @@ allprojects {
         }
         forkEvery = 5
         maxHeapSize = '1G'
-    }
-
-    tasks.withType(Test.class).configureEach {
-        jacoco {
-            includes = ["com.ak.*"]
-        }
     }
 }
 

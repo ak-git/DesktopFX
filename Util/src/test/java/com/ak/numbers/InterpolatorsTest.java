@@ -12,13 +12,13 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class InterpolatorsTest {
   @Test
   void testTooLowCoefficients() {
-    assertThatExceptionOfType(IllegalArgumentException.class)
+    assertThatIllegalArgumentException()
         .isThrownBy(() -> Interpolators.interpolator(InterpolatorCoefficients.INTERPOLATOR_TEST_INVALID))
         .withMessageContaining("Number of points 1 from INTERPOLATOR_TEST_INVALID is too small");
   }
