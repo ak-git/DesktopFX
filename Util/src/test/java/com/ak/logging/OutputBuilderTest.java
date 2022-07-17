@@ -10,29 +10,30 @@ import javax.annotation.Nonnull;
 
 import com.ak.util.Clean;
 import com.ak.util.Extension;
-import org.testng.Assert;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
-public class OutputBuilderTest {
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class OutputBuilderTest {
   @Nonnull
   private final Path outPath;
 
-  public OutputBuilderTest() throws IOException {
+  OutputBuilderTest() throws IOException {
     Path txt = new OutputBuilder(Extension.TXT).fileNameWithDateTime(OutputBuilderTest.class.getSimpleName()).build().getPath();
     Files.createFile(txt);
     outPath = txt.getParent();
   }
 
-  @AfterSuite
-  public void setUp() {
+  @AfterEach
+  void setUp() {
     Clean.clean(outPath);
   }
 
   @Test
-  public void testLocalFileHandler() throws IOException {
+  void testLocalFileHandler() throws IOException {
     try (DirectoryStream<Path> paths = Files.newDirectoryStream(outPath, "*.txt")) {
-      Assert.assertTrue(StreamSupport.stream(paths.spliterator(), true).findAny().isPresent(), outPath.toString());
+      assertTrue(StreamSupport.stream(paths.spliterator(), true).findAny().isPresent(), outPath::toString);
     }
   }
 }
