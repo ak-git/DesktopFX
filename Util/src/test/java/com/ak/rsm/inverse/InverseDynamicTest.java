@@ -283,7 +283,7 @@ class InverseDynamicTest {
 
   @ParameterizedTest
   @MethodSource("cvsFiles")
-  @Disabled("ingored com.ak.rsm.inverse.InverseDynamicTest.testInverseDynamicLayerFileResistivity")
+  @Disabled("ignored com.ak.rsm.inverse.InverseDynamicTest.testInverseDynamicLayerFileResistivity")
   void testInverseDynamicLayerFileResistivity(@Nonnull String fileName) {
     String T = "TIME";
     String POSITION = "POSITION";

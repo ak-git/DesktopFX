@@ -150,7 +150,7 @@ class Inverse2Test {
 
   @ParameterizedTest
   @MethodSource("e7694_2")
-  @Disabled("com.ak.rsm.inverse.Inverse2Test.testNoChanged")
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testNoChanged")
   void testNoChanged(Collection<Collection<DerivativeMeasurement>> ms) {
     List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(DynamicInverse::of).toList();
 
@@ -174,7 +174,7 @@ class Inverse2Test {
 
   @ParameterizedTest
   @MethodSource("e7694_2")
-  @Disabled("com.ak.rsm.inverse.Inverse2Test.test")
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.test")
   void test(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
     IntStream.range(1, ms.size())
         .mapToObj(value ->

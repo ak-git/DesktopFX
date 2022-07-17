@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 class FiltersTest {
   @Test
-  @Disabled("generate Filtered- .csv file")
+  @Disabled("ignored com.ak.digitalfilter.FiltersTest.textFiles")
   void textFiles() {
     String filteredPrefix = "Filtered - ";
     int column = 0;
