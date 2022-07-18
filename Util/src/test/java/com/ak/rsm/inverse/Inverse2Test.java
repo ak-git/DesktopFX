@@ -30,6 +30,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import static com.ak.rsm.measurement.Measurements.fixOhms;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -77,17 +78,25 @@ class Inverse2Test {
         arguments(
             List.of(
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system4(7.0)
-                    .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
-                        122.3 + 0.1, 199.0 + 0.4, (66.0 + 0.1) * 2, (202.0 + 0.25) * 2 - (66.0 + 0.1) * 2),
+                    .ofOhms(fixOhms(
+                        122.3, 199.0, 66.0, 202.0,
+                        122.3 + 0.1, 199.0 + 0.4, 66.0 + 0.1, 202.0 + 0.25
+                    )),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 2).system4(7.0)
-                    .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
-                        122.3 + 0.3, 199.0 + 0.75, (66.0 + 0.2) * 2, (202.0 + 0.75) * 2 - (66.0 + 0.2) * 2),
+                    .ofOhms(fixOhms(
+                        122.3, 199.0, 66.0, 202.0,
+                        122.3 + 0.3, 199.0 + 0.75, 66.0 + 0.2, 202.0 + 0.75
+                    )),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 4).system4(7.0)
-                    .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
-                        122.3 + 0.6, 199.0 + 2.0, (66.0 + 0.6) * 2, (202.0 + 1.75) * 2 - (66.0 + 0.6) * 2),
+                    .ofOhms(fixOhms(
+                        122.3, 199.0, 66.0, 202.0,
+                        122.3 + 0.6, 199.0 + 2.0, 66.0 + 0.6, 202.0 + 1.75
+                    )),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 4).system4(7.0)
-                    .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
-                        122.3 - 0.3, 199.0 - 1.5, (66.0 - 0.3) * 2, (202.0 - 1.0) * 2 - (66.0 - 0.3) * 2)
+                    .ofOhms(fixOhms(
+                        122.3, 199.0, 66.0, 202.0,
+                        122.3 - 0.3, 199.0 - 1.5, 66.0 - 0.3, 202.0 - 1.0
+                    ))
             )
         )
     );
@@ -98,69 +107,88 @@ class Inverse2Test {
         arguments(
             List.of(
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system4(7.0)
-                    .ofOhms(120.8, 195.0, 66.9 * 2, 198.5 * 2 - 66.9 * 2,
-                        120.8 + 0.15, 195.0 + 0.5, (66.9 + 0.15) * 2, (198.5 + 0.5) * 2 - (66.9 + 0.15) * 2),
+                    .ofOhms(fixOhms(
+                        120.8, 195.0, 66.9, 198.5,
+                        120.8 + 0.15, 195.0 + 0.5, 66.9 + 0.15, 198.5 + 0.5
+                    )),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 2).system4(7.0)
-                    .ofOhms(120.8, 195.0, 66.9 * 2, 198.5 * 2 - 66.9 * 2,
-                        120.8 + 0.4, 195.0 + 1.0, (66.9 + 0.3) * 2, (198.5 + 1.25) * 2 - (66.9 + 0.3) * 2),
+                    .ofOhms(fixOhms(
+                        120.8, 195.0, 66.9, 198.5,
+                        120.8 + 0.4, 195.0 + 1.0, 66.9 + 0.3, 198.5 + 1.25
+                    )),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 4).system4(7.0)
-                    .ofOhms(120.8, 195.0, 66.9 * 2, 198.5 * 2 - 66.9 * 2,
-                        120.8 + 1.1, 195.0 + 2.5, (66.9 + 0.9) * 2, (198.5 + 2.5) * 2 - (66.9 + 0.9) * 2),
+                    .ofOhms(fixOhms(
+                        120.8, 195.0, 66.9, 198.5,
+                        120.8 + 1.1, 195.0 + 2.5, 66.9 + 0.9, 198.5 + 2.5
+                    )),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21).system4(7.0)
-                    .ofOhms(120.8, 195.0, 66.9 * 2, 198.5 * 2 - 66.9 * 2,
-                        120.8 - 0.15, 195.0 - 0.5, (66.9 - 0.125) * 2, (198.5 - 0.25) * 2 - (66.9 - 0.125) * 2),
+                    .ofOhms(fixOhms(
+                        120.8, 195.0, 66.9, 198.5,
+                        120.8 - 0.15, 195.0 - 0.5, 66.9 - 0.125, 198.5 - 0.25
+                    )),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 2).system4(7.0)
-                    .ofOhms(120.8, 195.0, 66.9 * 2, 198.5 * 2 - 66.9 * 2,
-                        120.8 - 0.3, 195.0 - 1.0, (66.9 - 0.25) * 2, (198.5 - 0.7) * 2 - (66.9 - 0.25) * 2),
+                    .ofOhms(fixOhms(
+                        120.8, 195.0, 66.9, 198.5,
+                        120.8 - 0.3, 195.0 - 1.0, 66.9 - 0.25, 198.5 - 0.7
+                    )),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 4).system4(7.0)
-                    .ofOhms(120.8, 195.0, 66.9 * 2, 198.5 * 2 - 66.9 * 2,
-                        120.8 - 0.6, 195.0 - 1.5, (66.9 - 0.5) * 2, (198.5 - 1.5) * 2 - (66.9 - 0.5) * 2)
+                    .ofOhms(fixOhms(
+                        120.8, 195.0, 66.9, 198.5,
+                        120.8 - 0.6, 195.0 - 1.5, 66.9 - 0.5, 198.5 - 1.5
+                    ))
             )
         )
     );
   }
 
-  static Stream<Arguments> e7694_2() {
+  static Stream<Arguments> e7694_2system2() {
+    return Stream.of(
+        arguments(
+            List.of(
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system2(7.0)
+                    .ofOhms(123.5, 198.0, 123.5 + 0.5, 198.0 + 0.75),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 2).system2(7.0)
+                    .ofOhms(123.5, 198.0, 123.5 + 1.0, 198.0 + 2.0),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 4).system2(7.0)
+                    .ofOhms(123.5, 198.0, 123.5 + 2.0, 198.0 + 5.0),
+
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21).system2(7.0)
+                    .ofOhms(123.5, 198.0, 123.5 - 0.3, 198.0 - 0.75),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 2).system2(7.0)
+                    .ofOhms(123.5, 198.0, 123.5 - 0.7, 198.0 - 1.5),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 4).system2(7.0)
+                    .ofOhms(123.5, 198.0, 123.5 - 1.25, 198.0 - 3.0)
+            )
+        )
+    );
+  }
+
+  static Stream<Arguments> e7694_2system4() {
     return Stream.of(
         arguments(
             List.of(
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system4(7.0)
-                    .ofOhms(123.5, 198.0, 68.0 * 2, 202.0 * 2 - 68.0 * 2,
-                        123.5 + 0.5, 198.0 + 0.75, (68.0 + 0.25) * 2, (202.0 + 1.0) * 2 - (68.0 + 0.25) * 2),
+                    .ofOhms(123.5, 198.0, 68.0, 202.0,
+                        123.5 + 0.5, 198.0 + 0.75, 68.0 + 0.25, 202.0 + 1.0),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 2).system4(7.0)
-                    .ofOhms(123.5, 198.0, 68.0 * 2, 202.0 * 2 - 68.0 * 2,
-                        123.5 + 1.0, 198.0 + 2.0, (68.0 + 0.5) * 2, (202.0 + 2.0) * 2 - (68.0 + 0.5) * 2),
+                    .ofOhms(123.5, 198.0, 68.0, 202.0,
+                        123.5 + 1.0, 198.0 + 2.0, 68.0 + 0.5, 202.0 + 2.0),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 4).system4(7.0)
-                    .ofOhms(123.5, 198.0, 68.0 * 2, 202.0 * 2 - 68.0 * 2,
-                        123.5 + 2.0, 198.0 + 5.0, (68.0 + 1.5) * 2, (202.0 + 6.0) * 2 - (68.0 + 1.5) * 2),
+                    .ofOhms(123.5, 198.0, 68.0, 202.0,
+                        123.5 + 2.0, 198.0 + 5.0, 68.0 + 1.5, 202.0 + 6.0),
 
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21).system4(7.0)
-                    .ofOhms(123.5, 198.0, 68.0 * 2, 202.0 * 2 - 68.0 * 2,
-                        123.5 - 0.3, 198.0 - 0.75, (68.0 - 0.2) * 2, (202.0 - 1.0) * 2 - (68.0 - 0.2) * 2),
+                    .ofOhms(123.5, 198.0, 68.0, 202.0,
+                        123.5 - 0.3, 198.0 - 0.75, 68.0 - 0.2, 202.0 - 1.0),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 2).system4(7.0)
-                    .ofOhms(123.5, 198.0, 68.0 * 2, 202.0 * 2 - 68.0 * 2,
-                        123.5 - 0.7, 198.0 - 1.5, (68.0 - 0.375) * 2, (202.0 - 2.0) * 2 - (68.0 - 0.375) * 2),
+                    .ofOhms(123.5, 198.0, 68.0, 202.0,
+                        123.5 - 0.7, 198.0 - 1.5, 68.0 - 0.375, 202.0 - 2.0),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 4).system4(7.0)
-                    .ofOhms(123.5, 198.0, 68.0 * 2, 202.0 * 2 - 68.0 * 2,
-                        123.5 - 1.25, 198.0 - 3.0, (68.0 - 0.75) * 2, (202.0 - 3.5) * 2 - (68.0 - 0.75) * 2)
+                    .ofOhms(123.5, 198.0, 68.0, 202.0,
+                        123.5 - 1.25, 198.0 - 3.0, 68.0 - 0.75, 202.0 - 3.5)
             )
         )
     );
-  }
-
-  @ParameterizedTest
-  @MethodSource("e7694_2")
-  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.test")
-  void test(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
-    IntStream.range(1, ms.size())
-        .mapToObj(value ->
-            StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(CombinatoricsUtils.combinationsIterator(ms.size(), value), Spliterator.ORDERED),
-                false)
-        )
-        .flatMap(Function.identity())
-        .map(ints -> IntStream.of(ints).mapToObj(ms::get).collect(Collectors.toList()))
-        .forEach(Inverse2Test::calcNoChanged);
   }
 
   static void calcNoChanged(Collection<Collection<DerivativeMeasurement>> ms) {
@@ -182,5 +210,20 @@ class Inverse2Test {
     var rho2 = mediumList.stream().map(MediumLayers::rho2).reduce(ValuePair::mergeWith).orElseThrow();
     var h = mediumList.stream().map(MediumLayers::h1).reduce(ValuePair::mergeWith).orElseThrow();
     Logger.getAnonymousLogger().info(() -> "%.6f; %s; %s; %s".formatted(kwOptimal.getValue(), rho1, rho2, h));
+  }
+
+  @ParameterizedTest
+  @MethodSource("e7694_2system4")
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.test")
+  void test(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
+    IntStream.range(1, ms.size())
+        .mapToObj(value ->
+            StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(CombinatoricsUtils.combinationsIterator(ms.size(), value), Spliterator.ORDERED),
+                false)
+        )
+        .flatMap(Function.identity())
+        .map(ints -> IntStream.of(ints).mapToObj(ms::get).collect(Collectors.toList()))
+        .forEach(Inverse2Test::calcNoChanged);
   }
 }

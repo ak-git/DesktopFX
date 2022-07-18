@@ -10,6 +10,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.rsm.prediction.TetrapolarPrediction;
 import com.ak.rsm.relative.RelativeMediumLayers;
+import com.ak.rsm.resistance.Resistance;
+import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
@@ -157,7 +159,17 @@ class TetrapolarMeasurementTest {
             new double[] {1.0, 1.0}
         ),
         arguments(
-            TetrapolarMeasurement.milli(0.1).system4(10.0).ofOhms(15.915, 23.873, 21.220, 25.465),
+            TetrapolarMeasurement.milli(0.1).system4(10.0).ofOhms(
+                TetrapolarResistance.milli().system4(10.0).rho1(1.0).rho2(1.0).h(10.0)
+                    .stream().mapToDouble(Resistance::ohms).toArray()
+            ),
+            "100003000001361000020 500003000001611000013 200004000001491000015 600004000001711000012",
+            new double[] {1.0, 1.0, 1.0, 1.0}
+        ),
+        arguments(
+            TetrapolarMeasurement.milli(0.1).system4(10.0).ofOhms(
+                Measurements.fixOhms(15.915, 23.873, 10.61, 23.3425)
+            ),
             "100003000001361000020 500003000001611000013 200004000001491000015 600004000001711000013",
             new double[] {1.0, 1.0, 1.0, 1.0}
         )
