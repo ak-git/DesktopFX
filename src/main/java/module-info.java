@@ -46,6 +46,8 @@ module com.ak.fx.desktop {
   exports com.ak.fx.desktop.suntech to spring.beans;
   exports com.ak.fx.desktop.purelogic to spring.beans;
 
+  exports com.ak.comm.bytes.suntech;
+  exports com.ak.comm.bytes.purelogic;
   exports com.ak.comm.bytes.nmis;
   exports com.ak.comm.bytes.rsce;
   exports com.ak.fx.desktop;
