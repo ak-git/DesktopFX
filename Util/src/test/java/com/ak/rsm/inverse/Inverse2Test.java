@@ -1,5 +1,6 @@
 package com.ak.rsm.inverse;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.DoubleSummaryStatistics;
 import java.util.List;
@@ -91,6 +92,17 @@ class Inverse2Test {
                     .ofOhms(fixOhms(
                         122.3, 199.0, 66.0, 202.0,
                         122.3 + 0.6, 199.0 + 2.0, 66.0 + 0.6, 202.0 + 1.75
+                    )),
+
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21).system4(7.0)
+                    .ofOhms(fixOhms(
+                        122.3, 199.0, 66.0, 202.0,
+                        122.3 - 0.1, 199.0 - 0.4, 66.0 - 0.75, 202.0 - 0.25
+                    )),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 2).system4(7.0)
+                    .ofOhms(fixOhms(
+                        122.3, 199.0, 66.0, 202.0,
+                        122.3 - 0.2, 199.0 - 0.75, 66.0 - 1.5, 202.0 - 0.5
                     )),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 4).system4(7.0)
                     .ofOhms(fixOhms(
@@ -278,14 +290,18 @@ class Inverse2Test {
   @MethodSource("e7694_2system4")
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.test")
   void test(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
-    IntStream.range(1, ms.size())
+    IntStream.rangeClosed(1, ms.size())
         .mapToObj(value ->
             StreamSupport.stream(
                 Spliterators.spliteratorUnknownSize(CombinatoricsUtils.combinationsIterator(ms.size(), value), Spliterator.ORDERED),
                 false)
         )
         .flatMap(Function.identity())
-        .map(ints -> IntStream.of(ints).mapToObj(ms::get).collect(Collectors.toList()))
+        .filter(ints -> ints.length == 1 || ints.length == 3)
+        .map(ints -> {
+          Logger.getLogger(getClass().getName()).info(() -> Arrays.toString(ints));
+          return IntStream.of(ints).mapToObj(ms::get).collect(Collectors.toList());
+        })
         .forEach(Inverse2Test::calcNoChanged);
   }
 }
