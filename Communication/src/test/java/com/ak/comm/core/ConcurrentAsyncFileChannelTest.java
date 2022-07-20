@@ -13,14 +13,16 @@ import java.util.logging.Logger;
 
 import com.ak.comm.logging.LogTestUtils;
 import com.ak.logging.LogBuilders;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-public class ConcurrentAsyncFileChannelTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class ConcurrentAsyncFileChannelTest {
   private static final Logger LOGGER = Logger.getLogger(ConcurrentAsyncFileChannel.class.getName());
 
   @Test
-  public void testWriteAndRead() {
+  void testWriteAndRead() {
     ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> {
       Path path = LogBuilders.TIME.build(ConcurrentAsyncFileChannelTest.class.getSimpleName()).getPath();
       return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
@@ -35,21 +37,21 @@ public class ConcurrentAsyncFileChannelTest {
       channel.write(byteBuffer);
       byteBuffer.clear();
       channel.read(byteBuffer, 0);
-      Assert.assertEquals(byteBuffer.array()[0], 1);
+      assertThat(byteBuffer.array()[0]).isEqualTo((byte) 1);
       byteBuffer.rewind();
     }
     channel.close();
   }
 
   @Test
-  public void testParallelWriteAndRead() throws InterruptedException, ExecutionException {
+  void testParallelWriteAndRead() throws InterruptedException, ExecutionException {
     ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> {
       Path path = LogBuilders.TIME.build(ConcurrentAsyncFileChannelTest.class.getSimpleName() + "Parallel").getPath();
       return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
     });
     ByteBuffer buffer = ByteBuffer.allocate(4);
     channel.read(buffer, 100);
-    Assert.assertEquals(buffer.position(), 0);
+    assertThat(buffer.position()).isZero();
     ExecutorService executorService = Executors.newFixedThreadPool(2);
     int INTS = 1024;
     Future<?> writeFuture = executorService.submit(() -> {
@@ -70,7 +72,7 @@ public class ConcurrentAsyncFileChannelTest {
         channel.read(byteBuffer, 0);
         byteBuffer.flip();
         for (int j = 0; byteBuffer.hasRemaining(); j++) {
-          Assert.assertEquals(byteBuffer.getInt(), j);
+          assertThat(byteBuffer.getInt()).isEqualTo(j);
         }
       }
     });
@@ -81,26 +83,28 @@ public class ConcurrentAsyncFileChannelTest {
   }
 
   @Test
-  public void testInvalidInitialize() {
-    Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
-      ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> {
+  void testInvalidInitialize() {
+    assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
+      try (ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> {
         throw new Exception(ConcurrentAsyncFileChannel.class.getSimpleName());
-      });
-      channel.write(ByteBuffer.allocate(1));
-      channel.read(ByteBuffer.allocate(1), 1);
+      })) {
+        channel.write(ByteBuffer.allocate(1));
+        channel.read(ByteBuffer.allocate(1), 1);
+      }
     }, logRecord -> {
-      Assert.assertTrue(logRecord.getMessage().contains(ConcurrentAsyncFileChannel.class.getSimpleName()));
-      Assert.assertEquals(logRecord.getThrown().getClass().getSimpleName(), Exception.class.getSimpleName());
+      assertThat(logRecord.getMessage()).contains(ConcurrentAsyncFileChannel.class.getSimpleName());
+      assertThat(logRecord.getThrown().getClass().getSimpleName()).isEqualTo(Exception.class.getSimpleName());
     }));
   }
 
   @Test
-  public void testNullInitialize() {
-    ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> null);
+  void testNullInitialize() {
     ByteBuffer buffer = ByteBuffer.allocate(1);
-    channel.write(buffer);
-    buffer.clear();
-    channel.read(buffer, 1);
-    Assert.assertEquals(buffer.position(), 0);
+    try (ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> null)) {
+      channel.write(buffer);
+      buffer.clear();
+      channel.read(buffer, 1);
+    }
+    assertThat(buffer.position()).isZero();
   }
 }

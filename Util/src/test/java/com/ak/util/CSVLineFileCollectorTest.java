@@ -19,32 +19,39 @@ import javax.annotation.Nonnull;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import static com.ak.util.CSVLineFileBuilderTest.ROW_DELIMITER;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-public class CSVLineFileCollectorTest {
+class CSVLineFileCollectorTest {
   private static final Logger LOGGER = Logger.getLogger(CSVLineFileCollector.class.getName());
   private static final Path OUT_PATH = Paths.get(Extension.CSV.attachTo(CSVLineFileCollectorTest.class.getName()));
   private final AtomicInteger exceptionCounter = new AtomicInteger();
 
-  @BeforeClass
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     LOGGER.setFilter(record -> {
-      Assert.assertNotNull(record.getThrown());
+      assertNotNull(record.getThrown());
       exceptionCounter.incrementAndGet();
       return false;
     });
     LOGGER.setLevel(Level.WARNING);
   }
 
-  @AfterClass
-  public void tearDown() throws IOException {
+  @AfterEach
+  void tearDown() throws IOException {
     try {
       Files.deleteIfExists(OUT_PATH);
     }
@@ -54,50 +61,49 @@ public class CSVLineFileCollectorTest {
     }
   }
 
-  @BeforeMethod
+  @BeforeEach
   public void prepare() {
     exceptionCounter.set(0);
   }
 
-  @DataProvider(name = "stream")
-  public static Object[][] intStream() {
-    return new Object[][] {
-        {(Supplier<Stream<String>>) () -> IntStream.rangeClosed(-1, 1).mapToObj("%d"::formatted)}
-    };
+  static Stream<Arguments> intStream() {
+    return Stream.of(arguments((Supplier<Stream<String>>) () -> IntStream.rangeClosed(-1, 1).mapToObj("%d"::formatted)));
   }
 
-  @Test(dataProvider = "stream")
-  public void testConsumer(@Nonnull Supplier<Stream<String>> stream) throws IOException {
+  @ParameterizedTest
+  @MethodSource("intStream")
+  void testConsumer(@Nonnull Supplier<Stream<String>> stream) throws IOException {
     try (CSVLineFileCollector collector = new CSVLineFileCollector(OUT_PATH)) {
       collector.accept(stream.get().toArray(String[]::new));
     }
-    Assert.assertEquals(Files.readString(OUT_PATH, Charset.forName("windows-1251")).trim(),
-        stream.get().collect(Collectors.joining(ROW_DELIMITER)));
-    Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
+    assertThat(Files.readString(OUT_PATH, Charset.forName("windows-1251")).trim())
+        .isEqualTo(stream.get().collect(Collectors.joining(ROW_DELIMITER)));
+    assertThat(exceptionCounter.get()).withFailMessage("Exception must NOT be thrown").isZero();
   }
 
-  @Test(dataProvider = "stream")
-  public void testVertical(@Nonnull Supplier<Stream<String>> stream) throws IOException {
-    Assert.assertTrue(stream.get().map(s -> new Object[] {s}).collect(new CSVLineFileCollector(OUT_PATH, "header")));
-    Assert.assertEquals(String.join(Strings.EMPTY, Files.readAllLines(OUT_PATH, Charset.forName("windows-1251"))),
-        Stream.concat(Stream.of("header"), stream.get()).collect(Collectors.joining()));
-    Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
+  @ParameterizedTest
+  @MethodSource("intStream")
+  void testVertical(@Nonnull Supplier<Stream<String>> stream) throws IOException {
+    assertTrue(stream.get().map(s -> new Object[] {s}).collect(new CSVLineFileCollector(OUT_PATH, "header")));
+    assertThat(String.join(Strings.EMPTY, Files.readAllLines(OUT_PATH, Charset.forName("windows-1251"))))
+        .isEqualTo(Stream.concat(Stream.of("header"), stream.get()).collect(Collectors.joining()));
+    assertThat(exceptionCounter.get()).withFailMessage("Exception must NOT be thrown").isZero();
   }
 
-  @Test(dataProvider = "stream")
-  public void testInvalidClose(@Nonnull Supplier<Stream<String>> stream) throws Throwable {
+  @ParameterizedTest
+  @MethodSource("intStream")
+  void testInvalidClose(@Nonnull Supplier<Stream<String>> stream) throws Throwable {
     CSVLineFileCollector collector = new CSVLineFileCollector(OUT_PATH);
     collector.close();
-    Assert.assertTrue(stream.get().map(s -> new Object[] {s}).collect(collector));
-    Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown");
+    assertTrue(stream.get().map(s -> new Object[] {s}).collect(collector));
+    assertThat(exceptionCounter.get()).withFailMessage("Exception must be thrown").isEqualTo(1);
     collector.close();
-    Assert.assertEquals(exceptionCounter.get(), 1, "Exception must be thrown only once");
+    assertThat(exceptionCounter.get()).withFailMessage("Exception must be thrown only once").isEqualTo(1);
   }
 
-  @DataProvider(name = "invalid-writer")
-  public static Object[][] writer() throws IOException {
-    return new Object[][] {
-        {
+  static Stream<Arguments> invalidWriter() throws IOException {
+    return Stream.of(
+        arguments(
             new CSVPrinter(
                 new BufferedWriter(
                     new Writer() {
@@ -115,35 +121,42 @@ public class CSVLineFileCollectorTest {
                     }),
                 CSVFormat.DEFAULT
             )
-        }
-    };
+        ));
   }
 
-  @Test(dataProvider = "invalid-writer")
-  public void testInvalidFinisher(@Nonnull CSVPrinter printer) {
+  @ParameterizedTest
+  @MethodSource("invalidWriter")
+  void testInvalidFinisher(@Nonnull CSVPrinter printer) {
     try (CSVLineFileCollector collector = new CSVLineFileCollector(OUT_PATH)) {
       collector.accumulator().accept(printer, new Object[] {Double.toString(Math.PI)});
-      Assert.assertEquals(exceptionCounter.get(), 0, "Exception must NOT be thrown");
+      assertThat(exceptionCounter.get()).withFailMessage("Exception must NOT be thrown").isZero();
       collector.finisher().apply(printer);
     }
     catch (IOException | IllegalArgumentException e) {
-      Assert.assertTrue(e.getMessage().contains("CSVPrinter"));
+      assertTrue(e.getMessage().contains("CSVPrinter"));
     }
   }
 
   @Test
-  public void testCombiner() throws IOException {
+  void testCombiner() throws IOException {
     try (CSVLineFileCollector lineFileCollector = new CSVLineFileCollector(OUT_PATH)) {
-      lineFileCollector.combiner().apply(null, null);
-      Assert.fail();
+      try (CSVPrinter apply = lineFileCollector.combiner().apply(null, null)) {
+        fail(apply.toString());
+      }
     }
     catch (UnsupportedOperationException e) {
-      Assert.assertNull(e.getMessage());
+      assertNull(e.getMessage());
     }
   }
 
-  @Test(expectedExceptions = NullPointerException.class)
-  public void testInvalidPath() {
-    new CSVLineFileCollector(Paths.get("/"));
+  @Test
+  void testInvalidPath() {
+    Path out = Paths.get("/");
+    assertThatNullPointerException()
+        .isThrownBy(() -> {
+          try (var ignored = new CSVLineFileCollector(out)) {
+            fail();
+          }
+        });
   }
 }

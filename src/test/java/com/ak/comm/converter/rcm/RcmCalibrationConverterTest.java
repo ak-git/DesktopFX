@@ -2,57 +2,72 @@ package com.ak.comm.converter.rcm;
 
 import java.nio.ByteOrder;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.DependentVariable;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.Variable;
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import static com.ak.comm.converter.rcm.RcmCalibrationVariable.AVG_RHEO_ADC;
-import static com.ak.comm.converter.rcm.RcmCalibrationVariable.BASE_ADC;
-import static com.ak.comm.converter.rcm.RcmCalibrationVariable.CC_ADC;
-import static com.ak.comm.converter.rcm.RcmCalibrationVariable.MIN_RHEO_ADC;
-import static com.ak.comm.converter.rcm.RcmCalibrationVariable.RHEO_ADC;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-public class RcmCalibrationConverterTest {
-  @DataProvider(name = "calibrable-variables")
-  public static Object[][] calibrableVariables() {
-    return new Object[][] {
-        {
+class RcmCalibrationConverterTest {
+  static Stream<Arguments> calibrableVariables() {
+    return Stream.of(
+        arguments(
             new byte[] {-10, -36, -125, -72, -5, -60, -125, -124, -111, -94, -7, -98, -127, -128, -5, -78, -127, -10, -127, -128},
             new int[] {0, 92, -274, -274, 0}
-        },
-    };
+        )
+    );
   }
 
-  @Test(dataProvider = "calibrable-variables")
-  public void testApplyCalibrator(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
+  @ParameterizedTest
+  @MethodSource("calibrableVariables")
+  @ParametersAreNonnullByDefault
+  void testApplyCalibrator(byte[] inputBytes, int[] outputInts) {
     Converter<BufferFrame, RcmCalibrationVariable> converter = LinkedConverter.of(new RcmConverter(), RcmCalibrationVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 800 - 1; i++) {
       long count = converter.apply(bufferFrame).count();
-      Assert.assertTrue(count == 0 || count == 1, "index %d, count %d".formatted(i, count));
+      assertThat(count).withFailMessage("index %d, count %d".formatted(i, count)).isBetween(0L, 1L);
     }
-    Assert.assertEquals(converter.apply(bufferFrame).peek(ints -> {
-      Assert.assertEquals(ints, outputInts, "expected = %s, actual = %s".formatted(Arrays.toString(outputInts), Arrays.toString(ints)));
+    assertThat(converter.apply(bufferFrame).peek(ints -> {
+      assertThat(ints)
+          .withFailMessage(() -> "expected = %s, actual = %s".formatted(Arrays.toString(outputInts), Arrays.toString(ints)))
+          .containsExactly(outputInts);
       processed.set(true);
-    }).count(), 1);
-    Assert.assertTrue(processed.get(), "Data are not converted!");
-    Assert.assertEquals(converter.getFrequency(), 200, 0.1);
+    }).count()).isEqualTo(1);
+    assertTrue(processed.get(), "Data are not converted!");
+    assertThat(converter.getFrequency()).isEqualTo(200.0);
   }
 
-  @Test
-  public void testVariables() {
-    EnumSet.allOf(RcmCalibrationVariable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), RcmInVariable.class));
-    EnumSet.of(CC_ADC, BASE_ADC, RHEO_ADC).forEach(v -> Assert.assertTrue(v.options().contains(Variable.Option.VISIBLE), v.options().toString()));
-    EnumSet.of(MIN_RHEO_ADC, AVG_RHEO_ADC).forEach(v -> Assert.assertTrue(v.options().contains(Variable.Option.TEXT_VALUE_BANNER), v.options().toString()));
+  @ParameterizedTest
+  @EnumSource(value = RcmCalibrationVariable.class)
+  void testInputVariablesClass(@Nonnull DependentVariable<RcmInVariable, RcmCalibrationVariable> variable) {
+    assertThat(variable.getInputVariablesClass()).isEqualTo(RcmInVariable.class);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = RcmCalibrationVariable.class, names = {"CC_ADC", "BASE_ADC", "RHEO_ADC"})
+  void testOptions(@Nonnull Variable<RcmCalibrationVariable> variable) {
+    assertThat(variable.options()).contains(Variable.Option.VISIBLE);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = RcmCalibrationVariable.class, names = {"MIN_RHEO_ADC", "AVG_RHEO_ADC"})
+  void testOptions2(@Nonnull Variable<RcmCalibrationVariable> variable) {
+    assertThat(variable.options()).contains(Variable.Option.TEXT_VALUE_BANNER);
   }
 }

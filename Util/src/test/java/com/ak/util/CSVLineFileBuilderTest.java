@@ -13,15 +13,17 @@ import java.util.stream.DoubleStream;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-public class CSVLineFileBuilderTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class CSVLineFileBuilderTest {
   public static final String LINE_JOINER = Strings.NEW_LINE;
   public static final String ROW_DELIMITER = ",";
 
   @Test
-  public void testGenerateRange() throws IOException {
+  void testGenerateRange() throws IOException {
     CSVLineFileBuilder.of((x, y) -> x + y * 10)
         .xRange(1.0, 3.0, 1.0)
         .yRange(1.0, 2.0, 1.0)
@@ -37,7 +39,7 @@ public class CSVLineFileBuilderTest {
   }
 
   @Test
-  public void testGenerateLogRange() throws IOException {
+  void testGenerateLogRange() throws IOException {
     DoubleUnaryOperator round = x -> BigDecimal.valueOf(x).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
     CSVLineFileBuilder.of(Double::sum)
         .xLogRange(10.0, 20.0)
@@ -63,7 +65,7 @@ public class CSVLineFileBuilderTest {
   }
 
   @Test
-  public void testGenerateStream() throws IOException {
+  void testGenerateStream() throws IOException {
     CSVLineFileBuilder.of((x, y) -> x + y * 2.0)
         .xStream(() -> DoubleStream.of(1.0, 2.0))
         .yStream(() -> DoubleStream.of(1.0, 2.0, 0.0))
@@ -82,7 +84,7 @@ public class CSVLineFileBuilderTest {
   @ParametersAreNonnullByDefault
   private static void checkFilesExists(String fileName, String expected) throws IOException {
     Path z = Paths.get(Extension.CSV.attachTo(fileName));
-    Assert.assertEquals(String.join(LINE_JOINER, Files.readAllLines(z, Charset.forName("windows-1251"))), expected);
-    Assert.assertTrue(Files.deleteIfExists(z));
+    assertThat(String.join(LINE_JOINER, Files.readAllLines(z, Charset.forName("windows-1251")))).isEqualTo(expected);
+    assertTrue(Files.deleteIfExists(z));
   }
 }

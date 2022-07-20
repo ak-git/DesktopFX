@@ -7,61 +7,50 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.stream.Stream;
 
 import com.ak.comm.converter.TwoVariables;
 import com.ak.logging.LogBuilders;
-import org.testng.annotations.DataProvider;
+import org.junit.jupiter.params.provider.Arguments;
+
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 public class FileDataProvider {
   private FileDataProvider() {
   }
 
-  @DataProvider(name = "parallelRampFiles", parallel = true)
-  public static Object[][] parallelRampFiles() throws IOException {
-    return new Object[][] {
-        {createFile(11)},
-        {createFile(11)},
-        {createFile(2)},
-        {createFile(3)},
-    };
+  public static Stream<Path> parallelRampFiles() throws IOException {
+    return Stream.of(createFile(11), createFile(11), createFile(2), createFile(3));
   }
 
-  @DataProvider(name = "rampFile")
-  public static Object[][] rampFile() throws IOException {
-    return new Object[][] {
-        {createFile(16), 4096, true},
-        {createFile(16), 16371, false},
-        {createFile(16), 0, false},
-        {createFile(4), 4086, false},
-    };
+  public static Stream<Arguments> rampFile() throws IOException {
+    return Stream.of(
+        arguments(createFile(16), 4096, true),
+        arguments(createFile(16), 16371, false),
+        arguments(createFile(16), 0, false),
+        arguments(createFile(4), 4086, false)
+    );
   }
 
-  @DataProvider(name = "rampFiles")
-  public static Object[][] rampFiles() throws IOException {
-    return new Object[][] {
-        {createFile(-1), -1},
-        {createFile(0), 0},
-        {createFile(14), 14328},
-        {createFile(14), 0}
-    };
+  public static Stream<Arguments> rampFiles() throws IOException {
+    return Stream.of(
+        arguments(createFile(-1), -1),
+        arguments(createFile(0), 0),
+        arguments(createFile(14), 14328),
+        arguments(createFile(14), 0)
+    );
   }
 
-  @DataProvider(name = "rampFiles2")
-  public static Object[][] rampFiles2() throws IOException {
-    return new Object[][] {
-        {createFile(111)},
-        {createFile(21)},
-        {createFile(31)},
-    };
+  public static Stream<Path> rampFiles2() throws IOException {
+    return Stream.of(createFile(111), createFile(21), createFile(31));
   }
 
-  @DataProvider(name = "filesCanDelete")
-  public static Object[][] filesCanDelete() throws IOException {
-    return new Object[][] {
-        {createFile(-1), -1},
-        {createFile(0), 0},
-        {createFile(10), 10233}
-    };
+  public static Stream<Arguments> filesCanDelete() throws IOException {
+    return Stream.of(
+        arguments(createFile(-1), -1),
+        arguments(createFile(0), 0),
+        arguments(createFile(10), 10233)
+    );
   }
 
   private static Path createFile(int kBytes) throws IOException {

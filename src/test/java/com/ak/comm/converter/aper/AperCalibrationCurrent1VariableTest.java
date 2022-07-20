@@ -1,42 +1,48 @@
 package com.ak.comm.converter.aper;
 
 import java.nio.ByteOrder;
-import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.DependentVariable;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.Variable;
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.AbstractUnit;
 
-public class AperCalibrationCurrent1VariableTest {
-  @DataProvider(name = "variables")
-  public static Object[][] variables() {
-    return new Object[][] {
-        {new byte[] {1,
-            (byte) 0x9a, (byte) 0x88, 0x01, 0,
-            2, 0, 0, 0,
-            (byte) 0xf1, 0x05, 0, 0,
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-            (byte) 0xff, (byte) 0xff, (byte) 0xff, 0,
-            5, 0, 0, 0,
-            (byte) 0xd0, 0x07, 0, 0},
+class AperCalibrationCurrent1VariableTest {
+  static Stream<Arguments> variables() {
+    return Stream.of(
+        arguments(new byte[] {1,
+                (byte) 0x9a, (byte) 0x88, 0x01, 0,
+                2, 0, 0, 0,
+                (byte) 0xf1, 0x05, 0, 0,
 
-            new int[] {790, 52223, 8717572, 100506, 16777215}
-        },
-    };
+                (byte) 0xff, (byte) 0xff, (byte) 0xff, 0,
+                5, 0, 0, 0,
+                (byte) 0xd0, 0x07, 0, 0},
+
+            new int[] {790, 52223, 8717572, 100506, 16777215})
+    );
   }
 
-  @Test(dataProvider = "variables")
-  public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
+  @ParameterizedTest
+  @MethodSource("variables")
+  @ParametersAreNonnullByDefault
+  void testApply(byte[] inputBytes, int[] outputInts) {
     Converter<BufferFrame, AperCalibrationCurrent1Variable> converter = LinkedConverter.of(
         new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperCalibrationCurrent1Variable.class);
     AtomicBoolean processed = new AtomicBoolean();
@@ -44,26 +50,35 @@ public class AperCalibrationCurrent1VariableTest {
     for (int i = 0; i < 3000 - 1; i++) {
       long count = converter.apply(bufferFrame).peek(ints -> {
         if (!processed.get()) {
-          Assert.assertEquals(ints, outputInts, "expected = %s, actual = %s".formatted(Arrays.toString(outputInts), Arrays.toString(ints)));
+          assertThat(ints).containsExactly(outputInts);
           processed.set(true);
         }
       }).count();
       if (processed.get()) {
-        Assert.assertEquals(count, 10);
+        assertThat(count).isEqualTo(10);
         break;
       }
     }
-    Assert.assertTrue(processed.get(), "Data are not converted!");
-    Assert.assertEquals(converter.getFrequency(), 1000, 0.1);
+    assertTrue(processed.get(), "Data are not converted!");
+    assertThat(converter.getFrequency()).isEqualTo(1000.0);
   }
 
-  @Test
-  public void testVariableProperties() {
-    EnumSet.allOf(AperCalibrationCurrent1Variable.class).forEach(t -> Assert.assertEquals(t.getUnit(), AbstractUnit.ONE));
-    EnumSet.allOf(AperCalibrationCurrent1Variable.class).forEach(variable -> Assert.assertEquals(variable.getInputVariablesClass(), AperStage1Variable.class));
-    EnumSet.complementOf(EnumSet.of(AperCalibrationCurrent1Variable.PU_1, AperCalibrationCurrent1Variable.PU_2)).forEach(variable -> Assert.assertEquals(variable.options(),
-        EnumSet.of(Variable.Option.TEXT_VALUE_BANNER), variable.name()));
-    EnumSet.of(AperCalibrationCurrent1Variable.PU_1, AperCalibrationCurrent1Variable.PU_2).forEach(variable -> Assert.assertEquals(variable.options(),
-        EnumSet.of(Variable.Option.VISIBLE), variable.name()));
+  @ParameterizedTest
+  @EnumSource(value = AperCalibrationCurrent1Variable.class)
+  void testVariableProperties(@Nonnull DependentVariable<AperStage1Variable, AperCalibrationCurrent1Variable> variable) {
+    assertThat(variable.getUnit()).isEqualTo(AbstractUnit.ONE);
+    assertThat(variable.getInputVariablesClass()).isEqualTo(AperStage1Variable.class);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = AperCalibrationCurrent1Variable.class, mode = EnumSource.Mode.EXCLUDE, names = {"PU_1", "PU_2"})
+  void testOptionsNotPU(@Nonnull Variable<AperCalibrationCurrent1Variable> variable) {
+    assertThat(variable.options()).containsExactly(Variable.Option.TEXT_VALUE_BANNER);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = AperCalibrationCurrent1Variable.class, mode = EnumSource.Mode.INCLUDE, names = {"PU_1", "PU_2"})
+  void testOptionsPU(@Nonnull Variable<AperCalibrationCurrent1Variable> variable) {
+    assertThat(variable.options()).containsExactly(Variable.Option.VISIBLE);
   }
 }

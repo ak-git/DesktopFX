@@ -1,59 +1,66 @@
 package com.ak.rsm.system;
 
+import java.util.stream.Stream;
+
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.util.Metrics;
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static tec.uom.se.unit.Units.METRE;
 
-public class TetrapolarSystemTest {
-  @DataProvider(name = "tetrapolar-systems")
-  public static Object[][] tetrapolarSystems() {
+class TetrapolarSystemTest {
+  static Stream<Arguments> tetrapolarSystems() {
     TetrapolarSystem ts1 = new TetrapolarSystem(2.0, 1.0);
     TetrapolarSystem ts2 = new TetrapolarSystem(1.0, 2.0);
     TetrapolarSystem ts3 = new TetrapolarSystem(1.0, 3.0);
-    return new Object[][] {
-        {ts1, ts1, true},
-        {ts1, ts2, true},
-        {ts1, ts3, false},
-        {ts1, new Object(), false},
-        {new Object(), ts1, false},
-    };
+    return Stream.of(
+        arguments(ts1, ts1, true),
+        arguments(ts1, ts2, true),
+        arguments(ts1, ts3, false),
+        arguments(ts1, new Object(), false),
+        arguments(new Object(), ts1, false)
+    );
   }
 
-  @Test(dataProvider = "tetrapolar-systems")
+  @ParameterizedTest
+  @MethodSource("tetrapolarSystems")
   @ParametersAreNonnullByDefault
-  public void testEquals(Object system1, Object system2, boolean equals) {
-    Assert.assertEquals(system1.equals(system2), equals, "%s compared with %s".formatted(system1, system2));
-    Assert.assertEquals(system1.hashCode() == system2.hashCode(), equals, "%s compared with %s".formatted(system1, system2));
-    Assert.assertNotEquals(system1, null);
+  void testEquals(Object system1, Object system2, boolean equals) {
+    assertThat(system1.equals(system2))
+        .withFailMessage("%s compared with %s", system1, system2).isEqualTo(equals);
+    assertThat(system1.hashCode() == system2.hashCode())
+        .withFailMessage("%s compared with %s", system1, system2).isEqualTo(equals);
+    assertThat(system1).isNotEqualTo(null);
   }
 
   @Test
-  public void testL() {
-    Assert.assertEquals(new TetrapolarSystem(2.0, 1.0).lCC(), 1.0);
-    Assert.assertEquals(new TetrapolarSystem(1.0, 2.0).lCC(), 2.0);
+  void testL() {
+    assertThat(new TetrapolarSystem(2.0, 1.0).lCC()).isEqualTo(1.0);
+    assertThat(new TetrapolarSystem(1.0, 2.0).lCC()).isEqualTo(2.0);
   }
 
   @Test
-  public void testDim() {
-    Assert.assertEquals(new TetrapolarSystem(2.0, 1.0).getDim(), 2.0);
-    Assert.assertEquals(new TetrapolarSystem(1.0, 2.0).getDim(), 2.0);
+  void testDim() {
+    assertThat(new TetrapolarSystem(2.0, 1.0).getDim()).isEqualTo(2.0);
+    assertThat(new TetrapolarSystem(1.0, 2.0).getDim()).isEqualTo(2.0);
   }
 
   @Test
-  public void testToRelative() {
-    Assert.assertEquals(new TetrapolarSystem(2.0, 1.0).relativeSystem(), new RelativeTetrapolarSystem(2.0));
-    Assert.assertEquals(new TetrapolarSystem(1.0, 2.0).relativeSystem(), new RelativeTetrapolarSystem(0.5));
+  void testToRelative() {
+    assertThat(new TetrapolarSystem(2.0, 1.0).relativeSystem()).isEqualTo(new RelativeTetrapolarSystem(2.0));
+    assertThat(new TetrapolarSystem(1.0, 2.0).relativeSystem()).isEqualTo(new RelativeTetrapolarSystem(0.5));
   }
 
   @Test
-  public void testToString() {
+  void testToString() {
     TetrapolarSystem ts = new TetrapolarSystem(Metrics.fromMilli(20.0), Metrics.fromMilli(15.0));
-    Assert.assertEquals(ts.toString(), "%2.3f x %2.3f %s".formatted(20.0, 15.0, MetricPrefix.MILLI(METRE)));
+    assertThat(ts).hasToString("%2.3f x %2.3f %s".formatted(20.0, 15.0, MetricPrefix.MILLI(METRE)));
   }
 }

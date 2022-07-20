@@ -1,79 +1,85 @@
 package com.ak.comm.converter;
 
 import java.nio.ByteOrder;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.IntsAcceptor;
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.AbstractUnit;
 
-public class LinkedConverterTest {
-  @DataProvider(name = "variables")
-  public static Object[][] variables() {
-    return new Object[][] {
-        {new BufferFrame(new byte[] {1, 2, 0, 0, 0, 3, 0, 0, 0}, ByteOrder.LITTLE_ENDIAN),
-            new int[] {2 + 3, 2 - 3, 0}},
-    };
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
+class LinkedConverterTest {
+  static Stream<Arguments> variables() {
+    return Stream.of(
+        arguments(
+            new BufferFrame(new byte[] {1, 2, 0, 0, 0, 3, 0, 0, 0}, ByteOrder.LITTLE_ENDIAN),
+            new int[] {2 + 3, 2 - 3, 0}
+        )
+    );
   }
 
-  @DataProvider(name = "variables2")
-  public static Object[][] variables2() {
-    return new Object[][] {
-        {new BufferFrame(new byte[] {1, 2, 0, 0, 0, 3, 0, 0, 0}, ByteOrder.LITTLE_ENDIAN),
-            new int[] {(2 + 3) * (2 - 3)}},
-    };
+  public static Stream<Arguments> variables2() {
+    return Stream.of(
+        arguments(
+            new BufferFrame(new byte[] {1, 2, 0, 0, 0, 3, 0, 0, 0}, ByteOrder.LITTLE_ENDIAN),
+            new int[] {(2 + 3) * (2 - 3)}
+        )
+    );
   }
 
-  @Test(dataProvider = "variables")
-  public void testApply(BufferFrame frame, int[] output) {
+  @ParameterizedTest
+  @MethodSource("variables")
+  @ParametersAreNonnullByDefault
+  void testApply(BufferFrame frame, int[] output) {
     Converter<BufferFrame, TwoVariables> converter = new ToIntegerConverter<>(TwoVariables.class, 200);
     LinkedConverter<BufferFrame, TwoVariables, OperatorVariables> linkedConverter = LinkedConverter.of(converter, OperatorVariables.class);
-    Assert.assertEquals(linkedConverter.variables(), Stream.of(OperatorVariables.values()).toList());
-    Assert.assertEquals(linkedConverter.apply(frame).peek(ints -> Assert.assertEquals(ints, output,
-        "Actual %s, Expected %s".formatted(Arrays.toString(ints), Arrays.toString(output)))).count(), 1);
+    assertThat(linkedConverter.variables()).containsExactly(OperatorVariables.values());
+    assertThat(linkedConverter.apply(frame)).containsExactly(output).hasSize(1);
   }
 
-  @Test(dataProvider = "variables2")
-  public void testApply2(BufferFrame frame, int[] output) {
+  @ParameterizedTest
+  @MethodSource("variables2")
+  @ParametersAreNonnullByDefault
+  void testApply2(BufferFrame frame, int[] output) {
     Function<BufferFrame, Stream<int[]>> linkedConverter =
         LinkedConverter.of(new ToIntegerConverter<>(TwoVariables.class, 1000), OperatorVariables.class)
             .chainInstance(OperatorVariables2.class);
-
-    Assert.assertEquals(linkedConverter.apply(frame).peek(ints -> Assert.assertEquals(ints, output,
-        "Actual %s, Expected %s".formatted(Arrays.toString(ints), Arrays.toString(output)))).count(), 1);
+    assertThat(linkedConverter.apply(frame)).containsExactly(output).hasSize(1);
   }
 
-  @DataProvider(name = "refresh-variables")
-  public static Object[][] variables3() {
-    return new Object[][] {
-        {new BufferFrame(new byte[] {1, 0, 0, 0, 10}, ByteOrder.BIG_ENDIAN)},
-    };
+  @ParameterizedTest
+  @EnumSource(value = RefreshVariable.class)
+  void testRecursive(@Nonnull Variable<RefreshVariable> variable) {
+    assertThat(variable.getUnit()).isEqualTo(AbstractUnit.ONE);
+    assertThat(variable.options()).containsSequence(Variable.Option.defaultOptions());
   }
 
-  @Test
-  public void testRecursive() {
-    Assert.assertEquals(RefreshVariable.OUT.getUnit(), AbstractUnit.ONE);
-    Assert.assertEquals(RefreshVariable.OUT.options(), Variable.Option.defaultOptions());
+  static Stream<BufferFrame> refreshVariables() {
+    return Stream.of(new BufferFrame(new byte[] {1, 0, 0, 0, 10}, ByteOrder.BIG_ENDIAN));
   }
 
-  @Test(dataProvider = "refresh-variables")
-  public void testRefresh(BufferFrame frame) {
+  @ParameterizedTest
+  @MethodSource("refreshVariables")
+  void testRefresh(@Nonnull BufferFrame frame) {
     LinkedConverter<BufferFrame, RefreshVariable, RefreshVariable> linkedConverter =
         LinkedConverter.of(new ToIntegerConverter<>(RefreshVariable.class, 1), RefreshVariable.class)
             .chainInstance(RefreshVariable.class);
 
     linkedConverter.refresh(false);
-    Assert.assertEquals(linkedConverter.apply(frame).count(), 0);
+    assertThat(linkedConverter.apply(frame)).isEmpty();
   }
 
   public enum RefreshVariable implements DependentVariable<RefreshVariable, RefreshVariable> {
@@ -111,8 +117,8 @@ public class LinkedConverterTest {
 
         @Override
         public void accept(@Nonnull int... values) {
-          Assert.assertEquals(values, new int[] {10});
-          Assert.assertEquals(refreshCount, 1);
+          assertThat(values).containsExactly(10);
+          assertThat(refreshCount).isEqualTo(1);
         }
       };
     }

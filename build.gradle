@@ -9,9 +9,9 @@ plugins {
     id "application"
     id 'org.openjfx.javafxplugin' version '0.0.13'
 
-    id 'org.springframework.boot' version '2.7.0'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id "com.github.spotbugs" version '5.0.8'
+    id 'org.springframework.boot' version '2.7.1'
+    id 'io.spring.dependency-management' version '1.0.12.RELEASE'
+    id "com.github.spotbugs" version '5.0.9'
 }
 
 spotbugs {
@@ -42,7 +42,8 @@ jacoco {
 }
 
 ext {
-    testNG = 'org.testng:testng:7.6.0'
+    junit = 'org.junit:junit-bom:5.8.2'
+    assertj = 'org.assertj:assertj-core:3.23.1'
     jsr305 = 'com.google.code.findbugs:jsr305:3.0.2'
     javax_inject = 'javax.inject:javax.inject:1'
     uom_se = 'tec.uom:uom-se:1.0.10'
@@ -56,13 +57,13 @@ ext {
 
 wrapper {
     description 'Setup the Gradle wrapper'
-    gradleVersion = "7.4.2"
+    gradleVersion = "7.5"
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '2022.06.22'
+    version = '2022.07.17'
     apply plugin: 'idea'
     idea {
         module {
@@ -98,12 +99,17 @@ allprojects {
 
     dependencies {
         implementation jsr305
-        implementation testNG
+        testImplementation(platform(junit))
+        testImplementation('org.junit.jupiter:junit-jupiter')
+        testImplementation(assertj)
     }
 
     test {
+        useJUnitPlatform()
+        testLogging {
+            events "started", "passed", "skipped", "failed"
+        }
         forkEvery = 5
-        useTestNG()
         maxHeapSize = '1G'
     }
 }

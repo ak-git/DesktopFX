@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -19,18 +21,25 @@ import com.ak.logging.OutputBuilders;
 import com.ak.util.Clean;
 import com.ak.util.Extension;
 import com.ak.util.Strings;
-import org.testng.Assert;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
 
 import static java.util.logging.Level.WARNING;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
-public class ConverterTest {
-  @Nonnull
-  private final Path path;
+class ConverterTest {
+  private static Path PATH;
 
-  public ConverterTest() throws IOException {
-    path = OutputBuilders.NONE.build(Strings.EMPTY).getPath();
+  static {
+    try {
+      PATH = OutputBuilders.NONE.build(Strings.EMPTY).getPath();
+    }
+    catch (IOException e) {
+      fail(e.getMessage(), e);
+    }
   }
 
   private static final Converter<Integer, TwoVariables> INVALID_CONVERTER =
@@ -50,42 +59,42 @@ public class ConverterTest {
       };
   private static final Logger LOGGER_VALID = Logger.getLogger(VALID_CONVERTER_0.getClass().getName());
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testInvalidApply() {
-    Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER_INVALID, WARNING,
-        () -> Assert.assertEquals(INVALID_CONVERTER.apply(1).count(), 1),
-        logRecord -> Assert.assertEquals(logRecord.getMessage(), "Invalid variables: [V1, V2] not match [1]")));
+  @Test
+  void testInvalidApply() {
+    Runnable runnable = () -> assertThat(INVALID_CONVERTER.apply(1)).hasSize(1);
+    Consumer<LogRecord> consumer = logRecord -> assertThat(logRecord.getMessage()).isEqualTo("Invalid variables: [V1, V2] not match [1]");
+    assertThatIllegalArgumentException().isThrownBy(
+        () -> LogTestUtils.isSubstituteLogLevel(LOGGER_INVALID, WARNING, runnable, consumer)
+    );
   }
 
   @Test
-  public void testValidApply() {
-    Assert.assertFalse(LogTestUtils.isSubstituteLogLevel(LOGGER_VALID, WARNING,
-        () -> Assert.assertEquals(VALID_CONVERTER_0.apply(1).count(), 0),
-        logRecord -> Assert.fail(logRecord.getMessage())));
+  void testValidApply() {
+    assertFalse(LogTestUtils.isSubstituteLogLevel(LOGGER_VALID, WARNING,
+        () -> assertThat(VALID_CONVERTER_0.apply(1)).isEmpty(),
+        logRecord -> fail(logRecord.getMessage())));
   }
 
   @Test
-  public void testFrequencies() {
-    Assert.assertEquals(INVALID_CONVERTER.getFrequency(), 200, 0.1);
-    Assert.assertEquals(VALID_CONVERTER_0.getFrequency(), 1000, 0.1);
+  void testFrequencies() {
+    assertThat(INVALID_CONVERTER.getFrequency()).isEqualTo(200);
+    assertThat(VALID_CONVERTER_0.getFrequency()).isEqualTo(1000);
   }
 
-  @AfterSuite
-  public void cleanUp() {
-    Clean.clean(path);
+  @AfterAll
+  static void cleanUp() {
+    Clean.clean(PATH);
   }
 
   @Test
-  public void testFileConvert() throws IOException {
-    Path tempFile = Files.createTempFile(path, Strings.EMPTY, Extension.BIN.attachTo(getClass().getSimpleName()));
+  void testFileConvert() throws IOException {
+    Path tempFile = Files.createTempFile(PATH, Strings.EMPTY, Extension.BIN.attachTo(getClass().getSimpleName()));
     Files.write(tempFile, new byte[] {51, 102, 102, 53, '\r', '\n'});
     BytesInterceptor<BufferFrame, String> interceptor = new StringBytesInterceptor(getClass().getSimpleName());
     Converter<String, ADCVariable> converter = new StringToIntegerConverter<>(ADCVariable.class, 1);
     Converter.doConvert(interceptor, converter, tempFile);
     Path out = Paths.get(Extension.CSV.attachTo(Extension.BIN.clean(tempFile.toAbsolutePath().toString())));
     List<String> result = Files.readAllLines(out, StandardCharsets.UTF_8);
-    Assert.assertEquals(result.size(), 2);
-    Assert.assertEquals(result.get(0), "TIME,ADC");
-    Assert.assertEquals(result.get(1), "0.0,16373.0");
+    assertThat(result).hasSize(2).containsExactly("TIME,ADC", "0.0,16373.0");
   }
 }

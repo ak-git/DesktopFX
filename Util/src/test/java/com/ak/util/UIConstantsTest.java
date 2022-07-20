@@ -1,12 +1,13 @@
 package com.ak.util;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-public class UIConstantsTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class UIConstantsTest {
   @Test
-  public void testValues() {
-    Assert.assertEquals(UIConstants.values().length, 0);
-    Assert.assertEquals(UIConstants.UI_DELAY.getSeconds(), 3);
+  void testValues() {
+    assertThat(UIConstants.values()).isEmpty();
+    assertThat(UIConstants.UI_DELAY.getSeconds()).isEqualTo(3);
   }
 }

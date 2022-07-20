@@ -1,29 +1,39 @@
 package com.ak.comm.converter;
 
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.measure.Unit;
 
 import com.ak.comm.logging.LogTestUtils;
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.AbstractUnit;
 import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public class VariableTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
+class VariableTest {
   private static final Logger LOGGER = Logger.getLogger(Variables.class.getName());
 
   @Test
-  public void testGetUnit() {
+  void testGetUnit() {
     Variable<ADCVariable> variable = new Variable<>() {
       @Override
       public String name() {
@@ -40,17 +50,17 @@ public class VariableTest {
         return ADCVariable.class;
       }
     };
-    Assert.assertEquals(variable.getUnit(), AbstractUnit.ONE);
-    Assert.assertEquals(variable.options(), Collections.singleton(Variable.Option.VISIBLE), variable.name());
+    assertThat(variable.getUnit()).isEqualTo(AbstractUnit.ONE);
+    assertThat(variable.options()).containsExactly(Variable.Option.VISIBLE);
   }
 
   @Test
-  public void testGetDependentUnit() {
-    Assert.assertEquals(OperatorVariables2.OUT.getUnit(), AbstractUnit.ONE);
+  void testGetDependentUnit() {
+    assertThat(OperatorVariables2.OUT.getUnit()).isEqualTo(AbstractUnit.ONE);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*No enum constant.*InvalidName")
-  public void testInvalidGetVariables() {
+  @Test
+  void testInvalidGetVariables() {
     DependentVariable<OperatorVariables, ADCVariable> variable = new DependentVariable<>() {
       @Nonnull
       @Override
@@ -75,77 +85,85 @@ public class VariableTest {
       }
     };
 
-    variable.getInputVariables();
+    assertThatIllegalArgumentException().isThrownBy(variable::getInputVariables)
+        .withMessageMatching(".*No enum constant.*InvalidName");
   }
 
   @Test
-  public void testVisibleProperty() {
-    Assert.assertTrue(SingleVariables.E1.options().contains(Variable.Option.VISIBLE));
-    Assert.assertTrue(OperatorVariables.OUT_PLUS.options().contains(Variable.Option.VISIBLE));
-    Assert.assertEquals(OperatorVariables.OUT_PLUS.indexBy(Variable.Option.VISIBLE), 0);
-    Assert.assertFalse(OperatorVariables.OUT_MINUS.options().contains(Variable.Option.VISIBLE));
-    Assert.assertEquals(OperatorVariables.OUT_MINUS.indexBy(Variable.Option.VISIBLE), -1);
-    Assert.assertTrue(OperatorVariables.OUT_DIV.options().contains(Variable.Option.VISIBLE));
-    Assert.assertEquals(OperatorVariables.OUT_DIV.indexBy(Variable.Option.VISIBLE), 1);
+  void testVisibleProperty() {
+    assertThat(SingleVariables.E1.options()).contains(Variable.Option.VISIBLE);
+    assertThat(OperatorVariables.OUT_PLUS.options()).contains(Variable.Option.VISIBLE);
+    assertThat(OperatorVariables.OUT_PLUS.indexBy(Variable.Option.VISIBLE)).isZero();
+    assertThat(OperatorVariables.OUT_MINUS.options()).isEmpty();
+    assertThat(OperatorVariables.OUT_MINUS.indexBy(Variable.Option.VISIBLE)).isNegative();
+    assertThat(OperatorVariables.OUT_DIV.options()).contains(Variable.Option.VISIBLE);
+    assertThat(OperatorVariables.OUT_DIV.indexBy(Variable.Option.VISIBLE)).isEqualTo(1);
+  }
 
-    EnumSet.allOf(OperatorVariables2.class).forEach(v ->
-        Assert.assertEquals(v.options(), EnumSet.of(Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER), v.name()));
+  @ParameterizedTest
+  @EnumSource(value = OperatorVariables2.class)
+  void testOperatorVariables2(@Nonnull Variable<OperatorVariables2> variable) {
+    assertThat(variable.options()).containsExactly(Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER);
   }
 
   @Test
-  public void testToString() {
+  void testToString() {
     String adc = Variables.toString(ADCVariable.ADC, 10000);
-    Assert.assertTrue(adc.startsWith("ADC = "), adc);
-    Assert.assertTrue(adc.endsWith(String.format(Locale.getDefault(), "%,d one", 10000)), adc);
-    Assert.assertTrue(Variables.toString(Quantities.getQuantity(1, AbstractUnit.ONE)).startsWith("1 "));
+    assertThat(adc).startsWith("ADC = ").endsWith(String.format(Locale.getDefault(), "%,d one", 10000));
+    assertThat(Variables.toString(Quantities.getQuantity(1, AbstractUnit.ONE))).startsWith("1 ");
 
-    Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
-        () -> Assert.assertEquals(Variables.toString(ADCVariable.ADC), ADCVariable.ADC.name()),
+    assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
+        () -> assertThat(Variables.toString(ADCVariable.ADC)).isEqualTo(ADCVariable.ADC.name()),
         logRecord -> {
-          Assert.assertTrue(logRecord.getMessage().contains(ADCVariable.ADC.name()));
-          Assert.assertNull(logRecord.getThrown());
-        }));
+          assertThat(logRecord.getMessage()).contains(ADCVariable.ADC.name());
+          assertNull(logRecord.getThrown());
+        })
+    );
 
-    Assert.assertFalse(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
-        () -> Assert.assertEquals(Variables.toString(TwoVariables.V1), "Variable Name 1"),
-        logRecord -> Assert.fail(logRecord.getMessage())));
+    assertFalse(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
+        () -> assertThat(Variables.toString(TwoVariables.V1)).isEqualTo("Variable Name 1"),
+        logRecord -> fail(logRecord.getMessage()))
+    );
 
-    Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
-        () -> Assert.assertEquals(Variables.toString(TwoVariables.V2), TwoVariables.V2.name()), logRecord -> {
-          Assert.assertTrue(logRecord.getMessage().contains(TwoVariables.V2.name()));
-          Assert.assertNull(logRecord.getThrown());
-        }));
+    assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
+        () -> assertThat(Variables.toString(TwoVariables.V2)).isEqualTo(TwoVariables.V2.name()),
+        logRecord -> {
+          assertThat(logRecord.getMessage()).contains(TwoVariables.V2.name());
+          assertNull(logRecord.getThrown());
+        })
+    );
   }
 
-  @DataProvider(name = "formatValues")
-  public static Object[][] formatValues() {
-    return new Object[][] {
-        {1234, MetricPrefix.CENTI(Units.HERTZ), 1, "%,.2f Hz".formatted(12.34)},
-        {-1234, MetricPrefix.CENTI(Units.HERTZ), 10, "%,.1f Hz".formatted(-12.3)},
-        {1234, MetricPrefix.CENTI(Units.HERTZ), 100, "%.0f Hz".formatted(12.0)},
-        {-1234, Units.HERTZ, 1, "%,.3f kHz".formatted(-1.234)},
-        {1234, Units.HERTZ, 10, "%,.2f kHz".formatted(1.23)},
-        {-1234, Units.HERTZ, 100, "%,.1f kHz".formatted(-1.2)},
-        {1234, Units.HERTZ, 1000, "%.0f kHz".formatted(1.0)},
-        {-123, Units.HERTZ, 1, "%.0f Hz".formatted(-123.0)},
-        {-3140, Units.VOLT, 1, "%,.2f kV".formatted(-3.14)},
-        {3100, Units.VOLT, 1, "%,.1f kV".formatted(3.1)},
-        {-3000, Units.VOLT, 1, "%.0f kV".formatted(-3.0)},
-        {0, Units.VOLT, 1, "%.0f V".formatted(0.0)},
-        {0, Units.VOLT, 1000, "%.0f kV".formatted(0.0)},
-        {1, Units.OHM.multiply(Units.METRE), 10, "%.0f Ω·m".formatted(1.0)},
-        {41235, MetricPrefix.MILLI(Units.OHM).multiply(MetricPrefix.DECI(Units.METRE)), 10, "%,.0f mΩ·m".formatted(4123.5)}
-    };
+  static Stream<Arguments> formatValues() {
+    return Stream.of(
+        arguments(1234, MetricPrefix.CENTI(Units.HERTZ), 1, "%,.2f Hz".formatted(12.34)),
+        arguments(-1234, MetricPrefix.CENTI(Units.HERTZ), 10, "%,.1f Hz".formatted(-12.3)),
+        arguments(1234, MetricPrefix.CENTI(Units.HERTZ), 100, "%.0f Hz".formatted(12.0)),
+        arguments(-1234, Units.HERTZ, 1, "%,.3f kHz".formatted(-1.234)),
+        arguments(1234, Units.HERTZ, 10, "%,.2f kHz".formatted(1.23)),
+        arguments(-1234, Units.HERTZ, 100, "%,.1f kHz".formatted(-1.2)),
+        arguments(1234, Units.HERTZ, 1000, "%.0f kHz".formatted(1.0)),
+        arguments(-123, Units.HERTZ, 1, "%.0f Hz".formatted(-123.0)),
+        arguments(-3140, Units.VOLT, 1, "%,.2f kV".formatted(-3.14)),
+        arguments(3100, Units.VOLT, 1, "%,.1f kV".formatted(3.1)),
+        arguments(-3000, Units.VOLT, 1, "%.0f kV".formatted(-3.0)),
+        arguments(0, Units.VOLT, 1, "%.0f V".formatted(0.0)),
+        arguments(0, Units.VOLT, 1000, "%.0f kV".formatted(0.0)),
+        arguments(1, Units.OHM.multiply(Units.METRE), 10, "%.0f Ω·m".formatted(1.0)),
+        arguments(41235, MetricPrefix.MILLI(Units.OHM).multiply(MetricPrefix.DECI(Units.METRE)), 10, "%,.0f mΩ·m".formatted(4123.5))
+    );
   }
 
-  @Test(dataProvider = "formatValues")
-  public void testFormatValues(int value, @Nonnull Unit<?> unit, @Nonnegative int scaleFactor10, @Nonnull String expected) {
-    Assert.assertEquals(Variables.toString(value, unit, scaleFactor10), expected);
+  @ParameterizedTest
+  @MethodSource("formatValues")
+  void testFormatValues(int value, @Nonnull Unit<?> unit, @Nonnegative int scaleFactor10, @Nonnull String expected) {
+    assertThat(Variables.toString(value, unit, scaleFactor10)).isEqualTo(expected);
   }
 
   @Test
-  public void testTimeVariable() {
-    Assert.assertEquals(TimeVariable.values().length, 1, EnumSet.allOf(TimeVariable.class).toString());
-    EnumSet.allOf(TimeVariable.class).forEach(t -> Assert.assertEquals(t.getUnit(), Units.SECOND, t.name()));
+  void testTimeVariable() {
+    assertThat(TimeVariable.values()).hasSize(1);
+    assertThat(EnumSet.allOf(TimeVariable.class)).isNotEmpty()
+        .allSatisfy(timeVariable -> assertThat(timeVariable.getUnit()).isEqualTo(Units.SECOND));
   }
 }

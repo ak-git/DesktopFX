@@ -1,25 +1,26 @@
 package com.ak.comm.converter;
 
-import java.util.Arrays;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public class SelectableConverterTest {
-  @DataProvider(name = "variables")
-  public static Object[][] variables() {
-    return new Object[][] {
-        {new int[] {1, 2}, new int[] {1 + 2, 1 - 2}},
-    };
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class SelectableConverterTest {
+  static Stream<Arguments> variables() {
+    return Stream.of(Arguments.arguments(new int[] {6, 2}, new int[] {6 + 2, 6 - 2, 6 / 2}));
   }
 
-  @Test(dataProvider = "variables")
-  public void testApply(int[] input, int[] output) {
+  @ParameterizedTest
+  @MethodSource("variables")
+  @ParametersAreNonnullByDefault
+  void testApply(int[] input, int[] output) {
     Function<Stream<int[]>, Stream<int[]>> converter = new SelectableConverter<>(OperatorVariables.class, 1000);
-    Assert.assertEquals(converter.apply(Stream.of(input)).peek(ints -> Assert.assertEquals(ints, output,
-        "Actual %s, Expected %s".formatted(Arrays.toString(ints), Arrays.toString(output)))).count(), 1);
+    assertThat(converter.apply(Stream.of(input))).containsExactly(output).hasSize(1);
   }
 }

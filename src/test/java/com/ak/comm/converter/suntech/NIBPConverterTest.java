@@ -1,11 +1,10 @@
 package com.ak.comm.converter.suntech;
 
 import java.nio.ByteBuffer;
-import java.util.Collections;
-import java.util.EnumSet;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.comm.bytes.suntech.NIBPResponse;
@@ -13,18 +12,22 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.comm.log.LogTestUtils;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import tec.uom.se.AbstractUnit;
 import tec.uom.se.unit.Units;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class NIBPConverterTest {
+class NIBPConverterTest {
   private static final Logger LOGGER = Logger.getLogger(NIBPConverter.class.getName());
 
   @Test
-  public void testDataResponse() {
+  void testDataResponse() {
     testConverter(
         // Module response for a cuff pressure of 258mmHg:
         new byte[] {
@@ -63,46 +66,56 @@ public class NIBPConverterTest {
   }
 
   @Test
-  public void testInvalidFrame() {
+  void testInvalidFrame() {
     byte[] input = {
         0x3E, // MODULE START BYTE = the ">" character (0x3E)
         0x00, // INVALID
         0x02, 0x01, // 258 mm Hg
         (byte) 0xBA // 0x100 - modulo 256 (Start byte + Packet byte + Data bytes)
     };
-    Assert.assertNull(new NIBPResponse.Builder(ByteBuffer.wrap(input)).build());
+    assertNull(new NIBPResponse.Builder(ByteBuffer.wrap(input)).build());
   }
 
   @ParametersAreNonnullByDefault
   private static void testConverter(byte[] input, int[] expected) {
     NIBPResponse frame = new NIBPResponse.Builder(ByteBuffer.wrap(input)).build();
-    Assert.assertNotNull(frame);
-    Assert.assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES, () -> {
-      Converter<NIBPResponse, NIBPVariable> converter = new NIBPConverter();
-      Stream<int[]> stream = converter.apply(frame);
-      if (expected.length == 0) {
-        Assert.assertEquals(stream.count(), 0);
-      }
-      else {
-        stream.forEach(ints -> Assert.assertEquals(ints, expected));
-      }
-    }, logRecord -> {
-      for (int v : expected) {
-        Assert.assertTrue(logRecord.getMessage().contains(Integer.toString(v)));
-      }
-      for (NIBPVariable v : NIBPVariable.values()) {
-        Assert.assertTrue(logRecord.getMessage().contains(Variables.toString(v)), logRecord.getMessage());
-      }
-    }), expected.length > 0);
+    assertNotNull(frame);
+    assertThat(
+        LogTestUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES, () -> {
+          Converter<NIBPResponse, NIBPVariable> converter = new NIBPConverter();
+          Stream<int[]> stream = converter.apply(frame);
+          if (expected.length == 0) {
+            assertThat(stream.count()).isZero();
+          }
+          else {
+            assertThat(stream).isNotEmpty().allSatisfy(ints -> assertThat(ints).containsExactly(expected));
+          }
+        }, logRecord -> {
+          for (int v : expected) {
+            assertThat(logRecord.getMessage()).contains(Integer.toString(v));
+          }
+          for (NIBPVariable v : NIBPVariable.values()) {
+            assertThat(logRecord.getMessage()).contains(Variables.toString(v));
+          }
+        }))
+        .isEqualTo(expected.length > 0);
+  }
+
+  @ParameterizedTest
+  @EnumSource(mode = EnumSource.Mode.EXCLUDE, value = NIBPVariable.class, names = "IS_COMPLETED")
+  void testTexValueBanner(@Nonnull Variable<NIBPVariable> variable) {
+    assertThat(variable.options()).contains(Variable.Option.TEXT_VALUE_BANNER);
+  }
+
+  @ParameterizedTest
+  @EnumSource(mode = EnumSource.Mode.EXCLUDE, value = NIBPVariable.class, names = "PULSE")
+  void testGetUnit(@Nonnull Variable<NIBPVariable> variable) {
+    assertThat(variable.getUnit()).isEqualTo(NIBPVariable.PRESSURE.getUnit());
   }
 
   @Test
-  public void testVariableProperties() {
-    EnumSet.complementOf(EnumSet.of(NIBPVariable.IS_COMPLETED))
-        .forEach(variable -> Assert.assertTrue(variable.options().contains(Variable.Option.TEXT_VALUE_BANNER)));
-    EnumSet.complementOf(EnumSet.of(NIBPVariable.PULSE))
-        .forEach(variable -> Assert.assertEquals(variable.getUnit(), NIBPVariable.PRESSURE.getUnit()));
-    Assert.assertEquals(NIBPVariable.PULSE.getUnit(), AbstractUnit.ONE.divide(Units.MINUTE));
-    Assert.assertEquals(NIBPVariable.IS_COMPLETED.options(), Collections.emptySet());
+  void testVariableProperties() {
+    assertThat(NIBPVariable.PULSE.getUnit()).isEqualTo(AbstractUnit.ONE.divide(Units.MINUTE));
+    assertThat(NIBPVariable.IS_COMPLETED.options()).isEmpty();
   }
 }

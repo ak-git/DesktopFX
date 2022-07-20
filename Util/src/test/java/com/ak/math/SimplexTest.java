@@ -6,10 +6,13 @@ import com.ak.inverse.Inequality;
 import com.ak.math.Simplex.Bounds;
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-public class SimplexTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.byLessThan;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class SimplexTest {
   private static class Rosen implements MultivariateFunction {
 
     @Override
@@ -23,27 +26,27 @@ public class SimplexTest {
   }
 
   @Test
-  public void testOptimizeWithInitialGuessAndBounds() {
+  void testOptimizeWithInitialGuessAndBounds() {
     PointValuePair valuePair = Simplex.optimizeAll(new Rosen(),
         new Bounds(10.0, 20.0, 30.0), new Bounds(10.0, 20.0, 30.0));
-    Assert.assertTrue(
+    assertTrue(
         Arrays.stream(valuePair.getPoint()).anyMatch(value -> Inequality.absolute().applyAsDouble(value, 10.0) < 0.1),
         Arrays.toString(valuePair.getPoint())
     );
   }
 
   @Test
-  public void testOptimizeWithBounds() {
+  void testOptimizeWithBounds() {
     PointValuePair valuePair = Simplex.optimizeAll(new Rosen(),
         new Bounds(-10.0, 10.0), new Bounds(-10.0, 10.0));
-    Assert.assertEquals(valuePair.getPoint(), new double[] {1.0, 1.0}, 0.1);
+    assertThat(valuePair.getPoint()).containsExactly(new double[] {1.0, 1.0}, byLessThan(0.1));
   }
 
   @Test
-  public void testInvalid() {
+  void testInvalid() {
     PointValuePair valuePair = Simplex.CMAES.optimize(new Rosen(),
         new Bounds(-10.0, 0.0, 10.0), new Bounds(-10.0, 0.0, 10.0), new Bounds(-10.0, 0.0));
-    Assert.assertEquals(valuePair.getPoint(), new double[] {Double.NaN, Double.NaN, Double.NaN}, 0.1, Arrays.toString(valuePair.getPoint()));
-    Assert.assertEquals(valuePair.getValue(), Double.NaN, 0.1);
+    assertThat(valuePair.getPoint()).as(Arrays.toString(valuePair.getPoint())).containsOnly(Double.NaN);
+    assertThat(valuePair.getValue()).isNaN();
   }
 }

@@ -2,29 +2,33 @@ package com.ak.comm.bytes.purelogic;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class PureLogicFrameTest {
-  @DataProvider(name = "requests")
-  public static Object[][] requests() {
-    return new Object[][] {
-        {PureLogicFrame.StepCommand.MICRON_015.action(false), "STEP -00016\r\n"},
-        {PureLogicFrame.StepCommand.MICRON_015.action(true), "STEP +00016\r\n"},
-        {PureLogicFrame.StepCommand.MICRON_210.action(false), "STEP -00224\r\n"},
-        {PureLogicFrame.StepCommand.MICRON_420.action(true), "STEP +00448\r\n"},
-    };
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
+class PureLogicFrameTest {
+  static Stream<Arguments> requests() {
+    return Stream.of(
+        arguments(PureLogicFrame.StepCommand.MICRON_015.action(false), "STEP -00016\r\n"),
+        arguments(PureLogicFrame.StepCommand.MICRON_015.action(true), "STEP +00016\r\n"),
+        arguments(PureLogicFrame.StepCommand.MICRON_210.action(false), "STEP -00224\r\n"),
+        arguments(PureLogicFrame.StepCommand.MICRON_420.action(true), "STEP +00448\r\n")
+    );
   }
 
-  @Test(dataProvider = "requests")
-  public void testRequest(@Nonnull PureLogicFrame request, @Nonnull String expected) {
+  @ParameterizedTest
+  @MethodSource("requests")
+  void testRequest(@Nonnull PureLogicFrame request, @Nonnull String expected) {
     ByteBuffer buffer = ByteBuffer.allocate(expected.length());
     request.writeTo(buffer);
-    Assert.assertEquals(new String(buffer.array(), StandardCharsets.UTF_8), expected, request.toString());
-    Assert.assertTrue(request.toString().contains(expected.strip()), request.toString());
+    assertThat(new String(buffer.array(), StandardCharsets.UTF_8)).isEqualTo(expected);
+    assertThat(request.toString()).contains(expected.strip());
   }
 }

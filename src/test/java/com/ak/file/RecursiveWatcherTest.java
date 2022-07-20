@@ -13,26 +13,29 @@ import com.ak.logging.OutputBuilders;
 import com.ak.util.Clean;
 import com.ak.util.Extension;
 import com.ak.util.Strings;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
-public class RecursiveWatcherTest {
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+class RecursiveWatcherTest {
   @Nonnull
   private final Path path;
 
-  public RecursiveWatcherTest() throws IOException {
+  RecursiveWatcherTest() throws IOException {
     path = OutputBuilders.NONE.build(Strings.EMPTY).getPath();
   }
 
-  @AfterSuite
+  @AfterEach
   public void cleanUp() {
     Clean.clean(path);
   }
 
   @Test
-  public void test() throws IOException, InterruptedException {
-    Files.createTempFile(Files.createDirectories(path), Strings.EMPTY, Extension.TXT.attachTo(Strings.EMPTY));
+  void test() throws IOException, InterruptedException {
+    assertNotNull(Files.createTempFile(Files.createDirectories(path), Strings.EMPTY, Extension.TXT.attachTo(Strings.EMPTY)));
     Path subDir = Files.createTempDirectory(path, Strings.EMPTY);
+    assertNotNull(subDir, path::toString);
     CountDownLatch latch = new CountDownLatch(2);
     Closeable watcher = new RecursiveWatcher(path, p -> latch.countDown(), Extension.TXT);
     while (!latch.await(2, TimeUnit.SECONDS)) {
