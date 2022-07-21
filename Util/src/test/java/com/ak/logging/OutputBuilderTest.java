@@ -4,34 +4,42 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.stream.StreamSupport;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.ak.util.Clean;
 import com.ak.util.Extension;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OutputBuilderTest {
-  @Nonnull
-  private final Path outPath;
+  @Nullable
+  private static Path PATH;
 
-  OutputBuilderTest() throws IOException {
-    Path txt = new OutputBuilder(Extension.TXT).fileNameWithDateTime(OutputBuilderTest.class.getSimpleName()).build().getPath();
-    Files.createFile(txt);
-    outPath = txt.getParent();
+  static {
+    try {
+      Path txt = new OutputBuilder(Extension.TXT).fileNameWithDateTime(OutputBuilderTest.class.getSimpleName()).build().getPath();
+      Files.createFile(txt);
+      PATH = txt.getParent();
+    }
+    catch (IOException e) {
+      fail(e.getMessage(), e);
+    }
   }
 
-  @AfterEach
-  void setUp() {
-    Clean.clean(outPath);
+  @AfterAll
+  static void cleanUp() {
+    Clean.clean(Objects.requireNonNull(PATH));
   }
 
   @Test
   void testLocalFileHandler() throws IOException {
+    Path outPath = Objects.requireNonNull(PATH);
     try (DirectoryStream<Path> paths = Files.newDirectoryStream(outPath, "*.txt")) {
       assertTrue(StreamSupport.stream(paths.spliterator(), true).findAny().isPresent(), outPath::toString);
     }
