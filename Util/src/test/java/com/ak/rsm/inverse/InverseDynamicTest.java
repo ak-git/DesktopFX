@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.ObjDoubleConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -186,26 +187,6 @@ class InverseDynamicTest {
     );
   }
 
-  static Stream<Arguments> dynamicParameters2() {
-    return Stream.of(
-        arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1)
-                .dh(0.15).system2(7.0)
-                .ofOhms(113.341, 167.385, 113.341 + 0.091, 167.385 + 0.273),
-            new double[] {5.211, 1.584, Metrics.fromMilli(15.19)}
-        ),
-        arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(0.12).system2(8.0).ofOhms(93.4, 162.65, 93.5, 162.85),
-            new double[] {5.118, 4.235, Metrics.fromMilli(7.82)}
-        ),
-        arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1)
-                .dh(0.15).system2(7.0).ofOhms(136.5, 207.05, 136.65, 207.4),
-            new double[] {6.332, 4.180, Metrics.fromMilli(10.35)}
-        )
-    );
-  }
-
   static Stream<Arguments> waterDynamicParameters2() {
     double dh = -10.0 / 200.0;
     return Stream.of(
@@ -213,7 +194,7 @@ class InverseDynamicTest {
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(29.47, 65.68, 29.75, 66.35),
-            new double[] {0.694, Double.POSITIVE_INFINITY, Metrics.fromMilli(5.01)}
+            new double[] {0.701, Double.POSITIVE_INFINITY, Metrics.fromMilli(5.06)}
         ),
         // h = 10 mm, rho1 = 0.7, rho2 = Inf
         arguments(
@@ -243,7 +224,7 @@ class InverseDynamicTest {
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(11.482, 18.152, 11.484, 18.158),
-            new double[] {0.7, 1.5, Metrics.fromMilli(20.4)}
+            new double[] {0.704, 1.5, Metrics.fromMilli(20.4)}
         ),
         // h = 35 mm, rho1 = 0.7, rho2 = Inf
         arguments(
@@ -255,7 +236,7 @@ class InverseDynamicTest {
   }
 
   static Stream<Arguments> allDynamicParameters2() {
-    return Stream.concat(theoryDynamicParameters2(), dynamicParameters2());
+    return Stream.concat(theoryDynamicParameters2(), waterDynamicParameters2());
   }
 
   @ParameterizedTest
@@ -263,12 +244,21 @@ class InverseDynamicTest {
   @ParametersAreNonnullByDefault
   void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, double[] expected) {
     var medium = new DynamicAbsolute(measurements).get();
+
+    ObjDoubleConsumer<ValuePair> checker = (valuePair, expectedValue) -> {
+      if (Double.isNaN(expectedValue)) {
+        assertThat(valuePair.value()).isNaN();
+      }
+      else {
+        assertThat(valuePair.value() > 1000 ? Double.POSITIVE_INFINITY : valuePair.value())
+            .isCloseTo(expectedValue, byLessThan(valuePair.absError()));
+      }
+    };
     assertAll(medium.toString(),
-        () -> assertThat(medium.rho().value()).isCloseTo(expected[0], byLessThan(0.1)),
-        () -> assertThat(medium.rho1().value()).isCloseTo(expected[0], byLessThan(0.1)),
-        () -> assertThat(medium.rho2().value() > 1000 ? Double.POSITIVE_INFINITY : medium.rho2().value())
-            .isCloseTo(expected[1], byLessThan(0.1)),
-        () -> assertThat(Metrics.toMilli(medium.h1().value())).isCloseTo(Metrics.toMilli(expected[2]), byLessThan(0.1))
+        () -> checker.accept(medium.rho(), expected[0]),
+        () -> checker.accept(medium.rho1(), expected[0]),
+        () -> checker.accept(medium.rho2(), expected[1]),
+        () -> checker.accept(medium.h1(), expected[2])
     );
     LOGGER.info(medium::toString);
   }

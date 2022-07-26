@@ -5,32 +5,39 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.ak.util.Clean;
 import com.ak.util.Extension;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 class LocalFileHandlerTest {
-  @Nonnull
-  private final Path logPath;
+  @Nullable
+  private static Path PATH;
 
-  LocalFileHandlerTest() throws IOException {
-    logPath = new LogPathBuilder(Extension.NONE, LocalFileHandler.class).addPath("testSubDir").build().getPath().getParent();
+  static {
+    try {
+      PATH = new LogPathBuilder(Extension.NONE, LocalFileHandler.class).addPath("testSubDir").build().getPath().getParent();
+    }
+    catch (IOException e) {
+      fail(e.getMessage(), e);
+    }
   }
 
-  @BeforeEach
-  @AfterEach
-  public void setUp() {
-    Clean.clean(logPath);
+  @BeforeAll
+  @AfterAll
+  static void cleanUp() {
+    Clean.clean(Objects.requireNonNull(PATH));
   }
 
   @Test
@@ -40,6 +47,7 @@ class LocalFileHandlerTest {
     handler.publish(new LogRecord(Level.ALL, LocalFileHandler.class.getName()));
     handler.close();
 
+    Path logPath = Objects.requireNonNull(PATH);
     try (DirectoryStream<Path> ds = Files.newDirectoryStream(logPath, "*.log")) {
       int count = 0;
       for (Path file : ds) {
