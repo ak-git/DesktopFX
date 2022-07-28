@@ -79,7 +79,7 @@ class TetrapolarDerivativeMeasurementTest {
         ),
         arguments(
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(10.0, 20.0)
-                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
+                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50),
             "10 000   20 000      0 1       20          5 7   0 17              13 215          2 804         0 100",
             5.72,
             13.215,
@@ -150,22 +150,22 @@ class TetrapolarDerivativeMeasurementTest {
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.3).system2(8.0)
-                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
-            "8000240000126450111857546190300 4000024000014536200601564958370300",
+                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50),
+            "8000240000126450111895947150300 4000024000014536200601584359100300",
             new double[] {4.45, 3.62},
-            new double[] {18.575, 15.649}
+            new double[] {18.96, 15.84}
         ),
 
         arguments(
             TetrapolarDerivativeMeasurement.milli(-0.1).dh(0.01).withShiftError().system2(8.0)
-                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
+                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.01).p(500, 500),
             "7900241000127440111957801580010 3990024100014536600611618202040010",
             new double[] {4.42, 3.65},
             new double[] {19.578, 16.182}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.01).withShiftError().system2(8.0)
-                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
+                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.01).p(500, 500),
             "8100239000126450111934801650010 4010023900014635800591598001960010",
             new double[] {4.49, 3.58},
             new double[] {19.348, 15.980}
@@ -311,5 +311,18 @@ class TetrapolarDerivativeMeasurementTest {
     var dR = TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(dHmm).system(10.0, 30.0)
         .rho1(rho1).rho2(rho2).h(hmm);
     assertThat(dR.dOhms()).as("%s".formatted(dR)).isCloseTo(dRExpected, byLessThan(1.0e-8));
+  }
+
+  @Test
+  void testInvalid3Layer() {
+    var builder = TetrapolarDerivativeMeasurement.milli(0.1).dh(Double.NaN)
+        .system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.1);
+    assertThatIllegalArgumentException().isThrownBy(() -> builder.p(50, 50))
+        .withMessage("dh NULL is not supported in 3-layer model");
+
+    var builder2 = TetrapolarDerivativeMeasurement.milli(0.1).dh(0.01)
+        .system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.1);
+    assertThatIllegalArgumentException().isThrownBy(() -> builder2.p(50, 50))
+        .withMessageContaining("|dh| < hStep");
   }
 }
