@@ -51,12 +51,13 @@ class Inverse3Test {
     double rho2 = 1.0;
     double rho3 = 4.0;
     double hStep = 0.105;
+    double dH = hStep * 2.0;
     return Stream.of(
         arguments(
             List.of(
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 4)
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-dH * 4.0)
                     .system4(7.0).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(60, 100),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(hStep * 2)
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(dH)
                     .system4(7.0).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(60, 100)
             )
         )
@@ -89,13 +90,16 @@ class Inverse3Test {
     }
 
     Function<P, PointValuePair> cache = new ConcurrentCache<>(
-        p -> Simplex.optimizeAll(
-            kw -> dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(new double[] {kw[0], kw[1], p.p1, p.p2mp1}))
-                .reduce(StrictMath::hypot).orElseThrow(),
-            new Simplex.Bounds(-1.0, 1.0),
-            new Simplex.Bounds(-1.0, 1.0),
-            new Simplex.Bounds(Metrics.fromMilli(0.01), Metrics.fromMilli(0.3))
-        )
+        p -> {
+          Logger.getLogger(getClass().getName()).info(p::toString);
+          return Simplex.optimizeAll(
+              kw -> dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(new double[] {kw[0], kw[1], p.p1, p.p2mp1}))
+                  .reduce(StrictMath::hypot).orElseThrow(),
+              new Simplex.Bounds(-1.0, 1.0),
+              new Simplex.Bounds(-1.0, 1.0),
+              new Simplex.Bounds(Metrics.fromMilli(0.01), Metrics.fromMilli(0.3))
+          );
+        }
     );
 
     Phenotype<IntegerGene, Double> phenotype = Engine
