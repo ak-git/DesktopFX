@@ -23,7 +23,6 @@ import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.ConcurrentCache;
-import com.ak.util.Metrics;
 import io.jenetics.GaussianMutator;
 import io.jenetics.Genotype;
 import io.jenetics.IntegerGene;
@@ -96,8 +95,7 @@ class Inverse3Test {
               kw -> dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(new double[] {kw[0], kw[1], p.p1, p.p2mp1}))
                   .reduce(StrictMath::hypot).orElseThrow(),
               new Simplex.Bounds(-1.0, 1.0),
-              new Simplex.Bounds(-1.0, 1.0),
-              new Simplex.Bounds(Metrics.fromMilli(0.01), Metrics.fromMilli(0.3))
+              new Simplex.Bounds(-1.0, 1.0)
           );
         }
     );
