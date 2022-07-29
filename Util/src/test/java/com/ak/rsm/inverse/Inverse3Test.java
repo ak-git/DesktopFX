@@ -57,6 +57,8 @@ class Inverse3Test {
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(-dH * 4.0)
                     .system4(7.0).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(60, 100),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(dH)
+                    .system4(7.0).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(60, 100),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(dH * 2.0)
                     .system4(7.0).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(60, 100)
             )
         )
@@ -101,11 +103,7 @@ class Inverse3Test {
     );
 
     Phenotype<IntegerGene, Double> phenotype = Engine
-        .builder(p -> Simplex.optimizeAll(
-            kw -> cache.apply(new P(p)).getValue(),
-            new Simplex.Bounds(-1.0, 1.0),
-            new Simplex.Bounds(-1.0, 1.0)
-        ).getValue(), Codecs.ofVector(new IntRange[] {IntRange.of(pMin, 100), IntRange.of(1, 100)}))
+        .builder(p -> cache.apply(new P(p)).getValue(), Codecs.ofVector(new IntRange[] {IntRange.of(pMin, 100), IntRange.of(1, 100)}))
         .populationSize(1 << 3)
         .optimize(Optimize.MINIMUM)
         .alterers(new GaussianMutator<>(0.6), new Mutator<>(0.03), new MeanAlterer<>(0.6))
