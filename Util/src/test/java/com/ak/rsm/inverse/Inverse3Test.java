@@ -23,6 +23,7 @@ import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.ConcurrentCache;
+import com.ak.util.Metrics;
 import io.jenetics.GaussianMutator;
 import io.jenetics.Genotype;
 import io.jenetics.IntegerGene;
@@ -35,6 +36,7 @@ import io.jenetics.engine.Engine;
 import io.jenetics.engine.Limits;
 import io.jenetics.util.IntRange;
 import org.apache.commons.math3.optim.PointValuePair;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -54,12 +56,12 @@ class Inverse3Test {
     return Stream.of(
         arguments(
             List.of(
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-dH * 4.0)
-                    .system4(7.0).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(60, 100),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-dH * 3.0)
+                    .system4(7.0).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(60, 40),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(dH)
-                    .system4(7.0).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(60, 100),
+                    .system4(7.0).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(60, 40),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(dH * 2.0)
-                    .system4(7.0).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(60, 100)
+                    .system4(7.0).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(60, 40)
             )
         )
     );
@@ -74,62 +76,77 @@ class Inverse3Test {
       throw new IllegalStateException("L is not equal for all electrode systems %s".formatted(statisticsL));
     }
 
-    double hStep = ms.stream().flatMapToDouble(
+    double dhMin = ms.stream().flatMapToDouble(
         dm -> dm.stream().flatMapToDouble(m -> DoubleStream.of(Math.abs(m.dh())))
     ).min().orElseThrow();
 
-    int pMin = (int) (ms.stream().flatMapToDouble(
-        dm -> dm.stream().flatMapToDouble(m -> DoubleStream.of(Math.abs(m.dh())))
-    ).max().orElseThrow() / hStep) + 1;
+    double dhMax = ms.stream().flatMapToDouble(dm -> dm.stream().flatMapToDouble(m -> DoubleStream.of(m.dh())))
+        .filter(value -> value < 0.0).map(Math::abs).max().orElseThrow();
+    int p1Min = 1 + (int) (dhMax / dhMin);
+    int dividerMax = 20;
+    int p1 = (int) (dhMax / (dhMin / dividerMax));
+    Assertions.assertThat(p1Min).isLessThan(p1);
 
-    var dynamicInverses = ms.stream().map(dm -> DynamicInverse.of(dm, hStep)).toList();
+    IntStream.rangeClosed(1, dividerMax).map(x -> dividerMax - x + 1)
+        .filter(divider -> divider < 3)
+        .mapToDouble(d -> dhMin / d)
+        .filter(hStep -> hStep * p1 > statisticsL.getMax() / 10.0)
+        .forEach(hStep -> {
 
-    record P(int p1, int p2mp1) {
-      P(@Nonnull int[] p) {
-        this(p[0], p[1]);
-      }
-    }
+          record P(int p1, int p2mp1) {
+          }
 
-    Function<P, PointValuePair> cache = new ConcurrentCache<>(
-        p -> {
-          Logger.getLogger(getClass().getName()).info(p::toString);
-          return Simplex.optimizeAll(
-              kw -> dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(new double[] {kw[0], kw[1], p.p1, p.p2mp1}))
-                  .reduce(StrictMath::hypot).orElseThrow(),
-              new Simplex.Bounds(-1.0, 1.0),
-              new Simplex.Bounds(-1.0, 1.0)
+          Function<P, PointValuePair> cache = new ConcurrentCache<>(
+              p -> {
+                var v = Simplex.optimizeAll(
+                    kw -> ms.stream()
+                        .map(dm -> DynamicInverse.of(dm, hStep))
+                        .mapToDouble(value -> value.applyAsDouble(new double[] {kw[0], kw[1], p.p1, p.p2mp1}))
+                        .reduce(StrictMath::hypot).orElseThrow(),
+                    new Simplex.Bounds(-1.0, 1.0),
+                    new Simplex.Bounds(-1.0, 1.0)
+                );
+                Logger.getLogger(getClass().getName()).info(() -> "hStep = %.3f mm; %s; %s".formatted(Metrics.toMilli(hStep), p, v.getValue()));
+                return v;
+              }
           );
-        }
-    );
 
-    Phenotype<IntegerGene, Double> phenotype = Engine
-        .builder(p -> cache.apply(new P(p)).getValue(), Codecs.ofVector(new IntRange[] {IntRange.of(pMin, 100), IntRange.of(1, 100)}))
-        .populationSize(1 << 3)
-        .optimize(Optimize.MINIMUM)
-        .alterers(new GaussianMutator<>(0.6), new Mutator<>(0.03), new MeanAlterer<>(0.6))
-        .build().stream()
-        .limit(Limits.bySteadyFitness(3)).limit(100)
-        .peek(r -> Logger.getLogger(getClass().getName()).info(() -> r.bestPhenotype().toString()))
-        .collect(toBestPhenotype());
-    assertNotNull(phenotype);
+          int p2mp1Max = (int) (statisticsL.getMax() / hStep) - p1;
+          if (p2mp1Max > 1) {
+            Logger.getLogger(getClass().getName()).info(
+                () -> "hStep = %.3f mm; total = %.3f mm".formatted(Metrics.toMilli(hStep), Metrics.toMilli(hStep * p1))
+            );
 
-    Genotype<IntegerGene> best = phenotype.genotype();
+            Phenotype<IntegerGene, Double> phenotype = Engine
+                .builder(p2mp1 -> cache.apply(new P(p1, p2mp1[0])).getValue(), Codecs.ofVector(IntRange.of(1, p2mp1Max)))
+                .populationSize(1 << 3)
+                .optimize(Optimize.MINIMUM)
+                .alterers(new GaussianMutator<>(0.6), new Mutator<>(0.03), new MeanAlterer<>(0.6))
+                .build().stream()
+                .limit(Limits.bySteadyFitness(3)).limit(100)
+                .peek(r -> Logger.getLogger(getClass().getName()).info(() -> r.bestPhenotype().toString()))
+                .collect(toBestPhenotype());
+            assertNotNull(phenotype);
 
-    P optimal = new P(IntStream.range(0, best.length()).map(i -> best.get(i).get(0).intValue()).toArray());
-    Logger.getLogger(getClass().getName()).info(optimal::toString);
+            Genotype<IntegerGene> best = phenotype.genotype();
 
-    PointValuePair kwOptimal = cache.apply(optimal);
-    double[] kwpp = {kwOptimal.getPoint()[0], kwOptimal.getPoint()[1], optimal.p1, optimal.p2mp1};
-    var rho1 = ms.stream().map(dm -> getRho1(dm, kwpp, hStep)).reduce(ValuePair::mergeWith).orElseThrow();
-    var rho2 = ValuePair.Name.RHO_2.of(rho1.value() / Layers.getRho1ToRho2(kwpp[0]), 0.0);
-    var rho3 = ValuePair.Name.RHO_3.of(rho2.value() / Layers.getRho1ToRho2(kwpp[1]), 0.0);
-    Logger.getAnonymousLogger().info(
-        () -> "%.6f %s; %s; %s; %s; %s; %s; %s".formatted(
-            kwOptimal.getValue(), ValuePair.Name.K12.of(kwpp[0], 0.0), ValuePair.Name.K23.of(kwpp[1], 0.0),
-            ValuePair.Name.H.of(hStep, 0.0),
-            Arrays.stream(kwpp).skip(2).map(p -> p * hStep).mapToObj(h -> ValuePair.Name.H.of(h, 0.0)).toList(),
-            rho1, rho2, rho3)
-    );
+            P optimal = new P(p1, IntStream.range(0, best.length()).map(i -> best.get(i).get(0).intValue()).toArray()[0]);
+            Logger.getLogger(getClass().getName()).info(optimal::toString);
+
+            PointValuePair kwOptimal = cache.apply(optimal);
+            double[] kwpp = {kwOptimal.getPoint()[0], kwOptimal.getPoint()[1], optimal.p1, optimal.p2mp1};
+            var rho1 = ms.stream().map(dm -> getRho1(dm, kwpp, hStep)).reduce(ValuePair::mergeWith).orElseThrow();
+            var rho2 = ValuePair.Name.RHO_2.of(rho1.value() / Layers.getRho1ToRho2(kwpp[0]), 0.0);
+            var rho3 = ValuePair.Name.RHO_3.of(rho2.value() / Layers.getRho1ToRho2(kwpp[1]), 0.0);
+            Logger.getAnonymousLogger().info(
+                () -> "%.6f %s; %s; %s; %s; %s; %s; %s".formatted(
+                    kwOptimal.getValue(), ValuePair.Name.K12.of(kwpp[0], 0.0), ValuePair.Name.K23.of(kwpp[1], 0.0),
+                    ValuePair.Name.H.of(hStep, 0.0),
+                    Arrays.stream(kwpp).skip(2).map(p -> p * hStep).mapToObj(h -> ValuePair.Name.H.of(h, 0.0)).toList(),
+                    rho1, rho2, rho3)
+            );
+          }
+        });
   }
 
   @Nonnegative
