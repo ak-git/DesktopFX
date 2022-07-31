@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.DoubleSummaryStatistics;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.DoubleStream;
@@ -23,17 +24,16 @@ import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.ConcurrentCache;
-import com.ak.util.Metrics;
+import io.jenetics.Chromosome;
 import io.jenetics.GaussianMutator;
-import io.jenetics.Genotype;
 import io.jenetics.IntegerGene;
 import io.jenetics.MeanAlterer;
 import io.jenetics.Mutator;
 import io.jenetics.Optimize;
-import io.jenetics.Phenotype;
 import io.jenetics.engine.Codecs;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.Limits;
+import io.jenetics.util.BaseSeq;
 import io.jenetics.util.IntRange;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.junit.jupiter.api.Disabled;
@@ -41,7 +41,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
+import static com.ak.util.Metrics.toMilli;
+import static io.jenetics.engine.EvolutionResult.toBestGenotype;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -77,7 +78,7 @@ class Inverse3Test {
 
     double hStep = ms.stream().flatMapToDouble(
         dm -> dm.stream().flatMapToDouble(m -> DoubleStream.of(Math.abs(m.dh())))
-    ).min().orElseThrow();
+    ).min().orElseThrow() / 2;
 
     int pMin = (int) (ms.stream().flatMapToDouble(
         dm -> dm.stream().flatMapToDouble(m -> DoubleStream.of(Math.abs(m.dh())))
@@ -89,50 +90,54 @@ class Inverse3Test {
       P(@Nonnull int[] p) {
         this(p[0], p[1]);
       }
+
+      P(@Nonnull BaseSeq<Chromosome<IntegerGene>> genotype) {
+        this(IntStream.range(0, genotype.length()).map(i -> genotype.get(i).get(0).intValue()).toArray());
+      }
     }
 
     Function<P, PointValuePair> cache = new ConcurrentCache<>(
         p -> {
-          Logger.getLogger(getClass().getName()).info(
-              () -> "%s; hStep = %.3f; [%.3f; %.3f]"
-                  .formatted(p, Metrics.toMilli(hStep), Metrics.toMilli(hStep * p.p1), Metrics.toMilli(hStep * p.p2mp1)));
-          return Simplex.optimizeAll(
+          var v = Simplex.optimizeAll(
               kw -> dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(new double[] {kw[0], kw[1], p.p1, p.p2mp1}))
                   .reduce(StrictMath::hypot).orElseThrow(),
               new Simplex.Bounds(-1.0, 1.0),
               new Simplex.Bounds(-1.0, 1.0)
           );
+          Logger.getLogger(getClass().getName()).info(
+              () -> "%s; hStep = %.3f; [%.3f; %.3f] %s"
+                  .formatted(p, toMilli(hStep), toMilli(hStep * p.p1), toMilli(hStep * p.p2mp1), v.getValue()));
+          return v;
         }
     );
 
-    Phenotype<IntegerGene, Double> phenotype = Engine
+    Consumer<P> print = optimal -> {
+      PointValuePair kwOptimal = cache.apply(optimal);
+      double[] kwpp = {kwOptimal.getPoint()[0], kwOptimal.getPoint()[1], optimal.p1, optimal.p2mp1};
+
+      var rho1 = ms.stream().map(dm -> getRho1(dm, kwpp, hStep)).reduce(ValuePair::mergeWith).orElseThrow();
+      var rho2 = ValuePair.Name.RHO_2.of(rho1.value() / Layers.getRho1ToRho2(kwpp[0]), 0.0);
+      var rho3 = ValuePair.Name.RHO_3.of(rho2.value() / Layers.getRho1ToRho2(kwpp[1]), 0.0);
+      Logger.getAnonymousLogger().info(
+          () -> "%.6f %s; %s; %s; %s; %s; %s; %s".formatted(
+              kwOptimal.getValue(), ValuePair.Name.K12.of(kwpp[0], 0.0), ValuePair.Name.K23.of(kwpp[1], 0.0),
+              ValuePair.Name.H.of(hStep, 0.0),
+              Arrays.stream(kwpp).skip(2).map(p -> p * hStep).mapToObj(h -> ValuePair.Name.H.of(h, 0.0)).toList(),
+              rho1, rho2, rho3)
+      );
+    };
+
+    var genotype = Engine
         .builder(p -> cache.apply(new P(p)).getValue(), Codecs.ofVector(new IntRange[] {IntRange.of(pMin, 100), IntRange.of(1, 100)}))
         .populationSize(1 << 4)
         .optimize(Optimize.MINIMUM)
         .alterers(new GaussianMutator<>(0.6), new Mutator<>(0.03), new MeanAlterer<>(0.6))
         .build().stream()
         .limit(Limits.bySteadyFitness(3)).limit(100)
-        .peek(r -> Logger.getLogger(getClass().getName()).info(() -> r.bestPhenotype().toString()))
-        .collect(toBestPhenotype());
-    assertNotNull(phenotype);
-
-    Genotype<IntegerGene> best = phenotype.genotype();
-
-    P optimal = new P(IntStream.range(0, best.length()).map(i -> best.get(i).get(0).intValue()).toArray());
-    Logger.getLogger(getClass().getName()).info(optimal::toString);
-
-    PointValuePair kwOptimal = cache.apply(optimal);
-    double[] kwpp = {kwOptimal.getPoint()[0], kwOptimal.getPoint()[1], optimal.p1, optimal.p2mp1};
-    var rho1 = ms.stream().map(dm -> getRho1(dm, kwpp, hStep)).reduce(ValuePair::mergeWith).orElseThrow();
-    var rho2 = ValuePair.Name.RHO_2.of(rho1.value() / Layers.getRho1ToRho2(kwpp[0]), 0.0);
-    var rho3 = ValuePair.Name.RHO_3.of(rho2.value() / Layers.getRho1ToRho2(kwpp[1]), 0.0);
-    Logger.getAnonymousLogger().info(
-        () -> "%.6f %s; %s; %s; %s; %s; %s; %s".formatted(
-            kwOptimal.getValue(), ValuePair.Name.K12.of(kwpp[0], 0.0), ValuePair.Name.K23.of(kwpp[1], 0.0),
-            ValuePair.Name.H.of(hStep, 0.0),
-            Arrays.stream(kwpp).skip(2).map(p -> p * hStep).mapToObj(h -> ValuePair.Name.H.of(h, 0.0)).toList(),
-            rho1, rho2, rho3)
-    );
+        .peek(r -> print.accept(new P(r.bestPhenotype().genotype())))
+        .collect(toBestGenotype());
+    assertNotNull(genotype);
+    print.accept(new P(genotype));
   }
 
   @Nonnegative
