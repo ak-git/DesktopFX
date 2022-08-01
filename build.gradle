@@ -63,7 +63,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2022.07.17'
+    version = '2022.08.01'
     apply plugin: 'idea'
     idea {
         module {
@@ -128,7 +128,7 @@ dependencies {
 }
 
 javafx {
-    version = '18.0.1'
+    version = '18.0.2'
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
