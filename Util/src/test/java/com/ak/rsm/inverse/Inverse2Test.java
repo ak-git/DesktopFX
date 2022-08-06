@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Function;
+import java.util.function.IntToDoubleFunction;
 import java.util.function.ToDoubleFunction;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -24,6 +25,8 @@ import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.medium.Layer2Medium;
 import com.ak.rsm.medium.MediumLayers;
 import com.ak.rsm.relative.Layer2RelativeMedium;
+import com.ak.rsm.resistance.DerivativeResistivity;
+import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.util.CombinatoricsUtils;
@@ -36,6 +39,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class Inverse2Test {
+  private static final Logger LOGGER = Logger.getLogger(Inverse2Test.class.getName());
+
   @ParameterizedTest
   @MethodSource({
       "com.ak.rsm.inverse.InverseTestE7701Provider#e7701_14_30_08_s4",
@@ -44,6 +49,8 @@ class Inverse2Test {
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testCombinations")
   void testCombinations(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
+    IntToDoubleFunction findDh = i -> ms.get(i).stream().mapToDouble(DerivativeResistivity::dh).summaryStatistics().getAverage();
+
     IntStream.rangeClosed(1, ms.size())
         .mapToObj(value ->
             StreamSupport.stream(
@@ -52,8 +59,13 @@ class Inverse2Test {
         )
         .flatMap(Function.identity())
         .filter(ints -> ints.length == ms.size())
+        .map(ints -> Arrays.stream(ints).filter(i -> Math.abs(findDh.applyAsDouble(i)) > Metrics.fromMilli(0.2)).toArray())
         .map(ints -> {
-          Logger.getLogger(getClass().getName()).info(() -> Arrays.toString(ints));
+          LOGGER.info(() -> Arrays.stream(ints)
+              .mapToDouble(findDh)
+              .mapToObj(average -> "%.3f".formatted(Metrics.toMilli(average)))
+              .collect(Collectors.joining("; ", "dh = [", "] mm"))
+          );
           return IntStream.of(ints).mapToObj(ms::get).collect(Collectors.toList());
         })
         .forEach(this::testSingle);
@@ -63,11 +75,10 @@ class Inverse2Test {
   @MethodSource("layer2Model")
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testSingle")
   void testSingle(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
-    Logger.getLogger(Inverse2Test.class.getName()).fine(
-        () -> ms.stream()
-            .map(
-                m -> m.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)))
-            .collect(Collectors.joining(Strings.NEW_LINE_2))
+    LOGGER.fine(() -> ms.stream()
+        .map(
+            m -> m.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)))
+        .collect(Collectors.joining(Strings.NEW_LINE_2))
     );
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
     if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
@@ -85,7 +96,7 @@ class Inverse2Test {
     var rho1 = mediumList.stream().map(MediumLayers::rho1).reduce(ValuePair::mergeWith).orElseThrow();
     var rho2 = mediumList.stream().map(MediumLayers::rho2).reduce(ValuePair::mergeWith).orElseThrow();
     var h = mediumList.stream().map(MediumLayers::h1).reduce(ValuePair::mergeWith).orElseThrow();
-    Logger.getAnonymousLogger().info(() -> "%.6f; %s; %s; %s".formatted(kwOptimal.getValue(), rho1, rho2, h));
+    LOGGER.info(() -> "%.6f; %s; %s; %s".formatted(kwOptimal.getValue(), rho1, rho2, h));
   }
 
   static Stream<Arguments> layer2Model() {
