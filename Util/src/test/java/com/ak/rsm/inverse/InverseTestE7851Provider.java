@@ -117,7 +117,7 @@ class InverseTestE7851Provider {
                         r1, r2, r3i, r4i,
                         r1 - 0.2881961, r2 - 0.2038542, r3i - 0.12168710, r4i - 0.1594455
                     )),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 4).system4(8.0)
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 3).system4(8.0)
                     .ofOhms(fixOhms(
                         r1, r2, r3i, r4i,
                         r1 - 0.3692234, r2 - 0.2081198, r3i - 0.17373434, r4i - 0.2085835
