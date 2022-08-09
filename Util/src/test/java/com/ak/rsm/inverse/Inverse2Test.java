@@ -2,7 +2,6 @@ package com.ak.rsm.inverse;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.DoubleSummaryStatistics;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -15,17 +14,20 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.math.Simplex;
 import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.DerivativeMeasurement;
+import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.medium.Layer2Medium;
 import com.ak.rsm.medium.MediumLayers;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.resistance.DerivativeResistivity;
+import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import org.apache.commons.math3.optim.PointValuePair;
@@ -49,6 +51,11 @@ class Inverse2Test {
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testCombinations")
   void testCombinations(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
+    testForSystems(ms, 2);
+    testForSystems(ms, ms.get(0).size());
+  }
+
+  private void testForSystems(@Nonnull List<Collection<DerivativeMeasurement>> ms, @Nonnegative int countSystems) {
     IntToDoubleFunction findDh = i -> ms.get(i).stream().mapToDouble(DerivativeResistivity::dh).summaryStatistics().getAverage();
 
     IntStream.rangeClosed(1, ms.size())
@@ -68,19 +75,31 @@ class Inverse2Test {
           );
           return IntStream.of(ints).mapToObj(ms::get).collect(Collectors.toList());
         })
+        .map(dm -> dm.stream().map(derivativeMeasurements -> derivativeMeasurements.stream().limit(countSystems).toList()).toList())
         .forEach(this::testSingle);
   }
 
   @ParameterizedTest
   @MethodSource("layer2Model")
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testSingle")
-  void testSingle(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
+  void testSingle(@Nonnull Collection<List<DerivativeMeasurement>> ms) {
     LOGGER.fine(() -> ms.stream()
         .map(
             m -> m.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)))
         .collect(Collectors.joining(Strings.NEW_LINE_2))
     );
-    DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
+    LOGGER.info(() -> {
+      var electrodeSystemsStat = ms.stream().mapToInt(List::size).summaryStatistics();
+      if (electrodeSystemsStat.getMin() == electrodeSystemsStat.getMax()) {
+        var tetrapolarSystems = ms.iterator().next().stream().map(Measurement::system).map(TetrapolarSystem::toString)
+            .collect(Collectors.joining("; ", "[", "]"));
+        return "Use %d electrode systems: %s".formatted(electrodeSystemsStat.getMin(), tetrapolarSystems);
+      }
+      else {
+        throw new IllegalStateException("Count systems is not equal for all electrode systems %s".formatted(electrodeSystemsStat));
+      }
+    });
+    var statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
     if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
       throw new IllegalStateException("L is not equal for all electrode systems %s".formatted(statisticsL));
     }
