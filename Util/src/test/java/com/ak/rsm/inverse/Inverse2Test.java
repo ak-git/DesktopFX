@@ -51,7 +51,8 @@ class Inverse2Test {
 
       "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_315",
       "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_420",
-      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_525"
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_525",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_609"
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testCombinations")
   void testCombinations(@Nonnull List<Collection<DerivativeMeasurement>> ms) {

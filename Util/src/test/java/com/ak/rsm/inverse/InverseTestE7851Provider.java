@@ -240,4 +240,61 @@ class InverseTestE7851Provider {
         )
     );
   }
+
+  /**
+   * <b>- 6.09 mm</b>
+   * <br/>
+   * <ul>
+   *   <li>
+   *     274-287 s
+   *   </li>
+   *   <li>
+   *     288-307 s
+   *   </li>
+   * </ul>
+   *
+   * @return s4
+   */
+  static Stream<Arguments> e7851_14_49_05_609() {
+    double r1 = 141.3052;
+    double r2 = 211.9742;
+    double r3i = 92.86637;
+    double r4i = 208.4624;
+    return Stream.of(
+        arguments(
+            List.of(
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 3).system4(8.0)
+                    .ofOhms(fixOhms(
+                        r1, r2, r3i, r4i,
+                        r1 + 0.4837421, r2 + 0.4701067, r3i + 0.31259653, r4i + 0.5820913
+                    )),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 2).system4(8.0)
+                    .ofOhms(fixOhms(
+                        r1, r2, r3i, r4i,
+                        r1 + 0.2946373, r2 + 0.3546993, r3i + 0.16873288, r4i + 0.3321714
+                    )),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21).system4(8.0)
+                    .ofOhms(fixOhms(
+                        r1, r2, r3i, r4i,
+                        r1 + 0.2000719, r2 + 0.2305505, r3i + 0.08764073, r4i + 0.1707688
+                    )),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system4(8.0)
+                    .ofOhms(fixOhms(
+                        r1, r2, r3i, r4i,
+                        r1 - 0.1630529, r2 - 0.1823617, r3i - 0.07126463, r4i - 0.1368883
+                    )),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 2).system4(8.0)
+                    .ofOhms(fixOhms(
+                        r1, r2, r3i, r4i,
+                        r1 - 0.3457596, r2 - 0.3695723, r3i - 0.21820655, r4i - 0.3822647
+                    )),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 3).system4(8.0)
+                    .ofOhms(fixOhms(
+                        r1, r2, r3i, r4i,
+                        r1 - 0.4654294, r2 - 0.5629469, r3i - 0.25831167, r4i - 0.5091717
+                    ))
+            )
+        )
+    );
+  }
 }
