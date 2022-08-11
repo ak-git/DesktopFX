@@ -54,6 +54,14 @@ class Inverse2Test {
       "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_525",
       "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_609",
       "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_735",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_840",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_945",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_1092",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_1197",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_1197a",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_567",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_567a",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_168",
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testCombinations")
   void testCombinations(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
@@ -74,7 +82,7 @@ class Inverse2Test {
         .filter(ints -> ints.length == ms.size())
         .map(ints -> Arrays.stream(ints).filter(i -> Math.abs(findDh.applyAsDouble(i)) > Metrics.fromMilli(0.2)).toArray())
         .map(ints -> {
-          LOGGER.info(() -> Arrays.stream(ints)
+          LOGGER.fine(() -> Arrays.stream(ints)
               .mapToDouble(findDh)
               .mapToObj(average -> "%.3f".formatted(Metrics.toMilli(average)))
               .collect(Collectors.joining("; ", "dh = [", "] mm"))
@@ -94,7 +102,7 @@ class Inverse2Test {
             m -> m.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)))
         .collect(Collectors.joining(Strings.NEW_LINE_2))
     );
-    LOGGER.info(() -> {
+    LOGGER.fine(() -> {
       var electrodeSystemsStat = ms.stream().mapToInt(List::size).summaryStatistics();
       if (electrodeSystemsStat.getMin() == electrodeSystemsStat.getMax()) {
         var tetrapolarSystems = ms.iterator().next().stream().map(Measurement::system).map(TetrapolarSystem::toString)

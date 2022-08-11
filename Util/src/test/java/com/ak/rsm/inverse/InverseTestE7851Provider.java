@@ -132,7 +132,7 @@ class InverseTestE7851Provider {
    * <br/>
    * <ul>
    *   <li>
-   *     199-215 s
+   *     199-214 s
    *   </li>
    *   <li>
    *     217-232 s
@@ -142,8 +142,8 @@ class InverseTestE7851Provider {
    * @return s4
    */
   static Stream<Arguments> e7851_14_49_05_420() {
-    double r1 = 139.8676;
-    double r2 = 211.1286;
+    double r1 = 139.8751;
+    double r2 = 211.1441;
     double r3i = 92.03118;
     double r4i = 207.4381;
     return Stream.of(
