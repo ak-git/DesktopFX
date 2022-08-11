@@ -525,4 +525,56 @@ class InverseTestE7851Provider {
         )
     );
   }
+
+  /**
+   * <b>- 11.97 mm</b>
+   * <br/>
+   * <ul>
+   *   <li>
+   *     455-466 s
+   *   </li>
+   *   <li>
+   *     467-482 s
+   *   </li>
+   * </ul>
+   *
+   * @return s4
+   */
+  static Stream<Arguments> e7851_14_49_05_1195() {
+    double r1 = 146.1887;
+    double r2 = 218.1336;
+    double r3i = 96.24073;
+    double r4i = 214.7943;
+    return Stream.of(
+        arguments(
+            List.of(
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 3).system4(8.0)
+                    .ofOhms(fixOhms(
+                        r1, r2, r3i, r4i,
+                        r1 + 0.3431112, r2 + 0.5295561, r3i + 0.24812090, r4i + 0.5599811
+                    )),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 2).system4(8.0)
+                    .ofOhms(fixOhms(
+                        r1, r2, r3i, r4i,
+                        r1 + 0.1903040, r2 + 0.3035757, r3i + 0.15776412, r4i + 0.3151134
+                    )),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system4(8.0)
+                    .ofOhms(fixOhms(
+                        r1, r2, r3i, r4i,
+                        r1 - 0.1038409, r2 - 0.1484787, r3i - 0.10758012, r4i - 0.1950074
+                    )),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 2).system4(8.0)
+                    .ofOhms(fixOhms(
+                        r1, r2, r3i, r4i,
+                        r1 - 0.2427463, r2 - 0.3923044, r3i - 0.16629331, r4i - 0.3844892
+                    )),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 3).system4(8.0)
+                    .ofOhms(fixOhms(
+                        r1, r2, r3i, r4i,
+                        r1 - 0.3270014, r2 - 0.5200907, r3i - 0.24350372, r4i - 0.5014994
+                    ))
+            )
+        )
+    );
+  }
 }
