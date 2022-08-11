@@ -540,7 +540,7 @@ class InverseTestE7851Provider {
    *
    * @return s4
    */
-  static Stream<Arguments> e7851_14_49_05_1195() {
+  static Stream<Arguments> e7851_14_49_05_1197() {
     double r1 = 146.1887;
     double r2 = 218.1336;
     double r3i = 96.24073;
@@ -572,6 +572,63 @@ class InverseTestE7851Provider {
                     .ofOhms(fixOhms(
                         r1, r2, r3i, r4i,
                         r1 - 0.3270014, r2 - 0.5200907, r3i - 0.24350372, r4i - 0.5014994
+                    ))
+            )
+        )
+    );
+  }
+
+  /**
+   * <b>- 11.97 mm</b>
+   * <br/>
+   * <ul>
+   *   <li>
+   *     483-512 s
+   *   </li>
+   *   <li>
+   *     513-528 s
+   *   </li>
+   * </ul>
+   *
+   * @return s4
+   */
+  static Stream<Arguments> e7851_14_49_05_1197a() {
+    double r1 = 146.5283;
+    double r2 = 218.6496;
+    double r3i = 96.54941;
+    double r4i = 215.2773;
+    return Stream.of(
+        arguments(
+            List.of(
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 3).system4(8.0)
+                    .ofOhms(fixOhms(
+                        r1, r2, r3i, r4i,
+                        r1 + 0.3490481, r2 + 0.5230001, r3i + 0.20897098, r4i + 0.3564573
+                    )),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 2).system4(8.0)
+                    .ofOhms(fixOhms(
+                        r1, r2, r3i, r4i,
+                        r1 + 0.2548873, r2 + 0.4228552, r3i + 0.12742200, r4i + 0.2230622
+                    )),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21).system4(8.0)
+                    .ofOhms(fixOhms(
+                        r1, r2, r3i, r4i,
+                        r1 + 0.1445365, r2 + 0.1895408, r3i + 0.04082059, r4i + 0.1276349
+                    )),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system4(8.0)
+                    .ofOhms(fixOhms(
+                        r1, r2, r3i, r4i,
+                        r1 - 0.1141686, r2 - 0.1581170, r3i - 0.05218228, r4i - 0.1211355
+                    )),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 2).system4(8.0)
+                    .ofOhms(fixOhms(
+                        r1, r2, r3i, r4i,
+                        r1 - 0.2143888, r2 - 0.3189721, r3i - 0.11559684, r4i - 0.2738533
+                    )),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 3).system4(8.0)
+                    .ofOhms(fixOhms(
+                        r1, r2, r3i, r4i,
+                        r1 - 0.3101820, r2 - 0.4753185, r3i - 0.16092296, r4i - 0.3525364
                     ))
             )
         )
