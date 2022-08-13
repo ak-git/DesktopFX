@@ -62,6 +62,20 @@ class Inverse2Test {
       "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_567",
       "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_567a",
       "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_168",
+
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_105a",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_210a",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_315a",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_420a",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_525a",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_630a",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_735",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_630",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_525",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_420",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_315",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_210",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_105",
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testCombinations")
   void testCombinations(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
