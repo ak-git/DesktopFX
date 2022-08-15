@@ -28,7 +28,8 @@ class SimplexTest {
   @Test
   void testOptimizeWithInitialGuessAndBounds() {
     PointValuePair valuePair = Simplex.optimizeAll(new Rosen(),
-        new Bounds(10.0, 20.0, 30.0), new Bounds(10.0, 20.0, 30.0));
+        new Bounds(10.0, 20.0, 30.0), new Bounds(10.0, 20.0, 30.0)
+    );
     assertTrue(
         Arrays.stream(valuePair.getPoint()).anyMatch(value -> Inequality.absolute().applyAsDouble(value, 10.0) < 0.1),
         Arrays.toString(valuePair.getPoint())
@@ -38,14 +39,16 @@ class SimplexTest {
   @Test
   void testOptimizeWithBounds() {
     PointValuePair valuePair = Simplex.optimizeAll(new Rosen(),
-        new Bounds(-10.0, 10.0), new Bounds(-10.0, 10.0));
+        new Bounds(-10.0, 10.0), new Bounds(-10.0, 10.0)
+    );
     assertThat(valuePair.getPoint()).containsExactly(new double[] {1.0, 1.0}, byLessThan(0.1));
   }
 
   @Test
   void testInvalid() {
     PointValuePair valuePair = Simplex.CMAES.optimize(new Rosen(),
-        new Bounds(-10.0, 0.0, 10.0), new Bounds(-10.0, 0.0, 10.0), new Bounds(-10.0, 0.0));
+        new Bounds(-10.0, 0.0, 10.0), new Bounds(-10.0, 0.0, 10.0), new Bounds(-10.0, 0.0)
+    );
     assertThat(valuePair.getPoint()).as(Arrays.toString(valuePair.getPoint())).containsOnly(Double.NaN);
     assertThat(valuePair.getValue()).isNaN();
   }
