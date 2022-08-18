@@ -21,7 +21,6 @@ import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.resistance.DerivativeResistivity;
-import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
@@ -141,7 +140,7 @@ class Inverse2Test {
   }
 
   static Collection<DerivativeMeasurement> convert(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms) {
-    var measurements = ms.iterator().next();
+    var firstMeasurements = ms.iterator().next();
     LOGGER.fine(() -> ms.stream()
         .map(
             m -> m.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)))
@@ -150,7 +149,7 @@ class Inverse2Test {
     LOGGER.fine(() -> {
       var electrodeSystemsStat = ms.stream().mapToInt(Collection::size).summaryStatistics();
       if (electrodeSystemsStat.getMin() == electrodeSystemsStat.getMax()) {
-        var tetrapolarSystems = measurements.stream().map(Measurement::system).map(TetrapolarSystem::toString)
+        var tetrapolarSystems = firstMeasurements.stream().map(Measurement::system).map(TetrapolarSystem::toString)
             .collect(Collectors.joining("; ", "[", "]"));
         return "Use %d electrode systems: %s".formatted(electrodeSystemsStat.getMin(), tetrapolarSystems);
       }
@@ -168,7 +167,7 @@ class Inverse2Test {
             .map(m -> new WeightedObservedPoint(1.0, m.dh(), m.derivativeResistivity())).toList()
         )
         .reduce(
-            measurements.stream().map(dm -> new WeightedObservedPoints()).toList(),
+            firstMeasurements.stream().map(dm -> new WeightedObservedPoints()).toList(),
             (wpList, wp) -> {
               IntStream.range(0, wpList.size()).forEach(i -> wpList.get(i).add(wp.get(i)));
               return wpList;
@@ -182,10 +181,11 @@ class Inverse2Test {
         .mapToDouble(value -> value[0])
         .iterator();
 
-    return measurements.stream().map(dm -> {
-      InexactTetrapolarSystem inexact = dm.inexact();
-      return TetrapolarDerivativeMeasurement.ofSI(inexact.absError()).dh(Double.NaN)
-          .system(inexact.system().sPU(), inexact.system().lCC()).rho(dm.resistivity(), avgDerivate.nextDouble());
-    }).toList();
+    return firstMeasurements.stream()
+        .map(dm -> TetrapolarDerivativeMeasurement
+            .ofSI(dm.inexact().absError()).dh(Double.NaN)
+            .system(dm.inexact().system().sPU(), dm.inexact().system().lCC())
+            .rho(dm.resistivity(), avgDerivate.nextDouble()))
+        .toList();
   }
 }
