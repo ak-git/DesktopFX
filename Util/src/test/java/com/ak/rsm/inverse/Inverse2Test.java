@@ -114,58 +114,9 @@ class Inverse2Test {
   @ParameterizedTest
   @MethodSource("layer2Model")
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testSingle")
-  void testSingle(@Nonnull Collection<List<DerivativeMeasurement>> ms) {
-    List<DerivativeMeasurement> measurements = ms.iterator().next();
-    LOGGER.fine(() -> ms.stream()
-        .map(
-            m -> m.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)))
-        .collect(Collectors.joining(Strings.NEW_LINE_2))
-    );
-    LOGGER.fine(() -> {
-      var electrodeSystemsStat = ms.stream().mapToInt(List::size).summaryStatistics();
-      if (electrodeSystemsStat.getMin() == electrodeSystemsStat.getMax()) {
-        var tetrapolarSystems = measurements.stream().map(Measurement::system).map(TetrapolarSystem::toString)
-            .collect(Collectors.joining("; ", "[", "]"));
-        return "Use %d electrode systems: %s".formatted(electrodeSystemsStat.getMin(), tetrapolarSystems);
-      }
-      else {
-        throw new IllegalStateException("Count systems is not equal for all electrode systems %s".formatted(electrodeSystemsStat));
-      }
-    });
-    var statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
-    if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
-      throw new IllegalStateException("L is not equal for all electrode systems %s".formatted(statisticsL));
-    }
-
-    double[] avgDerivate = ms.stream()
-        .map(dm -> dm.stream()
-            .map(m -> new WeightedObservedPoint(1.0, m.dh(), m.derivativeResistivity())).toList()
-        )
-        .reduce(
-            measurements.stream().map(dm -> new WeightedObservedPoints()).toList(),
-            (wpList, wp) -> {
-              IntStream.range(0, wpList.size()).forEach(i -> wpList.get(i).add(wp.get(i)));
-              return wpList;
-            },
-            (eq1, eq2) -> eq1)
-        .stream()
-        .map(weightedObservedPoints -> {
-          PolynomialCurveFitter fitter = PolynomialCurveFitter.create(2);
-          return fitter.fit(weightedObservedPoints.toList());
-        })
-        .mapToDouble(value -> value[0])
-        .toArray();
-
-    List<DerivativeMeasurement> derivativeMeasurements = IntStream.range(0, avgDerivate.length)
-        .mapToObj(i -> {
-          var dm = measurements.get(i);
-          InexactTetrapolarSystem inexact = dm.inexact();
-          return TetrapolarDerivativeMeasurement.ofSI(inexact.absError()).dh(Double.NaN)
-              .system(inexact.system().sPU(), inexact.system().lCC()).rho(dm.resistivity(), avgDerivate[i]);
-        })
-        .toList();
-
-    LOGGER.fine(() -> derivativeMeasurements.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)));
+  void testSingle(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms) {
+    var derivativeMeasurements = convert(ms);
+    LOGGER.fine(() -> "%n%s".formatted(derivativeMeasurements.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE))));
     var medium = new DynamicAbsolute(derivativeMeasurements).get();
     Assertions.assertNotNull(medium);
     LOGGER.info(medium::toString);
@@ -187,5 +138,54 @@ class Inverse2Test {
             )
         )
     );
+  }
+
+  static Collection<DerivativeMeasurement> convert(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms) {
+    var measurements = ms.iterator().next();
+    LOGGER.fine(() -> ms.stream()
+        .map(
+            m -> m.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)))
+        .collect(Collectors.joining(Strings.NEW_LINE_2))
+    );
+    LOGGER.fine(() -> {
+      var electrodeSystemsStat = ms.stream().mapToInt(Collection::size).summaryStatistics();
+      if (electrodeSystemsStat.getMin() == electrodeSystemsStat.getMax()) {
+        var tetrapolarSystems = measurements.stream().map(Measurement::system).map(TetrapolarSystem::toString)
+            .collect(Collectors.joining("; ", "[", "]"));
+        return "Use %d electrode systems: %s".formatted(electrodeSystemsStat.getMin(), tetrapolarSystems);
+      }
+      else {
+        throw new IllegalStateException("Count systems is not equal for all electrode systems %s".formatted(electrodeSystemsStat));
+      }
+    });
+    var statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
+    if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
+      throw new IllegalStateException("L is not equal for all electrode systems %s".formatted(statisticsL));
+    }
+
+    var avgDerivate = ms.stream()
+        .map(dm -> dm.stream()
+            .map(m -> new WeightedObservedPoint(1.0, m.dh(), m.derivativeResistivity())).toList()
+        )
+        .reduce(
+            measurements.stream().map(dm -> new WeightedObservedPoints()).toList(),
+            (wpList, wp) -> {
+              IntStream.range(0, wpList.size()).forEach(i -> wpList.get(i).add(wp.get(i)));
+              return wpList;
+            },
+            (eq1, eq2) -> eq1)
+        .stream()
+        .map(weightedObservedPoints -> {
+          PolynomialCurveFitter fitter = PolynomialCurveFitter.create(2);
+          return fitter.fit(weightedObservedPoints.toList());
+        })
+        .mapToDouble(value -> value[0])
+        .iterator();
+
+    return measurements.stream().map(dm -> {
+      InexactTetrapolarSystem inexact = dm.inexact();
+      return TetrapolarDerivativeMeasurement.ofSI(inexact.absError()).dh(Double.NaN)
+          .system(inexact.system().sPU(), inexact.system().lCC()).rho(dm.resistivity(), avgDerivate.nextDouble());
+    }).toList();
   }
 }
