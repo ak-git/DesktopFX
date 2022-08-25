@@ -41,6 +41,22 @@ class Inverse2Test {
 
   @ParameterizedTest
   @MethodSource({
+      "com.ak.rsm.inverse.InverseTestE7645Provider#n18_09_44",
+      "com.ak.rsm.inverse.InverseTestE7645Provider#n18_10_42",
+      "com.ak.rsm.inverse.InverseTestE7645Provider#n18_12_22",
+      "com.ak.rsm.inverse.InverseTestE7645Provider#n18_12_59",
+
+      "com.ak.rsm.inverse.InverseTestE7661Provider#ak14_26_39",
+
+      "com.ak.rsm.inverse.InverseTestE7672Provider#ak16_44_53",
+
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_17_52_54_s4",
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_17_55_32_s4",
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_17_56_55_s4",
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_17_58_47_s4",
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_18_23_57_s4",
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_18_27_01_s4",
+
       "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_17_52_54_s4",
       "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_17_55_32_s4",
       "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_17_56_55_s4",
@@ -174,10 +190,7 @@ class Inverse2Test {
             },
             (eq1, eq2) -> eq1)
         .stream()
-        .map(weightedObservedPoints -> {
-          PolynomialCurveFitter fitter = PolynomialCurveFitter.create(2);
-          return fitter.fit(weightedObservedPoints.toList());
-        })
+        .map(weightedObservedPoints -> PolynomialCurveFitter.create(2).fit(weightedObservedPoints.toList()))
         .mapToDouble(value -> value[0])
         .iterator();
 
