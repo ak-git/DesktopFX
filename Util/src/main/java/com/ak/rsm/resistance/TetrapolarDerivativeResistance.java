@@ -13,6 +13,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
+import com.ak.util.Numbers;
 import com.ak.util.Strings;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
@@ -172,7 +173,7 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
         var builder3 = builder.rho3(rho3).hStep(hStep);
         return new TetrapolarDerivativeResistance(
             builder3.p(p1, p2mp1),
-            builder3.p(p1 + Math.toIntExact(Math.round(dhHolder.dh / hStep)), p2mp1),
+            builder3.p(p1, p2mp1 + Numbers.toInt(dhHolder.dh / hStep)),
             dhHolder.dh);
       }
     }

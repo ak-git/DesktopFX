@@ -15,7 +15,6 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import com.ak.math.Simplex;
 import com.ak.math.ValuePair;
 import com.ak.rsm.apparent.Apparent3Rho;
 import com.ak.rsm.measurement.DerivativeMeasurement;
@@ -24,6 +23,7 @@ import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.ConcurrentCache;
+import com.ak.util.Numbers;
 import io.jenetics.Chromosome;
 import io.jenetics.GaussianMutator;
 import io.jenetics.IntegerGene;
@@ -35,33 +35,35 @@ import io.jenetics.engine.Engine;
 import io.jenetics.engine.Limits;
 import io.jenetics.util.BaseSeq;
 import io.jenetics.util.IntRange;
-import org.apache.commons.math3.optim.PointValuePair;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static com.ak.util.Metrics.toMilli;
 import static io.jenetics.engine.EvolutionResult.toBestGenotype;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class Inverse3Test {
+  private static final Logger LOGGER = Logger.getLogger(Inverse3Test.class.getName());
+
   static Stream<Arguments> model() {
     double rho1 = 9.0;
     double rho2 = 1.0;
     double rho3 = 4.0;
-    double hStep = 0.105;
-    double dH = hStep * 2.0;
+    double hmmStep = 0.105;
+    double smmBase = 8.0;
+    int p1 = (int) (2.0 / hmmStep);
+    int p2mp1 = (int) (4.3 / hmmStep);
     return Stream.of(
         arguments(
             List.of(
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-dH * 3.0)
-                    .system4(7.0).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(60, 40),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(dH)
-                    .system4(7.0).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(60, 40),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(dH * 2.0)
-                    .system4(7.0).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(60, 40)
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-hmmStep * 3.0)
+                    .system4(smmBase).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hmmStep).p(p1, p2mp1),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(hmmStep)
+                    .system4(smmBase).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hmmStep).p(p1, p2mp1),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(hmmStep * 2.0)
+                    .system4(smmBase).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hmmStep).p(p1, p2mp1)
             )
         )
     );
@@ -78,65 +80,62 @@ class Inverse3Test {
 
     double hStep = ms.stream().flatMapToDouble(
         dm -> dm.stream().flatMapToDouble(m -> DoubleStream.of(Math.abs(m.dh())))
-    ).min().orElseThrow() / 2;
-
-    int pMin = (int) (ms.stream().flatMapToDouble(
-        dm -> dm.stream().flatMapToDouble(m -> DoubleStream.of(Math.abs(m.dh())))
-    ).max().orElseThrow() / hStep) + 1;
+    ).min().orElseThrow();
 
     var dynamicInverses = ms.stream().map(dm -> DynamicInverse.of(dm, hStep)).toList();
 
-    record P(int p1, int p2mp1) {
-      P(@Nonnull int[] p) {
-        this(p[0], p[1]);
+    record P(int k1, int k2, int p1, int p2mp1) {
+      private static final int K_SIZE = 100;
+      private static final double[] K_VALUES = Numbers.rangeLog(1.0 / K_SIZE, K_SIZE, K_SIZE + 1).toArray();
+
+      P(@Nonnull int[] v) {
+        this(v[0], v[1], v[2], v[3]);
       }
 
       P(@Nonnull BaseSeq<Chromosome<IntegerGene>> genotype) {
         this(IntStream.range(0, genotype.length()).map(i -> genotype.get(i).get(0).intValue()).toArray());
       }
+
+      double k12() {
+        return -(1.0 - K_VALUES[k1] / K_SIZE);
+      }
+
+      double k23() {
+        return (1.0 - K_VALUES[k2] / K_SIZE);
+      }
     }
 
-    Function<P, PointValuePair> cache = new ConcurrentCache<>(
-        p -> {
-          var v = Simplex.optimizeAll(
-              kw -> dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(new double[] {kw[0], kw[1], p.p1, p.p2mp1}))
-                  .reduce(StrictMath::hypot).orElseThrow(),
-              new Simplex.Bounds(-1.0, 1.0),
-              new Simplex.Bounds(-1.0, 1.0)
-          );
-          Logger.getLogger(getClass().getName()).info(
-              () -> "%s; hStep = %.3f; [%.3f; %.3f] %s"
-                  .formatted(p, toMilli(hStep), toMilli(hStep * p.p1), toMilli(hStep * p.p2mp1), v.getValue()));
-          return v;
-        }
+    Function<P, Double> cache = new ConcurrentCache<>(
+        p -> dynamicInverses.stream()
+            .mapToDouble(value -> value.applyAsDouble(new double[] {p.k12(), p.k23(), p.p1, p.p2mp1}))
+            .reduce(StrictMath::hypot).orElseThrow()
     );
 
-    Consumer<P> print = optimal -> {
-      PointValuePair kwOptimal = cache.apply(optimal);
-      double[] kwpp = {kwOptimal.getPoint()[0], kwOptimal.getPoint()[1], optimal.p1, optimal.p2mp1};
-
+    Consumer<P> print = p -> {
+      double[] kwpp = {p.k12(), p.k23(), p.p1, p.p2mp1};
       var rho1 = ms.stream().map(dm -> getRho1(dm, kwpp, hStep)).reduce(ValuePair::mergeWith).orElseThrow();
       var rho2 = ValuePair.Name.RHO_2.of(rho1.value() / Layers.getRho1ToRho2(kwpp[0]), 0.0);
       var rho3 = ValuePair.Name.RHO_3.of(rho2.value() / Layers.getRho1ToRho2(kwpp[1]), 0.0);
-      Logger.getAnonymousLogger().info(
+      LOGGER.info(
           () -> "%.6f %s; %s; %s; %s; %s; %s; %s".formatted(
-              kwOptimal.getValue(), ValuePair.Name.K12.of(kwpp[0], 0.0), ValuePair.Name.K23.of(kwpp[1], 0.0),
+              cache.apply(p), ValuePair.Name.K12.of(kwpp[0], 0.0), ValuePair.Name.K23.of(kwpp[1], 0.0),
               ValuePair.Name.H.of(hStep, 0.0),
-              Arrays.stream(kwpp).skip(2).map(p -> p * hStep).mapToObj(h -> ValuePair.Name.H.of(h, 0.0)).toList(),
+              Arrays.stream(kwpp).skip(2).map(v -> v * hStep).mapToObj(h -> ValuePair.Name.H.of(h, 0.0)).toList(),
               rho1, rho2, rho3)
       );
     };
 
     var genotype = Engine
-        .builder(p -> cache.apply(new P(p)).getValue(), Codecs.ofVector(new IntRange[] {IntRange.of(pMin, 100), IntRange.of(1, 100)}))
-        .populationSize(1 << 4)
+        .builder(v -> cache.apply(new P(v)),
+            Codecs.ofVector(IntRange.of(0, P.K_SIZE), IntRange.of(0, P.K_SIZE), IntRange.of(1, 50), IntRange.of(1, 50)))
+        .populationSize(1 << 9)
         .optimize(Optimize.MINIMUM)
         .alterers(new GaussianMutator<>(0.6), new Mutator<>(0.03), new MeanAlterer<>(0.6))
         .build().stream()
-        .limit(Limits.bySteadyFitness(3)).limit(100)
+        .limit(Limits.bySteadyFitness(7)).limit(100)
         .peek(r -> print.accept(new P(r.bestPhenotype().genotype())))
         .collect(toBestGenotype());
-    assertNotNull(genotype);
+    Assertions.assertNotNull(genotype);
     print.accept(new P(genotype));
   }
 

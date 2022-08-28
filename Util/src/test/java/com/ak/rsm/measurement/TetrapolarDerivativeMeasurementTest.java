@@ -80,9 +80,9 @@ class TetrapolarDerivativeMeasurementTest {
         arguments(
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(10.0, 20.0)
                 .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50),
-            "10 000   20 000      0 1       20          5 7   0 17              13 215          2 804         0 100",
+            "10 000   20 000      0 1       20          5 7   0 17              0 677          0 144         0 100",
             5.72,
-            13.215,
+            0.677,
             new InexactTetrapolarSystem(0.0001, new TetrapolarSystem(0.01, 0.02))
         ),
 
@@ -151,24 +151,24 @@ class TetrapolarDerivativeMeasurementTest {
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.3).system2(8.0)
                 .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50),
-            "8000240000126450111895947150300 4000024000014536200601584359100300",
+            "800024000012645011131403270300 400002400001453620060151605650300",
             new double[] {4.45, 3.62},
-            new double[] {18.96, 15.84}
+            new double[] {1.314, 1.516}
         ),
 
         arguments(
             TetrapolarDerivativeMeasurement.milli(-0.1).dh(0.01).withShiftError().system2(8.0)
                 .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.01).p(500, 500),
-            "7900241000127440111957801580010 3990024100014536600611618202040010",
+            "790024100012744011138600110010 399002410001453660061154900200010",
             new double[] {4.42, 3.65},
-            new double[] {19.578, 16.182}
+            new double[] {1.385, 1.549}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.01).withShiftError().system2(8.0)
                 .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.01).p(500, 500),
-            "8100239000126450111934801650010 4010023900014635800591598001960010",
+            "810023900012645011134400110010 401002390001463580059156300190010",
             new double[] {4.49, 3.58},
-            new double[] {19.348, 15.980}
+            new double[] {1.344, 1.563}
         ),
 
         arguments(
@@ -265,13 +265,13 @@ class TetrapolarDerivativeMeasurementTest {
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(6.0, 18.0)
                 .rho1(9.0).rho2(1.0).h(5.0),
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(6.0, 18.0)
-                .rho1(9.0).rho2(1.0).rho3(1.0).hStep(0.1).p(50, 50)
+                .rho1(9.0).rho2(9.0).rho3(1.0).hStep(0.1).p(25, 25)
         ),
         arguments(
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(6.0, 18.0)
                 .rho1(9.0).rho2(1.0).h(5.0),
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(6.0, 18.0)
-                .rho1(9.0).rho2(1.0).rho3(1.0).hStep(0.01).p(500, 500)
+                .rho1(9.0).rho2(9.0).rho3(1.0).hStep(0.01).p(300, 200)
         ),
         arguments(
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(6.0, 18.0)

@@ -1,11 +1,8 @@
 package com.ak.util;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.function.BiFunction;
-import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.DoubleStream;
@@ -15,8 +12,6 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static java.lang.StrictMath.exp;
-import static java.lang.StrictMath.log;
 import static java.lang.StrictMath.log10;
 
 public final class CSVLineFileBuilder<T> {
@@ -98,28 +93,13 @@ public final class CSVLineFileBuilder<T> {
     }
 
     private void rangeLog(@Nonnegative double start, @Nonnegative double end) {
-      double from = log(Math.min(start, end));
-      double to = log(Math.max(start, end));
-      long len = Math.max(Math.abs(Math.round(log10(start / end))), Math.round(log10(Math.abs(start - end)))) * 10;
-      double step = (to - from) / (len - 1);
-      doubleStreamSupplier = () ->
-          DoubleStream
-              .concat(
-                  DoubleStream.iterate(from + step, x -> x += step).limit(len - 2).map(StrictMath::exp),
-                  DoubleStream.of(start, end)
-              )
-              .sorted()
-              .map(x -> round((x - exp(log(x) - step)) / 5.0).applyAsDouble(x));
+      doubleStreamSupplier = () -> Numbers.rangeLog(start, end,
+          Math.max(Math.abs(Math.round(log10(start / end))), Math.round(log10(Math.abs(start - end)))) * 10);
     }
 
     private void range(double start, double end, @Nonnegative double step) {
       doubleStreamSupplier = () ->
-          DoubleStream.iterate(start, value -> value < end + step / 2.0, dl2L -> dl2L + step).map(round(step));
-    }
-
-    private static DoubleUnaryOperator round(@Nonnegative double step) {
-      int afterZero = (int) -Math.floor(log10(step));
-      return x -> BigDecimal.valueOf(x).setScale(afterZero, RoundingMode.HALF_EVEN).doubleValue();
+          DoubleStream.iterate(start, value -> value < end + step / 2.0, dl2L -> dl2L + step).map(Numbers.round(step));
     }
   }
 }
