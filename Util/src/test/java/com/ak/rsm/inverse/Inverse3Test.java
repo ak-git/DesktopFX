@@ -4,12 +4,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.DoubleSummaryStatistics;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntToDoubleFunction;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -20,9 +25,11 @@ import com.ak.rsm.apparent.Apparent3Rho;
 import com.ak.rsm.measurement.DerivativeMeasurement;
 import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
+import com.ak.rsm.resistance.DerivativeResistivity;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.ConcurrentCache;
+import com.ak.util.Metrics;
 import com.ak.util.Numbers;
 import io.jenetics.Chromosome;
 import io.jenetics.GaussianMutator;
@@ -35,6 +42,7 @@ import io.jenetics.engine.Engine;
 import io.jenetics.engine.Limits;
 import io.jenetics.util.BaseSeq;
 import io.jenetics.util.IntRange;
+import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -51,7 +59,7 @@ class Inverse3Test {
     double rho1 = 9.0;
     double rho2 = 1.0;
     double rho3 = 4.0;
-    double hmmStep = 0.105;
+    double hmmStep = 0.205;
     double smmBase = 8.0;
     int p1 = (int) (2.0 / hmmStep);
     int p2mp1 = (int) (4.3 / hmmStep);
@@ -71,8 +79,42 @@ class Inverse3Test {
 
   @ParameterizedTest
   @MethodSource("model")
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testCombinations")
+  void testCombinations(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
+    testForSystems(ms);
+  }
+
+  private void testForSystems(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
+    IntToDoubleFunction findDh = i -> ms.get(i).stream().mapToDouble(DerivativeResistivity::dh).summaryStatistics().getAverage();
+
+    IntStream.rangeClosed(1, ms.size())
+        .mapToObj(value ->
+            StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(CombinatoricsUtils.combinationsIterator(ms.size(), value), Spliterator.ORDERED),
+                false)
+        )
+        .flatMap(Function.identity())
+        .filter(ints -> ints.length == ms.size())
+        .map(ints -> Arrays.stream(ints)
+            .filter(i -> findDh.applyAsDouble(i) > Metrics.fromMilli(0.0))
+            .toArray())
+        .map(ints -> {
+          LOGGER.info(() -> Arrays.stream(ints)
+              .mapToDouble(findDh)
+              .mapToObj(average -> "%.3f".formatted(Metrics.toMilli(average)))
+              .collect(Collectors.joining("; ", "dh = [", "] mm"))
+          );
+          return IntStream.of(ints).mapToObj(ms::get).collect(Collectors.toList());
+        })
+        .map(dm -> dm.stream().map(derivativeMeasurements -> derivativeMeasurements.stream().toList()).toList())
+        .forEach(this::testSingle);
+  }
+
+
+  @ParameterizedTest
+  @MethodSource("model")
   @Disabled("ignored com.ak.rsm.inverse.Inverse3Test.testSingle")
-  void testSingle(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
+  void testSingle(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms) {
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
     if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
       throw new IllegalStateException("L is not equal for all electrode systems %s".formatted(statisticsL));
@@ -80,11 +122,20 @@ class Inverse3Test {
 
     double hStep = ms.stream().flatMapToDouble(
         dm -> dm.stream().flatMapToDouble(m -> DoubleStream.of(Math.abs(m.dh())))
-    ).min().orElseThrow();
+    ).min().orElseThrow() / 2.0;
+
+    int P1 = 50;
+    int P2mP1 = 50;
+    LOGGER.info(() -> "h = [%.2f; %.2f] mm".formatted(Metrics.toMilli(P1 * hStep), Metrics.toMilli(P2mP1 * hStep)));
 
     var dynamicInverses = ms.stream().map(dm -> DynamicInverse.of(dm, hStep)).toList();
 
     record P(int k1, int k2, int p1, int p2mp1) {
+      private static final int[] Q149 = {1, 1};
+      private static final int[] Q491 = {1, -1};
+      private static final int[] Q941 = {-1, -1};
+      private static final int[] Q914 = {-1, 1};
+      private static final int[] Q = Q914;
       private static final int K_SIZE = 100;
       private static final double[] K_VALUES = Numbers.rangeLog(1.0 / K_SIZE, K_SIZE, K_SIZE + 1).toArray();
 
@@ -97,11 +148,11 @@ class Inverse3Test {
       }
 
       double k12() {
-        return -(1.0 - K_VALUES[k1] / K_SIZE);
+        return Q[0] * (1.0 - K_VALUES[k1] / K_SIZE);
       }
 
       double k23() {
-        return (1.0 - K_VALUES[k2] / K_SIZE);
+        return Q[1] * (1.0 - K_VALUES[k2] / K_SIZE);
       }
     }
 
@@ -127,8 +178,8 @@ class Inverse3Test {
 
     var genotype = Engine
         .builder(v -> cache.apply(new P(v)),
-            Codecs.ofVector(IntRange.of(0, P.K_SIZE), IntRange.of(0, P.K_SIZE), IntRange.of(1, 50), IntRange.of(1, 50)))
-        .populationSize(1 << 9)
+            Codecs.ofVector(IntRange.of(0, P.K_SIZE), IntRange.of(0, P.K_SIZE), IntRange.of(1, P1), IntRange.of(1, P2mP1)))
+        .populationSize(1 << 12)
         .optimize(Optimize.MINIMUM)
         .alterers(new GaussianMutator<>(0.6), new Mutator<>(0.03), new MeanAlterer<>(0.6))
         .build().stream()

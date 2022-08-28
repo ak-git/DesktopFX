@@ -155,13 +155,18 @@ class Inverse2Test {
     );
   }
 
-  static Collection<DerivativeMeasurement> convert(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms) {
+  static Collection<? extends DerivativeMeasurement> convert(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms) {
     var firstMeasurements = ms.iterator().next();
     LOGGER.fine(() -> ms.stream()
         .map(
             m -> m.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)))
         .collect(Collectors.joining(Strings.NEW_LINE_2))
     );
+
+    if (ms.size() == 1) {
+      return firstMeasurements;
+    }
+
     LOGGER.fine(() -> {
       var electrodeSystemsStat = ms.stream().mapToInt(Collection::size).summaryStatistics();
       if (electrodeSystemsStat.getMin() == electrodeSystemsStat.getMax()) {
