@@ -13,7 +13,7 @@ class InverseTestE7694Provider {
   private InverseTestE7694Provider() {
   }
 
-  static Stream<Arguments> e7696_17_52_54_s4() {
+  static Stream<Arguments> e17_52_54_s4() {
     double r1 = 123.0933;
     double r2 = 200.2154;
     double r3i = 66.08913;
@@ -56,7 +56,7 @@ class InverseTestE7694Provider {
     );
   }
 
-  static Stream<Arguments> e7696_17_55_32_s4() {
+  static Stream<Arguments> e17_55_32_s4() {
     double r1 = 120.9013;
     double r2 = 195.1735;
     double r3i = 66.94016;
@@ -99,7 +99,7 @@ class InverseTestE7694Provider {
     );
   }
 
-  static Stream<Arguments> e7696_17_56_55_s4() {
+  static Stream<Arguments> e17_56_55_s4() {
     double r1 = 123.2331;
     double r2 = 197.9802;
     double r3i = 68.04166;
@@ -142,7 +142,7 @@ class InverseTestE7694Provider {
     );
   }
 
-  static Stream<Arguments> e7696_17_58_47_s4() {
+  static Stream<Arguments> e17_58_47_s4() {
     double r1 = 117.3288;
     double r2 = 184.423;
     double r3i = 64.08679;
@@ -185,7 +185,7 @@ class InverseTestE7694Provider {
     );
   }
 
-  static Stream<Arguments> e7696_18_23_57_s4() {
+  static Stream<Arguments> e18_23_57_s4() {
     double r1 = 136.233;
     double r2 = 210.4502;
     double r3i = 85.85658;
@@ -228,7 +228,7 @@ class InverseTestE7694Provider {
     );
   }
 
-  static Stream<Arguments> e7696_18_27_01_s4() {
+  static Stream<Arguments> e18_27_01_s4() {
     double r1 = 124.2859;
     double r2 = 185.9248;
     double r3i = 78.56918;
