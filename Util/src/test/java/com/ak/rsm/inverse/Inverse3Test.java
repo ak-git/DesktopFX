@@ -81,10 +81,6 @@ class Inverse3Test {
   @MethodSource("model")
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testCombinations")
   void testCombinations(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
-    testForSystems(ms);
-  }
-
-  private void testForSystems(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
     IntToDoubleFunction findDh = i -> ms.get(i).stream().mapToDouble(DerivativeResistivity::dh).summaryStatistics().getAverage();
 
     IntStream.rangeClosed(1, ms.size())
@@ -97,6 +93,7 @@ class Inverse3Test {
         .filter(ints -> ints.length == ms.size())
         .map(ints -> Arrays.stream(ints)
             .filter(i -> findDh.applyAsDouble(i) > Metrics.fromMilli(0.0))
+            .filter(i -> findDh.applyAsDouble(i) < Metrics.fromMilli(0.3))
             .toArray())
         .map(ints -> {
           LOGGER.info(() -> Arrays.stream(ints)
@@ -110,6 +107,24 @@ class Inverse3Test {
         .forEach(this::testSingle);
   }
 
+  @Nonnegative
+  @ParametersAreNonnullByDefault
+  private static ValuePair getRho1(Collection<? extends DerivativeMeasurement> measurements, double[] kw, @Nonnegative double hStep) {
+    return measurements.stream().parallel()
+        .map(measurement -> {
+          TetrapolarSystem s = measurement.system();
+          double normApparent = Apparent3Rho.newNormalizedApparent2Rho(s.relativeSystem())
+              .value(
+                  kw[0], kw[1],
+                  hStep / s.lCC(),
+                  (int) Math.round(kw[2]), (int) Math.round(kw[3])
+              );
+          return ValuePair.Name.RHO_1.of(measurement.resistivity() / normApparent,
+              0.0
+          );
+        })
+        .reduce(ValuePair::mergeWith).orElseThrow();
+  }
 
   @ParameterizedTest
   @MethodSource("model")
@@ -136,7 +151,7 @@ class Inverse3Test {
       private static final int[] Q941 = {-1, -1};
       private static final int[] Q914 = {-1, 1};
       private static final int[] Q = Q914;
-      private static final int K_SIZE = 100;
+      private static final int K_SIZE = 200;
       private static final double[] K_VALUES = Numbers.rangeLog(1.0 / K_SIZE, K_SIZE, K_SIZE + 1).toArray();
 
       P(@Nonnull int[] v) {
@@ -157,9 +172,16 @@ class Inverse3Test {
     }
 
     Function<P, Double> cache = new ConcurrentCache<>(
-        p -> dynamicInverses.stream()
-            .mapToDouble(value -> value.applyAsDouble(new double[] {p.k12(), p.k23(), p.p1, p.p2mp1}))
-            .reduce(StrictMath::hypot).orElseThrow()
+        p -> {
+          if (p.p1 > p.p2mp1) {
+            return Double.POSITIVE_INFINITY;
+          }
+          else {
+            return dynamicInverses.stream()
+                .mapToDouble(value -> value.applyAsDouble(new double[] {p.k12(), p.k23(), p.p1, p.p2mp1}))
+                .reduce(StrictMath::hypot).orElseThrow();
+          }
+        }
     );
 
     Consumer<P> print = p -> {
@@ -188,24 +210,5 @@ class Inverse3Test {
         .collect(toBestGenotype());
     Assertions.assertNotNull(genotype);
     print.accept(new P(genotype));
-  }
-
-  @Nonnegative
-  @ParametersAreNonnullByDefault
-  private static ValuePair getRho1(Collection<? extends DerivativeMeasurement> measurements, double[] kw, @Nonnegative double hStep) {
-    return measurements.stream().parallel()
-        .map(measurement -> {
-          TetrapolarSystem s = measurement.system();
-          double normApparent = Apparent3Rho.newNormalizedApparent2Rho(s.relativeSystem())
-              .value(
-                  kw[0], kw[1],
-                  hStep / s.lCC(),
-                  (int) Math.round(kw[2]), (int) Math.round(kw[3])
-              );
-          return ValuePair.Name.RHO_1.of(measurement.resistivity() / normApparent,
-              0.0
-          );
-        })
-        .reduce(ValuePair::mergeWith).orElseThrow();
   }
 }
