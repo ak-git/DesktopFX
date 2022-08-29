@@ -50,19 +50,12 @@ class Inverse2Test {
 
       "com.ak.rsm.inverse.InverseTestE7672Provider#ak16_44_53",
 
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_17_52_54_s4",
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_17_55_32_s4",
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_17_56_55_s4",
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_17_58_47_s4",
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_18_23_57_s4",
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_18_27_01_s4",
-
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_17_52_54_s4",
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_17_55_32_s4",
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_17_56_55_s4",
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_17_58_47_s4",
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_18_23_57_s4",
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e7696_18_27_01_s4",
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e17_52_54_s4",
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e17_55_32_s4",
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e17_56_55_s4",
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e17_58_47_s4",
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e18_23_57_s4",
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e18_27_01_s4",
 
       "com.ak.rsm.inverse.InverseTestE7701Provider#e7701_14_30_08_s4",
       "com.ak.rsm.inverse.InverseTestE7701Provider#e7701_14_31_24_s4",
@@ -98,7 +91,6 @@ class Inverse2Test {
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testCombinations")
   void testCombinations(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
-    testForSystems(ms, 2);
     testForSystems(ms, ms.get(0).size());
   }
 
