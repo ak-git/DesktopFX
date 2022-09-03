@@ -28,7 +28,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, 
       return s;
     }
     else {
-      return "%s; %s = %.3f %s; dh = %.3f mm".formatted(s, Strings.CAP_DELTA, dOhms(), OHM, Metrics.toMilli(dh));
+      return "%s; R = %.3f %s; %s = %.3f %s; dh = %.3f mm".formatted(s, ohms(), OHM, Strings.CAP_DELTA, dOhms(), OHM, Metrics.toMilli(dh));
     }
   }
 
@@ -41,6 +41,11 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, 
   @Override
   public double resistivity() {
     return measurement.resistivity();
+  }
+
+  @Override
+  public double ohms() {
+    return measurement.ohms();
   }
 
   @Override
