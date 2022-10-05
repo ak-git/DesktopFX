@@ -11,18 +11,20 @@ import com.ak.rsm.measurement.Measurement;
 abstract class AbstractRelative<M extends Measurement, L> extends AbstractErrors implements Inverse<L> {
   @Nonnull
   private final Collection<M> measurements;
-  @Nonnegative
-  private final double maxHToL;
 
   AbstractRelative(@Nonnull Collection<? extends M> measurements) {
     super(measurements.stream().map(Measurement::inexact).toList());
     this.measurements = Collections.unmodifiableCollection(measurements);
-    maxHToL = inexactSystems().parallelStream().mapToDouble(s -> s.getHMax(1.0)).min().orElseThrow() / baseL();
   }
 
   @Nonnegative
-  final double getMaxHToL() {
-    return maxHToL;
+  final double getMaxHToL(double k) {
+    return inexactSystems().parallelStream().mapToDouble(s -> s.getHMax(k)).min().orElseThrow() / baseL();
+  }
+
+  @Nonnegative
+  final double getMinHToL(double k) {
+    return inexactSystems().parallelStream().mapToDouble(s -> s.getHMin(k)).max().orElseThrow() / baseL();
   }
 
   @Nonnull
