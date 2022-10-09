@@ -56,7 +56,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, 
   @Nonnull
   @Override
   public Measurement merge(@Nonnull Measurement that) {
-    throw new UnsupportedOperationException(that.toString());
+    return new TetrapolarMeasurement(inexact(), resistivity()).merge(new TetrapolarMeasurement(that.inexact(), that.resistivity()));
   }
 
   @Nonnull

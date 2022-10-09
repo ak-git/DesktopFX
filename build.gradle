@@ -9,8 +9,8 @@ plugins {
     id "application"
     id 'org.openjfx.javafxplugin' version '0.0.13'
 
-    id 'org.springframework.boot' version '2.7.2'
-    id 'io.spring.dependency-management' version '1.0.13.RELEASE'
+    id 'org.springframework.boot' version '2.7.4'
+    id 'io.spring.dependency-management' version '1.0.14.RELEASE'
     id "com.github.spotbugs" version '5.0.9'
 }
 
@@ -42,7 +42,7 @@ jacoco {
 }
 
 ext {
-    junit = 'org.junit:junit-bom:5.9.0'
+    junit = 'org.junit:junit-bom:5.9.1'
     assertj = 'org.assertj:assertj-core:3.23.1'
     jsr305 = 'com.google.code.findbugs:jsr305:3.0.2'
     javax_inject = 'javax.inject:javax.inject:1'
@@ -63,7 +63,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2022.08.13'
+    version = '2022.10.09'
     apply plugin: 'idea'
     idea {
         module {
