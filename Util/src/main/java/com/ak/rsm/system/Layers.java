@@ -1,12 +1,11 @@
 package com.ak.rsm.system;
 
-import java.util.function.IntToDoubleFunction;
-import java.util.stream.IntStream;
+import com.ak.numbers.CoefficientsUtils;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-
-import com.ak.numbers.CoefficientsUtils;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.IntStream;
 
 public enum Layers {
   ;
