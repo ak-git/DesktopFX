@@ -1,19 +1,6 @@
 package com.ak.math;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.stream.IntStream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import io.jenetics.DoubleGene;
-import io.jenetics.Genotype;
-import io.jenetics.MeanAlterer;
-import io.jenetics.Mutator;
-import io.jenetics.Optimize;
-import io.jenetics.Phenotype;
+import io.jenetics.*;
 import io.jenetics.engine.Codecs;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.Limits;
@@ -30,6 +17,14 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.util.Pair;
+
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.concurrent.ForkJoinPool;
+import java.util.stream.IntStream;
 
 import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 
@@ -144,9 +139,12 @@ public enum Simplex {
         .mapToObj(i -> new Bounds(bounds[i].min, initialGuess[i], bounds[i].max))
         .toArray(Bounds[]::new);
 
-    return EnumSet.complementOf(EnumSet.of(JENETICS)).stream()
-        .map(simplex -> simplex.optimize(function, minInitialMax))
-        .parallel().min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
+    EnumSet<Simplex> simplexes = EnumSet.complementOf(EnumSet.of(JENETICS));
+    try (ForkJoinPool pool = new ForkJoinPool(simplexes.size())) {
+      return pool.submit(() -> simplexes.stream()
+          .map(simplex -> simplex.optimize(function, minInitialMax))
+          .parallel().min(Comparator.comparingDouble(Pair::getValue)).orElseThrow()).join();
+    }
   }
 
   @Nonnull

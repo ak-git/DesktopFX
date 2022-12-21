@@ -3,7 +3,7 @@
     <option name="ACTIVE_PROFILES" value="aper1-R2-6mm, purelogic" />
     <option name="ENABLE_JMX_AGENT" value="false" />
     <option name="ENABLE_LAUNCH_OPTIMIZATION" value="false" />
-    <module name="com.ak.DesktopFX.main" />
+    <module name="DesktopFX.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.ak.fx.desktop.SpringFxApplication" />
     <method v="2">
       <option name="Make" enabled="true" />
