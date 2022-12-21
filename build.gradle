@@ -45,7 +45,7 @@ ext {
     junit = 'org.junit:junit-bom:5.9.1'
     assertj = 'org.assertj:assertj-core:3.23.1'
     jsr305 = 'com.google.code.findbugs:jsr305:3.0.2'
-    javax_inject = 'javax.inject:javax.inject:1'
+    javax_inject = 'jakarta.inject:jakarta.inject-api:2.0.1.MR'
     uom_se = 'tec.uom:uom-se:1.0.10'
     javax_json = 'org.glassfish:javax.json:1.1.4'
     commons_math3 = 'org.apache.commons:commons-math3:3.6.1'
@@ -63,7 +63,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2022.11.12'
+    version = '2022.12.21'
     apply plugin: 'idea'
     idea {
         module {
@@ -133,7 +133,7 @@ javafx {
 }
 
 configurations {
-    all {
+    configureEach {
         exclude group: 'jakarta.annotation', module: 'jakarta.annotation-api'
         exclude group: 'aopalliance', module: 'aopalliance'
     }

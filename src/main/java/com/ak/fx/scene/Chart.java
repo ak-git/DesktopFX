@@ -1,14 +1,6 @@
 package com.ak.fx.scene;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.function.DoubleFunction;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.inject.Inject;
-
+import jakarta.inject.Inject;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -16,9 +8,14 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
-import static com.ak.fx.scene.GridCell.BIG;
-import static com.ak.fx.scene.GridCell.POINTS;
-import static com.ak.fx.scene.GridCell.SMALL;
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.DoubleFunction;
+
+import static com.ak.fx.scene.GridCell.*;
 
 public final class Chart extends AbstractRegion {
   private final MilliGrid milliGrid = new MilliGrid();
