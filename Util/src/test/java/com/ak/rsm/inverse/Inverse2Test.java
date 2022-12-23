@@ -1,146 +1,201 @@
 package com.ak.rsm.inverse;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.DoubleSummaryStatistics;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Function;
-import java.util.function.ToDoubleFunction;
+import java.util.function.IntToDoubleFunction;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-import com.ak.math.Simplex;
-import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.DerivativeMeasurement;
+import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
-import com.ak.rsm.medium.Layer2Medium;
-import com.ak.rsm.medium.MediumLayers;
-import com.ak.rsm.relative.Layer2RelativeMedium;
-import org.apache.commons.math3.optim.PointValuePair;
+import com.ak.rsm.resistance.DerivativeResistivity;
+import com.ak.rsm.system.TetrapolarSystem;
+import com.ak.util.Metrics;
+import com.ak.util.Strings;
+import org.apache.commons.math3.fitting.PolynomialCurveFitter;
+import org.apache.commons.math3.fitting.WeightedObservedPoint;
+import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.apache.commons.math3.util.CombinatoricsUtils;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class Inverse2Test {
-  @DataProvider(name = "E-7694")
-  public static Object[][] e7694() {
-    return new Object[][] {
-        {
-            List.of(
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system4(7.0)
-                    .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
-                        122.3 + 0.1, 199.0 + 0.4, (66.0 + 0.1) * 2, (202.0 + 0.25) * 2 - (66.0 + 0.1) * 2),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 2).system4(7.0)
-                    .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
-                        122.3 + 0.3, 199.0 + 0.75, (66.0 + 0.2) * 2, (202.0 + 0.75) * 2 - (66.0 + 0.2) * 2),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 4).system4(7.0)
-                    .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
-                        122.3 + 0.6, 199.0 + 2.0, (66.0 + 0.6) * 2, (202.0 + 1.75) * 2 - (66.0 + 0.6) * 2),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 4).system4(7.0)
-                    .ofOhms(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
-                        122.3 - 0.3, 199.0 - 1.5, (66.0 - 0.3) * 2, (202.0 - 1.0) * 2 - (66.0 - 0.3) * 2)
-            )
-        },
-    };
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
+class Inverse2Test {
+  private static final Logger LOGGER = Logger.getLogger(Inverse2Test.class.getName());
+
+  @ParameterizedTest
+  @MethodSource({
+      "com.ak.rsm.inverse.InverseTestE7645Provider#n18_09_44",
+      "com.ak.rsm.inverse.InverseTestE7645Provider#n18_10_42",
+      "com.ak.rsm.inverse.InverseTestE7645Provider#n18_12_22",
+      "com.ak.rsm.inverse.InverseTestE7645Provider#n18_12_59",
+
+      "com.ak.rsm.inverse.InverseTestE7661Provider#ak14_26_39",
+
+      "com.ak.rsm.inverse.InverseTestE7672Provider#ak16_44_53",
+
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e17_52_54_s4",
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e17_55_32_s4",
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e17_56_55_s4",
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e17_58_47_s4",
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e18_23_57_s4",
+      "com.ak.rsm.inverse.InverseTestE7694Provider#e18_27_01_s4",
+
+      "com.ak.rsm.inverse.InverseTestE7701Provider#e7701_14_30_08_s4",
+      "com.ak.rsm.inverse.InverseTestE7701Provider#e7701_14_31_24_s4",
+      "com.ak.rsm.inverse.InverseTestE7701Provider#e7701_14_33_36_s4",
+
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_315",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_420",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_525",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_609",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_735",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_840",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_945",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_1092",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_1197",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_1197a",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_567",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_567a",
+      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_168",
+
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_105a",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_210a",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_315a",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_420a",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_525a",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_630a",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_735",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_630",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_525",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_420",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_315",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_210",
+      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_105",
+  })
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testCombinations")
+  void testCombinations(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
+    testForSystems(ms, ms.get(0).size());
   }
 
-  @DataProvider(name = "E-7694-105plus")
-  public static Object[][] e7694plus105() {
-    return new Object[][] {
-        {
-            List.of(
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system4(7.0)
-                    .ofOhms(120.8, 195.0, 66.9 * 2, 198.5 * 2 - 66.9 * 2,
-                        120.8 + 0.15, 195.0 + 0.5, (66.9 + 0.15) * 2, (198.5 + 0.5) * 2 - (66.9 + 0.15) * 2),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 2).system4(7.0)
-                    .ofOhms(120.8, 195.0, 66.9 * 2, 198.5 * 2 - 66.9 * 2,
-                        120.8 + 0.4, 195.0 + 1.0, (66.9 + 0.3) * 2, (198.5 + 1.25) * 2 - (66.9 + 0.3) * 2),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 4).system4(7.0)
-                    .ofOhms(120.8, 195.0, 66.9 * 2, 198.5 * 2 - 66.9 * 2,
-                        120.8 + 1.1, 195.0 + 2.5, (66.9 + 0.9) * 2, (198.5 + 2.5) * 2 - (66.9 + 0.9) * 2),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21).system4(7.0)
-                    .ofOhms(120.8, 195.0, 66.9 * 2, 198.5 * 2 - 66.9 * 2,
-                        120.8 - 0.15, 195.0 - 0.5, (66.9 - 0.125) * 2, (198.5 - 0.25) * 2 - (66.9 - 0.125) * 2),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 2).system4(7.0)
-                    .ofOhms(120.8, 195.0, 66.9 * 2, 198.5 * 2 - 66.9 * 2,
-                        120.8 - 0.3, 195.0 - 1.0, (66.9 - 0.25) * 2, (198.5 - 0.7) * 2 - (66.9 - 0.25) * 2),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 4).system4(7.0)
-                    .ofOhms(120.8, 195.0, 66.9 * 2, 198.5 * 2 - 66.9 * 2,
-                        120.8 - 0.6, 195.0 - 1.5, (66.9 - 0.5) * 2, (198.5 - 1.5) * 2 - (66.9 - 0.5) * 2)
-            )
-        },
-    };
-  }
+  private void testForSystems(@Nonnull List<Collection<DerivativeMeasurement>> ms, @Nonnegative int countSystems) {
+    IntToDoubleFunction findDh = i -> ms.get(i).stream().mapToDouble(DerivativeResistivity::dh).summaryStatistics().getAverage();
 
-  @DataProvider(name = "E-7694-2")
-  public static Object[][] e7694_2() {
-    return new Object[][] {
-        {
-            List.of(
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system4(7.0)
-                    .ofOhms(123.5, 198.0, 68.0 * 2, 202.0 * 2 - 68.0 * 2,
-                        123.5 + 0.5, 198.0 + 0.75, (68.0 + 0.25) * 2, (202.0 + 1.0) * 2 - (68.0 + 0.25) * 2),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 2).system4(7.0)
-                    .ofOhms(123.5, 198.0, 68.0 * 2, 202.0 * 2 - 68.0 * 2,
-                        123.5 + 1.0, 198.0 + 2.0, (68.0 + 0.5) * 2, (202.0 + 2.0) * 2 - (68.0 + 0.5) * 2),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 4).system4(7.0)
-                    .ofOhms(123.5, 198.0, 68.0 * 2, 202.0 * 2 - 68.0 * 2,
-                        123.5 + 2.0, 198.0 + 5.0, (68.0 + 1.5) * 2, (202.0 + 6.0) * 2 - (68.0 + 1.5) * 2),
-
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21).system4(7.0)
-                    .ofOhms(123.5, 198.0, 68.0 * 2, 202.0 * 2 - 68.0 * 2,
-                        123.5 - 0.3, 198.0 - 0.75, (68.0 - 0.2) * 2, (202.0 - 1.0) * 2 - (68.0 - 0.2) * 2),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 2).system4(7.0)
-                    .ofOhms(123.5, 198.0, 68.0 * 2, 202.0 * 2 - 68.0 * 2,
-                        123.5 - 0.7, 198.0 - 1.5, (68.0 - 0.375) * 2, (202.0 - 2.0) * 2 - (68.0 - 0.375) * 2),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 4).system4(7.0)
-                    .ofOhms(123.5, 198.0, 68.0 * 2, 202.0 * 2 - 68.0 * 2,
-                        123.5 - 1.25, 198.0 - 3.0, (68.0 - 0.75) * 2, (202.0 - 3.5) * 2 - (68.0 - 0.75) * 2)
-            )
-        },
-    };
-  }
-
-
-  @Test(dataProvider = "E-7694-2", enabled = false)
-  @ParametersAreNonnullByDefault
-  public void testNoChanged(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
-    List<ToDoubleFunction<double[]>> dynamicInverses = ms.stream().map(DynamicInverse::of).toList();
-
-    DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
-    if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
-      throw new IllegalStateException("L is not equal for all electrode systems %s".formatted(statisticsL));
-    }
-
-    PointValuePair kwOptimal = Simplex.optimizeAll(
-        kw -> dynamicInverses.stream().mapToDouble(value -> value.applyAsDouble(kw))
-            .reduce(StrictMath::hypot).orElseThrow(),
-        new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, 1.0)
-    );
-    List<Layer2Medium> mediumList = ms.stream().map(dm -> new Layer2Medium(dm, new Layer2RelativeMedium(kwOptimal.getPoint()))).toList();
-    var rho1 = mediumList.stream().map(MediumLayers::rho1).reduce(ValuePair::mergeWith).orElseThrow();
-    var rho2 = mediumList.stream().map(MediumLayers::rho2).reduce(ValuePair::mergeWith).orElseThrow();
-    var h = mediumList.stream().map(MediumLayers::h1).reduce(ValuePair::mergeWith).orElseThrow();
-    Logger.getAnonymousLogger().info(() -> "%.6f; %s; %s; %s".formatted(kwOptimal.getValue(), rho1, rho2, h));
-  }
-
-  @Test(dataProvider = "E-7694-2", enabled = false)
-  public void test(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
-    IntStream.range(1, ms.size())
+    IntStream.rangeClosed(1, ms.size())
         .mapToObj(value ->
             StreamSupport.stream(
                 Spliterators.spliteratorUnknownSize(CombinatoricsUtils.combinationsIterator(ms.size(), value), Spliterator.ORDERED),
                 false)
         )
         .flatMap(Function.identity())
-        .map(ints -> IntStream.of(ints).mapToObj(ms::get).collect(Collectors.toList()))
-        .forEach(this::testNoChanged);
+        .filter(ints -> ints.length == ms.size())
+        .map(ints -> Arrays.stream(ints).filter(i -> Math.abs(findDh.applyAsDouble(i)) > Metrics.fromMilli(0.2)).toArray())
+        .map(ints -> {
+          LOGGER.fine(() -> Arrays.stream(ints)
+              .mapToDouble(findDh)
+              .mapToObj(average -> "%.3f".formatted(Metrics.toMilli(average)))
+              .collect(Collectors.joining("; ", "dh = [", "] mm"))
+          );
+          return IntStream.of(ints).mapToObj(ms::get).collect(Collectors.toList());
+        })
+        .map(dm -> dm.stream().map(derivativeMeasurements -> derivativeMeasurements.stream().limit(countSystems).toList()).toList())
+        .forEach(this::testSingle);
+  }
+
+  @ParameterizedTest
+  @MethodSource("layer2Model")
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testSingle")
+  void testSingle(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms) {
+    var derivativeMeasurements = convert(ms);
+    LOGGER.fine(() -> "%n%s".formatted(derivativeMeasurements.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE))));
+    var medium = new DynamicAbsolute(derivativeMeasurements).get();
+    Assertions.assertNotNull(medium);
+    LOGGER.info(medium::toString);
+  }
+
+  static Stream<Arguments> layer2Model() {
+    double rho1 = 4.0;
+    double rho2 = 1.0;
+    double hmm = 8.0;
+    return Stream.of(
+        arguments(
+            List.of(
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 4).system4(7.0).rho1(rho1).rho2(rho2).h(hmm),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21 * 2).system4(7.0).rho1(rho1).rho2(rho2).h(hmm),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21).system4(7.0).rho1(rho1).rho2(rho2).h(hmm),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system4(7.0).rho1(rho1).rho2(rho2).h(hmm),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 2).system4(7.0).rho1(rho1).rho2(rho2).h(hmm),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 4).system4(7.0).rho1(rho1).rho2(rho2).h(hmm)
+            )
+        )
+    );
+  }
+
+  static Collection<? extends DerivativeMeasurement> convert(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms) {
+    var firstMeasurements = ms.iterator().next();
+    LOGGER.fine(() -> ms.stream()
+        .map(
+            m -> m.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)))
+        .collect(Collectors.joining(Strings.NEW_LINE_2))
+    );
+
+    if (ms.size() == 1) {
+      return firstMeasurements;
+    }
+
+    LOGGER.fine(() -> {
+      var electrodeSystemsStat = ms.stream().mapToInt(Collection::size).summaryStatistics();
+      if (electrodeSystemsStat.getMin() == electrodeSystemsStat.getMax()) {
+        var tetrapolarSystems = firstMeasurements.stream().map(Measurement::system).map(TetrapolarSystem::toString)
+            .collect(Collectors.joining("; ", "[", "]"));
+        return "Use %d electrode systems: %s".formatted(electrodeSystemsStat.getMin(), tetrapolarSystems);
+      }
+      else {
+        throw new IllegalStateException("Count systems is not equal for all electrode systems %s".formatted(electrodeSystemsStat));
+      }
+    });
+    var statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
+    if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
+      throw new IllegalStateException("L is not equal for all electrode systems %s".formatted(statisticsL));
+    }
+
+    var avgDerivate = ms.stream()
+        .map(dm -> dm.stream()
+            .map(m -> new WeightedObservedPoint(1.0, m.dh(), m.derivativeResistivity())).toList()
+        )
+        .reduce(
+            firstMeasurements.stream().map(dm -> new WeightedObservedPoints()).toList(),
+            (wpList, wp) -> {
+              IntStream.range(0, wpList.size()).forEach(i -> wpList.get(i).add(wp.get(i)));
+              return wpList;
+            },
+            (eq1, eq2) -> eq1)
+        .stream()
+        .map(weightedObservedPoints -> PolynomialCurveFitter.create(2).fit(weightedObservedPoints.toList()))
+        .mapToDouble(value -> value[0])
+        .iterator();
+
+    return firstMeasurements.stream()
+        .map(dm -> TetrapolarDerivativeMeasurement
+            .ofSI(dm.inexact().absError()).dh(Double.NaN)
+            .system(dm.inexact().system().sPU(), dm.inexact().system().lCC())
+            .rho(dm.resistivity(), avgDerivate.nextDouble()))
+        .toList();
   }
 }

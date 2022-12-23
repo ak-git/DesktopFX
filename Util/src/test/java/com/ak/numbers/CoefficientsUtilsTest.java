@@ -1,25 +1,29 @@
 package com.ak.numbers;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Objects;
 import java.util.Scanner;
 
 import com.ak.util.Extension;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-public class CoefficientsUtilsTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.byLessThan;
+
+class CoefficientsUtilsTest {
   @Test
-  public void testSerialize() {
+  void testSerialize() {
     double[] out = CoefficientsUtils.serialize(new double[] {1.0, -1.0, 3.0, -3.0}, new double[] {1.0, -1.0}, 5);
-    Assert.assertEquals(out, new double[] {1.0, 0.0, 3.0, 0.0, 0.0}, 1.0e-3);
+    assertThat(out).containsExactly(new double[] {1.0, 0.0, 3.0, 0.0, 0.0}, byLessThan(1.0e-3));
   }
 
   @Test
-  public void testRead() {
-    InputStream resourceAsStream = getClass().getResourceAsStream(Extension.TXT.attachTo("DIFF"));
-    Scanner scanner = new Scanner(Objects.requireNonNull(resourceAsStream), Charset.defaultCharset().name());
-    Assert.assertEquals(CoefficientsUtils.read(scanner), new double[] {-1.0, 0.0, 1.0});
+  void testRead() throws IOException {
+    try (InputStream resourceAsStream = getClass().getResourceAsStream(Extension.TXT.attachTo("DIFF"))) {
+      Scanner scanner = new Scanner(Objects.requireNonNull(resourceAsStream), Charset.defaultCharset().name());
+      assertThat(CoefficientsUtils.read(scanner)).containsExactly(-1.0, 0.0, 1.0);
+    }
   }
 }

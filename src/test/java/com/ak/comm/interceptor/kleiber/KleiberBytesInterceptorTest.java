@@ -13,16 +13,17 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.bytes.LogUtils;
 import com.ak.comm.log.LogTestUtils;
-import com.ak.util.Strings;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-public class KleiberBytesInterceptorTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class KleiberBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(KleiberBytesInterceptor.class.getName());
   private static final double[] EMPTY = {};
 
   @Test
-  public void test() {
+  void test() {
     testResponse(
         new byte[] {
             (byte) 0xaa,
@@ -47,14 +48,13 @@ public class KleiberBytesInterceptorTest {
   @ParametersAreNonnullByDefault
   private static void testResponse(byte[] input, double[] expected, boolean logFlag) {
     Function<ByteBuffer, Stream<BufferFrame>> interceptor = new KleiberBytesInterceptor();
-    Assert.assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {
+    assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {
       List<BufferFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).toList();
       if (!frames.isEmpty()) {
-        Assert.assertEquals(frames.stream().mapToDouble(value -> value.getFloat(1)).toArray(), expected, 0.001,
-            frames.stream().map(BufferFrame::toString).collect(Collectors.joining()));
+        assertThat(frames.stream().mapToDouble(value -> value.getFloat(1)).toArray())
+            .withFailMessage(() -> frames.stream().map(BufferFrame::toString).collect(Collectors.joining()))
+            .containsExactly(expected);
       }
-    }, logRecord -> Assert.assertNotNull(
-        logRecord.getMessage().replaceAll(".*" + BufferFrame.class.getSimpleName(), Strings.EMPTY)
-    )), logFlag);
+    }, logRecord -> assertThat(logRecord.getMessage()).contains(BufferFrame.class.getSimpleName())), logFlag);
   }
 }

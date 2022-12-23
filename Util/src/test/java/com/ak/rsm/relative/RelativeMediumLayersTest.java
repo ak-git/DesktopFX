@@ -1,24 +1,26 @@
 package com.ak.rsm.relative;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import com.ak.util.Strings;
+import org.junit.jupiter.api.Test;
 
-public class RelativeMediumLayersTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class RelativeMediumLayersTest {
   @Test
-  public void testSingleLayer() {
-    Assert.assertEquals(RelativeMediumLayers.SINGLE_LAYER.k12(), 0.0, 0.1);
-    Assert.assertEquals(RelativeMediumLayers.SINGLE_LAYER.k12AbsError(), 0.0, 0.1);
-    Assert.assertEquals(RelativeMediumLayers.SINGLE_LAYER.hToL(), Double.NaN, 0.1);
-    Assert.assertEquals(RelativeMediumLayers.SINGLE_LAYER.hToLAbsError(), 0.0, 0.1);
-    Assert.assertTrue(RelativeMediumLayers.SINGLE_LAYER.toString().isEmpty());
+  void testSingleLayer() {
+    assertThat(RelativeMediumLayers.SINGLE_LAYER.k12()).isZero();
+    assertThat(RelativeMediumLayers.SINGLE_LAYER.k12AbsError()).isZero();
+    assertThat(RelativeMediumLayers.SINGLE_LAYER.hToL()).isNaN();
+    assertThat(RelativeMediumLayers.SINGLE_LAYER.hToLAbsError()).isZero();
+    assertThat(RelativeMediumLayers.SINGLE_LAYER).hasToString(Strings.EMPTY);
   }
 
   @Test
-  public void testNaN() {
-    Assert.assertEquals(RelativeMediumLayers.NAN.k12(), Double.NaN, 0.1);
-    Assert.assertEquals(RelativeMediumLayers.NAN.k12AbsError(), 0.0, 0.1);
-    Assert.assertEquals(RelativeMediumLayers.NAN.hToL(), Double.NaN, 0.1);
-    Assert.assertEquals(RelativeMediumLayers.NAN.hToLAbsError(), 0.0, 0.1);
-    Assert.assertEquals(RelativeMediumLayers.NAN.toString(), String.valueOf(Double.NaN));
+  void testNaN() {
+    assertThat(RelativeMediumLayers.NAN.k12()).isNaN();
+    assertThat(RelativeMediumLayers.NAN.k12AbsError()).isZero();
+    assertThat(RelativeMediumLayers.NAN.hToL()).isNaN();
+    assertThat(RelativeMediumLayers.NAN.hToLAbsError()).isZero();
+    assertThat(Double.toString(Double.NaN)).hasToString(RelativeMediumLayers.NAN.toString());
   }
 }

@@ -1,7 +1,5 @@
 package com.ak.fx.desktop.nmisr;
 
-import javax.inject.Named;
-
 import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.converter.rsce.RsceConverter;
@@ -9,8 +7,9 @@ import com.ak.comm.converter.rsce.RsceVariable;
 import com.ak.comm.interceptor.nmisr.NmisRsceBytesInterceptor;
 import com.ak.fx.desktop.AbstractScheduledViewController;
 import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
-@Named
+@Component
 @Profile("nmis-rsce")
 public final class NmisRsceViewController extends AbstractScheduledViewController<NmisRequest, RsceCommandFrame, RsceVariable> {
   private static final NmisRequest.Sequence[] PINGS = {

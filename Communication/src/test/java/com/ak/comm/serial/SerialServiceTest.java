@@ -3,7 +3,6 @@ package com.ak.comm.serial;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -11,10 +10,14 @@ import java.util.stream.IntStream;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-public class SerialServiceTest {
-  @Test(enabled = false)
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+class SerialServiceTest {
+  @Test
+  @Disabled("ignored com.ak.comm.serial.SerialServiceTest.testCycle")
   void testCycle() {
     SerialPort comPort = SerialPort.getCommPorts()[3];
     Logger.getLogger(getClass().getName()).info("[%s] %s".formatted(comPort.getSystemPortName(), comPort.getDescriptivePortName()));
@@ -32,6 +35,7 @@ public class SerialServiceTest {
         public void serialEvent(SerialPortEvent event) {
           if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_RECEIVED) {
             byte[] newData = event.getReceivedData();
+            assertNotNull(newData);
             Logger.getLogger(getClass().getName()).info("%s : %s%n%s".formatted(event.getSerialPort(), Arrays.toString(newData),
                 new String(newData, StandardCharsets.UTF_8)));
             semaphore.release();
@@ -47,8 +51,6 @@ public class SerialServiceTest {
           comPort.writeBytes(buffer, buffer.length);
           try {
             semaphore.acquire();
-            double factor = value > 0 ? 1.0 : 1.618;
-            TimeUnit.MILLISECONDS.sleep(Math.round(1000 * factor));
           }
           catch (InterruptedException e) {
             Logger.getLogger(getClass().getName()).log(Level.WARNING, e, () ->
@@ -59,7 +61,8 @@ public class SerialServiceTest {
     }
   }
 
-  @Test(enabled = false)
+  @Test
+  @Disabled("ignored com.ak.comm.serial.SerialServiceTest.testSingle")
   void testSingle() {
     SerialPort comPort = SerialPort.getCommPorts()[3];
     Logger.getLogger(getClass().getName()).info("[%s] %s".formatted(comPort.getSystemPortName(), comPort.getDescriptivePortName()));
@@ -77,6 +80,7 @@ public class SerialServiceTest {
         public void serialEvent(SerialPortEvent event) {
           if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_RECEIVED) {
             byte[] newData = event.getReceivedData();
+            assertNotNull(newData);
             Logger.getLogger(getClass().getName()).info("%s : %s%n%s".formatted(event.getSerialPort(), Arrays.toString(newData),
                 new String(newData, StandardCharsets.UTF_8)));
             semaphore.release();

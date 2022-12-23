@@ -1,21 +1,23 @@
 package com.ak.logging;
 
 import com.ak.util.OS;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
-public class LogOSDirectoryTest {
-  @Test
-  public void testNames() {
-    for (OS os : OS.values()) {
-      LogOSDirectory.valueOf(os.name());
-    }
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+class LogOSDirectoryTest {
+  @ParameterizedTest
+  @EnumSource
+  void testNames(OS os) {
+    assertNotNull(LogOSDirectory.valueOf(os.name()), os::name);
   }
 
   @Test
-  public void testGetDirectory() {
+  void testGetDirectory() {
     for (LogOSDirectory directory : LogOSDirectory.values()) {
-      Assert.assertNotNull(directory.getDirectory());
+      assertNotNull(directory.getDirectory());
     }
   }
 }

@@ -1,26 +1,5 @@
 package com.ak.fx.desktop;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Objects;
-import java.util.ResourceBundle;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Flow;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.annotation.ParametersAreNonnullByDefault;
-import javax.annotation.ParametersAreNullableByDefault;
-import javax.inject.Provider;
-
 import com.ak.comm.GroupService;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
@@ -36,6 +15,7 @@ import com.ak.fx.util.FxUtils;
 import com.ak.logging.OutputBuilders;
 import com.ak.util.Extension;
 import com.ak.util.Strings;
+import jakarta.inject.Provider;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.SequentialTransition;
@@ -46,6 +26,20 @@ import javafx.fxml.Initializable;
 import javafx.scene.input.TransferMode;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Value;
+
+import javax.annotation.*;
+import java.io.Closeable;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Objects;
+import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Flow;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
     implements Initializable, Flow.Subscriber<int[]>, AutoCloseable, ViewController {

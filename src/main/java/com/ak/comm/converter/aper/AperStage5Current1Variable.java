@@ -20,7 +20,14 @@ import static tec.uom.se.unit.Units.OHM;
 
 public enum AperStage5Current1Variable implements DependentVariable<AperStage4Current1Variable, AperStage5Current1Variable> {
   R1,
+  MYO1 {
+    @Override
+    public Set<Option> options() {
+      return Collections.emptySet();
+    }
+  },
   R2,
+  MYO2,
   APPARENT_06_18_RHO(6.0, 6.0 * 3.0) {
     @Override
     public List<AperStage4Current1Variable> getInputVariables() {

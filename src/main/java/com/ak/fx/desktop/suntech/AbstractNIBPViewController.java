@@ -1,17 +1,17 @@
 package com.ak.fx.desktop.suntech;
 
-import javax.annotation.Nonnull;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.annotation.ParametersAreNonnullByDefault;
-import javax.inject.Inject;
-import javax.inject.Provider;
-
 import com.ak.comm.bytes.suntech.NIBPRequest;
 import com.ak.comm.bytes.suntech.NIBPResponse;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.suntech.NIBPVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.fx.desktop.AbstractScheduledViewController;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
+
+import javax.annotation.Nonnull;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import static com.ak.comm.bytes.suntech.NIBPRequest.GET_CUFF_PRESSURE;
 import static com.ak.comm.converter.suntech.NIBPConverter.FREQUENCY;

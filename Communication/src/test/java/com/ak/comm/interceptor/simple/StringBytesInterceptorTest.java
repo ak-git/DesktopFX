@@ -5,42 +5,47 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class StringBytesInterceptorTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
+class StringBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(StringBytesInterceptor.class.getName());
-  private final Function<ByteBuffer, Stream<String>> interceptor = new StringBytesInterceptor(getClass().getName());
+  private static final Function<ByteBuffer, Stream<String>> INTERCEPTOR = new StringBytesInterceptor(StringBytesInterceptorTest.class.getName());
 
   @Test
-  public void testInterceptorProperties() {
+  void testInterceptorProperties() {
     BytesInterceptor<BufferFrame, String> interceptor = new StringBytesInterceptor(getClass().getName());
-    Assert.assertEquals(interceptor.getBaudRate(), 115200);
-    Assert.assertNull(interceptor.getPingRequest());
+    assertThat(interceptor.getBaudRate()).isEqualTo(115200);
+    assertNull(interceptor.getPingRequest());
   }
 
-  @Test(dataProvider = "string-data")
-  public void testInterceptor(@Nonnull byte[] bytes, @Nullable String response, @Nonnull String ignoredMessage) {
-    new FrameBytesInterceptorDataProvider().testInterceptor(bytes, response, ignoredMessage, LOGGER, interceptor);
-  }
-
-  @DataProvider(name = "string-data")
-  public static Object[][] data() {
-    return new Object[][] {
-        {
+  static Stream<Arguments> data() {
+    return Stream.of(
+        arguments(
             new byte[] {
                 '1', '2', '3', '4', '5', '6', 0x37, 0x38, 0x39, 0x30,
                 51, 102, 102, 53, '\r', '\n'
             },
             "3ff5",
             "[ 0x37, 0x38, 0x39, 0x30 ] 4 bytes IGNORED"
-        },
-    };
+        )
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("data")
+  @ParametersAreNonnullByDefault
+  void testInterceptor(byte[] bytes, String response, CharSequence ignoredMessage) {
+    new FrameBytesInterceptorDataProvider().testInterceptor(bytes, response, ignoredMessage, LOGGER, INTERCEPTOR);
   }
 }

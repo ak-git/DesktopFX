@@ -1,33 +1,8 @@
 package com.ak.fx.desktop;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.function.Consumer;
-
-import javax.annotation.Nonnull;
-
 import com.ak.comm.bytes.BufferFrame;
-import com.ak.comm.converter.ADCVariable;
-import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.FloatToIntegerConverter;
-import com.ak.comm.converter.LinkedConverter;
-import com.ak.comm.converter.StringToIntegerConverter;
-import com.ak.comm.converter.ToIntegerConverter;
-import com.ak.comm.converter.aper.AperCalibrationCurrent1Variable;
-import com.ak.comm.converter.aper.AperStage1Variable;
-import com.ak.comm.converter.aper.AperStage2UnitsVariable;
-import com.ak.comm.converter.aper.AperStage3Current1NIBPVariable;
-import com.ak.comm.converter.aper.AperStage3Current2NIBPVariable;
-import com.ak.comm.converter.aper.AperStage3Variable;
-import com.ak.comm.converter.aper.AperStage4Current1Variable;
-import com.ak.comm.converter.aper.AperStage4Current2Variable;
-import com.ak.comm.converter.aper.AperStage5Current1Variable;
-import com.ak.comm.converter.aper.AperStage6Current1Variable;
-import com.ak.comm.converter.aper.AperStage6Current1Variable10mm;
-import com.ak.comm.converter.aper.AperStage6Current1Variable6mm;
-import com.ak.comm.converter.aper.AperStage6Current1Variable7mm;
-import com.ak.comm.converter.aper.AperStage6Current1Variable8mm;
+import com.ak.comm.converter.*;
+import com.ak.comm.converter.aper.*;
 import com.ak.comm.converter.kleiber.KleiberVariable;
 import com.ak.comm.converter.prv.PrvVariable;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
@@ -44,11 +19,13 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.*;
+
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {

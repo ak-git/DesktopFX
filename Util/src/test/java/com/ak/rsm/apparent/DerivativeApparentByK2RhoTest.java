@@ -4,16 +4,19 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import com.ak.rsm.relative.Layer2RelativeMedium;
-import com.ak.rsm.resistance.Resistance2LayerTest;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class DerivativeApparentByK2RhoTest {
-  @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
-  public void testValueSL(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.byLessThan;
+
+class DerivativeApparentByK2RhoTest {
+  @ParameterizedTest
+  @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
+  void testValueSL(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
     if (Double.compare(rho[0], rho[1]) != 0) {
       double k12 = Layers.getK12(rho[0], rho[1]);
       double dk = 0.00001;
@@ -25,12 +28,13 @@ public class DerivativeApparentByK2RhoTest {
       expected /= rho[0];
       double actual = Apparent2Rho.newDerivativeApparentByK2Rho(new RelativeTetrapolarSystem(smm / lmm))
           .applyAsDouble(new Layer2RelativeMedium(k12, hmm / lmm));
-      Assert.assertEquals(actual, expected, 0.1);
+      assertThat(actual).isCloseTo(expected, byLessThan(0.1));
     }
   }
 
-  @Test(dataProviderClass = Resistance2LayerTest.class, dataProvider = "layer-model")
-  public void testValueLS(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
+  @ParameterizedTest
+  @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
+  void testValueLS(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
     if (Double.compare(rho[0], rho[1]) != 0) {
       double k12 = Layers.getK12(rho[0], rho[1]);
       double dk = 0.00001;
@@ -42,7 +46,7 @@ public class DerivativeApparentByK2RhoTest {
       expected /= rho[0];
       double actual = Apparent2Rho.newDerivativeApparentByK2Rho(new RelativeTetrapolarSystem(lmm / smm))
           .applyAsDouble(new Layer2RelativeMedium(k12, hmm / smm));
-      Assert.assertEquals(actual, expected, 0.1);
+      assertThat(actual).isCloseTo(expected, byLessThan(0.1));
     }
   }
 }

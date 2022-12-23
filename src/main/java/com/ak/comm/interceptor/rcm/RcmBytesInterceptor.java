@@ -1,17 +1,16 @@
 package com.ak.comm.interceptor.rcm;
 
-import java.util.EnumSet;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.inject.Named;
-
 import com.ak.comm.interceptor.simple.AbstractFixedFrameBytesInterceptor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-@Named
+import javax.annotation.Nonnull;
+import java.util.EnumSet;
+import java.util.Set;
+
+@Component
 @Profile({"rcm", "rcm-calibration"})
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class RcmBytesInterceptor extends AbstractFixedFrameBytesInterceptor {

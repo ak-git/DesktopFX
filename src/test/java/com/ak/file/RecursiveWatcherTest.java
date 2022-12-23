@@ -4,35 +4,46 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.ak.logging.OutputBuilders;
 import com.ak.util.Clean;
 import com.ak.util.Extension;
 import com.ak.util.Strings;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
 
-public class RecursiveWatcherTest {
-  @Nonnull
-  private final Path path;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-  public RecursiveWatcherTest() throws IOException {
-    path = OutputBuilders.NONE.build(Strings.EMPTY).getPath();
+class RecursiveWatcherTest {
+  @Nullable
+  private static Path PATH;
+
+  static {
+    try {
+      PATH = OutputBuilders.NONE.build(Strings.EMPTY).getPath();
+    }
+    catch (IOException e) {
+      fail(e.getMessage(), e);
+    }
   }
 
-  @AfterSuite
-  public void cleanUp() {
-    Clean.clean(path);
+  @AfterAll
+  static void cleanUp() {
+    Clean.clean(Objects.requireNonNull(PATH));
   }
 
   @Test
-  public void test() throws IOException, InterruptedException {
-    Files.createTempFile(Files.createDirectories(path), Strings.EMPTY, Extension.TXT.attachTo(Strings.EMPTY));
+  void test() throws IOException, InterruptedException {
+    Path path = Objects.requireNonNull(PATH);
+    assertNotNull(Files.createTempFile(Files.createDirectories(path), Strings.EMPTY, Extension.TXT.attachTo(Strings.EMPTY)));
     Path subDir = Files.createTempDirectory(path, Strings.EMPTY);
+    assertNotNull(subDir, path::toString);
     CountDownLatch latch = new CountDownLatch(2);
     Closeable watcher = new RecursiveWatcher(path, p -> latch.countDown(), Extension.TXT);
     while (!latch.await(2, TimeUnit.SECONDS)) {

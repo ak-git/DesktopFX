@@ -1,12 +1,13 @@
 package com.ak.comm.converter;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-public class UnLocalizedVariablesTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class UnLocalizedVariablesTest {
   @Test
-  public void testToString() {
-    Assert.assertEquals(Variables.toString(UnLocalizedVariables.MISSING_RESOURCE),
-        UnLocalizedVariables.MISSING_RESOURCE.name());
+  void testToString() {
+    assertThat(Variables.toString(UnLocalizedVariables.MISSING_RESOURCE))
+        .isEqualTo(UnLocalizedVariables.MISSING_RESOURCE.name());
   }
 }

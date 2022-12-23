@@ -1,13 +1,5 @@
 package com.ak.rsm.measurement;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.function.DoubleUnaryOperator;
-import java.util.function.Function;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import com.ak.rsm.prediction.Prediction;
 import com.ak.rsm.prediction.TetrapolarDerivativePrediction;
 import com.ak.rsm.relative.RelativeMediumLayers;
@@ -17,6 +9,13 @@ import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
 
 import static tec.uom.se.unit.Units.OHM;
 
@@ -28,7 +27,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, 
       return s;
     }
     else {
-      return "%s; %s = %.3f %s; dh = %.3f mm".formatted(s, Strings.CAP_DELTA, dOhms(), OHM, Metrics.toMilli(dh));
+      return "%s; R = %.3f %s; %s = %.3f %s; dh = %.3f mm".formatted(s, ohms(), OHM, Strings.CAP_DELTA, dOhms(), OHM, Metrics.toMilli(dh));
     }
   }
 
@@ -41,6 +40,11 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, 
   @Override
   public double resistivity() {
     return measurement.resistivity();
+  }
+
+  @Override
+  public double ohms() {
+    return measurement.ohms();
   }
 
   @Override
@@ -112,7 +116,9 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, 
         );
       }
       else {
-        throw new IllegalStateException(Double.toString(dhHolder.dh()));
+        throw new IllegalStateException(
+                "dh = %s is not needed when rho and dRho = %s are exist".formatted(dhHolder.dh(), Arrays.toString(rhos))
+        );
       }
     }
 

@@ -1,13 +1,13 @@
 package com.ak.comm.converter.aper;
 
 import java.nio.ByteOrder;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
-import javax.measure.Unit;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
@@ -17,31 +17,39 @@ import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.Variable;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-public class AperStage2UnitsVariableTest {
-  @DataProvider(name = "variables")
-  public static Object[][] variables() {
-    return new Object[][] {
-        {new byte[] {1,
-            (byte) 0x9a, (byte) 0x88, 0x01, 0,
-            2, 0, 0, 0,
-            (byte) 0xf1, 0x05, 0, 0,
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-            (byte) 0xff, (byte) 0xff, (byte) 0xff, 0,
-            5, 0, 0, 0,
-            (byte) 0xd0, 0x07, 0, 0},
+class AperStage2UnitsVariableTest {
+  static Stream<Arguments> variables() {
+    return Stream.of(
+        arguments(new byte[] {1,
+                (byte) 0x9a, (byte) 0x88, 0x01, 0,
+                2, 0, 0, 0,
+                (byte) 0xf1, 0x05, 0, 0,
 
-            new int[] {55466, 330990, 330990, -702471, -702470, 5295, 5295, 1322, 1747}},
-    };
+                (byte) 0xff, (byte) 0xff, (byte) 0xff, 0,
+                5, 0, 0, 0,
+                (byte) 0xd0, 0x07, 0, 0},
+
+            new int[] {55466, 330990, 330990, -702471, -702470, 5295, 5295, 1322, 1747})
+    );
   }
 
-  @Test(dataProvider = "variables")
-  public void testApply(@Nonnull byte[] inputBytes, @Nonnull int[] outputInts) {
+  @ParameterizedTest
+  @MethodSource("variables")
+  @ParametersAreNonnullByDefault
+  void testApply(byte[] inputBytes, int[] outputInts) {
     Converter<BufferFrame, AperStage2UnitsVariable> converter = LinkedConverter
         .of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
@@ -49,71 +57,63 @@ public class AperStage2UnitsVariableTest {
     for (int i = 0; i < 82 - 1; i++) {
       long count = converter.apply(bufferFrame).peek(ints -> {
         if (!processed.get()) {
-          Assert.assertEquals(ints, outputInts, "expected = %s, actual = %s".formatted(Arrays.toString(outputInts), Arrays.toString(ints)));
+          assertThat(ints).containsExactly(outputInts);
           processed.set(true);
         }
       }).count();
       if (processed.get()) {
-        Assert.assertEquals(count, 1);
+        assertThat(count).isEqualTo(1);
         break;
       }
     }
-    Assert.assertTrue(processed.get(), "Data are not converted!");
-    Assert.assertEquals(converter.getFrequency(), 1000, 0.1);
+    assertTrue(processed.get(), "Data are not converted!");
+    assertThat(converter.getFrequency()).isEqualTo(1000.0);
   }
 
   @Test
-  public void testGetInputVariables() {
-    int[] actual = EnumSet.allOf(AperStage2UnitsVariable.class).stream().mapToInt(value -> value.getInputVariables().size()).toArray();
-    int[] expected = {2, 2, 2, 1, 1, 1, 1, 1, 1};
-    Assert.assertEquals(actual, expected, Arrays.toString(actual));
+  void testGetInputVariables() {
+    assertThat(EnumSet.allOf(AperStage2UnitsVariable.class).stream().mapToInt(value -> value.getInputVariables().size()).toArray())
+        .containsExactly(2, 2, 2, 1, 1, 1, 1, 1, 1);
   }
 
   @Test
-  public void testGetUnit() {
-    List<? extends Unit<?>> actual = EnumSet.allOf(AperStage2UnitsVariable.class).stream()
-        .map(DependentVariable::getUnit).toList();
-    Assert.assertEquals(actual,
-        Arrays.asList(
+  void testGetUnit() {
+    assertThat(EnumSet.allOf(AperStage2UnitsVariable.class).stream().map(DependentVariable::getUnit))
+        .isEqualTo(List.of(
             MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM), MetricPrefix.MILLI(Units.OHM),
             MetricPrefix.MICRO(Units.VOLT), MetricPrefix.MICRO(Units.VOLT),
             MetricPrefix.MICRO(Units.VOLT), MetricPrefix.MICRO(Units.VOLT),
             Units.OHM, Units.OHM
-        ),
-        actual.toString()
-    );
+        ));
   }
 
   @Test
-  public void testOptions() {
-    List<Variable.Option> actual = EnumSet.allOf(AperStage2UnitsVariable.class).stream()
-        .flatMap(aperStage2UnitsVariable -> aperStage2UnitsVariable.options().stream()).toList();
-    Assert.assertEquals(actual,
-        Arrays.asList(
+  void testOptions() {
+    assertThat(EnumSet.allOf(AperStage2UnitsVariable.class).stream()
+        .flatMap(aperStage2UnitsVariable -> aperStage2UnitsVariable.options().stream()))
+        .isEqualTo(List.of(
             Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.VISIBLE,
             Variable.Option.VISIBLE, Variable.Option.VISIBLE,
             Variable.Option.VISIBLE, Variable.Option.VISIBLE,
             Variable.Option.TEXT_VALUE_BANNER, Variable.Option.TEXT_VALUE_BANNER
-        ),
-        actual.toString()
-    );
+        ));
   }
 
   @Test
-  public void testFilterDelay() {
-    double[] actual = EnumSet.allOf(AperStage2UnitsVariable.class).stream().mapToDouble(value -> value.filter().getDelay()).toArray();
-    double[] expected = {0.0, 0.0, 0.0, 30.0, 30.0, 40.0, 40.0, 0.0, 0.0};
-    Assert.assertEquals(actual, expected, Arrays.toString(actual));
+  void testFilterDelay() {
+    assertThat(EnumSet.allOf(AperStage2UnitsVariable.class).stream().mapToDouble(value -> value.filter().getDelay()).toArray())
+        .containsExactly(0.0, 0.0, 0.0, 30.0, 30.0, 40.0, 40.0, 0.0, 0.0);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = AperStage2UnitsVariable.class)
+  void testInputVariablesClass(@Nonnull DependentVariable<AperStage1Variable, AperStage2UnitsVariable> variable) {
+    assertThat(variable.getInputVariablesClass()).isEqualTo(AperStage1Variable.class);
   }
 
   @Test
-  public void testInputVariablesClass() {
-    Assert.assertTrue(EnumSet.allOf(AperStage2UnitsVariable.class).stream().map(AperStage2UnitsVariable::getInputVariablesClass)
-        .allMatch(AperStage1Variable.class::equals));
-  }
-
-  @Test(enabled = false)
-  public void testSplineSurface() {
+  @Disabled("ignored com.ak.comm.converter.aper.AperStage2UnitsVariableTest.testSplineSurface")
+  void testSplineSurface() {
     SplineCoefficientsUtils.testSplineSurface(AperSurfaceCoefficientsChannel1.class);
     SplineCoefficientsUtils.testSplineSurface(AperSurfaceCoefficientsChannel2.class);
   }
