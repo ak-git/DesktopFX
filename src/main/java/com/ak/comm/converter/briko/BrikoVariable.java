@@ -15,12 +15,11 @@ public enum BrikoVariable implements Variable<BrikoVariable> {
   C2,
   C3,
   C4,
-  E,
-  F;
-
-
-  @Override
-  public Set<Option> options() {
-    return Collections.emptySet();
-  }
+  IGNORE1 {
+    @Override
+    public Set<Option> options() {
+      return Collections.emptySet();
+    }
+  },
+  IGNORE2
 }
