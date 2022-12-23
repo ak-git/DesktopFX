@@ -38,7 +38,7 @@ class AperStage4Current2VariableTest {
                 5, 0, 0, 0,
                 (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55466, -702471, 1322, 330990, -702470, 1747}
+            new int[] {55466, 5982, 5982, 1322, 330990, 5982, 5982, 1747}
         )
     );
   }
@@ -79,8 +79,8 @@ class AperStage4Current2VariableTest {
     assertThat(EnumSet.allOf(AperStage4Current2Variable.class).stream().map(DependentVariable::getUnit))
         .isEqualTo(
             List.of(
-                MetricPrefix.MILLI(Units.OHM), MetricPrefix.MICRO(Units.VOLT), Units.OHM,
-                MetricPrefix.MILLI(Units.OHM), MetricPrefix.MICRO(Units.VOLT), Units.OHM
+                MetricPrefix.MILLI(Units.OHM), MetricPrefix.MICRO(Units.VOLT), MetricPrefix.MICRO(Units.VOLT), Units.OHM,
+                MetricPrefix.MILLI(Units.OHM), MetricPrefix.MICRO(Units.VOLT), MetricPrefix.MICRO(Units.VOLT), Units.OHM
             )
         );
   }
@@ -90,8 +90,8 @@ class AperStage4Current2VariableTest {
     assertThat(EnumSet.allOf(AperStage4Current2Variable.class).stream().flatMap(v -> v.options().stream()))
         .isEqualTo(
             List.of(
-                Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER,
-                Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER
+                Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER, Variable.Option.TEXT_VALUE_BANNER,
+                Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER, Variable.Option.TEXT_VALUE_BANNER
             )
         );
   }
