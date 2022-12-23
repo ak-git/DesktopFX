@@ -1,26 +1,25 @@
 package com.ak.comm.converter.briko;
 
+import com.ak.comm.converter.Variable;
+
 import java.util.Collections;
 import java.util.Set;
 
-import com.ak.comm.converter.Variable;
-
 public enum BrikoVariable implements Variable<BrikoVariable> {
-  A,
-  B,
-  C {
+  C1 {
     @Override
     public Set<Option> options() {
-      return Option.addToDefault(Option.TEXT_VALUE_BANNER);
+      return Variable.Option.addToDefault(Option.TEXT_VALUE_BANNER);
     }
   },
-  D,
-  E,
-  F;
-
-
-  @Override
-  public Set<Option> options() {
-    return Collections.emptySet();
-  }
+  C2,
+  C3,
+  C4,
+  IGNORE1 {
+    @Override
+    public Set<Option> options() {
+      return Collections.emptySet();
+    }
+  },
+  IGNORE2
 }
