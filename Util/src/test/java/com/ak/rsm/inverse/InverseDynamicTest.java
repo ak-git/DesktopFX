@@ -1,25 +1,5 @@
 package com.ak.rsm.inverse;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.function.ObjDoubleConsumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.math.ValuePair;
 import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.measurement.DerivativeMeasurement;
@@ -41,9 +21,26 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.byLessThan;
-import static org.assertj.core.api.Assertions.withinPercentage;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.function.ObjDoubleConsumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -265,12 +262,10 @@ class InverseDynamicTest {
     LOGGER.info(medium::toString);
   }
 
-  static Stream<String> cvsFiles() throws IOException {
-    Stream<String> paths = Stream.empty();
+  private static List<String> cvsFiles() throws IOException {
     try (DirectoryStream<Path> p = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*mm"))) {
-      paths = Stream.concat(paths, StreamSupport.stream(p.spliterator(), true).map(Path::toString));
+      return StreamSupport.stream(p.spliterator(), true).map(Path::toString).toList();
     }
-    return paths;
   }
 
   @ParameterizedTest
@@ -307,14 +302,16 @@ class InverseDynamicTest {
     ) {
       assertTrue(StreamSupport.stream(parser.spliterator(), false)
           .filter(r -> r.getRecordNumber() > 1)
+          .filter(r -> ((int) Math.abs(Math.rint(Double.parseDouble(r.get(POSITION)) * 100))) % 105 == 0)
           .<Map<String, Object>>mapMulti((r, consumer) -> {
+            LOGGER.info(() -> "%.2f sec; %s mm".formatted(Double.parseDouble(r.get(T)), r.get(POSITION)));
             var medium = new DynamicAbsolute(TetrapolarDerivativeMeasurement.milli(0.1)
                 .dh(Double.NaN).system2(Integer.parseInt(mm[mm.length - 2]))
                 .rho(
                     Double.parseDouble(r.get(RHO_S1)), Double.parseDouble(r.get(RHO_S2)),
                     Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))
                 )).get();
-            LOGGER.info(() -> "%.2f sec; %s mm; %s".formatted(Double.parseDouble(r.get(T)), r.get(POSITION), medium));
+            LOGGER.info(medium::toString);
             consumer.accept(
                 Map.ofEntries(
                     Map.entry(T, r.get(T)),

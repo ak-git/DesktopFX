@@ -1,21 +1,5 @@
 package com.ak.rsm.inverse;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.function.Function;
-import java.util.function.IntToDoubleFunction;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import com.ak.rsm.measurement.DerivativeMeasurement;
 import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.measurement.Measurements;
@@ -34,6 +18,17 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.IntToDoubleFunction;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class Inverse2Test {
@@ -41,40 +36,6 @@ class Inverse2Test {
 
   @ParameterizedTest
   @MethodSource({
-      "com.ak.rsm.inverse.InverseTestE7645Provider#n18_09_44",
-      "com.ak.rsm.inverse.InverseTestE7645Provider#n18_10_42",
-      "com.ak.rsm.inverse.InverseTestE7645Provider#n18_12_22",
-      "com.ak.rsm.inverse.InverseTestE7645Provider#n18_12_59",
-
-      "com.ak.rsm.inverse.InverseTestE7661Provider#ak14_26_39",
-
-      "com.ak.rsm.inverse.InverseTestE7672Provider#ak16_44_53",
-
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e17_52_54_s4",
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e17_55_32_s4",
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e17_56_55_s4",
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e17_58_47_s4",
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e18_23_57_s4",
-      "com.ak.rsm.inverse.InverseTestE7694Provider#e18_27_01_s4",
-
-      "com.ak.rsm.inverse.InverseTestE7701Provider#e7701_14_30_08_s4",
-      "com.ak.rsm.inverse.InverseTestE7701Provider#e7701_14_31_24_s4",
-      "com.ak.rsm.inverse.InverseTestE7701Provider#e7701_14_33_36_s4",
-
-      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_315",
-      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_420",
-      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_525",
-      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_609",
-      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_735",
-      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_840",
-      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_945",
-      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_1092",
-      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_1197",
-      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_1197a",
-      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_567",
-      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_567a",
-      "com.ak.rsm.inverse.InverseTestE7851Provider#e7851_14_49_05_168",
-
       "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_105a",
       "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_210a",
       "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_315a",
