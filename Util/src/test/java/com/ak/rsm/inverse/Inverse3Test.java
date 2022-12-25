@@ -1,25 +1,5 @@
 package com.ak.rsm.inverse;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.DoubleSummaryStatistics;
-import java.util.List;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.IntToDoubleFunction;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.math.ValuePair;
 import com.ak.rsm.apparent.Apparent3Rho;
 import com.ak.rsm.measurement.DerivativeMeasurement;
@@ -31,12 +11,7 @@ import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.ConcurrentCache;
 import com.ak.util.Metrics;
 import com.ak.util.Numbers;
-import io.jenetics.Chromosome;
-import io.jenetics.GaussianMutator;
-import io.jenetics.IntegerGene;
-import io.jenetics.MeanAlterer;
-import io.jenetics.Mutator;
-import io.jenetics.Optimize;
+import io.jenetics.*;
 import io.jenetics.engine.Codecs;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.Limits;
@@ -48,6 +23,16 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.IntToDoubleFunction;
+import java.util.logging.Logger;
+import java.util.stream.*;
 
 import static io.jenetics.engine.EvolutionResult.toBestGenotype;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -110,7 +95,7 @@ class Inverse3Test {
   @Nonnegative
   @ParametersAreNonnullByDefault
   private static ValuePair getRho1(Collection<? extends DerivativeMeasurement> measurements, double[] kw, @Nonnegative double hStep) {
-    return measurements.stream().parallel()
+    return measurements.stream()
         .map(measurement -> {
           TetrapolarSystem s = measurement.system();
           double normApparent = Apparent3Rho.newNormalizedApparent2Rho(s.relativeSystem())
