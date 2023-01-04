@@ -302,7 +302,7 @@ class InverseDynamicTest {
     ) {
       assertTrue(StreamSupport.stream(parser.spliterator(), false)
           .filter(r -> r.getRecordNumber() > 1)
-          .filter(r -> ((int) Math.abs(Math.rint(Double.parseDouble(r.get(POSITION)) * 100))) % 105 == 0)
+          .filter(r -> (r.getRecordNumber() - 2) % 5 == 0)
           .<Map<String, Object>>mapMulti((r, consumer) -> {
             LOGGER.info(() -> "%.2f sec; %s mm".formatted(Double.parseDouble(r.get(T)), r.get(POSITION)));
             var medium = new DynamicAbsolute(TetrapolarDerivativeMeasurement.milli(0.1)
