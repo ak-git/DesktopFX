@@ -11,7 +11,6 @@ public enum Layers {
   ;
 
   private static final int SUM_LIMIT = 1 << 15;
-  private static final int SUM_LIMIT_STEP = 1 << 10;
 
   public static double getK12(@Nonnegative double rho1, @Nonnegative double rho2) {
     if (Double.compare(rho1, rho2) == 0) {
@@ -34,16 +33,7 @@ public enum Layers {
   }
 
   public static double sum(@Nonnull IntToDoubleFunction function) {
-    double sum = 0.0;
-    for (int i = 0; i < SUM_LIMIT / SUM_LIMIT_STEP; i++) {
-      double prev = sum;
-      sum += IntStream.rangeClosed(SUM_LIMIT_STEP * i + 1, SUM_LIMIT_STEP * (i + 1))
-          .unordered().parallel().mapToDouble(function).sum();
-      if (Double.compare(prev, sum) == 0) {
-        break;
-      }
-    }
-    return sum;
+    return IntStream.rangeClosed(1, SUM_LIMIT).parallel().mapToDouble(function).sum();
   }
 
   public static double[] qn(double k12, double k23, @Nonnegative int p1, @Nonnegative int p2mp1) {

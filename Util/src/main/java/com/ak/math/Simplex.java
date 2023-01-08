@@ -140,7 +140,7 @@ public enum Simplex {
 
     return EnumSet.complementOf(EnumSet.of(JENETICS)).stream()
         .map(simplex -> simplex.optimize(function, minInitialMax))
-        .unordered().parallel().min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
+        .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
   }
 
   @Nonnull

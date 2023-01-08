@@ -1,12 +1,11 @@
 package com.ak.rsm.inverse;
 
-import java.util.Collection;
-import java.util.Collections;
+import com.ak.rsm.measurement.Measurement;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-
-import com.ak.rsm.measurement.Measurement;
+import java.util.Collection;
+import java.util.Collections;
 
 abstract class AbstractRelative<M extends Measurement, L> extends AbstractErrors implements Inverse<L> {
   @Nonnull
@@ -19,12 +18,12 @@ abstract class AbstractRelative<M extends Measurement, L> extends AbstractErrors
 
   @Nonnegative
   final double getMaxHToL(double k) {
-    return inexactSystems().parallelStream().mapToDouble(s -> s.getHMax(k)).min().orElseThrow() / baseL();
+    return inexactSystems().stream().mapToDouble(s -> s.getHMax(k)).min().orElseThrow() / baseL();
   }
 
   @Nonnegative
   final double getMinHToL(double k) {
-    return inexactSystems().parallelStream().mapToDouble(s -> s.getHMin(k)).max().orElseThrow() / baseL();
+    return inexactSystems().stream().mapToDouble(s -> s.getHMin(k)).max().orElseThrow() / baseL();
   }
 
   @Nonnull
