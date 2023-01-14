@@ -1,19 +1,5 @@
 package com.ak.rsm.medium;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.measurement.Measurements;
@@ -23,6 +9,13 @@ import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import tec.uom.se.unit.MetricPrefix;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.ak.rsm.measurement.Measurements.getRho1;
 import static tec.uom.se.unit.Units.METRE;
@@ -120,7 +113,7 @@ abstract class AbstractMediumLayers implements MediumLayers {
   private static String toStringHorizons(@Nonnull double[] horizons) {
     return Arrays.stream(horizons)
         .map(Metrics::toMilli).mapToObj("%.1f"::formatted)
-        .collect(Collectors.joining("; ", "\u2194 [", "] " + MetricPrefix.MILLI(METRE)));
+        .collect(Collectors.joining("; ", "↔ [", "] " + MetricPrefix.MILLI(METRE)));
   }
 
   @Nonnull

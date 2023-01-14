@@ -8,16 +8,17 @@ import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.OptionalDouble;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
 import java.util.function.ToDoubleBiFunction;
-import java.util.function.ToDoubleFunction;
 import java.util.stream.DoubleStream;
 
 abstract class AbstractRelative<M extends Measurement, L> extends AbstractErrors implements Inverse<L> {
   @Nonnull
   private final Collection<M> measurements;
-  private final DoubleUnaryOperator max = newMergeHorizons(InexactTetrapolarSystem::getHMax, value -> value.max().orElseThrow());
-  private final DoubleUnaryOperator min = newMergeHorizons(InexactTetrapolarSystem::getHMin, value -> value.min().orElseThrow());
+  private final DoubleUnaryOperator max = newMergeHorizons(InexactTetrapolarSystem::getHMax, DoubleStream::max);
+  private final DoubleUnaryOperator min = newMergeHorizons(InexactTetrapolarSystem::getHMin, DoubleStream::min);
 
   AbstractRelative(@Nonnull Collection<? extends M> measurements) {
     super(measurements.stream().map(Measurement::inexact).toList());
@@ -41,9 +42,9 @@ abstract class AbstractRelative<M extends Measurement, L> extends AbstractErrors
 
   @ParametersAreNonnullByDefault
   private DoubleUnaryOperator newMergeHorizons(ToDoubleBiFunction<InexactTetrapolarSystem, Double> toHorizon,
-                                               ToDoubleFunction<DoubleStream> selector) {
-    return k -> selector.applyAsDouble(
-        inexactSystems().stream().mapToDouble(system -> toHorizon.applyAsDouble(system, k))
-    ) / baseL();
+                                               Function<DoubleStream, OptionalDouble> selector) {
+    return k -> selector
+        .apply(inexactSystems().stream().mapToDouble(system -> toHorizon.applyAsDouble(system, k)))
+        .orElseThrow() / baseL();
   }
 }
