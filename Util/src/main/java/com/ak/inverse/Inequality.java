@@ -4,6 +4,7 @@ import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleSupplier;
 import java.util.function.ToDoubleBiFunction;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import static java.lang.Math.abs;
@@ -11,6 +12,7 @@ import static java.lang.Math.abs;
 public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, ToDoubleBiFunction<double[], double[]> {
   @Nonnull
   private final DoubleBinaryOperator errorDefinition;
+  @Nonnegative
   private double errorNorm;
 
   private Inequality(@Nonnull DoubleBinaryOperator errorDefinition) {

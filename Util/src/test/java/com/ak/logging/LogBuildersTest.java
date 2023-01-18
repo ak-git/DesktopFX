@@ -8,51 +8,57 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
-import java.util.EnumSet;
 import java.util.stream.Stream;
 
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import javax.annotation.Nonnull;
 
-public class LogBuildersTest {
-  @DataProvider(name = "logBuilders")
-  public static Object[][] logBuilders() {
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class LogBuildersTest {
+  static Stream<Path> logBuilders() {
     return Stream.of(LogBuilders.values())
         .map(binaryLogBuilder -> {
           try {
-            return new Object[] {binaryLogBuilder.build(OutputBuildersTest.randomFileName()).getPath()};
+            return binaryLogBuilder.build(OutputBuildersTest.randomFileName()).getPath();
           }
           catch (IOException | NoSuchAlgorithmException e) {
-            return new Object[] {null};
+            return null;
           }
-        })
-        .toArray(Object[][]::new);
+        });
   }
 
-  @Test(dataProvider = "logBuilders")
-  public void testLogBuilders(Path path) throws IOException {
-    Assert.assertNotNull(path);
+  @ParameterizedTest
+  @MethodSource("logBuilders")
+  void testLogBuilders(Path path) throws IOException {
+    assertNotNull(path);
     WritableByteChannel channel = Files.newByteChannel(path,
         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
     channel.write(ByteBuffer.wrap(LogBuildersTest.class.getName().getBytes(Charset.defaultCharset())));
     channel.close();
-    Assert.assertTrue(Files.deleteIfExists(path));
+    assertTrue(Files.deleteIfExists(path));
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
-  public void testNotToClean() {
-    EnumSet.complementOf(EnumSet.of(LogBuilders.CONVERTER_FILE)).forEach(LogBuilders::clean);
+  @ParameterizedTest
+  @EnumSource(mode = EnumSource.Mode.EXCLUDE, value = LogBuilders.class, names = "CONVERTER_FILE")
+  void testNotToClean(@Nonnull LogBuilders logBuilders) {
+    Assertions.assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(logBuilders::clean);
   }
 
   @Test
-  public void testClean() throws IOException, NoSuchAlgorithmException {
+  void testClean() throws IOException, NoSuchAlgorithmException {
     Path path = LogBuilders.CONVERTER_FILE.build(OutputBuildersTest.randomFileName()).getPath();
     WritableByteChannel channel = Files.newByteChannel(path,
         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
     channel.write(ByteBuffer.wrap(LogBuildersTest.class.getName().getBytes(Charset.defaultCharset())));
     channel.close();
     LogBuilders.CONVERTER_FILE.clean();
-    Assert.assertTrue(Files.notExists(path));
+    assertTrue(Files.notExists(path));
   }
 }

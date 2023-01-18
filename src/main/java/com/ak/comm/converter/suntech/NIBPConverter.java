@@ -1,16 +1,18 @@
 package com.ak.comm.converter.suntech;
 
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-import javax.inject.Named;
-
 import com.ak.comm.bytes.suntech.NIBPResponse;
 import com.ak.comm.converter.AbstractConverter;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-@Named
+import javax.annotation.Nonnull;
+import java.util.stream.Stream;
+
+@Component
 @Profile({"suntech", "suntech-test"})
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class NIBPConverter extends AbstractConverter<NIBPResponse, NIBPVariable> {
   public static final int FREQUENCY = 125;
   private final int[] out = new int[NIBPVariable.values().length];

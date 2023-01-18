@@ -4,29 +4,31 @@ import java.util.function.BooleanSupplier;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public class OSTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+class OSTest {
   private static final Logger LOGGER = Logger.getLogger(OS.MAC.getClass().getName());
 
-  @BeforeClass
-  public void setUp() {
+  @BeforeAll
+  static void setUp() {
     LOGGER.setFilter(record -> {
-      Assert.assertNotNull(record.getThrown());
+      assertNotNull(record.getThrown());
       return false;
     });
   }
 
   @Test
-  public void testGet() {
-    Assert.assertEquals(Stream.of(OS.values()).filter(BooleanSupplier::getAsBoolean).count(), 1);
+  void testGet() {
+    assertThat(Stream.of(OS.values()).filter(BooleanSupplier::getAsBoolean)).hasSize(1);
   }
 
-  @AfterClass
-  public void tearDown() {
+  @AfterAll
+  static void tearDown() {
     LOGGER.setFilter(null);
   }
 }

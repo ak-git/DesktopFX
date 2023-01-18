@@ -1,21 +1,17 @@
 package com.ak.fx.desktop;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.Flow;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
+import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.Variable;
+import com.ak.comm.interceptor.BytesInterceptor;
+import jakarta.inject.Provider;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.inject.Provider;
-
-import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.Variable;
-import com.ak.comm.interceptor.BytesInterceptor;
+import java.io.IOException;
+import java.util.concurrent.*;
+import java.util.function.Supplier;
 
 public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractViewController<T, R, V> implements Supplier<T> {
@@ -55,7 +51,7 @@ public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & 
   }
 
   @Override
-  public final void close() {
+  public final void close() throws IOException {
     innerCancel();
     executorService.shutdownNow();
     super.close();

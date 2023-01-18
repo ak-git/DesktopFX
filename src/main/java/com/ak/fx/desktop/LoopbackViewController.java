@@ -1,19 +1,18 @@
 package com.ak.fx.desktop;
 
-import java.nio.ByteOrder;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
-
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.interceptor.BytesInterceptor;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
-@Named
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.nio.ByteOrder;
+
+@Component
 @Profile("loopback")
 public final class LoopbackViewController extends AbstractScheduledViewController<BufferFrame, BufferFrame, ADCVariable> {
   @Inject

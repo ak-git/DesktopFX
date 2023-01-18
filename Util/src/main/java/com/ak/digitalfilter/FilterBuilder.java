@@ -268,7 +268,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     }
     DigitalFilter[] wrappedFilters;
     if (selectedIndexes.isEmpty()) {
-      wrappedFilters = Arrays.copyOf(filters, filters.length);
+      wrappedFilters = filters.clone();
     }
     else {
       if (selectedIndexes.size() != filters.length) {

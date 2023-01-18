@@ -1,42 +1,46 @@
 package com.ak.numbers.aper;
 
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class AperCoefficientsTest {
-  @DataProvider(name = "aper-coefficients")
-  public static Object[][] aperCoefficients() {
-    return new Object[][] {
-        {AperCoefficients.ADC_TO_OHM, 18},
-        {AperSurfaceCoefficientsChannel1.CCU_VADC_0, 4},
-        {AperSurfaceCoefficientsChannel1.CCU_VADC_15148, 16},
-        {AperSurfaceCoefficientsChannel1.CCU_VADC_30129, 14},
-        {AperSurfaceCoefficientsChannel1.CCU_VADC_90333, 12},
-        {AperSurfaceCoefficientsChannel1.CCU_VADC_330990, 10},
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-        {AperSurfaceCoefficientsChannel2.CCU_VADC_0, 4},
-        {AperSurfaceCoefficientsChannel2.CCU_VADC_15148, 16},
-        {AperSurfaceCoefficientsChannel2.CCU_VADC_30129, 14},
-        {AperSurfaceCoefficientsChannel2.CCU_VADC_90333, 12},
-        {AperSurfaceCoefficientsChannel2.CCU_VADC_330990, 10},
-    };
-  }
-
+class AperCoefficientsTest {
   @Test
-  public void testCoefficients() {
-    Assert.assertEquals(AperCoefficients.values().length, 1);
-    Assert.assertEquals(AperSurfaceCoefficientsChannel1.values().length, 5);
-    Assert.assertEquals(AperSurfaceCoefficientsChannel2.values().length, 5);
+  void testCoefficients() {
+    assertThat(AperCoefficients.values()).hasSize(1);
+    assertThat(AperSurfaceCoefficientsChannel1.values()).hasSize(5);
+    assertThat(AperSurfaceCoefficientsChannel2.values()).hasSize(5);
   }
 
-  @Test(dataProvider = "aper-coefficients")
-  public void testCoefficients(@Nonnull Supplier<double[]> coefficients, @Nonnegative int count) {
-    Assert.assertEquals(coefficients.get().length, count, coefficients.toString());
+  static Stream<Arguments> aperCoefficients() {
+    return Stream.of(
+        arguments(AperCoefficients.ADC_TO_OHM, 18),
+        arguments(AperSurfaceCoefficientsChannel1.CCU_VADC_0, 4),
+        arguments(AperSurfaceCoefficientsChannel1.CCU_VADC_15148, 16),
+        arguments(AperSurfaceCoefficientsChannel1.CCU_VADC_30129, 14),
+        arguments(AperSurfaceCoefficientsChannel1.CCU_VADC_90333, 12),
+        arguments(AperSurfaceCoefficientsChannel1.CCU_VADC_330990, 10),
+        arguments(AperSurfaceCoefficientsChannel2.CCU_VADC_0, 4),
+        arguments(AperSurfaceCoefficientsChannel2.CCU_VADC_15148, 16),
+        arguments(AperSurfaceCoefficientsChannel2.CCU_VADC_30129, 14),
+        arguments(AperSurfaceCoefficientsChannel2.CCU_VADC_90333, 12),
+        arguments(AperSurfaceCoefficientsChannel2.CCU_VADC_330990, 10)
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("aperCoefficients")
+  void testCoefficients(@Nonnull Supplier<double[]> coefficients, @Nonnegative int count) {
+    assertThat(coefficients.get()).hasSize(count);
   }
 }

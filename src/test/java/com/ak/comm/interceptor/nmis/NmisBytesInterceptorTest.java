@@ -8,94 +8,121 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import com.ak.comm.bytes.LogUtils;
 import com.ak.comm.bytes.nmis.NmisAddress;
 import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.nmis.NmisResponseFrame;
-import com.ak.comm.bytes.nmis.NmisTestProvider;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.log.LogTestUtils;
 import com.ak.util.Strings;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class NmisBytesInterceptorTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class NmisBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(NmisBytesInterceptor.class.getName());
 
-  @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "allOhmsMyoOff")
-  public void testRequestOhms(NmisRequest request, byte[] expected) {
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#allOhmsMyoOff")
+  @ParametersAreNonnullByDefault
+  void testRequestOhms(NmisRequest request, byte[] expected) {
     testRequest(request, expected);
   }
 
-  @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "360OhmsMyoHz")
-  public void testRequestMyo(NmisRequest request, byte[] expected) {
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#myo")
+  @ParametersAreNonnullByDefault
+  void testRequestMyo(NmisRequest request, byte[] expected) {
     testRequest(request, expected);
   }
 
-  @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "sequence")
-  public void testRequestSequence(NmisRequest request, byte[] expected) {
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#sequence")
+  @ParametersAreNonnullByDefault
+  void testRequestSequence(NmisRequest request, byte[] expected) {
     testRequest(request, expected);
   }
 
-  @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "allOhmsMyoOffResponse")
-  public void testResponseOhms(NmisRequest request, byte[] input) {
-    Assert.assertEquals(request.toResponse(), new NmisResponseFrame.Builder(ByteBuffer.wrap(Arrays.copyOfRange(input, 1, input.length))).build());
-    Assert.assertNotEquals(request.toResponse(), new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#allOhmsMyoOffResponse")
+  @ParametersAreNonnullByDefault
+  void testResponseOhms(NmisRequest request, byte[] input) {
+    assertThat(request.toResponse())
+        .isEqualTo(new NmisResponseFrame.Builder(ByteBuffer.wrap(Arrays.copyOfRange(input, 1, input.length))).build())
+        .isNotEqualTo(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
     testResponse(request, input, true);
   }
 
-  @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "360OhmsMyoHzResponse")
-  public void testResponseMyo(NmisRequest request, byte[] input) {
-    Assert.assertEquals(request.toResponse(), new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#myoResponse")
+  @ParametersAreNonnullByDefault
+  void testResponseMyo(NmisRequest request, byte[] input) {
+    assertThat(request.toResponse()).isEqualTo(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
     testResponse(request, input, true);
   }
 
-  @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "sequenceResponse")
-  public void testResponseSequence(NmisRequest request, byte[] input) {
-    Assert.assertEquals(request.toResponse(), new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#sequenceResponse")
+  @ParametersAreNonnullByDefault
+  void testResponseSequence(NmisRequest request, byte[] input) {
+    assertThat(request.toResponse()).isEqualTo(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
     testResponse(request, input, true);
   }
 
-  @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "aliveAndChannelsResponse")
-  public void testResponseAliveAndChannels(NmisAddress address, byte[] input) {
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#aliveAndChannelsResponse")
+  @ParametersAreNonnullByDefault
+  void testResponseAliveAndChannels(NmisAddress address, byte[] input) {
     if (NmisAddress.CHANNELS.contains(address)) {
-      Assert.assertNotNull(Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build()).orElseThrow(NullPointerException::new));
+      assertNotNull(Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build()).orElseThrow(NullPointerException::new));
     }
   }
 
-  @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "invalidTestByteResponse")
-  public void testInvalidResponse(byte[] input) {
-    testResponse(NmisRequest.Sequence.CATCH_30.build(), input, false);
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#invalidTestByteResponse")
+  void testInvalidResponse(@Nonnull ByteBuffer input) {
+    testResponse(NmisRequest.Sequence.CATCH_30.build(), input.array(), false);
   }
 
-  @Test(dataProviderClass = NmisTestProvider.class, dataProvider = "invalidCRCResponse")
-  public void testInvalidResponseCRC(byte[] input) {
-    testResponse(NmisRequest.Sequence.CATCH_30.build(), input, false);
+  @ParameterizedTest
+  @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#invalidCRCResponse")
+  @ParametersAreNonnullByDefault
+  void testInvalidResponseCRC(@Nonnull ByteBuffer input) {
+    testResponse(NmisRequest.Sequence.CATCH_30.build(), input.array(), false);
   }
 
+  @ParametersAreNonnullByDefault
   private static void testRequest(NmisRequest request, byte[] expected) {
     ByteBuffer byteBuffer = ByteBuffer.allocate(expected.length);
     request.writeTo(byteBuffer);
-    Assert.assertEquals(byteBuffer.array(), expected, request.toString());
+    assertThat(byteBuffer.array()).containsExactly(expected);
   }
 
+  @ParametersAreNonnullByDefault
   private static void testResponse(NmisRequest request, byte[] input, boolean logFlag) {
     BytesInterceptor<NmisRequest, NmisResponseFrame> interceptor = new NmisBytesInterceptor();
 
-    Assert.assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {
+    assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {
       Collection<NmisResponseFrame> frames = interceptor.apply(ByteBuffer.wrap(input)).toList();
       if (!frames.isEmpty()) {
-        Assert.assertEquals(frames, Collections.singleton(request.toResponse()));
+        assertThat(frames).containsSequence(Collections.singleton(request.toResponse()));
       }
-    }, logRecord -> Assert.assertEquals(logRecord.getMessage().replaceAll(".*" + NmisResponseFrame.class.getSimpleName(), Strings.EMPTY),
+    }, logRecord -> assertEquals(logRecord.getMessage().replaceAll(".*" + NmisResponseFrame.class.getSimpleName(), Strings.EMPTY),
         request.toResponse().toString().replaceAll(".*" + NmisResponseFrame.class.getSimpleName(), Strings.EMPTY))), logFlag);
 
     AtomicReference<String> logMessage = new AtomicReference<>(Strings.EMPTY);
-    Assert.assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
+    assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
         () -> {
           int bytesOut = interceptor.putOut(request).remaining();
-          Assert.assertTrue(bytesOut > 0);
-          Assert.assertEquals(logMessage.get(),
+          assertTrue(bytesOut > 0);
+          assertEquals(logMessage.get(),
               request.toString().replaceAll(".*" + NmisRequest.class.getSimpleName(), Strings.EMPTY) +
                   " - " + bytesOut + " bytes OUT to hardware");
         },

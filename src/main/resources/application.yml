@@ -5,6 +5,7 @@ spring:
   profiles:
     active: prv
 logging:
+  file.name: spring.log
   level:
     org:
       springframework: info
@@ -19,4 +20,4 @@ logging:
         # trace / FINEST - pure bytes, (IN from hardware, com.ak.comm.core)
         # ALL
         comm: info
-version: 2021.10.13
+version: 2022.12.21

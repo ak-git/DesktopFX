@@ -1,41 +1,12 @@
 package com.ak.fx.desktop;
 
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.util.Objects;
-import java.util.ResourceBundle;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Flow;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.annotation.ParametersAreNonnullByDefault;
-import javax.annotation.ParametersAreNullableByDefault;
-import javax.inject.Provider;
-
 import com.ak.comm.GroupService;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.digitalfilter.FilterBuilder;
+import com.ak.file.RecursiveWatcher;
 import com.ak.fx.scene.AxisXController;
 import com.ak.fx.scene.AxisYController;
 import com.ak.fx.scene.Chart;
@@ -44,6 +15,7 @@ import com.ak.fx.util.FxUtils;
 import com.ak.logging.OutputBuilders;
 import com.ak.util.Extension;
 import com.ak.util.Strings;
+import jakarta.inject.Provider;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.SequentialTransition;
@@ -51,11 +23,23 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.TransferMode;
-import javafx.scene.input.ZoomEvent;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Value;
+
+import javax.annotation.*;
+import java.io.Closeable;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Objects;
+import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Flow;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<V>>
     implements Initializable, Flow.Subscriber<int[]>, AutoCloseable, ViewController {
@@ -75,44 +59,25 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @Nonnull
   @Value("${version}")
   private final String version;
-  private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+  @Nonnull
+  private Closeable fileWatcher = () -> {
+  };
 
   @ParametersAreNonnullByDefault
   protected AbstractViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
                                    Provider<Converter<R, V>> converterProvider) {
     service = new GroupService<>(interceptorProvider::get, converterProvider::get);
     version = "${version}";
-    executorService.execute(() -> {
-      try (DirectoryStream<Path> paths = Files.newDirectoryStream(
-          OutputBuilders.NONE.build(Strings.EMPTY).getPath(), Extension.BIN.attachTo("*"))
-      ) {
-        paths.forEach(path -> ConverterApp.doConvert(interceptorProvider, converterProvider, path));
-      }
-      catch (IOException e) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-      }
-      finally {
-        Logger.getLogger(getClass().getName()).info(() -> "Conversion finished");
-      }
-
-      try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
-        Path parent = OutputBuilders.NONE.build(Strings.EMPTY).getPath();
-        parent.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
-        for (WatchKey key = watchService.take(); key != null; key = watchService.take()) {
-          key.pollEvents().stream().map(WatchEvent::context).map(Path.class::cast).
-              filter(path -> Extension.BIN.is(path.toString()))
-              .forEach(path -> ConverterApp.doConvert(interceptorProvider, converterProvider, parent.resolve(path)));
-          key.reset();
-        }
-      }
-      catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-      }
-      catch (IOException e) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-      }
-    });
+    try {
+      fileWatcher = new RecursiveWatcher(
+          OutputBuilders.NONE.build(Strings.EMPTY).getPath(),
+          path -> Converter.doConvert(interceptorProvider.get(), converterProvider.get(), path),
+          Extension.BIN
+      );
+    }
+    catch (IOException e) {
+      Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+    }
   }
 
   @Override
@@ -201,9 +166,13 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
 
   @Override
   @OverridingMethodsMustInvokeSuper
-  public void close() {
-    executorService.shutdownNow();
-    service.close();
+  public void close() throws IOException {
+    try {
+      fileWatcher.close();
+    }
+    finally {
+      service.close();
+    }
   }
 
   @Override
@@ -216,17 +185,17 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   }
 
   @Override
-  public final void zoom(@Nonnull ZoomEvent event) {
+  public final void zoom(double zoomFactor) {
     if (chart != null) {
-      axisXController.zoom(event.getZoomFactor());
+      axisXController.zoom(zoomFactor);
       axisXController.preventEnd(chart.diagramWidthProperty().doubleValue());
       changed();
     }
   }
 
   @Override
-  public final void scroll(@Nonnull ScrollEvent event) {
-    axisXController.scroll(event.getDeltaX());
+  public final void scroll(double deltaX) {
+    axisXController.scroll(deltaX);
   }
 
   @Nonnull

@@ -1,5 +1,6 @@
 package com.ak.math;
 
+import java.util.Objects;
 import java.util.StringJoiner;
 
 import javax.annotation.Nonnegative;
@@ -13,7 +14,7 @@ import static com.ak.util.Strings.SPACE;
 import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 
-public final class ValuePair {
+public record ValuePair(@Nonnull Name name, double value, @Nonnegative double absError) {
   public enum Name {
     NONE,
     RHO_1 {
@@ -28,6 +29,13 @@ public final class ValuePair {
       @Override
       String toString(@Nonnull String base) {
         return Strings.rho(2, base);
+      }
+    },
+    RHO_3 {
+      @Nonnull
+      @Override
+      String toString(@Nonnull String base) {
+        return Strings.rho(3, base);
       }
     },
     H {
@@ -47,6 +55,13 @@ public final class ValuePair {
       @Override
       String toString(@Nonnull String base) {
         return "k%s%s = %s".formatted(Strings.low(1), Strings.low(2), base);
+      }
+    },
+    K23 {
+      @Nonnull
+      @Override
+      String toString(@Nonnull String base) {
+        return "k%s%s = %s".formatted(Strings.low(2), Strings.low(3), base);
       }
     },
     H_L {
@@ -71,25 +86,10 @@ public final class ValuePair {
     }
   }
 
-  @Nonnull
-  private final Name name;
-  private final double value;
-  @Nonnegative
-  private final double absError;
-
-  private ValuePair(@Nonnull Name name, double value, @Nonnegative double absError) {
-    this.name = name;
+  public ValuePair(@Nonnull Name name, double value, @Nonnegative double absError) {
+    this.name = Objects.requireNonNull(name);
     this.value = value;
     this.absError = Math.abs(absError);
-  }
-
-  public double getValue() {
-    return value;
-  }
-
-  @Nonnegative
-  public double getAbsError() {
-    return absError;
   }
 
   @Override
@@ -113,7 +113,10 @@ public final class ValuePair {
   public ValuePair mergeWith(@Nonnull ValuePair that) {
     var sigma1Q = StrictMath.pow(absError, 2.0);
     var sigma2Q = StrictMath.pow(that.absError, 2.0);
-    double k = sigma2Q / (sigma1Q + sigma2Q);
+    double k = 0.5;
+    if (sigma1Q > 0 && sigma2Q > 0) {
+      k = sigma2Q / (sigma1Q + sigma2Q);
+    }
     double avg = k * value + (1.0 - k) * that.value;
     double sigmaAvg = 1.0 / Math.sqrt((1.0 / sigma1Q + 1.0 / sigma2Q));
     return new ValuePair(name, avg, sigmaAvg);

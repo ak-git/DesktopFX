@@ -1,52 +1,100 @@
 package com.ak.math;
 
 import java.security.SecureRandom;
-import java.util.Random;
+import java.util.random.RandomGenerator;
+import java.util.stream.Stream;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.ak.util.Strings;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class ValuePairTest {
-  private static final Random RND = new SecureRandom();
+import static com.ak.util.Strings.OHM_METRE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.byLessThan;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
+class ValuePairTest {
+  private static final RandomGenerator RND = new SecureRandom();
 
   @Test
-  public void testGetValue() {
+  void testGetValue() {
     double value = RND.nextDouble();
     double absError = RND.nextDouble();
     ValuePair valuePair = ValuePair.Name.NONE.of(value, absError);
-    Assert.assertEquals(valuePair.getValue(), value, 1.0e-6);
-    Assert.assertEquals(valuePair.getAbsError(), absError, 1.0e-6);
+    assertThat(valuePair.value()).isEqualTo(value);
+    assertThat(valuePair.absError()).isEqualTo(absError);
   }
 
-  @Test
-  public void testTestToString() {
-    Assert.assertEquals(ValuePair.Name.NONE.of(1.2345, 0.19).toString(), "%.1f ± %.2f".formatted(1.2345, 0.19));
-    Assert.assertEquals(ValuePair.Name.H.of(1.2345, 0.011).toString(), "h = %.0f ± %.1f mm".formatted(1234.5, 11.0));
-    Assert.assertEquals(ValuePair.Name.K12.of(1.2345, 0.0).toString(), "k₁₂ = %.6f".formatted(1.2345));
-    Assert.assertEquals(ValuePair.Name.H_L.of(Double.NaN, 0.0).toString(), "%s = %f".formatted(Strings.PHI, Double.NaN));
+  static Stream<Arguments> toStrings() {
+    return Stream.of(
+        arguments(ValuePair.Name.NONE.of(1.2345, 0.19), "%.1f ± %.2f".formatted(1.2345, 0.19)),
+        arguments(ValuePair.Name.RHO_1.of(1.2345, 0.19), "\u03c1\u2081 = %.1f ± %.2f %s".formatted(1.2345, 0.19, OHM_METRE)),
+        arguments(ValuePair.Name.RHO_2.of(1.5345, 0.19), "\u03c1\u2082 = %.1f ± %.2f %s".formatted(1.5345, 0.19, OHM_METRE)),
+        arguments(ValuePair.Name.RHO_3.of(1.6345, 0.19), "\u03c1\u2083 = %.1f ± %.2f %s".formatted(1.6345, 0.19, OHM_METRE)),
+        arguments(ValuePair.Name.H.of(1.2345, 0.011), "h = %.0f ± %.1f mm".formatted(1234.5, 11.0)),
+        arguments(ValuePair.Name.K12.of(1.2345, 0.0), "k₁₂ = %.6f".formatted(1.2345)),
+        arguments(ValuePair.Name.K23.of(1.2345, 0.0), "k₂₃ = %.6f".formatted(1.2345)),
+        arguments(ValuePair.Name.H_L.of(Double.NaN, 0.0), "%s = %f".formatted(Strings.PHI, Double.NaN))
+    );
   }
 
-  @Test
-  public void testEquals() {
+  @ParameterizedTest
+  @MethodSource("toStrings")
+  @ParametersAreNonnullByDefault
+  void testTestToString(ValuePair valuePair, String toString) {
+    assertThat(valuePair).hasToString(toString);
+  }
+
+  static Stream<Arguments> checkEquals() {
     ValuePair actual = ValuePair.Name.NONE.of(1.23451, 0.19);
-    Assert.assertEquals(actual, actual);
-    Assert.assertNotEquals(new Object(), actual);
-    Assert.assertEquals(ValuePair.Name.NONE.of(1.23451, 0.19), ValuePair.Name.NONE.of(1.23452, 0.19));
-    Assert.assertNotEquals(ValuePair.Name.NONE.of(1.3, 0.19), ValuePair.Name.NONE.of(1.23452, 0.19));
-    Assert.assertEquals(ValuePair.Name.NONE.of(1.23451, 0.19).hashCode(), ValuePair.Name.NONE.of(1.23452, 0.19).hashCode());
-    Assert.assertNotEquals(ValuePair.Name.NONE.of(1.3, 0.1).hashCode(), ValuePair.Name.NONE.of(1.23452, 0.1).hashCode());
+    return Stream.of(
+        arguments(actual, actual),
+        arguments(ValuePair.Name.NONE.of(1.23451, 0.19), ValuePair.Name.NONE.of(1.23452, 0.19))
+//        arguments(new Object(), actual, false),
+//        arguments(ValuePair.Name.NONE.of(1.3, 0.19), ValuePair.Name.NONE.of(1.23452, 0.19)),
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("checkEquals")
+  @ParametersAreNonnullByDefault
+  void testEquals(ValuePair v1, ValuePair v2) {
+    assertThat(v1).isEqualTo(v2).hasSameHashCodeAs(v2);
+    assertThat(v2).isEqualTo(v1).hasSameHashCodeAs(v1);
+  }
+
+  static Stream<Arguments> checkNotEquals() {
+    return Stream.of(
+        arguments(new Object(), ValuePair.Name.NONE.of(1.23451, 0.19)),
+        arguments(ValuePair.Name.NONE.of(1.23451, 0.19), new Object()),
+        arguments(ValuePair.Name.NONE.of(1.3, 0.19), ValuePair.Name.NONE.of(1.23452, 0.19))
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("checkNotEquals")
+  @ParametersAreNonnullByDefault
+  void testNotEquals(Object v1, Object v2) {
+    assertThat(v1).isNotEqualTo(v2).doesNotHaveSameHashCodeAs(v2);
+    assertThat(v2).isNotEqualTo(v1).doesNotHaveSameHashCodeAs(v1);
   }
 
   @Test
-  public void testMerge() {
+  void testMerge() {
     ValuePair v1 = ValuePair.Name.NONE.of(10.0, 1.0);
     ValuePair v2 = ValuePair.Name.NONE.of(30.0, 1.0);
     ValuePair v3 = ValuePair.Name.NONE.of(50.0, 1.0);
     ValuePair v4 = ValuePair.Name.NONE.of(30.0, 1.0);
 
     ValuePair merged = v1.mergeWith(v2).mergeWith(v3).mergeWith(v4);
-    Assert.assertEquals(merged.getValue(), 30.0, 0.1, merged.toString());
-    Assert.assertEquals(merged.getAbsError(), 0.5, 0.1, merged.toString());
+    assertAll(merged.toString(),
+        () -> assertThat(merged.value()).isCloseTo(30.0, byLessThan(0.1)),
+        () -> assertThat(merged.absError()).isCloseTo(0.5, byLessThan(0.1))
+    );
   }
 }

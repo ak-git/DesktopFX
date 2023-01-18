@@ -1,28 +1,8 @@
 package com.ak.fx.desktop;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.function.Consumer;
-
-import javax.annotation.Nonnull;
-
 import com.ak.comm.bytes.BufferFrame;
-import com.ak.comm.converter.ADCVariable;
-import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.FloatToIntegerConverter;
-import com.ak.comm.converter.LinkedConverter;
-import com.ak.comm.converter.StringToIntegerConverter;
-import com.ak.comm.converter.ToIntegerConverter;
-import com.ak.comm.converter.aper.AperCalibrationCurrent1Variable;
-import com.ak.comm.converter.aper.AperStage1Variable;
-import com.ak.comm.converter.aper.AperStage2UnitsVariable;
-import com.ak.comm.converter.aper.AperStage3Current1NIBPVariable;
-import com.ak.comm.converter.aper.AperStage3Current2NIBPVariable;
-import com.ak.comm.converter.aper.AperStage3Variable;
-import com.ak.comm.converter.aper.AperStage4Current1Variable;
-import com.ak.comm.converter.aper.AperStage4Current2Variable;
-import com.ak.comm.converter.aper.AperStage5Current1Variable;
+import com.ak.comm.converter.*;
+import com.ak.comm.converter.aper.*;
 import com.ak.comm.converter.kleiber.KleiberVariable;
 import com.ak.comm.converter.prv.PrvVariable;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
@@ -35,25 +15,22 @@ import com.ak.comm.interceptor.simple.StringBytesInterceptor;
 import com.ak.logging.LocalFileHandler;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.input.ScrollEvent;
-import javafx.scene.input.ZoomEvent;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.*;
+
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {
     "com.ak.fx.desktop",
-    "com.ak.comm.interceptor.nmis", "com.ak.comm.converter.nmis",
-    "com.ak.comm.interceptor.suntech", "com.ak.comm.converter.suntech",
-    "com.ak.comm.interceptor.purelogic", "com.ak.comm.converter.purelogic",
-    "com.ak.comm.interceptor.kleiber", "com.ak.comm.interceptor.rcm"
+    "com.ak.comm.interceptor", "com.ak.comm.converter"
 })
 public class SpringFxApplication extends FxApplication {
   private ConfigurableApplicationContext applicationContext;
@@ -89,15 +66,13 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Override
-  public void zoom(ZoomEvent event) {
-    processEvent(viewController -> viewController.zoom(event));
-    super.zoom(event);
+  public void zoom(double zoomFactor) {
+    processEvent(viewController -> viewController.zoom(zoomFactor));
   }
 
   @Override
-  public void scroll(ScrollEvent event) {
-    processEvent(viewController -> viewController.scroll(event));
-    super.scroll(event);
+  public void scroll(double deltaX) {
+    processEvent(viewController -> viewController.scroll(deltaX));
   }
 
   private void processEvent(Consumer<? super ViewController> action) {
@@ -107,6 +82,7 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Override
+  @Nonnull
   List<FXMLLoader> getFXMLLoader(@Nonnull ResourceBundle resourceBundle) {
     String[] profiles = applicationContext.getEnvironment().getActiveProfiles();
     if (profiles.length == 0) {
@@ -170,7 +146,8 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
-  @Profile({"aper2-nibp", "aper1-nibp", "aper1-myo", "aper2-ecg", "aper1-R2", "aper1-calibration"})
+  @Profile({"aper2-nibp", "aper1-nibp", "aper1-myo", "aper2-ecg", "aper1-R2-6mm", "aper1-R2-7mm", "aper1-R2-8mm", "aper1-R2-10mm",
+      "aper1-R1", "aper1-calibration"})
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   @Primary
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorAper() {
@@ -203,12 +180,48 @@ public class SpringFxApplication extends FxApplication {
         .chainInstance(AperStage3Variable.class).chainInstance(AperStage4Current1Variable.class);
   }
 
+  private static LinkedConverter<BufferFrame, AperStage4Current1Variable, AperStage5Current1Variable> converterAper1R() {
+    return converterAper1Myo().chainInstance(AperStage5Current1Variable.class);
+  }
+
   @Bean
-  @Profile("aper1-R2")
+  @Profile("aper1-R2-6mm")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   @Primary
-  static Converter<BufferFrame, AperStage5Current1Variable> converterAper1R4() {
-    return converterAper1Myo().chainInstance(AperStage5Current1Variable.class);
+  static Converter<BufferFrame, AperStage6Current1Variable6mm> converterAper1R6() {
+    return converterAper1R().chainInstance(AperStage6Current1Variable6mm.class);
+  }
+
+  @Bean
+  @Profile("aper1-R2-7mm")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  @Primary
+  static Converter<BufferFrame, AperStage6Current1Variable7mm> converterAper1R7() {
+    return converterAper1R().chainInstance(AperStage6Current1Variable7mm.class);
+  }
+
+  @Bean
+  @Profile("aper1-R2-8mm")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  @Primary
+  static Converter<BufferFrame, AperStage6Current1Variable8mm> converterAper1R8() {
+    return converterAper1R().chainInstance(AperStage6Current1Variable8mm.class);
+  }
+
+  @Bean
+  @Profile("aper1-R2-10mm")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  @Primary
+  static Converter<BufferFrame, AperStage6Current1Variable10mm> converterAper1R10() {
+    return converterAper1R().chainInstance(AperStage6Current1Variable10mm.class);
+  }
+
+  @Bean
+  @Profile("aper1-R1")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  @Primary
+  static Converter<BufferFrame, AperStage6Current1Variable> converterAper1R1() {
+    return converterAper1R().chainInstance(AperStage6Current1Variable.class);
   }
 
   @Bean

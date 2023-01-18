@@ -12,22 +12,23 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 
 import com.ak.util.Extension;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-public class OutputBuildersTest {
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+class OutputBuildersTest {
   @Test
-  public void testOutputBuilderCSV() throws IOException, NoSuchAlgorithmException {
+  void testOutputBuilderDate() throws IOException, NoSuchAlgorithmException {
     String fileName = randomFileName();
-    Path path = OutputBuilders.CSV.build(fileName).getPath();
-    Assert.assertTrue(path.toFile().getName().endsWith(Extension.CSV.name().toLowerCase()), path.toString());
+    Path path = OutputBuilders.NONE_WITH_DATE.build(fileName).getPath();
+    assertFalse(path.toFile().getName().contains("."), path.toString());
   }
 
   @Test
-  public void testOutputBuilderNone() throws IOException, NoSuchAlgorithmException {
+  void testOutputBuilderNone() throws IOException, NoSuchAlgorithmException {
     String fileName = randomFileName();
     Path path = OutputBuilders.NONE.build(fileName).getPath();
-    Assert.assertFalse(path.toFile().getName().endsWith(Extension.CSV.name().toLowerCase()), path.toString());
+    assertFalse(path.toFile().getName().endsWith(Extension.CSV.name().toLowerCase()), path.toString());
   }
 
   public static String randomFileName() throws NoSuchAlgorithmException {

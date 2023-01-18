@@ -1,22 +1,24 @@
 package com.ak.comm.interceptor.purelogic;
 
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.LinkedList;
-
-import javax.annotation.Nonnull;
-import javax.inject.Named;
-
 import com.ak.comm.bytes.purelogic.PureLogicFrame;
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.Strings;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Nonnull;
+import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.LinkedList;
 
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.FRAME_LEN;
 
-@Named
+@Component
 @Profile("purelogic")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class PureLogicBytesInterceptor extends AbstractBytesInterceptor<PureLogicFrame, PureLogicFrame> {
   private final StringBuilder frame = new StringBuilder(FRAME_LEN);
 

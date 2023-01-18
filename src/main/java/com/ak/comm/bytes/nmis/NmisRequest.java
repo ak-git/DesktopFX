@@ -43,7 +43,7 @@ public final class NmisRequest extends BufferFrame {
     private final Ohm[] ohms;
 
     Single(Ohm... ohms) {
-      this.ohms = Arrays.copyOf(ohms, ohms.length);
+      this.ohms = ohms.clone();
     }
 
     public final NmisRequest buildForAll(MyoType myoType, MyoFrequency frequency) {

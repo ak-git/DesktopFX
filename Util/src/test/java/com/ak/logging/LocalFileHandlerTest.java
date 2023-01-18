@@ -5,62 +5,58 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.logging.SimpleFormatter;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import org.testng.Assert;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Test;
-import org.testng.log.TextFormatter;
+import com.ak.util.Clean;
+import com.ak.util.Extension;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public class LocalFileHandlerTest {
-  @Nonnull
-  private final Path logPath;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
-  public LocalFileHandlerTest() throws IOException {
-    logPath = new LogPathBuilder().addPath(LocalFileHandler.class.getSimpleName()).addPath("testSubDir").
-        build().getPath().getParent();
+class LocalFileHandlerTest {
+  @Nullable
+  private static Path PATH;
+
+  static {
+    try {
+      PATH = new LogPathBuilder(Extension.NONE, LocalFileHandler.class).addPath("testSubDir").build().getPath().getParent();
+    }
+    catch (IOException e) {
+      fail(e.getMessage(), e);
+    }
   }
 
-  @BeforeSuite
-  @AfterSuite
-  public void setUp() throws Exception {
-    delete(logPath);
+  @BeforeAll
+  @AfterAll
+  static void cleanUp() {
+    Clean.clean(Objects.requireNonNull(PATH));
   }
 
   @Test
-  public void testLocalFileHandler() throws IOException {
+  void testLocalFileHandler() throws IOException {
     LocalFileHandler handler = new LocalFileHandler();
-    handler.setFormatter(new TextFormatter());
+    handler.setFormatter(new SimpleFormatter());
     handler.publish(new LogRecord(Level.ALL, LocalFileHandler.class.getName()));
     handler.close();
 
+    Path logPath = Objects.requireNonNull(PATH);
     try (DirectoryStream<Path> ds = Files.newDirectoryStream(logPath, "*.log")) {
       int count = 0;
       for (Path file : ds) {
         List<String> strings = Files.readAllLines(file);
-        Assert.assertEquals(strings.size(), 1);
-        Assert.assertEquals(strings.get(0), LocalFileHandler.class.getName());
+        assertThat(strings).hasSize(2);
+        assertThat(strings.get(1)).contains(LocalFileHandler.class.getName());
         count++;
       }
-      Assert.assertEquals(count, 1, "Must be the only one .log file in " + logPath);
+      assertThat(count).withFailMessage("Must be the only one .log file in " + logPath).isEqualTo(1);
     }
-  }
-
-  static void delete(@Nonnull Path root) throws Exception {
-    try (DirectoryStream<Path> ds = Files.newDirectoryStream(root)) {
-      for (Path file : ds) {
-        if (Files.isDirectory(file)) {
-          delete(file);
-        }
-        else {
-          Files.delete(file);
-        }
-      }
-    }
-    Files.delete(root);
   }
 }

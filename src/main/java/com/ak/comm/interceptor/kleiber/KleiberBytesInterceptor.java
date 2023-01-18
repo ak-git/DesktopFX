@@ -1,11 +1,13 @@
 package com.ak.comm.interceptor.kleiber;
 
-import javax.annotation.Nonnull;
-import javax.inject.Named;
-
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.AbstractFixedFrameBytesInterceptor;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Nonnull;
 
 /**
  * Constant byte at start byte protocol implementation and <b>fixed frame length</b>
@@ -16,8 +18,9 @@ import org.springframework.context.annotation.Profile;
  * </pre>
  * </p>
  */
-@Named
+@Component
 @Profile("kleiber-myo")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class KleiberBytesInterceptor extends AbstractFixedFrameBytesInterceptor {
   private static final byte START = (byte) 0xaa;
   private static final byte STOP = (byte) 0xbb;

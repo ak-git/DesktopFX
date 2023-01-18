@@ -1,8 +1,5 @@
 package com.ak.fx.desktop;
 
-import javafx.scene.input.ScrollEvent;
-import javafx.scene.input.ZoomEvent;
-
 public interface ViewController {
   default void refresh(boolean force) {
     // works in subclasses
@@ -20,11 +17,11 @@ public interface ViewController {
     // works in subclasses
   }
 
-  default void zoom(ZoomEvent event) {
-    event.consume();
+  default void zoom(double zoomFactor) {
+    // works in subclasses
   }
 
-  default void scroll(ScrollEvent event) {
-    event.consume();
+  default void scroll(double deltaX) {
+    // works in subclasses
   }
 }

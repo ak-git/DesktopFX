@@ -1,18 +1,20 @@
 package com.ak.comm.converter.purelogic;
 
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-import javax.inject.Named;
-
 import com.ak.comm.bytes.purelogic.PureLogicFrame;
 import com.ak.comm.converter.AbstractConverter;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-@Named
+import javax.annotation.Nonnull;
+import java.util.stream.Stream;
+
+@Component
 @Profile("purelogic")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class PureLogicConverter extends AbstractConverter<PureLogicFrame, PureLogicVariable> {
-  public static final int FREQUENCY = 2;
+  public static final int FREQUENCY = 1;
   private static final int DATA_FREQUENCY = 1000;
   private int position;
 
