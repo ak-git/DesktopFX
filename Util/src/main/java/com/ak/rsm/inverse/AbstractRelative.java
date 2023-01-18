@@ -17,8 +17,8 @@ import java.util.stream.DoubleStream;
 abstract class AbstractRelative<M extends Measurement, L> extends AbstractErrors implements Inverse<L> {
   @Nonnull
   private final Collection<M> measurements;
-  private final DoubleUnaryOperator max = newMergeHorizons(InexactTetrapolarSystem::getHMax, DoubleStream::max);
-  private final DoubleUnaryOperator min = newMergeHorizons(InexactTetrapolarSystem::getHMin, DoubleStream::min);
+  private final DoubleUnaryOperator max = newMergeHorizons(InexactTetrapolarSystem::getHMax, DoubleStream::min);
+  private final DoubleUnaryOperator min = newMergeHorizons(InexactTetrapolarSystem::getHMin, DoubleStream::max);
 
   AbstractRelative(@Nonnull Collection<? extends M> measurements) {
     super(measurements.stream().map(Measurement::inexact).toList());
