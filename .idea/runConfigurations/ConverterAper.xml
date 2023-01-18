@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="ConverterAper" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <option name="ACTIVE_PROFILES" value="aper2-ecg" />
-    <module name="DesktopFX.main" />
+    <module name="com.ak.DesktopFX.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.ak.fx.desktop.ConverterApp" />
     <extension name="coverage">
       <pattern>

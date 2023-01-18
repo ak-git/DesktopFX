@@ -1,19 +1,7 @@
 package com.ak.comm.converter.aper;
 
-import java.nio.ByteOrder;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-
 import com.ak.comm.bytes.BufferFrame;
-import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.DependentVariable;
-import com.ak.comm.converter.LinkedConverter;
-import com.ak.comm.converter.ToIntegerConverter;
-import com.ak.comm.converter.Variable;
+import com.ak.comm.converter.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -21,6 +9,13 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
+
+import javax.annotation.Nonnull;
+import java.nio.ByteOrder;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -38,7 +33,7 @@ class AperStage4Current2VariableTest {
                 5, 0, 0, 0,
                 (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55466, -702471, 1322, 330990, -702470, 1747}
+            new int[] {55466, 5982, 5982, 1322, 330990, 5982, 5982, 1747}
         )
     );
   }
@@ -79,8 +74,8 @@ class AperStage4Current2VariableTest {
     assertThat(EnumSet.allOf(AperStage4Current2Variable.class).stream().map(DependentVariable::getUnit))
         .isEqualTo(
             List.of(
-                MetricPrefix.MILLI(Units.OHM), MetricPrefix.MICRO(Units.VOLT), Units.OHM,
-                MetricPrefix.MILLI(Units.OHM), MetricPrefix.MICRO(Units.VOLT), Units.OHM
+                MetricPrefix.MILLI(Units.OHM), MetricPrefix.MICRO(Units.VOLT), MetricPrefix.MICRO(Units.VOLT), Units.OHM,
+                MetricPrefix.MILLI(Units.OHM), MetricPrefix.MICRO(Units.VOLT), MetricPrefix.MICRO(Units.VOLT), Units.OHM
             )
         );
   }
@@ -90,8 +85,8 @@ class AperStage4Current2VariableTest {
     assertThat(EnumSet.allOf(AperStage4Current2Variable.class).stream().flatMap(v -> v.options().stream()))
         .isEqualTo(
             List.of(
-                Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER,
-                Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER
+                Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER, Variable.Option.TEXT_VALUE_BANNER,
+                Variable.Option.VISIBLE, Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER, Variable.Option.TEXT_VALUE_BANNER
             )
         );
   }

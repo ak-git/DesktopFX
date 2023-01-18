@@ -63,7 +63,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2022.12.21'
+    version = '2023.01.18'
     apply plugin: 'idea'
     idea {
         module {
