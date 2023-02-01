@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static tec.uom.se.unit.Units.METRE;
 import static tec.uom.se.unit.Units.OHM;
+import static tec.uom.se.unit.Units.VOLT;
 
 class AperStage5Current1VariableTest {
   static Stream<Arguments> variables() {
@@ -39,7 +40,7 @@ class AperStage5Current1VariableTest {
                 5, 0, 0, 0,
                 (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55466, 330990, 2091, 8319, 2440, 9705, 2788, 11092, 3485, 13864, 1322}
+            new int[] {55466, 5982, 330990, 5982, 2091, 8319, 2440, 9705, 2788, 11092, 3485, 13864, 1322}
         )
     );
   }
@@ -73,7 +74,7 @@ class AperStage5Current1VariableTest {
   @Test
   void testGetInputVariables() {
     assertThat(EnumSet.allOf(AperStage5Current1Variable.class).stream().mapToInt(value -> value.getInputVariables().size()))
-        .containsExactly(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+        .containsExactly(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
   }
 
   @Test
@@ -81,7 +82,8 @@ class AperStage5Current1VariableTest {
     assertThat(EnumSet.allOf(AperStage5Current1Variable.class).stream().map(DependentVariable::getUnit))
         .isEqualTo(
             List.of(
-                MetricPrefix.MILLI(OHM), MetricPrefix.MILLI(OHM),
+                MetricPrefix.MILLI(OHM), MetricPrefix.MICRO(VOLT),
+                MetricPrefix.MILLI(OHM), MetricPrefix.MICRO(VOLT),
                 MetricPrefix.MILLI(OHM).multiply(METRE), MetricPrefix.MILLI(OHM).multiply(METRE),
                 MetricPrefix.MILLI(OHM).multiply(METRE), MetricPrefix.MILLI(OHM).multiply(METRE),
                 MetricPrefix.MILLI(OHM).multiply(METRE), MetricPrefix.MILLI(OHM).multiply(METRE),

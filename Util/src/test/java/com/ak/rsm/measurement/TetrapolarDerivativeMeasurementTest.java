@@ -1,14 +1,5 @@
 package com.ak.rsm.measurement;
 
-import java.util.Collection;
-import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.rsm.prediction.TetrapolarDerivativePrediction;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.DerivativeResistivity;
@@ -23,11 +14,15 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.assertj.core.api.Assertions.byLessThan;
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -64,7 +59,7 @@ class TetrapolarDerivativeMeasurementTest {
         arguments(
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(10.0, 30.0)
                 .rho1(1.0).rho2(1.0).h(Math.random()),
-            "10 000   30 000      0 1       36          1 00   0 020              0 000          0 000         0 100",
+            "10 000   30 000      0 1       36          1 00   0 020              0 000          15 915        0 000         0 100",
             1.0,
             0.0,
             new InexactTetrapolarSystem(0.0001, new TetrapolarSystem(0.01, 0.03))
@@ -72,24 +67,24 @@ class TetrapolarDerivativeMeasurementTest {
         arguments(
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(10.0, 30.0)
                 .rho1(10.0).rho2(1.0).h(5.0),
-            "10 000   30 000      0 1       36          3 39   0 068              31 312          1 661         0 100",
+            "10 000   30 000      0 1       36          3 39   0 068              31 312          53 901        1 661         0 100",
             3.39,
             31.312,
             new InexactTetrapolarSystem(0.0001, new TetrapolarSystem(0.01, 0.03))
         ),
         arguments(
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(10.0, 20.0)
-                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
-            "10 000   20 000      0 1       20          5 7   0 17              13 215          2 804         0 100",
+                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50),
+            "10 000   20 000      0 1       20          5 7   0 17              0 677          242 751        0 144         0 100",
             5.72,
-            13.215,
+            0.677,
             new InexactTetrapolarSystem(0.0001, new TetrapolarSystem(0.01, 0.02))
         ),
 
         arguments(
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.01).system(30.0, 60.0)
                 .ofOhms(1.0 / Math.PI, 2.0 / Math.PI),
-            "30 000   60 000      0 1       85          0 0225   0 00023              135 000          0 318         0 010",
+            "30 000   60 000      0 1       85          0 0225   0 00023              135 000          0 318        0 318         0 010",
             9.0 / 400.0,
             9.0 / 400.0 * (60.0 / 0.01),
             new InexactTetrapolarSystem(0.0001, new TetrapolarSystem(0.03, 0.06))
@@ -97,7 +92,7 @@ class TetrapolarDerivativeMeasurementTest {
         arguments(
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.01).system(90.0, 30.0)
                 .ofOhms(1.0 / Math.PI, 0.5 / Math.PI),
-            "90 000   30 000      0 1       154          0 0600   0 00040               90 000           0 159         0 010",
+            "90 000   30 000      0 1       154          0 0600   0 00040               90 000          0 318         0 159         0 010",
             3.0 / 50.0,
             3.0 / 50.0 * (-30.0 / 0.01 / 2.0),
             new InexactTetrapolarSystem(0.0001, new TetrapolarSystem(0.09, 0.03))
@@ -105,7 +100,7 @@ class TetrapolarDerivativeMeasurementTest {
         arguments(
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.01).system(40.0, 80.0)
                 .ofOhms(1.0 / Math.PI, 3.0 / Math.PI),
-            "40 000   80 000      0 1       124          0 0300   0 00023              480 000          0 637         0 010",
+            "40 000   80 000      0 1       124          0 0300   0 00023              480 000          0 318        0 637         0 010",
             3.0 / 100.0,
             3.0 / 100.0 * (80.0 / 0.01 * 2.0),
             new InexactTetrapolarSystem(0.0001, new TetrapolarSystem(0.04, 0.08))
@@ -121,6 +116,7 @@ class TetrapolarDerivativeMeasurementTest {
     assertAll(d.toString(),
         () -> assertThat(d.toString().replaceAll("\\D", " ").strip()).isEqualTo(expected),
         () -> assertThat(d.resistivity()).isCloseTo(resistivity, byLessThan(0.01)),
+        () -> assertThat(d.ohms()).isCloseTo(TetrapolarResistance.of(system.system()).rho(resistivity).ohms(), withinPercentage(0.1)),
         () -> assertThat(d.derivativeResistivity()).isCloseTo(derivativeResistivity, byLessThan(0.01)),
         () -> assertThat(d.inexact()).isEqualTo(system),
         () -> assertThat(d.toPrediction(RelativeMediumLayers.SINGLE_LAYER, 1.0))
@@ -144,38 +140,38 @@ class TetrapolarDerivativeMeasurementTest {
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.2).system2(7.0).rho1(10.0).rho2(1.0).h(5.0),
-            "7000210000122550162476053610200 3500021000013843000822085267730200",
+            "7000210000122550162476012416053610200 3500021000013843000822085214671067730200",
             new double[] {5.46, 4.30},
             new double[] {24.760, 20.852}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.3).system2(8.0)
-                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
-            "8000240000126450111857546190300 4000024000014536200601564958370300",
+                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50),
+            "80002400001264501113148861703270300 400002400001453620060151610798505650300",
             new double[] {4.45, 3.62},
-            new double[] {18.575, 15.649}
+            new double[] {1.314, 1.516}
         ),
 
         arguments(
             TetrapolarDerivativeMeasurement.milli(-0.1).dh(0.01).withShiftError().system2(8.0)
-                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
-            "7900241000127440111957801580010 3990024100014536600611618202040010",
+                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.01).p(500, 500),
+            "79002410001274401113868578400110010 399002410001453660061154911091400200010",
             new double[] {4.42, 3.65},
-            new double[] {19.578, 16.182}
+            new double[] {1.385, 1.549}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.01).withShiftError().system2(8.0)
-                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
-            "8100239000126450111934801650010 4010023900014635800591598001960010",
+                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.01).p(500, 500),
+            "81002390001264501113449154700110010 401002390001463580059156310515100190010",
             new double[] {4.49, 3.58},
-            new double[] {19.348, 15.980}
+            new double[] {1.344, 1.563}
         ),
 
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.01).system2(10.0)
                 .ofOhms(1.0 / Math.PI, 2.0 / Math.PI,
                     2.0 / Math.PI, 1.0 / Math.PI),
-            "10000300000136002000000406000003180010 50000300000161002670000364000003180010",
+            "100003000001360020000004060000031803180010 500003000001610026700003640000063703180010",
             new double[] {0.02, 0.027},
             new double[] {60.0, -40.0}
         ),
@@ -189,7 +185,7 @@ class TetrapolarDerivativeMeasurementTest {
                         .stream().mapToDouble(Resistance::ohms)
                 ).toArray()
             ),
-            "100003000001361000020000000000010 500003000001611000013000000000010 200004000001491000015000000000010 600004000001711000012000000000010",
+            "10000300000136100002000001591500000010 50000300000161100001300002387300000010 20000400000149100001500002122100000010 60000400000171100001200002546500000010",
             new double[] {1.0, 1.0, 1.0, 1.0},
             new double[] {0.0, 0.0, 0.0, 0.0}
         ),
@@ -202,7 +198,7 @@ class TetrapolarDerivativeMeasurementTest {
                         .stream().mapToDouble(Resistance::ohms)
                 ).toArray()
             ),
-            "100003000001361380028236900130010 500003000001611670022330900260010 200004000001491550023394700210010 600004000001711770022471900300010",
+            "10000300000136138002823692196900130010 50000300000161167002233093989700260010 20000400000149155002339473279700210010 60000400000171177002247194505300300010",
             new double[] {1.3803347238482202, 1.671206499066391, 1.5455064051064595, 1.7692129341322433},
             new double[] {-2.3685130919028903, -3.3087914656437785, -3.947243025762326, -4.71858988034235}
         ),
@@ -215,7 +211,7 @@ class TetrapolarDerivativeMeasurementTest {
                         .rho(1.1, 2.2, 3.3, 4.4).stream().mapToDouble(Resistance::ohms)
                 ).toArray()
             ),
-            "10000300000136100002030000015920010 50000300000161200002760000047750010 200004000001493000045120000063660010 6000040000017140000501600000101860010",
+            "1000030000013610000203000001591515920010 5000030000016120000276000004774647750010 20000400000149300004512000006366263660010 6000040000017140000501600000101859101860010",
             new double[] {1.0, 2.0, 3.0, 4.0},
             new double[] {300.0, 600.0, 1200.0, 1600.0}
         ),
@@ -226,7 +222,7 @@ class TetrapolarDerivativeMeasurementTest {
                     17.507043740108493, 52.52113122032546, 70.02817496043393 / 2.0, (112.04507993669435 + 70.02817496043393) / 2.0
                 )
             ),
-            "10000300000136100002030000015920010 50000300000161200002760000047750010 200004000001493000045120000063660010 6000040000017140000501600000101860010",
+            "1000030000013610000203000001591515920010 5000030000016120000276000004774647750010 20000400000149300004512000006366263660010 6000040000017140000501600000101859101860010",
             new double[] {1.0, 2.0, 3.0, 4.0},
             new double[] {300.0, 600.0, 1200.0, 1600.0}
         )
@@ -265,13 +261,13 @@ class TetrapolarDerivativeMeasurementTest {
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(6.0, 18.0)
                 .rho1(9.0).rho2(1.0).h(5.0),
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(6.0, 18.0)
-                .rho1(9.0).rho2(1.0).rho3(1.0).hStep(0.1).p(50, 50)
+                .rho1(9.0).rho2(9.0).rho3(1.0).hStep(0.1).p(25, 25)
         ),
         arguments(
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(6.0, 18.0)
                 .rho1(9.0).rho2(1.0).h(5.0),
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(6.0, 18.0)
-                .rho1(9.0).rho2(1.0).rho3(1.0).hStep(0.01).p(500, 500)
+                .rho1(9.0).rho2(9.0).rho3(1.0).hStep(0.01).p(300, 200)
         ),
         arguments(
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(6.0, 18.0)
@@ -305,11 +301,32 @@ class TetrapolarDerivativeMeasurementTest {
 
   @ParameterizedTest
   @MethodSource("dResistivity")
-  void testDResistivity(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double hmm, double dHmm) {
+  void testDResistance(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double hmm, double dHmm) {
     double dRExpected = TetrapolarResistance.ofMilli(10.0, 30.0).rho1(rho1).rho2(rho2).h(hmm + dHmm).ohms() -
         TetrapolarResistance.ofMilli(10.0, 30.0).rho1(rho1).rho2(rho2).h(hmm).ohms();
     var dR = TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(dHmm).system(10.0, 30.0)
         .rho1(rho1).rho2(rho2).h(hmm);
     assertThat(dR.dOhms()).as("%s".formatted(dR)).isCloseTo(dRExpected, byLessThan(1.0e-8));
+  }
+
+  @Test
+  void testResistance() {
+    DerivativeMeasurement m = TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.201).system(10.0, 20.0)
+        .ofOhms(100.0, 101.0);
+    assertThat(m.ohms()).isCloseTo(100.0, byLessThan(1.0e-8));
+    assertThat(m.dOhms()).isCloseTo(1.0, byLessThan(1.0e-8));
+  }
+
+  @Test
+  void testInvalid3Layer() {
+    var builder = TetrapolarDerivativeMeasurement.milli(0.1).dh(Double.NaN)
+        .system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.1);
+    assertThatIllegalArgumentException().isThrownBy(() -> builder.p(50, 50))
+        .withMessage("dh NULL is not supported in 3-layer model");
+
+    var builder2 = TetrapolarDerivativeMeasurement.milli(0.1).dh(0.01)
+        .system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.1);
+    assertThatIllegalArgumentException().isThrownBy(() -> builder2.p(50, 50))
+        .withMessageContaining("|dh| < hStep");
   }
 }

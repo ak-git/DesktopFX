@@ -74,11 +74,11 @@ class TetrapolarDerivativeResistanceTest {
             new TetrapolarSystem(0.01, 0.03)
         ),
         arguments(
-            TetrapolarDerivativeResistance.ofMilli(10.0, 20.0).dh(0.1).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
-            "10 000   20 000     242 751        5 720              13 215           0 100",
+            TetrapolarDerivativeResistance.ofMilli(10.0, 20.0).dh(0.1).rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50),
+            "10 000   20 000     242 751        5 720              0 677           0 100",
             242.751,
             5.72,
-            13.215,
+            0.677,
             new TetrapolarSystem(0.01, 0.02)
         ),
 
@@ -149,10 +149,10 @@ class TetrapolarDerivativeResistanceTest {
             new double[] {24.760, 20.852}
         ),
         arguments(
-            TetrapolarDerivativeResistance.milli().dh(0.3).system2(8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
-            "800024000903274540185750300 40000240001101653692156490300",
-            new double[] {4.54, 3.69},
-            new double[] {18.574, 15.649}
+            TetrapolarDerivativeResistance.milli().dh(0.3).system2(8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50),
+            "80002400088617445413140300 4000024000107985361915160300",
+            new double[] {4.45, 3.62},
+            new double[] {1.3142727347934624, 1.51592272032147}
         ),
         arguments(
             TetrapolarDerivativeResistance.milli().dh(0.01).system2(10.0)
@@ -192,10 +192,22 @@ class TetrapolarDerivativeResistanceTest {
     assertThatIllegalArgumentException().isThrownBy(() -> builder.ofOhms(1.0, 2.0, 3.0));
   }
 
-  //
   @Test
   void testInvalidOhms2() {
     var builder = TetrapolarDerivativeResistance.ofMilli(40.0, 80.0).dh(-0.1);
     assertThatIllegalArgumentException().isThrownBy(() -> builder.ofOhms(1.0));
+  }
+
+  @Test
+  void testInvalid3Layer() {
+    var builder = TetrapolarDerivativeResistance.milli().dh(Double.NaN)
+        .system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.1);
+    assertThatIllegalArgumentException().isThrownBy(() -> builder.p(50, 50))
+        .withMessage("dh NULL is not supported in 3-layer model");
+
+    var builder2 = TetrapolarDerivativeResistance.milli().dh(0.01)
+        .system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.1);
+    assertThatIllegalArgumentException().isThrownBy(() -> builder2.p(50, 50))
+        .withMessageContaining("|dh| < hStep");
   }
 }

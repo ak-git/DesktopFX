@@ -30,6 +30,11 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
     return "%s; %s".formatted(inexact, ValuePair.Name.RHO_1.of(resistivity, resistivity * inexact.getApparentRelativeError()));
   }
 
+  @Override
+  public double ohms() {
+    return TetrapolarResistance.of(system()).rho(resistivity()).ohms();
+  }
+
   @Nonnull
   @Override
   public Measurement merge(@Nonnull Measurement that) {

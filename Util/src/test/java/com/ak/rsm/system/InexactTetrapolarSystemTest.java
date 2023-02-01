@@ -17,6 +17,7 @@ import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import org.apache.commons.math3.optim.PointValuePair;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -24,6 +25,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
+import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class InexactTetrapolarSystemTest {
@@ -137,6 +139,20 @@ class InexactTetrapolarSystemTest {
       assertThat(optimize.getPoint()[0]).withFailMessage(system::toString)
           .isCloseTo(system.getHMin(Layers.getK12(rho1, rho2)) / system.system().lCC(), byLessThan(0.01));
     }
+  }
+
+  @ParameterizedTest
+  @MethodSource("inexactTetrapolarSystems")
+  void testHMin(@Nonnull InexactTetrapolarSystem system) {
+    Assertions.assertAll(system.toString(),
+        () -> assertThat(system.getHMin(0.99)).isCloseTo(0.0, within(0.01)),
+        () -> assertThat(system.getHMin(0.999)).isCloseTo(0.0, within(0.001)),
+        () -> assertThat(system.getHMin(1.0)).isCloseTo(0.0, within(0.0001)),
+
+        () -> assertThat(system.getHMin(-0.99)).isCloseTo(1.07, within(0.01)),
+        () -> assertThat(system.getHMin(-0.999)).isCloseTo(1.08, within(0.01)),
+        () -> assertThat(system.getHMin(-1.0)).isCloseTo(1.069, within(0.01))
+    );
   }
 
   static Stream<Arguments> combinations() {
