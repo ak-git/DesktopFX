@@ -9,7 +9,7 @@ plugins {
     id "application"
     id 'org.openjfx.javafxplugin' version '0.0.13'
 
-    id 'org.springframework.boot' version '3.0.0'
+    id 'org.springframework.boot' version '3.0.2'
     id 'io.spring.dependency-management' version '1.1.0'
     id "com.github.spotbugs" version '5.0.13'
 }
@@ -42,8 +42,8 @@ jacoco {
 }
 
 ext {
-    junit = 'org.junit:junit-bom:5.9.1'
-    assertj = 'org.assertj:assertj-core:3.23.1'
+    junit = 'org.junit:junit-bom:5.9.2'
+    assertj = 'org.assertj:assertj-core:3.24.2'
     jsr305 = 'com.google.code.findbugs:jsr305:3.0.2'
     javax_inject = 'jakarta.inject:jakarta.inject-api:2.0.1.MR'
     uom_se = 'tec.uom:uom-se:1.0.10'
@@ -63,7 +63,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2022.12.21'
+    version = '2023.02.02'
     apply plugin: 'idea'
     idea {
         module {
@@ -128,7 +128,7 @@ dependencies {
 }
 
 javafx {
-    version = '19'
+    version = '19.0.2'
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
