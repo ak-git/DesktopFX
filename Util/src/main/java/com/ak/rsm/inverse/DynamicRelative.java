@@ -14,7 +14,8 @@ import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
 
 import static com.ak.rsm.relative.RelativeMediumLayers.NAN;
-import static java.lang.StrictMath.*;
+import static java.lang.StrictMath.hypot;
+import static java.lang.StrictMath.log;
 
 final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, RelativeMediumLayers> {
   @Nonnull
@@ -58,7 +59,7 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
           double topBound = Math.max(min, max);
 
           if (lowBound < hToL && hToL < topBound) {
-            DoubleUnaryOperator f = x -> abs(log(topBound - x) + log(x - lowBound));
+            DoubleUnaryOperator f = x -> log(topBound - x) + log(x - lowBound);
             double center = (topBound + lowBound) / 2.0;
             return hypot(dynamicInverse.applyAsDouble(kw), alpha * (f.applyAsDouble(hToL) - f.applyAsDouble(center)));
           }
