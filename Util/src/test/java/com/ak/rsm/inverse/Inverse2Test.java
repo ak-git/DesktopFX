@@ -36,19 +36,9 @@ class Inverse2Test {
 
   @ParameterizedTest
   @MethodSource({
-      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_105a",
-      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_210a",
-      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_315a",
-      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_420a",
-      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_525a",
-      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_630a",
-      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_735",
-      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_630",
-      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_525",
-      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_420",
-      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_315",
-      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_210",
-      "com.ak.rsm.inverse.InverseTestE7858Provider#e09_46_50_105",
+      "com.ak.rsm.inverse.InverseTestE8178akProvider#e8178_17_45_08",
+      "com.ak.rsm.inverse.InverseTestE8205akProvider#e8205_18_11_27",
+      "com.ak.rsm.inverse.InverseTestE8205akProvider#e8205_18_06_48"
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testCombinations")
   void testCombinations(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
@@ -66,9 +56,9 @@ class Inverse2Test {
         )
         .flatMap(Function.identity())
         .filter(ints -> ints.length == ms.size())
-        .map(ints -> Arrays.stream(ints).filter(i -> Math.abs(findDh.applyAsDouble(i)) > Metrics.fromMilli(0.2)).toArray())
+        .map(ints -> Arrays.stream(ints).filter(i -> Math.abs(findDh.applyAsDouble(i)) < Metrics.fromMilli(0.2 * 2)).toArray())
         .map(ints -> {
-          LOGGER.fine(() -> Arrays.stream(ints)
+          LOGGER.info(() -> Arrays.stream(ints)
               .mapToDouble(findDh)
               .mapToObj(average -> "%.3f".formatted(Metrics.toMilli(average)))
               .collect(Collectors.joining("; ", "dh = [", "] mm"))
