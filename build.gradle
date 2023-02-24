@@ -57,13 +57,13 @@ ext {
 
 wrapper {
     description 'Setup the Gradle wrapper'
-    gradleVersion = "7.6"
+    gradleVersion = "8.0.1"
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '2023.02.02'
+    version = '2023.02.24'
     apply plugin: 'idea'
     idea {
         module {
@@ -88,12 +88,6 @@ allprojects {
         mavenLocal()
         maven {
             url = 'https://plugins.gradle.org/m2/'
-        }
-    }
-
-    jacocoTestReport {
-        reports {
-            xml.enabled true
         }
     }
 
