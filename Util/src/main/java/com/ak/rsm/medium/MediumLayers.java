@@ -1,10 +1,10 @@
 package com.ak.rsm.medium;
 
-import javax.annotation.Nonnull;
-
 import com.ak.math.ValuePair;
 
-public interface MediumLayers {
+import javax.annotation.Nonnull;
+
+public sealed interface MediumLayers permits AbstractMediumLayers {
   @Nonnull
   ValuePair rho();
 

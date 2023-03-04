@@ -1,11 +1,10 @@
 package com.ak.rsm.potential;
 
-import java.util.function.DoubleUnaryOperator;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import java.util.function.DoubleUnaryOperator;
 
-public abstract class AbstractPotentialLayer {
+public abstract sealed class AbstractPotentialLayer permits Potential1Layer, Potential2Layer, Potential3Layer {
   @Nonnegative
   private final double r;
 

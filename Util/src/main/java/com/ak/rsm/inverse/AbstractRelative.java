@@ -14,7 +14,8 @@ import java.util.function.Function;
 import java.util.function.ToDoubleBiFunction;
 import java.util.stream.DoubleStream;
 
-abstract class AbstractRelative<M extends Measurement, L> extends AbstractErrors implements Inverse<L> {
+abstract sealed class AbstractRelative<M extends Measurement, L> extends AbstractErrors implements Inverse<L>
+    permits DynamicRelative, StaticRelative {
   @Nonnull
   private final Collection<M> measurements;
   private final DoubleUnaryOperator max = newMergeHorizons(InexactTetrapolarSystem::getHMax, DoubleStream::min);

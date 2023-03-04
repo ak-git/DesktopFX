@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import static com.ak.rsm.measurement.Measurements.getRho1;
 import static tec.uom.se.unit.Units.METRE;
 
-abstract class AbstractMediumLayers implements MediumLayers {
+abstract sealed class AbstractMediumLayers implements MediumLayers permits Layer1Medium, Layer2Medium {
   @Nonnull
   private final RelativeMediumLayers kw;
   @Nonnull

@@ -1,18 +1,17 @@
 package com.ak.rsm.inverse;
 
-import java.util.Collection;
-
-import javax.annotation.Nonnull;
-
 import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.medium.Layer1Medium;
 import com.ak.rsm.medium.Layer2Medium;
 import com.ak.rsm.medium.MediumLayers;
 import com.ak.rsm.relative.RelativeMediumLayers;
 
+import javax.annotation.Nonnull;
+import java.util.Collection;
+
 import static com.ak.rsm.inverse.StaticErrors.SUBTRACT;
 
-class StaticAbsolute implements Inverse<MediumLayers> {
+final class StaticAbsolute implements Inverse<MediumLayers> {
   @Nonnull
   private final StaticRelative inverseRelative;
 
