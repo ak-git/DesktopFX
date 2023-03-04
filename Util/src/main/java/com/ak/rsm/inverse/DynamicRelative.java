@@ -8,11 +8,14 @@ import org.apache.commons.math3.optim.PointValuePair;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
 
 import static com.ak.rsm.relative.RelativeMediumLayers.NAN;
+import static java.lang.StrictMath.hypot;
+import static java.lang.StrictMath.log;
 
 final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, RelativeMediumLayers> {
   @Nonnull
@@ -52,8 +55,13 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
           double hToL = kw[1];
           double min = getMinHToL(k);
           double max = getMaxHToL(k);
-          if (min < hToL && hToL < max) {
-            return StrictMath.hypot(dynamicInverse.applyAsDouble(kw), alpha * (StrictMath.log(hToL) - StrictMath.log(min)));
+          double lowBound = Math.min(min, max);
+          double topBound = Math.max(min, max);
+
+          if (lowBound < hToL && hToL < topBound) {
+            DoubleUnaryOperator f = x -> log(topBound - x) + log(x - lowBound);
+            double center = (topBound + lowBound) / 2.0;
+            return hypot(dynamicInverse.applyAsDouble(kw), alpha * (f.applyAsDouble(hToL) - f.applyAsDouble(center)));
           }
           else {
             return Double.MAX_VALUE;

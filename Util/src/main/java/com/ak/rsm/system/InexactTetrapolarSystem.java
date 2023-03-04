@@ -1,5 +1,10 @@
 package com.ak.rsm.system;
 
+import com.ak.util.Metrics;
+import tec.uom.se.unit.MetricPrefix;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -7,12 +12,6 @@ import java.util.function.IntUnaryOperator;
 import java.util.function.ToLongFunction;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
-import com.ak.util.Metrics;
-import tec.uom.se.unit.MetricPrefix;
 
 import static tec.uom.se.unit.Units.METRE;
 
@@ -51,7 +50,7 @@ public record InexactTetrapolarSystem(@Nonnegative double absError, @Nonnull Tet
   public String toString() {
     String s = system.toString();
     if (absError > 0) {
-      return "%s / %.1f %s; \u2195 %.0f %s".formatted(
+      return "%s / %.1f %s; ↕ %.0f %s".formatted(
           s, Metrics.toMilli(absError), MetricPrefix.MILLI(METRE),
           Metrics.toMilli(getHMax(1.0)), MetricPrefix.MILLI(METRE));
     }

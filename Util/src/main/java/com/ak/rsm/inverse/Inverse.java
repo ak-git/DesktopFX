@@ -1,10 +1,11 @@
 package com.ak.rsm.inverse;
 
+import com.ak.rsm.relative.RelativeMediumLayers;
+
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-import com.ak.rsm.relative.RelativeMediumLayers;
-
-interface Inverse<L> extends Supplier<L>, UnaryOperator<RelativeMediumLayers> {
+sealed interface Inverse<L> extends Supplier<L>, UnaryOperator<RelativeMediumLayers>
+    permits AbstractRelative, DynamicAbsolute, StaticAbsolute {
 }
 

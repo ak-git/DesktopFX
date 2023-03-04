@@ -1,19 +1,18 @@
 package com.ak.rsm.measurement;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.function.IntConsumer;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.math.ValuePair;
 import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.system.TetrapolarSystem;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.function.IntConsumer;
 
 import static java.lang.StrictMath.pow;
 
@@ -35,7 +34,7 @@ public enum Measurements {
     }
     else {
       double baseL = getBaseL(measurements);
-      return measurements.stream().parallel()
+      return measurements.stream()
           .map(measurement -> {
             TetrapolarSystem s = measurement.system();
             double normApparent = Apparent2Rho.newNormalizedApparent2Rho(s.relativeSystem())

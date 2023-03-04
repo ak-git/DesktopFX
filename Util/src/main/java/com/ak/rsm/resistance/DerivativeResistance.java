@@ -1,4 +1,4 @@
 package com.ak.rsm.resistance;
 
-public interface DerivativeResistance extends Resistance, DerivativeResistivity {
+public sealed interface DerivativeResistance extends Resistance, DerivativeResistivity permits TetrapolarDerivativeResistance {
 }

@@ -1,15 +1,15 @@
 package com.ak.rsm.measurement;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import com.ak.rsm.prediction.Prediction;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistance;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 
-public interface Measurement extends Resistance {
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
+public sealed interface Measurement extends Resistance permits DerivativeMeasurement, TetrapolarMeasurement {
   @Nonnull
   InexactTetrapolarSystem inexact();
 
