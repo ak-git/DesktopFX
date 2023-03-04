@@ -1,15 +1,5 @@
 package com.ak.rsm.measurement;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.PrimitiveIterator;
-import java.util.function.DoubleUnaryOperator;
-import java.util.function.Function;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import com.ak.math.ValuePair;
 import com.ak.rsm.prediction.Prediction;
 import com.ak.rsm.prediction.TetrapolarPrediction;
@@ -20,6 +10,17 @@ import com.ak.rsm.system.RelativeTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.PrimitiveIterator;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
+
+import static tec.uom.se.unit.Units.OHM;
+
 public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
                                     @Nonnegative double resistivity) implements Measurement {
   private static final Function<Measurement, ValuePair> TO_VALUE =
@@ -27,7 +28,14 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
 
   @Override
   public String toString() {
-    return "%s; %s".formatted(inexact, ValuePair.Name.RHO_1.of(resistivity, resistivity * inexact.getApparentRelativeError()));
+    return "%s; %s; R = %.3f %s"
+        .formatted(inexact, ValuePair.Name.RHO_1.of(resistivity, resistivity * inexact.getApparentRelativeError()),
+            ohms(), OHM);
+  }
+
+  @Override
+  public double ohms() {
+    return TetrapolarResistance.of(system()).rho(resistivity()).ohms();
   }
 
   @Nonnull

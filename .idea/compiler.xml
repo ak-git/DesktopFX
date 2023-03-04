@@ -15,11 +15,11 @@
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/2.7.1/f36230aff2834f4fa07e1fc30544a6f8ce54bd19/spring-boot-configuration-processor-2.7.1.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/3.0.4/120cb2d8ed8f5f006bcc97813a920f25bd1a76da/spring-boot-configuration-processor-3.0.4.jar" />
         </processorPath>
-        <module name="DesktopFX.main" />
+        <module name="com.ak.DesktopFX.main" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="18" />
+    <bytecodeTargetLevel target="19" />
   </component>
 </project>

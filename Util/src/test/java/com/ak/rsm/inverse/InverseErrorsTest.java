@@ -1,18 +1,5 @@
 package com.ak.rsm.inverse;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Function;
-import java.util.function.UnaryOperator;
-import java.util.logging.Logger;
-import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.math.Simplex;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
@@ -24,6 +11,18 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
+import java.util.logging.Logger;
+import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -157,7 +156,7 @@ class InverseErrorsTest {
   @ParametersAreNonnullByDefault
   private static double single(double[] p, Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
     double step = 0.001;
-    return DoubleStream.iterate(step, h -> h < 1.0, h -> h += step)
+    return DoubleStream.iterate(step, h -> h < 1.0, h -> h + step)
         .map(h -> single(p, 1.0, h, builder)[0]).parallel().sum();
   }
 

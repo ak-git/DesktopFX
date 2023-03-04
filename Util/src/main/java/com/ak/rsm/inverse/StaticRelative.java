@@ -33,7 +33,7 @@ final class StaticRelative extends AbstractRelative<Measurement, RelativeMediumL
   @Override
   public RelativeMediumLayers get() {
     PointValuePair kwOptimal = Simplex.optimizeAll(staticInverse::applyAsDouble,
-        new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, getMaxHToL())
+        new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, getMaxHToL(1.0))
     );
     return staticErrors.errors(new Layer2RelativeMedium(kwOptimal.getPoint()), staticInverse.subtract(),
         UnaryOperator.identity(), (ts, b) -> b);

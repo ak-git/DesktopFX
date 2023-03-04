@@ -1,17 +1,18 @@
 package com.ak.rsm.measurement;
 
-import java.util.Collection;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.math.ValuePair;
 import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.system.TetrapolarSystem;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.function.IntConsumer;
 
 import static java.lang.StrictMath.pow;
 
@@ -33,7 +34,7 @@ public enum Measurements {
     }
     else {
       double baseL = getBaseL(measurements);
-      return measurements.stream().parallel()
+      return measurements.stream()
           .map(measurement -> {
             TetrapolarSystem s = measurement.system();
             double normApparent = Apparent2Rho.newNormalizedApparent2Rho(s.relativeSystem())
@@ -48,6 +49,52 @@ public enum Measurements {
           })
           .reduce(ValuePair::mergeWith).orElseThrow();
     }
+  }
+
+  /**
+   * Convert real measurements to system-4 virtual results.
+   *
+   * <h3>TetrapolarMeasurement, 4-values</h1>
+   * <p>Real Ohms:</p>
+   * <pre>
+   *   122.3, 199.0, 66.0, 202.0
+   * </pre>
+   * <p>Converted to:</p>
+   * <pre>
+   *    122.3, 199.0, <b>66.0 * 2</b>, <b>202.0 * 2 - 66.0 * 2</b>
+   * </pre>
+   * <h3>TetrapolarDerivativeMeasurement, 8-values</h1>
+   * <pre>
+   *   122.3, 199.0, 66.0, 202.0,
+   *   122.3 + 0.1, 199.0 + 0.4, 66.0 + 0.1, 202.0 + 0.25
+   * </pre>
+   * <p>Converted to:</p>
+   * <pre>
+   *    122.3, 199.0, <b>66.0 * 2</b>, <b>202.0 * 2 - 66.0 * 2</b>,
+   *    122.3 + 0.1, 199.0 + 0.4, <b>(66.0 + 0.1) * 2</b>, <b>(202.0 + 0.25) * 2 - (66.0 + 0.1) * 2)</b>
+   * </pre>
+   *
+   * @param s4Direct real Ohms
+   * @return system-4 virtual results
+   */
+  @Nonnull
+  public static double[] fixOhms(@Nonnull double... s4Direct) {
+    if (s4Direct.length != 4 && s4Direct.length != 8) {
+      throw new IllegalArgumentException("Needs 4 or 8 values, but found: " + Arrays.toString(s4Direct));
+    }
+
+    double[] fixed = s4Direct.clone();
+
+    IntConsumer fix = i -> {
+      fixed[i] = s4Direct[i] * 2;
+      fixed[i + 1] = s4Direct[i + 1] * 2 - fixed[i];
+    };
+
+    fix.accept(2);
+    if (s4Direct.length == 8) {
+      fix.accept(2 + s4Direct.length / 2);
+    }
+    return fixed;
   }
 }
 

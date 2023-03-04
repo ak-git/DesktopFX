@@ -112,7 +112,7 @@ class AperStage2UnitsVariableTest {
   }
 
   @Test
-  @Disabled("generate csv files")
+  @Disabled("ignored com.ak.comm.converter.aper.AperStage2UnitsVariableTest.testSplineSurface")
   void testSplineSurface() {
     SplineCoefficientsUtils.testSplineSurface(AperSurfaceCoefficientsChannel1.class);
     SplineCoefficientsUtils.testSplineSurface(AperSurfaceCoefficientsChannel2.class);

@@ -31,10 +31,17 @@ public record RelativeTetrapolarSystem(@Nonnegative double sToL, @Nonnegative do
 
   @Nonnegative
   double hMinFactor(double k) {
-    double result = (1.0 + k) / (1.0 - k);
-    result *= (1.0 - x) * pow(1.0 + x, 3.0) / (x * (pow(x, 2.0) + 3.0));
-    result /= Math.abs(Layers.sum(n -> pow(k, n) * pow(n, 2.0)));
-    return Math.sqrt(result) / 4.0;
+    if (Double.compare(k, 1.0) == 0) {
+      return 0.0;
+    }
+    else {
+      double result = 4.0;
+      if (Double.compare(k, -1.0) != 0) {
+        result = (1.0 + k) / (1.0 - k) / Math.abs(Layers.sum(n -> pow(k, n) * pow(n, 2.0)));
+      }
+      result *= (1.0 - x) * pow(1.0 + x, 3.0) / (x * (pow(x, 2.0) + 3.0));
+      return Math.sqrt(result) / 4.0;
+    }
   }
 
   @Override

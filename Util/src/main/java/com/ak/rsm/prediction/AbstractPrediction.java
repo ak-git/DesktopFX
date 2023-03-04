@@ -1,13 +1,12 @@
 package com.ak.rsm.prediction;
 
-import java.util.Arrays;
-import java.util.Objects;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
+import java.util.Arrays;
+import java.util.Objects;
 
-public abstract class AbstractPrediction implements Prediction {
+public abstract sealed class AbstractPrediction implements Prediction permits TetrapolarDerivativePrediction, TetrapolarPrediction {
   @Nonnegative
   private final double predicted;
   @Nonnull

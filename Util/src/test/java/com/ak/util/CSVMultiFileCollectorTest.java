@@ -11,7 +11,8 @@ import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,20 +26,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class CSVMultiFileCollectorTest {
   private static final Logger LOGGER = Logger.getLogger(CSVMultiFileCollectorTest.class.getName());
   private static final Path OUT_PATH = Paths.get(Extension.CSV.attachTo(CSVMultiFileCollectorTest.class.getSimpleName()));
-  private final AtomicInteger exceptionCounter = new AtomicInteger();
+  private static final AtomicInteger EXCEPTION_COUNTER = new AtomicInteger();
 
-  @BeforeEach
-  public void setUp() {
+  @BeforeAll
+  static void setUp() {
     LOGGER.setFilter(record -> {
       assertNotNull(record.getThrown());
-      exceptionCounter.incrementAndGet();
+      EXCEPTION_COUNTER.incrementAndGet();
       return false;
     });
     LOGGER.setLevel(Level.WARNING);
   }
 
-  @AfterEach
-  void tearDown() throws IOException {
+  @AfterAll
+  static void tearDown() throws IOException {
     try {
       Files.deleteIfExists(OUT_PATH);
     }
@@ -50,7 +51,7 @@ class CSVMultiFileCollectorTest {
 
   @BeforeEach
   public void prepare() {
-    exceptionCounter.set(0);
+    EXCEPTION_COUNTER.set(0);
   }
 
   @Test

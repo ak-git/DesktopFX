@@ -16,7 +16,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.byLessThan;
@@ -285,7 +284,7 @@ class FilterBuilderTest {
     DigitalFilter filter1 = FilterBuilder.of().fir(1.0).build();
     DigitalFilter filter2 = FilterBuilder.of().fir(1.0).build();
     DigitalFilter filter = FilterBuilder.of().fork(filter1, filter2).fir(1.0).build();
-    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> filter.accept(1));
+    assertThatIllegalArgumentException().isThrownBy(() -> filter.accept(1));
   }
 
   @Test
@@ -296,7 +295,7 @@ class FilterBuilderTest {
     filter1.accept(1);
     filter1.accept(2);
     filter2.accept(1);
-    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> filter1.accept(3));
+    assertThatIllegalStateException().isThrownBy(() -> filter1.accept(3));
   }
 
   @Test
@@ -307,7 +306,7 @@ class FilterBuilderTest {
     filter2.accept(1);
     filter2.accept(2);
     filter1.accept(1);
-    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> filter2.accept(3));
+    assertThatIllegalStateException().isThrownBy(() -> filter2.accept(3));
   }
 
   @Test
@@ -318,7 +317,7 @@ class FilterBuilderTest {
   @Test
   void testInvalidFork2() {
     DigitalFilter[] filters = {FilterBuilder.of().build()};
-    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new ForkFilter(filters));
+    assertThatIllegalArgumentException().isThrownBy(() -> new ForkFilter(filters));
   }
 
   @Test

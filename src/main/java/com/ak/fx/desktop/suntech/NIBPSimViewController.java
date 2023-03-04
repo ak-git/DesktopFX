@@ -1,20 +1,20 @@
 package com.ak.fx.desktop.suntech;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
-
 import com.ak.comm.bytes.suntech.NIBPRequest;
 import com.ak.comm.bytes.suntech.NIBPResponse;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.suntech.NIBPVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import static com.ak.comm.bytes.suntech.NIBPRequest.CONTROL_PNEUMATICS_ALL_CLOSED;
 
-@Named
+@Component
 @Profile("suntech-test")
 public final class NIBPSimViewController extends AbstractNIBPViewController {
   @Inject

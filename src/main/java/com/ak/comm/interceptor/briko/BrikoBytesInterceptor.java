@@ -1,15 +1,15 @@
 package com.ak.comm.interceptor.briko;
 
-import javax.annotation.Nonnull;
-import javax.inject.Named;
-
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-@Named("briko-interceptor")
+import javax.annotation.Nonnull;
+
+@Component("briko-interceptor")
 @Profile("briko")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class BrikoBytesInterceptor extends RampBytesInterceptor {

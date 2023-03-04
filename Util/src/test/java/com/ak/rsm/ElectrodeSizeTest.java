@@ -45,7 +45,7 @@ class ElectrodeSizeTest {
   }
 
   @Test
-  @Disabled("generate ErrorsAtDtoL.csv")
+  @Disabled("ignored com.ak.rsm.ElectrodeSizeTest.testErrorsAt")
   void testErrorsAt() {
     Assertions.assertDoesNotThrow(() -> CSVLineFileBuilder.of((dToL, sToL) -> new RelativeErrorR(sToL).value(dToL))
         .xRange(1.0e-2, 1.0, 1.0e-2)

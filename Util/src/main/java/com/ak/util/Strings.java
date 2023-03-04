@@ -14,10 +14,10 @@ public enum Strings {
   public static final String NEW_LINE_2 = String.format("%n%n");
   public static final String TAB = "\t";
   public static final String OHM_METRE = new StringBuilder(OHM.multiply(METRE).toString()).reverse().toString();
-  public static final String PLUS_MINUS = "\u00B1";
-  public static final String PHI = "\u03C8";
-  public static final String CAP_DELTA = "\u0394";
-  private static final String RHO = "\u03c1";
+  public static final String PLUS_MINUS = "±";
+  public static final String PHI = "ψ";
+  public static final String CAP_DELTA = "Δ";
+  private static final String RHO = "ρ";
 
   @Nonnull
   public static String numberSuffix(@Nonnull String s) {
@@ -36,7 +36,7 @@ public enum Strings {
   }
 
   public static char low(int index) {
-    int i = '\u2080';
+    int i = '₀';
     return (char) (i + index);
   }
 

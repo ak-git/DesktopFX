@@ -6,12 +6,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
@@ -26,11 +28,12 @@ import org.junit.jupiter.api.Test;
 
 import static java.util.logging.Level.WARNING;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ConverterTest {
+  @Nullable
   private static Path PATH;
 
   static {
@@ -63,7 +66,7 @@ class ConverterTest {
   void testInvalidApply() {
     Runnable runnable = () -> assertThat(INVALID_CONVERTER.apply(1)).hasSize(1);
     Consumer<LogRecord> consumer = logRecord -> assertThat(logRecord.getMessage()).isEqualTo("Invalid variables: [V1, V2] not match [1]");
-    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
+    assertThatIllegalArgumentException().isThrownBy(
         () -> LogTestUtils.isSubstituteLogLevel(LOGGER_INVALID, WARNING, runnable, consumer)
     );
   }
@@ -83,12 +86,12 @@ class ConverterTest {
 
   @AfterAll
   static void cleanUp() {
-    Clean.clean(PATH);
+    Clean.clean(Objects.requireNonNull(PATH));
   }
 
   @Test
   void testFileConvert() throws IOException {
-    Path tempFile = Files.createTempFile(PATH, Strings.EMPTY, Extension.BIN.attachTo(getClass().getSimpleName()));
+    Path tempFile = Files.createTempFile(Objects.requireNonNull(PATH), Strings.EMPTY, Extension.BIN.attachTo(getClass().getSimpleName()));
     Files.write(tempFile, new byte[] {51, 102, 102, 53, '\r', '\n'});
     BytesInterceptor<BufferFrame, String> interceptor = new StringBytesInterceptor(getClass().getSimpleName());
     Converter<String, ADCVariable> converter = new StringToIntegerConverter<>(ADCVariable.class, 1);

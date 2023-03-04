@@ -149,7 +149,7 @@ class RcmConverterTest {
   }
 
   @Test
-  @Disabled("generate csv files")
+  @Disabled("ignored com.ak.comm.converter.rcm.RcmConverterTest.testBaseSplineSurface1")
   void testBaseSplineSurface1() {
     SplineCoefficientsUtils.testSplineSurface(RcmBaseSurfaceCoefficientsChannel1.class);
     SplineCoefficientsUtils.testSplineSurface(RcmBaseSurfaceCoefficientsChannel2.class);

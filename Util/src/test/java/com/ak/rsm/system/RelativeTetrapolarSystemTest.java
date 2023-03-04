@@ -80,12 +80,11 @@ class RelativeTetrapolarSystemTest {
     assertThat(system.errorFactor()).isCloseTo(6.0, byLessThan(0.1));
   }
 
-  @ParameterizedTest
-  @MethodSource("relativeTetrapolarSystems")
+  @Test
   void testHMaxFactor() {
-    double random = new Random().nextDouble(-0.5, 0.5);
+    double random = new Random().nextDouble(0.5, 1.0);
     PointValuePair pair = Simplex.optimizeAll(x -> 1.0 - new RelativeTetrapolarSystem(x[0]).hMaxFactor(random),
-        new Simplex.Bounds(-1.0, 1.0)
+        new Simplex.Bounds(0.0, 1.0)
     );
     assertThat(pair.getPoint()[0]).withFailMessage(Arrays.toString(pair.getPoint()))
         .isCloseTo(1.0 / 3.0, byLessThan(0.001));

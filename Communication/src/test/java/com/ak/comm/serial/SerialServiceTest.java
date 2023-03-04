@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class SerialServiceTest {
   @Test
-  @Disabled("use serial port")
+  @Disabled("ignored com.ak.comm.serial.SerialServiceTest.testCycle")
   void testCycle() {
     SerialPort comPort = SerialPort.getCommPorts()[3];
     Logger.getLogger(getClass().getName()).info("[%s] %s".formatted(comPort.getSystemPortName(), comPort.getDescriptivePortName()));
@@ -62,7 +62,7 @@ class SerialServiceTest {
   }
 
   @Test
-  @Disabled("use serial port")
+  @Disabled("ignored com.ak.comm.serial.SerialServiceTest.testSingle")
   void testSingle() {
     SerialPort comPort = SerialPort.getCommPorts()[3];
     Logger.getLogger(getClass().getName()).info("[%s] %s".formatted(comPort.getSystemPortName(), comPort.getDescriptivePortName()));

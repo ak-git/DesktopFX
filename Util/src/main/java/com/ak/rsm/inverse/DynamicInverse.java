@@ -31,12 +31,15 @@ final class DynamicInverse extends AbstractInverseFunction<DerivativeResistivity
   }
 
   static ToDoubleFunction<double[]> of(@Nonnull Collection<? extends DerivativeResistivity> r) {
-    double dh = r.stream().mapToDouble(DerivativeResistivity::dh)
-        .reduce((left, right) -> Double.compare(left, right) == 0 ? left : Double.NaN).orElse(Double.NaN);
-    return new DynamicInverse(r, systems -> new Layer2DynamicInverse(systems, dh));
+    return new DynamicInverse(r, systems -> new Layer2DynamicInverse(systems, dH(r)));
   }
 
   static ToDoubleFunction<double[]> of(@Nonnull Collection<? extends DerivativeResistivity> r, @Nonnegative double hStep) {
-    return new DynamicInverse(r, systems -> new Layer3DynamicInverse(systems, hStep));
+    return new DynamicInverse(r, systems -> new Layer3DynamicInverse(systems, hStep, dH(r)));
+  }
+
+  private static double dH(@Nonnull Collection<? extends DerivativeResistivity> r) {
+    return r.stream().mapToDouble(DerivativeResistivity::dh)
+        .reduce((left, right) -> Double.compare(left, right) == 0 ? left : Double.NaN).orElse(Double.NaN);
   }
 }

@@ -21,6 +21,7 @@ abstract class AbstractLayerInverse extends AbstractInverse implements BiFunctio
   }
 
   @Override
+  @ParametersAreNonnullByDefault
   public final Complex apply(TetrapolarSystem s, double[] kw) {
     return predicted.apply(s, kw);
   }

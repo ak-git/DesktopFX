@@ -1,30 +1,26 @@
 package com.ak.fx.desktop.purelogic;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
-
 import com.ak.comm.bytes.purelogic.PureLogicFrame;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.purelogic.PureLogicVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.fx.desktop.AbstractScheduledViewController;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
-import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_1050;
-import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_210;
-import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_420;
-import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_840;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.*;
 import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
 
-@Named
+@Component
 @Profile("purelogic")
 public final class PureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
   private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE = {
-      MICRON_210, MICRON_210, MICRON_420, MICRON_420, MICRON_840, MICRON_840
+      MICRON_210, MICRON_210, MICRON_420, MICRON_420, MICRON_630, MICRON_630
   };
   private final AtomicInteger handDirection = new AtomicInteger();
   private boolean up;

@@ -1,12 +1,11 @@
 package com.ak.rsm.system;
 
-import java.util.function.IntToDoubleFunction;
-import java.util.stream.IntStream;
+import com.ak.numbers.CoefficientsUtils;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-
-import com.ak.numbers.CoefficientsUtils;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.IntStream;
 
 public enum Layers {
   ;
@@ -34,7 +33,7 @@ public enum Layers {
   }
 
   public static double sum(@Nonnull IntToDoubleFunction function) {
-    return IntStream.rangeClosed(1, SUM_LIMIT).unordered().parallel().mapToDouble(function).sum();
+    return IntStream.rangeClosed(1, SUM_LIMIT).parallel().mapToDouble(function).sum();
   }
 
   public static double[] qn(double k12, double k23, @Nonnegative int p1, @Nonnegative int p2mp1) {

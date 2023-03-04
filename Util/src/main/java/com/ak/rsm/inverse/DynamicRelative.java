@@ -1,18 +1,21 @@
 package com.ak.rsm.inverse;
 
-import java.util.Collection;
-import java.util.function.ToDoubleFunction;
-import java.util.function.UnaryOperator;
-
-import javax.annotation.Nonnull;
-
 import com.ak.math.Simplex;
 import com.ak.rsm.measurement.DerivativeMeasurement;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import org.apache.commons.math3.optim.PointValuePair;
 
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.ToDoubleFunction;
+import java.util.function.UnaryOperator;
+import java.util.logging.Logger;
+
 import static com.ak.rsm.relative.RelativeMediumLayers.NAN;
+import static java.lang.StrictMath.hypot;
+import static java.lang.StrictMath.log;
 
 final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, RelativeMediumLayers> {
   @Nonnull
@@ -44,8 +47,27 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
       return new StaticRelative(measurements()).get();
     }
 
-    PointValuePair kwOptimal = Simplex.optimizeAll(dynamicInverse::applyAsDouble,
-        kMinMax, new Simplex.Bounds(0.0, getMaxHToL())
+    double alpha = 0.0;
+    Logger.getLogger(getClass().getName()).info(() -> "alpha = %.2f".formatted(alpha));
+
+    PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
+          double k = kw[0];
+          double hToL = kw[1];
+          double min = getMinHToL(k);
+          double max = getMaxHToL(k);
+          double lowBound = Math.min(min, max);
+          double topBound = Math.max(min, max);
+
+          if (lowBound < hToL && hToL < topBound) {
+            DoubleUnaryOperator f = x -> log(topBound - x) + log(x - lowBound);
+            double center = (topBound + lowBound) / 2.0;
+            return hypot(dynamicInverse.applyAsDouble(kw), alpha * (f.applyAsDouble(hToL) - f.applyAsDouble(center)));
+          }
+          else {
+            return Double.MAX_VALUE;
+          }
+        },
+        kMinMax, new Simplex.Bounds(0.0, getMaxHToL(1.0))
     );
     return apply(new Layer2RelativeMedium(kwOptimal.getPoint()));
   }

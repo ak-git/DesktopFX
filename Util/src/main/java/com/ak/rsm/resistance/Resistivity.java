@@ -1,11 +1,11 @@
 package com.ak.rsm.resistance;
 
+import com.ak.rsm.system.TetrapolarSystem;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import com.ak.rsm.system.TetrapolarSystem;
-
-public interface Resistivity {
+public sealed interface Resistivity permits DerivativeResistivity, Resistance {
   /**
    * Gets <b>apparent</b> specific ohms which is corresponding to 1-layer model.
    *

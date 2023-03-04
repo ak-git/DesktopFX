@@ -31,7 +31,7 @@ import static com.ak.fx.scene.GridCell.SMALL;
 
 public final class AxisXController {
   private enum ZoomX {
-    Z_5, Z_10, Z_25, Z_50, Z_100;
+    Z_1, Z_5, Z_10, Z_25, Z_50, Z_100;
 
     @Nonnegative
     private final int mmPerSec;

@@ -1,15 +1,14 @@
 package com.ak.rsm.inverse;
 
-import java.util.Collection;
-
-import javax.annotation.Nonnull;
-
 import com.ak.rsm.measurement.DerivativeMeasurement;
 import com.ak.rsm.medium.Layer2Medium;
 import com.ak.rsm.medium.MediumLayers;
 import com.ak.rsm.relative.RelativeMediumLayers;
 
-class DynamicAbsolute implements Inverse<MediumLayers> {
+import javax.annotation.Nonnull;
+import java.util.Collection;
+
+final class DynamicAbsolute implements Inverse<MediumLayers> {
   @Nonnull
   private final DynamicRelative inverseRelative;
 
