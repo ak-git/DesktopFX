@@ -26,14 +26,14 @@ spotbugsMain {
     }
 }
 
-sonarqube {
+sonar {
     properties {
         property "sonar.projectKey", "ak-git_DesktopFX"
         property "sonar.organization", "ak-git"
         property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.login", "ec97b4884454351da027c6345043fc8ae9401d53"
         property "sonar.branch.name", "develop"
-        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml'
+        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
     }
 }
 
@@ -88,6 +88,12 @@ allprojects {
         mavenLocal()
         maven {
             url = 'https://plugins.gradle.org/m2/'
+        }
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.required = true
         }
     }
 
