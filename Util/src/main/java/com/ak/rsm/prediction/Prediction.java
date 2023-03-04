@@ -2,7 +2,7 @@ package com.ak.rsm.prediction;
 
 import javax.annotation.Nonnull;
 
-public interface Prediction {
+public sealed interface Prediction permits AbstractPrediction {
   double getPredicted();
 
   @Nonnull

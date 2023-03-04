@@ -1,10 +1,5 @@
 package com.ak.rsm.prediction;
 
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.resistance.DerivativeResistivity;
 import com.ak.rsm.system.TetrapolarSystem;
@@ -12,6 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
@@ -98,12 +97,7 @@ class TetrapolarDerivativePredictionTest {
         arguments(prediction1, prediction2, true),
         arguments(prediction1, prediction3, false),
         arguments(prediction1, new Object(), false),
-        arguments(new Object(), prediction1, false),
-        arguments(
-            new AbstractPrediction(0.0, new double[] {0.0}) {
-            },
-            new Object(), false
-        )
+        arguments(new Object(), prediction1, false)
     );
   }
 

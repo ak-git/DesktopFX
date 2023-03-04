@@ -1,20 +1,19 @@
 package com.ak.rsm.prediction;
 
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.stream.DoubleStream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.inverse.Inequality;
 import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.DerivativeResistivity;
 import com.ak.util.Strings;
 
-public class TetrapolarDerivativePrediction extends AbstractPrediction {
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.DoubleStream;
+
+public final class TetrapolarDerivativePrediction extends AbstractPrediction {
   @Nonnull
   private final Prediction prediction;
 

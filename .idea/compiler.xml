@@ -15,7 +15,7 @@
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/3.0.2/9a921dedf1930388289f0e68f7e7808f3389dcae/spring-boot-configuration-processor-3.0.2.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/3.0.4/120cb2d8ed8f5f006bcc97813a920f25bd1a76da/spring-boot-configuration-processor-3.0.4.jar" />
         </processorPath>
         <module name="com.ak.DesktopFX.main" />
       </profile>
