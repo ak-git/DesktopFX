@@ -22,12 +22,12 @@ import static tec.uom.se.unit.Units.OHM;
 public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, double derivativeResistivity, double dh)
     implements DerivativeMeasurement {
   public String toString() {
-    String s = "%s; %s".formatted(measurement, Strings.dRhoByPhi(derivativeResistivity));
+    String s = "%s; %s; R = %.3f %s".formatted(measurement, Strings.dRhoByPhi(derivativeResistivity), ohms(), OHM);
     if (Double.isNaN(dh)) {
       return s;
     }
     else {
-      return "%s; R = %.3f %s; %s = %.3f %s; dh = %.3f mm".formatted(s, ohms(), OHM, Strings.CAP_DELTA, dOhms(), OHM, Metrics.toMilli(dh));
+      return "%s; %s = %.3f %s; dh = %.3f mm".formatted(s, Strings.CAP_DELTA, dOhms(), OHM, Metrics.toMilli(dh));
     }
   }
 
