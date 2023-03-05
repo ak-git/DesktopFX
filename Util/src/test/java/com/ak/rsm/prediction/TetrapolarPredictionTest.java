@@ -1,7 +1,7 @@
 package com.ak.rsm.prediction;
 
+import com.ak.rsm.relative.Layer1RelativeMedium;
 import com.ak.rsm.relative.Layer2RelativeMedium;
-import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -48,7 +48,7 @@ class TetrapolarPredictionTest {
   void testPrediction() {
     Prediction prediction = TetrapolarPrediction.of(
         TetrapolarResistance.ofSI(10, 20).rho(100.0),
-        RelativeMediumLayers.SINGLE_LAYER, 10.0);
+        Layer1RelativeMedium.SINGLE_LAYER, 10.0);
     assertAll(prediction.toString(),
         () -> assertThat(prediction.getPredicted()).isCloseTo(10.0, byLessThan(0.001)),
         () -> assertThat(prediction.getInequalityL2()).containsExactly(new double[] {9.0}, byLessThan(0.001))

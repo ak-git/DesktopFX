@@ -2,6 +2,7 @@ package com.ak.rsm.measurement;
 
 import com.ak.math.ValuePair;
 import com.ak.rsm.apparent.Apparent2Rho;
+import com.ak.rsm.relative.Layer1RelativeMedium;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistivity;
@@ -27,7 +28,7 @@ public enum Measurements {
   @Nonnull
   @ParametersAreNonnullByDefault
   public static ValuePair getRho1(Collection<? extends Measurement> measurements, RelativeMediumLayers kw) {
-    if (RelativeMediumLayers.SINGLE_LAYER.equals(kw)) {
+    if (Layer1RelativeMedium.SINGLE_LAYER.equals(kw)) {
       Measurement average = measurements.stream().map(Measurement.class::cast).reduce(Measurement::merge).orElseThrow();
       double rho = average.resistivity();
       return ValuePair.Name.RHO_1.of(rho, rho * average.inexact().getApparentRelativeError());

@@ -112,6 +112,10 @@ allprojects {
         forkEvery = 5
         maxHeapSize = '1G'
     }
+
+    tasks.withType(JavaCompile).each {
+        it.options.compilerArgs.add('--enable-preview')
+    }
 }
 
 dependencies {
