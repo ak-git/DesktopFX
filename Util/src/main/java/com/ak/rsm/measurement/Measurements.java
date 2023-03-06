@@ -2,6 +2,7 @@ package com.ak.rsm.measurement;
 
 import com.ak.math.ValuePair;
 import com.ak.rsm.apparent.Apparent2Rho;
+import com.ak.rsm.relative.Layer1RelativeMedium;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistivity;
@@ -27,28 +28,30 @@ public enum Measurements {
   @Nonnull
   @ParametersAreNonnullByDefault
   public static ValuePair getRho1(Collection<? extends Measurement> measurements, RelativeMediumLayers kw) {
-    if (kw instanceof Layer2RelativeMedium) {
+    if (Layer1RelativeMedium.SINGLE_LAYER.equals(kw)) {
+      Measurement average = measurements.stream().map(Measurement.class::cast).reduce(Measurement::merge).orElseThrow();
+      double rho = average.resistivity();
+      return ValuePair.Name.RHO_1.of(rho, rho * average.inexact().getApparentRelativeError());
+    }
+    else if (Layer1RelativeMedium.NAN.equals(kw)) {
+      return ValuePair.Name.RHO_1.of(Double.NaN, Double.NaN);
+    }
+    else {
       double baseL = getBaseL(measurements);
       return measurements.stream()
           .map(measurement -> {
             TetrapolarSystem s = measurement.system();
-            double normApparent = Apparent2Rho.newApparentDivRho1(s.relativeSystem())
-                .applyAsDouble(new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / s.lCC()));
+            RelativeMediumLayers layer2RelativeMedium = new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / s.lCC());
+            double normApparent = Apparent2Rho.newApparentDivRho1(s.relativeSystem()).applyAsDouble(layer2RelativeMedium);
 
             double fK = Math.abs(Apparent2Rho.newDerApparentByKDivRho1(s.relativeSystem()).applyAsDouble(kw) * kw.k12AbsError());
             double fPhi = Math.abs(Apparent2Rho.newDerApparentByPhiDivRho1(s.relativeSystem()).applyAsDouble(kw) * kw.hToLAbsError());
-
 
             return ValuePair.Name.RHO_1.of(measurement.resistivity() / normApparent,
                 (fK + fPhi) * measurement.resistivity() / pow(normApparent, 2.0)
             );
           })
           .reduce(ValuePair::mergeWith).orElseThrow();
-    }
-    else {
-      Measurement average = measurements.stream().map(Measurement.class::cast).reduce(Measurement::merge).orElseThrow();
-      double rho = average.resistivity();
-      return ValuePair.Name.RHO_1.of(rho, rho * average.inexact().getApparentRelativeError());
     }
   }
 
