@@ -145,9 +145,9 @@ class InverseDynamicTest {
                     .system(10.0, 20.0).rho1(1.0).rho2(9.0).h(hmm)
             ),
             new double[] {
-                Apparent2Rho.newNormalizedApparent2Rho(new RelativeTetrapolarSystem(0.5))
+                Apparent2Rho.newApparentDivRho1(new RelativeTetrapolarSystem(0.5))
                     .applyAsDouble(new Layer2RelativeMedium(0.8, hmm / 20.0)),
-                Apparent2Rho.newNormalizedApparent2Rho(new RelativeTetrapolarSystem(0.5))
+                Apparent2Rho.newApparentDivRho1(new RelativeTetrapolarSystem(0.5))
                     .applyAsDouble(new Layer2RelativeMedium(0.8, hmm / 20.0)),
                 Double.NaN}
         ),

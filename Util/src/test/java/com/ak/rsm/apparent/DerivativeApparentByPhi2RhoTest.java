@@ -1,14 +1,14 @@
 package com.ak.rsm.apparent;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
@@ -21,7 +21,7 @@ class DerivativeApparentByPhi2RhoTest {
     double h = Metrics.fromMilli(hmm);
     double dh = Metrics.fromMilli(-0.00001);
     double expected = TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho[0]).rho2(rho[1]).h(h).derivativeResistivity() / rho[0];
-    double actual = Apparent2Rho.newDerivativeApparentByPhi2Rho(system.relativeSystem())
+    double actual = Apparent2Rho.newDerivativeApparentByPhiDivRho1(system.relativeSystem())
         .applyAsDouble(new Layer2RelativeMedium(rho, hmm / lmm));
     assertThat(actual).isCloseTo(expected, byLessThan(0.1));
   }
@@ -33,7 +33,7 @@ class DerivativeApparentByPhi2RhoTest {
     double h = Metrics.fromMilli(hmm);
     double dh = Metrics.fromMilli(-0.00001);
     double expected = TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho[0]).rho2(rho[1]).h(h).derivativeResistivity() / rho[0];
-    double actual = Apparent2Rho.newDerivativeApparentByPhi2Rho(system.relativeSystem())
+    double actual = Apparent2Rho.newDerivativeApparentByPhiDivRho1(system.relativeSystem())
         .applyAsDouble(new Layer2RelativeMedium(rho, hmm / smm));
     assertThat(actual).isCloseTo(expected, byLessThan(0.1));
   }

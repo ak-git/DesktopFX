@@ -1,14 +1,5 @@
 package com.ak.rsm.inverse;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.function.DoubleUnaryOperator;
-import java.util.function.Function;
-import java.util.function.UnaryOperator;
-
-import javax.annotation.Nonnull;
-
 import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.DerivativeResistance;
@@ -18,6 +9,14 @@ import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import static java.lang.StrictMath.log;
 
@@ -31,10 +30,10 @@ final class DynamicErrors extends AbstractErrors {
   public RelativeMediumLayers apply(@Nonnull RelativeMediumLayers layers) {
     double[][] a2 = systems().stream().map(TetrapolarSystem::relativeSystem)
         .map(s -> {
-          double denominator2 = Apparent2Rho.newDerivativeApparentByPhi2Rho(s).applyAsDouble(layers);
+          double denominator2 = Apparent2Rho.newDerivativeApparentByPhiDivRho1(s).applyAsDouble(layers);
           return new double[] {
-              Apparent2Rho.newSecondDerivativeApparentByPhiK2Rho(s).applyAsDouble(layers) / denominator2,
-              Apparent2Rho.newSecondDerivativeApparentByPhiPhi2Rho(s).applyAsDouble(layers) / denominator2
+              Apparent2Rho.newSecondDerivativeApparentByPhiKDivRho1(s).applyAsDouble(layers) / denominator2,
+              Apparent2Rho.newSecondDerivativeApparentByPhiPhiDivRho1(s).applyAsDouble(layers) / denominator2
           };
         })
         .toArray(double[][]::new);

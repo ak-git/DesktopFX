@@ -1,12 +1,11 @@
 package com.ak.rsm.inverse;
 
-import java.util.Collection;
-
-import javax.annotation.Nonnull;
-
 import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.system.TetrapolarSystem;
 import org.apache.commons.math3.complex.Complex;
+
+import javax.annotation.Nonnull;
+import java.util.Collection;
 
 import static java.lang.StrictMath.log;
 
@@ -15,7 +14,7 @@ final class Layer2DynamicInverse extends AbstractLayerInverse {
     super(systems, () -> {
       Layer2StaticInverse logApparentPredicted = new Layer2StaticInverse(systems);
       return (s, kw) -> {
-        double dR = Apparent2Rho.newDerivativeApparentByPhi2Rho(s, dh)
+        double dR = Apparent2Rho.newDerivativeApparentByPhiDivRho1(s, dh)
             .applyAsDouble(logApparentPredicted.layersBiFunction().apply(s, kw));
         double log = logApparentPredicted.apply(s, kw).getReal() - log(Math.abs(dR));
         return new Complex(log, log * Math.signum(dR));

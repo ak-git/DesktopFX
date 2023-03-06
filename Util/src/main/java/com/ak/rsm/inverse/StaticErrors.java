@@ -1,16 +1,5 @@
 package com.ak.rsm.inverse;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.UnaryOperator;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.math.ValuePair;
 import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.relative.Layer2RelativeMedium;
@@ -25,6 +14,16 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
+
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import static java.lang.StrictMath.log;
 
@@ -116,10 +115,10 @@ final class StaticErrors extends AbstractErrors {
     return subtract.apply(
         systems.stream()
             .map(s -> {
-              double denominator = Apparent2Rho.newNormalizedApparent2Rho(s).applyAsDouble(layers);
+              double denominator = Apparent2Rho.newApparentDivRho1(s).applyAsDouble(layers);
               return new double[] {
-                  Apparent2Rho.newDerivativeApparentByK2Rho(s).applyAsDouble(layers) / denominator,
-                  Apparent2Rho.newDerivativeApparentByPhi2Rho(s).applyAsDouble(layers) / denominator
+                  Apparent2Rho.newDerivativeApparentByKDivRho1(s).applyAsDouble(layers) / denominator,
+                  Apparent2Rho.newDerivativeApparentByPhiDivRho1(s).applyAsDouble(layers) / denominator
               };
             })
             .toArray(double[][]::new)
