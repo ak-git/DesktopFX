@@ -26,7 +26,7 @@ class DerivativeApparentByK2RhoTest {
               b.rho1(rho[0]).rho2(rho[0] / Layers.getRho1ToRho2(k12 - dk)).h(hmm).resistivity()
       ) / dk;
       expected /= rho[0];
-      double actual = Apparent2Rho.newDerivativeApparentByKDivRho1(new RelativeTetrapolarSystem(smm / lmm))
+      double actual = Apparent2Rho.newDerApparentByKDivRho1(new RelativeTetrapolarSystem(smm / lmm))
           .applyAsDouble(new Layer2RelativeMedium(k12, hmm / lmm));
       assertThat(actual).isCloseTo(expected, byLessThan(0.1));
     }
@@ -44,7 +44,7 @@ class DerivativeApparentByK2RhoTest {
               b.rho1(rho[0]).rho2(rho[0] / Layers.getRho1ToRho2(k12 - dk)).h(hmm).resistivity()
       ) / dk;
       expected /= rho[0];
-      double actual = Apparent2Rho.newDerivativeApparentByKDivRho1(new RelativeTetrapolarSystem(lmm / smm))
+      double actual = Apparent2Rho.newDerApparentByKDivRho1(new RelativeTetrapolarSystem(lmm / smm))
           .applyAsDouble(new Layer2RelativeMedium(k12, hmm / smm));
       assertThat(actual).isCloseTo(expected, byLessThan(0.1));
     }

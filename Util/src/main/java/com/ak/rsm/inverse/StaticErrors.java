@@ -117,8 +117,8 @@ final class StaticErrors extends AbstractErrors {
             .map(s -> {
               double denominator = Apparent2Rho.newApparentDivRho1(s).applyAsDouble(layers);
               return new double[] {
-                  Apparent2Rho.newDerivativeApparentByKDivRho1(s).applyAsDouble(layers) / denominator,
-                  Apparent2Rho.newDerivativeApparentByPhiDivRho1(s).applyAsDouble(layers) / denominator
+                  Apparent2Rho.newDerApparentByKDivRho1(s).applyAsDouble(layers) / denominator,
+                  Apparent2Rho.newDerApparentByPhiDivRho1(s).applyAsDouble(layers) / denominator
               };
             })
             .toArray(double[][]::new)

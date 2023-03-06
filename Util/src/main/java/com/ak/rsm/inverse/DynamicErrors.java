@@ -30,10 +30,10 @@ final class DynamicErrors extends AbstractErrors {
   public RelativeMediumLayers apply(@Nonnull RelativeMediumLayers layers) {
     double[][] a2 = systems().stream().map(TetrapolarSystem::relativeSystem)
         .map(s -> {
-          double denominator2 = Apparent2Rho.newDerivativeApparentByPhiDivRho1(s).applyAsDouble(layers);
+          double denominator2 = Apparent2Rho.newDerApparentByPhiDivRho1(s).applyAsDouble(layers);
           return new double[] {
-              Apparent2Rho.newSecondDerivativeApparentByPhiKDivRho1(s).applyAsDouble(layers) / denominator2,
-              Apparent2Rho.newSecondDerivativeApparentByPhiPhiDivRho1(s).applyAsDouble(layers) / denominator2
+              Apparent2Rho.newSecondDerApparentByPhiKDivRho1(s).applyAsDouble(layers) / denominator2,
+              Apparent2Rho.newSecondDerApparentByPhiPhiDivRho1(s).applyAsDouble(layers) / denominator2
           };
         })
         .toArray(double[][]::new);

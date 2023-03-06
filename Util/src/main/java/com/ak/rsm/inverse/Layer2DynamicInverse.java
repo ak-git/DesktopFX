@@ -14,7 +14,7 @@ final class Layer2DynamicInverse extends AbstractLayerInverse {
     super(systems, () -> {
       Layer2StaticInverse logApparentPredicted = new Layer2StaticInverse(systems);
       return (s, kw) -> {
-        double dR = Apparent2Rho.newDerivativeApparentByPhiDivRho1(s, dh)
+        double dR = Apparent2Rho.newDerApparentByPhiDivRho1(s, dh)
             .applyAsDouble(logApparentPredicted.layersBiFunction().apply(s, kw));
         double log = logApparentPredicted.apply(s, kw).getReal() - log(Math.abs(dR));
         return new Complex(log, log * Math.signum(dR));

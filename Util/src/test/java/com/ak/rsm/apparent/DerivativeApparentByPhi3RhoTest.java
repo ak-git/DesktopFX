@@ -22,7 +22,7 @@ class DerivativeApparentByPhi3RhoTest {
     int p1 = (int) hmm;
     double expected = TetrapolarDerivativeResistance.of(system).dh(hStep).rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(hStep).p(p1, 1)
         .derivativeResistivity() / rho[0];
-    double actual = Apparent3Rho.newDerivativeApparentByPhiDivRho1(system,
+    double actual = Apparent3Rho.newDerApparentByPhiDivRho1(system,
         new double[] {Layers.getK12(rho[0], rho[1]), 0.0}, hStep, p1, 1, hStep);
     assertThat(StrictMath.log(Math.abs(actual))).isCloseTo(StrictMath.log(Math.abs(expected)), byLessThan(0.1));
     assertThat(Math.signum(actual)).isCloseTo(Math.signum(expected), byLessThan(0.1));
@@ -36,7 +36,7 @@ class DerivativeApparentByPhi3RhoTest {
     double expected = TetrapolarDerivativeResistance.of(system).dh(hStep).rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(hStep).p(p[0], p[1])
         .derivativeResistivity() / rho[0];
 
-    double actual = Apparent3Rho.newDerivativeApparentByPhiDivRho1(system,
+    double actual = Apparent3Rho.newDerApparentByPhiDivRho1(system,
         new double[] {Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2])},
         hStep, p[0], p[1], hStep);
     assertThat(StrictMath.log(Math.abs(actual))).isCloseTo(StrictMath.log(Math.abs(expected)), byLessThan(0.1));

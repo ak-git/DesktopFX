@@ -21,7 +21,7 @@ class SecondDerivativeApparentByPhiK2RhoTest {
   @Test
   void test() {
     ToDoubleFunction<RelativeMediumLayers> operator = Apparent2Rho
-        .newSecondDerivativeApparentByPhiKDivRho1(new RelativeTetrapolarSystem(10.0 / 30.0));
+        .newSecondDerApparentByPhiKDivRho1(new RelativeTetrapolarSystem(10.0 / 30.0));
     assertThat(operator.applyAsDouble(new Layer2RelativeMedium(0.9, 5.0 / 30.0)))
         .isCloseTo(-30.855, byLessThan(0.001));
   }
@@ -33,13 +33,13 @@ class SecondDerivativeApparentByPhiK2RhoTest {
     double phi = hmm / lmm;
     double dK = 1.0e-6;
     double k12 = Layers.getK12(rho[0], rho[1]);
-    double actual = Apparent2Rho.newDerivativeApparentByPhiDivRho1(
+    double actual = Apparent2Rho.newDerApparentByPhiDivRho1(
         system.relativeSystem()).applyAsDouble(new Layer2RelativeMedium(k12 + dK, phi)) -
-        Apparent2Rho.newDerivativeApparentByPhiDivRho1(system.relativeSystem()).applyAsDouble(new Layer2RelativeMedium(k12, phi));
+        Apparent2Rho.newDerApparentByPhiDivRho1(system.relativeSystem()).applyAsDouble(new Layer2RelativeMedium(k12, phi));
     actual /= dK;
     assertThat(actual)
         .isCloseTo(
-            Apparent2Rho.newSecondDerivativeApparentByPhiKDivRho1(system.relativeSystem()).applyAsDouble(new Layer2RelativeMedium(k12, phi)),
+            Apparent2Rho.newSecondDerApparentByPhiKDivRho1(system.relativeSystem()).applyAsDouble(new Layer2RelativeMedium(k12, phi)),
             Offset.offset(0.9)
         );
   }
@@ -51,13 +51,13 @@ class SecondDerivativeApparentByPhiK2RhoTest {
     double phi = hmm / lmm;
     double dK = 1.0e-6;
     double k12 = Layers.getK12(rho[0], rho[1]);
-    double actual = Apparent2Rho.newDerivativeApparentByPhiDivRho1(
+    double actual = Apparent2Rho.newDerApparentByPhiDivRho1(
         system.relativeSystem()).applyAsDouble(new Layer2RelativeMedium(k12 + dK, phi)) -
-        Apparent2Rho.newDerivativeApparentByPhiDivRho1(system.relativeSystem()).applyAsDouble(new Layer2RelativeMedium(k12, phi));
+        Apparent2Rho.newDerApparentByPhiDivRho1(system.relativeSystem()).applyAsDouble(new Layer2RelativeMedium(k12, phi));
     actual /= dK;
     assertThat(actual)
         .isCloseTo(
-            Apparent2Rho.newSecondDerivativeApparentByPhiKDivRho1(system.relativeSystem()).applyAsDouble(new Layer2RelativeMedium(k12, phi)),
+            Apparent2Rho.newSecondDerApparentByPhiKDivRho1(system.relativeSystem()).applyAsDouble(new Layer2RelativeMedium(k12, phi)),
             withinPercentage(10.0)
         );
   }

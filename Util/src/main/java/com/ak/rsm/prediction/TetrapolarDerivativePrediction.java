@@ -26,7 +26,7 @@ public final class TetrapolarDerivativePrediction extends AbstractPrediction {
   @ParametersAreNonnullByDefault
   public static Prediction of(DerivativeResistivity resistivityMeasured, RelativeMediumLayers layers, @Nonnegative double rho1) {
     Prediction prediction = TetrapolarPrediction.of(resistivityMeasured, layers, rho1);
-    double diffResistivityPredicted = Apparent2Rho.newDerivativeApparentByPhiDivRho1(resistivityMeasured.system(), resistivityMeasured.dh())
+    double diffResistivityPredicted = Apparent2Rho.newDerApparentByPhiDivRho1(resistivityMeasured.system(), resistivityMeasured.dh())
         .applyAsDouble(layers) * rho1;
     double[] inequalityL2 = DoubleStream.concat(
         Arrays.stream(prediction.getInequalityL2()),

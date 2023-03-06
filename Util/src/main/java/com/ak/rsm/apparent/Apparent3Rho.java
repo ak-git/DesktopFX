@@ -25,13 +25,13 @@ public class Apparent3Rho extends AbstractApparentRho {
   }
 
   @Nonnull
-  public static Apparent3Rho newNormalizedApparentDivRho1(@Nonnull RelativeTetrapolarSystem system) {
+  public static Apparent3Rho newApparentDivRho1(@Nonnull RelativeTetrapolarSystem system) {
     return new Apparent3Rho(new NormalizedApparent(system));
   }
 
   @ParametersAreNonnullByDefault
-  public static double newDerivativeApparentByPhiDivRho1(TetrapolarSystem system, double[] k, @Nonnegative double hStep,
-                                                         @Nonnegative int p1, @Nonnegative int p2mp1, double dh) {
+  public static double newDerApparentByPhiDivRho1(TetrapolarSystem system, double[] k, @Nonnegative double hStep,
+                                                  @Nonnegative int p1, @Nonnegative int p2mp1, double dh) {
     double rho1 = 1.0;
     double rho2 = rho1 / Layers.getRho1ToRho2(k[0]);
     double rho3 = rho2 / Layers.getRho1ToRho2(k[1]);

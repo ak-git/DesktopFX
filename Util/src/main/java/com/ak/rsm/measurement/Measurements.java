@@ -35,8 +35,9 @@ public enum Measurements {
             double normApparent = Apparent2Rho.newApparentDivRho1(s.relativeSystem())
                 .applyAsDouble(new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / s.lCC()));
 
-            double fK = Math.abs(Apparent2Rho.newDerivativeApparentByKDivRho1(s.relativeSystem()).applyAsDouble(kw) * kw.k12AbsError());
-            double fPhi = Math.abs(Apparent2Rho.newDerivativeApparentByPhiDivRho1(s.relativeSystem()).applyAsDouble(kw) * kw.hToLAbsError());
+            double fK = Math.abs(Apparent2Rho.newDerApparentByKDivRho1(s.relativeSystem()).applyAsDouble(kw) * kw.k12AbsError());
+            double fPhi = Math.abs(Apparent2Rho.newDerApparentByPhiDivRho1(s.relativeSystem()).applyAsDouble(kw) * kw.hToLAbsError());
+
 
             return ValuePair.Name.RHO_1.of(measurement.resistivity() / normApparent,
                 (fK + fPhi) * measurement.resistivity() / pow(normApparent, 2.0)
