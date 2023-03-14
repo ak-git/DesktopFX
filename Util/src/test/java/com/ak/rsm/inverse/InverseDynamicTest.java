@@ -103,8 +103,8 @@ class InverseDynamicTest {
         arguments(
             TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(dhMilli).system4(10.0).rho1(1.0).rho2(4.0).h(hmm),
             new ValuePair[] {
-                ValuePair.Name.RHO_1.of(1.0, 0.000066),
-                ValuePair.Name.RHO_2.of(4.0, 0.0011),
+                ValuePair.Name.RHO_1.of(0.99789, 0.000063),
+                ValuePair.Name.RHO_2.of(3.992, 0.0011),
                 ValuePair.Name.H.of(Metrics.fromMilli(hmm), Metrics.fromMilli(0.00085))
             }
         ),
@@ -113,7 +113,7 @@ class InverseDynamicTest {
             TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(Double.NaN).system2(10.0)
                 .rho(1.4441429093546185, 1.6676102911913226, -3.0215753166196184, -3.49269170918376),
             new ValuePair[] {
-                ValuePair.Name.RHO_1.of(1.0, 0.00011),
+                ValuePair.Name.RHO_1.of(1.0, 0.00010),
                 ValuePair.Name.RHO_2.of(4.0, 0.0018),
                 ValuePair.Name.H.of(Metrics.fromMilli(hmm), Metrics.fromMilli(0.0011))
             }
