@@ -56,7 +56,7 @@ class Inverse2Test {
         )
         .flatMap(Function.identity())
         .filter(ints -> ints.length == ms.size())
-        .map(ints -> Arrays.stream(ints).filter(i -> Math.abs(findDh.applyAsDouble(i)) < Metrics.fromMilli(0.2 * 2)).toArray())
+        .map(ints -> Arrays.stream(ints).filter(i -> Math.abs(findDh.applyAsDouble(i)) < Metrics.fromMilli(0.2 * 3)).toArray())
         .map(ints -> {
           LOGGER.info(() -> Arrays.stream(ints)
               .mapToDouble(findDh)
