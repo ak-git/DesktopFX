@@ -6,7 +6,7 @@ module com.ak.util {
   requires java.sql;
 
   requires commons.math3;
-  requires commons.csv;
+  requires org.apache.commons.csv;
   requires jsr305;
   requires io.jenetics.base;
 
