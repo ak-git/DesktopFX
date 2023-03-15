@@ -14,7 +14,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.IntConsumer;
-import java.util.stream.Stream;
 
 public enum Measurements {
   ;
@@ -38,7 +37,7 @@ public enum Measurements {
     else {
       double baseL = getBaseL(measurements);
       return measurements.stream()
-          .flatMap(measurement -> {
+          .<ValuePair>mapMulti((measurement, consumer) -> {
             TetrapolarSystem s = measurement.system();
             RelativeMediumLayers layer2RelativeMedium = new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / s.lCC());
 
@@ -46,18 +45,14 @@ public enum Measurements {
             double fK = Math.abs(Apparent2Rho.newDerApparentByKDivRho1(s.relativeSystem()).applyAsDouble(kw) * kw.k12AbsError());
             double fPhi = Math.abs(Apparent2Rho.newDerApparentByPhiDivRho1(s.relativeSystem()).applyAsDouble(kw) * kw.hToLAbsError());
             double rho1 = measurement.resistivity() / normApparent;
-            ValuePair valuePair1 = ValuePair.Name.RHO_1.of(rho1, ((fK + fPhi) / normApparent) * rho1);
+            consumer.accept(ValuePair.Name.RHO_1.of(rho1, ((fK + fPhi) / normApparent) * rho1));
 
             if (measurement instanceof TetrapolarDerivativeMeasurement dm && !Double.isNaN(dm.derivativeResistivity())) {
               double normDer = Apparent2Rho.newDerApparentByPhiDivRho1(s.relativeSystem()).applyAsDouble(layer2RelativeMedium);
               double fKDer = Math.abs(Apparent2Rho.newSecondDerApparentByPhiKDivRho1(s.relativeSystem()).applyAsDouble(kw) * kw.k12AbsError());
               double fPhiDer = Math.abs(Apparent2Rho.newSecondDerApparentByPhiPhiDivRho1(s.relativeSystem()).applyAsDouble(kw) * kw.hToLAbsError());
               double rho1Der = dm.derivativeResistivity() / normDer;
-              ValuePair valuePair2 = ValuePair.Name.RHO_1.of(rho1Der, ((fKDer + fPhiDer) / normDer) * rho1Der);
-              return Stream.of(valuePair1, valuePair2);
-            }
-            else {
-              return Stream.of(valuePair1);
+              consumer.accept(ValuePair.Name.RHO_1.of(rho1Der, ((fKDer + fPhiDer) / normDer) * rho1Der));
             }
           })
           .reduce(ValuePair::mergeWith).orElseThrow();
