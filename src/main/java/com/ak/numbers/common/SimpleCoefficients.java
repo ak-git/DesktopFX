@@ -1,6 +1,6 @@
 package com.ak.numbers.common;
 
-import com.ak.numbers.CoefficientsUtils;
+import com.ak.numbers.Coefficients;
 import com.ak.util.Extension;
 
 import java.io.InputStream;
@@ -14,7 +14,7 @@ public interface SimpleCoefficients extends Supplier<double[]> {
   default double[] get() {
     InputStream resourceAsStream = Objects.requireNonNull(getClass().getResourceAsStream(Extension.TXT.attachTo(name())));
     var scanner = new Scanner(resourceAsStream, Charset.defaultCharset());
-    return CoefficientsUtils.read(scanner);
+    return Coefficients.read(scanner);
   }
 
   String name();
