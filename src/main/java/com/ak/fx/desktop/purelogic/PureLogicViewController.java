@@ -13,14 +13,15 @@ import org.springframework.stereotype.Component;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.*;
+import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_015;
+import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_1050;
 import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
 
 @Component
 @Profile("purelogic")
 public final class PureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
   private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE = {
-      MICRON_210, MICRON_210, MICRON_210, MICRON_210, MICRON_420
+      MICRON_015, MICRON_015
   };
   private final AtomicInteger handDirection = new AtomicInteger();
   private boolean up;

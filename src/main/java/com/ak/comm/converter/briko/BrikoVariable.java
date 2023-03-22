@@ -12,14 +12,19 @@ public enum BrikoVariable implements Variable<BrikoVariable> {
       return Variable.Option.addToDefault(Option.TEXT_VALUE_BANNER);
     }
   },
-  C2,
-  C3,
-  C4,
-  IGNORE1 {
+  C2 {
     @Override
     public Set<Option> options() {
-      return Collections.emptySet();
+      return C1.options();
     }
   },
-  IGNORE2
+  C3,
+  C4,
+  IGNORE1,
+  IGNORE2;
+
+  @Override
+  public Set<Option> options() {
+    return Collections.emptySet();
+  }
 }

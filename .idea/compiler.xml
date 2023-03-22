@@ -17,7 +17,7 @@
         <processorPath useClasspath="false">
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/3.0.4/120cb2d8ed8f5f006bcc97813a920f25bd1a76da/spring-boot-configuration-processor-3.0.4.jar" />
         </processorPath>
-        <module name="com.ak.DesktopFX.main" />
+        <module name="DesktopFX.main" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="19" />
