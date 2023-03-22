@@ -1,19 +1,18 @@
 package com.ak.rsm.medium;
 
-import java.util.Collection;
-import java.util.stream.Stream;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.measurement.TetrapolarMeasurement;
+import com.ak.rsm.relative.Layer1RelativeMedium;
 import com.ak.rsm.relative.Layer2RelativeMedium;
-import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.util.Metrics;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collection;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
@@ -38,7 +37,7 @@ class Layer2MediumTest {
             new double[] {0.1601, 0.0400, Metrics.fromMilli(7.0 * 3 * 0.1)}
         ),
         arguments(
-            new Layer2Medium(measurements, RelativeMediumLayers.SINGLE_LAYER),
+            new Layer2Medium(measurements, Layer1RelativeMedium.SINGLE_LAYER),
             new double[] {0.0522, 0.0522, Double.NaN}
         )
     );

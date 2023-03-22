@@ -1,21 +1,18 @@
 package com.ak.rsm.measurement;
 
-import java.util.Collection;
-import java.util.Random;
-
 import com.ak.math.ValuePair;
+import com.ak.rsm.relative.Layer1RelativeMedium;
 import com.ak.rsm.relative.Layer2RelativeMedium;
-import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.util.Metrics;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.byLessThan;
-import static org.assertj.core.api.Assertions.within;
+import java.util.Collection;
+import java.util.Random;
+
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.data.Percentage.withPercentage;
 
 class MeasurementsTest {
@@ -33,7 +30,7 @@ class MeasurementsTest {
     var measurements = TetrapolarMeasurement.milli(0.1).system2(sPUmm)
         .ofOhms(TetrapolarResistance.milli().system2(sPUmm).rho(randomRho, randomRho).stream().mapToDouble(Resistance::ohms).toArray());
     assertThat(
-        Measurements.getRho1(measurements, RelativeMediumLayers.SINGLE_LAYER)
+        Measurements.getRho1(measurements, Layer1RelativeMedium.SINGLE_LAYER)
     ).satisfies(valuePair -> assertThat(valuePair.value()).isCloseTo(randomRho, byLessThan(valuePair.absError())));
 
     var measurements2 = TetrapolarMeasurement.milli(0.1).system2(sPUmm)

@@ -1,16 +1,21 @@
 package com.ak.numbers;
 
-import java.util.IntSummaryStatistics;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
+import com.ak.util.Extension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.IntSummaryStatistics;
+import java.util.Objects;
+import java.util.Scanner;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -48,5 +53,13 @@ class CoefficientsTest {
   @MethodSource("countCoefficients")
   void testCoefficients(@Nonnull Supplier<double[]> coefficients, @Nonnegative int count) {
     assertThat(coefficients.get()).hasSize(count);
+  }
+
+  @Test
+  void testRead() throws IOException {
+    try (InputStream resourceAsStream = getClass().getResourceAsStream(Extension.TXT.attachTo("DIFF"))) {
+      Scanner scanner = new Scanner(Objects.requireNonNull(resourceAsStream), Charset.defaultCharset());
+      assertThat(Coefficients.read(scanner)).containsExactly(-1.0, 0.0, 1.0);
+    }
   }
 }

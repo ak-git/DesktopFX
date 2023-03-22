@@ -1,23 +1,21 @@
 package com.ak.numbers;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.StandardCopyOption;
-import java.util.Objects;
-import java.util.Scanner;
-import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.ak.logging.CalibrateBuilders;
+import com.ak.util.Extension;
+import com.ak.util.LocalIO;
 
 import javax.annotation.Nonnull;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
-
-import com.ak.logging.CalibrateBuilders;
-import com.ak.util.Extension;
-import com.ak.util.LocalIO;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
+import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public interface Coefficients extends Supplier<double[]> {
   @Override
@@ -37,7 +35,7 @@ public interface Coefficients extends Supplier<double[]> {
       Logger.getLogger(Coefficients.class.getName()).log(Level.WARNING, fileName, e);
     }
     try (JsonReader reader = Json.createReader(inputStream)) {
-      return CoefficientsUtils.read(new Scanner(readJSON(reader.readObject())));
+      return read(new Scanner(readJSON(reader.readObject())));
     }
   }
 
@@ -53,4 +51,16 @@ public interface Coefficients extends Supplier<double[]> {
   }
 
   String readJSON(@Nonnull JsonObject object);
+
+  static double[] read(@Nonnull Scanner scanner) {
+    scanner.useLocale(Locale.ROOT);
+    Collection<Double> coeffs = new LinkedList<>();
+    while (scanner.hasNext() && !scanner.hasNextDouble()) {
+      scanner.next();
+    }
+    while (scanner.hasNextDouble()) {
+      coeffs.add(scanner.nextDouble());
+    }
+    return coeffs.stream().mapToDouble(Double::doubleValue).toArray();
+  }
 }

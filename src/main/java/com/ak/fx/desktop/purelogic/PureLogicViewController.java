@@ -20,7 +20,7 @@ import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
 @Profile("purelogic")
 public final class PureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
   private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE = {
-      MICRON_210, MICRON_210, MICRON_420, MICRON_420, MICRON_630, MICRON_630
+      MICRON_210, MICRON_210, MICRON_210, MICRON_210, MICRON_420
   };
   private final AtomicInteger handDirection = new AtomicInteger();
   private boolean up;

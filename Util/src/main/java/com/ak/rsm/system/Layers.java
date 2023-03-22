@@ -1,7 +1,5 @@
 package com.ak.rsm.system;
 
-import com.ak.numbers.CoefficientsUtils;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import java.util.function.IntToDoubleFunction;

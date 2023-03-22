@@ -13,7 +13,7 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
 
-import static com.ak.rsm.relative.RelativeMediumLayers.NAN;
+import static com.ak.rsm.relative.Layer1RelativeMedium.NAN;
 import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.log;
 

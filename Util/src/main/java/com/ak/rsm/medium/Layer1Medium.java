@@ -1,16 +1,15 @@
 package com.ak.rsm.medium;
 
-import java.util.Collection;
-
-import javax.annotation.Nonnull;
-
 import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.Measurement;
-import com.ak.rsm.relative.RelativeMediumLayers;
+import com.ak.rsm.relative.Layer1RelativeMedium;
+
+import javax.annotation.Nonnull;
+import java.util.Collection;
 
 public final class Layer1Medium extends AbstractMediumLayers {
   public Layer1Medium(@Nonnull Collection<? extends Measurement> measurements) {
-    super(measurements, RelativeMediumLayers.SINGLE_LAYER);
+    super(measurements, Layer1RelativeMedium.SINGLE_LAYER);
   }
 
   @Override

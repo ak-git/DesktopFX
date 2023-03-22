@@ -28,9 +28,8 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
 
   @Override
   public String toString() {
-    return "%s; %s; R = %.3f %s"
-        .formatted(inexact, ValuePair.Name.RHO_1.of(resistivity, resistivity * inexact.getApparentRelativeError()),
-            ohms(), OHM);
+    return "%s; R = %.3f %s; %s"
+        .formatted(inexact, ohms(), OHM, ValuePair.Name.RHO_1.of(resistivity, resistivity * inexact.getApparentRelativeError()));
   }
 
   @Override
