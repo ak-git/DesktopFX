@@ -235,6 +235,7 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("aper2-ecg")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  @Primary
   static Converter<BufferFrame, AperStage4Current2Variable> converterAper2() {
     return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
         .chainInstance(AperStage3Variable.class).chainInstance(AperStage4Current2Variable.class);
