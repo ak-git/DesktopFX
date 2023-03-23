@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Briko" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <option name="ACTIVE_PROFILES" value="purelogic, briko, aper1-R2-10mm" />
+    <option name="ACTIVE_PROFILES" value="briko, purelogic, aper2-ecg" />
     <option name="ENABLE_JMX_AGENT" value="false" />
     <option name="ENABLE_LAUNCH_OPTIMIZATION" value="false" />
     <module name="DesktopFX.main" />
