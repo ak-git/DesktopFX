@@ -1,15 +1,12 @@
 package com.ak.rsm.inverse;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.function.UnaryOperator;
-
-import javax.annotation.Nonnull;
-
-import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 
-abstract class AbstractErrors extends AbstractInverse implements UnaryOperator<RelativeMediumLayers> {
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.Collections;
+
+abstract class AbstractErrors extends AbstractInverse {
   @Nonnull
   private final Collection<InexactTetrapolarSystem> inexactSystems;
 

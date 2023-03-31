@@ -27,7 +27,7 @@ import java.util.function.UnaryOperator;
 
 import static java.lang.StrictMath.log;
 
-final class StaticErrors extends AbstractErrors {
+final class StaticErrors extends AbstractErrors implements UnaryOperator<RelativeMediumLayers> {
   static final UnaryOperator<double[]> SUBTRACT = values -> {
     var sub = new double[values.length - 1];
     for (var i = 0; i < sub.length; i++) {

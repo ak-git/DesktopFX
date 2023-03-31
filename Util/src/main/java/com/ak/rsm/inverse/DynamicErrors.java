@@ -20,7 +20,7 @@ import java.util.function.UnaryOperator;
 
 import static java.lang.StrictMath.log;
 
-final class DynamicErrors extends AbstractErrors {
+final class DynamicErrors extends AbstractErrors implements UnaryOperator<RelativeMediumLayers> {
   DynamicErrors(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems) {
     super(inexactSystems);
   }

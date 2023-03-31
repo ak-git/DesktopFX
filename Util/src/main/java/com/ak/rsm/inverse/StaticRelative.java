@@ -1,16 +1,15 @@
 package com.ak.rsm.inverse;
 
-import java.util.Collection;
-import java.util.function.UnaryOperator;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.math.Simplex;
 import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import org.apache.commons.math3.optim.PointValuePair;
+
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collection;
+import java.util.function.UnaryOperator;
 
 final class StaticRelative extends AbstractRelative<Measurement, RelativeMediumLayers> {
   @Nonnull
@@ -33,7 +32,7 @@ final class StaticRelative extends AbstractRelative<Measurement, RelativeMediumL
   @Override
   public RelativeMediumLayers get() {
     PointValuePair kwOptimal = Simplex.optimizeAll(staticInverse::applyAsDouble,
-        new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, getMaxHToL(1.0))
+        new Simplex.Bounds(-1.0, 1.0), Regularization.Interval.ZERO_MAX.of(inexactSystems(), 0.0).hInterval(1.0)
     );
     return staticErrors.errors(new Layer2RelativeMedium(kwOptimal.getPoint()), staticInverse.subtract(),
         UnaryOperator.identity(), (ts, b) -> b);

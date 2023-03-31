@@ -8,14 +8,11 @@ import org.apache.commons.math3.optim.PointValuePair;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
-import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
-import java.util.logging.Logger;
 
 import static com.ak.rsm.relative.Layer1RelativeMedium.NAN;
 import static java.lang.StrictMath.hypot;
-import static java.lang.StrictMath.log;
 
 final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, RelativeMediumLayers> {
   @Nonnull
@@ -47,27 +44,13 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
       return new StaticRelative(measurements()).get();
     }
 
-    double alpha = 0.0;
-    Logger.getLogger(getClass().getName()).info(() -> "alpha = %.2f".formatted(alpha));
-
-    PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
-          double k = kw[0];
-          double hToL = kw[1];
-          double min = getMinHToL(k);
-          double max = getMaxHToL(k);
-          double lowBound = Math.min(min, max);
-          double topBound = Math.max(min, max);
-
-          if (lowBound < hToL && hToL < topBound) {
-            DoubleUnaryOperator f = x -> log(topBound - x) + log(x - lowBound);
-            double center = (topBound + lowBound) / 2.0;
-            return hypot(dynamicInverse.applyAsDouble(kw), alpha * (f.applyAsDouble(hToL) - f.applyAsDouble(center)));
-          }
-          else {
-            return Double.MAX_VALUE;
-          }
-        },
-        kMinMax, new Simplex.Bounds(0.0, getMaxHToL(1.0))
+    Regularization regularization = Regularization.Interval.ZERO_MAX.of(inexactSystems(), 0.0);
+    PointValuePair kwOptimal = Simplex.optimizeAll(kw ->
+            regularization.of(kw)
+                .stream()
+                .map(regularizing -> hypot(dynamicInverse.applyAsDouble(kw), regularizing))
+                .findAny().orElse(Double.NaN),
+        kMinMax, regularization.hInterval(1.0)
     );
     return apply(new Layer2RelativeMedium(kwOptimal.getPoint()));
   }
