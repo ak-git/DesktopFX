@@ -82,14 +82,15 @@ class InverseDynamicTest {
   @MethodSource("relativeDynamicLayer2")
   @ParametersAreNonnullByDefault
   void testInverseRelativeDynamicLayer2Theory(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
-    var medium = new DynamicRelative(measurements).get();
+    var regularizationFunction = Regularization.Interval.ZERO_MAX.of(0.0);
+    var medium = new DynamicRelative(measurements, regularizationFunction).get();
 
     assertAll(medium.toString(),
         () -> assertThat(medium.k12()).isCloseTo(expected.k12(), byLessThan(expected.k12AbsError())),
         () -> assertThat(medium.k12AbsError()).isCloseTo(expected.k12AbsError(), withinPercentage(10.0)),
         () -> assertThat(medium.hToL()).isCloseTo(expected.hToL(), byLessThan(expected.hToLAbsError())),
         () -> assertThat(medium.hToLAbsError()).isCloseTo(expected.hToLAbsError(), withinPercentage(10.0)),
-        () -> assertThat(medium).isEqualTo(new DynamicAbsolute(measurements).apply(medium))
+        () -> assertThat(medium).isEqualTo(new DynamicAbsolute(measurements, regularizationFunction).apply(medium))
     );
     LOGGER.info(medium::toString);
   }
@@ -125,7 +126,7 @@ class InverseDynamicTest {
   @MethodSource("absoluteDynamicLayer2")
   @ParametersAreNonnullByDefault
   void testInverseAbsoluteDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, ValuePair[] expected) {
-    var medium = new DynamicAbsolute(measurements).get();
+    var medium = new DynamicAbsolute(measurements, Regularization.Interval.ZERO_MAX.of(0.0)).get();
     assertAll(medium.toString(),
         () -> assertThat(medium.rho()).isEqualTo(expected[0]),
         () -> assertThat(medium.rho1()).isEqualTo(expected[0]),
@@ -242,7 +243,7 @@ class InverseDynamicTest {
   @MethodSource("allDynamicParameters2")
   @ParametersAreNonnullByDefault
   void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, double[] expected) {
-    var medium = new DynamicAbsolute(measurements).get();
+    var medium = new DynamicAbsolute(measurements, Regularization.Interval.ZERO_MAX.of(0.0)).get();
 
     ObjDoubleConsumer<ValuePair> checker = (valuePair, expectedValue) -> {
       if (Double.isNaN(expectedValue)) {
@@ -310,7 +311,7 @@ class InverseDynamicTest {
                 .rho(
                     Double.parseDouble(r.get(RHO_S1)), Double.parseDouble(r.get(RHO_S2)),
                     Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))
-                )).get();
+                ), Regularization.Interval.ZERO_MAX.of(0.0)).get();
             LOGGER.info(medium::toString);
             consumer.accept(
                 Map.ofEntries(

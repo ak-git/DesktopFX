@@ -4,10 +4,13 @@ import com.ak.math.Simplex;
 import com.ak.rsm.measurement.DerivativeMeasurement;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
+import com.ak.rsm.system.InexactTetrapolarSystem;
 import org.apache.commons.math3.optim.PointValuePair;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
+import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
 
@@ -20,8 +23,10 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
   @Nonnull
   private final UnaryOperator<RelativeMediumLayers> dynamicErrors;
 
-  DynamicRelative(@Nonnull Collection<? extends DerivativeMeasurement> measurements) {
-    super(measurements);
+  @ParametersAreNonnullByDefault
+  DynamicRelative(Collection<? extends DerivativeMeasurement> measurements,
+                  Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
+    super(measurements, regularizationFunction);
     dynamicInverse = DynamicInverse.of(measurements);
     dynamicErrors = new DynamicErrors(inexactSystems());
   }
@@ -44,13 +49,11 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
       return new StaticRelative(measurements()).get();
     }
 
-    Regularization regularization = Regularization.Interval.ZERO_MAX.of(inexactSystems(), 0.0);
     PointValuePair kwOptimal = Simplex.optimizeAll(kw ->
-            regularization.of(kw)
-                .stream()
+            regularization().of(kw).stream()
                 .map(regularizing -> hypot(dynamicInverse.applyAsDouble(kw), regularizing))
                 .findAny().orElse(Double.NaN),
-        kMinMax, regularization.hInterval(1.0)
+        kMinMax, regularization().hInterval(1.0)
     );
     return apply(new Layer2RelativeMedium(kwOptimal.getPoint()));
   }

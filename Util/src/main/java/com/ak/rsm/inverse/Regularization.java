@@ -20,8 +20,8 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
     ZERO_MAX {
       @Nonnull
       @Override
-      public Regularization of(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems, @Nonnegative double alpha) {
-        return new AbstractRegularization(inexactSystems, alpha) {
+      public Function<Collection<InexactTetrapolarSystem>, Regularization> of(@Nonnegative double alpha) {
+        return inexactSystems -> new AbstractRegularization(inexactSystems, alpha) {
           @Override
           public Simplex.Bounds hInterval(double k) {
             return new Simplex.Bounds(0, getMax(k));
@@ -32,8 +32,8 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
     MIN_MAX {
       @Nonnull
       @Override
-      public Regularization of(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems, @Nonnegative double alpha) {
-        return new AbstractRegularization(inexactSystems, alpha) {
+      public Function<Collection<InexactTetrapolarSystem>, Regularization> of(@Nonnegative double alpha) {
+        return inexactSystems -> new AbstractRegularization(inexactSystems, alpha) {
           @Override
           public Simplex.Bounds hInterval(double k) {
             return new Simplex.Bounds(getMin(k), getMax(k));
@@ -43,7 +43,7 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
     };
 
     @Nonnull
-    public abstract Regularization of(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems, @Nonnegative double alpha);
+    public abstract Function<Collection<InexactTetrapolarSystem>, Regularization> of(@Nonnegative double alpha);
   }
 
   abstract non-sealed class AbstractRegularization extends AbstractErrors implements Regularization {
@@ -66,9 +66,14 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
 
       Simplex.Bounds bounds = hInterval(k);
       if (bounds.min() < hToL && hToL < bounds.max()) {
-        DoubleUnaryOperator f = x -> log(x - bounds.min()) + log(bounds.max() - x);
-        double center = (bounds.min() + bounds.max()) / 2.0;
-        return OptionalDouble.of(alpha * (f.applyAsDouble(hToL) - f.applyAsDouble(center)));
+        if (alpha > 0) {
+          DoubleUnaryOperator f = x -> log(x - bounds.min()) + log(bounds.max() - x);
+          double center = (bounds.min() + bounds.max()) / 2.0;
+          return OptionalDouble.of(alpha * (f.applyAsDouble(hToL) - f.applyAsDouble(center)));
+        }
+        else {
+          return OptionalDouble.of(0.0);
+        }
       }
       else {
         return OptionalDouble.empty();

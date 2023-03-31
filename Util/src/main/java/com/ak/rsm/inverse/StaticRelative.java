@@ -23,7 +23,7 @@ final class StaticRelative extends AbstractRelative<Measurement, RelativeMediumL
 
   @ParametersAreNonnullByDefault
   StaticRelative(Collection<? extends Measurement> measurements, UnaryOperator<double[]> subtract) {
-    super(measurements);
+    super(measurements, Regularization.Interval.ZERO_MAX.of(0.0));
     staticInverse = new StaticInverse(measurements(), subtract);
     staticErrors = new StaticErrors(inexactSystems());
   }
@@ -32,7 +32,7 @@ final class StaticRelative extends AbstractRelative<Measurement, RelativeMediumL
   @Override
   public RelativeMediumLayers get() {
     PointValuePair kwOptimal = Simplex.optimizeAll(staticInverse::applyAsDouble,
-        new Simplex.Bounds(-1.0, 1.0), Regularization.Interval.ZERO_MAX.of(inexactSystems(), 0.0).hInterval(1.0)
+        new Simplex.Bounds(-1.0, 1.0), regularization().hInterval(1.0)
     );
     return staticErrors.errors(new Layer2RelativeMedium(kwOptimal.getPoint()), staticInverse.subtract(),
         UnaryOperator.identity(), (ts, b) -> b);

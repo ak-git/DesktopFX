@@ -21,6 +21,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -34,27 +35,39 @@ class Inverse2Test {
   @ParameterizedTest
   @MethodSource({
       "com.ak.rsm.inverse.InverseTestE8178akProvider#e8178_17_45_08",
+  })
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha50")
+  void testAlpha50(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
+    testForSystems(ms, Double.NaN, 50.0);
+  }
+
+  @ParameterizedTest
+  @MethodSource({
       "com.ak.rsm.inverse.InverseTestE8205akProvider#e8205_18_11_27",
       "com.ak.rsm.inverse.InverseTestE8205akProvider#e8205_18_06_48"
   })
-  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.test210mm")
-  void test210mm(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
-    testForSystems(ms, Metrics.fromMilli(0.3));
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha10")
+  void testAlpha10(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
+    testForSystems(ms, Metrics.fromMilli(0.3), 10.0);
   }
 
-  private void testForSystems(@Nonnull Collection<Collection<DerivativeMeasurement>> ms, @Nonnegative double maxDh) {
+  private void testForSystems(@Nonnull Collection<Collection<DerivativeMeasurement>> ms,
+                              @Nonnegative double maxDh, @Nonnegative double alpha) {
     testSingle(ms.stream()
-        .filter(dm -> Math.abs(dm.stream().mapToDouble(DerivativeResistivity::dh).summaryStatistics().getAverage()) < maxDh)
-        .toList());
+        .filter(
+            ((Predicate<Collection<DerivativeMeasurement>>) derivativeMeasurements -> Double.isNaN(maxDh))
+                .or(dm -> Math.abs(dm.stream().mapToDouble(DerivativeResistivity::dh).summaryStatistics().getAverage()) < maxDh)
+        )
+        .toList(), alpha);
   }
 
   @ParameterizedTest
   @MethodSource("layer2Model")
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testSingle")
-  void testSingle(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms) {
+  void testSingle(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms, @Nonnegative double alpha) {
     var derivativeMeasurements = convert(ms);
     LOGGER.info(() -> "converted to:%n%s".formatted(derivativeMeasurements.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE))));
-    var medium = new DynamicAbsolute(derivativeMeasurements).get();
+    var medium = new DynamicAbsolute(derivativeMeasurements, Regularization.Interval.ZERO_MAX.of(alpha)).get();
     Assertions.assertNotNull(medium);
     LOGGER.info(medium::toString);
   }
