@@ -235,12 +235,8 @@ class InverseDynamicTest {
     );
   }
 
-  static Stream<Arguments> allDynamicParameters2() {
-    return Stream.concat(theoryDynamicParameters2(), waterDynamicParameters2());
-  }
-
   @ParameterizedTest
-  @MethodSource("allDynamicParameters2")
+  @MethodSource({"theoryDynamicParameters2", "waterDynamicParameters2"})
   @ParametersAreNonnullByDefault
   void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, double[] expected) {
     var medium = new DynamicAbsolute(measurements, Regularization.Interval.ZERO_MAX.of(0.0)).get();

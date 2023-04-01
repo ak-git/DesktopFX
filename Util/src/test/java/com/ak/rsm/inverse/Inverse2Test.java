@@ -21,7 +21,6 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -38,7 +37,7 @@ class Inverse2Test {
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha50")
   void testAlpha50(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
-    testForSystems(ms, Double.NaN, 50.0);
+    testForSystems(ms, Double.POSITIVE_INFINITY, 50.0);
   }
 
   @ParameterizedTest
@@ -54,10 +53,7 @@ class Inverse2Test {
   private void testForSystems(@Nonnull Collection<Collection<DerivativeMeasurement>> ms,
                               @Nonnegative double maxDh, @Nonnegative double alpha) {
     testSingle(ms.stream()
-        .filter(
-            ((Predicate<Collection<DerivativeMeasurement>>) derivativeMeasurements -> Double.isNaN(maxDh))
-                .or(dm -> Math.abs(dm.stream().mapToDouble(DerivativeResistivity::dh).summaryStatistics().getAverage()) < maxDh)
-        )
+        .filter(dm -> Math.abs(dm.stream().mapToDouble(DerivativeResistivity::dh).summaryStatistics().getAverage()) < maxDh)
         .toList(), alpha);
   }
 
@@ -66,7 +62,7 @@ class Inverse2Test {
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testSingle")
   void testSingle(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms, @Nonnegative double alpha) {
     var derivativeMeasurements = convert(ms);
-    LOGGER.info(() -> "converted to:%n%s".formatted(derivativeMeasurements.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE))));
+    LOGGER.fine(() -> "converted to:%n%s".formatted(derivativeMeasurements.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE))));
     var medium = new DynamicAbsolute(derivativeMeasurements, Regularization.Interval.ZERO_MAX.of(alpha)).get();
     Assertions.assertNotNull(medium);
     LOGGER.info(medium::toString);
@@ -92,7 +88,7 @@ class Inverse2Test {
 
   static Collection<? extends DerivativeMeasurement> convert(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms) {
     var firstMeasurements = ms.iterator().next();
-    LOGGER.info(() -> "initial:%n%s".formatted(ms.stream()
+    LOGGER.fine(() -> "initial:%n%s".formatted(ms.stream()
         .map(
             m -> m.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)))
         .collect(Collectors.joining(Strings.NEW_LINE_2)))

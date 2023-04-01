@@ -66,14 +66,9 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
 
       Simplex.Bounds bounds = hInterval(k);
       if (bounds.min() < hToL && hToL < bounds.max()) {
-        if (alpha > 0) {
-          DoubleUnaryOperator f = x -> log(x - bounds.min()) + log(bounds.max() - x);
-          double center = (bounds.min() + bounds.max()) / 2.0;
-          return OptionalDouble.of(alpha * (f.applyAsDouble(hToL) - f.applyAsDouble(center)));
-        }
-        else {
-          return OptionalDouble.of(0.0);
-        }
+        DoubleUnaryOperator f = x -> log(x - bounds.min()) + log(bounds.max() - x);
+        double center = (bounds.min() + bounds.max()) / 2.0;
+        return OptionalDouble.of(alpha * (f.applyAsDouble(hToL) - f.applyAsDouble(center)));
       }
       else {
         return OptionalDouble.empty();
