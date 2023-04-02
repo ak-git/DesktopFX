@@ -1,28 +1,26 @@
 package com.ak.rsm.inverse;
 
-import java.util.Collection;
-import java.util.function.BiFunction;
-import java.util.function.Supplier;
+import com.ak.rsm.system.TetrapolarSystem;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collection;
+import java.util.function.Supplier;
+import java.util.function.ToDoubleBiFunction;
 
-import com.ak.rsm.system.TetrapolarSystem;
-import org.apache.commons.math3.complex.Complex;
-
-abstract class AbstractLayerInverse extends AbstractInverse implements BiFunction<TetrapolarSystem, double[], Complex> {
+abstract class AbstractLayerInverse extends AbstractInverse implements ToDoubleBiFunction<TetrapolarSystem, double[]> {
   @Nonnull
-  private final BiFunction<TetrapolarSystem, double[], Complex> predicted;
+  private final ToDoubleBiFunction<TetrapolarSystem, double[]> predicted;
 
   @ParametersAreNonnullByDefault
-  AbstractLayerInverse(Collection<TetrapolarSystem> systems, Supplier<BiFunction<TetrapolarSystem, double[], Complex>> toPredicted) {
+  AbstractLayerInverse(Collection<TetrapolarSystem> systems, Supplier<ToDoubleBiFunction<TetrapolarSystem, double[]>> toPredicted) {
     super(systems);
     predicted = toPredicted.get();
   }
 
   @Override
   @ParametersAreNonnullByDefault
-  public final Complex apply(TetrapolarSystem s, double[] kw) {
-    return predicted.apply(s, kw);
+  public final double applyAsDouble(TetrapolarSystem s, double[] kw) {
+    return predicted.applyAsDouble(s, kw);
   }
 }
