@@ -35,9 +35,9 @@ class Inverse2Test {
   @MethodSource({
       "com.ak.rsm.inverse.InverseTestE8178akProvider#e8178_17_45_08",
   })
-  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha50")
-  void testAlpha50(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
-    testForSystems(ms, Double.POSITIVE_INFINITY, 50.0);
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha1")
+  void testAlpha1(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
+    testForSystems(ms, Double.POSITIVE_INFINITY, 1.0);
   }
 
   @ParameterizedTest
@@ -45,9 +45,9 @@ class Inverse2Test {
       "com.ak.rsm.inverse.InverseTestE8205akProvider#e8205_18_11_27",
       "com.ak.rsm.inverse.InverseTestE8205akProvider#e8205_18_06_48"
   })
-  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha10")
-  void testAlpha10(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
-    testForSystems(ms, Metrics.fromMilli(0.3), 10.0);
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha2")
+  void testAlpha2(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
+    testForSystems(ms, Metrics.fromMilli(0.3), 2.0);
   }
 
   private void testForSystems(@Nonnull Collection<Collection<DerivativeMeasurement>> ms,

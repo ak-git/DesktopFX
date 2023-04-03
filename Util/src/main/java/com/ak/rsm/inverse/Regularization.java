@@ -21,22 +21,44 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
       @Nonnull
       @Override
       public Function<Collection<InexactTetrapolarSystem>, Regularization> of(@Nonnegative double alpha) {
-        return inexactSystems -> new AbstractRegularization(inexactSystems, alpha) {
+        return inexactSystems -> new AbstractRegularization(inexactSystems) {
           @Override
           public Simplex.Bounds hInterval(double k) {
             return new Simplex.Bounds(0, getMax(k));
           }
+
+          @Nonnull
+          @Override
+          public OptionalDouble of(@Nonnull double[] kw) {
+            double k = kw[0];
+            double hToL = kw[1];
+
+            Simplex.Bounds bounds = hInterval(k);
+            if (bounds.min() < hToL && hToL < bounds.max()) {
+              return OptionalDouble.of(alpha * (log(bounds.max() - hToL) - log(hToL - bounds.min())));
+            }
+            else {
+              return OptionalDouble.empty();
+            }
+          }
         };
       }
     },
-    MIN_MAX {
+    MAX_K {
       @Nonnull
       @Override
       public Function<Collection<InexactTetrapolarSystem>, Regularization> of(@Nonnegative double alpha) {
-        return inexactSystems -> new AbstractRegularization(inexactSystems, alpha) {
+        return inexactSystems -> new AbstractRegularization(inexactSystems) {
           @Override
           public Simplex.Bounds hInterval(double k) {
             return new Simplex.Bounds(getMin(k), getMax(k));
+          }
+
+          @Nonnull
+          @Override
+          public OptionalDouble of(@Nonnull double[] kw) {
+            double k = Math.abs(kw[0]);
+            return OptionalDouble.of(alpha * (log(2.0 - k) - log(k)));
           }
         };
       }
@@ -50,29 +72,8 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
     private final DoubleUnaryOperator max = newMergeHorizons(InexactTetrapolarSystem::getHMax, DoubleStream::min);
     private final DoubleUnaryOperator min = newMergeHorizons(InexactTetrapolarSystem::getHMin, DoubleStream::max);
 
-    @Nonnegative
-    private final double alpha;
-
-    private AbstractRegularization(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems, @Nonnegative double alpha) {
+    private AbstractRegularization(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems) {
       super(inexactSystems);
-      this.alpha = Math.abs(alpha);
-    }
-
-    @Nonnull
-    @Override
-    public OptionalDouble of(@Nonnull double[] kw) {
-      double k = kw[0];
-      double hToL = kw[1];
-
-      Simplex.Bounds bounds = hInterval(k);
-      if (bounds.min() < hToL && hToL < bounds.max()) {
-        DoubleUnaryOperator f = x -> log(x - bounds.min()) + log(bounds.max() - x);
-        double center = (bounds.min() + bounds.max()) / 2.0;
-        return OptionalDouble.of(alpha * (f.applyAsDouble(hToL) - f.applyAsDouble(center)));
-      }
-      else {
-        return OptionalDouble.empty();
-      }
     }
 
     final double getMin(double k) {

@@ -51,7 +51,7 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
 
     PointValuePair kwOptimal = Simplex.optimizeAll(kw ->
             regularization().of(kw).stream()
-                .map(regularizing -> hypot(dynamicInverse.applyAsDouble(kw), regularizing))
+                .map(regularizing -> hypot(dynamicInverse.applyAsDouble(kw) / measurements().size(), regularizing))
                 .findAny().orElse(Double.NaN),
         kMinMax, regularization().hInterval(1.0)
     );
