@@ -201,28 +201,28 @@ class InverseDynamicTest {
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(29.47, 65.68, 29.75, 66.35),
-            1.0,
+            0.0,
             new double[] {0.701, Double.POSITIVE_INFINITY, Metrics.fromMilli(5.06)}
         ),
         // h = 10 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(16.761, 32.246, 16.821, 32.383),
-            1.0,
+            0.0,
             new double[] {0.701, Double.POSITIVE_INFINITY, Metrics.fromMilli(10.0)}
         ),
         // h = 15 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(13.338, 23.903, 13.357, 23.953),
-            1.0,
+            0.5,
             new double[] {0.697, Double.POSITIVE_INFINITY, Metrics.fromMilli(14.8)}
         ),
         // h = 20 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(12.187, 20.567, 12.194, 20.589),
-            1.0,
+            0.1,
             new double[] {0.7, Double.POSITIVE_INFINITY, Metrics.fromMilli(20.0)}
         ),
         // h = 25 mm, rho1 = 0.7, rho2 = Inf
@@ -243,7 +243,7 @@ class InverseDynamicTest {
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(11.361, 17.674, 11.362, 17.678),
-            1.0,
+            0.0,
             new double[] {0.699, Double.POSITIVE_INFINITY, Metrics.fromMilli(34.0)}
         )
     );

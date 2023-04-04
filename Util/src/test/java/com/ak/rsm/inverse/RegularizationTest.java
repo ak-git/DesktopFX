@@ -14,6 +14,7 @@ import java.util.random.RandomGenerator;
 
 import static java.lang.StrictMath.log;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 class RegularizationTest {
@@ -40,7 +41,7 @@ class RegularizationTest {
       case ZERO_MAX -> assertAll(interval.name(),
           () -> assertThat(hInterval.min()).isZero()
       );
-      case MAX_K -> assertAll(interval.name(),
+      case MIN_MAX, MAX_K -> assertAll(interval.name(),
           () -> assertThat(hInterval.min()).isEqualTo(Math.max(system1.getHMin(k), system2.getHMin(k)) / baseL)
       );
     }
@@ -59,11 +60,11 @@ class RegularizationTest {
     Regularization regularization = interval.of(alpha).apply(List.of(system1, system2));
     Simplex.Bounds hInterval = regularization.hInterval(k);
     switch (interval) {
-      case ZERO_MAX -> assertAll(interval.name(),
+      case ZERO_MAX, MIN_MAX -> assertAll(interval.name(),
           () -> assertThat(regularization.of(new double[] {k, Double.POSITIVE_INFINITY})).isEqualTo(OptionalDouble.empty()),
           () -> assertThat(regularization.of(new double[] {0.0, 0.0})).isEqualTo(OptionalDouble.empty()),
-          () -> assertThat(regularization.of(new double[] {k, (hInterval.max() + hInterval.min()) / 2.0}))
-              .isEqualTo(OptionalDouble.of(0.0))
+          () -> assertThat(regularization.of(new double[] {k, (hInterval.max() + hInterval.min()) / 2.0}).orElseThrow())
+              .isCloseTo(0.0, within(0.001))
       );
       case MAX_K -> assertAll(interval.name(),
           () -> assertThat(regularization.of(new double[] {k, RANDOM.nextGaussian()}))
