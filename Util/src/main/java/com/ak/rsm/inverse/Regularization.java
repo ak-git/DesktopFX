@@ -40,11 +40,6 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
       @Override
       public Function<Collection<InexactTetrapolarSystem>, Regularization> of(@Nonnegative double alpha) {
         return inexactSystems -> new AbstractRegularization(inexactSystems) {
-          @Override
-          public Simplex.Bounds hInterval(double k) {
-            return new Simplex.Bounds(getMin(k), getMax(k));
-          }
-
           @Nonnull
           @Override
           public OptionalDouble of(@Nonnull double[] kw) {
@@ -58,10 +53,6 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
       @Override
       public Function<Collection<InexactTetrapolarSystem>, Regularization> of(@Nonnegative double alpha) {
         return inexactSystems -> new AbstractRegularization(inexactSystems) {
-          @Override
-          public Simplex.Bounds hInterval(double k) {
-            return new Simplex.Bounds(getMin(k), getMax(k));
-          }
 
           @Nonnull
           @Override
@@ -85,8 +76,9 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
       super(inexactSystems);
     }
 
-    final double getMin(double k) {
-      return min.applyAsDouble(k);
+    @Override
+    public Simplex.Bounds hInterval(double k) {
+      return new Simplex.Bounds(min.applyAsDouble(k), getMax(k));
     }
 
     final double getMax(double k) {
