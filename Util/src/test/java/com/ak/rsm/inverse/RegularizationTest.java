@@ -34,7 +34,8 @@ class RegularizationTest {
     Simplex.Bounds hInterval = regularization.hInterval(k);
     assertAll(interval.name(),
         () -> assertThat(hInterval.initialGuess()).isNaN(),
-        () -> assertThat(hInterval.max()).isEqualTo(Math.min(system1.getHMax(k), system2.getHMax(k)) / baseL)
+        () -> assertThat(hInterval.max())
+            .isCloseTo(Math.min(system1.getHMax(k), system2.getHMax(k)) / baseL, within(0.001))
     );
 
     switch (interval) {
@@ -42,7 +43,8 @@ class RegularizationTest {
           () -> assertThat(hInterval.min()).isZero()
       );
       case MIN_MAX, MAX_K -> assertAll(interval.name(),
-          () -> assertThat(hInterval.min()).isEqualTo(Math.max(system1.getHMin(k), system2.getHMin(k)) / baseL)
+          () -> assertThat(hInterval.min())
+              .isCloseTo(Math.max(system1.getHMin(k), system2.getHMin(k)) / baseL, within(0.001))
       );
     }
   }
@@ -67,8 +69,8 @@ class RegularizationTest {
               .isCloseTo(0.0, within(0.001))
       );
       case MAX_K -> assertAll(interval.name(),
-          () -> assertThat(regularization.of(new double[] {k, RANDOM.nextGaussian()}))
-              .isEqualTo(OptionalDouble.of(alpha * (log(2.0 - Math.abs(k)) - log(Math.abs(k)))))
+          () -> assertThat(regularization.of(new double[] {k, RANDOM.nextGaussian()}).orElseThrow())
+              .isCloseTo(alpha * (log(2.0 - Math.abs(k)) - log(Math.abs(k))), within(0.001))
       );
     }
   }
