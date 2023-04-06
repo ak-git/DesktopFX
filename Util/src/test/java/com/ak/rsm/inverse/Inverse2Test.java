@@ -11,7 +11,6 @@ import com.ak.util.Strings;
 import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoint;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
-import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,14 +19,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import java.util.*;
-import java.util.function.Function;
-import java.util.function.IntToDoubleFunction;
+import java.util.Collection;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -37,45 +34,36 @@ class Inverse2Test {
   @ParameterizedTest
   @MethodSource({
       "com.ak.rsm.inverse.InverseTestE8178akProvider#e8178_17_45_08",
+  })
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha1")
+  void testAlpha1(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
+    testForSystems(ms, Double.POSITIVE_INFINITY, 1.0);
+  }
+
+  @ParameterizedTest
+  @MethodSource({
       "com.ak.rsm.inverse.InverseTestE8205akProvider#e8205_18_11_27",
       "com.ak.rsm.inverse.InverseTestE8205akProvider#e8205_18_06_48"
   })
-  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testCombinations")
-  void testCombinations(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
-    testForSystems(ms, ms.get(0).size());
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha2")
+  void testAlpha2(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
+    testForSystems(ms, Metrics.fromMilli(0.3), 2.0);
   }
 
-  private void testForSystems(@Nonnull List<Collection<DerivativeMeasurement>> ms, @Nonnegative int countSystems) {
-    IntToDoubleFunction findDh = i -> ms.get(i).stream().mapToDouble(DerivativeResistivity::dh).summaryStatistics().getAverage();
-
-    IntStream.rangeClosed(1, ms.size())
-        .mapToObj(value ->
-            StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(CombinatoricsUtils.combinationsIterator(ms.size(), value), Spliterator.ORDERED),
-                false)
-        )
-        .flatMap(Function.identity())
-        .filter(ints -> ints.length == ms.size())
-        .map(ints -> Arrays.stream(ints).filter(i -> Math.abs(findDh.applyAsDouble(i)) < Metrics.fromMilli(0.2 * 2)).toArray())
-        .map(ints -> {
-          LOGGER.info(() -> Arrays.stream(ints)
-              .mapToDouble(findDh)
-              .mapToObj(average -> "%.3f".formatted(Metrics.toMilli(average)))
-              .collect(Collectors.joining("; ", "dh = [", "] mm"))
-          );
-          return IntStream.of(ints).mapToObj(ms::get).collect(Collectors.toList());
-        })
-        .map(dm -> dm.stream().map(derivativeMeasurements -> derivativeMeasurements.stream().limit(countSystems).toList()).toList())
-        .forEach(this::testSingle);
+  private void testForSystems(@Nonnull Collection<Collection<DerivativeMeasurement>> ms,
+                              @Nonnegative double maxDh, @Nonnegative double alpha) {
+    testSingle(ms.stream()
+        .filter(dm -> Math.abs(dm.stream().mapToDouble(DerivativeResistivity::dh).summaryStatistics().getAverage()) < maxDh)
+        .toList(), alpha);
   }
 
   @ParameterizedTest
   @MethodSource("layer2Model")
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testSingle")
-  void testSingle(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms) {
+  void testSingle(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms, @Nonnegative double alpha) {
     var derivativeMeasurements = convert(ms);
-    LOGGER.fine(() -> "%n%s".formatted(derivativeMeasurements.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE))));
-    var medium = new DynamicAbsolute(derivativeMeasurements).get();
+    LOGGER.fine(() -> "converted to:%n%s".formatted(derivativeMeasurements.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE))));
+    var medium = new DynamicAbsolute(derivativeMeasurements, Regularization.Interval.ZERO_MAX.of(alpha)).get();
     Assertions.assertNotNull(medium);
     LOGGER.info(medium::toString);
   }
@@ -100,10 +88,10 @@ class Inverse2Test {
 
   static Collection<? extends DerivativeMeasurement> convert(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms) {
     var firstMeasurements = ms.iterator().next();
-    LOGGER.fine(() -> ms.stream()
+    LOGGER.fine(() -> "initial:%n%s".formatted(ms.stream()
         .map(
             m -> m.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)))
-        .collect(Collectors.joining(Strings.NEW_LINE_2))
+        .collect(Collectors.joining(Strings.NEW_LINE_2)))
     );
 
     if (ms.size() == 1) {

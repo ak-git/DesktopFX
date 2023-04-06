@@ -98,7 +98,7 @@ class Inverse3Test {
     return measurements.stream()
         .map(measurement -> {
           TetrapolarSystem s = measurement.system();
-          double normApparent = Apparent3Rho.newNormalizedApparent2Rho(s.relativeSystem())
+          double normApparent = Apparent3Rho.newApparentDivRho1(s.relativeSystem())
               .value(
                   kw[0], kw[1],
                   hStep / s.lCC(),

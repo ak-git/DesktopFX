@@ -82,14 +82,15 @@ class InverseDynamicTest {
   @MethodSource("relativeDynamicLayer2")
   @ParametersAreNonnullByDefault
   void testInverseRelativeDynamicLayer2Theory(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
-    var medium = new DynamicRelative(measurements).get();
+    var regularizationFunction = Regularization.Interval.ZERO_MAX.of(0.0);
+    var medium = new DynamicRelative(measurements, regularizationFunction).get();
 
     assertAll(medium.toString(),
         () -> assertThat(medium.k12()).isCloseTo(expected.k12(), byLessThan(expected.k12AbsError())),
         () -> assertThat(medium.k12AbsError()).isCloseTo(expected.k12AbsError(), withinPercentage(10.0)),
         () -> assertThat(medium.hToL()).isCloseTo(expected.hToL(), byLessThan(expected.hToLAbsError())),
         () -> assertThat(medium.hToLAbsError()).isCloseTo(expected.hToLAbsError(), withinPercentage(10.0)),
-        () -> assertThat(medium).isEqualTo(new DynamicAbsolute(measurements).apply(medium))
+        () -> assertThat(medium).isEqualTo(new DynamicAbsolute(measurements, regularizationFunction).apply(medium))
     );
     LOGGER.info(medium::toString);
   }
@@ -103,8 +104,8 @@ class InverseDynamicTest {
         arguments(
             TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(dhMilli).system4(10.0).rho1(1.0).rho2(4.0).h(hmm),
             new ValuePair[] {
-                ValuePair.Name.RHO_1.of(1.0, 0.000066),
-                ValuePair.Name.RHO_2.of(4.0, 0.0011),
+                ValuePair.Name.RHO_1.of(0.99789, 0.000063),
+                ValuePair.Name.RHO_2.of(3.992, 0.0011),
                 ValuePair.Name.H.of(Metrics.fromMilli(hmm), Metrics.fromMilli(0.00085))
             }
         ),
@@ -113,7 +114,7 @@ class InverseDynamicTest {
             TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(Double.NaN).system2(10.0)
                 .rho(1.4441429093546185, 1.6676102911913226, -3.0215753166196184, -3.49269170918376),
             new ValuePair[] {
-                ValuePair.Name.RHO_1.of(1.0, 0.00011),
+                ValuePair.Name.RHO_1.of(1.0, 0.00010),
                 ValuePair.Name.RHO_2.of(4.0, 0.0018),
                 ValuePair.Name.H.of(Metrics.fromMilli(hmm), Metrics.fromMilli(0.0011))
             }
@@ -125,7 +126,7 @@ class InverseDynamicTest {
   @MethodSource("absoluteDynamicLayer2")
   @ParametersAreNonnullByDefault
   void testInverseAbsoluteDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, ValuePair[] expected) {
-    var medium = new DynamicAbsolute(measurements).get();
+    var medium = new DynamicAbsolute(measurements, Regularization.Interval.ZERO_MAX.of(0.0)).get();
     assertAll(medium.toString(),
         () -> assertThat(medium.rho()).isEqualTo(expected[0]),
         () -> assertThat(medium.rho1()).isEqualTo(expected[0]),
@@ -144,21 +145,24 @@ class InverseDynamicTest {
                 TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(dhMilli)
                     .system(10.0, 20.0).rho1(1.0).rho2(9.0).h(hmm)
             ),
+            0.0,
             new double[] {
-                Apparent2Rho.newNormalizedApparent2Rho(new RelativeTetrapolarSystem(0.5))
+                Apparent2Rho.newApparentDivRho1(new RelativeTetrapolarSystem(0.5))
                     .applyAsDouble(new Layer2RelativeMedium(0.8, hmm / 20.0)),
-                Apparent2Rho.newNormalizedApparent2Rho(new RelativeTetrapolarSystem(0.5))
+                Apparent2Rho.newApparentDivRho1(new RelativeTetrapolarSystem(0.5))
                     .applyAsDouble(new Layer2RelativeMedium(0.8, hmm / 20.0)),
                 Double.NaN}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.0).system2(10.0)
                 .rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
+            0.0,
             new double[] {1.0, Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.0).system2(10.0)
                 .rho1(10.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
+            0.0,
             new double[] {1.0, Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm / 10.0)}
         ),
         arguments(
@@ -168,19 +172,23 @@ class InverseDynamicTest {
                     TetrapolarResistance.milli().system2(10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm + dhMilli).stream()
                 ).mapToDouble(Resistance::ohms).toArray()
             ),
+            0.0,
             new double[] {1.0, Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dhMilli).system2(10.0).rho1(4.0).rho2(1.0).h(hmm),
+            0.0,
             new double[] {4.0, 1.0, Metrics.fromMilli(hmm)}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dhMilli).system4(10.0).rho1(1.0).rho2(4.0).h(hmm),
+            0.0,
             new double[] {1.0, 4.0, Metrics.fromMilli(hmm)}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.01).dh(dhMilli).system2(10.0)
                 .ofOhms(100.0, 150.0, 90.0, 160.0),
+            0.0,
             new double[] {Double.NaN, Double.NaN, Double.NaN}
         )
     );
@@ -193,63 +201,66 @@ class InverseDynamicTest {
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(29.47, 65.68, 29.75, 66.35),
+            0.0,
             new double[] {0.701, Double.POSITIVE_INFINITY, Metrics.fromMilli(5.06)}
         ),
         // h = 10 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(16.761, 32.246, 16.821, 32.383),
-            new double[] {0.7, Double.POSITIVE_INFINITY, Metrics.fromMilli(9.98)}
+            0.0,
+            new double[] {0.701, Double.POSITIVE_INFINITY, Metrics.fromMilli(10.0)}
         ),
         // h = 15 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(13.338, 23.903, 13.357, 23.953),
-            new double[] {0.698, 33.428, Metrics.fromMilli(14.48)}
+            0.5,
+            new double[] {0.697, Double.POSITIVE_INFINITY, Metrics.fromMilli(14.8)}
         ),
         // h = 20 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(12.187, 20.567, 12.194, 20.589),
-            new double[] {0.7, 383.867, Metrics.fromMilli(19.95)}
+            0.1,
+            new double[] {0.7, Double.POSITIVE_INFINITY, Metrics.fromMilli(20.0)}
         ),
         // h = 25 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(11.710, 18.986, 11.714, 18.998),
-            new double[] {0.7, 3.0, Metrics.fromMilli(19.81)}
+            1.0,
+            new double[] {0.694, Double.POSITIVE_INFINITY, Metrics.fromMilli(23.8)}
         ),
         // h = 30 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(11.482, 18.152, 11.484, 18.158),
-            new double[] {0.704, 1.5, Metrics.fromMilli(20.4)}
+            1.0,
+            new double[] {0.698, Double.POSITIVE_INFINITY, Metrics.fromMilli(29.0)}
         ),
         // h = 35 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(11.361, 17.674, 11.362, 17.678),
-            new double[] {0.698, Double.POSITIVE_INFINITY, Metrics.fromMilli(34.06)}
+            0.0,
+            new double[] {0.699, Double.POSITIVE_INFINITY, Metrics.fromMilli(34.0)}
         )
     );
   }
 
-  static Stream<Arguments> allDynamicParameters2() {
-    return Stream.concat(theoryDynamicParameters2(), waterDynamicParameters2());
-  }
-
   @ParameterizedTest
-  @MethodSource("allDynamicParameters2")
+  @MethodSource({"theoryDynamicParameters2", "waterDynamicParameters2"})
   @ParametersAreNonnullByDefault
-  void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, double[] expected) {
-    var medium = new DynamicAbsolute(measurements).get();
+  void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, double alpha, double[] expected) {
+    var medium = new DynamicAbsolute(measurements, Regularization.Interval.MAX_K.of(alpha)).get();
 
     ObjDoubleConsumer<ValuePair> checker = (valuePair, expectedValue) -> {
       if (Double.isNaN(expectedValue)) {
         assertThat(valuePair.value()).isNaN();
       }
       else {
-        assertThat(valuePair.value() > 1000 ? Double.POSITIVE_INFINITY : valuePair.value())
+        assertThat(valuePair.value() > 700.0 ? Double.POSITIVE_INFINITY : valuePair.value())
             .isCloseTo(expectedValue, byLessThan(valuePair.absError()));
       }
     };
@@ -310,7 +321,7 @@ class InverseDynamicTest {
                 .rho(
                     Double.parseDouble(r.get(RHO_S1)), Double.parseDouble(r.get(RHO_S2)),
                     Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))
-                )).get();
+                ), Regularization.Interval.ZERO_MAX.of(0.0)).get();
             LOGGER.info(medium::toString);
             consumer.accept(
                 Map.ofEntries(

@@ -1,16 +1,15 @@
 package com.ak.rsm.apparent;
 
-import java.util.function.DoubleBinaryOperator;
-import java.util.function.ToDoubleFunction;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.ToDoubleFunction;
 
 import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.pow;
@@ -34,23 +33,18 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
     return pow(k, n) * sumFactor(n);
   }
 
-  @Nonnull
-  public static ToDoubleFunction<RelativeMediumLayers> newLog1pApparent2Rho(@Nonnull RelativeTetrapolarSystem system) {
-    return new Apparent2Rho(new Log1pApparent(system));
-  }
-
   /**
    * Calculates Apparent Resistance divided by Rho1
    */
   @Nonnull
-  public static ToDoubleFunction<RelativeMediumLayers> newNormalizedApparent2Rho(@Nonnull RelativeTetrapolarSystem system) {
+  public static ToDoubleFunction<RelativeMediumLayers> newApparentDivRho1(@Nonnull RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new NormalizedApparent(system));
   }
 
   @Nonnull
-  public static ToDoubleFunction<RelativeMediumLayers> newDerivativeApparentByPhi2Rho(@Nonnull TetrapolarSystem system, double dh) {
+  public static ToDoubleFunction<RelativeMediumLayers> newDerApparentByPhiDivRho1(@Nonnull TetrapolarSystem system, double dh) {
     if (Double.isNaN(dh)) {
-      return newDerivativeApparentByPhi2Rho(system.relativeSystem());
+      return newDerApparentByPhiDivRho1(system.relativeSystem());
     }
     return kw -> {
       double rho1 = 1.0;
@@ -59,12 +53,12 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
     };
   }
 
-  public static ToDoubleFunction<RelativeMediumLayers> newDerivativeApparentByPhi2Rho(@Nonnull RelativeTetrapolarSystem system) {
+  public static ToDoubleFunction<RelativeMediumLayers> newDerApparentByPhiDivRho1(@Nonnull RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new DerivativeApparentByPhi(system));
   }
 
   @Nonnull
-  public static ToDoubleFunction<RelativeMediumLayers> newDerivativeApparentByK2Rho(@Nonnull RelativeTetrapolarSystem system) {
+  public static ToDoubleFunction<RelativeMediumLayers> newDerApparentByKDivRho1(@Nonnull RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new DerivativeApparentByK(system)) {
       @Override
       double kFactor(double k, @Nonnegative int n) {
@@ -74,7 +68,7 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
   }
 
   @Nonnull
-  public static ToDoubleFunction<RelativeMediumLayers> newSecondDerivativeApparentByPhiK2Rho(@Nonnull RelativeTetrapolarSystem system) {
+  public static ToDoubleFunction<RelativeMediumLayers> newSecondDerApparentByPhiKDivRho1(@Nonnull RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new SecondDerivativeApparentByPhiK(system)) {
       @Override
       double kFactor(double k, @Nonnegative int n) {
@@ -84,10 +78,10 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
   }
 
   @Nonnull
-  public static ToDoubleFunction<RelativeMediumLayers> newSecondDerivativeApparentByPhiPhi2Rho(@Nonnull RelativeTetrapolarSystem system) {
+  public static ToDoubleFunction<RelativeMediumLayers> newSecondDerApparentByPhiPhiDivRho1(@Nonnull RelativeTetrapolarSystem system) {
     return new ToDoubleFunction<>() {
       @Nonnull
-      private final ToDoubleFunction<RelativeMediumLayers> apparentByPhi2Rho = newDerivativeApparentByPhi2Rho(system);
+      private final ToDoubleFunction<RelativeMediumLayers> apparentByPhi2Rho = newDerApparentByPhiDivRho1(system);
       @Nonnull
       private final ToDoubleFunction<RelativeMediumLayers> secondPart = new Apparent2Rho(new AbstractResistanceSumValue(system) {
         @Override

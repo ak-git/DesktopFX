@@ -1,13 +1,13 @@
 package com.ak.rsm.apparent;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 public class Apparent3Rho extends AbstractApparentRho {
   private Apparent3Rho(@Nonnull ResistanceSumValue apparent) {
@@ -20,18 +20,13 @@ public class Apparent3Rho extends AbstractApparentRho {
   }
 
   @Nonnull
-  public static Apparent3Rho newLog1pApparent3Rho(@Nonnull RelativeTetrapolarSystem system) {
-    return new Apparent3Rho(new Log1pApparent(system));
-  }
-
-  @Nonnull
-  public static Apparent3Rho newNormalizedApparent2Rho(@Nonnull RelativeTetrapolarSystem system) {
+  public static Apparent3Rho newApparentDivRho1(@Nonnull RelativeTetrapolarSystem system) {
     return new Apparent3Rho(new NormalizedApparent(system));
   }
 
   @ParametersAreNonnullByDefault
-  public static double newDerivativeApparentByPhi2Rho(TetrapolarSystem system, double[] k, @Nonnegative double hStep,
-                                                      @Nonnegative int p1, @Nonnegative int p2mp1, double dh) {
+  public static double newDerApparentByPhiDivRho1(TetrapolarSystem system, double[] k, @Nonnegative double hStep,
+                                                  @Nonnegative int p1, @Nonnegative int p2mp1, double dh) {
     double rho1 = 1.0;
     double rho2 = rho1 / Layers.getRho1ToRho2(k[0]);
     double rho3 = rho2 / Layers.getRho1ToRho2(k[1]);
