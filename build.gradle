@@ -38,7 +38,7 @@ sonar {
 }
 
 jacoco {
-    toolVersion = "0.8.8"
+    toolVersion = "0.8.9"
 }
 
 ext {
@@ -63,7 +63,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2023.03.30'
+    version = '2023.04.06'
     apply plugin: 'idea'
     idea {
         module {
