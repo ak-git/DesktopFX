@@ -11,21 +11,17 @@ import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
-import java.util.function.UnaryOperator;
 
 abstract class AbstractInverseFunction<R extends Resistivity> extends AbstractInverse implements ToDoubleFunction<double[]> {
   @Nonnull
   private final double[] measured;
   @Nonnull
-  private final UnaryOperator<double[]> subtract;
-  @Nonnull
   private final ToDoubleBiFunction<TetrapolarSystem, double[]> predicted;
 
   @ParametersAreNonnullByDefault
-  AbstractInverseFunction(Collection<? extends R> r, ToDoubleFunction<? super R> toData, UnaryOperator<double[]> subtract,
+  AbstractInverseFunction(Collection<? extends R> r, ToDoubleFunction<? super R> toData,
                           Function<Collection<TetrapolarSystem>, ToDoubleBiFunction<TetrapolarSystem, double[]>> toPredicted) {
     super(r.stream().map(Resistivity::system).toList());
-    this.subtract = subtract;
     measured = r.stream().mapToDouble(toData).toArray();
     predicted = toPredicted.apply(systems());
   }
@@ -38,11 +34,6 @@ abstract class AbstractInverseFunction<R extends Resistivity> extends AbstractIn
     for (int i = 0; i < err.length; i++) {
       err[i] = StrictMath.log(measured[i] / model[i]);
     }
-    return Arrays.stream(subtract.apply(err)).filter(Double::isFinite).reduce(Math::hypot).orElse(Double.POSITIVE_INFINITY);
-  }
-
-  @Nonnull
-  final UnaryOperator<double[]> subtract() {
-    return subtract;
+    return Arrays.stream(err).filter(Double::isFinite).reduce(Math::hypot).orElse(Double.POSITIVE_INFINITY);
   }
 }

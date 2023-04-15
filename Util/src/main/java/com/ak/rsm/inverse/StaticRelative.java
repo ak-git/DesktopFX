@@ -9,22 +9,19 @@ import org.apache.commons.math3.optim.PointValuePair;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
+import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
 
 final class StaticRelative extends AbstractRelative<Measurement, RelativeMediumLayers> {
   @Nonnull
-  private final StaticInverse staticInverse;
+  private final ToDoubleFunction<double[]> staticInverse;
   @Nonnull
   private final StaticErrors staticErrors;
 
-  StaticRelative(@Nonnull Collection<? extends Measurement> measurements) {
-    this(measurements, UnaryOperator.identity());
-  }
-
   @ParametersAreNonnullByDefault
-  StaticRelative(Collection<? extends Measurement> measurements, UnaryOperator<double[]> subtract) {
+  StaticRelative(Collection<? extends Measurement> measurements) {
     super(measurements, Regularization.Interval.ZERO_MAX.of(0.0));
-    staticInverse = new StaticInverse(measurements(), subtract);
+    staticInverse = new StaticInverse(measurements());
     staticErrors = new StaticErrors(inexactSystems());
   }
 
@@ -34,8 +31,7 @@ final class StaticRelative extends AbstractRelative<Measurement, RelativeMediumL
     PointValuePair kwOptimal = Simplex.optimizeAll(staticInverse::applyAsDouble,
         new Simplex.Bounds(-1.0, 1.0), regularization().hInterval(1.0)
     );
-    return staticErrors.errors(new Layer2RelativeMedium(kwOptimal.getPoint()), staticInverse.subtract(),
-        UnaryOperator.identity(), (ts, b) -> b);
+    return staticErrors.errors(new Layer2RelativeMedium(kwOptimal.getPoint()), UnaryOperator.identity(), (ts, b) -> b);
   }
 
   @Nonnull

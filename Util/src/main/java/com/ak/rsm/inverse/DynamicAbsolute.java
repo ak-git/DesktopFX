@@ -1,6 +1,7 @@
 package com.ak.rsm.inverse;
 
 import com.ak.rsm.measurement.DerivativeMeasurement;
+import com.ak.rsm.medium.Layer1Medium;
 import com.ak.rsm.medium.Layer2Medium;
 import com.ak.rsm.medium.MediumLayers;
 import com.ak.rsm.relative.RelativeMediumLayers;
@@ -29,7 +30,7 @@ final class DynamicAbsolute implements Inverse<MediumLayers> {
       return new Layer2Medium(measurements, inverseRelative.get());
     }
     else {
-      return new StaticAbsolute(measurements).get();
+      return new Layer1Medium(measurements);
     }
   }
 

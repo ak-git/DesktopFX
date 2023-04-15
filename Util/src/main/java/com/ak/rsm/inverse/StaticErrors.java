@@ -28,28 +28,10 @@ import java.util.function.UnaryOperator;
 import static java.lang.StrictMath.log;
 
 final class StaticErrors extends AbstractErrors implements UnaryOperator<RelativeMediumLayers> {
-  static final UnaryOperator<double[]> SUBTRACT = values -> {
-    var sub = new double[values.length - 1];
-    for (var i = 0; i < sub.length; i++) {
-      sub[i] = values[i + 1] - values[i];
-    }
-    return sub;
-  };
-
   private static final BinaryOperator<Layer2RelativeMedium> MAX_ERROR = (v1, v2) -> {
     double kEMax = Math.max(v1.k12AbsError(), v2.k12AbsError());
     double hToLEMax = Math.max(v1.hToLAbsError(), v2.hToLAbsError());
     return new Layer2RelativeMedium(ValuePair.Name.K12.of(v1.k12(), kEMax), ValuePair.Name.H_L.of(v1.hToL(), hToLEMax));
-  };
-
-  private static final UnaryOperator<double[][]> SUBTRACT_MATRIX = values -> {
-    var sub = new double[values.length - 1][values[0].length];
-    for (var i = 0; i < sub.length; i++) {
-      for (var j = 0; j < sub[0].length; j++) {
-        sub[i][j] = values[i + 1][j] - values[i][j];
-      }
-    }
-    return sub;
   };
 
   StaticErrors(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems) {
@@ -59,17 +41,16 @@ final class StaticErrors extends AbstractErrors implements UnaryOperator<Relativ
   @Nonnull
   @Override
   public RelativeMediumLayers apply(@Nonnull RelativeMediumLayers layers) {
-    return errors(layers, UnaryOperator.identity(), UnaryOperator.identity(), (ts, b) -> b);
+    return errors(layers, UnaryOperator.identity(), (ts, b) -> b);
   }
 
   @Nonnull
   @ParametersAreNonnullByDefault
-  RelativeMediumLayers errors(RelativeMediumLayers layers,
-                              UnaryOperator<double[]> subtract, UnaryOperator<double[][]> fixA,
+  RelativeMediumLayers errors(RelativeMediumLayers layers, UnaryOperator<double[][]> fixA,
                               BiFunction<Collection<TetrapolarSystem>, double[], double[]> fixB) {
     double[][] a = getAMatrix(
         systems().stream().map(TetrapolarSystem::relativeSystem).toList(),
-        layers, subtract.equals(SUBTRACT) ? SUBTRACT_MATRIX : fixA
+        layers, fixA
     );
 
     double rho1 = 1.0;
@@ -96,7 +77,6 @@ final class StaticErrors extends AbstractErrors implements UnaryOperator<Relativ
           }
           return fixB.apply(systemList, b);
         })
-        .map(subtract)
         .map(b -> {
           DecompositionSolver solver = new SingularValueDecomposition(new Array2DRowRealMatrix(a)).getSolver();
           double[] kwErrors = solver.solve(new ArrayRealVector(b)).toArray();

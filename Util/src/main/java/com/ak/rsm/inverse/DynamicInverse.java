@@ -10,13 +10,12 @@ import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
-import java.util.function.UnaryOperator;
 
 final class DynamicInverse extends AbstractInverseFunction<DerivativeResistivity> {
   @ParametersAreNonnullByDefault
   private DynamicInverse(Collection<? extends DerivativeResistivity> r,
                          Function<Collection<TetrapolarSystem>, ToDoubleBiFunction<TetrapolarSystem, double[]>> toPredicted) {
-    super(r, d -> d.resistivity() / d.derivativeResistivity(), UnaryOperator.identity(), toPredicted);
+    super(r, d -> d.resistivity() / d.derivativeResistivity(), toPredicted);
   }
 
   static ToDoubleFunction<double[]> of(@Nonnull Collection<? extends DerivativeResistivity> r) {
