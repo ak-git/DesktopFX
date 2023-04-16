@@ -85,7 +85,7 @@ abstract sealed class AbstractMediumLayers implements MediumLayers permits Layer
     while (mIterator.hasNext() && pIterator.hasNext()) {
       Measurement m = mIterator.next();
       data.add(m.toString());
-      if (!Double.isNaN(rho1().value())) {
+      if (!Double.isNaN(rho1().value()) && !kw.toString().isEmpty()) {
         data.add("; %s; %s".formatted(pIterator.next(), toStringHorizons(new double[] {
             m.inexact().getHMin(kw.k12()), m.inexact().getHMax(kw.k12())
         })));
@@ -97,14 +97,16 @@ abstract sealed class AbstractMediumLayers implements MediumLayers permits Layer
     if (!Double.isNaN(rho1().value())) {
       if (!kw.toString().isEmpty()) {
         joiner.add(kw.toString());
+        joiner.add(toStringHorizons(mergeHorizons(measurements, kw.k12())));
       }
-      joiner.add(toStringHorizons(mergeHorizons(measurements, kw.k12())))
-          .add("RMS = %s %%".formatted(
-                  Arrays.stream(getRMS())
-                      .map(Metrics::toPercents).mapToObj("%.1f"::formatted)
-                      .collect(Collectors.joining("; ", "[", "]"))
-              )
-          );
+
+      double[] rms = getRMS();
+      String format = (rms.length > 1) ? "RMS = [%s] %%" : "RMS = %s %%";
+      joiner.add(
+          format.formatted(
+              Arrays.stream(rms).map(Metrics::toPercents).mapToObj("%.1f"::formatted).collect(Collectors.joining("; "))
+          )
+      );
     }
     return joiner.add("%n%s".formatted(data.toString())).toString();
   }

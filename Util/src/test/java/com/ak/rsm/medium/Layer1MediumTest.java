@@ -1,16 +1,15 @@
 package com.ak.rsm.medium;
 
-import java.util.Arrays;
-import java.util.stream.Stream;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.TetrapolarMeasurement;
 import com.ak.util.Metrics;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
@@ -57,7 +56,7 @@ class Layer1MediumTest {
           double[] array = {0.3277112113340609, 0.10361494844541479, 0.5126497744983622, 0.6807219716648473};
           double rms = Arrays.stream(array).reduce(StrictMath::hypot).orElse(Double.NaN) / Math.sqrt(array.length);
           assertThat(layers.getRMS()).containsExactly(new double[] {rms}, byLessThan(0.001));
-          assertThat(layers.toString()).contains("[%.1f] %%".formatted(Metrics.toPercents(rms)));
+          assertThat(layers.toString()).contains("%.1f %%".formatted(Metrics.toPercents(rms)));
         }
     );
   }

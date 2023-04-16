@@ -12,6 +12,9 @@ plugins {
     id 'org.springframework.boot' version '3.0.5'
     id 'io.spring.dependency-management' version '1.1.0'
     id "com.github.spotbugs" version '5.0.14'
+
+    id "com.github.ben-manes.versions" version "0.46.0"
+    id "nebula.lint" version "18.0.3"
 }
 
 spotbugs {
@@ -37,33 +40,30 @@ sonar {
     }
 }
 
-jacoco {
-    toolVersion = "0.8.9"
-}
-
 ext {
     junit = 'org.junit:junit-bom:5.9.2'
     assertj = 'org.assertj:assertj-core:3.24.2'
     jsr305 = 'com.google.code.findbugs:jsr305:3.0.2'
-    javax_inject = 'jakarta.inject:jakarta.inject-api:2.0.1.MR'
+    javax_inject = 'jakarta.inject:jakarta.inject-api:2.0.1'
     uom_se = 'tec.uom:uom-se:1.0.10'
     javax_json = 'org.glassfish:javax.json:1.1.4'
     commons_math3 = 'org.apache.commons:commons-math3:3.6.1'
     commons_csv = 'org.apache.commons:commons-csv:1.10.0'
     jSerialComm = 'com.fazecast:jSerialComm:[2.9.3,3.0.0)'
     jenetics = 'io.jenetics:jenetics:7.1.2'
-    javaVersion = JavaVersion.VERSION_19
+    javaVersion = JavaVersion.VERSION_20
+    javaFxVersion = '20'
 }
 
 wrapper {
     description 'Setup the Gradle wrapper'
-    gradleVersion = "8.0.2"
+    gradleVersion = "8.1"
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '2023.04.06'
+    version = '2023.04.16'
     apply plugin: 'idea'
     idea {
         module {
@@ -91,6 +91,10 @@ allprojects {
         }
     }
 
+    jacoco {
+        toolVersion = "0.8.9"
+    }
+
     jacocoTestReport {
         reports {
             xml.required = true
@@ -112,10 +116,6 @@ allprojects {
         forkEvery = 5
         maxHeapSize = '1G'
     }
-
-    tasks.withType(JavaCompile).each {
-        it.options.compilerArgs.add('--enable-preview')
-    }
 }
 
 dependencies {
@@ -132,7 +132,7 @@ dependencies {
 }
 
 javafx {
-    version = '19.0.2'
+    version = javaFxVersion
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
