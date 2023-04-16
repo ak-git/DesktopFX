@@ -7,10 +7,8 @@ import com.ak.rsm.relative.RelativeMediumLayers;
 import org.apache.commons.math3.optim.PointValuePair;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.function.ToDoubleFunction;
-import java.util.function.UnaryOperator;
 
 final class StaticRelative extends AbstractRelative<Measurement, RelativeMediumLayers> {
   @Nonnull
@@ -18,8 +16,7 @@ final class StaticRelative extends AbstractRelative<Measurement, RelativeMediumL
   @Nonnull
   private final StaticErrors staticErrors;
 
-  @ParametersAreNonnullByDefault
-  StaticRelative(Collection<? extends Measurement> measurements) {
+  StaticRelative(@Nonnull Collection<? extends Measurement> measurements) {
     super(measurements, Regularization.Interval.ZERO_MAX.of(0.0));
     staticInverse = new StaticInverse(measurements());
     staticErrors = new StaticErrors(inexactSystems());
@@ -31,7 +28,7 @@ final class StaticRelative extends AbstractRelative<Measurement, RelativeMediumL
     PointValuePair kwOptimal = Simplex.optimizeAll(staticInverse::applyAsDouble,
         new Simplex.Bounds(-1.0, 1.0), regularization().hInterval(1.0)
     );
-    return staticErrors.errors(new Layer2RelativeMedium(kwOptimal.getPoint()), UnaryOperator.identity(), (ts, b) -> b);
+    return apply(new Layer2RelativeMedium(kwOptimal.getPoint()));
   }
 
   @Nonnull
