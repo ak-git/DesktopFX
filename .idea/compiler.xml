@@ -20,19 +20,6 @@
         <module name="com.ak.DesktopFX.main" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="20">
-      <module name="com.ak.DesktopFX.main" target="20" />
-      <module name="DesktopFX" target="20" />
-      <module name="DesktopFX.Communication" target="20" />
-      <module name="DesktopFX.Communication.main" target="20" />
-      <module name="DesktopFX.Communication.test" target="20" />
-      <module name="DesktopFX.FxCore" target="20" />
-      <module name="DesktopFX.FxCore.main" target="20" />
-      <module name="DesktopFX.FxCore.test" target="20" />
-      <module name="DesktopFX.test" target="20" />
-      <module name="DesktopFX.Util" target="20" />
-      <module name="DesktopFX.Util.main" target="20" />
-      <module name="DesktopFX.Util.test" target="20" />
-    </bytecodeTargetLevel>
+    <bytecodeTargetLevel target="20" />
   </component>
 </project>

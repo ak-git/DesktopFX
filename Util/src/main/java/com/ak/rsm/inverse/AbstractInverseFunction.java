@@ -8,28 +8,24 @@ import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.function.Function;
 import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
 
-abstract class AbstractInverseFunction<R extends Resistivity> extends AbstractInverse implements ToDoubleFunction<double[]> {
+abstract class AbstractInverseFunction<R extends Resistivity> extends AbstractInverse
+    implements ToDoubleFunction<double[]>, ToDoubleBiFunction<TetrapolarSystem, double[]> {
   @Nonnull
   private final double[] measured;
-  @Nonnull
-  private final ToDoubleBiFunction<TetrapolarSystem, double[]> predicted;
 
   @ParametersAreNonnullByDefault
-  AbstractInverseFunction(Collection<? extends R> r, ToDoubleFunction<? super R> toData,
-                          Function<Collection<TetrapolarSystem>, ToDoubleBiFunction<TetrapolarSystem, double[]>> toPredicted) {
+  AbstractInverseFunction(Collection<? extends R> r, ToDoubleFunction<? super R> toData) {
     super(r.stream().map(Resistivity::system).toList());
     measured = r.stream().mapToDouble(toData).toArray();
-    predicted = toPredicted.apply(systems());
   }
 
   @Nonnegative
   @Override
   public final double applyAsDouble(@Nonnull double[] kw) {
-    double[] model = systems().stream().mapToDouble(s -> predicted.applyAsDouble(s, kw)).toArray();
+    double[] model = systems().stream().mapToDouble(s -> applyAsDouble(s, kw)).toArray();
     double[] err = new double[Math.max(measured.length, model.length)];
     for (int i = 0; i < err.length; i++) {
       err[i] = StrictMath.log(measured[i] / model[i]);
