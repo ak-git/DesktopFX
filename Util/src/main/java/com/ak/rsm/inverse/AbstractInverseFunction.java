@@ -10,8 +10,9 @@ import java.util.Collection;
 import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
 
-abstract class AbstractInverseFunction<R extends Resistivity> extends AbstractInverse
-    implements ToDoubleFunction<double[]>, ToDoubleBiFunction<TetrapolarSystem, double[]> {
+abstract sealed class AbstractInverseFunction<R extends Resistivity> extends AbstractInverse
+    implements ToDoubleFunction<double[]>, ToDoubleBiFunction<TetrapolarSystem, double[]>
+    permits DynamicInverse, StaticInverse {
   private record Experiment(@Nonnull TetrapolarSystem system, double measured) {
   }
 

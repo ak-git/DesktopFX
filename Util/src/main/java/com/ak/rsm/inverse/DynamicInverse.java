@@ -13,7 +13,7 @@ import java.util.function.ToDoubleFunction;
 
 import static com.ak.util.Numbers.toInt;
 
-abstract class DynamicInverse extends AbstractInverseFunction<DerivativeResistivity> {
+abstract non-sealed class DynamicInverse extends AbstractInverseFunction<DerivativeResistivity> {
   private DynamicInverse(@Nonnull Collection<? extends DerivativeResistivity> r) {
     super(r, d -> d.resistivity() / d.derivativeResistivity());
   }
