@@ -19,12 +19,15 @@ import static java.lang.StrictMath.hypot;
 final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, RelativeMediumLayers> {
   @Nonnull
   private final UnaryOperator<RelativeMediumLayers> dynamicErrors;
+  @Nonnull
+  private final Regularization regularization;
 
   @ParametersAreNonnullByDefault
   DynamicRelative(Collection<? extends DerivativeMeasurement> measurements,
                   Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
-    super(measurements, DynamicInverse.of(measurements), regularizationFunction);
+    super(measurements, DynamicInverse.of(measurements));
     dynamicErrors = new DynamicErrors(inexactSystems());
+    regularization = regularizationFunction.apply(inexactSystems());
   }
 
   @Nonnull
@@ -46,10 +49,10 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
     }
 
     PointValuePair kwOptimal = Simplex.optimizeAll(kw ->
-            regularization().of(kw).stream()
+            regularization.of(kw).stream()
                 .map(regularizing -> hypot(applyAsDouble(kw) / measurements().size(), regularizing))
                 .findAny().orElse(Double.NaN),
-        kMinMax, regularization().hInterval(1.0)
+        kMinMax, regularization.hInterval(1.0)
     );
     return apply(new Layer2RelativeMedium(kwOptimal.getPoint()));
   }
