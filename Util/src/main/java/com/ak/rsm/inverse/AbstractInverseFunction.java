@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
 
-abstract sealed class AbstractInverseFunction<R extends Resistivity> extends AbstractInverse
+abstract sealed class AbstractInverseFunction<R extends Resistivity>
     implements ToDoubleFunction<double[]>, ToDoubleBiFunction<TetrapolarSystem, double[]>
     permits DynamicInverse, StaticInverse {
   private record Experiment(@Nonnull TetrapolarSystem system, double measured) {
@@ -21,7 +21,6 @@ abstract sealed class AbstractInverseFunction<R extends Resistivity> extends Abs
 
   @ParametersAreNonnullByDefault
   AbstractInverseFunction(Collection<? extends R> r, ToDoubleFunction<? super R> toData) {
-    super(r.stream().map(Resistivity::system).toList());
     experiments = r.stream().map(res -> new Experiment(res.system(), toData.applyAsDouble(res))).toList();
   }
 

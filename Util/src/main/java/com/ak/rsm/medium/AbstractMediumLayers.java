@@ -10,7 +10,6 @@ import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import tec.uom.se.unit.MetricPrefix;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -25,8 +24,6 @@ abstract sealed class AbstractMediumLayers implements MediumLayers permits Layer
   private final RelativeMediumLayers kw;
   @Nonnull
   private final ValuePair rho;
-  @Nonnegative
-  private final double baseL;
   @Nonnull
   private final Collection<Measurement> measurements;
   @Nonnull
@@ -37,7 +34,7 @@ abstract sealed class AbstractMediumLayers implements MediumLayers permits Layer
     this.kw = kw;
     rho = getRho1(measurements, kw);
     this.measurements = Collections.unmodifiableCollection(measurements);
-    baseL = Measurements.getBaseL(measurements);
+    double baseL = Measurements.getBaseL(measurements);
     predictions = measurements.stream()
         .map(m ->
             m.toPrediction(
@@ -56,11 +53,6 @@ abstract sealed class AbstractMediumLayers implements MediumLayers permits Layer
   @Nonnull
   final RelativeMediumLayers kw() {
     return kw;
-  }
-
-  @Nonnegative
-  final double baseL() {
-    return baseL;
   }
 
   @Override
