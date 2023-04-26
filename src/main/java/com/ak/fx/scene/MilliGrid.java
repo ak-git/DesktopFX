@@ -1,18 +1,13 @@
 package com.ak.fx.scene;
 
-import java.util.List;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import com.ak.fx.stage.ScreenResolutionMonitor;
 import javafx.application.Platform;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.HLineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.PathElement;
-import javafx.scene.shape.VLineTo;
+import javafx.scene.shape.*;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import java.util.List;
 
 final class MilliGrid extends Pane {
   private final GridLine[] gridLines = {new HorizontalGridLine(), new VerticalGridLine()};
@@ -21,7 +16,9 @@ final class MilliGrid extends Pane {
 
   MilliGrid() {
     reinitializePaths();
-    ScreenResolutionMonitor.INSTANCE.dpi(this::getScene).addListener((observable, oldValue, newValue) -> Platform.runLater(this::reinitializePaths));
+    ScreenResolutionMonitor.dpi(this::getScene).addListener(
+        (observable, oldValue, newValue) -> Platform.runLater(this::reinitializePaths)
+    );
   }
 
   @Override

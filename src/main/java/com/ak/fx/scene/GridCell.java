@@ -1,16 +1,15 @@
 package com.ak.fx.scene;
 
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.annotation.Nonnegative;
-
 import com.ak.fx.stage.ScreenResolutionMonitor;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Path;
+
+import javax.annotation.Nonnegative;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.LinkedList;
+import java.util.List;
 
 enum GridCell {
   POINTS(1.0) {
@@ -76,7 +75,7 @@ enum GridCell {
 
   @Nonnegative
   double getStep() {
-    return ScreenResolutionMonitor.INSTANCE.getDpi() / 2.54;
+    return ScreenResolutionMonitor.getDpi() / 2.54;
   }
 
   @Nonnegative
