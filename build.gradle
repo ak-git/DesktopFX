@@ -41,7 +41,8 @@ sonar {
 }
 
 ext {
-    junit = 'org.junit:junit-bom:5.9.2'
+    junit = 'org.junit:junit-bom:5.9.3'
+    jupiter = 'org.junit.jupiter:junit-jupiter:5.9.3'
     assertj = 'org.assertj:assertj-core:3.24.2'
     jsr305 = 'com.google.code.findbugs:jsr305:3.0.2'
     javax_inject = 'jakarta.inject:jakarta.inject-api:2.0.1'
@@ -63,7 +64,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2023.04.24'
+    version = '2023.04.26'
     apply plugin: 'idea'
     idea {
         module {
@@ -104,8 +105,8 @@ allprojects {
     dependencies {
         implementation jsr305
         testImplementation(platform(junit))
-        testImplementation('org.junit.jupiter:junit-jupiter')
-        testImplementation(assertj)
+        testImplementation jupiter
+        testImplementation assertj
     }
 
     test {
