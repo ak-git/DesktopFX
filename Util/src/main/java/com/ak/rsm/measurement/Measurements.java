@@ -20,7 +20,7 @@ public enum Measurements {
 
   @Nonnegative
   public static double getBaseL(@Nonnull Collection<? extends Resistivity> measurements) {
-    return measurements.stream().map(Resistivity::system).mapToDouble(TetrapolarSystem::lCC).max().orElseThrow();
+    return TetrapolarSystem.getBaseL(measurements.stream().map(Resistivity::system));
   }
 
   @Nonnull
