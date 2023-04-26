@@ -1,5 +1,16 @@
 package com.ak.comm.serial;
 
+import com.ak.comm.core.AbstractService;
+import com.ak.comm.core.ConcurrentAsyncFileChannel;
+import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.logging.LogBuilders;
+import com.ak.logging.OutputBuilders;
+import com.fazecast.jSerialComm.SerialPort;
+import com.fazecast.jSerialComm.SerialPortDataListener;
+import com.fazecast.jSerialComm.SerialPortEvent;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
@@ -17,18 +28,6 @@ import java.util.logging.Filter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import com.ak.comm.core.AbstractService;
-import com.ak.comm.core.ConcurrentAsyncFileChannel;
-import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.logging.LogBuilders;
-import com.ak.logging.OutputBuilders;
-import com.fazecast.jSerialComm.SerialPort;
-import com.fazecast.jSerialComm.SerialPortDataListener;
-import com.fazecast.jSerialComm.SerialPortEvent;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -62,8 +61,9 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
     });
   }
 
+  private final LinkedList<String> usedPorts = new LinkedList<>();
   @Nullable
-  private final SerialPort serialPort = Ports.INSTANCE.next();
+  private final SerialPort serialPort = next();
   @Nonnull
   private final BytesInterceptor<T, R> bytesInterceptor;
   @Nonnull
@@ -213,29 +213,23 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
     }
   }
 
-  private enum Ports {
-    INSTANCE;
-
-    private final LinkedList<String> usedPorts = new LinkedList<>();
-
-    @Nullable
-    synchronized SerialPort next() {
-      Collection<SerialPort> serialPorts = Arrays.stream(SerialPort.getCommPorts())
-          .filter(port -> !port.getSystemPortName().toLowerCase().contains("bluetooth"))
-          .sorted(Comparator.<SerialPort, Integer>comparing(port -> port.getSystemPortName().toLowerCase().indexOf("usb")).reversed())
-          .sorted(Comparator.comparingInt(value -> usedPorts.indexOf(value.getSystemPortName())))
-          .toList();
-      if (serialPorts.isEmpty()) {
-        return null;
-      }
-      else {
-        var serialPort = serialPorts.iterator().next();
-        String portName = serialPort.getSystemPortName();
-        LOGGER.log(LOG_LEVEL_ERRORS, () -> "Found { %s }, the [ %s ] is selected".formatted(serialPorts, portName));
-        usedPorts.remove(portName);
-        usedPorts.addLast(portName);
-        return serialPort;
-      }
+  @Nullable
+  private SerialPort next() {
+    Collection<SerialPort> serialPorts = Arrays.stream(SerialPort.getCommPorts())
+        .filter(port -> !port.getSystemPortName().toLowerCase().contains("bluetooth"))
+        .sorted(Comparator.<SerialPort, Integer>comparing(port -> port.getSystemPortName().toLowerCase().indexOf("usb")).reversed())
+        .sorted(Comparator.comparingInt(value -> usedPorts.indexOf(value.getSystemPortName())))
+        .toList();
+    if (serialPorts.isEmpty()) {
+      return null;
+    }
+    else {
+      var port = serialPorts.iterator().next();
+      String portName = port.getSystemPortName();
+      LOGGER.log(LOG_LEVEL_ERRORS, () -> "Found { %s }, the [ %s ] is selected".formatted(serialPorts, portName));
+      usedPorts.remove(portName);
+      usedPorts.addLast(portName);
+      return port;
     }
   }
 }

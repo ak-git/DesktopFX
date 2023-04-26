@@ -25,7 +25,7 @@ final class DynamicAbsolute implements Inverse<MediumLayers> {
   @Nonnull
   @Override
   public MediumLayers get() {
-    Collection<DerivativeMeasurement> measurements = inverseRelative.measurements();
+    var measurements = inverseRelative.measurements();
     if (measurements.size() > 1) {
       return new Layer2Medium(measurements, inverseRelative.get());
     }

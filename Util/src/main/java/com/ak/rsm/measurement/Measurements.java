@@ -6,6 +6,7 @@ import com.ak.rsm.relative.Layer1RelativeMedium;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistivity;
+import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 
 import javax.annotation.Nonnegative;
@@ -20,7 +21,12 @@ public enum Measurements {
 
   @Nonnegative
   public static double getBaseL(@Nonnull Collection<? extends Resistivity> measurements) {
-    return measurements.stream().map(Resistivity::system).mapToDouble(TetrapolarSystem::lCC).max().orElseThrow();
+    return TetrapolarSystem.getBaseL(measurements.stream().map(Resistivity::system));
+  }
+
+  @Nonnull
+  public static Collection<InexactTetrapolarSystem> inexact(@Nonnull Collection<? extends Measurement> measurements) {
+    return measurements.stream().map(Measurement::inexact).toList();
   }
 
   @Nonnull

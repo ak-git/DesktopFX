@@ -1,12 +1,12 @@
 package com.ak.rsm.system;
 
-import java.util.Objects;
+import com.ak.util.Metrics;
+import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-
-import com.ak.util.Metrics;
-import tec.uom.se.unit.MetricPrefix;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import static tec.uom.se.unit.Units.METRE;
 
@@ -24,6 +24,11 @@ public record TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC)
   @Nonnull
   public RelativeTetrapolarSystem relativeSystem() {
     return new RelativeTetrapolarSystem(sPU / lCC);
+  }
+
+  @Nonnegative
+  public static double getBaseL(@Nonnull Stream<TetrapolarSystem> systems) {
+    return systems.mapToDouble(TetrapolarSystem::lCC).max().orElseThrow();
   }
 
   @Override

@@ -2,6 +2,7 @@ package com.ak.rsm.inverse;
 
 import com.ak.math.Simplex;
 import com.ak.rsm.measurement.DerivativeMeasurement;
+import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
@@ -11,24 +12,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.function.Function;
-import java.util.function.ToDoubleFunction;
-import java.util.function.UnaryOperator;
 
 import static com.ak.rsm.relative.Layer1RelativeMedium.NAN;
 import static java.lang.StrictMath.hypot;
 
 final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, RelativeMediumLayers> {
-  @Nonnull
-  private final ToDoubleFunction<double[]> dynamicInverse;
-  @Nonnull
-  private final UnaryOperator<RelativeMediumLayers> dynamicErrors;
-
   @ParametersAreNonnullByDefault
   DynamicRelative(Collection<? extends DerivativeMeasurement> measurements,
                   Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
-    super(measurements, regularizationFunction);
-    dynamicInverse = DynamicInverse.of(measurements);
-    dynamicErrors = new DynamicErrors(inexactSystems());
+    super(measurements, DynamicInverse.of(measurements), regularizationFunction,
+        new DynamicErrors(Measurements.inexact(measurements)));
   }
 
   @Nonnull
@@ -51,16 +44,10 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
 
     PointValuePair kwOptimal = Simplex.optimizeAll(kw ->
             regularization().of(kw).stream()
-                .map(regularizing -> hypot(dynamicInverse.applyAsDouble(kw) / measurements().size(), regularizing))
+                .map(regularizing -> hypot(applyAsDouble(kw) / measurements().size(), regularizing))
                 .findAny().orElse(Double.NaN),
         kMinMax, regularization().hInterval(1.0)
     );
     return apply(new Layer2RelativeMedium(kwOptimal.getPoint()));
-  }
-
-  @Nonnull
-  @Override
-  public RelativeMediumLayers apply(@Nonnull RelativeMediumLayers layers) {
-    return dynamicErrors.apply(layers);
   }
 }

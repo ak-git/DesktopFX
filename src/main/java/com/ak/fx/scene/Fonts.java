@@ -1,10 +1,5 @@
 package com.ak.fx.scene;
 
-import java.util.function.Supplier;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import com.ak.fx.stage.ScreenResolutionMonitor;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -14,6 +9,10 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 import static com.ak.fx.scene.GridCell.SMALL;
 
@@ -29,7 +28,7 @@ enum Fonts {
   }
 
   ReadOnlyObjectProperty<Font> fontProperty(@Nonnull Supplier<Scene> stageSupplier) {
-    ObservableValue<Number> dpi = ScreenResolutionMonitor.INSTANCE.dpi(stageSupplier);
+    ObservableValue<Number> dpi = ScreenResolutionMonitor.dpi(stageSupplier);
     dpi.removeListener(changeListener);
     dpi.addListener(changeListener);
     return fontProperty;
