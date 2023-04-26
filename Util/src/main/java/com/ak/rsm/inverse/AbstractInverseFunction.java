@@ -28,7 +28,7 @@ abstract sealed class AbstractInverseFunction<R extends Resistivity>
   @Override
   public final double applyAsDouble(@Nonnull double[] kw) {
     return experiments.stream()
-        .map(e -> e.measured / applyAsDouble(e.system, kw)).mapToDouble(StrictMath::log)
+        .mapToDouble(e -> e.measured / applyAsDouble(e.system, kw)).map(StrictMath::log)
         .filter(Double::isFinite).reduce(Math::hypot).orElse(Double.POSITIVE_INFINITY);
   }
 }
