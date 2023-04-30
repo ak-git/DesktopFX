@@ -6,7 +6,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.ak.rsm.measurement.Measurements.fixOhms;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class InverseTestE7932Provider {
@@ -16,31 +15,35 @@ class InverseTestE7932Provider {
   static Stream<Arguments> meatFat() {
     double r1 = 19.47067;
     double r2 = 35.88068;
-    double r3i = 16.88488;
-    double r4i = 40.48156;
+    double r3 = 33.76976;
+    double r4 = 47.19336;
     return Stream.of(
         arguments(
             List.of(
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21).system4(10.0)
-                    .ofOhms(fixOhms(
-                        r1, r2, r3i, r4i,
-                        r1 - 0.5115441, r2 - 0.4903946, r3i - 0.2135771, r4i - 0.7176235
-                    )),
+                    .ofOhms(r1, r2, r3, r4,
+                        r1 - 0.5115441, r2 - 0.4903946, r3 - 0.4271542, r4 - 1.0080928),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.105).system4(10.0)
-                    .ofOhms(fixOhms(
-                        r1, r2, r3i, r4i,
-                        r1 - 0.3291593, r2 - 0.3336468, r3i - 0.1212310, r4i - 0.4532481
-                    )),
+                    .ofOhms(r1, r2, r3, r4,
+                        r1 - 0.3291593, r2 - 0.3336468, r3 - 0.242462, r4 - 0.6640342),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system4(10.0)
-                    .ofOhms(fixOhms(
-                        r1, r2, r3i, r4i,
-                        r1 + 0.2234464, r2 + 0.3055168, r3i + 0.1018700, r4i + 0.3963058
-                    )),
+                    .ofOhms(r1, r2, r3, r4,
+                        r1 + 0.2234464, r2 + 0.3055168, r3 + 0.20374, r4 + 0.5888716),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system4(10.0)
-                    .ofOhms(fixOhms(
-                        r1, r2, r3i, r4i,
-                        r1 + 0.5676624, r2 + 0.8385997, r3i + 0.2994841, r4i + 1.0384897
-                    ))
+                    .ofOhms(r1, r2, r3, r4,
+                        r1 + 0.5676624, r2 + 0.8385997, r3 + 0.5989682, r4 + 1.4780112)
+            )
+        ),
+        arguments(
+            List.of(
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21).system2(10.0)
+                    .ofOhms(r1, r2, r1 - 0.5115441, r2 - 0.4903946),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.105).system2(10.0)
+                    .ofOhms(r1, r2, r1 - 0.3291593, r2 - 0.3336468),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(10.0)
+                    .ofOhms(r1, r2, r1 + 0.2234464, r2 + 0.3055168),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system2(10.0)
+                    .ofOhms(r1, r2, r1 + 0.5676624, r2 + 0.8385997)
             )
         )
     );
@@ -49,31 +52,17 @@ class InverseTestE7932Provider {
   static Stream<Arguments> meat() {
     double r1 = 5.619337;
     double r2 = 8.976139;
-    double r3i = 4.31785;
-    double r4i = 9.188934;
     return Stream.of(
         arguments(
             List.of(
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21).system4(10.0)
-                    .ofOhms(fixOhms(
-                        r1, r2, r3i, r4i,
-                        r1 - 0.02665655, r2 - 0.010386613, r3i - 0.016149800, r4i - 0.010249956
-                    )),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.105).system4(10.0)
-                    .ofOhms(fixOhms(
-                        r1, r2, r3i, r4i,
-                        r1 - 0.01803588, r2 - 0.004433184, r3i - 0.008536334, r4i - 0.008540883
-                    )),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system4(10.0)
-                    .ofOhms(fixOhms(
-                        r1, r2, r3i, r4i,
-                        r1 + 0.01107191, r2 + 0.005857321, r3i + 0.001531586, r4i + 0.013473002
-                    )),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system4(10.0)
-                    .ofOhms(fixOhms(
-                        r1, r2, r3i, r4i,
-                        r1 + 0.04725428, r2 + 0.024173583, r3i + 0.045525415, r4i + 0.031669155
-                    ))
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21).system2(10.0)
+                    .ofOhms(r1, r2, r1 - 0.02665655, r2 - 0.010386613),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.105).system2(10.0)
+                    .ofOhms(r1, r2, r1 - 0.01803588, r2 - 0.004433184),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(10.0)
+                    .ofOhms(r1, r2, r1 + 0.01107191, r2 + 0.005857321),
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system2(10.0)
+                    .ofOhms(r1, r2, r1 + 0.04725428, r2 + 0.024173583)
             )
         )
     );

@@ -36,6 +36,16 @@ class Inverse2Test {
 
   @ParameterizedTest
   @MethodSource({
+      "com.ak.rsm.inverse.InverseTestE7932Provider#meatFat",
+      "com.ak.rsm.inverse.InverseTestE7932Provider#meat",
+  })
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha01")
+  void testAlpha01(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
+    testForSystems(ms, Double.POSITIVE_INFINITY, Regularization.Interval.MIN_MAX.of(0.1));
+  }
+
+  @ParameterizedTest
+  @MethodSource({
       "com.ak.rsm.inverse.InverseTestE7935Provider#meat",
       "com.ak.rsm.inverse.InverseTestE7935Provider#meat2",
       "com.ak.rsm.inverse.InverseTestE7935Provider#fatMeat",
