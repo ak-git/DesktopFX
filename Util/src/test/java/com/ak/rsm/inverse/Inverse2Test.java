@@ -36,6 +36,9 @@ class Inverse2Test {
 
   @ParameterizedTest
   @MethodSource({
+      "com.ak.rsm.inverse.InverseTestE7940Provider#fatMeat10",
+      "com.ak.rsm.inverse.InverseTestE7940Provider#fatMeat08",
+      "com.ak.rsm.inverse.InverseTestE7940Provider#fatMeat07",
       "com.ak.rsm.inverse.InverseTestE7956Provider#fatSkinBottom2",
       "com.ak.rsm.inverse.InverseTestE7956Provider#meatFat"
   })
