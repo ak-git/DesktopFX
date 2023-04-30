@@ -1,7 +1,6 @@
 package com.ak.rsm.inverse;
 
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
-import com.ak.rsm.measurement.TetrapolarMeasurement;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.List;
@@ -11,24 +10,6 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class InverseTestE7956Provider {
   private InverseTestE7956Provider() {
-  }
-
-  static Stream<Arguments> meat() {
-    return Stream.of(arguments(TetrapolarMeasurement.milli(0.1).system4(10.0)
-        .ofOhms(52.73636, 136.7824, 95.36825, 178.7174))
-    );
-  }
-
-  static Stream<Arguments> fatSkinBottom() {
-    return Stream.of(arguments(TetrapolarMeasurement.milli(0.1).system4(10.0)
-        .ofOhms(57.85299, 141.4908, 99.82111, 184.0643))
-    );
-  }
-
-  static Stream<Arguments> fatSkinTop() {
-    return Stream.of(arguments(TetrapolarMeasurement.milli(0.1).system4(10.0)
-        .ofOhms(169.5547, 267.1312, 229.2745, 300.7458))
-    );
   }
 
   static Stream<Arguments> fatSkinBottom2() {

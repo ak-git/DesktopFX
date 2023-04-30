@@ -5,6 +5,7 @@ import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.resistance.DerivativeResistivity;
+import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
@@ -19,8 +20,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -33,11 +36,21 @@ class Inverse2Test {
 
   @ParameterizedTest
   @MethodSource({
+      "com.ak.rsm.inverse.InverseTestE7956Provider#fatSkinBottom2",
+      "com.ak.rsm.inverse.InverseTestE7956Provider#meatFat"
+  })
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha10")
+  void testAlpha10(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
+    testForSystems(ms, Double.POSITIVE_INFINITY, Regularization.Interval.MIN_MAX.of(10.0));
+  }
+
+  @ParameterizedTest
+  @MethodSource({
       "com.ak.rsm.inverse.InverseTestE8178akProvider#e8178_17_45_08",
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha1")
   void testAlpha1(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
-    testForSystems(ms, Double.POSITIVE_INFINITY, 1.0);
+    testForSystems(ms, Double.POSITIVE_INFINITY, Regularization.Interval.ZERO_MAX.of(1.0));
   }
 
   @ParameterizedTest
@@ -47,23 +60,26 @@ class Inverse2Test {
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha2")
   void testAlpha2(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
-    testForSystems(ms, Metrics.fromMilli(0.3), 2.0);
+    testForSystems(ms, Metrics.fromMilli(0.3), Regularization.Interval.ZERO_MAX.of(2.0));
   }
 
   private void testForSystems(@Nonnull Collection<Collection<DerivativeMeasurement>> ms,
-                              @Nonnegative double maxDh, @Nonnegative double alpha) {
+                              @Nonnegative double maxDh,
+                              @Nonnull Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
     testSingle(ms.stream()
         .filter(dm -> Math.abs(dm.stream().mapToDouble(DerivativeResistivity::dh).summaryStatistics().getAverage()) < maxDh)
-        .toList(), alpha);
+        .toList(), regularizationFunction);
   }
 
   @ParameterizedTest
   @MethodSource("layer2Model")
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testSingle")
-  void testSingle(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms, @Nonnegative double alpha) {
+  @ParametersAreNonnullByDefault
+  void testSingle(Collection<? extends Collection<? extends DerivativeMeasurement>> ms,
+                  Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
     var derivativeMeasurements = convert(ms);
     LOGGER.fine(() -> "converted to:%n%s".formatted(derivativeMeasurements.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE))));
-    var medium = new DynamicAbsolute(derivativeMeasurements, Regularization.Interval.ZERO_MAX.of(alpha)).get();
+    var medium = new DynamicAbsolute(derivativeMeasurements, regularizationFunction).get();
     Assertions.assertNotNull(medium);
     LOGGER.info(medium::toString);
   }
