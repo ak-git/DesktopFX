@@ -74,4 +74,11 @@ class RegularizationTest {
       );
     }
   }
+
+  @ParameterizedTest
+  @EnumSource(Regularization.Interval.class)
+  void toString(@Nonnull Regularization.Interval interval) {
+    double alpha = RANDOM.nextDouble(1.0, 10.0);
+    assertThat(interval.of(alpha)).hasToString("RegularizationFunction{%s, alpha = %.1f}".formatted(interval, alpha));
+  }
 }

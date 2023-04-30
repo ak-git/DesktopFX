@@ -36,9 +36,22 @@ class Inverse2Test {
 
   @ParameterizedTest
   @MethodSource({
+      "com.ak.rsm.inverse.InverseTestE7935Provider#meat",
+      "com.ak.rsm.inverse.InverseTestE7935Provider#meat2",
+      "com.ak.rsm.inverse.InverseTestE7935Provider#fatMeat",
+      "com.ak.rsm.inverse.InverseTestE7935Provider#fatMeat2",
+  })
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha02")
+  void testAlpha02(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
+    testForSystems(ms, Double.POSITIVE_INFINITY, Regularization.Interval.MIN_MAX.of(0.2));
+  }
+
+  @ParameterizedTest
+  @MethodSource({
       "com.ak.rsm.inverse.InverseTestE7940Provider#fatMeat10",
       "com.ak.rsm.inverse.InverseTestE7940Provider#fatMeat08",
       "com.ak.rsm.inverse.InverseTestE7940Provider#fatMeat07",
+
       "com.ak.rsm.inverse.InverseTestE7956Provider#fatSkinBottom2",
       "com.ak.rsm.inverse.InverseTestE7956Provider#meatFat"
   })
@@ -82,6 +95,7 @@ class Inverse2Test {
                   Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
     var derivativeMeasurements = convert(ms);
     LOGGER.fine(() -> "converted to:%n%s".formatted(derivativeMeasurements.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE))));
+    LOGGER.info(regularizationFunction::toString);
     var medium = new DynamicAbsolute(derivativeMeasurements, regularizationFunction).get();
     Assertions.assertNotNull(medium);
     LOGGER.info(medium::toString);
