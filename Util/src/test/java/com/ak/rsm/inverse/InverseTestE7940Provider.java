@@ -29,14 +29,6 @@ class InverseTestE7940Provider {
                         r1 + 1.321576, r2 + 4.957581, r3 + 1.190848, r4 + 7.862532
                     )
             )
-        ),
-        arguments(
-            List.of(
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.105).system2(10.0)
-                    .ofOhms(r1, r2, r1 - 1.213047, r2 - 4.817362),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(10.0)
-                    .ofOhms(r1, r2, r1 + 1.321576, r2 + 4.957581)
-            )
         )
     );
   }
@@ -55,14 +47,6 @@ class InverseTestE7940Provider {
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system4(8.0)
                     .ofOhms(r1, r2, r3, r4,
                         r1 + 5.920044, r2 + 9.987513, r3 + 6.598928, r4 + 4.7327)
-            )
-        ),
-        arguments(
-            List.of(
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.105).system2(8.0)
-                    .ofOhms(r1, r2, r1 - 5.161582, r2 - 10.679072),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(8.0)
-                    .ofOhms(r1, r2, r1 + 5.920044, r2 + 9.987513)
             )
         )
     );
@@ -84,14 +68,6 @@ class InverseTestE7940Provider {
                     .ofOhms(r1, r2, r3, r4,
                         r1 + 0.4569713, r2 + 1.3941140, r3 + 0.3865096, r4 + 0.7357208
                     )
-            )
-        ),
-        arguments(
-            List.of(
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.105).system2(7.0)
-                    .ofOhms(r1, r2, r1 - 0.2598344, r2 - 0.6924013),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(7.0)
-                    .ofOhms(r1, r2, r1 + 0.4569713, r2 + 1.3941140)
             )
         )
     );

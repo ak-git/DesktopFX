@@ -33,18 +33,6 @@ class InverseTestE7932Provider {
                     .ofOhms(r1, r2, r3, r4,
                         r1 + 0.5676624, r2 + 0.8385997, r3 + 0.5989682, r4 + 1.4780112)
             )
-        ),
-        arguments(
-            List.of(
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.21).system2(10.0)
-                    .ofOhms(r1, r2, r1 - 0.5115441, r2 - 0.4903946),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-0.105).system2(10.0)
-                    .ofOhms(r1, r2, r1 - 0.3291593, r2 - 0.3336468),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.105).system2(10.0)
-                    .ofOhms(r1, r2, r1 + 0.2234464, r2 + 0.3055168),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system2(10.0)
-                    .ofOhms(r1, r2, r1 + 0.5676624, r2 + 0.8385997)
-            )
         )
     );
   }

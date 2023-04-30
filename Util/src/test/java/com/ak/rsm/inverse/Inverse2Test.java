@@ -41,7 +41,7 @@ class Inverse2Test {
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha01")
   void testAlpha01(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
-    testForSystems(ms, Double.POSITIVE_INFINITY, Regularization.Interval.MIN_MAX.of(0.1));
+    testForSystems(ms, Double.POSITIVE_INFINITY, 4, Regularization.Interval.MIN_MAX.of(0.1));
   }
 
   @ParameterizedTest
@@ -53,7 +53,7 @@ class Inverse2Test {
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha02")
   void testAlpha02(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
-    testForSystems(ms, Double.POSITIVE_INFINITY, Regularization.Interval.MIN_MAX.of(0.2));
+    testForSystems(ms, Double.POSITIVE_INFINITY, 4, Regularization.Interval.MIN_MAX.of(0.2));
   }
 
   @ParameterizedTest
@@ -67,7 +67,7 @@ class Inverse2Test {
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha10")
   void testAlpha10(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
-    testForSystems(ms, Double.POSITIVE_INFINITY, Regularization.Interval.MIN_MAX.of(10.0));
+    testForSystems(ms, Double.POSITIVE_INFINITY, 4, Regularization.Interval.MIN_MAX.of(10.0));
   }
 
   @ParameterizedTest
@@ -76,7 +76,7 @@ class Inverse2Test {
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha1")
   void testAlpha1(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
-    testForSystems(ms, Double.POSITIVE_INFINITY, Regularization.Interval.ZERO_MAX.of(1.0));
+    testForSystems(ms, Double.POSITIVE_INFINITY, 2, Regularization.Interval.ZERO_MAX.of(1.0));
   }
 
   @ParameterizedTest
@@ -86,14 +86,16 @@ class Inverse2Test {
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha2")
   void testAlpha2(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
-    testForSystems(ms, Metrics.fromMilli(0.3), Regularization.Interval.ZERO_MAX.of(2.0));
+    testForSystems(ms, Metrics.fromMilli(0.3), 2, Regularization.Interval.ZERO_MAX.of(2.0));
   }
 
   private void testForSystems(@Nonnull Collection<Collection<DerivativeMeasurement>> ms,
                               @Nonnegative double maxDh,
+                              @Nonnegative int maxSystems,
                               @Nonnull Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
     testSingle(ms.stream()
         .filter(dm -> Math.abs(dm.stream().mapToDouble(DerivativeResistivity::dh).summaryStatistics().getAverage()) < maxDh)
+        .map(dm -> dm.stream().limit(maxSystems).toList())
         .toList(), regularizationFunction);
   }
 
@@ -104,7 +106,7 @@ class Inverse2Test {
   void testSingle(Collection<? extends Collection<? extends DerivativeMeasurement>> ms,
                   Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
     var derivativeMeasurements = convert(ms);
-    LOGGER.fine(() -> "converted to:%n%s".formatted(derivativeMeasurements.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE))));
+    LOGGER.info(() -> "converted to:%n%s".formatted(derivativeMeasurements.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE))));
     LOGGER.info(regularizationFunction::toString);
     var medium = new DynamicAbsolute(derivativeMeasurements, regularizationFunction).get();
     Assertions.assertNotNull(medium);
@@ -129,6 +131,7 @@ class Inverse2Test {
     );
   }
 
+  @Nonnull
   static Collection<? extends DerivativeMeasurement> convert(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms) {
     var firstMeasurements = ms.iterator().next();
     LOGGER.fine(() -> "initial:%n%s".formatted(ms.stream()
