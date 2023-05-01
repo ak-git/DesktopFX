@@ -106,7 +106,9 @@ class Inverse2Test {
   void testSingle(Collection<? extends Collection<? extends DerivativeMeasurement>> ms,
                   Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
     var derivativeMeasurements = convert(ms);
-    LOGGER.info(() -> "converted to:%n%s".formatted(derivativeMeasurements.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE))));
+    LOGGER.fine(() -> "converted to:%n%s".formatted(derivativeMeasurements.stream().map(Object::toString)
+        .collect(Collectors.joining(Strings.NEW_LINE)))
+    );
     LOGGER.info(regularizationFunction::toString);
     var medium = new DynamicAbsolute(derivativeMeasurements, regularizationFunction).get();
     Assertions.assertNotNull(medium);
