@@ -6,7 +6,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.ak.rsm.measurement.Measurements.fixOhms;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class InverseTestE7694Provider {
@@ -38,15 +37,11 @@ class InverseTestE7694Provider {
                         r1 + 0.1073339, r2 + 0.3525168, r3 + 0.2452476, r4 + 0.4444754
                     ),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 2).system4(7.0)
-                    .ofOhms(fixOhms(
-                        r1, r2, r3, r4,
-                        r1 + 0.2730492, r2 + 0.7895464, r3 + 0.5151086, r4 + 1.0757256
-                    )),
+                    .ofOhms(r1, r2, r3, r4,
+                        r1 + 0.2730492, r2 + 0.7895464, r3 + 0.5151086, r4 + 1.0757256),
                 TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21 * 4).system4(7.0)
-                    .ofOhms(fixOhms(
-                        r1, r2, r3, r4,
-                        r1 + 0.7467654, r2 + 2.0424332, r3 + 1.3847212, r4 + 2.6294078
-                    ))
+                    .ofOhms(r1, r2, r3, r4,
+                        r1 + 0.7467654, r2 + 2.0424332, r3 + 1.3847212, r4 + 2.6294078)
             )
         )
     );
