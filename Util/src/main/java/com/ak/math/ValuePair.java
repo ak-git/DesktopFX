@@ -1,13 +1,12 @@
 package com.ak.math;
 
-import java.util.Objects;
-import java.util.StringJoiner;
+import com.ak.util.Metrics;
+import com.ak.util.Strings;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-
-import com.ak.util.Metrics;
-import com.ak.util.Strings;
+import java.util.Objects;
+import java.util.StringJoiner;
 
 import static com.ak.util.Strings.PLUS_MINUS;
 import static com.ak.util.Strings.SPACE;
@@ -17,6 +16,13 @@ import static tec.uom.se.unit.Units.METRE;
 public record ValuePair(@Nonnull Name name, double value, @Nonnegative double absError) {
   public enum Name {
     NONE,
+    RHO {
+      @Nonnull
+      @Override
+      String toString(@Nonnull String base) {
+        return Strings.rho(base);
+      }
+    },
     RHO_1 {
       @Nonnull
       @Override
