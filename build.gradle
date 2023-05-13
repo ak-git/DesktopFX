@@ -7,7 +7,7 @@ plugins {
     id 'jacoco'
 
     id "application"
-    id 'org.openjfx.javafxplugin' version '0.0.13'
+    id 'org.openjfx.javafxplugin' version '0.0.14'
 
     id 'org.springframework.boot' version '3.0.6'
     id 'io.spring.dependency-management' version '1.1.0'
@@ -41,8 +41,8 @@ sonar {
 }
 
 ext {
-    junit = 'org.junit:junit-bom:5.9.3'
-    jupiter = 'org.junit.jupiter:junit-jupiter:5.9.3'
+    junit = 'org.junit:junit-bom:5.10.0-M1'
+    jupiter = 'org.junit.jupiter:junit-jupiter:5.10.0-M1'
     assertj = 'org.assertj:assertj-core:3.24.2'
     jsr305 = 'com.google.code.findbugs:jsr305:3.0.2'
     javax_inject = 'jakarta.inject:jakarta.inject-api:2.0.1'
@@ -64,7 +64,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2023.04.26'
+    version = '2023.05.12'
     apply plugin: 'idea'
     idea {
         module {
