@@ -15,84 +15,98 @@ import static org.assertj.core.api.Assertions.byLessThan;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class TetrapolarResistanceE8205akTest {
-  static Stream<Arguments> e8205_18_06_48_00to15N() {
-    double dRho1 = -0.026;
-    double dRho2 = -0.003;
+  static Stream<Arguments> e8205_18_06_48_00to17N() {
+    double rho1 = 6.042;
+    double rho2 = 5.872;
+    double h = 2.5;
+
+    double dRho1 = -0.113;
+    double dRho2 = -0.08;
+    double dHmm = -0.1;
+
+    return Stream.of(
+        arguments(
+            TetrapolarResistance.milli().system2(7.0).rho1(rho1).rho2(rho2).h(h),
+            new double[] {5.9246, 5.9126}
+        ),
+        arguments(
+            TetrapolarResistance.milli().system2(7.0).rho1(rho1 + dRho1).rho2(rho2).h(h),
+            new double[] {5.9246 - 0.0348, 5.9126 - 0.0268}
+        ),
+        arguments(
+            TetrapolarResistance.milli().system2(7.0).rho1(rho1).rho2(rho2 + dRho2).h(h),
+            new double[] {5.9246 - 0.0559, 5.9126 - 0.0614}
+        ),
+        arguments(
+            TetrapolarResistance.milli().system2(7.0).rho1(rho1).rho2(rho2).h(h + dHmm),
+            new double[] {5.9246 - 0.003, 5.9126 - 0.0024}
+        )
+    );
+  }
+
+  static Stream<Arguments> e8205_18_06_48_17to30N() {
+    double rho1 = 5.929;
+    double rho2 = 5.792;
+    double h = 2.4;
+
+    double dRho1 = -0.163;
+    double dRho2 = -0.155;
     double dHmm = -0.1;
     return Stream.of(
         arguments(
-            TetrapolarResistance.milli().system2(7.0).rho1(5.930).rho2(5.794).h(2.6),
-            new double[] {5.8386, 5.8285}
+            TetrapolarResistance.milli().system2(7.0).rho1(rho1).rho2(rho2).h(h),
+            new double[] {5.8321, 5.8229}
         ),
         arguments(
-            TetrapolarResistance.milli().system2(7.0).rho1(5.930 + dRho1).rho2(5.794).h(2.6),
-            new double[] {5.8386 - 0.0085, 5.8285 - 0.0066}
+            TetrapolarResistance.milli().system2(7.0).rho1(rho1 + dRho1).rho2(rho2).h(h),
+            new double[] {5.8321 - 0.0478, 5.8229 - 0.0369}
         ),
         arguments(
-            TetrapolarResistance.milli().system2(7.0).rho1(5.930).rho2(5.794 + dRho2).h(2.6),
-            new double[] {5.8386 - 0.0020, 5.8285 - 0.0022}
+            TetrapolarResistance.milli().system2(7.0).rho1(rho1).rho2(rho2 + dRho2).h(h),
+            new double[] {5.8321 - 0.1111, 5.8229 - 0.1213}
         ),
         arguments(
-            TetrapolarResistance.milli().system2(7.0).rho1(5.930).rho2(5.794).h(2.6 + dHmm),
-            new double[] {5.8386 - 0.0024, 5.8285 - 0.0019}
+            TetrapolarResistance.milli().system2(7.0).rho1(rho1).rho2(rho2).h(h + dHmm),
+            new double[] {5.8321 - 0.0025, 5.8229 - 0.002}
         )
     );
   }
 
-  static Stream<Arguments> e8205_18_06_48_15to28N() {
-    double dRho1 = -0.084;
-    double dRho2 = -0.051;
-    double dHmm = -0.3;
-    return Stream.of(
-        arguments(
-            TetrapolarResistance.milli().system2(7.0).rho1(5.930 - 0.026).rho2(5.794 - 0.003).h(2.6 - 0.1),
-            new double[] {5.8261, 5.8181}
-        ),
-        arguments(
-            TetrapolarResistance.milli().system2(7.0).rho1(5.930 - 0.026 + dRho1).rho2(5.794 - 0.003).h(2.6 - 0.1),
-            new double[] {5.8261 - 0.0260, 5.8181 - 0.0201}
-        ),
-        arguments(
-            TetrapolarResistance.milli().system2(7.0).rho1(5.930 - 0.026).rho2(5.794 - 0.003 + dRho2).h(2.6 - 0.1),
-            new double[] {5.8261 - 0.0354, 5.8181 - 0.0389}
-        ),
-        arguments(
-            TetrapolarResistance.milli().system2(7.0).rho1(5.930 - 0.026).rho2(5.794 - 0.003).h(2.6 - 0.1 + dHmm),
-            new double[] {5.8261 - 0.006, 5.8181 - 0.0048}
-        )
-    );
-  }
+  static Stream<Arguments> e8205_18_06_48_30to48N() {
+    double rho1 = 5.766;
+    double rho2 = 5.637;
+    double h = 2.3;
 
-  static Stream<Arguments> e8205_18_06_48_28to48N() {
-    double dRho1 = 0.079;
-    double dRho2 = 0.107;
-    double dHmm = -0.3;
+    double dRho1 = 0.135;
+    double dRho2 = 0.213;
+    double dHmm = -0.6;
     return Stream.of(
         arguments(
-            TetrapolarResistance.milli().system2(7.0)
-                .rho1(5.930 - 0.026 - 0.084).rho2(5.794 - 0.003 - 0.051).h(2.6 - 0.1 - 0.3),
-            new double[] {5.7607, 5.7559}
+            TetrapolarResistance.milli().system2(7.0).rho1(rho1).rho2(rho2).h(h),
+            new double[] {5.6724, 5.6643}
         ),
         arguments(
-            TetrapolarResistance.milli().system2(7.0)
-                .rho1(5.930 - 0.026 - 0.084 + dRho1).rho2(5.794 - 0.003 - 0.051).h(2.6 - 0.1 - 0.3),
-            new double[] {5.7607 + 0.02, 5.7559 + 0.0154}
+            TetrapolarResistance.milli().system2(7.0).rho1(rho1 + dRho1).rho2(rho2).h(h),
+            new double[] {5.6724 + 0.0361, 5.6643 + 0.0276}
         ),
         arguments(
-            TetrapolarResistance.milli().system2(7.0)
-                .rho1(5.930 - 0.026 - 0.084).rho2(5.794 - 0.003 - 0.051 + dRho2).h(2.6 - 0.1 - 0.3),
-            new double[] {5.7607 + 0.0792, 5.7559 + 0.0857}
+            TetrapolarResistance.milli().system2(7.0).rho1(rho1).rho2(rho2 + dRho2).h(h),
+            new double[] {5.6724 + 0.154, 5.6643 + 0.1675}
         ),
         arguments(
-            TetrapolarResistance.milli().system2(7.0)
-                .rho1(5.930 - 0.026 - 0.084).rho2(5.794 - 0.003 - 0.051).h(2.6 - 0.1 - 0.3 + dHmm),
-            new double[] {5.7607 - 0.0043, 5.7559 - 0.0034}
+            TetrapolarResistance.milli().system2(7.0).rho1(rho1).rho2(rho2).h(h + dHmm),
+            new double[] {5.6724 - 0.0135, 5.6643 - 0.0107}
+        ),
+
+        arguments(
+            TetrapolarResistance.milli().system2(7.0).rho1(rho1 + dRho1).rho2(rho2 + dRho2).h(h + dHmm),
+            new double[] {5.8587, 5.8566}
         )
     );
   }
 
   @ParameterizedTest
-  @MethodSource({"e8205_18_06_48_00to15N", "e8205_18_06_48_15to28N", "e8205_18_06_48_28to48N"})
+  @MethodSource({"e8205_18_06_48_00to17N", "e8205_18_06_48_17to30N", "e8205_18_06_48_30to48N"})
   @ParametersAreNonnullByDefault
   void test(Collection<Resistance> ms, double[] resistivity) {
     assertThat(ms.stream().mapToDouble(Resistance::resistivity).toArray())
