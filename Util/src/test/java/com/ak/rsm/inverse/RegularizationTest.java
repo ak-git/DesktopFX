@@ -42,7 +42,7 @@ class RegularizationTest {
       case ZERO_MAX -> assertAll(interval.name(),
           () -> assertThat(hInterval.min()).isZero()
       );
-      case MIN_MAX, MAX_K -> assertAll(interval.name(),
+      case MAX_K -> assertAll(interval.name(),
           () -> assertThat(hInterval.min())
               .isCloseTo(Math.max(system1.getHMin(k), system2.getHMin(k)) / baseL, within(0.001))
       );
@@ -60,9 +60,9 @@ class RegularizationTest {
     double alpha = RANDOM.nextDouble(1.0, 10.0);
 
     Regularization regularization = interval.of(alpha).apply(List.of(system1, system2));
-    Simplex.Bounds hInterval = regularization.hInterval(k);
+    Simplex.Bounds hInterval = regularization.hInterval(Math.signum(k));
     switch (interval) {
-      case ZERO_MAX, MIN_MAX -> assertAll(interval.name(),
+      case ZERO_MAX -> assertAll(interval.name(),
           () -> assertThat(regularization.of(new double[] {k, Double.POSITIVE_INFINITY})).isEqualTo(OptionalDouble.empty()),
           () -> assertThat(regularization.of(new double[] {0.0, 0.0})).isEqualTo(OptionalDouble.empty()),
           () -> assertThat(regularization.of(new double[] {k, (hInterval.max() + hInterval.min()) / 2.0}).orElseThrow())

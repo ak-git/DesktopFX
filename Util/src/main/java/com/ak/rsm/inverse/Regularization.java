@@ -40,24 +40,6 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
         };
       }
     },
-    MIN_MAX {
-      @Nonnull
-      @Override
-      public Function<Collection<InexactTetrapolarSystem>, Regularization> of(@Nonnegative double alpha) {
-        return new AbstractRegularizationFunction(name(), alpha) {
-          @Override
-          public Regularization apply(Collection<InexactTetrapolarSystem> inexactSystems) {
-            return new AbstractRegularization(inexactSystems) {
-              @Nonnull
-              @Override
-              public OptionalDouble of(@Nonnull double[] kw) {
-                return innerOf(kw, alpha);
-              }
-            };
-          }
-        };
-      }
-    },
     MAX_K {
       @Nonnull
       @Override
@@ -103,8 +85,9 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
       double k = kw[0];
       double hToL = kw[1];
 
-      Simplex.Bounds bounds = hInterval(k);
-      if (bounds.min() < hToL && hToL < bounds.max()) {
+      Simplex.Bounds boundsCheck = hInterval(k);
+      if (boundsCheck.min() < hToL && hToL < boundsCheck.max()) {
+        Simplex.Bounds bounds = hInterval(Math.signum(k));
         return OptionalDouble.of(alpha * (log(bounds.max() - hToL) - log(hToL - bounds.min())));
       }
       else {

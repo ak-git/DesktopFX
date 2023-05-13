@@ -41,7 +41,8 @@ class Inverse2Test {
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha01")
   void testAlpha01(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
-    testForSystems(ms, Double.POSITIVE_INFINITY, 4, Regularization.Interval.MIN_MAX.of(0.1));
+    testForSystems(ms, Double.POSITIVE_INFINITY, 4, Regularization.Interval.ZERO_MAX.of(0.1));
+    testForSystems(ms, Double.POSITIVE_INFINITY, 2, Regularization.Interval.ZERO_MAX.of(0.1));
   }
 
   @ParameterizedTest
@@ -53,7 +54,8 @@ class Inverse2Test {
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha02")
   void testAlpha02(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
-    testForSystems(ms, Double.POSITIVE_INFINITY, 4, Regularization.Interval.MIN_MAX.of(0.2));
+    testForSystems(ms, Double.POSITIVE_INFINITY, 2, Regularization.Interval.ZERO_MAX.of(0.1));
+    testForSystems(ms, Double.POSITIVE_INFINITY, 2, Regularization.Interval.ZERO_MAX.of(0.2));
   }
 
   @ParameterizedTest
@@ -67,7 +69,7 @@ class Inverse2Test {
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha10")
   void testAlpha10(@Nonnull Collection<Collection<DerivativeMeasurement>> ms) {
-    testForSystems(ms, Double.POSITIVE_INFINITY, 4, Regularization.Interval.MIN_MAX.of(10.0));
+    testForSystems(ms, Double.POSITIVE_INFINITY, 2, Regularization.Interval.ZERO_MAX.of(10.0));
   }
 
   @ParameterizedTest
