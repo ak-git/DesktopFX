@@ -33,20 +33,11 @@ class RegularizationTest {
     Regularization regularization = interval.of(alpha).apply(List.of(system1, system2));
     Simplex.Bounds hInterval = regularization.hInterval(k);
     assertAll(interval.name(),
+        () -> assertThat(hInterval.min()).isZero(),
         () -> assertThat(hInterval.initialGuess()).isNaN(),
         () -> assertThat(hInterval.max())
-            .isCloseTo(Math.min(system1.getHMax(k), system2.getHMax(k)) / baseL, within(0.001))
+            .isCloseTo(Math.min(system1.getHMax(Math.signum(k)), system2.getHMax(Math.signum(k))) / baseL, within(0.001))
     );
-
-    switch (interval) {
-      case ZERO_MAX -> assertAll(interval.name(),
-          () -> assertThat(hInterval.min()).isZero()
-      );
-      case MAX_K -> assertAll(interval.name(),
-          () -> assertThat(hInterval.min())
-              .isCloseTo(Math.max(system1.getHMin(k), system2.getHMin(k)) / baseL, within(0.001))
-      );
-    }
   }
 
   @ParameterizedTest
@@ -60,7 +51,7 @@ class RegularizationTest {
     double alpha = RANDOM.nextDouble(1.0, 10.0);
 
     Regularization regularization = interval.of(alpha).apply(List.of(system1, system2));
-    Simplex.Bounds hInterval = regularization.hInterval(Math.signum(k));
+    Simplex.Bounds hInterval = regularization.hInterval(k);
     switch (interval) {
       case ZERO_MAX -> assertAll(interval.name(),
           () -> assertThat(regularization.of(new double[] {k, Double.POSITIVE_INFINITY})).isEqualTo(OptionalDouble.empty()),

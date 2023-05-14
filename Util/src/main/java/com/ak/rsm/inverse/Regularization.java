@@ -23,13 +23,8 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
       public Function<Collection<InexactTetrapolarSystem>, Regularization> of(@Nonnegative double alpha) {
         return new AbstractRegularizationFunction(name(), alpha) {
           @Override
-          public Regularization apply(Collection<InexactTetrapolarSystem> inexactSystems) {
+          public Regularization apply(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems) {
             return new AbstractRegularization(inexactSystems) {
-              @Override
-              public Simplex.Bounds hInterval(double k) {
-                return new Simplex.Bounds(0, getMax(k));
-              }
-
               @Nonnull
               @Override
               public OptionalDouble of(@Nonnull double[] kw) {
@@ -46,7 +41,7 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
       public Function<Collection<InexactTetrapolarSystem>, Regularization> of(@Nonnegative double alpha) {
         return new AbstractRegularizationFunction(name(), alpha) {
           @Override
-          public Regularization apply(Collection<InexactTetrapolarSystem> inexactSystems) {
+          public Regularization apply(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems) {
             return new AbstractRegularization(inexactSystems) {
               @Nonnull
               @Override
@@ -73,21 +68,17 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
     }
 
     @Override
-    public Simplex.Bounds hInterval(double k) {
-      return new Simplex.Bounds(min.applyAsDouble(k), getMax(k));
+    public final Simplex.Bounds hInterval(double k) {
+      return new Simplex.Bounds(0, max.applyAsDouble(Math.signum(k)));
     }
 
-    final double getMax(double k) {
-      return max.applyAsDouble(k);
-    }
-
-    final OptionalDouble innerOf(@Nonnull double[] kw, double alpha) {
+    final OptionalDouble innerOf(@Nonnull double[] kw, @Nonnegative double alpha) {
       double k = kw[0];
       double hToL = kw[1];
 
-      Simplex.Bounds boundsCheck = hInterval(k);
+      Simplex.Bounds boundsCheck = new Simplex.Bounds(min.applyAsDouble(k), max.applyAsDouble(k));
       if (boundsCheck.min() < hToL && hToL < boundsCheck.max()) {
-        Simplex.Bounds bounds = hInterval(Math.signum(k));
+        Simplex.Bounds bounds = hInterval(k);
         return OptionalDouble.of(Math.abs(alpha * (log(bounds.max() - hToL) - log(hToL - bounds.min()))));
       }
       else {
