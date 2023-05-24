@@ -17,10 +17,6 @@ import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicReference;
@@ -62,7 +58,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
   }
 
   @Nullable
-  private final SerialPort serialPort = Ports.INSTANCE.next();
+  private final SerialPort serialPort;
   @Nonnull
   private final BytesInterceptor<T, R> bytesInterceptor;
   @Nonnull
@@ -74,8 +70,9 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
   @Nullable
   private Runnable refreshAction;
 
-  SerialService(@Nonnull BytesInterceptor<T, R> bytesInterceptor) {
+  SerialService(@Nonnull BytesInterceptor<T, R> bytesInterceptor, @Nullable SerialPort serialPort) {
     this.bytesInterceptor = bytesInterceptor;
+    this.serialPort = serialPort;
     buffer = ByteBuffer.allocate(bytesInterceptor.getBaudRate());
     binaryLogChannel = new ConcurrentAsyncFileChannel(
         () -> {
@@ -209,32 +206,6 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
     }
     else {
       return "%08x [%s] %s".formatted(hashCode(), serialPort.getSystemPortName(), serialPort.getDescriptivePortName());
-    }
-  }
-
-  private enum Ports {
-    INSTANCE;
-
-    private final LinkedList<String> usedPorts = new LinkedList<>();
-
-    @Nullable
-    synchronized SerialPort next() {
-      Collection<SerialPort> serialPorts = Arrays.stream(SerialPort.getCommPorts())
-          .filter(port -> !port.getSystemPortName().toLowerCase().contains("bluetooth"))
-          .sorted(Comparator.<SerialPort, Integer>comparing(port -> port.getSystemPortName().toLowerCase().indexOf("usb")).reversed())
-          .sorted(Comparator.comparingInt(value -> usedPorts.indexOf(value.getSystemPortName())))
-          .toList();
-      if (serialPorts.isEmpty()) {
-        return null;
-      }
-      else {
-        var serialPort = serialPorts.iterator().next();
-        String portName = serialPort.getSystemPortName();
-        LOGGER.log(LOG_LEVEL_ERRORS, () -> "Found { %s }, the [ %s ] is selected".formatted(serialPorts, portName));
-        usedPorts.remove(portName);
-        usedPorts.addLast(portName);
-        return serialPort;
-      }
     }
   }
 }
