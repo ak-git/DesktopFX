@@ -13,30 +13,15 @@ import org.springframework.stereotype.Component;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.*;
+import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_150;
+import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_750;
 import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
 
 @Component
 @Profile("purelogic")
 public final class PureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
   private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE = {
-      MICRON_150, MICRON_150, MICRON_150, MICRON_150, MICRON_150, MICRON_150, MICRON_150, MICRON_150,
-      MICRON_150, MICRON_150, MICRON_150, MICRON_150, MICRON_150, MICRON_150, MICRON_150, MICRON_150,
-
-      MICRON_015, MICRON_015, MICRON_150,
-      MICRON_015, MICRON_015, MICRON_150,
-      MICRON_015, MICRON_015, MICRON_150,
-      MICRON_015, MICRON_015, MICRON_150,
-
-      MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_150,
-      MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_150,
-      MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_150,
-      MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_150,
-
-      MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_150,
-      MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_150,
-      MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_150,
-      MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_015, MICRON_150,
+      MICRON_150, MICRON_150
   };
   private final AtomicInteger handDirection = new AtomicInteger();
   private boolean isRefresh;
