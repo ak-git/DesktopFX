@@ -47,7 +47,7 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
               @Override
               public OptionalDouble of(@Nonnull double[] kw) {
                 double k = Math.abs(kw[0]);
-                return OptionalDouble.of(Math.abs(alpha * log(k)));
+                return OptionalDouble.of(alpha * log(k));
               }
             };
           }
@@ -69,17 +69,17 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
 
     @Override
     public final Simplex.Bounds hInterval(double k) {
-      return new Simplex.Bounds(0, max.applyAsDouble(Math.signum(k)));
+      return new Simplex.Bounds(min.applyAsDouble(k), max.applyAsDouble(k));
     }
 
     final OptionalDouble innerOf(@Nonnull double[] kw, @Nonnegative double alpha) {
       double k = kw[0];
       double hToL = kw[1];
 
-      Simplex.Bounds boundsCheck = new Simplex.Bounds(min.applyAsDouble(k), max.applyAsDouble(k));
-      if (boundsCheck.min() < hToL && hToL < boundsCheck.max()) {
-        Simplex.Bounds bounds = hInterval(k);
-        return OptionalDouble.of(Math.abs(alpha * (log(bounds.max() - hToL) - log(hToL - bounds.min()))));
+      Simplex.Bounds hInterval = hInterval(k);
+      if (hInterval.isIn(hToL)) {
+        Simplex.Bounds bounds = new Simplex.Bounds(0, hInterval.max());
+        return OptionalDouble.of(alpha * (log(bounds.max() - hToL) - log(hToL - bounds.min())));
       }
       else {
         return OptionalDouble.empty();

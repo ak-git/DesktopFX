@@ -43,7 +43,7 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
     }
 
     PointValuePair kwOptimal = Simplex.optimizeAll(kw ->
-            regularization().of(kw).stream().map(Math::sqrt)
+            regularization().of(kw).stream().filter(Double::isFinite)
                 .map(regularizing -> hypot(applyAsDouble(kw), regularizing))
                 .findAny().orElse(Double.NaN),
         kMinMax, regularization().hInterval(1.0)
