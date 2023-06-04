@@ -31,13 +31,11 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.ObjDoubleConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -276,16 +274,19 @@ class InverseDynamicTest {
     LOGGER.info(medium::toString);
   }
 
-  private static List<String> cvsFiles() throws IOException {
+  private static List<Arguments> cvsFiles() throws IOException {
     try (DirectoryStream<Path> p = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*mm"))) {
-      return StreamSupport.stream(p.spliterator(), true).map(Path::toString).toList();
+      return StreamSupport.stream(p.spliterator(), false)
+          .map(Path::toString)
+          .flatMap(file -> DoubleStream.of(0.2, 0.5, 1.0).mapToObj(alpha -> arguments(file, alpha, 1)))
+          .toList();
     }
   }
 
   @ParameterizedTest
-  @MethodSource("cvsFiles")
+  @MethodSource({"cvsFiles"})
   @Disabled("ignored com.ak.rsm.inverse.InverseDynamicTest.testInverseDynamicLayerFileResistivity")
-  void testInverseDynamicLayerFileResistivity(@Nonnull String fileName) {
+  void testInverseDynamicLayerFileResistivity(@Nonnull String fileName, @Nonnegative double alpha, @Nonnegative int eachSelect) {
     String T = "TIME";
     String POSITION = "POSITION";
     String RHO_S1 = "A1";
@@ -310,13 +311,14 @@ class InverseDynamicTest {
         new BufferedReader(new FileReader(path.toFile())),
         CSVFormat.Builder.create().setHeader(T, POSITION, RHO_S1, RHO_S2, RHO_S1_DIFF, RHO_S2_DIFF).build());
          CSVLineFileCollector collector = new CSVLineFileCollector(
-             Paths.get(Extension.CSV.attachTo("%s inverse".formatted(Extension.CSV.clean(fileName)))),
+             Paths.get(Extension.CSV.attachTo(
+                 String.format(Locale.ROOT, "%s inverse - %.1f", Extension.CSV.clean(fileName), alpha))),
              HEADERS
          )
     ) {
       assertTrue(StreamSupport.stream(parser.spliterator(), false)
           .filter(r -> r.getRecordNumber() > 1)
-          .filter(r -> (r.getRecordNumber() - 2) % 3 == 0)
+          .filter(r -> (r.getRecordNumber() - 2) % eachSelect == 0)
           .<Map<String, Object>>mapMulti((r, consumer) -> {
             LOGGER.info(() -> "%.2f sec; %s mm".formatted(Double.parseDouble(r.get(T)), r.get(POSITION)));
             var medium = new DynamicAbsolute(TetrapolarDerivativeMeasurement.milli(0.1)
@@ -324,7 +326,7 @@ class InverseDynamicTest {
                 .rho(
                     Double.parseDouble(r.get(RHO_S1)), Double.parseDouble(r.get(RHO_S2)),
                     Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))
-                ), Regularization.Interval.ZERO_MAX.of(0.0)).get();
+                ), Regularization.Interval.ZERO_MAX.of(alpha)).get();
             LOGGER.info(medium::toString);
             consumer.accept(
                 Map.ofEntries(

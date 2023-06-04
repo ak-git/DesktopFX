@@ -28,7 +28,16 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
               @Nonnull
               @Override
               public OptionalDouble of(@Nonnull double[] kw) {
-                return innerOf(kw, alpha);
+                double k = kw[0];
+                double hToL = kw[1];
+
+                Simplex.Bounds hInterval = hInterval(k);
+                if (hInterval.isIn(hToL)) {
+                  return OptionalDouble.of(alpha * (log(hInterval.max() - hToL) - log(hToL)));
+                }
+                else {
+                  return OptionalDouble.empty();
+                }
               }
             };
           }
@@ -70,20 +79,6 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
     @Override
     public final Simplex.Bounds hInterval(double k) {
       return new Simplex.Bounds(min.applyAsDouble(k), max.applyAsDouble(k));
-    }
-
-    final OptionalDouble innerOf(@Nonnull double[] kw, @Nonnegative double alpha) {
-      double k = kw[0];
-      double hToL = kw[1];
-
-      Simplex.Bounds hInterval = hInterval(k);
-      if (hInterval.isIn(hToL)) {
-        Simplex.Bounds bounds = new Simplex.Bounds(0, hInterval.max());
-        return OptionalDouble.of(alpha * (log(bounds.max() - hToL) - log(hToL - bounds.min())));
-      }
-      else {
-        return OptionalDouble.empty();
-      }
     }
 
     @ParametersAreNonnullByDefault
