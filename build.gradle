@@ -3,7 +3,7 @@ plugins {
     id 'java'
     id 'java-library'
     id 'idea'
-    id "org.sonarqube" version '4.1.0.3113'
+    id "org.sonarqube" version '4.2.0.3129'
     id 'jacoco'
 
     id "application"
@@ -64,7 +64,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2023.05.22'
+    version = '2023.06.05'
     apply plugin: 'idea'
     idea {
         module {
