@@ -19,7 +19,7 @@ class PureLogicFrameTest {
         arguments(PureLogicFrame.StepCommand.MICRON_015.action(true), "STEP +00016\r\n"),
         arguments(PureLogicFrame.StepCommand.MICRON_150.action(false), "STEP -00160\r\n"),
         arguments(PureLogicFrame.StepCommand.MICRON_300.action(true), "STEP +00320\r\n"),
-        arguments(PureLogicFrame.StepCommand.MICRON_1500.action(true), "STEP +01600\r\n")
+        arguments(PureLogicFrame.StepCommand.MICRON_750.action(true), "STEP +00800\r\n")
     );
   }
 

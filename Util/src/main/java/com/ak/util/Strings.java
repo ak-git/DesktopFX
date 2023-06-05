@@ -35,6 +35,11 @@ public enum Strings {
     return "%s = %.3f %s".formatted(RHO, rho, OHM_METRE);
   }
 
+  @Nonnull
+  public static String rho(@Nonnull Object rho) {
+    return "%s = %s %s".formatted(RHO, rho, OHM_METRE);
+  }
+
   public static char low(int index) {
     int i = '₀';
     return (char) (i + index);

@@ -21,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.BufferedReader;
@@ -30,13 +31,11 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.ObjDoubleConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -196,54 +195,55 @@ class InverseDynamicTest {
 
   static Stream<Arguments> waterDynamicParameters2() {
     double dh = -10.0 / 200.0;
+    double alpha = 5.0;
     return Stream.of(
         // h = 5 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(29.47, 65.68, 29.75, 66.35),
-            0.0,
+            alpha,
             new double[] {0.701, Double.POSITIVE_INFINITY, Metrics.fromMilli(5.06)}
         ),
         // h = 10 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(16.761, 32.246, 16.821, 32.383),
-            0.0,
+            alpha,
             new double[] {0.701, Double.POSITIVE_INFINITY, Metrics.fromMilli(10.0)}
         ),
         // h = 15 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(13.338, 23.903, 13.357, 23.953),
-            0.5,
+            alpha,
             new double[] {0.697, Double.POSITIVE_INFINITY, Metrics.fromMilli(14.8)}
         ),
         // h = 20 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(12.187, 20.567, 12.194, 20.589),
-            0.1,
+            alpha,
             new double[] {0.7, Double.POSITIVE_INFINITY, Metrics.fromMilli(20.0)}
         ),
         // h = 25 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(11.710, 18.986, 11.714, 18.998),
-            1.0,
+            alpha,
             new double[] {0.694, Double.POSITIVE_INFINITY, Metrics.fromMilli(23.8)}
         ),
         // h = 30 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(11.482, 18.152, 11.484, 18.158),
-            1.0,
+            alpha,
             new double[] {0.698, Double.POSITIVE_INFINITY, Metrics.fromMilli(29.0)}
         ),
         // h = 35 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(11.361, 17.674, 11.362, 17.678),
-            0.0,
+            alpha,
             new double[] {0.699, Double.POSITIVE_INFINITY, Metrics.fromMilli(34.0)}
         )
     );
@@ -252,7 +252,8 @@ class InverseDynamicTest {
   @ParameterizedTest
   @MethodSource({"theoryDynamicParameters2", "waterDynamicParameters2"})
   @ParametersAreNonnullByDefault
-  void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, double alpha, double[] expected) {
+  void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements,
+                                @Nonnegative double alpha, double[] expected) {
     var medium = new DynamicAbsolute(measurements, Regularization.Interval.MAX_K.of(alpha)).get();
 
     ObjDoubleConsumer<ValuePair> checker = (valuePair, expectedValue) -> {
@@ -273,16 +274,19 @@ class InverseDynamicTest {
     LOGGER.info(medium::toString);
   }
 
-  private static List<String> cvsFiles() throws IOException {
+  private static List<Arguments> cvsFiles() throws IOException {
     try (DirectoryStream<Path> p = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*mm"))) {
-      return StreamSupport.stream(p.spliterator(), true).map(Path::toString).toList();
+      return StreamSupport.stream(p.spliterator(), false)
+          .map(Path::toString)
+          .flatMap(file -> DoubleStream.of(0.2, 0.5, 1.0).mapToObj(alpha -> arguments(file, alpha, 1)))
+          .toList();
     }
   }
 
   @ParameterizedTest
-  @MethodSource("cvsFiles")
+  @MethodSource({"cvsFiles"})
   @Disabled("ignored com.ak.rsm.inverse.InverseDynamicTest.testInverseDynamicLayerFileResistivity")
-  void testInverseDynamicLayerFileResistivity(@Nonnull String fileName) {
+  void testInverseDynamicLayerFileResistivity(@Nonnull String fileName, @Nonnegative double alpha, @Nonnegative int eachSelect) {
     String T = "TIME";
     String POSITION = "POSITION";
     String RHO_S1 = "A1";
@@ -307,13 +311,14 @@ class InverseDynamicTest {
         new BufferedReader(new FileReader(path.toFile())),
         CSVFormat.Builder.create().setHeader(T, POSITION, RHO_S1, RHO_S2, RHO_S1_DIFF, RHO_S2_DIFF).build());
          CSVLineFileCollector collector = new CSVLineFileCollector(
-             Paths.get(Extension.CSV.attachTo("%s inverse".formatted(Extension.CSV.clean(fileName)))),
+             Paths.get(Extension.CSV.attachTo(
+                 String.format(Locale.ROOT, "%s inverse - %.1f", Extension.CSV.clean(fileName), alpha))),
              HEADERS
          )
     ) {
       assertTrue(StreamSupport.stream(parser.spliterator(), false)
           .filter(r -> r.getRecordNumber() > 1)
-          .filter(r -> (r.getRecordNumber() - 2) % 3 == 0)
+          .filter(r -> (r.getRecordNumber() - 2) % eachSelect == 0)
           .<Map<String, Object>>mapMulti((r, consumer) -> {
             LOGGER.info(() -> "%.2f sec; %s mm".formatted(Double.parseDouble(r.get(T)), r.get(POSITION)));
             var medium = new DynamicAbsolute(TetrapolarDerivativeMeasurement.milli(0.1)
@@ -321,7 +326,7 @@ class InverseDynamicTest {
                 .rho(
                     Double.parseDouble(r.get(RHO_S1)), Double.parseDouble(r.get(RHO_S2)),
                     Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))
-                ), Regularization.Interval.ZERO_MAX.of(0.0)).get();
+                ), Regularization.Interval.ZERO_MAX.of(alpha)).get();
             LOGGER.info(medium::toString);
             consumer.accept(
                 Map.ofEntries(

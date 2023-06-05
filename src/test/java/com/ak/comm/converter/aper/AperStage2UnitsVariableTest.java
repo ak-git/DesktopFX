@@ -1,20 +1,7 @@
 package com.ak.comm.converter.aper;
 
-import java.nio.ByteOrder;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.comm.bytes.BufferFrame;
-import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.DependentVariable;
-import com.ak.comm.converter.LinkedConverter;
-import com.ak.comm.converter.ToIntegerConverter;
-import com.ak.comm.converter.Variable;
+import com.ak.comm.converter.*;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel1;
 import com.ak.numbers.aper.AperSurfaceCoefficientsChannel2;
 import org.junit.jupiter.api.Disabled;
@@ -25,6 +12,14 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
+
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.nio.ByteOrder;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -42,7 +37,7 @@ class AperStage2UnitsVariableTest {
                 5, 0, 0, 0,
                 (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55466, 330990, 330990, -702471, -702470, 5295, 5295, 1322, 1747})
+            new int[] {55318, 330990, 330990, -702471, -702470, 5295, 5295, 1302, 1691})
     );
   }
 

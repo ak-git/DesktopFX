@@ -31,7 +31,7 @@ public final class PureLogicFrame extends BufferFrame {
     MICRON_015(16),
     MICRON_150(MICRON_015.steps * 10),
     MICRON_300(MICRON_150.steps * 2),
-    MICRON_1500(MICRON_150.steps * 10);
+    MICRON_750(MICRON_150.steps * 5);
 
     private final int steps;
 

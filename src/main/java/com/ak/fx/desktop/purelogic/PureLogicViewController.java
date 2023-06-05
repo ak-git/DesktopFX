@@ -13,17 +13,17 @@ import org.springframework.stereotype.Component;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.*;
+import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_150;
+import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_750;
 import static com.ak.comm.converter.purelogic.PureLogicConverter.FREQUENCY;
 
 @Component
 @Profile("purelogic")
 public final class PureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
   private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE = {
-      MICRON_150, MICRON_150, MICRON_150, MICRON_300
+      MICRON_150, MICRON_150
   };
   private final AtomicInteger handDirection = new AtomicInteger();
-  private boolean up;
   private boolean isRefresh;
   private int autoSequenceIndex = -1;
 
@@ -47,7 +47,6 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
   @Override
   public void escape() {
     handDirection.set(0);
-    up = false;
     isRefresh = false;
     autoSequenceIndex = -1;
   }
@@ -58,27 +57,23 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
       escape();
     }
 
+    autoSequenceIndex++;
+    autoSequenceIndex %= AUTO_SEQUENCE.length;
+    boolean sequenceDirection = (autoSequenceIndex & 1) == 0;
+
     int hand = handDirection.get();
-    if (hand == 0) {
-      autoSequenceIndex++;
-      if (autoSequenceIndex == AUTO_SEQUENCE.length) {
-        up = !up;
-      }
-      autoSequenceIndex %= AUTO_SEQUENCE.length;
-      boolean sequenceDirection = (autoSequenceIndex & 1) == 0;
-      if (up) {
-        return AUTO_SEQUENCE[AUTO_SEQUENCE.length - autoSequenceIndex - 1].action(!sequenceDirection);
+    if (hand != 0) {
+      int delta = hand > 0 ? -1 : 1;
+      boolean direction = handDirection.getAndAdd(delta) > 0;
+      if (sequenceDirection) {
+        autoSequenceIndex = -1;
+        return MICRON_750.action(direction);
       }
       else {
-        return AUTO_SEQUENCE[autoSequenceIndex].action(sequenceDirection);
+        handDirection.getAndAdd(-delta);
       }
     }
-    else {
-      int direction = handDirection.getAndAdd(hand > 0 ? -1 : 1);
-      up = direction > 0;
-      autoSequenceIndex = -1;
-      return MICRON_1500.action(direction > 0);
-    }
+    return AUTO_SEQUENCE[autoSequenceIndex].action(!sequenceDirection);
   }
 
   @Override

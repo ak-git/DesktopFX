@@ -21,29 +21,25 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
       @Nonnull
       @Override
       public Function<Collection<InexactTetrapolarSystem>, Regularization> of(@Nonnegative double alpha) {
-        return inexactSystems -> new AbstractRegularization(inexactSystems) {
+        return new AbstractRegularizationFunction(name(), alpha) {
           @Override
-          public Simplex.Bounds hInterval(double k) {
-            return new Simplex.Bounds(0, getMax(k));
-          }
+          public Regularization apply(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems) {
+            return new AbstractRegularization(inexactSystems) {
+              @Nonnull
+              @Override
+              public OptionalDouble of(@Nonnull double[] kw) {
+                double k = kw[0];
+                double hToL = kw[1];
 
-          @Nonnull
-          @Override
-          public OptionalDouble of(@Nonnull double[] kw) {
-            return innerOf(kw, alpha);
-          }
-        };
-      }
-    },
-    MIN_MAX {
-      @Nonnull
-      @Override
-      public Function<Collection<InexactTetrapolarSystem>, Regularization> of(@Nonnegative double alpha) {
-        return inexactSystems -> new AbstractRegularization(inexactSystems) {
-          @Nonnull
-          @Override
-          public OptionalDouble of(@Nonnull double[] kw) {
-            return innerOf(kw, alpha);
+                Simplex.Bounds hInterval = hInterval(k);
+                if (hInterval.isIn(hToL)) {
+                  return OptionalDouble.of(alpha * (log(hInterval.max() - hToL) - log(hToL)));
+                }
+                else {
+                  return OptionalDouble.empty();
+                }
+              }
+            };
           }
         };
       }
@@ -52,13 +48,17 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
       @Nonnull
       @Override
       public Function<Collection<InexactTetrapolarSystem>, Regularization> of(@Nonnegative double alpha) {
-        return inexactSystems -> new AbstractRegularization(inexactSystems) {
-
-          @Nonnull
+        return new AbstractRegularizationFunction(name(), alpha) {
           @Override
-          public OptionalDouble of(@Nonnull double[] kw) {
-            double k = Math.abs(kw[0]);
-            return OptionalDouble.of(alpha * (log(2.0 - k) - log(k)));
+          public Regularization apply(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems) {
+            return new AbstractRegularization(inexactSystems) {
+              @Nonnull
+              @Override
+              public OptionalDouble of(@Nonnull double[] kw) {
+                double k = Math.abs(kw[0]);
+                return OptionalDouble.of(alpha * log(k));
+              }
+            };
           }
         };
       }
@@ -77,25 +77,8 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
     }
 
     @Override
-    public Simplex.Bounds hInterval(double k) {
-      return new Simplex.Bounds(min.applyAsDouble(k), getMax(k));
-    }
-
-    final double getMax(double k) {
-      return max.applyAsDouble(k);
-    }
-
-    final OptionalDouble innerOf(@Nonnull double[] kw, double alpha) {
-      double k = kw[0];
-      double hToL = kw[1];
-
-      Simplex.Bounds bounds = hInterval(k);
-      if (bounds.min() < hToL && hToL < bounds.max()) {
-        return OptionalDouble.of(alpha * (log(bounds.max() - hToL) - log(hToL - bounds.min())));
-      }
-      else {
-        return OptionalDouble.empty();
-      }
+    public final Simplex.Bounds hInterval(double k) {
+      return new Simplex.Bounds(min.applyAsDouble(k), max.applyAsDouble(k));
     }
 
     @ParametersAreNonnullByDefault
@@ -104,6 +87,23 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
       return k -> selector
           .apply(inexactSystems().stream().mapToDouble(system -> toHorizon.applyAsDouble(system, k)))
           .orElseThrow() / baseL();
+    }
+  }
+
+  abstract class AbstractRegularizationFunction implements Function<Collection<InexactTetrapolarSystem>, Regularization> {
+    @Nonnull
+    private final String name;
+    @Nonnegative
+    private final double alpha;
+
+    private AbstractRegularizationFunction(@Nonnull String name, @Nonnegative double alpha) {
+      this.name = name;
+      this.alpha = alpha;
+    }
+
+    @Override
+    public final String toString() {
+      return "RegularizationFunction{%s, alpha = %.1f}".formatted(name, alpha);
     }
   }
 
