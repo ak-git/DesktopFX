@@ -37,7 +37,6 @@ import java.util.function.Function;
 import java.util.function.ObjDoubleConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -281,7 +280,7 @@ class InverseDynamicTest {
     try (DirectoryStream<Path> p = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*mm"))) {
       return StreamSupport.stream(p.spliterator(), false)
           .map(Path::toString)
-          .flatMap(file -> DoubleStream.of(0.2, 0.5, 1.0).mapToObj(alpha -> arguments(file, alpha, 3)))
+          .flatMap(file -> DoubleStream.of(0.2, 0.5, 1.0).mapToObj(alpha -> arguments(file, alpha, 1)))
           .toList();
     }
   }
@@ -327,7 +326,7 @@ class InverseDynamicTest {
       ) {
         assertTrue(StreamSupport.stream(parser.spliterator(), false)
             .filter(r -> (r.getRecordNumber() - 1) % eachSelect == 0)
-            .<Map<String, Object>>mapMulti((r, consumer) -> {
+            .map(r -> {
               LOGGER.info(() -> "%.2f sec; %s mm".formatted(Double.parseDouble(r.get(T)), r.get(POSITION)));
               var medium = new DynamicAbsolute(TetrapolarDerivativeMeasurement.milli(0.1)
                   .dh(Double.NaN).system2(Integer.parseInt(mm[mm.length - 2]))
@@ -336,16 +335,11 @@ class InverseDynamicTest {
                       Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))
                   ), Regularization.Interval.ZERO_MAX.of(alpha)).get();
               LOGGER.info(medium::toString);
-
-              Map<String, Object> collect = new LinkedHashMap<>(inputHeaders.stream().collect(
-                  Collectors.toMap(Function.identity(), r::get))
-              );
-              collect.putAll(outputMap.entrySet().stream().collect(
-                  Collectors.toMap(Map.Entry::getKey, e -> e.getValue().apply(medium)))
-              );
-              consumer.accept(collect);
+              return Stream.concat(
+                  inputHeaders.stream().map(r::get),
+                  outputMap.values().stream().map(f -> f.apply(medium))
+              ).toArray();
             })
-            .map(stringMap -> Stream.concat(inputHeaders.stream(), outputMap.keySet().stream()).map(stringMap::get).toArray())
             .collect(collector));
       }
     }
