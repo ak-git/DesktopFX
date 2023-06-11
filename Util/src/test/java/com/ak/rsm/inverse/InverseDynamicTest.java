@@ -280,7 +280,7 @@ class InverseDynamicTest {
     try (DirectoryStream<Path> p = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*mm"))) {
       return StreamSupport.stream(p.spliterator(), false)
           .map(Path::toString)
-          .flatMap(file -> DoubleStream.of(0.2, 0.5, 1.0).mapToObj(alpha -> arguments(file, alpha, 1)))
+          .flatMap(file -> DoubleStream.of(0.2, 0.5, 1.0).mapToObj(alpha -> arguments(file, alpha, 3)))
           .toList();
     }
   }
@@ -329,7 +329,7 @@ class InverseDynamicTest {
             .filter(r -> (r.getRecordNumber() - 1) % eachSelect == 0)
             .map(r -> {
               LOGGER.info(() -> "%.2f sec; %s mm".formatted(Double.parseDouble(r.get(T)), r.get(POSITION)));
-              var medium = new DynamicAbsolute(TetrapolarDerivativeMeasurement.milli(0.1)
+              MediumLayers medium = new DynamicAbsolute(TetrapolarDerivativeMeasurement.milli(0.1)
                   .dh(Double.NaN).system2(sBase)
                   .rho(
                       Double.parseDouble(r.get(RHO_S1)), Double.parseDouble(r.get(RHO_S2)),
