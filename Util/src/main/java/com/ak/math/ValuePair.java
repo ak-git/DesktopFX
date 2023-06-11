@@ -88,7 +88,7 @@ public record ValuePair(@Nonnull Name name, double value, @Nonnegative double ab
     }
 
     public final ValuePair of(double value, @Nonnegative double absError) {
-      return new ValuePair(this, value, absError);
+      return new ValuePair(this, value, Double.isNaN(value) ? Double.NaN : absError);
     }
   }
 

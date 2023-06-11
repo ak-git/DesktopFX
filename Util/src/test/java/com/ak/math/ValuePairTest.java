@@ -37,6 +37,7 @@ class ValuePairTest {
         arguments(ValuePair.Name.RHO_2.of(1.5345, 0.19), "ρ₂ = %.1f ± %.2f %s".formatted(1.5345, 0.19, OHM_METRE)),
         arguments(ValuePair.Name.RHO_3.of(1.6345, 0.19), "ρ₃ = %.1f ± %.2f %s".formatted(1.6345, 0.19, OHM_METRE)),
         arguments(ValuePair.Name.H.of(1.2345, 0.011), "h = %.0f ± %.1f mm".formatted(1234.5, 11.0)),
+        arguments(ValuePair.Name.H.of(Double.NaN, 0.0), "h = %.0f mm".formatted(Double.NaN)),
         arguments(ValuePair.Name.K12.of(1.2345, 0.0), "k₁₂ = %.6f".formatted(1.2345)),
         arguments(ValuePair.Name.K23.of(1.2345, 0.0), "k₂₃ = %.6f".formatted(1.2345)),
         arguments(ValuePair.Name.H_L.of(Double.NaN, 0.0), "%s = %f".formatted(Strings.PHI, Double.NaN))

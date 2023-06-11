@@ -4,6 +4,7 @@ import com.ak.math.ValuePair;
 import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.measurement.DerivativeMeasurement;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
+import com.ak.rsm.medium.MediumLayers;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistance;
@@ -32,9 +33,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.ObjDoubleConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -278,7 +281,7 @@ class InverseDynamicTest {
     try (DirectoryStream<Path> p = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*mm"))) {
       return StreamSupport.stream(p.spliterator(), false)
           .map(Path::toString)
-          .flatMap(file -> DoubleStream.of(0.2, 0.5, 1.0).mapToObj(alpha -> arguments(file, alpha, 1)))
+          .flatMap(file -> DoubleStream.of(0.2, 0.5, 1.0).mapToObj(alpha -> arguments(file, alpha, 3)))
           .toList();
     }
   }
@@ -294,57 +297,57 @@ class InverseDynamicTest {
     String RHO_S2 = "A2";
     String RHO_S2_DIFF = "DA2";
 
-    String RHO_1 = "rho1";
-    String RHO_1_ABS_ERROR = "rho1AbsError";
-    String RHO_2 = "rho2";
-    String RHO_2_ABS_ERROR = "rho2AbsError";
-    String H = "h";
-    String H_ABS_ERROR = "hAbsError";
-    String RMS_BASE = "RMS_BASE";
-    String RMS_DIFF = "RMS_DIFF";
-
     String[] mm = fileName.split(Strings.SPACE);
 
+    Map<String, Function<MediumLayers, Object>> outputMap = new LinkedHashMap<>();
+    outputMap.put("rho1", medium -> medium.rho1().value());
+    outputMap.put("rho1AbsError", medium -> medium.rho1().absError());
+    outputMap.put("rho2", medium -> medium.rho2().value());
+    outputMap.put("rho2AbsError", medium -> medium.rho2().absError());
+    outputMap.put("h", medium -> Metrics.toMilli(medium.h1().value()));
+    outputMap.put("hAbsError", medium -> Metrics.toMilli(medium.h1().absError()));
+    outputMap.put("RMS_BASE", medium -> medium.getRMS()[0]);
+    outputMap.put("RMS_DIFF", medium -> medium.getRMS()[1]);
+
     Path path = Paths.get(Extension.CSV.attachTo(fileName));
-    String[] HEADERS = {T, POSITION, RHO_1, RHO_1_ABS_ERROR, RHO_2, RHO_2_ABS_ERROR, H, H_ABS_ERROR, RMS_BASE, RMS_DIFF};
-    try (CSVParser parser = CSVParser.parse(
-        new BufferedReader(new FileReader(path.toFile())),
-        CSVFormat.Builder.create().setHeader(T, POSITION, RHO_S1, RHO_S2, RHO_S1_DIFF, RHO_S2_DIFF).build());
-         CSVLineFileCollector collector = new CSVLineFileCollector(
-             Paths.get(Extension.CSV.attachTo(
-                 String.format(Locale.ROOT, "%s inverse - %.1f", Extension.CSV.clean(fileName), alpha))),
-             HEADERS
-         )
-    ) {
-      assertTrue(StreamSupport.stream(parser.spliterator(), false)
-          .filter(r -> r.getRecordNumber() > 1)
-          .filter(r -> (r.getRecordNumber() - 2) % eachSelect == 0)
-          .<Map<String, Object>>mapMulti((r, consumer) -> {
-            LOGGER.info(() -> "%.2f sec; %s mm".formatted(Double.parseDouble(r.get(T)), r.get(POSITION)));
-            var medium = new DynamicAbsolute(TetrapolarDerivativeMeasurement.milli(0.1)
-                .dh(Double.NaN).system2(Integer.parseInt(mm[mm.length - 2]))
-                .rho(
-                    Double.parseDouble(r.get(RHO_S1)), Double.parseDouble(r.get(RHO_S2)),
-                    Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))
-                ), Regularization.Interval.ZERO_MAX.of(alpha)).get();
-            LOGGER.info(medium::toString);
-            consumer.accept(
-                Map.ofEntries(
-                    Map.entry(T, r.get(T)),
-                    Map.entry(POSITION, r.get(POSITION)),
-                    Map.entry(RHO_1, medium.rho1().value()),
-                    Map.entry(RHO_1_ABS_ERROR, medium.rho1().absError()),
-                    Map.entry(RHO_2, medium.rho2().value()),
-                    Map.entry(RHO_2_ABS_ERROR, medium.rho2().absError()),
-                    Map.entry(H, Metrics.toMilli(medium.h1().value())),
-                    Map.entry(H_ABS_ERROR, Metrics.toMilli(medium.h1().absError())),
-                    Map.entry(RMS_BASE, medium.getRMS()[0]),
-                    Map.entry(RMS_DIFF, medium.getRMS()[1])
-                )
-            );
-          })
-          .map(stringMap -> Arrays.stream(HEADERS).map(stringMap::get).toArray())
-          .collect(collector));
+    try (BufferedReader reader = new BufferedReader(new FileReader(path.toFile()))) {
+      reader.mark(8192);
+      CSVFormat csvFormat = CSVFormat.Builder.create().build();
+      Collection<String> inputHeaders = Arrays.stream(reader.readLine().split(csvFormat.getDelimiterString()))
+          .map(s -> s.replace(csvFormat.getQuoteCharacter(), ' ').strip()).toList();
+      reader.reset();
+
+      try (CSVParser parser = CSVParser.parse(reader,
+          CSVFormat.Builder.create().setHeader(inputHeaders.toArray(String[]::new)).setSkipHeaderRecord(true).build());
+           CSVLineFileCollector collector = new CSVLineFileCollector(
+               Paths.get(Extension.CSV.attachTo(
+                   String.format(Locale.ROOT, "%s inverse - %.1f", Extension.CSV.clean(fileName), alpha))),
+               Stream.concat(inputHeaders.stream(), outputMap.keySet().stream()).toArray(String[]::new)
+           )
+      ) {
+        assertTrue(StreamSupport.stream(parser.spliterator(), false)
+            .filter(r -> (r.getRecordNumber() - 1) % eachSelect == 0)
+            .<Map<String, Object>>mapMulti((r, consumer) -> {
+              LOGGER.info(() -> "%.2f sec; %s mm".formatted(Double.parseDouble(r.get(T)), r.get(POSITION)));
+              var medium = new DynamicAbsolute(TetrapolarDerivativeMeasurement.milli(0.1)
+                  .dh(Double.NaN).system2(Integer.parseInt(mm[mm.length - 2]))
+                  .rho(
+                      Double.parseDouble(r.get(RHO_S1)), Double.parseDouble(r.get(RHO_S2)),
+                      Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))
+                  ), Regularization.Interval.ZERO_MAX.of(alpha)).get();
+              LOGGER.info(medium::toString);
+
+              Map<String, Object> collect = new LinkedHashMap<>(inputHeaders.stream().collect(
+                  Collectors.toMap(Function.identity(), r::get))
+              );
+              collect.putAll(outputMap.entrySet().stream().collect(
+                  Collectors.toMap(Map.Entry::getKey, e -> e.getValue().apply(medium)))
+              );
+              consumer.accept(collect);
+            })
+            .map(stringMap -> Stream.concat(inputHeaders.stream(), outputMap.keySet().stream()).map(stringMap::get).toArray())
+            .collect(collector));
+      }
     }
     catch (IOException ex) {
       Logger.getLogger(getClass().getName()).log(Level.WARNING, path.toAbsolutePath().toString(), ex);
