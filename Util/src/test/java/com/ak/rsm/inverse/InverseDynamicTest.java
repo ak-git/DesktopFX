@@ -297,6 +297,7 @@ class InverseDynamicTest {
     String RHO_S2_DIFF = "DA2";
 
     String[] mm = fileName.split(Strings.SPACE);
+    int sBase = Integer.parseInt(mm[mm.length - 2]);
 
     Map<String, Function<MediumLayers, Object>> outputMap = new LinkedHashMap<>();
     outputMap.put("rho1", medium -> medium.rho1().value());
@@ -329,7 +330,7 @@ class InverseDynamicTest {
             .map(r -> {
               LOGGER.info(() -> "%.2f sec; %s mm".formatted(Double.parseDouble(r.get(T)), r.get(POSITION)));
               var medium = new DynamicAbsolute(TetrapolarDerivativeMeasurement.milli(0.1)
-                  .dh(Double.NaN).system2(Integer.parseInt(mm[mm.length - 2]))
+                  .dh(Double.NaN).system2(sBase)
                   .rho(
                       Double.parseDouble(r.get(RHO_S1)), Double.parseDouble(r.get(RHO_S2)),
                       Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))
