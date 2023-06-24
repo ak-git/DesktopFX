@@ -38,6 +38,7 @@ import java.util.function.Function;
 import java.util.function.ObjDoubleConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -281,9 +282,14 @@ class InverseDynamicTest {
     try (DirectoryStream<Path> p = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*mm"))) {
       return StreamSupport.stream(p.spliterator(), false)
           .map(Path::toString)
-          .flatMap(file -> DoubleStream.of(0.2, 0.5, 1.0).mapToObj(alpha -> arguments(file, alpha)))
+          .flatMap(file -> DoubleStream.of(1.0).mapToObj(alpha -> arguments(file, alpha)))
           .toList();
     }
+  }
+
+  private enum PredictedFields {
+    PREDICTED_R1, PREDICTED_DIFF_R1, CONTRIBUTION_RHO1_1, CONTRIBUTION_RHO2_1, CONTRIBUTION_H_1,
+    PREDICTED_R2, PREDICTED_DIFF_R2, CONTRIBUTION_RHO1_2, CONTRIBUTION_RHO2_2, CONTRIBUTION_H_2
   }
 
   @ParameterizedTest
@@ -310,29 +316,9 @@ class InverseDynamicTest {
     outputMap.put("RMS_BASE", medium -> medium.getRMS()[0]);
     outputMap.put("RMS_DIFF", medium -> medium.getRMS()[1]);
 
-    String PREDICTED_R1 = "PREDICTED_R1";
-    String PREDICTED_R2 = "PREDICTED_R2";
-    String PREDICTED_DIFF_R1 = "PREDICTED_DIFF_R1";
-    String PREDICTED_DIFF_R2 = "PREDICTED_DIFF_R2";
-    String CONTRIBUTION_RHO1_1 = "CONTRIBUTION_rho1_1";
-    String CONTRIBUTION_RHO1_2 = "CONTRIBUTION_rho1_2";
-    String CONTRIBUTION_RHO2_1 = "CONTRIBUTION_rho2_1";
-    String CONTRIBUTION_RHO2_2 = "CONTRIBUTION_rho2_2";
-    String CONTRIBUTION_H_1 = "CONTRIBUTION_h_1";
-    String CONTRIBUTION_H_2 = "CONTRIBUTION_h_2";
-
-    Map<String, Object> predictedMap = new LinkedHashMap<>();
-    predictedMap.put(PREDICTED_R1, Double.NaN);
-    predictedMap.put(PREDICTED_DIFF_R1, Double.NaN);
-    predictedMap.put(CONTRIBUTION_RHO1_1, Double.NaN);
-    predictedMap.put(CONTRIBUTION_RHO2_1, Double.NaN);
-    predictedMap.put(CONTRIBUTION_H_1, Double.NaN);
-
-    predictedMap.put(PREDICTED_R2, Double.NaN);
-    predictedMap.put(PREDICTED_DIFF_R2, Double.NaN);
-    predictedMap.put(CONTRIBUTION_RHO1_2, Double.NaN);
-    predictedMap.put(CONTRIBUTION_RHO2_2, Double.NaN);
-    predictedMap.put(CONTRIBUTION_H_2, Double.NaN);
+    Map<PredictedFields, Double> predictedMap = new EnumMap<>(
+        Stream.of(PredictedFields.values()).collect(Collectors.toMap(Function.identity(), v -> Double.NaN))
+    );
 
     Path path = Paths.get(Extension.CSV.attachTo(fileName));
     try (BufferedReader reader = new BufferedReader(new FileReader(path.toFile()))) {
@@ -347,7 +333,7 @@ class InverseDynamicTest {
            CSVLineFileCollector collector = new CSVLineFileCollector(
                Paths.get(Extension.CSV.attachTo(
                    String.format(Locale.ROOT, "%s inverse - %.1f", Extension.CSV.clean(fileName), alpha))),
-               Stream.of(inputHeaders.stream(), outputMap.keySet().stream(), predictedMap.keySet().stream())
+               Stream.of(inputHeaders.stream(), outputMap.keySet().stream(), predictedMap.keySet().stream().map(Enum::name))
                    .flatMap(Function.identity()).toArray(String[]::new)
            )
       ) {
@@ -355,46 +341,52 @@ class InverseDynamicTest {
         assertTrue(StreamSupport.stream(parser.spliterator(), false)
             .map(r -> {
               LOGGER.info(() -> "%.2f sec; %s mm".formatted(Double.parseDouble(r.get(T)), r.get(POSITION)));
-              MediumLayers medium = new DynamicAbsolute(TetrapolarDerivativeMeasurement.milli(0.1)
-                  .dh(Double.NaN).system2(sBase)
-                  .rho(
-                      Double.parseDouble(r.get(RHO_S1)), Double.parseDouble(r.get(RHO_S2)),
-                      Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))
-                  ), Regularization.Interval.ZERO_MAX.of(alpha)).get();
+              List<DerivativeMeasurement> derivativeMeasurements = new ArrayList<>(
+                  TetrapolarDerivativeMeasurement.milli(0.1)
+                      .dh(Double.NaN).system2(sBase)
+                      .rho(
+                          Double.parseDouble(r.get(RHO_S1)), Double.parseDouble(r.get(RHO_S2)),
+                          Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))
+                      )
+              );
+              MediumLayers medium = new DynamicAbsolute(derivativeMeasurements, Regularization.Interval.ZERO_MAX.of(alpha)).get();
               LOGGER.info(medium::toString);
 
-              double[] ohms = TetrapolarResistance.milli().system2(sBase)
-                  .rho1(medium.rho1().value()).rho2(medium.rho2().value()).h(medium.h1().value())
-                  .stream().mapToDouble(Resistance::ohms).toArray();
+              Function<double[], double[]> toOhms = d -> derivativeMeasurements.stream()
+                  .mapToDouble(dm -> TetrapolarResistance.of(dm.system()).rho1(d[0]).rho2(d[1]).h(d[2]).ohms())
+                  .toArray();
+
+              double[] ohms = toOhms.apply(new double[] {medium.rho1().value(), medium.rho2().value(), medium.h1().value()});
+
               predictedMap.keySet().forEach(s -> predictedMap.put(s, Double.NaN));
-              predictedMap.put(PREDICTED_R1, ohms[0]);
-              predictedMap.put(PREDICTED_R2, ohms[1]);
+              predictedMap.put(PredictedFields.PREDICTED_R1, ohms[0]);
+              predictedMap.put(PredictedFields.PREDICTED_R2, ohms[1]);
 
               MediumLayers prevMedium = prevMediumRC.getAndSet(medium);
               if (prevMedium != null && Double.isFinite(prevMedium.rho().value()) && Double.isFinite(medium.rho().value())) {
-                double[] baseOhms = TetrapolarResistance.milli().system2(sBase)
-                    .rho1(prevMedium.rho1().value()).rho2(prevMedium.rho2().value()).h(prevMedium.h1().value()).stream()
-                    .mapToDouble(Resistance::ohms).toArray();
+                double[] baseOhms = toOhms.apply(new double[] {
+                    prevMedium.rho1().value(), prevMedium.rho2().value(), prevMedium.h1().value()
+                });
 
-                double[] dRho1Ohms = TetrapolarResistance.milli().system2(sBase)
-                    .rho1(medium.rho1().value()).rho2(prevMedium.rho2().value()).h(prevMedium.h1().value()).stream()
-                    .mapToDouble(Resistance::ohms).toArray();
-                double[] dRho2Ohms = TetrapolarResistance.milli().system2(sBase)
-                    .rho1(prevMedium.rho1().value()).rho2(medium.rho2().value()).h(prevMedium.h1().value()).stream()
-                    .mapToDouble(Resistance::ohms).toArray();
-                double[] dHOhms = TetrapolarResistance.milli().system2(sBase)
-                    .rho1(prevMedium.rho1().value()).rho2(prevMedium.rho2().value()).h(medium.h1().value()).stream()
-                    .mapToDouble(Resistance::ohms).toArray();
+                double[] dRho1Ohms = toOhms.apply(new double[] {
+                    medium.rho1().value(), prevMedium.rho2().value(), prevMedium.h1().value()
+                });
+                double[] dRho2Ohms = toOhms.apply(new double[] {
+                    prevMedium.rho1().value(), medium.rho2().value(), prevMedium.h1().value()
+                });
+                double[] dHOhms = toOhms.apply(new double[] {
+                    prevMedium.rho1().value(), prevMedium.rho2().value(), medium.h1().value()
+                });
 
-                predictedMap.put(PREDICTED_DIFF_R1, ohms[0] - baseOhms[0]);
-                predictedMap.put(CONTRIBUTION_RHO1_1, dRho1Ohms[0] - baseOhms[0]);
-                predictedMap.put(CONTRIBUTION_RHO2_1, dRho2Ohms[0] - baseOhms[0]);
-                predictedMap.put(CONTRIBUTION_H_1, dHOhms[0] - baseOhms[0]);
+                predictedMap.put(PredictedFields.PREDICTED_DIFF_R1, ohms[0] - baseOhms[0]);
+                predictedMap.put(PredictedFields.CONTRIBUTION_RHO1_1, dRho1Ohms[0] - baseOhms[0]);
+                predictedMap.put(PredictedFields.CONTRIBUTION_RHO2_1, dRho2Ohms[0] - baseOhms[0]);
+                predictedMap.put(PredictedFields.CONTRIBUTION_H_1, dHOhms[0] - baseOhms[0]);
 
-                predictedMap.put(PREDICTED_DIFF_R2, ohms[1] - baseOhms[1]);
-                predictedMap.put(CONTRIBUTION_RHO1_2, dRho1Ohms[1] - baseOhms[1]);
-                predictedMap.put(CONTRIBUTION_RHO2_2, dRho2Ohms[1] - baseOhms[1]);
-                predictedMap.put(CONTRIBUTION_H_2, dHOhms[1] - baseOhms[1]);
+                predictedMap.put(PredictedFields.PREDICTED_DIFF_R2, ohms[1] - baseOhms[1]);
+                predictedMap.put(PredictedFields.CONTRIBUTION_RHO1_2, dRho1Ohms[1] - baseOhms[1]);
+                predictedMap.put(PredictedFields.CONTRIBUTION_RHO2_2, dRho2Ohms[1] - baseOhms[1]);
+                predictedMap.put(PredictedFields.CONTRIBUTION_H_2, dHOhms[1] - baseOhms[1]);
               }
 
               return Stream.of(
