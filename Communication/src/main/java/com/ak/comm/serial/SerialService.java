@@ -5,6 +5,7 @@ import com.ak.comm.core.ConcurrentAsyncFileChannel;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.logging.LogBuilders;
 import com.ak.logging.OutputBuilders;
+import com.ak.util.Strings;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
@@ -17,10 +18,7 @@ import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicReference;
@@ -204,12 +202,15 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
 
   @Override
   public String toString() {
+    StringJoiner joiner = new StringJoiner(Strings.SPACE);
+    joiner.add("#%08x".formatted(hashCode()));
     if (serialPort == null) {
-      return "%08x %s".formatted(hashCode(), SERIAL_PORT_NOT_FOUND);
+      joiner.add(SERIAL_PORT_NOT_FOUND);
     }
     else {
-      return "%08x [%s] %s".formatted(hashCode(), serialPort.getSystemPortName(), serialPort.getDescriptivePortName());
+      joiner.add(serialPort.getSystemPortName()).add("'%s'".formatted(serialPort.getDescriptivePortName()));
     }
+    return joiner.toString();
   }
 
   private enum Ports {
@@ -230,7 +231,9 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
       else {
         var serialPort = serialPorts.iterator().next();
         String portName = serialPort.getSystemPortName();
-        LOGGER.log(LOG_LEVEL_ERRORS, () -> "Found { %s }, the [ %s ] is selected".formatted(serialPorts, portName));
+        LOGGER.log(LOG_LEVEL_ERRORS, () -> "Found %s, the %s is selected"
+            .formatted(serialPorts.stream().map(SerialPort::getSystemPortName).toList(), portName)
+        );
         usedPorts.remove(portName);
         usedPorts.addLast(portName);
         return serialPort;

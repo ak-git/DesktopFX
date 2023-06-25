@@ -72,7 +72,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public AsynchronousFileChannel call() throws IOException {
-    var path = LogBuilders.CONVERTER_SERIAL.build("%08x".formatted(hashCode())).getPath();
+    var path = LogBuilders.CONVERTER_SERIAL.build("#%08x".formatted(hashCode())).getPath();
     return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
   }
 
