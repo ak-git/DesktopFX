@@ -3,18 +3,18 @@ plugins {
     id 'java'
     id 'java-library'
     id 'idea'
-    id "org.sonarqube" version '4.2.0.3129'
+    id "org.sonarqube" version '4.2.1.3168'
     id 'jacoco'
 
     id "application"
     id 'org.openjfx.javafxplugin' version '0.0.14'
 
-    id 'org.springframework.boot' version '3.1.0'
+    id 'org.springframework.boot' version '3.1.1'
     id 'io.spring.dependency-management' version '1.1.0'
     id "com.github.spotbugs" version '5.0.14'
 
-    id "com.github.ben-manes.versions" version "0.46.0"
-    id "nebula.lint" version "18.0.3"
+    id "com.github.ben-manes.versions" version "0.47.0"
+    id "nebula.lint" version "18.1.0"
 }
 
 spotbugs {
@@ -64,7 +64,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2023.06.05'
+    version = '2023.06.23'
     apply plugin: 'idea'
     idea {
         module {

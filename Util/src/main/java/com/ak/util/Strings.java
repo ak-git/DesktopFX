@@ -15,6 +15,7 @@ public enum Strings {
   public static final String TAB = "\t";
   public static final String OHM_METRE = new StringBuilder(OHM.multiply(METRE).toString()).reverse().toString();
   public static final String PLUS_MINUS = "±";
+  public static final String ALPHA = "α";
   public static final String PHI = "ψ";
   public static final String CAP_DELTA = "Δ";
   private static final String RHO = "ρ";
