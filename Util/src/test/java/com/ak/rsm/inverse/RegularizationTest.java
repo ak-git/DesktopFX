@@ -1,8 +1,10 @@
 package com.ak.rsm.inverse;
 
 import com.ak.math.Simplex;
+import com.ak.math.ValuePair;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
+import com.ak.util.Strings;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -69,7 +71,10 @@ class RegularizationTest {
   @ParameterizedTest
   @EnumSource(Regularization.Interval.class)
   void toString(@Nonnull Regularization.Interval interval) {
-    double alpha = RANDOM.nextDouble(1.0, 10.0);
-    assertThat(interval.of(alpha)).hasToString("RegularizationFunction{%s, alpha = %.1f}".formatted(interval, alpha));
+    double alpha = RANDOM.nextDouble(0.01, 100.0);
+    assertThat(interval.of(alpha))
+        .hasToString("RegularizationFunction{%s, %s = %s}".formatted(interval, Strings.ALPHA,
+            ValuePair.format(alpha, ValuePair.afterZero(alpha / 10.0)))
+        );
   }
 }
