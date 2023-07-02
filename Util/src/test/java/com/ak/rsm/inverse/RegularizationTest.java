@@ -11,7 +11,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import javax.annotation.Nonnull;
 import java.security.SecureRandom;
 import java.util.List;
-import java.util.OptionalDouble;
 import java.util.random.RandomGenerator;
 
 import static java.lang.StrictMath.log;
@@ -56,13 +55,13 @@ class RegularizationTest {
     Simplex.Bounds hInterval = regularization.hInterval(k);
     switch (interval) {
       case ZERO_MAX -> assertAll(interval.name(),
-          () -> assertThat(regularization.of(new double[] {k, Double.POSITIVE_INFINITY})).isEqualTo(OptionalDouble.empty()),
-          () -> assertThat(regularization.of(new double[] {0.0, 0.0})).isEqualTo(OptionalDouble.empty()),
-          () -> assertThat(regularization.of(new double[] {k, hInterval.max() / 2.0}).orElseThrow())
+          () -> assertThat(regularization.of(new double[] {k, Double.POSITIVE_INFINITY})).isEqualTo(Double.POSITIVE_INFINITY),
+          () -> assertThat(regularization.of(new double[] {0.0, 0.0})).isEqualTo(Double.POSITIVE_INFINITY),
+          () -> assertThat(regularization.of(new double[] {k, hInterval.max() / 2.0}))
               .isCloseTo(0.0, within(0.001))
       );
       case MAX_K -> assertAll(interval.name(),
-          () -> assertThat(regularization.of(new double[] {k, RANDOM.nextGaussian()}).orElseThrow())
+          () -> assertThat(regularization.of(new double[] {k, RANDOM.nextGaussian()}))
               .isCloseTo(alpha * log(Math.abs(k)), within(0.001))
       );
     }

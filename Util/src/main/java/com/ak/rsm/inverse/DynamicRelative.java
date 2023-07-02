@@ -42,10 +42,15 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
       return new StaticRelative(measurements()).get();
     }
 
-    PointValuePair kwOptimal = Simplex.optimizeAll(kw ->
-            regularization().of(kw).stream().filter(Double::isFinite)
-                .map(regularizing -> hypot(applyAsDouble(kw), regularizing))
-                .findAny().orElse(Double.NaN),
+    PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
+          double regularizing = regularization().of(kw);
+          if (Double.isFinite(regularizing)) {
+            return hypot(applyAsDouble(kw), regularizing);
+          }
+          else {
+            return Double.NaN;
+          }
+        },
         kMinMax, regularization().hInterval(1.0)
     );
     return apply(new Layer2RelativeMedium(kwOptimal.getPoint()));
