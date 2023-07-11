@@ -26,7 +26,7 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
         return new AbstractRegularization(inexactSystems) {
           @Nonnull
           @Override
-          public double of(@Nonnull double[] kw) {
+          public double of(@Nonnull double... kw) {
             double k = kw[0];
             double hToL = kw[1];
 
@@ -48,7 +48,7 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
         return new AbstractRegularization(inexactSystems) {
           @Nonnull
           @Override
-          public double of(@Nonnull double[] kw) {
+          public double of(@Nonnull double... kw) {
             return alpha * log(Math.abs(kw[0]));
           }
         };
@@ -98,7 +98,7 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
   }
 
   @Nonnull
-  double of(@Nonnull double[] kw);
+  double of(@Nonnull double... kw);
 
   @Nonnull
   Simplex.Bounds hInterval(double k);

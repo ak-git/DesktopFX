@@ -120,7 +120,12 @@ public record ValuePair(@Nonnull Name name, double value, @Nonnegative double ab
   }
 
   public static int afterZero(@Nonnegative double absError) {
-    return (int) Math.abs(Math.min(Math.floor(StrictMath.log10(absError)), 0));
+    if (absError > 0.0) {
+      return (int) Math.abs(Math.min(Math.floor(StrictMath.log10(absError)), 0));
+    }
+    else {
+      return 1;
+    }
   }
 
   @Nonnull
