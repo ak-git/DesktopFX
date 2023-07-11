@@ -55,8 +55,15 @@ class RegularizationTest {
     Regularization regularization = interval.of(alpha).apply(List.of(system1, system2));
     Simplex.Bounds hInterval = regularization.hInterval(k);
     switch (interval) {
-      case ZERO_MAX -> assertAll(interval.name(), () -> assertThat(regularization.of(k, Double.POSITIVE_INFINITY)).isEqualTo(Double.POSITIVE_INFINITY), () -> assertThat(regularization.of(0.0, 0.0)).isEqualTo(Double.POSITIVE_INFINITY), () -> assertThat(regularization.of(k, hInterval.max() / 2.0)).isCloseTo(0.0, within(0.001)));
-      case MAX_K -> assertAll(interval.name(), () -> assertThat(regularization.of(k, RANDOM.nextGaussian())).isCloseTo(alpha * log(Math.abs(k)), within(0.001))
+      case ZERO_MAX -> assertAll(interval.name(),
+          () -> assertThat(regularization.of(k, Double.POSITIVE_INFINITY)).isEqualTo(Double.POSITIVE_INFINITY),
+          () -> assertThat(regularization.of(0.0, 0.0)).isEqualTo(Double.POSITIVE_INFINITY),
+          () -> assertThat(regularization.of(k, hInterval.max() / 2.0))
+              .isCloseTo(0.0, within(0.001))
+      );
+      case MAX_K -> assertAll(interval.name(),
+          () -> assertThat(regularization.of(k, RANDOM.nextGaussian()))
+              .isCloseTo(alpha * log(Math.abs(k)), within(0.001))
       );
     }
   }
@@ -64,6 +71,10 @@ class RegularizationTest {
   @ParameterizedTest
   @EnumSource(Regularization.Interval.class)
   void toString(@Nonnull Regularization.Interval interval) {
-    DoubleStream.concat(DoubleStream.of(0.0), RANDOM.doubles(10, 0.01, 100.0)).forEach(a -> assertThat(interval.of(a)).hasToString("RegularizationFunction{%s, %s = %s}".formatted(interval, Strings.ALPHA, ValuePair.format(a, ValuePair.afterZero(a / 10.0)))));
+    DoubleStream.concat(DoubleStream.of(0.0), RANDOM.doubles(10, 0.01, 100.0))
+        .forEach(a -> assertThat(interval.of(a))
+            .hasToString("RegularizationFunction{%s, %s = %s}".formatted(interval, Strings.ALPHA,
+                ValuePair.format(a, ValuePair.afterZero(a / 10.0)))
+            ));
   }
 }
