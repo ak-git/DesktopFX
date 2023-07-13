@@ -10,7 +10,7 @@ plugins {
     id 'org.openjfx.javafxplugin' version '0.0.14'
 
     id 'org.springframework.boot' version '3.1.1'
-    id 'io.spring.dependency-management' version '1.1.0'
+    id 'io.spring.dependency-management' version '1.1.1'
     id "com.github.spotbugs" version '5.0.14'
 
     id "com.github.ben-manes.versions" version "0.47.0"
@@ -41,8 +41,8 @@ sonar {
 }
 
 ext {
-    junit = 'org.junit:junit-bom:5.10.0-M1'
-    jupiter = 'org.junit.jupiter:junit-jupiter:5.10.0-M1'
+    junit = 'org.junit:junit-bom:5.10.0-RC1'
+    jupiter = 'org.junit.jupiter:junit-jupiter:5.10.0-RC1'
     assertj = 'org.assertj:assertj-core:3.24.2'
     jsr305 = 'com.google.code.findbugs:jsr305:3.0.2'
     javax_inject = 'jakarta.inject:jakarta.inject-api:2.0.1'
@@ -58,13 +58,13 @@ ext {
 
 wrapper {
     description 'Setup the Gradle wrapper'
-    gradleVersion = "8.2"
+    gradleVersion = "8.2.1"
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '2023.06.23'
+    version = '2023.07.12'
     apply plugin: 'idea'
     idea {
         module {
