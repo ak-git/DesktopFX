@@ -1,14 +1,13 @@
 package com.ak.comm.interceptor;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public interface BytesInterceptor<T, R> extends Function<ByteBuffer, Stream<R>> {
   enum SerialParams {
@@ -16,7 +15,8 @@ public interface BytesInterceptor<T, R> extends Function<ByteBuffer, Stream<R>> 
   }
 
   enum BaudRate {
-    BR_9600(115200 / 12), BR_38400(115200 / 3), BR_115200(115200), BR_460800(115200 * 4), BR_921600(115200 * 8);
+    BR_9600(115200 / 12), BR_38400(115200 / 3), BR_57600(115200 / 2),
+    BR_115200(115200), BR_460800(115200 * 4), BR_921600(115200 * 8);
 
     @Nonnegative
     private final int value;
