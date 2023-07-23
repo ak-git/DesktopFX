@@ -11,6 +11,7 @@ import java.nio.ByteOrder;
 import java.util.Optional;
 
 public final class SKTBRequest extends BufferFrame {
+  public static final SKTBRequest NONE = new SKTBRequest.RequestBuilder(null).build();
   private static final int MAX_CAPACITY = 11;
   private final byte id;
 

@@ -13,6 +13,14 @@ public final class SKTBResponse extends BufferFrame {
     super(byteBuffer);
   }
 
+  public int rotateAngle() {
+    return byteBuffer().getInt(SKTBProtocolByte.ROTATE_ANGLE_1.ordinal()) / 100;
+  }
+
+  public int flexAngle() {
+    return byteBuffer().getShort(SKTBProtocolByte.FLEX_ANGLE_1.ordinal()) / 100;
+  }
+
   public static class Builder extends AbstractCheckedBuilder<SKTBResponse> {
     public Builder() {
       super(ByteBuffer.allocate(SKTBProtocolByte.values().length).order(ByteOrder.LITTLE_ENDIAN));

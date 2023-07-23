@@ -1,17 +1,31 @@
 package com.ak.comm.interceptor;
 
+import com.fazecast.jSerialComm.SerialPort;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 public interface BytesInterceptor<T, R> extends Function<ByteBuffer, Stream<R>> {
-  enum SerialParams {
-    CLEAR_DTR
+  enum SerialParams implements Consumer<SerialPort> {
+    CLEAR_DTR {
+      @Override
+      public void accept(@Nonnull SerialPort serialPort) {
+        serialPort.clearDTR();
+      }
+    },
+    ODD_PARITY {
+      @Override
+      public void accept(@Nonnull SerialPort serialPort) {
+        serialPort.setParity(SerialPort.ODD_PARITY);
+      }
+    }
   }
 
   enum BaudRate {

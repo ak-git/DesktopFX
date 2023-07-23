@@ -8,11 +8,21 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nonnull;
+import java.util.EnumSet;
+import java.util.Set;
+
 @Component
-@Profile("sktbpr")
+@Profile("sktb-pr")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class SKTBBytesInterceptor extends AbstractCheckedBytesInterceptor<SKTBRequest, SKTBResponse, SKTBResponse.Builder> {
   public SKTBBytesInterceptor() {
-    super("SKTB-PR", BaudRate.BR_57600, new SKTBRequest.RequestBuilder(null).build(), new SKTBResponse.Builder());
+    super("SKTB-PR", BaudRate.BR_57600, SKTBRequest.NONE, new SKTBResponse.Builder());
+  }
+
+  @Nonnull
+  @Override
+  public Set<SerialParams> getSerialParams() {
+    return EnumSet.of(SerialParams.ODD_PARITY);
   }
 }
