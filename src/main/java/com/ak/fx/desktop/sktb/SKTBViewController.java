@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 
@@ -20,6 +21,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @Profile("sktb-pr")
 public final class SKTBViewController extends AbstractScheduledViewController<SKTBRequest, SKTBResponse, SKTBVariable> {
   private final AtomicReference<SKTBRequest> sktbRequestRC = new AtomicReference<>(SKTBRequest.NONE);
+  private final AtomicInteger rotate = new AtomicInteger(0);
+  private final AtomicInteger flex = new AtomicInteger(0);
 
   @Inject
   @ParametersAreNonnullByDefault
@@ -30,8 +33,26 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
 
   @Override
   public SKTBRequest get() {
-    SKTBRequest request = new SKTBRequest.RequestBuilder(sktbRequestRC.get()).rotate(50).build();
+    SKTBRequest request = new SKTBRequest.RequestBuilder(sktbRequestRC.get()).rotate(rotate.get()).build();
     sktbRequestRC.set(request);
     return request;
+  }
+
+  @Override
+  public void up() {
+    rotate.set(Math.min(rotate.get() + 5, 20));
+    flex.set(Math.max(flex.get() - 1, -3));
+  }
+
+  @Override
+  public void down() {
+    rotate.set(Math.max(rotate.get() - 5, -20));
+    flex.set(Math.min(flex.get() + 1, 3));
+  }
+
+  @Override
+  public void escape() {
+    rotate.set(0);
+    flex.set(0);
   }
 }

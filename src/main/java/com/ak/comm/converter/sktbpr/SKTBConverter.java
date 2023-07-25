@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class SKTBConverter extends AbstractConverter<SKTBResponse, SKTBVariable> {
 
-  public static final int FREQUENCY = 10;
+  public static final int FREQUENCY = 20;
 
   public SKTBConverter() {
     super(SKTBVariable.class, FREQUENCY);
