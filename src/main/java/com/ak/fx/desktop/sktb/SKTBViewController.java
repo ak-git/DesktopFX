@@ -40,14 +40,14 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
 
   @Override
   public void up() {
-    rotate.set(Math.min(rotate.get() + 5, 20));
-    flex.set(Math.max(flex.get() - 1, -3));
+    rotate.addAndGet(2);
+    flex.addAndGet(-1);
   }
 
   @Override
   public void down() {
-    rotate.set(Math.max(rotate.get() - 5, -20));
-    flex.set(Math.min(flex.get() + 1, 3));
+    rotate.addAndGet(-2);
+    flex.addAndGet(1);
   }
 
   @Override
