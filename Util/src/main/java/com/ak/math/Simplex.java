@@ -122,6 +122,10 @@ public enum Simplex {
     public Bounds(double min, double max) {
       this(min, Double.NaN, max);
     }
+
+    public boolean isIn(double d) {
+      return min < d && d < max;
+    }
   }
 
   private static final double STOP_FITNESS = 1.0e-10;

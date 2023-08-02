@@ -30,53 +30,53 @@ class TetrapolarMeasurementTest {
     return Stream.of(
         arguments(
             TetrapolarMeasurement.ofSI(0.01).system(1.0, 2.0).rho(900.1),
-            "1000 000   2000 000      10 0       1959         382 014         900   27 0",
+            "1000 000   2000 000      10 0       1959         382 014        900   27 0",
             900.1),
         arguments(
             TetrapolarMeasurement.ofSI(0.1).system(2.0, 1.0).rho(900.2),
-            "2000 000   1000 000      100 0       909         382 057         900   270 1",
+            "2000 000   1000 000      100 0       909         382 057        900   270 1",
             900.2
         ),
         arguments(
             TetrapolarMeasurement.ofMilli(0.01).system(10.0, 30.0).rho(8.1),
-            "10 000   30 000      0 0       77         128 916         8 10   0 016",
+            "10 000   30 000      0 0       77         128 916        8 10   0 016",
             8.1
         ),
         arguments(
             TetrapolarMeasurement.ofMilli(0.1).system(50.0, 30.0).rho(8.2),
-            "50 000   30 000      0 1       61         195 761         8 2   0 11",
+            "50 000   30 000      0 1       61         195 761        8 2   0 11",
             8.2
         ),
         arguments(
             TetrapolarMeasurement.ofMilli(0.1).system(10.0, 30.0).rho1(1.0).rho2(1.0).h(Math.random()),
-            "10 000   30 000      0 1       36         15 915         1 00   0 020",
+            "10 000   30 000      0 1       36         15 915        1 00   0 020",
             1.0
         ),
         arguments(
             TetrapolarMeasurement.ofMilli(0.1).system(10.0, 30.0).rho1(10.0).rho2(1.0).h(5.0),
-            "10 000   30 000      0 1       36         53 901         3 39   0 068",
+            "10 000   30 000      0 1       36         53 901        3 39   0 068",
             3.39
         ),
         arguments(
             TetrapolarMeasurement.ofMilli(0.1).system(10.0, 20.0)
                 .rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
-            "10 000   20 000      0 1       20         242 751         5 7   0 17",
+            "10 000   20 000      0 1       20         242 751        5 7   0 17",
             5.72
         ),
 
         arguments(
             TetrapolarMeasurement.ofMilli(0.1).system(30.0, 60.0).ofOhms(1.0 / Math.PI),
-            "30 000   60 000      0 1       85         0 318         0 0225   0 00023",
+            "30 000   60 000      0 1       85         0 318        0 0225   0 00023",
             9.0 / 400.0
         ),
         arguments(
             TetrapolarMeasurement.ofMilli(0.1).system(90.0, 30.0).ofOhms(1.0 / Math.PI),
-            "90 000   30 000      0 1       154         0 318         0 0600   0 00040",
+            "90 000   30 000      0 1       154         0 318        0 0600   0 00040",
             3.0 / 50.0
         ),
         arguments(
             TetrapolarMeasurement.ofMilli(0.1).system(40.0, 80.0).ofOhms(1.0 / Math.PI),
-            "40 000   80 000      0 1       124         0 318         0 0300   0 00023",
+            "40 000   80 000      0 1       124         0 318        0 0300   0 00023",
             3.0 / 100.0
         ),
 
@@ -84,7 +84,7 @@ class TetrapolarMeasurementTest {
             TetrapolarMeasurement.of(
                 new InexactTetrapolarSystem(0.1, new TetrapolarSystem(Metrics.fromMilli(10.0), Metrics.fromMilli(30.0)))
             ).rho(8.1),
-            "10 000   30 000      100 0       4         128 916         8   162 0",
+            "10 000   30 000      100 0       4         128 916        8   162 0",
             8.1
         )
     );
@@ -161,13 +161,6 @@ class TetrapolarMeasurementTest {
                     .stream().mapToDouble(Resistance::ohms).toArray()
             ),
             "10000300000136159151000020 50000300000161238731000013 20000400000149212211000015 60000400000171254651000012",
-            new double[] {1.0, 1.0, 1.0, 1.0}
-        ),
-        arguments(
-            TetrapolarMeasurement.milli(0.1).system4(10.0).ofOhms(
-                Measurements.fixOhms(15.915, 23.873, 10.61, 23.3425)
-            ),
-            "10000300000136159151000020 50000300000161238731000013 20000400000149212201000015 60000400000171254651000013",
             new double[] {1.0, 1.0, 1.0, 1.0}
         )
     );

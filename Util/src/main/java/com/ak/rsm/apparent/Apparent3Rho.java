@@ -20,11 +20,6 @@ public class Apparent3Rho extends AbstractApparentRho {
   }
 
   @Nonnull
-  public static Apparent3Rho newLog1pApparentDivRho1(@Nonnull RelativeTetrapolarSystem system) {
-    return new Apparent3Rho(new Log1pNormalizedApparent(system));
-  }
-
-  @Nonnull
   public static Apparent3Rho newApparentDivRho1(@Nonnull RelativeTetrapolarSystem system) {
     return new Apparent3Rho(new NormalizedApparent(system));
   }

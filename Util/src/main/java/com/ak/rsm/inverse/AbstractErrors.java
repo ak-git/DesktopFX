@@ -1,25 +1,39 @@
 package com.ak.rsm.inverse;
 
+import com.ak.rsm.system.InexactTetrapolarSystem;
+import com.ak.rsm.system.TetrapolarSystem;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.function.UnaryOperator;
 
-import javax.annotation.Nonnull;
-
-import com.ak.rsm.relative.RelativeMediumLayers;
-import com.ak.rsm.system.InexactTetrapolarSystem;
-
-abstract class AbstractErrors extends AbstractInverse implements UnaryOperator<RelativeMediumLayers> {
+abstract class AbstractErrors {
   @Nonnull
   private final Collection<InexactTetrapolarSystem> inexactSystems;
+  @Nonnull
+  private final Collection<TetrapolarSystem> systems;
+  @Nonnegative
+  private final double baseL;
 
   AbstractErrors(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems) {
-    super(inexactSystems.stream().map(InexactTetrapolarSystem::system).toList());
     this.inexactSystems = Collections.unmodifiableCollection(inexactSystems);
+    systems = inexactSystems.stream().map(InexactTetrapolarSystem::system).toList();
+    baseL = TetrapolarSystem.getBaseL(systems.stream());
   }
 
   @Nonnull
   final Collection<InexactTetrapolarSystem> inexactSystems() {
     return inexactSystems;
+  }
+
+  @Nonnull
+  final Collection<TetrapolarSystem> systems() {
+    return systems;
+  }
+
+  @Nonnegative
+  final double baseL() {
+    return baseL;
   }
 }

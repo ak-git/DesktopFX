@@ -1,18 +1,17 @@
 package com.ak.fx.storage;
 
-import java.util.prefs.BackingStoreException;
-
-import javax.annotation.Nonnull;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import javax.annotation.Nonnull;
+import java.util.prefs.BackingStoreException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 final class StringStorageTest {
-  private final Storage<String> storage = new StringStorage(StringStorageTest.class, "%08x".formatted(hashCode()));
+  private final Storage<String> storage = new StringStorage(StringStorageTest.class, "#%08x".formatted(hashCode()));
 
   @ParameterizedTest
   @ValueSource(strings = "Something String")

@@ -1,13 +1,9 @@
 package com.ak.comm.bytes.nmis;
 
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
+import com.ak.comm.bytes.BytesChecker;
 
 import javax.annotation.Nonnull;
-
-import com.ak.comm.bytes.BytesChecker;
+import java.nio.ByteBuffer;
 
 public enum NmisProtocolByte implements BytesChecker {
   START {
@@ -30,7 +26,7 @@ public enum NmisProtocolByte implements BytesChecker {
   }, DATA_1, DATA_2, DATA_3, DATA_4, DATA_5, DATA_6, DATA_7, DATA_8, CRC;
 
   public static final int MAX_CAPACITY = 64;
-  static final Collection<NmisProtocolByte> CHECKED_BYTES = Collections.unmodifiableCollection(EnumSet.of(START, LEN));
+  static final NmisProtocolByte[] CHECKED_BYTES = {START, LEN};
 
   static boolean checkCRC(@Nonnull ByteBuffer byteBuffer) {
     var crc = 0;

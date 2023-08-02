@@ -1,12 +1,12 @@
 package com.ak.math;
 
-import java.util.Arrays;
-
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex.Bounds;
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
@@ -51,5 +51,11 @@ class SimplexTest {
     );
     assertThat(valuePair.getPoint()).as(Arrays.toString(valuePair.getPoint())).containsOnly(Double.NaN);
     assertThat(valuePair.getValue()).isNaN();
+  }
+
+  @Test
+  void testBounds() {
+    Bounds bounds = new Bounds(Math.random() - 1.1, Math.random() + 1.1);
+    assertThat(bounds.isIn(Math.random())).isTrue();
   }
 }

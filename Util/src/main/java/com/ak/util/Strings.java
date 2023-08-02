@@ -15,6 +15,7 @@ public enum Strings {
   public static final String TAB = "\t";
   public static final String OHM_METRE = new StringBuilder(OHM.multiply(METRE).toString()).reverse().toString();
   public static final String PLUS_MINUS = "±";
+  public static final String ALPHA = "α";
   public static final String PHI = "ψ";
   public static final String CAP_DELTA = "Δ";
   private static final String RHO = "ρ";
@@ -33,6 +34,11 @@ public enum Strings {
   @Nonnull
   public static String rho(@Nonnegative double rho) {
     return "%s = %.3f %s".formatted(RHO, rho, OHM_METRE);
+  }
+
+  @Nonnull
+  public static String rho(@Nonnull Object rho) {
+    return "%s = %s %s".formatted(RHO, rho, OHM_METRE);
   }
 
   public static char low(int index) {

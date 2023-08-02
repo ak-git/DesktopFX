@@ -1,15 +1,14 @@
 package com.ak.comm.bytes.purelogic;
 
-import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
-import java.util.logging.Logger;
+import com.ak.comm.bytes.BufferFrame;
+import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import com.ak.comm.bytes.BufferFrame;
-import tec.uom.se.unit.MetricPrefix;
+import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
+import java.util.logging.Logger;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
 import static com.ak.util.Strings.NEW_LINE;
@@ -30,11 +29,9 @@ public final class PureLogicFrame extends BufferFrame {
    */
   public enum StepCommand {
     MICRON_015(16),
-    MICRON_105(MICRON_015.steps * 7),
-    MICRON_210(MICRON_105.steps * 2),
-    MICRON_420(MICRON_105.steps * 4),
-    MICRON_630(MICRON_105.steps * 6),
-    MICRON_1050(MICRON_105.steps * 10);
+    MICRON_150(MICRON_015.steps * 10),
+    MICRON_300(MICRON_150.steps * 2),
+    MICRON_750(MICRON_150.steps * 5);
 
     private final int steps;
 
@@ -65,7 +62,7 @@ public final class PureLogicFrame extends BufferFrame {
 
   @Nullable
   public static PureLogicFrame of(@Nonnull StringBuilder buffer) {
-    if (buffer.indexOf(STEP_COMMAND) == 0) {
+    if (buffer.indexOf(STEP_COMMAND) == 0 && buffer.indexOf(NEW_LINE) > STEP_COMMAND.length()) {
       var substring = buffer.substring(STEP_COMMAND.length(), buffer.indexOf(NEW_LINE)).strip().replaceAll(SPACE, "");
       try {
         return new PureLogicFrame(Integer.parseInt(substring));

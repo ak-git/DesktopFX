@@ -1,16 +1,15 @@
 package com.ak.math;
 
-import java.security.SecureRandom;
-import java.util.random.RandomGenerator;
-import java.util.stream.Stream;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.util.Strings;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.security.SecureRandom;
+import java.util.random.RandomGenerator;
+import java.util.stream.Stream;
 
 import static com.ak.util.Strings.OHM_METRE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,10 +32,12 @@ class ValuePairTest {
   static Stream<Arguments> toStrings() {
     return Stream.of(
         arguments(ValuePair.Name.NONE.of(1.2345, 0.19), "%.1f ± %.2f".formatted(1.2345, 0.19)),
-        arguments(ValuePair.Name.RHO_1.of(1.2345, 0.19), "\u03c1\u2081 = %.1f ± %.2f %s".formatted(1.2345, 0.19, OHM_METRE)),
-        arguments(ValuePair.Name.RHO_2.of(1.5345, 0.19), "\u03c1\u2082 = %.1f ± %.2f %s".formatted(1.5345, 0.19, OHM_METRE)),
-        arguments(ValuePair.Name.RHO_3.of(1.6345, 0.19), "\u03c1\u2083 = %.1f ± %.2f %s".formatted(1.6345, 0.19, OHM_METRE)),
+        arguments(ValuePair.Name.RHO.of(1.2345, 0.19), "ρ = %.1f ± %.2f %s".formatted(1.2345, 0.19, OHM_METRE)),
+        arguments(ValuePair.Name.RHO_1.of(1.2345, 0.19), "ρ₁ = %.1f ± %.2f %s".formatted(1.2345, 0.19, OHM_METRE)),
+        arguments(ValuePair.Name.RHO_2.of(1.5345, 0.19), "ρ₂ = %.1f ± %.2f %s".formatted(1.5345, 0.19, OHM_METRE)),
+        arguments(ValuePair.Name.RHO_3.of(1.6345, 0.19), "ρ₃ = %.1f ± %.2f %s".formatted(1.6345, 0.19, OHM_METRE)),
         arguments(ValuePair.Name.H.of(1.2345, 0.011), "h = %.0f ± %.1f mm".formatted(1234.5, 11.0)),
+        arguments(ValuePair.Name.H.of(Double.NaN, 0.0), "h = %.0f mm".formatted(Double.NaN)),
         arguments(ValuePair.Name.K12.of(1.2345, 0.0), "k₁₂ = %.6f".formatted(1.2345)),
         arguments(ValuePair.Name.K23.of(1.2345, 0.0), "k₂₃ = %.6f".formatted(1.2345)),
         arguments(ValuePair.Name.H_L.of(Double.NaN, 0.0), "%s = %f".formatted(Strings.PHI, Double.NaN))
@@ -55,8 +56,6 @@ class ValuePairTest {
     return Stream.of(
         arguments(actual, actual),
         arguments(ValuePair.Name.NONE.of(1.23451, 0.19), ValuePair.Name.NONE.of(1.23452, 0.19))
-//        arguments(new Object(), actual, false),
-//        arguments(ValuePair.Name.NONE.of(1.3, 0.19), ValuePair.Name.NONE.of(1.23452, 0.19)),
     );
   }
 

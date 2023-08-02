@@ -1,5 +1,17 @@
 package com.ak.comm.serial;
 
+import com.ak.comm.core.AbstractService;
+import com.ak.comm.core.ConcurrentAsyncFileChannel;
+import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.logging.LogBuilders;
+import com.ak.logging.OutputBuilders;
+import com.ak.util.Strings;
+import com.fazecast.jSerialComm.SerialPort;
+import com.fazecast.jSerialComm.SerialPortDataListener;
+import com.fazecast.jSerialComm.SerialPortEvent;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
@@ -7,28 +19,17 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
-import java.util.LinkedList;
+import java.util.List;
+import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Filter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import com.ak.comm.core.AbstractService;
-import com.ak.comm.core.ConcurrentAsyncFileChannel;
-import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.logging.LogBuilders;
-import com.ak.logging.OutputBuilders;
-import com.fazecast.jSerialComm.SerialPort;
-import com.fazecast.jSerialComm.SerialPortDataListener;
-import com.fazecast.jSerialComm.SerialPortEvent;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -38,6 +39,7 @@ import static java.nio.file.StandardOpenOption.WRITE;
 final class SerialService<T, R> extends AbstractService<ByteBuffer> implements WritableByteChannel, Flow.Subscription {
   private static final Logger LOGGER = Logger.getLogger(SerialService.class.getName());
   private static final String SERIAL_PORT_NOT_FOUND = "Serial port not found";
+  private static final AtomicInteger PORT_INDEX = new AtomicInteger();
 
   static {
     LOGGER.setFilter(new Filter() {
@@ -63,7 +65,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
   }
 
   @Nullable
-  private final SerialPort serialPort = Ports.INSTANCE.next();
+  private final SerialPort serialPort;
   @Nonnull
   private final BytesInterceptor<T, R> bytesInterceptor;
   @Nonnull
@@ -77,6 +79,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
 
   SerialService(@Nonnull BytesInterceptor<T, R> bytesInterceptor) {
     this.bytesInterceptor = bytesInterceptor;
+    serialPort = next();
     buffer = ByteBuffer.allocate(bytesInterceptor.getBaudRate());
     binaryLogChannel = new ConcurrentAsyncFileChannel(
         () -> {
@@ -112,9 +115,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
     else {
       serialPort.openPort();
       serialPort.setBaudRate(bytesInterceptor.getBaudRate());
-      if (bytesInterceptor.getSerialParams().contains(BytesInterceptor.SerialParams.CLEAR_DTR)) {
-        serialPort.clearDTR();
-      }
+      bytesInterceptor.getSerialParams().forEach(serialParams -> serialParams.accept(serialPort));
       LOGGER.log(Level.INFO, () -> "%s Open port, baudRate = %d bps".formatted(this, bytesInterceptor.getBaudRate()));
       s.onSubscribe(this);
 
@@ -205,37 +206,32 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
 
   @Override
   public String toString() {
+    StringJoiner joiner = new StringJoiner(Strings.SPACE);
+    joiner.add("#%08x".formatted(hashCode()));
     if (serialPort == null) {
-      return "%08x %s".formatted(hashCode(), SERIAL_PORT_NOT_FOUND);
+      joiner.add(SERIAL_PORT_NOT_FOUND);
     }
     else {
-      return "%08x [%s] %s".formatted(hashCode(), serialPort.getSystemPortName(), serialPort.getDescriptivePortName());
+      joiner.add(serialPort.getSystemPortName()).add("'%s'".formatted(serialPort.getDescriptivePortName()));
     }
+    return joiner.toString();
   }
 
-  private enum Ports {
-    INSTANCE;
-
-    private final LinkedList<String> usedPorts = new LinkedList<>();
-
-    @Nullable
-    synchronized SerialPort next() {
-      Collection<SerialPort> serialPorts = Arrays.stream(SerialPort.getCommPorts())
-          .filter(port -> !port.getSystemPortName().toLowerCase().contains("bluetooth"))
-          .sorted(Comparator.<SerialPort, Integer>comparing(port -> port.getSystemPortName().toLowerCase().indexOf("usb")).reversed())
-          .sorted(Comparator.comparingInt(value -> usedPorts.indexOf(value.getSystemPortName())))
-          .toList();
-      if (serialPorts.isEmpty()) {
-        return null;
-      }
-      else {
-        var serialPort = serialPorts.iterator().next();
-        String portName = serialPort.getSystemPortName();
-        LOGGER.log(LOG_LEVEL_ERRORS, () -> "Found { %s }, the [ %s ] is selected".formatted(serialPorts, portName));
-        usedPorts.remove(portName);
-        usedPorts.addLast(portName);
-        return serialPort;
-      }
+  @Nullable
+  private static SerialPort next() {
+    List<SerialPort> serialPorts = Arrays.stream(SerialPort.getCommPorts())
+        .filter(port -> !port.getSystemPortName().toLowerCase().contains("bluetooth"))
+        .sorted(Comparator.<SerialPort, Integer>comparing(port -> port.getSystemPortName().toLowerCase().indexOf("usb")).reversed())
+        .toList();
+    if (serialPorts.isEmpty()) {
+      return null;
+    }
+    else {
+      var selectedPort = serialPorts.get(PORT_INDEX.getAndIncrement() % serialPorts.size());
+      LOGGER.log(LOG_LEVEL_ERRORS, () -> "Found %s, the %s is selected"
+          .formatted(serialPorts.stream().map(SerialPort::getSystemPortName).toList(), selectedPort.getSystemPortName())
+      );
+      return selectedPort;
     }
   }
 }

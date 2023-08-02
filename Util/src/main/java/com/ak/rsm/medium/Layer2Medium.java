@@ -1,22 +1,26 @@
 package com.ak.rsm.medium;
 
-import java.util.Collection;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.Measurement;
+import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.Layers;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collection;
+
 public final class Layer2Medium extends AbstractMediumLayers {
   private final double dRho2;
+  @Nonnegative
+  private final double baseL;
 
   @ParametersAreNonnullByDefault
   public Layer2Medium(Collection<? extends Measurement> measurements, RelativeMediumLayers kw) {
     super(measurements, kw);
     dRho2 = 2.0 * kw.k12AbsError() / StrictMath.pow(1.0 - kw.k12(), 2.0) +
         (rho1().absError() / Layers.getRho1ToRho2(kw.k12()));
+    baseL = Measurements.getBaseL(measurements);
   }
 
   @Override
@@ -26,7 +30,7 @@ public final class Layer2Medium extends AbstractMediumLayers {
 
   @Override
   public ValuePair h1() {
-    return ValuePair.Name.H.of(kw().hToL() * baseL(), kw().hToLAbsError() * baseL());
+    return ValuePair.Name.H.of(kw().hToL() * baseL, kw().hToLAbsError() * baseL);
   }
 
   @Override

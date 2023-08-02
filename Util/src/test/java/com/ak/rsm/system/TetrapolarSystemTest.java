@@ -1,9 +1,5 @@
 package com.ak.rsm.system;
 
-import java.util.stream.Stream;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.util.Metrics;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -11,7 +7,11 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.stream.Stream;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static tec.uom.se.unit.Units.METRE;
 
@@ -56,6 +56,21 @@ class TetrapolarSystemTest {
   void testToRelative() {
     assertThat(new TetrapolarSystem(2.0, 1.0).relativeSystem()).isEqualTo(new RelativeTetrapolarSystem(2.0));
     assertThat(new TetrapolarSystem(1.0, 2.0).relativeSystem()).isEqualTo(new RelativeTetrapolarSystem(0.5));
+  }
+
+  @Test
+  void testBaseL() {
+    assertThat(
+        TetrapolarSystem.getBaseL(
+            Stream.of(new TetrapolarSystem(1.0, 2.0), new TetrapolarSystem(3.0, 2.0))
+        )
+    ).isCloseTo(2.0, within(0.01));
+
+    assertThat(
+        TetrapolarSystem.getBaseL(
+            Stream.of(new TetrapolarSystem(1.0, 2.0), new TetrapolarSystem(2.0, 3.0))
+        )
+    ).isCloseTo(3.0, within(0.01));
   }
 
   @Test

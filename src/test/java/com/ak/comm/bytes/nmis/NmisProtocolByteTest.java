@@ -1,19 +1,16 @@
 package com.ak.comm.bytes.nmis;
 
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.EnumSet;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.EnumSet;
+
+import static com.ak.comm.bytes.nmis.NmisAddress.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class NmisProtocolByteTest {
   @Test
@@ -58,7 +55,7 @@ class NmisProtocolByteTest {
   @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#aliveAndChannelsResponse")
   @ParametersAreNonnullByDefault
   void testResponseAliveAndChannelsCRC(NmisAddress address, byte[] input) {
-    if (NmisAddress.CHANNELS.contains(address)) {
+    if (EnumSet.of(CATCH_ELBOW, ROTATE_ELBOW, CATCH_HAND, ROTATE_HAND).contains(address)) {
       assertTrue(NmisProtocolByte.checkCRC(ByteBuffer.wrap(input)), Arrays.toString(input));
     }
   }

@@ -1,39 +1,48 @@
 package com.ak.rsm.inverse;
 
 import com.ak.rsm.measurement.Measurement;
+import com.ak.rsm.measurement.Measurements;
+import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.OptionalDouble;
-import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
-import java.util.function.ToDoubleBiFunction;
-import java.util.stream.DoubleStream;
+import java.util.function.ToDoubleFunction;
+import java.util.function.UnaryOperator;
 
-abstract sealed class AbstractRelative<M extends Measurement, L> extends AbstractErrors implements Inverse<L>
+abstract sealed class AbstractRelative<M extends Measurement, L> implements Inverse<L>, ToDoubleFunction<double[]>
     permits DynamicRelative, StaticRelative {
   @Nonnull
   private final Collection<M> measurements;
-  private final DoubleUnaryOperator max = newMergeHorizons(InexactTetrapolarSystem::getHMax, DoubleStream::min);
-  private final DoubleUnaryOperator min = newMergeHorizons(InexactTetrapolarSystem::getHMin, DoubleStream::max);
+  @Nonnull
+  private final ToDoubleFunction<double[]> inverse;
+  @Nonnull
+  private final Regularization regularization;
+  @Nonnull
+  private final UnaryOperator<RelativeMediumLayers> errors;
 
-  AbstractRelative(@Nonnull Collection<? extends M> measurements) {
-    super(measurements.stream().map(Measurement::inexact).toList());
+  @ParametersAreNonnullByDefault
+  AbstractRelative(Collection<? extends M> measurements, ToDoubleFunction<double[]> inverse,
+                   Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction,
+                   UnaryOperator<RelativeMediumLayers> errors) {
     this.measurements = Collections.unmodifiableCollection(measurements);
+    this.inverse = inverse;
+    regularization = regularizationFunction.apply(Measurements.inexact(measurements));
+    this.errors = errors;
   }
 
-  @Nonnegative
-  final double getMaxHToL(double k) {
-    return max.applyAsDouble(k);
+  @Override
+  public final double applyAsDouble(@Nonnull double[] value) {
+    return inverse.applyAsDouble(value);
   }
 
-  @Nonnegative
-  final double getMinHToL(double k) {
-    return min.applyAsDouble(k);
+  @Nonnull
+  @Override
+  public final RelativeMediumLayers apply(@Nonnull RelativeMediumLayers layers) {
+    return errors.apply(layers);
   }
 
   @Nonnull
@@ -41,11 +50,8 @@ abstract sealed class AbstractRelative<M extends Measurement, L> extends Abstrac
     return measurements;
   }
 
-  @ParametersAreNonnullByDefault
-  private DoubleUnaryOperator newMergeHorizons(ToDoubleBiFunction<InexactTetrapolarSystem, Double> toHorizon,
-                                               Function<DoubleStream, OptionalDouble> selector) {
-    return k -> selector
-        .apply(inexactSystems().stream().mapToDouble(system -> toHorizon.applyAsDouble(system, k)))
-        .orElseThrow() / baseL();
+  @Nonnull
+  final Regularization regularization() {
+    return regularization;
   }
 }

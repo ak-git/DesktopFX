@@ -1,15 +1,5 @@
 package com.ak.comm.converter.rsce;
 
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.Locale;
-import java.util.logging.Logger;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.log.LogTestUtils;
@@ -18,6 +8,16 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.AbstractUnit;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Locale;
+import java.util.function.Function;
+import java.util.logging.Logger;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,10 +39,11 @@ class RsceConverterTest {
               Stream<int[]> stream = converter.apply(frame);
               assertThat(stream).isNotEmpty().allSatisfy(
                   ints -> assertThat(ints).containsExactly(
-                      IntStream.concat(
-                          IntStream.concat(Arrays.stream(rDozenMilliOhms), Arrays.stream(infoOnes)),
+                      Stream.of(
+                          Arrays.stream(rDozenMilliOhms),
+                          Arrays.stream(infoOnes),
                           IntStream.of(0, 0, 0)
-                      ).toArray()
+                      ).flatMapToInt(Function.identity()).toArray()
                   )
               );
             },

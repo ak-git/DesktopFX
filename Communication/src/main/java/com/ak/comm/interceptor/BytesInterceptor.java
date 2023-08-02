@@ -1,33 +1,41 @@
 package com.ak.comm.interceptor;
 
-import java.nio.ByteBuffer;
-import java.util.Collections;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Stream;
+import com.fazecast.jSerialComm.SerialPort;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.IntSupplier;
+import java.util.stream.Stream;
 
 public interface BytesInterceptor<T, R> extends Function<ByteBuffer, Stream<R>> {
-  enum SerialParams {
-    CLEAR_DTR
+  enum SerialParams implements Consumer<SerialPort> {
+    CLEAR_DTR {
+      @Override
+      public void accept(@Nonnull SerialPort serialPort) {
+        serialPort.clearDTR();
+      }
+    },
+    ODD_PARITY {
+      @Override
+      public void accept(@Nonnull SerialPort serialPort) {
+        serialPort.setParity(SerialPort.ODD_PARITY);
+      }
+    }
   }
 
-  enum BaudRate {
-    BR_9600(115200 / 12), BR_38400(115200 / 3), BR_115200(115200), BR_460800(115200 * 4), BR_921600(115200 * 8);
+  enum BaudRate implements IntSupplier {
+    BR_9600, BR_38400, BR_57600, BR_115200, BR_460800, BR_921600;
 
+    @Override
     @Nonnegative
-    private final int value;
-
-    BaudRate(int value) {
-      this.value = value;
-    }
-
-    @Nonnegative
-    public final int get() {
-      return value;
+    public int getAsInt() {
+      return Integer.parseInt(name().substring(3));
     }
   }
 

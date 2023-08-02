@@ -46,17 +46,4 @@ class MeasurementsTest {
         )
     ).satisfies(valuePair -> assertThat(valuePair.value()).isCloseTo(randomRho, within(valuePair.absError())));
   }
-
-  @Test
-  void testFixOhms() {
-    assertThatIllegalArgumentException()
-        .isThrownBy(() -> Measurements.fixOhms(1234))
-        .withMessageStartingWith("Needs 4 or 8 values, but found: ").withMessageContaining("1234");
-    assertThat(Measurements.fixOhms(122.3, 199.0, 66.0, 202.0))
-        .containsExactly(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2);
-    assertThat(Measurements.fixOhms(122.3, 199.0, 66.0, 202.0,
-        122.3 + 0.1, 199.0 + 0.4, 66.0 + 0.1, 202.0 + 0.25))
-        .containsExactly(122.3, 199.0, 66.0 * 2, 202.0 * 2 - 66.0 * 2,
-            122.3 + 0.1, 199.0 + 0.4, (66.0 + 0.1) * 2, (202.0 + 0.25) * 2 - (66.0 + 0.1) * 2);
-  }
 }

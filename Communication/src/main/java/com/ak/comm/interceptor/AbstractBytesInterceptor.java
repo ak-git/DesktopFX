@@ -1,16 +1,15 @@
 package com.ak.comm.interceptor;
 
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
+import com.ak.comm.bytes.BufferFrame;
+import com.ak.comm.bytes.LogUtils;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import com.ak.comm.bytes.BufferFrame;
-import com.ak.comm.bytes.LogUtils;
+import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_LEXEMES;
@@ -31,7 +30,7 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
 
   protected AbstractBytesInterceptor(@Nonnull String name, @Nonnull BaudRate baudRate, @Nullable T pingRequest, @Nonnegative int ignoreBufferLimit) {
     this.name = name;
-    outBuffer = ByteBuffer.allocate(baudRate.get());
+    outBuffer = ByteBuffer.allocate(baudRate.getAsInt());
     ignoreBuffer = ByteBuffer.allocate(ignoreBufferLimit);
     this.baudRate = baudRate;
     this.pingRequest = pingRequest;
@@ -77,7 +76,7 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
   @Nonnegative
   @Override
   public int getBaudRate() {
-    return baudRate.get();
+    return baudRate.getAsInt();
   }
 
   @Nonnull

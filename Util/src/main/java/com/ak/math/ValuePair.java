@@ -1,13 +1,12 @@
 package com.ak.math;
 
-import java.util.Objects;
-import java.util.StringJoiner;
+import com.ak.util.Metrics;
+import com.ak.util.Strings;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-
-import com.ak.util.Metrics;
-import com.ak.util.Strings;
+import java.util.Objects;
+import java.util.StringJoiner;
 
 import static com.ak.util.Strings.PLUS_MINUS;
 import static com.ak.util.Strings.SPACE;
@@ -17,6 +16,13 @@ import static tec.uom.se.unit.Units.METRE;
 public record ValuePair(@Nonnull Name name, double value, @Nonnegative double absError) {
   public enum Name {
     NONE,
+    RHO {
+      @Nonnull
+      @Override
+      String toString(@Nonnull String base) {
+        return Strings.rho(base);
+      }
+    },
     RHO_1 {
       @Nonnull
       @Override
@@ -82,7 +88,7 @@ public record ValuePair(@Nonnull Name name, double value, @Nonnegative double ab
     }
 
     public final ValuePair of(double value, @Nonnegative double absError) {
-      return new ValuePair(this, value, absError);
+      return new ValuePair(this, value, Double.isNaN(value) ? Double.NaN : absError);
     }
   }
 
@@ -97,12 +103,10 @@ public record ValuePair(@Nonnull Name name, double value, @Nonnegative double ab
     double v = name.convert(value);
     double e = name.convert(absError);
     if (absError > 0) {
-      int afterZero = (int) Math.abs(Math.min(Math.floor(StrictMath.log10(e)), 0));
+      int afterZero = afterZero(e);
       return name.toString(
           new StringJoiner(SPACE)
-              .add("%%.%df".formatted(afterZero).formatted(v))
-              .add(PLUS_MINUS).add("%%.%df".formatted(afterZero + 1).formatted(e))
-              .toString()
+              .add(format(v, afterZero)).add(PLUS_MINUS).add(format(e, afterZero + 1)).toString()
       );
     }
     else {
@@ -110,6 +114,21 @@ public record ValuePair(@Nonnull Name name, double value, @Nonnegative double ab
     }
   }
 
+  @Nonnull
+  public static String format(double value, @Nonnegative int afterZero) {
+    return "%%.%df".formatted(afterZero).formatted(value);
+  }
+
+  public static int afterZero(@Nonnegative double absError) {
+    if (absError > 0.0) {
+      return (int) Math.abs(Math.min(Math.floor(StrictMath.log10(absError)), 0));
+    }
+    else {
+      return 1;
+    }
+  }
+
+  @Nonnull
   public ValuePair mergeWith(@Nonnull ValuePair that) {
     var sigma1Q = StrictMath.pow(absError, 2.0);
     var sigma2Q = StrictMath.pow(that.absError, 2.0);

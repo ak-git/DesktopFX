@@ -11,21 +11,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import static java.lang.StrictMath.log;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
 
 class Apparent3RhoTest {
-  @ParameterizedTest
-  @MethodSource("com.ak.rsm.resistance.Resistance3LayerTest#threeLayerParameters")
-  void testValue(@Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p,
-                 @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    double logApparent = log(TetrapolarResistance.ofMilli(smm, lmm).ofOhms(rOhm).resistivity()) - log(rho[0]);
-    double logPredicted = Apparent3Rho.newLog1pApparentDivRho1(new RelativeTetrapolarSystem(lmm / smm)).
-        value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]), hStepSI / Metrics.fromMilli(smm), p[0], p[1]);
-    assertThat(logApparent).isCloseTo(logPredicted, byLessThan(0.001));
-  }
-
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance3LayerTest#threeLayerParameters")
   void testValueNormalized(@Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p,

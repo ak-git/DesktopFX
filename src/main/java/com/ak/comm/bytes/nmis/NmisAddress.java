@@ -1,15 +1,11 @@
 package com.ak.comm.bytes.nmis;
 
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.logging.Logger;
+import com.ak.comm.bytes.LogUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import com.ak.comm.bytes.LogUtils;
+import java.nio.ByteBuffer;
+import java.util.logging.Logger;
 
 public enum NmisAddress {
   SINGLE(0x81, 0x91),
@@ -20,9 +16,6 @@ public enum NmisAddress {
   CATCH_HAND(0x00, 0x43),
   ROTATE_HAND(0x00, 0x44),
   DATA(0x45, 0x45);
-
-  public static final Collection<NmisAddress> CHANNELS = Collections.unmodifiableCollection(
-      EnumSet.of(CATCH_ELBOW, ROTATE_ELBOW, CATCH_HAND, ROTATE_HAND));
 
   private final byte addrRequest;
   private final byte addrResponse;

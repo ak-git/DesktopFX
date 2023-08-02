@@ -1,16 +1,5 @@
 package com.ak.rsm.system;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.function.DoubleUnaryOperator;
-import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex;
 import com.ak.rsm.resistance.TetrapolarResistance;
@@ -23,9 +12,17 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.byLessThan;
-import static org.assertj.core.api.Assertions.within;
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.DoubleUnaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class InexactTetrapolarSystemTest {

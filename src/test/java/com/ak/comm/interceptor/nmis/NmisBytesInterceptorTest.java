@@ -1,16 +1,5 @@
 package com.ak.comm.interceptor.nmis;
 
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Logger;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.comm.bytes.LogUtils;
 import com.ak.comm.bytes.nmis.NmisAddress;
 import com.ak.comm.bytes.nmis.NmisRequest;
@@ -21,10 +10,16 @@ import com.ak.util.Strings;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.nio.ByteBuffer;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
+
+import static com.ak.comm.bytes.nmis.NmisAddress.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class NmisBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(NmisBytesInterceptor.class.getName());
@@ -80,7 +75,7 @@ class NmisBytesInterceptorTest {
   @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#aliveAndChannelsResponse")
   @ParametersAreNonnullByDefault
   void testResponseAliveAndChannels(NmisAddress address, byte[] input) {
-    if (NmisAddress.CHANNELS.contains(address)) {
+    if (EnumSet.of(CATCH_ELBOW, ROTATE_ELBOW, CATCH_HAND, ROTATE_HAND).contains(address)) {
       assertNotNull(Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build()).orElseThrow(NullPointerException::new));
     }
   }

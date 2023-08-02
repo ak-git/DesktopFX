@@ -23,7 +23,8 @@ public final class PureLogicBytesInterceptor extends AbstractBytesInterceptor<Pu
   private final StringBuilder frame = new StringBuilder(FRAME_LEN);
 
   public PureLogicBytesInterceptor() {
-    super("PureLogic", BytesInterceptor.BaudRate.BR_115200, null, FRAME_LEN);
+    super("PureLogic", BytesInterceptor.BaudRate.BR_115200, null,
+        (FRAME_LEN / Character.BYTES) * Character.BYTES);
   }
 
   @Nonnull
@@ -35,8 +36,8 @@ public final class PureLogicBytesInterceptor extends AbstractBytesInterceptor<Pu
       if (frame.length() == FRAME_LEN) {
         var pureLogicFrame = PureLogicFrame.of(frame);
         if (pureLogicFrame == null) {
-          ignoreBuffer().putChar(frame.charAt(0));
           logSkippedBytes(false);
+          ignoreBuffer().putChar(frame.charAt(0));
           frame.deleteCharAt(0);
         }
         else {

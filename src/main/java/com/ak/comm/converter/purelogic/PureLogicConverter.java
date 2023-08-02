@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 @Profile("purelogic")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class PureLogicConverter extends AbstractConverter<PureLogicFrame, PureLogicVariable> {
-  public static final int FREQUENCY = 1;
+  public static final int FREQUENCY = 2;
   private static final int DATA_FREQUENCY = 1000;
   private int position;
 

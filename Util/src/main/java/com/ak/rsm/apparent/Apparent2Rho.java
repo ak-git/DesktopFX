@@ -33,11 +33,6 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
     return pow(k, n) * sumFactor(n);
   }
 
-  @Nonnull
-  public static ToDoubleFunction<RelativeMediumLayers> newLog1pApparentDivRho1(@Nonnull RelativeTetrapolarSystem system) {
-    return new Apparent2Rho(new Log1pNormalizedApparent(system));
-  }
-
   /**
    * Calculates Apparent Resistance divided by Rho1
    */
