@@ -146,8 +146,8 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
-  @Profile({"aper2-nibp", "aper1-nibp", "aper1-myo", "aper2-ecg", "aper1-R2-6mm", "aper1-R2-7mm", "aper1-R2-8mm", "aper1-R2-10mm",
-      "aper1-R1", "aper1-calibration"})
+  @Profile({"aper2-nibp", "aper1-nibp", "aper1-myo", "aper2-emg1", "aper2-emg2",
+      "aper1-R2-6mm", "aper1-R2-7mm", "aper1-R2-8mm", "aper1-R2-10mm", "aper1-R1", "aper1-calibration"})
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   @Primary
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorAper() {
@@ -233,7 +233,7 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
-  @Profile("aper2-ecg")
+  @Profile({"aper2-emg1", "aper2-emg2"})
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   @Primary
   static Converter<BufferFrame, AperStage4Current2Variable> converterAper2() {
