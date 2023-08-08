@@ -19,7 +19,7 @@ abstract class AbstractErrors {
   AbstractErrors(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems) {
     this.inexactSystems = Collections.unmodifiableCollection(inexactSystems);
     systems = inexactSystems.stream().map(InexactTetrapolarSystem::system).toList();
-    baseL = TetrapolarSystem.getBaseL(systems.stream());
+    baseL = TetrapolarSystem.getBaseL(systems);
   }
 
   @Nonnull

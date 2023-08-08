@@ -2,10 +2,10 @@ package com.ak.rsm.medium;
 
 import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.Measurement;
-import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.prediction.Prediction;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
+import com.ak.rsm.resistance.Resistivity;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import tec.uom.se.unit.MetricPrefix;
@@ -34,7 +34,7 @@ abstract sealed class AbstractMediumLayers implements MediumLayers permits Layer
     this.kw = kw;
     rho = getRho1(measurements, kw);
     this.measurements = Collections.unmodifiableCollection(measurements);
-    double baseL = Measurements.getBaseL(measurements);
+    double baseL = Resistivity.getBaseL(measurements);
     predictions = measurements.stream()
         .map(m ->
             m.toPrediction(

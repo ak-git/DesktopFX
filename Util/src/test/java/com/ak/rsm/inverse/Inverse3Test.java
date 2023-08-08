@@ -3,9 +3,9 @@ package com.ak.rsm.inverse;
 import com.ak.math.ValuePair;
 import com.ak.rsm.apparent.Apparent3Rho;
 import com.ak.rsm.measurement.DerivativeMeasurement;
-import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.resistance.DerivativeResistivity;
+import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.ConcurrentCache;
@@ -115,7 +115,7 @@ class Inverse3Test {
   @MethodSource("model")
   @Disabled("ignored com.ak.rsm.inverse.Inverse3Test.testSingle")
   void testSingle(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms) {
-    DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Measurements::getBaseL).summaryStatistics();
+    DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Resistivity::getBaseL).summaryStatistics();
     if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
       throw new IllegalStateException("L is not equal for all electrode systems %s".formatted(statisticsL));
     }

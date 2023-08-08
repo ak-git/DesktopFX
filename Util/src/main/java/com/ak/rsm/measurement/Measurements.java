@@ -6,26 +6,14 @@ import com.ak.rsm.relative.Layer1RelativeMedium;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistivity;
-import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 
 public enum Measurements {
   ;
-
-  @Nonnegative
-  public static double getBaseL(@Nonnull Collection<? extends Resistivity> measurements) {
-    return TetrapolarSystem.getBaseL(measurements.stream().map(Resistivity::system));
-  }
-
-  @Nonnull
-  public static Collection<InexactTetrapolarSystem> inexact(@Nonnull Collection<? extends Measurement> measurements) {
-    return measurements.stream().map(Measurement::inexact).toList();
-  }
 
   @Nonnull
   @ParametersAreNonnullByDefault
@@ -39,7 +27,7 @@ public enum Measurements {
       return ValuePair.Name.RHO_1.of(Double.NaN, Double.NaN);
     }
     else {
-      double baseL = getBaseL(measurements);
+      double baseL = Resistivity.getBaseL(measurements);
       return measurements.stream()
           .<ValuePair>mapMulti((measurement, consumer) -> {
             TetrapolarSystem s = measurement.system();

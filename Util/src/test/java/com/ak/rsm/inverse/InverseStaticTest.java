@@ -2,11 +2,11 @@ package com.ak.rsm.inverse;
 
 import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.Measurement;
-import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.measurement.TetrapolarMeasurement;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistance;
+import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.Layers;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -48,7 +48,7 @@ class InverseStaticTest {
   @ParametersAreNonnullByDefault
   void testInverseRelativeStaticLayer2RiseErrors(Collection<? extends Measurement> measurements, double[] riseErrors) {
     double absError = measurements.stream().mapToDouble(m -> m.inexact().absError()).average().orElseThrow();
-    double L = Measurements.getBaseL(measurements);
+    double L = Resistivity.getBaseL(measurements);
     double dim = measurements.stream().mapToDouble(m -> m.system().getDim()).max().orElseThrow();
 
     var medium = new StaticRelative(measurements).get();

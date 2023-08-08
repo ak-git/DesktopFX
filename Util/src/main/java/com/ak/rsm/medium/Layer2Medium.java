@@ -2,8 +2,8 @@ package com.ak.rsm.medium;
 
 import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.Measurement;
-import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.relative.RelativeMediumLayers;
+import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.system.Layers;
 
 import javax.annotation.Nonnegative;
@@ -20,7 +20,7 @@ public final class Layer2Medium extends AbstractMediumLayers {
     super(measurements, kw);
     dRho2 = 2.0 * kw.k12AbsError() / StrictMath.pow(1.0 - kw.k12(), 2.0) +
         (rho1().absError() / Layers.getRho1ToRho2(kw.k12()));
-    baseL = Measurements.getBaseL(measurements);
+    baseL = Resistivity.getBaseL(measurements);
   }
 
   @Override

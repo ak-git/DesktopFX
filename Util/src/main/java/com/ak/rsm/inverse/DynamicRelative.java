@@ -2,7 +2,7 @@ package com.ak.rsm.inverse;
 
 import com.ak.math.Simplex;
 import com.ak.rsm.measurement.DerivativeMeasurement;
-import com.ak.rsm.measurement.Measurements;
+import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
@@ -21,7 +21,7 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
   DynamicRelative(Collection<? extends DerivativeMeasurement> measurements,
                   Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
     super(measurements, DynamicInverse.of(measurements), regularizationFunction,
-        new DynamicErrors(Measurements.inexact(measurements)));
+        new DynamicErrors(Measurement.inexact(measurements)));
   }
 
   @Nonnull

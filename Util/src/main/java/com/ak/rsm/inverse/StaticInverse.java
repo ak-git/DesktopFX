@@ -1,7 +1,6 @@
 package com.ak.rsm.inverse;
 
 import com.ak.rsm.apparent.Apparent2Rho;
-import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistivity;
@@ -18,7 +17,7 @@ final class StaticInverse extends AbstractInverseFunction<Resistivity> {
 
   StaticInverse(@Nonnull Collection<? extends Resistivity> r) {
     super(r, Resistivity::resistivity);
-    baseL = Measurements.getBaseL(r);
+    baseL = Resistivity.getBaseL(r);
   }
 
   @Override

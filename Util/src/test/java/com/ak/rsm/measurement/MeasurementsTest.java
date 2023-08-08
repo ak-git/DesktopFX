@@ -4,6 +4,7 @@ import com.ak.math.ValuePair;
 import com.ak.rsm.relative.Layer1RelativeMedium;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.resistance.Resistance;
+import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.util.Metrics;
 import org.junit.jupiter.api.RepeatedTest;
@@ -20,7 +21,7 @@ class MeasurementsTest {
   void testGetBaseL() {
     Collection<DerivativeMeasurement> measurements = TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system2(7.0)
         .ofOhms(122.3, 199.0, 122.3 + 0.1, 199.0 + 0.4);
-    assertThat(Measurements.getBaseL(measurements)).isCloseTo(Metrics.fromMilli(7.0 * 3), withPercentage(1.0));
+    assertThat(Resistivity.getBaseL(measurements)).isCloseTo(Metrics.fromMilli(7.0 * 3), withPercentage(1.0));
   }
 
   @RepeatedTest(10)
@@ -41,7 +42,7 @@ class MeasurementsTest {
     assertThat(
         Measurements.getRho1(measurements2,
             new Layer2RelativeMedium(ValuePair.Name.K12.of(1.0, 0.01),
-                ValuePair.Name.H_L.of(Metrics.fromMilli(sPUmm) / Measurements.getBaseL(measurements2), 0.0)
+                ValuePair.Name.H_L.of(Metrics.fromMilli(sPUmm) / Resistivity.getBaseL(measurements2), 0.0)
             )
         )
     ).satisfies(valuePair -> assertThat(valuePair.value()).isCloseTo(randomRho, within(valuePair.absError())));
