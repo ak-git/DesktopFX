@@ -18,10 +18,10 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class TetrapolarPredictionTest {
   static Stream<Arguments> predictions() {
-    Prediction prediction1 = TetrapolarPrediction.of(
+    Prediction prediction1 = Predictions.of(
         TetrapolarResistance.ofSI(10, 20).rho(100.0),
         new Layer2RelativeMedium(0.5, 0.5), 10.0);
-    Prediction prediction2 = TetrapolarPrediction.of(
+    Prediction prediction2 = Predictions.of(
         TetrapolarResistance.ofSI(20, 10).rho(100.0),
         new Layer2RelativeMedium(0.5, 1.0), 10.0);
 
@@ -46,7 +46,7 @@ class TetrapolarPredictionTest {
 
   @Test
   void testPrediction() {
-    Prediction prediction = TetrapolarPrediction.of(
+    Prediction prediction = Predictions.of(
         TetrapolarResistance.ofSI(10, 20).rho(100.0),
         Layer1RelativeMedium.SINGLE_LAYER, 10.0);
     assertAll(prediction.toString(),

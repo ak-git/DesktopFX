@@ -8,7 +8,7 @@ public abstract sealed class Layer1RelativeMedium implements RelativeMediumLayer
 
   @Override
   public final double hToL() {
-    return Double.NaN;
+    return 0.0;
   }
 
   private static final class SingleLayer extends Layer1RelativeMedium {

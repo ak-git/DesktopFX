@@ -17,14 +17,14 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class TetrapolarDerivativePredictionTest {
   static Stream<Arguments> predictions() {
-    Prediction prediction1 = TetrapolarDerivativePrediction.of(
+    Prediction prediction1 = Predictions.of(
         TetrapolarDerivativeResistance.ofSI(10, 20).dh(Double.NaN).rho(100, 10.0),
         new Layer2RelativeMedium(0.5, 0.5), 10.0);
-    Prediction prediction2 = TetrapolarDerivativePrediction.of(
+    Prediction prediction2 = Predictions.of(
         TetrapolarDerivativeResistance.ofSI(10, 20).dh(Double.NaN).rho(100, 10.0),
         new Layer2RelativeMedium(0.5, 0.5), 10.0);
 
-    Prediction prediction3 = TetrapolarDerivativePrediction.of(
+    Prediction prediction3 = Predictions.of(
         TetrapolarDerivativeResistance.ofSI(20, 10).dh(Double.NaN).rho(100, 10.0),
         new Layer2RelativeMedium(0.5, 1.0), 10.0);
     return Stream.of(
@@ -49,7 +49,7 @@ class TetrapolarDerivativePredictionTest {
 
   @Test
   void testPrediction() {
-    Prediction prediction = TetrapolarDerivativePrediction.of(
+    Prediction prediction = Predictions.of(
         TetrapolarDerivativeResistance.ofSI(10, 20).dh(Double.NaN)
             .rho(100, 101.0),
         new Layer2RelativeMedium(1.0, 1.0), 10.0);

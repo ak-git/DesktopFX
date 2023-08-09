@@ -3,6 +3,7 @@ package com.ak.rsm.medium;
 import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.prediction.Prediction;
+import com.ak.rsm.prediction.Predictions;
 import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistivity;
@@ -37,7 +38,7 @@ abstract sealed class AbstractMediumLayers implements MediumLayers permits Layer
     double baseL = Resistivity.getBaseL(measurements);
     predictions = measurements.stream()
         .map(m ->
-            m.toPrediction(
+            Predictions.of(m,
                 new Layer2RelativeMedium(kw.k12(), kw.hToL() * baseL / m.system().lCC()),
                 rho.value()
             )

@@ -1,6 +1,6 @@
 package com.ak.rsm.measurement;
 
-import com.ak.rsm.prediction.TetrapolarDerivativePrediction;
+import com.ak.rsm.prediction.Predictions;
 import com.ak.rsm.relative.Layer1RelativeMedium;
 import com.ak.rsm.resistance.DerivativeResistivity;
 import com.ak.rsm.resistance.Resistance;
@@ -119,8 +119,8 @@ class TetrapolarDerivativeMeasurementTest {
         () -> assertThat(d.ohms()).isCloseTo(TetrapolarResistance.of(system.system()).rho(resistivity).ohms(), withinPercentage(0.1)),
         () -> assertThat(d.derivativeResistivity()).isCloseTo(derivativeResistivity, byLessThan(0.01)),
         () -> assertThat(d.inexact()).isEqualTo(system),
-        () -> assertThat(d.toPrediction(Layer1RelativeMedium.SINGLE_LAYER, 1.0))
-            .isEqualTo(TetrapolarDerivativePrediction.of(d, Layer1RelativeMedium.SINGLE_LAYER, 1.0))
+        () -> assertThat(Predictions.of(d, Layer1RelativeMedium.SINGLE_LAYER, 1.0))
+            .isEqualTo(Predictions.of(d, Layer1RelativeMedium.SINGLE_LAYER, 1.0))
     );
   }
 

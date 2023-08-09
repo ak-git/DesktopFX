@@ -1,9 +1,6 @@
 package com.ak.rsm.measurement;
 
 import com.ak.math.ValuePair;
-import com.ak.rsm.prediction.Prediction;
-import com.ak.rsm.prediction.TetrapolarPrediction;
-import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
@@ -47,12 +44,6 @@ public record TetrapolarMeasurement(@Nonnull InexactTetrapolarSystem inexact,
     double sPU = RelativeTetrapolarSystem.OPTIMAL_SL * lCC;
     InexactTetrapolarSystem merged = new InexactTetrapolarSystem(dL, new TetrapolarSystem(sPU, lCC));
     return new TetrapolarMeasurement(merged, avg.value());
-  }
-
-  @Nonnull
-  @Override
-  public Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1) {
-    return TetrapolarPrediction.of(this, kw, rho1);
   }
 
   @Nonnull
