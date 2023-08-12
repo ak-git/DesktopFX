@@ -30,9 +30,9 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
             double k = kw[0];
             double hToL = kw[1];
 
-            Simplex.Bounds hInterval = hInterval(k);
-            if (hInterval.isIn(hToL)) {
-              return alpha * (log(hInterval.max() - hToL) - log(hToL));
+            if (hInterval(k).isIn(hToL)) {
+              Simplex.Bounds hInterval = hInterval(1.0);
+              return alpha * (log(hInterval.max() - hToL) - log(hToL - hInterval.min()));
             }
             else {
               return Double.POSITIVE_INFINITY;
@@ -49,7 +49,8 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
           @Nonnull
           @Override
           public double of(@Nonnull double... kw) {
-            return alpha * log(Math.abs(kw[0]));
+            double k = Math.abs(kw[0]);
+            return alpha * (log(2 - k) - log(k));
           }
         };
       }

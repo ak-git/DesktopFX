@@ -202,7 +202,7 @@ class InverseDynamicTest {
 
   static Stream<Arguments> waterDynamicParameters2() {
     double dh = -10.0 / 200.0;
-    double alpha = 5.0;
+    double alpha = 2.0;
     return Stream.of(
         // h = 5 mm, rho1 = 0.7, rho2 = Inf
         arguments(
