@@ -9,8 +9,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-final class DynamicAbsolute implements Inverse<Layer2Medium> {
+final class DynamicAbsolute implements Supplier<Layer2Medium> {
   @Nonnull
   private final DynamicRelative inverseRelative;
 
@@ -25,11 +26,5 @@ final class DynamicAbsolute implements Inverse<Layer2Medium> {
   public Layer2Medium get() {
     var measurements = inverseRelative.measurements();
     return new Layer2Medium(measurements, measurements.size() > 1 ? inverseRelative.get() : RelativeMediumLayers.SINGLE_LAYER);
-  }
-
-  @Nonnull
-  @Override
-  public RelativeMediumLayers apply(@Nonnull RelativeMediumLayers layers) {
-    return inverseRelative.apply(layers);
   }
 }

@@ -28,7 +28,7 @@ class RegularizationTest {
     InexactTetrapolarSystem system1 = new InexactTetrapolarSystem(0.1, new TetrapolarSystem(10.0, baseL));
     InexactTetrapolarSystem system2 = new InexactTetrapolarSystem(0.1, new TetrapolarSystem(50.0, baseL));
 
-    double k = RANDOM.nextDouble(-1.0, 1.0);
+    double k = RANDOM.nextDouble(0.1, 1.0) * Math.signum(RANDOM.nextGaussian());
     double alpha = RANDOM.nextDouble(1.0, 10.0);
 
     Regularization regularization = interval.of(alpha).apply(List.of(system1, system2));

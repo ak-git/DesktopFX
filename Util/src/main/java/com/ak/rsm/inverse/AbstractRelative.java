@@ -1,25 +1,31 @@
 package com.ak.rsm.inverse;
 
+import com.ak.math.Simplex;
 import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
+import org.apache.commons.math3.optim.PointValuePair;
 
 import javax.annotation.Nonnull;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
 
-abstract sealed class AbstractRelative<M extends Measurement, L> implements Inverse<L>, ToDoubleFunction<double[]>
+import static java.lang.StrictMath.hypot;
+
+abstract sealed class AbstractRelative<M extends Measurement> implements Supplier<RelativeMediumLayers>
     permits DynamicRelative, StaticRelative {
   @Nonnull
   private final Collection<M> measurements;
   @Nonnull
   private final ToDoubleFunction<double[]> inverse;
   @Nonnull
-  private final Regularization regularization;
+  private final Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction;
   @Nonnull
   private final UnaryOperator<RelativeMediumLayers> errors;
 
@@ -29,19 +35,24 @@ abstract sealed class AbstractRelative<M extends Measurement, L> implements Inve
                    UnaryOperator<RelativeMediumLayers> errors) {
     this.measurements = Collections.unmodifiableCollection(measurements);
     this.inverse = inverse;
-    regularization = regularizationFunction.apply(Measurement.inexact(measurements));
+    this.regularizationFunction = regularizationFunction;
     this.errors = errors;
   }
 
   @Override
-  public final double applyAsDouble(@Nonnull double[] value) {
-    return inverse.applyAsDouble(value);
-  }
-
-  @Nonnull
-  @Override
-  public final RelativeMediumLayers apply(@Nonnull RelativeMediumLayers layers) {
-    return errors.apply(layers);
+  @OverridingMethodsMustInvokeSuper
+  public RelativeMediumLayers get() {
+    Regularization regularization = regularizationFunction.apply(Measurement.inexact(measurements));
+    PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
+          double regularizing = regularization.of(kw);
+          if (Double.isFinite(regularizing)) {
+            return hypot(inverse.applyAsDouble(kw), regularizing);
+          }
+          return regularizing;
+        },
+        kInterval(), regularization.hInterval(1.0)
+    );
+    return errors.apply(new RelativeMediumLayers(kwOptimal.getPoint()));
   }
 
   @Nonnull
@@ -50,7 +61,12 @@ abstract sealed class AbstractRelative<M extends Measurement, L> implements Inve
   }
 
   @Nonnull
-  final Regularization regularization() {
-    return regularization;
+  final Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction() {
+    return regularizationFunction;
+  }
+
+  @OverridingMethodsMustInvokeSuper
+  Simplex.Bounds kInterval() {
+    return new Simplex.Bounds(-1.0, 1.0);
   }
 }

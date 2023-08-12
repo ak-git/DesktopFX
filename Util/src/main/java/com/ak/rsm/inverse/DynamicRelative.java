@@ -5,16 +5,14 @@ import com.ak.rsm.measurement.DerivativeMeasurement;
 import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
-import org.apache.commons.math3.optim.PointValuePair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
-import static java.lang.StrictMath.hypot;
-
-final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, RelativeMediumLayers> {
+final class DynamicRelative extends AbstractRelative<DerivativeMeasurement> {
   @ParametersAreNonnullByDefault
   DynamicRelative(Collection<? extends DerivativeMeasurement> measurements,
                   Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
@@ -25,30 +23,26 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
   @Nonnull
   @Override
   public RelativeMediumLayers get() {
-    Simplex.Bounds kMinMax;
+    Predicate<DerivativeMeasurement> gtZero = d -> d.derivativeResistivity() > 0;
+    Predicate<DerivativeMeasurement> ltZero = d -> d.derivativeResistivity() < 0;
+    if (measurements().stream().allMatch(gtZero) || measurements().stream().allMatch(ltZero)) {
+      return super.get();
+    }
+    else if (measurements().stream().anyMatch(gtZero) && measurements().stream().anyMatch(ltZero)) {
+      return RelativeMediumLayers.NAN;
+    }
+    return new StaticRelative(measurements(), regularizationFunction()).get();
+  }
+
+  @Override
+  Simplex.Bounds kInterval() {
+    Simplex.Bounds kMinMax = super.kInterval();
     if (measurements().stream().allMatch(d -> d.derivativeResistivity() > 0)) {
       kMinMax = new Simplex.Bounds(-1.0, 0.0);
     }
     else if (measurements().stream().allMatch(d -> d.derivativeResistivity() < 0)) {
       kMinMax = new Simplex.Bounds(0.0, 1.0);
     }
-    else if (measurements().stream().anyMatch(d -> d.derivativeResistivity() > 0) &&
-        measurements().stream().anyMatch(d -> d.derivativeResistivity() < 0)) {
-      return RelativeMediumLayers.NAN;
-    }
-    else {
-      return new StaticRelative(measurements()).get();
-    }
-
-    PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
-          double regularizing = regularization().of(kw);
-          if (Double.isFinite(regularizing)) {
-            return hypot(applyAsDouble(kw), regularizing);
-          }
-          return regularizing;
-        },
-        kMinMax, regularization().hInterval(1.0)
-    );
-    return apply(new RelativeMediumLayers(kwOptimal.getPoint()));
+    return kMinMax;
   }
 }
