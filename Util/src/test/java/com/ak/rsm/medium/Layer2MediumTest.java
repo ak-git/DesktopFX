@@ -43,6 +43,10 @@ class Layer2MediumTest {
         arguments(
             new Layer2Medium(measurements, RelativeMediumLayers.SINGLE_LAYER),
             new double[] {0.0522, 0.0522, 0.0522, Double.NaN}
+        ),
+        arguments(
+            new Layer2Medium(measurements, RelativeMediumLayers.NAN),
+            new double[] {0.0522, Double.NaN, Double.NaN, Double.NaN}
         )
     );
   }
@@ -67,7 +71,7 @@ class Layer2MediumTest {
         ),
         arguments(
             new Layer2Medium(measurements, RelativeMediumLayers.SINGLE_LAYER),
-            new double[] {0.0522, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.NaN}
+            new double[] {0.0522, 0.0522, 0.0522, Double.NaN}
         )
     );
   }

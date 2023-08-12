@@ -1,13 +1,15 @@
 package com.ak.rsm.medium;
 
 import com.ak.math.ValuePair;
+import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.measurement.Measurement;
-import com.ak.rsm.measurement.Measurements;
+import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.prediction.Prediction;
 import com.ak.rsm.prediction.Predictions;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.system.Layers;
+import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import tec.uom.se.unit.MetricPrefix;
@@ -38,11 +40,11 @@ public final class Layer2Medium extends AbstractMediumLayers {
   public Layer2Medium(Collection<? extends Measurement> measurements, RelativeMediumLayers kw) {
     super(measurements);
     this.kw = kw;
+    baseL = Resistivity.getBaseL(measurements);
     layer1 = new Layer1Medium(measurements);
-    rho1 = Measurements.getRho1(measurements, kw);
+    rho1 = getRho1();
     dRho2 = 2.0 * kw.k().absError() / StrictMath.pow(1.0 - kw.k().value(), 2.0) +
         (rho1().absError() / Layers.getRho1ToRho2(kw.k().value()));
-    baseL = Resistivity.getBaseL(measurements);
   }
 
   @Nonnull
@@ -112,6 +114,36 @@ public final class Layer2Medium extends AbstractMediumLayers {
             )
         )
     ).orElseThrow();
+  }
+
+  @Nonnull
+  private ValuePair getRho1() {
+    if (RelativeMediumLayers.SINGLE_LAYER.equals(kw)) {
+      return rho();
+    }
+    else if (RelativeMediumLayers.NAN.equals(kw)) {
+      return ValuePair.Name.RHO_1.of(Double.NaN, Double.NaN);
+    }
+    return measurements().stream()
+        .<ValuePair>mapMulti((measurement, consumer) -> {
+          TetrapolarSystem s = measurement.system();
+          RelativeMediumLayers layer2RelativeMedium = new RelativeMediumLayers(kw.k().value(), kw.hToL().value() * baseL / s.lCC());
+
+          double normApparent = Apparent2Rho.newApparentDivRho1(s.relativeSystem()).applyAsDouble(layer2RelativeMedium);
+          double fK = Math.abs(Apparent2Rho.newDerApparentByKDivRho1(s.relativeSystem()).applyAsDouble(kw) * kw.k().absError());
+          double fPhi = Math.abs(Apparent2Rho.newDerApparentByPhiDivRho1(s.relativeSystem()).applyAsDouble(kw) * kw.hToL().absError());
+          double rho1Value = measurement.resistivity() / normApparent;
+          consumer.accept(ValuePair.Name.RHO_1.of(rho1Value, ((fK + fPhi) / normApparent) * rho1Value));
+
+          if (measurement instanceof TetrapolarDerivativeMeasurement dm && !Double.isNaN(dm.derivativeResistivity())) {
+            double normDer = Apparent2Rho.newDerApparentByPhiDivRho1(s.relativeSystem()).applyAsDouble(layer2RelativeMedium);
+            double fKDer = Math.abs(Apparent2Rho.newSecondDerApparentByPhiKDivRho1(s.relativeSystem()).applyAsDouble(kw) * kw.k().absError());
+            double fPhiDer = Math.abs(Apparent2Rho.newSecondDerApparentByPhiPhiDivRho1(s.relativeSystem()).applyAsDouble(kw) * kw.hToL().absError());
+            double rho1Der = dm.derivativeResistivity() / normDer;
+            consumer.accept(ValuePair.Name.RHO_1.of(rho1Der, ((fKDer + fPhiDer) / normDer) * rho1Der));
+          }
+        })
+        .reduce(ValuePair::mergeWith).orElseThrow();
   }
 }
 

@@ -21,9 +21,12 @@ class DerivativeApparentByPhi2RhoTest {
     double h = Metrics.fromMilli(hmm);
     double dh = Metrics.fromMilli(-0.00001);
     double expected = TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho[0]).rho2(rho[1]).h(h).derivativeResistivity() / rho[0];
-    double actual = Apparent2Rho.newDerApparentByPhiDivRho1(system.relativeSystem())
+    double actual = Apparent2Rho.newDerApparentByPhiDivRho1(system, Double.NaN)
+        .applyAsDouble(new RelativeMediumLayers(rho, hmm / lmm));
+    double actual2 = Apparent2Rho.newDerApparentByPhiDivRho1(system, dh)
         .applyAsDouble(new RelativeMediumLayers(rho, hmm / lmm));
     assertThat(actual).isCloseTo(expected, byLessThan(0.1));
+    assertThat(actual2).isCloseTo(expected, byLessThan(0.1));
   }
 
   @ParameterizedTest
@@ -33,8 +36,11 @@ class DerivativeApparentByPhi2RhoTest {
     double h = Metrics.fromMilli(hmm);
     double dh = Metrics.fromMilli(-0.00001);
     double expected = TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho[0]).rho2(rho[1]).h(h).derivativeResistivity() / rho[0];
-    double actual = Apparent2Rho.newDerApparentByPhiDivRho1(system.relativeSystem())
+    double actual = Apparent2Rho.newDerApparentByPhiDivRho1(system, Double.NaN)
+        .applyAsDouble(new RelativeMediumLayers(rho, hmm / smm));
+    double actual2 = Apparent2Rho.newDerApparentByPhiDivRho1(system, dh)
         .applyAsDouble(new RelativeMediumLayers(rho, hmm / smm));
     assertThat(actual).isCloseTo(expected, byLessThan(0.1));
+    assertThat(actual2).isCloseTo(expected, byLessThan(0.1));
   }
 }

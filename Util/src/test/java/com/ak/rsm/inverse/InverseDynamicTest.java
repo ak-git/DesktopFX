@@ -264,12 +264,12 @@ class InverseDynamicTest {
     var medium = new DynamicAbsolute(measurements, Regularization.Interval.MAX_K.of(alpha)).get();
 
     ObjDoubleConsumer<ValuePair> checker = (valuePair, expectedValue) -> {
-      if (Double.isFinite(valuePair.value())) {
-        assertThat(valuePair.value() > 700.0 ? Double.POSITIVE_INFINITY : valuePair.value())
-            .isCloseTo(expectedValue, byLessThan(valuePair.absError()));
+      if (Double.isNaN(expectedValue)) {
+        assertThat(valuePair.value()).isNaN();
       }
       else {
-        assertThat(valuePair.value()).isNotFinite();
+        assertThat(valuePair.value() > 700.0 ? Double.POSITIVE_INFINITY : valuePair.value())
+            .isCloseTo(expectedValue, byLessThan(valuePair.absError()));
       }
     };
     assertAll(medium.toString(),
