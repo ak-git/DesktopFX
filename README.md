@@ -8,4 +8,3 @@
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=ak-git_DesktopFX&metric=code_smells)](https://sonarcloud.io/dashboard?id=ak-git_DesktopFX)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=ak-git_DesktopFX&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=ak-git_DesktopFX)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=ak-git_DesktopFX&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=ak-git_DesktopFX)
-
