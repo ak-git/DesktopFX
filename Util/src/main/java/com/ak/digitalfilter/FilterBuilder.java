@@ -1,25 +1,20 @@
 package com.ak.digitalfilter;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import com.ak.numbers.Coefficients;
+import com.ak.numbers.Interpolators;
+import com.ak.numbers.RangeUtils;
+import com.ak.util.Builder;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntUnaryOperator;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import com.ak.numbers.Coefficients;
-import com.ak.numbers.Interpolators;
-import com.ak.numbers.RangeUtils;
-import com.ak.util.Builder;
 
 public class FilterBuilder implements Builder<DigitalFilter> {
   private static final int[] EMPTY_INTS = {};
@@ -246,7 +241,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
 
   @Override
   public DigitalFilter build() {
-    return Optional.ofNullable(filter).orElse(new NoFilter());
+    return filter == null ? new NoFilter() : filter;
   }
 
   public int[] filter(@Nonnull int[] ints) {

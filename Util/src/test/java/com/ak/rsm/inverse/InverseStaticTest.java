@@ -2,11 +2,10 @@ package com.ak.rsm.inverse;
 
 import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.Measurement;
-import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.measurement.TetrapolarMeasurement;
-import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistance;
+import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.Layers;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -48,13 +47,13 @@ class InverseStaticTest {
   @ParametersAreNonnullByDefault
   void testInverseRelativeStaticLayer2RiseErrors(Collection<? extends Measurement> measurements, double[] riseErrors) {
     double absError = measurements.stream().mapToDouble(m -> m.inexact().absError()).average().orElseThrow();
-    double L = Measurements.getBaseL(measurements);
+    double L = Resistivity.getBaseL(measurements);
     double dim = measurements.stream().mapToDouble(m -> m.system().getDim()).max().orElseThrow();
 
     var medium = new StaticRelative(measurements).get();
     assertAll(medium.toString(),
-        () -> assertThat(medium.k12AbsError() / (absError / dim)).isCloseTo(riseErrors[0], byLessThan(0.1)),
-        () -> assertThat(medium.hToLAbsError() / (absError / L)).isCloseTo(riseErrors[1], byLessThan(0.1))
+        () -> assertThat(medium.k().absError() / (absError / dim)).isCloseTo(riseErrors[0], byLessThan(0.1)),
+        () -> assertThat(medium.hToL().absError() / (absError / L)).isCloseTo(riseErrors[1], byLessThan(0.1))
     );
     LOGGER.info(medium::toString);
   }
@@ -68,7 +67,7 @@ class InverseStaticTest {
     return Stream.of(
         arguments(
             TetrapolarMeasurement.milli(absErrorMilli).system2(10.0).rho1(1.0).rho2(rho2).h(hmm),
-            new Layer2RelativeMedium(
+            new RelativeMediumLayers(
                 ValuePair.Name.K12.of(0.6, 0.0010),
                 ValuePair.Name.H_L.of(0.25, 0.00039)
             )
@@ -78,7 +77,7 @@ class InverseStaticTest {
                 TetrapolarResistance.milli().system2(10.0).rho1(rho1).rho2(rho2).h(hmm)
                     .stream().mapToDouble(Resistance::ohms).toArray()
             ),
-            new Layer2RelativeMedium(
+            new RelativeMediumLayers(
                 ValuePair.Name.K12.of(0.599, 0.0010),
                 ValuePair.Name.H_L.of(0.2496, 0.00039)
             )
@@ -92,10 +91,10 @@ class InverseStaticTest {
   void testInverseRelativeStaticLayer2(Collection<? extends Measurement> measurements, RelativeMediumLayers expected) {
     var medium = new StaticRelative(measurements).get();
     assertAll(medium.toString(),
-        () -> assertThat(medium.k12()).isCloseTo(expected.k12(), byLessThan(expected.k12AbsError())),
-        () -> assertThat(medium.k12AbsError()).isCloseTo(expected.k12AbsError(), withinPercentage(10.0)),
-        () -> assertThat(medium.hToL()).isCloseTo(expected.hToL(), byLessThan(expected.hToLAbsError())),
-        () -> assertThat(medium.hToLAbsError()).isCloseTo(expected.hToLAbsError(), withinPercentage(10.0))
+        () -> assertThat(medium.k().value()).isCloseTo(expected.k().value(), byLessThan(expected.k().absError())),
+        () -> assertThat(medium.k().absError()).isCloseTo(expected.k().absError(), withinPercentage(10.0)),
+        () -> assertThat(medium.hToL().value()).isCloseTo(expected.hToL().value(), byLessThan(expected.hToL().absError())),
+        () -> assertThat(medium.hToL().absError()).isCloseTo(expected.hToL().absError(), withinPercentage(10.0))
     );
     LOGGER.info(medium::toString);
   }

@@ -1,7 +1,6 @@
 package com.ak.rsm.inverse;
 
 import com.ak.rsm.measurement.Measurement;
-import com.ak.rsm.measurement.Measurements;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 
@@ -30,7 +29,7 @@ abstract sealed class AbstractRelative<M extends Measurement, L> implements Inve
                    UnaryOperator<RelativeMediumLayers> errors) {
     this.measurements = Collections.unmodifiableCollection(measurements);
     this.inverse = inverse;
-    regularization = regularizationFunction.apply(Measurements.inexact(measurements));
+    regularization = regularizationFunction.apply(Measurement.inexact(measurements));
     this.errors = errors;
   }
 

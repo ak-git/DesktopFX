@@ -88,14 +88,14 @@ public record ValuePair(@Nonnull Name name, double value, @Nonnegative double ab
     }
 
     public final ValuePair of(double value, @Nonnegative double absError) {
-      return new ValuePair(this, value, Double.isNaN(value) ? Double.NaN : absError);
+      return new ValuePair(this, value, absError);
     }
   }
 
   public ValuePair(@Nonnull Name name, double value, @Nonnegative double absError) {
     this.name = Objects.requireNonNull(name);
     this.value = value;
-    this.absError = Math.abs(absError);
+    this.absError = Double.isNaN(value) ? Double.NaN : Math.abs(absError);
   }
 
   @Override
@@ -120,7 +120,12 @@ public record ValuePair(@Nonnull Name name, double value, @Nonnegative double ab
   }
 
   public static int afterZero(@Nonnegative double absError) {
-    return (int) Math.abs(Math.min(Math.floor(StrictMath.log10(absError)), 0));
+    if (absError > 0.0) {
+      return (int) Math.abs(Math.min(Math.floor(StrictMath.log10(absError)), 0));
+    }
+    else {
+      return 1;
+    }
   }
 
   @Nonnull

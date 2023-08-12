@@ -5,8 +5,8 @@ import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import java.util.Collection;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 import static tec.uom.se.unit.Units.METRE;
 
@@ -27,8 +27,8 @@ public record TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC)
   }
 
   @Nonnegative
-  public static double getBaseL(@Nonnull Stream<TetrapolarSystem> systems) {
-    return systems.mapToDouble(TetrapolarSystem::lCC).max().orElseThrow();
+  public static double getBaseL(@Nonnull Collection<TetrapolarSystem> systems) {
+    return systems.stream().mapToDouble(TetrapolarSystem::lCC).max().orElseThrow();
   }
 
   @Override

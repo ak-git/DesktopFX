@@ -1,8 +1,6 @@
 package com.ak.rsm.inverse;
 
 import com.ak.rsm.apparent.Apparent2Rho;
-import com.ak.rsm.measurement.Measurements;
-import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.system.TetrapolarSystem;
@@ -18,7 +16,7 @@ final class StaticInverse extends AbstractInverseFunction<Resistivity> {
 
   StaticInverse(@Nonnull Collection<? extends Resistivity> r) {
     super(r, Resistivity::resistivity);
-    baseL = Measurements.getBaseL(r);
+    baseL = Resistivity.getBaseL(r);
   }
 
   @Override
@@ -29,6 +27,6 @@ final class StaticInverse extends AbstractInverseFunction<Resistivity> {
 
   @ParametersAreNonnullByDefault
   RelativeMediumLayers layer2RelativeMedium(TetrapolarSystem s, double[] kw) {
-    return new Layer2RelativeMedium(kw[0], kw[1] * baseL / s.lCC());
+    return new RelativeMediumLayers(kw[0], kw[1] * baseL / s.lCC());
   }
 }

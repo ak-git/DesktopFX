@@ -39,8 +39,8 @@ final class DynamicErrors extends AbstractErrors implements UnaryOperator<Relati
         .toArray(double[][]::new);
 
     double rho1 = 1.0;
-    double rho2 = rho1 / Layers.getRho1ToRho2(layers.k12());
-    double h = layers.hToL() * baseL();
+    double rho2 = rho1 / Layers.getRho1ToRho2(layers.k().value());
+    double h = layers.hToL().value() * baseL();
     double dh = h * 1.0e-4;
 
     Function<Collection<TetrapolarSystem>, List<DerivativeResistance>> toMeasurements =

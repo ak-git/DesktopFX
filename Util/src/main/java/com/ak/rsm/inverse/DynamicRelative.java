@@ -2,8 +2,7 @@ package com.ak.rsm.inverse;
 
 import com.ak.math.Simplex;
 import com.ak.rsm.measurement.DerivativeMeasurement;
-import com.ak.rsm.measurement.Measurements;
-import com.ak.rsm.relative.Layer2RelativeMedium;
+import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import org.apache.commons.math3.optim.PointValuePair;
@@ -13,7 +12,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.function.Function;
 
-import static com.ak.rsm.relative.Layer1RelativeMedium.NAN;
 import static java.lang.StrictMath.hypot;
 
 final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, RelativeMediumLayers> {
@@ -21,7 +19,7 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
   DynamicRelative(Collection<? extends DerivativeMeasurement> measurements,
                   Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
     super(measurements, DynamicInverse.of(measurements), regularizationFunction,
-        new DynamicErrors(Measurements.inexact(measurements)));
+        new DynamicErrors(Measurement.inexact(measurements)));
   }
 
   @Nonnull
@@ -36,18 +34,21 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement, Rela
     }
     else if (measurements().stream().anyMatch(d -> d.derivativeResistivity() > 0) &&
         measurements().stream().anyMatch(d -> d.derivativeResistivity() < 0)) {
-      return NAN;
+      return RelativeMediumLayers.NAN;
     }
     else {
       return new StaticRelative(measurements()).get();
     }
 
-    PointValuePair kwOptimal = Simplex.optimizeAll(kw ->
-            regularization().of(kw).stream().filter(Double::isFinite)
-                .map(regularizing -> hypot(applyAsDouble(kw), regularizing))
-                .findAny().orElse(Double.NaN),
+    PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
+          double regularizing = regularization().of(kw);
+          if (Double.isFinite(regularizing)) {
+            return hypot(applyAsDouble(kw), regularizing);
+          }
+          return regularizing;
+        },
         kMinMax, regularization().hInterval(1.0)
     );
-    return apply(new Layer2RelativeMedium(kwOptimal.getPoint()));
+    return apply(new RelativeMediumLayers(kwOptimal.getPoint()));
   }
 }

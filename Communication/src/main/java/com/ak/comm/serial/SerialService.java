@@ -115,9 +115,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
     else {
       serialPort.openPort();
       serialPort.setBaudRate(bytesInterceptor.getBaudRate());
-      if (bytesInterceptor.getSerialParams().contains(BytesInterceptor.SerialParams.CLEAR_DTR)) {
-        serialPort.clearDTR();
-      }
+      bytesInterceptor.getSerialParams().forEach(serialParams -> serialParams.accept(serialPort));
       LOGGER.log(Level.INFO, () -> "%s Open port, baudRate = %d bps".formatted(this, bytesInterceptor.getBaudRate()));
       s.onSubscribe(this);
 

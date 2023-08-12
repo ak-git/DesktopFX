@@ -21,11 +21,11 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
 
   @Override
   public final double applyAsDouble(@Nonnull RelativeMediumLayers kw) {
-    if (Double.compare(kw.k12(), 0.0) == 0 || Double.compare(kw.hToL(), 0.0) == 0) {
-      return value(kw.hToL(), value -> 0.0);
+    if (kw.size() == 1) {
+      return value(0.0, value -> 0.0);
     }
     else {
-      return value(kw.hToL(), n -> kFactor(kw.k12(), n));
+      return value(kw.hToL().value(), n -> kFactor(kw.k().value(), n));
     }
   }
 
@@ -48,8 +48,8 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
     }
     return kw -> {
       double rho1 = 1.0;
-      double rho2 = rho1 / Layers.getRho1ToRho2(kw.k12());
-      return TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho1).rho2(rho2).h(kw.hToL() * system.lCC()).derivativeResistivity();
+      double rho2 = rho1 / Layers.getRho1ToRho2(kw.k().value());
+      return TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho1).rho2(rho2).h(kw.hToL().value() * system.lCC()).derivativeResistivity();
     };
   }
 
@@ -102,7 +102,7 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
 
       @Override
       public double applyAsDouble(@Nonnull RelativeMediumLayers kw) {
-        return apparentByPhi2Rho.applyAsDouble(kw) / kw.hToL() + secondPart.applyAsDouble(kw);
+        return apparentByPhi2Rho.applyAsDouble(kw) / kw.hToL().value() + secondPart.applyAsDouble(kw);
       }
     };
   }

@@ -1,8 +1,5 @@
 package com.ak.rsm.measurement;
 
-import com.ak.rsm.prediction.Prediction;
-import com.ak.rsm.prediction.TetrapolarDerivativePrediction;
-import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.DerivativeResistance;
 import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
@@ -55,13 +52,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, 
   @Nonnull
   @Override
   public Measurement merge(@Nonnull Measurement that) {
-    throw new UnsupportedOperationException(that.toString());
-  }
-
-  @Nonnull
-  @Override
-  public Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1) {
-    return TetrapolarDerivativePrediction.of(this, kw, rho1);
+    return measurement.merge(that);
   }
 
   @Nonnull

@@ -2,7 +2,6 @@ package com.ak.rsm.inverse;
 
 import com.ak.math.ValuePair;
 import com.ak.rsm.apparent.Apparent2Rho;
-import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
@@ -28,10 +27,10 @@ import java.util.function.UnaryOperator;
 import static java.lang.StrictMath.log;
 
 final class StaticErrors extends AbstractErrors implements UnaryOperator<RelativeMediumLayers> {
-  private static final BinaryOperator<Layer2RelativeMedium> MAX_ERROR = (v1, v2) -> {
-    double kEMax = Math.max(v1.k12AbsError(), v2.k12AbsError());
-    double hToLEMax = Math.max(v1.hToLAbsError(), v2.hToLAbsError());
-    return new Layer2RelativeMedium(ValuePair.Name.K12.of(v1.k12(), kEMax), ValuePair.Name.H_L.of(v1.hToL(), hToLEMax));
+  private static final BinaryOperator<RelativeMediumLayers> MAX_ERROR = (v1, v2) -> {
+    double kEMax = Math.max(v1.k().absError(), v2.k().absError());
+    double hToLEMax = Math.max(v1.hToL().absError(), v2.hToL().absError());
+    return new RelativeMediumLayers(ValuePair.Name.K12.of(v1.k().value(), kEMax), ValuePair.Name.H_L.of(v1.hToL().value(), hToLEMax));
   };
 
   StaticErrors(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems) {
@@ -54,8 +53,8 @@ final class StaticErrors extends AbstractErrors implements UnaryOperator<Relativ
     );
 
     double rho1 = 1.0;
-    double rho2 = rho1 / Layers.getRho1ToRho2(layers.k12());
-    double h = layers.hToL() * baseL();
+    double rho2 = rho1 / Layers.getRho1ToRho2(layers.k().value());
+    double h = layers.hToL().value() * baseL();
     Function<Collection<TetrapolarSystem>, List<Resistance>> toMeasurements =
         ts -> {
           Iterator<TetrapolarSystem> iterator = systems().iterator();
@@ -80,9 +79,9 @@ final class StaticErrors extends AbstractErrors implements UnaryOperator<Relativ
         .map(b -> {
           DecompositionSolver solver = new SingularValueDecomposition(new Array2DRowRealMatrix(a)).getSolver();
           double[] kwErrors = solver.solve(new ArrayRealVector(b)).toArray();
-          return new Layer2RelativeMedium(
-              ValuePair.Name.K12.of(layers.k12(), kwErrors[0]),
-              ValuePair.Name.H_L.of(layers.hToL(), kwErrors[1])
+          return new RelativeMediumLayers(
+              ValuePair.Name.K12.of(layers.k().value(), kwErrors[0]),
+              ValuePair.Name.H_L.of(layers.hToL().value(), kwErrors[1])
           );
         })
         .reduce(MAX_ERROR).orElseThrow();

@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,13 +63,13 @@ class TetrapolarSystemTest {
   void testBaseL() {
     assertThat(
         TetrapolarSystem.getBaseL(
-            Stream.of(new TetrapolarSystem(1.0, 2.0), new TetrapolarSystem(3.0, 2.0))
+            List.of(new TetrapolarSystem(1.0, 2.0), new TetrapolarSystem(3.0, 2.0))
         )
     ).isCloseTo(2.0, within(0.01));
 
     assertThat(
         TetrapolarSystem.getBaseL(
-            Stream.of(new TetrapolarSystem(1.0, 2.0), new TetrapolarSystem(2.0, 3.0))
+            List.of(new TetrapolarSystem(1.0, 2.0), new TetrapolarSystem(2.0, 3.0))
         )
     ).isCloseTo(3.0, within(0.01));
   }
