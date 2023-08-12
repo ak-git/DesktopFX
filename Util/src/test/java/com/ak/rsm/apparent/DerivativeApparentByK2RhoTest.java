@@ -1,6 +1,6 @@
 package com.ak.rsm.apparent;
 
-import com.ak.rsm.relative.Layer2RelativeMedium;
+import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
@@ -27,7 +27,7 @@ class DerivativeApparentByK2RhoTest {
       ) / dk;
       expected /= rho[0];
       double actual = Apparent2Rho.newDerApparentByKDivRho1(new RelativeTetrapolarSystem(smm / lmm))
-          .applyAsDouble(new Layer2RelativeMedium(k12, hmm / lmm));
+          .applyAsDouble(new RelativeMediumLayers(k12, hmm / lmm));
       assertThat(actual).isCloseTo(expected, byLessThan(0.1));
     }
   }
@@ -45,7 +45,7 @@ class DerivativeApparentByK2RhoTest {
       ) / dk;
       expected /= rho[0];
       double actual = Apparent2Rho.newDerApparentByKDivRho1(new RelativeTetrapolarSystem(lmm / smm))
-          .applyAsDouble(new Layer2RelativeMedium(k12, hmm / smm));
+          .applyAsDouble(new RelativeMediumLayers(k12, hmm / smm));
       assertThat(actual).isCloseTo(expected, byLessThan(0.1));
     }
   }

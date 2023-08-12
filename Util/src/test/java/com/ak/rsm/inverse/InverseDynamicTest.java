@@ -4,8 +4,7 @@ import com.ak.math.ValuePair;
 import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.measurement.DerivativeMeasurement;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
-import com.ak.rsm.medium.MediumLayers;
-import com.ak.rsm.relative.Layer2RelativeMedium;
+import com.ak.rsm.medium.Layer2Medium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
@@ -61,7 +60,7 @@ class InverseDynamicTest {
     return Stream.of(
         arguments(
             TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(dhMilli).system2(10.0).rho1(rho1).rho2(rho2).h(hmm),
-            new Layer2RelativeMedium(
+            new RelativeMediumLayers(
                 ValuePair.Name.K12.of(k, 0.00011),
                 ValuePair.Name.H_L.of(0.25, 0.000035)
             )
@@ -73,7 +72,7 @@ class InverseDynamicTest {
                     TetrapolarResistance.milli().system2(10.0).rho1(rho1).rho2(rho2).h(hmm + dhMilli).stream()
                 ).mapToDouble(Resistance::ohms).toArray()
             ),
-            new Layer2RelativeMedium(
+            new RelativeMediumLayers(
                 ValuePair.Name.K12.of(k + 0.00011, 0.00011),
                 ValuePair.Name.H_L.of(0.25 + 0.000035, 0.000035)
             )
@@ -89,10 +88,10 @@ class InverseDynamicTest {
     var medium = new DynamicRelative(measurements, regularizationFunction).get();
 
     assertAll(medium.toString(),
-        () -> assertThat(medium.k12()).isCloseTo(expected.k12(), byLessThan(expected.k12AbsError())),
-        () -> assertThat(medium.k12AbsError()).isCloseTo(expected.k12AbsError(), withinPercentage(10.0)),
-        () -> assertThat(medium.hToL()).isCloseTo(expected.hToL(), byLessThan(expected.hToLAbsError())),
-        () -> assertThat(medium.hToLAbsError()).isCloseTo(expected.hToLAbsError(), withinPercentage(10.0)),
+        () -> assertThat(medium.k().value()).isCloseTo(expected.k().value(), byLessThan(expected.k().absError())),
+        () -> assertThat(medium.k().absError()).isCloseTo(expected.k().absError(), withinPercentage(10.0)),
+        () -> assertThat(medium.hToL().value()).isCloseTo(expected.hToL().value(), byLessThan(expected.hToL().absError())),
+        () -> assertThat(medium.hToL().absError()).isCloseTo(expected.hToL().absError(), withinPercentage(10.0)),
         () -> assertThat(medium).isEqualTo(new DynamicAbsolute(measurements, regularizationFunction).apply(medium))
     );
     LOGGER.info(medium::toString);
@@ -107,6 +106,7 @@ class InverseDynamicTest {
         arguments(
             TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(dhMilli).system4(10.0).rho1(1.0).rho2(4.0).h(hmm),
             new ValuePair[] {
+                ValuePair.Name.RHO.of(1.6267, 0.00012),
                 ValuePair.Name.RHO_1.of(0.99789, 0.000063),
                 ValuePair.Name.RHO_2.of(3.992, 0.0011),
                 ValuePair.Name.H.of(Metrics.fromMilli(hmm), Metrics.fromMilli(0.00085))
@@ -117,6 +117,7 @@ class InverseDynamicTest {
             TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(Double.NaN).system2(10.0)
                 .rho(1.4441429093546185, 1.6676102911913226, -3.0215753166196184, -3.49269170918376),
             new ValuePair[] {
+                ValuePair.Name.RHO.of(1.5845, 0.00018),
                 ValuePair.Name.RHO_1.of(1.0, 0.00010),
                 ValuePair.Name.RHO_2.of(4.0, 0.0018),
                 ValuePair.Name.H.of(Metrics.fromMilli(hmm), Metrics.fromMilli(0.0011))
@@ -132,9 +133,9 @@ class InverseDynamicTest {
     var medium = new DynamicAbsolute(measurements, Regularization.Interval.ZERO_MAX.of(0.0)).get();
     assertAll(medium.toString(),
         () -> assertThat(medium.rho()).isEqualTo(expected[0]),
-        () -> assertThat(medium.rho1()).isEqualTo(expected[0]),
-        () -> assertThat(medium.rho2()).isEqualTo(expected[1]),
-        () -> assertThat(medium.h1()).isEqualTo(expected[2])
+        () -> assertThat(medium.rho1()).isEqualTo(expected[1]),
+        () -> assertThat(medium.rho2()).isEqualTo(expected[2]),
+        () -> assertThat(medium.h()).isEqualTo(expected[3])
     );
     LOGGER.info(medium::toString);
   }
@@ -150,23 +151,25 @@ class InverseDynamicTest {
             ),
             0.0,
             new double[] {
+                1.53,
                 Apparent2Rho.newApparentDivRho1(new RelativeTetrapolarSystem(0.5))
-                    .applyAsDouble(new Layer2RelativeMedium(0.8, hmm / 20.0)),
+                    .applyAsDouble(new RelativeMediumLayers(0.8, hmm / 20.0)),
                 Apparent2Rho.newApparentDivRho1(new RelativeTetrapolarSystem(0.5))
-                    .applyAsDouble(new Layer2RelativeMedium(0.8, hmm / 20.0)),
-                Double.NaN}
+                    .applyAsDouble(new RelativeMediumLayers(0.8, hmm / 20.0)),
+                Double.NaN
+            }
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.0).system2(10.0)
                 .rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
             0.0,
-            new double[] {1.0, Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)}
+            new double[] {3.3, 1.0, Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.0).system2(10.0)
                 .rho1(10.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
             0.0,
-            new double[] {1.0, Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm / 10.0)}
+            new double[] {33.0, 1.0, Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm / 10.0)}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dhMilli).system2(10.0).ofOhms(
@@ -176,23 +179,23 @@ class InverseDynamicTest {
                 ).mapToDouble(Resistance::ohms).toArray()
             ),
             0.0,
-            new double[] {1.0, Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)}
+            new double[] {3.3, 1.0, Double.POSITIVE_INFINITY, Metrics.fromMilli(hmm)}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dhMilli).system2(10.0).rho1(4.0).rho2(1.0).h(hmm),
             0.0,
-            new double[] {4.0, 1.0, Metrics.fromMilli(hmm)}
+            new double[] {1.75, 4.0, 1.0, Metrics.fromMilli(hmm)}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dhMilli).system4(10.0).rho1(1.0).rho2(4.0).h(hmm),
             0.0,
-            new double[] {1.0, 4.0, Metrics.fromMilli(hmm)}
+            new double[] {2.02, 1.0, 4.0, Metrics.fromMilli(hmm)}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.01).dh(dhMilli).system2(10.0)
                 .ofOhms(100.0, 150.0, 90.0, 160.0),
             0.0,
-            new double[] {Double.NaN, Double.NaN, Double.NaN}
+            new double[] {6.283, Double.NaN, Double.NaN, Double.NaN}
         )
     );
   }
@@ -206,49 +209,49 @@ class InverseDynamicTest {
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(29.47, 65.68, 29.75, 66.35),
             alpha,
-            new double[] {0.701, Double.POSITIVE_INFINITY, Metrics.fromMilli(5.06)}
+            new double[] {2.31, 0.701, Double.POSITIVE_INFINITY, Metrics.fromMilli(5.06)}
         ),
         // h = 10 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(16.761, 32.246, 16.821, 32.383),
             alpha,
-            new double[] {0.701, Double.POSITIVE_INFINITY, Metrics.fromMilli(10.0)}
+            new double[] {1.23, 0.701, Double.POSITIVE_INFINITY, Metrics.fromMilli(10.0)}
         ),
         // h = 15 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(13.338, 23.903, 13.357, 23.953),
             alpha,
-            new double[] {0.697, Double.POSITIVE_INFINITY, Metrics.fromMilli(14.8)}
+            new double[] {0.94, 0.697, Double.POSITIVE_INFINITY, Metrics.fromMilli(14.8)}
         ),
         // h = 20 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(12.187, 20.567, 12.194, 20.589),
             alpha,
-            new double[] {0.7, Double.POSITIVE_INFINITY, Metrics.fromMilli(20.0)}
+            new double[] {0.827, 0.7, Double.POSITIVE_INFINITY, Metrics.fromMilli(20.0)}
         ),
         // h = 25 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(11.710, 18.986, 11.714, 18.998),
             alpha,
-            new double[] {0.694, Double.POSITIVE_INFINITY, Metrics.fromMilli(23.8)}
+            new double[] {0.775, 0.694, Double.POSITIVE_INFINITY, Metrics.fromMilli(23.8)}
         ),
         // h = 30 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(11.482, 18.152, 11.484, 18.158),
             alpha,
-            new double[] {0.698, Double.POSITIVE_INFINITY, Metrics.fromMilli(29.0)}
+            new double[] {0.747, 0.698, Double.POSITIVE_INFINITY, Metrics.fromMilli(29.0)}
         ),
         // h = 35 mm, rho1 = 0.7, rho2 = Inf
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
                 .ofOhms(11.361, 17.674, 11.362, 17.678),
             alpha,
-            new double[] {0.699, Double.POSITIVE_INFINITY, Metrics.fromMilli(34.0)}
+            new double[] {0.732, 0.699, Double.POSITIVE_INFINITY, Metrics.fromMilli(34.0)}
         )
     );
   }
@@ -261,19 +264,19 @@ class InverseDynamicTest {
     var medium = new DynamicAbsolute(measurements, Regularization.Interval.MAX_K.of(alpha)).get();
 
     ObjDoubleConsumer<ValuePair> checker = (valuePair, expectedValue) -> {
-      if (Double.isNaN(expectedValue)) {
-        assertThat(valuePair.value()).isNaN();
-      }
-      else {
+      if (Double.isFinite(valuePair.value())) {
         assertThat(valuePair.value() > 700.0 ? Double.POSITIVE_INFINITY : valuePair.value())
             .isCloseTo(expectedValue, byLessThan(valuePair.absError()));
+      }
+      else {
+        assertThat(valuePair.value()).isNotFinite();
       }
     };
     assertAll(medium.toString(),
         () -> checker.accept(medium.rho(), expected[0]),
-        () -> checker.accept(medium.rho1(), expected[0]),
-        () -> checker.accept(medium.rho2(), expected[1]),
-        () -> checker.accept(medium.h1(), expected[2])
+        () -> checker.accept(medium.rho1(), expected[1]),
+        () -> checker.accept(medium.rho2(), expected[2]),
+        () -> checker.accept(medium.h(), expected[3])
     );
     LOGGER.info(medium::toString);
   }
@@ -306,13 +309,13 @@ class InverseDynamicTest {
     String[] mm = fileName.split(Strings.SPACE);
     int sBase = Integer.parseInt(mm[mm.length - 2]);
 
-    Map<String, Function<MediumLayers, Object>> outputMap = new LinkedHashMap<>();
+    Map<String, Function<Layer2Medium, Object>> outputMap = new LinkedHashMap<>();
     outputMap.put("rho1", medium -> medium.rho1().value());
     outputMap.put("rho1AbsError", medium -> medium.rho1().absError());
     outputMap.put("rho2", medium -> medium.rho2().value());
     outputMap.put("rho2AbsError", medium -> medium.rho2().absError());
-    outputMap.put("h", medium -> Metrics.toMilli(medium.h1().value()));
-    outputMap.put("hAbsError", medium -> Metrics.toMilli(medium.h1().absError()));
+    outputMap.put("h", medium -> Metrics.toMilli(medium.h().value()));
+    outputMap.put("hAbsError", medium -> Metrics.toMilli(medium.h().absError()));
     outputMap.put("RMS_BASE", medium -> medium.getRMS()[0]);
     outputMap.put("RMS_DIFF", medium -> medium.getRMS()[1]);
 
@@ -337,7 +340,7 @@ class InverseDynamicTest {
                    .flatMap(Function.identity()).toArray(String[]::new)
            )
       ) {
-        AtomicReference<MediumLayers> prevMediumRC = new AtomicReference<>(null);
+        AtomicReference<Layer2Medium> prevMediumRC = new AtomicReference<>(null);
         assertTrue(StreamSupport.stream(parser.spliterator(), false)
             .map(r -> {
               LOGGER.info(() -> "%.2f sec; %s mm".formatted(Double.parseDouble(r.get(T)), r.get(POSITION)));
@@ -349,33 +352,33 @@ class InverseDynamicTest {
                           Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))
                       )
               );
-              MediumLayers medium = new DynamicAbsolute(derivativeMeasurements, Regularization.Interval.ZERO_MAX.of(alpha)).get();
+              Layer2Medium medium = new DynamicAbsolute(derivativeMeasurements, Regularization.Interval.ZERO_MAX.of(alpha)).get();
               LOGGER.info(medium::toString);
 
               Function<double[], double[]> toOhms = d -> derivativeMeasurements.stream()
                   .mapToDouble(dm -> TetrapolarResistance.of(dm.system()).rho1(d[0]).rho2(d[1]).h(d[2]).ohms())
                   .toArray();
 
-              double[] ohms = toOhms.apply(new double[] {medium.rho1().value(), medium.rho2().value(), medium.h1().value()});
+              double[] ohms = toOhms.apply(new double[] {medium.rho1().value(), medium.rho2().value(), medium.h().value()});
 
               predictedMap.keySet().forEach(s -> predictedMap.put(s, Double.NaN));
               predictedMap.put(PredictedFields.PREDICTED_R1, ohms[0]);
               predictedMap.put(PredictedFields.PREDICTED_R2, ohms[1]);
 
-              MediumLayers prevMedium = prevMediumRC.getAndSet(medium);
+              Layer2Medium prevMedium = prevMediumRC.getAndSet(medium);
               if (prevMedium != null && Double.isFinite(prevMedium.rho().value()) && Double.isFinite(medium.rho().value())) {
                 double[] baseOhms = toOhms.apply(new double[] {
-                    prevMedium.rho1().value(), prevMedium.rho2().value(), prevMedium.h1().value()
+                    prevMedium.rho1().value(), prevMedium.rho2().value(), prevMedium.h().value()
                 });
 
                 double[] dRho1Ohms = toOhms.apply(new double[] {
-                    medium.rho1().value(), prevMedium.rho2().value(), prevMedium.h1().value()
+                    medium.rho1().value(), prevMedium.rho2().value(), prevMedium.h().value()
                 });
                 double[] dRho2Ohms = toOhms.apply(new double[] {
-                    prevMedium.rho1().value(), medium.rho2().value(), prevMedium.h1().value()
+                    prevMedium.rho1().value(), medium.rho2().value(), prevMedium.h().value()
                 });
                 double[] dHOhms = toOhms.apply(new double[] {
-                    prevMedium.rho1().value(), prevMedium.rho2().value(), medium.h1().value()
+                    prevMedium.rho1().value(), prevMedium.rho2().value(), medium.h().value()
                 });
 
                 predictedMap.put(PredictedFields.PREDICTED_DIFF_R1, ohms[0] - baseOhms[0]);

@@ -1,7 +1,7 @@
 package com.ak.rsm.measurement;
 
 import com.ak.rsm.prediction.Predictions;
-import com.ak.rsm.relative.Layer1RelativeMedium;
+import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistance;
 import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.resistance.TetrapolarResistance;
@@ -98,8 +98,8 @@ class TetrapolarMeasurementTest {
     assertAll(measurement.toString(),
         () -> assertThat(measurement.toString().replaceAll("\\D", " ").strip()).isEqualTo(expected),
         () -> assertThat(measurement.resistivity()).isCloseTo(resistivity, byLessThan(0.01)),
-        () -> assertThat(Predictions.of(measurement, Layer1RelativeMedium.SINGLE_LAYER, 1.0))
-            .isEqualTo(Predictions.of(measurement, Layer1RelativeMedium.SINGLE_LAYER, 1.0))
+        () -> assertThat(Predictions.of(measurement, RelativeMediumLayers.SINGLE_LAYER, 1.0))
+            .isEqualTo(Predictions.of(measurement, RelativeMediumLayers.SINGLE_LAYER, 1.0))
     );
   }
 

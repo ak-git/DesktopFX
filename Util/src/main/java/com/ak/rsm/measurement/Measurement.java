@@ -20,6 +20,10 @@ public sealed interface Measurement extends Resistance permits DerivativeMeasure
   @Nonnull
   Measurement merge(@Nonnull Measurement that);
 
+  static Measurement average(@Nonnull Collection<? extends Measurement> measurements) {
+    return measurements.stream().map(Measurement.class::cast).reduce(Measurement::merge).orElseThrow();
+  }
+
   @Nonnull
   static Collection<InexactTetrapolarSystem> inexact(@Nonnull Collection<? extends Measurement> measurements) {
     return measurements.stream().map(Measurement::inexact).toList();

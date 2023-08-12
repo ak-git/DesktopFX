@@ -1,6 +1,7 @@
 package com.ak.rsm.medium;
 
 import com.ak.math.ValuePair;
+import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.measurement.TetrapolarMeasurement;
 import com.ak.util.Metrics;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,15 +15,20 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class Layer1MediumTest {
   static Stream<Arguments> layer1Medium() {
     return Stream.of(
         arguments(
-            new Layer1Medium(TetrapolarMeasurement.milli(0.1).system4(7.0).ofOhms(1.0, 2.0, 3.0, 4.0)),
-            ValuePair.Name.RHO_1.of(0.0654, 0.00072)
+            new Layer1Medium(TetrapolarMeasurement.milli(0.1).system4(7.0)
+                .ofOhms(1.0, 2.0, 3.0, 4.0)),
+            ValuePair.Name.RHO.of(0.0654, 0.00072)
+        ),
+        arguments(
+            new Layer1Medium(TetrapolarDerivativeMeasurement.milli(0.1).dh(0.1).system4(7.0)
+                .ofOhms(1.0, 2.0, 3.0, 4.0, 1.1, 2.2, 3.3, 4.4)),
+            ValuePair.Name.RHO.of(0.0654, 0.00072)
         )
     );
   }
@@ -32,24 +38,15 @@ class Layer1MediumTest {
   @ParametersAreNonnullByDefault
   void testRho(MediumLayers layers, ValuePair expected) {
     assertAll(layers.toString(),
-        () -> assertThat(layers.rho()).isEqualTo(expected),
-        () -> assertThat(layers.rho1()).isEqualTo(expected),
-        () -> assertThat(layers.rho2()).isEqualTo(expected)
+        () -> assertThat(layers.rho()).isEqualTo(expected)
     );
   }
 
-  @ParameterizedTest
-  @MethodSource("layer1Medium")
-  @ParametersAreNonnullByDefault
-  void testH(MediumLayers layers, ValuePair expected) {
-    assertThat(layers.h1().value()).isNaN();
-    assertNotNull(expected);
-  }
 
   @ParameterizedTest
   @MethodSource("layer1Medium")
   @ParametersAreNonnullByDefault
-  void testToString(MediumLayers layers, ValuePair expected) {
+  void testToString(Layer1Medium layers, ValuePair expected) {
     assertAll(layers.toString(),
         () -> assertThat(layers.toString()).contains(expected.toString()),
         () -> {

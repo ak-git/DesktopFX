@@ -1,6 +1,6 @@
 package com.ak.rsm.apparent;
 
-import com.ak.rsm.relative.Layer2RelativeMedium;
+import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
@@ -22,7 +22,7 @@ class DerivativeApparentByPhi2RhoTest {
     double dh = Metrics.fromMilli(-0.00001);
     double expected = TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho[0]).rho2(rho[1]).h(h).derivativeResistivity() / rho[0];
     double actual = Apparent2Rho.newDerApparentByPhiDivRho1(system.relativeSystem())
-        .applyAsDouble(new Layer2RelativeMedium(rho, hmm / lmm));
+        .applyAsDouble(new RelativeMediumLayers(rho, hmm / lmm));
     assertThat(actual).isCloseTo(expected, byLessThan(0.1));
   }
 
@@ -34,7 +34,7 @@ class DerivativeApparentByPhi2RhoTest {
     double dh = Metrics.fromMilli(-0.00001);
     double expected = TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho[0]).rho2(rho[1]).h(h).derivativeResistivity() / rho[0];
     double actual = Apparent2Rho.newDerApparentByPhiDivRho1(system.relativeSystem())
-        .applyAsDouble(new Layer2RelativeMedium(rho, hmm / smm));
+        .applyAsDouble(new RelativeMediumLayers(rho, hmm / smm));
     assertThat(actual).isCloseTo(expected, byLessThan(0.1));
   }
 }

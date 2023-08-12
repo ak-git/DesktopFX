@@ -17,28 +17,33 @@ public enum Predictions {
 
   @ParametersAreNonnullByDefault
   @Nonnull
-  public static Prediction of(DerivativeResistivity resistivityMeasured, RelativeMediumLayers layers, @Nonnegative double rho1) {
+  public static Prediction of(Resistivity resistivityMeasured, RelativeMediumLayers layers, @Nonnegative double rho1) {
     Prediction prediction = innerOf(resistivityMeasured, layers, rho1);
-    double diffResistivityPredicted = Apparent2Rho.newDerApparentByPhiDivRho1(resistivityMeasured.system(), resistivityMeasured.dh())
-        .applyAsDouble(layers) * rho1;
-    double[] inequalityL2 = DoubleStream.concat(
-        Arrays.stream(prediction.getInequalityL2()),
-        DoubleStream.of(Inequality.proportional().applyAsDouble(resistivityMeasured.derivativeResistivity(), diffResistivityPredicted))
-    ).toArray();
-    return new TetrapolarDerivativePrediction(diffResistivityPredicted, inequalityL2, prediction);
+
+    if (resistivityMeasured instanceof DerivativeResistivity derivativeResistivity) {
+      double diffResistivityPredicted = Apparent2Rho.newDerApparentByPhiDivRho1(derivativeResistivity.system(), derivativeResistivity.dh())
+          .applyAsDouble(layers) * rho1;
+      double[] inequalityL2 = DoubleStream.concat(
+          Arrays.stream(prediction.getInequalityL2()),
+          DoubleStream.of(Inequality.proportional().applyAsDouble(derivativeResistivity.derivativeResistivity(), diffResistivityPredicted))
+      ).toArray();
+      return new TetrapolarDerivativePrediction(diffResistivityPredicted, inequalityL2, prediction);
+    }
+
+    return prediction;
   }
 
   @ParametersAreNonnullByDefault
   @Nonnull
-  public static Prediction of(Resistivity resistivityMeasured, RelativeMediumLayers layers, @Nonnegative double rho1) {
-    return innerOf(resistivityMeasured, layers, rho1);
+  public static Prediction of(Resistivity resistivityMeasured, @Nonnegative double resistivityPredicted) {
+    double inequalityL2 = Inequality.proportional().applyAsDouble(resistivityMeasured.resistivity(), resistivityPredicted);
+    return new TetrapolarPrediction(resistivityPredicted, inequalityL2);
   }
 
   @ParametersAreNonnullByDefault
   @Nonnull
   private static Prediction innerOf(Resistivity resistivityMeasured, RelativeMediumLayers layers, @Nonnegative double rho1) {
     double resistivityPredicted = Apparent2Rho.newApparentDivRho1(resistivityMeasured.system().relativeSystem()).applyAsDouble(layers) * rho1;
-    double inequalityL2 = Inequality.proportional().applyAsDouble(resistivityMeasured.resistivity(), resistivityPredicted);
-    return new TetrapolarPrediction(resistivityPredicted, inequalityL2);
+    return of(resistivityMeasured, resistivityPredicted);
   }
 }

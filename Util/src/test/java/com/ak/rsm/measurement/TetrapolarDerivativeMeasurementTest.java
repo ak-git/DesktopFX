@@ -1,7 +1,7 @@
 package com.ak.rsm.measurement;
 
 import com.ak.rsm.prediction.Predictions;
-import com.ak.rsm.relative.Layer1RelativeMedium;
+import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.DerivativeResistivity;
 import com.ak.rsm.resistance.Resistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
@@ -119,15 +119,27 @@ class TetrapolarDerivativeMeasurementTest {
         () -> assertThat(d.ohms()).isCloseTo(TetrapolarResistance.of(system.system()).rho(resistivity).ohms(), withinPercentage(0.1)),
         () -> assertThat(d.derivativeResistivity()).isCloseTo(derivativeResistivity, byLessThan(0.01)),
         () -> assertThat(d.inexact()).isEqualTo(system),
-        () -> assertThat(Predictions.of(d, Layer1RelativeMedium.SINGLE_LAYER, 1.0))
-            .isEqualTo(Predictions.of(d, Layer1RelativeMedium.SINGLE_LAYER, 1.0))
+        () -> assertThat(Predictions.of(d, RelativeMediumLayers.SINGLE_LAYER, 1.0))
+            .isEqualTo(Predictions.of(d, RelativeMediumLayers.SINGLE_LAYER, 1.0))
     );
   }
 
   @Test
   void testMerge() {
     Measurement m1 = TetrapolarDerivativeMeasurement.ofSI(0.1).dh(Double.NaN).system(10.0, 30.0).rho(1.0, 2.0);
-    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> m1.merge(m1));
+    assertThat(m1.merge(m1)).as(m1.toString()).satisfies(m -> {
+      assertThat(m.resistivity()).isCloseTo(1.0, byLessThan(0.001));
+      assertThat(m.inexact().getApparentRelativeError()).isCloseTo(0.014, byLessThan(0.001));
+    });
+
+    Measurement m2 = TetrapolarDerivativeMeasurement.ofSI(0.001).dh(Double.NaN).system(10.0, 30.0).rho(10.0, 20.0);
+    assertThat(m1.merge(m2))
+        .satisfies(m -> {
+          assertThat(m).hasToString(m2.merge(m1).toString());
+          assertThat(m.resistivity()).isCloseTo(9.91, byLessThan(0.01));
+        });
+
+    assertThat(m2.merge(m1).inexact().getApparentRelativeError()).isCloseTo(0.002, byLessThan(0.002));
   }
 
   static Stream<Arguments> tetrapolarMultiMeasurements() {
