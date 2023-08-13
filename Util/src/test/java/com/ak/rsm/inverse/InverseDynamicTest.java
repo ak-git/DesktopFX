@@ -93,7 +93,6 @@ class InverseDynamicTest {
         () -> assertThat(medium.hToL().value()).isCloseTo(expected.hToL().value(), byLessThan(expected.hToL().absError())),
         () -> assertThat(medium.hToL().absError()).isCloseTo(expected.hToL().absError(), withinPercentage(10.0))
     );
-    LOGGER.info(medium::toString);
   }
 
   static Stream<Arguments> absoluteDynamicLayer2() {
@@ -136,7 +135,6 @@ class InverseDynamicTest {
         () -> assertThat(medium.rho2()).isEqualTo(expected[2]),
         () -> assertThat(medium.h()).isEqualTo(expected[3])
     );
-    LOGGER.info(medium::toString);
   }
 
   static Stream<Arguments> theoryDynamicParameters2() {
@@ -277,7 +275,6 @@ class InverseDynamicTest {
         () -> checker.accept(medium.rho2(), expected[2]),
         () -> checker.accept(medium.h(), expected[3])
     );
-    LOGGER.info(medium::toString);
   }
 
   private static List<Arguments> cvsFiles() throws IOException {

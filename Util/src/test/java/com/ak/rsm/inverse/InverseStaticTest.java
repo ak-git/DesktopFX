@@ -16,7 +16,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
@@ -24,8 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class InverseStaticTest {
-  private static final Logger LOGGER = Logger.getLogger(InverseStaticTest.class.getName());
-
   static Stream<Arguments> relativeStaticLayer2RiseErrors() {
     double absErrorMilli = 0.001;
     double hmm = 15.0;
@@ -57,7 +54,6 @@ class InverseStaticTest {
         () -> assertThat(medium.k().absError() / (absError / dim)).isCloseTo(riseErrors[0], byLessThan(0.1)),
         () -> assertThat(medium.hToL().absError() / (absError / L)).isCloseTo(riseErrors[1], byLessThan(0.1))
     );
-    LOGGER.info(medium::toString);
   }
 
   static Stream<Arguments> relativeStaticLayer2() {
@@ -98,7 +94,6 @@ class InverseStaticTest {
         () -> assertThat(medium.hToL().value()).isCloseTo(expected.hToL().value(), byLessThan(expected.hToL().absError())),
         () -> assertThat(medium.hToL().absError()).isCloseTo(expected.hToL().absError(), withinPercentage(10.0))
     );
-    LOGGER.info(medium::toString);
   }
 
   static Stream<Arguments> absoluteStaticLayer2() {
@@ -135,7 +130,6 @@ class InverseStaticTest {
   void testInverseAbsoluteStaticLayer1(Collection<? extends Measurement> measurements, ValuePair[] expected) {
     var medium = StaticAbsolute.solve(measurements);
     assertThat(medium.rho()).withFailMessage(medium.toString()).isEqualTo(expected[0]);
-    LOGGER.info(medium::toString);
   }
 
   @ParameterizedTest
@@ -149,6 +143,5 @@ class InverseStaticTest {
         () -> assertThat(medium.rho2()).isEqualTo(expected[2]),
         () -> assertThat(medium.h()).isEqualTo(expected[3])
     );
-    LOGGER.info(medium::toString);
   }
 }
