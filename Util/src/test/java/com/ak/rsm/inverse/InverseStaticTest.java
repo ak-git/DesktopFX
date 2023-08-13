@@ -49,7 +49,7 @@ class InverseStaticTest {
     double L = Resistivity.getBaseL(measurements);
     double dim = measurements.stream().mapToDouble(m -> m.system().getDim()).max().orElseThrow();
 
-    var medium = new StaticRelative(measurements, Regularization.Interval.ZERO_MAX.of(0.0)).get();
+    var medium = new StaticRelative(measurements).get();
     assertAll(medium.toString(),
         () -> assertThat(medium.k().absError() / (absError / dim)).isCloseTo(riseErrors[0], byLessThan(0.1)),
         () -> assertThat(medium.hToL().absError() / (absError / L)).isCloseTo(riseErrors[1], byLessThan(0.1))
@@ -87,7 +87,7 @@ class InverseStaticTest {
   @MethodSource("relativeStaticLayer2")
   @ParametersAreNonnullByDefault
   void testInverseRelativeStaticLayer2(Collection<? extends Measurement> measurements, RelativeMediumLayers expected) {
-    var medium = new StaticRelative(measurements, Regularization.Interval.ZERO_MAX.of(0.0)).get();
+    var medium = new StaticRelative(measurements).get();
     assertAll(medium.toString(),
         () -> assertThat(medium.k().value()).isCloseTo(expected.k().value(), byLessThan(expected.k().absError())),
         () -> assertThat(medium.k().absError()).isCloseTo(expected.k().absError(), withinPercentage(10.0)),
@@ -128,7 +128,7 @@ class InverseStaticTest {
   @MethodSource("absoluteStaticLayer2")
   @ParametersAreNonnullByDefault
   void testInverseAbsoluteStaticLayer1(Collection<? extends Measurement> measurements, ValuePair[] expected) {
-    var medium = StaticAbsolute.solve(measurements);
+    var medium = StaticAbsolute.LAYER_1.apply(measurements);
     assertThat(medium.rho()).withFailMessage(medium.toString()).isEqualTo(expected[0]);
   }
 
@@ -136,7 +136,7 @@ class InverseStaticTest {
   @MethodSource("absoluteStaticLayer2")
   @ParametersAreNonnullByDefault
   void testInverseAbsoluteStaticLayer2(Collection<? extends Measurement> measurements, ValuePair[] expected) {
-    var medium = StaticAbsolute.solve(measurements, Regularization.Interval.MAX_K.of(0.001));
+    var medium = StaticAbsolute.LAYER_2.apply(measurements);
     assertAll(medium.toString(),
         () -> assertThat(medium.rho()).isEqualTo(expected[0]),
         () -> assertThat(medium.rho1()).isEqualTo(expected[1]),

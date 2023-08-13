@@ -23,20 +23,19 @@ abstract sealed class AbstractRelative<M extends Measurement> implements Supplie
   @Nonnull
   private final InverseFunction inverse;
   @Nonnull
-  private final Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction;
+  private final Regularization regularization;
 
   @ParametersAreNonnullByDefault
   AbstractRelative(Collection<? extends M> measurements, InverseFunction inverse,
                    Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
     this.measurements = Collections.unmodifiableCollection(measurements);
     this.inverse = inverse;
-    this.regularizationFunction = regularizationFunction;
+    regularization = regularizationFunction.apply(Measurement.inexact(measurements));
   }
 
   @Override
   @OverridingMethodsMustInvokeSuper
   public RelativeMediumLayers get() {
-    Regularization regularization = regularizationFunction.apply(Measurement.inexact(measurements));
     PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
           double regularizing = regularization.of(kw);
           if (Double.isFinite(regularizing)) {
@@ -52,11 +51,6 @@ abstract sealed class AbstractRelative<M extends Measurement> implements Supplie
   @Nonnull
   final Collection<M> measurements() {
     return measurements;
-  }
-
-  @Nonnull
-  final Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction() {
-    return regularizationFunction;
   }
 
   @OverridingMethodsMustInvokeSuper

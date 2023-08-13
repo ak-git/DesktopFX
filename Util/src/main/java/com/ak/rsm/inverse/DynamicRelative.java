@@ -29,7 +29,7 @@ final class DynamicRelative extends AbstractRelative<DerivativeMeasurement> {
     else if (measurements().stream().anyMatch(gtZero) && measurements().stream().anyMatch(ltZero)) {
       return RelativeMediumLayers.NAN;
     }
-    return new StaticRelative(measurements(), regularizationFunction()).get();
+    return new StaticRelative(measurements()).get();
   }
 
   @Override
