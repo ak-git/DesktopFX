@@ -13,8 +13,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.function.ToDoubleFunction;
-import java.util.function.UnaryOperator;
 
 import static java.lang.StrictMath.hypot;
 
@@ -23,20 +21,16 @@ abstract sealed class AbstractRelative<M extends Measurement> implements Supplie
   @Nonnull
   private final Collection<M> measurements;
   @Nonnull
-  private final ToDoubleFunction<double[]> inverse;
+  private final InverseFunction inverse;
   @Nonnull
   private final Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction;
-  @Nonnull
-  private final UnaryOperator<RelativeMediumLayers> errors;
 
   @ParametersAreNonnullByDefault
-  AbstractRelative(Collection<? extends M> measurements, ToDoubleFunction<double[]> inverse,
-                   Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction,
-                   UnaryOperator<RelativeMediumLayers> errors) {
+  AbstractRelative(Collection<? extends M> measurements, InverseFunction inverse,
+                   Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
     this.measurements = Collections.unmodifiableCollection(measurements);
     this.inverse = inverse;
     this.regularizationFunction = regularizationFunction;
-    this.errors = errors;
   }
 
   @Override
@@ -52,7 +46,7 @@ abstract sealed class AbstractRelative<M extends Measurement> implements Supplie
         },
         kInterval(), regularization.hInterval(1.0)
     );
-    return errors.apply(new RelativeMediumLayers(kwOptimal.getPoint()));
+    return inverse.apply(new RelativeMediumLayers(kwOptimal.getPoint()));
   }
 
   @Nonnull

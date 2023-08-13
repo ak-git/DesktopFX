@@ -11,7 +11,6 @@ final class StaticRelative extends AbstractRelative<Measurement> {
   @ParametersAreNonnullByDefault
   StaticRelative(Collection<? extends Measurement> measurements,
                  Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
-    super(measurements, new StaticInverse(measurements), regularizationFunction,
-        new StaticErrors(Measurement.inexact(measurements)));
+    super(measurements, new StaticInverse(measurements), regularizationFunction);
   }
 }
