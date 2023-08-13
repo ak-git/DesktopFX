@@ -10,12 +10,15 @@ import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.Layers;
 import com.ak.util.Metrics;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
@@ -100,6 +103,16 @@ class InverseStaticTest {
     double absErrorMilli = 0.001;
     double hmm = 15.0 / 2;
     return Stream.of(
+        // system 1
+        arguments(
+            List.of(TetrapolarMeasurement.ofMilli(0.1).system(10.0, 20.0).rho(9.0)),
+            new ValuePair[] {
+                ValuePair.Name.RHO.of(9.0, 0.27),
+                ValuePair.Name.RHO_1.of(9.0, 0.27),
+                ValuePair.Name.RHO_2.of(9.0, 0.27),
+                ValuePair.Name.H.of(Double.NaN, Double.NaN)
+            }
+        ),
         // system 4 gets fewer errors
         arguments(
             TetrapolarMeasurement.milli(absErrorMilli).system4(10.0).rho1(1.0).rho2(4.0).h(hmm),
@@ -143,5 +156,15 @@ class InverseStaticTest {
         () -> assertThat(medium.rho2()).isEqualTo(expected[2]),
         () -> assertThat(medium.h()).isEqualTo(expected[3])
     );
+  }
+
+  @Test
+  void testEmptyMeasurements() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> StaticAbsolute.LAYER_1.apply(Collections.emptyList()))
+        .withMessage("Empty measurements");
+    assertThatException()
+        .isThrownBy(() -> StaticAbsolute.LAYER_2.apply(Collections.emptyList()))
+        .withMessage("No value present");
   }
 }

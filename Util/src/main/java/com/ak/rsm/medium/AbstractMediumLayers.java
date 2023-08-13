@@ -17,6 +17,9 @@ abstract sealed class AbstractMediumLayers implements MediumLayers, Function<Mea
   private final Collection<Measurement> measurements;
 
   AbstractMediumLayers(@Nonnull Collection<? extends Measurement> measurements) {
+    if (measurements.isEmpty()) {
+      throw new IllegalArgumentException("Empty measurements");
+    }
     this.measurements = Collections.unmodifiableCollection(measurements);
   }
 

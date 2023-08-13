@@ -119,7 +119,8 @@ public final class Layer2Medium extends AbstractMediumLayers {
   @Nonnull
   private ValuePair getRho1() {
     if (RelativeMediumLayers.SINGLE_LAYER.equals(kw)) {
-      return rho();
+      ValuePair rho = rho();
+      return ValuePair.Name.RHO_1.of(rho.value(), rho.absError());
     }
     else if (RelativeMediumLayers.NAN.equals(kw)) {
       return ValuePair.Name.RHO_1.of(Double.NaN, Double.NaN);
