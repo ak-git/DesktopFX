@@ -30,7 +30,7 @@ class Inverse2Test {
   private static void testSingle(Collection<? extends DerivativeMeasurement> ms,
                                  Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
     LOGGER.info(regularizationFunction::toString);
-    var medium = new DynamicAbsolute(ms, regularizationFunction).get();
+    var medium = DynamicAbsolute.LAYER_2.apply(ms, regularizationFunction);
     Assertions.assertNotNull(medium);
     LOGGER.info(medium::toString);
   }

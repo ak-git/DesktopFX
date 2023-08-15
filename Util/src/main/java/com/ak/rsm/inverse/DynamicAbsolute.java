@@ -5,26 +5,14 @@ import com.ak.rsm.medium.Layer2Medium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
+import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
-final class DynamicAbsolute implements Supplier<Layer2Medium> {
-  @Nonnull
-  private final DynamicRelative inverseRelative;
+enum DynamicAbsolute {
+  ;
 
-  @ParametersAreNonnullByDefault
-  DynamicAbsolute(Collection<? extends DerivativeMeasurement> measurements,
-                  Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
-    inverseRelative = new DynamicRelative(measurements, regularizationFunction);
-  }
-
-  @Nonnull
-  @Override
-  public Layer2Medium get() {
-    var measurements = inverseRelative.measurements();
-    return new Layer2Medium(measurements, measurements.size() > 1 ? inverseRelative.get() : RelativeMediumLayers.SINGLE_LAYER);
-  }
+  public static final BiFunction<Collection<? extends DerivativeMeasurement>, Function<Collection<InexactTetrapolarSystem>, Regularization>, Layer2Medium>
+      LAYER_2 = (measurements, regularizationFunction) -> new Layer2Medium(measurements,
+      measurements.size() > 1 ? new DynamicRelative(measurements, regularizationFunction).get() : RelativeMediumLayers.SINGLE_LAYER);
 }
