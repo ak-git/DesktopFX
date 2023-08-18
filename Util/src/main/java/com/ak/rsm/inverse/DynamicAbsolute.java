@@ -14,5 +14,5 @@ enum DynamicAbsolute {
 
   public static final BiFunction<Collection<? extends DerivativeMeasurement>, Function<Collection<InexactTetrapolarSystem>, Regularization>, Layer2Medium>
       LAYER_2 = (measurements, regularizationFunction) -> new Layer2Medium(measurements,
-      measurements.size() > 1 ? new DynamicRelative(measurements, regularizationFunction).get() : RelativeMediumLayers.SINGLE_LAYER);
+      measurements.size() > 1 ? Relative.Dynamic.solve(measurements, regularizationFunction) : RelativeMediumLayers.SINGLE_LAYER);
 }

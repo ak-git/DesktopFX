@@ -17,6 +17,6 @@ enum StaticAbsolute {
         if (measurements.size() == 1) {
           return new Layer2Medium(measurements, RelativeMediumLayers.SINGLE_LAYER);
         }
-        return new Layer2Medium(measurements, new StaticRelative(measurements).get());
+        return new Layer2Medium(measurements, Relative.Static.solve(measurements));
       };
 }

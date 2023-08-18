@@ -85,7 +85,7 @@ class InverseDynamicTest {
   @ParametersAreNonnullByDefault
   void testInverseRelativeDynamicLayer2Theory(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
     var regularizationFunction = Regularization.Interval.ZERO_MAX.of(0.0);
-    var medium = new DynamicRelative(measurements, regularizationFunction).get();
+    var medium = Relative.Dynamic.solve(measurements, regularizationFunction);
 
     assertAll(medium.toString(),
         () -> assertThat(medium.k().value()).isCloseTo(expected.k().value(), byLessThan(expected.k().absError())),

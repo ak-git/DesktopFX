@@ -52,7 +52,7 @@ class InverseStaticTest {
     double L = Resistivity.getBaseL(measurements);
     double dim = measurements.stream().mapToDouble(m -> m.system().getDim()).max().orElseThrow();
 
-    var medium = new StaticRelative(measurements).get();
+    var medium = Relative.Static.solve(measurements);
     assertAll(medium.toString(),
         () -> assertThat(medium.k().absError() / (absError / dim)).isCloseTo(riseErrors[0], byLessThan(0.1)),
         () -> assertThat(medium.hToL().absError() / (absError / L)).isCloseTo(riseErrors[1], byLessThan(0.1))
@@ -90,7 +90,7 @@ class InverseStaticTest {
   @MethodSource("relativeStaticLayer2")
   @ParametersAreNonnullByDefault
   void testInverseRelativeStaticLayer2(Collection<? extends Measurement> measurements, RelativeMediumLayers expected) {
-    var medium = new StaticRelative(measurements).get();
+    var medium = Relative.Static.solve(measurements);
     assertAll(medium.toString(),
         () -> assertThat(medium.k().value()).isCloseTo(expected.k().value(), byLessThan(expected.k().absError())),
         () -> assertThat(medium.k().absError()).isCloseTo(expected.k().absError(), withinPercentage(10.0)),
