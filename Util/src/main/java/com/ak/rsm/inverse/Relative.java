@@ -60,7 +60,7 @@ interface Relative<M extends Measurement> extends Function<Collection<? extends 
   @Nonnull
   @OverridingMethodsMustInvokeSuper
   default RelativeMediumLayers apply(@Nonnull Collection<? extends M> measurements) {
-    var regularization = regularizationFunction().apply(Measurement.inexact(measurements));
+    Regularization regularization = regularizationFunction().apply(Measurement.inexact(measurements));
     PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
           double regularizing = regularization.of(kw);
           if (Double.isFinite(regularizing)) {
