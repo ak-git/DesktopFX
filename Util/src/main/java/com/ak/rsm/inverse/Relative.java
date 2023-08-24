@@ -98,8 +98,9 @@ interface Relative<M extends Measurement> extends Function<Collection<? extends 
   enum Dynamic {
     ;
 
+    @ParametersAreNonnullByDefault
     @Nonnull
-    static RelativeMediumLayers solve(@Nonnull Collection<? extends DerivativeMeasurement> measurements,
+    static RelativeMediumLayers solve(Collection<? extends DerivativeMeasurement> measurements,
                                       Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
       return new DynamicRelative(measurements, DynamicInverse.of(measurements), regularizationFunction).apply(measurements);
     }
