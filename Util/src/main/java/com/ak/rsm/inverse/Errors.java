@@ -64,10 +64,9 @@ public interface Errors extends UnaryOperator<RelativeMediumLayers> {
           double rho1 = 1.0;
           double rho2 = rho1 / Layers.getRho1ToRho2(layers.k().value());
           double h = layers.hToL().value() * TetrapolarSystem.getBaseL(systems());
-          double dh = h * 1.0e-4;
-
           Function<Collection<TetrapolarSystem>, List<DerivativeResistance>> toMeasurements =
               ts -> {
+                double dh = h * 1.0e-4;
                 Iterator<TetrapolarSystem> iterator = systems().iterator();
                 return ts.stream()
                     .map(
