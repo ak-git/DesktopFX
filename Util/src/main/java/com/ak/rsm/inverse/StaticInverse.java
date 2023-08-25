@@ -11,7 +11,7 @@ import java.util.Collection;
 
 final class StaticInverse extends AbstractInverseFunction<Resistivity> {
   StaticInverse(@Nonnull Collection<? extends Measurement> r) {
-    super(r, Resistivity::resistivity, new StaticErrors(Measurement.inexact(r)));
+    super(r, Resistivity::resistivity, Errors.Builder.STATIC.of(Measurement.inexact(r)));
   }
 
   @Override

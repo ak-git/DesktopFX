@@ -17,7 +17,7 @@ import static com.ak.util.Numbers.toInt;
 
 abstract non-sealed class DynamicInverse extends AbstractInverseFunction<DerivativeResistivity> {
   private DynamicInverse(@Nonnull Collection<? extends DerivativeMeasurement> r) {
-    super(r, d -> d.resistivity() / d.derivativeResistivity(), new DynamicErrors(Measurement.inexact(r)));
+    super(r, d -> d.resistivity() / d.derivativeResistivity(), Errors.Builder.DYNAMIC.of(Measurement.inexact(r)));
   }
 
   static InverseFunction of(@Nonnull Collection<? extends DerivativeMeasurement> r) {

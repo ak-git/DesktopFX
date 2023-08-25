@@ -37,7 +37,7 @@ class InverseErrorsTest {
             new Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>() {
               @Override
               public UnaryOperator<RelativeMediumLayers> apply(Collection<InexactTetrapolarSystem> inexactSystems) {
-                return new StaticErrors(inexactSystems);
+                return Errors.Builder.STATIC.of(inexactSystems);
               }
 
               @Override
@@ -50,7 +50,7 @@ class InverseErrorsTest {
             new Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>() {
               @Override
               public UnaryOperator<RelativeMediumLayers> apply(Collection<InexactTetrapolarSystem> inexactSystems) {
-                return new DynamicErrors(inexactSystems);
+                return Errors.Builder.DYNAMIC.of(inexactSystems);
               }
 
               @Override
@@ -124,10 +124,10 @@ class InverseErrorsTest {
   static Stream<Arguments> single() {
     return Stream.of(
         arguments(
-            1.0 / 3.0, 5.0 / 3.0, (Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>) DynamicErrors::new
+            1.0 / 3.0, 5.0 / 3.0, (Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>) Errors.Builder.STATIC::of
         ),
         arguments(
-            0.1, 1.9, (Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>) StaticErrors::new
+            0.1, 1.9, (Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>) Errors.Builder.STATIC::of
         )
     );
   }
