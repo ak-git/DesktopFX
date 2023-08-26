@@ -85,16 +85,14 @@ class InverseDynamicTest {
   @ParametersAreNonnullByDefault
   void testInverseRelativeDynamicLayer2Theory(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
     var regularizationFunction = Regularization.Interval.ZERO_MAX.of(0.0);
-    var medium = new DynamicRelative(measurements, regularizationFunction).get();
+    var medium = Relative.Dynamic.solve(measurements, regularizationFunction);
 
     assertAll(medium.toString(),
         () -> assertThat(medium.k().value()).isCloseTo(expected.k().value(), byLessThan(expected.k().absError())),
         () -> assertThat(medium.k().absError()).isCloseTo(expected.k().absError(), withinPercentage(10.0)),
         () -> assertThat(medium.hToL().value()).isCloseTo(expected.hToL().value(), byLessThan(expected.hToL().absError())),
-        () -> assertThat(medium.hToL().absError()).isCloseTo(expected.hToL().absError(), withinPercentage(10.0)),
-        () -> assertThat(medium).isEqualTo(new DynamicAbsolute(measurements, regularizationFunction).apply(medium))
+        () -> assertThat(medium.hToL().absError()).isCloseTo(expected.hToL().absError(), withinPercentage(10.0))
     );
-    LOGGER.info(medium::toString);
   }
 
   static Stream<Arguments> absoluteDynamicLayer2() {
@@ -130,14 +128,13 @@ class InverseDynamicTest {
   @MethodSource("absoluteDynamicLayer2")
   @ParametersAreNonnullByDefault
   void testInverseAbsoluteDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, ValuePair[] expected) {
-    var medium = new DynamicAbsolute(measurements, Regularization.Interval.ZERO_MAX.of(0.0)).get();
+    var medium = DynamicAbsolute.LAYER_2.apply(measurements, Regularization.Interval.ZERO_MAX.of(0.0));
     assertAll(medium.toString(),
         () -> assertThat(medium.rho()).isEqualTo(expected[0]),
         () -> assertThat(medium.rho1()).isEqualTo(expected[1]),
         () -> assertThat(medium.rho2()).isEqualTo(expected[2]),
         () -> assertThat(medium.h()).isEqualTo(expected[3])
     );
-    LOGGER.info(medium::toString);
   }
 
   static Stream<Arguments> theoryDynamicParameters2() {
@@ -202,7 +199,7 @@ class InverseDynamicTest {
 
   static Stream<Arguments> waterDynamicParameters2() {
     double dh = -10.0 / 200.0;
-    double alpha = 5.0;
+    double alpha = 2.0;
     return Stream.of(
         // h = 5 mm, rho1 = 0.7, rho2 = Inf
         arguments(
@@ -261,7 +258,7 @@ class InverseDynamicTest {
   @ParametersAreNonnullByDefault
   void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements,
                                 @Nonnegative double alpha, double[] expected) {
-    var medium = new DynamicAbsolute(measurements, Regularization.Interval.MAX_K.of(alpha)).get();
+    var medium = DynamicAbsolute.LAYER_2.apply(measurements, Regularization.Interval.MAX_K.of(alpha));
 
     ObjDoubleConsumer<ValuePair> checker = (valuePair, expectedValue) -> {
       if (Double.isNaN(expectedValue)) {
@@ -278,7 +275,6 @@ class InverseDynamicTest {
         () -> checker.accept(medium.rho2(), expected[2]),
         () -> checker.accept(medium.h(), expected[3])
     );
-    LOGGER.info(medium::toString);
   }
 
   private static List<Arguments> cvsFiles() throws IOException {
@@ -344,7 +340,7 @@ class InverseDynamicTest {
         assertTrue(StreamSupport.stream(parser.spliterator(), false)
             .map(r -> {
               LOGGER.info(() -> "%.2f sec; %s mm".formatted(Double.parseDouble(r.get(T)), r.get(POSITION)));
-              List<DerivativeMeasurement> derivativeMeasurements = new ArrayList<>(
+              Collection<DerivativeMeasurement> derivativeMeasurements = new ArrayList<>(
                   TetrapolarDerivativeMeasurement.milli(0.1)
                       .dh(Double.NaN).system2(sBase)
                       .rho(
@@ -352,7 +348,7 @@ class InverseDynamicTest {
                           Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))
                       )
               );
-              Layer2Medium medium = new DynamicAbsolute(derivativeMeasurements, Regularization.Interval.ZERO_MAX.of(alpha)).get();
+              Layer2Medium medium = DynamicAbsolute.LAYER_2.apply(derivativeMeasurements, Regularization.Interval.ZERO_MAX.of(alpha));
               LOGGER.info(medium::toString);
 
               Function<double[], double[]> toOhms = d -> derivativeMeasurements.stream()

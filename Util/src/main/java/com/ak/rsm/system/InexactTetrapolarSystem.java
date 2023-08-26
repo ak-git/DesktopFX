@@ -59,6 +59,11 @@ public record InexactTetrapolarSystem(@Nonnegative double absError, @Nonnull Tet
     }
   }
 
+  @Nonnegative
+  public static double getBaseL(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems) {
+    return TetrapolarSystem.getBaseL(inexactSystems.stream().map(InexactTetrapolarSystem::system).toList());
+  }
+
   @Nonnull
   public static Collection<List<TetrapolarSystem>> getMeasurementsCombination(@Nonnull Collection<InexactTetrapolarSystem> systems) {
     ToLongFunction<Collection<TetrapolarSystem>> distinctSizes =
