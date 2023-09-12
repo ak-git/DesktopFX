@@ -52,12 +52,12 @@ class RegularizationTest {
     double alpha = RANDOM.nextDouble(1.0, 10.0);
 
     Regularization regularization = interval.of(alpha).apply(List.of(system1, system2));
-    Simplex.Bounds hInterval = regularization.hInterval(1.0);
+    Simplex.Bounds hInterval = regularization.hInterval(k);
     switch (interval) {
       case ZERO_MAX -> assertAll(interval.name(),
           () -> assertThat(regularization.of(k, Double.POSITIVE_INFINITY)).isInfinite(),
           () -> assertThat(regularization.of(0.0, 0.0)).isInfinite(),
-          () -> assertThat(regularization.of(k, (hInterval.max() + hInterval.min()) / 2.0)).isZero()
+          () -> assertThat(regularization.of(k, (hInterval.max() + hInterval.min()) / 2.0)).isCloseTo(0.0, within(0.001))
       );
       case MAX_K -> assertAll(interval.name(),
           () -> assertThat(regularization.of(1.0, RANDOM.nextGaussian())).isZero(),

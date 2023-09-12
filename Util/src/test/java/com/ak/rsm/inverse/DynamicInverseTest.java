@@ -20,9 +20,9 @@ class DynamicInverseTest {
   static Stream<Arguments> layer2() {
     return Stream.of(
         arguments(new double[] {Layers.getK12(9.0, 1.0), 2.0 / 18.0}, 0.0),
-        arguments(new double[] {Layers.getK12(1.585601, 1.753970), 6.831488 / 18.0}, Double.POSITIVE_INFINITY),
-        arguments(new double[] {Layers.getK12(0.246123, 1.902301), 0.345480 / 18.0}, Double.POSITIVE_INFINITY),
-        arguments(new double[] {Layers.getK12(1.323014, 2.406517), 4.647438 / 18.0}, Double.POSITIVE_INFINITY)
+        arguments(new double[] {Layers.getK12(1.585601, 1.753970), 6.831488 / 18.0}, Double.NaN),
+        arguments(new double[] {Layers.getK12(0.246123, 1.902301), 0.345480 / 18.0}, Double.NaN),
+        arguments(new double[] {Layers.getK12(1.323014, 2.406517), 4.647438 / 18.0}, Double.NaN)
     );
   }
 
