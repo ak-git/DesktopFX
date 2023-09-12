@@ -137,14 +137,18 @@ public enum Simplex {
 
   @ParametersAreNonnullByDefault
   public static PointValuePair optimizeAll(MultivariateFunction function, Bounds... bounds) {
-    double[] initialGuess = JENETICS.optimize(function, bounds).getPoint();
-    Bounds[] minInitialMax = IntStream.range(0, initialGuess.length)
-        .mapToObj(i -> new Bounds(bounds[i].min, initialGuess[i], bounds[i].max))
-        .toArray(Bounds[]::new);
+    PointValuePair optimize = JENETICS.optimize(function, bounds);
+    if (Double.isFinite(optimize.getValue())) {
+      double[] initialGuess = optimize.getPoint();
+      Bounds[] minInitialMax = IntStream.range(0, initialGuess.length)
+          .mapToObj(i -> new Bounds(bounds[i].min, initialGuess[i], bounds[i].max))
+          .toArray(Bounds[]::new);
 
-    return EnumSet.complementOf(EnumSet.of(JENETICS)).stream()
-        .map(simplex -> simplex.optimize(function, minInitialMax))
-        .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
+      return EnumSet.complementOf(EnumSet.of(JENETICS)).stream()
+          .map(simplex -> simplex.optimize(function, minInitialMax))
+          .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
+    }
+    return optimize;
   }
 
   @Nonnull
