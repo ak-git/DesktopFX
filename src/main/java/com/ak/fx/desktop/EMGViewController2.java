@@ -11,11 +11,11 @@ import org.springframework.stereotype.Component;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @Component
-@Profile({"aper2-emg1", "aper2-emg2"})
-public final class EMGViewController<T, R, V extends Enum<V> & Variable<V>> extends AbstractViewController<T, R, V> {
+@Profile("aper2-emg2")
+public final class EMGViewController2<T, R, V extends Enum<V> & Variable<V>> extends AbstractViewController<T, R, V> {
   @Inject
   @ParametersAreNonnullByDefault
-  public EMGViewController(Provider<BytesInterceptor<T, R>> interceptorProvider, Provider<Converter<R, V>> converterProvider) {
+  public EMGViewController2(Provider<BytesInterceptor<T, R>> interceptorProvider, Provider<Converter<R, V>> converterProvider) {
     super(interceptorProvider, converterProvider);
   }
 }
