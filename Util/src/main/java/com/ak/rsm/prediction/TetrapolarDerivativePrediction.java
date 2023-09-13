@@ -1,38 +1,20 @@
 package com.ak.rsm.prediction;
 
-import com.ak.inverse.Inequality;
-import com.ak.rsm.apparent.Apparent2Rho;
-import com.ak.rsm.relative.RelativeMediumLayers;
-import com.ak.rsm.resistance.DerivativeResistivity;
 import com.ak.util.Strings;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.stream.DoubleStream;
 
-public final class TetrapolarDerivativePrediction extends AbstractPrediction {
+final class TetrapolarDerivativePrediction extends AbstractPrediction {
   @Nonnull
   private final Prediction prediction;
 
   @ParametersAreNonnullByDefault
-  private TetrapolarDerivativePrediction(@Nonnegative double resistivityPredicted, double[] inequalityL2, Prediction prediction) {
+  TetrapolarDerivativePrediction(@Nonnegative double resistivityPredicted, double[] inequalityL2, Prediction prediction) {
     super(resistivityPredicted, inequalityL2);
     this.prediction = prediction;
-  }
-
-  @ParametersAreNonnullByDefault
-  public static Prediction of(DerivativeResistivity resistivityMeasured, RelativeMediumLayers layers, @Nonnegative double rho1) {
-    Prediction prediction = TetrapolarPrediction.of(resistivityMeasured, layers, rho1);
-    double diffResistivityPredicted = Apparent2Rho.newDerApparentByPhiDivRho1(resistivityMeasured.system(), resistivityMeasured.dh())
-        .applyAsDouble(layers) * rho1;
-    double[] inequalityL2 = DoubleStream.concat(
-        Arrays.stream(prediction.getInequalityL2()),
-        DoubleStream.of(Inequality.proportional().applyAsDouble(resistivityMeasured.derivativeResistivity(), diffResistivityPredicted))
-    ).toArray();
-    return new TetrapolarDerivativePrediction(diffResistivityPredicted, inequalityL2, prediction);
   }
 
   @Override

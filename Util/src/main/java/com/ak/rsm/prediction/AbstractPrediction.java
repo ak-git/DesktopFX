@@ -6,7 +6,7 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.Arrays;
 import java.util.Objects;
 
-public abstract sealed class AbstractPrediction implements Prediction permits TetrapolarDerivativePrediction, TetrapolarPrediction {
+abstract sealed class AbstractPrediction implements Prediction permits TetrapolarDerivativePrediction, TetrapolarPrediction {
   @Nonnegative
   private final double predicted;
   @Nonnull

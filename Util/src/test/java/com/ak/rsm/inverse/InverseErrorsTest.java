@@ -1,7 +1,6 @@
 package com.ak.rsm.inverse;
 
 import com.ak.math.Simplex;
-import com.ak.rsm.relative.Layer2RelativeMedium;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
@@ -38,7 +37,7 @@ class InverseErrorsTest {
             new Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>() {
               @Override
               public UnaryOperator<RelativeMediumLayers> apply(Collection<InexactTetrapolarSystem> inexactSystems) {
-                return new StaticErrors(inexactSystems);
+                return Errors.Builder.STATIC.of(inexactSystems);
               }
 
               @Override
@@ -51,7 +50,7 @@ class InverseErrorsTest {
             new Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>() {
               @Override
               public UnaryOperator<RelativeMediumLayers> apply(Collection<InexactTetrapolarSystem> inexactSystems) {
-                return new DynamicErrors(inexactSystems);
+                return Errors.Builder.DYNAMIC.of(inexactSystems);
               }
 
               @Override
@@ -125,10 +124,10 @@ class InverseErrorsTest {
   static Stream<Arguments> single() {
     return Stream.of(
         arguments(
-            1.0 / 3.0, 5.0 / 3.0, (Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>) DynamicErrors::new
+            1.0 / 3.0, 5.0 / 3.0, (Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>) Errors.Builder.STATIC::of
         ),
         arguments(
-            0.1, 1.9, (Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>) StaticErrors::new
+            0.1, 1.9, (Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>>) Errors.Builder.STATIC::of
         )
     );
   }
@@ -179,12 +178,12 @@ class InverseErrorsTest {
                 new InexactTetrapolarSystem(absError, new TetrapolarSystem(s2, L))
             )
         )
-        .apply(new Layer2RelativeMedium(k, hToDim / L));
+        .apply(new RelativeMediumLayers(k, hToDim / L));
 
     double oneDim = Math.max(Math.max(s1, s2), L);
     return new double[] {
-        Math.abs(errors.k12AbsError() / errors.k12()) / (absError / oneDim),
-        Math.abs(errors.hToLAbsError() * L / oneDim) / (absError / oneDim),
+        Math.abs(errors.k().absError()) / errors.k().value() / (absError / oneDim),
+        Math.abs(errors.hToL().absError() * L / oneDim) / (absError / oneDim),
     };
   }
 }

@@ -9,6 +9,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.OptionalDouble;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
@@ -32,7 +33,7 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
 
             Simplex.Bounds hInterval = hInterval(k);
             if (hInterval.isIn(hToL)) {
-              return alpha * (log(hInterval.max() - hToL) - log(hToL));
+              return alpha * (log(hInterval.max() - hToL) - log(hToL - hInterval.min()));
             }
             else {
               return Double.POSITIVE_INFINITY;
@@ -49,7 +50,8 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
           @Nonnull
           @Override
           public double of(@Nonnull double... kw) {
-            return alpha * log(Math.abs(kw[0]));
+            double k = Math.abs(kw[0]);
+            return alpha * (log(2 - k) - log(k));
           }
         };
       }
@@ -59,7 +61,7 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
     public final Function<Collection<InexactTetrapolarSystem>, Regularization> of(@Nonnegative double alpha) {
       return new Function<>() {
         @Override
-        public Regularization apply(Collection<InexactTetrapolarSystem> inexactSystems) {
+        public Regularization apply(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems) {
           return innerOf(alpha, inexactSystems);
         }
 
@@ -75,12 +77,18 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
     abstract Regularization innerOf(@Nonnegative double alpha, @Nonnull Collection<InexactTetrapolarSystem> inexactSystems);
   }
 
-  abstract non-sealed class AbstractRegularization extends AbstractErrors implements Regularization {
-    private final DoubleUnaryOperator max = newMergeHorizons(InexactTetrapolarSystem::getHMax, DoubleStream::min);
-    private final DoubleUnaryOperator min = newMergeHorizons(InexactTetrapolarSystem::getHMin, DoubleStream::max);
+  abstract non-sealed class AbstractRegularization implements Regularization {
+    @Nonnull
+    private final Collection<InexactTetrapolarSystem> inexactSystems;
+    @Nonnull
+    private final DoubleUnaryOperator max;
+    @Nonnull
+    private final DoubleUnaryOperator min;
 
     private AbstractRegularization(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems) {
-      super(inexactSystems);
+      this.inexactSystems = Collections.unmodifiableCollection(inexactSystems);
+      max = newMergeHorizons(InexactTetrapolarSystem::getHMax, DoubleStream::min);
+      min = newMergeHorizons(InexactTetrapolarSystem::getHMin, DoubleStream::max);
     }
 
     @Override
@@ -91,9 +99,10 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
     @ParametersAreNonnullByDefault
     private DoubleUnaryOperator newMergeHorizons(ToDoubleBiFunction<InexactTetrapolarSystem, Double> toHorizon,
                                                  Function<DoubleStream, OptionalDouble> selector) {
+      double baseL = InexactTetrapolarSystem.getBaseL(inexactSystems);
       return k -> selector
-          .apply(inexactSystems().stream().mapToDouble(system -> toHorizon.applyAsDouble(system, k)))
-          .orElseThrow() / baseL();
+          .apply(inexactSystems.stream().mapToDouble(system -> toHorizon.applyAsDouble(system, k)))
+          .orElseThrow() / baseL;
     }
   }
 

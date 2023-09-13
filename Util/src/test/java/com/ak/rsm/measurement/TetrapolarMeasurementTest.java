@@ -1,8 +1,9 @@
 package com.ak.rsm.measurement;
 
-import com.ak.rsm.prediction.TetrapolarPrediction;
-import com.ak.rsm.relative.Layer1RelativeMedium;
+import com.ak.rsm.prediction.Predictions;
+import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistance;
+import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
@@ -93,12 +94,12 @@ class TetrapolarMeasurementTest {
   @ParameterizedTest
   @MethodSource("tetrapolarMeasurements")
   @ParametersAreNonnullByDefault
-  void test(Measurement measurement, String expected, @Nonnegative double resistivity) {
+  void test(Resistivity measurement, String expected, @Nonnegative double resistivity) {
     assertAll(measurement.toString(),
         () -> assertThat(measurement.toString().replaceAll("\\D", " ").strip()).isEqualTo(expected),
         () -> assertThat(measurement.resistivity()).isCloseTo(resistivity, byLessThan(0.01)),
-        () -> assertThat(measurement.toPrediction(Layer1RelativeMedium.SINGLE_LAYER, 1.0))
-            .isEqualTo(TetrapolarPrediction.of(measurement, Layer1RelativeMedium.SINGLE_LAYER, 1.0))
+        () -> assertThat(Predictions.of(measurement, RelativeMediumLayers.SINGLE_LAYER, 1.0))
+            .isEqualTo(Predictions.of(measurement, RelativeMediumLayers.SINGLE_LAYER, 1.0))
     );
   }
 

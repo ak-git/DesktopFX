@@ -170,4 +170,30 @@ class InexactTetrapolarSystemTest {
     Collection<List<TetrapolarSystem>> c = InexactTetrapolarSystem.getMeasurementsCombination(systems);
     assertThat(c).withFailMessage(c.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE))).hasSize(expected);
   }
+
+  static Stream<Arguments> inexactTetrapolarSystems2() {
+    return Stream.of(
+        arguments(
+            List.of(
+                new InexactTetrapolarSystem(0.1, new TetrapolarSystem(10.0, 30.0)),
+                new InexactTetrapolarSystem(0.1, new TetrapolarSystem(50.0, 30.0))
+            ),
+            30.0
+        ),
+        arguments(
+            List.of(
+                new InexactTetrapolarSystem(0.1, new TetrapolarSystem(10.0, 30.0)),
+                new InexactTetrapolarSystem(0.1, new TetrapolarSystem(50.0, 30.0)),
+                new InexactTetrapolarSystem(0.1, new TetrapolarSystem(20.0, 40.0))
+            ),
+            40.0
+        )
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("inexactTetrapolarSystems2")
+  void testGetBaseL(@Nonnull Collection<InexactTetrapolarSystem> systems, @Nonnegative double expectedL) {
+    assertThat(InexactTetrapolarSystem.getBaseL(systems)).isEqualTo(expectedL);
+  }
 }

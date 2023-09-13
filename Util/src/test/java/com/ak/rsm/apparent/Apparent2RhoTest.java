@@ -1,6 +1,6 @@
 package com.ak.rsm.apparent;
 
-import com.ak.rsm.relative.Layer2RelativeMedium;
+import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,11 +20,11 @@ class Apparent2RhoTest {
     double apparent = TetrapolarResistance.ofMilli(smm, lmm).ofOhms(rOhm).resistivity() / rho[0];
 
     double predicted = Apparent2Rho.newApparentDivRho1(new RelativeTetrapolarSystem(lmm / smm))
-        .applyAsDouble(new Layer2RelativeMedium(rho, hmm / smm));
+        .applyAsDouble(new RelativeMediumLayers(rho, hmm / smm));
     assertThat(apparent).isCloseTo(predicted, byLessThan(0.001));
 
     double predicted2 = Apparent2Rho.newApparentDivRho1(new RelativeTetrapolarSystem(smm / lmm))
-        .applyAsDouble(new Layer2RelativeMedium(rho, hmm / lmm));
+        .applyAsDouble(new RelativeMediumLayers(rho, hmm / lmm));
     assertThat(apparent).isCloseTo(predicted2, byLessThan(0.001));
   }
 }

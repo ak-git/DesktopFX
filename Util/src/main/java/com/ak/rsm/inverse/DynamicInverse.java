@@ -2,6 +2,8 @@ package com.ak.rsm.inverse;
 
 import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.apparent.Apparent3Rho;
+import com.ak.rsm.measurement.DerivativeMeasurement;
+import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.resistance.DerivativeResistivity;
 import com.ak.rsm.system.TetrapolarSystem;
 
@@ -9,29 +11,29 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
-import java.util.function.ToDoubleFunction;
+import java.util.function.ToDoubleBiFunction;
 
 import static com.ak.util.Numbers.toInt;
 
 abstract non-sealed class DynamicInverse extends AbstractInverseFunction<DerivativeResistivity> {
-  private DynamicInverse(@Nonnull Collection<? extends DerivativeResistivity> r) {
-    super(r, d -> d.resistivity() / d.derivativeResistivity());
+  private DynamicInverse(@Nonnull Collection<? extends DerivativeMeasurement> r) {
+    super(r, d -> d.resistivity() / d.derivativeResistivity(), Errors.Builder.DYNAMIC.of(Measurement.inexact(r)));
   }
 
-  static ToDoubleFunction<double[]> of(@Nonnull Collection<? extends DerivativeResistivity> r) {
+  static InverseFunction of(@Nonnull Collection<? extends DerivativeMeasurement> r) {
     double dh = dH(r);
-    StaticInverse staticInverse = new StaticInverse(r);
+    ToDoubleBiFunction<TetrapolarSystem, double[]> staticInverse = new StaticInverse(r);
     return new DynamicInverse(r) {
       @Override
       @ParametersAreNonnullByDefault
       public double applyAsDouble(TetrapolarSystem s, double[] kw) {
-        double dR = Apparent2Rho.newDerApparentByPhiDivRho1(s, dh).applyAsDouble(staticInverse.layer2RelativeMedium(s, kw));
+        double dR = Apparent2Rho.newDerApparentByPhiDivRho1(s, dh).applyAsDouble(layer2RelativeMedium(s, kw));
         return staticInverse.applyAsDouble(s, kw) / dR;
       }
     };
   }
 
-  static ToDoubleFunction<double[]> of(@Nonnull Collection<? extends DerivativeResistivity> r, @Nonnegative double hStep) {
+  static InverseFunction of(@Nonnull Collection<? extends DerivativeMeasurement> r, @Nonnegative double hStep) {
     double dh = dH(r);
     return new DynamicInverse(r) {
       @Override

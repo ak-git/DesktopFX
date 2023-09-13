@@ -1,7 +1,7 @@
 package com.ak.rsm.measurement;
 
-import com.ak.rsm.prediction.TetrapolarDerivativePrediction;
-import com.ak.rsm.relative.Layer1RelativeMedium;
+import com.ak.rsm.prediction.Predictions;
+import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.DerivativeResistivity;
 import com.ak.rsm.resistance.Resistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
@@ -75,9 +75,9 @@ class TetrapolarDerivativeMeasurementTest {
         arguments(
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(10.0, 20.0)
                 .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50),
-            "10 000   20 000      0 1       20         242 751        5 7   0 17              0 677          0 144         0 100",
+            "10 000   20 000      0 1       20         242 751        5 7   0 17              13 215          2 804         0 100",
             5.72,
-            0.677,
+            13.214859951943403,
             new InexactTetrapolarSystem(0.0001, new TetrapolarSystem(0.01, 0.02))
         ),
 
@@ -119,15 +119,27 @@ class TetrapolarDerivativeMeasurementTest {
         () -> assertThat(d.ohms()).isCloseTo(TetrapolarResistance.of(system.system()).rho(resistivity).ohms(), withinPercentage(0.1)),
         () -> assertThat(d.derivativeResistivity()).isCloseTo(derivativeResistivity, byLessThan(0.01)),
         () -> assertThat(d.inexact()).isEqualTo(system),
-        () -> assertThat(d.toPrediction(Layer1RelativeMedium.SINGLE_LAYER, 1.0))
-            .isEqualTo(TetrapolarDerivativePrediction.of(d, Layer1RelativeMedium.SINGLE_LAYER, 1.0))
+        () -> assertThat(Predictions.of(d, RelativeMediumLayers.SINGLE_LAYER, 1.0))
+            .isEqualTo(Predictions.of(d, RelativeMediumLayers.SINGLE_LAYER, 1.0))
     );
   }
 
   @Test
   void testMerge() {
     Measurement m1 = TetrapolarDerivativeMeasurement.ofSI(0.1).dh(Double.NaN).system(10.0, 30.0).rho(1.0, 2.0);
-    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> m1.merge(m1));
+    assertThat(m1.merge(m1)).as(m1.toString()).satisfies(m -> {
+      assertThat(m.resistivity()).isCloseTo(1.0, byLessThan(0.001));
+      assertThat(m.inexact().getApparentRelativeError()).isCloseTo(0.014, byLessThan(0.001));
+    });
+
+    Measurement m2 = TetrapolarDerivativeMeasurement.ofSI(0.001).dh(Double.NaN).system(10.0, 30.0).rho(10.0, 20.0);
+    assertThat(m1.merge(m2))
+        .satisfies(m -> {
+          assertThat(m).hasToString(m2.merge(m1).toString());
+          assertThat(m.resistivity()).isCloseTo(9.91, byLessThan(0.01));
+        });
+
+    assertThat(m2.merge(m1).inexact().getApparentRelativeError()).isCloseTo(0.002, byLessThan(0.002));
   }
 
   static Stream<Arguments> tetrapolarMultiMeasurements() {
@@ -147,24 +159,24 @@ class TetrapolarDerivativeMeasurementTest {
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.3).system2(8.0)
                 .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50),
-            "80002400001268861745011131403270300 400002400001451079853620060151605650300",
+            "800024000012688617450111895947150300 4000024000014510798536200601584359100300",
             new double[] {4.45, 3.62},
-            new double[] {1.314, 1.516}
+            new double[] {18.958526157968976, 15.842787775068425}
         ),
 
         arguments(
             TetrapolarDerivativeMeasurement.milli(-0.1).dh(0.01).withShiftError().system2(8.0)
                 .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.01).p(500, 500),
-            "79002410001278578444011138600110010 399002410001451109143660061154900200010",
+            "790024100012785784440111957801580010 3990024100014511091436600611618202040010",
             new double[] {4.42, 3.65},
-            new double[] {1.385, 1.549}
+            new double[] {19.57825978024364, 16.181746119271853}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.01).withShiftError().system2(8.0)
                 .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.01).p(500, 500),
-            "81002390001269154745011134400110010 401002390001461051513580059156300190010",
+            "810023900012691547450111934801650010 4010023900014610515135800591598001960010",
             new double[] {4.49, 3.58},
-            new double[] {1.344, 1.563}
+            new double[] {19.3479135744261, 15.980452545866093}
         ),
 
         arguments(

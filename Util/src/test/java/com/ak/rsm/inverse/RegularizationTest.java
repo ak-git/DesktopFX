@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.random.RandomGenerator;
 import java.util.stream.DoubleStream;
 
-import static java.lang.StrictMath.log;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -29,7 +28,7 @@ class RegularizationTest {
     InexactTetrapolarSystem system1 = new InexactTetrapolarSystem(0.1, new TetrapolarSystem(10.0, baseL));
     InexactTetrapolarSystem system2 = new InexactTetrapolarSystem(0.1, new TetrapolarSystem(50.0, baseL));
 
-    double k = RANDOM.nextDouble(-1.0, 1.0);
+    double k = RANDOM.nextDouble(0.1, 1.0) * Math.signum(RANDOM.nextGaussian());
     double alpha = RANDOM.nextDouble(1.0, 10.0);
 
     Regularization regularization = interval.of(alpha).apply(List.of(system1, system2));
@@ -49,21 +48,21 @@ class RegularizationTest {
     InexactTetrapolarSystem system1 = new InexactTetrapolarSystem(0.1, new TetrapolarSystem(10.0, baseL));
     InexactTetrapolarSystem system2 = new InexactTetrapolarSystem(0.1, new TetrapolarSystem(50.0, baseL));
 
-    double k = RANDOM.nextDouble(-1.0, 1.0);
+    double k = RANDOM.nextDouble(0.1, 1.0) * Math.signum(RANDOM.nextGaussian());
     double alpha = RANDOM.nextDouble(1.0, 10.0);
 
     Regularization regularization = interval.of(alpha).apply(List.of(system1, system2));
     Simplex.Bounds hInterval = regularization.hInterval(k);
     switch (interval) {
       case ZERO_MAX -> assertAll(interval.name(),
-          () -> assertThat(regularization.of(k, Double.POSITIVE_INFINITY)).isEqualTo(Double.POSITIVE_INFINITY),
-          () -> assertThat(regularization.of(0.0, 0.0)).isEqualTo(Double.POSITIVE_INFINITY),
-          () -> assertThat(regularization.of(k, hInterval.max() / 2.0))
-              .isCloseTo(0.0, within(0.001))
+          () -> assertThat(regularization.of(k, Double.POSITIVE_INFINITY)).isInfinite(),
+          () -> assertThat(regularization.of(0.0, 0.0)).isInfinite(),
+          () -> assertThat(regularization.of(k, (hInterval.max() + hInterval.min()) / 2.0)).isCloseTo(0.0, within(0.001))
       );
       case MAX_K -> assertAll(interval.name(),
-          () -> assertThat(regularization.of(k, RANDOM.nextGaussian()))
-              .isCloseTo(alpha * log(Math.abs(k)), within(0.001))
+          () -> assertThat(regularization.of(1.0, RANDOM.nextGaussian())).isZero(),
+          () -> assertThat(regularization.of(-1.0, RANDOM.nextGaussian())).isZero(),
+          () -> assertThat(regularization.of(0.0, RANDOM.nextGaussian())).isInfinite()
       );
     }
   }
