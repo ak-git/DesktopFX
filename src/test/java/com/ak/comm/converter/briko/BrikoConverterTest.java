@@ -1,16 +1,19 @@
 package com.ak.comm.converter.briko;
 
-import java.nio.ByteOrder;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.Variable;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.nio.ByteOrder;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -34,7 +37,7 @@ class BrikoConverterTest {
                 (byte) 0xc6,
                 0x20, (byte) 0xbf, 0x02, 0x00,
             },
-            new int[] {38743489, 52910786, 195, 196, 46080197, 46080198}
+            new int[] {151341, 206682, 0, 0, 180000, 180000}
         )
     );
   }
@@ -54,5 +57,17 @@ class BrikoConverterTest {
 
     assertTrue(processed.get(), "Data are not converted!");
     assertThat(converter.getFrequency()).isEqualTo(1000.0);
+  }
+
+  @Test
+  void testOptions() {
+    assertThat(EnumSet.allOf(BrikoVariable.class).stream().flatMap(v -> v.options().stream()))
+        .isEqualTo(
+            List.of(
+                Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER,
+                Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER,
+                Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER
+            )
+        );
   }
 }

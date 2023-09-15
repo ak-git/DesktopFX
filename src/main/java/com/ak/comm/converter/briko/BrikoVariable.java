@@ -6,20 +6,30 @@ import java.util.Collections;
 import java.util.Set;
 
 public enum BrikoVariable implements Variable<BrikoVariable> {
-  C1 {
-    @Override
-    public Set<Option> options() {
-      return Variable.Option.addToDefault(Option.TEXT_VALUE_BANNER);
-    }
-  },
-  C2,
-  C3,
-  C4,
-  IGNORE1 {
+  A,
+  B,
+  C {
     @Override
     public Set<Option> options() {
       return Collections.emptySet();
     }
   },
-  IGNORE2
+  D {
+    @Override
+    public Set<Option> options() {
+      return Collections.emptySet();
+    }
+  },
+  E,
+  F {
+    @Override
+    public Set<Option> options() {
+      return Collections.emptySet();
+    }
+  };
+
+  @Override
+  public Set<Option> options() {
+    return Variable.Option.addToDefault(Option.TEXT_VALUE_BANNER);
+  }
 }
