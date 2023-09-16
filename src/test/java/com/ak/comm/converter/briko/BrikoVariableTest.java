@@ -5,13 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import tec.uom.se.AbstractUnit;
-import tec.uom.se.unit.Units;
 
 import javax.annotation.Nonnull;
 import java.util.EnumSet;
 import java.util.List;
 
-import static com.ak.util.Strings.ANGLE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class BrikoVariableTest {
@@ -20,6 +18,7 @@ class BrikoVariableTest {
     assertThat(EnumSet.allOf(BrikoVariable.class).stream().flatMap(v -> v.options().stream()))
         .isEqualTo(
             List.of(
+                Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER,
                 Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER,
                 Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER,
                 Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER
@@ -39,7 +38,7 @@ class BrikoVariableTest {
         .isEqualTo(
             List.of(
                 AbstractUnit.ONE, AbstractUnit.ONE, AbstractUnit.ONE, AbstractUnit.ONE,
-                Units.RADIAN.alternate(ANGLE).divide(1000.0), Units.RADIAN.alternate(ANGLE).divide(1000.0)
+                AbstractUnit.ONE, AbstractUnit.ONE
             )
         );
   }
