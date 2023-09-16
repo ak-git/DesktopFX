@@ -1,14 +1,13 @@
 package com.ak.digitalfilter;
 
-import java.util.Collections;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collections;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
@@ -117,6 +116,12 @@ class SimpleFilterTest {
             FilterBuilder.of().expSum().build(),
             new int[] {100, 110, 120, 130, 140, 150, 160, 170},
             new int[] {100, 100, 100, 100, 101, 102, 103, 104},
+            0.0
+        ),
+        arguments(
+            FilterBuilder.of().angle().build(),
+            new int[] {-120 * 1000, 1000, 120 * 1000, -120 * 1000, 0},
+            new int[] {-120 * 1000, 1000, 120 * 1000, 240 * 1000, 360 * 1000},
             0.0
         ),
         arguments(
