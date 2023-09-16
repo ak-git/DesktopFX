@@ -1,9 +1,15 @@
 package com.ak.comm.converter.briko;
 
 import com.ak.comm.converter.Variable;
+import com.ak.digitalfilter.DigitalFilter;
+import com.ak.digitalfilter.FilterBuilder;
 
+import javax.measure.Unit;
 import java.util.Collections;
 import java.util.Set;
+
+import static com.ak.util.Strings.ANGLE;
+import static tec.uom.se.unit.Units.RADIAN;
 
 public enum BrikoVariable implements Variable<BrikoVariable> {
   A,
@@ -20,8 +26,18 @@ public enum BrikoVariable implements Variable<BrikoVariable> {
       return Collections.emptySet();
     }
   },
-  E,
-  F {
+  ENCODER1 {
+    @Override
+    public DigitalFilter filter() {
+      return FilterBuilder.of().angle().build();
+    }
+
+    @Override
+    public Unit<?> getUnit() {
+      return RADIAN.alternate(ANGLE).divide(1000.0);
+    }
+  },
+  ENCODER2 {
     @Override
     public Set<Option> options() {
       return Collections.emptySet();

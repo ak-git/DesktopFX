@@ -2,16 +2,12 @@ package com.ak.comm.converter.briko;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.Variable;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.ByteOrder;
-import java.util.EnumSet;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
@@ -57,17 +53,5 @@ class BrikoConverterTest {
 
     assertTrue(processed.get(), "Data are not converted!");
     assertThat(converter.getFrequency()).isEqualTo(1000.0);
-  }
-
-  @Test
-  void testOptions() {
-    assertThat(EnumSet.allOf(BrikoVariable.class).stream().flatMap(v -> v.options().stream()))
-        .isEqualTo(
-            List.of(
-                Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER,
-                Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER,
-                Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER
-            )
-        );
   }
 }

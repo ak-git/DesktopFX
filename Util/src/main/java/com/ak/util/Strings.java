@@ -18,6 +18,7 @@ public enum Strings {
   public static final String ALPHA = "α";
   public static final String PHI = "ψ";
   public static final String CAP_DELTA = "Δ";
+  public static final String ANGLE = "°";
   private static final String RHO = "ρ";
 
   @Nonnull

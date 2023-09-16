@@ -1,10 +1,9 @@
 package com.ak.comm.bytes;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import static com.ak.util.Strings.SPACE;
 
@@ -50,8 +49,6 @@ public enum LogUtils {
 
   @ParametersAreNonnullByDefault
   public static void logBytes(Logger logger, Level level, Object aThis, ByteBuffer buffer, String message) {
-    if (logger.isLoggable(level)) {
-      logger.log(level, "#%08x %s %s".formatted(aThis.hashCode(), toString(aThis.getClass(), buffer), message));
-    }
+    logger.log(level, () -> "#%08x %s %s".formatted(aThis.hashCode(), toString(aThis.getClass(), buffer), message));
   }
 }
