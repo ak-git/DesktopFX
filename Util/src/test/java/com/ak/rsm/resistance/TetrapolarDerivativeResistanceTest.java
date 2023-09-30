@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static tec.uom.se.unit.Units.METRE;
 
 class TetrapolarDerivativeResistanceTest {
   static Stream<Arguments> tetrapolarResistivity() {
@@ -104,7 +105,7 @@ class TetrapolarDerivativeResistanceTest {
         ),
 
         arguments(
-            TetrapolarDerivativeResistance.of(new TetrapolarSystem(Metrics.fromMilli(10.0), Metrics.fromMilli(30.0)))
+            TetrapolarDerivativeResistance.of(new TetrapolarSystem(Metrics.Length.MILLI.to(10.0, METRE), Metrics.Length.MILLI.to(30.0, METRE)))
                 .dh(Double.NaN).rho(8.1, -8.1),
             "10 000   30 000     128 916        8 100               8 100",
             128.916,

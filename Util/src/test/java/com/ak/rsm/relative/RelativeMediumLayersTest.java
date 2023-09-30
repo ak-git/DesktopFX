@@ -13,24 +13,27 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static tec.uom.se.unit.Units.METRE;
 
 class RelativeMediumLayersTest {
   static Stream<Arguments> layer2Medium() {
     return Stream.of(
-        arguments(new RelativeMediumLayers(1.0, Metrics.fromMilli(5.0)),
-            new ValuePair[] {ValuePair.Name.K12.of(1.0, 0.0), ValuePair.Name.H_L.of(Metrics.fromMilli(5.0), 0.0)}
+        arguments(new RelativeMediumLayers(1.0, Metrics.Length.MILLI.to(5.0, METRE)),
+            new ValuePair[] {ValuePair.Name.K12.of(1.0, 0.0), ValuePair.Name.H_L.of(Metrics.Length.MILLI.to(5.0, METRE), 0.0)}
         ),
         arguments(
-            new RelativeMediumLayers(new double[] {1.0, Double.POSITIVE_INFINITY}, Metrics.fromMilli(5.0)),
-            new ValuePair[] {ValuePair.Name.K12.of(1.0, 0.0), ValuePair.Name.H_L.of(Metrics.fromMilli(5.0), 0.0)}
+            new RelativeMediumLayers(new double[] {1.0, Double.POSITIVE_INFINITY}, Metrics.Length.MILLI.to(5.0, METRE)),
+            new ValuePair[] {ValuePair.Name.K12.of(1.0, 0.0), ValuePair.Name.H_L.of(Metrics.Length.MILLI.to(5.0, METRE), 0.0)}
         ),
         arguments(
-            new RelativeMediumLayers(new double[] {-1.0, Metrics.fromMilli(5.0)}),
-            new ValuePair[] {ValuePair.Name.K12.of(-1.0, 0.0), ValuePair.Name.H_L.of(Metrics.fromMilli(5.0), 0.0)}
+            new RelativeMediumLayers(new double[] {-1.0, Metrics.Length.MILLI.to(5.0, METRE)}),
+            new ValuePair[] {ValuePair.Name.K12.of(-1.0, 0.0), ValuePair.Name.H_L.of(Metrics.Length.MILLI.to(5.0, METRE), 0.0)}
         ),
         arguments(
-            new RelativeMediumLayers(ValuePair.Name.NONE.of(1.0, 0.0), ValuePair.Name.NONE.of(Metrics.fromMilli(5.0), Metrics.fromMilli(0.1))),
-            new ValuePair[] {ValuePair.Name.NONE.of(1.0, 0.0), ValuePair.Name.NONE.of(Metrics.fromMilli(5.0), Metrics.fromMilli(0.1))}
+            new RelativeMediumLayers(ValuePair.Name.NONE.of(1.0, 0.0),
+                ValuePair.Name.NONE.of(Metrics.Length.MILLI.to(5.0, METRE), Metrics.Length.MILLI.to(0.1, METRE))),
+            new ValuePair[] {ValuePair.Name.NONE.of(1.0, 0.0),
+                ValuePair.Name.NONE.of(Metrics.Length.MILLI.to(5.0, METRE), Metrics.Length.MILLI.to(0.1, METRE))}
         )
     );
   }

@@ -76,7 +76,7 @@ class TetrapolarSystemTest {
 
   @Test
   void testToString() {
-    TetrapolarSystem ts = new TetrapolarSystem(Metrics.fromMilli(20.0), Metrics.fromMilli(15.0));
+    TetrapolarSystem ts = new TetrapolarSystem(Metrics.Length.MILLI.to(20.0, METRE), Metrics.Length.MILLI.to(15.0, METRE));
     assertThat(ts).hasToString("%2.3f x %2.3f %s".formatted(20.0, 15.0, MetricPrefix.MILLI(METRE)));
   }
 }

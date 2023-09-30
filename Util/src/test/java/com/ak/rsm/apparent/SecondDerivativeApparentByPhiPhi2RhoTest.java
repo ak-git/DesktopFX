@@ -14,6 +14,7 @@ import javax.annotation.Nonnull;
 import java.util.function.ToDoubleFunction;
 
 import static org.assertj.core.api.Assertions.*;
+import static tec.uom.se.unit.Units.METRE;
 
 class SecondDerivativeApparentByPhiPhi2RhoTest {
   @Test
@@ -26,7 +27,7 @@ class SecondDerivativeApparentByPhiPhi2RhoTest {
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
   void testValueSL(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
-    TetrapolarSystem system = new TetrapolarSystem(Metrics.fromMilli(smm), Metrics.fromMilli(lmm));
+    TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
     double phi = hmm / lmm;
     double dPhi = 1.0e-6 * phi;
     double k12 = Layers.getK12(rho[0], rho[1]);
@@ -42,7 +43,7 @@ class SecondDerivativeApparentByPhiPhi2RhoTest {
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
   void testValueLS(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
-    TetrapolarSystem system = new TetrapolarSystem(Metrics.fromMilli(lmm), Metrics.fromMilli(smm));
+    TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(lmm, METRE), Metrics.Length.MILLI.to(smm, METRE));
     double phi = hmm / lmm;
     double dPhi = 1.0e-6 * phi;
     double k12 = Layers.getK12(rho[0], rho[1]);

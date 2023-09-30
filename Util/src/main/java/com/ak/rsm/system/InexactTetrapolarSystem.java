@@ -50,9 +50,10 @@ public record InexactTetrapolarSystem(@Nonnegative double absError, @Nonnull Tet
   public String toString() {
     String s = system.toString();
     if (absError > 0) {
+      double metre = getHMax(1.0);
       return "%s / %.1f %s; ↕ %.0f %s".formatted(
-          s, Metrics.toMilli(absError), MetricPrefix.MILLI(METRE),
-          Metrics.toMilli(getHMax(1.0)), MetricPrefix.MILLI(METRE));
+          s, Metrics.Length.METRE.to(absError, MetricPrefix.MILLI(METRE)), MetricPrefix.MILLI(METRE),
+          Metrics.Length.METRE.to(metre, MetricPrefix.MILLI(METRE)), MetricPrefix.MILLI(METRE));
     }
     else {
       return s;
