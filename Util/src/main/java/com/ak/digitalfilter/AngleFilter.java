@@ -4,6 +4,8 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 
 final class AngleFilter extends AbstractOperableFilter {
+  private static final double MILLI_DEG = 1000.0;
+  private static final int FULL_ANGLE = 360_000;
   private int y;
 
   @Override
@@ -12,11 +14,11 @@ final class AngleFilter extends AbstractOperableFilter {
       y = in;
     }
 
-    Complex cOut = ComplexUtils.polar2Complex(1.0, Math.toRadians(y / 1000.0));
-    Complex cIn = ComplexUtils.polar2Complex(1.0, Math.toRadians(in / 1000.0));
+    Complex cOut = ComplexUtils.polar2Complex(1.0, Math.toRadians(y / MILLI_DEG));
+    Complex cIn = ComplexUtils.polar2Complex(1.0, Math.toRadians(in / MILLI_DEG));
 
     int signum = (int) Math.signum(cOut.getReal() * cIn.getImaginary() - cOut.getImaginary() * cIn.getReal());
-    y += ((in - y % 360000) + signum * 360000) % 360000;
+    y += ((in - y % FULL_ANGLE) + signum * FULL_ANGLE) % FULL_ANGLE;
     return y;
   }
 }

@@ -4,37 +4,19 @@ import com.ak.comm.converter.Variable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.util.Numbers;
+import tec.uom.se.unit.MetricPrefix;
 
 import javax.measure.Unit;
 import java.util.Collections;
 import java.util.Set;
 
-import static tec.uom.se.unit.Units.GRAM;
+import static com.ak.util.Strings.ANGLE;
+import static tec.uom.se.unit.Units.METRE;
+import static tec.uom.se.unit.Units.RADIAN;
 
 public enum BrikoVariable implements Variable<BrikoVariable> {
-  A {
-    @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.of().smoothingImpulsive(10).operator(() -> x -> Numbers.toInt((0.1234 * x - 94374))).build();
-    }
-
-    @Override
-    public Unit<?> getUnit() {
-      return GRAM;
-    }
-  },
-  B {
-    @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.of().smoothingImpulsive(10).operator(() -> x -> x + 2_015_500)
-              .operator(() -> x -> Numbers.toInt((0.1235 * x))).build();
-    }
-
-    @Override
-    public Unit<?> getUnit() {
-      return GRAM;
-    }
-  },
+  A,
+  B,
   C {
     @Override
     public Set<Option> options() {
@@ -47,16 +29,26 @@ public enum BrikoVariable implements Variable<BrikoVariable> {
       return Collections.emptySet();
     }
   },
-  ENCODER1 {
+  POSITION {
+    @Override
+    public DigitalFilter filter() {
+      return FilterBuilder.of().angle().operator(() -> a -> Numbers.toInt(a * 4.0 / 360_000)).build();
+    }
+
+    @Override
+    public Unit<?> getUnit() {
+      return MetricPrefix.MILLI(METRE);
+    }
+  },
+  ENCODER {
     @Override
     public Set<Option> options() {
       return Collections.emptySet();
     }
-  },
-  ENCODER2 {
+
     @Override
-    public Set<Option> options() {
-      return Collections.emptySet();
+    public Unit<?> getUnit() {
+      return RADIAN.alternate(ANGLE).divide(1000.0);
     }
   };
 
