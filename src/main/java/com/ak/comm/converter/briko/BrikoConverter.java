@@ -2,22 +2,16 @@ package com.ak.comm.converter.briko;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.AbstractConverter;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
 import java.util.stream.Stream;
 
+import static com.ak.comm.converter.briko.BrikoStage2Variable.FREQUENCY;
 import static java.lang.Integer.BYTES;
 
-@Component("briko-converter")
-@Profile("briko")
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public final class BrikoConverter extends AbstractConverter<BufferFrame, BrikoVariable> {
+public final class BrikoConverter extends AbstractConverter<BufferFrame, BrikoStage1Variable> {
   public BrikoConverter() {
-    super(BrikoVariable.class, 1000);
+    super(BrikoStage1Variable.class, FREQUENCY);
   }
 
   @Override

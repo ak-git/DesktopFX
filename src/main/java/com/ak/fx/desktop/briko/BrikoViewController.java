@@ -2,7 +2,7 @@ package com.ak.fx.desktop.briko;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.briko.BrikoVariable;
+import com.ak.comm.converter.briko.BrikoStage3Variable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.fx.desktop.AbstractViewController;
 import jakarta.inject.Inject;
@@ -15,11 +15,11 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @Component
 @Profile("briko")
-public final class BrikoViewController extends AbstractViewController<BufferFrame, BufferFrame, BrikoVariable> {
+public final class BrikoViewController extends AbstractViewController<BufferFrame, BufferFrame, BrikoStage3Variable> {
   @Inject
   @ParametersAreNonnullByDefault
   public BrikoViewController(@Named("briko-interceptor") Provider<BytesInterceptor<BufferFrame, BufferFrame>> interceptorProvider,
-                             @Named("briko-converter") Provider<Converter<BufferFrame, BrikoVariable>> converterProvider) {
+                             @Named("briko-converter") Provider<Converter<BufferFrame, BrikoStage3Variable>> converterProvider) {
     super(interceptorProvider, converterProvider);
   }
 }
