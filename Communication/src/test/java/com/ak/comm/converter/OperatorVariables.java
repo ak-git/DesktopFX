@@ -1,13 +1,12 @@
 package com.ak.comm.converter;
 
-import java.util.Arrays;
+import com.ak.digitalfilter.DigitalFilter;
+import com.ak.digitalfilter.FilterBuilder;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.IntBinaryOperator;
-
-import com.ak.digitalfilter.DigitalFilter;
-import com.ak.digitalfilter.FilterBuilder;
 
 public enum OperatorVariables implements DependentVariable<TwoVariables, OperatorVariables> {
   OUT_PLUS(Integer::sum),
@@ -33,7 +32,7 @@ public enum OperatorVariables implements DependentVariable<TwoVariables, Operato
 
   @Override
   public final List<TwoVariables> getInputVariables() {
-    return Arrays.asList(TwoVariables.V1, TwoVariables.V2);
+    return List.of(TwoVariables.V1, TwoVariables.V2);
   }
 
   @Override

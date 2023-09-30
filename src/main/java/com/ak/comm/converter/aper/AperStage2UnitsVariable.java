@@ -1,12 +1,5 @@
 package com.ak.comm.converter.aper;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-import javax.measure.Unit;
-
 import com.ak.comm.converter.DependentVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
@@ -17,11 +10,16 @@ import com.ak.numbers.common.CommonCoefficients;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
+import javax.measure.Unit;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 public enum AperStage2UnitsVariable implements DependentVariable<AperStage1Variable, AperStage2UnitsVariable> {
   R1 {
     @Override
     public List<AperStage1Variable> getInputVariables() {
-      return Arrays.asList(AperStage1Variable.CCU1, AperStage1Variable.R1);
+      return List.of(AperStage1Variable.CCU1, AperStage1Variable.R1);
     }
 
     @Override
@@ -37,7 +35,7 @@ public enum AperStage2UnitsVariable implements DependentVariable<AperStage1Varia
   R2 {
     @Override
     public List<AperStage1Variable> getInputVariables() {
-      return Arrays.asList(AperStage1Variable.CCU2, AperStage1Variable.R2);
+      return List.of(AperStage1Variable.CCU2, AperStage1Variable.R2);
     }
 
     @Override
@@ -48,7 +46,7 @@ public enum AperStage2UnitsVariable implements DependentVariable<AperStage1Varia
   R3 {
     @Override
     public List<AperStage1Variable> getInputVariables() {
-      return Arrays.asList(AperStage1Variable.CCU1, AperStage1Variable.R2);
+      return List.of(AperStage1Variable.CCU1, AperStage1Variable.R2);
     }
 
     @Override

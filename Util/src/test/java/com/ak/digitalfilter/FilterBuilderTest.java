@@ -1,24 +1,21 @@
 package com.ak.digitalfilter;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
+
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.assertj.core.api.Assertions.byLessThan;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -180,7 +177,7 @@ class FilterBuilderTest {
         ),
         arguments(
             FilterBuilder.of().interpolate(7).buildNoDelay(),
-            "NoDelayFilter (compensate %.1f delay x 2) - LinearInterpolationFilter (f \u00b7 %.1f)".formatted(10.0, 7.0)
+            "NoDelayFilter (compensate %.1f delay x 2) - LinearInterpolationFilter (f · %.1f)".formatted(10.0, 7.0)
         ),
         arguments(
             FilterBuilder.of().fork(
@@ -223,7 +220,7 @@ class FilterBuilderTest {
             )
         ),
         arguments(
-            FilterBuilder.parallel(Arrays.asList(new int[] {0}, new int[] {1, 2}),
+            FilterBuilder.parallel(List.of(new int[] {0}, new int[] {1, 2}),
                 FilterBuilder.of().operator(() -> Integer::bitCount).recursiveMean(10).build(), FilterBuilder.of().biOperator(() -> Integer::compare).build()),
             String.format(
                 "NoDelayFilter (compensate %.1f delay x 2) - SelectFilter (indexes = [0]) - Operator  (delay %.1f) - MeanFilter (delay %.1f)%n" +
