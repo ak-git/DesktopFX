@@ -3,6 +3,7 @@ package com.ak.comm.converter.briko;
 import com.ak.comm.converter.DependentVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
+import com.ak.util.Metrics;
 import com.ak.util.Numbers;
 import tec.uom.se.unit.Units;
 
@@ -20,7 +21,8 @@ public enum BrikoStage3Variable implements DependentVariable<BrikoStage2Variable
       return FilterBuilder.of()
           .biOperator(() -> (force1, force2) -> {
             double newtons = Math.abs(force1 + force2) / 100.0;
-            double area = Math.PI * 0.019 * 0.019 / 4.0;
+            double radius = Metrics.Length.MILLI.to(19.0, Units.METRE) / 2.0;
+            double area = Math.PI * radius * radius;
             return Numbers.toInt(newtons / area);
           })
           .build();
