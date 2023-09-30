@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static tec.uom.se.unit.Units.METRE;
 
 class InverseStaticTest {
   static Stream<Arguments> relativeStaticLayer2RiseErrors() {
@@ -120,7 +121,7 @@ class InverseStaticTest {
                 ValuePair.Name.RHO.of(1.6267, 0.00012),
                 ValuePair.Name.RHO_1.of(1.0, 0.00073),
                 ValuePair.Name.RHO_2.of(4.0, 0.012),
-                ValuePair.Name.H.of(Metrics.fromMilli(hmm), Metrics.fromMilli(0.0098))
+                ValuePair.Name.H.of(Metrics.Length.MILLI.to(hmm, METRE), Metrics.Length.MILLI.to(0.0098, METRE))
             }
         ),
         // system 2 gets more errors
@@ -131,7 +132,7 @@ class InverseStaticTest {
                 ValuePair.Name.RHO.of(1.5845, 0.00018),
                 ValuePair.Name.RHO_1.of(1.0, 0.0011),
                 ValuePair.Name.RHO_2.of(4.0, 0.017),
-                ValuePair.Name.H.of(Metrics.fromMilli(hmm), Metrics.fromMilli(0.012))
+                ValuePair.Name.H.of(Metrics.Length.MILLI.to(hmm, METRE), Metrics.Length.MILLI.to(0.012, METRE))
             }
         )
     );

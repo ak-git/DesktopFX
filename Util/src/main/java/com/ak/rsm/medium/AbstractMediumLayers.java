@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static tec.uom.se.unit.Units.PERCENT;
+
 abstract sealed class AbstractMediumLayers implements MediumLayers, Function<Measurement, Prediction>
     permits Layer1Medium, Layer2Medium {
   @Nonnull
@@ -40,7 +42,9 @@ abstract sealed class AbstractMediumLayers implements MediumLayers, Function<Mea
     double[] rms = getRMS();
     String format = (rms.length > 1) ? "RMS = [%s] %%" : "RMS = %s %%";
     return format.formatted(
-        Arrays.stream(rms).map(Metrics::toPercents).mapToObj("%.1f"::formatted).collect(Collectors.joining("; "))
+        Arrays.stream(rms)
+            .map(ones -> Metrics.Dimensionless.ONE.to(ones, PERCENT))
+            .mapToObj("%.1f"::formatted).collect(Collectors.joining("; "))
     );
   }
 

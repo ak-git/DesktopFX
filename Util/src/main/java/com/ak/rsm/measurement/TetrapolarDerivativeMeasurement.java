@@ -6,6 +6,7 @@ import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
+import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -14,6 +15,7 @@ import java.util.Collection;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 
+import static tec.uom.se.unit.Units.METRE;
 import static tec.uom.se.unit.Units.OHM;
 
 public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, double derivativeResistivity, double dh)
@@ -24,7 +26,7 @@ public record TetrapolarDerivativeMeasurement(@Nonnull Measurement measurement, 
       return s;
     }
     else {
-      return "%s; %s = %.3f %s; dh = %.3f mm".formatted(s, Strings.CAP_DELTA, dOhms(), OHM, Metrics.toMilli(dh));
+      return "%s; %s = %.3f %s; dh = %.3f mm".formatted(s, Strings.CAP_DELTA, dOhms(), OHM, Metrics.Length.METRE.to(dh, MetricPrefix.MILLI(METRE)));
     }
   }
 

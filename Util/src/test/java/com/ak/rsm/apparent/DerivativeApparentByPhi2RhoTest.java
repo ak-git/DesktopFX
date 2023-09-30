@@ -12,14 +12,15 @@ import javax.annotation.Nonnull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
+import static tec.uom.se.unit.Units.METRE;
 
 class DerivativeApparentByPhi2RhoTest {
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
   void testValueSL(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
-    TetrapolarSystem system = new TetrapolarSystem(Metrics.fromMilli(smm), Metrics.fromMilli(lmm));
-    double h = Metrics.fromMilli(hmm);
-    double dh = Metrics.fromMilli(-0.00001);
+    TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
+    double h = Metrics.Length.MILLI.to(hmm, METRE);
+    double dh = Metrics.Length.MILLI.to(-0.00001, METRE);
     double expected = TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho[0]).rho2(rho[1]).h(h).derivativeResistivity() / rho[0];
     double actual = Apparent2Rho.newDerApparentByPhiDivRho1(system, Double.NaN)
         .applyAsDouble(new RelativeMediumLayers(rho, hmm / lmm));
@@ -32,9 +33,9 @@ class DerivativeApparentByPhi2RhoTest {
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
   void testValueLS(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
-    TetrapolarSystem system = new TetrapolarSystem(Metrics.fromMilli(lmm), Metrics.fromMilli(smm));
-    double h = Metrics.fromMilli(hmm);
-    double dh = Metrics.fromMilli(-0.00001);
+    TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(lmm, METRE), Metrics.Length.MILLI.to(smm, METRE));
+    double h = Metrics.Length.MILLI.to(hmm, METRE);
+    double dh = Metrics.Length.MILLI.to(-0.00001, METRE);
     double expected = TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho[0]).rho2(rho[1]).h(h).derivativeResistivity() / rho[0];
     double actual = Apparent2Rho.newDerApparentByPhiDivRho1(system, Double.NaN)
         .applyAsDouble(new RelativeMediumLayers(rho, hmm / smm));

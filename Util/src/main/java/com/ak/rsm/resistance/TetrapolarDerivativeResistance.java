@@ -5,7 +5,6 @@ import com.ak.util.Metrics;
 import com.ak.util.Numbers;
 import com.ak.util.Strings;
 import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -16,6 +15,8 @@ import java.util.PrimitiveIterator;
 import java.util.function.BiFunction;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Supplier;
+
+import static tec.uom.se.unit.Units.METRE;
 
 public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, double derivativeResistivity, double dh)
     implements DerivativeResistance {
@@ -30,7 +31,7 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
       return s;
     }
     else {
-      return "%s; dh = %.3f %s".formatted(s, Metrics.toMilli(dh), MetricPrefix.MILLI(Units.METRE));
+      return "%s; dh = %.3f %s".formatted(s, Metrics.Length.METRE.to(dh, MetricPrefix.MILLI(METRE)), MetricPrefix.MILLI(METRE));
     }
   }
 

@@ -16,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static tec.uom.se.unit.Units.PERCENT;
 
 class Layer1MediumTest {
   static Stream<Arguments> layer1Medium() {
@@ -53,7 +54,7 @@ class Layer1MediumTest {
           double[] array = {0.3277112113340609, 0.10361494844541479, 0.5126497744983622, 0.6807219716648473};
           double rms = Arrays.stream(array).reduce(StrictMath::hypot).orElse(Double.NaN) / Math.sqrt(array.length);
           assertThat(layers.getRMS()).containsExactly(new double[] {rms}, byLessThan(0.001));
-          assertThat(layers.toString()).contains("%.1f %%".formatted(Metrics.toPercents(rms)));
+          assertThat(layers.toString()).contains("%.1f %%".formatted(Metrics.Dimensionless.ONE.to(rms, PERCENT)));
         }
     );
   }

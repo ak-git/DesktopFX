@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static tec.uom.se.unit.Units.METRE;
 
 class TetrapolarMeasurementTest {
   static Stream<Arguments> tetrapolarMeasurements() {
@@ -83,7 +84,7 @@ class TetrapolarMeasurementTest {
 
         arguments(
             TetrapolarMeasurement.of(
-                new InexactTetrapolarSystem(0.1, new TetrapolarSystem(Metrics.fromMilli(10.0), Metrics.fromMilli(30.0)))
+                new InexactTetrapolarSystem(0.1, new TetrapolarSystem(Metrics.Length.MILLI.to(10.0, METRE), Metrics.Length.MILLI.to(30.0, METRE)))
             ).rho(8.1),
             "10 000   30 000      100 0       4         128 916        8   162 0",
             8.1

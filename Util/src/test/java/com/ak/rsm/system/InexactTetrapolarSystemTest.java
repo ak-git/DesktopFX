@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -24,6 +25,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static tec.uom.se.unit.Units.METRE;
 
 class InexactTetrapolarSystemTest {
   static Stream<Arguments> tetrapolarSystems() {
@@ -60,7 +62,7 @@ class InexactTetrapolarSystemTest {
   @ParameterizedTest
   @MethodSource("inexactTetrapolarSystems")
   void testToString(@Nonnull Object system) {
-    assertThat(system.toString()).contains("%.1f".formatted(Metrics.toMilli(0.1)));
+    assertThat(system.toString()).contains("%.1f".formatted(Metrics.Length.METRE.to(0.1, MetricPrefix.MILLI(METRE))));
   }
 
   @Test

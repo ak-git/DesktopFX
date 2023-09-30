@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static tec.uom.se.unit.Units.METRE;
 
 class DynamicInverseTest {
   static Stream<Arguments> layer2() {
@@ -47,7 +48,7 @@ class DynamicInverseTest {
     ToDoubleFunction<double[]> function = DynamicInverse.of(
         TetrapolarDerivativeMeasurement.milli(0.1).dh(0.1).system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0)
             .hStep(0.1).p(50, 50),
-        Metrics.fromMilli(0.1)
+        Metrics.Length.MILLI.to(0.1, METRE)
     );
     assertThat(function.applyAsDouble(k)).isCloseTo(inequality, byLessThan(1.0e-3));
   }
