@@ -1,18 +1,13 @@
 package com.ak.digitalfilter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import static com.ak.util.Strings.EMPTY;
 import static com.ak.util.Strings.NEW_LINE;
@@ -101,7 +96,7 @@ final class ForkFilter extends AbstractDigitalFilter {
 
   @Nonnull
   private static List<DigitalFilter> equalizeDelay(@Nonnull DigitalFilter[] filters) {
-    List<DigitalFilter> filterList = Arrays.asList(filters);
+    List<DigitalFilter> filterList = List.of(filters);
     double maxDelay = findMax(filterList, DigitalFilter::getDelay);
 
     return filterList.stream()
