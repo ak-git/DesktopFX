@@ -3,15 +3,19 @@ package com.ak.fx.desktop.sktb;
 import com.ak.comm.bytes.sktbpr.SKTBRequest;
 import com.ak.comm.bytes.sktbpr.SKTBResponse;
 import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.rsce.RsceVariable;
 import com.ak.comm.converter.sktbpr.SKTBConverter;
 import com.ak.comm.converter.sktbpr.SKTBVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.fx.desktop.AbstractScheduledViewController;
+import com.ak.fx.desktop.nmisr.RsceEvent;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -54,5 +58,10 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
   public void escape() {
     rotate.set(0);
     flex.set(0);
+  }
+
+  @EventListener(RsceEvent.class)
+  private void rsceEvent(@Nonnull RsceEvent event) {
+    System.out.println(event.getValue(RsceVariable.OPEN));
   }
 }
