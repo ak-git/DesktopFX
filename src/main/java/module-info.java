@@ -23,6 +23,8 @@ module com.ak.fx.desktop {
   opens com.ak.numbers.rcm to com.ak.util;
   opens com.ak.fx.desktop.suntech to javafx.fxml;
   opens com.ak.fx.desktop to javafx.fxml, spring.core;
+  opens com.ak.fx.desktop.sktb to spring.core;
+  opens com.ak.fx.desktop.nmisr to spring.core;
   opens com.ak.fx.scene to javafx.fxml;
   opens com.ak.comm.interceptor.nmis to spring.beans;
   opens com.ak.comm.interceptor.rcm to spring.beans;
