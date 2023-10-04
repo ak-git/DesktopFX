@@ -29,16 +29,16 @@ public final class SKTBRequest extends BufferFrame {
       buffer().put((byte) 0x5a).put(id).put((byte) 8);
     }
 
-    public AbstractCheckedBuilder<SKTBRequest> rotate(int velocity50) {
-      return command(velocity50, 50).command(0, 0).command(0, 0);
+    public AbstractCheckedBuilder<SKTBRequest> rotate(int velocity10) {
+      return command(velocity10, 10).command(0, 0).command(0, 0);
     }
 
-    public AbstractCheckedBuilder<SKTBRequest> flex(int velocity30) {
-      return command(0, 0).command(velocity30, 30).command(0, 0);
+    public AbstractCheckedBuilder<SKTBRequest> flex(int velocity3) {
+      return command(0, 0).command(velocity3, 3).command(0, 0);
     }
 
-    public AbstractCheckedBuilder<SKTBRequest> grip(int velocity20) {
-      return command(0, 0).command(0, 0).command(velocity20, 20);
+    public AbstractCheckedBuilder<SKTBRequest> grip(int velocity10) {
+      return command(0, 0).command(0, 0).command(velocity10, 10);
     }
 
     @Override
