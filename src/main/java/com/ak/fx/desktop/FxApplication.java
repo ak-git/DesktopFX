@@ -67,6 +67,8 @@ public class FxApplication extends Application implements ViewController {
     addEventHandler(stage, () -> refresh(true), KeyCode.S);
     addEventHandler(stage, this::up, KeyCode.UP);
     addEventHandler(stage, this::down, KeyCode.DOWN);
+    addEventHandler(stage, this::left, KeyCode.LEFT);
+    addEventHandler(stage, this::right, KeyCode.RIGHT);
     addEventHandler(stage, this::escape, KeyCode.ESCAPE);
     addEventHandler(stage, () -> zoom(Double.POSITIVE_INFINITY), KeyCode.EQUALS);
     addEventHandler(stage, () -> zoom(Double.NEGATIVE_INFINITY), KeyCode.MINUS);

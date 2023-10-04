@@ -17,6 +17,14 @@ public interface ViewController {
     // works in subclasses
   }
 
+  default void left() {
+    // works in subclasses
+  }
+
+  default void right() {
+    // works in subclasses
+  }
+
   default void escape() {
     // works in subclasses
   }
@@ -50,6 +58,18 @@ public interface ViewController {
 
   final class DownEvent extends ApplicationEvent {
     public DownEvent(@Nonnull Object source) {
+      super(source);
+    }
+  }
+
+  final class LeftEvent extends ApplicationEvent {
+    public LeftEvent(@Nonnull Object source) {
+      super(source);
+    }
+  }
+
+  final class RightEvent extends ApplicationEvent {
+    public RightEvent(@Nonnull Object source) {
       super(source);
     }
   }

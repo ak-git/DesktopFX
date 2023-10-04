@@ -59,6 +59,16 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Override
+  public void left() {
+    applicationContext.publishEvent(new LeftEvent(this));
+  }
+
+  @Override
+  public void right() {
+    applicationContext.publishEvent(new RightEvent(this));
+  }
+
+  @Override
   public void escape() {
     applicationContext.publishEvent(new EscapeEvent(this));
   }

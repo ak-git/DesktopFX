@@ -214,6 +214,16 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
     down();
   }
 
+  @EventListener(LeftEvent.class)
+  private void leftEvent() {
+    left();
+  }
+
+  @EventListener(RightEvent.class)
+  private void rightEvent() {
+    right();
+  }
+
   @EventListener(EscapeEvent.class)
   private void escapeEvent() {
     escape();

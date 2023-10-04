@@ -19,6 +19,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
 
 
 @Component
@@ -44,14 +45,22 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
 
   @Override
   public void up() {
-    rotate.addAndGet(2);
     flex.addAndGet(-1);
   }
 
   @Override
   public void down() {
-    rotate.addAndGet(-2);
     flex.addAndGet(1);
+  }
+
+  @Override
+  public void left() {
+    rotate.addAndGet(2);
+  }
+
+  @Override
+  public void right() {
+    rotate.addAndGet(-2);
   }
 
   @Override
@@ -62,6 +71,6 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
 
   @EventListener(RsceEvent.class)
   private void rsceEvent(@Nonnull RsceEvent event) {
-    System.out.println(event.getValue(RsceVariable.OPEN));
+    Logger.getLogger(getClass().getName()).info(() -> Integer.toString(event.getValue(RsceVariable.OPEN)));
   }
 }
