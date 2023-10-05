@@ -9,6 +9,7 @@ import com.ak.comm.converter.sktbpr.SKTBVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.fx.desktop.AbstractScheduledViewController;
 import com.ak.fx.desktop.nmisr.RsceEvent;
+import com.ak.util.Numbers;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import org.springframework.context.annotation.Profile;
@@ -16,18 +17,21 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
+
+import static com.ak.comm.bytes.sktbpr.SKTBRequest.MAX_ROTATE_VELOCITY;
 
 
 @Component
 @Profile("sktb-pr")
 public final class SKTBViewController extends AbstractScheduledViewController<SKTBRequest, SKTBResponse, SKTBVariable> {
   private final AtomicReference<SKTBRequest> sktbRequestRC = new AtomicReference<>(SKTBRequest.NONE);
-  private final AtomicInteger rotate = new AtomicInteger(0);
-  private final AtomicInteger flex = new AtomicInteger(0);
+  private final AtomicInteger rotateAngle = new AtomicInteger(0);
+  private final AtomicInteger rotateVelocity = new AtomicInteger(0);
 
   @Inject
   @ParametersAreNonnullByDefault
@@ -37,36 +41,34 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
   }
 
   @Override
+  @Nullable
   public SKTBRequest get() {
-    SKTBRequest request = new SKTBRequest.RequestBuilder(sktbRequestRC.get()).rotate(rotate.get()).build();
+    SKTBRequest request = new SKTBRequest.RequestBuilder(sktbRequestRC.get()).rotate(rotateVelocity.get()).build();
     sktbRequestRC.set(request);
     return request;
   }
 
   @Override
-  public void up() {
-    flex.addAndGet(-1);
-  }
-
-  @Override
-  public void down() {
-    flex.addAndGet(1);
+  public void onNext(@Nonnull int[] ints) {
+    super.onNext(ints);
+    int error = ints[SKTBVariable.ROTATE.ordinal()] - rotateAngle.get();
+    error = Numbers.toInt(Math.min(Math.abs(error), MAX_ROTATE_VELOCITY) * Math.signum(error));
+    rotateVelocity.addAndGet(error);
   }
 
   @Override
   public void left() {
-    rotate.addAndGet(2);
+    rotateAngle.addAndGet(-10);
   }
 
   @Override
   public void right() {
-    rotate.addAndGet(-2);
+    rotateAngle.addAndGet(10);
   }
 
   @Override
   public void escape() {
-    rotate.set(0);
-    flex.set(0);
+    rotateAngle.set(0);
   }
 
   @EventListener(RsceEvent.class)

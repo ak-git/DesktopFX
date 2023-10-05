@@ -12,6 +12,7 @@ import java.util.Optional;
 
 public final class SKTBRequest extends BufferFrame {
   public static final SKTBRequest NONE = new SKTBRequest.RequestBuilder(null).build();
+  public static final int MAX_ROTATE_VELOCITY = 10;
   private static final int MAX_CAPACITY = 11;
   private final byte id;
 
@@ -30,7 +31,7 @@ public final class SKTBRequest extends BufferFrame {
     }
 
     public AbstractCheckedBuilder<SKTBRequest> rotate(int velocity10) {
-      return command(velocity10, 10).command(0, 0).command(0, 0);
+      return command(velocity10, MAX_ROTATE_VELOCITY).command(0, 0).command(0, 0);
     }
 
     public AbstractCheckedBuilder<SKTBRequest> flex(int velocity3) {
