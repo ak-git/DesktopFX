@@ -51,9 +51,9 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
   @Override
   public void onNext(@Nonnull int[] ints) {
     super.onNext(ints);
-    int error = ints[SKTBVariable.ROTATE.ordinal()] - rotateAngle.get();
+    int error = rotateAngle.get() - ints[SKTBVariable.ROTATE.ordinal()];
     error = Numbers.toInt(Math.min(Math.abs(error), MAX_ROTATE_VELOCITY) * Math.signum(error));
-    rotateVelocity.addAndGet(error);
+    rotateVelocity.set(error / 2);
   }
 
   @Override
