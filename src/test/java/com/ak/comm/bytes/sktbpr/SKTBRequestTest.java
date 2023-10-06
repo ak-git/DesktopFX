@@ -28,17 +28,17 @@ class SKTBRequestTest {
         ),
         arguments(new SKTBRequest.RequestBuilder(empty).rotate(-100).build(),
             ByteBuffer.allocate(11).order(ByteOrder.LITTLE_ENDIAN)
-                .put((byte) 0x5a).put((byte) 1).put((byte) 8).putShort((short) -50000).putShort((short) 0).putShort((short) 0)
+                .put((byte) 0x5a).put((byte) 1).put((byte) 8).putShort((short) -10000).putShort((short) 0).putShort((short) 0)
                 .putShort((short) 500)
         ),
         arguments(new SKTBRequest.RequestBuilder(empty).flex(31).build(),
             ByteBuffer.allocate(11).order(ByteOrder.LITTLE_ENDIAN)
-                .put((byte) 0x5a).put((byte) 1).put((byte) 8).putShort((short) 0).putShort((short) 30000).putShort((short) 0)
+                .put((byte) 0x5a).put((byte) 1).put((byte) 8).putShort((short) 0).putShort((short) 3000).putShort((short) 0)
                 .putShort((short) 500)
         ),
         arguments(new SKTBRequest.RequestBuilder(empty).grip(-20).build(),
             ByteBuffer.allocate(11).order(ByteOrder.LITTLE_ENDIAN)
-                .put((byte) 0x5a).put((byte) 1).put((byte) 8).putShort((short) 0).putShort((short) 0).putShort((short) -20000)
+                .put((byte) 0x5a).put((byte) 1).put((byte) 8).putShort((short) 0).putShort((short) 0).putShort((short) -10000)
                 .putShort((short) 500)
         )
     );
