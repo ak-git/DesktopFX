@@ -3,7 +3,6 @@ package com.ak.fx.desktop.sktb;
 import com.ak.comm.bytes.sktbpr.SKTBRequest;
 import com.ak.comm.bytes.sktbpr.SKTBResponse;
 import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.rsce.RsceVariable;
 import com.ak.comm.converter.sktbpr.SKTBConverter;
 import com.ak.comm.converter.sktbpr.SKTBVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
@@ -24,7 +23,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Logger;
 
 
 @Component
@@ -97,7 +95,12 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
 
   @Override
   @EventListener(RsceEvent.class)
-  public void onApplicationEvent(@Nonnull RsceEvent event) {
-    Logger.getLogger(getClass().getName()).info(() -> Integer.toString(event.getValue(RsceVariable.OPEN)));
+  public void onApplicationEvent(@Nonnull RsceEvent rsceEvent) {
+    pushFlags.addAll(
+        controls.stream()
+            .filter(c -> c.isUpdatedBy(rsceEvent.getValue(c.rsceMapping())))
+            .map(SKTBAngleVelocityControl::variable)
+            .toList()
+    );
   }
 }

@@ -49,7 +49,7 @@ module com.ak.fx.desktop {
   exports com.ak.fx.desktop.nmisr to spring.beans;
   exports com.ak.fx.desktop.suntech to spring.beans;
   exports com.ak.fx.desktop.purelogic to spring.beans;
-  exports com.ak.fx.desktop.sktb to spring.beans;
+  exports com.ak.fx.desktop.sktb to spring.beans, spring.context;
 
   exports com.ak.comm.bytes.suntech;
   exports com.ak.comm.bytes.purelogic;

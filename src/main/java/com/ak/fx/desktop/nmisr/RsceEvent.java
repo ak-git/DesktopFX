@@ -7,7 +7,6 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 
 public final class RsceEvent extends ApplicationEvent {
-
   @Nonnull
   private final int[] values;
 
