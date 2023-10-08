@@ -18,24 +18,25 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.random.RandomGenerator;
 
 
 @Component
 @Profile("sktb-pr")
 public final class SKTBViewController extends AbstractScheduledViewController<SKTBRequest, SKTBResponse, SKTBVariable>
     implements ApplicationListener<RsceEvent> {
-  @Nonnull
   private final AtomicReference<SKTBRequest> sktbRequestPrev = new AtomicReference<>(SKTBRequest.NONE);
-  @Nonnull
   private final List<SKTBAngleVelocityControl> controls = EnumSet.allOf(SKTBVariable.class).stream()
       .map(SKTBAngleVelocityControl::new).toList();
-  @Nonnull
   private final Collection<SKTBVariable> pushFlags = new CopyOnWriteArraySet<>();
+  private final RandomGenerator random = new SecureRandom();
 
   @Inject
   @ParametersAreNonnullByDefault
@@ -47,7 +48,9 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
   @Override
   @Nullable
   public SKTBRequest get() {
-    SKTBAngleVelocityControl peek = controls.get(pushFlags.stream().findFirst().orElse(SKTBVariable.ROTATE).ordinal());
+    SKTBVariable[] allSKTBVariables = SKTBVariable.values();
+    SKTBAngleVelocityControl peek = controls.get(pushFlags.stream().findFirst()
+        .orElse(allSKTBVariables[random.nextInt(allSKTBVariables.length)]).ordinal());
     SKTBRequest.RequestBuilder requestBuilder = new SKTBRequest.RequestBuilder(sktbRequestPrev.get());
     var request = switch (peek.variable()) {
       case ROTATE -> requestBuilder.rotate(peek.velocity()).build();
@@ -65,26 +68,22 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
 
   @Override
   public void left() {
-    controls.get(SKTBVariable.ROTATE.ordinal()).decrement();
-    pushFlags.add(SKTBVariable.ROTATE);
+    action(SKTBVariable.ROTATE, SKTBAngleVelocityControl::decrement);
   }
 
   @Override
   public void right() {
-    controls.get(SKTBVariable.ROTATE.ordinal()).increment();
-    pushFlags.add(SKTBVariable.ROTATE);
+    action(SKTBVariable.ROTATE, SKTBAngleVelocityControl::increment);
   }
 
   @Override
   public void up() {
-    controls.get(SKTBVariable.FLEX.ordinal()).increment();
-    pushFlags.add(SKTBVariable.FLEX);
+    action(SKTBVariable.FLEX, SKTBAngleVelocityControl::increment);
   }
 
   @Override
   public void down() {
-    controls.get(SKTBVariable.FLEX.ordinal()).decrement();
-    pushFlags.add(SKTBVariable.FLEX);
+    action(SKTBVariable.FLEX, SKTBAngleVelocityControl::decrement);
   }
 
   @Override
@@ -102,5 +101,11 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
             .map(SKTBAngleVelocityControl::variable)
             .toList()
     );
+  }
+
+  @ParametersAreNonnullByDefault
+  private void action(SKTBVariable variable, Consumer<SKTBAngleVelocityControl> control) {
+    control.accept(controls.get(variable.ordinal()));
+    pushFlags.add(variable);
   }
 }
