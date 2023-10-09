@@ -32,11 +32,6 @@ final class SKTBAngleVelocityControl implements IntsAcceptor {
   }
 
   @Nonnull
-  SKTBVariable variable() {
-    return variable;
-  }
-
-  @Nonnull
   RsceVariable rsceMapping() {
     return rsceMapping;
   }
@@ -49,9 +44,8 @@ final class SKTBAngleVelocityControl implements IntsAcceptor {
     angle.addAndGet(10);
   }
 
-  boolean isUpdatedBy(int percents) {
-    int newValue = 180 * percents / 100 - 90;
-    return angle.getAndSet(newValue) != newValue;
+  void update(int percents) {
+    angle.getAndSet(180 * percents / 100 - 90);
   }
 
   void escape() {
