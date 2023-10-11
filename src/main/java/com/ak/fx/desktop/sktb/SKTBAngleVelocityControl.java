@@ -45,7 +45,7 @@ final class SKTBAngleVelocityControl implements IntsAcceptor {
   }
 
   void update(int percents) {
-    angle.getAndSet(180 * percents / 100 - 90);
+    angle.set(-(180 * percents / 100 - 90));
   }
 
   void escape() {

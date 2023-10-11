@@ -80,12 +80,12 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
 
   @Override
   public void up() {
-    action(SKTBVariable.FLEX, SKTBAngleVelocityControl::increment);
+    action(SKTBVariable.FLEX, SKTBAngleVelocityControl::decrement);
   }
 
   @Override
   public void down() {
-    action(SKTBVariable.FLEX, SKTBAngleVelocityControl::decrement);
+    action(SKTBVariable.FLEX, SKTBAngleVelocityControl::increment);
   }
 
   @Override
