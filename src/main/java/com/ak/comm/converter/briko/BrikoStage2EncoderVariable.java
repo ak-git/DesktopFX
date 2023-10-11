@@ -11,10 +11,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static com.ak.comm.converter.briko.BrikoStage2Variable.FREQUENCY;
 import static tec.uom.se.unit.Units.METRE;
 
 public enum BrikoStage2EncoderVariable implements DependentVariable<BrikoStage1Variable, BrikoStage2EncoderVariable> {
   ENCODER1 {
+    @Override
+    public DigitalFilter filter() {
+      return FilterBuilder.of()
+          .average(FREQUENCY / 50).smoothingImpulsive(10)
+          .build();
+    }
+
     @Override
     public Set<Option> options() {
       return Collections.emptySet();
