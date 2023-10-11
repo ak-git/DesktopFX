@@ -13,6 +13,7 @@ import javax.annotation.Nonnull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
+import static tec.uom.se.unit.Units.METRE;
 
 class Apparent3RhoTest {
   @ParameterizedTest
@@ -22,11 +23,11 @@ class Apparent3RhoTest {
     double apparent = TetrapolarResistance.ofMilli(smm, lmm).ofOhms(rOhm).resistivity() / rho[0];
 
     double predicted = Apparent3Rho.newApparentDivRho1(new RelativeTetrapolarSystem(lmm / smm))
-        .value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]), hStepSI / Metrics.fromMilli(smm), p[0], p[1]);
+        .value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]), hStepSI / Metrics.Length.MILLI.to(smm, METRE), p[0], p[1]);
     assertThat(apparent).isCloseTo(predicted, byLessThan(0.001));
 
     double predicted2 = Apparent3Rho.newApparentDivRho1(new RelativeTetrapolarSystem(smm / lmm))
-        .value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]), hStepSI / Metrics.fromMilli(lmm), p[0], p[1]);
+        .value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]), hStepSI / Metrics.Length.MILLI.to(lmm, METRE), p[0], p[1]);
     assertThat(apparent).isCloseTo(predicted2, byLessThan(0.001));
   }
 

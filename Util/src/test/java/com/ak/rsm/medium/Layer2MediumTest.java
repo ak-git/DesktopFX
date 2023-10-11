@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static tec.uom.se.unit.Units.METRE;
 
 class Layer2MediumTest {
   static Stream<Arguments> layer2Medium() {
@@ -31,14 +32,14 @@ class Layer2MediumTest {
                 ValuePair.Name.K12.of(0.6, 0.01),
                 ValuePair.Name.H_L.of(0.2, 0.01))
             ),
-            new double[] {0.0522, 0.0287, 0.1149, Metrics.fromMilli(7.0 * 3 * 0.2)}
+            new double[] {0.0522, 0.0287, 0.1149, Metrics.Length.MILLI.to(7.0 * 3 * 0.2, METRE)}
         ),
         arguments(
             new Layer2Medium(measurements, new RelativeMediumLayers(
                 ValuePair.Name.K12.of(-0.6, 0.001),
                 ValuePair.Name.H_L.of(0.1, 0.001))
             ),
-            new double[] {0.0522, 0.1601, 0.0400, Metrics.fromMilli(7.0 * 3 * 0.1)}
+            new double[] {0.0522, 0.1601, 0.0400, Metrics.Length.MILLI.to(7.0 * 3 * 0.1, METRE)}
         ),
         arguments(
             new Layer2Medium(measurements, RelativeMediumLayers.SINGLE_LAYER),
@@ -60,14 +61,14 @@ class Layer2MediumTest {
                 ValuePair.Name.K12.of(0.6, 0.01),
                 ValuePair.Name.H_L.of(0.2, 0.01))
             ),
-            new double[] {0.0522, 0.0291, 0.1166, Metrics.fromMilli(7.0 * 3 * 0.2)}
+            new double[] {0.0522, 0.0291, 0.1166, Metrics.Length.MILLI.to(7.0 * 3 * 0.2, METRE)}
         ),
         arguments(
             new Layer2Medium(measurements, new RelativeMediumLayers(
                 ValuePair.Name.K12.of(-0.6, 0.001),
                 ValuePair.Name.H_L.of(0.1, 0.001))
             ),
-            new double[] {0.0522, 0.1418, 0.0354, Metrics.fromMilli(7.0 * 3 * 0.1)}
+            new double[] {0.0522, 0.1418, 0.0354, Metrics.Length.MILLI.to(7.0 * 3 * 0.1, METRE)}
         ),
         arguments(
             new Layer2Medium(measurements, RelativeMediumLayers.SINGLE_LAYER),

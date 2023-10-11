@@ -1,14 +1,5 @@
 package com.ak.comm.converter.rcm;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.function.IntUnaryOperator;
-
-import javax.annotation.Nonnull;
-import javax.measure.Unit;
-
 import com.ak.comm.converter.DependentVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
@@ -21,11 +12,18 @@ import com.ak.numbers.rcm.RcmSimpleCoefficients;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
+import javax.annotation.Nonnull;
+import javax.measure.Unit;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.function.IntUnaryOperator;
+
 public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVariable> {
   RHEO_1 {
     @Override
     public List<RcmInVariable> getInputVariables() {
-      return Arrays.asList(RcmInVariable.QS_1, RcmInVariable.RHEO_1);
+      return List.of(RcmInVariable.QS_1, RcmInVariable.RHEO_1);
     }
 
     @Override
@@ -46,7 +44,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
   BASE_1 {
     @Override
     public List<RcmInVariable> getInputVariables() {
-      return Arrays.asList(RcmInVariable.QS_1, RcmInVariable.BASE_1);
+      return List.of(RcmInVariable.QS_1, RcmInVariable.BASE_1);
     }
 
     @Override
@@ -94,7 +92,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
   RHEO_2 {
     @Override
     public List<RcmInVariable> getInputVariables() {
-      return Arrays.asList(RcmInVariable.QS_2, RcmInVariable.RHEO_2);
+      return List.of(RcmInVariable.QS_2, RcmInVariable.RHEO_2);
     }
 
     @Override
@@ -105,7 +103,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
   BASE_2 {
     @Override
     public List<RcmInVariable> getInputVariables() {
-      return Arrays.asList(RcmInVariable.QS_2, RcmInVariable.BASE_2);
+      return List.of(RcmInVariable.QS_2, RcmInVariable.BASE_2);
     }
 
     @Override

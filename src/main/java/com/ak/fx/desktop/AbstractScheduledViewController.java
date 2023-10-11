@@ -29,7 +29,6 @@ public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & 
   @Nullable
   private ScheduledFuture<?> scheduledFuture;
 
-
   @ParametersAreNonnullByDefault
   protected AbstractScheduledViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
                                             Provider<Converter<R, V>> converterProvider,

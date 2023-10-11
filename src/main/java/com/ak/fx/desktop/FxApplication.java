@@ -1,16 +1,5 @@
 package com.ak.fx.desktop;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.ResourceBundle;
-
-import javax.annotation.Nonnull;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.storage.Storage;
 import com.ak.fx.util.OSDockImage;
@@ -28,6 +17,12 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import javax.annotation.Nonnull;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.IOException;
+import java.util.*;
+
 public class FxApplication extends Application implements ViewController {
   private static final String KEY_PROPERTIES = "keys";
   private static final String KEY_APPLICATION_TITLE = "application.title";
@@ -35,10 +30,11 @@ public class FxApplication extends Application implements ViewController {
 
   @Override
   public final void start(@Nonnull Stage mainStage) throws IOException {
-    var resourceBundle = ResourceBundle.getBundle(String.join(".", getClass().getPackageName(), KEY_PROPERTIES));
+    var resourceBundle = ResourceBundle.getBundle(
+        String.join(".", FxApplication.class.getPackageName(), KEY_PROPERTIES));
     List<FXMLLoader> fxmlLoaders = getFXMLLoader(resourceBundle);
     OSDockImage.valueOf(OS.get().name()).setIconImage(mainStage,
-        Objects.requireNonNull(getClass().getResource(resourceBundle.getString(KEY_APPLICATION_IMAGE)))
+        Objects.requireNonNull(FxApplication.class.getResource(resourceBundle.getString(KEY_APPLICATION_IMAGE)))
     );
 
     var root = new SplitPane();
@@ -71,6 +67,8 @@ public class FxApplication extends Application implements ViewController {
     addEventHandler(stage, () -> refresh(true), KeyCode.S);
     addEventHandler(stage, this::up, KeyCode.UP);
     addEventHandler(stage, this::down, KeyCode.DOWN);
+    addEventHandler(stage, this::left, KeyCode.LEFT);
+    addEventHandler(stage, this::right, KeyCode.RIGHT);
     addEventHandler(stage, this::escape, KeyCode.ESCAPE);
     addEventHandler(stage, () -> zoom(Double.POSITIVE_INFINITY), KeyCode.EQUALS);
     addEventHandler(stage, () -> zoom(Double.NEGATIVE_INFINITY), KeyCode.MINUS);

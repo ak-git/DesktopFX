@@ -1,12 +1,11 @@
 package com.ak.comm.converter;
 
-import java.util.Arrays;
+import com.ak.digitalfilter.DigitalFilter;
+import com.ak.digitalfilter.FilterBuilder;
+
 import java.util.List;
 import java.util.Set;
 import java.util.function.IntBinaryOperator;
-
-import com.ak.digitalfilter.DigitalFilter;
-import com.ak.digitalfilter.FilterBuilder;
 
 public enum OperatorVariables2 implements DependentVariable<OperatorVariables, OperatorVariables2> {
   OUT((left, right) -> left * right) {
@@ -30,7 +29,7 @@ public enum OperatorVariables2 implements DependentVariable<OperatorVariables, O
 
   @Override
   public final List<OperatorVariables> getInputVariables() {
-    return Arrays.asList(OperatorVariables.OUT_PLUS, OperatorVariables.OUT_MINUS);
+    return List.of(OperatorVariables.OUT_PLUS, OperatorVariables.OUT_MINUS);
   }
 
   @Override

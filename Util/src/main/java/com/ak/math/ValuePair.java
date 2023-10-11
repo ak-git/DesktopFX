@@ -47,7 +47,7 @@ public record ValuePair(@Nonnull Name name, double value, @Nonnegative double ab
     H {
       @Override
       double convert(double si) {
-        return Metrics.toMilli(si);
+        return Metrics.Length.METRE.to(si, MILLI(METRE));
       }
 
       @Nonnull

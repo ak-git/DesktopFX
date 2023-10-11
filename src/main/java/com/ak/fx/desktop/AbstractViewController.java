@@ -26,6 +26,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.input.TransferMode;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 
 import javax.annotation.*;
 import java.io.Closeable;
@@ -82,7 +83,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
 
   @Override
   public final String toString() {
-    return "ViewController{version='%s'}".formatted(version);
+    return "%s{version='%s'}".formatted(getClass(), version);
   }
 
   @Override
@@ -196,6 +197,46 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @Override
   public final void scroll(double deltaX) {
     axisXController.scroll(deltaX);
+  }
+
+  @EventListener(RefreshEvent.class)
+  private void refreshEvent(@Nonnull RefreshEvent e) {
+    refresh(e.isForce());
+  }
+
+  @EventListener(UpEvent.class)
+  private void upEvent() {
+    up();
+  }
+
+  @EventListener(DownEvent.class)
+  private void downEvent() {
+    down();
+  }
+
+  @EventListener(LeftEvent.class)
+  private void leftEvent() {
+    left();
+  }
+
+  @EventListener(RightEvent.class)
+  private void rightEvent() {
+    right();
+  }
+
+  @EventListener(EscapeEvent.class)
+  private void escapeEvent() {
+    escape();
+  }
+
+  @EventListener(ZoomEvent.class)
+  private void zoomEvent(@Nonnull ZoomEvent e) {
+    zoom(e.getZoomFactor());
+  }
+
+  @EventListener(ScrollEvent.class)
+  private void scrollEvent(@Nonnull ScrollEvent e) {
+    scroll(e.getDeltaX());
   }
 
   @Nonnull
