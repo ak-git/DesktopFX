@@ -3,9 +3,6 @@ package com.ak.fx.desktop;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.*;
 import com.ak.comm.converter.aper.*;
-import com.ak.comm.converter.briko.BrikoConverter;
-import com.ak.comm.converter.briko.BrikoStage2Variable;
-import com.ak.comm.converter.briko.BrikoStage3Variable;
 import com.ak.comm.converter.kleiber.KleiberVariable;
 import com.ak.comm.converter.prv.PrvVariable;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
@@ -259,12 +256,5 @@ public class SpringFxApplication extends FxApplication {
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, RcmCalibrationVariable> converterRcmCalibration() {
     return LinkedConverter.of(new RcmConverter(), RcmCalibrationVariable.class);
-  }
-
-  @Bean("briko-converter")
-  @Profile("briko")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, BrikoStage3Variable> converterBriko() {
-    return LinkedConverter.of(new BrikoConverter(), BrikoStage2Variable.class).chainInstance(BrikoStage3Variable.class);
   }
 }

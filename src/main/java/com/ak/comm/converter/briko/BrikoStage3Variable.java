@@ -41,12 +41,12 @@ public enum BrikoStage3Variable implements DependentVariable<BrikoStage2Variable
 
   @Nonnull
   @Override
-  public Class<BrikoStage2Variable> getInputVariablesClass() {
+  public final Class<BrikoStage2Variable> getInputVariablesClass() {
     return BrikoStage2Variable.class;
   }
 
   @Override
-  public Set<Option> options() {
+  public final Set<Option> options() {
     return Option.addToDefault(Option.TEXT_VALUE_BANNER);
   }
 }
