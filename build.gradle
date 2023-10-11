@@ -1,3 +1,5 @@
+import com.github.spotbugs.snom.Confidence
+
 plugins {
     id 'org.javamodularity.moduleplugin' version '1.8.12'
     id 'java'
@@ -17,16 +19,13 @@ plugins {
     id 'nebula.lint' version '18.1.0'
 }
 
-spotbugs {
-    reportLevel = 'high'
-}
-
 spotbugsMain {
     reports {
         html {
             stylesheet = 'fancy-hist.xsl'
         }
     }
+    reportLevel = Confidence.HIGH
 }
 
 sonar {
@@ -64,7 +63,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2023.09.30'
+    version = '2023.10.01'
     apply plugin: 'idea'
     idea {
         module {

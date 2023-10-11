@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="SKTB-PR" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <option name="ACTIVE_PROFILES" value="sktb-pr" />
+    <option name="ACTIVE_PROFILES" value="sktb-pr, nmis-rsce" />
     <option name="ENABLE_JMX_AGENT" value="false" />
     <option name="ENABLE_LAUNCH_OPTIMIZATION" value="false" />
     <module name="com.ak.DesktopFX.main" />
