@@ -16,8 +16,8 @@ public enum BrikoStage2Variable implements DependentVariable<BrikoStage1Variable
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.of()
-          .operator(() -> x -> Numbers.toInt((0.1234 * x - 94_374))).autoZero()
-          .average(FREQUENCY / 50).smoothingImpulsive(10)
+              .operator(() -> x -> Numbers.toInt((0.1234 * x - 94_374)))
+              .average(FREQUENCY / 50).smoothingImpulsive(10).autoZero()
           .build();
     }
   },
@@ -25,8 +25,8 @@ public enum BrikoStage2Variable implements DependentVariable<BrikoStage1Variable
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.of()
-          .operator(() -> x -> x + 2_015_500).operator(() -> x -> Numbers.toInt((0.1235 * x))).autoZero()
-          .average(FREQUENCY / 50).smoothingImpulsive(10)
+              .operator(() -> x -> x + 2_015_500).operator(() -> x -> Numbers.toInt((0.1235 * x)))
+              .average(FREQUENCY / 50).smoothingImpulsive(10).autoZero()
           .build();
     }
   };
