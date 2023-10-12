@@ -10,9 +10,12 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("briko2")
+@Profile("briko-white")
 public final class BrikoViewController2 extends AbstractViewController<BufferFrame, BufferFrame, BrikoStage2EncoderVariable> {
   public BrikoViewController2() {
-    super(BrikoBytesInterceptor::new, () -> LinkedConverter.of(new BrikoConverter(), BrikoStage2EncoderVariable.class));
+    super(
+        () -> new BrikoBytesInterceptor("Briko-White-Stand"),
+        () -> LinkedConverter.of(new BrikoConverter(), BrikoStage2EncoderVariable.class)
+    );
   }
 }

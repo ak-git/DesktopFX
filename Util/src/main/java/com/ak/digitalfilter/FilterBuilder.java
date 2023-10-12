@@ -133,8 +133,8 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new ExpSumFilter());
   }
 
-  public FilterBuilder autoZero() {
-    return chain(new AutoZeroFilter());
+  public FilterBuilder autoZero(@Nonnegative int settingCounts) {
+    return chain(new AutoZeroFilter(settingCounts));
   }
 
   public FilterBuilder angle() {

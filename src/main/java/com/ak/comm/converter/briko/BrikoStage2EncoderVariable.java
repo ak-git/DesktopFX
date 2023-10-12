@@ -31,7 +31,7 @@ public enum BrikoStage2EncoderVariable implements DependentVariable<BrikoStage1V
   POSITION1 {
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().operator(() -> angle -> angle * 4 / 360_000).autoZero().build();
+      return FilterBuilder.of().operator(() -> angle -> angle * 4 / 360_000).build();
     }
 
     @Override

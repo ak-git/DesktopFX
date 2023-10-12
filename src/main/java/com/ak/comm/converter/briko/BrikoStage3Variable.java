@@ -20,7 +20,7 @@ public enum BrikoStage3Variable implements DependentVariable<BrikoStage2Variable
     public DigitalFilter filter() {
       return FilterBuilder.of()
           .biOperator(() -> (force1, force2) -> {
-            double newtons = Math.abs(force1 + force2) / 100.0;
+            double newtons = Math.abs(force1 - force2) / 100.0;
             double radius = Metrics.Length.MILLI.to(19.0, Units.METRE) / 2.0;
             double area = Math.PI * radius * radius;
             return Numbers.toInt(newtons / area);
