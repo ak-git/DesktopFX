@@ -17,7 +17,7 @@ public enum BrikoStage1Variable implements Variable<BrikoStage1Variable> {
   ENCODER1 {
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().angle().build();
+      return FilterBuilder.of().angle().autoZero(FREQUENCY).build();
     }
 
     @Override
@@ -25,5 +25,7 @@ public enum BrikoStage1Variable implements Variable<BrikoStage1Variable> {
       return RADIAN.alternate(ANGLE).divide(1000.0);
     }
   },
-  ENCODER2
+  ENCODER2;
+
+  public static final int FREQUENCY = 1000;
 }

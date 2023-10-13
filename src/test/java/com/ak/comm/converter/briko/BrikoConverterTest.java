@@ -33,7 +33,7 @@ class BrikoConverterTest {
                 (byte) 0xc6,
                 0x20, (byte) 0xbf, 0x02, 0x00,
             },
-            new int[] {151341, 206682, 0, 0, 180000, 180000}
+            new int[] {151341, 206682, 0, 0, 0, 0}
         )
     );
   }

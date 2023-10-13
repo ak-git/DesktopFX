@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import javax.measure.Unit;
 import java.util.Set;
 
+import static com.ak.comm.converter.briko.BrikoStage1Variable.FREQUENCY;
 import static tec.uom.se.unit.Units.GRAM;
 
 public enum BrikoStage2Variable implements DependentVariable<BrikoStage1Variable, BrikoStage2Variable> {
@@ -28,8 +29,6 @@ public enum BrikoStage2Variable implements DependentVariable<BrikoStage1Variable
           .average(FREQUENCY / 50).smoothingImpulsive(10).autoZero(FREQUENCY).build();
     }
   };
-
-  public static final int FREQUENCY = 1000;
 
   @Nonnull
   @Override

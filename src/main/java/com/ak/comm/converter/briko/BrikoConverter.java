@@ -6,7 +6,7 @@ import com.ak.comm.converter.AbstractConverter;
 import javax.annotation.Nonnull;
 import java.util.stream.Stream;
 
-import static com.ak.comm.converter.briko.BrikoStage2Variable.FREQUENCY;
+import static com.ak.comm.converter.briko.BrikoStage1Variable.FREQUENCY;
 import static java.lang.Integer.BYTES;
 
 public final class BrikoConverter extends AbstractConverter<BufferFrame, BrikoStage1Variable> {

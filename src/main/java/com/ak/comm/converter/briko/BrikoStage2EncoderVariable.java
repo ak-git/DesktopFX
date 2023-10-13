@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static com.ak.comm.converter.briko.BrikoStage2Variable.FREQUENCY;
+import static com.ak.comm.converter.briko.BrikoStage1Variable.FREQUENCY;
 import static tec.uom.se.unit.Units.METRE;
 
 public enum BrikoStage2EncoderVariable implements DependentVariable<BrikoStage1Variable, BrikoStage2EncoderVariable> {
