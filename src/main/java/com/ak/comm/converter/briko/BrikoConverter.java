@@ -2,10 +2,6 @@ package com.ak.comm.converter.briko;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.AbstractConverter;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
 import java.util.stream.Stream;
