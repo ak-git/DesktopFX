@@ -131,9 +131,15 @@ class SimpleFilterTest {
             1.0
         ),
         arguments(
-            FilterBuilder.of().autoZero(3).build(),
+            FilterBuilder.of().autoZero(2).build(),
             new int[] {1, 2, 3, 4, 5, 6},
-            new int[] {0, 0, 0, 1, 2, 3},
+            new int[] {0, 0, 0, 0, 1, 2},
+            0.0
+        ),
+        arguments(
+            FilterBuilder.of().autoZero(0).build(),
+            new int[] {1, 2, 3, 4, 5, 6},
+            new int[] {1, 2, 3, 4, 5, 6},
             0.0
         ),
         arguments(
