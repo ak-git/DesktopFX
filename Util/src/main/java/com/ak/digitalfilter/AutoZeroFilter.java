@@ -5,13 +5,13 @@ import javax.annotation.Nonnegative;
 final class AutoZeroFilter extends AbstractOperableFilter {
   private final DigitalFilter rrsFilter = new RRSFilter();
   @Nonnegative
-  private final int settingCountsSkipHalf;
+  private final int settingCountsAndSkip;
   @Nonnegative
   private int countCounts;
   private int y;
 
-  AutoZeroFilter(@Nonnegative int settingCountsSkipHalf) {
-    this.settingCountsSkipHalf = settingCountsSkipHalf;
+  AutoZeroFilter(@Nonnegative int settingCountsAndSkip) {
+    this.settingCountsAndSkip = Math.abs(settingCountsAndSkip);
     rrsFilter.forEach(avg -> y = avg[0]);
   }
 
@@ -21,8 +21,8 @@ final class AutoZeroFilter extends AbstractOperableFilter {
       countCounts = 0;
       rrsFilter.reset();
     }
-    if (countCounts < settingCountsSkipHalf) {
-      if (countCounts < settingCountsSkipHalf / 2) {
+    if (countCounts < settingCountsAndSkip * 2) {
+      if (countCounts < settingCountsAndSkip) {
         y = in;
       }
       else {

@@ -133,7 +133,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new ExpSumFilter());
   }
 
-  FilterBuilder autoZero(@Nonnegative int settingCounts) {
+  public FilterBuilder autoZero(@Nonnegative int settingCounts) {
     return chain(new AutoZeroFilter(settingCounts));
   }
 

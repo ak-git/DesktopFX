@@ -6,11 +6,12 @@ import com.ak.comm.converter.AbstractConverter;
 import javax.annotation.Nonnull;
 import java.util.stream.Stream;
 
+import static com.ak.comm.converter.briko.BrikoVariable.FREQUENCY;
 import static java.lang.Integer.BYTES;
 
 public final class BrikoConverter extends AbstractConverter<BufferFrame, BrikoVariable> {
   public BrikoConverter() {
-    super(BrikoVariable.class, 1000);
+    super(BrikoVariable.class, FREQUENCY);
   }
 
   @Override

@@ -32,7 +32,7 @@ public enum BrikoVariable implements Variable<BrikoVariable> {
   POSITION {
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().angle().operator(() -> a -> Numbers.toInt(a * 4.0 / 360_000)).build();
+      return FilterBuilder.of().angle().operator(() -> a -> Numbers.toInt(a * 4.0 / 360_000)).autoZero(FREQUENCY).build();
     }
 
     @Override
@@ -51,6 +51,8 @@ public enum BrikoVariable implements Variable<BrikoVariable> {
       return RADIAN.alternate(ANGLE).divide(1000.0);
     }
   };
+
+  public static final int FREQUENCY = 1000;
 
   @Override
   public Set<Option> options() {
