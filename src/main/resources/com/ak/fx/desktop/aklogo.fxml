@@ -8,12 +8,12 @@
 <StackPane>
     <Arc radiusX="42" radiusY="42" strokeWidth="3" length="360" stroke="rgb(255, 130, 110)"/>
     <Circle radius="42" style="-fx-fill: white;"/>
-    <Text text="ak" translateY="-12" style="-fx-font-style: bold; -fx-fill: rgb(255, 130, 110);">
+    <Text text="ak" translateY="-12" style="-fx-font-weight: bold; -fx-fill: rgb(255, 130, 110);">
         <font>
             <Font name="Monospaced" size="48"/>
         </font>
     </Text>
-    <Text text="alexander kobelev" translateY="12" style="-fx-font-style: bold; -fx-fill: rgb(255, 130, 110);">
+    <Text text="alexander kobelev" translateY="12" style="-fx-font-weight: bold; -fx-fill: rgb(255, 130, 110);">
         <font>
             <Font name="Monospaced" size="10"/>
         </font>
