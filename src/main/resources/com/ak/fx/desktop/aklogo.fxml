@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.shape.Arc?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<StackPane>
+    <Arc radiusX="42" radiusY="42" strokeWidth="3" length="360" stroke="rgb(255, 130, 110)"/>
+    <Circle radius="42" style="-fx-fill: white;"/>
+    <Text text="ak" translateY="-12" style="-fx-font-weight: bold; -fx-fill: rgb(255, 130, 110);">
+        <font>
+            <Font name="Monospaced" size="48"/>
+        </font>
+    </Text>
+    <Text text="alexander kobelev" translateY="12" style="-fx-font-weight: bold; -fx-fill: rgb(255, 130, 110);">
+        <font>
+            <Font name="Monospaced" size="10"/>
+        </font>
+    </Text>
+</StackPane>
