@@ -1,5 +1,6 @@
 package com.ak.fx.desktop;
 
+import com.ak.fx.storage.DoubleArrayStorage;
 import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.storage.Storage;
 import com.ak.fx.util.OSDockImage;
@@ -22,6 +23,7 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FxApplication extends Application implements ViewController {
   private static final String KEY_PROPERTIES = "keys";
@@ -42,6 +44,20 @@ public class FxApplication extends Application implements ViewController {
     for (FXMLLoader fxmlLoader : fxmlLoaders) {
       root.getItems().add(fxmlLoader.load());
     }
+    Storage<double[]> dividerStorage = new DoubleArrayStorage(FxApplication.class,
+        fxmlLoaders.stream()
+            .map(fxmlLoader -> fxmlLoader.getController().getClass().getSimpleName())
+            .collect(Collectors.joining())
+    );
+    root.getDividers()
+        .forEach(divider -> divider.positionProperty().addListener(
+                (observable, oldValue, newValue) -> dividerStorage.save(
+                    root.getDividers().stream()
+                        .mapToDouble(SplitPane.Divider::getPosition)
+                        .toArray()
+                )
+            )
+        );
 
     var stage = new Stage(StageStyle.DECORATED);
     stage.setScene(new Scene(root, 1024, 768));
@@ -78,6 +94,11 @@ public class FxApplication extends Application implements ViewController {
     stage.getScene().addPostLayoutPulseListener(new Runnable() {
       @Override
       public void run() {
+        double[] array = dividerStorage.get();
+        if (array.length == fxmlLoaders.size() - 1) {
+          root.setDividerPositions(array);
+        }
+
         stageStorage.update(stage);
         stage.getScene().removePostLayoutPulseListener(this);
       }

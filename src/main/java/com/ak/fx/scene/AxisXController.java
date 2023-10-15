@@ -1,31 +1,23 @@
 package com.ak.fx.scene;
 
+import com.ak.comm.converter.Variables;
+import com.ak.fx.storage.Storage;
+import com.ak.fx.storage.StringStorage;
+import com.ak.util.Strings;
+import javafx.beans.binding.StringBinding;
+import javafx.beans.property.*;
+import tec.uom.se.quantity.Quantities;
+import tec.uom.se.unit.MetricPrefix;
+import tec.uom.se.unit.Units;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.measure.quantity.Speed;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.function.DoublePredicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.measure.quantity.Speed;
-
-import com.ak.comm.converter.Variables;
-import com.ak.fx.storage.Storage;
-import com.ak.fx.storage.StringStorage;
-import com.ak.util.Strings;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.beans.property.ReadOnlyIntegerProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import tec.uom.se.quantity.Quantities;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
 
 import static com.ak.fx.scene.GridCell.SMALL;
 
@@ -110,8 +102,9 @@ public final class AxisXController {
     });
   }
 
-  public ReadOnlyObjectProperty<ZoomX> zoomProperty() {
-    return zoomProperty;
+  @Nonnull
+  public StringBinding zoomBinding() {
+    return zoomProperty.asString();
   }
 
   public ReadOnlyDoubleProperty stepProperty() {
