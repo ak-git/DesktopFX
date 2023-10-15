@@ -21,5 +21,7 @@ public enum BrikoVariable implements Variable<BrikoVariable> {
       return Collections.emptySet();
     }
   },
-  IGNORE2
+  IGNORE2;
+
+  public static final int FREQUENCY = 1000;
 }
