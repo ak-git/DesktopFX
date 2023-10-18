@@ -1,5 +1,15 @@
 package com.ak.comm.file;
 
+import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.Variable;
+import com.ak.comm.core.AbstractService;
+import com.ak.comm.core.Readable;
+import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.util.Extension;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.ByteBuffer;
@@ -10,17 +20,6 @@ import java.util.concurrent.Flow;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.Variable;
-import com.ak.comm.core.AbstractService;
-import com.ak.comm.core.Readable;
-import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.util.Extension;
 
 public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractService<int[]> implements FileFilter, Readable {
@@ -51,10 +50,11 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public boolean accept(@Nonnull File file) {
-    if (file.isFile() && Extension.BIN.is(file.getName())) {
+    BytesInterceptor<T, R> bytesInterceptor = interceptorProvider.get();
+    if (file.isFile() && Extension.BIN.is(file.getName()) && Extension.BIN.clean(file.getName()).endsWith(bytesInterceptor.name())) {
       refresh(false);
       readable = CompletableFuture
-          .supplyAsync(() -> new FileReadingService<>(file.toPath(), interceptorProvider.get(), converterProvider.get()))
+          .supplyAsync(() -> new FileReadingService<>(file.toPath(), bytesInterceptor, converterProvider.get()))
           .whenComplete((source, throwable) -> {
             if (throwable != null) {
               Logger.getLogger(FileReadingService.class.getName()).log(Level.WARNING, file.getName(), throwable);
