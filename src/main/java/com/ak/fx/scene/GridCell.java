@@ -1,8 +1,6 @@
 package com.ak.fx.scene;
 
 import com.ak.fx.stage.ScreenResolutionMonitor;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Path;
 
 import javax.annotation.Nonnegative;
@@ -10,6 +8,8 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
+
+import static com.ak.fx.scene.Fonts.COLOR;
 
 enum GridCell {
   POINTS(1.0) {
@@ -60,7 +60,6 @@ enum GridCell {
     }
   };
 
-  private static final Paint COLOR = new Color(225.0 / 255.0, 130.0 / 255.0, 110.0 / 255.0, 1.0);
   @Nonnegative
   private final double strokeWidth;
 

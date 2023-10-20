@@ -23,7 +23,6 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.input.TransferMode;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
@@ -90,14 +89,6 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @ParametersAreNullableByDefault
   public final void initialize(URL location, ResourceBundle resources) {
     if (chart != null) {
-      chart.setOnDragOver(event -> {
-        if (event.getDragboard().hasFiles()) {
-          event.acceptTransferModes(TransferMode.COPY);
-        }
-        else {
-          event.consume();
-        }
-      });
       chart.setOnDragDropped(event -> {
         event.setDropCompleted(event.getDragboard().getFiles().stream().anyMatch(service::accept));
         event.consume();
