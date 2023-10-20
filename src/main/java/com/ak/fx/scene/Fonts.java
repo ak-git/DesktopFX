@@ -25,6 +25,7 @@ public enum Fonts {
   H2(Constants.TAHOMA, FontWeight.NORMAL, 3.0);
 
   public static final Paint COLOR = new Color(225.0 / 255.0, 130.0 / 255.0, 110.0 / 255.0, 1.0);
+  public static final Paint WHITE_80 = Color.WHITE.deriveColor(0.0, 1.0, 1.0, 0.8);
 
   private final transient ObjectProperty<Font> fontProperty;
   private final transient ChangeListener<Number> changeListener;
