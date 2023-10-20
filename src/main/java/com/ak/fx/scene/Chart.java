@@ -5,6 +5,8 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.StringProperty;
+import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
@@ -20,6 +22,7 @@ import static com.ak.fx.scene.GridCell.*;
 public final class Chart extends AbstractRegion {
   private final MilliGrid milliGrid = new MilliGrid();
   private final List<LineDiagram> lineDiagrams = new ArrayList<>();
+  private final StackPane xAxisUnitGroup = new StackPane();
   private final Text xAxisUnit = new Text();
   private final Text banner = new Text();
   private final DoubleProperty diagramWidth = new SimpleDoubleProperty();
@@ -29,6 +32,19 @@ public final class Chart extends AbstractRegion {
   public Chart() {
     milliGrid.setManaged(false);
     getChildren().add(milliGrid);
+    Rectangle rectangle = new Rectangle();
+    rectangle.setFill(Fonts.WHITE_80);
+    xAxisUnitGroup.getChildren().add(rectangle);
+    xAxisUnitGroup.getChildren().add(xAxisUnit);
+    xAxisUnit.textProperty().addListener((observable, oldValue, newValue) -> {
+      double w = xAxisUnit.getBoundsInParent().getWidth();
+      double h = xAxisUnit.getBoundsInParent().getHeight();
+      double addSize = Math.min(w, h) * 0.5;
+      rectangle.setWidth(w + addSize);
+      rectangle.setHeight(h + addSize);
+      rectangle.setArcWidth(addSize * 2.0);
+      rectangle.setArcHeight(addSize * 2.0);
+    });
     xAxisUnit.fontProperty().bind(Fonts.H2.fontProperty(this::getScene));
     banner.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
     banner.setTextAlignment(TextAlignment.RIGHT);
@@ -37,8 +53,8 @@ public final class Chart extends AbstractRegion {
   @Override
   void layoutAll(double x, double y, double width, double height) {
     milliGrid.resizeRelocate(x, y, width, height);
-    xAxisUnit.relocate(x + BIG.minCoordinate(width) + BIG.maxValue(width) / 2 + POINTS.getStep(),
-        y + SMALL.minCoordinate(height) + SMALL.getStep() / 2 - xAxisUnit.getFont().getSize());
+    xAxisUnitGroup.relocate(x + BIG.minCoordinate(width) + BIG.maxValue(width) / 2,
+        y + SMALL.minCoordinate(height) + SMALL.getStep() / 2 - xAxisUnit.getFont().getSize() / 2);
 
     banner.relocate(x + SMALL.minCoordinate(width) + SMALL.maxValue(width) - SMALL.getStep() - banner.getBoundsInParent().getWidth(),
         y + SMALL.minCoordinate(height) + SMALL.getStep() / 2 - xAxisUnit.getFont().getSize());
@@ -91,7 +107,7 @@ public final class Chart extends AbstractRegion {
     lineDiagrams.addAll(variables.stream().map(LineDiagram::new).toList());
     lineDiagrams.forEach(lineDiagram -> lineDiagram.setManaged(false));
     getChildren().addAll(lineDiagrams);
-    getChildren().add(xAxisUnit);
+    getChildren().add(xAxisUnitGroup);
     getChildren().add(banner);
   }
 

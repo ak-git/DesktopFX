@@ -101,7 +101,7 @@ public class FxApplication extends Application implements ViewController {
       header.translateYProperty().set(-subHeader.getBoundsInLocal().getHeight() / 4.0);
       subHeader.translateYProperty().set(header.getBoundsInLocal().getHeight() / 4.0 + subHeader.getBoundsInLocal().getHeight() / 4.0);
       logo.getChildren().addAll(root,
-          new Circle(radius * 1.1, Color.WHITE.deriveColor(0.0, 1.0, 1.0, 0.8)),
+          new Circle(radius * 1.1, Fonts.WHITE_80),
           arc, header, subHeader
       );
     });
