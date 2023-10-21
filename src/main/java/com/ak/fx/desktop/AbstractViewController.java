@@ -23,7 +23,6 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.input.TransferMode;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
@@ -90,26 +89,32 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @ParametersAreNullableByDefault
   public final void initialize(URL location, ResourceBundle resources) {
     if (chart != null) {
-      chart.setOnDragOver(event -> {
-        if (event.getDragboard().hasFiles()) {
-          event.acceptTransferModes(TransferMode.COPY);
-        }
-        else {
-          event.consume();
-        }
-      });
       chart.setOnDragDropped(event -> {
         event.setDropCompleted(event.getDragboard().getFiles().stream().anyMatch(service::accept));
         event.consume();
       });
-      chart.setVariables(service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.VISIBLE))
-          .map(Variables::toString).toList());
+      chart.setVariables(service.getVariables().stream()
+          .filter(v -> v.options().contains(Variable.Option.VISIBLE))
+          .map(Variables::toString)
+          .toList()
+      );
+      chart.setBannerNames(service.getVariables().stream()
+          .filter(v -> v.options().contains(Variable.Option.TEXT_VALUE_BANNER))
+          .map(Variables::toString)
+          .collect(Collectors.joining(Strings.NEW_LINE_2))
+      );
+      chart.setBannerUnits(service.getVariables().stream()
+          .filter(v -> v.options().contains(Variable.Option.TEXT_VALUE_BANNER))
+          .map(v -> Variables.fixUnit(v.getUnit()))
+          .collect(Collectors.joining(Strings.NEW_LINE_2))
+      );
       chart.titleProperty().bind(axisXController.zoomBinding());
       chart.diagramHeightProperty().addListener((observable, oldValue, newValue) -> {
         axisYController.setLineDiagramHeight(newValue.doubleValue());
         changed();
       });
       chart.diagramWidthProperty().addListener((observable, oldValue, newValue) -> axisXController.preventEnd(newValue.doubleValue()));
+
       axisXController.stepProperty().addListener((observable, oldValue, newValue) -> chart.setXStep(newValue.doubleValue()));
       axisXController.startProperty().addListener((observable, oldValue, newValue) -> changed());
       axisXController.lengthProperty().addListener((observable, oldValue, newValue) ->
@@ -274,9 +279,12 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   }
 
   private void displayBanner(@Nonnull int[] ints) {
-    FxUtils.invokeInFx(() -> Objects.requireNonNull(chart).setBannerText(
-        service.getVariables().stream().filter(v -> v.options().contains(Variable.Option.TEXT_VALUE_BANNER))
-            .map(v -> Variables.toString(v, ints[v.ordinal()])).collect(Collectors.joining(Strings.NEW_LINE_2)))
+    FxUtils.invokeInFx(() -> Objects.requireNonNull(chart).setBannerValues(
+            service.getVariables().stream()
+                .filter(v -> v.options().contains(Variable.Option.TEXT_VALUE_BANNER))
+                .map(v -> "%,d".formatted(ints[v.ordinal()]))
+                .collect(Collectors.joining(Strings.NEW_LINE_2))
+        )
     );
   }
 }

@@ -8,5 +8,5 @@ dependencies {
 
 javafx {
     version = javaFxVersion
-    modules = ['javafx.graphics']
+    modules = ['javafx.controls', 'javafx.graphics']
 }

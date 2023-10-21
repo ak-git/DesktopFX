@@ -4,5 +4,4 @@
 <?import javafx.scene.layout.StackPane?>
 <StackPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ak.fx.desktop.purelogic.PureLogicViewController">
     <Chart fx:id="chart" style="-fx-border-color: white; -fx-border-width: 1px;"/>
-    <fx:include source="aklogo.fxml"/>
 </StackPane>

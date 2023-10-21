@@ -1,20 +1,19 @@
 package com.ak.comm.converter;
 
+import com.ak.util.Strings;
+import tec.uom.se.format.LocalUnitFormat;
+import tec.uom.se.unit.MetricPrefix;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.measure.Quantity;
+import javax.measure.Unit;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.measure.Quantity;
-import javax.measure.Unit;
-
-import com.ak.util.Strings;
-import tec.uom.se.format.LocalUnitFormat;
-import tec.uom.se.unit.MetricPrefix;
 
 public enum Variables {
   ;
@@ -87,7 +86,7 @@ public enum Variables {
     }
   }
 
-  private static String fixUnit(@Nonnull Unit<?> unit) {
+  public static String fixUnit(@Nonnull Unit<?> unit) {
     var s = unit.toString();
     if (s.startsWith(M_PAR)) {
       return "m%s".formatted(fixUnit(unit.getSystemUnit()));

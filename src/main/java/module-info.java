@@ -18,6 +18,7 @@ module com.ak.fx.desktop {
   requires spring.core;
 
   requires spring.beans;
+  requires java.desktop;
 
   opens com.ak.numbers.aper to com.ak.util;
   opens com.ak.numbers.rcm to com.ak.util;
