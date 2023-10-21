@@ -5,6 +5,8 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.StringProperty;
+import javafx.geometry.Insets;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
@@ -24,7 +26,12 @@ public final class Chart extends AbstractRegion {
   private final List<LineDiagram> lineDiagrams = new ArrayList<>();
   private final StackPane xAxisUnitGroup = new StackPane();
   private final Text xAxisUnit = new Text();
-  private final Text banner = new Text();
+
+  private final HBox banner = new HBox();
+  private final Text bannerNames = new Text();
+  private final Text bannerValues = new Text();
+  private final Text bannerUnits = new Text();
+
   private final DoubleProperty diagramWidth = new SimpleDoubleProperty();
   private final DoubleProperty diagramHeight = new SimpleDoubleProperty();
 
@@ -46,8 +53,14 @@ public final class Chart extends AbstractRegion {
       rectangle.setArcHeight(addSize * 2.0);
     });
     xAxisUnit.fontProperty().bind(Fonts.H2.fontProperty(this::getScene));
-    banner.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
-    banner.setTextAlignment(TextAlignment.RIGHT);
+
+    banner.getChildren().addAll(bannerNames, bannerValues, bannerUnits);
+    bannerNames.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
+    bannerNames.setTextAlignment(TextAlignment.LEFT);
+    bannerValues.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
+    bannerValues.setTextAlignment(TextAlignment.RIGHT);
+    bannerUnits.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
+    bannerUnits.setTextAlignment(TextAlignment.LEFT);
   }
 
   @Override
@@ -56,8 +69,13 @@ public final class Chart extends AbstractRegion {
     xAxisUnitGroup.relocate(x + BIG.minCoordinate(width) + BIG.maxValue(width) / 2,
         y + SMALL.minCoordinate(height) + SMALL.getStep() / 2 - xAxisUnit.getFont().getSize() / 2);
 
-    banner.relocate(x + SMALL.minCoordinate(width) + SMALL.maxValue(width) - SMALL.getStep() - banner.getBoundsInParent().getWidth(),
-        y + SMALL.minCoordinate(height) + SMALL.getStep() / 2 - xAxisUnit.getFont().getSize());
+    banner.setSpacing(POINTS.getStep());
+    banner.setPadding(new Insets(POINTS.getStep()));
+    banner.relocate(x + SMALL.minCoordinate(width) + SMALL.maxValue(width)
+            - banner.getPadding().getLeft() - banner.getPadding().getRight()
+            - banner.getChildren().stream().mapToDouble(value -> value.getBoundsInParent().getWidth()).sum()
+            - banner.getSpacing() * (banner.getChildren().size() - 1),
+        y + SMALL.minCoordinate(height));
 
     layoutLineDiagrams(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxValue(width), SMALL.maxValue(height));
     diagramWidth.set(SMALL.maxValue(width));
@@ -123,8 +141,16 @@ public final class Chart extends AbstractRegion {
     return xAxisUnit.textProperty();
   }
 
-  public void setBannerText(@Nonnull String text) {
-    banner.setText(text);
+  public void setBannerNames(@Nonnull String text) {
+    bannerNames.setText(text);
+  }
+
+  public void setBannerValues(@Nonnull String text) {
+    bannerValues.setText(text);
+  }
+
+  public void setBannerUnits(@Nonnull String text) {
+    bannerUnits.setText(text);
   }
 
   public ReadOnlyDoubleProperty diagramWidthProperty() {
