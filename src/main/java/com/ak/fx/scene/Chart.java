@@ -63,7 +63,7 @@ public final class Chart extends AbstractRegion {
     bannerValues.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
     bannerValues.setTextAlignment(TextAlignment.RIGHT);
     bannerUnits.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
-    bannerUnits.setTextAlignment(TextAlignment.CENTER);
+    bannerUnits.setTextAlignment(TextAlignment.LEFT);
 
     bannerRect.setFill(Fonts.WHITE_60);
     bannerGroup.getChildren().add(bannerRect);
@@ -78,11 +78,8 @@ public final class Chart extends AbstractRegion {
 
     bannerBox.setSpacing(POINTS.getStep());
     bannerBox.setPadding(new Insets(POINTS.getStep()));
-    double w = bannerBox.getPadding().getLeft() + bannerBox.getPadding().getRight() +
-        bannerBox.getChildren().stream().mapToDouble(value -> value.getBoundsInParent().getWidth()).sum() +
-        bannerBox.getSpacing() * (bannerBox.getChildren().size() - 1);
-    double h = bannerBox.getPadding().getTop() + bannerBox.getPadding().getBottom() +
-        bannerBox.getChildren().stream().mapToDouble(value -> value.getBoundsInParent().getHeight()).max().orElse(0.0);
+    double w = bannerGroup.getBoundsInParent().getWidth();
+    double h = bannerGroup.getBoundsInParent().getHeight();
     bannerGroup.relocate(x + SMALL.minCoordinate(width) + SMALL.maxValue(width) - w / 2.0,
         y + SMALL.minCoordinate(height) + h / 2.0);
     bannerRect.setWidth(w - (bannerBox.getPadding().getLeft() + bannerBox.getPadding().getRight()) / 2.0);
