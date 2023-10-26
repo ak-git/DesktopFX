@@ -3,30 +3,40 @@ package com.ak.comm.converter.briko;
 import com.ak.comm.converter.DependentVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
+import com.ak.util.Metrics;
 import com.ak.util.Numbers;
+import tec.uom.se.unit.Units;
 
 import javax.annotation.Nonnull;
 import javax.measure.Unit;
+import java.util.List;
 import java.util.Set;
 
-import static com.ak.comm.converter.briko.BrikoStage1Variable.FREQUENCY;
-import static tec.uom.se.unit.Units.GRAM;
-
 public enum BrikoStage2Variable implements DependentVariable<BrikoStage1Variable, BrikoStage2Variable> {
-  FORCE1 {
+  FORCE1,
+  FORCE2,
+  POSITION,
+  PRESSURE {
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.of()
-          .operator(() -> x -> Numbers.toInt((0.1234 * x - 94_374)))
-          .average(FREQUENCY / 50).smoothingImpulsive(10).autoZero(FREQUENCY).build();
+          .biOperator(() -> (force1, force2) -> {
+            double newtons = (Math.abs(force1) + Math.abs(force2)) / 100.0;
+            double radius = Metrics.Length.MILLI.to(19.0, Units.METRE) / 2.0;
+            double area = Math.PI * radius * radius;
+            return Numbers.toInt(newtons / area);
+          })
+          .build();
     }
-  },
-  FORCE2 {
+
     @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.of()
-          .operator(() -> x -> x + 2_015_500).operator(() -> x -> Numbers.toInt((0.1235 * x)))
-          .average(FREQUENCY / 50).smoothingImpulsive(10).autoZero(FREQUENCY).build();
+    public List<BrikoStage1Variable> getInputVariables() {
+      return List.of(BrikoStage1Variable.FORCE1, BrikoStage1Variable.FORCE2);
+    }
+
+    @Override
+    public Unit<?> getUnit() {
+      return Units.PASCAL;
     }
   };
 
@@ -39,10 +49,5 @@ public enum BrikoStage2Variable implements DependentVariable<BrikoStage1Variable
   @Override
   public final Set<Option> options() {
     return Option.addToDefault(Option.TEXT_VALUE_BANNER);
-  }
-
-  @Override
-  public final Unit<?> getUnit() {
-    return GRAM;
   }
 }
