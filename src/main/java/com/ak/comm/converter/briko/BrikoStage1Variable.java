@@ -36,7 +36,7 @@ public enum BrikoStage1Variable implements Variable<BrikoStage1Variable> {
   POSITION {
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().operator(() -> x -> 4 * x / 1600).build();
+      return FilterBuilder.of().operator(() -> x -> 4 * x / 1600).autoZero(FREQUENCY).build();
     }
 
     @Override
