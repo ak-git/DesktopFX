@@ -46,5 +46,5 @@ public enum BrikoStage1Variable implements Variable<BrikoStage1Variable> {
   },
   IGNORE;
 
-  public static final int FREQUENCY = 1000;
+  public static final int FREQUENCY = 380;
 }

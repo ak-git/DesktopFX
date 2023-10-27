@@ -30,9 +30,9 @@ public final class Chart extends AbstractRegion {
   private final StackPane bannerGroup = new StackPane();
   private final Rectangle bannerRect = new Rectangle();
   private final HBox bannerBox = new HBox();
-  private final Text bannerNames = new Text();
   private final Text bannerValues = new Text();
   private final Text bannerUnits = new Text();
+  private final Text bannerNames = new Text();
 
   private final DoubleProperty diagramWidth = new SimpleDoubleProperty();
   private final DoubleProperty diagramHeight = new SimpleDoubleProperty();
@@ -57,13 +57,13 @@ public final class Chart extends AbstractRegion {
     });
     xAxisUnit.fontProperty().bind(Fonts.H2.fontProperty(this::getScene));
 
-    bannerBox.getChildren().addAll(bannerNames, bannerValues, bannerUnits);
-    bannerNames.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
-    bannerNames.setTextAlignment(TextAlignment.LEFT);
+    bannerBox.getChildren().addAll(bannerValues, bannerUnits, bannerNames);
     bannerValues.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
     bannerValues.setTextAlignment(TextAlignment.RIGHT);
     bannerUnits.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
-    bannerUnits.setTextAlignment(TextAlignment.CENTER);
+    bannerUnits.setTextAlignment(TextAlignment.LEFT);
+    bannerNames.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
+    bannerNames.setTextAlignment(TextAlignment.LEFT);
 
     bannerRect.setFill(Fonts.WHITE_60);
     bannerGroup.getChildren().add(bannerRect);

@@ -22,7 +22,7 @@ class BrikoStage1VariableTest {
   @Test
   void testFilterDelay() {
     assertThat(EnumSet.allOf(BrikoStage1Variable.class).stream().mapToDouble(value -> value.filter().getDelay()).toArray())
-        .containsExactly(34.0, 34.0, 34.0, 34.0, 0.0, 0.0);
+        .containsExactly(27.5, 27.5, 27.5, 27.5, 0.0, 0.0);
   }
 
   @Test
