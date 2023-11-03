@@ -33,7 +33,6 @@ sonar {
         property 'sonar.projectKey', 'ak-git_DesktopFX'
         property 'sonar.organization', 'ak-git'
         property 'sonar.host.url', 'https://sonarcloud.io'
-        property 'sonar.token', '81d28baccaacc9dc74ea80f686e08f65a90ed6df'
         property 'sonar.branch.name', 'develop'
         property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
     }
@@ -63,7 +62,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2023.10.25'
+    version = '2023.11.03'
     apply plugin: 'idea'
     idea {
         module {
