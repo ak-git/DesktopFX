@@ -205,42 +205,42 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   }
 
   @EventListener(RefreshEvent.class)
-  private void refreshEvent(@Nonnull RefreshEvent e) {
+  public final void refreshEvent(@Nonnull RefreshEvent e) {
     refresh(e.isForce());
   }
 
   @EventListener(UpEvent.class)
-  private void upEvent() {
+  public final void upEvent() {
     up();
   }
 
   @EventListener(DownEvent.class)
-  private void downEvent() {
+  public final void downEvent() {
     down();
   }
 
   @EventListener(LeftEvent.class)
-  private void leftEvent() {
+  public final void leftEvent() {
     left();
   }
 
   @EventListener(RightEvent.class)
-  private void rightEvent() {
+  public final void rightEvent() {
     right();
   }
 
   @EventListener(EscapeEvent.class)
-  private void escapeEvent() {
+  public final void escapeEvent() {
     escape();
   }
 
   @EventListener(ZoomEvent.class)
-  private void zoomEvent(@Nonnull ZoomEvent e) {
+  public final void zoomEvent(@Nonnull ZoomEvent e) {
     zoom(e.getZoomFactor());
   }
 
   @EventListener(ScrollEvent.class)
-  private void scrollEvent(@Nonnull ScrollEvent e) {
+  public final void scrollEvent(@Nonnull ScrollEvent e) {
     scroll(e.getDeltaX());
   }
 

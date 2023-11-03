@@ -14,11 +14,11 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class SKTBRequestTest {
   static Stream<Arguments> requests() {
-    SKTBRequest build1 = SKTBRequest.RequestBuilder.of(null).rotate(0).flex(0).grip(0).build();
-    SKTBRequest build2 = SKTBRequest.RequestBuilder.of(build1).rotate(-100).flex(0).grip(0).build();
-    SKTBRequest build3 = SKTBRequest.RequestBuilder.of(build2).rotate(0).flex(31).grip(0).build();
-    SKTBRequest build4 = SKTBRequest.RequestBuilder.of(build3).rotate(0).flex(0).grip(-20).build();
-    SKTBRequest build5 = SKTBRequest.RequestBuilder.of(build4).rotate(-100).flex(31).grip(-20).build();
+    SKTBRequest build1 = SKTBRequest.NONE;
+    SKTBRequest build2 = build1.from().rotate(-100).flex(0).grip(0).build();
+    SKTBRequest build3 = build2.from().rotate(0).flex(31).grip(0).build();
+    SKTBRequest build4 = build3.from().rotate(0).flex(0).grip(-20).build();
+    SKTBRequest build5 = build4.from().rotate(-100).flex(31).grip(-20).build();
     return Stream.of(
         arguments(build1,
             ByteBuffer.allocate(11).order(ByteOrder.LITTLE_ENDIAN)
