@@ -1,5 +1,8 @@
 package com.ak.util;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -7,10 +10,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import static java.lang.StrictMath.log10;
 
@@ -20,7 +19,7 @@ public final class CSVLineFileBuilder<T> {
   @Nonnull
   private final BiFunction<Double, Double, T> doubleFunction;
   @Nullable
-  private CSVMultiFileCollector.Builder<Double, T> multiFileBuilder;
+  private CSVMultiFileCollector.CollectorBuilder<Double, T> multiFileBuilder;
 
   private CSVLineFileBuilder(@Nonnull BiFunction<Double, Double, T> doubleFunction) {
     this.doubleFunction = doubleFunction;
@@ -62,7 +61,7 @@ public final class CSVLineFileBuilder<T> {
 
   public CSVLineFileBuilder<T> saveTo(@Nonnull String fileName, @Nonnull Function<T, Object> converter) {
     if (multiFileBuilder == null) {
-      multiFileBuilder = new CSVMultiFileCollector.Builder<>(
+      multiFileBuilder = new CSVMultiFileCollector.CollectorBuilder<>(
           yRange.build().boxed(),
           Stream.concat(Stream.of(Strings.EMPTY), xRange.build().mapToObj(Double::toString)).toArray(String[]::new)
       );
