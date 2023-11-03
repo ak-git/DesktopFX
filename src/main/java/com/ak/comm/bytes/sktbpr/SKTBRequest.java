@@ -6,13 +6,11 @@ import com.ak.util.Builder;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Optional;
 
 public final class SKTBRequest extends BufferFrame {
-  public static final SKTBRequest NONE = new SKTBRequest.RequestBuilder(null).build();
+  public static final SKTBRequest NONE = new RequestBuilder((byte) 0).build();
   private static final int MAX_ROTATE_VELOCITY = 10;
   private static final int MAX_FLEX_VELOCITY = 3;
   private static final int MAX_GRIP_VELOCITY = 10;
@@ -22,6 +20,11 @@ public final class SKTBRequest extends BufferFrame {
   private SKTBRequest(@Nonnull ByteBuffer byteBuffer, byte id) {
     super(byteBuffer);
     this.id = id;
+  }
+
+  @Nonnull
+  public RotateBuilder from() {
+    return new RequestBuilder((byte) (id + 1));
   }
 
   public interface RotateBuilder {
@@ -43,15 +46,10 @@ public final class SKTBRequest extends BufferFrame {
       implements RotateBuilder, FlexBuilder, GripBuilder {
     private final byte id;
 
-    private RequestBuilder(@Nullable SKTBRequest prev) {
+    private RequestBuilder(byte id) {
       super(ByteBuffer.allocate(MAX_CAPACITY).order(ByteOrder.LITTLE_ENDIAN));
-      id = Optional.ofNullable(prev).map(sktbRequest -> (byte) (sktbRequest.id + 1)).orElse((byte) 0);
-      buffer().put((byte) 0x5a).put(id).put((byte) 8);
-    }
-
-    @Nonnull
-    public static RotateBuilder of(@Nullable SKTBRequest prev) {
-      return new RequestBuilder(prev);
+      this.id = id;
+      buffer().put((byte) 0x5a).put(this.id).put((byte) 8);
     }
 
     @Override

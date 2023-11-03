@@ -54,7 +54,7 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
   @Override
   @Nullable
   public SKTBRequest get() {
-    SKTBRequest request = SKTBRequest.RequestBuilder.of(sktbRequestPrev.get())
+    SKTBRequest request = sktbRequestPrev.get().from()
         .rotate(controls.get(SKTBVariable.ROTATE).velocity())
         .flex(controls.get(SKTBVariable.FLEX).velocity())
         .grip(0).build();
