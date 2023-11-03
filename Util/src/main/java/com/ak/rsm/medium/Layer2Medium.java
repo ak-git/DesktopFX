@@ -96,7 +96,7 @@ public final class Layer2Medium extends AbstractMediumLayers {
   @Nonnull
   private static String toStringHorizons(@Nonnull double[] horizons) {
     return Arrays.stream(horizons)
-        .map(Metrics::toMilli).mapToObj("%.1f"::formatted)
+        .map(metre -> Metrics.Length.METRE.to(metre, MetricPrefix.MILLI(METRE))).mapToObj("%.1f"::formatted)
         .collect(Collectors.joining("; ", "↔ [", "] " + MetricPrefix.MILLI(METRE)));
   }
 

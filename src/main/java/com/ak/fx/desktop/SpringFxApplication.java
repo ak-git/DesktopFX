@@ -24,7 +24,6 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {
@@ -46,38 +45,42 @@ public class SpringFxApplication extends FxApplication {
 
   @Override
   public void refresh(boolean force) {
-    processEvent(viewController -> viewController.refresh(force));
+    applicationContext.publishEvent(new RefreshEvent(this, force));
   }
 
   @Override
   public void up() {
-    processEvent(ViewController::up);
+    applicationContext.publishEvent(new UpEvent(this));
   }
 
   @Override
   public void down() {
-    processEvent(ViewController::down);
+    applicationContext.publishEvent(new DownEvent(this));
+  }
+
+  @Override
+  public void left() {
+    applicationContext.publishEvent(new LeftEvent(this));
+  }
+
+  @Override
+  public void right() {
+    applicationContext.publishEvent(new RightEvent(this));
   }
 
   @Override
   public void escape() {
-    processEvent(ViewController::escape);
+    applicationContext.publishEvent(new EscapeEvent(this));
   }
 
   @Override
   public void zoom(double zoomFactor) {
-    processEvent(viewController -> viewController.zoom(zoomFactor));
+    applicationContext.publishEvent(new ZoomEvent(this, zoomFactor));
   }
 
   @Override
   public void scroll(double deltaX) {
-    processEvent(viewController -> viewController.scroll(deltaX));
-  }
-
-  private void processEvent(Consumer<? super ViewController> action) {
-    applicationContext.getBeansOfType(ViewController.class).values().parallelStream()
-        .filter(viewController -> !SpringFxApplication.class.isAssignableFrom(viewController.getClass()))
-        .forEach(action);
+    applicationContext.publishEvent(new ScrollEvent(this, deltaX));
   }
 
   @Override

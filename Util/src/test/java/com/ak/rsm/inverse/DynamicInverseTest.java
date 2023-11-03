@@ -15,14 +15,15 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static tec.uom.se.unit.Units.METRE;
 
 class DynamicInverseTest {
   static Stream<Arguments> layer2() {
     return Stream.of(
         arguments(new double[] {Layers.getK12(9.0, 1.0), 2.0 / 18.0}, 0.0),
-        arguments(new double[] {Layers.getK12(1.585601, 1.753970), 6.831488 / 18.0}, Double.POSITIVE_INFINITY),
-        arguments(new double[] {Layers.getK12(0.246123, 1.902301), 0.345480 / 18.0}, Double.POSITIVE_INFINITY),
-        arguments(new double[] {Layers.getK12(1.323014, 2.406517), 4.647438 / 18.0}, Double.POSITIVE_INFINITY)
+        arguments(new double[] {Layers.getK12(1.585601, 1.753970), 6.831488 / 18.0}, Double.NaN),
+        arguments(new double[] {Layers.getK12(0.246123, 1.902301), 0.345480 / 18.0}, Double.NaN),
+        arguments(new double[] {Layers.getK12(1.323014, 2.406517), 4.647438 / 18.0}, Double.NaN)
     );
   }
 
@@ -47,7 +48,7 @@ class DynamicInverseTest {
     ToDoubleFunction<double[]> function = DynamicInverse.of(
         TetrapolarDerivativeMeasurement.milli(0.1).dh(0.1).system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0)
             .hStep(0.1).p(50, 50),
-        Metrics.fromMilli(0.1)
+        Metrics.Length.MILLI.to(0.1, METRE)
     );
     assertThat(function.applyAsDouble(k)).isCloseTo(inequality, byLessThan(1.0e-3));
   }

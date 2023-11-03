@@ -117,6 +117,7 @@ public final class ConcurrentAsyncFileChannel implements Closeable {
   }
 
   private interface ChannelOperation {
+    @Nonnull
     Future<Integer> operate(@Nonnull AsynchronousFileChannel channel);
   }
 }

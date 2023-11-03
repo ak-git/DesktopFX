@@ -1,10 +1,10 @@
 package com.ak.comm.converter.rsce;
 
-import javax.measure.Unit;
-
 import com.ak.comm.converter.Variable;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
+
+import javax.measure.Unit;
 
 public enum RsceVariable implements Variable<RsceVariable> {
   R1 {
@@ -12,7 +12,6 @@ public enum RsceVariable implements Variable<RsceVariable> {
     public Unit<?> getUnit() {
       return MetricPrefix.CENTI(Units.OHM);
     }
-
   },
   R2 {
     @Override

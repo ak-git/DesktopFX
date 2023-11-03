@@ -12,13 +12,14 @@ import javax.annotation.Nonnull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
+import static tec.uom.se.unit.Units.METRE;
 
 class DerivativeApparentByPhi3RhoTest {
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
   void testValue2(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
-    TetrapolarSystem system = new TetrapolarSystem(Metrics.fromMilli(smm), Metrics.fromMilli(lmm));
-    double hStep = Metrics.fromMilli(1);
+    TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
+    double hStep = Metrics.Length.MILLI.to(1, METRE);
     int p1 = (int) hmm;
     double expected = TetrapolarDerivativeResistance.of(system).dh(hStep).rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(hStep).p(p1, 1)
         .derivativeResistivity() / rho[0];
@@ -32,7 +33,7 @@ class DerivativeApparentByPhi3RhoTest {
   @MethodSource("com.ak.rsm.resistance.Resistance3LayerTest#threeLayerParameters")
   void testValue3(@Nonnull double[] rho, @Nonnegative double hStep, @Nonnull int[] p,
                   @Nonnegative double smm, @Nonnegative double lmm) {
-    TetrapolarSystem system = new TetrapolarSystem(Metrics.fromMilli(smm), Metrics.fromMilli(lmm));
+    TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
     double expected = TetrapolarDerivativeResistance.of(system).dh(hStep).rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(hStep).p(p[0], p[1])
         .derivativeResistivity() / rho[0];
 

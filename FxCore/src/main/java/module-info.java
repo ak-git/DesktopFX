@@ -5,6 +5,7 @@ module com.ak.fx {
   requires java.desktop;
   requires java.logging;
   requires javafx.graphics;
+  requires javafx.controls;
   requires java.prefs;
 
   exports com.ak.fx.stage;

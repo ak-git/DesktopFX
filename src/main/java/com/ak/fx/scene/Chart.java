@@ -5,6 +5,10 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.StringProperty;
+import javafx.geometry.Insets;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
@@ -20,8 +24,16 @@ import static com.ak.fx.scene.GridCell.*;
 public final class Chart extends AbstractRegion {
   private final MilliGrid milliGrid = new MilliGrid();
   private final List<LineDiagram> lineDiagrams = new ArrayList<>();
+  private final StackPane xAxisUnitGroup = new StackPane();
   private final Text xAxisUnit = new Text();
-  private final Text banner = new Text();
+
+  private final StackPane bannerGroup = new StackPane();
+  private final Rectangle bannerRect = new Rectangle();
+  private final HBox bannerBox = new HBox();
+  private final Text bannerNames = new Text();
+  private final Text bannerValues = new Text();
+  private final Text bannerUnits = new Text();
+
   private final DoubleProperty diagramWidth = new SimpleDoubleProperty();
   private final DoubleProperty diagramHeight = new SimpleDoubleProperty();
 
@@ -29,19 +41,52 @@ public final class Chart extends AbstractRegion {
   public Chart() {
     milliGrid.setManaged(false);
     getChildren().add(milliGrid);
+
+    Rectangle rectangle = new Rectangle();
+    rectangle.setFill(Fonts.WHITE_80);
+    xAxisUnitGroup.getChildren().add(rectangle);
+    xAxisUnitGroup.getChildren().add(xAxisUnit);
+    xAxisUnit.textProperty().addListener((observable, oldValue, newValue) -> {
+      double w = xAxisUnit.getBoundsInParent().getWidth();
+      double h = xAxisUnit.getBoundsInParent().getHeight();
+      double addSize = Math.min(w, h) / 2.0;
+      rectangle.setWidth(w + addSize);
+      rectangle.setHeight(h + addSize);
+      rectangle.setArcWidth(addSize * 2.0);
+      rectangle.setArcHeight(addSize * 2.0);
+    });
     xAxisUnit.fontProperty().bind(Fonts.H2.fontProperty(this::getScene));
-    banner.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
-    banner.setTextAlignment(TextAlignment.RIGHT);
+
+    bannerBox.getChildren().addAll(bannerNames, bannerValues, bannerUnits);
+    bannerNames.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
+    bannerNames.setTextAlignment(TextAlignment.LEFT);
+    bannerValues.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
+    bannerValues.setTextAlignment(TextAlignment.RIGHT);
+    bannerUnits.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
+    bannerUnits.setTextAlignment(TextAlignment.LEFT);
+
+    bannerRect.setFill(Fonts.WHITE_60);
+    bannerGroup.getChildren().add(bannerRect);
+    bannerGroup.getChildren().add(bannerBox);
   }
 
   @Override
   void layoutAll(double x, double y, double width, double height) {
     milliGrid.resizeRelocate(x, y, width, height);
-    xAxisUnit.relocate(x + BIG.minCoordinate(width) + BIG.maxValue(width) / 2 + POINTS.getStep(),
-        y + SMALL.minCoordinate(height) + SMALL.getStep() / 2 - xAxisUnit.getFont().getSize());
+    xAxisUnitGroup.relocate(x + BIG.minCoordinate(width) + BIG.maxValue(width) / 2.0,
+        y + SMALL.minCoordinate(height) + SMALL.getStep() / 2 - xAxisUnit.getFont().getSize() / 2.0);
 
-    banner.relocate(x + SMALL.minCoordinate(width) + SMALL.maxValue(width) - SMALL.getStep() - banner.getBoundsInParent().getWidth(),
-        y + SMALL.minCoordinate(height) + SMALL.getStep() / 2 - xAxisUnit.getFont().getSize());
+    bannerBox.setSpacing(POINTS.getStep());
+    bannerBox.setPadding(new Insets(POINTS.getStep()));
+    double w = bannerGroup.getBoundsInParent().getWidth();
+    double h = bannerGroup.getBoundsInParent().getHeight();
+    bannerGroup.relocate(x + SMALL.minCoordinate(width) + SMALL.maxValue(width) - w / 2.0,
+        y + SMALL.minCoordinate(height) + h / 2.0);
+    bannerRect.setWidth(w - (bannerBox.getPadding().getLeft() + bannerBox.getPadding().getRight()) / 2.0);
+    bannerRect.setHeight(h - (bannerBox.getPadding().getTop() + bannerBox.getPadding().getBottom()) / 2.0);
+    double addSize = Math.min(xAxisUnit.getBoundsInParent().getWidth(), xAxisUnit.getBoundsInParent().getHeight());
+    bannerRect.setArcWidth(addSize);
+    bannerRect.setArcHeight(addSize);
 
     layoutLineDiagrams(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxValue(width), SMALL.maxValue(height));
     diagramWidth.set(SMALL.maxValue(width));
@@ -91,8 +136,8 @@ public final class Chart extends AbstractRegion {
     lineDiagrams.addAll(variables.stream().map(LineDiagram::new).toList());
     lineDiagrams.forEach(lineDiagram -> lineDiagram.setManaged(false));
     getChildren().addAll(lineDiagrams);
-    getChildren().add(xAxisUnit);
-    getChildren().add(banner);
+    getChildren().add(xAxisUnitGroup);
+    getChildren().add(bannerGroup);
   }
 
   public void setXStep(@Nonnegative double xStep) {
@@ -107,8 +152,16 @@ public final class Chart extends AbstractRegion {
     return xAxisUnit.textProperty();
   }
 
-  public void setBannerText(@Nonnull String text) {
-    banner.setText(text);
+  public void setBannerNames(@Nonnull String text) {
+    bannerNames.setText(text);
+  }
+
+  public void setBannerValues(@Nonnull String text) {
+    bannerValues.setText(text);
+  }
+
+  public void setBannerUnits(@Nonnull String text) {
+    bannerUnits.setText(text);
   }
 
   public ReadOnlyDoubleProperty diagramWidthProperty() {

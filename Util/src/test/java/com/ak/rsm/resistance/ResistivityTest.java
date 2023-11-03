@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Percentage.withPercentage;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static tec.uom.se.unit.Units.METRE;
 
 class ResistivityTest {
 
@@ -28,6 +29,6 @@ class ResistivityTest {
   @ParameterizedTest
   @MethodSource("resistivity")
   void testGetBaseL(@Nonnull Collection<? extends Resistivity> resistivity, @Nonnegative double expectedBaseLMilli) {
-    assertThat(Resistivity.getBaseL(resistivity)).isCloseTo(Metrics.fromMilli(expectedBaseLMilli), withPercentage(1.0));
+    assertThat(Resistivity.getBaseL(resistivity)).isCloseTo(Metrics.Length.MILLI.to(expectedBaseLMilli, METRE), withPercentage(1.0));
   }
 }

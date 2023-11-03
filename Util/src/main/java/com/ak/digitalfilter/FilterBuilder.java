@@ -8,12 +8,14 @@ import com.ak.util.Builder;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntUnaryOperator;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
 public class FilterBuilder implements Builder<DigitalFilter> {
@@ -131,14 +133,27 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new ExpSumFilter());
   }
 
-  FilterBuilder fir(double... coefficients) {
+  public FilterBuilder autoZero(@Nonnegative int settingCounts) {
+    return chain(new AutoZeroFilter(settingCounts));
+  }
+
+  public FilterBuilder angle() {
+    return chain(new AngleFilter());
+  }
+
+  FilterBuilder fir(@Nonnull double... coefficients) {
     return chain(new FIRFilter(coefficients));
   }
 
-  FilterBuilder iir(double... coefficients) {
+  public FilterBuilder average(@Nonnegative int count) {
+    return chain(new FIRFilter(DoubleStream.generate(() -> 1.0 / count).limit(count).toArray()));
+  }
+
+  FilterBuilder iir(@Nonnull double... coefficients) {
     return chain(new IIRFilter(coefficients));
   }
 
+  @ParametersAreNonnullByDefault
   public FilterBuilder iirMATLAB(double[] num, double[] den) {
     return fir(RangeUtils.reverseOrder(num)).iir(Arrays.stream(den).skip(1).map(operand -> -operand).toArray());
   }

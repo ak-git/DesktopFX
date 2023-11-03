@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -36,6 +37,7 @@ import java.util.stream.*;
 
 import static io.jenetics.engine.EvolutionResult.toBestGenotype;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static tec.uom.se.unit.Units.METRE;
 
 class Inverse3Test {
   private static final Logger LOGGER = Logger.getLogger(Inverse3Test.class.getName());
@@ -77,13 +79,13 @@ class Inverse3Test {
         .flatMap(Function.identity())
         .filter(ints -> ints.length == ms.size())
         .map(ints -> Arrays.stream(ints)
-            .filter(i -> findDh.applyAsDouble(i) > Metrics.fromMilli(0.0))
-            .filter(i -> findDh.applyAsDouble(i) < Metrics.fromMilli(0.3))
+            .filter(i -> findDh.applyAsDouble(i) > Metrics.Length.MILLI.to(0.0, METRE))
+            .filter(i -> findDh.applyAsDouble(i) < Metrics.Length.MILLI.to(0.3, METRE))
             .toArray())
         .map(ints -> {
           LOGGER.info(() -> Arrays.stream(ints)
               .mapToDouble(findDh)
-              .mapToObj(average -> "%.3f".formatted(Metrics.toMilli(average)))
+              .mapToObj(average -> "%.3f".formatted(Metrics.Length.METRE.to(average, MetricPrefix.MILLI(METRE))))
               .collect(Collectors.joining("; ", "dh = [", "] mm"))
           );
           return IntStream.of(ints).mapToObj(ms::get).collect(Collectors.toList());
@@ -126,7 +128,10 @@ class Inverse3Test {
 
     int P1 = 50;
     int P2mP1 = 50;
-    LOGGER.info(() -> "h = [%.2f; %.2f] mm".formatted(Metrics.toMilli(P1 * hStep), Metrics.toMilli(P2mP1 * hStep)));
+    LOGGER.info(() -> "h = [%.2f; %.2f] mm".formatted(
+        Metrics.Length.METRE.to(P1 * hStep, MetricPrefix.MILLI(METRE)),
+        Metrics.Length.METRE.to(P2mP1 * hStep, MetricPrefix.MILLI(METRE)))
+    );
 
     var dynamicInverses = ms.stream().map(dm -> DynamicInverse.of(dm, hStep)).toList();
 

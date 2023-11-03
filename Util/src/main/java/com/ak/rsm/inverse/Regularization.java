@@ -31,8 +31,8 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
             double k = kw[0];
             double hToL = kw[1];
 
-            if (hInterval(k).isIn(hToL)) {
-              Simplex.Bounds hInterval = hInterval(1.0);
+            Simplex.Bounds hInterval = hInterval(k);
+            if (hInterval.isIn(hToL)) {
               return alpha * (log(hInterval.max() - hToL) - log(hToL - hInterval.min()));
             }
             else {

@@ -1,5 +1,14 @@
 package com.ak.rsm.resistance;
 
+import com.ak.rsm.system.TetrapolarSystem;
+import com.ak.util.Metrics;
+import com.ak.util.Numbers;
+import com.ak.util.Strings;
+import tec.uom.se.unit.MetricPrefix;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.PrimitiveIterator;
@@ -7,16 +16,7 @@ import java.util.function.BiFunction;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import com.ak.rsm.system.TetrapolarSystem;
-import com.ak.util.Metrics;
-import com.ak.util.Numbers;
-import com.ak.util.Strings;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
+import static tec.uom.se.unit.Units.METRE;
 
 public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, double derivativeResistivity, double dh)
     implements DerivativeResistance {
@@ -31,7 +31,7 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
       return s;
     }
     else {
-      return "%s; dh = %.3f %s".formatted(s, Metrics.toMilli(dh), MetricPrefix.MILLI(Units.METRE));
+      return "%s; dh = %.3f %s".formatted(s, Metrics.Length.METRE.to(dh, MetricPrefix.MILLI(METRE)), MetricPrefix.MILLI(METRE));
     }
   }
 
@@ -173,7 +173,7 @@ public record TetrapolarDerivativeResistance(@Nonnull Resistance resistance, dou
         var builder3 = builder.rho3(rho3).hStep(hStep);
         return new TetrapolarDerivativeResistance(
             builder3.p(p1, p2mp1),
-            builder3.p(p1, p2mp1 + Numbers.toInt(dhHolder.dh / hStep)),
+            builder3.p(p1 + Numbers.toInt(dhHolder.dh / hStep), p2mp1),
             dhHolder.dh);
       }
     }
