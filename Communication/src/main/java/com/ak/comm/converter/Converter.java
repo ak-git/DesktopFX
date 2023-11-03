@@ -1,32 +1,29 @@
 package com.ak.comm.converter;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
-import java.util.List;
-import java.util.PrimitiveIterator;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
+import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.util.CSVLineFileCollector;
+import com.ak.util.Extension;
+import com.ak.util.UIConstants;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.measure.IncommensurableException;
-
-import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.util.CSVLineFileCollector;
-import com.ak.util.Extension;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.file.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.PrimitiveIterator;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<R, Stream<int[]>>, Refreshable {
   @Nonnull
@@ -38,11 +35,25 @@ public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<
   @ParametersAreNonnullByDefault
   static <T, R, V extends Enum<V> & Variable<V>> void doConvert(BytesInterceptor<T, R> bytesInterceptor,
                                                                 Converter<R, V> responseConverter, Path path) {
-    String fileName = path.toFile().getPath();
-    Path out = Paths.get(Extension.CSV.attachTo(Extension.BIN.clean(fileName)));
-    if (Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS) &&
-        fileName.lastIndexOf(bytesInterceptor.name()) != -1 &&
-        Files.notExists(out)) {
+    if (Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS) && path.toString().lastIndexOf(bytesInterceptor.name()) != -1) {
+      final int TRIES = 2;
+      for (int i = 0; i < TRIES && !isProcessed(bytesInterceptor, responseConverter, path); i++) {
+        try {
+          TimeUnit.SECONDS.sleep(UIConstants.UI_DELAY.getSeconds());
+        }
+        catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          break;
+        }
+      }
+    }
+  }
+
+  @ParametersAreNonnullByDefault
+  private static <T, R, V extends Enum<V> & Variable<V>> boolean isProcessed(BytesInterceptor<T, R> bytesInterceptor,
+                                                                             Converter<R, V> responseConverter, Path path) {
+    Path out = Paths.get(Extension.CSV.attachTo(Extension.BIN.clean(path.toString())));
+    if (Files.notExists(out)) {
       try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
            var collector = new CSVLineFileCollector(out,
                Stream.concat(
@@ -81,11 +92,18 @@ public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<
           buffer.clear();
         }
         Logger.getLogger(Converter.class.getName()).info(() -> "Converted %s as '%s'".formatted(path, bytesInterceptor.name()));
+        return true;
+      }
+      catch (FileSystemException e) {
+        Logger.getLogger(Converter.class.getName()).log(Level.CONFIG, e.getMessage(), e);
+        return false;
       }
       catch (IOException e) {
         Logger.getLogger(Converter.class.getName()).log(Level.WARNING, e.getMessage(), e);
+        return true;
       }
     }
+    return true;
   }
 
   private static double round3(double d) {
