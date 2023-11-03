@@ -10,12 +10,10 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 import java.util.function.DoubleUnaryOperator;
 
-import static tec.uom.se.unit.Units.METRE;
-
 public enum Metrics {
   ;
 
-  public static final DoubleUnaryOperator MILLI = mm -> Length.MILLI.to(mm, METRE);
+  public static final DoubleUnaryOperator MILLI = mm -> Length.MILLI.to(mm, Units.METRE);
 
   private interface UnitConversion<Q extends Quantity<Q>> {
     static <Q extends Quantity<Q>> double convert(@Nonnull Unit<Q> from, double value, @Nonnull Unit<Q> to) {
