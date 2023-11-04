@@ -1,5 +1,6 @@
 package com.ak.rsm.inverse;
 
+import com.ak.csv.CSVLineFileCollector;
 import com.ak.math.ValuePair;
 import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.measurement.DerivativeMeasurement;
@@ -10,7 +11,6 @@ import com.ak.rsm.resistance.Resistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
-import com.ak.util.CSVLineFileCollector;
 import com.ak.util.Extension;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;

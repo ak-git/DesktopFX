@@ -1,5 +1,6 @@
 package com.ak.fx.desktop;
 
+import com.ak.fx.scene.Colors;
 import com.ak.fx.scene.Fonts;
 import com.ak.fx.storage.OSStageStorage;
 import com.ak.fx.storage.SplitPaneStorage;
@@ -85,9 +86,9 @@ public class FxApplication extends Application implements ViewController {
     });
 
     Text subHeader = new Text("alexander kobelev");
-    subHeader.setFill(Fonts.COLOR);
+    subHeader.setFill(Colors.GRID_CELL);
     Text header = new Text("ak");
-    header.setFill(Fonts.COLOR);
+    header.setFill(Colors.GRID_CELL);
     header.fontProperty().addListener((observable, oldValue, newValue) -> {
       logo.getChildren().clear();
       double radius = Stream.of(header, subHeader)
@@ -95,13 +96,13 @@ public class FxApplication extends Application implements ViewController {
       Arc arc = new Arc(0, 0,
           radius,
           radius, 0, 360);
-      arc.setStroke(Fonts.COLOR);
+      arc.setStroke(Colors.GRID_CELL);
       arc.setStrokeWidth(3.0);
       arc.setFill(Color.WHITE.deriveColor(0.0, 1.0, 1.0, 0.0));
       header.translateYProperty().set(-subHeader.getBoundsInLocal().getHeight() / 4.0);
       subHeader.translateYProperty().set(header.getBoundsInLocal().getHeight() / 4.0 + subHeader.getBoundsInLocal().getHeight() / 2.0);
       logo.getChildren().addAll(root,
-          new Circle(radius * 1.1, Fonts.WHITE_80),
+          new Circle(radius * 1.1, Colors.WHITE_80),
           arc, header, subHeader
       );
     });

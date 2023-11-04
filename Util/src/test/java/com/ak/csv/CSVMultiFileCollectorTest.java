@@ -1,4 +1,10 @@
-package com.ak.util;
+package com.ak.csv;
+
+import com.ak.util.Extension;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -11,13 +17,8 @@ import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import static com.ak.util.CSVLineFileBuilderTest.LINE_JOINER;
-import static com.ak.util.CSVLineFileBuilderTest.ROW_DELIMITER;
+import static com.ak.csv.CSVLineFileBuilderTest.LINE_JOINER;
+import static com.ak.csv.CSVLineFileBuilderTest.ROW_DELIMITER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

@@ -1,10 +1,10 @@
 package com.ak.rsm.inverse;
 
+import com.ak.csv.CSVLineFileBuilder;
 import com.ak.math.Simplex;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
-import com.ak.util.CSVLineFileBuilder;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;

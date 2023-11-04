@@ -1,13 +1,10 @@
-package com.ak.util;
+package com.ak.csv;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
@@ -18,9 +15,6 @@ import java.util.logging.Logger;
 import java.util.stream.BaseStream;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSVLineFileCollector>, Boolean> {
   @Nonnull
@@ -38,11 +32,13 @@ final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSV
   }
 
   @Override
+  @Nonnull
   public Supplier<List<CSVLineFileCollector>> supplier() {
     return () -> paths.stream().map(s -> new CSVLineFileCollector(s, headers)).toList();
   }
 
   @Override
+  @Nonnull
   public BiConsumer<List<CSVLineFileCollector>, Stream<T>> accumulator() {
     return (lineFileCollectors, inStream) -> {
       Collection<T> pairs = inStream.toList();
@@ -54,6 +50,7 @@ final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSV
   }
 
   @Override
+  @Nonnull
   public BinaryOperator<List<CSVLineFileCollector>> combiner() {
     return (c1, c2) -> {
       throw new UnsupportedOperationException();
@@ -61,6 +58,7 @@ final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSV
   }
 
   @Override
+  @Nonnull
   public Function<List<CSVLineFileCollector>, Boolean> finisher() {
     return lineFileCollectors -> {
       var okFlag = new AtomicBoolean(true);
@@ -78,25 +76,28 @@ final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSV
   }
 
   @Override
+  @Nonnull
   public Set<Characteristics> characteristics() {
     return Collections.emptySet();
   }
 
-  public static final class Builder<Y, T> implements com.ak.util.Builder<CSVMultiFileCollector<Y, T>> {
+  static final class Builder<Y, T> implements com.ak.util.Builder<CSVMultiFileCollector<Y, T>> {
+    @Nonnull
     private final CSVMultiFileCollector<Y, T> multiFileCollector;
 
-    public Builder(@Nonnull BaseStream<Y, Stream<Y>> yVar, @Nonnull String... headers) {
+    Builder(@Nonnull BaseStream<Y, Stream<Y>> yVar, @Nonnull String... headers) {
       multiFileCollector = new CSVMultiFileCollector<>(yVar.iterator(), headers);
     }
 
     @ParametersAreNonnullByDefault
-    public Builder<Y, T> add(Path outFileName, Function<T, Object> converter) {
+    Builder<Y, T> add(Path outFileName, Function<T, Object> converter) {
       multiFileCollector.paths.add(outFileName);
       multiFileCollector.functions.add(converter);
       return this;
     }
 
     @Override
+    @Nonnull
     public CSVMultiFileCollector<Y, T> build() {
       return multiFileCollector;
     }

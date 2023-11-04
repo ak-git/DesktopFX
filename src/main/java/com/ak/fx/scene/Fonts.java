@@ -7,8 +7,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
@@ -23,10 +21,6 @@ public enum Fonts {
   LOGO_SMALL(java.awt.Font.MONOSPACED, FontWeight.BOLD, 9.0),
   H1(Constants.TAHOMA, FontWeight.BOLD, 2.5),
   H2(Constants.TAHOMA, FontWeight.NORMAL, 3.0);
-
-  public static final Paint COLOR = new Color(225.0 / 255.0, 130.0 / 255.0, 110.0 / 255.0, 1.0);
-  public static final Paint WHITE_80 = Color.WHITE.deriveColor(0.0, 1.0, 1.0, 0.8);
-  public static final Paint WHITE_60 = Color.WHITE.deriveColor(0.0, 1.0, 1.0, 0.6);
 
   private final transient ObjectProperty<Font> fontProperty;
   private final transient ChangeListener<Number> changeListener;
