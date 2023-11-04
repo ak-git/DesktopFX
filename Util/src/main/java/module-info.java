@@ -10,6 +10,7 @@ module com.ak.util {
   requires jsr305;
   requires io.jenetics.base;
 
+  exports com.ak.csv;
   exports com.ak.math;
   exports com.ak.util;
   exports com.ak.logging;

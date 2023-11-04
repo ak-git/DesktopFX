@@ -1,5 +1,6 @@
-package com.ak.util;
+package com.ak.csv;
 
+import com.ak.util.Extension;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,8 +17,8 @@ import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.ak.util.CSVLineFileBuilderTest.LINE_JOINER;
-import static com.ak.util.CSVLineFileBuilderTest.ROW_DELIMITER;
+import static com.ak.csv.CSVLineFileBuilderTest.LINE_JOINER;
+import static com.ak.csv.CSVLineFileBuilderTest.ROW_DELIMITER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -56,7 +57,7 @@ class CSVMultiFileCollectorTest {
 
   @Test
   void test() throws IOException {
-    CSVMultiFileCollector<Integer, Double> multiFileCollector = new CSVMultiFileCollector.CollectorBuilder<Integer, Double>(
+    CSVMultiFileCollector<Integer, Double> multiFileCollector = new CSVMultiFileCollector.Builder<Integer, Double>(
         IntStream.of(1, 2).boxed(), "var1", "var2").
         add(OUT_PATH, value -> value).build();
     assertTrue(Stream.of(Stream.of(1.0, 1.1), Stream.of(2.0, 2.1)).collect(multiFileCollector));
@@ -71,7 +72,7 @@ class CSVMultiFileCollectorTest {
 
   @Test
   void testInvalidCombiner() {
-    var combiner = new CSVMultiFileCollector.CollectorBuilder<Object, Double>(Stream.empty()).build().combiner();
+    var combiner = new CSVMultiFileCollector.Builder<Object, Double>(Stream.empty()).build().combiner();
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> combiner.apply(null, null));
   }
 }

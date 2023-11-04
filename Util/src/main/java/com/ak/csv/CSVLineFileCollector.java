@@ -1,5 +1,11 @@
-package com.ak.util;
+package com.ak.csv;
 
+import com.ak.util.Strings;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,24 +15,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collector;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import static java.nio.file.StandardOpenOption.WRITE;
+import static java.nio.file.StandardOpenOption.*;
 
 public final class CSVLineFileCollector implements Collector<Object[], CSVPrinter, Boolean>, Closeable, Consumer<Object[]> {
   @Nonnull

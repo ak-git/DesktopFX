@@ -9,8 +9,6 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.ak.fx.scene.Fonts.COLOR;
-
 enum GridCell {
   POINTS(1.0) {
     private static final int FACTOR = 4;
@@ -84,7 +82,7 @@ enum GridCell {
 
   Path newPath() {
     var p = new Path();
-    p.setStroke(COLOR);
+    p.setStroke(Colors.GRID_CELL);
     p.setStrokeWidth(getStrokeWidth());
     return p;
   }

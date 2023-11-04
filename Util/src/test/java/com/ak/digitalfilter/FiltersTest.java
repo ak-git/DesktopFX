@@ -1,5 +1,12 @@
 package com.ak.digitalfilter;
 
+import com.ak.csv.CSVLineFileCollector;
+import com.ak.util.Extension;
+import com.ak.util.Strings;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -11,13 +18,6 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-
-import com.ak.util.CSVLineFileCollector;
-import com.ak.util.Extension;
-import com.ak.util.Strings;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 
 class FiltersTest {
   @Test
