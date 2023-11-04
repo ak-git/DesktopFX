@@ -1,12 +1,12 @@
 package com.ak.rsm;
 
-import java.util.stream.DoubleStream;
-
-import com.ak.util.CSVLineFileBuilder;
+import com.ak.csv.CSVLineFileBuilder;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import java.util.stream.DoubleStream;
 
 import static java.lang.StrictMath.asin;
 import static org.assertj.core.api.Assertions.assertThat;

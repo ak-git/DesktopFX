@@ -1,5 +1,10 @@
-package com.ak.util;
+package com.ak.csv;
 
+import com.ak.util.Extension;
+import com.ak.util.Strings;
+import org.junit.jupiter.api.Test;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -10,10 +15,6 @@ import java.nio.file.Paths;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;

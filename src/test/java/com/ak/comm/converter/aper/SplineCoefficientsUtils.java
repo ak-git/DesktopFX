@@ -1,17 +1,16 @@
 package com.ak.comm.converter.aper;
 
+import com.ak.csv.CSVLineFileBuilder;
+import com.ak.numbers.Coefficients;
+import com.ak.numbers.Interpolators;
+import com.ak.numbers.RangeUtils;
+
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.IntSummaryStatistics;
 import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
 import java.util.stream.IntStream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import com.ak.numbers.Coefficients;
-import com.ak.numbers.Interpolators;
-import com.ak.numbers.RangeUtils;
-import com.ak.util.CSVLineFileBuilder;
 
 public enum SplineCoefficientsUtils {
   ;

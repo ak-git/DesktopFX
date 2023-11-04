@@ -1,4 +1,4 @@
-package com.ak.util;
+package com.ak.csv;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -81,16 +81,16 @@ final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSV
     return Collections.emptySet();
   }
 
-  static final class CollectorBuilder<Y, T> implements Builder<CSVMultiFileCollector<Y, T>> {
+  static final class Builder<Y, T> implements com.ak.util.Builder<CSVMultiFileCollector<Y, T>> {
     @Nonnull
     private final CSVMultiFileCollector<Y, T> multiFileCollector;
 
-    CollectorBuilder(@Nonnull BaseStream<Y, Stream<Y>> yVar, @Nonnull String... headers) {
+    Builder(@Nonnull BaseStream<Y, Stream<Y>> yVar, @Nonnull String... headers) {
       multiFileCollector = new CSVMultiFileCollector<>(yVar.iterator(), headers);
     }
 
     @ParametersAreNonnullByDefault
-    CollectorBuilder<Y, T> add(Path outFileName, Function<T, Object> converter) {
+    Builder<Y, T> add(Path outFileName, Function<T, Object> converter) {
       multiFileCollector.paths.add(outFileName);
       multiFileCollector.functions.add(converter);
       return this;

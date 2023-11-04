@@ -1,4 +1,9 @@
-package com.ak.util;
+package com.ak.csv;
+
+import com.ak.util.Builder;
+import com.ak.util.Extension;
+import com.ak.util.Numbers;
+import com.ak.util.Strings;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -19,7 +24,7 @@ public final class CSVLineFileBuilder<T> {
   @Nonnull
   private final BiFunction<Double, Double, T> doubleFunction;
   @Nullable
-  private CSVMultiFileCollector.CollectorBuilder<Double, T> multiFileBuilder;
+  private CSVMultiFileCollector.Builder<Double, T> multiFileBuilder;
 
   private CSVLineFileBuilder(@Nonnull BiFunction<Double, Double, T> doubleFunction) {
     this.doubleFunction = doubleFunction;
@@ -61,7 +66,7 @@ public final class CSVLineFileBuilder<T> {
 
   public CSVLineFileBuilder<T> saveTo(@Nonnull String fileName, @Nonnull Function<T, Object> converter) {
     if (multiFileBuilder == null) {
-      multiFileBuilder = new CSVMultiFileCollector.CollectorBuilder<>(
+      multiFileBuilder = new CSVMultiFileCollector.Builder<>(
           yRange.build().boxed(),
           Stream.concat(Stream.of(Strings.EMPTY), xRange.build().mapToObj(Double::toString)).toArray(String[]::new)
       );

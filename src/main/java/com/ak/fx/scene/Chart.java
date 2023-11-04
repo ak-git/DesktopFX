@@ -43,7 +43,7 @@ public final class Chart extends AbstractRegion {
     getChildren().add(milliGrid);
 
     Rectangle rectangle = new Rectangle();
-    rectangle.setFill(Fonts.WHITE_80);
+    rectangle.setFill(Colors.WHITE_80);
     xAxisUnitGroup.getChildren().add(rectangle);
     xAxisUnitGroup.getChildren().add(xAxisUnit);
     xAxisUnit.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -65,7 +65,7 @@ public final class Chart extends AbstractRegion {
     bannerUnits.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
     bannerUnits.setTextAlignment(TextAlignment.LEFT);
 
-    bannerRect.setFill(Fonts.WHITE_60);
+    bannerRect.setFill(Colors.WHITE_60);
     bannerGroup.getChildren().add(bannerRect);
     bannerGroup.getChildren().add(bannerBox);
   }
