@@ -1,5 +1,6 @@
 package com.ak.comm.converter;
 
+import com.ak.util.Numbers;
 import com.ak.util.Strings;
 import tec.uom.se.format.LocalUnitFormat;
 import tec.uom.se.unit.MetricPrefix;
@@ -50,7 +51,7 @@ public enum Variables {
   }
 
   public static <Q extends Quantity<Q>> String toString(int value, @Nonnull Unit<Q> unit, @Nonnegative int scaleFactor10) {
-    int scale = (int) Math.rint(StrictMath.log10(unit.getConverterTo(unit.getSystemUnit()).convert(1.0)));
+    int scale = Numbers.log10ToInt(unit.getConverterTo(unit.getSystemUnit()).convert(1.0));
     int displayScale = scale + 1;
     while (displayScale % 3 != 0) {
       displayScale++;
@@ -62,11 +63,11 @@ public enum Variables {
         sf10 *= 10;
       }
     }
-    int formatZeros = Math.max(0, (displayScale - scale) - (int) Math.rint(StrictMath.log10(sf10)));
+    int formatZeros = Math.max(0, (displayScale - scale) - Numbers.log10ToInt(sf10));
 
     Unit<Q> displayUnit = unit.getSystemUnit();
     for (MetricPrefix metricPrefix : MetricPrefix.values()) {
-      if (displayScale == (int) Math.rint(StrictMath.log10(metricPrefix.getConverter().convert(1.0)))) {
+      if (displayScale == Numbers.log10ToInt(metricPrefix.getConverter().convert(1.0))) {
         displayUnit = displayUnit.transform(metricPrefix.getConverter());
         break;
       }
@@ -97,5 +98,22 @@ public enum Variables {
     else {
       return s;
     }
+  }
+
+  @Nonnull
+  public static <Q extends Quantity<Q>> Unit<Q> tryToUp3(@Nonnull Unit<Q> unit) {
+    int d = Math.min(Numbers.log10ToInt(unit.getConverterTo(unit.getSystemUnit()).convert(1.0)), 0);
+    d = 3 * Numbers.toInt(Math.ceil((d + 1) / 3.0));
+    if (d == 0) {
+      return unit.getSystemUnit();
+    }
+    else if (d < 0) {
+      for (MetricPrefix metricPrefix : MetricPrefix.values()) {
+        if (d == Numbers.log10ToInt(metricPrefix.getConverter().convert(1.0))) {
+          return unit.getSystemUnit().transform(metricPrefix.getConverter());
+        }
+      }
+    }
+    return unit;
   }
 }

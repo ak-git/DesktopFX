@@ -1,11 +1,6 @@
 package com.ak.fx.scene;
 
-import java.util.function.DoubleFunction;
-import java.util.stream.IntStream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
+import com.ak.util.Numbers;
 import com.ak.util.Strings;
 import javafx.beans.binding.Bindings;
 import javafx.scene.Group;
@@ -13,6 +8,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import java.util.function.DoubleFunction;
+import java.util.stream.IntStream;
 
 import static com.ak.fx.scene.GridCell.POINTS;
 import static com.ak.fx.scene.GridCell.SMALL;
@@ -60,7 +60,7 @@ final class LineDiagram extends AbstractRegion {
     polyline.setVisible(SMALL.maxValue(width) > SMALL.getStep() * 2);
 
     yLabels.getChildren().clear();
-    yLabels.getChildren().addAll(IntStream.range(0, (int) (Math.rint((height / 2) / SMALL.getStep()) * 2) + 1).mapToObj(i -> {
+    yLabels.getChildren().addAll(IntStream.range(0, Numbers.toInt((height / 2) / SMALL.getStep()) * 2 + 1).mapToObj(i -> {
       var text = new Text();
       updateText(i, text);
       text.fontProperty().bind(Fonts.H2.fontProperty(this::getScene));

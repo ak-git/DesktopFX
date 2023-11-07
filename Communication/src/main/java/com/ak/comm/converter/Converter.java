@@ -4,11 +4,14 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.csv.CSVLineFileCollector;
 import com.ak.util.Extension;
 import com.ak.util.UIConstants;
+import tec.uom.se.AbstractUnit;
+import tec.uom.se.function.RationalConverter;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.measure.IncommensurableException;
+import javax.measure.UnitConverter;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -17,7 +20,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.*;
 import java.util.Arrays;
 import java.util.List;
-import java.util.PrimitiveIterator;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -57,34 +60,41 @@ public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<
       try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
            var collector = new CSVLineFileCollector(out,
                Stream.concat(
-                   Stream.of(TimeVariable.TIME).map(Variable::name),
-                   responseConverter.variables().stream().map(Variable::name)
+                   Stream.of(TimeVariable.TIME)
+                       .map(v -> "%s_%s".formatted(v.name(), v.getUnit())),
+                   responseConverter.variables().stream()
+                       .map(v -> {
+                         if (Objects.equals(v.getUnit(), AbstractUnit.ONE)) {
+                           return v.name();
+                         }
+                         else {
+                           return "%s_%s".formatted(v.name(), Variables.fixUnit(Variables.tryToUp3(v.getUnit())));
+                         }
+                       })
                ).toArray(String[]::new))
       ) {
         var buffer = ByteBuffer.allocate((int) Files.getFileStore(path).getBlockSize());
         var timeCounter = new AtomicInteger();
 
-        double[] pow = responseConverter.variables().stream().map(Variable::getUnit)
-            .mapToDouble(unit -> {
-              try {
-                return Math.min(unit.getSystemUnit().getConverterToAny(unit).convert(1.0), 1000.0);
-              }
-              catch (IncommensurableException e) {
-                return 1.0;
-              }
-            })
-            .toArray();
+        List<UnitConverter> unitConverters = responseConverter.variables().stream().map(v -> {
+          try {
+            return v.getUnit().getConverterToAny(Variables.tryToUp3(v.getUnit()));
+          }
+          catch (IncommensurableException e) {
+            return new RationalConverter(1, 1);
+          }
+        }).toList();
 
         while (readableByteChannel.read(buffer) > 0) {
           buffer.flip();
           bytesInterceptor.apply(buffer).flatMap(responseConverter)
               .forEach(
                   ints -> {
-                    PrimitiveIterator.OfDouble iterator = Arrays.stream(pow).iterator();
+                    var iterator = unitConverters.iterator();
                     collector.accept(
                         Stream.concat(
                             Stream.of(round3(timeCounter.getAndIncrement() / responseConverter.getFrequency())),
-                            Arrays.stream(ints).mapToDouble(value -> round3(value / iterator.nextDouble())).boxed()
+                            Arrays.stream(ints).mapToDouble(value -> round3(iterator.next().convert(value))).boxed()
                         ).toArray()
                     );
                   }

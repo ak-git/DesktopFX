@@ -1,6 +1,7 @@
 package com.ak.fx.scene;
 
 import com.ak.fx.stage.ScreenResolutionMonitor;
+import com.ak.util.Numbers;
 import javafx.scene.shape.Path;
 
 import javax.annotation.Nonnegative;
@@ -113,7 +114,7 @@ enum GridCell {
   }
 
   static int mm(double value) {
-    return (int) Math.rint(value / (SMALL.getStep() / 10.0));
+    return Numbers.toInt(value / (SMALL.getStep() / 10.0));
   }
 
   @Nonnegative
@@ -128,6 +129,6 @@ enum GridCell {
 
   @Nonnegative
   private static double roundCoordinate(@Nonnegative double step, @Nonnegative double size) {
-    return Math.rint(size / step) * step;
+    return Numbers.toInt(size / step) * step;
   }
 }

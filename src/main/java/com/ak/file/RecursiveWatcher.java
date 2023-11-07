@@ -45,7 +45,7 @@ public final class RecursiveWatcher implements Closeable {
         for (WatchKey key = watchService.take(); key != null && !directories.isEmpty(); key = watchService.take()) {
           WatchKey finalKey = key;
           key.pollEvents().stream()
-              .filter(watchEvent -> watchEvent.kind().equals(StandardWatchEventKinds.ENTRY_CREATE))
+              .filter(watchEvent -> StandardWatchEventKinds.ENTRY_CREATE.equals(watchEvent.kind()))
               .map(WatchEvent::context).map(Path.class::cast)
               .map(path -> directories.get(finalKey).resolve(path))
               .mapMulti(register)
