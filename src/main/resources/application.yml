@@ -20,4 +20,4 @@ logging:
         # trace / FINEST - pure bytes, (IN from hardware, com.ak.comm.core)
         # ALL
         comm: info
-version: 2023.11.03
+version: 2023.11.08

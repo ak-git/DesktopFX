@@ -1,15 +1,5 @@
 package com.ak.comm.converter;
 
-import java.util.EnumSet;
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.measure.Unit;
-
 import com.ak.comm.logging.LogTestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,12 +11,20 @@ import tec.uom.se.quantity.Quantities;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import javax.measure.Quantity;
+import javax.measure.Unit;
+import java.util.EnumSet;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class VariableTest {
@@ -165,5 +163,24 @@ class VariableTest {
     assertThat(TimeVariable.values()).hasSize(1);
     assertThat(EnumSet.allOf(TimeVariable.class)).isNotEmpty()
         .allSatisfy(timeVariable -> assertThat(timeVariable.getUnit()).isEqualTo(Units.SECOND));
+  }
+
+  static Stream<Arguments> conversion() {
+    return Stream.of(
+        arguments(Units.OHM.multiply(Units.METRE), MetricPrefix.MILLI(Units.OHM).multiply(Units.METRE)),
+        arguments(Units.METRE, MetricPrefix.CENTI(Units.METRE)),
+        arguments(Units.METRE, MetricPrefix.DECI(Units.METRE)),
+        arguments(Units.METRE, MetricPrefix.MILLI(Units.METRE)),
+        arguments(MetricPrefix.MILLI(Units.METRE), MetricPrefix.MICRO(Units.METRE)),
+        arguments(MetricPrefix.KILO(Units.METRE), MetricPrefix.KILO(Units.METRE)),
+        arguments(MetricPrefix.DEKA(Units.METRE), MetricPrefix.DEKA(Units.METRE))
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("conversion")
+  @ParametersAreNonnullByDefault
+  <Q extends Quantity<Q>> void testTryToUp3(Unit<Q> expected, Unit<Q> toConvert) {
+    assertEquals(expected, Variables.tryToUp3(toConvert));
   }
 }

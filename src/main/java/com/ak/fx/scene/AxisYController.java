@@ -1,6 +1,7 @@
 package com.ak.fx.scene;
 
 import com.ak.comm.converter.Variable;
+import com.ak.util.Numbers;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -24,7 +25,7 @@ public final class AxisYController<V extends Enum<V> & Variable<V>> {
     int meanScaleFactor10 = scaleFactor10(mmHeight, peakToPeak) * 10;
     var mean = 0;
     if (!variable.options().contains(Variable.Option.FORCE_ZERO_IN_RANGE)) {
-      mean = (int) Math.rint((intSummaryStatistics.getMax() + intSummaryStatistics.getMin()) / 2.0 / meanScaleFactor10) * meanScaleFactor10;
+      mean = Numbers.toInt((intSummaryStatistics.getMax() + intSummaryStatistics.getMin()) / 2.0 / meanScaleFactor10) * meanScaleFactor10;
     }
     int signalRange = Math.max(Math.abs(intSummaryStatistics.getMax() - mean), Math.abs(intSummaryStatistics.getMin() - mean)) * 2;
     return new ScaleYInfo.ScaleYInfoBuilder<>(variable).mean(mean).

@@ -1,15 +1,12 @@
 package com.ak.util;
 
+import javax.annotation.Nonnegative;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.DoubleStream;
 
-import javax.annotation.Nonnegative;
-
-import static java.lang.StrictMath.exp;
-import static java.lang.StrictMath.log;
-import static java.lang.StrictMath.log10;
+import static java.lang.StrictMath.*;
 
 public enum Numbers {
   ;
@@ -34,5 +31,9 @@ public enum Numbers {
 
   public static int toInt(double value) {
     return Math.toIntExact(Math.round(value));
+  }
+
+  public static int log10ToInt(@Nonnegative double value) {
+    return toInt(log10(value));
   }
 }
