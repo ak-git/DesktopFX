@@ -3,6 +3,7 @@ module com.ak.fx.desktop {
   requires com.ak.util;
   requires com.ak.fx;
 
+  requires commons.math3;
   requires uom.se;
   requires unit.api;
   requires java.logging;

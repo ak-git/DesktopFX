@@ -122,6 +122,7 @@ dependencies {
     implementation project(':Communication')
 
     implementation javax_inject
+    implementation commons_math3
     implementation uom_se
     implementation javax_json
     implementation 'org.springframework.boot:spring-boot-starter'

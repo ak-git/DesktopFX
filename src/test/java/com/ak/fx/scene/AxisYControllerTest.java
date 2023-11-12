@@ -1,17 +1,16 @@
 package com.ak.fx.scene;
 
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.Variables;
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -21,6 +20,7 @@ class AxisYControllerTest {
     return Stream.of(
         arguments(IntStream.range(0, 1000), 500, 5),
         arguments(IntStream.range(0, 20), 10, 1),
+        arguments(IntStream.generate(() -> 0).limit(10), 0, 1),
         arguments(IntStream.generate(() -> 1).limit(10), 0, 1),
         arguments(IntStream.generate(() -> 100).limit(10), 50, 1)
     );
