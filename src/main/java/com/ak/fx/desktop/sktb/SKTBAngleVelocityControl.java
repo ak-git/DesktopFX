@@ -28,7 +28,7 @@ final class SKTBAngleVelocityControl implements IntsAcceptor {
   @Override
   public void accept(@Nonnull int[] ints) {
     int error = angle.get() - ints[variable.ordinal()];
-    velocity.set(error / 2);
+    velocity.set((error / 2) * 1000);
   }
 
   @Nonnull

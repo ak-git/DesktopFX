@@ -11,9 +11,9 @@ import java.nio.ByteOrder;
 
 public final class SKTBRequest extends BufferFrame {
   public static final SKTBRequest NONE = new RequestBuilder((byte) 0).build();
-  private static final int MAX_ROTATE_VELOCITY = 10;
-  private static final int MAX_FLEX_VELOCITY = 3;
-  private static final int MAX_GRIP_VELOCITY = 10;
+  private static final int MAX_ROTATE_VELOCITY = 10_000;
+  private static final int MAX_FLEX_VELOCITY = 3_000;
+  private static final int MAX_GRIP_VELOCITY = 10_000;
   private static final int MAX_CAPACITY = 11;
   private final byte id;
 
@@ -79,7 +79,7 @@ public final class SKTBRequest extends BufferFrame {
 
     @Nonnull
     private RequestBuilder command(int v, @Nonnegative int max) {
-      buffer().putShort((short) (Math.min(Math.abs(v), max) * Math.signum(v) * 1000));
+      buffer().putShort((short) (Math.min(Math.abs(v), max) * Math.signum(v)));
       return this;
     }
   }
