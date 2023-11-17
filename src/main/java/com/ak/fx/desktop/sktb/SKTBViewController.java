@@ -89,7 +89,7 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
   @Override
   @EventListener(RsceEvent.class)
   public void onApplicationEvent(@Nonnull RsceEvent rsceEvent) {
-    controls.forEach((variable, control) -> control.update(rsceEvent.getValue(control.rsceMapping())));
+    controls.forEach((variable, control) -> control.update(rsceEvent));
   }
 
   @ParametersAreNonnullByDefault
