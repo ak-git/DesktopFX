@@ -6,8 +6,8 @@ import org.springframework.context.ApplicationEvent;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class RsceEvent extends ApplicationEvent {
   @Nonnull
@@ -23,9 +23,11 @@ public final class RsceEvent extends ApplicationEvent {
   }
 
   @Override
+  @Nonnull
   public String toString() {
     return "RsceEvent{values = {%s}, source = %s}".formatted(
-        Stream.of(RsceVariable.values()).map(v -> Variables.toString(v, values[v.ordinal()])).collect(Collectors.joining(", ")),
+        EnumSet.allOf(RsceVariable.class).stream()
+            .map(v -> Variables.toString(v, values[v.ordinal()])).collect(Collectors.joining(", ")),
         source);
   }
 }
