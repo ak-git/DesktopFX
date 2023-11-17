@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
@@ -39,8 +38,8 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
     digitalFilter = FilterBuilder.parallel(selectedIndexes, filters.toArray(new DigitalFilter[variables.size()]));
     digitalFilter.forEach(ints -> {
       logger.log(LOG_LEVEL_VALUES, () -> "#%08x [ %s ]".formatted(hashCode(),
-          IntStream.iterate(0, operand -> operand + 1).limit(variables.size()).mapToObj(
-              idx -> Variables.toString(variables.get(idx), ints[idx])).collect(Collectors.joining(", "))));
+          variables.stream().map(v -> Variables.toString(v, ints[v.ordinal()])).collect(Collectors.joining("; ")))
+      );
       filteredValues = Stream.concat(filteredValues, Stream.of(ints));
     });
     this.frequency = frequency * digitalFilter.getFrequencyFactor();

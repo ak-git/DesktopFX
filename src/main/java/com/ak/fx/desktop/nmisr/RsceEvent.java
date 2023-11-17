@@ -27,7 +27,7 @@ public final class RsceEvent extends ApplicationEvent {
   public String toString() {
     return "RsceEvent{values = {%s}, source = %s}".formatted(
         EnumSet.allOf(RsceVariable.class).stream()
-            .map(v -> Variables.toString(v, values[v.ordinal()])).collect(Collectors.joining(", ")),
+            .map(v -> Variables.toString(v, values[v.ordinal()])).collect(Collectors.joining("; ")),
         source);
   }
 }
