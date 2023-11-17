@@ -2,14 +2,11 @@ package com.ak.fx.desktop.sktb;
 
 import com.ak.comm.bytes.sktbpr.SKTBRequest;
 import com.ak.comm.bytes.sktbpr.SKTBResponse;
-import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.sktbpr.SKTBConverter;
 import com.ak.comm.converter.sktbpr.SKTBVariable;
-import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.interceptor.sktbpr.SKTBBytesInterceptor;
 import com.ak.fx.desktop.AbstractScheduledViewController;
 import com.ak.fx.desktop.nmisr.RsceEvent;
-import jakarta.inject.Inject;
-import jakarta.inject.Provider;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
@@ -25,7 +22,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 
 @Component
 @Profile("sktb-pr")
@@ -44,11 +40,8 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
           )
       );
 
-  @Inject
-  @ParametersAreNonnullByDefault
-  public SKTBViewController(Provider<BytesInterceptor<SKTBRequest, SKTBResponse>> interceptorProvider,
-                            Provider<Converter<SKTBResponse, SKTBVariable>> converterProvider) {
-    super(interceptorProvider, converterProvider, SKTBConverter.FREQUENCY);
+  public SKTBViewController() {
+    super(SKTBBytesInterceptor::new, SKTBConverter::new, SKTBConverter.FREQUENCY);
   }
 
   @Override
