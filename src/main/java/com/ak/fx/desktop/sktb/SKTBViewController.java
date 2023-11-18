@@ -13,7 +13,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -45,7 +44,7 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
   }
 
   @Override
-  @Nullable
+  @Nonnull
   public SKTBRequest get() {
     SKTBRequest request = sktbRequestPrev.get().from()
         .rotate(controls.get(SKTBVariable.ROTATE).velocity())
