@@ -2,6 +2,7 @@ package com.ak.fx.scene;
 
 import com.ak.comm.converter.Variable;
 import com.ak.util.Numbers;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -16,18 +17,22 @@ public final class AxisYController<V extends Enum<V> & Variable<V>> {
   }
 
   public ScaleYInfo<V> scale(@Nonnull V variable, @Nonnull int[] values) {
-    var intSummaryStatistics = IntStream.of(values).summaryStatistics();
-    int peakToPeak = intSummaryStatistics.getMax() - intSummaryStatistics.getMin();
+    DescriptiveStatistics stats = new DescriptiveStatistics();
+    IntStream.of(values).forEach(stats::addValue);
+    int max = Numbers.toInt(stats.getPercentile(98));
+    int min = Numbers.toInt(stats.getPercentile(2));
+
+    int peakToPeak = max - min;
     if (peakToPeak == 0) {
-      intSummaryStatistics = IntStream.of(intSummaryStatistics.getMax(), 0).summaryStatistics();
+      min = 0;
     }
 
     int meanScaleFactor10 = scaleFactor10(mmHeight, peakToPeak) * 10;
     var mean = 0;
     if (!variable.options().contains(Variable.Option.FORCE_ZERO_IN_RANGE)) {
-      mean = Numbers.toInt((intSummaryStatistics.getMax() + intSummaryStatistics.getMin()) / 2.0 / meanScaleFactor10) * meanScaleFactor10;
+      mean = Numbers.toInt((max + min) / 2.0 / meanScaleFactor10) * meanScaleFactor10;
     }
-    int signalRange = Math.max(Math.abs(intSummaryStatistics.getMax() - mean), Math.abs(intSummaryStatistics.getMin() - mean)) * 2;
+    int signalRange = Math.max(Math.abs(max - mean), Math.abs(min - mean)) * 2;
     return new ScaleYInfo.ScaleYInfoBuilder<>(variable).mean(mean).
         scaleFactor(optimizeScaleY(mmHeight, signalRange)).
         scaleFactor10(scaleFactor10(mmHeight, signalRange)).

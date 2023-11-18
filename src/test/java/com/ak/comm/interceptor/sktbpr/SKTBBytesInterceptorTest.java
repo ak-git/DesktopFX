@@ -2,7 +2,9 @@ package com.ak.comm.interceptor.sktbpr;
 
 import com.ak.comm.bytes.LogUtils;
 import com.ak.comm.bytes.sktbpr.SKTBResponse;
+import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.log.LogTestUtils;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -42,5 +44,10 @@ class SKTBBytesInterceptorTest {
         assertThat(frames).hasSize(1);
       }
     }, logRecord -> assertTrue(logRecord.getMessage().endsWith("9 bytes"))), ok);
+  }
+
+  @Test
+  void testSerialParams() {
+    assertThat(new SKTBBytesInterceptor().getSerialParams()).containsExactly(BytesInterceptor.SerialParams.ODD_PARITY);
   }
 }

@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 
 public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractViewController<T, R, V> implements Supplier<T> {
-  private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+  private final ScheduledExecutorService pingService = Executors.newSingleThreadScheduledExecutor();
   @Nonnegative
   private final double frequencyHz;
   private final Runnable command = () -> {
@@ -52,13 +52,13 @@ public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & 
   @Override
   public final void close() throws IOException {
     innerCancel();
-    executorService.shutdownNow();
+    pingService.shutdownNow();
     super.close();
   }
 
   private void innerRefresh() {
     innerCancel();
-    scheduledFuture = executorService.scheduleAtFixedRate(command, 0, Math.round(1000 / frequencyHz), TimeUnit.MILLISECONDS);
+    scheduledFuture = pingService.scheduleWithFixedDelay(command, 0, Math.round(1000 / frequencyHz), TimeUnit.MILLISECONDS);
   }
 
   private void innerCancel() {

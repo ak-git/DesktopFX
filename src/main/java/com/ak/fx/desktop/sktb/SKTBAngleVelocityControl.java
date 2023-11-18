@@ -3,6 +3,7 @@ package com.ak.fx.desktop.sktb;
 import com.ak.comm.converter.rsce.RsceVariable;
 import com.ak.comm.converter.sktbpr.SKTBVariable;
 import com.ak.digitalfilter.IntsAcceptor;
+import com.ak.fx.desktop.nmisr.RsceEvent;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,12 +29,7 @@ final class SKTBAngleVelocityControl implements IntsAcceptor {
   @Override
   public void accept(@Nonnull int[] ints) {
     int error = angle.get() - ints[variable.ordinal()];
-    velocity.set(error / 2);
-  }
-
-  @Nonnull
-  RsceVariable rsceMapping() {
-    return rsceMapping;
+    velocity.set((error / 2) * 1000);
   }
 
   void decrement() {
@@ -44,7 +40,8 @@ final class SKTBAngleVelocityControl implements IntsAcceptor {
     angle.addAndGet(10);
   }
 
-  void update(int percents) {
+  void update(@Nonnull RsceEvent event) {
+    int percents = event.getValue(rsceMapping);
     angle.set(-(180 * percents / 100 - 90));
   }
 

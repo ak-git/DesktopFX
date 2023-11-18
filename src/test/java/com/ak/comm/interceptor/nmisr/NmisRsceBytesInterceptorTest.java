@@ -1,12 +1,5 @@
 package com.ak.comm.interceptor.nmisr;
 
-import java.nio.ByteBuffer;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.ak.comm.bytes.LogUtils;
 import com.ak.comm.bytes.nmis.NmisProtocolByte;
 import com.ak.comm.bytes.nmis.NmisRequest;
@@ -18,6 +11,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.nio.ByteBuffer;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -59,6 +58,7 @@ class NmisRsceBytesInterceptorTest {
     byteBuffer.put(bytes);
     byteBuffer.flip();
     Assertions.assertAll(interceptor.toString(),
+        () -> assertThat(interceptor.name()).isEqualTo("NMIS-RSC Energia"),
         () -> assertThat(interceptor.getBaudRate()).isEqualTo(new NmisBytesInterceptor().getBaudRate()),
         () -> assertThat(interceptor.getPingRequest()).isEqualTo(NmisRequest.Sequence.CATCH_100.build())
     );
