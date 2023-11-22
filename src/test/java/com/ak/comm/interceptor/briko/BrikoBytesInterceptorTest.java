@@ -28,7 +28,7 @@ class BrikoBytesInterceptorTest {
   @Test
   void testInterceptorProperties() {
     BytesInterceptor<BufferFrame, BufferFrame> interceptor = new BrikoBytesInterceptor();
-    assertThat(interceptor.name()).isEqualTo("Briko-Stand");
+    assertThat(interceptor.name()).isEqualTo("Briko-Black-Stand");
     assertThat(interceptor.getBaudRate()).isEqualTo(115200 * 8);
     assertNull(interceptor.getPingRequest());
   }

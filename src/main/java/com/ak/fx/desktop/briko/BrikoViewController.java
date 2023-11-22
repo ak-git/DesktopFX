@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public final class BrikoViewController extends AbstractViewController<BufferFrame, BufferFrame, BrikoStage2Variable> {
   public BrikoViewController() {
     super(
-        () -> new BrikoBytesInterceptor("Briko-Black-Stand"),
+        BrikoBytesInterceptor::new,
         () -> LinkedConverter.of(new BrikoConverter(), BrikoStage2Variable.class)
     );
   }

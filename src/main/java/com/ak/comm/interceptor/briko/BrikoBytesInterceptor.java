@@ -8,8 +8,8 @@ import javax.annotation.Nonnull;
 import static java.lang.Integer.BYTES;
 
 public final class BrikoBytesInterceptor extends RampBytesInterceptor {
-  public BrikoBytesInterceptor(@Nonnull String name) {
-    super(name, BytesInterceptor.BaudRate.BR_921600, 32);
+  public BrikoBytesInterceptor() {
+    super("Briko-Black-Stand", BytesInterceptor.BaudRate.BR_921600, 32);
   }
 
   @Override
