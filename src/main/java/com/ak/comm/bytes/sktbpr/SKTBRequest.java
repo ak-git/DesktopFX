@@ -11,9 +11,9 @@ import java.nio.ByteOrder;
 
 public final class SKTBRequest extends BufferFrame {
   public static final SKTBRequest NONE = new RequestBuilder((byte) 0).build();
-  private static final int MAX_ROTATE_VELOCITY = 10;
-  private static final int MAX_FLEX_VELOCITY = 3;
-  private static final int MAX_GRIP_VELOCITY = 10;
+  private static final int MAX_ROTATE_VELOCITY = 10_000;
+  private static final int MAX_FLEX_VELOCITY = 3_000;
+  private static final int MAX_GRIP_VELOCITY = 10_000;
   private static final int MAX_CAPACITY = 11;
   private final byte id;
 
@@ -29,17 +29,17 @@ public final class SKTBRequest extends BufferFrame {
 
   public interface RotateBuilder {
     @Nonnull
-    FlexBuilder rotate(int velocity10);
+    FlexBuilder rotate(int velocity);
   }
 
   public interface FlexBuilder {
     @Nonnull
-    GripBuilder flex(int velocity3);
+    GripBuilder flex(int velocity);
   }
 
   public interface GripBuilder {
     @Nonnull
-    Builder<SKTBRequest> grip(int velocity10);
+    Builder<SKTBRequest> grip(int velocity);
   }
 
   public static class RequestBuilder extends AbstractCheckedBuilder<SKTBRequest>
@@ -54,20 +54,20 @@ public final class SKTBRequest extends BufferFrame {
 
     @Override
     @Nonnull
-    public FlexBuilder rotate(int velocity10) {
-      return command(velocity10, MAX_ROTATE_VELOCITY);
+    public FlexBuilder rotate(int velocity) {
+      return command(velocity, MAX_ROTATE_VELOCITY);
     }
 
     @Override
     @Nonnull
-    public GripBuilder flex(int velocity3) {
-      return command(velocity3, MAX_FLEX_VELOCITY);
+    public GripBuilder flex(int velocity) {
+      return command(velocity, MAX_FLEX_VELOCITY);
     }
 
     @Override
     @Nonnull
-    public Builder<SKTBRequest> grip(int velocity10) {
-      return command(velocity10, MAX_GRIP_VELOCITY);
+    public Builder<SKTBRequest> grip(int velocity) {
+      return command(velocity, MAX_GRIP_VELOCITY);
     }
 
     @Override
@@ -79,7 +79,7 @@ public final class SKTBRequest extends BufferFrame {
 
     @Nonnull
     private RequestBuilder command(int v, @Nonnegative int max) {
-      buffer().putShort((short) (Math.min(Math.abs(v), max) * Math.signum(v) * 1000));
+      buffer().putShort((short) (Math.min(Math.abs(v), max) * Math.signum(v)));
       return this;
     }
   }

@@ -3,6 +3,7 @@ package com.ak.fx.scene;
 import com.ak.comm.converter.Variables;
 import com.ak.fx.storage.Storage;
 import com.ak.fx.storage.StringStorage;
+import com.ak.util.Numbers;
 import com.ak.util.Strings;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.*;
@@ -120,7 +121,7 @@ public final class AxisXController {
   }
 
   public void scroll(double deltaX) {
-    setStart(toInt(getStart() - deltaX * decimateFactor));
+    setStart(Numbers.toInt(getStart() - deltaX * decimateFactor));
   }
 
   public void zoom(double zoomFactor) {
@@ -143,7 +144,7 @@ public final class AxisXController {
   }
 
   public void preventEnd(@Nonnegative double width) {
-    int newLen = toInt(width / stepProperty.get()) * decimateFactor;
+    int newLen = Numbers.toInt(width / stepProperty.get()) * decimateFactor;
     setStart(getEnd() - newLen);
     lengthProperty.set(newLen);
   }
@@ -166,7 +167,7 @@ public final class AxisXController {
 
   private double getStep(@Nonnegative double frequency) {
     double pointsInSec = SMALL.getStep() * zoomProperty.get().mmPerSec / 10.0;
-    decimateFactor = Math.max(1, toInt(frequency / pointsInSec));
+    decimateFactor = Math.max(1, Numbers.toInt(frequency / pointsInSec));
     double xStep = decimateFactor * pointsInSec / frequency;
     Logger.getLogger(getClass().getName()).log(Level.CONFIG,
         () -> "frequency = %.0f Hz; x-zoom = %d mm/s; pixels per sec = %.1f; decimate factor = %d; x-step = %.1f px"
@@ -175,14 +176,10 @@ public final class AxisXController {
   }
 
   public void setStart(int start) {
-    startProperty.setValue(Math.max(0, toInt(start / (decimateFactor * 1.0)) * decimateFactor));
+    startProperty.setValue(Math.max(0, Numbers.toInt(start / (decimateFactor * 1.0)) * decimateFactor));
   }
 
   private void setStep(@Nonnegative double frequency) {
     stepProperty.set(getStep(frequency));
-  }
-
-  private static int toInt(double d) {
-    return (int) Math.rint(d);
   }
 }

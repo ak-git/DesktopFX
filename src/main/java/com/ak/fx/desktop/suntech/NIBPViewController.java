@@ -1,18 +1,14 @@
 package com.ak.fx.desktop.suntech;
 
 import com.ak.comm.bytes.suntech.NIBPRequest;
-import com.ak.comm.bytes.suntech.NIBPResponse;
-import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.suntech.NIBPConverter;
 import com.ak.comm.converter.suntech.NIBPVariable;
-import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.interceptor.suntech.NIBPBytesInterceptor;
 import com.ak.util.UIConstants;
-import jakarta.inject.Inject;
-import jakarta.inject.Provider;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -23,11 +19,8 @@ public final class NIBPViewController extends AbstractNIBPViewController {
   private final Executor delayedExecutor = CompletableFuture.delayedExecutor(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
   private volatile boolean isStartBPEnable;
 
-  @Inject
-  @ParametersAreNonnullByDefault
-  public NIBPViewController(Provider<BytesInterceptor<NIBPRequest, NIBPResponse>> interceptorProvider,
-                            Provider<Converter<NIBPResponse, NIBPVariable>> converterProvider) {
-    super(interceptorProvider, converterProvider);
+  public NIBPViewController() {
+    super(NIBPBytesInterceptor::new, NIBPConverter::new);
   }
 
   @Override

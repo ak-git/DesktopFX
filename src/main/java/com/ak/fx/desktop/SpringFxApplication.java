@@ -9,7 +9,6 @@ import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.comm.interceptor.simple.FixedFrameBytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.interceptor.simple.StringBytesInterceptor;
 import com.ak.logging.LocalFileHandler;
@@ -111,20 +110,6 @@ public class SpringFxApplication extends FxApplication {
   public void stop() {
     applicationContext.close();
     super.stop();
-  }
-
-  @Bean
-  @Profile("loopback")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptor() {
-    return new FixedFrameBytesInterceptor("loopback", BytesInterceptor.BaudRate.BR_115200, 1 + Integer.BYTES);
-  }
-
-  @Bean
-  @Profile("loopback")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, ADCVariable> converter() {
-    return new ToIntegerConverter<>(ADCVariable.class, 5);
   }
 
   @Bean

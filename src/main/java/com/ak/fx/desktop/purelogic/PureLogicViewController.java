@@ -1,16 +1,13 @@
 package com.ak.fx.desktop.purelogic;
 
 import com.ak.comm.bytes.purelogic.PureLogicFrame;
-import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.purelogic.PureLogicConverter;
 import com.ak.comm.converter.purelogic.PureLogicVariable;
-import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.comm.interceptor.purelogic.PureLogicBytesInterceptor;
 import com.ak.fx.desktop.AbstractScheduledViewController;
-import jakarta.inject.Inject;
-import jakarta.inject.Provider;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.ak.comm.bytes.purelogic.PureLogicFrame.StepCommand.MICRON_150;
@@ -27,11 +24,8 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
   private boolean isRefresh;
   private int autoSequenceIndex = -1;
 
-  @Inject
-  @ParametersAreNonnullByDefault
-  public PureLogicViewController(Provider<BytesInterceptor<PureLogicFrame, PureLogicFrame>> interceptorProvider,
-                                 Provider<Converter<PureLogicFrame, PureLogicVariable>> converterProvider) {
-    super(interceptorProvider, converterProvider, FREQUENCY);
+  public PureLogicViewController() {
+    super(PureLogicBytesInterceptor::new, PureLogicConverter::new, FREQUENCY);
   }
 
   @Override

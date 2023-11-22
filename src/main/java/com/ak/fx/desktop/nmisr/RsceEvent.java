@@ -1,10 +1,13 @@
 package com.ak.fx.desktop.nmisr;
 
+import com.ak.comm.converter.Variables;
 import com.ak.comm.converter.rsce.RsceVariable;
 import org.springframework.context.ApplicationEvent;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.stream.Collectors;
 
 public final class RsceEvent extends ApplicationEvent {
   @Nonnull
@@ -17,5 +20,14 @@ public final class RsceEvent extends ApplicationEvent {
 
   public int getValue(@Nonnull RsceVariable variable) {
     return values[variable.ordinal()];
+  }
+
+  @Override
+  @Nonnull
+  public String toString() {
+    return "RsceEvent{values = {%s}, source = %s}".formatted(
+        EnumSet.allOf(RsceVariable.class).stream()
+            .map(v -> Variables.toString(v, values[v.ordinal()])).collect(Collectors.joining("; ")),
+        source);
   }
 }

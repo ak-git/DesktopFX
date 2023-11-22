@@ -57,7 +57,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @Nullable
   private SequentialTransition transition;
   @Nonnull
-  @Value("${version}")
+  @Value("${version:}")
   private final String version;
   @Nonnull
   private Closeable fileWatcher = () -> {
