@@ -119,12 +119,6 @@ class SimpleFilterTest {
             0.0
         ),
         arguments(
-            FilterBuilder.of().angle().build(),
-            new int[] {-120 * 1000, 1000, 120 * 1000, -120 * 1000, 0},
-            new int[] {-120 * 1000, 1000, 120 * 1000, 240 * 1000, 360 * 1000},
-            0.0
-        ),
-        arguments(
             FilterBuilder.of().average(3).build(),
             new int[] {1, 2, 3, 4, 5, 6},
             new int[] {0, 1, 2, 3, 4, 5},

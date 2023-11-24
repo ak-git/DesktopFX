@@ -137,10 +137,6 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new AutoZeroFilter(settingCounts));
   }
 
-  public FilterBuilder angle() {
-    return chain(new AngleFilter());
-  }
-
   FilterBuilder fir(@Nonnull double... coefficients) {
     return chain(new FIRFilter(coefficients));
   }
