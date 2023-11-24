@@ -3,6 +3,7 @@ package com.ak.comm.converter.briko;
 import com.ak.comm.converter.Variable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
+import com.ak.digitalfilter.briko.AutoZeroFilter;
 import com.ak.util.Numbers;
 
 import javax.measure.Unit;
@@ -16,7 +17,7 @@ public enum BrikoStage1Variable implements Variable<BrikoStage1Variable> {
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.of().operator(() -> x -> Numbers.toInt((0.1293 * x - 543.43)))
-          .average(FREQUENCY / 50).smoothingImpulsive(10).autoZero(FREQUENCY).build();
+          .average(FREQUENCY / 50).smoothingImpulsive(10).chain(new AutoZeroFilter(FREQUENCY)).build();
     }
 
     @Override
@@ -28,7 +29,7 @@ public enum BrikoStage1Variable implements Variable<BrikoStage1Variable> {
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.of().operator(() -> x -> Numbers.toInt((0.1241 * x - 3683.1)))
-          .average(FREQUENCY / 50).smoothingImpulsive(10).autoZero(FREQUENCY).build();
+          .average(FREQUENCY / 50).smoothingImpulsive(10).chain(new AutoZeroFilter(FREQUENCY)).build();
     }
   },
   FORCE3,
@@ -36,7 +37,7 @@ public enum BrikoStage1Variable implements Variable<BrikoStage1Variable> {
   POSITION {
     @Override
     public DigitalFilter filter() {
-      return FilterBuilder.of().operator(() -> x -> 4 * x / 1600).autoZero(FREQUENCY).build();
+      return FilterBuilder.of().operator(() -> x -> 4 * x / 1600).chain(new AutoZeroFilter(FREQUENCY)).build();
     }
 
     @Override

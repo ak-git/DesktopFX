@@ -1,8 +1,12 @@
-package com.ak.digitalfilter;
+package com.ak.digitalfilter.briko;
+
+import com.ak.digitalfilter.AbstractOperableFilter;
+import com.ak.digitalfilter.DigitalFilter;
+import com.ak.digitalfilter.RRSFilter;
 
 import javax.annotation.Nonnegative;
 
-final class AutoZeroFilter extends AbstractOperableFilter {
+public final class AutoZeroFilter extends AbstractOperableFilter {
   private final DigitalFilter rrsFilter = new RRSFilter();
   @Nonnegative
   private final int settingCountsAndSkip;
@@ -10,7 +14,7 @@ final class AutoZeroFilter extends AbstractOperableFilter {
   private int countCounts;
   private int y;
 
-  AutoZeroFilter(@Nonnegative int settingCountsAndSkip) {
+  public AutoZeroFilter(@Nonnegative int settingCountsAndSkip) {
     this.settingCountsAndSkip = Math.abs(settingCountsAndSkip);
     rrsFilter.forEach(avg -> y = avg[0]);
   }

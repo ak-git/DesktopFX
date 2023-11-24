@@ -28,7 +28,7 @@ abstract class AbstractUnaryFilter extends AbstractDigitalFilter {
 
   abstract void publishUnary(int in);
 
-  final boolean checkResetAndClear() {
+  public final boolean checkResetAndClear() {
     if (resetFlag) {
       resetFlag = false;
       return true;

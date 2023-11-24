@@ -1,6 +1,6 @@
 package com.ak.digitalfilter;
 
-final class RRSFilter extends AbstractOperableFilter {
+public final class RRSFilter extends AbstractOperableFilter {
   private int n;
   private double y;
 
