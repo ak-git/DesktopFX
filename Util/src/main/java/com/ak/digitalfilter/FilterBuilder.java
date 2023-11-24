@@ -262,7 +262,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return result;
   }
 
-  public FilterBuilder chain(@Nonnull DigitalFilter chain) {
+  private FilterBuilder chain(@Nonnull DigitalFilter chain) {
     filter = Optional.ofNullable(filter).<DigitalFilter>map(f -> new ChainFilter(f, chain)).orElse(chain);
     return this;
   }
