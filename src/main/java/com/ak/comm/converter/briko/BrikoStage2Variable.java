@@ -28,7 +28,7 @@ public enum BrikoStage2Variable implements DependentVariable<BrikoStage1Variable
     @Override
     public DigitalFilter filter() {
       return FilterBuilder.of()
-          .chain(new ChangeDirectionFilter(BrikoStage1Variable.FREQUENCY / 2)).build();
+          .chain(new ChangeDirectionFilter(BrikoStage1Variable.FREQUENCY / 3)).build();
     }
   };
 
