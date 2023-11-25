@@ -6,6 +6,7 @@ import tec.uom.se.AbstractUnit;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static tec.uom.se.unit.MetricPrefix.MILLI;
@@ -15,8 +16,8 @@ import static tec.uom.se.unit.Units.METRE;
 class BrikoStage1VariableTest {
   @Test
   void testOptions() {
-    assertThat(EnumSet.allOf(BrikoStage1Variable.class).stream().flatMap(v -> v.options().stream()))
-        .allMatch(option -> option == Variable.Option.VISIBLE);
+    assertThat(EnumSet.allOf(BrikoStage1Variable.class).stream().flatMap(v -> v.options().stream()).collect(Collectors.toSet()))
+        .containsExactly(Variable.Option.VISIBLE);
   }
 
   @Test

@@ -286,6 +286,7 @@ class SimpleFilterTest {
 
   @ParameterizedTest
   @MethodSource("dataWithReset")
+  @ParametersAreNonnullByDefault
   void testFilterWithReset(DigitalFilter filter, int[] data, int[][] expected) {
     AtomicInteger index = new AtomicInteger();
     int[][] actual = new int[expected.length][expected[0].length];

@@ -11,7 +11,7 @@ public final class AutoZeroFilter extends AbstractOperableFilter {
   @Nonnegative
   private final int settingCountsAndSkip;
   @Nonnegative
-  private int countCounts;
+  private int counts;
   private int y;
 
   public AutoZeroFilter(@Nonnegative int settingCountsAndSkip) {
@@ -22,17 +22,17 @@ public final class AutoZeroFilter extends AbstractOperableFilter {
   @Override
   public int applyAsInt(int in) {
     if (checkResetAndClear()) {
-      countCounts = 0;
+      counts = 0;
       rrsFilter.reset();
     }
-    if (countCounts < settingCountsAndSkip * 2) {
-      if (countCounts < settingCountsAndSkip) {
+    if (counts < settingCountsAndSkip * 2) {
+      if (counts < settingCountsAndSkip) {
         y = in;
       }
       else {
         rrsFilter.accept(in);
       }
-      countCounts++;
+      counts++;
     }
     return in - y;
   }
