@@ -16,7 +16,7 @@ plugins {
     id 'com.github.spotbugs' version '5.1.2'
 
     id 'com.github.ben-manes.versions' version '0.50.0'
-    id 'nebula.lint' version '18.1.0'
+    id 'nebula.lint' version '19.0.1'
 }
 
 spotbugsMain {
@@ -62,7 +62,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2023.11.26'
+    version = '2023.11.28'
     apply plugin: 'idea'
     idea {
         module {
