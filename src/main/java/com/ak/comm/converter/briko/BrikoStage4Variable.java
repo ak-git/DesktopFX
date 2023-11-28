@@ -3,18 +3,35 @@ package com.ak.comm.converter.briko;
 import com.ak.comm.converter.DependentVariable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
+import com.ak.fx.util.FxUtils;
 import com.ak.util.Metrics;
 import com.ak.util.Numbers;
 import tec.uom.se.unit.Units;
 
 import javax.annotation.Nonnull;
 import javax.measure.Unit;
+import java.awt.*;
 import java.util.List;
 import java.util.Set;
 
 public enum BrikoStage4Variable implements DependentVariable<BrikoStage3Variable, BrikoStage4Variable> {
-  FORCE1,
-  FORCE2,
+  FORCE1 {
+    @Override
+    public DigitalFilter filter() {
+      return FilterBuilder.of().operator(() -> x -> {
+        if (Math.abs(x) > 10_000) {
+          FxUtils.invokeInFx(() -> Toolkit.getDefaultToolkit().beep());
+        }
+        return x;
+      }).build();
+    }
+  },
+  FORCE2 {
+    @Override
+    public DigitalFilter filter() {
+      return FORCE1.filter();
+    }
+  },
   POSITION,
   PRESSURE {
     @Override
