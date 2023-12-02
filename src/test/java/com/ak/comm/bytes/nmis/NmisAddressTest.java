@@ -1,30 +1,21 @@
 package com.ak.comm.bytes.nmis;
 
-import java.nio.ByteBuffer;
-import java.util.EnumSet;
-import java.util.Optional;
-import java.util.logging.Logger;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.comm.bytes.LogUtils;
 import com.ak.comm.log.LogTestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static com.ak.comm.bytes.nmis.NmisAddress.ALIVE;
-import static com.ak.comm.bytes.nmis.NmisAddress.CATCH_ELBOW;
-import static com.ak.comm.bytes.nmis.NmisAddress.CATCH_HAND;
-import static com.ak.comm.bytes.nmis.NmisAddress.DATA;
-import static com.ak.comm.bytes.nmis.NmisAddress.ROTATE_ELBOW;
-import static com.ak.comm.bytes.nmis.NmisAddress.ROTATE_HAND;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.nio.ByteBuffer;
+import java.util.EnumSet;
+import java.util.Optional;
+import java.util.logging.Logger;
+
+import static com.ak.comm.bytes.nmis.NmisAddress.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class NmisAddressTest {
   private static final Logger LOGGER = Logger.getLogger(NmisAddress.class.getName());
@@ -50,7 +41,7 @@ class NmisAddressTest {
   void testNotFound(@Nonnull ByteBuffer buffer) {
     assertTrue(
         LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
-            () -> assertNull(NmisAddress.find(buffer)),
+            () -> assertNull(find(buffer)),
             logRecord -> assertThat(logRecord.getMessage()).endsWith("Address -12 not found")
         )
     );
@@ -60,7 +51,7 @@ class NmisAddressTest {
   @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#aliveAndChannelsResponse")
   @ParametersAreNonnullByDefault
   void testFind(NmisAddress address, byte[] input) {
-    assertThat(NmisAddress.find(ByteBuffer.wrap(input))).isNotNull().isEqualTo(address);
+    assertThat(find(ByteBuffer.wrap(input))).isNotNull().isEqualTo(address);
   }
 
   @ParameterizedTest
