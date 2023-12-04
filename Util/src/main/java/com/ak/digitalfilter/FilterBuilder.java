@@ -133,14 +133,6 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new ExpSumFilter());
   }
 
-  public FilterBuilder autoZero(@Nonnegative int settingCounts) {
-    return chain(new AutoZeroFilter(settingCounts));
-  }
-
-  public FilterBuilder angle() {
-    return chain(new AngleFilter());
-  }
-
   FilterBuilder fir(@Nonnull double... coefficients) {
     return chain(new FIRFilter(coefficients));
   }
@@ -270,6 +262,11 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return result;
   }
 
+  private FilterBuilder chain(@Nonnull DigitalFilter chain) {
+    filter = Optional.ofNullable(filter).<DigitalFilter>map(f -> new ChainFilter(f, chain)).orElse(chain);
+    return this;
+  }
+
   private FilterBuilder fork(@Nonnull List<int[]> selectedIndexes, @Nonnull DigitalFilter... filters) {
     Objects.requireNonNull(selectedIndexes);
     Objects.requireNonNull(filters);
@@ -295,11 +292,6 @@ public class FilterBuilder implements Builder<DigitalFilter> {
       }
     }
     return filters.length == 1 ? chain(wrappedFilters[0]) : chain(new ForkFilter(wrappedFilters));
-  }
-
-  private FilterBuilder chain(@Nonnull DigitalFilter chain) {
-    filter = Optional.ofNullable(filter).<DigitalFilter>map(f -> new ChainFilter(f, chain)).orElse(chain);
-    return this;
   }
 
   private FilterBuilder wrap(@Nonnull String name, @Nonnull Builder<DigitalFilter> filterBuilder) {
