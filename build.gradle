@@ -13,19 +13,21 @@ plugins {
 
     id 'org.springframework.boot' version '3.1.5'
     id 'io.spring.dependency-management' version '1.1.4'
-    id 'com.github.spotbugs' version '5.1.2'
+    id 'com.github.spotbugs' version '6.0.1'
 
     id 'com.github.ben-manes.versions' version '0.50.0'
     id 'nebula.lint' version '19.0.1'
 }
 
-spotbugsMain {
-    reports {
-        html {
-            stylesheet = 'fancy-hist.xsl'
-        }
+spotbugs {
+    reportLevel = Confidence.valueOf('HIGH')
+}
+
+tasks.spotbugsMain {
+    reports.create("html") {
+        required = true
+        setStylesheet("fancy-hist.xsl")
     }
-    reportLevel = Confidence.HIGH
 }
 
 sonar {
@@ -56,13 +58,13 @@ ext {
 
 wrapper {
     description 'Setup the Gradle wrapper'
-    gradleVersion = '8.4'
+    gradleVersion = '8.5'
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '2023.11.28'
+    version = '2023.12.02'
     apply plugin: 'idea'
     idea {
         module {

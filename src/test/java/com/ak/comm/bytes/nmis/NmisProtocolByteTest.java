@@ -36,17 +36,14 @@ class NmisProtocolByteTest {
   }
 
   @ParameterizedTest
-  @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#myoResponse")
+  @MethodSource({
+      "com.ak.comm.bytes.nmis.NmisTestProvider#allOhmsMyoOff",
+      "com.ak.comm.bytes.nmis.NmisTestProvider#myo",
+      "com.ak.comm.bytes.nmis.NmisTestProvider#sequence",
+      "com.ak.comm.bytes.nmis.NmisTestProvider#myoResponse"
+  })
   @ParametersAreNonnullByDefault
   void testResponseMyoCRC(NmisRequest request, byte[] input) {
-    assertNotNull(request);
-    assertTrue(NmisProtocolByte.checkCRC(ByteBuffer.wrap(input)), Arrays.toString(input));
-  }
-
-  @ParameterizedTest
-  @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#sequenceResponse")
-  @ParametersAreNonnullByDefault
-  void testResponseSequenceCRC(NmisRequest request, byte[] input) {
     assertNotNull(request);
     assertTrue(NmisProtocolByte.checkCRC(ByteBuffer.wrap(input)), Arrays.toString(input));
   }
