@@ -3,9 +3,13 @@ package com.ak.fx.desktop;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.*;
 import com.ak.comm.converter.aper.*;
+import com.ak.comm.converter.briko.BrikoConverter;
+import com.ak.comm.converter.briko.BrikoStage2Variable;
+import com.ak.comm.converter.briko.BrikoStage3Variable;
+import com.ak.comm.converter.briko.BrikoStage4Variable;
 import com.ak.comm.converter.kleiber.KleiberVariable;
-import com.ak.comm.converter.prv.PrvVariable;
 import com.ak.comm.converter.nmi.NmiVariable;
+import com.ak.comm.converter.prv.PrvVariable;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
@@ -257,5 +261,13 @@ public class SpringFxApplication extends FxApplication {
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, NmiVariable> converterNMI3Acc2Rheo() {
     return new ToIntegerConverter<>(NmiVariable.class, 125);
+  }
+
+  @Bean
+  @Profile("briko-black")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<BufferFrame, BrikoStage4Variable> converterBriko() {
+    return LinkedConverter.of(new BrikoConverter(), BrikoStage2Variable.class)
+        .chainInstance(BrikoStage3Variable.class).chainInstance(BrikoStage4Variable.class);
   }
 }

@@ -48,7 +48,6 @@ module com.ak.fx.desktop {
   exports com.ak.comm.interceptor.briko to spring.beans;
   exports com.ak.comm.interceptor.sktbpr to spring.beans;
 
-  exports com.ak.fx.desktop.briko to spring.beans;
   exports com.ak.fx.desktop.nmisr to spring.beans;
   exports com.ak.fx.desktop.suntech to spring.beans;
   exports com.ak.fx.desktop.purelogic to spring.beans;
