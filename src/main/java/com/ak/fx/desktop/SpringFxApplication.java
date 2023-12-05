@@ -4,6 +4,7 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.*;
 import com.ak.comm.converter.aper.*;
 import com.ak.comm.converter.kleiber.KleiberVariable;
+import com.ak.comm.converter.nmi.NmiVariable;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
@@ -240,5 +241,20 @@ public class SpringFxApplication extends FxApplication {
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, RcmCalibrationVariable> converterRcmCalibration() {
     return LinkedConverter.of(new RcmConverter(), RcmCalibrationVariable.class);
+  }
+
+  @Bean
+  @Profile("NMI3Acc2Rheo")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  @Primary
+  static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorNMI3Acc2Rheo() {
+    return new RampBytesInterceptor("NMI3Acc2Rheo", BytesInterceptor.BaudRate.BR_921600, 1 + (3 + 2) * Integer.BYTES);
+  }
+
+  @Bean
+  @Profile("NMI3Acc2Rheo")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<BufferFrame, NmiVariable> converterNMI3Acc2Rheo() {
+    return new ToIntegerConverter<>(NmiVariable.class, 125);
   }
 }

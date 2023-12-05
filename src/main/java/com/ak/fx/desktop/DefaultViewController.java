@@ -14,7 +14,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @Profile({"rcm", "rcm-calibration", "nmis",
     "aper2-nibp", "aper2-ecg",
     "aper1-nibp", "aper1-myo", "aper1-R2-6mm", "aper1-R2-7mm", "aper1-R2-8mm", "aper1-R2-10mm", "aper1-R1", "aper1-calibration",
-    "kleiber-myo", "prv"})
+    "kleiber-myo", "prv", "NMI3Acc2Rheo"})
 public final class DefaultViewController<T, R, V extends Enum<V> & Variable<V>> extends AbstractViewController<T, R, V> {
   @Inject
   @ParametersAreNonnullByDefault

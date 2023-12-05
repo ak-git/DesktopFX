@@ -36,6 +36,7 @@ module com.ak.fx.desktop {
   exports com.ak.comm.converter.aper to javafx.graphics;
   exports com.ak.comm.converter.rcm to javafx.graphics;
   exports com.ak.comm.converter.rsce to spring.beans;
+  exports com.ak.comm.converter.nmi to spring.beans;
   exports com.ak.comm.converter.nmis to spring.beans;
   exports com.ak.comm.converter.briko to spring.beans;
   exports com.ak.comm.converter.suntech to spring.beans;
