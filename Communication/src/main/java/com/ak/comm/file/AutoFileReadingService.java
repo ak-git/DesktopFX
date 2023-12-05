@@ -51,7 +51,7 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
   @Override
   public boolean accept(@Nonnull File file) {
     BytesInterceptor<T, R> bytesInterceptor = interceptorProvider.get();
-    if (file.isFile() && Extension.BIN.is(file.getName()) && Extension.BIN.clean(file.getName()).endsWith(bytesInterceptor.name())) {
+    if (file.isFile() && Extension.BIN.is(file.getName()) && Extension.BIN.clean(file.getName()).contains(bytesInterceptor.name())) {
       refresh(false);
       readable = CompletableFuture
           .supplyAsync(() -> new FileReadingService<>(file.toPath(), bytesInterceptor, converterProvider.get()))
