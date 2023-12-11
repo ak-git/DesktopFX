@@ -1,9 +1,9 @@
 import com.github.spotbugs.snom.Confidence
 
 plugins {
-    id 'org.javamodularity.moduleplugin' version '1.8.12'
     id 'java'
     id 'java-library'
+    id 'org.javamodularity.moduleplugin' version '1.8.12' apply false
     id 'idea'
     id 'org.sonarqube' version '4.4.1.3373'
     id 'jacoco'
@@ -64,7 +64,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2023.12.02'
+    version = '2023.12.11'
     apply plugin: 'idea'
     idea {
         module {
@@ -87,9 +87,7 @@ allprojects {
     repositories {
         mavenCentral()
         mavenLocal()
-        maven {
-            url = 'https://plugins.gradle.org/m2/'
-        }
+        gradlePluginPortal()
     }
 
     jacoco {
