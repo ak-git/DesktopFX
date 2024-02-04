@@ -114,13 +114,6 @@ javafx {
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
-configurations {
-    configureEach {
-        exclude group: 'jakarta.annotation', module: 'jakarta.annotation-api'
-        exclude group: 'aopalliance', module: 'aopalliance'
-    }
-}
-
 processResources {
     filesMatching('**/keys*.properties') {
         expand(project.properties)
