@@ -1,0 +1,51 @@
+[versions]
+javamodularity-moduleplugin = '1.8.12'
+sonarqube = '4.4.1.3373'
+spotbugs = '6.0.7'
+ben-manes-versions = '0.51.0'
+nebula-lint = '19.0.1'
+
+jsr305 = '3.0.2'
+junit = '5.10.1'
+assertj = '3.25.2'
+
+javafxplugin = '0.0.14'
+springframework-boot = '3.2.2'
+spring-dependency-management = '1.1.4'
+
+inject-api = '2.0.1'
+uom-se = '1.0.10'
+javax-json = '1.1.4'
+commons-math3 = '3.6.1'
+commons-csv = '1.10.0'
+jserial-comm = '2.9.3'
+jenetics = '7.2.0'
+
+[plugins]
+javamodularity-moduleplugin = { id = 'org.javamodularity.moduleplugin', version.ref = 'javamodularity-moduleplugin' }
+sonarqube = { id = 'org.sonarqube', version.ref = 'sonarqube' }
+spotbugs = { id = 'com.github.spotbugs', version.ref = 'spotbugs' }
+ben-manes-versions = { id = 'com.github.ben-manes.versions', version.ref = 'ben-manes-versions' }
+nebula-lint = { id = 'nebula.lint', version.ref = 'nebula-lint' }
+
+javafxplugin = { id = 'org.openjfx.javafxplugin', version.ref = 'javafxplugin' }
+springframework-boot = { id = 'org.springframework.boot', version.ref = 'springframework-boot' }
+spring-dependency-management = { id = 'io.spring.dependency-management', version.ref = 'spring-dependency-management' }
+
+[libraries]
+findbugs-jsr305 = { module = 'com.google.code.findbugs:jsr305', version.ref = 'jsr305' }
+
+junit = { module = 'org.junit:junit-bom', version.ref = 'junit' }
+junit-jupiter = { module = 'org.junit.jupiter:junit-jupiter', version.ref = 'junit' }
+assertj = { module = 'org.assertj:assertj-core', version.ref = 'assertj' }
+
+inject-api = { module = 'jakarta.inject:jakarta.inject-api', version.ref = 'inject-api' }
+uom-se = { module = 'tec.uom:uom-se', version.ref = 'uom-se' }
+javax-json = { module = 'org.glassfish:javax.json', version.ref = 'javax-json' }
+commons-math3 = { module = 'org.apache.commons:commons-math3', version.ref = 'commons-math3' }
+commons-csv = { module = 'org.apache.commons:commons-csv', version.ref = 'commons-csv' }
+jserial-comm = { module = 'com.fazecast:jSerialComm', version.ref = 'jserial-comm' }
+jenetics = { module = 'io.jenetics:jenetics', version.ref = 'jenetics' }
+
+[bundles]
+test = ['junit-jupiter', 'assertj']
