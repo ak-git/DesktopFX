@@ -39,7 +39,7 @@ sonar {
 }
 
 ext {
-    javaVersion = '20'
+    javaVersion = '21'
 }
 
 wrapper {
