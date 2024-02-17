@@ -18,20 +18,17 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.util.Pair;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 
 public enum Simplex {
   NELDER_MEAD {
-    @Nonnull
     @Override
-    @ParametersAreNonnullByDefault
     PointValuePair optimize(MultivariateFunction function, Bounds... bounds) {
       return optimize(point -> {
         for (var i = 0; i < point.length; i++) {
@@ -43,8 +40,6 @@ public enum Simplex {
       }, Simplex.toInitialGuess(bounds), Simplex.toInitialSteps(bounds));
     }
 
-    @Nonnull
-    @ParametersAreNonnullByDefault
     private static PointValuePair optimize(MultivariateFunction function, double[] initialGuess, double[] initialSteps) {
       return new SimplexOptimizer(STOP_FITNESS, STOP_FITNESS)
           .optimize(
@@ -56,13 +51,11 @@ public enum Simplex {
 
   },
   CMAES {
-    @Nonnull
     @Override
-    @ParametersAreNonnullByDefault
     PointValuePair optimize(MultivariateFunction function, Bounds... bounds) {
       SimpleBounds simpleBounds = new SimpleBounds(
-          Arrays.stream(bounds).mapToDouble(Bounds::min).toArray(),
-          Arrays.stream(bounds).mapToDouble(Bounds::max).toArray()
+          Arrays.stream(Objects.requireNonNull(bounds)).mapToDouble(Bounds::min).toArray(),
+          Arrays.stream(Objects.requireNonNull(bounds)).mapToDouble(Bounds::max).toArray()
       );
       try {
         return new CMAESOptimizer(MAX_ITERATIONS, STOP_FITNESS, true, 0,
@@ -85,9 +78,7 @@ public enum Simplex {
     }
   },
   JENETICS {
-    @Nonnull
     @Override
-    @ParametersAreNonnullByDefault
     PointValuePair optimize(MultivariateFunction function, Bounds... bounds) {
       int populationSize = 1 << (2 * bounds.length);
 
@@ -131,13 +122,10 @@ public enum Simplex {
   private static final double STOP_FITNESS = 1.0e-10;
   private static final int MAX_ITERATIONS = 300000;
 
-  @Nonnull
-  @ParametersAreNonnullByDefault
   abstract PointValuePair optimize(MultivariateFunction function, Bounds... bounds);
 
-  @ParametersAreNonnullByDefault
   public static PointValuePair optimizeAll(MultivariateFunction function, Bounds... bounds) {
-    PointValuePair optimize = JENETICS.optimize(function, bounds);
+    PointValuePair optimize = JENETICS.optimize(function, Objects.requireNonNull(bounds));
     if (Double.isFinite(optimize.getValue())) {
       double[] initialGuess = optimize.getPoint();
       Bounds[] minInitialMax = IntStream.range(0, initialGuess.length)
@@ -151,13 +139,11 @@ public enum Simplex {
     return optimize;
   }
 
-  @Nonnull
-  private static double[] toInitialSteps(@Nonnull Bounds[] bounds) {
-    return Arrays.stream(bounds).mapToDouble(b -> Math.abs((b.max - b.min) / 100.0)).toArray();
+  private static double[] toInitialSteps(Bounds[] bounds) {
+    return Arrays.stream(Objects.requireNonNull(bounds)).mapToDouble(b -> Math.abs((b.max - b.min) / 100.0)).toArray();
   }
 
-  @Nonnull
-  private static double[] toInitialGuess(@Nonnull Bounds[] bounds) {
-    return Arrays.stream(bounds).mapToDouble(Bounds::initialGuess).toArray();
+  private static double[] toInitialGuess(Bounds[] bounds) {
+    return Arrays.stream(Objects.requireNonNull(bounds)).mapToDouble(Bounds::initialGuess).toArray();
   }
 }
