@@ -12,7 +12,7 @@ public enum Extension {
   }, PROPERTIES, TXT, JSON, LOG, BIN, CSV;
 
   @Nonnull
-  public String attachTo(@Nonnull String fileName) {
+  public String attachTo(String fileName) {
     if (fileName.endsWith(".%s".formatted(name().toLowerCase()))) {
       return fileName;
     }

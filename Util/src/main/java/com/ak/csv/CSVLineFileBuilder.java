@@ -6,7 +6,6 @@ import com.ak.util.Numbers;
 import com.ak.util.Strings;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -21,21 +20,20 @@ import static java.lang.StrictMath.log10;
 public final class CSVLineFileBuilder<T> {
   private final Range xRange = new Range();
   private final Range yRange = new Range();
-  @Nonnull
   private final BiFunction<Double, Double, T> doubleFunction;
   @Nullable
   private CSVMultiFileCollector.Builder<Double, T> multiFileBuilder;
 
-  private CSVLineFileBuilder(@Nonnull BiFunction<Double, Double, T> doubleFunction) {
-    this.doubleFunction = doubleFunction;
+  private CSVLineFileBuilder(BiFunction<Double, Double, T> doubleFunction) {
+    this.doubleFunction = Objects.requireNonNull(doubleFunction);
   }
 
-  public static <T> CSVLineFileBuilder<T> of(@Nonnull BiFunction<Double, Double, T> doubleFunction) {
+  public static <T> CSVLineFileBuilder<T> of(BiFunction<Double, Double, T> doubleFunction) {
     return new CSVLineFileBuilder<>(doubleFunction);
   }
 
   public CSVLineFileBuilder<T> xStream(Supplier<DoubleStream> doubleStreamSupplier) {
-    xRange.doubleStreamSupplier = doubleStreamSupplier;
+    xRange.doubleStreamSupplier = Objects.requireNonNull(doubleStreamSupplier);
     return this;
   }
 
@@ -50,7 +48,7 @@ public final class CSVLineFileBuilder<T> {
   }
 
   public CSVLineFileBuilder<T> yStream(Supplier<DoubleStream> doubleStreamSupplier) {
-    yRange.doubleStreamSupplier = doubleStreamSupplier;
+    yRange.doubleStreamSupplier = Objects.requireNonNull(doubleStreamSupplier);
     return this;
   }
 
@@ -64,7 +62,7 @@ public final class CSVLineFileBuilder<T> {
     return this;
   }
 
-  public CSVLineFileBuilder<T> saveTo(@Nonnull String fileName, @Nonnull Function<T, Object> converter) {
+  public CSVLineFileBuilder<T> saveTo(String fileName, Function<T, Object> converter) {
     if (multiFileBuilder == null) {
       multiFileBuilder = new CSVMultiFileCollector.Builder<>(
           yRange.build().boxed(),
@@ -88,7 +86,6 @@ public final class CSVLineFileBuilder<T> {
   }
 
   private static final class Range implements Builder<DoubleStream> {
-    @Nonnull
     private Supplier<DoubleStream> doubleStreamSupplier = DoubleStream::empty;
 
     @Override

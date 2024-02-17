@@ -4,7 +4,6 @@ import com.ak.util.Strings;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.io.IOException;
@@ -23,7 +22,6 @@ import java.util.stream.Collector;
 import static java.nio.file.StandardOpenOption.*;
 
 public final class CSVLineFileCollector implements Collector<Object[], CSVPrinter, Boolean>, Closeable, Consumer<Object[]> {
-  @Nonnull
   private final Path out;
   @Nullable
   private final Path tempFile;
@@ -31,8 +29,8 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
   private CSVPrinter csvPrinter;
   private boolean finished;
 
-  public CSVLineFileCollector(@Nonnull Path out, @Nonnull String... header) {
-    this.out = out;
+  public CSVLineFileCollector(Path out, String... header) {
+    this.out = Objects.requireNonNull(out);
     Path temp = null;
     try {
       temp = Files.createTempFile(out.toAbsolutePath().getParent(), out.toFile().getName() + Strings.SPACE, Strings.EMPTY);
@@ -49,10 +47,10 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
   }
 
   @Override
-  public void accept(@Nonnull Object[] s) {
+  public void accept(Object[] s) {
     if (!finished) {
       try {
-        Objects.requireNonNull(csvPrinter).printRecord(s);
+        Objects.requireNonNull(csvPrinter).printRecord(Objects.requireNonNull(s));
       }
       catch (IOException e) {
         Logger.getLogger(getClass().getName()).log(Level.WARNING, "Exception when writing object: %s".formatted(Arrays.toString(s)), e);

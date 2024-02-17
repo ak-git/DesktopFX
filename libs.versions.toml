@@ -6,8 +6,8 @@ ben-manes-versions = '0.51.0'
 nebula-lint = '19.0.1'
 
 jsr305 = '3.0.2'
-junit = '5.10.1'
-assertj = '3.25.2'
+junit = '5.10.2'
+assertj = '3.25.3'
 
 javafxplugin = '0.0.14'
 springframework-boot = '3.1.8'
@@ -18,7 +18,7 @@ uom-se = '1.0.10'
 javax-json = '1.1.4'
 commons-math3 = '3.6.1'
 commons-csv = '1.10.0'
-jserial-comm = '2.9.3'
+jserial-comm = '2.10.4'
 jenetics = '7.2.0'
 
 [plugins]
