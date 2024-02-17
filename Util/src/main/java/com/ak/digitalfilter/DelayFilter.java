@@ -1,21 +1,17 @@
 package com.ak.digitalfilter;
 
-import java.util.Arrays;
-
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.Objects;
 
 final class DelayFilter extends AbstractDigitalFilter {
-  private static final int[] EMPTY_INTS = {};
-  @Nonnull
   private final DigitalFilter filter;
-  @Nonnull
   private final int[][] buffer;
   private int bufferIndex = -1;
 
-  DelayFilter(@Nonnull DigitalFilter filter, @Nonnegative int delayInSamples) {
+  DelayFilter(DigitalFilter filter, @Nonnegative int delayInSamples) {
+    this.filter = Objects.requireNonNull(filter);
     filter.forEach(this::publish);
-    this.filter = filter;
     buffer = new int[delayInSamples][0];
   }
 
@@ -42,13 +38,13 @@ final class DelayFilter extends AbstractDigitalFilter {
   }
 
   @Override
-  public void accept(@Nonnull int... values) {
+  public void accept(int... values) {
     bufferIndex = (++bufferIndex) % buffer.length;
     if (buffer[bufferIndex].length == 0) {
       Arrays.fill(buffer, values.clone());
     }
     filter.accept(buffer[bufferIndex]);
-    buffer[bufferIndex] = values;
+    buffer[bufferIndex] = Objects.requireNonNull(values);
   }
 
   @Override

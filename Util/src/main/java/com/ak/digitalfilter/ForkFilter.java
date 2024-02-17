@@ -1,8 +1,6 @@
 package com.ak.digitalfilter;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.ToDoubleFunction;
@@ -15,7 +13,7 @@ import static com.ak.util.Strings.NEW_LINE;
 final class ForkFilter extends AbstractDigitalFilter {
   private final List<DigitalFilter> filters = new LinkedList<>();
 
-  ForkFilter(@Nonnull DigitalFilter[] filters) {
+  ForkFilter(DigitalFilter[] filters) {
     if (filters.length < 2) {
       throw new IllegalArgumentException(Arrays.deepToString(filters));
     }
@@ -74,7 +72,7 @@ final class ForkFilter extends AbstractDigitalFilter {
   }
 
   @Override
-  public void accept(@Nonnull int... in) {
+  public void accept(int... in) {
     filters.forEach(filter -> filter.accept(in));
   }
 
@@ -94,9 +92,8 @@ final class ForkFilter extends AbstractDigitalFilter {
     return filters.stream().map(Object::toString).collect(Collectors.joining(NEW_LINE, EMPTY, EMPTY));
   }
 
-  @Nonnull
-  private static List<DigitalFilter> equalizeDelay(@Nonnull DigitalFilter[] filters) {
-    List<DigitalFilter> filterList = List.of(filters);
+  private static List<DigitalFilter> equalizeDelay(DigitalFilter[] filters) {
+    List<DigitalFilter> filterList = List.of(Objects.requireNonNull(filters));
     double maxDelay = findMax(filterList, DigitalFilter::getDelay);
 
     return filterList.stream()
@@ -112,8 +109,7 @@ final class ForkFilter extends AbstractDigitalFilter {
         .toList();
   }
 
-  @Nonnull
-  private static int[] getBufferPositions(@Nonnull List<DigitalFilter> filters) {
+  private static int[] getBufferPositions(List<DigitalFilter> filters) {
     var bufferPositions = new int[filters.size()];
     bufferPositions[0] = 0;
     for (var i = 1; i < filters.size(); i++) {
@@ -122,8 +118,8 @@ final class ForkFilter extends AbstractDigitalFilter {
     return bufferPositions;
   }
 
-  @ParametersAreNonnullByDefault
   private static double findMax(Collection<DigitalFilter> filters, ToDoubleFunction<? super DigitalFilter> mapper) {
-    return filters.stream().mapToDouble(mapper).max().orElseThrow(IllegalStateException::new);
+    return Objects.requireNonNull(filters).stream().mapToDouble(Objects.requireNonNull(mapper)).max()
+        .orElseThrow(IllegalStateException::new);
   }
 }

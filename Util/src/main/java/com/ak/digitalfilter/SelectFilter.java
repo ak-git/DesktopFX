@@ -1,18 +1,15 @@
 package com.ak.digitalfilter;
 
 import java.util.Arrays;
-
-import javax.annotation.Nonnull;
+import java.util.Objects;
 
 final class SelectFilter extends AbstractDigitalFilter {
-  @Nonnull
   private final DigitalFilter outFilter;
-  @Nonnull
   private final int[] selectedIndexes;
 
-  SelectFilter(@Nonnull int[] selectedIndexes, @Nonnull DigitalFilter outFilter) {
+  SelectFilter(int[] selectedIndexes, DigitalFilter outFilter) {
     this.selectedIndexes = selectedIndexes.clone();
-    this.outFilter = outFilter;
+    this.outFilter = Objects.requireNonNull(outFilter);
     outFilter.forEach(this::publish);
   }
 
@@ -27,7 +24,7 @@ final class SelectFilter extends AbstractDigitalFilter {
   }
 
   @Override
-  public void accept(@Nonnull int... values) {
+  public void accept(int... values) {
     var selected = new int[selectedIndexes.length];
     for (var i = 0; i < selected.length; i++) {
       if (selectedIndexes[i] < values.length) {

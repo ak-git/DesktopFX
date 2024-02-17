@@ -5,20 +5,15 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnull;
-
-import static com.ak.util.Strings.EMPTY;
-import static com.ak.util.Strings.NEW_LINE;
-import static com.ak.util.Strings.SPACE;
+import static com.ak.util.Strings.*;
 
 abstract class AbstractDigitalFilter implements DigitalFilter {
   private static final IntsAcceptor EMPTY_INTS_ACCEPTOR = values -> {
   };
-  @Nonnull
   private IntsAcceptor after = EMPTY_INTS_ACCEPTOR;
 
   @Override
-  public final void forEach(@Nonnull IntsAcceptor after) {
+  public final void forEach(IntsAcceptor after) {
     Objects.requireNonNull(after);
     if (this.after.equals(EMPTY_INTS_ACCEPTOR)) {
       this.after = after;
@@ -28,7 +23,7 @@ abstract class AbstractDigitalFilter implements DigitalFilter {
     }
   }
 
-  final void publish(@Nonnull int... out) {
+  final void publish(int... out) {
     after.accept(out);
   }
 
@@ -37,14 +32,14 @@ abstract class AbstractDigitalFilter implements DigitalFilter {
     return toString(getClass().getSimpleName());
   }
 
-  static String toString(@Nonnull CharSequence base, @Nonnull DigitalFilter filter) {
+  static String toString(CharSequence base, DigitalFilter filter) {
     return base + filter.toString().replaceAll(NEW_LINE,
         Stream.generate(() -> SPACE).limit(base.length()).collect(Collectors.joining(EMPTY, NEW_LINE, EMPTY)));
   }
 
-  final String toString(@Nonnull String filterName) {
+  final String toString(String filterName) {
     if (getFrequencyFactor() > 1) {
-      return "%s (f \u00b7 %.1f)".formatted(filterName, getFrequencyFactor());
+      return "%s (f · %.1f)".formatted(filterName, getFrequencyFactor());
     }
     else if (getFrequencyFactor() < 1) {
       return "%s (f / %.1f)".formatted(filterName, 1.0 / getFrequencyFactor());
@@ -54,7 +49,7 @@ abstract class AbstractDigitalFilter implements DigitalFilter {
     }
   }
 
-  final void illegalArgumentException(@Nonnull int[] in) {
+  final void illegalArgumentException(int[] in) {
     throw new IllegalArgumentException(String.join(SPACE, toString(), Arrays.toString(in)));
   }
 }
