@@ -3,25 +3,24 @@ package com.ak.numbers;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.IntSummaryStatistics;
+import java.util.Objects;
 import java.util.function.ToDoubleFunction;
-
-import javax.annotation.Nonnull;
 
 public enum RangeUtils {
   ;
 
-  public static <C extends Enum<C> & Coefficients> IntSummaryStatistics rangeX(@Nonnull Class<C> coeffClass) {
+  public static <C extends Enum<C> & Coefficients> IntSummaryStatistics rangeX(Class<C> coeffClass) {
     return range(coeffClass, value -> value[0]);
   }
 
-  public static <C extends Enum<C> & Coefficients> IntSummaryStatistics rangeY(@Nonnull Class<C> coeffClass) {
+  public static <C extends Enum<C> & Coefficients> IntSummaryStatistics rangeY(Class<C> coeffClass) {
     return range(coeffClass, value -> value[1]);
   }
 
-  private static <C extends Enum<C> & Coefficients> IntSummaryStatistics range(@Nonnull Class<C> coeffClass,
-                                                                               @Nonnull ToDoubleFunction<double[]> selector) {
-    return EnumSet.allOf(coeffClass).stream().flatMapToDouble(
-        coefficients -> Arrays.stream(coefficients.getPairs()).mapToDouble(selector)).
+  private static <C extends Enum<C> & Coefficients> IntSummaryStatistics range(Class<C> coeffClass,
+                                                                               ToDoubleFunction<double[]> selector) {
+    return EnumSet.allOf(Objects.requireNonNull(coeffClass)).stream().flatMapToDouble(
+            coefficients -> Arrays.stream(coefficients.getPairs()).mapToDouble(Objects.requireNonNull(selector))).
         mapToInt(value -> (int) Math.floor(value)).summaryStatistics();
   }
 
