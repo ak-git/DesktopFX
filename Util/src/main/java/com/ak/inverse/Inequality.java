@@ -1,22 +1,20 @@
 package com.ak.inverse;
 
+import javax.annotation.Nonnegative;
+import java.util.Objects;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleSupplier;
 import java.util.function.ToDoubleBiFunction;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import static java.lang.Math.abs;
 
 public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, ToDoubleBiFunction<double[], double[]> {
-  @Nonnull
   private final DoubleBinaryOperator errorDefinition;
   @Nonnegative
   private double errorNorm;
 
-  private Inequality(@Nonnull DoubleBinaryOperator errorDefinition) {
-    this.errorDefinition = errorDefinition;
+  private Inequality(DoubleBinaryOperator errorDefinition) {
+    this.errorDefinition = Objects.requireNonNull(errorDefinition);
   }
 
   public static Inequality proportional() {
@@ -34,7 +32,7 @@ public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, T
   }
 
   @Override
-  public double applyAsDouble(@Nonnull double[] measured, @Nonnull double[] predicted) {
+  public double applyAsDouble(double[] measured, double[] predicted) {
     for (var i = 0; i < measured.length; i++) {
       applyAsDouble(measured[i], predicted[i]);
     }
