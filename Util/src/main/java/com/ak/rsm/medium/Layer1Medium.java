@@ -6,15 +6,13 @@ import com.ak.rsm.prediction.Prediction;
 import com.ak.rsm.prediction.Predictions;
 import com.ak.util.Strings;
 
-import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
 public final class Layer1Medium extends AbstractMediumLayers {
-  @Nonnull
   private final ValuePair rho;
 
-  public Layer1Medium(@Nonnull Collection<? extends Measurement> measurements) {
+  public Layer1Medium(Collection<? extends Measurement> measurements) {
     super(measurements);
     Measurement average = Measurement.average(measurements);
     rho = ValuePair.Name.RHO.of(average.resistivity(), average.resistivity() * average.inexact().getApparentRelativeError());
@@ -32,8 +30,7 @@ public final class Layer1Medium extends AbstractMediumLayers {
   }
 
   @Override
-  @Nonnull
-  public Prediction apply(@Nonnull Measurement measurement) {
+  public Prediction apply(Measurement measurement) {
     return Predictions.of(measurement, rho.value());
   }
 }

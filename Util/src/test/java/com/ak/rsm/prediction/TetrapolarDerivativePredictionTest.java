@@ -44,7 +44,6 @@ class TetrapolarDerivativePredictionTest {
         () -> assertThat(o1.equals(o2)).isEqualTo(equals),
         () -> assertThat(o1.hashCode() == o2.hashCode()).isEqualTo(equals)
     );
-    assertThat(o1).isNotEqualTo(null);
   }
 
   @Test

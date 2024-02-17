@@ -4,7 +4,6 @@ import com.ak.util.Metrics;
 import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -21,13 +20,12 @@ public record TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC)
     return l();
   }
 
-  @Nonnull
   public RelativeTetrapolarSystem relativeSystem() {
     return new RelativeTetrapolarSystem(sPU / lCC);
   }
 
   @Nonnegative
-  public static double getBaseL(@Nonnull Collection<TetrapolarSystem> systems) {
+  public static double getBaseL(Collection<TetrapolarSystem> systems) {
     return systems.stream().mapToDouble(TetrapolarSystem::lCC).max().orElseThrow();
   }
 
