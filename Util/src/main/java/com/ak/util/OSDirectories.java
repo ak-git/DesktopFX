@@ -1,11 +1,11 @@
 package com.ak.util;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,9 +26,8 @@ public enum OSDirectories {
   public static final String VENDOR_ID = Stream.of(OSDirectories.class.getPackage().getName().split("\\.")).limit(2).
       collect(Collectors.joining("."));
 
-  @Nonnull
-  public static Path getDirectory(@Nonnull String... candidates) {
-    return Arrays.stream(candidates)
+  public static Path getDirectory(String... candidates) {
+    return Arrays.stream(Objects.requireNonNull(candidates))
         .map(p -> Paths.get(USER_HOME_PATH).resolve(p))
         .filter(p -> Files.isDirectory(p) && Files.isWritable(p) && Files.exists(p))
         .filter(p -> {

@@ -1,7 +1,6 @@
 package com.ak.util;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 
 import static tec.uom.se.unit.Units.METRE;
 import static tec.uom.se.unit.Units.OHM;
@@ -21,24 +20,20 @@ public enum Strings {
   public static final String ANGLE = "°";
   private static final String RHO = "ρ";
 
-  @Nonnull
-  public static String numberSuffix(@Nonnull String s) {
+  public static String numberSuffix(String s) {
     int numCount = Math.toIntExact(new StringBuilder(s).reverse().chars().takeWhile(Character::isDigit).count());
     return s.substring(s.length() - numCount);
   }
 
-  @Nonnull
   public static String dRhoByPhi(double v) {
     return "d%s/d%s = %.3f %s".formatted(RHO, PHI, v, OHM_METRE);
   }
 
-  @Nonnull
   public static String rho(@Nonnegative double rho) {
     return "%s = %.3f %s".formatted(RHO, rho, OHM_METRE);
   }
 
-  @Nonnull
-  public static String rho(@Nonnull Object rho) {
+  public static String rho(Object rho) {
     return "%s = %s %s".formatted(RHO, rho, OHM_METRE);
   }
 
@@ -47,8 +42,7 @@ public enum Strings {
     return (char) (i + index);
   }
 
-  @Nonnull
-  public static String rho(@Nonnegative int index, @Nonnull Object rho) {
+  public static String rho(@Nonnegative int index, Object rho) {
     return "%s%s = %s %s".formatted(RHO, low(index), rho, OHM_METRE);
   }
 }
