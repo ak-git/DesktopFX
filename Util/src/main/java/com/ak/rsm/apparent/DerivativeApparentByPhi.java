@@ -1,11 +1,9 @@
 package com.ak.rsm.apparent;
 
-import java.util.function.DoubleBinaryOperator;
+import com.ak.rsm.system.RelativeTetrapolarSystem;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
-import com.ak.rsm.system.RelativeTetrapolarSystem;
+import java.util.function.DoubleBinaryOperator;
 
 import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.pow;
@@ -14,7 +12,7 @@ import static java.lang.StrictMath.pow;
  * dRho(apparent) by dPhi. phi = h / L
  */
 final class DerivativeApparentByPhi extends AbstractResistanceSumValue {
-  DerivativeApparentByPhi(@Nonnull RelativeTetrapolarSystem system) {
+  DerivativeApparentByPhi(RelativeTetrapolarSystem system) {
     super(system);
   }
 

@@ -1,15 +1,14 @@
 package com.ak.rsm.apparent;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import com.ak.rsm.system.RelativeTetrapolarSystem;
+
+import javax.annotation.Nonnegative;
 
 /**
  * dRho(apparent) by k
  */
 final class DerivativeApparentByK extends AbstractResistanceSumValue {
-  DerivativeApparentByK(@Nonnull RelativeTetrapolarSystem system) {
+  DerivativeApparentByK(RelativeTetrapolarSystem system) {
     super(system);
   }
 
