@@ -3,7 +3,6 @@ package com.ak.comm.core;
 import com.ak.comm.bytes.LogUtils;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.io.IOException;
@@ -16,20 +15,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class ConcurrentAsyncFileChannel implements Closeable {
-  @Nonnull
   private final Callable<AsynchronousFileChannel> channelCallable;
-  @Nonnull
   private final StampedLock lock = new StampedLock();
   @Nullable
   private AsynchronousFileChannel channel;
   @Nonnegative
   private long writePos;
 
-  public ConcurrentAsyncFileChannel(@Nonnull Callable<AsynchronousFileChannel> channelCallable) {
+  public ConcurrentAsyncFileChannel(Callable<AsynchronousFileChannel> channelCallable) {
     this.channelCallable = channelCallable;
   }
 
-  public void write(@Nonnull ByteBuffer src) {
+  public void write(ByteBuffer src) {
     writeLock(() -> {
       long countBytes = operate(c -> c.write(src, writePos));
       if (countBytes > 0) {
@@ -38,7 +35,7 @@ public final class ConcurrentAsyncFileChannel implements Closeable {
     });
   }
 
-  void read(@Nonnull ByteBuffer dst, @Nonnegative long position) {
+  void read(ByteBuffer dst, @Nonnegative long position) {
     long stamp = lock.tryOptimisticRead();
     try {
       while (!Thread.currentThread().isInterrupted()) {
@@ -74,7 +71,7 @@ public final class ConcurrentAsyncFileChannel implements Closeable {
     });
   }
 
-  private void writeLock(@Nonnull Runnable operation) {
+  private void writeLock(Runnable operation) {
     long stamp = lock.readLock();
     try {
       while (!Thread.currentThread().isInterrupted()) {
@@ -95,7 +92,7 @@ public final class ConcurrentAsyncFileChannel implements Closeable {
     }
   }
 
-  private long operate(@Nonnull ChannelOperation operation) {
+  private long operate(ChannelOperation operation) {
     long bytesCount = 0;
     try {
       if (channel == null) {
@@ -117,7 +114,6 @@ public final class ConcurrentAsyncFileChannel implements Closeable {
   }
 
   private interface ChannelOperation {
-    @Nonnull
-    Future<Integer> operate(@Nonnull AsynchronousFileChannel channel);
+    Future<Integer> operate(AsynchronousFileChannel channel);
   }
 }
