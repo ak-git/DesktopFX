@@ -6,7 +6,6 @@ import tec.uom.se.format.LocalUnitFormat;
 import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 import java.util.Locale;
@@ -22,15 +21,15 @@ public enum Variables {
   private static final String M_POINT = "m·";
   private static final String M_PAR = "m(";
 
-  public static String toString(@Nonnull Quantity<?> quantity) {
+  public static String toString(Quantity<?> quantity) {
     return String.join(Strings.SPACE, quantity.getValue().toString(), LocalUnitFormat.getInstance().format(quantity.getUnit()));
   }
 
-  public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable, int value) {
+  public static <E extends Enum<E> & Variable<E>> String toString(E variable, int value) {
     return "%s = %,d %s".formatted(toString(variable), value, fixUnit(variable.getUnit()));
   }
 
-  public static <E extends Enum<E> & Variable<E>> String toString(@Nonnull E variable) {
+  public static <E extends Enum<E> & Variable<E>> String toString(E variable) {
     String baseName = variable.getClass().getPackage().getName() + ".variables";
     String name;
     try {
@@ -50,7 +49,7 @@ public enum Variables {
     return name;
   }
 
-  public static <Q extends Quantity<Q>> String toString(int value, @Nonnull Unit<Q> unit, @Nonnegative int scaleFactor10) {
+  public static <Q extends Quantity<Q>> String toString(int value, Unit<Q> unit, @Nonnegative int scaleFactor10) {
     int scale = Numbers.log10ToInt(unit.getConverterTo(unit.getSystemUnit()).convert(1.0));
     int displayScale = scale + 1;
     while (displayScale % 3 != 0) {
@@ -87,7 +86,7 @@ public enum Variables {
     }
   }
 
-  public static String fixUnit(@Nonnull Unit<?> unit) {
+  public static String fixUnit(Unit<?> unit) {
     var s = unit.toString();
     if (s.startsWith(M_PAR)) {
       return "m%s".formatted(fixUnit(unit.getSystemUnit()));
@@ -100,8 +99,7 @@ public enum Variables {
     }
   }
 
-  @Nonnull
-  public static <Q extends Quantity<Q>> Unit<Q> tryToUp3(@Nonnull Unit<Q> unit) {
+  public static <Q extends Quantity<Q>> Unit<Q> tryToUp3(Unit<Q> unit) {
     int d = Math.min(Numbers.log10ToInt(unit.getConverterTo(unit.getSystemUnit()).convert(1.0)), 0);
     d = 3 * Numbers.toInt(Math.ceil((d + 1) / 3.0));
     if (d == 0) {

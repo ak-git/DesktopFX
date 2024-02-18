@@ -1,18 +1,15 @@
 package com.ak.comm.converter;
 
-import java.util.EnumSet;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-import javax.measure.Unit;
-
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.util.Strings;
 import tec.uom.se.AbstractUnit;
+
+import javax.measure.Unit;
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public interface Variable<E extends Enum<E> & Variable<E>> {
   enum Option {
@@ -22,7 +19,7 @@ public interface Variable<E extends Enum<E> & Variable<E>> {
       return EnumSet.of(VISIBLE);
     }
 
-    public static Set<Option> addToDefault(@Nonnull Option... option) {
+    public static Set<Option> addToDefault(Option... option) {
       return EnumSet.of(VISIBLE, option);
     }
   }
@@ -39,7 +36,7 @@ public interface Variable<E extends Enum<E> & Variable<E>> {
     return tryFindSame(Variable::options, Option::defaultOptions);
   }
 
-  default int indexBy(@Nonnull Option option) {
+  default int indexBy(Option option) {
     if (options().contains(option)) {
       return EnumSet.allOf(getDeclaringClass()).stream().filter(e -> e.options().contains(option)).mapToInt(Enum::ordinal).sorted()
           .reduce(-1, (acc, now) -> now > ordinal() ? acc : acc + 1);
@@ -55,7 +52,6 @@ public interface Variable<E extends Enum<E> & Variable<E>> {
 
   Class<E> getDeclaringClass();
 
-  @ParametersAreNonnullByDefault
   default <T> T tryFindSame(Function<E, T> function, Supplier<T> orElse) {
     var s = Strings.numberSuffix(name());
     if (s.isEmpty() || Integer.parseInt(s) == 1) {

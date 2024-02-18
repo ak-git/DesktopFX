@@ -8,8 +8,6 @@ import tec.uom.se.AbstractUnit;
 import tec.uom.se.function.RationalConverter;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import javax.measure.IncommensurableException;
 import javax.measure.UnitConverter;
 import java.io.IOException;
@@ -29,13 +27,11 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<R, Stream<int[]>>, Refreshable {
-  @Nonnull
   List<V> variables();
 
   @Nonnegative
   double getFrequency();
 
-  @ParametersAreNonnullByDefault
   static <T, R, V extends Enum<V> & Variable<V>> void doConvert(BytesInterceptor<T, R> bytesInterceptor,
                                                                 Converter<R, V> responseConverter, Path path) {
     if (Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS) && path.toString().lastIndexOf(bytesInterceptor.name()) != -1) {
@@ -52,7 +48,6 @@ public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<
     }
   }
 
-  @ParametersAreNonnullByDefault
   private static <T, R, V extends Enum<V> & Variable<V>> boolean isProcessed(BytesInterceptor<T, R> bytesInterceptor,
                                                                              Converter<R, V> responseConverter, Path path) {
     Path out = Paths.get(Extension.CSV.attachTo(Extension.BIN.clean(path.toString())));
