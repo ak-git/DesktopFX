@@ -1,27 +1,24 @@
 package com.ak.fx.storage;
 
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+
 import java.awt.geom.Rectangle2D;
 import java.util.Optional;
 import java.util.prefs.BackingStoreException;
 
-import javax.annotation.Nonnull;
-
-import javafx.stage.Screen;
-import javafx.stage.Stage;
-
 abstract class AbstractStageStorage extends AbstractStorage<Stage> {
   private static final String FULL_SCREEN = "fullScreen";
   private static final String MAXIMIZED = "maximized";
-  @Nonnull
   private final Storage<Rectangle2D.Double> boundsStorage;
 
-  AbstractStageStorage(@Nonnull Class<?> c, @Nonnull String nodeName) {
+  AbstractStageStorage(Class<?> c, String nodeName) {
     super(c, nodeName);
     boundsStorage = new BoundsStorage(getClass(), nodeName);
   }
 
   @Override
-  public void save(@Nonnull Stage stage) {
+  public void save(Stage stage) {
     if (!preferences().getBoolean(FULL_SCREEN, false) &&
         !preferences().getBoolean(MAXIMIZED, false)) {
       boundsStorage.save(new Rectangle2D.Double(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight()));
@@ -29,7 +26,7 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
   }
 
   @Override
-  public void update(@Nonnull Stage stage) {
+  public void update(Stage stage) {
     stage.maximizedProperty().addListener((observable, oldValue, newValue) -> preferences().putBoolean(MAXIMIZED, newValue));
     Optional.ofNullable(boundsStorage.get()).ifPresentOrElse(
         r -> {
@@ -65,7 +62,7 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
     preferences().putBoolean(FULL_SCREEN, state);
   }
 
-  private static void centerOnScreen(@Nonnull Stage stage) {
+  private static void centerOnScreen(Stage stage) {
     stage.setWidth(Screen.getPrimary().getVisualBounds().getWidth());
     stage.setHeight(Screen.getPrimary().getVisualBounds().getHeight());
     stage.centerOnScreen();

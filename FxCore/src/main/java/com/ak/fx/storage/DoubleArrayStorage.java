@@ -8,19 +8,19 @@ import java.util.stream.IntStream;
 public final class DoubleArrayStorage extends AbstractStorage<double[]> {
   private static final String KEY = "dValue";
 
-  public DoubleArrayStorage(@Nonnull Class<?> c, @Nonnull String nodeName) {
+  public DoubleArrayStorage(Class<?> c, String nodeName) {
     super(c, nodeName);
   }
 
   @Override
-  public void save(@Nonnull double[] values) {
+  public void save(double[] values) {
     for (int i = 0; i < values.length; i++) {
       preferences().putDouble("%s%d".formatted(KEY, i), values[i]);
     }
   }
 
   @Override
-  public void update(@Nonnull double[] values) {
+  public void update(double[] values) {
     throw new UnsupportedOperationException(Arrays.toString(values));
   }
 
