@@ -1,26 +1,23 @@
 package com.ak.comm.interceptor.simple;
 
+import com.ak.comm.bytes.BufferFrame;
+import com.ak.comm.interceptor.AbstractBytesInterceptor;
+
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.LinkedList;
-
-import javax.annotation.Nonnull;
-
-import com.ak.comm.bytes.BufferFrame;
-import com.ak.comm.interceptor.AbstractBytesInterceptor;
 
 public final class StringBytesInterceptor extends AbstractBytesInterceptor<BufferFrame, String> {
   private static final int MAX_LEN = 6;
   private static final byte STOP = '\n';
   private final StringBuilder frame = new StringBuilder(MAX_LEN);
 
-  public StringBytesInterceptor(@Nonnull String name) {
+  public StringBytesInterceptor(String name) {
     super(name, BaudRate.BR_115200, null, MAX_LEN);
   }
 
-  @Nonnull
   @Override
-  protected Collection<String> innerProcessIn(@Nonnull ByteBuffer src) {
+  protected Collection<String> innerProcessIn(ByteBuffer src) {
     Collection<String> responses = new LinkedList<>();
     while (src.hasRemaining()) {
       byte in = src.get();

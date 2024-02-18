@@ -10,7 +10,6 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -66,18 +65,14 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
 
   @Nullable
   private final SerialPort serialPort;
-  @Nonnull
   private final BytesInterceptor<T, R> bytesInterceptor;
-  @Nonnull
   private final ByteBuffer buffer;
-  @Nonnull
   private final ConcurrentAsyncFileChannel binaryLogChannel;
-  @Nonnull
   private final AtomicReference<Path> saveFilePath = new AtomicReference<>();
   @Nullable
   private Runnable refreshAction;
 
-  SerialService(@Nonnull BytesInterceptor<T, R> bytesInterceptor) {
+  SerialService(BytesInterceptor<T, R> bytesInterceptor) {
     this.bytesInterceptor = bytesInterceptor;
     serialPort = next();
     buffer = ByteBuffer.allocate(bytesInterceptor.getBaudRate());
@@ -96,7 +91,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
   }
 
   @Override
-  public int write(@Nonnull ByteBuffer src) {
+  public int write(ByteBuffer src) {
     synchronized (this) {
       var countBytes = 0;
       if (isOpen() && serialPort != null) {
@@ -108,7 +103,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
   }
 
   @Override
-  public void subscribe(@Nonnull Flow.Subscriber<? super ByteBuffer> s) {
+  public void subscribe(Flow.Subscriber<? super ByteBuffer> s) {
     if (serialPort == null) {
       LOGGER.log(Level.INFO, SERIAL_PORT_NOT_FOUND);
     }

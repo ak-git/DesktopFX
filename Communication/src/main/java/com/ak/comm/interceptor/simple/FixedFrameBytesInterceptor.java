@@ -1,7 +1,6 @@
 package com.ak.comm.interceptor.simple;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 
 /**
  * Constant byte at start byte protocol implementation and <b>fixed frame length</b>
@@ -14,12 +13,12 @@ import javax.annotation.Nonnull;
  * </p>
  */
 public final class FixedFrameBytesInterceptor extends AbstractFixedFrameBytesInterceptor {
-  public FixedFrameBytesInterceptor(@Nonnull String name, @Nonnull BaudRate baudRate, @Nonnegative int frameLength) {
+  public FixedFrameBytesInterceptor(String name, BaudRate baudRate, @Nonnegative int frameLength) {
     super(name, baudRate, frameLength);
   }
 
   @Override
-  protected boolean check(@Nonnull byte[] buffer, byte nextFrameStartByte) {
+  protected boolean check(byte[] buffer, byte nextFrameStartByte) {
     return buffer[0] == nextFrameStartByte;
   }
 }

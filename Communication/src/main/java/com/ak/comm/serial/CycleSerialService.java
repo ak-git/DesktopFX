@@ -7,15 +7,14 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.logging.LogBuilders;
 import com.ak.util.UIConstants;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -26,17 +25,15 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractConvertableService<T, R, V> implements Flow.Subscription {
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   private volatile boolean cancelled;
-  @Nonnull
   private SerialService<T, R> serialService;
 
-  @ParametersAreNonnullByDefault
   public CycleSerialService(BytesInterceptor<T, R> bytesInterceptor, Converter<R, V> responseConverter) {
     super(bytesInterceptor, responseConverter);
     serialService = new SerialService<>(bytesInterceptor);
   }
 
   @Override
-  public void subscribe(@Nonnull Flow.Subscriber<? super int[]> s) {
+  public void subscribe(Flow.Subscriber<? super int[]> s) {
     s.onSubscribe(this);
     executor.scheduleWithFixedDelay(() -> {
       SerialSubscriber subscriber = new SerialSubscriber(s);
@@ -101,17 +98,17 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
     @Nullable
     private Flow.Subscription subscription;
 
-    private SerialSubscriber(@Nonnull Flow.Subscriber<? super int[]> subscriber) {
-      this.subscriber = subscriber;
+    private SerialSubscriber(Flow.Subscriber<? super int[]> subscriber) {
+      this.subscriber = Objects.requireNonNull(subscriber);
     }
 
     @Override
-    public void onSubscribe(@Nonnull Flow.Subscription s) {
-      subscription = s;
+    public void onSubscribe(Flow.Subscription s) {
+      subscription = Objects.requireNonNull(s);
     }
 
     @Override
-    public void onNext(@Nonnull ByteBuffer buffer) {
+    public void onNext(ByteBuffer buffer) {
       process(buffer, ints -> {
         if (!cancelled) {
           subscriber.onNext(ints);
@@ -122,7 +119,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
     }
 
     @Override
-    public void onError(@Nonnull Throwable throwable) {
+    public void onError(Throwable throwable) {
       serialService.close();
       Logger.getLogger(CycleSerialService.class.getName()).log(Level.SEVERE, serialService.toString(), throwable);
     }
