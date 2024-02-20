@@ -9,8 +9,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.AbstractUnit;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.ByteOrder;
 import java.util.Collections;
 import java.util.List;
@@ -42,7 +40,6 @@ class LinkedConverterTest {
 
   @ParameterizedTest
   @MethodSource("variables")
-  @ParametersAreNonnullByDefault
   void testApply(BufferFrame frame, int[] output) {
     Converter<BufferFrame, TwoVariables> converter = new ToIntegerConverter<>(TwoVariables.class, 200);
     LinkedConverter<BufferFrame, TwoVariables, OperatorVariables> linkedConverter = LinkedConverter.of(converter, OperatorVariables.class);
@@ -52,7 +49,6 @@ class LinkedConverterTest {
 
   @ParameterizedTest
   @MethodSource("variables2")
-  @ParametersAreNonnullByDefault
   void testApply2(BufferFrame frame, int[] output) {
     Function<BufferFrame, Stream<int[]>> linkedConverter =
         LinkedConverter.of(new ToIntegerConverter<>(TwoVariables.class, 1000), OperatorVariables.class)
@@ -62,7 +58,7 @@ class LinkedConverterTest {
 
   @ParameterizedTest
   @EnumSource(value = RefreshVariable.class)
-  void testRecursive(@Nonnull Variable<RefreshVariable> variable) {
+  void testRecursive(Variable<RefreshVariable> variable) {
     assertThat(variable.getUnit()).isEqualTo(AbstractUnit.ONE);
     assertThat(variable.options()).containsSequence(Variable.Option.defaultOptions());
   }
@@ -73,7 +69,7 @@ class LinkedConverterTest {
 
   @ParameterizedTest
   @MethodSource("refreshVariables")
-  void testRefresh(@Nonnull BufferFrame frame) {
+  void testRefresh(BufferFrame frame) {
     LinkedConverter<BufferFrame, RefreshVariable, RefreshVariable> linkedConverter =
         LinkedConverter.of(new ToIntegerConverter<>(RefreshVariable.class, 1), RefreshVariable.class)
             .chainInstance(RefreshVariable.class);

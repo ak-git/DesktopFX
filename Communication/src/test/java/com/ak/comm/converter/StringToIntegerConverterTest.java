@@ -1,15 +1,13 @@
 package com.ak.comm.converter;
 
-import java.util.EnumSet;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.AbstractUnit;
+
+import java.util.EnumSet;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,7 +29,6 @@ class StringToIntegerConverterTest {
 
   @ParameterizedTest
   @MethodSource("variables")
-  @ParametersAreNonnullByDefault
   <T extends Enum<T> & Variable<T>> void testApply(Class<T> evClass, byte[] inputBytes, int[] outputInts) {
     StringToIntegerConverter<T> converter = new StringToIntegerConverter<>(evClass, 1000);
     assertThat(EnumSet.allOf(evClass)).containsSequence(converter.variables());

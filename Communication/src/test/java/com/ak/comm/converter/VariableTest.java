@@ -12,8 +12,6 @@ import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 import java.util.EnumSet;
@@ -60,7 +58,6 @@ class VariableTest {
   @Test
   void testInvalidGetVariables() {
     DependentVariable<OperatorVariables, ADCVariable> variable = new DependentVariable<>() {
-      @Nonnull
       @Override
       public String name() {
         return "InvalidName";
@@ -76,7 +73,6 @@ class VariableTest {
         return ADCVariable.class;
       }
 
-      @Nonnull
       @Override
       public Class<OperatorVariables> getInputVariablesClass() {
         return OperatorVariables.class;
@@ -100,7 +96,7 @@ class VariableTest {
 
   @ParameterizedTest
   @EnumSource(value = OperatorVariables2.class)
-  void testOperatorVariables2(@Nonnull Variable<OperatorVariables2> variable) {
+  void testOperatorVariables2(Variable<OperatorVariables2> variable) {
     assertThat(variable.options()).containsExactly(Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER);
   }
 
@@ -154,7 +150,7 @@ class VariableTest {
 
   @ParameterizedTest
   @MethodSource("formatValues")
-  void testFormatValues(int value, @Nonnull Unit<?> unit, @Nonnegative int scaleFactor10, @Nonnull String expected) {
+  void testFormatValues(int value, Unit<?> unit, @Nonnegative int scaleFactor10, String expected) {
     assertThat(Variables.toString(value, unit, scaleFactor10)).isEqualTo(expected);
   }
 
@@ -179,7 +175,6 @@ class VariableTest {
 
   @ParameterizedTest
   @MethodSource("conversion")
-  @ParametersAreNonnullByDefault
   <Q extends Quantity<Q>> void testTryToUp3(Unit<Q> expected, Unit<Q> toConvert) {
     assertEquals(expected, Variables.tryToUp3(toConvert));
   }

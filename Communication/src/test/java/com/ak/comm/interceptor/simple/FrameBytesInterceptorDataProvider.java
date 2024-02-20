@@ -6,7 +6,6 @@ import com.ak.comm.logging.LogTestUtils;
 import com.ak.util.Strings;
 import org.junit.jupiter.params.provider.Arguments;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicReference;
@@ -134,7 +133,6 @@ final class FrameBytesInterceptorDataProvider {
     );
   }
 
-  @ParametersAreNonnullByDefault
   <T> void testInterceptor(byte[] bytes, T response, CharSequence ignoredMessage,
                            Logger logger, Function<ByteBuffer, Stream<T>> interceptor) {
     buffer.clear();

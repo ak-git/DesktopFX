@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -54,7 +53,7 @@ class AutoFileReadingServiceTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.file.FileDataProvider#parallelRampFiles")
-  void testAccept(@Nonnull Path file) {
+  void testAccept(Path file) {
     assertTrue(SERVICE.accept(file.toFile()));
     int countFrames = 10;
     ByteBuffer buffer = ByteBuffer.allocate(TwoVariables.values().length * Integer.BYTES * countFrames);
