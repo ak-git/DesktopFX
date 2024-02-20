@@ -2,8 +2,6 @@ package com.ak.file;
 
 import com.ak.util.Extension;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.*;
@@ -19,13 +17,10 @@ import java.util.logging.Logger;
 
 public final class RecursiveWatcher implements Closeable {
   private final ExecutorService service = Executors.newSingleThreadExecutor();
-  @Nonnull
   private final WatchService watchService;
   private final Map<WatchKey, Path> directories = new HashMap<>();
-  @Nonnull
   private final String glob;
 
-  @ParametersAreNonnullByDefault
   public RecursiveWatcher(Path start, Consumer<Path> doSome, Extension extension) throws IOException {
     watchService = FileSystems.getDefault().newWatchService();
     glob = extension.attachTo("*");
@@ -76,7 +71,6 @@ public final class RecursiveWatcher implements Closeable {
     }
   }
 
-  @ParametersAreNonnullByDefault
   private void registerTree(Path start, Consumer<Path> doSome) {
     try {
       Files.walkFileTree(start, new SimpleFileVisitor<>() {

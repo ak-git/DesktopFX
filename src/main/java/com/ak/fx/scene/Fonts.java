@@ -11,7 +11,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 import static com.ak.fx.scene.GridCell.SMALL;
@@ -25,19 +24,19 @@ public enum Fonts {
   private final transient ObjectProperty<Font> fontProperty;
   private final transient ChangeListener<Number> changeListener;
 
-  Fonts(@Nonnull String family, @Nonnull FontWeight weight, @Nonnegative double divider) {
+  Fonts(String family, FontWeight weight, @Nonnegative double divider) {
     fontProperty = new SimpleObjectProperty<>(newFont(family, weight, divider));
     changeListener = (observable, oldValue, newValue) -> fontProperty.set(newFont(family, weight, divider));
   }
 
-  public ReadOnlyObjectProperty<Font> fontProperty(@Nonnull Supplier<Scene> stageSupplier) {
+  public ReadOnlyObjectProperty<Font> fontProperty(Supplier<Scene> stageSupplier) {
     ObservableValue<Number> dpi = ScreenResolutionMonitor.dpi(stageSupplier);
     dpi.removeListener(changeListener);
     dpi.addListener(changeListener);
     return fontProperty;
   }
 
-  private static Font newFont(@Nonnull String family, @Nonnull FontWeight weight, @Nonnegative double divider) {
+  private static Font newFont(String family, FontWeight weight, @Nonnegative double divider) {
     return Font.font(family, weight, SMALL.getStep() / divider);
   }
 

@@ -12,8 +12,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
@@ -44,7 +42,6 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
   }
 
   @Override
-  @Nonnull
   public SKTBRequest get() {
     SKTBRequest request = sktbRequestPrev.get().from()
         .rotate(controls.get(SKTBVariable.ROTATE).velocity())
@@ -55,7 +52,7 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
   }
 
   @Override
-  public void onNext(@Nonnull int[] ints) {
+  public void onNext(int[] ints) {
     super.onNext(ints);
     controls.values().forEach(c -> c.accept(ints));
   }
@@ -87,11 +84,10 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
 
   @Override
   @EventListener(RsceEvent.class)
-  public void onApplicationEvent(@Nonnull RsceEvent rsceEvent) {
+  public void onApplicationEvent(RsceEvent rsceEvent) {
     controls.forEach((variable, control) -> control.update(rsceEvent));
   }
 
-  @ParametersAreNonnullByDefault
   private void action(SKTBVariable variable, Consumer<SKTBAngleVelocityControl> control) {
     control.accept(controls.get(variable));
   }

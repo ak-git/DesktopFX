@@ -1,6 +1,5 @@
 package com.ak.fx.scene;
 
-import jakarta.inject.Inject;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -13,10 +12,10 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.DoubleFunction;
 
 import static com.ak.fx.scene.GridCell.*;
@@ -37,7 +36,6 @@ public final class Chart extends AbstractRegion {
   private final DoubleProperty diagramWidth = new SimpleDoubleProperty();
   private final DoubleProperty diagramHeight = new SimpleDoubleProperty();
 
-  @Inject
   public Chart() {
     milliGrid.setManaged(false);
     getChildren().add(milliGrid);
@@ -132,7 +130,7 @@ public final class Chart extends AbstractRegion {
     }
   }
 
-  public void setVariables(@Nonnull Collection<String> variables) {
+  public void setVariables(Collection<String> variables) {
     lineDiagrams.addAll(variables.stream().map(LineDiagram::new).toList());
     lineDiagrams.forEach(lineDiagram -> lineDiagram.setManaged(false));
     getChildren().addAll(lineDiagrams);
@@ -152,16 +150,16 @@ public final class Chart extends AbstractRegion {
     return xAxisUnit.textProperty();
   }
 
-  public void setBannerNames(@Nonnull String text) {
-    bannerNames.setText(text);
+  public void setBannerNames(String text) {
+    bannerNames.setText(Objects.requireNonNull(text));
   }
 
-  public void setBannerValues(@Nonnull String text) {
-    bannerValues.setText(text);
+  public void setBannerValues(String text) {
+    bannerValues.setText(Objects.requireNonNull(text));
   }
 
-  public void setBannerUnits(@Nonnull String text) {
-    bannerUnits.setText(text);
+  public void setBannerUnits(String text) {
+    bannerUnits.setText(Objects.requireNonNull(text));
   }
 
   public ReadOnlyDoubleProperty diagramWidthProperty() {
@@ -172,7 +170,7 @@ public final class Chart extends AbstractRegion {
     return diagramHeight;
   }
 
-  public void setAll(@Nonnegative int chartIndex, @Nonnull double[] values, @Nonnull DoubleFunction<String> positionToStringConverter) {
+  public void setAll(@Nonnegative int chartIndex, double[] values, DoubleFunction<String> positionToStringConverter) {
     lineDiagrams.get(chartIndex).setAll(values, positionToStringConverter);
   }
 }

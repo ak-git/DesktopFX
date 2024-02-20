@@ -5,21 +5,17 @@ import com.ak.comm.converter.sktbpr.SKTBVariable;
 import com.ak.digitalfilter.IntsAcceptor;
 import com.ak.fx.desktop.nmisr.RsceEvent;
 
-import javax.annotation.Nonnull;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 final class SKTBAngleVelocityControl implements IntsAcceptor {
-  @Nonnull
   private final SKTBVariable variable;
-  @Nonnull
   private final RsceVariable rsceMapping;
-  @Nonnull
   private final AtomicInteger angle = new AtomicInteger(0);
-  @Nonnull
   private final AtomicInteger velocity = new AtomicInteger(0);
 
-  SKTBAngleVelocityControl(@Nonnull SKTBVariable variable) {
-    this.variable = variable;
+  SKTBAngleVelocityControl(SKTBVariable variable) {
+    this.variable = Objects.requireNonNull(variable);
     rsceMapping = switch (variable) {
       case ROTATE -> RsceVariable.ROTATE;
       case FLEX -> RsceVariable.OPEN;
@@ -27,7 +23,7 @@ final class SKTBAngleVelocityControl implements IntsAcceptor {
   }
 
   @Override
-  public void accept(@Nonnull int[] ints) {
+  public void accept(int[] ints) {
     int error = angle.get() - ints[variable.ordinal()];
     velocity.set((error / 2) * 1000);
   }
@@ -40,7 +36,7 @@ final class SKTBAngleVelocityControl implements IntsAcceptor {
     angle.addAndGet(10);
   }
 
-  void update(@Nonnull RsceEvent event) {
+  void update(RsceEvent event) {
     int percents = event.getValue(rsceMapping);
     angle.set(-(180 * percents / 100 - 90));
   }

@@ -9,7 +9,6 @@ import com.ak.fx.desktop.AbstractScheduledViewController;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 
-import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -26,7 +25,7 @@ abstract class AbstractNIBPViewController extends AbstractScheduledViewControlle
 
   @Override
   @OverridingMethodsMustInvokeSuper
-  public void onNext(@Nonnull int[] ints) {
+  public void onNext(int[] ints) {
     super.onNext(ints);
     if (ints[NIBPVariable.IS_COMPLETED.ordinal()] == 1) {
       service().write(NIBPRequest.GET_BP_DATA);

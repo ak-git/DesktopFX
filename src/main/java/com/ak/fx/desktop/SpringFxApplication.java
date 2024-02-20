@@ -20,7 +20,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.*;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -33,7 +32,7 @@ import java.util.ResourceBundle;
 public class SpringFxApplication extends FxApplication {
   private ConfigurableApplicationContext applicationContext;
 
-  public static void main(@Nonnull String[] args) {
+  public static void main(String[] args) {
     Application.launch(SpringFxApplication.class, args);
   }
 
@@ -84,13 +83,12 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Override
-  @Nonnull
-  List<FXMLLoader> getFXMLLoader(@Nonnull ResourceBundle resourceBundle) {
+  List<FXMLLoader> getFXMLLoader(ResourceBundle resourceBundle) {
     String[] profiles = applicationContext.getEnvironment().getActiveProfiles();
     if (profiles.length == 0) {
       profiles = applicationContext.getEnvironment().getDefaultProfiles();
     }
-    var defaultFxmlLoader = super.getFXMLLoader(resourceBundle).get(0);
+    var defaultFxmlLoader = super.getFXMLLoader(resourceBundle).getFirst();
     List<FXMLLoader> fxmlLoaders = Arrays.stream(profiles)
         .map(profile -> getClass().getResource(String.join(".", profile, "fxml")))
         .map(fxml -> {

@@ -12,10 +12,10 @@ import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import javax.measure.quantity.Speed;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.function.DoublePredicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -80,7 +80,8 @@ public final class AxisXController {
   @Nonnegative
   private int decimateFactor = 1;
 
-  public AxisXController(@Nonnull Runnable onUpdate) {
+  public AxisXController(Runnable onUpdate) {
+    Objects.requireNonNull(onUpdate);
     startProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
     lengthProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
     String zoomValue = zoomStorage.get();
@@ -103,7 +104,6 @@ public final class AxisXController {
     });
   }
 
-  @Nonnull
   public StringBinding zoomBinding() {
     return zoomProperty.asString();
   }

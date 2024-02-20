@@ -5,7 +5,6 @@ import com.ak.util.Numbers;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.util.stream.IntStream;
 
 public final class AxisYController<V extends Enum<V> & Variable<V>> {
@@ -16,7 +15,7 @@ public final class AxisYController<V extends Enum<V> & Variable<V>> {
     mmHeight = GridCell.mm(lineDiagramHeight);
   }
 
-  public ScaleYInfo<V> scale(@Nonnull V variable, @Nonnull int[] values) {
+  public ScaleYInfo<V> scale(V variable, int[] values) {
     DescriptiveStatistics stats = new DescriptiveStatistics();
     IntStream.of(values).forEach(stats::addValue);
     int max = Numbers.toInt(stats.getPercentile(98));

@@ -6,12 +6,10 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.*;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.util.List;
 
 final class MilliGrid extends Pane {
   private final GridLine[] gridLines = {new HorizontalGridLine(), new VerticalGridLine()};
-  @Nonnull
   private List<Path> paths = GridCell.newPaths();
 
   MilliGrid() {
@@ -44,21 +42,19 @@ final class MilliGrid extends Pane {
   }
 
   private interface GridLine {
-    void addToPath(@Nonnull Path path, @Nonnull GridCell gridCell);
+    void addToPath(Path path, GridCell gridCell);
 
     @Nonnegative
     double contentSize();
 
-    @Nonnull
-    PathElement moveTo(@Nonnegative double c, @Nonnull GridCell gridCell);
+    PathElement moveTo(@Nonnegative double c, GridCell gridCell);
 
-    @Nonnull
-    PathElement lineTo(@Nonnull GridCell gridCell);
+    PathElement lineTo(GridCell gridCell);
   }
 
   private abstract static class AbstractGridLine implements GridLine {
     @Override
-    public final void addToPath(@Nonnull Path path, @Nonnull GridCell gridCell) {
+    public final void addToPath(Path path, GridCell gridCell) {
       double contentSize = contentSize();
       int factor = (int) Math.round(GridCell.SMALL.getStep() / gridCell.getStep());
       var i = 0;
@@ -70,7 +66,7 @@ final class MilliGrid extends Pane {
       }
     }
 
-    final double lineToCoordinate(@Nonnull GridCell gridCell) {
+    final double lineToCoordinate(GridCell gridCell) {
       return maxValue(length()) - gridCell.linePad();
     }
 
@@ -91,13 +87,13 @@ final class MilliGrid extends Pane {
     }
 
     @Override
-    public PathElement moveTo(@Nonnegative double x, @Nonnull GridCell gridCell) {
+    public PathElement moveTo(@Nonnegative double x, GridCell gridCell) {
       return new MoveTo(snappedLeftInset() + x,
           snappedTopInset() + GridCell.SMALL.minCoordinate(length()) + gridCell.linePad());
     }
 
     @Override
-    public PathElement lineTo(@Nonnull GridCell gridCell) {
+    public PathElement lineTo(GridCell gridCell) {
       return new VLineTo(snappedTopInset() + lineToCoordinate(gridCell));
     }
 
@@ -116,13 +112,13 @@ final class MilliGrid extends Pane {
     }
 
     @Override
-    public PathElement moveTo(@Nonnegative double y, @Nonnull GridCell gridCell) {
+    public PathElement moveTo(@Nonnegative double y, GridCell gridCell) {
       return new MoveTo(snappedLeftInset() + GridCell.SMALL.minCoordinate(length()) + gridCell.linePad(),
           snappedTopInset() + y);
     }
 
     @Override
-    public PathElement lineTo(@Nonnull GridCell gridCell) {
+    public PathElement lineTo(GridCell gridCell) {
       return new HLineTo(snappedLeftInset() + lineToCoordinate(gridCell));
     }
 
