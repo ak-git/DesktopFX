@@ -3,7 +3,6 @@ package com.ak.comm.converter.suntech;
 import com.ak.comm.bytes.suntech.NIBPResponse;
 import com.ak.comm.converter.AbstractConverter;
 
-import javax.annotation.Nonnull;
 import java.util.stream.Stream;
 
 public final class NIBPConverter extends AbstractConverter<NIBPResponse, NIBPVariable> {
@@ -15,7 +14,7 @@ public final class NIBPConverter extends AbstractConverter<NIBPResponse, NIBPVar
   }
 
   @Override
-  protected Stream<int[]> innerApply(@Nonnull NIBPResponse response) {
+  protected Stream<int[]> innerApply(NIBPResponse response) {
     out[NIBPVariable.IS_COMPLETED.ordinal()] = 0;
     response.extractPressure(value -> out[NIBPVariable.PRESSURE.ordinal()] = value);
     response.extractData(value -> System.arraycopy(value, 0, out, NIBPVariable.SYS.ordinal(), value.length));

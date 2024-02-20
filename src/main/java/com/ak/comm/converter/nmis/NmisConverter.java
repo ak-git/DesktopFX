@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nonnull;
 import java.util.stream.Stream;
 
 @Component
@@ -19,7 +18,7 @@ public final class NmisConverter extends AbstractConverter<NmisResponseFrame, Nm
   }
 
   @Override
-  protected Stream<int[]> innerApply(@Nonnull NmisResponseFrame frame) {
+  protected Stream<int[]> innerApply(NmisResponseFrame frame) {
     return frame.extractTime().mapToObj(value -> new int[] {value});
   }
 }

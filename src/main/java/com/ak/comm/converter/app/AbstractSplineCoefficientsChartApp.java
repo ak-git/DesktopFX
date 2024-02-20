@@ -1,9 +1,5 @@
 package com.ak.comm.converter.app;
 
-import java.util.function.IntUnaryOperator;
-
-import javax.annotation.Nonnull;
-
 import com.ak.comm.converter.Variable;
 import com.ak.numbers.Coefficients;
 import com.ak.numbers.Interpolators;
@@ -13,24 +9,19 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Side;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.chart.Axis;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.ValueAxis;
-import javafx.scene.chart.XYChart;
+import javafx.scene.chart.*;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+import java.util.function.IntUnaryOperator;
+
 public abstract class AbstractSplineCoefficientsChartApp<X extends Enum<X> & Variable<X>, Y extends Enum<Y> & Variable<Y>>
     extends Application {
-  @Nonnull
   private final Coefficients coefficients;
-  @Nonnull
   private final X xVariable;
-  @Nonnull
   private final Y yVariable;
 
-  protected AbstractSplineCoefficientsChartApp(@Nonnull Coefficients coefficients, @Nonnull X xVariable, @Nonnull Y yVariable) {
+  protected AbstractSplineCoefficientsChartApp(Coefficients coefficients, X xVariable, Y yVariable) {
     this.coefficients = coefficients;
     this.xVariable = xVariable;
     this.yVariable = yVariable;

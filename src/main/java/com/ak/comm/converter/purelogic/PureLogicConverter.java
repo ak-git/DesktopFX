@@ -3,7 +3,6 @@ package com.ak.comm.converter.purelogic;
 import com.ak.comm.bytes.purelogic.PureLogicFrame;
 import com.ak.comm.converter.AbstractConverter;
 
-import javax.annotation.Nonnull;
 import java.util.stream.Stream;
 
 public final class PureLogicConverter extends AbstractConverter<PureLogicFrame, PureLogicVariable> {
@@ -16,7 +15,7 @@ public final class PureLogicConverter extends AbstractConverter<PureLogicFrame, 
   }
 
   @Override
-  protected Stream<int[]> innerApply(@Nonnull PureLogicFrame response) {
+  protected Stream<int[]> innerApply(PureLogicFrame response) {
     position += response.getMicrons();
     return Stream.generate(() -> new int[] {position}).limit(DATA_FREQUENCY / FREQUENCY);
   }
