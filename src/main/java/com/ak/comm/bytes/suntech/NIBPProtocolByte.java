@@ -1,10 +1,8 @@
 package com.ak.comm.bytes.suntech;
 
-import java.nio.ByteBuffer;
-
-import javax.annotation.Nonnull;
-
 import com.ak.comm.bytes.BytesChecker;
+
+import java.nio.ByteBuffer;
 
 enum NIBPProtocolByte implements BytesChecker {
   START {
@@ -20,7 +18,7 @@ enum NIBPProtocolByte implements BytesChecker {
     }
 
     @Override
-    public void bufferLimit(@Nonnull ByteBuffer buffer) {
+    public void bufferLimit(ByteBuffer buffer) {
       buffer.limit(buffer.get(ordinal()));
     }
   },
@@ -33,7 +31,7 @@ enum NIBPProtocolByte implements BytesChecker {
 
   static final int MAX_CAPACITY = 0x43;
 
-  static boolean checkCRC(@Nonnull ByteBuffer byteBuffer) {
+  static boolean checkCRC(ByteBuffer byteBuffer) {
     var crc = 0;
     byteBuffer.rewind();
     for (var i = 0; i < byteBuffer.limit(); i++) {

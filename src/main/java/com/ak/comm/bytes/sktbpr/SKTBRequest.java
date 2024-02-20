@@ -5,7 +5,6 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.util.Builder;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -17,28 +16,24 @@ public final class SKTBRequest extends BufferFrame {
   private static final int MAX_CAPACITY = 11;
   private final byte id;
 
-  private SKTBRequest(@Nonnull ByteBuffer byteBuffer, byte id) {
+  private SKTBRequest(ByteBuffer byteBuffer, byte id) {
     super(byteBuffer);
     this.id = id;
   }
 
-  @Nonnull
   public RotateBuilder from() {
     return new RequestBuilder((byte) (id + 1));
   }
 
   public interface RotateBuilder {
-    @Nonnull
     FlexBuilder rotate(int velocity);
   }
 
   public interface FlexBuilder {
-    @Nonnull
     GripBuilder flex(int velocity);
   }
 
   public interface GripBuilder {
-    @Nonnull
     Builder<SKTBRequest> grip(int velocity);
   }
 
@@ -53,31 +48,26 @@ public final class SKTBRequest extends BufferFrame {
     }
 
     @Override
-    @Nonnull
     public FlexBuilder rotate(int velocity) {
       return command(velocity, MAX_ROTATE_VELOCITY);
     }
 
     @Override
-    @Nonnull
     public GripBuilder flex(int velocity) {
       return command(velocity, MAX_FLEX_VELOCITY);
     }
 
     @Override
-    @Nonnull
     public Builder<SKTBRequest> grip(int velocity) {
       return command(velocity, MAX_GRIP_VELOCITY);
     }
 
     @Override
-    @Nonnull
     public SKTBRequest build() {
       buffer().position(MAX_CAPACITY - 2).putShort((short) 500);
       return new SKTBRequest(buffer(), id);
     }
 
-    @Nonnull
     private RequestBuilder command(int v, @Nonnegative int max) {
       buffer().putShort((short) (Math.min(Math.abs(v), max) * Math.signum(v)));
       return this;

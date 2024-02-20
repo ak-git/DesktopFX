@@ -2,7 +2,6 @@ package com.ak.comm.bytes.nmis;
 
 import com.ak.comm.bytes.BytesChecker;
 
-import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 
 public enum NmisProtocolByte implements BytesChecker {
@@ -20,7 +19,7 @@ public enum NmisProtocolByte implements BytesChecker {
     }
 
     @Override
-    public void bufferLimit(@Nonnull ByteBuffer buffer) {
+    public void bufferLimit(ByteBuffer buffer) {
       buffer.limit(buffer.get(ordinal()) + 4);
     }
   }, DATA_1, DATA_2, DATA_3, DATA_4, DATA_5, DATA_6, DATA_7, DATA_8, CRC;
@@ -28,7 +27,7 @@ public enum NmisProtocolByte implements BytesChecker {
   public static final int MAX_CAPACITY = 64;
   static final NmisProtocolByte[] CHECKED_BYTES = {START, LEN};
 
-  static boolean checkCRC(@Nonnull ByteBuffer byteBuffer) {
+  static boolean checkCRC(ByteBuffer byteBuffer) {
     var crc = 0;
     byteBuffer.rewind();
     for (var i = 0; i < byteBuffer.limit() - 1; i++) {

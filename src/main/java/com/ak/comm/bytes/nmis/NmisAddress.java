@@ -2,7 +2,6 @@ package com.ak.comm.bytes.nmis;
 
 import com.ak.comm.bytes.LogUtils;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.logging.Logger;
@@ -39,7 +38,7 @@ public enum NmisAddress {
   }
 
   @Nullable
-  static NmisAddress find(@Nonnull ByteBuffer byteBuffer) {
+  static NmisAddress find(ByteBuffer byteBuffer) {
     var addr = byteBuffer.get(NmisProtocolByte.ADDR.ordinal());
     for (NmisAddress nmisAddress : values()) {
       if (nmisAddress.addrRequest == addr || nmisAddress.addrResponse == addr) {
