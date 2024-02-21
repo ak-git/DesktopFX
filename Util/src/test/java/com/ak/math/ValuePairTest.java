@@ -6,7 +6,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.security.SecureRandom;
 import java.util.random.RandomGenerator;
 import java.util.stream.Stream;
@@ -46,7 +45,6 @@ class ValuePairTest {
 
   @ParameterizedTest
   @MethodSource("toStrings")
-  @ParametersAreNonnullByDefault
   void testTestToString(ValuePair valuePair, String toString) {
     assertThat(valuePair).hasToString(toString);
   }
@@ -61,7 +59,6 @@ class ValuePairTest {
 
   @ParameterizedTest
   @MethodSource("checkEquals")
-  @ParametersAreNonnullByDefault
   void testEquals(ValuePair v1, ValuePair v2) {
     assertThat(v1).isEqualTo(v2).hasSameHashCodeAs(v2);
     assertThat(v2).isEqualTo(v1).hasSameHashCodeAs(v1);
@@ -77,7 +74,6 @@ class ValuePairTest {
 
   @ParameterizedTest
   @MethodSource("checkNotEquals")
-  @ParametersAreNonnullByDefault
   void testNotEquals(Object v1, Object v2) {
     assertThat(v1).isNotEqualTo(v2).doesNotHaveSameHashCodeAs(v2);
     assertThat(v2).isNotEqualTo(v1).doesNotHaveSameHashCodeAs(v1);

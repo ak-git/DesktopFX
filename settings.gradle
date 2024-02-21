@@ -1,3 +1,26 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+    versionCatalogs {
+        libs {
+            from(files('libs.versions.toml'))
+        }
+    }
+}
+
+rootProject.name = 'SimpleApp'
+
 rootProject.name = 'DesktopFX'
 include 'Util'
 include 'Communication'

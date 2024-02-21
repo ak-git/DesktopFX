@@ -1,10 +1,8 @@
 package com.ak.digitalfilter;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 
 abstract class AbstractBufferFilter extends AbstractOperableFilter {
-  @Nonnull
   private final int[] buffer;
   private int bufferIndex = -1;
 
@@ -29,7 +27,6 @@ abstract class AbstractBufferFilter extends AbstractOperableFilter {
     return buffer[index % buffer.length];
   }
 
-  @Nonnull
   final int[] buffer() {
     return buffer.clone();
   }

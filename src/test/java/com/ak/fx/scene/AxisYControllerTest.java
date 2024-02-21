@@ -8,7 +8,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -28,7 +27,7 @@ class AxisYControllerTest {
 
   @ParameterizedTest
   @MethodSource("fullData")
-  void testScale(@Nonnull IntStream data, int mean, @Nonnegative int scaleFactor) {
+  void testScale(IntStream data, int mean, @Nonnegative int scaleFactor) {
     AxisYController<ADCVariable> controller = new AxisYController<>();
     controller.setLineDiagramHeight(GridCell.mmToScreen(233));
     ScaleYInfo<ADCVariable> scaleYInfo = controller.scale(ADCVariable.ADC, data.toArray());

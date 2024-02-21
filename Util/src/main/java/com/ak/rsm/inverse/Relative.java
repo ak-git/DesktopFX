@@ -7,9 +7,7 @@ import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import org.apache.commons.math3.optim.PointValuePair;
 
-import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -18,9 +16,8 @@ import static java.lang.StrictMath.hypot;
 
 interface Relative<M extends Measurement> extends Function<Collection<? extends M>, RelativeMediumLayers> {
   @Override
-  @Nonnull
   @OverridingMethodsMustInvokeSuper
-  default RelativeMediumLayers apply(@Nonnull Collection<? extends M> measurements) {
+  default RelativeMediumLayers apply(Collection<? extends M> measurements) {
     Regularization regularization = regularizationFunction().apply(Measurement.inexact(measurements));
     PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
           double regularizing = regularization.of(kw);
@@ -34,14 +31,11 @@ interface Relative<M extends Measurement> extends Function<Collection<? extends 
     return inverse().apply(new RelativeMediumLayers(kwOptimal.getPoint()));
   }
 
-  @Nonnull
   InverseFunction inverse();
 
-  @Nonnull
   Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction();
 
   @OverridingMethodsMustInvokeSuper
-  @Nonnull
   default Simplex.Bounds kInterval() {
     return new Simplex.Bounds(-1.0, 1.0);
   }
@@ -49,14 +43,12 @@ interface Relative<M extends Measurement> extends Function<Collection<? extends 
   enum Static {
     ;
 
-    @ParametersAreNonnullByDefault
     private record StaticRelative(Collection<? extends Measurement> measurements, InverseFunction inverse,
                                   Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction)
         implements Relative<Measurement> {
     }
 
-    @Nonnull
-    static RelativeMediumLayers solve(@Nonnull Collection<? extends Measurement> measurements) {
+    static RelativeMediumLayers solve(Collection<? extends Measurement> measurements) {
       return new StaticRelative(measurements, new StaticInverse(measurements), Regularization.Interval.ZERO_MAX.of(0.0))
           .apply(measurements);
     }
@@ -65,14 +57,12 @@ interface Relative<M extends Measurement> extends Function<Collection<? extends 
   enum Dynamic {
     ;
 
-    @ParametersAreNonnullByDefault
     private record DynamicRelative(Collection<? extends DerivativeMeasurement> measurements, InverseFunction inverse,
                                    Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction)
         implements Relative<DerivativeMeasurement> {
 
-      @Nonnull
       @Override
-      public RelativeMediumLayers apply(@Nonnull Collection<? extends DerivativeMeasurement> measurements) {
+      public RelativeMediumLayers apply(Collection<? extends DerivativeMeasurement> measurements) {
         Predicate<DerivativeMeasurement> gtZero = d -> d.derivativeResistivity() > 0;
         Predicate<DerivativeMeasurement> ltZero = d -> d.derivativeResistivity() < 0;
         if (measurements().stream().allMatch(gtZero) || measurements().stream().allMatch(ltZero)) {
@@ -85,7 +75,6 @@ interface Relative<M extends Measurement> extends Function<Collection<? extends 
       }
 
       @Override
-      @Nonnull
       public Simplex.Bounds kInterval() {
         Simplex.Bounds kMinMax = Relative.super.kInterval();
         if (measurements().stream().allMatch(d -> d.derivativeResistivity() > 0)) {
@@ -98,8 +87,6 @@ interface Relative<M extends Measurement> extends Function<Collection<? extends 
       }
     }
 
-    @ParametersAreNonnullByDefault
-    @Nonnull
     static RelativeMediumLayers solve(Collection<? extends DerivativeMeasurement> measurements,
                                       Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
       return new DynamicRelative(measurements, DynamicInverse.of(measurements), regularizationFunction).apply(measurements);

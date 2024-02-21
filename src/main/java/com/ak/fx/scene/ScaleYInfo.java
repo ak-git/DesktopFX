@@ -1,13 +1,12 @@
 package com.ak.fx.scene;
 
-import java.util.function.DoubleFunction;
-import java.util.function.IntToDoubleFunction;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
+
+import javax.annotation.Nonnegative;
+import java.util.Objects;
+import java.util.function.DoubleFunction;
+import java.util.function.IntToDoubleFunction;
 
 public final class ScaleYInfo<V extends Enum<V> & Variable<V>> implements IntToDoubleFunction, DoubleFunction<String> {
   private final V variable;
@@ -15,7 +14,7 @@ public final class ScaleYInfo<V extends Enum<V> & Variable<V>> implements IntToD
   private final int scaleFactor;
   private final int scaleFactor10;
 
-  private ScaleYInfo(@Nonnull ScaleYInfoBuilder<V> builder) {
+  private ScaleYInfo(ScaleYInfoBuilder<V> builder) {
     variable = builder.variable;
     mean = builder.mean;
     if (variable.options().contains(Variable.Option.INVERSE)) {
@@ -48,8 +47,8 @@ public final class ScaleYInfo<V extends Enum<V> & Variable<V>> implements IntToD
     private int scaleFactor = 1;
     private int scaleFactor10 = 1;
 
-    ScaleYInfoBuilder(@Nonnull V variable) {
-      this.variable = variable;
+    ScaleYInfoBuilder(V variable) {
+      this.variable = Objects.requireNonNull(variable);
     }
 
     ScaleYInfoBuilder<V> mean(int mean) {

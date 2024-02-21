@@ -7,7 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnull;
 import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.stream.Stream;
@@ -42,7 +41,7 @@ class MeasurementTest {
 
   @ParameterizedTest
   @MethodSource("measurements")
-  void inexact(@Nonnull Collection<? extends Measurement> measurements) {
+  void inexact(Collection<? extends Measurement> measurements) {
     assertThat(Measurement.inexact(measurements)).hasSameElementsAs(measurements.stream().map(Measurement::inexact).toList());
   }
 }

@@ -1,11 +1,5 @@
 package com.ak.comm.interceptor.nmisr;
 
-import java.nio.ByteBuffer;
-import java.util.function.Function;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-
 import com.ak.comm.bytes.nmis.NmisProtocolByte;
 import com.ak.comm.bytes.nmis.NmisRequest;
 import com.ak.comm.bytes.nmis.NmisResponseFrame;
@@ -13,6 +7,10 @@ import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.nmis.NmisBytesInterceptor;
 import com.ak.comm.interceptor.rsce.RsceBytesInterceptor;
+
+import java.nio.ByteBuffer;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * RSC Energia Hand Control format wrapped by Neuro-Muscular Test Stand format.
@@ -31,7 +29,6 @@ public final class NmisRsceBytesInterceptor implements BytesInterceptor<NmisRequ
   private final Function<ByteBuffer, Stream<RsceCommandFrame>> rsce = new RsceBytesInterceptor();
   private final ByteBuffer buffer = ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY);
 
-  @Nonnull
   @Override
   public String name() {
     return "NMIS-RSC Energia";
@@ -43,7 +40,7 @@ public final class NmisRsceBytesInterceptor implements BytesInterceptor<NmisRequ
   }
 
   @Override
-  public Stream<RsceCommandFrame> apply(@Nonnull ByteBuffer src) {
+  public Stream<RsceCommandFrame> apply(ByteBuffer src) {
     return nmis.apply(src).flatMap(nmisResponseFrame -> {
       buffer.clear();
       nmisResponseFrame.extractData(buffer);
@@ -63,7 +60,7 @@ public final class NmisRsceBytesInterceptor implements BytesInterceptor<NmisRequ
   }
 
   @Override
-  public ByteBuffer putOut(@Nonnull NmisRequest nmisRequest) {
+  public ByteBuffer putOut(NmisRequest nmisRequest) {
     return nmis.putOut(nmisRequest);
   }
 }

@@ -9,7 +9,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.function.Function;
@@ -33,7 +32,7 @@ class SKTBBytesInterceptorTest {
 
   @ParameterizedTest
   @MethodSource("response")
-  void testResponse(@Nonnull byte[] input, boolean ok) {
+  void testResponse(byte[] input, boolean ok) {
     Function<ByteBuffer, Stream<SKTBResponse>> interceptor = new SKTBBytesInterceptor();
 
     assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {

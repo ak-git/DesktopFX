@@ -1,11 +1,5 @@
 package com.ak.comm.converter.kleiber;
 
-import java.nio.ByteOrder;
-import java.util.logging.Logger;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.FloatToIntegerConverter;
 import com.ak.comm.converter.Variable;
@@ -14,6 +8,9 @@ import com.ak.comm.log.LogTestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+
+import java.nio.ByteOrder;
+import java.util.logging.Logger;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +38,6 @@ class KleiberConverterTest {
     }, new int[] {10, 10, 10, 10, 10, 10, 10, 0});
   }
 
-  @ParametersAreNonnullByDefault
   private static void testConverter(byte[] input, int[] expected) {
     BufferFrame frame = new BufferFrame(input, ByteOrder.LITTLE_ENDIAN);
     assertNotNull(frame);
@@ -61,7 +57,7 @@ class KleiberConverterTest {
 
   @ParameterizedTest
   @EnumSource(value = KleiberVariable.class)
-  void testVariableProperties(@Nonnull Variable<KleiberVariable> variable) {
+  void testVariableProperties(Variable<KleiberVariable> variable) {
     assertThat(variable.options()).containsExactly(Variable.Option.VISIBLE);
     assertThat(variable.getUnit()).isEqualTo(KleiberVariable.M1.getUnit());
   }

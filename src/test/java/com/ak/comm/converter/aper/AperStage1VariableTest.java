@@ -1,12 +1,5 @@
 package com.ak.comm.converter.aper;
 
-import java.nio.ByteOrder;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.ToIntegerConverter;
@@ -18,6 +11,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.AbstractUnit;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
+
+import java.nio.ByteOrder;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -41,7 +38,6 @@ class AperStage1VariableTest {
 
   @ParameterizedTest
   @MethodSource("variables")
-  @ParametersAreNonnullByDefault
   void testApply(byte[] inputBytes, int[] outputInts) {
     Converter<BufferFrame, AperStage1Variable> converter = new ToIntegerConverter<>(AperStage1Variable.class, 1000);
     AtomicBoolean processed = new AtomicBoolean();
@@ -56,13 +52,13 @@ class AperStage1VariableTest {
 
   @ParameterizedTest
   @EnumSource(value = AperStage1Variable.class, names = {"R1", "R2", "CCU1", "CCU2"})
-  void testUnitR(@Nonnull Variable<AperStage1Variable> variable) {
+  void testUnitR(Variable<AperStage1Variable> variable) {
     assertThat(variable.getUnit()).isEqualTo(AbstractUnit.ONE);
   }
 
   @ParameterizedTest
   @EnumSource(value = AperStage1Variable.class, names = {"E1", "E2"})
-  void testUnitE(@Nonnull Variable<AperStage1Variable> variable) {
+  void testUnitE(Variable<AperStage1Variable> variable) {
     assertThat(variable.getUnit()).isEqualTo(MetricPrefix.MICRO(Units.VOLT));
   }
 }

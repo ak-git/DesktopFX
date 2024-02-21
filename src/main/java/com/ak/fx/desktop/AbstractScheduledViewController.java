@@ -6,9 +6,7 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import jakarta.inject.Provider;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
@@ -29,7 +27,6 @@ public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & 
   @Nullable
   private ScheduledFuture<?> scheduledFuture;
 
-  @ParametersAreNonnullByDefault
   protected AbstractScheduledViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
                                             Provider<Converter<R, V>> converterProvider,
                                             @Nonnegative double frequencyHz) {
@@ -38,7 +35,7 @@ public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & 
   }
 
   @Override
-  public final void onSubscribe(@Nonnull Flow.Subscription s) {
+  public final void onSubscribe(Flow.Subscription s) {
     super.onSubscribe(s);
     innerRefresh();
   }

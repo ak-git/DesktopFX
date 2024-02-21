@@ -4,7 +4,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
@@ -25,7 +24,7 @@ class PureLogicFrameTest {
 
   @ParameterizedTest
   @MethodSource("requests")
-  void testRequest(@Nonnull PureLogicFrame request, @Nonnull String expected) {
+  void testRequest(PureLogicFrame request, String expected) {
     ByteBuffer buffer = ByteBuffer.allocate(expected.length());
     request.writeTo(buffer);
     assertThat(new String(buffer.array(), StandardCharsets.UTF_8)).isEqualTo(expected);

@@ -1,12 +1,5 @@
 package com.ak.numbers.rcm;
 
-import java.util.function.IntUnaryOperator;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import com.ak.numbers.Interpolators;
 import com.ak.numbers.common.SimpleCoefficients;
 import org.junit.jupiter.api.Test;
@@ -14,6 +7,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import javax.annotation.Nonnegative;
+import java.util.function.IntUnaryOperator;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -36,13 +34,13 @@ class RcmCoefficientsTest {
 
   @ParameterizedTest
   @EnumSource(names = "CC_ADC_TO_OHM")
-  void testCC(@Nonnull RcmCoefficients c) {
+  void testCC(RcmCoefficients c) {
     assertThat(IntStream.of(1, 2)).isNotEmpty().allSatisfy(cNum -> assertThat(c.of(cNum).get()).hasSize(20));
   }
 
   @ParameterizedTest
   @EnumSource(names = "RHEO_ADC_TO_260_MILLI")
-  void testRheo(@Nonnull RcmCoefficients c) {
+  void testRheo(RcmCoefficients c) {
     assertThat(IntStream.of(1, 2)).isNotEmpty().allSatisfy(cNum -> assertThat(c.of(cNum).get()).hasSize(16));
   }
 
@@ -56,7 +54,7 @@ class RcmCoefficientsTest {
 
   @ParameterizedTest
   @MethodSource("rcmSimpleCoefficients")
-  void testCoefficients(@Nonnull SimpleCoefficients coefficients, @Nonnegative int count) {
+  void testCoefficients(SimpleCoefficients coefficients, @Nonnegative int count) {
     assertThat(coefficients.get()).hasSize(count);
   }
 }

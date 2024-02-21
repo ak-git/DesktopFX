@@ -1,17 +1,15 @@
 package com.ak.comm.interceptor.suntech;
 
+import com.ak.comm.bytes.LogUtils;
+import com.ak.comm.bytes.suntech.NIBPResponse;
+import com.ak.comm.log.LogTestUtils;
+import org.junit.jupiter.api.Test;
+
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import com.ak.comm.bytes.LogUtils;
-import com.ak.comm.bytes.suntech.NIBPResponse;
-import com.ak.comm.log.LogTestUtils;
-import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,15 +47,15 @@ class NIBPBytesInterceptorTest {
         }, new int[] {115, 74, 85, 88}, true);
   }
 
-  @ParametersAreNonnullByDefault
   private static void testResponse(byte[] input, int[] expected, boolean logFlag) {
     Function<ByteBuffer, Stream<NIBPResponse>> interceptor = new NIBPBytesInterceptor();
     assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {
       List<NIBPResponse> frames = interceptor.apply(ByteBuffer.wrap(input)).toList();
       if (!frames.isEmpty()) {
-        frames.get(0).extractPressure(value -> assertThat(value).isEqualTo(expected[0]));
-        frames.get(0).extractData(value -> assertThat(value).containsExactly(expected));
-        frames.get(0).extractIsCompleted(() -> {
+        NIBPResponse first = frames.getFirst();
+        first.extractPressure(value -> assertThat(value).isEqualTo(expected[0]));
+        first.extractData(value -> assertThat(value).containsExactly(expected));
+        first.extractIsCompleted(() -> {
         });
       }
     }, logRecord -> assertThat(logRecord.getMessage()).contains(NIBPResponse.class.getSimpleName())), logFlag);

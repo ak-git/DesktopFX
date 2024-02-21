@@ -1,18 +1,14 @@
 package com.ak.util;
 
-import javax.annotation.Nonnull;
-
 public enum Extension {
   NONE {
-    @Nonnull
     @Override
-    public String attachTo(@Nonnull String fileName) {
+    public String attachTo(String fileName) {
       return fileName;
     }
   }, PROPERTIES, TXT, JSON, LOG, BIN, CSV;
 
-  @Nonnull
-  public String attachTo(@Nonnull String fileName) {
+  public String attachTo(String fileName) {
     if (fileName.endsWith(".%s".formatted(name().toLowerCase()))) {
       return fileName;
     }
@@ -21,8 +17,7 @@ public enum Extension {
     }
   }
 
-  @Nonnull
-  public final String clean(@Nonnull String fileName) {
+  public final String clean(String fileName) {
     String lowCase = fileName.toLowerCase();
     String remove = attachTo(Strings.EMPTY);
     if (lowCase.endsWith(remove)) {
@@ -33,7 +28,7 @@ public enum Extension {
     }
   }
 
-  public final boolean is(@Nonnull String fileName) {
+  public final boolean is(String fileName) {
     return fileName.toLowerCase().endsWith(attachTo(Strings.EMPTY));
   }
 }

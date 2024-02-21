@@ -6,11 +6,9 @@ import com.ak.rsm.system.RelativeTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 public class Apparent3Rho extends AbstractApparentRho {
-  private Apparent3Rho(@Nonnull ResistanceSumValue apparent) {
+  private Apparent3Rho(ResistanceSumValue apparent) {
     super(apparent);
   }
 
@@ -19,12 +17,10 @@ public class Apparent3Rho extends AbstractApparentRho {
     return value(hToL, n -> qn[n] * sumFactor(n));
   }
 
-  @Nonnull
-  public static Apparent3Rho newApparentDivRho1(@Nonnull RelativeTetrapolarSystem system) {
+  public static Apparent3Rho newApparentDivRho1(RelativeTetrapolarSystem system) {
     return new Apparent3Rho(new NormalizedApparent(system));
   }
 
-  @ParametersAreNonnullByDefault
   public static double newDerApparentByPhiDivRho1(TetrapolarSystem system, double[] k, @Nonnegative double hStep,
                                                   @Nonnegative int p1, @Nonnegative int p2mp1, double dh) {
     double rho1 = 1.0;

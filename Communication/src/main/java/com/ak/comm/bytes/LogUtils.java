@@ -1,6 +1,5 @@
 package com.ak.comm.bytes;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,7 +27,6 @@ public enum LogUtils {
    */
   public static final Level LOG_LEVEL_BYTES = Level.FINEST;
 
-  @ParametersAreNonnullByDefault
   public static String toString(Class<?> clazz, ByteBuffer buffer) {
     buffer.rewind();
     StringBuilder sb = new StringBuilder(clazz.getSimpleName()).append("[ ");
@@ -47,7 +45,6 @@ public enum LogUtils {
     return sb.toString();
   }
 
-  @ParametersAreNonnullByDefault
   public static void logBytes(Logger logger, Level level, Object aThis, ByteBuffer buffer, String message) {
     logger.log(level, () -> "#%08x %s %s".formatted(aThis.hashCode(), toString(aThis.getClass(), buffer), message));
   }

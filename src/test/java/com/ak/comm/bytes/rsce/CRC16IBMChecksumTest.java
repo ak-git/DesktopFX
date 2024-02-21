@@ -1,12 +1,10 @@
 package com.ak.comm.bytes.rsce;
 
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -35,7 +33,7 @@ class CRC16IBMChecksumTest {
 
   @ParameterizedTest
   @MethodSource("checksum")
-  void testUpdate(@Nonnull byte[] input, int expectedSum) {
+  void testUpdate(byte[] input, int expectedSum) {
     CRC16IBMChecksum checksum = new CRC16IBMChecksum();
     for (int i = 0, bytesLength = input.length; i < bytesLength; i++) {
       for (int b : input) {

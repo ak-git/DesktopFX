@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nonnull;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -18,14 +17,13 @@ public final class RcmBytesInterceptor extends AbstractFixedFrameBytesIntercepto
     super("RheoCardioMonitor", BaudRate.BR_38400, 20);
   }
 
-  @Nonnull
   @Override
   public Set<SerialParams> getSerialParams() {
     return EnumSet.of(SerialParams.CLEAR_DTR);
   }
 
   @Override
-  protected boolean check(@Nonnull byte[] buffer, byte nextFrameStartByte) {
+  protected boolean check(byte[] buffer, byte nextFrameStartByte) {
     return (buffer[0] & 0x01) == 0 && (buffer[buffer.length - 1] & 0x01) == 0 && ((nextFrameStartByte & 0x01) == 0);
   }
 }

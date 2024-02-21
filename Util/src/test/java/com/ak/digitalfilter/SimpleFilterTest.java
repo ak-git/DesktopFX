@@ -4,7 +4,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -207,7 +206,6 @@ class SimpleFilterTest {
 
   @ParameterizedTest
   @MethodSource("data")
-  @ParametersAreNonnullByDefault
   void testFilter(DigitalFilter filter, int[] data, int[] expected, double delay) {
     AtomicInteger index = new AtomicInteger();
     int[] actual = new int[expected.length];

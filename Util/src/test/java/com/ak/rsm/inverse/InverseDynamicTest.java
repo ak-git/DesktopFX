@@ -23,8 +23,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -84,7 +82,6 @@ class InverseDynamicTest {
 
   @ParameterizedTest
   @MethodSource("relativeDynamicLayer2")
-  @ParametersAreNonnullByDefault
   void testInverseRelativeDynamicLayer2Theory(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
     var regularizationFunction = Regularization.Interval.ZERO_MAX.of(0.0);
     var medium = Relative.Dynamic.solve(measurements, regularizationFunction);
@@ -128,7 +125,6 @@ class InverseDynamicTest {
 
   @ParameterizedTest
   @MethodSource("absoluteDynamicLayer2")
-  @ParametersAreNonnullByDefault
   void testInverseAbsoluteDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, ValuePair[] expected) {
     var medium = DynamicAbsolute.LAYER_2.apply(measurements, Regularization.Interval.ZERO_MAX.of(0.0));
     assertAll(medium.toString(),
@@ -257,7 +253,6 @@ class InverseDynamicTest {
 
   @ParameterizedTest
   @MethodSource({"theoryDynamicParameters2", "waterDynamicParameters2"})
-  @ParametersAreNonnullByDefault
   void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements,
                                 @Nonnegative double alpha, double[] expected) {
     var medium = DynamicAbsolute.LAYER_2.apply(measurements, Regularization.Interval.MAX_K.of(alpha));
@@ -296,7 +291,7 @@ class InverseDynamicTest {
   @ParameterizedTest
   @MethodSource({"cvsFiles"})
   @Disabled("ignored com.ak.rsm.inverse.InverseDynamicTest.testInverseDynamicLayerFileResistivity")
-  void testInverseDynamicLayerFileResistivity(@Nonnull String fileName, @Nonnegative double alpha) {
+  void testInverseDynamicLayerFileResistivity(String fileName, @Nonnegative double alpha) {
     String T = "TIME";
     String POSITION = "POSITION";
     String RHO_S1 = "A1";

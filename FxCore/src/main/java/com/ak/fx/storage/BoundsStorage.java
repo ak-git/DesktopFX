@@ -1,6 +1,5 @@
 package com.ak.fx.storage;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
@@ -12,12 +11,12 @@ final class BoundsStorage extends AbstractStorage<Rectangle2D.Double> {
   private static final String BOUNDS_WIDTH = "boundsWidth";
   private static final String BOUNDS_HEIGHT = "boundsHeight";
 
-  BoundsStorage(@Nonnull Class<?> c, @Nonnull String nodeName) {
+  BoundsStorage(Class<?> c, String nodeName) {
     super(c, nodeName);
   }
 
   @Override
-  public void save(@Nonnull Rectangle2D.Double rectangle) {
+  public void save(Rectangle2D.Double rectangle) {
     preferences().putDouble(BOUNDS_X, rectangle.getX());
     preferences().putDouble(BOUNDS_Y, rectangle.getY());
     preferences().putDouble(BOUNDS_WIDTH, rectangle.getWidth());
@@ -25,7 +24,7 @@ final class BoundsStorage extends AbstractStorage<Rectangle2D.Double> {
   }
 
   @Override
-  public void update(@Nonnull Rectangle2D.Double rectangle) {
+  public void update(Rectangle2D.Double rectangle) {
     throw new UnsupportedOperationException(rectangle.toString());
   }
 

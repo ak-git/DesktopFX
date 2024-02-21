@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -35,7 +34,7 @@ class GroupServiceTest implements Flow.Subscriber<int[]> {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.file.FileDataProvider#rampFiles2")
-  void testRead(@Nonnull Path file) {
+  void testRead(Path file) {
     assertTrue(service.accept(file.toFile()));
     while (!Thread.currentThread().isInterrupted()) {
       int countFrames = 10;

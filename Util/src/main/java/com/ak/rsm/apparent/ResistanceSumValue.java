@@ -1,12 +1,10 @@
 package com.ak.rsm.apparent;
 
+import javax.annotation.Nonnegative;
 import java.util.function.IntToDoubleFunction;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 interface ResistanceSumValue {
-  double value(@Nonnegative double hToL, @Nonnull IntToDoubleFunction qn);
+  double value(@Nonnegative double hToL, IntToDoubleFunction qn);
 
   int sumFactor(@Nonnegative int n);
 }

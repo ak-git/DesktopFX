@@ -1,5 +1,10 @@
 package com.ak.comm.interceptor.kleiber;
 
+import com.ak.comm.bytes.BufferFrame;
+import com.ak.comm.bytes.LogUtils;
+import com.ak.comm.log.LogTestUtils;
+import org.junit.jupiter.api.Test;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -7,13 +12,6 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import com.ak.comm.bytes.BufferFrame;
-import com.ak.comm.bytes.LogUtils;
-import com.ak.comm.log.LogTestUtils;
-import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,7 +43,6 @@ class KleiberBytesInterceptorTest {
         EMPTY, false);
   }
 
-  @ParametersAreNonnullByDefault
   private static void testResponse(byte[] input, double[] expected, boolean logFlag) {
     Function<ByteBuffer, Stream<BufferFrame>> interceptor = new KleiberBytesInterceptor();
     assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {

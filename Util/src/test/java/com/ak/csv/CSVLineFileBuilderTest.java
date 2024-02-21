@@ -4,7 +4,6 @@ import com.ak.util.Extension;
 import com.ak.util.Strings;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -82,7 +81,6 @@ class CSVLineFileBuilderTest {
     );
   }
 
-  @ParametersAreNonnullByDefault
   private static void checkFilesExists(String fileName, String expected) throws IOException {
     Path z = Paths.get(Extension.CSV.attachTo(fileName));
     assertThat(String.join(LINE_JOINER, Files.readAllLines(z, Charset.forName("windows-1251")))).isEqualTo(expected);

@@ -1,17 +1,15 @@
 package com.ak.comm.converter;
 
-import java.nio.ByteOrder;
-import java.util.EnumSet;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.comm.bytes.BufferFrame;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.AbstractUnit;
+
+import java.nio.ByteOrder;
+import java.util.EnumSet;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -33,7 +31,6 @@ class FloatToIntegerConverterTest {
 
   @ParameterizedTest
   @MethodSource("variables")
-  @ParametersAreNonnullByDefault
   <T extends Enum<T> & Variable<T>> void testApply(Class<T> evClass, byte[] inputBytes, int[] outputInts) {
     FloatToIntegerConverter<T> converter = new FloatToIntegerConverter<>(evClass, 1000);
     assertThat(EnumSet.allOf(evClass)).containsSequence(converter.variables());

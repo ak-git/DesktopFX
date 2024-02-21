@@ -1,9 +1,5 @@
 package com.ak.comm.converter.purelogic;
 
-import java.util.logging.Logger;
-
-import javax.annotation.Nonnull;
-
 import com.ak.comm.bytes.purelogic.PureLogicFrame;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
@@ -12,11 +8,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
+import java.util.logging.Logger;
+
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class PureLogicConverterTest {
   private static final Logger LOGGER = Logger.getLogger(PureLogicConverter.class.getName());
@@ -32,7 +28,7 @@ class PureLogicConverterTest {
     assertNull(PureLogicFrame.of(new StringBuilder("STEP+ 00dxx  \r\n")));
   }
 
-  private static void testConverter(@Nonnull String input, int expected) {
+  private static void testConverter(String input, int expected) {
     PureLogicFrame frame = PureLogicFrame.of(new StringBuilder(input));
     assertNotNull(frame);
     assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES,
@@ -50,7 +46,7 @@ class PureLogicConverterTest {
 
   @ParameterizedTest
   @EnumSource(value = PureLogicVariable.class)
-  void testVariables(@Nonnull Variable<PureLogicVariable> variable) {
+  void testVariables(Variable<PureLogicVariable> variable) {
     assertThat(variable.options()).containsExactly(Variable.Option.VISIBLE);
     assertThat(variable.getUnit()).isEqualTo(PureLogicVariable.POSITION.getUnit());
   }

@@ -10,7 +10,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import java.util.Objects;
 import java.util.function.DoubleFunction;
 import java.util.stream.IntStream;
 
@@ -29,10 +29,9 @@ final class LineDiagram extends AbstractRegion {
   private int nowIndex;
   @Nonnegative
   private int maxSamples = 1;
-  @Nonnull
   private DoubleFunction<String> positionToStringConverter = value -> Strings.EMPTY;
 
-  LineDiagram(@Nonnull String name) {
+  LineDiagram(String name) {
     bounds.setVisible(false);
     bounds.setStroke(Color.BLACK);
     bounds.setFill(null);
@@ -42,7 +41,7 @@ final class LineDiagram extends AbstractRegion {
 
     title.setVisible(false);
     title.fontProperty().bind(Fonts.H1.fontProperty(this::getScene));
-    title.setText(name);
+    title.setText(Objects.requireNonNull(name));
 
     polyline.setStroke(Color.BLACK);
     polyline.translateYProperty().bind(Bindings.divide(heightProperty(), 2));
@@ -78,7 +77,7 @@ final class LineDiagram extends AbstractRegion {
     }
   }
 
-  void setAll(@Nonnull double[] y, @Nonnull DoubleFunction<String> positionToStringConverter) {
+  void setAll(double[] y, DoubleFunction<String> positionToStringConverter) {
     this.positionToStringConverter = positionToStringConverter;
     for (var i = 0; i < yLabels.getChildren().size(); i++) {
       updateText(i, (Text) yLabels.getChildren().get(i));
@@ -112,7 +111,7 @@ final class LineDiagram extends AbstractRegion {
     nowIndex %= maxSamples;
   }
 
-  void shiftRight(@Nonnull double[] y) {
+  void shiftRight(double[] y) {
     for (int i = y.length * 2 + 1; i < polyline.getPoints().size(); i += 2) {
       polyline.getPoints().set(i - y.length * 2, polyline.getPoints().get(i));
     }
@@ -121,7 +120,7 @@ final class LineDiagram extends AbstractRegion {
     }
   }
 
-  void shiftLeft(@Nonnull double[] y) {
+  void shiftLeft(double[] y) {
     for (int i = polyline.getPoints().size() - (y.length * 2 + 1); i > 0; i -= 2) {
       polyline.getPoints().set(i + y.length * 2, polyline.getPoints().get(i));
     }

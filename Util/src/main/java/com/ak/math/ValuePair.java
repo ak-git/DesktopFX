@@ -4,7 +4,6 @@ import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.StringJoiner;
 
@@ -13,34 +12,30 @@ import static com.ak.util.Strings.SPACE;
 import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 
-public record ValuePair(@Nonnull Name name, double value, @Nonnegative double absError) {
+public record ValuePair(Name name, double value, @Nonnegative double absError) {
   public enum Name {
     NONE,
     RHO {
-      @Nonnull
       @Override
-      String toString(@Nonnull String base) {
+      String toString(String base) {
         return Strings.rho(base);
       }
     },
     RHO_1 {
-      @Nonnull
       @Override
-      String toString(@Nonnull String base) {
+      String toString(String base) {
         return Strings.rho(1, base);
       }
     },
     RHO_2 {
-      @Nonnull
       @Override
-      String toString(@Nonnull String base) {
+      String toString(String base) {
         return Strings.rho(2, base);
       }
     },
     RHO_3 {
-      @Nonnull
       @Override
-      String toString(@Nonnull String base) {
+      String toString(String base) {
         return Strings.rho(3, base);
       }
     },
@@ -50,30 +45,26 @@ public record ValuePair(@Nonnull Name name, double value, @Nonnegative double ab
         return Metrics.Length.METRE.to(si, MILLI(METRE));
       }
 
-      @Nonnull
       @Override
-      String toString(@Nonnull String base) {
+      String toString(String base) {
         return "h = %s %s".formatted(base, MILLI(METRE));
       }
     },
     K12 {
-      @Nonnull
       @Override
-      String toString(@Nonnull String base) {
+      String toString(String base) {
         return "k%s%s = %s".formatted(Strings.low(1), Strings.low(2), base);
       }
     },
     K23 {
-      @Nonnull
       @Override
-      String toString(@Nonnull String base) {
+      String toString(String base) {
         return "k%s%s = %s".formatted(Strings.low(2), Strings.low(3), base);
       }
     },
     H_L {
-      @Nonnull
       @Override
-      String toString(@Nonnull String base) {
+      String toString(String base) {
         return "%s = %s".formatted(Strings.PHI, base);
       }
     };
@@ -82,8 +73,7 @@ public record ValuePair(@Nonnull Name name, double value, @Nonnegative double ab
       return si;
     }
 
-    @Nonnull
-    String toString(@Nonnull String base) {
+    String toString(String base) {
       return base;
     }
 
@@ -92,7 +82,7 @@ public record ValuePair(@Nonnull Name name, double value, @Nonnegative double ab
     }
   }
 
-  public ValuePair(@Nonnull Name name, double value, @Nonnegative double absError) {
+  public ValuePair(Name name, double value, @Nonnegative double absError) {
     this.name = Objects.requireNonNull(name);
     this.value = value;
     this.absError = Double.isNaN(value) ? Double.NaN : Math.abs(absError);
@@ -114,7 +104,6 @@ public record ValuePair(@Nonnull Name name, double value, @Nonnegative double ab
     }
   }
 
-  @Nonnull
   public static String format(double value, @Nonnegative int afterZero) {
     return "%%.%df".formatted(afterZero).formatted(value);
   }
@@ -128,8 +117,7 @@ public record ValuePair(@Nonnull Name name, double value, @Nonnegative double ab
     }
   }
 
-  @Nonnull
-  public ValuePair mergeWith(@Nonnull ValuePair that) {
+  public ValuePair mergeWith(ValuePair that) {
     var sigma1Q = StrictMath.pow(absError, 2.0);
     var sigma2Q = StrictMath.pow(that.absError, 2.0);
     double k = 0.5;

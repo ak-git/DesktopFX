@@ -2,8 +2,6 @@ package com.ak.fx.desktop;
 
 import org.springframework.context.ApplicationEvent;
 
-import javax.annotation.Nonnull;
-
 public interface ViewController {
   default void refresh(boolean force) {
     // works in subclasses
@@ -40,7 +38,7 @@ public interface ViewController {
   final class RefreshEvent extends ApplicationEvent {
     private final boolean force;
 
-    public RefreshEvent(@Nonnull Object source, boolean force) {
+    public RefreshEvent(Object source, boolean force) {
       super(source);
       this.force = force;
     }
@@ -51,31 +49,31 @@ public interface ViewController {
   }
 
   final class UpEvent extends ApplicationEvent {
-    public UpEvent(@Nonnull Object source) {
+    public UpEvent(Object source) {
       super(source);
     }
   }
 
   final class DownEvent extends ApplicationEvent {
-    public DownEvent(@Nonnull Object source) {
+    public DownEvent(Object source) {
       super(source);
     }
   }
 
   final class LeftEvent extends ApplicationEvent {
-    public LeftEvent(@Nonnull Object source) {
+    public LeftEvent(Object source) {
       super(source);
     }
   }
 
   final class RightEvent extends ApplicationEvent {
-    public RightEvent(@Nonnull Object source) {
+    public RightEvent(Object source) {
       super(source);
     }
   }
 
   final class EscapeEvent extends ApplicationEvent {
-    public EscapeEvent(@Nonnull Object source) {
+    public EscapeEvent(Object source) {
       super(source);
     }
   }
@@ -83,7 +81,7 @@ public interface ViewController {
   final class ZoomEvent extends ApplicationEvent {
     private final double zoomFactor;
 
-    public ZoomEvent(@Nonnull Object source, double zoomFactor) {
+    public ZoomEvent(Object source, double zoomFactor) {
       super(source);
       this.zoomFactor = zoomFactor;
     }
@@ -96,7 +94,7 @@ public interface ViewController {
   final class ScrollEvent extends ApplicationEvent {
     private final double deltaX;
 
-    public ScrollEvent(@Nonnull Object source, double deltaX) {
+    public ScrollEvent(Object source, double deltaX) {
       super(source);
       this.deltaX = deltaX;
     }

@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nonnull;
+import java.util.Objects;
 
 @Component
 @Profile("nmis-rsce")
@@ -19,14 +19,13 @@ public final class NmisRsceViewController extends AbstractScheduledViewControlle
   private static final NmisRequest.Sequence[] PINGS = {
       NmisRequest.Sequence.CATCH_100, NmisRequest.Sequence.CATCH_60, NmisRequest.Sequence.CATCH_30,
       NmisRequest.Sequence.ROTATE_100, NmisRequest.Sequence.ROTATE_60, NmisRequest.Sequence.ROTATE_30};
-  @Nonnull
   private final ApplicationEventPublisher eventPublisher;
   private int pingIndex = -1;
 
   @Inject
-  public NmisRsceViewController(@Nonnull ApplicationEventPublisher eventPublisher) {
+  public NmisRsceViewController(ApplicationEventPublisher eventPublisher) {
     super(NmisRsceBytesInterceptor::new, RsceConverter::new, 1.0 / 8.0);
-    this.eventPublisher = eventPublisher;
+    this.eventPublisher = Objects.requireNonNull(eventPublisher);
   }
 
   @Override
@@ -35,7 +34,7 @@ public final class NmisRsceViewController extends AbstractScheduledViewControlle
   }
 
   @Override
-  public void onNext(@Nonnull int[] ints) {
+  public void onNext(int[] ints) {
     super.onNext(ints);
     eventPublisher.publishEvent(new RsceEvent(this, ints));
   }

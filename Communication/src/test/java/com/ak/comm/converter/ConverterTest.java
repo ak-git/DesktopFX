@@ -14,9 +14,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -50,15 +48,15 @@ class ConverterTest {
   private static final Converter<Integer, TwoVariables> INVALID_CONVERTER =
       new AbstractConverter<>(TwoVariables.class, 200) {
         @Override
-        protected Stream<int[]> innerApply(@Nonnull Integer integer) {
-          return Stream.of(new int[] {integer});
+        protected Stream<int[]> innerApply(Integer integer) {
+          return Stream.of(new int[] {Objects.requireNonNull(integer)});
         }
       };
   private static final Logger LOGGER_INVALID = Logger.getLogger(INVALID_CONVERTER.getClass().getName());
   private static final Converter<Integer, ADCVariable> VALID_CONVERTER_0 =
       new AbstractConverter<>(ADCVariable.class, 1000) {
         @Override
-        protected Stream<int[]> innerApply(@Nonnull Integer integer) {
+        protected Stream<int[]> innerApply(Integer integer) {
           return Stream.empty();
         }
       };
@@ -100,7 +98,6 @@ class ConverterTest {
 
   @ParameterizedTest
   @MethodSource("variables")
-  @ParametersAreNonnullByDefault
   <E extends Enum<E> & Variable<E>> void testFileConvertADC(Class<E> clazz, String expectedHeader) throws IOException {
     Path tempFile = Files.createTempFile(Objects.requireNonNull(PATH), Strings.EMPTY, Extension.BIN.attachTo(getClass().getSimpleName()));
     Files.write(tempFile, new byte[] {51, 102, 102, 53, '\r', '\n'});

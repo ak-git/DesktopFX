@@ -4,7 +4,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.stream.Stream;
@@ -50,7 +49,7 @@ class SKTBRequestTest {
 
   @ParameterizedTest
   @MethodSource("requests")
-  void testRequest(@Nonnull SKTBRequest request, @Nonnull ByteBuffer expected) {
+  void testRequest(SKTBRequest request, ByteBuffer expected) {
     ByteBuffer buffer = ByteBuffer.allocate(expected.capacity());
     request.writeTo(buffer);
     assertThat(buffer.array()).isEqualTo(expected.array());

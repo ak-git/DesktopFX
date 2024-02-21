@@ -5,7 +5,6 @@ import com.ak.comm.interceptor.AbstractBytesInterceptor;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.Strings;
 
-import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -20,9 +19,8 @@ public final class PureLogicBytesInterceptor extends AbstractBytesInterceptor<Pu
         (FRAME_LEN / Character.BYTES) * Character.BYTES);
   }
 
-  @Nonnull
   @Override
-  protected Collection<PureLogicFrame> innerProcessIn(@Nonnull ByteBuffer src) {
+  protected Collection<PureLogicFrame> innerProcessIn(ByteBuffer src) {
     Collection<PureLogicFrame> responses = new LinkedList<>();
     while (src.hasRemaining()) {
       frame.append((char) src.get());

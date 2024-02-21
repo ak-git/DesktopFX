@@ -10,6 +10,7 @@ import com.ak.util.OS;
 import com.ak.util.Strings;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.EventTarget;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
@@ -26,9 +27,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,7 +39,7 @@ public class FxApplication extends Application implements ViewController {
   private static final String KEY_APPLICATION_IMAGE = "application.image";
 
   @Override
-  public final void start(@Nonnull Stage mainStage) throws IOException {
+  public final void start(Stage mainStage) throws IOException {
     var resourceBundle = ResourceBundle.getBundle(
         String.join(".", FxApplication.class.getPackageName(), KEY_PROPERTIES));
     List<FXMLLoader> fxmlLoaders = getFXMLLoader(resourceBundle);
@@ -140,7 +139,7 @@ public class FxApplication extends Application implements ViewController {
   }
 
   @OverridingMethodsMustInvokeSuper
-  List<FXMLLoader> getFXMLLoader(@Nonnull ResourceBundle resourceBundle) {
+  List<FXMLLoader> getFXMLLoader(ResourceBundle resourceBundle) {
     return Collections.singletonList(
         new FXMLLoader(getClass().getResource(String.join(".", "default", "fxml")), resourceBundle)
     );
@@ -152,8 +151,7 @@ public class FxApplication extends Application implements ViewController {
     Platform.exit();
   }
 
-  @ParametersAreNonnullByDefault
-  private static void addEventHandler(Stage stage, Runnable runnable, KeyCode... codes) {
+  private static void addEventHandler(EventTarget stage, Runnable runnable, KeyCode... codes) {
     stage.addEventHandler(KeyEvent.KEY_RELEASED,
         event -> {
           var combination = String.join("+", Arrays.stream(codes).map(KeyCode::getName).toArray(String[]::new));

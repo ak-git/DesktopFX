@@ -3,7 +3,6 @@ package com.ak.rsm.resistance;
 import com.ak.rsm.system.TetrapolarSystem;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.util.Collection;
 
 public sealed interface Resistivity permits DerivativeResistivity, Resistance {
@@ -15,11 +14,10 @@ public sealed interface Resistivity permits DerivativeResistivity, Resistance {
   @Nonnegative
   double resistivity();
 
-  @Nonnull
   TetrapolarSystem system();
 
   @Nonnegative
-  static double getBaseL(@Nonnull Collection<? extends Resistivity> measurements) {
+  static double getBaseL(Collection<? extends Resistivity> measurements) {
     return TetrapolarSystem.getBaseL(measurements.stream().map(Resistivity::system).toList());
   }
 }

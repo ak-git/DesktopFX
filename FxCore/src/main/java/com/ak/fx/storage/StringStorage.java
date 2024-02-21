@@ -1,23 +1,24 @@
 package com.ak.fx.storage;
 
-import javax.annotation.Nonnull;
-
 import com.ak.util.Strings;
+
+import javax.annotation.Nonnull;
+import java.util.Objects;
 
 public final class StringStorage extends AbstractStorage<String> {
   private static final String KEY = "key";
 
-  public StringStorage(@Nonnull Class<?> c, @Nonnull String nodeName) {
+  public StringStorage(Class<?> c, String nodeName) {
     super(c, nodeName);
   }
 
   @Override
-  public void save(@Nonnull String value) {
-    preferences().put(KEY, value);
+  public void save(String value) {
+    preferences().put(KEY, Objects.requireNonNull(value));
   }
 
   @Override
-  public void update(@Nonnull String value) {
+  public void update(String value) {
     throw new UnsupportedOperationException(value);
   }
 

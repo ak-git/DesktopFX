@@ -8,7 +8,6 @@ import com.ak.util.Strings;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import javax.annotation.Nonnull;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.random.RandomGenerator;
@@ -23,7 +22,7 @@ class RegularizationTest {
 
   @ParameterizedTest
   @EnumSource(Regularization.Interval.class)
-  void hInterval(@Nonnull Regularization.Interval interval) {
+  void hInterval(Regularization.Interval interval) {
     double baseL = 30.0;
     InexactTetrapolarSystem system1 = new InexactTetrapolarSystem(0.1, new TetrapolarSystem(10.0, baseL));
     InexactTetrapolarSystem system2 = new InexactTetrapolarSystem(0.1, new TetrapolarSystem(50.0, baseL));
@@ -43,7 +42,7 @@ class RegularizationTest {
 
   @ParameterizedTest
   @EnumSource(Regularization.Interval.class)
-  void of(@Nonnull Regularization.Interval interval) {
+  void of(Regularization.Interval interval) {
     double baseL = RANDOM.nextDouble(20, 40);
     InexactTetrapolarSystem system1 = new InexactTetrapolarSystem(0.1, new TetrapolarSystem(10.0, baseL));
     InexactTetrapolarSystem system2 = new InexactTetrapolarSystem(0.1, new TetrapolarSystem(50.0, baseL));
@@ -69,7 +68,7 @@ class RegularizationTest {
 
   @ParameterizedTest
   @EnumSource(Regularization.Interval.class)
-  void toString(@Nonnull Regularization.Interval interval) {
+  void toString(Regularization.Interval interval) {
     DoubleStream.concat(DoubleStream.of(0.0), RANDOM.doubles(10, 0.01, 100.0))
         .forEach(a -> assertThat(interval.of(a))
             .hasToString("RegularizationFunction{%s, %s = %s}".formatted(interval, Strings.ALPHA,

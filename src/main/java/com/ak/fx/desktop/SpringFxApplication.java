@@ -4,6 +4,7 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.*;
 import com.ak.comm.converter.aper.*;
 import com.ak.comm.converter.kleiber.KleiberVariable;
+import com.ak.comm.converter.nmi.NmiVariable;
 import com.ak.comm.converter.rcm.RcmCalibrationVariable;
 import com.ak.comm.converter.rcm.RcmConverter;
 import com.ak.comm.converter.rcm.RcmOutVariable;
@@ -19,7 +20,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.*;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -32,7 +32,7 @@ import java.util.ResourceBundle;
 public class SpringFxApplication extends FxApplication {
   private ConfigurableApplicationContext applicationContext;
 
-  public static void main(@Nonnull String[] args) {
+  public static void main(String[] args) {
     Application.launch(SpringFxApplication.class, args);
   }
 
@@ -83,13 +83,12 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Override
-  @Nonnull
-  List<FXMLLoader> getFXMLLoader(@Nonnull ResourceBundle resourceBundle) {
+  List<FXMLLoader> getFXMLLoader(ResourceBundle resourceBundle) {
     String[] profiles = applicationContext.getEnvironment().getActiveProfiles();
     if (profiles.length == 0) {
       profiles = applicationContext.getEnvironment().getDefaultProfiles();
     }
-    var defaultFxmlLoader = super.getFXMLLoader(resourceBundle).get(0);
+    var defaultFxmlLoader = super.getFXMLLoader(resourceBundle).getFirst();
     List<FXMLLoader> fxmlLoaders = Arrays.stream(profiles)
         .map(profile -> getClass().getResource(String.join(".", profile, "fxml")))
         .map(fxml -> {
@@ -240,5 +239,20 @@ public class SpringFxApplication extends FxApplication {
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, RcmCalibrationVariable> converterRcmCalibration() {
     return LinkedConverter.of(new RcmConverter(), RcmCalibrationVariable.class);
+  }
+
+  @Bean
+  @Profile("NMI3Acc2Rheo")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  @Primary
+  static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorNMI3Acc2Rheo() {
+    return new RampBytesInterceptor("NMI3Acc2Rheo", BytesInterceptor.BaudRate.BR_921600, 1 + (3 + 2) * Integer.BYTES);
+  }
+
+  @Bean
+  @Profile("NMI3Acc2Rheo")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<BufferFrame, NmiVariable> converterNMI3Acc2Rheo() {
+    return new ToIntegerConverter<>(NmiVariable.class, 125);
   }
 }

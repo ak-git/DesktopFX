@@ -1,15 +1,14 @@
 package com.ak.comm.bytes.nmis;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.stream.IntStream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.ak.comm.bytes.AbstractCheckedBuilder;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.util.Strings;
+
+import javax.annotation.Nullable;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Objects;
+import java.util.stream.IntStream;
 
 import static com.ak.comm.bytes.nmis.NmisAddress.DATA;
 
@@ -46,12 +45,11 @@ import static com.ak.comm.bytes.nmis.NmisAddress.DATA;
  * each 5 ms.
  */
 public final class NmisResponseFrame extends BufferFrame {
-  @Nonnull
   private final NmisAddress address;
 
-  private NmisResponseFrame(@Nonnull ByteBuffer byteBuffer, @Nonnull NmisAddress address) {
+  private NmisResponseFrame(ByteBuffer byteBuffer, NmisAddress address) {
     super(byteBuffer);
-    this.address = address;
+    this.address = Objects.requireNonNull(address);
   }
 
   /**
@@ -83,7 +81,7 @@ public final class NmisResponseFrame extends BufferFrame {
    *   NmisResponseFrame[ 0x7e 0x45 0x09 0x85 0x00 <b>0x01 0x05 0x0b 0xe0 0xb1 0xe1 0x7a</b> 0x4e ] DATA
    * </pre>
    */
-  public void extractData(@Nonnull ByteBuffer destination) {
+  public void extractData(ByteBuffer destination) {
     if (DATA == address) {
       int len = byteBuffer().get(NmisProtocolByte.LEN.ordinal()) - 2;
       if (len > 0) {
@@ -102,7 +100,7 @@ public final class NmisResponseFrame extends BufferFrame {
       this(ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY));
     }
 
-    public Builder(@Nonnull ByteBuffer buffer) {
+    public Builder(ByteBuffer buffer) {
       super(buffer.order(ByteOrder.LITTLE_ENDIAN));
     }
 

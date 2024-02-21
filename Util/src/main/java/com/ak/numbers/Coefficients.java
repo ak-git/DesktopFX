@@ -4,7 +4,6 @@ import com.ak.logging.CalibrateBuilders;
 import com.ak.util.Extension;
 import com.ak.util.LocalIO;
 
-import javax.annotation.Nonnull;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
@@ -50,9 +49,9 @@ public interface Coefficients extends Supplier<double[]> {
     return pairs;
   }
 
-  String readJSON(@Nonnull JsonObject object);
+  String readJSON(JsonObject object);
 
-  static double[] read(@Nonnull Scanner scanner) {
+  static double[] read(Scanner scanner) {
     scanner.useLocale(Locale.ROOT);
     Collection<Double> coeffs = new LinkedList<>();
     while (scanner.hasNext() && !scanner.hasNextDouble()) {

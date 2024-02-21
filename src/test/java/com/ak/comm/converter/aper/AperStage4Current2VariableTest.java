@@ -10,7 +10,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-import javax.annotation.Nonnull;
 import java.nio.ByteOrder;
 import java.util.EnumSet;
 import java.util.List;
@@ -65,7 +64,7 @@ class AperStage4Current2VariableTest {
 
   @ParameterizedTest
   @EnumSource(value = AperStage4Current2Variable.class)
-  void testGetInputVariables(@Nonnull DependentVariable<AperStage3Variable, AperStage4Current2Variable> variable) {
+  void testGetInputVariables(DependentVariable<AperStage3Variable, AperStage4Current2Variable> variable) {
     assertThat(variable.getInputVariables()).hasSize(1);
   }
 
@@ -93,13 +92,13 @@ class AperStage4Current2VariableTest {
 
   @ParameterizedTest
   @EnumSource(value = AperStage4Current2Variable.class)
-  void testFilterDelay(@Nonnull Variable<AperStage4Current2Variable> variable) {
+  void testFilterDelay(Variable<AperStage4Current2Variable> variable) {
     assertThat(variable.filter().getDelay()).isZero();
   }
 
   @ParameterizedTest
   @EnumSource(value = AperStage4Current2Variable.class)
-  void testInputVariablesClass(@Nonnull DependentVariable<AperStage3Variable, AperStage4Current2Variable> variable) {
+  void testInputVariablesClass(DependentVariable<AperStage3Variable, AperStage4Current2Variable> variable) {
     assertThat(variable.getInputVariablesClass()).isEqualTo(AperStage3Variable.class);
   }
 }

@@ -1,16 +1,20 @@
 package com.ak.comm.file;
 
+import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.Variable;
+import com.ak.comm.core.AbstractConvertableService;
+import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.logging.LogBuilders;
+import com.ak.util.Strings;
+
+import javax.annotation.Nonnegative;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
@@ -23,34 +27,17 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.Variable;
-import com.ak.comm.core.AbstractConvertableService;
-import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.logging.LogBuilders;
-import com.ak.util.Strings;
-
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.READ;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import static java.nio.file.StandardOpenOption.WRITE;
+import static java.nio.file.StandardOpenOption.*;
 
 final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractConvertableService<T, R, V> implements Flow.Subscription {
-  @Nonnull
   private final Path fileToRead;
   @Nonnegative
   private long requestSamples = Long.MAX_VALUE;
-  @Nonnull
   private Callable<AsynchronousFileChannel> convertedFileChannelProvider = () -> null;
   private volatile boolean disposed;
 
-  @ParametersAreNonnullByDefault
   FileReadingService(Path fileToRead, BytesInterceptor<T, R> bytesInterceptor, Converter<R, V> responseConverter) {
     super(bytesInterceptor, responseConverter);
     Objects.requireNonNull(fileToRead);
@@ -58,7 +45,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
-  public void subscribe(@Nonnull Flow.Subscriber<? super int[]> s) {
+  public void subscribe(Flow.Subscriber<? super int[]> s) {
     if (Files.isReadable(fileToRead)) {
       s.onSubscribe(this);
 
@@ -68,7 +55,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
           private long samplesCounter;
 
           @Override
-          public void accept(@Nonnull ByteBuffer byteBuffer) {
+          public void accept(ByteBuffer byteBuffer) {
             logBytes(byteBuffer);
             process(byteBuffer, ints -> {
               if (samplesCounter < requestSamples) {
@@ -128,7 +115,6 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
     return convertedFileChannelProvider.call();
   }
 
-  @ParametersAreNonnullByDefault
   private void checkThenOpen(String md5Base, SeekableByteChannel seekableByteChannel, Consumer<ByteBuffer> doOnOpen)
       throws NoSuchAlgorithmException, IOException {
     Logger.getLogger(getClass().getName()).log(Level.CONFIG, () -> "#%08x Open file [ %s ]".formatted(hashCode(), fileToRead));
@@ -157,7 +143,6 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
     }
   }
 
-  @ParametersAreNonnullByDefault
   private boolean isChannelProcessed(SeekableByteChannel seekableByteChannel,
                                      Consumer<ByteBuffer> consumer) throws IOException {
     int blockSize = (int) Files.getFileStore(Paths.get(Strings.EMPTY)).getBlockSize();
@@ -173,7 +158,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
     return readFlag && !disposed;
   }
 
-  private static String digestToString(@Nonnull byte[] digest) {
+  private static String digestToString(byte[] digest) {
     String s = HexFormat.of().formatHex(digest);
     return IntStream.range(0, s.length()).filter(value -> value % 4 == 0)
         .mapToObj(i -> s.subSequence(i, i + 1)).collect(Collectors.joining());

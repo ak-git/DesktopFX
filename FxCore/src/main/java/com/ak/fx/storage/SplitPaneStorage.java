@@ -2,28 +2,26 @@ package com.ak.fx.storage;
 
 import javafx.scene.control.SplitPane;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.prefs.BackingStoreException;
 
 public final class SplitPaneStorage implements Storage<SplitPane> {
-  @Nonnull
   private final DoubleArrayStorage dividerStorage;
-  private boolean saveReady = false;
+  private boolean saveReady;
 
-  public SplitPaneStorage(@Nonnull Class<?> c, @Nonnull String nodeName) {
+  public SplitPaneStorage(Class<?> c, String nodeName) {
     dividerStorage = new DoubleArrayStorage(c, nodeName);
   }
 
   @Override
-  public void save(@Nonnull SplitPane splitPane) {
+  public void save(SplitPane splitPane) {
     if (saveReady) {
       dividerStorage.save(splitPane.getDividers().stream().mapToDouble(SplitPane.Divider::getPosition).toArray());
     }
   }
 
   @Override
-  public void update(@Nonnull SplitPane splitPane) {
+  public void update(SplitPane splitPane) {
     double[] array = dividerStorage.get();
     if (array.length == splitPane.getDividers().size()) {
       splitPane.setDividerPositions(array);

@@ -7,12 +7,11 @@ import com.ak.comm.core.Readable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.Extension;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,32 +25,27 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
   private static final Readable EMPTY_READABLE = (dst, position) -> {
   };
 
-  @Nonnull
   private final ExecutorService service = Executors.newSingleThreadExecutor();
-  @Nonnull
   private final Supplier<BytesInterceptor<T, R>> interceptorProvider;
-  @Nonnull
   private final Supplier<Converter<R, V>> converterProvider;
   @Nullable
   private Flow.Subscriber<? super int[]> subscriber;
-  @Nonnull
   private Readable readable = EMPTY_READABLE;
 
-  @ParametersAreNonnullByDefault
   public AutoFileReadingService(Supplier<BytesInterceptor<T, R>> interceptorProvider, Supplier<Converter<R, V>> converterProvider) {
-    this.interceptorProvider = interceptorProvider;
-    this.converterProvider = converterProvider;
+    this.interceptorProvider = Objects.requireNonNull(interceptorProvider);
+    this.converterProvider = Objects.requireNonNull(converterProvider);
   }
 
   @Override
-  public void subscribe(@Nonnull Flow.Subscriber<? super int[]> subscriber) {
-    this.subscriber = subscriber;
+  public void subscribe(Flow.Subscriber<? super int[]> subscriber) {
+    this.subscriber = Objects.requireNonNull(subscriber);
   }
 
   @Override
-  public boolean accept(@Nonnull File file) {
+  public boolean accept(File file) {
     BytesInterceptor<T, R> bytesInterceptor = interceptorProvider.get();
-    if (file.isFile() && Extension.BIN.is(file.getName()) && Extension.BIN.clean(file.getName()).endsWith(bytesInterceptor.name())) {
+    if (file.isFile() && Extension.BIN.is(file.getName()) && Extension.BIN.clean(file.getName()).contains(bytesInterceptor.name())) {
       refresh(false);
       readable = CompletableFuture
           .supplyAsync(() -> new FileReadingService<>(file.toPath(), bytesInterceptor, converterProvider.get()))
@@ -84,7 +78,7 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
-  public void read(@Nonnull ByteBuffer dst, long position) {
+  public void read(ByteBuffer dst, long position) {
     readable.read(dst, position);
   }
 }

@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -38,7 +36,7 @@ class NmisAddressTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#nullResponse")
-  void testNotFound(@Nonnull ByteBuffer buffer) {
+  void testNotFound(ByteBuffer buffer) {
     assertTrue(
         LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
             () -> assertNull(find(buffer)),
@@ -49,14 +47,13 @@ class NmisAddressTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#aliveAndChannelsResponse")
-  @ParametersAreNonnullByDefault
   void testFind(NmisAddress address, byte[] input) {
     assertThat(find(ByteBuffer.wrap(input))).isNotNull().isEqualTo(address);
   }
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.nmis.NmisExtractorTestProvider#extractNone")
-  void testExtractorNone(@Nonnull ByteBuffer buffer) {
+  void testExtractorNone(ByteBuffer buffer) {
     NmisResponseFrame response = new NmisResponseFrame.Builder(buffer).build();
     assertNotNull(response);
     assertThat(response.extractTime().count()).isZero();
@@ -68,7 +65,6 @@ class NmisAddressTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.nmis.NmisExtractorTestProvider#extractTime")
-  @ParametersAreNonnullByDefault
   void testExtractorValues(byte[] from, Iterable<Integer> expected) {
     Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(from)).build())
         .ifPresent(response -> assertThat(response.extractTime()).containsSequence(expected));
@@ -76,7 +72,6 @@ class NmisAddressTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.nmis.NmisExtractorTestProvider#extractData")
-  @ParametersAreNonnullByDefault
   void testExtractorToBuffer(byte[] from, byte[] expected) {
     ByteBuffer destination = ByteBuffer.allocate(expected.length);
     Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(from)).build())

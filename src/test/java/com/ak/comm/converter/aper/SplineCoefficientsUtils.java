@@ -5,8 +5,6 @@ import com.ak.numbers.Coefficients;
 import com.ak.numbers.Interpolators;
 import com.ak.numbers.RangeUtils;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.IntSummaryStatistics;
 import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
@@ -15,7 +13,7 @@ import java.util.stream.IntStream;
 public enum SplineCoefficientsUtils {
   ;
 
-  public static <C extends Enum<C> & Coefficients> void testSplineSurface(@Nonnull Class<C> surfaceCoeffClass) {
+  public static <C extends Enum<C> & Coefficients> void testSplineSurface(Class<C> surfaceCoeffClass) {
     IntBinaryOperator function = Interpolators.interpolator(surfaceCoeffClass).get();
     CSVLineFileBuilder.of((adc, rII) -> function.applyAsInt(adc.intValue(), rII.intValue()))
         .xStream(() -> intRange(surfaceCoeffClass, RangeUtils::rangeX).asDoubleStream())
@@ -24,7 +22,6 @@ public enum SplineCoefficientsUtils {
         .generate();
   }
 
-  @ParametersAreNonnullByDefault
   private static <C extends Enum<C> & Coefficients> IntStream intRange(Class<C> coeffClass,
                                                                        Function<Class<C>, IntSummaryStatistics> selector) {
     int countValues = 100;

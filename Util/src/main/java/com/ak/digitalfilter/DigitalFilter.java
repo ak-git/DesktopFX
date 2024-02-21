@@ -1,10 +1,9 @@
 package com.ak.digitalfilter;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 
 public interface DigitalFilter extends IntsAcceptor {
-  void forEach(@Nonnull IntsAcceptor after);
+  void forEach(IntsAcceptor after);
 
   void reset();
 

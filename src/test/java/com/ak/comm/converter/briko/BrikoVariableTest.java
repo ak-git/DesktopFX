@@ -6,7 +6,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import tec.uom.se.AbstractUnit;
 
-import javax.annotation.Nonnull;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +31,7 @@ class BrikoVariableTest {
 
   @ParameterizedTest
   @EnumSource(value = BrikoVariable.class)
-  void testFilterDelay(@Nonnull Variable<BrikoVariable> variable) {
+  void testFilterDelay(Variable<BrikoVariable> variable) {
     assertThat(variable.filter().getDelay()).isZero();
   }
 

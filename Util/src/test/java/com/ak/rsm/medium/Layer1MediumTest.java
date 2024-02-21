@@ -8,7 +8,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -36,7 +35,6 @@ class Layer1MediumTest {
 
   @ParameterizedTest
   @MethodSource("layer1Medium")
-  @ParametersAreNonnullByDefault
   void testRho(MediumLayers layers, ValuePair expected) {
     assertAll(layers.toString(),
         () -> assertThat(layers.rho()).isEqualTo(expected)
@@ -46,7 +44,6 @@ class Layer1MediumTest {
 
   @ParameterizedTest
   @MethodSource("layer1Medium")
-  @ParametersAreNonnullByDefault
   void testToString(Layer1Medium layers, ValuePair expected) {
     assertAll(layers.toString(),
         () -> assertThat(layers.toString()).contains(expected.toString()),

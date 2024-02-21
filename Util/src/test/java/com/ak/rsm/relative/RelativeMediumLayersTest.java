@@ -8,7 +8,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +39,6 @@ class RelativeMediumLayersTest {
 
   @ParameterizedTest
   @MethodSource("layer2Medium")
-  @ParametersAreNonnullByDefault
   void test(RelativeMediumLayers layers, ValuePair[] expected) {
     assertThat(layers.k().value()).isEqualTo(expected[0].value());
     assertThat(layers.k().absError()).isEqualTo(expected[0].absError());
@@ -51,7 +49,6 @@ class RelativeMediumLayersTest {
 
   @ParameterizedTest
   @MethodSource("layer2Medium")
-  @ParametersAreNonnullByDefault
   <T> void testToString(RelativeMediumLayers layers, T[] expected) {
     assertThat(layers.toString()).contains(expected[0].toString());
     assertThat(layers.toString()).contains(expected[1].toString());

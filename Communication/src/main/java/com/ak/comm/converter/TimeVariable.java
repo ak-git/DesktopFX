@@ -1,8 +1,8 @@
 package com.ak.comm.converter;
 
-import javax.measure.Unit;
-
 import tec.uom.se.unit.Units;
+
+import javax.measure.Unit;
 
 public enum TimeVariable implements Variable<TimeVariable> {
   TIME {

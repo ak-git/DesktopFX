@@ -4,7 +4,6 @@ import com.ak.util.Metrics;
 import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,8 +14,8 @@ import java.util.stream.IntStream;
 
 import static tec.uom.se.unit.Units.METRE;
 
-public record InexactTetrapolarSystem(@Nonnegative double absError, @Nonnull TetrapolarSystem system) {
-  public InexactTetrapolarSystem(@Nonnegative double absError, @Nonnull TetrapolarSystem system) {
+public record InexactTetrapolarSystem(@Nonnegative double absError, TetrapolarSystem system) {
+  public InexactTetrapolarSystem(@Nonnegative double absError, TetrapolarSystem system) {
     this.absError = Math.abs(absError);
     this.system = system;
   }
@@ -61,12 +60,11 @@ public record InexactTetrapolarSystem(@Nonnegative double absError, @Nonnull Tet
   }
 
   @Nonnegative
-  public static double getBaseL(@Nonnull Collection<InexactTetrapolarSystem> inexactSystems) {
+  public static double getBaseL(Collection<InexactTetrapolarSystem> inexactSystems) {
     return TetrapolarSystem.getBaseL(inexactSystems.stream().map(InexactTetrapolarSystem::system).toList());
   }
 
-  @Nonnull
-  public static Collection<List<TetrapolarSystem>> getMeasurementsCombination(@Nonnull Collection<InexactTetrapolarSystem> systems) {
+  public static Collection<List<TetrapolarSystem>> getMeasurementsCombination(Collection<InexactTetrapolarSystem> systems) {
     ToLongFunction<Collection<TetrapolarSystem>> distinctSizes =
         ts -> ts.stream().flatMap(s -> DoubleStream.of(s.sPU(), s.lCC()).boxed()).distinct().count();
     var initialSizes = distinctSizes.applyAsLong(systems.stream().map(InexactTetrapolarSystem::system).toList());
@@ -79,7 +77,6 @@ public record InexactTetrapolarSystem(@Nonnegative double absError, @Nonnull Tet
         .filter(s -> initialSizes == distinctSizes.applyAsLong(s)).toList();
   }
 
-  @Nonnull
   private InexactTetrapolarSystem shift(int sign) {
     double err = Math.signum(sign) * absError;
     double sPU = system.sPU();

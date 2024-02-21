@@ -12,7 +12,6 @@ import com.ak.numbers.rcm.RcmSimpleCoefficients;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-import javax.annotation.Nonnull;
 import javax.measure.Unit;
 import java.util.Collections;
 import java.util.List;
@@ -118,7 +117,6 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
     }
   };
 
-  @Nonnull
   @Override
   public Class<RcmInVariable> getInputVariablesClass() {
     return RcmInVariable.class;
@@ -143,7 +141,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
    * @param <C>       surface coefficients class.
    * @return DigitalFilter
    */
-  private static <C extends Enum<C> & Coefficients> DigitalFilter getBaseFilter(@Nonnull Class<C> coeffEnum) {
+  private static <C extends Enum<C> & Coefficients> DigitalFilter getBaseFilter(Class<C> coeffEnum) {
     return smoothing(FilterBuilder.asFilterBuilder(coeffEnum)
         .decimate(RcmSimpleCoefficients.BR_F200, 8)
         .decimate(RcmSimpleCoefficients.BR_F025, 5)

@@ -1,17 +1,15 @@
 package com.ak.rsm.apparent;
 
-import java.util.function.DoubleBinaryOperator;
+import com.ak.rsm.system.RelativeTetrapolarSystem;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
-import com.ak.rsm.system.RelativeTetrapolarSystem;
+import java.util.function.DoubleBinaryOperator;
 
 import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.pow;
 
 final class SecondDerivativeApparentByPhiK extends AbstractResistanceSumValue {
-  SecondDerivativeApparentByPhiK(@Nonnull RelativeTetrapolarSystem system) {
+  SecondDerivativeApparentByPhiK(RelativeTetrapolarSystem system) {
     super(system);
   }
 

@@ -1,12 +1,5 @@
 package com.ak.comm.converter.suntech;
 
-import java.nio.ByteBuffer;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.comm.bytes.suntech.NIBPResponse;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
@@ -17,6 +10,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import tec.uom.se.AbstractUnit;
 import tec.uom.se.unit.Units;
+
+import java.nio.ByteBuffer;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,7 +73,6 @@ class NIBPConverterTest {
     assertNull(new NIBPResponse.Builder(ByteBuffer.wrap(input)).build());
   }
 
-  @ParametersAreNonnullByDefault
   private static void testConverter(byte[] input, int[] expected) {
     NIBPResponse frame = new NIBPResponse.Builder(ByteBuffer.wrap(input)).build();
     assertNotNull(frame);
@@ -103,13 +99,13 @@ class NIBPConverterTest {
 
   @ParameterizedTest
   @EnumSource(mode = EnumSource.Mode.EXCLUDE, value = NIBPVariable.class, names = "IS_COMPLETED")
-  void testTexValueBanner(@Nonnull Variable<NIBPVariable> variable) {
+  void testTexValueBanner(Variable<NIBPVariable> variable) {
     assertThat(variable.options()).contains(Variable.Option.TEXT_VALUE_BANNER);
   }
 
   @ParameterizedTest
   @EnumSource(mode = EnumSource.Mode.EXCLUDE, value = NIBPVariable.class, names = "PULSE")
-  void testGetUnit(@Nonnull Variable<NIBPVariable> variable) {
+  void testGetUnit(Variable<NIBPVariable> variable) {
     assertThat(variable.getUnit()).isEqualTo(NIBPVariable.PRESSURE.getUnit());
   }
 

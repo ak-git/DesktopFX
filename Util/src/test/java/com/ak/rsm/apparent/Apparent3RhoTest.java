@@ -9,7 +9,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
@@ -18,7 +17,7 @@ import static tec.uom.se.unit.Units.METRE;
 class Apparent3RhoTest {
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance3LayerTest#threeLayerParameters")
-  void testValueNormalized(@Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p,
+  void testValueNormalized(double[] rho, @Nonnegative double hStepSI, int[] p,
                            @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     double apparent = TetrapolarResistance.ofMilli(smm, lmm).ofOhms(rOhm).resistivity() / rho[0];
 

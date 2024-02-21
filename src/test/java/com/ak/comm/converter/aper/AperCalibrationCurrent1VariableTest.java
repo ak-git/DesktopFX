@@ -1,23 +1,16 @@
 package com.ak.comm.converter.aper;
 
-import java.nio.ByteOrder;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.comm.bytes.BufferFrame;
-import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.DependentVariable;
-import com.ak.comm.converter.LinkedConverter;
-import com.ak.comm.converter.ToIntegerConverter;
-import com.ak.comm.converter.Variable;
+import com.ak.comm.converter.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.AbstractUnit;
+
+import java.nio.ByteOrder;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -41,7 +34,6 @@ class AperCalibrationCurrent1VariableTest {
 
   @ParameterizedTest
   @MethodSource("variables")
-  @ParametersAreNonnullByDefault
   void testApply(byte[] inputBytes, int[] outputInts) {
     Converter<BufferFrame, AperCalibrationCurrent1Variable> converter = LinkedConverter.of(
         new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperCalibrationCurrent1Variable.class);
@@ -65,20 +57,20 @@ class AperCalibrationCurrent1VariableTest {
 
   @ParameterizedTest
   @EnumSource(value = AperCalibrationCurrent1Variable.class)
-  void testVariableProperties(@Nonnull DependentVariable<AperStage1Variable, AperCalibrationCurrent1Variable> variable) {
+  void testVariableProperties(DependentVariable<AperStage1Variable, AperCalibrationCurrent1Variable> variable) {
     assertThat(variable.getUnit()).isEqualTo(AbstractUnit.ONE);
     assertThat(variable.getInputVariablesClass()).isEqualTo(AperStage1Variable.class);
   }
 
   @ParameterizedTest
   @EnumSource(value = AperCalibrationCurrent1Variable.class, mode = EnumSource.Mode.EXCLUDE, names = {"PU_1", "PU_2"})
-  void testOptionsNotPU(@Nonnull Variable<AperCalibrationCurrent1Variable> variable) {
+  void testOptionsNotPU(Variable<AperCalibrationCurrent1Variable> variable) {
     assertThat(variable.options()).containsExactly(Variable.Option.TEXT_VALUE_BANNER);
   }
 
   @ParameterizedTest
   @EnumSource(value = AperCalibrationCurrent1Variable.class, mode = EnumSource.Mode.INCLUDE, names = {"PU_1", "PU_2"})
-  void testOptionsPU(@Nonnull Variable<AperCalibrationCurrent1Variable> variable) {
+  void testOptionsPU(Variable<AperCalibrationCurrent1Variable> variable) {
     assertThat(variable.options()).containsExactly(Variable.Option.VISIBLE);
   }
 }

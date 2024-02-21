@@ -1,18 +1,16 @@
 package com.ak.fx.storage;
 
-import javax.annotation.Nonnull;
+import java.util.Objects;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 abstract class AbstractStorage<T> implements Storage<T> {
-  @Nonnull
   private final Preferences preferences;
 
-  AbstractStorage(@Nonnull Class<?> c, @Nonnull String nodeName) {
-    preferences = Preferences.userNodeForPackage(c).node(nodeName);
+  AbstractStorage(Class<?> c, String nodeName) {
+    preferences = Preferences.userNodeForPackage(c).node(Objects.requireNonNull(nodeName));
   }
 
-  @Nonnull
   final Preferences preferences() {
     return preferences;
   }

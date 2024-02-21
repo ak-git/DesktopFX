@@ -1,5 +1,5 @@
 dependencies {
     api project(':Util')
-    implementation uom_se
-    implementation jSerialComm
+    implementation libs.uom.se
+    implementation libs.jserial.comm
 }

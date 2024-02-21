@@ -1,25 +1,19 @@
 package com.ak.comm.interceptor.rsce;
 
-import java.nio.ByteBuffer;
-import java.util.Iterator;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import javax.annotation.Nullable;
+import java.nio.ByteBuffer;
+import java.util.Iterator;
+import java.util.stream.Stream;
+
 import static com.ak.comm.bytes.rsce.RsceCommandFrame.ActionType.NONE;
 import static com.ak.comm.bytes.rsce.RsceCommandFrame.Control.CATCH;
-import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.EMPTY;
-import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I;
-import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_ANGLE;
-import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_SPEED;
-import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_SPEED_ANGLE;
+import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -100,7 +94,7 @@ class RsceBytesInterceptor2Test {
 
   @ParameterizedTest
   @MethodSource("data")
-  void testInterceptor(@Nonnull byte[] bytes, @Nullable RsceCommandFrame response) {
+  void testInterceptor(byte[] bytes, @Nullable RsceCommandFrame response) {
     Iterator<ByteBuffer> iterator = new Iterator<>() {
       int index;
 

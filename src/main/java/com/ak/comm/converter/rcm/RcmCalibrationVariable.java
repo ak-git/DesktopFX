@@ -1,15 +1,13 @@
 package com.ak.comm.converter.rcm;
 
+import com.ak.comm.converter.DependentVariable;
+import com.ak.digitalfilter.DigitalFilter;
+import com.ak.digitalfilter.FilterBuilder;
+
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.annotation.Nonnull;
-
-import com.ak.comm.converter.DependentVariable;
-import com.ak.digitalfilter.DigitalFilter;
-import com.ak.digitalfilter.FilterBuilder;
 
 public enum RcmCalibrationVariable implements DependentVariable<RcmInVariable, RcmCalibrationVariable> {
   CC_ADC {
@@ -44,11 +42,6 @@ public enum RcmCalibrationVariable implements DependentVariable<RcmInVariable, R
     @Override
     public List<RcmInVariable> getInputVariables() {
       return Collections.singletonList(VAR_RHEO);
-    }
-
-    @Override
-    public DigitalFilter filter() {
-      return FilterBuilder.of().rrs().build();
     }
 
     @Override
@@ -87,7 +80,6 @@ public enum RcmCalibrationVariable implements DependentVariable<RcmInVariable, R
     return Option.addToDefault(Option.TEXT_VALUE_BANNER);
   }
 
-  @Nonnull
   @Override
   public Class<RcmInVariable> getInputVariablesClass() {
     return RcmInVariable.class;

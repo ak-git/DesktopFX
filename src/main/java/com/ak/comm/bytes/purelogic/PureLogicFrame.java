@@ -4,7 +4,6 @@ import com.ak.comm.bytes.BufferFrame;
 import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
@@ -61,7 +60,7 @@ public final class PureLogicFrame extends BufferFrame {
   }
 
   @Nullable
-  public static PureLogicFrame of(@Nonnull StringBuilder buffer) {
+  public static PureLogicFrame of(StringBuilder buffer) {
     if (buffer.indexOf(STEP_COMMAND) == 0 && buffer.indexOf(NEW_LINE) > STEP_COMMAND.length()) {
       var substring = buffer.substring(STEP_COMMAND.length(), buffer.indexOf(NEW_LINE)).strip().replaceAll(SPACE, "");
       try {

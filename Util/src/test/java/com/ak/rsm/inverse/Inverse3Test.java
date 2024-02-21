@@ -26,8 +26,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -67,7 +65,7 @@ class Inverse3Test {
   @ParameterizedTest
   @MethodSource("model")
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testCombinations")
-  void testCombinations(@Nonnull List<Collection<DerivativeMeasurement>> ms) {
+  void testCombinations(List<Collection<DerivativeMeasurement>> ms) {
     IntToDoubleFunction findDh = i -> ms.get(i).stream().mapToDouble(DerivativeResistivity::dh).summaryStatistics().getAverage();
 
     IntStream.rangeClosed(1, ms.size())
@@ -95,7 +93,6 @@ class Inverse3Test {
   }
 
   @Nonnegative
-  @ParametersAreNonnullByDefault
   private static ValuePair getRho1(Collection<? extends DerivativeMeasurement> measurements, double[] kw, @Nonnegative double hStep) {
     return measurements.stream()
         .map(measurement -> {
@@ -116,7 +113,7 @@ class Inverse3Test {
   @ParameterizedTest
   @MethodSource("model")
   @Disabled("ignored com.ak.rsm.inverse.Inverse3Test.testSingle")
-  void testSingle(@Nonnull Collection<? extends Collection<? extends DerivativeMeasurement>> ms) {
+  void testSingle(Collection<? extends Collection<? extends DerivativeMeasurement>> ms) {
     DoubleSummaryStatistics statisticsL = ms.stream().mapToDouble(Resistivity::getBaseL).summaryStatistics();
     if (Double.compare(statisticsL.getMax(), statisticsL.getMin()) != 0) {
       throw new IllegalStateException("L is not equal for all electrode systems %s".formatted(statisticsL));
@@ -144,11 +141,11 @@ class Inverse3Test {
       private static final int K_SIZE = 200;
       private static final double[] K_VALUES = Numbers.rangeLog(1.0 / K_SIZE, K_SIZE, K_SIZE + 1).toArray();
 
-      P(@Nonnull int[] v) {
+      P(int[] v) {
         this(v[0], v[1], v[2], v[3]);
       }
 
-      P(@Nonnull BaseSeq<Chromosome<IntegerGene>> genotype) {
+      P(BaseSeq<Chromosome<IntegerGene>> genotype) {
         this(IntStream.range(0, genotype.length()).map(i -> genotype.get(i).get(0).intValue()).toArray());
       }
 

@@ -1,43 +1,38 @@
 package com.ak.comm.bytes.rsce;
 
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.comm.bytes.BytesChecker;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RsceCommandFrameTest {
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.rsce.RsceTestDataProvider#simpleRequests")
-  @ParametersAreNonnullByDefault
   void testSimpleRequest(byte[] expected, RsceCommandFrame.Control control, RsceCommandFrame.RequestType type) {
     checkRequest(expected, RsceCommandFrame.simple(control, type));
   }
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.rsce.RsceTestDataProvider#offRequests")
-  @ParametersAreNonnullByDefault
   void testOffRequest(byte[] expected, RsceCommandFrame.Control control) {
     checkRequest(expected, RsceCommandFrame.off(control));
   }
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.rsce.RsceTestDataProvider#preciseRequests")
-  void testPreciseRequest(@Nonnull byte[] expected, short speed) {
+  void testPreciseRequest(byte[] expected, short speed) {
     checkRequest(expected, RsceCommandFrame.precise(RsceCommandFrame.Control.CATCH, RsceCommandFrame.RequestType.STATUS_I_SPEED_ANGLE, speed));
   }
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.rsce.RsceTestDataProvider#positionCatchRequests")
-  void testPositionCatchRequest(@Nonnull byte[] expected, byte position) {
+  void testPositionCatchRequest(byte[] expected, byte position) {
     checkRequest(expected, RsceCommandFrame.position(RsceCommandFrame.Control.CATCH, position));
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(expected)).build();
     assertThat(frame).isNotNull();
@@ -48,7 +43,7 @@ class RsceCommandFrameTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.rsce.RsceTestDataProvider#positionRotateRequests")
-  void testPositionRotateRequest(@Nonnull byte[] expected, byte position) {
+  void testPositionRotateRequest(byte[] expected, byte position) {
     checkRequest(expected, RsceCommandFrame.position(RsceCommandFrame.Control.ROTATE, position));
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(expected)).build();
     assertThat(frame).isNotNull();
@@ -59,7 +54,6 @@ class RsceCommandFrameTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.rsce.RsceTestDataProvider#infoRequests")
-  @ParametersAreNonnullByDefault
   void testInfoRequest(byte[] bytes, int[] rDozenMilliOhms, int[] infoOnes) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     assertThat(frame).isNotNull();
@@ -77,7 +71,7 @@ class RsceCommandFrameTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.rsce.RsceTestDataProvider#finger")
-  void testInfoRequest(@Nonnull byte[] bytes, int fingerSpeed) {
+  void testInfoRequest(byte[] bytes, int fingerSpeed) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     assertThat(frame).isNotNull();
     assertThat(frame.extract(RsceCommandFrame.FrameField.FINGER, 0))
@@ -95,19 +89,18 @@ class RsceCommandFrameTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.rsce.RsceTestDataProvider#invalidRequests")
-  void testInvalidRequests(@Nonnull ByteBuffer buffer) {
+  void testInvalidRequests(ByteBuffer buffer) {
     assertThat(new RsceCommandFrame.ResponseBuilder(buffer).build()).withFailMessage(() -> Arrays.toString(buffer.array())).isNull();
   }
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.rsce.RsceTestDataProvider#invalidRequests")
-  void testInvalidMethod(@Nonnull ByteBuffer buffer) {
+  void testInvalidMethod(ByteBuffer buffer) {
     BytesChecker responseBuilder = new RsceCommandFrame.ResponseBuilder();
     Assertions.assertThatExceptionOfType(UnsupportedOperationException.class)
         .isThrownBy(() -> responseBuilder.bufferLimit(buffer)).withNoCause().withMessage(Arrays.toString(buffer.array()));
   }
 
-  @ParametersAreNonnullByDefault
   private static void checkRequest(byte[] expected, RsceCommandFrame request) {
     ByteBuffer byteBuffer = ByteBuffer.allocate(expected.length);
     request.writeTo(byteBuffer);

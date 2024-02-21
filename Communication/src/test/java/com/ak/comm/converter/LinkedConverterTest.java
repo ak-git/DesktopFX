@@ -1,14 +1,5 @@
 package com.ak.comm.converter;
 
-import java.nio.ByteOrder;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.IntsAcceptor;
@@ -17,6 +8,13 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.AbstractUnit;
+
+import java.nio.ByteOrder;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -42,7 +40,6 @@ class LinkedConverterTest {
 
   @ParameterizedTest
   @MethodSource("variables")
-  @ParametersAreNonnullByDefault
   void testApply(BufferFrame frame, int[] output) {
     Converter<BufferFrame, TwoVariables> converter = new ToIntegerConverter<>(TwoVariables.class, 200);
     LinkedConverter<BufferFrame, TwoVariables, OperatorVariables> linkedConverter = LinkedConverter.of(converter, OperatorVariables.class);
@@ -52,7 +49,6 @@ class LinkedConverterTest {
 
   @ParameterizedTest
   @MethodSource("variables2")
-  @ParametersAreNonnullByDefault
   void testApply2(BufferFrame frame, int[] output) {
     Function<BufferFrame, Stream<int[]>> linkedConverter =
         LinkedConverter.of(new ToIntegerConverter<>(TwoVariables.class, 1000), OperatorVariables.class)
@@ -62,7 +58,7 @@ class LinkedConverterTest {
 
   @ParameterizedTest
   @EnumSource(value = RefreshVariable.class)
-  void testRecursive(@Nonnull Variable<RefreshVariable> variable) {
+  void testRecursive(Variable<RefreshVariable> variable) {
     assertThat(variable.getUnit()).isEqualTo(AbstractUnit.ONE);
     assertThat(variable.options()).containsSequence(Variable.Option.defaultOptions());
   }
@@ -73,7 +69,7 @@ class LinkedConverterTest {
 
   @ParameterizedTest
   @MethodSource("refreshVariables")
-  void testRefresh(@Nonnull BufferFrame frame) {
+  void testRefresh(BufferFrame frame) {
     LinkedConverter<BufferFrame, RefreshVariable, RefreshVariable> linkedConverter =
         LinkedConverter.of(new ToIntegerConverter<>(RefreshVariable.class, 1), RefreshVariable.class)
             .chainInstance(RefreshVariable.class);
@@ -102,7 +98,8 @@ class LinkedConverterTest {
         private int refreshCount;
 
         @Override
-        public void forEach(@Nonnull IntsAcceptor after) {
+        public void forEach(IntsAcceptor after) {
+          Objects.requireNonNull(after);
         }
 
         @Override
@@ -116,7 +113,7 @@ class LinkedConverterTest {
         }
 
         @Override
-        public void accept(@Nonnull int... values) {
+        public void accept(int... values) {
           assertThat(values).containsExactly(10);
           assertThat(refreshCount).isEqualTo(1);
         }

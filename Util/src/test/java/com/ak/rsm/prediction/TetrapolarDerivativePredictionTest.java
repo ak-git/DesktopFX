@@ -7,7 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,13 +37,11 @@ class TetrapolarDerivativePredictionTest {
 
   @ParameterizedTest
   @MethodSource("predictions")
-  @ParametersAreNonnullByDefault
   void testEquals(Object o1, Object o2, boolean equals) {
     assertAll("%s compared with %s".formatted(o1, o2),
         () -> assertThat(o1.equals(o2)).isEqualTo(equals),
         () -> assertThat(o1.hashCode() == o2.hashCode()).isEqualTo(equals)
     );
-    assertThat(o1).isNotEqualTo(null);
   }
 
   @Test

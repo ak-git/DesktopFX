@@ -3,7 +3,6 @@ package com.ak.comm.interceptor;
 import com.fazecast.jSerialComm.SerialPort;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Collections;
@@ -17,13 +16,13 @@ public interface BytesInterceptor<T, R> extends Function<ByteBuffer, Stream<R>> 
   enum SerialParams implements Consumer<SerialPort> {
     CLEAR_DTR {
       @Override
-      public void accept(@Nonnull SerialPort serialPort) {
+      public void accept(SerialPort serialPort) {
         serialPort.clearDTR();
       }
     },
     ODD_PARITY {
       @Override
-      public void accept(@Nonnull SerialPort serialPort) {
+      public void accept(SerialPort serialPort) {
         serialPort.setParity(SerialPort.ODD_PARITY);
       }
     }
@@ -39,13 +38,11 @@ public interface BytesInterceptor<T, R> extends Function<ByteBuffer, Stream<R>> 
     }
   }
 
-  @Nonnull
   String name();
 
   @Nonnegative
   int getBaudRate();
 
-  @Nonnull
   default Set<SerialParams> getSerialParams() {
     return Collections.emptySet();
   }
@@ -56,9 +53,8 @@ public interface BytesInterceptor<T, R> extends Function<ByteBuffer, Stream<R>> 
    * @param src input bytes buffer
    * @return response's stream
    */
-  @Nonnull
   @Override
-  Stream<R> apply(@Nonnull ByteBuffer src);
+  Stream<R> apply(ByteBuffer src);
 
   @Nullable
   T getPingRequest();
@@ -69,6 +65,5 @@ public interface BytesInterceptor<T, R> extends Function<ByteBuffer, Stream<R>> 
    * @param request an object to convert and send out
    * @return output bytes buffer with object converted
    */
-  @Nonnull
-  ByteBuffer putOut(@Nonnull T request);
+  ByteBuffer putOut(T request);
 }

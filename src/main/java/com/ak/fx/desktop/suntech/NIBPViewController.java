@@ -8,7 +8,6 @@ import com.ak.util.UIConstants;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +23,7 @@ public final class NIBPViewController extends AbstractNIBPViewController {
   }
 
   @Override
-  public void onNext(@Nonnull int[] ints) {
+  public void onNext(int[] ints) {
     super.onNext(ints);
     isStartBPEnable = ints[NIBPVariable.PRESSURE.ordinal()] < 5;
   }

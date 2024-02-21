@@ -1,16 +1,14 @@
 package com.ak.digitalfilter;
 
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
 import java.security.SecureRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.random.RandomGenerator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -101,7 +99,6 @@ class StreamFilterTest {
 
   @ParameterizedTest
   @MethodSource("data")
-  @ParametersAreNonnullByDefault
   void testFilter(DigitalFilter filter, IntStream data, int min, int max) {
     AtomicInteger lastValue = new AtomicInteger();
     filter.forEach(values -> {

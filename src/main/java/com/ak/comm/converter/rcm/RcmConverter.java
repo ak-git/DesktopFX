@@ -1,11 +1,9 @@
 package com.ak.comm.converter.rcm;
 
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.AbstractConverter;
+
+import java.util.stream.Stream;
 
 public final class RcmConverter extends AbstractConverter<BufferFrame, RcmInVariable> {
   public RcmConverter() {
@@ -13,7 +11,7 @@ public final class RcmConverter extends AbstractConverter<BufferFrame, RcmInVari
   }
 
   @Override
-  protected Stream<int[]> innerApply(@Nonnull BufferFrame frame) {
+  protected Stream<int[]> innerApply(BufferFrame frame) {
     var values = new int[variables().size()];
     for (var i = 0; i < values.length; i++) {
       int index = 2 * i * Byte.BYTES;

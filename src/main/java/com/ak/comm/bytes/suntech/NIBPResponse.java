@@ -1,37 +1,35 @@
 package com.ak.comm.bytes.suntech;
 
+import com.ak.comm.bytes.AbstractCheckedBuilder;
+import com.ak.comm.bytes.BufferFrame;
+
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import com.ak.comm.bytes.AbstractCheckedBuilder;
-import com.ak.comm.bytes.BufferFrame;
-
 import static com.ak.comm.bytes.suntech.NIBPProtocolByte.MAX_CAPACITY;
 import static com.ak.comm.bytes.suntech.NIBPProtocolByte.checkCRC;
 
 public class NIBPResponse extends BufferFrame {
-  private NIBPResponse(@Nonnull Builder builder) {
+  private NIBPResponse(Builder builder) {
     super(builder.buffer());
   }
 
-  public void extractPressure(@Nonnull IntConsumer ifExist) {
+  public void extractPressure(IntConsumer ifExist) {
     if (get(NIBPProtocolByte.LEN.ordinal()) == 5) {
       ifExist.accept(byteBuffer().getShort(NIBPProtocolByte.DATA.ordinal()));
     }
   }
 
-  public void extractIsCompleted(@Nonnull Runnable ifExist) {
+  public void extractIsCompleted(Runnable ifExist) {
     if (get(NIBPProtocolByte.LEN.ordinal()) == 4 && get(NIBPProtocolByte.DATA.ordinal()) == 0x4b) {
       ifExist.run();
     }
   }
 
-  public void extractData(@Nonnull Consumer<int[]> ifExist) {
+  public void extractData(Consumer<int[]> ifExist) {
     if (get(NIBPProtocolByte.LEN.ordinal()) == 0x18) {
       ifExist.accept(new int[] {
           byteBuffer().getShort(2),
@@ -47,7 +45,7 @@ public class NIBPResponse extends BufferFrame {
       this(ByteBuffer.allocate(MAX_CAPACITY));
     }
 
-    public Builder(@Nonnull ByteBuffer buffer) {
+    public Builder(ByteBuffer buffer) {
       super(buffer.order(ByteOrder.LITTLE_ENDIAN));
     }
 

@@ -1,23 +1,21 @@
 package com.ak.comm.bytes;
 
+import javax.annotation.Nonnegative;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import java.util.Objects;
 
 public class BufferFrame {
-  @Nonnull
   private final ByteBuffer byteBuffer;
 
-  protected BufferFrame(@Nonnull ByteBuffer byteBuffer) {
+  protected BufferFrame(ByteBuffer byteBuffer) {
     byteBuffer.rewind();
     this.byteBuffer = ByteBuffer.allocate(byteBuffer.limit()).put(byteBuffer).order(byteBuffer.order());
     this.byteBuffer.flip();
   }
 
-  public BufferFrame(@Nonnull byte[] bytes, @Nonnull ByteOrder byteOrder) {
-    byteBuffer = ByteBuffer.wrap(bytes).order(byteOrder);
+  public BufferFrame(byte[] bytes, ByteOrder byteOrder) {
+    byteBuffer = ByteBuffer.wrap(bytes).order(Objects.requireNonNull(byteOrder));
   }
 
   @Override
@@ -41,7 +39,7 @@ public class BufferFrame {
     return LogUtils.toString(getClass(), byteBuffer);
   }
 
-  public final void writeTo(@Nonnull ByteBuffer outBuffer) {
+  public final void writeTo(ByteBuffer outBuffer) {
     outBuffer.put(byteBuffer);
     byteBuffer.rewind();
   }

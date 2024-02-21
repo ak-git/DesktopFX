@@ -7,8 +7,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nonnull;
-
 /**
  * Constant byte at start byte protocol implementation and <b>fixed frame length</b>
  * <p>
@@ -30,7 +28,7 @@ public final class KleiberBytesInterceptor extends AbstractFixedFrameBytesInterc
   }
 
   @Override
-  protected boolean check(@Nonnull byte[] buffer, byte nextFrameStartByte) {
+  protected boolean check(byte[] buffer, byte nextFrameStartByte) {
     return buffer[0] == START && buffer[buffer.length - 1] == STOP && nextFrameStartByte == START;
   }
 }

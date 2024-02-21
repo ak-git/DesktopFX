@@ -15,7 +15,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +46,6 @@ class InverseStaticTest {
 
   @ParameterizedTest
   @MethodSource("relativeStaticLayer2RiseErrors")
-  @ParametersAreNonnullByDefault
   void testInverseRelativeStaticLayer2RiseErrors(Collection<? extends Measurement> measurements, double[] riseErrors) {
     double absError = measurements.stream().mapToDouble(m -> m.inexact().absError()).average().orElseThrow();
     double L = Resistivity.getBaseL(measurements);
@@ -89,7 +87,6 @@ class InverseStaticTest {
 
   @ParameterizedTest
   @MethodSource("relativeStaticLayer2")
-  @ParametersAreNonnullByDefault
   void testInverseRelativeStaticLayer2(Collection<? extends Measurement> measurements, RelativeMediumLayers expected) {
     var medium = Relative.Static.solve(measurements);
     assertAll(medium.toString(),
@@ -140,7 +137,6 @@ class InverseStaticTest {
 
   @ParameterizedTest
   @MethodSource("absoluteStaticLayer2")
-  @ParametersAreNonnullByDefault
   void testInverseAbsoluteStaticLayer1(Collection<? extends Measurement> measurements, ValuePair[] expected) {
     var medium = StaticAbsolute.LAYER_1.apply(measurements);
     assertThat(medium.rho()).withFailMessage(medium.toString()).isEqualTo(expected[0]);
@@ -148,7 +144,6 @@ class InverseStaticTest {
 
   @ParameterizedTest
   @MethodSource("absoluteStaticLayer2")
-  @ParametersAreNonnullByDefault
   void testInverseAbsoluteStaticLayer2(Collection<? extends Measurement> measurements, ValuePair[] expected) {
     var medium = StaticAbsolute.LAYER_2.apply(measurements);
     assertAll(medium.toString(),

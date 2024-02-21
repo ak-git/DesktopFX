@@ -12,7 +12,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.logging.Logger;
@@ -53,7 +52,7 @@ class NmisRsceBytesInterceptorTest {
 
   @ParameterizedTest
   @MethodSource("data")
-  void testInterceptor(@Nonnull byte[] bytes, @Nullable RsceCommandFrame response) {
+  void testInterceptor(byte[] bytes, @Nullable RsceCommandFrame response) {
     byteBuffer.clear();
     byteBuffer.put(bytes);
     byteBuffer.flip();

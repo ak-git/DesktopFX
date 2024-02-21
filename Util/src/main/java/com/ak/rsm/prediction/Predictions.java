@@ -7,16 +7,12 @@ import com.ak.rsm.resistance.DerivativeResistivity;
 import com.ak.rsm.resistance.Resistivity;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
 import java.util.stream.DoubleStream;
 
 public enum Predictions {
   ;
 
-  @ParametersAreNonnullByDefault
-  @Nonnull
   public static Prediction of(Resistivity resistivityMeasured, RelativeMediumLayers layers, @Nonnegative double rho1) {
     Prediction prediction = innerOf(resistivityMeasured, layers, rho1);
 
@@ -33,15 +29,11 @@ public enum Predictions {
     return prediction;
   }
 
-  @ParametersAreNonnullByDefault
-  @Nonnull
   public static Prediction of(Resistivity resistivityMeasured, @Nonnegative double resistivityPredicted) {
     double inequalityL2 = Inequality.proportional().applyAsDouble(resistivityMeasured.resistivity(), resistivityPredicted);
     return new TetrapolarPrediction(resistivityPredicted, inequalityL2);
   }
 
-  @ParametersAreNonnullByDefault
-  @Nonnull
   private static Prediction innerOf(Resistivity resistivityMeasured, RelativeMediumLayers layers, @Nonnegative double rho1) {
     double resistivityPredicted = Apparent2Rho.newApparentDivRho1(resistivityMeasured.system().relativeSystem()).applyAsDouble(layers) * rho1;
     return of(resistivityMeasured, resistivityPredicted);

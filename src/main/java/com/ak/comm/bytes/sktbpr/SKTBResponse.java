@@ -3,13 +3,12 @@ package com.ak.comm.bytes.sktbpr;
 import com.ak.comm.bytes.AbstractCheckedBuilder;
 import com.ak.comm.bytes.BufferFrame;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public final class SKTBResponse extends BufferFrame {
-  private SKTBResponse(@Nonnull ByteBuffer byteBuffer) {
+  private SKTBResponse(ByteBuffer byteBuffer) {
     super(byteBuffer);
   }
 
