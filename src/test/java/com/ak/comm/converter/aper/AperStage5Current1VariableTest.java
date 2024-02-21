@@ -9,7 +9,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 
-import javax.annotation.Nonnull;
 import java.nio.ByteOrder;
 import java.util.EnumSet;
 import java.util.List;
@@ -103,13 +102,13 @@ class AperStage5Current1VariableTest {
 
   @ParameterizedTest
   @EnumSource(value = AperStage5Current1Variable.class)
-  void testFilterDelay(@Nonnull Variable<AperStage5Current1Variable> variable) {
+  void testFilterDelay(Variable<AperStage5Current1Variable> variable) {
     assertThat(variable.filter().getDelay()).isZero();
   }
 
   @ParameterizedTest
   @EnumSource(value = AperStage5Current1Variable.class)
-  void testInputVariablesClass(@Nonnull DependentVariable<AperStage4Current1Variable, AperStage5Current1Variable> variable) {
+  void testInputVariablesClass(DependentVariable<AperStage4Current1Variable, AperStage5Current1Variable> variable) {
     assertThat(variable.getInputVariablesClass()).isEqualTo(AperStage4Current1Variable.class);
   }
 }

@@ -1,11 +1,5 @@
 package com.ak.comm.converter.nmis;
 
-import java.nio.ByteBuffer;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.comm.bytes.nmis.NmisAddress;
 import com.ak.comm.bytes.nmis.NmisResponseFrame;
 import com.ak.comm.converter.Converter;
@@ -16,11 +10,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
+import java.nio.ByteBuffer;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
+
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class NmisConverterTest {
   private static final Logger LOGGER = Logger.getLogger(NmisConverter.class.getName());
@@ -28,19 +24,16 @@ class NmisConverterTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#aliveAndChannelsResponse")
-  @ParametersAreNonnullByDefault
   void testAliveAndChannelsResponse(NmisAddress address, byte[] input) {
     testConverter(address, input, EMPTY_INTS);
   }
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#dataResponse")
-  @ParametersAreNonnullByDefault
   void testDataResponse(byte[] input, int[] expected) {
     testConverter(NmisAddress.DATA, input, expected);
   }
 
-  @ParametersAreNonnullByDefault
   private static void testConverter(NmisAddress address, byte[] input, int[] expected) {
     NmisResponseFrame frame = new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build();
     if (NmisAddress.ALIVE == address) {

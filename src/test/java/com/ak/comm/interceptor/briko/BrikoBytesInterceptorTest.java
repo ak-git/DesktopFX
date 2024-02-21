@@ -9,7 +9,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Collection;
@@ -144,7 +143,6 @@ class BrikoBytesInterceptorTest {
 
   @ParameterizedTest
   @MethodSource("data")
-  @ParametersAreNonnullByDefault
   void testBrikoBytesInterceptor(byte[] input, BufferFrame testFrame) {
     Function<ByteBuffer, Stream<BufferFrame>> interceptor = new BrikoBytesInterceptor();
 

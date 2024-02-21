@@ -10,8 +10,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.ByteOrder;
 import java.util.EnumSet;
 import java.util.List;
@@ -40,7 +38,6 @@ class AperStage3VariableTest {
 
   @ParameterizedTest
   @MethodSource("variables")
-  @ParametersAreNonnullByDefault
   void testApply(byte[] inputBytes, int[] outputInts) {
     Converter<BufferFrame, AperStage3Variable> converter = LinkedConverter
         .of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
@@ -65,7 +62,7 @@ class AperStage3VariableTest {
 
   @ParameterizedTest
   @EnumSource(value = AperStage3Variable.class)
-  void testGetInputVariables(@Nonnull DependentVariable<AperStage2UnitsVariable, AperStage3Variable> variable) {
+  void testGetInputVariables(DependentVariable<AperStage2UnitsVariable, AperStage3Variable> variable) {
     assertThat(variable.getInputVariables()).hasSize(1);
   }
 
@@ -103,7 +100,7 @@ class AperStage3VariableTest {
 
   @ParameterizedTest
   @EnumSource(value = AperStage3Variable.class)
-  void testInputVariablesClass(@Nonnull DependentVariable<AperStage2UnitsVariable, AperStage3Variable> variable) {
+  void testInputVariablesClass(DependentVariable<AperStage2UnitsVariable, AperStage3Variable> variable) {
     assertThat(variable.getInputVariablesClass()).isEqualTo(AperStage2UnitsVariable.class);
   }
 }

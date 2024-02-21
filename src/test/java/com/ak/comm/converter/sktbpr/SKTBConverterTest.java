@@ -23,7 +23,6 @@ class SKTBConverterTest {
     testConverter(new byte[] {-91, 10, 6, 87, 3, 0, 0, -83, 10}, new int[] {8, 27});
   }
 
-  @ParametersAreNonnullByDefault
   private static void testConverter(byte[] input, int[] expected) {
     SKTBResponse.Builder builder = new SKTBResponse.Builder();
     builder.buffer().put(input);

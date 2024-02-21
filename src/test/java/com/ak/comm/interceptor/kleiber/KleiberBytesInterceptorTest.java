@@ -45,7 +45,6 @@ class KleiberBytesInterceptorTest {
         EMPTY, false);
   }
 
-  @ParametersAreNonnullByDefault
   private static void testResponse(byte[] input, double[] expected, boolean logFlag) {
     Function<ByteBuffer, Stream<BufferFrame>> interceptor = new KleiberBytesInterceptor();
     assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {

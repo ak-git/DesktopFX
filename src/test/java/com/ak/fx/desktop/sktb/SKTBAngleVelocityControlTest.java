@@ -7,7 +7,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import javax.annotation.Nonnull;
 import java.security.SecureRandom;
 import java.util.random.RandomGenerator;
 
@@ -16,7 +15,7 @@ class SKTBAngleVelocityControlTest {
 
   @ParameterizedTest
   @EnumSource(SKTBVariable.class)
-  void accept(@Nonnull SKTBVariable variable) {
+  void accept(SKTBVariable variable) {
     SKTBAngleVelocityControl control = new SKTBAngleVelocityControl(variable);
     int[] inputValues = RANDOM.ints(SKTBVariable.values().length, 0, 1000).toArray();
     control.accept(inputValues);
@@ -25,7 +24,7 @@ class SKTBAngleVelocityControlTest {
 
   @ParameterizedTest
   @EnumSource(SKTBVariable.class)
-  void decrement(@Nonnull SKTBVariable variable) {
+  void decrement(SKTBVariable variable) {
     SKTBAngleVelocityControl control = new SKTBAngleVelocityControl(variable);
     int[] inputValues = RANDOM.ints(SKTBVariable.values().length, 0, 1000).toArray();
 
@@ -45,7 +44,7 @@ class SKTBAngleVelocityControlTest {
 
   @ParameterizedTest
   @EnumSource(SKTBVariable.class)
-  void increment(@Nonnull SKTBVariable variable) {
+  void increment(SKTBVariable variable) {
     SKTBAngleVelocityControl control = new SKTBAngleVelocityControl(variable);
     int[] inputValues = RANDOM.ints(SKTBVariable.values().length, 0, 1000).toArray();
 
@@ -65,7 +64,7 @@ class SKTBAngleVelocityControlTest {
 
   @ParameterizedTest
   @EnumSource(SKTBVariable.class)
-  void update(@Nonnull SKTBVariable variable) {
+  void update(SKTBVariable variable) {
     SKTBAngleVelocityControl control = new SKTBAngleVelocityControl(variable);
 
     int[] rsceValues = RANDOM.ints(RsceVariable.values().length, 0, 1000).toArray();

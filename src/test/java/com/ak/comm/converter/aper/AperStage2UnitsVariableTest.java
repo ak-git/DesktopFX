@@ -13,8 +13,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.ByteOrder;
 import java.util.EnumSet;
 import java.util.List;
@@ -43,7 +41,6 @@ class AperStage2UnitsVariableTest {
 
   @ParameterizedTest
   @MethodSource("variables")
-  @ParametersAreNonnullByDefault
   void testApply(byte[] inputBytes, int[] outputInts) {
     Converter<BufferFrame, AperStage2UnitsVariable> converter = LinkedConverter
         .of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class);
@@ -102,7 +99,7 @@ class AperStage2UnitsVariableTest {
 
   @ParameterizedTest
   @EnumSource(value = AperStage2UnitsVariable.class)
-  void testInputVariablesClass(@Nonnull DependentVariable<AperStage1Variable, AperStage2UnitsVariable> variable) {
+  void testInputVariablesClass(DependentVariable<AperStage1Variable, AperStage2UnitsVariable> variable) {
     assertThat(variable.getInputVariablesClass()).isEqualTo(AperStage1Variable.class);
   }
 

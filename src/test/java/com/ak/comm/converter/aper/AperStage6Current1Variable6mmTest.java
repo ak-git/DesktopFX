@@ -9,8 +9,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.ByteOrder;
 import java.util.EnumSet;
 import java.util.List;
@@ -41,7 +39,6 @@ class AperStage6Current1Variable6mmTest {
 
   @ParameterizedTest
   @MethodSource("variables")
-  @ParametersAreNonnullByDefault
   void testApply(byte[] inputBytes, int[] outputInts) {
     Converter<BufferFrame, AperStage6Current1Variable6mm> converter = LinkedConverter
         .of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
@@ -69,7 +66,7 @@ class AperStage6Current1Variable6mmTest {
 
   @ParameterizedTest
   @EnumSource(value = AperStage6Current1Variable6mm.class)
-  void testGetInputVariables(@Nonnull DependentVariable<AperStage5Current1Variable, AperStage6Current1Variable6mm> variable) {
+  void testGetInputVariables(DependentVariable<AperStage5Current1Variable, AperStage6Current1Variable6mm> variable) {
     assertThat(variable.getInputVariables()).hasSize(1);
   }
 
@@ -98,13 +95,13 @@ class AperStage6Current1Variable6mmTest {
 
   @ParameterizedTest
   @EnumSource(value = AperStage6Current1Variable6mm.class)
-  void testFilterDelay(@Nonnull Variable<AperStage6Current1Variable6mm> variable) {
+  void testFilterDelay(Variable<AperStage6Current1Variable6mm> variable) {
     assertThat(variable.filter().getDelay()).isZero();
   }
 
   @ParameterizedTest
   @EnumSource(value = AperStage6Current1Variable6mm.class)
-  void testInputVariablesClass(@Nonnull DependentVariable<AperStage5Current1Variable, AperStage6Current1Variable6mm> variable) {
+  void testInputVariablesClass(DependentVariable<AperStage5Current1Variable, AperStage6Current1Variable6mm> variable) {
     assertThat(variable.getInputVariablesClass()).isEqualTo(AperStage5Current1Variable.class);
   }
 }

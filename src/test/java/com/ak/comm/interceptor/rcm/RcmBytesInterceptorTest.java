@@ -1,14 +1,5 @@
 package com.ak.comm.interceptor.rcm;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.bytes.LogUtils;
 import com.ak.comm.interceptor.BytesInterceptor;
@@ -18,6 +9,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import javax.annotation.Nullable;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -49,7 +47,7 @@ class RcmBytesInterceptorTest {
 
   @ParameterizedTest
   @MethodSource("data")
-  void testInterceptor(@Nonnull byte[] bytes, @Nullable BufferFrame response, @Nonnull CharSequence ignoredMessage) {
+  void testInterceptor(byte[] bytes, @Nullable BufferFrame response, CharSequence ignoredMessage) {
     buffer.clear();
     buffer.put(bytes);
     buffer.flip();

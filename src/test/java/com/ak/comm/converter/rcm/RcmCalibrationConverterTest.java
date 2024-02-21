@@ -1,13 +1,5 @@
 package com.ak.comm.converter.rcm;
 
-import java.nio.ByteOrder;
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.DependentVariable;
@@ -17,6 +9,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import java.nio.ByteOrder;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -34,7 +31,6 @@ class RcmCalibrationConverterTest {
 
   @ParameterizedTest
   @MethodSource("calibrableVariables")
-  @ParametersAreNonnullByDefault
   void testApplyCalibrator(byte[] inputBytes, int[] outputInts) {
     Converter<BufferFrame, RcmCalibrationVariable> converter = LinkedConverter.of(new RcmConverter(), RcmCalibrationVariable.class);
     AtomicBoolean processed = new AtomicBoolean();
@@ -55,19 +51,19 @@ class RcmCalibrationConverterTest {
 
   @ParameterizedTest
   @EnumSource(value = RcmCalibrationVariable.class)
-  void testInputVariablesClass(@Nonnull DependentVariable<RcmInVariable, RcmCalibrationVariable> variable) {
+  void testInputVariablesClass(DependentVariable<RcmInVariable, RcmCalibrationVariable> variable) {
     assertThat(variable.getInputVariablesClass()).isEqualTo(RcmInVariable.class);
   }
 
   @ParameterizedTest
   @EnumSource(value = RcmCalibrationVariable.class, names = {"CC_ADC", "BASE_ADC", "RHEO_ADC"})
-  void testOptions(@Nonnull Variable<RcmCalibrationVariable> variable) {
+  void testOptions(Variable<RcmCalibrationVariable> variable) {
     assertThat(variable.options()).contains(Variable.Option.VISIBLE);
   }
 
   @ParameterizedTest
   @EnumSource(value = RcmCalibrationVariable.class, names = {"MIN_RHEO_ADC", "AVG_RHEO_ADC"})
-  void testOptions2(@Nonnull Variable<RcmCalibrationVariable> variable) {
+  void testOptions2(Variable<RcmCalibrationVariable> variable) {
     assertThat(variable.options()).contains(Variable.Option.TEXT_VALUE_BANNER);
   }
 }

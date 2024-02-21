@@ -9,7 +9,6 @@ import tec.uom.se.AbstractUnit;
 import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -28,7 +27,6 @@ class RsceConverterTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.rsce.RsceTestDataProvider#infoRequests")
-  @ParametersAreNonnullByDefault
   void testApply(byte[] bytes, int[] rDozenMilliOhms, int[] infoOnes) {
     RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
     assertNotNull(frame);

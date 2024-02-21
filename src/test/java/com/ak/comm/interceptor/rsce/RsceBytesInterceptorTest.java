@@ -1,11 +1,5 @@
 package com.ak.comm.interceptor.rsce;
 
-import java.nio.ByteBuffer;
-import java.util.logging.Logger;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.comm.bytes.LogUtils;
 import com.ak.comm.bytes.rsce.RsceCommandFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
@@ -13,6 +7,9 @@ import com.ak.comm.log.LogTestUtils;
 import com.ak.util.Strings;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import java.nio.ByteBuffer;
+import java.util.logging.Logger;
 
 import static com.ak.comm.bytes.rsce.RsceCommandFrame.Control.CATCH;
 import static com.ak.comm.bytes.rsce.RsceCommandFrame.RequestType.STATUS_I_SPEED_ANGLE;
@@ -23,26 +20,23 @@ class RsceBytesInterceptorTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.rsce.RsceTestDataProvider#simpleRequests")
-  @ParametersAreNonnullByDefault
   void testSimpleRequest(byte[] bytes, RsceCommandFrame.Control control, RsceCommandFrame.RequestType type) {
     checkResponse(bytes, RsceCommandFrame.simple(control, type));
   }
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.rsce.RsceTestDataProvider#offRequests")
-  @ParametersAreNonnullByDefault
   void testOffRequest(byte[] expected, RsceCommandFrame.Control control) {
     checkResponse(expected, RsceCommandFrame.off(control));
   }
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.rsce.RsceTestDataProvider#preciseRequests")
-  void testPreciseRequest(@Nonnull byte[] expected, short speed) {
+  void testPreciseRequest(byte[] expected, short speed) {
     checkResponse(expected, RsceCommandFrame.precise(CATCH, STATUS_I_SPEED_ANGLE, speed));
   }
 
-  @ParametersAreNonnullByDefault
-  private static void checkResponse(@Nonnull byte[] bytes, @Nonnull RsceCommandFrame request) {
+  private static void checkResponse(byte[] bytes, RsceCommandFrame request) {
     BytesInterceptor<RsceCommandFrame, RsceCommandFrame> interceptor = new RsceBytesInterceptor();
 
     LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
