@@ -5,7 +5,6 @@ import com.ak.comm.converter.Variables;
 import com.ak.comm.log.LogTestUtils;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
 import java.util.logging.Logger;
 

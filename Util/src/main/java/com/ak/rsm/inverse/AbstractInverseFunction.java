@@ -5,7 +5,6 @@ import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.system.TetrapolarSystem;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -50,7 +49,6 @@ abstract sealed class AbstractInverseFunction<R extends Resistivity>
     return toErrors.apply(relativeMediumLayers);
   }
 
-  @ParametersAreNonnullByDefault
   final RelativeMediumLayers layer2RelativeMedium(TetrapolarSystem s, double[] kw) {
     return new RelativeMediumLayers(kw[0], kw[1] * baseL / s.lCC());
   }

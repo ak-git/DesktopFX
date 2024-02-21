@@ -5,7 +5,6 @@ import com.ak.comm.bytes.suntech.NIBPResponse;
 import com.ak.comm.log.LogTestUtils;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.function.Function;
@@ -48,7 +47,6 @@ class NIBPBytesInterceptorTest {
         }, new int[] {115, 74, 85, 88}, true);
   }
 
-  @ParametersAreNonnullByDefault
   private static void testResponse(byte[] input, int[] expected, boolean logFlag) {
     Function<ByteBuffer, Stream<NIBPResponse>> interceptor = new NIBPBytesInterceptor();
     assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES, () -> {

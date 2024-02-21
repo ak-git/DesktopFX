@@ -10,14 +10,12 @@ import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import static com.ak.comm.bytes.suntech.NIBPRequest.GET_CUFF_PRESSURE;
 import static com.ak.comm.converter.suntech.NIBPConverter.FREQUENCY;
 
 abstract class AbstractNIBPViewController extends AbstractScheduledViewController<NIBPRequest, NIBPResponse, NIBPVariable> {
   @Inject
-  @ParametersAreNonnullByDefault
   AbstractNIBPViewController(Provider<BytesInterceptor<NIBPRequest, NIBPResponse>> interceptorProvider,
                              Provider<Converter<NIBPResponse, NIBPVariable>> converterProvider) {
     super(interceptorProvider, converterProvider, FREQUENCY);

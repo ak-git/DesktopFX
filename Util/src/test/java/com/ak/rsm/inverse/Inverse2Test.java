@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -25,7 +24,6 @@ class Inverse2Test {
     testSingle(ms, Regularization.Interval.ZERO_MAX.of(1.0));
   }
 
-  @ParametersAreNonnullByDefault
   private static void testSingle(Collection<? extends DerivativeMeasurement> ms,
                                  Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
     LOGGER.info(regularizationFunction::toString);
