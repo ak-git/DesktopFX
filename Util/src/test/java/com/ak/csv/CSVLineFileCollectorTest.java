@@ -12,7 +12,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnull;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -71,7 +70,7 @@ class CSVLineFileCollectorTest {
 
   @ParameterizedTest
   @MethodSource("intStream")
-  void testConsumer(@Nonnull Supplier<Stream<String>> stream) throws IOException {
+  void testConsumer(Supplier<Stream<String>> stream) throws IOException {
     try (CSVLineFileCollector collector = new CSVLineFileCollector(OUT_PATH)) {
       collector.accept(stream.get().toArray(String[]::new));
     }
@@ -82,7 +81,7 @@ class CSVLineFileCollectorTest {
 
   @ParameterizedTest
   @MethodSource("intStream")
-  void testVertical(@Nonnull Supplier<Stream<String>> stream) throws IOException {
+  void testVertical(Supplier<Stream<String>> stream) throws IOException {
     assertTrue(stream.get().map(s -> new Object[] {s}).collect(new CSVLineFileCollector(OUT_PATH, "header")));
     assertThat(String.join(Strings.EMPTY, Files.readAllLines(OUT_PATH, Charset.forName("windows-1251"))))
         .isEqualTo(Stream.concat(Stream.of("header"), stream.get()).collect(Collectors.joining()));
@@ -91,7 +90,7 @@ class CSVLineFileCollectorTest {
 
   @ParameterizedTest
   @MethodSource("intStream")
-  void testInvalidClose(@Nonnull Supplier<Stream<String>> stream) throws Throwable {
+  void testInvalidClose(Supplier<Stream<String>> stream) throws Throwable {
     CSVLineFileCollector collector = new CSVLineFileCollector(OUT_PATH);
     collector.close();
     assertTrue(stream.get().map(s -> new Object[] {s}).collect(collector));
@@ -125,7 +124,7 @@ class CSVLineFileCollectorTest {
 
   @ParameterizedTest
   @MethodSource("invalidWriter")
-  void testInvalidFinisher(@Nonnull CSVPrinter printer) {
+  void testInvalidFinisher(CSVPrinter printer) {
     try (CSVLineFileCollector collector = new CSVLineFileCollector(OUT_PATH)) {
       collector.accumulator().accept(printer, new Object[] {Double.toString(Math.PI)});
       assertThat(EXCEPTION_COUNTER.get()).withFailMessage("Exception must NOT be thrown").isZero();

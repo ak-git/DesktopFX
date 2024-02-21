@@ -8,7 +8,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
@@ -17,7 +16,7 @@ import static tec.uom.se.unit.Units.METRE;
 class DerivativeApparentByPhi2RhoTest {
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
-  void testValueSL(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
+  void testValueSL(double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
     double h = Metrics.Length.MILLI.to(hmm, METRE);
     double dh = Metrics.Length.MILLI.to(-0.00001, METRE);
@@ -32,7 +31,7 @@ class DerivativeApparentByPhi2RhoTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
-  void testValueLS(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
+  void testValueLS(double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(lmm, METRE), Metrics.Length.MILLI.to(smm, METRE));
     double h = Metrics.Length.MILLI.to(hmm, METRE);
     double dh = Metrics.Length.MILLI.to(-0.00001, METRE);

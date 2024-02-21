@@ -8,7 +8,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -90,7 +89,7 @@ class Resistance3LayerTest {
 
   @ParameterizedTest
   @MethodSource("threeLayerParameters")
-  void testLayer(@Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p,
+  void testLayer(double[] rho, @Nonnegative double hStepSI, int[] p,
                  @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
     assertAll(Arrays.toString(rho),
@@ -117,7 +116,7 @@ class Resistance3LayerTest {
 
   @ParameterizedTest
   @MethodSource("threeLayerParametersSpecial")
-  void testLayerSpecial(@Nonnull double[] rho, @Nonnegative double hStepSI, @Nonnull int[] p,
+  void testLayerSpecial(double[] rho, @Nonnegative double hStepSI, int[] p,
                         @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
     assertAll(Arrays.toString(rho),

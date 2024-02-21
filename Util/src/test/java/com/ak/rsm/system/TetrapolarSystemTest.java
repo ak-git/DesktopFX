@@ -7,7 +7,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -32,7 +31,6 @@ class TetrapolarSystemTest {
 
   @ParameterizedTest
   @MethodSource("tetrapolarSystems")
-  @ParametersAreNonnullByDefault
   void testEquals(Object system1, Object system2, boolean equals) {
     assertThat(system1.equals(system2))
         .withFailMessage("%s compared with %s", system1, system2).isEqualTo(equals);

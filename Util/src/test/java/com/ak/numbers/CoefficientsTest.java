@@ -7,7 +7,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -30,7 +29,7 @@ class CoefficientsTest {
 
   @ParameterizedTest
   @MethodSource("coefficients")
-  void testCoefficients(@Nonnull IntSummaryStatistics statistics, int min, int max) {
+  void testCoefficients(IntSummaryStatistics statistics, int min, int max) {
     assertThat(statistics.getMin()).isEqualTo(min);
     assertThat(statistics.getMax()).isEqualTo(max);
   }
@@ -51,7 +50,7 @@ class CoefficientsTest {
 
   @ParameterizedTest
   @MethodSource("countCoefficients")
-  void testCoefficients(@Nonnull Supplier<double[]> coefficients, @Nonnegative int count) {
+  void testCoefficients(Supplier<double[]> coefficients, @Nonnegative int count) {
     assertThat(coefficients.get()).hasSize(count);
   }
 

@@ -6,7 +6,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.stream.Stream;
 
@@ -28,7 +27,7 @@ class ResistivityTest {
 
   @ParameterizedTest
   @MethodSource("resistivity")
-  void testGetBaseL(@Nonnull Collection<? extends Resistivity> resistivity, @Nonnegative double expectedBaseLMilli) {
+  void testGetBaseL(Collection<? extends Resistivity> resistivity, @Nonnegative double expectedBaseLMilli) {
     assertThat(Resistivity.getBaseL(resistivity)).isCloseTo(Metrics.Length.MILLI.to(expectedBaseLMilli, METRE), withPercentage(1.0));
   }
 }

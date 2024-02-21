@@ -1,15 +1,13 @@
 package com.ak.rsm.system;
 
-import java.util.Arrays;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import javax.annotation.Nonnegative;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
@@ -70,7 +68,7 @@ class LayersTest {
 
   @ParameterizedTest
   @MethodSource("qn")
-  void testQ(double k12, double k23, @Nonnegative int p1, @Nonnegative int p2mp1, @Nonnull double[] expected) {
+  void testQ(double k12, double k23, @Nonnegative int p1, @Nonnegative int p2mp1, double[] expected) {
     double[] actual = Arrays.copyOfRange(Layers.qn(k12, k23, p1, p2mp1), 1, p1 + p2mp1 + 1);
     assertThat(actual).containsExactly(expected, byLessThan(1.0e-6));
   }

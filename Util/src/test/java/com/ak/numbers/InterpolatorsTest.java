@@ -1,15 +1,13 @@
 package com.ak.numbers;
 
-import java.util.function.IntUnaryOperator;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.function.IntUnaryOperator;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -42,7 +40,6 @@ class InterpolatorsTest {
 
   @ParameterizedTest
   @MethodSource("interpolators")
-  @ParametersAreNonnullByDefault
   <C extends Enum<C> & Coefficients> void testInterpolator(C coefficients, int[] expected) {
     IntUnaryOperator operator = Interpolators.interpolator(coefficients).get();
     int[] actual = IntStream.rangeClosed(1, 15).map(operator).toArray();
