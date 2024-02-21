@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -28,7 +27,6 @@ class NmisProtocolByteTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#allOhmsMyoOffResponse")
-  @ParametersAreNonnullByDefault
   void testResponseOhmsCRC(NmisRequest request, byte[] input) {
     assertNotNull(request);
     assertTrue(NmisProtocolByte.checkCRC(ByteBuffer.wrap(Arrays.copyOfRange(input, 1, input.length))), Arrays.toString(input));
@@ -42,7 +40,6 @@ class NmisProtocolByteTest {
       "com.ak.comm.bytes.nmis.NmisTestProvider#sequence",
       "com.ak.comm.bytes.nmis.NmisTestProvider#myoResponse"
   })
-  @ParametersAreNonnullByDefault
   void testResponseMyoCRC(NmisRequest request, byte[] input) {
     assertNotNull(request);
     assertTrue(NmisProtocolByte.checkCRC(ByteBuffer.wrap(input)), Arrays.toString(input));
@@ -50,7 +47,6 @@ class NmisProtocolByteTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.bytes.nmis.NmisTestProvider#aliveAndChannelsResponse")
-  @ParametersAreNonnullByDefault
   void testResponseAliveAndChannelsCRC(NmisAddress address, byte[] input) {
     if (EnumSet.of(CATCH_ELBOW, ROTATE_ELBOW, CATCH_HAND, ROTATE_HAND).contains(address)) {
       assertTrue(NmisProtocolByte.checkCRC(ByteBuffer.wrap(input)), Arrays.toString(input));
