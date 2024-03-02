@@ -1,5 +1,5 @@
 [versions]
-javamodularity-moduleplugin = '1.8.13'
+javamodularity-moduleplugin = '1.8.14'
 sonarqube = '4.4.1.3373'
 spotbugs = '6.0.7'
 ben-manes-versions = '0.51.0'

@@ -34,6 +34,6 @@ class LogPathBuilder extends LocalFileIO.AbstractBuilder {
    */
   @Override
   public final LocalIO build() {
-    return new LocalFileIO<>(this, LogOSDirectory.class);
+    return new LocalFileIO(this, LogOSDirectory.DIRECTORY);
   }
 }
