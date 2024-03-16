@@ -57,7 +57,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   private long countSamples;
   @Nullable
   private SequentialTransition transition;
-  @Value("${version:}")
+  @Value("${version}")
   private final String version;
   private Closeable fileWatcher = () -> {
   };
