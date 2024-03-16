@@ -44,6 +44,8 @@ public enum Variables {
       }
     }
     catch (MissingResourceException e) {
+      Logger.getLogger(Variables.class.getName()).log(Level.WARNING,
+          "Missing resource file %s at file %s.properties".formatted(variable.name(), baseName), e);
       name = variable.name();
     }
     return name;

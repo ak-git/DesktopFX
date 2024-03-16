@@ -1,9 +1,9 @@
 package com.ak.logging;
 
-import java.nio.file.Path;
-
 import com.ak.util.OSDirectories;
 import com.ak.util.OSDirectory;
+
+import java.nio.file.Path;
 
 import static com.ak.util.OSDirectories.VENDOR_ID;
 
@@ -16,4 +16,6 @@ public enum OutputOSDirectory implements OSDirectory {
   public Path getDirectory() {
     return OSDirectories.getDirectory(CANDIDATES).resolve(VENDOR_ID);
   }
+
+  public static final OSDirectory DIRECTORY = OSDirectory.of(OutputOSDirectory.class);
 }

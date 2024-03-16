@@ -11,21 +11,20 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Optional;
 
-public class LocalFileIO<E extends Enum<E> & OSDirectory> implements LocalIO {
+public class LocalFileIO implements LocalIO {
   private final Path path;
   private final String fileName;
-  private final E osIdEnum;
 
-  public LocalFileIO(AbstractBuilder b, Class<E> enumClass) {
-    path = b.relativePath == null ? Paths.get(Strings.EMPTY) : b.relativePath;
+  public LocalFileIO(AbstractBuilder b, OSDirectory directory) {
+    Path p = b.relativePath == null ? Paths.get(Strings.EMPTY) : b.relativePath;
+    path = directory.getDirectory().resolve(p);
     fileName = Optional.ofNullable(b.fileName).orElse(Strings.EMPTY).trim();
-    osIdEnum = Enum.valueOf(enumClass, OS.get().name());
   }
 
   @Override
   public Path getPath() throws IOException {
-    Path p = osIdEnum.getDirectory().resolve(path);
-    Files.createDirectories(p);
+    Files.createDirectories(path);
+    Path p = path;
     if (!fileName.isEmpty()) {
       p = p.resolve(fileName);
     }

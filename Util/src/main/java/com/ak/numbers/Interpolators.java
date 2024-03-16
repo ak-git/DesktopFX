@@ -28,7 +28,7 @@ public enum Interpolators {
   }
 
   public static <C extends Enum<C> & Coefficients> Supplier<IntBinaryOperator> interpolator(Class<C> coeffEnum) {
-    Map<C, IntUnaryOperator> coeffSplineMap = EnumSet.allOf(Objects.requireNonNull(coeffEnum)).stream().collect(
+    Map<C, IntUnaryOperator> coeffSplineMap = EnumSet.allOf(coeffEnum).stream().collect(
         Collectors.toMap(Function.identity(), coefficients -> interpolator(coefficients).get())
     );
 

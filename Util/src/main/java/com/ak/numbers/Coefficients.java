@@ -19,7 +19,8 @@ import java.util.logging.Logger;
 public interface Coefficients extends Supplier<double[]> {
   @Override
   default double[] get() {
-    var fileName = getClass().getPackageName().substring(getClass().getPackageName().lastIndexOf(".") + 1);
+    var fileName = Arrays.stream(getClass().getPackageName().split("\\.")).skip(3).findFirst()
+        .orElse(Arrays.stream(Coefficients.class.getPackageName().split("\\.")).toList().getLast());
     var inputStream = Objects.requireNonNull(getClass().getResourceAsStream(Extension.JSON.attachTo(fileName)));
     try {
       LocalIO build = CalibrateBuilders.build(fileName);
