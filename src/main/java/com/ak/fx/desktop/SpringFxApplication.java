@@ -1,13 +1,13 @@
 package com.ak.fx.desktop;
 
+import com.ak.appliance.aper.comm.converter.*;
+import com.ak.appliance.kleiber.comm.converter.KleiberVariable;
+import com.ak.appliance.nmi.comm.converter.NmiVariable;
+import com.ak.appliance.rcm.comm.converter.RcmCalibrationVariable;
+import com.ak.appliance.rcm.comm.converter.RcmConverter;
+import com.ak.appliance.rcm.comm.converter.RcmOutVariable;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.*;
-import com.ak.comm.converter.aper.*;
-import com.ak.comm.converter.kleiber.KleiberVariable;
-import com.ak.comm.converter.nmi.NmiVariable;
-import com.ak.comm.converter.rcm.RcmCalibrationVariable;
-import com.ak.comm.converter.rcm.RcmConverter;
-import com.ak.comm.converter.rcm.RcmOutVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.interceptor.simple.StringBytesInterceptor;
@@ -26,7 +26,7 @@ import java.util.ResourceBundle;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {
-    "com.ak.fx.desktop",
+    "com.ak.fx.desktop", "com.ak.appliance",
     "com.ak.comm.interceptor", "com.ak.comm.converter"
 })
 public class SpringFxApplication extends FxApplication {
