@@ -74,17 +74,19 @@ public final class Chart extends AbstractRegion {
     xAxisUnitGroup.relocate(x + BIG.minCoordinate(width) + BIG.maxValue(width) / 2.0,
         y + SMALL.minCoordinate(height) + SMALL.getStep() / 2 - xAxisUnit.getFont().getSize() / 2.0);
 
-    bannerBox.setSpacing(POINTS.getStep());
-    bannerBox.setPadding(new Insets(POINTS.getStep()));
-    double w = bannerGroup.getBoundsInParent().getWidth();
-    double h = bannerGroup.getBoundsInParent().getHeight();
-    bannerGroup.relocate(x + SMALL.minCoordinate(width) + SMALL.maxValue(width) - w / 2.0,
-        y + SMALL.minCoordinate(height) + h / 2.0);
-    bannerRect.setWidth(w - (bannerBox.getPadding().getLeft() + bannerBox.getPadding().getRight()) / 2.0);
-    bannerRect.setHeight(h - (bannerBox.getPadding().getTop() + bannerBox.getPadding().getBottom()) / 2.0);
-    double addSize = Math.min(xAxisUnit.getBoundsInParent().getWidth(), xAxisUnit.getBoundsInParent().getHeight());
-    bannerRect.setArcWidth(addSize);
-    bannerRect.setArcHeight(addSize);
+    if (bannerGroup.isVisible()) {
+      bannerBox.setSpacing(POINTS.getStep());
+      bannerBox.setPadding(new Insets(POINTS.getStep()));
+      double w = bannerGroup.getBoundsInParent().getWidth();
+      double h = bannerGroup.getBoundsInParent().getHeight();
+      bannerGroup.relocate(x + SMALL.minCoordinate(width) + SMALL.maxValue(width) - w / 2.0,
+          y + SMALL.minCoordinate(height) + h / 2.0);
+      bannerRect.setWidth(w - (bannerBox.getPadding().getLeft() + bannerBox.getPadding().getRight()) / 2.0);
+      bannerRect.setHeight(h - (bannerBox.getPadding().getTop() + bannerBox.getPadding().getBottom()) / 2.0);
+      double addSize = Math.min(xAxisUnit.getBoundsInParent().getWidth(), xAxisUnit.getBoundsInParent().getHeight());
+      bannerRect.setArcWidth(addSize);
+      bannerRect.setArcHeight(addSize);
+    }
 
     layoutLineDiagrams(x + SMALL.minCoordinate(width), y + SMALL.minCoordinate(height), SMALL.maxValue(width), SMALL.maxValue(height));
     diagramWidth.set(SMALL.maxValue(width));
@@ -152,14 +154,17 @@ public final class Chart extends AbstractRegion {
 
   public void setBannerNames(String text) {
     bannerNames.setText(Objects.requireNonNull(text));
+    bannerGroup.setVisible(!text.isBlank());
   }
 
   public void setBannerValues(String text) {
     bannerValues.setText(Objects.requireNonNull(text));
+    bannerGroup.setVisible(!text.isBlank());
   }
 
   public void setBannerUnits(String text) {
     bannerUnits.setText(Objects.requireNonNull(text));
+    bannerGroup.setVisible(!text.isBlank());
   }
 
   public ReadOnlyDoubleProperty diagramWidthProperty() {

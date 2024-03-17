@@ -16,7 +16,7 @@ public final class OutputBuilder extends LocalFileIO.AbstractBuilder {
    */
   @Override
   public LocalIO build() {
-    return new LocalFileIO(this, OutputOSDirectory.DIRECTORY);
+    return new LocalFileIO(this, OutputOSDirectory.Constants.DIRECTORY);
   }
 }
 

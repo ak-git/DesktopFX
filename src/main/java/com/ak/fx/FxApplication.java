@@ -1,5 +1,6 @@
-package com.ak.fx.desktop;
+package com.ak.fx;
 
+import com.ak.fx.desktop.ViewController;
 import com.ak.fx.scene.Colors;
 import com.ak.fx.scene.Fonts;
 import com.ak.fx.storage.OSStageStorage;
@@ -139,7 +140,7 @@ public class FxApplication extends Application implements ViewController {
   }
 
   @OverridingMethodsMustInvokeSuper
-  List<FXMLLoader> getFXMLLoader(ResourceBundle resourceBundle) {
+  protected List<FXMLLoader> getFXMLLoader(ResourceBundle resourceBundle) {
     return Collections.singletonList(
         new FXMLLoader(getClass().getResource(String.join(".", "default", "fxml")), resourceBundle)
     );

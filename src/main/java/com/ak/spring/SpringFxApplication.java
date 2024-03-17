@@ -1,4 +1,4 @@
-package com.ak.fx.desktop;
+package com.ak.spring;
 
 import com.ak.appliance.aper.comm.converter.*;
 import com.ak.appliance.kleiber.comm.converter.KleiberVariable;
@@ -11,6 +11,7 @@ import com.ak.comm.converter.*;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.interceptor.simple.StringBytesInterceptor;
+import com.ak.fx.FxApplication;
 import com.ak.logging.LocalFileHandler;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -83,7 +84,7 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Override
-  List<FXMLLoader> getFXMLLoader(ResourceBundle resourceBundle) {
+  protected List<FXMLLoader> getFXMLLoader(ResourceBundle resourceBundle) {
     String[] profiles = applicationContext.getEnvironment().getActiveProfiles();
     if (profiles.length == 0) {
       profiles = applicationContext.getEnvironment().getDefaultProfiles();

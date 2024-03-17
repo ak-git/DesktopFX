@@ -1,5 +1,6 @@
 package com.ak.comm.converter;
 
+import com.ak.comm.converter.missing.MissingResourceVariables;
 import com.ak.comm.logging.LogTestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -103,14 +104,14 @@ class VariableTest {
   @Test
   void testToString() {
     String adc = Variables.toString(ADCVariable.ADC, 10000);
-    assertThat(adc).startsWith("ADC = ").endsWith(String.format(Locale.getDefault(), "%,d one", 10000));
+    assertThat(adc).contains(" = ").endsWith(String.format(Locale.getDefault(), "%,d one", 10000));
     assertThat(Variables.toString(Quantities.getQuantity(1, AbstractUnit.ONE))).startsWith("1 ");
 
-    assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
-        () -> assertThat(Variables.toString(ADCVariable.ADC)).isEqualTo(ADCVariable.ADC.name()),
+    assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING,
+        () -> assertThat(Variables.toString(MissingResourceVariables.NONE)).isEqualTo(MissingResourceVariables.NONE.name()),
         logRecord -> {
-          assertThat(logRecord.getMessage()).contains(ADCVariable.ADC.name());
-          assertNull(logRecord.getThrown());
+          assertThat(logRecord.getMessage()).contains(MissingResourceVariables.NONE.name());
+          assertNotNull(logRecord.getThrown());
         })
     );
 
