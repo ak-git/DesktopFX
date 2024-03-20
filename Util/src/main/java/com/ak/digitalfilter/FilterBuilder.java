@@ -168,6 +168,10 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new RRSFilter());
   }
 
+  FilterBuilder removeConstant(double alpha) {
+    return chain(new RemoveConstantFilter(alpha));
+  }
+
   /**
    * Standard Deviation by Recursive Running Sum with <b>zero-delay</b>.
    *
