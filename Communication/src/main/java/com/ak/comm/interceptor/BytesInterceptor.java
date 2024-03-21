@@ -1,5 +1,6 @@
 package com.ak.comm.interceptor;
 
+import com.ak.util.Strings;
 import com.fazecast.jSerialComm.SerialPort;
 
 import javax.annotation.Nonnegative;
@@ -34,7 +35,7 @@ public interface BytesInterceptor<T, R> extends Function<ByteBuffer, Stream<R>> 
     @Override
     @Nonnegative
     public int getAsInt() {
-      return Integer.parseInt(name().substring(3));
+      return Integer.parseInt(name().replaceFirst("^\\D*", Strings.EMPTY));
     }
   }
 
