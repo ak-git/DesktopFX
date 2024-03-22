@@ -18,8 +18,8 @@ import static com.ak.fx.scene.GridCell.SMALL;
 public enum Fonts {
   LOGO(java.awt.Font.MONOSPACED, FontWeight.BOLD, 1.0),
   LOGO_SMALL(java.awt.Font.MONOSPACED, FontWeight.BOLD, 9.0),
-  H1(Constants.TAHOMA, FontWeight.BOLD, 2.5),
-  H2(Constants.TAHOMA, FontWeight.NORMAL, 3.0);
+  H1(Constants.SYSTEM, FontWeight.BOLD, 2.5),
+  H2(Constants.SYSTEM, FontWeight.NORMAL, 3.0);
 
   private final transient ObjectProperty<Font> fontProperty;
   private final transient ChangeListener<Number> changeListener;
@@ -43,5 +43,6 @@ public enum Fonts {
   private enum Constants {
     ;
     private static final String TAHOMA = "Tahoma";
+    private static final String SYSTEM = Font.getFontNames().contains(TAHOMA) ? TAHOMA : Font.getDefault().getName();
   }
 }
