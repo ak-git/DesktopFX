@@ -13,7 +13,6 @@ import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Extension;
 import com.ak.util.Metrics;
-import com.ak.util.Strings;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Disabled;
@@ -88,18 +87,18 @@ class Inverse3Test {
     ValuePair h = layer2Medium.h();
     LOGGER.info(h::toString);
 
-    Map<ValuePair.Name, String> outMap = new EnumMap<>(
+    Map<ValuePair.Name, Double> outMap = new EnumMap<>(
         Stream.of(ValuePair.Name.H1, ValuePair.Name.H2, ValuePair.Name.DH2,
                 ValuePair.Name.RHO_1, ValuePair.Name.RHO_2, ValuePair.Name.RHO_3,
                 ValuePair.Name.K12, ValuePair.Name.K23).
-            collect(Collectors.toMap(Function.identity(), v -> Strings.EMPTY))
+            collect(Collectors.toMap(Function.identity(), v -> Double.NaN))
     );
 
     try (CSVLineFileCollector csvCollector = new CSVLineFileCollector(
         Path.of(Extension.CSV.attachTo(Inverse3Test.class.getSimpleName())),
         outMap.keySet().stream().map(Enum::name).toArray(String[]::new))
     ) {
-      int SCALE = 100;
+      int SCALE = 1;
       double hStep = dm.stream().flatMapToDouble(m -> DoubleStream.of(Math.abs(m.dh()))).min().orElseThrow() / SCALE;
       LOGGER.info(() -> "3-layer step %s".formatted(ValuePair.Name.H.of(hStep, 0.0)));
       Assertions.assertThat(
@@ -115,9 +114,7 @@ class Inverse3Test {
 
                             Stream.of(h1, h2, dh2).forEach(valuePair -> outMap.put(
                                     valuePair.name(),
-                                    String.format(Locale.ROOT,
-                                        "%.3f".formatted(Metrics.Length.METRE.to(valuePair.value(), MetricPrefix.MILLI(METRE)))
-                                    )
+                                Metrics.Length.METRE.to(valuePair.value(), MetricPrefix.MILLI(METRE))
                                 )
                             );
 
@@ -145,15 +142,7 @@ class Inverse3Test {
                 ValuePair k23 = ValuePair.Name.K23.of(kpp[1], 0.0);
 
                 LOGGER.info(() -> "%.6f %s; %s; %s; %s; %s".formatted(optimized.getValue(), k12, k23, rho1, rho2, rho3));
-
-                Stream.of(rho1, rho2, rho3, k12, k23).forEach(valuePair -> outMap.put(
-                        valuePair.name(),
-                        String.format(Locale.ROOT,
-                            "%f".formatted(valuePair.value())
-                        )
-                    )
-                );
-
+                Stream.of(rho1, rho2, rho3, k12, k23).forEach(valuePair -> outMap.put(valuePair.name(), valuePair.value()));
                 return outMap.values().toArray();
               })
               .collect(csvCollector)).isTrue();
