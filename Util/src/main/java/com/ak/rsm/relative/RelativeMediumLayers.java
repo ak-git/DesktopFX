@@ -14,7 +14,7 @@ public record RelativeMediumLayers(ValuePair k, ValuePair hToL) {
   public static final RelativeMediumLayers NAN = new RelativeMediumLayers(Double.NaN, Double.NaN);
 
   public RelativeMediumLayers(double k, @Nonnegative double hToL) {
-    this(new ValuePair(ValuePair.Name.K12, k, 0.0), new ValuePair(ValuePair.Name.H_L, Math.abs(hToL), 0.0));
+    this(ValuePair.Name.K12.of(k, 0.0), ValuePair.Name.H_L.of(Math.abs(hToL), 0.0));
   }
 
   public RelativeMediumLayers(double[] kw) {

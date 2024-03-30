@@ -2,6 +2,7 @@ package com.ak.util;
 
 import javax.annotation.Nonnegative;
 
+import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 import static tec.uom.se.unit.Units.OHM;
 
@@ -44,5 +45,9 @@ public enum Strings {
 
   public static String rho(@Nonnegative int index, Object rho) {
     return "%s%s = %s %s".formatted(RHO, low(index), rho, OHM_METRE);
+  }
+
+  public static String h(@Nonnegative int index, Object h) {
+    return "h%s = %s %s".formatted(low(index), h, MILLI(METRE));
   }
 }
