@@ -17,7 +17,6 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -29,7 +28,7 @@ class BrikoBytesInterceptorTest {
     BytesInterceptor<BufferFrame, BufferFrame> interceptor = new BrikoBytesInterceptor();
     assertThat(interceptor.name()).isEqualTo("Briko-Stand");
     assertThat(interceptor.getBaudRate()).isEqualTo(115200 * 8);
-    assertNull(interceptor.getPingRequest());
+    assertThat(interceptor.getPingRequest()).isEmpty();
   }
 
 

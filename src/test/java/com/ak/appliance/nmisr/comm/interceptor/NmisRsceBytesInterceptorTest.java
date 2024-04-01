@@ -59,7 +59,7 @@ class NmisRsceBytesInterceptorTest {
     Assertions.assertAll(interceptor.toString(),
         () -> assertThat(interceptor.name()).isEqualTo("NMIS-RSC Energia"),
         () -> assertThat(interceptor.getBaudRate()).isEqualTo(new NmisBytesInterceptor().getBaudRate()),
-        () -> assertThat(interceptor.getPingRequest()).isEqualTo(NmisRequest.Sequence.CATCH_100.build())
+        () -> assertThat(interceptor.getPingRequest()).hasValue(NmisRequest.Sequence.CATCH_100.build())
     );
 
     assertFalse(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,

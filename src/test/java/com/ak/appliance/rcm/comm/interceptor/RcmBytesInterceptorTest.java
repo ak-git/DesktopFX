@@ -18,7 +18,6 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -54,7 +53,7 @@ class RcmBytesInterceptorTest {
 
     Assertions.assertAll(interceptor.toString(),
         () -> assertThat(interceptor.getBaudRate()).isEqualTo(115200 / 3),
-        () -> assertNull(interceptor.getPingRequest()),
+        () -> assertThat(interceptor.getPingRequest()).isEmpty(),
         () -> assertThat(interceptor.getSerialParams()).containsExactly(BytesInterceptor.SerialParams.CLEAR_DTR)
     );
 

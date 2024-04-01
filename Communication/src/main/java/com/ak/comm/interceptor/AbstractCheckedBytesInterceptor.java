@@ -4,7 +4,6 @@ import com.ak.comm.bytes.AbstractCheckedBuilder;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.bytes.LogUtils;
 
-import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -17,9 +16,8 @@ public abstract class AbstractCheckedBytesInterceptor<T extends BufferFrame, R, 
   private final Logger logger = Logger.getLogger(getClass().getName());
   private final B responseBuilder;
 
-  protected AbstractCheckedBytesInterceptor(String name, BaudRate baudRate,
-                                            @Nullable T pingRequest, B responseBuilder) {
-    super(name, baudRate, pingRequest, responseBuilder.buffer().limit() + IGNORE_LIMIT);
+  protected AbstractCheckedBytesInterceptor(String name, BaudRate baudRate, B responseBuilder, T pingRequest) {
+    super(name, baudRate, responseBuilder.buffer().limit() + IGNORE_LIMIT, pingRequest);
     this.responseBuilder = responseBuilder;
   }
 

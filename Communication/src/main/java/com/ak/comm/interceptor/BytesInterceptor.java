@@ -4,9 +4,9 @@ import com.ak.util.Strings;
 import com.fazecast.jSerialComm.SerialPort;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -57,8 +57,7 @@ public interface BytesInterceptor<T, R> extends Function<ByteBuffer, Stream<R>> 
   @Override
   Stream<R> apply(ByteBuffer src);
 
-  @Nullable
-  T getPingRequest();
+  Optional<T> getPingRequest();
 
   /**
    * Converts object to bytes and puts them into output buffer.

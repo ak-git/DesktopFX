@@ -9,6 +9,7 @@ import com.ak.appliance.rsce.comm.interceptor.RsceBytesInterceptor;
 import com.ak.comm.interceptor.BytesInterceptor;
 
 import java.nio.ByteBuffer;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -55,8 +56,8 @@ public final class NmisRsceBytesInterceptor implements BytesInterceptor<NmisRequ
   }
 
   @Override
-  public NmisRequest getPingRequest() {
-    return NmisRequest.Sequence.CATCH_100.build();
+  public Optional<NmisRequest> getPingRequest() {
+    return Optional.of(NmisRequest.Sequence.CATCH_100.build());
   }
 
   @Override

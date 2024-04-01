@@ -15,8 +15,7 @@ public final class PureLogicBytesInterceptor extends AbstractBytesInterceptor<Pu
   private final StringBuilder frame = new StringBuilder(FRAME_LEN);
 
   public PureLogicBytesInterceptor() {
-    super("PureLogic", BytesInterceptor.BaudRate.BR_115200, null,
-        (FRAME_LEN / Character.BYTES) * Character.BYTES);
+    super("PureLogic", BytesInterceptor.BaudRate.BR_115200, (FRAME_LEN / Character.BYTES) * Character.BYTES);
   }
 
   @Override

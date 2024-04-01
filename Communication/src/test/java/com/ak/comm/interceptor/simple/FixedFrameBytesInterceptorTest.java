@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FixedFrameBytesInterceptorTest {
@@ -39,7 +38,7 @@ class FixedFrameBytesInterceptorTest {
     BytesInterceptor<BufferFrame, BufferFrame> interceptor =
         new FixedFrameBytesInterceptor(getClass().getName(), BytesInterceptor.BaudRate.BR_115200, 1);
     assertThat(interceptor.getBaudRate()).isEqualTo(115200);
-    assertNull(interceptor.getPingRequest());
+    assertThat(interceptor.getPingRequest()).isEmpty();
   }
 
   @ParameterizedTest

@@ -55,7 +55,7 @@ class FileReadingServiceTest {
   void testNoDataConverted(Path fileToRead, int bytes) {
     try (FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher = new FileReadingService<>(fileToRead,
         new AbstractBytesInterceptor<>(getClass().getName(),
-            BytesInterceptor.BaudRate.BR_921600, null, 1) {
+            BytesInterceptor.BaudRate.BR_921600, 1) {
           @Override
           protected Collection<BufferFrame> innerProcessIn(ByteBuffer src) {
             return Collections.emptyList();

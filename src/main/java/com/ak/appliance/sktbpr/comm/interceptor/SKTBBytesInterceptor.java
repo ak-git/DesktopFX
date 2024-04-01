@@ -9,7 +9,7 @@ import java.util.Set;
 
 public final class SKTBBytesInterceptor extends AbstractCheckedBytesInterceptor<SKTBRequest, SKTBResponse, SKTBResponse.Builder> {
   public SKTBBytesInterceptor() {
-    super("SKTB-PR", BaudRate.BR_57600, SKTBRequest.NONE, new SKTBResponse.Builder());
+    super("SKTB-PR", BaudRate.BR_57600, new SKTBResponse.Builder(), SKTBRequest.NONE);
   }
 
   @Override

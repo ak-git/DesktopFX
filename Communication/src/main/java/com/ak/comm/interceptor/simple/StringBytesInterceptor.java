@@ -13,7 +13,7 @@ public final class StringBytesInterceptor extends AbstractBytesInterceptor<Buffe
   private final StringBuilder frame = new StringBuilder(MAX_LEN);
 
   public StringBytesInterceptor(String name) {
-    super(name, BaudRate.BR_115200, null, MAX_LEN);
+    super(name, BaudRate.BR_115200, MAX_LEN);
   }
 
   @Override
