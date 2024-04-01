@@ -11,12 +11,13 @@ import tec.uom.se.unit.MetricPrefix;
 import tec.uom.se.unit.Units;
 
 import java.nio.ByteBuffer;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NmisConverterTest {
   private static final Logger LOGGER = Logger.getLogger(NmisConverter.class.getName());
@@ -35,15 +36,14 @@ class NmisConverterTest {
   }
 
   private static void testConverter(NmisAddress address, byte[] input, int[] expected) {
-    NmisResponseFrame frame = new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build();
+    Optional<NmisResponseFrame> frame = new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build();
     if (NmisAddress.ALIVE == address) {
-      assertNull(frame);
+      assertThat(frame).isEmpty();
     }
     else {
-      assertNotNull(frame);
       assertEquals(LogTestUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES, () -> {
         Converter<NmisResponseFrame, NmisVariable> converter = new NmisConverter();
-        Stream<int[]> stream = converter.apply(frame);
+        Stream<int[]> stream = converter.apply(frame.orElseThrow());
         if (expected.length == 0) {
           assertThat(stream.count()).isZero();
         }

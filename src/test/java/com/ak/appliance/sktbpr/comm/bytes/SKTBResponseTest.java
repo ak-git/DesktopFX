@@ -22,7 +22,7 @@ class SKTBResponseTest {
     builder.buffer().put((byte) 10);
 
     builder.buffer().rewind();
-    SKTBResponse response = builder.build();
+    SKTBResponse response = builder.build().orElseThrow();
     assertThat(response).extracting(SKTBResponse::rotateAngle).isEqualTo(3);
     assertThat(response).extracting(SKTBResponse::flexAngle).isEqualTo(27);
   }
@@ -38,6 +38,6 @@ class SKTBResponseTest {
     assertThat(builder.is((byte) 7)).isFalse();
 
     builder.buffer().rewind();
-    assertThat(builder.build()).isNull();
+    assertThat(builder.build()).isEmpty();
   }
 }

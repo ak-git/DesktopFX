@@ -11,13 +11,17 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 import static com.ak.appliance.nmis.comm.bytes.NmisAddress.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NmisBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(NmisBytesInterceptor.class.getName());
@@ -43,23 +47,24 @@ class NmisBytesInterceptorTest {
   @ParameterizedTest
   @MethodSource("com.ak.appliance.nmis.comm.bytes.NmisTestProvider#allOhmsMyoOffResponse")
   void testResponseOhms(NmisRequest request, byte[] input) {
+    assertThat(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build()).isEmpty();
     assertThat(request.toResponse())
-        .isEqualTo(new NmisResponseFrame.Builder(ByteBuffer.wrap(Arrays.copyOfRange(input, 1, input.length))).build())
-        .isNotEqualTo(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
+        .isEqualTo(new NmisResponseFrame.Builder(ByteBuffer.wrap(Arrays.copyOfRange(input, 1, input.length))).build().orElseThrow())
+        .isNotNull();
     testResponse(request, input, true);
   }
 
   @ParameterizedTest
   @MethodSource("com.ak.appliance.nmis.comm.bytes.NmisTestProvider#myoResponse")
   void testResponseMyo(NmisRequest request, byte[] input) {
-    assertThat(request.toResponse()).isEqualTo(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
+    assertThat(request.toResponse()).isEqualTo(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build().orElseThrow());
     testResponse(request, input, true);
   }
 
   @ParameterizedTest
   @MethodSource("com.ak.appliance.nmis.comm.bytes.NmisTestProvider#sequenceResponse")
   void testResponseSequence(NmisRequest request, byte[] input) {
-    assertThat(request.toResponse()).isEqualTo(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build());
+    assertThat(request.toResponse()).isEqualTo(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build().orElseThrow());
     testResponse(request, input, true);
   }
 
@@ -67,7 +72,7 @@ class NmisBytesInterceptorTest {
   @MethodSource("com.ak.appliance.nmis.comm.bytes.NmisTestProvider#aliveAndChannelsResponse")
   void testResponseAliveAndChannels(NmisAddress address, byte[] input) {
     if (EnumSet.of(CATCH_ELBOW, ROTATE_ELBOW, CATCH_HAND, ROTATE_HAND).contains(address)) {
-      assertNotNull(Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build()).orElseThrow(NullPointerException::new));
+      assertThat(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build()).isNotEmpty();
     }
   }
 

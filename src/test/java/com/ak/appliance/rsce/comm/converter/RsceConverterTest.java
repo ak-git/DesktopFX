@@ -20,7 +20,6 @@ import java.util.stream.Stream;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class RsceConverterTest {
   private static final Logger LOGGER = Logger.getLogger(RsceConverter.class.getName());
@@ -28,8 +27,7 @@ class RsceConverterTest {
   @ParameterizedTest
   @MethodSource("com.ak.appliance.rsce.comm.bytes.RsceTestDataProvider#infoRequests")
   void testApply(byte[] bytes, int[] rDozenMilliOhms, int[] infoOnes) {
-    RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
-    assertNotNull(frame);
+    RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build().orElseThrow();
     assertThat(
         LogTestUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES,
             () -> {

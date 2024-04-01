@@ -11,6 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.zip.Checksum;
@@ -201,7 +202,7 @@ public final class RsceCommandFrame extends BufferFrame {
     }
   }
 
-  private RsceCommandFrame(AbstractCheckedBuilder<RsceCommandFrame> builder) {
+  private RsceCommandFrame(AbstractCheckedBuilder<?> builder) {
     super(builder.buffer());
   }
 
@@ -275,7 +276,7 @@ public final class RsceCommandFrame extends BufferFrame {
     }
   }
 
-  public static class ResponseBuilder extends AbstractCheckedBuilder<RsceCommandFrame> {
+  public static class ResponseBuilder extends AbstractCheckedBuilder<Optional<RsceCommandFrame>> {
     public ResponseBuilder() {
       this(ByteBuffer.allocate(MAX_CAPACITY));
     }
@@ -289,25 +290,24 @@ public final class RsceCommandFrame extends BufferFrame {
       return buffer().position() > ProtocolByte.values().length || ProtocolByte.values()[buffer().position() - 1].isCheckedAndLimitSet(b, buffer());
     }
 
-    @Nullable
     @Override
-    public RsceCommandFrame build() {
+    public Optional<RsceCommandFrame> build() {
       if (buffer().position() == 0) {
         for (ProtocolByte protocolByte : ProtocolByte.values()) {
           if (!protocolByte.is(buffer().get())) {
             logWarning();
-            return null;
+            return Optional.empty();
           }
         }
       }
 
       int codeLength = buffer().limit() - NON_LEN_BYTES;
       if (buffer().getShort(codeLength) == (short) getChecksum(buffer(), codeLength)) {
-        return new RsceCommandFrame(this);
+        return Optional.of(new RsceCommandFrame(this));
       }
       else {
         logWarning();
-        return null;
+        return Optional.empty();
       }
     }
   }

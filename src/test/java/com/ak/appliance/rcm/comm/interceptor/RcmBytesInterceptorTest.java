@@ -10,7 +10,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicReference;
@@ -46,7 +45,7 @@ class RcmBytesInterceptorTest {
 
   @ParameterizedTest
   @MethodSource("data")
-  void testInterceptor(byte[] bytes, @Nullable BufferFrame response, CharSequence ignoredMessage) {
+  void testInterceptor(byte[] bytes, BufferFrame response, CharSequence ignoredMessage) {
     buffer.clear();
     buffer.put(bytes);
     buffer.flip();

@@ -17,8 +17,6 @@ import java.util.stream.Stream;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 class NIBPConverterTest {
   private static final Logger LOGGER = Logger.getLogger(NIBPConverter.class.getName());
@@ -70,12 +68,11 @@ class NIBPConverterTest {
         0x02, 0x01, // 258 mm Hg
         (byte) 0xBA // 0x100 - modulo 256 (Start byte + Packet byte + Data bytes)
     };
-    assertNull(new NIBPResponse.Builder(ByteBuffer.wrap(input)).build());
+    assertThat(new NIBPResponse.Builder(ByteBuffer.wrap(input)).build()).isEmpty();
   }
 
   private static void testConverter(byte[] input, int[] expected) {
-    NIBPResponse frame = new NIBPResponse.Builder(ByteBuffer.wrap(input)).build();
-    assertNotNull(frame);
+    NIBPResponse frame = new NIBPResponse.Builder(ByteBuffer.wrap(input)).build().orElseThrow();
     assertThat(
         LogTestUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES, () -> {
           Converter<NIBPResponse, NIBPVariable> converter = new NIBPConverter();

@@ -82,7 +82,7 @@ public final class NmisRequest extends BufferFrame {
     byte[] codes = Arrays.copyOf(byteBuffer().array(), byteBuffer().capacity());
     codes[NmisProtocolByte.ADDR.ordinal()] = Objects.requireNonNull(NmisAddress.find(byteBuffer())).getAddrResponse();
     saveCRC(codes);
-    return new NmisResponseFrame.Builder(ByteBuffer.wrap(codes)).build();
+    return new NmisResponseFrame.Builder(ByteBuffer.wrap(codes)).build().orElseThrow();
   }
 
   @Override

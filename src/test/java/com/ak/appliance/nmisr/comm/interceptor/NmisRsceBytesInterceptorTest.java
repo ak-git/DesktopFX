@@ -12,7 +12,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -52,7 +51,7 @@ class NmisRsceBytesInterceptorTest {
 
   @ParameterizedTest
   @MethodSource("data")
-  void testInterceptor(byte[] bytes, @Nullable RsceCommandFrame response) {
+  void testInterceptor(byte[] bytes, RsceCommandFrame response) {
     byteBuffer.clear();
     byteBuffer.put(bytes);
     byteBuffer.flip();
@@ -65,12 +64,7 @@ class NmisRsceBytesInterceptorTest {
     assertFalse(LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_LEXEMES,
         () -> {
           Stream<RsceCommandFrame> frames = interceptor.apply(byteBuffer);
-          if (response == null) {
-            assertThat(frames.count()).isZero();
-          }
-          else {
-            assertThat(frames).containsExactly(response);
-          }
+          assertThat(frames).containsExactly(response);
           assertThat(interceptor.putOut(NmisRequest.Sequence.ROTATE_INV.build()).remaining()).isPositive();
         },
         logRecord -> fail(logRecord.getMessage())
