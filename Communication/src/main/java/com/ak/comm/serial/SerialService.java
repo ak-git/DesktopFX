@@ -17,10 +17,7 @@ import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -74,7 +71,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
 
   SerialService(BytesInterceptor<T, R> bytesInterceptor) {
     this.bytesInterceptor = bytesInterceptor;
-    serialPort = next();
+    serialPort = next().orElse(null);
     buffer = ByteBuffer.allocate(bytesInterceptor.getBaudRate());
     binaryLogChannel = new ConcurrentAsyncFileChannel(
         () -> {
@@ -212,21 +209,20 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
     return joiner.toString();
   }
 
-  @Nullable
-  private static SerialPort next() {
+  private static Optional<SerialPort> next() {
     List<SerialPort> serialPorts = Arrays.stream(SerialPort.getCommPorts())
         .filter(port -> !port.getSystemPortName().toLowerCase().contains("bluetooth"))
         .sorted(Comparator.<SerialPort, Integer>comparing(port -> port.getSystemPortName().toLowerCase().indexOf("usb")).reversed())
         .toList();
     if (serialPorts.isEmpty()) {
-      return null;
+      return Optional.empty();
     }
     else {
       var selectedPort = serialPorts.get(PORT_INDEX.getAndIncrement() % serialPorts.size());
       LOGGER.log(LOG_LEVEL_ERRORS, () -> "Found %s, the %s is selected"
           .formatted(serialPorts.stream().map(SerialPort::getSystemPortName).toList(), selectedPort.getSystemPortName())
       );
-      return selectedPort;
+      return Optional.of(selectedPort);
     }
   }
 }
