@@ -9,7 +9,6 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 final class BoundsStorageTest {
   static Stream<Rectangle2D.Double> storage() {
@@ -21,9 +20,9 @@ final class BoundsStorageTest {
   void testSave(Rectangle2D.Double rectangle) throws BackingStoreException {
     Storage<Rectangle2D.Double> storage = new BoundsStorage(BoundsStorageTest.class, "#%08x".formatted(hashCode()));
     storage.save(rectangle);
-    assertThat(storage.get()).isEqualTo(rectangle);
+    assertThat(storage.get()).contains(rectangle);
     storage.delete();
-    assertNull(storage.get());
+    assertThat(storage.get()).isEmpty();
   }
 
   @ParameterizedTest

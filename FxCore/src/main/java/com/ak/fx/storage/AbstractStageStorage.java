@@ -28,7 +28,7 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
   @Override
   public void update(Stage stage) {
     stage.maximizedProperty().addListener((observable, oldValue, newValue) -> preferences().putBoolean(MAXIMIZED, newValue));
-    Optional.ofNullable(boundsStorage.get()).ifPresentOrElse(
+    boundsStorage.get().ifPresentOrElse(
         r -> {
           if (Screen.getPrimary().getVisualBounds().contains(r.getX(), r.getY(), r.getWidth(), r.getHeight())) {
             stage.setX(r.getX());
@@ -48,7 +48,7 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
   }
 
   @Override
-  public final Stage get() {
+  public final Optional<Stage> get() {
     throw new UnsupportedOperationException();
   }
 

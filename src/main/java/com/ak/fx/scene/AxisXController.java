@@ -84,7 +84,7 @@ public final class AxisXController {
     Objects.requireNonNull(onUpdate);
     startProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
     lengthProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
-    String zoomValue = zoomStorage.get();
+    String zoomValue = zoomStorage.get().orElse(Strings.EMPTY);
     if (Arrays.stream(ZoomX.values()).anyMatch(zoomX -> zoomX.name().equals(zoomValue))) {
       zoomProperty.setValue(ZoomX.valueOf(zoomValue));
     }

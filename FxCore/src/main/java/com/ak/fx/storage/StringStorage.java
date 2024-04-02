@@ -2,8 +2,9 @@ package com.ak.fx.storage;
 
 import com.ak.util.Strings;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 public final class StringStorage extends AbstractStorage<String> {
   private static final String KEY = "key";
@@ -22,9 +23,8 @@ public final class StringStorage extends AbstractStorage<String> {
     throw new UnsupportedOperationException(value);
   }
 
-  @Nonnull
   @Override
-  public String get() {
-    return preferences().get(KEY, Strings.EMPTY);
+  public Optional<String> get() {
+    return Optional.of(preferences().get(KEY, Strings.EMPTY)).filter(Predicate.not(String::isBlank));
   }
 }

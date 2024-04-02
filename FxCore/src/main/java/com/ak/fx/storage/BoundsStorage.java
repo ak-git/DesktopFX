@@ -1,8 +1,8 @@
 package com.ak.fx.storage;
 
-import javax.annotation.Nullable;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 final class BoundsStorage extends AbstractStorage<Rectangle2D.Double> {
@@ -28,16 +28,15 @@ final class BoundsStorage extends AbstractStorage<Rectangle2D.Double> {
     throw new UnsupportedOperationException(rectangle.toString());
   }
 
-  @Nullable
   @Override
-  public Rectangle2D.Double get() {
+  public Optional<Rectangle2D.Double> get() {
     double[] doubles = Stream.of(BOUNDS_X, BOUNDS_Y, BOUNDS_WIDTH, BOUNDS_HEIGHT)
         .mapToDouble(key -> preferences().getDouble(key, Double.NaN)).toArray();
     if (Arrays.stream(doubles).noneMatch(Double::isNaN)) {
-      return new Rectangle2D.Double(doubles[0], doubles[1], doubles[2], doubles[3]);
+      return Optional.of(new Rectangle2D.Double(doubles[0], doubles[1], doubles[2], doubles[3]));
     }
     else {
-      return null;
+      return Optional.empty();
     }
   }
 }
