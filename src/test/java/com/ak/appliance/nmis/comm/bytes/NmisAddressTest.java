@@ -12,7 +12,8 @@ import java.util.logging.Logger;
 
 import static com.ak.appliance.nmis.comm.bytes.NmisAddress.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NmisAddressTest {
   private static final Logger LOGGER = Logger.getLogger(NmisAddress.class.getName());
@@ -38,7 +39,7 @@ class NmisAddressTest {
   void testNotFound(ByteBuffer buffer) {
     assertTrue(
         LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
-            () -> assertNull(find(buffer)),
+            () -> assertThat(find(buffer)).isEmpty(),
             logRecord -> assertThat(logRecord.getMessage()).endsWith("Address -12 not found")
         )
     );
@@ -47,7 +48,7 @@ class NmisAddressTest {
   @ParameterizedTest
   @MethodSource("com.ak.appliance.nmis.comm.bytes.NmisTestProvider#aliveAndChannelsResponse")
   void testFind(NmisAddress address, byte[] input) {
-    assertThat(find(ByteBuffer.wrap(input))).isNotNull().isEqualTo(address);
+    assertThat(find(ByteBuffer.wrap(input))).isNotEmpty().contains(address);
   }
 
   @ParameterizedTest

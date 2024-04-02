@@ -128,9 +128,9 @@ public final class NmisResponseFrame extends BufferFrame {
       }
 
       var address = NmisAddress.find(buffer());
-      if (address != null) {
+      if (address.isPresent()) {
         if (NmisProtocolByte.checkCRC(buffer())) {
-          return Optional.of(new NmisResponseFrame(buffer(), address));
+          return Optional.of(new NmisResponseFrame(buffer(), address.orElseThrow()));
         }
         logWarning();
       }

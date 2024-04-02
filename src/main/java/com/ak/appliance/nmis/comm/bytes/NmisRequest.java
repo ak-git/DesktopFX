@@ -5,7 +5,6 @@ import com.ak.comm.bytes.BufferFrame;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import static com.ak.util.Strings.SPACE;
@@ -80,7 +79,7 @@ public final class NmisRequest extends BufferFrame {
 
   public NmisResponseFrame toResponse() {
     byte[] codes = Arrays.copyOf(byteBuffer().array(), byteBuffer().capacity());
-    codes[NmisProtocolByte.ADDR.ordinal()] = Objects.requireNonNull(NmisAddress.find(byteBuffer())).getAddrResponse();
+    codes[NmisProtocolByte.ADDR.ordinal()] = NmisAddress.find(byteBuffer()).orElseThrow().getAddrResponse();
     saveCRC(codes);
     return new NmisResponseFrame.Builder(ByteBuffer.wrap(codes)).build().orElseThrow();
   }

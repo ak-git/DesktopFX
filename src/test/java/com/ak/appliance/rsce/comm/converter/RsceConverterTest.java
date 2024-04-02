@@ -2,6 +2,7 @@ package com.ak.appliance.rsce.comm.converter;
 
 import com.ak.appliance.rsce.comm.bytes.RsceCommandFrame;
 import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.Variables;
 import com.ak.comm.log.LogTestUtils;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -48,7 +49,7 @@ class RsceConverterTest {
                 assertThat(logRecord.getMessage()).contains(String.format(Locale.getDefault(), "%,d", milliOhm));
               }
               for (RsceVariable rsceVariable : RsceVariable.values()) {
-                assertThat(logRecord.getMessage()).contains(rsceVariable.name());
+                assertThat(logRecord.getMessage()).contains(Variables.toString(rsceVariable));
                 if (EnumSet.of(RsceVariable.ACCELEROMETER, RsceVariable.FINGER_CLOSED).contains(rsceVariable)) {
                   assertThat(rsceVariable.getUnit()).isEqualTo(AbstractUnit.ONE);
                 }

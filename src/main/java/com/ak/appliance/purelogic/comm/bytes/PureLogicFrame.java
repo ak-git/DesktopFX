@@ -4,9 +4,9 @@ import com.ak.comm.bytes.BufferFrame;
 import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
@@ -59,17 +59,16 @@ public final class PureLogicFrame extends BufferFrame {
         "[%d %s]".formatted(microns, MetricPrefix.MICRO(METRE)));
   }
 
-  @Nullable
-  public static PureLogicFrame of(StringBuilder buffer) {
+  public static Optional<PureLogicFrame> of(StringBuilder buffer) {
     if (buffer.indexOf(STEP_COMMAND) == 0 && buffer.indexOf(NEW_LINE) > STEP_COMMAND.length()) {
       var substring = buffer.substring(STEP_COMMAND.length(), buffer.indexOf(NEW_LINE)).strip().replaceAll(SPACE, "");
       try {
-        return new PureLogicFrame(Integer.parseInt(substring));
+        return Optional.of(new PureLogicFrame(Integer.parseInt(substring)));
       }
       catch (NumberFormatException e) {
         Logger.getLogger(PureLogicFrame.class.getName()).log(LOG_LEVEL_ERRORS, e, () -> substring);
       }
     }
-    return null;
+    return Optional.empty();
   }
 }

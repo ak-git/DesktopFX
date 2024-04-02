@@ -14,7 +14,7 @@ class NmisResponseFrameTest {
   @MethodSource("com.ak.appliance.nmis.comm.bytes.NmisTestProvider#invalidTestByteResponse")
   void testNewInstance(ByteBuffer byteBuffer) {
     assertAll(Arrays.toString(byteBuffer.array()),
-        () -> assertThat(NmisAddress.find(byteBuffer)).isNotNull(),
+        () -> assertThat(NmisAddress.find(byteBuffer)).isNotEmpty(),
         () -> assertThat(NmisProtocolByte.checkCRC(byteBuffer)).isTrue(),
         () -> assertThat(new NmisResponseFrame.Builder(byteBuffer).build()).isEmpty());
   }
