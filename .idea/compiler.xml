@@ -20,6 +20,6 @@
         <module name="DesktopFX.main" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="21" />
+    <bytecodeTargetLevel target="22" />
   </component>
 </project>
