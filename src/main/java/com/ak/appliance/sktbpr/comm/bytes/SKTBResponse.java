@@ -3,9 +3,9 @@ package com.ak.appliance.sktbpr.comm.bytes;
 import com.ak.comm.bytes.AbstractCheckedBuilder;
 import com.ak.comm.bytes.BufferFrame;
 
-import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Optional;
 
 public final class SKTBResponse extends BufferFrame {
   private SKTBResponse(ByteBuffer byteBuffer) {
@@ -20,7 +20,7 @@ public final class SKTBResponse extends BufferFrame {
     return byteBuffer().getShort(SKTBProtocolByte.FLEX_ANGLE_1.ordinal()) / 100;
   }
 
-  public static class Builder extends AbstractCheckedBuilder<SKTBResponse> {
+  public static class Builder extends AbstractCheckedBuilder<Optional<SKTBResponse>> {
     public Builder() {
       super(ByteBuffer.allocate(SKTBProtocolByte.values().length).order(ByteOrder.LITTLE_ENDIAN));
     }
@@ -39,18 +39,17 @@ public final class SKTBResponse extends BufferFrame {
       return okFlag;
     }
 
-    @Nullable
     @Override
-    public SKTBResponse build() {
+    public Optional<SKTBResponse> build() {
       if (buffer().position() == 0) {
         for (SKTBProtocolByte protocolByte : SKTBProtocolByte.CHECKED_BYTES) {
           if (!protocolByte.is(buffer().get(protocolByte.ordinal()))) {
             logWarning();
-            return null;
+            return Optional.empty();
           }
         }
       }
-      return new SKTBResponse(buffer());
+      return Optional.of(new SKTBResponse(buffer()));
     }
   }
 }

@@ -42,4 +42,9 @@ class StringsTest {
   void testRho() {
     assertThat(Strings.rho(1, 2.1234)).isEqualTo("ρ₁ = 2.1234 Ω·m");
   }
+
+  @Test
+  void testH() {
+    assertThat(Strings.h(2, 2.1234)).isEqualTo("h₂ = 2.1234 mm");
+  }
 }

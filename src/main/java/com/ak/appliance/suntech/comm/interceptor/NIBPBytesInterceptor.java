@@ -6,6 +6,6 @@ import com.ak.comm.interceptor.AbstractCheckedBytesInterceptor;
 
 public final class NIBPBytesInterceptor extends AbstractCheckedBytesInterceptor<NIBPRequest, NIBPResponse, NIBPResponse.Builder> {
   public NIBPBytesInterceptor() {
-    super("Suntech-NIBP", BaudRate.BR_9600, NIBPRequest.GET_CUFF_PRESSURE, new NIBPResponse.Builder());
+    super("Suntech-NIBP", BaudRate.BR_9600, new NIBPResponse.Builder(), NIBPRequest.GET_CUFF_PRESSURE);
   }
 }

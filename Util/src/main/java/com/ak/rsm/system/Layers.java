@@ -26,7 +26,7 @@ public enum Layers {
   }
 
   public static double getRho1ToRho2(double k12) {
-    double k = Math.max(-1.0, Math.min(k12, 1.0));
+    double k = Math.clamp(k12, -1.0, 1.0);
     return (1.0 - k) / (1.0 + k);
   }
 

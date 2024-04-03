@@ -10,7 +10,6 @@ import com.ak.comm.serial.CycleSerialService;
 import com.ak.logging.LogBuilders;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.ByteBuffer;
@@ -62,7 +61,7 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
     LogBuilders.CONVERTER_FILE.clean();
   }
 
-  public void write(@Nullable T request) {
+  public void write(T request) {
     if (Objects.equals(currentReadable, serialService)) {
       serialService.write(request);
     }

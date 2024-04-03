@@ -14,16 +14,16 @@ class NmisResponseFrameTest {
   @MethodSource("com.ak.appliance.nmis.comm.bytes.NmisTestProvider#invalidTestByteResponse")
   void testNewInstance(ByteBuffer byteBuffer) {
     assertAll(Arrays.toString(byteBuffer.array()),
-        () -> assertThat(NmisAddress.find(byteBuffer)).isNotNull(),
+        () -> assertThat(NmisAddress.find(byteBuffer)).isNotEmpty(),
         () -> assertThat(NmisProtocolByte.checkCRC(byteBuffer)).isTrue(),
-        () -> assertThat(new NmisResponseFrame.Builder(byteBuffer).build()).isNull());
+        () -> assertThat(new NmisResponseFrame.Builder(byteBuffer).build()).isEmpty());
   }
 
   @ParameterizedTest
   @MethodSource("com.ak.appliance.nmis.comm.bytes.NmisTestProvider#sequenceResponse")
   void testEquals(NmisRequest request, byte[] input) {
-    NmisResponseFrame nmisResponseFrame = new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build();
-    assertThat(nmisResponseFrame).isNotNull().withFailMessage(nmisResponseFrame::toString)
+    NmisResponseFrame nmisResponseFrame = new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build().orElseThrow();
+    assertThat(nmisResponseFrame).withFailMessage(nmisResponseFrame::toString)
         .isNotEqualTo(request).hasSameHashCodeAs(request.toResponse());
   }
 }

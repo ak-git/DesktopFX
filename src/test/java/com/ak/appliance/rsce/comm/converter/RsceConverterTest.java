@@ -2,6 +2,7 @@ package com.ak.appliance.rsce.comm.converter;
 
 import com.ak.appliance.rsce.comm.bytes.RsceCommandFrame;
 import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.Variables;
 import com.ak.comm.log.LogTestUtils;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -20,7 +21,6 @@ import java.util.stream.Stream;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class RsceConverterTest {
   private static final Logger LOGGER = Logger.getLogger(RsceConverter.class.getName());
@@ -28,8 +28,7 @@ class RsceConverterTest {
   @ParameterizedTest
   @MethodSource("com.ak.appliance.rsce.comm.bytes.RsceTestDataProvider#infoRequests")
   void testApply(byte[] bytes, int[] rDozenMilliOhms, int[] infoOnes) {
-    RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
-    assertNotNull(frame);
+    RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build().orElseThrow();
     assertThat(
         LogTestUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES,
             () -> {
@@ -50,7 +49,7 @@ class RsceConverterTest {
                 assertThat(logRecord.getMessage()).contains(String.format(Locale.getDefault(), "%,d", milliOhm));
               }
               for (RsceVariable rsceVariable : RsceVariable.values()) {
-                assertThat(logRecord.getMessage()).contains(rsceVariable.name());
+                assertThat(logRecord.getMessage()).contains(Variables.toString(rsceVariable));
                 if (EnumSet.of(RsceVariable.ACCELEROMETER, RsceVariable.FINGER_CLOSED).contains(rsceVariable)) {
                   assertThat(rsceVariable.getUnit()).isEqualTo(AbstractUnit.ONE);
                 }

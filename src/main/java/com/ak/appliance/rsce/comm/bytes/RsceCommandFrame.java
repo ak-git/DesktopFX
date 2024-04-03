@@ -6,11 +6,11 @@ import com.ak.comm.bytes.BytesChecker;
 import com.ak.util.Strings;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.zip.Checksum;
@@ -40,7 +40,7 @@ public final class RsceCommandFrame extends BufferFrame {
     TYPE {
       @Override
       public boolean is(byte b) {
-        return ActionType.NONE.find(b) != null && RequestType.EMPTY.find(b) != null;
+        return ActionType.NONE.find(b).isPresent() && RequestType.EMPTY.find(b).isPresent();
       }
     }
   }
@@ -61,27 +61,27 @@ public final class RsceCommandFrame extends BufferFrame {
     }
 
     private static Control find(ByteBuffer buffer) {
-      return RsceCommandFrame.find(Control.class, buffer, control -> control.addr == buffer.get(ProtocolByte.ADDR.ordinal()));
+      return RsceCommandFrame.find(Control.class, control -> control.addr == buffer.get(ProtocolByte.ADDR.ordinal()))
+          .orElseThrow(() -> new IllegalArgumentException(Arrays.toString(buffer.array())));
     }
   }
 
   private interface Findable<E extends Enum<E>> {
-    @Nullable
-    E find(byte b);
+    Optional<E> find(byte b);
   }
 
   public enum ActionType implements Findable<ActionType> {
     NONE, PRECISE, HARD, POSITION, OFF;
 
     @Override
-    @Nullable
-    public ActionType find(byte b) {
+    public Optional<ActionType> find(byte b) {
       int n = (b & 0b00_111_000) >> 3;
-      return n < values().length ? values()[n] : null;
+      return n < values().length ? Optional.of(values()[n]) : Optional.empty();
     }
 
     private static ActionType find(ByteBuffer buffer) {
-      return RsceCommandFrame.find(ActionType.class, buffer);
+      return RsceCommandFrame.find(ActionType.class, buffer)
+          .orElseThrow(() -> new IllegalArgumentException(Arrays.toString(buffer.array())));
     }
   }
 
@@ -96,13 +96,13 @@ public final class RsceCommandFrame extends BufferFrame {
     }
 
     @Override
-    @Nullable
-    public RequestType find(byte b) {
-      return Stream.of(values()).filter(type -> type.code == (byte) (b & 0b00000_111)).findAny().orElse(null);
+    public Optional<RequestType> find(byte b) {
+      return Stream.of(values()).filter(type -> type.code == (byte) (b & 0b00000_111)).findAny();
     }
 
     private static RequestType find(ByteBuffer buffer) {
-      return RsceCommandFrame.find(RequestType.class, buffer);
+      return RsceCommandFrame.find(RequestType.class, buffer)
+          .orElseThrow(() -> new IllegalArgumentException(Arrays.toString(buffer.array())));
     }
   }
 
@@ -201,7 +201,7 @@ public final class RsceCommandFrame extends BufferFrame {
     }
   }
 
-  private RsceCommandFrame(AbstractCheckedBuilder<RsceCommandFrame> builder) {
+  private RsceCommandFrame(AbstractCheckedBuilder<?> builder) {
     super(builder.buffer());
   }
 
@@ -234,14 +234,12 @@ public final class RsceCommandFrame extends BufferFrame {
     return new RequestBuilder(control, ActionType.PRECISE, requestType).addParam(speed).build();
   }
 
-  private static <E extends Enum<E>> E find(Class<E> clazz, ByteBuffer buffer,
-                                            Predicate<? super E> predicate) {
-    return EnumSet.allOf(clazz).parallelStream().filter(predicate).findAny().
-        orElseThrow(() -> new IllegalArgumentException(Arrays.toString(buffer.array())));
+  private static <E extends Enum<E>> Optional<E> find(Class<E> clazz, Predicate<? super E> predicate) {
+    return EnumSet.allOf(clazz).stream().filter(predicate).findAny();
   }
 
-  private static <E extends Enum<E> & Findable<E>> E find(Class<E> clazz, ByteBuffer buffer) {
-    return find(clazz, buffer, e -> e == e.find(buffer.get(ProtocolByte.TYPE.ordinal())));
+  private static <E extends Enum<E> & Findable<E>> Optional<E> find(Class<E> clazz, ByteBuffer buffer) {
+    return find(clazz, e -> e.find(buffer.get(ProtocolByte.TYPE.ordinal())).filter(o -> o == e).isPresent());
   }
 
   public static class RequestBuilder extends AbstractCheckedBuilder<RsceCommandFrame> {
@@ -275,7 +273,7 @@ public final class RsceCommandFrame extends BufferFrame {
     }
   }
 
-  public static class ResponseBuilder extends AbstractCheckedBuilder<RsceCommandFrame> {
+  public static class ResponseBuilder extends AbstractCheckedBuilder<Optional<RsceCommandFrame>> {
     public ResponseBuilder() {
       this(ByteBuffer.allocate(MAX_CAPACITY));
     }
@@ -289,25 +287,24 @@ public final class RsceCommandFrame extends BufferFrame {
       return buffer().position() > ProtocolByte.values().length || ProtocolByte.values()[buffer().position() - 1].isCheckedAndLimitSet(b, buffer());
     }
 
-    @Nullable
     @Override
-    public RsceCommandFrame build() {
+    public Optional<RsceCommandFrame> build() {
       if (buffer().position() == 0) {
         for (ProtocolByte protocolByte : ProtocolByte.values()) {
           if (!protocolByte.is(buffer().get())) {
             logWarning();
-            return null;
+            return Optional.empty();
           }
         }
       }
 
       int codeLength = buffer().limit() - NON_LEN_BYTES;
       if (buffer().getShort(codeLength) == (short) getChecksum(buffer(), codeLength)) {
-        return new RsceCommandFrame(this);
+        return Optional.of(new RsceCommandFrame(this));
       }
       else {
         logWarning();
-        return null;
+        return Optional.empty();
       }
     }
   }

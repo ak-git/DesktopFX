@@ -18,6 +18,6 @@ import com.ak.comm.interceptor.AbstractCheckedBytesInterceptor;
  */
 public final class RsceBytesInterceptor extends AbstractCheckedBytesInterceptor<RsceCommandFrame, RsceCommandFrame, RsceCommandFrame.ResponseBuilder> {
   public RsceBytesInterceptor() {
-    super("RSC Energia", BaudRate.BR_115200, RsceCommandFrame.off(RsceCommandFrame.Control.ALL), new RsceCommandFrame.ResponseBuilder());
+    super("RSC Energia", BaudRate.BR_115200, new RsceCommandFrame.ResponseBuilder(), RsceCommandFrame.off(RsceCommandFrame.Control.ALL));
   }
 }

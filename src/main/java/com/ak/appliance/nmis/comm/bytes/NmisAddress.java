@@ -2,8 +2,8 @@ package com.ak.appliance.nmis.comm.bytes;
 
 import com.ak.comm.bytes.LogUtils;
 
-import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 public enum NmisAddress {
@@ -37,16 +37,15 @@ public enum NmisAddress {
     return addrResponse;
   }
 
-  @Nullable
-  static NmisAddress find(ByteBuffer byteBuffer) {
+  static Optional<NmisAddress> find(ByteBuffer byteBuffer) {
     byte addr = byteBuffer.get(NmisProtocolByte.ADDR.ordinal());
     for (NmisAddress nmisAddress : values()) {
       if (nmisAddress.addrRequest == addr || nmisAddress.addrResponse == addr) {
-        return nmisAddress;
+        return Optional.of(nmisAddress);
       }
     }
     Logger.getLogger(NmisAddress.class.getName()).log(LogUtils.LOG_LEVEL_ERRORS,
         () -> "%s Address %d not found".formatted(LogUtils.toString(NmisAddress.class, byteBuffer), addr));
-    return null;
+    return Optional.empty();
   }
 }

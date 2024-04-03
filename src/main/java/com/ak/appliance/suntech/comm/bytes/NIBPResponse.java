@@ -3,9 +3,9 @@ package com.ak.appliance.suntech.comm.bytes;
 import com.ak.comm.bytes.AbstractCheckedBuilder;
 import com.ak.comm.bytes.BufferFrame;
 
-import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
@@ -40,7 +40,7 @@ public class NIBPResponse extends BufferFrame {
     }
   }
 
-  public static class Builder extends AbstractCheckedBuilder<NIBPResponse> {
+  public static class Builder extends AbstractCheckedBuilder<Optional<NIBPResponse>> {
     public Builder() {
       this(ByteBuffer.allocate(MAX_CAPACITY));
     }
@@ -55,24 +55,23 @@ public class NIBPResponse extends BufferFrame {
           NIBPProtocolByte.values()[buffer().position() - 1].isCheckedAndLimitSet(b, buffer());
     }
 
-    @Nullable
     @Override
-    public NIBPResponse build() {
+    public Optional<NIBPResponse> build() {
       if (buffer().position() == 0) {
         for (NIBPProtocolByte protocolByte : NIBPProtocolByte.values()) {
           if (!protocolByte.is(buffer().get())) {
             logWarning();
-            return null;
+            return Optional.empty();
           }
         }
       }
 
       if (checkCRC(buffer())) {
-        return new NIBPResponse(this);
+        return Optional.of(new NIBPResponse(this));
       }
       else {
         logWarning();
-        return null;
+        return Optional.empty();
       }
     }
   }

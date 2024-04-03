@@ -1,7 +1,7 @@
 package com.ak.fx.storage;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.DoublePredicate;
 import java.util.stream.IntStream;
 
@@ -24,10 +24,12 @@ public final class DoubleArrayStorage extends AbstractStorage<double[]> {
     throw new UnsupportedOperationException(Arrays.toString(values));
   }
 
-  @Nonnull
   @Override
-  public double[] get() {
-    return IntStream.iterate(0, i -> i + 1).mapToDouble(i -> preferences().getDouble("%s%d".formatted(KEY, i), Double.NaN))
-        .takeWhile(((DoublePredicate) Double::isNaN).negate()).toArray();
+  public Optional<double[]> get() {
+    double[] array = IntStream.iterate(0, i -> i + 1)
+        .mapToDouble(i -> preferences().getDouble("%s%d".formatted(KEY, i), Double.NaN))
+        .takeWhile(((DoublePredicate) Double::isNaN).negate())
+        .toArray();
+    return array.length == 0 ? Optional.empty() : Optional.of(array);
   }
 }

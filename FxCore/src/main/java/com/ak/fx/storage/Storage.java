@@ -1,6 +1,6 @@
 package com.ak.fx.storage;
 
-import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.prefs.BackingStoreException;
 
 public interface Storage<T> {
@@ -8,8 +8,7 @@ public interface Storage<T> {
 
   void update(T t);
 
-  @Nullable
-  T get();
+  Optional<T> get();
 
   void delete() throws BackingStoreException;
 }

@@ -6,7 +6,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.stream.Stream;
@@ -94,7 +93,7 @@ class RsceBytesInterceptor2Test {
 
   @ParameterizedTest
   @MethodSource("data")
-  void testInterceptor(byte[] bytes, @Nullable RsceCommandFrame response) {
+  void testInterceptor(byte[] bytes, RsceCommandFrame response) {
     Iterator<ByteBuffer> iterator = new Iterator<>() {
       int index;
 

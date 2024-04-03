@@ -81,6 +81,6 @@ import org.springframework.stereotype.Component;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class NmisBytesInterceptor extends AbstractCheckedBytesInterceptor<NmisRequest, NmisResponseFrame, NmisResponseFrame.Builder> {
   public NmisBytesInterceptor() {
-    super("NMIS", BaudRate.BR_115200, NmisRequest.Sequence.CATCH_100.build(), new NmisResponseFrame.Builder());
+    super("NMIS", BaudRate.BR_115200, new NmisResponseFrame.Builder(), NmisRequest.Sequence.CATCH_100.build());
   }
 }

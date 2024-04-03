@@ -39,18 +39,18 @@ sonar {
 }
 
 ext {
-    javaVersion = '21'
+    javaVersion = '22'
 }
 
 wrapper {
     description 'Setup the Gradle wrapper'
-    gradleVersion = '8.6'
+    gradleVersion = '8.7'
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 allprojects {
     group = 'com.ak'
-    version = '2024.03.16'
+    version = '2024.04.03'
     apply plugin: 'idea'
     idea {
         module {
@@ -70,7 +70,7 @@ allprojects {
     targetCompatibility = JavaVersion.toVersion(javaVersion)
 
     jacoco {
-        toolVersion = '0.8.9'
+        toolVersion = '0.8.12'
     }
 
     jacocoTestReport {

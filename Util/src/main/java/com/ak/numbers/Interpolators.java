@@ -66,7 +66,7 @@ public enum Interpolators {
 
       @Override
       public int applyAsInt(int x, int y) {
-        return (int) Math.round(f.value(Math.min(Math.max(x, 0), xs[xs.length - 1]), Math.min(Math.max(y, 0), ys[ys.length - 1])));
+        return (int) Math.round(f.value(Math.clamp(x, 0, xs[xs.length - 1]), Math.clamp(y, 0, ys[ys.length - 1])));
       }
     };
   }
@@ -105,7 +105,7 @@ public enum Interpolators {
 
       @Override
       public int applyAsInt(int x) {
-        return (int) Math.round(f.value(Math.min(Math.max(x, xValues[0]), xValues[xValues.length - 1])));
+        return (int) Math.round(f.value(Math.clamp(x, xValues[0], xValues[xValues.length - 1])));
       }
     };
   }

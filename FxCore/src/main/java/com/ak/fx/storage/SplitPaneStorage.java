@@ -2,7 +2,7 @@ package com.ak.fx.storage;
 
 import javafx.scene.control.SplitPane;
 
-import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.prefs.BackingStoreException;
 
 public final class SplitPaneStorage implements Storage<SplitPane> {
@@ -22,16 +22,16 @@ public final class SplitPaneStorage implements Storage<SplitPane> {
 
   @Override
   public void update(SplitPane splitPane) {
-    double[] array = dividerStorage.get();
-    if (array.length == splitPane.getDividers().size()) {
-      splitPane.setDividerPositions(array);
-    }
+    dividerStorage.get().ifPresent(array -> {
+      if (array.length == splitPane.getDividers().size()) {
+        splitPane.setDividerPositions(array);
+      }
+    });
     saveReady = true;
   }
 
-  @Nullable
   @Override
-  public SplitPane get() {
+  public Optional<SplitPane> get() {
     throw new UnsupportedOperationException();
   }
 

@@ -12,7 +12,7 @@ import static com.ak.util.Strings.SPACE;
 import static tec.uom.se.unit.MetricPrefix.MILLI;
 import static tec.uom.se.unit.Units.METRE;
 
-public record ValuePair(Name name, double value, @Nonnegative double absError) {
+public class ValuePair {
   public enum Name {
     NONE,
     RHO {
@@ -50,6 +50,39 @@ public record ValuePair(Name name, double value, @Nonnegative double absError) {
         return "h = %s %s".formatted(base, MILLI(METRE));
       }
     },
+    H1 {
+      @Override
+      double convert(double si) {
+        return H.convert(si);
+      }
+
+      @Override
+      String toString(String base) {
+        return Strings.h(1, base);
+      }
+    },
+    H2 {
+      @Override
+      double convert(double si) {
+        return H.convert(si);
+      }
+
+      @Override
+      String toString(String base) {
+        return Strings.h(2, base);
+      }
+    },
+    DH2 {
+      @Override
+      double convert(double si) {
+        return H.convert(si);
+      }
+
+      @Override
+      String toString(String base) {
+        return "%s%s".formatted(Strings.CAP_DELTA, Strings.h(2, base));
+      }
+    },
     K12 {
       @Override
       String toString(String base) {
@@ -82,10 +115,27 @@ public record ValuePair(Name name, double value, @Nonnegative double absError) {
     }
   }
 
-  public ValuePair(Name name, double value, @Nonnegative double absError) {
+  private final Name name;
+  private final double value;
+  @Nonnegative
+  private final double absError;
+
+  private ValuePair(Name name, double value, @Nonnegative double absError) {
     this.name = Objects.requireNonNull(name);
     this.value = value;
     this.absError = Double.isNaN(value) ? Double.NaN : Math.abs(absError);
+  }
+
+  public Name name() {
+    return name;
+  }
+
+  public double value() {
+    return value;
+  }
+
+  public double absError() {
+    return absError;
   }
 
   @Override

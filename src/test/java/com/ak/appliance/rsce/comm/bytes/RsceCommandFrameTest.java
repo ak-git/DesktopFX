@@ -34,8 +34,7 @@ class RsceCommandFrameTest {
   @MethodSource("com.ak.appliance.rsce.comm.bytes.RsceTestDataProvider#positionCatchRequests")
   void testPositionCatchRequest(byte[] expected, byte position) {
     checkRequest(expected, RsceCommandFrame.position(RsceCommandFrame.Control.CATCH, position));
-    RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(expected)).build();
-    assertThat(frame).isNotNull();
+    RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(expected)).build().orElseThrow();
     assertThat(frame.extract(RsceCommandFrame.FrameField.OPEN_PERCENT, -1))
         .withFailMessage("%s, Position = %d".formatted(frame, frame.extract(RsceCommandFrame.FrameField.OPEN_PERCENT, -1)))
         .isEqualTo(position);
@@ -45,8 +44,7 @@ class RsceCommandFrameTest {
   @MethodSource("com.ak.appliance.rsce.comm.bytes.RsceTestDataProvider#positionRotateRequests")
   void testPositionRotateRequest(byte[] expected, byte position) {
     checkRequest(expected, RsceCommandFrame.position(RsceCommandFrame.Control.ROTATE, position));
-    RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(expected)).build();
-    assertThat(frame).isNotNull();
+    RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(expected)).build().orElseThrow();
     assertThat(frame.extract(RsceCommandFrame.FrameField.ROTATE_PERCENT, -1))
         .withFailMessage("%s, Position = %d".formatted(frame, frame.extract(RsceCommandFrame.FrameField.ROTATE_PERCENT, -1)))
         .isEqualTo(position);
@@ -55,8 +53,7 @@ class RsceCommandFrameTest {
   @ParameterizedTest
   @MethodSource("com.ak.appliance.rsce.comm.bytes.RsceTestDataProvider#infoRequests")
   void testInfoRequest(byte[] bytes, int[] rDozenMilliOhms, int[] infoOnes) {
-    RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
-    assertThat(frame).isNotNull();
+    RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build().orElseThrow();
 
     assertThat(frame.extract(RsceCommandFrame.FrameField.R1_DOZEN_MILLI_OHM, 0))
         .withFailMessage("%s, Ohms = %d".formatted(frame, frame.extract(RsceCommandFrame.FrameField.R1_DOZEN_MILLI_OHM, 0)))
@@ -72,8 +69,7 @@ class RsceCommandFrameTest {
   @ParameterizedTest
   @MethodSource("com.ak.appliance.rsce.comm.bytes.RsceTestDataProvider#finger")
   void testInfoRequest(byte[] bytes, int fingerSpeed) {
-    RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build();
-    assertThat(frame).isNotNull();
+    RsceCommandFrame frame = new RsceCommandFrame.ResponseBuilder(ByteBuffer.wrap(bytes)).build().orElseThrow();
     assertThat(frame.extract(RsceCommandFrame.FrameField.FINGER, 0))
         .withFailMessage("%s, finger = %d".formatted(frame, frame.extract(RsceCommandFrame.FrameField.FINGER, 0)))
         .isEqualTo(fingerSpeed);
@@ -90,7 +86,7 @@ class RsceCommandFrameTest {
   @ParameterizedTest
   @MethodSource("com.ak.appliance.rsce.comm.bytes.RsceTestDataProvider#invalidRequests")
   void testInvalidRequests(ByteBuffer buffer) {
-    assertThat(new RsceCommandFrame.ResponseBuilder(buffer).build()).withFailMessage(() -> Arrays.toString(buffer.array())).isNull();
+    assertThat(new RsceCommandFrame.ResponseBuilder(buffer).build()).withFailMessage(() -> Arrays.toString(buffer.array())).isEmpty();
   }
 
   @ParameterizedTest
@@ -106,7 +102,7 @@ class RsceCommandFrameTest {
     request.writeTo(byteBuffer);
     assertThat(byteBuffer.array()).withFailMessage(request::toString).isEqualTo(expected);
 
-    RsceCommandFrame that = new RsceCommandFrame.ResponseBuilder(byteBuffer).build();
-    assertThat(that).isNotNull().isEqualTo(request).isEqualTo(that).hasSameHashCodeAs(request).isNotEqualTo(byteBuffer);
+    RsceCommandFrame that = new RsceCommandFrame.ResponseBuilder(byteBuffer).build().orElseThrow();
+    assertThat(that).isEqualTo(request).isEqualTo(that).hasSameHashCodeAs(request).isNotEqualTo(byteBuffer);
   }
 }

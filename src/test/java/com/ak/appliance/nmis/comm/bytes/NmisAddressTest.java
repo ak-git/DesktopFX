@@ -8,12 +8,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
-import java.util.Optional;
 import java.util.logging.Logger;
 
 import static com.ak.appliance.nmis.comm.bytes.NmisAddress.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NmisAddressTest {
   private static final Logger LOGGER = Logger.getLogger(NmisAddress.class.getName());
@@ -39,7 +39,7 @@ class NmisAddressTest {
   void testNotFound(ByteBuffer buffer) {
     assertTrue(
         LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_ERRORS,
-            () -> assertNull(find(buffer)),
+            () -> assertThat(find(buffer)).isEmpty(),
             logRecord -> assertThat(logRecord.getMessage()).endsWith("Address -12 not found")
         )
     );
@@ -48,14 +48,13 @@ class NmisAddressTest {
   @ParameterizedTest
   @MethodSource("com.ak.appliance.nmis.comm.bytes.NmisTestProvider#aliveAndChannelsResponse")
   void testFind(NmisAddress address, byte[] input) {
-    assertThat(find(ByteBuffer.wrap(input))).isNotNull().isEqualTo(address);
+    assertThat(find(ByteBuffer.wrap(input))).isNotEmpty().contains(address);
   }
 
   @ParameterizedTest
   @MethodSource("com.ak.appliance.nmis.comm.bytes.NmisExtractorTestProvider#extractNone")
   void testExtractorNone(ByteBuffer buffer) {
-    NmisResponseFrame response = new NmisResponseFrame.Builder(buffer).build();
-    assertNotNull(response);
+    NmisResponseFrame response = new NmisResponseFrame.Builder(buffer).build().orElseThrow();
     assertThat(response.extractTime().count()).isZero();
 
     ByteBuffer destination = ByteBuffer.allocate(buffer.array().length);
@@ -66,7 +65,7 @@ class NmisAddressTest {
   @ParameterizedTest
   @MethodSource("com.ak.appliance.nmis.comm.bytes.NmisExtractorTestProvider#extractTime")
   void testExtractorValues(byte[] from, Iterable<Integer> expected) {
-    Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(from)).build())
+    new NmisResponseFrame.Builder(ByteBuffer.wrap(from)).build()
         .ifPresent(response -> assertThat(response.extractTime()).containsSequence(expected));
   }
 
@@ -74,7 +73,7 @@ class NmisAddressTest {
   @MethodSource("com.ak.appliance.nmis.comm.bytes.NmisExtractorTestProvider#extractData")
   void testExtractorToBuffer(byte[] from, byte[] expected) {
     ByteBuffer destination = ByteBuffer.allocate(expected.length);
-    Optional.ofNullable(new NmisResponseFrame.Builder(ByteBuffer.wrap(from)).build())
+    new NmisResponseFrame.Builder(ByteBuffer.wrap(from)).build()
         .ifPresent(response -> {
           response.extractData(destination);
           assertThat(destination.array()).isEqualTo(expected);

@@ -4,10 +4,10 @@ import com.ak.comm.bytes.AbstractCheckedBuilder;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.util.Strings;
 
-import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 /**
@@ -93,7 +93,7 @@ public final class NmisResponseFrame extends BufferFrame {
     return String.join(Strings.SPACE, super.toString(), address.toString());
   }
 
-  public static class Builder extends AbstractCheckedBuilder<NmisResponseFrame> {
+  public static class Builder extends AbstractCheckedBuilder<Optional<NmisResponseFrame>> {
     public Builder() {
       this(ByteBuffer.allocate(NmisProtocolByte.MAX_CAPACITY));
     }
@@ -116,26 +116,25 @@ public final class NmisResponseFrame extends BufferFrame {
       return okFlag;
     }
 
-    @Nullable
     @Override
-    public NmisResponseFrame build() {
+    public Optional<NmisResponseFrame> build() {
       if (buffer().position() == 0) {
         for (NmisProtocolByte protocolByte : NmisProtocolByte.CHECKED_BYTES) {
           if (!protocolByte.is(buffer().get(protocolByte.ordinal()))) {
             logWarning();
-            return null;
+            return Optional.empty();
           }
         }
       }
 
       var address = NmisAddress.find(buffer());
-      if (address != null) {
+      if (address.isPresent()) {
         if (NmisProtocolByte.checkCRC(buffer())) {
-          return new NmisResponseFrame(buffer(), address);
+          return Optional.of(new NmisResponseFrame(buffer(), address.orElseThrow()));
         }
         logWarning();
       }
-      return null;
+      return Optional.empty();
     }
   }
 }

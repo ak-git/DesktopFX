@@ -16,7 +16,7 @@ final class StringStorageTest {
   @ValueSource(strings = "Something String")
   void testSave(String value) throws BackingStoreException {
     storage.save(value);
-    assertThat(storage.get()).isEqualTo(value);
+    assertThat(storage.get()).contains(value);
     storage.delete();
     assertThat(storage.get()).isEmpty();
   }

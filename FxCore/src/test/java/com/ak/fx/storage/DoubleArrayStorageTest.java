@@ -19,7 +19,7 @@ final class DoubleArrayStorageTest {
   void testSave(double[] values) throws BackingStoreException {
     Storage<double[]> storage = new DoubleArrayStorage(DoubleArrayStorageTest.class, "#%08x".formatted(hashCode()));
     storage.save(values);
-    assertThat(storage.get()).isEqualTo(values);
+    assertThat(storage.get()).contains(values);
     storage.delete();
     assertThat(storage.get()).isEmpty();
   }

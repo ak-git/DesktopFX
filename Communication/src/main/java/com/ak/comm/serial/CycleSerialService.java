@@ -39,7 +39,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
       SerialSubscriber subscriber = new SerialSubscriber(s);
       serialService.subscribe(subscriber);
 
-      while (serialService.isOpen() && write(bytesInterceptor().getPingRequest()) != 0) {
+      while (serialService.isOpen() && bytesInterceptor().getPingRequest().map(this::write).isPresent()) {
         if (subscriber.isBreak()) {
           break;
         }
@@ -63,8 +63,8 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
     }
   }
 
-  public int write(@Nullable T request) {
-    return request == null ? -1 : serialService.write(bytesInterceptor().putOut(request));
+  public int write(T request) {
+    return serialService.write(bytesInterceptor().putOut(request));
   }
 
   @Override
@@ -77,7 +77,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
   public void refresh(boolean force) {
     serialService.refresh(force);
     cancelled = false;
-    write(bytesInterceptor().getPingRequest());
+    bytesInterceptor().getPingRequest().ifPresent(this::write);
   }
 
   @Override

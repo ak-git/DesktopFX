@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class StringBytesInterceptorTest {
@@ -24,7 +23,7 @@ class StringBytesInterceptorTest {
   void testInterceptorProperties() {
     BytesInterceptor<BufferFrame, String> interceptor = new StringBytesInterceptor(getClass().getName());
     assertThat(interceptor.getBaudRate()).isEqualTo(115200);
-    assertNull(interceptor.getPingRequest());
+    assertThat(interceptor.getPingRequest()).isEmpty();
   }
 
   static Stream<Arguments> data() {

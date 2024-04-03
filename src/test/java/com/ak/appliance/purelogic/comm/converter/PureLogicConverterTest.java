@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PureLogicConverterTest {
   private static final Logger LOGGER = Logger.getLogger(PureLogicConverter.class.getName());
@@ -25,12 +25,11 @@ class PureLogicConverterTest {
 
   @Test
   void testInvalidFrame() {
-    assertNull(PureLogicFrame.of(new StringBuilder("STEP+ 00dxx  \r\n")));
+    assertThat(PureLogicFrame.of(new StringBuilder("STEP+ 00dxx  \r\n"))).isEmpty();
   }
 
   private static void testConverter(String input, int expected) {
-    PureLogicFrame frame = PureLogicFrame.of(new StringBuilder(input));
-    assertNotNull(frame);
+    PureLogicFrame frame = PureLogicFrame.of(new StringBuilder(input)).orElseThrow();
     assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES,
         () -> {
           PureLogicConverter converter = new PureLogicConverter();

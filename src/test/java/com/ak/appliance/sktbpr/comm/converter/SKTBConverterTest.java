@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SKTBConverterTest {
@@ -25,8 +24,7 @@ class SKTBConverterTest {
   private static void testConverter(byte[] input, int[] expected) {
     SKTBResponse.Builder builder = new SKTBResponse.Builder();
     builder.buffer().put(input);
-    SKTBResponse response = builder.build();
-    assertNotNull(response);
+    SKTBResponse response = builder.build().orElseThrow();
     assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES,
         () -> assertThat(new SKTBConverter().apply(response)).isNotEmpty().allSatisfy(ints -> assertThat(ints).containsExactly(expected)),
         logRecord -> {
