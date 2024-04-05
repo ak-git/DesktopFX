@@ -47,7 +47,7 @@ public record TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC)
 
   @Override
   public String toString() {
-    return "%2.3f x %2.3f %s".formatted(
+    return "%6.3f x %6.3f %s".formatted(
         Metrics.Length.METRE.to(sPU, MetricPrefix.MILLI(METRE)),
         Metrics.Length.METRE.to(lCC, MetricPrefix.MILLI(METRE)),
         MetricPrefix.MILLI(METRE)

@@ -17,6 +17,7 @@ import tec.uom.se.unit.MetricPrefix;
 import javax.annotation.Nonnegative;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static tec.uom.se.unit.Units.METRE;
 
@@ -62,16 +63,15 @@ public final class Layer2Medium extends AbstractMediumLayers {
     }
 
     double k = kw.k().value();
-    return "%s; %s; %s; %s; %s; %s; %s %n%s".formatted(rho(), rho1, rho2(), h(), kw,
-        toStringHorizons(mergeHorizons(measurements(), k)), toStringRMS(),
-        measurements().stream()
-            .map(m ->
-                "%s; %s; %s".formatted(m, apply(m), toStringHorizons(
-                    new double[] {m.inexact().getHMin(k), m.inexact().getHMax(k)}
-                ))
-            )
-            .collect(Collectors.joining(Strings.NEW_LINE))
-    );
+    return Stream.of(rho(), rho1, rho2(), h(), kw, toStringHorizons(mergeHorizons(measurements(), k)), toStringRMS(),
+            measurements().stream()
+                .map(m ->
+                    Stream.of(m, apply(m), toStringHorizons(
+                        new double[] {m.inexact().getHMin(k), m.inexact().getHMax(k)}
+                    )).map(Object::toString).collect(Collectors.joining(Strings.SEMICOLON))
+                )
+                .collect(Collectors.joining(Strings.NEW_LINE, Strings.NEW_LINE, Strings.EMPTY)))
+        .map(Object::toString).collect(Collectors.joining(Strings.SEMICOLON));
   }
 
   @Override
