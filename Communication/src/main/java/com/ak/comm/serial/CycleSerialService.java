@@ -39,7 +39,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
       SerialSubscriber subscriber = new SerialSubscriber(s);
       serialService.subscribe(subscriber);
 
-      while (serialService.isOpen() && bytesInterceptor().getPingRequest().map(this::write).isPresent()) {
+      while (serialService.isOpen() && bytesInterceptor().getPingRequest().map(r -> write(r) != 0).orElse(Boolean.TRUE)) {
         if (subscriber.isBreak()) {
           break;
         }
