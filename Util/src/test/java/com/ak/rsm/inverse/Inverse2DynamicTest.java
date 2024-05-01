@@ -47,10 +47,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static tec.uom.se.unit.Units.METRE;
 
-class InverseDynamicTest {
-  private static final Logger LOGGER = Logger.getLogger(InverseDynamicTest.class.getName());
+class Inverse2DynamicTest {
+  private static final Logger LOGGER = Logger.getLogger(Inverse2DynamicTest.class.getName());
 
-  static Stream<Arguments> relativeDynamicLayer2() {
+  static Stream<Arguments> relative() {
     double absErrorMilli = 0.001;
     double dhMilli = 0.000001;
     double hmm = 15.0 / 2.0;
@@ -81,8 +81,8 @@ class InverseDynamicTest {
   }
 
   @ParameterizedTest
-  @MethodSource("relativeDynamicLayer2")
-  void testInverseRelativeDynamicLayer2Theory(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
+  @MethodSource("relative")
+  void testInverseRelative(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
     var regularizationFunction = Regularization.Interval.ZERO_MAX.of(0.0);
     var medium = Relative.Dynamic.solve(measurements, regularizationFunction);
 
@@ -94,7 +94,7 @@ class InverseDynamicTest {
     );
   }
 
-  static Stream<Arguments> absoluteDynamicLayer2() {
+  static Stream<Arguments> absolute() {
     double absErrorMilli = 0.001;
     double dhMilli = 0.21;
     double hmm = 15.0 / 2;
@@ -124,8 +124,8 @@ class InverseDynamicTest {
   }
 
   @ParameterizedTest
-  @MethodSource("absoluteDynamicLayer2")
-  void testInverseAbsoluteDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, ValuePair[] expected) {
+  @MethodSource("absolute")
+  void testInverseAbsolute(Collection<? extends DerivativeMeasurement> measurements, ValuePair[] expected) {
     var medium = DynamicAbsolute.LAYER_2.apply(measurements, Regularization.Interval.ZERO_MAX.of(0.0));
     assertAll(medium.toString(),
         () -> assertThat(medium.rho()).isEqualTo(expected[0]),
@@ -135,7 +135,7 @@ class InverseDynamicTest {
     );
   }
 
-  static Stream<Arguments> theoryDynamicParameters2() {
+  static Stream<Arguments> theoryParameters() {
     double dhMilli = -0.001;
     double hmm = 5.0;
     return Stream.of(
@@ -195,7 +195,7 @@ class InverseDynamicTest {
     );
   }
 
-  static Stream<Arguments> waterDynamicParameters2() {
+  static Stream<Arguments> waterParameters() {
     double dh = -10.0 / 200.0;
     double alpha = 2.0;
     return Stream.of(
@@ -252,9 +252,8 @@ class InverseDynamicTest {
   }
 
   @ParameterizedTest
-  @MethodSource({"theoryDynamicParameters2", "waterDynamicParameters2"})
-  void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements,
-                                @Nonnegative double alpha, double[] expected) {
+  @MethodSource({"theoryParameters", "waterParameters"})
+  void testInverse(Collection<? extends DerivativeMeasurement> measurements, @Nonnegative double alpha, double[] expected) {
     var medium = DynamicAbsolute.LAYER_2.apply(measurements, Regularization.Interval.MAX_K.of(alpha));
 
     ObjDoubleConsumer<ValuePair> checker = (valuePair, expectedValue) -> {
@@ -290,8 +289,8 @@ class InverseDynamicTest {
 
   @ParameterizedTest
   @MethodSource({"cvsFiles"})
-  @Disabled("ignored com.ak.rsm.inverse.InverseDynamicTest.testInverseDynamicLayerFileResistivity")
-  void testInverseDynamicLayerFileResistivity(String fileName, @Nonnegative double alpha) {
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2DynamicTest.testInverseFileResistivity")
+  void testInverseFileResistivity(String fileName, @Nonnegative double alpha) {
     String T = "TIME";
     String POSITION = "POSITION";
     String RHO_S1 = "A1";
