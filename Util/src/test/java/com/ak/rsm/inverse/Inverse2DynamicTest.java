@@ -138,13 +138,14 @@ class Inverse2DynamicTest {
   static Stream<Arguments> theoryParameters() {
     double dhMilli = -0.001;
     double hmm = 5.0;
+    double alpha = 0.0;
     return Stream.of(
         arguments(
             List.of(
                 TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(dhMilli)
                     .system(10.0, 20.0).rho1(1.0).rho2(9.0).h(hmm)
             ),
-            0.0,
+            alpha,
             new double[] {
                 1.53,
                 Apparent2Rho.newApparentDivRho1(new RelativeTetrapolarSystem(0.5))
@@ -157,13 +158,13 @@ class Inverse2DynamicTest {
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.0).system2(10.0)
                 .rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
-            0.0,
+            alpha,
             new double[] {3.3, 1.0, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(hmm, METRE)}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.0).system2(10.0)
                 .rho1(10.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
-            0.0,
+            alpha,
             new double[] {33.0, 1.0, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(hmm / 10.0, METRE)}
         ),
         arguments(
@@ -173,23 +174,23 @@ class Inverse2DynamicTest {
                     TetrapolarResistance.milli().system2(10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm + dhMilli).stream()
                 ).mapToDouble(Resistance::ohms).toArray()
             ),
-            0.0,
+            alpha,
             new double[] {3.3, 1.0, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(hmm, METRE)}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dhMilli).system2(10.0).rho1(4.0).rho2(1.0).h(hmm),
-            0.0,
+            alpha,
             new double[] {1.75, 4.0, 1.0, Metrics.Length.MILLI.to(hmm, METRE)}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dhMilli).system4(10.0).rho1(1.0).rho2(4.0).h(hmm),
-            0.0,
+            alpha,
             new double[] {2.02, 1.0, 4.0, Metrics.Length.MILLI.to(hmm, METRE)}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.01).dh(dhMilli).system2(10.0)
                 .ofOhms(100.0, 150.0, 90.0, 160.0),
-            0.0,
+            alpha,
             new double[] {6.283, Double.NaN, Double.NaN, Double.NaN}
         )
     );
