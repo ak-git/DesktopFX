@@ -20,15 +20,15 @@ class PureLogicViewControllerTest {
   }
 
   @Test
-  void up() {
+  void upThanRight() {
     try (PureLogicViewController controller = new PureLogicViewController()) {
       controller.close();
 
       controller.escape();
       controller.up();
       Assertions.assertThat(IntStream.range(0, 2)
-          .map(ignore -> controller.get().getMicrons()).toArray()).containsExactly(750, -150);
-
+          .map(ignore -> controller.get().getMicrons()).toArray()).containsExactly(750, 0);
+      controller.right();
       controller.up();
       Assertions.assertThat(IntStream.range(0, 4)
           .map(ignore -> controller.get().getMicrons()).toArray()).containsExactly(150, 750, -150, 150);
@@ -39,15 +39,15 @@ class PureLogicViewControllerTest {
   }
 
   @Test
-  void down() {
+  void downThenLeft() {
     try (PureLogicViewController controller = new PureLogicViewController()) {
       controller.close();
 
       controller.escape();
       controller.down();
       Assertions.assertThat(IntStream.range(0, 2)
-          .map(ignore -> controller.get().getMicrons()).toArray()).containsExactly(-750, -150);
-
+          .map(ignore -> controller.get().getMicrons()).toArray()).containsExactly(-750, 0);
+      controller.left();
       controller.down();
       Assertions.assertThat(IntStream.range(0, 4)
           .map(ignore -> controller.get().getMicrons()).toArray()).containsExactly(150, -750, -150, 150);
@@ -55,5 +55,14 @@ class PureLogicViewControllerTest {
     catch (IOException e) {
       Assertions.fail(e.getMessage(), e);
     }
+  }
+
+  @Test
+  void tryRefresh() {
+    Assertions.assertThatNullPointerException().isThrownBy(() -> {
+      try (PureLogicViewController controller = new PureLogicViewController()) {
+        controller.refresh(true);
+      }
+    });
   }
 }

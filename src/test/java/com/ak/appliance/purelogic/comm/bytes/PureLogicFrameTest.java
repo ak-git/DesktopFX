@@ -14,6 +14,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 class PureLogicFrameTest {
   static Stream<Arguments> requests() {
     return Stream.of(
+        arguments(PureLogicFrame.ALIVE, "?\r\n"),
         arguments(PureLogicFrame.StepCommand.MICRON_015.action(false), "STEP -00016\r\n"),
         arguments(PureLogicFrame.StepCommand.MICRON_015.action(true), "STEP +00016\r\n"),
         arguments(PureLogicFrame.StepCommand.MICRON_150.action(false), "STEP -00160\r\n"),

@@ -15,7 +15,9 @@ import static com.ak.util.Strings.SPACE;
 import static tec.uom.se.unit.Units.METRE;
 
 public final class PureLogicFrame extends BufferFrame {
+  public static final PureLogicFrame ALIVE = new PureLogicFrame();
   public static final int FRAME_LEN = 15;
+  private static final String ALIVE_COMMAND = "PLC001-G2";
   private static final String STEP_COMMAND = "STEP";
   private final int microns;
 
@@ -44,6 +46,11 @@ public final class PureLogicFrame extends BufferFrame {
     }
   }
 
+  private PureLogicFrame() {
+    super("?%c%c".formatted(13, 10).getBytes(StandardCharsets.UTF_8), ByteOrder.LITTLE_ENDIAN);
+    microns = 0;
+  }
+
   private PureLogicFrame(int step16) {
     super("%s %+06d%c%c".formatted(STEP_COMMAND, step16, 13, 10).getBytes(StandardCharsets.UTF_8), ByteOrder.LITTLE_ENDIAN);
     microns = (3000 / 200) * (step16 / 16);
@@ -60,7 +67,10 @@ public final class PureLogicFrame extends BufferFrame {
   }
 
   public static Optional<PureLogicFrame> of(StringBuilder buffer) {
-    if (buffer.indexOf(STEP_COMMAND) == 0 && buffer.indexOf(NEW_LINE) > STEP_COMMAND.length()) {
+    if (buffer.indexOf(ALIVE_COMMAND) == 0) {
+      return Optional.of(ALIVE);
+    }
+    else if (buffer.indexOf(STEP_COMMAND) == 0 && buffer.indexOf(NEW_LINE) > STEP_COMMAND.length()) {
       var substring = buffer.substring(STEP_COMMAND.length(), buffer.indexOf(NEW_LINE)).strip().replaceAll(SPACE, "");
       try {
         return Optional.of(new PureLogicFrame(Integer.parseInt(substring)));
