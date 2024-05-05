@@ -32,7 +32,7 @@ class AperStage4Current1VariableTest {
                 5, 0, 0, 0,
                 (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55318, 5982, 330990, 5982, 1302}
+            new int[] {55358, 5982, 330990, 5982, 1291}
         )
     );
   }

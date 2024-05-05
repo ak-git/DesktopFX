@@ -25,8 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static tec.uom.se.unit.Units.METRE;
 
-class InverseStaticTest {
-  static Stream<Arguments> relativeStaticLayer2RiseErrors() {
+class Inverse2StaticTest {
+  static Stream<Arguments> relativeRiseErrors() {
     double absErrorMilli = 0.001;
     double hmm = 15.0;
     return Stream.of(
@@ -45,8 +45,8 @@ class InverseStaticTest {
   }
 
   @ParameterizedTest
-  @MethodSource("relativeStaticLayer2RiseErrors")
-  void testInverseRelativeStaticLayer2RiseErrors(Collection<? extends Measurement> measurements, double[] riseErrors) {
+  @MethodSource("relativeRiseErrors")
+  void testInverseRelativeRiseErrors(Collection<? extends Measurement> measurements, double[] riseErrors) {
     double absError = measurements.stream().mapToDouble(m -> m.inexact().absError()).average().orElseThrow();
     double L = Resistivity.getBaseL(measurements);
     double dim = measurements.stream().mapToDouble(m -> m.system().getDim()).max().orElseThrow();
@@ -58,7 +58,7 @@ class InverseStaticTest {
     );
   }
 
-  static Stream<Arguments> relativeStaticLayer2() {
+  static Stream<Arguments> relative() {
     double absErrorMilli = 0.001;
     double hmm = 15.0 / 2.0;
     double rho1 = 1.0;
@@ -86,8 +86,8 @@ class InverseStaticTest {
   }
 
   @ParameterizedTest
-  @MethodSource("relativeStaticLayer2")
-  void testInverseRelativeStaticLayer2(Collection<? extends Measurement> measurements, RelativeMediumLayers expected) {
+  @MethodSource("relative")
+  void testInverseRelative(Collection<? extends Measurement> measurements, RelativeMediumLayers expected) {
     var medium = Relative.Static.solve(measurements);
     assertAll(medium.toString(),
         () -> assertThat(medium.k().value()).isCloseTo(expected.k().value(), byLessThan(expected.k().absError())),
@@ -97,7 +97,7 @@ class InverseStaticTest {
     );
   }
 
-  static Stream<Arguments> absoluteStaticLayer2() {
+  static Stream<Arguments> absolute() {
     double absErrorMilli = 0.001;
     double hmm = 15.0 / 2;
     return Stream.of(
@@ -136,15 +136,8 @@ class InverseStaticTest {
   }
 
   @ParameterizedTest
-  @MethodSource("absoluteStaticLayer2")
-  void testInverseAbsoluteStaticLayer1(Collection<? extends Measurement> measurements, ValuePair[] expected) {
-    var medium = StaticAbsolute.LAYER_1.apply(measurements);
-    assertThat(medium.rho()).withFailMessage(medium.toString()).isEqualTo(expected[0]);
-  }
-
-  @ParameterizedTest
-  @MethodSource("absoluteStaticLayer2")
-  void testInverseAbsoluteStaticLayer2(Collection<? extends Measurement> measurements, ValuePair[] expected) {
+  @MethodSource("absolute")
+  void testInverseAbsolute(Collection<? extends Measurement> measurements, ValuePair[] expected) {
     var medium = StaticAbsolute.LAYER_2.apply(measurements);
     assertAll(medium.toString(),
         () -> assertThat(medium.rho()).isEqualTo(expected[0]),
@@ -156,9 +149,6 @@ class InverseStaticTest {
 
   @Test
   void testEmptyMeasurements() {
-    assertThatIllegalArgumentException()
-        .isThrownBy(() -> StaticAbsolute.LAYER_1.apply(Collections.emptyList()))
-        .withMessage("Empty measurements");
     assertThatException()
         .isThrownBy(() -> StaticAbsolute.LAYER_2.apply(Collections.emptyList()))
         .withMessage("No value present");

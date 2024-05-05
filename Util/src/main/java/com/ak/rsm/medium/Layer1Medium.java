@@ -8,6 +8,7 @@ import com.ak.util.Strings;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class Layer1Medium extends AbstractMediumLayers {
   private final ValuePair rho;
@@ -25,8 +26,11 @@ public final class Layer1Medium extends AbstractMediumLayers {
 
   @Override
   public String toString() {
-    return "%s; %s %n%s"
-        .formatted(rho, toStringRMS(), measurements().stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE)));
+    return Stream.of(
+            rho, toStringRMS(),
+            measurements().stream().map(Object::toString)
+                .collect(Collectors.joining(Strings.NEW_LINE, Strings.NEW_LINE, Strings.EMPTY)))
+        .map(Object::toString).collect(Collectors.joining(Strings.SEMICOLON));
   }
 
   @Override

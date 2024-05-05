@@ -36,10 +36,10 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
   public void subscribe(Flow.Subscriber<? super int[]> s) {
     s.onSubscribe(this);
     executor.scheduleWithFixedDelay(() -> {
-      SerialSubscriber subscriber = new SerialSubscriber(s);
+      AliveSubscriber subscriber = new AliveSubscriber(s);
       serialService.subscribe(subscriber);
 
-      while (serialService.isOpen() && bytesInterceptor().getPingRequest().map(this::write).isPresent()) {
+      while (serialService.isOpen() && bytesInterceptor().getPingRequest().map(r -> write(r) != 0).orElse(Boolean.TRUE)) {
         if (subscriber.isBreak()) {
           break;
         }
@@ -90,15 +90,15 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
     cancelled = true;
   }
 
-  private final class SerialSubscriber implements Flow.Subscriber<ByteBuffer> {
-    private final AtomicBoolean workingFlag = new AtomicBoolean();
+  private final class AliveSubscriber implements Flow.Subscriber<ByteBuffer> {
+    private final AtomicBoolean aliveFlag = new AtomicBoolean();
     private final AtomicReference<Instant> okTime = new AtomicReference<>(Instant.now());
     private final CountDownLatch latch = new CountDownLatch(1);
     private final Flow.Subscriber<? super int[]> subscriber;
     @Nullable
     private Flow.Subscription subscription;
 
-    private SerialSubscriber(Flow.Subscriber<? super int[]> subscriber) {
+    private AliveSubscriber(Flow.Subscriber<? super int[]> subscriber) {
       this.subscriber = Objects.requireNonNull(subscriber);
     }
 
@@ -113,7 +113,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
         if (!cancelled) {
           subscriber.onNext(ints);
         }
-        workingFlag.set(true);
+        aliveFlag.set(true);
         okTime.set(Instant.now());
       });
     }
@@ -127,7 +127,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
     @Override
     public void onComplete() {
       try {
-        workingFlag.set(false);
+        aliveFlag.set(false);
         latch.countDown();
         if (subscription != null) {
           subscription.cancel();
@@ -150,9 +150,9 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
       catch (InterruptedException e) {
         Logger.getLogger(getClass().getName()).log(Level.ALL, serialService.toString(), e);
         Thread.currentThread().interrupt();
-        workingFlag.set(false);
+        aliveFlag.set(false);
       }
-      return !workingFlag.getAndSet(false) || Thread.currentThread().isInterrupted();
+      return !aliveFlag.getAndSet(false) || Thread.currentThread().isInterrupted();
     }
   }
 }

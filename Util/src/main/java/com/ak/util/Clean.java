@@ -19,7 +19,7 @@ public enum Clean {
   }
 
   public static void clean(Path root) {
-    Logger.getLogger(Clean.class.getName()).log(Level.INFO, () -> "Clean directory %s".formatted(root));
+    Logger.getLogger(Clean.class.getName()).log(Level.INFO, () -> "Clean directory %s".formatted(root.toAbsolutePath()));
     cleanRecursive(root);
     try {
       Files.deleteIfExists(root);

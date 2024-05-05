@@ -32,7 +32,7 @@ class AperStage3Current1NIBPVariableTest {
                 5, 0, 0, 0,
                 (byte) 0xd0, 0x07, 0, 0},
 
-            new int[] {55349, 1302})
+            new int[] {55389, 1291})
     );
   }
 

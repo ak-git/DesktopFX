@@ -47,10 +47,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static tec.uom.se.unit.Units.METRE;
 
-class InverseDynamicTest {
-  private static final Logger LOGGER = Logger.getLogger(InverseDynamicTest.class.getName());
+class Inverse2DynamicTest {
+  private static final Logger LOGGER = Logger.getLogger(Inverse2DynamicTest.class.getName());
 
-  static Stream<Arguments> relativeDynamicLayer2() {
+  static Stream<Arguments> relative() {
     double absErrorMilli = 0.001;
     double dhMilli = 0.000001;
     double hmm = 15.0 / 2.0;
@@ -81,8 +81,8 @@ class InverseDynamicTest {
   }
 
   @ParameterizedTest
-  @MethodSource("relativeDynamicLayer2")
-  void testInverseRelativeDynamicLayer2Theory(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
+  @MethodSource("relative")
+  void testInverseRelative(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers expected) {
     var regularizationFunction = Regularization.Interval.ZERO_MAX.of(0.0);
     var medium = Relative.Dynamic.solve(measurements, regularizationFunction);
 
@@ -94,14 +94,14 @@ class InverseDynamicTest {
     );
   }
 
-  static Stream<Arguments> absoluteDynamicLayer2() {
+  static Stream<Arguments> absolute() {
     double absErrorMilli = 0.001;
-    double dhMilli = 0.21;
+    double dHmm = 0.21;
     double hmm = 15.0 / 2;
     return Stream.of(
         // system 4 gets fewer errors
         arguments(
-            TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(dhMilli).system4(10.0).rho1(1.0).rho2(4.0).h(hmm),
+            TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(dHmm).system4(10.0).rho1(1.0).rho2(4.0).h(hmm),
             new ValuePair[] {
                 ValuePair.Name.RHO.of(1.6267, 0.00012),
                 ValuePair.Name.RHO_1.of(0.99789, 0.000063),
@@ -124,8 +124,8 @@ class InverseDynamicTest {
   }
 
   @ParameterizedTest
-  @MethodSource("absoluteDynamicLayer2")
-  void testInverseAbsoluteDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements, ValuePair[] expected) {
+  @MethodSource("absolute")
+  void testInverseAbsolute(Collection<? extends DerivativeMeasurement> measurements, ValuePair[] expected) {
     var medium = DynamicAbsolute.LAYER_2.apply(measurements, Regularization.Interval.ZERO_MAX.of(0.0));
     assertAll(medium.toString(),
         () -> assertThat(medium.rho()).isEqualTo(expected[0]),
@@ -135,16 +135,17 @@ class InverseDynamicTest {
     );
   }
 
-  static Stream<Arguments> theoryDynamicParameters2() {
-    double dhMilli = -0.001;
+  static Stream<Arguments> theoryParameters() {
+    double dHmm = -0.001;
     double hmm = 5.0;
+    double alpha = 0.0;
     return Stream.of(
         arguments(
             List.of(
-                TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(dhMilli)
+                TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(dHmm)
                     .system(10.0, 20.0).rho1(1.0).rho2(9.0).h(hmm)
             ),
-            0.0,
+            alpha,
             new double[] {
                 1.53,
                 Apparent2Rho.newApparentDivRho1(new RelativeTetrapolarSystem(0.5))
@@ -157,93 +158,93 @@ class InverseDynamicTest {
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.0).system2(10.0)
                 .rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
-            0.0,
+            alpha,
             new double[] {3.3, 1.0, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(hmm, METRE)}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.0).system2(10.0)
                 .rho1(10.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
-            0.0,
+            alpha,
             new double[] {33.0, 1.0, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(hmm / 10.0, METRE)}
         ),
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(dhMilli).system2(10.0).ofOhms(
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system2(10.0).ofOhms(
                 Stream.concat(
                     TetrapolarResistance.milli().system2(10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm).stream(),
-                    TetrapolarResistance.milli().system2(10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm + dhMilli).stream()
+                    TetrapolarResistance.milli().system2(10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm + dHmm).stream()
                 ).mapToDouble(Resistance::ohms).toArray()
             ),
-            0.0,
+            alpha,
             new double[] {3.3, 1.0, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(hmm, METRE)}
         ),
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(dhMilli).system2(10.0).rho1(4.0).rho2(1.0).h(hmm),
-            0.0,
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system2(10.0).rho1(4.0).rho2(1.0).h(hmm),
+            alpha,
             new double[] {1.75, 4.0, 1.0, Metrics.Length.MILLI.to(hmm, METRE)}
         ),
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(dhMilli).system4(10.0).rho1(1.0).rho2(4.0).h(hmm),
-            0.0,
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system4(10.0).rho1(1.0).rho2(4.0).h(hmm),
+            alpha,
             new double[] {2.02, 1.0, 4.0, Metrics.Length.MILLI.to(hmm, METRE)}
         ),
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.01).dh(dhMilli).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.01).dh(dHmm).system2(10.0)
                 .ofOhms(100.0, 150.0, 90.0, 160.0),
-            0.0,
+            alpha,
             new double[] {6.283, Double.NaN, Double.NaN, Double.NaN}
         )
     );
   }
 
-  static Stream<Arguments> waterDynamicParameters2() {
-    double dh = -10.0 / 200.0;
+  static Stream<Arguments> waterParameters() {
+    double dHmm = -1.0 / 20.0;
     double alpha = 2.0;
     return Stream.of(
         // h = 5 mm, rho1 = 0.7, rho2 = Inf
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system2(10.0)
                 .ofOhms(29.47, 65.68, 29.75, 66.35),
             alpha,
             new double[] {2.31, 0.701, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(5.06, METRE)}
         ),
         // h = 10 mm, rho1 = 0.7, rho2 = Inf
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system2(10.0)
                 .ofOhms(16.761, 32.246, 16.821, 32.383),
             alpha,
             new double[] {1.23, 0.701, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(10.0, METRE)}
         ),
         // h = 15 mm, rho1 = 0.7, rho2 = Inf
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system2(10.0)
                 .ofOhms(13.338, 23.903, 13.357, 23.953),
             alpha,
             new double[] {0.94, 0.697, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(14.8, METRE)}
         ),
         // h = 20 mm, rho1 = 0.7, rho2 = Inf
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system2(10.0)
                 .ofOhms(12.187, 20.567, 12.194, 20.589),
             alpha,
             new double[] {0.827, 0.7, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(20.0, METRE)}
         ),
         // h = 25 mm, rho1 = 0.7, rho2 = Inf
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system2(10.0)
                 .ofOhms(11.710, 18.986, 11.714, 18.998),
             alpha,
             new double[] {0.775, 0.694, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(23.8, METRE)}
         ),
         // h = 30 mm, rho1 = 0.7, rho2 = Inf
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system2(10.0)
                 .ofOhms(11.482, 18.152, 11.484, 18.158),
             alpha,
             new double[] {0.747, 0.698, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(29.0, METRE)}
         ),
         // h = 35 mm, rho1 = 0.7, rho2 = Inf
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system2(10.0)
                 .ofOhms(11.361, 17.674, 11.362, 17.678),
             alpha,
             new double[] {0.732, 0.699, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(34.0, METRE)}
@@ -252,9 +253,8 @@ class InverseDynamicTest {
   }
 
   @ParameterizedTest
-  @MethodSource({"theoryDynamicParameters2", "waterDynamicParameters2"})
-  void testInverseDynamicLayer2(Collection<? extends DerivativeMeasurement> measurements,
-                                @Nonnegative double alpha, double[] expected) {
+  @MethodSource({"theoryParameters", "waterParameters"})
+  void testInverse(Collection<? extends DerivativeMeasurement> measurements, @Nonnegative double alpha, double[] expected) {
     var medium = DynamicAbsolute.LAYER_2.apply(measurements, Regularization.Interval.MAX_K.of(alpha));
 
     ObjDoubleConsumer<ValuePair> checker = (valuePair, expectedValue) -> {
@@ -290,8 +290,8 @@ class InverseDynamicTest {
 
   @ParameterizedTest
   @MethodSource({"cvsFiles"})
-  @Disabled("ignored com.ak.rsm.inverse.InverseDynamicTest.testInverseDynamicLayerFileResistivity")
-  void testInverseDynamicLayerFileResistivity(String fileName, @Nonnegative double alpha) {
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2DynamicTest.testInverseFileResistivity")
+  void testInverseFileResistivity(String fileName, @Nonnegative double alpha) {
     String T = "TIME";
     String POSITION = "POSITION";
     String RHO_S1 = "A1";

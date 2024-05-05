@@ -50,8 +50,8 @@ class ValuePairTest {
         arguments(ValuePair.Name.H2.of(Double.NaN, 0.0), "h₂ = %.0f mm".formatted(Double.NaN)),
         arguments(ValuePair.Name.DH2.of(1.2345, 0.011), "Δh₂ = %.0f ± %.1f mm".formatted(1234.5, 11.0)),
         arguments(ValuePair.Name.DH2.of(Double.NaN, 0.0), "Δh₂ = %.0f mm".formatted(Double.NaN)),
-        arguments(ValuePair.Name.K12.of(1.2345, 0.0), "k₁₂ = %.6f".formatted(1.2345)),
-        arguments(ValuePair.Name.K23.of(1.2345, 0.0), "k₂₃ = %.6f".formatted(1.2345)),
+        arguments(ValuePair.Name.K12.of(1.2345, 0.0), "k₁₂ = %6.3f".formatted(1.2345)),
+        arguments(ValuePair.Name.K23.of(1.2345, 0.0), "k₂₃ = %6.3f".formatted(1.2345)),
         arguments(ValuePair.Name.H_L.of(Double.NaN, 0.0), "%s = %f".formatted(Strings.PHI, Double.NaN))
     );
   }

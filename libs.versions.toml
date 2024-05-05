@@ -1,9 +1,9 @@
 [versions]
 javamodularity-moduleplugin = '1.8.15'
 sonarqube = '5.0.0.4638'
-spotbugs = '6.0.9'
+spotbugs = '6.0.13'
 ben-manes-versions = '0.51.0'
-nebula-lint = '19.0.1'
+nebula-lint = '19.0.2'
 
 jsr305 = '3.0.2'
 junit = '5.10.2'
@@ -18,7 +18,7 @@ uom-se = '1.0.10'
 javax-json = '1.1.4'
 commons-math3 = '3.6.1'
 commons-csv = '1.10.0'
-jserial-comm = '2.10.4'
+jserial-comm = '2.11.0'
 jenetics = '8.0.0'
 
 [plugins]

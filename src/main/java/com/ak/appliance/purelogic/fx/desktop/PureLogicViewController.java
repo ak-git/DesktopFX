@@ -22,6 +22,7 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
   };
   private final AtomicInteger handDirection = new AtomicInteger();
   private boolean isRefresh;
+  private boolean isStop;
   private int autoSequenceIndex = -1;
 
   public PureLogicViewController() {
@@ -39,9 +40,20 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
   }
 
   @Override
+  public void left() {
+    isStop = false;
+  }
+
+  @Override
+  public void right() {
+    left();
+  }
+
+  @Override
   public void escape() {
     handDirection.set(0);
     isRefresh = false;
+    isStop = true;
     autoSequenceIndex = -1;
   }
 
@@ -66,6 +78,9 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
       else {
         handDirection.getAndAdd(-delta);
       }
+    }
+    else if (isStop) {
+      return PureLogicFrame.ALIVE;
     }
     return AUTO_SEQUENCE[autoSequenceIndex].action(!sequenceDirection);
   }
