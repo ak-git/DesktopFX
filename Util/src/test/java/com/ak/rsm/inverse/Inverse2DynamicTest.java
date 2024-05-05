@@ -197,54 +197,54 @@ class Inverse2DynamicTest {
   }
 
   static Stream<Arguments> waterParameters() {
-    double dh = -10.0 / 200.0;
+    double dHmm = -1.0 / 20.0;
     double alpha = 2.0;
     return Stream.of(
         // h = 5 mm, rho1 = 0.7, rho2 = Inf
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system2(10.0)
                 .ofOhms(29.47, 65.68, 29.75, 66.35),
             alpha,
             new double[] {2.31, 0.701, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(5.06, METRE)}
         ),
         // h = 10 mm, rho1 = 0.7, rho2 = Inf
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system2(10.0)
                 .ofOhms(16.761, 32.246, 16.821, 32.383),
             alpha,
             new double[] {1.23, 0.701, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(10.0, METRE)}
         ),
         // h = 15 mm, rho1 = 0.7, rho2 = Inf
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system2(10.0)
                 .ofOhms(13.338, 23.903, 13.357, 23.953),
             alpha,
             new double[] {0.94, 0.697, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(14.8, METRE)}
         ),
         // h = 20 mm, rho1 = 0.7, rho2 = Inf
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system2(10.0)
                 .ofOhms(12.187, 20.567, 12.194, 20.589),
             alpha,
             new double[] {0.827, 0.7, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(20.0, METRE)}
         ),
         // h = 25 mm, rho1 = 0.7, rho2 = Inf
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system2(10.0)
                 .ofOhms(11.710, 18.986, 11.714, 18.998),
             alpha,
             new double[] {0.775, 0.694, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(23.8, METRE)}
         ),
         // h = 30 mm, rho1 = 0.7, rho2 = Inf
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system2(10.0)
                 .ofOhms(11.482, 18.152, 11.484, 18.158),
             alpha,
             new double[] {0.747, 0.698, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(29.0, METRE)}
         ),
         // h = 35 mm, rho1 = 0.7, rho2 = Inf
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(dh).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system2(10.0)
                 .ofOhms(11.361, 17.674, 11.362, 17.678),
             alpha,
             new double[] {0.732, 0.699, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(34.0, METRE)}
