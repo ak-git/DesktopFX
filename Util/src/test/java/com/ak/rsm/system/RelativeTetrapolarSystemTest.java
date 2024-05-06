@@ -1,19 +1,17 @@
 package com.ak.rsm.system;
 
-import java.util.Arrays;
-import java.util.Random;
-import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.math.Simplex;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import javax.annotation.Nonnegative;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
@@ -31,7 +29,6 @@ class RelativeTetrapolarSystemTest {
 
   @ParameterizedTest
   @MethodSource("tetrapolarSystems")
-  @ParametersAreNonnullByDefault
   void testEquals(RelativeTetrapolarSystem system1, RelativeTetrapolarSystem system2, boolean equals) {
     assertThat(system1.equals(system2)).withFailMessage("%s compared with %s", system1, system2).isEqualTo(equals);
     assertThat(system1.hashCode() == system2.hashCode())

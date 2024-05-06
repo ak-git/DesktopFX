@@ -6,9 +6,7 @@ import com.ak.numbers.RangeUtils;
 import com.ak.util.Builder;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntBinaryOperator;
@@ -18,22 +16,23 @@ import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
+import static com.ak.digitalfilter.IntsAcceptor.EMPTY_INTS;
+
 public class FilterBuilder implements Builder<DigitalFilter> {
-  private static final int[] EMPTY_INTS = {};
   @Nullable
   private DigitalFilter filter;
 
   private FilterBuilder() {
   }
 
-  public static DigitalFilter parallel(@Nonnull List<int[]> selectedIndexes, @Nonnull DigitalFilter... filters) {
+  public static DigitalFilter parallel(List<int[]> selectedIndexes, DigitalFilter... filters) {
     if (selectedIndexes.isEmpty()) {
       throw new IllegalArgumentException(Arrays.deepToString(filters));
     }
     return of().fork(selectedIndexes, filters).buildNoDelay();
   }
 
-  static DigitalFilter parallel(@Nonnull DigitalFilter... filters) {
+  static DigitalFilter parallel(DigitalFilter... filters) {
     Objects.requireNonNull(filters);
     return parallel(Stream.generate(() -> EMPTY_INTS).limit(filters.length).toList(), filters);
   }
@@ -42,9 +41,8 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return new FilterBuilder();
   }
 
-  public FilterBuilder operator(@Nonnull Supplier<IntUnaryOperator> operatorSupplier) {
+  public FilterBuilder operator(Supplier<IntUnaryOperator> operatorSupplier) {
     return chain(new AbstractOperableFilter() {
-      @Nonnull
       private final IntUnaryOperator operator = operatorSupplier.get();
 
       @Override
@@ -59,9 +57,8 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     });
   }
 
-  public FilterBuilder biOperator(@Nonnull Supplier<IntBinaryOperator> operatorSupplier) {
+  public FilterBuilder biOperator(Supplier<IntBinaryOperator> operatorSupplier) {
     return chain(new AbstractDigitalFilter() {
-      @Nonnull
       private IntBinaryOperator operator = operatorSupplier.get();
 
       @Override
@@ -75,7 +72,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
       }
 
       @Override
-      public void accept(@Nonnull int... values) {
+      public void accept(int... values) {
         Objects.requireNonNull(values);
         publish(operator.applyAsInt(values[0], values[1]));
       }
@@ -87,7 +84,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     });
   }
 
-  public FilterBuilder fir(@Nonnull Supplier<double[]> coefficients) {
+  public FilterBuilder fir(Supplier<double[]> coefficients) {
     return fir(coefficients.get());
   }
 
@@ -133,15 +130,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new ExpSumFilter());
   }
 
-  public FilterBuilder autoZero(@Nonnegative int settingCounts) {
-    return chain(new AutoZeroFilter(settingCounts));
-  }
-
-  public FilterBuilder angle() {
-    return chain(new AngleFilter());
-  }
-
-  FilterBuilder fir(@Nonnull double... coefficients) {
+  FilterBuilder fir(double... coefficients) {
     return chain(new FIRFilter(coefficients));
   }
 
@@ -149,11 +138,10 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new FIRFilter(DoubleStream.generate(() -> 1.0 / count).limit(count).toArray()));
   }
 
-  FilterBuilder iir(@Nonnull double... coefficients) {
+  FilterBuilder iir(double... coefficients) {
     return chain(new IIRFilter(coefficients));
   }
 
-  @ParametersAreNonnullByDefault
   public FilterBuilder iirMATLAB(double[] num, double[] den) {
     return fir(RangeUtils.reverseOrder(num)).iir(Arrays.stream(den).skip(1).map(operand -> -operand).toArray());
   }
@@ -178,6 +166,10 @@ public class FilterBuilder implements Builder<DigitalFilter> {
 
   public FilterBuilder rrs() {
     return chain(new RRSFilter());
+  }
+
+  FilterBuilder removeConstant(double alpha) {
+    return chain(new RemoveConstantFilter(alpha));
   }
 
   /**
@@ -216,19 +208,19 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new PeakToPeakFilter(size));
   }
 
-  public static <C extends Enum<C> & Coefficients> FilterBuilder asFilterBuilder(@Nonnull Class<C> coeffEnum) {
+  public static <C extends Enum<C> & Coefficients> FilterBuilder asFilterBuilder(Class<C> coeffEnum) {
     return of().biOperator(Interpolators.interpolator(coeffEnum));
   }
 
-  public static FilterBuilder asFilterBuilder(@Nonnull Coefficients coefficients) {
+  public static FilterBuilder asFilterBuilder(Coefficients coefficients) {
     return of().operator(Interpolators.interpolator(coefficients));
   }
 
-  public FilterBuilder decimate(@Nonnull Supplier<double[]> coefficients, @Nonnegative int decimateFactor) {
+  public FilterBuilder decimate(Supplier<double[]> coefficients, @Nonnegative int decimateFactor) {
     return chain(new FIRFilter(coefficients.get())).chain(new DecimationFilter(decimateFactor));
   }
 
-  public FilterBuilder interpolate(@Nonnegative int interpolateFactor, @Nonnull Supplier<double[]> coefficients) {
+  public FilterBuilder interpolate(@Nonnegative int interpolateFactor, Supplier<double[]> coefficients) {
     return chain(new InterpolationFilter(interpolateFactor)).chain(new FIRFilter(coefficients.get()));
   }
 
@@ -246,7 +238,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
             operator(() -> n -> n / interpolateFactor / combFactor));
   }
 
-  FilterBuilder fork(@Nonnull DigitalFilter... filters) {
+  FilterBuilder fork(DigitalFilter... filters) {
     return fork(Collections.emptyList(), filters);
   }
 
@@ -259,7 +251,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return filter == null ? new NoFilter() : filter;
   }
 
-  public int[] filter(@Nonnull int[] ints) {
+  public int[] filter(int[] ints) {
     DigitalFilter f = build();
     var result = new int[(int) Math.floor(ints.length * f.getFrequencyFactor())];
     var index = new AtomicInteger();
@@ -270,7 +262,12 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return result;
   }
 
-  private FilterBuilder fork(@Nonnull List<int[]> selectedIndexes, @Nonnull DigitalFilter... filters) {
+  private FilterBuilder chain(DigitalFilter chain) {
+    filter = Optional.ofNullable(filter).<DigitalFilter>map(f -> new ChainFilter(f, chain)).orElse(Objects.requireNonNull(chain));
+    return this;
+  }
+
+  private FilterBuilder fork(List<int[]> selectedIndexes, DigitalFilter... filters) {
     Objects.requireNonNull(selectedIndexes);
     Objects.requireNonNull(filters);
     if (filters.length == 0) {
@@ -297,12 +294,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return filters.length == 1 ? chain(wrappedFilters[0]) : chain(new ForkFilter(wrappedFilters));
   }
 
-  private FilterBuilder chain(@Nonnull DigitalFilter chain) {
-    filter = Optional.ofNullable(filter).<DigitalFilter>map(f -> new ChainFilter(f, chain)).orElse(chain);
-    return this;
-  }
-
-  private FilterBuilder wrap(@Nonnull String name, @Nonnull Builder<DigitalFilter> filterBuilder) {
+  private FilterBuilder wrap(String name, Builder<DigitalFilter> filterBuilder) {
     return chain(new FilterWrapper(name, filterBuilder.build()));
   }
 }

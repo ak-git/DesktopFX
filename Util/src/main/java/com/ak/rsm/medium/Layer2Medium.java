@@ -15,31 +15,23 @@ import com.ak.util.Strings;
 import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static tec.uom.se.unit.Units.METRE;
 
 public final class Layer2Medium extends AbstractMediumLayers {
-  @Nonnull
   private final RelativeMediumLayers kw;
-  @Nonnull
   private final Layer1Medium layer1;
-  @Nonnull
   private final ValuePair rho1;
   private final double dRho2;
   @Nonnegative
   private final double baseL;
 
-  @ParametersAreNonnullByDefault
   public Layer2Medium(Collection<? extends Measurement> measurements, RelativeMediumLayers kw) {
     super(measurements);
-    this.kw = kw;
+    this.kw = Objects.requireNonNull(kw);
     baseL = Resistivity.getBaseL(measurements);
     layer1 = new Layer1Medium(measurements);
     rho1 = getRho1();
@@ -47,23 +39,19 @@ public final class Layer2Medium extends AbstractMediumLayers {
         (rho1().absError() / Layers.getRho1ToRho2(kw.k().value()));
   }
 
-  @Nonnull
   @Override
   public ValuePair rho() {
     return layer1.rho();
   }
 
-  @Nonnull
   public ValuePair rho1() {
     return rho1;
   }
 
-  @Nonnull
   public ValuePair rho2() {
     return ValuePair.Name.RHO_2.of(rho1().value() / Layers.getRho1ToRho2(kw.k().value()), dRho2);
   }
 
-  @Nonnull
   public ValuePair h() {
     return ValuePair.Name.H.of(kw.hToL().value() * baseL, kw.hToL().absError() * baseL);
   }
@@ -75,33 +63,29 @@ public final class Layer2Medium extends AbstractMediumLayers {
     }
 
     double k = kw.k().value();
-    return "%s; %s; %s; %s; %s; %s; %s %n%s".formatted(rho(), rho1, rho2(), h(), kw,
-        toStringHorizons(mergeHorizons(measurements(), k)), toStringRMS(),
-        measurements().stream()
-            .map(m ->
-                "%s; %s; %s".formatted(m, apply(m), toStringHorizons(
-                    new double[] {m.inexact().getHMin(k), m.inexact().getHMax(k)}
-                ))
-            )
-            .collect(Collectors.joining(Strings.NEW_LINE))
-    );
+    return Stream.of(rho(), rho1, rho2(), h(), kw, toStringHorizons(mergeHorizons(measurements(), k)), toStringRMS(),
+            measurements().stream()
+                .map(m ->
+                    Stream.of(m, apply(m), toStringHorizons(
+                        new double[] {m.inexact().getHMin(k), m.inexact().getHMax(k)}
+                    )).map(Object::toString).collect(Collectors.joining(Strings.SEMICOLON))
+                )
+                .collect(Collectors.joining(Strings.NEW_LINE, Strings.NEW_LINE, Strings.EMPTY)))
+        .map(Object::toString).collect(Collectors.joining(Strings.SEMICOLON));
   }
 
   @Override
-  @Nonnull
-  public Prediction apply(@Nonnull Measurement measurement) {
+  public Prediction apply(Measurement measurement) {
     return Predictions.of(measurement, kw, rho1.value());
   }
 
-  @Nonnull
-  private static String toStringHorizons(@Nonnull double[] horizons) {
-    return Arrays.stream(horizons)
+  private static String toStringHorizons(double[] horizons) {
+    return Arrays.stream(Objects.requireNonNull(horizons))
         .map(metre -> Metrics.Length.METRE.to(metre, MetricPrefix.MILLI(METRE))).mapToObj("%.1f"::formatted)
         .collect(Collectors.joining("; ", "↔ [", "] " + MetricPrefix.MILLI(METRE)));
   }
 
-  @Nonnull
-  private static double[] mergeHorizons(@Nonnull Collection<Measurement> measurements, double k) {
+  private static double[] mergeHorizons(Collection<Measurement> measurements, double k) {
     return measurements.stream().map(Measurement::inexact).collect(
         Collectors.teeing(
             Collectors.maxBy(Comparator.comparingDouble(v -> v.getHMin(k))),
@@ -116,7 +100,6 @@ public final class Layer2Medium extends AbstractMediumLayers {
     ).orElseThrow();
   }
 
-  @Nonnull
   private ValuePair getRho1() {
     if (RelativeMediumLayers.SINGLE_LAYER.equals(kw)) {
       ValuePair rho = rho();

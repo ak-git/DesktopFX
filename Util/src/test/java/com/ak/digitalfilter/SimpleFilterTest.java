@@ -4,7 +4,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -119,28 +118,10 @@ class SimpleFilterTest {
             0.0
         ),
         arguments(
-            FilterBuilder.of().angle().build(),
-            new int[] {-120 * 1000, 1000, 120 * 1000, -120 * 1000, 0},
-            new int[] {-120 * 1000, 1000, 120 * 1000, 240 * 1000, 360 * 1000},
-            0.0
-        ),
-        arguments(
             FilterBuilder.of().average(3).build(),
             new int[] {1, 2, 3, 4, 5, 6},
             new int[] {0, 1, 2, 3, 4, 5},
             1.0
-        ),
-        arguments(
-            FilterBuilder.of().autoZero(2).build(),
-            new int[] {1, 2, 3, 4, 5, 6},
-            new int[] {0, 0, 0, 0, 1, 2},
-            0.0
-        ),
-        arguments(
-            FilterBuilder.of().autoZero(0).build(),
-            new int[] {1, 2, 3, 4, 5, 6},
-            new int[] {1, 2, 3, 4, 5, 6},
-            0.0
         ),
         arguments(
             FilterBuilder.of().sharpingDecimate(1).build(),
@@ -219,13 +200,24 @@ class SimpleFilterTest {
             new int[] {100, -100, 100, -100, 100, -100, 100, -100, 100, -100, 100, -100, 100, -100},
             new int[] {0, 70, 69, 78, 92, 92, 100, 100, 100, 100, 100, 100, 100, 100},
             0.0
+        ),
+        arguments(
+            FilterBuilder.of().removeConstant(0.9).build(),
+            new int[] {10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10},
+            new int[] {9, 8, 7, 6, 5, 5, 4, 4, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 0},
+            0.0
+        ),
+        arguments(
+            FilterBuilder.of().removeConstant(0.8).build(),
+            new int[] {10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10},
+            new int[] {8, 6, 5, 4, 3, 2, 2, 1, 1, 1, 0},
+            0.0
         )
     );
   }
 
   @ParameterizedTest
   @MethodSource("data")
-  @ParametersAreNonnullByDefault
   void testFilter(DigitalFilter filter, int[] data, int[] expected, double delay) {
     AtomicInteger index = new AtomicInteger();
     int[] actual = new int[expected.length];

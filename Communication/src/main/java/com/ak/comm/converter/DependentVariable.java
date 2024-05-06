@@ -1,16 +1,13 @@
 package com.ak.comm.converter;
 
+import tec.uom.se.AbstractUnit;
+
+import javax.measure.Unit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
-import javax.measure.Unit;
-
-import tec.uom.se.AbstractUnit;
-
 public interface DependentVariable<I extends Enum<I> & Variable<I>, O extends Enum<O> & Variable<O>> extends Variable<O> {
-  @Nonnull
   Class<I> getInputVariablesClass();
 
   default List<I> getInputVariables() {
@@ -21,11 +18,11 @@ public interface DependentVariable<I extends Enum<I> & Variable<I>, O extends En
   default Unit<?> getUnit() {
     return tryFindSame(Variable::getUnit, () -> {
       if (getInputVariables().size() == 1) {
-        if (getInputVariables().get(0) == this) {
+        if (getInputVariables().getFirst() == this) {
           return AbstractUnit.ONE;
         }
         else {
-          return getInputVariables().get(0).getUnit();
+          return getInputVariables().getFirst().getUnit();
         }
       }
       else {
@@ -38,11 +35,11 @@ public interface DependentVariable<I extends Enum<I> & Variable<I>, O extends En
   default Set<Option> options() {
     return tryFindSame(Variable::options, () -> {
       if (getInputVariables().size() == 1) {
-        if (getInputVariables().get(0) == this) {
+        if (getInputVariables().getFirst() == this) {
           return Option.defaultOptions();
         }
         else {
-          return getInputVariables().get(0).options();
+          return getInputVariables().getFirst().options();
         }
       }
       else {

@@ -1,24 +1,21 @@
 package com.ak.rsm.resistance;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import com.ak.rsm.potential.Potential3Layer;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
+
+import javax.annotation.Nonnegative;
 
 /**
  * Calculates <b>full</b> ohms R<sub>m-n</sub> (in Ohm) between electrodes for <b>3-layer</b> model.
  */
 final class Resistance3Layer extends AbstractResistanceLayer<Potential3Layer> {
-  @Nonnull
   private final Resistance1Layer resistance1Layer;
-  @Nonnull
   private final Resistance2Layer resistance2Layer;
   @Nonnegative
   private final double hStep;
 
-  Resistance3Layer(@Nonnull TetrapolarSystem electrodeSystem, @Nonnegative double hStep) {
+  Resistance3Layer(TetrapolarSystem electrodeSystem, @Nonnegative double hStep) {
     super(electrodeSystem, value -> new Potential3Layer(value, hStep));
     resistance1Layer = new Resistance1Layer(electrodeSystem);
     resistance2Layer = new Resistance2Layer(electrodeSystem);

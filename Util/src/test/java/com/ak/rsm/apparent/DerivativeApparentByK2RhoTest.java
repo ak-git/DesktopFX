@@ -8,7 +8,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
@@ -16,7 +15,7 @@ import static org.assertj.core.api.Assertions.byLessThan;
 class DerivativeApparentByK2RhoTest {
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
-  void testValueSL(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
+  void testValueSL(double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
     if (Double.compare(rho[0], rho[1]) != 0) {
       double k12 = Layers.getK12(rho[0], rho[1]);
       double dk = 0.00001;
@@ -34,7 +33,7 @@ class DerivativeApparentByK2RhoTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
-  void testValueLS(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
+  void testValueLS(double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
     if (Double.compare(rho[0], rho[1]) != 0) {
       double k12 = Layers.getK12(rho[0], rho[1]);
       double dk = 0.00001;

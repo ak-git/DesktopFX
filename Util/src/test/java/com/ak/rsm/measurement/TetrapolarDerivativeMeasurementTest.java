@@ -15,8 +15,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -110,7 +108,6 @@ class TetrapolarDerivativeMeasurementTest {
 
   @ParameterizedTest
   @MethodSource("tetrapolarMeasurements")
-  @ParametersAreNonnullByDefault
   void test(DerivativeMeasurement d, String expected, @Nonnegative double resistivity,
             double derivativeResistivity, InexactTetrapolarSystem system) {
     assertAll(d.toString(),
@@ -232,7 +229,6 @@ class TetrapolarDerivativeMeasurementTest {
 
   @ParameterizedTest
   @MethodSource("tetrapolarMultiMeasurements")
-  @ParametersAreNonnullByDefault
   void testMulti(Collection<DerivativeMeasurement> ms, String expected, double[] resistivity, double[] derivativeResistivity) {
     assertAll(ms.toString(),
         () -> assertThat(ms.stream().map(
@@ -287,7 +283,7 @@ class TetrapolarDerivativeMeasurementTest {
 
   @ParameterizedTest
   @MethodSource("derivativeMeasurements")
-  void testDerivativeMeasurements(@Nonnull DerivativeResistivity dm1, @Nonnull DerivativeResistivity dm2) {
+  void testDerivativeMeasurements(DerivativeResistivity dm1, DerivativeResistivity dm2) {
     assertThat(dm1.resistivity()).isEqualTo(dm2.resistivity());
     assertThat(dm1.derivativeResistivity()).isCloseTo(dm2.derivativeResistivity(), byLessThan(0.01));
   }

@@ -1,7 +1,7 @@
 package com.ak.rsm.system;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import java.util.Objects;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.IntStream;
 
@@ -26,12 +26,12 @@ public enum Layers {
   }
 
   public static double getRho1ToRho2(double k12) {
-    double k = Math.max(-1.0, Math.min(k12, 1.0));
+    double k = Math.clamp(k12, -1.0, 1.0);
     return (1.0 - k) / (1.0 + k);
   }
 
-  public static double sum(@Nonnull IntToDoubleFunction function) {
-    return IntStream.rangeClosed(1, SUM_LIMIT).parallel().mapToDouble(function).sum();
+  public static double sum(IntToDoubleFunction function) {
+    return IntStream.rangeClosed(1, SUM_LIMIT).parallel().mapToDouble(Objects.requireNonNull(function)).sum();
   }
 
   public static double[] qn(double k12, double k23, @Nonnegative int p1, @Nonnegative int p2mp1) {

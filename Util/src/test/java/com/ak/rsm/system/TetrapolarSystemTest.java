@@ -7,7 +7,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -32,7 +31,6 @@ class TetrapolarSystemTest {
 
   @ParameterizedTest
   @MethodSource("tetrapolarSystems")
-  @ParametersAreNonnullByDefault
   void testEquals(Object system1, Object system2, boolean equals) {
     assertThat(system1.equals(system2))
         .withFailMessage("%s compared with %s", system1, system2).isEqualTo(equals);
@@ -76,7 +74,7 @@ class TetrapolarSystemTest {
 
   @Test
   void testToString() {
-    TetrapolarSystem ts = new TetrapolarSystem(Metrics.Length.MILLI.to(20.0, METRE), Metrics.Length.MILLI.to(15.0, METRE));
-    assertThat(ts).hasToString("%2.3f x %2.3f %s".formatted(20.0, 15.0, MetricPrefix.MILLI(METRE)));
+    TetrapolarSystem ts = new TetrapolarSystem(Metrics.Length.MILLI.to(20.0, METRE), Metrics.Length.MILLI.to(5.0, METRE));
+    assertThat(ts).hasToString("%6.3f x %6.3f %s".formatted(20.0, 5.0, MetricPrefix.MILLI(METRE)));
   }
 }

@@ -14,8 +14,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
@@ -43,7 +41,6 @@ class InexactTetrapolarSystemTest {
 
   @ParameterizedTest
   @MethodSource("tetrapolarSystems")
-  @ParametersAreNonnullByDefault
   void testEquals(Object system1, Object system2, boolean equals) {
     assertThat(system1.equals(system2))
         .withFailMessage("%s compared with %s", system1, system2).isEqualTo(equals);
@@ -61,7 +58,7 @@ class InexactTetrapolarSystemTest {
 
   @ParameterizedTest
   @MethodSource("inexactTetrapolarSystems")
-  void testToString(@Nonnull Object system) {
+  void testToString(Object system) {
     assertThat(system.toString()).contains("%.1f".formatted(Metrics.Length.METRE.to(0.1, MetricPrefix.MILLI(METRE))));
   }
 
@@ -74,20 +71,20 @@ class InexactTetrapolarSystemTest {
 
   @ParameterizedTest
   @MethodSource("inexactTetrapolarSystems")
-  void testAbsError(@Nonnull InexactTetrapolarSystem system) {
+  void testAbsError(InexactTetrapolarSystem system) {
     assertThat(system.absError()).withFailMessage(system::toString).isCloseTo(0.1, byLessThan(0.01));
   }
 
   @ParameterizedTest
   @MethodSource("inexactTetrapolarSystems")
-  void testGetDeltaApparent(@Nonnull InexactTetrapolarSystem system) {
+  void testGetDeltaApparent(InexactTetrapolarSystem system) {
     assertThat(system.getApparentRelativeError())
         .withFailMessage(system::toString).isCloseTo(6.0 * 0.1 / 30.0, byLessThan(1.0e-6));
   }
 
   @ParameterizedTest
   @MethodSource("inexactTetrapolarSystems")
-  void testGetHMax(@Nonnull InexactTetrapolarSystem system) {
+  void testGetHMax(InexactTetrapolarSystem system) {
     assertThat(system.getHMax(1.0))
         .withFailMessage(system::toString).isCloseTo(0.177 * 30.0 / StrictMath.pow(0.1 / 30.0, 1.0 / 3.0), byLessThan(0.1));
   }
@@ -142,7 +139,7 @@ class InexactTetrapolarSystemTest {
 
   @ParameterizedTest
   @MethodSource("inexactTetrapolarSystems")
-  void testHMin(@Nonnull InexactTetrapolarSystem system) {
+  void testHMin(InexactTetrapolarSystem system) {
     Assertions.assertAll(system.toString(),
         () -> assertThat(system.getHMin(0.99)).isCloseTo(0.0, within(0.01)),
         () -> assertThat(system.getHMin(0.999)).isCloseTo(0.0, within(0.001)),
@@ -168,7 +165,7 @@ class InexactTetrapolarSystemTest {
 
   @ParameterizedTest
   @MethodSource("combinations")
-  void testCombinations(@Nonnull Collection<InexactTetrapolarSystem> systems, @Nonnegative int expected) {
+  void testCombinations(Collection<InexactTetrapolarSystem> systems, @Nonnegative int expected) {
     Collection<List<TetrapolarSystem>> c = InexactTetrapolarSystem.getMeasurementsCombination(systems);
     assertThat(c).withFailMessage(c.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE))).hasSize(expected);
   }
@@ -195,7 +192,7 @@ class InexactTetrapolarSystemTest {
 
   @ParameterizedTest
   @MethodSource("inexactTetrapolarSystems2")
-  void testGetBaseL(@Nonnull Collection<InexactTetrapolarSystem> systems, @Nonnegative double expectedL) {
+  void testGetBaseL(Collection<InexactTetrapolarSystem> systems, @Nonnegative double expectedL) {
     assertThat(InexactTetrapolarSystem.getBaseL(systems)).isEqualTo(expectedL);
   }
 }

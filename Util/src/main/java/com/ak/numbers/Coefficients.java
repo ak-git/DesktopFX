@@ -4,7 +4,6 @@ import com.ak.logging.CalibrateBuilders;
 import com.ak.util.Extension;
 import com.ak.util.LocalIO;
 
-import javax.annotation.Nonnull;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
@@ -20,7 +19,8 @@ import java.util.logging.Logger;
 public interface Coefficients extends Supplier<double[]> {
   @Override
   default double[] get() {
-    var fileName = getClass().getPackageName().substring(getClass().getPackageName().lastIndexOf(".") + 1);
+    var fileName = Arrays.stream(getClass().getPackageName().split("\\.")).skip(3).findFirst()
+        .orElse(Arrays.stream(Coefficients.class.getPackageName().split("\\.")).toList().getLast());
     var inputStream = Objects.requireNonNull(getClass().getResourceAsStream(Extension.JSON.attachTo(fileName)));
     try {
       LocalIO build = CalibrateBuilders.build(fileName);
@@ -50,9 +50,9 @@ public interface Coefficients extends Supplier<double[]> {
     return pairs;
   }
 
-  String readJSON(@Nonnull JsonObject object);
+  String readJSON(JsonObject object);
 
-  static double[] read(@Nonnull Scanner scanner) {
+  static double[] read(Scanner scanner) {
     scanner.useLocale(Locale.ROOT);
     Collection<Double> coeffs = new LinkedList<>();
     while (scanner.hasNext() && !scanner.hasNextDouble()) {

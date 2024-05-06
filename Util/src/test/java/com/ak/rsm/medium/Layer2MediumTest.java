@@ -12,7 +12,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Stream;
@@ -79,7 +78,6 @@ class Layer2MediumTest {
 
   @ParameterizedTest
   @MethodSource({"layer2Medium", "layer2MediumDerivative"})
-  @ParametersAreNonnullByDefault
   void testRho(Layer2Medium layers, double[] expected) {
     Assertions.assertAll(layers.toString(), () -> {
       assertThat(layers.rho().value()).isCloseTo(expected[0], byLessThan(0.001));
@@ -91,7 +89,6 @@ class Layer2MediumTest {
 
   @ParameterizedTest
   @MethodSource({"layer2Medium", "layer2MediumDerivative"})
-  @ParametersAreNonnullByDefault
   void testToString(Layer2Medium layers, double[] expected) {
     Arrays.stream(expected).limit(2).forEach(value -> {
       if (Double.isFinite(value)) {

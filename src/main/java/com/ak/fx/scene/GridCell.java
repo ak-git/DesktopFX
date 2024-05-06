@@ -1,8 +1,7 @@
 package com.ak.fx.scene;
 
 import com.ak.fx.stage.ScreenResolutionMonitor;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
+import com.ak.util.Numbers;
 import javafx.scene.shape.Path;
 
 import javax.annotation.Nonnegative;
@@ -60,7 +59,6 @@ enum GridCell {
     }
   };
 
-  private static final Paint COLOR = new Color(225.0 / 255.0, 130.0 / 255.0, 110.0 / 255.0, 1.0);
   @Nonnegative
   private final double strokeWidth;
 
@@ -85,7 +83,7 @@ enum GridCell {
 
   Path newPath() {
     var p = new Path();
-    p.setStroke(COLOR);
+    p.setStroke(Colors.GRID_CELL);
     p.setStrokeWidth(getStrokeWidth());
     return p;
   }
@@ -116,7 +114,7 @@ enum GridCell {
   }
 
   static int mm(double value) {
-    return (int) Math.rint(value / (SMALL.getStep() / 10.0));
+    return Numbers.toInt(value / (SMALL.getStep() / 10.0));
   }
 
   @Nonnegative
@@ -131,6 +129,6 @@ enum GridCell {
 
   @Nonnegative
   private static double roundCoordinate(@Nonnegative double step, @Nonnegative double size) {
-    return Math.rint(size / step) * step;
+    return Numbers.toInt(size / step) * step;
   }
 }

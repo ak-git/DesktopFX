@@ -1,8 +1,8 @@
 package com.ak.digitalfilter;
 
-import javax.annotation.Nonnull;
-
 @FunctionalInterface
 public interface IntsAcceptor {
-  void accept(@Nonnull int... values);
+  int[] EMPTY_INTS = {};
+
+  void accept(int... values);
 }

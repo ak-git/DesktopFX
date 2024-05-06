@@ -1,12 +1,5 @@
 package com.ak.comm.file;
 
-import java.nio.ByteBuffer;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.concurrent.Flow;
-
-import javax.annotation.Nonnull;
-
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.TwoVariables;
@@ -18,16 +11,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.nio.ByteBuffer;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.concurrent.Flow;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 class AutoFileReadingServiceTest {
   private static final AutoFileReadingService<BufferFrame, BufferFrame, TwoVariables> SERVICE = new AutoFileReadingService<>(
       () ->
-          new RampBytesInterceptor(
-              AutoFileReadingServiceTest.class.getName(),
+          new RampBytesInterceptor(RampBytesInterceptor.class.getSimpleName(),
               BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES
           ),
       () -> new ToIntegerConverter<>(TwoVariables.class, 1000)
@@ -58,7 +53,7 @@ class AutoFileReadingServiceTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.file.FileDataProvider#parallelRampFiles")
-  void testAccept(@Nonnull Path file) {
+  void testAccept(Path file) {
     assertTrue(SERVICE.accept(file.toFile()));
     int countFrames = 10;
     ByteBuffer buffer = ByteBuffer.allocate(TwoVariables.values().length * Integer.BYTES * countFrames);

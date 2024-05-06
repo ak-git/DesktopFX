@@ -1,16 +1,5 @@
 package com.ak.fx.desktop;
 
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.annotation.Nonnull;
-
 import com.ak.comm.converter.Converter;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.Extension;
@@ -19,14 +8,23 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 @SpringBootApplication
 public class ConverterApp implements AutoCloseable, Consumer<Path> {
   private static final Logger LOGGER = Logger.getLogger(ConverterApp.class.getName());
-  @Nonnull
   private final ConfigurableApplicationContext context;
 
-  public ConverterApp(@Nonnull ConfigurableApplicationContext context) {
-    this.context = context;
+  public ConverterApp(ConfigurableApplicationContext context) {
+    this.context = Objects.requireNonNull(context);
   }
 
   @Override
@@ -49,7 +47,7 @@ public class ConverterApp implements AutoCloseable, Consumer<Path> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public void accept(@Nonnull Path path) {
+  public void accept(Path path) {
     Converter.doConvert(context.getBean(BytesInterceptor.class), context.getBean(Converter.class), path);
   }
 }

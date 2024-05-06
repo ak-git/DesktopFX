@@ -1,14 +1,11 @@
 package com.ak.digitalfilter;
 
+import javax.annotation.Nonnegative;
+import java.util.Objects;
 import java.util.function.IntUnaryOperator;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 final class PeakToPeakFilter extends AbstractBufferFilter {
-  @Nonnull
   private final Index max;
-  @Nonnull
   private final Index min;
 
   PeakToPeakFilter(@Nonnegative int size) {
@@ -46,13 +43,12 @@ final class PeakToPeakFilter extends AbstractBufferFilter {
   }
 
   private final class Index implements IntUnaryOperator {
-    @Nonnull
     private final Operator operator;
     @Nonnegative
     private int extremalIndex;
 
-    private Index(@Nonnull Operator operator) {
-      this.operator = operator;
+    private Index(Operator operator) {
+      this.operator = Objects.requireNonNull(operator);
     }
 
     @Override

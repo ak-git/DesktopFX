@@ -1,26 +1,5 @@
 package com.ak.comm.file;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousFileChannel;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.concurrent.Flow;
-import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.bytes.LogUtils;
 import com.ak.comm.converter.ToIntegerConverter;
@@ -42,12 +21,23 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousFileChannel;
+import java.nio.file.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.concurrent.Flow;
+import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FileReadingServiceTest {
   private static final Logger LOGGER = Logger.getLogger(FileReadingService.class.getName());
@@ -62,13 +52,12 @@ class FileReadingServiceTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.file.FileDataProvider#rampFiles")
-  void testNoDataConverted(@Nonnull Path fileToRead, int bytes) {
+  void testNoDataConverted(Path fileToRead, int bytes) {
     try (FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher = new FileReadingService<>(fileToRead,
         new AbstractBytesInterceptor<>(getClass().getName(),
-            BytesInterceptor.BaudRate.BR_921600, null, 1) {
-          @Nonnull
+            BytesInterceptor.BaudRate.BR_921600, 1) {
           @Override
-          protected Collection<BufferFrame> innerProcessIn(@Nonnull ByteBuffer src) {
+          protected Collection<BufferFrame> innerProcessIn(ByteBuffer src) {
             return Collections.emptyList();
           }
         },
@@ -91,7 +80,7 @@ class FileReadingServiceTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.file.FileDataProvider#rampFile")
-  void testFile(@Nonnull Path fileToRead, @Nonnegative int bytes, boolean forceClose) {
+  void testFile(Path fileToRead, @Nonnegative int bytes, boolean forceClose) {
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
     try (FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher = new FileReadingService<>(
@@ -115,7 +104,7 @@ class FileReadingServiceTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.file.FileDataProvider#rampFiles")
-  void testFiles(@Nonnull Path fileToRead, int bytes) {
+  void testFiles(Path fileToRead, int bytes) {
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
     try (FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher =
@@ -152,7 +141,7 @@ class FileReadingServiceTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.file.FileDataProvider#filesCanDelete")
-  void testException(@Nonnull Path fileToRead, int bytes) {
+  void testException(Path fileToRead, int bytes) {
     assertThat(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
       TestSubscriber<int[]> testSubscriber = new TestSubscriber<>(subscription -> {
         try {
@@ -185,7 +174,7 @@ class FileReadingServiceTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.file.FileDataProvider#rampFiles")
-  void testCancel(@Nonnull Path fileToRead, int bytes) {
+  void testCancel(Path fileToRead, int bytes) {
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>(Flow.Subscription::cancel);
     try (FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher =
              new FileReadingService<>(fileToRead, new RampBytesInterceptor(getClass().getName(),
@@ -265,7 +254,7 @@ class FileReadingServiceTest {
   }
 
   @Nonnegative
-  private static int getBlockSize(@Nonnull Path fileToRead) {
+  private static int getBlockSize(Path fileToRead) {
     int blockSize = 0;
     try {
       blockSize = (int) Files.getFileStore(fileToRead).getBlockSize();
@@ -286,7 +275,6 @@ class FileReadingServiceTest {
   }
 
   private static final class TestSubscriber<T> implements Flow.Subscriber<T> {
-    @Nonnull
     private final Consumer<Flow.Subscription> onSubscribe;
     private boolean subscribeFlag;
     private boolean completeFlag;
@@ -298,7 +286,7 @@ class FileReadingServiceTest {
       this(subscription -> subscription.request(Long.MAX_VALUE));
     }
 
-    TestSubscriber(@Nonnull Consumer<Flow.Subscription> onSubscribe) {
+    TestSubscriber(Consumer<Flow.Subscription> onSubscribe) {
       this.onSubscribe = onSubscribe;
     }
 

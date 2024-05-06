@@ -1,11 +1,11 @@
 package com.ak.util;
 
-import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static com.ak.util.Strings.OHM_METRE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,12 +34,17 @@ class StringsTest {
 
   @Test
   void testRhoPhi() {
-    assertThat(Strings.rho(2.1234)).isEqualTo("\u03c1 = %.3f %s", 2.123, OHM_METRE);
-    assertThat(Strings.dRhoByPhi(1.21)).isEqualTo("d\u03c1/d\u03C8 = %.3f %s", 1.21, OHM_METRE);
+    assertThat(Strings.rho(2.1234)).isEqualTo("ρ = %.3f %s", 2.123, OHM_METRE);
+    assertThat(Strings.dRhoByPhi(1.21)).isEqualTo("dρ/dψ = %.3f %s", 1.21, OHM_METRE);
   }
 
   @Test
   void testRho() {
     assertThat(Strings.rho(1, 2.1234)).isEqualTo("ρ₁ = 2.1234 Ω·m");
+  }
+
+  @Test
+  void testH() {
+    assertThat(Strings.h(2, 2.1234)).isEqualTo("h₂ = 2.1234 mm");
   }
 }

@@ -6,7 +6,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -234,7 +233,6 @@ class FilterBuilderTest {
 
   @ParameterizedTest
   @MethodSource("simple")
-  @ParametersAreNonnullByDefault
   void testWithLostZeroFilter(int[][] input, DigitalFilter filter, int[][] result, double delay, double frequencyFactor) {
     filter.accept(0);
     testFilter(input, filter, result, delay, frequencyFactor);
@@ -242,7 +240,6 @@ class FilterBuilderTest {
 
   @ParameterizedTest
   @MethodSource("delay")
-  @ParametersAreNonnullByDefault
   void testFilter(int[][] input, DigitalFilter filter, int[][] result, double delay, double frequencyFactor) {
     AtomicInteger filteredCounter = new AtomicInteger();
     filter.forEach(new IntsAcceptor() {
@@ -346,7 +343,6 @@ class FilterBuilderTest {
 
   @ParameterizedTest
   @MethodSource("strings")
-  @ParametersAreNonnullByDefault
   void testToString(DigitalFilter filter, String toString) {
     assertThat(filter).hasToString(toString);
   }
@@ -373,7 +369,6 @@ class FilterBuilderTest {
 
   @ParameterizedTest
   @MethodSource("sharpingDecimate")
-  @ParametersAreNonnullByDefault
   void testSharpingDecimate(int[] input, @Nonnegative int factor, int[] output) {
     int[] actual = FilterBuilder.of().sharpingDecimate(factor).filter(input);
     assertThat(actual).containsExactly(output);

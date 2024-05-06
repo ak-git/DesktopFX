@@ -1,17 +1,14 @@
 package com.ak.fx.storage;
 
+import java.util.Optional;
 import java.util.prefs.BackingStoreException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 public interface Storage<T> {
-  void save(@Nonnull T t);
+  void save(T t);
 
-  void update(@Nonnull T t);
+  void update(T t);
 
-  @Nullable
-  T get();
+  Optional<T> get();
 
   void delete() throws BackingStoreException;
 }

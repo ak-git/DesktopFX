@@ -6,7 +6,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.security.SecureRandom;
 import java.util.random.RandomGenerator;
 import java.util.stream.Stream;
@@ -25,8 +24,15 @@ class ValuePairTest {
     double value = RND.nextDouble();
     double absError = RND.nextDouble();
     ValuePair valuePair = ValuePair.Name.NONE.of(value, absError);
+    assertThat(valuePair.name()).isEqualTo(ValuePair.Name.NONE);
     assertThat(valuePair.value()).isEqualTo(value);
     assertThat(valuePair.absError()).isEqualTo(absError);
+  }
+
+  @Test
+  void testFormat() {
+    assertThat(ValuePair.format(1, ValuePair.afterZero(1 / 10.0))).isEqualTo("%.1f".formatted(1.0));
+    assertThat(ValuePair.format(0, ValuePair.afterZero(0.0))).isEqualTo("%.1f".formatted(0.0));
   }
 
   static Stream<Arguments> toStrings() {
@@ -38,15 +44,20 @@ class ValuePairTest {
         arguments(ValuePair.Name.RHO_3.of(1.6345, 0.19), "ρ₃ = %.1f ± %.2f %s".formatted(1.6345, 0.19, OHM_METRE)),
         arguments(ValuePair.Name.H.of(1.2345, 0.011), "h = %.0f ± %.1f mm".formatted(1234.5, 11.0)),
         arguments(ValuePair.Name.H.of(Double.NaN, 0.0), "h = %.0f mm".formatted(Double.NaN)),
-        arguments(ValuePair.Name.K12.of(1.2345, 0.0), "k₁₂ = %.6f".formatted(1.2345)),
-        arguments(ValuePair.Name.K23.of(1.2345, 0.0), "k₂₃ = %.6f".formatted(1.2345)),
+        arguments(ValuePair.Name.H1.of(1.2345, 0.011), "h₁ = %.0f ± %.1f mm".formatted(1234.5, 11.0)),
+        arguments(ValuePair.Name.H1.of(Double.NaN, 0.0), "h₁ = %.0f mm".formatted(Double.NaN)),
+        arguments(ValuePair.Name.H2.of(1.2345, 0.011), "h₂ = %.0f ± %.1f mm".formatted(1234.5, 11.0)),
+        arguments(ValuePair.Name.H2.of(Double.NaN, 0.0), "h₂ = %.0f mm".formatted(Double.NaN)),
+        arguments(ValuePair.Name.DH2.of(1.2345, 0.011), "Δh₂ = %.0f ± %.1f mm".formatted(1234.5, 11.0)),
+        arguments(ValuePair.Name.DH2.of(Double.NaN, 0.0), "Δh₂ = %.0f mm".formatted(Double.NaN)),
+        arguments(ValuePair.Name.K12.of(1.2345, 0.0), "k₁₂ = %6.3f".formatted(1.2345)),
+        arguments(ValuePair.Name.K23.of(1.2345, 0.0), "k₂₃ = %6.3f".formatted(1.2345)),
         arguments(ValuePair.Name.H_L.of(Double.NaN, 0.0), "%s = %f".formatted(Strings.PHI, Double.NaN))
     );
   }
 
   @ParameterizedTest
   @MethodSource("toStrings")
-  @ParametersAreNonnullByDefault
   void testTestToString(ValuePair valuePair, String toString) {
     assertThat(valuePair).hasToString(toString);
   }
@@ -61,7 +72,6 @@ class ValuePairTest {
 
   @ParameterizedTest
   @MethodSource("checkEquals")
-  @ParametersAreNonnullByDefault
   void testEquals(ValuePair v1, ValuePair v2) {
     assertThat(v1).isEqualTo(v2).hasSameHashCodeAs(v2);
     assertThat(v2).isEqualTo(v1).hasSameHashCodeAs(v1);
@@ -77,7 +87,6 @@ class ValuePairTest {
 
   @ParameterizedTest
   @MethodSource("checkNotEquals")
-  @ParametersAreNonnullByDefault
   void testNotEquals(Object v1, Object v2) {
     assertThat(v1).isNotEqualTo(v2).doesNotHaveSameHashCodeAs(v2);
     assertThat(v2).isNotEqualTo(v1).doesNotHaveSameHashCodeAs(v1);
@@ -92,6 +101,7 @@ class ValuePairTest {
 
     ValuePair merged = v1.mergeWith(v2).mergeWith(v3).mergeWith(v4);
     assertAll(merged.toString(),
+        () -> assertThat(merged.name()).isEqualTo(ValuePair.Name.NONE),
         () -> assertThat(merged.value()).isCloseTo(30.0, byLessThan(0.1)),
         () -> assertThat(merged.absError()).isCloseTo(0.5, byLessThan(0.1))
     );

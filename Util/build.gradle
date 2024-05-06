@@ -1,7 +1,7 @@
 dependencies {
-    implementation uom_se
-    implementation javax_json
-    implementation commons_math3
-    implementation commons_csv
-    implementation jenetics
+    implementation libs.uom.se
+    implementation libs.javax.json
+    implementation libs.commons.math3
+    implementation libs.commons.csv
+    implementation libs.jenetics
 }

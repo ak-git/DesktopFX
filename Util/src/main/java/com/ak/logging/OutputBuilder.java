@@ -1,13 +1,11 @@
 package com.ak.logging;
 
-import javax.annotation.Nonnull;
-
 import com.ak.util.Extension;
 import com.ak.util.LocalFileIO;
 import com.ak.util.LocalIO;
 
 public final class OutputBuilder extends LocalFileIO.AbstractBuilder {
-  public OutputBuilder(@Nonnull Extension fileExtension) {
+  public OutputBuilder(Extension fileExtension) {
     super(fileExtension);
   }
 
@@ -18,7 +16,7 @@ public final class OutputBuilder extends LocalFileIO.AbstractBuilder {
    */
   @Override
   public LocalIO build() {
-    return new LocalFileIO<>(this, OutputOSDirectory.class);
+    return new LocalFileIO(this, OutputOSDirectory.Constants.DIRECTORY);
   }
 }
 

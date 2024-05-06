@@ -1,26 +1,23 @@
 package com.ak.fx.storage;
 
-import java.time.Duration;
-import java.time.Instant;
-
-import javax.annotation.Nonnull;
-
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+import java.time.Duration;
+import java.time.Instant;
+
 import static com.ak.util.UIConstants.UI_DELAY;
 
 final class MacStageStorage extends AbstractStageStorage {
-  @Nonnull
   private Instant fullScreenEventInstant = Instant.now();
 
-  MacStageStorage(@Nonnull Class<?> c, @Nonnull String nodeName) {
+  MacStageStorage(Class<?> c, String nodeName) {
     super(c, nodeName);
   }
 
   @Override
-  public void save(@Nonnull Stage stage) {
+  public void save(Stage stage) {
     if (!Duration.between(fullScreenEventInstant, Instant.now()).minus(UI_DELAY).isNegative()) {
       saveFullScreenState(stage.isFullScreen());
     }
@@ -39,7 +36,7 @@ final class MacStageStorage extends AbstractStageStorage {
   }
 
   @Override
-  public void update(@Nonnull Stage stage) {
+  public void update(Stage stage) {
     stage.fullScreenProperty().addListener((observable, oldValue, newValue) -> {
       fullScreenEventInstant = Instant.now();
       saveFullScreenState(oldValue);

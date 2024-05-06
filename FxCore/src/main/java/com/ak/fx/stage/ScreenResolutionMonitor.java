@@ -10,7 +10,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
 
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.swing.*;
@@ -42,7 +41,7 @@ public enum ScreenResolutionMonitor {
           );
           var screen = Screen.getPrimary();
           if (!screens.isEmpty()) {
-            screen = screens.get(0);
+            screen = screens.getFirst();
           }
           DPI.setValue(screen.getDpi());
         })
@@ -55,7 +54,7 @@ public enum ScreenResolutionMonitor {
     return DPI.get();
   }
 
-  public static ObservableValue<Number> dpi(@Nonnull Supplier<Scene> sceneSupplier) {
+  public static ObservableValue<Number> dpi(Supplier<Scene> sceneSupplier) {
     SCENE_REFERENCE.set(sceneSupplier.get());
     return ReadOnlyIntegerProperty.readOnlyIntegerProperty(DPI);
   }

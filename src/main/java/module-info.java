@@ -3,6 +3,7 @@ module com.ak.fx.desktop {
   requires com.ak.util;
   requires com.ak.fx;
 
+  requires commons.math3;
   requires uom.se;
   requires unit.api;
   requires java.logging;
@@ -18,43 +19,50 @@ module com.ak.fx.desktop {
   requires spring.core;
 
   requires spring.beans;
+  requires java.desktop;
 
-  opens com.ak.numbers.aper to com.ak.util;
-  opens com.ak.numbers.rcm to com.ak.util;
-  opens com.ak.fx.desktop.suntech to javafx.fxml;
+  opens com.ak.appliance.aper.numbers to com.ak.util;
+  opens com.ak.appliance.rcm.numbers to com.ak.util;
+  opens com.ak.appliance.suntech.fx.desktop to javafx.fxml;
   opens com.ak.fx.desktop to javafx.fxml, spring.core;
-  opens com.ak.fx.desktop.sktb to spring.core;
-  opens com.ak.fx.desktop.nmisr to spring.core;
+  opens com.ak.appliance.sktbpr.fx.desktop to spring.core;
+  opens com.ak.appliance.nmisr.fx.desktop to spring.core;
   opens com.ak.fx.scene to javafx.fxml;
-  opens com.ak.comm.interceptor.nmis to spring.beans;
-  opens com.ak.comm.interceptor.rcm to spring.beans;
-  opens com.ak.comm.converter.nmis to com.ak.comm;
-  opens com.ak.comm.converter.aper to com.ak.comm;
+  opens com.ak.appliance.nmis.comm.interceptor to spring.beans;
+  opens com.ak.appliance.rcm.comm.interceptor to spring.beans;
+  opens com.ak.spring to spring.core;
 
-  exports com.ak.comm.converter.aper to javafx.graphics;
-  exports com.ak.comm.converter.rcm to javafx.graphics;
-  exports com.ak.comm.converter.rsce to spring.beans;
-  exports com.ak.comm.converter.nmis to spring.beans;
-  exports com.ak.comm.converter.briko to spring.beans;
-  exports com.ak.comm.converter.suntech to spring.beans;
-  exports com.ak.comm.converter.purelogic to spring.beans;
-  exports com.ak.comm.converter.sktbpr to spring.beans;
-  exports com.ak.comm.interceptor.suntech to spring.beans;
-  exports com.ak.comm.interceptor.purelogic to spring.beans;
-  exports com.ak.comm.interceptor.kleiber to spring.beans;
-  exports com.ak.comm.interceptor.briko to spring.beans;
-  exports com.ak.comm.interceptor.sktbpr to spring.beans;
+  // variables i18n
+  opens com.ak.appliance.aper.comm.converter to com.ak.comm;
+  opens com.ak.appliance.nmis.comm.converter to com.ak.comm;
+  opens com.ak.appliance.purelogic.comm.converter to com.ak.comm;
+  opens com.ak.appliance.rsce.comm.converter to com.ak.comm;
+  opens com.ak.appliance.suntech.comm.converter to com.ak.comm;
+  opens com.ak.appliance.sktbpr.comm.converter to com.ak.comm;
+  opens com.ak.appliance.kleiber.comm.converter to com.ak.comm;
 
-  exports com.ak.fx.desktop.briko to spring.beans;
-  exports com.ak.fx.desktop.nmisr to spring.beans;
-  exports com.ak.fx.desktop.suntech to spring.beans;
-  exports com.ak.fx.desktop.purelogic to spring.beans;
-  exports com.ak.fx.desktop.sktb to spring.beans, spring.context;
+  exports com.ak.appliance.aper.comm.converter to javafx.graphics;
+  exports com.ak.appliance.rcm.comm.converter to javafx.graphics;
+  exports com.ak.appliance.rsce.comm.converter to spring.beans;
+  exports com.ak.appliance.nmis.comm.converter to spring.beans;
+  exports com.ak.appliance.suntech.comm.converter to spring.beans;
+  exports com.ak.appliance.purelogic.comm.converter to spring.beans;
+  exports com.ak.appliance.sktbpr.comm.converter to spring.beans;
+  exports com.ak.appliance.kleiber.comm.interceptor to spring.beans;
 
-  exports com.ak.comm.bytes.suntech;
-  exports com.ak.comm.bytes.purelogic;
-  exports com.ak.comm.bytes.sktbpr;
-  exports com.ak.comm.bytes.nmis;
-  exports com.ak.comm.bytes.rsce;
+  exports com.ak.appliance.briko.fx.desktop to spring.beans;
+  exports com.ak.appliance.nmisr.fx.desktop to spring.beans;
+  exports com.ak.appliance.suntech.fx.desktop to spring.beans;
+  exports com.ak.appliance.purelogic.fx.desktop to spring.beans;
+  exports com.ak.appliance.sktbpr.fx.desktop to spring.beans, spring.context;
+  exports com.ak.spring to javafx.graphics, spring.beans, spring.context;
+
+  exports com.ak.appliance.suntech.comm.bytes;
+  exports com.ak.appliance.purelogic.comm.bytes;
+  exports com.ak.appliance.sktbpr.comm.bytes;
+  exports com.ak.appliance.nmis.comm.bytes;
+  exports com.ak.appliance.rsce.comm.bytes;
   exports com.ak.fx.desktop;
+  opens com.ak.fx to javafx.fxml, spring.core;
+  exports com.ak.fx;
 }

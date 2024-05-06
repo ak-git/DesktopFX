@@ -7,7 +7,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -88,7 +87,7 @@ class Resistance2LayerTest {
 
   @ParameterizedTest
   @MethodSource("twoLayerParameters")
-  void testLayer(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
+  void testLayer(double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
     assertThat(new Resistance2Layer(system).value(rho[0], rho[1], Metrics.Length.MILLI.to(hmm, METRE))).isCloseTo(rOhm, byLessThan(0.001));
     assertThat(TetrapolarResistance.ofMilli(smm, lmm).rho1(rho[0]).rho2(rho[1]).h(hmm).ohms()).isCloseTo(rOhm, byLessThan(0.001));

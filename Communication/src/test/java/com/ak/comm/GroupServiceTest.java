@@ -1,12 +1,5 @@
 package com.ak.comm;
 
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.concurrent.Flow;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.TwoVariables;
@@ -17,13 +10,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import javax.annotation.Nullable;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.concurrent.Flow;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class GroupServiceTest implements Flow.Subscriber<int[]> {
   private final GroupService<BufferFrame, BufferFrame, TwoVariables> service = new GroupService<>(
-      () -> new RampBytesInterceptor(getClass().getName(),
+      () -> new RampBytesInterceptor(RampBytesInterceptor.class.getSimpleName(),
           BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
       () -> new ToIntegerConverter<>(TwoVariables.class, 1000));
   @Nullable
@@ -36,7 +34,7 @@ class GroupServiceTest implements Flow.Subscriber<int[]> {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.file.FileDataProvider#rampFiles2")
-  void testRead(@Nonnull Path file) {
+  void testRead(Path file) {
     assertTrue(service.accept(file.toFile()));
     while (!Thread.currentThread().isInterrupted()) {
       int countFrames = 10;

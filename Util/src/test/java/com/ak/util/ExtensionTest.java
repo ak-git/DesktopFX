@@ -1,13 +1,11 @@
 package com.ak.util;
 
-import java.util.EnumSet;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.EnumSet;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,7 +18,7 @@ class ExtensionTest {
   @ParameterizedTest
   @EmptySource
   @MethodSource("fileNames")
-  void testAttachTo(@Nonnull String name) {
+  void testAttachTo(String name) {
     for (Extension e : EnumSet.complementOf(EnumSet.of(Extension.NONE))) {
       if (name.toUpperCase().endsWith(e.name())) {
         assertThat(e.attachTo(name)).isEqualTo(".%s", e.name().toLowerCase());
@@ -36,7 +34,7 @@ class ExtensionTest {
   @ParameterizedTest
   @EmptySource
   @MethodSource("fileNames")
-  void testReplace(@Nonnull String name) {
+  void testReplace(String name) {
     for (Extension e : EnumSet.allOf(Extension.class)) {
       String expected = name;
       if (name.toUpperCase().endsWith(e.name())) {

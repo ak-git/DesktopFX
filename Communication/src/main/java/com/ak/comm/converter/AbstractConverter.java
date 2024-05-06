@@ -4,43 +4,37 @@ import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 
 public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> implements Converter<R, V> {
-  @Nonnull
   private final Logger logger = Logger.getLogger(getClass().getName());
-  @Nonnull
   private final List<V> variables;
-  @Nonnull
   private final DigitalFilter digitalFilter;
   @Nonnegative
   private final double frequency;
-  @Nonnull
   private Stream<int[]> filteredValues = Stream.empty();
 
-  protected AbstractConverter(@Nonnull Class<V> evClass, @Nonnegative double frequency) {
+  protected AbstractConverter(Class<V> evClass, @Nonnegative double frequency) {
     this(evClass, frequency, EnumSet.allOf(evClass).stream().map(v -> new int[] {v.ordinal()}).toList());
   }
 
-  AbstractConverter(@Nonnull Class<V> evClass, @Nonnegative double frequency, @Nonnull List<int[]> selectedIndexes) {
+  AbstractConverter(Class<V> evClass, @Nonnegative double frequency, List<int[]> selectedIndexes) {
     variables = List.copyOf(EnumSet.allOf(evClass));
     List<DigitalFilter> filters = variables.stream().map(Variable::filter).toList();
 
     digitalFilter = FilterBuilder.parallel(selectedIndexes, filters.toArray(new DigitalFilter[variables.size()]));
     digitalFilter.forEach(ints -> {
       logger.log(LOG_LEVEL_VALUES, () -> "#%08x [ %s ]".formatted(hashCode(),
-          IntStream.iterate(0, operand -> operand + 1).limit(variables.size()).mapToObj(
-              idx -> Variables.toString(variables.get(idx), ints[idx])).collect(Collectors.joining(", "))));
+          variables.stream().map(v -> Variables.toString(v, ints[v.ordinal()])).collect(Collectors.joining("; ")))
+      );
       filteredValues = Stream.concat(filteredValues, Stream.of(ints));
     });
     this.frequency = frequency * digitalFilter.getFrequencyFactor();
@@ -58,7 +52,7 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
   }
 
   @Override
-  public final Stream<int[]> apply(@Nonnull R response) {
+  public final Stream<int[]> apply(R response) {
     Objects.requireNonNull(response);
     filteredValues = Stream.empty();
     innerApply(response).forEach(digitalFilter::accept);
@@ -71,6 +65,5 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
     digitalFilter.reset();
   }
 
-  @Nonnull
-  protected abstract Stream<int[]> innerApply(@Nonnull R response);
+  protected abstract Stream<int[]> innerApply(R response);
 }

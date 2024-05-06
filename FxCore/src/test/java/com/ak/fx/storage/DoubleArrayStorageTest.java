@@ -3,7 +3,6 @@ package com.ak.fx.storage;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnull;
 import java.util.prefs.BackingStoreException;
 import java.util.stream.Stream;
 
@@ -17,17 +16,17 @@ final class DoubleArrayStorageTest {
 
   @ParameterizedTest
   @MethodSource("storage")
-  void testSave(@Nonnull double[] values) throws BackingStoreException {
+  void testSave(double[] values) throws BackingStoreException {
     Storage<double[]> storage = new DoubleArrayStorage(DoubleArrayStorageTest.class, "#%08x".formatted(hashCode()));
     storage.save(values);
-    assertThat(storage.get()).isEqualTo(values);
+    assertThat(storage.get()).contains(values);
     storage.delete();
     assertThat(storage.get()).isEmpty();
   }
 
   @ParameterizedTest
   @MethodSource("storage")
-  void testUpdate(@Nonnull double[] rectangle) {
+  void testUpdate(double[] rectangle) {
     Storage<double[]> storage = new DoubleArrayStorage(DoubleArrayStorageTest.class, "#%08x".formatted(hashCode()));
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> storage.update(rectangle));
   }

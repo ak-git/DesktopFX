@@ -4,7 +4,6 @@ import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.prediction.Prediction;
 import com.ak.util.Metrics;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,10 +14,9 @@ import static tec.uom.se.unit.Units.PERCENT;
 
 abstract sealed class AbstractMediumLayers implements MediumLayers, Function<Measurement, Prediction>
     permits Layer1Medium, Layer2Medium {
-  @Nonnull
   private final Collection<Measurement> measurements;
 
-  AbstractMediumLayers(@Nonnull Collection<? extends Measurement> measurements) {
+  AbstractMediumLayers(Collection<? extends Measurement> measurements) {
     if (measurements.isEmpty()) {
       throw new IllegalArgumentException("Empty measurements");
     }
@@ -48,7 +46,6 @@ abstract sealed class AbstractMediumLayers implements MediumLayers, Function<Mea
     );
   }
 
-  @Nonnull
   final Collection<Measurement> measurements() {
     return measurements;
   }

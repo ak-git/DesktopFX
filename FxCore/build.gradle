@@ -1,5 +1,5 @@
 plugins {
-    id 'org.openjfx.javafxplugin'
+    alias(libs.plugins.javafxplugin)
 }
 
 dependencies {
@@ -7,6 +7,6 @@ dependencies {
 }
 
 javafx {
-    version = javaFxVersion
-    modules = ['javafx.graphics']
+    version = javaVersion
+    modules = ['javafx.controls', 'javafx.graphics']
 }

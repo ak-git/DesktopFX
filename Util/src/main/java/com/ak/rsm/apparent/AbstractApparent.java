@@ -1,15 +1,14 @@
 package com.ak.rsm.apparent;
 
-import javax.annotation.Nonnull;
-
 import com.ak.rsm.system.RelativeTetrapolarSystem;
 
+import java.util.Objects;
+
 abstract class AbstractApparent {
-  @Nonnull
   private final RelativeTetrapolarSystem system;
 
-  AbstractApparent(@Nonnull RelativeTetrapolarSystem system) {
-    this.system = system;
+  AbstractApparent(RelativeTetrapolarSystem system) {
+    this.system = Objects.requireNonNull(system);
   }
 
   final double factor(double sign) {
