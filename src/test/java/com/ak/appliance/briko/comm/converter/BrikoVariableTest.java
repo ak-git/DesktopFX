@@ -4,7 +4,7 @@ import com.ak.comm.converter.Variable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import tec.uom.se.AbstractUnit;
+import tec.uom.se.unit.MetricPrefix;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static tec.uom.se.unit.Units.VOLT;
 
 class BrikoVariableTest {
   @Test
@@ -19,6 +20,8 @@ class BrikoVariableTest {
     assertThat(EnumSet.allOf(BrikoVariable.class).stream().flatMap(v -> v.options().stream()))
         .isEqualTo(
             List.of(
+                Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER,
+                Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER,
                 Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER,
                 Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER,
                 Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER,
@@ -38,6 +41,6 @@ class BrikoVariableTest {
   @Test
   void testGetUnit() {
     assertThat(EnumSet.allOf(BrikoVariable.class).stream().map(Variable::getUnit).collect(Collectors.toSet()))
-        .isEqualTo(Set.of(AbstractUnit.ONE));
+        .isEqualTo(Set.of(MetricPrefix.MICRO(VOLT)));
   }
 }
