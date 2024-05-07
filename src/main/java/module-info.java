@@ -34,6 +34,7 @@ module com.ak.fx.desktop {
 
   // variables i18n
   opens com.ak.appliance.aper.comm.converter to com.ak.comm;
+  opens com.ak.appliance.briko.comm.converter to com.ak.comm;
   opens com.ak.appliance.nmis.comm.converter to com.ak.comm;
   opens com.ak.appliance.purelogic.comm.converter to com.ak.comm;
   opens com.ak.appliance.rsce.comm.converter to com.ak.comm;
@@ -50,6 +51,7 @@ module com.ak.fx.desktop {
   exports com.ak.appliance.sktbpr.comm.converter to spring.beans;
   exports com.ak.appliance.kleiber.comm.interceptor to spring.beans;
 
+  exports com.ak.appliance.aper.fx.desktop to spring.beans;
   exports com.ak.appliance.briko.fx.desktop to spring.beans;
   exports com.ak.appliance.nmisr.fx.desktop to spring.beans;
   exports com.ak.appliance.suntech.fx.desktop to spring.beans;
