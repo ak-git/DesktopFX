@@ -18,8 +18,8 @@ public final class AxisYController<V extends Enum<V> & Variable<V>> {
   public ScaleYInfo<V> scale(V variable, int[] values) {
     DescriptiveStatistics stats = new DescriptiveStatistics();
     IntStream.of(values).forEach(stats::addValue);
-    int max = Numbers.toInt(stats.getPercentile(98));
-    int min = Numbers.toInt(stats.getPercentile(2));
+    int max = Numbers.toInt(stats.getPercentile(99.9));
+    int min = Numbers.toInt(stats.getPercentile(0.1));
 
     int peakToPeak = max - min;
     if (peakToPeak == 0) {
