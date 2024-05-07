@@ -50,7 +50,7 @@ wrapper {
 
 allprojects {
     group = 'com.ak'
-    version = '2024.05.05'
+    version = '2024.05.07'
     apply plugin: 'idea'
     idea {
         module {
@@ -126,5 +126,5 @@ apply plugin: 'application'
 
 application {
     mainModule = 'com.ak.fx.desktop'
-    mainClass = 'com.ak.fx.desktop.SpringFxApplication'
+    mainClass = 'com.ak.spring.SpringFxApplication'
 }
