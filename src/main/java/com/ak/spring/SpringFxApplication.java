@@ -6,6 +6,7 @@ import com.ak.appliance.nmi.comm.converter.NmiVariable;
 import com.ak.appliance.rcm.comm.converter.RcmCalibrationVariable;
 import com.ak.appliance.rcm.comm.converter.RcmConverter;
 import com.ak.appliance.rcm.comm.converter.RcmOutVariable;
+import com.ak.appliance.rcms.comm.converter.RcmsOutVariable;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.*;
 import com.ak.comm.interceptor.BytesInterceptor;
@@ -13,7 +14,6 @@ import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.interceptor.simple.StringBytesInterceptor;
 import com.ak.fx.FxApplication;
 import com.ak.logging.LocalFileHandler;
-import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -34,7 +34,7 @@ public class SpringFxApplication extends FxApplication {
   private ConfigurableApplicationContext applicationContext;
 
   public static void main(String[] args) {
-    Application.launch(SpringFxApplication.class, args);
+    launch(SpringFxApplication.class, args);
   }
 
   @Override
@@ -236,7 +236,14 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
-  @Profile("rcm-calibration")
+  @Profile("rcms")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<BufferFrame, RcmsOutVariable> converterRcms() {
+    return LinkedConverter.of(new RcmConverter(), RcmOutVariable.class).chainInstance(RcmsOutVariable.class);
+  }
+
+  @Bean
+  @Profile({"rcm-calibration", "rcms-calibration"})
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, RcmCalibrationVariable> converterRcmCalibration() {
     return LinkedConverter.of(new RcmConverter(), RcmCalibrationVariable.class);

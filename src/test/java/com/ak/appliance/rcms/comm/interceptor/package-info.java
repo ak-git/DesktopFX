@@ -1,4 +1,4 @@
 @ParametersAreNonnullByDefault
-package com.ak.appliance.rcm.comm.converter;
+package com.ak.appliance.rcms.comm.interceptor;
 
 import javax.annotation.ParametersAreNonnullByDefault;

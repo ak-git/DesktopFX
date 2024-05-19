@@ -30,6 +30,7 @@ module com.ak.fx.desktop {
   opens com.ak.fx.scene to javafx.fxml;
   opens com.ak.appliance.nmis.comm.interceptor to spring.beans;
   opens com.ak.appliance.rcm.comm.interceptor to spring.beans;
+  opens com.ak.appliance.rcms.comm.interceptor to spring.beans;
   opens com.ak.spring to spring.core;
 
   // variables i18n
@@ -40,6 +41,8 @@ module com.ak.fx.desktop {
   opens com.ak.appliance.suntech.comm.converter to com.ak.comm;
   opens com.ak.appliance.sktbpr.comm.converter to com.ak.comm;
   opens com.ak.appliance.kleiber.comm.converter to com.ak.comm;
+  opens com.ak.appliance.rcm.comm.converter to com.ak.comm;
+  opens com.ak.appliance.rcms.comm.converter to com.ak.comm;
 
   exports com.ak.appliance.aper.comm.converter to javafx.graphics;
   exports com.ak.appliance.rcm.comm.converter to javafx.graphics;
