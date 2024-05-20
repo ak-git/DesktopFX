@@ -1,6 +1,5 @@
-package com.ak.appliance.rcms.comm.converter;
+package com.ak.appliance.rcm.comm.converter;
 
-import com.ak.appliance.rcm.comm.converter.RcmOutVariable;
 import com.ak.comm.converter.DependentVariable;
 
 import java.util.Collections;

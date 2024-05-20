@@ -1,6 +1,5 @@
-package com.ak.appliance.rcms.comm.interceptor;
+package com.ak.appliance.rcm.comm.interceptor;
 
-import com.ak.appliance.rcm.comm.interceptor.AbstractRcmBytesInterceptor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;

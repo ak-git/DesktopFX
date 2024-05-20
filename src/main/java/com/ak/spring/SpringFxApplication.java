@@ -6,7 +6,7 @@ import com.ak.appliance.nmi.comm.converter.NmiVariable;
 import com.ak.appliance.rcm.comm.converter.RcmCalibrationVariable;
 import com.ak.appliance.rcm.comm.converter.RcmConverter;
 import com.ak.appliance.rcm.comm.converter.RcmOutVariable;
-import com.ak.appliance.rcms.comm.converter.RcmsOutVariable;
+import com.ak.appliance.rcm.comm.converter.RcmsOutVariable;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.*;
 import com.ak.comm.interceptor.BytesInterceptor;

@@ -1,4 +1,4 @@
-package com.ak.appliance.rcms.comm.interceptor;
+package com.ak.appliance.rcm.comm.interceptor;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.bytes.LogUtils;
