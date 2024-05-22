@@ -9,7 +9,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile({"rcm", "rcm-calibration", "nmis",
+@Profile({"rcm", "rcm-calibration", "rcms", "rcms-calibration",
+    "nmis",
     "aper2-nibp", "aper2-ecg",
     "aper1-nibp", "aper1-myo", "aper1-R2-6mm", "aper1-R2-7mm", "aper1-R2-8mm", "aper1-R2-10mm", "aper1-R1", "aper1-calibration",
     "kleiber-myo", "prv", "NMI3Acc2Rheo"})

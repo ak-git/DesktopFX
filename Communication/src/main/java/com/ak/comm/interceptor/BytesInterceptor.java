@@ -26,6 +26,12 @@ public interface BytesInterceptor<T, R> extends Function<ByteBuffer, Stream<R>> 
       public void accept(SerialPort serialPort) {
         serialPort.setParity(SerialPort.ODD_PARITY);
       }
+    },
+    DATA_BITS_7 {
+      @Override
+      public void accept(SerialPort serialPort) {
+        serialPort.setNumDataBits(7);
+      }
     }
   }
 

@@ -53,7 +53,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
 
     @Override
     public DigitalFilter filter() {
-      return RcmOutVariable.getBaseFilter(RcmBaseSurfaceCoefficientsChannel1.class);
+      return getBaseFilter(RcmBaseSurfaceCoefficientsChannel1.class);
     }
   },
   QS_1 {
@@ -80,7 +80,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
 
     @Override
     public DigitalFilter filter() {
-      return RcmOutVariable.smoothing(FilterBuilder.of());
+      return smoothing(FilterBuilder.of());
     }
 
     @Override
@@ -107,7 +107,7 @@ public enum RcmOutVariable implements DependentVariable<RcmInVariable, RcmOutVar
 
     @Override
     public DigitalFilter filter() {
-      return RcmOutVariable.getBaseFilter(RcmBaseSurfaceCoefficientsChannel2.class);
+      return getBaseFilter(RcmBaseSurfaceCoefficientsChannel2.class);
     }
   },
   QS_2 {
