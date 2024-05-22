@@ -12,6 +12,6 @@ public abstract class AbstractRcmBytesInterceptor extends AbstractFixedFrameByte
 
   @Override
   public final Set<SerialParams> getSerialParams() {
-    return EnumSet.of(SerialParams.CLEAR_DTR);
+    return EnumSet.of(SerialParams.CLEAR_DTR, SerialParams.DATA_BITS_7);
   }
 }

@@ -15,6 +15,11 @@ public final class RcmBytesInterceptor extends AbstractRcmBytesInterceptor {
 
   @Override
   protected boolean check(byte[] buffer, byte nextFrameStartByte) {
-    return (buffer[0] & 0x01) == 0 && (buffer[buffer.length - 1] & 0x01) == 0 && ((nextFrameStartByte & 0x01) == 0);
+    for (int i = 1; i < buffer.length; i++) {
+      if (buffer[i] == (i & 0x01)) {
+        return false;
+      }
+    }
+    return (buffer[0] & 0x01) == 0 && (nextFrameStartByte & 0x01) == 0;
   }
 }
