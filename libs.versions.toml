@@ -7,7 +7,7 @@ nebula-lint = '19.0.2'
 
 jsr305 = '3.0.2'
 junit = '5.11.0-M2'
-assertj = '3.25.3'
+assertj = '3.26.0'
 
 javafxplugin = '0.0.14'
 springframework-boot = '3.1.8'

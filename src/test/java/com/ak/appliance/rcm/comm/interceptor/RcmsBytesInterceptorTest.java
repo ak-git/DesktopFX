@@ -30,7 +30,7 @@ class RcmsBytesInterceptorTest {
     return Stream.of(
         arguments(
             new byte[] {
-                (byte) 0xf7, (byte) 0xf8, (byte) 0x81, (byte) 0x80, (byte) 0xfb, (byte) 0xc0, (byte) 0x81, (byte) 0xe8, (byte) 0x81, (byte) 0x80, //  invalid data
+                (byte) 0xf7, (byte) 0xf9, (byte) 0x81, (byte) 0x81, (byte) 0xfb, (byte) 0xc1, (byte) 0x81, (byte) 0xe9, (byte) 0x81, (byte) 0x81, //  invalid data
                 -10, -36, -125, -72, -5, -60, -125, -124, -111, -94, -7, -98, -127, -128, -5, -78, -127, -10, -127, 0,
                 -10,
             },
@@ -38,7 +38,7 @@ class RcmsBytesInterceptorTest {
                 (byte) 0xf6, (byte) 0xdc, (byte) 0x83, (byte) 0xb8, (byte) 0xfb, (byte) 0xc4, (byte) 0x83, (byte) 0x84,
                 (byte) 0x91, (byte) 0xa2, (byte) 0xf9, (byte) 0x9e, (byte) 0x81, (byte) 0x80, (byte) 0xfb, (byte) 0xb2, (byte) 0x81, (byte) 0xf6, (byte) 0x81, (byte) 0x00
             }, ByteOrder.LITTLE_ENDIAN),
-            "[ 0xf7, 0xf8, 0x81, 0x80, 0xfb, 0xc0, 0x81, 0xe8, 0x81, 0x80 ] 10 bytes IGNORED"
+            "[ 0xf7, 0xf9, 0x81, 0x81, 0xfb, 0xc1, 0x81, 0xe9, 0x81, 0x81 ] 10 bytes IGNORED"
         )
     );
   }
@@ -53,7 +53,8 @@ class RcmsBytesInterceptorTest {
     Assertions.assertAll(interceptor.toString(),
         () -> assertThat(interceptor.getBaudRate()).isEqualTo(115200 / 3),
         () -> assertThat(interceptor.getPingRequest()).isEmpty(),
-        () -> assertThat(interceptor.getSerialParams()).containsExactly(BytesInterceptor.SerialParams.CLEAR_DTR)
+        () -> assertThat(interceptor.getSerialParams())
+            .containsExactly(BytesInterceptor.SerialParams.CLEAR_DTR, BytesInterceptor.SerialParams.DATA_BITS_7)
     );
 
 
