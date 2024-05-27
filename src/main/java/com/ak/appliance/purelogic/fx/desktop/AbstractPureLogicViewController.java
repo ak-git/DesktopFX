@@ -1,22 +1,18 @@
 package com.ak.appliance.purelogic.fx.desktop;
 
 import com.ak.appliance.purelogic.comm.bytes.PureLogicFrame;
+import com.ak.appliance.purelogic.comm.converter.PureLogicAxisFrequency;
 import com.ak.appliance.purelogic.comm.converter.PureLogicConverter;
 import com.ak.appliance.purelogic.comm.converter.PureLogicVariable;
 import com.ak.appliance.purelogic.comm.interceptor.PureLogicBytesInterceptor;
 import com.ak.fx.desktop.AbstractScheduledViewController;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.ak.appliance.purelogic.comm.bytes.PureLogicFrame.StepCommand.MICRON_150;
 import static com.ak.appliance.purelogic.comm.bytes.PureLogicFrame.StepCommand.MICRON_750;
-import static com.ak.appliance.purelogic.comm.converter.PureLogicConverter.FREQUENCY;
 
-@Component
-@Profile("purelogic")
-public final class PureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
+abstract class AbstractPureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
   private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE = {
       MICRON_150, MICRON_150
   };
@@ -25,32 +21,36 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
   private boolean isStop;
   private int autoSequenceIndex = -1;
 
-  public PureLogicViewController() {
-    super(PureLogicBytesInterceptor::new, PureLogicConverter::new, FREQUENCY);
+  AbstractPureLogicViewController(PureLogicAxisFrequency axisFrequency) {
+    super(
+        () -> new PureLogicBytesInterceptor("PureLogic%s".formatted(axisFrequency.name())),
+        () -> new PureLogicConverter(axisFrequency),
+        axisFrequency.value()
+    );
   }
 
   @Override
-  public void up() {
+  public final void up() {
     handDirection.incrementAndGet();
   }
 
   @Override
-  public void down() {
+  public final void down() {
     handDirection.decrementAndGet();
   }
 
   @Override
-  public void left() {
+  public final void left() {
     isStop = false;
   }
 
   @Override
-  public void right() {
+  public final void right() {
     left();
   }
 
   @Override
-  public void escape() {
+  public final void escape() {
     handDirection.set(0);
     isRefresh = false;
     isStop = true;
@@ -58,7 +58,7 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
   }
 
   @Override
-  public PureLogicFrame get() {
+  public final PureLogicFrame get() {
     if (isRefresh) {
       escape();
     }
@@ -86,7 +86,7 @@ public final class PureLogicViewController extends AbstractScheduledViewControll
   }
 
   @Override
-  public void refresh(boolean force) {
+  public final void refresh(boolean force) {
     isRefresh = true;
     super.refresh(force);
   }

@@ -14,8 +14,8 @@ import static com.ak.appliance.purelogic.comm.bytes.PureLogicFrame.FRAME_LEN;
 public final class PureLogicBytesInterceptor extends AbstractBytesInterceptor<PureLogicFrame, PureLogicFrame> {
   private final StringBuilder frame = new StringBuilder(FRAME_LEN);
 
-  public PureLogicBytesInterceptor() {
-    super("PureLogic", BytesInterceptor.BaudRate.BR_115200, (FRAME_LEN / Character.BYTES) * Character.BYTES);
+  public PureLogicBytesInterceptor(String name) {
+    super(name, BytesInterceptor.BaudRate.BR_115200, (FRAME_LEN / Character.BYTES) * Character.BYTES);
   }
 
   @Override

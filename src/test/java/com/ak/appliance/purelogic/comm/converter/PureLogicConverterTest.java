@@ -17,10 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class PureLogicConverterTest {
   private static final Logger LOGGER = Logger.getLogger(PureLogicConverter.class.getName());
 
-  @Test
-  void testDataResponse() {
-    testConverter("STEP+ 00320  \r\n", 300);
-    testConverter("STEP- 00016  \r\n", -15);
+  @ParameterizedTest
+  @EnumSource(PureLogicAxisFrequency.class)
+  void testDataResponse(PureLogicAxisFrequency axisFrequency) {
+    testConverter(axisFrequency, "STEP+ 00320  \r\n", 300);
+    testConverter(axisFrequency, "STEP- 00016  \r\n", -15);
   }
 
   @Test
@@ -28,11 +29,11 @@ class PureLogicConverterTest {
     assertThat(PureLogicFrame.of(new StringBuilder("STEP+ 00dxx  \r\n"))).isEmpty();
   }
 
-  private static void testConverter(String input, int expected) {
+  private static void testConverter(PureLogicAxisFrequency axisFrequency, String input, int expected) {
     PureLogicFrame frame = PureLogicFrame.of(new StringBuilder(input)).orElseThrow();
     assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES,
         () -> {
-          PureLogicConverter converter = new PureLogicConverter();
+          PureLogicConverter converter = new PureLogicConverter(axisFrequency);
           assertThat(converter.apply(frame)).isNotEmpty().allSatisfy(ints -> assertThat(ints).containsExactly(expected));
         },
         logRecord -> {
