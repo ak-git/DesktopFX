@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Aper1-R2 PureLogic 10 mm" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <option name="ACTIVE_PROFILES" value="aper1-R2-10mm, purelogic" />
+  <configuration default="false" name="Aper1-R2 6 mm PureLogic 2 Hz" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <option name="ACTIVE_PROFILES" value="aper1-R2-6mm, purelogic2f0" />
     <option name="ENABLE_JMX_AGENT" value="false" />
     <option name="ENABLE_LAUNCH_OPTIMIZATION" value="false" />
     <module name="DesktopFX.main" />
