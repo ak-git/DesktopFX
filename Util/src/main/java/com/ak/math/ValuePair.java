@@ -150,7 +150,7 @@ public class ValuePair {
       );
     }
     else {
-      return Double.isFinite(v) ? name.toString("%6.3f".formatted(v)) : name.toString(Double.toString(v));
+      return Double.isFinite(v) ? name.toString("%6.3f".formatted(v).strip()) : name.toString(Double.toString(v));
     }
   }
 
