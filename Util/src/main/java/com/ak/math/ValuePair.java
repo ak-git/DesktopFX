@@ -100,6 +100,12 @@ public class ValuePair {
       String toString(String base) {
         return "%s = %s".formatted(Strings.PHI, base);
       }
+    },
+    ERR {
+      @Override
+      String toString(String base) {
+        return "%s = %s".formatted(Strings.EPSILON, base);
+      }
     };
 
     double convert(double si) {
