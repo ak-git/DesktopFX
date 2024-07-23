@@ -1,17 +1,17 @@
 [versions]
 javamodularity-moduleplugin = '1.8.15'
-sonarqube = '5.0.0.4638'
-spotbugs = '6.0.15'
+sonarqube = '5.1.0.4882'
+spotbugs = '6.0.19'
 ben-manes-versions = '0.51.0'
 nebula-lint = '19.0.2'
 
 jsr305 = '3.0.2'
 junit = '5.11.0-M2'
-assertj = '3.26.0'
+assertj = '3.26.3'
 
 javafxplugin = '0.0.14'
 springframework-boot = '3.1.8'
-spring-dependency-management = '1.1.5'
+spring-dependency-management = '1.1.6'
 
 inject-api = '2.0.1'
 uom-se = '1.0.10'

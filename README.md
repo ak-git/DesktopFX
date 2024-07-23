@@ -27,7 +27,7 @@ sdk list gradle
 ```
 
 ```bash
-sdk install gradle 8.8
+sdk install gradle 8.9
 ```
 
 ## Verify Installation
