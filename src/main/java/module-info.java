@@ -41,6 +41,7 @@ module com.ak.fx.desktop {
   opens com.ak.appliance.sktbpr.comm.converter to com.ak.comm;
   opens com.ak.appliance.kleiber.comm.converter to com.ak.comm;
   opens com.ak.appliance.rcm.comm.converter to com.ak.comm;
+  opens com.ak.appliance.briko.comm.converter to com.ak.comm;
 
   exports com.ak.appliance.aper.comm.converter to javafx.graphics;
   exports com.ak.appliance.rcm.comm.converter to javafx.graphics;
