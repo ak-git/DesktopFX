@@ -16,7 +16,11 @@ public final class BrikoConverter extends AbstractConverter<BufferFrame, BrikoVa
   protected Stream<int[]> innerApply(BufferFrame frame) {
     var values = new int[variables().size()];
     for (var i = 0; i < values.length; i++) {
-      values[i] = (frame.get(1 + (i * 4) + 3) << 16) + (frame.get(1 + (i * 4) + 2) << 8) + frame.get(1 + (i * 4) + 1);
+      int index = 1 + (i * 4) + 1;
+      for (int j = 0; j < 3; j++) {
+        values[i] |= (frame.get(index + j) & 0xff) << (j * 8 + 8);
+      }
+      values[i] >>= 8;
     }
     return Stream.of(values);
   }
