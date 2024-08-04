@@ -3,10 +3,10 @@ javamodularity-moduleplugin = '1.8.15'
 sonarqube = '5.1.0.4882'
 spotbugs = '6.0.19'
 ben-manes-versions = '0.51.0'
-nebula-lint = '19.0.2'
+nebula-lint = '19.0.3'
 
 jsr305 = '3.0.2'
-junit = '5.11.0-M2'
+junit = '5.11.0-RC1'
 assertj = '3.26.3'
 
 javafxplugin = '0.0.14'
