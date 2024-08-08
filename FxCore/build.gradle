@@ -3,10 +3,17 @@ plugins {
 }
 
 dependencies {
-    api project(':Util')
+    api 'org.openjfx:javafx-base:21'
+
+    implementation project(':Util')
+    implementation libs.findbugs.jsr305
+
+    testImplementation(platform(libs.junit))
+    testImplementation libs.bundles.test
 }
 
 javafx {
-    version = javaVersion
+    version = 21
     modules = ['javafx.controls', 'javafx.graphics']
+    configurations = ['api']
 }

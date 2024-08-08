@@ -1,5 +1,11 @@
 dependencies {
     api project(':Util')
+    api libs.findbugs.jsr305
+    api libs.jserial.comm
+    api libs.measure.unit.api
+
     implementation libs.uom.se
-    implementation libs.jserial.comm
+
+    testImplementation(platform(libs.junit))
+    testImplementation libs.bundles.test
 }

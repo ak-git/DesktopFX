@@ -1,7 +1,13 @@
 dependencies {
+    api libs.measure.unit.api
+    api libs.javax.json
+    api libs.commons.math3
+    api libs.commons.csv
+    api libs.findbugs.jsr305
+
     implementation libs.uom.se
-    implementation libs.javax.json
-    implementation libs.commons.math3
-    implementation libs.commons.csv
     implementation libs.jenetics
+
+    testImplementation(platform(libs.junit))
+    testImplementation libs.bundles.test
 }

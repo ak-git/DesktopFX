@@ -1,8 +1,9 @@
 pluginManagement {
     repositories {
+        gradlePluginPortal()
         mavenCentral()
         mavenLocal()
-        gradlePluginPortal()
+        maven { url 'https://jitpack.io' }
     }
 }
 
@@ -10,6 +11,7 @@ dependencyResolutionManagement {
     repositories {
         mavenCentral()
         mavenLocal()
+        maven { url 'https://jitpack.io' }
     }
 
     versionCatalogs {
@@ -19,9 +21,8 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = 'SimpleApp'
-
 rootProject.name = 'DesktopFX'
 include 'Util'
 include 'Communication'
 include 'FxCore'
+include 'Desktop'

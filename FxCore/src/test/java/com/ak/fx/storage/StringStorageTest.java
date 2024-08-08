@@ -1,5 +1,6 @@
 package com.ak.fx.storage;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -16,7 +17,10 @@ final class StringStorageTest {
   @ValueSource(strings = "Something String")
   void testSave(String value) throws BackingStoreException {
     storage.save(value);
-    assertThat(storage.get()).contains(value);
+    Assertions.assertAll(storage.toString(),
+        () -> assertThat(storage.toString()).contains(StringStorage.class.getSimpleName()).contains("preferences"),
+        () -> assertThat(storage.get()).contains(value)
+    );
     storage.delete();
     assertThat(storage.get()).isEmpty();
   }

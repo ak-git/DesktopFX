@@ -1,5 +1,6 @@
 package com.ak.fx.storage;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -19,7 +20,10 @@ final class DoubleArrayStorageTest {
   void testSave(double[] values) throws BackingStoreException {
     Storage<double[]> storage = new DoubleArrayStorage(DoubleArrayStorageTest.class, "#%08x".formatted(hashCode()));
     storage.save(values);
-    assertThat(storage.get()).contains(values);
+    Assertions.assertAll(storage.toString(),
+        () -> assertThat(storage.toString()).contains(DoubleArrayStorage.class.getSimpleName()).contains("preferences"),
+        () -> assertThat(storage.get()).contains(values)
+    );
     storage.delete();
     assertThat(storage.get()).isEmpty();
   }

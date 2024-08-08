@@ -1,20 +1,24 @@
 [versions]
 javamodularity-moduleplugin = '1.8.15'
 sonarqube = '5.1.0.4882'
+jacocolog = '3.1.0'
 spotbugs = '6.0.19'
 ben-manes-versions = '0.51.0'
 nebula-lint = '19.0.3'
+dependency-analysis = '1.33.0'
 
 jsr305 = '3.0.2'
 junit = '5.11.0-RC1'
 assertj = '3.26.3'
 
-javafxplugin = '0.0.14'
-springframework-boot = '3.1.8'
+javafxplugin = '0.1.0'
+spring = '6.1.11'
+springframework-boot = '3.3.2'
 spring-dependency-management = '1.1.6'
 
 inject-api = '2.0.1'
 uom-se = '1.0.10'
+measure-unit-api = '1.0'
 javax-json = '1.1.4'
 commons-math3 = '3.6.1'
 commons-csv = '1.11.0'
@@ -24,9 +28,11 @@ jenetics = '8.0.0'
 [plugins]
 javamodularity-moduleplugin = { id = 'org.javamodularity.moduleplugin', version.ref = 'javamodularity-moduleplugin' }
 sonarqube = { id = 'org.sonarqube', version.ref = 'sonarqube' }
+jacocolog = { id = 'org.barfuin.gradle.jacocolog', version.ref = 'jacocolog' }
 spotbugs = { id = 'com.github.spotbugs', version.ref = 'spotbugs' }
 ben-manes-versions = { id = 'com.github.ben-manes.versions', version.ref = 'ben-manes-versions' }
 nebula-lint = { id = 'nebula.lint', version.ref = 'nebula-lint' }
+dependency-analysis = { id = 'com.autonomousapps.dependency-analysis', version.ref = 'dependency-analysis' }
 
 javafxplugin = { id = 'org.openjfx.javafxplugin', version.ref = 'javafxplugin' }
 springframework-boot = { id = 'org.springframework.boot', version.ref = 'springframework-boot' }
@@ -37,15 +43,25 @@ findbugs-jsr305 = { module = 'com.google.code.findbugs:jsr305', version.ref = 'j
 
 junit = { module = 'org.junit:junit-bom', version.ref = 'junit' }
 junit-jupiter = { module = 'org.junit.jupiter:junit-jupiter', version.ref = 'junit' }
+junit-jupiter-api = { module = 'org.junit.jupiter:junit-jupiter-api', version.ref = 'junit' }
+junit-jupiter-params = { module = 'org.junit.jupiter:junit-jupiter-params', version.ref = 'junit' }
 assertj = { module = 'org.assertj:assertj-core', version.ref = 'assertj' }
 
 inject-api = { module = 'jakarta.inject:jakarta.inject-api', version.ref = 'inject-api' }
 uom-se = { module = 'tec.uom:uom-se', version.ref = 'uom-se' }
+measure-unit-api = { module = 'javax.measure:unit-api', version.ref = 'measure-unit-api' }
 javax-json = { module = 'org.glassfish:javax.json', version.ref = 'javax-json' }
 commons-math3 = { module = 'org.apache.commons:commons-math3', version.ref = 'commons-math3' }
 commons-csv = { module = 'org.apache.commons:commons-csv', version.ref = 'commons-csv' }
 jserial-comm = { module = 'com.fazecast:jSerialComm', version.ref = 'jserial-comm' }
 jenetics = { module = 'io.jenetics:jenetics', version.ref = 'jenetics' }
 
+spring-boot = { module = 'org.springframework.boot:spring-boot', version.ref = 'springframework-boot' }
+spring-boot-autoconfigure = { module = 'org.springframework.boot:spring-boot-autoconfigure', version.ref = 'springframework-boot' }
+spring-core = { module = 'org.springframework:spring-core', version.ref = 'spring' }
+spring-beans = { module = 'org.springframework:spring-beans', version.ref = 'spring' }
+spring-context = { module = 'org.springframework:spring-context', version.ref = 'spring' }
+
 [bundles]
-test = ['junit-jupiter', 'assertj']
+spring-boot = ['spring-boot', 'spring-boot-autoconfigure', 'spring-core', 'spring-beans', 'spring-context']
+test = ['junit-jupiter', 'junit-jupiter-api', 'junit-jupiter-params', 'assertj']
