@@ -7,7 +7,6 @@ import com.ak.util.Strings;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,30 +15,28 @@ import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class RecursiveWatcherTest {
-  @Nullable
-  private static Path outputPath;
+  private static final Path PATH;
 
   static {
     try {
-      outputPath = OutputBuilders.NONE.build(Strings.EMPTY).getPath();
+      PATH = OutputBuilders.NONE.build(Strings.EMPTY).getPath();
     }
     catch (IOException e) {
-      fail(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
   @AfterAll
   static void cleanUp() {
-    Clean.clean(Objects.requireNonNull(outputPath));
+    Clean.clean(Objects.requireNonNull(PATH));
   }
 
   @Test
   void test() throws IOException, InterruptedException {
-    Path path = Objects.requireNonNull(outputPath);
+    Path path = Objects.requireNonNull(PATH);
     assertNotNull(Files.createTempFile(Files.createDirectories(path), Strings.EMPTY, Extension.TXT.attachTo(Strings.EMPTY)));
     Path subDir = Files.createTempDirectory(path, Strings.EMPTY);
     assertNotNull(subDir, path::toString);
