@@ -2,19 +2,20 @@
 javamodularity-moduleplugin = '1.8.15'
 sonarqube = '5.1.0.4882'
 jacocolog = '3.1.0'
-spotbugs = '6.0.19'
+spotbugs = '6.0.20'
 ben-manes-versions = '0.51.0'
 nebula-lint = '19.0.3'
 dependency-analysis = '1.33.0'
 
 jsr305 = '3.0.2'
-junit = '5.11.0-RC1'
+junit = '5.11.0'
 assertj = '3.26.3'
 
 javafxplugin = '0.1.0'
-spring = '6.1.11'
+spring = '6.1.12'
 springframework-boot = '3.3.2'
 spring-dependency-management = '1.1.6'
+javafx = '21'
 
 inject-api = '2.0.1'
 uom-se = '1.0.10'
@@ -55,6 +56,9 @@ commons-math3 = { module = 'org.apache.commons:commons-math3', version.ref = 'co
 commons-csv = { module = 'org.apache.commons:commons-csv', version.ref = 'commons-csv' }
 jserial-comm = { module = 'com.fazecast:jSerialComm', version.ref = 'jserial-comm' }
 jenetics = { module = 'io.jenetics:jenetics', version.ref = 'jenetics' }
+
+javafx-base = { module = 'org.openjfx:javafx-base', version.ref = 'javafx' }
+javafx-graphics = { module = 'org.openjfx:javafx-graphics', version.ref = 'javafx' }
 
 spring-boot = { module = 'org.springframework.boot:spring-boot', version.ref = 'springframework-boot' }
 spring-boot-autoconfigure = { module = 'org.springframework.boot:spring-boot-autoconfigure', version.ref = 'springframework-boot' }

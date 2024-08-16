@@ -17,8 +17,8 @@ dependencies {
     implementation libs.commons.math3
     implementation libs.measure.unit.api
 
-    implementation 'org.openjfx:javafx-base:21'
-    implementation 'org.openjfx:javafx-graphics:21'
+    implementation libs.javafx.base
+    implementation libs.javafx.graphics
 
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation libs.bundles.spring.boot

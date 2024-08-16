@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    api 'org.openjfx:javafx-base:21'
+    api libs.javafx.base
 
     implementation project(':Util')
     implementation libs.findbugs.jsr305
