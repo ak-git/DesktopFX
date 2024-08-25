@@ -2,7 +2,6 @@ package com.ak.logging;
 
 import com.ak.util.Clean;
 import com.ak.util.Extension;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 class LocalFileHandlerTest {
-  private static final @Nullable Path PATH;
+  private static final Path PATH;
 
   static {
     try {

@@ -8,7 +8,6 @@ import com.ak.logging.OutputBuilders;
 import com.ak.util.Clean;
 import com.ak.util.Extension;
 import com.ak.util.Strings;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class ConverterTest {
-  private static final @Nullable Path PATH;
+  private static final Path PATH;
 
   static {
     try {

@@ -2,7 +2,6 @@ package com.ak.logging;
 
 import com.ak.util.Clean;
 import com.ak.util.Extension;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +16,7 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OutputBuilderTest {
-  private static final @Nullable Path PATH;
+  private static final Path PATH;
 
   static {
     try {
