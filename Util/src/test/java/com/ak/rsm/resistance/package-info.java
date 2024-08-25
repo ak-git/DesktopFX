@@ -1,6 +1,4 @@
-
-
-@ParametersAreNonnullByDefault
+@NullMarked
 package com.ak.rsm.resistance;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

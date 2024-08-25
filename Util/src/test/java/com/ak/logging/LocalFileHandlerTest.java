@@ -1,5 +1,12 @@
 package com.ak.logging;
 
+import com.ak.util.Clean;
+import com.ak.util.Extension;
+import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -10,20 +17,11 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
 
-import javax.annotation.Nullable;
-
-import com.ak.util.Clean;
-import com.ak.util.Extension;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 class LocalFileHandlerTest {
-  @Nullable
-  private static Path PATH;
+  private static final @Nullable Path PATH;
 
   static {
     try {
@@ -31,6 +29,7 @@ class LocalFileHandlerTest {
     }
     catch (IOException e) {
       fail(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 

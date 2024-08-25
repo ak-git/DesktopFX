@@ -4,9 +4,9 @@ import com.ak.util.Builder;
 import com.ak.util.Extension;
 import com.ak.util.Numbers;
 import com.ak.util.Strings;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -21,8 +21,7 @@ public final class CSVLineFileBuilder<T> {
   private final Range xRange = new Range();
   private final Range yRange = new Range();
   private final BiFunction<Double, Double, T> doubleFunction;
-  @Nullable
-  private CSVMultiFileCollector.Builder<Double, T> multiFileBuilder;
+  private CSVMultiFileCollector.@Nullable Builder<Double, T> multiFileBuilder;
 
   private CSVLineFileBuilder(BiFunction<Double, Double, T> doubleFunction) {
     this.doubleFunction = Objects.requireNonNull(doubleFunction);

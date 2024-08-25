@@ -3,8 +3,8 @@ package com.ak.csv;
 import com.ak.util.Strings;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,10 +23,8 @@ import static java.nio.file.StandardOpenOption.*;
 
 public final class CSVLineFileCollector implements Collector<Object[], CSVPrinter, Boolean>, Closeable, Consumer<Object[]> {
   private final Path out;
-  @Nullable
-  private final Path tempFile;
-  @Nullable
-  private CSVPrinter csvPrinter;
+  private final @Nullable Path tempFile;
+  private @Nullable CSVPrinter csvPrinter;
   private boolean finished;
 
   public CSVLineFileCollector(Path out, String... header) {
@@ -66,12 +64,12 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
 
   @Override
   public BiConsumer<CSVPrinter, Object[]> accumulator() {
-    return (p, objects) -> accept(objects);
+    return (ignore, objects) -> accept(objects);
   }
 
   @Override
   public BinaryOperator<CSVPrinter> combiner() {
-    return (p1, p2) -> {
+    return (ignore1, ignore2) -> {
       throw new UnsupportedOperationException();
     };
   }

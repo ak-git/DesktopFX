@@ -9,6 +9,7 @@ module com.ak.fx.desktop {
   requires java.logging;
   requires java.json;
   requires jsr305;
+  requires org.jspecify;
   requires jakarta.inject;
 
   requires javafx.fxml;

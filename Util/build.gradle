@@ -1,13 +1,32 @@
+plugins {
+    alias(libs.plugins.javamodularity.moduleplugin)
+}
+
 dependencies {
     api libs.measure.unit.api
     api libs.javax.json
     api libs.commons.math3
     api libs.commons.csv
     api libs.findbugs.jsr305
-
+    implementation libs.jspecify
     implementation libs.uom.se
     implementation libs.jenetics
 
     testImplementation(platform(libs.junit))
     testImplementation libs.bundles.test
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(22)
+    }
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
 }

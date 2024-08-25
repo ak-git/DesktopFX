@@ -6,8 +6,8 @@ import com.ak.comm.core.AbstractConvertableService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.logging.LogBuilders;
 import com.ak.util.UIConstants;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
@@ -95,8 +95,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
     private final AtomicReference<Instant> okTime = new AtomicReference<>(Instant.now());
     private final CountDownLatch latch = new CountDownLatch(1);
     private final Flow.Subscriber<? super int[]> subscriber;
-    @Nullable
-    private Flow.Subscription subscription;
+    private Flow.@Nullable Subscription subscription;
 
     private AliveSubscriber(Flow.Subscriber<? super int[]> subscriber) {
       this.subscriber = Objects.requireNonNull(subscriber);

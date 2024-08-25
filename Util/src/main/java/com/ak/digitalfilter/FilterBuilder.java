@@ -4,9 +4,9 @@ import com.ak.numbers.Coefficients;
 import com.ak.numbers.Interpolators;
 import com.ak.numbers.RangeUtils;
 import com.ak.util.Builder;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntBinaryOperator;
@@ -19,8 +19,7 @@ import java.util.stream.Stream;
 import static com.ak.digitalfilter.IntsAcceptor.EMPTY_INTS;
 
 public class FilterBuilder implements Builder<DigitalFilter> {
-  @Nullable
-  private DigitalFilter filter;
+  private @Nullable DigitalFilter filter;
 
   private FilterBuilder() {
   }

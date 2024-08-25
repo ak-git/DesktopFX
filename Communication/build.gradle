@@ -1,11 +1,30 @@
+plugins {
+    alias(libs.plugins.javamodularity.moduleplugin)
+}
+
 dependencies {
     api project(':Util')
-    api libs.findbugs.jsr305
     api libs.jserial.comm
     api libs.measure.unit.api
-
+    api libs.findbugs.jsr305
+    implementation libs.jspecify
     implementation libs.uom.se
 
     testImplementation(platform(libs.junit))
     testImplementation libs.bundles.test
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(22)
+    }
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
 }

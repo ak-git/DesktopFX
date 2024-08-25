@@ -24,11 +24,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.util.Duration;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.io.Closeable;
 import java.io.IOException;
@@ -48,15 +48,12 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   private final GroupService<T, R, V> service;
   private final AxisXController axisXController = new AxisXController(this::changed);
   private final AxisYController<V> axisYController = new AxisYController<>();
-  @Nullable
-  private Flow.Subscription subscription;
-  @Nullable
+  private Flow.@Nullable Subscription subscription;
   @FXML
-  private Chart chart;
+  private @Nullable Chart chart;
   @Nonnegative
   private long countSamples;
-  @Nullable
-  private SequentialTransition transition;
+  private @Nullable SequentialTransition transition;
   @Value("${version}")
   private final String version;
   private Closeable fileWatcher = () -> {
@@ -106,15 +103,15 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
           .collect(Collectors.joining(Strings.NEW_LINE_2))
       );
       chart.titleProperty().bind(axisXController.zoomBinding());
-      chart.diagramHeightProperty().addListener((observable, oldValue, newValue) -> {
+      chart.diagramHeightProperty().addListener((ignoreObservable, ignoreOldValue, newValue) -> {
         axisYController.setLineDiagramHeight(newValue.doubleValue());
         changed();
       });
-      chart.diagramWidthProperty().addListener((observable, oldValue, newValue) -> axisXController.preventEnd(newValue.doubleValue()));
+      chart.diagramWidthProperty().addListener((ignoreObservable, ignoreOldValue, newValue) -> axisXController.preventEnd(newValue.doubleValue()));
 
-      axisXController.stepProperty().addListener((observable, oldValue, newValue) -> chart.setXStep(newValue.doubleValue()));
-      axisXController.startProperty().addListener((observable, oldValue, newValue) -> changed());
-      axisXController.lengthProperty().addListener((observable, oldValue, newValue) ->
+      axisXController.stepProperty().addListener((ignoreObservable, ignoreOldValue, newValue) -> chart.setXStep(newValue.doubleValue()));
+      axisXController.startProperty().addListener((ignoreObservable, ignoreOldValue, ignoreNewValue) -> changed());
+      axisXController.lengthProperty().addListener((ignoreObservable, ignoreOldValue, newValue) ->
           chart.setMaxSamples(newValue.intValue() / axisXController.getDecimateFactor())
       );
       axisXController.setFrequency(service.getFrequency());
@@ -122,7 +119,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
 
     var timeline = new Timeline(
         new KeyFrame(Duration.millis(50),
-            (ActionEvent actionEvent) -> {
+            (ActionEvent ignoreEvent) -> {
               int start = (int) (Math.max(0, countSamples - axisXController.getLength()));
               axisXController.setStart(start);
               if (start == 0) {

@@ -9,8 +9,8 @@ import com.ak.util.Strings;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
@@ -60,14 +60,12 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
     });
   }
 
-  @Nullable
-  private final SerialPort serialPort;
+  private final @Nullable SerialPort serialPort;
   private final BytesInterceptor<T, R> bytesInterceptor;
   private final ByteBuffer buffer;
   private final ConcurrentAsyncFileChannel binaryLogChannel;
   private final AtomicReference<Path> saveFilePath = new AtomicReference<>();
-  @Nullable
-  private Runnable refreshAction;
+  private @Nullable Runnable refreshAction;
 
   SerialService(BytesInterceptor<T, R> bytesInterceptor) {
     this.bytesInterceptor = bytesInterceptor;

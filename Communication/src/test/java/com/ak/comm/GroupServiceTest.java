@@ -5,12 +5,12 @@ import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.TwoVariables;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.concurrent.Flow;
@@ -24,8 +24,7 @@ class GroupServiceTest implements Flow.Subscriber<int[]> {
       () -> new RampBytesInterceptor(RampBytesInterceptor.class.getSimpleName(),
           BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
       () -> new ToIntegerConverter<>(TwoVariables.class, 1000));
-  @Nullable
-  private Flow.Subscription subscription;
+  private Flow.@Nullable Subscription subscription;
 
   @BeforeEach
   void setUp() {
@@ -68,6 +67,7 @@ class GroupServiceTest implements Flow.Subscriber<int[]> {
 
   @Override
   public void onNext(int[] ints) {
+    fail();
   }
 
   @Override
@@ -77,5 +77,6 @@ class GroupServiceTest implements Flow.Subscriber<int[]> {
 
   @Override
   public void onComplete() {
+    fail();
   }
 }

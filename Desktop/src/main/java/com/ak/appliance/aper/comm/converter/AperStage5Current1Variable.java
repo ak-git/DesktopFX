@@ -5,10 +5,10 @@ import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.rsm.resistance.Resistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
+import org.jspecify.annotations.Nullable;
 import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
 import javax.measure.Unit;
 import java.util.Collections;
 import java.util.List;
@@ -157,8 +157,7 @@ public enum AperStage5Current1Variable implements DependentVariable<AperStage4Cu
   },
   CCR;
 
-  @Nullable
-  private final TetrapolarResistance.PreBuilder<Resistance> builder;
+  private final TetrapolarResistance.@Nullable PreBuilder<Resistance> builder;
 
   AperStage5Current1Variable(@Nonnegative double smm, @Nonnegative double lmm) {
     builder = TetrapolarResistance.ofMilli(smm, lmm);

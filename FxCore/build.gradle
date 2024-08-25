@@ -1,4 +1,5 @@
 plugins {
+    alias(libs.plugins.javamodularity.moduleplugin)
     alias(libs.plugins.javafxplugin)
 }
 
@@ -7,9 +8,25 @@ dependencies {
 
     implementation project(':Util')
     implementation libs.findbugs.jsr305
+    implementation libs.jspecify
 
     testImplementation(platform(libs.junit))
     testImplementation libs.bundles.test
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(22)
+    }
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
 }
 
 javafx {

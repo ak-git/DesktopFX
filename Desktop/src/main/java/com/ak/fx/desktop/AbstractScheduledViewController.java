@@ -4,9 +4,9 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import jakarta.inject.Provider;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
@@ -24,8 +24,7 @@ public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & 
       onError(e);
     }
   };
-  @Nullable
-  private ScheduledFuture<?> scheduledFuture;
+  private @Nullable ScheduledFuture<?> scheduledFuture;
 
   protected AbstractScheduledViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
                                             Provider<Converter<R, V>> converterProvider,

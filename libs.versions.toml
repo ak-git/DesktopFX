@@ -8,12 +8,13 @@ nebula-lint = '19.0.3'
 dependency-analysis = '1.33.0'
 
 jsr305 = '3.0.2'
+jspecify = '1.0.0'
 junit = '5.11.0'
 assertj = '3.26.3'
 
 javafxplugin = '0.1.0'
 spring = '6.1.12'
-springframework-boot = '3.3.2'
+springframework-boot = '3.3.3'
 spring-dependency-management = '1.1.6'
 javafx = '22'
 
@@ -41,6 +42,7 @@ spring-dependency-management = { id = 'io.spring.dependency-management', version
 
 [libraries]
 findbugs-jsr305 = { module = 'com.google.code.findbugs:jsr305', version.ref = 'jsr305' }
+jspecify = { module = 'org.jspecify:jspecify', version.ref = 'jspecify' }
 
 junit = { module = 'org.junit:junit-bom', version.ref = 'junit' }
 junit-jupiter = { module = 'org.junit.jupiter:junit-jupiter', version.ref = 'junit' }

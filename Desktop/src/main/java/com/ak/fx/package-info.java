@@ -1,4 +1,4 @@
 @NullMarked
-package com.ak.fx.storage;
+package com.ak.fx;
 
 import org.jspecify.annotations.NullMarked;
