@@ -15,6 +15,7 @@ import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -68,9 +69,9 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
-  public AsynchronousFileChannel call() throws IOException {
+  public Optional<AsynchronousFileChannel> call() throws IOException {
     var path = LogBuilders.CONVERTER_SERIAL.build("#%08x".formatted(hashCode())).getPath();
-    return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
+    return Optional.of(AsynchronousFileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ));
   }
 
   @Override

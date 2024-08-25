@@ -19,6 +19,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Flow;
 import java.util.function.Consumer;
@@ -35,7 +36,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
   private final Path fileToRead;
   @Nonnegative
   private long requestSamples = Long.MAX_VALUE;
-  private Callable<AsynchronousFileChannel> convertedFileChannelProvider = () -> null;
+  private Callable<Optional<AsynchronousFileChannel>> convertedFileChannelProvider = Optional::empty;
   private volatile boolean disposed;
 
   FileReadingService(Path fileToRead, BytesInterceptor<T, R> bytesInterceptor, Converter<R, V> responseConverter) {
@@ -111,7 +112,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
-  public AsynchronousFileChannel call() throws Exception {
+  public Optional<AsynchronousFileChannel> call() throws Exception {
     return convertedFileChannelProvider.call();
   }
 
@@ -123,7 +124,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
       var md5Code = digestToString(md.digest(md5Base.getBytes(Charset.defaultCharset())));
       var convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
       if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
-        convertedFileChannelProvider = () -> AsynchronousFileChannel.open(convertedFile, READ);
+        convertedFileChannelProvider = () -> Optional.of(AsynchronousFileChannel.open(convertedFile, READ));
         Logger.getLogger(getClass().getName()).log(Level.INFO,
             () -> "#%08x File [ %s ] with hash = [ %s ] is already processed".formatted(hashCode(), fileToRead, md5Code));
       }
@@ -131,8 +132,9 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
         Logger.getLogger(getClass().getName()).log(Level.INFO,
             () -> "#%08x Read file [ %s ], hash = [ %s ]".formatted(hashCode(), fileToRead, md5Code));
         var tempConverterFile = LogBuilders.CONVERTER_FILE.build("temp." + md5Code).getPath();
-        convertedFileChannelProvider = () -> AsynchronousFileChannel.open(tempConverterFile,
-            CREATE, WRITE, READ, TRUNCATE_EXISTING);
+        convertedFileChannelProvider = () -> Optional.of(
+            AsynchronousFileChannel.open(tempConverterFile, CREATE, WRITE, READ, TRUNCATE_EXISTING)
+        );
 
         boolean processed = isChannelProcessed(seekableByteChannel, doOnOpen);
         if (processed && Files.exists(tempConverterFile)) {

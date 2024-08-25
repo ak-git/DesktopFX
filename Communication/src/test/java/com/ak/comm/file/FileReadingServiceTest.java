@@ -30,6 +30,7 @@ import java.nio.file.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.concurrent.Flow;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -200,7 +201,7 @@ class FileReadingServiceTest {
         BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
         new ToIntegerConverter<>(TwoVariables.class, 200))
     ) {
-      assertNull(s.call());
+      assertTrue(s.call().isEmpty());
     }
   }
 
@@ -232,9 +233,11 @@ class FileReadingServiceTest {
                }
 
                @Override
-               public AsynchronousFileChannel call() throws Exception {
-                 return AsynchronousFileChannel.open(LogBuilders.CONVERTER_FILE.build(TestVariable.V_RRS.name()).getPath(),
-                     StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
+               public Optional<AsynchronousFileChannel> call() throws Exception {
+                 return Optional.of(
+                     AsynchronousFileChannel.open(LogBuilders.CONVERTER_FILE.build(TestVariable.V_RRS.name()).getPath(),
+                         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING)
+                 );
                }
 
                @Override

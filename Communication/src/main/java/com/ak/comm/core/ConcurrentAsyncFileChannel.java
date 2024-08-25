@@ -8,6 +8,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.StampedLock;
@@ -15,13 +16,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class ConcurrentAsyncFileChannel implements Closeable {
-  private final Callable<AsynchronousFileChannel> channelCallable;
+  private final Callable<Optional<AsynchronousFileChannel>> channelCallable;
   private final StampedLock lock = new StampedLock();
   private @Nullable AsynchronousFileChannel channel;
   @Nonnegative
   private long writePos;
 
-  public ConcurrentAsyncFileChannel(Callable<AsynchronousFileChannel> channelCallable) {
+  public ConcurrentAsyncFileChannel(Callable<Optional<AsynchronousFileChannel>> channelCallable) {
     this.channelCallable = channelCallable;
   }
 
@@ -95,9 +96,11 @@ public final class ConcurrentAsyncFileChannel implements Closeable {
     long bytesCount = 0;
     try {
       if (channel == null) {
-        channel = channelCallable.call();
+        channel = channelCallable.call().orElse(null);
       }
-      bytesCount = operation.operate(channel).get();
+      if (channel != null) {
+        bytesCount = operation.operate(channel).get();
+      }
     }
     catch (InterruptedException e) {
       Logger.getLogger(getClass().getName()).log(LogUtils.LOG_LEVEL_ERRORS, e.getMessage(), e);

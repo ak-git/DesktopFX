@@ -35,7 +35,7 @@ sonar {
 
 allprojects {
     group = 'com.ak'
-    version = '2024.08.16'
+    version = '2024.08.25'
     apply plugin: 'idea'
     idea {
         module {

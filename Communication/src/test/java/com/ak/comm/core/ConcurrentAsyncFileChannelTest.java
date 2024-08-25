@@ -1,19 +1,20 @@
 package com.ak.comm.core;
 
+import com.ak.comm.logging.LogTestUtils;
+import com.ak.logging.LogBuilders;
+import org.junit.jupiter.api.Test;
+
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.ak.comm.logging.LogTestUtils;
-import com.ak.logging.LogBuilders;
-import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -25,7 +26,7 @@ class ConcurrentAsyncFileChannelTest {
   void testWriteAndRead() {
     ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> {
       Path path = LogBuilders.TIME.build(ConcurrentAsyncFileChannelTest.class.getSimpleName()).getPath();
-      return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
+      return Optional.of(AsynchronousFileChannel.open(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ));
     });
 
     channel.close();
@@ -47,17 +48,17 @@ class ConcurrentAsyncFileChannelTest {
   void testParallelWriteAndRead() throws InterruptedException, ExecutionException {
     ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> {
       Path path = LogBuilders.TIME.build(ConcurrentAsyncFileChannelTest.class.getSimpleName() + "Parallel").getPath();
-      return AsynchronousFileChannel.open(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);
+      return Optional.of(AsynchronousFileChannel.open(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ));
     });
     ByteBuffer buffer = ByteBuffer.allocate(4);
     channel.read(buffer, 100);
     assertThat(buffer.position()).isZero();
     ExecutorService executorService = Executors.newFixedThreadPool(2);
-    int INTS = 1024;
+    int ints = 1024;
     Future<?> writeFuture = executorService.submit(() -> {
       ByteBuffer byteBuffer = ByteBuffer.allocate(Integer.BYTES);
 
-      for (int i = 0; i < INTS; i++) {
+      for (int i = 0; i < ints; i++) {
         byteBuffer.clear();
         byteBuffer.putInt(i);
         byteBuffer.flip();
@@ -66,8 +67,8 @@ class ConcurrentAsyncFileChannelTest {
     });
 
     Future<?> readFuture = executorService.submit(() -> {
-      ByteBuffer byteBuffer = ByteBuffer.allocate(Integer.BYTES * INTS);
-      for (int i = 0; i < INTS; i++) {
+      ByteBuffer byteBuffer = ByteBuffer.allocate(Integer.BYTES * ints);
+      for (int i = 0; i < ints; i++) {
         byteBuffer.clear();
         channel.read(byteBuffer, 0);
         byteBuffer.flip();
@@ -100,7 +101,7 @@ class ConcurrentAsyncFileChannelTest {
   @Test
   void testNullInitialize() {
     ByteBuffer buffer = ByteBuffer.allocate(1);
-    try (ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> null)) {
+    try (ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(Optional::empty)) {
       channel.write(buffer);
       buffer.clear();
       channel.read(buffer, 1);

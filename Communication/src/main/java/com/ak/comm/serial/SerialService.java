@@ -75,7 +75,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
         () -> {
           Path path = LogBuilders.SERIAL_BYTES.build(bytesInterceptor.name()).getPath();
           saveFilePath.set(path);
-          return AsynchronousFileChannel.open(path, CREATE, WRITE);
+          return Optional.of(AsynchronousFileChannel.open(path, CREATE, WRITE));
         }
     );
   }
