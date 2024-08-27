@@ -60,13 +60,4 @@ allprojects {
             xml.required = true
         }
     }
-
-    test {
-        useJUnitPlatform()
-        testLogging {
-            events 'started', 'passed', 'skipped', 'failed'
-        }
-        forkEvery = 5
-        maxHeapSize = '1G'
-    }
 }

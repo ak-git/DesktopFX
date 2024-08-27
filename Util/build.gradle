@@ -12,8 +12,8 @@ dependencies {
     implementation libs.uom.se
     implementation libs.jenetics
 
-    testImplementation(platform(libs.junit))
     testImplementation libs.bundles.test
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 java {
@@ -29,4 +29,13 @@ compileJava {
 
 compileTestJava {
     options.encoding = 'UTF-8'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events 'started', 'passed', 'skipped', 'failed'
+    }
+    forkEvery = 5
+    maxHeapSize = '1G'
 }

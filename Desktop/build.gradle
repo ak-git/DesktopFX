@@ -24,8 +24,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation libs.bundles.spring.boot
 
+    //    https://github.com/junit-team/junit5/issues/1773
     testImplementation(platform(libs.junit))
-    testImplementation libs.bundles.test
+    testImplementation libs.junit.jupiter
+    testImplementation libs.assertj
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 java {
@@ -41,6 +44,15 @@ compileJava {
 
 compileTestJava {
     options.encoding = 'UTF-8'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events 'started', 'passed', 'skipped', 'failed'
+    }
+    forkEvery = 5
+    maxHeapSize = '1G'
 }
 
 javafx {
