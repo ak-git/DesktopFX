@@ -2,7 +2,7 @@ package com.ak.appliance.sktbpr.comm.converter;
 
 import com.ak.appliance.sktbpr.comm.bytes.SKTBResponse;
 import com.ak.comm.converter.Variables;
-import com.ak.comm.log.LogTestUtils;
+import com.ak.comm.logging.LogTestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

@@ -20,7 +20,7 @@ public enum SKTBProtocolByte implements BytesChecker {
 
     @Override
     public void bufferLimit(ByteBuffer buffer) {
-      buffer.limit(SKTBProtocolByte.values().length);
+      buffer.limit(values().length);
     }
   }, ROTATE_ANGLE_1, ROTATE_ANGLE_2, ROTATE_ANGLE_3, ROTATE_ANGLE_4, FLEX_ANGLE_1, FLEX_ANGLE_2;
 
