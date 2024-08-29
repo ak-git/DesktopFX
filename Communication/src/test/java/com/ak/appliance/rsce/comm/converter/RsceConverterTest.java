@@ -3,7 +3,7 @@ package com.ak.appliance.rsce.comm.converter;
 import com.ak.appliance.rsce.comm.bytes.RsceCommandFrame;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variables;
-import com.ak.comm.log.LogTestUtils;
+import com.ak.comm.logging.LogTestUtils;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.AbstractUnit;
