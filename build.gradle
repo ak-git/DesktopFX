@@ -4,7 +4,6 @@ plugins {
     id 'java-library'
     id 'idea'
     id 'jacoco'
-    alias(libs.plugins.dependency.analysis)
     alias(libs.plugins.spotbugs)
     alias(libs.plugins.ben.manes.versions)
     alias(libs.plugins.nebula.lint)
@@ -47,7 +46,6 @@ allprojects {
         main.output.resourcesDir = main.java.classesDirectory
     }
 
-    apply plugin: 'java-library'
     apply plugin: 'jacoco'
     apply plugin: 'org.barfuin.gradle.jacocolog'
 
@@ -59,5 +57,33 @@ allprojects {
         reports {
             xml.required = true
         }
+    }
+}
+
+subprojects {
+    apply plugin: 'java-library'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(22)
+        }
+    }
+
+    compileJava {
+        options.encoding = 'UTF-8'
+        options.compilerArgs << '-parameters'
+    }
+
+    compileTestJava {
+        options.encoding = 'UTF-8'
+    }
+
+    test {
+        forkEvery = 5
+        useJUnitPlatform()
+        testLogging {
+            events 'passed', 'skipped', 'failed'
+        }
+        maxHeapSize = '1G'
     }
 }

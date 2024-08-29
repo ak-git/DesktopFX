@@ -31,30 +31,6 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(22)
-    }
-}
-
-compileJava {
-    options.encoding = 'UTF-8'
-    options.compilerArgs << '-parameters'
-}
-
-compileTestJava {
-    options.encoding = 'UTF-8'
-}
-
-test {
-    useJUnitPlatform()
-    testLogging {
-        events 'started', 'passed', 'skipped', 'failed'
-    }
-    forkEvery = 5
-    maxHeapSize = '1G'
-}
-
 javafx {
     version = 22
     modules = ['javafx.controls', 'javafx.fxml']
