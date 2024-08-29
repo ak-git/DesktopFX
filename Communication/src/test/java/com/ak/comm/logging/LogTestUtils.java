@@ -15,9 +15,9 @@ public class LogTestUtils {
     Level oldLevel = logger.getLevel();
     logger.setLevel(level);
     AtomicBoolean okFlag = new AtomicBoolean();
-    logger.setFilter(record -> {
-      if (Objects.equals(record.getLevel(), level)) {
-        recordConsumer.accept(record);
+    logger.setFilter(r -> {
+      if (Objects.equals(r.getLevel(), level)) {
+        recordConsumer.accept(r);
         okFlag.set(true);
       }
       return false;

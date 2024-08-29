@@ -31,8 +31,8 @@ class CSVMultiFileCollectorTest {
 
   @BeforeAll
   static void setUp() {
-    LOGGER.setFilter(record -> {
-      assertNotNull(record.getThrown());
+    LOGGER.setFilter(r -> {
+      assertNotNull(r.getThrown());
       EXCEPTION_COUNTER.incrementAndGet();
       return false;
     });

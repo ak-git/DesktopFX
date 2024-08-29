@@ -15,4 +15,7 @@ module com.ak.comm {
   exports com.ak.comm.interceptor.simple;
 
   exports com.ak.comm.core;
+  exports com.ak.appliance.suntech.comm.converter;
+  exports com.ak.appliance.suntech.comm.interceptor;
+  exports com.ak.appliance.suntech.comm.bytes;
 }

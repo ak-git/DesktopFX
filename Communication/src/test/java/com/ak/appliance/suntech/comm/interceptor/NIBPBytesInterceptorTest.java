@@ -2,7 +2,7 @@ package com.ak.appliance.suntech.comm.interceptor;
 
 import com.ak.appliance.suntech.comm.bytes.NIBPResponse;
 import com.ak.comm.bytes.LogUtils;
-import com.ak.comm.log.LogTestUtils;
+import com.ak.comm.logging.LogTestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;

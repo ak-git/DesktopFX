@@ -40,8 +40,8 @@ class CSVLineFileCollectorTest {
 
   @BeforeAll
   static void setUp() {
-    LOGGER.setFilter(record -> {
-      assertNotNull(record.getThrown());
+    LOGGER.setFilter(r -> {
+      assertNotNull(r.getThrown());
       EXCEPTION_COUNTER.incrementAndGet();
       return false;
     });
@@ -107,14 +107,17 @@ class CSVLineFileCollectorTest {
                     new Writer() {
                       @Override
                       public void write(char[] cBuf, int off, int len) {
+                        fail();
                       }
 
                       @Override
                       public void flush() {
+                        fail();
                       }
 
                       @Override
                       public void close() {
+                        LOGGER.fine("close");
                       }
                     }),
                 CSVFormat.DEFAULT

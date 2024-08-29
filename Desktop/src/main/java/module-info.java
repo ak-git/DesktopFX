@@ -38,7 +38,6 @@ module com.ak.fx.desktop {
   opens com.ak.appliance.nmis.comm.converter to com.ak.comm;
   opens com.ak.appliance.purelogic.comm.converter to com.ak.comm;
   opens com.ak.appliance.rsce.comm.converter to com.ak.comm;
-  opens com.ak.appliance.suntech.comm.converter to com.ak.comm;
   opens com.ak.appliance.sktbpr.comm.converter to com.ak.comm;
   opens com.ak.appliance.kleiber.comm.converter to com.ak.comm;
   opens com.ak.appliance.rcm.comm.converter to com.ak.comm;
@@ -47,7 +46,6 @@ module com.ak.fx.desktop {
   exports com.ak.appliance.rcm.comm.converter to javafx.graphics;
   exports com.ak.appliance.rsce.comm.converter to spring.beans;
   exports com.ak.appliance.nmis.comm.converter to spring.beans;
-  exports com.ak.appliance.suntech.comm.converter to spring.beans;
   exports com.ak.appliance.purelogic.comm.converter to spring.beans;
   exports com.ak.appliance.sktbpr.comm.converter to spring.beans;
   exports com.ak.appliance.kleiber.comm.interceptor to spring.beans;
@@ -59,7 +57,6 @@ module com.ak.fx.desktop {
   exports com.ak.appliance.sktbpr.fx.desktop to spring.beans, spring.context;
   exports com.ak.spring to javafx.graphics, spring.beans, spring.context;
 
-  exports com.ak.appliance.suntech.comm.bytes;
   exports com.ak.appliance.purelogic.comm.bytes;
   exports com.ak.appliance.sktbpr.comm.bytes;
   exports com.ak.appliance.nmis.comm.bytes;
