@@ -14,6 +14,9 @@ module com.ak.comm {
   exports com.ak.comm.interceptor;
   exports com.ak.comm.interceptor.simple;
 
+  exports com.ak.appliance.purelogic.comm.bytes;
+  exports com.ak.appliance.purelogic.comm.converter;
+  exports com.ak.appliance.purelogic.comm.interceptor;
   exports com.ak.appliance.rsce.comm.bytes;
   exports com.ak.appliance.rsce.comm.converter;
   exports com.ak.appliance.rsce.comm.interceptor;

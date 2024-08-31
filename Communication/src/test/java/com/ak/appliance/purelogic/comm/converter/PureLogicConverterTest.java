@@ -3,7 +3,7 @@ package com.ak.appliance.purelogic.comm.converter;
 import com.ak.appliance.purelogic.comm.bytes.PureLogicFrame;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
-import com.ak.comm.log.LogTestUtils;
+import com.ak.comm.logging.LogTestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
