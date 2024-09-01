@@ -23,7 +23,7 @@ class SKTBViewControllerTest {
       controller.up();
       controller.down();
       controller.onApplicationEvent(new RsceEvent(this,
-          EnumSet.allOf(RsceVariable.class).stream().mapToInt(value -> RANDOM.nextInt()).toArray()));
+          EnumSet.allOf(RsceVariable.class).stream().mapToInt(ignore -> RANDOM.nextInt()).toArray()));
       Assertions.assertThat(controller.get())
           .hasToString("SKTBRequest[ 0x5a, 0x01, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf4, 0x01 ] 11 bytes");
       Assertions.assertThat(controller.get())
