@@ -34,7 +34,7 @@ public enum ScreenResolutionMonitor {
     }
     log();
     var timer = new Timer((int) UIConstants.UI_DELAY.toMillis(), e ->
-        Optional.ofNullable(SCENE_REFERENCE.get()).flatMap(scene ->
+        Optional.of(SCENE_REFERENCE.get()).flatMap(scene ->
             Optional.ofNullable(scene.getWindow())).ifPresent(window -> {
           ObservableList<Screen> screens = Screen.getScreensForRectangle(
               window.getX(), window.getY(), window.getWidth(), window.getHeight()
