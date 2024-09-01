@@ -14,6 +14,8 @@ module com.ak.comm {
   exports com.ak.comm.interceptor;
   exports com.ak.comm.interceptor.simple;
 
+  exports com.ak.appliance.briko.comm.converter;
+  exports com.ak.appliance.briko.comm.interceptor;
   exports com.ak.appliance.nmi.comm.converter;
   exports com.ak.appliance.purelogic.comm.bytes;
   exports com.ak.appliance.purelogic.comm.converter;
