@@ -289,15 +289,15 @@ class Inverse2DynamicTest {
   }
 
   @ParameterizedTest
-  @MethodSource({"cvsFiles"})
+  @MethodSource("cvsFiles")
   @Disabled("ignored com.ak.rsm.inverse.Inverse2DynamicTest.testInverseFileResistivity")
   void testInverseFileResistivity(String fileName, @Nonnegative double alpha) {
-    String T = "TIME";
-    String POSITION = "POSITION";
-    String RHO_S1 = "A1";
-    String RHO_S1_DIFF = "DA1";
-    String RHO_S2 = "A2";
-    String RHO_S2_DIFF = "DA2";
+    String time = "TIME";
+    String position = "POSITION";
+    String rhoS1 = "A1";
+    String rhoS1Diff = "DA1";
+    String rhoS2 = "A2";
+    String rhoS2Diff = "DA2";
 
     String[] mm = fileName.split(Strings.SPACE);
     int sBase = Integer.parseInt(mm[mm.length - 2]);
@@ -313,7 +313,7 @@ class Inverse2DynamicTest {
     outputMap.put("RMS_DIFF", medium -> medium.getRMS()[1]);
 
     Map<PredictedFields, Double> predictedMap = new EnumMap<>(
-        Stream.of(PredictedFields.values()).collect(Collectors.toMap(Function.identity(), v -> Double.NaN))
+        Stream.of(PredictedFields.values()).collect(Collectors.toMap(Function.identity(), ignore -> Double.NaN))
     );
 
     Path path = Paths.get(Extension.CSV.attachTo(fileName));
@@ -336,13 +336,13 @@ class Inverse2DynamicTest {
         AtomicReference<Layer2Medium> prevMediumRC = new AtomicReference<>(null);
         assertTrue(StreamSupport.stream(parser.spliterator(), false)
             .map(r -> {
-              LOGGER.info(() -> "%.2f sec; %s mm".formatted(Double.parseDouble(r.get(T)), r.get(POSITION)));
+              LOGGER.info(() -> "%.2f sec; %s mm".formatted(Double.parseDouble(r.get(time)), r.get(position)));
               Collection<DerivativeMeasurement> derivativeMeasurements = new ArrayList<>(
                   TetrapolarDerivativeMeasurement.milli(0.1)
                       .dh(Double.NaN).system2(sBase)
                       .rho(
-                          Double.parseDouble(r.get(RHO_S1)), Double.parseDouble(r.get(RHO_S2)),
-                          Double.parseDouble(r.get(RHO_S1_DIFF)), Double.parseDouble(r.get(RHO_S2_DIFF))
+                          Double.parseDouble(r.get(rhoS1)), Double.parseDouble(r.get(rhoS2)),
+                          Double.parseDouble(r.get(rhoS1Diff)), Double.parseDouble(r.get(rhoS2Diff))
                       )
               );
               Layer2Medium medium = DynamicAbsolute.LAYER_2.apply(derivativeMeasurements, Regularization.Interval.ZERO_MAX.of(alpha));

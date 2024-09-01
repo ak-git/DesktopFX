@@ -1,17 +1,17 @@
 package com.ak.comm.serial;
 
+import com.fazecast.jSerialComm.SerialPort;
+import com.fazecast.jSerialComm.SerialPortDataListener;
+import com.fazecast.jSerialComm.SerialPortEvent;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
-
-import com.fazecast.jSerialComm.SerialPort;
-import com.fazecast.jSerialComm.SerialPortDataListener;
-import com.fazecast.jSerialComm.SerialPortEvent;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -43,10 +43,10 @@ class SerialServiceTest {
         }
       });
 
-      int MM_3 = 200 * 16;
-      int MM_FACTOR = 20;
+      int mm3 = 200 * 16;
+      int mmFactor = 20;
       while (!Thread.currentThread().isInterrupted()) {
-        IntStream.of(MM_3 / MM_FACTOR, -MM_3 / MM_FACTOR).forEach(value -> {
+        IntStream.of(mm3 / mmFactor, -mm3 / mmFactor).forEach(value -> {
           byte[] buffer = "STEP %+d%n".formatted(value).getBytes(StandardCharsets.UTF_8);
           comPort.writeBytes(buffer, buffer.length);
           try {

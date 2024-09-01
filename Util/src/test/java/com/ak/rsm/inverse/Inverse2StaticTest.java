@@ -48,13 +48,13 @@ class Inverse2StaticTest {
   @MethodSource("relativeRiseErrors")
   void testInverseRelativeRiseErrors(Collection<? extends Measurement> measurements, double[] riseErrors) {
     double absError = measurements.stream().mapToDouble(m -> m.inexact().absError()).average().orElseThrow();
-    double L = Resistivity.getBaseL(measurements);
+    double baseL = Resistivity.getBaseL(measurements);
     double dim = measurements.stream().mapToDouble(m -> m.system().getDim()).max().orElseThrow();
 
     var medium = Relative.Static.solve(measurements);
     assertAll(medium.toString(),
         () -> assertThat(medium.k().absError() / (absError / dim)).isCloseTo(riseErrors[0], byLessThan(0.1)),
-        () -> assertThat(medium.hToL().absError() / (absError / L)).isCloseTo(riseErrors[1], byLessThan(0.1))
+        () -> assertThat(medium.hToL().absError() / (absError / baseL)).isCloseTo(riseErrors[1], byLessThan(0.1))
     );
   }
 

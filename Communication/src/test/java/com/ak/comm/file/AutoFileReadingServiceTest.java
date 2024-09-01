@@ -38,6 +38,7 @@ class AutoFileReadingServiceTest {
 
       @Override
       public void onNext(int[] item) {
+        assertThat(item).isNotEmpty();
       }
 
       @Override
@@ -47,6 +48,7 @@ class AutoFileReadingServiceTest {
 
       @Override
       public void onComplete() {
+        fail();
       }
     });
   }

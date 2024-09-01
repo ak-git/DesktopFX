@@ -88,8 +88,8 @@ class Inverse3Test {
     LOGGER.info(h::toString);
 
     assertThatNoException().isThrownBy(() -> {
-          int SCALE = 1;
-          double hStep = dm.stream().flatMapToDouble(m -> DoubleStream.of(Math.abs(m.dh()))).min().orElseThrow() / SCALE;
+      int scale = 1;
+      double hStep = dm.stream().flatMapToDouble(m -> DoubleStream.of(Math.abs(m.dh()))).min().orElseThrow() / scale;
           LOGGER.info(() -> "3-layer step %s".formatted(ValuePair.Name.H.of(hStep, 0.0)));
 
           ValuePair.Name[] keys = {
