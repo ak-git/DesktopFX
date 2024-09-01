@@ -288,6 +288,19 @@ class Inverse2DynamicTest {
     PREDICTED_R2, PREDICTED_DIFF_R2, CONTRIBUTION_RHO1_2, CONTRIBUTION_RHO2_2, CONTRIBUTION_H_2
   }
 
+  private static Map<String, Function<Layer2Medium, Object>> getOutputFunctionMap() {
+    Map<String, Function<Layer2Medium, Object>> outputMap = new LinkedHashMap<>();
+    outputMap.put("rho1", medium -> medium.rho1().value());
+    outputMap.put("rho1AbsError", medium -> medium.rho1().absError());
+    outputMap.put("rho2", medium -> medium.rho2().value());
+    outputMap.put("rho2AbsError", medium -> medium.rho2().absError());
+    outputMap.put("h", medium -> Metrics.Length.METRE.to(medium.h().value(), MetricPrefix.MILLI(METRE)));
+    outputMap.put("hAbsError", medium -> Metrics.Length.METRE.to(medium.h().absError(), MetricPrefix.MILLI(METRE)));
+    outputMap.put("RMS_BASE", medium -> medium.getRMS()[0]);
+    outputMap.put("RMS_DIFF", medium -> medium.getRMS()[1]);
+    return outputMap;
+  }
+
   @ParameterizedTest
   @MethodSource("cvsFiles")
   @Disabled("ignored com.ak.rsm.inverse.Inverse2DynamicTest.testInverseFileResistivity")
@@ -302,15 +315,7 @@ class Inverse2DynamicTest {
     String[] mm = fileName.split(Strings.SPACE);
     int sBase = Integer.parseInt(mm[mm.length - 2]);
 
-    Map<String, Function<Layer2Medium, Object>> outputMap = new LinkedHashMap<>();
-    outputMap.put("rho1", medium -> medium.rho1().value());
-    outputMap.put("rho1AbsError", medium -> medium.rho1().absError());
-    outputMap.put("rho2", medium -> medium.rho2().value());
-    outputMap.put("rho2AbsError", medium -> medium.rho2().absError());
-    outputMap.put("h", medium -> Metrics.Length.METRE.to(medium.h().value(), MetricPrefix.MILLI(METRE)));
-    outputMap.put("hAbsError", medium -> Metrics.Length.METRE.to(medium.h().absError(), MetricPrefix.MILLI(METRE)));
-    outputMap.put("RMS_BASE", medium -> medium.getRMS()[0]);
-    outputMap.put("RMS_DIFF", medium -> medium.getRMS()[1]);
+    Map<String, Function<Layer2Medium, Object>> outputMap = getOutputFunctionMap();
 
     Map<PredictedFields, Double> predictedMap = new EnumMap<>(
         Stream.of(PredictedFields.values()).collect(Collectors.toMap(Function.identity(), ignore -> Double.NaN))
