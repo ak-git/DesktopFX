@@ -14,7 +14,6 @@ dependencies {
     implementation libs.jspecify
     implementation libs.inject.api
     implementation libs.uom.se
-    implementation libs.javax.json
     implementation libs.commons.math3
     implementation libs.measure.unit.api
 
@@ -26,8 +25,7 @@ dependencies {
 
     //    https://github.com/junit-team/junit5/issues/1773
     testImplementation(platform(libs.junit))
-    testImplementation libs.junit.jupiter
-    testImplementation libs.assertj
+    testImplementation libs.bundles.test
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

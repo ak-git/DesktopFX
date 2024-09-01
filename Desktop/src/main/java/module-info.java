@@ -22,22 +22,12 @@ module com.ak.fx.desktop {
   requires spring.beans;
   requires java.desktop;
 
-  opens com.ak.appliance.aper.numbers to com.ak.util;
-  opens com.ak.appliance.rcm.numbers to com.ak.util;
   opens com.ak.appliance.suntech.fx.desktop to javafx.fxml;
   opens com.ak.fx.desktop to javafx.fxml, spring.core;
   opens com.ak.appliance.sktbpr.fx.desktop to spring.core;
   opens com.ak.appliance.nmisr.fx.desktop to spring.core;
   opens com.ak.fx.scene to javafx.fxml;
-  opens com.ak.appliance.rcm.comm.interceptor to spring.beans;
   opens com.ak.spring to spring.core;
-
-  // variables i18n
-  opens com.ak.appliance.aper.comm.converter to com.ak.comm;
-  opens com.ak.appliance.rcm.comm.converter to com.ak.comm;
-
-  exports com.ak.appliance.aper.comm.converter to javafx.graphics;
-  exports com.ak.appliance.rcm.comm.converter to javafx.graphics;
 
   exports com.ak.appliance.briko.fx.desktop to spring.beans;
   exports com.ak.appliance.nmisr.fx.desktop to spring.beans;

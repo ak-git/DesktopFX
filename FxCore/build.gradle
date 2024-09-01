@@ -5,9 +5,8 @@ plugins {
 
 dependencies {
     api libs.javafx.base
-
-    implementation project(':Util')
-    implementation project(':Communication')
+    api project(':Util')
+    api project(':Communication')
     implementation libs.findbugs.jsr305
     implementation libs.jspecify
 

@@ -7,6 +7,7 @@ dependencies {
     api libs.jserial.comm
     api libs.measure.unit.api
     api libs.findbugs.jsr305
+    api libs.javax.json
     implementation libs.jspecify
     implementation libs.uom.se
 

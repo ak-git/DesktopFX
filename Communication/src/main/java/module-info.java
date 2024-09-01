@@ -7,6 +7,7 @@ module com.ak.comm {
   requires uom.se;
   requires jsr305;
   requires org.jspecify;
+  requires java.json;
 
   exports com.ak.comm;
   exports com.ak.comm.bytes;
@@ -14,6 +15,12 @@ module com.ak.comm {
   exports com.ak.comm.interceptor;
   exports com.ak.comm.interceptor.simple;
 
+  opens com.ak.appliance.aper.numbers to com.ak.util;
+  opens com.ak.appliance.rcm.numbers to com.ak.util;
+
+  exports com.ak.appliance.aper.comm.converter;
+  exports com.ak.appliance.rcm.comm.converter;
+  exports com.ak.appliance.rcm.comm.interceptor;
   exports com.ak.appliance.briko.comm.converter;
   exports com.ak.appliance.briko.comm.interceptor;
   exports com.ak.appliance.kleiber.comm.converter;
@@ -36,4 +43,6 @@ module com.ak.comm {
   exports com.ak.appliance.suntech.comm.converter;
   exports com.ak.appliance.suntech.comm.interceptor;
   exports com.ak.comm.core;
+  exports com.ak.appliance.aper.numbers;
+  exports com.ak.appliance.rcm.numbers;
 }

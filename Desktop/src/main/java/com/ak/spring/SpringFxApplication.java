@@ -13,6 +13,8 @@ import com.ak.appliance.rcm.comm.converter.RcmCalibrationVariable;
 import com.ak.appliance.rcm.comm.converter.RcmConverter;
 import com.ak.appliance.rcm.comm.converter.RcmOutVariable;
 import com.ak.appliance.rcm.comm.converter.RcmsOutVariable;
+import com.ak.appliance.rcm.comm.interceptor.RcmBytesInterceptor;
+import com.ak.appliance.rcm.comm.interceptor.RcmsBytesInterceptor;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.*;
 import com.ak.comm.interceptor.BytesInterceptor;
@@ -25,7 +27,10 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 
 import java.util.Arrays;
 import java.util.List;
@@ -142,7 +147,6 @@ public class SpringFxApplication extends FxApplication {
   @Profile({"aper2-nibp", "aper1-nibp", "aper1-myo", "aper2-ecg", "aper1-R2-6mm", "aper1-R2-7mm", "aper1-R2-8mm", "aper1-R2-10mm",
       "aper1-R1", "aper1-calibration"})
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  @Primary
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorAper() {
     return new RampBytesInterceptor("aper", BytesInterceptor.BaudRate.BR_460800, 25);
   }
@@ -150,7 +154,6 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("aper2-nibp")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  @Primary
   static Converter<BufferFrame, AperStage3Current2NIBPVariable> converterAper2NIBP() {
     return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
         .chainInstance(AperStage3Current2NIBPVariable.class);
@@ -159,7 +162,6 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("aper1-nibp")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  @Primary
   static Converter<BufferFrame, AperStage3Current1NIBPVariable> converterAper1NIBP() {
     return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
         .chainInstance(AperStage3Current1NIBPVariable.class);
@@ -180,7 +182,6 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("aper1-R2-6mm")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  @Primary
   static Converter<BufferFrame, AperStage6Current1Variable6mm> converterAper1R6() {
     return converterAper1R().chainInstance(AperStage6Current1Variable6mm.class);
   }
@@ -188,7 +189,6 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("aper1-R2-7mm")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  @Primary
   static Converter<BufferFrame, AperStage6Current1Variable7mm> converterAper1R7() {
     return converterAper1R().chainInstance(AperStage6Current1Variable7mm.class);
   }
@@ -196,7 +196,6 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("aper1-R2-8mm")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  @Primary
   static Converter<BufferFrame, AperStage6Current1Variable8mm> converterAper1R8() {
     return converterAper1R().chainInstance(AperStage6Current1Variable8mm.class);
   }
@@ -204,7 +203,6 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("aper1-R2-10mm")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  @Primary
   static Converter<BufferFrame, AperStage6Current1Variable10mm> converterAper1R10() {
     return converterAper1R().chainInstance(AperStage6Current1Variable10mm.class);
   }
@@ -212,7 +210,6 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("aper1-R1")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  @Primary
   static Converter<BufferFrame, AperStage6Current1Variable> converterAper1R1() {
     return converterAper1R().chainInstance(AperStage6Current1Variable.class);
   }
@@ -228,10 +225,16 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("aper2-ecg")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  @Primary
   static Converter<BufferFrame, AperStage4Current2Variable> converterAper2() {
     return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
         .chainInstance(AperStage3Variable.class).chainInstance(AperStage4Current2Variable.class);
+  }
+
+  @Bean
+  @Profile({"rcms", "rcms-calibration"})
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorRcm() {
+    return new RcmBytesInterceptor();
   }
 
   @Bean
@@ -239,6 +242,13 @@ public class SpringFxApplication extends FxApplication {
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, RcmOutVariable> converterRcm() {
     return LinkedConverter.of(new RcmConverter(), RcmOutVariable.class);
+  }
+
+  @Bean
+  @Profile({"rcms", "rcms-calibration"})
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorRcms() {
+    return new RcmsBytesInterceptor();
   }
 
   @Bean
@@ -258,7 +268,6 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("NMI3Acc2Rheo")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  @Primary
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorNMI3Acc2Rheo() {
     return new RampBytesInterceptor("NMI3Acc2Rheo", BytesInterceptor.BaudRate.BR_921600, 1 + (3 + 2) * Integer.BYTES);
   }
@@ -273,7 +282,6 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("kleiber-myo")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  @Primary
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorKleiberMyo() {
     return new KleiberBytesInterceptor();
   }
@@ -281,7 +289,6 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("nmis")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  @Primary
   static BytesInterceptor<NmisRequest, NmisResponseFrame> bytesInterceptorNmis() {
     return new NmisBytesInterceptor();
   }
