@@ -6,7 +6,7 @@ import com.ak.appliance.nmis.comm.interceptor.NmisBytesInterceptor;
 import com.ak.appliance.rsce.comm.bytes.RsceCommandFrame;
 import com.ak.comm.bytes.LogUtils;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.comm.log.LogTestUtils;
+import com.ak.comm.logging.LogTestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
