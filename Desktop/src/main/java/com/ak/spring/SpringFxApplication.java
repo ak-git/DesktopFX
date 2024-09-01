@@ -2,6 +2,7 @@ package com.ak.spring;
 
 import com.ak.appliance.aper.comm.converter.*;
 import com.ak.appliance.kleiber.comm.converter.KleiberVariable;
+import com.ak.appliance.kleiber.comm.interceptor.KleiberBytesInterceptor;
 import com.ak.appliance.nmi.comm.converter.NmiVariable;
 import com.ak.appliance.rcm.comm.converter.RcmCalibrationVariable;
 import com.ak.appliance.rcm.comm.converter.RcmConverter;
@@ -262,5 +263,13 @@ public class SpringFxApplication extends FxApplication {
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<BufferFrame, NmiVariable> converterNMI3Acc2Rheo() {
     return new ToIntegerConverter<>(NmiVariable.class, 125);
+  }
+
+  @Bean
+  @Profile("kleiber-myo")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  @Primary
+  static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorKleiberMyo() {
+    return new KleiberBytesInterceptor();
   }
 }

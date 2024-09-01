@@ -36,13 +36,11 @@ module com.ak.fx.desktop {
   // variables i18n
   opens com.ak.appliance.aper.comm.converter to com.ak.comm;
   opens com.ak.appliance.nmis.comm.converter to com.ak.comm;
-  opens com.ak.appliance.kleiber.comm.converter to com.ak.comm;
   opens com.ak.appliance.rcm.comm.converter to com.ak.comm;
 
   exports com.ak.appliance.aper.comm.converter to javafx.graphics;
   exports com.ak.appliance.rcm.comm.converter to javafx.graphics;
   exports com.ak.appliance.nmis.comm.converter to spring.beans;
-  exports com.ak.appliance.kleiber.comm.interceptor to spring.beans;
 
   exports com.ak.appliance.briko.fx.desktop to spring.beans;
   exports com.ak.appliance.nmisr.fx.desktop to spring.beans;
