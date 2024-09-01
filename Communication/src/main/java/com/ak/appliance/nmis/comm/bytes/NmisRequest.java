@@ -1,6 +1,7 @@
 package com.ak.appliance.nmis.comm.bytes;
 
 import com.ak.comm.bytes.BufferFrame;
+import com.ak.util.Builder;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -48,7 +49,7 @@ public final class NmisRequest extends BufferFrame {
     }
   }
 
-  public enum Sequence implements javafx.util.Builder<NmisRequest> {
+  public enum Sequence implements Builder<NmisRequest> {
     CATCH_100(1, MyoType.MV1, MyoFrequency.HZ_200), CATCH_60(2, MyoType.MV1, MyoFrequency.HZ_200),
     CATCH_30(3, MyoType.MV1, MyoFrequency.HZ_200), CATCH_INV(4, MyoType.MV1, MyoFrequency.HZ_200),
     ROTATE_100(5, MyoType.MV0_1, MyoFrequency.NOISE), ROTATE_60(6, MyoType.MV0_1, MyoFrequency.NOISE),
@@ -98,7 +99,7 @@ public final class NmisRequest extends BufferFrame {
     codes[NmisProtocolByte.CRC.ordinal()] = (byte) (crc & 0xff);
   }
 
-  private static class NmisRequestBuilder implements javafx.util.Builder<NmisRequest> {
+  private static class NmisRequestBuilder implements Builder<NmisRequest> {
     private final byte[] codes = new byte[1 + 1 + 1 + 8 + 1];
     private final StringBuilder toStringBuilder = new StringBuilder();
 
@@ -109,7 +110,7 @@ public final class NmisRequest extends BufferFrame {
       toStringBuilder.append(address.name()).append(SPACE);
     }
 
-    javafx.util.Builder<NmisRequest> forAll(MyoType myoType, MyoFrequency frequency) {
+    Builder<NmisRequest> forAll(MyoType myoType, MyoFrequency frequency) {
       Arrays.fill(codes, NmisProtocolByte.DATA_5.ordinal(), NmisProtocolByte.DATA_8.ordinal() + 1,
           (byte) (myoType.code + toCode(frequency)));
       toStringBuilder.append(myoType.name()).append(SPACE).append(frequency.name()).append(SPACE);

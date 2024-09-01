@@ -4,6 +4,11 @@ import com.ak.appliance.aper.comm.converter.*;
 import com.ak.appliance.kleiber.comm.converter.KleiberVariable;
 import com.ak.appliance.kleiber.comm.interceptor.KleiberBytesInterceptor;
 import com.ak.appliance.nmi.comm.converter.NmiVariable;
+import com.ak.appliance.nmis.comm.bytes.NmisRequest;
+import com.ak.appliance.nmis.comm.bytes.NmisResponseFrame;
+import com.ak.appliance.nmis.comm.converter.NmisConverter;
+import com.ak.appliance.nmis.comm.converter.NmisVariable;
+import com.ak.appliance.nmis.comm.interceptor.NmisBytesInterceptor;
 import com.ak.appliance.rcm.comm.converter.RcmCalibrationVariable;
 import com.ak.appliance.rcm.comm.converter.RcmConverter;
 import com.ak.appliance.rcm.comm.converter.RcmOutVariable;
@@ -271,5 +276,20 @@ public class SpringFxApplication extends FxApplication {
   @Primary
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorKleiberMyo() {
     return new KleiberBytesInterceptor();
+  }
+
+  @Bean
+  @Profile("nmis")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  @Primary
+  static BytesInterceptor<NmisRequest, NmisResponseFrame> bytesInterceptorNmis() {
+    return new NmisBytesInterceptor();
+  }
+
+  @Bean
+  @Profile("nmis")
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  static Converter<NmisResponseFrame, NmisVariable> converterNmis() {
+    return new NmisConverter();
   }
 }

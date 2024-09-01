@@ -4,7 +4,7 @@ import com.ak.appliance.nmis.comm.bytes.NmisAddress;
 import com.ak.appliance.nmis.comm.bytes.NmisResponseFrame;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variables;
-import com.ak.comm.log.LogTestUtils;
+import com.ak.comm.logging.LogTestUtils;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import tec.uom.se.unit.MetricPrefix;

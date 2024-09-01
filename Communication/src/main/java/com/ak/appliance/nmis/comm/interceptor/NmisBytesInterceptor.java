@@ -3,10 +3,6 @@ package com.ak.appliance.nmis.comm.interceptor;
 import com.ak.appliance.nmis.comm.bytes.NmisRequest;
 import com.ak.appliance.nmis.comm.bytes.NmisResponseFrame;
 import com.ak.comm.interceptor.AbstractCheckedBytesInterceptor;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
  * Neuro-Muscular Interface Stand (Test Stand) Format:
@@ -76,9 +72,6 @@ import org.springframework.stereotype.Component;
  * </tr>
  * </table>
  */
-@Component
-@Profile("nmis")
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public final class NmisBytesInterceptor extends AbstractCheckedBytesInterceptor<NmisRequest, NmisResponseFrame, NmisResponseFrame.Builder> {
   public NmisBytesInterceptor() {
     super("NMIS", BaudRate.BR_115200, new NmisResponseFrame.Builder(), NmisRequest.Sequence.CATCH_100.build());

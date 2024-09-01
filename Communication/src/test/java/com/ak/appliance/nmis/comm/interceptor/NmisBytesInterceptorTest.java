@@ -5,7 +5,7 @@ import com.ak.appliance.nmis.comm.bytes.NmisRequest;
 import com.ak.appliance.nmis.comm.bytes.NmisResponseFrame;
 import com.ak.comm.bytes.LogUtils;
 import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.comm.log.LogTestUtils;
+import com.ak.comm.logging.LogTestUtils;
 import com.ak.util.Strings;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -55,15 +55,11 @@ class NmisBytesInterceptorTest {
   }
 
   @ParameterizedTest
-  @MethodSource("com.ak.appliance.nmis.comm.bytes.NmisTestProvider#myoResponse")
-  void testResponseMyo(NmisRequest request, byte[] input) {
-    assertThat(request.toResponse()).isEqualTo(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build().orElseThrow());
-    testResponse(request, input, true);
-  }
-
-  @ParameterizedTest
-  @MethodSource("com.ak.appliance.nmis.comm.bytes.NmisTestProvider#sequenceResponse")
-  void testResponseSequence(NmisRequest request, byte[] input) {
+  @MethodSource(
+      {"com.ak.appliance.nmis.comm.bytes.NmisTestProvider#myoResponse",
+          "com.ak.appliance.nmis.comm.bytes.NmisTestProvider#sequenceResponse"}
+  )
+  void testResponse(NmisRequest request, byte[] input) {
     assertThat(request.toResponse()).isEqualTo(new NmisResponseFrame.Builder(ByteBuffer.wrap(input)).build().orElseThrow());
     testResponse(request, input, true);
   }
