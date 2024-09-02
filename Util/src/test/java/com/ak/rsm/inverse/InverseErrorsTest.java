@@ -162,23 +162,23 @@ class InverseErrorsTest {
     double s2L = Math.max(p[0], p[1]);
     double maxD = Math.max(1.0, s2L);
     double s2 = s2L / maxD;
-    double L = s2 / s2L;
-    double s1 = s1L * L;
+    double baseL = s2 / s2L;
+    double s1 = s1L * baseL;
     double absError = 1.0e-4;
 
     RelativeMediumLayers errors = builder
         .apply(
             List.of(
-                new InexactTetrapolarSystem(absError, new TetrapolarSystem(s1, L)),
-                new InexactTetrapolarSystem(absError, new TetrapolarSystem(s2, L))
+                new InexactTetrapolarSystem(absError, new TetrapolarSystem(s1, baseL)),
+                new InexactTetrapolarSystem(absError, new TetrapolarSystem(s2, baseL))
             )
         )
-        .apply(new RelativeMediumLayers(k, hToDim / L));
+        .apply(new RelativeMediumLayers(k, hToDim / baseL));
 
-    double oneDim = Math.max(Math.max(s1, s2), L);
+    double oneDim = Math.max(Math.max(s1, s2), baseL);
     return new double[] {
         Math.abs(errors.k().absError()) / errors.k().value() / (absError / oneDim),
-        Math.abs(errors.hToL().absError() * L / oneDim) / (absError / oneDim),
+        Math.abs(errors.hToL().absError() * baseL / oneDim) / (absError / oneDim),
     };
   }
 }

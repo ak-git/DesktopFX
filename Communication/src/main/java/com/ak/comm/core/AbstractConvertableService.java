@@ -9,11 +9,12 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 public abstract class AbstractConvertableService<T, R, V extends Enum<V> & Variable<V>>
-    extends AbstractService<int[]> implements Callable<AsynchronousFileChannel>, Readable {
+    extends AbstractService<int[]> implements Callable<Optional<AsynchronousFileChannel>>, Readable {
   private final BytesInterceptor<T, R> bytesInterceptor;
   private final Converter<R, V> responseConverter;
   private final ByteBuffer workingBuffer;

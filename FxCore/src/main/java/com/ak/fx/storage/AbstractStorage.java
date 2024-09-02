@@ -19,4 +19,9 @@ abstract class AbstractStorage<T> implements Storage<T> {
   public void delete() throws BackingStoreException {
     preferences.clear();
   }
+
+  @Override
+  public final String toString() {
+    return "%s{preferences=%s}".formatted(super.toString(), preferences);
+  }
 }

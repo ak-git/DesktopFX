@@ -8,6 +8,7 @@ module com.ak.util {
   requires commons.math3;
   requires org.apache.commons.csv;
   requires jsr305;
+  requires org.jspecify;
   requires io.jenetics.base;
 
   exports com.ak.csv;

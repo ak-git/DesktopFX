@@ -107,7 +107,7 @@ class VariableTest {
     assertThat(adc).contains(" = ").endsWith(String.format(Locale.getDefault(), "%,d one", 10000));
     assertThat(Variables.toString(Quantities.getQuantity(1, AbstractUnit.ONE))).startsWith("1 ");
 
-    assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING,
+    assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
         () -> assertThat(Variables.toString(MissingResourceVariables.NONE)).isEqualTo(MissingResourceVariables.NONE.name()),
         logRecord -> {
           assertThat(logRecord.getMessage()).contains(MissingResourceVariables.NONE.name());
@@ -120,7 +120,7 @@ class VariableTest {
         logRecord -> fail(logRecord.getMessage()))
     );
 
-    assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
+    assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING,
         () -> assertThat(Variables.toString(TwoVariables.V2)).isEqualTo(TwoVariables.V2.name()),
         logRecord -> {
           assertThat(logRecord.getMessage()).contains(TwoVariables.V2.name());

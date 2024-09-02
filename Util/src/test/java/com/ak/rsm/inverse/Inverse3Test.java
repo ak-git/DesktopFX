@@ -12,6 +12,7 @@ import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Numbers;
+import com.ak.util.Strings;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,9 +42,9 @@ class Inverse3Test {
     double rho2 = 10.0;
     double rho3 = 5.0;
     double hmmStep = 0.1;
-    double smmBase = 7.0;
-    int p1 = (int) (4.0 / hmmStep);
-    int p2mp1 = (int) (1.0 / hmmStep);
+    double smmBase = 10.0;
+    int p1 = (int) (2.0 / hmmStep);
+    int p2mp1 = (int) (4.0 / hmmStep);
 
     LOGGER.info(() -> "p1 = %d; p2mp1 = %d".formatted(p1, p2mp1));
 
@@ -78,7 +79,8 @@ class Inverse3Test {
   }
 
   private static void testSingle(Collection<? extends DerivativeMeasurement> dm) {
-    Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction = Regularization.Interval.ZERO_MAX.of(10.0);
+    Regularization.Interval regularization = Regularization.Interval.ZERO_MAX_LOG1P;
+    Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction = regularization.of(1.0);
     LOGGER.info(regularizationFunction::toString);
     Layer2Medium layer2Medium = DynamicAbsolute.LAYER_2.apply(dm, regularizationFunction);
     LOGGER.info(layer2Medium::toString);
@@ -86,13 +88,13 @@ class Inverse3Test {
     LOGGER.info(h::toString);
 
     assertThatNoException().isThrownBy(() -> {
-          int SCALE = 1;
-          double hStep = dm.stream().flatMapToDouble(m -> DoubleStream.of(Math.abs(m.dh()))).min().orElseThrow() / SCALE;
+      int scale = 1;
+      double hStep = dm.stream().flatMapToDouble(m -> DoubleStream.of(Math.abs(m.dh()))).min().orElseThrow() / scale;
           LOGGER.info(() -> "3-layer step %s".formatted(ValuePair.Name.H.of(hStep, 0.0)));
 
           ValuePair.Name[] keys = {
               ValuePair.Name.RHO_1, ValuePair.Name.RHO_2, ValuePair.Name.RHO_3,
-              ValuePair.Name.K12, ValuePair.Name.K23
+              ValuePair.Name.K12, ValuePair.Name.K23, ValuePair.Name.ERR
           };
 
           CSVLineFileBuilder<ValuePair[]> csvBuilder = CSVLineFileBuilder
@@ -101,35 +103,34 @@ class Inverse3Test {
                 ValuePair h2 = ValuePair.Name.H2.of(vh1 + vdh2, 0.0);
                 ValuePair dh2 = ValuePair.Name.DH2.of(vdh2, 0.0);
 
-                if (dh2.value() < h1.value() / 4) {
-                  LOGGER.info(() -> Stream.of(h1, h2, dh2).map(ValuePair::toString).collect(Collectors.joining("; ")));
-                  double[] p = Stream.of(h1, dh2).mapToDouble(x -> x.value() / hStep).toArray();
+                LOGGER.info(() -> Stream.of(h1, h2, dh2).map(ValuePair::toString).collect(Collectors.joining("; ")));
+                double[] p = Stream.of(h1, dh2).mapToDouble(x -> x.value() / hStep).toArray();
 
-                  PointValuePair optimizedK = Simplex.optimizeAll(
-                      k -> DynamicInverse.of(dm, hStep).applyAsDouble(DoubleStream.concat(Arrays.stream(k), Arrays.stream(p)).toArray()),
-                      new Simplex.Bounds(0.0, 1.0), new Simplex.Bounds(-1.0, 0.0)
-                  );
+                PointValuePair optimizedK = Simplex.optimizeAll(
+                    k -> DynamicInverse.of(dm, hStep).applyAsDouble(DoubleStream.concat(Arrays.stream(k), Arrays.stream(p)).toArray()),
+                    new Simplex.Bounds(0.0, 1.0), new Simplex.Bounds(-1.0, 0.0)
+                );
 
-                  PointValuePair optimized = new PointValuePair(
-                      DoubleStream.concat(Arrays.stream(optimizedK.getPoint()), Arrays.stream(p)).toArray(), optimizedK.getValue()
-                  );
+                PointValuePair optimized = new PointValuePair(
+                    DoubleStream.concat(Arrays.stream(optimizedK.getPoint()), Arrays.stream(p)).toArray(), optimizedK.getValue()
+                );
 
-                  double[] kpp = optimized.getPoint();
-                  var rho1 = getRho1(dm, kpp, hStep);
-                  var rho2 = ValuePair.Name.RHO_2.of(rho1.value() / Layers.getRho1ToRho2(kpp[0]), 0.0);
-                  var rho3 = ValuePair.Name.RHO_3.of(rho2.value() / Layers.getRho1ToRho2(kpp[1]), 0.0);
-                  ValuePair k12 = ValuePair.Name.K12.of(kpp[0], 0.0);
-                  ValuePair k23 = ValuePair.Name.K23.of(kpp[1], 0.0);
+                double[] kpp = optimized.getPoint();
+                var rho1 = getRho1(dm, kpp, hStep);
+                var rho2 = ValuePair.Name.RHO_2.of(rho1.value() / Layers.getRho1ToRho2(kpp[0]), 0.0);
+                var rho3 = ValuePair.Name.RHO_3.of(rho2.value() / Layers.getRho1ToRho2(kpp[1]), 0.0);
+                ValuePair k12 = ValuePair.Name.K12.of(kpp[0], 0.0);
+                ValuePair k23 = ValuePair.Name.K23.of(kpp[1], 0.0);
+                ValuePair err = ValuePair.Name.ERR.of(optimized.getValue(), 0.0);
 
-                  LOGGER.info(() -> "%.6f %s; %s; %s; %s; %s".formatted(optimized.getValue(), k12, k23, rho1, rho2, rho3));
-                  return new ValuePair[] {rho1, rho2, rho3, k12, k23};
-                }
-                else {
-                  return Arrays.stream(keys).map(name -> name.of(Double.NaN, 0.0)).toArray(ValuePair[]::new);
-                }
+                LOGGER.info(
+                    () -> Stream.of(err, k12, k23, rho1, rho2, rho3)
+                        .map(ValuePair::toString).collect(Collectors.joining(Strings.SEMICOLON))
+                );
+                return new ValuePair[] {rho1, rho2, rho3, k12, k23, err};
               })
-              .xStream(() -> DoubleStream.iterate(hStep, x -> x < h.value(), x -> x * 2))
-              .yStream(() -> DoubleStream.iterate(hStep * 2, x -> x < h.value(), x -> x * 2));
+              .xStream(() -> DoubleStream.iterate(hStep, x -> x < h.value() * 2, x -> x * 2))
+              .yStream(() -> DoubleStream.iterate(hStep, x -> x < h.value() * 2, x -> x * 2));
 
           for (int i = 0; i < keys.length; i++) {
             int finalI = i;

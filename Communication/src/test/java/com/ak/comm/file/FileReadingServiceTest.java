@@ -15,6 +15,7 @@ import com.ak.digitalfilter.FilterBuilder;
 import com.ak.logging.LogBuilders;
 import com.ak.util.Clean;
 import com.ak.util.Strings;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
@@ -30,6 +30,7 @@ import java.nio.file.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.concurrent.Flow;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -88,7 +89,7 @@ class FileReadingServiceTest {
         new RampBytesInterceptor(getClass().getName(), BytesInterceptor.BaudRate.BR_921600, frameLength),
         new ToIntegerConverter<>(TwoVariables.class, 200))) {
       LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
-          publisher.subscribe(testSubscriber), logRecord -> {
+          publisher.subscribe(testSubscriber), ignoreLogRecord -> {
         if (forceClose) {
           publisher.close();
         }
@@ -143,7 +144,7 @@ class FileReadingServiceTest {
   @MethodSource("com.ak.comm.file.FileDataProvider#filesCanDelete")
   void testException(Path fileToRead, int bytes) {
     assertThat(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
-      TestSubscriber<int[]> testSubscriber = new TestSubscriber<>(subscription -> {
+      TestSubscriber<int[]> testSubscriber = new TestSubscriber<>(ignoreSubscription -> {
         try {
           Files.deleteIfExists(fileToRead);
         }
@@ -200,7 +201,7 @@ class FileReadingServiceTest {
         BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
         new ToIntegerConverter<>(TwoVariables.class, 200))
     ) {
-      assertNull(s.call());
+      assertTrue(s.call().isEmpty());
     }
   }
 
@@ -232,13 +233,16 @@ class FileReadingServiceTest {
                }
 
                @Override
-               public AsynchronousFileChannel call() throws Exception {
-                 return AsynchronousFileChannel.open(LogBuilders.CONVERTER_FILE.build(TestVariable.V_RRS.name()).getPath(),
-                     StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING);
+               public Optional<AsynchronousFileChannel> call() throws Exception {
+                 return Optional.of(
+                     AsynchronousFileChannel.open(LogBuilders.CONVERTER_FILE.build(TestVariable.V_RRS.name()).getPath(),
+                         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING)
+                 );
                }
 
                @Override
                public void refresh(boolean force) {
+                 throw new UnsupportedOperationException();
                }
              }) {
       TestSubscriber<int[]> subscriber = new TestSubscriber<>();
@@ -278,8 +282,7 @@ class FileReadingServiceTest {
     private final Consumer<Flow.Subscription> onSubscribe;
     private boolean subscribeFlag;
     private boolean completeFlag;
-    @Nullable
-    private Throwable throwable;
+    private @Nullable Throwable throwable;
     private int count;
 
     TestSubscriber() {

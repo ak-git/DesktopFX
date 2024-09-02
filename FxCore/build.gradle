@@ -1,12 +1,21 @@
 plugins {
+    alias(libs.plugins.javamodularity.moduleplugin)
     alias(libs.plugins.javafxplugin)
 }
 
 dependencies {
+    api libs.javafx.base
     api project(':Util')
+    api project(':Communication')
+    implementation libs.findbugs.jsr305
+    implementation libs.jspecify
+
+    testImplementation libs.bundles.test
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 javafx {
-    version = javaVersion
+    version = 22
     modules = ['javafx.controls', 'javafx.graphics']
+    configurations = ['api']
 }

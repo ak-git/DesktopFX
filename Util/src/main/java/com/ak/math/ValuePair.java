@@ -100,6 +100,12 @@ public class ValuePair {
       String toString(String base) {
         return "%s = %s".formatted(Strings.PHI, base);
       }
+    },
+    ERR {
+      @Override
+      String toString(String base) {
+        return "%s = %s".formatted(Strings.EPSILON, base);
+      }
     };
 
     double convert(double si) {
@@ -150,7 +156,7 @@ public class ValuePair {
       );
     }
     else {
-      return Double.isFinite(v) ? name.toString("%6.3f".formatted(v)) : name.toString(Double.toString(v));
+      return Double.isFinite(v) ? name.toString("%6.3f".formatted(v).strip()) : name.toString(Double.toString(v));
     }
   }
 

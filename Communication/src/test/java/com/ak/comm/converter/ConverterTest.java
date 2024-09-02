@@ -14,7 +14,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -33,8 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class ConverterTest {
-  @Nullable
-  private static Path PATH;
+  private static final Path PATH;
 
   static {
     try {
@@ -42,6 +40,7 @@ class ConverterTest {
     }
     catch (IOException e) {
       fail(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 

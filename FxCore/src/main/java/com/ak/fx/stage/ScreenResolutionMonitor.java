@@ -9,6 +9,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -25,7 +26,7 @@ import java.util.logging.Logger;
 public enum ScreenResolutionMonitor {
   ;
 
-  private static final AtomicReference<Scene> SCENE_REFERENCE = new AtomicReference<>();
+  private static final AtomicReference<@Nullable Scene> SCENE_REFERENCE = new AtomicReference<>();
   private static final IntegerProperty DPI = new SimpleIntegerProperty(Toolkit.getDefaultToolkit().getScreenResolution());
 
   static {
@@ -33,7 +34,7 @@ public enum ScreenResolutionMonitor {
       DPI.setValue(Screen.getPrimary().getDpi());
     }
     log();
-    var timer = new Timer((int) UIConstants.UI_DELAY.toMillis(), e ->
+    var timer = new Timer((int) UIConstants.UI_DELAY.toMillis(), ignore ->
         Optional.ofNullable(SCENE_REFERENCE.get()).flatMap(scene ->
             Optional.ofNullable(scene.getWindow())).ifPresent(window -> {
           ObservableList<Screen> screens = Screen.getScreensForRectangle(
@@ -47,7 +48,7 @@ public enum ScreenResolutionMonitor {
         })
     );
     timer.start();
-    DPI.addListener((observable, oldValue, newValue) -> log());
+    DPI.addListener((ignoreObservable, ignoreOldValue, ignoreNewValue) -> log());
   }
 
   public static double getDpi() {

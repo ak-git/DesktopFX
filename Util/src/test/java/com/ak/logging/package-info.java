@@ -1,5 +1,4 @@
-
-@ParametersAreNonnullByDefault
+@NullMarked
 package com.ak.logging;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

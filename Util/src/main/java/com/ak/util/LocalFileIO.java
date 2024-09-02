@@ -1,6 +1,7 @@
 package com.ak.util;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -38,9 +39,8 @@ public class LocalFileIO implements LocalIO {
 
   public abstract static class AbstractBuilder implements Builder<LocalIO> {
     private final Extension fileExtension;
-    private Path relativePath;
-    @Nullable
-    private String fileName;
+    private @Nullable Path relativePath;
+    private @Nullable String fileName;
 
     protected AbstractBuilder(Extension fileExtension) {
       this.fileExtension = Objects.requireNonNull(fileExtension);

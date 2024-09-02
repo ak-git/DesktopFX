@@ -6,8 +6,8 @@ import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.Readable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.Extension;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.ByteBuffer;
@@ -22,14 +22,13 @@ import java.util.logging.Logger;
 
 public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractService<int[]> implements FileFilter, Readable {
-  private static final Readable EMPTY_READABLE = (dst, position) -> {
+  private static final Readable EMPTY_READABLE = (ignoreDst, ignorePosition) -> {
   };
 
   private final ExecutorService service = Executors.newSingleThreadExecutor();
   private final Supplier<BytesInterceptor<T, R>> interceptorProvider;
   private final Supplier<Converter<R, V>> converterProvider;
-  @Nullable
-  private Flow.Subscriber<? super int[]> subscriber;
+  private Flow.@Nullable Subscriber<? super int[]> subscriber;
   private Readable readable = EMPTY_READABLE;
 
   public AutoFileReadingService(Supplier<BytesInterceptor<T, R>> interceptorProvider, Supplier<Converter<R, V>> converterProvider) {

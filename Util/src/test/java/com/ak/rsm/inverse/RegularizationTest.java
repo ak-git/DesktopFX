@@ -58,6 +58,11 @@ class RegularizationTest {
           () -> assertThat(regularization.of(0.0, 0.0)).isInfinite(),
           () -> assertThat(regularization.of(k, (hInterval.max() + hInterval.min()) / 2.0)).isCloseTo(0.0, within(0.001))
       );
+      case ZERO_MAX_LOG1P -> assertAll(interval.name(),
+          () -> assertThat(regularization.of(k, Double.POSITIVE_INFINITY)).isInfinite(),
+          () -> assertThat(regularization.of(0.0, 0.0)).isInfinite(),
+          () -> assertThat(Math.abs(regularization.of(k, (hInterval.max() + hInterval.min()) / 2.0))).isGreaterThan(0.0)
+      );
       case MAX_K -> assertAll(interval.name(),
           () -> assertThat(regularization.of(1.0, RANDOM.nextGaussian())).isZero(),
           () -> assertThat(regularization.of(-1.0, RANDOM.nextGaussian())).isZero(),
