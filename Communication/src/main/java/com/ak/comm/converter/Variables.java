@@ -30,29 +30,33 @@ public enum Variables {
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(E variable) {
-    String baseName = variable.getClass().getPackage().getName() + ".variables";
-    String name;
-    try {
-      var resourceBundle = ResourceBundle.getBundle(baseName, Locale.getDefault(), variable.getClass().getModule());
-      if (resourceBundle.containsKey(variable.name())) {
-        name = Objects.toString(resourceBundle.getString(variable.name()), Strings.EMPTY);
+    String baseName = "%s.variables".formatted(variable.getClass().getPackage().getName());
+    Logger logger = Logger.getLogger(variable.getClass().getName());
+    if (logger.getFilter() == null) {
+      try {
+        var resourceBundle = ResourceBundle.getBundle(baseName, Locale.getDefault(), variable.getClass().getModule());
+        if (resourceBundle.containsKey(variable.name())) {
+          return Objects.toString(resourceBundle.getString(variable.name()), Strings.EMPTY);
+        }
+        else {
+          logger.log(Level.WARNING,
+              () -> "Missing resource key %s at file %s.properties".formatted(variable.name(), baseName)
+          );
+          logger.setFilter(ignore -> false);
+        }
       }
-      else {
-        Logger.getLogger(Variables.class.getName()).log(Level.CONFIG,
-            () -> "Missing resource key %s at file %s.properties".formatted(variable.name(), baseName));
-        name = variable.name();
+      catch (MissingResourceException e) {
+        logger.log(Level.CONFIG,
+            """
+                Missing resource key %s at file %s.properties.
+                module-info.java should opens %s to %s
+                """
+                .formatted(variable.name(), baseName, variable.getClass().getPackage(), Variables.class.getModule()), e
+        );
+        logger.setFilter(ignore -> false);
       }
     }
-    catch (MissingResourceException e) {
-      Logger.getLogger(Variables.class.getName()).log(Level.WARNING,
-          """
-              Missing resource key %s at file %s.properties.
-              module-info.java should opens %s to %s
-              """
-              .formatted(variable.name(), baseName, variable.getClass().getPackage(), Variables.class.getModule()), e);
-      name = variable.name();
-    }
-    return name;
+    return variable.name();
   }
 
   public static <Q extends Quantity<Q>> String toString(int value, Unit<Q> unit, @Nonnegative int scaleFactor10) {
