@@ -39,14 +39,14 @@ public enum Variables {
           return Objects.toString(resourceBundle.getString(variable.name()), Strings.EMPTY);
         }
         else {
-          logger.log(Level.WARNING,
+          Logger.getLogger(Variables.class.getName()).log(Level.WARNING,
               () -> "Missing resource key %s at file %s.properties".formatted(variable.name(), baseName)
           );
           logger.setFilter(ignore -> false);
         }
       }
       catch (MissingResourceException e) {
-        logger.log(Level.CONFIG,
+        Logger.getLogger(Variables.class.getName()).log(Level.CONFIG,
             """
                 Missing resource key %s at file %s.properties.
                 module-info.java should opens %s to %s
