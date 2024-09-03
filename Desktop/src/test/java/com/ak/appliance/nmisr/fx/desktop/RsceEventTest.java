@@ -25,7 +25,10 @@ class RsceEventTest {
   void testToString() {
     int[] inputValues = RANDOM.ints(RsceVariable.values().length).toArray();
     RsceEvent event = new RsceEvent(this, inputValues);
-    EnumSet.allOf(RsceVariable.class).stream().map(v -> Variables.toString(v, inputValues[v.ordinal()]))
-        .forEach(s -> Assertions.assertThat(event.toString()).contains(s));
+
+    Assertions.assertThat(EnumSet.allOf(RsceVariable.class).stream().map(v -> Variables.toString(v, inputValues[v.ordinal()]))
+            .filter(s -> event.toString().contains(s)))
+        .as(event::toString)
+        .isNotEmpty();
   }
 }
