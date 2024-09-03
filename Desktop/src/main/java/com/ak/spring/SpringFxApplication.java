@@ -231,7 +231,7 @@ public class SpringFxApplication extends FxApplication {
   }
 
   @Bean
-  @Profile({"rcms", "rcms-calibration"})
+  @Profile({"rcm", "rcm-calibration"})
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorRcm() {
     return new RcmBytesInterceptor();
