@@ -2,7 +2,7 @@
 javamodularity-moduleplugin = '1.8.15'
 sonarqube = '5.1.0.4882'
 jacocolog = '3.1.0'
-spotbugs = '6.0.21'
+spotbugs = '6.0.22'
 ben-manes-versions = '0.51.0'
 nebula-lint = '19.0.3'
 
@@ -16,7 +16,7 @@ javafxplugin = '0.1.0'
 spring = '6.1.12'
 springframework-boot = '3.3.3'
 spring-dependency-management = '1.1.6'
-javafx = '22'
+javafx = '22.0.2'
 
 inject-api = '2.0.1'
 uom-se = '1.0.10'
