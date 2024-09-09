@@ -9,7 +9,7 @@ dependencies {
     api libs.commons.csv
     api libs.findbugs.jsr305
     implementation libs.jspecify
-    implementation libs.uom.se
+    implementation libs.tech.units
     implementation libs.jenetics
 
     testImplementation(platform(libs.junit))

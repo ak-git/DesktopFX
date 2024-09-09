@@ -6,16 +6,16 @@ import com.ak.digitalfilter.FilterBuilder;
 import com.ak.rsm.resistance.Resistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import org.jspecify.annotations.Nullable;
-import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
+import javax.measure.MetricPrefix;
 import javax.measure.Unit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static tec.uom.se.unit.Units.METRE;
-import static tec.uom.se.unit.Units.OHM;
+import static tech.units.indriya.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.OHM;
 
 public enum AperStage5Current1Variable implements DependentVariable<AperStage4Current1Variable, AperStage5Current1Variable> {
   R1,

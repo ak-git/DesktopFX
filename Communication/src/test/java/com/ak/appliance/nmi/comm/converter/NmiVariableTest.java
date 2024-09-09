@@ -2,16 +2,16 @@ package com.ak.appliance.nmi.comm.converter;
 
 import com.ak.comm.converter.Variable;
 import org.junit.jupiter.api.Test;
-import tec.uom.se.AbstractUnit;
-import tec.uom.se.unit.Units;
+import tech.units.indriya.AbstractUnit;
+import tech.units.indriya.unit.Units;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static javax.measure.MetricPrefix.CENTI;
 import static org.assertj.core.api.Assertions.assertThat;
-import static tec.uom.se.unit.MetricPrefix.CENTI;
 
 class NmiVariableTest {
   @Test

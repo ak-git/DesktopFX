@@ -1,9 +1,9 @@
 package com.ak.appliance.purelogic.comm.bytes;
 
 import com.ak.comm.bytes.BufferFrame;
-import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
+import javax.measure.MetricPrefix;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
 import static com.ak.util.Strings.NEW_LINE;
 import static com.ak.util.Strings.SPACE;
-import static tec.uom.se.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.METRE;
 
 public final class PureLogicFrame extends BufferFrame {
   public static final PureLogicFrame ALIVE = new PureLogicFrame();

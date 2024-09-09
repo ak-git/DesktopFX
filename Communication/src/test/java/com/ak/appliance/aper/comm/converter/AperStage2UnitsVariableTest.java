@@ -10,17 +10,15 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
+import tech.units.indriya.unit.Units;
 
+import javax.measure.MetricPrefix;
 import java.nio.ByteOrder;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class AperStage2UnitsVariableTest {
@@ -44,21 +42,12 @@ class AperStage2UnitsVariableTest {
   void testApply(byte[] inputBytes, int[] outputInts) {
     Converter<BufferFrame, AperStage2UnitsVariable> converter = LinkedConverter
         .of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class);
-    AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 82 - 1; i++) {
-      long count = converter.apply(bufferFrame).peek(ints -> {
-        if (!processed.get()) {
-          assertThat(ints).containsExactly(outputInts);
-          processed.set(true);
-        }
-      }).count();
-      if (processed.get()) {
-        assertThat(count).isEqualTo(1);
-        break;
-      }
+    for (int i = 0; i < 80; i++) {
+      long count = converter.apply(bufferFrame).count();
+      assertThat(count).withFailMessage("Set cycles to %d", i).isZero();
     }
-    assertTrue(processed.get(), "Data are not converted!");
+    assertThat(converter.apply(bufferFrame)).withFailMessage("Increase cycles!").hasSize(1).startsWith(outputInts);
     assertThat(converter.getFrequency()).isEqualTo(1000.0);
   }
 

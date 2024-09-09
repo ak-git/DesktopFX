@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static tec.uom.se.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.METRE;
 
 class TetrapolarMeasurementTest {
   static Stream<Arguments> tetrapolarMeasurements() {

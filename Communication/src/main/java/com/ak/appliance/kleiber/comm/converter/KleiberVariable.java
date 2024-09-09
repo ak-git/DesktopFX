@@ -3,9 +3,9 @@ package com.ak.appliance.kleiber.comm.converter;
 import com.ak.comm.converter.Variable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
+import tech.units.indriya.unit.Units;
 
+import javax.measure.MetricPrefix;
 import javax.measure.Unit;
 
 /**

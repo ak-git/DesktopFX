@@ -1,9 +1,9 @@
 package com.ak.rsm.system;
 
 import com.ak.util.Metrics;
-import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
+import javax.measure.MetricPrefix;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,7 +12,7 @@ import java.util.function.ToLongFunction;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
-import static tec.uom.se.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.METRE;
 
 public record InexactTetrapolarSystem(@Nonnegative double absError, TetrapolarSystem system) {
   public InexactTetrapolarSystem(@Nonnegative double absError, TetrapolarSystem system) {

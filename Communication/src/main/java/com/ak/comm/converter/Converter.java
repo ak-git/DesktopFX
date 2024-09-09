@@ -4,8 +4,7 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.csv.CSVLineFileCollector;
 import com.ak.util.Extension;
 import com.ak.util.UIConstants;
-import tec.uom.se.AbstractUnit;
-import tec.uom.se.function.RationalConverter;
+import tech.units.indriya.AbstractUnit;
 
 import javax.annotation.Nonnegative;
 import javax.measure.IncommensurableException;
@@ -25,6 +24,8 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+
+import static tech.units.indriya.function.AbstractConverter.IDENTITY;
 
 public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<R, Stream<int[]>>, Refreshable {
   List<V> variables();
@@ -76,7 +77,7 @@ public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<
             return v.getUnit().getConverterToAny(Variables.tryToUp3(v.getUnit()));
           }
           catch (IncommensurableException e) {
-            return new RationalConverter(1, 1);
+            return IDENTITY;
           }
         }).toList();
 

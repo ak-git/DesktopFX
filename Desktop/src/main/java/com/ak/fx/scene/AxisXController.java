@@ -7,11 +7,11 @@ import com.ak.util.Numbers;
 import com.ak.util.Strings;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.*;
-import tec.uom.se.quantity.Quantities;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
+import tech.units.indriya.quantity.Quantities;
+import tech.units.indriya.unit.Units;
 
 import javax.annotation.Nonnegative;
+import javax.measure.MetricPrefix;
 import javax.measure.quantity.Speed;
 import java.util.Arrays;
 import java.util.EnumSet;

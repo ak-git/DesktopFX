@@ -8,8 +8,8 @@ import com.ak.comm.logging.LogTestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import tec.uom.se.AbstractUnit;
-import tec.uom.se.unit.Units;
+import tech.units.indriya.AbstractUnit;
+import tech.units.indriya.unit.Units;
 
 import java.nio.ByteBuffer;
 import java.util.logging.Logger;

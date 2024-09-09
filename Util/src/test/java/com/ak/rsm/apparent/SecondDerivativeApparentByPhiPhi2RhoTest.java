@@ -13,7 +13,7 @@ import javax.annotation.Nonnegative;
 import java.util.function.ToDoubleFunction;
 
 import static org.assertj.core.api.Assertions.*;
-import static tec.uom.se.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.METRE;
 
 class SecondDerivativeApparentByPhiPhi2RhoTest {
   @Test

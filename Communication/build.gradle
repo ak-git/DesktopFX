@@ -9,7 +9,7 @@ dependencies {
     api libs.findbugs.jsr305
     api libs.javax.json
     implementation libs.jspecify
-    implementation libs.uom.se
+    implementation libs.tech.units
 
     testImplementation(platform(libs.junit))
     testImplementation libs.bundles.test

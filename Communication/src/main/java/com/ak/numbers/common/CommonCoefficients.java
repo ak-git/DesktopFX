@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static tec.uom.se.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.METRE;
 
 public enum CommonCoefficients implements SimpleCoefficients {
   MYO, ECG;

@@ -20,9 +20,9 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
+import javax.measure.MetricPrefix;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static tec.uom.se.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.METRE;
 
 class Inverse2DynamicTest {
   private static final Logger LOGGER = Logger.getLogger(Inverse2DynamicTest.class.getName());

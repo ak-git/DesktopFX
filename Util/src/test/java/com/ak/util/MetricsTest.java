@@ -2,12 +2,13 @@ package com.ak.util;
 
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
-import tec.uom.se.unit.MetricPrefix;
+
+import javax.measure.MetricPrefix;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static tec.uom.se.AbstractUnit.ONE;
-import static tec.uom.se.unit.Units.METRE;
-import static tec.uom.se.unit.Units.PERCENT;
+import static tech.units.indriya.AbstractUnit.ONE;
+import static tech.units.indriya.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.PERCENT;
 
 class MetricsTest {
   @Test

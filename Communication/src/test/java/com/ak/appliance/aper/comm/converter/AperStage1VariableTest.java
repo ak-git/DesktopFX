@@ -8,10 +8,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import tec.uom.se.AbstractUnit;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
+import tech.units.indriya.AbstractUnit;
+import tech.units.indriya.unit.Units;
 
+import javax.measure.MetricPrefix;
 import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;

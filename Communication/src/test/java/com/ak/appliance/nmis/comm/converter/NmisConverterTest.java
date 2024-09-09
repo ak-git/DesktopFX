@@ -7,9 +7,9 @@ import com.ak.comm.converter.Variables;
 import com.ak.comm.logging.LogTestUtils;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
+import tech.units.indriya.unit.Units;
 
+import javax.measure.MetricPrefix;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.logging.Logger;

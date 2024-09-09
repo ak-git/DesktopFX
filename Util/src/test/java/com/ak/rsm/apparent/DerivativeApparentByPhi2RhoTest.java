@@ -11,7 +11,7 @@ import javax.annotation.Nonnegative;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
-import static tec.uom.se.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.METRE;
 
 class DerivativeApparentByPhi2RhoTest {
   @ParameterizedTest

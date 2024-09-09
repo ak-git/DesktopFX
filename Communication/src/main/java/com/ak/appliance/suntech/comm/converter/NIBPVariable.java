@@ -1,17 +1,17 @@
 package com.ak.appliance.suntech.comm.converter;
 
 import com.ak.comm.converter.Variable;
-import tec.uom.se.AbstractUnit;
-import tec.uom.se.format.SimpleUnitFormat;
-import tec.uom.se.unit.TransformedUnit;
-import tec.uom.se.unit.Units;
+import tech.units.indriya.AbstractUnit;
+import tech.units.indriya.format.SimpleUnitFormat;
+import tech.units.indriya.unit.TransformedUnit;
+import tech.units.indriya.unit.Units;
 
 import javax.measure.Unit;
 import javax.measure.quantity.Dimensionless;
 import java.util.Collections;
 import java.util.Set;
 
-import static tec.uom.se.AbstractConverter.IDENTITY;
+import static tech.units.indriya.function.AbstractConverter.IDENTITY;
 
 public enum NIBPVariable implements Variable<NIBPVariable> {
   PRESSURE {

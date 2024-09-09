@@ -14,18 +14,15 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
+import tech.units.indriya.unit.Units;
 
+import javax.measure.MetricPrefix;
 import java.nio.ByteOrder;
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static com.ak.appliance.rcm.comm.converter.RcmOutVariable.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class RcmConverterTest {
@@ -42,24 +39,12 @@ class RcmConverterTest {
   @MethodSource("variables")
   void testApply(byte[] inputBytes, int[] outputInts) {
     Converter<BufferFrame, RcmOutVariable> converter = LinkedConverter.of(new RcmConverter(), RcmOutVariable.class);
-    AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 2000 - 1; i++) {
-      int finalI = i;
-      long count = converter.apply(bufferFrame).peek(ints -> {
-        if (finalI > 1900) {
-          assertThat(ints)
-              .withFailMessage(() -> "expected = %s, actual = %s".formatted(Arrays.toString(outputInts), Arrays.toString(ints)))
-              .containsExactly(outputInts);
-          processed.set(true);
-        }
-      }).count();
-      if (processed.get()) {
-        assertThat(count).isEqualTo(40);
-        break;
-      }
+    for (int i = 0; i < 759; i++) {
+      long count = converter.apply(bufferFrame).count();
+      assertThat(count).withFailMessage("Set cycles to %d", i).isZero();
     }
-    assertTrue(processed.get(), "Data are not converted!");
+    assertThat(converter.apply(bufferFrame)).withFailMessage("Increase cycles!").hasSize(5).startsWith(outputInts);
     assertThat(converter.getFrequency()).isEqualTo(200.0);
   }
 

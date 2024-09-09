@@ -13,9 +13,9 @@ dependencies {
     implementation libs.findbugs.jsr305
     implementation libs.jspecify
     implementation libs.inject.api
-    implementation libs.uom.se
-    implementation libs.commons.math3
     implementation libs.measure.unit.api
+    implementation libs.tech.units
+    implementation libs.commons.math3
 
     implementation libs.javafx.base
     implementation libs.javafx.graphics
@@ -32,7 +32,7 @@ dependencies {
 }
 
 javafx {
-    version = 22
+    version = '22.0.2'
     modules = ['javafx.controls', 'javafx.fxml']
     configurations = ['implementation']
 }

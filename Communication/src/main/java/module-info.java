@@ -3,11 +3,11 @@ module com.ak.comm {
 
   requires com.fazecast.jSerialComm;
   requires java.logging;
-  requires unit.api;
-  requires uom.se;
+  requires java.measure;
+  requires java.json;
   requires jsr305;
   requires org.jspecify;
-  requires java.json;
+  requires tech.units.indriya;
 
   exports com.ak.comm;
   exports com.ak.comm.bytes;

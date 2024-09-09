@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static tec.uom.se.unit.Units.PERCENT;
+import static tech.units.indriya.unit.Units.PERCENT;
 
 class Layer1MediumTest {
   static Stream<Arguments> layer1Medium() {
