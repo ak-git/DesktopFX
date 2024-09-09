@@ -2,10 +2,10 @@ package com.ak.comm.converter;
 
 import com.ak.util.Numbers;
 import com.ak.util.Strings;
-import tec.uom.se.format.LocalUnitFormat;
-import tec.uom.se.unit.MetricPrefix;
+import tech.units.indriya.format.SimpleUnitFormat;
 
 import javax.annotation.Nonnegative;
+import javax.measure.MetricPrefix;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 import java.util.Locale;
@@ -22,7 +22,7 @@ public enum Variables {
   private static final String M_PAR = "m(";
 
   public static String toString(Quantity<?> quantity) {
-    return String.join(Strings.SPACE, quantity.getValue().toString(), LocalUnitFormat.getInstance().format(quantity.getUnit()));
+    return String.join(Strings.SPACE, quantity.getValue().toString(), SimpleUnitFormat.getInstance().format(quantity.getUnit()));
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(E variable, int value) {
@@ -76,8 +76,8 @@ public enum Variables {
 
     Unit<Q> displayUnit = unit.getSystemUnit();
     for (MetricPrefix metricPrefix : MetricPrefix.values()) {
-      if (displayScale == Numbers.log10ToInt(metricPrefix.getConverter().convert(1.0))) {
-        displayUnit = displayUnit.transform(metricPrefix.getConverter());
+      if (displayScale == metricPrefix.getExponent()) {
+        displayUnit = displayUnit.prefix(metricPrefix);
         break;
       }
     }
@@ -117,8 +117,8 @@ public enum Variables {
     }
     else if (d < 0) {
       for (MetricPrefix metricPrefix : MetricPrefix.values()) {
-        if (d == Numbers.log10ToInt(metricPrefix.getConverter().convert(1.0))) {
-          return unit.getSystemUnit().transform(metricPrefix.getConverter());
+        if (d == metricPrefix.getExponent()) {
+          return unit.getSystemUnit().prefix(metricPrefix);
         }
       }
     }

@@ -4,9 +4,9 @@ import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Numbers;
 import com.ak.util.Strings;
-import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
+import javax.measure.MetricPrefix;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.PrimitiveIterator;
@@ -14,7 +14,7 @@ import java.util.function.BiFunction;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Supplier;
 
-import static tec.uom.se.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.METRE;
 
 public record TetrapolarDerivativeResistance(Resistance resistance, double derivativeResistivity, double dh)
     implements DerivativeResistance {

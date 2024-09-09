@@ -1,8 +1,5 @@
 module com.ak.util {
-  requires uom.se;
-  requires unit.api;
   requires java.json;
-  requires java.logging;
   requires java.sql;
 
   requires commons.math3;
@@ -10,6 +7,7 @@ module com.ak.util {
   requires jsr305;
   requires org.jspecify;
   requires io.jenetics.base;
+  requires tech.units.indriya;
 
   exports com.ak.csv;
   exports com.ak.math;

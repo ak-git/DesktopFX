@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static tec.uom.se.unit.Units.PERCENT;
+import static tech.units.indriya.unit.Units.PERCENT;
 
 abstract sealed class AbstractMediumLayers implements MediumLayers, Function<Measurement, Prediction>
     permits Layer1Medium, Layer2Medium {

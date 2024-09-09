@@ -7,11 +7,11 @@ import com.ak.util.Numbers;
 import com.ak.util.Strings;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.*;
-import tec.uom.se.quantity.Quantities;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
+import tech.units.indriya.quantity.Quantities;
+import tech.units.indriya.unit.Units;
 
 import javax.annotation.Nonnegative;
+import javax.measure.MetricPrefix;
 import javax.measure.quantity.Speed;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -24,7 +24,7 @@ import static com.ak.fx.scene.GridCell.SMALL;
 
 public final class AxisXController {
   private enum ZoomX {
-    Z_1, Z_5, Z_10, Z_25, Z_50, Z_100;
+    Z_1, Z_2, Z_5, Z_10, Z_25, Z_50, Z_100;
 
     @Nonnegative
     private final int mmPerSec;
@@ -82,8 +82,8 @@ public final class AxisXController {
 
   public AxisXController(Runnable onUpdate) {
     Objects.requireNonNull(onUpdate);
-    startProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
-    lengthProperty.addListener((observable, oldValue, newValue) -> onUpdate.run());
+    startProperty.addListener((ignore, ignoreOldValue, ignoreNewValue) -> onUpdate.run());
+    lengthProperty.addListener((ignore, ignoreOldValue, ignoreNewValue) -> onUpdate.run());
     String zoomValue = zoomStorage.get().orElse(Strings.EMPTY);
     if (Arrays.stream(ZoomX.values()).anyMatch(zoomX -> zoomX.name().equals(zoomValue))) {
       zoomProperty.setValue(ZoomX.valueOf(zoomValue));
@@ -98,7 +98,7 @@ public final class AxisXController {
 
   public void setFrequency(@Nonnegative double frequency) {
     setStep(frequency);
-    zoomProperty.addListener((observable, oldValue, newValue) -> {
+    zoomProperty.addListener((ignore, ignoreOldValue, newValue) -> {
       setStep(frequency);
       zoomStorage.save(newValue.name());
     });

@@ -1,13 +1,13 @@
 package com.ak.appliance.nmi.comm.converter;
 
 import com.ak.comm.converter.Variable;
-import tec.uom.se.unit.Units;
+import tech.units.indriya.unit.Units;
 
 import javax.measure.Unit;
 import java.util.Collections;
 import java.util.Set;
 
-import static tec.uom.se.unit.MetricPrefix.CENTI;
+import static javax.measure.MetricPrefix.CENTI;
 
 public enum NmiVariable implements Variable<NmiVariable> {
   ACC_1 {

@@ -11,12 +11,9 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.ByteOrder;
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class RcmCalibrationConverterTest {
@@ -33,19 +30,12 @@ class RcmCalibrationConverterTest {
   @MethodSource("calibrableVariables")
   void testApplyCalibrator(byte[] inputBytes, int[] outputInts) {
     Converter<BufferFrame, RcmCalibrationVariable> converter = LinkedConverter.of(new RcmConverter(), RcmCalibrationVariable.class);
-    AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
     for (int i = 0; i < 800 - 1; i++) {
       long count = converter.apply(bufferFrame).count();
       assertThat(count).withFailMessage("index %d, count %d".formatted(i, count)).isBetween(0L, 1L);
     }
-    assertThat(converter.apply(bufferFrame).peek(ints -> {
-      assertThat(ints)
-          .withFailMessage(() -> "expected = %s, actual = %s".formatted(Arrays.toString(outputInts), Arrays.toString(ints)))
-          .containsExactly(outputInts);
-      processed.set(true);
-    }).count()).isEqualTo(1);
-    assertTrue(processed.get(), "Data are not converted!");
+    assertThat(converter.apply(bufferFrame)).startsWith(outputInts);
     assertThat(converter.getFrequency()).isEqualTo(200.0);
   }
 

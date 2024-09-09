@@ -4,7 +4,7 @@ import com.ak.comm.converter.Variable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import tec.uom.se.AbstractUnit;
+import tech.units.indriya.AbstractUnit;
 
 import java.util.EnumSet;
 import java.util.List;

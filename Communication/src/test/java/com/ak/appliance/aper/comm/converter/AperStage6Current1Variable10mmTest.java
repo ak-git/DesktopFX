@@ -7,18 +7,16 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import tec.uom.se.unit.MetricPrefix;
 
+import javax.measure.MetricPrefix;
 import java.nio.ByteOrder;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static tec.uom.se.unit.Units.*;
+import static tech.units.indriya.unit.Units.*;
 
 class AperStage6Current1Variable10mmTest {
   static Stream<Arguments> variables() {
@@ -46,21 +44,12 @@ class AperStage6Current1Variable10mmTest {
         .chainInstance(AperStage4Current1Variable.class)
         .chainInstance(AperStage5Current1Variable.class)
         .chainInstance(AperStage6Current1Variable10mm.class);
-    AtomicBoolean processed = new AtomicBoolean();
     BufferFrame bufferFrame = new BufferFrame(inputBytes, ByteOrder.LITTLE_ENDIAN);
-    for (int i = 0; i < 500 - 1; i++) {
-      long count = converter.apply(bufferFrame).peek(ints -> {
-        if (!processed.get()) {
-          assertThat(ints).containsExactly(outputInts);
-          processed.set(true);
-        }
-      }).count();
-      if (processed.get()) {
-        assertThat(count).isEqualTo(10);
-        break;
-      }
+    for (int i = 0; i < 139; i++) {
+      long count = converter.apply(bufferFrame).count();
+      assertThat(count).withFailMessage("Set cycles to %d", i).isZero();
     }
-    assertTrue(processed.get(), "Data are not converted!");
+    assertThat(converter.apply(bufferFrame)).withFailMessage("Increase cycles!").hasSize(10).startsWith(outputInts);
     assertThat(converter.getFrequency()).isEqualTo(1000.0);
   }
 

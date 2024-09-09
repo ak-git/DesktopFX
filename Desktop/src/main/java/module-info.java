@@ -4,10 +4,11 @@ module com.ak.fx.desktop {
   requires com.ak.fx;
 
   requires commons.math3;
-  requires uom.se;
-  requires unit.api;
   requires java.logging;
   requires java.json;
+  requires java.desktop;
+  requires java.measure;
+  requires tech.units.indriya;
   requires jsr305;
   requires org.jspecify;
   requires jakarta.inject;
@@ -18,9 +19,7 @@ module com.ak.fx.desktop {
   requires spring.boot.autoconfigure;
   requires spring.context;
   requires spring.core;
-
   requires spring.beans;
-  requires java.desktop;
 
   opens com.ak.appliance.suntech.fx.desktop to javafx.fxml;
   opens com.ak.fx.desktop to javafx.fxml, spring.core;

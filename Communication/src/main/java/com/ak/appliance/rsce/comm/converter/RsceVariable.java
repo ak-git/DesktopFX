@@ -1,9 +1,9 @@
 package com.ak.appliance.rsce.comm.converter;
 
 import com.ak.comm.converter.Variable;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
+import tech.units.indriya.unit.Units;
 
+import javax.measure.MetricPrefix;
 import javax.measure.Unit;
 
 public enum RsceVariable implements Variable<RsceVariable> {

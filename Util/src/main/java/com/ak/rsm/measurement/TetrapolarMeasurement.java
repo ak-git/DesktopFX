@@ -15,7 +15,7 @@ import java.util.PrimitiveIterator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 
-import static tec.uom.se.unit.Units.OHM;
+import static tech.units.indriya.unit.Units.OHM;
 
 public record TetrapolarMeasurement(InexactTetrapolarSystem inexact,
                                     @Nonnegative double resistivity) implements Measurement {

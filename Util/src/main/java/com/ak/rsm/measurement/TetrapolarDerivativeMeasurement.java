@@ -6,17 +6,17 @@ import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
-import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
+import javax.measure.MetricPrefix;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 
-import static tec.uom.se.unit.Units.METRE;
-import static tec.uom.se.unit.Units.OHM;
+import static tech.units.indriya.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.OHM;
 
 public record TetrapolarDerivativeMeasurement(Measurement measurement, double derivativeResistivity, double dh)
     implements DerivativeMeasurement {

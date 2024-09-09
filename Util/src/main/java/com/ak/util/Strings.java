@@ -2,9 +2,9 @@ package com.ak.util;
 
 import javax.annotation.Nonnegative;
 
-import static tec.uom.se.unit.MetricPrefix.MILLI;
-import static tec.uom.se.unit.Units.METRE;
-import static tec.uom.se.unit.Units.OHM;
+import static javax.measure.MetricPrefix.MILLI;
+import static tech.units.indriya.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.OHM;
 
 public enum Strings {
   ;
@@ -14,7 +14,7 @@ public enum Strings {
   public static final String NEW_LINE = String.format("%n");
   public static final String NEW_LINE_2 = String.format("%n%n");
   public static final String TAB = "\t";
-  public static final String OHM_METRE = new StringBuilder(OHM.multiply(METRE).toString()).reverse().toString();
+  public static final String OHM_METRE = OHM.multiply(METRE).toString();
   public static final String PLUS_MINUS = "±";
   public static final String ALPHA = "α";
   public static final String EPSILON = "ε";

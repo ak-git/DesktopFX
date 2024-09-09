@@ -9,8 +9,8 @@ import java.util.StringJoiner;
 
 import static com.ak.util.Strings.PLUS_MINUS;
 import static com.ak.util.Strings.SPACE;
-import static tec.uom.se.unit.MetricPrefix.MILLI;
-import static tec.uom.se.unit.Units.METRE;
+import static javax.measure.MetricPrefix.MILLI;
+import static tech.units.indriya.unit.Units.METRE;
 
 public class ValuePair {
   public enum Name {
