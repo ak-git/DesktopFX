@@ -5,8 +5,6 @@ module com.ak.fx.desktop {
 
   requires commons.math3;
   requires java.logging;
-  requires java.json;
-  requires java.desktop;
   requires java.measure;
   requires tech.units.indriya;
   requires jsr305;
@@ -20,6 +18,7 @@ module com.ak.fx.desktop {
   requires spring.context;
   requires spring.core;
   requires spring.beans;
+  requires java.desktop;
 
   opens com.ak.appliance.suntech.fx.desktop to javafx.fxml;
   opens com.ak.fx.desktop to javafx.fxml, spring.core;
