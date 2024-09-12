@@ -31,8 +31,8 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
   }
 
   @Override
-  public InexactTetrapolarSystem inexact() {
-    return measurement.inexact();
+  public InexactTetrapolarSystem toInexact() {
+    return measurement.toInexact();
   }
 
   @Override
@@ -96,7 +96,7 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
     public DerivativeMeasurement rho(double... rhos) {
       if (Double.isNaN(dhHolder.dh())) {
         return TetrapolarDerivativeResistance.PreBuilder.check(rhos,
-            () -> new TetrapolarDerivativeMeasurement(TetrapolarMeasurement.of(inexact).rho(rhos[0]), rhos[1], Double.NaN)
+            () -> new TetrapolarDerivativeMeasurement(TetrapolarMeasurement.of(inexact()).rho(rhos[0]), rhos[1], Double.NaN)
         );
       }
       else {
@@ -110,8 +110,8 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
     public DerivativeMeasurement ofOhms(double... rOhms) {
       if (rOhms.length == 2) {
         return new TetrapolarDerivativeMeasurement(
-            TetrapolarMeasurement.of(inexact).ofOhms(rOhms[0]),
-            TetrapolarDerivativeResistance.of(inexact.system()).dh(dhHolder.dh()).ofOhms(rOhms).derivativeResistivity(),
+            TetrapolarMeasurement.of(inexact()).ofOhms(rOhms[0]),
+            TetrapolarDerivativeResistance.of(inexact().system()).dh(dhHolder.dh()).ofOhms(rOhms).derivativeResistivity(),
             dhHolder.dh()
         );
       }
@@ -122,8 +122,8 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
 
     @Override
     public DerivativeMeasurement build() {
-      TetrapolarResistance.LayersBuilder2<Measurement> b = TetrapolarMeasurement.of(inexact).rho1(rho1).rho2(rho2);
-      TetrapolarResistance.LayersBuilder2<DerivativeResistance> d = TetrapolarDerivativeResistance.of(inexact.system())
+      TetrapolarResistance.LayersBuilder2<Measurement> b = TetrapolarMeasurement.of(inexact()).rho1(rho1).rho2(rho2);
+      TetrapolarResistance.LayersBuilder2<DerivativeResistance> d = TetrapolarDerivativeResistance.of(inexact().system())
           .dh(dhHolder.dh()).rho1(rho1).rho2(rho2);
 
       if (Double.isNaN(hStep)) {

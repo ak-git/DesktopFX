@@ -6,26 +6,24 @@ import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.Nonnegative;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.PrimitiveIterator;
+import java.util.*;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 
 import static tech.units.indriya.unit.Units.OHM;
 
-public record TetrapolarMeasurement(InexactTetrapolarSystem inexact,
+public record TetrapolarMeasurement(InexactTetrapolarSystem toInexact,
                                     @Nonnegative double resistivity) implements Measurement {
   private static final Function<Measurement, ValuePair> TO_VALUE =
-      m -> ValuePair.Name.RHO_1.of(m.resistivity(), m.resistivity() * m.inexact().getApparentRelativeError());
+      m -> ValuePair.Name.RHO_1.of(m.resistivity(), m.resistivity() * m.toInexact().getApparentRelativeError());
 
   @Override
   public String toString() {
     return "%s; R = %.3f %s; %s"
-        .formatted(inexact, ohms(), OHM, ValuePair.Name.RHO.of(resistivity, resistivity * inexact.getApparentRelativeError()));
+        .formatted(toInexact, ohms(), OHM, ValuePair.Name.RHO.of(resistivity, resistivity * toInexact.getApparentRelativeError()));
   }
 
   @Override
@@ -37,7 +35,7 @@ public record TetrapolarMeasurement(InexactTetrapolarSystem inexact,
   public Measurement merge(Measurement that) {
     var avg = TO_VALUE.apply(this).mergeWith(TO_VALUE.apply(that));
     double relErrorRho = avg.absError() / avg.value();
-    double dL = Math.min(inexact.absError(), that.inexact().absError());
+    double dL = Math.min(toInexact.absError(), that.toInexact().absError());
     double lCC = RelativeTetrapolarSystem.MIN_ERROR_FACTOR * dL / relErrorRho;
     double sPU = RelativeTetrapolarSystem.OPTIMAL_SL * lCC;
     InexactTetrapolarSystem merged = new InexactTetrapolarSystem(dL, new TetrapolarSystem(sPU, lCC));
@@ -82,7 +80,7 @@ public record TetrapolarMeasurement(InexactTetrapolarSystem inexact,
   }
 
   abstract static class AbstractSingleBuilder<T> extends AbstractBuilder<T> implements PreBuilder<T> {
-    protected InexactTetrapolarSystem inexact;
+    private @Nullable InexactTetrapolarSystem inexact;
 
     AbstractSingleBuilder(DoubleUnaryOperator converter, double absError) {
       super(converter, absError);
@@ -93,8 +91,15 @@ public record TetrapolarMeasurement(InexactTetrapolarSystem inexact,
       this.inexact = inexact;
     }
 
+    protected final InexactTetrapolarSystem inexact() {
+      return Objects.requireNonNull(inexact);
+    }
+
     @Override
     public final TetrapolarResistance.PreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC) {
+      if (inexact != null) {
+        throw new IllegalStateException("Inexact measurement [%s] is already set".formatted(inexact));
+      }
       inexact = new InexactTetrapolarSystem(absError, new TetrapolarSystem(converter.applyAsDouble(sPU), converter.applyAsDouble(lCC)));
       return this;
     }
@@ -149,24 +154,24 @@ public record TetrapolarMeasurement(InexactTetrapolarSystem inexact,
 
     @Override
     public Measurement rho(double... rhos) {
-      return TetrapolarResistance.PreBuilder.check(rhos, rho -> new TetrapolarMeasurement(inexact, rho));
+      return TetrapolarResistance.PreBuilder.check(rhos, rho -> new TetrapolarMeasurement(inexact(), rho));
     }
 
     @Override
     public Measurement ofOhms(double... rOhms) {
-      return new TetrapolarMeasurement(inexact, TetrapolarResistance.of(inexact.system()).ofOhms(rOhms).resistivity());
+      return new TetrapolarMeasurement(inexact(), TetrapolarResistance.of(inexact().system()).ofOhms(rOhms).resistivity());
     }
 
     @Override
     public Measurement build() {
       if (Double.isNaN(hStep)) {
-        return new TetrapolarMeasurement(inexact,
-            TetrapolarResistance.of(inexact.system()).rho1(rho1).rho2(rho2).h(h).resistivity()
+        return new TetrapolarMeasurement(inexact(),
+            TetrapolarResistance.of(inexact().system()).rho1(rho1).rho2(rho2).h(h).resistivity()
         );
       }
       else {
-        return new TetrapolarMeasurement(inexact,
-            TetrapolarResistance.of(inexact.system()).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1).resistivity()
+        return new TetrapolarMeasurement(inexact(),
+            TetrapolarResistance.of(inexact().system()).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1).resistivity()
         );
       }
     }

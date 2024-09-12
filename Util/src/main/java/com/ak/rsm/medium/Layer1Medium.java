@@ -16,7 +16,7 @@ public final class Layer1Medium extends AbstractMediumLayers {
   public Layer1Medium(Collection<? extends Measurement> measurements) {
     super(measurements);
     Measurement average = Measurement.average(measurements);
-    rho = ValuePair.Name.RHO.of(average.resistivity(), average.resistivity() * average.inexact().getApparentRelativeError());
+    rho = ValuePair.Name.RHO.of(average.resistivity(), average.resistivity() * average.toInexact().getApparentRelativeError());
   }
 
   @Override
