@@ -9,8 +9,10 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.ToDoubleFunction;
 
-enum GridCell {
+enum GridCell implements GridCellCoordinate {
   POINTS(1.0) {
     private static final int FACTOR = 4;
 
@@ -35,20 +37,20 @@ enum GridCell {
   SMALL(1.0) {
     @Override
     @Nonnegative
-    double minCoordinate(@Nonnegative double size) {
-      return GridCell.minCoordinate(getStep(), size);
+    public double minCoordinate(@Nonnegative double size) {
+      return defaultImplementation().minCoordinate(size);
     }
 
     @Override
     @Nonnegative
-    double maxValue(@Nonnegative double size) {
-      return GridCell.maxValue(getStep(), size);
+    public double maxValue(@Nonnegative double size) {
+      return defaultImplementation().maxValue(size);
     }
 
     @Override
     @Nonnegative
-    double roundCoordinate(@Nonnegative double size) {
-      return GridCell.roundCoordinate(getStep(), size);
+    public double roundCoordinate(@Nonnegative double size) {
+      return defaultImplementation().roundCoordinate(size);
     }
   },
   BIG(3.0) {
@@ -56,6 +58,26 @@ enum GridCell {
     @Override
     double getStep() {
       return super.getStep() * 5.0;
+    }
+  };
+
+  private final GridCellCoordinate defaultImplementation = new GridCellCoordinate() {
+    @Override
+    public double minCoordinate(double size) {
+      double step = getStep();
+      return size / 2.0 - Math.floor(size / 2.0 / step) * step;
+    }
+
+    @Override
+    public double maxValue(double size) {
+      double step = getStep();
+      return Math.floor((size - minCoordinate(size)) / step) * step;
+    }
+
+    @Override
+    public double roundCoordinate(double size) {
+      double step = getStep();
+      return Numbers.toInt(size / step) * step;
     }
   };
 
@@ -69,6 +91,10 @@ enum GridCell {
   @Nonnegative
   final double getStrokeWidth() {
     return strokeWidth;
+  }
+
+  final GridCellCoordinate defaultImplementation() {
+    return defaultImplementation;
   }
 
   @Nonnegative
@@ -89,18 +115,26 @@ enum GridCell {
   }
 
   @Nonnegative
-  double minCoordinate(@Nonnegative double size) {
-    return Math.max(minCoordinate(getStep(), size), SMALL.minCoordinate(size));
+  @Override
+  public double minCoordinate(@Nonnegative double size) {
+    return doCoordinate(Math::max, value -> value.minCoordinate(size));
   }
 
   @Nonnegative
-  double maxValue(@Nonnegative double size) {
-    return Math.min(maxValue(getStep(), size), SMALL.maxValue(size));
+  @Override
+  public double maxValue(@Nonnegative double size) {
+    return doCoordinate(Math::min, value -> value.maxValue(size));
   }
 
   @Nonnegative
-  double roundCoordinate(@Nonnegative double size) {
-    return Math.min(roundCoordinate(getStep(), size), SMALL.roundCoordinate(size));
+  @Override
+  public double roundCoordinate(@Nonnegative double size) {
+    return doCoordinate(Math::min, value -> value.roundCoordinate(size));
+  }
+
+  @Nonnegative
+  private double doCoordinate(DoubleBinaryOperator action, ToDoubleFunction<GridCellCoordinate> coordinate) {
+    return action.applyAsDouble(coordinate.applyAsDouble(defaultImplementation), coordinate.applyAsDouble(SMALL));
   }
 
   static List<Path> newPaths() {
@@ -116,19 +150,15 @@ enum GridCell {
   static int mm(double value) {
     return Numbers.toInt(value / (SMALL.getStep() / 10.0));
   }
+}
+
+interface GridCellCoordinate {
+  @Nonnegative
+  double minCoordinate(@Nonnegative double size);
 
   @Nonnegative
-  private static double minCoordinate(@Nonnegative double step, @Nonnegative double size) {
-    return size / 2.0 - Math.floor(size / 2.0 / step) * step;
-  }
+  double maxValue(@Nonnegative double size);
 
   @Nonnegative
-  private static double maxValue(@Nonnegative double step, @Nonnegative double size) {
-    return Math.floor((size - minCoordinate(step, size)) / step) * step;
-  }
-
-  @Nonnegative
-  private static double roundCoordinate(@Nonnegative double step, @Nonnegative double size) {
-    return Numbers.toInt(size / step) * step;
-  }
+  double roundCoordinate(@Nonnegative double size);
 }

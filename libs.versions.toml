@@ -16,6 +16,7 @@ javafxplugin = '0.1.0'
 spring = '6.1.12'
 springframework-boot = '3.3.3'
 spring-dependency-management = '1.1.6'
+snakeyaml = '2.3'
 javafx = '24-ea+5'
 
 inject-api = '2.0.1'
@@ -46,6 +47,7 @@ junit = { module = 'org.junit:junit-bom', version.ref = 'junit' }
 junit-jupiter = { module = 'org.junit.jupiter:junit-jupiter', version.ref = 'junit' }
 junit-jupiter-api = { module = 'org.junit.jupiter:junit-jupiter-api', version.ref = 'junit' }
 junit-jupiter-params = { module = 'org.junit.jupiter:junit-jupiter-params', version.ref = 'junit' }
+junit-jupiter-engine = { module = 'org.junit.jupiter:junit-jupiter-engine', version.ref = 'junit' }
 junit-platform-launcher = { module = 'org.junit.platform:junit-platform-launcher', version.ref = 'junit-platform-launcher' }
 assertj = { module = 'org.assertj:assertj-core', version.ref = 'assertj' }
 
@@ -61,12 +63,16 @@ jenetics = { module = 'io.jenetics:jenetics', version.ref = 'jenetics' }
 javafx-base = { module = 'org.openjfx:javafx-base', version.ref = 'javafx' }
 javafx-graphics = { module = 'org.openjfx:javafx-graphics', version.ref = 'javafx' }
 
-spring-boot = { module = 'org.springframework.boot:spring-boot', version.ref = 'springframework-boot' }
-spring-boot-autoconfigure = { module = 'org.springframework.boot:spring-boot-autoconfigure', version.ref = 'springframework-boot' }
-spring-core = { module = 'org.springframework:spring-core', version.ref = 'spring' }
-spring-beans = { module = 'org.springframework:spring-beans', version.ref = 'spring' }
-spring-context = { module = 'org.springframework:spring-context', version.ref = 'spring' }
+spring-bom = { module = 'org.springframework:spring-framework-bom', version.ref = 'spring' }
+spring-boot = { module = 'org.springframework.boot:spring-boot' }
+spring-boot-autoconfigure = { module = 'org.springframework.boot:spring-boot-autoconfigure' }
+spring-core = { module = 'org.springframework:spring-core' }
+spring-beans = { module = 'org.springframework:spring-beans' }
+spring-context = { module = 'org.springframework:spring-context' }
+snakeyaml = { module = 'org.yaml:snakeyaml', version.ref = 'snakeyaml' }
 
 [bundles]
-spring-boot = ['spring-boot', 'spring-boot-autoconfigure', 'spring-core', 'spring-beans', 'spring-context']
-test = ['junit-jupiter', 'junit-jupiter-api', 'junit-jupiter-params', 'assertj']
+spring-boot = ['spring-boot', 'spring-boot-autoconfigure', 'spring-core', 'spring-beans', 'spring-context', 'snakeyaml']
+test-implementation = ['junit-jupiter-api', 'junit-jupiter-params', 'assertj']
+test-compile = ['junit-jupiter', 'junit-jupiter-engine']
+test-runtime = ['junit-jupiter-engine', 'junit-platform-launcher']

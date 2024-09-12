@@ -20,14 +20,14 @@ dependencies {
     implementation libs.javafx.base
     implementation libs.javafx.graphics
 
-    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation(platform(libs.spring.bom))
     implementation libs.bundles.spring.boot
 
     //    https://github.com/junit-team/junit5/issues/1773
     testImplementation(platform(libs.junit))
-    testImplementation libs.junit.jupiter
     testImplementation libs.junit.jupiter.api
     testImplementation libs.assertj
+    testRuntimeOnly libs.junit.jupiter
     testRuntimeOnly libs.junit.platform.launcher
 }
 

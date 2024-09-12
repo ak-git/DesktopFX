@@ -13,6 +13,7 @@ dependencies {
     implementation libs.jenetics
 
     testImplementation(platform(libs.junit))
-    testImplementation libs.bundles.test
-    testRuntimeOnly libs.junit.platform.launcher
+    testImplementation libs.bundles.test.implementation
+    testCompileOnly libs.bundles.test.compile
+    testRuntimeOnly libs.bundles.test.runtime
 }

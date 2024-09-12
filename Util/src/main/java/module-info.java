@@ -1,7 +1,5 @@
 module com.ak.util {
   requires java.json;
-  requires java.sql;
-
   requires commons.math3;
   requires org.apache.commons.csv;
   requires jsr305;

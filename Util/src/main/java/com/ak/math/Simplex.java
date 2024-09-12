@@ -37,7 +37,7 @@ public enum Simplex {
           }
         }
         return function.value(point);
-      }, Simplex.toInitialGuess(bounds), Simplex.toInitialSteps(bounds));
+      }, toInitialGuess(bounds), toInitialSteps(bounds));
     }
 
     private static PointValuePair optimize(MultivariateFunction function, double[] initialGuess, double[] initialSteps) {
@@ -64,9 +64,9 @@ public enum Simplex {
                 new MaxEval(MAX_ITERATIONS),
                 new ObjectiveFunction(function),
                 GoalType.MINIMIZE,
-                new InitialGuess(Simplex.toInitialGuess(bounds)),
+                new InitialGuess(toInitialGuess(bounds)),
                 simpleBounds,
-                new CMAESOptimizer.Sigma(Simplex.toInitialSteps(bounds)),
+                new CMAESOptimizer.Sigma(toInitialSteps(bounds)),
                 new CMAESOptimizer.PopulationSize(4 + (int) (3.0 * StrictMath.log(bounds.length)))
             );
       }
