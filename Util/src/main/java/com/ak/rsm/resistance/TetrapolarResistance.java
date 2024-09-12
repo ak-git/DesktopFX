@@ -135,6 +135,10 @@ public record TetrapolarResistance(TetrapolarSystem system, @Nonnegative double 
       this.converter = Objects.requireNonNull(converter);
     }
 
+    protected final double convertDh(double dh) {
+      return converter.applyAsDouble(dh);
+    }
+
     @Override
     public final LayersBuilder1<T> rho1(@Nonnegative double rho1) {
       this.rho1 = rho1;

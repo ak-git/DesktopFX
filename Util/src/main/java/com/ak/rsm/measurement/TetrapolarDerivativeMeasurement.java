@@ -76,7 +76,7 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
   }
 
   private static class Builder extends TetrapolarMeasurement.AbstractSingleBuilder<DerivativeMeasurement> implements PreBuilder {
-    private TetrapolarDerivativeResistance.DhHolder dhHolder;
+    private double dh = Double.NaN;
 
     private Builder(DoubleUnaryOperator converter, double absError) {
       super(converter, absError);
@@ -88,20 +88,20 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
 
     @Override
     public TetrapolarMeasurement.PreBuilder<DerivativeMeasurement> dh(double dh) {
-      dhHolder = new TetrapolarDerivativeResistance.DhHolder(converter, dh);
+      this.dh = convertDh(dh);
       return this;
     }
 
     @Override
     public DerivativeMeasurement rho(double... rhos) {
-      if (Double.isNaN(dhHolder.dh())) {
+      if (Double.isNaN(dh)) {
         return TetrapolarDerivativeResistance.PreBuilder.check(rhos,
             () -> new TetrapolarDerivativeMeasurement(TetrapolarMeasurement.of(inexact()).rho(rhos[0]), rhos[1], Double.NaN)
         );
       }
       else {
         throw new IllegalStateException(
-            "dh = %s is not needed when rho and dRho = %s are exist".formatted(dhHolder.dh(), Arrays.toString(rhos))
+            "dh = %s is not needed when rho and dRho = %s are exist".formatted(dh, Arrays.toString(rhos))
         );
       }
     }
@@ -111,8 +111,8 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
       if (rOhms.length == 2) {
         return new TetrapolarDerivativeMeasurement(
             TetrapolarMeasurement.of(inexact()).ofOhms(rOhms[0]),
-            TetrapolarDerivativeResistance.of(inexact().system()).dh(dhHolder.dh()).ofOhms(rOhms).derivativeResistivity(),
-            dhHolder.dh()
+            TetrapolarDerivativeResistance.of(inexact().system()).dh(dh).ofOhms(rOhms).derivativeResistivity(),
+            dh
         );
       }
       else {
@@ -124,22 +124,22 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
     public DerivativeMeasurement build() {
       TetrapolarResistance.LayersBuilder2<Measurement> b = TetrapolarMeasurement.of(inexact()).rho1(rho1).rho2(rho2);
       TetrapolarResistance.LayersBuilder2<DerivativeResistance> d = TetrapolarDerivativeResistance.of(inexact().system())
-          .dh(dhHolder.dh()).rho1(rho1).rho2(rho2);
+          .dh(dh).rho1(rho1).rho2(rho2);
 
       if (Double.isNaN(hStep)) {
-        return new TetrapolarDerivativeMeasurement(b.h(h), d.h(h).derivativeResistivity(), dhHolder.dh());
+        return new TetrapolarDerivativeMeasurement(b.h(h), d.h(h).derivativeResistivity(), dh);
       }
       else {
         return new TetrapolarDerivativeMeasurement(
             b.rho3(rho3).hStep(hStep).p(p1, p2mp1), d.rho3(rho3).hStep(hStep).p(p1, p2mp1).derivativeResistivity(),
-            dhHolder.dh()
+            dh
         );
       }
     }
   }
 
   private static class MultiBuilder extends TetrapolarMeasurement.AbstractMultiBuilder<DerivativeMeasurement> implements MultiPreBuilder {
-    private TetrapolarDerivativeResistance.DhHolder dhHolder;
+    private double dh = Double.NaN;
 
     private MultiBuilder(DoubleUnaryOperator converter, double absError) {
       super(converter, absError);
@@ -147,7 +147,7 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
 
     @Override
     public TetrapolarMeasurement.MultiPreBuilder<DerivativeMeasurement> dh(double dh) {
-      dhHolder = new TetrapolarDerivativeResistance.DhHolder(converter, dh);
+      this.dh = convertDh(dh);
       return this;
     }
 
@@ -180,7 +180,7 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
 
     private Builder newBuilder(InexactTetrapolarSystem s) {
       Builder builder = new Builder(s);
-      builder.dhHolder = dhHolder;
+      builder.dh = dh;
       return builder;
     }
   }
