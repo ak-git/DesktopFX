@@ -14,10 +14,11 @@ import javax.annotation.Nonnegative;
 import java.util.function.Supplier;
 
 import static com.ak.fx.scene.GridCell.SMALL;
+import static java.awt.Font.MONOSPACED;
 
 public enum Fonts {
-  LOGO(java.awt.Font.MONOSPACED, FontWeight.BOLD, 1.0),
-  LOGO_SMALL(java.awt.Font.MONOSPACED, FontWeight.BOLD, 9.0),
+  LOGO(MONOSPACED, FontWeight.BOLD, 1.0),
+  LOGO_SMALL(MONOSPACED, FontWeight.BOLD, 9.0),
   H1(Constants.SYSTEM, FontWeight.BOLD, 2.5),
   H2(Constants.SYSTEM, FontWeight.NORMAL, 3.0);
 
@@ -26,7 +27,7 @@ public enum Fonts {
 
   Fonts(String family, FontWeight weight, @Nonnegative double divider) {
     fontProperty = new SimpleObjectProperty<>(newFont(family, weight, divider));
-    changeListener = (observable, oldValue, newValue) -> fontProperty.set(newFont(family, weight, divider));
+    changeListener = (ignoreObservable, ignoreOldValue, ignoreNewValue) -> fontProperty.set(newFont(family, weight, divider));
   }
 
   public ReadOnlyObjectProperty<Font> fontProperty(Supplier<Scene> stageSupplier) {

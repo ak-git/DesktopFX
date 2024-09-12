@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.support.StaticApplicationContext;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +43,7 @@ import java.util.ResourceBundle;
     "com.ak.comm.interceptor", "com.ak.comm.converter"
 })
 public class SpringFxApplication extends FxApplication {
-  private ConfigurableApplicationContext applicationContext;
+  private ConfigurableApplicationContext applicationContext = new StaticApplicationContext();
 
   public static void main(String[] args) {
     launch(SpringFxApplication.class, args);
