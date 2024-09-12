@@ -13,7 +13,7 @@ junit-platform-launcher = '1.11.0'
 assertj = '3.26.3'
 
 javafxplugin = '0.1.0'
-spring = '6.1.12'
+spring = '6.1.13'
 springframework-boot = '3.3.3'
 spring-dependency-management = '1.1.6'
 snakeyaml = '2.3'
