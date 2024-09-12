@@ -115,7 +115,7 @@ class TetrapolarDerivativeMeasurementTest {
         () -> assertThat(d.resistivity()).isCloseTo(resistivity, byLessThan(0.01)),
         () -> assertThat(d.ohms()).isCloseTo(TetrapolarResistance.of(system.system()).rho(resistivity).ohms(), withinPercentage(0.1)),
         () -> assertThat(d.derivativeResistivity()).isCloseTo(derivativeResistivity, byLessThan(0.01)),
-        () -> assertThat(d.inexact()).isEqualTo(system),
+        () -> assertThat(d.toInexact()).isEqualTo(system),
         () -> assertThat(Predictions.of(d, RelativeMediumLayers.SINGLE_LAYER, 1.0))
             .isEqualTo(Predictions.of(d, RelativeMediumLayers.SINGLE_LAYER, 1.0))
     );
@@ -126,7 +126,7 @@ class TetrapolarDerivativeMeasurementTest {
     Measurement m1 = TetrapolarDerivativeMeasurement.ofSI(0.1).dh(Double.NaN).system(10.0, 30.0).rho(1.0, 2.0);
     assertThat(m1.merge(m1)).as(m1.toString()).satisfies(m -> {
       assertThat(m.resistivity()).isCloseTo(1.0, byLessThan(0.001));
-      assertThat(m.inexact().getApparentRelativeError()).isCloseTo(0.014, byLessThan(0.001));
+      assertThat(m.toInexact().getApparentRelativeError()).isCloseTo(0.014, byLessThan(0.001));
     });
 
     Measurement m2 = TetrapolarDerivativeMeasurement.ofSI(0.001).dh(Double.NaN).system(10.0, 30.0).rho(10.0, 20.0);
@@ -136,7 +136,7 @@ class TetrapolarDerivativeMeasurementTest {
           assertThat(m.resistivity()).isCloseTo(9.91, byLessThan(0.01));
         });
 
-    assertThat(m2.merge(m1).inexact().getApparentRelativeError()).isCloseTo(0.002, byLessThan(0.002));
+    assertThat(m2.merge(m1).toInexact().getApparentRelativeError()).isCloseTo(0.002, byLessThan(0.002));
   }
 
   static Stream<Arguments> tetrapolarMultiMeasurements() {

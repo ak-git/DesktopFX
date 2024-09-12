@@ -47,7 +47,7 @@ class Inverse2StaticTest {
   @ParameterizedTest
   @MethodSource("relativeRiseErrors")
   void testInverseRelativeRiseErrors(Collection<? extends Measurement> measurements, double[] riseErrors) {
-    double absError = measurements.stream().mapToDouble(m -> m.inexact().absError()).average().orElseThrow();
+    double absError = measurements.stream().mapToDouble(m -> m.toInexact().absError()).average().orElseThrow();
     double baseL = Resistivity.getBaseL(measurements);
     double dim = measurements.stream().mapToDouble(m -> m.system().getDim()).max().orElseThrow();
 

@@ -107,7 +107,7 @@ class TetrapolarMeasurementTest {
     Measurement m1 = TetrapolarMeasurement.ofSI(0.1).system(10.0, 30.0).rho(1.0);
     assertThat(m1.merge(m1)).as(m1.toString()).satisfies(m -> {
       assertThat(m.resistivity()).isCloseTo(1.0, byLessThan(0.001));
-      assertThat(m.inexact().getApparentRelativeError()).isCloseTo(0.014, byLessThan(0.001));
+      assertThat(m.toInexact().getApparentRelativeError()).isCloseTo(0.014, byLessThan(0.001));
     });
 
     Measurement m2 = TetrapolarMeasurement.ofSI(0.001).system(10.0, 30.0).rho(10.0);
@@ -117,7 +117,7 @@ class TetrapolarMeasurementTest {
           assertThat(m.resistivity()).isCloseTo(9.91, byLessThan(0.01));
         });
 
-    assertThat(m2.merge(m1).inexact().getApparentRelativeError()).isCloseTo(0.002, byLessThan(0.002));
+    assertThat(m2.merge(m1).toInexact().getApparentRelativeError()).isCloseTo(0.002, byLessThan(0.002));
   }
 
   static Stream<Arguments> tetrapolarMultiMeasurements() {

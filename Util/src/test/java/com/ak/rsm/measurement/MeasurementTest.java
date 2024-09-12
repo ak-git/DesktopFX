@@ -25,7 +25,7 @@ class MeasurementTest {
         .ofOhms(TetrapolarResistance.milli().system2(sPUmm).rho(randomRho, randomRho).stream().mapToDouble(Resistance::ohms).toArray());
     assertThat(Measurement.average(measurements))
         .satisfies(average -> assertThat(average.resistivity())
-            .isCloseTo(randomRho, byLessThan(average.resistivity() * average.inexact().getApparentRelativeError()))
+            .isCloseTo(randomRho, byLessThan(average.resistivity() * average.toInexact().getApparentRelativeError()))
         );
   }
 
@@ -41,7 +41,7 @@ class MeasurementTest {
 
   @ParameterizedTest
   @MethodSource("measurements")
-  void inexact(Collection<? extends Measurement> measurements) {
-    assertThat(Measurement.inexact(measurements)).hasSameElementsAs(measurements.stream().map(Measurement::inexact).toList());
+  void toInexact(Collection<? extends Measurement> measurements) {
+    assertThat(Measurement.toInexact(measurements)).hasSameElementsAs(measurements.stream().map(Measurement::toInexact).toList());
   }
 }
