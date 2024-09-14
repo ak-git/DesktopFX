@@ -25,7 +25,7 @@ javax-json = '1.1.4'
 commons-math3 = '3.6.1'
 commons-csv = '1.11.0'
 jserial-comm = '2.11.0'
-jenetics = '8.0.0'
+jenetics = '8.1.0'
 
 [plugins]
 javamodularity-moduleplugin = { id = 'org.javamodularity.moduleplugin', version.ref = 'javamodularity-moduleplugin' }
