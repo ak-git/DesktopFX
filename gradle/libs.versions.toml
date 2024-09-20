@@ -11,6 +11,7 @@ jspecify = '1.0.0'
 junit = '5.11.0'
 junit-platform-launcher = '1.11.0'
 assertj = '3.26.3'
+mockito = '5.13.0'
 
 javafxplugin = '0.1.0'
 spring = '6.1.13'
@@ -50,6 +51,8 @@ junit-jupiter-params = { module = 'org.junit.jupiter:junit-jupiter-params', vers
 junit-jupiter-engine = { module = 'org.junit.jupiter:junit-jupiter-engine', version.ref = 'junit' }
 junit-platform-launcher = { module = 'org.junit.platform:junit-platform-launcher', version.ref = 'junit-platform-launcher' }
 assertj = { module = 'org.assertj:assertj-core', version.ref = 'assertj' }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockito-junit = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
 
 inject-api = { module = 'jakarta.inject:jakarta.inject-api', version.ref = 'inject-api' }
 tech-units = { module = 'tech.units:indriya', version.ref = 'measure-unit-api' }
@@ -76,3 +79,4 @@ spring-boot = ['spring-boot', 'spring-boot-autoconfigure', 'spring-core', 'sprin
 test-implementation = ['junit-jupiter-api', 'junit-jupiter-params', 'assertj']
 test-compile = ['junit-jupiter', 'junit-jupiter-engine']
 test-runtime = ['junit-jupiter-engine', 'junit-platform-launcher']
+test-mockito = ['mockito-core', 'mockito-junit']
