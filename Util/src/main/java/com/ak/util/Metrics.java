@@ -17,11 +17,11 @@ public enum Metrics {
 
   private interface UnitConversion<Q extends Quantity<Q>> {
     static <Q extends Quantity<Q>> double convert(Unit<Q> from, double value, Unit<Q> to) {
-      if (Double.isNaN(value)) {
-        return Double.NaN;
+      if (Double.isFinite(value)) {
+        return Quantities.getQuantity(value, from).to(to).getValue().doubleValue();
       }
       else {
-        return Quantities.getQuantity(value, from).to(to).getValue().doubleValue();
+        return value;
       }
     }
 
