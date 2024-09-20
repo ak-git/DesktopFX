@@ -27,7 +27,7 @@ public enum Clean {
       Files.deleteIfExists(root);
     }
     catch (IOException e) {
-      LOGGER.log(Level.WARNING, root.toString(), e.getMessage());
+      LOGGER.log(Level.WARNING, root.toString(), e);
     }
   }
 
@@ -42,7 +42,7 @@ public enum Clean {
         }
       }
       catch (IOException | NullPointerException e) {
-        LOGGER.log(Level.WARNING, path.toString(), e.getMessage());
+        LOGGER.log(Level.WARNING, path.toString(), e);
       }
     }
   }

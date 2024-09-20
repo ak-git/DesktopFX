@@ -1,8 +1,6 @@
 package com.ak.util;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -11,12 +9,33 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mockStatic;
 
 @ExtendWith(MockitoExtension.class)
 class CleanTest {
+  private static final Logger LOGGER = Logger.getLogger(Clean.class.getName());
+
+  @BeforeEach
+  void setUp() {
+    LOGGER.setFilter(r -> {
+      assertThat(r.getMessage()).isNotNull();
+      if (Objects.equals(r.getLevel(), Level.WARNING)) {
+        assertThat(r.getThrown()).isNotNull();
+      }
+      return false;
+    });
+  }
+
+  @AfterEach
+  void tearDown() {
+    LOGGER.setFilter(null);
+  }
+
   @Nested
   class Classic {
     @Test

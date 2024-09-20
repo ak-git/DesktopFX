@@ -1,8 +1,6 @@
 package com.ak.util;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -12,8 +10,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
@@ -59,8 +60,26 @@ class OSDirectoryTest {
 
   @Nested
   class Mocking {
+    private static final Logger LOGGER = Logger.getLogger(OSDirectories.class.getName());
     @Mock
     private Path path;
+
+    @BeforeEach
+    void setUp() {
+      LOGGER.setFilter(r -> {
+        assertThat(r.getMessage()).isNotNull();
+        assertAll(r.getMessage(),
+            () -> assertThat(r.getLevel()).isEqualTo(Level.WARNING),
+            () -> assertThat(r.getThrown()).isNotNull()
+        );
+        return false;
+      });
+    }
+
+    @AfterEach
+    void tearDown() {
+      LOGGER.setFilter(null);
+    }
 
     @Test
     void testPathNonExisting() {
