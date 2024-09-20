@@ -25,6 +25,7 @@ class OSTest {
   @Test
   void testGet() {
     assertThat(Stream.of(OS.values()).filter(BooleanSupplier::getAsBoolean)).hasSize(1);
+    assertThat(OS.get().getAsBoolean()).isTrue();
   }
 
   @AfterAll
