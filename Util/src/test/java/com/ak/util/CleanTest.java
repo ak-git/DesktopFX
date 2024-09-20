@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -14,7 +13,6 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mockStatic;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,19 +45,20 @@ class CleanTest {
 
   @Nested
   class Mocking {
-    @Mock
-    private Path path;
-
     @Test
-    void testPathNonExisting() {
+    void testPathNonExisting() throws IOException {
+      Path path = Files.createTempDirectory("%s.".formatted(CleanTest.class.getPackageName()));
+      assertThatNoException().isThrownBy(() -> Clean.clean(() -> Clean.clean(path)));
       try (MockedStatic<Files> mockFiles = mockStatic(Files.class)) {
-        mockFiles.when(() -> Files.deleteIfExists(any())).thenThrow(IOException.class);
+        mockFiles.when(() -> Files.deleteIfExists(path)).thenThrow(IOException.class);
         assertThatNoException().isThrownBy(() -> Clean.clean(() -> Clean.clean(path)));
       }
     }
 
     @Test
-    void testSubPathsNonExisting() {
+    void testSubPathsNonExisting() throws IOException {
+      Path path = Files.createTempDirectory("%s.".formatted(CleanTest.class.getPackageName()));
+      assertThatNoException().isThrownBy(() -> Clean.clean(() -> Clean.clean(path)));
       try (MockedStatic<Files> mockFiles = mockStatic(Files.class)) {
         mockFiles.when(() -> Files.exists(path, LinkOption.NOFOLLOW_LINKS)).thenReturn(true);
         assertThatNoException().isThrownBy(() -> Clean.clean(() -> Clean.clean(path)));

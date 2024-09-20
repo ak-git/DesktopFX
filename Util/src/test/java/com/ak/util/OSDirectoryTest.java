@@ -64,6 +64,7 @@ class OSDirectoryTest {
 
     @Test
     void testPathNonExisting() {
+      assertThatNoException().isThrownBy(() -> OSDirectories.getDirectory(Strings.EMPTY));
       try (MockedStatic<Files> mockFiles = mockStatic(Files.class);
            MockedStatic<Paths> mockPaths = mockStatic(Paths.class)) {
         mockFiles.when(() -> Files.createDirectories(any())).thenThrow(IOException.class);
