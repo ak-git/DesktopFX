@@ -99,6 +99,7 @@ class CSVMultiFileCollectorTest {
       var finisher = new CSVMultiFileCollector.Builder<Object, Double>(Stream.empty()).build().finisher();
       Mockito.doThrow(IOException.class).when(csvLineFileCollector).close();
       assertThat(finisher.apply(List.of(csvLineFileCollector))).isFalse();
+      Mockito.verify(csvLineFileCollector).close();
       assertThat(EXCEPTION_COUNTER.get()).withFailMessage("Exception must be thrown").isEqualTo(1);
     }
   }
