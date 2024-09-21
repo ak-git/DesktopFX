@@ -94,6 +94,7 @@ class CleanTest {
     void testSubPathsNonExisting() {
       try (MockedStatic<Files> mockFiles = mockStatic(Files.class)) {
         mockFiles.when(() -> Files.exists(path, LinkOption.NOFOLLOW_LINKS)).thenReturn(true);
+        mockFiles.when(() -> Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)).thenReturn(true);
         assertThatNoException().isThrownBy(this::tearDown);
       }
     }
