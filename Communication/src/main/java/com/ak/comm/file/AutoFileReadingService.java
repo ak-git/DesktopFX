@@ -72,7 +72,7 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public void refresh(boolean force) {
-    readable.close();
+    readable.refresh(force);
     readable = EMPTY_READABLE;
   }
 

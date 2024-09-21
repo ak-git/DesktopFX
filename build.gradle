@@ -82,7 +82,7 @@ subprojects {
         forkEvery = 5
         useJUnitPlatform()
         testLogging {
-            events 'passed', 'skipped', 'failed'
+            events 'skipped', 'failed'
         }
         maxHeapSize = '1G'
     }
