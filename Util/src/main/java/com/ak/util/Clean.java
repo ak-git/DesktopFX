@@ -32,12 +32,10 @@ public enum Clean {
   }
 
   private static void cleanRecursive(Path path) {
-    if (Files.exists(Objects.requireNonNull(path), LinkOption.NOFOLLOW_LINKS)) {
+    if (Files.exists(Objects.requireNonNull(path), LinkOption.NOFOLLOW_LINKS) && Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
       try (DirectoryStream<Path> ds = Files.newDirectoryStream(path)) {
         for (Path file : Objects.requireNonNull(ds)) {
-          if (Files.isDirectory(file, LinkOption.NOFOLLOW_LINKS)) {
-            cleanRecursive(file);
-          }
+          cleanRecursive(file);
           Files.deleteIfExists(file);
         }
       }

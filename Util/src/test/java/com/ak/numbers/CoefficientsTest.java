@@ -21,7 +21,9 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -59,6 +61,7 @@ class CoefficientsTest {
   @Nested
   class Mocking {
     private static final Logger LOGGER = Logger.getLogger(InterpolatorCoefficients.class.getName());
+    private final AtomicInteger exceptionCounter = new AtomicInteger();
     @Mock
     private LocalIO localIO;
 
@@ -66,13 +69,16 @@ class CoefficientsTest {
     void setUp() {
       LOGGER.setFilter(r -> {
         assertThat(r.getThrown()).isNotNull().isInstanceOf(IOException.class);
+        exceptionCounter.incrementAndGet();
         return false;
       });
+      LOGGER.setLevel(Level.WARNING);
     }
 
     @AfterEach
     void tearDown() {
       LOGGER.setFilter(null);
+      LOGGER.setLevel(Level.INFO);
     }
 
     @Test
@@ -81,6 +87,7 @@ class CoefficientsTest {
         when(localIO.getPath()).thenThrow(IOException.class);
         mockBuilders.when(() -> CalibrateBuilders.build(anyString())).thenReturn(localIO);
         assertThat(InterpolatorCoefficients.INTERPOLATOR_TEST_INVALID.get()).containsExactly(1.0, 0.0);
+        assertThat(exceptionCounter.get()).isOne();
       }
     }
   }
