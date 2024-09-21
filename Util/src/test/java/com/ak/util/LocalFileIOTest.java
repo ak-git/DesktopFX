@@ -21,7 +21,7 @@ class LocalFileIOTest {
 
   static {
     try {
-      PATH = Files.createTempDirectory("%s.".formatted(LocalFileIOTest.class.getPackageName()));
+      PATH = Files.createTempDirectory("test %s.".formatted(LocalFileIOTest.class.getPackageName()));
     }
     catch (IOException e) {
       fail(e.getMessage(), e);

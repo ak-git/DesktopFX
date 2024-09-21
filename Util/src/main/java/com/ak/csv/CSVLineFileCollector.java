@@ -22,6 +22,7 @@ import java.util.stream.Collector;
 import static java.nio.file.StandardOpenOption.*;
 
 public final class CSVLineFileCollector implements Collector<Object[], CSVPrinter, Boolean>, Closeable, Consumer<Object[]> {
+  private static final Logger LOGGER = Logger.getLogger(CSVLineFileCollector.class.getName());
   private final Path out;
   private final @Nullable Path tempFile;
   private @Nullable CSVPrinter csvPrinter;
@@ -31,14 +32,14 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
     this.out = Objects.requireNonNull(out);
     Path temp = null;
     try {
-      temp = Files.createTempFile(out.toAbsolutePath().getParent(), out.toFile().getName() + Strings.SPACE, Strings.EMPTY);
+      temp = Files.createTempFile(out.toAbsolutePath().getParent(), "%s ".formatted(out.toFile().getName()), Strings.EMPTY);
       csvPrinter = new CSVPrinter(
           Files.newBufferedWriter(temp, WRITE, CREATE, TRUNCATE_EXISTING),
           CSVFormat.Builder.create().setHeader(header.length > 0 ? header : null).build()
       );
     }
     catch (IOException ex) {
-      Logger.getLogger(getClass().getName()).log(Level.WARNING, out.toString(), ex);
+      LOGGER.log(Level.WARNING, out.toString(), ex);
       finished = true;
     }
     tempFile = temp;
@@ -51,7 +52,7 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
         Objects.requireNonNull(csvPrinter).printRecord(Objects.requireNonNull(s));
       }
       catch (IOException e) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, "Exception when writing object: %s".formatted(Arrays.toString(s)), e);
+        LOGGER.log(Level.WARNING, "Exception when writing object: %s".formatted(Arrays.toString(s)), e);
         finished = true;
       }
     }
@@ -86,7 +87,7 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
           close();
         }
         catch (IOException e) {
-          Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+          LOGGER.log(Level.WARNING, e.getMessage(), e);
         }
         finally {
           finished = true;
@@ -106,6 +107,9 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
     if (!finished) {
       Objects.requireNonNull(csvPrinter).close(true);
       Files.move(Objects.requireNonNull(tempFile), out, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+    }
+    if (tempFile != null) {
+      Files.deleteIfExists(tempFile);
     }
   }
 }

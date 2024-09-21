@@ -4,13 +4,13 @@ import com.ak.util.Extension;
 import com.ak.util.Strings;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -19,6 +19,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -28,20 +29,36 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.ak.csv.CSVLineFileBuilderTest.ROW_DELIMITER;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNullPointerException;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mockStatic;
 
+@ExtendWith(MockitoExtension.class)
 class CSVLineFileCollectorTest {
   private static final Logger LOGGER = Logger.getLogger(CSVLineFileCollector.class.getName());
-  private static final Path OUT_PATH = Paths.get(Extension.CSV.attachTo(CSVLineFileCollectorTest.class.getName()));
+  private static final Path OUT_FILE;
+
+  static {
+    try {
+      OUT_FILE = Files.createTempFile(
+          "test %s ".formatted(CSVLineFileCollectorTest.class.getPackageName()),
+          Extension.CSV.attachTo(CSVLineFileCollectorTest.class.getSimpleName())
+      );
+    }
+    catch (IOException e) {
+      fail(e);
+      throw new RuntimeException(e);
+    }
+  }
+
   private static final AtomicInteger EXCEPTION_COUNTER = new AtomicInteger();
 
   @BeforeAll
   static void setUp() {
     LOGGER.setFilter(r -> {
-      assertNotNull(r.getThrown());
+      assertThat(r.getThrown()).isNotNull().isInstanceOf(IOException.class);
       EXCEPTION_COUNTER.incrementAndGet();
       return false;
     });
@@ -51,7 +68,7 @@ class CSVLineFileCollectorTest {
   @AfterAll
   static void tearDown() throws IOException {
     try {
-      Files.deleteIfExists(OUT_PATH);
+      Files.deleteIfExists(OUT_FILE);
     }
     finally {
       LOGGER.setFilter(null);
@@ -71,10 +88,10 @@ class CSVLineFileCollectorTest {
   @ParameterizedTest
   @MethodSource("intStream")
   void testConsumer(Supplier<Stream<String>> stream) throws IOException {
-    try (CSVLineFileCollector collector = new CSVLineFileCollector(OUT_PATH)) {
+    try (CSVLineFileCollector collector = new CSVLineFileCollector(OUT_FILE)) {
       collector.accept(stream.get().toArray(String[]::new));
     }
-    assertThat(Files.readString(OUT_PATH, Charset.forName("windows-1251")).trim())
+    assertThat(Files.readString(OUT_FILE, Charset.forName("windows-1251")).trim())
         .isEqualTo(stream.get().collect(Collectors.joining(ROW_DELIMITER)));
     assertThat(EXCEPTION_COUNTER.get()).withFailMessage("Exception must NOT be thrown").isZero();
   }
@@ -82,8 +99,8 @@ class CSVLineFileCollectorTest {
   @ParameterizedTest
   @MethodSource("intStream")
   void testVertical(Supplier<Stream<String>> stream) throws IOException {
-    assertTrue(stream.get().map(s -> new Object[] {s}).collect(new CSVLineFileCollector(OUT_PATH, "header")));
-    assertThat(String.join(Strings.EMPTY, Files.readAllLines(OUT_PATH, Charset.forName("windows-1251"))))
+    assertThat(stream.get().map(s -> new Object[] {s}).collect(new CSVLineFileCollector(OUT_FILE, "header"))).isTrue();
+    assertThat(String.join(Strings.EMPTY, Files.readAllLines(OUT_FILE, Charset.forName("windows-1251"))))
         .isEqualTo(Stream.concat(Stream.of("header"), stream.get()).collect(Collectors.joining()));
     assertThat(EXCEPTION_COUNTER.get()).withFailMessage("Exception must NOT be thrown").isZero();
   }
@@ -91,9 +108,9 @@ class CSVLineFileCollectorTest {
   @ParameterizedTest
   @MethodSource("intStream")
   void testInvalidClose(Supplier<Stream<String>> stream) throws Throwable {
-    CSVLineFileCollector collector = new CSVLineFileCollector(OUT_PATH);
+    CSVLineFileCollector collector = new CSVLineFileCollector(OUT_FILE);
     collector.close();
-    assertTrue(stream.get().map(s -> new Object[] {s}).collect(collector));
+    assertThat(stream.get().map(s -> new Object[] {s}).collect(collector)).isTrue();
     assertThat(EXCEPTION_COUNTER.get()).withFailMessage("Exception must be thrown").isEqualTo(1);
     collector.close();
     assertThat(EXCEPTION_COUNTER.get()).withFailMessage("Exception must be thrown only once").isEqualTo(1);
@@ -128,25 +145,25 @@ class CSVLineFileCollectorTest {
   @ParameterizedTest
   @MethodSource("invalidWriter")
   void testInvalidFinisher(CSVPrinter printer) {
-    try (CSVLineFileCollector collector = new CSVLineFileCollector(OUT_PATH)) {
+    try (CSVLineFileCollector collector = new CSVLineFileCollector(OUT_FILE)) {
       collector.accumulator().accept(printer, new Object[] {Double.toString(Math.PI)});
       assertThat(EXCEPTION_COUNTER.get()).withFailMessage("Exception must NOT be thrown").isZero();
       collector.finisher().apply(printer);
     }
     catch (IOException | IllegalArgumentException e) {
-      assertTrue(e.getMessage().contains("CSVPrinter"));
+      assertThat(e).hasMessageContaining("CSVPrinter");
     }
   }
 
   @Test
   void testCombiner() throws IOException {
-    try (CSVLineFileCollector lineFileCollector = new CSVLineFileCollector(OUT_PATH)) {
-      try (CSVPrinter apply = lineFileCollector.combiner().apply(null, null)) {
+    try (CSVLineFileCollector lineFileCollector = new CSVLineFileCollector(OUT_FILE)) {
+      try (CSVPrinter apply = lineFileCollector.combiner().apply(lineFileCollector.supplier().get(), lineFileCollector.supplier().get())) {
         fail(apply.toString());
       }
     }
     catch (UnsupportedOperationException e) {
-      assertNull(e.getMessage());
+      assertThat(e.getMessage()).isNull();
     }
   }
 
@@ -159,5 +176,31 @@ class CSVLineFileCollectorTest {
             fail();
           }
         });
+  }
+
+  @Nested
+  class Mocking {
+    @Test
+    void testTempFileNotCreated() throws IOException {
+      try (MockedStatic<Files> mockFiles = mockStatic(Files.class)) {
+        mockFiles.when(() -> Files.createTempFile(any(), anyString(), anyString())).thenThrow(IOException.class);
+        try (CSVLineFileCollector lineFileCollector = new CSVLineFileCollector(OUT_FILE)) {
+          assertThatNoException().isThrownBy(lineFileCollector::close);
+        }
+      }
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.ak.csv.CSVLineFileCollectorTest#intStream")
+    void testIOExceptionWhenClosed(Supplier<Stream<String>> stream) throws IOException {
+      try (
+          CSVLineFileCollector collector = new CSVLineFileCollector(OUT_FILE, "header");
+          MockedStatic<Files> mockFiles = mockStatic(Files.class)
+      ) {
+        mockFiles.when(() -> Files.move(any(), any(), any(StandardCopyOption.class), any(StandardCopyOption.class)))
+            .thenThrow(IOException.class);
+        assertThat(stream.get().map(s -> new Object[] {s}).collect(collector)).isTrue();
+      }
+    }
   }
 }
