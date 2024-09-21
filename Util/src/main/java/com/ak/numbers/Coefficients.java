@@ -32,7 +32,7 @@ public interface Coefficients extends Supplier<double[]> {
       inputStream = build.openInputStream();
     }
     catch (IOException e) {
-      Logger.getLogger(Coefficients.class.getName()).log(Level.WARNING, fileName, e);
+      Logger.getLogger(getClass().getName()).log(Level.WARNING, fileName, e);
     }
     try (JsonReader reader = Json.createReader(inputStream)) {
       return read(new Scanner(readJSON(reader.readObject())));

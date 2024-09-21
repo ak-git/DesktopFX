@@ -6,7 +6,7 @@ import com.ak.util.Extension;
 import com.ak.util.Strings;
 import com.ak.util.UIConstants;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -37,20 +37,17 @@ class RecursiveWatcherTest {
     Clean.clean(Objects.requireNonNull(PATH));
   }
 
-  @Test
+  @RepeatedTest(value = 6, failureThreshold = 3)
   void test() throws IOException, InterruptedException {
     Path path = Objects.requireNonNull(PATH);
     assertNotNull(Files.createTempFile(Files.createDirectories(path), Strings.EMPTY, Extension.TXT.attachTo(Strings.EMPTY)));
     Path subDir = Files.createTempDirectory(path, Strings.EMPTY);
     assertNotNull(subDir, path::toString);
     CountDownLatch latch = new CountDownLatch(2);
-    Closeable watcher = new RecursiveWatcher(path, ignore -> latch.countDown(), Extension.TXT);
-    while (!latch.await(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS)) {
-      Path subSubDir = Files.createTempDirectory(subDir, Strings.EMPTY);
-      if (Files.exists(subSubDir)) {
-        Files.createTempFile(subSubDir, Strings.EMPTY, Extension.TXT.attachTo(Strings.EMPTY));
+    try (Closeable ignoreWatcher = new RecursiveWatcher(path, ignore -> latch.countDown(), Extension.TXT)) {
+      while (!latch.await(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS)) {
+        Files.createTempFile(Files.createTempDirectory(subDir, Strings.EMPTY), Strings.EMPTY, Extension.TXT.attachTo(Strings.EMPTY));
       }
     }
-    watcher.close();
   }
 }
