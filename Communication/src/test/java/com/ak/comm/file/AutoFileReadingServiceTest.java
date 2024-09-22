@@ -5,21 +5,36 @@ import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.converter.TwoVariables;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
+import com.ak.comm.logging.LogTestUtils;
 import com.ak.util.Strings;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.Flow;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Fail.fail;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class AutoFileReadingServiceTest {
+  private static final Logger LOGGER = Logger.getLogger(AutoFileReadingService.class.getName());
   private static final AutoFileReadingService<BufferFrame, BufferFrame, TwoVariables> SERVICE = new AutoFileReadingService<>(
       () ->
           new RampBytesInterceptor(RampBytesInterceptor.class.getSimpleName(),
@@ -53,10 +68,15 @@ class AutoFileReadingServiceTest {
     });
   }
 
+  @AfterAll
+  static void tearDown() {
+    SERVICE.close();
+  }
+
   @ParameterizedTest
   @MethodSource("com.ak.comm.file.FileDataProvider#parallelRampFiles")
   void testAccept(Path file) {
-    assertTrue(SERVICE.accept(file.toFile()));
+    assertThat(SERVICE.accept(file.toFile())).isTrue();
     int countFrames = 10;
     ByteBuffer buffer = ByteBuffer.allocate(TwoVariables.values().length * Integer.BYTES * countFrames);
     while (!Thread.currentThread().isInterrupted()) {
@@ -76,11 +96,44 @@ class AutoFileReadingServiceTest {
 
   @Test
   void testNotAccept() {
-    assertFalse(SERVICE.accept(Paths.get(Strings.EMPTY).toFile()));
+    assertThat(SERVICE.accept(Paths.get(Strings.EMPTY).toFile())).isFalse();
   }
 
-  @Override
-  public String toString() {
-    return "AutoFileReadingServiceTest-${version}}";
+  @Test
+  void testEmptyReadable() {
+    SERVICE.refresh(true);
+    ByteBuffer allocate = ByteBuffer.allocate(0);
+    SERVICE.read(allocate, 1000);
+    assertThat(allocate.position()).isZero();
+    assertThat(allocate.capacity()).isZero();
+  }
+
+  @Nested
+  class Mocking {
+    @Mock
+    private File mockedFile;
+    private final AtomicInteger exceptionCounter = new AtomicInteger();
+
+    @ParameterizedTest
+    @MethodSource("com.ak.comm.file.FileDataProvider#parallelRampFiles")
+    void testAccept(Path file) {
+      when(mockedFile.isFile()).thenReturn(true);
+      when(mockedFile.getName()).thenReturn(file.toFile().getName());
+      when(mockedFile.toPath()).thenThrow(RuntimeException.class);
+
+      assertThat(
+          LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING,
+              () -> SERVICE.accept(mockedFile),
+              logRecord -> {
+                assertThat(logRecord.getThrown())
+                    .isInstanceOf(CompletionException.class).hasCauseInstanceOf(RuntimeException.class);
+                assertThat(logRecord.getMessage()).isEqualTo(file.toFile().getName());
+                exceptionCounter.incrementAndGet();
+              }
+          )
+      ).isTrue();
+      verify(mockedFile).toPath();
+      assertThat(exceptionCounter.get()).isOne();
+    }
   }
 }
