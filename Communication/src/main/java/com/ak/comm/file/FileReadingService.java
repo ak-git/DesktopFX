@@ -72,6 +72,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
       }
       catch (ClosedByInterruptException e) {
         Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
+        Thread.currentThread().interrupt();
       }
       catch (Exception e) {
         Logger.getLogger(getClass().getName()).log(Level.WARNING, fileToRead.toString(), e);
