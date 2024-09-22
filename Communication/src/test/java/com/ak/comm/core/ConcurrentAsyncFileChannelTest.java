@@ -2,8 +2,15 @@ package com.ak.comm.core;
 
 import com.ak.comm.logging.LogTestUtils;
 import com.ak.logging.LogBuilders;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
@@ -19,6 +26,7 @@ import java.util.logging.Logger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ExtendWith(MockitoExtension.class)
 class ConcurrentAsyncFileChannelTest {
   private static final Logger LOGGER = Logger.getLogger(ConcurrentAsyncFileChannel.class.getName());
 
@@ -107,5 +115,38 @@ class ConcurrentAsyncFileChannelTest {
       channel.read(buffer, 1);
     }
     assertThat(buffer.position()).isZero();
+  }
+
+  @Nested
+  class Mocking {
+    @Mock
+    private AsynchronousFileChannel asynchronousFileChannel;
+    @Mock
+    private Future<Integer> future;
+
+    @Test
+    void testCloseWithException() throws IOException, ExecutionException, InterruptedException {
+      Mockito.doThrow(IOException.class).when(asynchronousFileChannel).close();
+      Mockito.when(asynchronousFileChannel.write(ArgumentMatchers.any(ByteBuffer.class), ArgumentMatchers.anyLong()))
+          .thenReturn(future);
+      Mockito.when(future.get()).thenReturn(0);
+      try (ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> Optional.of(asynchronousFileChannel))) {
+        channel.write(ByteBuffer.allocate(1));
+      }
+      Mockito.verify(asynchronousFileChannel).write(ArgumentMatchers.any(ByteBuffer.class), ArgumentMatchers.anyLong());
+      Mockito.verify(asynchronousFileChannel).close();
+    }
+
+    @Test
+    void testInterruptedWithException() throws ExecutionException, InterruptedException {
+      Mockito.when(asynchronousFileChannel.write(ArgumentMatchers.any(ByteBuffer.class), ArgumentMatchers.anyLong()))
+          .thenReturn(future);
+      Mockito.when(future.get()).thenThrow(InterruptedException.class);
+      try (ConcurrentAsyncFileChannel channel = new ConcurrentAsyncFileChannel(() -> Optional.of(asynchronousFileChannel))) {
+        channel.write(ByteBuffer.allocate(1));
+      }
+      Mockito.verify(asynchronousFileChannel).write(ArgumentMatchers.any(ByteBuffer.class), ArgumentMatchers.anyLong());
+      Mockito.verifyNoMoreInteractions(asynchronousFileChannel);
+    }
   }
 }
