@@ -18,7 +18,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class RcmOutVariableTest {
   @ParameterizedTest
-  @EnumSource(value = RcmOutVariable.class)
+  @EnumSource(RcmOutVariable.class)
   void testInputVariablesClass(DependentVariable<RcmInVariable, RcmOutVariable> variable) {
     assertThat(variable.getInputVariablesClass()).isEqualTo(RcmInVariable.class);
   }

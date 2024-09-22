@@ -43,7 +43,7 @@ class RcmInVariableTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = RcmInVariable.class)
+  @EnumSource(RcmInVariable.class)
   void testFilterAll(Variable<RcmInVariable> variable) {
     DigitalFilter filter = variable.filter();
     filter.forEach(values -> assertThat(values).containsExactly(2047));
