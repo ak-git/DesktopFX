@@ -22,11 +22,13 @@ class PureLogicConverterTest {
   void testDataResponse(PureLogicAxisFrequency axisFrequency) {
     testConverter(axisFrequency, "STEP+ 00320  \r\n", 300);
     testConverter(axisFrequency, "STEP- 00016  \r\n", -15);
+    testConverter(axisFrequency, "PLC001-G2  \r\n", 0);
   }
 
   @Test
   void testInvalidFrame() {
     assertThat(PureLogicFrame.of(new StringBuilder("STEP+ 00dxx  \r\n"))).isEmpty();
+    assertThat(PureLogicFrame.of(new StringBuilder("STEP+ 00dxx"))).isEmpty();
   }
 
   private static void testConverter(PureLogicAxisFrequency axisFrequency, String input, int expected) {
@@ -34,6 +36,10 @@ class PureLogicConverterTest {
     assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, LOG_LEVEL_VALUES,
         () -> {
           PureLogicConverter converter = new PureLogicConverter(axisFrequency);
+          assertThat(converter.apply(frame)).isNotEmpty().allSatisfy(ints -> assertThat(ints).containsExactly(expected));
+          converter.refresh(false);
+          assertThat(converter.apply(frame)).isNotEmpty().allSatisfy(ints -> assertThat(ints).containsExactly(expected));
+          converter.refresh(true);
           assertThat(converter.apply(frame)).isNotEmpty().allSatisfy(ints -> assertThat(ints).containsExactly(expected));
         },
         logRecord -> {
