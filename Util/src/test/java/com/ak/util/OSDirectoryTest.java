@@ -25,7 +25,7 @@ class OSDirectoryTest {
   @Nested
   class Valid {
     private enum OSTest implements OSDirectory {
-      WINDOWS, MAC, LINUX;
+      WINDOWS, MAC, UNIX;
 
       @Override
       public Path getDirectory() {
@@ -34,7 +34,7 @@ class OSDirectoryTest {
     }
 
     @Test
-    @DisplayName("Enum contains WINDOWS, MAC, LINUX")
+    @DisplayName("Enum contains WINDOWS, MAC, UNIX")
     void testOf() {
       assertThat(OSDirectory.of(OSTest.class).getDirectory()).isDirectory().exists();
     }
