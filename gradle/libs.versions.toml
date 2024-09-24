@@ -4,7 +4,7 @@ sonarqube = '5.1.0.4882'
 jacocolog = '3.1.0'
 spotbugs = '6.0.22'
 ben-manes-versions = '0.51.0'
-nebula-lint = '19.0.3'
+nebula-lint = '20.0.0'
 
 jsr305 = '3.0.2'
 jspecify = '1.0.0'
