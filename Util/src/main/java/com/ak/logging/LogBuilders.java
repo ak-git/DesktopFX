@@ -1,15 +1,11 @@
 package com.ak.logging;
 
+import com.ak.util.*;
+
 import java.io.IOException;
 import java.lang.ref.Cleaner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.ak.util.Clean;
-import com.ak.util.Extension;
-import com.ak.util.LocalFileIO;
-import com.ak.util.LocalIO;
-import com.ak.util.Strings;
 
 public enum LogBuilders implements Cleaner.Cleanable {
   SIMPLE(Strings.EMPTY) {
@@ -33,7 +29,7 @@ public enum LogBuilders implements Cleaner.Cleanable {
         Clean.clean(newBuilder().build().getPath());
       }
       catch (IOException e) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+        LOGGER.log(Level.WARNING, e.getMessage(), e);
       }
     }
 
@@ -47,6 +43,7 @@ public enum LogBuilders implements Cleaner.Cleanable {
     }
   };
 
+  private static final Logger LOGGER = Logger.getLogger(LogBuilders.class.getName());
   private final String directory;
 
   LogBuilders(String directory) {
@@ -59,7 +56,7 @@ public enum LogBuilders implements Cleaner.Cleanable {
 
   @Override
   public void clean() {
-    throw new UnsupportedOperationException(name());
+    LOGGER.finest(() -> "Clean ignore: %s".formatted(directory));
   }
 
   private static LogPathBuilder newInstance() {

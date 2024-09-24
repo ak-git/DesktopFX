@@ -5,12 +5,22 @@ import org.junit.jupiter.api.Test;
 
 import javax.measure.MetricPrefix;
 
+import static com.ak.util.Metrics.MILLI;
 import static org.assertj.core.api.Assertions.assertThat;
 import static tech.units.indriya.AbstractUnit.ONE;
 import static tech.units.indriya.unit.Units.METRE;
 import static tech.units.indriya.unit.Units.PERCENT;
 
 class MetricsTest {
+  @Test
+  void testMilli() {
+    assertThat(MILLI.applyAsDouble(1.0)).isEqualTo(0.001, Offset.offset(1.0e-3));
+    assertThat(MILLI.applyAsDouble(-2.0)).isEqualTo(-0.002, Offset.offset(1.0e-3));
+    assertThat(MILLI.applyAsDouble(Double.NaN)).isNaN();
+    assertThat(MILLI.applyAsDouble(Double.POSITIVE_INFINITY)).isInfinite();
+    assertThat(MILLI.applyAsDouble(Double.NEGATIVE_INFINITY)).isInfinite();
+  }
+
   @Test
   void testFromMilli() {
     assertThat(Metrics.Length.MILLI.to(1.0, METRE)).isEqualTo(0.001, Offset.offset(1.0e-3));

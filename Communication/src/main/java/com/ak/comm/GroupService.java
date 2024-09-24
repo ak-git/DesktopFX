@@ -8,6 +8,7 @@ import com.ak.comm.file.AutoFileReadingService;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
 import com.ak.logging.LogBuilders;
+import com.ak.util.Clean;
 
 import javax.annotation.Nonnegative;
 import java.io.File;
@@ -58,7 +59,7 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
       serialService.refresh(force);
       currentReadable = serialService;
     }
-    LogBuilders.CONVERTER_FILE.clean();
+    Clean.clean(LogBuilders.values());
   }
 
   public void write(T request) {

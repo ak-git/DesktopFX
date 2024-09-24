@@ -4,7 +4,6 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.StringBytesInterceptor;
 import com.ak.comm.logging.LogTestUtils;
-import com.ak.logging.OutputBuilders;
 import com.ak.util.Clean;
 import com.ak.util.Extension;
 import com.ak.util.Strings;
@@ -36,7 +35,7 @@ class ConverterTest {
 
   static {
     try {
-      PATH = OutputBuilders.NONE.build(Strings.EMPTY).getPath();
+      PATH = Files.createTempDirectory("test %s.".formatted(ConverterTest.class.getPackageName()));
     }
     catch (IOException e) {
       fail(e.getMessage(), e);

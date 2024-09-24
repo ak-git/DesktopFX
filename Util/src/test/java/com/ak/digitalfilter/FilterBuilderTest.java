@@ -1,5 +1,7 @@
 package com.ak.digitalfilter;
 
+import com.ak.numbers.FilterTestCoefficients;
+import com.ak.numbers.InterpolatorCoefficients;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -372,5 +374,28 @@ class FilterBuilderTest {
   void testSharpingDecimate(int[] input, @Nonnegative int factor, int[] output) {
     int[] actual = FilterBuilder.of().sharpingDecimate(factor).filter(input);
     assertThat(actual).containsExactly(output);
+  }
+
+  static Stream<Arguments> interpolatorCoefficients() {
+    return Stream.of(
+        arguments(
+            new int[][] {{1}, {2}, {4}, {16}, {-1000}},
+            FilterBuilder.asFilterBuilder(InterpolatorCoefficients.INTERPOLATOR_FILTER_TEST_LINEAR).build(),
+            new int[][] {{2}, {4}, {8}, {30}, {2}},
+            0.0, 1.0
+        ),
+        arguments(
+            new int[][] {{0, 0}, {0, 15}, {15, 0}, {15, 15}, {10, 10}, {11, 11}},
+            FilterBuilder.asFilterBuilder(FilterTestCoefficients.class).build(),
+            new int[][] {{0}, {15}, {0}, {15}, {0}, {15}},
+            0.0, 1.0
+        )
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("interpolatorCoefficients")
+  void testInterpolatorCoefficients(int[][] input, DigitalFilter filter, int[][] result, double delay, double frequencyFactor) {
+    testFilter(input, filter, result, delay, frequencyFactor);
   }
 }

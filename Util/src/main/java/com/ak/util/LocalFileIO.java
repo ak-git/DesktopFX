@@ -10,7 +10,6 @@ import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
-import java.util.Optional;
 
 public class LocalFileIO implements LocalIO {
   private final Path path;
@@ -19,7 +18,7 @@ public class LocalFileIO implements LocalIO {
   public LocalFileIO(AbstractBuilder b, OSDirectory directory) {
     Path p = b.relativePath == null ? Paths.get(Strings.EMPTY) : b.relativePath;
     path = directory.getDirectory().resolve(p);
-    fileName = Optional.ofNullable(b.fileName).orElse(Strings.EMPTY).trim();
+    fileName = b.fileName.strip();
   }
 
   @Override
@@ -40,7 +39,7 @@ public class LocalFileIO implements LocalIO {
   public abstract static class AbstractBuilder implements Builder<LocalIO> {
     private final Extension fileExtension;
     private @Nullable Path relativePath;
-    private @Nullable String fileName;
+    private String fileName = Strings.EMPTY;
 
     protected AbstractBuilder(Extension fileExtension) {
       this.fileExtension = Objects.requireNonNull(fileExtension);
@@ -66,7 +65,7 @@ public class LocalFileIO implements LocalIO {
     }
 
     public final AbstractBuilder fileNameWithDateTime(String suffix) {
-      fileName(localDate("yyyy-MM-dd HH-mm-ss SSS ") + Objects.requireNonNull(suffix));
+      fileName("%s %s".formatted(localDate("yyyy-MM-dd HH-mm-ss SSS"), Objects.requireNonNull(suffix)));
       return this;
     }
 

@@ -145,7 +145,8 @@ class VariableTest {
         arguments(0, Units.VOLT, 1, "%.0f V".formatted(0.0)),
         arguments(0, Units.VOLT, 1000, "%.0f kV".formatted(0.0)),
         arguments(1, Units.OHM.multiply(Units.METRE), 10, "%.0f Ω·m".formatted(1.0)),
-        arguments(41235, MetricPrefix.MILLI(Units.OHM).multiply(MetricPrefix.DECI(Units.METRE)), 10, "%,.0f mΩ·m".formatted(4123.5))
+        arguments(41235, MetricPrefix.MILLI(Units.OHM).multiply(MetricPrefix.DECI(Units.METRE)), 10, "%,.0f mΩ·m".formatted(4123.5)),
+        arguments(412, Units.METRE.multiply(Units.OHM), 1, "%,.0f Ω·m".formatted(412.0))
     );
   }
 

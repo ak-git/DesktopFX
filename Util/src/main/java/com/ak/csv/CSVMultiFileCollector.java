@@ -15,6 +15,7 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSVLineFileCollector>, Boolean> {
+  private static final Logger LOGGER = Logger.getLogger(CSVMultiFileCollector.class.getName());
   private final Collection<Path> paths = new ArrayList<>();
   private final List<Function<T, Object>> functions = new ArrayList<>();
   private final Iterator<Y> yVarIterator;
@@ -43,7 +44,7 @@ final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSV
 
   @Override
   public BinaryOperator<List<CSVLineFileCollector>> combiner() {
-    return (c1, c2) -> {
+    return (ignore1, ignore2) -> {
       throw new UnsupportedOperationException();
     };
   }
@@ -57,7 +58,7 @@ final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSV
           lineFileCollector.close();
         }
         catch (IOException e) {
-          Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+          LOGGER.log(Level.WARNING, e.getMessage(), e);
           okFlag.set(false);
         }
       });

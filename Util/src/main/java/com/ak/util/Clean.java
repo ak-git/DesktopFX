@@ -14,33 +14,33 @@ import java.util.logging.Logger;
 public enum Clean {
   ;
 
-  public static void clean(Cleaner.Cleanable[] toClean) {
+  private static final Logger LOGGER = Logger.getLogger(Clean.class.getName());
+
+  public static void clean(Cleaner.Cleanable... toClean) {
     Arrays.stream(toClean).forEach(Cleaner.Cleanable::clean);
   }
 
   public static void clean(Path root) {
-    Logger.getLogger(Clean.class.getName()).log(Level.INFO, () -> "Clean directory %s".formatted(root.toAbsolutePath()));
+    LOGGER.log(Level.INFO, () -> "Clean directory %s".formatted(root.toAbsolutePath()));
     cleanRecursive(root);
     try {
       Files.deleteIfExists(root);
     }
     catch (IOException e) {
-      Logger.getLogger(Clean.class.getName()).log(Level.WARNING, root.toString(), e.getMessage());
+      LOGGER.log(Level.WARNING, root.toString(), e);
     }
   }
 
   private static void cleanRecursive(Path path) {
-    if (Files.exists(Objects.requireNonNull(path), LinkOption.NOFOLLOW_LINKS)) {
+    if (Files.exists(Objects.requireNonNull(path), LinkOption.NOFOLLOW_LINKS) && Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
       try (DirectoryStream<Path> ds = Files.newDirectoryStream(path)) {
-        for (Path file : ds) {
-          if (Files.isDirectory(file, LinkOption.NOFOLLOW_LINKS)) {
-            cleanRecursive(file);
-          }
+        for (Path file : Objects.requireNonNull(ds)) {
+          cleanRecursive(file);
           Files.deleteIfExists(file);
         }
       }
-      catch (IOException e) {
-        Logger.getLogger(Clean.class.getName()).log(Level.WARNING, path.toString(), e.getMessage());
+      catch (IOException | NullPointerException e) {
+        LOGGER.log(Level.WARNING, path.toString(), e);
       }
     }
   }

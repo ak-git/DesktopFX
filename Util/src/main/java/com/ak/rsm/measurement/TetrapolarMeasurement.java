@@ -98,7 +98,7 @@ public record TetrapolarMeasurement(InexactTetrapolarSystem toInexact,
     @Override
     public final TetrapolarResistance.PreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC) {
       if (inexact != null) {
-        throw new IllegalStateException("Inexact measurement [%s] is already set".formatted(inexact));
+        throw new IllegalStateException("Inexact measurement [%s] was already set".formatted(inexact));
       }
       inexact = new InexactTetrapolarSystem(absError, new TetrapolarSystem(converter.applyAsDouble(sPU), converter.applyAsDouble(lCC)));
       return this;

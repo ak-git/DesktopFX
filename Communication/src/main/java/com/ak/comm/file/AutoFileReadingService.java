@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.nio.ByteBuffer;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,17 +47,19 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
     BytesInterceptor<T, R> bytesInterceptor = interceptorProvider.get();
     if (file.isFile() && Extension.BIN.is(file.getName()) && Extension.BIN.clean(file.getName()).contains(bytesInterceptor.name())) {
       refresh(false);
-      readable = CompletableFuture
-          .supplyAsync(() -> new FileReadingService<>(file.toPath(), bytesInterceptor, converterProvider.get()))
+      CompletableFuture
+          .supplyAsync(() -> Optional.of(new FileReadingService<>(file.toPath(), bytesInterceptor, converterProvider.get())))
           .whenComplete((source, throwable) -> {
             if (throwable != null) {
-              Logger.getLogger(FileReadingService.class.getName()).log(Level.WARNING, file.getName(), throwable);
+              Logger.getLogger(AutoFileReadingService.class.getName()).log(Level.WARNING, file.getName(), throwable);
             }
-            else if (subscriber != null) {
-              service.submit(() -> source.subscribe(subscriber));
+            else if (subscriber != null && source.isPresent()) {
+              service.submit(() -> source.get().subscribe(subscriber));
             }
           })
-          .join();
+          .exceptionally(ignore -> Optional.empty())
+          .join()
+          .ifPresentOrElse(readingService -> readable = readingService, () -> readable = EMPTY_READABLE);
       return true;
     }
     else {
@@ -72,7 +75,7 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public void refresh(boolean force) {
-    readable.close();
+    readable.refresh(force);
     readable = EMPTY_READABLE;
   }
 

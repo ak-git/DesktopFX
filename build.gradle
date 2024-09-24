@@ -34,7 +34,7 @@ sonar {
 
 allprojects {
     group = 'com.ak'
-    version = '2024.09.12'
+    version = '2024.09.24'
     apply plugin: 'idea'
     idea {
         module {
@@ -82,7 +82,7 @@ subprojects {
         forkEvery = 5
         useJUnitPlatform()
         testLogging {
-            events 'passed', 'skipped', 'failed'
+            events 'failed'
         }
         maxHeapSize = '1G'
     }

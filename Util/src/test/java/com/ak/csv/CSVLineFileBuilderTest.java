@@ -39,6 +39,30 @@ class CSVLineFileBuilderTest {
   }
 
   @Test
+  void testGenerateRangeMultiFiles() throws IOException {
+    CSVLineFileBuilder.of((x, y) -> new double[] {x + y, x - y})
+        .xRange(1.0, 3.0, 1.0)
+        .yRange(1.0, 2.0, 1.0)
+        .saveTo("xPlusY", xy -> xy[0])
+        .saveTo("xSubtY", xy -> xy[1])
+        .generate();
+    checkFilesExists("xPlusY",
+        String.join(LINE_JOINER,
+            String.join(ROW_DELIMITER, "\"\"", "1.0", "2.0", "3.0"),
+            String.join(ROW_DELIMITER, "1.0", "2.0", "3.0", "4.0"),
+            String.join(ROW_DELIMITER, "2.0", "3.0", "4.0", "5.0")
+        )
+    );
+    checkFilesExists("xSubtY",
+        String.join(LINE_JOINER,
+            String.join(ROW_DELIMITER, "\"\"", "1.0", "2.0", "3.0"),
+            String.join(ROW_DELIMITER, "1.0", "0.0", "1.0", "2.0"),
+            String.join(ROW_DELIMITER, "2.0", "-1.0", "0.0", "1.0")
+        )
+    );
+  }
+
+  @Test
   void testGenerateLogRange() throws IOException {
     DoubleUnaryOperator round = x -> BigDecimal.valueOf(x).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
     CSVLineFileBuilder.of(Double::sum)

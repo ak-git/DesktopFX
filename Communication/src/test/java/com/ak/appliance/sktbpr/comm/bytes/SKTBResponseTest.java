@@ -1,7 +1,16 @@
 package com.ak.appliance.sktbpr.comm.bytes;
 
+import com.ak.comm.bytes.BufferFrame;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SKTBResponseTest {
@@ -27,17 +36,40 @@ class SKTBResponseTest {
     assertThat(response).extracting(SKTBResponse::flexAngle).isEqualTo(27);
   }
 
-  @Test
-  void testRequestFall() {
-    SKTBResponse.Builder builder = new SKTBResponse.Builder();
-    builder.buffer().put((byte) 0x5a);
-    assertThat(builder.is((byte) 0x5a)).isFalse();
-    builder.buffer().put((byte) 0x00);
+  @Nested
+  class SKTBResponseTestLogger {
+    private static final Logger LOGGER = Logger.getLogger(BufferFrame.class.getName());
+    private final AtomicInteger exceptionCounter = new AtomicInteger();
 
-    builder.buffer().put((byte) 7);
-    assertThat(builder.is((byte) 7)).isFalse();
+    @BeforeEach
+    void setUp() {
+      LOGGER.setFilter(r -> {
+        assertThat(r.getThrown()).isNull();
+        exceptionCounter.incrementAndGet();
+        return false;
+      });
+      LOGGER.setLevel(LOG_LEVEL_ERRORS);
+    }
 
-    builder.buffer().rewind();
-    assertThat(builder.build()).isEmpty();
+    @AfterEach
+    void tearDown() {
+      LOGGER.setFilter(null);
+      LOGGER.setLevel(Level.INFO);
+    }
+
+    @Test
+    void testRequestFall() {
+      SKTBResponse.Builder builder = new SKTBResponse.Builder();
+      builder.buffer().put((byte) 0x5a);
+      assertThat(builder.is((byte) 0x5a)).isFalse();
+      builder.buffer().put((byte) 0x00);
+
+      builder.buffer().put((byte) 7);
+      assertThat(builder.is((byte) 7)).isFalse();
+
+      builder.buffer().rewind();
+      assertThat(builder.build()).isEmpty();
+      assertThat(exceptionCounter.get()).isOne();
+    }
   }
 }

@@ -1,9 +1,10 @@
 package com.ak.file;
 
-import com.ak.logging.OutputBuilders;
 import com.ak.util.Clean;
 import com.ak.util.Extension;
 import com.ak.util.Strings;
+import com.ak.util.UIConstants;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
@@ -22,9 +23,10 @@ class RecursiveWatcherTest {
 
   static {
     try {
-      PATH = OutputBuilders.NONE.build(Strings.EMPTY).getPath();
+      PATH = Files.createTempDirectory("test %s.".formatted(RecursiveWatcherTest.class.getPackageName()));
     }
     catch (IOException e) {
+      Assertions.fail(e.getMessage(), e);
       throw new RuntimeException(e);
     }
   }
@@ -41,10 +43,10 @@ class RecursiveWatcherTest {
     Path subDir = Files.createTempDirectory(path, Strings.EMPTY);
     assertNotNull(subDir, path::toString);
     CountDownLatch latch = new CountDownLatch(2);
-    Closeable watcher = new RecursiveWatcher(path, p -> latch.countDown(), Extension.TXT);
-    while (!latch.await(2, TimeUnit.SECONDS)) {
-      Files.createTempFile(Files.createTempDirectory(subDir, Strings.EMPTY), Strings.EMPTY, Extension.TXT.attachTo(Strings.EMPTY));
+    try (Closeable ignoreWatcher = new RecursiveWatcher(path, ignore -> latch.countDown(), Extension.TXT)) {
+      while (!latch.await(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS)) {
+        Files.createTempFile(Files.createTempDirectory(subDir, Strings.EMPTY), Strings.EMPTY, Extension.TXT.attachTo(Strings.EMPTY));
+      }
     }
-    watcher.close();
   }
 }

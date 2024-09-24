@@ -185,4 +185,27 @@ class TetrapolarMeasurementTest {
         .limit(Math.random() > 0.5 ? 1 : 3).toArray();
     assertThatIllegalArgumentException().isThrownBy(() -> builder.ofOhms(rOhms));
   }
+
+  @Test
+  void testSystemWasAlreadySet() {
+    Measurement measurement = TetrapolarMeasurement.ofSI(0.01).system(1.0, 2.0).build();
+    TetrapolarMeasurement.PreBuilder<Measurement> builder = new TetrapolarMeasurement.AbstractSingleBuilder<>(measurement.toInexact()) {
+      @Override
+      public Measurement build() {
+        return measurement;
+      }
+
+      @Override
+      public Measurement rho(double... ignoreRhos) {
+        return measurement;
+      }
+
+      @Override
+      public Measurement ofOhms(double... ignoreROhms) {
+        return measurement;
+      }
+    };
+    assertThatIllegalStateException().isThrownBy(() -> builder.system(0.3, 0.5))
+        .withMessageStartingWith("Inexact measurement [%s] was already set".formatted(measurement.toInexact()));
+  }
 }

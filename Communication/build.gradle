@@ -13,6 +13,7 @@ dependencies {
 
     testImplementation(platform(libs.junit))
     testImplementation libs.bundles.test.implementation
+    testImplementation libs.bundles.test.mockito
     testCompileOnly libs.bundles.test.compile
     testRuntimeOnly libs.bundles.test.runtime
 }

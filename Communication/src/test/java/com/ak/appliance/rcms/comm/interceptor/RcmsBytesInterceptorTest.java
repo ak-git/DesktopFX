@@ -32,6 +32,9 @@ class RcmsBytesInterceptorTest {
         arguments(
             new byte[] {
                 (byte) 0xf7, (byte) 0xf9, (byte) 0x81, (byte) 0x81, (byte) 0xfb, (byte) 0xc1, (byte) 0x81, (byte) 0xe9, (byte) 0x81, (byte) 0x81, //  invalid data
+                -10, 1, -125, -72, -5, -60, -125, -124, -111, -94, -7, -98, -127, -128, -5, -78, -127, -10, -127, 0, // invalid 1 symbol
+                -10, -36, 0, -72, -5, -60, -125, -124, -111, -94, -7, -98, -127, -128, -5, -78, -127, -10, -127, 0,  // invalid 0 symbol
+                -10, -36, -125, 1, -5, -60, -125, -124, -111, -94, -7, -98, -127, -128, -5, -78, -127, -10, -127, 0, // invalid 1 symbol
                 -10, -36, -125, -72, -5, -60, -125, -124, -111, -94, -7, -98, -127, -128, -5, -78, -127, -10, -127, 0,
                 -10,
             },
@@ -39,7 +42,7 @@ class RcmsBytesInterceptorTest {
                 (byte) 0xf6, (byte) 0xdc, (byte) 0x83, (byte) 0xb8, (byte) 0xfb, (byte) 0xc4, (byte) 0x83, (byte) 0x84,
                 (byte) 0x91, (byte) 0xa2, (byte) 0xf9, (byte) 0x9e, (byte) 0x81, (byte) 0x80, (byte) 0xfb, (byte) 0xb2, (byte) 0x81, (byte) 0xf6, (byte) 0x81, (byte) 0x00
             }, ByteOrder.LITTLE_ENDIAN),
-            "[ 0xf7, 0xf9, 0x81, 0x81, 0xfb, 0xc1, 0x81, 0xe9, 0x81, 0x81 ] 10 bytes IGNORED"
+            "[ 0xfb, 0xb2, 0x81, 0xf6, 0x81, 0x00 ] 6 bytes IGNORED"
         )
     );
   }

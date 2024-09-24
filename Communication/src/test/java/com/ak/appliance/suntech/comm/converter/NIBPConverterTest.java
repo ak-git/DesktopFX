@@ -1,10 +1,14 @@
 package com.ak.appliance.suntech.comm.converter;
 
 import com.ak.appliance.suntech.comm.bytes.NIBPResponse;
+import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 import com.ak.comm.logging.LogTestUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -12,9 +16,12 @@ import tech.units.indriya.AbstractUnit;
 import tech.units.indriya.unit.Units;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_VALUES;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,17 +67,6 @@ class NIBPConverterTest {
         });
   }
 
-  @Test
-  void testInvalidFrame() {
-    byte[] input = {
-        0x3E, // MODULE START BYTE = the ">" character (0x3E)
-        0x00, // INVALID
-        0x02, 0x01, // 258 mm Hg
-        (byte) 0xBA // 0x100 - modulo 256 (Start byte + Packet byte + Data bytes)
-    };
-    assertThat(new NIBPResponse.Builder(ByteBuffer.wrap(input)).build()).isEmpty();
-  }
-
   private static void testConverter(byte[] input, int[] expected) {
     NIBPResponse frame = new NIBPResponse.Builder(ByteBuffer.wrap(input)).build().orElseThrow();
     assertThat(
@@ -110,5 +106,39 @@ class NIBPConverterTest {
   void testVariableProperties() {
     assertThat(NIBPVariable.PULSE.getUnit()).isEqualTo(AbstractUnit.ONE.divide(Units.MINUTE));
     assertThat(NIBPVariable.IS_COMPLETED.options()).isEmpty();
+  }
+
+  @Nested
+  class NIBPConverterTestLogger {
+    private static final Logger LOGGER = Logger.getLogger(BufferFrame.class.getName());
+    private final AtomicInteger exceptionCounter = new AtomicInteger();
+
+    @BeforeEach
+    void setUp() {
+      LOGGER.setFilter(r -> {
+        assertThat(r.getThrown()).isNull();
+        exceptionCounter.incrementAndGet();
+        return false;
+      });
+      LOGGER.setLevel(LOG_LEVEL_ERRORS);
+    }
+
+    @AfterEach
+    void tearDown() {
+      LOGGER.setFilter(null);
+      LOGGER.setLevel(Level.INFO);
+    }
+
+    @Test
+    void testInvalidFrame() {
+      byte[] input = {
+          0x3E, // MODULE START BYTE = the ">" character (0x3E)
+          0x00, // INVALID
+          0x02, 0x01, // 258 mm Hg
+          (byte) 0xBA // 0x100 - modulo 256 (Start byte + Packet byte + Data bytes)
+      };
+      assertThat(new NIBPResponse.Builder(ByteBuffer.wrap(input)).build()).isEmpty();
+      assertThat(exceptionCounter.get()).isOne();
+    }
   }
 }
