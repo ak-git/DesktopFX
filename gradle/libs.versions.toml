@@ -11,7 +11,7 @@ jspecify = '1.0.0'
 junit = '5.11.1'
 junit-platform-launcher = '1.11.1'
 assertj = '3.26.3'
-mockito = '5.13.0'
+mockito = '5.14.0'
 
 javafxplugin = '0.1.0'
 spring = '6.1.13'
