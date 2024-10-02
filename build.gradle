@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.nebula.lint)
     alias(libs.plugins.sonarqube)
     alias(libs.plugins.jacocolog)
+    alias(libs.plugins.jgitver)
 }
 
 spotbugs {
@@ -24,8 +25,8 @@ tasks.spotbugsMain {
 
 sonar {
     properties {
-        property 'sonar.projectKey', 'ak-git_DesktopFX'
-        property 'sonar.organization', 'ak-git'
+        property 'sonar.projectKey', property('sonar.projectKey')
+        property 'sonar.organization', property('sonar.organization')
         property 'sonar.host.url', 'https://sonarcloud.io'
         property 'sonar.branch.name', 'master'
         property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
@@ -34,7 +35,6 @@ sonar {
 
 allprojects {
     group = 'com.ak'
-    version = '2024.09.24'
     apply plugin: 'idea'
     idea {
         module {
