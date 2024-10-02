@@ -5,6 +5,7 @@ jacocolog = '3.1.0'
 spotbugs = '6.0.24'
 ben-manes-versions = '0.51.0'
 nebula-lint = '20.0.0'
+jgitver = '0.10.0-rc03'
 
 jsr305 = '3.0.2'
 jspecify = '1.0.0'
@@ -35,6 +36,7 @@ jacocolog = { id = 'org.barfuin.gradle.jacocolog', version.ref = 'jacocolog' }
 spotbugs = { id = 'com.github.spotbugs', version.ref = 'spotbugs' }
 ben-manes-versions = { id = 'com.github.ben-manes.versions', version.ref = 'ben-manes-versions' }
 nebula-lint = { id = 'nebula.lint', version.ref = 'nebula-lint' }
+jgitver = { id = 'fr.brouillard.oss.gradle.jgitver', version.ref = 'jgitver' }
 
 javafxplugin = { id = 'org.openjfx.javafxplugin', version.ref = 'javafxplugin' }
 springframework-boot = { id = 'org.springframework.boot', version.ref = 'springframework-boot' }
