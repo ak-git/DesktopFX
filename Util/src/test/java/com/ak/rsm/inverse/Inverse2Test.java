@@ -6,29 +6,32 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.function.Function;
-import java.util.logging.Logger;
 
 class Inverse2Test {
-  private static final Logger LOGGER = Logger.getLogger(Inverse2Test.class.getName());
+  private static final Logger LOGGER = LoggerFactory.getLogger(Inverse2Test.class);
+  private static final Function<Collection<InexactTetrapolarSystem>, Regularization> REGULARIZATION_FUNCTION =
+      Regularization.Interval.ZERO_MAX_LOG1P.of(1.0);
+
+  static {
+    LOGGER.info("{}", REGULARIZATION_FUNCTION);
+  }
 
   @ParameterizedTest
   @MethodSource({
       "com.ak.rsm.inverse.InverseTestE8422akProvider#e8422_2023_05_25_14_04_43",
       "com.ak.rsm.inverse.InverseTestE8422akProvider#e8422_2023_05_25_14_05_51",
+      "com.ak.rsm.inverse.InverseTestE8385akProvider#e8385_2023_05_15",
+      "com.ak.rsm.inverse.InverseTestE8481yariProvider#e8481_2023_06_09",
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha1")
-  void testAlpha1(Collection<DerivativeMeasurement> ms) {
-    testSingle(ms, Regularization.Interval.ZERO_MAX.of(1.0));
-  }
-
-  private static void testSingle(Collection<? extends DerivativeMeasurement> ms,
-                                 Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
-    LOGGER.info(regularizationFunction::toString);
-    var medium = DynamicAbsolute.LAYER_2.apply(ms, regularizationFunction);
+  void testAlpha1(Collection<? extends DerivativeMeasurement> ms) {
+    var medium = DynamicAbsolute.LAYER_2.apply(ms, REGULARIZATION_FUNCTION);
     Assertions.assertNotNull(medium);
-    LOGGER.info(medium::toString);
+    LOGGER.info("\n{}", medium);
   }
 }

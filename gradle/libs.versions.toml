@@ -14,6 +14,9 @@ junit-platform-launcher = '1.11.2'
 assertj = '3.26.3'
 mockito = '5.14.1'
 
+slf4j = '2.1.0-alpha1'
+logback = '1.5.8'
+
 javafxplugin = '0.1.0'
 spring = '6.1.13'
 springframework-boot = '3.3.4'
@@ -53,8 +56,11 @@ junit-jupiter-params = { module = 'org.junit.jupiter:junit-jupiter-params', vers
 junit-jupiter-engine = { module = 'org.junit.jupiter:junit-jupiter-engine', version.ref = 'junit' }
 junit-platform-launcher = { module = 'org.junit.platform:junit-platform-launcher', version.ref = 'junit-platform-launcher' }
 assertj = { module = 'org.assertj:assertj-core', version.ref = 'assertj' }
-mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
-mockito-junit = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
+mockito-core = { module = 'org.mockito:mockito-core', version.ref = 'mockito' }
+mockito-junit = { module = 'org.mockito:mockito-junit-jupiter', version.ref = 'mockito' }
+
+slf4j = { module = 'org.slf4j:slf4j-api', version.ref = 'slf4j' }
+logback = { module = 'ch.qos.logback:logback-classic', version.ref = 'logback' }
 
 inject-api = { module = 'jakarta.inject:jakarta.inject-api', version.ref = 'inject-api' }
 tech-units = { module = 'tech.units:indriya', version.ref = 'measure-unit-api' }
