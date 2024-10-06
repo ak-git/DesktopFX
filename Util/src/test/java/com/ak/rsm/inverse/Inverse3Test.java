@@ -18,6 +18,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnegative;
 import java.util.Arrays;
@@ -25,7 +27,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
@@ -35,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class Inverse3Test {
-  private static final Logger LOGGER = Logger.getLogger(Inverse3Test.class.getName());
+  private static final Logger LOGGER = LoggerFactory.getLogger(Inverse3Test.class);
 
   static Stream<Arguments> model() {
     double rho1 = 2.0;
@@ -46,7 +47,7 @@ class Inverse3Test {
     int p1 = (int) (2.0 / hmmStep);
     int p2mp1 = (int) (4.0 / hmmStep);
 
-    LOGGER.info(() -> "p1 = %d; p2mp1 = %d".formatted(p1, p2mp1));
+    LOGGER.info("p1 = {}; p2mp1 = {}", p1, p2mp1);
 
     return Stream.of(
         arguments(
@@ -65,6 +66,7 @@ class Inverse3Test {
   @ParameterizedTest
   @MethodSource({
       "com.ak.rsm.inverse.InverseTestE7694akProvider#e17_52_54_s4",
+      "com.ak.rsm.inverse.InverseTestE7694akProvider#e17_55_32_s4",
       "model"
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse3Test.testGroup")
@@ -81,16 +83,14 @@ class Inverse3Test {
   private static void testSingle(Collection<? extends DerivativeMeasurement> dm) {
     Regularization.Interval regularization = Regularization.Interval.ZERO_MAX_LOG1P;
     Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction = regularization.of(1.0);
-    LOGGER.info(regularizationFunction::toString);
     Layer2Medium layer2Medium = DynamicAbsolute.LAYER_2.apply(dm, regularizationFunction);
-    LOGGER.info(layer2Medium::toString);
     ValuePair h = layer2Medium.h();
-    LOGGER.info(h::toString);
+    LOGGER.info("{}\n{}", regularizationFunction, layer2Medium);
 
     assertThatNoException().isThrownBy(() -> {
-      int scale = 1;
+      int scale = 2;
       double hStep = dm.stream().flatMapToDouble(m -> DoubleStream.of(Math.abs(m.dh()))).min().orElseThrow() / scale;
-          LOGGER.info(() -> "3-layer step %s".formatted(ValuePair.Name.H.of(hStep, 0.0)));
+      LOGGER.info("3-layer step {}", ValuePair.Name.H.of(hStep, 0.0));
 
           ValuePair.Name[] keys = {
               ValuePair.Name.RHO_1, ValuePair.Name.RHO_2, ValuePair.Name.RHO_3,
@@ -103,7 +103,6 @@ class Inverse3Test {
                 ValuePair h2 = ValuePair.Name.H2.of(vh1 + vdh2, 0.0);
                 ValuePair dh2 = ValuePair.Name.DH2.of(vdh2, 0.0);
 
-                LOGGER.info(() -> Stream.of(h1, h2, dh2).map(ValuePair::toString).collect(Collectors.joining("; ")));
                 double[] p = Stream.of(h1, dh2).mapToDouble(x -> x.value() / hStep).toArray();
 
                 PointValuePair optimizedK = Simplex.optimizeAll(
@@ -124,7 +123,7 @@ class Inverse3Test {
                 ValuePair err = ValuePair.Name.ERR.of(optimized.getValue(), 0.0);
 
                 LOGGER.info(
-                    () -> Stream.of(err, k12, k23, rho1, rho2, rho3)
+                    Stream.of(h1, dh2, h2, err, k12, k23, rho1, rho2, rho3)
                         .map(ValuePair::toString).collect(Collectors.joining(Strings.SEMICOLON))
                 );
                 return new ValuePair[] {rho1, rho2, rho3, k12, k23, err};
