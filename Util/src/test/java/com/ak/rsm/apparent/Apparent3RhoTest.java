@@ -15,6 +15,8 @@ import static org.assertj.core.api.Assertions.byLessThan;
 import static tech.units.indriya.unit.Units.METRE;
 
 class Apparent3RhoTest {
+  private static final int SCALE = 5;
+
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance3LayerTest#threeLayerParameters")
   void testValueNormalized(double[] rho, @Nonnegative double hStepSI, int[] p,
@@ -22,7 +24,8 @@ class Apparent3RhoTest {
     double apparent = TetrapolarResistance.ofMilli(smm, lmm).ofOhms(rOhm).resistivity() / rho[0];
 
     double predicted = Apparent3Rho.newApparentDivRho1(new RelativeTetrapolarSystem(lmm / smm))
-        .value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]), hStepSI / Metrics.Length.MILLI.to(smm, METRE), p[0], p[1]);
+        .value(Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2]),
+            hStepSI / Metrics.Length.MILLI.to(smm, METRE) / SCALE, p[0] * SCALE, p[1] * SCALE);
     assertThat(apparent).isCloseTo(predicted, byLessThan(0.001));
 
     double predicted2 = Apparent3Rho.newApparentDivRho1(new RelativeTetrapolarSystem(smm / lmm))
@@ -32,9 +35,8 @@ class Apparent3RhoTest {
 
   @Test
   void testApparent3Rho() {
-    int factor = 100;
     double value1 = Apparent3Rho.newApparentDivRho1(new RelativeTetrapolarSystem(10.0 / 20.0))
-        .value(0.0, 1.0, 1.0 / 20.0 / factor, 5 * factor, 5 * factor);
+        .value(0.0, 1.0, 1.0 / 20.0 / SCALE, 5 * SCALE, 5 * SCALE);
     double value2 = Apparent3Rho.newApparentDivRho1(new RelativeTetrapolarSystem(10.0 / 20.0))
         .value(0.0, 1.0, 1.0 / 20.0, 5, 5);
     assertThat(value1).isCloseTo(value2, byLessThan(1.0e-4));
