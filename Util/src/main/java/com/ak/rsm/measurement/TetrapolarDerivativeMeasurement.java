@@ -88,7 +88,7 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
 
     @Override
     public TetrapolarMeasurement.PreBuilder<DerivativeMeasurement> dh(double dh) {
-      this.dh = convertDh(dh);
+      this.dh = converter.applyAsDouble(dh);
       return this;
     }
 
@@ -147,7 +147,7 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
 
     @Override
     public TetrapolarMeasurement.MultiPreBuilder<DerivativeMeasurement> dh(double dh) {
-      this.dh = convertDh(dh);
+      this.dh = converter.applyAsDouble(dh);
       return this;
     }
 

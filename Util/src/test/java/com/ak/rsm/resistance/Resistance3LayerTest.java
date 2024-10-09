@@ -18,7 +18,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static tech.units.indriya.unit.Units.METRE;
 
 class Resistance3LayerTest {
-  private static final int SCALE = 5;
+  private static final int SCALE = 2;
 
   static Stream<Arguments> threeLayerParameters() {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(10.0, METRE), Metrics.Length.MILLI.to(20.0, METRE));
