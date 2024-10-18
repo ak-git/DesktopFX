@@ -71,13 +71,17 @@ class Inverse3Test {
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse3Test.testGroup")
   void testGroup(Collection<Collection<DerivativeMeasurement>> ms) {
+    testSingle(filter(ms));
+  }
+
+  private static Collection<DerivativeMeasurement> filter(Collection<Collection<DerivativeMeasurement>> ms) {
     Function<Collection<DerivativeMeasurement>, Double> findDh =
         dm -> dm.stream().mapToDouble(DerivativeResistivity::dh).summaryStatistics().getAverage();
     Collection<DerivativeMeasurement> derivativeMeasurements = ms.stream()
         .collect(Collectors.toMap(Function.identity(), findDh))
-        .entrySet().stream().filter(dh -> dh.getValue() > 0).min(Map.Entry.comparingByValue()).orElseThrow().getKey();
-    assertThat(derivativeMeasurements).isNotEmpty();
-    testSingle(derivativeMeasurements);
+        .entrySet().stream().filter(dh -> Math.abs(dh.getValue()) > 0).min(Map.Entry.comparingByValue()).orElseThrow().getKey();
+    assertThat(derivativeMeasurements).hasSizeGreaterThanOrEqualTo(2);
+    return derivativeMeasurements.stream().limit(2).toList();
   }
 
   private static void testSingle(Collection<? extends DerivativeMeasurement> dm) {
