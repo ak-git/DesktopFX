@@ -9,6 +9,7 @@ import com.ak.appliance.nmis.comm.bytes.NmisResponseFrame;
 import com.ak.appliance.nmis.comm.converter.NmisConverter;
 import com.ak.appliance.nmis.comm.converter.NmisVariable;
 import com.ak.appliance.nmis.comm.interceptor.NmisBytesInterceptor;
+import com.ak.appliance.prv.comm.converter.PrvVariable;
 import com.ak.appliance.rcm.comm.converter.RcmCalibrationVariable;
 import com.ak.appliance.rcm.comm.converter.RcmConverter;
 import com.ak.appliance.rcm.comm.converter.RcmOutVariable;

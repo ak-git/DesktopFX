@@ -30,6 +30,7 @@ module com.ak.comm {
   exports com.ak.appliance.nmis.comm.converter;
   exports com.ak.appliance.nmis.comm.interceptor;
   exports com.ak.appliance.nmisr.comm.interceptor;
+  exports com.ak.appliance.prv.comm.converter;
   exports com.ak.appliance.purelogic.comm.bytes;
   exports com.ak.appliance.purelogic.comm.converter;
   exports com.ak.appliance.purelogic.comm.interceptor;
