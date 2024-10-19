@@ -43,7 +43,7 @@ class RecursiveWatcherTest {
     Path subDir = Files.createTempDirectory(path, Strings.EMPTY);
     assertNotNull(subDir, path::toString);
     CountDownLatch latch = new CountDownLatch(2);
-    try (Closeable ignoreWatcher = new RecursiveWatcher(path, ignore -> latch.countDown(), Extension.TXT)) {
+    try (Closeable _ = new RecursiveWatcher(path, _ -> latch.countDown(), Extension.TXT)) {
       while (!latch.await(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS)) {
         Files.createTempFile(Files.createTempDirectory(subDir, Strings.EMPTY), Strings.EMPTY, Extension.TXT.attachTo(Strings.EMPTY));
       }

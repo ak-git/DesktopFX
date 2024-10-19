@@ -42,7 +42,7 @@ public enum Variables {
           Logger.getLogger(Variables.class.getName()).log(Level.WARNING,
               () -> "Missing resource key %s at file %s.properties".formatted(variable.name(), baseName)
           );
-          logger.setFilter(ignore -> false);
+          logger.setFilter(_ -> false);
         }
       }
       catch (MissingResourceException e) {
@@ -53,7 +53,7 @@ public enum Variables {
                 """
                 .formatted(variable.name(), baseName, variable.getClass().getPackage(), Variables.class.getModule()), e
         );
-        logger.setFilter(ignore -> false);
+        logger.setFilter(_ -> false);
       }
     }
     return variable.name();

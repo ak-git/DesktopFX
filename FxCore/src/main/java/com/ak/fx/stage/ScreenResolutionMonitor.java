@@ -34,7 +34,7 @@ public enum ScreenResolutionMonitor {
       DPI.setValue(Screen.getPrimary().getDpi());
     }
     log();
-    var timer = new Timer((int) UIConstants.UI_DELAY.toMillis(), ignore ->
+    var timer = new Timer((int) UIConstants.UI_DELAY.toMillis(), _ ->
         Optional.ofNullable(SCENE_REFERENCE.get()).flatMap(scene ->
             Optional.ofNullable(scene.getWindow())).ifPresent(window -> {
           ObservableList<Screen> screens = Screen.getScreensForRectangle(
@@ -48,7 +48,7 @@ public enum ScreenResolutionMonitor {
         })
     );
     timer.start();
-    DPI.addListener((ignoreObservable, ignoreOldValue, ignoreNewValue) -> log());
+    DPI.addListener((_, _, _) -> log());
   }
 
   public static double getDpi() {

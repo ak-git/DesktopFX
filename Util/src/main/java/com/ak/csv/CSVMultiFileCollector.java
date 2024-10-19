@@ -44,7 +44,7 @@ final class CSVMultiFileCollector<Y, T> implements Collector<Stream<T>, List<CSV
 
   @Override
   public BinaryOperator<List<CSVLineFileCollector>> combiner() {
-    return (ignore1, ignore2) -> {
+    return (_, _) -> {
       throw new UnsupportedOperationException();
     };
   }

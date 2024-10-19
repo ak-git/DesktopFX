@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 
 public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractService<int[]> implements FileFilter, Readable {
-  private static final Readable EMPTY_READABLE = (ignoreDst, ignorePosition) -> {
+  private static final Readable EMPTY_READABLE = (_, _) -> {
   };
 
   private final ExecutorService service = Executors.newSingleThreadExecutor();
@@ -57,7 +57,7 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
               service.submit(() -> source.get().subscribe(subscriber));
             }
           })
-          .exceptionally(ignore -> Optional.empty())
+          .exceptionally(_ -> Optional.empty())
           .join()
           .ifPresentOrElse(readingService -> readable = readingService, () -> readable = EMPTY_READABLE);
       return true;

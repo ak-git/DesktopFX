@@ -82,8 +82,8 @@ public final class AxisXController {
 
   public AxisXController(Runnable onUpdate) {
     Objects.requireNonNull(onUpdate);
-    startProperty.addListener((ignore, ignoreOldValue, ignoreNewValue) -> onUpdate.run());
-    lengthProperty.addListener((ignore, ignoreOldValue, ignoreNewValue) -> onUpdate.run());
+    startProperty.addListener((_, _, _) -> onUpdate.run());
+    lengthProperty.addListener((_, _, _) -> onUpdate.run());
     String zoomValue = zoomStorage.get().orElse(Strings.EMPTY);
     if (Arrays.stream(ZoomX.values()).anyMatch(zoomX -> zoomX.name().equals(zoomValue))) {
       zoomProperty.setValue(ZoomX.valueOf(zoomValue));
@@ -98,7 +98,7 @@ public final class AxisXController {
 
   public void setFrequency(@Nonnegative double frequency) {
     setStep(frequency);
-    zoomProperty.addListener((ignore, ignoreOldValue, newValue) -> {
+    zoomProperty.addListener((_, _, newValue) -> {
       setStep(frequency);
       zoomStorage.save(newValue.name());
     });

@@ -318,7 +318,7 @@ class Inverse2DynamicTest {
     Map<String, Function<Layer2Medium, Object>> outputMap = getOutputFunctionMap();
 
     Map<PredictedFields, Double> predictedMap = new EnumMap<>(
-        Stream.of(PredictedFields.values()).collect(Collectors.toMap(Function.identity(), ignore -> Double.NaN))
+        Stream.of(PredictedFields.values()).collect(Collectors.toMap(Function.identity(), _ -> Double.NaN))
     );
 
     Path path = Paths.get(Extension.CSV.attachTo(fileName));

@@ -92,7 +92,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
 
   public FilterBuilder smoothingImpulsive(@Nonnegative int size) {
     var holdFilter = new HoldFilter.Builder(size).lostCount((size - Integer.highestOneBit(size)) / 2);
-    return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> ignore -> {
+    return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> _ -> {
       int[] sorted = holdFilter.getSorted();
       double mean = Arrays.stream(sorted).average().orElse(0.0);
 
@@ -199,7 +199,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return wrap("mean-n-std%d".formatted(averageFactor),
         of().fork(new NoFilter(), ExcessBufferFilter.mean(averageFactor))
             .fork(
-                of().biOperator(() -> (ignoreX, mean) -> mean).build(),
+                of().biOperator(() -> (_, mean) -> mean).build(),
                 of().biOperator(() -> (x, mean) -> x - mean).chain(ExcessBufferFilter.std2(averageFactor))
                     .operator(() -> x -> (int) Math.sqrt(x)).build()
             )

@@ -65,12 +65,12 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
 
   @Override
   public BiConsumer<CSVPrinter, Object[]> accumulator() {
-    return (ignore, objects) -> accept(objects);
+    return (_, objects) -> accept(objects);
   }
 
   @Override
   public BinaryOperator<CSVPrinter> combiner() {
-    return (ignore1, ignore2) -> {
+    return (_, _) -> {
       throw new UnsupportedOperationException();
     };
   }

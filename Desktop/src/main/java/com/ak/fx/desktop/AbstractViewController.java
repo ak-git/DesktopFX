@@ -103,15 +103,15 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
           .collect(Collectors.joining(Strings.NEW_LINE_2))
       );
       chart.titleProperty().bind(axisXController.zoomBinding());
-      chart.diagramHeightProperty().addListener((ignoreObservable, ignoreOldValue, newValue) -> {
+      chart.diagramHeightProperty().addListener((_, _, newValue) -> {
         axisYController.setLineDiagramHeight(newValue.doubleValue());
         changed();
       });
-      chart.diagramWidthProperty().addListener((ignoreObservable, ignoreOldValue, newValue) -> axisXController.preventEnd(newValue.doubleValue()));
+      chart.diagramWidthProperty().addListener((_, _, newValue) -> axisXController.preventEnd(newValue.doubleValue()));
 
-      axisXController.stepProperty().addListener((ignoreObservable, ignoreOldValue, newValue) -> chart.setXStep(newValue.doubleValue()));
-      axisXController.startProperty().addListener((ignoreObservable, ignoreOldValue, ignoreNewValue) -> changed());
-      axisXController.lengthProperty().addListener((ignoreObservable, ignoreOldValue, newValue) ->
+      axisXController.stepProperty().addListener((_, _, newValue) -> chart.setXStep(newValue.doubleValue()));
+      axisXController.startProperty().addListener((_, _, _) -> changed());
+      axisXController.lengthProperty().addListener((_, _, newValue) ->
           chart.setMaxSamples(newValue.intValue() / axisXController.getDecimateFactor())
       );
       axisXController.setFrequency(service.getFrequency());
@@ -119,7 +119,7 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
 
     var timeline = new Timeline(
         new KeyFrame(Duration.millis(50),
-            (ActionEvent ignoreEvent) -> {
+            (ActionEvent _) -> {
               int start = (int) (Math.max(0, countSamples - axisXController.getLength()));
               axisXController.setStart(start);
               if (start == 0) {
