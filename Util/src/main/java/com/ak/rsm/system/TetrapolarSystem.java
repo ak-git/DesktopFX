@@ -1,14 +1,13 @@
 package com.ak.rsm.system;
 
-import java.util.Objects;
+import com.ak.util.Metrics;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import javax.measure.MetricPrefix;
+import java.util.Collection;
+import java.util.Objects;
 
-import com.ak.util.Metrics;
-import tec.uom.se.unit.MetricPrefix;
-
-import static tec.uom.se.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.METRE;
 
 public record TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC) {
   @Nonnegative
@@ -21,9 +20,13 @@ public record TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC)
     return l();
   }
 
-  @Nonnull
   public RelativeTetrapolarSystem relativeSystem() {
     return new RelativeTetrapolarSystem(sPU / lCC);
+  }
+
+  @Nonnegative
+  public static double getBaseL(Collection<TetrapolarSystem> systems) {
+    return systems.stream().mapToDouble(TetrapolarSystem::lCC).max().orElseThrow();
   }
 
   @Override
@@ -44,7 +47,11 @@ public record TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC)
 
   @Override
   public String toString() {
-    return "%2.3f x %2.3f %s".formatted(Metrics.toMilli(sPU), Metrics.toMilli(lCC), MetricPrefix.MILLI(METRE));
+    return "%6.3f x %6.3f %s".formatted(
+        Metrics.Length.METRE.to(sPU, MetricPrefix.MILLI(METRE)),
+        Metrics.Length.METRE.to(lCC, MetricPrefix.MILLI(METRE)),
+        MetricPrefix.MILLI(METRE)
+    );
   }
 
   @Nonnegative

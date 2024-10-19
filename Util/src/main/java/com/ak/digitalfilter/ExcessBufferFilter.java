@@ -1,18 +1,17 @@
 package com.ak.digitalfilter;
 
-import java.util.function.IntUnaryOperator;
-
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import java.util.Objects;
+import java.util.function.IntUnaryOperator;
 
 final class ExcessBufferFilter extends AbstractBufferFilter {
   private final IntUnaryOperator operator;
   private long sum;
   private int length;
 
-  private ExcessBufferFilter(@Nonnegative int size, @Nonnull IntUnaryOperator operator) {
+  private ExcessBufferFilter(@Nonnegative int size, IntUnaryOperator operator) {
     super(size + 1);
-    this.operator = operator;
+    this.operator = Objects.requireNonNull(operator);
   }
 
   @Nonnegative

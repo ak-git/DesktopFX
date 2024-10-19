@@ -1,19 +1,18 @@
 package com.ak.rsm.resistance;
 
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import javax.annotation.Nonnegative;
+import java.util.stream.Stream;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static tech.units.indriya.unit.Units.METRE;
 
 class Resistance2LayerTest {
   static Stream<Arguments> twoLayerParameters() {
@@ -88,9 +87,9 @@ class Resistance2LayerTest {
 
   @ParameterizedTest
   @MethodSource("twoLayerParameters")
-  void testLayer(@Nonnull double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    TetrapolarSystem system = new TetrapolarSystem(Metrics.fromMilli(smm), Metrics.fromMilli(lmm));
-    assertThat(new Resistance2Layer(system).value(rho[0], rho[1], Metrics.fromMilli(hmm))).isCloseTo(rOhm, byLessThan(0.001));
+  void testLayer(double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
+    TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
+    assertThat(new Resistance2Layer(system).value(rho[0], rho[1], Metrics.Length.MILLI.to(hmm, METRE))).isCloseTo(rOhm, byLessThan(0.001));
     assertThat(TetrapolarResistance.ofMilli(smm, lmm).rho1(rho[0]).rho2(rho[1]).h(hmm).ohms()).isCloseTo(rOhm, byLessThan(0.001));
   }
 }

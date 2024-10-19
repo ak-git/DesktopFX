@@ -1,0 +1,54 @@
+plugins {
+    id 'application'
+    alias(libs.plugins.javamodularity.moduleplugin)
+    alias(libs.plugins.javafxplugin)
+    alias(libs.plugins.springframework.boot)
+    alias(libs.plugins.spring.dependency.management)
+}
+
+dependencies {
+    implementation project(':FxCore')
+    implementation project(':Communication')
+    implementation project(':Util')
+    implementation libs.findbugs.jsr305
+    implementation libs.jspecify
+    implementation libs.inject.api
+    implementation libs.measure.unit.api
+    implementation libs.tech.units
+    implementation libs.commons.math3
+
+    implementation libs.javafx.base
+    implementation libs.javafx.graphics
+
+    implementation(platform(libs.spring.bom))
+    implementation libs.bundles.spring.boot
+    runtimeOnly libs.snakeyaml
+
+    //    https://github.com/junit-team/junit5/issues/1773
+    testImplementation(platform(libs.junit))
+    testImplementation libs.junit.jupiter.api
+    testImplementation libs.assertj
+    testRuntimeOnly libs.junit.jupiter
+    testRuntimeOnly libs.junit.platform.launcher
+}
+
+javafx {
+    version = '24-ea+5'
+    modules = ['javafx.controls', 'javafx.fxml']
+    configurations = ['implementation']
+}
+
+processResources {
+    filesMatching('**/keys*.properties') {
+        expand(project.properties)
+    }
+}
+
+compileJava.inputs.files(processResources)
+
+apply plugin: 'application'
+
+application {
+    mainModule = 'com.ak.fx.desktop'
+    mainClass = 'com.ak.spring.SpringFxApplication'
+}

@@ -1,5 +1,10 @@
 package com.ak.logging;
 
+import com.ak.util.Clean;
+import com.ak.util.Extension;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -7,19 +12,11 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.stream.StreamSupport;
 
-import javax.annotation.Nullable;
-
-import com.ak.util.Clean;
-import com.ak.util.Extension;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OutputBuilderTest {
-  @Nullable
-  private static Path PATH;
+  private static final Path PATH;
 
   static {
     try {
@@ -29,6 +26,7 @@ class OutputBuilderTest {
     }
     catch (IOException e) {
       fail(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 

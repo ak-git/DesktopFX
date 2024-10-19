@@ -1,27 +1,26 @@
 package com.ak.rsm.measurement;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
-import com.ak.rsm.prediction.Prediction;
-import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistance;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 
-public interface Measurement extends Resistance {
-  @Nonnull
-  InexactTetrapolarSystem inexact();
+import java.util.Collection;
 
-  @Nonnull
+public sealed interface Measurement extends Resistance permits DerivativeMeasurement, TetrapolarMeasurement {
+  InexactTetrapolarSystem toInexact();
+
   @Override
   default TetrapolarSystem system() {
-    return inexact().system();
+    return toInexact().system();
   }
 
-  @Nonnull
-  Measurement merge(@Nonnull Measurement that);
+  Measurement merge(Measurement that);
 
-  @Nonnull
-  Prediction toPrediction(@Nonnull RelativeMediumLayers kw, @Nonnegative double rho1);
+  static Measurement average(Collection<? extends Measurement> measurements) {
+    return measurements.stream().map(Measurement.class::cast).reduce(Measurement::merge).orElseThrow();
+  }
+
+  static Collection<InexactTetrapolarSystem> toInexact(Collection<? extends Measurement> measurements) {
+    return measurements.stream().map(Measurement::toInexact).toList();
+  }
 }

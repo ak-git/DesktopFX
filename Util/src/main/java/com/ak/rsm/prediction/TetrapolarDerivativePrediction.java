@@ -1,39 +1,16 @@
 package com.ak.rsm.prediction;
 
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.stream.DoubleStream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import com.ak.inverse.Inequality;
-import com.ak.rsm.apparent.Apparent2Rho;
-import com.ak.rsm.relative.RelativeMediumLayers;
-import com.ak.rsm.resistance.DerivativeResistivity;
 import com.ak.util.Strings;
 
-public class TetrapolarDerivativePrediction extends AbstractPrediction {
-  @Nonnull
+import javax.annotation.Nonnegative;
+import java.util.Objects;
+
+final class TetrapolarDerivativePrediction extends AbstractPrediction {
   private final Prediction prediction;
 
-  @ParametersAreNonnullByDefault
-  private TetrapolarDerivativePrediction(@Nonnegative double resistivityPredicted, double[] inequalityL2, Prediction prediction) {
+  TetrapolarDerivativePrediction(@Nonnegative double resistivityPredicted, double[] inequalityL2, Prediction prediction) {
     super(resistivityPredicted, inequalityL2);
     this.prediction = prediction;
-  }
-
-  @ParametersAreNonnullByDefault
-  public static Prediction of(DerivativeResistivity resistivityMeasured, RelativeMediumLayers layers, @Nonnegative double rho1) {
-    Prediction prediction = TetrapolarPrediction.of(resistivityMeasured, layers, rho1);
-    double diffResistivityPredicted = Apparent2Rho.newDerivativeApparentByPhi2Rho(resistivityMeasured.system(), resistivityMeasured.dh())
-        .applyAsDouble(layers) * rho1;
-    double[] inequalityL2 = DoubleStream.concat(
-        Arrays.stream(prediction.getInequalityL2()),
-        DoubleStream.of(Inequality.proportional().applyAsDouble(resistivityMeasured.derivativeResistivity(), diffResistivityPredicted))
-    ).toArray();
-    return new TetrapolarDerivativePrediction(diffResistivityPredicted, inequalityL2, prediction);
   }
 
   @Override
@@ -43,10 +20,10 @@ public class TetrapolarDerivativePrediction extends AbstractPrediction {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) {
+    if (this == Objects.requireNonNull(o)) {
       return true;
     }
-    if (o == null || !getClass().equals(o.getClass())) {
+    if (!getClass().equals(o.getClass())) {
       return false;
     }
     TetrapolarDerivativePrediction that = (TetrapolarDerivativePrediction) o;

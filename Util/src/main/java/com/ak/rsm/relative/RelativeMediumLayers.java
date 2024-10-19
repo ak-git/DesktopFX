@@ -1,55 +1,43 @@
 package com.ak.rsm.relative;
 
-import javax.annotation.Nonnegative;
-
+import com.ak.math.ValuePair;
+import com.ak.rsm.system.Layers;
 import com.ak.util.Strings;
 
-public interface RelativeMediumLayers {
-  RelativeMediumLayers SINGLE_LAYER = new RelativeMediumLayers() {
-    @Override
-    public double k12() {
-      return 0.0;
-    }
+import javax.annotation.Nonnegative;
+import java.util.Arrays;
+import java.util.function.DoublePredicate;
+import java.util.stream.Stream;
 
-    @Override
-    public double hToL() {
-      return Double.NaN;
-    }
+public record RelativeMediumLayers(ValuePair k, ValuePair hToL) {
+  public static final RelativeMediumLayers SINGLE_LAYER = new RelativeMediumLayers(0.0, Double.NaN);
+  public static final RelativeMediumLayers NAN = new RelativeMediumLayers(Double.NaN, Double.NaN);
 
-    @Override
-    public String toString() {
-      return Strings.EMPTY;
-    }
-  };
-  RelativeMediumLayers NAN = new RelativeMediumLayers() {
-    @Override
-    public double k12() {
-      return Double.NaN;
-    }
-
-    @Override
-    public double hToL() {
-      return Double.NaN;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(Double.NaN);
-    }
-  };
-
-  double k12();
-
-  @Nonnegative
-  double hToL();
-
-  @Nonnegative
-  default double k12AbsError() {
-    return 0.0;
+  public RelativeMediumLayers(double k, @Nonnegative double hToL) {
+    this(ValuePair.Name.K12.of(k, 0.0), ValuePair.Name.H_L.of(Math.abs(hToL), 0.0));
   }
 
-  @Nonnegative
-  default double hToLAbsError() {
-    return 0.0;
+  public RelativeMediumLayers(double[] kw) {
+    this(kw[0], kw[1]);
+    if (kw.length > 2) throw new IllegalArgumentException(Arrays.toString(kw));
+  }
+
+  public RelativeMediumLayers(double[] rho, @Nonnegative double hToL) {
+    this(Layers.getK12(rho[0], rho[1]), hToL);
+  }
+
+  public int size() {
+    return Stream.of(k, hToL).mapToDouble(ValuePair::value)
+        .anyMatch(((DoublePredicate) Double::isNaN).or(x -> Double.compare(x, 0.0) == 0)) ? 1 : 2;
+  }
+
+  public String toString() {
+    if (Double.isNaN(k.value())) {
+      return String.valueOf(Double.NaN);
+    }
+    else if (size() == 1) {
+      return Strings.EMPTY;
+    }
+    return "%s; %s".formatted(k, hToL);
   }
 }

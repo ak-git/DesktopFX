@@ -1,32 +1,30 @@
 package com.ak.rsm.apparent;
 
-import java.util.function.DoubleBinaryOperator;
-import java.util.function.ToDoubleFunction;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 
+import javax.annotation.Nonnegative;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.ToDoubleFunction;
+
 import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.pow;
 
 public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunction<RelativeMediumLayers> {
-  private Apparent2Rho(@Nonnull ResistanceSumValue apparent) {
+  private Apparent2Rho(ResistanceSumValue apparent) {
     super(apparent);
   }
 
   @Override
-  public final double applyAsDouble(@Nonnull RelativeMediumLayers kw) {
-    if (Double.compare(kw.k12(), 0.0) == 0 || Double.compare(kw.hToL(), 0.0) == 0) {
-      return value(kw.hToL(), value -> 0.0);
+  public final double applyAsDouble(RelativeMediumLayers kw) {
+    if (kw.size() == 1) {
+      return value(0.0, value -> 0.0);
     }
     else {
-      return value(kw.hToL(), n -> kFactor(kw.k12(), n));
+      return value(kw.hToL().value(), n -> kFactor(kw.k().value(), n));
     }
   }
 
@@ -34,37 +32,29 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
     return pow(k, n) * sumFactor(n);
   }
 
-  @Nonnull
-  public static ToDoubleFunction<RelativeMediumLayers> newLog1pApparent2Rho(@Nonnull RelativeTetrapolarSystem system) {
-    return new Apparent2Rho(new Log1pApparent(system));
-  }
-
   /**
    * Calculates Apparent Resistance divided by Rho1
    */
-  @Nonnull
-  public static ToDoubleFunction<RelativeMediumLayers> newNormalizedApparent2Rho(@Nonnull RelativeTetrapolarSystem system) {
+  public static ToDoubleFunction<RelativeMediumLayers> newApparentDivRho1(RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new NormalizedApparent(system));
   }
 
-  @Nonnull
-  public static ToDoubleFunction<RelativeMediumLayers> newDerivativeApparentByPhi2Rho(@Nonnull TetrapolarSystem system, double dh) {
+  public static ToDoubleFunction<RelativeMediumLayers> newDerApparentByPhiDivRho1(TetrapolarSystem system, double dh) {
     if (Double.isNaN(dh)) {
-      return newDerivativeApparentByPhi2Rho(system.relativeSystem());
+      return newDerApparentByPhiDivRho1(system.relativeSystem());
     }
     return kw -> {
       double rho1 = 1.0;
-      double rho2 = rho1 / Layers.getRho1ToRho2(kw.k12());
-      return TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho1).rho2(rho2).h(kw.hToL() * system.lCC()).derivativeResistivity();
+      double rho2 = rho1 / Layers.getRho1ToRho2(kw.k().value());
+      return TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho1).rho2(rho2).h(kw.hToL().value() * system.lCC()).derivativeResistivity();
     };
   }
 
-  public static ToDoubleFunction<RelativeMediumLayers> newDerivativeApparentByPhi2Rho(@Nonnull RelativeTetrapolarSystem system) {
+  public static ToDoubleFunction<RelativeMediumLayers> newDerApparentByPhiDivRho1(RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new DerivativeApparentByPhi(system));
   }
 
-  @Nonnull
-  public static ToDoubleFunction<RelativeMediumLayers> newDerivativeApparentByK2Rho(@Nonnull RelativeTetrapolarSystem system) {
+  public static ToDoubleFunction<RelativeMediumLayers> newDerApparentByKDivRho1(RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new DerivativeApparentByK(system)) {
       @Override
       double kFactor(double k, @Nonnegative int n) {
@@ -73,8 +63,7 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
     };
   }
 
-  @Nonnull
-  public static ToDoubleFunction<RelativeMediumLayers> newSecondDerivativeApparentByPhiK2Rho(@Nonnull RelativeTetrapolarSystem system) {
+  public static ToDoubleFunction<RelativeMediumLayers> newSecondDerApparentByPhiKDivRho1(RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new SecondDerivativeApparentByPhiK(system)) {
       @Override
       double kFactor(double k, @Nonnegative int n) {
@@ -83,12 +72,9 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
     };
   }
 
-  @Nonnull
-  public static ToDoubleFunction<RelativeMediumLayers> newSecondDerivativeApparentByPhiPhi2Rho(@Nonnull RelativeTetrapolarSystem system) {
+  public static ToDoubleFunction<RelativeMediumLayers> newSecondDerApparentByPhiPhiDivRho1(RelativeTetrapolarSystem system) {
     return new ToDoubleFunction<>() {
-      @Nonnull
-      private final ToDoubleFunction<RelativeMediumLayers> apparentByPhi2Rho = newDerivativeApparentByPhi2Rho(system);
-      @Nonnull
+      private final ToDoubleFunction<RelativeMediumLayers> apparentByPhi2Rho = newDerApparentByPhiDivRho1(system);
       private final ToDoubleFunction<RelativeMediumLayers> secondPart = new Apparent2Rho(new AbstractResistanceSumValue(system) {
         @Override
         double multiply(double sums) {
@@ -107,8 +93,8 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
       });
 
       @Override
-      public double applyAsDouble(@Nonnull RelativeMediumLayers kw) {
-        return apparentByPhi2Rho.applyAsDouble(kw) / kw.hToL() + secondPart.applyAsDouble(kw);
+      public double applyAsDouble(RelativeMediumLayers kw) {
+        return apparentByPhi2Rho.applyAsDouble(kw) / kw.hToL().value() + secondPart.applyAsDouble(kw);
       }
     };
   }

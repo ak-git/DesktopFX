@@ -1,10 +1,9 @@
 package com.ak.rsm.system;
 
 import com.ak.util.Metrics;
-import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import javax.measure.MetricPrefix;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,10 +12,10 @@ import java.util.function.ToLongFunction;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
-import static tec.uom.se.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.METRE;
 
-public record InexactTetrapolarSystem(@Nonnegative double absError, @Nonnull TetrapolarSystem system) {
-  public InexactTetrapolarSystem(@Nonnegative double absError, @Nonnull TetrapolarSystem system) {
+public record InexactTetrapolarSystem(@Nonnegative double absError, TetrapolarSystem system) {
+  public InexactTetrapolarSystem(@Nonnegative double absError, TetrapolarSystem system) {
     this.absError = Math.abs(absError);
     this.system = system;
   }
@@ -50,17 +49,22 @@ public record InexactTetrapolarSystem(@Nonnegative double absError, @Nonnull Tet
   public String toString() {
     String s = system.toString();
     if (absError > 0) {
+      double metre = getHMax(1.0);
       return "%s / %.1f %s; ↕ %.0f %s".formatted(
-          s, Metrics.toMilli(absError), MetricPrefix.MILLI(METRE),
-          Metrics.toMilli(getHMax(1.0)), MetricPrefix.MILLI(METRE));
+          s, Metrics.Length.METRE.to(absError, MetricPrefix.MILLI(METRE)), MetricPrefix.MILLI(METRE),
+          Metrics.Length.METRE.to(metre, MetricPrefix.MILLI(METRE)), MetricPrefix.MILLI(METRE));
     }
     else {
       return s;
     }
   }
 
-  @Nonnull
-  public static Collection<List<TetrapolarSystem>> getMeasurementsCombination(@Nonnull Collection<InexactTetrapolarSystem> systems) {
+  @Nonnegative
+  public static double getBaseL(Collection<InexactTetrapolarSystem> inexactSystems) {
+    return TetrapolarSystem.getBaseL(inexactSystems.stream().map(InexactTetrapolarSystem::system).toList());
+  }
+
+  public static Collection<List<TetrapolarSystem>> getMeasurementsCombination(Collection<InexactTetrapolarSystem> systems) {
     ToLongFunction<Collection<TetrapolarSystem>> distinctSizes =
         ts -> ts.stream().flatMap(s -> DoubleStream.of(s.sPU(), s.lCC()).boxed()).distinct().count();
     var initialSizes = distinctSizes.applyAsLong(systems.stream().map(InexactTetrapolarSystem::system).toList());
@@ -73,7 +77,6 @@ public record InexactTetrapolarSystem(@Nonnegative double absError, @Nonnull Tet
         .filter(s -> initialSizes == distinctSizes.applyAsLong(s)).toList();
   }
 
-  @Nonnull
   private InexactTetrapolarSystem shift(int sign) {
     double err = Math.signum(sign) * absError;
     double sPU = system.sPU();

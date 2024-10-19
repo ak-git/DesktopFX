@@ -1,19 +1,19 @@
 package com.ak.rsm.system;
 
-import java.util.stream.Stream;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.util.Metrics;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import tec.uom.se.unit.MetricPrefix;
+
+import javax.measure.MetricPrefix;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static tec.uom.se.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.METRE;
 
 class TetrapolarSystemTest {
   static Stream<Arguments> tetrapolarSystems() {
@@ -31,7 +31,6 @@ class TetrapolarSystemTest {
 
   @ParameterizedTest
   @MethodSource("tetrapolarSystems")
-  @ParametersAreNonnullByDefault
   void testEquals(Object system1, Object system2, boolean equals) {
     assertThat(system1.equals(system2))
         .withFailMessage("%s compared with %s", system1, system2).isEqualTo(equals);
@@ -59,8 +58,23 @@ class TetrapolarSystemTest {
   }
 
   @Test
+  void testBaseL() {
+    assertThat(
+        TetrapolarSystem.getBaseL(
+            List.of(new TetrapolarSystem(1.0, 2.0), new TetrapolarSystem(3.0, 2.0))
+        )
+    ).isCloseTo(2.0, within(0.01));
+
+    assertThat(
+        TetrapolarSystem.getBaseL(
+            List.of(new TetrapolarSystem(1.0, 2.0), new TetrapolarSystem(2.0, 3.0))
+        )
+    ).isCloseTo(3.0, within(0.01));
+  }
+
+  @Test
   void testToString() {
-    TetrapolarSystem ts = new TetrapolarSystem(Metrics.fromMilli(20.0), Metrics.fromMilli(15.0));
-    assertThat(ts).hasToString("%2.3f x %2.3f %s".formatted(20.0, 15.0, MetricPrefix.MILLI(METRE)));
+    TetrapolarSystem ts = new TetrapolarSystem(Metrics.Length.MILLI.to(20.0, METRE), Metrics.Length.MILLI.to(5.0, METRE));
+    assertThat(ts).hasToString("%6.3f x %6.3f %s".formatted(20.0, 5.0, MetricPrefix.MILLI(METRE)));
   }
 }

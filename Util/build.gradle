@@ -1,7 +1,22 @@
+plugins {
+    alias(libs.plugins.javamodularity.moduleplugin)
+}
+
 dependencies {
-    implementation uom_se
-    implementation javax_json
-    implementation commons_math3
-    implementation commons_csv
-    implementation jenetics
+    api libs.measure.unit.api
+    api libs.javax.json
+    api libs.commons.math3
+    api libs.commons.csv
+    api libs.findbugs.jsr305
+    implementation libs.jspecify
+    implementation libs.tech.units
+    implementation libs.jenetics
+    implementation libs.slf4j
+    runtimeOnly libs.logback
+
+    testImplementation(platform(libs.junit))
+    testImplementation libs.bundles.test.implementation
+    testImplementation libs.bundles.test.mockito
+    testCompileOnly libs.bundles.test.compile
+    testRuntimeOnly libs.bundles.test.runtime
 }

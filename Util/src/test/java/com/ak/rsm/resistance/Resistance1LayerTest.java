@@ -1,18 +1,18 @@
 package com.ak.rsm.resistance;
 
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import javax.annotation.Nonnegative;
+import java.util.stream.Stream;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static tech.units.indriya.unit.Units.METRE;
 
 class Resistance1LayerTest {
   static Stream<Arguments> singleLayerParameters() {
@@ -42,7 +42,7 @@ class Resistance1LayerTest {
   @ParameterizedTest
   @MethodSource("singleLayerParameters")
   void testOneLayer(@Nonnegative double rho, @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
-    TetrapolarSystem system = new TetrapolarSystem(Metrics.fromMilli(smm), Metrics.fromMilli(lmm));
+    TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
     assertThat(new Resistance1Layer(system).value(rho)).isCloseTo(rOhm, byLessThan(0.001));
     assertThat(TetrapolarResistance.ofMilli(smm, lmm).rho(rho).ohms()).isCloseTo(rOhm, byLessThan(0.001));
   }

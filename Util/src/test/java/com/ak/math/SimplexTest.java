@@ -1,12 +1,14 @@
 package com.ak.math;
 
-import java.util.Arrays;
-
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex.Bounds;
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
@@ -44,6 +46,13 @@ class SimplexTest {
     assertThat(valuePair.getPoint()).containsExactly(new double[] {1.0, 1.0}, byLessThan(0.1));
   }
 
+  @ParameterizedTest
+  @ValueSource(doubles = {Double.NEGATIVE_INFINITY, Double.NaN, Double.POSITIVE_INFINITY})
+  void testInfinite(double d) {
+    PointValuePair valuePair = Simplex.optimizeAll(ignoreX -> d, new Bounds(-10.0, 10.0));
+    assertThat(valuePair.getValue()).isNotFinite();
+  }
+
   @Test
   void testInvalid() {
     PointValuePair valuePair = Simplex.CMAES.optimize(new Rosen(),
@@ -51,5 +60,11 @@ class SimplexTest {
     );
     assertThat(valuePair.getPoint()).as(Arrays.toString(valuePair.getPoint())).containsOnly(Double.NaN);
     assertThat(valuePair.getValue()).isNaN();
+  }
+
+  @Test
+  void testBounds() {
+    Bounds bounds = new Bounds(Math.random() - 1.1, Math.random() + 1.1);
+    assertThat(bounds.isIn(Math.random())).isTrue();
   }
 }

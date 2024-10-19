@@ -1,24 +1,22 @@
 package com.ak.digitalfilter;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.ParametersAreNonnullByDefault;
-
+import com.ak.numbers.FilterTestCoefficients;
+import com.ak.numbers.InterpolatorCoefficients;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import javax.annotation.Nonnegative;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
+
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.assertj.core.api.Assertions.byLessThan;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -180,7 +178,7 @@ class FilterBuilderTest {
         ),
         arguments(
             FilterBuilder.of().interpolate(7).buildNoDelay(),
-            "NoDelayFilter (compensate %.1f delay x 2) - LinearInterpolationFilter (f \u00b7 %.1f)".formatted(10.0, 7.0)
+            "NoDelayFilter (compensate %.1f delay x 2) - LinearInterpolationFilter (f · %.1f)".formatted(10.0, 7.0)
         ),
         arguments(
             FilterBuilder.of().fork(
@@ -223,7 +221,7 @@ class FilterBuilderTest {
             )
         ),
         arguments(
-            FilterBuilder.parallel(Arrays.asList(new int[] {0}, new int[] {1, 2}),
+            FilterBuilder.parallel(List.of(new int[] {0}, new int[] {1, 2}),
                 FilterBuilder.of().operator(() -> Integer::bitCount).recursiveMean(10).build(), FilterBuilder.of().biOperator(() -> Integer::compare).build()),
             String.format(
                 "NoDelayFilter (compensate %.1f delay x 2) - SelectFilter (indexes = [0]) - Operator  (delay %.1f) - MeanFilter (delay %.1f)%n" +
@@ -237,7 +235,6 @@ class FilterBuilderTest {
 
   @ParameterizedTest
   @MethodSource("simple")
-  @ParametersAreNonnullByDefault
   void testWithLostZeroFilter(int[][] input, DigitalFilter filter, int[][] result, double delay, double frequencyFactor) {
     filter.accept(0);
     testFilter(input, filter, result, delay, frequencyFactor);
@@ -245,7 +242,6 @@ class FilterBuilderTest {
 
   @ParameterizedTest
   @MethodSource("delay")
-  @ParametersAreNonnullByDefault
   void testFilter(int[][] input, DigitalFilter filter, int[][] result, double delay, double frequencyFactor) {
     AtomicInteger filteredCounter = new AtomicInteger();
     filter.forEach(new IntsAcceptor() {
@@ -349,7 +345,6 @@ class FilterBuilderTest {
 
   @ParameterizedTest
   @MethodSource("strings")
-  @ParametersAreNonnullByDefault
   void testToString(DigitalFilter filter, String toString) {
     assertThat(filter).hasToString(toString);
   }
@@ -376,9 +371,31 @@ class FilterBuilderTest {
 
   @ParameterizedTest
   @MethodSource("sharpingDecimate")
-  @ParametersAreNonnullByDefault
   void testSharpingDecimate(int[] input, @Nonnegative int factor, int[] output) {
     int[] actual = FilterBuilder.of().sharpingDecimate(factor).filter(input);
     assertThat(actual).containsExactly(output);
+  }
+
+  static Stream<Arguments> interpolatorCoefficients() {
+    return Stream.of(
+        arguments(
+            new int[][] {{1}, {2}, {4}, {16}, {-1000}},
+            FilterBuilder.asFilterBuilder(InterpolatorCoefficients.INTERPOLATOR_FILTER_TEST_LINEAR).build(),
+            new int[][] {{2}, {4}, {8}, {30}, {2}},
+            0.0, 1.0
+        ),
+        arguments(
+            new int[][] {{0, 0}, {0, 15}, {15, 0}, {15, 15}, {10, 10}, {11, 11}},
+            FilterBuilder.asFilterBuilder(FilterTestCoefficients.class).build(),
+            new int[][] {{0}, {15}, {0}, {15}, {0}, {15}},
+            0.0, 1.0
+        )
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("interpolatorCoefficients")
+  void testInterpolatorCoefficients(int[][] input, DigitalFilter filter, int[][] result, double delay, double frequencyFactor) {
+    testFilter(input, filter, result, delay, frequencyFactor);
   }
 }

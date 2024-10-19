@@ -1,22 +1,20 @@
 package com.ak.fx.util;
 
-import java.awt.Taskbar;
+import javafx.scene.image.Image;
+import javafx.stage.Stage;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.Nonnull;
-import javax.imageio.ImageIO;
-
-import javafx.scene.image.Image;
-import javafx.stage.Stage;
-
 public enum OSDockImage {
   WINDOWS,
   MAC {
     @Override
-    public void setIconImage(@Nonnull Stage stage, @Nonnull URL imageURL) {
+    public void setIconImage(Stage stage, URL imageURL) {
       super.setIconImage(stage, imageURL);
       try {
         Taskbar.getTaskbar().setIconImage(ImageIO.read(imageURL));
@@ -28,7 +26,7 @@ public enum OSDockImage {
   },
   UNIX;
 
-  public void setIconImage(@Nonnull Stage stage, @Nonnull URL imageURL) {
+  public void setIconImage(Stage stage, URL imageURL) {
     stage.getIcons().add(new Image(imageURL.toString()));
   }
 }

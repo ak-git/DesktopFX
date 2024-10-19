@@ -1,12 +1,23 @@
 plugins {
-    id 'org.openjfx.javafxplugin'
+    alias(libs.plugins.javamodularity.moduleplugin)
+    alias(libs.plugins.javafxplugin)
 }
 
 dependencies {
+    api libs.javafx.base
     api project(':Util')
+    api project(':Communication')
+    implementation libs.findbugs.jsr305
+    implementation libs.jspecify
+
+    testImplementation(platform(libs.junit))
+    testImplementation libs.bundles.test.implementation
+    testCompileOnly libs.bundles.test.compile
+    testRuntimeOnly libs.bundles.test.runtime
 }
 
 javafx {
-    version = '19'
-    modules = ['javafx.graphics']
+    version = '24-ea+5'
+    modules = ['javafx.controls', 'javafx.graphics']
+    configurations = ['api']
 }

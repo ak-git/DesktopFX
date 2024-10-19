@@ -1,71 +1,55 @@
 package com.ak.rsm.inverse;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.ToDoubleFunction;
-import java.util.function.UnaryOperator;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
+import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.system.TetrapolarSystem;
-import org.apache.commons.math3.complex.Complex;
 
-abstract class AbstractInverseFunction<R extends Resistivity> extends AbstractInverse implements ToDoubleFunction<double[]> {
-  @Nonnull
-  private final Complex[] subLog;
-  @Nonnull
-  private final UnaryOperator<double[]> subtract;
-  @Nonnull
-  final BiFunction<TetrapolarSystem, double[], Complex> predicted;
+import javax.annotation.Nonnegative;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.ToDoubleBiFunction;
+import java.util.function.ToDoubleFunction;
+import java.util.function.UnaryOperator;
 
-  @ParametersAreNonnullByDefault
-  AbstractInverseFunction(Collection<? extends R> r, Function<? super R, Complex> toData, UnaryOperator<double[]> subtract,
-                          Function<Collection<TetrapolarSystem>, BiFunction<TetrapolarSystem, double[], Complex>> toPredicted) {
-    super(r.stream().map(Resistivity::system).toList());
-    this.subtract = subtract;
-    subLog = getLog(
-        f -> r.stream().mapToDouble(
-            value -> f.applyAsDouble(toData.apply(value))
-        ).toArray());
-    predicted = toPredicted.apply(systems());
+abstract sealed class AbstractInverseFunction<R extends Resistivity>
+    implements InverseFunction, ToDoubleBiFunction<TetrapolarSystem, double[]>
+    permits DynamicInverse, StaticInverse {
+  @Nonnegative
+  private final double baseL;
+  private final List<TetrapolarSystem> systems;
+  private final double[] measured;
+  private final UnaryOperator<RelativeMediumLayers> toErrors;
+
+  AbstractInverseFunction(Collection<? extends R> r, ToDoubleFunction<? super R> toData, UnaryOperator<RelativeMediumLayers> toErrors) {
+    baseL = Resistivity.getBaseL(r);
+    systems = r.stream().map(Resistivity::system).toList();
+    measured = r.stream().mapToDouble(Objects.requireNonNull(toData)).toArray();
+    this.toErrors = Objects.requireNonNull(toErrors);
   }
 
   @Nonnegative
   @Override
-  public final double applyAsDouble(@Nonnull double[] kw) {
-    Complex[] subLogPredicted = getLog(
-        f -> systems().stream().mapToDouble(
-            s -> f.applyAsDouble(predicted.apply(s, kw))
-        ).toArray()
-    );
-    return IntStream.range(0, subLog.length).mapToDouble(i -> subLog[i].subtract(subLogPredicted[i]).abs())
-        .reduce(Math::hypot).orElseThrow();
+  public final double applyAsDouble(double[] kw) {
+    double result = 0.0;
+    for (int i = 0; i < measured.length; i++) {
+      double v = measured[i] / applyAsDouble(systems.get(i), kw);
+      if (v > 0) {
+        result = StrictMath.hypot(result, StrictMath.log(v));
+      }
+      else {
+        return Double.NaN;
+      }
+    }
+    return result;
   }
 
-  @Nonnull
-  final UnaryOperator<double[]> subtract() {
-    return subtract;
+  @Override
+  public final RelativeMediumLayers apply(RelativeMediumLayers relativeMediumLayers) {
+    return toErrors.apply(relativeMediumLayers);
   }
 
-  @Nonnull
-  private Complex[] getLog(@Nonnull Function<ToDoubleFunction<Complex>, double[]> function) {
-    return Stream.<ToDoubleFunction<Complex>>of(Complex::getReal, Complex::getImaginary)
-        .map(function)
-        .map(subtract)
-        .map(doubles -> Arrays.stream(doubles).mapToObj(Complex::valueOf).toArray(Complex[]::new))
-        .reduce((complexes1, complexes2) -> {
-          Complex[] result = new Complex[Math.max(complexes1.length, complexes2.length)];
-          for (int i = 0; i < result.length; i++) {
-            result[i] = new Complex(complexes1[i].getReal(), complexes2[i].getReal());
-          }
-          return result;
-        }).orElseThrow();
+  final RelativeMediumLayers layer2RelativeMedium(TetrapolarSystem s, double[] kw) {
+    return new RelativeMediumLayers(kw[0], kw[1] * baseL / s.lCC());
   }
 }

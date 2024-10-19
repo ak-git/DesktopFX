@@ -1,5 +1,10 @@
 package com.ak.comm.file;
 
+import com.ak.comm.converter.TwoVariables;
+import com.ak.comm.interceptor.simple.RampBytesInterceptor;
+import com.ak.logging.LogBuilders;
+import org.junit.jupiter.params.provider.Arguments;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -8,10 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.stream.Stream;
-
-import com.ak.comm.converter.TwoVariables;
-import com.ak.logging.LogBuilders;
-import org.junit.jupiter.params.provider.Arguments;
 
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -54,7 +55,9 @@ public class FileDataProvider {
   }
 
   private static Path createFile(int kBytes) throws IOException {
-    Path path = LogBuilders.SIMPLE.build("%s %d kBytes".formatted(FileDataProvider.class.getSimpleName(), kBytes)).getPath();
+    Path path = LogBuilders.SIMPLE
+        .build("%s %d kBytes %s".formatted(FileDataProvider.class.getSimpleName(), kBytes, RampBytesInterceptor.class.getSimpleName()))
+        .getPath();
     if (kBytes >= 0) {
       try (WritableByteChannel channel = Files.newByteChannel(path,
           StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {

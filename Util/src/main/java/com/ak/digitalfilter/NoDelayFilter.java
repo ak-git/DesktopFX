@@ -1,18 +1,15 @@
 package com.ak.digitalfilter;
 
+import javax.annotation.Nonnegative;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 final class NoDelayFilter extends AbstractDigitalFilter {
-  @Nonnull
   private final DigitalFilter filter;
-  @Nonnull
   private final AtomicInteger skipSamples;
 
-  NoDelayFilter(@Nonnull DigitalFilter filter) {
-    this.filter = filter;
+  NoDelayFilter(DigitalFilter filter) {
+    this.filter = Objects.requireNonNull(filter);
     skipSamples = new AtomicInteger((int) Math.round(filter.getDelay() * 2));
     filter.forEach(values -> {
       if (skipSamples.get() == 0) {

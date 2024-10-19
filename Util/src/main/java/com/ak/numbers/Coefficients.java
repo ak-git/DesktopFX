@@ -1,31 +1,29 @@
 package com.ak.numbers;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.StandardCopyOption;
-import java.util.Objects;
-import java.util.Scanner;
-import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.annotation.Nonnull;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-
 import com.ak.logging.CalibrateBuilders;
 import com.ak.util.Extension;
 import com.ak.util.LocalIO;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
+import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public interface Coefficients extends Supplier<double[]> {
   @Override
   default double[] get() {
-    var fileName = getClass().getPackageName().substring(getClass().getPackageName().lastIndexOf(".") + 1);
+    var fileName = Arrays.stream(getClass().getPackageName().split("\\.")).skip(3).findFirst()
+        .orElse(Arrays.stream(Coefficients.class.getPackageName().split("\\.")).toList().getLast());
     var inputStream = Objects.requireNonNull(getClass().getResourceAsStream(Extension.JSON.attachTo(fileName)));
     try {
-      LocalIO build = CalibrateBuilders.CALIBRATION.build(fileName);
+      LocalIO build = CalibrateBuilders.build(fileName);
       var path = build.getPath();
       if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
         Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
@@ -34,10 +32,10 @@ public interface Coefficients extends Supplier<double[]> {
       inputStream = build.openInputStream();
     }
     catch (IOException e) {
-      Logger.getLogger(Coefficients.class.getName()).log(Level.WARNING, fileName, e);
+      Logger.getLogger(getClass().getName()).log(Level.WARNING, fileName, e);
     }
     try (JsonReader reader = Json.createReader(inputStream)) {
-      return CoefficientsUtils.read(new Scanner(readJSON(reader.readObject())));
+      return read(new Scanner(readJSON(reader.readObject())));
     }
   }
 
@@ -52,5 +50,17 @@ public interface Coefficients extends Supplier<double[]> {
     return pairs;
   }
 
-  String readJSON(@Nonnull JsonObject object);
+  String readJSON(JsonObject object);
+
+  static double[] read(Scanner scanner) {
+    scanner.useLocale(Locale.ROOT);
+    Collection<Double> coeffs = new LinkedList<>();
+    while (scanner.hasNext() && !scanner.hasNextDouble()) {
+      scanner.next();
+    }
+    while (scanner.hasNextDouble()) {
+      coeffs.add(scanner.nextDouble());
+    }
+    return coeffs.stream().mapToDouble(Double::doubleValue).toArray();
+  }
 }

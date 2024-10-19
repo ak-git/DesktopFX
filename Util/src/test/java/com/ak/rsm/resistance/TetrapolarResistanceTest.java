@@ -1,12 +1,5 @@
 package com.ak.rsm.resistance;
 
-import java.util.Collection;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
@@ -15,13 +8,19 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.byLessThan;
+import javax.annotation.Nonnegative;
+import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static tech.units.indriya.unit.Units.METRE;
 
 class TetrapolarResistanceTest {
+  private static final int SCALE = 10;
+
   static Stream<Arguments> tetrapolarResistivity() {
     return Stream.of(
         arguments(
@@ -61,7 +60,7 @@ class TetrapolarResistanceTest {
             3.39
         ),
         arguments(
-            TetrapolarResistance.ofMilli(10.0, 20.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
+            TetrapolarResistance.ofMilli(10.0, 20.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0 / SCALE).p(SCALE, SCALE),
             "10 000   20 000     242 751        5 720",
             242.751,
             5.72
@@ -87,7 +86,7 @@ class TetrapolarResistanceTest {
         ),
 
         arguments(
-            TetrapolarResistance.of(new TetrapolarSystem(Metrics.fromMilli(10.0), Metrics.fromMilli(30.0))).rho(8.1),
+            TetrapolarResistance.of(new TetrapolarSystem(Metrics.Length.MILLI.to(10.0, METRE), Metrics.Length.MILLI.to(30.0, METRE))).rho(8.1),
             "10 000   30 000     128 916        8 100",
             128.916,
             8.1
@@ -104,7 +103,6 @@ class TetrapolarResistanceTest {
 
   @ParameterizedTest
   @MethodSource("tetrapolarResistivity")
-  @ParametersAreNonnullByDefault
   void test(Resistance t, String expected, @Nonnegative double ohms, @Nonnegative double resistivity) {
     assertAll(t.toString(),
         () -> assertThat(t.toString().replaceAll("\\D", " ").strip()).isEqualTo(expected),
@@ -157,7 +155,6 @@ class TetrapolarResistanceTest {
 
   @ParameterizedTest
   @MethodSource("tetrapolarMultiResistivity")
-  @ParametersAreNonnullByDefault
   void testMulti(Collection<Resistance> ms, String expected, double[] resistivity) {
     assertThat(
         ms.stream().map(

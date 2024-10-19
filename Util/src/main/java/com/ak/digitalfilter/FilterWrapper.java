@@ -1,21 +1,19 @@
 package com.ak.digitalfilter;
 
-import javax.annotation.Nonnull;
+import java.util.Objects;
 
 final class FilterWrapper extends AbstractDigitalFilter {
-  @Nonnull
   private final String filterName;
-  @Nonnull
   private final DigitalFilter filter;
 
-  FilterWrapper(@Nonnull String filterName, @Nonnull DigitalFilter filter) {
-    this.filterName = filterName;
-    this.filter = filter;
+  FilterWrapper(String filterName, DigitalFilter filter) {
+    this.filterName = Objects.requireNonNull(filterName);
+    this.filter = Objects.requireNonNull(filter);
     this.filter.forEach(this::publish);
   }
 
   @Override
-  public void accept(@Nonnull int... values) {
+  public void accept(int... values) {
     filter.accept(values);
   }
 

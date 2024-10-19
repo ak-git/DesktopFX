@@ -7,17 +7,16 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-public class LogTestUtils {
-  private LogTestUtils() {
-  }
+public enum LogTestUtils {
+  ;
 
   public static boolean isSubstituteLogLevel(Logger logger, Level level, Runnable runnable, Consumer<LogRecord> recordConsumer) {
     Level oldLevel = logger.getLevel();
     logger.setLevel(level);
     AtomicBoolean okFlag = new AtomicBoolean();
-    logger.setFilter(record -> {
-      if (Objects.equals(record.getLevel(), level)) {
-        recordConsumer.accept(record);
+    logger.setFilter(r -> {
+      if (Objects.equals(r.getLevel(), level)) {
+        recordConsumer.accept(r);
         okFlag.set(true);
       }
       return false;

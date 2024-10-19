@@ -1,47 +1,36 @@
 package com.ak.rsm.resistance;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.PrimitiveIterator;
-import java.util.function.BiFunction;
-import java.util.function.DoubleFunction;
-import java.util.function.DoubleUnaryOperator;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
-import static tec.uom.se.unit.Units.OHM;
+import javax.annotation.Nonnegative;
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.DoubleFunction;
+import java.util.function.DoubleUnaryOperator;
 
-public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegative double ohms,
+import static tech.units.indriya.unit.Units.OHM;
+
+public record TetrapolarResistance(TetrapolarSystem system, @Nonnegative double ohms,
                                    @Nonnegative double resistivity) implements Resistance {
   @Override
   public String toString() {
     return "%s; %.3f %s; %s".formatted(system, ohms, OHM, Strings.rho(resistivity));
   }
 
-  @Nonnull
-  public static PreBuilder<Resistance> of(@Nonnull TetrapolarSystem system) {
+  public static PreBuilder<Resistance> of(TetrapolarSystem system) {
     return new Builder(system);
   }
 
-  @Nonnull
   public static PreBuilder<Resistance> ofSI(@Nonnegative double sPU, @Nonnegative double lCC) {
     return new Builder(DoubleUnaryOperator.identity(), sPU, lCC);
   }
 
-  @Nonnull
   public static PreBuilder<Resistance> ofMilli(@Nonnegative double sPU, @Nonnegative double lCC) {
     return new Builder(Metrics.MILLI, sPU, lCC);
   }
 
-  @Nonnull
   public static MultiPreBuilder<Resistance> milli() {
     return new MultiBuilder(Metrics.MILLI);
   }
@@ -56,16 +45,12 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
      * @param rhos rho[0], rho[1] ... rho[n]; dRho[0], dRho[1] ... dRho[n]
      * @return exact builder
      */
-    @Nonnull
-    T rho(@Nonnull double... rhos);
+    T rho(double... rhos);
 
-    @Nonnull
-    T ofOhms(@Nonnull double... rOhms);
+    T ofOhms(double... rOhms);
 
-    @Nonnull
     LayersBuilder1<T> rho1(@Nonnegative double rho1);
 
-    @ParametersAreNonnullByDefault
     static <T> T check(double[] values, DoubleFunction<T> function) {
       if (values.length == 1) {
         return function.apply(values[0]);
@@ -86,7 +71,6 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
      * @param sBase small sPU base.
      * @return builder to make two measurements.
      */
-    @Nonnull
     PreBuilder<Collection<T>> system2(@Nonnegative double sBase);
 
     /**
@@ -100,7 +84,6 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
      */
     PreBuilder<Collection<T>> system4(@Nonnegative double sBase);
 
-    @ParametersAreNonnullByDefault
     static <R, S> Collection<R> iterate(Collection<S> systems, double[] values, BiFunction<S, double[], R> function) {
       if (systems.size() == values.length) {
         PrimitiveIterator.OfDouble it = Arrays.stream(values).iterator();
@@ -113,31 +96,25 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
   }
 
   public interface LayersBuilder1<T> {
-    @Nonnull
     LayersBuilder2<T> rho2(@Nonnegative double rho2);
   }
 
   public interface LayersBuilder2<T> {
-    @Nonnull
     T h(@Nonnegative double h);
 
-    @Nonnull
     LayersBuilder3<T> rho3(@Nonnegative double rho3);
   }
 
   public interface LayersBuilder3<T> {
-    @Nonnull
     LayersBuilder4<T> hStep(@Nonnegative double hStep);
   }
 
   public interface LayersBuilder4<T> {
-    @Nonnull
     T p(@Nonnegative int p1, @Nonnegative int p2mp1);
   }
 
   public abstract static class AbstractBuilder<T>
       implements PreBuilder<T>, LayersBuilder1<T>, LayersBuilder2<T>, LayersBuilder3<T>, LayersBuilder4<T> {
-    @Nonnull
     protected final DoubleUnaryOperator converter;
     @Nonnegative
     protected double rho1;
@@ -154,46 +131,40 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
     @Nonnegative
     protected int p2mp1;
 
-    protected AbstractBuilder(@Nonnull DoubleUnaryOperator converter) {
-      this.converter = converter;
+    protected AbstractBuilder(DoubleUnaryOperator converter) {
+      this.converter = Objects.requireNonNull(converter);
     }
 
     @Override
-    @Nonnull
     public final LayersBuilder1<T> rho1(@Nonnegative double rho1) {
       this.rho1 = rho1;
       return this;
     }
 
     @Override
-    @Nonnull
     public final LayersBuilder2<T> rho2(@Nonnegative double rho2) {
       this.rho2 = rho2;
       return this;
     }
 
     @Override
-    @Nonnull
     public final T h(@Nonnegative double h) {
       this.h = converter.applyAsDouble(h);
       return build();
     }
 
-    @Nonnull
     @Override
     public LayersBuilder3<T> rho3(@Nonnegative double rho3) {
       this.rho3 = rho3;
       return this;
     }
 
-    @Nonnull
     @Override
     public LayersBuilder4<T> hStep(@Nonnegative double hStep) {
       this.hStep = converter.applyAsDouble(hStep);
       return this;
     }
 
-    @Nonnull
     @Override
     public T p(@Nonnegative int p1, @Nonnegative int p2mp1) {
       this.p1 = p1;
@@ -203,51 +174,45 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
   }
 
   public abstract static class AbstractTetrapolarBuilder<T> extends AbstractBuilder<T> {
-    @Nonnull
     protected final TetrapolarSystem system;
 
-    @ParametersAreNonnullByDefault
     protected AbstractTetrapolarBuilder(DoubleUnaryOperator converter, TetrapolarSystem system) {
       super(converter);
-      this.system = system;
+      this.system = Objects.requireNonNull(system);
     }
 
-    protected AbstractTetrapolarBuilder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double sPU, @Nonnegative double lCC) {
+    protected AbstractTetrapolarBuilder(DoubleUnaryOperator converter, @Nonnegative double sPU, @Nonnegative double lCC) {
       this(converter, new TetrapolarSystem(converter.applyAsDouble(sPU), converter.applyAsDouble(lCC)));
     }
   }
 
   public abstract static class AbstractMultiTetrapolarBuilder<T> extends AbstractBuilder<Collection<T>> implements MultiPreBuilder<T> {
-    @Nonnull
     protected final Collection<TetrapolarSystem> systems = new LinkedList<>();
 
-    @ParametersAreNonnullByDefault
     protected AbstractMultiTetrapolarBuilder(DoubleUnaryOperator converter) {
       super(converter);
     }
 
-    @Nonnull
     @Override
     public final PreBuilder<Collection<T>> system2(@Nonnegative double sBase) {
       systems.addAll(system2(converter, sBase));
       return this;
     }
 
-    @Nonnull
     @Override
     public final PreBuilder<Collection<T>> system4(@Nonnegative double sBase) {
       systems.addAll(system4(converter, sBase));
       return this;
     }
 
-    public static Collection<TetrapolarSystem> system2(@Nonnull DoubleUnaryOperator converter, @Nonnegative double sBase) {
+    public static Collection<TetrapolarSystem> system2(DoubleUnaryOperator converter, @Nonnegative double sBase) {
       return List.of(
           new TetrapolarSystem(converter.applyAsDouble(sBase), converter.applyAsDouble(sBase * 3.0)),
           new TetrapolarSystem(converter.applyAsDouble(sBase * 5.0), converter.applyAsDouble(sBase * 3.0))
       );
     }
 
-    public static Collection<TetrapolarSystem> system4(@Nonnull DoubleUnaryOperator converter, @Nonnegative double sBase) {
+    public static Collection<TetrapolarSystem> system4(DoubleUnaryOperator converter, @Nonnegative double sBase) {
       return List.of(
           new TetrapolarSystem(converter.applyAsDouble(sBase), converter.applyAsDouble(sBase * 3.0)),
           new TetrapolarSystem(converter.applyAsDouble(sBase * 5.0), converter.applyAsDouble(sBase * 3.0)),
@@ -258,29 +223,25 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
   }
 
   private static final class Builder extends AbstractTetrapolarBuilder<Resistance> {
-    @ParametersAreNonnullByDefault
-    private Builder(@Nonnull TetrapolarSystem system) {
+    private Builder(TetrapolarSystem system) {
       super(DoubleUnaryOperator.identity(), system);
     }
 
-    private Builder(@Nonnull DoubleUnaryOperator converter, @Nonnegative double sPU, @Nonnegative double lCC) {
+    private Builder(DoubleUnaryOperator converter, @Nonnegative double sPU, @Nonnegative double lCC) {
       super(converter, sPU, lCC);
     }
 
-    @Nonnull
     @Override
-    public Resistance rho(@Nonnull double... rhos) {
+    public Resistance rho(double... rhos) {
       return PreBuilder.check(rhos, rho -> new TetrapolarResistance(system, new Resistance1Layer(system).value(rho), rho));
     }
 
-    @Nonnull
     @Override
-    public Resistance ofOhms(@Nonnull double... rOhms) {
+    public Resistance ofOhms(double... rOhms) {
       return PreBuilder.check(rOhms, r -> new TetrapolarResistance(system, r, r / new Resistance1Layer(system).value(1.0)));
     }
 
     @Override
-    @Nonnull
     public Resistance build() {
       if (Double.isNaN(hStep)) {
         return ofOhms(new Resistance2Layer(system).value(rho1, rho2, h));
@@ -292,23 +253,20 @@ public record TetrapolarResistance(@Nonnull TetrapolarSystem system, @Nonnegativ
   }
 
   private static class MultiBuilder extends AbstractMultiTetrapolarBuilder<Resistance> {
-    private MultiBuilder(@Nonnull DoubleUnaryOperator converter) {
+    private MultiBuilder(DoubleUnaryOperator converter) {
       super(converter);
     }
 
-    @Nonnull
     @Override
-    public Collection<Resistance> rho(@Nonnull double... rhos) {
+    public Collection<Resistance> rho(double... rhos) {
       return MultiPreBuilder.iterate(systems, rhos, (s, rho) -> new Builder(s).rho(rho));
     }
 
-    @Nonnull
     @Override
-    public Collection<Resistance> ofOhms(@Nonnull double... rOhms) {
+    public Collection<Resistance> ofOhms(double... rOhms) {
       return MultiPreBuilder.iterate(systems, rOhms, (s, ohm) -> new Builder(s).ofOhms(ohm));
     }
 
-    @Nonnull
     @Override
     public Collection<Resistance> build() {
       return systems.stream().map(s -> {

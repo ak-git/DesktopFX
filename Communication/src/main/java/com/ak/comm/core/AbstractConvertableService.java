@@ -1,33 +1,29 @@
 package com.ak.comm.core;
 
-import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousFileChannel;
-import java.util.concurrent.Callable;
-import java.util.function.Consumer;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-
 import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.interceptor.BytesInterceptor;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousFileChannel;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+
 public abstract class AbstractConvertableService<T, R, V extends Enum<V> & Variable<V>>
-    extends AbstractService<int[]> implements Callable<AsynchronousFileChannel>, Readable {
-  @Nonnull
+    extends AbstractService<int[]> implements Callable<Optional<AsynchronousFileChannel>>, Readable {
   private final BytesInterceptor<T, R> bytesInterceptor;
-  @Nonnull
   private final Converter<R, V> responseConverter;
-  @Nonnull
   private final ByteBuffer workingBuffer;
-  @Nonnull
   private final ConcurrentAsyncFileChannel convertedLogByteChannel = new ConcurrentAsyncFileChannel(this);
 
-  protected AbstractConvertableService(@Nonnull BytesInterceptor<T, R> bytesInterceptor,
-                                       @Nonnull Converter<R, V> responseConverter) {
-    this.bytesInterceptor = bytesInterceptor;
-    this.responseConverter = responseConverter;
+  protected AbstractConvertableService(BytesInterceptor<T, R> bytesInterceptor,
+                                       Converter<R, V> responseConverter) {
+    this.bytesInterceptor = Objects.requireNonNull(bytesInterceptor);
+    this.responseConverter = Objects.requireNonNull(responseConverter);
     workingBuffer = ByteBuffer.allocate(responseConverter.variables().size() * Integer.BYTES);
   }
 
@@ -39,11 +35,11 @@ public abstract class AbstractConvertableService<T, R, V extends Enum<V> & Varia
   }
 
   @Override
-  public final void read(@Nonnull ByteBuffer dst, @Nonnegative long position) {
+  public final void read(ByteBuffer dst, @Nonnegative long position) {
     convertedLogByteChannel.read(dst, position);
   }
 
-  protected final void process(@Nonnull ByteBuffer buffer, @Nonnull Consumer<int[]> doAfter) {
+  protected final void process(ByteBuffer buffer, Consumer<int[]> doAfter) {
     if (buffer.limit() == 0) {
       convertedLogByteChannel.close();
       responseConverter.refresh(false);

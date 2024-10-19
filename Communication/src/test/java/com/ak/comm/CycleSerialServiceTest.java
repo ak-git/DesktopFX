@@ -1,17 +1,18 @@
 package com.ak.comm;
 
-import java.nio.ByteOrder;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Flow;
-import java.util.concurrent.TimeUnit;
-
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.ADCVariable;
 import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.serial.CycleSerialService;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.nio.ByteOrder;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Flow;
+import java.util.concurrent.TimeUnit;
 
 import static com.ak.util.UIConstants.UI_DELAY;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -28,10 +29,12 @@ class CycleSerialServiceTest {
     service.subscribe(new Flow.Subscriber<>() {
       @Override
       public void onSubscribe(Flow.Subscription subscription) {
+        Assertions.assertThat(subscription).isNotNull();
       }
 
       @Override
       public void onNext(int[] item) {
+        fail();
       }
 
       @Override

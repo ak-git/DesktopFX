@@ -1,5 +1,19 @@
+plugins {
+    alias(libs.plugins.javamodularity.moduleplugin)
+}
+
 dependencies {
     api project(':Util')
-    implementation uom_se
-    implementation jSerialComm
+    api libs.jserial.comm
+    api libs.measure.unit.api
+    api libs.findbugs.jsr305
+    api libs.javax.json
+    implementation libs.jspecify
+    implementation libs.tech.units
+
+    testImplementation(platform(libs.junit))
+    testImplementation libs.bundles.test.implementation
+    testImplementation libs.bundles.test.mockito
+    testCompileOnly libs.bundles.test.compile
+    testRuntimeOnly libs.bundles.test.runtime
 }

@@ -1,16 +1,16 @@
 package com.ak.comm.interceptor;
 
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.bytes.LogUtils;
+import org.jspecify.annotations.Nullable;
+
+import javax.annotation.Nonnegative;
+import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_LEXEMES;
@@ -18,27 +18,30 @@ import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_LEXEMES;
 public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> implements BytesInterceptor<T, R> {
   protected static final int IGNORE_LIMIT = 16;
   private final Logger logger = Logger.getLogger(getClass().getName());
-  @Nonnull
   private final String name;
-  @Nonnull
   private final ByteBuffer outBuffer;
-  @Nonnull
   private final ByteBuffer ignoreBuffer;
-  @Nonnull
   private final BaudRate baudRate;
-  @Nullable
-  private final T pingRequest;
+  private final @Nullable T pingRequest;
 
-  protected AbstractBytesInterceptor(@Nonnull String name, @Nonnull BaudRate baudRate, @Nullable T pingRequest, @Nonnegative int ignoreBufferLimit) {
-    this.name = name;
-    outBuffer = ByteBuffer.allocate(baudRate.get());
+  protected AbstractBytesInterceptor(String name, BaudRate baudRate, @Nonnegative int ignoreBufferLimit, T pingRequest) {
+    this.name = Objects.requireNonNull(name);
+    outBuffer = ByteBuffer.allocate(baudRate.getAsInt());
     ignoreBuffer = ByteBuffer.allocate(ignoreBufferLimit);
     this.baudRate = baudRate;
-    this.pingRequest = pingRequest;
+    this.pingRequest = Objects.requireNonNull(pingRequest);
+  }
+
+  protected AbstractBytesInterceptor(String name, BaudRate baudRate, @Nonnegative int ignoreBufferLimit) {
+    this.name = Objects.requireNonNull(name);
+    outBuffer = ByteBuffer.allocate(baudRate.getAsInt());
+    ignoreBuffer = ByteBuffer.allocate(ignoreBufferLimit);
+    this.baudRate = baudRate;
+    pingRequest = null;
   }
 
   @Override
-  public final Stream<R> apply(@Nonnull ByteBuffer src) {
+  public final Stream<R> apply(ByteBuffer src) {
     Collection<R> responses = innerProcessIn(src);
     if (logger.isLoggable(LOG_LEVEL_LEXEMES)) {
       responses.forEach(response -> logger.log(LOG_LEVEL_LEXEMES, "#%08x %s".formatted(hashCode(), response)));
@@ -46,14 +49,13 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
     return responses.stream();
   }
 
-  @Nullable
   @Override
-  public final T getPingRequest() {
-    return pingRequest;
+  public final Optional<T> getPingRequest() {
+    return Optional.ofNullable(pingRequest);
   }
 
   @Override
-  public final ByteBuffer putOut(@Nonnull T request) {
+  public final ByteBuffer putOut(T request) {
     outBuffer.clear();
     request.writeTo(outBuffer);
     outBuffer.flip();
@@ -68,7 +70,6 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
     return outBuffer;
   }
 
-  @Nonnull
   @Override
   public final String name() {
     return name;
@@ -77,13 +78,11 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
   @Nonnegative
   @Override
   public int getBaudRate() {
-    return baudRate.get();
+    return baudRate.getAsInt();
   }
 
-  @Nonnull
-  protected abstract Collection<R> innerProcessIn(@Nonnull ByteBuffer src);
+  protected abstract Collection<R> innerProcessIn(ByteBuffer src);
 
-  @Nonnull
   protected final ByteBuffer ignoreBuffer() {
     return ignoreBuffer;
   }

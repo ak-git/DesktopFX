@@ -1,5 +1,11 @@
 package com.ak.logging;
 
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
@@ -9,14 +15,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,8 +45,8 @@ class LogBuildersTest {
 
   @ParameterizedTest
   @EnumSource(mode = EnumSource.Mode.EXCLUDE, value = LogBuilders.class, names = "CONVERTER_FILE")
-  void testNotToClean(@Nonnull LogBuilders logBuilders) {
-    Assertions.assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(logBuilders::clean);
+  void testNotToClean(LogBuilders logBuilders) {
+    Assertions.assertThatNoException().isThrownBy(logBuilders::clean);
   }
 
   @Test

@@ -1,20 +1,25 @@
 package com.ak.comm.file;
 
+import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.Variable;
+import com.ak.comm.core.AbstractConvertableService;
+import com.ak.comm.interceptor.BytesInterceptor;
+import com.ak.logging.LogBuilders;
+import com.ak.util.Strings;
+
+import javax.annotation.Nonnegative;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Flow;
 import java.util.function.Consumer;
@@ -23,34 +28,17 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import com.ak.comm.converter.Converter;
-import com.ak.comm.converter.Variable;
-import com.ak.comm.core.AbstractConvertableService;
-import com.ak.comm.interceptor.BytesInterceptor;
-import com.ak.logging.LogBuilders;
-import com.ak.util.Strings;
-
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.READ;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import static java.nio.file.StandardOpenOption.WRITE;
+import static java.nio.file.StandardOpenOption.*;
 
 final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractConvertableService<T, R, V> implements Flow.Subscription {
-  @Nonnull
   private final Path fileToRead;
   @Nonnegative
   private long requestSamples = Long.MAX_VALUE;
-  @Nonnull
-  private Callable<AsynchronousFileChannel> convertedFileChannelProvider = () -> null;
+  private Callable<Optional<AsynchronousFileChannel>> convertedFileChannelProvider = Optional::empty;
   private volatile boolean disposed;
 
-  @ParametersAreNonnullByDefault
   FileReadingService(Path fileToRead, BytesInterceptor<T, R> bytesInterceptor, Converter<R, V> responseConverter) {
     super(bytesInterceptor, responseConverter);
     Objects.requireNonNull(fileToRead);
@@ -58,7 +46,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
-  public void subscribe(@Nonnull Flow.Subscriber<? super int[]> s) {
+  public void subscribe(Flow.Subscriber<? super int[]> s) {
     if (Files.isReadable(fileToRead)) {
       s.onSubscribe(this);
 
@@ -68,7 +56,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
           private long samplesCounter;
 
           @Override
-          public void accept(@Nonnull ByteBuffer byteBuffer) {
+          public void accept(ByteBuffer byteBuffer) {
             logBytes(byteBuffer);
             process(byteBuffer, ints -> {
               if (samplesCounter < requestSamples) {
@@ -84,6 +72,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
       }
       catch (ClosedByInterruptException e) {
         Logger.getLogger(getClass().getName()).log(Level.CONFIG, fileToRead.toString(), e);
+        Thread.currentThread().interrupt();
       }
       catch (Exception e) {
         Logger.getLogger(getClass().getName()).log(Level.WARNING, fileToRead.toString(), e);
@@ -124,11 +113,10 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
-  public AsynchronousFileChannel call() throws Exception {
+  public Optional<AsynchronousFileChannel> call() throws Exception {
     return convertedFileChannelProvider.call();
   }
 
-  @ParametersAreNonnullByDefault
   private void checkThenOpen(String md5Base, SeekableByteChannel seekableByteChannel, Consumer<ByteBuffer> doOnOpen)
       throws NoSuchAlgorithmException, IOException {
     Logger.getLogger(getClass().getName()).log(Level.CONFIG, () -> "#%08x Open file [ %s ]".formatted(hashCode(), fileToRead));
@@ -137,7 +125,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
       var md5Code = digestToString(md.digest(md5Base.getBytes(Charset.defaultCharset())));
       var convertedFile = LogBuilders.CONVERTER_FILE.build(md5Code).getPath();
       if (Files.exists(convertedFile, LinkOption.NOFOLLOW_LINKS)) {
-        convertedFileChannelProvider = () -> AsynchronousFileChannel.open(convertedFile, READ);
+        convertedFileChannelProvider = () -> Optional.of(AsynchronousFileChannel.open(convertedFile, READ));
         Logger.getLogger(getClass().getName()).log(Level.INFO,
             () -> "#%08x File [ %s ] with hash = [ %s ] is already processed".formatted(hashCode(), fileToRead, md5Code));
       }
@@ -145,8 +133,9 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
         Logger.getLogger(getClass().getName()).log(Level.INFO,
             () -> "#%08x Read file [ %s ], hash = [ %s ]".formatted(hashCode(), fileToRead, md5Code));
         var tempConverterFile = LogBuilders.CONVERTER_FILE.build("temp." + md5Code).getPath();
-        convertedFileChannelProvider = () -> AsynchronousFileChannel.open(tempConverterFile,
-            CREATE, WRITE, READ, TRUNCATE_EXISTING);
+        convertedFileChannelProvider = () -> Optional.of(
+            AsynchronousFileChannel.open(tempConverterFile, CREATE, WRITE, READ, TRUNCATE_EXISTING)
+        );
 
         boolean processed = isChannelProcessed(seekableByteChannel, doOnOpen);
         if (processed && Files.exists(tempConverterFile)) {
@@ -157,7 +146,6 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
     }
   }
 
-  @ParametersAreNonnullByDefault
   private boolean isChannelProcessed(SeekableByteChannel seekableByteChannel,
                                      Consumer<ByteBuffer> consumer) throws IOException {
     int blockSize = (int) Files.getFileStore(Paths.get(Strings.EMPTY)).getBlockSize();
@@ -173,7 +161,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
     return readFlag && !disposed;
   }
 
-  private static String digestToString(@Nonnull byte[] digest) {
+  private static String digestToString(byte[] digest) {
     String s = HexFormat.of().formatHex(digest);
     return IntStream.range(0, s.length()).filter(value -> value % 4 == 0)
         .mapToObj(i -> s.subSequence(i, i + 1)).collect(Collectors.joining());

@@ -1,40 +1,22 @@
 package com.ak.rsm.inverse;
 
-import java.util.Collection;
-
-import javax.annotation.Nonnull;
-
 import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.medium.Layer1Medium;
 import com.ak.rsm.medium.Layer2Medium;
-import com.ak.rsm.medium.MediumLayers;
 import com.ak.rsm.relative.RelativeMediumLayers;
 
-import static com.ak.rsm.inverse.StaticErrors.SUBTRACT;
+import java.util.Collection;
+import java.util.function.Function;
 
-class StaticAbsolute implements Inverse<MediumLayers> {
-  @Nonnull
-  private final StaticRelative inverseRelative;
+enum StaticAbsolute {
+  ;
 
-  StaticAbsolute(@Nonnull Collection<? extends Measurement> measurements) {
-    inverseRelative = new StaticRelative(measurements, SUBTRACT);
-  }
-
-  @Nonnull
-  @Override
-  public MediumLayers get() {
-    Collection<Measurement> measurements = inverseRelative.measurements();
-    if (measurements.size() > 2) {
-      return new Layer2Medium(measurements, inverseRelative.get());
-    }
-    else {
-      return new Layer1Medium(measurements);
-    }
-  }
-
-  @Nonnull
-  @Override
-  public RelativeMediumLayers apply(@Nonnull RelativeMediumLayers layers) {
-    return inverseRelative.apply(layers);
-  }
+  public static final Function<Collection<? extends Measurement>, Layer1Medium> LAYER_1 = Layer1Medium::new;
+  public static final Function<Collection<? extends Measurement>, Layer2Medium> LAYER_2 =
+      measurements -> {
+        if (measurements.size() == 1) {
+          return new Layer2Medium(measurements, RelativeMediumLayers.SINGLE_LAYER);
+        }
+        return new Layer2Medium(measurements, Relative.Static.solve(measurements));
+      };
 }

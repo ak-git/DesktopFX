@@ -1,12 +1,5 @@
 package com.ak.rsm.resistance;
 
-import java.util.Collection;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
@@ -15,14 +8,19 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.assertj.core.api.Assertions.byLessThan;
+import javax.annotation.Nonnegative;
+import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static tech.units.indriya.unit.Units.METRE;
 
 class TetrapolarDerivativeResistanceTest {
+  private static final int SCALE = 10;
+
   static Stream<Arguments> tetrapolarResistivity() {
     return Stream.of(
         arguments(
@@ -74,11 +72,12 @@ class TetrapolarDerivativeResistanceTest {
             new TetrapolarSystem(0.01, 0.03)
         ),
         arguments(
-            TetrapolarDerivativeResistance.ofMilli(10.0, 20.0).dh(0.1).rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50),
-            "10 000   20 000     242 751        5 720              0 677           0 100",
+            TetrapolarDerivativeResistance.ofMilli(10.0, 20.0).dh(0.1).rho1(8.0).rho2(2.0).rho3(1.0)
+                .hStep(0.1 / SCALE).p(50 * SCALE, 50 * SCALE),
+            "10 000   20 000     242 751        5 720              13 215           0 100",
             242.751,
             5.72,
-            0.677,
+            13.214859951943403,
             new TetrapolarSystem(0.01, 0.02)
         ),
 
@@ -108,7 +107,7 @@ class TetrapolarDerivativeResistanceTest {
         ),
 
         arguments(
-            TetrapolarDerivativeResistance.of(new TetrapolarSystem(Metrics.fromMilli(10.0), Metrics.fromMilli(30.0)))
+            TetrapolarDerivativeResistance.of(new TetrapolarSystem(Metrics.Length.MILLI.to(10.0, METRE), Metrics.Length.MILLI.to(30.0, METRE)))
                 .dh(Double.NaN).rho(8.1, -8.1),
             "10 000   30 000     128 916        8 100               8 100",
             128.916,
@@ -121,9 +120,7 @@ class TetrapolarDerivativeResistanceTest {
 
   @ParameterizedTest
   @MethodSource("tetrapolarResistivity")
-  @ParametersAreNonnullByDefault
-  void test(DerivativeResistance d, String expected,
-            @Nonnegative double ohms, @Nonnegative double resistivity,
+  void test(DerivativeResistance d, String expected, @Nonnegative double ohms, @Nonnegative double resistivity,
             double derivativeResistivity, TetrapolarSystem system) {
     assertAll(d.toString(),
         () -> assertThat(d.toString().replaceAll("\\D", " ").strip()).isEqualTo(expected),
@@ -149,10 +146,11 @@ class TetrapolarDerivativeResistanceTest {
             new double[] {24.760, 20.852}
         ),
         arguments(
-            TetrapolarDerivativeResistance.milli().dh(0.3).system2(8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50),
-            "80002400088617445413140300 4000024000107985361915160300",
+            TetrapolarDerivativeResistance.milli().dh(0.3).system2(8.0).rho1(8.0).rho2(2.0).rho3(1.0)
+                .hStep(0.1 / SCALE).p(50 * SCALE, 50 * SCALE),
+            "800024000886174454189590300 40000240001079853619158430300",
             new double[] {4.45, 3.62},
-            new double[] {1.3142727347934624, 1.51592272032147}
+            new double[] {18.958526157968976, 15.842787775068425}
         ),
         arguments(
             TetrapolarDerivativeResistance.milli().dh(0.01).system2(10.0)
@@ -167,7 +165,6 @@ class TetrapolarDerivativeResistanceTest {
 
   @ParameterizedTest
   @MethodSource("tetrapolarMultiResistivity")
-  @ParametersAreNonnullByDefault
   void testMulti(Collection<DerivativeResistance> ms, String expected, double[] resistivity, double[] derivativeResistivity) {
     assertAll(ms.toString(),
         () -> assertThat(ms.stream().map(
@@ -208,6 +205,7 @@ class TetrapolarDerivativeResistanceTest {
     var builder2 = TetrapolarDerivativeResistance.milli().dh(0.01)
         .system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.1);
     assertThatIllegalArgumentException().isThrownBy(() -> builder2.p(50, 50))
-        .withMessageContaining("|dh| < hStep");
+        .withMessageStartingWith("|dh = ")
+        .withMessageContaining("< |hStep = ");
   }
 }

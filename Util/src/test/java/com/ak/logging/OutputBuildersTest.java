@@ -1,5 +1,8 @@
 package com.ak.logging;
 
+import com.ak.util.Extension;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -8,11 +11,6 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import javax.annotation.Nonnull;
-
-import com.ak.util.Extension;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -35,7 +33,7 @@ class OutputBuildersTest {
     return digestToString(MessageDigest.getInstance("SHA-512").digest(Instant.now().toString().getBytes(Charset.defaultCharset())));
   }
 
-  private static String digestToString(@Nonnull byte[] digest) {
+  private static String digestToString(byte[] digest) {
     return IntStream.range(0, digest.length).filter(value -> value % 4 == 0)
         .mapToObj(i -> "%02x".formatted(digest[i])).collect(Collectors.joining());
   }
