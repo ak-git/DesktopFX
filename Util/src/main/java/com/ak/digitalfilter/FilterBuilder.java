@@ -7,7 +7,10 @@ import com.ak.util.Builder;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.Nonnegative;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntUnaryOperator;
@@ -262,7 +265,12 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   private FilterBuilder chain(DigitalFilter chain) {
-    filter = Optional.ofNullable(filter).<DigitalFilter>map(f -> new ChainFilter(f, chain)).orElse(Objects.requireNonNull(chain));
+    if (filter == null) {
+      filter = Objects.requireNonNull(chain);
+    }
+    else {
+      filter = new ChainFilter(filter, chain);
+    }
     return this;
   }
 
