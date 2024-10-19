@@ -17,6 +17,7 @@ import com.ak.appliance.rcm.comm.interceptor.RcmBytesInterceptor;
 import com.ak.appliance.rcm.comm.interceptor.RcmsBytesInterceptor;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.*;
+import com.ak.comm.converter.prv.PrvVariable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.interceptor.simple.StringBytesInterceptor;
@@ -140,8 +141,8 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("prv")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<String, ADCVariable> converterPrv() {
-    return new StringToIntegerConverter<>(ADCVariable.class, 32);
+  static Converter<String, PrvVariable> converterPrv() {
+    return new StringToIntegerConverter<>(PrvVariable.class, 32);
   }
 
   @Bean
