@@ -6,7 +6,7 @@ import com.ak.util.Metrics;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -20,7 +20,7 @@ abstract sealed class AbstractMediumLayers implements MediumLayers, Function<Mea
     if (measurements.isEmpty()) {
       throw new IllegalArgumentException("Empty measurements");
     }
-    this.measurements = Collections.unmodifiableCollection(measurements);
+    this.measurements = Set.copyOf(measurements);
   }
 
   @Override

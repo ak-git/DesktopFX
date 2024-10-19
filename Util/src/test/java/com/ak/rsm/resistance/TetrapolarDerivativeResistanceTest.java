@@ -19,6 +19,8 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static tech.units.indriya.unit.Units.METRE;
 
 class TetrapolarDerivativeResistanceTest {
+  private static final int SCALE = 10;
+
   static Stream<Arguments> tetrapolarResistivity() {
     return Stream.of(
         arguments(
@@ -70,7 +72,8 @@ class TetrapolarDerivativeResistanceTest {
             new TetrapolarSystem(0.01, 0.03)
         ),
         arguments(
-            TetrapolarDerivativeResistance.ofMilli(10.0, 20.0).dh(0.1).rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50),
+            TetrapolarDerivativeResistance.ofMilli(10.0, 20.0).dh(0.1).rho1(8.0).rho2(2.0).rho3(1.0)
+                .hStep(0.1 / SCALE).p(50 * SCALE, 50 * SCALE),
             "10 000   20 000     242 751        5 720              13 215           0 100",
             242.751,
             5.72,
@@ -143,7 +146,8 @@ class TetrapolarDerivativeResistanceTest {
             new double[] {24.760, 20.852}
         ),
         arguments(
-            TetrapolarDerivativeResistance.milli().dh(0.3).system2(8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50),
+            TetrapolarDerivativeResistance.milli().dh(0.3).system2(8.0).rho1(8.0).rho2(2.0).rho3(1.0)
+                .hStep(0.1 / SCALE).p(50 * SCALE, 50 * SCALE),
             "800024000886174454189590300 40000240001079853619158430300",
             new double[] {4.45, 3.62},
             new double[] {18.958526157968976, 15.842787775068425}
@@ -201,6 +205,7 @@ class TetrapolarDerivativeResistanceTest {
     var builder2 = TetrapolarDerivativeResistance.milli().dh(0.01)
         .system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.1);
     assertThatIllegalArgumentException().isThrownBy(() -> builder2.p(50, 50))
-        .withMessageContaining("|dh| < hStep");
+        .withMessageStartingWith("|dh = ")
+        .withMessageContaining("< |hStep = ");
   }
 }

@@ -108,7 +108,7 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
 
     @Override
     public TetrapolarResistance.PreBuilder<DerivativeResistance> dh(double dh) {
-      this.dh = convertDh(dh);
+      this.dh = converter.applyAsDouble(dh);
       return this;
     }
 
@@ -144,8 +144,8 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
         if (Double.isNaN(dh)) {
           throw new IllegalArgumentException("dh NULL is not supported in 3-layer model");
         }
-        if (Math.abs(dh) < hStep) {
-          throw new IllegalArgumentException("|dh| < hStep -> |%s| < %s".formatted(dh, hStep));
+        if (Math.abs(dh) < Math.abs(hStep)) {
+          throw new IllegalArgumentException("|dh = %f| < |hStep = %f|".formatted(dh, hStep));
         }
 
         var builder3 = builder.rho3(rho3).hStep(hStep);
@@ -168,7 +168,7 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
 
     @Override
     public TetrapolarResistance.MultiPreBuilder<DerivativeResistance> dh(double dh) {
-      this.dh = convertDh(dh);
+      this.dh = converter.applyAsDouble(dh);
       return this;
     }
 

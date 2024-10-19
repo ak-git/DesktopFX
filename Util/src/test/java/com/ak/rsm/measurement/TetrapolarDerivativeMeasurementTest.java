@@ -324,6 +324,7 @@ class TetrapolarDerivativeMeasurementTest {
     var builder2 = TetrapolarDerivativeMeasurement.milli(0.1).dh(0.01)
         .system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.1);
     assertThatIllegalArgumentException().isThrownBy(() -> builder2.p(50, 50))
-        .withMessageContaining("|dh| < hStep");
+        .withMessageStartingWith("|dh = ")
+        .withMessageContaining("< |hStep = ");
   }
 }

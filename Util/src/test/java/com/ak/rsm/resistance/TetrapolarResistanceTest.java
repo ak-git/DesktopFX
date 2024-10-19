@@ -19,6 +19,8 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static tech.units.indriya.unit.Units.METRE;
 
 class TetrapolarResistanceTest {
+  private static final int SCALE = 10;
+
   static Stream<Arguments> tetrapolarResistivity() {
     return Stream.of(
         arguments(
@@ -58,7 +60,7 @@ class TetrapolarResistanceTest {
             3.39
         ),
         arguments(
-            TetrapolarResistance.ofMilli(10.0, 20.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
+            TetrapolarResistance.ofMilli(10.0, 20.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0 / SCALE).p(SCALE, SCALE),
             "10 000   20 000     242 751        5 720",
             242.751,
             5.72

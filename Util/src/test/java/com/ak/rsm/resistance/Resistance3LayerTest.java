@@ -18,6 +18,8 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static tech.units.indriya.unit.Units.METRE;
 
 class Resistance3LayerTest {
+  private static final int SCALE = 2;
+
   static Stream<Arguments> threeLayerParameters() {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(10.0, METRE), Metrics.Length.MILLI.to(20.0, METRE));
 
@@ -105,7 +107,8 @@ class Resistance3LayerTest {
                  @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
     assertAll(Arrays.toString(rho),
-        () -> assertThat(new Resistance3Layer(system, hStepSI).value(rho[0], rho[1], rho[2], p[0], p[1]))
+        () -> assertThat(new Resistance3Layer(system, hStepSI / SCALE)
+            .value(rho[0], rho[1], rho[2], p[0] * SCALE, p[1] * SCALE))
             .isCloseTo(rOhm, byLessThan(0.001)),
         () -> assertThat(TetrapolarResistance
             .ofMilli(smm, lmm)

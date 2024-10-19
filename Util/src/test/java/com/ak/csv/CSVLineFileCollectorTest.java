@@ -91,7 +91,7 @@ class CSVLineFileCollectorTest {
     try (CSVLineFileCollector collector = new CSVLineFileCollector(OUT_FILE)) {
       collector.accept(stream.get().toArray(String[]::new));
     }
-    assertThat(Files.readString(OUT_FILE, Charset.forName("windows-1251")).trim())
+    assertThat(Files.readString(OUT_FILE, Charset.forName("windows-1251")).strip())
         .isEqualTo(stream.get().collect(Collectors.joining(ROW_DELIMITER)));
     assertThat(EXCEPTION_COUNTER.get()).withFailMessage("Exception must NOT be thrown").isZero();
   }

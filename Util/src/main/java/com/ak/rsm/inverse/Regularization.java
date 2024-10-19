@@ -7,8 +7,8 @@ import com.ak.util.Strings;
 
 import javax.annotation.Nonnegative;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.OptionalDouble;
+import java.util.Set;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.function.ToDoubleBiFunction;
@@ -97,7 +97,7 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
     private final DoubleUnaryOperator min;
 
     private AbstractRegularization(Collection<InexactTetrapolarSystem> inexactSystems) {
-      this.inexactSystems = Collections.unmodifiableCollection(inexactSystems);
+      this.inexactSystems = Set.copyOf(inexactSystems);
       max = newMergeHorizons(InexactTetrapolarSystem::getHMax, DoubleStream::min);
       min = newMergeHorizons(InexactTetrapolarSystem::getHMin, DoubleStream::max);
     }

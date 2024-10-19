@@ -24,7 +24,7 @@ public final class StringBytesInterceptor extends AbstractBytesInterceptor<Buffe
       frame.append((char) in);
       if (in == STOP) {
         logSkippedBytes(true);
-        responses.add(frame.toString().trim());
+        responses.add(frame.toString().strip());
         frame.delete(0, frame.length());
       }
       else if (frame.length() == MAX_LEN) {
