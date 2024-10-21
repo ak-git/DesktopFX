@@ -24,6 +24,7 @@ module com.ak.fx.desktop {
   opens com.ak.fx.desktop to javafx.fxml, spring.core;
   opens com.ak.appliance.sktbpr.fx.desktop to spring.core;
   opens com.ak.appliance.nmisr.fx.desktop to spring.core;
+  opens com.ak.fx to javafx.fxml, spring.core;
   opens com.ak.fx.scene to javafx.fxml;
   opens com.ak.spring to spring.core;
 
@@ -34,7 +35,6 @@ module com.ak.fx.desktop {
   exports com.ak.appliance.suntech.fx.desktop to spring.beans;
   exports com.ak.spring to javafx.graphics, spring.beans, spring.context;
 
-  exports com.ak.fx.desktop;
-  opens com.ak.fx to javafx.fxml, spring.core;
   exports com.ak.fx;
+  exports com.ak.fx.desktop;
 }
