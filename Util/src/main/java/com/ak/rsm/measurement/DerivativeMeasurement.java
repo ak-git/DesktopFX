@@ -2,6 +2,6 @@ package com.ak.rsm.measurement;
 
 import com.ak.rsm.resistance.DerivativeResistivity;
 
-public sealed interface DerivativeMeasurement extends Measurement, DerivativeResistivity permits TetrapolarDerivativeMeasurement {
+public interface DerivativeMeasurement extends Measurement, DerivativeResistivity {
   double dOhms();
 }

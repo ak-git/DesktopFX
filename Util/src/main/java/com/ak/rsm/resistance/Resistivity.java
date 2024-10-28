@@ -5,7 +5,7 @@ import com.ak.rsm.system.TetrapolarSystem;
 import javax.annotation.Nonnegative;
 import java.util.Collection;
 
-public sealed interface Resistivity permits DerivativeResistivity, Resistance {
+public interface Resistivity {
   /**
    * Gets <b>apparent</b> specific ohms which is corresponding to 1-layer model.
    *

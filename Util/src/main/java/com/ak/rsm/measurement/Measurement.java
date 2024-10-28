@@ -6,7 +6,7 @@ import com.ak.rsm.system.TetrapolarSystem;
 
 import java.util.Collection;
 
-public sealed interface Measurement extends Resistance permits DerivativeMeasurement, TetrapolarMeasurement {
+public interface Measurement extends Resistance {
   InexactTetrapolarSystem toInexact();
 
   @Override
