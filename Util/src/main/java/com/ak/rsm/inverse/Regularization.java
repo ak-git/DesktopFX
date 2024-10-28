@@ -17,7 +17,7 @@ import java.util.stream.DoubleStream;
 import static java.lang.StrictMath.log;
 import static java.lang.StrictMath.log1p;
 
-public sealed interface Regularization permits Regularization.AbstractRegularization {
+public interface Regularization {
   enum Interval {
     ZERO_MAX {
       @Override
@@ -91,7 +91,7 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
     abstract Regularization innerOf(@Nonnegative double alpha, Collection<InexactTetrapolarSystem> inexactSystems);
   }
 
-  abstract non-sealed class AbstractRegularization implements Regularization {
+  abstract class AbstractRegularization implements Regularization {
     private final Collection<InexactTetrapolarSystem> inexactSystems;
     private final DoubleUnaryOperator max;
     private final DoubleUnaryOperator min;

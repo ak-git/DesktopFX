@@ -9,15 +9,15 @@ module com.ak.comm {
   requires org.jspecify;
   requires tech.units.indriya;
 
-  exports com.ak.comm;
-  exports com.ak.comm.bytes;
-  exports com.ak.comm.converter;
-  exports com.ak.comm.interceptor;
-  exports com.ak.comm.interceptor.simple;
-
   opens com.ak.appliance.aper.numbers to com.ak.util;
   opens com.ak.appliance.rcm.numbers to com.ak.util;
 
+  exports com.ak.comm;
+  exports com.ak.comm.bytes;
+  exports com.ak.comm.core;
+  exports com.ak.comm.converter;
+  exports com.ak.comm.interceptor;
+  exports com.ak.comm.interceptor.simple;
   exports com.ak.appliance.aper.comm.converter;
   exports com.ak.appliance.rcm.comm.converter;
   exports com.ak.appliance.rcm.comm.interceptor;
@@ -30,6 +30,7 @@ module com.ak.comm {
   exports com.ak.appliance.nmis.comm.converter;
   exports com.ak.appliance.nmis.comm.interceptor;
   exports com.ak.appliance.nmisr.comm.interceptor;
+  exports com.ak.appliance.prv.comm.converter;
   exports com.ak.appliance.purelogic.comm.bytes;
   exports com.ak.appliance.purelogic.comm.converter;
   exports com.ak.appliance.purelogic.comm.interceptor;
@@ -42,7 +43,6 @@ module com.ak.comm {
   exports com.ak.appliance.suntech.comm.bytes;
   exports com.ak.appliance.suntech.comm.converter;
   exports com.ak.appliance.suntech.comm.interceptor;
-  exports com.ak.comm.core;
   exports com.ak.appliance.aper.numbers;
   exports com.ak.appliance.rcm.numbers;
 }

@@ -13,7 +13,7 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
     try (AbstractPureLogicViewController controller = build()) {
       controller.close();
       Assertions.assertThat(IntStream.range(0, 4)
-          .map(ignore -> controller.get().getMicrons()).toArray()).containsExactly(-150, 150, -150, 150);
+          .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(-150, 150, -150, 150);
     }
     catch (IOException e) {
       Assertions.fail(e.getMessage(), e);
@@ -28,11 +28,11 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
       controller.escape();
       controller.up();
       Assertions.assertThat(IntStream.range(0, 2)
-          .map(ignore -> controller.get().getMicrons()).toArray()).containsExactly(750, 0);
+          .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(750, 0);
       controller.right();
       controller.up();
       Assertions.assertThat(IntStream.range(0, 4)
-          .map(ignore -> controller.get().getMicrons()).toArray()).containsExactly(150, 750, -150, 150);
+          .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(150, 750, -150, 150);
     }
     catch (IOException e) {
       Assertions.fail(e.getMessage(), e);
@@ -47,11 +47,11 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
       controller.escape();
       controller.down();
       Assertions.assertThat(IntStream.range(0, 2)
-          .map(ignore -> controller.get().getMicrons()).toArray()).containsExactly(-750, 0);
+          .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(-750, 0);
       controller.left();
       controller.down();
       Assertions.assertThat(IntStream.range(0, 4)
-          .map(ignore -> controller.get().getMicrons()).toArray()).containsExactly(150, -750, -150, 150);
+          .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(150, -750, -150, 150);
     }
     catch (IOException e) {
       Assertions.fail(e.getMessage(), e);

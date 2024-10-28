@@ -49,7 +49,7 @@ class SimplexTest {
   @ParameterizedTest
   @ValueSource(doubles = {Double.NEGATIVE_INFINITY, Double.NaN, Double.POSITIVE_INFINITY})
   void testInfinite(double d) {
-    PointValuePair valuePair = Simplex.optimizeAll(ignoreX -> d, new Bounds(-10.0, 10.0));
+    PointValuePair valuePair = Simplex.optimizeAll(_ -> d, new Bounds(-10.0, 10.0));
     assertThat(valuePair.getValue()).isNotFinite();
   }
 

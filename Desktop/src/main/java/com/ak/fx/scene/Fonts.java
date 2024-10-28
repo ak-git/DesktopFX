@@ -27,7 +27,7 @@ public enum Fonts {
 
   Fonts(String family, FontWeight weight, @Nonnegative double divider) {
     fontProperty = new SimpleObjectProperty<>(newFont(family, weight, divider));
-    changeListener = (ignoreObservable, ignoreOldValue, ignoreNewValue) -> fontProperty.set(newFont(family, weight, divider));
+    changeListener = (_, _, _) -> fontProperty.set(newFont(family, weight, divider));
   }
 
   public ReadOnlyObjectProperty<Font> fontProperty(Supplier<Scene> stageSupplier) {

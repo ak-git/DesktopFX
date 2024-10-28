@@ -3,7 +3,7 @@ package com.ak.rsm.potential;
 import javax.annotation.Nonnegative;
 import java.util.function.DoubleUnaryOperator;
 
-public abstract sealed class AbstractPotentialLayer permits Potential1Layer, Potential2Layer, Potential3Layer {
+public abstract class AbstractPotentialLayer {
   @Nonnegative
   private final double r;
 

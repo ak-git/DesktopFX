@@ -7,7 +7,10 @@ import com.ak.util.Builder;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.Nonnegative;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntUnaryOperator;
@@ -89,7 +92,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
 
   public FilterBuilder smoothingImpulsive(@Nonnegative int size) {
     var holdFilter = new HoldFilter.Builder(size).lostCount((size - Integer.highestOneBit(size)) / 2);
-    return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> ignore -> {
+    return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> _ -> {
       int[] sorted = holdFilter.getSorted();
       double mean = Arrays.stream(sorted).average().orElse(0.0);
 
@@ -196,7 +199,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return wrap("mean-n-std%d".formatted(averageFactor),
         of().fork(new NoFilter(), ExcessBufferFilter.mean(averageFactor))
             .fork(
-                of().biOperator(() -> (ignoreX, mean) -> mean).build(),
+                of().biOperator(() -> (_, mean) -> mean).build(),
                 of().biOperator(() -> (x, mean) -> x - mean).chain(ExcessBufferFilter.std2(averageFactor))
                     .operator(() -> x -> (int) Math.sqrt(x)).build()
             )
@@ -262,7 +265,12 @@ public class FilterBuilder implements Builder<DigitalFilter> {
   }
 
   private FilterBuilder chain(DigitalFilter chain) {
-    filter = Optional.ofNullable(filter).<DigitalFilter>map(f -> new ChainFilter(f, chain)).orElse(Objects.requireNonNull(chain));
+    if (filter == null) {
+      filter = Objects.requireNonNull(chain);
+    }
+    else {
+      filter = new ChainFilter(filter, chain);
+    }
     return this;
   }
 

@@ -93,7 +93,7 @@ class FileReadingServiceTest {
         new RampBytesInterceptor(getClass().getName(), BytesInterceptor.BaudRate.BR_921600, frameLength),
         new ToIntegerConverter<>(TwoVariables.class, 200))) {
       LogTestUtils.isSubstituteLogLevel(LOGGER, LogUtils.LOG_LEVEL_BYTES, () ->
-          publisher.subscribe(testSubscriber), ignoreLogRecord -> {
+          publisher.subscribe(testSubscriber), _ -> {
         if (forceClose) {
           publisher.close();
         }
@@ -148,7 +148,7 @@ class FileReadingServiceTest {
   @MethodSource("com.ak.comm.file.FileDataProvider#filesCanDelete")
   void testException(Path fileToRead, int bytes) {
     assertThat(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
-      TestSubscriber<int[]> testSubscriber = new TestSubscriber<>(ignoreSubscription -> {
+      TestSubscriber<int[]> testSubscriber = new TestSubscriber<>(_ -> {
         try {
           Files.deleteIfExists(fileToRead);
         }

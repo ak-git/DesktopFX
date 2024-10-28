@@ -172,7 +172,7 @@ class CSVLineFileCollectorTest {
     Path out = Paths.get("/");
     assertThatNullPointerException()
         .isThrownBy(() -> {
-          try (var ignored = new CSVLineFileCollector(out)) {
+          try (var _ = new CSVLineFileCollector(out)) {
             fail();
           }
         });

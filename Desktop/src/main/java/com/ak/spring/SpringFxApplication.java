@@ -9,6 +9,7 @@ import com.ak.appliance.nmis.comm.bytes.NmisResponseFrame;
 import com.ak.appliance.nmis.comm.converter.NmisConverter;
 import com.ak.appliance.nmis.comm.converter.NmisVariable;
 import com.ak.appliance.nmis.comm.interceptor.NmisBytesInterceptor;
+import com.ak.appliance.prv.comm.converter.PrvVariable;
 import com.ak.appliance.rcm.comm.converter.RcmCalibrationVariable;
 import com.ak.appliance.rcm.comm.converter.RcmConverter;
 import com.ak.appliance.rcm.comm.converter.RcmOutVariable;
@@ -140,8 +141,8 @@ public class SpringFxApplication extends FxApplication {
   @Bean
   @Profile("prv")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<String, ADCVariable> converterPrv() {
-    return new StringToIntegerConverter<>(ADCVariable.class, 32);
+  static Converter<String, PrvVariable> converterPrv() {
+    return new StringToIntegerConverter<>(PrvVariable.class, 32);
   }
 
   @Bean

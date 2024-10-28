@@ -12,8 +12,7 @@ import java.util.stream.Collectors;
 
 import static tech.units.indriya.unit.Units.PERCENT;
 
-abstract sealed class AbstractMediumLayers implements MediumLayers, Function<Measurement, Prediction>
-    permits Layer1Medium, Layer2Medium {
+abstract class AbstractMediumLayers implements MediumLayers, Function<Measurement, Prediction> {
   private final Collection<Measurement> measurements;
 
   AbstractMediumLayers(Collection<? extends Measurement> measurements) {
