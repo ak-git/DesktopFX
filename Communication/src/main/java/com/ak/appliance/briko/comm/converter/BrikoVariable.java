@@ -4,9 +4,9 @@ import com.ak.comm.converter.Variable;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.util.Numbers;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
+import tech.units.indriya.unit.Units;
 
+import javax.measure.MetricPrefix;
 import javax.measure.Unit;
 import java.util.Set;
 

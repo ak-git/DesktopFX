@@ -4,15 +4,15 @@ import com.ak.comm.converter.Variable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import tech.units.indriya.unit.MetricPrefix;
 
+import javax.measure.MetricPrefix;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static tec.uom.se.unit.Units.VOLT;
+import static tech.units.indriya.unit.Units.VOLT;
 
 class BrikoVariableTest {
   @Test

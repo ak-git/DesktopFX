@@ -10,9 +10,6 @@ module com.ak.fx {
   requires org.jspecify;
   requires com.ak.comm;
 
-  exports com.ak.app.aper.comm.converter to javafx.graphics;
-  exports com.ak.app.rcm.comm.converter to javafx.graphics;
-  exports com.ak.app.comm.converter;
   exports com.ak.fx.stage;
   exports com.ak.fx.storage;
   exports com.ak.fx.util;
