@@ -4,7 +4,6 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.StringBytesInterceptor;
 import com.ak.comm.logging.LogTestUtils;
-import com.ak.logging.OutputBuilders;
 import com.ak.util.Clean;
 import com.ak.util.Extension;
 import com.ak.util.Strings;
@@ -14,7 +13,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -33,15 +31,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class ConverterTest {
-  @Nullable
-  private static Path PATH;
+  private static final Path PATH;
 
   static {
     try {
-      PATH = OutputBuilders.NONE.build(Strings.EMPTY).getPath();
+      PATH = Files.createTempDirectory("test %s.".formatted(ConverterTest.class.getPackageName()));
     }
     catch (IOException e) {
       fail(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 

@@ -3,7 +3,7 @@ package com.ak.comm.converter;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 import com.ak.util.Strings;
-import tec.uom.se.AbstractUnit;
+import tech.units.indriya.AbstractUnit;
 
 import javax.measure.Unit;
 import java.util.EnumSet;

@@ -10,7 +10,7 @@ import java.util.function.BiFunction;
 import java.util.function.DoubleFunction;
 import java.util.function.DoubleUnaryOperator;
 
-import static tec.uom.se.unit.Units.OHM;
+import static tech.units.indriya.unit.Units.OHM;
 
 public record TetrapolarResistance(TetrapolarSystem system, @Nonnegative double ohms,
                                    @Nonnegative double resistivity) implements Resistance {

@@ -1,23 +1,40 @@
-# osx noise
+# Gradle
+.gradle/
+build/
+out/
+*/build/*
+*/out/*
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# NetBeans
+nb-configuration.xml
+
+# Visual Studio Code
+.vscode
+.factorypath
+
+# OSX
 .DS_Store
 profile
 
-# xcode noise
-build/*
-*.mode1
-*.mode1v3
-*.mode2v3
-*.perspective
-*.perspectivev3
-*.pbxuser
-*.xcworkspace
-xcuserdata
+# Vim
+*.swp
+*.swo
 
-# svn & cvs
-.svn
-CVS
-*/build/*
-*/out/*
-out/*
-.gradle
-/spring.log*
+# patch
+*.orig
+*.rej
+
+# Local environment
+.env
+
+# TLS Certificates
+.certs/
+
+*.log
+*.log.*

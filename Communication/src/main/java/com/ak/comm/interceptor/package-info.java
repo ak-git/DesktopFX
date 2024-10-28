@@ -1,4 +1,4 @@
-@ParametersAreNonnullByDefault
+@NullMarked
 package com.ak.comm.interceptor;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

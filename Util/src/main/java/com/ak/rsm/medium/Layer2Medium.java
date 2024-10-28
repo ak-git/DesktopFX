@@ -12,14 +12,14 @@ import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
-import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
+import javax.measure.MetricPrefix;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static tec.uom.se.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.METRE;
 
 public final class Layer2Medium extends AbstractMediumLayers {
   private final RelativeMediumLayers kw;
@@ -67,7 +67,7 @@ public final class Layer2Medium extends AbstractMediumLayers {
             measurements().stream()
                 .map(m ->
                     Stream.of(m, apply(m), toStringHorizons(
-                        new double[] {m.inexact().getHMin(k), m.inexact().getHMax(k)}
+                        new double[] {m.toInexact().getHMin(k), m.toInexact().getHMax(k)}
                     )).map(Object::toString).collect(Collectors.joining(Strings.SEMICOLON))
                 )
                 .collect(Collectors.joining(Strings.NEW_LINE, Strings.NEW_LINE, Strings.EMPTY)))
@@ -86,7 +86,7 @@ public final class Layer2Medium extends AbstractMediumLayers {
   }
 
   private static double[] mergeHorizons(Collection<Measurement> measurements, double k) {
-    return measurements.stream().map(Measurement::inexact).collect(
+    return measurements.stream().map(Measurement::toInexact).collect(
         Collectors.teeing(
             Collectors.maxBy(Comparator.comparingDouble(v -> v.getHMin(k))),
             Collectors.minBy(Comparator.comparingDouble(v -> v.getHMax(k))),

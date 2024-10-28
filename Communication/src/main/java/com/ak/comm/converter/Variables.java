@@ -2,10 +2,10 @@ package com.ak.comm.converter;
 
 import com.ak.util.Numbers;
 import com.ak.util.Strings;
-import tec.uom.se.format.LocalUnitFormat;
-import tec.uom.se.unit.MetricPrefix;
+import tech.units.indriya.format.SimpleUnitFormat;
 
 import javax.annotation.Nonnegative;
+import javax.measure.MetricPrefix;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 import java.util.Locale;
@@ -22,7 +22,7 @@ public enum Variables {
   private static final String M_PAR = "m(";
 
   public static String toString(Quantity<?> quantity) {
-    return String.join(Strings.SPACE, quantity.getValue().toString(), LocalUnitFormat.getInstance().format(quantity.getUnit()));
+    return String.join(Strings.SPACE, quantity.getValue().toString(), SimpleUnitFormat.getInstance().format(quantity.getUnit()));
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(E variable, int value) {
@@ -30,29 +30,33 @@ public enum Variables {
   }
 
   public static <E extends Enum<E> & Variable<E>> String toString(E variable) {
-    String baseName = variable.getClass().getPackage().getName() + ".variables";
-    String name;
-    try {
-      var resourceBundle = ResourceBundle.getBundle(baseName, Locale.getDefault(), variable.getClass().getModule());
-      if (resourceBundle.containsKey(variable.name())) {
-        name = Objects.toString(resourceBundle.getString(variable.name()), Strings.EMPTY);
+    String baseName = "%s.variables".formatted(variable.getClass().getPackage().getName());
+    Logger logger = Logger.getLogger(variable.getClass().getName());
+    if (logger.getFilter() == null) {
+      try {
+        var resourceBundle = ResourceBundle.getBundle(baseName, Locale.getDefault(), variable.getClass().getModule());
+        if (resourceBundle.containsKey(variable.name())) {
+          return Objects.toString(resourceBundle.getString(variable.name()), Strings.EMPTY);
+        }
+        else {
+          Logger.getLogger(Variables.class.getName()).log(Level.WARNING,
+              () -> "Missing resource key %s at file %s.properties".formatted(variable.name(), baseName)
+          );
+          logger.setFilter(_ -> false);
+        }
       }
-      else {
+      catch (MissingResourceException e) {
         Logger.getLogger(Variables.class.getName()).log(Level.CONFIG,
-            () -> "Missing resource key %s at file %s.properties".formatted(variable.name(), baseName));
-        name = variable.name();
+            """
+                Missing resource key %s at file %s.properties.
+                module-info.java should opens %s to %s
+                """
+                .formatted(variable.name(), baseName, variable.getClass().getPackage(), Variables.class.getModule()), e
+        );
+        logger.setFilter(_ -> false);
       }
     }
-    catch (MissingResourceException e) {
-      Logger.getLogger(Variables.class.getName()).log(Level.WARNING,
-          """
-              Missing resource key %s at file %s.properties.
-              module-info.java should opens %s to %s
-              """
-              .formatted(variable.name(), baseName, variable.getClass().getPackage(), Variables.class.getModule()), e);
-      name = variable.name();
-    }
-    return name;
+    return variable.name();
   }
 
   public static <Q extends Quantity<Q>> String toString(int value, Unit<Q> unit, @Nonnegative int scaleFactor10) {
@@ -72,8 +76,8 @@ public enum Variables {
 
     Unit<Q> displayUnit = unit.getSystemUnit();
     for (MetricPrefix metricPrefix : MetricPrefix.values()) {
-      if (displayScale == Numbers.log10ToInt(metricPrefix.getConverter().convert(1.0))) {
-        displayUnit = displayUnit.transform(metricPrefix.getConverter());
+      if (displayScale == metricPrefix.getExponent()) {
+        displayUnit = displayUnit.prefix(metricPrefix);
         break;
       }
     }
@@ -113,8 +117,8 @@ public enum Variables {
     }
     else if (d < 0) {
       for (MetricPrefix metricPrefix : MetricPrefix.values()) {
-        if (d == Numbers.log10ToInt(metricPrefix.getConverter().convert(1.0))) {
-          return unit.getSystemUnit().transform(metricPrefix.getConverter());
+        if (d == metricPrefix.getExponent()) {
+          return unit.getSystemUnit().prefix(metricPrefix);
         }
       }
     }

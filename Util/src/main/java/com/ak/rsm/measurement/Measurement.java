@@ -6,12 +6,12 @@ import com.ak.rsm.system.TetrapolarSystem;
 
 import java.util.Collection;
 
-public sealed interface Measurement extends Resistance permits DerivativeMeasurement, TetrapolarMeasurement {
-  InexactTetrapolarSystem inexact();
+public interface Measurement extends Resistance {
+  InexactTetrapolarSystem toInexact();
 
   @Override
   default TetrapolarSystem system() {
-    return inexact().system();
+    return toInexact().system();
   }
 
   Measurement merge(Measurement that);
@@ -20,7 +20,7 @@ public sealed interface Measurement extends Resistance permits DerivativeMeasure
     return measurements.stream().map(Measurement.class::cast).reduce(Measurement::merge).orElseThrow();
   }
 
-  static Collection<InexactTetrapolarSystem> inexact(Collection<? extends Measurement> measurements) {
-    return measurements.stream().map(Measurement::inexact).toList();
+  static Collection<InexactTetrapolarSystem> toInexact(Collection<? extends Measurement> measurements) {
+    return measurements.stream().map(Measurement::toInexact).toList();
   }
 }

@@ -7,12 +7,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import tec.uom.se.AbstractUnit;
-import tec.uom.se.quantity.Quantities;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
+import tech.units.indriya.AbstractUnit;
+import tech.units.indriya.quantity.Quantities;
+import tech.units.indriya.unit.Units;
 
 import javax.annotation.Nonnegative;
+import javax.measure.MetricPrefix;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 import java.util.EnumSet;
@@ -107,7 +107,7 @@ class VariableTest {
     assertThat(adc).contains(" = ").endsWith(String.format(Locale.getDefault(), "%,d one", 10000));
     assertThat(Variables.toString(Quantities.getQuantity(1, AbstractUnit.ONE))).startsWith("1 ");
 
-    assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING,
+    assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
         () -> assertThat(Variables.toString(MissingResourceVariables.NONE)).isEqualTo(MissingResourceVariables.NONE.name()),
         logRecord -> {
           assertThat(logRecord.getMessage()).contains(MissingResourceVariables.NONE.name());
@@ -120,7 +120,7 @@ class VariableTest {
         logRecord -> fail(logRecord.getMessage()))
     );
 
-    assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.CONFIG,
+    assertTrue(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING,
         () -> assertThat(Variables.toString(TwoVariables.V2)).isEqualTo(TwoVariables.V2.name()),
         logRecord -> {
           assertThat(logRecord.getMessage()).contains(TwoVariables.V2.name());
@@ -145,7 +145,8 @@ class VariableTest {
         arguments(0, Units.VOLT, 1, "%.0f V".formatted(0.0)),
         arguments(0, Units.VOLT, 1000, "%.0f kV".formatted(0.0)),
         arguments(1, Units.OHM.multiply(Units.METRE), 10, "%.0f Ω·m".formatted(1.0)),
-        arguments(41235, MetricPrefix.MILLI(Units.OHM).multiply(MetricPrefix.DECI(Units.METRE)), 10, "%,.0f mΩ·m".formatted(4123.5))
+        arguments(41235, MetricPrefix.MILLI(Units.OHM).multiply(MetricPrefix.DECI(Units.METRE)), 10, "%,.0f mΩ·m".formatted(4123.5)),
+        arguments(412, Units.METRE.multiply(Units.OHM), 1, "%,.0f Ω·m".formatted(412.0))
     );
   }
 

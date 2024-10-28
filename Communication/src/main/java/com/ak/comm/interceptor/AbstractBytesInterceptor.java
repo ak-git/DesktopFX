@@ -2,6 +2,7 @@ package com.ak.comm.interceptor;
 
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.bytes.LogUtils;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.Nonnegative;
 import java.nio.ByteBuffer;
@@ -21,7 +22,7 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
   private final ByteBuffer outBuffer;
   private final ByteBuffer ignoreBuffer;
   private final BaudRate baudRate;
-  private final T pingRequest;
+  private final @Nullable T pingRequest;
 
   protected AbstractBytesInterceptor(String name, BaudRate baudRate, @Nonnegative int ignoreBufferLimit, T pingRequest) {
     this.name = Objects.requireNonNull(name);

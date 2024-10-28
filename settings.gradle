@@ -1,27 +1,26 @@
 pluginManagement {
     repositories {
+        gradlePluginPortal()
         mavenCentral()
         mavenLocal()
-        gradlePluginPortal()
+        maven { url 'https://jitpack.io' }
     }
+}
+
+plugins {
+    id("com.autonomousapps.build-health") version '2.3.0'
 }
 
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
         mavenLocal()
-    }
-
-    versionCatalogs {
-        libs {
-            from(files('libs.versions.toml'))
-        }
+        maven { url 'https://jitpack.io' }
     }
 }
-
-rootProject.name = 'SimpleApp'
 
 rootProject.name = 'DesktopFX'
 include 'Util'
 include 'Communication'
 include 'FxCore'
+include 'Desktop'

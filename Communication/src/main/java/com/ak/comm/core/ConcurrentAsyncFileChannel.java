@@ -1,28 +1,30 @@
 package com.ak.comm.core;
 
 import com.ak.comm.bytes.LogUtils;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.StampedLock;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class ConcurrentAsyncFileChannel implements Closeable {
-  private final Callable<AsynchronousFileChannel> channelCallable;
+  private static final Logger LOGGER = Logger.getLogger(ConcurrentAsyncFileChannel.class.getName());
+  private final Callable<Optional<AsynchronousFileChannel>> channelCallable;
   private final StampedLock lock = new StampedLock();
-  @Nullable
-  private AsynchronousFileChannel channel;
+  private @Nullable AsynchronousFileChannel channel;
   @Nonnegative
   private long writePos;
 
-  public ConcurrentAsyncFileChannel(Callable<AsynchronousFileChannel> channelCallable) {
+  public ConcurrentAsyncFileChannel(Callable<Optional<AsynchronousFileChannel>> channelCallable) {
     this.channelCallable = channelCallable;
   }
 
@@ -55,20 +57,27 @@ public final class ConcurrentAsyncFileChannel implements Closeable {
 
   @Override
   public void close() {
-    writeLock(() -> {
+    Runnable operation = () -> {
       if (channel != null) {
         try {
           channel.close();
         }
         catch (IOException e) {
-          Logger.getLogger(getClass().getName()).log(LogUtils.LOG_LEVEL_ERRORS, e.getMessage(), e);
+          LOGGER.log(LogUtils.LOG_LEVEL_ERRORS, e.getMessage(), e);
         }
         finally {
           channel = null;
           writePos = 0;
         }
       }
-    });
+    };
+
+    if (Thread.currentThread().isInterrupted()) {
+      operation.run();
+    }
+    else {
+      writeLock(operation);
+    }
   }
 
   private void writeLock(Runnable operation) {
@@ -92,28 +101,24 @@ public final class ConcurrentAsyncFileChannel implements Closeable {
     }
   }
 
-  private long operate(ChannelOperation operation) {
+  private long operate(Function<AsynchronousFileChannel, Future<Integer>> operation) {
     long bytesCount = 0;
     try {
       if (channel == null) {
-        channel = channelCallable.call();
+        channel = channelCallable.call().orElse(null);
       }
       if (channel != null) {
-        bytesCount = operation.operate(channel).get();
+        bytesCount = operation.apply(channel).get();
       }
     }
     catch (InterruptedException e) {
-      Logger.getLogger(getClass().getName()).log(LogUtils.LOG_LEVEL_ERRORS, e.getMessage(), e);
+      LOGGER.log(LogUtils.LOG_LEVEL_ERRORS, e.getMessage(), e);
       Thread.currentThread().interrupt();
     }
     catch (Exception e) {
-      Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+      LOGGER.log(Level.WARNING, e.getMessage(), e);
       bytesCount = -1;
     }
     return bytesCount;
-  }
-
-  private interface ChannelOperation {
-    Future<Integer> operate(AsynchronousFileChannel channel);
   }
 }

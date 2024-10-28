@@ -9,8 +9,8 @@ import java.util.StringJoiner;
 
 import static com.ak.util.Strings.PLUS_MINUS;
 import static com.ak.util.Strings.SPACE;
-import static tec.uom.se.unit.MetricPrefix.MILLI;
-import static tec.uom.se.unit.Units.METRE;
+import static javax.measure.MetricPrefix.MILLI;
+import static tech.units.indriya.unit.Units.METRE;
 
 public class ValuePair {
   public enum Name {
@@ -100,6 +100,12 @@ public class ValuePair {
       String toString(String base) {
         return "%s = %s".formatted(Strings.PHI, base);
       }
+    },
+    ERR {
+      @Override
+      String toString(String base) {
+        return "%s = %s".formatted(Strings.EPSILON, base);
+      }
     };
 
     double convert(double si) {
@@ -150,7 +156,7 @@ public class ValuePair {
       );
     }
     else {
-      return Double.isFinite(v) ? name.toString("%6.3f".formatted(v)) : name.toString(Double.toString(v));
+      return Double.isFinite(v) ? name.toString("%6.3f".formatted(v).strip()) : name.toString(Double.toString(v));
     }
   }
 

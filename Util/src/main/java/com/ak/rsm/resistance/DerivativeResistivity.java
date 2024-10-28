@@ -1,7 +1,6 @@
 package com.ak.rsm.resistance;
 
-public sealed interface DerivativeResistivity extends Resistivity
-    permits com.ak.rsm.measurement.DerivativeMeasurement, DerivativeResistance {
+public interface DerivativeResistivity extends Resistivity {
   double derivativeResistivity();
 
   double dh();

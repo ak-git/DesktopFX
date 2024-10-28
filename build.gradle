@@ -4,17 +4,11 @@ plugins {
     id 'java-library'
     id 'idea'
     id 'jacoco'
-    id 'application'
-
-    alias(libs.plugins.javamodularity.moduleplugin) apply false
-    alias(libs.plugins.sonarqube)
     alias(libs.plugins.spotbugs)
     alias(libs.plugins.ben.manes.versions)
     alias(libs.plugins.nebula.lint)
-
-    alias(libs.plugins.javafxplugin)
-    alias(libs.plugins.springframework.boot)
-    alias(libs.plugins.spring.dependency.management)
+    alias(libs.plugins.jacocolog)
+    alias(libs.plugins.jgitver)
 }
 
 spotbugs {
@@ -28,29 +22,8 @@ tasks.spotbugsMain {
     }
 }
 
-sonar {
-    properties {
-        property 'sonar.projectKey', 'ak-git_DesktopFX'
-        property 'sonar.organization', 'ak-git'
-        property 'sonar.host.url', 'https://sonarcloud.io'
-        property 'sonar.branch.name', 'develop'
-        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
-    }
-}
-
-ext {
-    javaVersion = '21'
-}
-
-wrapper {
-    description 'Setup the Gradle wrapper'
-    gradleVersion = '8.7'
-    distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
-}
-
 allprojects {
     group = 'com.ak'
-    version = '2024.05.07'
     apply plugin: 'idea'
     idea {
         module {
@@ -62,12 +35,8 @@ allprojects {
         main.output.resourcesDir = main.java.classesDirectory
     }
 
-    apply plugin: 'java-library'
-    apply plugin: 'org.javamodularity.moduleplugin'
     apply plugin: 'jacoco'
-
-    sourceCompatibility = JavaVersion.toVersion(javaVersion)
-    targetCompatibility = JavaVersion.toVersion(javaVersion)
+    apply plugin: 'org.barfuin.gradle.jacocolog'
 
     jacoco {
         toolVersion = '0.8.12'
@@ -78,53 +47,32 @@ allprojects {
             xml.required = true
         }
     }
+}
 
-    dependencies {
-        implementation libs.findbugs.jsr305
-        testImplementation(platform(libs.junit))
-        testImplementation libs.bundles.test
+subprojects {
+    apply plugin: 'java-library'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(22)
+        }
+    }
+
+    compileJava {
+        options.encoding = 'UTF-8'
+        options.compilerArgs << '-parameters'
+    }
+
+    compileTestJava {
+        options.encoding = 'UTF-8'
     }
 
     test {
+        forkEvery = 5
         useJUnitPlatform()
         testLogging {
-            events 'started', 'passed', 'skipped', 'failed'
+            events 'failed'
         }
-        forkEvery = 5
         maxHeapSize = '1G'
     }
-}
-
-dependencies {
-    implementation project(':FxCore')
-    implementation project(':Communication')
-
-    implementation libs.inject.api
-    implementation libs.uom.se
-    implementation libs.javax.json
-    implementation libs.commons.math3
-    implementation 'org.springframework.boot:spring-boot-starter'
-    testImplementation libs.commons.csv
-
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-}
-
-javafx {
-    version = javaVersion
-    modules = ['javafx.controls', 'javafx.fxml']
-}
-
-processResources {
-    filesMatching('**/keys*.properties') {
-        expand(project.properties)
-    }
-}
-
-compileJava.inputs.files(processResources)
-
-apply plugin: 'application'
-
-application {
-    mainModule = 'com.ak.fx.desktop'
-    mainClass = 'com.ak.spring.SpringFxApplication'
 }

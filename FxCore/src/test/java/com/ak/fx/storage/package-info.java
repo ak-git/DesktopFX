@@ -1,5 +1,4 @@
-
-@ParametersAreNonnullByDefault
+@NullMarked
 package com.ak.fx.storage;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

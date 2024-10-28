@@ -6,12 +6,13 @@ import com.ak.comm.core.AbstractService;
 import com.ak.comm.core.Readable;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.util.Extension;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.ByteBuffer;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,14 +23,13 @@ import java.util.logging.Logger;
 
 public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractService<int[]> implements FileFilter, Readable {
-  private static final Readable EMPTY_READABLE = (dst, position) -> {
+  private static final Readable EMPTY_READABLE = (_, _) -> {
   };
 
   private final ExecutorService service = Executors.newSingleThreadExecutor();
   private final Supplier<BytesInterceptor<T, R>> interceptorProvider;
   private final Supplier<Converter<R, V>> converterProvider;
-  @Nullable
-  private Flow.Subscriber<? super int[]> subscriber;
+  private Flow.@Nullable Subscriber<? super int[]> subscriber;
   private Readable readable = EMPTY_READABLE;
 
   public AutoFileReadingService(Supplier<BytesInterceptor<T, R>> interceptorProvider, Supplier<Converter<R, V>> converterProvider) {
@@ -47,17 +47,19 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
     BytesInterceptor<T, R> bytesInterceptor = interceptorProvider.get();
     if (file.isFile() && Extension.BIN.is(file.getName()) && Extension.BIN.clean(file.getName()).contains(bytesInterceptor.name())) {
       refresh(false);
-      readable = CompletableFuture
-          .supplyAsync(() -> new FileReadingService<>(file.toPath(), bytesInterceptor, converterProvider.get()))
+      CompletableFuture
+          .supplyAsync(() -> Optional.of(new FileReadingService<>(file.toPath(), bytesInterceptor, converterProvider.get())))
           .whenComplete((source, throwable) -> {
             if (throwable != null) {
-              Logger.getLogger(FileReadingService.class.getName()).log(Level.WARNING, file.getName(), throwable);
+              Logger.getLogger(AutoFileReadingService.class.getName()).log(Level.WARNING, file.getName(), throwable);
             }
-            else if (subscriber != null) {
-              service.submit(() -> source.subscribe(subscriber));
+            else if (subscriber != null && source.isPresent()) {
+              service.submit(() -> source.get().subscribe(subscriber));
             }
           })
-          .join();
+          .exceptionally(_ -> Optional.empty())
+          .join()
+          .ifPresentOrElse(readingService -> readable = readingService, () -> readable = EMPTY_READABLE);
       return true;
     }
     else {
@@ -73,7 +75,7 @@ public final class AutoFileReadingService<T, R, V extends Enum<V> & Variable<V>>
 
   @Override
   public void refresh(boolean force) {
-    readable.close();
+    readable.refresh(force);
     readable = EMPTY_READABLE;
   }
 

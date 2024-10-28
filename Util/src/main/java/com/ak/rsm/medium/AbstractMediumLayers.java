@@ -6,21 +6,20 @@ import com.ak.util.Metrics;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static tec.uom.se.unit.Units.PERCENT;
+import static tech.units.indriya.unit.Units.PERCENT;
 
-abstract sealed class AbstractMediumLayers implements MediumLayers, Function<Measurement, Prediction>
-    permits Layer1Medium, Layer2Medium {
+abstract class AbstractMediumLayers implements MediumLayers, Function<Measurement, Prediction> {
   private final Collection<Measurement> measurements;
 
   AbstractMediumLayers(Collection<? extends Measurement> measurements) {
     if (measurements.isEmpty()) {
       throw new IllegalArgumentException("Empty measurements");
     }
-    this.measurements = Collections.unmodifiableCollection(measurements);
+    this.measurements = Set.copyOf(measurements);
   }
 
   @Override

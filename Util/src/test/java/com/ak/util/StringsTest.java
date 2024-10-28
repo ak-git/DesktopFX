@@ -41,6 +41,7 @@ class StringsTest {
   @Test
   void testRho() {
     assertThat(Strings.rho(1, 2.1234)).isEqualTo("ρ₁ = 2.1234 Ω·m");
+    assertThat(Strings.rho(StringsTest.class)).isEqualTo("ρ = %s Ω·m".formatted(StringsTest.class));
   }
 
   @Test

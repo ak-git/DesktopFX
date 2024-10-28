@@ -3,8 +3,8 @@ package com.ak.csv;
 import com.ak.util.Strings;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,25 +22,24 @@ import java.util.stream.Collector;
 import static java.nio.file.StandardOpenOption.*;
 
 public final class CSVLineFileCollector implements Collector<Object[], CSVPrinter, Boolean>, Closeable, Consumer<Object[]> {
+  private static final Logger LOGGER = Logger.getLogger(CSVLineFileCollector.class.getName());
   private final Path out;
-  @Nullable
-  private final Path tempFile;
-  @Nullable
-  private CSVPrinter csvPrinter;
+  private final @Nullable Path tempFile;
+  private @Nullable CSVPrinter csvPrinter;
   private boolean finished;
 
   public CSVLineFileCollector(Path out, String... header) {
     this.out = Objects.requireNonNull(out);
     Path temp = null;
     try {
-      temp = Files.createTempFile(out.toAbsolutePath().getParent(), out.toFile().getName() + Strings.SPACE, Strings.EMPTY);
+      temp = Files.createTempFile(out.toAbsolutePath().getParent(), "%s ".formatted(out.toFile().getName()), Strings.EMPTY);
       csvPrinter = new CSVPrinter(
           Files.newBufferedWriter(temp, WRITE, CREATE, TRUNCATE_EXISTING),
           CSVFormat.Builder.create().setHeader(header.length > 0 ? header : null).build()
       );
     }
     catch (IOException ex) {
-      Logger.getLogger(getClass().getName()).log(Level.WARNING, out.toString(), ex);
+      LOGGER.log(Level.WARNING, out.toString(), ex);
       finished = true;
     }
     tempFile = temp;
@@ -53,7 +52,7 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
         Objects.requireNonNull(csvPrinter).printRecord(Objects.requireNonNull(s));
       }
       catch (IOException e) {
-        Logger.getLogger(getClass().getName()).log(Level.WARNING, "Exception when writing object: %s".formatted(Arrays.toString(s)), e);
+        LOGGER.log(Level.WARNING, "Exception when writing object: %s".formatted(Arrays.toString(s)), e);
         finished = true;
       }
     }
@@ -66,12 +65,12 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
 
   @Override
   public BiConsumer<CSVPrinter, Object[]> accumulator() {
-    return (p, objects) -> accept(objects);
+    return (_, objects) -> accept(objects);
   }
 
   @Override
   public BinaryOperator<CSVPrinter> combiner() {
-    return (p1, p2) -> {
+    return (_, _) -> {
       throw new UnsupportedOperationException();
     };
   }
@@ -88,7 +87,7 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
           close();
         }
         catch (IOException e) {
-          Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+          LOGGER.log(Level.WARNING, e.getMessage(), e);
         }
         finally {
           finished = true;
@@ -108,6 +107,9 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
     if (!finished) {
       Objects.requireNonNull(csvPrinter).close(true);
       Files.move(Objects.requireNonNull(tempFile), out, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+    }
+    if (tempFile != null) {
+      Files.deleteIfExists(tempFile);
     }
   }
 }

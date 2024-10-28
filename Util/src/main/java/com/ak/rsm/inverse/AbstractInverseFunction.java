@@ -12,9 +12,8 @@ import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
 
-abstract sealed class AbstractInverseFunction<R extends Resistivity>
-    implements InverseFunction, ToDoubleBiFunction<TetrapolarSystem, double[]>
-    permits DynamicInverse, StaticInverse {
+abstract class AbstractInverseFunction<R extends Resistivity>
+    implements InverseFunction, ToDoubleBiFunction<TetrapolarSystem, double[]> {
   @Nonnegative
   private final double baseL;
   private final List<TetrapolarSystem> systems;

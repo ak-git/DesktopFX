@@ -43,27 +43,27 @@ class StreamFilterTest {
             IntStream.generate(() -> (int) Math.round(RANDOM.nextGaussian() * 1000 + 1000)).limit(4000), 900, 1100
         ),
         arguments(
-            FilterBuilder.of().recursiveMeanAndStd(1000).biOperator(() -> (mean, std) -> mean).build(),
+            FilterBuilder.of().recursiveMeanAndStd(1000).biOperator(() -> (mean, _) -> mean).build(),
             IntStream.generate(() -> 1000).limit(5000), 1000, 1000
         ),
         arguments(
-            FilterBuilder.of().recursiveMeanAndStd(1000).biOperator(() -> (mean, std) -> mean).build(),
+            FilterBuilder.of().recursiveMeanAndStd(1000).biOperator(() -> (mean, _) -> mean).build(),
             IntStream.generate(() -> RANDOM.nextInt(1000)).limit(3000), 450, 550
         ),
         arguments(
-            FilterBuilder.of().recursiveMeanAndStd(2000).biOperator(() -> (mean, std) -> mean).build(),
+            FilterBuilder.of().recursiveMeanAndStd(2000).biOperator(() -> (mean, _) -> mean).build(),
             IntStream.generate(() -> (int) Math.round(RANDOM.nextGaussian() * 1000 + 1000)).limit(4000), 900, 1100
         ),
         arguments(
-            FilterBuilder.of().recursiveMeanAndStd(1000).biOperator(() -> (mean, std) -> std).build(),
+            FilterBuilder.of().recursiveMeanAndStd(1000).biOperator(() -> (_, std) -> std).build(),
             IntStream.generate(() -> 1000).limit(5000), -1, 1
         ),
         arguments(
-            FilterBuilder.of().recursiveMeanAndStd(1000).biOperator(() -> (mean, std) -> std).build(),
+            FilterBuilder.of().recursiveMeanAndStd(1000).biOperator(() -> (_, std) -> std).build(),
             IntStream.generate(() -> RANDOM.nextInt(1000)).limit(3000), 270, 310
         ),
         arguments(
-            FilterBuilder.of().recursiveMeanAndStd(2000).biOperator(() -> (mean, std) -> std).build(),
+            FilterBuilder.of().recursiveMeanAndStd(2000).biOperator(() -> (_, std) -> std).build(),
             IntStream.generate(() -> (int) Math.round(RANDOM.nextGaussian() * 1000 + 1000)).limit(4000), 900, 1100
         ),
         arguments(

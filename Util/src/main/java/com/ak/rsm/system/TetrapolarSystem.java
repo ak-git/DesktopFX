@@ -1,13 +1,13 @@
 package com.ak.rsm.system;
 
 import com.ak.util.Metrics;
-import tec.uom.se.unit.MetricPrefix;
 
 import javax.annotation.Nonnegative;
+import javax.measure.MetricPrefix;
 import java.util.Collection;
 import java.util.Objects;
 
-import static tec.uom.se.unit.Units.METRE;
+import static tech.units.indriya.unit.Units.METRE;
 
 public record TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC) {
   @Nonnegative

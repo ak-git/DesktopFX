@@ -7,16 +7,17 @@ import com.ak.util.Strings;
 
 import javax.annotation.Nonnegative;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.OptionalDouble;
+import java.util.Set;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.function.ToDoubleBiFunction;
 import java.util.stream.DoubleStream;
 
 import static java.lang.StrictMath.log;
+import static java.lang.StrictMath.log1p;
 
-public sealed interface Regularization permits Regularization.AbstractRegularization {
+public interface Regularization {
   enum Interval {
     ZERO_MAX {
       @Override
@@ -30,6 +31,27 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
             Simplex.Bounds hInterval = hInterval(k);
             if (hInterval.isIn(hToL)) {
               return alpha * (log(hInterval.max() - hToL) - log(hToL - hInterval.min()));
+            }
+            else {
+              return Double.POSITIVE_INFINITY;
+            }
+          }
+        };
+      }
+    },
+    ZERO_MAX_LOG1P {
+      @Override
+      Regularization innerOf(@Nonnegative double alpha, Collection<InexactTetrapolarSystem> inexactSystems) {
+        return new AbstractRegularization(inexactSystems) {
+          @Override
+          public double of(double... kw) {
+            double k = kw[0];
+            double hToL = kw[1];
+
+            Simplex.Bounds hInterval = hInterval(k);
+            if (hInterval.isIn(hToL)) {
+              double x = log1p(hToL);
+              return alpha * (log(log1p(hInterval.max()) - x) - log(x - log1p(hInterval.min())));
             }
             else {
               return Double.POSITIVE_INFINITY;
@@ -69,13 +91,13 @@ public sealed interface Regularization permits Regularization.AbstractRegulariza
     abstract Regularization innerOf(@Nonnegative double alpha, Collection<InexactTetrapolarSystem> inexactSystems);
   }
 
-  abstract non-sealed class AbstractRegularization implements Regularization {
+  abstract class AbstractRegularization implements Regularization {
     private final Collection<InexactTetrapolarSystem> inexactSystems;
     private final DoubleUnaryOperator max;
     private final DoubleUnaryOperator min;
 
     private AbstractRegularization(Collection<InexactTetrapolarSystem> inexactSystems) {
-      this.inexactSystems = Collections.unmodifiableCollection(inexactSystems);
+      this.inexactSystems = Set.copyOf(inexactSystems);
       max = newMergeHorizons(InexactTetrapolarSystem::getHMax, DoubleStream::min);
       min = newMergeHorizons(InexactTetrapolarSystem::getHMin, DoubleStream::max);
     }

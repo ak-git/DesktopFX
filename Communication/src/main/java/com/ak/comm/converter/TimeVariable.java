@@ -1,6 +1,6 @@
 package com.ak.comm.converter;
 
-import tec.uom.se.unit.Units;
+import tech.units.indriya.unit.Units;
 
 import javax.measure.Unit;
 

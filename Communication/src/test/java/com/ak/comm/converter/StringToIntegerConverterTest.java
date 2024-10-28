@@ -3,7 +3,7 @@ package com.ak.comm.converter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import tec.uom.se.AbstractUnit;
+import tech.units.indriya.AbstractUnit;
 
 import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicBoolean;

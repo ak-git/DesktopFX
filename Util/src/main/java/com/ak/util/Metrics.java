@@ -1,10 +1,11 @@
 package com.ak.util;
 
-import tec.uom.se.AbstractUnit;
-import tec.uom.se.quantity.Quantities;
-import tec.uom.se.unit.MetricPrefix;
-import tec.uom.se.unit.Units;
 
+import tech.units.indriya.AbstractUnit;
+import tech.units.indriya.quantity.Quantities;
+import tech.units.indriya.unit.Units;
+
+import javax.measure.MetricPrefix;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 import java.util.function.DoubleUnaryOperator;
@@ -16,7 +17,12 @@ public enum Metrics {
 
   private interface UnitConversion<Q extends Quantity<Q>> {
     static <Q extends Quantity<Q>> double convert(Unit<Q> from, double value, Unit<Q> to) {
-      return Quantities.getQuantity(value, from).to(to).getValue().doubleValue();
+      if (Double.isFinite(value)) {
+        return Quantities.getQuantity(value, from).to(to).getValue().doubleValue();
+      }
+      else {
+        return value;
+      }
     }
 
     double to(double value, Unit<Q> unit);

@@ -1,4 +1,4 @@
-@ParametersAreNonnullByDefault
+@NullMarked
 package com.ak.comm.converter;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

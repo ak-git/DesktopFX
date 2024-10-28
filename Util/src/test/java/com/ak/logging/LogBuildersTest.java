@@ -46,7 +46,7 @@ class LogBuildersTest {
   @ParameterizedTest
   @EnumSource(mode = EnumSource.Mode.EXCLUDE, value = LogBuilders.class, names = "CONVERTER_FILE")
   void testNotToClean(LogBuilders logBuilders) {
-    Assertions.assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(logBuilders::clean);
+    Assertions.assertThatNoException().isThrownBy(logBuilders::clean);
   }
 
   @Test
