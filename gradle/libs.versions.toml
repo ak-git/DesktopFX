@@ -22,7 +22,7 @@ spring = '6.1.14'
 springframework-boot = '3.3.5'
 spring-dependency-management = '1.1.6'
 snakeyaml = '2.3'
-javafx = '24-ea+5'
+javafx = '24-ea+15'
 
 inject-api = '2.0.1'
 measure-unit-api = '2.2'
