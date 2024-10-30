@@ -1,7 +1,7 @@
 import com.github.spotbugs.snom.Confidence
 
 plugins {
-    id 'java-library'
+    id 'java'
     id 'idea'
     id 'jacoco'
     alias(libs.plugins.spotbugs)

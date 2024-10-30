@@ -21,7 +21,6 @@ javafxplugin = '0.1.0'
 spring = '6.1.14'
 springframework-boot = '3.3.5'
 spring-dependency-management = '1.1.6'
-snakeyaml = '2.3'
 javafx = '24-ea+15'
 
 inject-api = '2.0.1'
@@ -80,7 +79,6 @@ spring-boot-autoconfigure = { module = 'org.springframework.boot:spring-boot-aut
 spring-core = { module = 'org.springframework:spring-core', version.ref = 'spring' }
 spring-beans = { module = 'org.springframework:spring-beans', version.ref = 'spring' }
 spring-context = { module = 'org.springframework:spring-context', version.ref = 'spring' }
-snakeyaml = { module = 'org.yaml:snakeyaml', version.ref = 'snakeyaml' }
 
 [bundles]
 spring-boot = ['spring-boot', 'spring-boot-autoconfigure', 'spring-core', 'spring-beans', 'spring-context']

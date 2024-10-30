@@ -22,7 +22,6 @@ dependencies {
 
     implementation(platform(libs.spring.bom))
     implementation libs.bundles.spring.boot
-    runtimeOnly libs.snakeyaml
 
     //    https://github.com/junit-team/junit5/issues/1773
     testImplementation(platform(libs.junit))
