@@ -38,16 +38,6 @@ javafx {
     configurations = ['implementation']
 }
 
-processResources {
-    filesMatching('**/keys*.properties') {
-        expand(project.properties)
-    }
-}
-
-compileJava.inputs.files(processResources)
-
-apply plugin: 'application'
-
 application {
     mainModule = 'com.ak.fx.desktop'
     mainClass = 'com.ak.spring.SpringFxApplication'
