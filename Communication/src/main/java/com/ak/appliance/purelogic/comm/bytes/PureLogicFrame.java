@@ -30,6 +30,7 @@ public final class PureLogicFrame extends BufferFrame {
    */
   public enum StepCommand {
     MICRON_015(16),
+    MICRON_090(MICRON_015.steps * 6),
     MICRON_150(MICRON_015.steps * 10),
     MICRON_300(MICRON_150.steps * 2),
     MICRON_750(MICRON_150.steps * 5);

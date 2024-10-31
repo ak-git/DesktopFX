@@ -9,12 +9,11 @@ import com.ak.fx.desktop.AbstractScheduledViewController;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.ak.appliance.purelogic.comm.bytes.PureLogicFrame.StepCommand.MICRON_150;
-import static com.ak.appliance.purelogic.comm.bytes.PureLogicFrame.StepCommand.MICRON_750;
+import static com.ak.appliance.purelogic.comm.bytes.PureLogicFrame.StepCommand.MICRON_090;
 
 abstract class AbstractPureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
   private static final PureLogicFrame.StepCommand[] AUTO_SEQUENCE = {
-      MICRON_150, MICRON_150
+      MICRON_090, MICRON_090
   };
   private final AtomicInteger handDirection = new AtomicInteger();
   private boolean isRefresh;
@@ -73,7 +72,7 @@ abstract class AbstractPureLogicViewController extends AbstractScheduledViewCont
       boolean direction = handDirection.getAndAdd(delta) > 0;
       if (sequenceDirection) {
         autoSequenceIndex = -1;
-        return MICRON_750.action(direction);
+        return MICRON_090.action(direction);
       }
       else {
         handDirection.getAndAdd(-delta);
