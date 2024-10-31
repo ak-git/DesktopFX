@@ -11,6 +11,6 @@
       <entry name="!?*.kt" />
       <entry name="!?*.clj" />
     </wildcardResourcePatterns>
-    <bytecodeTargetLevel target="22" />
+    <bytecodeTargetLevel target="23" />
   </component>
 </project>
