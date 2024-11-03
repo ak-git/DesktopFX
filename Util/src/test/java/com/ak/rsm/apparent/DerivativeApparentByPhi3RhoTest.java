@@ -26,10 +26,8 @@ class DerivativeApparentByPhi3RhoTest {
 
     var b = TetrapolarResistance.of(system);
     double expected = (
-        b.rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(hStep / SCALE).p((p1 + 2) * SCALE, SCALE)
-            .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1).resistivity() -
-            b.rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(hStep / SCALE).p(p1 * SCALE, SCALE)
-                .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1).resistivity()
+        b.rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(hStep / SCALE).p((p1 + 2) * SCALE, SCALE).resistivity() -
+            b.rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(hStep / SCALE).p(p1 * SCALE, SCALE).resistivity()
     ) / (dh / system.lCC());
     expected /= rho[0];
 
@@ -48,10 +46,8 @@ class DerivativeApparentByPhi3RhoTest {
 
     var b = TetrapolarResistance.of(system);
     double expected = (
-        b.rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(hStep / SCALE).p((p[0] + 2) * SCALE, p[1] * SCALE)
-            .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1).resistivity() -
-            b.rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(hStep / SCALE).p(p[0] * SCALE, p[1] * SCALE)
-                .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1).resistivity()
+        b.rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(hStep / SCALE).p((p[0] + 2) * SCALE, p[1] * SCALE).resistivity() -
+            b.rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(hStep / SCALE).p(p[0] * SCALE, p[1] * SCALE).resistivity()
     ) / (dh / system.lCC());
     expected /= rho[0];
 

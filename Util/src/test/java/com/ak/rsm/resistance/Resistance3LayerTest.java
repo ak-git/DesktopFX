@@ -112,8 +112,8 @@ class Resistance3LayerTest {
             .isCloseTo(rOhm, byLessThan(0.001)),
         () -> assertThat(TetrapolarResistance
             .ofMilli(smm, lmm)
-            .rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(Metrics.Length.METRE.to(hStepSI, MetricPrefix.MILLI(METRE))).p(p[0], p[1])
-            .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1).ohms())
+            .rho1(rho[0]).rho2(rho[1]).rho3(rho[2])
+            .hStep(Metrics.Length.METRE.to(hStepSI, MetricPrefix.MILLI(METRE))).p(p[0], p[1]).ohms())
             .isCloseTo(rOhm, byLessThan(0.001))
     );
   }
