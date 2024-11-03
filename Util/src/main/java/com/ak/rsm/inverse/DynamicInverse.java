@@ -35,7 +35,7 @@ abstract class DynamicInverse extends AbstractInverseFunction<DerivativeResistiv
     return new DynamicInverse(r) {
       @Override
       public double applyAsDouble(TetrapolarSystem s, double[] kw) {
-        double dR = Apparent3Rho.newDerApparentByPhiDivRho1(s, new double[] {kw[0], kw[1]}, hStep, toInt(kw[2]), toInt(kw[3]), dh);
+        double dR = Apparent3Rho.newDerApparentByH1PhiDivRho1(s, new double[] {kw[0], kw[1]}, hStep, toInt(kw[2]), toInt(kw[3]), dh);
         double apparentPredicted = Apparent3Rho.newApparentDivRho1(s.relativeSystem())
             .value(kw[0], kw[1], hStep / s.lCC(), toInt(kw[2]), toInt(kw[3]));
         return apparentPredicted / dR;

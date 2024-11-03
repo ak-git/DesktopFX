@@ -1,6 +1,7 @@
 package com.ak.rsm.inverse;
 
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
+import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.Layers;
 import com.ak.util.Metrics;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -46,7 +47,7 @@ class DynamicInverseTest {
   void testLayer3(double[] k, @Nonnegative double inequality) {
     ToDoubleFunction<double[]> function = DynamicInverse.of(
         TetrapolarDerivativeMeasurement.milli(0.1).dh(0.1).system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0)
-            .hStep(0.1).p(50, 50),
+            .hStep(0.1).p(50, 50).hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1),
         Metrics.Length.MILLI.to(0.1, METRE)
     );
     assertThat(function.applyAsDouble(k)).isCloseTo(inequality, byLessThan(1.0e-3));

@@ -131,7 +131,8 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
       }
       else {
         return new TetrapolarDerivativeMeasurement(
-            b.rho3(rho3).hStep(hStep).p(p1, p2mp1), d.rho3(rho3).hStep(hStep).p(p1, p2mp1).derivativeResistivity(),
+            b.rho3(rho3).hStep(hStep).p(p1, p2mp1).hChanged(hChanged),
+            d.rho3(rho3).hStep(hStep).p(p1, p2mp1).hChanged(hChanged).derivativeResistivity(),
             dh
         );
       }
@@ -174,7 +175,7 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
         return inexact.stream().map(s -> builder2Function.apply(s).h(h)).toList();
       }
       else {
-        return inexact.stream().map(s -> builder2Function.apply(s).rho3(rho3).hStep(hStep).p(p1, p2mp1)).toList();
+        return inexact.stream().map(s -> builder2Function.apply(s).rho3(rho3).hStep(hStep).p(p1, p2mp1).hChanged(hChanged)).toList();
       }
     }
 

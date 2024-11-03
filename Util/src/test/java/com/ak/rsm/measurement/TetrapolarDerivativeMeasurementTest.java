@@ -72,7 +72,8 @@ class TetrapolarDerivativeMeasurementTest {
         ),
         arguments(
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(10.0, 20.0)
-                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50),
+                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50)
+                .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1),
             "10 000   20 000      0 1       20         242 751        5 7   0 17              13 215          2 804         0 100",
             5.72,
             13.214859951943403,
@@ -155,7 +156,8 @@ class TetrapolarDerivativeMeasurementTest {
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.3).system2(8.0)
-                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50),
+                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.1).p(50, 50)
+                .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1),
             "800024000012688617450111895947150300 4000024000014510798536200601584359100300",
             new double[] {4.45, 3.62},
             new double[] {18.958526157968976, 15.842787775068425}
@@ -163,14 +165,16 @@ class TetrapolarDerivativeMeasurementTest {
 
         arguments(
             TetrapolarDerivativeMeasurement.milli(-0.1).dh(0.01).withShiftError().system2(8.0)
-                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.01).p(500, 500),
+                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.01).p(500, 500)
+                .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1),
             "790024100012785784440111957801580010 3990024100014511091436600611618202040010",
             new double[] {4.42, 3.65},
             new double[] {19.57825978024364, 16.181746119271853}
         ),
         arguments(
             TetrapolarDerivativeMeasurement.milli(0.1).dh(0.01).withShiftError().system2(8.0)
-                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.01).p(500, 500),
+                .rho1(8.0).rho2(2.0).rho3(1.0).hStep(0.01).p(500, 500)
+                .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1),
             "810023900012691547450111934801650010 4010023900014610515135800591598001960010",
             new double[] {4.49, 3.58},
             new double[] {19.3479135744261, 15.980452545866093}
@@ -259,24 +263,28 @@ class TetrapolarDerivativeMeasurementTest {
                 .rho1(9.0).rho2(1.0).h(5.0),
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(6.0, 18.0)
                 .rho1(9.0).rho2(9.0).rho3(1.0).hStep(0.1).p(25, 25)
+                .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1)
         ),
         arguments(
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(6.0, 18.0)
                 .rho1(9.0).rho2(1.0).h(5.0),
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(6.0, 18.0)
                 .rho1(9.0).rho2(9.0).rho3(1.0).hStep(0.01).p(300, 200)
+                .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1)
         ),
         arguments(
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(6.0, 18.0)
                 .rho1(1.0).rho2(9.0).h(10.0),
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(6.0, 18.0)
                 .rho1(1.0).rho2(1.0).rho3(9.0).hStep(0.1).p(50, 50)
+                .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1)
         ),
         arguments(
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(6.0, 18.0)
                 .rho1(1.0).rho2(9.0).h(10.0),
             TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(0.1).system(6.0, 18.0)
                 .rho1(1.0).rho2(1.0).rho3(9.0).hStep(0.01).p(500, 500)
+                .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1)
         )
     );
   }
@@ -318,12 +326,14 @@ class TetrapolarDerivativeMeasurementTest {
   void testInvalid3Layer() {
     var builder = TetrapolarDerivativeMeasurement.milli(0.1).dh(Double.NaN)
         .system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.1);
-    assertThatIllegalArgumentException().isThrownBy(() -> builder.p(50, 50))
+    assertThatIllegalArgumentException().isThrownBy(
+            () -> builder.p(50, 50).hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1))
         .withMessage("dh NULL is not supported in 3-layer model");
 
     var builder2 = TetrapolarDerivativeMeasurement.milli(0.1).dh(0.01)
         .system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.1);
-    assertThatIllegalArgumentException().isThrownBy(() -> builder2.p(50, 50))
+    assertThatIllegalArgumentException().isThrownBy(
+            () -> builder2.p(50, 50).hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H2))
         .withMessageStartingWith("|dh = ")
         .withMessageContaining("< |hStep = ");
   }

@@ -21,17 +21,20 @@ class DerivativeApparentByPhi3RhoTest {
   void testValue2(double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
     double hStep = Metrics.Length.MILLI.to(1, METRE);
+    double dh = hStep * 2;
     int p1 = (int) hmm;
 
     var b = TetrapolarResistance.of(system);
     double expected = (
-        b.rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(hStep / SCALE).p((p1 + 1) * SCALE, SCALE).resistivity() -
-            b.rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(hStep / SCALE).p(p1 * SCALE, SCALE).resistivity()
-    ) / (hStep / system.lCC());
+        b.rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(hStep / SCALE).p((p1 + 2) * SCALE, SCALE)
+            .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1).resistivity() -
+            b.rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(hStep / SCALE).p(p1 * SCALE, SCALE)
+                .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1).resistivity()
+    ) / (dh / system.lCC());
     expected /= rho[0];
 
-    double actual = Apparent3Rho.newDerApparentByPhiDivRho1(system,
-        new double[] {Layers.getK12(rho[0], rho[1]), 0.0}, hStep, p1, 1, hStep);
+    double actual = Apparent3Rho.newDerApparentByH1PhiDivRho1(system,
+        new double[] {Layers.getK12(rho[0], rho[1]), 0.0}, hStep, p1, 1, dh);
     assertThat(StrictMath.log(Math.abs(actual))).isCloseTo(StrictMath.log(Math.abs(expected)), byLessThan(0.1));
     assertThat(Math.signum(actual)).isCloseTo(Math.signum(expected), byLessThan(0.1));
   }
@@ -41,17 +44,20 @@ class DerivativeApparentByPhi3RhoTest {
   void testValue3(double[] rho, @Nonnegative double hStep, int[] p,
                   @Nonnegative double smm, @Nonnegative double lmm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
+    double dh = hStep * 2;
 
     var b = TetrapolarResistance.of(system);
     double expected = (
-        b.rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(hStep / SCALE).p((p[0] + 1) * SCALE, p[1] * SCALE).resistivity() -
-            b.rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(hStep / SCALE).p(p[0] * SCALE, p[1] * SCALE).resistivity()
-    ) / (hStep / system.lCC());
+        b.rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(hStep / SCALE).p((p[0] + 2) * SCALE, p[1] * SCALE)
+            .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1).resistivity() -
+            b.rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(hStep / SCALE).p(p[0] * SCALE, p[1] * SCALE)
+                .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1).resistivity()
+    ) / (dh / system.lCC());
     expected /= rho[0];
 
-    double actual = Apparent3Rho.newDerApparentByPhiDivRho1(system,
+    double actual = Apparent3Rho.newDerApparentByH1PhiDivRho1(system,
         new double[] {Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2])},
-        hStep, p[0], p[1], hStep);
+        hStep, p[0], p[1], dh);
     assertThat(StrictMath.log(Math.abs(actual))).isCloseTo(StrictMath.log(Math.abs(expected)), byLessThan(0.1));
     assertThat(Math.signum(actual)).isCloseTo(Math.signum(expected), byLessThan(0.1));
   }

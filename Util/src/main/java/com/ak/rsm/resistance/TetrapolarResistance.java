@@ -110,11 +110,19 @@ public record TetrapolarResistance(TetrapolarSystem system, @Nonnegative double 
   }
 
   public interface LayersBuilder4<T> {
-    T p(@Nonnegative int p1, @Nonnegative int p2mp1);
+    LayersBuilder5<T> p(@Nonnegative int p1, @Nonnegative int p2mp1);
+  }
+
+  public interface LayersBuilder5<T> {
+    enum HChanged {
+      H1, H2
+    }
+
+    T hChanged(HChanged hChanged);
   }
 
   public abstract static class AbstractBuilder<T>
-      implements PreBuilder<T>, LayersBuilder1<T>, LayersBuilder2<T>, LayersBuilder3<T>, LayersBuilder4<T> {
+      implements PreBuilder<T>, LayersBuilder1<T>, LayersBuilder2<T>, LayersBuilder3<T>, LayersBuilder4<T>, LayersBuilder5<T> {
     protected final DoubleUnaryOperator converter;
     @Nonnegative
     protected double rho1;
@@ -130,6 +138,7 @@ public record TetrapolarResistance(TetrapolarSystem system, @Nonnegative double 
     protected int p1;
     @Nonnegative
     protected int p2mp1;
+    protected HChanged hChanged = HChanged.H1;
 
     protected AbstractBuilder(DoubleUnaryOperator converter) {
       this.converter = Objects.requireNonNull(converter);
@@ -154,21 +163,27 @@ public record TetrapolarResistance(TetrapolarSystem system, @Nonnegative double 
     }
 
     @Override
-    public LayersBuilder3<T> rho3(@Nonnegative double rho3) {
+    public final LayersBuilder3<T> rho3(@Nonnegative double rho3) {
       this.rho3 = rho3;
       return this;
     }
 
     @Override
-    public LayersBuilder4<T> hStep(@Nonnegative double hStep) {
+    public final LayersBuilder4<T> hStep(@Nonnegative double hStep) {
       this.hStep = converter.applyAsDouble(hStep);
       return this;
     }
 
     @Override
-    public T p(@Nonnegative int p1, @Nonnegative int p2mp1) {
+    public final LayersBuilder5<T> p(@Nonnegative int p1, @Nonnegative int p2mp1) {
       this.p1 = p1;
       this.p2mp1 = p2mp1;
+      return this;
+    }
+
+    @Override
+    public T hChanged(HChanged hChanged) {
+      this.hChanged = hChanged;
       return build();
     }
   }
@@ -272,7 +287,7 @@ public record TetrapolarResistance(TetrapolarSystem system, @Nonnegative double 
       return systems.stream().map(s -> {
         Builder builder = new Builder(s);
         builder.h = h;
-        return builder.rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1);
+        return builder.rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1).hChanged(hChanged);
       }).toList();
     }
   }

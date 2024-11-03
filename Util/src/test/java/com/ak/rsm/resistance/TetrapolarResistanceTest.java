@@ -60,7 +60,8 @@ class TetrapolarResistanceTest {
             3.39
         ),
         arguments(
-            TetrapolarResistance.ofMilli(10.0, 20.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0 / SCALE).p(SCALE, SCALE),
+            TetrapolarResistance.ofMilli(10.0, 20.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0 / SCALE)
+                .p(SCALE, SCALE).hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1),
             "10 000   20 000     242 751        5 720",
             242.751,
             5.72
@@ -124,7 +125,8 @@ class TetrapolarResistanceTest {
             new double[] {5.46, 4.30}
         ),
         arguments(
-            TetrapolarResistance.milli().system2(8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
+            TetrapolarResistance.milli().system2(8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1)
+                .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1),
             "800024000886174454 40000240001079853619",
             new double[] {4.45, 3.62}
         ),
@@ -140,7 +142,8 @@ class TetrapolarResistanceTest {
             new double[] {5.461, 4.302, 4.668, 4.104}
         ),
         arguments(
-            TetrapolarResistance.milli().system4(8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1),
+            TetrapolarResistance.milli().system4(8.0).rho1(8.0).rho2(2.0).rho3(1.0).hStep(5.0).p(1, 1)
+                .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1),
             "800024000886174454 40000240001079853619 16000320001031643889 48000320001103903468",
             new double[] {4.454, 3.619, 3.889, 3.468}
         ),

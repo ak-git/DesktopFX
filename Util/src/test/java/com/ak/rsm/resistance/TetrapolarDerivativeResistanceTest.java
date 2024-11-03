@@ -73,7 +73,7 @@ class TetrapolarDerivativeResistanceTest {
         ),
         arguments(
             TetrapolarDerivativeResistance.ofMilli(10.0, 20.0).dh(0.1).rho1(8.0).rho2(2.0).rho3(1.0)
-                .hStep(0.1 / SCALE).p(50 * SCALE, 50 * SCALE),
+                .hStep(0.1 / SCALE).p(50 * SCALE, 50 * SCALE).hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1),
             "10 000   20 000     242 751        5 720              13 215           0 100",
             242.751,
             5.72,
@@ -147,7 +147,8 @@ class TetrapolarDerivativeResistanceTest {
         ),
         arguments(
             TetrapolarDerivativeResistance.milli().dh(0.3).system2(8.0).rho1(8.0).rho2(2.0).rho3(1.0)
-                .hStep(0.1 / SCALE).p(50 * SCALE, 50 * SCALE),
+                .hStep(0.1 / SCALE).p(50 * SCALE, 50 * SCALE)
+                .hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1),
             "800024000886174454189590300 40000240001079853619158430300",
             new double[] {4.45, 3.62},
             new double[] {18.958526157968976, 15.842787775068425}
@@ -199,12 +200,14 @@ class TetrapolarDerivativeResistanceTest {
   void testInvalid3Layer() {
     var builder = TetrapolarDerivativeResistance.milli().dh(Double.NaN)
         .system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.1);
-    assertThatIllegalArgumentException().isThrownBy(() -> builder.p(50, 50))
+    assertThatIllegalArgumentException().isThrownBy(
+            () -> builder.p(50, 50).hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H1))
         .withMessage("dh NULL is not supported in 3-layer model");
 
     var builder2 = TetrapolarDerivativeResistance.milli().dh(0.01)
         .system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.1);
-    assertThatIllegalArgumentException().isThrownBy(() -> builder2.p(50, 50))
+    assertThatIllegalArgumentException().isThrownBy(
+            () -> builder2.p(50, 50).hChanged(TetrapolarResistance.LayersBuilder5.HChanged.H2))
         .withMessageStartingWith("|dh = ")
         .withMessageContaining("< |hStep = ");
   }

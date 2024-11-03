@@ -150,8 +150,8 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
 
         var builder3 = builder.rho3(rho3).hStep(hStep);
         return new TetrapolarDerivativeResistance(
-            builder3.p(p1, p2mp1),
-            builder3.p(p1 + Numbers.toInt(dh / hStep), p2mp1),
+            builder3.p(p1, p2mp1).hChanged(hChanged),
+            builder3.p(p1 + Numbers.toInt(dh / hStep), p2mp1).hChanged(hChanged),
             dh);
       }
     }
@@ -190,7 +190,7 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
                 Builder builder = new Builder(s);
                 builder.h = h;
                 builder.dh = dh;
-                return builder.rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1);
+                return builder.rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1).hChanged(hChanged);
               })
           .toList();
     }
