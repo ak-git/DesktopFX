@@ -20,7 +20,7 @@ class ResistivityTest {
     return Stream.of(
         arguments(TetrapolarResistance.milli().system4(6.0)
             .ofOhms(100.0, 200.0, 300.0, 400.0), 6.0 * 4),
-        arguments(TetrapolarDerivativeResistance.milli().dh(0.21).system2(7.0)
+        arguments(TetrapolarDerivativeResistance.milli().dh(DeltaH.H1.apply(0.21)).system2(7.0)
             .ofOhms(122.3, 199.0, 122.3 + 0.1, 199.0 + 0.4), 7.0 * 3)
     );
   }

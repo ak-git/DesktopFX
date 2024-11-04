@@ -5,6 +5,7 @@ import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.measurement.TetrapolarMeasurement;
 import com.ak.rsm.relative.RelativeMediumLayers;
+import com.ak.rsm.resistance.DeltaH;
 import com.ak.rsm.resistance.Resistance;
 import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.resistance.TetrapolarResistance;
@@ -123,7 +124,7 @@ class Inverse2StaticTest {
         ),
         // system 2 gets more errors
         arguments(
-            TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(Double.NaN).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(DeltaH.NULL).system2(10.0)
                 .rho(1.4441429093546185, 1.6676102911913226, -3.0215753166196184, -3.49269170918376),
             new ValuePair[] {
                 ValuePair.Name.RHO.of(1.5845, 0.00018),

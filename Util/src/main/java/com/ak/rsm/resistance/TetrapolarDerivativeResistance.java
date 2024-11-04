@@ -65,7 +65,7 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
   }
 
   public interface PreBuilder {
-    TetrapolarResistance.PreBuilder<DerivativeResistance> dh(double dh);
+    TetrapolarResistance.PreBuilder<DerivativeResistance> dh(DeltaH dh);
 
     static <T> T check(double[] values, Supplier<T> supplier) {
       if (values.length == 2) {
@@ -78,7 +78,7 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
   }
 
   public interface MultiPreBuilder {
-    TetrapolarResistance.MultiPreBuilder<DerivativeResistance> dh(double dh);
+    TetrapolarResistance.MultiPreBuilder<DerivativeResistance> dh(DeltaH dh);
 
     static <R, S> Collection<R> split(Collection<S> systems, double[] values, BiFunction<S, double[], R> function) {
       if (systems.size() * 2 == values.length) {
@@ -96,7 +96,7 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
 
   private static class Builder extends TetrapolarResistance.AbstractTetrapolarBuilder<DerivativeResistance>
       implements PreBuilder {
-    private double dh = Double.NaN;
+    private DeltaH dh = DeltaH.NULL;
 
     private Builder(TetrapolarSystem system) {
       super(DoubleUnaryOperator.identity(), system);
@@ -107,20 +107,20 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
     }
 
     @Override
-    public TetrapolarResistance.PreBuilder<DerivativeResistance> dh(double dh) {
-      this.dh = converter.applyAsDouble(dh);
+    public TetrapolarResistance.PreBuilder<DerivativeResistance> dh(DeltaH dh) {
+      this.dh = dh.convert(converter);
       return this;
     }
 
     @Override
     public DerivativeResistance rho(double... rhos) {
-      if (Double.isNaN(dh)) {
+      if (dh.type() == DeltaH.Type.NONE) {
         return PreBuilder.check(rhos,
             () -> new TetrapolarDerivativeResistance(TetrapolarResistance.of(system).rho(rhos[0]), rhos[1], Double.NaN)
         );
       }
       else {
-        throw new IllegalStateException(Double.toString(dh));
+        throw new IllegalStateException(dh.toString());
       }
     }
 
@@ -129,7 +129,7 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
       return PreBuilder.check(rOhms,
           () -> {
             TetrapolarResistance.PreBuilder<Resistance> b = TetrapolarResistance.of(system);
-            return new TetrapolarDerivativeResistance(b.ofOhms(rOhms[0]), b.ofOhms(rOhms[1]), dh);
+            return new TetrapolarDerivativeResistance(b.ofOhms(rOhms[0]), b.ofOhms(rOhms[1]), dh.value());
           }
       );
     }
@@ -138,22 +138,22 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
     public DerivativeResistance build() {
       var builder = TetrapolarResistance.of(system).rho1(rho1).rho2(rho2);
       if (Double.isNaN(hStep)) {
-        return new TetrapolarDerivativeResistance(builder.h(h), builder.h(h + dh), dh);
+        return new TetrapolarDerivativeResistance(builder.h(h), builder.h(h + dh.value()), dh.value());
       }
       else {
-        if (Double.isNaN(dh)) {
+        if (dh.type() == DeltaH.Type.NONE) {
           throw new IllegalArgumentException("dh NULL is not supported in 3-layer model");
         }
-        if (Math.abs(dh) < Math.abs(hStep)) {
-          throw new IllegalArgumentException("|dh = %f| < |hStep = %f|".formatted(dh, hStep));
+        if (Math.abs(dh.value()) < Math.abs(hStep)) {
+          throw new IllegalArgumentException("|dh = %f| < |hStep = %f|".formatted(dh.value(), hStep));
         }
 
         var builder3 = builder.rho3(rho3).hStep(hStep);
-        int pAdd = Numbers.toInt(dh / hStep);
+        int pAdd = Numbers.toInt(dh.value() / hStep);
         return new TetrapolarDerivativeResistance(
             builder3.p(p1, p2mp1),
             builder3.p(p1 + pAdd, p2mp1),
-            dh);
+            dh.value());
       }
     }
   }
@@ -161,15 +161,15 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
   private static class MultiBuilder
       extends TetrapolarResistance.AbstractMultiTetrapolarBuilder<DerivativeResistance>
       implements MultiPreBuilder {
-    private double dh = Double.NaN;
+    private DeltaH dh = DeltaH.NULL;
 
     protected MultiBuilder(DoubleUnaryOperator converter) {
       super(converter);
     }
 
     @Override
-    public TetrapolarResistance.MultiPreBuilder<DerivativeResistance> dh(double dh) {
-      this.dh = converter.applyAsDouble(dh);
+    public TetrapolarResistance.MultiPreBuilder<DerivativeResistance> dh(DeltaH dh) {
+      this.dh = dh.convert(converter);
       return this;
     }
 

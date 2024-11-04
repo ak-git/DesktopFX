@@ -1,6 +1,7 @@
 package com.ak.rsm.prediction;
 
 import com.ak.rsm.relative.RelativeMediumLayers;
+import com.ak.rsm.resistance.DeltaH;
 import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,14 +18,14 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 class TetrapolarDerivativePredictionTest {
   static Stream<Arguments> predictions() {
     Prediction prediction1 = Predictions.of(
-        TetrapolarDerivativeResistance.ofSI(10, 20).dh(Double.NaN).rho(100, 10.0),
+        TetrapolarDerivativeResistance.ofSI(10, 20).dh(DeltaH.NULL).rho(100, 10.0),
         new RelativeMediumLayers(0.5, 0.5), 10.0);
     Prediction prediction2 = Predictions.of(
-        TetrapolarDerivativeResistance.ofSI(10, 20).dh(Double.NaN).rho(100, 10.0),
+        TetrapolarDerivativeResistance.ofSI(10, 20).dh(DeltaH.NULL).rho(100, 10.0),
         new RelativeMediumLayers(0.5, 0.5), 10.0);
 
     Prediction prediction3 = Predictions.of(
-        TetrapolarDerivativeResistance.ofSI(20, 10).dh(Double.NaN).rho(100, 10.0),
+        TetrapolarDerivativeResistance.ofSI(20, 10).dh(DeltaH.NULL).rho(100, 10.0),
         new RelativeMediumLayers(0.5, 1.0), 10.0);
     return Stream.of(
         arguments(prediction1, prediction1, true),
@@ -47,7 +48,7 @@ class TetrapolarDerivativePredictionTest {
   @Test
   void testPrediction() {
     Prediction prediction = Predictions.of(
-        TetrapolarDerivativeResistance.ofSI(10, 20).dh(Double.NaN)
+        TetrapolarDerivativeResistance.ofSI(10, 20).dh(DeltaH.NULL)
             .rho(100, 101.0),
         new RelativeMediumLayers(1.0, 1.0), 10.0);
     assertAll(prediction.toString(),

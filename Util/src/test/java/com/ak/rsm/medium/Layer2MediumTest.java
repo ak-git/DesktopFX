@@ -6,6 +6,7 @@ import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.measurement.TetrapolarMeasurement;
 import com.ak.rsm.relative.RelativeMediumLayers;
+import com.ak.rsm.resistance.DeltaH;
 import com.ak.util.Metrics;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -53,7 +54,7 @@ class Layer2MediumTest {
 
   static Stream<Arguments> layer2MediumDerivative() {
     Collection<DerivativeMeasurement> measurements = TetrapolarDerivativeMeasurement
-        .milli(0.1).dh(-0.1).system2(7.0).ofOhms(1.0, 2.0, 1.1, 2.2);
+        .milli(0.1).dh(DeltaH.H1.apply(-0.1)).system2(7.0).ofOhms(1.0, 2.0, 1.1, 2.2);
     return Stream.of(
         arguments(
             new Layer2Medium(measurements, new RelativeMediumLayers(

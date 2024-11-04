@@ -7,6 +7,7 @@ import com.ak.rsm.apparent.Apparent3Rho;
 import com.ak.rsm.measurement.DerivativeMeasurement;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.medium.Layer2Medium;
+import com.ak.rsm.resistance.DeltaH;
 import com.ak.rsm.resistance.DerivativeResistivity;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.Layers;
@@ -52,11 +53,11 @@ class Inverse3Test {
     return Stream.of(
         arguments(
             List.of(
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(-hmmStep * 3.0)
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(DeltaH.H1.apply(-hmmStep * 3.0))
                     .system4(smmBase).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hmmStep).p(p1, p2mp1),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(hmmStep)
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(DeltaH.H1.apply(hmmStep))
                     .system4(smmBase).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hmmStep).p(p1, p2mp1),
-                TetrapolarDerivativeMeasurement.milli(0.1).dh(hmmStep * 2.0)
+                TetrapolarDerivativeMeasurement.milli(0.1).dh(DeltaH.H1.apply(hmmStep * 2.0))
                     .system4(smmBase).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hmmStep).p(p1, p2mp1)
             )
         )

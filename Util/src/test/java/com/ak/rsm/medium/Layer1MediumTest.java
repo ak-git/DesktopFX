@@ -3,6 +3,7 @@ package com.ak.rsm.medium;
 import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.measurement.TetrapolarMeasurement;
+import com.ak.rsm.resistance.DeltaH;
 import com.ak.util.Metrics;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -26,7 +27,7 @@ class Layer1MediumTest {
             ValuePair.Name.RHO.of(0.0654, 0.00072)
         ),
         arguments(
-            new Layer1Medium(TetrapolarDerivativeMeasurement.milli(0.1).dh(0.1).system4(7.0)
+            new Layer1Medium(TetrapolarDerivativeMeasurement.milli(0.1).dh(DeltaH.H1.apply(0.1)).system4(7.0)
                 .ofOhms(1.0, 2.0, 3.0, 4.0, 1.1, 2.2, 3.3, 4.4)),
             ValuePair.Name.RHO.of(0.0654, 0.00072)
         )

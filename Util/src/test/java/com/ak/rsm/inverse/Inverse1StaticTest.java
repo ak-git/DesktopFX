@@ -4,6 +4,7 @@ import com.ak.math.ValuePair;
 import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.measurement.TetrapolarMeasurement;
+import com.ak.rsm.resistance.DeltaH;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -35,7 +36,7 @@ class Inverse1StaticTest {
         ),
         // system 2 gets more errors
         arguments(
-            TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(Double.NaN).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(DeltaH.NULL).system2(10.0)
                 .rho(1.4441429093546185, 1.6676102911913226, -3.0215753166196184, -3.49269170918376),
             ValuePair.Name.RHO.of(1.5845, 0.00018)
         )

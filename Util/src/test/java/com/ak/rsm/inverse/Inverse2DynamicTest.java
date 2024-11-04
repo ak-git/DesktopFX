@@ -7,6 +7,7 @@ import com.ak.rsm.measurement.DerivativeMeasurement;
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.medium.Layer2Medium;
 import com.ak.rsm.relative.RelativeMediumLayers;
+import com.ak.rsm.resistance.DeltaH;
 import com.ak.rsm.resistance.Resistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.Layers;
@@ -52,7 +53,7 @@ class Inverse2DynamicTest {
 
   static Stream<Arguments> relative() {
     double absErrorMilli = 0.001;
-    double dhMilli = 0.000001;
+    DeltaH dhMilli = DeltaH.H1.apply(0.000001);
     double hmm = 15.0 / 2.0;
     double rho1 = 1.0;
     double k = 0.6;
@@ -69,7 +70,7 @@ class Inverse2DynamicTest {
             TetrapolarDerivativeMeasurement.milli(-absErrorMilli).dh(dhMilli).withShiftError().system2(10.0).ofOhms(
                 Stream.concat(
                     TetrapolarResistance.milli().system2(10.0).rho1(rho1).rho2(rho2).h(hmm).stream(),
-                    TetrapolarResistance.milli().system2(10.0).rho1(rho1).rho2(rho2).h(hmm + dhMilli).stream()
+                    TetrapolarResistance.milli().system2(10.0).rho1(rho1).rho2(rho2).h(hmm + dhMilli.value()).stream()
                 ).mapToDouble(Resistance::ohms).toArray()
             ),
             new RelativeMediumLayers(
@@ -96,7 +97,7 @@ class Inverse2DynamicTest {
 
   static Stream<Arguments> absolute() {
     double absErrorMilli = 0.001;
-    double dHmm = 0.21;
+    DeltaH dHmm = DeltaH.H1.apply(0.21);
     double hmm = 15.0 / 2;
     return Stream.of(
         // system 4 gets fewer errors
@@ -111,7 +112,7 @@ class Inverse2DynamicTest {
         ),
         // system 2 gets more errors
         arguments(
-            TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(Double.NaN).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(DeltaH.NULL).system2(10.0)
                 .rho(1.4441429093546185, 1.6676102911913226, -3.0215753166196184, -3.49269170918376),
             new ValuePair[] {
                 ValuePair.Name.RHO.of(1.5845, 0.00018),
@@ -136,7 +137,7 @@ class Inverse2DynamicTest {
   }
 
   static Stream<Arguments> theoryParameters() {
-    double dHmm = -0.001;
+    DeltaH dHmm = DeltaH.H1.apply(-0.001);
     double hmm = 5.0;
     double alpha = 0.0;
     return Stream.of(
@@ -156,13 +157,13 @@ class Inverse2DynamicTest {
             }
         ),
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(0.0).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(DeltaH.H1.apply(0.0)).system2(10.0)
                 .rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
             alpha,
             new double[] {3.3, 1.0, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(hmm, METRE)}
         ),
         arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(0.0).system2(10.0)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(DeltaH.H1.apply(0.0)).system2(10.0)
                 .rho1(10.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
             alpha,
             new double[] {33.0, 1.0, Double.POSITIVE_INFINITY, Metrics.Length.MILLI.to(hmm / 10.0, METRE)}
@@ -171,7 +172,7 @@ class Inverse2DynamicTest {
             TetrapolarDerivativeMeasurement.milli(0.1).dh(dHmm).system2(10.0).ofOhms(
                 Stream.concat(
                     TetrapolarResistance.milli().system2(10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm).stream(),
-                    TetrapolarResistance.milli().system2(10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm + dHmm).stream()
+                    TetrapolarResistance.milli().system2(10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm + dHmm.value()).stream()
                 ).mapToDouble(Resistance::ohms).toArray()
             ),
             alpha,
@@ -197,7 +198,7 @@ class Inverse2DynamicTest {
   }
 
   static Stream<Arguments> waterParameters() {
-    double dHmm = -1.0 / 20.0;
+    DeltaH dHmm = DeltaH.H1.apply(-1.0 / 20.0);
     double alpha = 2.0;
     return Stream.of(
         // h = 5 mm, rho1 = 0.7, rho2 = Inf
@@ -344,7 +345,7 @@ class Inverse2DynamicTest {
               LOGGER.info(() -> "%.2f sec; %s mm".formatted(Double.parseDouble(r.get(time)), r.get(position)));
               Collection<DerivativeMeasurement> derivativeMeasurements = new ArrayList<>(
                   TetrapolarDerivativeMeasurement.milli(0.1)
-                      .dh(Double.NaN).system2(sBase)
+                      .dh(DeltaH.NULL).system2(sBase)
                       .rho(
                           Double.parseDouble(r.get(rhoS1)), Double.parseDouble(r.get(rhoS2)),
                           Double.parseDouble(r.get(rhoS1Diff)), Double.parseDouble(r.get(rhoS2Diff))

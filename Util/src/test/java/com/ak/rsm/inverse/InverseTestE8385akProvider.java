@@ -1,6 +1,7 @@
 package com.ak.rsm.inverse;
 
 import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
+import com.ak.rsm.resistance.DeltaH;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.stream.DoubleStream;
@@ -17,7 +18,7 @@ class InverseTestE8385akProvider {
     double dhStepMM = 0.01;
     return DoubleStream.iterate(dhStepMM, value -> value < 0.1 + dhStepMM / 2.0, operand -> operand + dhStepMM)
         .mapToObj(dh -> arguments(
-            TetrapolarDerivativeMeasurement.milli(0.1).dh(-dh).system2(smmBase)
+            TetrapolarDerivativeMeasurement.milli(0.1).dh(DeltaH.H1.apply(-dh)).system2(smmBase)
                 .ofOhms(165.5, 258.6, 166.1, 259.4)
         ));
   }
