@@ -31,13 +31,20 @@ abstract class DynamicInverse extends AbstractInverseFunction<DerivativeResistiv
     };
   }
 
-  static InverseFunction of(Collection<? extends DerivativeMeasurement> r, @Nonnegative double hStep) {
-    double dh = dH(r);
+  static InverseFunction ofH1Changed(Collection<? extends DerivativeMeasurement> r, @Nonnegative double hStep) {
+    return of(r, hStep, DeltaH.H1.apply(dH(r)));
+  }
+
+  static InverseFunction ofH2Changed(Collection<? extends DerivativeMeasurement> r, @Nonnegative double hStep) {
+    return of(r, hStep, DeltaH.H2.apply(dH(r)));
+  }
+
+  private static InverseFunction of(Collection<? extends DerivativeMeasurement> r, @Nonnegative double hStep, DeltaH deltaH) {
     return new DynamicInverse(r) {
       @Override
       public double applyAsDouble(TetrapolarSystem s, double[] kw) {
-        double dR = Apparent3Rho.newDerApparentByPhiDivRho1(s, new double[] {kw[0], kw[1]}, hStep, toInt(kw[2]), toInt(kw[3]),
-            DeltaH.H1.apply(dh));
+        double dR = Apparent3Rho.newDerApparentByPhiDivRho1(
+            s, new double[] {kw[0], kw[1]}, hStep, toInt(kw[2]), toInt(kw[3]), deltaH);
         double apparentPredicted = Apparent3Rho.newApparentDivRho1(s.relativeSystem())
             .value(kw[0], kw[1], hStep / s.lCC(), toInt(kw[2]), toInt(kw[3]));
         return apparentPredicted / dR;

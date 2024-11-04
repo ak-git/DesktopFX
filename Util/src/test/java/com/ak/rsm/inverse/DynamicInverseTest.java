@@ -4,6 +4,7 @@ import com.ak.rsm.measurement.TetrapolarDerivativeMeasurement;
 import com.ak.rsm.resistance.DeltaH;
 import com.ak.rsm.system.Layers;
 import com.ak.util.Metrics;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -46,11 +47,23 @@ class DynamicInverseTest {
   @ParameterizedTest
   @MethodSource("layer3")
   void testLayer3(double[] k, @Nonnegative double inequality) {
-    ToDoubleFunction<double[]> function = DynamicInverse.of(
-        TetrapolarDerivativeMeasurement.milli(0.1).dh(DeltaH.H1.apply(0.1)).system2(6.0)
-            .rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.1).p(50, 50),
-        Metrics.Length.MILLI.to(0.1, METRE)
+    Assertions.assertAll(
+        () -> {
+          ToDoubleFunction<double[]> function = DynamicInverse.ofH1Changed(
+              TetrapolarDerivativeMeasurement.milli(0.0).dh(DeltaH.H1.apply(0.1)).system2(6.0)
+                  .rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.01).p(50, 50),
+              Metrics.Length.MILLI.to(0.01, METRE)
+          );
+          assertThat(function.applyAsDouble(k)).isCloseTo(inequality, byLessThan(1.0e-3));
+        },
+        () -> {
+          ToDoubleFunction<double[]> function = DynamicInverse.ofH2Changed(
+              TetrapolarDerivativeMeasurement.milli(0.0).dh(DeltaH.H2.apply(0.1)).system2(6.0)
+                  .rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.01).p(50, 50),
+              Metrics.Length.MILLI.to(0.01, METRE)
+          );
+          assertThat(function.applyAsDouble(k)).isCloseTo(inequality, byLessThan(1.0e-3));
+        }
     );
-    assertThat(function.applyAsDouble(k)).isCloseTo(inequality, byLessThan(1.0e-3));
   }
 }

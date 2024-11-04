@@ -111,7 +111,7 @@ class Inverse3Test {
                 double[] p = Stream.of(h1, dh2).mapToDouble(x -> x.value() / hStep).toArray();
 
                 PointValuePair optimizedK = Simplex.optimizeAll(
-                    k -> DynamicInverse.of(dm, hStep).applyAsDouble(DoubleStream.concat(Arrays.stream(k), Arrays.stream(p)).toArray()),
+                    k -> DynamicInverse.ofH1Changed(dm, hStep).applyAsDouble(DoubleStream.concat(Arrays.stream(k), Arrays.stream(p)).toArray()),
                     new Simplex.Bounds(0.0, 1.0), new Simplex.Bounds(-1.0, 0.0)
                 );
 
