@@ -22,12 +22,12 @@ public class Apparent3Rho extends AbstractApparentRho {
     return new Apparent3Rho(new NormalizedApparent(system));
   }
 
-  public static double newDerApparentByH1PhiDivRho1(TetrapolarSystem system, double[] k, @Nonnegative double hStep,
-                                                    @Nonnegative int p1, @Nonnegative int p2mp1, double dh1) {
+  public static double newDerApparentByPhiDivRho1(TetrapolarSystem system, double[] k, @Nonnegative double hStep,
+                                                  @Nonnegative int p1, @Nonnegative int p2mp1, DeltaH deltaH) {
     double rho1 = 1.0;
     double rho2 = rho1 / Layers.getRho1ToRho2(k[0]);
     double rho3 = rho2 / Layers.getRho1ToRho2(k[1]);
-    return TetrapolarDerivativeResistance.of(system).dh(DeltaH.H1.apply(dh1)).rho1(rho1).rho2(rho2).rho3(rho3)
+    return TetrapolarDerivativeResistance.of(system).dh(deltaH).rho1(rho1).rho2(rho2).rho3(rho3)
         .hStep(hStep).p(p1, p2mp1).derivativeResistivity();
   }
 }

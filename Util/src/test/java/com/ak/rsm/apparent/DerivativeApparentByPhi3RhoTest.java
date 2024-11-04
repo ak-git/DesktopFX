@@ -1,5 +1,6 @@
 package com.ak.rsm.apparent;
 
+import com.ak.rsm.resistance.DeltaH;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
@@ -31,8 +32,8 @@ class DerivativeApparentByPhi3RhoTest {
     ) / (dh / system.lCC());
     expected /= rho[0];
 
-    double actual = Apparent3Rho.newDerApparentByH1PhiDivRho1(system,
-        new double[] {Layers.getK12(rho[0], rho[1]), 0.0}, hStep, p1, 1, dh);
+    double actual = Apparent3Rho.newDerApparentByPhiDivRho1(system,
+        new double[] {Layers.getK12(rho[0], rho[1]), 0.0}, hStep, p1, 1, DeltaH.H1.apply(dh));
     assertThat(StrictMath.log(Math.abs(actual))).isCloseTo(StrictMath.log(Math.abs(expected)), byLessThan(0.1));
     assertThat(Math.signum(actual)).isCloseTo(Math.signum(expected), byLessThan(0.1));
   }
@@ -51,9 +52,9 @@ class DerivativeApparentByPhi3RhoTest {
     ) / (dh / system.lCC());
     expected /= rho[0];
 
-    double actual = Apparent3Rho.newDerApparentByH1PhiDivRho1(system,
+    double actual = Apparent3Rho.newDerApparentByPhiDivRho1(system,
         new double[] {Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2])},
-        hStep, p[0], p[1], dh);
+        hStep, p[0], p[1], DeltaH.H1.apply(dh));
     assertThat(StrictMath.log(Math.abs(actual))).isCloseTo(StrictMath.log(Math.abs(expected)), byLessThan(0.1));
     assertThat(Math.signum(actual)).isCloseTo(Math.signum(expected), byLessThan(0.1));
   }

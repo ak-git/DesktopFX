@@ -150,9 +150,11 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
 
         var builder3 = builder.rho3(rho3).hStep(hStep);
         int pAdd = Numbers.toInt(dh.value() / hStep);
+        int p1Add = dh.type() == DeltaH.Type.H1 ? pAdd : 0;
+        int p2Add = dh.type() == DeltaH.Type.H2 ? pAdd : 0;
         return new TetrapolarDerivativeResistance(
             builder3.p(p1, p2mp1),
-            builder3.p(p1 + pAdd, p2mp1),
+            builder3.p(p1 + p1Add, p2mp1 + p2Add),
             dh.value());
       }
     }
