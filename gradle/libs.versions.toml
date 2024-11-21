@@ -25,7 +25,7 @@ snakeyaml = '2.3'
 javafx = '24-ea+15'
 
 inject-api = '2.0.1'
-measure-unit-api = '2.2'
+measure-unit-api = '2.2.1'
 javax-json = '1.1.4'
 commons-math3 = '3.6.1'
 commons-csv = '1.12.0'
