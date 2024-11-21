@@ -3,10 +3,7 @@ package com.ak.rsm.inverse;
 import com.ak.math.ValuePair;
 import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.relative.RelativeMediumLayers;
-import com.ak.rsm.resistance.DerivativeResistance;
-import com.ak.rsm.resistance.Resistance;
-import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
-import com.ak.rsm.resistance.TetrapolarResistance;
+import com.ak.rsm.resistance.*;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
@@ -68,7 +65,8 @@ public interface Errors extends UnaryOperator<RelativeMediumLayers> {
                         s -> {
                           double ohmsBefore = TetrapolarResistance.of(s).rho1(rho1).rho2(rho2).h(h).ohms();
                           double ohmsAfter = TetrapolarResistance.of(s).rho1(rho1).rho2(rho2).h(h + dh).ohms();
-                          return TetrapolarDerivativeResistance.of(iterator.next()).dh(dh).ofOhms(ohmsBefore, ohmsAfter);
+                          return TetrapolarDerivativeResistance.of(iterator.next())
+                              .dh(DeltaH.H1.apply(dh)).ofOhms(ohmsBefore, ohmsAfter);
                         }
                     )
                     .toList();
@@ -108,7 +106,7 @@ public interface Errors extends UnaryOperator<RelativeMediumLayers> {
 
       @Override
       public RelativeMediumLayers apply(RelativeMediumLayers relativeMediumLayers) {
-        return errors(relativeMediumLayers, UnaryOperator.identity(), (ts, b) -> b);
+        return errors(relativeMediumLayers, UnaryOperator.identity(), (_, b) -> b);
       }
 
       RelativeMediumLayers errors(RelativeMediumLayers layers, UnaryOperator<double[][]> fixA,

@@ -2,7 +2,6 @@ package com.ak.appliance.purelogic.comm.bytes;
 
 import com.ak.comm.bytes.BufferFrame;
 
-import javax.annotation.Nonnegative;
 import javax.measure.MetricPrefix;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
@@ -15,7 +14,7 @@ import static com.ak.util.Strings.SPACE;
 import static tech.units.indriya.unit.Units.METRE;
 
 public final class PureLogicFrame extends BufferFrame {
-  public static final PureLogicFrame ALIVE = new PureLogicFrame();
+  public static final PureLogicFrame ALIVE = new PureLogicFrame(0);
   public static final int FRAME_LEN = 15;
   private static final String ALIVE_COMMAND = "PLC001-G2";
   private static final String STEP_COMMAND = "STEP";
@@ -28,31 +27,25 @@ public final class PureLogicFrame extends BufferFrame {
    * 3200 steps == 3 mm
    * 16 steps == 15 microns
    */
-  public enum StepCommand {
-    MICRON_015(16),
-    MICRON_150(MICRON_015.steps * 10),
-    MICRON_300(MICRON_150.steps * 2),
-    MICRON_750(MICRON_150.steps * 5);
+  public enum Direction {
+    UP(1), NONE(0), DOWN(-1);
 
-    private final int steps;
+    private final int sign;
 
-    StepCommand(@Nonnegative int steps) {
-      this.steps = steps;
+    Direction(int sign) {
+      this.sign = sign;
     }
 
-    public PureLogicFrame action(boolean up) {
-      int sign = up ? 1 : -1;
-      return new PureLogicFrame(steps * sign);
+    public PureLogicFrame micron15multiplyBy(int factor) {
+      return new PureLogicFrame(sign * 16 * factor);
     }
-  }
-
-  private PureLogicFrame() {
-    super("?%c%c".formatted(13, 10).getBytes(StandardCharsets.UTF_8), ByteOrder.LITTLE_ENDIAN);
-    microns = 0;
   }
 
   private PureLogicFrame(int step16) {
-    super("%s %+06d%c%c".formatted(STEP_COMMAND, step16, 13, 10).getBytes(StandardCharsets.UTF_8), ByteOrder.LITTLE_ENDIAN);
+    super(step16 == 0 ?
+            "?%c%c".formatted(13, 10).getBytes(StandardCharsets.UTF_8) :
+            "%s %+06d%c%c".formatted(STEP_COMMAND, step16, 13, 10).getBytes(StandardCharsets.UTF_8),
+        ByteOrder.LITTLE_ENDIAN);
     microns = (3000 / 200) * (step16 / 16);
   }
 

@@ -60,7 +60,7 @@ public class FxApplication extends Application implements ViewController {
     );
     root.getDividers()
         .forEach(divider -> divider.positionProperty()
-            .addListener((observable, oldValue, newValue) -> dividerStorage.save(root))
+            .addListener((_, _, _) -> dividerStorage.save(root))
         );
     root.setOnDragOver(event -> {
       if (event.getDragboard().hasFiles()) {
@@ -89,7 +89,7 @@ public class FxApplication extends Application implements ViewController {
     subHeader.setFill(Colors.GRID_CELL);
     Text header = new Text("ak");
     header.setFill(Colors.GRID_CELL);
-    header.fontProperty().addListener((observable, oldValue, newValue) -> {
+    header.fontProperty().addListener((_, _, _) -> {
       logo.getChildren().clear();
       double radius = Stream.of(header, subHeader)
           .mapToDouble(value -> value.getBoundsInLocal().getWidth()).summaryStatistics().getMax() * 1.2 / 2.0 + 3.0;
@@ -127,7 +127,7 @@ public class FxApplication extends Application implements ViewController {
     addEventHandler(stage, () -> zoom(Double.NEGATIVE_INFINITY), KeyCode.MINUS);
 
     Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass(), Strings.EMPTY);
-    stage.setOnCloseRequest(event -> stageStorage.save(stage));
+    stage.setOnCloseRequest(_ -> stageStorage.save(stage));
     stage.getScene().addPostLayoutPulseListener(new Runnable() {
       @Override
       public void run() {

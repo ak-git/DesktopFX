@@ -1,6 +1,7 @@
 package com.ak.rsm.apparent;
 
 import com.ak.rsm.relative.RelativeMediumLayers;
+import com.ak.rsm.resistance.DeltaH;
 import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
@@ -21,7 +22,7 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
   @Override
   public final double applyAsDouble(RelativeMediumLayers kw) {
     if (kw.size() == 1) {
-      return value(0.0, value -> 0.0);
+      return value(0.0, _ -> 0.0);
     }
     else {
       return value(kw.hToL().value(), n -> kFactor(kw.k().value(), n));
@@ -46,7 +47,8 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
     return kw -> {
       double rho1 = 1.0;
       double rho2 = rho1 / Layers.getRho1ToRho2(kw.k().value());
-      return TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho1).rho2(rho2).h(kw.hToL().value() * system.lCC()).derivativeResistivity();
+      return TetrapolarDerivativeResistance.of(system).dh(DeltaH.H1.apply(dh))
+          .rho1(rho1).rho2(rho2).h(kw.hToL().value() * system.lCC()).derivativeResistivity();
     };
   }
 

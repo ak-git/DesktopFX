@@ -25,7 +25,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.util.Duration;
 import org.jspecify.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 
 import javax.annotation.Nonnegative;
@@ -54,15 +53,12 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   @Nonnegative
   private long countSamples;
   private @Nullable SequentialTransition transition;
-  @Value("${version}")
-  private final String version;
   private Closeable fileWatcher = () -> {
   };
 
   protected AbstractViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
                                    Provider<Converter<R, V>> converterProvider) {
     service = new GroupService<>(interceptorProvider::get, converterProvider::get);
-    version = "${version}";
     try {
       fileWatcher = new RecursiveWatcher(
           OutputBuilders.NONE.build(Strings.EMPTY).getPath(),
@@ -73,11 +69,6 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
     catch (IOException e) {
       Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
     }
-  }
-
-  @Override
-  public final String toString() {
-    return "%s{version='%s'}".formatted(getClass(), version);
   }
 
   @Override

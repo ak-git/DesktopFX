@@ -1,5 +1,6 @@
 package com.ak.rsm.measurement;
 
+import com.ak.rsm.resistance.DeltaH;
 import com.ak.rsm.resistance.DerivativeResistance;
 import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
@@ -68,15 +69,15 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
   }
 
   public interface PreBuilder {
-    TetrapolarMeasurement.PreBuilder<DerivativeMeasurement> dh(double dh);
+    TetrapolarMeasurement.PreBuilder<DerivativeMeasurement> dh(DeltaH dh);
   }
 
   public interface MultiPreBuilder {
-    TetrapolarMeasurement.MultiPreBuilder<DerivativeMeasurement> dh(double dh);
+    TetrapolarMeasurement.MultiPreBuilder<DerivativeMeasurement> dh(DeltaH dh);
   }
 
   private static class Builder extends TetrapolarMeasurement.AbstractSingleBuilder<DerivativeMeasurement> implements PreBuilder {
-    private double dh = Double.NaN;
+    private DeltaH dh = DeltaH.NULL;
 
     private Builder(DoubleUnaryOperator converter, double absError) {
       super(converter, absError);
@@ -87,14 +88,14 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
     }
 
     @Override
-    public TetrapolarMeasurement.PreBuilder<DerivativeMeasurement> dh(double dh) {
-      this.dh = converter.applyAsDouble(dh);
+    public TetrapolarMeasurement.PreBuilder<DerivativeMeasurement> dh(DeltaH dh) {
+      this.dh = dh.convert(converter);
       return this;
     }
 
     @Override
     public DerivativeMeasurement rho(double... rhos) {
-      if (Double.isNaN(dh)) {
+      if (dh.type() == DeltaH.Type.NONE) {
         return TetrapolarDerivativeResistance.PreBuilder.check(rhos,
             () -> new TetrapolarDerivativeMeasurement(TetrapolarMeasurement.of(inexact()).rho(rhos[0]), rhos[1], Double.NaN)
         );
@@ -112,7 +113,7 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
         return new TetrapolarDerivativeMeasurement(
             TetrapolarMeasurement.of(inexact()).ofOhms(rOhms[0]),
             TetrapolarDerivativeResistance.of(inexact().system()).dh(dh).ofOhms(rOhms).derivativeResistivity(),
-            dh
+            dh.value()
         );
       }
       else {
@@ -127,27 +128,28 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
           .dh(dh).rho1(rho1).rho2(rho2);
 
       if (Double.isNaN(hStep)) {
-        return new TetrapolarDerivativeMeasurement(b.h(h), d.h(h).derivativeResistivity(), dh);
+        return new TetrapolarDerivativeMeasurement(b.h(h), d.h(h).derivativeResistivity(), dh.value());
       }
       else {
         return new TetrapolarDerivativeMeasurement(
-            b.rho3(rho3).hStep(hStep).p(p1, p2mp1), d.rho3(rho3).hStep(hStep).p(p1, p2mp1).derivativeResistivity(),
-            dh
+            b.rho3(rho3).hStep(hStep).p(p1, p2mp1),
+            d.rho3(rho3).hStep(hStep).p(p1, p2mp1).derivativeResistivity(),
+            dh.value()
         );
       }
     }
   }
 
   private static class MultiBuilder extends TetrapolarMeasurement.AbstractMultiBuilder<DerivativeMeasurement> implements MultiPreBuilder {
-    private double dh = Double.NaN;
+    private DeltaH dh = DeltaH.NULL;
 
     private MultiBuilder(DoubleUnaryOperator converter, double absError) {
       super(converter, absError);
     }
 
     @Override
-    public TetrapolarMeasurement.MultiPreBuilder<DerivativeMeasurement> dh(double dh) {
-      this.dh = converter.applyAsDouble(dh);
+    public TetrapolarMeasurement.MultiPreBuilder<DerivativeMeasurement> dh(DeltaH dh) {
+      this.dh = dh.convert(converter);
       return this;
     }
 

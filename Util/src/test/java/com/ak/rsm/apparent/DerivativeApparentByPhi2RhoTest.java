@@ -1,7 +1,7 @@
 package com.ak.rsm.apparent;
 
 import com.ak.rsm.relative.RelativeMediumLayers;
-import com.ak.rsm.resistance.TetrapolarDerivativeResistance;
+import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,14 +19,19 @@ class DerivativeApparentByPhi2RhoTest {
   void testValueSL(double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
     double h = Metrics.Length.MILLI.to(hmm, METRE);
-    double dh = Metrics.Length.MILLI.to(-0.00001, METRE);
-    double expected = TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho[0]).rho2(rho[1]).h(h).derivativeResistivity() / rho[0];
-    double actual = Apparent2Rho.newDerApparentByPhiDivRho1(system, Double.NaN)
-        .applyAsDouble(new RelativeMediumLayers(rho, hmm / lmm));
-    double actual2 = Apparent2Rho.newDerApparentByPhiDivRho1(system, dh)
-        .applyAsDouble(new RelativeMediumLayers(rho, hmm / lmm));
-    assertThat(actual).isCloseTo(expected, byLessThan(0.1));
-    assertThat(actual2).isCloseTo(expected, byLessThan(0.1));
+    double dh = Metrics.Length.MILLI.to(0.00001, METRE);
+
+    var b = TetrapolarResistance.of(system);
+    double expected = (
+        b.rho1(rho[0]).rho2(rho[1]).h(h + dh).resistivity() -
+            b.rho1(rho[0]).rho2(rho[1]).h(h).resistivity()
+    ) / (dh / system.lCC());
+    expected /= rho[0];
+
+    assertThat(Apparent2Rho.newDerApparentByPhiDivRho1(system, Double.NaN).applyAsDouble(new RelativeMediumLayers(rho, hmm / lmm)))
+        .isCloseTo(expected, byLessThan(0.1));
+    assertThat(Apparent2Rho.newDerApparentByPhiDivRho1(system, dh).applyAsDouble(new RelativeMediumLayers(rho, hmm / lmm)))
+        .isCloseTo(expected, byLessThan(0.1));
   }
 
   @ParameterizedTest
@@ -35,12 +40,17 @@ class DerivativeApparentByPhi2RhoTest {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(lmm, METRE), Metrics.Length.MILLI.to(smm, METRE));
     double h = Metrics.Length.MILLI.to(hmm, METRE);
     double dh = Metrics.Length.MILLI.to(-0.00001, METRE);
-    double expected = TetrapolarDerivativeResistance.of(system).dh(dh).rho1(rho[0]).rho2(rho[1]).h(h).derivativeResistivity() / rho[0];
-    double actual = Apparent2Rho.newDerApparentByPhiDivRho1(system, Double.NaN)
-        .applyAsDouble(new RelativeMediumLayers(rho, hmm / smm));
-    double actual2 = Apparent2Rho.newDerApparentByPhiDivRho1(system, dh)
-        .applyAsDouble(new RelativeMediumLayers(rho, hmm / smm));
-    assertThat(actual).isCloseTo(expected, byLessThan(0.1));
-    assertThat(actual2).isCloseTo(expected, byLessThan(0.1));
+
+    var b = TetrapolarResistance.of(system);
+    double expected = (
+        b.rho1(rho[0]).rho2(rho[1]).h(h + dh).resistivity() -
+            b.rho1(rho[0]).rho2(rho[1]).h(h).resistivity()
+    ) / (dh / system.lCC());
+    expected /= rho[0];
+
+    assertThat(Apparent2Rho.newDerApparentByPhiDivRho1(system, Double.NaN).applyAsDouble(new RelativeMediumLayers(rho, hmm / smm)))
+        .isCloseTo(expected, byLessThan(0.1));
+    assertThat(Apparent2Rho.newDerApparentByPhiDivRho1(system, dh).applyAsDouble(new RelativeMediumLayers(rho, hmm / smm)))
+        .isCloseTo(expected, byLessThan(0.1));
   }
 }

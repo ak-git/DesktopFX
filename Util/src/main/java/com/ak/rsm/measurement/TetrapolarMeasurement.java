@@ -171,7 +171,8 @@ public record TetrapolarMeasurement(InexactTetrapolarSystem toInexact,
       }
       else {
         return new TetrapolarMeasurement(inexact(),
-            TetrapolarResistance.of(inexact().system()).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1).resistivity()
+            TetrapolarResistance.of(inexact().system()).rho1(rho1).rho2(rho2).rho3(rho3)
+                .hStep(hStep).p(p1, p2mp1).resistivity()
         );
       }
     }
@@ -204,7 +205,9 @@ public record TetrapolarMeasurement(InexactTetrapolarSystem toInexact,
         return inexact.stream().map(s -> new Builder(s).rho1(rho1).rho2(rho2).h(h)).toList();
       }
       else {
-        return inexact.stream().map(s -> new Builder(s).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1)).toList();
+        return inexact.stream()
+            .map(s -> new Builder(s).rho1(rho1).rho2(rho2).rho3(rho3).hStep(hStep).p(p1, p2mp1))
+            .toList();
       }
     }
   }

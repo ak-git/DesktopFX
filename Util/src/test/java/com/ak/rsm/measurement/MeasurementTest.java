@@ -1,5 +1,6 @@
 package com.ak.rsm.measurement;
 
+import com.ak.rsm.resistance.DeltaH;
 import com.ak.rsm.resistance.Resistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import org.junit.jupiter.api.RepeatedTest;
@@ -34,7 +35,7 @@ class MeasurementTest {
     return Stream.of(
         arguments(TetrapolarMeasurement.milli(0.1).system4(6.0)
             .ofOhms(100.0, 200.0, 300.0, 400.0), 6.0 * 4),
-        arguments(TetrapolarDerivativeMeasurement.milli(0.1).dh(0.21).system2(7.0)
+        arguments(TetrapolarDerivativeMeasurement.milli(0.1).dh(DeltaH.H1.apply(0.21)).system2(7.0)
             .ofOhms(122.3, 199.0, 122.3 + 0.1, 199.0 + 0.4), 7.0 * 3)
     );
   }

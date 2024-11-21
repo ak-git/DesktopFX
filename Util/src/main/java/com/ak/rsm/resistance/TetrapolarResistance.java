@@ -154,19 +154,19 @@ public record TetrapolarResistance(TetrapolarSystem system, @Nonnegative double 
     }
 
     @Override
-    public LayersBuilder3<T> rho3(@Nonnegative double rho3) {
+    public final LayersBuilder3<T> rho3(@Nonnegative double rho3) {
       this.rho3 = rho3;
       return this;
     }
 
     @Override
-    public LayersBuilder4<T> hStep(@Nonnegative double hStep) {
+    public final LayersBuilder4<T> hStep(@Nonnegative double hStep) {
       this.hStep = converter.applyAsDouble(hStep);
       return this;
     }
 
     @Override
-    public T p(@Nonnegative int p1, @Nonnegative int p2mp1) {
+    public final T p(@Nonnegative int p1, @Nonnegative int p2mp1) {
       this.p1 = p1;
       this.p2mp1 = p2mp1;
       return build();

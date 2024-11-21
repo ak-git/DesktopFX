@@ -1,7 +1,7 @@
 import com.github.spotbugs.snom.Confidence
 
 plugins {
-    id 'java-library'
+    id 'java'
     id 'idea'
     id 'jacoco'
     alias(libs.plugins.spotbugs)
@@ -61,11 +61,11 @@ allprojects {
 }
 
 subprojects {
-    apply plugin: 'java-library'
+    apply plugin: 'java'
 
     java {
         toolchain {
-            languageVersion = JavaLanguageVersion.of(22)
+            languageVersion = JavaLanguageVersion.of(23)
         }
     }
 
