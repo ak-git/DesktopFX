@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Aper1-R1 Vein" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <option name="ACTIVE_PROFILES" value="aper1-R1" />
+  <configuration default="false" name="RcmsCalibration" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <option name="ACTIVE_PROFILES" value="rcms-calibration" />
     <option name="ENABLE_JMX_AGENT" value="false" />
     <option name="ENABLE_LAUNCH_OPTIMIZATION" value="false" />
     <module name="DesktopFX.Desktop.main" />

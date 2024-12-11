@@ -1,6 +1,5 @@
 package com.ak.spring;
 
-import com.ak.appliance.aper.comm.converter.*;
 import com.ak.appliance.kleiber.comm.converter.KleiberVariable;
 import com.ak.appliance.kleiber.comm.interceptor.KleiberBytesInterceptor;
 import com.ak.appliance.nmi.comm.converter.NmiVariable;
@@ -10,14 +9,11 @@ import com.ak.appliance.nmis.comm.converter.NmisConverter;
 import com.ak.appliance.nmis.comm.converter.NmisVariable;
 import com.ak.appliance.nmis.comm.interceptor.NmisBytesInterceptor;
 import com.ak.appliance.prv.comm.converter.PrvVariable;
-import com.ak.appliance.rcm.comm.converter.RcmCalibrationVariable;
-import com.ak.appliance.rcm.comm.converter.RcmConverter;
-import com.ak.appliance.rcm.comm.converter.RcmOutVariable;
-import com.ak.appliance.rcm.comm.converter.RcmsOutVariable;
-import com.ak.appliance.rcm.comm.interceptor.RcmBytesInterceptor;
-import com.ak.appliance.rcm.comm.interceptor.RcmsBytesInterceptor;
 import com.ak.comm.bytes.BufferFrame;
-import com.ak.comm.converter.*;
+import com.ak.comm.converter.Converter;
+import com.ak.comm.converter.FloatToIntegerConverter;
+import com.ak.comm.converter.StringToIntegerConverter;
+import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.RampBytesInterceptor;
 import com.ak.comm.interceptor.simple.StringBytesInterceptor;
@@ -143,128 +139,6 @@ public class SpringFxApplication extends FxApplication {
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static Converter<String, PrvVariable> converterPrv() {
     return new StringToIntegerConverter<>(PrvVariable.class, 32);
-  }
-
-  @Bean
-  @Profile({"aper2-nibp", "aper1-nibp", "aper1-myo", "aper2-ecg", "aper1-R2-6mm", "aper1-R2-7mm", "aper1-R2-8mm", "aper1-R2-10mm",
-      "aper1-R1", "aper1-calibration"})
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorAper() {
-    return new RampBytesInterceptor("aper", BytesInterceptor.BaudRate.BR_460800, 25);
-  }
-
-  @Bean
-  @Profile("aper2-nibp")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, AperStage3Current2NIBPVariable> converterAper2NIBP() {
-    return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
-        .chainInstance(AperStage3Current2NIBPVariable.class);
-  }
-
-  @Bean
-  @Profile("aper1-nibp")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, AperStage3Current1NIBPVariable> converterAper1NIBP() {
-    return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
-        .chainInstance(AperStage3Current1NIBPVariable.class);
-  }
-
-  @Bean
-  @Profile("aper1-myo")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static LinkedConverter<BufferFrame, AperStage3Variable, AperStage4Current1Variable> converterAper1Myo() {
-    return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
-        .chainInstance(AperStage3Variable.class).chainInstance(AperStage4Current1Variable.class);
-  }
-
-  private static LinkedConverter<BufferFrame, AperStage4Current1Variable, AperStage5Current1Variable> converterAper1R() {
-    return converterAper1Myo().chainInstance(AperStage5Current1Variable.class);
-  }
-
-  @Bean
-  @Profile("aper1-R2-6mm")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, AperStage6Current1Variable6mm> converterAper1R6() {
-    return converterAper1R().chainInstance(AperStage6Current1Variable6mm.class);
-  }
-
-  @Bean
-  @Profile("aper1-R2-7mm")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, AperStage6Current1Variable7mm> converterAper1R7() {
-    return converterAper1R().chainInstance(AperStage6Current1Variable7mm.class);
-  }
-
-  @Bean
-  @Profile("aper1-R2-8mm")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, AperStage6Current1Variable8mm> converterAper1R8() {
-    return converterAper1R().chainInstance(AperStage6Current1Variable8mm.class);
-  }
-
-  @Bean
-  @Profile("aper1-R2-10mm")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, AperStage6Current1Variable10mm> converterAper1R10() {
-    return converterAper1R().chainInstance(AperStage6Current1Variable10mm.class);
-  }
-
-  @Bean
-  @Profile("aper1-R1")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, AperStage6Current1Variable> converterAper1R1() {
-    return converterAper1R().chainInstance(AperStage6Current1Variable.class);
-  }
-
-  @Bean
-  @Profile("aper1-calibration")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, AperCalibrationCurrent1Variable> converterAper1Calibration() {
-    return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000),
-        AperCalibrationCurrent1Variable.class);
-  }
-
-  @Bean
-  @Profile("aper2-ecg")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, AperStage4Current2Variable> converterAper2() {
-    return LinkedConverter.of(new ToIntegerConverter<>(AperStage1Variable.class, 1000), AperStage2UnitsVariable.class)
-        .chainInstance(AperStage3Variable.class).chainInstance(AperStage4Current2Variable.class);
-  }
-
-  @Bean
-  @Profile({"rcm", "rcm-calibration"})
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorRcm() {
-    return new RcmBytesInterceptor();
-  }
-
-  @Bean
-  @Profile("rcm")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, RcmOutVariable> converterRcm() {
-    return LinkedConverter.of(new RcmConverter(), RcmOutVariable.class);
-  }
-
-  @Bean
-  @Profile({"rcms", "rcms-calibration"})
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static BytesInterceptor<BufferFrame, BufferFrame> bytesInterceptorRcms() {
-    return new RcmsBytesInterceptor();
-  }
-
-  @Bean
-  @Profile("rcms")
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, RcmsOutVariable> converterRcms() {
-    return LinkedConverter.of(new RcmConverter(), RcmOutVariable.class).chainInstance(RcmsOutVariable.class);
-  }
-
-  @Bean
-  @Profile({"rcm-calibration", "rcms-calibration"})
-  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  static Converter<BufferFrame, RcmCalibrationVariable> converterRcmCalibration() {
-    return LinkedConverter.of(new RcmConverter(), RcmCalibrationVariable.class);
   }
 
   @Bean
