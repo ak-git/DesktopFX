@@ -28,9 +28,11 @@ module com.ak.fx.desktop {
   opens com.ak.fx.scene to javafx.fxml;
   opens com.ak.spring to spring.core;
 
+  exports com.ak.appliance.aper.fx.desktop to spring.beans;
   exports com.ak.appliance.briko.fx.desktop to spring.beans;
   exports com.ak.appliance.nmisr.fx.desktop to spring.beans;
   exports com.ak.appliance.purelogic.fx.desktop to spring.beans;
+  exports com.ak.appliance.rcm.fx.desktop to spring.beans;
   exports com.ak.appliance.sktbpr.fx.desktop to spring.beans, spring.context;
   exports com.ak.appliance.suntech.fx.desktop to spring.beans;
   exports com.ak.spring to javafx.graphics, spring.beans, spring.context;
