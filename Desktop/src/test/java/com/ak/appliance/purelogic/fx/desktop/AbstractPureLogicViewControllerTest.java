@@ -52,7 +52,7 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
       controller.left();
       controller.down();
       Assertions.assertThat(IntStream.range(0, 4)
-          .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(-750, 0, 0, 0);
+          .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(-450, 0, 0, 0);
     }
     catch (IOException e) {
       Assertions.fail(e.getMessage(), e);

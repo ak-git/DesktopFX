@@ -54,7 +54,7 @@ abstract class AbstractPureLogicViewController extends AbstractScheduledViewCont
     if (autoSequenceIndex == AUTO_SEQUENCE.length - 1) {
       PureLogicFrame.Direction d = direction.getAndSet(PureLogicFrame.Direction.NONE);
       if (isStop) {
-        return d.micron15multiplyBy(50);
+        return d.micron15multiplyBy(30);
       }
       else if (d != PureLogicFrame.Direction.NONE) {
         return d.micron15multiplyBy(6);
