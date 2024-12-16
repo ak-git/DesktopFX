@@ -4,7 +4,6 @@ import javax.annotation.Nonnegative;
 
 public enum PureLogicAxisFrequency {
   F8_0(8.0),
-  F7_0(7.0),
   F2_0(2.0),
   F0_5(0.5);
 
