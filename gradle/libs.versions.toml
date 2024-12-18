@@ -15,7 +15,7 @@ assertj = '3.26.3'
 mockito = '5.14.2'
 
 slf4j = '2.1.0-alpha1'
-logback = '1.5.12'
+logback = '1.5.13'
 
 javafxplugin = '0.1.0'
 spring = '6.2.1'
