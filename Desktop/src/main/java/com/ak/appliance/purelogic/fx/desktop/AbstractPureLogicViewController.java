@@ -11,7 +11,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 abstract class AbstractPureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
   private static final PureLogicFrame[] AUTO_SEQUENCE = {
-      PureLogicFrame.Direction.DOWN.micron15multiplyBy(6), PureLogicFrame.Direction.UP.micron15multiplyBy(6)
+      PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
+      PureLogicFrame.Direction.UP.micron15multiplyBy(6),
+      PureLogicFrame.Direction.UP.micron15multiplyBy(6),
+      PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
   };
   private final AtomicReference<PureLogicFrame.Direction> direction = new AtomicReference<>(PureLogicFrame.Direction.NONE);
   private boolean isStop;
@@ -54,7 +57,7 @@ abstract class AbstractPureLogicViewController extends AbstractScheduledViewCont
     if (autoSequenceIndex == AUTO_SEQUENCE.length - 1) {
       PureLogicFrame.Direction d = direction.getAndSet(PureLogicFrame.Direction.NONE);
       if (isStop) {
-        return d.micron15multiplyBy(50);
+        return d.micron15multiplyBy(20);
       }
       else if (d != PureLogicFrame.Direction.NONE) {
         return d.micron15multiplyBy(6);
