@@ -3,6 +3,10 @@ plugins {
     alias(libs.plugins.javamodularity.moduleplugin)
 }
 
+configurations {
+    mockitoAgent
+}
+
 dependencies {
     api libs.measure.unit.api
     api libs.javax.json
@@ -20,4 +24,14 @@ dependencies {
     testImplementation libs.bundles.test.mockito
     testCompileOnly libs.bundles.test.compile
     testRuntimeOnly libs.bundles.test.runtime
+
+    mockitoAgent(libs.mockito.core) {
+        transitive = false
+    }
+}
+
+tasks {
+    test {
+        jvmArgs += "-javaagent:${configurations.mockitoAgent.asPath}"
+    }
 }
