@@ -5,9 +5,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("purelogic8f0")
-public final class PureLogicViewController8F0 extends AbstractPureLogicViewController {
-  public PureLogicViewController8F0() {
-    super(PureLogicAxisFrequency.F8_0);
+@Profile("purelogic6f0")
+public final class PureLogicViewController6F0 extends AbstractPureLogicViewController {
+  public PureLogicViewController6F0() {
+    super(PureLogicAxisFrequency.F6_0);
   }
 }

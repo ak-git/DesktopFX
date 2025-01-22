@@ -11,13 +11,40 @@ import java.util.concurrent.atomic.AtomicReference;
 
 abstract class AbstractPureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
   private static final PureLogicFrame[] AUTO_SEQUENCE = {
+      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+
+      PureLogicFrame.Direction.UP.micron15multiplyBy(3),
       PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
       PureLogicFrame.Direction.UP.micron15multiplyBy(6),
+      PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
       PureLogicFrame.Direction.UP.micron15multiplyBy(6),
       PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
+      PureLogicFrame.Direction.UP.micron15multiplyBy(6),
+      PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
+      PureLogicFrame.Direction.UP.micron15multiplyBy(3),
+
+      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+
+      PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
+      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
   };
   private final AtomicReference<PureLogicFrame.Direction> direction = new AtomicReference<>(PureLogicFrame.Direction.NONE);
   private boolean isStop;
+  private boolean isInverted;
   private int autoSequenceIndex = -1;
 
   AbstractPureLogicViewController(PureLogicAxisFrequency axisFrequency) {
@@ -56,16 +83,23 @@ abstract class AbstractPureLogicViewController extends AbstractScheduledViewCont
   public final PureLogicFrame get() {
     if (autoSequenceIndex == AUTO_SEQUENCE.length - 1) {
       PureLogicFrame.Direction d = direction.getAndSet(PureLogicFrame.Direction.NONE);
+      boolean inv = (d == PureLogicFrame.Direction.UP);
       if (isStop) {
+        isInverted = inv;
         return d.micron15multiplyBy(20);
       }
       else if (d != PureLogicFrame.Direction.NONE) {
+        isInverted = inv;
         return d.micron15multiplyBy(6);
       }
     }
 
     autoSequenceIndex++;
     autoSequenceIndex %= AUTO_SEQUENCE.length;
-    return AUTO_SEQUENCE[autoSequenceIndex];
+    PureLogicFrame pureLogicFrame = AUTO_SEQUENCE[autoSequenceIndex];
+    if (isInverted) {
+      pureLogicFrame = pureLogicFrame.inverse();
+    }
+    return pureLogicFrame;
   }
 }

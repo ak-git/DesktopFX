@@ -53,6 +53,10 @@ public final class PureLogicFrame extends BufferFrame {
     return microns;
   }
 
+  public PureLogicFrame inverse() {
+    return new PureLogicFrame(-microns * 16 / (3000 / 200));
+  }
+
   @Override
   public String toString() {
     return String.join(SPACE, super.toString(), new String(byteBuffer().array(), StandardCharsets.UTF_8).strip(),
