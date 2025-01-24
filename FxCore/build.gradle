@@ -18,7 +18,7 @@ dependencies {
 }
 
 javafx {
-    version = '24-ea+19'
+    version = '24-ea+25'
     modules = ['javafx.controls', 'javafx.graphics']
     configurations = ['api']
 }

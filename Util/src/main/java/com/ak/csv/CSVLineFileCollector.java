@@ -35,7 +35,7 @@ public final class CSVLineFileCollector implements Collector<Object[], CSVPrinte
       temp = Files.createTempFile(out.toAbsolutePath().getParent(), "%s ".formatted(out.toFile().getName()), Strings.EMPTY);
       csvPrinter = new CSVPrinter(
           Files.newBufferedWriter(temp, WRITE, CREATE, TRUNCATE_EXISTING),
-          CSVFormat.Builder.create().setHeader(header.length > 0 ? header : null).build()
+          CSVFormat.Builder.create().setHeader(header.length > 0 ? header : null).get()
       );
     }
     catch (IOException ex) {

@@ -325,13 +325,13 @@ class Inverse2DynamicTest {
     Path path = Paths.get(Extension.CSV.attachTo(fileName));
     try (BufferedReader reader = new BufferedReader(new FileReader(path.toFile()))) {
       reader.mark(8192);
-      CSVFormat csvFormat = CSVFormat.Builder.create().build();
+      CSVFormat csvFormat = CSVFormat.Builder.create().get();
       Collection<String> inputHeaders = Arrays.stream(reader.readLine().split(csvFormat.getDelimiterString()))
           .map(s -> s.replace(csvFormat.getQuoteCharacter(), ' ').strip()).toList();
       reader.reset();
 
       try (CSVParser parser = CSVParser.parse(reader,
-          CSVFormat.Builder.create().setHeader(inputHeaders.toArray(String[]::new)).setSkipHeaderRecord(true).build());
+          CSVFormat.Builder.create().setHeader(inputHeaders.toArray(String[]::new)).setSkipHeaderRecord(true).get());
            CSVLineFileCollector collector = new CSVLineFileCollector(
                Paths.get(Extension.CSV.attachTo(
                    String.format(Locale.ROOT, "%s inverse - %.1f", Extension.CSV.clean(fileName), alpha))),
