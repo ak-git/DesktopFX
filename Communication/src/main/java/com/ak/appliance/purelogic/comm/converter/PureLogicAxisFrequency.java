@@ -3,7 +3,7 @@ package com.ak.appliance.purelogic.comm.converter;
 import javax.annotation.Nonnegative;
 
 public enum PureLogicAxisFrequency {
-  F8_0(8.0),
+  F6_0(6.0),
   F2_0(2.0),
   F0_5(0.5);
 

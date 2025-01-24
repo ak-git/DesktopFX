@@ -13,8 +13,8 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
     try (AbstractPureLogicViewController controller = build()) {
       controller.close();
       controller.escape();
-      Assertions.assertThat(IntStream.range(0, 4)
-          .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(-90, 90, 90, -90);
+      Assertions.assertThat(IntStream.range(0, 4 + 4 + 2)
+          .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(0, 0, 0, 0, 90, -90, 90, -90, 0, 0);
     }
     catch (IOException e) {
       Assertions.fail(e.getMessage(), e);
@@ -28,12 +28,12 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
 
       controller.left();
       controller.up();
-      Assertions.assertThat(IntStream.range(0, 2)
-          .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(-90, 90);
+      Assertions.assertThat(IntStream.range(0, 4 + 4 + 2)
+          .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(0, 0, 0, 0, 90, -90, 90, -90, 0, 0);
       controller.right();
       controller.up();
-      Assertions.assertThat(IntStream.range(0, 4)
-          .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(90, -90, 90, -90);
+      Assertions.assertThat(IntStream.range(0, 4 + 4 + 2 + 1)
+          .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(90, 0, 0, 0, 0, 90, -90, 90, -90, 0, 0);
     }
     catch (IOException e) {
       Assertions.fail(e.getMessage(), e);
@@ -47,12 +47,12 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
 
       controller.left();
       controller.down();
-      Assertions.assertThat(IntStream.range(0, 2)
-          .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(-90, 90);
+      Assertions.assertThat(IntStream.range(0, 4 + 4 + 2)
+          .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(0, 0, 0, 0, 90, -90, 90, -90, 0, 0);
       controller.left();
       controller.down();
-      Assertions.assertThat(IntStream.range(0, 4)
-          .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(90, -90, -300, 0);
+      Assertions.assertThat(IntStream.range(0, 4 + 4 + 2)
+          .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(-300, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
     catch (IOException e) {
       Assertions.fail(e.getMessage(), e);
