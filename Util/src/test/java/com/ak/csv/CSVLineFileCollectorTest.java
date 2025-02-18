@@ -77,7 +77,7 @@ class CSVLineFileCollectorTest {
   }
 
   @BeforeEach
-  public void prepare() {
+  void prepare() {
     EXCEPTION_COUNTER.set(0);
   }
 

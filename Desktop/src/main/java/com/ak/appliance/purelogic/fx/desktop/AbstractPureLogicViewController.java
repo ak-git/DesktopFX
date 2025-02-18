@@ -27,20 +27,6 @@ abstract class AbstractPureLogicViewController extends AbstractScheduledViewCont
       PureLogicFrame.Direction.UP.micron15multiplyBy(6),
       PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
       PureLogicFrame.Direction.UP.micron15multiplyBy(3),
-
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-
-      PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
   };
   private final AtomicReference<PureLogicFrame.Direction> direction = new AtomicReference<>(PureLogicFrame.Direction.NONE);
   private boolean isStop;

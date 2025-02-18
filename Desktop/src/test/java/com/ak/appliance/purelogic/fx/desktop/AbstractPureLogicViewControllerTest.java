@@ -17,7 +17,7 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
           .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(
           0, 0, 0, 0, 0, 0,
           45, -90, 90, -90, 90, -90, 90, -90, 45,
-          0, 0, 0, 0, 0, 0, -90, 0, 0, 0, 0, 0);
+          0, 0, 0, 0, 0, 0, 45, -90, 90, -90, 90, -90);
     }
     catch (IOException e) {
       Assertions.fail(e.getMessage(), e);
@@ -35,14 +35,14 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
           .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(
           0, 0, 0, 0, 0, 0,
           45, -90, 90, -90, 90, -90, 90, -90, 45,
-          0, 0, 0, 0, 0, 0, -90, 0, 0, 0, 0, 0);
+          300, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
       controller.right();
       controller.up();
       Assertions.assertThat(IntStream.range(0, 6 + 9 + 6 + 6 + 1)
           .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(
           90, 0, 0, 0, 0, 0, 0,
           -45, 90, -90, 90, -90, 90, -90, 90, -45,
-          0, 0, 0, 0, 0, 0, 90, 0, 0, 0, 0, 0);
+          0, 0, 0, 0, 0, 0, -45, 90, -90, 90, -90, 90);
     }
     catch (IOException e) {
       Assertions.fail(e.getMessage(), e);
@@ -60,7 +60,7 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
           .map(_ -> controller.get().getMicrons()).toArray()).containsExactly(
           0, 0, 0, 0, 0, 0,
           45, -90, 90, -90, 90, -90, 90, -90, 45,
-          0, 0, 0, 0, 0, 0, -90, 0, 0, 0, 0, 0);
+          -300, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
       controller.left();
       controller.down();
       Assertions.assertThat(IntStream.range(0, 2)
