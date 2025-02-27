@@ -11,22 +11,12 @@ import java.util.concurrent.atomic.AtomicReference;
 
 abstract class AbstractPureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
   private static final PureLogicFrame[] AUTO_SEQUENCE = {
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-
-      PureLogicFrame.Direction.UP.micron15multiplyBy(3),
-      PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
       PureLogicFrame.Direction.UP.micron15multiplyBy(6),
       PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
       PureLogicFrame.Direction.UP.micron15multiplyBy(6),
       PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
       PureLogicFrame.Direction.UP.micron15multiplyBy(6),
-      PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
-      PureLogicFrame.Direction.UP.micron15multiplyBy(3),
+      PureLogicFrame.Direction.DOWN.micron15multiplyBy(12),
   };
   private final AtomicReference<PureLogicFrame.Direction> direction = new AtomicReference<>(PureLogicFrame.Direction.NONE);
   private boolean isStop;
@@ -72,7 +62,7 @@ abstract class AbstractPureLogicViewController extends AbstractScheduledViewCont
       boolean inv = (d == PureLogicFrame.Direction.UP);
       if (isStop) {
         isInverted = inv;
-        return d.micron15multiplyBy(20);
+        return d.micron15multiplyBy(30);
       }
       else if (d != PureLogicFrame.Direction.NONE) {
         isInverted = inv;
