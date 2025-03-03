@@ -12,7 +12,7 @@ jspecify = '1.0.0'
 junit = '5.12.0'
 junit-platform-launcher = '1.12.0'
 assertj = '3.27.3'
-mockito = '5.15.2'
+mockito = '5.16.0'
 
 slf4j = '2.1.0-alpha1'
 logback = '1.5.17'
