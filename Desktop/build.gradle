@@ -24,7 +24,6 @@ dependencies {
     implementation libs.bundles.spring.boot
 
     //    https://github.com/junit-team/junit5/issues/1773
-    testImplementation(platform(libs.junit))
     testImplementation libs.junit.jupiter.api
     testImplementation libs.assertj
     testRuntimeOnly libs.junit.jupiter
@@ -32,7 +31,7 @@ dependencies {
 }
 
 javafx {
-    version = '25-ea+5'
+    version = '25-ea+6'
     modules = ['javafx.controls', 'javafx.fxml']
     configurations = ['implementation']
 }
@@ -40,4 +39,12 @@ javafx {
 application {
     mainModule = 'com.ak.fx.desktop'
     mainClass = 'com.ak.spring.SpringFxApplication'
+}
+
+tasks {
+    test {
+        moduleOptions {
+            runOnClasspath = true
+        }
+    }
 }

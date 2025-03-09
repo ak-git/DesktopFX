@@ -17,7 +17,7 @@ sdk list java
 ```
 
 ```bash
-sdk install java 23.0.1-oracle
+sdk install java 23.0.2-oracle
 ```
 
 ## Install [Gradle](https://gradle.org)
@@ -27,7 +27,7 @@ sdk list gradle
 ```
 
 ```bash
-sdk install gradle 8.12.1
+sdk install gradle 8.13
 ```
 
 ## Verify Installation

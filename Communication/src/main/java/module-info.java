@@ -8,6 +8,8 @@ module com.ak.comm {
   requires jsr305;
   requires org.jspecify;
   requires tech.units.indriya;
+  requires static org.mockito.junit.jupiter;
+  requires static org.mockito;
 
   opens com.ak.appliance.aper.numbers to com.ak.util;
   opens com.ak.appliance.rcm.numbers to com.ak.util;
