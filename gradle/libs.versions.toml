@@ -10,7 +10,6 @@ jgitver = '0.10.0-rc03'
 jsr305 = '3.0.2'
 jspecify = '1.0.0'
 junit = '5.12.0'
-junit-platform-launcher = '1.12.0'
 assertj = '3.27.3'
 mockito = '5.16.0'
 
@@ -18,7 +17,7 @@ slf4j = '2.1.0-alpha1'
 logback = '1.5.17'
 
 javafxplugin = '0.1.0'
-spring = '6.2.3'
+spring = '7.0.0-M2'
 springframework-boot = '3.4.3'
 spring-dependency-management = '1.1.7'
 javafx = '25-ea+6'
@@ -50,11 +49,11 @@ findbugs-jsr305 = { module = 'com.google.code.findbugs:jsr305', version.ref = 'j
 jspecify = { module = 'org.jspecify:jspecify', version.ref = 'jspecify' }
 
 junit = { module = 'org.junit:junit-bom', version.ref = 'junit' }
-junit-jupiter = { module = 'org.junit.jupiter:junit-jupiter', version.ref = 'junit' }
-junit-jupiter-api = { module = 'org.junit.jupiter:junit-jupiter-api', version.ref = 'junit' }
-junit-jupiter-params = { module = 'org.junit.jupiter:junit-jupiter-params', version.ref = 'junit' }
-junit-jupiter-engine = { module = 'org.junit.jupiter:junit-jupiter-engine', version.ref = 'junit' }
-junit-platform-launcher = { module = 'org.junit.platform:junit-platform-launcher', version.ref = 'junit-platform-launcher' }
+junit-jupiter = { module = 'org.junit.jupiter:junit-jupiter' }
+junit-jupiter-api = { module = 'org.junit.jupiter:junit-jupiter-api' }
+junit-jupiter-params = { module = 'org.junit.jupiter:junit-jupiter-params' }
+junit-jupiter-engine = { module = 'org.junit.jupiter:junit-jupiter-engine' }
+junit-platform-launcher = { module = 'org.junit.platform:junit-platform-launcher' }
 assertj = { module = 'org.assertj:assertj-core', version.ref = 'assertj' }
 mockito-core = { module = 'org.mockito:mockito-core', version.ref = 'mockito' }
 mockito-junit = { module = 'org.mockito:mockito-junit-jupiter', version.ref = 'mockito' }
@@ -86,4 +85,3 @@ spring-boot = ['spring-boot', 'spring-boot-autoconfigure', 'spring-core', 'sprin
 test-implementation = ['junit-jupiter-api', 'junit-jupiter-params', 'assertj']
 test-compile = ['junit-jupiter', 'junit-jupiter-engine']
 test-runtime = ['junit-jupiter-engine', 'junit-platform-launcher']
-test-mockito = ['mockito-core', 'mockito-junit']

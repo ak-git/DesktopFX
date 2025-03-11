@@ -19,9 +19,11 @@ dependencies {
     implementation libs.slf4j
     runtimeOnly libs.logback
 
-    testImplementation(platform(libs.junit))
+    implementation(platform(libs.junit))
+    implementation libs.junit.jupiter.api
+    implementation libs.mockito.junit
+    testImplementation libs.mockito.core
     testImplementation libs.bundles.test.implementation
-    testImplementation libs.bundles.test.mockito
     testCompileOnly libs.bundles.test.compile
     testRuntimeOnly libs.bundles.test.runtime
 
@@ -33,5 +35,8 @@ dependencies {
 tasks {
     test {
         jvmArgs += "-javaagent:${configurations.mockitoAgent.asPath}"
+        moduleOptions {
+            runOnClasspath = true
+        }
     }
 }

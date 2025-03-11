@@ -7,44 +7,49 @@ import com.ak.appliance.purelogic.comm.converter.PureLogicVariable;
 import com.ak.appliance.purelogic.comm.interceptor.PureLogicBytesInterceptor;
 import com.ak.fx.desktop.AbstractScheduledViewController;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 abstract class AbstractPureLogicViewController extends AbstractScheduledViewController<PureLogicFrame, PureLogicFrame, PureLogicVariable> {
-  private static final PureLogicFrame[] AUTO_SEQUENCE = {
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+  private enum AutoSequence {
+    AUTO_SEQUENCE_1(
+        Stream.of(
+                Stream.generate(() -> PureLogicFrame.ALIVE).limit(4),
+                Stream.iterate(PureLogicFrame.Direction.UP.micron15multiplyBy(6), PureLogicFrame::inverse).limit(7),
+                Stream.of(PureLogicFrame.Direction.DOWN.micron15multiplyBy(12))
+            )
+            .flatMap(Function.identity())
+            .toList()
+    ),
+    AUTO_SEQUENCE_2(
+        Stream.concat(
+            Stream.generate(() ->
+                    Stream.of(PureLogicFrame.Direction.UP.micron15multiplyBy(1), PureLogicFrame.ALIVE))
+                .flatMap(Function.identity())
+                .limit(12),
+            Stream.generate(() ->
+                    Stream.of(PureLogicFrame.Direction.DOWN.micron15multiplyBy(1), PureLogicFrame.ALIVE))
+                .flatMap(Function.identity())
+                .limit(12)
+        ).toList()
+    );
 
-      PureLogicFrame.Direction.UP.micron15multiplyBy(3),
-      PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
-      PureLogicFrame.Direction.UP.micron15multiplyBy(6),
-      PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
-      PureLogicFrame.Direction.UP.micron15multiplyBy(6),
-      PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
-      PureLogicFrame.Direction.UP.micron15multiplyBy(6),
-      PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
-      PureLogicFrame.Direction.UP.micron15multiplyBy(3),
+    private final List<PureLogicFrame> sequences;
 
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
+    AutoSequence(List<PureLogicFrame> sequences) {
+      this.sequences = sequences;
+    }
+  }
 
-      PureLogicFrame.Direction.DOWN.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-      PureLogicFrame.Direction.NONE.micron15multiplyBy(6),
-  };
+  private final List<PureLogicFrame> autoSequence = new CopyOnWriteArrayList<>();
+
   private final AtomicReference<PureLogicFrame.Direction> direction = new AtomicReference<>(PureLogicFrame.Direction.NONE);
   private boolean isStop;
   private boolean isInverted;
+  private int changeIndex;
   private int autoSequenceIndex = -1;
 
   AbstractPureLogicViewController(PureLogicAxisFrequency axisFrequency) {
@@ -77,16 +82,21 @@ abstract class AbstractPureLogicViewController extends AbstractScheduledViewCont
 
   @Override
   public final void escape() {
+    changeIndex = (changeIndex + 1) % AutoSequence.values().length;
   }
 
   @Override
   public final PureLogicFrame get() {
-    if (autoSequenceIndex == AUTO_SEQUENCE.length - 1) {
+    if (autoSequenceIndex == autoSequence.size() - 1) {
+      autoSequence.clear();
+      autoSequence.addAll(AutoSequence.values()[changeIndex].sequences);
+      autoSequenceIndex = autoSequence.size() - 1;
+
       PureLogicFrame.Direction d = direction.getAndSet(PureLogicFrame.Direction.NONE);
       boolean inv = (d == PureLogicFrame.Direction.UP);
       if (isStop) {
         isInverted = inv;
-        return d.micron15multiplyBy(20);
+        return d.micron15multiplyBy(30);
       }
       else if (d != PureLogicFrame.Direction.NONE) {
         isInverted = inv;
@@ -95,8 +105,8 @@ abstract class AbstractPureLogicViewController extends AbstractScheduledViewCont
     }
 
     autoSequenceIndex++;
-    autoSequenceIndex %= AUTO_SEQUENCE.length;
-    PureLogicFrame pureLogicFrame = AUTO_SEQUENCE[autoSequenceIndex];
+    autoSequenceIndex %= autoSequence.size();
+    PureLogicFrame pureLogicFrame = autoSequence.get(autoSequenceIndex);
     if (isInverted) {
       pureLogicFrame = pureLogicFrame.inverse();
     }
