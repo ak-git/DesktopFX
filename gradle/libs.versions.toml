@@ -11,7 +11,7 @@ jsr305 = '3.0.2'
 jspecify = '1.0.0'
 junit = '5.12.1'
 assertj = '3.27.3'
-mockito = '5.16.0'
+mockito = '5.16.1'
 
 slf4j = '2.1.0-alpha1'
 logback = '1.5.17'
