@@ -27,7 +27,7 @@ tech-units = '2.2.2'
 measure-unit-api = '2.2'
 javax-json = '1.1.4'
 commons-math3 = '3.6.1'
-commons-csv = '1.13.0'
+commons-csv = '1.14.0'
 jserial-comm = '2.11.0'
 jenetics = '8.1.0'
 
