@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 public final class PureLogicConverter extends AbstractConverter<PureLogicFrame, PureLogicVariable> {
   private static final int DATA_FREQUENCY = 1000;
   private final PureLogicAxisFrequency axisFrequency;
-  private int position;
+  private double position;
 
   public PureLogicConverter(PureLogicAxisFrequency axisFrequency) {
     super(PureLogicVariable.class, DATA_FREQUENCY);
@@ -19,7 +19,7 @@ public final class PureLogicConverter extends AbstractConverter<PureLogicFrame, 
   @Override
   protected Stream<int[]> innerApply(PureLogicFrame response) {
     position += response.getMicrons();
-    return Stream.generate(() -> new int[] {position}).limit(Numbers.toInt(DATA_FREQUENCY / axisFrequency.value()) + 1L);
+    return Stream.generate(() -> new int[] {(int) position}).limit(Numbers.toInt(DATA_FREQUENCY / axisFrequency.value()) + 1L);
   }
 
   @Override

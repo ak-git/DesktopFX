@@ -18,23 +18,22 @@ abstract class AbstractPureLogicViewController extends AbstractScheduledViewCont
     AUTO_SEQUENCE_1(
         Stream.of(
                 Stream.generate(() -> PureLogicFrame.ALIVE).limit(4),
-                Stream.iterate(PureLogicFrame.Direction.UP.micron15multiplyBy(6), PureLogicFrame::inverse).limit(7),
-                Stream.of(PureLogicFrame.Direction.DOWN.micron15multiplyBy(12))
+                Stream.of(PureLogicFrame.Direction.UP.micron15multiplyBy(3)),
+                Stream.iterate(PureLogicFrame.Direction.DOWN.micron15multiplyBy(6), PureLogicFrame::inverse).limit(5),
+                Stream.of(PureLogicFrame.Direction.UP.micron15multiplyBy(3)),
+                Stream.of(PureLogicFrame.Direction.DOWN.micron15multiplyBy(6))
             )
             .flatMap(Function.identity())
             .toList()
     ),
     AUTO_SEQUENCE_2(
-        Stream.concat(
-            Stream.generate(() ->
-                    Stream.of(PureLogicFrame.Direction.UP.micron15multiplyBy(1), PureLogicFrame.ALIVE))
-                .flatMap(Function.identity())
-                .limit(12),
-            Stream.generate(() ->
-                    Stream.of(PureLogicFrame.Direction.DOWN.micron15multiplyBy(1), PureLogicFrame.ALIVE))
-                .flatMap(Function.identity())
-                .limit(12)
-        ).toList()
+        Stream.of(
+                Stream.generate(() -> PureLogicFrame.Direction.UP.micron15multiplyBy(0.5)).limit(6),
+                Stream.generate(() -> PureLogicFrame.Direction.DOWN.micron15multiplyBy(0.5)).limit(12),
+                Stream.generate(() -> PureLogicFrame.Direction.UP.micron15multiplyBy(0.5)).limit(6),
+                Stream.of(PureLogicFrame.Direction.DOWN.micron15multiplyBy(6))
+            )
+            .flatMap(Function.identity()).toList()
     );
 
     private final List<PureLogicFrame> sequences;

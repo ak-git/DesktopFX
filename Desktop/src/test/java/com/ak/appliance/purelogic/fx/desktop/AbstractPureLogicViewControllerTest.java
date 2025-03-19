@@ -12,13 +12,23 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
   void testGet() {
     try (AbstractPureLogicViewController controller = build()) {
       controller.close();
-      Assertions.assertThat(IntStream.range(0, 4 + 8).map(_ -> controller.get().getMicrons()).toArray())
-          .containsExactly(0, 0, 0, 0, 90, -90, 90, -90, 90, -90, 90, -180);
+      Assertions.assertThat(IntStream.range(0, 4 + 1 + 5 + 1 + 1).mapToDouble(_ -> controller.get().getMicrons()).toArray())
+          .containsExactly(new double[] {
+                  0.0, 0.0, 0.0, 0.0,
+                  45.0,
+                  -90.0, 90.0, -90.0, 90.0, -90.0,
+                  45.0,
+                  -90.0
+              },
+              Assertions.withPrecision(0.1));
       controller.escape();
-      Assertions.assertThat(IntStream.range(0, 24).map(_ -> controller.get().getMicrons()).toArray())
-          .containsExactly(
-              15, 0, 15, 0, 15, 0, 15, 0, 15, 0, 15, 0,
-              -15, 0, -15, 0, -15, 0, -15, 0, -15, 0, -15, 0
+      Assertions.assertThat(IntStream.range(0, 6 + 12 + 6 + 1).mapToDouble(_ -> controller.get().getMicrons()).toArray())
+          .containsExactly(new double[] {
+                  7.5, 7.5, 7.5, 7.5, 7.5, 7.5,
+                  -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5,
+                  7.5, 7.5, 7.5, 7.5, 7.5, 7.5,
+                  -90.0},
+              Assertions.withPrecision(0.1)
           );
     }
     catch (IOException e) {
@@ -34,13 +44,20 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
       controller.left();
       controller.up();
       Assertions.assertThat(IntStream.range(0, 2)
-              .map(_ -> controller.get().getMicrons()).toArray())
-          .containsExactly(450, 0);
+              .mapToDouble(_ -> controller.get().getMicrons()).toArray())
+          .containsExactly(new double[] {450, 0}, Assertions.withPrecision(0.1));
       controller.right();
       controller.up();
-      Assertions.assertThat(IntStream.range(0, 1 + 4 + 7 + 1)
-              .map(_ -> controller.get().getMicrons()).toArray())
-          .containsExactly(90, 0, 0, 0, 0, -90, 90, -90, 90, -90, 90, -90, 180);
+      Assertions.assertThat(IntStream.range(0, 1 + 4 + 1 + 5 + 1 + 1)
+              .mapToDouble(_ -> controller.get().getMicrons()).toArray())
+          .containsExactly(new double[] {
+              90.0,
+              0.0, 0.0, 0.0, 0.0,
+              -45.0,
+              90.0, -90.0, 90.0, -90.0, 90.0,
+              -45.0,
+              90.0
+          }, Assertions.withPrecision(0.1));
     }
     catch (IOException e) {
       Assertions.fail(e.getMessage(), e);
@@ -55,13 +72,13 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
       controller.left();
       controller.down();
       Assertions.assertThat(IntStream.range(0, 2)
-              .map(_ -> controller.get().getMicrons()).toArray())
-          .containsExactly(-450, 0);
+              .mapToDouble(_ -> controller.get().getMicrons()).toArray())
+          .containsExactly(new double[] {-450.0, 0.0}, Assertions.withPrecision(0.1));
       controller.left();
       controller.down();
       Assertions.assertThat(IntStream.range(0, 2)
-              .map(_ -> controller.get().getMicrons()).toArray())
-          .containsExactly(-450, 0);
+              .mapToDouble(_ -> controller.get().getMicrons()).toArray())
+          .containsExactly(new double[] {-450.0, 0.0}, Assertions.withPrecision(0.1));
     }
     catch (IOException e) {
       Assertions.fail(e.getMessage(), e);

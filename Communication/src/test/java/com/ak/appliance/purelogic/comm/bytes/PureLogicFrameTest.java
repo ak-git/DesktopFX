@@ -16,7 +16,7 @@ class PureLogicFrameTest {
     return Stream.of(
         arguments(PureLogicFrame.ALIVE, "?\r\n"),
         arguments(PureLogicFrame.Direction.NONE.micron15multiplyBy(0), "?\r\n"),
-        arguments(PureLogicFrame.Direction.DOWN.micron15multiplyBy(1), "STEP -00016\r\n"),
+        arguments(PureLogicFrame.Direction.DOWN.micron15multiplyBy(0.5), "STEP -00008\r\n"),
         arguments(PureLogicFrame.Direction.UP.micron15multiplyBy(1), "STEP +00016\r\n"),
         arguments(PureLogicFrame.Direction.DOWN.micron15multiplyBy(10), "STEP -00160\r\n"),
         arguments(PureLogicFrame.Direction.UP.micron15multiplyBy(20), "STEP +00320\r\n"),

@@ -19,7 +19,7 @@ public final class PureLogicFrame extends BufferFrame {
   public static final int MICRON_15 = 15;
   private static final String ALIVE_COMMAND = "PLC001-G2";
   private static final String STEP_COMMAND = "STEP";
-  private final int microns;
+  private final double microns;
 
   /**
    * 1 big step == 16 steps
@@ -37,20 +37,20 @@ public final class PureLogicFrame extends BufferFrame {
       this.sign = sign;
     }
 
-    public PureLogicFrame micron15multiplyBy(int factor) {
+    public PureLogicFrame micron15multiplyBy(double factor) {
       return new PureLogicFrame(sign * factor);
     }
   }
 
-  private PureLogicFrame(int step15) {
-    super(step15 == 0 ?
+  private PureLogicFrame(double step15) {
+    super(Double.compare(step15, 0.0) == 0 ?
             "?%c%c".formatted(13, 10).getBytes(StandardCharsets.UTF_8) :
-            "%s %+06d%c%c".formatted(STEP_COMMAND, step15 * 16, 13, 10).getBytes(StandardCharsets.UTF_8),
+            "%s %+06d%c%c".formatted(STEP_COMMAND, (int) (step15 * 16), 13, 10).getBytes(StandardCharsets.UTF_8),
         ByteOrder.LITTLE_ENDIAN);
     microns = step15 * MICRON_15;
   }
 
-  public int getMicrons() {
+  public double getMicrons() {
     return microns;
   }
 
@@ -61,7 +61,7 @@ public final class PureLogicFrame extends BufferFrame {
   @Override
   public String toString() {
     return String.join(SPACE, super.toString(), new String(byteBuffer().array(), StandardCharsets.UTF_8).strip(),
-        "[%d %s]".formatted(microns, MetricPrefix.MICRO(METRE)));
+        "[%.1f %s]".formatted(microns, MetricPrefix.MICRO(METRE)));
   }
 
   public static Optional<PureLogicFrame> of(StringBuilder buffer) {
@@ -71,7 +71,7 @@ public final class PureLogicFrame extends BufferFrame {
     else if (buffer.indexOf(STEP_COMMAND) == 0 && buffer.indexOf(NEW_LINE) > STEP_COMMAND.length()) {
       var substring = buffer.substring(STEP_COMMAND.length(), buffer.indexOf(NEW_LINE)).strip().replaceAll(SPACE, "");
       try {
-        return Optional.of(new PureLogicFrame(Integer.parseInt(substring) / 16));
+        return Optional.of(new PureLogicFrame(Integer.parseInt(substring) / 16.0));
       }
       catch (NumberFormatException e) {
         Logger.getLogger(PureLogicFrame.class.getName()).log(LOG_LEVEL_ERRORS, e, () -> substring);
