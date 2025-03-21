@@ -12,22 +12,21 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
   void testGet() {
     try (AbstractPureLogicViewController controller = build()) {
       controller.close();
-      Assertions.assertThat(IntStream.range(0, 4 + 1 + 5 + 1 + 1).mapToDouble(_ -> controller.get().getMicrons()).toArray())
+      Assertions.assertThat(IntStream.range(0, 5 + 1 + 7 + 1).mapToDouble(_ -> controller.get().getMicrons()).toArray())
           .containsExactly(new double[] {
-                  0.0, 0.0, 0.0, 0.0,
-                  45.0,
-                  -90.0, 90.0, -90.0, 90.0, -90.0,
-                  45.0,
-                  -90.0
+                  0.0, 0.0, 0.0, 0.0, 0.0,
+                  -45.0,
+                  90.0, -90.0, 90.0, -90.0, 90.0, -90.0, 90.0,
+                  -45.0
               },
               Assertions.withPrecision(0.1));
       controller.escape();
-      Assertions.assertThat(IntStream.range(0, 6 + 12 + 6 + 1).mapToDouble(_ -> controller.get().getMicrons()).toArray())
+      Assertions.assertThat(IntStream.range(0, 6 + 12 + 6).mapToDouble(_ -> controller.get().getMicrons()).toArray())
           .containsExactly(new double[] {
-                  7.5, 7.5, 7.5, 7.5, 7.5, 7.5,
-                  -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5, -7.5,
-                  7.5, 7.5, 7.5, 7.5, 7.5, 7.5,
-                  -90.0},
+                  -7.5, -7.5, -7.5, -7.5, -7.5, -7.5,
+                  7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5,
+                  -7.5, -7.5, -7.5, -7.5, -7.5, -7.5
+              },
               Assertions.withPrecision(0.1)
           );
     }
@@ -48,15 +47,14 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
           .containsExactly(new double[] {450, 0}, Assertions.withPrecision(0.1));
       controller.right();
       controller.up();
-      Assertions.assertThat(IntStream.range(0, 1 + 4 + 1 + 5 + 1 + 1)
+      Assertions.assertThat(IntStream.range(0, 1 + 5 + 1 + 7 + 1)
               .mapToDouble(_ -> controller.get().getMicrons()).toArray())
           .containsExactly(new double[] {
               90.0,
-              0.0, 0.0, 0.0, 0.0,
+              0.0, 0.0, 0.0, 0.0, 0.0,
               -45.0,
-              90.0, -90.0, 90.0, -90.0, 90.0,
-              -45.0,
-              90.0
+              90.0, -90.0, 90.0, -90.0, 90.0, -90.0, 90.0,
+              -45.0
           }, Assertions.withPrecision(0.1));
     }
     catch (IOException e) {
