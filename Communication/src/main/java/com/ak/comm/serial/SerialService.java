@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_BYTES;
 import static com.ak.comm.bytes.LogUtils.LOG_LEVEL_ERRORS;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -91,6 +92,7 @@ final class SerialService<T, R> extends AbstractService<ByteBuffer> implements W
       var countBytes = 0;
       if (isOpen() && serialPort != null) {
         src.rewind();
+        LOGGER.log(LOG_LEVEL_BYTES, () -> "%s %s".formatted(this, new String(src.array(), 0, src.limit())));
         countBytes = serialPort.writeBytes(src.array(), src.limit());
       }
       return countBytes;

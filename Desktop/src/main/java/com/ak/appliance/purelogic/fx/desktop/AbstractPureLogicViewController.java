@@ -18,23 +18,22 @@ abstract class AbstractPureLogicViewController extends AbstractScheduledViewCont
     AUTO_SEQUENCE_1(
         Stream.of(
                 Stream.generate(() -> PureLogicFrame.ALIVE).limit(4),
-                Stream.iterate(PureLogicFrame.Direction.UP.micron15multiplyBy(6), PureLogicFrame::inverse).limit(7),
-                Stream.of(PureLogicFrame.Direction.DOWN.micron15multiplyBy(12))
+                Stream.of(PureLogicFrame.Direction.UP.micron7p5multiplyBy(6)),
+                Stream.iterate(PureLogicFrame.Direction.DOWN.micron7p5multiplyBy(12), PureLogicFrame::inverse).limit(5),
+                Stream.of(PureLogicFrame.Direction.UP.micron7p5multiplyBy(6)),
+                Stream.of(PureLogicFrame.Direction.DOWN.micron7p5multiplyBy(12))
             )
             .flatMap(Function.identity())
             .toList()
     ),
     AUTO_SEQUENCE_2(
-        Stream.concat(
-            Stream.generate(() ->
-                    Stream.of(PureLogicFrame.Direction.UP.micron15multiplyBy(1), PureLogicFrame.ALIVE))
-                .flatMap(Function.identity())
-                .limit(12),
-            Stream.generate(() ->
-                    Stream.of(PureLogicFrame.Direction.DOWN.micron15multiplyBy(1), PureLogicFrame.ALIVE))
-                .flatMap(Function.identity())
-                .limit(12)
-        ).toList()
+        Stream.of(
+                Stream.generate(() -> PureLogicFrame.Direction.UP.micron7p5multiplyBy(1)).limit(6),
+                Stream.generate(() -> PureLogicFrame.Direction.DOWN.micron7p5multiplyBy(1)).limit(12),
+                Stream.generate(() -> PureLogicFrame.Direction.UP.micron7p5multiplyBy(1)).limit(6),
+                Stream.of(PureLogicFrame.Direction.DOWN.micron7p5multiplyBy(12))
+            )
+            .flatMap(Function.identity()).toList()
     );
 
     private final List<PureLogicFrame> sequences;
@@ -96,11 +95,11 @@ abstract class AbstractPureLogicViewController extends AbstractScheduledViewCont
       boolean inv = (d == PureLogicFrame.Direction.UP);
       if (isStop) {
         isInverted = inv;
-        return d.micron15multiplyBy(30);
+        return d.micron7p5multiplyBy(60);
       }
       else if (d != PureLogicFrame.Direction.NONE) {
         isInverted = inv;
-        return d.micron15multiplyBy(6);
+        return d.micron7p5multiplyBy(12);
       }
     }
 
