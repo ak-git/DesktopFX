@@ -11,14 +11,10 @@ import java.util.function.Function;
 enum DynamicAbsolute {
   ;
 
-  static Layer2Medium of(Collection<? extends DerivativeMeasurement> measurements, Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
-    return of(measurements, Relative.Dynamic.solve(measurements, regularizationFunction));
-  }
-
-  static Layer2Medium of(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers relativeMediumLayers) {
+  static Layer2Medium ofLayer2(Collection<? extends DerivativeMeasurement> measurements, Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
     return new Layer2Medium(
         measurements,
-        measurements.size() > 1 ? relativeMediumLayers : RelativeMediumLayers.SINGLE_LAYER
+        measurements.size() > 1 ? Relative.Dynamic.solve(measurements, regularizationFunction) : RelativeMediumLayers.SINGLE_LAYER
     );
   }
 }
