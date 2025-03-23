@@ -6,13 +6,19 @@ import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 
 import java.util.Collection;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 enum DynamicAbsolute {
   ;
 
-  public static final BiFunction<Collection<? extends DerivativeMeasurement>, Function<Collection<InexactTetrapolarSystem>, Regularization>, Layer2Medium>
-      LAYER_2 = (measurements, regularizationFunction) -> new Layer2Medium(measurements,
-      measurements.size() > 1 ? Relative.Dynamic.solve(measurements, regularizationFunction) : RelativeMediumLayers.SINGLE_LAYER);
+  static Layer2Medium of(Collection<? extends DerivativeMeasurement> measurements, Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
+    return of(measurements, Relative.Dynamic.solve(measurements, regularizationFunction));
+  }
+
+  static Layer2Medium of(Collection<? extends DerivativeMeasurement> measurements, RelativeMediumLayers relativeMediumLayers) {
+    return new Layer2Medium(
+        measurements,
+        measurements.size() > 1 ? relativeMediumLayers : RelativeMediumLayers.SINGLE_LAYER
+    );
+  }
 }

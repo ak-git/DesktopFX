@@ -127,7 +127,7 @@ class Inverse2DynamicTest {
   @ParameterizedTest
   @MethodSource("absolute")
   void testInverseAbsolute(Collection<? extends DerivativeMeasurement> measurements, ValuePair[] expected) {
-    var medium = DynamicAbsolute.LAYER_2.apply(measurements, Regularization.Interval.ZERO_MAX.of(0.0));
+    var medium = DynamicAbsolute.of(measurements, Regularization.Interval.ZERO_MAX.of(0.0));
     assertAll(medium.toString(),
         () -> assertThat(medium.rho()).isEqualTo(expected[0]),
         () -> assertThat(medium.rho1()).isEqualTo(expected[1]),
@@ -256,7 +256,7 @@ class Inverse2DynamicTest {
   @ParameterizedTest
   @MethodSource({"theoryParameters", "waterParameters"})
   void testInverse(Collection<? extends DerivativeMeasurement> measurements, @Nonnegative double alpha, double[] expected) {
-    var medium = DynamicAbsolute.LAYER_2.apply(measurements, Regularization.Interval.MAX_K.of(alpha));
+    var medium = DynamicAbsolute.of(measurements, Regularization.Interval.MAX_K.of(alpha));
 
     ObjDoubleConsumer<ValuePair> checker = (valuePair, expectedValue) -> {
       if (Double.isNaN(expectedValue)) {
@@ -351,7 +351,7 @@ class Inverse2DynamicTest {
                           Double.parseDouble(r.get(rhoS1Diff)), Double.parseDouble(r.get(rhoS2Diff))
                       )
               );
-              Layer2Medium medium = DynamicAbsolute.LAYER_2.apply(derivativeMeasurements, Regularization.Interval.ZERO_MAX.of(alpha));
+              Layer2Medium medium = DynamicAbsolute.of(derivativeMeasurements, Regularization.Interval.ZERO_MAX.of(alpha));
               LOGGER.info(medium::toString);
 
               Function<double[], double[]> toOhms = d -> derivativeMeasurements.stream()

@@ -18,38 +18,38 @@ interface Relative<M extends Measurement> extends Function<Collection<? extends 
   @Override
   @OverridingMethodsMustInvokeSuper
   default RelativeMediumLayers apply(Collection<? extends M> measurements) {
-    Regularization regularization = regularizationFunction().apply(Measurement.toInexact(measurements));
     PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
-          double regularizing = regularization.of(kw);
+          double regularizing = regularization().of(kw);
           if (Double.isFinite(regularizing)) {
             return hypot(inverse().applyAsDouble(kw), regularizing);
           }
           return regularizing;
         },
-        kInterval(), regularization.hInterval(1.0)
+        bounds(measurements)
     );
     return inverse().apply(new RelativeMediumLayers(kwOptimal.getPoint()));
   }
 
   InverseFunction inverse();
 
-  Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction();
+  Regularization regularization();
 
   @OverridingMethodsMustInvokeSuper
-  default Simplex.Bounds kInterval() {
-    return new Simplex.Bounds(-1.0, 1.0);
+  default Simplex.Bounds[] bounds(Collection<? extends M> measurements) {
+    return new Simplex.Bounds[] {new Simplex.Bounds(-1.0, 1.0), regularization().hInterval(1.0)};
   }
 
   enum Static {
     ;
 
-    private record StaticRelative(Collection<? extends Measurement> measurements, InverseFunction inverse,
-                                  Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction)
+    private record StaticRelative(InverseFunction inverse,
+                                  Regularization regularization)
         implements Relative<Measurement> {
     }
 
     static RelativeMediumLayers solve(Collection<? extends Measurement> measurements) {
-      return new StaticRelative(measurements, new StaticInverse(measurements), Regularization.Interval.ZERO_MAX.of(0.0))
+      return new StaticRelative(new StaticInverse(measurements),
+          Regularization.Interval.ZERO_MAX.of(0.0).apply(Measurement.toInexact(measurements)))
           .apply(measurements);
     }
   }
@@ -57,39 +57,40 @@ interface Relative<M extends Measurement> extends Function<Collection<? extends 
   enum Dynamic {
     ;
 
-    private record DynamicRelative(Collection<? extends DerivativeMeasurement> measurements, InverseFunction inverse,
-                                   Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction)
+    private record DynamicRelative(InverseFunction inverse,
+                                   Regularization regularization)
         implements Relative<DerivativeMeasurement> {
 
       @Override
       public RelativeMediumLayers apply(Collection<? extends DerivativeMeasurement> measurements) {
         Predicate<DerivativeMeasurement> gtZero = d -> d.derivativeResistivity() > 0;
         Predicate<DerivativeMeasurement> ltZero = d -> d.derivativeResistivity() < 0;
-        if (measurements().stream().allMatch(gtZero) || measurements().stream().allMatch(ltZero)) {
+        if (measurements.stream().allMatch(gtZero) || measurements.stream().allMatch(ltZero)) {
           return Relative.super.apply(measurements);
         }
-        else if (measurements().stream().anyMatch(gtZero) && measurements().stream().anyMatch(ltZero)) {
+        else if (measurements.stream().anyMatch(gtZero) && measurements.stream().anyMatch(ltZero)) {
           return RelativeMediumLayers.NAN;
         }
         return Static.solve(measurements);
       }
 
       @Override
-      public Simplex.Bounds kInterval() {
-        Simplex.Bounds kMinMax = Relative.super.kInterval();
-        if (measurements().stream().allMatch(d -> d.derivativeResistivity() > 0)) {
-          kMinMax = new Simplex.Bounds(-1.0, 0.0);
+      public Simplex.Bounds[] bounds(Collection<? extends DerivativeMeasurement> measurements) {
+        Simplex.Bounds[] bounds = Relative.super.bounds(measurements);
+        if (measurements.stream().allMatch(d -> d.derivativeResistivity() > 0)) {
+          bounds[0] = new Simplex.Bounds(-1.0, 0.0);
         }
-        else if (measurements().stream().allMatch(d -> d.derivativeResistivity() < 0)) {
-          kMinMax = new Simplex.Bounds(0.0, 1.0);
+        else if (measurements.stream().allMatch(d -> d.derivativeResistivity() < 0)) {
+          bounds[0] = new Simplex.Bounds(0.0, 1.0);
         }
-        return kMinMax;
+        return bounds;
       }
     }
 
     static RelativeMediumLayers solve(Collection<? extends DerivativeMeasurement> measurements,
                                       Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction) {
-      return new DynamicRelative(measurements, DynamicInverse.of(measurements), regularizationFunction).apply(measurements);
+      return new DynamicRelative(DynamicInverse.of(measurements), regularizationFunction.apply(Measurement.toInexact(measurements)))
+          .apply(measurements);
     }
   }
 }
