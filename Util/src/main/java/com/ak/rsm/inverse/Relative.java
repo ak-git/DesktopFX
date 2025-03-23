@@ -27,7 +27,7 @@ interface Relative<M extends Measurement> extends Function<Collection<? extends 
         },
         bounds(measurements)
     );
-    return inverse().apply(new RelativeMediumLayers(kwOptimal.getPoint()));
+    return inverse().apply(kwOptimal.getPoint());
   }
 
   InverseFunction inverse();
