@@ -44,8 +44,8 @@ abstract class AbstractInverseFunction<R extends Resistivity>
   }
 
   @Override
-  public final RelativeMediumLayers apply(RelativeMediumLayers relativeMediumLayers) {
-    return toErrors.apply(relativeMediumLayers);
+  public final RelativeMediumLayers apply(double[] kw) {
+    return toErrors.apply(new RelativeMediumLayers(kw));
   }
 
   final RelativeMediumLayers layer2RelativeMedium(TetrapolarSystem s, double[] kw) {

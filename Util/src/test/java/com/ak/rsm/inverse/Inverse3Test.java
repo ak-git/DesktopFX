@@ -88,7 +88,7 @@ class Inverse3Test {
   private static void testSingle(Collection<? extends DerivativeMeasurement> dm) {
     Regularization.Interval regularization = Regularization.Interval.ZERO_MAX_LOG1P;
     Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction = regularization.of(1.0);
-    Layer2Medium layer2Medium = DynamicAbsolute.LAYER_2.apply(dm, regularizationFunction);
+    Layer2Medium layer2Medium = DynamicAbsolute.ofLayer2(dm, regularizationFunction);
     ValuePair h = layer2Medium.h();
     LOGGER.info("{}\n{}", regularizationFunction, layer2Medium);
 

@@ -30,7 +30,7 @@ class Inverse2Test {
   })
   @Disabled("ignored com.ak.rsm.inverse.Inverse2Test.testAlpha1")
   void testAlpha1(Collection<? extends DerivativeMeasurement> ms) {
-    var medium = DynamicAbsolute.LAYER_2.apply(ms, REGULARIZATION_FUNCTION);
+    var medium = DynamicAbsolute.ofLayer2(ms, REGULARIZATION_FUNCTION);
     Assertions.assertNotNull(medium);
     LOGGER.info("\n{}", medium);
   }

@@ -1,6 +1,5 @@
 package com.ak.rsm.inverse;
 
-import com.ak.csv.CSVLineFileCollector;
 import com.ak.math.ValuePair;
 import com.ak.rsm.apparent.Apparent2Rho;
 import com.ak.rsm.measurement.DerivativeMeasurement;
@@ -10,46 +9,40 @@ import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.DeltaH;
 import com.ak.rsm.resistance.Resistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
+import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
 import com.ak.util.Extension;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnegative;
 import javax.measure.MetricPrefix;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.charset.Charset;
+import java.nio.file.*;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.ObjDoubleConsumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import java.util.function.ToDoubleFunction;
+import java.util.stream.*;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static tech.units.indriya.unit.Units.METRE;
 
 class Inverse2DynamicTest {
-  private static final Logger LOGGER = Logger.getLogger(Inverse2DynamicTest.class.getName());
+  private static final Logger LOGGER = LoggerFactory.getLogger(Inverse2DynamicTest.class);
 
   static Stream<Arguments> relative() {
     double absErrorMilli = 0.001;
@@ -127,7 +120,7 @@ class Inverse2DynamicTest {
   @ParameterizedTest
   @MethodSource("absolute")
   void testInverseAbsolute(Collection<? extends DerivativeMeasurement> measurements, ValuePair[] expected) {
-    var medium = DynamicAbsolute.LAYER_2.apply(measurements, Regularization.Interval.ZERO_MAX.of(0.0));
+    var medium = DynamicAbsolute.ofLayer2(measurements, Regularization.Interval.ZERO_MAX.of(0.0));
     assertAll(medium.toString(),
         () -> assertThat(medium.rho()).isEqualTo(expected[0]),
         () -> assertThat(medium.rho1()).isEqualTo(expected[1]),
@@ -256,7 +249,7 @@ class Inverse2DynamicTest {
   @ParameterizedTest
   @MethodSource({"theoryParameters", "waterParameters"})
   void testInverse(Collection<? extends DerivativeMeasurement> measurements, @Nonnegative double alpha, double[] expected) {
-    var medium = DynamicAbsolute.LAYER_2.apply(measurements, Regularization.Interval.MAX_K.of(alpha));
+    var medium = DynamicAbsolute.ofLayer2(measurements, Regularization.Interval.MAX_K.of(alpha));
 
     ObjDoubleConsumer<ValuePair> checker = (valuePair, expectedValue) -> {
       if (Double.isNaN(expectedValue)) {
@@ -279,129 +272,113 @@ class Inverse2DynamicTest {
     try (DirectoryStream<Path> p = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*mm"))) {
       return StreamSupport.stream(p.spliterator(), false)
           .map(Path::toString)
-          .flatMap(file -> DoubleStream.of(1.0).mapToObj(alpha -> arguments(file, alpha)))
+          .flatMap(file -> DoubleStream.of(0.1, 0.2, 0.5, 1.0).mapToObj(alpha -> arguments(file, alpha)))
           .toList();
     }
   }
 
-  private enum PredictedFields {
-    PREDICTED_R1, PREDICTED_DIFF_R1, CONTRIBUTION_RHO1_1, CONTRIBUTION_RHO2_1, CONTRIBUTION_H_1,
-    PREDICTED_R2, PREDICTED_DIFF_R2, CONTRIBUTION_RHO1_2, CONTRIBUTION_RHO2_2, CONTRIBUTION_H_2
-  }
+  private sealed interface Fields {
+    String name();
 
-  private static Map<String, Function<Layer2Medium, Object>> getOutputFunctionMap() {
-    Map<String, Function<Layer2Medium, Object>> outputMap = new LinkedHashMap<>();
-    outputMap.put("rho1", medium -> medium.rho1().value());
-    outputMap.put("rho1AbsError", medium -> medium.rho1().absError());
-    outputMap.put("rho2", medium -> medium.rho2().value());
-    outputMap.put("rho2AbsError", medium -> medium.rho2().absError());
-    outputMap.put("h", medium -> Metrics.Length.METRE.to(medium.h().value(), MetricPrefix.MILLI(METRE)));
-    outputMap.put("hAbsError", medium -> Metrics.Length.METRE.to(medium.h().absError(), MetricPrefix.MILLI(METRE)));
-    outputMap.put("RMS_BASE", medium -> medium.getRMS()[0]);
-    outputMap.put("RMS_DIFF", medium -> medium.getRMS()[1]);
-    return outputMap;
+    enum InputFields implements Fields {
+      TIME, POSITION, R1_START, R2_START, R1_DIFF, R2_DIFF
+    }
+
+    enum OutputFields implements Fields, ToDoubleFunction<Layer2Medium> {
+      RHO {
+        @Override
+        public double applyAsDouble(Layer2Medium m) {
+          return m.rho().value();
+        }
+      },
+      RHO_1 {
+        @Override
+        public double applyAsDouble(Layer2Medium m) {
+          return m.rho1().value();
+        }
+      },
+      RHO_2 {
+        @Override
+        public double applyAsDouble(Layer2Medium m) {
+          return m.rho2().value();
+        }
+      },
+      H_MM {
+        @Override
+        public double applyAsDouble(Layer2Medium m) {
+          return Metrics.Length.METRE.to(m.h().value(), MetricPrefix.MILLI(METRE));
+        }
+      }
+    }
   }
 
   @ParameterizedTest
   @MethodSource("cvsFiles")
-  @Disabled("ignored com.ak.rsm.inverse.Inverse2DynamicTest.testInverseFileResistivity")
-  void testInverseFileResistivity(String fileName, @Nonnegative double alpha) {
-    String time = "TIME";
-    String position = "POSITION";
-    String rhoS1 = "A1";
-    String rhoS1Diff = "DA1";
-    String rhoS2 = "A2";
-    String rhoS2Diff = "DA2";
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2DynamicTest.inverseFileResistivity")
+  void inverseFileResistivity(String fileName, @Nonnegative double alpha) {
+    Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction = Regularization.Interval.ZERO_MAX_LOG1P.of(alpha);
+    LOGGER.atInfo().log("{}", regularizationFunction);
 
     String[] mm = fileName.split(Strings.SPACE);
     int sBase = Integer.parseInt(mm[mm.length - 2]);
-
-    Map<String, Function<Layer2Medium, Object>> outputMap = getOutputFunctionMap();
-
-    Map<PredictedFields, Double> predictedMap = new EnumMap<>(
-        Stream.of(PredictedFields.values()).collect(Collectors.toMap(Function.identity(), _ -> Double.NaN))
-    );
-
     Path path = Paths.get(Extension.CSV.attachTo(fileName));
     try (BufferedReader reader = new BufferedReader(new FileReader(path.toFile()))) {
-      reader.mark(8192);
-      CSVFormat csvFormat = CSVFormat.Builder.create().get();
-      Collection<String> inputHeaders = Arrays.stream(reader.readLine().split(csvFormat.getDelimiterString()))
-          .map(s -> s.replace(csvFormat.getQuoteCharacter(), ' ').strip()).toList();
-      reader.reset();
+      String header = reader.readLine();
+      LOGGER.atInfo().addKeyValue("s, mm", sBase).log(header);
+      assertThat(Arrays.stream(header.split("\\|")).filter(s -> !s.isBlank()).map(String::strip).toList())
+          .containsExactlyElementsOf(EnumSet.allOf(Fields.InputFields.class).stream().map(Fields.InputFields::name).toList());
 
-      try (CSVParser parser = CSVParser.parse(reader,
-          CSVFormat.Builder.create().setHeader(inputHeaders.toArray(String[]::new)).setSkipHeaderRecord(true).get());
-           CSVLineFileCollector collector = new CSVLineFileCollector(
-               Paths.get(Extension.CSV.attachTo(
-                   String.format(Locale.ROOT, "%s inverse - %.1f", Extension.CSV.clean(fileName), alpha))),
-               Stream.of(inputHeaders.stream(), outputMap.keySet().stream(), predictedMap.keySet().stream().map(Enum::name))
-                   .flatMap(Function.identity()).toArray(String[]::new)
-           )
-      ) {
-        AtomicReference<Layer2Medium> prevMediumRC = new AtomicReference<>(null);
-        assertTrue(StreamSupport.stream(parser.spliterator(), false)
-            .map(r -> {
-              LOGGER.info(() -> "%.2f sec; %s mm".formatted(Double.parseDouble(r.get(time)), r.get(position)));
-              Collection<DerivativeMeasurement> derivativeMeasurements = new ArrayList<>(
-                  TetrapolarDerivativeMeasurement.milli(0.1)
-                      .dh(DeltaH.NULL).system2(sBase)
-                      .rho(
-                          Double.parseDouble(r.get(rhoS1)), Double.parseDouble(r.get(rhoS2)),
-                          Double.parseDouble(r.get(rhoS1Diff)), Double.parseDouble(r.get(rhoS2Diff))
-                      )
-              );
-              Layer2Medium medium = DynamicAbsolute.LAYER_2.apply(derivativeMeasurements, Regularization.Interval.ZERO_MAX.of(alpha));
-              LOGGER.info(medium::toString);
+      try (BufferedWriter writer = Files.newBufferedWriter(
+          Path.of(
+              Extension.CSV.attachTo(
+                  String.format(Locale.ROOT, "%s inverse - %.1f", Extension.CSV.clean(fileName), alpha)
+              )
+          ),
+          Charset.defaultCharset(),
+          StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
 
-              Function<double[], double[]> toOhms = d -> derivativeMeasurements.stream()
-                  .mapToDouble(dm -> TetrapolarResistance.of(dm.system()).rho1(d[0]).rho2(d[1]).h(d[2]).ohms())
-                  .toArray();
+        Collector<CharSequence, ?, String> joining = Collectors.joining(" | ", "| ", " |");
+        writer.append(
+            Stream.concat(
+                EnumSet.allOf(Fields.InputFields.class).stream(),
+                EnumSet.allOf(Fields.OutputFields.class).stream()
+            ).map(Enum::name).collect(joining)
+        );
+        writer.newLine();
 
-              double[] ohms = toOhms.apply(new double[] {medium.rho1().value(), medium.rho2().value(), medium.h().value()});
+        for (Iterator<String> iterator = reader.lines().iterator(); iterator.hasNext(); ) {
+          String line = iterator.next();
+          if (line.isBlank()) {
+            break;
+          }
+          List<String> inputValues = Arrays.stream(line.split("\\|"))
+              .filter(s -> !s.isBlank()).map(String::strip).toList();
+          double[] values = inputValues.stream().mapToDouble(s -> Double.parseDouble(s.strip())).toArray();
+          double r1Before = values[Fields.InputFields.R1_START.ordinal()];
+          double r2Before = values[Fields.InputFields.R2_START.ordinal()];
+          double r1Diff = values[Fields.InputFields.R1_DIFF.ordinal()];
+          double r2Diff = values[Fields.InputFields.R2_DIFF.ordinal()];
 
-              predictedMap.keySet().forEach(s -> predictedMap.put(s, Double.NaN));
-              predictedMap.put(PredictedFields.PREDICTED_R1, ohms[0]);
-              predictedMap.put(PredictedFields.PREDICTED_R2, ohms[1]);
-
-              Layer2Medium prevMedium = prevMediumRC.getAndSet(medium);
-              if (prevMedium != null && Double.isFinite(prevMedium.rho().value()) && Double.isFinite(medium.rho().value())) {
-                double[] baseOhms = toOhms.apply(new double[] {
-                    prevMedium.rho1().value(), prevMedium.rho2().value(), prevMedium.h().value()
-                });
-
-                double[] dRho1Ohms = toOhms.apply(new double[] {
-                    medium.rho1().value(), prevMedium.rho2().value(), prevMedium.h().value()
-                });
-                double[] dRho2Ohms = toOhms.apply(new double[] {
-                    prevMedium.rho1().value(), medium.rho2().value(), prevMedium.h().value()
-                });
-                double[] dHOhms = toOhms.apply(new double[] {
-                    prevMedium.rho1().value(), prevMedium.rho2().value(), medium.h().value()
-                });
-
-                predictedMap.put(PredictedFields.PREDICTED_DIFF_R1, ohms[0] - baseOhms[0]);
-                predictedMap.put(PredictedFields.CONTRIBUTION_RHO1_1, dRho1Ohms[0] - baseOhms[0]);
-                predictedMap.put(PredictedFields.CONTRIBUTION_RHO2_1, dRho2Ohms[0] - baseOhms[0]);
-                predictedMap.put(PredictedFields.CONTRIBUTION_H_1, dHOhms[0] - baseOhms[0]);
-
-                predictedMap.put(PredictedFields.PREDICTED_DIFF_R2, ohms[1] - baseOhms[1]);
-                predictedMap.put(PredictedFields.CONTRIBUTION_RHO1_2, dRho1Ohms[1] - baseOhms[1]);
-                predictedMap.put(PredictedFields.CONTRIBUTION_RHO2_2, dRho2Ohms[1] - baseOhms[1]);
-                predictedMap.put(PredictedFields.CONTRIBUTION_H_2, dHOhms[1] - baseOhms[1]);
-              }
-
-              return Stream.of(
-                  inputHeaders.stream().map(r::get),
-                  outputMap.values().stream().map(f -> f.apply(medium)),
-                  predictedMap.values().stream()
-              ).flatMap(Function.identity()).toArray();
-            })
-            .collect(collector));
+          Collection<DerivativeMeasurement> dm = TetrapolarDerivativeMeasurement.milli(0.1)
+              .dh(DeltaH.H1.apply(0.09)).system2(7.0)
+              .ofOhms(r1Before, r2Before, r1Before + r1Diff, r2Before + r2Diff);
+          Layer2Medium layer2Medium = DynamicAbsolute.ofLayer2(dm, regularizationFunction);
+          writer.append(
+              Stream.concat(
+                  inputValues.stream(),
+                  Arrays.stream(Fields.OutputFields.values()).mapToDouble(out -> out.applyAsDouble(layer2Medium))
+                      .mapToObj(value -> String.format(Locale.ROOT, "%.3f", value))
+              ).collect(joining));
+          writer.newLine();
+          LOGGER.atInfo()
+              .addKeyValue(Fields.InputFields.TIME.name(), () -> values[Fields.InputFields.TIME.ordinal()])
+              .addKeyValue(Fields.InputFields.POSITION.name(), () -> values[Fields.InputFields.POSITION.ordinal()])
+              .log("{}{}", Strings.NEW_LINE, layer2Medium);
+        }
       }
     }
     catch (IOException ex) {
-      Logger.getLogger(getClass().getName()).log(Level.WARNING, path.toAbsolutePath().toString(), ex);
+      LOGGER.atWarn().addKeyValue("file", () -> path.toAbsolutePath().toString()).setCause(ex).log();
     }
   }
 }
