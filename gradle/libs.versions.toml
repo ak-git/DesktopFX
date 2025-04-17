@@ -17,7 +17,7 @@ slf4j = '2.1.0-alpha1'
 logback = '1.5.18'
 
 javafxplugin = '0.1.0'
-spring = '7.0.0-M3'
+spring = '7.0.0-M4'
 springframework-boot = '3.4.4'
 spring-dependency-management = '1.1.7'
 javafx = '25-ea+12'
