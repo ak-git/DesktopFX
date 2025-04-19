@@ -19,7 +19,7 @@ abstract class AbstractPureLogicViewController extends AbstractScheduledViewCont
         Stream.of(
             Stream.generate(() -> PureLogicFrame.ALIVE).limit(5),
             Stream.of(PureLogicFrame.Direction.DOWN.micron7p5multiplyBy(6)),
-            Stream.iterate(PureLogicFrame.Direction.UP.micron7p5multiplyBy(12), PureLogicFrame::inverse).limit(7),
+            Stream.iterate(PureLogicFrame.Direction.UP.micron7p5multiplyBy(12), PureLogicFrame::inverse).limit(11),
             Stream.of(PureLogicFrame.Direction.DOWN.micron7p5multiplyBy(6))
         )
     ),
@@ -95,7 +95,7 @@ abstract class AbstractPureLogicViewController extends AbstractScheduledViewCont
       }
       else if (d != PureLogicFrame.Direction.NONE) {
         autoSequenceIndex = -1;
-        return d.micron7p5multiplyBy(12);
+        return d.micron7p5multiplyBy(24);
       }
     }
 
