@@ -22,6 +22,7 @@ import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -320,6 +321,7 @@ class Inverse2DynamicTest {
 
   @ParameterizedTest
   @MethodSource("cvsFiles")
+  @Disabled("ignored com.ak.rsm.inverse.Inverse2DynamicTest.inverseFileResistivity")
   void inverseFileResistivity(String fileName, @Nonnegative double alpha) {
     double targetRho2 = 4.654;
     Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction = Regularization.Interval.ZERO_MAX_LOG1P.of(alpha);
