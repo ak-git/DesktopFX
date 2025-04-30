@@ -15,7 +15,13 @@ import com.ak.rsm.system.RelativeTetrapolarSystem;
 import com.ak.util.Extension;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
-import org.junit.jupiter.api.Disabled;
+import org.apache.commons.math3.optim.InitialGuess;
+import org.apache.commons.math3.optim.MaxEval;
+import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
+import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
+import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
+import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -272,7 +278,7 @@ class Inverse2DynamicTest {
     try (DirectoryStream<Path> p = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*mm"))) {
       return StreamSupport.stream(p.spliterator(), false)
           .map(Path::toString)
-          .flatMap(file -> DoubleStream.of(0.1, 0.2, 0.5, 1.0).mapToObj(alpha -> arguments(file, alpha)))
+          .flatMap(file -> DoubleStream.of(1.0).mapToObj(alpha -> arguments(file, alpha)))
           .toList();
     }
   }
@@ -281,7 +287,7 @@ class Inverse2DynamicTest {
     String name();
 
     enum InputFields implements Fields {
-      TIME, POSITION, R1_START, R2_START, R1_DIFF, R2_DIFF
+      TIME, POSITION, R1_START, R2_START, R1_DIFF, R2_DIFF, DH_MM
     }
 
     enum OutputFields implements Fields, ToDoubleFunction<Layer2Medium> {
@@ -314,10 +320,10 @@ class Inverse2DynamicTest {
 
   @ParameterizedTest
   @MethodSource("cvsFiles")
-  @Disabled("ignored com.ak.rsm.inverse.Inverse2DynamicTest.inverseFileResistivity")
   void inverseFileResistivity(String fileName, @Nonnegative double alpha) {
+    double targetRho2 = 4.654;
     Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction = Regularization.Interval.ZERO_MAX_LOG1P.of(alpha);
-    LOGGER.atInfo().log("{}", regularizationFunction);
+    LOGGER.atInfo().addKeyValue("target", Strings.rho(2, targetRho2)).log("{}", regularizationFunction);
 
     String[] mm = fileName.split(Strings.SPACE);
     int sBase = Integer.parseInt(mm[mm.length - 2]);
@@ -328,23 +334,26 @@ class Inverse2DynamicTest {
       assertThat(Arrays.stream(header.split("\\|")).filter(s -> !s.isBlank()).map(String::strip).toList())
           .containsExactlyElementsOf(EnumSet.allOf(Fields.InputFields.class).stream().map(Fields.InputFields::name).toList());
 
-      try (BufferedWriter writer = Files.newBufferedWriter(
-          Path.of(
-              Extension.CSV.attachTo(
-                  String.format(Locale.ROOT, "%s inverse - %.1f", Extension.CSV.clean(fileName), alpha)
-              )
-          ),
-          Charset.defaultCharset(),
-          StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
+      Path outPath = Path.of(
+          Extension.CSV.attachTo(
+              String.format(Locale.ROOT, "%s inverse - %.1f", Extension.CSV.clean(fileName), alpha)
+          )
+      );
+      boolean exists = Files.isReadable(outPath);
+      try (BufferedWriter writer = Files.newBufferedWriter(outPath, Charset.defaultCharset(),
+          StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {
 
         Collector<CharSequence, ?, String> joining = Collectors.joining(" | ", "| ", " |");
-        writer.append(
-            Stream.concat(
-                EnumSet.allOf(Fields.InputFields.class).stream(),
-                EnumSet.allOf(Fields.OutputFields.class).stream()
-            ).map(Enum::name).collect(joining)
-        );
-        writer.newLine();
+        if (!exists) {
+          writer.append(
+              Stream.concat(
+                  EnumSet.allOf(Fields.InputFields.class).stream(),
+                  EnumSet.allOf(Fields.OutputFields.class).stream()
+              ).map(Enum::name).collect(joining)
+          );
+          writer.newLine();
+          writer.flush();
+        }
 
         for (Iterator<String> iterator = reader.lines().iterator(); iterator.hasNext(); ) {
           String line = iterator.next();
@@ -358,11 +367,43 @@ class Inverse2DynamicTest {
           double r2Before = values[Fields.InputFields.R2_START.ordinal()];
           double r1Diff = values[Fields.InputFields.R1_DIFF.ordinal()];
           double r2Diff = values[Fields.InputFields.R2_DIFF.ordinal()];
+          double dHmm = values[Fields.InputFields.DH_MM.ordinal()];
+
+          Layer2Medium layer2Medium;
+          if (!Double.isFinite(dHmm)) {
+            PointValuePair optimizeDH = new SimplexOptimizer(0.001, 0.001)
+                .optimize(
+                    new MaxEval(50),
+                    new ObjectiveFunction(point -> {
+                      double dH = point[0];
+                      if (dH > 0.0 && dH < 0.1) {
+                        LOGGER.atInfo()
+                            .addKeyValue(Fields.InputFields.DH_MM.name(), String.format(Locale.ROOT, "%.3f", dH))
+                            .log(Strings.EMPTY);
+                        Collection<DerivativeMeasurement> dm = TetrapolarDerivativeMeasurement.milli(0.1)
+                            .dh(DeltaH.H1.apply(dH)).system2(sBase)
+                            .ofOhms(r1Before, r2Before, r1Before + r1Diff, r2Before + r2Diff);
+                        Layer2Medium layer2 = DynamicAbsolute.ofLayer2(dm, regularizationFunction);
+                        double rho2 = layer2.rho2().value();
+                        double inequality = Math.abs(rho2 - targetRho2);
+                        LOGGER.atInfo().addKeyValue("L1 inequality", inequality).log("{}{}", Strings.NEW_LINE, layer2);
+                        return inequality;
+                      }
+                      else {
+                        return Double.POSITIVE_INFINITY;
+                      }
+                    }), GoalType.MINIMIZE,
+                    new NelderMeadSimplex(new double[] {0.01}), new InitialGuess(new double[] {0.01})
+                );
+            dHmm = optimizeDH.getPoint()[0];
+            inputValues = new ArrayList<>(inputValues);
+            inputValues.set(Fields.InputFields.DH_MM.ordinal(), String.format(Locale.ROOT, "%.4f", dHmm));
+          }
 
           Collection<DerivativeMeasurement> dm = TetrapolarDerivativeMeasurement.milli(0.1)
-              .dh(DeltaH.H1.apply(0.09)).system2(7.0)
+              .dh(DeltaH.H1.apply(dHmm)).system2(sBase)
               .ofOhms(r1Before, r2Before, r1Before + r1Diff, r2Before + r2Diff);
-          Layer2Medium layer2Medium = DynamicAbsolute.ofLayer2(dm, regularizationFunction);
+          layer2Medium = DynamicAbsolute.ofLayer2(dm, regularizationFunction);
           writer.append(
               Stream.concat(
                   inputValues.stream(),
@@ -370,9 +411,11 @@ class Inverse2DynamicTest {
                       .mapToObj(value -> String.format(Locale.ROOT, "%.3f", value))
               ).collect(joining));
           writer.newLine();
-          LOGGER.atInfo()
+          writer.flush();
+          LOGGER.atWarn()
               .addKeyValue(Fields.InputFields.TIME.name(), () -> values[Fields.InputFields.TIME.ordinal()])
               .addKeyValue(Fields.InputFields.POSITION.name(), () -> values[Fields.InputFields.POSITION.ordinal()])
+              .addKeyValue(Fields.InputFields.DH_MM.name(), inputValues.get(Fields.InputFields.DH_MM.ordinal()))
               .log("{}{}", Strings.NEW_LINE, layer2Medium);
         }
       }
