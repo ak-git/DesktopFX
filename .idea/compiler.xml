@@ -11,7 +11,20 @@
       <entry name="!?*.kt" />
       <entry name="!?*.clj" />
     </wildcardResourcePatterns>
-    <bytecodeTargetLevel target="23" />
+    <bytecodeTargetLevel target="23">
+      <module name="DesktopFX.Communication" target="24" />
+      <module name="DesktopFX.Communication.main" target="24" />
+      <module name="DesktopFX.Communication.test" target="24" />
+      <module name="DesktopFX.Desktop" target="24" />
+      <module name="DesktopFX.Desktop.main" target="24" />
+      <module name="DesktopFX.Desktop.test" target="24" />
+      <module name="DesktopFX.FxCore" target="24" />
+      <module name="DesktopFX.FxCore.main" target="24" />
+      <module name="DesktopFX.FxCore.test" target="24" />
+      <module name="DesktopFX.Util" target="24" />
+      <module name="DesktopFX.Util.main" target="24" />
+      <module name="DesktopFX.Util.test" target="24" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
