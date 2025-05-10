@@ -323,7 +323,7 @@ class Inverse2DynamicTest {
   @MethodSource("cvsFiles")
   @Disabled("ignored com.ak.rsm.inverse.Inverse2DynamicTest.inverseFileResistivity")
   void inverseFileResistivity(String fileName, @Nonnegative double alpha) {
-    double targetRho2 = 4.654;
+    double targetRho2 = 4.657;
     Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction = Regularization.Interval.ZERO_MAX_LOG1P.of(alpha);
     LOGGER.atInfo().addKeyValue("target", Strings.rho(2, targetRho2)).log("{}", regularizationFunction);
 
