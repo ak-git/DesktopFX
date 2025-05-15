@@ -148,33 +148,39 @@ class FileReadingServiceTest {
   @MethodSource("com.ak.comm.file.FileDataProvider#filesCanDelete")
   void testException(Path fileToRead, int bytes) {
     assertThat(LogTestUtils.isSubstituteLogLevel(LOGGER, Level.WARNING, () -> {
-      TestSubscriber<int[]> testSubscriber = new TestSubscriber<>(_ -> {
-        try {
-          Files.deleteIfExists(fileToRead);
-        }
-        catch (IOException e) {
-          fail(fileToRead.toString(), e);
-        }
-      });
-
-      try (FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher =
-               new FileReadingService<>(fileToRead, new RampBytesInterceptor(getClass().getName(),
-                   BytesInterceptor.BaudRate.BR_921600, 1 + TwoVariables.values().length * Integer.BYTES),
-                   new ToIntegerConverter<>(TwoVariables.class, 200))
-      ) {
-        publisher.subscribe(testSubscriber);
-      }
+      TestSubscriber<int[]> testSubscriber = getTestSubscriber(fileToRead);
       if (bytes < 0) {
         testSubscriber.assertNoErrors();
         testSubscriber.assertNotSubscribed();
       }
       else {
-        assertThat(testSubscriber.throwable).isNotNull().extracting(Throwable::getClass).isEqualTo(NoSuchFileException.class);
+        assertNotNull(testSubscriber.throwable);
+        assertThat(testSubscriber.throwable).extracting(Throwable::getClass).isEqualTo(NoSuchFileException.class);
         testSubscriber.assertSubscribed();
       }
       testSubscriber.assertNoValues();
       testSubscriber.assertNotComplete();
     }, logRecord -> assertThat(fileToRead).hasToString(logRecord.getMessage()))).isEqualTo(bytes > -1);
+  }
+
+  private static TestSubscriber<int[]> getTestSubscriber(Path fileToRead) {
+    TestSubscriber<int[]> testSubscriber = new TestSubscriber<>(_ -> {
+      try {
+        Files.deleteIfExists(fileToRead);
+      }
+      catch (IOException e) {
+        fail(fileToRead.toString(), e);
+      }
+    });
+
+    try (FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher =
+             new FileReadingService<>(fileToRead, new RampBytesInterceptor(FileReadingServiceTest.class.getName(),
+                 BytesInterceptor.BaudRate.BR_921600, 1 + TwoVariables.values().length * Integer.BYTES),
+                 new ToIntegerConverter<>(TwoVariables.class, 200))
+    ) {
+      publisher.subscribe(testSubscriber);
+    }
+    return testSubscriber;
   }
 
   @ParameterizedTest
@@ -257,7 +263,7 @@ class FileReadingServiceTest {
       subscriber.assertValueCount(0);
     }
     catch (Exception ex) {
-      fail();
+      fail(ex);
     }
   }
 

@@ -41,7 +41,7 @@ public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<
         try {
           TimeUnit.SECONDS.sleep(UIConstants.UI_DELAY.getSeconds());
         }
-        catch (InterruptedException e) {
+        catch (InterruptedException _) {
           Thread.currentThread().interrupt();
           break;
         }
@@ -76,7 +76,7 @@ public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<
           try {
             return v.getUnit().getConverterToAny(Variables.tryToUp3(v.getUnit()));
           }
-          catch (IncommensurableException e) {
+          catch (IncommensurableException _) {
             return IDENTITY;
           }
         }).toList();
