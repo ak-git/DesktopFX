@@ -44,7 +44,6 @@ public enum RcmInVariable implements Variable<RcmInVariable> {
   },
   QS_2;
 
-
   static DigitalFilter toSignedFilter() {
     return FilterBuilder.of().operator(() -> n -> {
       if ((n & 0x0800) == 0x0800) {
