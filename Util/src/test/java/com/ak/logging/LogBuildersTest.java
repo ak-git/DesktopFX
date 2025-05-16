@@ -16,8 +16,7 @@ import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class LogBuildersTest {
   static Stream<Path> logBuilders() {
@@ -27,6 +26,7 @@ class LogBuildersTest {
             return binaryLogBuilder.build(OutputBuildersTest.randomFileName()).getPath();
           }
           catch (IOException | NoSuchAlgorithmException e) {
+            fail(e);
             return null;
           }
         });

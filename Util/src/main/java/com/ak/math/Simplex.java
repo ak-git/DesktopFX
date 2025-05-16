@@ -70,7 +70,7 @@ public enum Simplex {
                 new CMAESOptimizer.PopulationSize(4 + (int) (3.0 * StrictMath.log(bounds.length)))
             );
       }
-      catch (Exception e) {
+      catch (Exception _) {
         var nan = new double[bounds.length];
         Arrays.fill(nan, Double.NaN);
         return new PointValuePair(nan, Double.NaN);

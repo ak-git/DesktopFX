@@ -64,7 +64,7 @@ class CSVMultiFileCollectorTest {
   }
 
   @BeforeEach
-  public void prepare() {
+  void prepare() {
     EXCEPTION_COUNTER.set(0);
   }
 

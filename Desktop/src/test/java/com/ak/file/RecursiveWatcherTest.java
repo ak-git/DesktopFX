@@ -8,7 +8,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,7 +25,7 @@ class RecursiveWatcherTest {
       PATH = Files.createTempDirectory("test %s.".formatted(RecursiveWatcherTest.class.getPackageName()));
     }
     catch (IOException e) {
-      Assertions.fail(e.getMessage(), e);
+      Assertions.fail(e);
       throw new RuntimeException(e);
     }
   }
@@ -43,7 +42,7 @@ class RecursiveWatcherTest {
     Path subDir = Files.createTempDirectory(path, Strings.EMPTY);
     assertNotNull(subDir, path::toString);
     CountDownLatch latch = new CountDownLatch(2);
-    try (Closeable _ = new RecursiveWatcher(path, _ -> latch.countDown(), Extension.TXT)) {
+    try (var _ = new RecursiveWatcher(path, _ -> latch.countDown(), Extension.TXT)) {
       while (!latch.await(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS)) {
         Files.createTempFile(Files.createTempDirectory(subDir, Strings.EMPTY), Strings.EMPTY, Extension.TXT.attachTo(Strings.EMPTY));
       }
