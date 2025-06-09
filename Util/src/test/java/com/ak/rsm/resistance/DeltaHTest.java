@@ -34,13 +34,13 @@ class DeltaHTest {
   }
 
   @ParameterizedTest
-  @ValueSource(doubles = {Double.MIN_VALUE, Double.MAX_VALUE, -1.0, 0.0, 1.0})
+  @ValueSource(doubles = {Double.MIN_VALUE, Double.MAX_VALUE, 0.0, 1.0})
   void value(double d) {
     nonNullFunctions.forEach(f -> assertThat(f.apply(d).value()).isEqualTo(d));
   }
 
   @ParameterizedTest
-  @ValueSource(doubles = {Double.MIN_VALUE, Double.MAX_VALUE, -1.0, 0.0, 1.0})
+  @ValueSource(doubles = {Double.MIN_VALUE, Double.MAX_VALUE, 0.0, 1.0})
   void convert(double d) {
     nonNullFunctions.forEach(f -> assertThat(f.apply(d).convert(x -> x / 2.0).value()).isEqualTo(d / 2.0));
   }
@@ -49,6 +49,7 @@ class DeltaHTest {
   void testNull() {
     assertAll(DeltaH.NULL.toString(),
         () -> assertThat(DeltaH.NULL.value()).isNaN(),
+        () -> assertThat(DeltaH.NULL.next()).isEqualTo(DeltaH.NULL),
         () -> assertThat(DeltaH.NULL.convert(x -> {
               assertThat(x).isNaN();
               return x;
@@ -63,6 +64,23 @@ class DeltaHTest {
     nonNullFunctions.forEach(f -> assertThatNullPointerException().isThrownBy(() -> f.apply(0.0).convert(converter)));
   }
 
+  @Test
+  void testH1andH2Type() {
+    DeltaH h1andH2 = DeltaH.ofH1andH2(1.0, 2.0);
+    assertAll(h1andH2.toString(),
+        () -> assertThat(h1andH2.type()).isEqualTo(DeltaH.Type.H1),
+        () -> assertThat(h1andH2.value()).isEqualTo(1.0),
+        () -> assertThat(h1andH2.convert(x -> x / 10.0)).isEqualTo(DeltaH.H1.apply(0.1))
+    );
+
+    DeltaH next = h1andH2.next();
+    assertAll(next.toString(),
+        () -> assertThat(next.type()).isEqualTo(DeltaH.Type.H2),
+        () -> assertThat(next.value()).isEqualTo(2.0),
+        () -> assertThat(next.convert(x -> x * 10.0)).isEqualTo(DeltaH.H2.apply(20.0))
+    );
+  }
+
   @ParameterizedTest
   @ValueSource(doubles = {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY})
   void testValueNotFinite(double notFinite) {
@@ -70,6 +88,16 @@ class DeltaHTest {
         assertThatIllegalArgumentException().isThrownBy(() -> f.apply(notFinite))
             .withMessageStartingWith("Value is not finite = ")
             .withMessageEndingWith(Double.toString(notFinite))
+    );
+  }
+
+  @ParameterizedTest
+  @ValueSource(doubles = -1.0)
+  void testValueNegative(double negative) {
+    nonNullFunctions.forEach(f ->
+        assertThatIllegalArgumentException().isThrownBy(() -> f.apply(negative))
+            .withMessageStartingWith("Value < 0 = ")
+            .withMessageEndingWith("%f".formatted(negative))
     );
   }
 }
