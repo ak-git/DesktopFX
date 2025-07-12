@@ -72,11 +72,11 @@ javafx-base = { module = 'org.openjfx:javafx-base', version.ref = 'javafx' }
 javafx-graphics = { module = 'org.openjfx:javafx-graphics', version.ref = 'javafx' }
 
 spring-bom = { module = 'org.springframework:spring-framework-bom', version.ref = 'spring' }
-spring-boot = { module = 'org.springframework.boot:spring-boot', version.ref = 'springframework-boot' }
-spring-boot-autoconfigure = { module = 'org.springframework.boot:spring-boot-autoconfigure', version.ref = 'springframework-boot' }
-spring-core = { module = 'org.springframework:spring-core', version.ref = 'spring' }
-spring-beans = { module = 'org.springframework:spring-beans', version.ref = 'spring' }
-spring-context = { module = 'org.springframework:spring-context', version.ref = 'spring' }
+spring-boot = { module = 'org.springframework.boot:spring-boot' }
+spring-boot-autoconfigure = { module = 'org.springframework.boot:spring-boot-autoconfigure' }
+spring-core = { module = 'org.springframework:spring-core' }
+spring-beans = { module = 'org.springframework:spring-beans' }
+spring-context = { module = 'org.springframework:spring-context' }
 
 [bundles]
 spring-boot = ['spring-boot', 'spring-boot-autoconfigure', 'spring-core', 'spring-beans', 'spring-context']
