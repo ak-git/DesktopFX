@@ -9,8 +9,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.ak.util.Strings.EMPTY;
 
@@ -23,14 +21,15 @@ public enum OSDirectories {
     USER_HOME_PATH = Optional.ofNullable(System.getProperty("user.home")).orElse(EMPTY);
   }
 
-  public static final String VENDOR_ID = Stream.of(OSDirectories.class.getPackage().getName().split("\\.")).limit(2).
-      collect(Collectors.joining("."));
+  public static final String VENDOR_ID = OSDirectories.class.getPackage().getName().split("\\.")[1];
 
   public static Path getDirectory(String... candidates) {
     return Arrays.stream(Objects.requireNonNull(candidates))
         .map(p -> Paths.get(USER_HOME_PATH).resolve(p))
-        .filter(p -> Files.isDirectory(p) && Files.isWritable(p) && Files.exists(p))
         .filter(p -> {
+          if (Files.isDirectory(p) && Files.isWritable(p) && Files.exists(p)) {
+            return true;
+          }
           try {
             Files.createDirectories(p);
             Path testDirectory = p.resolve("permissions_check");

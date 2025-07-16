@@ -23,6 +23,8 @@ import javafx.fxml.FXMLLoader;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.logging.LoggingSystem;
+import org.springframework.boot.logging.java.JavaLoggingSystem;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -49,6 +51,7 @@ public class SpringFxApplication extends FxApplication {
   @Override
   public void init() {
     System.setProperty(LocalFileHandler.class.getName(), "FxDesktop");
+    System.setProperty(LoggingSystem.class.getName(), JavaLoggingSystem.class.getName());
     applicationContext = new SpringApplicationBuilder(SpringFxApplication.class).headless(false).run();
   }
 

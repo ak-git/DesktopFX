@@ -4,11 +4,10 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.StringBytesInterceptor;
 import com.ak.comm.logging.LogTestUtils;
-import com.ak.util.Clean;
 import com.ak.util.Extension;
 import com.ak.util.Strings;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -31,18 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class ConverterTest {
-  private static final Path PATH;
-
-  static {
-    try {
-      PATH = Files.createTempDirectory("test %s.".formatted(ConverterTest.class.getPackageName()));
-    }
-    catch (IOException e) {
-      fail(e.getMessage(), e);
-      throw new RuntimeException(e);
-    }
-  }
-
   private static final Converter<Integer, TwoVariables> INVALID_CONVERTER =
       new AbstractConverter<>(TwoVariables.class, 200) {
         @Override
@@ -82,11 +69,6 @@ class ConverterTest {
     assertThat(VALID_CONVERTER_0.getFrequency()).isEqualTo(1000);
   }
 
-  @AfterAll
-  static void cleanUp() {
-    Clean.clean(Objects.requireNonNull(PATH));
-  }
-
   static Stream<Arguments> variables() {
     return Stream.of(
         arguments(ADCVariable.class, "TIME_s,ADC"),
@@ -96,8 +78,8 @@ class ConverterTest {
 
   @ParameterizedTest
   @MethodSource("variables")
-  <E extends Enum<E> & Variable<E>> void testFileConvertADC(Class<E> clazz, String expectedHeader) throws IOException {
-    Path tempFile = Files.createTempFile(Objects.requireNonNull(PATH), Strings.EMPTY, Extension.BIN.attachTo(getClass().getSimpleName()));
+  <E extends Enum<E> & Variable<E>> void testFileConvertADC(Class<E> clazz, String expectedHeader, @TempDir Path path) throws IOException {
+    Path tempFile = Files.createTempFile(path, Strings.EMPTY, Extension.BIN.attachTo(getClass().getSimpleName()));
     Files.write(tempFile, new byte[] {51, 102, 102, 53, '\r', '\n'});
     BytesInterceptor<BufferFrame, String> interceptor = new StringBytesInterceptor(getClass().getSimpleName());
     Converter.doConvert(interceptor, new StringToIntegerConverter<>(clazz, 1), tempFile);
