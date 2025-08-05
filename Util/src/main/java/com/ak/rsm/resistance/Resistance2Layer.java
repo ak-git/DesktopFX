@@ -2,7 +2,7 @@ package com.ak.rsm.resistance;
 
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
-import org.apache.commons.math3.analysis.TrivariateFunction;
+import org.apache.commons.math4.legacy.analysis.TrivariateFunction;
 
 /**
  * Calculates <b>full</b> ohms R<sub>m-n</sub> (in Ohm) between electrodes for <b>2-layer</b> model.

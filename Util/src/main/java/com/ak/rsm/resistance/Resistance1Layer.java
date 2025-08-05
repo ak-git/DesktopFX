@@ -1,7 +1,7 @@
 package com.ak.rsm.resistance;
 
 import com.ak.rsm.system.TetrapolarSystem;
-import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math4.legacy.analysis.UnivariateFunction;
 
 /**
  * Calculates <b>full</b> ohms R<sub>m-n</sub> (in Ohm) between electrodes for <b>single-layer</b> model.

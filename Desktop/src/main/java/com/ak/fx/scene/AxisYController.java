@@ -2,7 +2,7 @@ package com.ak.fx.scene;
 
 import com.ak.comm.converter.Variable;
 import com.ak.util.Numbers;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math4.legacy.stat.descriptive.DescriptiveStatistics;
 
 import java.util.stream.IntStream;
 

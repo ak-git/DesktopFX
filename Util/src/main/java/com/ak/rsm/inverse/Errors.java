@@ -8,10 +8,10 @@ import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.ArrayRealVector;
-import org.apache.commons.math3.linear.DecompositionSolver;
-import org.apache.commons.math3.linear.SingularValueDecomposition;
+import org.apache.commons.math4.legacy.linear.Array2DRowRealMatrix;
+import org.apache.commons.math4.legacy.linear.ArrayRealVector;
+import org.apache.commons.math4.legacy.linear.DecompositionSolver;
+import org.apache.commons.math4.legacy.linear.SingularValueDecomposition;
 
 import java.util.Collection;
 import java.util.Iterator;

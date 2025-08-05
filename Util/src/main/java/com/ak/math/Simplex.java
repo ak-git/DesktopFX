@@ -5,18 +5,19 @@ import io.jenetics.engine.Codecs;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.Limits;
 import io.jenetics.util.DoubleRange;
-import org.apache.commons.math3.analysis.MultivariateFunction;
-import org.apache.commons.math3.optim.InitialGuess;
-import org.apache.commons.math3.optim.MaxEval;
-import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.SimpleBounds;
-import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
-import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
-import org.apache.commons.math3.random.MersenneTwister;
-import org.apache.commons.math3.util.Pair;
+import org.apache.commons.math4.legacy.analysis.MultivariateFunction;
+import org.apache.commons.math4.legacy.optim.InitialGuess;
+import org.apache.commons.math4.legacy.optim.MaxEval;
+import org.apache.commons.math4.legacy.optim.PointValuePair;
+import org.apache.commons.math4.legacy.optim.SimpleBounds;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.GoalType;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.ObjectiveFunction;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.PopulationSize;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.Sigma;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.CMAESOptimizer;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.NelderMeadTransform;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import org.apache.commons.rng.simple.RandomSource;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -45,7 +46,8 @@ public enum Simplex {
           .optimize(
               new MaxEval(MAX_ITERATIONS),
               new ObjectiveFunction(function), GoalType.MINIMIZE,
-              new NelderMeadSimplex(initialSteps), new InitialGuess(initialGuess)
+              org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.Simplex.alongAxes(initialSteps),
+              new NelderMeadTransform(), new InitialGuess(initialGuess)
           );
     }
 
@@ -59,15 +61,15 @@ public enum Simplex {
       );
       try {
         return new CMAESOptimizer(MAX_ITERATIONS, STOP_FITNESS, true, 0,
-            10, new MersenneTwister(), false, null)
+            10, RandomSource.MT_64.create(), false, null)
             .optimize(
                 new MaxEval(MAX_ITERATIONS),
                 new ObjectiveFunction(function),
                 GoalType.MINIMIZE,
                 new InitialGuess(toInitialGuess(bounds)),
                 simpleBounds,
-                new CMAESOptimizer.Sigma(toInitialSteps(bounds)),
-                new CMAESOptimizer.PopulationSize(4 + (int) (3.0 * StrictMath.log(bounds.length)))
+                new Sigma(toInitialSteps(bounds)),
+                new PopulationSize(4 + (int) (3.0 * StrictMath.log(bounds.length)))
             );
       }
       catch (Exception _) {
@@ -134,7 +136,7 @@ public enum Simplex {
 
       return EnumSet.complementOf(EnumSet.of(JENETICS)).stream()
           .map(simplex -> simplex.optimize(function, minInitialMax))
-          .min(Comparator.comparingDouble(Pair::getValue)).orElseThrow();
+          .min(Comparator.comparingDouble(PointValuePair::getValue)).orElseThrow();
     }
     return optimize;
   }

@@ -2,8 +2,8 @@ package com.ak.math;
 
 import com.ak.inverse.Inequality;
 import com.ak.math.Simplex.Bounds;
-import org.apache.commons.math3.analysis.MultivariateFunction;
-import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math4.legacy.analysis.MultivariateFunction;
+import org.apache.commons.math4.legacy.optim.PointValuePair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;

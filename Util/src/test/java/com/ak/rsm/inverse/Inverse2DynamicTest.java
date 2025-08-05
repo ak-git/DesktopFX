@@ -15,13 +15,13 @@ import com.ak.rsm.system.RelativeTetrapolarSystem;
 import com.ak.util.Extension;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
-import org.apache.commons.math3.optim.InitialGuess;
-import org.apache.commons.math3.optim.MaxEval;
-import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
-import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import org.apache.commons.math4.legacy.optim.InitialGuess;
+import org.apache.commons.math4.legacy.optim.MaxEval;
+import org.apache.commons.math4.legacy.optim.PointValuePair;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.GoalType;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.ObjectiveFunction;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.NelderMeadTransform;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -394,7 +394,7 @@ class Inverse2DynamicTest {
                         return Double.POSITIVE_INFINITY;
                       }
                     }), GoalType.MINIMIZE,
-                    new NelderMeadSimplex(new double[] {0.01}), new InitialGuess(new double[] {0.01})
+                    new NelderMeadTransform(), new InitialGuess(new double[] {0.01})
                 );
             dHmm = optimizeDH.getPoint()[0];
             inputValues = new ArrayList<>(inputValues);

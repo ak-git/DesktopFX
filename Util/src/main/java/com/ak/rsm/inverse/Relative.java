@@ -5,7 +5,7 @@ import com.ak.rsm.measurement.DerivativeMeasurement;
 import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
-import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math4.legacy.optim.PointValuePair;
 
 import java.util.Collection;
 import java.util.function.Function;

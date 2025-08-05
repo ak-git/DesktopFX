@@ -10,7 +10,7 @@ configurations {
 dependencies {
     api libs.measure.unit.api
     api libs.javax.json
-    api libs.commons.math3
+    api libs.commons.math
     api libs.commons.csv
     implementation libs.jspecify
     implementation libs.tech.units

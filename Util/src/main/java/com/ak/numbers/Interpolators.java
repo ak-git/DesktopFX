@@ -1,12 +1,12 @@
 package com.ak.numbers;
 
 import com.ak.util.Strings;
-import org.apache.commons.math3.analysis.BivariateFunction;
-import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.apache.commons.math3.analysis.interpolation.AkimaSplineInterpolator;
-import org.apache.commons.math3.analysis.interpolation.LinearInterpolator;
-import org.apache.commons.math3.analysis.interpolation.PiecewiseBicubicSplineInterpolator;
-import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
+import org.apache.commons.math4.legacy.analysis.BivariateFunction;
+import org.apache.commons.math4.legacy.analysis.UnivariateFunction;
+import org.apache.commons.math4.legacy.analysis.interpolation.AkimaSplineInterpolator;
+import org.apache.commons.math4.legacy.analysis.interpolation.LinearInterpolator;
+import org.apache.commons.math4.legacy.analysis.interpolation.PiecewiseBicubicSplineInterpolator;
+import org.apache.commons.math4.legacy.analysis.interpolation.UnivariateInterpolator;
 
 import java.util.*;
 import java.util.function.*;

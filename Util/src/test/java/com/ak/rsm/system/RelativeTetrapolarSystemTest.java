@@ -1,7 +1,7 @@
 package com.ak.rsm.system;
 
 import com.ak.math.Simplex;
-import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math4.legacy.optim.PointValuePair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

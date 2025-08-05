@@ -14,7 +14,7 @@ import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Numbers;
 import com.ak.util.Strings;
-import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math4.legacy.optim.PointValuePair;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
