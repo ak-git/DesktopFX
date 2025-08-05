@@ -27,7 +27,7 @@ sonar {
         property 'sonar.projectKey', property('sonar.projectKey')
         property 'sonar.organization', property('sonar.organization')
         property 'sonar.host.url', 'https://sonarcloud.io'
-        property 'sonar.branch.name', 'master'
+        property 'sonar.branch.name', 'develop'
         property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
     }
 }
