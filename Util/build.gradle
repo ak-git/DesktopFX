@@ -1,6 +1,5 @@
 plugins {
     id 'java-library'
-    alias(libs.plugins.javamodularity.moduleplugin)
 }
 
 configurations {
@@ -34,8 +33,5 @@ dependencies {
 tasks {
     test {
         jvmArgs += "-javaagent:${configurations.mockitoAgent.asPath}"
-        moduleOptions {
-            runOnClasspath = true
-        }
     }
 }
