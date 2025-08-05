@@ -1,37 +1,8 @@
-# Install on Linux
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ak-git_DesktopFX&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=ak-git_DesktopFX)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=ak-git_DesktopFX&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=ak-git_DesktopFX)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ak-git_DesktopFX&metric=security_rating)](https://sonarcloud.io/dashboard?id=ak-git_DesktopFX)
 
-## Install [sdkman.io](https://sdkman.io)
-
-```bash
-curl -s "https://get.sdkman.io" | bash
-```
-
-```bash
-source "$HOME/.sdkman/bin/sdkman-init.sh"
-```
-
-## Install [JDK](https://www.oracle.com/java/technologies/downloads/)
-
-```bash
-sdk list java
-```
-
-```bash
-sdk install java 24.0.2-oracle
-```
-
-## Install [Gradle](https://gradle.org)
-
-```bash
-sdk list gradle
-```
-
-```bash
-sdk install gradle 9.0.0
-```
-
-## Verify Installation
-
-```bash
-sdk current
-```
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ak-git_DesktopFX&metric=bugs)](https://sonarcloud.io/dashboard?id=ak-git_DesktopFX)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=ak-git_DesktopFX&metric=code_smells)](https://sonarcloud.io/dashboard?id=ak-git_DesktopFX)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=ak-git_DesktopFX&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=ak-git_DesktopFX)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=ak-git_DesktopFX&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=ak-git_DesktopFX)
