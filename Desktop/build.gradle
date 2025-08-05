@@ -37,4 +37,8 @@ javafx {
 application {
     mainModule = 'com.ak.fx.desktop'
     mainClass = 'com.ak.spring.SpringFxApplication'
+    applicationDefaultJvmArgs = [
+            '--enable-native-access', 'javafx.graphics',
+            '--enable-native-access', 'com.fazecast.jSerialComm'
+    ]
 }

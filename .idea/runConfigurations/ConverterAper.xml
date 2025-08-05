@@ -3,6 +3,7 @@
     <option name="ACTIVE_PROFILES" value="aper2-ecg" />
     <module name="DesktopFX.Desktop.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.ak.fx.desktop.ConverterApp" />
+    <option name="VM_PARAMETERS" value="--enable-native-access=javafx.graphics --enable-native-access=com.fazecast.jSerialComm" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.ak.fx.desktop.*" />

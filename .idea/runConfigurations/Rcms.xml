@@ -5,6 +5,7 @@
     <option name="ENABLE_LAUNCH_OPTIMIZATION" value="false" />
     <module name="DesktopFX.Desktop.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.ak.spring.SpringFxApplication" />
+    <option name="VM_PARAMETERS" value="--enable-native-access=javafx.graphics --enable-native-access=com.fazecast.jSerialComm" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
