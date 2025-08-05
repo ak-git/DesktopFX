@@ -3,7 +3,6 @@ package com.ak.comm.interceptor;
 import com.ak.util.Strings;
 import com.fazecast.jSerialComm.SerialPort;
 
-import javax.annotation.Nonnegative;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Optional;
@@ -39,7 +38,6 @@ public interface BytesInterceptor<T, R> extends Function<ByteBuffer, Stream<R>> 
     BR_9600, BR_38400, BR_57600, BR_115200, BR_460800, BR_921600;
 
     @Override
-    @Nonnegative
     public int getAsInt() {
       return Integer.parseInt(name().replaceFirst("^\\D*", Strings.EMPTY));
     }
@@ -47,7 +45,6 @@ public interface BytesInterceptor<T, R> extends Function<ByteBuffer, Stream<R>> 
 
   String name();
 
-  @Nonnegative
   int getBaudRate();
 
   default Set<SerialParams> getSerialParams() {

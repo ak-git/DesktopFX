@@ -15,7 +15,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnegative;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -109,7 +108,7 @@ class TetrapolarDerivativeMeasurementTest {
 
   @ParameterizedTest
   @MethodSource("tetrapolarMeasurements")
-  void test(DerivativeMeasurement d, String expected, @Nonnegative double resistivity,
+  void test(DerivativeMeasurement d, String expected, double resistivity,
             double derivativeResistivity, InexactTetrapolarSystem system) {
     assertAll(d.toString(),
         () -> assertThat(d.toString().replaceAll("\\D", " ").strip()).isEqualTo(expected),
@@ -300,7 +299,7 @@ class TetrapolarDerivativeMeasurementTest {
 
   @ParameterizedTest
   @MethodSource("dResistivity")
-  void testDResistance(@Nonnegative double rho1, @Nonnegative double rho2, @Nonnegative double hmm, double dHmm) {
+  void testDResistance(double rho1, double rho2, double hmm, double dHmm) {
     double dRExpected = TetrapolarResistance.ofMilli(10.0, 30.0).rho1(rho1).rho2(rho2).h(hmm + dHmm).ohms() -
         TetrapolarResistance.ofMilli(10.0, 30.0).rho1(rho1).rho2(rho2).h(hmm).ohms();
     var dR = TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(DeltaH.H1.apply(dHmm))

@@ -6,7 +6,6 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import jakarta.inject.Provider;
 import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nonnegative;
 import java.io.IOException;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
@@ -14,7 +13,6 @@ import java.util.function.Supplier;
 public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractViewController<T, R, V> implements Supplier<T> {
   private final ScheduledExecutorService pingService = Executors.newSingleThreadScheduledExecutor();
-  @Nonnegative
   private final double frequencyHz;
   private final Runnable command = () -> {
     try {
@@ -28,7 +26,7 @@ public abstract class AbstractScheduledViewController<T, R, V extends Enum<V> & 
 
   protected AbstractScheduledViewController(Provider<BytesInterceptor<T, R>> interceptorProvider,
                                             Provider<Converter<R, V>> converterProvider,
-                                            @Nonnegative double frequencyHz) {
+                                            double frequencyHz) {
     super(interceptorProvider, converterProvider);
     this.frequencyHz = frequencyHz;
   }

@@ -1,6 +1,5 @@
 package com.ak.digitalfilter;
 
-import javax.annotation.Nonnegative;
 import java.util.Arrays;
 
 final class HoldFilter extends AbstractBufferFilter {
@@ -23,16 +22,14 @@ final class HoldFilter extends AbstractBufferFilter {
   }
 
   static final class Builder {
-    @Nonnegative
     private final int size;
-    @Nonnegative
     private int lostCount;
 
-    Builder(@Nonnegative int size) {
+    Builder(int size) {
       this.size = size;
     }
 
-    HoldFilter lostCount(@Nonnegative int lostCount) {
+    HoldFilter lostCount(int lostCount) {
       this.lostCount = lostCount;
       return new HoldFilter(this);
     }

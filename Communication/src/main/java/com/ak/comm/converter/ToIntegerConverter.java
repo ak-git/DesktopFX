@@ -2,13 +2,12 @@ package com.ak.comm.converter;
 
 import com.ak.comm.bytes.BufferFrame;
 
-import javax.annotation.Nonnegative;
 import java.util.stream.Stream;
 
 import static java.lang.Integer.BYTES;
 
 public final class ToIntegerConverter<V extends Enum<V> & Variable<V>> extends AbstractConverter<BufferFrame, V> {
-  public ToIntegerConverter(Class<V> evClass, @Nonnegative int frequency) {
+  public ToIntegerConverter(Class<V> evClass, int frequency) {
     super(evClass, frequency);
   }
 

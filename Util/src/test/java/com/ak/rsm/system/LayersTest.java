@@ -5,7 +5,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnegative;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -27,7 +26,7 @@ class LayersTest {
 
   @ParameterizedTest
   @MethodSource("k")
-  void testGetK12(@Nonnegative double rho1, @Nonnegative double rho2, double k) {
+  void testGetK12(double rho1, double rho2, double k) {
     assertThat(Layers.getK12(rho1, rho2)).isEqualTo(k);
   }
 
@@ -43,7 +42,7 @@ class LayersTest {
 
   @ParameterizedTest
   @MethodSource("rho")
-  void testGetRho1ToRho2(double k, @Nonnegative double rho1ToRho2) {
+  void testGetRho1ToRho2(double k, double rho1ToRho2) {
     assertThat(Layers.getRho1ToRho2(k)).isCloseTo(rho1ToRho2, byLessThan(0.001));
   }
 
@@ -68,7 +67,7 @@ class LayersTest {
 
   @ParameterizedTest
   @MethodSource("qn")
-  void testQ(double k12, double k23, @Nonnegative int p1, @Nonnegative int p2mp1, double[] expected) {
+  void testQ(double k12, double k23, int p1, int p2mp1, double[] expected) {
     double[] actual = Arrays.copyOfRange(Layers.qn(k12, k23, p1, p2mp1), 1, p1 + p2mp1 + 1);
     assertThat(actual).containsExactly(expected, byLessThan(1.0e-6));
   }

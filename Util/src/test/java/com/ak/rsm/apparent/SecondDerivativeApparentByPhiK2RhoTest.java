@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnegative;
 import java.util.function.ToDoubleFunction;
 
 import static org.assertj.core.api.Assertions.*;
@@ -27,7 +26,7 @@ class SecondDerivativeApparentByPhiK2RhoTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
-  void testValueSL(double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
+  void testValueSL(double[] rho, double hmm, double smm, double lmm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
     double phi = hmm / lmm;
     double dK = 1.0e-6;
@@ -45,7 +44,7 @@ class SecondDerivativeApparentByPhiK2RhoTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
-  void testValueLS(double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
+  void testValueLS(double[] rho, double hmm, double smm, double lmm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(lmm, METRE), Metrics.Length.MILLI.to(smm, METRE));
     double phi = hmm / lmm;
     double dK = 1.0e-6;

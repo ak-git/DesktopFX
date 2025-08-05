@@ -9,7 +9,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnegative;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Stream;
 
@@ -30,7 +29,7 @@ class DynamicInverseTest {
 
   @ParameterizedTest
   @MethodSource("layer2")
-  void testLayer2(double[] kw, @Nonnegative double inequality) {
+  void testLayer2(double[] kw, double inequality) {
     ToDoubleFunction<double[]> function = DynamicInverse.of(
         TetrapolarDerivativeMeasurement.milli(0.1).dh(DeltaH.H1.apply(0.105)).system2(6.0)
             .rho1(9.0).rho2(1.0).h(2.0)
@@ -46,7 +45,7 @@ class DynamicInverseTest {
 
   @ParameterizedTest
   @MethodSource("layer3")
-  void testLayer3(double[] k, @Nonnegative double inequality) {
+  void testLayer3(double[] k, double inequality) {
     Assertions.assertAll(
         () -> {
           ToDoubleFunction<double[]> function = DynamicInverse.ofH1Changed(

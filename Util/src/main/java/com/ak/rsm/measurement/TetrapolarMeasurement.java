@@ -8,7 +8,6 @@ import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nonnegative;
 import java.util.*;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
@@ -16,7 +15,7 @@ import java.util.function.Function;
 import static tech.units.indriya.unit.Units.OHM;
 
 public record TetrapolarMeasurement(InexactTetrapolarSystem toInexact,
-                                    @Nonnegative double resistivity) implements Measurement {
+                                    double resistivity) implements Measurement {
   private static final Function<Measurement, ValuePair> TO_VALUE =
       m -> ValuePair.Name.RHO_1.of(m.resistivity(), m.resistivity() * m.toInexact().getApparentRelativeError());
 
@@ -46,11 +45,11 @@ public record TetrapolarMeasurement(InexactTetrapolarSystem toInexact,
     return new Builder(inexact);
   }
 
-  public static PreBuilder<Measurement> ofSI(@Nonnegative double absError) {
+  public static PreBuilder<Measurement> ofSI(double absError) {
     return new Builder(DoubleUnaryOperator.identity(), absError);
   }
 
-  public static PreBuilder<Measurement> ofMilli(@Nonnegative double absError) {
+  public static PreBuilder<Measurement> ofMilli(double absError) {
     return new Builder(Metrics.MILLI, absError);
   }
 
@@ -59,15 +58,15 @@ public record TetrapolarMeasurement(InexactTetrapolarSystem toInexact,
   }
 
   public interface PreBuilder<T> {
-    TetrapolarResistance.PreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC);
+    TetrapolarResistance.PreBuilder<T> system(double sPU, double lCC);
   }
 
   public interface MultiPreBuilder<T> {
     MultiPreBuilder<T> withShiftError();
 
-    TetrapolarResistance.PreBuilder<Collection<T>> system2(@Nonnegative double sBase);
+    TetrapolarResistance.PreBuilder<Collection<T>> system2(double sBase);
 
-    TetrapolarResistance.PreBuilder<Collection<T>> system4(@Nonnegative double sBase);
+    TetrapolarResistance.PreBuilder<Collection<T>> system4(double sBase);
   }
 
   abstract static class AbstractBuilder<T> extends TetrapolarResistance.AbstractBuilder<T> {
@@ -96,7 +95,7 @@ public record TetrapolarMeasurement(InexactTetrapolarSystem toInexact,
     }
 
     @Override
-    public final TetrapolarResistance.PreBuilder<T> system(@Nonnegative double sPU, @Nonnegative double lCC) {
+    public final TetrapolarResistance.PreBuilder<T> system(double sPU, double lCC) {
       if (inexact != null) {
         throw new IllegalStateException("Inexact measurement [%s] was already set".formatted(inexact));
       }
@@ -120,7 +119,7 @@ public record TetrapolarMeasurement(InexactTetrapolarSystem toInexact,
     }
 
     @Override
-    public final TetrapolarResistance.PreBuilder<Collection<T>> system2(@Nonnegative double sBase) {
+    public final TetrapolarResistance.PreBuilder<Collection<T>> system2(double sBase) {
       inexact.addAll(
           TetrapolarResistance.AbstractMultiTetrapolarBuilder.system2(converter, sBase).stream().map(toInexact()).toList()
       );
@@ -128,7 +127,7 @@ public record TetrapolarMeasurement(InexactTetrapolarSystem toInexact,
     }
 
     @Override
-    public final TetrapolarResistance.PreBuilder<Collection<T>> system4(@Nonnegative double sBase) {
+    public final TetrapolarResistance.PreBuilder<Collection<T>> system4(double sBase) {
       inexact.addAll(
           TetrapolarResistance.AbstractMultiTetrapolarBuilder.system4(converter, sBase).stream().map(toInexact()).toList()
       );

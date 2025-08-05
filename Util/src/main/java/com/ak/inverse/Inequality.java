@@ -1,6 +1,5 @@
 package com.ak.inverse;
 
-import javax.annotation.Nonnegative;
 import java.util.Objects;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleSupplier;
@@ -10,7 +9,6 @@ import static java.lang.Math.abs;
 
 public final class Inequality implements DoubleBinaryOperator, DoubleSupplier, ToDoubleBiFunction<double[], double[]> {
   private final DoubleBinaryOperator errorDefinition;
-  @Nonnegative
   private double errorNorm;
 
   private Inequality(DoubleBinaryOperator errorDefinition) {

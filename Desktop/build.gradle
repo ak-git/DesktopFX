@@ -10,7 +10,6 @@ dependencies {
     implementation project(':FxCore')
     implementation project(':Communication')
     implementation project(':Util')
-    implementation libs.findbugs.jsr305
     implementation libs.jspecify
     implementation libs.inject.api
     implementation libs.measure.unit.api

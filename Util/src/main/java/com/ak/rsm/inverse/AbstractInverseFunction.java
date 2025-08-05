@@ -4,7 +4,6 @@ import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.resistance.Resistivity;
 import com.ak.rsm.system.TetrapolarSystem;
 
-import javax.annotation.Nonnegative;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -14,7 +13,6 @@ import java.util.function.UnaryOperator;
 
 abstract class AbstractInverseFunction<R extends Resistivity>
     implements InverseFunction, ToDoubleBiFunction<TetrapolarSystem, double[]> {
-  @Nonnegative
   private final double baseL;
   private final List<TetrapolarSystem> systems;
   private final double[] measured;
@@ -27,7 +25,6 @@ abstract class AbstractInverseFunction<R extends Resistivity>
     this.toErrors = Objects.requireNonNull(toErrors);
   }
 
-  @Nonnegative
   @Override
   public final double applyAsDouble(double[] kw) {
     double result = 0.0;

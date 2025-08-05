@@ -3,7 +3,6 @@ package com.ak.math;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
-import javax.annotation.Nonnegative;
 import java.util.Objects;
 import java.util.StringJoiner;
 
@@ -116,17 +115,16 @@ public class ValuePair {
       return base;
     }
 
-    public final ValuePair of(double value, @Nonnegative double absError) {
+    public final ValuePair of(double value, double absError) {
       return new ValuePair(this, value, absError);
     }
   }
 
   private final Name name;
   private final double value;
-  @Nonnegative
   private final double absError;
 
-  private ValuePair(Name name, double value, @Nonnegative double absError) {
+  private ValuePair(Name name, double value, double absError) {
     this.name = Objects.requireNonNull(name);
     this.value = value;
     this.absError = Double.isNaN(value) ? Double.NaN : Math.abs(absError);
@@ -160,11 +158,11 @@ public class ValuePair {
     }
   }
 
-  public static String format(double value, @Nonnegative int afterZero) {
+  public static String format(double value, int afterZero) {
     return "%%.%df".formatted(afterZero).formatted(value);
   }
 
-  public static int afterZero(@Nonnegative double absError) {
+  public static int afterZero(double absError) {
     if (absError > 0.0) {
       return (int) Math.abs(Math.min(Math.floor(StrictMath.log10(absError)), 0));
     }

@@ -7,7 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnegative;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.DoubleStream;
@@ -50,21 +49,21 @@ class RelativeTetrapolarSystemTest {
 
   @ParameterizedTest
   @MethodSource("relativeTetrapolarSystems")
-  void testToString(@Nonnegative double sToL) {
+  void testToString(double sToL) {
     RelativeTetrapolarSystem system = new RelativeTetrapolarSystem(sToL);
     assertThat(system).hasToString("s / L = %.3f".formatted(sToL));
   }
 
   @ParameterizedTest
   @MethodSource("relativeTetrapolarSystems")
-  void testHash(@Nonnegative double sToL) {
+  void testHash(double sToL) {
     RelativeTetrapolarSystem system = new RelativeTetrapolarSystem(sToL);
     assertThat(system).hasSameHashCodeAs(Double.hashCode(Math.min(sToL, 1.0 / sToL)));
   }
 
   @ParameterizedTest
   @MethodSource("relativeTetrapolarSystems")
-  void tesFactor(@Nonnegative double sToL) {
+  void tesFactor(double sToL) {
     RelativeTetrapolarSystem system = new RelativeTetrapolarSystem(sToL);
     assertThat(system.factor(1.0)).isCloseTo(Math.abs(1.0 + sToL), byLessThan(0.1));
     assertThat(system.factor(-1.0)).isCloseTo(Math.abs(1.0 - sToL), byLessThan(0.1));
@@ -72,7 +71,7 @@ class RelativeTetrapolarSystemTest {
 
   @ParameterizedTest
   @MethodSource("relativeTetrapolarSystems")
-  void testErrorFactor(@Nonnegative double sToL) {
+  void testErrorFactor(double sToL) {
     RelativeTetrapolarSystem system = new RelativeTetrapolarSystem(sToL);
     assertThat(system.errorFactor()).isCloseTo(6.0, byLessThan(0.1));
   }

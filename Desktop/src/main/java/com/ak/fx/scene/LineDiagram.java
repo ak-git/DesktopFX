@@ -9,7 +9,6 @@ import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
-import javax.annotation.Nonnegative;
 import java.util.Objects;
 import java.util.function.DoubleFunction;
 import java.util.stream.IntStream;
@@ -23,13 +22,10 @@ final class LineDiagram extends AbstractRegion {
   private final Text title = new Text();
   private final Group yLabels = new Group();
   private final Polyline polyline = new Polyline();
-  @Nonnegative
   private double xStep = 1.0;
-  @Nonnegative
   private int nowIndex;
-  @Nonnegative
   private int maxSamples = 1;
-  private DoubleFunction<String> positionToStringConverter = value -> Strings.EMPTY;
+  private DoubleFunction<String> positionToStringConverter = _ -> Strings.EMPTY;
 
   LineDiagram(String name) {
     bounds.setVisible(false);
@@ -129,11 +125,11 @@ final class LineDiagram extends AbstractRegion {
     }
   }
 
-  void setXStep(@Nonnegative double xStep) {
+  void setXStep(double xStep) {
     this.xStep = xStep;
   }
 
-  void setMaxSamples(@Nonnegative int maxSamples) {
+  void setMaxSamples(int maxSamples) {
     this.maxSamples = Math.max(maxSamples, 1);
   }
 

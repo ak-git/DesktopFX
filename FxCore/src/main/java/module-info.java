@@ -6,7 +6,6 @@ module com.ak.fx {
   requires javafx.graphics;
   requires javafx.controls;
   requires java.prefs;
-  requires jsr305;
   requires org.jspecify;
   requires com.ak.comm;
 

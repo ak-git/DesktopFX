@@ -1,11 +1,9 @@
 package com.ak.digitalfilter;
 
-import javax.annotation.Nonnegative;
-
 final class DecimationFilter extends AbstractRateConversionFilter {
   private int counter;
 
-  DecimationFilter(@Nonnegative int decimateFactor) {
+  DecimationFilter(int decimateFactor) {
     super(decimateFactor);
   }
 
@@ -14,7 +12,6 @@ final class DecimationFilter extends AbstractRateConversionFilter {
     return (-(factor - 1) / 2.0) / factor;
   }
 
-  @Nonnegative
   @Override
   public double getFrequencyFactor() {
     return 1.0 / factor;

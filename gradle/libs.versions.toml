@@ -6,7 +6,6 @@ spotbugs = '6.2.3'
 ben-manes-versions = '0.52.0'
 jgitver = '0.10.0-rc03'
 
-jsr305 = '3.0.2'
 jspecify = '1.0.0'
 junit = '5.13.4'
 assertj = '3.27.3'
@@ -43,7 +42,6 @@ springframework-boot = { id = 'org.springframework.boot', version.ref = 'springf
 spring-dependency-management = { id = 'io.spring.dependency-management', version.ref = 'spring-dependency-management' }
 
 [libraries]
-findbugs-jsr305 = { module = 'com.google.code.findbugs:jsr305', version.ref = 'jsr305' }
 jspecify = { module = 'org.jspecify:jspecify', version.ref = 'jspecify' }
 
 junit = { module = 'org.junit:junit-bom', version.ref = 'junit' }

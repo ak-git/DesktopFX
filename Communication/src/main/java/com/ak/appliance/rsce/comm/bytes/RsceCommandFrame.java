@@ -5,7 +5,6 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.bytes.BytesChecker;
 import com.ak.util.Strings;
 
-import javax.annotation.Nonnegative;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -51,7 +50,6 @@ public final class RsceCommandFrame extends BufferFrame {
     FINGER(0x02, 10000),
     ROTATE(0x03, 20000);
 
-    @Nonnegative
     private final byte addr;
     private final short speed;
 
@@ -88,7 +86,6 @@ public final class RsceCommandFrame extends BufferFrame {
   public enum RequestType implements Findable<RequestType> {
     EMPTY(0), STATUS_I(1), STATUS_I_SPEED(2), STATUS_I_ANGLE(3), STATUS_I_SPEED_ANGLE(4), RESERVE(7);
 
-    @Nonnegative
     private final byte code;
 
     RequestType(int code) {
@@ -181,10 +178,9 @@ public final class RsceCommandFrame extends BufferFrame {
     };
 
     private final String typeCode;
-    @Nonnegative
     private final int minFrameLength;
 
-    FrameField(Control control, ActionType actionType, RequestType requestType, @Nonnegative int minFrameLength) {
+    FrameField(Control control, ActionType actionType, RequestType requestType, int minFrameLength) {
       typeCode = toType(control, actionType, requestType);
       this.minFrameLength = minFrameLength;
     }
@@ -243,7 +239,6 @@ public final class RsceCommandFrame extends BufferFrame {
   }
 
   public static class RequestBuilder extends AbstractCheckedBuilder<RsceCommandFrame> {
-    @Nonnegative
     private byte codeLength;
 
     public RequestBuilder(Control control, ActionType actionType, RequestType requestType) {
@@ -309,7 +304,7 @@ public final class RsceCommandFrame extends BufferFrame {
     }
   }
 
-  private static long getChecksum(ByteBuffer buffer, @Nonnegative int codeLength) {
+  private static long getChecksum(ByteBuffer buffer, int codeLength) {
     Checksum checksum = new CRC16IBMChecksum();
     checksum.update(buffer.array(), 0, codeLength);
     return checksum.getValue();

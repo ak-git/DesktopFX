@@ -28,7 +28,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -139,7 +138,6 @@ public class FxApplication extends Application implements ViewController {
     stage.show();
   }
 
-  @OverridingMethodsMustInvokeSuper
   protected List<FXMLLoader> getFXMLLoader(ResourceBundle resourceBundle) {
     return Collections.singletonList(
         new FXMLLoader(getClass().getResource(String.join(".", "default", "fxml")), resourceBundle)
@@ -147,7 +145,6 @@ public class FxApplication extends Application implements ViewController {
   }
 
   @Override
-  @OverridingMethodsMustInvokeSuper
   public void stop() {
     Platform.exit();
   }

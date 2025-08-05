@@ -6,7 +6,6 @@ import com.ak.util.Numbers;
 import com.ak.util.Strings;
 import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nonnegative;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -36,7 +35,7 @@ public final class CSVLineFileBuilder<T> {
     return this;
   }
 
-  public CSVLineFileBuilder<T> xRange(double startInclusive, double endInclusive, @Nonnegative double step) {
+  public CSVLineFileBuilder<T> xRange(double startInclusive, double endInclusive, double step) {
     xRange.range(startInclusive, endInclusive, step);
     return this;
   }
@@ -51,7 +50,7 @@ public final class CSVLineFileBuilder<T> {
     return this;
   }
 
-  public CSVLineFileBuilder<T> yRange(double startInclusive, double endInclusive, @Nonnegative double step) {
+  public CSVLineFileBuilder<T> yRange(double startInclusive, double endInclusive, double step) {
     yRange.range(startInclusive, endInclusive, step);
     return this;
   }
@@ -92,12 +91,12 @@ public final class CSVLineFileBuilder<T> {
       return doubleStreamSupplier.get();
     }
 
-    private void rangeLog(@Nonnegative double start, @Nonnegative double end) {
+    private void rangeLog(double start, double end) {
       doubleStreamSupplier = () -> Numbers.rangeLog(start, end,
           Math.max(Math.abs(Math.round(log10(start / end))), Math.round(log10(Math.abs(start - end)))) * 10);
     }
 
-    private void range(double start, double end, @Nonnegative double step) {
+    private void range(double start, double end, double step) {
       doubleStreamSupplier = () ->
           DoubleStream.iterate(start, value -> value < end + step / 2.0, dl2L -> dl2L + step).map(Numbers.round(step));
     }

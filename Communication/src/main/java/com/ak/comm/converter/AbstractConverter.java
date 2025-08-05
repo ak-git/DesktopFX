@@ -3,8 +3,6 @@ package com.ak.comm.converter;
 import com.ak.digitalfilter.DigitalFilter;
 import com.ak.digitalfilter.FilterBuilder;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -18,15 +16,14 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
   private final Logger logger = Logger.getLogger(getClass().getName());
   private final List<V> variables;
   private final DigitalFilter digitalFilter;
-  @Nonnegative
   private final double frequency;
   private Stream<int[]> filteredValues = Stream.empty();
 
-  protected AbstractConverter(Class<V> evClass, @Nonnegative double frequency) {
+  protected AbstractConverter(Class<V> evClass, double frequency) {
     this(evClass, frequency, EnumSet.allOf(evClass).stream().map(v -> new int[] {v.ordinal()}).toList());
   }
 
-  AbstractConverter(Class<V> evClass, @Nonnegative double frequency, List<int[]> selectedIndexes) {
+  AbstractConverter(Class<V> evClass, double frequency, List<int[]> selectedIndexes) {
     variables = List.copyOf(EnumSet.allOf(evClass));
     List<DigitalFilter> filters = variables.stream().map(Variable::filter).toList();
 
@@ -45,7 +42,6 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
     return variables;
   }
 
-  @Nonnegative
   @Override
   public final double getFrequency() {
     return frequency;
@@ -60,7 +56,6 @@ public abstract class AbstractConverter<R, V extends Enum<V> & Variable<V>> impl
   }
 
   @Override
-  @OverridingMethodsMustInvokeSuper
   public void refresh(boolean force) {
     digitalFilter.reset();
   }

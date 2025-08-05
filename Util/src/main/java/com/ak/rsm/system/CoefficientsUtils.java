@@ -1,11 +1,9 @@
 package com.ak.rsm.system;
 
-import javax.annotation.Nonnegative;
-
 enum CoefficientsUtils {
   ;
 
-  public static double[] serialize(double[] bNum, double[] aDen, @Nonnegative int outLength) {
+  public static double[] serialize(double[] bNum, double[] aDen, int outLength) {
     var out = new double[outLength];
     out[0] = bNum[0] / aDen[0];
     for (var n = 1; n < out.length; n++) {

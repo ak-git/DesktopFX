@@ -4,7 +4,6 @@ import com.ak.fx.stage.ScreenResolutionMonitor;
 import com.ak.util.Numbers;
 import javafx.scene.shape.Path;
 
-import javax.annotation.Nonnegative;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedList;
@@ -16,7 +15,6 @@ enum GridCell implements GridCellCoordinate {
   POINTS(1.0) {
     private static final int FACTOR = 4;
 
-    @Nonnegative
     @Override
     double getStep() {
       return super.getStep() / FACTOR;
@@ -36,25 +34,21 @@ enum GridCell implements GridCellCoordinate {
   },
   SMALL(1.0) {
     @Override
-    @Nonnegative
-    public double minCoordinate(@Nonnegative double size) {
+    public double minCoordinate(double size) {
       return defaultImplementation().minCoordinate(size);
     }
 
     @Override
-    @Nonnegative
-    public double maxValue(@Nonnegative double size) {
+    public double maxValue(double size) {
       return defaultImplementation().maxValue(size);
     }
 
     @Override
-    @Nonnegative
-    public double roundCoordinate(@Nonnegative double size) {
+    public double roundCoordinate(double size) {
       return defaultImplementation().roundCoordinate(size);
     }
   },
   BIG(3.0) {
-    @Nonnegative
     @Override
     double getStep() {
       return super.getStep() * 5.0;
@@ -81,14 +75,12 @@ enum GridCell implements GridCellCoordinate {
     }
   };
 
-  @Nonnegative
   private final double strokeWidth;
 
-  GridCell(@Nonnegative double strokeWidth) {
+  GridCell(double strokeWidth) {
     this.strokeWidth = strokeWidth;
   }
 
-  @Nonnegative
   final double getStrokeWidth() {
     return strokeWidth;
   }
@@ -97,12 +89,10 @@ enum GridCell implements GridCellCoordinate {
     return defaultImplementation;
   }
 
-  @Nonnegative
   double getStep() {
     return ScreenResolutionMonitor.getDpi() / 2.54;
   }
 
-  @Nonnegative
   final double linePad() {
     return (strokeWidth - 1.0) / 2.0;
   }
@@ -114,25 +104,21 @@ enum GridCell implements GridCellCoordinate {
     return p;
   }
 
-  @Nonnegative
   @Override
-  public double minCoordinate(@Nonnegative double size) {
+  public double minCoordinate(double size) {
     return doCoordinate(Math::max, value -> value.minCoordinate(size));
   }
 
-  @Nonnegative
   @Override
-  public double maxValue(@Nonnegative double size) {
+  public double maxValue(double size) {
     return doCoordinate(Math::min, value -> value.maxValue(size));
   }
 
-  @Nonnegative
   @Override
-  public double roundCoordinate(@Nonnegative double size) {
+  public double roundCoordinate(double size) {
     return doCoordinate(Math::min, value -> value.roundCoordinate(size));
   }
 
-  @Nonnegative
   private double doCoordinate(DoubleBinaryOperator action, ToDoubleFunction<GridCellCoordinate> coordinate) {
     return action.applyAsDouble(coordinate.applyAsDouble(defaultImplementation), coordinate.applyAsDouble(SMALL));
   }
@@ -153,12 +139,9 @@ enum GridCell implements GridCellCoordinate {
 }
 
 interface GridCellCoordinate {
-  @Nonnegative
-  double minCoordinate(@Nonnegative double size);
+  double minCoordinate(double size);
 
-  @Nonnegative
-  double maxValue(@Nonnegative double size);
+  double maxValue(double size);
 
-  @Nonnegative
-  double roundCoordinate(@Nonnegative double size);
+  double roundCoordinate(double size);
 }

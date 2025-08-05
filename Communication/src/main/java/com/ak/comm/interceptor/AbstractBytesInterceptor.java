@@ -4,7 +4,6 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.bytes.LogUtils;
 import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nonnegative;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Objects;
@@ -24,7 +23,7 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
   private final BaudRate baudRate;
   private final @Nullable T pingRequest;
 
-  protected AbstractBytesInterceptor(String name, BaudRate baudRate, @Nonnegative int ignoreBufferLimit, T pingRequest) {
+  protected AbstractBytesInterceptor(String name, BaudRate baudRate, int ignoreBufferLimit, T pingRequest) {
     this.name = Objects.requireNonNull(name);
     outBuffer = ByteBuffer.allocate(baudRate.getAsInt());
     ignoreBuffer = ByteBuffer.allocate(ignoreBufferLimit);
@@ -32,7 +31,7 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
     this.pingRequest = Objects.requireNonNull(pingRequest);
   }
 
-  protected AbstractBytesInterceptor(String name, BaudRate baudRate, @Nonnegative int ignoreBufferLimit) {
+  protected AbstractBytesInterceptor(String name, BaudRate baudRate, int ignoreBufferLimit) {
     this.name = Objects.requireNonNull(name);
     outBuffer = ByteBuffer.allocate(baudRate.getAsInt());
     ignoreBuffer = ByteBuffer.allocate(ignoreBufferLimit);
@@ -75,7 +74,6 @@ public abstract class AbstractBytesInterceptor<T extends BufferFrame, R> impleme
     return name;
   }
 
-  @Nonnegative
   @Override
   public int getBaudRate() {
     return baudRate.getAsInt();

@@ -1,6 +1,5 @@
 package com.ak.digitalfilter;
 
-import javax.annotation.Nonnegative;
 import java.util.Objects;
 import java.util.function.IntUnaryOperator;
 
@@ -9,19 +8,18 @@ final class ExcessBufferFilter extends AbstractBufferFilter {
   private long sum;
   private int length;
 
-  private ExcessBufferFilter(@Nonnegative int size, IntUnaryOperator operator) {
+  private ExcessBufferFilter(int size, IntUnaryOperator operator) {
     super(size + 1);
     this.operator = Objects.requireNonNull(operator);
   }
 
-  @Nonnegative
   @Override
   public double getDelay() {
     return 0.0;
   }
 
   @Override
-  int apply(@Nonnegative int nowIndex) {
+  int apply(int nowIndex) {
     if (checkResetAndClear()) {
       sum = 0;
     }
@@ -36,7 +34,7 @@ final class ExcessBufferFilter extends AbstractBufferFilter {
     return toString(operator.toString());
   }
 
-  static DigitalFilter mean(@Nonnegative int size) {
+  static DigitalFilter mean(int size) {
     return new ExcessBufferFilter(size, new IntUnaryOperator() {
       @Override
       public int applyAsInt(int operand) {
@@ -50,7 +48,7 @@ final class ExcessBufferFilter extends AbstractBufferFilter {
     });
   }
 
-  static DigitalFilter std2(@Nonnegative int size) {
+  static DigitalFilter std2(int size) {
     return new ExcessBufferFilter(size, operand -> operand * operand);
   }
 }

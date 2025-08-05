@@ -11,8 +11,6 @@ import javafx.scene.Scene;
 import javafx.stage.Screen;
 import org.jspecify.annotations.Nullable;
 
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Optional;
@@ -21,8 +19,6 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Immutable
-@ThreadSafe
 public enum ScreenResolutionMonitor {
   ;
 

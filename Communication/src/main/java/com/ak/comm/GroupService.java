@@ -10,7 +10,6 @@ import com.ak.comm.serial.CycleSerialService;
 import com.ak.logging.LogBuilders;
 import com.ak.util.Clean;
 
-import javax.annotation.Nonnegative;
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.ByteBuffer;
@@ -24,7 +23,6 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
   private final CycleSerialService<T, R, V> serialService;
   private final AutoFileReadingService<T, R, V> fileReadingService;
   private final List<V> variables;
-  @Nonnegative
   private final double frequency;
   private Readable currentReadable;
 
@@ -72,7 +70,6 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
     return Collections.unmodifiableList(variables);
   }
 
-  @Nonnegative
   public double getFrequency() {
     return frequency;
   }
@@ -83,7 +80,7 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
     fileReadingService.close();
   }
 
-  public int[][] read(@Nonnegative int fromInclusive, @Nonnegative int toExclusive) {
+  public int[][] read(int fromInclusive, int toExclusive) {
     int from = Math.min(fromInclusive, toExclusive);
     int to = Math.max(fromInclusive, toExclusive);
 

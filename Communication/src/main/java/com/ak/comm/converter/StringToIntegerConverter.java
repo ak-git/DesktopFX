@@ -1,10 +1,9 @@
 package com.ak.comm.converter;
 
-import javax.annotation.Nonnegative;
 import java.util.stream.Stream;
 
 public final class StringToIntegerConverter<V extends Enum<V> & Variable<V>> extends AbstractConverter<String, V> {
-  public StringToIntegerConverter(Class<V> evClass, @Nonnegative int frequency) {
+  public StringToIntegerConverter(Class<V> evClass, int frequency) {
     super(evClass, frequency);
   }
 

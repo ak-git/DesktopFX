@@ -1,7 +1,5 @@
 package com.ak.util;
 
-import javax.annotation.Nonnegative;
-
 import static javax.measure.MetricPrefix.MILLI;
 import static tech.units.indriya.unit.Units.METRE;
 import static tech.units.indriya.unit.Units.OHM;
@@ -32,7 +30,7 @@ public enum Strings {
     return "d%s/d%s = %.3f %s".formatted(RHO, PHI, v, OHM_METRE);
   }
 
-  public static String rho(@Nonnegative double rho) {
+  public static String rho(double rho) {
     return "%s = %.3f %s".formatted(RHO, rho, OHM_METRE);
   }
 
@@ -45,11 +43,11 @@ public enum Strings {
     return (char) (i + index);
   }
 
-  public static String rho(@Nonnegative int index, Object rho) {
+  public static String rho(int index, Object rho) {
     return "%s%s = %s %s".formatted(RHO, low(index), rho, OHM_METRE);
   }
 
-  public static String h(@Nonnegative int index, Object h) {
+  public static String h(int index, Object h) {
     return "h%s = %s %s".formatted(low(index), h, MILLI(METRE));
   }
 }

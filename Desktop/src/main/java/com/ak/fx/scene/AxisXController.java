@@ -10,7 +10,6 @@ import javafx.beans.property.*;
 import tech.units.indriya.quantity.Quantities;
 import tech.units.indriya.unit.Units;
 
-import javax.annotation.Nonnegative;
 import javax.measure.MetricPrefix;
 import javax.measure.quantity.Speed;
 import java.util.Arrays;
@@ -26,7 +25,6 @@ public final class AxisXController {
   private enum ZoomX {
     Z_1, Z_2, Z_5, Z_10, Z_25, Z_50, Z_100;
 
-    @Nonnegative
     private final int mmPerSec;
 
     ZoomX() {
@@ -77,7 +75,6 @@ public final class AxisXController {
   private final ObjectProperty<ZoomX> zoomProperty = new SimpleObjectProperty<>(ZoomX.Z_25);
   private final Storage<String> zoomStorage = new StringStorage(AxisXController.class, ZoomX.class.getName());
   private final DoubleProperty stepProperty = new SimpleDoubleProperty();
-  @Nonnegative
   private int decimateFactor = 1;
 
   public AxisXController(Runnable onUpdate) {
@@ -96,7 +93,7 @@ public final class AxisXController {
         formatted(getLength(), getStart(), getEnd(), zoomProperty.get().mmPerSec, decimateFactor);
   }
 
-  public void setFrequency(@Nonnegative double frequency) {
+  public void setFrequency(double frequency) {
     setStep(frequency);
     zoomProperty.addListener((_, _, newValue) -> {
       setStep(frequency);
@@ -134,7 +131,7 @@ public final class AxisXController {
     }
   }
 
-  public void checkLength(@Nonnegative int realDataLen) {
+  public void checkLength(int realDataLen) {
     if (realDataLen == 0) {
       setStart(0);
     }
@@ -143,7 +140,7 @@ public final class AxisXController {
     }
   }
 
-  public void preventEnd(@Nonnegative double width) {
+  public void preventEnd(double width) {
     int newLen = Numbers.toInt(width / stepProperty.get()) * decimateFactor;
     setStart(getEnd() - newLen);
     lengthProperty.set(newLen);
@@ -165,7 +162,7 @@ public final class AxisXController {
     return decimateFactor;
   }
 
-  private double getStep(@Nonnegative double frequency) {
+  private double getStep(double frequency) {
     double pointsInSec = SMALL.getStep() * zoomProperty.get().mmPerSec / 10.0;
     decimateFactor = Math.max(1, Numbers.toInt(frequency / pointsInSec));
     double xStep = decimateFactor * pointsInSec / frequency;
@@ -179,7 +176,7 @@ public final class AxisXController {
     startProperty.setValue(Math.max(0, Numbers.toInt(start / (decimateFactor * 1.0)) * decimateFactor));
   }
 
-  private void setStep(@Nonnegative double frequency) {
+  private void setStep(double frequency) {
     stepProperty.set(getStep(frequency));
   }
 }

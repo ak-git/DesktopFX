@@ -4,14 +4,12 @@ import com.ak.comm.converter.Variable;
 import com.ak.util.Numbers;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-import javax.annotation.Nonnegative;
 import java.util.stream.IntStream;
 
 public final class AxisYController<V extends Enum<V> & Variable<V>> {
-  @Nonnegative
   private int mmHeight = 1;
 
-  public void setLineDiagramHeight(@Nonnegative double lineDiagramHeight) {
+  public void setLineDiagramHeight(double lineDiagramHeight) {
     mmHeight = GridCell.mm(lineDiagramHeight);
   }
 
@@ -38,11 +36,11 @@ public final class AxisYController<V extends Enum<V> & Variable<V>> {
         build();
   }
 
-  private static int scaleFactor10(@Nonnegative int range, @Nonnegative int signalRange) {
+  private static int scaleFactor10(int range, int signalRange) {
     return Math.max(1, (int) StrictMath.pow(10.0, Math.ceil(Math.max(0, StrictMath.log10(signalRange * 1.0 / range)))));
   }
 
-  private static int optimizeScaleY(@Nonnegative int range, @Nonnegative int signalRange) {
+  private static int optimizeScaleY(int range, int signalRange) {
     int scaleFactor10 = scaleFactor10(range, signalRange);
     int scaleFactor = scaleFactor10;
     int scaledRange = Math.max(1, signalRange / scaleFactor10);

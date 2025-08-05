@@ -6,7 +6,6 @@ import com.ak.numbers.RangeUtils;
 import com.ak.util.Builder;
 import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nonnegative;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -90,7 +89,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return fir(coefficients.get());
   }
 
-  public FilterBuilder smoothingImpulsive(@Nonnegative int size) {
+  public FilterBuilder smoothingImpulsive(int size) {
     var holdFilter = new HoldFilter.Builder(size).lostCount((size - Integer.highestOneBit(size)) / 2);
     return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> _ -> {
       int[] sorted = holdFilter.getSorted();
@@ -112,7 +111,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     }).interpolate(size);
   }
 
-  public FilterBuilder sharpingDecimate(@Nonnegative int size) {
+  public FilterBuilder sharpingDecimate(int size) {
     var holdFilter = new HoldFilter.Builder(size).lostCount(0);
     return chain(holdFilter).chain(new DecimationFilter(size)).operator(() -> new IntUnaryOperator() {
       private int prev;
@@ -136,7 +135,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return chain(new FIRFilter(coefficients));
   }
 
-  public FilterBuilder average(@Nonnegative int count) {
+  public FilterBuilder average(int count) {
     return chain(new FIRFilter(DoubleStream.generate(() -> 1.0 / count).limit(count).toArray()));
   }
 
@@ -148,7 +147,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return fir(RangeUtils.reverseOrder(num)).iir(Arrays.stream(den).skip(1).map(operand -> -operand).toArray());
   }
 
-  private FilterBuilder comb(@Nonnegative int combFactor) {
+  private FilterBuilder comb(int combFactor) {
     return chain(new CombFilter(combFactor));
   }
 
@@ -162,7 +161,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
    * @param averageFactor average factor.
    * @return FilterBuilder
    */
-  FilterBuilder recursiveMean(@Nonnegative int averageFactor) {
+  FilterBuilder recursiveMean(int averageFactor) {
     return chain(ExcessBufferFilter.mean(averageFactor));
   }
 
@@ -180,7 +179,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
    * @param averageFactor average factor.
    * @return FilterBuilder
    */
-  public FilterBuilder recursiveStd(@Nonnegative int averageFactor) {
+  public FilterBuilder recursiveStd(int averageFactor) {
     return wrap("recursiveStd%d".formatted(averageFactor),
         of().fork(new NoFilter(), ExcessBufferFilter.mean(averageFactor))
             .biOperator(() -> (x, mean) -> x - mean)
@@ -195,7 +194,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
    * @param averageFactor average factor.
    * @return FilterBuilder
    */
-  FilterBuilder recursiveMeanAndStd(@Nonnegative int averageFactor) {
+  FilterBuilder recursiveMeanAndStd(int averageFactor) {
     return wrap("mean-n-std%d".formatted(averageFactor),
         of().fork(new NoFilter(), ExcessBufferFilter.mean(averageFactor))
             .fork(
@@ -206,7 +205,7 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     );
   }
 
-  public FilterBuilder peakToPeak(@Nonnegative int size) {
+  public FilterBuilder peakToPeak(int size) {
     return chain(new PeakToPeakFilter(size));
   }
 
@@ -218,22 +217,22 @@ public class FilterBuilder implements Builder<DigitalFilter> {
     return of().operator(Interpolators.interpolator(coefficients));
   }
 
-  public FilterBuilder decimate(Supplier<double[]> coefficients, @Nonnegative int decimateFactor) {
+  public FilterBuilder decimate(Supplier<double[]> coefficients, int decimateFactor) {
     return chain(new FIRFilter(coefficients.get())).chain(new DecimationFilter(decimateFactor));
   }
 
-  public FilterBuilder interpolate(@Nonnegative int interpolateFactor, Supplier<double[]> coefficients) {
+  public FilterBuilder interpolate(int interpolateFactor, Supplier<double[]> coefficients) {
     return chain(new InterpolationFilter(interpolateFactor)).chain(new FIRFilter(coefficients.get()));
   }
 
-  FilterBuilder decimate(@Nonnegative int decimateFactor) {
+  FilterBuilder decimate(int decimateFactor) {
     int combFactor = Math.max(decimateFactor / 2, 1);
     return wrap("LinearDecimationFilter",
         of().integrate().chain(new DecimationFilter(decimateFactor)).comb(combFactor).
             operator(() -> n -> n / decimateFactor / combFactor));
   }
 
-  FilterBuilder interpolate(@Nonnegative int interpolateFactor) {
+  FilterBuilder interpolate(int interpolateFactor) {
     int combFactor = Math.max(interpolateFactor / 2, 1);
     return wrap("LinearInterpolationFilter",
         of().comb(combFactor).chain(new InterpolationFilter(interpolateFactor)).integrate().

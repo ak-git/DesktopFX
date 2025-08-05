@@ -8,7 +8,6 @@ dependencies {
     api libs.javafx.base
     api project(':Util')
     api project(':Communication')
-    implementation libs.findbugs.jsr305
     implementation libs.jspecify
 
     testImplementation(platform(libs.junit))

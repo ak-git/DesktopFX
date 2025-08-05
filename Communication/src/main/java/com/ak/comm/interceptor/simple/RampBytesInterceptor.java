@@ -2,8 +2,6 @@ package com.ak.comm.interceptor.simple;
 
 import com.ak.comm.interceptor.BytesInterceptor;
 
-import javax.annotation.Nonnegative;
-
 /**
  * Ramp (from 0 to 255) at start byte protocol implementation and <b>fixed frame length</b>
  * <p>
@@ -15,7 +13,7 @@ import javax.annotation.Nonnegative;
  * </p>
  */
 public class RampBytesInterceptor extends AbstractFixedFrameBytesInterceptor {
-  public RampBytesInterceptor(String name, BytesInterceptor.BaudRate baudRate, @Nonnegative int frameLength) {
+  public RampBytesInterceptor(String name, BytesInterceptor.BaudRate baudRate, int frameLength) {
     super(name, baudRate, frameLength);
   }
 

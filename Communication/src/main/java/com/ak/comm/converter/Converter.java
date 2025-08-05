@@ -6,7 +6,6 @@ import com.ak.util.Extension;
 import com.ak.util.UIConstants;
 import tech.units.indriya.AbstractUnit;
 
-import javax.annotation.Nonnegative;
 import javax.measure.IncommensurableException;
 import javax.measure.UnitConverter;
 import java.io.IOException;
@@ -30,7 +29,6 @@ import static tech.units.indriya.function.AbstractConverter.IDENTITY;
 public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<R, Stream<int[]>>, Refreshable {
   List<V> variables();
 
-  @Nonnegative
   double getFrequency();
 
   static <T, R, V extends Enum<V> & Variable<V>> void doConvert(BytesInterceptor<T, R> bytesInterceptor,

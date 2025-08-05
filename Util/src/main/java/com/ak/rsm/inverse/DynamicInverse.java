@@ -8,7 +8,6 @@ import com.ak.rsm.resistance.DeltaH;
 import com.ak.rsm.resistance.DerivativeResistivity;
 import com.ak.rsm.system.TetrapolarSystem;
 
-import javax.annotation.Nonnegative;
 import java.util.Collection;
 import java.util.function.ToDoubleBiFunction;
 
@@ -31,15 +30,15 @@ abstract class DynamicInverse extends AbstractInverseFunction<DerivativeResistiv
     };
   }
 
-  static InverseFunction ofH1Changed(Collection<? extends DerivativeMeasurement> r, @Nonnegative double hStep) {
+  static InverseFunction ofH1Changed(Collection<? extends DerivativeMeasurement> r, double hStep) {
     return of(r, hStep, DeltaH.H1.apply(dH(r)));
   }
 
-  static InverseFunction ofH2Changed(Collection<? extends DerivativeMeasurement> r, @Nonnegative double hStep) {
+  static InverseFunction ofH2Changed(Collection<? extends DerivativeMeasurement> r, double hStep) {
     return of(r, hStep, DeltaH.H2.apply(dH(r)));
   }
 
-  private static InverseFunction of(Collection<? extends DerivativeMeasurement> r, @Nonnegative double hStep, DeltaH deltaH) {
+  private static InverseFunction of(Collection<? extends DerivativeMeasurement> r, double hStep, DeltaH deltaH) {
     return new DynamicInverse(r) {
       @Override
       public double applyAsDouble(TetrapolarSystem s, double[] kw) {

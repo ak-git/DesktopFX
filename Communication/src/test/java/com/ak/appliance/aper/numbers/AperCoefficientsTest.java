@@ -5,7 +5,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnegative;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -38,7 +37,7 @@ class AperCoefficientsTest {
 
   @ParameterizedTest
   @MethodSource("aperCoefficients")
-  void testCoefficients(Supplier<double[]> coefficients, @Nonnegative int count) {
+  void testCoefficients(Supplier<double[]> coefficients, int count) {
     assertThat(coefficients.get()).hasSize(count);
   }
 }

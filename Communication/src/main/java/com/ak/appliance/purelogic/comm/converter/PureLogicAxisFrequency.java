@@ -1,7 +1,5 @@
 package com.ak.appliance.purelogic.comm.converter;
 
-import javax.annotation.Nonnegative;
-
 public enum PureLogicAxisFrequency {
   F6_0(6.0),
   F5_0(5.0),
@@ -10,7 +8,7 @@ public enum PureLogicAxisFrequency {
 
   private final double value;
 
-  PureLogicAxisFrequency(@Nonnegative double value) {
+  PureLogicAxisFrequency(double value) {
     this.value = value;
   }
 

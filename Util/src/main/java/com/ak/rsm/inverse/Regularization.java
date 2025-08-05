@@ -5,7 +5,6 @@ import com.ak.math.ValuePair;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.util.Strings;
 
-import javax.annotation.Nonnegative;
 import java.util.Collection;
 import java.util.OptionalDouble;
 import java.util.Set;
@@ -21,7 +20,7 @@ public interface Regularization {
   enum Interval {
     ZERO_MAX {
       @Override
-      Regularization innerOf(@Nonnegative double alpha, Collection<InexactTetrapolarSystem> inexactSystems) {
+      Regularization innerOf(double alpha, Collection<InexactTetrapolarSystem> inexactSystems) {
         return new AbstractRegularization(inexactSystems) {
           @Override
           public double of(double... kw) {
@@ -41,7 +40,7 @@ public interface Regularization {
     },
     ZERO_MAX_LOG1P {
       @Override
-      Regularization innerOf(@Nonnegative double alpha, Collection<InexactTetrapolarSystem> inexactSystems) {
+      Regularization innerOf(double alpha, Collection<InexactTetrapolarSystem> inexactSystems) {
         return new AbstractRegularization(inexactSystems) {
           @Override
           public double of(double... kw) {
@@ -62,7 +61,7 @@ public interface Regularization {
     },
     MAX_K {
       @Override
-      Regularization innerOf(@Nonnegative double alpha, Collection<InexactTetrapolarSystem> inexactSystems) {
+      Regularization innerOf(double alpha, Collection<InexactTetrapolarSystem> inexactSystems) {
         return new AbstractRegularization(inexactSystems) {
           @Override
           public double of(double... kw) {
@@ -73,7 +72,7 @@ public interface Regularization {
       }
     };
 
-    public final Function<Collection<InexactTetrapolarSystem>, Regularization> of(@Nonnegative double alpha) {
+    public final Function<Collection<InexactTetrapolarSystem>, Regularization> of(double alpha) {
       return new Function<>() {
         @Override
         public Regularization apply(Collection<InexactTetrapolarSystem> inexactSystems) {
@@ -88,7 +87,7 @@ public interface Regularization {
       };
     }
 
-    abstract Regularization innerOf(@Nonnegative double alpha, Collection<InexactTetrapolarSystem> inexactSystems);
+    abstract Regularization innerOf(double alpha, Collection<InexactTetrapolarSystem> inexactSystems);
   }
 
   abstract class AbstractRegularization implements Regularization {

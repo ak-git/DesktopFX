@@ -2,7 +2,6 @@ module com.ak.util {
   requires java.json;
   requires commons.math3;
   requires org.apache.commons.csv;
-  requires jsr305;
   requires org.jspecify;
   requires io.jenetics.base;
   requires tech.units.indriya;

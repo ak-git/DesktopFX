@@ -15,7 +15,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnegative;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -93,7 +92,7 @@ class TetrapolarMeasurementTest {
 
   @ParameterizedTest
   @MethodSource("tetrapolarMeasurements")
-  void test(Resistivity measurement, String expected, @Nonnegative double resistivity) {
+  void test(Resistivity measurement, String expected, double resistivity) {
     assertAll(measurement.toString(),
         () -> assertThat(measurement.toString().replaceAll("\\D", " ").strip()).isEqualTo(expected),
         () -> assertThat(measurement.resistivity()).isCloseTo(resistivity, byLessThan(0.01)),

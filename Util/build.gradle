@@ -12,7 +12,6 @@ dependencies {
     api libs.javax.json
     api libs.commons.math3
     api libs.commons.csv
-    api libs.findbugs.jsr305
     implementation libs.jspecify
     implementation libs.tech.units
     implementation libs.jenetics

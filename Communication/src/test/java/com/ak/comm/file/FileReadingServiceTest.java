@@ -26,7 +26,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.annotation.Nonnegative;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
@@ -85,7 +84,7 @@ class FileReadingServiceTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.comm.file.FileDataProvider#rampFile")
-  void testFile(Path fileToRead, @Nonnegative int bytes, boolean forceClose) {
+  void testFile(Path fileToRead, int bytes, boolean forceClose) {
     TestSubscriber<int[]> testSubscriber = new TestSubscriber<>();
     int frameLength = 1 + TwoVariables.values().length * Integer.BYTES;
     try (FileReadingService<BufferFrame, BufferFrame, TwoVariables> publisher = new FileReadingService<>(
@@ -267,7 +266,6 @@ class FileReadingServiceTest {
     }
   }
 
-  @Nonnegative
   private static int getBlockSize(Path fileToRead) {
     int blockSize = 0;
     try {

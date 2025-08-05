@@ -29,7 +29,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnegative;
 import javax.measure.MetricPrefix;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -255,7 +254,7 @@ class Inverse2DynamicTest {
 
   @ParameterizedTest
   @MethodSource({"theoryParameters", "waterParameters"})
-  void testInverse(Collection<? extends DerivativeMeasurement> measurements, @Nonnegative double alpha, double[] expected) {
+  void testInverse(Collection<? extends DerivativeMeasurement> measurements, double alpha, double[] expected) {
     var medium = DynamicAbsolute.ofLayer2(measurements, Regularization.Interval.MAX_K.of(alpha));
 
     ObjDoubleConsumer<ValuePair> checker = (valuePair, expectedValue) -> {
@@ -322,7 +321,7 @@ class Inverse2DynamicTest {
   @ParameterizedTest
   @MethodSource("cvsFiles")
   @Disabled("ignored com.ak.rsm.inverse.Inverse2DynamicTest.inverseFileResistivity")
-  void inverseFileResistivity(String fileName, @Nonnegative double alpha) {
+  void inverseFileResistivity(String fileName, double alpha) {
     double targetRho2 = 4.657;
     Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction = Regularization.Interval.ZERO_MAX_LOG1P.of(alpha);
     LOGGER.atInfo().addKeyValue("target", Strings.rho(2, targetRho2)).log("{}", regularizationFunction);

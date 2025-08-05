@@ -1,7 +1,5 @@
 package com.ak.digitalfilter;
 
-import javax.annotation.Nonnegative;
-
 abstract class AbstractUnaryFilter extends AbstractDigitalFilter {
   private boolean resetFlag = true;
 
@@ -15,7 +13,6 @@ abstract class AbstractUnaryFilter extends AbstractDigitalFilter {
     }
   }
 
-  @Nonnegative
   @Override
   public final int getOutputDataSize() {
     return 1;

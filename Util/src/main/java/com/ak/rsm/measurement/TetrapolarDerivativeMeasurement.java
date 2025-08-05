@@ -8,7 +8,6 @@ import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
-import javax.annotation.Nonnegative;
 import javax.measure.MetricPrefix;
 import java.util.Arrays;
 import java.util.Collection;
@@ -56,11 +55,11 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
     return measurement.merge(Objects.requireNonNull(that));
   }
 
-  public static PreBuilder ofSI(@Nonnegative double absError) {
+  public static PreBuilder ofSI(double absError) {
     return new Builder(DoubleUnaryOperator.identity(), absError);
   }
 
-  public static PreBuilder ofMilli(@Nonnegative double absError) {
+  public static PreBuilder ofMilli(double absError) {
     return new Builder(Metrics.MILLI, absError);
   }
 
