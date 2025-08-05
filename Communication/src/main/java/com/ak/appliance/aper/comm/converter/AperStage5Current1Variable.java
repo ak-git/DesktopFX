@@ -7,7 +7,6 @@ import com.ak.rsm.resistance.Resistance;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nonnegative;
 import javax.measure.MetricPrefix;
 import javax.measure.Unit;
 import java.util.Collections;
@@ -159,7 +158,7 @@ public enum AperStage5Current1Variable implements DependentVariable<AperStage4Cu
 
   private final TetrapolarResistance.@Nullable PreBuilder<Resistance> builder;
 
-  AperStage5Current1Variable(@Nonnegative double smm, @Nonnegative double lmm) {
+  AperStage5Current1Variable(double smm, double lmm) {
     builder = TetrapolarResistance.ofMilli(smm, lmm);
   }
 

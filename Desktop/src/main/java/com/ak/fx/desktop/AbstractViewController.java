@@ -27,8 +27,6 @@ import javafx.util.Duration;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.event.EventListener;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
@@ -50,7 +48,6 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   private Flow.@Nullable Subscription subscription;
   @FXML
   private @Nullable Chart chart;
-  @Nonnegative
   private long countSamples;
   private @Nullable SequentialTransition transition;
   private Closeable fileWatcher = () -> {
@@ -124,7 +121,6 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   }
 
   @Override
-  @OverridingMethodsMustInvokeSuper
   public void onSubscribe(Flow.Subscription s) {
     if (subscription != null) {
       subscription.cancel();
@@ -138,7 +134,6 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   }
 
   @Override
-  @OverridingMethodsMustInvokeSuper
   public void onNext(int[] ints) {
     countSamples++;
     displayBanner(ints);
@@ -156,7 +151,6 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   }
 
   @Override
-  @OverridingMethodsMustInvokeSuper
   public void close() throws IOException {
     try {
       fileWatcher.close();
@@ -167,7 +161,6 @@ public abstract class AbstractViewController<T, R, V extends Enum<V> & Variable<
   }
 
   @Override
-  @OverridingMethodsMustInvokeSuper
   public void refresh(boolean force) {
     service.refresh(force);
     countSamples = 0;

@@ -8,8 +8,6 @@ import com.ak.util.Metrics;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnegative;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
 import static tech.units.indriya.unit.Units.METRE;
@@ -19,7 +17,7 @@ class DerivativeApparentByPhi3RhoTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
-  void testValue2dH1(double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
+  void testValue2dH1(double[] rho, double hmm, double smm, double lmm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
     double hStep = Metrics.Length.MILLI.to(1, METRE);
     double dh = hStep * 2;
@@ -40,7 +38,7 @@ class DerivativeApparentByPhi3RhoTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
-  void testValue2dH2(double[] rho, @Nonnegative double hmm, @Nonnegative double smm, @Nonnegative double lmm) {
+  void testValue2dH2(double[] rho, double hmm, double smm, double lmm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
     double hStep = Metrics.Length.MILLI.to(1, METRE);
     double dh = hStep * 2;
@@ -61,8 +59,8 @@ class DerivativeApparentByPhi3RhoTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance3LayerTest#threeLayerParameters")
-  void testValue3dH1(double[] rho, @Nonnegative double hStep, int[] p,
-                     @Nonnegative double smm, @Nonnegative double lmm) {
+  void testValue3dH1(double[] rho, double hStep, int[] p,
+                     double smm, double lmm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
     double dh = hStep * 2;
 
@@ -82,8 +80,8 @@ class DerivativeApparentByPhi3RhoTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance3LayerTest#threeLayerParameters")
-  void testValue3dH2(double[] rho, @Nonnegative double hStep, int[] p,
-                     @Nonnegative double smm, @Nonnegative double lmm) {
+  void testValue3dH2(double[] rho, double hStep, int[] p,
+                     double smm, double lmm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
     double dh = hStep * 2;
 

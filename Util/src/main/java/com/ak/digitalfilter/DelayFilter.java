@@ -1,6 +1,5 @@
 package com.ak.digitalfilter;
 
-import javax.annotation.Nonnegative;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -9,7 +8,7 @@ final class DelayFilter extends AbstractDigitalFilter {
   private final int[][] buffer;
   private int bufferIndex = -1;
 
-  DelayFilter(DigitalFilter filter, @Nonnegative int delayInSamples) {
+  DelayFilter(DigitalFilter filter, int delayInSamples) {
     this.filter = Objects.requireNonNull(filter);
     filter.forEach(this::publish);
     buffer = new int[delayInSamples][0];
@@ -26,7 +25,6 @@ final class DelayFilter extends AbstractDigitalFilter {
     return filter.getOutputDataSize();
   }
 
-  @Nonnegative
   @Override
   public double getDelay() {
     return buffer.length + filter.getDelay();

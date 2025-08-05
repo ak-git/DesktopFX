@@ -5,20 +5,18 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import javax.annotation.Nonnegative;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NumbersTest {
   @ParameterizedTest
   @ValueSource(ints = {2, 10, 100})
-  void rangeLog(@Nonnegative int size) {
+  void rangeLog(int size) {
     assertThat(Numbers.rangeLog(0.01, 100, size)).hasSize(size);
   }
 
   @ParameterizedTest
   @CsvSource({"0.1,0.01,0.0", "0.1,0.1,0.1", "0.1,1.0,1.0"})
-  void round(@Nonnegative double step, @Nonnegative double operand, @Nonnegative double expected) {
+  void round(double step, double operand, double expected) {
     assertThat(Numbers.round(step).applyAsDouble(operand)).isCloseTo(expected, Assertions.byLessThan(0.01));
   }
 

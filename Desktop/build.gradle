@@ -1,6 +1,5 @@
 plugins {
     id 'application'
-    alias(libs.plugins.javamodularity.moduleplugin)
     alias(libs.plugins.javafxplugin)
     alias(libs.plugins.springframework.boot)
     alias(libs.plugins.spring.dependency.management)
@@ -10,12 +9,11 @@ dependencies {
     implementation project(':FxCore')
     implementation project(':Communication')
     implementation project(':Util')
-    implementation libs.findbugs.jsr305
     implementation libs.jspecify
     implementation libs.inject.api
     implementation libs.measure.unit.api
     implementation libs.tech.units
-    implementation libs.commons.math3
+    implementation libs.commons.math
 
     implementation libs.javafx.base
     implementation libs.javafx.graphics
@@ -39,12 +37,4 @@ javafx {
 application {
     mainModule = 'com.ak.fx.desktop'
     mainClass = 'com.ak.spring.SpringFxApplication'
-}
-
-tasks {
-    test {
-        moduleOptions {
-            runOnClasspath = true
-        }
-    }
 }

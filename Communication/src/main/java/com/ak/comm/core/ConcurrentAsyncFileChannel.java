@@ -3,7 +3,6 @@ package com.ak.comm.core;
 import com.ak.comm.bytes.LogUtils;
 import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nonnegative;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -21,7 +20,6 @@ public final class ConcurrentAsyncFileChannel implements Closeable {
   private final Callable<Optional<AsynchronousFileChannel>> channelCallable;
   private final StampedLock lock = new StampedLock();
   private @Nullable AsynchronousFileChannel channel;
-  @Nonnegative
   private long writePos;
 
   public ConcurrentAsyncFileChannel(Callable<Optional<AsynchronousFileChannel>> channelCallable) {
@@ -37,7 +35,7 @@ public final class ConcurrentAsyncFileChannel implements Closeable {
     });
   }
 
-  void read(ByteBuffer dst, @Nonnegative long position) {
+  void read(ByteBuffer dst, long position) {
     long stamp = lock.tryOptimisticRead();
     try {
       while (!Thread.currentThread().isInterrupted()) {

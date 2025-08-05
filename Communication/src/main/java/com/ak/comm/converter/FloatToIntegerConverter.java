@@ -2,11 +2,10 @@ package com.ak.comm.converter;
 
 import com.ak.comm.bytes.BufferFrame;
 
-import javax.annotation.Nonnegative;
 import java.util.stream.Stream;
 
 public final class FloatToIntegerConverter<V extends Enum<V> & Variable<V>> extends AbstractConverter<BufferFrame, V> {
-  public FloatToIntegerConverter(Class<V> evClass, @Nonnegative int frequency) {
+  public FloatToIntegerConverter(Class<V> evClass, int frequency) {
     super(evClass, frequency);
   }
 

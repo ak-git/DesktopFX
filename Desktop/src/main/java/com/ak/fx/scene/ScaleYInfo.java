@@ -3,7 +3,6 @@ package com.ak.fx.scene;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.converter.Variables;
 
-import javax.annotation.Nonnegative;
 import java.util.Objects;
 import java.util.function.DoubleFunction;
 import java.util.function.IntToDoubleFunction;
@@ -56,12 +55,12 @@ public final class ScaleYInfo<V extends Enum<V> & Variable<V>> implements IntToD
       return this;
     }
 
-    ScaleYInfoBuilder<V> scaleFactor(@Nonnegative int scaleFactor) {
+    ScaleYInfoBuilder<V> scaleFactor(int scaleFactor) {
       this.scaleFactor = scaleFactor;
       return this;
     }
 
-    ScaleYInfoBuilder<V> scaleFactor10(@Nonnegative int scaleFactor10) {
+    ScaleYInfoBuilder<V> scaleFactor10(int scaleFactor10) {
       this.scaleFactor10 = scaleFactor10;
       return this;
     }

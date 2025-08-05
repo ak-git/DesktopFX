@@ -5,7 +5,6 @@ import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.*;
 
-import javax.annotation.Nonnegative;
 import java.util.List;
 
 final class MilliGrid extends Pane {
@@ -15,7 +14,7 @@ final class MilliGrid extends Pane {
   MilliGrid() {
     reinitializePaths();
     ScreenResolutionMonitor.dpi(this::getScene).addListener(
-        (observable, oldValue, newValue) -> Platform.runLater(this::reinitializePaths)
+        (_, _, _) -> Platform.runLater(this::reinitializePaths)
     );
   }
 
@@ -44,10 +43,9 @@ final class MilliGrid extends Pane {
   private interface GridLine {
     void addToPath(Path path, GridCell gridCell);
 
-    @Nonnegative
     double contentSize();
 
-    PathElement moveTo(@Nonnegative double c, GridCell gridCell);
+    PathElement moveTo(double c, GridCell gridCell);
 
     PathElement lineTo(GridCell gridCell);
   }
@@ -70,24 +68,21 @@ final class MilliGrid extends Pane {
       return maxValue(length()) - gridCell.linePad();
     }
 
-    @Nonnegative
     abstract double length();
 
-    @Nonnegative
-    private static double maxValue(@Nonnegative double size) {
+    private static double maxValue(double size) {
       return size - GridCell.SMALL.minCoordinate(size);
     }
   }
 
   private final class VerticalGridLine extends AbstractGridLine {
-    @Nonnegative
     @Override
     public double contentSize() {
       return getWidth();
     }
 
     @Override
-    public PathElement moveTo(@Nonnegative double x, GridCell gridCell) {
+    public PathElement moveTo(double x, GridCell gridCell) {
       return new MoveTo(snappedLeftInset() + x,
           snappedTopInset() + GridCell.SMALL.minCoordinate(length()) + gridCell.linePad());
     }
@@ -97,7 +92,6 @@ final class MilliGrid extends Pane {
       return new VLineTo(snappedTopInset() + lineToCoordinate(gridCell));
     }
 
-    @Nonnegative
     @Override
     double length() {
       return getHeight();
@@ -105,14 +99,13 @@ final class MilliGrid extends Pane {
   }
 
   private final class HorizontalGridLine extends AbstractGridLine {
-    @Nonnegative
     @Override
     public double contentSize() {
       return getHeight();
     }
 
     @Override
-    public PathElement moveTo(@Nonnegative double y, GridCell gridCell) {
+    public PathElement moveTo(double y, GridCell gridCell) {
       return new MoveTo(snappedLeftInset() + GridCell.SMALL.minCoordinate(length()) + gridCell.linePad(),
           snappedTopInset() + y);
     }
@@ -122,7 +115,6 @@ final class MilliGrid extends Pane {
       return new HLineTo(snappedLeftInset() + lineToCoordinate(gridCell));
     }
 
-    @Nonnegative
     @Override
     double length() {
       return getWidth();

@@ -2,20 +2,17 @@ package com.ak.rsm.system;
 
 import com.ak.util.Metrics;
 
-import javax.annotation.Nonnegative;
 import javax.measure.MetricPrefix;
 import java.util.Collection;
 import java.util.Objects;
 
 import static tech.units.indriya.unit.Units.METRE;
 
-public record TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC) {
-  @Nonnegative
+public record TetrapolarSystem(double sPU, double lCC) {
   public double factor(double sign) {
     return Math.abs(lCC + Math.signum(sign) * sPU) / 2.0;
   }
 
-  @Nonnegative
   public double getDim() {
     return l();
   }
@@ -24,7 +21,6 @@ public record TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC)
     return new RelativeTetrapolarSystem(sPU / lCC);
   }
 
-  @Nonnegative
   public static double getBaseL(Collection<TetrapolarSystem> systems) {
     return systems.stream().mapToDouble(TetrapolarSystem::lCC).max().orElseThrow();
   }
@@ -54,12 +50,10 @@ public record TetrapolarSystem(@Nonnegative double sPU, @Nonnegative double lCC)
     );
   }
 
-  @Nonnegative
   private double s() {
     return Math.min(sPU, lCC);
   }
 
-  @Nonnegative
   private double l() {
     return Math.max(sPU, lCC);
   }

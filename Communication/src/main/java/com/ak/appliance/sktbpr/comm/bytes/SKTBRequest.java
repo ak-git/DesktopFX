@@ -4,7 +4,6 @@ import com.ak.comm.bytes.AbstractCheckedBuilder;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.util.Builder;
 
-import javax.annotation.Nonnegative;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -68,7 +67,7 @@ public final class SKTBRequest extends BufferFrame {
       return new SKTBRequest(buffer(), id);
     }
 
-    private RequestBuilder command(int v, @Nonnegative int max) {
+    private RequestBuilder command(int v, int max) {
       buffer().putShort((short) (Math.min(Math.abs(v), max) * Math.signum(v)));
       return this;
     }

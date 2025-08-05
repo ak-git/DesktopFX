@@ -11,7 +11,6 @@ import tech.units.indriya.AbstractUnit;
 import tech.units.indriya.quantity.Quantities;
 import tech.units.indriya.unit.Units;
 
-import javax.annotation.Nonnegative;
 import javax.measure.MetricPrefix;
 import javax.measure.Quantity;
 import javax.measure.Unit;
@@ -152,7 +151,7 @@ class VariableTest {
 
   @ParameterizedTest
   @MethodSource("formatValues")
-  void testFormatValues(int value, Unit<?> unit, @Nonnegative int scaleFactor10, String expected) {
+  void testFormatValues(int value, Unit<?> unit, int scaleFactor10, String expected) {
     assertThat(Variables.toString(value, unit, scaleFactor10)).isEqualTo(expected);
   }
 

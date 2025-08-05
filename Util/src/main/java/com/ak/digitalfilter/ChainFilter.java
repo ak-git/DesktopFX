@@ -1,7 +1,5 @@
 package com.ak.digitalfilter;
 
-import javax.annotation.Nonnegative;
-
 final class ChainFilter extends AbstractDigitalFilter {
   private final DigitalFilter first;
   private final DigitalFilter second;
@@ -18,7 +16,6 @@ final class ChainFilter extends AbstractDigitalFilter {
     return first.getDelay() * second.getFrequencyFactor() + second.getDelay();
   }
 
-  @Nonnegative
   @Override
   public double getFrequencyFactor() {
     return first.getFrequencyFactor() * second.getFrequencyFactor();
@@ -35,7 +32,6 @@ final class ChainFilter extends AbstractDigitalFilter {
     second.reset();
   }
 
-  @Nonnegative
   @Override
   public int getOutputDataSize() {
     return second.getOutputDataSize();

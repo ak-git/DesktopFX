@@ -1,6 +1,5 @@
 plugins {
     id 'java-library'
-    alias(libs.plugins.javamodularity.moduleplugin)
 }
 
 configurations {
@@ -11,7 +10,6 @@ dependencies {
     api project(':Util')
     api libs.jserial.comm
     api libs.measure.unit.api
-    api libs.findbugs.jsr305
     api libs.javax.json
     implementation libs.jspecify
     implementation libs.tech.units
@@ -32,8 +30,5 @@ dependencies {
 tasks {
     test {
         jvmArgs += "-javaagent:${configurations.mockitoAgent.asPath}"
-        moduleOptions {
-            runOnClasspath = true
-        }
     }
 }

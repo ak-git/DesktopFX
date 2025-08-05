@@ -1,16 +1,13 @@
 package com.ak.digitalfilter;
 
-import javax.annotation.Nonnegative;
-
 abstract class AbstractBufferFilter extends AbstractOperableFilter {
   private final int[] buffer;
   private int bufferIndex = -1;
 
-  AbstractBufferFilter(@Nonnegative int size) {
+  AbstractBufferFilter(int size) {
     buffer = new int[size];
   }
 
-  @Nonnegative
   @Override
   public double getDelay() {
     return (length() - 1) / 2.0;
@@ -23,7 +20,7 @@ abstract class AbstractBufferFilter extends AbstractOperableFilter {
     return apply(bufferIndex);
   }
 
-  final int get(@Nonnegative int index) {
+  final int get(int index) {
     return buffer[index % buffer.length];
   }
 
@@ -31,10 +28,9 @@ abstract class AbstractBufferFilter extends AbstractOperableFilter {
     return buffer.clone();
   }
 
-  @Nonnegative
   final int length() {
     return buffer.length;
   }
 
-  abstract int apply(@Nonnegative int nowIndex);
+  abstract int apply(int nowIndex);
 }

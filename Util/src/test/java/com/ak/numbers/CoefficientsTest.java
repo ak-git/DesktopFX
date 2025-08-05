@@ -15,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.annotation.Nonnegative;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -46,7 +45,7 @@ class CoefficientsTest {
 
   @ParameterizedTest
   @MethodSource("countCoefficients")
-  void testCoefficients(Supplier<double[]> coefficients, @Nonnegative int count) {
+  void testCoefficients(Supplier<double[]> coefficients, int count) {
     assertThat(coefficients.get()).hasSize(count);
   }
 

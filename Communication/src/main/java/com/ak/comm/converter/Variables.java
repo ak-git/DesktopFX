@@ -4,7 +4,6 @@ import com.ak.util.Numbers;
 import com.ak.util.Strings;
 import tech.units.indriya.format.SimpleUnitFormat;
 
-import javax.annotation.Nonnegative;
 import javax.measure.MetricPrefix;
 import javax.measure.Quantity;
 import javax.measure.Unit;
@@ -59,7 +58,7 @@ public enum Variables {
     return variable.name();
   }
 
-  public static <Q extends Quantity<Q>> String toString(int value, Unit<Q> unit, @Nonnegative int scaleFactor10) {
+  public static <Q extends Quantity<Q>> String toString(int value, Unit<Q> unit, int scaleFactor10) {
     int scale = Numbers.log10ToInt(unit.getConverterTo(unit.getSystemUnit()).convert(1.0));
     int displayScale = scale + 1;
     while (displayScale % 3 != 0) {

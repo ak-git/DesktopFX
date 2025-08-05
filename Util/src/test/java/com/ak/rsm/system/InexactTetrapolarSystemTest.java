@@ -5,14 +5,13 @@ import com.ak.math.Simplex;
 import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
-import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math4.legacy.optim.PointValuePair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnegative;
 import javax.measure.MetricPrefix;
 import java.util.Collection;
 import java.util.List;
@@ -101,7 +100,7 @@ class InexactTetrapolarSystemTest {
 
   @ParameterizedTest
   @MethodSource("rho1rho2")
-  void testHMax(@Nonnegative double rho1, @Nonnegative double rho2) {
+  void testHMax(double rho1, double rho2) {
     InexactTetrapolarSystem system = new InexactTetrapolarSystem(0.1, new TetrapolarSystem(10.0, 30.0));
     DoubleUnaryOperator rhoAtHMax = sign -> (1.0 + Math.signum(sign) * system.getApparentRelativeError()) * rho1;
     PointValuePair optimize = Simplex.optimizeAll(hToL -> {
@@ -119,7 +118,7 @@ class InexactTetrapolarSystemTest {
 
   @ParameterizedTest
   @MethodSource("rho1rho2")
-  void testHMin(@Nonnegative double rho1, @Nonnegative double rho2) {
+  void testHMin(double rho1, double rho2) {
     if (Double.isFinite(rho2)) {
       InexactTetrapolarSystem system = new InexactTetrapolarSystem(0.1, new TetrapolarSystem(10.0, 30.0));
       DoubleUnaryOperator rhoAtHMin = sign -> (1.0 + Math.signum(sign) * system.getApparentRelativeError()) * rho2;
@@ -165,7 +164,7 @@ class InexactTetrapolarSystemTest {
 
   @ParameterizedTest
   @MethodSource("combinations")
-  void testCombinations(Collection<InexactTetrapolarSystem> systems, @Nonnegative int expected) {
+  void testCombinations(Collection<InexactTetrapolarSystem> systems, int expected) {
     Collection<List<TetrapolarSystem>> c = InexactTetrapolarSystem.getMeasurementsCombination(systems);
     assertThat(c).withFailMessage(c.stream().map(Object::toString).collect(Collectors.joining(Strings.NEW_LINE))).hasSize(expected);
   }
@@ -192,7 +191,7 @@ class InexactTetrapolarSystemTest {
 
   @ParameterizedTest
   @MethodSource("inexactTetrapolarSystems2")
-  void testGetBaseL(Collection<InexactTetrapolarSystem> systems, @Nonnegative double expectedL) {
+  void testGetBaseL(Collection<InexactTetrapolarSystem> systems, double expectedL) {
     assertThat(InexactTetrapolarSystem.getBaseL(systems)).isEqualTo(expectedL);
   }
 }

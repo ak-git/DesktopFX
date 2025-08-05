@@ -1,9 +1,7 @@
 package com.ak.rsm.resistance;
 
 import com.ak.rsm.system.TetrapolarSystem;
-import org.apache.commons.math3.analysis.UnivariateFunction;
-
-import javax.annotation.Nonnegative;
+import org.apache.commons.math4.legacy.analysis.UnivariateFunction;
 
 /**
  * Calculates <b>full</b> ohms R<sub>m-n</sub> (in Ohm) between electrodes for <b>single-layer</b> model.
@@ -20,7 +18,7 @@ record Resistance1Layer(NormalizedResistance1Layer resistance) implements Univar
    * @return ohms R<sub>m-n</sub> (in Ohm)
    */
   @Override
-  public double value(@Nonnegative double rho) {
+  public double value(double rho) {
     return rho * resistance.getAsDouble();
   }
 }

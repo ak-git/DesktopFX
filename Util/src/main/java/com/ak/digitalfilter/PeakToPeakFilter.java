@@ -1,6 +1,5 @@
 package com.ak.digitalfilter;
 
-import javax.annotation.Nonnegative;
 import java.util.Objects;
 import java.util.function.IntUnaryOperator;
 
@@ -8,20 +7,19 @@ final class PeakToPeakFilter extends AbstractBufferFilter {
   private final Index max;
   private final Index min;
 
-  PeakToPeakFilter(@Nonnegative int size) {
+  PeakToPeakFilter(int size) {
     super(size);
     max = new Index(Operator.MAX);
     min = new Index(Operator.MIN);
   }
 
-  @Nonnegative
   @Override
   public double getDelay() {
     return 0.0;
   }
 
   @Override
-  int apply(@Nonnegative int nowIndex) {
+  int apply(int nowIndex) {
     return max.applyAsInt(nowIndex) - min.applyAsInt(nowIndex);
   }
 
@@ -44,7 +42,6 @@ final class PeakToPeakFilter extends AbstractBufferFilter {
 
   private final class Index implements IntUnaryOperator {
     private final Operator operator;
-    @Nonnegative
     private int extremalIndex;
 
     private Index(Operator operator) {

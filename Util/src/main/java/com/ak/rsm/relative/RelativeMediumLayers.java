@@ -4,7 +4,6 @@ import com.ak.math.ValuePair;
 import com.ak.rsm.system.Layers;
 import com.ak.util.Strings;
 
-import javax.annotation.Nonnegative;
 import java.util.Arrays;
 import java.util.function.DoublePredicate;
 import java.util.stream.Stream;
@@ -13,7 +12,7 @@ public record RelativeMediumLayers(ValuePair k, ValuePair hToL) {
   public static final RelativeMediumLayers SINGLE_LAYER = new RelativeMediumLayers(0.0, Double.NaN);
   public static final RelativeMediumLayers NAN = new RelativeMediumLayers(Double.NaN, Double.NaN);
 
-  public RelativeMediumLayers(double k, @Nonnegative double hToL) {
+  public RelativeMediumLayers(double k, double hToL) {
     this(ValuePair.Name.K12.of(k, 0.0), ValuePair.Name.H_L.of(Math.abs(hToL), 0.0));
   }
 
@@ -22,7 +21,7 @@ public record RelativeMediumLayers(ValuePair k, ValuePair hToL) {
     if (kw.length > 2) throw new IllegalArgumentException(Arrays.toString(kw));
   }
 
-  public RelativeMediumLayers(double[] rho, @Nonnegative double hToL) {
+  public RelativeMediumLayers(double[] rho, double hToL) {
     this(Layers.getK12(rho[0], rho[1]), hToL);
   }
 

@@ -2,13 +2,12 @@ package com.ak.rsm.prediction;
 
 import com.ak.util.Strings;
 
-import javax.annotation.Nonnegative;
 import java.util.Objects;
 
 final class TetrapolarDerivativePrediction extends AbstractPrediction {
   private final Prediction prediction;
 
-  TetrapolarDerivativePrediction(@Nonnegative double resistivityPredicted, double[] inequalityL2, Prediction prediction) {
+  TetrapolarDerivativePrediction(double resistivityPredicted, double[] inequalityL2, Prediction prediction) {
     super(resistivityPredicted, inequalityL2);
     this.prediction = prediction;
   }

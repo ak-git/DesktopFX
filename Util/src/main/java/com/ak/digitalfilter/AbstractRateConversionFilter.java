@@ -1,11 +1,9 @@
 package com.ak.digitalfilter;
 
-import javax.annotation.Nonnegative;
-
 abstract class AbstractRateConversionFilter extends AbstractUnaryFilter {
   final int factor;
 
-  AbstractRateConversionFilter(@Nonnegative int factor) {
+  AbstractRateConversionFilter(int factor) {
     if (factor > 0) {
       this.factor = factor;
     }

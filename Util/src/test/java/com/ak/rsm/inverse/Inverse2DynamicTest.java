@@ -15,13 +15,13 @@ import com.ak.rsm.system.RelativeTetrapolarSystem;
 import com.ak.util.Extension;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
-import org.apache.commons.math3.optim.InitialGuess;
-import org.apache.commons.math3.optim.MaxEval;
-import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
-import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
-import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import org.apache.commons.math4.legacy.optim.InitialGuess;
+import org.apache.commons.math4.legacy.optim.MaxEval;
+import org.apache.commons.math4.legacy.optim.PointValuePair;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.GoalType;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.ObjectiveFunction;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.NelderMeadTransform;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -29,7 +29,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnegative;
 import javax.measure.MetricPrefix;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -255,7 +254,7 @@ class Inverse2DynamicTest {
 
   @ParameterizedTest
   @MethodSource({"theoryParameters", "waterParameters"})
-  void testInverse(Collection<? extends DerivativeMeasurement> measurements, @Nonnegative double alpha, double[] expected) {
+  void testInverse(Collection<? extends DerivativeMeasurement> measurements, double alpha, double[] expected) {
     var medium = DynamicAbsolute.ofLayer2(measurements, Regularization.Interval.MAX_K.of(alpha));
 
     ObjDoubleConsumer<ValuePair> checker = (valuePair, expectedValue) -> {
@@ -322,7 +321,7 @@ class Inverse2DynamicTest {
   @ParameterizedTest
   @MethodSource("cvsFiles")
   @Disabled("ignored com.ak.rsm.inverse.Inverse2DynamicTest.inverseFileResistivity")
-  void inverseFileResistivity(String fileName, @Nonnegative double alpha) {
+  void inverseFileResistivity(String fileName, double alpha) {
     double targetRho2 = 4.657;
     Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction = Regularization.Interval.ZERO_MAX_LOG1P.of(alpha);
     LOGGER.atInfo().addKeyValue("target", Strings.rho(2, targetRho2)).log("{}", regularizationFunction);
@@ -395,7 +394,7 @@ class Inverse2DynamicTest {
                         return Double.POSITIVE_INFINITY;
                       }
                     }), GoalType.MINIMIZE,
-                    new NelderMeadSimplex(new double[] {0.01}), new InitialGuess(new double[] {0.01})
+                    new NelderMeadTransform(), new InitialGuess(new double[] {0.01})
                 );
             dHmm = optimizeDH.getPoint()[0];
             inputValues = new ArrayList<>(inputValues);

@@ -3,7 +3,6 @@ package com.ak.comm.interceptor.simple;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.interceptor.AbstractBytesInterceptor;
 
-import javax.annotation.Nonnegative;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Collection;
@@ -13,7 +12,7 @@ public abstract class AbstractFixedFrameBytesInterceptor extends AbstractBytesIn
   private final byte[] buffer;
   private int position = -1;
 
-  protected AbstractFixedFrameBytesInterceptor(String name, BaudRate baudRate, @Nonnegative int frameLength) {
+  protected AbstractFixedFrameBytesInterceptor(String name, BaudRate baudRate, int frameLength) {
     super(name, baudRate, IGNORE_LIMIT);
     if (frameLength < 1) {
       throw new IllegalArgumentException("frameLength must be > 0, but found %d".formatted(frameLength));

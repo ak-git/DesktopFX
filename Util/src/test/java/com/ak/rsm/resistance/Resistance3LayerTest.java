@@ -6,7 +6,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnegative;
 import javax.measure.MetricPrefix;
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -103,8 +102,8 @@ class Resistance3LayerTest {
 
   @ParameterizedTest
   @MethodSource({"threeLayerParameters", "threeLayerParametersSpecial"})
-  void testLayer(double[] rho, @Nonnegative double hStepSI, int[] p,
-                 @Nonnegative double smm, @Nonnegative double lmm, @Nonnegative double rOhm) {
+  void testLayer(double[] rho, double hStepSI, int[] p,
+                 double smm, double lmm, double rOhm) {
     TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
     assertAll(Arrays.toString(rho),
         () -> assertThat(new Resistance3Layer(system, hStepSI / SCALE)

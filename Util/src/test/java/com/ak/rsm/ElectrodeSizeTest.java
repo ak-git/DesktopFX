@@ -1,7 +1,7 @@
 package com.ak.rsm;
 
 import com.ak.csv.CSVLineFileBuilder;
-import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math4.legacy.analysis.UnivariateFunction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

@@ -3,11 +3,10 @@ module com.ak.fx.desktop {
   requires com.ak.util;
   requires com.ak.fx;
 
-  requires commons.math3;
+  requires org.apache.commons.math4.legacy;
   requires java.logging;
   requires java.measure;
   requires tech.units.indriya;
-  requires jsr305;
   requires org.jspecify;
   requires jakarta.inject;
 

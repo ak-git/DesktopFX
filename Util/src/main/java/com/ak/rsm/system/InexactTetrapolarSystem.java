@@ -2,7 +2,6 @@ package com.ak.rsm.system;
 
 import com.ak.util.Metrics;
 
-import javax.annotation.Nonnegative;
 import javax.measure.MetricPrefix;
 import java.util.Collection;
 import java.util.List;
@@ -14,18 +13,16 @@ import java.util.stream.IntStream;
 
 import static tech.units.indriya.unit.Units.METRE;
 
-public record InexactTetrapolarSystem(@Nonnegative double absError, TetrapolarSystem system) {
-  public InexactTetrapolarSystem(@Nonnegative double absError, TetrapolarSystem system) {
+public record InexactTetrapolarSystem(double absError, TetrapolarSystem system) {
+  public InexactTetrapolarSystem(double absError, TetrapolarSystem system) {
     this.absError = Math.abs(absError);
     this.system = system;
   }
 
-  @Nonnegative
   public double getHMax(double k) {
     return system.relativeSystem().hMaxFactor(k) * system.getDim() / StrictMath.pow(getLRelativeError(), 1.0 / 3.0);
   }
 
-  @Nonnegative
   public double getHMin(double k) {
     return system.getDim() * Math.sqrt(getLRelativeError()) * system.relativeSystem().hMinFactor(k);
   }
@@ -35,12 +32,10 @@ public record InexactTetrapolarSystem(@Nonnegative double absError, TetrapolarSy
    *
    * @return relative apparent error
    */
-  @Nonnegative
   public double getApparentRelativeError() {
     return Math.abs(system.relativeSystem().errorFactor() * getLRelativeError());
   }
 
-  @Nonnegative
   double getLRelativeError() {
     return absError / system.getDim();
   }
@@ -59,7 +54,6 @@ public record InexactTetrapolarSystem(@Nonnegative double absError, TetrapolarSy
     }
   }
 
-  @Nonnegative
   public static double getBaseL(Collection<InexactTetrapolarSystem> inexactSystems) {
     return TetrapolarSystem.getBaseL(inexactSystems.stream().map(InexactTetrapolarSystem::system).toList());
   }

@@ -2,7 +2,6 @@ package com.ak.appliance.rcm.comm.interceptor;
 
 import com.ak.comm.interceptor.simple.AbstractFixedFrameBytesInterceptor;
 
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -17,7 +16,6 @@ public abstract class AbstractRcmBytesInterceptor extends AbstractFixedFrameByte
   }
 
   @Override
-  @OverridingMethodsMustInvokeSuper
   protected boolean check(byte[] buffer, byte nextFrameStartByte) {
     for (int i = 1; i < buffer.length; i++) {
       if (buffer[i] == (i & 0x01)) {

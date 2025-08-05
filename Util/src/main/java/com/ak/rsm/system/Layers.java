@@ -1,6 +1,5 @@
 package com.ak.rsm.system;
 
-import javax.annotation.Nonnegative;
 import java.util.Objects;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.IntStream;
@@ -10,7 +9,7 @@ public enum Layers {
 
   private static final int SUM_LIMIT = 1 << 15;
 
-  public static double getK12(@Nonnegative double rho1, @Nonnegative double rho2) {
+  public static double getK12(double rho1, double rho2) {
     if (Double.compare(rho1, rho2) == 0) {
       return 0.0;
     }
@@ -34,7 +33,7 @@ public enum Layers {
     return IntStream.rangeClosed(1, SUM_LIMIT).parallel().mapToDouble(Objects.requireNonNull(function)).sum();
   }
 
-  public static double[] qn(double k12, double k23, @Nonnegative int p1, @Nonnegative int p2mp1) {
+  public static double[] qn(double k12, double k23, int p1, int p2mp1) {
     int p2 = p2mp1 + p1;
 
     var bNum = new double[p2 + 1];

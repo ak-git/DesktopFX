@@ -14,7 +14,7 @@ import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Numbers;
 import com.ak.util.Strings;
-import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math4.legacy.optim.PointValuePair;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -22,7 +22,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnegative;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -148,7 +147,7 @@ class Inverse3Test {
     );
   }
 
-  private static ValuePair getRho1(Collection<? extends DerivativeMeasurement> measurements, double[] kw, @Nonnegative double hStep) {
+  private static ValuePair getRho1(Collection<? extends DerivativeMeasurement> measurements, double[] kw, double hStep) {
     return measurements.stream()
         .map(measurement -> {
           TetrapolarSystem s = measurement.system();

@@ -1,6 +1,5 @@
 package com.ak.comm.bytes;
 
-import javax.annotation.Nonnegative;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Objects;
@@ -44,15 +43,15 @@ public class BufferFrame {
     byteBuffer.rewind();
   }
 
-  public final int getInt(@Nonnegative int index) {
+  public final int getInt(int index) {
     return byteBuffer.getInt(index);
   }
 
-  public final float getFloat(@Nonnegative int index) {
+  public final float getFloat(int index) {
     return byteBuffer.getFloat(index);
   }
 
-  public final int get(@Nonnegative int index) {
+  public final int get(int index) {
     return byteBuffer.get(index);
   }
 

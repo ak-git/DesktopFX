@@ -8,7 +8,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnegative;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -54,7 +53,7 @@ class RcmCoefficientsTest {
 
   @ParameterizedTest
   @MethodSource("rcmSimpleCoefficients")
-  void testCoefficients(SimpleCoefficients coefficients, @Nonnegative int count) {
+  void testCoefficients(SimpleCoefficients coefficients, int count) {
     assertThat(coefficients.get()).hasSize(count);
   }
 }

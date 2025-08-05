@@ -7,7 +7,6 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.logging.LogBuilders;
 import com.ak.util.Strings;
 
-import javax.annotation.Nonnegative;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
@@ -34,7 +33,6 @@ import static java.nio.file.StandardOpenOption.*;
 final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
     extends AbstractConvertableService<T, R, V> implements Flow.Subscription {
   private final Path fileToRead;
-  @Nonnegative
   private long requestSamples = Long.MAX_VALUE;
   private Callable<Optional<AsynchronousFileChannel>> convertedFileChannelProvider = Optional::empty;
   private volatile boolean disposed;
@@ -52,7 +50,6 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
 
       try (var seekableByteChannel = Files.newByteChannel(fileToRead, READ)) {
         checkThenOpen(s.toString(), seekableByteChannel, new Consumer<>() {
-          @Nonnegative
           private long samplesCounter;
 
           @Override
@@ -93,7 +90,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
   }
 
   @Override
-  public void request(@Nonnegative long requestSamples) {
+  public void request(long requestSamples) {
     this.requestSamples = requestSamples;
   }
 

@@ -5,9 +5,8 @@ import com.ak.rsm.measurement.DerivativeMeasurement;
 import com.ak.rsm.measurement.Measurement;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
-import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math4.legacy.optim.PointValuePair;
 
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -16,7 +15,6 @@ import static java.lang.StrictMath.hypot;
 
 interface Relative<M extends Measurement> extends Function<Collection<? extends M>, RelativeMediumLayers> {
   @Override
-  @OverridingMethodsMustInvokeSuper
   default RelativeMediumLayers apply(Collection<? extends M> measurements) {
     PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
           double regularizing = regularization().of(kw);
@@ -34,7 +32,6 @@ interface Relative<M extends Measurement> extends Function<Collection<? extends 
 
   Regularization regularization();
 
-  @OverridingMethodsMustInvokeSuper
   default Simplex.Bounds[] bounds(Collection<? extends M> measurements) {
     return new Simplex.Bounds[] {new Simplex.Bounds(-1.0, 1.0), regularization().hInterval(1.0)};
   }

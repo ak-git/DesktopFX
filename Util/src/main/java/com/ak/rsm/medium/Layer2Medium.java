@@ -13,7 +13,6 @@ import com.ak.rsm.system.TetrapolarSystem;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
 
-import javax.annotation.Nonnegative;
 import javax.measure.MetricPrefix;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,7 +25,6 @@ public final class Layer2Medium extends AbstractMediumLayers {
   private final Layer1Medium layer1;
   private final ValuePair rho1;
   private final double dRho2;
-  @Nonnegative
   private final double baseL;
 
   public Layer2Medium(Collection<? extends Measurement> measurements, RelativeMediumLayers kw) {

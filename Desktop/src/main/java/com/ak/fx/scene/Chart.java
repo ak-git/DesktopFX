@@ -11,7 +11,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
-import javax.annotation.Nonnegative;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -44,7 +43,7 @@ public final class Chart extends AbstractRegion {
     rectangle.setFill(Colors.WHITE_80);
     xAxisUnitGroup.getChildren().add(rectangle);
     xAxisUnitGroup.getChildren().add(xAxisUnit);
-    xAxisUnit.textProperty().addListener((observable, oldValue, newValue) -> {
+    xAxisUnit.textProperty().addListener((_, _, _) -> {
       double w = xAxisUnit.getBoundsInParent().getWidth();
       double h = xAxisUnit.getBoundsInParent().getHeight();
       double addSize = Math.min(w, h) / 2.0;
@@ -140,11 +139,11 @@ public final class Chart extends AbstractRegion {
     getChildren().add(bannerGroup);
   }
 
-  public void setXStep(@Nonnegative double xStep) {
+  public void setXStep(double xStep) {
     lineDiagrams.forEach(lineDiagram -> lineDiagram.setXStep(xStep));
   }
 
-  public void setMaxSamples(@Nonnegative int maxSamples) {
+  public void setMaxSamples(int maxSamples) {
     lineDiagrams.forEach(lineDiagram -> lineDiagram.setMaxSamples(maxSamples));
   }
 
@@ -175,7 +174,7 @@ public final class Chart extends AbstractRegion {
     return diagramHeight;
   }
 
-  public void setAll(@Nonnegative int chartIndex, double[] values, DoubleFunction<String> positionToStringConverter) {
+  public void setAll(int chartIndex, double[] values, DoubleFunction<String> positionToStringConverter) {
     lineDiagrams.get(chartIndex).setAll(values, positionToStringConverter);
   }
 }

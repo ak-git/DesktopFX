@@ -5,13 +5,12 @@ import com.ak.math.Simplex;
 import com.ak.rsm.relative.RelativeMediumLayers;
 import com.ak.rsm.system.InexactTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
-import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math4.legacy.optim.PointValuePair;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.annotation.Nonnegative;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -133,7 +132,7 @@ class InverseErrorsTest {
   @ParameterizedTest
   @MethodSource("single")
   @Disabled("ignored com.ak.rsm.inverse.InverseErrorsTest.testSingle")
-  void testSingle(@Nonnegative double sToL1, @Nonnegative double sToL2,
+  void testSingle(double sToL1, double sToL2,
                   Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
     double[] single = single(new double[] {sToL1, sToL2}, 1.0, 25.0 / 50.0, builder);
     assertThat(single).isNotEmpty();
@@ -143,7 +142,7 @@ class InverseErrorsTest {
   @ParameterizedTest
   @MethodSource("single")
   @Disabled("ignored com.ak.rsm.inverse.InverseErrorsTest.testSingleSum")
-  void testSingleSum(@Nonnegative double sToL1, @Nonnegative double sToL2,
+  void testSingleSum(double sToL1, double sToL2,
                      Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
     double single = single(new double[] {sToL1, sToL2}, builder);
     assertThat(single).isPositive();
@@ -156,7 +155,7 @@ class InverseErrorsTest {
         .map(h -> single(p, 1.0, h, builder)[0]).parallel().sum();
   }
 
-  private static double[] single(double[] p, double k, @Nonnegative double hToDim,
+  private static double[] single(double[] p, double k, double hToDim,
                                  Function<Collection<InexactTetrapolarSystem>, UnaryOperator<RelativeMediumLayers>> builder) {
     double s1L = Math.min(p[0], p[1]);
     double s2L = Math.max(p[0], p[1]);

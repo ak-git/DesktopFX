@@ -1,6 +1,5 @@
 package com.ak.digitalfilter;
 
-import javax.annotation.Nonnegative;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,7 +20,6 @@ final class NoDelayFilter extends AbstractDigitalFilter {
     });
   }
 
-  @Nonnegative
   @Override
   public double getFrequencyFactor() {
     return filter.getFrequencyFactor();

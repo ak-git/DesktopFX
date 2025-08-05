@@ -9,8 +9,6 @@ import com.ak.fx.desktop.AbstractScheduledViewController;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-
 import static com.ak.appliance.suntech.comm.bytes.NIBPRequest.GET_CUFF_PRESSURE;
 import static com.ak.appliance.suntech.comm.converter.NIBPConverter.FREQUENCY;
 
@@ -22,7 +20,6 @@ abstract class AbstractNIBPViewController extends AbstractScheduledViewControlle
   }
 
   @Override
-  @OverridingMethodsMustInvokeSuper
   public void onNext(int[] ints) {
     super.onNext(ints);
     if (ints[NIBPVariable.IS_COMPLETED.ordinal()] == 1) {

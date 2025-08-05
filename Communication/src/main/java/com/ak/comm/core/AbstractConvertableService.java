@@ -4,8 +4,6 @@ import com.ak.comm.converter.Converter;
 import com.ak.comm.converter.Variable;
 import com.ak.comm.interceptor.BytesInterceptor;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.util.Objects;
@@ -27,7 +25,6 @@ public abstract class AbstractConvertableService<T, R, V extends Enum<V> & Varia
     workingBuffer = ByteBuffer.allocate(responseConverter.variables().size() * Integer.BYTES);
   }
 
-  @OverridingMethodsMustInvokeSuper
   @Override
   public void close() {
     responseConverter.close();
@@ -35,7 +32,7 @@ public abstract class AbstractConvertableService<T, R, V extends Enum<V> & Varia
   }
 
   @Override
-  public final void read(ByteBuffer dst, @Nonnegative long position) {
+  public final void read(ByteBuffer dst, long position) {
     convertedLogByteChannel.read(dst, position);
   }
 

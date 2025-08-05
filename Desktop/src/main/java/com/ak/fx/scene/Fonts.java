@@ -10,7 +10,6 @@ import javafx.scene.Scene;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
-import javax.annotation.Nonnegative;
 import java.util.function.Supplier;
 
 import static com.ak.fx.scene.GridCell.SMALL;
@@ -25,7 +24,7 @@ public enum Fonts {
   private final transient ObjectProperty<Font> fontProperty;
   private final transient ChangeListener<Number> changeListener;
 
-  Fonts(String family, FontWeight weight, @Nonnegative double divider) {
+  Fonts(String family, FontWeight weight, double divider) {
     fontProperty = new SimpleObjectProperty<>(newFont(family, weight, divider));
     changeListener = (_, _, _) -> fontProperty.set(newFont(family, weight, divider));
   }
@@ -37,7 +36,7 @@ public enum Fonts {
     return fontProperty;
   }
 
-  private static Font newFont(String family, FontWeight weight, @Nonnegative double divider) {
+  private static Font newFont(String family, FontWeight weight, double divider) {
     return Font.font(family, weight, SMALL.getStep() / divider);
   }
 

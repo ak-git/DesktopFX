@@ -5,7 +5,6 @@ import com.ak.util.Metrics;
 import com.ak.util.Numbers;
 import com.ak.util.Strings;
 
-import javax.annotation.Nonnegative;
 import javax.measure.MetricPrefix;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,11 +51,11 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
     return new Builder(system);
   }
 
-  public static PreBuilder ofSI(@Nonnegative double sPU, @Nonnegative double lCC) {
+  public static PreBuilder ofSI(double sPU, double lCC) {
     return new Builder(DoubleUnaryOperator.identity(), sPU, lCC);
   }
 
-  public static PreBuilder ofMilli(@Nonnegative double sPU, @Nonnegative double lCC) {
+  public static PreBuilder ofMilli(double sPU, double lCC) {
     return new Builder(Metrics.MILLI, sPU, lCC);
   }
 
@@ -102,7 +101,7 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
       super(DoubleUnaryOperator.identity(), system);
     }
 
-    private Builder(DoubleUnaryOperator converter, @Nonnegative double sPU, @Nonnegative double lCC) {
+    private Builder(DoubleUnaryOperator converter, double sPU, double lCC) {
       super(converter, sPU, lCC);
     }
 

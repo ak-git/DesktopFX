@@ -1,14 +1,13 @@
 package com.ak.numbers;
 
 import com.ak.util.Strings;
-import org.apache.commons.math3.analysis.BivariateFunction;
-import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.apache.commons.math3.analysis.interpolation.AkimaSplineInterpolator;
-import org.apache.commons.math3.analysis.interpolation.LinearInterpolator;
-import org.apache.commons.math3.analysis.interpolation.PiecewiseBicubicSplineInterpolator;
-import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
+import org.apache.commons.math4.legacy.analysis.BivariateFunction;
+import org.apache.commons.math4.legacy.analysis.UnivariateFunction;
+import org.apache.commons.math4.legacy.analysis.interpolation.AkimaSplineInterpolator;
+import org.apache.commons.math4.legacy.analysis.interpolation.LinearInterpolator;
+import org.apache.commons.math4.legacy.analysis.interpolation.PiecewiseBicubicSplineInterpolator;
+import org.apache.commons.math4.legacy.analysis.interpolation.UnivariateInterpolator;
 
-import javax.annotation.Nonnegative;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Collectors;
@@ -19,10 +18,9 @@ public enum Interpolators {
 
   private static final int SPLINE_POINTS = 100;
   private final UnivariateInterpolator interpolator;
-  @Nonnegative
   private final int minPoints;
 
-  Interpolators(UnivariateInterpolator interpolator, @Nonnegative int minPoints) {
+  Interpolators(UnivariateInterpolator interpolator, int minPoints) {
     this.interpolator = Objects.requireNonNull(interpolator);
     this.minPoints = minPoints;
   }

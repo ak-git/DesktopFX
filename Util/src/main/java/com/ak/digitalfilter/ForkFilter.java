@@ -1,6 +1,5 @@
 package com.ak.digitalfilter;
 
-import javax.annotation.Nonnegative;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.ToDoubleFunction;
@@ -47,7 +46,7 @@ final class ForkFilter extends AbstractDigitalFilter {
           IntStream.of(bufferIndexes).filter(value -> value != bufferIndexes[0])
               .findAny()
               .ifPresentOrElse(
-                  v -> initializedFlag.set(true),
+                  _ -> initializedFlag.set(true),
                   () -> {
                     intBuffers.forEach(this::publish);
                     Arrays.fill(bufferIndexes, 0);
@@ -65,7 +64,6 @@ final class ForkFilter extends AbstractDigitalFilter {
     return findMax(filters, DigitalFilter::getDelay);
   }
 
-  @Nonnegative
   @Override
   public double getFrequencyFactor() {
     return findMax(filters, DigitalFilter::getFrequencyFactor);
@@ -81,7 +79,6 @@ final class ForkFilter extends AbstractDigitalFilter {
     filters.forEach(DigitalFilter::reset);
   }
 
-  @Nonnegative
   @Override
   public int getOutputDataSize() {
     return filters.stream().mapToInt(DigitalFilter::getOutputDataSize).sum();

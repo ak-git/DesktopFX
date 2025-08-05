@@ -4,7 +4,6 @@ import com.ak.rsm.potential.Potential2Layer;
 import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.TetrapolarSystem;
 
-import javax.annotation.Nonnegative;
 import java.util.function.DoubleBinaryOperator;
 
 import static java.lang.StrictMath.pow;
@@ -21,7 +20,7 @@ public final class NormalizedResistance2Layer extends AbstractResistanceLayer<Po
   }
 
   @Override
-  public double applyAsDouble(double k, @Nonnegative double h) {
+  public double applyAsDouble(double k, double h) {
     var result = 0.0;
     if (Double.compare(k, 0.0) != 0.0) {
       result += Layers.sum(n -> pow(k, n) * apply(r -> r.value(n, h))) * 2.0 / Math.PI;

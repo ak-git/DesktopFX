@@ -7,7 +7,6 @@ import com.ak.rsm.system.Layers;
 import com.ak.rsm.system.RelativeTetrapolarSystem;
 import com.ak.rsm.system.TetrapolarSystem;
 
-import javax.annotation.Nonnegative;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.ToDoubleFunction;
 
@@ -29,7 +28,7 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
     }
   }
 
-  double kFactor(double k, @Nonnegative int n) {
+  double kFactor(double k, int n) {
     return pow(k, n) * sumFactor(n);
   }
 
@@ -59,7 +58,7 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
   public static ToDoubleFunction<RelativeMediumLayers> newDerApparentByKDivRho1(RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new DerivativeApparentByK(system)) {
       @Override
-      double kFactor(double k, @Nonnegative int n) {
+      double kFactor(double k, int n) {
         return pow(k, n - 1.0) * sumFactor(n);
       }
     };
@@ -68,7 +67,7 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
   public static ToDoubleFunction<RelativeMediumLayers> newSecondDerApparentByPhiKDivRho1(RelativeTetrapolarSystem system) {
     return new Apparent2Rho(new SecondDerivativeApparentByPhiK(system)) {
       @Override
-      double kFactor(double k, @Nonnegative int n) {
+      double kFactor(double k, int n) {
         return pow(k, n - 1.0) * sumFactor(n);
       }
     };
@@ -84,12 +83,12 @@ public class Apparent2Rho extends AbstractApparentRho implements ToDoubleFunctio
         }
 
         @Override
-        DoubleBinaryOperator sum(@Nonnegative double hToL) {
+        DoubleBinaryOperator sum(double hToL) {
           return (sign, n) -> (hToL * hToL) / pow(hypot(factor(sign), 4.0 * n * hToL), 5.0);
         }
 
         @Override
-        public int sumFactor(@Nonnegative int n) {
+        public int sumFactor(int n) {
           return n * n * n * n;
         }
       });
