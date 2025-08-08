@@ -29,9 +29,17 @@ dependencies {
 }
 
 javafx {
-    version = '26-ea+2'
+    version = '26-ea+3'
     modules = ['javafx.controls', 'javafx.fxml']
     configurations = ['implementation']
+}
+
+tasks.withType(Test).configureEach {
+    jvmArgs('--enable-native-access=ALL-UNNAMED')
+}
+
+tasks.withType(JavaExec).configureEach {
+    jvmArgs('--enable-native-access=ALL-UNNAMED')
 }
 
 application {

@@ -1,5 +1,4 @@
 [versions]
-javamodularity-moduleplugin = '1.8.15'
 sonarqube = '6.2.0.5505'
 jacocolog = '3.1.0'
 spotbugs = '6.2.3'
@@ -18,7 +17,7 @@ javafxplugin = '0.1.0'
 spring = '7.0.0-M7'
 springframework-boot = '3.5.4'
 spring-dependency-management = '1.1.7'
-javafx = '26-ea+2'
+javafx = '26-ea+3'
 
 inject-api = '2.0.1'
 tech-units = '2.2.3'
@@ -30,7 +29,6 @@ jserial-comm = '2.11.2'
 jenetics = '8.2.0'
 
 [plugins]
-javamodularity-moduleplugin = { id = 'org.javamodularity.moduleplugin', version.ref = 'javamodularity-moduleplugin' }
 sonarqube = { id = 'org.sonarqube', version.ref = 'sonarqube' }
 jacocolog = { id = 'org.barfuin.gradle.jacocolog', version.ref = 'jacocolog' }
 spotbugs = { id = 'com.github.spotbugs', version.ref = 'spotbugs' }
