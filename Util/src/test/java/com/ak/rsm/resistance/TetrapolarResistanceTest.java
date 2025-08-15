@@ -172,6 +172,8 @@ class TetrapolarResistanceTest {
     assertThatIllegalArgumentException().isThrownBy(() -> builder.rho(1.0));
     assertThatIllegalArgumentException().isThrownBy(() -> builder.rho(1.0, 2.0, 3.0));
     assertThatIllegalArgumentException().isThrownBy(() -> builder.ofOhms(1.0, 2.0, 3.0));
+    assertThatIllegalArgumentException().isThrownBy(() -> builder.rho1(1.0).rho2(2.0).rho3(3.0).hStep(1.0).p(-1, 1));
+    assertThatIllegalArgumentException().isThrownBy(() -> builder.rho1(1.0).rho2(2.0).rho3(3.0).hStep(1.0).p(1, -1));
   }
 
   @Test

@@ -8,9 +8,10 @@ public interface DeltaH {
   DeltaH NULL = new Type.Value(Type.NONE, Double.NaN);
   DoubleFunction<DeltaH> H1 = value -> new Type.Value(Type.H1, value);
   DoubleFunction<DeltaH> H2 = value -> new Type.Value(Type.H2, value);
+  DoubleFunction<DeltaH> H1_H2 = value -> new Type.Value(Type.H1_H2, value);
 
   enum Type {
-    NONE, H1, H2;
+    NONE, H1, H2, H1_H2;
 
     private record Value(Type type, double value) implements DeltaH {
       private Value(Type type, double value) {

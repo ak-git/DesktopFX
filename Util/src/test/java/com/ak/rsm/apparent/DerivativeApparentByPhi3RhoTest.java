@@ -8,6 +8,8 @@ import com.ak.util.Metrics;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.Arrays;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
 import static tech.units.indriya.unit.Units.METRE;
@@ -31,7 +33,7 @@ class DerivativeApparentByPhi3RhoTest {
     expected /= rho[0];
 
     double actual = Apparent3Rho.newDerApparentByPhiDivRho1(system,
-        new double[] {Layers.getK12(rho[0], rho[1]), 0.0}, hStep, p1, 1, DeltaH.H1.apply(dh));
+        new double[] {Layers.getK12(rho[0], rho[1]), 0.0}, hStep, p1, 2, DeltaH.H1_H2.apply(dh));
     assertThat(StrictMath.log(Math.abs(actual))).isCloseTo(StrictMath.log(Math.abs(expected)), byLessThan(0.1));
     assertThat(Math.signum(actual)).isCloseTo(Math.signum(expected), byLessThan(0.1));
   }
@@ -53,6 +55,28 @@ class DerivativeApparentByPhi3RhoTest {
 
     double actual = Apparent3Rho.newDerApparentByPhiDivRho1(system,
         new double[] {0.0, Layers.getK12(rho[0], rho[1])}, hStep, 1, p2mp1, DeltaH.H2.apply(dh));
+    assertThat(StrictMath.log(Math.abs(actual))).isCloseTo(StrictMath.log(Math.abs(expected)), byLessThan(0.1));
+    assertThat(Math.signum(actual)).isCloseTo(Math.signum(expected), byLessThan(0.1));
+  }
+
+  @ParameterizedTest
+  @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
+  void testValue2dH1H2(double[] rho, double hmm, double smm, double lmm) {
+    TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
+    double hStep = Metrics.Length.MILLI.to(1, METRE);
+    int dp = 2;
+    double dh = hStep * dp;
+    int p1 = (int) hmm;
+
+    var b = TetrapolarResistance.of(system);
+    double expected = (
+        b.rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(hStep / SCALE).p((p1 + dp) * SCALE, SCALE).resistivity() -
+            b.rho1(rho[0]).rho2(rho[1]).rho3(rho[1]).hStep(hStep / SCALE).p(p1 * SCALE, SCALE).resistivity()
+    ) / (dh / system.lCC());
+    expected /= rho[0];
+
+    double actual = Apparent3Rho.newDerApparentByPhiDivRho1(system,
+        new double[] {Layers.getK12(rho[0], rho[1]), 0.0}, hStep, p1, dp, DeltaH.H1_H2.apply(dh));
     assertThat(StrictMath.log(Math.abs(actual))).isCloseTo(StrictMath.log(Math.abs(expected)), byLessThan(0.1));
     assertThat(Math.signum(actual)).isCloseTo(Math.signum(expected), byLessThan(0.1));
   }
@@ -97,5 +121,29 @@ class DerivativeApparentByPhi3RhoTest {
         hStep, p[0], p[1], DeltaH.H2.apply(dh));
     assertThat(StrictMath.log(Math.abs(actual))).isCloseTo(StrictMath.log(Math.abs(expected)), byLessThan(0.1));
     assertThat(Math.signum(actual)).isCloseTo(Math.signum(expected), byLessThan(0.1));
+  }
+
+  @ParameterizedTest
+  @MethodSource("com.ak.rsm.resistance.Resistance3LayerTest#threeLayerParameters")
+  void testValue3dH1H2(double[] rho, double hStep, int[] p,
+                       double smm, double lmm) {
+    if (Arrays.stream(p).allMatch(value -> value > 0)) {
+      TetrapolarSystem system = new TetrapolarSystem(Metrics.Length.MILLI.to(smm, METRE), Metrics.Length.MILLI.to(lmm, METRE));
+      int dp = 1;
+      double dh = hStep * dp;
+
+      var b = TetrapolarResistance.of(system);
+      double expected = (
+          b.rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(hStep / SCALE).p((p[0] + dp) * SCALE, (p[1] - dp) * SCALE).resistivity() -
+              b.rho1(rho[0]).rho2(rho[1]).rho3(rho[2]).hStep(hStep / SCALE).p(p[0] * SCALE, p[1] * SCALE).resistivity()
+      ) / (dh / system.lCC());
+      expected /= rho[0];
+
+      double actual = Apparent3Rho.newDerApparentByPhiDivRho1(system,
+          new double[] {Layers.getK12(rho[0], rho[1]), Layers.getK12(rho[1], rho[2])},
+          hStep, p[0], p[1], DeltaH.H1_H2.apply(dh));
+      assertThat(StrictMath.log(Math.abs(actual))).isCloseTo(StrictMath.log(Math.abs(expected)), byLessThan(0.1));
+      assertThat(Math.signum(actual)).isCloseTo(Math.signum(expected), byLessThan(0.1));
+    }
   }
 }
