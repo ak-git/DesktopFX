@@ -7,8 +7,8 @@ jgitver = '0.10.0-rc03'
 
 jspecify = '1.0.0'
 junit = '5.13.4'
-assertj = '3.27.3'
-mockito = '5.18.0'
+assertj = '3.27.4'
+mockito = '5.19.0'
 
 slf4j = '2.1.0-alpha1'
 logback = '1.5.18'
