@@ -38,6 +38,10 @@ abstract class DynamicInverse extends AbstractInverseFunction<DerivativeResistiv
     return of(r, hStep, DeltaH.H2.apply(dH(r)));
   }
 
+  static InverseFunction ofH1H2Changed(Collection<? extends DerivativeMeasurement> r, double hStep) {
+    return of(r, hStep, DeltaH.H1_H2.apply(dH(r)));
+  }
+
   private static InverseFunction of(Collection<? extends DerivativeMeasurement> r, double hStep, DeltaH deltaH) {
     return new DynamicInverse(r) {
       @Override

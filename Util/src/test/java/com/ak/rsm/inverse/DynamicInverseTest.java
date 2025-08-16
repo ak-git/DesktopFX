@@ -62,6 +62,14 @@ class DynamicInverseTest {
               Metrics.Length.MILLI.to(0.01, METRE)
           );
           assertThat(function.applyAsDouble(k)).isCloseTo(inequality, byLessThan(1.0e-3));
+        },
+        () -> {
+          ToDoubleFunction<double[]> function = DynamicInverse.ofH1H2Changed(
+              TetrapolarDerivativeMeasurement.milli(0.0).dh(DeltaH.H1_H2.apply(0.1)).system2(6.0)
+                  .rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.01).p(50, 50),
+              Metrics.Length.MILLI.to(0.01, METRE)
+          );
+          assertThat(function.applyAsDouble(k)).isCloseTo(inequality, byLessThan(1.0e-3));
         }
     );
   }
