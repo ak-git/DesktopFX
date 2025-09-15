@@ -38,8 +38,20 @@ abstract class DynamicInverse extends AbstractInverseFunction<DerivativeResistiv
     return of(r, hStep, DeltaH.H2.apply(dH(r)));
   }
 
-  static InverseFunction ofH1H2Changed(Collection<? extends DerivativeMeasurement> r, double hStep) {
-    return of(r, hStep, DeltaH.H1_H2.apply(dH(r)));
+  /**
+   * <p>h<sub>1</sub> changed by 10</p>
+   * <p> h<sub>2</sub> changed by 20</p>
+   * <p>Total h = h<sub>1</sub> + h<sub>2</sub> = 30</p>
+   * <p>hRate = h<sub>1</sub> / (h<sub>1</sub> + h<sub>2</sub>) = 1/3</p>
+   *
+   * @param r     DerivativeMeasurement
+   * @param hStep for 3-layer model
+   * @param hRate from 0 to 1
+   * @return InverseFunction
+   */
+  static InverseFunction ofH1H2Changed(Collection<? extends DerivativeMeasurement> r, double hStep, double hRate) {
+    double dH = dH(r);
+    return of(r, hStep, DeltaH.ofH1andH2(dH * hRate, (1.0 - hRate) * dH));
   }
 
   private static InverseFunction of(Collection<? extends DerivativeMeasurement> r, double hStep, DeltaH deltaH) {

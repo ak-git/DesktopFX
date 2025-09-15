@@ -130,10 +130,15 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
         return new TetrapolarDerivativeMeasurement(b.h(h), d.h(h).derivativeResistivity(), dh.value());
       }
       else {
+        double dhValue = 0;
+        for (DeltaH deltaH = dh; deltaH.type() != DeltaH.Type.NONE; deltaH = deltaH.next()) {
+          dhValue += deltaH.value();
+        }
+
         return new TetrapolarDerivativeMeasurement(
             b.rho3(rho3).hStep(hStep).p(p1, p2mp1),
             d.rho3(rho3).hStep(hStep).p(p1, p2mp1).derivativeResistivity(),
-            dh.value()
+            dhValue
         );
       }
     }

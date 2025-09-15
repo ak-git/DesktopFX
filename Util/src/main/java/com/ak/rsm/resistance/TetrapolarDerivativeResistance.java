@@ -143,22 +143,31 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
         if (dh.type() == DeltaH.Type.NONE) {
           throw new IllegalArgumentException("dh NULL is not supported in 3-layer model");
         }
-        if (Math.abs(dh.value()) < Math.abs(hStep)) {
-          throw new IllegalArgumentException("|dh = %f| < |hStep = %f|".formatted(dh.value(), hStep));
+        var builder3 = builder.rho3(rho3).hStep(hStep);
+
+        int p1Add = 0;
+        int p2Add = 0;
+        double dhValue = 0;
+        for (DeltaH deltaH = dh; deltaH.type() != DeltaH.Type.NONE; deltaH = deltaH.next()) {
+          dhValue += deltaH.value();
+          int pAdd = Numbers.toInt(deltaH.value() / hStep);
+
+          if (deltaH.type() == DeltaH.Type.H1) {
+            p1Add += pAdd;
+          }
+          else if (deltaH.type() == DeltaH.Type.H2) {
+            p2Add += pAdd;
+          }
         }
 
-        var builder3 = builder.rho3(rho3).hStep(hStep);
-        int pAdd = Numbers.toInt(dh.value() / hStep);
-        int p1Add = dh.type() == DeltaH.Type.H1 ? pAdd : 0;
-        int p2Add = dh.type() == DeltaH.Type.H2 ? pAdd : 0;
-        if (dh.type() == DeltaH.Type.H1_H2) {
-          p1Add = pAdd;
-          p2Add = -pAdd;
+        if (Math.abs(dhValue) < Math.abs(hStep)) {
+          throw new IllegalArgumentException("|dh = %f| < |hStep = %f|".formatted(dhValue, hStep));
         }
+
         return new TetrapolarDerivativeResistance(
             builder3.p(p1, p2mp1),
             builder3.p(p1 + p1Add, p2mp1 + p2Add),
-            dh.value());
+            dhValue);
       }
     }
   }
