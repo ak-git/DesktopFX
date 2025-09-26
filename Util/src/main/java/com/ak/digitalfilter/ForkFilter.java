@@ -10,7 +10,7 @@ import static com.ak.util.Strings.EMPTY;
 import static com.ak.util.Strings.NEW_LINE;
 
 final class ForkFilter extends AbstractDigitalFilter {
-  private final List<DigitalFilter> filters = new LinkedList<>();
+  private final List<DigitalFilter> filters = new ArrayList<>();
 
   ForkFilter(DigitalFilter[] filters) {
     if (filters.length < 2) {
