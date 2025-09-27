@@ -184,7 +184,7 @@ public record TetrapolarResistance(TetrapolarSystem system, double ohms,
   }
 
   public abstract static class AbstractMultiTetrapolarBuilder<T> extends AbstractBuilder<Collection<T>> implements MultiPreBuilder<T> {
-    protected final Collection<TetrapolarSystem> systems = new LinkedList<>();
+    protected final Collection<TetrapolarSystem> systems = new ArrayList<>();
 
     protected AbstractMultiTetrapolarBuilder(DoubleUnaryOperator converter) {
       super(converter);
