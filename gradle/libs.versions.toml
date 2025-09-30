@@ -2,13 +2,13 @@
 sonarqube = '6.3.1.5724'
 jacocolog = '3.1.0'
 spotbugs = '6.4.2'
-ben-manes-versions = '0.52.0'
+ben-manes-versions = '0.53.0'
 jgitver = '0.10.0-rc03'
 
 jspecify = '1.0.0'
-junit = '5.13.4'
-assertj = '3.27.5'
-mockito = '5.19.0'
+junit = '6.0.0'
+assertj = '3.27.6'
+mockito = '5.20.0'
 
 slf4j = '2.1.0-alpha1'
 logback = '1.5.18'
@@ -26,7 +26,7 @@ javax-json = '1.1.4'
 commons-math = '4.0-beta1'
 commons-csv = '1.14.1'
 jserial-comm = '2.11.2'
-jenetics = '8.2.0'
+jenetics = '8.3.0'
 
 [plugins]
 sonarqube = { id = 'org.sonarqube', version.ref = 'sonarqube' }
