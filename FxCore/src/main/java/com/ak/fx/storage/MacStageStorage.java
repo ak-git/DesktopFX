@@ -7,7 +7,7 @@ import javafx.stage.Stage;
 import java.time.Duration;
 import java.time.Instant;
 
-import static com.ak.util.UIConstants.UI_DELAY;
+import static com.ak.util.UIConstants.UI_DELAY_3SEC;
 
 final class MacStageStorage extends AbstractStageStorage {
   private Instant fullScreenEventInstant = Instant.now();
@@ -18,7 +18,7 @@ final class MacStageStorage extends AbstractStageStorage {
 
   @Override
   public void save(Stage stage) {
-    if (!Duration.between(fullScreenEventInstant, Instant.now()).minus(UI_DELAY).isNegative()) {
+    if (!Duration.between(fullScreenEventInstant, Instant.now()).minus(UI_DELAY_3SEC).isNegative()) {
       saveFullScreenState(stage.isFullScreen());
     }
     if (stage.isMaximized()) {
@@ -37,7 +37,7 @@ final class MacStageStorage extends AbstractStageStorage {
 
   @Override
   public void update(Stage stage) {
-    stage.fullScreenProperty().addListener((observable, oldValue, newValue) -> {
+    stage.fullScreenProperty().addListener((_, oldValue, _) -> {
       fullScreenEventInstant = Instant.now();
       saveFullScreenState(oldValue);
       stage.setResizable(false);

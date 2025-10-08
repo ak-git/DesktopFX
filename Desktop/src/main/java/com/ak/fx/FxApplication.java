@@ -10,6 +10,7 @@ import com.ak.fx.util.FxUtils;
 import com.ak.fx.util.OSDockImage;
 import com.ak.util.OS;
 import com.ak.util.Strings;
+import com.ak.util.UIConstants;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventTarget;
@@ -131,7 +132,7 @@ public class FxApplication extends Application implements ViewController {
     Storage<Stage> stageStorage = OSStageStorage.valueOf(OS.get().name()).newInstance(getClass(), Strings.EMPTY);
     stage.setOnCloseRequest(_ -> stageStorage.save(stage));
     stage.getScene().getWindow().setOnShown(_ ->
-        CompletableFuture.delayedExecutor(500, TimeUnit.MILLISECONDS).execute(() ->
+        CompletableFuture.delayedExecutor(UIConstants.UI_DELAY_750MILLIS.toMillis(), TimeUnit.MILLISECONDS).execute(() ->
             FxUtils.invokeInFx(() -> {
               dividerStorage.update(root);
               stageStorage.update(stage);

@@ -50,7 +50,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
         subscriber.onComplete();
         serialService = new SerialService<>(bytesInterceptor());
       }
-    }, 1, UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
+    }, 1, UIConstants.UI_DELAY_3SEC.getSeconds(), TimeUnit.SECONDS);
   }
 
   @Override
@@ -141,8 +141,8 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
     private boolean isBreak() {
       try {
         okTime.set(Instant.now());
-        while (Duration.between(okTime.get(), Instant.now()).minus(UIConstants.UI_DELAY).isNegative()) {
-          if (latch.await(UIConstants.UI_DELAY.toMillis(), TimeUnit.MILLISECONDS)) {
+        while (Duration.between(okTime.get(), Instant.now()).minus(UIConstants.UI_DELAY_3SEC).isNegative()) {
+          if (latch.await(UIConstants.UI_DELAY_3SEC.toMillis(), TimeUnit.MILLISECONDS)) {
             break;
           }
         }
