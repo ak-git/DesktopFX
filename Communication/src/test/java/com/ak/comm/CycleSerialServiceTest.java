@@ -14,7 +14,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 import java.util.concurrent.TimeUnit;
 
-import static com.ak.util.UIConstants.UI_DELAY;
+import static com.ak.util.UIConstants.UI_DELAY_3SEC;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -49,7 +49,7 @@ class CycleSerialServiceTest {
     });
     service.write(new BufferFrame(new byte[] {1, 2}, ByteOrder.nativeOrder()));
     service.refresh(false);
-    assertFalse(latch.await(UI_DELAY.getSeconds(), TimeUnit.SECONDS));
+    assertFalse(latch.await(UI_DELAY_3SEC.getSeconds(), TimeUnit.SECONDS));
     service.close();
   }
 }

@@ -22,7 +22,7 @@ class RecursiveWatcherTest {
     assertNotNull(subDir, path::toString);
     CountDownLatch latch = new CountDownLatch(2);
     try (var _ = new RecursiveWatcher(path, _ -> latch.countDown(), Extension.TXT)) {
-      while (!latch.await(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS)) {
+      while (!latch.await(UIConstants.UI_DELAY_3SEC.getSeconds(), TimeUnit.SECONDS)) {
         Files.createTempFile(Files.createTempDirectory(subDir, Strings.EMPTY), Strings.EMPTY, Extension.TXT.attachTo(Strings.EMPTY));
       }
     }
