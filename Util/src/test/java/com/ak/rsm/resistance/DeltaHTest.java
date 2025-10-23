@@ -49,6 +49,7 @@ class DeltaHTest {
   void testNull() {
     assertAll(DeltaH.NULL.toString(),
         () -> assertThat(DeltaH.NULL.value()).isNaN(),
+        () -> assertThat(DeltaH.NULL.values()).containsExactly(0.0, 0.0),
         () -> assertThat(DeltaH.NULL.next()).isEqualTo(DeltaH.NULL),
         () -> assertThat(DeltaH.NULL.convert(x -> {
               assertThat(x).isNaN();
@@ -67,9 +68,11 @@ class DeltaHTest {
   @Test
   void testH1andH2Type() {
     DeltaH h1andH2 = DeltaH.ofH1andH2(1.0, 2.0);
+
     assertAll(h1andH2.toString(),
         () -> assertThat(h1andH2.type()).isEqualTo(DeltaH.Type.H1),
         () -> assertThat(h1andH2.value()).isEqualTo(1.0),
+        () -> assertThat(h1andH2.values()).containsExactly(1.0, 2.0),
         () -> assertThat(h1andH2.convert(x -> x / 10.0)).isEqualTo(DeltaH.ofH1andH2(0.1, 0.2))
     );
 
@@ -77,6 +80,7 @@ class DeltaHTest {
     assertAll(next.toString(),
         () -> assertThat(next.type()).isEqualTo(DeltaH.Type.H2),
         () -> assertThat(next.value()).isEqualTo(2.0),
+        () -> assertThat(next.values()).containsExactly(0.0, 2.0),
         () -> assertThat(next.convert(x -> x * 10.0)).isEqualTo(DeltaH.H2.apply(20.0))
     );
   }

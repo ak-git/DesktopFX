@@ -65,6 +65,19 @@ public interface DeltaH {
     return NULL;
   }
 
+  default double[] values() {
+    double[] values = new double[2];
+    for (DeltaH deltaH = this; deltaH.type() != DeltaH.Type.NONE; deltaH = deltaH.next()) {
+      if (deltaH.type() == DeltaH.Type.H1) {
+        values[0] += deltaH.value();
+      }
+      else if (deltaH.type() == DeltaH.Type.H2) {
+        values[1] += deltaH.value();
+      }
+    }
+    return values;
+  }
+
   static DeltaH ofH1andH2(double h1Value, double h2Value) {
     return new Type.Value2(new Type.Value(Type.H1, h1Value), h2Value);
   }
