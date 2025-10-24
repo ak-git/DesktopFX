@@ -93,7 +93,8 @@ class Inverse3Test {
 
     assertThatNoException().isThrownBy(() -> {
       int scale = 2;
-      double hStep = dm.stream().flatMapToDouble(m -> DoubleStream.of(Math.abs(m.dh()))).min().orElseThrow() / scale;
+      double dh1 = DynamicInverse.dH(dm);
+      double hStep = Math.abs(dh1 / scale);
       LOGGER.info("3-layer step {}", ValuePair.Name.H.of(hStep, 0.0));
 
           ValuePair.Name[] keys = {
@@ -110,7 +111,9 @@ class Inverse3Test {
                 double[] p = Stream.of(h1, dh2).mapToDouble(x -> x.value() / hStep).toArray();
 
                 PointValuePair optimizedK = Simplex.optimizeAll(
-                    k -> DynamicInverse.ofH1Changed(dm, hStep).applyAsDouble(DoubleStream.concat(Arrays.stream(k), Arrays.stream(p)).toArray()),
+                    k -> DynamicInverse.of(dm, hStep, DeltaH.H1.apply(dh1)).applyAsDouble(
+                        DoubleStream.concat(Arrays.stream(k), Arrays.stream(p)).toArray()
+                    ),
                     new Simplex.Bounds(0.0, 1.0), new Simplex.Bounds(-1.0, 0.0)
                 );
 

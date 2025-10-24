@@ -43,7 +43,7 @@ abstract class DynamicInverse extends AbstractInverseFunction<DerivativeResistiv
     };
   }
 
-  private static double dH(Collection<? extends DerivativeResistivity> r) {
+  static double dH(Collection<? extends DerivativeResistivity> r) {
     return r.stream().mapToDouble(DerivativeResistivity::dh)
         .reduce((left, right) -> Double.compare(left, right) == 0 ? left : Double.NaN).orElse(Double.NaN);
   }
