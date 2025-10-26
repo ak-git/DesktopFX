@@ -20,7 +20,7 @@ import static tech.units.indriya.unit.Units.METRE;
 class TetrapolarDerivativeResistanceTest {
   private static final int SCALE = 10;
 
-  static Stream<Arguments> tetrapolarResistivity() {
+  static Stream<Arguments> tetrapolarResistivityNulls() {
     return Stream.of(
         arguments(
             TetrapolarDerivativeResistance.ofSI(1.0, 2.0).dh(DeltaH.NULL).rho(900.1, 1.0),
@@ -55,6 +55,22 @@ class TetrapolarDerivativeResistanceTest {
             new TetrapolarSystem(0.03, 0.05)
         ),
         arguments(
+            TetrapolarDerivativeResistance.of(
+                    new TetrapolarSystem(Metrics.Length.MILLI.to(10.0, METRE), Metrics.Length.MILLI.to(30.0, METRE))
+                )
+                .dh(DeltaH.NULL).rho(8.1, -8.1),
+            "10 000   30 000     128 916        8 100               8 100",
+            128.916,
+            8.1,
+            -8.1,
+            new TetrapolarSystem(0.01, 0.03)
+        )
+    );
+  }
+
+  static Stream<Arguments> tetrapolarResistivityH1() {
+    return Stream.of(
+        arguments(
             TetrapolarDerivativeResistance.ofMilli(10.0, 30.0).dh(DeltaH.H1.apply(0.1)).rho1(1.0).rho2(1.0).h(Math.random()),
             "10 000   30 000     15 915        1 000              0 000           0 100",
             15.915,
@@ -79,7 +95,6 @@ class TetrapolarDerivativeResistanceTest {
             13.214859951943403,
             new TetrapolarSystem(0.01, 0.02)
         ),
-
         arguments(
             TetrapolarDerivativeResistance.ofMilli(30.0, 60.0).dh(DeltaH.H1.apply(0.01))
                 .ofOhms(1.0 / Math.PI, 2.0 / Math.PI),
@@ -106,24 +121,69 @@ class TetrapolarDerivativeResistanceTest {
             3.0 / 100.0,
             3.0 / 100.0 * (80.0 / 0.01 * 2.0),
             new TetrapolarSystem(0.04, 0.08)
-        ),
+        )
+    );
+  }
 
+  static Stream<Arguments> tetrapolarResistivityH2() {
+    return Stream.of(
         arguments(
-            TetrapolarDerivativeResistance.of(
-                    new TetrapolarSystem(Metrics.Length.MILLI.to(10.0, METRE), Metrics.Length.MILLI.to(30.0, METRE))
-                )
-                .dh(DeltaH.NULL).rho(8.1, -8.1),
-            "10 000   30 000     128 916        8 100               8 100",
-            128.916,
-            8.1,
-            -8.1,
+            TetrapolarDerivativeResistance.ofMilli(10.0, 30.0).dh(DeltaH.H2.apply(0.1)).rho1(1.0).rho2(1.0).h(Math.random()),
+            "10 000   30 000     15 915        1 000              0 000           0 100",
+            15.915,
+            1.0,
+            0.0,
             new TetrapolarSystem(0.01, 0.03)
+        ),
+        arguments(
+            TetrapolarDerivativeResistance.ofMilli(10.0, 30.0).dh(DeltaH.H2.apply(0.1)).rho1(10.0).rho2(1.0).h(5.0),
+            "10 000   30 000     53 901        3 387              31 312           0 100",
+            53.901,
+            3.39,
+            31.312,
+            new TetrapolarSystem(0.01, 0.03)
+        ),
+        arguments(
+            TetrapolarDerivativeResistance.ofMilli(10.0, 20.0).dh(DeltaH.H2.apply(0.1)).rho1(8.0).rho2(2.0).rho3(1.0)
+                .hStep(0.1 / SCALE).p(50 * SCALE, 50 * SCALE),
+            "10 000   20 000     242 751        5 720              0 677           0 100",
+            242.751,
+            5.72,
+            0.6769285537755465,
+            new TetrapolarSystem(0.01, 0.02)
+        ),
+        arguments(
+            TetrapolarDerivativeResistance.ofMilli(30.0, 60.0).dh(DeltaH.H2.apply(0.01))
+                .ofOhms(1.0 / Math.PI, 2.0 / Math.PI),
+            "30 000   60 000     0 318        0 023              135 000           0 010",
+            0.318,
+            9.0 / 400.0,
+            9.0 / 400.0 * (60.0 / 0.01),
+            new TetrapolarSystem(0.03, 0.06)
+        ),
+        arguments(
+            TetrapolarDerivativeResistance.ofMilli(90.0, 30.0).dh(DeltaH.H2.apply(0.01))
+                .ofOhms(1.0 / Math.PI, 0.5 / Math.PI),
+            "90 000   30 000     0 318        0 060               90 000           0 010",
+            0.318,
+            3.0 / 50.0,
+            3.0 / 50.0 * (-30.0 / 0.01 / 2.0),
+            new TetrapolarSystem(0.09, 0.03)
+        ),
+        arguments(
+            TetrapolarDerivativeResistance.ofMilli(40.0, 80.0).dh(DeltaH.H2.apply(0.01))
+                .ofOhms(1.0 / Math.PI, 3.0 / Math.PI),
+            "40 000   80 000     0 318        0 030              480 000           0 010",
+            0.318,
+            3.0 / 100.0,
+            3.0 / 100.0 * (80.0 / 0.01 * 2.0),
+            new TetrapolarSystem(0.04, 0.08)
         )
     );
   }
 
   @ParameterizedTest
-  @MethodSource("tetrapolarResistivity")
+  @MethodSource({"tetrapolarResistivityNulls", "tetrapolarResistivityH1", "tetrapolarResistivityH2"})
   void test(DerivativeResistance d, String expected, double ohms, double resistivity,
             double derivativeResistivity, TetrapolarSystem system) {
     assertAll(d.toString(),
@@ -200,15 +260,25 @@ class TetrapolarDerivativeResistanceTest {
   }
 
   @Test
-  void testInvalid3Layer() {
+  void testInvalidOhms3() {
+    var builder = TetrapolarDerivativeResistance.ofMilli(40.0, 80.0).dh(DeltaH.ofH1andH2(0.1, -0.1));
+    assertThatIllegalArgumentException().isThrownBy(() -> builder.ofOhms(1.0, 2.0))
+        .withMessage("During measure, you do not know about both h1/h2 changes. Only h1 or h2 values allowed");
+  }
+
+  @Test
+  void testInvalid3LayerNullDh() {
     var builder = TetrapolarDerivativeResistance.milli().dh(DeltaH.NULL)
         .system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.1);
     assertThatIllegalArgumentException().isThrownBy(() -> builder.p(50, 50))
         .withMessage("dh NULL is not supported in 3-layer model");
+  }
 
-    var builder2 = TetrapolarDerivativeResistance.milli().dh(DeltaH.H1.apply(0.01))
+  @Test
+  void testInvalid3LayerLowDh() {
+    var builder = TetrapolarDerivativeResistance.milli().dh(DeltaH.H1.apply(0.01))
         .system2(6.0).rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.1);
-    assertThatIllegalArgumentException().isThrownBy(() -> builder2.p(50, 50))
+    assertThatIllegalArgumentException().isThrownBy(() -> builder.p(50, 50))
         .withMessageStartingWith("|dh = ")
         .withMessageContaining("< |hStep = ");
   }

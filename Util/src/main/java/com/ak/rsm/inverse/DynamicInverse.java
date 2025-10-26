@@ -30,15 +30,7 @@ abstract class DynamicInverse extends AbstractInverseFunction<DerivativeResistiv
     };
   }
 
-  static InverseFunction ofH1Changed(Collection<? extends DerivativeMeasurement> r, double hStep) {
-    return of(r, hStep, DeltaH.H1.apply(dH(r)));
-  }
-
-  static InverseFunction ofH2Changed(Collection<? extends DerivativeMeasurement> r, double hStep) {
-    return of(r, hStep, DeltaH.H2.apply(dH(r)));
-  }
-
-  private static InverseFunction of(Collection<? extends DerivativeMeasurement> r, double hStep, DeltaH deltaH) {
+  static InverseFunction of(Collection<? extends DerivativeMeasurement> r, double hStep, DeltaH deltaH) {
     return new DynamicInverse(r) {
       @Override
       public double applyAsDouble(TetrapolarSystem s, double[] kw) {
@@ -51,7 +43,7 @@ abstract class DynamicInverse extends AbstractInverseFunction<DerivativeResistiv
     };
   }
 
-  private static double dH(Collection<? extends DerivativeResistivity> r) {
+  static double dH(Collection<? extends DerivativeResistivity> r) {
     return r.stream().mapToDouble(DerivativeResistivity::dh)
         .reduce((left, right) -> Double.compare(left, right) == 0 ? left : Double.NaN).orElse(Double.NaN);
   }

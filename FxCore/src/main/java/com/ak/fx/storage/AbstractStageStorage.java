@@ -1,10 +1,14 @@
 package com.ak.fx.storage;
 
+import com.ak.fx.util.FxUtils;
+import com.ak.util.UIConstants;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.awt.geom.Rectangle2D;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.prefs.BackingStoreException;
 
 abstract class AbstractStageStorage extends AbstractStorage<Stage> {
@@ -27,7 +31,7 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
 
   @Override
   public void update(Stage stage) {
-    stage.maximizedProperty().addListener((observable, oldValue, newValue) -> preferences().putBoolean(MAXIMIZED, newValue));
+    stage.maximizedProperty().addListener((_, _, newValue) -> preferences().putBoolean(MAXIMIZED, newValue));
     boundsStorage.get().ifPresentOrElse(
         r -> {
           if (Screen.getPrimary().getVisualBounds().contains(r.getX(), r.getY(), r.getWidth(), r.getHeight())) {
@@ -44,7 +48,9 @@ abstract class AbstractStageStorage extends AbstractStorage<Stage> {
         }
     );
     stage.setMaximized(preferences().getBoolean(MAXIMIZED, false));
-    stage.setFullScreen(preferences().getBoolean(FULL_SCREEN, false));
+    CompletableFuture.delayedExecutor(UIConstants.UI_DELAY_750MILLIS.toMillis(), TimeUnit.MILLISECONDS).execute(() ->
+        FxUtils.invokeInFx(() -> stage.setFullScreen(preferences().getBoolean(FULL_SCREEN, false)))
+    );
   }
 
   @Override

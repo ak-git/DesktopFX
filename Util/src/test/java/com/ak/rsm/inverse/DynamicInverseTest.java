@@ -48,18 +48,42 @@ class DynamicInverseTest {
   void testLayer3(double[] k, double inequality) {
     Assertions.assertAll(
         () -> {
-          ToDoubleFunction<double[]> function = DynamicInverse.ofH1Changed(
+          ToDoubleFunction<double[]> function = DynamicInverse.of(
               TetrapolarDerivativeMeasurement.milli(0.0).dh(DeltaH.H1.apply(0.1)).system2(6.0)
                   .rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.01).p(50, 50),
-              Metrics.Length.MILLI.to(0.01, METRE)
+              Metrics.Length.MILLI.to(0.01, METRE), DeltaH.H1.apply(Metrics.Length.MILLI.to(0.1, METRE))
           );
           assertThat(function.applyAsDouble(k)).isCloseTo(inequality, byLessThan(1.0e-3));
         },
         () -> {
-          ToDoubleFunction<double[]> function = DynamicInverse.ofH2Changed(
+          ToDoubleFunction<double[]> function = DynamicInverse.of(
               TetrapolarDerivativeMeasurement.milli(0.0).dh(DeltaH.H2.apply(0.1)).system2(6.0)
                   .rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.01).p(50, 50),
-              Metrics.Length.MILLI.to(0.01, METRE)
+              Metrics.Length.MILLI.to(0.01, METRE), DeltaH.H2.apply(Metrics.Length.MILLI.to(0.1, METRE))
+          );
+          assertThat(function.applyAsDouble(k)).isCloseTo(inequality, byLessThan(1.0e-3));
+        },
+        () -> {
+          ToDoubleFunction<double[]> function = DynamicInverse.of(
+              TetrapolarDerivativeMeasurement.milli(0.0).dh(DeltaH.ofH1andH2(0.1, 0.0)).system2(6.0)
+                  .rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.01).p(50, 50),
+              Metrics.Length.MILLI.to(0.01, METRE), DeltaH.H1.apply(Metrics.Length.MILLI.to(0.1, METRE))
+          );
+          assertThat(function.applyAsDouble(k)).isCloseTo(inequality, byLessThan(1.0e-3));
+        },
+        () -> {
+          ToDoubleFunction<double[]> function = DynamicInverse.of(
+              TetrapolarDerivativeMeasurement.milli(0.0).dh(DeltaH.ofH1andH2(0.0, 0.2)).system2(6.0)
+                  .rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.01).p(50, 50),
+              Metrics.Length.MILLI.to(0.01, METRE), DeltaH.H2.apply(Metrics.Length.MILLI.to(0.2, METRE))
+          );
+          assertThat(function.applyAsDouble(k)).isCloseTo(inequality, byLessThan(1.0e-3));
+        },
+        () -> {
+          ToDoubleFunction<double[]> function = DynamicInverse.of(
+              TetrapolarDerivativeMeasurement.milli(0.0).dh(DeltaH.ofH1andH2(0.1, 0.2)).system2(6.0)
+                  .rho1(9.0).rho2(1.0).rho3(4.0).hStep(0.01).p(50, 50),
+              Metrics.Length.MILLI.to(0.01, METRE), DeltaH.ofH1andH2(Metrics.Length.MILLI.to(0.1, METRE), Metrics.Length.MILLI.to(0.2, METRE))
           );
           assertThat(function.applyAsDouble(k)).isCloseTo(inequality, byLessThan(1.0e-3));
         }

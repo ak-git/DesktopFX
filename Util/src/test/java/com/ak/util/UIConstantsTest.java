@@ -8,6 +8,6 @@ class UIConstantsTest {
   @Test
   void testValues() {
     assertThat(UIConstants.values()).isEmpty();
-    assertThat(UIConstants.UI_DELAY.getSeconds()).isEqualTo(3);
+    assertThat(UIConstants.UI_DELAY_3SEC.getSeconds()).isEqualTo(3);
   }
 }

@@ -4,9 +4,9 @@ import com.ak.fx.stage.ScreenResolutionMonitor;
 import com.ak.util.Numbers;
 import javafx.scene.shape.Path;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.ToDoubleFunction;
@@ -124,7 +124,7 @@ enum GridCell implements GridCellCoordinate {
   }
 
   static List<Path> newPaths() {
-    List<Path> paths = new LinkedList<>();
+    List<Path> paths = new ArrayList<>();
     EnumSet.allOf(GridCell.class).forEach(gridCell -> paths.add(gridCell.newPath()));
     return Collections.unmodifiableList(paths);
   }

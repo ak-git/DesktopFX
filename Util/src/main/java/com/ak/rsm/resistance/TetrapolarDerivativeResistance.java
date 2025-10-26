@@ -127,6 +127,9 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
     public DerivativeResistance ofOhms(double... rOhms) {
       return PreBuilder.check(rOhms,
           () -> {
+            if (dh.next().type() != DeltaH.Type.NONE) {
+              throw new IllegalArgumentException("During measure, you do not know about both h1/h2 changes. Only h1 or h2 values allowed");
+            }
             TetrapolarResistance.PreBuilder<Resistance> b = TetrapolarResistance.of(system);
             return new TetrapolarDerivativeResistance(b.ofOhms(rOhms[0]), b.ofOhms(rOhms[1]), dh.value());
           }
@@ -143,18 +146,20 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
         if (dh.type() == DeltaH.Type.NONE) {
           throw new IllegalArgumentException("dh NULL is not supported in 3-layer model");
         }
-        if (Math.abs(dh.value()) < Math.abs(hStep)) {
-          throw new IllegalArgumentException("|dh = %f| < |hStep = %f|".formatted(dh.value(), hStep));
-        }
-
         var builder3 = builder.rho3(rho3).hStep(hStep);
-        int pAdd = Numbers.toInt(dh.value() / hStep);
-        int p1Add = dh.type() == DeltaH.Type.H1 ? pAdd : 0;
-        int p2Add = dh.type() == DeltaH.Type.H2 ? pAdd : 0;
-        return new TetrapolarDerivativeResistance(
-            builder3.p(p1, p2mp1),
-            builder3.p(p1 + p1Add, p2mp1 + p2Add),
-            dh.value());
+
+        int[] p = Arrays.stream(dh.values()).mapToInt(h -> Numbers.toInt(h / hStep)).toArray();
+        Resistance base = builder3.p(p1, p2mp1);
+        Resistance step1 = builder3.p(p1 + p[0], p2mp1);
+        Resistance step2 = builder3.p(p1, p2mp1 + p[1]);
+        Resistance stepTotal = builder3.p(p1 + p[0], p2mp1 + p[1]);
+
+        double dhValue = Math.ceil((step1.resistivity() * p[0] + step2.resistivity() * p[1]) / stepTotal.resistivity()) * hStep;
+
+        if (Math.abs(dhValue) < Math.abs(hStep)) {
+          throw new IllegalArgumentException("|dh = %f| < |hStep = %f|".formatted(dhValue, hStep));
+        }
+        return new TetrapolarDerivativeResistance(base, builder3.p(p1 + p[0], p2mp1 + p[1]), dhValue);
       }
     }
   }

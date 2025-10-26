@@ -37,7 +37,7 @@ public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<
       final int TRIES = 2;
       for (int i = 0; i < TRIES && !isProcessed(bytesInterceptor, responseConverter, path); i++) {
         try {
-          TimeUnit.SECONDS.sleep(UIConstants.UI_DELAY.getSeconds());
+          TimeUnit.SECONDS.sleep(UIConstants.UI_DELAY_3SEC.getSeconds());
         }
         catch (InterruptedException _) {
           Thread.currentThread().interrupt();

@@ -109,10 +109,11 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
     @Override
     public DerivativeMeasurement ofOhms(double... rOhms) {
       if (rOhms.length == 2) {
+        DerivativeResistance derivativeResistance = TetrapolarDerivativeResistance.of(inexact().system()).dh(dh).ofOhms(rOhms);
         return new TetrapolarDerivativeMeasurement(
             TetrapolarMeasurement.of(inexact()).ofOhms(rOhms[0]),
-            TetrapolarDerivativeResistance.of(inexact().system()).dh(dh).ofOhms(rOhms).derivativeResistivity(),
-            dh.value()
+            derivativeResistance.derivativeResistivity(),
+            derivativeResistance.dh()
         );
       }
       else {
@@ -130,10 +131,11 @@ public record TetrapolarDerivativeMeasurement(Measurement measurement, double de
         return new TetrapolarDerivativeMeasurement(b.h(h), d.h(h).derivativeResistivity(), dh.value());
       }
       else {
+        DerivativeResistance derivativeResistance = d.rho3(rho3).hStep(hStep).p(p1, p2mp1);
         return new TetrapolarDerivativeMeasurement(
             b.rho3(rho3).hStep(hStep).p(p1, p2mp1),
-            d.rho3(rho3).hStep(hStep).p(p1, p2mp1).derivativeResistivity(),
-            dh.value()
+            derivativeResistance.derivativeResistivity(),
+            derivativeResistance.dh()
         );
       }
     }

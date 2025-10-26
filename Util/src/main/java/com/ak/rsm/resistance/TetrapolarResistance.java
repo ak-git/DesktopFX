@@ -159,8 +159,13 @@ public record TetrapolarResistance(TetrapolarSystem system, double ohms,
 
     @Override
     public final T p(int p1, int p2mp1) {
-      this.p1 = p1;
-      this.p2mp1 = p2mp1;
+      if (p1 < 0 || p2mp1 < 0) {
+        throw new IllegalArgumentException("p1 = %d and p2mp1 = %d must be positive".formatted(p1, p2mp1));
+      }
+      else {
+        this.p1 = p1;
+        this.p2mp1 = p2mp1;
+      }
       return build();
     }
   }
@@ -179,7 +184,7 @@ public record TetrapolarResistance(TetrapolarSystem system, double ohms,
   }
 
   public abstract static class AbstractMultiTetrapolarBuilder<T> extends AbstractBuilder<Collection<T>> implements MultiPreBuilder<T> {
-    protected final Collection<TetrapolarSystem> systems = new LinkedList<>();
+    protected final Collection<TetrapolarSystem> systems = new ArrayList<>();
 
     protected AbstractMultiTetrapolarBuilder(DoubleUnaryOperator converter) {
       super(converter);

@@ -21,6 +21,7 @@ import org.apache.commons.math4.legacy.optim.PointValuePair;
 import org.apache.commons.math4.legacy.optim.nonlinear.scalar.GoalType;
 import org.apache.commons.math4.legacy.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.NelderMeadTransform;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.Simplex;
 import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -322,7 +323,7 @@ class Inverse2DynamicTest {
   @MethodSource("cvsFiles")
   @Disabled("ignored com.ak.rsm.inverse.Inverse2DynamicTest.inverseFileResistivity")
   void inverseFileResistivity(String fileName, double alpha) {
-    double targetRho2 = 4.657;
+    double targetRho2 = 4.595;
     Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction = Regularization.Interval.ZERO_MAX_LOG1P.of(alpha);
     LOGGER.atInfo().addKeyValue("target", Strings.rho(2, targetRho2)).log("{}", regularizationFunction);
 
@@ -377,7 +378,7 @@ class Inverse2DynamicTest {
                     new MaxEval(50),
                     new ObjectiveFunction(point -> {
                       double dH = point[0];
-                      if (dH > 0.0 && dH < 0.1) {
+                      if (dH > 0.0 && dH < 0.2) {
                         LOGGER.atInfo()
                             .addKeyValue(Fields.InputFields.DH_MM.name(), String.format(Locale.ROOT, "%.3f", dH))
                             .log(Strings.EMPTY);
@@ -394,7 +395,8 @@ class Inverse2DynamicTest {
                         return Double.POSITIVE_INFINITY;
                       }
                     }), GoalType.MINIMIZE,
-                    new NelderMeadTransform(), new InitialGuess(new double[] {0.01})
+                    Simplex.alongAxes(new double[] {0.1}),
+                    new NelderMeadTransform(), new InitialGuess(new double[] {0.1})
                 );
             dHmm = optimizeDH.getPoint()[0];
             inputValues = new ArrayList<>(inputValues);

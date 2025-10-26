@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 @Profile("suntech")
 public final class NIBPViewController extends AbstractNIBPViewController {
-  private final Executor delayedExecutor = CompletableFuture.delayedExecutor(UIConstants.UI_DELAY.getSeconds(), TimeUnit.SECONDS);
+  private final Executor delayedExecutor = CompletableFuture.delayedExecutor(UIConstants.UI_DELAY_3SEC.getSeconds(), TimeUnit.SECONDS);
   private volatile boolean isStartBPEnable;
 
   public NIBPViewController() {

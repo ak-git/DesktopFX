@@ -105,7 +105,7 @@ public record TetrapolarMeasurement(InexactTetrapolarSystem toInexact,
   }
 
   abstract static class AbstractMultiBuilder<T> extends AbstractBuilder<Collection<T>> implements MultiPreBuilder<T> {
-    protected final Collection<InexactTetrapolarSystem> inexact = new LinkedList<>();
+    protected final Collection<InexactTetrapolarSystem> inexact = new ArrayList<>();
     private boolean shiftErrorFlag;
 
     AbstractMultiBuilder(DoubleUnaryOperator converter, double absError) {
