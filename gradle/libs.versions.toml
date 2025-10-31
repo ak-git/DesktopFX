@@ -17,7 +17,7 @@ javafxplugin = '0.1.0'
 spring = '7.0.0-RC2'
 springframework-boot = '3.5.7'
 spring-dependency-management = '1.1.7'
-javafx = '26-ea+13'
+javafx = '26-ea+14'
 
 inject-api = '2.0.1'
 tech-units = '2.2.3'
