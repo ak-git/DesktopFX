@@ -9,15 +9,16 @@ import java.util.stream.IntStream;
 
 abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicViewController> implements Builder<T> {
   @Test
-  void testGet() {
+  void testGet() throws IOException {
     try (AbstractPureLogicViewController controller = build()) {
       controller.close();
-      Assertions.assertThat(IntStream.range(0, 5 + 1 + 11 + 1).mapToDouble(_ -> controller.get().getMicrons()).toArray())
+      Assertions.assertThat(IntStream.range(0, 5 + 1 + 11 + 1 + 2).mapToDouble(_ -> controller.get().getMicrons()).toArray())
           .containsExactly(new double[] {
                   0.0, 0.0, 0.0, 0.0, 0.0,
                   -45.0,
                   90.0, -90.0, 90.0, -90.0, 90.0, -90.0, 90.0, -90.0, 90.0, -90.0, 90.0,
-                  -45.0
+                  -45.0,
+                  0.0, 0.0
               },
               Assertions.withPrecision(0.1));
       controller.escape();
@@ -30,13 +31,10 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
               Assertions.withPrecision(0.1)
           );
     }
-    catch (IOException e) {
-      Assertions.fail(e.getMessage(), e);
-    }
   }
 
   @Test
-  void upThanRight() {
+  void upThanRight() throws IOException {
     try (AbstractPureLogicViewController controller = build()) {
       controller.close();
 
@@ -57,13 +55,10 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
               -45.0
           }, Assertions.withPrecision(0.1));
     }
-    catch (IOException e) {
-      Assertions.fail(e.getMessage(), e);
-    }
   }
 
   @Test
-  void downThenLeft() {
+  void downThenLeft() throws IOException {
     try (AbstractPureLogicViewController controller = build()) {
       controller.close();
 
@@ -77,9 +72,6 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
       Assertions.assertThat(IntStream.range(0, 2)
               .mapToDouble(_ -> controller.get().getMicrons()).toArray())
           .containsExactly(new double[] {-450.0, 0.0}, Assertions.withPrecision(0.1));
-    }
-    catch (IOException e) {
-      Assertions.fail(e.getMessage(), e);
     }
   }
 
