@@ -25,7 +25,7 @@ measure-unit-api = '2.2'
 javax-json = '1.1.4'
 commons-math = '4.0-beta1'
 commons-csv = '1.14.1'
-jserial-comm = '2.11.2'
+jserial-comm = '2.11.3'
 jenetics = '8.3.0'
 
 [plugins]
