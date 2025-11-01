@@ -20,7 +20,8 @@ abstract class AbstractPureLogicViewController extends AbstractScheduledViewCont
             Stream.generate(() -> PureLogicFrame.ALIVE).limit(5),
             Stream.of(PureLogicFrame.Direction.DOWN.micron7p5multiplyBy(6)),
             Stream.iterate(PureLogicFrame.Direction.UP.micron7p5multiplyBy(12), PureLogicFrame::inverse).limit(11),
-            Stream.of(PureLogicFrame.Direction.DOWN.micron7p5multiplyBy(6))
+            Stream.of(PureLogicFrame.Direction.DOWN.micron7p5multiplyBy(6)),
+            Stream.generate(() -> PureLogicFrame.ALIVE).limit(2)
         )
     ),
     AUTO_SEQUENCE_LOW(
