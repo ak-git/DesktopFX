@@ -12,12 +12,13 @@ abstract class AbstractPureLogicViewControllerTest<T extends AbstractPureLogicVi
   void testGet() {
     try (AbstractPureLogicViewController controller = build()) {
       controller.close();
-      Assertions.assertThat(IntStream.range(0, 5 + 1 + 11 + 1).mapToDouble(_ -> controller.get().getMicrons()).toArray())
+      Assertions.assertThat(IntStream.range(0, 5 + 1 + 11 + 1 + 2).mapToDouble(_ -> controller.get().getMicrons()).toArray())
           .containsExactly(new double[] {
                   0.0, 0.0, 0.0, 0.0, 0.0,
                   -45.0,
                   90.0, -90.0, 90.0, -90.0, 90.0, -90.0, 90.0, -90.0, 90.0, -90.0, 90.0,
-                  -45.0
+                  -45.0,
+                  0.0, 0.0
               },
               Assertions.withPrecision(0.1));
       controller.escape();
