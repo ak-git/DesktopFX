@@ -8,6 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -279,13 +280,19 @@ class TetrapolarDerivativeResistanceTest {
     int p1 = 10;
     int p2mp1 = 20;
     double dHmm = 0.1;
-    TetrapolarResistance.PreBuilder<DerivativeResistance> resistanceBuilder =
-        TetrapolarDerivativeResistance.ofMilli(10.0, 20.0).dh(dh);
-    DerivativeResistance theory = resistanceBuilder.rho1(rho1).rho2(rho2).rho3(rho3).hStep(dHmm).p(p1, p2mp1);
+    TetrapolarDerivativeResistance.PreBuilder preBuilder = TetrapolarDerivativeResistance.ofMilli(10.0, 20.0);
+    TetrapolarResistance.PreBuilder<DerivativeResistance> theoryBuilder = preBuilder.dh(dh);
+    DerivativeResistance theory = theoryBuilder.rho1(rho1).rho2(rho2).rho3(rho3).hStep(dHmm).p(p1, p2mp1);
     TetrapolarResistance.LayersBuilder4<Resistance> builder3 = TetrapolarResistance.ofMilli(10.0, 20.0)
         .rho1(rho1).rho2(rho2).rho3(rho3).hStep(dHmm);
-    DerivativeResistance measured = resistanceBuilder.ofOhms(builder3.p(p1, p2mp1).ohms(), builder3.p(p1 + dp1, p2mp1 + dp2).ohms());
-    assertThat(theory).isEqualTo(measured);
+
+    DerivativeResistance measured1 = preBuilder.dh(DeltaH.H1.apply(Arrays.stream(dh.values()).sum())).ofOhms(builder3.p(p1, p2mp1).ohms(), builder3.p(p1 + dp1, p2mp1 + dp2).ohms());
+    DerivativeResistance measured2 = preBuilder.dh(DeltaH.H2.apply(Arrays.stream(dh.values()).sum())).ofOhms(builder3.p(p1, p2mp1).ohms(), builder3.p(p1 + dp1, p2mp1 + dp2).ohms());
+    assertThat(theory).isEqualTo(measured1).isEqualTo(measured2);
+    if (dh.values().length == 2) {
+      DerivativeResistance measured3 = preBuilder.dh(dh).ofOhms(builder3.p(p1, p2mp1).ohms(), builder3.p(p1 + dp1, p2mp1 + dp2).ohms());
+      assertThat(theory).isEqualTo(measured3);
+    }
   }
 
   @Test

@@ -15,6 +15,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -340,13 +341,19 @@ class TetrapolarDerivativeMeasurementTest {
     int p1 = 10;
     int p2mp1 = 20;
     double dHmm = 0.1;
-    TetrapolarResistance.PreBuilder<DerivativeMeasurement> resistanceBuilder =
-        TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(dh).system(10.0, 20.0);
-    DerivativeMeasurement theory = resistanceBuilder.rho1(rho1).rho2(rho2).rho3(rho3).hStep(dHmm).p(p1, p2mp1);
+    DerivativeMeasurement theory = TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(dh).system(10.0, 20.0).rho1(rho1).rho2(rho2).rho3(rho3).hStep(dHmm).p(p1, p2mp1);
     TetrapolarResistance.LayersBuilder4<Measurement> builder3 = TetrapolarMeasurement.ofMilli(0.1).system(10.0, 20.0)
         .rho1(rho1).rho2(rho2).rho3(rho3).hStep(dHmm);
-    DerivativeMeasurement measured = resistanceBuilder.ofOhms(builder3.p(p1, p2mp1).ohms(), builder3.p(p1 + dp1, p2mp1 + dp2).ohms());
-    assertThat(theory).isEqualTo(measured);
+    DerivativeMeasurement measured1 = TetrapolarDerivativeMeasurement.ofMilli(0.1)
+        .dh(DeltaH.H1.apply(Arrays.stream(dh.values()).sum())).system(10.0, 20.0).ofOhms(builder3.p(p1, p2mp1).ohms(), builder3.p(p1 + dp1, p2mp1 + dp2).ohms());
+    DerivativeMeasurement measured2 = TetrapolarDerivativeMeasurement.ofMilli(0.1)
+        .dh(DeltaH.H2.apply(Arrays.stream(dh.values()).sum())).system(10.0, 20.0).ofOhms(builder3.p(p1, p2mp1).ohms(), builder3.p(p1 + dp1, p2mp1 + dp2).ohms());
+    assertThat(theory).isEqualTo(measured1).isEqualTo(measured2);
+    if (dh.values().length == 2) {
+      DerivativeMeasurement measured3 = TetrapolarDerivativeMeasurement.ofMilli(0.1)
+          .dh(dh).system(10.0, 20.0).ofOhms(builder3.p(p1, p2mp1).ohms(), builder3.p(p1 + dp1, p2mp1 + dp2).ohms());
+      assertThat(theory).isEqualTo(measured3);
+    }
   }
 
   @Test
