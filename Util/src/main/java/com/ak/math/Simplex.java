@@ -90,7 +90,7 @@ public enum Simplex {
 
       Phenotype<DoubleGene, Double> phenotype = Engine
           .builder(function::value,
-              Codecs.ofVector(Arrays.stream(bounds).map(b -> DoubleRange.of(b.min, b.max)).toArray(DoubleRange[]::new))
+              Codecs.ofVector(Arrays.stream(bounds).map(b -> new DoubleRange(b.min, b.max)).toArray(DoubleRange[]::new))
           )
           .populationSize(populationSize)
           .optimize(Optimize.MINIMUM)

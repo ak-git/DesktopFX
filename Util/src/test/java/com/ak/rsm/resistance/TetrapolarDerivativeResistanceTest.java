@@ -239,6 +239,55 @@ class TetrapolarDerivativeResistanceTest {
     );
   }
 
+  static Stream<Arguments> dResistivity2() {
+    return Stream.of(
+        arguments(0.7, Double.POSITIVE_INFINITY, 10.0, 0.1),
+        arguments(0.7, Double.POSITIVE_INFINITY, 20.0, -0.1),
+        arguments(1.0, 1.0, 30.0, -0.1)
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("dResistivity2")
+  void testDResistivity2(double rho1, double rho2, double hmm, double dHmm) {
+    TetrapolarResistance.PreBuilder<DerivativeResistance> resistanceBuilder =
+        TetrapolarDerivativeResistance.ofMilli(10.0, 20.0).dh(DeltaH.H1.apply(dHmm));
+    DerivativeResistance theory = resistanceBuilder.rho1(rho1).rho2(rho2).h(hmm);
+
+    TetrapolarResistance.LayersBuilder2<Resistance> builder2 = TetrapolarResistance.ofMilli(10.0, 20.0)
+        .rho1(rho1).rho2(rho2);
+    DerivativeResistance measured = resistanceBuilder.ofOhms(builder2.h(hmm).ohms(), builder2.h(hmm + dHmm).ohms());
+    assertThat(theory).isEqualTo(measured);
+  }
+
+  static Stream<Arguments> dResistivity3() {
+    return Stream.of(
+        arguments(DeltaH.H1.apply(0.1), 1, 0),
+        arguments(DeltaH.H1.apply(-0.2), -2, 0),
+        arguments(DeltaH.H2.apply(0.2), 0, 2),
+        arguments(DeltaH.H2.apply(-0.2), 0, -2),
+        arguments(DeltaH.ofH1andH2(0.1, 0.2), 1, 2)
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("dResistivity3")
+  void testDResistivity3(DeltaH dh, int dp1, int dp2) {
+    double rho1 = 2.0;
+    double rho2 = 10.0;
+    double rho3 = 5.0;
+    int p1 = 10;
+    int p2mp1 = 20;
+    double dHmm = 0.1;
+    TetrapolarResistance.PreBuilder<DerivativeResistance> resistanceBuilder =
+        TetrapolarDerivativeResistance.ofMilli(10.0, 20.0).dh(dh);
+    DerivativeResistance theory = resistanceBuilder.rho1(rho1).rho2(rho2).rho3(rho3).hStep(dHmm).p(p1, p2mp1);
+    TetrapolarResistance.LayersBuilder4<Resistance> builder3 = TetrapolarResistance.ofMilli(10.0, 20.0)
+        .rho1(rho1).rho2(rho2).rho3(rho3).hStep(dHmm);
+    DerivativeResistance measured = resistanceBuilder.ofOhms(builder3.p(p1, p2mp1).ohms(), builder3.p(p1 + dp1, p2mp1 + dp2).ohms());
+    assertThat(theory).isEqualTo(measured);
+  }
+
   @Test
   void testInvalidRhos() {
     var builder = TetrapolarDerivativeResistance.milli().dh(DeltaH.H1.apply(0.1)).system2(10.0);
@@ -257,13 +306,6 @@ class TetrapolarDerivativeResistanceTest {
   void testInvalidOhms2() {
     var builder = TetrapolarDerivativeResistance.ofMilli(40.0, 80.0).dh(DeltaH.H1.apply(-0.1));
     assertThatIllegalArgumentException().isThrownBy(() -> builder.ofOhms(1.0));
-  }
-
-  @Test
-  void testInvalidOhms3() {
-    var builder = TetrapolarDerivativeResistance.ofMilli(40.0, 80.0).dh(DeltaH.ofH1andH2(0.1, -0.1));
-    assertThatIllegalArgumentException().isThrownBy(() -> builder.ofOhms(1.0, 2.0))
-        .withMessage("During measure, you do not know about both h1/h2 changes. Only h1 or h2 values allowed");
   }
 
   @Test
