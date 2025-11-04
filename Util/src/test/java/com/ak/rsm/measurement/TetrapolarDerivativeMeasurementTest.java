@@ -289,7 +289,7 @@ class TetrapolarDerivativeMeasurementTest {
     assertThat(dm1.derivativeResistivity()).isCloseTo(dm2.derivativeResistivity(), byLessThan(0.01));
   }
 
-  static Stream<Arguments> dResistivity() {
+  static Stream<Arguments> dResistivity2() {
     return Stream.of(
         arguments(0.7, Double.POSITIVE_INFINITY, 10.0, 0.1),
         arguments(0.7, Double.POSITIVE_INFINITY, 20.0, -0.1),
@@ -298,13 +298,55 @@ class TetrapolarDerivativeMeasurementTest {
   }
 
   @ParameterizedTest
-  @MethodSource("dResistivity")
-  void testDResistance(double rho1, double rho2, double hmm, double dHmm) {
+  @MethodSource("dResistivity2")
+  void testDResistance2(double rho1, double rho2, double hmm, double dHmm) {
     double dRExpected = TetrapolarResistance.ofMilli(10.0, 30.0).rho1(rho1).rho2(rho2).h(hmm + dHmm).ohms() -
         TetrapolarResistance.ofMilli(10.0, 30.0).rho1(rho1).rho2(rho2).h(hmm).ohms();
     var dR = TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(DeltaH.H1.apply(dHmm))
         .system(10.0, 30.0).rho1(rho1).rho2(rho2).h(hmm);
     assertThat(dR.dOhms()).as("%s".formatted(dR)).isCloseTo(dRExpected, byLessThan(1.0e-8));
+  }
+
+  @ParameterizedTest
+  @MethodSource("dResistivity2")
+  void testDResistivity2(double rho1, double rho2, double hmm, double dHmm) {
+    TetrapolarResistance.PreBuilder<DerivativeMeasurement> resistanceBuilder =
+        TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(DeltaH.H1.apply(dHmm))
+            .system(10.0, 20.0);
+    DerivativeMeasurement theory = resistanceBuilder.rho1(rho1).rho2(rho2).h(hmm);
+
+    TetrapolarResistance.LayersBuilder2<Measurement> builder2 = TetrapolarMeasurement.ofMilli(0.1)
+        .system(10.0, 20.0).rho1(rho1).rho2(rho2);
+    DerivativeMeasurement measured = resistanceBuilder.ofOhms(builder2.h(hmm).ohms(), builder2.h(hmm + dHmm).ohms());
+    assertThat(theory).isEqualTo(measured);
+  }
+
+  static Stream<Arguments> dResistivity3() {
+    return Stream.of(
+        arguments(DeltaH.H1.apply(0.1), 1, 0),
+        arguments(DeltaH.H1.apply(-0.2), -2, 0),
+        arguments(DeltaH.H2.apply(0.2), 0, 2),
+        arguments(DeltaH.H2.apply(-0.2), 0, -2),
+        arguments(DeltaH.ofH1andH2(0.1, 0.2), 1, 2)
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("dResistivity3")
+  void testDResistivity3(DeltaH dh, int dp1, int dp2) {
+    double rho1 = 2.0;
+    double rho2 = 10.0;
+    double rho3 = 5.0;
+    int p1 = 10;
+    int p2mp1 = 20;
+    double dHmm = 0.1;
+    TetrapolarResistance.PreBuilder<DerivativeMeasurement> resistanceBuilder =
+        TetrapolarDerivativeMeasurement.ofMilli(0.1).dh(dh).system(10.0, 20.0);
+    DerivativeMeasurement theory = resistanceBuilder.rho1(rho1).rho2(rho2).rho3(rho3).hStep(dHmm).p(p1, p2mp1);
+    TetrapolarResistance.LayersBuilder4<Measurement> builder3 = TetrapolarMeasurement.ofMilli(0.1).system(10.0, 20.0)
+        .rho1(rho1).rho2(rho2).rho3(rho3).hStep(dHmm);
+    DerivativeMeasurement measured = resistanceBuilder.ofOhms(builder3.p(p1, p2mp1).ohms(), builder3.p(p1 + dp1, p2mp1 + dp2).ohms());
+    assertThat(theory).isEqualTo(measured);
   }
 
   @Test

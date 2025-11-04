@@ -127,11 +127,9 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
     public DerivativeResistance ofOhms(double... rOhms) {
       return PreBuilder.check(rOhms,
           () -> {
-            if (dh.next().type() != DeltaH.Type.NONE) {
-              throw new IllegalArgumentException("During measure, you do not know about both h1/h2 changes. Only h1 or h2 values allowed");
-            }
             TetrapolarResistance.PreBuilder<Resistance> b = TetrapolarResistance.of(system);
-            return new TetrapolarDerivativeResistance(b.ofOhms(rOhms[0]), b.ofOhms(rOhms[1]), dh.value());
+            return new TetrapolarDerivativeResistance(b.ofOhms(rOhms[0]), b.ofOhms(rOhms[1]),
+                Arrays.stream(dh.values()).sum());
           }
       );
     }
@@ -149,17 +147,12 @@ public record TetrapolarDerivativeResistance(Resistance resistance, double deriv
         var builder3 = builder.rho3(rho3).hStep(hStep);
 
         int[] p = Arrays.stream(dh.values()).mapToInt(h -> Numbers.toInt(h / hStep)).toArray();
-        Resistance base = builder3.p(p1, p2mp1);
-        Resistance step1 = builder3.p(p1 + p[0], p2mp1);
-        Resistance step2 = builder3.p(p1, p2mp1 + p[1]);
-        Resistance stepTotal = builder3.p(p1 + p[0], p2mp1 + p[1]);
-
-        double dhValue = Math.ceil((step1.resistivity() * p[0] + step2.resistivity() * p[1]) / stepTotal.resistivity()) * hStep;
+        double dhValue = (p[0] + p[1]) * hStep;
 
         if (Math.abs(dhValue) < Math.abs(hStep)) {
           throw new IllegalArgumentException("|dh = %f| < |hStep = %f|".formatted(dhValue, hStep));
         }
-        return new TetrapolarDerivativeResistance(base, builder3.p(p1 + p[0], p2mp1 + p[1]), dhValue);
+        return new TetrapolarDerivativeResistance(builder3.p(p1, p2mp1), builder3.p(p1 + p[0], p2mp1 + p[1]), dhValue);
       }
     }
   }
