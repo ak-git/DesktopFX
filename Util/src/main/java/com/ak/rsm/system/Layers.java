@@ -1,6 +1,5 @@
 package com.ak.rsm.system;
 
-import java.util.Objects;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.IntStream;
 
@@ -8,6 +7,7 @@ public enum Layers {
   ;
 
   private static final int SUM_LIMIT = 1 << 15;
+  private static final int SUM_PART = 1 << 11;
 
   public static double getK12(double rho1, double rho2) {
     if (Double.compare(rho1, rho2) == 0) {
@@ -30,7 +30,17 @@ public enum Layers {
   }
 
   public static double sum(IntToDoubleFunction function) {
-    return IntStream.rangeClosed(1, SUM_LIMIT).parallel().mapToDouble(Objects.requireNonNull(function)).sum();
+    double sum = 0;
+    for (int i = 0; i < SUM_LIMIT / SUM_PART; i++) {
+      double eps = IntStream.rangeClosed(SUM_PART * i + 1, SUM_PART * (i + 1)).parallel().mapToDouble(function).sum();
+      if (Double.compare(sum, sum + eps) == 0) {
+        return sum;
+      }
+      else {
+        sum += eps;
+      }
+    }
+    return sum;
   }
 
   public static double[] qn(double k12, double k23, int p1, int p2mp1) {
