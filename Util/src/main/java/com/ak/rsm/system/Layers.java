@@ -32,7 +32,7 @@ public enum Layers {
   public static double sum(IntToDoubleFunction function) {
     double sum = 0;
     for (int i = 0; i < SUM_LIMIT / SUM_PART; i++) {
-      double eps = IntStream.rangeClosed(SUM_PART * i + 1, SUM_PART * (i + 1)).parallel().mapToDouble(function).sum();
+      double eps = IntStream.rangeClosed(SUM_PART * i + 1, SUM_PART * (i + 1)).mapToDouble(function).sum();
       if (Double.compare(sum, sum + eps) == 0) {
         return sum;
       }
