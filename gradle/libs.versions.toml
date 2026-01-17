@@ -26,7 +26,7 @@ javax-json = '1.1.4'
 commons-math = '4.0-beta1'
 commons-csv = '1.14.1'
 jserial-comm = '2.11.4'
-jenetics = '8.3.0'
+jenetics = '9.0.0'
 
 [plugins]
 sonarqube = { id = 'org.sonarqube', version.ref = 'sonarqube' }
