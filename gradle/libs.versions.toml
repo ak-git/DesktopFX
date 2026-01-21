@@ -3,7 +3,6 @@ sonarqube = '7.2.2.6593'
 jacocolog = '4.0.0'
 spotbugs = '6.4.8'
 ben-manes-versions = '0.53.0'
-jgitver = '0.10.0-rc03'
 
 jspecify = '1.0.0'
 junit = '6.0.2'
@@ -33,7 +32,6 @@ sonarqube = { id = 'org.sonarqube', version.ref = 'sonarqube' }
 jacocolog = { id = 'org.barfuin.gradle.jacocolog', version.ref = 'jacocolog' }
 spotbugs = { id = 'com.github.spotbugs', version.ref = 'spotbugs' }
 ben-manes-versions = { id = 'com.github.ben-manes.versions', version.ref = 'ben-manes-versions' }
-jgitver = { id = 'fr.brouillard.oss.gradle.jgitver', version.ref = 'jgitver' }
 
 javafxplugin = { id = 'org.openjfx.javafxplugin', version.ref = 'javafxplugin' }
 springframework-boot = { id = 'org.springframework.boot', version.ref = 'springframework-boot' }
