@@ -8,7 +8,6 @@ plugins {
     alias(libs.plugins.ben.manes.versions)
     alias(libs.plugins.sonarqube)
     alias(libs.plugins.jacocolog)
-    alias(libs.plugins.jgitver)
 }
 
 spotbugs {
