@@ -6,7 +6,7 @@ ben-manes-versions = '0.53.0'
 
 jspecify = '1.0.0'
 junit = '6.0.2'
-assertj = '3.27.6'
+assertj = '3.27.7'
 mockito = '5.21.0'
 
 slf4j = '2.1.0-alpha1'
