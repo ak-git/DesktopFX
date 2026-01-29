@@ -30,7 +30,7 @@ dependencies {
 }
 
 javafx {
-    version = '26-ea+22'
+    version = '27-ea+1'
     modules = ['javafx.controls', 'javafx.fxml']
     configurations = ['implementation']
 }
@@ -43,11 +43,12 @@ tasks.withType(JavaExec).configureEach {
     jvmArgs('--enable-native-access=ALL-UNNAMED')
 }
 
+tasks.named('run') {
+    jvmArgs = ['--enable-native-access=javafx.graphics,com.fazecast.jSerialComm']
+}
+
 application {
     mainModule = 'com.ak.fx.desktop'
     mainClass = 'com.ak.spring.SpringFxApplication'
-    applicationDefaultJvmArgs = [
-            '--enable-native-access', 'javafx.graphics',
-            '--enable-native-access', 'com.fazecast.jSerialComm'
-    ]
+    applicationDefaultJvmArgs = ['--enable-native-access=javafx.graphics,com.fazecast.jSerialComm']
 }
