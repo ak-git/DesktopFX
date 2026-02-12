@@ -20,7 +20,7 @@ dependencies {
 
     implementation(platform(libs.spring.bom))
     implementation libs.bundles.spring.boot
-    implementation('org.springframework:spring-jcl:6.2.15')
+    implementation('org.springframework:spring-jcl:6.2.16')
 
     //    https://github.com/junit-team/junit5/issues/1773
     testImplementation libs.junit.jupiter.api
