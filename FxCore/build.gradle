@@ -7,7 +7,7 @@ dependencies {
     api libs.javafx.base
     api project(':Util')
     api project(':Communication')
-    implementation libs.jspecify
+    compileOnly libs.jspecify
 
     testImplementation(platform(libs.junit))
     testImplementation libs.bundles.test.implementation
