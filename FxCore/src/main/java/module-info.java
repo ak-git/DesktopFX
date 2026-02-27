@@ -6,7 +6,7 @@ module com.ak.fx {
   requires javafx.graphics;
   requires javafx.controls;
   requires java.prefs;
-  requires org.jspecify;
+  requires static org.jspecify;
   requires com.ak.comm;
 
   exports com.ak.app.aper.comm.converter to javafx.graphics;

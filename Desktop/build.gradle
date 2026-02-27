@@ -9,7 +9,7 @@ dependencies {
     implementation project(':FxCore')
     implementation project(':Communication')
     implementation project(':Util')
-    implementation libs.jspecify
+    compileOnly libs.jspecify
     implementation libs.inject.api
     implementation libs.measure.unit.api
     implementation libs.tech.units

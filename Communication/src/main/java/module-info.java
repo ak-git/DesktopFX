@@ -5,7 +5,7 @@ module com.ak.comm {
   requires java.logging;
   requires java.measure;
   requires java.json;
-  requires org.jspecify;
+  requires static org.jspecify;
   requires tech.units.indriya;
   requires static org.mockito.junit.jupiter;
   requires static org.mockito;
