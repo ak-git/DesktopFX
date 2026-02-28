@@ -14,7 +14,6 @@ import java.util.function.ToDoubleBiFunction;
 import java.util.stream.DoubleStream;
 
 import static java.lang.StrictMath.log;
-import static java.lang.StrictMath.log1p;
 
 public interface Regularization {
   enum Interval {
@@ -49,8 +48,8 @@ public interface Regularization {
 
             Simplex.Bounds hInterval = hInterval(k);
             if (hInterval.isIn(hToL)) {
-              double x = log1p(hToL);
-              return alpha * (log(log1p(hInterval.max()) - x) - log(x - log1p(hInterval.min())));
+              double x = log(hToL);
+              return alpha * (log(log(hInterval.max()) - x) - log(x - log(hInterval.min())));
             }
             else {
               return Double.POSITIVE_INFINITY;
