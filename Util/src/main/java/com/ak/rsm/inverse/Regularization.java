@@ -37,7 +37,7 @@ public interface Regularization {
         };
       }
     },
-    ZERO_MAX_LOG1P {
+    ZERO_MAX_LOG {
       @Override
       Regularization innerOf(double alpha, Collection<InexactTetrapolarSystem> inexactSystems) {
         return new AbstractRegularization(inexactSystems) {

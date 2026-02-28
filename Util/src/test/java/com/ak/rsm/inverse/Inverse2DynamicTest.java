@@ -324,7 +324,7 @@ class Inverse2DynamicTest {
   @Disabled("ignored com.ak.rsm.inverse.Inverse2DynamicTest.inverseFileResistivity")
   void inverseFileResistivity(String fileName, double alpha) {
     double targetRho2 = 4.595;
-    Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction = Regularization.Interval.ZERO_MAX_LOG1P.of(alpha);
+    Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction = Regularization.Interval.ZERO_MAX_LOG.of(alpha);
     LOGGER.atInfo().addKeyValue("target", Strings.rho(2, targetRho2)).log("{}", regularizationFunction);
 
     String[] mm = fileName.split(Strings.SPACE);
