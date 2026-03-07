@@ -9,7 +9,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -85,12 +84,12 @@ class OSDirectoryTest {
     void testPathNonExisting() {
       assertThatNoException().isThrownBy(() -> OSDirectories.getDirectory(Strings.EMPTY));
       try (MockedStatic<Files> mockFiles = mockStatic(Files.class);
-           MockedStatic<Paths> mockPaths = mockStatic(Paths.class)) {
+           MockedStatic<Path> mockPaths = mockStatic(Path.class)) {
         mockFiles.when(() -> Files.createDirectories(any())).thenThrow(IOException.class);
         mockFiles.when(() -> Files.isDirectory(any())).thenReturn(true);
         mockFiles.when(() -> Files.isWritable(any())).thenReturn(true);
         mockFiles.when(() -> Files.exists(any())).thenReturn(true);
-        mockPaths.when(() -> Paths.get(anyString())).thenReturn(path);
+        mockPaths.when(() -> Path.of(anyString())).thenReturn(path);
         when(path.resolve(anyString())).thenReturn(path);
         assertThatNoException().isThrownBy(() -> OSDirectories.getDirectory(Strings.EMPTY));
       }

@@ -10,7 +10,6 @@ import java.math.RoundingMode;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -106,7 +105,7 @@ class CSVLineFileBuilderTest {
   }
 
   private static void checkFilesExists(String fileName, String expected) throws IOException {
-    Path z = Paths.get(Extension.CSV.attachTo(fileName));
+    Path z = Path.of(Extension.CSV.attachTo(fileName));
     assertThat(String.join(LINE_JOINER, Files.readAllLines(z, Charset.forName("windows-1251")))).isEqualTo(expected);
     assertTrue(Files.deleteIfExists(z));
   }

@@ -30,7 +30,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.ClosedByInterruptException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -154,7 +157,8 @@ class FileReadingServiceTest {
       }
       else {
         assertNotNull(testSubscriber.throwable);
-        assertThat(testSubscriber.throwable).extracting(Throwable::getClass).isEqualTo(NoSuchFileException.class);
+        assertThat(testSubscriber.throwable).extracting((@Nullable Throwable throwable) -> Objects.requireNonNull(throwable).getClass())
+            .isEqualTo(NoSuchFileException.class);
         testSubscriber.assertSubscribed();
       }
       testSubscriber.assertNoValues();
@@ -206,7 +210,7 @@ class FileReadingServiceTest {
 
   @Test
   void testInvalidChannelCall() throws Exception {
-    try (var s = new FileReadingService<>(Paths.get(Strings.EMPTY), new RampBytesInterceptor(getClass().getName(),
+    try (var s = new FileReadingService<>(Path.of(Strings.EMPTY), new RampBytesInterceptor(getClass().getName(),
         BytesInterceptor.BaudRate.BR_115200, 1 + TwoVariables.values().length * Integer.BYTES),
         new ToIntegerConverter<>(TwoVariables.class, 200))
     ) {

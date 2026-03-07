@@ -13,7 +13,10 @@ import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.Charset;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
@@ -145,7 +148,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
 
   private boolean isChannelProcessed(SeekableByteChannel seekableByteChannel,
                                      Consumer<ByteBuffer> consumer) throws IOException {
-    int blockSize = (int) Files.getFileStore(Paths.get(Strings.EMPTY)).getBlockSize();
+    int blockSize = (int) Files.getFileStore(Path.of(Strings.EMPTY)).getBlockSize();
     var buffer = ByteBuffer.allocate(blockSize);
     var readFlag = false;
     seekableByteChannel.position(0);

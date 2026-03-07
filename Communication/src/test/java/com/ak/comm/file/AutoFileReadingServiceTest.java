@@ -20,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -96,7 +95,7 @@ class AutoFileReadingServiceTest {
 
   @Test
   void testNotAccept() {
-    assertThat(SERVICE.accept(Paths.get(Strings.EMPTY).toFile())).isFalse();
+    assertThat(SERVICE.accept(Path.of(Strings.EMPTY).toFile())).isFalse();
   }
 
   @Test

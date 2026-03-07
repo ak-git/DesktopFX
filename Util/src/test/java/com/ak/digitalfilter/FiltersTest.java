@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Arrays;
@@ -26,13 +25,13 @@ class FiltersTest {
     String filteredPrefix = "Filtered - ";
     int column = 0;
 
-    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*"))) {
+    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Path.of(Strings.EMPTY), Extension.CSV.attachTo("*"))) {
       directoryStream.forEach(path -> {
         if (!path.toString().startsWith(filteredPrefix)) {
           DigitalFilter filter = FilterBuilder.of().smoothingImpulsive(10).buildNoDelay();
 
           try (CSVLineFileCollector collector = new CSVLineFileCollector(
-              Paths.get(String.join(Strings.EMPTY, filteredPrefix, path.getFileName().toString())))) {
+              Path.of(String.join(Strings.EMPTY, filteredPrefix, path.getFileName().toString())))) {
             filter.forEach(values ->
                 collector.accept(Arrays.stream(values).mapToObj(String::valueOf).toArray()));
 

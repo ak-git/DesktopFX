@@ -6,7 +6,7 @@ import com.ak.util.Numbers;
 import com.ak.util.Strings;
 import org.jspecify.annotations.Nullable;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -67,7 +67,7 @@ public final class CSVLineFileBuilder<T> {
           Stream.concat(Stream.of(Strings.EMPTY), xRange.build().mapToObj(Double::toString)).toArray(String[]::new)
       );
     }
-    multiFileBuilder.add(Paths.get(Extension.CSV.attachTo(fileName)), converter);
+    multiFileBuilder.add(Path.of(Extension.CSV.attachTo(fileName)), converter);
     return this;
   }
 
