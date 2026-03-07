@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -83,7 +82,7 @@ class ConverterTest {
     Files.write(tempFile, new byte[] {51, 102, 102, 53, '\r', '\n'});
     BytesInterceptor<BufferFrame, String> interceptor = new StringBytesInterceptor(getClass().getSimpleName());
     Converter.doConvert(interceptor, new StringToIntegerConverter<>(clazz, 1), tempFile);
-    Path out = Paths.get(Extension.CSV.attachTo(Extension.BIN.clean(tempFile.toAbsolutePath().toString())));
+    Path out = Path.of(Extension.CSV.attachTo(Extension.BIN.clean(tempFile.toAbsolutePath().toString())));
     List<String> result = Files.readAllLines(out, StandardCharsets.UTF_8);
     assertThat(result).hasSize(2).containsExactly(expectedHeader, "0.0,16373.0");
   }

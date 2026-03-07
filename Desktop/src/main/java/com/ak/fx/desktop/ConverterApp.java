@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -32,9 +31,9 @@ public class ConverterApp implements AutoCloseable, Consumer<Path> {
     context.close();
   }
 
-  public static void main(String[] args) {
+  static void main(String[] args) {
     try (var app = new ConverterApp(SpringApplication.run(ConverterApp.class, args));
-         DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.BIN.attachTo("*"))) {
+         DirectoryStream<Path> paths = Files.newDirectoryStream(Path.of(Strings.EMPTY), Extension.BIN.attachTo("*"))) {
       paths.forEach(app);
     }
     catch (IOException e) {

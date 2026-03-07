@@ -18,7 +18,6 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
@@ -169,7 +168,7 @@ class CSVLineFileCollectorTest {
 
   @Test
   void testInvalidPath() {
-    Path out = Paths.get("/");
+    Path out = Path.of("/");
     assertThatNullPointerException()
         .isThrownBy(() -> {
           try (var _ = new CSVLineFileCollector(out)) {

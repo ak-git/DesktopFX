@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -16,7 +15,7 @@ public class LocalFileIO implements LocalIO {
   private final String fileName;
 
   public LocalFileIO(AbstractBuilder b, OSDirectory directory) {
-    Path p = b.relativePath == null ? Paths.get(Strings.EMPTY) : b.relativePath;
+    Path p = b.relativePath == null ? Path.of(Strings.EMPTY) : b.relativePath;
     path = directory.getDirectory().resolve(p);
     fileName = b.fileName.strip();
   }
@@ -47,7 +46,7 @@ public class LocalFileIO implements LocalIO {
 
     public final AbstractBuilder addPath(String part) {
       if (relativePath == null) {
-        relativePath = Paths.get(part);
+        relativePath = Path.of(part);
       }
       else {
         relativePath = relativePath.resolve(part);

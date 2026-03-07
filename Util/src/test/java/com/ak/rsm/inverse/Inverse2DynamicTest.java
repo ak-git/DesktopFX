@@ -36,7 +36,10 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.file.*;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.ObjDoubleConsumer;
@@ -276,7 +279,7 @@ class Inverse2DynamicTest {
   }
 
   private static List<Arguments> cvsFiles() throws IOException {
-    try (DirectoryStream<Path> p = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*mm"))) {
+    try (DirectoryStream<Path> p = Files.newDirectoryStream(Path.of(Strings.EMPTY), Extension.CSV.attachTo("*mm"))) {
       return StreamSupport.stream(p.spliterator(), false)
           .map(Path::toString)
           .flatMap(file -> DoubleStream.of(1.0).mapToObj(alpha -> arguments(file, alpha)))
@@ -329,7 +332,7 @@ class Inverse2DynamicTest {
 
     String[] mm = fileName.split(Strings.SPACE);
     int sBase = Integer.parseInt(mm[mm.length - 2]);
-    Path path = Paths.get(Extension.CSV.attachTo(fileName));
+    Path path = Path.of(Extension.CSV.attachTo(fileName));
     try (BufferedReader reader = new BufferedReader(new FileReader(path.toFile()))) {
       String header = reader.readLine();
       LOGGER.atInfo().addKeyValue("s, mm", sBase).log(header);
