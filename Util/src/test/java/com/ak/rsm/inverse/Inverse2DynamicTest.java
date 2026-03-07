@@ -105,9 +105,9 @@ class Inverse2DynamicTest {
             TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(dHmm).system4(10.0).rho1(1.0).rho2(4.0).h(hmm),
             new ValuePair[] {
                 ValuePair.Name.RHO.of(1.6267, 0.00012),
-                ValuePair.Name.RHO_1.of(0.99789, 0.000063),
-                ValuePair.Name.RHO_2.of(3.992, 0.0011),
-                ValuePair.Name.H.of(Metrics.Length.MILLI.to(hmm, METRE), Metrics.Length.MILLI.to(0.00085, METRE))
+                ValuePair.Name.RHO_1.of(0.99792, 0.000063),
+                ValuePair.Name.RHO_2.of(3.988, 0.0011),
+                ValuePair.Name.H.of(Metrics.Length.MILLI.to(7.4972, METRE), Metrics.Length.MILLI.to(0.00085, METRE))
             }
         ),
         // system 2 gets more errors
@@ -117,8 +117,8 @@ class Inverse2DynamicTest {
             new ValuePair[] {
                 ValuePair.Name.RHO.of(1.5845, 0.00018),
                 ValuePair.Name.RHO_1.of(1.0, 0.00010),
-                ValuePair.Name.RHO_2.of(4.0, 0.0018),
-                ValuePair.Name.H.of(Metrics.Length.MILLI.to(hmm, METRE), Metrics.Length.MILLI.to(0.0011, METRE))
+                ValuePair.Name.RHO_2.of(3.994, 0.0018),
+                ValuePair.Name.H.of(Metrics.Length.MILLI.to(7.495, METRE), Metrics.Length.MILLI.to(0.0010, METRE))
             }
         )
     );
@@ -127,7 +127,7 @@ class Inverse2DynamicTest {
   @ParameterizedTest
   @MethodSource("absolute")
   void testInverseAbsolute(Collection<? extends DerivativeMeasurement> measurements, ValuePair[] expected) {
-    var medium = DynamicAbsolute.ofLayer2(measurements, Regularization.Interval.ZERO_MAX.of(0.0));
+    var medium = DynamicAbsolute.ofLayer2(measurements, Regularization.Interval.ZERO_MAX_LOG.of(0.000_1));
     assertAll(medium.toString(),
         () -> assertThat(medium.rho()).isEqualTo(expected[0]),
         () -> assertThat(medium.rho1()).isEqualTo(expected[1]),
@@ -263,7 +263,7 @@ class Inverse2DynamicTest {
         assertThat(valuePair.value()).isNaN();
       }
       else {
-        assertThat(valuePair.value() > 700.0 ? Double.POSITIVE_INFINITY : valuePair.value())
+        assertThat(valuePair.value() > 300.0 ? Double.POSITIVE_INFINITY : valuePair.value())
             .isCloseTo(expectedValue, byLessThan(valuePair.absError()));
       }
     };

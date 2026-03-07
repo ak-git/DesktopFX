@@ -28,7 +28,7 @@ public interface Regularization {
 
             Simplex.Bounds hInterval = hInterval(k);
             if (hInterval.isIn(hToL)) {
-              return alpha * (log(hInterval.max() - hToL) - log(hToL - hInterval.min()));
+              return alpha * StrictMath.pow(log(hInterval.max() - hToL) - log(hToL - hInterval.min()), 2.0);
             }
             else {
               return Double.POSITIVE_INFINITY;
@@ -49,7 +49,7 @@ public interface Regularization {
             Simplex.Bounds hInterval = hInterval(k);
             if (hInterval.isIn(hToL)) {
               double x = log(hToL);
-              return alpha * (log(log(hInterval.max()) - x) - log(x - log(hInterval.min())));
+              return alpha * StrictMath.pow(log(log(hInterval.max()) - x) - log(x - log(hInterval.min())), 2.0);
             }
             else {
               return Double.POSITIVE_INFINITY;
@@ -65,7 +65,7 @@ public interface Regularization {
           @Override
           public double of(double... kw) {
             double k = Math.abs(kw[0]);
-            return alpha * (log(2 - k) - log(k));
+            return alpha * StrictMath.pow(log(2.0 - k) - log(k), 2.0);
           }
         };
       }
