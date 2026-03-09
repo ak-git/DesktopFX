@@ -13,7 +13,6 @@ import com.ak.util.Clean;
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.ByteBuffer;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Flow;
@@ -67,7 +66,7 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
   }
 
   public List<V> getVariables() {
-    return Collections.unmodifiableList(variables);
+    return List.copyOf(variables);
   }
 
   public double getFrequency() {

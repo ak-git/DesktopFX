@@ -5,7 +5,6 @@ import com.ak.util.Numbers;
 import javafx.scene.shape.Path;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.DoubleBinaryOperator;
@@ -126,7 +125,7 @@ enum GridCell implements GridCellCoordinate {
   static List<Path> newPaths() {
     List<Path> paths = new ArrayList<>();
     EnumSet.allOf(GridCell.class).forEach(gridCell -> paths.add(gridCell.newPath()));
-    return Collections.unmodifiableList(paths);
+    return List.copyOf(paths);
   }
 
   static double mmToScreen(int value) {
