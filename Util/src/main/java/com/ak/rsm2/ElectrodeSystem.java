@@ -102,6 +102,8 @@ public sealed interface ElectrodeSystem {
 
     double hMax(K k);
 
+    double hMin(K k);
+
     record InexactRecord(Tetrapolar tetrapolar, double absError) implements Inexact {
       public InexactRecord {
         Objects.requireNonNull(tetrapolar);
@@ -113,7 +115,7 @@ public sealed interface ElectrodeSystem {
 
       @Override
       public String toString() {
-        String s = tetrapolar.toString();
+        String s = tetrapolar().toString();
         double metre = hMax(K.PLUS_ONE);
         return "%s / %.1f %s; ↕ %.0f %s".formatted(
             s, Metrics.Length.METRE.to(absError, MetricPrefix.MILLI(METRE)), MetricPrefix.MILLI(METRE),
@@ -152,6 +154,22 @@ public sealed interface ElectrodeSystem {
         double x = normalizedSToL();
         double result = x * pow(1.0 - x, 2.0) * zeta3 / (32.0 * relativeError());
         return pow(result, 1.0 / 3.0) * maxDim();
+      }
+
+      @Override
+      public double hMin(K k) {
+        if (k.isPlusOne()) {
+          return 0.0;
+        }
+        else {
+          double result = 4.0;
+          if (!k.isMinusOne()) {
+            result = (1.0 + k.value()) / (1.0 - k.value()) / Math.abs(Layers.sum(n -> pow(k.value(), n) * pow(n, 2.0)));
+          }
+          double x = normalizedSToL();
+          result *= (1.0 - x) * pow(1.0 + x, 3.0) / (x * (pow(x, 2.0) + 3.0));
+          return maxDim() * Math.sqrt(result * relativeError()) / 4.0;
+        }
       }
 
       private double relativeError() {
