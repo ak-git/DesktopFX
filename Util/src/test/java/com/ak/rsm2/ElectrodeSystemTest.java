@@ -15,7 +15,7 @@ class ElectrodeSystemTest {
     @ParameterizedTest
     @ValueSource(doubles = {1.0 / 3.0, 3.0, -1.0 / 2.0, -2.0})
     void get(double sToL) {
-      assertThat(ElectrodeSystem.of(sToL).sToL()).isCloseTo(Math.abs(sToL), within(0.001));
+      assertThat(ElectrodeSystem.of(sToL).sToL()).isCloseTo(Math.abs(sToL), byLessThan(0.001));
     }
 
     @ParameterizedTest
@@ -59,9 +59,9 @@ class ElectrodeSystemTest {
     void get(double sPU, double lCC) {
       ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.ofMilli().tetrapolar(sPU, lCC).build();
       assertAll(tetrapolar.toString(),
-          () -> assertThat(tetrapolar.sToL()).isCloseTo(Math.abs(sPU / lCC), within(0.001)),
-          () -> assertThat(tetrapolar.sPU()).isCloseTo(Metrics.MILLI.applyAsDouble(Math.abs(sPU)), within(0.001)),
-          () -> assertThat(tetrapolar.lCC()).isCloseTo(Metrics.MILLI.applyAsDouble(Math.abs(lCC)), within(0.001))
+          () -> assertThat(tetrapolar.sToL()).isCloseTo(Math.abs(sPU / lCC), byLessThan(0.001)),
+          () -> assertThat(tetrapolar.sPU()).isCloseTo(Metrics.MILLI.applyAsDouble(Math.abs(sPU)), byLessThan(0.001)),
+          () -> assertThat(tetrapolar.lCC()).isCloseTo(Metrics.MILLI.applyAsDouble(Math.abs(lCC)), byLessThan(0.001))
       );
     }
 
@@ -85,13 +85,38 @@ class ElectrodeSystemTest {
     void get(double sPU, double lCC, double absError) {
       ElectrodeSystem.Inexact inexact = ElectrodeSystem.ofMilli().tetrapolar(sPU, lCC).absError(absError).build();
       assertAll(inexact.toString(),
-          () -> assertThat(inexact.sToL()).isCloseTo(Math.abs(sPU / lCC), within(0.001)),
-          () -> assertThat(inexact.sPU()).isCloseTo(Metrics.MILLI.applyAsDouble(Math.abs(sPU)), within(0.001)),
-          () -> assertThat(inexact.lCC()).isCloseTo(Metrics.MILLI.applyAsDouble(Math.abs(lCC)), within(0.001)),
+          () -> assertThat(inexact.sToL()).isCloseTo(Math.abs(sPU / lCC), byLessThan(0.001)),
+          () -> assertThat(inexact.sPU()).isCloseTo(Metrics.MILLI.applyAsDouble(Math.abs(sPU)), byLessThan(0.001)),
+          () -> assertThat(inexact.lCC()).isCloseTo(Metrics.MILLI.applyAsDouble(Math.abs(lCC)), byLessThan(0.001)),
           () -> assertThat(inexact.apparentRhoRelativeError()).isCloseTo(Math.abs(6.0 * absError / Math.max(Math.abs(sPU), Math.abs(lCC))),
-              within(0.001)),
+              byLessThan(0.001)),
           () -> assertThat(inexact.hMax(K.PLUS_ONE)).as(inexact::toString)
-              .isCloseTo(Metrics.MILLI.applyAsDouble(0.177 * 30.0 / StrictMath.pow(0.1 / 30.0, 1.0 / 3.0)), byLessThan(0.1))
+              .isCloseTo(Metrics.MILLI.applyAsDouble(0.177 * 30.0 / StrictMath.pow(0.1 / 30.0, 1.0 / 3.0)), byLessThan(0.001)),
+          () -> assertThat(inexact.hMin(K.PLUS_ONE)).as(inexact::toString).isZero()
+      );
+    }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', textBlock = """
+        10 | 30 | 0.1 | 1.0 | 2.0
+        """)
+    void hMinMax(double sPU, double lCC, double absError, double rho1, double rho2) {
+      ElectrodeSystem.Inexact inexact = ElectrodeSystem.ofMilli().tetrapolar(sPU, lCC).absError(absError).build();
+      assertAll(inexact.toString(),
+          () -> assertThat(inexact.hMin(K.of(rho1, rho2))).isCloseTo(Metrics.MILLI.applyAsDouble(0.6), byLessThan(2.0e-5)),
+          () -> assertThat(inexact.hMax(K.of(rho1, rho2))).isCloseTo(Metrics.MILLI.applyAsDouble(23.5), byLessThan(1.0e-4))
+      );
+      assertAll(inexact.toString(),
+          () -> assertThat(inexact.hMin(K.PLUS_ONE)).isZero(),
+          () -> assertThat(inexact.hMax(K.PLUS_ONE)).isCloseTo(Metrics.MILLI.applyAsDouble(35.6), byLessThan(1.0e-4))
+      );
+      assertAll(inexact.toString(),
+          () -> assertThat(inexact.hMin(K.ZERO)).isInfinite(),
+          () -> assertThat(inexact.hMax(K.ZERO)).isZero()
+      );
+      assertAll(inexact.toString(),
+          () -> assertThat(inexact.hMin(K.MINUS_ONE)).isCloseTo(Metrics.MILLI.applyAsDouble(1.0), byLessThan(1.0e-4)),
+          () -> assertThat(inexact.hMax(K.MINUS_ONE)).isCloseTo(Metrics.MILLI.applyAsDouble(32.3), byLessThan(1.0e-4))
       );
     }
 
