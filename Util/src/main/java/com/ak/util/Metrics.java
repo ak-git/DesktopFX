@@ -26,6 +26,10 @@ public enum Metrics {
     }
 
     double to(double value, Unit<Q> unit);
+
+    default double toSI(double value) {
+      return value;
+    }
   }
 
   public enum Length implements UnitConversion<javax.measure.quantity.Length> {
@@ -33,6 +37,11 @@ public enum Metrics {
       @Override
       public double to(double value, Unit<javax.measure.quantity.Length> toUnit) {
         return UnitConversion.convert(MetricPrefix.MILLI(Units.METRE), value, toUnit);
+      }
+
+      @Override
+      public double toSI(double value) {
+        return to(value, Units.METRE);
       }
     },
     METRE {
@@ -48,6 +57,11 @@ public enum Metrics {
       @Override
       public double to(double value, Unit<javax.measure.quantity.Dimensionless> toUnit) {
         return UnitConversion.convert(Units.PERCENT, value, toUnit);
+      }
+
+      @Override
+      public double toSI(double value) {
+        return to(value, AbstractUnit.ONE);
       }
     },
     ONE {
