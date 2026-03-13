@@ -28,6 +28,12 @@ class MetricsTest {
   }
 
   @Test
+  void testMilliToSI() {
+    assertThat(Metrics.Length.MILLI.toSI(1.0)).isEqualTo(0.001, Offset.offset(1.0e-3));
+    assertThat(Metrics.Length.MILLI.toSI(-2.1)).isEqualTo(-0.0021, Offset.offset(1.0e-4));
+  }
+
+  @Test
   void testToMilli() {
     assertThat(Metrics.Length.METRE.to(1.0, MetricPrefix.MILLI(METRE))).isEqualTo(1000.0);
     assertThat(Metrics.Length.METRE.to(-2.1, MetricPrefix.MILLI(METRE))).isEqualTo(-2100.0);
@@ -37,6 +43,12 @@ class MetricsTest {
   void testFromPercents() {
     assertThat(Metrics.Dimensionless.PERCENT.to(100.0, ONE)).isEqualTo(1.0);
     assertThat(Metrics.Dimensionless.PERCENT.to(-3.2, ONE)).isEqualTo(-0.032);
+  }
+
+  @Test
+  void testToSI() {
+    assertThat(Metrics.Dimensionless.PERCENT.toSI(100.0)).isEqualTo(1.0);
+    assertThat(Metrics.Dimensionless.PERCENT.toSI(-3.2)).isEqualTo(-0.032);
   }
 
   @Test
