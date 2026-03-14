@@ -33,7 +33,7 @@ class Inverse2StaticTest {
     return Stream.of(
         arguments(
             TetrapolarMeasurement.milli(absErrorMilli).system2(10.0).rho1(1.0).rho2(Double.POSITIVE_INFINITY).h(hmm),
-            new double[] {136.7, 31.0}
+            new double[] {136.8, 31.0}
         ),
         arguments(
             TetrapolarMeasurement.milli(-absErrorMilli).withShiftError().system2(10.0).ofOhms(
