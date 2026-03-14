@@ -1,11 +1,9 @@
 package com.ak.rsm2;
 
-public sealed interface K {
+public sealed interface K extends DoubleValuable {
   K PLUS_ONE = new KRecord(1.0);
   K ZERO = new KRecord(0.0);
   K MINUS_ONE = new KRecord(-1.0);
-
-  double value();
 
   boolean isPlusOne();
 

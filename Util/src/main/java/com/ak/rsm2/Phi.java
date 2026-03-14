@@ -2,9 +2,7 @@ package com.ak.rsm2;
 
 import java.util.Objects;
 
-public sealed interface Phi {
-  double value();
-
+public sealed interface Phi extends DoubleValuable {
   static Phi of(double h, ElectrodeSystem.Tetrapolar system) {
     return new PhiRecord(h, system);
   }
