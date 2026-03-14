@@ -50,11 +50,11 @@ public record TetrapolarMeasurement(InexactTetrapolarSystem toInexact,
   }
 
   public static PreBuilder<Measurement> ofMilli(double absError) {
-    return new Builder(Metrics.MILLI, absError);
+    return new Builder(Metrics.Length.MILLI::toSI, absError);
   }
 
   public static MultiPreBuilder<Measurement> milli(double absError) {
-    return new MultiBuilder(Metrics.MILLI, absError);
+    return new MultiBuilder(Metrics.Length.MILLI::toSI, absError);
   }
 
   public interface PreBuilder<T> {

@@ -8,12 +8,9 @@ import tech.units.indriya.unit.Units;
 import javax.measure.MetricPrefix;
 import javax.measure.Quantity;
 import javax.measure.Unit;
-import java.util.function.DoubleUnaryOperator;
 
 public enum Metrics {
   ;
-
-  public static final DoubleUnaryOperator MILLI = mm -> Length.MILLI.to(mm, Units.METRE);
 
   private interface UnitConversion<Q extends Quantity<Q>> {
     static <Q extends Quantity<Q>> double convert(Unit<Q> from, double value, Unit<Q> to) {
