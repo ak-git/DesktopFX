@@ -1,6 +1,6 @@
 package com.ak.rsm2;
 
-public interface K {
+public sealed interface K {
   K PLUS_ONE = new KRecord(1.0);
   K ZERO = new KRecord(0.0);
   K MINUS_ONE = new KRecord(-1.0);
