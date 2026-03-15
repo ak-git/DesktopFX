@@ -1,26 +1,23 @@
 package com.ak.rsm2;
 
 import com.ak.util.Metrics;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
 
 class ResistivityTest {
-  @Test
-  void of() {
-    ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.ofMilli().tetrapolar(10.0, 20.0).build();
-    double value = Resistivity.normalizedByRho1(tetrapolar).value(K.of(8.0, 1.0).value(), 0.01);
-    assertThat(value).isCloseTo(0.911, byLessThan(0.001));
-  }
-
-  @Test
-  void ofInv() {
-    ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.ofMilli().tetrapolar(20.0, 10.0).build();
-    double value = Resistivity.normalizedByRho1(tetrapolar).value(K.of(8.0, 1.0).value(), 0.01);
-    assertThat(value).isCloseTo(0.911, byLessThan(0.001));
+  @ParameterizedTest
+  @CsvSource(delimiter = '|', textBlock = """
+      8.0 | 1.0 | 10.0 | 10.0 | 20.0 | 0.911
+      8.0 | 1.0 | 10.0 | 20.0 | 10.0 | 0.911
+      """)
+  void normalizedByRho1(double rho1, double rho2, double hmm, double smm, double lmm, double expected) {
+    ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).build();
+    double value = Resistivity.normalizedByRho1(tetrapolar).value(K.of(rho1, rho2).value(), Metrics.Length.MILLI.toSI(hmm));
+    assertThat(value).isCloseTo(expected, byLessThan(0.001));
   }
 
   @ParameterizedTest
