@@ -8,31 +8,31 @@ import java.util.function.DoubleUnaryOperator;
 enum Resistivity {
   ;
 
-  static NormalizedByRho1 of(ElectrodeSystem relative) {
-    return new NormalizedByRho1.NormalizedByRho1TwoLayers(relative);
+  static NormalizedByRho1 of(ElectrodeSystem.Tetrapolar tetrapolar) {
+    return new NormalizedByRho1.NormalizedByRho1TwoLayers(tetrapolar);
   }
 
   sealed interface NormalizedByRho1 {
-    double value(K k, Phi phi);
+    double value(double k, double hSI);
 
-    record NormalizedByRho1TwoLayers(ElectrodeSystem relative) implements NormalizedByRho1 {
+    record NormalizedByRho1TwoLayers(ElectrodeSystem.Tetrapolar tetrapolar) implements NormalizedByRho1 {
       public NormalizedByRho1TwoLayers {
-        Objects.requireNonNull(relative);
+        Objects.requireNonNull(tetrapolar);
       }
 
       @Override
-      public double value(K k, Phi phi) {
-        DoubleUnaryOperator left = braceOperation(phi, Sign.MINUS);
-        DoubleUnaryOperator right = braceOperation(phi, Sign.PLUS);
-        return 1.0 + 2.0 * Layers.sum(n -> StrictMath.pow(k.value(), n) * (left.applyAsDouble(n) - right.applyAsDouble(n)));
+      public double value(double k, double hSI) {
+        DoubleUnaryOperator left = braceOperation(hSI, Sign.MINUS);
+        DoubleUnaryOperator right = braceOperation(hSI, Sign.PLUS);
+        return 1.0 + 2.0 * Layers.sum(n -> StrictMath.pow(k, n) * (left.applyAsDouble(n) - right.applyAsDouble(n)));
       }
 
-      private DoubleUnaryOperator braceOperation(DoubleValuable phi, DoubleUnaryOperator sign) {
+      private DoubleUnaryOperator braceOperation(double hSI, DoubleUnaryOperator sign) {
         return n -> {
-          double nom = 1.0 + sign.applyAsDouble(relative.sToL());
-          double den = 1.0 + sign.andThen(Sign.MINUS).applyAsDouble(relative.sToL());
+          double nom = 1.0 + sign.applyAsDouble(tetrapolar().sToL());
+          double den = 1.0 + sign.andThen(Sign.MINUS).applyAsDouble(tetrapolar().sToL());
           double left = 1.0 - Math.abs(nom / den);
-          double right = 4.0 * n * phi.value();
+          double right = 4.0 * n * tetrapolar().phi(hSI);
           return 1.0 / StrictMath.hypot(left, right);
         };
       }

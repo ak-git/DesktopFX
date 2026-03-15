@@ -53,6 +53,15 @@ public sealed interface ElectrodeSystem {
 
     double lCC();
 
+    default double phi(double hSI) {
+      if (hSI < 0) {
+        throw new IllegalArgumentException("h = %f must be non-negative".formatted(hSI));
+      }
+      else {
+        return hSI * (1.0 / Math.abs(lCC() - sPU()) - 1.0 / Math.abs(lCC() + sPU()));
+      }
+    }
+
     record TetrapolarRecord(RelativeRecord relative, double sPU, double lCC) implements Tetrapolar {
       public TetrapolarRecord {
         Objects.requireNonNull(relative);

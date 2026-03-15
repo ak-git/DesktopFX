@@ -54,7 +54,7 @@ class ElectrodeSystemTest {
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
          -10 | -30
-          50 | 30
+          50 |  30
         """)
     void get(double sPU, double lCC) {
       ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.ofMilli().tetrapolar(sPU, lCC).build();
@@ -67,11 +67,29 @@ class ElectrodeSystemTest {
 
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
+        10 | 10 | 20 | 0.666
+        10 | 20 | 10 | 0.666
+        """)
+    void phi(double h, double sPU, double lCC, double expectedPhi) {
+      double hSI = Metrics.Length.MILLI.toSI(h);
+      ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.ofMilli().tetrapolar(sPU, lCC).build();
+      assertThat(tetrapolar.phi(hSI)).isCloseTo(expectedPhi, byLessThan(0.001));
+    }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', textBlock = """
         18 |  6.1 | '18,0 x  6,1 mm'
         10 | 30.1 | '10,0 x 30,1 mm'
         """)
     void toString(double sPU, double lCC, String expected) {
       assertThat(ElectrodeSystem.ofMilli().tetrapolar(sPU, lCC).build()).hasToString(expected);
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {-0.1, -1.0})
+    void invalidH(double h) {
+      ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.ofMilli().tetrapolar(10.0, 30.0).build();
+      assertThatIllegalArgumentException().isThrownBy(() -> tetrapolar.phi(h));
     }
   }
 
