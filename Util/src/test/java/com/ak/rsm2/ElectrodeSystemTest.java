@@ -67,13 +67,12 @@ class ElectrodeSystemTest {
 
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
-        10 | 10 | 20 | 0.666
-        10 | 20 | 10 | 0.666
+        10 | 20 | 66.666
+        20 | 10 | 66.666
         """)
-    void phi(double h, double sPU, double lCC, double expectedPhi) {
-      double hSI = Metrics.Length.MILLI.toSI(h);
+    void phiFactor(double sPU, double lCC, double expectedPhi) {
       ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.ofMilli().tetrapolar(sPU, lCC).build();
-      assertThat(tetrapolar.phi(hSI)).isCloseTo(expectedPhi, byLessThan(0.001));
+      assertThat(tetrapolar.phiFactor()).isCloseTo(expectedPhi, byLessThan(0.001));
     }
 
     @ParameterizedTest
@@ -83,13 +82,6 @@ class ElectrodeSystemTest {
         """)
     void toString(double sPU, double lCC, String expected) {
       assertThat(ElectrodeSystem.ofMilli().tetrapolar(sPU, lCC).build()).hasToString(expected);
-    }
-
-    @ParameterizedTest
-    @ValueSource(doubles = {-0.1, -1.0})
-    void invalidH(double h) {
-      ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.ofMilli().tetrapolar(10.0, 30.0).build();
-      assertThatIllegalArgumentException().isThrownBy(() -> tetrapolar.phi(h));
     }
   }
 
