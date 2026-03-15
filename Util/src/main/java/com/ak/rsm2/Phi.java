@@ -1,6 +1,7 @@
 package com.ak.rsm2;
 
 import java.util.Objects;
+import java.util.function.DoubleUnaryOperator;
 
 public sealed interface Phi extends DoubleValuable {
   static Phi of(double h, ElectrodeSystem.Tetrapolar system) {
@@ -13,11 +14,11 @@ public sealed interface Phi extends DoubleValuable {
         throw new IllegalArgumentException("h = %f must be non-negative".formatted(h));
       }
       Objects.requireNonNull(system);
-      this(h * (factor(system, -1) - factor(system, 1)));
+      this(h * (factor(system, Sign.MINUS) - factor(system, Sign.PLUS)));
     }
 
-    private static double factor(ElectrodeSystem.Tetrapolar system, int sign) {
-      return 1.0 / Math.abs(system.lCC() + sign * system.sPU());
+    private static double factor(ElectrodeSystem.Tetrapolar system, DoubleUnaryOperator sign) {
+      return 1.0 / Math.abs(system.lCC() + sign.applyAsDouble(system.sPU()));
     }
   }
 }
