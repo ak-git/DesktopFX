@@ -14,9 +14,9 @@ class ResistivityTest {
       8.0 | 1.0 | 10.0 | 10.0 | 20.0 | 0.911
       8.0 | 1.0 | 10.0 | 20.0 | 10.0 | 0.911
       """)
-  void normalizedByRho1(double rho1, double rho2, double hmm, double smm, double lmm, double expected) {
+  void apparentDivRho1(double rho1, double rho2, double hmm, double smm, double lmm, double expected) {
     ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).build();
-    double value = Resistivity.of(tetrapolar).normalizedByRho1().value(K.of(rho1, rho2).value(), Metrics.Length.MILLI.toSI(hmm));
+    double value = Resistivity.of(tetrapolar).apparentDivRho1().value(K.of(rho1, rho2).value(), Metrics.Length.MILLI.toSI(hmm));
     assertThat(value).isCloseTo(expected, byLessThan(0.001));
   }
 
@@ -24,8 +24,8 @@ class ResistivityTest {
   @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
   void apparent(double[] rho, double hmm, double smm, double lmm, double rOhm) {
     apparent(smm, lmm, rOhm);
-    normalizedByRho1(rho, hmm, smm, lmm);
-    normalizedByRho1(rho, hmm, smm, lmm, rOhm);
+    apparentDivRho1(rho, hmm, smm, lmm);
+    apparentDivRho1(rho, hmm, smm, lmm, rOhm);
   }
 
   private static void apparent(double smm, double lmm, double rOhm) {
@@ -34,18 +34,18 @@ class ResistivityTest {
     assertThat(apparentNor).isEqualTo(apparentInv);
   }
 
-  private static void normalizedByRho1(double[] rho, double hmm, double smm, double lmm) {
-    double predictedNor = Resistivity.of(ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).build()).normalizedByRho1()
+  private static void apparentDivRho1(double[] rho, double hmm, double smm, double lmm) {
+    double predictedNor = Resistivity.of(ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).build()).apparentDivRho1()
         .value(K.of(rho[0], rho[1]).value(), Metrics.Length.MILLI.toSI(hmm));
-    double predictedRev = Resistivity.of(ElectrodeSystem.ofMilli().tetrapolar(lmm, smm).build()).normalizedByRho1()
+    double predictedRev = Resistivity.of(ElectrodeSystem.ofMilli().tetrapolar(lmm, smm).build()).apparentDivRho1()
         .value(K.of(rho[0], rho[1]).value(), Metrics.Length.MILLI.toSI(hmm));
     assertThat(predictedNor).isCloseTo(predictedRev, byLessThan(0.000_001));
   }
 
-  private static void normalizedByRho1(double[] rho, double hmm, double smm, double lmm, double rOhm) {
+  private static void apparentDivRho1(double[] rho, double hmm, double smm, double lmm, double rOhm) {
     ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).build();
     double apparent = Resistivity.of(tetrapolar).apparent(rOhm);
-    double predicted = Resistivity.of(tetrapolar).normalizedByRho1().value(K.of(rho[0], rho[1]).value(), Metrics.Length.MILLI.toSI(hmm));
+    double predicted = Resistivity.of(tetrapolar).apparentDivRho1().value(K.of(rho[0], rho[1]).value(), Metrics.Length.MILLI.toSI(hmm));
     assertThat(apparent / rho[0]).isCloseTo(predicted, byLessThan(0.001));
   }
 }

@@ -8,7 +8,7 @@ import java.util.function.DoubleUnaryOperator;
 public sealed interface Resistivity {
   double apparent(double rOhm);
 
-  NormalizedByRho1 normalizedByRho1();
+  NormalizedByRho1 apparentDivRho1();
 
   static Resistivity of(ElectrodeSystem.Tetrapolar tetrapolar) {
     return new NormalizedByRho1.NormalizedByRho1TwoLayers(tetrapolar);
@@ -45,7 +45,7 @@ public sealed interface Resistivity {
       }
 
       @Override
-      public NormalizedByRho1 normalizedByRho1() {
+      public NormalizedByRho1 apparentDivRho1() {
         return this;
       }
     }
