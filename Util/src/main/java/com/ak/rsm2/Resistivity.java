@@ -5,23 +5,19 @@ import com.ak.rsm.system.Layers;
 import java.util.Objects;
 import java.util.function.DoubleUnaryOperator;
 
-public enum Resistivity {
-  ;
+public sealed interface Resistivity {
+  double apparent(double rOhm);
 
-  sealed interface Step1 {
-    NormalizedByRho1 normalizedByRho1();
+  NormalizedByRho1 normalizedByRho1();
 
-    double apparent(double rOhm);
-  }
-
-  static Step1 of(ElectrodeSystem.Tetrapolar tetrapolar) {
+  static Resistivity of(ElectrodeSystem.Tetrapolar tetrapolar) {
     return new NormalizedByRho1.NormalizedByRho1TwoLayers(tetrapolar);
   }
 
-  public sealed interface NormalizedByRho1 {
+  sealed interface NormalizedByRho1 {
     double value(double k, double hSI);
 
-    record NormalizedByRho1TwoLayers(ElectrodeSystem.Tetrapolar tetrapolar) implements Step1, NormalizedByRho1 {
+    record NormalizedByRho1TwoLayers(ElectrodeSystem.Tetrapolar tetrapolar) implements Resistivity, NormalizedByRho1 {
       public NormalizedByRho1TwoLayers {
         Objects.requireNonNull(tetrapolar);
       }
@@ -44,13 +40,13 @@ public enum Resistivity {
       }
 
       @Override
-      public NormalizedByRho1 normalizedByRho1() {
-        return this;
+      public double apparent(double rOhm) {
+        return rOhm / tetrapolar().phi(2.0 / Math.PI);
       }
 
       @Override
-      public double apparent(double rOhm) {
-        return rOhm / tetrapolar().phi(2.0 / Math.PI);
+      public NormalizedByRho1 normalizedByRho1() {
+        return this;
       }
     }
   }
