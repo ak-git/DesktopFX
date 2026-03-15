@@ -70,7 +70,7 @@ class ResistivityTest {
 
     @ParameterizedTest
     @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
-    void apparent(double[] rho, double hmm, double smm, double lmm) {
+    void apparentDivRho1(double[] rho, double hmm, double smm, double lmm) {
       double predictedNor = Resistivity.of(ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).build()).derivativeApparentByPhoDivRho1()
           .value(K.of(rho[0], rho[1]).value(), Metrics.Length.MILLI.toSI(hmm));
       double predictedRev = Resistivity.of(ElectrodeSystem.ofMilli().tetrapolar(lmm, smm).build()).derivativeApparentByPhoDivRho1()
