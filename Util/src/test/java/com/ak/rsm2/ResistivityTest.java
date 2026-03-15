@@ -1,6 +1,5 @@
 package com.ak.rsm2;
 
-import com.ak.rsm.resistance.TetrapolarResistance;
 import com.ak.util.Metrics;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,12 +25,30 @@ class ResistivityTest {
 
   @ParameterizedTest
   @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
-  void valueNormalized(double[] rho, double hmm, double smm, double lmm, double rOhm) {
-    double apparent = TetrapolarResistance.ofMilli(smm, lmm).ofOhms(rOhm).resistivity() / rho[0];
+  void apparent(double[] rho, double hmm, double smm, double lmm, double rOhm) {
+    apparent(smm, lmm, rOhm);
+    normalizedByRho1(rho, hmm, smm, lmm);
+    normalizedByRho1(rho, hmm, smm, lmm, rOhm);
+  }
+
+  private static void apparent(double smm, double lmm, double rOhm) {
+    double apparentNor = Resistivity.apparent(ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).build(), rOhm);
+    double apparentInv = Resistivity.apparent(ElectrodeSystem.ofMilli().tetrapolar(lmm, smm).build(), rOhm);
+    assertThat(apparentNor).isEqualTo(apparentInv);
+  }
+
+  private static void normalizedByRho1(double[] rho, double hmm, double smm, double lmm) {
     double predictedNor = Resistivity.normalizedByRho1(ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).build())
         .value(K.of(rho[0], rho[1]).value(), Metrics.Length.MILLI.toSI(hmm));
     double predictedRev = Resistivity.normalizedByRho1(ElectrodeSystem.ofMilli().tetrapolar(lmm, smm).build())
         .value(K.of(rho[0], rho[1]).value(), Metrics.Length.MILLI.toSI(hmm));
-    assertThat(apparent).isCloseTo(predictedNor, byLessThan(0.001)).isCloseTo(predictedRev, byLessThan(0.001));
+    assertThat(predictedNor).isCloseTo(predictedRev, byLessThan(0.000_001));
+  }
+
+  private static void normalizedByRho1(double[] rho, double hmm, double smm, double lmm, double rOhm) {
+    ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).build();
+    double apparent = Resistivity.apparent(tetrapolar, rOhm);
+    double predicted = Resistivity.normalizedByRho1(tetrapolar).value(K.of(rho[0], rho[1]).value(), Metrics.Length.MILLI.toSI(hmm));
+    assertThat(apparent / rho[0]).isCloseTo(predicted, byLessThan(0.001));
   }
 }

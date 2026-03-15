@@ -8,6 +8,10 @@ import java.util.function.DoubleUnaryOperator;
 enum Resistivity {
   ;
 
+  static double apparent(ElectrodeSystem.Tetrapolar tetrapolar, double rOhm) {
+    return rOhm / tetrapolar.phi(2.0 / Math.PI);
+  }
+
   static NormalizedByRho1 normalizedByRho1(ElectrodeSystem.Tetrapolar tetrapolar) {
     return new NormalizedByRho1.NormalizedByRho1TwoLayers(tetrapolar);
   }
