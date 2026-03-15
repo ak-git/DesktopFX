@@ -5,21 +5,23 @@ import com.ak.rsm.system.Layers;
 import java.util.Objects;
 import java.util.function.DoubleUnaryOperator;
 
-enum Resistivity {
+public enum Resistivity {
   ;
 
-  static double apparent(ElectrodeSystem.Tetrapolar tetrapolar, double rOhm) {
-    return rOhm / tetrapolar.phi(2.0 / Math.PI);
+  sealed interface Step1 {
+    NormalizedByRho1 normalizedByRho1();
+
+    double apparent(double rOhm);
   }
 
-  static NormalizedByRho1 normalizedByRho1(ElectrodeSystem.Tetrapolar tetrapolar) {
+  static Step1 of(ElectrodeSystem.Tetrapolar tetrapolar) {
     return new NormalizedByRho1.NormalizedByRho1TwoLayers(tetrapolar);
   }
 
-  sealed interface NormalizedByRho1 {
+  public sealed interface NormalizedByRho1 {
     double value(double k, double hSI);
 
-    record NormalizedByRho1TwoLayers(ElectrodeSystem.Tetrapolar tetrapolar) implements NormalizedByRho1 {
+    record NormalizedByRho1TwoLayers(ElectrodeSystem.Tetrapolar tetrapolar) implements Step1, NormalizedByRho1 {
       public NormalizedByRho1TwoLayers {
         Objects.requireNonNull(tetrapolar);
       }
@@ -33,12 +35,22 @@ enum Resistivity {
 
       private DoubleUnaryOperator braceOperation(double hSI, DoubleUnaryOperator sign) {
         return n -> {
-          double nom = 1.0 + sign.applyAsDouble(tetrapolar().sToL());
-          double den = 1.0 + sign.andThen(Sign.MINUS).applyAsDouble(tetrapolar().sToL());
+          double nom = 1.0 + sign.applyAsDouble(tetrapolar.sToL());
+          double den = 1.0 + sign.andThen(Sign.MINUS).applyAsDouble(tetrapolar.sToL());
           double left = 1.0 - Math.abs(nom / den);
-          double right = 4.0 * n * tetrapolar().phi(hSI);
+          double right = 4.0 * n * tetrapolar.phi(hSI);
           return 1.0 / StrictMath.hypot(left, right);
         };
+      }
+
+      @Override
+      public NormalizedByRho1 normalizedByRho1() {
+        return this;
+      }
+
+      @Override
+      public double apparent(double rOhm) {
+        return rOhm / tetrapolar().phi(2.0 / Math.PI);
       }
     }
   }

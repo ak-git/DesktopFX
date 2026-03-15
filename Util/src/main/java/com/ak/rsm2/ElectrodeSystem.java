@@ -44,7 +44,7 @@ public sealed interface ElectrodeSystem {
     }
   }
 
-  sealed interface Step1 permits Tetrapolar.TetrapolarBuilder {
+  sealed interface Step1 {
     Step2 tetrapolar(double sPU, double lCC);
   }
 
@@ -102,7 +102,7 @@ public sealed interface ElectrodeSystem {
     }
   }
 
-  sealed interface Step2 extends Builder<Tetrapolar> permits Inexact.InexactBuilder {
+  sealed interface Step2 extends Builder<Tetrapolar> {
     Builder<Inexact> absError(double absError);
   }
 
