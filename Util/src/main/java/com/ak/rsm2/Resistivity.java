@@ -8,7 +8,7 @@ import java.util.function.DoubleUnaryOperator;
 enum Resistivity {
   ;
 
-  static NormalizedByRho1 of(ElectrodeSystem.Tetrapolar tetrapolar) {
+  static NormalizedByRho1 normalizedByRho1(ElectrodeSystem.Tetrapolar tetrapolar) {
     return new NormalizedByRho1.NormalizedByRho1TwoLayers(tetrapolar);
   }
 
