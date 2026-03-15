@@ -5,14 +5,14 @@ import java.util.function.DoubleUnaryOperator;
 enum Sign implements DoubleUnaryOperator {
   PLUS(1), MINUS(-1);
 
-  private final int sign;
+  private final int signCoeff;
 
-  Sign(int sign) {
-    this.sign = sign;
+  Sign(int signCoeff) {
+    this.signCoeff = signCoeff;
   }
 
   @Override
   public final double applyAsDouble(double operand) {
-    return sign * operand;
+    return signCoeff * operand;
   }
 }
