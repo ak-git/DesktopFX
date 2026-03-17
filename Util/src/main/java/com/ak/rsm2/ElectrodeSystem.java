@@ -6,7 +6,9 @@ import com.ak.util.Metrics;
 
 import javax.measure.MetricPrefix;
 import java.util.Objects;
+import java.util.function.ToDoubleFunction;
 
+import static java.lang.StrictMath.log;
 import static java.lang.StrictMath.pow;
 import static tech.units.indriya.unit.Units.METRE;
 
@@ -107,6 +109,17 @@ public sealed interface ElectrodeSystem {
     double hMax(K k);
 
     double hMin(K k);
+
+    default ToDoubleFunction<Model.Layer2Relative> errorLog(double rOhm, double dRhoByDh) {
+      Resistivity resistivity = Resistivity.of(this);
+      double apparent = resistivity.apparent(rOhm);
+      double derivativeApparentByPhi = resistivity.apparent(dRhoByDh / phiFactor());
+      return layer2 -> {
+        double v = log(resistivity.apparentDivRho1(layer2) / apparent) -
+            log(resistivity.derivativeApparentByPhiDivRho1(layer2) / derivativeApparentByPhi);
+        return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
+      };
+    }
 
     record InexactRecord(Tetrapolar tetrapolar, double absError) implements Inexact {
       public InexactRecord {

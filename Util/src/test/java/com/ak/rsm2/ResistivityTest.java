@@ -20,7 +20,7 @@ class ResistivityTest {
     void apparentDivRho1(double rho1, double rho2, double hmm, double smm, double lmm, double expected) {
       ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).build();
       Model.Layer2Relative layer2 = new Model.Layer2Relative(K.of(rho1, rho2), Metrics.Length.MILLI.toSI(hmm));
-      double value = Resistivity.of(tetrapolar).apparentDivRho1().applyAsDouble(layer2);
+      double value = Resistivity.of(tetrapolar).apparentDivRho1(layer2);
       assertThat(value).isCloseTo(expected, byLessThan(0.001));
     }
 
@@ -40,10 +40,8 @@ class ResistivityTest {
 
     private static void apparentDivRho1(double[] rho, double hmm, double smm, double lmm) {
       Model.Layer2Relative layer2 = new Model.Layer2Relative(K.of(rho[0], rho[1]), Metrics.Length.MILLI.toSI(hmm));
-      double predictedNor = Resistivity.of(ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).build())
-          .apparentDivRho1().applyAsDouble(layer2);
-      double predictedRev = Resistivity.of(ElectrodeSystem.ofMilli().tetrapolar(lmm, smm).build())
-          .apparentDivRho1().applyAsDouble(layer2);
+      double predictedNor = Resistivity.of(ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).build()).apparentDivRho1(layer2);
+      double predictedRev = Resistivity.of(ElectrodeSystem.ofMilli().tetrapolar(lmm, smm).build()).apparentDivRho1(layer2);
       assertThat(predictedNor).isCloseTo(predictedRev, byLessThan(0.000_001));
     }
 
@@ -51,7 +49,7 @@ class ResistivityTest {
       ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).build();
       double apparent = Resistivity.of(tetrapolar).apparent(rOhm);
       Model.Layer2Relative layer2 = new Model.Layer2Relative(K.of(rho[0], rho[1]), Metrics.Length.MILLI.toSI(hmm));
-      double predicted = Resistivity.of(tetrapolar).apparentDivRho1().applyAsDouble(layer2);
+      double predicted = Resistivity.of(tetrapolar).apparentDivRho1(layer2);
       assertThat(apparent / rho[0]).isCloseTo(predicted, byLessThan(0.001));
     }
   }
@@ -68,7 +66,7 @@ class ResistivityTest {
     void apparentDivRho1(double rho1, double rho2, double hmm, double smm, double lmm, double expected) {
       ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).build();
       Model.Layer2Relative layer2 = new Model.Layer2Relative(K.of(rho1, rho2), Metrics.Length.MILLI.toSI(hmm));
-      double value = Resistivity.of(tetrapolar).derivativeApparentByPhoDivRho1().applyAsDouble(layer2);
+      double value = Resistivity.of(tetrapolar).derivativeApparentByPhiDivRho1(layer2);
       assertThat(value).isCloseTo(expected, byLessThan(0.001));
     }
 
@@ -77,9 +75,9 @@ class ResistivityTest {
     void apparentDivRho1(double[] rho, double hmm, double smm, double lmm) {
       Model.Layer2Relative layer2 = new Model.Layer2Relative(K.of(rho[0], rho[1]), Metrics.Length.MILLI.toSI(hmm));
       double predictedNor = Resistivity.of(ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).build())
-          .derivativeApparentByPhoDivRho1().applyAsDouble(layer2);
+          .derivativeApparentByPhiDivRho1(layer2);
       double predictedRev = Resistivity.of(ElectrodeSystem.ofMilli().tetrapolar(lmm, smm).build())
-          .derivativeApparentByPhoDivRho1().applyAsDouble(layer2);
+          .derivativeApparentByPhiDivRho1(layer2);
       assertThat(predictedNor).isCloseTo(predictedRev, byLessThan(0.000_001));
     }
   }

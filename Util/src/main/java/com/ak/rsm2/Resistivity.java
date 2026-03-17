@@ -4,7 +4,6 @@ import com.ak.rsm.system.Layers;
 
 import java.util.Objects;
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.ToDoubleFunction;
 
 import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.pow;
@@ -12,15 +11,15 @@ import static java.lang.StrictMath.pow;
 public sealed interface Resistivity {
   double apparent(double rOhm);
 
-  ApparentDivRho1 apparentDivRho1();
+  double apparentDivRho1(Model.Layer2Relative layer2);
 
-  ApparentDivRho1 derivativeApparentByPhoDivRho1();
+  double derivativeApparentByPhiDivRho1(Model.Layer2Relative layer2);
 
   static Resistivity of(ElectrodeSystem.Tetrapolar tetrapolar) {
     return new ApparentDivRho1.TwoLayers(tetrapolar);
   }
 
-  interface ApparentDivRho1 extends ToDoubleFunction<Model.Layer2Relative> {
+  interface ApparentDivRho1 {
     record TwoLayers(ElectrodeSystem.Tetrapolar tetrapolar) implements Resistivity {
       enum Sign implements DoubleUnaryOperator {
         PLUS(1), MINUS(-1);
@@ -47,24 +46,20 @@ public sealed interface Resistivity {
       }
 
       @Override
-      public ApparentDivRho1 apparentDivRho1() {
-        return layer2 -> {
-          DoubleUnaryOperator left = braceOperation(layer2.hSI(), Sign.MINUS);
-          DoubleUnaryOperator right = braceOperation(layer2.hSI(), Sign.PLUS);
-          return 1.0 + 2.0 * Layers.sum(n -> pow(layer2.k(), n) * (left.applyAsDouble(n) - right.applyAsDouble(n)));
-        };
+      public double apparentDivRho1(Model.Layer2Relative layer2) {
+        DoubleUnaryOperator left = braceOperation(layer2.hSI(), Sign.MINUS);
+        DoubleUnaryOperator right = braceOperation(layer2.hSI(), Sign.PLUS);
+        return 1.0 + 2.0 * Layers.sum(n -> pow(layer2.k(), n) * (left.applyAsDouble(n) - right.applyAsDouble(n)));
       }
 
       @Override
-      public ApparentDivRho1 derivativeApparentByPhoDivRho1() {
-        return layer2 -> {
-          DoubleUnaryOperator left = braceOperation(layer2.hSI(), Sign.MINUS);
-          DoubleUnaryOperator right = braceOperation(layer2.hSI(), Sign.PLUS);
-          return -32.0 * layer2.hSI() * tetrapolar.phiFactor() *
-              Layers.sum(
-                  n -> pow(layer2.k(), n) * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0))
-              );
-        };
+      public double derivativeApparentByPhiDivRho1(Model.Layer2Relative layer2) {
+        DoubleUnaryOperator left = braceOperation(layer2.hSI(), Sign.MINUS);
+        DoubleUnaryOperator right = braceOperation(layer2.hSI(), Sign.PLUS);
+        return -32.0 * layer2.hSI() * tetrapolar.phiFactor() *
+            Layers.sum(
+                n -> pow(layer2.k(), n) * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0))
+            );
       }
 
       private DoubleUnaryOperator braceOperation(double hSI, DoubleUnaryOperator sign) {
