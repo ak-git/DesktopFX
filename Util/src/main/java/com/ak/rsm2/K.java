@@ -9,8 +9,6 @@ public sealed interface K {
 
   boolean isPlusOne();
 
-  boolean isZero();
-
   boolean isMinusOne();
 
   static K of(double value) {
@@ -40,11 +38,6 @@ public sealed interface K {
     @Override
     public boolean isPlusOne() {
       return Double.compare(value, 1.0) == 0;
-    }
-
-    @Override
-    public boolean isZero() {
-      return Double.compare(value, 0.0) == 0;
     }
 
     @Override
