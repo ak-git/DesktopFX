@@ -11,9 +11,11 @@ import static java.lang.StrictMath.log;
 import static java.lang.StrictMath.log1p;
 
 public sealed interface Misfit {
+  double dataNorm();
+
   ToDoubleFunction<Model.Layer2Relative> errorLog();
 
-  double dataNorm();
+  ToDoubleFunction<Model.Layer2Relative> regularization();
 
   sealed interface Step1 {
     Step2 ofMilli(Function<ElectrodeSystem.Step1, Builder<ElectrodeSystem.Inexact>> builderFunction);
@@ -30,6 +32,11 @@ public sealed interface Misfit {
   final class MisfitBuilder implements Step1, Step2, Builder<Misfit> {
     private record MisfitRecord(ElectrodeSystem.Inexact system, TetrapolarMeasurement measurement) implements Misfit {
       @Override
+      public double dataNorm() {
+        return log1p(system.apparentRhoRelativeError());
+      }
+
+      @Override
       public ToDoubleFunction<Model.Layer2Relative> errorLog() {
         Resistivity resistivity = Resistivity.of(system);
         double apparent = resistivity.apparent(measurement.ohms());
@@ -42,8 +49,19 @@ public sealed interface Misfit {
       }
 
       @Override
-      public double dataNorm() {
-        return log1p(system.apparentRhoRelativeError());
+      public ToDoubleFunction<Model.Layer2Relative> regularization() {
+        return layer2 -> {
+          double hMax = system.hMax(layer2.k());
+          double hMin = Math.max(system.hMin(layer2.k()), system.hMin(K.of(0.9999)));
+          if (hMin < layer2.h() && layer2.h() < hMax) {
+            double x = log(layer2.h());
+            double s = log(log(hMax) - x) - log(x - log(hMin));
+            return s * s;
+          }
+          else {
+            return Double.POSITIVE_INFINITY;
+          }
+        };
       }
     }
 

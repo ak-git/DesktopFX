@@ -47,18 +47,18 @@ public sealed interface Resistivity {
 
       @Override
       public double apparentDivRho1(Model.Layer2Relative layer2) {
-        DoubleUnaryOperator left = braceOperation(layer2.hSI(), Sign.MINUS);
-        DoubleUnaryOperator right = braceOperation(layer2.hSI(), Sign.PLUS);
-        return 1.0 + 2.0 * Layers.sum(n -> pow(layer2.k(), n) * (left.applyAsDouble(n) - right.applyAsDouble(n)));
+        DoubleUnaryOperator left = braceOperation(layer2.h(), Sign.MINUS);
+        DoubleUnaryOperator right = braceOperation(layer2.h(), Sign.PLUS);
+        return 1.0 + 2.0 * Layers.sum(n -> pow(layer2.k().value(), n) * (left.applyAsDouble(n) - right.applyAsDouble(n)));
       }
 
       @Override
       public double derivativeApparentByPhiDivRho1(Model.Layer2Relative layer2) {
-        DoubleUnaryOperator left = braceOperation(layer2.hSI(), Sign.MINUS);
-        DoubleUnaryOperator right = braceOperation(layer2.hSI(), Sign.PLUS);
-        return -32.0 * layer2.hSI() * tetrapolar.phiFactor() *
+        DoubleUnaryOperator left = braceOperation(layer2.h(), Sign.MINUS);
+        DoubleUnaryOperator right = braceOperation(layer2.h(), Sign.PLUS);
+        return -32.0 * layer2.h() * tetrapolar.phiFactor() *
             Layers.sum(
-                n -> pow(layer2.k(), n) * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0))
+                n -> pow(layer2.k().value(), n) * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0))
             );
       }
 

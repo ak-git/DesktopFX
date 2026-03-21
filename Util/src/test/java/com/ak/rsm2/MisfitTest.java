@@ -1,6 +1,7 @@
 package com.ak.rsm2;
 
 import com.ak.util.Metrics;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -22,9 +23,29 @@ class MisfitTest {
         .measurements(m -> m.ohms(rBefore).dhMilli(dHmm).thenOhms(rAfter))
         .build();
 
-    assertThat(misfit.errorLog().applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, Metrics.Length.MILLI.toSI(expectedHmm))))
-        .as(misfit::toString)
-        .isPositive().isCloseTo(0.0, byLessThan(0.01));
+    Model.Layer2Relative layer2 = new Model.Layer2Relative(K.PLUS_ONE, Metrics.Length.MILLI.toSI(expectedHmm));
+    assertThat(misfit.errorLog().applyAsDouble(layer2)).as(misfit::toString).isPositive().isCloseTo(0.0, byLessThan(0.01));
+  }
+
+  @ParameterizedTest
+  @CsvSource(delimiter = ',', textBlock = """
+      10.0, 30.0, 30.971, 31.278, -0.05
+      50.0, 30.0, 62.479, 61.860,  0.05
+      """)
+  void regularization(double smm, double lmm, double rBefore, double rAfter, double dHmm) {
+    Misfit misfit = Misfit.builder()
+        .ofMilli(s -> s.tetrapolar(smm, lmm).absError(0.1))
+        .measurements(m -> m.ohms(rBefore).dhMilli(dHmm).thenOhms(rAfter))
+        .build();
+
+    ElectrodeSystem.Inexact inexact = ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).absError(0.1).build();
+    Assertions.assertAll(misfit.toString(),
+        () -> assertThat(misfit.regularization().applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMax(K.PLUS_ONE)))).isInfinite(),
+        () -> assertThat(misfit.regularization().applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMin(K.PLUS_ONE)))).isInfinite()
+    );
+    K k = K.of(0.5);
+    assertThat(misfit.regularization().applyAsDouble(new Model.Layer2Relative(k, Math.sqrt(inexact.hMax(k) * inexact.hMin(k)))))
+        .isPositive().isCloseTo(0.0, byLessThan(1.0e-9));
   }
 
   @ParameterizedTest
@@ -48,7 +69,7 @@ class MisfitTest {
         .ofMilli(s -> s.tetrapolar(smm, lmm).absError(0.1))
         .measurements(m -> m.ohms(rBefore).dhMilli(dHmm).thenOhms(rAfter))
         .build();
-    assertThat(misfit.dataNorm()).isCloseTo(expected, byLessThan(0.001));
+    assertThat(misfit.dataNorm()).as(misfit::toString).isCloseTo(expected, byLessThan(0.001));
   }
 
   @ParameterizedTest
@@ -61,6 +82,6 @@ class MisfitTest {
         .measurements(m -> m.ohms(rBefore).dhMilli(dHmm).thenOhms(rAfter))
         .build();
     assertThat(misfit.errorLog().applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, Metrics.Length.MILLI.toSI(expectedHmm))))
-        .isInfinite();
+        .as(misfit::toString).isInfinite();
   }
 }

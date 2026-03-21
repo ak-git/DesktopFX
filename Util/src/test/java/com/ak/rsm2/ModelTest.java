@@ -17,8 +17,8 @@ class ModelTest {
     void get(double k) {
       Model.Layer2Relative layer2Relative = new Model.Layer2Relative(k, Math.clamp(Math.random() - 0.5, 0.0, 1.0));
       assertAll(layer2Relative.toString(),
-          () -> Assertions.assertThat(layer2Relative.k()).isBetween(-1.0, 1.0),
-          () -> Assertions.assertThat(layer2Relative.hSI()).isNotNegative()
+          () -> Assertions.assertThat(layer2Relative.k().value()).isBetween(-1.0, 1.0),
+          () -> Assertions.assertThat(layer2Relative.h()).isNotNegative()
       );
     }
 
@@ -32,8 +32,8 @@ class ModelTest {
     void get(double rho1, double rho2, double h) {
       Model.Layer2Relative layer2Relative = new Model.Layer2Relative(K.of(rho1, rho2), h);
       assertAll(layer2Relative.toString(),
-          () -> Assertions.assertThat(layer2Relative.k()).isBetween(-1.0, 1.0),
-          () -> Assertions.assertThat(layer2Relative.hSI()).isNotNegative()
+          () -> Assertions.assertThat(layer2Relative.k().value()).isBetween(-1.0, 1.0),
+          () -> Assertions.assertThat(layer2Relative.h()).isNotNegative()
       );
     }
 
