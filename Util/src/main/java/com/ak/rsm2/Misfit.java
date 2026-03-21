@@ -8,9 +8,12 @@ import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
 import static java.lang.StrictMath.log;
+import static java.lang.StrictMath.log1p;
 
 public sealed interface Misfit {
   ToDoubleFunction<Model.Layer2Relative> errorLog();
+
+  double dataNorm();
 
   sealed interface Step1 {
     Step2 ofMilli(Function<ElectrodeSystem.Step1, Builder<ElectrodeSystem.Inexact>> builderFunction);
@@ -36,6 +39,11 @@ public sealed interface Misfit {
               log(resistivity.derivativeApparentByPhiDivRho1(layer2) / derivativeApparentByPhi);
           return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
         };
+      }
+
+      @Override
+      public double dataNorm() {
+        return log1p(system.apparentRhoRelativeError());
       }
     }
 
