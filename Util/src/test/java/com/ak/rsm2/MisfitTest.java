@@ -41,6 +41,7 @@ class MisfitTest {
     ElectrodeSystem.Inexact inexact = ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).absError(0.1).build();
     Assertions.assertAll(misfit.toString(),
         () -> assertThat(misfit.regularization().applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMax(K.PLUS_ONE)))).isInfinite(),
+        () -> assertThat(misfit.regularization().applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMax(K.PLUS_ONE) / 2.0))).isInfinite(),
         () -> assertThat(misfit.regularization().applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMin(K.PLUS_ONE)))).isInfinite()
     );
     K k = K.of(0.5);

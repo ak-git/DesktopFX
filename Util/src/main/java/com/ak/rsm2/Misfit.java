@@ -51,12 +51,12 @@ public sealed interface Misfit {
       @Override
       public ToDoubleFunction<Model.Layer2Relative> regularization() {
         return layer2 -> {
+          double hMin = system.hMin(layer2.k());
           double hMax = system.hMax(layer2.k());
-          double hMin = Math.max(system.hMin(layer2.k()), system.hMin(K.of(0.9999)));
           if (hMin < layer2.h() && layer2.h() < hMax) {
             double x = log(layer2.h());
             double s = log(log(hMax) - x) - log(x - log(hMin));
-            return s * s;
+            return Double.isFinite(s) ? s * s : Double.POSITIVE_INFINITY;
           }
           else {
             return Double.POSITIVE_INFINITY;
