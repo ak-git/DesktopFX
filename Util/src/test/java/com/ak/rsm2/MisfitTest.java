@@ -40,12 +40,12 @@ class MisfitTest {
 
     ElectrodeSystem.Inexact inexact = ElectrodeSystem.ofMilli().tetrapolar(smm, lmm).absError(0.1).build();
     Assertions.assertAll(misfit.toString(),
-        () -> assertThat(misfit.regularization().applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMax(K.PLUS_ONE)))).isInfinite(),
-        () -> assertThat(misfit.regularization().applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMax(K.PLUS_ONE) / 2.0))).isInfinite(),
-        () -> assertThat(misfit.regularization().applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMin(K.PLUS_ONE)))).isInfinite()
+        () -> assertThat(misfit.regularization(Misfit.Regularization.ZERO_MAX_LOG).applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMax(K.PLUS_ONE)))).isInfinite(),
+        () -> assertThat(misfit.regularization(Misfit.Regularization.ZERO_MAX_LOG).applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMax(K.PLUS_ONE) / 2.0))).isInfinite(),
+        () -> assertThat(misfit.regularization(Misfit.Regularization.ZERO_MAX_LOG).applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMin(K.PLUS_ONE)))).isInfinite()
     );
     K k = K.of(0.5);
-    assertThat(misfit.regularization().applyAsDouble(new Model.Layer2Relative(k, Math.sqrt(inexact.hMax(k) * inexact.hMin(k)))))
+    assertThat(misfit.regularization(Misfit.Regularization.ZERO_MAX_LOG).applyAsDouble(new Model.Layer2Relative(k, Math.sqrt(inexact.hMax(k) * inexact.hMin(k)))))
         .isPositive().isCloseTo(0.0, byLessThan(1.0e-9));
   }
 

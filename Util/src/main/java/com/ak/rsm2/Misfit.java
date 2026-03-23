@@ -8,14 +8,17 @@ import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
 import static java.lang.StrictMath.log;
-import static java.lang.StrictMath.log1p;
 
 public sealed interface Misfit {
+  enum Regularization {
+    ZERO_MAX_LOG, MAX_H
+  }
+
   double dataNorm();
 
   ToDoubleFunction<Model.Layer2Relative> errorLog();
 
-  ToDoubleFunction<Model.Layer2Relative> regularization();
+  ToDoubleFunction<Model.Layer2Relative> regularization(Regularization regularization);
 
   sealed interface Step1 {
     Step2 ofMilli(Function<ElectrodeSystem.Step1, Builder<ElectrodeSystem.Inexact>> builderFunction);
@@ -33,7 +36,7 @@ public sealed interface Misfit {
     private record MisfitRecord(ElectrodeSystem.Inexact system, TetrapolarMeasurement measurement) implements Misfit {
       @Override
       public double dataNorm() {
-        return log1p(system.apparentRhoRelativeError());
+        return system.dataNorm();
       }
 
       @Override
@@ -49,18 +52,31 @@ public sealed interface Misfit {
       }
 
       @Override
-      public ToDoubleFunction<Model.Layer2Relative> regularization() {
-        return layer2 -> {
-          double hMin = system.hMin(layer2.k());
-          double hMax = system.hMax(layer2.k());
-          if (hMin < layer2.h() && layer2.h() < hMax) {
-            double x = log(layer2.h());
-            double s = log(log(hMax) - x) - log(x - log(hMin));
-            return Double.isFinite(s) ? s * s : Double.POSITIVE_INFINITY;
-          }
-          else {
-            return Double.POSITIVE_INFINITY;
-          }
+      public ToDoubleFunction<Model.Layer2Relative> regularization(Regularization regularization) {
+        return switch (regularization) {
+          case ZERO_MAX_LOG -> layer2 -> {
+            double hMin = system.hMin(layer2.k());
+            double hMax = system.hMax(layer2.k());
+            if (0 < hMin && hMin < layer2.h() && layer2.h() < hMax) {
+              double x = log(layer2.h());
+              double s = log(log(hMax) - x) - log(x - log(hMin));
+              return s * s;
+            }
+            else {
+              return Double.POSITIVE_INFINITY;
+            }
+          };
+          case MAX_H -> layer2 -> {
+            double hMax = system.hMax(layer2.k());
+            if (0 < layer2.h() && layer2.h() < hMax) {
+              double x = log(layer2.h());
+              double s = log(log(hMax * 100.0) - x) - log(x - log(hMax / 100.0));
+              return s * s;
+            }
+            else {
+              return Double.POSITIVE_INFINITY;
+            }
+          };
         };
       }
     }

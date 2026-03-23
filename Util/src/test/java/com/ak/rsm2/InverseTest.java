@@ -1,0 +1,104 @@
+package com.ak.rsm2;
+
+import com.ak.math.Simplex;
+import com.ak.math.ValuePair;
+import com.ak.util.Strings;
+import org.apache.commons.math4.legacy.optim.InitialGuess;
+import org.apache.commons.math4.legacy.optim.MaxEval;
+import org.apache.commons.math4.legacy.optim.PointValuePair;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.GoalType;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.ObjectiveFunction;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.NelderMeadTransform;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.function.DoubleFunction;
+import java.util.function.DoubleUnaryOperator;
+import java.util.stream.Stream;
+
+class InverseTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger(InverseTest.class);
+
+  @Nested
+  class WaterTest {
+    @BeforeAll
+    static void dataNorm() {
+      double dataNorm = Stream.of(
+              ElectrodeSystem.ofMilli().tetrapolar(10.0, 30.0).absError(0.1).build(),
+              ElectrodeSystem.ofMilli().tetrapolar(50.0, 30.0).absError(0.1).build())
+          .mapToDouble(ElectrodeSystem.Inexact::dataNorm).reduce(Math::hypot).orElseThrow();
+      LOGGER.atInfo().addKeyValue("dataNorm", "%.4f".formatted(dataNorm)).log(Strings.EMPTY);
+    }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        30.971, 61.860, 31.278, 62.479
+        16.761, 32.246, 16.821, 32.383
+        13.338, 23.903, 13.357, 23.953
+        12.187, 20.567, 12.194, 20.589
+        11.710, 18.986, 11.714, 18.998
+        11.482, 18.152, 11.484, 18.158
+        11.361, 17.674, 11.362, 17.678
+        """)
+    void waterParameters(double r1, double r2, double r1After, double r2After) {
+      double dDmm = -1.0 / 20.0;
+      Collection<Misfit> misfits = List.of(
+          Misfit.builder()
+              .ofMilli(s -> s.tetrapolar(10.0, 30.0).absError(0.1))
+              .measurements(m -> m.ohms(r1).dhMilli(dDmm).thenOhms(r1After))
+              .build(),
+          Misfit.builder()
+              .ofMilli(s -> s.tetrapolar(50.0, 30.0).absError(0.1))
+              .measurements(m -> m.ohms(r2).dhMilli(dDmm).thenOhms(r2After))
+              .build()
+      );
+
+      DoubleFunction<Model.Layer2Relative> find = alpha -> {
+        PointValuePair optimized = Simplex.optimizeAll(point -> {
+              Model.Layer2Relative m = new Model.Layer2Relative(point[0], point[1]);
+              double misfit = misfits.stream().mapToDouble(f -> f.errorLog().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
+              double s = misfits.stream().mapToDouble(f -> f.regularization(Misfit.Regularization.MAX_H).applyAsDouble(m)).sum();
+              return misfit * misfit + Math.abs(alpha) * s;
+            },
+            new Simplex.Bounds(0.000_1, 0.999_9), new Simplex.Bounds(0.001, 0.04));
+        double[] point = optimized.getPoint();
+        return new Model.Layer2Relative(point[0], point[1]);
+      };
+
+      DoubleUnaryOperator withAlpha = new DoubleUnaryOperator() {
+        private final double dataNorm = misfits.stream().mapToDouble(Misfit::dataNorm).reduce(Math::hypot).orElseThrow();
+
+        @Override
+        public double applyAsDouble(double alpha) {
+          if (alpha > 0) {
+            Model.Layer2Relative m = find.apply(alpha);
+            double misfit = misfits.stream().mapToDouble(f -> f.errorLog().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
+            LOGGER.atInfo().addKeyValue("alpha", "%.4f".formatted(alpha)).addKeyValue("misfit", "%.4f".formatted(misfit))
+                .log(() -> "%s".formatted(ValuePair.Name.H.of(m.h(), 0.0)));
+            double v = misfit - dataNorm;
+            return v * v;
+          }
+          else {
+            return Double.POSITIVE_INFINITY;
+          }
+        }
+      };
+
+      PointValuePair optimized = new SimplexOptimizer(0.000_000_1, 0.000_01)
+          .optimize(new MaxEval(100), new ObjectiveFunction(point -> withAlpha.applyAsDouble(point[0])),
+              GoalType.MINIMIZE, org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.Simplex.alongAxes(new double[] {0.01}),
+              new NelderMeadTransform(), new InitialGuess(new double[] {0.1})
+          );
+      double alpha = optimized.getPoint()[0];
+      LOGGER.atWarn().addKeyValue("alpha", () -> "%.4f".formatted(alpha))
+          .log("%s".formatted(ValuePair.Name.H.of(find.apply(alpha).h(), 0.0)));
+    }
+  }
+}
