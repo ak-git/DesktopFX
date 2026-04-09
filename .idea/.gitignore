@@ -9,6 +9,7 @@ sonarlint-state.xml
 /rSettings.xml
 /workspace.xml
 /modules.xml
+/jmix-project.xml
 /csv-plugin.xml
 /libraries/*
 *.iml
