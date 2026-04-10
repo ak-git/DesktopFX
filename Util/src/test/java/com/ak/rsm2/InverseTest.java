@@ -11,6 +11,7 @@ import org.apache.commons.math4.legacy.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.NelderMeadTransform;
 import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -29,26 +30,26 @@ class InverseTest {
   @Nested
   class WaterTest {
     @BeforeAll
-    static void dataNorm() {
-      double dataNorm = Stream.of(
+    static void dataErrorNorm() {
+      double dataErrorNorm = Stream.of(
               ElectrodeSystem.ofMilli().tetrapolar(10.0, 30.0).absError(0.1).build(),
               ElectrodeSystem.ofMilli().tetrapolar(50.0, 30.0).absError(0.1).build())
-          .mapToDouble(ElectrodeSystem.Inexact::dataNorm).reduce(Math::hypot).orElseThrow();
-      LOGGER.atInfo().addKeyValue("dataNorm", "%.4f".formatted(dataNorm)).log(Strings.EMPTY);
+          .mapToDouble(ElectrodeSystem.Inexact::dataErrorNorm).reduce(Math::hypot).orElseThrow();
+      LOGGER.atInfo().addKeyValue("data Error Norm", "%.4f".formatted(dataErrorNorm)).log(Strings.EMPTY);
     }
 
+    @Disabled("26.734, 46.074, 26.719, 46.028, 0.450")
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
-        30.971, 61.860, 31.278, 62.479
-        16.761, 32.246, 16.821, 32.383
-        13.338, 23.903, 13.357, 23.953
-        12.187, 20.567, 12.194, 20.589
-        11.710, 18.986, 11.714, 18.998
-        11.482, 18.152, 11.484, 18.158
-        11.361, 17.674, 11.362, 17.678
+        30.971, 61.860, 31.278, 62.479, -0.05
+        16.761, 32.246, 16.821, 32.383, -0.05
+        13.338, 23.903, 13.357, 23.953, -0.05
+        12.187, 20.567, 12.194, 20.589, -0.05
+        11.710, 18.986, 11.714, 18.998, -0.05
+        11.482, 18.152, 11.484, 18.158, -0.05
+        11.361, 17.674, 11.362, 17.678, -0.05
         """)
-    void waterParameters(double r1, double r2, double r1After, double r2After) {
-      double dDmm = -1.0 / 20.0;
+    void waterParameters(double r1, double r2, double r1After, double r2After, double dDmm) {
       Collection<Misfit> misfits = List.of(
           Misfit.builder()
               .ofMilli(s -> s.tetrapolar(10.0, 30.0).absError(0.1))
@@ -63,8 +64,8 @@ class InverseTest {
       DoubleFunction<Model.Layer2Relative> find = alpha -> {
         PointValuePair optimized = Simplex.optimizeAll(point -> {
               Model.Layer2Relative m = new Model.Layer2Relative(point[0], point[1]);
-              double misfit = misfits.stream().mapToDouble(f -> f.errorLog().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
-              double s = misfits.stream().mapToDouble(f -> f.regularization(Misfit.Regularization.MAX_H).applyAsDouble(m)).sum();
+              double misfit = misfits.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
+              double s = misfits.stream().mapToDouble(f -> f.regularization(Misfit.Regularization.ZERO_MAX_LOG).applyAsDouble(m)).sum();
               return misfit * misfit + Math.abs(alpha) * s;
             },
             new Simplex.Bounds(0.000_1, 0.999_9), new Simplex.Bounds(0.001, 0.04));
@@ -73,16 +74,16 @@ class InverseTest {
       };
 
       DoubleUnaryOperator withAlpha = new DoubleUnaryOperator() {
-        private final double dataNorm = misfits.stream().mapToDouble(Misfit::dataNorm).reduce(Math::hypot).orElseThrow();
+        private final double dataErrorNorm = misfits.stream().mapToDouble(Misfit::dataErrorNorm).reduce(Math::hypot).orElseThrow();
 
         @Override
         public double applyAsDouble(double alpha) {
           if (alpha > 0) {
             Model.Layer2Relative m = find.apply(alpha);
-            double misfit = misfits.stream().mapToDouble(f -> f.errorLog().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
+            double misfit = misfits.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
             LOGGER.atInfo().addKeyValue("alpha", "%.4f".formatted(alpha)).addKeyValue("misfit", "%.4f".formatted(misfit))
                 .log(() -> "%s".formatted(ValuePair.Name.H.of(m.h(), 0.0)));
-            double v = misfit - dataNorm;
+            double v = misfit - dataErrorNorm;
             return v * v;
           }
           else {

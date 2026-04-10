@@ -11,12 +11,12 @@ import static java.lang.StrictMath.log;
 
 public sealed interface Misfit {
   enum Regularization {
-    ZERO_MAX_LOG, MAX_H
+    ZERO_MAX_LOG
   }
 
-  double dataNorm();
+  double dataErrorNorm();
 
-  ToDoubleFunction<Model.Layer2Relative> errorLog();
+  ToDoubleFunction<Model.Layer2Relative> misfit();
 
   ToDoubleFunction<Model.Layer2Relative> regularization(Regularization regularization);
 
@@ -35,12 +35,12 @@ public sealed interface Misfit {
   final class MisfitBuilder implements Step1, Step2, Builder<Misfit> {
     private record MisfitRecord(ElectrodeSystem.Inexact system, TetrapolarMeasurement measurement) implements Misfit {
       @Override
-      public double dataNorm() {
-        return system.dataNorm();
+      public double dataErrorNorm() {
+        return system.dataErrorNorm();
       }
 
       @Override
-      public ToDoubleFunction<Model.Layer2Relative> errorLog() {
+      public ToDoubleFunction<Model.Layer2Relative> misfit() {
         Resistivity resistivity = Resistivity.of(system);
         double apparent = resistivity.apparent(measurement.ohms());
         double derivativeApparentByPhi = resistivity.apparent((measurement.dOhms() / measurement.dh()) / system.phiFactor());
@@ -60,17 +60,6 @@ public sealed interface Misfit {
             if (0 < hMin && hMin < layer2.h() && layer2.h() < hMax) {
               double x = log(layer2.h());
               double s = log(log(hMax) - x) - log(x - log(hMin));
-              return s * s;
-            }
-            else {
-              return Double.POSITIVE_INFINITY;
-            }
-          };
-          case MAX_H -> layer2 -> {
-            double hMax = system.hMax(layer2.k());
-            if (0 < layer2.h() && layer2.h() < hMax) {
-              double x = log(layer2.h());
-              double s = log(log(hMax * 100.0) - x) - log(x - log(hMax / 100.0));
               return s * s;
             }
             else {

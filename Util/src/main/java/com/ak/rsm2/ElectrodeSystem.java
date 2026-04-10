@@ -105,7 +105,7 @@ public sealed interface ElectrodeSystem {
   sealed interface Inexact extends Tetrapolar {
     double apparentRhoRelativeError();
 
-    double dataNorm();
+    double dataErrorNorm();
 
     double hMax(K k);
 
@@ -157,7 +157,7 @@ public sealed interface ElectrodeSystem {
         }
 
         @Override
-        public double dataNorm() {
+        public double dataErrorNorm() {
           return log1p(apparentRhoRelativeError());
         }
 

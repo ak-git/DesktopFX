@@ -17,14 +17,14 @@ class MisfitTest {
       10.0, 30.0, 30.971, 31.278, -0.05, 5.0
       50.0, 30.0, 62.479, 61.860,  0.05, 5.0
       """)
-  void errorLog(double smm, double lmm, double rBefore, double rAfter, double dHmm, double expectedHmm) {
+  void misfit(double smm, double lmm, double rBefore, double rAfter, double dHmm, double expectedHmm) {
     Misfit misfit = Misfit.builder()
         .ofMilli(s -> s.tetrapolar(smm, lmm).absError(0.1))
         .measurements(m -> m.ohms(rBefore).dhMilli(dHmm).thenOhms(rAfter))
         .build();
 
     Model.Layer2Relative layer2 = new Model.Layer2Relative(K.PLUS_ONE, Metrics.Length.MILLI.toSI(expectedHmm));
-    assertThat(misfit.errorLog().applyAsDouble(layer2)).as(misfit::toString).isPositive().isCloseTo(0.0, byLessThan(0.01));
+    assertThat(misfit.misfit().applyAsDouble(layer2)).as(misfit::toString).isPositive().isCloseTo(0.0, byLessThan(0.01));
   }
 
   @ParameterizedTest
@@ -54,7 +54,7 @@ class MisfitTest {
       10.0, 30.0, 30.971, 31.278, -0.05
       50.0, 30.0, 62.479, 61.860,  0.05
       """)
-  void dataNorm(double smm, double lmm, double rBefore, double rAfter, double dHmm) {
+  void dataErrorNorm(double smm, double lmm, double rBefore, double rAfter, double dHmm) {
     DoubleUnaryOperator d = emm -> {
       ElectrodeSystem.Tetrapolar system = ElectrodeSystem.ofMilli().tetrapolar(smm + emm, lmm - emm).build();
       Resistivity resistivity = Resistivity.of(system);
@@ -70,7 +70,7 @@ class MisfitTest {
         .ofMilli(s -> s.tetrapolar(smm, lmm).absError(0.1))
         .measurements(m -> m.ohms(rBefore).dhMilli(dHmm).thenOhms(rAfter))
         .build();
-    assertThat(misfit.dataNorm()).as(misfit::toString).isCloseTo(expected, byLessThan(0.001));
+    assertThat(misfit.dataErrorNorm()).as(misfit::toString).isCloseTo(expected, byLessThan(0.001));
   }
 
   @ParameterizedTest
@@ -82,7 +82,7 @@ class MisfitTest {
         .ofMilli(s -> s.tetrapolar(10.0, 30.0).absError(0.1))
         .measurements(m -> m.ohms(rBefore).dhMilli(dHmm).thenOhms(rAfter))
         .build();
-    assertThat(misfit.errorLog().applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, Metrics.Length.MILLI.toSI(expectedHmm))))
+    assertThat(misfit.misfit().applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, Metrics.Length.MILLI.toSI(expectedHmm))))
         .as(misfit::toString).isInfinite();
   }
 }
