@@ -64,11 +64,16 @@ class InverseTest {
       DoubleFunction<Model.Layer2Relative> find = alpha -> {
         PointValuePair optimized = Simplex.optimizeAll(point -> {
               Model.Layer2Relative m = new Model.Layer2Relative(point[0], point[1]);
-              double misfit = misfits.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
               double s = misfits.stream().mapToDouble(f -> f.regularization(Misfit.Regularization.ZERO_MAX_LOG).applyAsDouble(m)).sum();
-              return misfit * misfit + Math.abs(alpha) * s;
+              if (Double.isFinite(s)) {
+                double misfit = misfits.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
+                return misfit * misfit + Math.abs(alpha) * s;
+              }
+              else {
+                return Double.POSITIVE_INFINITY;
+              }
             },
-            new Simplex.Bounds(0.000_1, 0.999_9), new Simplex.Bounds(0.001, 0.04));
+            new Simplex.Bounds(0.0, 1.0), new Simplex.Bounds(0.0, 0.04));
         double[] point = optimized.getPoint();
         return new Model.Layer2Relative(point[0], point[1]);
       };
@@ -78,7 +83,10 @@ class InverseTest {
 
         @Override
         public double applyAsDouble(double alpha) {
-          if (alpha > 0) {
+          if (alpha < 0) {
+            return Double.POSITIVE_INFINITY;
+          }
+          else {
             Model.Layer2Relative m = find.apply(alpha);
             double misfit = misfits.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
             LOGGER.atInfo().addKeyValue("alpha", "%.4f".formatted(alpha)).addKeyValue("misfit", "%.4f".formatted(misfit))
@@ -86,20 +94,19 @@ class InverseTest {
             double v = misfit - dataErrorNorm;
             return v * v;
           }
-          else {
-            return Double.POSITIVE_INFINITY;
-          }
         }
       };
 
       PointValuePair optimized = new SimplexOptimizer(0.000_000_1, 0.000_01)
           .optimize(new MaxEval(100), new ObjectiveFunction(point -> withAlpha.applyAsDouble(point[0])),
-              GoalType.MINIMIZE, org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.Simplex.alongAxes(new double[] {0.01}),
-              new NelderMeadTransform(), new InitialGuess(new double[] {0.1})
+              GoalType.MINIMIZE, org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.Simplex.alongAxes(new double[] {0.001}),
+              new NelderMeadTransform(), new InitialGuess(new double[] {0.001})
           );
       double alpha = optimized.getPoint()[0];
       LOGGER.atWarn().addKeyValue("alpha", () -> "%.4f".formatted(alpha))
-          .log("%s".formatted(ValuePair.Name.H.of(find.apply(alpha).h(), 0.0)));
+          .log("%s; %s".formatted(
+              ValuePair.Name.K12.of(find.apply(alpha).k().value(), 0.0),
+              ValuePair.Name.H.of(find.apply(alpha).h(), 0.0)));
     }
   }
 }
