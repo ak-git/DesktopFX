@@ -14,9 +14,8 @@ dependencies {
     compileOnly libs.jspecify
     implementation libs.tech.units
 
-    implementation(platform(libs.junit))
-    implementation libs.junit.jupiter.api
-    implementation libs.mockito.junit
+    testImplementation(platform(libs.junit))
+    testImplementation libs.mockito.junit
     testImplementation libs.mockito.core
     testImplementation libs.bundles.test.implementation
     testCompileOnly libs.bundles.test.compile
