@@ -67,10 +67,12 @@ public sealed interface Solver {
     }
 
     private void systemX3(int factorFirst, Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction) {
-      misfits.add(Misfit.builder(units)
-          .system(s -> s.tetrapolar(base * factorFirst, base * 3).absError(0.1))
-          .measurements(_ -> builderFunction.apply(TetrapolarMeasurement.builder(units)))
-          .build());
+      misfits.add(
+          Misfit.builder(units)
+              .system(s -> s.tetrapolar(base * factorFirst, base * 3).absError(0.1))
+              .measurements(_ -> builderFunction.apply(TetrapolarMeasurement.builder(units)))
+              .build()
+      );
     }
 
     @Override
