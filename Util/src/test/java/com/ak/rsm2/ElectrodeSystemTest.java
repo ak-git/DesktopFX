@@ -54,7 +54,7 @@ class ElectrodeSystemTest {
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
          -10 | -30
-          50 | 30
+          50 |  30
         """)
     void get(double sPU, double lCC) {
       ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.ofMilli().tetrapolar(sPU, lCC).build();
@@ -63,6 +63,16 @@ class ElectrodeSystemTest {
           () -> assertThat(tetrapolar.sPU()).isCloseTo(Metrics.Length.MILLI.toSI(Math.abs(sPU)), byLessThan(0.001)),
           () -> assertThat(tetrapolar.lCC()).isCloseTo(Metrics.Length.MILLI.toSI(Math.abs(lCC)), byLessThan(0.001))
       );
+    }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', textBlock = """
+        10 | 20 | 66.666
+        20 | 10 | 66.666
+        """)
+    void phiFactor(double sPU, double lCC, double expectedPhi) {
+      ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.ofMilli().tetrapolar(sPU, lCC).build();
+      assertThat(tetrapolar.phiFactor()).isCloseTo(expectedPhi, byLessThan(0.001));
     }
 
     @ParameterizedTest
