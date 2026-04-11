@@ -92,7 +92,7 @@ public sealed interface Solver {
                 return Double.POSITIVE_INFINITY;
               }
             },
-            new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, 0.04));
+            new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, misfits.stream().mapToDouble(Misfit::hMax).min().orElseThrow()));
         double[] point = optimized.getPoint();
         return new Model.Layer2Relative(point[0], point[1]);
       };

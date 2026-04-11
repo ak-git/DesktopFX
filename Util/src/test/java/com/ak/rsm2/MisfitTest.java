@@ -17,13 +17,13 @@ class MisfitTest {
       10.0, 30.0, METRE, 30.971, 31.278, -0.05, 5.0
       50.0, 30.0, MILLI, 62.479, 61.860,  0.05, 5.0
       """)
-  void misfit(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double dH, double expectedHmm) {
+  void misfit(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double dH, double expectedH) {
     Misfit misfit = Misfit.builder(units)
         .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
         .measurements(m -> m.ohms(rBefore).dh(dH).thenOhms(rAfter))
         .build();
 
-    Model.Layer2Relative layer2 = new Model.Layer2Relative(K.PLUS_ONE, units.toSI(expectedHmm));
+    Model.Layer2Relative layer2 = new Model.Layer2Relative(K.PLUS_ONE, units.toSI(expectedH));
     assertThat(misfit.misfit().applyAsDouble(layer2)).as(misfit::toString).isPositive().isCloseTo(0.0, byLessThan(0.01));
   }
 
@@ -71,6 +71,19 @@ class MisfitTest {
         .measurements(m -> m.ohms(rBefore).dh(dH).thenOhms(rAfter))
         .build();
     assertThat(misfit.dataErrorNorm()).as(misfit::toString).isCloseTo(expected, byLessThan(0.001));
+  }
+
+  @ParameterizedTest
+  @CsvSource(delimiter = ',', textBlock = """
+      10.0, 30.0, METRE, 35.589
+      50.0, 30.0, MILLI, 60.8
+      """)
+  void hMax(double sPU, double lCC, Metrics.Length units, double expectedH) {
+    Misfit misfit = Misfit.builder(units)
+        .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
+        .measurements(m -> m.ohms(0.0).dh(0.0).thenOhms(0.0))
+        .build();
+    assertThat(misfit.hMax()).as(misfit::toString).isCloseTo(units.toSI(expectedH), byLessThan(0.001));
   }
 
   @ParameterizedTest

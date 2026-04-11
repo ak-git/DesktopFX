@@ -17,6 +17,8 @@ public sealed interface Misfit {
 
   double dataErrorNorm();
 
+  double hMax();
+
   ToDoubleFunction<Model.Layer2Relative> misfit();
 
   ToDoubleFunction<Model.Layer2Relative> regularization(Regularization regularization);
@@ -38,6 +40,11 @@ public sealed interface Misfit {
       @Override
       public double dataErrorNorm() {
         return system.dataErrorNorm();
+      }
+
+      @Override
+      public double hMax() {
+        return system.hMax(K.PLUS_ONE);
       }
 
       @Override
