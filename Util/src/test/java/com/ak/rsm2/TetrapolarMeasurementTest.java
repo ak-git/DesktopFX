@@ -10,15 +10,15 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 class TetrapolarMeasurementTest {
   @ParameterizedTest
   @CsvSource(delimiter = ',', textBlock = """
-      30.971, 31.278, -0.05
-      31.278, 30.971,  0.05
+      30.971, 31.278, -0.05, METRE
+      31.278, 30.971,  0.05, MILLI
       """)
-  void apparent(double rBefore, double rAfter, double dHmm) {
-    TetrapolarMeasurement measurement = TetrapolarMeasurement.builder().ohms(rBefore).dhMilli(dHmm).thenOhms(rAfter).build();
+  void apparent(double rBefore, double rAfter, double dH, Metrics.Length units) {
+    TetrapolarMeasurement measurement = TetrapolarMeasurement.builder(units).ohms(rBefore).dh(dH).thenOhms(rAfter).build();
     assertAll(measurement.toString(),
         () -> assertThat(measurement.ohms()).isEqualTo(rBefore),
         () -> assertThat(measurement.dOhms()).isEqualTo(rAfter - rBefore),
-        () -> assertThat(measurement.dh()).isEqualTo(Metrics.Length.MILLI.toSI(dHmm))
+        () -> assertThat(measurement.dh()).isEqualTo(units.toSI(dH))
     );
   }
 }

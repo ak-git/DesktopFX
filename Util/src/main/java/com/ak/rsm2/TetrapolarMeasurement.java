@@ -15,26 +15,28 @@ public sealed interface TetrapolarMeasurement {
   }
 
   sealed interface Step2 {
-    Step3 dhMilli(double dhMilli);
+    Step3 dh(double dhMilli);
   }
 
   sealed interface Step3 {
     Builder<TetrapolarMeasurement> thenOhms(double thenOhms);
   }
 
-  static Step1 builder() {
-    return new TetrapolarMeasurementBuilder();
+  static Step1 builder(Metrics.Length units) {
+    return new TetrapolarMeasurementBuilder(units);
   }
 
   final class TetrapolarMeasurementBuilder implements Step1, Step2, Step3, Builder<TetrapolarMeasurement> {
     private record TetrapolarMeasurementRecord(double ohms, double dOhms, double dh) implements TetrapolarMeasurement {
     }
 
+    private final Metrics.Length units;
     private double rOhms;
     private double dh;
     private double dOhms;
 
-    private TetrapolarMeasurementBuilder() {
+    private TetrapolarMeasurementBuilder(Metrics.Length units) {
+      this.units = units;
     }
 
     @Override
@@ -44,8 +46,8 @@ public sealed interface TetrapolarMeasurement {
     }
 
     @Override
-    public Step3 dhMilli(double dhMilli) {
-      dh = Metrics.Length.MILLI.toSI(dhMilli);
+    public Step3 dh(double dh) {
+      this.dh = units.toSI(dh);
       return this;
     }
 

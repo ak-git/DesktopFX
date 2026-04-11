@@ -8,6 +8,7 @@ module com.ak.util {
   requires static org.jspecify;
   requires io.jenetics.base;
   requires tech.units.indriya;
+  requires org.slf4j;
 
   exports com.ak.csv;
   exports com.ak.math;

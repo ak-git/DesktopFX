@@ -18,8 +18,8 @@ public sealed interface ElectrodeSystem {
     return new RelativeRecord(sToL);
   }
 
-  static Step1 ofMilli() {
-    return new Tetrapolar.TetrapolarBuilder(Metrics.Length.MILLI);
+  static Step1 builder(Metrics.Length units) {
+    return new Tetrapolar.TetrapolarBuilder(units);
   }
 
   record RelativeRecord(double sToL) implements ElectrodeSystem {

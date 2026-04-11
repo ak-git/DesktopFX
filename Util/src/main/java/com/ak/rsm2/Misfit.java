@@ -1,6 +1,7 @@
 package com.ak.rsm2;
 
 import com.ak.util.Builder;
+import com.ak.util.Metrics;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
@@ -21,15 +22,15 @@ public sealed interface Misfit {
   ToDoubleFunction<Model.Layer2Relative> regularization(Regularization regularization);
 
   sealed interface Step1 {
-    Step2 ofMilli(Function<ElectrodeSystem.Step1, Builder<ElectrodeSystem.Inexact>> builderFunction);
+    Step2 system(Function<ElectrodeSystem.Step1, Builder<ElectrodeSystem.Inexact>> builderFunction);
   }
 
   sealed interface Step2 {
     Builder<Misfit> measurements(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction);
   }
 
-  static Step1 builder() {
-    return new MisfitBuilder();
+  static Step1 builder(Metrics.Length units) {
+    return new MisfitBuilder(units);
   }
 
   final class MisfitBuilder implements Step1, Step2, Builder<Misfit> {
@@ -70,21 +71,23 @@ public sealed interface Misfit {
       }
     }
 
+    private final Metrics.Length units;
     private ElectrodeSystem.@Nullable Inexact system;
     private @Nullable TetrapolarMeasurement measurement;
 
-    private MisfitBuilder() {
+    private MisfitBuilder(Metrics.Length units) {
+      this.units = units;
     }
 
     @Override
-    public Step2 ofMilli(Function<ElectrodeSystem.Step1, Builder<ElectrodeSystem.Inexact>> builderFunction) {
-      system = builderFunction.apply(ElectrodeSystem.ofMilli()).build();
+    public Step2 system(Function<ElectrodeSystem.Step1, Builder<ElectrodeSystem.Inexact>> builderFunction) {
+      system = builderFunction.apply(ElectrodeSystem.builder(units)).build();
       return this;
     }
 
     @Override
     public Builder<Misfit> measurements(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction) {
-      measurement = builderFunction.apply(TetrapolarMeasurement.builder()).build();
+      measurement = builderFunction.apply(TetrapolarMeasurement.builder(units)).build();
       return this;
     }
 
