@@ -13,6 +13,7 @@ dependencies {
     api libs.commons.csv
     compileOnly libs.jspecify
     runtimeOnly libs.logback
+    implementation libs.slf4j
     implementation libs.tech.units
     implementation libs.jenetics
     implementation 'org.apache.commons:commons-math4-legacy-core:4.0-beta1'
@@ -20,10 +21,10 @@ dependencies {
     implementation 'org.apache.commons:commons-rng-simple:1.5'
 
     testImplementation(platform(libs.junit))
-    testImplementation libs.slf4j
     testImplementation libs.mockito.junit
     testImplementation libs.mockito.core
     testImplementation libs.bundles.test.implementation
+    testCompileOnly 'org.apiguardian:apiguardian-api:1.1.2'
     testCompileOnly libs.bundles.test.compile
     testRuntimeOnly libs.bundles.test.runtime
 

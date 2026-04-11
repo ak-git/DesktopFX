@@ -18,6 +18,7 @@ dependencies {
     testImplementation libs.mockito.junit
     testImplementation libs.mockito.core
     testImplementation libs.bundles.test.implementation
+    testCompileOnly 'org.apiguardian:apiguardian-api:1.1.2'
     testCompileOnly libs.bundles.test.compile
     testRuntimeOnly libs.bundles.test.runtime
 
