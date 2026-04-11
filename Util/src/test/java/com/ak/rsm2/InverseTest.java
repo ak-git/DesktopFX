@@ -49,15 +49,15 @@ class InverseTest {
         11.482, 18.152, 11.484, 18.158, -0.05
         11.361, 17.674, 11.362, 17.678, -0.05
         """)
-    void waterParameters(double r1, double r2, double r1After, double r2After, double dDmm) {
+    void waterParameters(double r1, double r2, double r1After, double r2After, double dHmm) {
       Collection<Misfit> misfits = List.of(
           Misfit.builder()
               .ofMilli(s -> s.tetrapolar(10.0, 30.0).absError(0.1))
-              .measurements(m -> m.ohms(r1).dhMilli(dDmm).thenOhms(r1After))
+              .measurements(m -> m.ohms(r1).dhMilli(dHmm).thenOhms(r1After))
               .build(),
           Misfit.builder()
               .ofMilli(s -> s.tetrapolar(50.0, 30.0).absError(0.1))
-              .measurements(m -> m.ohms(r2).dhMilli(dDmm).thenOhms(r2After))
+              .measurements(m -> m.ohms(r2).dhMilli(dHmm).thenOhms(r2After))
               .build()
       );
 
@@ -73,7 +73,7 @@ class InverseTest {
                 return Double.POSITIVE_INFINITY;
               }
             },
-            new Simplex.Bounds(0.0, 1.0), new Simplex.Bounds(0.0, 0.04));
+            new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, 0.04));
         double[] point = optimized.getPoint();
         return new Model.Layer2Relative(point[0], point[1]);
       };
@@ -90,7 +90,10 @@ class InverseTest {
             Model.Layer2Relative m = find.apply(alpha);
             double misfit = misfits.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
             LOGGER.atInfo().addKeyValue("alpha", "%.4f".formatted(alpha)).addKeyValue("misfit", "%.4f".formatted(misfit))
-                .log(() -> "%s".formatted(ValuePair.Name.H.of(m.h(), 0.0)));
+                .log(() -> "%s; %s".formatted(
+                    ValuePair.Name.K12.of(find.apply(alpha).k().value(), 0.0),
+                    ValuePair.Name.H.of(find.apply(alpha).h(), 0.0))
+                );
             double v = misfit - dataErrorNorm;
             return v * v;
           }
@@ -100,7 +103,7 @@ class InverseTest {
       PointValuePair optimized = new SimplexOptimizer(0.000_000_1, 0.000_01)
           .optimize(new MaxEval(100), new ObjectiveFunction(point -> withAlpha.applyAsDouble(point[0])),
               GoalType.MINIMIZE, org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.Simplex.alongAxes(new double[] {0.001}),
-              new NelderMeadTransform(), new InitialGuess(new double[] {0.001})
+              new NelderMeadTransform(), new InitialGuess(new double[] {0.0})
           );
       double alpha = optimized.getPoint()[0];
       LOGGER.atWarn().addKeyValue("alpha", () -> "%.4f".formatted(alpha))

@@ -41,7 +41,7 @@ class ModelTest {
     @ValueSource(doubles = {-1.0})
     void negativeH(double h) {
       assertThatIllegalArgumentException().isThrownBy(() -> new Model.Layer2Relative(Math.random(), h))
-          .withMessageStartingWith("hSI = ").withMessageEndingWith("must be non-negative");
+          .withMessageStartingWith("h = ").withMessageEndingWith("must be non-negative");
     }
   }
 }

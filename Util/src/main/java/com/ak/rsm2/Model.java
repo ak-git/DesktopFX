@@ -4,7 +4,7 @@ public interface Model {
   record Layer2Relative(K k, double h) {
     public Layer2Relative {
       if (h < 0) {
-        throw new IllegalArgumentException("hSI = %f must be non-negative".formatted(h));
+        throw new IllegalArgumentException("h = %f must be non-negative".formatted(h));
       }
     }
 
