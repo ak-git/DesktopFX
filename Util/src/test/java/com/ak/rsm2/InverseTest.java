@@ -2,6 +2,7 @@ package com.ak.rsm2;
 
 import com.ak.math.Simplex;
 import com.ak.math.ValuePair;
+import com.ak.util.Metrics;
 import com.ak.util.Strings;
 import org.apache.commons.math4.legacy.optim.InitialGuess;
 import org.apache.commons.math4.legacy.optim.MaxEval;
@@ -32,8 +33,8 @@ class InverseTest {
     @BeforeAll
     static void dataErrorNorm() {
       double dataErrorNorm = Stream.of(
-              ElectrodeSystem.ofMilli().tetrapolar(10.0, 30.0).absError(0.1).build(),
-              ElectrodeSystem.ofMilli().tetrapolar(50.0, 30.0).absError(0.1).build())
+              ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(10.0, 30.0).absError(0.1).build(),
+              ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(50.0, 30.0).absError(0.1).build())
           .mapToDouble(ElectrodeSystem.Inexact::dataErrorNorm).reduce(Math::hypot).orElseThrow();
       LOGGER.atInfo().addKeyValue("data Error Norm", "%.4f".formatted(dataErrorNorm)).log(Strings.EMPTY);
     }
@@ -51,13 +52,13 @@ class InverseTest {
         """)
     void waterParameters(double r1, double r2, double r1After, double r2After, double dHmm) {
       Collection<Misfit> misfits = List.of(
-          Misfit.builder()
-              .ofMilli(s -> s.tetrapolar(10.0, 30.0).absError(0.1))
-              .measurements(m -> m.ohms(r1).dhMilli(dHmm).thenOhms(r1After))
+          Misfit.builder(Metrics.Length.MILLI)
+              .system(s -> s.tetrapolar(10.0, 30.0).absError(0.1))
+              .measurements(m -> m.ohms(r1).dh(dHmm).thenOhms(r1After))
               .build(),
-          Misfit.builder()
-              .ofMilli(s -> s.tetrapolar(50.0, 30.0).absError(0.1))
-              .measurements(m -> m.ohms(r2).dhMilli(dHmm).thenOhms(r2After))
+          Misfit.builder(Metrics.Length.MILLI)
+              .system(s -> s.tetrapolar(50.0, 30.0).absError(0.1))
+              .measurements(m -> m.ohms(r2).dh(dHmm).thenOhms(r2After))
               .build()
       );
 

@@ -30,6 +30,12 @@ public enum Metrics {
   }
 
   public enum Length implements UnitConversion<javax.measure.quantity.Length> {
+    METRE {
+      @Override
+      public double to(double value, Unit<javax.measure.quantity.Length> toUnit) {
+        return UnitConversion.convert(Units.METRE, value, toUnit);
+      }
+    },
     MILLI {
       @Override
       public double to(double value, Unit<javax.measure.quantity.Length> toUnit) {
@@ -39,12 +45,6 @@ public enum Metrics {
       @Override
       public double toSI(double value) {
         return to(value, Units.METRE);
-      }
-    },
-    METRE {
-      @Override
-      public double to(double value, Unit<javax.measure.quantity.Length> toUnit) {
-        return UnitConversion.convert(Units.METRE, value, toUnit);
       }
     }
   }
