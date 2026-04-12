@@ -67,8 +67,7 @@ public sealed interface Misfit {
             double hMax = system.hMax(layer2.k());
             if (0 < hMin && hMin < layer2.h() && layer2.h() < hMax) {
               double x = log(layer2.h());
-              double s = log(log(hMax) - x) - log(x - log(hMin));
-              return s * s;
+              return log(log(hMax) - x) - log(x - log(hMin));
             }
             else {
               return Double.POSITIVE_INFINITY;

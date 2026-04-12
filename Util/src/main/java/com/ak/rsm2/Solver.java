@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.function.DoubleFunction;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
+import java.util.stream.DoubleStream;
 
 public sealed interface Solver {
   static Step1 of(double base, Metrics.Length units) {
@@ -81,16 +82,16 @@ public sealed interface Solver {
       LOGGER.atInfo().addKeyValue("data Error Norm", "%.4f".formatted(dataErrorNorm)).log(Strings.EMPTY);
 
       DoubleFunction<Model.Layer2Relative> find = alpha -> {
+        double sqrtAlpha = Math.sqrt(Math.abs(alpha));
         PointValuePair optimized = Simplex.optimizeAll(point -> {
               Model.Layer2Relative m = new Model.Layer2Relative(point[0], point[1]);
-              double s = misfits.stream().mapToDouble(f -> f.regularization(Misfit.Regularization.ZERO_MAX_LOG).applyAsDouble(m)).sum();
-              if (Double.isFinite(s)) {
-                double misfit = misfits.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
-                return misfit * misfit + Math.abs(alpha) * s;
-              }
-              else {
-                return Double.POSITIVE_INFINITY;
-              }
+              return misfits.stream().flatMapToDouble(f ->
+                      DoubleStream.of(
+                          f.misfit().applyAsDouble(m),
+                          sqrtAlpha * f.regularization(Misfit.Regularization.ZERO_MAX_LOG).applyAsDouble(m)
+                      )
+                  )
+                  .reduce(Math::hypot).orElseThrow();
             },
             new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, misfits.stream().mapToDouble(Misfit::hMax).min().orElseThrow()));
         double[] point = optimized.getPoint();
