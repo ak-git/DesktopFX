@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.function.DoubleFunction;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 public sealed interface Solver {
@@ -85,13 +86,22 @@ public sealed interface Solver {
         double sqrtAlpha = Math.sqrt(Math.abs(alpha));
         PointValuePair optimized = Simplex.optimizeAll(point -> {
               Model.Layer2Relative m = new Model.Layer2Relative(point[0], point[1]);
+              long total = misfits.size() * 2L;
               return misfits.stream().flatMapToDouble(f ->
                       DoubleStream.of(
                           f.misfit().applyAsDouble(m),
                           sqrtAlpha * f.regularization(Misfit.Regularization.ZERO_MAX_LOG).applyAsDouble(m)
                       )
                   )
-                  .reduce(Math::hypot).orElseThrow();
+                  .takeWhile(Double::isFinite)
+                  .boxed()
+                  .collect(
+                      Collectors.teeing(
+                          Collectors.reducing(Math::hypot),
+                          Collectors.counting(),
+                          (hypot, count) -> count == total ? hypot.orElseThrow() : Double.POSITIVE_INFINITY
+                      )
+                  );
             },
             new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, misfits.stream().mapToDouble(Misfit::hMax).min().orElseThrow()));
         double[] point = optimized.getPoint();
