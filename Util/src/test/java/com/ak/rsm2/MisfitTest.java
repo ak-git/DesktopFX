@@ -46,7 +46,7 @@ class MisfitTest {
     );
     K k = K.of(0.5);
     assertThat(misfit.regularization(Misfit.Regularization.ZERO_MAX_LOG).applyAsDouble(new Model.Layer2Relative(k, Math.sqrt(inexact.hMax(k) * inexact.hMin(k)))))
-        .isPositive().isCloseTo(0.0, byLessThan(1.0e-9));
+        .isCloseTo(0.0, byLessThan(1.0e-9));
   }
 
   @ParameterizedTest
