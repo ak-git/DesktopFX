@@ -44,7 +44,7 @@ public sealed interface Solver {
 
     private final double base;
     private final Metrics.Length units;
-    private final Collection<Misfit> misfits = new ArrayList<>();
+    private final Collection<ParametricOperator> parametricOperators = new ArrayList<>();
 
     public SolverBuilder(double base, Metrics.Length units) {
       if (base > 0) {
@@ -69,8 +69,8 @@ public sealed interface Solver {
     }
 
     private void systemX3(int factorFirst, Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction) {
-      misfits.add(
-          Misfit.builder(units)
+      parametricOperators.add(
+          ParametricOperator.builder(units)
               .system(s -> s.tetrapolar(base * factorFirst, base * 3).absError(0.1))
               .measurements(_ -> builderFunction.apply(TetrapolarMeasurement.builder(units)))
               .build()
@@ -79,37 +79,31 @@ public sealed interface Solver {
 
     @Override
     public Solver build() {
-      double dataErrorNorm = misfits.stream().mapToDouble(Misfit::dataErrorNorm).reduce(Math::hypot).orElseThrow();
+      double dataErrorNorm = parametricOperators.stream().mapToDouble(ParametricOperator::dataErrorNorm).reduce(Math::hypot).orElseThrow();
       LOGGER.atInfo().addKeyValue("data Error Norm", "%.4f".formatted(dataErrorNorm)).log(Strings.EMPTY);
 
       DoubleFunction<Model.Layer2Relative> find = alpha -> {
-        double sqrtAlpha = Math.sqrt(Math.abs(alpha));
         PointValuePair optimized = Simplex.optimizeAll(point -> {
               Model.Layer2Relative m = new Model.Layer2Relative(point[0], point[1]);
-              long total = misfits.size() * 2L;
-              return misfits.stream().flatMapToDouble(f ->
-                      DoubleStream.of(
-                          f.misfit().applyAsDouble(m),
-                          sqrtAlpha * f.regularization(Misfit.Regularization.ZERO_MAX_LOG).applyAsDouble(m)
-                      )
+              return DoubleStream.concat(
+                      parametricOperators.stream().mapToDouble(f -> alpha * f.regularization(ParametricOperator.Regularization.ZERO_MAX_LOG).applyAsDouble(m)),
+                      parametricOperators.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).map(x -> x * x)
                   )
-                  .takeWhile(Double::isFinite)
-                  .boxed()
-                  .collect(
+                  .takeWhile(Double::isFinite).boxed().collect(
                       Collectors.teeing(
-                          Collectors.reducing(Math::hypot),
+                          Collectors.reducing(Double::sum),
                           Collectors.counting(),
-                          (hypot, count) -> count == total ? hypot.orElseThrow() : Double.POSITIVE_INFINITY
+                          (sum, count) -> count == parametricOperators.size() * 2L ? sum.orElseThrow() : Double.POSITIVE_INFINITY
                       )
                   );
             },
-            new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, misfits.stream().mapToDouble(Misfit::hMax).min().orElseThrow()));
+            new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, parametricOperators.stream().mapToDouble(ParametricOperator::hMax).min().orElseThrow()));
         double[] point = optimized.getPoint();
         return new Model.Layer2Relative(point[0], point[1]);
       };
 
       DoubleUnaryOperator withAlpha = new DoubleUnaryOperator() {
-        private final double dataErrorNorm = misfits.stream().mapToDouble(Misfit::dataErrorNorm).reduce(Math::hypot).orElseThrow();
+        private final double dataErrorNorm = parametricOperators.stream().mapToDouble(ParametricOperator::dataErrorNorm).reduce(Math::hypot).orElseThrow();
 
         @Override
         public double applyAsDouble(double alpha) {
@@ -118,7 +112,7 @@ public sealed interface Solver {
           }
           else {
             Model.Layer2Relative m = find.apply(alpha);
-            double misfit = misfits.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
+            double misfit = parametricOperators.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
             LOGGER.atInfo().addKeyValue("alpha", "%.4f".formatted(alpha)).addKeyValue("misfit", "%.4f".formatted(misfit))
                 .log(() -> "%s; %s".formatted(
                     ValuePair.Name.K12.of(find.apply(alpha).k().value(), 0.0),

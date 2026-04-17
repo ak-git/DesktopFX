@@ -10,7 +10,7 @@ import java.util.function.ToDoubleFunction;
 
 import static java.lang.StrictMath.log;
 
-public sealed interface Misfit {
+public sealed interface ParametricOperator {
   enum Regularization {
     ZERO_MAX_LOG
   }
@@ -28,15 +28,16 @@ public sealed interface Misfit {
   }
 
   sealed interface Step2 {
-    Builder<Misfit> measurements(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction);
+    Builder<ParametricOperator> measurements(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction);
   }
 
   static Step1 builder(Metrics.Length units) {
-    return new MisfitBuilder(units);
+    return new ParametricOperatorBuilder(units);
   }
 
-  final class MisfitBuilder implements Step1, Step2, Builder<Misfit> {
-    private record MisfitRecord(ElectrodeSystem.Inexact system, TetrapolarMeasurement measurement) implements Misfit {
+  final class ParametricOperatorBuilder implements Step1, Step2, Builder<ParametricOperator> {
+    private record ParametricOperatorRecord(ElectrodeSystem.Inexact system,
+                                            TetrapolarMeasurement measurement) implements ParametricOperator {
       @Override
       public double dataErrorNorm() {
         return system.dataErrorNorm();
@@ -67,7 +68,8 @@ public sealed interface Misfit {
             double hMax = system.hMax(layer2.k());
             if (0 < hMin && hMin < layer2.h() && layer2.h() < hMax) {
               double x = log(layer2.h());
-              return log(log(hMax) - x) - log(x - log(hMin));
+              double s = log(log(hMax) - x) - log(x - log(hMin));
+              return s * s;
             }
             else {
               return Double.POSITIVE_INFINITY;
@@ -81,7 +83,7 @@ public sealed interface Misfit {
     private ElectrodeSystem.@Nullable Inexact system;
     private @Nullable TetrapolarMeasurement measurement;
 
-    private MisfitBuilder(Metrics.Length units) {
+    private ParametricOperatorBuilder(Metrics.Length units) {
       this.units = units;
     }
 
@@ -92,14 +94,14 @@ public sealed interface Misfit {
     }
 
     @Override
-    public Builder<Misfit> measurements(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction) {
+    public Builder<ParametricOperator> measurements(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction) {
       measurement = builderFunction.apply(TetrapolarMeasurement.builder(units)).build();
       return this;
     }
 
     @Override
-    public Misfit build() {
-      return new MisfitRecord(Objects.requireNonNull(system), Objects.requireNonNull(measurement));
+    public ParametricOperator build() {
+      return new ParametricOperatorRecord(Objects.requireNonNull(system), Objects.requireNonNull(measurement));
     }
   }
 }
