@@ -52,7 +52,7 @@ public sealed interface ParametricOperator {
       public ToDoubleFunction<Model.Layer2Relative> misfit() {
         Resistivity resistivity = Resistivity.of(system);
         double apparent = resistivity.apparent(measurement.ohms());
-        double derivativeApparentByPhi = resistivity.apparent((measurement.dOhms() / measurement.dh()) / system.phiFactor());
+        double derivativeApparentByPhi = resistivity.apparent((measurement.ohmsDiff() / measurement.hDiff()) / system.phiFactor());
         return layer2 -> {
           double v = log(resistivity.apparentDivRho1(layer2) / apparent) -
               log(resistivity.derivativeApparentByPhiDivRho1(layer2) / derivativeApparentByPhi);

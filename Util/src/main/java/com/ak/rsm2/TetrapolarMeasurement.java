@@ -6,20 +6,20 @@ import com.ak.util.Metrics;
 public sealed interface TetrapolarMeasurement {
   double ohms();
 
-  double dOhms();
+  double ohmsDiff();
 
-  double dh();
+  double hDiff();
 
   sealed interface Step1 {
     Step2 ohms(double rOhms);
   }
 
   sealed interface Step2 {
-    Step3 dh(double dhMilli);
+    Step3 thenOhms(double thenOhms);
   }
 
   sealed interface Step3 {
-    Builder<TetrapolarMeasurement> thenOhms(double thenOhms);
+    Builder<TetrapolarMeasurement> hDiff(double hDiff);
   }
 
   static Step1 builder(Metrics.Length units) {
@@ -27,39 +27,40 @@ public sealed interface TetrapolarMeasurement {
   }
 
   final class TetrapolarMeasurementBuilder implements Step1, Step2, Step3, Builder<TetrapolarMeasurement> {
-    private record TetrapolarMeasurementRecord(double ohms, double dOhms, double dh) implements TetrapolarMeasurement {
+    private record TetrapolarMeasurementRecord(double ohms, double ohmsDiff,
+                                               double hDiff) implements TetrapolarMeasurement {
     }
 
     private final Metrics.Length units;
-    private double rOhms;
-    private double dh;
-    private double dOhms;
+    private double ohms;
+    private double ohmsDiff;
+    private double hDiff;
 
     private TetrapolarMeasurementBuilder(Metrics.Length units) {
       this.units = units;
     }
 
     @Override
-    public Step2 ohms(double rOhms) {
-      this.rOhms = rOhms;
+    public Step2 ohms(double ohms) {
+      this.ohms = ohms;
       return this;
     }
 
     @Override
-    public Step3 dh(double dh) {
-      this.dh = units.toSI(dh);
+    public Builder<TetrapolarMeasurement> hDiff(double hDiff) {
+      this.hDiff = units.toSI(hDiff);
       return this;
     }
 
     @Override
-    public Builder<TetrapolarMeasurement> thenOhms(double thenOhms) {
-      dOhms = thenOhms - rOhms;
+    public Step3 thenOhms(double thenOhms) {
+      ohmsDiff = thenOhms - ohms;
       return this;
     }
 
     @Override
     public TetrapolarMeasurement build() {
-      return new TetrapolarMeasurementRecord(rOhms, dOhms, dh);
+      return new TetrapolarMeasurementRecord(ohms, ohmsDiff, hDiff);
     }
   }
 }

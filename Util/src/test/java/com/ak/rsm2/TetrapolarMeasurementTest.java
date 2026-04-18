@@ -13,12 +13,12 @@ class TetrapolarMeasurementTest {
       30.971, 31.278, -0.05, METRE
       31.278, 30.971,  0.05, MILLI
       """)
-  void apparent(double rBefore, double rAfter, double dH, Metrics.Length units) {
-    TetrapolarMeasurement measurement = TetrapolarMeasurement.builder(units).ohms(rBefore).dh(dH).thenOhms(rAfter).build();
+  void apparent(double rBefore, double rAfter, double hDiff, Metrics.Length units) {
+    TetrapolarMeasurement measurement = TetrapolarMeasurement.builder(units).ohms(rBefore).thenOhms(rAfter).hDiff(hDiff).build();
     assertAll(measurement.toString(),
         () -> assertThat(measurement.ohms()).isEqualTo(rBefore),
-        () -> assertThat(measurement.dOhms()).isEqualTo(rAfter - rBefore),
-        () -> assertThat(measurement.dh()).isEqualTo(units.toSI(dH))
+        () -> assertThat(measurement.ohmsDiff()).isEqualTo(rAfter - rBefore),
+        () -> assertThat(measurement.hDiff()).isEqualTo(units.toSI(hDiff))
     );
   }
 }
