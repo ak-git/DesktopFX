@@ -20,7 +20,7 @@ class ParametricOperatorTest {
   void misfit(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiff, double expectedH) {
     ParametricOperator parametricOperator = ParametricOperator.builder(units)
         .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
-        .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiff(hDiff))
+        .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units))
         .build();
 
     Model.Layer2Relative layer2 = new Model.Layer2Relative(K.PLUS_ONE, units.toSI(expectedH));
@@ -35,7 +35,7 @@ class ParametricOperatorTest {
   void regularization(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiff) {
     ParametricOperator parametricOperator = ParametricOperator.builder(units)
         .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
-        .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiff(hDiff))
+        .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units))
         .build();
 
     ElectrodeSystem.Inexact inexact = ElectrodeSystem.builder(units).tetrapolar(sPU, lCC).absError(0.1).build();
@@ -58,7 +58,7 @@ class ParametricOperatorTest {
     DoubleUnaryOperator d = emm -> {
       ElectrodeSystem.Tetrapolar system = ElectrodeSystem.builder(units).tetrapolar(sPU + emm, lCC - emm).build();
       Resistivity resistivity = Resistivity.of(system);
-      TetrapolarMeasurement measurement = TetrapolarMeasurement.builder(units).ohms(rBefore).thenOhms(rAfter).hDiff(hDiff).build();
+      TetrapolarMeasurement.TetrapolarDiffMeasurement measurement = TetrapolarMeasurement.builder().ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units).build();
       double apparent = resistivity.apparent(measurement.ohms());
       double derivativeApparentByPhi = Math.abs(resistivity.apparent((measurement.ohmsDiff() / measurement.hDiff()) / system.phiFactor()));
       return log(apparent) - log(derivativeApparentByPhi);
@@ -68,7 +68,7 @@ class ParametricOperatorTest {
 
     ParametricOperator parametricOperator = ParametricOperator.builder(Metrics.Length.MILLI)
         .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
-        .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiff(hDiff))
+        .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units))
         .build();
     assertThat(parametricOperator.dataErrorNorm()).as(parametricOperator::toString).isCloseTo(expected, byLessThan(0.001));
   }
@@ -81,7 +81,7 @@ class ParametricOperatorTest {
   void hMax(double sPU, double lCC, Metrics.Length units, double expectedH) {
     ParametricOperator parametricOperator = ParametricOperator.builder(units)
         .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
-        .measurements(m -> m.ohms(0.0).thenOhms(0.0).hDiff(0.0))
+        .measurements(m -> m.ohms(0.0).thenOhms(0.0).hDiff(0.0, units))
         .build();
     assertThat(parametricOperator.hMax()).as(parametricOperator::toString).isCloseTo(units.toSI(expectedH), byLessThan(0.001));
   }
@@ -94,7 +94,7 @@ class ParametricOperatorTest {
   void invalidDiff(double rBefore, double rAfter, Metrics.Length units, double hDiff, double expectedH) {
     ParametricOperator parametricOperator = ParametricOperator.builder(units)
         .system(s -> s.tetrapolar(10.0, 30.0).absError(0.1))
-        .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiff(hDiff))
+        .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units))
         .build();
     assertThat(parametricOperator.misfit().applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, units.toSI(expectedH))))
         .as(parametricOperator::toString).isInfinite();

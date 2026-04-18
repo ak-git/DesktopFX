@@ -28,7 +28,7 @@ public sealed interface ParametricOperator {
   }
 
   sealed interface Step2 {
-    Builder<ParametricOperator> measurements(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction);
+    Builder<ParametricOperator> measurements(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement.TetrapolarDiffMeasurement>> builderFunction);
   }
 
   static Step1 builder(Metrics.Length units) {
@@ -37,7 +37,7 @@ public sealed interface ParametricOperator {
 
   final class ParametricOperatorBuilder implements Step1, Step2, Builder<ParametricOperator> {
     private record ParametricOperatorRecord(ElectrodeSystem.Inexact system,
-                                            TetrapolarMeasurement measurement) implements ParametricOperator {
+                                            TetrapolarMeasurement.TetrapolarDiffMeasurement measurement) implements ParametricOperator {
       @Override
       public double dataErrorNorm() {
         return system.dataErrorNorm();
@@ -81,7 +81,7 @@ public sealed interface ParametricOperator {
 
     private final Metrics.Length units;
     private ElectrodeSystem.@Nullable Inexact system;
-    private @Nullable TetrapolarMeasurement measurement;
+    private TetrapolarMeasurement.@Nullable TetrapolarDiffMeasurement measurement;
 
     private ParametricOperatorBuilder(Metrics.Length units) {
       this.units = units;
@@ -94,8 +94,8 @@ public sealed interface ParametricOperator {
     }
 
     @Override
-    public Builder<ParametricOperator> measurements(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction) {
-      measurement = builderFunction.apply(TetrapolarMeasurement.builder(units)).build();
+    public Builder<ParametricOperator> measurements(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement.TetrapolarDiffMeasurement>> builderFunction) {
+      measurement = builderFunction.apply(TetrapolarMeasurement.builder()).build();
       return this;
     }
 

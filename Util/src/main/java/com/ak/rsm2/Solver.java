@@ -29,11 +29,11 @@ public sealed interface Solver {
   }
 
   sealed interface Step1 {
-    Step2 system1x3(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction);
+    Step2 system1x3(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement.TetrapolarDiffMeasurement>> builderFunction);
   }
 
   sealed interface Step2 {
-    Builder<Solver> system5x3(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction);
+    Builder<Solver> system5x3(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement.TetrapolarDiffMeasurement>> builderFunction);
   }
 
   final class SolverBuilder implements Step1, Step2, Builder<Solver> {
@@ -57,22 +57,22 @@ public sealed interface Solver {
     }
 
     @Override
-    public Step2 system1x3(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction) {
+    public Step2 system1x3(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement.TetrapolarDiffMeasurement>> builderFunction) {
       systemX3(1, builderFunction);
       return this;
     }
 
     @Override
-    public Builder<Solver> system5x3(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction) {
+    public Builder<Solver> system5x3(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement.TetrapolarDiffMeasurement>> builderFunction) {
       systemX3(5, builderFunction);
       return this;
     }
 
-    private void systemX3(int factorFirst, Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction) {
+    private void systemX3(int factorFirst, Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement.TetrapolarDiffMeasurement>> builderFunction) {
       parametricOperators.add(
           ParametricOperator.builder(units)
               .system(s -> s.tetrapolar(base * factorFirst, base * 3).absError(0.1))
-              .measurements(_ -> builderFunction.apply(TetrapolarMeasurement.builder(units)))
+              .measurements(_ -> builderFunction.apply(TetrapolarMeasurement.builder()))
               .build()
       );
     }

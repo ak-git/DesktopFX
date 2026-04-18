@@ -26,8 +26,8 @@ class InverseTest {
         """)
     void waterParameters(double r1, double r2, double r1After, double r2After, double hDiffMilli) {
       Solver solver = Solver.of(10.0, Metrics.Length.MILLI)
-          .system1x3(m -> m.ohms(r1).thenOhms(r1After).hDiff(hDiffMilli))
-          .system5x3(m -> m.ohms(r2).thenOhms(r2After).hDiff(hDiffMilli))
+          .system1x3(m -> m.ohms(r1).thenOhms(r1After).hDiff(hDiffMilli, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2After).hDiff(hDiffMilli, Metrics.Length.MILLI))
           .build();
       LOGGER.atInfo().log(solver::toString);
     }
