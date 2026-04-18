@@ -66,7 +66,7 @@ public sealed interface ParametricOperator {
           case ZERO_MAX_LOG -> layer2 -> {
             double hMin = system.hMin(layer2.k());
             double hMax = system.hMax(layer2.k());
-            if (0 < hMin && hMin < layer2.h() && layer2.h() < hMax) {
+            if (hMin < layer2.h() && layer2.h() < hMax) {
               double x = log(layer2.h());
               double s = log(log(hMax) - x) - log(x - log(hMin));
               return s * s;
