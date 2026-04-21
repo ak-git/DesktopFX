@@ -24,19 +24,19 @@ import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 public sealed interface Solver {
-  static Step1 of(double base, Metrics.Length units) {
-    return new SolverBuilder(base, units);
+  static <M extends TetrapolarMeasurement> Step1<M> of(double base, Metrics.Length units) {
+    return new SolverBuilder<>(base, units);
   }
 
-  sealed interface Step1 {
-    Step2 system1x3(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement.TetrapolarDiffMeasurement>> builderFunction);
+  sealed interface Step1<M extends TetrapolarMeasurement> {
+    Step2<M> system1x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction);
   }
 
-  sealed interface Step2 {
-    Builder<Solver> system5x3(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement.TetrapolarDiffMeasurement>> builderFunction);
+  sealed interface Step2<M extends TetrapolarMeasurement> {
+    Builder<Solver> system5x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction);
   }
 
-  final class SolverBuilder implements Step1, Step2, Builder<Solver> {
+  final class SolverBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Builder<Solver> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SolverBuilder.class);
 
     private record SolverRecord() implements Solver {
@@ -57,18 +57,18 @@ public sealed interface Solver {
     }
 
     @Override
-    public Step2 system1x3(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement.TetrapolarDiffMeasurement>> builderFunction) {
+    public Step2<M> system1x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
       systemX3(1, builderFunction);
       return this;
     }
 
     @Override
-    public Builder<Solver> system5x3(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement.TetrapolarDiffMeasurement>> builderFunction) {
+    public Builder<Solver> system5x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
       systemX3(5, builderFunction);
       return this;
     }
 
-    private void systemX3(int factorFirst, Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement.TetrapolarDiffMeasurement>> builderFunction) {
+    private void systemX3(int factorFirst, Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
       parametricOperators.add(
           ParametricOperator.builder(units)
               .system(s -> s.tetrapolar(base * factorFirst, base * 3).absError(0.1))

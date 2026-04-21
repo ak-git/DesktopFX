@@ -23,21 +23,22 @@ public sealed interface ParametricOperator {
 
   ToDoubleFunction<Model.Layer2Relative> regularization(Regularization regularization);
 
-  sealed interface Step1 {
-    Step2 system(Function<ElectrodeSystem.Step1, Builder<ElectrodeSystem.Inexact>> builderFunction);
+  sealed interface Step1<M extends TetrapolarMeasurement> {
+    Step2<M> system(Function<ElectrodeSystem.Step1, Builder<ElectrodeSystem.Inexact>> builderFunction);
   }
 
-  sealed interface Step2 {
-    Builder<ParametricOperator> measurements(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement.TetrapolarDiffMeasurement>> builderFunction);
+  sealed interface Step2<M extends TetrapolarMeasurement> {
+    Builder<ParametricOperator> measurements(Function<TetrapolarMeasurement.Step1, Builder<? extends M>> builderFunction);
   }
 
-  static Step1 builder(Metrics.Length units) {
-    return new ParametricOperatorBuilder(units);
+  static <M extends TetrapolarMeasurement> Step1<M> builder(Metrics.Length units) {
+    return new ParametricOperatorBuilder<>(units);
   }
 
-  final class ParametricOperatorBuilder implements Step1, Step2, Builder<ParametricOperator> {
-    private record ParametricOperatorRecord(ElectrodeSystem.Inexact system,
-                                            TetrapolarMeasurement.TetrapolarDiffMeasurement measurement) implements ParametricOperator {
+  final class ParametricOperatorBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Builder<ParametricOperator> {
+    private record ParametricOperatorDiffRecord(ElectrodeSystem.Inexact system,
+                                                TetrapolarMeasurement.TetrapolarDiffMeasurement measurement)
+        implements ParametricOperator {
       @Override
       public double dataErrorNorm() {
         return system.dataErrorNorm();
@@ -81,27 +82,31 @@ public sealed interface ParametricOperator {
 
     private final Metrics.Length units;
     private ElectrodeSystem.@Nullable Inexact system;
-    private TetrapolarMeasurement.@Nullable TetrapolarDiffMeasurement measurement;
+    private @Nullable M measurement;
 
     private ParametricOperatorBuilder(Metrics.Length units) {
       this.units = units;
     }
 
     @Override
-    public Step2 system(Function<ElectrodeSystem.Step1, Builder<ElectrodeSystem.Inexact>> builderFunction) {
+    public Step2<M> system(Function<ElectrodeSystem.Step1, Builder<ElectrodeSystem.Inexact>> builderFunction) {
       system = builderFunction.apply(ElectrodeSystem.builder(units)).build();
       return this;
     }
 
     @Override
-    public Builder<ParametricOperator> measurements(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement.TetrapolarDiffMeasurement>> builderFunction) {
+    public Builder<ParametricOperator> measurements(Function<TetrapolarMeasurement.Step1, Builder<? extends M>> builderFunction) {
       measurement = builderFunction.apply(TetrapolarMeasurement.builder()).build();
       return this;
     }
 
     @Override
     public ParametricOperator build() {
-      return new ParametricOperatorRecord(Objects.requireNonNull(system), Objects.requireNonNull(measurement));
+      return switch (Objects.requireNonNull(measurement)) {
+        case TetrapolarMeasurement.TetrapolarDiffMeasurement tetrapolarDiffMeasurement ->
+            new ParametricOperatorDiffRecord(Objects.requireNonNull(system), Objects.requireNonNull(tetrapolarDiffMeasurement));
+        default -> throw new IllegalStateException("Unexpected value: " + Objects.requireNonNull(measurement));
+      };
     }
   }
 }
