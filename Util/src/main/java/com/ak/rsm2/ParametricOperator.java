@@ -104,8 +104,8 @@ public sealed interface ParametricOperator {
     public ParametricOperator build() {
       return switch (Objects.requireNonNull(measurement)) {
         case TetrapolarMeasurement.TetrapolarDiffMeasurement tetrapolarDiffMeasurement ->
-            new ParametricOperatorDiffRecord(Objects.requireNonNull(system), Objects.requireNonNull(tetrapolarDiffMeasurement));
-        default -> throw new IllegalStateException("Unexpected value: " + Objects.requireNonNull(measurement));
+            new ParametricOperatorDiffRecord(Objects.requireNonNull(system), tetrapolarDiffMeasurement);
+        default -> throw new IllegalStateException("Unexpected value: " + measurement);
       };
     }
   }
