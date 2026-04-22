@@ -7,7 +7,7 @@ module com.ak.fx.desktop {
   requires java.logging;
   requires java.measure;
   requires tech.units.indriya;
-  requires org.jspecify;
+  requires static org.jspecify;
   requires jakarta.inject;
 
   requires javafx.fxml;

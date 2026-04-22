@@ -14,7 +14,6 @@ import java.util.function.ToDoubleBiFunction;
 import java.util.stream.DoubleStream;
 
 import static java.lang.StrictMath.log;
-import static java.lang.StrictMath.log1p;
 
 public interface Regularization {
   enum Interval {
@@ -29,7 +28,7 @@ public interface Regularization {
 
             Simplex.Bounds hInterval = hInterval(k);
             if (hInterval.isIn(hToL)) {
-              return alpha * (log(hInterval.max() - hToL) - log(hToL - hInterval.min()));
+              return alpha * StrictMath.pow(log(hInterval.max() - hToL) - log(hToL - hInterval.min()), 2.0);
             }
             else {
               return Double.POSITIVE_INFINITY;
@@ -38,7 +37,7 @@ public interface Regularization {
         };
       }
     },
-    ZERO_MAX_LOG1P {
+    ZERO_MAX_LOG {
       @Override
       Regularization innerOf(double alpha, Collection<InexactTetrapolarSystem> inexactSystems) {
         return new AbstractRegularization(inexactSystems) {
@@ -49,8 +48,8 @@ public interface Regularization {
 
             Simplex.Bounds hInterval = hInterval(k);
             if (hInterval.isIn(hToL)) {
-              double x = log1p(hToL);
-              return alpha * (log(log1p(hInterval.max()) - x) - log(x - log1p(hInterval.min())));
+              double x = log(hToL);
+              return alpha * StrictMath.pow(log(log(hInterval.max()) - x) - log(x - log(hInterval.min())), 2.0);
             }
             else {
               return Double.POSITIVE_INFINITY;
@@ -66,7 +65,7 @@ public interface Regularization {
           @Override
           public double of(double... kw) {
             double k = Math.abs(kw[0]);
-            return alpha * (log(2 - k) - log(k));
+            return alpha * StrictMath.pow(log(2.0 - k) - log(k), 2.0);
           }
         };
       }

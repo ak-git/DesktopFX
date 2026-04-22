@@ -11,7 +11,7 @@ dependencies {
     api libs.javax.json
     api libs.commons.math
     api libs.commons.csv
-    implementation libs.jspecify
+    compileOnly libs.jspecify
     implementation libs.tech.units
     implementation libs.jenetics
     implementation libs.slf4j

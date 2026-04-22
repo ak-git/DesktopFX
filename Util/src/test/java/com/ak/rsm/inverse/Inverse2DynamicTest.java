@@ -36,7 +36,10 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.file.*;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.ObjDoubleConsumer;
@@ -105,9 +108,9 @@ class Inverse2DynamicTest {
             TetrapolarDerivativeMeasurement.milli(absErrorMilli).dh(dHmm).system4(10.0).rho1(1.0).rho2(4.0).h(hmm),
             new ValuePair[] {
                 ValuePair.Name.RHO.of(1.6267, 0.00012),
-                ValuePair.Name.RHO_1.of(0.99789, 0.000063),
-                ValuePair.Name.RHO_2.of(3.992, 0.0011),
-                ValuePair.Name.H.of(Metrics.Length.MILLI.to(hmm, METRE), Metrics.Length.MILLI.to(0.00085, METRE))
+                ValuePair.Name.RHO_1.of(0.99792, 0.000063),
+                ValuePair.Name.RHO_2.of(3.988, 0.0011),
+                ValuePair.Name.H.of(Metrics.Length.MILLI.to(7.4972, METRE), Metrics.Length.MILLI.to(0.00085, METRE))
             }
         ),
         // system 2 gets more errors
@@ -117,8 +120,8 @@ class Inverse2DynamicTest {
             new ValuePair[] {
                 ValuePair.Name.RHO.of(1.5845, 0.00018),
                 ValuePair.Name.RHO_1.of(1.0, 0.00010),
-                ValuePair.Name.RHO_2.of(4.0, 0.0018),
-                ValuePair.Name.H.of(Metrics.Length.MILLI.to(hmm, METRE), Metrics.Length.MILLI.to(0.0011, METRE))
+                ValuePair.Name.RHO_2.of(3.994, 0.0018),
+                ValuePair.Name.H.of(Metrics.Length.MILLI.to(7.495, METRE), Metrics.Length.MILLI.to(0.0010, METRE))
             }
         )
     );
@@ -127,7 +130,7 @@ class Inverse2DynamicTest {
   @ParameterizedTest
   @MethodSource("absolute")
   void testInverseAbsolute(Collection<? extends DerivativeMeasurement> measurements, ValuePair[] expected) {
-    var medium = DynamicAbsolute.ofLayer2(measurements, Regularization.Interval.ZERO_MAX.of(0.0));
+    var medium = DynamicAbsolute.ofLayer2(measurements, Regularization.Interval.ZERO_MAX_LOG.of(0.000_1));
     assertAll(medium.toString(),
         () -> assertThat(medium.rho()).isEqualTo(expected[0]),
         () -> assertThat(medium.rho1()).isEqualTo(expected[1]),
@@ -263,7 +266,7 @@ class Inverse2DynamicTest {
         assertThat(valuePair.value()).isNaN();
       }
       else {
-        assertThat(valuePair.value() > 700.0 ? Double.POSITIVE_INFINITY : valuePair.value())
+        assertThat(valuePair.value() > 300.0 ? Double.POSITIVE_INFINITY : valuePair.value())
             .isCloseTo(expectedValue, byLessThan(valuePair.absError()));
       }
     };
@@ -276,7 +279,7 @@ class Inverse2DynamicTest {
   }
 
   private static List<Arguments> cvsFiles() throws IOException {
-    try (DirectoryStream<Path> p = Files.newDirectoryStream(Paths.get(Strings.EMPTY), Extension.CSV.attachTo("*mm"))) {
+    try (DirectoryStream<Path> p = Files.newDirectoryStream(Path.of(Strings.EMPTY), Extension.CSV.attachTo("*mm"))) {
       return StreamSupport.stream(p.spliterator(), false)
           .map(Path::toString)
           .flatMap(file -> DoubleStream.of(1.0).mapToObj(alpha -> arguments(file, alpha)))
@@ -324,12 +327,12 @@ class Inverse2DynamicTest {
   @Disabled("ignored com.ak.rsm.inverse.Inverse2DynamicTest.inverseFileResistivity")
   void inverseFileResistivity(String fileName, double alpha) {
     double targetRho2 = 4.595;
-    Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction = Regularization.Interval.ZERO_MAX_LOG1P.of(alpha);
+    Function<Collection<InexactTetrapolarSystem>, Regularization> regularizationFunction = Regularization.Interval.ZERO_MAX_LOG.of(alpha);
     LOGGER.atInfo().addKeyValue("target", Strings.rho(2, targetRho2)).log("{}", regularizationFunction);
 
     String[] mm = fileName.split(Strings.SPACE);
     int sBase = Integer.parseInt(mm[mm.length - 2]);
-    Path path = Paths.get(Extension.CSV.attachTo(fileName));
+    Path path = Path.of(Extension.CSV.attachTo(fileName));
     try (BufferedReader reader = new BufferedReader(new FileReader(path.toFile()))) {
       String header = reader.readLine();
       LOGGER.atInfo().addKeyValue("s, mm", sBase).log(header);

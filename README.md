@@ -1,37 +1,11 @@
-# Install on Linux
+```shell
+cd C:\Users\ak\Documents\DesktopFX
 
-## Install [sdkman.io](https://sdkman.io)
+gradlew build -x test
 
-```bash
-curl -s "https://get.sdkman.io" | bash
-```
+gradlew installBootDist
 
-```bash
-source "$HOME/.sdkman/bin/sdkman-init.sh"
-```
+cd C:\Users\ak\Documents\DesktopFX\Desktop\build\install\Desktop-boot\lib
 
-## Install [JDK](https://www.oracle.com/java/technologies/downloads/)
-
-```bash
-sdk list java
-```
-
-```bash
-sdk install java 25-oracle
-```
-
-## Install [Gradle](https://gradle.org)
-
-```bash
-sdk list gradle
-```
-
-```bash
-sdk install gradle 9.1.0
-```
-
-## Verify Installation
-
-```bash
-sdk current
+"C:\Program Files\Java\jdk-25\bin\jpackage" --main-jar Desktop.jar --input . --app-version 26.4.10 --name aper2-myo --vendor ak --win-dir-chooser --win-shortcut
 ```

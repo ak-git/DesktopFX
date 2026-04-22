@@ -5,7 +5,7 @@ module com.ak.util {
   requires org.apache.commons.rng.api;
   requires org.apache.commons.rng.core;
   requires org.apache.commons.rng.simple;
-  requires org.jspecify;
+  requires static org.jspecify;
   requires io.jenetics.base;
   requires tech.units.indriya;
   requires org.slf4j;

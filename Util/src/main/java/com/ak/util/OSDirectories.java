@@ -3,7 +3,6 @@ package com.ak.util;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -25,7 +24,7 @@ public enum OSDirectories {
 
   public static Path getDirectory(String... candidates) {
     return Arrays.stream(Objects.requireNonNull(candidates))
-        .map(p -> Paths.get(USER_HOME_PATH).resolve(p))
+        .map(p -> Path.of(USER_HOME_PATH).resolve(p))
         .filter(p -> {
           if (Files.isDirectory(p) && Files.isWritable(p) && Files.exists(p)) {
             return true;
@@ -50,6 +49,6 @@ public enum OSDirectories {
           }
         })
         .findFirst()
-        .orElse(Paths.get(EMPTY));
+        .orElse(Path.of(EMPTY));
   }
 }

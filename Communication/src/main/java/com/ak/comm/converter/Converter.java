@@ -49,7 +49,7 @@ public interface Converter<R, V extends Enum<V> & Variable<V>> extends Function<
 
   private static <T, R, V extends Enum<V> & Variable<V>> boolean isProcessed(BytesInterceptor<T, R> bytesInterceptor,
                                                                              Converter<R, V> responseConverter, Path path) {
-    Path out = Paths.get(Extension.CSV.attachTo(Extension.BIN.clean(path.toString())));
+    Path out = Path.of(Extension.CSV.attachTo(Extension.BIN.clean(path.toString())));
     if (Files.notExists(out)) {
       try (ReadableByteChannel readableByteChannel = Files.newByteChannel(path, StandardOpenOption.READ);
            var collector = new CSVLineFileCollector(out,

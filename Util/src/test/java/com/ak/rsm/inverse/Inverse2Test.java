@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class Inverse2Test {
   private static final Logger LOGGER = LoggerFactory.getLogger(Inverse2Test.class);
   private static final Function<Collection<InexactTetrapolarSystem>, Regularization> REGULARIZATION_FUNCTION =
-      Regularization.Interval.ZERO_MAX_LOG1P.of(1.0);
+      Regularization.Interval.ZERO_MAX_LOG.of(1.0);
 
   static {
     LOGGER.info("{}", REGULARIZATION_FUNCTION);
@@ -70,7 +70,7 @@ class Inverse2Test {
     Regularization regularization = REGULARIZATION_FUNCTION.apply(mRest.stream().map(Measurement::toInexact).toList());
     double baseL = Resistivity.getBaseL(mRest);
     for (double hmm = 1.0; hmm < 10.0; hmm += 0.5) {
-      double h = Metrics.MILLI.applyAsDouble(hmm);
+      double h = Metrics.Length.MILLI.toSI(hmm);
       PointValuePair optimized = Simplex.optimizeAll(point -> {
             double rho1 = point[0];
             double rho2 = point[1];

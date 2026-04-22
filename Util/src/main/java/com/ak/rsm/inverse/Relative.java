@@ -11,15 +11,13 @@ import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static java.lang.StrictMath.hypot;
-
 interface Relative<M extends Measurement> extends Function<Collection<? extends M>, RelativeMediumLayers> {
   @Override
   default RelativeMediumLayers apply(Collection<? extends M> measurements) {
     PointValuePair kwOptimal = Simplex.optimizeAll(kw -> {
           double regularizing = regularization().of(kw);
           if (Double.isFinite(regularizing)) {
-            return hypot(inverse().applyAsDouble(kw), regularizing);
+            return StrictMath.pow(inverse().applyAsDouble(kw), 2.0) + regularizing;
           }
           return regularizing;
         },

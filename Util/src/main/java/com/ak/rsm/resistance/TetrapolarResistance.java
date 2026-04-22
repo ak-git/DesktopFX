@@ -27,11 +27,11 @@ public record TetrapolarResistance(TetrapolarSystem system, double ohms,
   }
 
   public static PreBuilder<Resistance> ofMilli(double sPU, double lCC) {
-    return new Builder(Metrics.MILLI, sPU, lCC);
+    return new Builder(Metrics.Length.MILLI::toSI, sPU, lCC);
   }
 
   public static MultiPreBuilder<Resistance> milli() {
-    return new MultiBuilder(Metrics.MILLI);
+    return new MultiBuilder(Metrics.Length.MILLI::toSI);
   }
 
   public interface PreBuilder<T> extends com.ak.util.Builder<T> {

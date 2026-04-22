@@ -11,7 +11,7 @@ dependencies {
     api libs.jserial.comm
     api libs.measure.unit.api
     api libs.javax.json
-    implementation libs.jspecify
+    compileOnly libs.jspecify
     implementation libs.tech.units
 
     implementation(platform(libs.junit))
