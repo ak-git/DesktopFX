@@ -36,7 +36,6 @@ class KTest {
         () -> assertThat(K.of(0.0, 1.0).isPlusOne()).isTrue(),
         () -> assertThat(K.of(1.0, Double.POSITIVE_INFINITY).isPlusOne()).isTrue(),
         () -> assertThat(K.of(1.0).isPlusOne()).isTrue(),
-        () -> assertThat(K.of(1.0).isZero()).isFalse(),
         () -> assertThat(K.of(1.0).isMinusOne()).isFalse()
     );
   }
@@ -44,10 +43,7 @@ class KTest {
   @Test
   void zero() {
     Assertions.assertAll("k = 0",
-        () -> assertThat(K.of(0.0, 0.0).isZero()).isTrue(),
-        () -> assertThat(K.of(1.0, 1.0).isZero()).isTrue(),
         () -> assertThat(K.of(0.0).isPlusOne()).isFalse(),
-        () -> assertThat(K.of(0.0).isZero()).isTrue(),
         () -> assertThat(K.of(0.0).isMinusOne()).isFalse()
     );
 
@@ -59,7 +55,6 @@ class KTest {
         () -> assertThat(K.of(1.0, 0.0).isMinusOne()).isTrue(),
         () -> assertThat(K.of(Double.POSITIVE_INFINITY, 1.0).isMinusOne()).isTrue(),
         () -> assertThat(K.of(-1.0).isPlusOne()).isFalse(),
-        () -> assertThat(K.of(-1.0).isZero()).isFalse(),
         () -> assertThat(K.of(-1.0).isMinusOne()).isTrue()
     );
   }

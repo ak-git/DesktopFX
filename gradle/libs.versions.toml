@@ -1,8 +1,8 @@
 [versions]
 sonarqube = '7.2.3.7755'
-jacocolog = '4.0.1'
-spotbugs = '6.4.8'
-ben-manes-versions = '0.53.0'
+jacocolog = '4.0.2'
+spotbugs = '6.5.1'
+ben-manes-versions = '0.54.0'
 
 jspecify = '1.0.0'
 junit = '6.0.3'
@@ -13,10 +13,10 @@ slf4j = '2.1.0-alpha1'
 logback = '1.5.32'
 
 javafxplugin = '0.1.0'
-spring = '7.0.6'
+spring = '7.0.7'
 springframework-boot = '4.0.5'
 spring-dependency-management = '1.1.7'
-javafx = '27-ea+11'
+javafx = '27-ea+13'
 
 inject-api = '2.0.1'
 tech-units = '2.2.3'

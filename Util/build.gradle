@@ -12,16 +12,19 @@ dependencies {
     api libs.commons.math
     api libs.commons.csv
     compileOnly libs.jspecify
+    runtimeOnly libs.logback
+    implementation libs.slf4j
     implementation libs.tech.units
     implementation libs.jenetics
-    implementation libs.slf4j
-    runtimeOnly libs.logback
+    implementation 'org.apache.commons:commons-math4-legacy-core:4.0-beta1'
+    implementation 'org.apache.commons:commons-rng-client-api:1.7'
+    implementation 'org.apache.commons:commons-rng-simple:1.7'
 
-    implementation(platform(libs.junit))
-    implementation libs.junit.jupiter.api
-    implementation libs.mockito.junit
+    testImplementation(platform(libs.junit))
+    testImplementation libs.mockito.junit
     testImplementation libs.mockito.core
     testImplementation libs.bundles.test.implementation
+    testCompileOnly 'org.apiguardian:apiguardian-api:1.1.2'
     testCompileOnly libs.bundles.test.compile
     testRuntimeOnly libs.bundles.test.runtime
 
