@@ -30,10 +30,14 @@ public sealed interface Solver {
 
   sealed interface Step1<M extends TetrapolarMeasurement> {
     Step2<M> system1x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction);
+
+    Step2<M> system1x2(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction);
   }
 
   sealed interface Step2<M extends TetrapolarMeasurement> {
     Builder<Solver> system5x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction);
+
+    Builder<Solver> system1x4(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction);
   }
 
   final class SolverBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Builder<Solver> {
@@ -58,20 +62,32 @@ public sealed interface Solver {
 
     @Override
     public Step2<M> system1x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
-      systemX3(1, builderFunction);
+      system(1, 3, builderFunction);
+      return this;
+    }
+
+    @Override
+    public Step2<M> system1x2(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
+      system(1, 2, builderFunction);
       return this;
     }
 
     @Override
     public Builder<Solver> system5x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
-      systemX3(5, builderFunction);
+      system(5, 3, builderFunction);
       return this;
     }
 
-    private void systemX3(int factorFirst, Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
+    @Override
+    public Builder<Solver> system1x4(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
+      system(1, 4, builderFunction);
+      return this;
+    }
+
+    private void system(int factorFirst, int factorLast, Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
       parametricOperators.add(
           ParametricOperator.builder(units)
-              .system(s -> s.tetrapolar(base * factorFirst, base * 3).absError(0.1))
+              .system(s -> s.tetrapolar(base * factorFirst, base * factorLast).absError(0.1))
               .measurements(_ -> builderFunction.apply(TetrapolarMeasurement.builder()))
               .build()
       );
