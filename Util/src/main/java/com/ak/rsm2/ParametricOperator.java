@@ -36,22 +36,59 @@ public sealed interface ParametricOperator {
   }
 
   final class ParametricOperatorBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Builder<ParametricOperator> {
-    private record ParametricOperatorDiffRecord(ElectrodeSystem.Inexact system,
-                                                TetrapolarMeasurement.TetrapolarDiffMeasurement measurement)
-        implements ParametricOperator {
+    private abstract static sealed class AbstractParametricOperator implements ParametricOperator {
+      private final ElectrodeSystem.Inexact system;
+
+      private AbstractParametricOperator(ElectrodeSystem.Inexact system) {
+        this.system = system;
+      }
+
       @Override
-      public double dataErrorNorm() {
+      public final double dataErrorNorm() {
         return system.dataErrorNorm();
       }
 
       @Override
-      public double hMax() {
+      public final double hMax() {
         return system.hMax(K.PLUS_ONE);
       }
 
       @Override
+      public final ToDoubleFunction<Model> regularization(Regularization regularization) {
+        return switch (regularization) {
+          case ZERO_MAX_LOG -> layer -> {
+            if (layer instanceof Model.Layer2Relative(K k, double h)) {
+              double hMin = system.hMin(k);
+              double hMax = system.hMax(k);
+              if (hMin < h && h < hMax) {
+                double x = log(h);
+                double s = log(log(hMax) - x) - log(x - log(hMin));
+                return s * s;
+              }
+              else {
+                return Double.POSITIVE_INFINITY;
+              }
+            }
+            else {
+              return 0.0;
+            }
+          };
+        };
+      }
+    }
+
+    private final class ParametricOperatorDiffRecord extends AbstractParametricOperator {
+      private final TetrapolarMeasurement.TetrapolarDiffMeasurement measurement;
+
+      private ParametricOperatorDiffRecord(ElectrodeSystem.Inexact system,
+                                           TetrapolarMeasurement.TetrapolarDiffMeasurement measurement) {
+        super(system);
+        this.measurement = measurement;
+      }
+
+      @Override
       public ToDoubleFunction<Model> misfit() {
-        Resistivity resistivity = Resistivity.of(system);
+        Resistivity resistivity = Resistivity.of(Objects.requireNonNull(system));
         double apparent = resistivity.apparent(measurement.ohms());
         double derivativeApparentByPhi = resistivity.apparent((measurement.ohmsDiff() / measurement.hDiff()) / system.phiFactor());
         return layer -> {
@@ -63,29 +100,6 @@ public sealed interface ParametricOperator {
             }
             case Model.Lung lung -> throw new IllegalStateException("Unexpected value: " + lung);
           }
-        };
-      }
-
-      @Override
-      public ToDoubleFunction<Model> regularization(Regularization regularization) {
-        return switch (regularization) {
-          case ZERO_MAX_LOG -> layer -> {
-            switch (layer) {
-              case Model.Layer2Relative layer2Relative -> {
-                double hMin = system.hMin(layer2Relative.k());
-                double hMax = system.hMax(layer2Relative.k());
-                if (hMin < layer2Relative.h() && layer2Relative.h() < hMax) {
-                  double x = log(layer2Relative.h());
-                  double s = log(log(hMax) - x) - log(x - log(hMin));
-                  return s * s;
-                }
-                else {
-                  return Double.POSITIVE_INFINITY;
-                }
-              }
-              case Model.Lung lung -> throw new IllegalStateException("Unexpected value: " + lung);
-            }
-          };
         };
       }
     }
