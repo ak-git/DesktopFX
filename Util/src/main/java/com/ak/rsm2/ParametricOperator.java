@@ -19,9 +19,9 @@ public sealed interface ParametricOperator {
 
   double hMax();
 
-  ToDoubleFunction<Model.Layer2Relative> misfit();
+  ToDoubleFunction<Model> misfit();
 
-  ToDoubleFunction<Model.Layer2Relative> regularization(Regularization regularization);
+  ToDoubleFunction<Model> regularization(Regularization regularization);
 
   sealed interface Step1<M extends TetrapolarMeasurement> {
     Step2<M> system(Function<ElectrodeSystem.Step1, Builder<ElectrodeSystem.Inexact>> builderFunction);
@@ -50,30 +50,40 @@ public sealed interface ParametricOperator {
       }
 
       @Override
-      public ToDoubleFunction<Model.Layer2Relative> misfit() {
+      public ToDoubleFunction<Model> misfit() {
         Resistivity resistivity = Resistivity.of(system);
         double apparent = resistivity.apparent(measurement.ohms());
         double derivativeApparentByPhi = resistivity.apparent((measurement.ohmsDiff() / measurement.hDiff()) / system.phiFactor());
-        return layer2 -> {
-          double v = log(resistivity.apparentDivRho1(layer2) / apparent) -
-              log(resistivity.derivativeApparentByPhiDivRho1(layer2) / derivativeApparentByPhi);
-          return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
+        return layer -> {
+          switch (layer) {
+            case Model.Layer2Relative layer2Relative -> {
+              double v = log(resistivity.apparentDivRho1(layer2Relative) / apparent) -
+                  log(resistivity.derivativeApparentByPhiDivRho1(layer2Relative) / derivativeApparentByPhi);
+              return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
+            }
+            case Model.Lung lung -> throw new IllegalStateException("Unexpected value: " + lung);
+          }
         };
       }
 
       @Override
-      public ToDoubleFunction<Model.Layer2Relative> regularization(Regularization regularization) {
+      public ToDoubleFunction<Model> regularization(Regularization regularization) {
         return switch (regularization) {
-          case ZERO_MAX_LOG -> layer2 -> {
-            double hMin = system.hMin(layer2.k());
-            double hMax = system.hMax(layer2.k());
-            if (hMin < layer2.h() && layer2.h() < hMax) {
-              double x = log(layer2.h());
-              double s = log(log(hMax) - x) - log(x - log(hMin));
-              return s * s;
-            }
-            else {
-              return Double.POSITIVE_INFINITY;
+          case ZERO_MAX_LOG -> layer -> {
+            switch (layer) {
+              case Model.Layer2Relative layer2Relative -> {
+                double hMin = system.hMin(layer2Relative.k());
+                double hMax = system.hMax(layer2Relative.k());
+                if (hMin < layer2Relative.h() && layer2Relative.h() < hMax) {
+                  double x = log(layer2Relative.h());
+                  double s = log(log(hMax) - x) - log(x - log(hMin));
+                  return s * s;
+                }
+                else {
+                  return Double.POSITIVE_INFINITY;
+                }
+              }
+              case Model.Lung lung -> throw new IllegalStateException("Unexpected value: " + lung);
             }
           };
         };
