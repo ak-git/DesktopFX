@@ -100,7 +100,7 @@ public sealed interface Solver {
 
       DoubleFunction<Model.Layer2Relative> find = alpha -> {
         PointValuePair optimized = Simplex.optimizeAll(point -> {
-              Model.Layer2Relative m = new Model.Layer2Relative(point[0], point[1]);
+              Model m = new Model.Layer2Relative(point[0], point[1]);
               return DoubleStream.concat(
                       parametricOperators.stream().mapToDouble(f -> alpha * f.regularization(ParametricOperator.Regularization.ZERO_MAX_LOG).applyAsDouble(m)),
                       parametricOperators.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).map(x -> x * x)

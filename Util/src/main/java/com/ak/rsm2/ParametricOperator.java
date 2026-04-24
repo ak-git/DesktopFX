@@ -36,11 +36,21 @@ public sealed interface ParametricOperator {
   }
 
   final class ParametricOperatorBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Builder<ParametricOperator> {
-    private abstract static sealed class AbstractParametricOperator implements ParametricOperator {
+    private abstract static sealed class AbstractParametricOperator<M extends TetrapolarMeasurement> implements ParametricOperator {
       private final ElectrodeSystem.Inexact system;
+      private final M measurement;
 
-      private AbstractParametricOperator(ElectrodeSystem.Inexact system) {
+      private AbstractParametricOperator(ElectrodeSystem.Inexact system, M measurement) {
         this.system = system;
+        this.measurement = measurement;
+      }
+
+      protected final ElectrodeSystem.Inexact system() {
+        return system;
+      }
+
+      protected final M measurement() {
+        return measurement;
       }
 
       @Override
@@ -77,20 +87,17 @@ public sealed interface ParametricOperator {
       }
     }
 
-    private final class ParametricOperatorDiffRecord extends AbstractParametricOperator {
-      private final TetrapolarMeasurement.TetrapolarDiffMeasurement measurement;
-
+    private final class ParametricOperatorDiffRecord extends AbstractParametricOperator<TetrapolarMeasurement.TetrapolarDiffMeasurement> {
       private ParametricOperatorDiffRecord(ElectrodeSystem.Inexact system,
                                            TetrapolarMeasurement.TetrapolarDiffMeasurement measurement) {
-        super(system);
-        this.measurement = measurement;
+        super(system, measurement);
       }
 
       @Override
       public ToDoubleFunction<Model> misfit() {
-        Resistivity resistivity = Resistivity.of(Objects.requireNonNull(system));
-        double apparent = resistivity.apparent(measurement.ohms());
-        double derivativeApparentByPhi = resistivity.apparent((measurement.ohmsDiff() / measurement.hDiff()) / system.phiFactor());
+        Resistivity resistivity = Resistivity.of(system());
+        double apparent = resistivity.apparent(measurement().ohms());
+        double derivativeApparentByPhi = resistivity.apparent((measurement().ohmsDiff() / measurement().hDiff()) / system().phiFactor());
         return layer -> {
           switch (layer) {
             case Model.Layer2Relative layer2Relative -> {
