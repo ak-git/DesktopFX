@@ -85,29 +85,29 @@ public sealed interface ParametricOperator {
           };
         };
       }
-    }
 
-    private final class ParametricOperatorDiffRecord extends AbstractParametricOperator<TetrapolarMeasurement.TetrapolarDiffMeasurement> {
-      private ParametricOperatorDiffRecord(ElectrodeSystem.Inexact system,
-                                           TetrapolarMeasurement.TetrapolarDiffMeasurement measurement) {
-        super(system, measurement);
-      }
+      private static final class ParametricOperatorDiffRecord extends AbstractParametricOperator<TetrapolarMeasurement.TetrapolarDiffMeasurement> {
+        private ParametricOperatorDiffRecord(ElectrodeSystem.Inexact system,
+                                             TetrapolarMeasurement.TetrapolarDiffMeasurement measurement) {
+          super(system, measurement);
+        }
 
-      @Override
-      public ToDoubleFunction<Model> misfit() {
-        Resistivity resistivity = Resistivity.of(system());
-        double apparent = resistivity.apparent(measurement().ohms());
-        double derivativeApparentByPhi = resistivity.apparent((measurement().ohmsDiff() / measurement().hDiff()) / system().phiFactor());
-        return layer -> {
-          switch (layer) {
-            case Model.Layer2Relative layer2Relative -> {
-              double v = log(resistivity.apparentDivRho1(layer2Relative) / apparent) -
-                  log(resistivity.derivativeApparentByPhiDivRho1(layer2Relative) / derivativeApparentByPhi);
-              return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
+        @Override
+        public ToDoubleFunction<Model> misfit() {
+          Resistivity resistivity = Resistivity.of(system());
+          double apparent = resistivity.apparent(measurement().ohms());
+          double derivativeApparentByPhi = resistivity.apparent((measurement().ohmsDiff() / measurement().hDiff()) / system().phiFactor());
+          return layer -> {
+            switch (layer) {
+              case Model.Layer2Relative layer2Relative -> {
+                double v = log(resistivity.apparentDivRho1(layer2Relative) / apparent) -
+                    log(resistivity.derivativeApparentByPhiDivRho1(layer2Relative) / derivativeApparentByPhi);
+                return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
+              }
+              case Model.Lung lung -> throw new IllegalStateException("Unexpected value: " + lung);
             }
-            case Model.Lung lung -> throw new IllegalStateException("Unexpected value: " + lung);
-          }
-        };
+          };
+        }
       }
     }
 
@@ -135,7 +135,7 @@ public sealed interface ParametricOperator {
     public ParametricOperator build() {
       return switch (Objects.requireNonNull(measurement)) {
         case TetrapolarMeasurement.TetrapolarDiffMeasurement tetrapolarDiffMeasurement ->
-            new ParametricOperatorDiffRecord(Objects.requireNonNull(system), tetrapolarDiffMeasurement);
+            new AbstractParametricOperator.ParametricOperatorDiffRecord(Objects.requireNonNull(system), tetrapolarDiffMeasurement);
         default -> throw new IllegalStateException("Unexpected value: " + measurement);
       };
     }
