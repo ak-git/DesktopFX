@@ -1,10 +1,12 @@
 package com.ak.rsm2;
 
+import com.ak.math.Simplex;
 import com.ak.util.Metrics;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
 import static java.lang.StrictMath.log;
@@ -23,7 +25,7 @@ class ParametricOperatorTest {
         .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units))
         .build();
 
-    Model.Layer2Relative layer2 = new Model.Layer2Relative(K.PLUS_ONE, units.toSI(expectedH));
+    Model layer2 = new Model.Layer2Relative(K.PLUS_ONE, units.toSI(expectedH));
     assertThat(parametricOperator.misfit().applyAsDouble(layer2)).as(parametricOperator::toString).isPositive().isCloseTo(0.0, byLessThan(0.01));
   }
 
@@ -78,12 +80,16 @@ class ParametricOperatorTest {
       10.0, 30.0, METRE, 35.589
       50.0, 30.0, MILLI, 60.8
       """)
-  void hMax(double sPU, double lCC, Metrics.Length units, double expectedH) {
+  void bounds(double sPU, double lCC, Metrics.Length units, double expectedH) {
     ParametricOperator parametricOperator = ParametricOperator.builder(units)
         .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
         .measurements(m -> m.ohms(0.0).thenOhms(0.0).hDiff(0.0, units))
         .build();
-    assertThat(parametricOperator.hMax()).as(parametricOperator::toString).isCloseTo(units.toSI(expectedH), byLessThan(0.001));
+    Assertions.assertAll(Arrays.toString(parametricOperator.bounds()),
+        () -> assertThat(parametricOperator.bounds()).hasSize(2),
+        () -> assertThat(parametricOperator.bounds()[0]).isEqualTo(new Simplex.Bounds(-1.0, Double.NaN, 1.0)),
+        () -> assertThat(parametricOperator.bounds()[1].max()).isCloseTo(units.toSI(expectedH), byLessThan(0.001))
+    );
   }
 
   @ParameterizedTest

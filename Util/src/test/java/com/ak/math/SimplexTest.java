@@ -6,6 +6,7 @@ import org.apache.commons.math4.legacy.analysis.MultivariateFunction;
 import org.apache.commons.math4.legacy.optim.PointValuePair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Arrays;
@@ -66,5 +67,17 @@ class SimplexTest {
   void testBounds() {
     Bounds bounds = new Bounds(Math.random() - 1.1, Math.random() + 1.1);
     assertThat(bounds.isIn(Math.random())).isTrue();
+  }
+
+  @ParameterizedTest
+  @CsvSource(delimiter = '|', textBlock = """
+      -1.0 | 2.0 | 3.0 | 0.0 | 1.0 | 4.0
+      -1.0 | NaN | 3.0 | 0.0 | 1.0 | 4.0
+      """)
+  void testMergeBounds(double b1Min, double b1Med, double b1Max, double b2Min, double b2Med, double b2Max) {
+    Bounds bounds1 = new Bounds(b1Min, b1Med, b1Max);
+    Bounds bounds2 = new Bounds(b2Min, b2Med, b2Max);
+    assertThat(bounds1.merge(bounds2)).isEqualTo(bounds2.merge(bounds1))
+        .isEqualTo(new Simplex.Bounds(Math.max(b1Min, b2Min), (b1Med + b2Med) / 2.0, Math.min(b1Max, b2Max)));
   }
 }

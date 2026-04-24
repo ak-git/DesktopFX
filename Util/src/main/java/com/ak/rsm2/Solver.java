@@ -112,7 +112,13 @@ public sealed interface Solver {
                       )
                   );
             },
-            new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, parametricOperators.stream().mapToDouble(ParametricOperator::hMax).min().orElseThrow()));
+            parametricOperators.stream().map(ParametricOperator::bounds).reduce((bounds1, bounds2) -> {
+              Simplex.Bounds[] bounds = new Simplex.Bounds[Math.max(bounds1.length, bounds2.length)];
+              for (int i = 0; i < bounds.length; i++) {
+                bounds[i] = bounds1[i].merge(bounds2[i]);
+              }
+              return bounds;
+            }).orElseThrow());
         double[] point = optimized.getPoint();
         return new Model.Layer2Relative(point[0], point[1]);
       };

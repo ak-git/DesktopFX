@@ -1,5 +1,6 @@
 package com.ak.rsm2;
 
+import com.ak.math.Simplex;
 import com.ak.util.Builder;
 import com.ak.util.Metrics;
 import org.jspecify.annotations.Nullable;
@@ -17,7 +18,7 @@ public sealed interface ParametricOperator {
 
   double dataErrorNorm();
 
-  double hMax();
+  Simplex.Bounds[] bounds();
 
   ToDoubleFunction<Model> misfit();
 
@@ -59,11 +60,6 @@ public sealed interface ParametricOperator {
       }
 
       @Override
-      public final double hMax() {
-        return system.hMax(K.PLUS_ONE);
-      }
-
-      @Override
       public final ToDoubleFunction<Model> regularization(Regularization regularization) {
         return switch (regularization) {
           case ZERO_MAX_LOG -> layer -> {
@@ -93,6 +89,13 @@ public sealed interface ParametricOperator {
         }
 
         @Override
+        public Simplex.Bounds[] bounds() {
+          return new Simplex.Bounds[] {
+              new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, system().hMax(K.PLUS_ONE))
+          };
+        }
+
+        @Override
         public ToDoubleFunction<Model> misfit() {
           Resistivity resistivity = Resistivity.of(system());
           double apparent = resistivity.apparent(measurement().ohms());
@@ -113,6 +116,16 @@ public sealed interface ParametricOperator {
       private static final class ParametricStaticOperator extends AbstractParametricOperator<TetrapolarMeasurement> {
         private ParametricStaticOperator(ElectrodeSystem.Inexact system, TetrapolarMeasurement measurement) {
           super(system, measurement);
+        }
+
+        @Override
+        public Simplex.Bounds[] bounds() {
+          return new Simplex.Bounds[] {
+              new Simplex.Bounds(0.0, 10.0),
+              new Simplex.Bounds(0.0, 20.0),
+              new Simplex.Bounds(0.0, 50.0),
+              new Simplex.Bounds(0.0, system().hMax(K.PLUS_ONE))
+          };
         }
 
         @Override

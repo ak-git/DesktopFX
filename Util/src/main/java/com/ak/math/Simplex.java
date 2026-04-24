@@ -119,6 +119,10 @@ public enum Simplex {
     public boolean isIn(double d) {
       return min < d && d < max;
     }
+
+    public Bounds merge(Bounds other) {
+      return new Bounds(Math.max(min, other.min), (initialGuess + other.initialGuess) / 2.0, Math.min(max, other.max));
+    }
   }
 
   private static final double STOP_FITNESS = 1.0e-10;
