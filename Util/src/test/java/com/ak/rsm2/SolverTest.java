@@ -8,8 +8,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class InverseTest {
-  private static final Logger LOGGER = LoggerFactory.getLogger(InverseTest.class);
+class SolverTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SolverTest.class);
 
   @Nested
   class WaterTest {
