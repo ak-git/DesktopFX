@@ -97,12 +97,12 @@ public sealed interface ParametricOperator {
 
         @Override
         public ToDoubleFunction<Model> misfit() {
-          Resistivity resistivity = Resistivity.of(system());
-          double apparent = resistivity.apparent(measurement().ohms());
-          double derivativeApparentByPhi = resistivity.apparent((measurement().ohmsDiff() / measurement().hDiff()) / system().phiFactor());
           return layer -> {
             switch (layer) {
               case Model.Layer2Relative layer2Relative -> {
+                Resistivity resistivity = Resistivity.of(system());
+                double apparent = resistivity.apparent(measurement().ohms());
+                double derivativeApparentByPhi = resistivity.apparent((measurement().ohmsDiff() / measurement().hDiff()) / system().phiFactor());
                 double v = log(resistivity.apparentDivRho1(layer2Relative) / apparent) -
                     log(resistivity.derivativeApparentByPhiDivRho1(layer2Relative) / derivativeApparentByPhi);
                 return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);

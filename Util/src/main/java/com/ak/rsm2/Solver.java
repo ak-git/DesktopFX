@@ -63,29 +63,29 @@ public sealed interface Solver {
 
     @Override
     public Step2<M> system1x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
-      system(1, 3, builderFunction);
+      addSystem(1, 3, builderFunction);
       return this;
     }
 
     @Override
     public Step2<M> system1x2(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
-      system(1, 2, builderFunction);
+      addSystem(1, 2, builderFunction);
       return this;
     }
 
     @Override
     public Builder<Solver> system5x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
-      system(5, 3, builderFunction);
+      addSystem(5, 3, builderFunction);
       return this;
     }
 
     @Override
     public Builder<Solver> system1x4(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
-      system(1, 4, builderFunction);
+      addSystem(1, 4, builderFunction);
       return this;
     }
 
-    private void system(int factorFirst, int factorLast, Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
+    private void addSystem(int factorFirst, int factorLast, Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
       parametricOperators.add(
           ParametricOperator.builder(units)
               .system(s -> s.tetrapolar(base * factorFirst, base * factorLast).absError(0.1))

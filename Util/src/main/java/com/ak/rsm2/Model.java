@@ -38,9 +38,6 @@ public sealed interface Model {
       if (h < 0) {
         throw new IllegalArgumentException("h = %f must be non-negative".formatted(h));
       }
-      if (rho2Inspiration < rho2Expiration) {
-        throw new IllegalArgumentException("rho2Inspiration = %f must be > then rho2Expiration = %f".formatted(rho2Inspiration, rho2Expiration));
-      }
     }
 
     public Lung(double[] point) {
