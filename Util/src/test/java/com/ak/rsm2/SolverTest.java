@@ -25,7 +25,7 @@ class SolverTest {
         11.361, 17.674, 11.362, 17.678, -0.05
         """)
     void water(double r1, double r2, double r1After, double r2After, double hDiffMilli) {
-      Solver solver = Solver.<TetrapolarMeasurement.TetrapolarDiffMeasurement>of(10.0, Metrics.Length.MILLI)
+      Solver solver = Solver.<TetrapolarMeasurement.TetrapolarDiffMeasurement>of(10.0, Metrics.Length.MILLI, Model.Layer2Relative::new)
           .system1x3(m -> m.ohms(r1).thenOhms(r1After).hDiff(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2After).hDiff(hDiffMilli, Metrics.Length.MILLI))
           .build();
@@ -42,7 +42,7 @@ class SolverTest {
         68, 30.9, 71, 31.3, 30
         """)
     void lung(double r1Expiration, double r2Expiration, double r1Inspiration, double r2Inspiration, double sBaseMilli) {
-      Solver solver = Solver.of(sBaseMilli, Metrics.Length.MILLI)
+      Solver solver = Solver.of(sBaseMilli, Metrics.Length.MILLI, Model.Lung::new)
           .system1x2(m -> m.ohms(r1Expiration).thenOhms(r1Inspiration))
           .system1x4(m -> m.ohms(r2Expiration).thenOhms(r2Inspiration))
           .build();

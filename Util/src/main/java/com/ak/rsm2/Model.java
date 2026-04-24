@@ -14,6 +14,10 @@ public sealed interface Model {
       this(K.of(k), h);
     }
 
+    public Layer2Relative(double[] point) {
+      this(point[0], point[1]);
+    }
+
     @Override
     public String toString() {
       return "%s; %s".formatted(ValuePair.Name.K12.of(k.value(), 0.0), ValuePair.Name.H.of(h, 0.0));
@@ -37,6 +41,10 @@ public sealed interface Model {
       if (rho2Inspiration < rho2Expiration) {
         throw new IllegalArgumentException("rho2Inspiration = %f must be > then rho2Expiration = %f".formatted(rho2Inspiration, rho2Expiration));
       }
+    }
+
+    public Lung(double[] point) {
+      this(point[0], point[1], point[2], point[3]);
     }
   }
 }

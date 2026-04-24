@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 public sealed interface Solver {
-  static <M extends TetrapolarMeasurement> Step1<M> of(double base, Metrics.Length units) {
-    return new SolverBuilder<>(base, units);
+  static <M extends TetrapolarMeasurement> Step1<M> of(double base, Metrics.Length units, Function<double[], Model> modelFactory) {
+    return new SolverBuilder<>(base, units, modelFactory);
   }
 
   sealed interface Step1<M extends TetrapolarMeasurement> {
@@ -47,9 +47,10 @@ public sealed interface Solver {
 
     private final double base;
     private final Metrics.Length units;
+    private final Function<double[], Model> modelFactory;
     private final Collection<ParametricOperator> parametricOperators = new ArrayList<>();
 
-    public SolverBuilder(double base, Metrics.Length units) {
+    public SolverBuilder(double base, Metrics.Length units, Function<double[], Model> modelFactory) {
       if (base > 0) {
         this.base = base;
       }
@@ -57,6 +58,7 @@ public sealed interface Solver {
         throw new IllegalArgumentException("base = %f must be positive".formatted(base));
       }
       this.units = units;
+      this.modelFactory = modelFactory;
     }
 
     @Override
@@ -99,7 +101,7 @@ public sealed interface Solver {
 
       DoubleFunction<Model> find = alpha -> {
         PointValuePair optimized = Simplex.optimizeAll(point -> {
-              Model m = new Model.Layer2Relative(point[0], point[1]);
+              Model m = modelFactory.apply(point);
               return DoubleStream.concat(
                       parametricOperators.stream().mapToDouble(f -> alpha * f.regularization(ParametricOperator.Regularization.ZERO_MAX_LOG).applyAsDouble(m)),
                       parametricOperators.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).map(x -> x * x)
@@ -119,8 +121,7 @@ public sealed interface Solver {
               }
               return bounds;
             }).orElseThrow());
-        double[] point = optimized.getPoint();
-        return new Model.Layer2Relative(point[0], point[1]);
+        return modelFactory.apply(optimized.getPoint());
       };
 
       DoubleUnaryOperator withAlpha = new DoubleUnaryOperator() {
