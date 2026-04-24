@@ -1,5 +1,7 @@
 package com.ak.rsm2;
 
+import com.ak.math.ValuePair;
+
 public sealed interface Model {
   record Layer2Relative(K k, double h) implements Model {
     public Layer2Relative {
@@ -10,6 +12,11 @@ public sealed interface Model {
 
     public Layer2Relative(double k, double h) {
       this(K.of(k), h);
+    }
+
+    @Override
+    public String toString() {
+      return "%s; %s".formatted(ValuePair.Name.K12.of(k.value(), 0.0), ValuePair.Name.H.of(h, 0.0));
     }
   }
 

@@ -86,9 +86,9 @@ public sealed interface ParametricOperator {
         };
       }
 
-      private static final class ParametricOperatorDiffRecord extends AbstractParametricOperator<TetrapolarMeasurement.TetrapolarDiffMeasurement> {
-        private ParametricOperatorDiffRecord(ElectrodeSystem.Inexact system,
-                                             TetrapolarMeasurement.TetrapolarDiffMeasurement measurement) {
+      private static final class ParametricDiffOperator extends AbstractParametricOperator<TetrapolarMeasurement.TetrapolarDiffMeasurement> {
+        private ParametricDiffOperator(ElectrodeSystem.Inexact system,
+                                       TetrapolarMeasurement.TetrapolarDiffMeasurement measurement) {
           super(system, measurement);
         }
 
@@ -104,6 +104,23 @@ public sealed interface ParametricOperator {
                     log(resistivity.derivativeApparentByPhiDivRho1(layer2Relative) / derivativeApparentByPhi);
                 return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
               }
+              case Model.Lung lung -> throw new IllegalStateException("Unexpected value: " + lung);
+            }
+          };
+        }
+      }
+
+      private static final class ParametricStaticOperator extends AbstractParametricOperator<TetrapolarMeasurement> {
+        private ParametricStaticOperator(ElectrodeSystem.Inexact system, TetrapolarMeasurement measurement) {
+          super(system, measurement);
+        }
+
+        @Override
+        public ToDoubleFunction<Model> misfit() {
+          return layer -> {
+            switch (layer) {
+              case Model.Layer2Relative layer2Relative ->
+                  throw new IllegalStateException("Unexpected value: " + layer2Relative);
               case Model.Lung lung -> throw new IllegalStateException("Unexpected value: " + lung);
             }
           };
@@ -133,10 +150,12 @@ public sealed interface ParametricOperator {
 
     @Override
     public ParametricOperator build() {
+      ElectrodeSystem.Inexact s = Objects.requireNonNull(system);
       return switch (Objects.requireNonNull(measurement)) {
         case TetrapolarMeasurement.TetrapolarDiffMeasurement tetrapolarDiffMeasurement ->
-            new AbstractParametricOperator.ParametricOperatorDiffRecord(Objects.requireNonNull(system), tetrapolarDiffMeasurement);
-        default -> throw new IllegalStateException("Unexpected value: " + measurement);
+            new AbstractParametricOperator.ParametricDiffOperator(s, tetrapolarDiffMeasurement);
+        case TetrapolarMeasurement tetrapolarMeasurement ->
+            new AbstractParametricOperator.ParametricStaticOperator(s, tetrapolarMeasurement);
       };
     }
   }

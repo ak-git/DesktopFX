@@ -1,7 +1,6 @@
 package com.ak.rsm2;
 
 import com.ak.math.Simplex;
-import com.ak.math.ValuePair;
 import com.ak.util.Builder;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
@@ -98,7 +97,7 @@ public sealed interface Solver {
       double dataErrorNorm = parametricOperators.stream().mapToDouble(ParametricOperator::dataErrorNorm).reduce(Math::hypot).orElseThrow();
       LOGGER.atInfo().addKeyValue("data Error Norm", "%.4f".formatted(dataErrorNorm)).log(Strings.EMPTY);
 
-      DoubleFunction<Model.Layer2Relative> find = alpha -> {
+      DoubleFunction<Model> find = alpha -> {
         PointValuePair optimized = Simplex.optimizeAll(point -> {
               Model m = new Model.Layer2Relative(point[0], point[1]);
               return DoubleStream.concat(
@@ -127,13 +126,10 @@ public sealed interface Solver {
             return Double.POSITIVE_INFINITY;
           }
           else {
-            Model.Layer2Relative m = find.apply(alpha);
+            Model m = find.apply(alpha);
             double misfit = parametricOperators.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
             LOGGER.atInfo().addKeyValue("alpha", "%.4f".formatted(alpha)).addKeyValue("misfit", "%.4f".formatted(misfit))
-                .log(() -> "%s; %s".formatted(
-                    ValuePair.Name.K12.of(find.apply(alpha).k().value(), 0.0),
-                    ValuePair.Name.H.of(find.apply(alpha).h(), 0.0))
-                );
+                .log(() -> "%s".formatted(find.apply(alpha)));
             double v = misfit - dataErrorNorm;
             return v * v;
           }
@@ -146,11 +142,7 @@ public sealed interface Solver {
               new NelderMeadTransform(), new InitialGuess(new double[] {0.0})
           );
       double alpha = optimized.getPoint()[0];
-      LOGGER.atWarn().addKeyValue("alpha", () -> "%.4f".formatted(alpha))
-          .log("%s; %s".formatted(
-              ValuePair.Name.K12.of(find.apply(alpha).k().value(), 0.0),
-              ValuePair.Name.H.of(find.apply(alpha).h(), 0.0)));
-
+      LOGGER.atWarn().addKeyValue("alpha", () -> "%.4f".formatted(alpha)).log("%s".formatted(find.apply(alpha)));
       return new SolverRecord();
     }
   }
