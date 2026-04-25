@@ -34,13 +34,29 @@ class SolverTest {
   }
 
   @Nested
-  class LungTest {
+  class DiffTest {
     @Disabled
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
         135.1687, 203.1126, 135.4509, 203.6958, 0.150
         """)
-    void maxDiff(double r1, double r2, double r1After, double r2After, double hDiffMilli) {
+    void diff(double r1, double r2, double r1After, double r2After, double hDiffMilli) {
+      Solver solver = Solver.<TetrapolarMeasurement.TetrapolarDiffMeasurement>of(7.0, Metrics.Length.MILLI, Model.Layer2Relative::new)
+          .system1x3(m -> m.ohms(r1).thenOhms(r1After).hDiff(hDiffMilli, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2After).hDiff(hDiffMilli, Metrics.Length.MILLI))
+          .build();
+      LOGGER.atInfo().log(solver::toString);
+    }
+  }
+
+  @Nested
+  class MaxDiffTest {
+    @Disabled
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        135.1687, 203.1126, 135.4509, 203.6958, 0.150
+        """)
+    void diffMax(double r1, double r2, double r1After, double r2After, double hDiffMilli) {
       Solver solver = Solver.<TetrapolarMeasurement.TetrapolarMaxDiffMeasurement>of(7.0, Metrics.Length.MILLI, Model.Layer2Absolute::new)
           .system1x3(m -> m.ohms(r1).thenOhms(r1After).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2After).hDiffMax(hDiffMilli, Metrics.Length.MILLI))

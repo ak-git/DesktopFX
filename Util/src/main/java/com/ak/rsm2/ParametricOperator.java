@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
+import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.log;
 
 public sealed interface ParametricOperator {
@@ -55,37 +56,37 @@ public sealed interface ParametricOperator {
       }
 
       @Override
-      public final double dataErrorNorm() {
-        return system.dataErrorNorm();
-      }
-
-      @Override
       public final ToDoubleFunction<Model> regularization(Regularization regularization) {
         return switch (regularization) {
-          case ZERO_MAX_LOG -> layer -> {
-            if (layer instanceof Model.Layer2Relative(K k, double h)) {
-              double hMin = system.hMin(k);
-              double hMax = system.hMax(k);
-              if (hMin < h && h < hMax) {
-                double x = log(h);
-                double s = log(log(hMax) - x) - log(x - log(hMin));
-                return s * s;
-              }
-              else {
-                return Double.POSITIVE_INFINITY;
-              }
-            }
-            else {
-              return 0.0;
-            }
+          case ZERO_MAX_LOG -> layer -> switch (layer) {
+            case Model.Layer2Relative(K k, double h) -> regularizeH(k, h);
+            case Model.Layer2Absolute(double rho1, double rho2, double h, _) -> regularizeH(K.of(rho1, rho2), h);
           };
         };
+      }
+
+      private double regularizeH(K k, double h) {
+        double hMin = system.hMin(k);
+        double hMax = system.hMax(k);
+        if (hMin < h && h < hMax) {
+          double x = log(h);
+          double s = log(log(hMax) - x) - log(x - log(hMin));
+          return s * s;
+        }
+        else {
+          return Double.POSITIVE_INFINITY;
+        }
       }
 
       private static final class ParametricMaxDiffOperator extends AbstractParametricOperator<TetrapolarMeasurement.TetrapolarMaxDiffMeasurement> {
         private ParametricMaxDiffOperator(ElectrodeSystem.Inexact system,
                                           TetrapolarMeasurement.TetrapolarMaxDiffMeasurement measurement) {
           super(system, measurement);
+        }
+
+        @Override
+        public double dataErrorNorm() {
+          return system().dataErrorNorm() * 2;
         }
 
         @Override
@@ -107,8 +108,8 @@ public sealed interface ParametricOperator {
                 Resistivity.Apparent resistivity = Resistivity.of(system()).apparent(layer2Absolute);
                 double apparent = resistivity.apparent(measurement().ohms());
                 double derivativeApparentByPhi = resistivity.apparent((measurement().ohmsDiff() / layer2Absolute.dh()) / system().phiFactor());
-                double v = log(resistivity.value() / apparent) + log(resistivity.derivativeByPhi() / derivativeApparentByPhi);
-                return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
+                double v = hypot(log(resistivity.value() / apparent), log(resistivity.derivativeByPhi() / derivativeApparentByPhi));
+                return Double.isNaN(v) ? Double.POSITIVE_INFINITY : v;
               }
             }
           };
@@ -120,6 +121,11 @@ public sealed interface ParametricOperator {
         private ParametricDiffOperator(ElectrodeSystem.Inexact system,
                                        TetrapolarMeasurement.TetrapolarDiffMeasurement measurement) {
           super(system, measurement);
+        }
+
+        @Override
+        public double dataErrorNorm() {
+          return system().dataErrorNorm();
         }
 
         @Override
@@ -137,8 +143,7 @@ public sealed interface ParametricOperator {
                 Resistivity.Apparent resistivity = Resistivity.of(system()).apparentDivRho1(layer2Relative);
                 double apparent = resistivity.apparent(measurement().ohms());
                 double derivativeApparentByPhi = resistivity.apparent((measurement().ohmsDiff() / measurement().hDiff()) / system().phiFactor());
-                double v = log(resistivity.value() / apparent) -
-                    log(resistivity.derivativeByPhi() / derivativeApparentByPhi);
+                double v = log(resistivity.value() / apparent) - log(resistivity.derivativeByPhi() / derivativeApparentByPhi);
                 return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
               }
               case Model.Layer2Absolute layer2Absolute ->
@@ -151,6 +156,11 @@ public sealed interface ParametricOperator {
       private static final class ParametricStaticOperator extends AbstractParametricOperator<TetrapolarMeasurement> {
         private ParametricStaticOperator(ElectrodeSystem.Inexact system, TetrapolarMeasurement measurement) {
           super(system, measurement);
+        }
+
+        @Override
+        public double dataErrorNorm() {
+          return system().dataErrorNorm();
         }
 
         @Override
