@@ -35,16 +35,15 @@ class SolverTest {
 
   @Nested
   class LungTest {
-    @Disabled("26.734, 46.074, 26.719, 46.028, 0.450")
+    @Disabled
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
-        50, 29.0, 51, 30.5, 40
-        68, 30.9, 71, 31.3, 30
+        135.1687, 203.1126, 135.4509, 203.6958, 150
         """)
-    void lung(double r1Expiration, double r2Expiration, double r1Inspiration, double r2Inspiration, double sBaseMilli) {
-      Solver solver = Solver.of(sBaseMilli, Metrics.Length.MILLI, Model.Lung::new)
-          .system1x2(m -> m.ohms(r1Expiration).thenOhms(r1Inspiration))
-          .system1x4(m -> m.ohms(r2Expiration).thenOhms(r2Inspiration))
+    void maxDiff(double r1, double r2, double r1After, double r2After, double hDiffMilli) {
+      Solver solver = Solver.<TetrapolarMeasurement.TetrapolarMaxDiffMeasurement>of(7.0, Metrics.Length.MILLI, Model.Layer2Absolute::new)
+          .system1x3(m -> m.ohms(r1).thenOhms(r1After).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2After).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
           .build();
       LOGGER.atInfo().log(solver::toString);
     }

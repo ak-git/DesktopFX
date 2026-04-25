@@ -82,6 +82,35 @@ public sealed interface ParametricOperator {
         };
       }
 
+      private static final class ParametricMaxDiffOperator extends AbstractParametricOperator<TetrapolarMeasurement.TetrapolarMaxDiffMeasurement> {
+        private ParametricMaxDiffOperator(ElectrodeSystem.Inexact system,
+                                          TetrapolarMeasurement.TetrapolarMaxDiffMeasurement measurement) {
+          super(system, measurement);
+        }
+
+        @Override
+        public Simplex.Bounds[] bounds() {
+          return new Simplex.Bounds[] {
+              new Simplex.Bounds(0.0, 10.0), new Simplex.Bounds(0.0, 10.0),
+              new Simplex.Bounds(0.0, system().hMax(K.PLUS_ONE)),
+              new Simplex.Bounds(0.0, measurement().hDiffMax())
+          };
+        }
+
+        @Override
+        public ToDoubleFunction<Model> misfit() {
+          return layer -> {
+            switch (layer) {
+              case Model.Layer2Relative layer2Relative ->
+                  throw new IllegalStateException("Unexpected value: " + layer2Relative);
+              case Model.Layer2Absolute layer2Absolute ->
+                  throw new IllegalStateException("Unexpected value: " + layer2Absolute);
+            }
+          };
+        }
+      }
+
+
       private static final class ParametricDiffOperator extends AbstractParametricOperator<TetrapolarMeasurement.TetrapolarDiffMeasurement> {
         private ParametricDiffOperator(ElectrodeSystem.Inexact system,
                                        TetrapolarMeasurement.TetrapolarDiffMeasurement measurement) {
@@ -107,7 +136,8 @@ public sealed interface ParametricOperator {
                     log(resistivity.derivativeByPhi() / derivativeApparentByPhi);
                 return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
               }
-              case Model.Lung lung -> throw new IllegalStateException("Unexpected value: " + lung);
+              case Model.Layer2Absolute layer2Absolute ->
+                  throw new IllegalStateException("Unexpected value: " + layer2Absolute);
             }
           };
         }
@@ -134,7 +164,8 @@ public sealed interface ParametricOperator {
             switch (layer) {
               case Model.Layer2Relative layer2Relative ->
                   throw new IllegalStateException("Unexpected value: " + layer2Relative);
-              case Model.Lung lung -> throw new IllegalStateException("Unexpected value: " + lung);
+              case Model.Layer2Absolute layer2Absolute ->
+                  throw new IllegalStateException("Unexpected value: " + layer2Absolute);
             }
           };
         }
@@ -165,6 +196,8 @@ public sealed interface ParametricOperator {
     public ParametricOperator build() {
       ElectrodeSystem.Inexact s = Objects.requireNonNull(system);
       return switch (Objects.requireNonNull(measurement)) {
+        case TetrapolarMeasurement.TetrapolarMaxDiffMeasurement tetrapolarMaxDiffMeasurement ->
+            new AbstractParametricOperator.ParametricMaxDiffOperator(s, tetrapolarMaxDiffMeasurement);
         case TetrapolarMeasurement.TetrapolarDiffMeasurement tetrapolarDiffMeasurement ->
             new AbstractParametricOperator.ParametricDiffOperator(s, tetrapolarDiffMeasurement);
         case TetrapolarMeasurement tetrapolarMeasurement ->

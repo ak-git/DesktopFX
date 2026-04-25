@@ -2,6 +2,9 @@ package com.ak.rsm2;
 
 import com.ak.math.ValuePair;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public sealed interface Model {
   record Layer2Relative(K k, double h) implements Model {
     public Layer2Relative {
@@ -20,28 +23,21 @@ public sealed interface Model {
 
     @Override
     public String toString() {
-      return "%s; %s".formatted(ValuePair.Name.K12.of(k.value(), 0.0), ValuePair.Name.H.of(h, 0.0));
+      return Stream.of(ValuePair.Name.K12.of(k.value(), 0.0), ValuePair.Name.H.of(h, 0.0))
+          .map(ValuePair::toString).collect(Collectors.joining("; "));
     }
   }
 
-  record Lung(double rho1, double rho2Expiration, double rho2Inspiration, double h) implements Model {
-    public Lung {
-      if (rho1 < 0) {
-        throw new IllegalArgumentException("rho1 = %f must be non-negative".formatted(rho1));
-      }
-      if (rho2Expiration < 0) {
-        throw new IllegalArgumentException("rho2Expiration = %f must be non-negative".formatted(rho2Expiration));
-      }
-      if (rho2Inspiration < 0) {
-        throw new IllegalArgumentException("rho2Inspiration = %f must be non-negative".formatted(rho2Inspiration));
-      }
-      if (h < 0) {
-        throw new IllegalArgumentException("h = %f must be non-negative".formatted(h));
-      }
+  record Layer2Absolute(double rho1, double rho2, double h, double dh) implements Model {
+    public Layer2Absolute(double[] point) {
+      this(point[0], point[1], point[2], point[3]);
     }
 
-    public Lung(double[] point) {
-      this(point[0], point[1], point[2], point[3]);
+    @Override
+    public String toString() {
+      return Stream.of(ValuePair.Name.RHO_1.of(rho1, 0.0), ValuePair.Name.RHO_2.of(rho2, 0.0),
+              ValuePair.Name.H.of(h, 0.0), ValuePair.Name.DH.of(dh, 0.0))
+          .map(ValuePair::toString).collect(Collectors.joining("; "));
     }
   }
 }
