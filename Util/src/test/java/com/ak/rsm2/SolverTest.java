@@ -38,7 +38,7 @@ class SolverTest {
     @Disabled
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
-        135.1687, 203.1126, 135.4509, 203.6958, 150
+        135.1687, 203.1126, 135.4509, 203.6958, 0.150
         """)
     void maxDiff(double r1, double r2, double r1After, double r2After, double hDiffMilli) {
       Solver solver = Solver.<TetrapolarMeasurement.TetrapolarMaxDiffMeasurement>of(7.0, Metrics.Length.MILLI, Model.Layer2Absolute::new)

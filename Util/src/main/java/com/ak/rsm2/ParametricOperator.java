@@ -103,8 +103,13 @@ public sealed interface ParametricOperator {
             switch (layer) {
               case Model.Layer2Relative layer2Relative ->
                   throw new IllegalStateException("Unexpected value: " + layer2Relative);
-              case Model.Layer2Absolute layer2Absolute ->
-                  throw new IllegalStateException("Unexpected value: " + layer2Absolute);
+              case Model.Layer2Absolute layer2Absolute -> {
+                Resistivity.Apparent resistivity = Resistivity.of(system()).apparent(layer2Absolute);
+                double apparent = resistivity.apparent(measurement().ohms());
+                double derivativeApparentByPhi = resistivity.apparent((measurement().ohmsDiff() / layer2Absolute.dh()) / system().phiFactor());
+                double v = log(resistivity.value() / apparent) + log(resistivity.derivativeByPhi() / derivativeApparentByPhi);
+                return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
+              }
             }
           };
         }
@@ -129,7 +134,7 @@ public sealed interface ParametricOperator {
           return layer -> {
             switch (layer) {
               case Model.Layer2Relative layer2Relative -> {
-                Resistivity.ApparentDivRho1 resistivity = Resistivity.of(system()).apparentDivRho1(layer2Relative);
+                Resistivity.Apparent resistivity = Resistivity.of(system()).apparentDivRho1(layer2Relative);
                 double apparent = resistivity.apparent(measurement().ohms());
                 double derivativeApparentByPhi = resistivity.apparent((measurement().ohmsDiff() / measurement().hDiff()) / system().phiFactor());
                 double v = log(resistivity.value() / apparent) -

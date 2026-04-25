@@ -19,7 +19,9 @@ public sealed interface Resistivity {
   }
 
   sealed interface Step1 extends Builder<Resistivity> {
-    ApparentDivRho1 apparentDivRho1(Model.Layer2Relative layer2Relative);
+    Apparent apparentDivRho1(Model.Layer2Relative layer2Relative);
+
+    Apparent apparent(Model.Layer2Absolute layer2Absolute);
   }
 
   final class ResistivityBuilder implements Step1 {
@@ -46,20 +48,25 @@ public sealed interface Resistivity {
     }
 
     @Override
-    public ApparentDivRho1 apparentDivRho1(Model.Layer2Relative layer2Relative) {
-      return new ApparentDivRho1.ApparentDivRho1Builder(build(), layer2Relative).build();
+    public Apparent apparentDivRho1(Model.Layer2Relative layer2Relative) {
+      return new Apparent.ApparentBuilder(build(), layer2Relative).build();
+    }
+
+    @Override
+    public Apparent apparent(Model.Layer2Absolute layer2Absolute) {
+      return new Apparent.ApparentBuilder(build(), layer2Absolute).build();
     }
   }
 
-  sealed interface ApparentDivRho1 extends Resistivity {
+  sealed interface Apparent extends Resistivity {
     double value();
 
     double derivativeByPhi();
 
-    final class ApparentDivRho1Builder implements Builder<ApparentDivRho1> {
-      private record ApparentDivRho1Record(Resistivity resistivity, double value, double derivativeByPhi)
-          implements ApparentDivRho1 {
-        private ApparentDivRho1Record {
+    final class ApparentBuilder implements Builder<Apparent> {
+      private record ApparentRecord(Resistivity resistivity, double value, double derivativeByPhi)
+          implements Apparent {
+        private ApparentRecord {
           Objects.requireNonNull(resistivity);
         }
 
@@ -90,16 +97,23 @@ public sealed interface Resistivity {
       }
 
       private final Resistivity resistivity;
-      private final Model.Layer2Relative layer2Relative;
+      private final Model model;
 
-      private ApparentDivRho1Builder(Resistivity resistivity, Model.Layer2Relative layer2Relative) {
+      private ApparentBuilder(Resistivity resistivity, Model model) {
         this.resistivity = resistivity;
-        this.layer2Relative = layer2Relative;
+        this.model = model;
       }
 
       @Override
-      public ApparentDivRho1 build() {
-        return new ApparentDivRho1Record(resistivity, apparentDivRho1(layer2Relative), derivativeApparentByPhiDivRho1(layer2Relative));
+      public Apparent build() {
+        return switch (model) {
+          case Model.Layer2Relative layer2Relative ->
+              new ApparentRecord(resistivity, apparentDivRho1(layer2Relative), derivativeApparentByPhiDivRho1(layer2Relative));
+          case Model.Layer2Absolute(double rho1, double rho2, double h, double _) -> {
+            Model.Layer2Relative layer2Relative = new Model.Layer2Relative(K.of(rho1, rho2), h);
+            yield new ApparentRecord(resistivity, rho1 * apparentDivRho1(layer2Relative), rho1 * derivativeApparentByPhiDivRho1(layer2Relative));
+          }
+        };
       }
 
       private double apparentDivRho1(Model.Layer2Relative layer2) {
