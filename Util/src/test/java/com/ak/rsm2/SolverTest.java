@@ -35,17 +35,18 @@ class SolverTest {
 
   @Nested
   class DiffTest {
-    @Disabled
+    @Disabled("E8422ak")
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
-        135.1687, 203.1126, 135.4509, 203.6958, 0.150
-        137.0167, 207.4542, 137.3788, 208.2251, 0.150
-        140.7461, 215.4297, 141.2404, 216.3636, 0.150
+        135.1687, 203.1126, 0.2822034, 0.5831683, 0.150
+        137.0167, 207.4542, 0.3620525, 0.7709094, 0.150
+        139.6433, 212.6400, 0.4942724, 0.9339182, 0.150
+        140.7461, 215.4297, 0.4942724, 0.9339182, 0.150
         """)
-    void diff(double r1, double r2, double r1After, double r2After, double hDiffMilli) {
+    void diff(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
       Solver solver = Solver.<TetrapolarMeasurement.TetrapolarDiffMeasurement>of(7.0, Metrics.Length.MILLI, Model.Layer2Relative::new)
-          .system1x3(m -> m.ohms(r1).thenOhms(r1After).hDiff(hDiffMilli, Metrics.Length.MILLI))
-          .system5x3(m -> m.ohms(r2).thenOhms(r2After).hDiff(hDiffMilli, Metrics.Length.MILLI))
+          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiff(hDiffMilli, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiff(hDiffMilli, Metrics.Length.MILLI))
           .build();
       LOGGER.atInfo().log(solver::toString);
     }
@@ -53,17 +54,18 @@ class SolverTest {
 
   @Nested
   class MaxDiffTest {
-    @Disabled
+    @Disabled("E8422ak")
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
-        135.1687, 203.1126, 135.4509, 203.6958, 0.150
-        137.0167, 207.4542, 137.3788, 208.2251, 0.150
-        140.7461, 215.4297, 141.2404, 216.3636, 0.150
+        135.1687, 203.1126, 0.2822034, 0.5831683, 0.150
+        137.0167, 207.4542, 0.3620525, 0.7709094, 0.150
+        139.6433, 212.6400, 0.4942724, 0.9339182, 0.150
+        140.7461, 215.4297, 0.4942724, 0.9339182, 0.150
         """)
-    void diffMax(double r1, double r2, double r1After, double r2After, double hDiffMilli) {
+    void diffMax(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
       Solver solver = Solver.<TetrapolarMeasurement.TetrapolarMaxDiffMeasurement>of(7.0, Metrics.Length.MILLI, Model.Layer2Absolute::new)
-          .system1x3(m -> m.ohms(r1).thenOhms(r1After).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
-          .system5x3(m -> m.ohms(r2).thenOhms(r2After).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
+          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
           .build();
       LOGGER.atInfo().log(solver::toString);
     }
