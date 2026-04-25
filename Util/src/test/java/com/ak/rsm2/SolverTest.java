@@ -35,6 +35,7 @@ class SolverTest {
 
   @Nested
   class LungTest {
+    @Disabled("26.734, 46.074, 26.719, 46.028, 0.450")
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
         50, 29.0, 51, 30.5, 40

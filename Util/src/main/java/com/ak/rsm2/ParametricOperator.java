@@ -100,11 +100,11 @@ public sealed interface ParametricOperator {
           return layer -> {
             switch (layer) {
               case Model.Layer2Relative layer2Relative -> {
-                Resistivity resistivity = Resistivity.of(system());
+                Resistivity.ApparentDivRho1 resistivity = Resistivity.of(system()).apparentDivRho1(layer2Relative);
                 double apparent = resistivity.apparent(measurement().ohms());
                 double derivativeApparentByPhi = resistivity.apparent((measurement().ohmsDiff() / measurement().hDiff()) / system().phiFactor());
-                double v = log(resistivity.apparentDivRho1(layer2Relative) / apparent) -
-                    log(resistivity.derivativeApparentByPhiDivRho1(layer2Relative) / derivativeApparentByPhi);
+                double v = log(resistivity.value() / apparent) -
+                    log(resistivity.derivativeByPhi() / derivativeApparentByPhi);
                 return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
               }
               case Model.Lung lung -> throw new IllegalStateException("Unexpected value: " + lung);

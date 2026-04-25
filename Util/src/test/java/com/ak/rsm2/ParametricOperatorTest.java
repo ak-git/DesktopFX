@@ -59,7 +59,7 @@ class ParametricOperatorTest {
   void dataErrorNorm(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiff) {
     DoubleUnaryOperator d = emm -> {
       ElectrodeSystem.Tetrapolar system = ElectrodeSystem.builder(units).tetrapolar(sPU + emm, lCC - emm).build();
-      Resistivity resistivity = Resistivity.of(system);
+      Resistivity resistivity = Resistivity.of(system).build();
       TetrapolarMeasurement.TetrapolarDiffMeasurement measurement = TetrapolarMeasurement.builder().ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units).build();
       double apparent = resistivity.apparent(measurement.ohms());
       double derivativeApparentByPhi = Math.abs(resistivity.apparent((measurement.ohmsDiff() / measurement.hDiff()) / system.phiFactor()));
