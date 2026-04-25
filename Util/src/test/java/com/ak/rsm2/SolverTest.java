@@ -39,6 +39,8 @@ class SolverTest {
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
         135.1687, 203.1126, 135.4509, 203.6958, 0.150
+        137.0167, 207.4542, 137.3788, 208.2251, 0.150
+        140.7461, 215.4297, 141.2404, 216.3636, 0.150
         """)
     void diff(double r1, double r2, double r1After, double r2After, double hDiffMilli) {
       Solver solver = Solver.<TetrapolarMeasurement.TetrapolarDiffMeasurement>of(7.0, Metrics.Length.MILLI, Model.Layer2Relative::new)
@@ -55,6 +57,8 @@ class SolverTest {
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
         135.1687, 203.1126, 135.4509, 203.6958, 0.150
+        137.0167, 207.4542, 137.3788, 208.2251, 0.150
+        140.7461, 215.4297, 141.2404, 216.3636, 0.150
         """)
     void diffMax(double r1, double r2, double r1After, double r2After, double hDiffMilli) {
       Solver solver = Solver.<TetrapolarMeasurement.TetrapolarMaxDiffMeasurement>of(7.0, Metrics.Length.MILLI, Model.Layer2Absolute::new)

@@ -55,17 +55,7 @@ public sealed interface ParametricOperator {
         return measurement;
       }
 
-      @Override
-      public final ToDoubleFunction<Model> regularization(Regularization regularization) {
-        return switch (regularization) {
-          case ZERO_MAX_LOG -> layer -> switch (layer) {
-            case Model.Layer2Relative(K k, double h) -> regularizeH(k, h);
-            case Model.Layer2Absolute(double rho1, double rho2, double h, _) -> regularizeH(K.of(rho1, rho2), h);
-          };
-        };
-      }
-
-      private double regularizeH(K k, double h) {
+      protected final double regularization(K k, double h) {
         double hMin = system.hMin(k);
         double hMax = system.hMax(k);
         if (hMin < h && h < hMax) {
@@ -114,8 +104,30 @@ public sealed interface ParametricOperator {
             }
           };
         }
-      }
 
+        @Override
+        public ToDoubleFunction<Model> regularization(Regularization regularization) {
+          return switch (regularization) {
+            case ZERO_MAX_LOG -> layer -> switch (layer) {
+              case Model.Layer2Relative layer2Relative ->
+                  throw new IllegalStateException("Unexpected value: " + layer2Relative);
+              case Model.Layer2Absolute(double rho1, double rho2, double h, double dh) ->
+                  regularization(K.of(rho1, rho2), h) + regularization(dh);
+            };
+          };
+        }
+
+        private double regularization(double dh) {
+          double dhMax = measurement().hDiffMax();
+          if (0 < dh && dh < dhMax) {
+            double s = log(2.0 * dhMax - dh) - log(dh);
+            return s * s;
+          }
+          else {
+            return Double.POSITIVE_INFINITY;
+          }
+        }
+      }
 
       private static final class ParametricDiffOperator extends AbstractParametricOperator<TetrapolarMeasurement.TetrapolarDiffMeasurement> {
         private ParametricDiffOperator(ElectrodeSystem.Inexact system,
@@ -151,6 +163,17 @@ public sealed interface ParametricOperator {
             }
           };
         }
+
+        @Override
+        public ToDoubleFunction<Model> regularization(Regularization regularization) {
+          return switch (regularization) {
+            case ZERO_MAX_LOG -> layer -> switch (layer) {
+              case Model.Layer2Relative(K k, double h) -> regularization(k, h);
+              case Model.Layer2Absolute layer2Absolute ->
+                  throw new IllegalStateException("Unexpected value: " + layer2Absolute);
+            };
+          };
+        }
       }
 
       private static final class ParametricStaticOperator extends AbstractParametricOperator<TetrapolarMeasurement> {
@@ -182,6 +205,13 @@ public sealed interface ParametricOperator {
               case Model.Layer2Absolute layer2Absolute ->
                   throw new IllegalStateException("Unexpected value: " + layer2Absolute);
             }
+          };
+        }
+
+        @Override
+        public ToDoubleFunction<Model> regularization(Regularization regularization) {
+          return switch (regularization) {
+            case ZERO_MAX_LOG -> _ -> 0.0;
           };
         }
       }
