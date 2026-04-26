@@ -7,7 +7,6 @@ import com.ak.util.Metrics;
 import javax.measure.MetricPrefix;
 import java.util.Objects;
 
-import static java.lang.StrictMath.log1p;
 import static java.lang.StrictMath.pow;
 import static tech.units.indriya.unit.Units.METRE;
 
@@ -105,8 +104,6 @@ public sealed interface ElectrodeSystem {
   sealed interface Inexact extends Tetrapolar {
     double apparentRhoRelativeError();
 
-    double dataErrorNorm();
-
     double hMax(K k);
 
     double hMin(K k);
@@ -154,11 +151,6 @@ public sealed interface ElectrodeSystem {
         public double apparentRhoRelativeError() {
           double x = normalizedSToL();
           return Math.abs((1.0 + x) / (x * (1.0 - x)) * relativeError());
-        }
-
-        @Override
-        public double dataErrorNorm() {
-          return log1p(apparentRhoRelativeError());
         }
 
         @Override

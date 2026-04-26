@@ -9,8 +9,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
-import static java.lang.StrictMath.hypot;
-import static java.lang.StrictMath.log;
+import static java.lang.StrictMath.*;
 
 public sealed interface ParametricOperator {
   enum Regularization {
@@ -76,7 +75,7 @@ public sealed interface ParametricOperator {
 
         @Override
         public double dataErrorNorm() {
-          return system().dataErrorNorm() * 2;
+          return log1p(system().apparentRhoRelativeError());
         }
 
         @Override
@@ -137,7 +136,7 @@ public sealed interface ParametricOperator {
 
         @Override
         public double dataErrorNorm() {
-          return system().dataErrorNorm();
+          return log1p(system().apparentRhoRelativeError());
         }
 
         @Override
@@ -183,7 +182,7 @@ public sealed interface ParametricOperator {
 
         @Override
         public double dataErrorNorm() {
-          return system().dataErrorNorm();
+          return log1p(system().apparentRhoRelativeError());
         }
 
         @Override
