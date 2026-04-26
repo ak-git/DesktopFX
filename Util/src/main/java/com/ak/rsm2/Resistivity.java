@@ -109,7 +109,7 @@ public sealed interface Resistivity {
         return switch (model) {
           case Model.Layer2Relative layer2Relative ->
               new ApparentRecord(resistivity, apparentDivRho1(layer2Relative), derivativeApparentByPhiDivRho1(layer2Relative));
-          case Model.Layer2Absolute(double rho1, double rho2, double h, double _) -> {
+          case Model.Layer2Absolute(double rho1, double rho2, double h, _) -> {
             Model.Layer2Relative layer2Relative = new Model.Layer2Relative(K.of(rho1, rho2), h);
             yield new ApparentRecord(resistivity, rho1 * apparentDivRho1(layer2Relative), rho1 * derivativeApparentByPhiDivRho1(layer2Relative));
           }
