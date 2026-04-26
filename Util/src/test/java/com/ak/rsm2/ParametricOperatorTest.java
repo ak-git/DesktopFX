@@ -3,6 +3,7 @@ package com.ak.rsm2;
 import com.ak.math.Simplex;
 import com.ak.util.Metrics;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -10,10 +11,83 @@ import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
 import static java.lang.StrictMath.log;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.byLessThan;
+import static org.assertj.core.api.Assertions.*;
 
 class ParametricOperatorTest {
+
+  @Nested
+  class ParametricDiffOperatorTest {
+
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        10.0, 30.0, METRE, 30.971, 31.278, -0.05
+        50.0, 30.0, MILLI, 62.479, 61.860,  0.05
+        """)
+    void dataErrorNorm(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiff) {
+      DoubleUnaryOperator d = emm -> {
+        ElectrodeSystem.Tetrapolar system = ElectrodeSystem.builder(units).tetrapolar(sPU + emm, lCC - emm).build();
+        Resistivity resistivity = Resistivity.of(system).build();
+        TetrapolarMeasurement.TetrapolarDiffMeasurement measurement = TetrapolarMeasurement.builder().ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units).build();
+        double apparent = resistivity.apparent(measurement.ohms());
+        double derivativeApparentByPhi = Math.abs(resistivity.apparent((measurement.ohmsDiff() / measurement.hDiff()) / system.phiFactor()));
+        return log(apparent) - log(derivativeApparentByPhi);
+      };
+
+      double expected = Math.abs(d.applyAsDouble(0.0) - Math.max(d.applyAsDouble(0.1), d.applyAsDouble(-0.1)));
+
+      ParametricOperator parametricOperator = ParametricOperator.builder(units)
+          .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
+          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units))
+          .build();
+      assertThat(parametricOperator.dataErrorNorm()).as(parametricOperator::toString).isCloseTo(expected, byLessThan(0.001));
+    }
+  }
+
+  @Nested
+  class ParametricMaxDiffOperatorTest {
+
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        10.0, 30.0, METRE, 30.971, 31.278, -0.05
+        50.0, 30.0, MILLI, 62.479, 61.860,  0.05
+        """)
+    void dataErrorNorm(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiffMax) {
+      DoubleUnaryOperator d = emm -> {
+        ElectrodeSystem.Tetrapolar system = ElectrodeSystem.builder(units).tetrapolar(sPU + emm, lCC - emm).build();
+        Resistivity resistivity = Resistivity.of(system).build();
+        TetrapolarMeasurement.TetrapolarMaxDiffMeasurement measurement = TetrapolarMeasurement.builder().ohms(rBefore).thenOhms(rAfter).hDiffMax(hDiffMax, units).build();
+        double apparent = resistivity.apparent(measurement.ohms());
+        double derivativeApparentByPhi = Math.abs(resistivity.apparent((measurement.ohmsDiff() / measurement.hDiffMax()) / system.phiFactor()));
+        return log(apparent) - log(derivativeApparentByPhi);
+      };
+
+      double expected = Math.abs(d.applyAsDouble(0.0) - Math.max(d.applyAsDouble(0.1), d.applyAsDouble(-0.1)));
+
+      ParametricOperator parametricOperator = ParametricOperator.builder(units)
+          .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
+          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiffMax(hDiffMax, units))
+          .build();
+      assertThat(parametricOperator.dataErrorNorm()).as(parametricOperator::toString).isCloseTo(expected, byLessThan(0.001));
+    }
+  }
+
+  @Nested
+  class ParametricStaticOperatorTest {
+
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        10.0, 30.0, METRE, 30.971, 31.278
+        50.0, 30.0, MILLI, 62.479, 61.860
+        """)
+    void dataErrorNorm(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter) {
+      ParametricOperator parametricOperator = ParametricOperator.builder(units)
+          .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
+          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter))
+          .build();
+      assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(parametricOperator::dataErrorNorm);
+    }
+  }
+
   @ParameterizedTest
   @CsvSource(delimiter = ',', textBlock = """
       10.0, 30.0, METRE, 30.971, 31.278, -0.05, 5.0
@@ -49,30 +123,6 @@ class ParametricOperatorTest {
     K k = K.of(0.5);
     assertThat(parametricOperator.regularization(ParametricOperator.Regularization.ZERO_MAX_LOG).applyAsDouble(new Model.Layer2Relative(k, Math.sqrt(inexact.hMax(k) * inexact.hMin(k)))))
         .isPositive().isCloseTo(0.0, byLessThan(1.0e-9));
-  }
-
-  @ParameterizedTest
-  @CsvSource(delimiter = ',', textBlock = """
-      10.0, 30.0, METRE, 30.971, 31.278, -0.05
-      50.0, 30.0, MILLI, 62.479, 61.860,  0.05
-      """)
-  void dataErrorNorm(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiff) {
-    DoubleUnaryOperator d = emm -> {
-      ElectrodeSystem.Tetrapolar system = ElectrodeSystem.builder(units).tetrapolar(sPU + emm, lCC - emm).build();
-      Resistivity resistivity = Resistivity.of(system).build();
-      TetrapolarMeasurement.TetrapolarDiffMeasurement measurement = TetrapolarMeasurement.builder().ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units).build();
-      double apparent = resistivity.apparent(measurement.ohms());
-      double derivativeApparentByPhi = Math.abs(resistivity.apparent((measurement.ohmsDiff() / measurement.hDiff()) / system.phiFactor()));
-      return log(apparent) - log(derivativeApparentByPhi);
-    };
-
-    double expected = Math.max(d.applyAsDouble(0.1), d.applyAsDouble(-0.1)) - d.applyAsDouble(0.0);
-
-    ParametricOperator parametricOperator = ParametricOperator.builder(Metrics.Length.MILLI)
-        .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
-        .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units))
-        .build();
-    assertThat(parametricOperator.dataErrorNorm()).as(parametricOperator::toString).isCloseTo(expected, byLessThan(0.001));
   }
 
   @ParameterizedTest

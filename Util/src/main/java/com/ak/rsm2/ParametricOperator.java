@@ -182,7 +182,7 @@ public sealed interface ParametricOperator {
 
         @Override
         public double dataErrorNorm() {
-          return log1p(system().apparentRhoRelativeError());
+          throw new UnsupportedOperationException("Not supported yet.");
         }
 
         @Override
