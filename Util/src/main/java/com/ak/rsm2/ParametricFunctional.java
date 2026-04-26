@@ -33,10 +33,10 @@ public sealed interface ParametricFunctional {
   }
 
   static <M extends TetrapolarMeasurement> Step1<M> builder(Metrics.Length units) {
-    return new ParametricOperatorBuilder<>(units);
+    return new ParametricFunctionalBuilder<>(units);
   }
 
-  final class ParametricOperatorBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Builder<ParametricFunctional> {
+  final class ParametricFunctionalBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Builder<ParametricFunctional> {
     private abstract static sealed class AbstractParametricFunctional<M extends TetrapolarMeasurement> implements ParametricFunctional {
       private final ElectrodeSystem.Inexact system;
       private final M measurement;
@@ -220,7 +220,7 @@ public sealed interface ParametricFunctional {
     private ElectrodeSystem.@Nullable Inexact system;
     private @Nullable M measurement;
 
-    private ParametricOperatorBuilder(Metrics.Length units) {
+    private ParametricFunctionalBuilder(Metrics.Length units) {
       this.units = units;
     }
 
