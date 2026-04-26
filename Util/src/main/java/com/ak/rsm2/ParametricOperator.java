@@ -83,7 +83,7 @@ public sealed interface ParametricOperator {
           return new Simplex.Bounds[] {
               new Simplex.Bounds(0.0, 10.0), new Simplex.Bounds(0.0, 10.0),
               new Simplex.Bounds(0.0, system().hMax(K.PLUS_ONE)),
-              new Simplex.Bounds(0.0, measurement().hDiffMax())
+              new Simplex.Bounds(Math.min(measurement().hDiffMax(), 0.0), Math.max(0.0, measurement().hDiffMax())),
           };
         }
 

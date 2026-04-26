@@ -41,6 +41,24 @@ class ParametricOperatorTest {
           .build();
       assertThat(parametricOperator.dataErrorNorm()).as(parametricOperator::toString).isCloseTo(expected, byLessThan(0.001));
     }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        10.0, 30.0, METRE, 35.589
+        50.0, 30.0, MILLI, 60.8
+        """)
+    void bounds(double sPU, double lCC, Metrics.Length units, double expectedH) {
+      ParametricOperator parametricOperator = ParametricOperator.builder(units)
+          .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
+          .measurements(m -> m.ohms(0.0).thenOhms(0.0).hDiff(0.0, units))
+          .build();
+      Assertions.assertAll(Arrays.toString(parametricOperator.bounds()),
+          () -> assertThat(parametricOperator.bounds()).hasSize(2),
+          () -> assertThat(parametricOperator.bounds()[0]).isEqualTo(new Simplex.Bounds(-1.0, Double.NaN, 1.0)),
+          () -> assertThat(parametricOperator.bounds()[1].min()).isZero(),
+          () -> assertThat(parametricOperator.bounds()[1].max()).isCloseTo(units.toSI(expectedH), byLessThan(0.001))
+      );
+    }
   }
 
   @Nested
@@ -69,6 +87,39 @@ class ParametricOperatorTest {
           .build();
       assertThat(parametricOperator.dataErrorNorm()).as(parametricOperator::toString).isCloseTo(expected, byLessThan(0.001));
     }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        10.0, 30.0, METRE, -0.150, 35.589
+        50.0, 30.0, MILLI,  0.090, 60.8
+        """)
+    void bounds(double sPU, double lCC, Metrics.Length units, double hDiffMax, double expectedH) {
+      ParametricOperator parametricOperator = ParametricOperator.builder(units)
+          .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
+          .measurements(m -> m.ohms(0.0).thenOhms(0.0).hDiffMax(hDiffMax, units))
+          .build();
+      Assertions.assertAll(Arrays.toString(parametricOperator.bounds()),
+          () -> assertThat(parametricOperator.bounds()).hasSize(4),
+          () -> assertThat(parametricOperator.bounds()[0].min()).isZero(),
+          () -> assertThat(parametricOperator.bounds()[0].max()).isPositive(),
+          () -> assertThat(parametricOperator.bounds()[1].min()).isZero(),
+          () -> assertThat(parametricOperator.bounds()[1].max()).isPositive(),
+          () -> assertThat(parametricOperator.bounds()[2].min()).isZero(),
+          () -> assertThat(parametricOperator.bounds()[2].max()).isCloseTo(units.toSI(expectedH), byLessThan(0.001))
+      );
+      if (hDiffMax > 0) {
+        Assertions.assertAll(Arrays.toString(parametricOperator.bounds()),
+            () -> assertThat(parametricOperator.bounds()[3].min()).isZero(),
+            () -> assertThat(parametricOperator.bounds()[3].max()).isCloseTo(units.toSI(hDiffMax), byLessThan(0.001))
+        );
+      }
+      else {
+        Assertions.assertAll(Arrays.toString(parametricOperator.bounds()),
+            () -> assertThat(parametricOperator.bounds()[3].min()).isCloseTo(units.toSI(hDiffMax), byLessThan(0.001)),
+            () -> assertThat(parametricOperator.bounds()[3].max()).isZero()
+        );
+      }
+    }
   }
 
   @Nested
@@ -85,6 +136,29 @@ class ParametricOperatorTest {
           .measurements(m -> m.ohms(rBefore).thenOhms(rAfter))
           .build();
       assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(parametricOperator::dataErrorNorm);
+    }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        10.0, 30.0, METRE, 35.589
+        50.0, 30.0, MILLI, 60.8
+        """)
+    void bounds(double sPU, double lCC, Metrics.Length units, double expectedH) {
+      ParametricOperator parametricOperator = ParametricOperator.builder(units)
+          .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
+          .measurements(m -> m.ohms(0.0).thenOhms(0.0))
+          .build();
+      Assertions.assertAll(Arrays.toString(parametricOperator.bounds()),
+          () -> assertThat(parametricOperator.bounds()).hasSize(4),
+          () -> assertThat(parametricOperator.bounds()[0].min()).isZero(),
+          () -> assertThat(parametricOperator.bounds()[0].max()).isPositive(),
+          () -> assertThat(parametricOperator.bounds()[1].min()).isZero(),
+          () -> assertThat(parametricOperator.bounds()[1].max()).isPositive(),
+          () -> assertThat(parametricOperator.bounds()[2].min()).isZero(),
+          () -> assertThat(parametricOperator.bounds()[2].max()).isPositive(),
+          () -> assertThat(parametricOperator.bounds()[3].min()).isZero(),
+          () -> assertThat(parametricOperator.bounds()[3].max()).isCloseTo(units.toSI(expectedH), byLessThan(0.001))
+      );
     }
   }
 
@@ -123,23 +197,6 @@ class ParametricOperatorTest {
     K k = K.of(0.5);
     assertThat(parametricOperator.regularization(ParametricOperator.Regularization.ZERO_MAX_LOG).applyAsDouble(new Model.Layer2Relative(k, Math.sqrt(inexact.hMax(k) * inexact.hMin(k)))))
         .isPositive().isCloseTo(0.0, byLessThan(1.0e-9));
-  }
-
-  @ParameterizedTest
-  @CsvSource(delimiter = ',', textBlock = """
-      10.0, 30.0, METRE, 35.589
-      50.0, 30.0, MILLI, 60.8
-      """)
-  void bounds(double sPU, double lCC, Metrics.Length units, double expectedH) {
-    ParametricOperator parametricOperator = ParametricOperator.builder(units)
-        .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
-        .measurements(m -> m.ohms(0.0).thenOhms(0.0).hDiff(0.0, units))
-        .build();
-    Assertions.assertAll(Arrays.toString(parametricOperator.bounds()),
-        () -> assertThat(parametricOperator.bounds()).hasSize(2),
-        () -> assertThat(parametricOperator.bounds()[0]).isEqualTo(new Simplex.Bounds(-1.0, Double.NaN, 1.0)),
-        () -> assertThat(parametricOperator.bounds()[1].max()).isCloseTo(units.toSI(expectedH), byLessThan(0.001))
-    );
   }
 
   @ParameterizedTest
