@@ -11,7 +11,7 @@ import java.util.function.ToDoubleFunction;
 
 import static java.lang.StrictMath.*;
 
-public sealed interface ParametricOperator {
+public sealed interface ParametricFunctional {
   enum Regularization {
     ZERO_MAX_LOG
   }
@@ -29,19 +29,19 @@ public sealed interface ParametricOperator {
   }
 
   sealed interface Step2<M extends TetrapolarMeasurement> {
-    Builder<ParametricOperator> measurements(Function<TetrapolarMeasurement.Step1, Builder<? extends M>> builderFunction);
+    Builder<ParametricFunctional> measurements(Function<TetrapolarMeasurement.Step1, Builder<? extends M>> builderFunction);
   }
 
   static <M extends TetrapolarMeasurement> Step1<M> builder(Metrics.Length units) {
     return new ParametricOperatorBuilder<>(units);
   }
 
-  final class ParametricOperatorBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Builder<ParametricOperator> {
-    private abstract static sealed class AbstractParametricOperator<M extends TetrapolarMeasurement> implements ParametricOperator {
+  final class ParametricOperatorBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Builder<ParametricFunctional> {
+    private abstract static sealed class AbstractParametricFunctional<M extends TetrapolarMeasurement> implements ParametricFunctional {
       private final ElectrodeSystem.Inexact system;
       private final M measurement;
 
-      private AbstractParametricOperator(ElectrodeSystem.Inexact system, M measurement) {
+      private AbstractParametricFunctional(ElectrodeSystem.Inexact system, M measurement) {
         this.system = system;
         this.measurement = measurement;
       }
@@ -67,9 +67,9 @@ public sealed interface ParametricOperator {
         }
       }
 
-      private static final class ParametricMaxDiffOperator extends AbstractParametricOperator<TetrapolarMeasurement.TetrapolarMaxDiffMeasurement> {
-        private ParametricMaxDiffOperator(ElectrodeSystem.Inexact system,
-                                          TetrapolarMeasurement.TetrapolarMaxDiffMeasurement measurement) {
+      private static final class ParametricMaxDiffFunctional extends AbstractParametricFunctional<TetrapolarMeasurement.TetrapolarMaxDiffMeasurement> {
+        private ParametricMaxDiffFunctional(ElectrodeSystem.Inexact system,
+                                            TetrapolarMeasurement.TetrapolarMaxDiffMeasurement measurement) {
           super(system, measurement);
         }
 
@@ -128,9 +128,9 @@ public sealed interface ParametricOperator {
         }
       }
 
-      private static final class ParametricDiffOperator extends AbstractParametricOperator<TetrapolarMeasurement.TetrapolarDiffMeasurement> {
-        private ParametricDiffOperator(ElectrodeSystem.Inexact system,
-                                       TetrapolarMeasurement.TetrapolarDiffMeasurement measurement) {
+      private static final class ParametricDiffFunctional extends AbstractParametricFunctional<TetrapolarMeasurement.TetrapolarDiffMeasurement> {
+        private ParametricDiffFunctional(ElectrodeSystem.Inexact system,
+                                         TetrapolarMeasurement.TetrapolarDiffMeasurement measurement) {
           super(system, measurement);
         }
 
@@ -175,8 +175,8 @@ public sealed interface ParametricOperator {
         }
       }
 
-      private static final class ParametricStaticOperator extends AbstractParametricOperator<TetrapolarMeasurement> {
-        private ParametricStaticOperator(ElectrodeSystem.Inexact system, TetrapolarMeasurement measurement) {
+      private static final class ParametricStaticFunctional extends AbstractParametricFunctional<TetrapolarMeasurement> {
+        private ParametricStaticFunctional(ElectrodeSystem.Inexact system, TetrapolarMeasurement measurement) {
           super(system, measurement);
         }
 
@@ -231,21 +231,21 @@ public sealed interface ParametricOperator {
     }
 
     @Override
-    public Builder<ParametricOperator> measurements(Function<TetrapolarMeasurement.Step1, Builder<? extends M>> builderFunction) {
+    public Builder<ParametricFunctional> measurements(Function<TetrapolarMeasurement.Step1, Builder<? extends M>> builderFunction) {
       measurement = builderFunction.apply(TetrapolarMeasurement.builder()).build();
       return this;
     }
 
     @Override
-    public ParametricOperator build() {
+    public ParametricFunctional build() {
       ElectrodeSystem.Inexact s = Objects.requireNonNull(system);
       return switch (Objects.requireNonNull(measurement)) {
         case TetrapolarMeasurement.TetrapolarMaxDiffMeasurement tetrapolarMaxDiffMeasurement ->
-            new AbstractParametricOperator.ParametricMaxDiffOperator(s, tetrapolarMaxDiffMeasurement);
+            new AbstractParametricFunctional.ParametricMaxDiffFunctional(s, tetrapolarMaxDiffMeasurement);
         case TetrapolarMeasurement.TetrapolarDiffMeasurement tetrapolarDiffMeasurement ->
-            new AbstractParametricOperator.ParametricDiffOperator(s, tetrapolarDiffMeasurement);
+            new AbstractParametricFunctional.ParametricDiffFunctional(s, tetrapolarDiffMeasurement);
         case TetrapolarMeasurement tetrapolarMeasurement ->
-            new AbstractParametricOperator.ParametricStaticOperator(s, tetrapolarMeasurement);
+            new AbstractParametricFunctional.ParametricStaticFunctional(s, tetrapolarMeasurement);
       };
     }
   }

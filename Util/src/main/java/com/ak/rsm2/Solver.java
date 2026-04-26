@@ -48,7 +48,7 @@ public sealed interface Solver {
     private final double base;
     private final Metrics.Length units;
     private final Function<double[], Model> modelFactory;
-    private final Collection<ParametricOperator> parametricOperators = new ArrayList<>();
+    private final Collection<ParametricFunctional> parametricFunctionals = new ArrayList<>();
 
     public SolverBuilder(double base, Metrics.Length units, Function<double[], Model> modelFactory) {
       if (base > 0) {
@@ -86,8 +86,8 @@ public sealed interface Solver {
     }
 
     private void addSystem(int factorFirst, int factorLast, Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
-      parametricOperators.add(
-          ParametricOperator.builder(units)
+      parametricFunctionals.add(
+          ParametricFunctional.builder(units)
               .system(s -> s.tetrapolar(base * factorFirst, base * factorLast).absError(0.1))
               .measurements(_ -> builderFunction.apply(TetrapolarMeasurement.builder()))
               .build()
@@ -96,25 +96,25 @@ public sealed interface Solver {
 
     @Override
     public Solver build() {
-      double dataErrorNorm = parametricOperators.stream().mapToDouble(ParametricOperator::dataErrorNorm).reduce(Math::hypot).orElseThrow();
+      double dataErrorNorm = parametricFunctionals.stream().mapToDouble(ParametricFunctional::dataErrorNorm).reduce(Math::hypot).orElseThrow();
       LOGGER.atInfo().addKeyValue("data Error Norm", "%.4f".formatted(dataErrorNorm)).log(Strings.EMPTY);
 
       DoubleFunction<Model> find = alpha -> {
         PointValuePair optimized = Simplex.optimizeAll(point -> {
               Model m = modelFactory.apply(point);
               return DoubleStream.concat(
-                      parametricOperators.stream().mapToDouble(f -> alpha * f.regularization(ParametricOperator.Regularization.ZERO_MAX_LOG).applyAsDouble(m)),
-                      parametricOperators.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).map(x -> x * x)
+                      parametricFunctionals.stream().mapToDouble(f -> alpha * f.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG).applyAsDouble(m)),
+                      parametricFunctionals.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).map(x -> x * x)
                   )
                   .takeWhile(Double::isFinite).boxed().collect(
                       Collectors.teeing(
                           Collectors.reducing(Double::sum),
                           Collectors.counting(),
-                          (sum, count) -> count == parametricOperators.size() * 2L ? sum.orElseThrow() : Double.POSITIVE_INFINITY
+                          (sum, count) -> count == parametricFunctionals.size() * 2L ? sum.orElseThrow() : Double.POSITIVE_INFINITY
                       )
                   );
             },
-            parametricOperators.stream().map(ParametricOperator::bounds).reduce((bounds1, bounds2) -> {
+            parametricFunctionals.stream().map(ParametricFunctional::bounds).reduce((bounds1, bounds2) -> {
               Simplex.Bounds[] bounds = new Simplex.Bounds[Math.max(bounds1.length, bounds2.length)];
               for (int i = 0; i < bounds.length; i++) {
                 bounds[i] = bounds1[i].merge(bounds2[i]);
@@ -125,7 +125,7 @@ public sealed interface Solver {
       };
 
       DoubleUnaryOperator withAlpha = new DoubleUnaryOperator() {
-        private final double dataErrorNorm = parametricOperators.stream().mapToDouble(ParametricOperator::dataErrorNorm).reduce(Math::hypot).orElseThrow();
+        private final double dataErrorNorm = parametricFunctionals.stream().mapToDouble(ParametricFunctional::dataErrorNorm).reduce(Math::hypot).orElseThrow();
 
         @Override
         public double applyAsDouble(double alpha) {
@@ -134,7 +134,7 @@ public sealed interface Solver {
           }
           else {
             Model m = find.apply(alpha);
-            double misfit = parametricOperators.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
+            double misfit = parametricFunctionals.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
             LOGGER.atInfo().addKeyValue("alpha", "%.4f".formatted(alpha)).addKeyValue("misfit", "%.4f".formatted(misfit))
                 .log(() -> "%s".formatted(find.apply(alpha)));
             double v = misfit - dataErrorNorm;
