@@ -29,6 +29,12 @@ public sealed interface Model {
   }
 
   record Layer2Absolute(double rho1, double rho2, double h, double dh) implements Model {
+    public Layer2Absolute {
+      if (h < 0) {
+        throw new IllegalArgumentException("h = %f must be non-negative".formatted(h));
+      }
+    }
+
     public Layer2Absolute(double[] point) {
       this(point[0], point[1], point[2], point[3]);
     }
