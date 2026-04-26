@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.function.DoubleFunction;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
@@ -96,9 +97,6 @@ public sealed interface Solver {
 
     @Override
     public Solver build() {
-      double dataErrorNorm = parametricFunctionals.stream().mapToDouble(ParametricFunctional::dataErrorNorm).reduce(Math::hypot).orElseThrow();
-      LOGGER.atInfo().addKeyValue("data Error Norm", "%.4f".formatted(dataErrorNorm)).log(Strings.EMPTY);
-
       DoubleFunction<Model> find = alpha -> {
         PointValuePair optimized = Simplex.optimizeAll(point -> {
               Model m = modelFactory.apply(point);
@@ -124,22 +122,32 @@ public sealed interface Solver {
         return modelFactory.apply(optimized.getPoint());
       };
 
-      DoubleUnaryOperator withAlpha = new DoubleUnaryOperator() {
-        private final double dataErrorNorm = parametricFunctionals.stream().mapToDouble(ParametricFunctional::dataErrorNorm).reduce(Math::hypot).orElseThrow();
+      double dataErrorNormBase = parametricFunctionals.stream().mapToDouble(ParametricFunctional::dataErrorNorm).reduce(Math::hypot).orElseThrow();
+      double dataErrorNormShift = parametricFunctionals.stream().mapToDouble(new ToDoubleFunction<>() {
+        private final Model mZero = find.apply(0.0);
 
         @Override
-        public double applyAsDouble(double alpha) {
-          if (alpha < 0) {
-            return Double.POSITIVE_INFINITY;
-          }
-          else {
-            Model m = find.apply(alpha);
-            double misfit = parametricFunctionals.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
-            LOGGER.atInfo().addKeyValue("alpha", "%.4f".formatted(alpha)).addKeyValue("misfit", "%.4f".formatted(misfit))
-                .log(() -> "%s".formatted(find.apply(alpha)));
-            double v = misfit - dataErrorNorm;
-            return v * v;
-          }
+        public double applyAsDouble(ParametricFunctional f) {
+          return f.misfit().applyAsDouble(mZero);
+        }
+      }).reduce(Math::hypot).orElseThrow();
+      double dataErrorNorm = dataErrorNormBase + dataErrorNormShift;
+      LOGGER.atInfo()
+          .addKeyValue("data Error Norm Base", "%.4f".formatted(dataErrorNormBase))
+          .addKeyValue("alpha = 0 data Error Norm Shift", "%.4f".formatted(dataErrorNormShift))
+          .addKeyValue("total data Error Norm", "%.4f".formatted(dataErrorNorm)).log(Strings.EMPTY);
+
+      DoubleUnaryOperator withAlpha = alpha -> {
+        if (alpha < 0) {
+          return Double.POSITIVE_INFINITY;
+        }
+        else {
+          Model m = find.apply(alpha);
+          double misfit = parametricFunctionals.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
+          LOGGER.atInfo().addKeyValue("alpha", "%.4f".formatted(alpha)).addKeyValue("misfit", "%.4f".formatted(misfit))
+              .log(() -> "%s".formatted(find.apply(alpha)));
+          double v = misfit - dataErrorNorm;
+          return v * v;
         }
       };
 
