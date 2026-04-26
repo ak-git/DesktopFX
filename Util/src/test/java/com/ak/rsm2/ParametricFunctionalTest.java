@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.ToDoubleFunction;
 
 import static java.lang.StrictMath.log;
 import static org.assertj.core.api.Assertions.*;
@@ -75,7 +76,7 @@ class ParametricFunctionalTest {
           () -> {
             Model layer2 = new Model.Layer2Relative(K.PLUS_ONE, units.toSI(expectedH));
             assertThat(parametricFunctional.misfit().applyAsDouble(layer2))
-                .isPositive().isCloseTo(0.0, byLessThan(0.01));
+                .isNotNegative().isCloseTo(0.0, byLessThan(0.01));
           },
           () -> {
             Model layer2 = new Model.Layer2Absolute(1.0, 2.0, units.toSI(expectedH), units.toSI(hDiff));
@@ -100,6 +101,37 @@ class ParametricFunctionalTest {
               .isInfinite(),
           () -> assertThat(parametricFunctional.misfit().applyAsDouble(new Model.Layer2Relative(K.MINUS_ONE, units.toSI(expectedH))))
               .isPositive()
+      );
+    }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        10.0, 30.0, MILLI, 30.971, 31.278, -0.05
+        50.0, 30.0, MILLI, 62.479, 61.860,  0.05
+        """)
+    void regularization(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiff) {
+      ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
+          .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
+          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units))
+          .build();
+
+      ElectrodeSystem.Inexact inexact = ElectrodeSystem.builder(units).tetrapolar(sPU, lCC).absError(0.1).build();
+      ToDoubleFunction<Model> regularization = parametricFunctional.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG);
+      Assertions.assertAll(parametricFunctional.toString(),
+          () -> assertThat(regularization.applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMax(K.PLUS_ONE)))).isInfinite(),
+          () -> assertThat(regularization.applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMax(K.PLUS_ONE) / 2.0))).isInfinite(),
+          () -> assertThat(regularization.applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMin(K.PLUS_ONE)))).isInfinite()
+      );
+
+      Assertions.assertAll(parametricFunctional.toString(),
+          () -> {
+            K k = K.of(0.5);
+            assertThat(regularization.applyAsDouble(new Model.Layer2Relative(k, Math.sqrt(inexact.hMax(k) * inexact.hMin(k)))))
+                .isNotNegative().isCloseTo(0.0, byLessThan(1.0e-9));
+          },
+          () -> assertThatIllegalArgumentException().isThrownBy(() ->
+                  regularization.applyAsDouble(new Model.Layer2Absolute(0.0, 0.0, 0.0, 0.0)))
+              .withMessageStartingWith("Unexpected value")
       );
     }
   }
@@ -185,7 +217,7 @@ class ParametricFunctionalTest {
           () -> {
             Model layer2 = new Model.Layer2Absolute(expectedRho1, expectedRho2, units.toSI(expectedH), units.toSI(hDiffMax));
             assertThat(parametricFunctional.misfit().applyAsDouble(layer2))
-                .isPositive().isCloseTo(0.0, byLessThan(0.02));
+                .isNotNegative().isCloseTo(0.0, byLessThan(0.02));
           }
       );
     }
@@ -209,6 +241,41 @@ class ParametricFunctionalTest {
               .isPositive()
       );
     }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        10.0, 30.0, MILLI, 25.099, 25.294, -0.05, 0.7, 7.0, 5.0
+        50.0, 30.0, MILLI, 46.281, 45.945,  0.05, 0.7, 7.0, 5.0
+        """)
+    void regularization(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiffMax,
+                        double expectedRho1, double expectedRho2, double expectedH) {
+      ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
+          .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
+          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiffMax(hDiffMax, units))
+          .build();
+
+      ElectrodeSystem.Inexact inexact = ElectrodeSystem.builder(units).tetrapolar(sPU, lCC).absError(0.1).build();
+      ToDoubleFunction<Model> regularization = parametricFunctional.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG);
+      Assertions.assertAll(parametricFunctional.toString(),
+          () -> assertThat(regularization.applyAsDouble(
+              new Model.Layer2Absolute(expectedRho1, expectedRho2, inexact.hMax(K.PLUS_ONE), units.toSI(hDiffMax)))).isInfinite(),
+          () -> assertThat(regularization.applyAsDouble(
+              new Model.Layer2Absolute(expectedRho1, expectedRho2, inexact.hMin(K.PLUS_ONE), units.toSI(hDiffMax)))).isInfinite(),
+          () -> assertThat(regularization.applyAsDouble(
+              new Model.Layer2Absolute(expectedRho1, expectedRho2, units.toSI(expectedH), units.toSI(hDiffMax)))).isPositive()
+      );
+
+      K k = K.of(expectedRho1, expectedRho2);
+      Assertions.assertAll(parametricFunctional.toString(),
+          () -> assertThatIllegalArgumentException().isThrownBy(() -> regularization
+                  .applyAsDouble(new Model.Layer2Relative(k, Math.sqrt(inexact.hMax(k) * inexact.hMin(k)))))
+              .withMessageStartingWith("Unexpected value"),
+          () -> assertThat(regularization
+              .applyAsDouble(new Model.Layer2Absolute(expectedRho1, expectedRho2,
+                  Math.sqrt(inexact.hMax(k) * inexact.hMin(k)), units.toSI(hDiffMax))))
+              .isNotNegative().isCloseTo(0.0, byLessThan(1.0e-9))
+      );
+    }
   }
 
   @Nested
@@ -224,7 +291,8 @@ class ParametricFunctionalTest {
           .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
           .measurements(m -> m.ohms(rBefore).thenOhms(rAfter))
           .build();
-      assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(parametricFunctional::dataErrorNorm);
+      assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(parametricFunctional::dataErrorNorm)
+          .withMessage("Not supported yet.");
     }
 
     @ParameterizedTest
@@ -274,27 +342,20 @@ class ParametricFunctionalTest {
           }
       );
     }
-  }
 
-  @ParameterizedTest
-  @CsvSource(delimiter = ',', textBlock = """
-      10.0, 30.0, METRE, 30.971, 31.278, -0.05
-      50.0, 30.0, MILLI, 62.479, 61.860,  0.05
-      """)
-  void regularization(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiff) {
-    ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
-        .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
-        .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units))
-        .build();
-
-    ElectrodeSystem.Inexact inexact = ElectrodeSystem.builder(units).tetrapolar(sPU, lCC).absError(0.1).build();
-    Assertions.assertAll(parametricFunctional.toString(),
-        () -> assertThat(parametricFunctional.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG).applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMax(K.PLUS_ONE)))).isInfinite(),
-        () -> assertThat(parametricFunctional.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG).applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMax(K.PLUS_ONE) / 2.0))).isInfinite(),
-        () -> assertThat(parametricFunctional.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG).applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMin(K.PLUS_ONE)))).isInfinite()
-    );
-    K k = K.of(0.5);
-    assertThat(parametricFunctional.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG).applyAsDouble(new Model.Layer2Relative(k, Math.sqrt(inexact.hMax(k) * inexact.hMin(k)))))
-        .isPositive().isCloseTo(0.0, byLessThan(1.0e-9));
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        10.0, 30.0, MILLI, 25.099, 25.294
+        50.0, 30.0, MILLI, 46.281, 45.945
+        """)
+    void regularization(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter) {
+      ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
+          .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
+          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter))
+          .build();
+      assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(
+              () -> parametricFunctional.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG))
+          .withMessage("Not supported yet.");
+    }
   }
 }

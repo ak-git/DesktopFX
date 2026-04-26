@@ -117,14 +117,10 @@ public sealed interface ParametricFunctional {
         }
 
         private double regularization(double dh) {
-          double dhMax = measurement().hDiffMax();
-          if (0 < dh && dh < dhMax) {
-            double s = log(2.0 * dhMax - dh) - log(dh);
-            return s * s;
-          }
-          else {
-            return Double.POSITIVE_INFINITY;
-          }
+          double x = Math.abs(dh);
+          double dhMax = Math.abs(measurement().hDiffMax());
+          double s = log(2.0 * dhMax - x) - log(x);
+          return Double.isFinite(s) ? s * s : Double.POSITIVE_INFINITY;
         }
       }
 
@@ -209,9 +205,7 @@ public sealed interface ParametricFunctional {
 
         @Override
         public ToDoubleFunction<Model> regularization(Regularization regularization) {
-          return switch (regularization) {
-            case ZERO_MAX_LOG -> _ -> 0.0;
-          };
+          throw new UnsupportedOperationException("Not supported yet.");
         }
       }
     }
