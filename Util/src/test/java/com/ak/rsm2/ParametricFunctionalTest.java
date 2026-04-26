@@ -59,6 +59,49 @@ class ParametricFunctionalTest {
           () -> assertThat(parametricFunctional.bounds()[1].max()).isCloseTo(units.toSI(expectedH), byLessThan(0.001))
       );
     }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        10.0, 30.0, MILLI, 30.971, 31.278, -0.05, 5.0
+        50.0, 30.0, MILLI, 62.479, 61.860,  0.05, 5.0
+        """)
+    void misfit(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiff, double expectedH) {
+      ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
+          .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
+          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units))
+          .build();
+
+      Assertions.assertAll(parametricFunctional.toString(),
+          () -> {
+            Model layer2 = new Model.Layer2Relative(K.PLUS_ONE, units.toSI(expectedH));
+            assertThat(parametricFunctional.misfit().applyAsDouble(layer2))
+                .isPositive().isCloseTo(0.0, byLessThan(0.01));
+          },
+          () -> {
+            Model layer2 = new Model.Layer2Absolute(1.0, 2.0, units.toSI(expectedH), units.toSI(hDiff));
+            assertThatIllegalArgumentException().isThrownBy(() -> parametricFunctional.misfit().applyAsDouble(layer2))
+                .withMessageStartingWith("Unexpected value");
+          }
+      );
+    }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        10.0, 30.0, METRE, 30.971, 31.278,  0.05, 5.0
+        50.0, 30.0, MILLI, 62.479, 61.860, -0.05, 5.0
+        """)
+    void misfitInfinite(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiff, double expectedH) {
+      ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
+          .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
+          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units))
+          .build();
+      Assertions.assertAll(parametricFunctional.toString(),
+          () -> assertThat(parametricFunctional.misfit().applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, units.toSI(expectedH))))
+              .isInfinite(),
+          () -> assertThat(parametricFunctional.misfit().applyAsDouble(new Model.Layer2Relative(K.MINUS_ONE, units.toSI(expectedH))))
+              .isPositive()
+      );
+    }
   }
 
   @Nested
@@ -120,6 +163,52 @@ class ParametricFunctionalTest {
         );
       }
     }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        10.0, 30.0, MILLI, 30.971, 31.278, -0.05, 0.7, Infinity, 5.0
+        50.0, 30.0, MILLI, 62.479, 61.860,  0.05, 0.7, Infinity, 5.0
+        """)
+    void misfit(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiffMax,
+                double expectedRho1, double expectedRho2, double expectedH) {
+      ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
+          .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
+          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiffMax(hDiffMax, units))
+          .build();
+
+      Assertions.assertAll(parametricFunctional.toString(),
+          () -> {
+            Model layer2 = new Model.Layer2Relative(K.PLUS_ONE, units.toSI(expectedH));
+            assertThatIllegalArgumentException().isThrownBy(() -> parametricFunctional.misfit().applyAsDouble(layer2))
+                .withMessageStartingWith("Unexpected value");
+          },
+          () -> {
+            Model layer2 = new Model.Layer2Absolute(expectedRho1, expectedRho2, units.toSI(expectedH), units.toSI(hDiffMax));
+            assertThat(parametricFunctional.misfit().applyAsDouble(layer2))
+                .isPositive().isCloseTo(0.0, byLessThan(0.02));
+          }
+      );
+    }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        10.0, 30.0, METRE, 30.971, 31.278,  0.05, 5.0
+        50.0, 30.0, MILLI, 62.479, 61.860, -0.05, 5.0
+        """)
+    void misfitInfinite(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiffMax, double expectedH) {
+      ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
+          .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
+          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiffMax(hDiffMax, units))
+          .build();
+      Assertions.assertAll(parametricFunctional.toString(),
+          () -> assertThat(parametricFunctional.misfit().applyAsDouble(new Model.Layer2Absolute(1.0, Double.POSITIVE_INFINITY,
+              units.toSI(expectedH), units.toSI(hDiffMax))))
+              .isInfinite(),
+          () -> assertThat(parametricFunctional.misfit().applyAsDouble(new Model.Layer2Absolute(1.0, 0.0,
+              units.toSI(expectedH), units.toSI(hDiffMax))))
+              .isPositive()
+      );
+    }
   }
 
   @Nested
@@ -160,21 +249,31 @@ class ParametricFunctionalTest {
           () -> assertThat(parametricFunctional.bounds()[3].max()).isCloseTo(units.toSI(expectedH), byLessThan(0.001))
       );
     }
-  }
 
-  @ParameterizedTest
-  @CsvSource(delimiter = ',', textBlock = """
-      10.0, 30.0, METRE, 30.971, 31.278, -0.05, 5.0
-      50.0, 30.0, MILLI, 62.479, 61.860,  0.05, 5.0
-      """)
-  void misfit(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiff, double expectedH) {
-    ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
-        .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
-        .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units))
-        .build();
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        10.0, 30.0, MILLI, 30.971, 31.278, 5.0
+        50.0, 30.0, MILLI, 62.479, 61.860, 5.0
+        """)
+    void misfit(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double expectedH) {
+      ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
+          .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
+          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter))
+          .build();
 
-    Model layer2 = new Model.Layer2Relative(K.PLUS_ONE, units.toSI(expectedH));
-    assertThat(parametricFunctional.misfit().applyAsDouble(layer2)).as(parametricFunctional::toString).isPositive().isCloseTo(0.0, byLessThan(0.01));
+      Assertions.assertAll(parametricFunctional.toString(),
+          () -> {
+            Model layer2 = new Model.Layer2Relative(K.PLUS_ONE, units.toSI(expectedH));
+            assertThatIllegalArgumentException().isThrownBy(() -> parametricFunctional.misfit().applyAsDouble(layer2))
+                .withMessageStartingWith("Unexpected value");
+          },
+          () -> {
+            Model layer2 = new Model.Layer2Absolute(1.0, 2.0, units.toSI(expectedH), 0.0);
+            assertThatIllegalArgumentException().isThrownBy(() -> parametricFunctional.misfit().applyAsDouble(layer2))
+                .withMessageStartingWith("Unexpected value");
+          }
+      );
+    }
   }
 
   @ParameterizedTest
@@ -197,19 +296,5 @@ class ParametricFunctionalTest {
     K k = K.of(0.5);
     assertThat(parametricFunctional.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG).applyAsDouble(new Model.Layer2Relative(k, Math.sqrt(inexact.hMax(k) * inexact.hMin(k)))))
         .isPositive().isCloseTo(0.0, byLessThan(1.0e-9));
-  }
-
-  @ParameterizedTest
-  @CsvSource(delimiter = ',', textBlock = """
-      30.971, 31.278, METRE, 0.05, 5.0
-      30.971, 31.278, MILLI, 0.05, 5.0
-      """)
-  void invalidDiff(double rBefore, double rAfter, Metrics.Length units, double hDiff, double expectedH) {
-    ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
-        .system(s -> s.tetrapolar(10.0, 30.0).absError(0.1))
-        .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units))
-        .build();
-    assertThat(parametricFunctional.misfit().applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, units.toSI(expectedH))))
-        .as(parametricFunctional::toString).isInfinite();
   }
 }
