@@ -137,7 +137,7 @@ class ParametricFunctionalTest {
   }
 
   @Nested
-  class ParametricMaxDiffFunctionalTest {
+  class ParametricMaxDiffAbsoluteFunctionalTest {
 
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
@@ -148,7 +148,8 @@ class ParametricFunctionalTest {
       DoubleUnaryOperator d = emm -> {
         ElectrodeSystem.Tetrapolar system = ElectrodeSystem.builder(units).tetrapolar(sPU + emm, lCC - emm).build();
         Resistivity resistivity = Resistivity.of(system).build();
-        TetrapolarMeasurement.TetrapolarMaxDiffMeasurement measurement = TetrapolarMeasurement.builder().ohms(rBefore).thenOhms(rAfter).hDiffMax(hDiffMax, units).build();
+        TetrapolarMeasurement.TetrapolarMaxDiffAbsoluteMeasurement measurement = TetrapolarMeasurement.builder()
+            .ohms(rBefore).thenOhms(rAfter).hDiffMaxAbsolute(hDiffMax, units).build();
         double apparent = resistivity.apparent(measurement.ohms());
         double derivativeApparentByPhi = Math.abs(resistivity.apparent((measurement.ohmsDiff() / measurement.hDiffMax()) / system.phiFactor()));
         return log(apparent) - log(derivativeApparentByPhi);
@@ -158,7 +159,7 @@ class ParametricFunctionalTest {
 
       ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
           .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
-          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiffMax(hDiffMax, units))
+          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiffMaxAbsolute(hDiffMax, units))
           .build();
       assertThat(parametricFunctional.dataErrorNorm()).as(parametricFunctional::toString).isCloseTo(expected, byLessThan(0.001));
     }
@@ -171,7 +172,7 @@ class ParametricFunctionalTest {
     void bounds(double sPU, double lCC, Metrics.Length units, double hDiffMax, double expectedH) {
       ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
           .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
-          .measurements(m -> m.ohms(0.0).thenOhms(0.0).hDiffMax(hDiffMax, units))
+          .measurements(m -> m.ohms(0.0).thenOhms(0.0).hDiffMaxAbsolute(hDiffMax, units))
           .build();
       Assertions.assertAll(Arrays.toString(parametricFunctional.bounds()),
           () -> assertThat(parametricFunctional.bounds()).hasSize(4),
@@ -205,7 +206,7 @@ class ParametricFunctionalTest {
                 double expectedRho1, double expectedRho2, double expectedH) {
       ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
           .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
-          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiffMax(hDiffMax, units))
+          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiffMaxAbsolute(hDiffMax, units))
           .build();
 
       Assertions.assertAll(parametricFunctional.toString(),
@@ -230,7 +231,7 @@ class ParametricFunctionalTest {
     void misfitInfinite(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiffMax, double expectedH) {
       ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
           .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
-          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiffMax(hDiffMax, units))
+          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiffMaxAbsolute(hDiffMax, units))
           .build();
       Assertions.assertAll(parametricFunctional.toString(),
           () -> assertThat(parametricFunctional.misfit().applyAsDouble(new Model.Layer2Absolute(1.0, Double.POSITIVE_INFINITY,
@@ -251,7 +252,7 @@ class ParametricFunctionalTest {
                         double expectedRho1, double expectedRho2, double expectedH) {
       ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
           .system(s -> s.tetrapolar(sPU, lCC).absError(0.1))
-          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiffMax(hDiffMax, units))
+          .measurements(m -> m.ohms(rBefore).thenOhms(rAfter).hDiffMaxAbsolute(hDiffMax, units))
           .build();
 
       ElectrodeSystem.Inexact inexact = ElectrodeSystem.builder(units).tetrapolar(sPU, lCC).absError(0.1).build();
