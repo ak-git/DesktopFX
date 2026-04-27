@@ -19,11 +19,11 @@ public sealed interface TetrapolarMeasurement {
   }
 
   sealed interface Step3 extends Builder<TetrapolarMeasurement> {
-    Builder<TetrapolarDiffMeasurement> hDiff(double hDiff, Metrics.Length units);
+    Builder<DiffMeasurement> hDiff(double hDiff, Metrics.Length units);
 
-    Builder<TetrapolarMaxDiffAbsoluteMeasurement> hDiffMaxAbsolute(double hDiffMax, Metrics.Length units);
+    Builder<MaxDiffAbsoluteMeasurement> hDiffMaxAbsolute(double hDiffMax, Metrics.Length units);
 
-    Builder<TetrapolarMaxDiffRelativeMeasurement> hDiffMaxRelative(double hDiffMax, Metrics.Length units);
+    Builder<MaxDiffRelativeMeasurement> hDiffMaxRelative(double hDiffMax, Metrics.Length units);
   }
 
   static Step1 builder() {
@@ -58,18 +58,18 @@ public sealed interface TetrapolarMeasurement {
     }
 
     @Override
-    public Builder<TetrapolarDiffMeasurement> hDiff(double hDiff, Metrics.Length units) {
-      return new TetrapolarDiffMeasurement.TetrapolarDiffMeasurementBuilder(build(), units.toSI(hDiff));
+    public Builder<DiffMeasurement> hDiff(double hDiff, Metrics.Length units) {
+      return () -> new DiffMeasurement.TetrapolarDiffMeasurement(build(), units.toSI(hDiff));
     }
 
     @Override
-    public Builder<TetrapolarMaxDiffAbsoluteMeasurement> hDiffMaxAbsolute(double hDiffMax, Metrics.Length units) {
-      return new TetrapolarMaxDiffAbsoluteMeasurement.TetrapolarMaxDiffAbsoluteMeasurementBuilder(build(), units.toSI(hDiffMax));
+    public Builder<MaxDiffAbsoluteMeasurement> hDiffMaxAbsolute(double hDiffMax, Metrics.Length units) {
+      return () -> new MaxDiffAbsoluteMeasurement.TetrapolarMaxDiffAbsoluteMeasurement(build(), units.toSI(hDiffMax));
     }
 
     @Override
-    public Builder<TetrapolarMaxDiffRelativeMeasurement> hDiffMaxRelative(double hDiffMax, Metrics.Length units) {
-      return new TetrapolarMaxDiffRelativeMeasurement.TetrapolarMaxDiffRelativeMeasurementBuilder(build(), units.toSI(hDiffMax));
+    public Builder<MaxDiffRelativeMeasurement> hDiffMaxRelative(double hDiffMax, Metrics.Length units) {
+      return () -> new MaxDiffRelativeMeasurement.TetrapolarMaxDiffRelativeMeasurement(build(), units.toSI(hDiffMax));
     }
   }
 
@@ -92,100 +92,50 @@ public sealed interface TetrapolarMeasurement {
       return measurement.ohmsDiff();
     }
 
-    protected final double getHDiff() {
+    public final double hDiff() {
       return hDiff;
     }
   }
 
-  sealed interface TetrapolarDiffMeasurement extends TetrapolarMeasurement {
+  sealed interface DiffMeasurement extends TetrapolarMeasurement {
     double hDiff();
 
-    final class TetrapolarDiffMeasurementBuilder implements Builder<TetrapolarDiffMeasurement> {
-      private static final class TetrapolarDiffMeasurementRecord extends AbstractTetrapolarDiffMeasurement
-          implements TetrapolarDiffMeasurement {
-        private TetrapolarDiffMeasurementRecord(TetrapolarMeasurement measurement, double hDiff) {
-          super(measurement, hDiff);
-        }
-
-        @Override
-        public double hDiff() {
-          return getHDiff();
-        }
-      }
-
-      private final TetrapolarMeasurement measurement;
-      private final double hDiff;
-
-      public TetrapolarDiffMeasurementBuilder(TetrapolarMeasurement measurement, double hDiff) {
-        this.measurement = measurement;
-        this.hDiff = hDiff;
-      }
-
-      @Override
-      public TetrapolarDiffMeasurement build() {
-        return new TetrapolarDiffMeasurementRecord(measurement, hDiff);
+    final class TetrapolarDiffMeasurement extends AbstractTetrapolarDiffMeasurement
+        implements DiffMeasurement {
+      private TetrapolarDiffMeasurement(TetrapolarMeasurement measurement, double hDiff) {
+        super(measurement, hDiff);
       }
     }
   }
 
-  sealed interface TetrapolarMaxDiffAbsoluteMeasurement extends TetrapolarMeasurement {
+  sealed interface MaxDiffAbsoluteMeasurement extends TetrapolarMeasurement {
     double hDiffMax();
 
-    final class TetrapolarMaxDiffAbsoluteMeasurementBuilder implements Builder<TetrapolarMaxDiffAbsoluteMeasurement> {
-      private static final class TetrapolarMaxDiffAbsoluteMeasurementRecord extends AbstractTetrapolarDiffMeasurement
-          implements TetrapolarMaxDiffAbsoluteMeasurement {
-        private TetrapolarMaxDiffAbsoluteMeasurementRecord(TetrapolarMeasurement measurement, double hDiffMax) {
-          super(measurement, hDiffMax);
-        }
-
-        @Override
-        public double hDiffMax() {
-          return getHDiff();
-        }
-      }
-
-      private final TetrapolarMeasurement measurement;
-      private final double hDiffMax;
-
-      public TetrapolarMaxDiffAbsoluteMeasurementBuilder(TetrapolarMeasurement measurement, double hDiffMax) {
-        this.measurement = measurement;
-        this.hDiffMax = hDiffMax;
+    final class TetrapolarMaxDiffAbsoluteMeasurement extends AbstractTetrapolarDiffMeasurement
+        implements MaxDiffAbsoluteMeasurement {
+      private TetrapolarMaxDiffAbsoluteMeasurement(TetrapolarMeasurement measurement, double hDiffMax) {
+        super(measurement, hDiffMax);
       }
 
       @Override
-      public TetrapolarMaxDiffAbsoluteMeasurement build() {
-        return new TetrapolarMaxDiffAbsoluteMeasurementRecord(measurement, hDiffMax);
+      public double hDiffMax() {
+        return hDiff();
       }
     }
   }
 
-  sealed interface TetrapolarMaxDiffRelativeMeasurement extends TetrapolarMeasurement {
+  sealed interface MaxDiffRelativeMeasurement extends TetrapolarMeasurement {
     double hDiffMax();
 
-    final class TetrapolarMaxDiffRelativeMeasurementBuilder implements Builder<TetrapolarMaxDiffRelativeMeasurement> {
-      private static final class TetrapolarMaxDiffRelativeMeasurementRecord extends AbstractTetrapolarDiffMeasurement
-          implements TetrapolarMaxDiffRelativeMeasurement {
-        private TetrapolarMaxDiffRelativeMeasurementRecord(TetrapolarMeasurement measurement, double hDiffMax) {
-          super(measurement, hDiffMax);
-        }
-
-        @Override
-        public double hDiffMax() {
-          return getHDiff();
-        }
-      }
-
-      private final TetrapolarMeasurement measurement;
-      private final double hDiffMax;
-
-      public TetrapolarMaxDiffRelativeMeasurementBuilder(TetrapolarMeasurement measurement, double hDiffMax) {
-        this.measurement = measurement;
-        this.hDiffMax = hDiffMax;
+    final class TetrapolarMaxDiffRelativeMeasurement extends AbstractTetrapolarDiffMeasurement
+        implements MaxDiffRelativeMeasurement {
+      private TetrapolarMaxDiffRelativeMeasurement(TetrapolarMeasurement measurement, double hDiffMax) {
+        super(measurement, hDiffMax);
       }
 
       @Override
-      public TetrapolarMaxDiffRelativeMeasurement build() {
-        return new TetrapolarMaxDiffRelativeMeasurementRecord(measurement, hDiffMax);
+      public double hDiffMax() {
+        return hDiff();
       }
     }
   }
