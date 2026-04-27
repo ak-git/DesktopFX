@@ -19,11 +19,11 @@ public sealed interface TetrapolarMeasurement {
   }
 
   sealed interface Step3 extends Builder<TetrapolarMeasurement> {
-    Builder<DiffMeasurement> hDiff(double hDiff, Metrics.Length units);
+    Builder<Diff> hDiff(double hDiff, Metrics.Length units);
 
-    Builder<MaxDiffAbsoluteMeasurement> hDiffMaxAbsolute(double hDiffMax, Metrics.Length units);
+    Builder<MaxDiffAbsolute> hDiffMaxAbsolute(double hDiffMax, Metrics.Length units);
 
-    Builder<MaxDiffRelativeMeasurement> hDiffMaxRelative(double hDiffMax, Metrics.Length units);
+    Builder<MaxDiffRelative> hDiffMaxRelative(double hDiffMax, Metrics.Length units);
   }
 
   static Step1 builder() {
@@ -58,18 +58,18 @@ public sealed interface TetrapolarMeasurement {
     }
 
     @Override
-    public Builder<DiffMeasurement> hDiff(double hDiff, Metrics.Length units) {
-      return () -> new DiffMeasurement.TetrapolarDiffMeasurement(build(), units.toSI(hDiff));
+    public Builder<Diff> hDiff(double hDiff, Metrics.Length units) {
+      return () -> new Diff.DiffRecord(build(), units.toSI(hDiff));
     }
 
     @Override
-    public Builder<MaxDiffAbsoluteMeasurement> hDiffMaxAbsolute(double hDiffMax, Metrics.Length units) {
-      return () -> new MaxDiffAbsoluteMeasurement.TetrapolarMaxDiffAbsoluteMeasurement(build(), units.toSI(hDiffMax));
+    public Builder<MaxDiffAbsolute> hDiffMaxAbsolute(double hDiffMax, Metrics.Length units) {
+      return () -> new MaxDiffAbsolute.MaxDiffAbsoluteRecord(build(), units.toSI(hDiffMax));
     }
 
     @Override
-    public Builder<MaxDiffRelativeMeasurement> hDiffMaxRelative(double hDiffMax, Metrics.Length units) {
-      return () -> new MaxDiffRelativeMeasurement.TetrapolarMaxDiffRelativeMeasurement(build(), units.toSI(hDiffMax));
+    public Builder<MaxDiffRelative> hDiffMaxRelative(double hDiffMax, Metrics.Length units) {
+      return () -> new MaxDiffRelative.MaxDiffRelativeRecord(build(), units.toSI(hDiffMax));
     }
   }
 
@@ -97,23 +97,23 @@ public sealed interface TetrapolarMeasurement {
     }
   }
 
-  sealed interface DiffMeasurement extends TetrapolarMeasurement {
+  sealed interface Diff extends TetrapolarMeasurement {
     double hDiff();
 
-    final class TetrapolarDiffMeasurement extends AbstractTetrapolarDiffMeasurement
-        implements DiffMeasurement {
-      private TetrapolarDiffMeasurement(TetrapolarMeasurement measurement, double hDiff) {
+    final class DiffRecord extends AbstractTetrapolarDiffMeasurement
+        implements Diff {
+      private DiffRecord(TetrapolarMeasurement measurement, double hDiff) {
         super(measurement, hDiff);
       }
     }
   }
 
-  sealed interface MaxDiffAbsoluteMeasurement extends TetrapolarMeasurement {
+  sealed interface MaxDiffAbsolute extends TetrapolarMeasurement {
     double hDiffMax();
 
-    final class TetrapolarMaxDiffAbsoluteMeasurement extends AbstractTetrapolarDiffMeasurement
-        implements MaxDiffAbsoluteMeasurement {
-      private TetrapolarMaxDiffAbsoluteMeasurement(TetrapolarMeasurement measurement, double hDiffMax) {
+    final class MaxDiffAbsoluteRecord extends AbstractTetrapolarDiffMeasurement
+        implements MaxDiffAbsolute {
+      private MaxDiffAbsoluteRecord(TetrapolarMeasurement measurement, double hDiffMax) {
         super(measurement, hDiffMax);
       }
 
@@ -124,12 +124,12 @@ public sealed interface TetrapolarMeasurement {
     }
   }
 
-  sealed interface MaxDiffRelativeMeasurement extends TetrapolarMeasurement {
+  sealed interface MaxDiffRelative extends TetrapolarMeasurement {
     double hDiffMax();
 
-    final class TetrapolarMaxDiffRelativeMeasurement extends AbstractTetrapolarDiffMeasurement
-        implements MaxDiffRelativeMeasurement {
-      private TetrapolarMaxDiffRelativeMeasurement(TetrapolarMeasurement measurement, double hDiffMax) {
+    final class MaxDiffRelativeRecord extends AbstractTetrapolarDiffMeasurement
+        implements MaxDiffRelative {
+      private MaxDiffRelativeRecord(TetrapolarMeasurement measurement, double hDiffMax) {
         super(measurement, hDiffMax);
       }
 

@@ -14,7 +14,7 @@ class TetrapolarDiffMeasurementTest {
       31.278, 30.971,  0.05, MILLI
       """)
   void apparent(double rBefore, double rAfter, double hDiff, Metrics.Length units) {
-    TetrapolarMeasurement.DiffMeasurement measurement = TetrapolarMeasurement.builder().ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units).build();
+    TetrapolarMeasurement.Diff measurement = TetrapolarMeasurement.builder().ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units).build();
     assertAll(measurement.toString(),
         () -> assertThat(measurement.ohms()).isEqualTo(rBefore),
         () -> assertThat(measurement.ohmsDiff()).isEqualTo(rAfter - rBefore),
