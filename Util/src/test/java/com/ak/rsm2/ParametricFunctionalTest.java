@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.*;
 class ParametricFunctionalTest {
 
   @Nested
-  class ParametricDiffFunctionalTest {
+  class DiffTest {
 
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
@@ -137,7 +137,7 @@ class ParametricFunctionalTest {
   }
 
   @Nested
-  class ParametricMaxDiffAbsoluteFunctionalTest {
+  class MaxDiffAbsoluteTest {
 
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
@@ -280,7 +280,7 @@ class ParametricFunctionalTest {
   }
 
   @Nested
-  class ParametricStaticFunctionalTest {
+  class StaticTest {
 
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """

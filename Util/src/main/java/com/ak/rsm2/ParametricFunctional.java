@@ -74,9 +74,8 @@ public sealed interface ParametricFunctional {
         return Double.isFinite(s) ? s * s : Double.POSITIVE_INFINITY;
       }
 
-      private static final class ParametricDiffFunctional
-          extends AbstractParametricFunctional<TetrapolarMeasurement.Diff> {
-        private ParametricDiffFunctional(ElectrodeSystem.Inexact system, TetrapolarMeasurement.Diff measurement) {
+      private static final class Diff extends AbstractParametricFunctional<TetrapolarMeasurement.Diff> {
+        private Diff(ElectrodeSystem.Inexact system, TetrapolarMeasurement.Diff measurement) {
           super(system, measurement);
         }
 
@@ -126,10 +125,9 @@ public sealed interface ParametricFunctional {
         }
       }
 
-      private static final class ParametricMaxDiffAbsoluteFunctional
-          extends AbstractParametricFunctional<TetrapolarMeasurement.MaxDiffAbsolute> {
-        private ParametricMaxDiffAbsoluteFunctional(ElectrodeSystem.Inexact system,
-                                                    TetrapolarMeasurement.MaxDiffAbsolute measurement) {
+      private static final class MaxDiffAbsolute extends AbstractParametricFunctional<TetrapolarMeasurement.MaxDiffAbsolute> {
+        private MaxDiffAbsolute(ElectrodeSystem.Inexact system,
+                                TetrapolarMeasurement.MaxDiffAbsolute measurement) {
           super(system, measurement);
         }
 
@@ -181,10 +179,9 @@ public sealed interface ParametricFunctional {
         }
       }
 
-      private static final class ParametricMaxDiffRelativeFunctional
-          extends AbstractParametricFunctional<TetrapolarMeasurement.MaxDiffRelative> {
-        private ParametricMaxDiffRelativeFunctional(ElectrodeSystem.Inexact system,
-                                                    TetrapolarMeasurement.MaxDiffRelative measurement) {
+      private static final class MaxDiffRelative extends AbstractParametricFunctional<TetrapolarMeasurement.MaxDiffRelative> {
+        private MaxDiffRelative(ElectrodeSystem.Inexact system,
+                                TetrapolarMeasurement.MaxDiffRelative measurement) {
           super(system, measurement);
         }
 
@@ -237,8 +234,8 @@ public sealed interface ParametricFunctional {
         }
       }
 
-      private static final class ParametricStaticFunctional extends AbstractParametricFunctional<TetrapolarMeasurement> {
-        private ParametricStaticFunctional(ElectrodeSystem.Inexact system, TetrapolarMeasurement measurement) {
+      private static final class Static extends AbstractParametricFunctional<TetrapolarMeasurement> {
+        private Static(ElectrodeSystem.Inexact system, TetrapolarMeasurement measurement) {
           super(system, measurement);
         }
 
@@ -303,12 +300,12 @@ public sealed interface ParametricFunctional {
       ElectrodeSystem.Inexact s = Objects.requireNonNull(system);
       return switch (Objects.requireNonNull(measurement)) {
         case TetrapolarMeasurement.MaxDiffAbsolute maxDiffAbsolute ->
-            new AbstractParametricFunctional.ParametricMaxDiffAbsoluteFunctional(s, maxDiffAbsolute);
+            new AbstractParametricFunctional.MaxDiffAbsolute(s, maxDiffAbsolute);
         case TetrapolarMeasurement.MaxDiffRelative maxDiffRelative ->
-            new AbstractParametricFunctional.ParametricMaxDiffRelativeFunctional(s, maxDiffRelative);
-        case TetrapolarMeasurement.Diff diff -> new AbstractParametricFunctional.ParametricDiffFunctional(s, diff);
+            new AbstractParametricFunctional.MaxDiffRelative(s, maxDiffRelative);
+        case TetrapolarMeasurement.Diff diff -> new AbstractParametricFunctional.Diff(s, diff);
         case TetrapolarMeasurement tetrapolarMeasurement ->
-            new AbstractParametricFunctional.ParametricStaticFunctional(s, tetrapolarMeasurement);
+            new AbstractParametricFunctional.Static(s, tetrapolarMeasurement);
       };
     }
   }
