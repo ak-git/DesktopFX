@@ -30,18 +30,18 @@ public sealed interface Model {
     }
   }
 
-  record Layer2RelativeDH(K k, double h, double dh) implements Model {
-    public Layer2RelativeDH {
+  record Layer2RelativeDh(K k, double h, double dh) implements Model {
+    public Layer2RelativeDh {
       if (h < 0) {
         throw new IllegalArgumentException(H_F_MUST_BE_NON_NEGATIVE.formatted(h));
       }
     }
 
-    public Layer2RelativeDH(double k, double h, double dh) {
+    public Layer2RelativeDh(double k, double h, double dh) {
       this(K.of(k), h, dh);
     }
 
-    public Layer2RelativeDH(double[] point) {
+    public Layer2RelativeDh(double[] point) {
       this(point[0], point[1], point[2]);
     }
 

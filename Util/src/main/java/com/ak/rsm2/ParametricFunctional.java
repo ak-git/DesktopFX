@@ -102,7 +102,7 @@ public sealed interface ParametricFunctional {
                 double v = log(resistivity.value() / apparent) - log(resistivity.derivativeByPhi() / derivativeApparentByPhi);
                 return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
               }
-              case Model.Layer2RelativeDH layer2RelativeDH ->
+              case Model.Layer2RelativeDh layer2RelativeDH ->
                   throw new IllegalArgumentException("Unexpected value: " + layer2RelativeDH);
               case Model.Layer2Absolute layer2Absolute ->
                   throw new IllegalArgumentException("Unexpected value: " + layer2Absolute);
@@ -116,7 +116,7 @@ public sealed interface ParametricFunctional {
             case ZERO_MAX_LOG -> layer ->
                 switch (layer) {
                   case Model.Layer2Relative(K k, double h) -> regularization(k, h);
-                  case Model.Layer2RelativeDH layer2RelativeDH ->
+                  case Model.Layer2RelativeDh layer2RelativeDH ->
                       throw new IllegalArgumentException("Unexpected value: " + layer2RelativeDH);
                   case Model.Layer2Absolute layer2Absolute ->
                       throw new IllegalArgumentException("Unexpected value: " + layer2Absolute);
@@ -151,7 +151,7 @@ public sealed interface ParametricFunctional {
             switch (layer) {
               case Model.Layer2Relative layer2Relative ->
                   throw new IllegalArgumentException("Unexpected value: " + layer2Relative);
-              case Model.Layer2RelativeDH layer2RelativeDH ->
+              case Model.Layer2RelativeDh layer2RelativeDH ->
                   throw new IllegalArgumentException("Unexpected value: " + layer2RelativeDH);
               case Model.Layer2Absolute layer2Absolute -> {
                 Resistivity.Apparent resistivity = Resistivity.of(system()).apparent(layer2Absolute);
@@ -170,7 +170,7 @@ public sealed interface ParametricFunctional {
             case ZERO_MAX_LOG -> layer -> switch (layer) {
               case Model.Layer2Relative layer2Relative ->
                   throw new IllegalArgumentException("Unexpected value: " + layer2Relative);
-              case Model.Layer2RelativeDH layer2RelativeDH ->
+              case Model.Layer2RelativeDh layer2RelativeDH ->
                   throw new IllegalArgumentException("Unexpected value: " + layer2RelativeDH);
               case Model.Layer2Absolute(double rho1, double rho2, double h, double dh) ->
                   regularization(K.of(rho1, rho2), h) + regularization(dh, measurement().hDiffMax());
@@ -205,7 +205,7 @@ public sealed interface ParametricFunctional {
             switch (layer) {
               case Model.Layer2Relative layer2Relative ->
                   throw new IllegalArgumentException("Unexpected value: " + layer2Relative);
-              case Model.Layer2RelativeDH layer2RelativeDH -> {
+              case Model.Layer2RelativeDh layer2RelativeDH -> {
                 Resistivity.Apparent resistivity = Resistivity.of(system()).apparentDivRho1(layer2RelativeDH);
                 double apparent = resistivity.apparent(measurement().ohms());
                 double derivativeApparentByPhi = resistivity.apparent((measurement().ohmsDiff() / layer2RelativeDH.dh()) / system().phiFactor());
@@ -225,7 +225,7 @@ public sealed interface ParametricFunctional {
                 switch (layer) {
                   case Model.Layer2Relative layer2Relative ->
                       throw new IllegalArgumentException("Unexpected value: " + layer2Relative);
-                  case Model.Layer2RelativeDH(K k, double h, double dh) ->
+                  case Model.Layer2RelativeDh(K k, double h, double dh) ->
                       regularization(k, h) + regularization(dh, measurement().hDiffMax());
                   case Model.Layer2Absolute layer2Absolute ->
                       throw new IllegalArgumentException("Unexpected value: " + layer2Absolute);
@@ -260,7 +260,7 @@ public sealed interface ParametricFunctional {
             switch (layer) {
               case Model.Layer2Relative layer2Relative ->
                   throw new IllegalArgumentException("Unexpected value: " + layer2Relative);
-              case Model.Layer2RelativeDH layer2RelativeDH ->
+              case Model.Layer2RelativeDh layer2RelativeDH ->
                   throw new IllegalArgumentException("Unexpected value: " + layer2RelativeDH);
               case Model.Layer2Absolute layer2Absolute ->
                   throw new IllegalArgumentException("Unexpected value: " + layer2Absolute);

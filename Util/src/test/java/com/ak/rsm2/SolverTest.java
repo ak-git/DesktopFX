@@ -79,7 +79,7 @@ class SolverTest {
         140.7461, 215.4297, 0.4942724, 0.9339182, 0.150
         """)
     void hDiffMaxRelative(double r1, double r2, double r1Diff, double r2Diff, double hDiffMax) {
-      Solver solver = Solver.<TetrapolarMeasurement.MaxDiffRelative>of(7.0, Metrics.Length.MILLI, Model.Layer2RelativeDH::new)
+      Solver solver = Solver.<TetrapolarMeasurement.MaxDiffRelative>of(7.0, Metrics.Length.MILLI, Model.Layer2RelativeDh::new)
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMaxRelative(hDiffMax, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMaxRelative(hDiffMax, Metrics.Length.MILLI))
           .build();
