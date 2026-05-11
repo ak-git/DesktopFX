@@ -122,9 +122,8 @@ public sealed interface ParametricFunctional {
         }
       }
 
-      private static final class MaxDiffRelative extends AbstractParametricFunctional<TetrapolarMeasurement.MaxDiffRelative> {
-        private MaxDiffRelative(ElectrodeSystem.Inexact system,
-                                TetrapolarMeasurement.MaxDiffRelative measurement) {
+      private static final class MaxDiffRelative extends AbstractParametricFunctional<TetrapolarMeasurement.MaxDiff> {
+        private MaxDiffRelative(ElectrodeSystem.Inexact system, TetrapolarMeasurement.MaxDiff measurement) {
           super(system, measurement);
         }
 
@@ -198,7 +197,7 @@ public sealed interface ParametricFunctional {
     public ParametricFunctional build() {
       ElectrodeSystem.Inexact s = Objects.requireNonNull(system);
       return switch (Objects.requireNonNull(measurement)) {
-        case TetrapolarMeasurement.MaxDiffRelative maxDiffRelative ->
+        case TetrapolarMeasurement.MaxDiff maxDiffRelative ->
             new AbstractParametricFunctional.MaxDiffRelative(s, maxDiffRelative);
         case TetrapolarMeasurement.Diff diff -> new AbstractParametricFunctional.Diff(s, diff);
         case TetrapolarMeasurement tetrapolarMeasurement ->
