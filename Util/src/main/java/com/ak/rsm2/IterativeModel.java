@@ -9,6 +9,12 @@ public sealed interface IterativeModel {
   Model toModel();
 
   record Layer2Relative(K k, double h) implements IterativeModel {
+    public Layer2Relative {
+      if (h < 0) {
+        throw new IllegalArgumentException("h = %f must be non-negative".formatted(h));
+      }
+    }
+
     public Layer2Relative(double[] variables) {
       this(K.of(variables[0]), variables[1]);
     }
@@ -25,6 +31,12 @@ public sealed interface IterativeModel {
   }
 
   record Layer2RelativeDh(K k, double h, double dh) implements IterativeModel {
+    public Layer2RelativeDh {
+      if (h < 0) {
+        throw new IllegalArgumentException("h = %f must be non-negative".formatted(h));
+      }
+    }
+
     public Layer2RelativeDh(double[] variables) {
       this(K.of(variables[0]), variables[1], variables[2]);
     }
