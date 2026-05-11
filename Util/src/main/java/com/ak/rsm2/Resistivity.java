@@ -19,9 +19,7 @@ public sealed interface Resistivity {
   }
 
   sealed interface Step1 extends Builder<Resistivity> {
-    Apparent apparentDivRho1(Model.Layer2Relative layer2Relative);
-
-    Apparent apparentDivRho1(Model.Layer2RelativeDh layer2Relative);
+    Apparent apparentDivRho1(Model layer2Relative);
   }
 
   final class ResistivityBuilder implements Step1 {
@@ -48,12 +46,7 @@ public sealed interface Resistivity {
     }
 
     @Override
-    public Apparent apparentDivRho1(Model.Layer2Relative layer2Relative) {
-      return new Apparent.ApparentBuilder(build(), layer2Relative).build();
-    }
-
-    @Override
-    public Apparent apparentDivRho1(Model.Layer2RelativeDh layer2Relative) {
+    public Apparent apparentDivRho1(Model layer2Relative) {
       return new Apparent.ApparentBuilder(build(), layer2Relative).build();
     }
   }
@@ -109,10 +102,6 @@ public sealed interface Resistivity {
         return switch (model) {
           case Model.Layer2Relative layer2Relative ->
               new ApparentRecord(resistivity, apparentDivRho1(layer2Relative), derivativeApparentByPhiDivRho1(layer2Relative));
-          case Model.Layer2RelativeDh(K k, double h, _) -> {
-            Model.Layer2Relative layer2Relative = new Model.Layer2Relative(k, h);
-            yield new ApparentRecord(resistivity, apparentDivRho1(layer2Relative), derivativeApparentByPhiDivRho1(layer2Relative));
-          }
         };
       }
 

@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 public sealed interface Solver {
-  static <M extends TetrapolarMeasurement> Step1<M> of(double base, Metrics.Length units, Function<double[], Model> modelFactory) {
+  static <M extends TetrapolarMeasurement> Step1<M> of(double base, Metrics.Length units, Function<double[], IterativeModel> modelFactory) {
     return new SolverBuilder<>(base, units, modelFactory);
   }
 
@@ -48,10 +48,10 @@ public sealed interface Solver {
 
     private final double base;
     private final Metrics.Length units;
-    private final Function<double[], Model> modelFactory;
+    private final Function<double[], IterativeModel> modelFactory;
     private final Collection<ParametricFunctional> parametricFunctionals = new ArrayList<>();
 
-    public SolverBuilder(double base, Metrics.Length units, Function<double[], Model> modelFactory) {
+    public SolverBuilder(double base, Metrics.Length units, Function<double[], IterativeModel> modelFactory) {
       if (base > 0) {
         this.base = base;
       }
@@ -97,9 +97,9 @@ public sealed interface Solver {
 
     @Override
     public Solver build() {
-      DoubleFunction<Model> find = alpha -> {
+      DoubleFunction<IterativeModel> find = alpha -> {
         PointValuePair optimized = Simplex.optimizeAll(point -> {
-              Model m = modelFactory.apply(point);
+              IterativeModel m = modelFactory.apply(point);
               return DoubleStream.concat(
                       parametricFunctionals.stream().mapToDouble(f -> alpha * f.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG).applyAsDouble(m)),
                       parametricFunctionals.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).map(x -> x * x)
@@ -124,7 +124,7 @@ public sealed interface Solver {
 
       double dataErrorNormBase = parametricFunctionals.stream().mapToDouble(ParametricFunctional::dataErrorNorm).reduce(Math::hypot).orElseThrow();
       double dataErrorNormShift = parametricFunctionals.stream().mapToDouble(new ToDoubleFunction<>() {
-        private final Model mZero = find.apply(0.0);
+        private final IterativeModel mZero = find.apply(0.0);
 
         @Override
         public double applyAsDouble(ParametricFunctional f) {
@@ -142,7 +142,7 @@ public sealed interface Solver {
           return Double.POSITIVE_INFINITY;
         }
         else {
-          Model m = find.apply(alpha);
+          IterativeModel m = find.apply(alpha);
           double misfit = parametricFunctionals.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
           LOGGER.atInfo().addKeyValue("alpha", "%.4f".formatted(alpha)).addKeyValue("misfit", "%.4f".formatted(misfit))
               .log(() -> "%s".formatted(find.apply(alpha)));

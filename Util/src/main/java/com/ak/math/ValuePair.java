@@ -82,6 +82,17 @@ public class ValuePair {
         return "%sh = %s %s".formatted(Strings.CAP_DELTA, base, MILLI(METRE));
       }
     },
+    DH1 {
+      @Override
+      double convert(double si) {
+        return H.convert(si);
+      }
+
+      @Override
+      String toString(String base) {
+        return "%s%s".formatted(Strings.CAP_DELTA, Strings.h(1, base));
+      }
+    },
     DH2 {
       @Override
       double convert(double si) {

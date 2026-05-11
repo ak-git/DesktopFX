@@ -12,7 +12,6 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ModelTest {
   @Nested
@@ -20,7 +19,7 @@ class ModelTest {
     @ParameterizedTest
     @ValueSource(doubles = {-1.1, -1.0, -0.9, 0.0, 0.9, 1.0, 1.1})
     void get(double k) {
-      Model.Layer2Relative layer2Relative = new Model.Layer2Relative(k, Math.clamp(Math.random() - 0.5, 0.0, 1.0));
+      Model.Layer2Relative layer2Relative = new Model.Layer2Relative(K.of(k), Math.clamp(Math.random() - 0.5, 0.0, 1.0));
       assertAll(layer2Relative.toString(),
           () -> Assertions.assertThat(layer2Relative.k().value()).isBetween(-1.0, 1.0),
           () -> Assertions.assertThat(layer2Relative.h()).isNotNegative()
@@ -48,21 +47,9 @@ class ModelTest {
     }
 
     @ParameterizedTest
-    @CsvSource(delimiter = '|', textBlock = """
-         2.0 | 10.0 | 0.0
-        10.0 |  5.0 | 1.0
-         0.0 |  5.0 | 1.0
-        10.0 |  0.0 | 1.0
-        """)
-    void byPoint(double rho1, double rho2, double h) {
-      K k = K.of(rho1, rho2);
-      assertEquals(new Model.Layer2Relative(new double[] {k.value(), h}), new Model.Layer2Relative(k, h));
-    }
-
-    @ParameterizedTest
     @ValueSource(doubles = {-1.0})
     void negativeH(double h) {
-      assertThatIllegalArgumentException().isThrownBy(() -> new Model.Layer2Relative(Math.random(), h))
+      assertThatIllegalArgumentException().isThrownBy(() -> new Model.Layer2Relative(K.of(Math.random()), h))
           .withMessageStartingWith("h = ").withMessageEndingWith("must be non-negative");
     }
   }
