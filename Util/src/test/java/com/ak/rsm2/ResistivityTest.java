@@ -134,7 +134,7 @@ class ResistivityTest {
             .apparentDivRho1(layer3).derivativeByPhi();
         double predictedRev = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(lmm, smm).build())
             .apparentDivRho1(layer3).derivativeByPhi();
-        assertThat(predictedNor).isCloseTo(predictedRev, byLessThan(0.000_001));
+        assertThat(predictedNor).isCloseTo(predictedRev, byLessThan(0.000_001)).isNaN();
       }
     }
   }

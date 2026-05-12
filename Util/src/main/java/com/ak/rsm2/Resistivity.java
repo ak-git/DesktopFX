@@ -115,9 +115,7 @@ public sealed interface Resistivity {
             double[] qn = Layers.qn(k12.value(), k23.value(), p1, p2mp1);
             yield new ApparentRecord(resistivity,
                 1.0 + 2.0 * Layers.sum(n -> qn[n] * (left.applyAsDouble(n) - right.applyAsDouble(n))),
-                -32.0 * hStep * resistivity.system().phiFactor() *
-                    Layers.sum(n -> qn[n] * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0)))
-            );
+                Double.NaN);
           }
         };
       }
