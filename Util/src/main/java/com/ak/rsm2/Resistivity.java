@@ -19,7 +19,7 @@ public sealed interface Resistivity {
   }
 
   sealed interface Step1 extends Builder<Resistivity> {
-    Apparent apparentDivRho1(Model layer2Relative);
+    Apparent apparentDivRho1(Model model);
   }
 
   final class ResistivityBuilder implements Step1 {
@@ -46,8 +46,8 @@ public sealed interface Resistivity {
     }
 
     @Override
-    public Apparent apparentDivRho1(Model layer2Relative) {
-      return new Apparent.ApparentBuilder(build(), layer2Relative).build();
+    public Apparent apparentDivRho1(Model model) {
+      return new Apparent.ApparentBuilder(build(), model).build();
     }
   }
 
@@ -100,24 +100,26 @@ public sealed interface Resistivity {
       @Override
       public Apparent build() {
         return switch (model) {
-          case Model.Layer2Relative layer2Relative ->
-              new ApparentRecord(resistivity, apparentDivRho1(layer2Relative), derivativeApparentByPhiDivRho1(layer2Relative));
-        };
-      }
-
-      private double apparentDivRho1(Model.Layer2Relative layer2) {
-        DoubleUnaryOperator left = braceOperation(layer2.h(), Sign.MINUS);
-        DoubleUnaryOperator right = braceOperation(layer2.h(), Sign.PLUS);
-        return 1.0 + 2.0 * Layers.sum(n -> pow(layer2.k().value(), n) * (left.applyAsDouble(n) - right.applyAsDouble(n)));
-      }
-
-      private double derivativeApparentByPhiDivRho1(Model.Layer2Relative layer2) {
-        DoubleUnaryOperator left = braceOperation(layer2.h(), Sign.MINUS);
-        DoubleUnaryOperator right = braceOperation(layer2.h(), Sign.PLUS);
-        return -32.0 * layer2.h() * resistivity.system().phiFactor() *
-            Layers.sum(
-                n -> pow(layer2.k().value(), n) * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0))
+          case Model.Layer2Relative(K k, double h) -> {
+            DoubleUnaryOperator left = braceOperation(h, Sign.MINUS);
+            DoubleUnaryOperator right = braceOperation(h, Sign.PLUS);
+            yield new ApparentRecord(resistivity,
+                1.0 + 2.0 * Layers.sum(n -> pow(k.value(), n) * (left.applyAsDouble(n) - right.applyAsDouble(n))),
+                -32.0 * h * resistivity.system().phiFactor() *
+                    Layers.sum(n -> pow(k.value(), n) * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0)))
             );
+          }
+          case Model.Layer3Relative(K k12, K k23, double hStep, int p1, int p2mp1) -> {
+            DoubleUnaryOperator left = braceOperation(hStep, Sign.MINUS);
+            DoubleUnaryOperator right = braceOperation(hStep, Sign.PLUS);
+            double[] qn = Layers.qn(k12.value(), k23.value(), p1, p2mp1);
+            yield new ApparentRecord(resistivity,
+                1.0 + 2.0 * Layers.sum(n -> qn[n] * (left.applyAsDouble(n) - right.applyAsDouble(n))),
+                -32.0 * hStep * resistivity.system().phiFactor() *
+                    Layers.sum(n -> qn[n] * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0)))
+            );
+          }
+        };
       }
 
       private DoubleUnaryOperator braceOperation(double hSI, DoubleUnaryOperator sign) {
