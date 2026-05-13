@@ -71,17 +71,19 @@ class ResistivityTest {
         apparentDivRho1(rho, hStepSI, p, smm, lmm, rOhm);
       }
 
-      private static void apparentDivRho1(double[] rho, double hStepSI, int[] p, double smm, double lmm) {
-        Model layer3 = new Model.Layer3Relative(K.of(rho[0], rho[1]), K.of(rho[1], rho[2]), hStepSI, p[0], p[1]);
+      private static void apparentDivRho1(double[] rho, double hStepSI, int[] ps, double smm, double lmm) {
+        Model.Layer3Relative.P p = new Model.Layer3Relative.P(ps);
+        Model layer3 = new Model.Layer3Relative(K.of(rho[0], rho[1]), K.of(rho[1], rho[2]), hStepSI, p, p);
         double predictedNor = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build()).apparentDivRho1(layer3).value();
         double predictedRev = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(lmm, smm).build()).apparentDivRho1(layer3).value();
         assertThat(predictedNor).isCloseTo(predictedRev, byLessThan(0.000_001));
       }
 
-      private static void apparentDivRho1(double[] rho, double hStepSI, int[] p, double smm, double lmm, double rOhm) {
+      private static void apparentDivRho1(double[] rho, double hStepSI, int[] ps, double smm, double lmm, double rOhm) {
         ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build();
         double apparent = Resistivity.of(tetrapolar).build().apparent(rOhm);
-        Model layer3 = new Model.Layer3Relative(K.of(rho[0], rho[1]), K.of(rho[1], rho[2]), hStepSI, p[0], p[1]);
+        Model.Layer3Relative.P p = new Model.Layer3Relative.P(ps);
+        Model layer3 = new Model.Layer3Relative(K.of(rho[0], rho[1]), K.of(rho[1], rho[2]), hStepSI, p, p);
         double predicted = Resistivity.of(tetrapolar).apparentDivRho1(layer3).value();
         assertThat(apparent / rho[0]).isCloseTo(predicted, byLessThan(0.001));
       }
@@ -128,13 +130,14 @@ class ResistivityTest {
     class Layer3Relative {
       @ParameterizedTest
       @MethodSource("com.ak.rsm.resistance.Resistance3LayerTest#threeLayerParameters")
-      void apparentDivRho1(double[] rho, double hStepSI, int[] p, double smm, double lmm, double rOhm) {
-        Model layer3 = new Model.Layer3Relative(K.of(rho[0], rho[1]), K.of(rho[1], rho[2]), hStepSI, p[0], p[1]);
+      void apparentDivRho1(double[] rho, double hStepSI, int[] ps, double smm, double lmm, double rOhm) {
+        Model.Layer3Relative.P p = new Model.Layer3Relative.P(ps);
+        Model layer3 = new Model.Layer3Relative(K.of(rho[0], rho[1]), K.of(rho[1], rho[2]), hStepSI, p, p);
         double predictedNor = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build())
             .apparentDivRho1(layer3).derivativeByPhi();
         double predictedRev = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(lmm, smm).build())
             .apparentDivRho1(layer3).derivativeByPhi();
-        assertThat(predictedNor).isCloseTo(predictedRev, byLessThan(0.000_001)).isNaN();
+        assertThat(predictedNor).isCloseTo(predictedRev, byLessThan(0.000_001));
       }
     }
   }

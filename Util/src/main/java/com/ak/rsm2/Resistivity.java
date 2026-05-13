@@ -5,6 +5,7 @@ import com.ak.util.Builder;
 
 import java.util.Objects;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.ToDoubleFunction;
 
 import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.pow;
@@ -109,13 +110,21 @@ public sealed interface Resistivity {
                     Layers.sum(n -> pow(k.value(), n) * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0)))
             );
           }
-          case Model.Layer3Relative(K k12, K k23, double hStep, int p1, int p2mp1) -> {
+          case Model.Layer3Relative(
+              K k12, K k23, double hStep,
+              Model.Layer3Relative.P p, Model.Layer3Relative.P pAfter
+          ) -> {
             DoubleUnaryOperator left = braceOperation(hStep, Sign.MINUS);
             DoubleUnaryOperator right = braceOperation(hStep, Sign.PLUS);
-            double[] qn = Layers.qn(k12.value(), k23.value(), p1, p2mp1);
-            yield new ApparentRecord(resistivity,
-                1.0 + 2.0 * Layers.sum(n -> qn[n] * (left.applyAsDouble(n) - right.applyAsDouble(n))),
-                Double.NaN);
+
+            ToDoubleFunction<Model.Layer3Relative.P> apparentDivRho1 = value -> {
+              double[] qn = Layers.qn(k12.value(), k23.value(), value.p1(), value.p2mp1());
+              return 1.0 + 2.0 * Layers.sum(n -> qn[n] * (left.applyAsDouble(n) - right.applyAsDouble(n)));
+            };
+
+            double apparentBefore = apparentDivRho1.applyAsDouble(p);
+            double apparentAfter = apparentDivRho1.applyAsDouble(pAfter);
+            yield new ApparentRecord(resistivity, apparentBefore, (apparentAfter - apparentBefore) / resistivity.system().phiFactor());
           }
         };
       }
