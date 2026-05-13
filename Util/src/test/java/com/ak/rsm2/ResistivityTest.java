@@ -64,6 +64,19 @@ class ResistivityTest {
     @Nested
     class Layer3Relative {
       @ParameterizedTest
+      @CsvSource(delimiter = '|', textBlock = """
+          8.0 | 8.0 | 1.0 |  5 | 5 | 10.0 | 20.0 | METRE | 0.911
+          8.0 | 1.0 | 1.0 | 10 | 1 | 20.0 | 10.0 | MILLI | 0.911
+          """)
+      void apparentDivRho1(double rho1, double rho2, double rho3, int p1mm, int p2mp1mm, double sPU, double lCC, Metrics.Length units, double expected) {
+        ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.builder(units).tetrapolar(sPU, lCC).build();
+        Model layer3 = new Model.Layer3Relative(K.of(rho1, rho2), K.of(rho2, rho3), units.toSI(1),
+            new Model.Layer3Relative.P(p1mm, p2mp1mm), new Model.Layer3Relative.P(p1mm, p2mp1mm));
+        double value = Resistivity.of(tetrapolar).apparentDivRho1(layer3).value();
+        assertThat(value).isCloseTo(expected, byLessThan(0.001));
+      }
+
+      @ParameterizedTest
       @MethodSource("com.ak.rsm.resistance.Resistance3LayerTest#threeLayerParameters")
       void apparent(double[] rho, double hStepSI, int[] p, double smm, double lmm, double rOhm) {
         ApparentDivRho1.apparent(smm, lmm, rOhm);
@@ -102,11 +115,11 @@ class ResistivityTest {
     class Layer2Relative {
       @ParameterizedTest
       @CsvSource(delimiter = '|', textBlock = """
-        8.0 |  1.0 | 10.0 | 10.0 | 20.0 | METRE |  0.308
-        8.0 |  1.0 | 10.0 | 20.0 | 10.0 | MILLI |  0.308
-        2.0 | 10.0 |  3.0 |  6.0 | 18.0 | METRE | -9.609
-        2.0 | 10.0 |  3.0 | 18.0 |  6.0 | MILLI | -9.609
-        """)
+          8.0 |  1.0 | 10.0 | 10.0 | 20.0 | METRE |  0.308
+          8.0 |  1.0 | 10.0 | 20.0 | 10.0 | MILLI |  0.308
+          2.0 | 10.0 |  3.0 |  6.0 | 18.0 | METRE | -9.609
+          2.0 | 10.0 |  3.0 | 18.0 |  6.0 | MILLI | -9.609
+          """)
       void apparentDivRho1(double rho1, double rho2, double h, double sPU, double lCC, Metrics.Length units, double expected) {
         ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.builder(units).tetrapolar(sPU, lCC).build();
         Model layer2 = new Model.Layer2Relative(K.of(rho1, rho2), units.toSI(h));
@@ -138,6 +151,21 @@ class ResistivityTest {
         double predictedRev = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(lmm, smm).build())
             .apparentDivRho1(layer3).derivativeByPhi();
         assertThat(predictedNor).isCloseTo(predictedRev, byLessThan(0.000_001));
+      }
+
+      @ParameterizedTest
+      @CsvSource(delimiter = '|', textBlock = """
+          8.0 | 8.0 | 1.0 |  500 | 500 | 10.0 | 20.0 | METRE | 0.308
+          8.0 | 8.0 | 1.0 |  500 | 500 | 20.0 | 10.0 | MILLI | 0.308
+          8.0 | 1.0 | 1.0 | 1000 |   1 | 10.0 | 20.0 | METRE | 0.308
+          8.0 | 1.0 | 1.0 | 1000 |   1 | 20.0 | 10.0 | MILLI | 0.308
+          """)
+      void apparentDivRho1(double rho1, double rho2, double rho3, int p1, int p2mp1, double sPU, double lCC, Metrics.Length units, double expected) {
+        ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.builder(units).tetrapolar(sPU, lCC).build();
+        Model layer3 = new Model.Layer3Relative(K.of(rho1, rho2), K.of(rho2, rho3), units.toSI(0.01),
+            new Model.Layer3Relative.P(p1, p2mp1), new Model.Layer3Relative.P(p1 + 1, p2mp1));
+        double value = Resistivity.of(tetrapolar).apparentDivRho1(layer3).derivativeByPhi();
+        assertThat(value).isCloseTo(expected, byLessThan(0.001));
       }
     }
   }
