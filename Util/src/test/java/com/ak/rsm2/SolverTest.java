@@ -56,7 +56,7 @@ class SolverTest {
   class MaxDiffTest {
     @Disabled("2025-04-23 E-9712 ak 6 мм")
     @ParameterizedTest
-    @CsvSource(delimiter = '|', useHeadersInDisplayName = true, textBlock = """
+    @CsvSource(delimiter = '|', textBlock = """
         129.040 | 200.188 | 0.1238 | 0.31235 | 129.195 | 200.848 | 0.0985 | 0.27420 | 0.090
         """)
     void hDiffMax(double r1, double r2, double r1Diff, double r2Diff,
