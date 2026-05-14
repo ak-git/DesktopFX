@@ -105,6 +105,8 @@ public sealed interface ParametricFunctional {
               }
               case IterativeModel.Layer2RelativeDh layer2RelativeDH ->
                   throw new IllegalArgumentException("Unexpected value: " + layer2RelativeDH);
+              case IterativeModel.Layer3Relative layer3Relative ->
+                  throw new IllegalArgumentException("Unexpected value: " + layer3Relative);
             }
           };
         }
@@ -117,6 +119,8 @@ public sealed interface ParametricFunctional {
                   case IterativeModel.Layer2Relative(K k, double h) -> regularization(k, h);
                   case IterativeModel.Layer2RelativeDh layer2RelativeDH ->
                       throw new IllegalArgumentException("Unexpected value: " + layer2RelativeDH);
+                  case IterativeModel.Layer3Relative layer3Relative ->
+                      throw new IllegalArgumentException("Unexpected value: " + layer3Relative);
                 };
           };
         }
@@ -154,6 +158,8 @@ public sealed interface ParametricFunctional {
                 double v = log(resistivity.value() / apparent) - log(resistivity.derivativeByPhi() / derivativeApparentByPhi);
                 return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
               }
+              case IterativeModel.Layer3Relative layer3Relative ->
+                  throw new IllegalArgumentException("Unexpected value: " + layer3Relative);
             }
           };
         }
@@ -167,6 +173,8 @@ public sealed interface ParametricFunctional {
                       throw new IllegalArgumentException("Unexpected value: " + layer2Relative);
                   case IterativeModel.Layer2RelativeDh(K k, double h, double dh) ->
                       regularization(k, h) + regularization(dh, measurement().hDiffMax());
+                  case IterativeModel.Layer3Relative layer3Relative ->
+                      throw new IllegalArgumentException("Unexpected value: " + layer3Relative);
                 };
           };
         }

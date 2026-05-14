@@ -1,6 +1,7 @@
 package com.ak.rsm2;
 
 import com.ak.math.ValuePair;
+import com.ak.util.Numbers;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -34,6 +35,10 @@ public sealed interface Model {
           throw new IllegalArgumentException("p[%s].length != 2".formatted(Arrays.toString(p)));
         }
         this(p[0], p[1]);
+      }
+
+      P(double p1, double p2mp1) {
+        this(Numbers.toInt(p1), Numbers.toInt(p2mp1));
       }
 
       public int p2() {

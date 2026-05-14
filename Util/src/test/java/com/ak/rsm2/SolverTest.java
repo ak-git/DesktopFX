@@ -54,16 +54,15 @@ class SolverTest {
 
   @Nested
   class MaxDiffTest {
-    @Disabled("e8422_2023_05_25_14_04_43")
+    @Disabled("2025-04-23 E-9712 ak 6 мм")
     @ParameterizedTest
-    @CsvSource(delimiter = ',', textBlock = """
-        135.1687, 203.1126, 0.2822034, 0.5831683, 0.150
-        137.0167, 207.4542, 0.3620525, 0.7709094, 0.150
-        139.6433, 212.6400, 0.4942724, 0.9339182, 0.150
-        140.7461, 215.4297, 0.4942724, 0.9339182, 0.150
+    @CsvSource(delimiter = '|', useHeadersInDisplayName = true, textBlock = """
+        129.040 | 200.188 | 0.1238 | 0.31235 | 129.195 | 200.848 | 0.0985 | 0.27420 | 0.090
         """)
-    void hDiffMax(double r1, double r2, double r1Diff, double r2Diff, double hDiffMax) {
-      Solver solver = Solver.<TetrapolarMeasurement.MaxDiff>of(7.0, Metrics.Length.MILLI, IterativeModel.Layer2RelativeDh::new)
+    void hDiffMax(double r1, double r2, double r1Diff, double r2Diff,
+                  double r1F, double r2F, double r1DiffF, double r2DiffF,
+                  double hDiffMax) {
+      Solver solver = Solver.<TetrapolarMeasurement.MaxDiff>of(6.0, Metrics.Length.MILLI, IterativeModel.Layer2RelativeDh::new)
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
           .build();
