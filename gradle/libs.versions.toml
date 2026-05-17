@@ -19,7 +19,7 @@ spring-dependency-management = '1.1.7'
 javafx = '27-ea+16'
 
 inject-api = '2.0.1'
-tech-units = '2.2.3'
+tech-units = '2.2.4'
 measure-unit-api = '2.2'
 javax-json = '1.1.4'
 commons-math = '4.0-beta1'
