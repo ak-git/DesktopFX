@@ -5,7 +5,7 @@ spotbugs = '6.5.4'
 ben-manes-versions = '0.54.0'
 
 jspecify = '1.0.0'
-junit = '6.0.3'
+junit = '6.1.0'
 assertj = '3.27.7'
 mockito = '5.23.0'
 
