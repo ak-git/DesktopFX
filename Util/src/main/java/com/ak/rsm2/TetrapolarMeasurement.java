@@ -85,7 +85,7 @@ public sealed interface TetrapolarMeasurement {
       return measurement.ohmsDiff();
     }
 
-    public final double hDiff() {
+    final double getHDiff() {
       return hDiff;
     }
   }
@@ -97,6 +97,11 @@ public sealed interface TetrapolarMeasurement {
         implements Diff {
       private DiffRecord(TetrapolarMeasurement measurement, double hDiff) {
         super(measurement, hDiff);
+      }
+
+      @Override
+      public double hDiff() {
+        return getHDiff();
       }
     }
   }
@@ -112,7 +117,7 @@ public sealed interface TetrapolarMeasurement {
 
       @Override
       public double hDiffMax() {
-        return hDiff();
+        return getHDiff();
       }
     }
   }
