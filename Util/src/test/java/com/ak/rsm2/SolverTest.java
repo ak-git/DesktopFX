@@ -63,8 +63,12 @@ class SolverTest {
                   double r1F, double r2F, double r1DiffF, double r2DiffF,
                   double hDiffMax) {
       Solver solver = Solver.<TetrapolarMeasurement.MaxDiff>of(6.0, Metrics.Length.MILLI, IterativeModel.Layer2RelativeDh::new)
-          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
-          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
+          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI)
+              .add(m2 -> m2.ohms(r1F).thenOhms(r1F + r1DiffF).hDiffMax(hDiffMax, Metrics.Length.MILLI))
+          )
+          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI)
+              .add(m2 -> m2.ohms(r2F).thenOhms(r2F + r2DiffF).hDiffMax(hDiffMax, Metrics.Length.MILLI))
+          )
           .build();
       LOGGER.atInfo().log(solver::toString);
     }
