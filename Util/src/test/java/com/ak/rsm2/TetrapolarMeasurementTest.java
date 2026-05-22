@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import java.util.Objects;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.byLessThan;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -21,8 +19,7 @@ class TetrapolarMeasurementTest {
     TetrapolarMeasurement measurement = TetrapolarMeasurement.builder().ohms(rBefore).thenOhms(rAfter).build();
     assertAll(measurement.toString(),
         () -> assertThat(measurement.ohms()).isEqualTo(rBefore),
-        () -> assertThat(measurement.ohmsDiff()).isEqualTo(rAfter - rBefore),
-        () -> assertThat(measurement.next()).isNull()
+        () -> assertThat(measurement.ohmsDiff()).isEqualTo(rAfter - rBefore)
     );
   }
 
@@ -38,8 +35,7 @@ class TetrapolarMeasurementTest {
       assertAll(measurement.toString(),
           () -> assertThat(measurement.ohms()).isEqualTo(rBefore),
           () -> assertThat(measurement.ohmsDiff()).isEqualTo(rAfter - rBefore),
-          () -> assertThat(measurement.hDiff()).isEqualTo(units.toSI(hDiff)),
-          () -> assertThat(measurement.next()).isNull()
+          () -> assertThat(measurement.hDiff()).isEqualTo(units.toSI(hDiff))
       );
     }
   }
@@ -56,8 +52,7 @@ class TetrapolarMeasurementTest {
       assertAll(measurement.toString(),
           () -> assertThat(measurement.ohms()).isEqualTo(rBefore),
           () -> assertThat(measurement.ohmsDiff()).isEqualTo(rAfter - rBefore),
-          () -> assertThat(measurement.hDiffMax()).isEqualTo(units.toSI(hDiff)),
-          () -> assertThat(measurement.next()).isNull()
+          () -> assertThat(measurement.hDiffMax()).isEqualTo(units.toSI(hDiff))
       );
     }
   }
@@ -70,14 +65,13 @@ class TetrapolarMeasurementTest {
         """)
     void apparent(double r1, double r2, double r1Diff, double r2Diff, double hDiffMax) {
       Metrics.Length units = Metrics.Length.MILLI;
-      TetrapolarMeasurement measurement = TetrapolarMeasurement.builder().ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMax, units)
+      var measurement = TetrapolarMeasurement.builder().ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMax, units)
           .add(m2 -> m2.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMax, units)).build();
-      TetrapolarMeasurement.MaxDiff maxDiff = (TetrapolarMeasurement.MaxDiff) Objects.requireNonNull(measurement.next());
+      TetrapolarMeasurement.MaxDiff maxDiff = measurement.next();
       assertAll(maxDiff.toString(),
           () -> assertThat(maxDiff.ohms()).isEqualTo(r2),
           () -> assertThat(maxDiff.ohmsDiff()).isCloseTo(r2Diff, byLessThan(0.001)),
-          () -> assertThat(maxDiff.hDiffMax()).isEqualTo(units.toSI(hDiffMax)),
-          () -> assertThat(maxDiff.next()).isNull()
+          () -> assertThat(maxDiff.hDiffMax()).isEqualTo(units.toSI(hDiffMax))
       );
     }
   }

@@ -8,6 +8,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
+import java.util.stream.DoubleStream;
 
 import static java.lang.StrictMath.log;
 import static java.lang.StrictMath.log1p;
@@ -68,6 +69,14 @@ public sealed interface ParametricFunctional {
         }
       }
 
+      protected final double misfit(Model model, double dh) {
+        Resistivity.Apparent resistivity = Resistivity.of(system).apparentDivRho1(model);
+        double apparent = resistivity.apparent(measurement.ohms());
+        double derivativeApparentByPhi = resistivity.apparent((measurement.ohmsDiff() / dh) / system.phiFactor());
+        double v = log(resistivity.value() / apparent) - log(resistivity.derivativeByPhi() / derivativeApparentByPhi);
+        return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
+      }
+
       protected static double regularization(double dh, double dhMax) {
         double x = Math.abs(dh);
         double max = Math.abs(dhMax);
@@ -97,11 +106,7 @@ public sealed interface ParametricFunctional {
           return layer -> {
             switch (layer) {
               case IterativeModel.Layer2Relative layer2Relative -> {
-                Resistivity.Apparent resistivity = Resistivity.of(system()).apparentDivRho1(layer2Relative.toModel());
-                double apparent = resistivity.apparent(measurement().ohms());
-                double derivativeApparentByPhi = resistivity.apparent((measurement().ohmsDiff() / measurement().hDiff()) / system().phiFactor());
-                double v = log(resistivity.value() / apparent) - log(resistivity.derivativeByPhi() / derivativeApparentByPhi);
-                return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
+                return misfit(layer2Relative.toModel(), measurement().hDiff());
               }
               case IterativeModel.Layer2RelativeDh layer2RelativeDH ->
                   throw new IllegalArgumentException("Unexpected value: " + layer2RelativeDH);
@@ -152,11 +157,7 @@ public sealed interface ParametricFunctional {
               case IterativeModel.Layer2Relative layer2Relative ->
                   throw new IllegalArgumentException("Unexpected value: " + layer2Relative);
               case IterativeModel.Layer2RelativeDh layer2RelativeDH -> {
-                Resistivity.Apparent resistivity = Resistivity.of(system()).apparentDivRho1(layer2RelativeDH.toModel());
-                double apparent = resistivity.apparent(measurement().ohms());
-                double derivativeApparentByPhi = resistivity.apparent((measurement().ohmsDiff() / layer2RelativeDH.dh()) / system().phiFactor());
-                double v = log(resistivity.value() / apparent) - log(resistivity.derivativeByPhi() / derivativeApparentByPhi);
-                return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
+                return misfit(layer2RelativeDH.toModel(), layer2RelativeDH.dh());
               }
               case IterativeModel.Layer3Relative layer3Relative ->
                   throw new IllegalArgumentException("Unexpected value: " + layer3Relative);
@@ -175,6 +176,65 @@ public sealed interface ParametricFunctional {
                       regularization(k, h) + regularization(dh, measurement().hDiffMax());
                   case IterativeModel.Layer3Relative layer3Relative ->
                       throw new IllegalArgumentException("Unexpected value: " + layer3Relative);
+                };
+          };
+        }
+      }
+
+      private static final class TwoMaxDiffRelative extends AbstractParametricFunctional<TetrapolarMeasurement.TwoMaxDiff> {
+        private TwoMaxDiffRelative(ElectrodeSystem.Inexact system, TetrapolarMeasurement.TwoMaxDiff measurement) {
+          super(system, measurement);
+        }
+
+        @Override
+        public double dataErrorNorm() {
+          return log1p(system().apparentRhoRelativeError());
+        }
+
+        @Override
+        public Simplex.Bounds[] bounds() {
+          double hMax = system().hMax(K.PLUS_ONE);
+          double hDiffPos = Math.max(measurement().hDiffMax(), measurement().next().hDiffMax());
+          double hDiffNeg = Math.min(measurement().hDiffMax(), measurement().next().hDiffMax());
+          Simplex.Bounds pDiffBounds = new Simplex.Bounds(Math.min(hDiffNeg, 0.0), Math.max(0.0, hDiffPos));
+          return new Simplex.Bounds[] {
+              new Simplex.Bounds(0.0, 1.0),
+              new Simplex.Bounds(-1.0, 0.0),
+              new Simplex.Bounds(0.0, hMax),
+              new Simplex.Bounds(0.0, hMax),
+              pDiffBounds, pDiffBounds, pDiffBounds
+          };
+        }
+
+        @Override
+        public ToDoubleFunction<IterativeModel> misfit() {
+          return layer -> {
+            switch (layer) {
+              case IterativeModel.Layer2Relative layer2Relative ->
+                  throw new IllegalArgumentException("Unexpected value: " + layer2Relative);
+              case IterativeModel.Layer2RelativeDh layer2RelativeDH ->
+                  throw new IllegalArgumentException("Unexpected value: " + layer2RelativeDH);
+              case IterativeModel.Layer3Relative layer3Relative -> {
+                return DoubleStream.of(
+                        misfit(layer3Relative.toModel(), layer3Relative.dh()),
+                        misfit(layer3Relative.toModelAfterFat(), layer3Relative.dh()),
+                        misfit(layer3Relative.toModelDiffFat(), layer3Relative.dhDiffFat()))
+                    .reduce(StrictMath::hypot).orElseThrow();
+              }
+            }
+          };
+        }
+
+        @Override
+        public ToDoubleFunction<IterativeModel> regularization(Regularization regularization) {
+          return switch (regularization) {
+            case ZERO_MAX_LOG -> layer ->
+                switch (layer) {
+                  case IterativeModel.Layer2Relative layer2Relative ->
+                      throw new IllegalArgumentException("Unexpected value: " + layer2Relative);
+                  case IterativeModel.Layer2RelativeDh layer2RelativeDH ->
+                      throw new IllegalArgumentException("Unexpected value: " + layer2RelativeDH);
+                  case IterativeModel.Layer3Relative _ -> 0.0;
                 };
           };
         }
@@ -205,6 +265,8 @@ public sealed interface ParametricFunctional {
     public ParametricFunctional build() {
       ElectrodeSystem.Inexact s = Objects.requireNonNull(system);
       return switch (Objects.requireNonNull(measurement)) {
+        case TetrapolarMeasurement.TwoMaxDiff twoMaxDiff ->
+            new AbstractParametricFunctional.TwoMaxDiffRelative(s, twoMaxDiff);
         case TetrapolarMeasurement.MaxDiff maxDiffRelative ->
             new AbstractParametricFunctional.MaxDiffRelative(s, maxDiffRelative);
         case TetrapolarMeasurement.Diff diff -> new AbstractParametricFunctional.Diff(s, diff);

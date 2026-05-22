@@ -2,7 +2,6 @@ package com.ak.rsm2;
 
 import com.ak.util.Builder;
 import com.ak.util.Metrics;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -11,11 +10,6 @@ public sealed interface TetrapolarMeasurement {
   double ohms();
 
   double ohmsDiff();
-
-  @Nullable
-  default TetrapolarMeasurement next() {
-    return null;
-  }
 
   sealed interface Step1 {
     Step2 ohms(double rOhms);
@@ -32,7 +26,7 @@ public sealed interface TetrapolarMeasurement {
   }
 
   sealed interface Step4 extends Builder<MaxDiff> {
-    Builder<MaxDiff> add(Function<Step1, Builder<MaxDiff>> builderFunction);
+    Builder<TwoMaxDiff> add(Function<Step1, Builder<MaxDiff>> builderFunction);
   }
 
   static Step1 builder() {
@@ -73,7 +67,7 @@ public sealed interface TetrapolarMeasurement {
 
     @Override
     public Step4 hDiffMax(double hDiffMax, Metrics.Length units) {
-      return new MaxDiff.TwoMaxDiffBuilder(new MaxDiff.MaxDiffRecord(build(), units.toSI(hDiffMax)));
+      return new TwoMaxDiff.TwoMaxDiffBuilder(new MaxDiff.MaxDiffRecord(build(), units.toSI(hDiffMax)));
     }
   }
 
@@ -132,9 +126,13 @@ public sealed interface TetrapolarMeasurement {
         return getHDiff();
       }
     }
+  }
+
+  sealed interface TwoMaxDiff extends MaxDiff {
+    MaxDiff next();
 
     final class TwoMaxDiffBuilder implements Step4 {
-      private record TwoMaxDiffRecord(MaxDiff maxDiff1, MaxDiff maxDiff2) implements MaxDiff {
+      private record TwoMaxDiffRecord(MaxDiff maxDiff1, MaxDiff maxDiff2) implements TwoMaxDiff {
         @Override
         public double ohms() {
           return maxDiff1.ohms();
@@ -151,7 +149,7 @@ public sealed interface TetrapolarMeasurement {
         }
 
         @Override
-        public TetrapolarMeasurement next() {
+        public MaxDiff next() {
           return maxDiff2;
         }
       }
@@ -163,7 +161,7 @@ public sealed interface TetrapolarMeasurement {
       }
 
       @Override
-      public Builder<MaxDiff> add(Function<Step1, Builder<MaxDiff>> builderFunction) {
+      public Builder<TwoMaxDiff> add(Function<Step1, Builder<MaxDiff>> builderFunction) {
         return () -> new TwoMaxDiffRecord(maxDiff, builderFunction.apply(builder()).build());
       }
 

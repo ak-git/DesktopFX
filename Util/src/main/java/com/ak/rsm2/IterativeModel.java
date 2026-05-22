@@ -1,7 +1,6 @@
 package com.ak.rsm2;
 
 import com.ak.math.ValuePair;
-import com.ak.util.Metrics;
 import com.ak.util.Numbers;
 
 import java.util.stream.Collectors;
@@ -56,21 +55,42 @@ public sealed interface IterativeModel {
     }
   }
 
-  record Layer3Relative(K k12, K k23, Model.Layer3Relative.P p, Model.Layer3Relative.P dp,
+  record Layer3Relative(double hStep, K k12, K k23, Model.Layer3Relative.P p, Model.Layer3Relative.P dp,
                         int dpFat) implements IterativeModel {
-    public Layer3Relative(double[] variables) {
-      this(K.of(variables[0]), K.of(variables[1]),
-          new Model.Layer3Relative.P(variables[2], variables[3]),
-          new Model.Layer3Relative.P(variables[4], variables[5]),
-          Numbers.toInt(variables[6])
+    public Layer3Relative(double hStep, double[] variables) {
+      this(hStep, K.of(variables[0]), K.of(variables[1]),
+          new Model.Layer3Relative.P(variables[2] / hStep, variables[3] / hStep),
+          new Model.Layer3Relative.P(variables[4] / hStep, variables[5] / hStep),
+          Numbers.toInt(variables[6] / hStep)
       );
     }
 
     @Override
     public Model toModel() {
-      return new Model.Layer3Relative(k12, k23, Metrics.Length.MILLI.toSI(0.001), p,
+      return new Model.Layer3Relative(k12, k23, hStep, p,
           new Model.Layer3Relative.P(p.p1() + dp.p1(), p.p2mp1() + dp.p2mp1())
       );
+    }
+
+    public double dh() {
+      return (dp.p1() + dp.p2mp1()) * hStep;
+    }
+
+    public Model toModelAfterFat() {
+      return new Model.Layer3Relative(k12, k23, hStep,
+          new Model.Layer3Relative.P(p.p1(), p.p2mp1() + dpFat),
+          new Model.Layer3Relative.P(p.p1() + dp.p1(), p.p2mp1() + dpFat + dp.p2mp1())
+      );
+    }
+
+    public Model toModelDiffFat() {
+      return new Model.Layer3Relative(k12, k23, hStep, p,
+          new Model.Layer3Relative.P(p.p1(), p.p2mp1() + dpFat)
+      );
+    }
+
+    public double dhDiffFat() {
+      return dpFat * hStep;
     }
   }
 }
