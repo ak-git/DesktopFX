@@ -24,12 +24,6 @@ public sealed interface Model {
 
   record Layer3Relative(K k12, K k23, double hStep, P p, P pAfter) implements Model {
     record P(int p1, int p2mp1) {
-      P {
-        if (p1 < 0 || p2mp1 < 0) {
-          throw new IllegalArgumentException("p1 = %d and p2mp1 = %d must be non-negative".formatted(p1, p2mp1));
-        }
-      }
-
       P(int[] p) {
         if (p.length != 2) {
           throw new IllegalArgumentException("p[%s].length != 2".formatted(Arrays.toString(p)));
