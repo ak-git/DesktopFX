@@ -179,10 +179,10 @@ public sealed interface ParametricFunctional {
         @Override
         public Simplex.Bounds[] bounds() {
           return new Simplex.Bounds[] {
-              new Simplex.Bounds(0.0, K.of(2.0, 8.0).value(), 1.0),
-              new Simplex.Bounds(-1.0, K.of(8.0, 4.0).value(), 0.0),
-              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.0), Metrics.Length.MILLI.toSI(2.0)),
-              new Simplex.Bounds(Metrics.Length.MILLI.toSI(1.0), Metrics.Length.MILLI.toSI(2.0), Metrics.Length.MILLI.toSI(3.0))
+              new Simplex.Bounds(0.0, 1.0),
+              new Simplex.Bounds(-1.0, 0.0),
+              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(2.0)),
+              new Simplex.Bounds(Metrics.Length.MILLI.toSI(1.0), Metrics.Length.MILLI.toSI(3.0))
           };
         }
 

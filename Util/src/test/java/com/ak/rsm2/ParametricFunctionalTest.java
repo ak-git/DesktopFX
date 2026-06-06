@@ -310,7 +310,12 @@ class ParametricFunctionalTest {
               new IterativeModel.Layer3Relative(units.toSI(hStep), K.of(2.0, 8.0), K.of(8.0, 4.0),
                   new Model.Layer3Relative.P(100, 200),
                   new Model.Layer3Relative.P((hDiffMaxSmallPlus / hStep) * 2 / 9, (hDiffMaxSmallPlus / hStep) * 7 / 9), 2))
-          ).isNotNegative().isCloseTo(0.0, byLessThan(1.0e-9))
+          ).isNotNegative().isCloseTo(0.336, byLessThan(1.0e-3)),
+          () -> assertThat(regularization.applyAsDouble(
+              new IterativeModel.Layer3Relative(units.toSI(hStep), K.of(0.753), K.of(-0.627),
+                  new Model.Layer3Relative.P(153, 382 - 153),
+                  new Model.Layer3Relative.P(2, 7), 2))
+          ).isNotNegative().isCloseTo(0.026, byLessThan(1.0e-3))
       );
     }
   }
