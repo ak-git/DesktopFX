@@ -19,10 +19,7 @@ import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.NelderMead
 import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.apache.commons.rng.simple.RandomSource;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
@@ -82,20 +79,25 @@ public enum Simplex {
   JENETICS {
     @Override
     PointValuePair optimize(MultivariateFunction function, Bounds... bounds) {
-      int populationSize = 1 << (2 * bounds.length);
+      int populationSize = Math.clamp(1L << (6 + bounds.length), 1 << 7, 1 << 10);
 
-      if (Arrays.stream(bounds).noneMatch(b -> Double.isNaN(b.initialGuess))) {
-        populationSize = 1 << (6 + bounds.length);
-      }
+      var codec = Codecs.ofVector(Arrays.stream(bounds)
+          .map(b -> new DoubleRange(b.min, b.max)).toArray(DoubleRange[]::new));
 
+      double[] initialVector = Arrays.stream(bounds).mapToDouble(b -> {
+        if (Double.isNaN(b.initialGuess)) {
+          return (b.max + b.min) / 2.0;
+        }
+        else {
+          return b.initialGuess;
+        }
+      }).toArray();
       Phenotype<DoubleGene, Double> phenotype = Engine
-          .builder(function::value,
-              Codecs.ofVector(Arrays.stream(bounds).map(b -> new DoubleRange(b.min, b.max)).toArray(DoubleRange[]::new))
-          )
+          .builder(function::value, codec)
           .populationSize(populationSize)
           .optimize(Optimize.MINIMUM)
           .alterers(new Mutator<>(0.03), new MeanAlterer<>(0.6))
-          .build().stream()
+          .build().stream(List.of(codec.encode(initialVector)))
           .limit(Limits.bySteadyFitness(7))
           .limit(100)
           .collect(toBestPhenotype());
