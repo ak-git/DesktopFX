@@ -122,14 +122,30 @@ public sealed interface ParametricFunctional {
         }
       }
 
-      private static final class MaxDiffRelative extends AbstractParametricFunctional<TetrapolarMeasurement.MaxDiff> {
-        private MaxDiffRelative(ElectrodeSystem.Inexact system, TetrapolarMeasurement.MaxDiff measurement) {
+      private abstract static sealed class AbstractDiffRelative<M extends TetrapolarMeasurement> extends AbstractParametricFunctional<M> {
+        private AbstractDiffRelative(ElectrodeSystem.Inexact system, M measurement) {
           super(system, measurement);
         }
 
         @Override
-        public double dataErrorNorm() {
+        public final double dataErrorNorm() {
           return log1p(system().apparentRhoRelativeError());
+        }
+
+        @Override
+        public final ToDoubleFunction<IterativeModel> misfit() {
+          return layer -> {
+            if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer2RelativeDh layer2RelativeDH) {
+              return misfit(layer2RelativeDH.toModel(), measurement(), layer2RelativeDH.dh());
+            }
+            throw new IllegalStateException("Unexpected value: " + layer);
+          };
+        }
+      }
+
+      private static final class MaxDiffRelative extends AbstractDiffRelative<TetrapolarMeasurement.MaxDiff> {
+        private MaxDiffRelative(ElectrodeSystem.Inexact system, TetrapolarMeasurement.MaxDiff measurement) {
+          super(system, measurement);
         }
 
         @Override
@@ -142,12 +158,29 @@ public sealed interface ParametricFunctional {
         }
 
         @Override
-        public ToDoubleFunction<IterativeModel> misfit() {
-          return layer -> {
-            if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer2RelativeDh layer2RelativeDH) {
-              return misfit(layer2RelativeDH.toModel(), measurement(), layer2RelativeDH.dh());
-            }
-            throw new IllegalStateException("Unexpected value: " + layer);
+        public ToDoubleFunction<IterativeModel> regularization(Regularization regularization) {
+          return switch (regularization) {
+            case ZERO_MAX_LOG -> layer -> {
+              if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer2RelativeDh(K k, double h, double dh)) {
+                return regularization(k, h) + regularization(Math.abs(dh), 0, 2.0 * Math.abs(measurement().hDiffMax()));
+              }
+              throw new IllegalArgumentException("Unexpected value: " + layer);
+            };
+          };
+        }
+      }
+
+      private static final class ZeroDiffRelative extends AbstractDiffRelative<TetrapolarMeasurement.ZeroDiff> {
+        private ZeroDiffRelative(ElectrodeSystem.Inexact system, TetrapolarMeasurement.ZeroDiff measurement) {
+          super(system, measurement);
+        }
+
+        @Override
+        public Simplex.Bounds[] bounds() {
+          return new Simplex.Bounds[] {
+              new Simplex.Bounds(-1.0, 1.0),
+              new Simplex.Bounds(0.0, system().hMax(K.PLUS_ONE)),
+              new Simplex.Bounds(Math.min(measurement().hDiffZero(), 0.0), Math.max(0.0, measurement().hDiffZero()))
           };
         }
 
@@ -156,7 +189,7 @@ public sealed interface ParametricFunctional {
           return switch (regularization) {
             case ZERO_MAX_LOG -> layer -> {
               if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer2RelativeDh(K k, double h, double dh)) {
-                return regularization(k, h) + regularization(Math.abs(dh), 0.0, Math.abs(2.0 * measurement().hDiffMax()));
+                return regularization(k, h) + regularization(Math.abs(dh), -Math.abs(measurement().hDiffZero()), Math.abs(measurement().hDiffZero()));
               }
               throw new IllegalArgumentException("Unexpected value: " + layer);
             };
@@ -252,6 +285,8 @@ public sealed interface ParametricFunctional {
             new AbstractParametricFunctional.TwoMaxDiffRelative(s, twoMaxDiff);
         case TetrapolarMeasurement.MaxDiff maxDiffRelative ->
             new AbstractParametricFunctional.MaxDiffRelative(s, maxDiffRelative);
+        case TetrapolarMeasurement.ZeroDiff zeroDiffRelative ->
+            new AbstractParametricFunctional.ZeroDiffRelative(s, zeroDiffRelative);
         case TetrapolarMeasurement.Diff diff -> new AbstractParametricFunctional.Diff(s, diff);
         case TetrapolarMeasurement tetrapolarMeasurement ->
             throw new IllegalArgumentException("Unexpected value: " + tetrapolarMeasurement);

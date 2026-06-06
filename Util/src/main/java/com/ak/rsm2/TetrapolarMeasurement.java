@@ -22,6 +22,8 @@ public sealed interface TetrapolarMeasurement {
   sealed interface Step3 extends Builder<TetrapolarMeasurement> {
     Builder<Diff> hDiff(double hDiff, Metrics.Length units);
 
+    Builder<ZeroDiff> hDiffZero(double hDiffZero, Metrics.Length units);
+
     Step4 hDiffMax(double hDiffMax, Metrics.Length units);
   }
 
@@ -66,11 +68,15 @@ public sealed interface TetrapolarMeasurement {
     }
 
     @Override
+    public Builder<ZeroDiff> hDiffZero(double hDiffZero, Metrics.Length units) {
+      return () -> new ZeroDiff.ZeroDiffRecord(build(), units.toSI(hDiffZero));
+    }
+
+    @Override
     public Step4 hDiffMax(double hDiffMax, Metrics.Length units) {
       return new TwoMaxDiff.TwoMaxDiffBuilder(new MaxDiff.MaxDiffRecord(build(), units.toSI(hDiffMax)));
     }
   }
-
 
   abstract sealed class AbstractTetrapolarDiffMeasurement implements TetrapolarMeasurement {
     private final TetrapolarMeasurement measurement;
@@ -123,6 +129,22 @@ public sealed interface TetrapolarMeasurement {
 
       @Override
       public double hDiffMax() {
+        return getHDiff();
+      }
+    }
+  }
+
+  sealed interface ZeroDiff extends TetrapolarMeasurement {
+    double hDiffZero();
+
+    final class ZeroDiffRecord extends AbstractTetrapolarDiffMeasurement
+        implements ZeroDiff {
+      private ZeroDiffRecord(TetrapolarMeasurement measurement, double hDiffZero) {
+        super(measurement, hDiffZero);
+      }
+
+      @Override
+      public double hDiffZero() {
         return getHDiff();
       }
     }

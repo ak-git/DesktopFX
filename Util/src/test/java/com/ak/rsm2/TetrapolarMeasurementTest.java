@@ -58,6 +58,23 @@ class TetrapolarMeasurementTest {
   }
 
   @Nested
+  class ZeroDiff {
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        30.971, 31.278, -0.05, METRE
+        31.278, 30.971,  0.05, MILLI
+        """)
+    void apparent(double rBefore, double rAfter, double hDiff, Metrics.Length units) {
+      TetrapolarMeasurement.ZeroDiff measurement = TetrapolarMeasurement.builder().ohms(rBefore).thenOhms(rAfter).hDiffZero(hDiff, units).build();
+      assertAll(measurement.toString(),
+          () -> assertThat(measurement.ohms()).isEqualTo(rBefore),
+          () -> assertThat(measurement.ohmsDiff()).isEqualTo(rAfter - rBefore),
+          () -> assertThat(measurement.hDiffZero()).isEqualTo(units.toSI(hDiff))
+      );
+    }
+  }
+
+  @Nested
   class TwoMaxDiff {
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """

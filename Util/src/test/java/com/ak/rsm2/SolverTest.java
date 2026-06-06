@@ -80,7 +80,7 @@ class SolverTest {
         140.7461, 215.4297, 0.4942724, 0.9339182, 0.150
         """)
     void hDiffMax(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
-      Solver solver = Solver.<TetrapolarMeasurement.MaxDiff>of(7.0, Metrics.Length.MILLI, IterativeModel.Layer2Relative::new)
+      Solver solver = Solver.<TetrapolarMeasurement.MaxDiff>of(7.0, Metrics.Length.MILLI, IterativeModel.Layer2RelativeDh::new)
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
           .build();
@@ -90,12 +90,26 @@ class SolverTest {
 
   @Nested
   class TwoMaxDiffTest {
-    @Disabled("e8422_2023_05_25_14_04_43")
+    @Disabled
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
-        124.634 | 183.863 | 0.2270 | 0.3190 | 0.090
+        124.634 | 183.863 | 0.2270 | 0.3190 | 0.180
         """)
-    void hDiff(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
+    void hDiffFat(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
+      Solver solver = Solver.<TetrapolarMeasurement.ZeroDiff>of(6.0, Metrics.Length.MILLI, IterativeModel.Layer2RelativeDh::new)
+          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffZero(hDiffMilli, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffZero(hDiffMilli, Metrics.Length.MILLI))
+          .build();
+      LOGGER.atInfo().log(solver::toString);
+    }
+
+    @Disabled
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', textBlock = """
+        124.634 | 183.863 | -0.622 | -1.206 | -0.180
+        124.861 | 184.182 | 0.2400 | 0.5270 | 0.090
+        """)
+    void hDiffMaxLayer2(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
       Solver solver = Solver.<TetrapolarMeasurement.MaxDiff>of(6.0, Metrics.Length.MILLI, IterativeModel.Layer2RelativeDh::new)
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
@@ -108,7 +122,7 @@ class SolverTest {
     @CsvSource(delimiter = '|', textBlock = """
         124.634 | 183.863 | -0.622 | -1.206 | -0.180 | 124.861 | 184.182 | 0.2400 | 0.52700 | 0.090
         """)
-    void hDiffMax(double r1, double r2, double r1Diff, double r2Diff, double hDiffMaxBigMinus,
+    void hDiffMaxLayer3(double r1, double r2, double r1Diff, double r2Diff, double hDiffMaxBigMinus,
                   double r1F, double r2F, double r1DiffF, double r2DiffF, double hDiffMaxSmallPlus) {
       Assertions.assertThat(hDiffMaxSmallPlus).isEqualTo(-hDiffMaxBigMinus / 2.0);
       Solver solver = Solver.<TetrapolarMeasurement.TwoMaxDiff>of(6.0, Metrics.Length.MILLI, vars ->

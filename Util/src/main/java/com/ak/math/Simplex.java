@@ -79,7 +79,7 @@ public enum Simplex {
   JENETICS {
     @Override
     PointValuePair optimize(MultivariateFunction function, Bounds... bounds) {
-      int populationSize = Math.clamp(1L << (6 + bounds.length), 1 << 7, 1 << 10);
+      int populationSize = Math.clamp(1L << (2 * bounds.length), 1 << 4, 1 << 10);
 
       var codec = Codecs.ofVector(Arrays.stream(bounds)
           .map(b -> new DoubleRange(b.min, b.max)).toArray(DoubleRange[]::new));
