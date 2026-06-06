@@ -23,7 +23,7 @@ public sealed interface Model {
   }
 
   record Layer3Relative(K k12, K k23, double hStep, P p, P pAfter) implements Model {
-    record P(int p1, int p2mp1) {
+    public record P(int p1, int p2mp1) {
       P(int[] p) {
         if (p.length != 2) {
           throw new IllegalArgumentException("p[%s].length != 2".formatted(Arrays.toString(p)));
@@ -35,8 +35,16 @@ public sealed interface Model {
         this(Numbers.toInt(p1), Numbers.toInt(p2mp1));
       }
 
-      public int p2() {
+      public int pSum() {
         return p1 + p2mp1;
+      }
+
+      public P add(P p) {
+        return new P(p1 + p.p1, p2mp1 + p.p2mp1);
+      }
+
+      public P multiply(double a) {
+        return new P(a * p1, a * p2mp1);
       }
     }
 
@@ -50,7 +58,7 @@ public sealed interface Model {
     public String toString() {
       return Stream.of(
               ValuePair.Name.K12.of(k12.value(), 0.0), ValuePair.Name.K23.of(k23.value(), 0.0),
-              ValuePair.Name.H1.of(hStep * p.p1, 0.0), ValuePair.Name.H2.of(hStep * p.p2(), 0.0)
+              ValuePair.Name.H1.of(hStep * p.p1, 0.0), ValuePair.Name.H2.of(hStep * p.pSum(), 0.0)
           )
           .map(ValuePair::toString).collect(Collectors.joining("; "));
     }

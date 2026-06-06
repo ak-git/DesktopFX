@@ -69,10 +69,10 @@ public sealed interface ParametricFunctional {
         }
       }
 
-      protected final double misfit(Model model, double dh) {
+      protected final double misfit(Model model, TetrapolarMeasurement m, double dh) {
         Resistivity.Apparent resistivity = Resistivity.of(system).apparentDivRho1(model);
-        double apparent = resistivity.apparent(measurement.ohms());
-        double derivativeApparentByPhi = resistivity.apparent((measurement.ohmsDiff() / dh) / system.phiFactor());
+        double apparent = resistivity.apparent(m.ohms());
+        double derivativeApparentByPhi = resistivity.apparent((m.ohmsDiff() / dh) / system.phiFactor());
         double v = log(resistivity.value() / apparent) - log(resistivity.derivativeByPhi() / derivativeApparentByPhi);
         return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
       }
@@ -104,29 +104,22 @@ public sealed interface ParametricFunctional {
         @Override
         public ToDoubleFunction<IterativeModel> misfit() {
           return layer -> {
-            switch (layer) {
-              case IterativeModel.Layer2Relative layer2Relative -> {
-                return misfit(layer2Relative.toModel(), measurement().hDiff());
-              }
-              case IterativeModel.Layer2RelativeDh layer2RelativeDH ->
-                  throw new IllegalArgumentException("Unexpected value: " + layer2RelativeDH);
-              case IterativeModel.Layer3Relative layer3Relative ->
-                  throw new IllegalArgumentException("Unexpected value: " + layer3Relative);
+            if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer2Relative layer2Relative) {
+              return misfit(layer2Relative.toModel(), measurement(), measurement().hDiff());
             }
+            throw new IllegalStateException("Unexpected value: " + layer);
           };
         }
 
         @Override
         public ToDoubleFunction<IterativeModel> regularization(Regularization regularization) {
           return switch (regularization) {
-            case ZERO_MAX_LOG -> layer ->
-                switch (layer) {
-                  case IterativeModel.Layer2Relative(K k, double h) -> regularization(k, h);
-                  case IterativeModel.Layer2RelativeDh layer2RelativeDH ->
-                      throw new IllegalArgumentException("Unexpected value: " + layer2RelativeDH);
-                  case IterativeModel.Layer3Relative layer3Relative ->
-                      throw new IllegalArgumentException("Unexpected value: " + layer3Relative);
-                };
+            case ZERO_MAX_LOG -> layer -> {
+              if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer2Relative(K k, double h)) {
+                return regularization(k, h);
+              }
+              throw new IllegalArgumentException("Unexpected value: " + layer);
+            };
           };
         }
       }
@@ -153,30 +146,22 @@ public sealed interface ParametricFunctional {
         @Override
         public ToDoubleFunction<IterativeModel> misfit() {
           return layer -> {
-            switch (layer) {
-              case IterativeModel.Layer2Relative layer2Relative ->
-                  throw new IllegalArgumentException("Unexpected value: " + layer2Relative);
-              case IterativeModel.Layer2RelativeDh layer2RelativeDH -> {
-                return misfit(layer2RelativeDH.toModel(), layer2RelativeDH.dh());
-              }
-              case IterativeModel.Layer3Relative layer3Relative ->
-                  throw new IllegalArgumentException("Unexpected value: " + layer3Relative);
+            if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer2RelativeDh layer2RelativeDH) {
+              return misfit(layer2RelativeDH.toModel(), measurement(), layer2RelativeDH.dh());
             }
+            throw new IllegalStateException("Unexpected value: " + layer);
           };
         }
 
         @Override
         public ToDoubleFunction<IterativeModel> regularization(Regularization regularization) {
           return switch (regularization) {
-            case ZERO_MAX_LOG -> layer ->
-                switch (layer) {
-                  case IterativeModel.Layer2Relative layer2Relative ->
-                      throw new IllegalArgumentException("Unexpected value: " + layer2Relative);
-                  case IterativeModel.Layer2RelativeDh(K k, double h, double dh) ->
-                      regularization(k, h) + regularization(dh, measurement().hDiffMax());
-                  case IterativeModel.Layer3Relative layer3Relative ->
-                      throw new IllegalArgumentException("Unexpected value: " + layer3Relative);
-                };
+            case ZERO_MAX_LOG -> layer -> {
+              if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer2RelativeDh(K k, double h, double dh)) {
+                return regularization(k, h) + regularization(dh, measurement().hDiffMax());
+              }
+              throw new IllegalArgumentException("Unexpected value: " + layer);
+            };
           };
         }
       }
@@ -193,49 +178,49 @@ public sealed interface ParametricFunctional {
 
         @Override
         public Simplex.Bounds[] bounds() {
-          double hMax = system().hMax(K.PLUS_ONE);
-          double hDiffPos = Math.max(measurement().hDiffMax(), measurement().next().hDiffMax());
-          double hDiffNeg = Math.min(measurement().hDiffMax(), measurement().next().hDiffMax());
-          Simplex.Bounds pDiffBounds = new Simplex.Bounds(Math.min(hDiffNeg, 0.0), Math.max(0.0, hDiffPos));
           return new Simplex.Bounds[] {
-              new Simplex.Bounds(0.0, 1.0),
-              new Simplex.Bounds(-1.0, 0.0),
-              new Simplex.Bounds(0.0, hMax),
-              new Simplex.Bounds(0.0, hMax),
-              pDiffBounds, pDiffBounds, pDiffBounds
+              new Simplex.Bounds(0.0, K.of(2.0, 8.0).value(), 1.0),
+              new Simplex.Bounds(-1.0, K.of(8.0, 4.0).value(), 0.0),
+              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.0), Metrics.Length.MILLI.toSI(2.0)),
+              new Simplex.Bounds(Metrics.Length.MILLI.toSI(1.0), Metrics.Length.MILLI.toSI(2.0), Metrics.Length.MILLI.toSI(3.0))
           };
         }
 
         @Override
         public ToDoubleFunction<IterativeModel> misfit() {
           return layer -> {
-            switch (layer) {
-              case IterativeModel.Layer2Relative layer2Relative ->
-                  throw new IllegalArgumentException("Unexpected value: " + layer2Relative);
-              case IterativeModel.Layer2RelativeDh layer2RelativeDH ->
-                  throw new IllegalArgumentException("Unexpected value: " + layer2RelativeDH);
-              case IterativeModel.Layer3Relative layer3Relative -> {
-                return DoubleStream.of(
-                        misfit(layer3Relative.toModel(), layer3Relative.dh()),
-                        misfit(layer3Relative.toModelAfterFat(), layer3Relative.dh()),
-                        misfit(layer3Relative.toModelDiffFat(), layer3Relative.dhDiffFat()))
-                    .reduce(StrictMath::hypot).orElseThrow();
-              }
+            if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer3Relative layer3Relative) {
+              double hStep = layer3Relative.hStep();
+              Model.Layer3Relative.P bigMinus = layer3Relative.dp().multiply(-2.0);
+              Model.Layer3Relative.P smallPlus = layer3Relative.dp();
+              Model.Layer3Relative.P dFat = new Model.Layer3Relative.P(0, layer3Relative.dpFat());
+              return DoubleStream.of(
+                      misfit(layer3Relative.toModel(layer3Relative.p(), bigMinus), measurement(), bigMinus.pSum() * hStep),
+                      misfit(layer3Relative.toModel(layer3Relative.p().add(dFat), smallPlus), measurement().next(), smallPlus.pSum() * hStep),
+                      misfit(layer3Relative.toModel(layer3Relative.p(), dFat),
+                          TetrapolarMeasurement.builder().ohms(measurement().ohms()).thenOhms(measurement().next().ohms()).build(),
+                          layer3Relative.dpFat() * hStep)
+                  )
+                  .reduce(StrictMath::hypot).orElseThrow();
             }
+            throw new IllegalStateException("Unexpected value: " + layer);
           };
         }
 
         @Override
         public ToDoubleFunction<IterativeModel> regularization(Regularization regularization) {
           return switch (regularization) {
-            case ZERO_MAX_LOG -> layer ->
-                switch (layer) {
-                  case IterativeModel.Layer2Relative layer2Relative ->
-                      throw new IllegalArgumentException("Unexpected value: " + layer2Relative);
-                  case IterativeModel.Layer2RelativeDh layer2RelativeDH ->
-                      throw new IllegalArgumentException("Unexpected value: " + layer2RelativeDH);
-                  case IterativeModel.Layer3Relative _ -> 0.0;
-                };
+            case ZERO_MAX_LOG -> layer -> {
+              if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer3Relative(
+                  double hStep, K k12, K k23, Model.Layer3Relative.P p, _, _
+              )) {
+                if (p.p2mp1() > p.p1()) {
+                  return regularization(k12, p.p1() * hStep) + regularization(k23, p.pSum() * hStep);
+                }
+                return Double.POSITIVE_INFINITY;
+              }
+              throw new IllegalStateException("Unexpected value: " + layer);
+            };
           };
         }
       }

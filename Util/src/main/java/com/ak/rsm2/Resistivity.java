@@ -125,7 +125,7 @@ public sealed interface Resistivity {
             double apparentBefore = apparentDivRho1.applyAsDouble(p);
             double apparentAfter = apparentDivRho1.applyAsDouble(pAfter);
             yield new ApparentRecord(resistivity, apparentBefore, (apparentAfter - apparentBefore) /
-                ((pAfter.p2() - p.p2()) * hStep * resistivity.system().phiFactor()));
+                ((pAfter.pSum() - p.pSum()) * hStep * resistivity.system().phiFactor()));
           }
         };
       }
