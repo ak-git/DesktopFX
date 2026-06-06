@@ -77,10 +77,8 @@ public sealed interface ParametricFunctional {
         return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
       }
 
-      protected static double regularization(double dh, double dhMax) {
-        double x = Math.abs(dh);
-        double max = Math.abs(dhMax);
-        double s = log(2.0 * max - x) - log(x);
+      protected static double regularization(double x, double min, double max) {
+        double s = log(max - x) - log(x - min);
         return Double.isFinite(s) ? s * s : Double.POSITIVE_INFINITY;
       }
 
@@ -158,7 +156,7 @@ public sealed interface ParametricFunctional {
           return switch (regularization) {
             case ZERO_MAX_LOG -> layer -> {
               if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer2RelativeDh(K k, double h, double dh)) {
-                return regularization(k, h) + regularization(dh, measurement().hDiffMax());
+                return regularization(k, h) + regularization(Math.abs(dh), 0.0, Math.abs(2.0 * measurement().hDiffMax()));
               }
               throw new IllegalArgumentException("Unexpected value: " + layer);
             };
