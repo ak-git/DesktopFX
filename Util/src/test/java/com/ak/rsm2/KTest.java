@@ -26,8 +26,12 @@ class KTest {
 
   @ParameterizedTest
   @MethodSource("k")
-  void value(double rho1, double rho2, double k) {
-    assertThat(K.of(rho1, rho2).value()).isCloseTo(k, within(0.001));
+  void value(double rho1, double rho2, double expected) {
+    K k = K.of(rho1, rho2);
+    Assertions.assertAll(k.toString(),
+        () -> assertThat(k.value()).isCloseTo(expected, within(0.001)),
+        () -> assertThat(k).hasToString("%.3f".formatted(expected))
+    );
   }
 
   @Test

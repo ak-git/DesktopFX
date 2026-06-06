@@ -58,7 +58,8 @@ public sealed interface Model {
     public String toString() {
       return Stream.of(
               ValuePair.Name.K12.of(k12.value(), 0.0), ValuePair.Name.K23.of(k23.value(), 0.0),
-              ValuePair.Name.H1.of(hStep * p.p1, 0.0), ValuePair.Name.H2.of(hStep * p.pSum(), 0.0)
+              ValuePair.Name.H1.of(hStep * p.p1, 0.0), ValuePair.Name.H2.of(hStep * p.pSum(), 0.0),
+              ValuePair.Name.DH1.of(hStep * (pAfter.p1 - p.p1), 0.0), ValuePair.Name.DH2.of(hStep * (pAfter.pSum() - p.pSum()), 0.0)
           )
           .map(ValuePair::toString).collect(Collectors.joining("; "));
     }

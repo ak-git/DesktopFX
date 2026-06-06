@@ -257,7 +257,7 @@ class ParametricFunctionalTest {
           ))
           .build();
       Assertions.assertAll(Arrays.toString(parametricFunctional.bounds()),
-          () -> assertThat(parametricFunctional.bounds()).hasSize(2),
+          () -> assertThat(parametricFunctional.bounds()).hasSize(4),
           () -> assertThat(parametricFunctional.bounds()[0]).isEqualTo(new Simplex.Bounds(0.0, Double.NaN, 1.0)),
           () -> assertThat(parametricFunctional.bounds()[1]).isEqualTo(new Simplex.Bounds(-1.0, Double.NaN, 0.0))
       );
@@ -265,15 +265,17 @@ class ParametricFunctionalTest {
 
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
-         124.634 | 0.2480 | 124.861 | 0.2400 | 0.090
+         124.634 | -0.622 | -0.180 | 124.861 | 0.2400 | 0.090
         """)
-    void misfit(double r1, double r1Diff, double r1F, double r1DiffF, double hDiffMax) {
+    void misfit(double r1, double r1Diff, double hDiffMaxBigMinus,
+                double r1F, double r1DiffF, double hDiffMaxSmallPlus) {
+      assertThat(hDiffMaxSmallPlus).isEqualTo(-hDiffMaxBigMinus / 2.0);
       Metrics.Length units = Metrics.Length.MILLI;
       double hStep = 0.01;
       ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
           .system(s -> s.tetrapolar(6.0, 18.0).absError(0.1))
-          .measurements(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMax, units)
-              .add(m2 -> m2.ohms(r1F).thenOhms(r1F + r1DiffF).hDiffMax(hDiffMax, units)))
+          .measurements(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMaxBigMinus, units)
+              .add(m2 -> m2.ohms(r1F).thenOhms(r1F + r1DiffF).hDiffMax(hDiffMaxSmallPlus, units)))
           .build();
 
       Assertions.assertAll(parametricFunctional.toString(),
@@ -281,7 +283,7 @@ class ParametricFunctionalTest {
               .applyAsDouble(
                   new IterativeModel.Layer3Relative(units.toSI(hStep), K.of(2.0, 8.0), K.of(8.0, 4.0),
                       new Model.Layer3Relative.P(100, 200),
-                      new Model.Layer3Relative.P((hDiffMax / hStep) * 2 / 9, (hDiffMax / hStep) * 7 / 9), 2)
+                      new Model.Layer3Relative.P((hDiffMaxSmallPlus / hStep) * 2 / 9, (hDiffMaxSmallPlus / hStep) * 7 / 9), 2)
               )
           ).isNotNegative().isCloseTo(0.0, byLessThan(0.01))
       );
@@ -289,15 +291,17 @@ class ParametricFunctionalTest {
 
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
-        124.634 | 0.2480 | 124.861 | 0.2400 | 0.090
+        124.634 | -0.622 | -0.180 | 124.861 | 0.2400 | 0.090
         """)
-    void regularization(double r1, double r1Diff, double r1F, double r1DiffF, double hDiffMax) {
+    void regularization(double r1, double r1Diff, double hDiffMaxBigMinus,
+                        double r1F, double r1DiffF, double hDiffMaxSmallPlus) {
+      assertThat(hDiffMaxSmallPlus).isEqualTo(-hDiffMaxBigMinus / 2.0);
       Metrics.Length units = Metrics.Length.MILLI;
       double hStep = 0.01;
       ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
           .system(s -> s.tetrapolar(6.0, 18.0).absError(0.1))
-          .measurements(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMax, units)
-              .add(m2 -> m2.ohms(r1F).thenOhms(r1F + r1DiffF).hDiffMax(hDiffMax, units)))
+          .measurements(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMaxBigMinus, units)
+              .add(m2 -> m2.ohms(r1F).thenOhms(r1F + r1DiffF).hDiffMax(hDiffMaxSmallPlus, units)))
           .build();
 
       ToDoubleFunction<IterativeModel> regularization = parametricFunctional.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG);
@@ -305,7 +309,7 @@ class ParametricFunctionalTest {
           () -> assertThat(regularization.applyAsDouble(
               new IterativeModel.Layer3Relative(units.toSI(hStep), K.of(2.0, 8.0), K.of(8.0, 4.0),
                   new Model.Layer3Relative.P(100, 200),
-                  new Model.Layer3Relative.P((hDiffMax / hStep) * 2 / 9, (hDiffMax / hStep) * 7 / 9), 2))
+                  new Model.Layer3Relative.P((hDiffMaxSmallPlus / hStep) * 2 / 9, (hDiffMaxSmallPlus / hStep) * 7 / 9), 2))
           ).isNotNegative().isCloseTo(0.0, byLessThan(1.0e-9))
       );
     }

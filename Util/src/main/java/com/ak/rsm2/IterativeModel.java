@@ -64,5 +64,10 @@ public sealed interface IterativeModel {
     public Model toModel(Model.Layer3Relative.P p, Model.Layer3Relative.P dp) {
       return new Model.Layer3Relative(k12, k23, hStep, p, p.add(dp));
     }
+
+    @Override
+    public String toString() {
+      return toModel(p, dp).toString();
+    }
   }
 }
