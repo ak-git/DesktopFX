@@ -222,7 +222,7 @@ public sealed interface ParametricFunctional {
           return layer -> {
             if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer3Relative layer3Relative) {
               double hStep = layer3Relative.hStep();
-              Model.Layer3Relative.P bigMinus = layer3Relative.dp().multiply(-2.0);
+              Model.Layer3Relative.P bigMinus = layer3Relative.dp().multiply(measurement().hDiffMax() / measurement().next().hDiffMax());
               Model.Layer3Relative.P smallPlus = layer3Relative.dp();
               Model.Layer3Relative.P dFat = new Model.Layer3Relative.P(0, layer3Relative.dpFat());
               return DoubleStream.of(
