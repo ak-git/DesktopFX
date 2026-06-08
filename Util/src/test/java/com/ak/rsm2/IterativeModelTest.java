@@ -2,6 +2,7 @@ package com.ak.rsm2;
 
 import com.ak.math.ValuePair;
 import com.ak.util.Metrics;
+import com.ak.util.Numbers;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -98,8 +99,9 @@ class IterativeModelTest {
       double h2mh1 = Metrics.Length.MILLI.toSI(h2mh1mm);
       double dhFat = Metrics.Length.MILLI.toSI(dhFatmm);
 
-      IterativeModel.Layer3Relative layer3Relative = new IterativeModel.Layer3Relative(hStep,
-          new double[] {k12.value(), k23.value(), h1, h2mh1, dhFat});
+      IterativeModel.Layer3Relative layer3Relative = IterativeModel.Layer3Relative.builder(hStep,
+              new Model.Layer3Relative.P(2, 7), Numbers.toInt(dhFat / hStep))
+          .variables(new double[] {k12.value(), k23.value(), h1, h2mh1}).build();
       assertAll(layer3Relative.toString(),
           () -> Assertions.assertThat(layer3Relative.k12().value()).isBetween(-1.0, 1.0),
           () -> Assertions.assertThat(layer3Relative.k23().value()).isBetween(-1.0, 1.0),

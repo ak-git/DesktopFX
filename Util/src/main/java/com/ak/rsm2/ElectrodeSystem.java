@@ -86,7 +86,7 @@ public sealed interface ElectrodeSystem {
 
       private final Metrics.Length units;
 
-      public TetrapolarBuilder(Metrics.Length units) {
+      private TetrapolarBuilder(Metrics.Length units) {
         this.units = units;
       }
 
@@ -193,7 +193,7 @@ public sealed interface ElectrodeSystem {
       private final Metrics.Length units;
       private final Tetrapolar electrodeSystem;
 
-      public InexactBuilder(Metrics.Length units, Tetrapolar electrodeSystem) {
+      private InexactBuilder(Metrics.Length units, Tetrapolar electrodeSystem) {
         this.units = units;
         this.electrodeSystem = electrodeSystem;
       }

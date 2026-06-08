@@ -123,10 +123,11 @@ class SolverTest {
         124.634 | 183.863 | -0.622 | -1.206 | -0.180 | 124.861 | 184.182 | 0.2400 | 0.52700 | 0.090
         """)
     void hDiffMaxLayer3(double r1, double r2, double r1Diff, double r2Diff, double hDiffMaxBigMinus,
-                  double r1F, double r2F, double r1DiffF, double r2DiffF, double hDiffMaxSmallPlus) {
+                        double r1F, double r2F, double r1DiffF, double r2DiffF, double hDiffMaxSmallPlus) {
       Assertions.assertThat(hDiffMaxSmallPlus).isEqualTo(-hDiffMaxBigMinus / 2.0);
       Solver solver = Solver.<TetrapolarMeasurement.TwoMaxDiff>of(6.0, Metrics.Length.MILLI, vars ->
-              new IterativeModel.Layer3Relative(Metrics.Length.MILLI.toSI(0.01), vars))
+              IterativeModel.Layer3Relative.builder(Metrics.Length.MILLI.toSI(0.01), new Model.Layer3Relative.P(2, 7), 2)
+                  .variables(vars).build())
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMaxBigMinus, Metrics.Length.MILLI)
               .add(m2 -> m2.ohms(r1F).thenOhms(r1F + r1DiffF).hDiffMax(hDiffMaxSmallPlus, Metrics.Length.MILLI))
           )
