@@ -122,7 +122,7 @@ class IterativeModelTest {
           () -> Assertions.assertThat(layer3Relative).hasToString(
               Stream.of(ValuePair.Name.K12.of(k12.value(), 0.0),
                       ValuePair.Name.K23.of(k23.value(), 0.0),
-                      ValuePair.Name.H1.of(h1, 0.0),
+                      ValuePair.Name.H1.of(Math.min(h1, h2mh1), 0.0),
                       ValuePair.Name.H2.of(h1 + h2mh1, 0.0),
                       ValuePair.Name.DH1.of(Metrics.Length.MILLI.toSI(0.02), 0.0),
                       ValuePair.Name.DH2.of(Metrics.Length.MILLI.toSI(0.09), 0.0)

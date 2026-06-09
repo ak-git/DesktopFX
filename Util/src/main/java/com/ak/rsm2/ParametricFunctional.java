@@ -243,11 +243,8 @@ public sealed interface ParametricFunctional {
           return switch (regularization) {
             case ZERO_MAX_LOG -> layer -> {
               if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer3Relative layer3Relative) {
-                if (layer3Relative.p().p2mp1() > layer3Relative.p().p1()) {
-                  return regularization(layer3Relative.k12(), layer3Relative.p().p1() * layer3Relative.hStep()) +
-                      regularization(layer3Relative.k23(), layer3Relative.p().pSum() * layer3Relative.hStep());
-                }
-                return Double.POSITIVE_INFINITY;
+                return regularization(layer3Relative.k12(), layer3Relative.p().p1() * layer3Relative.hStep()) +
+                    regularization(layer3Relative.k23(), layer3Relative.p().pSum() * layer3Relative.hStep());
               }
               throw new IllegalStateException("Unexpected value: " + layer);
             };
