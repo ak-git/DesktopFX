@@ -108,10 +108,10 @@ public enum Simplex {
   };
 
   public record Bounds(double min, double initialGuess, double max) {
-    public Bounds(double min, double initialGuess, double max) {
-      this.min = Math.min(min, max);
-      this.max = Math.max(min, max);
-      this.initialGuess = Math.clamp(initialGuess, this.min, this.max);
+    public Bounds {
+      min = Math.min(min, max);
+      max = Math.max(min, max);
+      initialGuess = Math.clamp(initialGuess, min, max);
     }
 
     public Bounds(double min, double max) {
