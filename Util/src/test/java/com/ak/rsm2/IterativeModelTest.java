@@ -2,7 +2,6 @@ package com.ak.rsm2;
 
 import com.ak.math.ValuePair;
 import com.ak.util.Metrics;
-import com.ak.util.Numbers;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -88,19 +87,18 @@ class IterativeModelTest {
   class Layer3RelativeDhTest {
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
-         2.0 | 8.0 | 4.0 | 1.0 | 2.0 | 0.180
-         2.0 | 1.0 | 4.0 | 2.0 | 1.0 | -0.09
+         2.0 | 8.0 | 4.0 | 1.0 | 2.0
+         2.0 | 1.0 | 4.0 | 2.0 | 1.0
         """)
-    void get(double rho1, double rho2, double rho3, double h1mm, double h2mh1mm, double dhFatmm) {
+    void get(double rho1, double rho2, double rho3, double h1mm, double h2mh1mm) {
       K k12 = K.of(rho1, rho2);
       K k23 = K.of(rho2, rho3);
       double hStep = Metrics.Length.MILLI.toSI(0.01);
       double h1 = Metrics.Length.MILLI.toSI(h1mm);
       double h2mh1 = Metrics.Length.MILLI.toSI(h2mh1mm);
-      double dhFat = Metrics.Length.MILLI.toSI(dhFatmm);
 
       IterativeModel.Layer3Relative layer3Relative = IterativeModel.Layer3Relative.builder(hStep,
-              new Model.Layer3Relative.P(2, 7), Numbers.toInt(dhFat / hStep))
+              new Model.Layer3Relative.P(2, 7))
           .variables(new double[] {k12.value(), k23.value(), h1, h2mh1}).build();
       assertAll(layer3Relative.toString(),
           () -> Assertions.assertThat(layer3Relative.k12().value()).isBetween(-1.0, 1.0),

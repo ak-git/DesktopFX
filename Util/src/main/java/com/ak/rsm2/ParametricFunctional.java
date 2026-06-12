@@ -212,8 +212,8 @@ public sealed interface ParametricFunctional {
           return new Simplex.Bounds[] {
               new Simplex.Bounds(0.0, 1.0),
               new Simplex.Bounds(-1.0, 0.0),
-              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(2.0)),
-              new Simplex.Bounds(Metrics.Length.MILLI.toSI(1.0), Metrics.Length.MILLI.toSI(3.0))
+              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.5)),
+              new Simplex.Bounds(Metrics.Length.MILLI.toSI(1.5), Metrics.Length.MILLI.toSI(2.5))
           };
         }
 
@@ -222,15 +222,11 @@ public sealed interface ParametricFunctional {
           return layer -> {
             if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer3Relative layer3Relative) {
               double hStep = layer3Relative.hStep();
-              Model.Layer3Relative.P bigMinus = layer3Relative.dp().multiply(measurement().hDiffMax() / measurement().next().hDiffMax());
-              Model.Layer3Relative.P smallPlus = layer3Relative.dp();
-              Model.Layer3Relative.P dFat = new Model.Layer3Relative.P(0, layer3Relative.dpFat());
+              Model.Layer3Relative.P dPlus = layer3Relative.dp();
+              Model.Layer3Relative.P dFat = new Model.Layer3Relative.P(0, measurement().hDiffMax() / hStep);
               return DoubleStream.of(
-                      misfit(layer3Relative.toModel(layer3Relative.p(), bigMinus), measurement(), bigMinus.pSum() * hStep),
-                      misfit(layer3Relative.toModel(layer3Relative.p().add(dFat), smallPlus), measurement().next(), smallPlus.pSum() * hStep),
-                      misfit(layer3Relative.toModel(layer3Relative.p(), dFat),
-                          TetrapolarMeasurement.builder().ohms(measurement().ohms()).thenOhms(measurement().next().ohms()).build(),
-                          layer3Relative.dpFat() * hStep)
+                      misfit(layer3Relative.toModel(layer3Relative.p(), dFat), measurement(), dFat.pSum() * hStep),
+                      misfit(layer3Relative.toModel(layer3Relative.p().add(dFat), dPlus), measurement().next(), dPlus.pSum() * hStep)
                   )
                   .reduce(StrictMath::hypot).orElseThrow();
             }

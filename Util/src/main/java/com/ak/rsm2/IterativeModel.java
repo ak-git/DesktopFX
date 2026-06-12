@@ -64,12 +64,10 @@ public sealed interface IterativeModel {
 
     Model.Layer3Relative.P dp();
 
-    int dpFat();
-
     Model toModel(Model.Layer3Relative.P p, Model.Layer3Relative.P dp);
 
-    static Step1 builder(double hStep, Model.Layer3Relative.P dp, int dpFat) {
-      return new Layer3RelativeBuilder(hStep, dp, dpFat);
+    static Step1 builder(double hStep, Model.Layer3Relative.P dp) {
+      return new Layer3RelativeBuilder(hStep, dp);
     }
 
     sealed interface Step1 extends Builder<Layer3Relative> {
@@ -80,14 +78,14 @@ public sealed interface IterativeModel {
 
     final class Layer3RelativeBuilder implements Step1 {
       private record Layer3RelativeRecord(double hStep, K k12, K k23, Model.Layer3Relative.P p,
-                                          Model.Layer3Relative.P dp, int dpFat) implements Layer3Relative {
-        Layer3RelativeRecord(double hStep, double[] variables, Model.Layer3Relative.P dp, int dpFat) {
+                                          Model.Layer3Relative.P dp) implements Layer3Relative {
+        Layer3RelativeRecord(double hStep, double[] variables, Model.Layer3Relative.P dp) {
           this(hStep, K.of(variables[0]), K.of(variables[1]),
               new Model.Layer3Relative.P(
                   Math.min(variables[2] / hStep, variables[3] / hStep),
                   Math.max(variables[2] / hStep, variables[3] / hStep)
               ),
-              dp, dpFat
+              dp
           );
         }
 
@@ -104,16 +102,14 @@ public sealed interface IterativeModel {
 
       private final double hStep;
       private final Model.Layer3Relative.P dp;
-      private final int dpFat;
       private double @Nullable [] variables;
       private @Nullable K k12;
       private @Nullable K k23;
       private Model.Layer3Relative.@Nullable P p;
 
-      private Layer3RelativeBuilder(double hStep, Model.Layer3Relative.P dp, int dpFat) {
+      private Layer3RelativeBuilder(double hStep, Model.Layer3Relative.P dp) {
         this.hStep = hStep;
         this.dp = dp;
-        this.dpFat = dpFat;
       }
 
       @Override
@@ -134,10 +130,10 @@ public sealed interface IterativeModel {
       public Layer3Relative build() {
         if (variables == null) {
           return new Layer3RelativeRecord(hStep, Objects.requireNonNull(k12), Objects.requireNonNull(k23), Objects.requireNonNull(p),
-              dp, dpFat);
+              dp);
         }
         else {
-          return new Layer3RelativeRecord(hStep, variables, dp, dpFat);
+          return new Layer3RelativeRecord(hStep, variables, dp);
         }
       }
     }
