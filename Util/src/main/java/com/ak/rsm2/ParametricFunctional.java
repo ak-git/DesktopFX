@@ -189,7 +189,7 @@ public sealed interface ParametricFunctional {
           return switch (regularization) {
             case ZERO_MAX_LOG -> layer -> {
               if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer2RelativeDh(K k, double h, double dh)) {
-                return regularization(k, h) + regularization(Math.abs(dh), -Math.abs(measurement().hDiffZero()), Math.abs(measurement().hDiffZero()));
+                return regularization(k, h) + regularization(dh, -Math.abs(measurement().hDiffZero()), Math.abs(measurement().hDiffZero()));
               }
               throw new IllegalArgumentException("Unexpected value: " + layer);
             };
