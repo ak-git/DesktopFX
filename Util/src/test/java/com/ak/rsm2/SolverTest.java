@@ -89,7 +89,7 @@ class SolverTest {
 
   @Nested
   class TwoMaxDiffTest {
-    @Disabled
+    @Disabled("Оценка толщины жира по двухслойной модели")
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
         124.634 | 183.863 | 0.2270 | 0.3190 | 0.180
@@ -102,7 +102,7 @@ class SolverTest {
       LOGGER.atInfo().log(solver::toString);
     }
 
-    @Disabled
+    @Disabled("Оценка перемещения индентора по двухслойной модели")
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
         124.861 | 184.182 | 0.2400 | 0.5270 | 0.090
