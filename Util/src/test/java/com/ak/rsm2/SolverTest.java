@@ -118,18 +118,18 @@ class SolverTest {
     @Disabled("2025-04-23 E-9712 ak 6 мм")
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
-        124.634 | 183.863 | 0.2270 | 0.3190 | 0.020 | 124.861 | 184.182 | 0.2400 | 0.52700 | 0.090
+        124.634 | 183.863 | 0.020 | 124.861 | 184.182 | 0.2400 | 0.52700 | 0.090
         """)
-    void hDiffMaxLayer3(double r1, double r2, double r1Diff, double r2Diff, double hDiffMaxFat,
-                        double r1F, double r2F, double r1DiffF, double r2DiffF, double hDiffMax) {
+    void hDiffMaxLayer3(double r1, double r2, double hDiffMaxFat,
+                        double r1F, double r2F, double r1Diff, double r2Diff, double hDiffMax) {
       Solver solver = Solver.<TetrapolarMeasurement.TwoMaxDiff>of(6.0, Metrics.Length.MILLI, vars ->
               IterativeModel.Layer3Relative.builder(Metrics.Length.MILLI.toSI(0.01), new Model.Layer3Relative.P(2, 7))
                   .variables(vars).build())
-          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMaxFat, Metrics.Length.MILLI)
-              .add(m2 -> m2.ohms(r1F).thenOhms(r1F + r1DiffF).hDiffMax(hDiffMax, Metrics.Length.MILLI))
+          .system1x3(m -> m.ohms(r1).thenOhms(r1F).hDiffMax(hDiffMaxFat, Metrics.Length.MILLI)
+              .add(m2 -> m2.ohms(r1F).thenOhms(r1F + r1Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
           )
-          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMaxFat, Metrics.Length.MILLI)
-              .add(m2 -> m2.ohms(r2F).thenOhms(r2F + r2DiffF).hDiffMax(hDiffMax, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2F).hDiffMax(hDiffMaxFat, Metrics.Length.MILLI)
+              .add(m2 -> m2.ohms(r2F).thenOhms(r2F + r2Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
           )
           .build();
       LOGGER.atInfo().log(solver::toString);
