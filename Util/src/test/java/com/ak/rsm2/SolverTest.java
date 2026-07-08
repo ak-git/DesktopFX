@@ -139,7 +139,7 @@ class SolverTest {
 
     @Disabled("""
         2025-04-23 E-9712 ak 6 мм
-        -data Error Norm Base=0,0395 alpha = 0 data Error Norm Shift=0,0074 total data Error Norm=0,0469-\s
+        -data Error Norm Base=0,0395 alpha = 0 data Error Norm Shift=0,0074 total data Error Norm=0,0469-
         -alpha=10,000 misfit=0,4815- k₁₂ = 0,733; k₂₃ = -0,581; h₁ = 1,500 mm; h₂ = 3,740 mm; Δh₁ = 0,020 mm; Δh₂ = 0,090 mm
         -alpha=1,0000 misfit=0,2168- k₁₂ = 0,654; k₂₃ = -0,440; h₁ = 1,500 mm; h₂ = 3,520 mm; Δh₁ = 0,020 mm; Δh₂ = 0,090 mm
         -alpha=0,1000 misfit=0,0338- k₁₂ = 0,617; k₂₃ = -0,384; h₁ = 1,500 mm; h₂ = 3,360 mm; Δh₁ = 0,020 mm; Δh₂ = 0,090 mm
