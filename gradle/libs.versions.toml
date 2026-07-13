@@ -1,7 +1,7 @@
 [versions]
 sonarqube = '7.3.1.8318'
 jacocolog = '4.0.2'
-spotbugs = '6.5.8'
+spotbugs = '6.5.9'
 ben-manes-versions = '0.54.0'
 
 jspecify = '1.0.0'
