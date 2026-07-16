@@ -79,13 +79,16 @@ public sealed interface IterativeModel {
     final class Layer3RelativeBuilder implements Step1 {
       private record Layer3RelativeRecord(double hStep, K k12, K k23, Model.Layer3Relative.P p,
                                           Model.Layer3Relative.P dp) implements Layer3Relative {
-        Layer3RelativeRecord(double hStep, double[] variables, Model.Layer3Relative.P dp) {
+        Layer3RelativeRecord(double hStep, double[] variables) {
           this(hStep, K.of(variables[0]), K.of(variables[1]),
               new Model.Layer3Relative.P(
                   Math.min(variables[2] / hStep, variables[3] / hStep),
                   Math.max(variables[2] / hStep, variables[3] / hStep)
               ),
-              dp
+              new Model.Layer3Relative.P(
+                  Math.min(variables[4] / hStep, variables[5] / hStep),
+                  Math.max(variables[4] / hStep, variables[5] / hStep)
+              )
           );
         }
 
@@ -133,7 +136,7 @@ public sealed interface IterativeModel {
               dp);
         }
         else {
-          return new Layer3RelativeRecord(hStep, variables, dp);
+          return new Layer3RelativeRecord(hStep, variables);
         }
       }
     }

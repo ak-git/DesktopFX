@@ -213,7 +213,9 @@ public sealed interface ParametricFunctional {
               new Simplex.Bounds(0.0, 1.0),
               new Simplex.Bounds(-1.0, 0.0),
               new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.5)),
-              new Simplex.Bounds(Metrics.Length.MILLI.toSI(1.5), Metrics.Length.MILLI.toSI(2.5))
+              new Simplex.Bounds(Metrics.Length.MILLI.toSI(1.5), Metrics.Length.MILLI.toSI(2.5)),
+              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.01), Metrics.Length.MILLI.toSI(0.021)),
+              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.07), Metrics.Length.MILLI.toSI(0.071))
           };
         }
 
