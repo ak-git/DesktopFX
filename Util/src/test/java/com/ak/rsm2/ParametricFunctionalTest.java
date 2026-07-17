@@ -257,9 +257,13 @@ class ParametricFunctionalTest {
           ))
           .build();
       Assertions.assertAll(Arrays.toString(parametricFunctional.bounds()),
-          () -> assertThat(parametricFunctional.bounds()).hasSize(4),
+          () -> assertThat(parametricFunctional.bounds()).hasSize(6),
           () -> assertThat(parametricFunctional.bounds()[0]).isEqualTo(new Simplex.Bounds(0.0, Double.NaN, 1.0)),
-          () -> assertThat(parametricFunctional.bounds()[1]).isEqualTo(new Simplex.Bounds(-1.0, Double.NaN, 0.0))
+          () -> assertThat(parametricFunctional.bounds()[1]).isEqualTo(new Simplex.Bounds(-1.0, Double.NaN, 0.0)),
+          () -> assertThat(parametricFunctional.bounds()[2]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.5))),
+          () -> assertThat(parametricFunctional.bounds()[3]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(1.5), Metrics.Length.MILLI.toSI(2.5))),
+          () -> assertThat(parametricFunctional.bounds()[4]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.01), Metrics.Length.MILLI.toSI(0.02))),
+          () -> assertThat(parametricFunctional.bounds()[5]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.01), Metrics.Length.MILLI.toSI(0.07)))
       );
     }
 

@@ -87,19 +87,21 @@ class IterativeModelTest {
   class Layer3RelativeDhTest {
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
-         2.0 | 8.0 | 4.0 | 1.0 | 2.0
-         2.0 | 1.0 | 4.0 | 2.0 | 1.0
+         2.0 | 8.0 | 4.0 | 1.0 | 2.0 | 0.02 | 0.07
+         2.0 | 1.0 | 4.0 | 2.0 | 1.0 | 0.02 | 0.07
         """)
-    void get(double rho1, double rho2, double rho3, double h1mm, double h2mh1mm) {
+    void get(double rho1, double rho2, double rho3, double h1mm, double h2mh1mm, double dh1mm, double dh2mh1mm) {
       K k12 = K.of(rho1, rho2);
       K k23 = K.of(rho2, rho3);
       double hStep = Metrics.Length.MILLI.toSI(0.01);
       double h1 = Metrics.Length.MILLI.toSI(h1mm);
       double h2mh1 = Metrics.Length.MILLI.toSI(h2mh1mm);
+      double dh1 = Metrics.Length.MILLI.toSI(dh1mm);
+      double dh2mh1 = Metrics.Length.MILLI.toSI(dh2mh1mm);
 
       IterativeModel.Layer3Relative layer3Relative = IterativeModel.Layer3Relative.builder(hStep,
               new Model.Layer3Relative.P(2, 7))
-          .variables(new double[] {k12.value(), k23.value(), h1, h2mh1}).build();
+          .variables(new double[] {k12.value(), k23.value(), h1, h2mh1, dh1, dh2mh1}).build();
       assertAll(layer3Relative.toString(),
           () -> Assertions.assertThat(layer3Relative.k12().value()).isBetween(-1.0, 1.0),
           () -> Assertions.assertThat(layer3Relative.k23().value()).isBetween(-1.0, 1.0),
