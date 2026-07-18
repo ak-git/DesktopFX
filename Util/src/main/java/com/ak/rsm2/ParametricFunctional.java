@@ -70,10 +70,10 @@ public sealed interface ParametricFunctional {
       }
 
       protected final double misfit(Model model, TetrapolarMeasurement m, double dh) {
-        Resistivity.Apparent resistivity = Resistivity.of(system).apparentDivRho1(model);
+        Resistivity.Apparent resistivity = Resistivity.of(system).apparent(model);
         double apparent = resistivity.apparent(m.ohms());
         double derivativeApparentByPhi = resistivity.apparent((m.ohmsDiff() / dh) / system.phiFactor());
-        double v = log(resistivity.value() / apparent) - log(resistivity.derivativeByPhi() / derivativeApparentByPhi);
+        double v = log(resistivity.value() / apparent) - log(resistivity.derivative() / derivativeApparentByPhi);
         return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
       }
 

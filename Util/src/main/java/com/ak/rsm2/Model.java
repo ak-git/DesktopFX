@@ -8,6 +8,23 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public sealed interface Model {
+  record Layer2Absolute(double rho1, double rho2, double h) implements Model {
+    public Layer2Absolute {
+      if (rho1 < 0 || rho2 < 0 || h < 0) {
+        throw new IllegalArgumentException("all variables [%f; %f; %f] must be non-negative".formatted(rho1, rho2, h));
+      }
+    }
+
+    @Override
+    public String toString() {
+      return Stream.of(
+              ValuePair.Name.RHO_1.of(rho1, 0.0),
+              ValuePair.Name.RHO_2.of(rho2, 0.0),
+              ValuePair.Name.H.of(h, 0.0))
+          .map(ValuePair::toString).collect(Collectors.joining("; "));
+    }
+  }
+
   record Layer2Relative(K k, double h) implements Model {
     public Layer2Relative {
       if (h < 0) {

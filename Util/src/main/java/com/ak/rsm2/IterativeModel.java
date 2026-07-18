@@ -9,6 +9,27 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public sealed interface IterativeModel {
+  record Layer2Absolute(double rho1, double rho2, double h) implements IterativeModel {
+    public Layer2Absolute {
+      if (rho1 < 0 || rho2 < 0 || h < 0) {
+        throw new IllegalArgumentException("all variables [%f; %f; %f] must be non-negative".formatted(rho1, rho2, h));
+      }
+    }
+
+    public Layer2Absolute(double[] variables) {
+      this(variables[0], variables[1], variables[2]);
+    }
+
+    public Model toModel() {
+      return new Model.Layer2Absolute(rho1, rho2, h);
+    }
+
+    @Override
+    public String toString() {
+      return toModel().toString();
+    }
+  }
+
   record Layer2Relative(K k, double h) implements IterativeModel {
     public Layer2Relative {
       if (h < 0) {

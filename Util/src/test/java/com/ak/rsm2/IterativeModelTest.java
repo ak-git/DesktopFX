@@ -16,6 +16,41 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 class IterativeModelTest {
   @Nested
+  class Layer2AbsoluteTest {
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', textBlock = """
+         2.0 | 10.0 | 0.0
+        10.0 |  5.0 | 1.0
+         0.0 |  5.0 | 1.0
+        10.0 |  0.0 | 1.0
+        """)
+    void get(double rho1, double rho2, double hmm) {
+      double h = Metrics.Length.MILLI.toSI(hmm);
+      IterativeModel.Layer2Absolute layer2Absolute = new IterativeModel.Layer2Absolute(new double[] {rho1, rho2, h});
+      assertAll(layer2Absolute.toString(),
+          () -> Assertions.assertThat(layer2Absolute.rho1()).isNotNegative(),
+          () -> Assertions.assertThat(layer2Absolute.rho2()).isNotNegative(),
+          () -> Assertions.assertThat(layer2Absolute.h()).isNotNegative(),
+          () -> Assertions.assertThat(layer2Absolute.toModel()).isEqualTo(new Model.Layer2Absolute(rho1, rho2, h)),
+          () -> Assertions.assertThat(layer2Absolute).hasToString(
+              Stream.of(
+                      ValuePair.Name.RHO_1.of(rho1, 0.0),
+                      ValuePair.Name.RHO_2.of(rho2, 0.0),
+                      ValuePair.Name.H.of(h, 0.0))
+                  .map(ValuePair::toString).collect(Collectors.joining("; "))
+          )
+      );
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {-1.0})
+    void negative(double x) {
+      assertThatIllegalArgumentException().isThrownBy(() -> new IterativeModel.Layer2Absolute(x, x, x))
+          .withMessageEndingWith("must be non-negative");
+    }
+  }
+
+  @Nested
   class Layer2RelativeTest {
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
