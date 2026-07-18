@@ -13,7 +13,16 @@ class SolverTest {
 
   @Nested
   class WaterTest {
-    @Disabled("26.734, 46.074, 26.719, 46.028, 0.450")
+    @Disabled("""
+        -data Error Norm Base=0,0238 alpha = 0 data Error Norm Shift=0,0006 total data Error Norm=0,0244-
+        -alpha=0,0013- k₁₂ = 0,945; h = 04,521 mm
+        -alpha=0,0013- k₁₂ = 0,934; h = 09,498 mm
+        -alpha=0,0013- k₁₂ = 0,881; h = 13,875 mm
+        -alpha=0,0008- k₁₂ = 0,907; h = 19,134 mm
+        -alpha=0,0023- k₁₂ = 0,551; h = 18,888 mm
+        -alpha=0,0023- k₁₂ = 0,319; h = 19,451 mm
+        -alpha=0,0007- k₁₂ = 0,885; h = 32,435 mm
+        """)
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
         30.971, 61.860, 31.278, 62.479, -0.05
@@ -32,7 +41,16 @@ class SolverTest {
       LOGGER.atInfo().log(solver::toString);
     }
 
-    @Disabled("26.734, 46.074, 26.719, 46.028, 0.450")
+    @Disabled("""
+        -data Error Norm Base=0,0238 alpha = 0 data Error Norm Shift=0,0031 total data Error Norm=0,0269-
+        -alpha=0,0015- k₁₂ = 0,942; h = 04,328 mm; Δh = -0,048 mm
+        -alpha=0,0013- k₁₂ = 0,934; h = 09,498 mm; Δh = -0,050 mm
+        -alpha=0,0013- k₁₂ = 0,881; h = 13,875 mm; Δh = -0,050 mm
+        -alpha=0,0011- k₁₂ = 0,884; h = 18,925 mm; Δh = -0,050 mm
+        -alpha=0,0021- k₁₂ = 0,600; h = 18,907 mm; Δh = -0,046 mm
+        -alpha=0,0023- k₁₂ = 0,466; h = 19,539 mm; Δh = -0,034 mm
+        -alpha=0,0002- k₁₂ = 0,957; h = 31,734 mm; Δh = -0,042 mm
+        """)
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
         30.971, 61.860, 31.278, 62.479, -0.05
@@ -54,7 +72,14 @@ class SolverTest {
 
   @Nested
   class DiffTest {
-    @Disabled("e8422_2023_05_25_14_04_43")
+    @Disabled("""
+        e8422_2023_05_25_14_04_43
+        -data Error Norm Base=0,0339 alpha = 0 data Error Norm Shift=0,0000 total data Error Norm=0,0339-
+        -alpha=0,0050- k₁₂ = -0,211; h = 8,353 mm
+        -alpha=0,0065- k₁₂ = -0,284; h = 8,546 mm
+        -alpha=0,0070- k₁₂ = -0,238; h = 7,123 mm
+        -alpha=0,0070- k₁₂ = -0,231; h = 7,064 mm
+        """)
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
         135.1687, 203.1126, 0.2822034, 0.5831683, 0.150
@@ -70,7 +95,14 @@ class SolverTest {
       LOGGER.atInfo().log(solver::toString);
     }
 
-    @Disabled("e8422_2023_05_25_14_04_43")
+    @Disabled("""
+        e8422_2023_05_25_14_04_43
+        -data Error Norm Base=0,0339 alpha = 0 data Error Norm Shift=0,0000 total data Error Norm=0,0339-
+        -alpha=0,0058- k₁₂ = -0,247; h = 8,326 mm; Δh = 0,127 mm
+        -alpha=0,0072- k₁₂ = -0,323; h = 8,514 mm; Δh = 0,130 mm
+        -alpha=0,0075- k₁₂ = -0,253; h = 7,101 mm; Δh = 0,140 mm
+        -alpha=0,0072- k₁₂ = -0,248; h = 7,061 mm; Δh = 0,140 mm
+        """)
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
         135.1687, 203.1126, 0.2822034, 0.5831683, 0.150
