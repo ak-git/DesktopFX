@@ -42,10 +42,6 @@ public sealed interface Model {
       public P add(P p) {
         return new P(p1 + p.p1, p2mp1 + p.p2mp1);
       }
-
-      public P multiply(double a) {
-        return new P(a * p1, a * p2mp1);
-      }
     }
 
     public Layer3Relative {
