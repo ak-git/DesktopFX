@@ -35,6 +35,12 @@ public sealed interface Model {
         this(Numbers.toInt(p1), Numbers.toInt(p2mp1));
       }
 
+      public P {
+        if (p1 < 0 || p2mp1 < 0) {
+          throw new IllegalArgumentException("p = [%d; %d] must be non-negative".formatted(p1, p2mp1));
+        }
+      }
+
       public int pSum() {
         return p1 + p2mp1;
       }

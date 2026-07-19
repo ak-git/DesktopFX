@@ -113,11 +113,11 @@ class IterativeModelTest {
           () -> Assertions.assertThat(layer3Relative.dp().pSum()).isEqualTo(9),
           () -> Assertions.assertThat(layer3Relative.toModel(
               new Model.Layer3Relative.P(1, 2),
-              new Model.Layer3Relative.P(-1, -2))
+              new Model.Layer3Relative.P(2, 3))
           ).isEqualTo(
               new Model.Layer3Relative(k12, k23, hStep,
                   new Model.Layer3Relative.P(1, 2),
-                  new Model.Layer3Relative.P(0, 0))
+                  new Model.Layer3Relative.P(3, 5))
           ),
           () -> Assertions.assertThat(layer3Relative).hasToString(
               Stream.of(ValuePair.Name.K12.of(k12.value(), 0.0),
