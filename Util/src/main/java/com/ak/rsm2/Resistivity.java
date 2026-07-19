@@ -101,16 +101,6 @@ public sealed interface Resistivity {
       @Override
       public Apparent build() {
         return switch (model) {
-          case Model.Layer2Absolute(double rho1, double rho2, double h) -> {
-            DoubleUnaryOperator left = braceOperation(h, Sign.MINUS);
-            DoubleUnaryOperator right = braceOperation(h, Sign.PLUS);
-            double k = K.of(rho1, rho2).value();
-            double apparentDivRho1 = 1.0 + 2.0 * Layers.sum(n -> pow(k, n) * (left.applyAsDouble(n) - right.applyAsDouble(n)));
-            double phi = h * resistivity.system().phiFactor();
-            double derivativeByPhiDivRho1 = -32.0 * phi *
-                Layers.sum(n -> pow(k, n) * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0)));
-            yield new ApparentRecord(resistivity, apparentDivRho1 * rho1, derivativeByPhiDivRho1 * phi / apparentDivRho1);
-          }
           case Model.Layer2Relative(K k, double h) -> {
             DoubleUnaryOperator left = braceOperation(h, Sign.MINUS);
             DoubleUnaryOperator right = braceOperation(h, Sign.PLUS);

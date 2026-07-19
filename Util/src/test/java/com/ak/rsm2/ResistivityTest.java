@@ -24,44 +24,6 @@ class ResistivityTest {
   @Nested
   class ApparentDivRho1 {
     @Nested
-    class Layer2Absolute {
-      @ParameterizedTest
-      @CsvSource(delimiter = '|', textBlock = """
-          8.0 | 1.0 | 10.0 | 10.0 | 20.0 | METRE | 7.288
-          8.0 | 1.0 | 10.0 | 20.0 | 10.0 | MILLI | 7.288
-          """)
-      void apparent(double rho1, double rho2, double h, double sPU, double lCC, Metrics.Length units, double expected) {
-        ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.builder(units).tetrapolar(sPU, lCC).build();
-        Model layer2 = new Model.Layer2Absolute(rho1, rho2, units.toSI(h));
-        double value = Resistivity.of(tetrapolar).apparent(layer2).value();
-        assertThat(value).isCloseTo(expected, byLessThan(0.001));
-      }
-
-      @ParameterizedTest
-      @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
-      void apparent(double[] rho, double hmm, double smm, double lmm, double rOhm) {
-        ApparentDivRho1.apparent(smm, lmm, rOhm);
-        apparentDivRho1(rho, hmm, smm, lmm);
-        apparentDivRho1(rho, hmm, smm, lmm, rOhm);
-      }
-
-      private static void apparentDivRho1(double[] rho, double hmm, double smm, double lmm) {
-        Model layer2 = new Model.Layer2Absolute(rho[0], rho[1], Metrics.Length.MILLI.toSI(hmm));
-        double predictedNor = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build()).apparent(layer2).value();
-        double predictedRev = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(lmm, smm).build()).apparent(layer2).value();
-        assertThat(predictedNor).isCloseTo(predictedRev, byLessThan(0.000_001));
-      }
-
-      private static void apparentDivRho1(double[] rho, double hmm, double smm, double lmm, double rOhm) {
-        ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build();
-        double apparent = Resistivity.of(tetrapolar).build().apparent(rOhm);
-        Model layer2 = new Model.Layer2Absolute(rho[0], rho[1], Metrics.Length.MILLI.toSI(hmm));
-        double predicted = Resistivity.of(tetrapolar).apparent(layer2).value();
-        assertThat(apparent).isCloseTo(predicted, byLessThan(0.001));
-      }
-    }
-
-    @Nested
     class Layer2Relative {
       @ParameterizedTest
       @CsvSource(delimiter = '|', textBlock = """
@@ -149,34 +111,6 @@ class ResistivityTest {
 
   @Nested
   class DerivativeApparentByPhoDivRho1 {
-    @Nested
-    class Layer2Absolute {
-      @ParameterizedTest
-      @CsvSource(delimiter = '|', textBlock = """
-          8.0 |  1.0 | 10.0 | 10.0 | 20.0 | METRE |  0.225
-          8.0 |  1.0 | 10.0 | 20.0 | 10.0 | MILLI |  0.225
-          2.0 | 10.0 |  3.0 |  6.0 | 18.0 | METRE | -0.622
-          2.0 | 10.0 |  3.0 | 18.0 |  6.0 | MILLI | -0.622
-          """)
-      void derivative(double rho1, double rho2, double h, double sPU, double lCC, Metrics.Length units, double expected) {
-        ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.builder(units).tetrapolar(sPU, lCC).build();
-        Model layer2 = new Model.Layer2Absolute(rho1, rho2, units.toSI(h));
-        Resistivity.Apparent apparent = Resistivity.of(tetrapolar).apparent(layer2);
-        assertThat(apparent.derivative()).isCloseTo(expected, byLessThan(0.001));
-      }
-
-      @ParameterizedTest
-      @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
-      void derivative(double[] rho, double hmm, double smm, double lmm) {
-        Model layer2 = new Model.Layer2Absolute(rho[0], rho[1], Metrics.Length.MILLI.toSI(hmm));
-        double predictedNor = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build())
-            .apparent(layer2).derivative();
-        double predictedRev = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(lmm, smm).build())
-            .apparent(layer2).derivative();
-        assertThat(predictedNor).isCloseTo(predictedRev, byLessThan(0.000_001));
-      }
-    }
-
     @Nested
     class Layer2Relative {
       @ParameterizedTest
