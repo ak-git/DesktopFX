@@ -224,8 +224,8 @@ public sealed interface ParametricFunctional {
           return layer -> {
             if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer3Relative layer3Relative) {
               double hStep = layer3Relative.hStep();
-              Model.Layer3Relative.P dPlus = layer3Relative.dp();
-              Model.Layer3Relative.P dFat = new Model.Layer3Relative.P(0, measurement().hDiffMax() / hStep);
+              Model.P dPlus = layer3Relative.dp();
+              Model.P dFat = new Model.P(0, measurement().hDiffMax() / hStep);
               return DoubleStream.of(
                       misfit(layer3Relative.toModel(layer3Relative.p(), dFat), measurement(), dFat.pSum() * hStep),
                       misfit(layer3Relative.toModel(layer3Relative.p().add(dFat), dPlus), measurement().next(), dPlus.pSum() * hStep)

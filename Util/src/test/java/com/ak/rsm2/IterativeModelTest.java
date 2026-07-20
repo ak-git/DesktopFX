@@ -99,8 +99,7 @@ class IterativeModelTest {
       double dh1 = Metrics.Length.MILLI.toSI(dh1mm);
       double dh2mh1 = Metrics.Length.MILLI.toSI(dh2mh1mm);
 
-      IterativeModel.Layer3Relative layer3Relative = IterativeModel.Layer3Relative.builder(hStep,
-              new Model.Layer3Relative.P(2, 7))
+      IterativeModel.Layer3Relative layer3Relative = IterativeModel.Layer3Relative.builder(hStep, new Model.P(2, 7))
           .variables(new double[] {k12.value(), k23.value(), h1, h2mh1, dh1, dh2mh1}).build();
       assertAll(layer3Relative.toString(),
           () -> Assertions.assertThat(layer3Relative.k12().value()).isBetween(-1.0, 1.0),
@@ -111,14 +110,8 @@ class IterativeModelTest {
           () -> Assertions.assertThat(layer3Relative.dp().p1()).isEqualTo(2),
           () -> Assertions.assertThat(layer3Relative.dp().p2mp1()).isEqualTo(7),
           () -> Assertions.assertThat(layer3Relative.dp().pSum()).isEqualTo(9),
-          () -> Assertions.assertThat(layer3Relative.toModel(
-              new Model.Layer3Relative.P(1, 2),
-              new Model.Layer3Relative.P(2, 3))
-          ).isEqualTo(
-              new Model.Layer3Relative(k12, k23, hStep,
-                  new Model.Layer3Relative.P(1, 2),
-                  new Model.Layer3Relative.P(3, 5))
-          ),
+          () -> Assertions.assertThat(layer3Relative.toModel(new Model.P(1, 2), new Model.P(2, 3)))
+              .isEqualTo(new Model.Layer3Relative(k12, k23, hStep, new Model.P(1, 2), new Model.P(3, 5))),
           () -> Assertions.assertThat(layer3Relative).hasToString(
               Stream.of(ValuePair.Name.K12.of(k12.value(), 0.0),
                       ValuePair.Name.K23.of(k23.value(), 0.0),

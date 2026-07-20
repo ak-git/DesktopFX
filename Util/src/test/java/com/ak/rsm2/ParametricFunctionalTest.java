@@ -285,9 +285,9 @@ class ParametricFunctionalTest {
           () -> assertThat(parametricFunctional.misfit()
               .applyAsDouble(
                   IterativeModel.Layer3Relative.builder(units.toSI(hStep),
-                          new Model.Layer3Relative.P((hDiffMax / hStep) * 2 / 9, (hDiffMax / hStep) * 7 / 9))
+                          new Model.P((hDiffMax / hStep) * 2 / 9, (hDiffMax / hStep) * 7 / 9))
                       .variables(K.of(2.0, 8.0), K.of(8.0, 4.0),
-                          new Model.Layer3Relative.P(100, 200)).build()
+                          new Model.P(100, 200)).build()
               )
           ).isNotNegative().isCloseTo(0.0, byLessThan(0.01))
       );
@@ -311,14 +311,14 @@ class ParametricFunctionalTest {
       Assertions.assertAll(parametricFunctional.toString(),
           () -> assertThat(regularization.applyAsDouble(
               IterativeModel.Layer3Relative.builder(units.toSI(hStep),
-                      new Model.Layer3Relative.P((hDiffMaxSmallPlus / hStep) * 2 / 9, (hDiffMaxSmallPlus / hStep) * 7 / 9))
+                      new Model.P((hDiffMaxSmallPlus / hStep) * 2 / 9, (hDiffMaxSmallPlus / hStep) * 7 / 9))
                   .variables(K.of(2.0, 8.0), K.of(8.0, 4.0),
-                      new Model.Layer3Relative.P(100, 200)).build())
+                      new Model.P(100, 200)).build())
           ).isNotNegative().isCloseTo(0.336, byLessThan(1.0e-3)),
           () -> assertThat(regularization.applyAsDouble(
                   IterativeModel.Layer3Relative.builder(units.toSI(hStep),
-                      new Model.Layer3Relative.P(2, 7)).variables(K.of(0.753), K.of(-0.627),
-                      new Model.Layer3Relative.P(153, 382 - 153)).build()
+                      new Model.P(2, 7)).variables(K.of(0.753), K.of(-0.627),
+                      new Model.P(153, 382 - 153)).build()
               )
           ).isNotNegative().isCloseTo(0.026, byLessThan(1.0e-3))
       );

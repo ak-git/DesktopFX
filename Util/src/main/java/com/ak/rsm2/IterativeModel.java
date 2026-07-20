@@ -60,32 +60,32 @@ public sealed interface IterativeModel {
 
     K k23();
 
-    Model.Layer3Relative.P p();
+    Model.P p();
 
-    Model.Layer3Relative.P dp();
+    Model.P dp();
 
-    Model toModel(Model.Layer3Relative.P p, Model.Layer3Relative.P dp);
+    Model toModel(Model.P p, Model.P dp);
 
-    static Step1 builder(double hStep, Model.Layer3Relative.P dp) {
+    static Step1 builder(double hStep, Model.P dp) {
       return new Layer3RelativeBuilder(hStep, dp);
     }
 
     sealed interface Step1 extends Builder<Layer3Relative> {
-      Builder<Layer3Relative> variables(K k12, K k23, Model.Layer3Relative.P p);
+      Builder<Layer3Relative> variables(K k12, K k23, Model.P p);
 
       Builder<Layer3Relative> variables(double[] variables);
     }
 
     final class Layer3RelativeBuilder implements Step1 {
-      private record Layer3RelativeRecord(double hStep, K k12, K k23, Model.Layer3Relative.P p,
-                                          Model.Layer3Relative.P dp) implements Layer3Relative {
+      private record Layer3RelativeRecord(double hStep, K k12, K k23, Model.P p,
+                                          Model.P dp) implements Layer3Relative {
         Layer3RelativeRecord(double hStep, double[] variables) {
           this(hStep, K.of(variables[0]), K.of(variables[1]),
-              new Model.Layer3Relative.P(
+              new Model.P(
                   Math.min(variables[2] / hStep, variables[3] / hStep),
                   Math.max(variables[2] / hStep, variables[3] / hStep)
               ),
-              new Model.Layer3Relative.P(
+              new Model.P(
                   Math.min(variables[4] / hStep, variables[5] / hStep),
                   Math.max(variables[4] / hStep, variables[5] / hStep)
               )
@@ -93,7 +93,7 @@ public sealed interface IterativeModel {
         }
 
         @Override
-        public Model toModel(Model.Layer3Relative.P p, Model.Layer3Relative.P dp) {
+        public Model toModel(Model.P p, Model.P dp) {
           return new Model.Layer3Relative(k12, k23, hStep, p, p.add(dp));
         }
 
@@ -104,19 +104,19 @@ public sealed interface IterativeModel {
       }
 
       private final double hStep;
-      private final Model.Layer3Relative.P dp;
+      private final Model.P dp;
       private double @Nullable [] variables;
       private @Nullable K k12;
       private @Nullable K k23;
-      private Model.Layer3Relative.@Nullable P p;
+      private Model.@Nullable P p;
 
-      private Layer3RelativeBuilder(double hStep, Model.Layer3Relative.P dp) {
+      private Layer3RelativeBuilder(double hStep, Model.P dp) {
         this.hStep = hStep;
         this.dp = dp;
       }
 
       @Override
-      public Builder<Layer3Relative> variables(K k12, K k23, Model.Layer3Relative.P p) {
+      public Builder<Layer3Relative> variables(K k12, K k23, Model.P p) {
         this.k12 = k12;
         this.k23 = k23;
         this.p = p;

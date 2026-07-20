@@ -185,7 +185,7 @@ class SolverTest {
     void hDiffMaxLayer3(double r1, double r2, double hDiffMaxFat,
                         double r1F, double r2F, double r1Diff, double r2Diff, double hDiffMax) {
       Solver solver = Solver.<TetrapolarMeasurement.TwoMaxDiff>of(6.0, Metrics.Length.MILLI, vars ->
-              IterativeModel.Layer3Relative.builder(Metrics.Length.MILLI.toSI(0.01), new Model.Layer3Relative.P(2, 7))
+              IterativeModel.Layer3Relative.builder(Metrics.Length.MILLI.toSI(0.01), new Model.P(2, 7))
                   .variables(vars).build())
           .system1x3(m -> m.ohms(r1).thenOhms(r1F).hDiffMax(hDiffMaxFat, Metrics.Length.MILLI)
               .add(m2 -> m2.ohms(r1F).thenOhms(r1F + r1Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
