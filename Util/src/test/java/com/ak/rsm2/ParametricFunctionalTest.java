@@ -257,13 +257,14 @@ class ParametricFunctionalTest {
           ))
           .build();
       Assertions.assertAll(Arrays.toString(parametricFunctional.bounds()),
-          () -> assertThat(parametricFunctional.bounds()).hasSize(6),
-          () -> assertThat(parametricFunctional.bounds()[0]).isEqualTo(new Simplex.Bounds(0.0, Double.NaN, 1.0)),
-          () -> assertThat(parametricFunctional.bounds()[1]).isEqualTo(new Simplex.Bounds(-1.0, Double.NaN, 0.0)),
-          () -> assertThat(parametricFunctional.bounds()[2]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.5))),
-          () -> assertThat(parametricFunctional.bounds()[3]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(1.5), Metrics.Length.MILLI.toSI(2.5))),
-          () -> assertThat(parametricFunctional.bounds()[4]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.01), Metrics.Length.MILLI.toSI(0.02))),
-          () -> assertThat(parametricFunctional.bounds()[5]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.01), Metrics.Length.MILLI.toSI(0.07)))
+          () -> assertThat(parametricFunctional.bounds()).hasSize(7),
+          () -> assertThat(parametricFunctional.bounds()[0]).isEqualTo(new Simplex.Bounds(1.0, Double.NaN, 10.0)),
+          () -> assertThat(parametricFunctional.bounds()[1]).isEqualTo(new Simplex.Bounds(1.0, Double.NaN, 10.0)),
+          () -> assertThat(parametricFunctional.bounds()[2]).isEqualTo(new Simplex.Bounds(1.0, Double.NaN, 10.0)),
+          () -> assertThat(parametricFunctional.bounds()[3]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.5))),
+          () -> assertThat(parametricFunctional.bounds()[4]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.5))),
+          () -> assertThat(parametricFunctional.bounds()[5]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.01), Metrics.Length.MILLI.toSI(0.02))),
+          () -> assertThat(parametricFunctional.bounds()[6]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.01), Metrics.Length.MILLI.toSI(0.07)))
       );
     }
 
@@ -284,9 +285,10 @@ class ParametricFunctionalTest {
       Assertions.assertAll(parametricFunctional.toString(),
           () -> assertThat(parametricFunctional.misfit()
               .applyAsDouble(
-                  IterativeModel.Layer3Absolute.builder(units.toSI(hStep),
+                  IterativeModel.Layer3Absolute.builder(units.toSI(hStep))
+                      .variables(2.0, 8.0, 4.0, new Model.P(100, 200),
                           new Model.P((hDiffMax / hStep) * 2 / 9, (hDiffMax / hStep) * 7 / 9))
-                      .variables(2.0, 8.0, 4.0, new Model.P(100, 200)).build()
+                      .build()
               )
           ).isNotNegative().isCloseTo(0.0, byLessThan(0.01))
       );
@@ -309,15 +311,14 @@ class ParametricFunctionalTest {
       ToDoubleFunction<IterativeModel> regularization = parametricFunctional.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG);
       Assertions.assertAll(parametricFunctional.toString(),
           () -> assertThat(regularization.applyAsDouble(
-              IterativeModel.Layer3Absolute.builder(units.toSI(hStep),
-                      new Model.P((hDiffMaxSmallPlus / hStep) * 2 / 9, (hDiffMaxSmallPlus / hStep) * 7 / 9))
+              IterativeModel.Layer3Absolute.builder(units.toSI(hStep))
                   .variables(2.0, 8.0, 4.0,
-                      new Model.P(100, 200)).build())
+                      new Model.P(100, 200), new Model.P((hDiffMaxSmallPlus / hStep) * 2 / 9, (hDiffMaxSmallPlus / hStep) * 7 / 9))
+                  .build())
           ).isNotNegative().isCloseTo(0.336, byLessThan(1.0e-3)),
           () -> assertThat(regularization.applyAsDouble(
-              IterativeModel.Layer3Absolute.builder(units.toSI(hStep),
-                  new Model.P(2, 7)).variables(2.0, 8.0, 4.0,
-                  new Model.P(100, 200)).build()
+              IterativeModel.Layer3Absolute.builder(units.toSI(hStep)).variables(2.0, 8.0, 4.0,
+                  new Model.P(100, 200), new Model.P(2, 7)).build()
               )
           ).isNotNegative().isCloseTo(0.336, byLessThan(1.0e-3))
       );

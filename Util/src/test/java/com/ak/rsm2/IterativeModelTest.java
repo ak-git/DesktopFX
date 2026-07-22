@@ -88,7 +88,7 @@ class IterativeModelTest {
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
          2.0 | 8.0 | 4.0 | 1.0 | 2.0 | 0.02 | 0.07
-         2.0 | 1.0 | 4.0 | 2.0 | 1.0 | 0.02 | 0.07
+         2.0 | 1.0 | 4.0 | 1.0 | 2.0 | 0.02 | 0.07
         """)
     void get(double rho1, double rho2, double rho3, double h1mm, double h2mh1mm, double dh1mm, double dh2mh1mm) {
       double hStep = Metrics.Length.MILLI.toSI(0.01);
@@ -97,7 +97,7 @@ class IterativeModelTest {
       double dh1 = Metrics.Length.MILLI.toSI(dh1mm);
       double dh2mh1 = Metrics.Length.MILLI.toSI(dh2mh1mm);
 
-      IterativeModel.Layer3Absolute layer3Absolute = IterativeModel.Layer3Absolute.builder(hStep, new Model.P(2, 7))
+      IterativeModel.Layer3Absolute layer3Absolute = IterativeModel.Layer3Absolute.builder(hStep)
           .variables(new double[] {rho1, rho2, rho3, h1, h2mh1, dh1, dh2mh1}).build();
       assertAll(layer3Absolute.toString(),
           () -> Assertions.assertThat(layer3Absolute.rho1()).isNotNegative(),
@@ -116,7 +116,7 @@ class IterativeModelTest {
                       ValuePair.Name.RHO_1.of(rho1, 0.0),
                       ValuePair.Name.RHO_2.of(rho2, 0.0),
                       ValuePair.Name.RHO_3.of(rho3, 0.0),
-                      ValuePair.Name.H1.of(Math.min(h1, h2mh1), 0.0),
+                      ValuePair.Name.H1.of(h1, 0.0),
                       ValuePair.Name.H2.of(h1 + h2mh1, 0.0),
                       ValuePair.Name.DH1.of(Metrics.Length.MILLI.toSI(0.02), 0.0),
                       ValuePair.Name.DH2.of(Metrics.Length.MILLI.toSI(0.09), 0.0)

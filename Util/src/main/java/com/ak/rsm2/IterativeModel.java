@@ -68,12 +68,12 @@ public sealed interface IterativeModel {
 
     Model toModel(Model.P p, Model.P dp);
 
-    static Step1 builder(double hStep, Model.P dp) {
-      return new Layer3AbsoluteBuilder(hStep, dp);
+    static Step1 builder(double hStep) {
+      return new Layer3AbsoluteBuilder(hStep);
     }
 
     sealed interface Step1 extends Builder<Layer3Absolute> {
-      Builder<Layer3Absolute> variables(double rho1, double rho2, double rho3, Model.P p);
+      Builder<Layer3Absolute> variables(double rho1, double rho2, double rho3, Model.P p, Model.P dp);
 
       Builder<Layer3Absolute> variables(double[] variables);
     }
@@ -83,14 +83,8 @@ public sealed interface IterativeModel {
           implements Layer3Absolute {
         Layer3AbsoluteRecord(double hStep, double[] variables) {
           this(hStep, variables[0], variables[1], variables[2],
-              new Model.P(
-                  Math.min(variables[3] / hStep, variables[4] / hStep),
-                  Math.max(variables[3] / hStep, variables[4] / hStep)
-              ),
-              new Model.P(
-                  Math.min(variables[5] / hStep, variables[6] / hStep),
-                  Math.max(variables[5] / hStep, variables[6] / hStep)
-              )
+              new Model.P(variables[3] / hStep, variables[4] / hStep),
+              new Model.P(variables[5] / hStep, variables[6] / hStep)
           );
         }
 
@@ -106,24 +100,24 @@ public sealed interface IterativeModel {
       }
 
       private final double hStep;
-      private final Model.P dp;
       private double @Nullable [] variables;
       private double rho1;
       private double rho2;
       private double rho3;
       private Model.@Nullable P p;
+      private Model.@Nullable P dp;
 
-      private Layer3AbsoluteBuilder(double hStep, Model.P dp) {
+      private Layer3AbsoluteBuilder(double hStep) {
         this.hStep = hStep;
-        this.dp = dp;
       }
 
       @Override
-      public Builder<Layer3Absolute> variables(double rho1, double rho2, double rho3, Model.P p) {
+      public Builder<Layer3Absolute> variables(double rho1, double rho2, double rho3, Model.P p, Model.P dp) {
         this.rho1 = rho1;
         this.rho2 = rho2;
         this.rho3 = rho3;
         this.p = p;
+        this.dp = dp;
         return this;
       }
 
@@ -136,7 +130,7 @@ public sealed interface IterativeModel {
       @Override
       public Layer3Absolute build() {
         if (variables == null) {
-          return new Layer3AbsoluteRecord(hStep, rho1, rho2, rho3, Objects.requireNonNull(p), dp);
+          return new Layer3AbsoluteRecord(hStep, rho1, rho2, rho3, Objects.requireNonNull(p), Objects.requireNonNull(dp));
         }
         else {
           return new Layer3AbsoluteRecord(hStep, variables);

@@ -210,10 +210,10 @@ public sealed interface ParametricFunctional {
         @Override
         public Simplex.Bounds[] bounds() {
           return new Simplex.Bounds[] {
-              new Simplex.Bounds(0.0, 1.0),
-              new Simplex.Bounds(-1.0, 0.0),
+              new Simplex.Bounds(1.0, 10.0), new Simplex.Bounds(1.0, 10.0), new Simplex.Bounds(1.0, 10.0),
               new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.5)),
-              new Simplex.Bounds(Metrics.Length.MILLI.toSI(1.5), Metrics.Length.MILLI.toSI(2.5)),
+              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.5)),
+
               new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.01), Metrics.Length.MILLI.toSI(0.02)),
               new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.01), Metrics.Length.MILLI.toSI(0.07))
           };
@@ -223,14 +223,19 @@ public sealed interface ParametricFunctional {
         public ToDoubleFunction<IterativeModel> misfit() {
           return layer -> {
             if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer3Absolute layer3Absolute) {
-              double hStep = layer3Absolute.hStep();
-              Model.P dPlus = layer3Absolute.dp();
-              Model.P dFat = new Model.P(0, measurement().hDiffMax() / hStep);
-              return DoubleStream.of(
-                      misfitLog(layer3Absolute.toModel(layer3Absolute.p(), dFat), measurement(), dFat.pSum() * hStep),
-                      misfitLog(layer3Absolute.toModel(layer3Absolute.p().add(dFat), dPlus), measurement().next(), dPlus.pSum() * hStep)
-                  )
-                  .reduce(StrictMath::hypot).orElseThrow();
+              if (layer3Absolute.rho1() < layer3Absolute.rho2() && layer3Absolute.rho2() > layer3Absolute.rho3()) {
+                double hStep = layer3Absolute.hStep();
+                Model.P dPlus = layer3Absolute.dp();
+                Model.P dFat = new Model.P(0, measurement().hDiffMax() / hStep);
+                return DoubleStream.of(
+                        misfitLog(layer3Absolute.toModel(layer3Absolute.p(), dFat), measurement(), dFat.pSum() * hStep),
+                        misfitLog(layer3Absolute.toModel(layer3Absolute.p().add(dFat), dPlus), measurement().next(), dPlus.pSum() * hStep)
+                    )
+                    .reduce(StrictMath::hypot).orElseThrow();
+              }
+              else {
+                return Double.POSITIVE_INFINITY;
+              }
             }
             throw new IllegalStateException("Unexpected value: " + layer);
           };
