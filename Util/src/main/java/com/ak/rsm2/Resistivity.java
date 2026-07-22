@@ -110,20 +110,6 @@ public sealed interface Resistivity {
                     Layers.sum(n -> pow(k.value(), n) * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0)))
             );
           }
-          case Model.Layer3Relative(K k12, K k23, double hStep, Model.P p, Model.P pAfter) -> {
-            DoubleUnaryOperator left = braceOperation(hStep, Sign.MINUS);
-            DoubleUnaryOperator right = braceOperation(hStep, Sign.PLUS);
-
-            ToDoubleFunction<Model.P> apparentDivRho1 = value -> {
-              double[] qn = Layers.qn(k12.value(), k23.value(), value.p1(), value.p2mp1());
-              return 1.0 + 2.0 * Layers.sum(n -> qn[n] * (left.applyAsDouble(n) - right.applyAsDouble(n)));
-            };
-
-            double apparentDivRho1Before = apparentDivRho1.applyAsDouble(p);
-            double apparentDivRho1After = apparentDivRho1.applyAsDouble(pAfter);
-            yield new ApparentRecord(resistivity, apparentDivRho1Before, (apparentDivRho1After - apparentDivRho1Before) /
-                ((pAfter.pSum() - p.pSum()) * hStep * resistivity.system().phiFactor()));
-          }
           case Model.Layer3Absolute(double rho1, double rho2, double rho3, double hStep, Model.P p, Model.P pAfter) -> {
             DoubleUnaryOperator left = braceOperation(hStep, Sign.MINUS);
             DoubleUnaryOperator right = braceOperation(hStep, Sign.PLUS);
@@ -136,7 +122,8 @@ public sealed interface Resistivity {
             double apparentDivRho1Before = apparentDivRho1.applyAsDouble(p);
             double apparentDivRho1After = apparentDivRho1.applyAsDouble(pAfter);
             yield new ApparentRecord(resistivity, apparentDivRho1Before * rho1,
-                p.pSum() * (apparentDivRho1After - apparentDivRho1Before) / ((pAfter.pSum() - p.pSum()) * apparentDivRho1Before));
+                ((apparentDivRho1After - apparentDivRho1Before) / apparentDivRho1Before) /
+                    ((pAfter.pSum() - p.pSum()) * hStep * resistivity.system().phiFactor()));
           }
         };
       }

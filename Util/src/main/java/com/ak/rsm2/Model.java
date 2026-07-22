@@ -49,24 +49,6 @@ public sealed interface Model {
     }
   }
 
-  record Layer3Relative(K k12, K k23, double hStep, P p, P pAfter) implements Model {
-    public Layer3Relative {
-      if (hStep < 0) {
-        throw new IllegalArgumentException("hStep = %f must be non-negative".formatted(hStep));
-      }
-    }
-
-    @Override
-    public String toString() {
-      return Stream.of(
-              ValuePair.Name.K12.of(k12.value(), 0.0), ValuePair.Name.K23.of(k23.value(), 0.0),
-              ValuePair.Name.H1.of(hStep * p.p1, 0.0), ValuePair.Name.H2.of(hStep * p.pSum(), 0.0),
-              ValuePair.Name.DH1.of(hStep * (pAfter.p1 - p.p1), 0.0), ValuePair.Name.DH2.of(hStep * (pAfter.pSum() - p.pSum()), 0.0)
-          )
-          .map(ValuePair::toString).collect(Collectors.joining("; "));
-    }
-  }
-
   record Layer3Absolute(double rho1, double rho2, double rho3, double hStep, P p, P pAfter) implements Model {
     public Layer3Absolute {
       if (hStep < 0) {

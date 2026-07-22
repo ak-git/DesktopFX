@@ -222,13 +222,13 @@ public sealed interface ParametricFunctional {
         @Override
         public ToDoubleFunction<IterativeModel> misfit() {
           return layer -> {
-            if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer3Relative layer3Relative) {
-              double hStep = layer3Relative.hStep();
-              Model.P dPlus = layer3Relative.dp();
+            if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer3Absolute layer3Absolute) {
+              double hStep = layer3Absolute.hStep();
+              Model.P dPlus = layer3Absolute.dp();
               Model.P dFat = new Model.P(0, measurement().hDiffMax() / hStep);
               return DoubleStream.of(
-                      misfit(layer3Relative.toModel(layer3Relative.p(), dFat), measurement(), dFat.pSum() * hStep),
-                      misfit(layer3Relative.toModel(layer3Relative.p().add(dFat), dPlus), measurement().next(), dPlus.pSum() * hStep)
+                      misfitLog(layer3Absolute.toModel(layer3Absolute.p(), dFat), measurement(), dFat.pSum() * hStep),
+                      misfitLog(layer3Absolute.toModel(layer3Absolute.p().add(dFat), dPlus), measurement().next(), dPlus.pSum() * hStep)
                   )
                   .reduce(StrictMath::hypot).orElseThrow();
             }
@@ -236,13 +236,21 @@ public sealed interface ParametricFunctional {
           };
         }
 
+        private double misfitLog(Model model, TetrapolarMeasurement m, double dh) {
+          Resistivity.Apparent resistivity = Resistivity.of(system()).apparent(model);
+          double apparent = resistivity.apparent(m.ohms());
+          double derivativeApparentByPhiDivRho = resistivity.apparent(m.ohmsDiff() / apparent / (dh / system().phiFactor()));
+          double v = StrictMath.hypot(log(resistivity.value() / apparent), resistivity.derivative() / derivativeApparentByPhiDivRho);
+          return Double.isNaN(v) ? Double.POSITIVE_INFINITY : v;
+        }
+
         @Override
         public ToDoubleFunction<IterativeModel> regularization(Regularization regularization) {
           return switch (regularization) {
             case ZERO_MAX_LOG -> layer -> {
-              if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer3Relative layer3Relative) {
-                return regularization(layer3Relative.k12(), layer3Relative.p().p1() * layer3Relative.hStep()) +
-                    regularization(layer3Relative.k23(), layer3Relative.p().pSum() * layer3Relative.hStep());
+              if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer3Absolute layer3Absolute) {
+                return regularization(K.of(layer3Absolute.rho1(), layer3Absolute.rho2()), layer3Absolute.p().p1() * layer3Absolute.hStep()) +
+                    regularization(K.of(layer3Absolute.rho2(), layer3Absolute.rho3()), layer3Absolute.p().pSum() * layer3Absolute.hStep());
               }
               throw new IllegalStateException("Unexpected value: " + layer);
             };
