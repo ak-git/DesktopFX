@@ -210,12 +210,10 @@ public sealed interface ParametricFunctional {
         @Override
         public Simplex.Bounds[] bounds() {
           return new Simplex.Bounds[] {
-              new Simplex.Bounds(1.0, 10.0), new Simplex.Bounds(1.0, 10.0), new Simplex.Bounds(1.0, 10.0),
-              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.5)),
-              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.5)),
-
-              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.01), Metrics.Length.MILLI.toSI(0.02)),
-              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.01), Metrics.Length.MILLI.toSI(0.07))
+              new Simplex.Bounds(1.0, 10.0), new Simplex.Bounds(1.0, 10.0), new Simplex.Bounds(1.0, 10.0), // rho1 - rho2 - rho3
+              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.5)), // p1
+              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.5)), // (p2 - p1) - p1
+              new Simplex.Bounds(0.0, 0.5) // dh1 / dh2
           };
         }
 
@@ -244,8 +242,8 @@ public sealed interface ParametricFunctional {
         private double misfitLog(Model model, TetrapolarMeasurement m, double dh) {
           Resistivity.Apparent resistivity = Resistivity.of(system()).apparent(model);
           double apparent = resistivity.apparent(m.ohms());
-          double derivativeApparentByPhiDivRho = resistivity.apparent(m.ohmsDiff() / apparent / (dh / system().phiFactor()));
-          double v = StrictMath.hypot(log(resistivity.value() / apparent), resistivity.derivative() / derivativeApparentByPhiDivRho);
+          double derivativeApparentByPhiDivRho = resistivity.apparent(m.ohmsDiff() / apparent / (dh * system().phiFactor()));
+          double v = StrictMath.hypot(log(resistivity.value()) - log(apparent), resistivity.derivative() - derivativeApparentByPhiDivRho);
           return Double.isNaN(v) ? Double.POSITIVE_INFINITY : v;
         }
 
