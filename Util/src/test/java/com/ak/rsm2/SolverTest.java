@@ -139,10 +139,12 @@ class SolverTest {
 
     @Disabled("""
         Оценка перемещения индентора по двухслойной модели
+        -alpha=0,0078- k₁₂ = -0,538; h = 10,047 mm; Δh = 0,051 mm 2025-04-23 E-9712 ak 6 мм
         -alpha=0,0085- k₁₂ = -0,417; h = 7,781 mm; Δh = 0,075 mm
         """)
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
+        129.195 | 200.848 | 0.0985 | 0.2742 | 0.090
         124.861 | 184.182 | 0.2400 | 0.5270 | 0.090
         """)
     void hDiffMaxLayer2(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
@@ -155,11 +157,14 @@ class SolverTest {
 
     @Disabled("""
         Оценка толщины жира по двухслойной модели
-        -alpha=1,4070- k₁₂ = -0,776; h = 3,909 mm; Δh = 0,006 mm
+        -alpha=0,0015- k₁₂ = -0,999; h = 13,543 mm; Δh = 0,137 mm 2025-04-23 E-9712 ak 6 мм
+        -alpha=0,0020- k₁₂ = -0,999; h = 11,082 mm; Δh = 0,071 mm 2025-04-23 E-9712 ak 6 мм
+        -alpha=0,4470- k₁₂ = -0,788; h = 3,878 mm; Δh = 0,006 mm
         """)
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
-        124.634 | 183.863 | 0.2270 | 0.3190 | 0.180
+        129.040 | 200.188 | 0.155 | 0.660 | 0.180
+        124.634 | 183.863 | 0.227 | 0.319 | 0.180
         """)
     void hDiffFat(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
       Solver solver = Solver.<TetrapolarMeasurement.ZeroDiff>of(6.0, Metrics.Length.MILLI, IterativeModel.Layer2RelativeDh::new)
@@ -171,16 +176,22 @@ class SolverTest {
 
     @Disabled("""
         2025-04-23 E-9712 ak 6 мм
-        -data Error Norm Base=0,0395 alpha = 0 data Error Norm Shift=0,0074 total data Error Norm=0,0469-
-        -alpha=10,0 misfit=0,4815- k₁₂ = 0,733; k₂₃ = -0,581; h₁ = 1,500 mm; h₂ = 3,740 mm; Δh₁ = 0,020 mm; Δh₂ = 0,090 mm
-        -alpha=1,00 misfit=0,2168- k₁₂ = 0,654; k₂₃ = -0,440; h₁ = 1,500 mm; h₂ = 3,520 mm; Δh₁ = 0,020 mm; Δh₂ = 0,090 mm
-        -alpha=0,10 misfit=0,0338- k₁₂ = 0,617; k₂₃ = -0,384; h₁ = 1,500 mm; h₂ = 3,360 mm; Δh₁ = 0,020 mm; Δh₂ = 0,090 mm
-        -alpha=0,01 misfit=0,0496- k₁₂ = 0,618; k₂₃ = -0,370; h₁ = 1,480 mm; h₂ = 3,240 mm; Δh₁ = 0,020 mm; Δh₂ = 0,090 mm
-        -alpha=0,00 misfit=0,0044- k₁₂ = 0,600; k₂₃ = -0,337; h₁ = 1,030 mm; h₂ = 3,030 mm; Δh₁ = 0,020 mm; Δh₂ = 0,090 mm
+        -data Error Norm Base=0,0395 alpha = 0 data Error Norm Shift=0,0271 total data Error Norm=0,0666-
+        -alpha=100,00 misfit=0,7076- ρ₁ = 1,063 Ω·m; ρ₂ = 9,999 Ω·m; ρ₃ = 2,725 Ω·m; h₁ = 1,340 mm; h₂ = 3,800 mm; Δh₁ = 0,010 mm; Δh₂ = 0,090 mm
+        -alpha=1,0000 misfit=0,1767- ρ₁ = 2,067 Ω·m; ρ₂ = 9,996 Ω·m; ρ₃ = 3,817 Ω·m; h₁ = 1,500 mm; h₂ = 3,600 mm; Δh₁ = 0,020 mm; Δh₂ = 0,090 mm
+        -alpha=0,0100 misfit=0,0267- ρ₁ = 2,134 Ω·m; ρ₂ = 8,856 Ω·m; ρ₃ = 4,209 Ω·m; h₁ = 1,300 mm; h₂ = 3,120 mm; Δh₁ = 0,020 mm; Δh₂ = 0,090 mm
+        -alpha=0,0000 misfit=0,0188- ρ₁ = 2,023 Ω·m; ρ₂ = 8,098 Ω·m; ρ₃ = 4,021 Ω·m; h₁ = 1,040 mm; h₂ = 3,020 mm; Δh₁ = 0,020 mm; Δh₂ = 0,090 mm
+        
+        -data Error Norm Base=0,0395 alpha = 0 data Error Norm Shift=0,1727 total data Error Norm=0,2121-
+        -alpha=100,00 misfit=1,2771- ρ₁ = 1,375 Ω·m; ρ₂ = 9,998 Ω·m; ρ₃ = 1,010 Ω·m; h₁ = 1,500 mm; h₂ = 3,920 mm; Δh₁ = 0,020 mm; Δh₂ = 0,070 mm
+        -alpha=1,0000 misfit=0,5133- ρ₁ = 2,141 Ω·m; ρ₂ = 9,991 Ω·m; ρ₃ = 2,240 Ω·m; h₁ = 1,400 mm; h₂ = 3,340 mm; Δh₁ = 0,030 mm; Δh₂ = 0,070 mm
+        -alpha=0,0100 misfit=0,1955- ρ₁ = 1,946 Ω·m; ρ₂ = 9,951 Ω·m; ρ₃ = 3,314 Ω·m; h₁ = 0,880 mm; h₂ = 2,430 mm; Δh₁ = 0,030 mm; Δh₂ = 0,070 mm
+        -alpha=0,0000 misfit=0,1583- ρ₁ = 1,792 Ω·m; ρ₂ = 9,540 Ω·m; ρ₃ = 3,286 Ω·m; h₁ = 0,770 mm; h₂ = 2,310 mm; Δh₁ = 0,030 mm; Δh₂ = 0,070 mm
         """)
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
-        124.634 | 183.863 | 0.020 | 124.861 | 184.182 | 0.2400 | 0.52700 | 0.090
+        129.040 | 200.188 | 0.137 | 129.195 | 200.848 | 0.0985 | 0.27420 | 0.051
+        124.634 | 183.863 | 0.010 | 124.861 | 184.182 | 0.2400 | 0.52700 | 0.070
         """)
     void hDiffMaxLayer3(double r1, double r2, double hDiffMaxFat,
                         double r1F, double r2F, double r1Diff, double r2Diff, double hDiffMax) {

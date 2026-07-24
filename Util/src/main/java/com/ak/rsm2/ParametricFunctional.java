@@ -211,8 +211,8 @@ public sealed interface ParametricFunctional {
         public Simplex.Bounds[] bounds() {
           return new Simplex.Bounds[] {
               new Simplex.Bounds(1.0, 10.0), new Simplex.Bounds(1.0, 10.0), new Simplex.Bounds(1.0, 10.0), // rho1 - rho2 - rho3
-              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.5)), // p1
-              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.5)), // (p2 - p1) - p1
+              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(2.5)), // p1
+              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(2.5)), // (p2 - p1) - p1
               new Simplex.Bounds(0.0, 0.5) // dh1 / dh2
           };
         }
