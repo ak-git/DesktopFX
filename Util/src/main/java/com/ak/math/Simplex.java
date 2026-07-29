@@ -2,6 +2,7 @@ package com.ak.math;
 
 import io.jenetics.*;
 import io.jenetics.engine.Codecs;
+import io.jenetics.engine.Constraint;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.Limits;
 import io.jenetics.util.DoubleRange;
@@ -95,6 +96,7 @@ public enum Simplex {
       Phenotype<DoubleGene, Double> phenotype = Engine
           .builder(function::value, codec)
           .populationSize(populationSize)
+          .constraint(Constraint.of(p -> Double.isFinite(p.fitnessOptional().orElse(Double.POSITIVE_INFINITY))))
           .optimize(Optimize.MINIMUM)
           .alterers(new Mutator<>(0.03), new MeanAlterer<>(0.6))
           .build().stream(List.of(codec.encode(initialVector)))
