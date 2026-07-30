@@ -4,7 +4,7 @@ jacocolog = '4.0.2'
 spotbugs = '6.5.9'
 ben-manes-versions = '0.56.0'
 
-jspecify = '1.0.0'
+jspecify = '1.0.1'
 junit = '6.1.2'
 assertj = '3.27.7'
 mockito = '5.23.0'
