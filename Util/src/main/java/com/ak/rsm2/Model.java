@@ -47,6 +47,10 @@ public sealed interface Model {
     public P add(P p) {
       return new P(p1 + p.p1, p2mp1 + p.p2mp1);
     }
+
+    public P multiply(double a) {
+      return new P(a * p1, a * p2mp1);
+    }
   }
 
   record Layer3Absolute(double rho1, double rho2, double rho3, double hStep, P p, P pAfter) implements Model {

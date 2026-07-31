@@ -83,8 +83,8 @@ public sealed interface IterativeModel {
           implements Layer3Absolute {
         Layer3AbsoluteRecord(double hStep, double[] variables) {
           this(hStep, variables[0], variables[1], variables[2],
-              new Model.P(variables[3] / hStep, variables[4] / hStep),
-              new Model.P(variables[5] / hStep, variables[6] / hStep)
+              new Model.P(Math.min(variables[3] / hStep, variables[4] / hStep), Math.max(variables[3] / hStep, variables[4] / hStep)),
+              new Model.P(Math.min(variables[5] / hStep, variables[6] / hStep), Math.max(variables[5] / hStep, variables[6] / hStep))
           );
         }
 
