@@ -53,7 +53,7 @@ public sealed interface Model {
     }
   }
 
-  record Layer3Absolute(double rho1, double rho2, double rho3, double hStep, P p, P pAfter) implements Model {
+  record Layer3Absolute(double rho1, double rho2, double rho3, double hStep, P p) implements Model {
     public Layer3Absolute {
       if (hStep < 0) {
         throw new IllegalArgumentException("hStep = %f must be non-negative".formatted(hStep));
@@ -64,8 +64,7 @@ public sealed interface Model {
     public String toString() {
       return Stream.of(
               ValuePair.Name.RHO_1.of(rho1, 0.0), ValuePair.Name.RHO_2.of(rho2, 0.0), ValuePair.Name.RHO_3.of(rho3, 0.0),
-              ValuePair.Name.H1.of(hStep * p.p1, 0.0), ValuePair.Name.H2.of(hStep * p.pSum(), 0.0),
-              ValuePair.Name.DH1.of(hStep * (pAfter.p1 - p.p1), 0.0), ValuePair.Name.DH2.of(hStep * (pAfter.pSum() - p.pSum()), 0.0)
+              ValuePair.Name.H1.of(hStep * p.p1, 0.0), ValuePair.Name.H2.of(hStep * p.pSum(), 0.0)
           )
           .map(ValuePair::toString).collect(Collectors.joining("; "));
     }

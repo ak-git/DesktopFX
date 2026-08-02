@@ -176,40 +176,34 @@ class SolverTest {
 
     @Disabled("""
         2025-04-23 E-9712 ak 6 мм
-        -data Error Norm Base=0,0395 alpha = 0 data Error Norm Shift=0,0271 total data Error Norm=0,0666-
-        -alpha=100,00 misfit=0,7076- ρ₁ = 1,063 Ω·m; ρ₂ = 9,999 Ω·m; ρ₃ = 2,725 Ω·m; h₁ = 1,340 mm; h₂ = 3,800 mm; Δh₁ = 0,010 mm; Δh₂ = 0,090 mm
-        -alpha=1,0000 misfit=0,1767- ρ₁ = 2,067 Ω·m; ρ₂ = 9,996 Ω·m; ρ₃ = 3,817 Ω·m; h₁ = 1,500 mm; h₂ = 3,600 mm; Δh₁ = 0,020 mm; Δh₂ = 0,090 mm
-        -alpha=0,0100 misfit=0,0267- ρ₁ = 2,134 Ω·m; ρ₂ = 8,856 Ω·m; ρ₃ = 4,209 Ω·m; h₁ = 1,300 mm; h₂ = 3,120 mm; Δh₁ = 0,020 mm; Δh₂ = 0,090 mm
-        -alpha=0,0000 misfit=0,0188- ρ₁ = 2,023 Ω·m; ρ₂ = 8,098 Ω·m; ρ₃ = 4,021 Ω·m; h₁ = 1,040 mm; h₂ = 3,020 mm; Δh₁ = 0,020 mm; Δh₂ = 0,090 mm
-        
-        -data Error Norm Base=0,0395 alpha = 0 data Error Norm Shift=0,1727 total data Error Norm=0,2121-
-        -alpha=100,00 misfit=1,2771- ρ₁ = 1,375 Ω·m; ρ₂ = 9,998 Ω·m; ρ₃ = 1,010 Ω·m; h₁ = 1,500 mm; h₂ = 3,920 mm; Δh₁ = 0,020 mm; Δh₂ = 0,070 mm
-        -alpha=1,0000 misfit=0,5133- ρ₁ = 2,141 Ω·m; ρ₂ = 9,991 Ω·m; ρ₃ = 2,240 Ω·m; h₁ = 1,400 mm; h₂ = 3,340 mm; Δh₁ = 0,030 mm; Δh₂ = 0,070 mm
-        -alpha=0,0100 misfit=0,1955- ρ₁ = 1,946 Ω·m; ρ₂ = 9,951 Ω·m; ρ₃ = 3,314 Ω·m; h₁ = 0,880 mm; h₂ = 2,430 mm; Δh₁ = 0,030 mm; Δh₂ = 0,070 mm
-        -alpha=0,0000 misfit=0,1583- ρ₁ = 1,792 Ω·m; ρ₂ = 9,540 Ω·m; ρ₃ = 3,286 Ω·m; h₁ = 0,770 mm; h₂ = 2,310 mm; Δh₁ = 0,030 mm; Δh₂ = 0,070 mm
+        -data Error Norm Base=0,0395 alpha = 0 data Error Norm Shift=0,7225 total data Error Norm=0,7620-\s
+        -alpha=10,0000 misfit=1,1530- ρ₁ = 2,564 Ω·m; ρ₂ = 14,416 Ω·m; ρ₃ = 9,589 Ω·m; h₁ = 1,620 mm; h₂ = 3,750 mm; Δh₁ = 0,010 mm; Δh₂ = 0,170 mm; Δρ₂ = 0,080 Ω·m
+        -alpha=1,0000 misfit=0,8042- ρ₁ = 1,855 Ω·m; ρ₂ = 9,647 Ω·m; ρ₃ = 6,820 Ω·m; h₁ = 1,720 mm; h₂ = 3,530 mm; Δh₁ = 0,010 mm; Δh₂ = 0,170 mm; Δρ₂ = 0,092 Ω·m
+        -alpha=0,1000 misfit=0,8086- ρ₁ = 1,337 Ω·m; ρ₂ = 11,451 Ω·m; ρ₃ = 6,270 Ω·m; h₁ = 1,050 mm; h₂ = 3,420 mm; Δh₁ = 0,010 mm; Δh₂ = 0,160 mm; Δρ₂ = 0,096 Ω·m
+        -alpha=0,0100 misfit=0,7764- ρ₁ = 1,635 Ω·m; ρ₂ = 10,944 Ω·m; ρ₃ = 4,257 Ω·m; h₁ = 1,370 mm; h₂ = 3,870 mm; Δh₁ = 0,010 mm; Δh₂ = 0,090 mm; Δρ₂ = 0,079 Ω·m
         """)
     @ParameterizedTest
-    @CsvSource(delimiter = '|', textBlock = """
-        129.040 | 200.188 | 0.137 | 129.195 | 200.848 | 0.0985 | 0.27420 | 0.051
-        124.634 | 183.863 | 0.010 | 124.861 | 184.182 | 0.2400 | 0.52700 | 0.070
+    @CsvSource(delimiter = ',', textBlock = """
+        128.412, 198.251, 0.1954, 0.5901, 128.792, 199.563, 0.2476, 0.6247, 0.18
         """)
-    void hDiffMaxLayer3(double r1, double r2, double hDiffMaxFat,
-                        double r1F, double r2F, double r1Diff, double r2Diff, double hDiffMax) {
+    void hDiffMaxLayer3(double r1, double r2, double r1Diff, double r2Diff,
+                        double r1Rho, double r2Rho, double r1RhoDiff, double r2RhoDiff, double hDiffMax) {
       Solver solver = Solver.<TetrapolarMeasurement.TwoMaxDiff>of(6.0, Metrics.Length.MILLI, vs ->
               IterativeModel.Layer3Absolute.builder(Metrics.Length.MILLI.toSI(0.01))
                   .variables(
                       new double[] {vs[0], vs[1], vs[2],
-                          vs[3], vs[3] + vs[4],
-                          vs[5] * Metrics.Length.MILLI.toSI(hDiffMax),
-                          (1.0 - vs[5]) * Metrics.Length.MILLI.toSI(hDiffMax)}
+                          vs[3], vs[4],
+                          vs[5], vs[6],
+                          vs[7]
+                      }
                   )
                   .build()
           )
-          .system1x3(m -> m.ohms(r1).thenOhms(r1F).hDiffMax(hDiffMaxFat, Metrics.Length.MILLI)
-              .add(m2 -> m2.ohms(r1F).thenOhms(r1F + r1Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
+          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI)
+              .add(m2 -> m2.ohms(r1Rho).thenOhms(r1Rho + r1RhoDiff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
           )
-          .system5x3(m -> m.ohms(r2).thenOhms(r2F).hDiffMax(hDiffMaxFat, Metrics.Length.MILLI)
-              .add(m2 -> m2.ohms(r2F).thenOhms(r2F + r2Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI)
+              .add(m2 -> m2.ohms(r2Rho).thenOhms(r2Rho + r2RhoDiff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
           )
           .build();
       LOGGER.atInfo().log(solver::toString);

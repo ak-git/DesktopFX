@@ -87,10 +87,10 @@ class IterativeModelTest {
   class Layer3AbsoluteTest {
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
-         2.0 | 8.0 | 4.0 | 1.0 | 2.0 | 0.02 | 0.07
-         2.0 | 1.0 | 4.0 | 1.0 | 2.0 | 0.02 | 0.07
+         2.0 | 8.0 | 4.0 | 1.0 | 2.0 | 0.02 | 0.07 | 0.01
+         2.0 | 1.0 | 4.0 | 1.0 | 2.0 | 0.02 | 0.07 | 0.02
         """)
-    void get(double rho1, double rho2, double rho3, double h1mm, double h2mh1mm, double dh1mm, double dh2mh1mm) {
+    void get(double rho1, double rho2, double rho3, double h1mm, double h2mh1mm, double dh1mm, double dh2mh1mm, double dRho2) {
       double hStep = Metrics.Length.MILLI.toSI(0.01);
       double h1 = Metrics.Length.MILLI.toSI(h1mm);
       double h2mh1 = Metrics.Length.MILLI.toSI(h2mh1mm);
@@ -98,7 +98,7 @@ class IterativeModelTest {
       double dh2mh1 = Metrics.Length.MILLI.toSI(dh2mh1mm);
 
       IterativeModel.Layer3Absolute layer3Absolute = IterativeModel.Layer3Absolute.builder(hStep)
-          .variables(new double[] {rho1, rho2, rho3, h1, h2mh1, dh1, dh2mh1}).build();
+          .variables(new double[] {rho1, rho2, rho3, h1, h2mh1, dh1, dh2mh1, dRho2}).build();
       assertAll(layer3Absolute.toString(),
           () -> Assertions.assertThat(layer3Absolute.rho1()).isNotNegative(),
           () -> Assertions.assertThat(layer3Absolute.rho2()).isNotNegative(),
@@ -109,17 +109,19 @@ class IterativeModelTest {
           () -> Assertions.assertThat(layer3Absolute.dp().p1()).isEqualTo(2),
           () -> Assertions.assertThat(layer3Absolute.dp().p2mp1()).isEqualTo(7),
           () -> Assertions.assertThat(layer3Absolute.dp().pSum()).isEqualTo(9),
-          () -> Assertions.assertThat(layer3Absolute.toModel(new Model.P(1, 2), new Model.P(2, 3)))
-              .isEqualTo(new Model.Layer3Absolute(rho1, rho2, rho3, hStep, new Model.P(1, 2), new Model.P(3, 5))),
+          () -> Assertions.assertThat(layer3Absolute.dRho2()).isNotNegative(),
+          () -> Assertions.assertThat(layer3Absolute.toModel(new Model.P(2, 3), dRho2))
+              .isEqualTo(new Model.Layer3Absolute(rho1, rho2 + dRho2, rho3, hStep, layer3Absolute.p().add(new Model.P(2, 3)))),
           () -> Assertions.assertThat(layer3Absolute).hasToString(
               Stream.of(
                       ValuePair.Name.RHO_1.of(rho1, 0.0),
                       ValuePair.Name.RHO_2.of(rho2, 0.0),
                       ValuePair.Name.RHO_3.of(rho3, 0.0),
                       ValuePair.Name.H1.of(h1, 0.0),
-                      ValuePair.Name.H2.of(h1 + h2mh1, 0.0),
-                      ValuePair.Name.DH1.of(Metrics.Length.MILLI.toSI(0.02), 0.0),
-                      ValuePair.Name.DH2.of(Metrics.Length.MILLI.toSI(0.09), 0.0)
+                      ValuePair.Name.H2.of(h2mh1 + h1, 0.0),
+                      ValuePair.Name.DH1.of(dh1, 0.0),
+                      ValuePair.Name.DH2.of(dh2mh1 + dh1, 0.0),
+                      ValuePair.Name.D_RHO_2.of(dRho2, 0.0)
                   )
                   .map(ValuePair::toString).collect(Collectors.joining("; "))
           )

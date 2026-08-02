@@ -210,10 +210,12 @@ public sealed interface ParametricFunctional {
         @Override
         public Simplex.Bounds[] bounds() {
           return new Simplex.Bounds[] {
-              new Simplex.Bounds(1.0, 10.0), new Simplex.Bounds(1.0, 10.0), new Simplex.Bounds(1.0, 10.0), // rho1 - rho2 - rho3
+              new Simplex.Bounds(1.0, 10.0), new Simplex.Bounds(1.0, 20.0), new Simplex.Bounds(1.0, 10.0), // rho1 - rho2 - rho3
               new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(2.5)), // p1
-              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(2.5)), // (p2 - p1) - p1
-              new Simplex.Bounds(0.0, 0.5) // dh1 / dh2
+              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(2.5)), // (p2 - p1)
+              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.0), Metrics.Length.MILLI.toSI(0.180)),
+              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.0), Metrics.Length.MILLI.toSI(0.180)),
+              new Simplex.Bounds(0.0, 0.1)
           };
         }
 
@@ -221,13 +223,18 @@ public sealed interface ParametricFunctional {
         public ToDoubleFunction<IterativeModel> misfit() {
           return layer -> {
             if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer3Absolute layer3Absolute) {
-              if (layer3Absolute.rho1() < layer3Absolute.rho2() && layer3Absolute.rho2() > layer3Absolute.rho3()) {
-                double hStep = layer3Absolute.hStep();
+              if (layer3Absolute.rho1() < layer3Absolute.rho2() && layer3Absolute.rho2() > layer3Absolute.rho3() &&
+                  layer3Absolute.p().p1() < layer3Absolute.p().p2mp1() &&
+                  layer3Absolute.dp().p1() < layer3Absolute.dp().p2mp1() &&
+                  layer3Absolute.dp().pSum() <= measurement().hDiffMax() / layer3Absolute.hStep()) {
                 Model.P dPlus = layer3Absolute.dp();
-                Model.P dFat = new Model.P(0, measurement().hDiffMax() / hStep);
+                double dRho2 = layer3Absolute.dRho2();
+                TetrapolarMeasurement mRho2 = TetrapolarMeasurement.builder().ohms(measurement().ohms() + measurement().ohmsDiff())
+                    .thenOhms(measurement().next().ohms()).build();
                 return DoubleStream.of(
-                        misfitLog(layer3Absolute.toModel(layer3Absolute.p(), dFat), measurement(), dFat.pSum() * hStep),
-                        misfitLog(layer3Absolute.toModel(layer3Absolute.p().add(dFat), dPlus), measurement().next(), dPlus.pSum() * hStep)
+                        misfitLog(layer3Absolute.toModel(), layer3Absolute.toModel(dPlus, 0.0), measurement()),
+                        misfitLog(layer3Absolute.toModel(dPlus, 0.0), layer3Absolute.toModel(dPlus, dRho2), mRho2),
+                        misfitLog(layer3Absolute.toModel(dPlus, dRho2), layer3Absolute.toModel(dPlus.add(dPlus), dRho2), measurement().next())
                     )
                     .reduce(StrictMath::hypot).orElseThrow();
               }
@@ -239,11 +246,12 @@ public sealed interface ParametricFunctional {
           };
         }
 
-        private double misfitLog(Model model, TetrapolarMeasurement m, double dh) {
+        private double misfitLog(Model model, Model model2, TetrapolarMeasurement m) {
           Resistivity.Apparent resistivity = Resistivity.of(system()).apparent(model);
-          double apparent = resistivity.apparent(m.ohms());
-          double derivativeApparentByPhiDivRho = resistivity.apparent(m.ohmsDiff() / apparent / (dh * system().phiFactor()));
-          double v = StrictMath.hypot(log(resistivity.value()) - log(apparent), resistivity.derivative() - derivativeApparentByPhiDivRho);
+          Resistivity.Apparent resistivity2 = Resistivity.of(system()).apparent(model2);
+          double apparentDiffModel = resistivity2.value() - resistivity.value();
+          double v = StrictMath.hypot(log(resistivity.value() / resistivity.apparent(m.ohms())),
+              log(apparentDiffModel / resistivity.apparent(m.ohmsDiff())));
           return Double.isNaN(v) ? Double.POSITIVE_INFINITY : v;
         }
 
@@ -253,7 +261,8 @@ public sealed interface ParametricFunctional {
             case ZERO_MAX_LOG -> layer -> {
               if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer3Absolute layer3Absolute) {
                 return regularization(K.of(layer3Absolute.rho1(), layer3Absolute.rho2()), layer3Absolute.p().p1() * layer3Absolute.hStep()) +
-                    regularization(K.of(layer3Absolute.rho2(), layer3Absolute.rho3()), layer3Absolute.p().pSum() * layer3Absolute.hStep());
+                    regularization(K.of(layer3Absolute.rho2(), layer3Absolute.rho3()), layer3Absolute.p().pSum() * layer3Absolute.hStep()) +
+                    regularization(Math.abs(layer3Absolute.hStep() * layer3Absolute.dp().pSum()), 0, 2.0 * Math.abs(measurement().hDiffMax()));
               }
               throw new IllegalStateException("Unexpected value: " + layer);
             };

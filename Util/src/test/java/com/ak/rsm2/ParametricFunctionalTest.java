@@ -3,6 +3,7 @@ package com.ak.rsm2;
 import com.ak.math.Simplex;
 import com.ak.util.Metrics;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -257,28 +258,30 @@ class ParametricFunctionalTest {
           ))
           .build();
       Assertions.assertAll(Arrays.toString(parametricFunctional.bounds()),
-          () -> assertThat(parametricFunctional.bounds()).hasSize(6),
+          () -> assertThat(parametricFunctional.bounds()).hasSize(8),
           () -> assertThat(parametricFunctional.bounds()[0]).isEqualTo(new Simplex.Bounds(1.0, Double.NaN, 10.0)),
-          () -> assertThat(parametricFunctional.bounds()[1]).isEqualTo(new Simplex.Bounds(1.0, Double.NaN, 10.0)),
+          () -> assertThat(parametricFunctional.bounds()[1]).isEqualTo(new Simplex.Bounds(1.0, Double.NaN, 20.0)),
           () -> assertThat(parametricFunctional.bounds()[2]).isEqualTo(new Simplex.Bounds(1.0, Double.NaN, 10.0)),
-          () -> assertThat(parametricFunctional.bounds()[3]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.5))),
-          () -> assertThat(parametricFunctional.bounds()[4]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(1.5))),
-          () -> assertThat(parametricFunctional.bounds()[5]).isEqualTo(new Simplex.Bounds(0.0, 0.5))
+          () -> assertThat(parametricFunctional.bounds()[3]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(2.5))),
+          () -> assertThat(parametricFunctional.bounds()[4]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(2.5))),
+          () -> assertThat(parametricFunctional.bounds()[5]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.0), Metrics.Length.MILLI.toSI(0.180))),
+          () -> assertThat(parametricFunctional.bounds()[6]).isEqualTo(new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.0), Metrics.Length.MILLI.toSI(0.180))),
+          () -> assertThat(parametricFunctional.bounds()[7]).isEqualTo(new Simplex.Bounds(0.0, 0.1))
       );
     }
 
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
-        124.634 | 0.2270 | 0.020 | 124.861 | 0.2400 | 0.090
+        124.634 | 0.457 | 0.180 | 125.213 | 0.307 | 0.180
         """)
-    void misfit(double r1, double r1Diff, double hDiffMaxFat,
-                double r1F, double r1DiffF, double hDiffMax) {
+    void misfit(double r1, double r1Diff, double hDiffMax1,
+                double r2, double r2DiffF, double hDiffMax2) {
       Metrics.Length units = Metrics.Length.MILLI;
       double hStep = 0.01;
       ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
           .system(s -> s.tetrapolar(6.0, 18.0).absError(0.1))
-          .measurements(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMaxFat, units)
-              .add(m2 -> m2.ohms(r1F).thenOhms(r1F + r1DiffF).hDiffMax(hDiffMax, units)))
+          .measurements(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMax1, units)
+              .add(m2 -> m2.ohms(r2).thenOhms(r2 + r2DiffF).hDiffMax(hDiffMax2, units)))
           .build();
 
       Assertions.assertAll(parametricFunctional.toString(),
@@ -286,25 +289,26 @@ class ParametricFunctionalTest {
               .applyAsDouble(
                   IterativeModel.Layer3Absolute.builder(units.toSI(hStep))
                       .variables(2.0, 8.0, 4.0, new Model.P(100, 200),
-                          new Model.P((hDiffMax / hStep) * 2 / 9, (hDiffMax / hStep) * 7 / 9))
+                          new Model.P((hDiffMax1 / hStep) * 4 / 18, (hDiffMax1 / hStep) * 14 / 18), 0.02)
                       .build()
               )
           ).isNotNegative().isCloseTo(0.0, byLessThan(0.01))
       );
     }
 
+    @DisplayName("Модель 2 (1 мм) - 8 (2 мм) - 4 : 4/14 мкм + (8 + 0.02) + 4/14 мкм")
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
-        124.634 | 0.2270 | 0.020 | 124.861 | 0.2400 | 0.090
+        124.634 | 0.457 | 125.213 | 0.307 | 0.180
         """)
-    void regularization(double r1, double r1Diff, double hDiffMaxBigMinus,
-                        double r1F, double r1DiffF, double hDiffMaxSmallPlus) {
+    void regularization(double r1, double r1Diff,
+                        double r2, double r2DiffF, double hDiffMax) {
       Metrics.Length units = Metrics.Length.MILLI;
       double hStep = 0.01;
       ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
           .system(s -> s.tetrapolar(6.0, 18.0).absError(0.1))
-          .measurements(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMaxBigMinus, units)
-              .add(m2 -> m2.ohms(r1F).thenOhms(r1F + r1DiffF).hDiffMax(hDiffMaxSmallPlus, units)))
+          .measurements(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMax, units)
+              .add(m2 -> m2.ohms(r2).thenOhms(r2 + r2DiffF).hDiffMax(hDiffMax, units)))
           .build();
 
       ToDoubleFunction<IterativeModel> regularization = parametricFunctional.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG);
@@ -312,12 +316,12 @@ class ParametricFunctionalTest {
           () -> assertThat(regularization.applyAsDouble(
               IterativeModel.Layer3Absolute.builder(units.toSI(hStep))
                   .variables(2.0, 8.0, 4.0,
-                      new Model.P(100, 200), new Model.P((hDiffMaxSmallPlus / hStep) * 2 / 9, (hDiffMaxSmallPlus / hStep) * 7 / 9))
+                      new Model.P(100, 200), new Model.P((hDiffMax / hStep) * 4 / 18, (hDiffMax / hStep) * 14 / 18), 0.02)
                   .build())
           ).isNotNegative().isCloseTo(0.336, byLessThan(1.0e-3)),
           () -> assertThat(regularization.applyAsDouble(
               IterativeModel.Layer3Absolute.builder(units.toSI(hStep)).variables(2.0, 8.0, 4.0,
-                  new Model.P(100, 200), new Model.P(2, 7)).build()
+                  new Model.P(100, 200), new Model.P((hDiffMax / hStep) * 4 / 18, (hDiffMax / hStep) * 14 / 18), 0.02).build()
               )
           ).isNotNegative().isCloseTo(0.336, byLessThan(1.0e-3))
       );
