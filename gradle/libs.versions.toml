@@ -1,5 +1,5 @@
 [versions]
-sonarqube = '7.3.1.8318'
+sonarqube = '7.4.0.8496'
 jacocolog = '4.0.2'
 spotbugs = '6.5.10'
 ben-manes-versions = '0.59.0'
