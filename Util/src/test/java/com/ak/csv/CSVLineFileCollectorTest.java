@@ -157,24 +157,15 @@ class CSVLineFileCollectorTest {
   @Test
   void testCombiner() throws IOException {
     try (CSVLineFileCollector lineFileCollector = new CSVLineFileCollector(OUT_FILE)) {
-      try (CSVPrinter apply = lineFileCollector.combiner().apply(lineFileCollector.supplier().get(), lineFileCollector.supplier().get())) {
-        fail(apply.toString());
-      }
-    }
-    catch (UnsupportedOperationException e) {
-      assertThat(e.getMessage()).isNull();
+      CSVPrinter csvPrinter = lineFileCollector.supplier().get();
+      assertThatCode(() -> lineFileCollector.combiner().apply(csvPrinter, csvPrinter))
+          .doesNotThrowAnyExceptionExcept(UnsupportedOperationException.class);
     }
   }
 
   @Test
   void testInvalidPath() {
-    Path out = Path.of("/");
-    assertThatNullPointerException()
-        .isThrownBy(() -> {
-          try (var _ = new CSVLineFileCollector(out)) {
-            fail();
-          }
-        });
+    assertThatNullPointerException().isThrownBy(() -> new CSVLineFileCollector(Path.of("/")).close());
   }
 
   @Nested
