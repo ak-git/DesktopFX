@@ -15,6 +15,7 @@ import com.ak.digitalfilter.FilterBuilder;
 import com.ak.logging.LogBuilders;
 import com.ak.util.Clean;
 import com.ak.util.Strings;
+import org.assertj.core.api.Assertions;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -220,54 +221,54 @@ class FileReadingServiceTest {
 
   @Test
   void testAbstractConvertableService() {
-    try (AbstractConvertableService<BufferFrame, BufferFrame, TestVariable> convertableService =
-             new AbstractConvertableService<>(new RampBytesInterceptor(getClass().getName(),
-                 BytesInterceptor.BaudRate.BR_460800, 1 + TestVariable.values().length * Integer.BYTES),
-                 new ToIntegerConverter<>(TestVariable.class, 2)) {
-               @Override
-               public void subscribe(Flow.Subscriber<? super int[]> subscriber) {
-                 subscriber.onSubscribe(new Flow.Subscription() {
-                   @Override
-                   public void request(long n) {
-                     assertThat(n).isEqualTo(Long.MAX_VALUE);
-                   }
+    Assertions.assertThatNoException().isThrownBy(() -> {
+          try (AbstractConvertableService<BufferFrame, BufferFrame, TestVariable> convertableService =
+                   new AbstractConvertableService<>(new RampBytesInterceptor(getClass().getName(),
+                       BytesInterceptor.BaudRate.BR_460800, 1 + TestVariable.values().length * Integer.BYTES),
+                       new ToIntegerConverter<>(TestVariable.class, 2)) {
+                     @Override
+                     public void subscribe(Flow.Subscriber<? super int[]> subscriber) {
+                       subscriber.onSubscribe(new Flow.Subscription() {
+                         @Override
+                         public void request(long n) {
+                           assertThat(n).isEqualTo(Long.MAX_VALUE);
+                         }
 
-                   @Override
-                   public void cancel() {
-                     fail();
-                   }
-                 });
-                 process(ByteBuffer.allocate(0), ints -> fail(Arrays.toString(ints)));
-                 process(ByteBuffer.wrap(new byte[] {0, 2, 0, 0, 0, 1}), ints -> assertThat(ints).containsExactly(new int[] {2}));
-                 process(ByteBuffer.wrap(new byte[] {4, 0, 0, 0, 2}), ints -> assertThat(ints).containsExactly(new int[] {3}));
-                 process(ByteBuffer.allocate(0), ints -> fail(Arrays.toString(ints)));
-                 process(ByteBuffer.wrap(new byte[] {6, 0, 0, 0, 3}), ints -> assertThat(ints).containsExactly(new int[] {6}));
-                 subscriber.onComplete();
-               }
+                         @Override
+                         public void cancel() {
+                           fail();
+                         }
+                       });
+                       process(ByteBuffer.allocate(0), ints -> fail(Arrays.toString(ints)));
+                       process(ByteBuffer.wrap(new byte[] {0, 2, 0, 0, 0, 1}), ints -> assertThat(ints).containsExactly(new int[] {2}));
+                       process(ByteBuffer.wrap(new byte[] {4, 0, 0, 0, 2}), ints -> assertThat(ints).containsExactly(new int[] {3}));
+                       process(ByteBuffer.allocate(0), ints -> fail(Arrays.toString(ints)));
+                       process(ByteBuffer.wrap(new byte[] {6, 0, 0, 0, 3}), ints -> assertThat(ints).containsExactly(new int[] {6}));
+                       subscriber.onComplete();
+                     }
 
-               @Override
-               public Optional<AsynchronousFileChannel> call() throws Exception {
-                 return Optional.of(
-                     AsynchronousFileChannel.open(LogBuilders.CONVERTER_FILE.build(TestVariable.V_RRS.name()).getPath(),
-                         StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING)
-                 );
-               }
+                     @Override
+                     public Optional<AsynchronousFileChannel> call() throws Exception {
+                       return Optional.of(
+                           AsynchronousFileChannel.open(LogBuilders.CONVERTER_FILE.build(TestVariable.V_RRS.name()).getPath(),
+                               StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.TRUNCATE_EXISTING)
+                       );
+                     }
 
-               @Override
-               public void refresh(boolean force) {
-                 throw new UnsupportedOperationException();
-               }
-             }) {
-      TestSubscriber<int[]> subscriber = new TestSubscriber<>();
-      convertableService.subscribe(subscriber);
-      subscriber.assertNoErrors();
-      subscriber.assertSubscribed();
-      subscriber.assertComplete();
-      subscriber.assertValueCount(0);
-    }
-    catch (Exception ex) {
-      fail(ex);
-    }
+                     @Override
+                     public void refresh(boolean force) {
+                       throw new UnsupportedOperationException();
+                     }
+                   }) {
+            TestSubscriber<int[]> subscriber = new TestSubscriber<>();
+            convertableService.subscribe(subscriber);
+            subscriber.assertNoErrors();
+            subscriber.assertSubscribed();
+            subscriber.assertComplete();
+            subscriber.assertValueCount(0);
+          }
+        }
+    );
   }
 
   private static int getBlockSize(Path fileToRead) {
