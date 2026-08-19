@@ -6,9 +6,9 @@ import com.ak.appliance.briko.comm.interceptor.BrikoBytesInterceptor;
 import com.ak.comm.bytes.BufferFrame;
 import com.ak.fx.desktop.AbstractViewController;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
-@Component
+@Controller
 @Profile("briko")
 public final class BrikoViewController extends AbstractViewController<BufferFrame, BufferFrame, BrikoVariable> {
   public BrikoViewController() {

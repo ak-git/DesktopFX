@@ -32,6 +32,12 @@ public class ValuePair {
         return Strings.rho(2, base);
       }
     },
+    D_RHO_2 {
+      @Override
+      String toString(String base) {
+        return "%s%s".formatted(Strings.CAP_DELTA, Strings.rho(2, base));
+      }
+    },
     RHO_3 {
       @Override
       String toString(String base) {
@@ -69,6 +75,28 @@ public class ValuePair {
       @Override
       String toString(String base) {
         return Strings.h(2, base);
+      }
+    },
+    DH {
+      @Override
+      double convert(double si) {
+        return H.convert(si);
+      }
+
+      @Override
+      String toString(String base) {
+        return "%sh = %s %s".formatted(Strings.CAP_DELTA, base, MILLI(METRE));
+      }
+    },
+    DH1 {
+      @Override
+      double convert(double si) {
+        return H.convert(si);
+      }
+
+      @Override
+      String toString(String base) {
+        return "%s%s".formatted(Strings.CAP_DELTA, Strings.h(1, base));
       }
     },
     DH2 {

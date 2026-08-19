@@ -13,7 +13,7 @@ public final class AperItoOhmChartApp extends AbstractSplineCoefficientsChartApp
     super(AperCoefficients.ADC_TO_OHM, ADCVariable.ADC, AperStage2UnitsVariable.CCR1);
   }
 
-  public static void main(String[] args) {
+  static void main() {
     launch();
   }
 }

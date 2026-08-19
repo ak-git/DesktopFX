@@ -1,7 +1,6 @@
 package com.ak.rsm2;
 
 import com.ak.math.Simplex;
-import com.ak.math.ValuePair;
 import com.ak.util.Builder;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
@@ -20,21 +19,28 @@ import java.util.Collection;
 import java.util.function.DoubleFunction;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 public sealed interface Solver {
-  static Step1 of(double base, Metrics.Length units) {
-    return new SolverBuilder(base, units);
+  static <M extends TetrapolarMeasurement> Step1<M> of(double base, Metrics.Length units, Function<double[], IterativeModel> modelFactory) {
+    return new SolverBuilder<>(base, units, modelFactory);
   }
 
-  sealed interface Step1 {
-    Step2 system1x3(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction);
+  sealed interface Step1<M extends TetrapolarMeasurement> {
+    Step2<M> system1x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction);
+
+    Step2<M> system1x2(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction);
   }
 
-  sealed interface Step2 {
-    Builder<Solver> system5x3(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction);
+  sealed interface Step2<M extends TetrapolarMeasurement> {
+    Builder<Solver> system5x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction);
+
+    Builder<Solver> system1x4(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction);
   }
 
-  final class SolverBuilder implements Step1, Step2, Builder<Solver> {
+  final class SolverBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Builder<Solver> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SolverBuilder.class);
 
     private record SolverRecord() implements Solver {
@@ -42,9 +48,10 @@ public sealed interface Solver {
 
     private final double base;
     private final Metrics.Length units;
-    private final Collection<Misfit> misfits = new ArrayList<>();
+    private final Function<double[], IterativeModel> modelFactory;
+    private final Collection<ParametricFunctional> parametricFunctionals = new ArrayList<>();
 
-    public SolverBuilder(double base, Metrics.Length units) {
+    public SolverBuilder(double base, Metrics.Length units, Function<double[], IterativeModel> modelFactory) {
       if (base > 0) {
         this.base = base;
       }
@@ -52,68 +59,95 @@ public sealed interface Solver {
         throw new IllegalArgumentException("base = %f must be positive".formatted(base));
       }
       this.units = units;
+      this.modelFactory = modelFactory;
     }
 
     @Override
-    public Step2 system1x3(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction) {
-      systemX3(1, builderFunction);
+    public Step2<M> system1x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
+      addSystem(1, 3, builderFunction);
       return this;
     }
 
     @Override
-    public Builder<Solver> system5x3(Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction) {
-      systemX3(5, builderFunction);
+    public Step2<M> system1x2(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
+      addSystem(1, 2, builderFunction);
       return this;
     }
 
-    private void systemX3(int factorFirst, Function<TetrapolarMeasurement.Step1, Builder<TetrapolarMeasurement>> builderFunction) {
-      misfits.add(Misfit.builder(units)
-          .system(s -> s.tetrapolar(base * factorFirst, base * 3).absError(0.1))
-          .measurements(_ -> builderFunction.apply(TetrapolarMeasurement.builder(units)))
-          .build());
+    @Override
+    public Builder<Solver> system5x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
+      addSystem(5, 3, builderFunction);
+      return this;
+    }
+
+    @Override
+    public Builder<Solver> system1x4(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
+      addSystem(1, 4, builderFunction);
+      return this;
+    }
+
+    private void addSystem(int factorFirst, int factorLast, Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
+      parametricFunctionals.add(
+          ParametricFunctional.builder(units)
+              .system(s -> s.tetrapolar(base * factorFirst, base * factorLast).absError(0.1))
+              .measurements(_ -> builderFunction.apply(TetrapolarMeasurement.builder()))
+              .build()
+      );
     }
 
     @Override
     public Solver build() {
-      double dataErrorNorm = misfits.stream().mapToDouble(Misfit::dataErrorNorm).reduce(Math::hypot).orElseThrow();
-      LOGGER.atInfo().addKeyValue("data Error Norm", "%.4f".formatted(dataErrorNorm)).log(Strings.EMPTY);
-
-      DoubleFunction<Model.Layer2Relative> find = alpha -> {
+      DoubleFunction<IterativeModel> find = alpha -> {
         PointValuePair optimized = Simplex.optimizeAll(point -> {
-              Model.Layer2Relative m = new Model.Layer2Relative(point[0], point[1]);
-              double s = misfits.stream().mapToDouble(f -> f.regularization(Misfit.Regularization.ZERO_MAX_LOG).applyAsDouble(m)).sum();
-              if (Double.isFinite(s)) {
-                double misfit = misfits.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
-                return misfit * misfit + Math.abs(alpha) * s;
-              }
-              else {
-                return Double.POSITIVE_INFINITY;
-              }
+              IterativeModel m = modelFactory.apply(point);
+              return DoubleStream.concat(
+                      parametricFunctionals.stream().mapToDouble(f -> alpha * f.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG).applyAsDouble(m)),
+                      parametricFunctionals.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).map(x -> x * x)
+                  )
+                  .takeWhile(Double::isFinite).boxed().collect(
+                      Collectors.teeing(
+                          Collectors.reducing(Double::sum),
+                          Collectors.counting(),
+                          (sum, count) -> count == parametricFunctionals.size() * 2L ? sum.orElseThrow() : Double.POSITIVE_INFINITY
+                      )
+                  );
             },
-            new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, 0.04));
-        double[] point = optimized.getPoint();
-        return new Model.Layer2Relative(point[0], point[1]);
+            parametricFunctionals.stream().map(ParametricFunctional::bounds).reduce((bounds1, bounds2) -> {
+              Simplex.Bounds[] bounds = new Simplex.Bounds[Math.max(bounds1.length, bounds2.length)];
+              for (int i = 0; i < bounds.length; i++) {
+                bounds[i] = bounds1[i].merge(bounds2[i]);
+              }
+              return bounds;
+            }).orElseThrow());
+        return modelFactory.apply(optimized.getPoint());
       };
 
-      DoubleUnaryOperator withAlpha = new DoubleUnaryOperator() {
-        private final double dataErrorNorm = misfits.stream().mapToDouble(Misfit::dataErrorNorm).reduce(Math::hypot).orElseThrow();
+      double dataErrorNormBase = parametricFunctionals.stream().mapToDouble(ParametricFunctional::dataErrorNorm).reduce(Math::hypot).orElseThrow();
+      double dataErrorNormShift = parametricFunctionals.stream().mapToDouble(new ToDoubleFunction<>() {
+        private final IterativeModel mZero = find.apply(0.0);
 
         @Override
-        public double applyAsDouble(double alpha) {
-          if (alpha < 0) {
-            return Double.POSITIVE_INFINITY;
-          }
-          else {
-            Model.Layer2Relative m = find.apply(alpha);
-            double misfit = misfits.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
-            LOGGER.atInfo().addKeyValue("alpha", "%.4f".formatted(alpha)).addKeyValue("misfit", "%.4f".formatted(misfit))
-                .log(() -> "%s; %s".formatted(
-                    ValuePair.Name.K12.of(find.apply(alpha).k().value(), 0.0),
-                    ValuePair.Name.H.of(find.apply(alpha).h(), 0.0))
-                );
-            double v = misfit - dataErrorNorm;
-            return v * v;
-          }
+        public double applyAsDouble(ParametricFunctional f) {
+          return f.misfit().applyAsDouble(mZero);
+        }
+      }).reduce(Math::hypot).orElseThrow();
+      double dataErrorNorm = dataErrorNormBase + dataErrorNormShift;
+      LOGGER.atInfo()
+          .addKeyValue("data Error Norm Base", "%.4f".formatted(dataErrorNormBase))
+          .addKeyValue("alpha = 0 data Error Norm Shift", "%.4f".formatted(dataErrorNormShift))
+          .addKeyValue("total data Error Norm", "%.4f".formatted(dataErrorNorm)).log(Strings.EMPTY);
+
+      DoubleUnaryOperator withAlpha = alpha -> {
+        if (alpha < 0) {
+          return Double.POSITIVE_INFINITY;
+        }
+        else {
+          IterativeModel m = find.apply(alpha);
+          double misfit = parametricFunctionals.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
+          LOGGER.atInfo().addKeyValue("alpha", "%.4f".formatted(alpha)).addKeyValue("misfit", "%.4f".formatted(misfit))
+              .log(() -> "%s".formatted(find.apply(alpha)));
+          double v = misfit - dataErrorNorm;
+          return v * v;
         }
       };
 
@@ -123,11 +157,7 @@ public sealed interface Solver {
               new NelderMeadTransform(), new InitialGuess(new double[] {0.0})
           );
       double alpha = optimized.getPoint()[0];
-      LOGGER.atWarn().addKeyValue("alpha", () -> "%.4f".formatted(alpha))
-          .log("%s; %s".formatted(
-              ValuePair.Name.K12.of(find.apply(alpha).k().value(), 0.0),
-              ValuePair.Name.H.of(find.apply(alpha).h(), 0.0)));
-
+      LOGGER.atWarn().addKeyValue("alpha", () -> "%.4f".formatted(alpha)).log("%s".formatted(find.apply(alpha)));
       return new SolverRecord();
     }
   }

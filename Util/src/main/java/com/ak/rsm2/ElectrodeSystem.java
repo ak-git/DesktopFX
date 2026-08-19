@@ -7,7 +7,6 @@ import com.ak.util.Metrics;
 import javax.measure.MetricPrefix;
 import java.util.Objects;
 
-import static java.lang.StrictMath.log1p;
 import static java.lang.StrictMath.pow;
 import static tech.units.indriya.unit.Units.METRE;
 
@@ -87,7 +86,7 @@ public sealed interface ElectrodeSystem {
 
       private final Metrics.Length units;
 
-      public TetrapolarBuilder(Metrics.Length units) {
+      private TetrapolarBuilder(Metrics.Length units) {
         this.units = units;
       }
 
@@ -104,8 +103,6 @@ public sealed interface ElectrodeSystem {
 
   sealed interface Inexact extends Tetrapolar {
     double apparentRhoRelativeError();
-
-    double dataErrorNorm();
 
     double hMax(K k);
 
@@ -157,11 +154,6 @@ public sealed interface ElectrodeSystem {
         }
 
         @Override
-        public double dataErrorNorm() {
-          return log1p(apparentRhoRelativeError());
-        }
-
-        @Override
         public double hMax(K k) {
           double zeta3 = Math.abs(Layers.sum(n -> pow(k.value(), n) / pow(n, 3.0)));
           double x = normalizedSToL();
@@ -201,7 +193,7 @@ public sealed interface ElectrodeSystem {
       private final Metrics.Length units;
       private final Tetrapolar electrodeSystem;
 
-      public InexactBuilder(Metrics.Length units, Tetrapolar electrodeSystem) {
+      private InexactBuilder(Metrics.Length units, Tetrapolar electrodeSystem) {
         this.units = units;
         this.electrodeSystem = electrodeSystem;
       }

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -69,7 +70,7 @@ public class LocalFileIO implements LocalIO {
     }
 
     public static String localDate(String pattern) {
-      return DateTimeFormatter.ofPattern(pattern).format(ZonedDateTime.now());
+      return DateTimeFormatter.ofPattern(pattern).format(ZonedDateTime.now(ZoneId.systemDefault()));
     }
   }
 }

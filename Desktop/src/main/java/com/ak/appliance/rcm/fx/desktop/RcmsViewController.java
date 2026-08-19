@@ -8,9 +8,9 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.fx.desktop.AbstractViewController;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
-@Component
+@Controller
 @Profile("rcms")
 public final class RcmsViewController extends AbstractViewController<BufferFrame, BufferFrame, RcmsOutVariable> {
   public RcmsViewController() {

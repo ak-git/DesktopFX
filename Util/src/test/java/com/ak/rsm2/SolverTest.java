@@ -1,0 +1,215 @@
+package com.ak.rsm2;
+
+import com.ak.util.Metrics;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+
+class SolverTest {
+  @Nested
+  class WaterTest {
+    @Disabled("""
+        -data Error Norm Base=0,0238 alpha = 0 data Error Norm Shift=0,0006 total data Error Norm=0,0244-
+        -alpha=0,0013- k₁₂ = 0,945; h = 04,521 mm
+        -alpha=0,0013- k₁₂ = 0,934; h = 09,498 mm
+        -alpha=0,0013- k₁₂ = 0,881; h = 13,875 mm
+        -alpha=0,0008- k₁₂ = 0,907; h = 19,134 mm
+        -alpha=0,0023- k₁₂ = 0,551; h = 18,888 mm
+        -alpha=0,0023- k₁₂ = 0,319; h = 19,451 mm
+        -alpha=0,0007- k₁₂ = 0,885; h = 32,435 mm
+        """)
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        30.971, 61.860, 31.278, 62.479, -0.05
+        16.761, 32.246, 16.821, 32.383, -0.05
+        13.338, 23.903, 13.357, 23.953, -0.05
+        12.187, 20.567, 12.194, 20.589, -0.05
+        11.710, 18.986, 11.714, 18.998, -0.05
+        11.482, 18.152, 11.484, 18.158, -0.05
+        11.361, 17.674, 11.362, 17.678, -0.05
+        """)
+    void water(double r1, double r2, double r1After, double r2After, double hDiffMilli) {
+      Solver solver = Solver.<TetrapolarMeasurement.Diff>of(10.0, Metrics.Length.MILLI, IterativeModel.Layer2Relative::new)
+          .system1x3(m -> m.ohms(r1).thenOhms(r1After).hDiff(hDiffMilli, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2After).hDiff(hDiffMilli, Metrics.Length.MILLI))
+          .build();
+      Assertions.assertThat(solver).isNotNull();
+    }
+
+    @Disabled("""
+        -data Error Norm Base=0,0238 alpha = 0 data Error Norm Shift=0,0031 total data Error Norm=0,0269-
+        -alpha=0,0015- k₁₂ = 0,942; h = 04,328 mm; Δh = -0,048 mm
+        -alpha=0,0013- k₁₂ = 0,934; h = 09,498 mm; Δh = -0,050 mm
+        -alpha=0,0013- k₁₂ = 0,881; h = 13,875 mm; Δh = -0,050 mm
+        -alpha=0,0011- k₁₂ = 0,884; h = 18,925 mm; Δh = -0,050 mm
+        -alpha=0,0021- k₁₂ = 0,600; h = 18,907 mm; Δh = -0,046 mm
+        -alpha=0,0023- k₁₂ = 0,466; h = 19,539 mm; Δh = -0,034 mm
+        -alpha=0,0002- k₁₂ = 0,957; h = 31,734 mm; Δh = -0,042 mm
+        """)
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        30.971, 61.860, 31.278, 62.479, -0.05
+        16.761, 32.246, 16.821, 32.383, -0.05
+        13.338, 23.903, 13.357, 23.953, -0.05
+        12.187, 20.567, 12.194, 20.589, -0.05
+        11.710, 18.986, 11.714, 18.998, -0.05
+        11.482, 18.152, 11.484, 18.158, -0.05
+        11.361, 17.674, 11.362, 17.678, -0.05
+        """)
+    void waterMax(double r1, double r2, double r1After, double r2After, double hDiffMilli) {
+      Solver solver = Solver.<TetrapolarMeasurement.MaxDiff>of(10.0, Metrics.Length.MILLI, IterativeModel.Layer2RelativeDh::new)
+          .system1x3(m -> m.ohms(r1).thenOhms(r1After).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2After).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
+          .build();
+      Assertions.assertThat(solver).isNotNull();
+    }
+  }
+
+  @Nested
+  class DiffTest {
+    @Disabled("""
+        e8422_2023_05_25_14_04_43
+        -data Error Norm Base=0,0339 alpha = 0 data Error Norm Shift=0,0000 total data Error Norm=0,0339-
+        -alpha=0,0050- k₁₂ = -0,211; h = 8,353 mm
+        -alpha=0,0065- k₁₂ = -0,284; h = 8,546 mm
+        -alpha=0,0070- k₁₂ = -0,238; h = 7,123 mm
+        -alpha=0,0070- k₁₂ = -0,231; h = 7,064 mm
+        """)
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        135.1687, 203.1126, 0.2822034, 0.5831683, 0.150
+        137.0167, 207.4542, 0.3620525, 0.7709094, 0.150
+        139.6433, 212.6400, 0.4942724, 0.9339182, 0.150
+        140.7461, 215.4297, 0.4942724, 0.9339182, 0.150
+        """)
+    void hDiff(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
+      Solver solver = Solver.<TetrapolarMeasurement.Diff>of(7.0, Metrics.Length.MILLI, IterativeModel.Layer2Relative::new)
+          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiff(hDiffMilli, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiff(hDiffMilli, Metrics.Length.MILLI))
+          .build();
+      Assertions.assertThat(solver).isNotNull();
+    }
+
+    @Disabled("""
+        e8422_2023_05_25_14_04_43
+        -data Error Norm Base=0,0339 alpha = 0 data Error Norm Shift=0,0000 total data Error Norm=0,0339-
+        -alpha=0,0058- k₁₂ = -0,247; h = 8,326 mm; Δh = 0,127 mm
+        -alpha=0,0072- k₁₂ = -0,323; h = 8,514 mm; Δh = 0,130 mm
+        -alpha=0,0075- k₁₂ = -0,253; h = 7,101 mm; Δh = 0,140 mm
+        -alpha=0,0072- k₁₂ = -0,248; h = 7,061 mm; Δh = 0,140 mm
+        """)
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        135.1687, 203.1126, 0.2822034, 0.5831683, 0.150
+        137.0167, 207.4542, 0.3620525, 0.7709094, 0.150
+        139.6433, 212.6400, 0.4942724, 0.9339182, 0.150
+        140.7461, 215.4297, 0.4942724, 0.9339182, 0.150
+        """)
+    void hDiffMax(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
+      Solver solver = Solver.<TetrapolarMeasurement.MaxDiff>of(7.0, Metrics.Length.MILLI, IterativeModel.Layer2RelativeDh::new)
+          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
+          .build();
+      Assertions.assertThat(solver).isNotNull();
+    }
+  }
+
+  @Nested
+  class TwoMaxDiffTest {
+    @Disabled("""
+        Оценка предела h
+        -alpha=0,0083- k₁₂ = -0,417; h = 9,154 mm
+        """)
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', textBlock = """
+        124.861 | 184.182 | 0.2400 | 0.5270 | 0.090
+        """)
+    void hDiff(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
+      Solver solver = Solver.<TetrapolarMeasurement.Diff>of(7.0, Metrics.Length.MILLI, IterativeModel.Layer2Relative::new)
+          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiff(hDiffMilli, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiff(hDiffMilli, Metrics.Length.MILLI))
+          .build();
+      Assertions.assertThat(solver).isNotNull();
+    }
+
+    @Disabled("""
+        Оценка перемещения индентора по двухслойной модели
+        -alpha=0,0078- k₁₂ = -0,538; h = 10,047 mm; Δh = 0,051 mm 2025-04-23 E-9712 ak 6 мм
+        -alpha=0,0085- k₁₂ = -0,417; h = 7,781 mm; Δh = 0,075 mm
+        """)
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', textBlock = """
+        129.195 | 200.848 | 0.0985 | 0.2742 | 0.090
+        124.861 | 184.182 | 0.2400 | 0.5270 | 0.090
+        """)
+    void hDiffMaxLayer2(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
+      Solver solver = Solver.<TetrapolarMeasurement.MaxDiff>of(6.0, Metrics.Length.MILLI, IterativeModel.Layer2RelativeDh::new)
+          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
+          .build();
+      Assertions.assertThat(solver).isNotNull();
+    }
+
+    @Disabled("""
+        Оценка толщины жира по двухслойной модели
+        -alpha=0,0015- k₁₂ = -0,999; h = 13,543 mm; Δh = 0,137 mm 2025-04-23 E-9712 ak 6 мм
+        -alpha=0,0020- k₁₂ = -0,999; h = 11,082 mm; Δh = 0,071 mm 2025-04-23 E-9712 ak 6 мм
+        -alpha=0,4470- k₁₂ = -0,788; h = 3,878 mm; Δh = 0,006 mm
+        """)
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', textBlock = """
+        129.040 | 200.188 | 0.155 | 0.660 | 0.180
+        124.634 | 183.863 | 0.227 | 0.319 | 0.180
+        """)
+    void hDiffFat(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
+      Solver solver = Solver.<TetrapolarMeasurement.ZeroDiff>of(6.0, Metrics.Length.MILLI, IterativeModel.Layer2RelativeDh::new)
+          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffZero(hDiffMilli, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffZero(hDiffMilli, Metrics.Length.MILLI))
+          .build();
+      Assertions.assertThat(solver).isNotNull();
+    }
+
+    @Disabled("""
+        2025-04-23 E-9712 ak 6 мм
+        -data Error Norm Base=0,0395 alpha = 0 data Error Norm Shift=0,7225 total data Error Norm=0,7620-
+        -alpha=10,000 misfit=1,1530- ρ₁ = 2,564 Ω·m; ρ₂ = 14,416 Ω·m; ρ₃ = 9,589 Ω·m; h₁ = 1,620 mm; h₂ = 3,750 mm; Δh₁ = 0,010 mm; Δh₂ = 0,170 mm; Δρ₂ = 0,080 Ω·m
+        -alpha=1,0000 misfit=0,8042- ρ₁ = 1,855 Ω·m; ρ₂ = 09,647 Ω·m; ρ₃ = 6,820 Ω·m; h₁ = 1,720 mm; h₂ = 3,530 mm; Δh₁ = 0,010 mm; Δh₂ = 0,170 mm; Δρ₂ = 0,092 Ω·m
+        -alpha=0,1000 misfit=0,8086- ρ₁ = 1,337 Ω·m; ρ₂ = 11,451 Ω·m; ρ₃ = 6,270 Ω·m; h₁ = 1,050 mm; h₂ = 3,420 mm; Δh₁ = 0,010 mm; Δh₂ = 0,160 mm; Δρ₂ = 0,096 Ω·m
+        -alpha=0,0100 misfit=0,7764- ρ₁ = 1,635 Ω·m; ρ₂ = 10,944 Ω·m; ρ₃ = 4,257 Ω·m; h₁ = 1,370 mm; h₂ = 3,870 mm; Δh₁ = 0,010 mm; Δh₂ = 0,090 mm; Δρ₂ = 0,079 Ω·m
+        
+        -data Error Norm Base=0,0395 alpha = 0 data Error Norm Shift=0,6565 total data Error Norm=0,6960-
+        -alpha=10,000 misfit=1,0237- ρ₁ = 1,405 Ω·m; ρ₂ = 10,098 Ω·m; ρ₃ = 6,392 Ω·m; h₁ = 1,460 mm; h₂ = 3,430 mm; Δh₁ = 0,010 mm; Δh₂ = 0,180 mm; Δh = 0,108 mm
+        -alpha=1,0000 misfit=0,8411- ρ₁ = 1,993 Ω·m; ρ₂ = 08,717 Ω·m; ρ₃ = 6,005 Ω·m; h₁ = 1,740 mm; h₂ = 3,570 mm; Δh₁ = 0,010 mm; Δh₂ = 0,170 mm; Δh = 0,080 mm
+        -alpha=0,1000 misfit=0,6781- ρ₁ = 1,747 Ω·m; ρ₂ = 12,946 Ω·m; ρ₃ = 8,547 Ω·m; h₁ = 2,370 mm; h₂ = 4,850 mm; Δh₁ = 0,000 mm; Δh₂ = 0,150 mm; Δh = 0,117 mm
+        -alpha=0,0100 misfit=0,6457- ρ₁ = 1,778 Ω·m; ρ₂ = 14,396 Ω·m; ρ₃ = 8,959 Ω·m; h₁ = 2,040 mm; h₂ = 4,390 mm; Δh₁ = 0,000 mm; Δh₂ = 0,110 mm; Δh = 0,109 mm
+        """)
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        128.412, 198.251, 0.1954, 0.5901, 128.792, 199.563, 0.2476, 0.6247, 0.18
+        """)
+    void hDiffMaxLayer3(double r1, double r2, double r1Diff, double r2Diff,
+                        double r1Rho, double r2Rho, double r1RhoDiff, double r2RhoDiff, double hDiffMax) {
+      Solver solver = Solver.<TetrapolarMeasurement.TwoMaxDiff>of(6.0, Metrics.Length.MILLI, vs ->
+              IterativeModel.Layer3Absolute.builder(Metrics.Length.MILLI.toSI(0.01))
+                  .variables(
+                      new double[] {vs[0], vs[1], vs[2],
+                          vs[3], vs[4],
+                          vs[5], vs[6],
+                          vs[7]
+                      }
+                  )
+                  .build()
+          )
+          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI)
+              .add(m2 -> m2.ohms(r1Rho).thenOhms(r1Rho + r1RhoDiff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
+          )
+          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI)
+              .add(m2 -> m2.ohms(r2Rho).thenOhms(r2Rho + r2RhoDiff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
+          )
+          .build();
+      Assertions.assertThat(solver).isNotNull();
+    }
+  }
+}

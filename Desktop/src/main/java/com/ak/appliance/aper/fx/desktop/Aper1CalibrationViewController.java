@@ -5,9 +5,9 @@ import com.ak.appliance.aper.comm.converter.AperStage1Variable;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
-@Component
+@Controller
 @Profile("aper1-calibration")
 public final class Aper1CalibrationViewController extends AbstractAperViewController<AperCalibrationCurrent1Variable> {
   public Aper1CalibrationViewController() {

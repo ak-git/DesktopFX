@@ -61,7 +61,7 @@ public final class GroupService<T, R, V extends Enum<V> & Variable<V>> extends A
 
   public void write(T request) {
     if (Objects.equals(currentReadable, serialService)) {
-      serialService.write(request);
+      Objects.requireNonNull(serialService).write(request);
     }
   }
 

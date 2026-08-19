@@ -42,8 +42,7 @@ final class FileReadingService<T, R, V extends Enum<V> & Variable<V>>
 
   FileReadingService(Path fileToRead, BytesInterceptor<T, R> bytesInterceptor, Converter<R, V> responseConverter) {
     super(bytesInterceptor, responseConverter);
-    Objects.requireNonNull(fileToRead);
-    this.fileToRead = fileToRead;
+    this.fileToRead = Objects.requireNonNull(fileToRead);
   }
 
   @Override

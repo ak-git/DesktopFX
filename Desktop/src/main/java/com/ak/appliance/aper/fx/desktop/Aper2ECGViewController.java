@@ -7,9 +7,9 @@ import com.ak.appliance.aper.comm.converter.AperStage4Current2Variable;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
-@Component
+@Controller
 @Profile("aper2-ecg")
 public final class Aper2ECGViewController extends AbstractAperViewController<AperStage4Current2Variable> {
   public Aper2ECGViewController() {

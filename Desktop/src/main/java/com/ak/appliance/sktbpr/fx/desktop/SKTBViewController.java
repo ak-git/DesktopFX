@@ -10,7 +10,7 @@ import com.ak.fx.desktop.AbstractScheduledViewController;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Component
+@Controller
 @Profile("sktb-pr")
 public final class SKTBViewController extends AbstractScheduledViewController<SKTBRequest, SKTBResponse, SKTBVariable>
     implements ApplicationListener<RsceEvent> {
@@ -85,7 +85,7 @@ public final class SKTBViewController extends AbstractScheduledViewController<SK
   @Override
   @EventListener(RsceEvent.class)
   public void onApplicationEvent(RsceEvent rsceEvent) {
-    controls.forEach((variable, control) -> control.update(rsceEvent));
+    controls.forEach((_, control) -> control.update(rsceEvent));
   }
 
   private void action(SKTBVariable variable, Consumer<SKTBAngleVelocityControl> control) {

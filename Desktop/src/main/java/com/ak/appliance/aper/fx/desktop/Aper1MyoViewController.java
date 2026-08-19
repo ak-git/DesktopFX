@@ -8,9 +8,9 @@ import com.ak.comm.bytes.BufferFrame;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
-@Component
+@Controller
 @Profile("aper1-myo")
 public final class Aper1MyoViewController extends AbstractAperViewController<AperStage4Current1Variable> {
   public Aper1MyoViewController() {

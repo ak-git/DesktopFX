@@ -121,7 +121,7 @@ public final class CycleSerialService<T, R, V extends Enum<V> & Variable<V>>
     @Override
     public void onError(Throwable throwable) {
       serialService.close();
-      Logger.getLogger(CycleSerialService.class.getName()).log(Level.SEVERE, serialService.toString(), throwable);
+      Logger.getLogger(CycleSerialService.class.getName()).log(Level.SEVERE, throwable, serialService::toString);
     }
 
     @Override

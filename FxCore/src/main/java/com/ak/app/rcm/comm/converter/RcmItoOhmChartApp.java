@@ -13,7 +13,7 @@ public final class RcmItoOhmChartApp extends AbstractSplineCoefficientsChartApp<
     super(RcmCoefficients.CC_ADC_TO_OHM.of(1), ADCVariable.ADC, RcmOutVariable.QS_1);
   }
 
-  public static void main(String[] args) {
+  static void main() {
     launch();
   }
 }

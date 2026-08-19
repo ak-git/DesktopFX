@@ -36,6 +36,11 @@ public sealed interface K {
     }
 
     @Override
+    public String toString() {
+      return "%.3f".formatted(value);
+    }
+
+    @Override
     public boolean isPlusOne() {
       return Double.compare(value, 1.0) == 0;
     }

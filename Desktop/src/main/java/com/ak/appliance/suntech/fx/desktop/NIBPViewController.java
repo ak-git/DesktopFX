@@ -6,13 +6,13 @@ import com.ak.appliance.suntech.comm.converter.NIBPVariable;
 import com.ak.appliance.suntech.comm.interceptor.NIBPBytesInterceptor;
 import com.ak.util.UIConstants;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-@Component
+@Controller
 @Profile("suntech")
 public final class NIBPViewController extends AbstractNIBPViewController {
   private final Executor delayedExecutor = CompletableFuture.delayedExecutor(UIConstants.UI_DELAY_3SEC.getSeconds(), TimeUnit.SECONDS);

@@ -6,11 +6,11 @@ import com.ak.comm.converter.ToIntegerConverter;
 import com.ak.comm.interceptor.BytesInterceptor;
 import com.ak.comm.interceptor.simple.FixedFrameBytesInterceptor;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 import java.nio.ByteOrder;
 
-@Component
+@Controller
 @Profile("loopback")
 public final class LoopbackViewController extends AbstractScheduledViewController<BufferFrame, BufferFrame, ADCVariable> {
   private static final int FREQUENCY = 5;

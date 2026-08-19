@@ -1,6 +1,7 @@
 package com.ak.rsm2;
 
 import com.ak.rsm.system.Layers;
+import com.ak.util.Builder;
 
 import java.util.Objects;
 import java.util.function.DoubleUnaryOperator;
@@ -9,19 +10,71 @@ import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.pow;
 
 public sealed interface Resistivity {
+  ElectrodeSystem.Tetrapolar system();
+
   double apparent(double rOhm);
 
-  double apparentDivRho1(Model.Layer2Relative layer2);
-
-  double derivativeApparentByPhiDivRho1(Model.Layer2Relative layer2);
-
-  static Resistivity of(ElectrodeSystem.Tetrapolar tetrapolar) {
-    return new ApparentDivRho1.TwoLayers(tetrapolar);
+  static Step1 of(ElectrodeSystem.Tetrapolar system) {
+    return new ResistivityBuilder(system);
   }
 
-  interface ApparentDivRho1 {
-    record TwoLayers(ElectrodeSystem.Tetrapolar tetrapolar) implements Resistivity {
-      enum Sign implements DoubleUnaryOperator {
+  sealed interface Step1 extends Builder<Resistivity> {
+    Apparent apparent(Model model);
+  }
+
+  final class ResistivityBuilder implements Step1 {
+    private record ResistivityRecord(ElectrodeSystem.Tetrapolar system) implements Resistivity {
+      private ResistivityRecord {
+        Objects.requireNonNull(system);
+      }
+
+      @Override
+      public double apparent(double rOhm) {
+        return (Math.PI / 2.0) * rOhm / system.phiFactor();
+      }
+    }
+
+    private final ElectrodeSystem.Tetrapolar tetrapolar;
+
+    private ResistivityBuilder(ElectrodeSystem.Tetrapolar tetrapolar) {
+      this.tetrapolar = tetrapolar;
+    }
+
+    @Override
+    public Resistivity build() {
+      return new ResistivityRecord(tetrapolar);
+    }
+
+    @Override
+    public Apparent apparent(Model model) {
+      return new Apparent.ApparentBuilder(build(), model).build();
+    }
+  }
+
+  sealed interface Apparent extends Resistivity {
+    double value();
+
+    double derivative();
+
+    final class ApparentBuilder implements Builder<Apparent> {
+      private record ApparentRecord(Resistivity resistivity, double value, double derivative)
+          implements Apparent {
+        private ApparentRecord {
+          Objects.requireNonNull(resistivity);
+        }
+
+        @Override
+        public ElectrodeSystem.Tetrapolar system() {
+          return resistivity.system();
+        }
+
+        @Override
+        public double apparent(double rOhm) {
+          return resistivity.apparent(rOhm);
+        }
+      }
+
+      private enum Sign implements DoubleUnaryOperator {
         PLUS(1), MINUS(-1);
 
         private final int signCoeff;
@@ -36,38 +89,42 @@ public sealed interface Resistivity {
         }
       }
 
-      public TwoLayers {
-        Objects.requireNonNull(tetrapolar);
+      private final Resistivity resistivity;
+      private final Model model;
+
+      private ApparentBuilder(Resistivity resistivity, Model model) {
+        this.resistivity = resistivity;
+        this.model = model;
       }
 
       @Override
-      public double apparent(double rOhm) {
-        return (Math.PI / 2.0) * rOhm / tetrapolar().phiFactor();
-      }
-
-      @Override
-      public double apparentDivRho1(Model.Layer2Relative layer2) {
-        DoubleUnaryOperator left = braceOperation(layer2.h(), Sign.MINUS);
-        DoubleUnaryOperator right = braceOperation(layer2.h(), Sign.PLUS);
-        return 1.0 + 2.0 * Layers.sum(n -> pow(layer2.k().value(), n) * (left.applyAsDouble(n) - right.applyAsDouble(n)));
-      }
-
-      @Override
-      public double derivativeApparentByPhiDivRho1(Model.Layer2Relative layer2) {
-        DoubleUnaryOperator left = braceOperation(layer2.h(), Sign.MINUS);
-        DoubleUnaryOperator right = braceOperation(layer2.h(), Sign.PLUS);
-        return -32.0 * layer2.h() * tetrapolar.phiFactor() *
-            Layers.sum(
-                n -> pow(layer2.k().value(), n) * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0))
+      public Apparent build() {
+        return switch (model) {
+          case Model.Layer2Relative(K k, double h) -> {
+            DoubleUnaryOperator left = braceOperation(h, Sign.MINUS);
+            DoubleUnaryOperator right = braceOperation(h, Sign.PLUS);
+            yield new ApparentRecord(resistivity,
+                1.0 + 2.0 * Layers.sum(n -> pow(k.value(), n) * (left.applyAsDouble(n) - right.applyAsDouble(n))),
+                -32.0 * h * resistivity.system().phiFactor() *
+                    Layers.sum(n -> pow(k.value(), n) * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0)))
             );
+          }
+          case Model.Layer3Absolute(double rho1, double rho2, double rho3, double hStep, Model.P p) -> {
+            DoubleUnaryOperator left = braceOperation(hStep, Sign.MINUS);
+            DoubleUnaryOperator right = braceOperation(hStep, Sign.PLUS);
+            double[] qn = Layers.qn(K.of(rho1, rho2).value(), K.of(rho2, rho3).value(), p.p1(), p.p2mp1());
+            double apparent = (1.0 + 2.0 * Layers.sum(n -> qn[n] * (left.applyAsDouble(n) - right.applyAsDouble(n)))) * rho1;
+            yield new ApparentRecord(resistivity, apparent, Double.NaN);
+          }
+        };
       }
 
       private DoubleUnaryOperator braceOperation(double hSI, DoubleUnaryOperator sign) {
         return n -> {
-          double nom = 1.0 + sign.applyAsDouble(tetrapolar.sToL());
-          double den = 1.0 + sign.andThen(Sign.MINUS).applyAsDouble(tetrapolar.sToL());
+          double nom = 1.0 + sign.applyAsDouble(resistivity.system().sToL());
+          double den = 1.0 + sign.andThen(Sign.MINUS).applyAsDouble(resistivity.system().sToL());
           double left = 1.0 - Math.abs(nom / den);
-          double right = 4.0 * n * hSI * tetrapolar.phiFactor();
+          double right = 4.0 * n * hSI * resistivity.system().phiFactor();
           return 1.0 / hypot(left, right);
         };
       }

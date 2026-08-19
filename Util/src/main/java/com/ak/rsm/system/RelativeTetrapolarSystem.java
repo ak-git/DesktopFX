@@ -3,7 +3,7 @@ package com.ak.rsm.system;
 import static java.lang.StrictMath.pow;
 
 public record RelativeTetrapolarSystem(double sToL, double x) {
-  public static final double OPTIMAL_SL = 1.4142135623730951 - 1.0;
+  public static final double OPTIMAL_SL = 0.41421356237309515;
   public static final double MIN_ERROR_FACTOR = new RelativeTetrapolarSystem(OPTIMAL_SL).errorFactor();
 
   public RelativeTetrapolarSystem(double sToL) {

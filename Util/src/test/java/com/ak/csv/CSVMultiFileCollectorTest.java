@@ -4,7 +4,6 @@ import com.ak.util.Extension;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
@@ -22,6 +21,8 @@ import static com.ak.csv.CSVLineFileBuilderTest.LINE_JOINER;
 import static com.ak.csv.CSVLineFileBuilderTest.ROW_DELIMITER;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class CSVMultiFileCollectorTest {
@@ -86,7 +87,7 @@ class CSVMultiFileCollectorTest {
   @Test
   void testInvalidCombiner() {
     var combiner = new CSVMultiFileCollector.Builder<Object, Double>(Stream.empty()).build().combiner();
-    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> combiner.apply(null, null));
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> combiner.apply(List.of(), List.of()));
   }
 
   @Nested
@@ -97,9 +98,9 @@ class CSVMultiFileCollectorTest {
     @Test
     void testInvalidFinisher() throws IOException {
       var finisher = new CSVMultiFileCollector.Builder<Object, Double>(Stream.empty()).build().finisher();
-      Mockito.doThrow(IOException.class).when(csvLineFileCollector).close();
+      doThrow(IOException.class).when(csvLineFileCollector).close();
       assertThat(finisher.apply(List.of(csvLineFileCollector))).isFalse();
-      Mockito.verify(csvLineFileCollector).close();
+      verify(csvLineFileCollector).close();
       assertThat(EXCEPTION_COUNTER.get()).withFailMessage("Exception must be thrown").isEqualTo(1);
     }
   }
