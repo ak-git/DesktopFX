@@ -9,11 +9,11 @@ import com.ak.fx.desktop.AbstractScheduledViewController;
 import jakarta.inject.Inject;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 import java.util.Objects;
 
-@Component
+@Controller
 @Profile("nmis-rsce")
 public final class NmisRsceViewController extends AbstractScheduledViewController<NmisRequest, RsceCommandFrame, RsceVariable> {
   private static final NmisRequest.Sequence[] PINGS = {

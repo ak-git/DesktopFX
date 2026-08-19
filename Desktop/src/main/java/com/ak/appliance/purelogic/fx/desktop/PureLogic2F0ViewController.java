@@ -2,12 +2,12 @@ package com.ak.appliance.purelogic.fx.desktop;
 
 import com.ak.appliance.purelogic.comm.converter.PureLogicAxisFrequency;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
-@Component
+@Controller
 @Profile("purelogic2f0")
-public final class PureLogicViewController2F0 extends AbstractPureLogicViewController {
-  public PureLogicViewController2F0() {
+public final class PureLogic2F0ViewController extends AbstractPureLogicViewController {
+  public PureLogic2F0ViewController() {
     super(PureLogicAxisFrequency.F2_0);
   }
 }

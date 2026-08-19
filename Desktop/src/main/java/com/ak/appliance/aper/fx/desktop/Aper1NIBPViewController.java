@@ -6,9 +6,9 @@ import com.ak.appliance.aper.comm.converter.AperStage3Current1NIBPVariable;
 import com.ak.comm.converter.LinkedConverter;
 import com.ak.comm.converter.ToIntegerConverter;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
-@Component
+@Controller
 @Profile("aper1-nibp")
 public final class Aper1NIBPViewController extends AbstractAperViewController<AperStage3Current1NIBPVariable> {
   public Aper1NIBPViewController() {
