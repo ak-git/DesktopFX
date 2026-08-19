@@ -6,9 +6,9 @@ import com.ak.comm.interceptor.BytesInterceptor;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
-@Component
+@Controller
 @Profile({"nmis", "kleiber-myo", "prv", "NMI3Acc2Rheo"})
 public final class DefaultViewController<T, R, V extends Enum<V> & Variable<V>> extends AbstractViewController<T, R, V> {
   @Inject
