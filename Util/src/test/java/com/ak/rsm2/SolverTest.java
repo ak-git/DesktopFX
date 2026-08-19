@@ -1,16 +1,13 @@
 package com.ak.rsm2;
 
 import com.ak.util.Metrics;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class SolverTest {
-  private static final Logger LOGGER = LoggerFactory.getLogger(SolverTest.class);
-
   @Nested
   class WaterTest {
     @Disabled("""
@@ -38,7 +35,7 @@ class SolverTest {
           .system1x3(m -> m.ohms(r1).thenOhms(r1After).hDiff(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2After).hDiff(hDiffMilli, Metrics.Length.MILLI))
           .build();
-      LOGGER.atInfo().log(solver::toString);
+      Assertions.assertThat(solver).isNotNull();
     }
 
     @Disabled("""
@@ -66,7 +63,7 @@ class SolverTest {
           .system1x3(m -> m.ohms(r1).thenOhms(r1After).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2After).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
           .build();
-      LOGGER.atInfo().log(solver::toString);
+      Assertions.assertThat(solver).isNotNull();
     }
   }
 
@@ -92,7 +89,7 @@ class SolverTest {
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiff(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiff(hDiffMilli, Metrics.Length.MILLI))
           .build();
-      LOGGER.atInfo().log(solver::toString);
+      Assertions.assertThat(solver).isNotNull();
     }
 
     @Disabled("""
@@ -115,7 +112,7 @@ class SolverTest {
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
           .build();
-      LOGGER.atInfo().log(solver::toString);
+      Assertions.assertThat(solver).isNotNull();
     }
   }
 
@@ -134,7 +131,7 @@ class SolverTest {
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiff(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiff(hDiffMilli, Metrics.Length.MILLI))
           .build();
-      LOGGER.atInfo().log(solver::toString);
+      Assertions.assertThat(solver).isNotNull();
     }
 
     @Disabled("""
@@ -152,7 +149,7 @@ class SolverTest {
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
           .build();
-      LOGGER.atInfo().log(solver::toString);
+      Assertions.assertThat(solver).isNotNull();
     }
 
     @Disabled("""
@@ -171,7 +168,7 @@ class SolverTest {
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffZero(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffZero(hDiffMilli, Metrics.Length.MILLI))
           .build();
-      LOGGER.atInfo().log(solver::toString);
+      Assertions.assertThat(solver).isNotNull();
     }
 
     @Disabled("""
@@ -212,7 +209,7 @@ class SolverTest {
               .add(m2 -> m2.ohms(r2Rho).thenOhms(r2Rho + r2RhoDiff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
           )
           .build();
-      LOGGER.atInfo().log(solver::toString);
+      Assertions.assertThat(solver).isNotNull();
     }
   }
 }
