@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -64,7 +65,7 @@ class LocalFileIOTest {
         return new LocalFileIO(this, OSDirectory.of(TestOSDirectory.class));
       }
     }.addPathWithDate().addPathWithDate().build();
-    String date = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(ZonedDateTime.now());
+    String date = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(ZonedDateTime.now(ZoneId.systemDefault()));
     assertThat(localIO.getPath()).isEqualTo(PATH.resolve(date).resolve(date)).exists();
   }
 
@@ -79,7 +80,7 @@ class LocalFileIOTest {
     }.fileNameWithDateTime(LocalFileIO.class.getSimpleName()).build();
     assertThat(localIO.getPath().toString())
         .startsWith(PATH.toString())
-        .contains(DateTimeFormatter.ofPattern("yyyy-MM-dd HH-").format(ZonedDateTime.now()))
+        .contains(DateTimeFormatter.ofPattern("yyyy-MM-dd HH-").format(ZonedDateTime.now(ZoneId.systemDefault())))
         .endsWith(extension.attachTo(LocalFileIO.class.getSimpleName()));
     assertThat(localIO.getPath()).doesNotExist();
     Assertions.assertThrows(NoSuchFileException.class, localIO::openInputStream);
@@ -97,7 +98,7 @@ class LocalFileIOTest {
     Files.createFile(localIO.getPath());
     assertThat(localIO.getPath().toString())
         .startsWith(PATH.toString())
-        .contains(DateTimeFormatter.ofPattern("yyyy-MM-dd HH-").format(ZonedDateTime.now()))
+        .contains(DateTimeFormatter.ofPattern("yyyy-MM-dd HH-").format(ZonedDateTime.now(ZoneId.systemDefault())))
         .endsWith(extension.attachTo(LocalFileIO.class.getSimpleName()));
     assertThat(localIO.getPath()).exists();
     assertThat(localIO.openInputStream()).isEmpty();
