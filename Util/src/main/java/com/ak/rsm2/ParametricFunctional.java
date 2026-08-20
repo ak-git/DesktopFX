@@ -249,9 +249,10 @@ public sealed interface ParametricFunctional {
         private double misfitLog(Model model, Model model2, TetrapolarMeasurement m) {
           Resistivity.Apparent resistivity = Resistivity.of(system()).apparent(model);
           Resistivity.Apparent resistivity2 = Resistivity.of(system()).apparent(model2);
-          double apparentDiffModel = resistivity2.value() - resistivity.value();
-          double v = StrictMath.hypot(log(resistivity.value() / resistivity.apparent(m.ohms())),
-              log(apparentDiffModel / resistivity.apparent(m.ohmsDiff())));
+          double v = StrictMath.hypot(
+              log(resistivity.value() / resistivity.apparent(m.ohms())),
+              log((resistivity2.value() - resistivity.value()) / resistivity.apparent(m.ohmsDiff()))
+          );
           return Double.isNaN(v) ? Double.POSITIVE_INFINITY : v;
         }
 
