@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+    alias(libs.plugins.openrewrite)
 }
 
 configurations {
@@ -18,13 +19,24 @@ dependencies {
     testImplementation libs.mockito.junit
     testImplementation libs.mockito.core
     testImplementation libs.bundles.test.implementation
-    testCompileOnly 'org.apiguardian:apiguardian-api:1.1.2'
     testCompileOnly libs.bundles.test.compile
     testRuntimeOnly libs.bundles.test.runtime
+
+    rewrite libs.rewrite.testing.frameworks
 
     mockitoAgent(libs.mockito.core) {
         transitive = false
     }
+}
+
+rewrite {
+    activeRecipe('org.openrewrite.java.testing.assertj.JUnitToAssertj')
+    activeRecipe('org.openrewrite.java.testing.assertj.Assertj')
+    setExportDatatables(true)
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }
 
 tasks.withType(Test).configureEach {

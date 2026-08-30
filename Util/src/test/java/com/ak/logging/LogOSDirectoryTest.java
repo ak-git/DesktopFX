@@ -5,19 +5,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class LogOSDirectoryTest {
   @ParameterizedTest
   @EnumSource
-  void testNames(OS os) {
-    assertNotNull(LogOSDirectory.valueOf(os.name()), os::name);
+  void names(OS os) {
+    assertThat(LogOSDirectory.valueOf(os.name())).as(os::name).isNotNull();
   }
 
   @Test
-  void testGetDirectory() {
+  void getDirectory() {
     for (LogOSDirectory directory : LogOSDirectory.values()) {
-      assertNotNull(directory.getDirectory());
+      assertThat(directory.getDirectory()).isNotNull();
     }
   }
 }

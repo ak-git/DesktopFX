@@ -2,7 +2,6 @@ package com.ak.rsm2;
 
 import com.ak.math.ValuePair;
 import com.ak.util.Metrics;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -11,6 +10,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -29,10 +29,10 @@ class IterativeModelTest {
       double h = Metrics.Length.MILLI.toSI(hmm);
       IterativeModel.Layer2Relative layer2Relative = new IterativeModel.Layer2Relative(new double[] {k.value(), h});
       assertAll(layer2Relative.toString(),
-          () -> Assertions.assertThat(layer2Relative.k().value()).isBetween(-1.0, 1.0),
-          () -> Assertions.assertThat(layer2Relative.h()).isNotNegative(),
-          () -> Assertions.assertThat(layer2Relative.toModel()).isEqualTo(new Model.Layer2Relative(k, h)),
-          () -> Assertions.assertThat(layer2Relative).hasToString(
+          () -> assertThat(layer2Relative.k().value()).isBetween(-1.0, 1.0),
+          () -> assertThat(layer2Relative.h()).isNotNegative(),
+          () -> assertThat(layer2Relative.toModel()).isEqualTo(new Model.Layer2Relative(k, h)),
+          () -> assertThat(layer2Relative).hasToString(
               Stream.of(ValuePair.Name.K12.of(k.value(), 0.0), ValuePair.Name.H.of(h, 0.0))
                   .map(ValuePair::toString).collect(Collectors.joining("; "))
           )
@@ -63,11 +63,11 @@ class IterativeModelTest {
       IterativeModel.Layer2RelativeDh layer2Relative = new IterativeModel.Layer2RelativeDh(new double[] {k.value(), h, dh}
       );
       assertAll(layer2Relative.toString(),
-          () -> Assertions.assertThat(layer2Relative.k().value()).isBetween(-1.0, 1.0),
-          () -> Assertions.assertThat(layer2Relative.h()).isNotNegative(),
-          () -> Assertions.assertThat(layer2Relative.dh()).isEqualTo(dh),
-          () -> Assertions.assertThat(layer2Relative.toModel()).isEqualTo(new Model.Layer2Relative(k, h)),
-          () -> Assertions.assertThat(layer2Relative).hasToString(
+          () -> assertThat(layer2Relative.k().value()).isBetween(-1.0, 1.0),
+          () -> assertThat(layer2Relative.h()).isNotNegative(),
+          () -> assertThat(layer2Relative.dh()).isEqualTo(dh),
+          () -> assertThat(layer2Relative.toModel()).isEqualTo(new Model.Layer2Relative(k, h)),
+          () -> assertThat(layer2Relative).hasToString(
               Stream.of(ValuePair.Name.K12.of(k.value(), 0.0), ValuePair.Name.H.of(h, 0.0),
                       ValuePair.Name.DH.of(dh, 0.0))
                   .map(ValuePair::toString).collect(Collectors.joining("; "))
@@ -100,19 +100,19 @@ class IterativeModelTest {
       IterativeModel.Layer3Absolute layer3Absolute = IterativeModel.Layer3Absolute.builder(hStep)
           .variables(new double[] {rho1, rho2, rho3, h1, h2mh1, dh1, dh2mh1, dRho2}).build();
       assertAll(layer3Absolute.toString(),
-          () -> Assertions.assertThat(layer3Absolute.rho1()).isNotNegative(),
-          () -> Assertions.assertThat(layer3Absolute.rho2()).isNotNegative(),
-          () -> Assertions.assertThat(layer3Absolute.rho3()).isNotNegative(),
-          () -> Assertions.assertThat(layer3Absolute.p().p1()).isNotNegative(),
-          () -> Assertions.assertThat(layer3Absolute.p().p2mp1()).isNotNegative(),
-          () -> Assertions.assertThat(layer3Absolute.p().pSum()).isEqualTo(layer3Absolute.p().p1() + layer3Absolute.p().p2mp1()),
-          () -> Assertions.assertThat(layer3Absolute.dp().p1()).isEqualTo(2),
-          () -> Assertions.assertThat(layer3Absolute.dp().p2mp1()).isEqualTo(7),
-          () -> Assertions.assertThat(layer3Absolute.dp().pSum()).isEqualTo(9),
-          () -> Assertions.assertThat(layer3Absolute.dRho2()).isNotNegative(),
-          () -> Assertions.assertThat(layer3Absolute.toModel(new Model.P(2, 3), dRho2))
+          () -> assertThat(layer3Absolute.rho1()).isNotNegative(),
+          () -> assertThat(layer3Absolute.rho2()).isNotNegative(),
+          () -> assertThat(layer3Absolute.rho3()).isNotNegative(),
+          () -> assertThat(layer3Absolute.p().p1()).isNotNegative(),
+          () -> assertThat(layer3Absolute.p().p2mp1()).isNotNegative(),
+          () -> assertThat(layer3Absolute.p().pSum()).isEqualTo(layer3Absolute.p().p1() + layer3Absolute.p().p2mp1()),
+          () -> assertThat(layer3Absolute.dp().p1()).isEqualTo(2),
+          () -> assertThat(layer3Absolute.dp().p2mp1()).isEqualTo(7),
+          () -> assertThat(layer3Absolute.dp().pSum()).isEqualTo(9),
+          () -> assertThat(layer3Absolute.dRho2()).isNotNegative(),
+          () -> assertThat(layer3Absolute.toModel(new Model.P(2, 3), dRho2))
               .isEqualTo(new Model.Layer3Absolute(rho1, rho2 + dRho2, rho3, hStep, layer3Absolute.p().add(new Model.P(2, 3)))),
-          () -> Assertions.assertThat(layer3Absolute).hasToString(
+          () -> assertThat(layer3Absolute).hasToString(
               Stream.of(
                       ValuePair.Name.RHO_1.of(rho1, 0.0),
                       ValuePair.Name.RHO_2.of(rho2, 0.0),

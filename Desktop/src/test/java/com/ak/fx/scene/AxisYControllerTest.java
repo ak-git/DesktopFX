@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class AxisYControllerTest {
   @Test
-  void testScaleToString() {
+  void scaleToString() {
     assertThat(scale(IntStream.range(0, 1000))).extracting(ScaleYInfo::toString).asString()
         .startsWith("ScaleYInfo{mean = %d, scaleFactor = %d".formatted(500, 5));
 
@@ -29,25 +29,20 @@ class AxisYControllerTest {
   }
 
   @Test
-  void testScaleGridCell() {
-    assertThat(Double.valueOf(GridCell.mm(scale(IntStream.range(0, 1000)).applyAsDouble(0))))
-        .isEqualTo((0.0 - 500) / 5, Offset.offset(0.1));
+  void scaleGridCell() {
+    assertThat(Double.valueOf(GridCell.mm(scale(IntStream.range(0, 1000)).applyAsDouble(0)))).isCloseTo((0.0 - 500) / 5, Offset.offset(0.1));
 
-    assertThat(Double.valueOf(GridCell.mm(scale(IntStream.range(0, 20)).applyAsDouble(0))))
-        .isEqualTo(-10.0, Offset.offset(0.1));
+    assertThat(Double.valueOf(GridCell.mm(scale(IntStream.range(0, 20)).applyAsDouble(0)))).isCloseTo(-10.0, Offset.offset(0.1));
 
-    assertThat(Double.valueOf(GridCell.mm(scale(IntStream.generate(() -> 0).limit(10)).applyAsDouble(0))))
-        .isEqualTo(0.0, Offset.offset(0.1));
+    assertThat(Double.valueOf(GridCell.mm(scale(IntStream.generate(() -> 0).limit(10)).applyAsDouble(0)))).isCloseTo(0.0, Offset.offset(0.1));
 
-    assertThat(Double.valueOf(GridCell.mm(scale(IntStream.generate(() -> 1).limit(10)).applyAsDouble(0))))
-        .isEqualTo(0.0, Offset.offset(0.1));
+    assertThat(Double.valueOf(GridCell.mm(scale(IntStream.generate(() -> 1).limit(10)).applyAsDouble(0)))).isCloseTo(0.0, Offset.offset(0.1));
 
-    assertThat(Double.valueOf(GridCell.mm(scale(IntStream.generate(() -> 100).limit(10)).applyAsDouble(0))))
-        .isEqualTo(-50.0, Offset.offset(0.1));
+    assertThat(Double.valueOf(GridCell.mm(scale(IntStream.generate(() -> 100).limit(10)).applyAsDouble(0)))).isCloseTo(-50.0, Offset.offset(0.1));
   }
 
   @Test
-  void testScaleApply() {
+  void scaleApply() {
     assertThat(scale(IntStream.range(0, 1000)).apply(0.0))
         .isEqualTo(Variables.toString(500, ADCVariable.ADC.getUnit(), 5));
 

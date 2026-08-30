@@ -15,24 +15,24 @@ import static org.assertj.core.api.Assertions.within;
 
 class PrvVariableTest {
   @Test
-  void testOptions() {
-    assertThat(EnumSet.allOf(PrvVariable.class).stream().map(Variable::options)).containsOnly(Set.of(Variable.Option.VISIBLE));
+  void options() {
+    assertThat(EnumSet.allOf(PrvVariable.class)).extracting(Variable::options).containsOnly(Set.of(Variable.Option.VISIBLE));
   }
 
   @ParameterizedTest
   @EnumSource(value = PrvVariable.class, names = "ADC_SMOOTH", mode = EnumSource.Mode.EXCLUDE)
-  void testFilterDelayZero(Variable<PrvVariable> variable) {
+  void filterDelayZero(Variable<PrvVariable> variable) {
     assertThat(variable.filter().getDelay()).isZero();
   }
 
   @ParameterizedTest
   @EnumSource(value = PrvVariable.class, names = "ADC_SMOOTH")
-  void testFilterDelay(Variable<PrvVariable> variable) {
-    assertThat(variable.filter().getDelay()).isEqualTo(15.5, within(0.01));
+  void filterDelay(Variable<PrvVariable> variable) {
+    assertThat(variable.filter().getDelay()).isCloseTo(15.5, within(0.01));
   }
 
   @Test
-  void testGetUnit() {
+  void getUnit() {
     assertThat(EnumSet.allOf(PrvVariable.class).stream().map(Variable::getUnit).collect(Collectors.toSet()))
         .isEqualTo(Set.of(AbstractUnit.ONE));
   }

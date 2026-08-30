@@ -6,4 +6,7 @@
   <component name="ProjectRootManager" version="2" languageLevel="JDK_26" default="true" project-jdk-name="26" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
+  <component name="TaskProjectConfiguration">
+    <server type="YouTrack" url="http://ak-macbook-pro.local:8081" />
+  </component>
 </project>

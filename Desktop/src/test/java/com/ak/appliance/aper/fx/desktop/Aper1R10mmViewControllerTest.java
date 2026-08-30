@@ -1,11 +1,12 @@
 package com.ak.appliance.aper.fx.desktop;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class Aper1R10mmViewControllerTest {
   @Test
-  void testCreate() {
-    Assertions.assertThat(new Aper1R10mmViewController()).isNotNull();
+  void create() {
+    assertThat(new Aper1R10mmViewController()).isNotNull();
   }
 }

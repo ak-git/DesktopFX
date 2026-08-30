@@ -39,7 +39,7 @@ class LocalFileHandlerTest {
   }
 
   @Test
-  void testLocalFileHandler() throws IOException {
+  void localFileHandler() throws Exception {
     LocalFileHandler handler = new LocalFileHandler();
     handler.setFormatter(new SimpleFormatter());
     handler.publish(new LogRecord(Level.ALL, LocalFileHandler.class.getName()));
@@ -54,7 +54,7 @@ class LocalFileHandlerTest {
         assertThat(strings.get(1)).contains(LocalFileHandler.class.getName());
         count++;
       }
-      assertThat(count).withFailMessage("Must be the only one .log file in " + logPath).isEqualTo(1);
+      assertThat(count).withFailMessage("Must be the only one .log file in " + logPath).isOne();
     }
   }
 }

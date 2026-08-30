@@ -3,17 +3,16 @@ package com.ak.logging;
 import com.ak.util.Extension;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class OutputBuilderTest {
   @Test
-  void testLocalFileHandler() throws IOException {
+  void localFileHandler() throws Exception {
     Path txt = new OutputBuilder(Extension.TXT).fileNameWithDateTime(OutputBuilderTest.class.getSimpleName()).build().getPath();
-    assertTrue(Files.exists(Files.createFile(txt)));
-    assertTrue(Files.deleteIfExists(txt));
+    assertThat(Files.createFile(txt)).exists();
+    assertThat(Files.deleteIfExists(txt)).isTrue();
   }
 }

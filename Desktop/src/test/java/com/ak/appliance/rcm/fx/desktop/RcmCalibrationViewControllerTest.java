@@ -1,11 +1,12 @@
 package com.ak.appliance.rcm.fx.desktop;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class RcmCalibrationViewControllerTest {
   @Test
-  void testCreate() {
-    Assertions.assertThat(new RcmCalibrationViewController()).isNotNull();
+  void create() {
+    assertThat(new RcmCalibrationViewController()).isNotNull();
   }
 }
