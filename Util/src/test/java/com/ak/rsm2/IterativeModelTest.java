@@ -7,6 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,7 +43,7 @@ class IterativeModelTest {
     @ParameterizedTest
     @ValueSource(doubles = {-1.0})
     void negativeH(double h) {
-      assertThatIllegalArgumentException().isThrownBy(() -> new IterativeModel.Layer2Relative(K.of(Math.random()), h))
+      assertThatIllegalArgumentException().isThrownBy(() -> new IterativeModel.Layer2Relative(K.of(ThreadLocalRandom.current().nextDouble()), h))
           .withMessageStartingWith("h = ").withMessageEndingWith("must be non-negative");
     }
   }
@@ -78,7 +79,7 @@ class IterativeModelTest {
     @ParameterizedTest
     @ValueSource(doubles = {-1.0})
     void negativeH(double h) {
-      assertThatIllegalArgumentException().isThrownBy(() -> new IterativeModel.Layer2RelativeDh(K.of(Math.random()), h, Math.random()))
+      assertThatIllegalArgumentException().isThrownBy(() -> new IterativeModel.Layer2RelativeDh(K.of(ThreadLocalRandom.current().nextDouble()), h, ThreadLocalRandom.current().nextDouble()))
           .withMessageStartingWith("h = ").withMessageEndingWith("must be non-negative");
     }
   }
@@ -131,7 +132,7 @@ class IterativeModelTest {
     @ParameterizedTest
     @ValueSource(doubles = {-1.0})
     void negativeH(double h) {
-      assertThatIllegalArgumentException().isThrownBy(() -> new IterativeModel.Layer2RelativeDh(K.of(Math.random()), h, Math.random()))
+      assertThatIllegalArgumentException().isThrownBy(() -> new IterativeModel.Layer2RelativeDh(K.of(ThreadLocalRandom.current().nextDouble()), h, ThreadLocalRandom.current().nextDouble()))
           .withMessageStartingWith("h = ").withMessageEndingWith("must be non-negative");
     }
   }

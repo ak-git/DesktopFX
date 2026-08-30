@@ -29,10 +29,12 @@ dependencies {
     testRuntimeOnly libs.junit.jupiter
     testRuntimeOnly libs.junit.platform.launcher
 
+    rewrite libs.rewrite.migrate.java
     rewrite libs.rewrite.testing.frameworks
 }
 
 rewrite {
+    activeRecipe('org.openrewrite.java.migrate.UpgradeToJava25')
     activeRecipe('org.openrewrite.java.testing.assertj.JUnitToAssertj')
     activeRecipe('org.openrewrite.java.testing.assertj.Assertj')
     setExportDatatables(true)

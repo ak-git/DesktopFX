@@ -5,6 +5,7 @@ spotbugs = '6.5.11'
 ben-manes-versions = '0.61.0'
 openrewrite = '7.41.0'
 rewrite-testing-frameworks = '3.44.0'
+rewrite-migrate-java = '3.42.0'
 
 jspecify = '1.0.1'
 junit = '6.1.3'
@@ -45,6 +46,7 @@ spring-dependency-management = { id = 'io.spring.dependency-management', version
 
 [libraries]
 rewrite-testing-frameworks = { module = 'org.openrewrite.recipe:rewrite-testing-frameworks', version.ref = 'rewrite-testing-frameworks' }
+rewrite-migrate-java = { module = 'org.openrewrite.recipe:rewrite-migrate-java', version.ref = 'rewrite-migrate-java' }
 commons-rng-client-api = { module = 'org.apache.commons:commons-rng-client-api', version.ref = 'commons-rng' }
 commons-rng-simple = { module = 'org.apache.commons:commons-rng-simple', version.ref = 'commons-rng' }
 

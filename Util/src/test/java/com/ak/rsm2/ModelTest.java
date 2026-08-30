@@ -7,6 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,7 +21,7 @@ class ModelTest {
     @ParameterizedTest
     @ValueSource(doubles = {-1.1, -1.0, -0.9, 0.0, 0.9, 1.0, 1.1})
     void get(double k) {
-      Model.Layer2Relative layer2Relative = new Model.Layer2Relative(K.of(k), Math.clamp(Math.random() - 0.5, 0.0, 1.0));
+      Model.Layer2Relative layer2Relative = new Model.Layer2Relative(K.of(k), Math.clamp(ThreadLocalRandom.current().nextDouble() - 0.5, 0.0, 1.0));
       assertAll(layer2Relative.toString(),
           () -> assertThat(layer2Relative.k().value()).isBetween(-1.0, 1.0),
           () -> assertThat(layer2Relative.h()).isNotNegative()
@@ -50,7 +51,7 @@ class ModelTest {
     @ParameterizedTest
     @ValueSource(doubles = {-1.0})
     void negativeH(double h) {
-      assertThatIllegalArgumentException().isThrownBy(() -> new Model.Layer2Relative(K.of(Math.random()), h))
+      assertThatIllegalArgumentException().isThrownBy(() -> new Model.Layer2Relative(K.of(ThreadLocalRandom.current().nextDouble()), h))
           .withMessageStartingWith("h = ").withMessageEndingWith("must be non-negative");
     }
   }
@@ -91,7 +92,7 @@ class ModelTest {
     @ParameterizedTest
     @ValueSource(doubles = {-1.0})
     void negativeH(double h) {
-      assertThatIllegalArgumentException().isThrownBy(() -> new Model.Layer3Absolute(Math.random(), Math.random(), Math.random(),
+      assertThatIllegalArgumentException().isThrownBy(() -> new Model.Layer3Absolute(ThreadLocalRandom.current().nextDouble(), ThreadLocalRandom.current().nextDouble(), ThreadLocalRandom.current().nextDouble(),
               h, new Model.P(0, 0)))
           .withMessageStartingWith("hStep = ").withMessageEndingWith("must be non-negative");
     }

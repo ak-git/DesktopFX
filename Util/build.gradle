@@ -28,6 +28,7 @@ dependencies {
     testCompileOnly libs.bundles.test.compile
     testRuntimeOnly libs.bundles.test.runtime
 
+    rewrite libs.rewrite.migrate.java
     rewrite libs.rewrite.testing.frameworks
 
     mockitoAgent(libs.mockito.core) {
@@ -36,6 +37,7 @@ dependencies {
 }
 
 rewrite {
+    activeRecipe('org.openrewrite.java.migrate.UpgradeToJava25')
     activeRecipe('org.openrewrite.java.testing.assertj.JUnitToAssertj')
     activeRecipe('org.openrewrite.java.testing.assertj.Assertj')
     setExportDatatables(true)
