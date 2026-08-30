@@ -5,7 +5,7 @@ spotbugs = '6.5.11'
 ben-manes-versions = '0.61.0'
 openrewrite = '7.41.0'
 rewrite-testing-frameworks = '3.44.0'
-rewrite-migrate-java = '3.42.0'
+rewrite-migrate-java = '3.42.1'
 
 jspecify = '1.0.1'
 junit = '6.1.3'
