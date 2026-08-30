@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.javafxplugin)
     alias(libs.plugins.springframework.boot)
     alias(libs.plugins.spring.dependency.management)
+    alias(libs.plugins.openrewrite)
 }
 
 dependencies {
@@ -27,6 +28,18 @@ dependencies {
     testImplementation libs.assertj
     testRuntimeOnly libs.junit.jupiter
     testRuntimeOnly libs.junit.platform.launcher
+
+    rewrite libs.rewrite.testing.frameworks
+}
+
+rewrite {
+    activeRecipe('org.openrewrite.java.testing.assertj.JUnitToAssertj')
+    activeRecipe('org.openrewrite.java.testing.assertj.Assertj')
+    setExportDatatables(true)
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }
 
 javafx {

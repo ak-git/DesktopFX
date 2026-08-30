@@ -1,11 +1,11 @@
 package com.ak.appliance.nmis.comm.bytes;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.nio.ByteBuffer;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class NmisTestProvider {
@@ -25,7 +25,7 @@ class NmisTestProvider {
         {0x7E, (byte) 0x81, 0x08, 0x3F, 0x3F, 0x3F, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x03}
     };
 
-    Assertions.assertEquals(expected.length, NmisRequest.Single.values().length);
+    assertThat(NmisRequest.Single.values()).hasSameSizeAs(expected);
     Arguments[] values = new Arguments[expected.length];
     for (int i = 0; i < expected.length; i++) {
       values[i] = arguments(
@@ -47,7 +47,7 @@ class NmisTestProvider {
 
     NmisRequest.MyoFrequency[] frequencies = {NmisRequest.MyoFrequency.HZ_50, NmisRequest.MyoFrequency.HZ_100,
         NmisRequest.MyoFrequency.HZ_200, NmisRequest.MyoFrequency.HZ_500, NmisRequest.MyoFrequency.HZ_1000};
-    Assertions.assertEquals(expected.length, frequencies.length);
+    assertThat(frequencies).hasSameSizeAs(expected);
 
     Arguments[] values = new Arguments[expected.length];
     for (int i = 0; i < expected.length; i++) {
@@ -68,7 +68,7 @@ class NmisTestProvider {
         {0x7E, (byte) 0x82, 0x08, 0x08, 0x00, 0x00, 0x00, 0x60, 0x60, 0x60, 0x60, (byte) 0x90}
     };
 
-    Assertions.assertEquals(expected.length, NmisRequest.Sequence.values().length);
+    assertThat(NmisRequest.Sequence.values()).hasSameSizeAs(expected);
     Arguments[] values = new Arguments[expected.length];
     for (int i = 0; i < expected.length; i++) {
       values[i] = arguments(NmisRequest.Sequence.values()[i].build(), expected[i]);
@@ -88,7 +88,7 @@ class NmisTestProvider {
         {0x07, 0x7E, (byte) 0x91, 0x08, 0x3F, 0x3F, 0x3F, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x13}
     };
 
-    Assertions.assertEquals(input.length, NmisRequest.Single.values().length);
+    assertThat(NmisRequest.Single.values()).hasSameSizeAs(input);
     Arguments[] values = new Arguments[input.length];
     for (int i = 0; i < input.length; i++) {
       values[i] = arguments(
@@ -110,7 +110,7 @@ class NmisTestProvider {
 
     NmisRequest.MyoFrequency[] frequencies = {NmisRequest.MyoFrequency.HZ_50, NmisRequest.MyoFrequency.HZ_100,
         NmisRequest.MyoFrequency.HZ_200, NmisRequest.MyoFrequency.HZ_500, NmisRequest.MyoFrequency.HZ_1000};
-    Assertions.assertEquals(input.length, frequencies.length);
+    assertThat(frequencies).hasSameSizeAs(input);
 
     Arguments[] values = new Arguments[input.length];
     for (int i = 0; i < input.length; i++) {
@@ -131,7 +131,7 @@ class NmisTestProvider {
         {0x7E, (byte) 0x92, 0x08, 0x08, 0x00, 0x00, 0x00, 0x60, 0x60, 0x60, 0x60, (byte) 0xA0}
     };
 
-    Assertions.assertEquals(input.length, NmisRequest.Sequence.values().length);
+    assertThat(NmisRequest.Sequence.values()).hasSameSizeAs(input);
     Arguments[] values = new Arguments[input.length];
     for (int i = 0; i < input.length; i++) {
       values[i] = arguments(NmisRequest.Sequence.values()[i].build(), input[i]);
@@ -156,7 +156,7 @@ class NmisTestProvider {
     };
     NmisAddress[] addresses = {NmisAddress.CATCH_ELBOW, NmisAddress.ROTATE_ELBOW, NmisAddress.CATCH_HAND, NmisAddress.ROTATE_HAND};
 
-    Assertions.assertEquals(input.length, addresses.length);
+    assertThat(addresses).hasSameSizeAs(input);
     Arguments[] values = new Arguments[input.length];
     for (int i = 0; i < input.length; i++) {
       values[i] = arguments(addresses[i], input[i]);

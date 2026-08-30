@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     alias(libs.plugins.javafxplugin)
+    alias(libs.plugins.openrewrite)
 }
 
 dependencies {
@@ -13,6 +14,18 @@ dependencies {
     testImplementation libs.bundles.test.implementation
     testCompileOnly libs.bundles.test.compile
     testRuntimeOnly libs.bundles.test.runtime
+
+    rewrite libs.rewrite.testing.frameworks
+}
+
+rewrite {
+    activeRecipe('org.openrewrite.java.testing.assertj.JUnitToAssertj')
+    activeRecipe('org.openrewrite.java.testing.assertj.Assertj')
+    setExportDatatables(true)
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }
 
 javafx {

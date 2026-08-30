@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SKTBVariableTest {
   @ParameterizedTest
   @EnumSource(value = SKTBVariable.class)
-  void testVariables(Variable<SKTBVariable> variable) {
+  void variables(Variable<SKTBVariable> variable) {
     assertThat(variable.options()).containsExactly(Variable.Option.VISIBLE);
     assertThat(variable.getUnit()).hasToString("°");
   }

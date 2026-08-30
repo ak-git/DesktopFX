@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.byLessThan;
 
 class InequalityTest {
   @Test
-  void testProportional() {
+  void proportional() {
     Inequality inequality = Inequality.proportional();
     assertThat(inequality.applyAsDouble(-12, -3)).isCloseTo(3.0, byLessThan(0.01));
     assertThat(inequality.getAsDouble()).isCloseTo(3.0, byLessThan(0.01));
@@ -19,7 +19,7 @@ class InequalityTest {
   }
 
   @Test
-  void testL2Absolute() {
+  void l2Absolute() {
     Inequality inequality = Inequality.absolute();
     assertThat(inequality.applyAsDouble(0.0, -3.0)).isCloseTo(3.0, byLessThan(0.01));
     assertThat(inequality.getAsDouble()).isCloseTo(3.0, byLessThan(0.01));
