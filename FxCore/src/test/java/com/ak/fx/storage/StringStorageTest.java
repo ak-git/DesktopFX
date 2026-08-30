@@ -6,7 +6,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.InstanceOfAssertFactories.throwable;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 final class StringStorageTest {
@@ -27,7 +26,7 @@ final class StringStorageTest {
   @ParameterizedTest
   @EmptySource
   void update(String value) {
-    assertThatThrownBy(() -> storage.update(value)).asInstanceOf(throwable(UnsupportedOperationException.class))
+    assertThatThrownBy(() -> storage.update(value)).isInstanceOf(UnsupportedOperationException.class)
         .hasNoCause();
   }
 }
