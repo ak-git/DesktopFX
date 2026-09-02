@@ -58,7 +58,8 @@ public class GeneticInvertibleFilter {
 
     InvertibleCodec<ProblemInput, AnyGene<Serializable>> compositeCodec = getCompositeCodec();
 
-    Constraint<AnyGene<Serializable>, Double> codecFiniteConstraint = RetryConstraint.of(compositeCodec, input -> Double.isFinite(fitness(input)));
+    Constraint<AnyGene<Serializable>, Double> codecFiniteConstraint =
+        RetryConstraint.of(compositeCodec, input -> Double.isFinite(fitness(input)));
 
     // 1. Создаем жесткий турнирный селектор для родителей
     Selector<AnyGene<Serializable>, Double> parentSelector = new TournamentSelector<>(5);
@@ -69,36 +70,69 @@ public class GeneticInvertibleFilter {
     // 3. Создаем турнирный селектор для оставшейся части выживающих особей
     Selector<AnyGene<Serializable>, Double> survivorTournament = new TournamentSelector<>(4);
 
+    // Начальные параметры адаптивности
+    double currentMutationRate = 0.12; // Начинаем с агрессивной мутации 12%
+    final int totalEpochs = 1 << 3;        // 8 эпох
+    final int generationsPerEpoch = 1 << 4; // По 16 поколений в каждой (итого 127 поколений)
+
+    // Хранилище для популяции между перезапусками движка
+    EvolutionResult<AnyGene<Serializable>, Double> evolutionState = null;
+
     try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-      Engine<AnyGene<Serializable>, Double> engine = Engine.builder(GeneticInvertibleFilter::fitness, compositeCodec)
-          .populationSize(1 << 16)
-          .optimize(Optimize.MINIMUM)
-          .executor(executor)
-          .selector(parentSelector)             // Кто становится родителями для скрещивания
-          .survivorsSelector(eliteSelector)       // Элита гарантированно выживает
-          .offspringSelector(survivorTournament)  // Все остальные потомки отбираются через турнир
-          .alterers(
-              new Mutator<>(0.08),
-              new SinglePointCrossover<>(0.6)
-          )
-          .constraint(codecFiniteConstraint)
-          .build();
+      FITNESS_CACHE.cleanUp();
+      REAL_EVALUATIONS_COUNTER.reset();
 
-      Phenotype<AnyGene<Serializable>, Double> best = engine.stream()
-          .limit(Limits.bySteadyFitness(7))
-          .limit(100)
-          .peek(result -> {
-            long generation = result.generation();
-            if ((generation & 0x01) == 0) {
-              double bestFitness = result.bestFitness();
-              ProblemInput currentBestInput = compositeCodec.decode(result.bestPhenotype().genotype());
-              LOGGER.info("Эпоха: {} | Лучшая невязка: {} | {}", generation, String.format("%.6f", bestFitness), currentBestInput);
-            }
-          })
-          .collect(EvolutionResult.toBestPhenotype());
+      for (int epoch = 1; epoch <= totalEpochs; epoch++) {
+        // 1. Динамически пересобираем движок с актуальной вероятностью мутации
+        Engine<AnyGene<Serializable>, Double> engine = Engine.builder(GeneticInvertibleFilter::fitness, compositeCodec)
+            .populationSize(1 << 12)
+            .optimize(Optimize.MINIMUM)
+            .executor(executor)
+            .selector(parentSelector)
+            .survivorsSelector(eliteSelector)
+            .offspringSelector(survivorTournament)
+            .alterers(
+                new Mutator<>(currentMutationRate), // Переменная скорость мутации
+                new SinglePointCrossover<>(0.6)
+            )
+            .constraint(codecFiniteConstraint)
+            .build();
 
-      ProblemInput bestInput = compositeCodec.decode(best.genotype());
-      LOGGER.atInfo().addKeyValue("Невязка", "%.6f".formatted(best.fitness()))
+        // 2. Запускаем стрим эволюции
+        // Если это не первая эпоха, передаем предыдущее состояние популяции (evolutionState)
+        var stream = (evolutionState == null) ? engine.stream() : engine.stream(evolutionState);
+
+        evolutionState = stream
+            .limit(generationsPerEpoch) // Крутим строго заданное число поколений для этой эпохи
+            .collect(EvolutionResult.toBestEvolutionResult()); // Сохраняем ВСЁ состояние эволюции, а не только фенотип
+
+        // 3. Анализируем промежуточные итоги эпохи
+        double bestFitness = evolutionState.bestFitness();
+        ProblemInput currentBestInput = compositeCodec.decode(evolutionState.bestPhenotype().genotype());
+
+        LOGGER.atInfo().log("Эпоха {}/{} завершена | Поколение: {} | Мутация: {}% | Лучший фитнес: {} | {}",
+            epoch, totalEpochs, evolutionState.generation(), (int) (currentMutationRate * 100),
+            String.format("%.6f", bestFitness), currentBestInput.toString());
+
+        // 4. ДИНАМИЧЕСКАЯ АДАПТАЦИЯ
+        // Если мы уже близко к дну оврага (фитнес < 5.0) или вышли на плато — снижаем мутацию для точечной подгонки
+        if (bestFitness < 5.0 && currentMutationRate > 0.02) {
+          currentMutationRate = 0.02;
+          LOGGER.atInfo().log(() -> "--> Переход в режим точной оптимизации (Мутация снижена до 2%)");
+        }
+        else if (bestFitness < 0.1 && currentMutationRate > 0.005) {
+          currentMutationRate = 0.005;
+          LOGGER.atInfo().log(() -> "--> Режим микро-мутаций (Мутация снижена до 0.5%)");
+        }
+
+        if (bestFitness < 1.0E-6) {
+          LOGGER.info("--> Идеальный минимум найден досрочно!");
+          break;
+        }
+      }
+
+      ProblemInput bestInput = compositeCodec.decode(evolutionState.bestPhenotype().genotype());
+      LOGGER.atInfo().addKeyValue("Невязка", "%.6f".formatted(evolutionState.bestFitness()))
           .addKeyValue("Вычислений", REAL_EVALUATIONS_COUNTER::sum)
           .addKeyValue("Всего попыток", TOTAL_EVALUATIONS_COUNTER::sum)
           .addKeyValue("Экономия за счет глобального кэша", "%.0f%%".formatted((1.0 - REAL_EVALUATIONS_COUNTER.doubleValue() / TOTAL_EVALUATIONS_COUNTER.sum()) * 100))
