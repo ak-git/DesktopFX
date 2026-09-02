@@ -63,19 +63,17 @@ public class GeneticInvertibleFilter {
     // 1. Создаем жесткий турнирный селектор для родителей
     Selector<AnyGene<Serializable>, Double> parentSelector = new TournamentSelector<>(5);
 
-    // 2. ИСПРАВЛЕНИЕ: Создаем чистый EliteSelector на 3 особи для выживших
+    // 2. Создаем чистый EliteSelector на 3 особи для выживших
     Selector<AnyGene<Serializable>, Double> eliteSelector = new EliteSelector<>(3);
 
     // 3. Создаем турнирный селектор для оставшейся части выживающих особей
     Selector<AnyGene<Serializable>, Double> survivorTournament = new TournamentSelector<>(4);
 
-    // 1. Создаем пул виртуальных потоков Java 26
     try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
       Engine<AnyGene<Serializable>, Double> engine = Engine.builder(GeneticInvertibleFilter::fitness, compositeCodec)
           .populationSize(1 << 16)
           .optimize(Optimize.MINIMUM)
           .executor(executor)
-          // 4. Подключаем селекторы правильно через методы билдера Jenetics
           .selector(parentSelector)             // Кто становится родителями для скрещивания
           .survivorsSelector(eliteSelector)       // Элита гарантированно выживает
           .offspringSelector(survivorTournament)  // Все остальные потомки отбираются через турнир
@@ -91,7 +89,7 @@ public class GeneticInvertibleFilter {
           .limit(100)
           .peek(result -> {
             long generation = result.generation();
-            if (generation % 2 == 0) {
+            if ((generation & 0x01) == 0) {
               double bestFitness = result.bestFitness();
               ProblemInput currentBestInput = compositeCodec.decode(result.bestPhenotype().genotype());
               LOGGER.info("Эпоха: {} | Лучшая невязка: {} | {}", generation, String.format("%.6f", bestFitness), currentBestInput);
@@ -100,7 +98,7 @@ public class GeneticInvertibleFilter {
           .collect(EvolutionResult.toBestPhenotype());
 
       ProblemInput bestInput = compositeCodec.decode(best.genotype());
-      LOGGER.atInfo().addKeyValue("Невязка", best::fitness)
+      LOGGER.atInfo().addKeyValue("Невязка", "%.6f".formatted(best.fitness()))
           .addKeyValue("Вычислений", REAL_EVALUATIONS_COUNTER::sum)
           .addKeyValue("Всего попыток", TOTAL_EVALUATIONS_COUNTER::sum)
           .addKeyValue("Экономия за счет глобального кэша", "%.0f%%".formatted((1.0 - REAL_EVALUATIONS_COUNTER.doubleValue() / TOTAL_EVALUATIONS_COUNTER.sum()) * 100))
