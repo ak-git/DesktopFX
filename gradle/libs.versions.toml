@@ -32,6 +32,7 @@ jenetics = '9.0.0'
 apiguardian-api = '1.1.2'
 commons-math4-legacy-core = '4.0-beta1'
 commons-rng = '1.7'
+caffeine = '3.2.4'
 
 [plugins]
 sonarqube = { id = 'org.sonarqube', version.ref = 'sonarqube' }
@@ -75,6 +76,7 @@ jserial-comm = { module = 'com.fazecast:jSerialComm', version.ref = 'jserial-com
 jenetics = { module = 'io.jenetics:jenetics', version.ref = 'jenetics' }
 apiguardian-api = { module = 'org.apiguardian:apiguardian-api', version.ref = 'apiguardian-api' }
 commons-math4-legacy-core = { module = 'org.apache.commons:commons-math4-legacy-core', version.ref = 'commons-math4-legacy-core' }
+caffeine = { module = 'com.github.ben-manes.caffeine:caffeine', version.ref = 'caffeine' }
 
 javafx-base = { module = 'org.openjfx:javafx-base', version.ref = 'javafx' }
 javafx-graphics = { module = 'org.openjfx:javafx-graphics', version.ref = 'javafx' }
