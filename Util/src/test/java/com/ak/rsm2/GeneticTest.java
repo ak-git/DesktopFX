@@ -5,6 +5,9 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import io.jenetics.*;
 import io.jenetics.engine.*;
 import io.jenetics.util.Factory;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,49 +16,26 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.LongAdder;
 
-public class GeneticInvertibleFilter {
-  private static final Logger LOGGER = LoggerFactory.getLogger(GeneticInvertibleFilter.class);
+class GeneticTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger(GeneticTest.class);
 
   private static final Cache<ProblemInput, Double> FITNESS_CACHE = Caffeine.newBuilder().maximumSize(1 << 12).build();
   private static final LongAdder REAL_EVALUATIONS_COUNTER = new LongAdder();
   private static final LongAdder TOTAL_EVALUATIONS_COUNTER = new LongAdder();
 
-  private GeneticInvertibleFilter() {
+  @BeforeEach
+  void setUp() {
+    FITNESS_CACHE.cleanUp();
+    REAL_EVALUATIONS_COUNTER.reset();
+    TOTAL_EVALUATIONS_COUNTER.reset();
   }
 
   public record ProblemInput(double x, int y, boolean z) {
   }
 
-  /**
-   * Модифицированная овражная функция Розенброка с дискретно-логическим рельефом.
-   * Глобальный минимум равен 0.0 и достигается при: x = 1.0, y = 1, z = true.
-   */
-  public static double fitness(ProblemInput input) {
-    TOTAL_EVALUATIONS_COUNTER.increment();
-    return FITNESS_CACHE.get(input, in -> {
-      REAL_EVALUATIONS_COUNTER.increment();
-      // Классический овраг Розенброка: f(x,y) = 100 * (y - x^2)^2 + (1 - x)^2
-      // Но y у нас дискретный (int), что превращает овраг в каскад ступеней.
-      double ravine = 100.0 * StrictMath.pow(in.y() - (in.x() * in.x()), 2) + StrictMath.pow(1.0 - in.x(), 2);
-
-      if (in.z()) {
-        // Мир TRUE: Чистый овраг, ведущий к точке (1.0, 1, true), где fitness = 0.0
-        return ravine;
-      }
-      else {
-        // Мир FALSE: Овраг искажен синусоидальными ловушками (локальными минимумами).
-        // Даже если алгоритм дойдет до центра оврага, он получит штраф и застрянет.
-        double traps = 50.0 * (StrictMath.sin(5.0 * in.x()) + 1.0);
-        return ravine + traps + 10.0; // +10 гарантирует, что здесь нет глобального минимума
-      }
-    });
-  }
-
-  static void main() {
-    FITNESS_CACHE.cleanUp();
-    REAL_EVALUATIONS_COUNTER.reset();
-    TOTAL_EVALUATIONS_COUNTER.reset();
-
+  @Disabled
+  @Test
+  void genetic() {
     InvertibleCodec<ProblemInput, AnyGene<Serializable>> compositeCodec = getCompositeCodec();
 
     Constraint<AnyGene<Serializable>, Double> codecFiniteConstraint =
@@ -79,12 +59,9 @@ public class GeneticInvertibleFilter {
     EvolutionResult<AnyGene<Serializable>, Double> evolutionState = null;
 
     try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-      FITNESS_CACHE.cleanUp();
-      REAL_EVALUATIONS_COUNTER.reset();
-
       for (int epoch = 1; epoch <= totalEpochs; epoch++) {
         // 1. Динамически пересобираем движок с актуальной вероятностью мутации
-        Engine<AnyGene<Serializable>, Double> engine = Engine.builder(GeneticInvertibleFilter::fitness, compositeCodec)
+        Engine<AnyGene<Serializable>, Double> engine = Engine.builder(GeneticTest::fitness, compositeCodec)
             .populationSize(1 << 12)
             .optimize(Optimize.MINIMUM)
             .executor(executor)
@@ -158,5 +135,30 @@ public class GeneticInvertibleFilter {
             AnyChromosome.of(input::z)
         )
     );
+  }
+
+  /**
+   * Модифицированная овражная функция Розенброка с дискретно-логическим рельефом.
+   * Глобальный минимум равен 0.0 и достигается при: x = 1.0, y = 1, z = true.
+   */
+  private static double fitness(ProblemInput input) {
+    TOTAL_EVALUATIONS_COUNTER.increment();
+    return FITNESS_CACHE.get(input, in -> {
+      REAL_EVALUATIONS_COUNTER.increment();
+      // Классический овраг Розенброка: f(x,y) = 100 * (y - x^2)^2 + (1 - x)^2
+      // Но y у нас дискретный (int), что превращает овраг в каскад ступеней.
+      double ravine = 100.0 * StrictMath.pow(in.y() - (in.x() * in.x()), 2) + StrictMath.pow(1.0 - in.x(), 2);
+
+      if (in.z()) {
+        // Мир TRUE: Чистый овраг, ведущий к точке (1.0, 1, true), где fitness = 0.0
+        return ravine;
+      }
+      else {
+        // Мир FALSE: Овраг искажен синусоидальными ловушками (локальными минимумами).
+        // Даже если алгоритм дойдет до центра оврага, он получит штраф и застрянет.
+        double traps = 50.0 * (StrictMath.sin(5.0 * in.x()) + 1.0);
+        return ravine + traps + 10.0; // +10 гарантирует, что здесь нет глобального минимума
+      }
+    });
   }
 }
