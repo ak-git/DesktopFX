@@ -5,9 +5,11 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import io.jenetics.*;
 import io.jenetics.engine.*;
 import io.jenetics.util.Factory;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +36,7 @@ class GeneticTest {
   }
 
   @Disabled
-  @Test
+  @RepeatedTest(10)
   void genetic() {
     InvertibleCodec<ProblemInput, AnyGene<Serializable>> compositeCodec = getCompositeCodec();
 
@@ -52,14 +54,11 @@ class GeneticTest {
 
     // Начальные параметры адаптивности
     double currentMutationRate = 0.12; // Начинаем с агрессивной мутации 12%
-    final int totalEpochs = 1 << 3;        // 8 эпох
-    final int generationsPerEpoch = 1 << 4; // По 16 поколений в каждой (итого 127 поколений)
-
     // Хранилище для популяции между перезапусками движка
     EvolutionResult<AnyGene<Serializable>, Double> evolutionState = null;
 
     try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-      for (int epoch = 1; epoch <= totalEpochs; epoch++) {
+      for (int epoch = 0, totalEpochs = 1 << 4; epoch < totalEpochs; epoch++) {
         // 1. Динамически пересобираем движок с актуальной вероятностью мутации
         Engine<AnyGene<Serializable>, Double> engine = Engine.builder(GeneticTest::fitness, compositeCodec)
             .populationSize(1 << 12)
@@ -68,18 +67,14 @@ class GeneticTest {
             .selector(parentSelector)
             .survivorsSelector(eliteSelector)
             .offspringSelector(survivorTournament)
-            .alterers(
-                new Mutator<>(currentMutationRate), // Переменная скорость мутации
-                new SinglePointCrossover<>(0.6)
-            )
+            .alterers(new Mutator<>(currentMutationRate), new SinglePointCrossover<>(0.6))
             .constraint(codecFiniteConstraint)
             .build();
 
         // 2. Запускаем стрим эволюции
         var stream = (evolutionState == null) ? engine.stream() : engine.stream(evolutionState);
 
-        evolutionState = stream
-            .limit(generationsPerEpoch) // Крутим строго заданное число поколений для этой эпохи
+        evolutionState = stream.limit(1 << 4) // // По 16 поколений в каждой из 16 эпох (итого 128 поколений)
             .collect(EvolutionResult.toBestEvolutionResult()); // Сохраняем ВСЁ состояние эволюции, а не только фенотип
 
         // 3. Анализируем промежуточные итоги эпохи
@@ -87,8 +82,8 @@ class GeneticTest {
         ProblemInput currentBestInput = compositeCodec.decode(evolutionState.bestPhenotype().genotype());
 
         LOGGER.atInfo().log("Эпоха {}/{} завершена | Поколение: {} | Мутация: {}% | Лучший фитнес: {} | {}",
-            epoch, totalEpochs, evolutionState.generation(), (int) (currentMutationRate * 100),
-            String.format("%.6f", bestFitness), currentBestInput.toString());
+            epoch + 1, totalEpochs, evolutionState.generation(), (int) (currentMutationRate * 100),
+            String.format("%.6f", bestFitness), currentBestInput);
 
         // 4. ДИНАМИЧЕСКАЯ АДАПТАЦИЯ
         if (bestFitness < 5.0 && currentMutationRate > 0.02) {
@@ -101,7 +96,7 @@ class GeneticTest {
         }
 
         if (bestFitness < 1.0E-6) {
-          LOGGER.info("--> Идеальный минимум найден досрочно!");
+          LOGGER.atInfo().log(() -> "--> Минимум найден досрочно!");
           break;
         }
       }
@@ -112,6 +107,12 @@ class GeneticTest {
           .addKeyValue("Всего попыток", TOTAL_EVALUATIONS_COUNTER::sum)
           .addKeyValue("Экономия за счет глобального кэша", "%.0f%%".formatted((1.0 - REAL_EVALUATIONS_COUNTER.doubleValue() / TOTAL_EVALUATIONS_COUNTER.sum()) * 100))
           .log(bestInput.toString());
+
+      SoftAssertions.assertSoftly(a -> {
+        a.assertThat(bestInput.x).isCloseTo(1.0, Percentage.withPercentage(10));
+        a.assertThat(bestInput.y).isCloseTo(1, Percentage.withPercentage(10));
+        a.assertThat(bestInput.z).isTrue();
+      });
     }
   }
 
