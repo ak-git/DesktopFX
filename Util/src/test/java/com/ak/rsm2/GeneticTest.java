@@ -35,7 +35,7 @@ class GeneticTest {
   public record ProblemInput(double x, int y, boolean z) {
   }
 
-  @Disabled
+  @Disabled("Simple example")
   @RepeatedTest(10)
   void genetic() {
     InvertibleCodec<ProblemInput, AnyGene<Serializable>> compositeCodec = getCompositeCodec();
