@@ -99,7 +99,6 @@ public class GeneticInvertibleFilter {
             .build();
 
         // 2. Запускаем стрим эволюции
-        // Если это не первая эпоха, передаем предыдущее состояние популяции (evolutionState)
         var stream = (evolutionState == null) ? engine.stream() : engine.stream(evolutionState);
 
         evolutionState = stream
@@ -115,7 +114,6 @@ public class GeneticInvertibleFilter {
             String.format("%.6f", bestFitness), currentBestInput.toString());
 
         // 4. ДИНАМИЧЕСКАЯ АДАПТАЦИЯ
-        // Если мы уже близко к дну оврага (фитнес < 5.0) или вышли на плато — снижаем мутацию для точечной подгонки
         if (bestFitness < 5.0 && currentMutationRate > 0.02) {
           currentMutationRate = 0.02;
           LOGGER.atInfo().log(() -> "--> Переход в режим точной оптимизации (Мутация снижена до 2%)");
@@ -162,7 +160,3 @@ public class GeneticInvertibleFilter {
     );
   }
 }
-
-
-
-
