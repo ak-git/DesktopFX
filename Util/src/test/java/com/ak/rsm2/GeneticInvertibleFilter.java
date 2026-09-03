@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.LongAdder;
 public class GeneticInvertibleFilter {
   private static final Logger LOGGER = LoggerFactory.getLogger(GeneticInvertibleFilter.class);
 
-  private static final Cache<ProblemInput, Double> FITNESS_CACHE = Caffeine.newBuilder().maximumSize(1 << 16).build();
+  private static final Cache<ProblemInput, Double> FITNESS_CACHE = Caffeine.newBuilder().maximumSize(1 << 12).build();
   private static final LongAdder REAL_EVALUATIONS_COUNTER = new LongAdder();
   private static final LongAdder TOTAL_EVALUATIONS_COUNTER = new LongAdder();
 
