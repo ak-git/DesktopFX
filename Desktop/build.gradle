@@ -45,7 +45,7 @@ tasks.withType(Test).configureEach {
 }
 
 javafx {
-    version = '28-ea+6'
+    version = '28-ea+7'
     modules = ['javafx.controls', 'javafx.fxml']
     configurations = ['implementation']
 }
