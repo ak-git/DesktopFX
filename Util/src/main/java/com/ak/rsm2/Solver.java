@@ -133,9 +133,9 @@ public sealed interface Solver {
       }).reduce(Math::hypot).orElseThrow();
       double dataErrorNorm = dataErrorNormBase + dataErrorNormShift;
       LOGGER.atInfo()
-          .addKeyValue("data Error Norm Base", "%.4f".formatted(dataErrorNormBase))
-          .addKeyValue("alpha = 0 data Error Norm Shift", "%.4f".formatted(dataErrorNormShift))
-          .addKeyValue("total data Error Norm", "%.4f".formatted(dataErrorNorm)).log(Strings.EMPTY);
+          .addKeyValue("data Error Norm Base", () -> "%.4f".formatted(dataErrorNormBase))
+          .addKeyValue("alpha = 0 data Error Norm Shift", () -> "%.4f".formatted(dataErrorNormShift))
+          .addKeyValue("total data Error Norm", () -> "%.4f".formatted(dataErrorNorm)).log(Strings.EMPTY);
 
       DoubleUnaryOperator withAlpha = alpha -> {
         if (alpha < 0) {
@@ -144,7 +144,7 @@ public sealed interface Solver {
         else {
           IterativeModel m = find.apply(alpha);
           double misfit = parametricFunctionals.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
-          LOGGER.atInfo().addKeyValue("alpha", "%.4f".formatted(alpha)).addKeyValue("misfit", "%.4f".formatted(misfit))
+          LOGGER.atInfo().addKeyValue("alpha", () -> "%.4f".formatted(alpha)).addKeyValue("misfit", () -> "%.4f".formatted(misfit))
               .log(() -> "%s".formatted(find.apply(alpha)));
           double v = misfit - dataErrorNorm;
           return v * v;
@@ -157,7 +157,7 @@ public sealed interface Solver {
               new NelderMeadTransform(), new InitialGuess(new double[] {0.0})
           );
       double alpha = optimized.getPoint()[0];
-      LOGGER.atWarn().addKeyValue("alpha", () -> "%.4f".formatted(alpha)).log("%s".formatted(find.apply(alpha)));
+      LOGGER.atWarn().addKeyValue("alpha", () -> "%.4f".formatted(alpha)).log(() -> "%s".formatted(find.apply(alpha)));
       return new SolverRecord();
     }
   }
