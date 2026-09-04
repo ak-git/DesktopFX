@@ -4,7 +4,6 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.jenetics.*;
 import io.jenetics.engine.*;
-import io.jenetics.util.Factory;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,25 +35,14 @@ class GeneticTest {
   }
 
   @Disabled("Simple example")
-  @RepeatedTest(10)
+  @RepeatedTest(3)
   void genetic() {
     InvertibleCodec<ProblemInput, AnyGene<Serializable>> compositeCodec = getCompositeCodec();
 
     Constraint<AnyGene<Serializable>, Double> codecFiniteConstraint =
         RetryConstraint.of(compositeCodec, input -> Double.isFinite(fitness(input)));
 
-    // 1. Создаем жесткий турнирный селектор для родителей
-    Selector<AnyGene<Serializable>, Double> parentSelector = new TournamentSelector<>(5);
-
-    // 2. Создаем чистый EliteSelector на 3 особи для выживших
-    Selector<AnyGene<Serializable>, Double> eliteSelector = new EliteSelector<>(3);
-
-    // 3. Создаем турнирный селектор для оставшейся части выживающих особей
-    Selector<AnyGene<Serializable>, Double> survivorTournament = new TournamentSelector<>(4);
-
-    // Начальные параметры адаптивности
     double currentMutationRate = 0.12; // Начинаем с агрессивной мутации 12%
-    // Хранилище для популяции между перезапусками движка
     EvolutionResult<AnyGene<Serializable>, Double> evolutionState = null;
 
     try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
@@ -64,9 +52,9 @@ class GeneticTest {
             .populationSize(1 << 12)
             .optimize(Optimize.MINIMUM)
             .executor(executor)
-            .selector(parentSelector)
-            .survivorsSelector(eliteSelector)
-            .offspringSelector(survivorTournament)
+            .selector(new TournamentSelector<>(5)) // жесткий турнирный селектор для родителей
+            .survivorsSelector(new EliteSelector<>(3)) // элитный селектор для выживших
+            .offspringSelector(new TournamentSelector<>(4)) // турнирный селектор для оставшейся части выживающих особей
             .alterers(new Mutator<>(currentMutationRate), new SinglePointCrossover<>(0.6))
             .constraint(codecFiniteConstraint)
             .build();
@@ -117,14 +105,12 @@ class GeneticTest {
   }
 
   private static InvertibleCodec<ProblemInput, AnyGene<Serializable>> getCompositeCodec() {
-    Factory<Genotype<AnyGene<Serializable>>> genotypeFactory = () -> Genotype.of(
-        AnyChromosome.of(() -> ThreadLocalRandom.current().nextDouble(-10.0, 10.0)),
-        AnyChromosome.of(() -> ThreadLocalRandom.current().nextInt(-21, 21)),
-        AnyChromosome.of(() -> ThreadLocalRandom.current().nextBoolean())
-    );
-
     return InvertibleCodec.of(
-        genotypeFactory,
+        () -> Genotype.of(
+            AnyChromosome.of(() -> ThreadLocalRandom.current().nextDouble(-10.0, 10.0)),
+            AnyChromosome.of(() -> ThreadLocalRandom.current().nextInt(-21, 21)),
+            AnyChromosome.of(() -> ThreadLocalRandom.current().nextBoolean())
+        ),
         gt -> new ProblemInput(
             (Double) gt.get(0).gene().allele(),
             (Integer) gt.get(1).gene().allele(),
