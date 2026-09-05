@@ -26,7 +26,7 @@ public sealed interface Resistivity {
     private final ElectrodeSystem.Tetrapolar tetrapolar;
 
     private ResistivityBuilder(ElectrodeSystem.Tetrapolar tetrapolar) {
-      this.tetrapolar = tetrapolar;
+      this.tetrapolar = Objects.requireNonNull(tetrapolar);
     }
 
     @Override
@@ -77,8 +77,8 @@ public sealed interface Resistivity {
       private final Model model;
 
       private ApparentBuilder(ElectrodeSystem.Tetrapolar system, Model model) {
-        this.system = system;
-        this.model = model;
+        this.system = Objects.requireNonNull(system);
+        this.model = Objects.requireNonNull(model);
       }
 
       @Override
