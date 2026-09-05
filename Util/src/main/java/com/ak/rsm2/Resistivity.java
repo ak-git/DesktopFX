@@ -12,25 +12,20 @@ import static java.lang.StrictMath.pow;
 public sealed interface Resistivity {
   ElectrodeSystem.Tetrapolar system();
 
-  double apparent(double rOhm);
-
   static Step1 of(ElectrodeSystem.Tetrapolar system) {
     return new ResistivityBuilder(system);
   }
 
   sealed interface Step1 extends Builder<Resistivity> {
     Apparent apparent(Model model);
+
+    double apparent(double rOhm);
   }
 
   final class ResistivityBuilder implements Step1 {
     private record ResistivityRecord(ElectrodeSystem.Tetrapolar system) implements Resistivity {
       private ResistivityRecord {
         Objects.requireNonNull(system);
-      }
-
-      @Override
-      public double apparent(double rOhm) {
-        return (Math.PI / 2.0) * rOhm / system.phiFactor();
       }
     }
 
@@ -49,6 +44,11 @@ public sealed interface Resistivity {
     public Apparent apparent(Model model) {
       return new Apparent.ApparentBuilder(build(), model).build();
     }
+
+    @Override
+    public double apparent(double rOhm) {
+      return (Math.PI / 2.0) * rOhm / tetrapolar.phiFactor();
+    }
   }
 
   sealed interface Apparent extends Resistivity {
@@ -66,11 +66,6 @@ public sealed interface Resistivity {
         @Override
         public ElectrodeSystem.Tetrapolar system() {
           return resistivity.system();
-        }
-
-        @Override
-        public double apparent(double rOhm) {
-          return resistivity.apparent(rOhm);
         }
       }
 

@@ -29,7 +29,7 @@ class ParametricFunctionalTest {
     void dataErrorNorm(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiff) {
       DoubleUnaryOperator d = emm -> {
         ElectrodeSystem.Tetrapolar system = ElectrodeSystem.builder(units).tetrapolar(sPU + emm, lCC - emm).build();
-        Resistivity resistivity = Resistivity.of(system).build();
+        Resistivity.Step1 resistivity = Resistivity.of(system);
         TetrapolarMeasurement.Diff measurement = TetrapolarMeasurement.builder().ohms(rBefore).thenOhms(rAfter).hDiff(hDiff, units).build();
         double apparent = resistivity.apparent(measurement.ohms());
         double derivativeApparentByPhi = Math.abs(resistivity.apparent((measurement.ohmsDiff() / measurement.hDiff()) / system.phiFactor()));
@@ -139,7 +139,7 @@ class ParametricFunctionalTest {
     void dataErrorNorm(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiff) {
       DoubleUnaryOperator d = emm -> {
         ElectrodeSystem.Tetrapolar system = ElectrodeSystem.builder(units).tetrapolar(sPU + emm, lCC - emm).build();
-        Resistivity resistivity = Resistivity.of(system).build();
+        Resistivity.Step1 resistivity = Resistivity.of(system);
         TetrapolarMeasurement.MaxDiff measurement = TetrapolarMeasurement.builder().ohms(rBefore).thenOhms(rAfter).hDiffMax(hDiff, units).build();
         double apparent = resistivity.apparent(measurement.ohms());
         double derivativeApparentByPhi = Math.abs(resistivity.apparent((measurement.ohmsDiff() / measurement.hDiffMax()) / system.phiFactor()));

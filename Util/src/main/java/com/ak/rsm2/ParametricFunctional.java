@@ -70,9 +70,10 @@ public sealed interface ParametricFunctional {
       }
 
       protected final double misfit(Model model, TetrapolarMeasurement m, double dh) {
-        Resistivity.Apparent resistivity = Resistivity.of(system).apparent(model);
-        double apparent = resistivity.apparent(m.ohms());
-        double derivativeApparentByPhi = resistivity.apparent((m.ohmsDiff() / dh) / system.phiFactor());
+        Resistivity.Step1 r = Resistivity.of(system);
+        Resistivity.Apparent resistivity = r.apparent(model);
+        double apparent = r.apparent(m.ohms());
+        double derivativeApparentByPhi = r.apparent((m.ohmsDiff() / dh) / system.phiFactor());
         double v = log(resistivity.value() / apparent) - log(resistivity.derivative() / derivativeApparentByPhi);
         return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
       }
@@ -247,11 +248,12 @@ public sealed interface ParametricFunctional {
         }
 
         private double misfitLog(Model model, Model model2, TetrapolarMeasurement m) {
-          Resistivity.Apparent resistivity = Resistivity.of(system()).apparent(model);
-          Resistivity.Apparent resistivity2 = Resistivity.of(system()).apparent(model2);
+          Resistivity.Step1 r = Resistivity.of(system());
+          Resistivity.Apparent resistivity = r.apparent(model);
+          Resistivity.Apparent resistivity2 = r.apparent(model2);
           double v = StrictMath.hypot(
-              log(resistivity.value() / resistivity.apparent(m.ohms())),
-              log((resistivity2.value() - resistivity.value()) / resistivity.apparent(m.ohmsDiff()))
+              log(resistivity.value() / r.apparent(m.ohms())),
+              log((resistivity2.value() - resistivity.value()) / r.apparent(m.ohmsDiff()))
           );
           return Double.isNaN(v) ? Double.POSITIVE_INFINITY : v;
         }
