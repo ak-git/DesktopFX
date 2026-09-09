@@ -1,9 +1,15 @@
 package com.ak.rsm2;
 
-import com.ak.math.Simplex;
 import com.ak.util.Builder;
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import io.jenetics.*;
+import io.jenetics.engine.Engine;
+import io.jenetics.engine.EvolutionResult;
+import io.jenetics.engine.InvertibleCodec;
+import io.jenetics.engine.RetryConstraint;
 import org.apache.commons.math4.legacy.optim.InitialGuess;
 import org.apache.commons.math4.legacy.optim.MaxEval;
 import org.apache.commons.math4.legacy.optim.PointValuePair;
@@ -14,18 +20,26 @@ import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.SimplexOpt
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.DoubleFunction;
+import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
+import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 public sealed interface Solver {
-  static <M extends TetrapolarMeasurement> Step1<M> of(double base, Metrics.Length units, Function<double[], IterativeModel> modelFactory) {
-    return new SolverBuilder<>(base, units, modelFactory);
+  double fitness();
+
+  Model model();
+
+  static <M extends TetrapolarMeasurement> Step1<M> of(double base, Metrics.Length units, Model origin) {
+    return new SolverBuilder<>(base, units, origin);
   }
 
   sealed interface Step1<M extends TetrapolarMeasurement> {
@@ -42,24 +56,107 @@ public sealed interface Solver {
 
   final class SolverBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Builder<Solver> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SolverBuilder.class);
+    private static final RandomGenerator RANDOM = new SecureRandom();
+    private static final int SIZE = 1 << 8;
 
-    private record SolverRecord() implements Solver {
+    private record SolverRecord(double fitness, Model model) implements Solver {
+      private SolverRecord {
+        Objects.requireNonNull(model);
+      }
+
+      @Override
+      public String toString() {
+        return "SolverRecord{fitness = %.4f, model = %s}".formatted(fitness, model);
+      }
     }
 
     private final double base;
     private final Metrics.Length units;
-    private final Function<double[], IterativeModel> modelFactory;
+    private final InvertibleCodec<Model, AnyGene<Number>> modelFactory;
     private final Collection<ParametricFunctional> parametricFunctionals = new ArrayList<>();
 
-    public SolverBuilder(double base, Metrics.Length units, Function<double[], IterativeModel> modelFactory) {
+    public SolverBuilder(double base, Metrics.Length units, Model origin) {
       if (base > 0) {
         this.base = base;
       }
       else {
         throw new IllegalArgumentException("base = %f must be positive".formatted(base));
       }
-      this.units = units;
-      this.modelFactory = modelFactory;
+      this.units = Objects.requireNonNull(units);
+      modelFactory = InvertibleCodec.of(
+          () -> switch (origin) {
+            case Model.Layer2Relative(K k, double h) -> Genotype.of(
+                AnyChromosome.of(() -> RANDOM.nextDouble(
+                    Math.min(k.value(), 0.0), Math.max(0.0, k.value()))
+                ),
+                AnyChromosome.of(() -> RANDOM.nextDouble(0, h))
+            );
+            case Model.Layer2RelativeDh(Model.Layer2Relative layer2Relative, double dh) -> Genotype.of(
+                AnyChromosome.of(() -> RANDOM.nextDouble(
+                    Math.min(layer2Relative.k().value(), 0.0), Math.max(0.0, layer2Relative.k().value()))
+                ),
+                AnyChromosome.of(() -> RANDOM.nextDouble(0, layer2Relative.h())),
+                AnyChromosome.of(() -> RANDOM.nextDouble(Math.min(dh, 0.0), Math.max(0.0, dh)))
+            );
+            case Model.Layer3Absolute layer3Absolute -> throw new IllegalArgumentException(layer3Absolute.toString());
+            case Model.Layer3AbsoluteDRho2(Model.Layer3Absolute layer3Absolute, Model.P dp, double dRho2) ->
+                Genotype.of(
+                    AnyChromosome.of(() -> RANDOM.nextDouble(1.5, layer3Absolute.rho1())),
+                    AnyChromosome.of(() -> RANDOM.nextDouble(1.5, layer3Absolute.rho2())),
+                    AnyChromosome.of(() -> RANDOM.nextDouble(1.5, layer3Absolute.rho3())),
+                    AnyChromosome.of(() -> RANDOM.nextInt(layer3Absolute.p().p1())),
+                    AnyChromosome.of(() -> RANDOM.nextInt(layer3Absolute.p().p2mp1())),
+                    AnyChromosome.of(() -> RANDOM.nextInt(dp.p1())),
+                    AnyChromosome.of(() -> RANDOM.nextInt(dp.p2mp1())),
+                    AnyChromosome.of(() -> RANDOM.nextDouble(dRho2))
+                );
+          },
+          gt -> switch (origin) {
+            case Model.Layer2Relative _ -> new Model.Layer2Relative(
+                K.of(gt.get(0).gene().allele().doubleValue()),
+                gt.get(1).gene().allele().doubleValue()
+            );
+            case Model.Layer2RelativeDh _ -> new Model.Layer2RelativeDh(
+                K.of(gt.get(0).gene().allele().doubleValue()),
+                gt.get(1).gene().allele().doubleValue(),
+                gt.get(2).gene().allele().doubleValue()
+            );
+            case Model.Layer3Absolute layer3Absolute -> throw new IllegalArgumentException(layer3Absolute.toString());
+            case Model.Layer3AbsoluteDRho2 layer3AbsoluteDRho2 -> new Model.Layer3AbsoluteDRho2(
+                new Model.Layer3Absolute(
+                    gt.get(0).gene().allele().doubleValue(),
+                    gt.get(1).gene().allele().doubleValue(),
+                    gt.get(2).gene().allele().doubleValue(),
+                    layer3AbsoluteDRho2.layer3Absolute().hStep(),
+                    new Model.P(gt.get(3).gene().allele().intValue(), gt.get(4).gene().allele().intValue())),
+                new Model.P(gt.get(5).gene().allele().intValue(), gt.get(6).gene().allele().intValue()),
+                gt.get(7).gene().allele().doubleValue()
+            );
+          },
+          input -> switch (input) {
+            case Model.Layer2Relative(K k, double h) -> Genotype.of(
+                AnyChromosome.of(k::value),
+                AnyChromosome.of(() -> h)
+            );
+            case Model.Layer2RelativeDh(Model.Layer2Relative layer2Relative, double dh) -> Genotype.of(
+                AnyChromosome.of(() -> layer2Relative.k().value()),
+                AnyChromosome.of(layer2Relative::h),
+                AnyChromosome.of(() -> dh)
+            );
+            case Model.Layer3Absolute layer3Absolute -> throw new IllegalArgumentException(layer3Absolute.toString());
+            case Model.Layer3AbsoluteDRho2(Model.Layer3Absolute layer3Absolute, Model.P dp, double dRho2) ->
+                Genotype.of(
+                    AnyChromosome.of(layer3Absolute::rho1),
+                    AnyChromosome.of(layer3Absolute::rho2),
+                    AnyChromosome.of(layer3Absolute::rho3),
+                    AnyChromosome.of(() -> layer3Absolute.p().p1()),
+                    AnyChromosome.of(() -> layer3Absolute.p().p2mp1()),
+                    AnyChromosome.of(dp::p1),
+                    AnyChromosome.of(dp::p2mp1),
+                    AnyChromosome.of(() -> dRho2)
+                );
+          }
+      );
     }
 
     @Override
@@ -95,42 +192,74 @@ public sealed interface Solver {
       );
     }
 
-    @Override
-    public Solver build() {
-      DoubleFunction<IterativeModel> find = alpha -> {
-        PointValuePair optimized = Simplex.optimizeAll(point -> {
-              IterativeModel m = modelFactory.apply(point);
-              return DoubleStream.concat(
-                      parametricFunctionals.stream().mapToDouble(f -> alpha * f.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG).applyAsDouble(m)),
-                      parametricFunctionals.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).map(x -> x * x)
+    private Solver find(double alpha) {
+      Cache<Model, Double> fitnessCache = Caffeine.newBuilder().maximumSize(SIZE).build();
+      LongAdder realEvaluationsCounter = new LongAdder();
+      LongAdder totalEvaluationsCounter = new LongAdder();
+      ToDoubleFunction<Model> fitness = model -> {
+        totalEvaluationsCounter.increment();
+        return fitnessCache.get(model, m -> {
+          realEvaluationsCounter.increment();
+          return DoubleStream.concat(
+                  parametricFunctionals.stream().mapToDouble(f -> alpha * f.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG).applyAsDouble(m)),
+                  parametricFunctionals.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).map(x -> x * x)
+              )
+              .takeWhile(Double::isFinite).boxed().collect(
+                  Collectors.teeing(
+                      Collectors.reducing(Double::sum),
+                      Collectors.counting(),
+                      (sum, count) -> count == parametricFunctionals.size() * 2L ?
+                          StrictMath.sqrt(sum.orElseThrow()) : Double.POSITIVE_INFINITY
                   )
-                  .takeWhile(Double::isFinite).boxed().collect(
-                      Collectors.teeing(
-                          Collectors.reducing(Double::sum),
-                          Collectors.counting(),
-                          (sum, count) -> count == parametricFunctionals.size() * 2L ? sum.orElseThrow() : Double.POSITIVE_INFINITY
-                      )
-                  );
-            },
-            parametricFunctionals.stream().map(ParametricFunctional::bounds).reduce((bounds1, bounds2) -> {
-              Simplex.Bounds[] bounds = new Simplex.Bounds[Math.max(bounds1.length, bounds2.length)];
-              for (int i = 0; i < bounds.length; i++) {
-                bounds[i] = bounds1[i].merge(bounds2[i]);
-              }
-              return bounds;
-            }).orElseThrow());
-        return modelFactory.apply(optimized.getPoint());
+              );
+        });
       };
 
-      double dataErrorNormBase = parametricFunctionals.stream().mapToDouble(ParametricFunctional::dataErrorNorm).reduce(Math::hypot).orElseThrow();
-      double dataErrorNormShift = parametricFunctionals.stream().mapToDouble(new ToDoubleFunction<>() {
-        private final IterativeModel mZero = find.apply(0.0);
+      EvolutionResult<AnyGene<Number>, Double> evolutionState = null;
 
-        @Override
-        public double applyAsDouble(ParametricFunctional f) {
-          return f.misfit().applyAsDouble(mZero);
+      try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+        for (int epoch = 0, totalEpochs = 1 << 4; epoch < totalEpochs; epoch++) {
+          double mutationRate = Math.clamp(1.0 / Math.E / Integer.highestOneBit(epoch), 0.01, 1.0 / Math.E);
+          Engine<AnyGene<Number>, Double> engine = Engine.builder(fitness::applyAsDouble, modelFactory)
+              .populationSize(SIZE)
+              .optimize(Optimize.MINIMUM)
+              .executor(executor)
+              .selector(new TournamentSelector<>(5)) // жесткий турнирный селектор для родителей
+              .survivorsSelector(new EliteSelector<>(5)) // элитный селектор для выживших
+              .offspringSelector(new TournamentSelector<>(4)) // турнирный селектор для оставшейся части выживающих особей
+              .alterers(new Mutator<>(mutationRate), new SinglePointCrossover<>(0.6))
+              .constraint(RetryConstraint.of(modelFactory, m -> Double.isFinite(fitness.applyAsDouble(m))))
+              .build();
+
+          var stream = (evolutionState == null) ? engine.stream() : engine.stream(evolutionState);
+          evolutionState = stream.limit(1 << 4).collect(EvolutionResult.toBestEvolutionResult());
+
+          double bestFitness = evolutionState.bestFitness();
+          Model currentBestInput = modelFactory.decode(evolutionState.bestPhenotype().genotype());
+
+          LOGGER.atDebug().log("Эпоха {}/{} завершена | Поколение: {} | Мутация: {} % | Невязка: {} | {}",
+              epoch + 1, totalEpochs, evolutionState.generation(), "%.1f".formatted(mutationRate * 100),
+              "%.4f".formatted(bestFitness), currentBestInput);
+
+          if (bestFitness < 1.0E-6) {
+            LOGGER.atDebug().log(() -> "--> Минимум найден досрочно!");
+            break;
+          }
         }
-      }).reduce(Math::hypot).orElseThrow();
+
+        LOGGER.atDebug().addKeyValue("Невязка", "%.4f".formatted(evolutionState.bestFitness()))
+            .addKeyValue("Вычислений", realEvaluationsCounter::sum)
+            .addKeyValue("Всего попыток", totalEvaluationsCounter::sum)
+            .addKeyValue("Экономия за счет кэша", () -> "%.0f%%".formatted((1.0 - realEvaluationsCounter.doubleValue() / totalEvaluationsCounter.sum()) * 100))
+            .log(Strings.EMPTY);
+        return new SolverRecord(evolutionState.bestFitness(), modelFactory.decode(evolutionState.bestPhenotype().genotype()));
+      }
+    }
+
+    @Override
+    public Solver build() {
+      double dataErrorNormBase = parametricFunctionals.stream().mapToDouble(ParametricFunctional::dataErrorNorm).reduce(Math::hypot).orElseThrow();
+      double dataErrorNormShift = find(0.0).fitness();
       double dataErrorNorm = dataErrorNormBase + dataErrorNormShift;
       LOGGER.atInfo()
           .addKeyValue("data Error Norm Base", () -> "%.4f".formatted(dataErrorNormBase))
@@ -138,17 +267,17 @@ public sealed interface Solver {
           .addKeyValue("total data Error Norm", () -> "%.4f".formatted(dataErrorNorm))
           .log(Strings.EMPTY);
 
+      Cache<Double, Solver> alphaCache = Caffeine.newBuilder().maximumSize(1 << 8).build();
       DoubleUnaryOperator withAlpha = alpha -> {
         if (alpha < 0) {
           return Double.POSITIVE_INFINITY;
         }
         else {
-          IterativeModel m = find.apply(alpha);
-          double misfit = parametricFunctionals.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(Math::hypot).orElseThrow();
+          Solver m = alphaCache.get(alpha, this::find);
+          double misfit = m.fitness();
           LOGGER.atInfo()
               .addKeyValue("alpha", () -> "%.4f".formatted(alpha))
-              .addKeyValue("misfit", () -> "%.4f".formatted(misfit))
-              .log("{}", find.apply(alpha));
+              .log("{}", m);
           double v = misfit - dataErrorNorm;
           return v * v;
         }
@@ -157,13 +286,13 @@ public sealed interface Solver {
       PointValuePair optimized = new SimplexOptimizer(0.000_000_1, 0.000_01)
           .optimize(new MaxEval(100), new ObjectiveFunction(point -> withAlpha.applyAsDouble(point[0])),
               GoalType.MINIMIZE, org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.Simplex.alongAxes(new double[] {0.001}),
-              new NelderMeadTransform(), new InitialGuess(new double[] {0.0})
+              new NelderMeadTransform(), new InitialGuess(new double[] {0.001})
           );
       double alpha = optimized.getPoint()[0];
-      LOGGER.atWarn()
+      LOGGER.atInfo()
           .addKeyValue("alpha", () -> "%.4f".formatted(alpha))
-          .log("{}", find.apply(alpha));
-      return new SolverRecord();
+          .log(Strings.EMPTY);
+      return alphaCache.get(alpha, this::find);
     }
   }
 }

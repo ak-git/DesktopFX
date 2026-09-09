@@ -1,6 +1,5 @@
 package com.ak.rsm2;
 
-import com.ak.math.Simplex;
 import com.ak.util.Builder;
 import com.ak.util.Metrics;
 import org.jspecify.annotations.Nullable;
@@ -20,11 +19,9 @@ public sealed interface ParametricFunctional {
 
   double dataErrorNorm();
 
-  Simplex.Bounds[] bounds();
+  ToDoubleFunction<Model> misfit();
 
-  ToDoubleFunction<IterativeModel> misfit();
-
-  ToDoubleFunction<IterativeModel> regularization(Regularization regularization);
+  ToDoubleFunction<Model> regularization(Regularization regularization);
 
   sealed interface Step1<M extends TetrapolarMeasurement> {
     Step2<M> system(Function<ElectrodeSystem.Step1, Builder<ElectrodeSystem.Inexact>> builderFunction);
@@ -44,8 +41,8 @@ public sealed interface ParametricFunctional {
       private final M measurement;
 
       private AbstractParametricFunctional(ElectrodeSystem.Inexact system, M measurement) {
-        this.system = system;
-        this.measurement = measurement;
+        this.system = Objects.requireNonNull(system);
+        this.measurement = Objects.requireNonNull(measurement);
       }
 
       protected final ElectrodeSystem.Inexact system() {
@@ -94,27 +91,20 @@ public sealed interface ParametricFunctional {
         }
 
         @Override
-        public Simplex.Bounds[] bounds() {
-          return new Simplex.Bounds[] {
-              new Simplex.Bounds(-1.0, 1.0), new Simplex.Bounds(0.0, system().hMax(K.PLUS_ONE))
-          };
-        }
-
-        @Override
-        public ToDoubleFunction<IterativeModel> misfit() {
+        public ToDoubleFunction<Model> misfit() {
           return layer -> {
-            if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer2Relative layer2Relative) {
-              return misfit(layer2Relative.toModel(), measurement(), measurement().hDiff());
+            if (Objects.requireNonNull(layer) instanceof Model.Layer2Relative layer2Relative) {
+              return misfit(layer2Relative, measurement(), measurement().hDiff());
             }
             throw new IllegalStateException("Unexpected value: " + layer);
           };
         }
 
         @Override
-        public ToDoubleFunction<IterativeModel> regularization(Regularization regularization) {
+        public ToDoubleFunction<Model> regularization(Regularization regularization) {
           return switch (regularization) {
             case ZERO_MAX_LOG -> layer -> {
-              if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer2Relative(K k, double h)) {
+              if (Objects.requireNonNull(layer) instanceof Model.Layer2Relative(K k, double h)) {
                 return regularization(k, h);
               }
               throw new IllegalArgumentException("Unexpected value: " + layer);
@@ -134,10 +124,10 @@ public sealed interface ParametricFunctional {
         }
 
         @Override
-        public final ToDoubleFunction<IterativeModel> misfit() {
+        public final ToDoubleFunction<Model> misfit() {
           return layer -> {
-            if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer2RelativeDh layer2RelativeDH) {
-              return misfit(layer2RelativeDH.toModel(), measurement(), layer2RelativeDH.dh());
+            if (Objects.requireNonNull(layer) instanceof Model.Layer2RelativeDh layer2RelativeDH) {
+              return misfit(layer2RelativeDH, measurement(), layer2RelativeDH.dh());
             }
             throw new IllegalStateException("Unexpected value: " + layer);
           };
@@ -150,20 +140,14 @@ public sealed interface ParametricFunctional {
         }
 
         @Override
-        public Simplex.Bounds[] bounds() {
-          return new Simplex.Bounds[] {
-              new Simplex.Bounds(-1.0, 1.0),
-              new Simplex.Bounds(0.0, system().hMax(K.PLUS_ONE)),
-              new Simplex.Bounds(Math.min(measurement().hDiffMax(), 0.0), Math.max(0.0, measurement().hDiffMax()))
-          };
-        }
-
-        @Override
-        public ToDoubleFunction<IterativeModel> regularization(Regularization regularization) {
+        public ToDoubleFunction<Model> regularization(Regularization regularization) {
           return switch (regularization) {
             case ZERO_MAX_LOG -> layer -> {
-              if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer2RelativeDh(K k, double h, double dh)) {
-                return regularization(k, h) + regularization(Math.abs(dh), 0, 2.0 * Math.abs(measurement().hDiffMax()));
+              if (Objects.requireNonNull(layer) instanceof Model.Layer2RelativeDh(
+                  Model.Layer2Relative layer2Relative, double dh
+              )) {
+                return regularization(layer2Relative.k(), layer2Relative.h()) +
+                    regularization(Math.abs(dh), 0, 2.0 * Math.abs(measurement().hDiffMax()));
               }
               throw new IllegalArgumentException("Unexpected value: " + layer);
             };
@@ -177,20 +161,14 @@ public sealed interface ParametricFunctional {
         }
 
         @Override
-        public Simplex.Bounds[] bounds() {
-          return new Simplex.Bounds[] {
-              new Simplex.Bounds(-1.0, 1.0),
-              new Simplex.Bounds(0.0, system().hMax(K.PLUS_ONE)),
-              new Simplex.Bounds(Math.min(measurement().hDiffZero(), 0.0), Math.max(0.0, measurement().hDiffZero()))
-          };
-        }
-
-        @Override
-        public ToDoubleFunction<IterativeModel> regularization(Regularization regularization) {
+        public ToDoubleFunction<Model> regularization(Regularization regularization) {
           return switch (regularization) {
             case ZERO_MAX_LOG -> layer -> {
-              if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer2RelativeDh(K k, double h, double dh)) {
-                return regularization(k, h) + regularization(dh, -Math.abs(measurement().hDiffZero()), Math.abs(measurement().hDiffZero()));
+              if (Objects.requireNonNull(layer) instanceof Model.Layer2RelativeDh(
+                  Model.Layer2Relative layer2Relative, double dh
+              )) {
+                return regularization(layer2Relative.k(), layer2Relative.h()) +
+                    regularization(dh, -Math.abs(measurement().hDiffZero()), Math.abs(measurement().hDiffZero()));
               }
               throw new IllegalArgumentException("Unexpected value: " + layer);
             };
@@ -209,33 +187,21 @@ public sealed interface ParametricFunctional {
         }
 
         @Override
-        public Simplex.Bounds[] bounds() {
-          return new Simplex.Bounds[] {
-              new Simplex.Bounds(1.0, 10.0), new Simplex.Bounds(1.0, 20.0), new Simplex.Bounds(1.0, 10.0), // rho1 - rho2 - rho3
-              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(2.5)), // p1
-              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.5), Metrics.Length.MILLI.toSI(2.5)), // (p2 - p1)
-              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.0), Metrics.Length.MILLI.toSI(0.180)),
-              new Simplex.Bounds(Metrics.Length.MILLI.toSI(0.0), Metrics.Length.MILLI.toSI(0.180)),
-              new Simplex.Bounds(0.0, 0.1)
-          };
-        }
-
-        @Override
-        public ToDoubleFunction<IterativeModel> misfit() {
+        public ToDoubleFunction<Model> misfit() {
           return layer -> {
-            if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer3Absolute layer3Absolute) {
+            if (Objects.requireNonNull(layer) instanceof Model.Layer3AbsoluteDRho2(
+                Model.Layer3Absolute layer3Absolute, Model.P dp, double dRho2
+            )) {
               if (layer3Absolute.rho1() < layer3Absolute.rho2() && layer3Absolute.rho2() > layer3Absolute.rho3() &&
                   layer3Absolute.p().p1() < layer3Absolute.p().p2mp1() &&
-                  layer3Absolute.dp().p1() < layer3Absolute.dp().p2mp1() &&
-                  layer3Absolute.dp().pSum() <= measurement().hDiffMax() / layer3Absolute.hStep()) {
-                Model.P dPlus = layer3Absolute.dp();
-                double dRho2 = layer3Absolute.dRho2();
+                  dp.p1() < dp.p2mp1() &&
+                  dp.pSum() <= measurement().hDiffMax() / layer3Absolute.hStep()) {
                 TetrapolarMeasurement mRho2 = TetrapolarMeasurement.builder().ohms(measurement().ohms() + measurement().ohmsDiff())
                     .thenOhms(measurement().next().ohms()).build();
                 return DoubleStream.of(
-                        misfitLog(layer3Absolute.toModel(), layer3Absolute.toModel(dPlus, 0.0), measurement()),
-                        misfitLog(layer3Absolute.toModel(dPlus, 0.0), layer3Absolute.toModel(dPlus, dRho2), mRho2),
-                        misfitLog(layer3Absolute.toModel(dPlus, dRho2), layer3Absolute.toModel(dPlus.add(dPlus), dRho2), measurement().next())
+                        misfitLog(layer3Absolute, layer3Absolute.toModel(dp, 0.0), measurement()),
+                        misfitLog(layer3Absolute.toModel(dp, 0.0), layer3Absolute.toModel(dp, dRho2), mRho2),
+                        misfitLog(layer3Absolute.toModel(dp, dRho2), layer3Absolute.toModel(dp.multiply(2.0), dRho2), measurement().next())
                     )
                     .reduce(StrictMath::hypot).orElseThrow();
               }
@@ -259,13 +225,19 @@ public sealed interface ParametricFunctional {
         }
 
         @Override
-        public ToDoubleFunction<IterativeModel> regularization(Regularization regularization) {
+        public ToDoubleFunction<Model> regularization(Regularization regularization) {
           return switch (regularization) {
             case ZERO_MAX_LOG -> layer -> {
-              if (Objects.requireNonNull(layer) instanceof IterativeModel.Layer3Absolute layer3Absolute) {
-                return regularization(K.of(layer3Absolute.rho1(), layer3Absolute.rho2()), layer3Absolute.p().p1() * layer3Absolute.hStep()) +
-                    regularization(K.of(layer3Absolute.rho2(), layer3Absolute.rho3()), layer3Absolute.p().pSum() * layer3Absolute.hStep()) +
-                    regularization(Math.abs(layer3Absolute.hStep() * layer3Absolute.dp().pSum()), 0, 2.0 * Math.abs(measurement().hDiffMax()));
+              if (Objects.requireNonNull(layer) instanceof
+                  Model.Layer3AbsoluteDRho2(Model.Layer3Absolute layer3Absolute, Model.P dp, _)) {
+                double rho1 = layer3Absolute.rho1();
+                double rho2 = layer3Absolute.rho2();
+                double rho3 = layer3Absolute.rho3();
+                double hStep = layer3Absolute.hStep();
+                Model.P p = layer3Absolute.p();
+                return regularization(K.of(rho1, rho2), layer3Absolute.p().p1() * hStep) +
+                    regularization(K.of(rho2, rho3), p.pSum() * hStep) +
+                    regularization(Math.abs(hStep * dp.pSum()), 0, 2.0 * Math.abs(measurement().hDiffMax()));
               }
               throw new IllegalStateException("Unexpected value: " + layer);
             };

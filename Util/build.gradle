@@ -17,6 +17,7 @@ dependencies {
     implementation libs.slf4j
     implementation libs.tech.units
     implementation libs.jenetics
+    implementation libs.caffeine
     implementation libs.commons.math4.legacy.core
     implementation libs.commons.rng.client.api
     implementation libs.commons.rng.simple
@@ -25,7 +26,6 @@ dependencies {
     testImplementation libs.mockito.junit
     testImplementation libs.mockito.core
     testImplementation libs.bundles.test.implementation
-    testImplementation libs.caffeine
     testCompileOnly libs.bundles.test.compile
     testRuntimeOnly libs.bundles.test.runtime
 

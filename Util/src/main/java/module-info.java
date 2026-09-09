@@ -9,6 +9,7 @@ module com.ak.util {
   requires io.jenetics.base;
   requires tech.units.indriya;
   requires org.slf4j;
+  requires com.github.benmanes.caffeine;
 
   exports com.ak.csv;
   exports com.ak.math;

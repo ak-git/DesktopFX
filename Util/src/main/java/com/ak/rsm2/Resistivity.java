@@ -5,6 +5,7 @@ import com.ak.util.Builder;
 
 import java.util.Objects;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
 
 import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.pow;
@@ -83,16 +84,22 @@ public sealed interface Resistivity {
 
       @Override
       public Apparent build() {
+        Function<Model.Layer2Relative, Apparent> layer2RelativeApparent = layer2Relative -> {
+          double k = layer2Relative.k().value();
+          double h = layer2Relative.h();
+          DoubleUnaryOperator left = braceOperation(h, Sign.MINUS);
+          DoubleUnaryOperator right = braceOperation(h, Sign.PLUS);
+          return new ApparentRecord(system,
+              1.0 + 2.0 * Layers.sum(n -> pow(k, n) * (left.applyAsDouble(n) - right.applyAsDouble(n))),
+              -32.0 * h * system.phiFactor() *
+                  Layers.sum(n -> pow(k, n) * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0)))
+          );
+        };
+
         return switch (model) {
-          case Model.Layer2Relative(K k, double h) -> {
-            DoubleUnaryOperator left = braceOperation(h, Sign.MINUS);
-            DoubleUnaryOperator right = braceOperation(h, Sign.PLUS);
-            yield new ApparentRecord(system,
-                1.0 + 2.0 * Layers.sum(n -> pow(k.value(), n) * (left.applyAsDouble(n) - right.applyAsDouble(n))),
-                -32.0 * h * system.phiFactor() *
-                    Layers.sum(n -> pow(k.value(), n) * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0)))
-            );
-          }
+          case Model.Layer2Relative layer2Relative -> layer2RelativeApparent.apply(layer2Relative);
+          case Model.Layer2RelativeDh layer2RelativeDh ->
+              layer2RelativeApparent.apply(layer2RelativeDh.layer2Relative());
           case Model.Layer3Absolute(double rho1, double rho2, double rho3, double hStep, Model.P p) -> {
             DoubleUnaryOperator left = braceOperation(hStep, Sign.MINUS);
             DoubleUnaryOperator right = braceOperation(hStep, Sign.PLUS);
@@ -100,6 +107,8 @@ public sealed interface Resistivity {
             double apparent = (1.0 + 2.0 * Layers.sum(n -> qn[n] * (left.applyAsDouble(n) - right.applyAsDouble(n)))) * rho1;
             yield new ApparentRecord(system, apparent, Double.NaN);
           }
+          case Model.Layer3AbsoluteDRho2 layer3AbsoluteDRho2 ->
+              throw new IllegalArgumentException(layer3AbsoluteDRho2.toString());
         };
       }
 
