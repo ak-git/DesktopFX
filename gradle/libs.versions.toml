@@ -2,7 +2,7 @@
 sonarqube = '7.5.0.8588'
 jacocolog = '4.0.2'
 spotbugs = '6.5.11'
-ben-manes-versions = '0.61.0'
+ben-manes-versions = '0.62.0'
 openrewrite = '7.41.0'
 rewrite-testing-frameworks = '3.44.0'
 rewrite-migrate-java = '3.42.1'
