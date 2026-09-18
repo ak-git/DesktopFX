@@ -74,6 +74,7 @@ public sealed interface Solver {
     private final Metrics.Length units;
     private final InvertibleCodec<Model, AnyGene<Number>> modelFactory;
     private final Collection<ParametricFunctional> parametricFunctionals = new ArrayList<>();
+    private final Cache<Double, Solver> alphaCache = Caffeine.newBuilder().maximumSize(1 << 7).build();
 
     public SolverBuilder(double base, Metrics.Length units, Model origin) {
       if (base > 0) {
@@ -193,6 +194,10 @@ public sealed interface Solver {
     }
 
     private Solver find(double alpha) {
+      return alphaCache.get(alpha, this::innerFind);
+    }
+
+    private Solver innerFind(double alpha) {
       Cache<Model, Double> fitnessCache = Caffeine.newBuilder().maximumSize(SIZE).build();
       LongAdder realEvaluationsCounter = new LongAdder();
       LongAdder totalEvaluationsCounter = new LongAdder();
@@ -246,8 +251,7 @@ public sealed interface Solver {
             break;
           }
         }
-
-        LOGGER.atDebug().addKeyValue("Невязка", "%.4f".formatted(evolutionState.bestFitness()))
+        LOGGER.atDebug().addKeyValue("Невязка", "%.4f".formatted(Objects.requireNonNull(evolutionState).bestFitness()))
             .addKeyValue("Вычислений", realEvaluationsCounter::sum)
             .addKeyValue("Всего попыток", totalEvaluationsCounter::sum)
             .addKeyValue("Экономия за счет кэша", () -> "%.0f%%".formatted((1.0 - realEvaluationsCounter.doubleValue() / totalEvaluationsCounter.sum()) * 100))
@@ -267,13 +271,12 @@ public sealed interface Solver {
           .addKeyValue("total data Error Norm", () -> "%.4f".formatted(dataErrorNorm))
           .log(Strings.EMPTY);
 
-      Cache<Double, Solver> alphaCache = Caffeine.newBuilder().maximumSize(1 << 8).build();
       DoubleUnaryOperator withAlpha = alpha -> {
         if (alpha < 0) {
           return Double.POSITIVE_INFINITY;
         }
         else {
-          Solver m = alphaCache.get(alpha, this::find);
+          Solver m = find(alpha);
           double misfit = m.fitness();
           LOGGER.atInfo()
               .addKeyValue("alpha", () -> "%.4f".formatted(alpha))
@@ -292,7 +295,7 @@ public sealed interface Solver {
       LOGGER.atInfo()
           .addKeyValue("alpha", () -> "%.4f".formatted(alpha))
           .log(Strings.EMPTY);
-      return alphaCache.get(alpha, this::find);
+      return find(alpha);
     }
   }
 }

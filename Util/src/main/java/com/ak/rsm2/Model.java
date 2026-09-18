@@ -20,7 +20,7 @@ public sealed interface Model {
     @Override
     public String toString() {
       return Stream.of(ValuePair.Name.K12.of(k.value(), 0.0), ValuePair.Name.H.of(h, 0.0))
-          .map(Objects::toString).collect(Collectors.joining("; "));
+          .map(Objects::toString).collect(Collectors.joining("; ", "Layer2{", "}"));
     }
   }
 
@@ -32,7 +32,7 @@ public sealed interface Model {
     @Override
     public String toString() {
       return Stream.of(layer2Relative, ValuePair.Name.DH.of(dh, 0.0))
-          .map(Objects::toString).collect(Collectors.joining("; "));
+          .map(Objects::toString).collect(Collectors.joining("; ", "Layer2{", "}"));
     }
   }
 
