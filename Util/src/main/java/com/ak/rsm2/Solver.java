@@ -2,7 +2,6 @@ package com.ak.rsm2;
 
 import com.ak.util.Builder;
 import com.ak.util.Metrics;
-import com.ak.util.Strings;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.jenetics.*;
@@ -10,23 +9,16 @@ import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionResult;
 import io.jenetics.engine.InvertibleCodec;
 import io.jenetics.engine.RetryConstraint;
-import org.apache.commons.math4.legacy.optim.InitialGuess;
-import org.apache.commons.math4.legacy.optim.MaxEval;
-import org.apache.commons.math4.legacy.optim.PointValuePair;
-import org.apache.commons.math4.legacy.optim.nonlinear.scalar.GoalType;
-import org.apache.commons.math4.legacy.optim.nonlinear.scalar.ObjectiveFunction;
-import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.NelderMeadTransform;
-import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.random.RandomGenerator;
@@ -74,7 +66,7 @@ public sealed interface Solver {
     private final Metrics.Length units;
     private final InvertibleCodec<Model, AnyGene<Number>> modelFactory;
     private final Collection<ParametricFunctional> parametricFunctionals = new ArrayList<>();
-    private final Cache<Double, Solver> alphaCache = Caffeine.newBuilder().maximumSize(1 << 7).build();
+    private final Cache<Double, Solver> alphaCache = Caffeine.newBuilder().maximumSize(SIZE).build();
 
     public SolverBuilder(double base, Metrics.Length units, Model origin) {
       if (base > 0) {
@@ -232,7 +224,7 @@ public sealed interface Solver {
               .selector(new TournamentSelector<>(5)) // жесткий турнирный селектор для родителей
               .survivorsSelector(new EliteSelector<>(5)) // элитный селектор для выживших
               .offspringSelector(new TournamentSelector<>(4)) // турнирный селектор для оставшейся части выживающих особей
-              .alterers(new Mutator<>(mutationRate), new SinglePointCrossover<>(0.6))
+              .alterers(new Mutator<>(mutationRate), new MultiPointCrossover<>(0.6, 2))
               .constraint(RetryConstraint.of(modelFactory, m -> Double.isFinite(fitness.applyAsDouble(m))))
               .build();
 
@@ -243,59 +235,34 @@ public sealed interface Solver {
           Model currentBestInput = modelFactory.decode(evolutionState.bestPhenotype().genotype());
 
           LOGGER.atDebug().log("Эпоха {}/{} завершена | Поколение: {} | Мутация: {} % | Невязка: {} | {}",
-              epoch + 1, totalEpochs, evolutionState.generation(), "%.1f".formatted(mutationRate * 100),
-              "%.4f".formatted(bestFitness), currentBestInput);
+              "%02d".formatted(epoch + 1), "%02d".formatted(totalEpochs), "%03d".formatted(evolutionState.generation()),
+              "%04.1f".formatted(mutationRate * 100), "%.4f".formatted(bestFitness), currentBestInput);
 
           if (bestFitness < 1.0E-6) {
             LOGGER.atDebug().log(() -> "--> Минимум найден досрочно!");
             break;
           }
         }
-        LOGGER.atDebug().addKeyValue("Невязка", "%.4f".formatted(Objects.requireNonNull(evolutionState).bestFitness()))
+        SolverRecord solverRecord = new SolverRecord(evolutionState.bestFitness(), modelFactory.decode(evolutionState.bestPhenotype().genotype()));
+        LOGGER.atDebug()
             .addKeyValue("Вычислений", realEvaluationsCounter::sum)
             .addKeyValue("Всего попыток", totalEvaluationsCounter::sum)
             .addKeyValue("Экономия за счет кэша", () -> "%.0f%%".formatted((1.0 - realEvaluationsCounter.doubleValue() / totalEvaluationsCounter.sum()) * 100))
-            .log(Strings.EMPTY);
-        return new SolverRecord(evolutionState.bestFitness(), modelFactory.decode(evolutionState.bestPhenotype().genotype()));
+            .log(solverRecord::toString);
+        return solverRecord;
       }
     }
 
     @Override
     public Solver build() {
-      double dataErrorNormBase = parametricFunctionals.stream().mapToDouble(ParametricFunctional::dataErrorNorm).reduce(Math::hypot).orElseThrow();
-      double dataErrorNormShift = find(0.0).fitness();
-      double dataErrorNorm = dataErrorNormBase + dataErrorNormShift;
-      LOGGER.atInfo()
-          .addKeyValue("data Error Norm Base", () -> "%.4f".formatted(dataErrorNormBase))
-          .addKeyValue("alpha = 0 data Error Norm Shift", () -> "%.4f".formatted(dataErrorNormShift))
-          .addKeyValue("total data Error Norm", () -> "%.4f".formatted(dataErrorNorm))
-          .log(Strings.EMPTY);
-
-      DoubleUnaryOperator withAlpha = alpha -> {
-        if (alpha < 0) {
-          return Double.POSITIVE_INFINITY;
-        }
-        else {
-          Solver m = find(alpha);
-          double misfit = m.fitness();
-          LOGGER.atInfo()
-              .addKeyValue("alpha", () -> "%.4f".formatted(alpha))
-              .log("{}", m);
-          double v = misfit - dataErrorNorm;
-          return v * v;
-        }
-      };
-
-      PointValuePair optimized = new SimplexOptimizer(0.000_000_1, 0.000_01)
-          .optimize(new MaxEval(100), new ObjectiveFunction(point -> withAlpha.applyAsDouble(point[0])),
-              GoalType.MINIMIZE, org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.Simplex.alongAxes(new double[] {0.001}),
-              new NelderMeadTransform(), new InitialGuess(new double[] {0.001})
-          );
-      double alpha = optimized.getPoint()[0];
-      LOGGER.atInfo()
-          .addKeyValue("alpha", () -> "%.4f".formatted(alpha))
-          .log(Strings.EMPTY);
-      return find(alpha);
+      return DoubleStream.of(10.0, 1.0, 0.1, 0.01).mapToObj(alpha -> {
+            Solver solver = find(alpha);
+            LOGGER.atInfo()
+                .addKeyValue("alpha", () -> "%.4f".formatted(alpha))
+                .log("{}", solver);
+            return solver;
+          }).min(Comparator.comparingDouble(Solver::fitness))
+          .orElseThrow();
     }
   }
 }
