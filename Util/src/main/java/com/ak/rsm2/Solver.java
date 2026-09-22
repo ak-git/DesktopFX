@@ -67,6 +67,33 @@ public sealed interface Solver {
     private final InvertibleCodec<Model, AnyGene<Number>> modelFactory;
     private final Collection<ParametricFunctional> parametricFunctionals = new ArrayList<>();
     private final Cache<Double, Solver> alphaCache = Caffeine.newBuilder().maximumSize(SIZE).build();
+    /**
+     * Элита измеряется долей от популяции.
+     * Эмпирическое правило для сложных многопараметрических задач: элита должна составлять от 0.5% до 1% от размера популяции.
+     * При N = 1024 -> 1024 * 0.006 = 6 особей.
+     * При N = 4096 -> 4096 * 0.006 = 25 особей.
+     */
+    private final int eliteSize = Math.max(3, (int) Math.floor(SIZE * 0.006));
+    /**
+     * Жесткий турнирный селектор для родителей.
+     * В теории рост размера турнира должен быть логарифмическим относительно роста популяции.
+     * Полноразмерный перебор по степеням двойки дает базовую скорость отбора.
+     * Двоичный логарифм отражает «глубину» деления популяции.
+     * Вычитание константы 5 удерживает турнир в рамках безопасного диапазона интенсивности (от 2 до 10):
+     * При N = 1024 : 5 особей.
+     * При N = 4096 : 7 особей.
+     * При N = 16384 : 9 особей (для сверхбольших популяций).
+     */
+    private final int parentTournament = Math.max(2, (int) (StrictMath.log(SIZE) / StrictMath.log(2.0)) - 5);
+    /**
+     * Мягкий турнирный селектор для оставшейся части выживающих особей.
+     * Селектор потомков всегда должен быть мягче, чем родительский, чтобы сохранять новые мутации.
+     * На практике его размер берут как половину или около того от турнира родителей, но не ниже двух.
+     * Формула обеспечивает плавный шаг отставания от родительского турнира:
+     * При k = 5 : 4 особи.
+     * При k = 7 : 5 особей.
+     */
+    private final int offspringTournament = Math.max(2, (int) Math.floor(parentTournament * 0.6) + 1);
 
     public SolverBuilder(double base, Metrics.Length units, Model origin) {
       if (base > 0) {
@@ -221,9 +248,9 @@ public sealed interface Solver {
               .populationSize(SIZE)
               .optimize(Optimize.MINIMUM)
               .executor(executor)
-              .selector(new TournamentSelector<>(5)) // жесткий турнирный селектор для родителей
-              .survivorsSelector(new EliteSelector<>(5)) // элитный селектор для выживших
-              .offspringSelector(new TournamentSelector<>(4)) // турнирный селектор для оставшейся части выживающих особей
+              .survivorsSelector(new EliteSelector<>(eliteSize))
+              .selector(new TournamentSelector<>(parentTournament))
+              .offspringSelector(new TournamentSelector<>(offspringTournament))
               .alterers(new Mutator<>(mutationRate), new MultiPointCrossover<>(0.6, 2))
               .constraint(RetryConstraint.of(modelFactory, m -> Double.isFinite(fitness.applyAsDouble(m))))
               .build();
@@ -255,6 +282,8 @@ public sealed interface Solver {
 
     @Override
     public Solver build() {
+      LOGGER.atDebug().log("Популяция: {} | Элита: {} | Турнир родителей: {} | Турнир детей: {}",
+          SIZE, eliteSize, parentTournament, offspringTournament);
       return DoubleStream.of(10.0, 1.0, 0.1, 0.01).mapToObj(alpha -> {
             Solver solver = find(alpha);
             LOGGER.atInfo()
