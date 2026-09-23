@@ -2,6 +2,7 @@ package com.ak.rsm2;
 
 import com.ak.util.Builder;
 import com.ak.util.Metrics;
+import com.ak.util.Numbers;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.jenetics.*;
@@ -9,10 +10,12 @@ import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionResult;
 import io.jenetics.engine.InvertibleCodec;
 import io.jenetics.engine.RetryConstraint;
+import io.jenetics.util.IntRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.units.indriya.unit.Units;
 
-import java.security.SecureRandom;
+import javax.measure.MetricPrefix;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -21,7 +24,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
-import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
@@ -48,8 +50,7 @@ public sealed interface Solver {
 
   final class SolverBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Builder<Solver> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SolverBuilder.class);
-    private static final RandomGenerator RANDOM = new SecureRandom();
-    private static final int SIZE = 1 << 8;
+    private static final int SIZE = 1 << 9;
 
     private record SolverRecord(double fitness, Model model) implements Solver {
       private SolverRecord {
@@ -64,7 +65,7 @@ public sealed interface Solver {
 
     private final double base;
     private final Metrics.Length units;
-    private final InvertibleCodec<Model, AnyGene<Number>> modelFactory;
+    private final InvertibleCodec<Model, IntegerGene> modelFactory;
     private final Collection<ParametricFunctional> parametricFunctionals = new ArrayList<>();
     private final Cache<Double, Solver> alphaCache = Caffeine.newBuilder().maximumSize(SIZE).build();
     /**
@@ -103,80 +104,49 @@ public sealed interface Solver {
         throw new IllegalArgumentException("base = %f must be positive".formatted(base));
       }
       this.units = Objects.requireNonNull(units);
-      modelFactory = InvertibleCodec.of(
-          () -> switch (origin) {
-            case Model.Layer2Relative(K k, double h) -> Genotype.of(
-                AnyChromosome.of(() -> RANDOM.nextDouble(
-                    Math.min(k.value(), 0.0), Math.max(0.0, k.value()))
-                ),
-                AnyChromosome.of(() -> RANDOM.nextDouble(0, h))
-            );
-            case Model.Layer2RelativeDh(Model.Layer2Relative layer2Relative, double dh) -> Genotype.of(
-                AnyChromosome.of(() -> RANDOM.nextDouble(
-                    Math.min(layer2Relative.k().value(), 0.0), Math.max(0.0, layer2Relative.k().value()))
-                ),
-                AnyChromosome.of(() -> RANDOM.nextDouble(0, layer2Relative.h())),
-                AnyChromosome.of(() -> RANDOM.nextDouble(Math.min(dh, 0.0), Math.max(0.0, dh)))
-            );
-            case Model.Layer3Absolute layer3Absolute -> throw new IllegalArgumentException(layer3Absolute.toString());
-            case Model.Layer3AbsoluteDRho2(Model.Layer3Absolute layer3Absolute, Model.P dp, double dRho2) ->
-                Genotype.of(
-                    AnyChromosome.of(() -> RANDOM.nextDouble(1.5, layer3Absolute.rho1())),
-                    AnyChromosome.of(() -> RANDOM.nextDouble(1.5, layer3Absolute.rho2())),
-                    AnyChromosome.of(() -> RANDOM.nextDouble(1.5, layer3Absolute.rho3())),
-                    AnyChromosome.of(() -> RANDOM.nextInt(layer3Absolute.p().p1())),
-                    AnyChromosome.of(() -> RANDOM.nextInt(layer3Absolute.p().p2mp1())),
-                    AnyChromosome.of(() -> RANDOM.nextInt(dp.p1())),
-                    AnyChromosome.of(() -> RANDOM.nextInt(dp.p2mp1())),
-                    AnyChromosome.of(() -> RANDOM.nextDouble(dRho2))
+
+      record KScaler(int scale) {
+        KScaler {
+          scale = Math.max(1, Math.abs(scale));
+        }
+
+        double toK(int x) {
+          return Math.clamp(Math.signum(x) * StrictMath.log1p(Math.abs(x)) / StrictMath.log1p(scale), -1.0, 1.0);
+        }
+
+        int fromK(double k) {
+          return Math.clamp(Numbers.toInt(Math.signum(k) * (StrictMath.pow(scale + 1.0, Math.abs(k)) - 1)), -scale, scale);
+        }
+
+        static IntRange range(int index) {
+          return new IntRange(Math.min(index, 0), Math.max(0, index));
+        }
+      }
+
+      modelFactory = switch (origin) {
+        case Model.Layer2Relative(K k, double h) -> {
+          KScaler kScaler = new KScaler(1000);
+          int kIndex = kScaler.fromK(k.value());
+          IntRange hIndexRange = new IntRange(0, Numbers.toInt(Metrics.Length.METRE.to(h, MetricPrefix.MICRO(Units.METRE))));
+          yield InvertibleCodec.of(
+              () -> Genotype.of(
+                  IntegerChromosome.of(KScaler.range(kIndex)),
+                  IntegerChromosome.of(hIndexRange)
+              ),
+              gt -> new Model.Layer2Relative(
+                  K.of(kScaler.toK(gt.get(0).as(IntegerChromosome.class).gene().allele())),
+                  Metrics.Length.MICRO.toSI(gt.get(1).as(IntegerChromosome.class).gene().allele())
+              ),
+              input -> switch (input) {
+                case Model.Layer2Relative(K k1, double h1) -> Genotype.of(
+                    IntegerChromosome.of(KScaler.range(kIndex), kScaler.fromK(k1.value())),
+                    IntegerChromosome.of(hIndexRange, Numbers.toInt(Metrics.Length.METRE.to(h1, MetricPrefix.MICRO(Units.METRE))))
                 );
-          },
-          gt -> switch (origin) {
-            case Model.Layer2Relative _ -> new Model.Layer2Relative(
-                K.of(gt.get(0).gene().allele().doubleValue()),
-                gt.get(1).gene().allele().doubleValue()
-            );
-            case Model.Layer2RelativeDh _ -> new Model.Layer2RelativeDh(
-                K.of(gt.get(0).gene().allele().doubleValue()),
-                gt.get(1).gene().allele().doubleValue(),
-                gt.get(2).gene().allele().doubleValue()
-            );
-            case Model.Layer3Absolute layer3Absolute -> throw new IllegalArgumentException(layer3Absolute.toString());
-            case Model.Layer3AbsoluteDRho2 layer3AbsoluteDRho2 -> new Model.Layer3AbsoluteDRho2(
-                new Model.Layer3Absolute(
-                    gt.get(0).gene().allele().doubleValue(),
-                    gt.get(1).gene().allele().doubleValue(),
-                    gt.get(2).gene().allele().doubleValue(),
-                    layer3AbsoluteDRho2.layer3Absolute().hStep(),
-                    new Model.P(gt.get(3).gene().allele().intValue(), gt.get(4).gene().allele().intValue())),
-                new Model.P(gt.get(5).gene().allele().intValue(), gt.get(6).gene().allele().intValue()),
-                gt.get(7).gene().allele().doubleValue()
-            );
-          },
-          input -> switch (input) {
-            case Model.Layer2Relative(K k, double h) -> Genotype.of(
-                AnyChromosome.of(k::value),
-                AnyChromosome.of(() -> h)
-            );
-            case Model.Layer2RelativeDh(Model.Layer2Relative layer2Relative, double dh) -> Genotype.of(
-                AnyChromosome.of(() -> layer2Relative.k().value()),
-                AnyChromosome.of(layer2Relative::h),
-                AnyChromosome.of(() -> dh)
-            );
-            case Model.Layer3Absolute layer3Absolute -> throw new IllegalArgumentException(layer3Absolute.toString());
-            case Model.Layer3AbsoluteDRho2(Model.Layer3Absolute layer3Absolute, Model.P dp, double dRho2) ->
-                Genotype.of(
-                    AnyChromosome.of(layer3Absolute::rho1),
-                    AnyChromosome.of(layer3Absolute::rho2),
-                    AnyChromosome.of(layer3Absolute::rho3),
-                    AnyChromosome.of(() -> layer3Absolute.p().p1()),
-                    AnyChromosome.of(() -> layer3Absolute.p().p2mp1()),
-                    AnyChromosome.of(dp::p1),
-                    AnyChromosome.of(dp::p2mp1),
-                    AnyChromosome.of(() -> dRho2)
-                );
-          }
-      );
+                default -> throw new IllegalStateException("Unexpected value: " + input);
+              });
+        }
+        default -> throw new IllegalStateException("Unexpected value: " + origin);
+      };
     }
 
     @Override
@@ -239,19 +209,19 @@ public sealed interface Solver {
         });
       };
 
-      EvolutionResult<AnyGene<Number>, Double> evolutionState = null;
+      EvolutionResult<IntegerGene, Double> evolutionState = null;
 
       try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
         for (int epoch = 0, totalEpochs = 1 << 4; epoch < totalEpochs; epoch++) {
           double mutationRate = Math.clamp(1.0 / Math.E / Integer.highestOneBit(epoch), 0.01, 1.0 / Math.E);
-          Engine<AnyGene<Number>, Double> engine = Engine.builder(fitness::applyAsDouble, modelFactory)
+          Engine<IntegerGene, Double> engine = Engine.builder(fitness::applyAsDouble, modelFactory)
               .populationSize(SIZE)
               .optimize(Optimize.MINIMUM)
               .executor(executor)
               .survivorsSelector(new EliteSelector<>(eliteSize))
               .selector(new TournamentSelector<>(parentTournament))
               .offspringSelector(new TournamentSelector<>(offspringTournament))
-              .alterers(new Mutator<>(mutationRate), new MultiPointCrossover<>(0.6, 2))
+              .alterers(new Mutator<>(mutationRate), new LineCrossover<>(0.15), new MultiPointCrossover<>(0.6, 2))
               .constraint(RetryConstraint.of(modelFactory, m -> Double.isFinite(fitness.applyAsDouble(m))))
               .build();
 
@@ -261,9 +231,11 @@ public sealed interface Solver {
           double bestFitness = evolutionState.bestFitness();
           Model currentBestInput = modelFactory.decode(evolutionState.bestPhenotype().genotype());
 
-          LOGGER.atDebug().log("Эпоха {}/{} завершена | Поколение: {} | Мутация: {} % | Невязка: {} | {}",
-              "%02d".formatted(epoch + 1), "%02d".formatted(totalEpochs), "%03d".formatted(evolutionState.generation()),
-              "%04.1f".formatted(mutationRate * 100), "%.4f".formatted(bestFitness), currentBestInput);
+          LOGGER.atDebug().addKeyValue("Эпоха", "%02d/%02d".formatted(epoch + 1, totalEpochs))
+              .addKeyValue("Поколение", "%03d".formatted(evolutionState.generation()))
+              .addKeyValue("Мутация", "%04.1f".formatted(mutationRate * 100))
+              .addKeyValue("Невязка", "%.4f".formatted(bestFitness))
+              .log(currentBestInput::toString);
 
           if (bestFitness < 1.0E-6) {
             LOGGER.atDebug().log(() -> "--> Минимум найден досрочно!");
@@ -274,7 +246,7 @@ public sealed interface Solver {
         LOGGER.atDebug()
             .addKeyValue("Вычислений", realEvaluationsCounter::sum)
             .addKeyValue("Всего попыток", totalEvaluationsCounter::sum)
-            .addKeyValue("Экономия за счет кэша", () -> "%.0f%%".formatted((1.0 - realEvaluationsCounter.doubleValue() / totalEvaluationsCounter.sum()) * 100))
+            .addKeyValue("Экономия за счет кэша", () -> "%.0f %%".formatted((1.0 - realEvaluationsCounter.doubleValue() / totalEvaluationsCounter.sum()) * 100))
             .log(solverRecord::toString);
         return solverRecord;
       }
@@ -282,13 +254,14 @@ public sealed interface Solver {
 
     @Override
     public Solver build() {
-      LOGGER.atDebug().log("Популяция: {} | Элита: {} | Турнир родителей: {} | Турнир детей: {}",
-          SIZE, eliteSize, parentTournament, offspringTournament);
-      return DoubleStream.of(10.0, 1.0, 0.1, 0.01).mapToObj(alpha -> {
+      LOGGER.atDebug().addKeyValue("Популяция", SIZE).addKeyValue("Элита", eliteSize)
+          .addKeyValue("Турнир родителей", parentTournament).addKeyValue("Турнир детей", offspringTournament)
+          .log("");
+      return DoubleStream.of(1.0, 0.1, 0.01, 0.001, 0.000_1).mapToObj(alpha -> {
             Solver solver = find(alpha);
             LOGGER.atInfo()
                 .addKeyValue("alpha", () -> "%.4f".formatted(alpha))
-                .log("{}", solver);
+                .log(solver::toString);
             return solver;
           }).min(Comparator.comparingDouble(Solver::fitness))
           .orElseThrow();

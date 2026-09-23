@@ -46,6 +46,17 @@ public enum Metrics {
       public double toSI(double value) {
         return to(value, Units.METRE);
       }
+    },
+    MICRO {
+      @Override
+      public double to(double value, Unit<javax.measure.quantity.Length> toUnit) {
+        return UnitConversion.convert(MetricPrefix.MICRO(Units.METRE), value, toUnit);
+      }
+
+      @Override
+      public double toSI(double value) {
+        return to(value, Units.METRE);
+      }
     }
   }
 
