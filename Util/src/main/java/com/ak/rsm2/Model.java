@@ -32,7 +32,7 @@ public sealed interface Model {
     @Override
     public String toString() {
       return Stream.of(layer2Relative, ValuePair.Name.DH.of(dh, 0.0))
-          .map(Objects::toString).collect(Collectors.joining("; ", "Layer2{", "}"));
+          .map(Objects::toString).collect(Collectors.joining("; ", "{", "}"));
     }
   }
 

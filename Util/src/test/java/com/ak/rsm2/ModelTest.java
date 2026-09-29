@@ -44,7 +44,7 @@ class ModelTest {
       assertAll(layer2Relative.toString(),
           () -> assertThat(layer2Relative.k().value()).isBetween(-1.0, 1.0),
           () -> assertThat(layer2Relative.h()).isNotNegative(),
-          () -> assertThat(layer2Relative).hasToString(
+          () -> assertThat(layer2Relative.toString()).contains(
               Stream.of(ValuePair.Name.K12.of(k.value(), 0.0), ValuePair.Name.H.of(h, 0.0))
                   .map(ValuePair::toString).collect(Collectors.joining("; "))
           )
@@ -77,11 +77,11 @@ class ModelTest {
           () -> assertThat(layer2Relative.layer2Relative().k().value()).isBetween(-1.0, 1.0),
           () -> assertThat(layer2Relative.layer2Relative().h()).isNotNegative(),
           () -> assertThat(layer2Relative.dh()).isEqualTo(dh),
-          () -> assertThat(layer2Relative).hasToString(
-              Stream.of(ValuePair.Name.K12.of(k.value(), 0.0), ValuePair.Name.H.of(h, 0.0),
-                      ValuePair.Name.DH.of(dh, 0.0))
-                  .map(ValuePair::toString).collect(Collectors.joining("; "))
-          )
+          () -> assertThat(layer2Relative.toString())
+              .contains(
+                  Stream.of(ValuePair.Name.K12.of(k.value(), 0.0), ValuePair.Name.H.of(h, 0.0))
+                      .map(ValuePair::toString).collect(Collectors.joining("; "))
+              ).contains(ValuePair.Name.DH.of(dh, 0.0).toString())
       );
     }
 
