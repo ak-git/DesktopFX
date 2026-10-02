@@ -59,7 +59,7 @@ public sealed interface Solver {
 
     @Override
     public String toString() {
-      return "Solution{%s, fitness = %.4f, %s}".formatted(alpha, fitness, model);
+      return "Solution{%s; fitness = %.4f; %s}".formatted(alpha, fitness, model);
     }
   }
 
@@ -91,9 +91,18 @@ public sealed interface Solver {
 
   final class SolverBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Step3, Builder<Solver> {
     sealed interface Scaler {
+      static int toInt(Genotype<IntegerGene> genotype, int chromosome) {
+        return genotype.get(chromosome).as(IntegerChromosome.class).gene().allele();
+      }
+
+
       IntRange range();
 
       double toSI(int index);
+
+      default double toSI(Genotype<IntegerGene> genotype, int chromosome) {
+        return toSI(toInt(genotype, chromosome));
+      }
 
       int toIndex(double x);
 
@@ -138,6 +147,58 @@ public sealed interface Solver {
 
         private static int index(double hSI) {
           return Numbers.toInt(Metrics.Length.METRE.to(hSI, MetricPrefix.MICRO(Units.METRE)));
+        }
+      }
+
+      record RhoScaler(IntRange range) implements Scaler {
+        private static final int SCALE = 1000;
+
+        public RhoScaler(double rhoExtremal) {
+          if (rhoExtremal < 2.0) {
+            throw new IllegalArgumentException("rho = %f < 2.0".formatted(rhoExtremal));
+          }
+          this(new IntRange(index(1.5), index(rhoExtremal)));
+        }
+
+        @Override
+        public double toSI(int index) {
+          return index * 1.0 / SCALE;
+        }
+
+        @Override
+        public int toIndex(double rho) {
+          return index(rho);
+        }
+
+        private static int index(double rho) {
+          return Numbers.toInt(rho * SCALE);
+        }
+      }
+
+      record DRhoScaler(IntRange range) implements Scaler {
+        private static final int SCALE = 1000;
+
+        public DRhoScaler(double dRhoExtremal) {
+          if (Math.abs(dRhoExtremal) > 1.0) {
+            throw new IllegalArgumentException("|dRho = %f| > 0.1".formatted(dRhoExtremal));
+          }
+          int max = index(1.0);
+          int index = index(dRhoExtremal);
+          this(new IntRange(Math.min(-max, index), Math.max(index, max)));
+        }
+
+        @Override
+        public double toSI(int index) {
+          return index * 1.0 / SCALE;
+        }
+
+        @Override
+        public int toIndex(double rho) {
+          return index(rho);
+        }
+
+        private static int index(double rho) {
+          return Numbers.toInt(rho * SCALE);
         }
       }
     }
@@ -193,8 +254,8 @@ public sealed interface Solver {
                     IntegerChromosome.of(hScaler.range)
                 ),
                 chromosomes -> new Model.Layer2Relative(
-                    K.of(kScaler.toSI(chromosomes.get(0).as(IntegerChromosome.class).gene().allele())),
-                    hScaler.toSI(chromosomes.get(1).as(IntegerChromosome.class).gene().allele())
+                    K.of(kScaler.toSI(chromosomes, 0)),
+                    hScaler.toSI(chromosomes, 1)
                 ),
                 model -> {
                   if (model instanceof Model.Layer2Relative(K k, double h)) {
@@ -219,9 +280,9 @@ public sealed interface Solver {
                     IntegerChromosome.of(dhScaler.range)
                 ),
                 chromosomes -> new Model.Layer2RelativeDh(
-                    K.of(kScaler.toSI(chromosomes.get(0).as(IntegerChromosome.class).gene().allele())),
-                    hScaler.toSI(chromosomes.get(1).as(IntegerChromosome.class).gene().allele()),
-                    dhScaler.toSI(chromosomes.get(2).as(IntegerChromosome.class).gene().allele())
+                    K.of(kScaler.toSI(chromosomes, 0)),
+                    hScaler.toSI(chromosomes, 1),
+                    dhScaler.toSI(chromosomes, 2)
                 ),
                 model -> {
                   if (model instanceof Model.Layer2RelativeDh(Model.Layer2Relative layer2Relative, double dh)) {
@@ -236,7 +297,61 @@ public sealed interface Solver {
                   }
                 });
           }
-          default -> throw new IllegalStateException("Unexpected value: " + origin);
+          case Model.Layer3Absolute layer3Absolute -> throw new IllegalArgumentException(layer3Absolute.toString());
+          case Model.Layer3AbsoluteDRho2(
+              Model.Layer3Absolute layer3Extremal, Model.P dpExtremal, double dRho2Extremal
+          ) -> {
+            Scaler.RhoScaler rho1Scaler = new Scaler.RhoScaler(layer3Extremal.rho1());
+            Scaler.RhoScaler rho2Scaler = new Scaler.RhoScaler(layer3Extremal.rho2());
+            Scaler.RhoScaler rho3Scaler = new Scaler.RhoScaler(layer3Extremal.rho3());
+            Scaler.DRhoScaler dRhoScaler = new Scaler.DRhoScaler(dRho2Extremal);
+            IntRange p1Range = new IntRange(1, layer3Extremal.p().p1());
+            IntRange p2mp1Range = new IntRange(1, layer3Extremal.p().p2mp1());
+            IntRange dp1Range = new IntRange(0, dpExtremal.p1());
+            IntRange dp2mp1Range = new IntRange(0, dpExtremal.p2mp1());
+            yield InvertibleCodec.of(
+                () -> Genotype.of(
+                    IntegerChromosome.of(rho1Scaler.range),
+                    IntegerChromosome.of(rho2Scaler.range),
+                    IntegerChromosome.of(rho3Scaler.range),
+                    IntegerChromosome.of(p1Range),
+                    IntegerChromosome.of(p2mp1Range),
+                    IntegerChromosome.of(dp1Range),
+                    IntegerChromosome.of(dp2mp1Range),
+                    IntegerChromosome.of(dRhoScaler.range)
+                ),
+                chromosomes -> {
+                  Model.Layer3Absolute layer3Absolute = new Model.Layer3Absolute(
+                      rho1Scaler.toSI(chromosomes, 0),
+                      rho2Scaler.toSI(chromosomes, 1),
+                      rho3Scaler.toSI(chromosomes, 2),
+                      layer3Extremal.hStep(),
+                      new Model.P(Scaler.toInt(chromosomes, 3), Scaler.toInt(chromosomes, 4))
+                  );
+                  return new Model.Layer3AbsoluteDRho2(layer3Absolute,
+                      new Model.P(Scaler.toInt(chromosomes, 5), Scaler.toInt(chromosomes, 6)),
+                      dRhoScaler.toSI(chromosomes, 7));
+                },
+                model -> {
+                  if (model instanceof Model.Layer3AbsoluteDRho2(
+                      Model.Layer3Absolute layer3, Model.P dp, double dRho2
+                  )) {
+                    return Genotype.of(
+                        IntegerChromosome.of(IntegerGene.of(rho1Scaler.toIndex(layer3.rho1()), rho1Scaler.range)),
+                        IntegerChromosome.of(IntegerGene.of(rho2Scaler.toIndex(layer3.rho2()), rho2Scaler.range)),
+                        IntegerChromosome.of(IntegerGene.of(rho3Scaler.toIndex(layer3.rho3()), rho3Scaler.range)),
+                        IntegerChromosome.of(IntegerGene.of(layer3.p().p1(), p1Range)),
+                        IntegerChromosome.of(IntegerGene.of(layer3.p().p2mp1(), p2mp1Range)),
+                        IntegerChromosome.of(IntegerGene.of(dp.p1(), dp1Range)),
+                        IntegerChromosome.of(IntegerGene.of(dp.p2mp1(), dp2mp1Range)),
+                        IntegerChromosome.of(IntegerGene.of(dRhoScaler.toIndex(dRho2), dRhoScaler.range))
+                    );
+                  }
+                  else {
+                    throw new IllegalStateException("Unexpected value: " + model);
+                  }
+                });
+          }
         });
       }
 
@@ -298,7 +413,7 @@ public sealed interface Solver {
 
             LOGGER.atDebug().addKeyValue("Эпоха", "%02d/%02d".formatted(epoch + 1, totalEpochs))
                 .addKeyValue("Поколение", "%03d".formatted(evolutionState.generation()))
-                .addKeyValue("Мутация", "%04.1f".formatted(mutationRate * 100))
+                .addKeyValue("Мутация", "%04.1f %%".formatted(mutationRate * 100))
                 .addKeyValue("Невязка", "%.4f".formatted(bestFitness))
                 .log(currentBestInput::toString);
 

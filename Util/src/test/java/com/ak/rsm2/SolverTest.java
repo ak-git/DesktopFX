@@ -9,6 +9,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+
 class SolverTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(SolverTest.class);
 
@@ -215,7 +217,7 @@ class SolverTest {
         """)
     void hDiffMaxLayer3(double r1, double r2, double r1Diff, double r2Diff,
                         double r1Rho, double r2Rho, double r1RhoDiff, double r2RhoDiff, double hDiffMax) {
-      Solver.Solution solution = Solver.<TetrapolarMeasurement.TwoMaxDiff>of(6.0, Metrics.Length.MILLI)
+      Collection<Solver.Solution> solution = Solver.<TetrapolarMeasurement.TwoMaxDiff>of(6.0, Metrics.Length.MILLI)
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI)
               .add(m2 -> m2.ohms(r1Rho).thenOhms(r1Rho + r1RhoDiff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
           )
@@ -225,9 +227,8 @@ class SolverTest {
           .origin(new Model.Layer3AbsoluteDRho2(
               new Model.Layer3Absolute(10.0, 20.0, 10.0, Metrics.Length.MILLI.toSI(0.01), new Model.P(250, 250)),
               new Model.P(180, 180), 0.5
-          )).build().solve();
-      LOGGER.atWarn().log(solution::toString);
-      Assertions.assertThat(solution).isNotNull();
+          )).build().solve(1.0, 0.1, 0.01);
+      Assertions.assertThat(solution).hasSize(3).doesNotContainNull().doesNotHaveDuplicates();
     }
   }
 }
