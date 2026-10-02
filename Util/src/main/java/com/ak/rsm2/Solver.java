@@ -122,7 +122,8 @@ public sealed interface Solver {
 
       record HScaler(IntRange range) implements Scaler {
         public HScaler(double hExtremal) {
-          this(new IntRange(0, Numbers.toInt(Metrics.Length.METRE.to(hExtremal, MetricPrefix.MICRO(Units.METRE)))));
+          int index = index(hExtremal);
+          this(new IntRange(Math.min(index, 0), Math.max(0, index)));
         }
 
         @Override
@@ -132,6 +133,10 @@ public sealed interface Solver {
 
         @Override
         public int toIndex(double hSI) {
+          return index(hSI);
+        }
+
+        private static int index(double hSI) {
           return Numbers.toInt(Metrics.Length.METRE.to(hSI, MetricPrefix.MICRO(Units.METRE)));
         }
       }
@@ -196,6 +201,34 @@ public sealed interface Solver {
                     return Genotype.of(
                         IntegerChromosome.of(IntegerGene.of(kScaler.toIndex(k.value()), kScaler.range)),
                         IntegerChromosome.of(IntegerGene.of(hScaler.toIndex(h), hScaler.range))
+                    );
+                  }
+                  else {
+                    throw new IllegalStateException("Unexpected value: " + model);
+                  }
+                });
+          }
+          case Model.Layer2RelativeDh(Model.Layer2Relative layer2RelativeExtremal, double dhExtremal) -> {
+            Scaler.KScaler kScaler = new Scaler.KScaler(layer2RelativeExtremal.k());
+            Scaler.HScaler hScaler = new Scaler.HScaler(layer2RelativeExtremal.h());
+            Scaler.HScaler dhScaler = new Scaler.HScaler(dhExtremal);
+            yield InvertibleCodec.of(
+                () -> Genotype.of(
+                    IntegerChromosome.of(kScaler.range),
+                    IntegerChromosome.of(hScaler.range),
+                    IntegerChromosome.of(dhScaler.range)
+                ),
+                chromosomes -> new Model.Layer2RelativeDh(
+                    K.of(kScaler.toSI(chromosomes.get(0).as(IntegerChromosome.class).gene().allele())),
+                    hScaler.toSI(chromosomes.get(1).as(IntegerChromosome.class).gene().allele()),
+                    dhScaler.toSI(chromosomes.get(2).as(IntegerChromosome.class).gene().allele())
+                ),
+                model -> {
+                  if (model instanceof Model.Layer2RelativeDh(Model.Layer2Relative layer2Relative, double dh)) {
+                    return Genotype.of(
+                        IntegerChromosome.of(IntegerGene.of(kScaler.toIndex(layer2Relative.k().value()), kScaler.range)),
+                        IntegerChromosome.of(IntegerGene.of(hScaler.toIndex(layer2Relative.h()), hScaler.range)),
+                        IntegerChromosome.of(IntegerGene.of(dhScaler.toIndex(dh), dhScaler.range))
                     );
                   }
                   else {
