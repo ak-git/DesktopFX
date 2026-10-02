@@ -23,6 +23,8 @@ public sealed interface ParametricFunctional {
 
   ToDoubleFunction<Model> regularization(Regularization regularization);
 
+  ElectrodeSystem.Inexact system();
+
   sealed interface Step1<M extends TetrapolarMeasurement> {
     Step2<M> system(Function<ElectrodeSystem.Step1, Builder<ElectrodeSystem.Inexact>> builderFunction);
   }
@@ -45,7 +47,8 @@ public sealed interface ParametricFunctional {
         this.measurement = Objects.requireNonNull(measurement);
       }
 
-      protected final ElectrodeSystem.Inexact system() {
+      @Override
+      public final ElectrodeSystem.Inexact system() {
         return system;
       }
 

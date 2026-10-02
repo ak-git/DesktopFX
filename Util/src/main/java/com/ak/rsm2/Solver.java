@@ -33,6 +33,7 @@ import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 public sealed interface Solver {
   record Alpha(double value) {
@@ -86,7 +87,7 @@ public sealed interface Solver {
   }
 
   sealed interface Step3 {
-    Builder<Solver> origin(Model origin);
+    Builder<Solver> origin(Function<Stream<ElectrodeSystem.Inexact>, Model> modelFunction);
   }
 
   final class SolverBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Step3, Builder<Solver> {
@@ -150,14 +151,39 @@ public sealed interface Solver {
         }
       }
 
-      record RhoScaler(IntRange range) implements Scaler {
+      record RhoScalerUpTo(IntRange range) implements Scaler {
         private static final int SCALE = 1000;
 
-        public RhoScaler(double rhoExtremal) {
-          if (rhoExtremal < 2.0) {
-            throw new IllegalArgumentException("rho = %f < 2.0".formatted(rhoExtremal));
+        public RhoScalerUpTo(double rhoMax) {
+          if (rhoMax < 2.0) {
+            throw new IllegalArgumentException("rho = %f < 2.0".formatted(rhoMax));
           }
-          this(new IntRange(index(1.5), index(rhoExtremal)));
+          this(new IntRange(index(1.5), index(rhoMax)));
+        }
+
+        @Override
+        public double toSI(int index) {
+          return index * 1.0 / SCALE;
+        }
+
+        @Override
+        public int toIndex(double rho) {
+          return index(rho);
+        }
+
+        private static int index(double rho) {
+          return Numbers.toInt(rho * SCALE);
+        }
+      }
+
+      record RhoScalerAtLeast(IntRange range) implements Scaler {
+        private static final int SCALE = 1000;
+
+        public RhoScalerAtLeast(double rhoMin) {
+          if (rhoMin > 20.0) {
+            throw new IllegalArgumentException("rho = %f > 20.0".formatted(rhoMin));
+          }
+          this(new IntRange(index(rhoMin), index(20.0)));
         }
 
         @Override
@@ -301,9 +327,9 @@ public sealed interface Solver {
           case Model.Layer3AbsoluteDRho2(
               Model.Layer3Absolute layer3Extremal, Model.P dpExtremal, double dRho2Extremal
           ) -> {
-            Scaler.RhoScaler rho1Scaler = new Scaler.RhoScaler(layer3Extremal.rho1());
-            Scaler.RhoScaler rho2Scaler = new Scaler.RhoScaler(layer3Extremal.rho2());
-            Scaler.RhoScaler rho3Scaler = new Scaler.RhoScaler(layer3Extremal.rho3());
+            Scaler.RhoScalerUpTo rho1Scaler = new Scaler.RhoScalerUpTo(layer3Extremal.rho1());
+            Scaler.RhoScalerAtLeast rho2Scaler = new Scaler.RhoScalerAtLeast(layer3Extremal.rho2());
+            Scaler.RhoScalerUpTo rho3Scaler = new Scaler.RhoScalerUpTo(layer3Extremal.rho3());
             Scaler.DRhoScaler dRhoScaler = new Scaler.DRhoScaler(dRho2Extremal);
             IntRange p1Range = new IntRange(1, layer3Extremal.p().p1());
             IntRange p2mp1Range = new IntRange(1, layer3Extremal.p().p2mp1());
@@ -526,8 +552,8 @@ public sealed interface Solver {
     }
 
     @Override
-    public Builder<Solver> origin(Model origin) {
-      this.origin = Objects.requireNonNull(origin);
+    public Builder<Solver> origin(Function<Stream<ElectrodeSystem.Inexact>, Model> modelFunction) {
+      origin = modelFunction.apply(parametricFunctionals.stream().map(ParametricFunctional::system));
       return this;
     }
 
