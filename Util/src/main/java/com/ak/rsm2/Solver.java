@@ -64,8 +64,6 @@ public sealed interface Solver {
     }
   }
 
-  Solution solve(double alpha);
-
   Collection<Solution> solve(double... alphas);
 
   Solution solve();
@@ -463,8 +461,7 @@ public sealed interface Solver {
         }
       }
 
-      @Override
-      public Solution solve(double alpha) {
+      private Solution solve(double alpha) {
         return alphaCache.get(new Alpha(alpha), this::innerSolve);
       }
 
