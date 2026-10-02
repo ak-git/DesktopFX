@@ -35,14 +35,13 @@ class SolverTest {
         11.361, 17.674, 11.362, 17.678, -0.05
         """)
     void water(double r1, double r2, double r1After, double r2After, double hDiffMilli) {
-      Solver solver = Solver.<TetrapolarMeasurement.Diff>of(10.0, Metrics.Length.MILLI,
-              new Model.Layer2Relative(K.PLUS_ONE, Metrics.Length.MILLI.toSI(10.0 * 5))
-          )
+      Solver.Solution solution = Solver.<TetrapolarMeasurement.Diff>of(10.0, Metrics.Length.MILLI)
           .system1x3(m -> m.ohms(r1).thenOhms(r1After).hDiff(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2After).hDiff(hDiffMilli, Metrics.Length.MILLI))
-          .build();
-      LOGGER.atWarn().log(solver::toString);
-      Assertions.assertThat(solver).isNotNull();
+          .origin(new Model.Layer2Relative(K.PLUS_ONE, Metrics.Length.MILLI.toSI(10.0 * 5)))
+          .build().solve();
+      LOGGER.atWarn().log(solution::toString);
+      Assertions.assertThat(solution).isNotNull();
     }
 
     @Disabled("""
@@ -66,15 +65,15 @@ class SolverTest {
         11.361, 17.674, 11.362, 17.678, -0.05
         """)
     void waterMax(double r1, double r2, double r1After, double r2After, double hDiffMilli) {
-      Solver solver = Solver.<TetrapolarMeasurement.MaxDiff>of(10.0, Metrics.Length.MILLI, new Model.Layer2RelativeDh(
-              new Model.Layer2Relative(K.PLUS_ONE, Metrics.Length.MILLI.toSI(10.0 * 5)),
-              Metrics.Length.MILLI.toSI(hDiffMilli)
-          ))
+      Solver.Solution solution = Solver.<TetrapolarMeasurement.MaxDiff>of(10.0, Metrics.Length.MILLI)
           .system1x3(m -> m.ohms(r1).thenOhms(r1After).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2After).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
-          .build();
-      LOGGER.atWarn().log(solver::toString);
-      Assertions.assertThat(solver).isNotNull();
+          .origin(new Model.Layer2RelativeDh(
+              new Model.Layer2Relative(K.PLUS_ONE, Metrics.Length.MILLI.toSI(10.0 * 5)),
+              Metrics.Length.MILLI.toSI(hDiffMilli)
+          )).build().solve();
+      LOGGER.atWarn().log(solution::toString);
+      Assertions.assertThat(solution).isNotNull();
     }
   }
 
@@ -96,14 +95,12 @@ class SolverTest {
         140.7461, 215.4297, 0.4942724, 0.9339182, 0.150
         """)
     void hDiff(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
-      Solver solver = Solver.<TetrapolarMeasurement.Diff>of(7.0, Metrics.Length.MILLI,
-              new Model.Layer2Relative(K.MINUS_ONE, Metrics.Length.MILLI.toSI(7.0 * 5))
-          )
+      Solver.Solution solution = Solver.<TetrapolarMeasurement.Diff>of(7.0, Metrics.Length.MILLI)
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiff(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiff(hDiffMilli, Metrics.Length.MILLI))
-          .build();
-      LOGGER.atWarn().log(solver::toString);
-      Assertions.assertThat(solver).isNotNull();
+          .origin(new Model.Layer2Relative(K.MINUS_ONE, Metrics.Length.MILLI.toSI(7.0 * 5))).build().solve();
+      LOGGER.atWarn().log(solution::toString);
+      Assertions.assertThat(solution).isNotNull();
     }
 
     @Disabled("""
@@ -122,15 +119,15 @@ class SolverTest {
         140.7461, 215.4297, 0.4942724, 0.9339182, 0.150
         """)
     void hDiffMax(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
-      Solver solver = Solver.<TetrapolarMeasurement.MaxDiff>of(7.0, Metrics.Length.MILLI, new Model.Layer2RelativeDh(
-              new Model.Layer2Relative(K.MINUS_ONE, Metrics.Length.MILLI.toSI(7.0 * 5)),
-              Metrics.Length.MILLI.toSI(hDiffMilli)
-          ))
+      Solver.Solution solution = Solver.<TetrapolarMeasurement.MaxDiff>of(7.0, Metrics.Length.MILLI)
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
-          .build();
-      LOGGER.atWarn().log(solver::toString);
-      Assertions.assertThat(solver).isNotNull();
+          .origin(new Model.Layer2RelativeDh(
+              new Model.Layer2Relative(K.MINUS_ONE, Metrics.Length.MILLI.toSI(7.0 * 5)),
+              Metrics.Length.MILLI.toSI(hDiffMilli)
+          )).build().solve();
+      LOGGER.atWarn().log(solution::toString);
+      Assertions.assertThat(solution).isNotNull();
     }
   }
 
@@ -145,14 +142,12 @@ class SolverTest {
         124.861 | 184.182 | 0.2400 | 0.5270 | 0.090
         """)
     void hDiff(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
-      Solver solver = Solver.<TetrapolarMeasurement.Diff>of(7.0, Metrics.Length.MILLI,
-              new Model.Layer2Relative(K.MINUS_ONE, Metrics.Length.MILLI.toSI(7.0 * 5))
-          )
+      Solver.Solution solution = Solver.<TetrapolarMeasurement.Diff>of(7.0, Metrics.Length.MILLI)
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiff(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiff(hDiffMilli, Metrics.Length.MILLI))
-          .build();
-      LOGGER.atWarn().log(solver::toString);
-      Assertions.assertThat(solver).isNotNull();
+          .origin(new Model.Layer2Relative(K.MINUS_ONE, Metrics.Length.MILLI.toSI(7.0 * 5))).build().solve();
+      LOGGER.atWarn().log(solution::toString);
+      Assertions.assertThat(solution).isNotNull();
     }
 
     @Disabled("""
@@ -166,15 +161,15 @@ class SolverTest {
         124.861 | 184.182 | 0.2400 | 0.5270 | 0.090
         """)
     void hDiffMaxLayer2(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
-      Solver solver = Solver.<TetrapolarMeasurement.MaxDiff>of(6.0, Metrics.Length.MILLI, new Model.Layer2RelativeDh(
-              new Model.Layer2Relative(K.MINUS_ONE, Metrics.Length.MILLI.toSI(6.0 * 5)),
-              Metrics.Length.MILLI.toSI(hDiffMilli)
-          ))
+      Solver.Solution solution = Solver.<TetrapolarMeasurement.MaxDiff>of(6.0, Metrics.Length.MILLI)
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
-          .build();
-      LOGGER.atWarn().log(solver::toString);
-      Assertions.assertThat(solver).isNotNull();
+          .origin(new Model.Layer2RelativeDh(
+              new Model.Layer2Relative(K.MINUS_ONE, Metrics.Length.MILLI.toSI(6.0 * 5)),
+              Metrics.Length.MILLI.toSI(hDiffMilli)
+          )).build().solve();
+      LOGGER.atWarn().log(solution::toString);
+      Assertions.assertThat(solution).isNotNull();
     }
 
     @Disabled("""
@@ -189,15 +184,15 @@ class SolverTest {
         124.634 | 183.863 | 0.227 | 0.319 | 0.180
         """)
     void hDiffFat(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
-      Solver solver = Solver.<TetrapolarMeasurement.ZeroDiff>of(6.0, Metrics.Length.MILLI, new Model.Layer2RelativeDh(
-              new Model.Layer2Relative(K.MINUS_ONE, Metrics.Length.MILLI.toSI(6.0 * 5)),
-              Metrics.Length.MILLI.toSI(hDiffMilli)
-          ))
+      Solver.Solution solution = Solver.<TetrapolarMeasurement.ZeroDiff>of(6.0, Metrics.Length.MILLI)
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffZero(hDiffMilli, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffZero(hDiffMilli, Metrics.Length.MILLI))
-          .build();
-      LOGGER.atWarn().log(solver::toString);
-      Assertions.assertThat(solver).isNotNull();
+          .origin(new Model.Layer2RelativeDh(
+              new Model.Layer2Relative(K.MINUS_ONE, Metrics.Length.MILLI.toSI(6.0 * 5)),
+              Metrics.Length.MILLI.toSI(hDiffMilli)
+          )).build().solve();
+      LOGGER.atWarn().log(solution::toString);
+      Assertions.assertThat(solution).isNotNull();
     }
 
     @Disabled("""
@@ -220,19 +215,19 @@ class SolverTest {
         """)
     void hDiffMaxLayer3(double r1, double r2, double r1Diff, double r2Diff,
                         double r1Rho, double r2Rho, double r1RhoDiff, double r2RhoDiff, double hDiffMax) {
-      Solver solver = Solver.<TetrapolarMeasurement.TwoMaxDiff>of(6.0, Metrics.Length.MILLI, new Model.Layer3AbsoluteDRho2(
-              new Model.Layer3Absolute(10.0, 20.0, 10.0, Metrics.Length.MILLI.toSI(0.01), new Model.P(250, 250)),
-              new Model.P(180, 180), 0.5
-          ))
+      Solver.Solution solution = Solver.<TetrapolarMeasurement.TwoMaxDiff>of(6.0, Metrics.Length.MILLI)
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI)
               .add(m2 -> m2.ohms(r1Rho).thenOhms(r1Rho + r1RhoDiff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
           )
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI)
               .add(m2 -> m2.ohms(r2Rho).thenOhms(r2Rho + r2RhoDiff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
           )
-          .build();
-      LOGGER.atWarn().log(solver::toString);
-      Assertions.assertThat(solver).isNotNull();
+          .origin(new Model.Layer3AbsoluteDRho2(
+              new Model.Layer3Absolute(10.0, 20.0, 10.0, Metrics.Length.MILLI.toSI(0.01), new Model.P(250, 250)),
+              new Model.P(180, 180), 0.5
+          )).build().solve();
+      LOGGER.atWarn().log(solution::toString);
+      Assertions.assertThat(solution).isNotNull();
     }
   }
 }
