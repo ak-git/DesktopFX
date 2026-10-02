@@ -224,10 +224,14 @@ class SolverTest {
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI)
               .add(m2 -> m2.ohms(r2Rho).thenOhms(r2Rho + r2RhoDiff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
           )
-          .origin(new Model.Layer3AbsoluteDRho2(
-              new Model.Layer3Absolute(10.0, 20.0, 10.0, Metrics.Length.MILLI.toSI(0.01), new Model.P(250, 250)),
-              new Model.P(180, 180), 0.5
-          )).build().solve(1.0, 0.1, 0.01);
+          .origin(
+              new Model.Layer3AbsoluteDRho2(
+                  new Model.Layer3Absolute(10.0, 20.0, 10.0,
+                      Metrics.Length.MILLI.toSI(0.01), new Model.P(250, 250)),
+                  new Model.P(180, 180), 0.5
+              )
+          )
+          .build().solve(1.0, 0.1, 0.01);
       Assertions.assertThat(solution).hasSize(3).doesNotContainNull().doesNotHaveDuplicates();
     }
   }
