@@ -32,7 +32,7 @@ jenetics = '9.1.0'
 apiguardian-api = '1.1.2'
 commons-math4-legacy-core = '4.0-beta1'
 commons-rng = '1.7'
-caffeine = '3.2.4'
+caffeine = '3.3.0'
 
 [plugins]
 sonarqube = { id = 'org.sonarqube', version.ref = 'sonarqube' }
