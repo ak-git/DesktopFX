@@ -10,7 +10,7 @@ import java.util.Set;
 public enum CaliperVariable implements Variable<CaliperVariable> {
   D;
 
-  public static final int FREQUENCY = 200;
+  public static final int FREQUENCY = 10;
 
   @Override
   public Set<Option> options() {
