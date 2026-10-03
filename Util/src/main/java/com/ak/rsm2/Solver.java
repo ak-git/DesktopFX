@@ -94,9 +94,6 @@ public sealed interface Solver {
         return genotype.get(chromosome).as(IntegerChromosome.class).gene().allele();
       }
 
-
-      IntRange range();
-
       double toSI(int index);
 
       default double toSI(Genotype<IntegerGene> genotype, int chromosome) {
@@ -491,9 +488,7 @@ public sealed interface Solver {
             return Double.POSITIVE_INFINITY;
           }
           else {
-            Solution solution = solve(alpha);
-            LOGGER.atInfo().log(solution::toString);
-            double v = solution.fitness() - dataErrorNorm;
+            double v = solve(alpha).fitness() - dataErrorNorm;
             return v * v;
           }
         };
