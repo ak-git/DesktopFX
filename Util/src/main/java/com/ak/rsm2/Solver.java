@@ -226,14 +226,14 @@ public sealed interface Solver {
 
     private static final class GeneticSolver implements Solver {
       private static final Logger LOGGER = LoggerFactory.getLogger(GeneticSolver.class);
-      private static final int SIZE = 1 << 7;
+      private final int size;
       /**
        * Элита измеряется долей от популяции.
        * Эмпирическое правило для сложных многопараметрических задач: элита должна составлять от 0.5% до 1% от размера популяции.
        * При N = 1024 -> 1024 * 0.006 = 6 особей.
        * При N = 4096 -> 4096 * 0.006 = 25 особей.
        */
-      private static final int ELITE_SIZE = Math.max(3, (int) Math.floor(SIZE * 0.006));
+      private final int eliteSize;
       /**
        * Жесткий турнирный селектор для родителей.
        * В теории рост размера турнира должен быть логарифмическим относительно роста популяции.
@@ -244,7 +244,7 @@ public sealed interface Solver {
        * При N = 4096 : 7 особей.
        * При N = 16384 : 9 особей (для сверхбольших популяций).
        */
-      private static final int PARENT_TOURNAMENT = Math.max(2, (int) (StrictMath.log(SIZE) / StrictMath.log(2.0)) - 5);
+      private final int parentSize;
       /**
        * Мягкий турнирный селектор для оставшейся части выживающих особей.
        * Селектор потомков всегда должен быть мягче, чем родительский, чтобы сохранять новые мутации.
@@ -253,18 +253,23 @@ public sealed interface Solver {
        * При k = 5 : 4 особи.
        * При k = 7 : 5 особей.
        */
-      private static final int OFFSPRING_TOURNAMENT = Math.max(2, (int) Math.floor(PARENT_TOURNAMENT * 0.6) + 1);
+      private final int offspringSize;
       private final Collection<ParametricFunctional> parametricFunctionals;
       private final InvertibleCodec<Model, IntegerGene> modelFactory;
       private final Cache<Alpha, Solution> alphaCache = Caffeine.newBuilder().maximumSize(1 << 6).build();
       private @Nullable ISeq<Phenotype<IntegerGene, Double>> resetPopulation;
 
-      private GeneticSolver(Collection<ParametricFunctional> parametricFunctionals, InvertibleCodec<Model, IntegerGene> modelFactory) {
+      private GeneticSolver(Collection<ParametricFunctional> parametricFunctionals, InvertibleCodec<Model, IntegerGene> modelFactory,
+                            int size) {
         this.parametricFunctionals = Objects.requireNonNull(parametricFunctionals);
         this.modelFactory = Objects.requireNonNull(modelFactory);
+        this.size = size;
+        eliteSize = Math.max(3, (int) Math.floor(size * 0.006));
+        parentSize = Math.max(2, (int) (StrictMath.log(size) / StrictMath.log(2.0)) - 5);
+        offspringSize = Math.max(2, (int) Math.floor(parentSize * 0.6) + 1);
       }
 
-      GeneticSolver(Collection<ParametricFunctional> parametricFunctionals, Model origin) {
+      GeneticSolver(Collection<ParametricFunctional> parametricFunctionals, Model origin, int size) {
         this(parametricFunctionals, switch (origin) {
           case Model.Layer2Relative(K kExtremal, double hExtremal) -> {
             Scaler.KScaler kScaler = new Scaler.KScaler(kExtremal);
@@ -373,11 +378,11 @@ public sealed interface Solver {
                   }
                 });
           }
-        });
+        }, size);
       }
 
       private Solution innerSolve(Alpha alpha) {
-        Cache<Model, Double> fitnessCache = Caffeine.newBuilder().maximumSize(SIZE).build();
+        Cache<Model, Double> fitnessCache = Caffeine.newBuilder().maximumSize(size).build();
         LongAdder realEvaluationsCounter = new LongAdder();
         LongAdder totalEvaluationsCounter = new LongAdder();
         ToDoubleFunction<Model> fitness = model -> {
@@ -405,12 +410,12 @@ public sealed interface Solver {
           for (int epoch = 0, totalEpochs = 1 << 4; epoch < totalEpochs; epoch++) {
             double mutationRate = Math.clamp(1.0 / Math.E / Integer.highestOneBit(epoch), 0.01, 1.0 / Math.E);
             Engine<IntegerGene, Double> engine = Engine.builder(fitness::applyAsDouble, modelFactory)
-                .populationSize(SIZE)
+                .populationSize(size)
                 .optimize(Optimize.MINIMUM)
                 .executor(executor)
-                .survivorsSelector(new EliteSelector<>(ELITE_SIZE))
-                .selector(new TournamentSelector<>(PARENT_TOURNAMENT))
-                .offspringSelector(new TournamentSelector<>(OFFSPRING_TOURNAMENT))
+                .survivorsSelector(new EliteSelector<>(eliteSize))
+                .selector(new TournamentSelector<>(parentSize))
+                .offspringSelector(new TournamentSelector<>(offspringSize))
                 .alterers(new Mutator<>(mutationRate), new LineCrossover<>(0.15), new MultiPointCrossover<>(0.6, 2))
                 .constraint(RetryConstraint.of(modelFactory, m -> Double.isFinite(fitness.applyAsDouble(m))))
                 .build();
@@ -560,7 +565,7 @@ public sealed interface Solver {
 
     @Override
     public Solver build() {
-      return new GeneticSolver(parametricFunctionals, Objects.requireNonNull(origin));
+      return new GeneticSolver(parametricFunctionals, Objects.requireNonNull(origin), 1 << 8);
     }
   }
 }
