@@ -80,7 +80,7 @@ class ConverterTest {
   <E extends Enum<E> & Variable<E>> void testFileConvertADC(Class<E> clazz, String expectedHeader, @TempDir Path path) throws IOException {
     Path tempFile = Files.createTempFile(path, Strings.EMPTY, Extension.BIN.attachTo(getClass().getSimpleName()));
     Files.write(tempFile, new byte[] {51, 102, 102, 53, '\r', '\n'});
-    BytesInterceptor<BufferFrame, String> interceptor = new StringBytesInterceptor(getClass().getSimpleName());
+    BytesInterceptor<BufferFrame, String> interceptor = new StringBytesInterceptor(getClass().getSimpleName(), BytesInterceptor.BaudRate.BR_115200, 6);
     Converter.doConvert(interceptor, new StringToIntegerConverter<>(clazz, 1), tempFile);
     Path out = Path.of(Extension.CSV.attachTo(Extension.BIN.clean(tempFile.toAbsolutePath().toString())));
     List<String> result = Files.readAllLines(out, StandardCharsets.UTF_8);

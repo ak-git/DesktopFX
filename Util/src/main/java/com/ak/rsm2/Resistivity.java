@@ -5,6 +5,7 @@ import com.ak.util.Builder;
 
 import java.util.Objects;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
 
 import static java.lang.StrictMath.hypot;
 import static java.lang.StrictMath.pow;
@@ -12,42 +13,31 @@ import static java.lang.StrictMath.pow;
 public sealed interface Resistivity {
   ElectrodeSystem.Tetrapolar system();
 
-  double apparent(double rOhm);
-
   static Step1 of(ElectrodeSystem.Tetrapolar system) {
     return new ResistivityBuilder(system);
   }
 
-  sealed interface Step1 extends Builder<Resistivity> {
+  sealed interface Step1 {
     Apparent apparent(Model model);
+
+    double apparent(double rOhm);
   }
 
   final class ResistivityBuilder implements Step1 {
-    private record ResistivityRecord(ElectrodeSystem.Tetrapolar system) implements Resistivity {
-      private ResistivityRecord {
-        Objects.requireNonNull(system);
-      }
-
-      @Override
-      public double apparent(double rOhm) {
-        return (Math.PI / 2.0) * rOhm / system.phiFactor();
-      }
-    }
-
     private final ElectrodeSystem.Tetrapolar tetrapolar;
 
     private ResistivityBuilder(ElectrodeSystem.Tetrapolar tetrapolar) {
-      this.tetrapolar = tetrapolar;
-    }
-
-    @Override
-    public Resistivity build() {
-      return new ResistivityRecord(tetrapolar);
+      this.tetrapolar = Objects.requireNonNull(tetrapolar);
     }
 
     @Override
     public Apparent apparent(Model model) {
-      return new Apparent.ApparentBuilder(build(), model).build();
+      return new Apparent.ApparentBuilder(tetrapolar, model).build();
+    }
+
+    @Override
+    public double apparent(double rOhm) {
+      return (Math.PI / 2.0) * rOhm / tetrapolar.phiFactor();
     }
   }
 
@@ -57,20 +47,15 @@ public sealed interface Resistivity {
     double derivative();
 
     final class ApparentBuilder implements Builder<Apparent> {
-      private record ApparentRecord(Resistivity resistivity, double value, double derivative)
+      private record ApparentRecord(ElectrodeSystem.Tetrapolar system, double value, double derivative)
           implements Apparent {
         private ApparentRecord {
-          Objects.requireNonNull(resistivity);
+          Objects.requireNonNull(system);
         }
 
         @Override
         public ElectrodeSystem.Tetrapolar system() {
-          return resistivity.system();
-        }
-
-        @Override
-        public double apparent(double rOhm) {
-          return resistivity.apparent(rOhm);
+          return system;
         }
       }
 
@@ -89,42 +74,50 @@ public sealed interface Resistivity {
         }
       }
 
-      private final Resistivity resistivity;
+      private final ElectrodeSystem.Tetrapolar system;
       private final Model model;
 
-      private ApparentBuilder(Resistivity resistivity, Model model) {
-        this.resistivity = resistivity;
-        this.model = model;
+      private ApparentBuilder(ElectrodeSystem.Tetrapolar system, Model model) {
+        this.system = Objects.requireNonNull(system);
+        this.model = Objects.requireNonNull(model);
       }
 
       @Override
       public Apparent build() {
+        Function<Model.Layer2Relative, Apparent> layer2RelativeApparent = layer2Relative -> {
+          double k = layer2Relative.k().value();
+          double h = layer2Relative.h();
+          DoubleUnaryOperator left = braceOperation(h, Sign.MINUS);
+          DoubleUnaryOperator right = braceOperation(h, Sign.PLUS);
+          return new ApparentRecord(system,
+              1.0 + 2.0 * Layers.sum(n -> pow(k, n) * (left.applyAsDouble(n) - right.applyAsDouble(n))),
+              -32.0 * h * system.phiFactor() *
+                  Layers.sum(n -> pow(k, n) * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0)))
+          );
+        };
+
         return switch (model) {
-          case Model.Layer2Relative(K k, double h) -> {
-            DoubleUnaryOperator left = braceOperation(h, Sign.MINUS);
-            DoubleUnaryOperator right = braceOperation(h, Sign.PLUS);
-            yield new ApparentRecord(resistivity,
-                1.0 + 2.0 * Layers.sum(n -> pow(k.value(), n) * (left.applyAsDouble(n) - right.applyAsDouble(n))),
-                -32.0 * h * resistivity.system().phiFactor() *
-                    Layers.sum(n -> pow(k.value(), n) * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0)))
-            );
-          }
+          case Model.Layer2Relative layer2Relative -> layer2RelativeApparent.apply(layer2Relative);
+          case Model.Layer2RelativeDh layer2RelativeDh ->
+              layer2RelativeApparent.apply(layer2RelativeDh.layer2Relative());
           case Model.Layer3Absolute(double rho1, double rho2, double rho3, double hStep, Model.P p) -> {
             DoubleUnaryOperator left = braceOperation(hStep, Sign.MINUS);
             DoubleUnaryOperator right = braceOperation(hStep, Sign.PLUS);
             double[] qn = Layers.qn(K.of(rho1, rho2).value(), K.of(rho2, rho3).value(), p.p1(), p.p2mp1());
             double apparent = (1.0 + 2.0 * Layers.sum(n -> qn[n] * (left.applyAsDouble(n) - right.applyAsDouble(n)))) * rho1;
-            yield new ApparentRecord(resistivity, apparent, Double.NaN);
+            yield new ApparentRecord(system, apparent, Double.NaN);
           }
+          case Model.Layer3AbsoluteDRho2 layer3AbsoluteDRho2 ->
+              throw new IllegalArgumentException(layer3AbsoluteDRho2.toString());
         };
       }
 
       private DoubleUnaryOperator braceOperation(double hSI, DoubleUnaryOperator sign) {
         return n -> {
-          double nom = 1.0 + sign.applyAsDouble(resistivity.system().sToL());
-          double den = 1.0 + sign.andThen(Sign.MINUS).applyAsDouble(resistivity.system().sToL());
+          double nom = 1.0 + sign.applyAsDouble(system.sToL());
+          double den = 1.0 + sign.andThen(Sign.MINUS).applyAsDouble(system.sToL());
           double left = 1.0 - Math.abs(nom / den);
-          double right = 4.0 * n * hSI * resistivity.system().phiFactor();
+          double right = 4.0 * n * hSI * system.phiFactor();
           return 1.0 / hypot(left, right);
         };
       }

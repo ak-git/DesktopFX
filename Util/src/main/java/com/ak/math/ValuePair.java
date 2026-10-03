@@ -2,6 +2,7 @@ package com.ak.math;
 
 import com.ak.util.Metrics;
 import com.ak.util.Strings;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -182,7 +183,7 @@ public class ValuePair {
       );
     }
     else {
-      return Double.isFinite(v) ? name.toString("%6.3f".formatted(v).strip()) : name.toString(Double.toString(v));
+      return name.toString(Double.isFinite(v) ? "%6.3f".formatted(v).strip() : Double.toString(v));
     }
   }
 
@@ -212,7 +213,7 @@ public class ValuePair {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }

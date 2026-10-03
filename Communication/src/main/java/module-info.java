@@ -44,4 +44,5 @@ module com.ak.comm {
   exports com.ak.appliance.suntech.comm.interceptor;
   exports com.ak.appliance.aper.numbers;
   exports com.ak.appliance.rcm.numbers;
+  exports com.ak.appliance.caliper.comm.converter;
 }

@@ -134,7 +134,7 @@ public class SpringFxApplication extends FxApplication {
   @Profile("prv")
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
   static BytesInterceptor<BufferFrame, String> bytesInterceptorPrv() {
-    return new StringBytesInterceptor("prv");
+    return new StringBytesInterceptor("prv", BytesInterceptor.BaudRate.BR_115200, 6);
   }
 
   @Bean

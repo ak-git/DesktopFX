@@ -14,15 +14,15 @@ class ResistivityTest {
   class Apparent {
     @ParameterizedTest
     @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
-    void apparent(double[] rho, double hmm, double smm, double lmm, double rOhm) {
-      double apparentNor = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build()).build().apparent(rOhm);
-      double apparentInv = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(lmm, smm).build()).build().apparent(rOhm);
+    void apparent(double[] ignoredRho, double ignoredHmm, double smm, double lmm, double rOhm) {
+      double apparentNor = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build()).apparent(rOhm);
+      double apparentInv = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(lmm, smm).build()).apparent(rOhm);
       assertThat(apparentNor).isEqualTo(apparentInv);
     }
 
     private static void apparent(double smm, double lmm, double rOhm) {
-      double apparentNor = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build()).build().apparent(rOhm);
-      double apparentInv = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(lmm, smm).build()).build().apparent(rOhm);
+      double apparentNor = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build()).apparent(rOhm);
+      double apparentInv = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(lmm, smm).build()).apparent(rOhm);
       assertThat(apparentNor).isEqualTo(apparentInv);
     }
 
@@ -58,7 +58,7 @@ class ResistivityTest {
 
       private static void innerApparent(double[] rho, double hStepSI, int[] ps, double smm, double lmm, double rOhm) {
         ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build();
-        double apparent = Resistivity.of(tetrapolar).build().apparent(rOhm);
+        double apparent = Resistivity.of(tetrapolar).apparent(rOhm);
         Model.P p = new Model.P(ps);
         Model layer3 = new Model.Layer3Absolute(rho[0], rho[1], rho[2], hStepSI, p);
         double predicted = Resistivity.of(tetrapolar).apparent(layer3).value();
@@ -100,7 +100,7 @@ class ResistivityTest {
 
       private static void apparentDivRho1(double[] rho, double hmm, double smm, double lmm, double rOhm) {
         ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build();
-        double apparent = Resistivity.of(tetrapolar).build().apparent(rOhm);
+        double apparent = Resistivity.of(tetrapolar).apparent(rOhm);
         Model layer2 = new Model.Layer2Relative(K.of(rho[0], rho[1]), Metrics.Length.MILLI.toSI(hmm));
         double predicted = Resistivity.of(tetrapolar).apparent(layer2).value();
         assertThat(apparent / rho[0]).isCloseTo(predicted, byLessThan(0.001));
@@ -139,7 +139,7 @@ class ResistivityTest {
 
       private static void innerApparent(double[] rho, double hStepSI, int[] ps, double smm, double lmm, double rOhm) {
         ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build();
-        double apparent = Resistivity.of(tetrapolar).build().apparent(rOhm);
+        double apparent = Resistivity.of(tetrapolar).apparent(rOhm);
         Model.P p = new Model.P(ps);
         Model layer3 = new Model.Layer3Absolute(rho[0], rho[1], rho[2], hStepSI, p);
         double predicted = Resistivity.of(tetrapolar).apparent(layer3).value();
@@ -185,7 +185,7 @@ class ResistivityTest {
     class Layer3Absolute {
       @ParameterizedTest
       @MethodSource("com.ak.rsm.resistance.Resistance3LayerTest#threeLayerParameters")
-      void derivative(double[] rho, double hStepSI, int[] ps, double smm, double lmm, double rOhm) {
+      void derivative(double[] rho, double hStepSI, int[] ps, double smm, double lmm) {
         Model.P p = new Model.P(ps);
         Model layer3 = new Model.Layer3Absolute(rho[0], rho[1], rho[2], hStepSI, p);
         double predictedNor = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build())

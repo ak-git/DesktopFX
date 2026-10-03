@@ -17,11 +17,12 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class StringBytesInterceptorTest {
   private static final Logger LOGGER = Logger.getLogger(StringBytesInterceptor.class.getName());
-  private static final Function<ByteBuffer, Stream<String>> INTERCEPTOR = new StringBytesInterceptor(StringBytesInterceptorTest.class.getName());
+  private static final Function<ByteBuffer, Stream<String>> INTERCEPTOR = new StringBytesInterceptor(
+      StringBytesInterceptorTest.class.getName(), BytesInterceptor.BaudRate.BR_115200, 6);
 
   @Test
   void testInterceptorProperties() {
-    BytesInterceptor<BufferFrame, String> interceptor = new StringBytesInterceptor(getClass().getName());
+    BytesInterceptor<BufferFrame, String> interceptor = new StringBytesInterceptor(getClass().getName(), BytesInterceptor.BaudRate.BR_115200, 6);
     assertThat(interceptor.getBaudRate()).isEqualTo(115200);
     assertThat(interceptor.getPingRequest()).isEmpty();
   }

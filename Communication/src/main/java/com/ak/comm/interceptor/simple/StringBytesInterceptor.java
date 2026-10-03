@@ -8,12 +8,14 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 public final class StringBytesInterceptor extends AbstractBytesInterceptor<BufferFrame, String> {
-  private static final int MAX_LEN = 6;
   private static final byte STOP = '\n';
-  private final StringBuilder frame = new StringBuilder(MAX_LEN);
+  private final int maxLen;
+  private final StringBuilder frame;
 
-  public StringBytesInterceptor(String name) {
-    super(name, BaudRate.BR_115200, MAX_LEN);
+  public StringBytesInterceptor(String name, BaudRate baudRate, int maxLen) {
+    super(name, baudRate, maxLen);
+    this.maxLen = maxLen;
+    frame = new StringBuilder(maxLen);
   }
 
   @Override
@@ -27,7 +29,7 @@ public final class StringBytesInterceptor extends AbstractBytesInterceptor<Buffe
         responses.add(frame.toString().strip());
         frame.delete(0, frame.length());
       }
-      else if (frame.length() == MAX_LEN) {
+      else if (frame.length() == maxLen) {
         ignoreBuffer().put((byte) frame.charAt(0));
         logSkippedBytes(false);
         frame.deleteCharAt(0);

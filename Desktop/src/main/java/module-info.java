@@ -29,6 +29,7 @@ module com.ak.fx.desktop {
 
   exports com.ak.appliance.aper.fx.desktop to spring.beans;
   exports com.ak.appliance.briko.fx.desktop to spring.beans;
+  exports com.ak.appliance.caliper.fx.desktop to spring.beans;
   exports com.ak.appliance.nmisr.fx.desktop to spring.beans;
   exports com.ak.appliance.purelogic.fx.desktop to spring.beans;
   exports com.ak.appliance.rcm.fx.desktop to spring.beans;
