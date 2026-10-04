@@ -4,8 +4,9 @@ import com.ak.comm.converter.Variable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import tech.units.indriya.AbstractUnit;
+import tech.units.indriya.unit.Units;
 
+import javax.measure.MetricPrefix;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +34,6 @@ class CaliperVariableTest {
   @Test
   void unit() {
     assertThat(EnumSet.allOf(CaliperVariable.class).stream().map(Variable::getUnit).collect(Collectors.toSet()))
-        .isEqualTo(Set.of(AbstractUnit.ONE));
+        .isEqualTo(Set.of(MetricPrefix.MICRO(Units.METRE)));
   }
 }
