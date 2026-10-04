@@ -1,12 +1,4 @@
 [versions]
-sonarqube = '7.5.0.8588'
-jacocolog = '4.0.2'
-spotbugs = '6.5.12'
-ben-manes-versions = '0.64.0'
-openrewrite = '7.41.0'
-rewrite-testing-frameworks = '3.44.0'
-rewrite-migrate-java = '3.42.1'
-
 jspecify = '1.0.1'
 junit = '6.1.3'
 assertj = '3.27.7'
@@ -35,19 +27,11 @@ commons-rng = '1.7'
 caffeine = '3.3.0'
 
 [plugins]
-sonarqube = { id = 'org.sonarqube', version.ref = 'sonarqube' }
-jacocolog = { id = 'org.barfuin.gradle.jacocolog', version.ref = 'jacocolog' }
-spotbugs = { id = 'com.github.spotbugs', version.ref = 'spotbugs' }
-ben-manes-versions = { id = 'io.github.ben-manes.versions', version.ref = 'ben-manes-versions' }
-openrewrite = { id = 'org.openrewrite.rewrite', version.ref = 'openrewrite' }
-
 javafxplugin = { id = 'org.openjfx.javafxplugin', version.ref = 'javafxplugin' }
 springframework-boot = { id = 'org.springframework.boot', version.ref = 'springframework-boot' }
 spring-dependency-management = { id = 'io.spring.dependency-management', version.ref = 'spring-dependency-management' }
 
 [libraries]
-rewrite-testing-frameworks = { module = 'org.openrewrite.recipe:rewrite-testing-frameworks', version.ref = 'rewrite-testing-frameworks' }
-rewrite-migrate-java = { module = 'org.openrewrite.recipe:rewrite-migrate-java', version.ref = 'rewrite-migrate-java' }
 commons-rng-client-api = { module = 'org.apache.commons:commons-rng-client-api', version.ref = 'commons-rng' }
 commons-rng-simple = { module = 'org.apache.commons:commons-rng-simple', version.ref = 'commons-rng' }
 

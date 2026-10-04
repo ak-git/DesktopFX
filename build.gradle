@@ -1,34 +1,7 @@
-import com.github.spotbugs.snom.Confidence
-
 plugins {
     id 'java'
     id 'idea'
     id 'jacoco'
-    alias(libs.plugins.spotbugs)
-    alias(libs.plugins.ben.manes.versions)
-    alias(libs.plugins.sonarqube)
-    alias(libs.plugins.jacocolog)
-}
-
-spotbugs {
-    reportLevel = Confidence.valueOf('HIGH')
-}
-
-tasks.spotbugsMain {
-    reports.create('html') {
-        required = true
-        setStylesheet('fancy-hist.xsl')
-    }
-}
-
-sonar {
-    properties {
-        property 'sonar.projectKey', property('sonar.projectKey')
-        property 'sonar.organization', property('sonar.organization')
-        property 'sonar.host.url', 'https://sonarcloud.io'
-        property 'sonar.branch.name', 'develop'
-        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
-    }
 }
 
 allprojects {
@@ -44,19 +17,6 @@ allprojects {
 
     sourceSets {
         main.output.resourcesDir = main.java.classesDirectory
-    }
-
-    apply plugin: 'jacoco'
-    apply plugin: 'org.barfuin.gradle.jacocolog'
-
-    jacoco {
-        toolVersion = '0.8.15'
-    }
-
-    jacocoTestReport {
-        reports {
-            xml.required = true
-        }
     }
 }
 
@@ -85,18 +45,5 @@ subprojects {
             events 'failed'
         }
         maxHeapSize = '1G'
-    }
-
-    repositories {
-        gradlePluginPortal()
-        mavenCentral()
-        maven { url = 'https://jitpack.io' }
-        maven {
-            url = "https://artifacts.codegenomeproject.org/maven"
-            credentials {
-                username = providers.environmentVariable('CODE_GENOME_USERNAME').orElse(providers.gradleProperty('codeGenomeUsername')).getOrNull()
-                password = providers.environmentVariable('CODE_GENOME_TOKEN').orElse(providers.gradleProperty('codeGenomeToken')).getOrNull()
-            }
-        }
     }
 }
