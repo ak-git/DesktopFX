@@ -1,37 +1,11 @@
-# Install on Linux
+```shell
+cd C:\Users\ak\Documents\DesktopFX
 
-## Install [sdkman.io](https://sdkman.io)
+gradlew clean build -x test
 
-```bash
-curl -s "https://get.sdkman.io" | bash
-```
+gradlew installBootDist
 
-```bash
-source "$HOME/.sdkman/bin/sdkman-init.sh"
-```
+cd C:\Users\ak\Documents\DesktopFX\Desktop\build\install\Desktop-boot\lib
 
-## Install [JDK](https://www.oracle.com/java/technologies/downloads/)
-
-```bash
-sdk list java
-```
-
-```bash
-sdk install java 26-oracle
-```
-
-## Install [Gradle](https://gradle.org)
-
-```bash
-sdk list gradle
-```
-
-```bash
-sdk install gradle 9.8.0
-```
-
-## Verify Installation
-
-```bash
-sdk current
+"C:\Program Files\Java\jdk-27\bin\jpackage" --main-jar Desktop.jar --input . --app-version 26.10.04 --name briko-caliper --vendor ak --win-dir-chooser --win-shortcut
 ```
