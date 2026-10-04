@@ -1,6 +1,5 @@
 package com.ak.appliance.caliper.comm.converter;
 
-import com.ak.comm.converter.Variable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -17,15 +16,15 @@ class CaliperConverterTest {
   static Stream<Arguments> variables() {
     return Stream.of(
         arguments(
-            new byte[] {51, 102, 102, 53},
-            new int[] {4}
+            new byte[] {54, 48, 9, 53, 50, 52, 57, 54, 48},
+            new int[] {60}
         )
     );
   }
 
   @ParameterizedTest
   @MethodSource("variables")
-  <T extends Enum<T> & Variable<T>> void testApply(byte[] inputBytes, int[] outputInts) {
+  void testApply(byte[] inputBytes, int[] outputInts) {
     Function<String, Stream<int[]>> converter = new CaliperConverter();
     AtomicBoolean processed = new AtomicBoolean();
     converter.apply(new String(inputBytes)).
