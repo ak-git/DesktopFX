@@ -1,7 +1,7 @@
 [versions]
 sonarqube = '7.5.0.8588'
 jacocolog = '4.0.3'
-spotbugs = '6.5.12'
+spotbugs = '6.5.13'
 ben-manes-versions = '0.66.0'
 openrewrite = '7.41.0'
 rewrite-testing-frameworks = '3.44.0'
