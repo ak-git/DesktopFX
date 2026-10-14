@@ -56,13 +56,19 @@ public sealed interface ParametricFunctional {
         return measurement;
       }
 
+      protected static double regularization(double x, double min, double max) {
+        double d2 = (max - min) * (max - min);
+        double c = (max + min) / 2.0;
+        double u2 = (x - c) * (x - c);
+        double s = 0.5 * log(d2 / (d2 - u2));
+        return Double.isFinite(s) ? s : Double.POSITIVE_INFINITY;
+      }
+
       protected final double regularization(K k, double h) {
         double hMin = system.hMin(k);
         double hMax = system.hMax(k);
         if (hMin < h && h < hMax) {
-          double x = log(h);
-          double s = log(log(hMax) - x) - log(x - log(hMin));
-          return s * s;
+          return regularization(log(h), log(Math.max(hMin, Metrics.Length.MICRO.toSI(10.0))), log(hMax));
         }
         else {
           return Double.POSITIVE_INFINITY;
@@ -76,11 +82,6 @@ public sealed interface ParametricFunctional {
         double derivativeApparentByPhi = r.apparent((m.ohmsDiff() / dh) / system.phiFactor());
         double v = log(resistivity.value() / apparent) - log(resistivity.derivative() / derivativeApparentByPhi);
         return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
-      }
-
-      protected static double regularization(double x, double min, double max) {
-        double s = log(max - x) - log(x - min);
-        return Double.isFinite(s) ? s * s : Double.POSITIVE_INFINITY;
       }
 
       private static final class Diff extends AbstractParametricFunctional<TetrapolarMeasurement.Diff> {

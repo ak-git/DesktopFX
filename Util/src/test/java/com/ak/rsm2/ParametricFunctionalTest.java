@@ -94,7 +94,8 @@ class ParametricFunctionalTest {
       ToDoubleFunction<Model> regularization = parametricFunctional.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG);
       Assertions.assertAll(parametricFunctional.toString(),
           () -> assertThat(regularization.applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMax(K.PLUS_ONE)))).isInfinite(),
-          () -> assertThat(regularization.applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMax(K.PLUS_ONE) / 2.0))).isInfinite(),
+          () -> assertThat(regularization.applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMax(K.PLUS_ONE) / 2.0)))
+              .isPositive().isLessThan(0.11),
           () -> assertThat(regularization.applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, inexact.hMin(K.PLUS_ONE)))).isInfinite()
       );
 
@@ -188,7 +189,8 @@ class ParametricFunctionalTest {
       ToDoubleFunction<Model> regularization = parametricFunctional.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG);
       Assertions.assertAll(parametricFunctional.toString(),
           () -> assertThat(regularization.applyAsDouble(new Model.Layer2RelativeDh(K.PLUS_ONE, inexact.hMax(K.PLUS_ONE), units.toSI(hDiff)))).isInfinite(),
-          () -> assertThat(regularization.applyAsDouble(new Model.Layer2RelativeDh(K.PLUS_ONE, inexact.hMax(K.PLUS_ONE) / 2.0, units.toSI(hDiff)))).isInfinite(),
+          () -> assertThat(regularization.applyAsDouble(new Model.Layer2RelativeDh(K.PLUS_ONE, inexact.hMax(K.PLUS_ONE) / 2.0, units.toSI(hDiff))))
+              .isPositive().isLessThan(0.11),
           () -> assertThat(regularization.applyAsDouble(new Model.Layer2RelativeDh(K.PLUS_ONE, inexact.hMin(K.PLUS_ONE), units.toSI(hDiff)))).isInfinite()
       );
 
@@ -252,7 +254,7 @@ class ParametricFunctionalTest {
                   new Model.Layer3Absolute(2.0, 8.0, 4.0, units.toSI(hStep), new Model.P(100, 200)),
                   new Model.P((hDiffMax / hStep) * 4 / 18, (hDiffMax / hStep) * 14 / 18), 0.02
               ))
-          ).isNotNegative().isCloseTo(0.336, byLessThan(1.0e-3))
+          ).isNotNegative().isCloseTo(0.01, byLessThan(1.0e-3))
       );
     }
   }
