@@ -19,15 +19,16 @@ public final class CaliperConverter extends AbstractConverter<String, CaliperVar
   @Override
   protected Stream<int[]> innerApply(String frame) {
     int sep = frame.indexOf(Strings.TAB);
-    int value = 0;
+    int[] value = new int[2];
     if (sep > 0) {
       try {
-        value = Integer.parseInt(frame.substring(0, sep));
+        value[0] = Integer.parseInt(frame.substring(0, sep).strip());
+        value[1] = Integer.parseInt(frame.substring(sep).strip());
       }
       catch (NumberFormatException e) {
         logger.log(LogUtils.LOG_LEVEL_ERRORS, e, () -> frame);
       }
     }
-    return Stream.of(new int[] {value});
+    return Stream.of(value);
   }
 }

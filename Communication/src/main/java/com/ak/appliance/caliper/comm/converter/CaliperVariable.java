@@ -8,17 +8,18 @@ import javax.measure.Unit;
 import java.util.Set;
 
 public enum CaliperVariable implements Variable<CaliperVariable> {
-  D;
+  D {
+    @Override
+    public Unit<?> getUnit() {
+      return MetricPrefix.MICRO(Units.METRE);
+    }
+  },
+  F;
 
   public static final int FREQUENCY = 68;
 
   @Override
   public Set<Option> options() {
     return Option.addToDefault(Option.TEXT_VALUE_BANNER);
-  }
-
-  @Override
-  public Unit<?> getUnit() {
-    return MetricPrefix.MICRO(Units.METRE);
   }
 }
