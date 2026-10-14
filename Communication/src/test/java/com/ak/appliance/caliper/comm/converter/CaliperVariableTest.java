@@ -4,6 +4,7 @@ import com.ak.comm.converter.Variable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import tech.units.indriya.AbstractUnit;
 import tech.units.indriya.unit.Units;
 
 import javax.measure.MetricPrefix;
@@ -20,6 +21,7 @@ class CaliperVariableTest {
     assertThat(EnumSet.allOf(CaliperVariable.class).stream().flatMap(v -> v.options().stream()))
         .isEqualTo(
             List.of(
+                Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER,
                 Variable.Option.VISIBLE, Variable.Option.TEXT_VALUE_BANNER
             )
         );
@@ -34,6 +36,6 @@ class CaliperVariableTest {
   @Test
   void unit() {
     assertThat(EnumSet.allOf(CaliperVariable.class).stream().map(Variable::getUnit).collect(Collectors.toSet()))
-        .isEqualTo(Set.of(MetricPrefix.MICRO(Units.METRE)));
+        .isEqualTo(Set.of(AbstractUnit.ONE, MetricPrefix.MICRO(Units.METRE)));
   }
 }

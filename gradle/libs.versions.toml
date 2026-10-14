@@ -11,7 +11,7 @@ javafxplugin = '0.1.0'
 spring = '7.0.9'
 springframework-boot = '4.1.1'
 spring-dependency-management = '1.1.7'
-javafx = '28-ea+11'
+javafx = '28-ea+12'
 
 inject-api = '2.0.1'
 tech-units = '2.2.4'
@@ -24,7 +24,7 @@ jenetics = '9.1.0'
 apiguardian-api = '1.1.2'
 commons-math4-legacy-core = '4.0-beta1'
 commons-rng = '1.7'
-caffeine = '3.3.0'
+caffeine = '3.3.1'
 
 [plugins]
 javafxplugin = { id = 'org.openjfx.javafxplugin', version.ref = 'javafxplugin' }

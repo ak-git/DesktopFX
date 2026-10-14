@@ -17,7 +17,7 @@ class CaliperConverterTest {
     return Stream.of(
         arguments(
             new byte[] {54, 48, 9, 53, 50, 52, 57, 54, 48},
-            new int[] {60}
+            new int[] {60, 524960}
         )
     );
   }

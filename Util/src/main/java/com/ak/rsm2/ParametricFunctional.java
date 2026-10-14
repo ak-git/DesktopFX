@@ -2,6 +2,7 @@ package com.ak.rsm2;
 
 import com.ak.util.Builder;
 import com.ak.util.Metrics;
+import com.ak.util.Numbers;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
@@ -60,9 +61,7 @@ public sealed interface ParametricFunctional {
         double hMin = system.hMin(k);
         double hMax = system.hMax(k);
         if (hMin < h && h < hMax) {
-          double x = log(h);
-          double s = log(log(hMax) - x) - log(x - log(hMin));
-          return s * s;
+          return Numbers.regularization(log(h), log(Math.max(hMin, Metrics.Length.MICRO.toSI(10.0))), log(hMax));
         }
         else {
           return Double.POSITIVE_INFINITY;
@@ -76,11 +75,6 @@ public sealed interface ParametricFunctional {
         double derivativeApparentByPhi = r.apparent((m.ohmsDiff() / dh) / system.phiFactor());
         double v = log(resistivity.value() / apparent) - log(resistivity.derivative() / derivativeApparentByPhi);
         return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
-      }
-
-      protected static double regularization(double x, double min, double max) {
-        double s = log(max - x) - log(x - min);
-        return Double.isFinite(s) ? s * s : Double.POSITIVE_INFINITY;
       }
 
       private static final class Diff extends AbstractParametricFunctional<TetrapolarMeasurement.Diff> {
@@ -150,7 +144,7 @@ public sealed interface ParametricFunctional {
                   Model.Layer2Relative layer2Relative, double dh
               )) {
                 return regularization(layer2Relative.k(), layer2Relative.h()) +
-                    regularization(Math.abs(dh), 0, 2.0 * Math.abs(measurement().hDiffMax()));
+                    Numbers.regularization(Math.abs(dh), 0, 2.0 * Math.abs(measurement().hDiffMax()));
               }
               throw new IllegalArgumentException("Unexpected value: " + layer);
             };
@@ -171,7 +165,7 @@ public sealed interface ParametricFunctional {
                   Model.Layer2Relative layer2Relative, double dh
               )) {
                 return regularization(layer2Relative.k(), layer2Relative.h()) +
-                    regularization(dh, -Math.abs(measurement().hDiffZero()), Math.abs(measurement().hDiffZero()));
+                    Numbers.regularization(dh, -Math.abs(measurement().hDiffZero()), Math.abs(measurement().hDiffZero()));
               }
               throw new IllegalArgumentException("Unexpected value: " + layer);
             };
@@ -240,7 +234,7 @@ public sealed interface ParametricFunctional {
                 Model.P p = layer3Absolute.p();
                 return regularization(K.of(rho1, rho2), layer3Absolute.p().p1() * hStep) +
                     regularization(K.of(rho2, rho3), p.pSum() * hStep) +
-                    regularization(Math.abs(hStep * dp.pSum()), 0, 2.0 * Math.abs(measurement().hDiffMax()));
+                    Numbers.regularization(Math.abs(hStep * dp.pSum()), 0, 2.0 * Math.abs(measurement().hDiffMax()));
               }
               throw new IllegalStateException("Unexpected value: " + layer);
             };

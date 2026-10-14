@@ -9,13 +9,8 @@ import io.jenetics.*;
 import io.jenetics.engine.*;
 import io.jenetics.util.ISeq;
 import io.jenetics.util.IntRange;
-import org.apache.commons.math4.legacy.optim.InitialGuess;
-import org.apache.commons.math4.legacy.optim.MaxEval;
-import org.apache.commons.math4.legacy.optim.PointValuePair;
-import org.apache.commons.math4.legacy.optim.nonlinear.scalar.GoalType;
-import org.apache.commons.math4.legacy.optim.nonlinear.scalar.ObjectiveFunction;
-import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.NelderMeadTransform;
-import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import org.apache.commons.math4.legacy.analysis.interpolation.AkimaSplineInterpolator;
+import org.apache.commons.math4.legacy.analysis.interpolation.UnivariateInterpolator;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +23,6 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
@@ -45,7 +39,7 @@ public sealed interface Solver {
 
     @Override
     public String toString() {
-      return "alpha = %.5f".formatted(value);
+      return "alpha = %.4f".formatted(value);
     }
   }
 
@@ -474,37 +468,28 @@ public sealed interface Solver {
 
       @Override
       public Solution solve() {
-        Alpha initialAlpha = new Alpha(0.001);
-        Collection<Solution> solutions = solve(initialAlpha.value * 10_000, initialAlpha.value * 100, initialAlpha.value);
+        Collection<Solution> solutions = solve(
+            DoubleStream.concat(
+                    Numbers.rangeLog(1.0, 1.0 / 0.001, 7).map(x -> 1.0 / x),
+                    DoubleStream.of(0.0)
+                )
+                .toArray())
+            .stream().sorted(Comparator.comparingDouble(Solution::fitness)).toList();
 
-        double dataErrorNormBase = parametricFunctionals.stream().mapToDouble(ParametricFunctional::dataErrorNorm).reduce(Math::hypot).orElseThrow();
+        UnivariateInterpolator interpolator = new AkimaSplineInterpolator(true);
+        double[] x = solutions.stream().mapToDouble(Solution::fitness).toArray();
+        double[] y = solutions.stream().mapToDouble(value -> value.alpha.value).toArray();
+
+        double dataErrorNormBase = parametricFunctionals.stream().mapToDouble(ParametricFunctional::dataErrorNorm)
+            .reduce(Math::hypot).orElseThrow();
         double dataErrorNormShift = solve(0.0).fitness();
         double dataErrorNorm = dataErrorNormBase + dataErrorNormShift;
+        double alpha = interpolator.interpolate(x, y).value(dataErrorNorm);
         LOGGER.atInfo()
             .addKeyValue("data Error Norm Base", () -> "%.4f".formatted(dataErrorNormBase))
-            .addKeyValue("data Error Norm Shift (alpha = 0)", () -> "%.4f".formatted(dataErrorNormShift))
-            .log(() -> "target fitness = %.4f".formatted(dataErrorNorm));
-
-        initialAlpha = solutions.stream().min(Comparator.comparingDouble(s -> Math.abs(s.fitness() - dataErrorNorm)))
-            .map(Solution::alpha).orElse(initialAlpha);
-
-        DoubleUnaryOperator withAlpha = alpha -> {
-          if (alpha < 0) {
-            return Double.POSITIVE_INFINITY;
-          }
-          else {
-            double v = solve(alpha).fitness() - dataErrorNorm;
-            return v * v;
-          }
-        };
-
-        PointValuePair optimized = new SimplexOptimizer(0.000_000_1, 0.000_01)
-            .optimize(
-                new MaxEval(100), new ObjectiveFunction(point -> withAlpha.applyAsDouble(point[0])), GoalType.MINIMIZE,
-                org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.Simplex.alongAxes(new double[] {initialAlpha.value}),
-                new NelderMeadTransform(), new InitialGuess(new double[] {initialAlpha.value})
-            );
-        double alpha = optimized.getPoint()[0];
+            .addKeyValue("data Error Norm Shift", () -> "%.4f".formatted(dataErrorNormShift))
+            .addKeyValue("target fitness", () -> "%.4f".formatted(dataErrorNorm))
+            .log(() -> new Alpha(alpha).toString());
         return solve(alpha);
       }
     }
