@@ -35,4 +35,13 @@ public enum Numbers {
   public static int log10ToInt(double value) {
     return toInt(log10(value));
   }
+
+  public static double regularization(double x, double min, double max) {
+    double d = (max - min) / 2.0;
+    double c = (max + min) / 2.0;
+    double d2 = d * d;
+    double u2 = (x - c) * (x - c);
+    double s = 0.5 * log(d2 / (d2 - u2));
+    return Double.isFinite(s) ? s : Double.POSITIVE_INFINITY;
+  }
 }

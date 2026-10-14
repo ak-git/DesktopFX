@@ -470,7 +470,7 @@ public sealed interface Solver {
       public Solution solve() {
         Collection<Solution> solutions = solve(
             DoubleStream.concat(
-                    Numbers.rangeLog(1.0 / 10.0, 1.0 / 0.01, 7).map(x -> 1.0 / x),
+                    Numbers.rangeLog(1.0, 1.0 / 0.001, 7).map(x -> 1.0 / x),
                     DoubleStream.of(0.0)
                 )
                 .toArray())

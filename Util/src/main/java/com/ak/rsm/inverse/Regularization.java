@@ -3,6 +3,7 @@ package com.ak.rsm.inverse;
 import com.ak.math.Simplex;
 import com.ak.math.ValuePair;
 import com.ak.rsm.system.InexactTetrapolarSystem;
+import com.ak.util.Numbers;
 import com.ak.util.Strings;
 
 import java.util.Collection;
@@ -28,7 +29,7 @@ public interface Regularization {
 
             Simplex.Bounds hInterval = hInterval(k);
             if (hInterval.isIn(hToL)) {
-              return alpha * StrictMath.pow(log(hInterval.max() - hToL) - log(hToL - hInterval.min()), 2.0);
+              return alpha * Numbers.regularization(hToL, hInterval.min(), hInterval.max());
             }
             else {
               return Double.POSITIVE_INFINITY;
@@ -48,8 +49,7 @@ public interface Regularization {
 
             Simplex.Bounds hInterval = hInterval(k);
             if (hInterval.isIn(hToL)) {
-              double x = log(hToL);
-              return alpha * StrictMath.pow(log(log(hInterval.max()) - x) - log(x - log(hInterval.min())), 2.0);
+              return alpha * Numbers.regularization(log(hToL), log(hInterval.min()), log(hInterval.max()));
             }
             else {
               return Double.POSITIVE_INFINITY;
@@ -65,7 +65,7 @@ public interface Regularization {
           @Override
           public double of(double... kw) {
             double k = Math.abs(kw[0]);
-            return alpha * StrictMath.pow(log(2.0 - k) - log(k), 2.0);
+            return alpha * Numbers.regularization(k, 0.0, 2.0);
           }
         };
       }
