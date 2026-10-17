@@ -11,6 +11,10 @@ public sealed interface K {
 
   boolean isMinusOne();
 
+  default double getRho2(double rho1) {
+    return rho1 * (1.0 + value()) / (1.0 - value());
+  }
+
   static K of(double value) {
     return new KRecord(value);
   }
