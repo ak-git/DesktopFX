@@ -27,6 +27,44 @@ class ResistivityTest {
     }
 
     @Nested
+    class Layer2Absolute {
+      @ParameterizedTest
+      @CsvSource(delimiter = '|', textBlock = """
+          8.0 | 1.0 | 10.0 | 10.0 | 20.0 | METRE | 7.289
+          8.0 | 1.0 | 10.0 | 20.0 | 10.0 | MILLI | 7.289
+          """)
+      void apparent(double rho1, double rho2, double h, double sPU, double lCC, Metrics.Length units, double expected) {
+        ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.builder(units).tetrapolar(sPU, lCC).build();
+        Model layer2 = new Model.Layer2Absolute(rho1, rho2, units.toSI(h));
+        double value = Resistivity.of(tetrapolar).apparent(layer2).value();
+        assertThat(value).isCloseTo(expected, byLessThan(0.001));
+      }
+
+      @ParameterizedTest
+      @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters" )
+      void apparent(double[] rho, double hmm, double smm, double lmm, double rOhm) {
+        Apparent.apparent(smm, lmm, rOhm);
+        innerApparent(rho, hmm, smm, lmm);
+        innerApparent(rho, hmm, smm, lmm, rOhm);
+      }
+
+      private static void innerApparent(double[] rho, double hmm, double smm, double lmm) {
+        Model layer2 = new Model.Layer2Absolute(rho[0], rho[1], Metrics.Length.MILLI.toSI(hmm));
+        double predictedNor = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build()).apparent(layer2).value();
+        double predictedRev = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(lmm, smm).build()).apparent(layer2).value();
+        assertThat(predictedNor).isCloseTo(predictedRev, byLessThan(0.000_001));
+      }
+
+      private static void innerApparent(double[] rho, double hmm, double smm, double lmm, double rOhm) {
+        ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build();
+        double apparent = Resistivity.of(tetrapolar).apparent(rOhm);
+        Model layer2 = new Model.Layer2Absolute(rho[0], rho[1], Metrics.Length.MILLI.toSI(hmm));
+        double predicted = Resistivity.of(tetrapolar).apparent(layer2).value();
+        assertThat(apparent).isCloseTo(predicted, byLessThan(0.001));
+      }
+    }
+
+    @Nested
     class Layer3Absolute {
       @ParameterizedTest
       @CsvSource(delimiter = '|', textBlock = """
@@ -130,6 +168,37 @@ class ResistivityTest {
       @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters")
       void derivativeDivRho1(double[] rho, double hmm, double smm, double lmm) {
         Model layer2 = new Model.Layer2Relative(K.of(rho[0], rho[1]), Metrics.Length.MILLI.toSI(hmm));
+        double predictedNor = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build())
+            .apparent(layer2).derivative();
+        double predictedRev = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(lmm, smm).build())
+            .apparent(layer2).derivative();
+        assertThat(predictedNor).isCloseTo(predictedRev, byLessThan(0.000_001));
+      }
+    }
+  }
+
+  @Nested
+  class DerivativeApparentByPhi1 {
+    @Nested
+    class Layer2Absolute {
+      @ParameterizedTest
+      @CsvSource(delimiter = '|', textBlock = """
+          8.0 |  1.0 | 10.0 | 10.0 | 20.0 | METRE |  2.464
+          8.0 |  1.0 | 10.0 | 20.0 | 10.0 | MILLI |  2.464
+          2.0 | 10.0 |  3.0 |  6.0 | 18.0 | METRE | -19.219
+          2.0 | 10.0 |  3.0 | 18.0 |  6.0 | MILLI | -19.219
+          """)
+      void derivative(double rho1, double rho2, double h, double sPU, double lCC, Metrics.Length units, double expected) {
+        ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.builder(units).tetrapolar(sPU, lCC).build();
+        Model layer2 = new Model.Layer2Absolute(rho1, rho2, units.toSI(h));
+        double value = Resistivity.of(tetrapolar).apparent(layer2).derivative();
+        assertThat(value).isCloseTo(expected, byLessThan(0.001));
+      }
+
+      @ParameterizedTest
+      @MethodSource("com.ak.rsm.resistance.Resistance2LayerTest#twoLayerParameters" )
+      void derivative(double[] rho, double hmm, double smm, double lmm) {
+        Model layer2 = new Model.Layer2Absolute(rho[0], rho[1], Metrics.Length.MILLI.toSI(hmm));
         double predictedNor = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build())
             .apparent(layer2).derivative();
         double predictedRev = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(lmm, smm).build())
