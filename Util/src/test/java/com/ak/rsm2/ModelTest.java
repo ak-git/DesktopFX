@@ -74,8 +74,8 @@ class ModelTest {
       double dh = Metrics.Length.MILLI.toSI(dhmm);
       Model.Layer2RelativeDh layer2Relative = new Model.Layer2RelativeDh(k, h, dh);
       assertAll(layer2Relative.toString(),
-          () -> assertThat(layer2Relative.layer2Relative().k().value()).isBetween(-1.0, 1.0),
-          () -> assertThat(layer2Relative.layer2Relative().h()).isNotNegative(),
+          () -> assertThat(layer2Relative.relative().k().value()).isBetween(-1.0, 1.0),
+          () -> assertThat(layer2Relative.relative().h()).isNotNegative(),
           () -> assertThat(layer2Relative.dh()).isEqualTo(dh),
           () -> assertThat(layer2Relative.toString())
               .contains(

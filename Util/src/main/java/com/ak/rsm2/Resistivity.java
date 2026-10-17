@@ -84,7 +84,7 @@ public sealed interface Resistivity {
 
       @Override
       public Apparent build() {
-        Function<Model.Layer2Relative, Apparent> layer2RelativeApparent = layer2Relative -> {
+        Function<Model.Layer2Model, Apparent> layer2RelativeApparent = layer2Relative -> {
           double k = layer2Relative.k().value();
           double h = layer2Relative.h();
           DoubleUnaryOperator left = braceOperation(h, Sign.MINUS);
@@ -96,10 +96,18 @@ public sealed interface Resistivity {
           );
         };
 
+        Function<Model.Layer2Absolute, Apparent> layer2AbsoluteApparent = layer2Absolute -> {
+          Apparent apparent = layer2RelativeApparent.apply(layer2Absolute);
+          return new ApparentRecord(system,
+              apparent.value() * layer2Absolute.rho1(), apparent.derivative() * layer2Absolute.rho1());
+        };
+
         return switch (model) {
           case Model.Layer2Relative layer2Relative -> layer2RelativeApparent.apply(layer2Relative);
-          case Model.Layer2RelativeDh layer2RelativeDh ->
-              layer2RelativeApparent.apply(layer2RelativeDh.layer2Relative());
+          case Model.Layer2RelativeDh layer2RelativeDh -> layer2RelativeApparent.apply(layer2RelativeDh.relative());
+          case Model.Layer2Absolute layer2Absolute -> layer2AbsoluteApparent.apply(layer2Absolute);
+          case Model.Layer2AbsoluteDh layer2AbsoluteDh ->
+              layer2AbsoluteApparent.apply(layer2AbsoluteDh.layer2Absolute());
           case Model.Layer3Absolute(double rho1, double rho2, double rho3, double hStep, Model.P p) -> {
             DoubleUnaryOperator left = braceOperation(hStep, Sign.MINUS);
             DoubleUnaryOperator right = braceOperation(hStep, Sign.PLUS);

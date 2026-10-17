@@ -73,7 +73,16 @@ public sealed interface ParametricFunctional {
         Resistivity.Apparent resistivity = r.apparent(model);
         double apparent = r.apparent(m.ohms());
         double derivativeApparentByPhi = r.apparent((m.ohmsDiff() / dh) / system.phiFactor());
-        double v = log(resistivity.value() / apparent) - log(resistivity.derivative() / derivativeApparentByPhi);
+
+        double v = switch (model) {
+          case Model.Layer2Relative _, Model.Layer2RelativeDh _ ->
+              log(resistivity.value() / apparent) - log(resistivity.derivative() / derivativeApparentByPhi);
+          case Model.Layer2Absolute _, Model.Layer2AbsoluteDh _ -> StrictMath.hypot(
+              log(resistivity.value() / apparent),
+              log((resistivity.derivative()) / derivativeApparentByPhi)
+          );
+          default -> throw new IllegalArgumentException("Unexpected value: " + model);
+        };
         return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
       }
 
@@ -93,7 +102,7 @@ public sealed interface ParametricFunctional {
             if (Objects.requireNonNull(layer) instanceof Model.Layer2Relative layer2Relative) {
               return misfit(layer2Relative, measurement(), measurement().hDiff());
             }
-            throw new IllegalStateException("Unexpected value: " + layer);
+            throw new IllegalArgumentException("Unexpected value: " + layer);
           };
         }
 
@@ -123,10 +132,10 @@ public sealed interface ParametricFunctional {
         @Override
         public final ToDoubleFunction<Model> misfit() {
           return layer -> {
-            if (Objects.requireNonNull(layer) instanceof Model.Layer2RelativeDh layer2RelativeDH) {
-              return misfit(layer2RelativeDH, measurement(), layer2RelativeDH.dh());
+            if (Objects.requireNonNull(layer) instanceof Model.Layer2DhModel relative) {
+              return misfit(relative, measurement(), relative.dh());
             }
-            throw new IllegalStateException("Unexpected value: " + layer);
+            throw new IllegalArgumentException("Unexpected value: " + layer);
           };
         }
       }
@@ -140,11 +149,9 @@ public sealed interface ParametricFunctional {
         public ToDoubleFunction<Model> regularization(Regularization regularization) {
           return switch (regularization) {
             case ZERO_MAX_LOG -> layer -> {
-              if (Objects.requireNonNull(layer) instanceof Model.Layer2RelativeDh(
-                  Model.Layer2Relative layer2Relative, double dh
-              )) {
-                return regularization(layer2Relative.k(), layer2Relative.h()) +
-                    Numbers.regularization(Math.abs(dh), 0, 2.0 * Math.abs(measurement().hDiffMax()));
+              if (Objects.requireNonNull(layer) instanceof Model.Layer2DhModel layer2Relative) {
+                return regularization(layer2Relative.relative().k(), layer2Relative.relative().h()) +
+                    Numbers.regularization(Math.abs(layer2Relative.dh()), 0, 2.0 * Math.abs(measurement().hDiffMax()));
               }
               throw new IllegalArgumentException("Unexpected value: " + layer);
             };
@@ -206,7 +213,7 @@ public sealed interface ParametricFunctional {
                 return Double.POSITIVE_INFINITY;
               }
             }
-            throw new IllegalStateException("Unexpected value: " + layer);
+            throw new IllegalArgumentException("Unexpected value: " + layer);
           };
         }
 
@@ -236,7 +243,7 @@ public sealed interface ParametricFunctional {
                     regularization(K.of(rho2, rho3), p.pSum() * hStep) +
                     Numbers.regularization(Math.abs(hStep * dp.pSum()), 0, 2.0 * Math.abs(measurement().hDiffMax()));
               }
-              throw new IllegalStateException("Unexpected value: " + layer);
+              throw new IllegalArgumentException("Unexpected value: " + layer);
             };
           };
         }

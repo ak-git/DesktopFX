@@ -9,7 +9,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public sealed interface Model {
-  record Layer2Relative(K k, double h) implements Model {
+  sealed interface Layer2Model extends Model {
+    K k();
+
+    double h();
+  }
+
+  record Layer2Relative(K k, double h) implements Layer2Model {
     public Layer2Relative {
       Objects.requireNonNull(k);
       if (h < 0) {
@@ -24,15 +30,62 @@ public sealed interface Model {
     }
   }
 
-  record Layer2RelativeDh(Layer2Relative layer2Relative, double dh) implements Model {
+  sealed interface Layer2DhModel extends Model {
+    Layer2Model relative();
+
+    double dh();
+  }
+
+  record Layer2RelativeDh(Layer2Model relative, double dh) implements Layer2DhModel {
     public Layer2RelativeDh(K k, double h, double dh) {
       this(new Layer2Relative(k, h), dh);
     }
 
     @Override
     public String toString() {
-      return Stream.of(layer2Relative, ValuePair.Name.DH.of(dh, 0.0))
+      return Stream.of(relative, ValuePair.Name.DH.of(dh, 0.0))
+          .map(Objects::toString).collect(Collectors.joining("; ", "{", "}" ));
+    }
+  }
+
+  record Layer2Absolute(double rho1, double rho2, double h) implements Layer2Model {
+    public Layer2Absolute {
+      if (rho1 < 0 || rho2 < 0 || h < 0) {
+        throw new IllegalArgumentException("rho1 = %f; rho2 = %f; h = %f must be non-negative".formatted(rho1, rho2, h));
+      }
+    }
+
+    @Override
+    public String toString() {
+      return Stream.of(ValuePair.Name.RHO_1.of(rho1, 0.0), ValuePair.Name.RHO_2.of(rho2, 0.0),
+              ValuePair.Name.H.of(h, 0.0))
+          .map(Objects::toString).collect(Collectors.joining("; ", "Layer2{", "}" ));
+    }
+
+    @Override
+    public K k() {
+      return K.of(rho1, rho2);
+    }
+  }
+
+  record Layer2AbsoluteDh(Layer2Absolute layer2Absolute, double dh) implements Layer2DhModel {
+    public Layer2AbsoluteDh {
+      Objects.requireNonNull(layer2Absolute);
+    }
+
+    public Layer2AbsoluteDh(double rho1, double rho2, double h, double dh) {
+      this(new Layer2Absolute(rho1, rho2, h), dh);
+    }
+
+    @Override
+    public String toString() {
+      return Stream.of(layer2Absolute, ValuePair.Name.DH.of(dh, 0.0))
           .map(Objects::toString).collect(Collectors.joining("; ", "{", "}"));
+    }
+
+    @Override
+    public Layer2Model relative() {
+      return layer2Absolute;
     }
   }
 

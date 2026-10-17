@@ -144,6 +144,36 @@ class SolverTest {
       LOGGER.atWarn().log(solution::toString);
       Assertions.assertThat(solution).isNotNull();
     }
+
+    @Disabled("2026-04-15 E-10330 ak 7 мм грузики" )
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        119.794, 180.316, 0.1450201448, 0.55248256, 0.09
+        119.752, 180.305, 0.1334494621, 0.48852353, 0.09
+        119.719, 180.352, 0.11772797714255, 0.437111010350435, 0.09
+        119.642, 180.167, 0.11430629258507, 0.464890834818959, 0.09
+        119.523, 179.807, 0.09330860611157, 0.466604001434888, 0.09
+        """)
+    void hDiffMaxAbsolute(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
+      var solution = Solver.<TetrapolarMeasurement.MaxDiff>of(7.0, Metrics.Length.MILLI)
+          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMilli, Metrics.Length.MILLI))
+          .origin(inexact -> {
+            List<ElectrodeSystem.Inexact> systems = inexact.toList();
+            double hMax = systems.stream().mapToDouble(s -> s.hMax(K.PLUS_ONE)).min().orElseThrow();
+            double apparent1 = Resistivity.of(systems.getFirst()).apparent(r1);
+            double apparent2 = Resistivity.of(systems.getLast()).apparent(r2);
+            LOGGER.atDebug().log(() -> DoubleStream.of(apparent1, apparent2)
+                .mapToObj(x -> ValuePair.Name.RHO.of(x, 0.0).toString()).collect(Collectors.joining("; " ))
+            );
+            double rhoMin = Math.min(apparent1, apparent2);
+            double rhoMax = Math.max(apparent1, apparent2);
+            return new Model.Layer2AbsoluteDh(rhoMax, rhoMin, hMax, Metrics.Length.MILLI.toSI(hDiffMilli));
+          })
+          .build().solve(1.0);
+      LOGGER.atWarn().log(solution::toString);
+      Assertions.assertThat(solution).isNotNull();
+    }
   }
 
   @Nested
