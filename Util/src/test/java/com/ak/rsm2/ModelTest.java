@@ -94,6 +94,74 @@ class ModelTest {
   }
 
   @Nested
+  class Layer2AbsoluteTest {
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', textBlock = """
+         2.0 | 10.0 | 0.0
+        10.0 |  5.0 | 1.0
+         0.0 |  5.0 | 1.0
+        10.0 |  0.0 | 1.0
+        """)
+    void get(double rho1, double rho2, double h) {
+      Model.Layer2Absolute layer2 = new Model.Layer2Absolute(rho1, rho2, h);
+      assertAll(layer2.toString(),
+          () -> assertThat(layer2.k().value()).isBetween(-1.0, 1.0),
+          () -> assertThat(layer2.rho1()).isNotNegative(),
+          () -> assertThat(layer2.rho2()).isNotNegative(),
+          () -> assertThat(layer2.h()).isNotNegative(),
+          () -> assertThat(layer2.toString()).contains(
+              Stream.of(ValuePair.Name.RHO_1.of(rho1, 0.0), ValuePair.Name.RHO_2.of(rho2, 0.0),
+                      ValuePair.Name.H.of(h, 0.0))
+                  .map(ValuePair::toString).collect(Collectors.joining("; " ))
+          )
+      );
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {-1.0})
+    void negativeH(double h) {
+      assertThatIllegalArgumentException().isThrownBy(() -> new Model.Layer2Absolute(RANDOM.nextDouble(), RANDOM.nextDouble(), h))
+          .withMessageEndingWith("must be non-negative" );
+    }
+  }
+
+  @Nested
+  class Layer2AbsoluteeDhTest {
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', textBlock = """
+         2.0 | 10.0 | 0.0 | 0.180
+        10.0 |  5.0 | 1.0 | -0.09
+         0.0 |  5.0 | 1.0 | 0.180
+        10.0 |  0.0 | 1.0 | 0.000
+        """)
+    void get(double rho1, double rho2, double hmm, double dhmm) {
+      double h = Metrics.Length.MILLI.toSI(hmm);
+      double dh = Metrics.Length.MILLI.toSI(dhmm);
+      Model.Layer2AbsoluteDh layer2Relative = new Model.Layer2AbsoluteDh(rho1, rho2, h, dh);
+      assertAll(layer2Relative.toString(),
+          () -> assertThat(layer2Relative.relative().k().value()).isBetween(-1.0, 1.0),
+          () -> assertThat(layer2Relative.layer2Absolute().rho1()).isNotNegative(),
+          () -> assertThat(layer2Relative.layer2Absolute().rho2()).isNotNegative(),
+          () -> assertThat(layer2Relative.relative().h()).isNotNegative(),
+          () -> assertThat(layer2Relative.dh()).isEqualTo(dh),
+          () -> assertThat(layer2Relative.toString())
+              .contains(
+                  Stream.of(ValuePair.Name.RHO_1.of(rho1, 0.0), ValuePair.Name.RHO_2.of(rho2, 0.0),
+                          ValuePair.Name.H.of(h, 0.0))
+                      .map(ValuePair::toString).collect(Collectors.joining("; " ))
+              ).contains(ValuePair.Name.DH.of(dh, 0.0).toString())
+      );
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {-1.0})
+    void negativeH(double h) {
+      assertThatIllegalArgumentException().isThrownBy(() -> new Model.Layer2AbsoluteDh(RANDOM.nextDouble(), RANDOM.nextDouble(), h, RANDOM.nextDouble()))
+          .withMessageEndingWith("must be non-negative" );
+    }
+  }
+
+  @Nested
   class Layer3AbsoluteTest {
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """

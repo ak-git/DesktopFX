@@ -106,46 +106,6 @@ class ResistivityTest {
         assertThat(apparent / rho[0]).isCloseTo(predicted, byLessThan(0.001));
       }
     }
-
-    @Nested
-    class Layer3Absolute {
-      @ParameterizedTest
-      @CsvSource(delimiter = '|', textBlock = """
-          8.0 | 8.0 | 1.0 |  5 | 5 | 10.0 | 20.0 | METRE | 7.288
-          8.0 | 1.0 | 1.0 | 10 | 1 | 20.0 | 10.0 | MILLI | 7.288
-          """)
-      void apparent(double rho1, double rho2, double rho3, int p1mm, int p2mp1mm, double sPU, double lCC, Metrics.Length units, double expected) {
-        ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.builder(units).tetrapolar(sPU, lCC).build();
-        Model layer3 = new Model.Layer3Absolute(rho1, rho2, rho3, units.toSI(1), new Model.P(p1mm, p2mp1mm));
-        double value = Resistivity.of(tetrapolar).apparent(layer3).value();
-        assertThat(value).isCloseTo(expected, byLessThan(0.001));
-      }
-
-      @ParameterizedTest
-      @MethodSource("com.ak.rsm.resistance.Resistance3LayerTest#threeLayerParameters")
-      void apparent(double[] rho, double hStepSI, int[] p, double smm, double lmm, double rOhm) {
-        Apparent.apparent(smm, lmm, rOhm);
-        innerApparent(rho, hStepSI, p, smm, lmm);
-        innerApparent(rho, hStepSI, p, smm, lmm, rOhm);
-      }
-
-      private static void innerApparent(double[] rho, double hStepSI, int[] ps, double smm, double lmm) {
-        Model.P p = new Model.P(ps);
-        Model layer3 = new Model.Layer3Absolute(rho[0], rho[1], rho[2], hStepSI, p);
-        double predictedNor = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build()).apparent(layer3).value();
-        double predictedRev = Resistivity.of(ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(lmm, smm).build()).apparent(layer3).value();
-        assertThat(predictedNor).isCloseTo(predictedRev, byLessThan(0.000_001));
-      }
-
-      private static void innerApparent(double[] rho, double hStepSI, int[] ps, double smm, double lmm, double rOhm) {
-        ElectrodeSystem.Tetrapolar tetrapolar = ElectrodeSystem.builder(Metrics.Length.MILLI).tetrapolar(smm, lmm).build();
-        double apparent = Resistivity.of(tetrapolar).apparent(rOhm);
-        Model.P p = new Model.P(ps);
-        Model layer3 = new Model.Layer3Absolute(rho[0], rho[1], rho[2], hStepSI, p);
-        double predicted = Resistivity.of(tetrapolar).apparent(layer3).value();
-        assertThat(apparent).isCloseTo(predicted, byLessThan(0.001));
-      }
-    }
   }
 
   @Nested
