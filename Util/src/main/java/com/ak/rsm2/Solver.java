@@ -365,7 +365,8 @@ public sealed interface Solver {
                   }
                 });
           }
-          case Model.Layer3Absolute layer3Absolute -> throw new IllegalArgumentException(layer3Absolute.toString());
+          case Model.Layer3Absolute layer3Absolute ->
+              throw new IllegalArgumentException("Unexpected value: " + layer3Absolute);
           case Model.Layer3AbsoluteDRho2(
               Model.Layer3Absolute layer3Extremal, Model.P dpExtremal, double dRho2Extremal
           ) -> {

@@ -285,7 +285,7 @@ class SolverTest {
                 return new Model.Layer3AbsoluteDRho2(
                     new Model.Layer3Absolute(rhoMin, rhoMax, rhoMax,
                         Metrics.Length.MILLI.toSI(0.01), new Model.P(250, 250)),
-                    new Model.P(180, 180), 0.5
+                    new Model.P(18, 18), 0.5
                 );
               }
           )
@@ -310,15 +310,17 @@ class SolverTest {
           .system6x4(m -> m.ohms(r4).thenOhms(r4 + dr4).hDiffMax(hDiffMax, Metrics.Length.MILLI))
           .origin(inexact -> {
                 List<ElectrodeSystem.Inexact> systems = inexact.toList();
-                double hMax = systems.stream().mapToDouble(s -> s.hMax(K.PLUS_ONE)).min().orElseThrow();
-                double apparent1 = Resistivity.of(systems.getFirst()).apparent(r1);
-                double apparent2 = Resistivity.of(systems.getLast()).apparent(r2);
-                LOGGER.atDebug().log(() -> DoubleStream.of(apparent1, apparent2)
-                    .mapToObj(x -> ValuePair.Name.RHO.of(x, 0.0).toString()).collect(Collectors.joining("; "))
+            double[] rs = {r1, r2, r3, r4};
+            double rhoMin = Double.MAX_VALUE;
+            double rhoMax = Double.MIN_VALUE;
+            for (int i = 0; i < rs.length; i++) {
+              double apparent = Resistivity.of(systems.get(i)).apparent(rs[i]);
+              rhoMin = Math.min(rhoMin, apparent);
+              rhoMax = Math.max(rhoMax, apparent);
+            }
+            return new Model.Layer3Absolute(rhoMin, rhoMax, rhoMax,
+                Metrics.Length.MILLI.toSI(0.01), new Model.P(250, 250)
                 );
-                double rhoMin = Math.min(apparent1, apparent2);
-                double rhoMax = Math.max(apparent1, apparent2);
-                return new Model.Layer2AbsoluteDh(rhoMax, rhoMin, hMax, Metrics.Length.MILLI.toSI(hDiffMax));
               }
           )
           .build().solve(1.0, 0.1, 0.01);
