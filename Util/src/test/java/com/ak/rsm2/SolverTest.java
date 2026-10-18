@@ -145,7 +145,7 @@ class SolverTest {
       Assertions.assertThat(solution).isNotNull();
     }
 
-    @Disabled("2026-04-15 E-10330 ak 7 мм грузики" )
+    @Disabled("2026-04-15 E-10330 ak 7 мм грузики")
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
         119.794, 180.316, 0.1450201448, 0.55248256, 0.09
@@ -164,7 +164,7 @@ class SolverTest {
             double apparent1 = Resistivity.of(systems.getFirst()).apparent(r1);
             double apparent2 = Resistivity.of(systems.getLast()).apparent(r2);
             LOGGER.atDebug().log(() -> DoubleStream.of(apparent1, apparent2)
-                .mapToObj(x -> ValuePair.Name.RHO.of(x, 0.0).toString()).collect(Collectors.joining("; " ))
+                .mapToObj(x -> ValuePair.Name.RHO.of(x, 0.0).toString()).collect(Collectors.joining("; "))
             );
             double rhoMin = Math.min(apparent1, apparent2);
             double rhoMax = Math.max(apparent1, apparent2);
@@ -287,6 +287,38 @@ class SolverTest {
                         Metrics.Length.MILLI.toSI(0.01), new Model.P(250, 250)),
                     new Model.P(180, 180), 0.5
                 );
+              }
+          )
+          .build().solve(1.0, 0.1, 0.01);
+      Assertions.assertThat(solution).hasSize(3).doesNotContainNull().doesNotHaveDuplicates();
+    }
+  }
+
+  @Nested
+  class FourDiffTest {
+    @Disabled("2022-05-20 E-7694 ak 7 мм")
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        123.2331, 197.9802, 136.08332, 269.22148, 0.3751665, 0.9418706, 0.4087682, 1.5577498, 0.210
+        """)
+    void hDiffMaxLayer3(double r1, double r2, double r3, double r4,
+                        double dr1, double dr2, double dr3, double dr4, double hDiffMax) {
+      Collection<Solver.Solution> solution = Solver.<TetrapolarMeasurement.MaxDiff>of(7.0, Metrics.Length.MILLI)
+          .system1x3(m -> m.ohms(r1).thenOhms(r1 + dr1).hDiffMax(hDiffMax, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2 + dr2).hDiffMax(hDiffMax, Metrics.Length.MILLI))
+          .system2x4(m -> m.ohms(r3).thenOhms(r3 + dr3).hDiffMax(hDiffMax, Metrics.Length.MILLI))
+          .system6x4(m -> m.ohms(r4).thenOhms(r4 + dr4).hDiffMax(hDiffMax, Metrics.Length.MILLI))
+          .origin(inexact -> {
+                List<ElectrodeSystem.Inexact> systems = inexact.toList();
+                double hMax = systems.stream().mapToDouble(s -> s.hMax(K.PLUS_ONE)).min().orElseThrow();
+                double apparent1 = Resistivity.of(systems.getFirst()).apparent(r1);
+                double apparent2 = Resistivity.of(systems.getLast()).apparent(r2);
+                LOGGER.atDebug().log(() -> DoubleStream.of(apparent1, apparent2)
+                    .mapToObj(x -> ValuePair.Name.RHO.of(x, 0.0).toString()).collect(Collectors.joining("; "))
+                );
+                double rhoMin = Math.min(apparent1, apparent2);
+                double rhoMax = Math.max(apparent1, apparent2);
+                return new Model.Layer2AbsoluteDh(rhoMax, rhoMin, hMax, Metrics.Length.MILLI.toSI(hDiffMax));
               }
           )
           .build().solve(1.0, 0.1, 0.01);

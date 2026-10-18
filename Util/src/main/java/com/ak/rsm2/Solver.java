@@ -73,7 +73,7 @@ public sealed interface Solver {
   }
 
   sealed interface Step2<M extends TetrapolarMeasurement> {
-    Step3 system5x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction);
+    Step4<M> system5x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction);
 
     Step3 system1x4(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction);
   }
@@ -82,7 +82,15 @@ public sealed interface Solver {
     Builder<Solver> origin(Function<Stream<ElectrodeSystem.Inexact>, Model> modelFunction);
   }
 
-  final class SolverBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Step3, Builder<Solver> {
+  sealed interface Step4<M extends TetrapolarMeasurement> extends Step3 {
+    Step5<M> system2x4(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction);
+  }
+
+  sealed interface Step5<M extends TetrapolarMeasurement> extends Step3 {
+    Step3 system6x4(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction);
+  }
+
+  final class SolverBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Step4<M>, Step5<M>, Builder<Solver> {
     sealed interface Scaler {
       static int toInt(Genotype<IntegerGene> genotype, int chromosome) {
         return genotype.get(chromosome).as(IntegerChromosome.class).gene().allele();
@@ -562,7 +570,7 @@ public sealed interface Solver {
     }
 
     @Override
-    public Step3 system5x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
+    public Step4<M> system5x3(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
       addSystem(5, 3, builderFunction);
       return this;
     }
@@ -570,6 +578,18 @@ public sealed interface Solver {
     @Override
     public Step3 system1x4(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
       addSystem(1, 4, builderFunction);
+      return this;
+    }
+
+    @Override
+    public Step5<M> system2x4(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
+      addSystem(2, 4, builderFunction);
+      return this;
+    }
+
+    @Override
+    public Step3 system6x4(Function<TetrapolarMeasurement.Step1, Builder<M>> builderFunction) {
+      addSystem(6, 4, builderFunction);
       return this;
     }
 
