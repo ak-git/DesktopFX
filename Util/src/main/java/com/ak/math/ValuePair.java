@@ -27,6 +27,12 @@ public class ValuePair {
         return Strings.rho(1, base);
       }
     },
+    D_RHO_1 {
+      @Override
+      String toString(String base) {
+        return "%s%s".formatted(Strings.CAP_DELTA, Strings.rho(1, base));
+      }
+    },
     RHO_2 {
       @Override
       String toString(String base) {

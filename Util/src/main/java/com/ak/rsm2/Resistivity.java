@@ -115,6 +115,8 @@ public sealed interface Resistivity {
             double apparent = (1.0 + 2.0 * Layers.sum(n -> qn[n] * (left.applyAsDouble(n) - right.applyAsDouble(n)))) * rho1;
             yield new ApparentRecord(system, apparent, Double.NaN);
           }
+          case Model.Layer3AbsoluteDhDRho layer3AbsoluteDhDRho ->
+              throw new IllegalArgumentException(layer3AbsoluteDhDRho.toString());
           case Model.Layer3AbsoluteDRho2 layer3AbsoluteDRho2 ->
               throw new IllegalArgumentException(layer3AbsoluteDRho2.toString());
         };

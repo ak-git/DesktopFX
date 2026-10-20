@@ -299,7 +299,7 @@ class SolverTest {
     @Disabled("2022-05-20 E-7694 ak 7 мм")
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
-        123.2331, 197.9802, 136.08332, 269.22148, 0.3751665, 0.9418706, 0.4087682, 1.5577498, 0.210
+        148.39, 222.283, 213.328, 243.55, 0.108, 0.582, 0.358, 1.014, 0.210
         """)
     void hDiffMaxLayer3(double r1, double r2, double r3, double r4,
                         double dr1, double dr2, double dr3, double dr4, double hDiffMax) {
@@ -315,12 +315,13 @@ class SolverTest {
             double rhoMax = Double.MIN_VALUE;
             for (int i = 0; i < rs.length; i++) {
               double apparent = Resistivity.of(systems.get(i)).apparent(rs[i]);
+              LOGGER.atDebug().addKeyValue("rho", apparent).log(systems.get(i).toString());
               rhoMin = Math.min(rhoMin, apparent);
               rhoMax = Math.max(rhoMax, apparent);
             }
-            return new Model.Layer3Absolute(rhoMin, rhoMax, rhoMax,
-                Metrics.Length.MILLI.toSI(0.01), new Model.P(250, 250)
-                );
+            return new Model.Layer3AbsoluteDhDRho(new Model.Layer3Absolute(rhoMin, 9.0, rhoMax,
+                Metrics.Length.MILLI.toSI(0.01), new Model.P(300, 300)
+            ), new Model.P(21, 21), 1.0, 1.0);
               }
           )
           .build().solve(1.0, 0.1, 0.01);

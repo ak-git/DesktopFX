@@ -128,8 +128,8 @@ public sealed interface Model {
       Objects.requireNonNull(p);
     }
 
-    public Model toModel(Model.P dp, double dRho2) {
-      return new Model.Layer3Absolute(rho1, rho2 + dRho2, rho3, hStep, p.add(dp));
+    public Model toModel(Model.P dp, double dRho1, double dRho2) {
+      return new Model.Layer3Absolute(rho1 + dRho1, rho2 + dRho2, rho3, hStep, p.add(dp));
     }
 
     @Override
@@ -137,6 +137,24 @@ public sealed interface Model {
       return Stream.of(
               ValuePair.Name.RHO_1.of(rho1, 0.0), ValuePair.Name.RHO_2.of(rho2, 0.0), ValuePair.Name.RHO_3.of(rho3, 0.0),
               ValuePair.Name.H1.of(hStep * p.p1, 0.0), ValuePair.Name.H2.of(hStep * p.pSum(), 0.0)
+          )
+          .map(Objects::toString).collect(Collectors.joining("; "));
+    }
+  }
+
+  record Layer3AbsoluteDhDRho(Layer3Absolute layer3Absolute, P dp, double dRho1, double dRho2) implements Model {
+    public Layer3AbsoluteDhDRho {
+      Objects.requireNonNull(layer3Absolute);
+      Objects.requireNonNull(dp);
+    }
+
+    @Override
+    public String toString() {
+      return Stream.of(layer3Absolute,
+              ValuePair.Name.DH1.of(layer3Absolute.hStep * dp.p1, 0.0),
+              ValuePair.Name.DH2.of(layer3Absolute.hStep * dp.pSum(), 0.0),
+              ValuePair.Name.D_RHO_1.of(dRho1, 0.0),
+              ValuePair.Name.D_RHO_2.of(dRho2, 0.0)
           )
           .map(Objects::toString).collect(Collectors.joining("; "));
     }

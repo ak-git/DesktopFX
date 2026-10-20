@@ -204,12 +204,8 @@ public sealed interface Solver {
         private static final int SCALE = 1000;
 
         public DRhoScaler(double dRhoExtremal) {
-          if (Math.abs(dRhoExtremal) > 1.0) {
-            throw new IllegalArgumentException("|dRho = %f| > 0.1".formatted(dRhoExtremal));
-          }
-          int max = index(1.0);
           int index = index(dRhoExtremal);
-          this(new IntRange(Math.min(-max, index), Math.max(index, max)));
+          this(new IntRange(Math.min(index, 0), Math.max(0, index)));
         }
 
         @Override
@@ -367,6 +363,61 @@ public sealed interface Solver {
           }
           case Model.Layer3Absolute layer3Absolute ->
               throw new IllegalArgumentException("Unexpected value: " + layer3Absolute);
+          case Model.Layer3AbsoluteDhDRho(
+              Model.Layer3Absolute layer3Extremal, Model.P dpExtremal, double dRho1Extremal, double dRho2Extremal
+          ) -> {
+            Scaler rho1Scaler = new Scaler.RhoScalerUpTo(layer3Extremal.rho1());
+            Scaler rho3Scaler = new Scaler.RhoScalerUpTo(layer3Extremal.rho3());
+            IntRange p1Range = new IntRange(1, layer3Extremal.p().p1());
+            IntRange p2mp1Range = new IntRange(1, layer3Extremal.p().p2mp1());
+            IntRange dp1Range = new IntRange(0, dpExtremal.p1());
+            IntRange dp2mp1Range = new IntRange(0, dpExtremal.p2mp1());
+            Scaler dRho1Scaler = new Scaler.DRhoScaler(dRho1Extremal);
+            Scaler dRho2Scaler = new Scaler.DRhoScaler(dRho2Extremal);
+
+            yield InvertibleCodec.of(
+                () -> Genotype.of(
+                    IntegerChromosome.of(rho1Scaler.range()),
+                    IntegerChromosome.of(rho3Scaler.range()),
+                    IntegerChromosome.of(p1Range),
+                    IntegerChromosome.of(p2mp1Range),
+                    IntegerChromosome.of(dp1Range),
+                    IntegerChromosome.of(dp2mp1Range),
+                    IntegerChromosome.of(dRho1Scaler.range()),
+                    IntegerChromosome.of(dRho2Scaler.range())
+                ),
+                chromosomes -> {
+                  Model.Layer3Absolute layer3Absolute = new Model.Layer3Absolute(
+                      rho1Scaler.toSI(chromosomes, 0),
+                      layer3Extremal.rho2(),
+                      rho3Scaler.toSI(chromosomes, 1),
+                      layer3Extremal.hStep(),
+                      new Model.P(Scaler.toInt(chromosomes, 2), Scaler.toInt(chromosomes, 3))
+                  );
+                  return new Model.Layer3AbsoluteDhDRho(layer3Absolute,
+                      new Model.P(Scaler.toInt(chromosomes, 4), Scaler.toInt(chromosomes, 5)),
+                      dRho1Scaler.toSI(chromosomes, 6), dRho2Scaler.toSI(chromosomes, 7));
+                },
+                model -> {
+                  if (model instanceof Model.Layer3AbsoluteDhDRho(
+                      Model.Layer3Absolute layer3, Model.P dp, double dRho1, double dRho2
+                  )) {
+                    return Genotype.of(
+                        IntegerChromosome.of(IntegerGene.of(rho1Scaler.toIndex(layer3.rho1()), rho1Scaler.range())),
+                        IntegerChromosome.of(IntegerGene.of(rho3Scaler.toIndex(layer3.rho3()), rho3Scaler.range())),
+                        IntegerChromosome.of(IntegerGene.of(layer3.p().p1(), p1Range)),
+                        IntegerChromosome.of(IntegerGene.of(layer3.p().p2mp1(), p2mp1Range)),
+                        IntegerChromosome.of(IntegerGene.of(dp.p1(), dp1Range)),
+                        IntegerChromosome.of(IntegerGene.of(dp.p2mp1(), dp2mp1Range)),
+                        IntegerChromosome.of(IntegerGene.of(dRho1Scaler.toIndex(dRho1), dRho1Scaler.range())),
+                        IntegerChromosome.of(IntegerGene.of(dRho2Scaler.toIndex(dRho2), dRho2Scaler.range()))
+                    );
+                  }
+                  else {
+                    throw new IllegalArgumentException("Unexpected value: " + model);
+                  }
+                });
+          }
           case Model.Layer3AbsoluteDRho2(
               Model.Layer3Absolute layer3Extremal, Model.P dpExtremal, double dRho2Extremal
           ) -> {
