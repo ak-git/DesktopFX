@@ -178,11 +178,8 @@ public sealed interface Solver {
       record RhoScalerAtLeast(IntRange range) implements Scaler {
         private static final int SCALE = 1000;
 
-        public RhoScalerAtLeast(double rhoMin) {
-          if (rhoMin > 20.0) {
-            throw new IllegalArgumentException("rho = %f > 20.0".formatted(rhoMin));
-          }
-          this(new IntRange(index(rhoMin), index(20.0)));
+        public RhoScalerAtLeast(double rhoMin, double rhoMax) {
+          this(new IntRange(index(Math.min(rhoMin, rhoMax)), index(Math.max(rhoMin, rhoMax))));
         }
 
         @Override
@@ -329,9 +326,9 @@ public sealed interface Solver {
             double rho2Extremal = layer2AbsoluteExtremal.rho2();
             double hExtremal = layer2AbsoluteExtremal.h();
             Scaler rho1Scaler = rho1Extremal > rho2Extremal ?
-                new Scaler.RhoScalerAtLeast(rho1Extremal) : new Scaler.RhoScalerUpTo(rho1Extremal);
+                new Scaler.RhoScalerAtLeast(rho1Extremal, 20.0) : new Scaler.RhoScalerUpTo(rho1Extremal);
             Scaler rho2Scaler = rho1Extremal > rho2Extremal ?
-                new Scaler.RhoScalerUpTo(rho2Extremal) : new Scaler.RhoScalerAtLeast(rho2Extremal);
+                new Scaler.RhoScalerUpTo(rho2Extremal) : new Scaler.RhoScalerAtLeast(rho2Extremal, 20.0);
             Scaler hScaler = new Scaler.HScaler(hExtremal);
             Scaler dhScaler = new Scaler.HScaler(dhExtremal);
             yield InvertibleCodec.of(
@@ -367,6 +364,7 @@ public sealed interface Solver {
               Model.Layer3Absolute layer3Extremal, Model.P dpExtremal, double dRho1Extremal, double dRho2Extremal
           ) -> {
             Scaler rho1Scaler = new Scaler.RhoScalerUpTo(layer3Extremal.rho1());
+            Scaler rho2Scaler = new Scaler.RhoScalerAtLeast(layer3Extremal.rho2(), 20.0);
             Scaler rho3Scaler = new Scaler.RhoScalerUpTo(layer3Extremal.rho3());
             IntRange p1Range = new IntRange(1, layer3Extremal.p().p1());
             IntRange p2mp1Range = new IntRange(1, layer3Extremal.p().p2mp1());
@@ -378,6 +376,7 @@ public sealed interface Solver {
             yield InvertibleCodec.of(
                 () -> Genotype.of(
                     IntegerChromosome.of(rho1Scaler.range()),
+                    IntegerChromosome.of(rho2Scaler.range()),
                     IntegerChromosome.of(rho3Scaler.range()),
                     IntegerChromosome.of(p1Range),
                     IntegerChromosome.of(p2mp1Range),
@@ -389,14 +388,14 @@ public sealed interface Solver {
                 chromosomes -> {
                   Model.Layer3Absolute layer3Absolute = new Model.Layer3Absolute(
                       rho1Scaler.toSI(chromosomes, 0),
-                      layer3Extremal.rho2(),
-                      rho3Scaler.toSI(chromosomes, 1),
+                      rho2Scaler.toSI(chromosomes, 1),
+                      rho3Scaler.toSI(chromosomes, 2),
                       layer3Extremal.hStep(),
-                      new Model.P(Scaler.toInt(chromosomes, 2), Scaler.toInt(chromosomes, 3))
+                      new Model.P(Scaler.toInt(chromosomes, 3), Scaler.toInt(chromosomes, 4))
                   );
                   return new Model.Layer3AbsoluteDhDRho(layer3Absolute,
-                      new Model.P(Scaler.toInt(chromosomes, 4), Scaler.toInt(chromosomes, 5)),
-                      dRho1Scaler.toSI(chromosomes, 6), dRho2Scaler.toSI(chromosomes, 7));
+                      new Model.P(Scaler.toInt(chromosomes, 5), Scaler.toInt(chromosomes, 6)),
+                      dRho1Scaler.toSI(chromosomes, 7), dRho2Scaler.toSI(chromosomes, 8));
                 },
                 model -> {
                   if (model instanceof Model.Layer3AbsoluteDhDRho(
@@ -404,6 +403,7 @@ public sealed interface Solver {
                   )) {
                     return Genotype.of(
                         IntegerChromosome.of(IntegerGene.of(rho1Scaler.toIndex(layer3.rho1()), rho1Scaler.range())),
+                        IntegerChromosome.of(IntegerGene.of(rho2Scaler.toIndex(layer3.rho2()), rho2Scaler.range())),
                         IntegerChromosome.of(IntegerGene.of(rho3Scaler.toIndex(layer3.rho3()), rho3Scaler.range())),
                         IntegerChromosome.of(IntegerGene.of(layer3.p().p1(), p1Range)),
                         IntegerChromosome.of(IntegerGene.of(layer3.p().p2mp1(), p2mp1Range)),
@@ -422,7 +422,7 @@ public sealed interface Solver {
               Model.Layer3Absolute layer3Extremal, Model.P dpExtremal, double dRho2Extremal
           ) -> {
             Scaler rho1Scaler = new Scaler.RhoScalerUpTo(layer3Extremal.rho1());
-            Scaler rho2Scaler = new Scaler.RhoScalerAtLeast(layer3Extremal.rho2());
+            Scaler rho2Scaler = new Scaler.RhoScalerAtLeast(layer3Extremal.rho2(), 20.0);
             Scaler rho3Scaler = new Scaler.RhoScalerUpTo(layer3Extremal.rho3());
             Scaler dRhoScaler = new Scaler.DRhoScaler(dRho2Extremal);
             IntRange p1Range = new IntRange(1, layer3Extremal.p().p1());

@@ -296,14 +296,18 @@ class SolverTest {
 
   @Nested
   class FourDiffTest {
-    @Disabled("2022-05-20 E-7694 ak 7 мм")
+    @Disabled("""
+        2022-05-13 E-7672 ak 6 мм
+        148.390, 222.283, 213.328, 243.550,  0.108, 0.582, 0.358, 1.014, 0.210
+        146.571, 216.301, 208.746, 236.736, -0.043, 0.139, 0.046, 0.074, 0.210
+        """)
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
-        148.39, 222.283, 213.328, 243.55, 0.108, 0.582, 0.358, 1.014, 0.210
+        148.390, 222.283, 213.328, 243.550,  0.108, 0.582, 0.358, 1.014, 0.210
         """)
     void hDiffMaxLayer3(double r1, double r2, double r3, double r4,
                         double dr1, double dr2, double dr3, double dr4, double hDiffMax) {
-      Collection<Solver.Solution> solution = Solver.<TetrapolarMeasurement.MaxDiff>of(7.0, Metrics.Length.MILLI)
+      Collection<Solver.Solution> solution = Solver.<TetrapolarMeasurement.MaxDiff>of(6.0, Metrics.Length.MILLI)
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + dr1).hDiffMax(hDiffMax, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + dr2).hDiffMax(hDiffMax, Metrics.Length.MILLI))
           .system2x4(m -> m.ohms(r3).thenOhms(r3 + dr3).hDiffMax(hDiffMax, Metrics.Length.MILLI))
@@ -319,12 +323,12 @@ class SolverTest {
               rhoMin = Math.min(rhoMin, apparent);
               rhoMax = Math.max(rhoMax, apparent);
             }
-            return new Model.Layer3AbsoluteDhDRho(new Model.Layer3Absolute(rhoMin, 9.0, rhoMax,
-                Metrics.Length.MILLI.toSI(0.01), new Model.P(300, 300)
+            return new Model.Layer3AbsoluteDhDRho(new Model.Layer3Absolute(rhoMin, rhoMax, rhoMax,
+                Metrics.Length.MILLI.toSI(0.01), new Model.P(200, 300)
             ), new Model.P(21, 21), 1.0, 1.0);
               }
           )
-          .build().solve(1.0, 0.1, 0.01);
+          .build().solve(10.0, 0.1, 0.001);
       Assertions.assertThat(solution).hasSize(3).doesNotContainNull().doesNotHaveDuplicates();
     }
   }
