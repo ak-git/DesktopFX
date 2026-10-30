@@ -37,6 +37,10 @@ public sealed interface Model {
   }
 
   record Layer2RelativeDh(Layer2Model relative, double dh) implements Layer2DhModel {
+    public Layer2RelativeDh {
+      Objects.requireNonNull(relative);
+    }
+
     public Layer2RelativeDh(K k, double h, double dh) {
       this(new Layer2Relative(k, h), dh);
     }
@@ -44,7 +48,7 @@ public sealed interface Model {
     @Override
     public String toString() {
       return Stream.of(relative, ValuePair.Name.DH.of(dh, 0.0))
-          .map(Objects::toString).collect(Collectors.joining("; ", "{", "}" ));
+          .map(Objects::toString).collect(Collectors.joining("; ", "{", "}"));
     }
   }
 
@@ -59,7 +63,7 @@ public sealed interface Model {
     public String toString() {
       return Stream.of(ValuePair.Name.RHO_1.of(rho1, 0.0), ValuePair.Name.RHO_2.of(rho2, 0.0),
               ValuePair.Name.H.of(h, 0.0))
-          .map(Objects::toString).collect(Collectors.joining("; ", "Layer2{", "}" ));
+          .map(Objects::toString).collect(Collectors.joining("; ", "Layer2{", "}"));
     }
 
     @Override
@@ -120,7 +124,69 @@ public sealed interface Model {
     }
   }
 
-  record Layer3Absolute(double rho1, double rho2, double rho3, double hStep, P p) implements Model {
+  sealed interface Layer3Model extends Model {
+    K k1();
+
+    K k2();
+
+    double hStep();
+
+    P p();
+
+    double h1();
+
+    double h2();
+  }
+
+  record Layer3Relative(K k1, K k2, double hStep, P p) implements Layer3Model {
+    public Layer3Relative {
+      Objects.requireNonNull(k1);
+      Objects.requireNonNull(k2);
+      if (hStep < 0) {
+        throw new IllegalArgumentException("hStep = %f must be non-negative".formatted(hStep));
+      }
+    }
+
+    @Override
+    public String toString() {
+      return Stream.of(ValuePair.Name.K12.of(k1.value(), 0.0), ValuePair.Name.K23.of(k2.value(), 0.0),
+              ValuePair.Name.H1.of(h1(), 0.0), ValuePair.Name.H2.of(h2(), 0.0))
+          .map(Objects::toString).collect(Collectors.joining("; ", "Layer3{", "}"));
+    }
+
+    @Override
+    public double h1() {
+      return hStep * p.p1;
+    }
+
+    @Override
+    public double h2() {
+      return hStep * p.pSum();
+    }
+  }
+
+  sealed interface Layer3DhModel extends Model {
+    Layer3Model relative();
+
+    P dp();
+  }
+
+  record Layer3RelativeDh(Layer3Relative relative, P dp) implements Layer3DhModel {
+    public Layer3RelativeDh {
+      Objects.requireNonNull(relative);
+      Objects.requireNonNull(dp);
+    }
+
+    @Override
+    public String toString() {
+      return Stream.of(relative,
+              ValuePair.Name.DH1.of(relative.hStep * dp.p1, 0.0),
+              ValuePair.Name.DH2.of(relative.hStep * dp.pSum(), 0.0))
+          .map(Objects::toString).collect(Collectors.joining("; ", "{", "}"));
+    }
+  }
+
+  record Layer3Absolute(double rho1, double rho2, double rho3, double hStep, P p) implements Layer3Model {
     public Layer3Absolute {
       if (hStep < 0) {
         throw new IllegalArgumentException("hStep = %f must be non-negative".formatted(hStep));
@@ -136,9 +202,29 @@ public sealed interface Model {
     public String toString() {
       return Stream.of(
               ValuePair.Name.RHO_1.of(rho1, 0.0), ValuePair.Name.RHO_2.of(rho2, 0.0), ValuePair.Name.RHO_3.of(rho3, 0.0),
-              ValuePair.Name.H1.of(hStep * p.p1, 0.0), ValuePair.Name.H2.of(hStep * p.pSum(), 0.0)
+              ValuePair.Name.H1.of(h1(), 0.0), ValuePair.Name.H2.of(h2(), 0.0)
           )
           .map(Objects::toString).collect(Collectors.joining("; "));
+    }
+
+    @Override
+    public K k1() {
+      return K.of(rho1, rho2);
+    }
+
+    @Override
+    public K k2() {
+      return K.of(rho2, rho3);
+    }
+
+    @Override
+    public double h1() {
+      return hStep * p.p1;
+    }
+
+    @Override
+    public double h2() {
+      return hStep * p.pSum();
     }
   }
 

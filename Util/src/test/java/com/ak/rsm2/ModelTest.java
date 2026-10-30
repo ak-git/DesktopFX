@@ -126,7 +126,7 @@ class ModelTest {
   }
 
   @Nested
-  class Layer2AbsoluteeDhTest {
+  class Layer2AbsoluteDhTest {
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
          2.0 | 10.0 | 0.0 | 0.180
@@ -158,6 +158,111 @@ class ModelTest {
     void negativeH(double h) {
       assertThatIllegalArgumentException().isThrownBy(() -> new Model.Layer2AbsoluteDh(RANDOM.nextDouble(), RANDOM.nextDouble(), h, RANDOM.nextDouble()))
           .withMessageEndingWith("must be non-negative" );
+    }
+  }
+
+  @Nested
+  class Layer3RelativeTest {
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', textBlock = """
+         2.0 | 8.0 | 4.0 | 1.0 | 2.0
+         2.0 | 1.0 | 4.0 | 2.0 | 1.0
+        """)
+    void get(double rho1, double rho2, double rho3, double h1mm, double h2mh1mm) {
+      K k1 = K.of(rho1, rho2);
+      K k2 = K.of(rho2, rho3);
+      double hStep = Metrics.Length.MILLI.toSI(0.01);
+      double h1 = Metrics.Length.MILLI.toSI(h1mm);
+      double h2mh1 = Metrics.Length.MILLI.toSI(h2mh1mm);
+      Model.Layer3Relative layer3 = new Model.Layer3Relative(k1, k2, hStep, new Model.P(h1 / hStep, h2mh1 / hStep));
+      assertAll(layer3.toString(),
+          () -> assertThat(layer3.k1().value()).isBetween(-1.0, 1.0),
+          () -> assertThat(layer3.k2().value()).isBetween(-1.0, 1.0),
+          () -> assertThat(layer3.hStep()).isNotNegative(),
+          () -> assertThat(layer3.h1()).isNotNegative(),
+          () -> assertThat(layer3.h2()).isNotNegative(),
+          () -> assertThat(layer3.p().p1()).isNotNegative(),
+          () -> assertThat(layer3.p().p2mp1()).isNotNegative(),
+          () -> assertThat(layer3.p().pSum()).isEqualTo(layer3.p().p1() + layer3.p().p2mp1()),
+          () -> assertThat(layer3.toString()).contains(
+              Stream.of(
+                      ValuePair.Name.K12.of(k1.value(), 0.0),
+                      ValuePair.Name.K23.of(k2.value(), 0.0),
+                      ValuePair.Name.H1.of(h1, 0.0),
+                      ValuePair.Name.H2.of(h1 + h2mh1, 0.0)
+                  )
+                  .map(ValuePair::toString).collect(Collectors.joining("; "))
+          )
+      );
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {-1.0})
+    void negativeH(double h) {
+      assertThatIllegalArgumentException().isThrownBy(() -> new Model.Layer3Relative(
+              K.of(RANDOM.nextDouble()), K.of(RANDOM.nextDouble()), h, new Model.P(0, 0))
+          )
+          .withMessageStartingWith("hStep = ").withMessageEndingWith("must be non-negative");
+    }
+  }
+
+  @Nested
+  class Layer3RelativeDhTest {
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', textBlock = """
+         2.0 | 8.0 | 4.0 | 1.0 | 2.0 | 0.01 | 0.18
+         2.0 | 1.0 | 4.0 | 2.0 | 1.0 | 0.02 | 0.09
+        """)
+    void get(double rho1, double rho2, double rho3, double h1mm, double h2mh1mm, double dh1mm, double dh2mm) {
+      K k1 = K.of(rho1, rho2);
+      K k2 = K.of(rho2, rho3);
+      double hStep = Metrics.Length.MILLI.toSI(0.01);
+      double h1 = Metrics.Length.MILLI.toSI(h1mm);
+      double h2mh1 = Metrics.Length.MILLI.toSI(h2mh1mm);
+      double dh1 = Metrics.Length.MILLI.toSI(dh1mm);
+      double dh2mh1 = Metrics.Length.MILLI.toSI(dh2mm);
+      Model.Layer3RelativeDh layer3 = new Model.Layer3RelativeDh(
+          new Model.Layer3Relative(k1, k2, hStep, new Model.P(h1 / hStep, h2mh1 / hStep)),
+          new Model.P(dh1 / hStep, dh2mh1 / hStep)
+      );
+      Model.Layer3Relative relative = layer3.relative();
+      assertAll(layer3.toString(),
+          () -> assertThat(relative.k1().value()).isBetween(-1.0, 1.0),
+          () -> assertThat(relative.k1().value()).isBetween(-1.0, 1.0),
+          () -> assertThat(relative.hStep()).isNotNegative(),
+          () -> assertThat(relative.p().p1()).isNotNegative(),
+          () -> assertThat(relative.p().p2mp1()).isNotNegative(),
+          () -> assertThat(relative.p().pSum()).isEqualTo(relative.p().p1() + relative.p().p2mp1()),
+          () -> assertThat(layer3.dp().p1()).isNotNegative(),
+          () -> assertThat(layer3.dp().p2mp1()).isNotNegative(),
+          () -> assertThat(layer3.dp().pSum()).isEqualTo(layer3.dp().p1() + layer3.dp().p2mp1()),
+          () -> assertThat(layer3.toString()).contains(
+              Stream.of(
+                      ValuePair.Name.K12.of(k1.value(), 0.0),
+                      ValuePair.Name.K23.of(k2.value(), 0.0),
+                      ValuePair.Name.H1.of(h1, 0.0),
+                      ValuePair.Name.H2.of(h1 + h2mh1, 0.0)
+                  )
+                  .map(ValuePair::toString).collect(Collectors.joining("; "))
+          ),
+          () -> assertThat(layer3.toString()).contains(
+              Stream.of(
+                      ValuePair.Name.DH1.of(dh1, 0.0),
+                      ValuePair.Name.DH2.of(dh1 + dh2mh1, 0.0)
+                  )
+                  .map(ValuePair::toString).collect(Collectors.joining("; "))
+          )
+      );
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {-1.0})
+    void negativeH(double h) {
+      assertThatIllegalArgumentException().isThrownBy(() -> new Model.Layer3RelativeDh(new Model.Layer3Relative(
+              K.of(RANDOM.nextDouble()), K.of(RANDOM.nextDouble()),
+              h, new Model.P(0, 0)
+          ), new Model.P(0, 0)))
+          .withMessageStartingWith("hStep = ").withMessageEndingWith("must be non-negative");
     }
   }
 
