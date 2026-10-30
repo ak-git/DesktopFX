@@ -245,21 +245,4 @@ public sealed interface Model {
           .map(Objects::toString).collect(Collectors.joining("; "));
     }
   }
-
-  record Layer3AbsoluteDRho2(Layer3Absolute layer3Absolute, P dp, double dRho2) implements Model {
-    public Layer3AbsoluteDRho2 {
-      Objects.requireNonNull(layer3Absolute);
-      Objects.requireNonNull(dp);
-    }
-
-    @Override
-    public String toString() {
-      return Stream.of(layer3Absolute,
-              ValuePair.Name.DH1.of(layer3Absolute.hStep * dp.p1, 0.0),
-              ValuePair.Name.DH2.of(layer3Absolute.hStep * dp.pSum(), 0.0),
-              ValuePair.Name.D_RHO_2.of(dRho2, 0.0)
-          )
-          .map(Objects::toString).collect(Collectors.joining("; "));
-    }
-  }
 }
