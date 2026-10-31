@@ -358,6 +358,52 @@ public sealed interface Solver {
                   }
                 });
           }
+          case Model.Layer3Relative layer3Relative ->
+              throw new IllegalArgumentException("Unexpected value: " + layer3Relative);
+          case Model.Layer3RelativeDh(Model.Layer3Relative layer3Extremal, Model.P dpExtremal) -> {
+            Scaler k1Scaler = new Scaler.KScaler(layer3Extremal.k1());
+            Scaler k2Scaler = new Scaler.KScaler(layer3Extremal.k2());
+            IntRange p1Range = new IntRange(1, layer3Extremal.p().p1());
+            IntRange p2mp1Range = new IntRange(1, layer3Extremal.p().p2mp1());
+            IntRange dp1Range = new IntRange(0, dpExtremal.p1());
+            IntRange dp2mp1Range = new IntRange(0, dpExtremal.p2mp1());
+            yield InvertibleCodec.of(
+                () -> Genotype.of(
+                    IntegerChromosome.of(k1Scaler.range()),
+                    IntegerChromosome.of(k2Scaler.range()),
+                    IntegerChromosome.of(p1Range),
+                    IntegerChromosome.of(p2mp1Range),
+                    IntegerChromosome.of(dp1Range),
+                    IntegerChromosome.of(dp2mp1Range)
+                ),
+                chromosomes -> {
+                  Model.Layer3Relative layer3Relative = new Model.Layer3Relative(
+                      K.of(k1Scaler.toSI(chromosomes, 0)),
+                      K.of(k2Scaler.toSI(chromosomes, 1)),
+                      layer3Extremal.hStep(),
+                      new Model.P(Scaler.toInt(chromosomes, 2), Scaler.toInt(chromosomes, 3))
+                  );
+                  return new Model.Layer3RelativeDh(layer3Relative,
+                      new Model.P(Scaler.toInt(chromosomes, 4), Scaler.toInt(chromosomes, 5)));
+                },
+                model -> {
+                  if (model instanceof Model.Layer3RelativeDh(
+                      Model.Layer3Relative layer3, Model.P dp
+                  )) {
+                    return Genotype.of(
+                        IntegerChromosome.of(IntegerGene.of(k1Scaler.toIndex(layer3.k1().value()), k1Scaler.range())),
+                        IntegerChromosome.of(IntegerGene.of(k2Scaler.toIndex(layer3.k1().value()), k2Scaler.range())),
+                        IntegerChromosome.of(IntegerGene.of(layer3.p().p1(), p1Range)),
+                        IntegerChromosome.of(IntegerGene.of(layer3.p().p2mp1(), p2mp1Range)),
+                        IntegerChromosome.of(IntegerGene.of(dp.p1(), dp1Range)),
+                        IntegerChromosome.of(IntegerGene.of(dp.p2mp1(), dp2mp1Range))
+                    );
+                  }
+                  else {
+                    throw new IllegalArgumentException("Unexpected value: " + model);
+                  }
+                });
+          }
           case Model.Layer3Absolute layer3Absolute ->
               throw new IllegalArgumentException("Unexpected value: " + layer3Absolute);
           case Model.Layer3AbsoluteDhDRho(
@@ -411,60 +457,6 @@ public sealed interface Solver {
                         IntegerChromosome.of(IntegerGene.of(dp.p2mp1(), dp2mp1Range)),
                         IntegerChromosome.of(IntegerGene.of(dRho1Scaler.toIndex(dRho1), dRho1Scaler.range())),
                         IntegerChromosome.of(IntegerGene.of(dRho2Scaler.toIndex(dRho2), dRho2Scaler.range()))
-                    );
-                  }
-                  else {
-                    throw new IllegalArgumentException("Unexpected value: " + model);
-                  }
-                });
-          }
-          case Model.Layer3AbsoluteDRho2(
-              Model.Layer3Absolute layer3Extremal, Model.P dpExtremal, double dRho2Extremal
-          ) -> {
-            Scaler rho1Scaler = new Scaler.RhoScalerUpTo(layer3Extremal.rho1());
-            Scaler rho2Scaler = new Scaler.RhoScalerAtLeast(layer3Extremal.rho2(), 20.0);
-            Scaler rho3Scaler = new Scaler.RhoScalerUpTo(layer3Extremal.rho3());
-            Scaler dRhoScaler = new Scaler.DRhoScaler(dRho2Extremal);
-            IntRange p1Range = new IntRange(1, layer3Extremal.p().p1());
-            IntRange p2mp1Range = new IntRange(1, layer3Extremal.p().p2mp1());
-            IntRange dp1Range = new IntRange(0, dpExtremal.p1());
-            IntRange dp2mp1Range = new IntRange(0, dpExtremal.p2mp1());
-            yield InvertibleCodec.of(
-                () -> Genotype.of(
-                    IntegerChromosome.of(rho1Scaler.range()),
-                    IntegerChromosome.of(rho2Scaler.range()),
-                    IntegerChromosome.of(rho3Scaler.range()),
-                    IntegerChromosome.of(p1Range),
-                    IntegerChromosome.of(p2mp1Range),
-                    IntegerChromosome.of(dp1Range),
-                    IntegerChromosome.of(dp2mp1Range),
-                    IntegerChromosome.of(dRhoScaler.range())
-                ),
-                chromosomes -> {
-                  Model.Layer3Absolute layer3Absolute = new Model.Layer3Absolute(
-                      rho1Scaler.toSI(chromosomes, 0),
-                      rho2Scaler.toSI(chromosomes, 1),
-                      rho3Scaler.toSI(chromosomes, 2),
-                      layer3Extremal.hStep(),
-                      new Model.P(Scaler.toInt(chromosomes, 3), Scaler.toInt(chromosomes, 4))
-                  );
-                  return new Model.Layer3AbsoluteDRho2(layer3Absolute,
-                      new Model.P(Scaler.toInt(chromosomes, 5), Scaler.toInt(chromosomes, 6)),
-                      dRhoScaler.toSI(chromosomes, 7));
-                },
-                model -> {
-                  if (model instanceof Model.Layer3AbsoluteDRho2(
-                      Model.Layer3Absolute layer3, Model.P dp, double dRho2
-                  )) {
-                    return Genotype.of(
-                        IntegerChromosome.of(IntegerGene.of(rho1Scaler.toIndex(layer3.rho1()), rho1Scaler.range())),
-                        IntegerChromosome.of(IntegerGene.of(rho2Scaler.toIndex(layer3.rho2()), rho2Scaler.range())),
-                        IntegerChromosome.of(IntegerGene.of(rho3Scaler.toIndex(layer3.rho3()), rho3Scaler.range())),
-                        IntegerChromosome.of(IntegerGene.of(layer3.p().p1(), p1Range)),
-                        IntegerChromosome.of(IntegerGene.of(layer3.p().p2mp1(), p2mp1Range)),
-                        IntegerChromosome.of(IntegerGene.of(dp.p1(), dp1Range)),
-                        IntegerChromosome.of(IntegerGene.of(dp.p2mp1(), dp2mp1Range)),
-                        IntegerChromosome.of(IntegerGene.of(dRhoScaler.toIndex(dRho2), dRhoScaler.range()))
                     );
                   }
                   else {

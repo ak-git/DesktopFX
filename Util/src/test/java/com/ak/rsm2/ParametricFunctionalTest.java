@@ -146,8 +146,8 @@ class ParametricFunctionalTest {
 
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
-        10.0, 30.0, MILLI, 30.971, 31.278, -0.05, 5.0
-        50.0, 30.0, MILLI, 62.479, 61.860,  0.05, 5.0
+        10.0, 30.0, MILLI, 31.278, 30.971, 0.05, 5.0
+        50.0, 30.0, MILLI, 62.479, 61.860, 0.05, 5.0
         """)
     void misfit(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiff, double expectedH) {
       ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
@@ -165,7 +165,22 @@ class ParametricFunctionalTest {
               .applyAsDouble(new Model.Layer2Absolute(0.7, Double.POSITIVE_INFINITY, units.toSI(expectedH)))),
           () -> assertThat(parametricFunctional.misfit()
               .applyAsDouble(new Model.Layer2AbsoluteDh(0.7, Double.POSITIVE_INFINITY, units.toSI(expectedH), units.toSI(hDiff))))
-              .isNotNegative().isCloseTo(0.0, byLessThan(0.02))
+              .isNotNegative().isCloseTo(0.0, byLessThan(0.02)),
+          () -> {
+            double hStep = units.toSI(0.1);
+            assertThatIllegalArgumentException().isThrownBy(() -> parametricFunctional.misfit()
+                .applyAsDouble(new Model.Layer3Relative(K.PLUS_ONE, K.ZERO, hStep,
+                    new Model.P(units.toSI(expectedH) / hStep, units.toSI(expectedH) / hStep))));
+          },
+          () -> {
+            double hStep = units.toSI(0.01);
+            assertThat(parametricFunctional.misfit()
+                .applyAsDouble(
+                    new Model.Layer3RelativeDh(new Model.Layer3Relative(K.ZERO, K.PLUS_ONE, hStep,
+                        new Model.P(0, units.toSI(expectedH) / hStep)),
+                        new Model.P(0, units.toSI(hDiff) / hStep))))
+                .isNotNegative().isCloseTo(0.0, byLessThan(0.02));
+          }
       );
     }
 
@@ -191,8 +206,8 @@ class ParametricFunctionalTest {
 
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
-        10.0, 30.0, MILLI, 30.971, 31.278, -0.05
-        50.0, 30.0, MILLI, 62.479, 61.860,  0.05
+        10.0, 30.0, MILLI, 31.278, 30.971, 0.05
+        50.0, 30.0, MILLI, 62.479, 61.860, 0.05
         """)
     void regularization(double sPU, double lCC, Metrics.Length units, double rBefore, double rAfter, double hDiff) {
       ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
@@ -222,6 +237,15 @@ class ParametricFunctionalTest {
             K k = K.of(0.5);
             assertThat(regularization.applyAsDouble(new Model.Layer2AbsoluteDh(0.7, k.getRho2(0.7), Math.sqrt(inexact.hMax(k) * inexact.hMin(k)), units.toSI(hDiff))))
                 .isNotNegative().isCloseTo(0.0, byLessThan(1.0e-9));
+          },
+          () -> {
+            double hStep = units.toSI(0.01);
+            K k = K.of(0.5);
+            assertThat(regularization.applyAsDouble(new Model.Layer3RelativeDh(
+                new Model.Layer3Relative(k, k, hStep, new Model.P(Math.sqrt(inexact.hMax(k) * inexact.hMin(k)) / hStep / 2.0, Math.sqrt(inexact.hMax(k) * inexact.hMin(k)) / hStep / 2.0)),
+                new Model.P(units.toSI(hDiff) / hStep / 2.0, units.toSI(hDiff) / hStep / 2.0)
+            )))
+                .isNotNegative().isCloseTo(0.07, byLessThan(1.0e-2));
           }
       );
     }
@@ -246,16 +270,16 @@ class ParametricFunctionalTest {
 
       Assertions.assertAll(parametricFunctional.toString(),
           () -> assertThat(parametricFunctional.misfit()
-              .applyAsDouble(new Model.Layer3AbsoluteDRho2(
+              .applyAsDouble(new Model.Layer3AbsoluteDhDRho(
                       new Model.Layer3Absolute(2.0, 8.0, 4.0, units.toSI(hStep), new Model.P(100, 200)),
-                      new Model.P(hDiffMax1 / hStep * 4 / 18, hDiffMax1 / hStep * 14 / 18), 0.02
+                  new Model.P(hDiffMax1 / hStep * 4 / 18, hDiffMax1 / hStep * 14 / 18), 0.0, 0.02
                   )
               )
           ).isNotNegative().isCloseTo(0.0, byLessThan(0.01))
       );
     }
 
-    @DisplayName("Модель 2 (1 мм) - 8 (2 мм) - 4 : 4/14 мкм + (8 + 0.02) + 4/14 мкм" )
+    @DisplayName("Модель 2 (1 мм) - 8 (2 мм) - 4 : 4/14 мкм + (8 + 0.02) + 4/14 мкм")
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
         124.634 | 0.457 | 125.213 | 0.307 | 0.180
@@ -273,9 +297,9 @@ class ParametricFunctionalTest {
       ToDoubleFunction<Model> regularization = parametricFunctional.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG);
       Assertions.assertAll(parametricFunctional.toString(),
           () -> assertThat(regularization.applyAsDouble(
-              new Model.Layer3AbsoluteDRho2(
+              new Model.Layer3AbsoluteDhDRho(
                   new Model.Layer3Absolute(2.0, 8.0, 4.0, units.toSI(hStep), new Model.P(100, 200)),
-                  new Model.P((hDiffMax / hStep) * 4 / 18, (hDiffMax / hStep) * 14 / 18), 0.02
+                  new Model.P((hDiffMax / hStep) * 4 / 18, (hDiffMax / hStep) * 14 / 18), 0.01, 0.02
               ))
           ).isNotNegative().isCloseTo(0.042, byLessThan(1.0e-3))
       );

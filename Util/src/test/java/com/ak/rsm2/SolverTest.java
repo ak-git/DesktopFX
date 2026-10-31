@@ -2,6 +2,7 @@ package com.ak.rsm2;
 
 import com.ak.math.ValuePair;
 import com.ak.util.Metrics;
+import com.ak.util.Numbers;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
@@ -282,10 +283,10 @@ class SolverTest {
                 );
                 double rhoMin = Math.min(apparent1, apparent2);
                 double rhoMax = Math.max(apparent1, apparent2);
-                return new Model.Layer3AbsoluteDRho2(
+            return new Model.Layer3AbsoluteDhDRho(
                     new Model.Layer3Absolute(rhoMin, rhoMax, rhoMax,
                         Metrics.Length.MILLI.toSI(0.01), new Model.P(250, 250)),
-                    new Model.P(18, 18), 0.5
+                new Model.P(18, 18), 0.5, 0.5
                 );
               }
           )
@@ -304,6 +305,7 @@ class SolverTest {
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
         148.390, 222.283, 213.328, 243.550,  0.108, 0.582, 0.358, 1.014, 0.210
+        146.571, 216.301, 208.746, 236.736, -0.043, 0.139, 0.046, 0.074, 0.210
         """)
     void hDiffMaxLayer3(double r1, double r2, double r3, double r4,
                         double dr1, double dr2, double dr3, double dr4, double hDiffMax) {
@@ -312,20 +314,17 @@ class SolverTest {
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + dr2).hDiffMax(hDiffMax, Metrics.Length.MILLI))
           .system2x4(m -> m.ohms(r3).thenOhms(r3 + dr3).hDiffMax(hDiffMax, Metrics.Length.MILLI))
           .system6x4(m -> m.ohms(r4).thenOhms(r4 + dr4).hDiffMax(hDiffMax, Metrics.Length.MILLI))
-          .origin(inexact -> {
-                List<ElectrodeSystem.Inexact> systems = inexact.toList();
-            double[] rs = {r1, r2, r3, r4};
-            double rhoMin = Double.MAX_VALUE;
-            double rhoMax = Double.MIN_VALUE;
-            for (int i = 0; i < rs.length; i++) {
-              double apparent = Resistivity.of(systems.get(i)).apparent(rs[i]);
-              LOGGER.atDebug().addKeyValue("rho", apparent).log(systems.get(i).toString());
-              rhoMin = Math.min(rhoMin, apparent);
-              rhoMax = Math.max(rhoMax, apparent);
-            }
-            return new Model.Layer3AbsoluteDhDRho(new Model.Layer3Absolute(rhoMin, rhoMax, rhoMax,
-                Metrics.Length.MILLI.toSI(0.01), new Model.P(200, 300)
-            ), new Model.P(21, 21), 1.0, 1.0);
+          .origin(_ -> {
+            double hStep = Metrics.Length.MILLI.toSI(0.01);
+            int dpMax = Numbers.toInt(Metrics.Length.MILLI.toSI(hDiffMax) / hStep);
+            return new Model.Layer3RelativeDh(
+                new Model.Layer3Relative(K.PLUS_ONE, K.MINUS_ONE, hStep,
+                    new Model.P(
+                        Metrics.Length.MILLI.toSI(2.0) / hStep,
+                        Metrics.Length.MILLI.toSI(3.0) / hStep)
+                ),
+                new Model.P(dpMax, dpMax)
+            );
               }
           )
           .build().solve(10.0, 0.1, 0.001);
