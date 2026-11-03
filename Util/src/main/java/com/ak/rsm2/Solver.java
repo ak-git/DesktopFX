@@ -365,16 +365,12 @@ public sealed interface Solver {
             Scaler k2Scaler = new Scaler.KScaler(layer3Extremal.k2());
             IntRange p1Range = new IntRange(1, layer3Extremal.p().p1());
             IntRange p2mp1Range = new IntRange(1, layer3Extremal.p().p2mp1());
-            IntRange dp1Range = new IntRange(0, dpExtremal.p1());
-            IntRange dp2mp1Range = new IntRange(0, dpExtremal.p2mp1());
             yield InvertibleCodec.of(
                 () -> Genotype.of(
                     IntegerChromosome.of(k1Scaler.range()),
                     IntegerChromosome.of(k2Scaler.range()),
                     IntegerChromosome.of(p1Range),
-                    IntegerChromosome.of(p2mp1Range),
-                    IntegerChromosome.of(dp1Range),
-                    IntegerChromosome.of(dp2mp1Range)
+                    IntegerChromosome.of(p2mp1Range)
                 ),
                 chromosomes -> {
                   Model.Layer3Relative layer3Relative = new Model.Layer3Relative(
@@ -383,20 +379,17 @@ public sealed interface Solver {
                       layer3Extremal.hStep(),
                       new Model.P(Scaler.toInt(chromosomes, 2), Scaler.toInt(chromosomes, 3))
                   );
-                  return new Model.Layer3RelativeDh(layer3Relative,
-                      new Model.P(Scaler.toInt(chromosomes, 4), Scaler.toInt(chromosomes, 5)));
+                  return new Model.Layer3RelativeDh(layer3Relative, dpExtremal);
                 },
                 model -> {
                   if (model instanceof Model.Layer3RelativeDh(
-                      Model.Layer3Relative layer3, Model.P dp
+                      Model.Layer3Relative layer3, _
                   )) {
                     return Genotype.of(
                         IntegerChromosome.of(IntegerGene.of(k1Scaler.toIndex(layer3.k1().value()), k1Scaler.range())),
                         IntegerChromosome.of(IntegerGene.of(k2Scaler.toIndex(layer3.k1().value()), k2Scaler.range())),
                         IntegerChromosome.of(IntegerGene.of(layer3.p().p1(), p1Range)),
-                        IntegerChromosome.of(IntegerGene.of(layer3.p().p2mp1(), p2mp1Range)),
-                        IntegerChromosome.of(IntegerGene.of(dp.p1(), dp1Range)),
-                        IntegerChromosome.of(IntegerGene.of(dp.p2mp1(), dp2mp1Range))
+                        IntegerChromosome.of(IntegerGene.of(layer3.p().p2mp1(), p2mp1Range))
                     );
                   }
                   else {

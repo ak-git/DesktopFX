@@ -61,7 +61,8 @@ public sealed interface ParametricFunctional {
         double hMin = system.hMin(k);
         double hMax = system.hMax(k);
         if (hMin < h && h < hMax) {
-          return Numbers.regularization(log(h), log(Math.max(hMin, Metrics.Length.MICRO.toSI(10.0))), log(hMax));
+          return Numbers.regularization(log(h), log(Math.max(hMin, Metrics.Length.MICRO.toSI(10.0))), log(hMax)) +
+              Numbers.regularization(Math.abs(k.value()), 0.0, 2.0);
         }
         else {
           return Double.POSITIVE_INFINITY;
@@ -256,7 +257,7 @@ public sealed interface ParametricFunctional {
                 Model.Layer3Absolute layer3Absolute, Model.P dp, double dRho1, double dRho2
             )) {
               if (layer3Absolute.p().p1() < layer3Absolute.p().p2mp1() && dp.p1() < dp.p2mp1() &&
-                  dp.pSum() <= measurement().hDiffMax() / layer3Absolute.hStep()) {
+                  layer3Absolute.hStep() * dp.pSum() <= measurement().hDiffMax()) {
                 TetrapolarMeasurement mRho2 = TetrapolarMeasurement.builder().ohms(measurement().ohms() + measurement().ohmsDiff())
                     .thenOhms(measurement().next().ohms()).build();
                 return DoubleStream.of(
@@ -265,6 +266,20 @@ public sealed interface ParametricFunctional {
                         misfitLog(layer3Absolute.toModel(dp, dRho1, dRho2), layer3Absolute.toModel(dp.multiply(2.0), dRho1, dRho2), measurement().next())
                     )
                     .reduce(StrictMath::hypot).orElseThrow();
+              }
+              else {
+                return Double.POSITIVE_INFINITY;
+              }
+            }
+            else if (Objects.requireNonNull(layer) instanceof Model.Layer3RelativeDh model) {
+              Model.Layer3Relative relative = model.relative();
+              Model.P dp = model.dp();
+              if (relative.p().p1() < relative.p().p2mp1() && dp.p1() < dp.p2mp1() &&
+                  relative.hStep() * dp.pSum() <= Math.abs(measurement().hDiffMax())) {
+                return DoubleStream.of(
+                    misfit(model, measurement(), measurement().hDiffMax()),
+                    misfit(model, measurement().next(), measurement().next().hDiffMax())
+                ).reduce(StrictMath::hypot).orElseThrow();
               }
               else {
                 return Double.POSITIVE_INFINITY;
@@ -288,6 +303,11 @@ public sealed interface ParametricFunctional {
                 return regularization(K.of(rho1, rho2), layer3Absolute.p().p1() * hStep) +
                     regularization(K.of(rho2, rho3), p.pSum() * hStep) +
                     Numbers.regularization(Math.abs(hStep * dp.pSum()), 0, 2.0 * Math.abs(measurement().hDiffMax()));
+              }
+              else if (Objects.requireNonNull(layer) instanceof Model.Layer3RelativeDh(
+                  Model.Layer3Relative relative, Model.P _
+              )) {
+                return regularization(relative.k1(), relative.h1()) + regularization(relative.k2(), relative.h2());
               }
               throw new IllegalArgumentException("Unexpected value: " + layer);
             };

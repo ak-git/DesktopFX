@@ -248,31 +248,23 @@ class SolverTest {
     }
 
     @Disabled("""
-        2025-04-23 E-9712 ak 6 мм
-        -data Error Norm Base=0,0395 alpha = 0 data Error Norm Shift=0,7225 total data Error Norm=0,7620-
-        -alpha=10,000 misfit=1,1530- ρ₁ = 2,564 Ω·m; ρ₂ = 14,416 Ω·m; ρ₃ = 9,589 Ω·m; h₁ = 1,620 mm; h₂ = 3,750 mm; Δh₁ = 0,010 mm; Δh₂ = 0,170 mm; Δρ₂ = 0,080 Ω·m
-        -alpha=1,0000 misfit=0,8042- ρ₁ = 1,855 Ω·m; ρ₂ = 09,647 Ω·m; ρ₃ = 6,820 Ω·m; h₁ = 1,720 mm; h₂ = 3,530 mm; Δh₁ = 0,010 mm; Δh₂ = 0,170 mm; Δρ₂ = 0,092 Ω·m
-        -alpha=0,1000 misfit=0,8086- ρ₁ = 1,337 Ω·m; ρ₂ = 11,451 Ω·m; ρ₃ = 6,270 Ω·m; h₁ = 1,050 mm; h₂ = 3,420 mm; Δh₁ = 0,010 mm; Δh₂ = 0,160 mm; Δρ₂ = 0,096 Ω·m
-        -alpha=0,0100 misfit=0,7764- ρ₁ = 1,635 Ω·m; ρ₂ = 10,944 Ω·m; ρ₃ = 4,257 Ω·m; h₁ = 1,370 mm; h₂ = 3,870 mm; Δh₁ = 0,010 mm; Δh₂ = 0,090 mm; Δρ₂ = 0,079 Ω·m
+        2 - 8 - 4 / 1.5, 2.0, -30/90 + 60/120
+        111.909, 169.731, 0.217, 0.075, -0.499, -0.234, -0.090, 0.180
         
-        -data Error Norm Base=0,0395 alpha = 0 data Error Norm Shift=0,6565 total data Error Norm=0,6960-
-        -alpha=10,000 misfit=1,0237- ρ₁ = 1,405 Ω·m; ρ₂ = 10,098 Ω·m; ρ₃ = 6,392 Ω·m; h₁ = 1,460 mm; h₂ = 3,430 mm; Δh₁ = 0,010 mm; Δh₂ = 0,180 mm; Δh = 0,108 mm
-        -alpha=1,0000 misfit=0,8411- ρ₁ = 1,993 Ω·m; ρ₂ = 08,717 Ω·m; ρ₃ = 6,005 Ω·m; h₁ = 1,740 mm; h₂ = 3,570 mm; Δh₁ = 0,010 mm; Δh₂ = 0,170 mm; Δh = 0,080 mm
-        -alpha=0,1000 misfit=0,6781- ρ₁ = 1,747 Ω·m; ρ₂ = 12,946 Ω·m; ρ₃ = 8,547 Ω·m; h₁ = 2,370 mm; h₂ = 4,850 mm; Δh₁ = 0,000 mm; Δh₂ = 0,150 mm; Δh = 0,117 mm
-        -alpha=0,0100 misfit=0,6457- ρ₁ = 1,778 Ω·m; ρ₂ = 14,396 Ω·m; ρ₃ = 8,959 Ω·m; h₁ = 2,040 mm; h₂ = 4,390 mm; Δh₁ = 0,000 mm; Δh₂ = 0,110 mm; Δh = 0,109 mm
+        129.008, 199.456, 0.0948, 0.2517, -0.1881, -0.5382, 0.09, -0.18
         """)
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
-        128.412, 198.251, 0.1954, 0.5901, 128.792, 199.563, 0.2476, 0.6247, 0.18
+        111.909, 169.731, 0.217, 0.075, -0.499, -0.234, -0.090, 0.180
         """)
-    void hDiffMaxLayer3(double r1, double r2, double r1Diff, double r2Diff,
-                        double r1Rho, double r2Rho, double r1RhoDiff, double r2RhoDiff, double hDiffMax) {
+    void hDiffMaxLayer3(double r1, double r2, double r1SmallDiff, double r2SmallDiff,
+                        double r1BigDiff, double r2BigDiff, double hSmallDiffMax, double hBigDiffMax) {
       Collection<Solver.Solution> solution = Solver.<TetrapolarMeasurement.TwoMaxDiff>of(6.0, Metrics.Length.MILLI)
-          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI)
-              .add(m2 -> m2.ohms(r1Rho).thenOhms(r1Rho + r1RhoDiff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
+          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1SmallDiff).hDiffMax(hSmallDiffMax, Metrics.Length.MILLI)
+              .add(m2 -> m2.ohms(r1).thenOhms(r1 + r1BigDiff).hDiffMax(hBigDiffMax, Metrics.Length.MILLI))
           )
-          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiffMax(hDiffMax, Metrics.Length.MILLI)
-              .add(m2 -> m2.ohms(r2Rho).thenOhms(r2Rho + r2RhoDiff).hDiffMax(hDiffMax, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2SmallDiff).hDiffMax(hSmallDiffMax, Metrics.Length.MILLI)
+              .add(m2 -> m2.ohms(r2).thenOhms(r2 + r2BigDiff).hDiffMax(hBigDiffMax, Metrics.Length.MILLI))
           )
           .origin(inexact -> {
                 List<ElectrodeSystem.Inexact> systems = inexact.toList();
@@ -281,12 +273,10 @@ class SolverTest {
                 LOGGER.atDebug().log(() -> DoubleStream.of(apparent1, apparent2)
                     .mapToObj(x -> ValuePair.Name.RHO.of(x, 0.0).toString()).collect(Collectors.joining("; "))
                 );
-                double rhoMin = Math.min(apparent1, apparent2);
-                double rhoMax = Math.max(apparent1, apparent2);
-            return new Model.Layer3AbsoluteDhDRho(
-                    new Model.Layer3Absolute(rhoMin, rhoMax, rhoMax,
-                        Metrics.Length.MILLI.toSI(0.01), new Model.P(250, 250)),
-                new Model.P(18, 18), 0.5, 0.5
+            double hStep = Metrics.Length.MILLI.toSI(0.01);
+            return new Model.Layer3RelativeDh(
+                new Model.Layer3Relative(K.PLUS_ONE, K.MINUS_ONE, hStep, new Model.P(200, 250)),
+                new Model.P(3, 6)
                 );
               }
           )
@@ -321,7 +311,8 @@ class SolverTest {
                 new Model.Layer3Relative(K.PLUS_ONE, K.MINUS_ONE, hStep,
                     new Model.P(
                         Metrics.Length.MILLI.toSI(2.0) / hStep,
-                        Metrics.Length.MILLI.toSI(3.0) / hStep)
+                        Metrics.Length.MILLI.toSI(3.0) / hStep
+                    )
                 ),
                 new Model.P(dpMax, dpMax)
             );
