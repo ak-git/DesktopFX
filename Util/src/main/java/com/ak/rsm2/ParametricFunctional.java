@@ -87,17 +87,6 @@ public sealed interface ParametricFunctional {
         return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
       }
 
-      protected final double misfitLog(Model model, Model model2, TetrapolarMeasurement m) {
-        Resistivity.Step1 r = Resistivity.of(system());
-        Resistivity.Apparent resistivity = r.apparent(model);
-        Resistivity.Apparent resistivity2 = r.apparent(model2);
-        double v = StrictMath.hypot(
-            log(resistivity.value() / r.apparent(m.ohms())),
-            log((resistivity2.value() - resistivity.value()) / r.apparent(m.ohmsDiff()))
-        );
-        return Double.isNaN(v) ? Double.POSITIVE_INFINITY : v;
-      }
-
       private static final class Diff extends AbstractParametricFunctional<TetrapolarMeasurement.Diff> {
         private Diff(ElectrodeSystem.Inexact system, TetrapolarMeasurement.Diff measurement) {
           super(system, measurement);
@@ -174,17 +163,6 @@ public sealed interface ParametricFunctional {
                   return Double.POSITIVE_INFINITY;
                 }
               }
-              case Model.Layer3AbsoluteDhDRho(
-                  Model.Layer3Absolute layer3Absolute, Model.P dp, double dRho1, double dRho2
-              ) -> {
-                if (layer3Absolute.p().p1() < layer3Absolute.p().p2mp1() && dp.p1() < dp.p2mp1() &&
-                    dp.pSum() * layer3Absolute.hStep() <= measurement().hDiffMax()) {
-                  return misfitLog(layer3Absolute, layer3Absolute.toModel(dp, dRho1, dRho2), measurement());
-                }
-                else {
-                  return Double.POSITIVE_INFINITY;
-                }
-              }
               default -> throw new IllegalArgumentException("Unexpected value: " + layer);
             }
           };
@@ -201,9 +179,6 @@ public sealed interface ParametricFunctional {
                 }
                 case Model.Layer3RelativeDh(Model.Layer3Relative relative, Model.P dp) -> {
                   return layer3RelativeFunction(relative, dp);
-                }
-                case Model.Layer3AbsoluteDhDRho(Model.Layer3Absolute layer3Absolute, Model.P dp, _, _) -> {
-                  return layer3RelativeFunction(layer3Absolute, dp);
                 }
                 default -> throw new IllegalArgumentException("Unexpected value: " + layer);
               }
@@ -253,25 +228,7 @@ public sealed interface ParametricFunctional {
         @Override
         public ToDoubleFunction<Model> misfit() {
           return layer -> {
-            if (Objects.requireNonNull(layer) instanceof Model.Layer3AbsoluteDhDRho(
-                Model.Layer3Absolute layer3Absolute, Model.P dp, double dRho1, double dRho2
-            )) {
-              if (layer3Absolute.p().p1() < layer3Absolute.p().p2mp1() && dp.p1() < dp.p2mp1() &&
-                  layer3Absolute.hStep() * dp.pSum() <= measurement().hDiffMax()) {
-                TetrapolarMeasurement mRho2 = TetrapolarMeasurement.builder().ohms(measurement().ohms() + measurement().ohmsDiff())
-                    .thenOhms(measurement().next().ohms()).build();
-                return DoubleStream.of(
-                        misfitLog(layer3Absolute, layer3Absolute.toModel(dp, 0.0, 0.0), measurement()),
-                        misfitLog(layer3Absolute.toModel(dp, 0.0, 0.0), layer3Absolute.toModel(dp, dRho1, dRho2), mRho2),
-                        misfitLog(layer3Absolute.toModel(dp, dRho1, dRho2), layer3Absolute.toModel(dp.multiply(2.0), dRho1, dRho2), measurement().next())
-                    )
-                    .reduce(StrictMath::hypot).orElseThrow();
-              }
-              else {
-                return Double.POSITIVE_INFINITY;
-              }
-            }
-            else if (Objects.requireNonNull(layer) instanceof Model.Layer3RelativeDh model) {
+            if (Objects.requireNonNull(layer) instanceof Model.Layer3RelativeDh model) {
               Model.Layer3Relative relative = model.relative();
               Model.P dp = model.dp();
               if (relative.p().p1() < relative.p().p2mp1() && dp.p1() < dp.p2mp1() &&
@@ -293,18 +250,7 @@ public sealed interface ParametricFunctional {
         public ToDoubleFunction<Model> regularization(Regularization regularization) {
           return switch (regularization) {
             case ZERO_MAX_LOG -> layer -> {
-              if (Objects.requireNonNull(layer) instanceof
-                  Model.Layer3AbsoluteDhDRho(Model.Layer3Absolute layer3Absolute, Model.P dp, _, _)) {
-                double rho1 = layer3Absolute.rho1();
-                double rho2 = layer3Absolute.rho2();
-                double rho3 = layer3Absolute.rho3();
-                double hStep = layer3Absolute.hStep();
-                Model.P p = layer3Absolute.p();
-                return regularization(K.of(rho1, rho2), layer3Absolute.p().p1() * hStep) +
-                    regularization(K.of(rho2, rho3), p.pSum() * hStep) +
-                    Numbers.regularization(Math.abs(hStep * dp.pSum()), 0, 2.0 * Math.abs(measurement().hDiffMax()));
-              }
-              else if (Objects.requireNonNull(layer) instanceof Model.Layer3RelativeDh(
+              if (Objects.requireNonNull(layer) instanceof Model.Layer3RelativeDh(
                   Model.Layer3Relative relative, Model.P _
               )) {
                 return regularization(relative.k1(), relative.h1()) + regularization(relative.k2(), relative.h2());
