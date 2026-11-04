@@ -22,14 +22,13 @@ class SolverTest {
   @Nested
   class WaterTest {
     @Disabled("""
-        -data Error Norm Base=0,0238 alpha = 0 data Error Norm Shift=0,0006 total data Error Norm=0,0244-
-        -alpha=0,0013- k₁₂ = 0,945; h = 04,521 mm
-        -alpha=0,0013- k₁₂ = 0,934; h = 09,498 mm
-        -alpha=0,0013- k₁₂ = 0,881; h = 13,875 mm
-        -alpha=0,0008- k₁₂ = 0,907; h = 19,134 mm
-        -alpha=0,0023- k₁₂ = 0,551; h = 18,888 mm
-        -alpha=0,0023- k₁₂ = 0,319; h = 19,451 mm
-        -alpha=0,0007- k₁₂ = 0,885; h = 32,435 mm
+        alpha = 0,0065; fitness = 0,0396; Layer2{k₁₂ = 0,967; h = 4,687 mm}
+        alpha = 0,0028; fitness = 0,0404; Layer2{k₁₂ = 0,972; h = 9,774 mm}
+        alpha = 0,0012; fitness = 0,0286; Layer2{k₁₂ = 0,944; h = 14,365 mm}
+        alpha = 0,0012; fitness = 0,0364; Layer2{k₁₂ = 0,949; h = 19,517 mm}
+        alpha = 0,0008; fitness = 0,0287; Layer2{k₁₂ = 0,642; h = 20,004 mm}
+        alpha = 0,0005; fitness = 0,0279; Layer2{k₁₂ = 0,372; h = 20,563 mm}
+        alpha = 0,0003; fitness = 0,0265; Layer2{k₁₂ = 0,981; h = 33,801 mm}
         """)
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
