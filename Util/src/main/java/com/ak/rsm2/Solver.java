@@ -149,53 +149,6 @@ public sealed interface Solver {
           return Numbers.toInt(Metrics.Length.METRE.to(hSI, MetricPrefix.MICRO(Units.METRE)));
         }
       }
-
-      record RhoScalerUpTo(IntRange range) implements Scaler {
-        private static final int SCALE = 1000;
-
-        public RhoScalerUpTo(double rhoMax) {
-          if (rhoMax < 2.0) {
-            throw new IllegalArgumentException("rho = %f < 2.0".formatted(rhoMax));
-          }
-          this(new IntRange(index(1.5), index(rhoMax)));
-        }
-
-        @Override
-        public double toSI(int index) {
-          return index * 1.0 / SCALE;
-        }
-
-        @Override
-        public int toIndex(double rho) {
-          return index(rho);
-        }
-
-        private static int index(double rho) {
-          return Numbers.toInt(rho * SCALE);
-        }
-      }
-
-      record RhoScalerAtLeast(IntRange range) implements Scaler {
-        private static final int SCALE = 1000;
-
-        public RhoScalerAtLeast(double rhoMin, double rhoMax) {
-          this(new IntRange(index(Math.min(rhoMin, rhoMax)), index(Math.max(rhoMin, rhoMax))));
-        }
-
-        @Override
-        public double toSI(int index) {
-          return index * 1.0 / SCALE;
-        }
-
-        @Override
-        public int toIndex(double rho) {
-          return index(rho);
-        }
-
-        private static int index(double rho) {
-          return Numbers.toInt(rho * SCALE);
-        }
-      }
     }
 
     private static final class GeneticSolver implements Solver {
@@ -289,44 +242,6 @@ public sealed interface Solver {
                     return Genotype.of(
                         IntegerChromosome.of(IntegerGene.of(kScaler.toIndex(layer2Relative.k().value()), kScaler.range())),
                         IntegerChromosome.of(IntegerGene.of(hScaler.toIndex(layer2Relative.h()), hScaler.range())),
-                        IntegerChromosome.of(IntegerGene.of(dhScaler.toIndex(dh), dhScaler.range()))
-                    );
-                  }
-                  else {
-                    throw new IllegalArgumentException("Unexpected value: " + model);
-                  }
-                });
-          }
-          case Model.Layer2Absolute model -> throw new IllegalArgumentException("Unexpected value: " + model);
-          case Model.Layer2AbsoluteDh(Model.Layer2Absolute layer2AbsoluteExtremal, double dhExtremal) -> {
-            double rho1Extremal = layer2AbsoluteExtremal.rho1();
-            double rho2Extremal = layer2AbsoluteExtremal.rho2();
-            double hExtremal = layer2AbsoluteExtremal.h();
-            Scaler rho1Scaler = rho1Extremal > rho2Extremal ?
-                new Scaler.RhoScalerAtLeast(rho1Extremal, 20.0) : new Scaler.RhoScalerUpTo(rho1Extremal);
-            Scaler rho2Scaler = rho1Extremal > rho2Extremal ?
-                new Scaler.RhoScalerUpTo(rho2Extremal) : new Scaler.RhoScalerAtLeast(rho2Extremal, 20.0);
-            Scaler hScaler = new Scaler.HScaler(hExtremal);
-            Scaler dhScaler = new Scaler.HScaler(dhExtremal);
-            yield InvertibleCodec.of(
-                () -> Genotype.of(
-                    IntegerChromosome.of(rho1Scaler.range()),
-                    IntegerChromosome.of(rho2Scaler.range()),
-                    IntegerChromosome.of(hScaler.range()),
-                    IntegerChromosome.of(dhScaler.range())
-                ),
-                chromosomes -> new Model.Layer2AbsoluteDh(
-                    rho1Scaler.toSI(chromosomes, 0),
-                    rho2Scaler.toSI(chromosomes, 1),
-                    hScaler.toSI(chromosomes, 2),
-                    dhScaler.toSI(chromosomes, 3)
-                ),
-                model -> {
-                  if (model instanceof Model.Layer2AbsoluteDh(Model.Layer2Absolute layer2Absolute, double dh)) {
-                    return Genotype.of(
-                        IntegerChromosome.of(IntegerGene.of(rho1Scaler.toIndex(layer2Absolute.rho1()), rho1Scaler.range())),
-                        IntegerChromosome.of(IntegerGene.of(rho2Scaler.toIndex(layer2Absolute.rho2()), rho2Scaler.range())),
-                        IntegerChromosome.of(IntegerGene.of(hScaler.toIndex(layer2Absolute.h()), hScaler.range())),
                         IntegerChromosome.of(IntegerGene.of(dhScaler.toIndex(dh), dhScaler.range()))
                     );
                   }

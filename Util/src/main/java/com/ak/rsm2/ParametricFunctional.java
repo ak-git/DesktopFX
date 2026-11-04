@@ -78,10 +78,6 @@ public sealed interface ParametricFunctional {
         double v = switch (model) {
           case Model.Layer2Relative _, Model.Layer2RelativeDh _, Model.Layer3RelativeDh _ ->
               log(resistivity.value() / apparent) - log(resistivity.derivative() / derivativeApparentByPhi);
-          case Model.Layer2Absolute _, Model.Layer2AbsoluteDh _ -> StrictMath.hypot(
-              log(resistivity.value() / apparent),
-              log((resistivity.derivative()) / derivativeApparentByPhi)
-          );
           default -> throw new IllegalArgumentException("Unexpected value: " + model);
         };
         return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);

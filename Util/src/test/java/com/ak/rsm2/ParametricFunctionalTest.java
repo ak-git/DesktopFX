@@ -58,11 +58,7 @@ class ParametricFunctionalTest {
               .applyAsDouble(new Model.Layer2Relative(K.PLUS_ONE, units.toSI(expectedH))))
               .isNotNegative().isCloseTo(0.0, byLessThan(0.01)),
           () -> assertThatIllegalArgumentException().isThrownBy(() -> parametricFunctional.misfit()
-              .applyAsDouble(new Model.Layer2RelativeDh(K.PLUS_ONE, units.toSI(expectedH), units.toSI(hDiff)))),
-          () -> assertThatIllegalArgumentException().isThrownBy(() -> parametricFunctional.misfit()
-              .applyAsDouble(new Model.Layer2Absolute(1.0, Double.POSITIVE_INFINITY, units.toSI(expectedH)))),
-          () -> assertThatIllegalArgumentException().isThrownBy(() -> parametricFunctional.misfit()
-              .applyAsDouble(new Model.Layer2AbsoluteDh(1.0, Double.POSITIVE_INFINITY, units.toSI(expectedH), units.toSI(hDiff))))
+              .applyAsDouble(new Model.Layer2RelativeDh(K.PLUS_ONE, units.toSI(expectedH), units.toSI(hDiff))))
       );
     }
 
@@ -108,11 +104,7 @@ class ParametricFunctionalTest {
                 .isNotNegative().isCloseTo(0.144, byLessThan(1.0e-3));
           },
           () -> assertThatIllegalArgumentException().isThrownBy(
-              () -> regularization.applyAsDouble(new Model.Layer2RelativeDh(K.PLUS_ONE, 0.0, units.toSI(hDiff)))),
-          () -> assertThatIllegalArgumentException().isThrownBy(
-              () -> regularization.applyAsDouble(new Model.Layer2Absolute(1.0, Double.POSITIVE_INFINITY, 0.0))),
-          () -> assertThatIllegalArgumentException().isThrownBy(
-              () -> regularization.applyAsDouble(new Model.Layer2AbsoluteDh(1.0, Double.POSITIVE_INFINITY, 0.0, units.toSI(hDiff))))
+              () -> regularization.applyAsDouble(new Model.Layer2RelativeDh(K.PLUS_ONE, 0.0, units.toSI(hDiff))))
       );
     }
   }
@@ -161,11 +153,6 @@ class ParametricFunctionalTest {
           () -> assertThat(parametricFunctional.misfit()
               .applyAsDouble(new Model.Layer2RelativeDh(K.PLUS_ONE, units.toSI(expectedH), units.toSI(hDiff))))
               .isNotNegative().isCloseTo(0.0, byLessThan(0.01)),
-          () -> assertThatIllegalArgumentException().isThrownBy(() -> parametricFunctional.misfit()
-              .applyAsDouble(new Model.Layer2Absolute(0.7, Double.POSITIVE_INFINITY, units.toSI(expectedH)))),
-          () -> assertThat(parametricFunctional.misfit()
-              .applyAsDouble(new Model.Layer2AbsoluteDh(0.7, Double.POSITIVE_INFINITY, units.toSI(expectedH), units.toSI(hDiff))))
-              .isNotNegative().isCloseTo(0.0, byLessThan(0.02)),
           () -> {
             double hStep = units.toSI(0.1);
             assertThatIllegalArgumentException().isThrownBy(() -> parametricFunctional.misfit()
@@ -226,16 +213,6 @@ class ParametricFunctionalTest {
           () -> {
             K k = K.of(0.5);
             assertThat(regularization.applyAsDouble(new Model.Layer2RelativeDh(k, Math.sqrt(inexact.hMax(k) * inexact.hMin(k)), units.toSI(hDiff))))
-                .isNotNegative().isCloseTo(0.144, byLessThan(1.0e-3));
-          },
-          () -> assertThatIllegalArgumentException().isThrownBy(() -> regularization.applyAsDouble(new Model.Layer2Absolute(1.0, 2.0, inexact.hMax(K.PLUS_ONE)))),
-          () -> assertThat(regularization.applyAsDouble(new Model.Layer2AbsoluteDh(0.7, Double.POSITIVE_INFINITY, inexact.hMax(K.PLUS_ONE), units.toSI(hDiff)))).isInfinite(),
-          () -> assertThat(regularization.applyAsDouble(new Model.Layer2AbsoluteDh(0.7, Double.POSITIVE_INFINITY, inexact.hMax(K.PLUS_ONE) / 2.0, units.toSI(hDiff))))
-              .isPositive().isLessThan(0.7),
-          () -> assertThat(regularization.applyAsDouble(new Model.Layer2AbsoluteDh(0.7, Double.POSITIVE_INFINITY, inexact.hMin(K.PLUS_ONE), units.toSI(hDiff)))).isInfinite(),
-          () -> {
-            K k = K.of(0.5);
-            assertThat(regularization.applyAsDouble(new Model.Layer2AbsoluteDh(0.7, k.getRho2(0.7), Math.sqrt(inexact.hMax(k) * inexact.hMin(k)), units.toSI(hDiff))))
                 .isNotNegative().isCloseTo(0.144, byLessThan(1.0e-3));
           },
           () -> {

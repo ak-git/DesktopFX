@@ -86,8 +86,6 @@ public sealed interface Resistivity {
         return switch (model) {
           case Model.Layer2Relative layer2Relative -> layer2RelativeApparent(layer2Relative);
           case Model.Layer2RelativeDh layer2RelativeDh -> layer2RelativeApparent(layer2RelativeDh.relative());
-          case Model.Layer2Absolute layer2Absolute -> layer2AbsoluteApparent(layer2Absolute);
-          case Model.Layer2AbsoluteDh layer2AbsoluteDh -> layer2AbsoluteApparent(layer2AbsoluteDh.layer2Absolute());
           case Model.Layer3Relative layer3Relative -> layer3RelativeApparent(layer3Relative);
           case Model.Layer3RelativeDh(Model.Layer3Relative relative, Model.P dp) -> {
             Model.Layer3Model relative2 = new Model.Layer3Relative(relative.k1(), relative.k2(), relative.hStep(), relative.p().add(dp));
@@ -119,12 +117,6 @@ public sealed interface Resistivity {
             -32.0 * h * system.phiFactor() *
                 Layers.sum(n -> pow(k, n) * n * n * (pow(left.applyAsDouble(n), 3.0) - pow(right.applyAsDouble(n), 3.0)))
         );
-      }
-
-      private Apparent layer2AbsoluteApparent(Model.Layer2Absolute layer2Absolute) {
-        Apparent apparent = layer2RelativeApparent(layer2Absolute);
-        return new ApparentRecord(system,
-            apparent.value() * layer2Absolute.rho1(), apparent.derivative() * layer2Absolute.rho1());
       }
 
       private Apparent layer3RelativeApparent(Model.Layer3Model layer3Relative) {
