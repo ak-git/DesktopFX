@@ -159,15 +159,14 @@ class ParametricFunctionalTest {
                 .applyAsDouble(new Model.Layer3Relative(K.PLUS_ONE, K.ZERO, hStep,
                     new Model.P(units.toSI(expectedH) / hStep, units.toSI(expectedH) / hStep))));
           },
-          () -> {
+          () -> assertThatIllegalArgumentException().isThrownBy(() -> {
             double hStep = units.toSI(0.01);
-            assertThat(parametricFunctional.misfit()
+            parametricFunctional.misfit()
                 .applyAsDouble(
                     new Model.Layer3RelativeDh(new Model.Layer3Relative(K.ZERO, K.PLUS_ONE, hStep,
                         new Model.P(0, units.toSI(expectedH) / hStep)),
-                        new Model.P(0, units.toSI(hDiff) / hStep))))
-                .isNotNegative().isCloseTo(0.0, byLessThan(0.02));
-          }
+                        new Model.P(0, units.toSI(hDiff) / hStep)));
+          })
       );
     }
 
@@ -215,15 +214,14 @@ class ParametricFunctionalTest {
             assertThat(regularization.applyAsDouble(new Model.Layer2RelativeDh(k, Math.sqrt(inexact.hMax(k) * inexact.hMin(k)), units.toSI(hDiff))))
                 .isNotNegative().isCloseTo(0.144, byLessThan(1.0e-3));
           },
-          () -> {
+          () -> assertThatIllegalArgumentException().isThrownBy(() -> {
             double hStep = units.toSI(0.01);
             K k = K.of(0.5);
-            assertThat(regularization.applyAsDouble(new Model.Layer3RelativeDh(
+            regularization.applyAsDouble(new Model.Layer3RelativeDh(
                 new Model.Layer3Relative(k, k, hStep, new Model.P(Math.sqrt(inexact.hMax(k) * inexact.hMin(k)) / hStep / 2.0, Math.sqrt(inexact.hMax(k) * inexact.hMin(k)) / hStep / 2.0)),
                 new Model.P(units.toSI(hDiff) / hStep / 2.0, units.toSI(hDiff) / hStep / 2.0)
-            )))
-                .isNotNegative().isCloseTo(0.36, byLessThan(1.0e-2));
-          }
+            ));
+          })
       );
     }
   }
@@ -231,14 +229,14 @@ class ParametricFunctionalTest {
   @Nested
   class TwoMaxDiffRelativeTest {
 
-    @DisplayName("Модель 2 (1 мм) - 8 (2 мм) - 4 : +180/-180 мкм")
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
-        124.634 | 1.993 | 0.180 | 124.634 | -2.111 | -0.180
+        124.634 | 0.457 | 0.180 | 125.213 | 0.307 | 0.180
         """)
     void misfit(double r1, double r1Diff, double hDiffMax1,
                 double r2, double r2DiffF, double hDiffMax2) {
       Metrics.Length units = Metrics.Length.MILLI;
+      double hStep = 0.01;
       ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
           .system(s -> s.tetrapolar(6.0, 18.0).absError(0.1))
           .measurements(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMax1, units)
@@ -246,39 +244,38 @@ class ParametricFunctionalTest {
           .build();
 
       Assertions.assertAll(parametricFunctional.toString(),
-          () -> assertThat(parametricFunctional.misfit()
-              .applyAsDouble(new Model.Layer3RelativeDh(
-                  new Model.Layer3Relative(K.of(2.0, 8.0), K.of(8.0, 4.0), units.toSI(0.01),
-                      new Model.P(100, 200)), new Model.P(0, 18)
+          () -> assertThatIllegalArgumentException().isThrownBy(() -> parametricFunctional.misfit()
+              .applyAsDouble(new Model.Layer3AbsoluteDh(
+                  new Model.Layer3Absolute(2.0, 8.0, 4.0, units.toSI(hStep), new Model.P(100, 200)),
+                  new Model.P(hDiffMax1 / hStep * 4 / 18, hDiffMax1 / hStep * 14 / 18)
                   )
-              )
-          ).isNotNegative().isCloseTo(0.0, byLessThan(0.1))
+              ))
       );
     }
 
-    @DisplayName("Модель 2 (1 мм) - 8 (2 мм) - 4 : +180/-180 мкм")
+    @DisplayName("Модель 2 (1 мм) - 8 (2 мм) - 4 : 4/14 мкм + (8 + 0.02) + 4/14 мкм")
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
-        124.634 | 1.993 | 0.180 | 124.634 | -2.111 | -0.180
+        124.634 | 0.457 | 125.213 | 0.307 | 0.180
         """)
-    void regularization(double r1, double r1Diff, double hDiffMax1,
-                        double r2, double r2DiffF, double hDiffMax2) {
+    void regularization(double r1, double r1Diff,
+                        double r2, double r2DiffF, double hDiffMax) {
       Metrics.Length units = Metrics.Length.MILLI;
+      double hStep = 0.01;
       ParametricFunctional parametricFunctional = ParametricFunctional.builder(units)
           .system(s -> s.tetrapolar(6.0, 18.0).absError(0.1))
-          .measurements(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMax1, units)
-              .add(m2 -> m2.ohms(r2).thenOhms(r2 + r2DiffF).hDiffMax(hDiffMax2, units)))
+          .measurements(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiffMax(hDiffMax, units)
+              .add(m2 -> m2.ohms(r2).thenOhms(r2 + r2DiffF).hDiffMax(hDiffMax, units)))
           .build();
 
       ToDoubleFunction<Model> regularization = parametricFunctional.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG);
       Assertions.assertAll(parametricFunctional.toString(),
           () -> assertThat(regularization.applyAsDouble(
-                  new Model.Layer3RelativeDh(
-                      new Model.Layer3Relative(K.of(2.0, 8.0), K.of(8.0, 4.0), units.toSI(0.01),
-                          new Model.P(100, 200)), new Model.P(0, 18)
-                  )
-              )
-          ).isNotNegative().isCloseTo(0.42, byLessThan(1.0e-2))
+              new Model.Layer3AbsoluteDh(
+                  new Model.Layer3Absolute(2.0, 8.0, 4.0, units.toSI(hStep), new Model.P(100, 200)),
+                  new Model.P((hDiffMax / hStep) * 4 / 18, (hDiffMax / hStep) * 14 / 18)
+              ))
+          ).isNotNegative().isCloseTo(0.423, byLessThan(1.0e-3))
       );
     }
   }

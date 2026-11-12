@@ -69,6 +69,11 @@ public sealed interface ParametricFunctional {
         }
       }
 
+      protected final double regularization3(Model.Layer3Model model) {
+        return regularization(model.k1(), model.p().p1() * model.hStep()) +
+            regularization(model.k2(), model.p().pSum() * model.hStep());
+      }
+
       protected final double misfit(Model model, TetrapolarMeasurement m, double dh) {
         Resistivity.Step1 r = Resistivity.of(system);
         Resistivity.Apparent resistivity = r.apparent(model);
@@ -83,6 +88,17 @@ public sealed interface ParametricFunctional {
         return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
       }
 
+      protected final double misfitLog(Model model, Model model2, TetrapolarMeasurement m) {
+        Resistivity.Step1 r = Resistivity.of(system());
+        Resistivity.Apparent resistivity = r.apparent(model);
+        Resistivity.Apparent resistivity2 = r.apparent(model2);
+        double v = StrictMath.hypot(
+            log(resistivity.value() / r.apparent(m.ohms())),
+            log((resistivity2.value() - resistivity.value()) / r.apparent(m.ohmsDiff()))
+        );
+        return Double.isNaN(v) ? Double.POSITIVE_INFINITY : v;
+      }
+
       private static final class Diff extends AbstractParametricFunctional<TetrapolarMeasurement.Diff> {
         private Diff(ElectrodeSystem.Inexact system, TetrapolarMeasurement.Diff measurement) {
           super(system, measurement);
@@ -95,23 +111,43 @@ public sealed interface ParametricFunctional {
 
         @Override
         public ToDoubleFunction<Model> misfit() {
-          return layer -> {
-            if (Objects.requireNonNull(layer) instanceof Model.Layer2Relative layer2Relative) {
-              return misfit(layer2Relative, measurement(), measurement().hDiff());
-            }
-            throw new IllegalArgumentException("Unexpected value: " + layer);
-          };
+          return layer ->
+              switch (Objects.requireNonNull(layer)) {
+                case Model.Layer2Relative layer2Relative ->
+                    misfit(layer2Relative, measurement(), measurement().hDiff());
+                case Model.Layer3RelativeDh layer3RelativeDh -> {
+                  Model.Layer3Relative relative = layer3RelativeDh.relative();
+                  if (relative.p().p1() < relative.p().p2mp1()) {
+                    yield misfit(layer3RelativeDh, measurement(), measurement().hDiff());
+                  }
+                  else {
+                    yield Double.POSITIVE_INFINITY;
+                  }
+                }
+                case Model.Layer3AbsoluteDh(Model.Layer3Absolute layer3Absolute, Model.P dp) -> {
+                  if (layer3Absolute.p().p1() < layer3Absolute.p().p2mp1()) {
+                    yield misfitLog(layer3Absolute, layer3Absolute.toModel(dp), measurement());
+                  }
+                  else {
+                    yield Double.POSITIVE_INFINITY;
+                  }
+                }
+                default -> throw new IllegalArgumentException("Unexpected value: " + layer);
+              };
         }
 
         @Override
         public ToDoubleFunction<Model> regularization(Regularization regularization) {
           return switch (regularization) {
-            case ZERO_MAX_LOG -> layer -> {
-              if (Objects.requireNonNull(layer) instanceof Model.Layer2Relative(K k, double h)) {
-                return regularization(k, h);
-              }
-              throw new IllegalArgumentException("Unexpected value: " + layer);
-            };
+            case ZERO_MAX_LOG -> layer ->
+                switch (Objects.requireNonNull(layer)) {
+                  case Model.Layer2Relative(K k, double h) -> regularization(k, h);
+                  case Model.Layer3RelativeDh(Model.Layer3Relative layer3Relative, _) ->
+                      regularization3(layer3Relative);
+                  case Model.Layer3AbsoluteDh(Model.Layer3Absolute layer3Absolute, _) ->
+                      regularization3(layer3Absolute);
+                  default -> throw new IllegalArgumentException("Unexpected value: " + layer);
+                };
           };
         }
       }
@@ -145,21 +181,11 @@ public sealed interface ParametricFunctional {
         @Override
         public ToDoubleFunction<Model> misfit() {
           return layer -> {
-            switch (Objects.requireNonNull(layer)) {
-              case Model.Layer2DhModel relative -> {
-                return misfit(relative, measurement(), relative.dh());
-              }
-              case Model.Layer3DhModel layer3 -> {
-                double dh = layer3.dp().pSum() * layer3.relative().hStep();
-                if (layer3.relative().p().p1() < layer3.relative().p().p2mp1() && layer3.dp().p1() < layer3.dp().p2mp1() &&
-                    dh <= measurement().hDiffMax()) {
-                  return misfit(layer3, measurement(), dh);
-                }
-                else {
-                  return Double.POSITIVE_INFINITY;
-                }
-              }
-              default -> throw new IllegalArgumentException("Unexpected value: " + layer);
+            if (Objects.requireNonNull(layer) instanceof Model.Layer2DhModel relative) {
+              return misfit(relative, measurement(), relative.dh());
+            }
+            else {
+              throw new IllegalArgumentException("Unexpected value: " + layer);
             }
           };
         }
@@ -168,25 +194,13 @@ public sealed interface ParametricFunctional {
         public ToDoubleFunction<Model> regularization(Regularization regularization) {
           return switch (regularization) {
             case ZERO_MAX_LOG -> layer -> {
-              switch (Objects.requireNonNull(layer)) {
-                case Model.Layer2DhModel layer2Relative -> {
-                  return regularization(layer2Relative.relative().k(), layer2Relative.relative().h()) +
-                      Numbers.regularization(Math.abs(layer2Relative.dh()), 0, 2.0 * Math.abs(measurement().hDiffMax()));
-                }
-                case Model.Layer3RelativeDh(Model.Layer3Relative relative, Model.P dp) -> {
-                  return layer3RelativeFunction(relative, dp);
-                }
-                default -> throw new IllegalArgumentException("Unexpected value: " + layer);
+              if (Objects.requireNonNull(layer) instanceof Model.Layer2DhModel layer2Relative) {
+                return regularization(layer2Relative.relative().k(), layer2Relative.relative().h()) +
+                    Numbers.regularization(Math.abs(layer2Relative.dh()), 0, 2.0 * Math.abs(measurement().hDiffMax()));
               }
+              throw new IllegalArgumentException("Unexpected value: " + layer);
             };
           };
-        }
-
-        private double layer3RelativeFunction(Model.Layer3Model layer3Model, Model.P dp) {
-          Model.P p = layer3Model.p();
-          return regularization(layer3Model.k1(), layer3Model.p().p1() * layer3Model.hStep()) +
-              regularization(layer3Model.k2(), p.pSum() * layer3Model.hStep()) +
-              Numbers.regularization(Math.abs(layer3Model.hStep() * dp.pSum()), 0, 2.0 * Math.abs(measurement().hDiffMax()));
         }
       }
 
@@ -227,8 +241,7 @@ public sealed interface ParametricFunctional {
             if (Objects.requireNonNull(layer) instanceof Model.Layer3RelativeDh model) {
               Model.Layer3Relative relative = model.relative();
               Model.P dp = model.dp();
-              if (relative.p().p1() < relative.p().p2mp1() && dp.p1() < dp.p2mp1() &&
-                  relative.hStep() * dp.pSum() <= Math.abs(measurement().hDiffMax())) {
+              if (relative.p().p1() < relative.p().p2mp1() && dp.p1() < dp.p2mp1()) {
                 return DoubleStream.of(
                     misfit(model, measurement(), measurement().hDiffMax()),
                     misfit(model, measurement().next(), measurement().next().hDiffMax())
@@ -246,12 +259,12 @@ public sealed interface ParametricFunctional {
         public ToDoubleFunction<Model> regularization(Regularization regularization) {
           return switch (regularization) {
             case ZERO_MAX_LOG -> layer -> {
-              if (Objects.requireNonNull(layer) instanceof Model.Layer3RelativeDh(
-                  Model.Layer3Relative relative, Model.P _
-              )) {
-                return regularization(relative.k1(), relative.h1()) + regularization(relative.k2(), relative.h2());
+              if (Objects.requireNonNull(layer) instanceof Model.Layer3Model layer3Model) {
+                return regularization3(layer3Model);
               }
-              throw new IllegalArgumentException("Unexpected value: " + layer);
+              else {
+                throw new IllegalArgumentException("Unexpected value: " + layer);
+              }
             };
           };
         }
