@@ -94,6 +94,9 @@ public sealed interface Resistivity {
             double derivative = (apparent2.value() - apparent.value()) / (dp.pSum() * relative.hStep());
             yield new ApparentRecord(system, apparent.value(), derivative / system.phiFactor());
           }
+          case Model.Layer3Absolute layer3Absolute -> layer3AbsoluteApparent(layer3Absolute);
+          case Model.Layer3AbsoluteDh layer3AbsoluteDh ->
+              throw new IllegalArgumentException(layer3AbsoluteDh.toString());
         };
       }
 
@@ -125,6 +128,12 @@ public sealed interface Resistivity {
         double[] qn = Layers.qn(layer3Relative.k1().value(), layer3Relative.k2().value(), layer3Relative.p().p1(), layer3Relative.p().p2mp1());
         double apparent = (1.0 + 2.0 * Layers.sum(n -> qn[n] * (left.applyAsDouble(n) - right.applyAsDouble(n))));
         return new ApparentRecord(system, apparent, Double.NaN);
+      }
+
+      private Apparent layer3AbsoluteApparent(Model.Layer3Absolute layer3Absolute) {
+        Apparent apparent = layer3RelativeApparent(layer3Absolute);
+        return new ApparentRecord(system,
+            apparent.value() * layer3Absolute.rho1(), apparent.derivative() * layer3Absolute.rho1());
       }
     }
   }
