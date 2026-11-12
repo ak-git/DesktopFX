@@ -91,10 +91,6 @@ public sealed interface Model {
     double hStep();
 
     P p();
-
-    double h1();
-
-    double h2();
   }
 
   record Layer3Relative(K k1, K k2, double hStep, P p) implements Layer3Model {
@@ -109,18 +105,8 @@ public sealed interface Model {
     @Override
     public String toString() {
       return Stream.of(ValuePair.Name.K12.of(k1.value(), 0.0), ValuePair.Name.K23.of(k2.value(), 0.0),
-              ValuePair.Name.H1.of(h1(), 0.0), ValuePair.Name.H2.of(h2(), 0.0))
+              ValuePair.Name.H1.of(hStep * p.p1, 0.0), ValuePair.Name.H2.of(hStep * p.pSum(), 0.0))
           .map(Objects::toString).collect(Collectors.joining("; ", "Layer3{", "}"));
-    }
-
-    @Override
-    public double h1() {
-      return hStep * p.p1;
-    }
-
-    @Override
-    public double h2() {
-      return hStep * p.pSum();
     }
   }
 
@@ -142,6 +128,74 @@ public sealed interface Model {
               ValuePair.Name.DH1.of(relative.hStep * dp.p1, 0.0),
               ValuePair.Name.DH2.of(relative.hStep * dp.pSum(), 0.0))
           .map(Objects::toString).collect(Collectors.joining("; ", "{", "}"));
+    }
+  }
+
+  record Layer3Absolute(double rho1, double rho2, double rho3, double hStep, P p) implements Layer3Model {
+    public Layer3Absolute {
+      if (hStep < 0) {
+        throw new IllegalArgumentException("hStep = %f must be non-negative".formatted(hStep));
+      }
+      Objects.requireNonNull(p);
+    }
+
+    public Model toModel(Model.P dp) {
+      return new Model.Layer3Absolute(rho1, rho2, rho3, hStep, p.add(dp));
+    }
+
+    @Override
+    public String toString() {
+      return Stream.of(
+              ValuePair.Name.RHO_1.of(rho1, 0.0), ValuePair.Name.RHO_2.of(rho2, 0.0), ValuePair.Name.RHO_3.of(rho3, 0.0),
+              ValuePair.Name.H1.of(hStep * p.p1, 0.0), ValuePair.Name.H2.of(hStep * p.pSum(), 0.0)
+          )
+          .map(Objects::toString).collect(Collectors.joining("; "));
+    }
+
+    @Override
+    public K k1() {
+      return K.of(rho1, rho2);
+    }
+
+    @Override
+    public K k2() {
+      return K.of(rho2, rho3);
+    }
+  }
+
+  record Layer3AbsoluteDh(Layer3Absolute layer3Absolute, P dp) implements Layer3Model {
+    public Layer3AbsoluteDh {
+      Objects.requireNonNull(layer3Absolute);
+      Objects.requireNonNull(dp);
+    }
+
+    @Override
+    public String toString() {
+      return Stream.of(layer3Absolute,
+              ValuePair.Name.DH1.of(layer3Absolute.hStep * dp.p1, 0.0),
+              ValuePair.Name.DH2.of(layer3Absolute.hStep * dp.pSum(), 0.0)
+          )
+          .map(Objects::toString).collect(Collectors.joining("; "));
+    }
+
+    @Override
+    public K k1() {
+      return layer3Absolute.k1();
+    }
+
+    @Override
+    public K k2() {
+      return layer3Absolute.k2();
+    }
+
+    @Override
+    public double hStep() {
+      return layer3Absolute.hStep();
+    }
+
+    @Override
+    public P p() {
+      return layer3Absolute.p();
     }
   }
 }
