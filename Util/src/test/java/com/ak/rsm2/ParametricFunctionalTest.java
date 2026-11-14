@@ -275,7 +275,7 @@ class ParametricFunctionalTest {
                   new Model.Layer3Absolute(2.0, 8.0, 4.0, units.toSI(hStep), new Model.P(100, 200)),
                   new Model.P((hDiffMax / hStep) * 4 / 18, (hDiffMax / hStep) * 14 / 18)
               ))
-          ).isNotNegative().isCloseTo(0.423, byLessThan(1.0e-3))
+          ).isNotNegative().isCloseTo(0.042, byLessThan(1.0e-3))
       );
     }
   }

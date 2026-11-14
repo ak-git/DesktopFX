@@ -57,12 +57,21 @@ public sealed interface ParametricFunctional {
         return measurement;
       }
 
+      protected final double regularization2(K k, double h) {
+        double r = regularization(k, h);
+        if (Double.isFinite(r)) {
+          return r + Numbers.regularization(Math.abs(k.value()), 0.0, 2.0);
+        }
+        else {
+          return Double.POSITIVE_INFINITY;
+        }
+      }
+
       protected final double regularization(K k, double h) {
         double hMin = system.hMin(k);
         double hMax = system.hMax(k);
         if (hMin < h && h < hMax) {
-          return Numbers.regularization(log(h), log(Math.max(hMin, Metrics.Length.MICRO.toSI(10.0))), log(hMax)) +
-              Numbers.regularization(Math.abs(k.value()), 0.0, 2.0);
+          return Numbers.regularization(log(h), log(Math.max(hMin, Metrics.Length.MICRO.toSI(10.0))), log(hMax));
         }
         else {
           return Double.POSITIVE_INFINITY;
@@ -141,7 +150,7 @@ public sealed interface ParametricFunctional {
           return switch (regularization) {
             case ZERO_MAX_LOG -> layer ->
                 switch (Objects.requireNonNull(layer)) {
-                  case Model.Layer2Relative(K k, double h) -> regularization(k, h);
+                  case Model.Layer2Relative(K k, double h) -> regularization2(k, h);
                   case Model.Layer3RelativeDh(Model.Layer3Relative layer3Relative, _) ->
                       regularization3(layer3Relative);
                   case Model.Layer3AbsoluteDh(Model.Layer3Absolute layer3Absolute, _) ->
@@ -195,7 +204,7 @@ public sealed interface ParametricFunctional {
           return switch (regularization) {
             case ZERO_MAX_LOG -> layer -> {
               if (Objects.requireNonNull(layer) instanceof Model.Layer2DhModel layer2Relative) {
-                return regularization(layer2Relative.relative().k(), layer2Relative.relative().h()) +
+                return regularization2(layer2Relative.relative().k(), layer2Relative.relative().h()) +
                     Numbers.regularization(Math.abs(layer2Relative.dh()), 0, 2.0 * Math.abs(measurement().hDiffMax()));
               }
               throw new IllegalArgumentException("Unexpected value: " + layer);
@@ -216,7 +225,7 @@ public sealed interface ParametricFunctional {
               if (Objects.requireNonNull(layer) instanceof Model.Layer2RelativeDh(
                   Model.Layer2Relative layer2Relative, double dh
               )) {
-                return regularization(layer2Relative.k(), layer2Relative.h()) +
+                return regularization2(layer2Relative.k(), layer2Relative.h()) +
                     Numbers.regularization(dh, -Math.abs(measurement().hDiffZero()), Math.abs(measurement().hDiffZero()));
               }
               throw new IllegalArgumentException("Unexpected value: " + layer);

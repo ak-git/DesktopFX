@@ -149,11 +149,14 @@ class SolverTest {
   @Nested
   class TwoMaxDiffTest {
     @Disabled("""
+        2025-04-23 E-9712 ak 6 мм
         Оценка предела h
-        -alpha=0,0083- k₁₂ = -0,417; h = 9,154 mm
+        alpha = 0,0011; fitness = 0,0362; Layer2{k₁₂ = -0,452; h = 12,744 mm}
+        alpha = 0,0023; fitness = 0,0390; Layer2{k₁₂ = -0,496; h = 9,813 mm}
         """)
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
+        129.195 | 200.848 | 0.0985 | 0.2742 | 0.090
         124.861 | 184.182 | 0.2400 | 0.5270 | 0.090
         """)
     void hDiff(double r1, double r2, double r1Diff, double r2Diff, double hDiffMilli) {
@@ -170,9 +173,10 @@ class SolverTest {
     }
 
     @Disabled("""
+        2025-04-23 E-9712 ak 6 мм
         Оценка перемещения индентора по двухслойной модели
-        -alpha=0,0078- k₁₂ = -0,538; h = 10,047 mm; Δh = 0,051 mm 2025-04-23 E-9712 ak 6 мм
-        -alpha=0,0085- k₁₂ = -0,417; h = 7,781 mm; Δh = 0,075 mm
+        alpha = 0,0020; fitness = 0,0441; {Layer2{k₁₂ = -0,776; h = 10,737 mm}; Δh = 0,043 mm}
+        alpha = 0,0029; fitness = 0,0415; {Layer2{k₁₂ = -0,651; h = 8,176 mm}; Δh = 0,054 mm}
         """)
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
@@ -193,10 +197,10 @@ class SolverTest {
     }
 
     @Disabled("""
+        2025-04-23 E-9712 ak 6 мм
         Оценка толщины жира по двухслойной модели
-        -alpha=0,0015- k₁₂ = -0,999; h = 13,543 mm; Δh = 0,137 mm 2025-04-23 E-9712 ak 6 мм
-        -alpha=0,0020- k₁₂ = -0,999; h = 11,082 mm; Δh = 0,071 mm 2025-04-23 E-9712 ak 6 мм
-        -alpha=0,4470- k₁₂ = -0,788; h = 3,878 mm; Δh = 0,006 mm
+        alpha = 0,0037; fitness = 0,1960; {Layer2{k₁₂ = -1,000; h = 14,413 mm}; Δh = 0,166 mm}
+        alpha = 0,0577; fitness = 0,0586; {Layer2{k₁₂ = -0,794; h = 3,573 mm}; Δh = 0,005 mm}
         """)
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
@@ -217,24 +221,20 @@ class SolverTest {
     }
 
     @Disabled("""
-        2 - 8 - 4 / 1.5, 2.0, -30/90 + 60/120
-        111.909, 169.731, 0.217, 0.075, -0.499, -0.234, -0.090, 0.180
-        
-        129.008, 199.456, 0.0948, 0.2517, -0.1881, -0.5382, 0.09, -0.18
+        129.008, 199.456, 0.0948, 0.2517, 0.09
+        128.847, 198.872, 0.0837, 0.2436, 0.09
+        128.652, 198.051, 0.0786, 0.2518, 0.09
         """)
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
-        111.909, 169.731, 0.217, 0.075, -0.499, -0.234, -0.090, 0.180
+        129.008, 199.456, 0.0948, 0.2517, 0.09
+        128.847, 198.872, 0.0837, 0.2436, 0.09
+        128.652, 198.051, 0.0786, 0.2518, 0.09
         """)
-    void hDiffMaxLayer3(double r1, double r2, double r1SmallDiff, double r2SmallDiff,
-                        double r1BigDiff, double r2BigDiff, double hSmallDiffMax, double hBigDiffMax) {
-      Collection<Solver.Solution> solution = Solver.<TetrapolarMeasurement.TwoMaxDiff>of(6.0, Metrics.Length.MILLI)
-          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1SmallDiff).hDiffMax(hSmallDiffMax, Metrics.Length.MILLI)
-              .add(m2 -> m2.ohms(r1).thenOhms(r1 + r1BigDiff).hDiffMax(hBigDiffMax, Metrics.Length.MILLI))
-          )
-          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2SmallDiff).hDiffMax(hSmallDiffMax, Metrics.Length.MILLI)
-              .add(m2 -> m2.ohms(r2).thenOhms(r2 + r2BigDiff).hDiffMax(hBigDiffMax, Metrics.Length.MILLI))
-          )
+    void absolute3(double r1, double r2, double r1Diff, double r2Diff, double hDiff) {
+      Collection<Solver.Solution> solution = Solver.<TetrapolarMeasurement.Diff>of(6.0, Metrics.Length.MILLI)
+          .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiff(hDiff, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiff(hDiff, Metrics.Length.MILLI))
           .origin(inexact -> {
                 List<ElectrodeSystem.Inexact> systems = inexact.toList();
                 double apparent1 = Resistivity.of(systems.getFirst()).apparent(r1);
@@ -243,13 +243,17 @@ class SolverTest {
                     .mapToObj(x -> ValuePair.Name.RHO.of(x, 0.0).toString()).collect(Collectors.joining("; "))
                 );
             double hStep = Metrics.Length.MILLI.toSI(0.01);
-            return new Model.Layer3RelativeDh(
-                new Model.Layer3Relative(K.PLUS_ONE, K.MINUS_ONE, hStep, new Model.P(200, 250)),
-                new Model.P(3, 6)
+            double p1 = Metrics.Length.MILLI.toSI(0.04) / hStep;
+            return new Model.Layer3AbsoluteDh(
+                new Model.Layer3Absolute(Math.min(apparent1, apparent2), Math.max(apparent1, apparent2), Math.min(apparent1, apparent2),
+                    hStep,
+                    new Model.P(Metrics.Length.MILLI.toSI(2.0) / hStep, Metrics.Length.MILLI.toSI(4.0) / hStep)
+                ),
+                new Model.P(p1, Metrics.Length.MILLI.toSI(hDiff) / hStep - p1)
                 );
               }
           )
-          .build().solve(1.0, 0.1, 0.01);
+          .build().solve(100.0, 10.0, 1.0);
       Assertions.assertThat(solution).hasSize(3).doesNotContainNull().doesNotHaveDuplicates();
     }
   }
@@ -264,30 +268,82 @@ class SolverTest {
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
         148.390, 222.283, 213.328, 243.550,  0.108, 0.582, 0.358, 1.014, 0.210
-        146.571, 216.301, 208.746, 236.736, -0.043, 0.139, 0.046, 0.074, 0.210
+        148.390, 222.283, 213.328, 243.550,  0.108, 0.582, 0.358, 1.014, 0.210
         """)
-    void hDiffMaxLayer3(double r1, double r2, double r3, double r4,
-                        double dr1, double dr2, double dr3, double dr4, double hDiffMax) {
-      Collection<Solver.Solution> solution = Solver.<TetrapolarMeasurement.MaxDiff>of(6.0, Metrics.Length.MILLI)
-          .system1x3(m -> m.ohms(r1).thenOhms(r1 + dr1).hDiffMax(hDiffMax, Metrics.Length.MILLI))
-          .system5x3(m -> m.ohms(r2).thenOhms(r2 + dr2).hDiffMax(hDiffMax, Metrics.Length.MILLI))
-          .system2x4(m -> m.ohms(r3).thenOhms(r3 + dr3).hDiffMax(hDiffMax, Metrics.Length.MILLI))
-          .system6x4(m -> m.ohms(r4).thenOhms(r4 + dr4).hDiffMax(hDiffMax, Metrics.Length.MILLI))
-          .origin(_ -> {
-            double hStep = Metrics.Length.MILLI.toSI(0.01);
-            int dpMax = Numbers.toInt(Metrics.Length.MILLI.toSI(hDiffMax) / hStep);
-            return new Model.Layer3RelativeDh(
-                new Model.Layer3Relative(K.PLUS_ONE, K.MINUS_ONE, hStep,
-                    new Model.P(
-                        Metrics.Length.MILLI.toSI(2.0) / hStep,
-                        Metrics.Length.MILLI.toSI(3.0) / hStep
-                    )
-                ),
-                new Model.P(dpMax, dpMax)
-            );
+    void relative3(double r1, double r2, double r3, double r4,
+                   double dr1, double dr2, double dr3, double dr4, double hDiff) {
+      Collection<Solver.Solution> solution = Solver.<TetrapolarMeasurement.Diff>of(6.0, Metrics.Length.MILLI)
+          .system1x3(m -> m.ohms(r1).thenOhms(r1 + dr1).hDiff(hDiff, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2 + dr2).hDiff(hDiff, Metrics.Length.MILLI))
+          .system2x4(m -> m.ohms(r3).thenOhms(r3 + dr3).hDiff(hDiff, Metrics.Length.MILLI))
+          .system6x4(m -> m.ohms(r4).thenOhms(r4 + dr4).hDiff(hDiff, Metrics.Length.MILLI))
+          .origin(inexact -> {
+                List<ElectrodeSystem.Inexact> systems = inexact.toList();
+                double[] rs = {r1, r2, r3, r4};
+                double rhoMin = Double.MAX_VALUE;
+                double rhoMax = Double.MIN_VALUE;
+                for (int i = 0; i < rs.length; i++) {
+                  double apparent = Resistivity.of(systems.get(i)).apparent(rs[i]);
+                  LOGGER.atDebug().addKeyValue("rho", apparent).log(systems.get(i).toString());
+                  rhoMin = Math.min(rhoMin, apparent);
+                  rhoMax = Math.max(rhoMax, apparent);
+                }
+
+                double hStep = Metrics.Length.MILLI.toSI(0.01);
+                int dp2 = Numbers.toInt(Metrics.Length.MILLI.toSI(hDiff) / hStep);
+                return new Model.Layer3RelativeDh(new Model.Layer3Relative(K.PLUS_ONE, K.MINUS_ONE,
+                    hStep, new Model.P(
+                    Metrics.Length.MILLI.toSI(2.0) / hStep,
+                    Metrics.Length.MILLI.toSI(3.0) / hStep
+                )
+                ), new Model.P(0, dp2));
               }
           )
-          .build().solve(10.0, 0.1, 0.001);
+          .build().solve(100.0, 1.0, 0.01);
+      Assertions.assertThat(solution).hasSize(3).doesNotContainNull().doesNotHaveDuplicates();
+    }
+
+    @Disabled("""
+        2022-05-13 E-7672 ak 6 мм
+        148.390, 222.283, 213.328, 243.550,  0.108, 0.582, 0.358, 1.014, 0.210
+        146.571, 216.301, 208.746, 236.736, -0.043, 0.139, 0.046, 0.074, 0.210
+        """)
+    @ParameterizedTest
+    @CsvSource(delimiter = ',', textBlock = """
+        148.390, 222.283, 213.328, 243.550,  0.108, 0.582, 0.358, 1.014, 0.210
+        146.571, 216.301, 208.746, 236.736, -0.043, 0.139, 0.046, 0.074, 0.210
+        """)
+    void absolute3(double r1, double r2, double r3, double r4,
+                   double dr1, double dr2, double dr3, double dr4, double hDiff) {
+      Collection<Solver.Solution> solution = Solver.<TetrapolarMeasurement.Diff>of(6.0, Metrics.Length.MILLI)
+          .system1x3(m -> m.ohms(r1).thenOhms(r1 + dr1).hDiff(hDiff, Metrics.Length.MILLI))
+          .system5x3(m -> m.ohms(r2).thenOhms(r2 + dr2).hDiff(hDiff, Metrics.Length.MILLI))
+          .system2x4(m -> m.ohms(r3).thenOhms(r3 + dr3).hDiff(hDiff, Metrics.Length.MILLI))
+          .system6x4(m -> m.ohms(r4).thenOhms(r4 + dr4).hDiff(hDiff, Metrics.Length.MILLI))
+          .origin(inexact -> {
+            List<ElectrodeSystem.Inexact> systems = inexact.toList();
+            double[] rs = {r1, r2, r3, r4};
+            double rhoMin = Double.MAX_VALUE;
+            double rhoMax = Double.MIN_VALUE;
+            for (int i = 0; i < rs.length; i++) {
+              double apparent = Resistivity.of(systems.get(i)).apparent(rs[i]);
+              LOGGER.atDebug().addKeyValue("rho", apparent).log(systems.get(i).toString());
+              rhoMin = Math.min(rhoMin, apparent);
+              rhoMax = Math.max(rhoMax, apparent);
+            }
+
+            double hStep = Metrics.Length.MILLI.toSI(0.01);
+            int dp1 = Numbers.toInt(Metrics.Length.MILLI.toSI(0.0) / hStep);
+            int dp2 = Numbers.toInt(Metrics.Length.MILLI.toSI(hDiff) / hStep) - dp1;
+            return new Model.Layer3AbsoluteDh(new Model.Layer3Absolute(rhoMin, rhoMax, rhoMin,
+                hStep, new Model.P(
+                Metrics.Length.MILLI.toSI(2.0) / hStep,
+                Metrics.Length.MILLI.toSI(3.0) / hStep
+            )
+            ), new Model.P(dp1, dp2));
+              }
+          )
+          .build().solve(1.0, 0.1, 0.01);
       Assertions.assertThat(solution).hasSize(3).doesNotContainNull().doesNotHaveDuplicates();
     }
   }
