@@ -139,10 +139,6 @@ public sealed interface Model {
       Objects.requireNonNull(p);
     }
 
-    public Model toModel(Model.P dp) {
-      return new Model.Layer3Absolute(rho1, rho2, rho3, hStep, p.add(dp));
-    }
-
     @Override
     public String toString() {
       return Stream.of(

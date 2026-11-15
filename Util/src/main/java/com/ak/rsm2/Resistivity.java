@@ -95,8 +95,14 @@ public sealed interface Resistivity {
             yield new ApparentRecord(system, apparent.value(), derivative / system.phiFactor());
           }
           case Model.Layer3Absolute layer3Absolute -> layer3AbsoluteApparent(layer3Absolute);
-          case Model.Layer3AbsoluteDh layer3AbsoluteDh ->
-              throw new IllegalArgumentException(layer3AbsoluteDh.toString());
+          case Model.Layer3AbsoluteDh(Model.Layer3Absolute absolute, Model.P dp) -> {
+            Model.Layer3Absolute absolute2 = new Model.Layer3Absolute(absolute.rho1(), absolute.rho2(), absolute.rho3(),
+                absolute.hStep(), absolute.p().add(dp));
+            Apparent apparent = layer3AbsoluteApparent(absolute);
+            Apparent apparent2 = layer3AbsoluteApparent(absolute2);
+            double derivative = (apparent2.value() - apparent.value()) / (dp.pSum() * absolute.hStep());
+            yield new ApparentRecord(system, apparent.value(), derivative / system.phiFactor());
+          }
         };
       }
 

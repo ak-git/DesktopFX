@@ -57,21 +57,21 @@ public sealed interface ParametricFunctional {
         return measurement;
       }
 
-      protected final double regularization2(K k, double h) {
-        double r = regularization(k, h);
-        if (Double.isFinite(r)) {
-          return r + Numbers.regularization(Math.abs(k.value()), 0.0, 2.0);
+      protected final double regularization(K k, double h) {
+        double hMin = system.hMin(k);
+        double hMax = system.hMax(k);
+        if (hMin < h && h < hMax) {
+          return Numbers.regularization(log(h), log(Math.max(hMin, Metrics.Length.MICRO.toSI(10.0))), log(hMax));
         }
         else {
           return Double.POSITIVE_INFINITY;
         }
       }
 
-      protected final double regularization(K k, double h) {
-        double hMin = system.hMin(k);
-        double hMax = system.hMax(k);
-        if (hMin < h && h < hMax) {
-          return Numbers.regularization(log(h), log(Math.max(hMin, Metrics.Length.MICRO.toSI(10.0))), log(hMax));
+      protected final double regularization2(K k, double h) {
+        double r = regularization(k, h);
+        if (Double.isFinite(r)) {
+          return r + Numbers.regularization(Math.abs(k.value()), 0.0, 2.0);
         }
         else {
           return Double.POSITIVE_INFINITY;
@@ -95,17 +95,6 @@ public sealed interface ParametricFunctional {
           default -> throw new IllegalArgumentException("Unexpected value: " + model);
         };
         return Double.isNaN(v) ? Double.POSITIVE_INFINITY : Math.abs(v);
-      }
-
-      protected final double misfitLog(Model model, Model model2, TetrapolarMeasurement m) {
-        Resistivity.Step1 r = Resistivity.of(system());
-        Resistivity.Apparent resistivity = r.apparent(model);
-        Resistivity.Apparent resistivity2 = r.apparent(model2);
-        double v = StrictMath.hypot(
-            log(resistivity.value() / r.apparent(m.ohms())),
-            log((resistivity2.value() - resistivity.value()) / r.apparent(m.ohmsDiff()))
-        );
-        return Double.isNaN(v) ? Double.POSITIVE_INFINITY : v;
       }
 
       private static final class Diff extends AbstractParametricFunctional<TetrapolarMeasurement.Diff> {
@@ -133,9 +122,9 @@ public sealed interface ParametricFunctional {
                     yield Double.POSITIVE_INFINITY;
                   }
                 }
-                case Model.Layer3AbsoluteDh(Model.Layer3Absolute layer3Absolute, Model.P dp) -> {
+                case Model.Layer3AbsoluteDh layer3Absolute -> {
                   if (layer3Absolute.p().p1() < layer3Absolute.p().p2mp1()) {
-                    yield misfitLog(layer3Absolute, layer3Absolute.toModel(dp), measurement());
+                    yield misfit(layer3Absolute, measurement(), measurement().hDiff());
                   }
                   else {
                     yield Double.POSITIVE_INFINITY;
