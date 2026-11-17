@@ -8,20 +8,18 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import io.jenetics.*;
 import io.jenetics.engine.*;
 import io.jenetics.util.ISeq;
-import io.jenetics.util.IntRange;
 import org.apache.commons.math4.legacy.analysis.interpolation.AkimaSplineInterpolator;
 import org.apache.commons.math4.legacy.analysis.interpolation.UnivariateInterpolator;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.units.indriya.unit.Units;
 
-import javax.measure.MetricPrefix;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
@@ -91,88 +89,6 @@ public sealed interface Solver {
   }
 
   final class SolverBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Step4<M>, Step5<M>, Builder<Solver> {
-    sealed interface Scaler {
-      static int toInt(Genotype<IntegerGene> genotype, int chromosome) {
-        return genotype.get(chromosome).as(IntegerChromosome.class).gene().allele();
-      }
-
-      double toSI(int index);
-
-      default double toSI(Genotype<IntegerGene> genotype, int chromosome) {
-        return toSI(toInt(genotype, chromosome));
-      }
-
-      int toIndex(double x);
-
-      IntRange range();
-
-      record KScaler(IntRange range) implements Scaler {
-        private static final int SCALE = 1000;
-
-        public KScaler(K kExtremal) {
-          int index = index(Math.clamp(kExtremal.value(), -1.0, 1.0));
-          this(new IntRange(Math.min(index, 0), Math.max(0, index)));
-        }
-
-        @Override
-        public double toSI(int index) {
-          return Math.clamp(index * 1.0 / SCALE, -1.0, 1.0);
-        }
-
-        @Override
-        public int toIndex(double k) {
-          return index(k);
-        }
-
-        private static int index(double k) {
-          return Math.clamp(Numbers.toInt(k * SCALE), -SCALE, SCALE);
-        }
-      }
-
-      record HScaler(IntRange range) implements Scaler {
-        public HScaler(double hExtremal) {
-          int index = index(hExtremal);
-          this(new IntRange(Math.min(index, 0), Math.max(0, index)));
-        }
-
-        @Override
-        public double toSI(int index) {
-          return Metrics.Length.MICRO.toSI(index);
-        }
-
-        @Override
-        public int toIndex(double hSI) {
-          return index(hSI);
-        }
-
-        private static int index(double hSI) {
-          return Numbers.toInt(Metrics.Length.METRE.to(hSI, MetricPrefix.MICRO(Units.METRE)));
-        }
-      }
-
-      record RhoScaler(IntRange range) implements Scaler {
-        private static final int SCALE = 1000;
-
-        public RhoScaler(double rhoMin, double rhoMax) {
-          this(new IntRange(index(Math.min(rhoMin, rhoMax)), index(Math.max(rhoMin, rhoMax))));
-        }
-
-        @Override
-        public double toSI(int index) {
-          return index * 1.0 / SCALE;
-        }
-
-        @Override
-        public int toIndex(double rho) {
-          return index(rho);
-        }
-
-        private static int index(double rho) {
-          return Numbers.toInt(rho * SCALE);
-        }
-      }
-    }
-
     private static final class GeneticSolver implements Solver {
       private static final Logger LOGGER = LoggerFactory.getLogger(GeneticSolver.class);
       private final int size;
@@ -204,11 +120,11 @@ public sealed interface Solver {
        */
       private final int offspringSize;
       private final Collection<ParametricFunctional> parametricFunctionals;
-      private final InvertibleCodec<Model, IntegerGene> modelFactory;
+      private final InvertibleCodec<Model, AnyGene<Number>> modelFactory;
       private final Cache<Alpha, Solution> alphaCache = Caffeine.newBuilder().maximumSize(1 << 6).build();
-      private @Nullable ISeq<Phenotype<IntegerGene, Double>> resetPopulation;
+      private @Nullable ISeq<Phenotype<AnyGene<Number>, Double>> resetPopulation;
 
-      private GeneticSolver(Collection<ParametricFunctional> parametricFunctionals, InvertibleCodec<Model, IntegerGene> modelFactory,
+      private GeneticSolver(Collection<ParametricFunctional> parametricFunctionals, InvertibleCodec<Model, AnyGene<Number>> modelFactory,
                             int size) {
         this.parametricFunctionals = Objects.requireNonNull(parametricFunctionals);
         this.modelFactory = Objects.requireNonNull(modelFactory);
@@ -220,145 +136,123 @@ public sealed interface Solver {
 
       GeneticSolver(Collection<ParametricFunctional> parametricFunctionals, Model origin, int size) {
         this(parametricFunctionals, switch (origin) {
-          case Model.Layer2Relative(K kExtremal, double hExtremal) -> {
-            Scaler kScaler = new Scaler.KScaler(kExtremal);
-            Scaler hScaler = new Scaler.HScaler(hExtremal);
-            yield InvertibleCodec.of(
-                () -> Genotype.of(
-                    IntegerChromosome.of(kScaler.range()),
-                    IntegerChromosome.of(hScaler.range())
-                ),
-                chromosomes -> new Model.Layer2Relative(
-                    K.of(kScaler.toSI(chromosomes, 0)),
-                    hScaler.toSI(chromosomes, 1)
-                ),
-                model -> {
-                  if (model instanceof Model.Layer2Relative(K k, double h)) {
-                    return Genotype.of(
-                        IntegerChromosome.of(IntegerGene.of(kScaler.toIndex(k.value()), kScaler.range())),
-                        IntegerChromosome.of(IntegerGene.of(hScaler.toIndex(h), hScaler.range()))
-                    );
-                  }
-                  else {
-                    throw new IllegalArgumentException("Unexpected value: " + model);
-                  }
-                });
-          }
-          case Model.Layer2RelativeDh(Model.Layer2Model layer2RelativeExtremal, double dhExtremal) -> {
-            Scaler kScaler = new Scaler.KScaler(layer2RelativeExtremal.k());
-            Scaler hScaler = new Scaler.HScaler(layer2RelativeExtremal.h());
-            Scaler dhScaler = new Scaler.HScaler(dhExtremal);
-            yield InvertibleCodec.of(
-                () -> Genotype.of(
-                    IntegerChromosome.of(kScaler.range()),
-                    IntegerChromosome.of(hScaler.range()),
-                    IntegerChromosome.of(dhScaler.range())
-                ),
-                chromosomes -> new Model.Layer2RelativeDh(
-                    K.of(kScaler.toSI(chromosomes, 0)),
-                    hScaler.toSI(chromosomes, 1),
-                    dhScaler.toSI(chromosomes, 2)
-                ),
-                model -> {
-                  if (model instanceof Model.Layer2RelativeDh(Model.Layer2Relative layer2Relative, double dh)) {
-                    return Genotype.of(
-                        IntegerChromosome.of(IntegerGene.of(kScaler.toIndex(layer2Relative.k().value()), kScaler.range())),
-                        IntegerChromosome.of(IntegerGene.of(hScaler.toIndex(layer2Relative.h()), hScaler.range())),
-                        IntegerChromosome.of(IntegerGene.of(dhScaler.toIndex(dh), dhScaler.range()))
-                    );
-                  }
-                  else {
-                    throw new IllegalArgumentException("Unexpected value: " + model);
-                  }
-                });
-          }
+          case Model.Layer2Relative(K kExtremal, double hExtremal) -> InvertibleCodec.of(
+              () -> Genotype.of(
+                  AnyChromosome.of(() -> ThreadLocalRandom.current().nextDouble(Math.min(kExtremal.value(), 0), Math.max(0, kExtremal.value()))),
+                  AnyChromosome.of(() -> ThreadLocalRandom.current().nextDouble(0, hExtremal))
+              ),
+              chromosomes -> new Model.Layer2Relative(
+                  K.of(chromosomes.get(0).gene().allele().doubleValue()),
+                  chromosomes.get(1).gene().allele().doubleValue()
+              ),
+              model -> {
+                if (model instanceof Model.Layer2Relative(K k, double h)) {
+                  return Genotype.of(AnyChromosome.of(k::value), AnyChromosome.of(() -> h));
+                }
+                else {
+                  throw new IllegalArgumentException("Unexpected value: " + model);
+                }
+              }
+          );
+          case Model.Layer2RelativeDh(Model.Layer2Model layer2Extremal, double dhExtremal) -> InvertibleCodec.of(
+              () -> Genotype.of(
+                  AnyChromosome.of(() -> ThreadLocalRandom.current().nextDouble(
+                      Math.min(layer2Extremal.k().value(), 0), Math.max(0, layer2Extremal.k().value()))),
+                  AnyChromosome.of(() -> ThreadLocalRandom.current().nextDouble(0, layer2Extremal.h())),
+                  AnyChromosome.of(() -> ThreadLocalRandom.current().nextDouble(Math.min(dhExtremal, 0), Math.max(0, dhExtremal)))
+              ),
+              chromosomes -> new Model.Layer2RelativeDh(
+                  K.of(chromosomes.get(0).gene().allele().doubleValue()),
+                  chromosomes.get(1).gene().allele().doubleValue(),
+                  chromosomes.get(2).gene().allele().doubleValue()
+              ),
+              model -> {
+                if (model instanceof Model.Layer2RelativeDh(Model.Layer2Relative layer2Relative, double dh)) {
+                  return Genotype.of(
+                      AnyChromosome.of(() -> layer2Relative.k().value()),
+                      AnyChromosome.of(layer2Relative::h),
+                      AnyChromosome.of(() -> dh)
+                  );
+                }
+                else {
+                  throw new IllegalArgumentException("Unexpected value: " + model);
+                }
+              });
           case Model.Layer3Relative layer3Relative ->
               throw new IllegalArgumentException("Unexpected value: " + layer3Relative);
-          case Model.Layer3RelativeDh(Model.Layer3Relative layer3Extremal, Model.P dpExtremal) -> {
-            Scaler k1Scaler = new Scaler.KScaler(layer3Extremal.k1());
-            Scaler k2Scaler = new Scaler.KScaler(layer3Extremal.k2());
-            IntRange p1Range = new IntRange(1, layer3Extremal.p().p1());
-            IntRange p2mp1Range = new IntRange(1, layer3Extremal.p().p2mp1());
-            yield InvertibleCodec.of(
-                () -> Genotype.of(
-                    IntegerChromosome.of(k1Scaler.range()),
-                    IntegerChromosome.of(k2Scaler.range()),
-                    IntegerChromosome.of(p1Range),
-                    IntegerChromosome.of(p2mp1Range)
-                ),
-                chromosomes -> {
-                  Model.Layer3Relative layer3Relative = new Model.Layer3Relative(
-                      K.of(k1Scaler.toSI(chromosomes, 0)),
-                      K.of(k2Scaler.toSI(chromosomes, 1)),
-                      layer3Extremal.hStep(),
-                      new Model.P(Scaler.toInt(chromosomes, 2), Scaler.toInt(chromosomes, 3))
+          case Model.Layer3RelativeDh(Model.Layer3Relative layer3Extremal, Model.P dpExtremal) -> InvertibleCodec.of(
+              () -> Genotype.of(
+                  AnyChromosome.of(() -> ThreadLocalRandom.current().nextDouble(
+                      Math.min(layer3Extremal.k1().value(), 0), Math.max(0, layer3Extremal.k1().value()))),
+                  AnyChromosome.of(() -> ThreadLocalRandom.current().nextDouble(
+                      Math.min(layer3Extremal.k2().value(), 0), Math.max(0, layer3Extremal.k2().value()))),
+                  AnyChromosome.of(() -> ThreadLocalRandom.current().nextInt(1, layer3Extremal.p().p1() + 1)),
+                  AnyChromosome.of(() -> ThreadLocalRandom.current().nextInt(1, layer3Extremal.p().p2mp1() + 1))
+              ),
+              chromosomes -> {
+                Model.Layer3Relative layer3Relative = new Model.Layer3Relative(
+                    K.of(chromosomes.get(0).gene().allele().doubleValue()),
+                    K.of(chromosomes.get(1).gene().allele().doubleValue()),
+                    layer3Extremal.hStep(),
+                    new Model.P(chromosomes.get(2).gene().allele().intValue(), chromosomes.get(3).gene().allele().intValue())
+                );
+                return new Model.Layer3RelativeDh(layer3Relative, dpExtremal);
+              },
+              model -> {
+                if (model instanceof Model.Layer3RelativeDh(
+                    Model.Layer3Relative layer3, _
+                )) {
+                  return Genotype.of(
+                      AnyChromosome.of(() -> layer3.k1().value()),
+                      AnyChromosome.of(() -> layer3.k2().value()),
+                      AnyChromosome.of(() -> layer3.p().p1()),
+                      AnyChromosome.of(() -> layer3.p().p2mp1())
                   );
-                  return new Model.Layer3RelativeDh(layer3Relative, dpExtremal);
-                },
-                model -> {
-                  if (model instanceof Model.Layer3RelativeDh(
-                      Model.Layer3Relative layer3, _
-                  )) {
-                    return Genotype.of(
-                        IntegerChromosome.of(IntegerGene.of(k1Scaler.toIndex(layer3.k1().value()), k1Scaler.range())),
-                        IntegerChromosome.of(IntegerGene.of(k2Scaler.toIndex(layer3.k1().value()), k2Scaler.range())),
-                        IntegerChromosome.of(IntegerGene.of(layer3.p().p1(), p1Range)),
-                        IntegerChromosome.of(IntegerGene.of(layer3.p().p2mp1(), p2mp1Range))
-                    );
-                  }
-                  else {
-                    throw new IllegalArgumentException("Unexpected value: " + model);
-                  }
-                });
-          }
+                }
+                else {
+                  throw new IllegalArgumentException("Unexpected value: " + model);
+                }
+              });
           case Model.Layer3Absolute layer3Absolute ->
               throw new IllegalArgumentException("Unexpected value: " + layer3Absolute);
-          case Model.Layer3AbsoluteDh(Model.Layer3Absolute layer3Extremal, Model.P dpExtremal) -> {
-            Scaler rho1Scaler = new Scaler.RhoScaler(1.35, layer3Extremal.rho1());
-            Scaler rho2Scaler = new Scaler.RhoScaler(layer3Extremal.rho2(), 20.0);
-            Scaler rho3Scaler = new Scaler.RhoScaler(1.35, layer3Extremal.rho3());
-            IntRange p1Range = new IntRange(1, layer3Extremal.p().p1());
-            IntRange p2mp1Range = new IntRange(1, layer3Extremal.p().p2mp1());
-            IntRange dp1Range = new IntRange(0, dpExtremal.p1());
-            yield InvertibleCodec.of(
-                () -> Genotype.of(
-                    IntegerChromosome.of(rho1Scaler.range()),
-                    IntegerChromosome.of(rho2Scaler.range()),
-                    IntegerChromosome.of(rho3Scaler.range()),
-                    IntegerChromosome.of(p1Range),
-                    IntegerChromosome.of(p2mp1Range),
-                    IntegerChromosome.of(dp1Range)
-                ),
-                chromosomes -> {
-                  Model.Layer3Absolute layer3Absolute = new Model.Layer3Absolute(
-                      rho1Scaler.toSI(chromosomes, 0),
-                      rho2Scaler.toSI(chromosomes, 1),
-                      rho3Scaler.toSI(chromosomes, 2),
-                      layer3Extremal.hStep(),
-                      new Model.P(Scaler.toInt(chromosomes, 3), Scaler.toInt(chromosomes, 4))
+          case Model.Layer3AbsoluteDh(Model.Layer3Absolute layer3Extremal, Model.P dpExtremal) -> InvertibleCodec.of(
+              () -> Genotype.of(
+                  AnyChromosome.of(() -> ThreadLocalRandom.current().nextDouble(1.35, layer3Extremal.rho1())),
+                  AnyChromosome.of(() -> ThreadLocalRandom.current().nextDouble(layer3Extremal.rho2(), 20.0)),
+                  AnyChromosome.of(() -> ThreadLocalRandom.current().nextDouble(1.35, layer3Extremal.rho3())),
+                  AnyChromosome.of(() -> ThreadLocalRandom.current().nextInt(1, layer3Extremal.p().p1() + 1)),
+                  AnyChromosome.of(() -> ThreadLocalRandom.current().nextInt(1, layer3Extremal.p().p2mp1() + 1)),
+                  AnyChromosome.of(() -> ThreadLocalRandom.current().nextInt(0, dpExtremal.p1() + 1))
+              ),
+              chromosomes -> {
+                Model.Layer3Absolute layer3Absolute = new Model.Layer3Absolute(
+                    chromosomes.get(0).gene().allele().doubleValue(),
+                    chromosomes.get(1).gene().allele().doubleValue(),
+                    chromosomes.get(2).gene().allele().doubleValue(),
+                    layer3Extremal.hStep(),
+                    new Model.P(chromosomes.get(3).gene().allele().intValue(), chromosomes.get(4).gene().allele().intValue())
+                );
+                int p1 = chromosomes.get(5).gene().allele().intValue();
+                int p2mp1 = dpExtremal.pSum() - p1;
+                return new Model.Layer3AbsoluteDh(layer3Absolute, new Model.P(p1, p2mp1));
+              },
+              model -> {
+                if (model instanceof Model.Layer3AbsoluteDh(
+                    Model.Layer3Absolute layer3, Model.P dp
+                )) {
+                  return Genotype.of(
+                      AnyChromosome.of(layer3::rho1),
+                      AnyChromosome.of(layer3::rho2),
+                      AnyChromosome.of(layer3::rho3),
+                      AnyChromosome.of(() -> layer3.p().p1()),
+                      AnyChromosome.of(() -> layer3.p().p2mp1()),
+                      AnyChromosome.of(dp::p1)
                   );
-                  int p1 = Scaler.toInt(chromosomes, 5);
-                  int p2mp1 = dpExtremal.pSum() - p1;
-                  return new Model.Layer3AbsoluteDh(layer3Absolute, new Model.P(p1, p2mp1));
-                },
-                model -> {
-                  if (model instanceof Model.Layer3AbsoluteDh(
-                      Model.Layer3Absolute layer3, Model.P dp
-                  )) {
-                    return Genotype.of(
-                        IntegerChromosome.of(IntegerGene.of(rho1Scaler.toIndex(layer3.rho1()), rho1Scaler.range())),
-                        IntegerChromosome.of(IntegerGene.of(rho2Scaler.toIndex(layer3.rho2()), rho2Scaler.range())),
-                        IntegerChromosome.of(IntegerGene.of(rho3Scaler.toIndex(layer3.rho3()), rho3Scaler.range())),
-                        IntegerChromosome.of(IntegerGene.of(layer3.p().p1(), p1Range)),
-                        IntegerChromosome.of(IntegerGene.of(layer3.p().p2mp1(), p2mp1Range)),
-                        IntegerChromosome.of(IntegerGene.of(dp.p1(), dp1Range))
-                    );
-                  }
-                  else {
-                    throw new IllegalArgumentException("Unexpected value: " + model);
-                  }
-                });
-          }
+                }
+                else {
+                  throw new IllegalArgumentException("Unexpected value: " + model);
+                }
+              });
         }, size);
       }
 
@@ -385,23 +279,27 @@ public sealed interface Solver {
           });
         };
 
-        EvolutionResult<IntegerGene, Double> evolutionState = null;
+        EvolutionResult<AnyGene<Number>, Double> evolutionState = null;
 
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+          final double maxMutation = 1.0 / Math.E;
+          final double minMutation = 0.01;
+          final double decayFactor = 0.85; // Чем ближе к 1.0, тем медленнее спад
+
           for (int epoch = 0, totalEpochs = 1 << 4; epoch < totalEpochs; epoch++) {
-            double mutationRate = Math.clamp(1.0 / Math.E / Integer.highestOneBit(epoch), 0.01, 1.0 / Math.E);
-            Engine<IntegerGene, Double> engine = Engine.builder(fitness::applyAsDouble, modelFactory)
+            double mutationRate = minMutation + (maxMutation - minMutation) * StrictMath.pow(decayFactor, epoch);
+            Engine<AnyGene<Number>, Double> engine = Engine.builder(fitness::applyAsDouble, modelFactory)
                 .populationSize(size)
                 .optimize(Optimize.MINIMUM)
                 .executor(executor)
                 .survivorsSelector(new EliteSelector<>(eliteSize))
                 .selector(new TournamentSelector<>(parentSize))
                 .offspringSelector(new TournamentSelector<>(offspringSize))
-                .alterers(new Mutator<>(mutationRate), new LineCrossover<>(0.15), new MultiPointCrossover<>(0.6, 2))
+                .alterers(new Mutator<>(mutationRate), new UniformCrossover<>(0.6))
                 .constraint(RetryConstraint.of(modelFactory, m -> Double.isFinite(fitness.applyAsDouble(m))))
                 .build();
 
-            EvolutionStream<IntegerGene, Double> stream;
+            EvolutionStream<AnyGene<Number>, Double> stream;
             if (evolutionState == null) {
               if (resetPopulation == null) {
                 stream = engine.stream();
@@ -431,7 +329,7 @@ public sealed interface Solver {
           }
           resetPopulation = Objects.requireNonNull(evolutionState).population()
               .stream()
-              .map(phenotype -> Phenotype.<IntegerGene, Double>of(phenotype.genotype(), 0)) // <-- ЯВНО УКАЗАЛИ ТИПЫ ХЕЛПЕРУ
+              .map(phenotype -> Phenotype.<AnyGene<Number>, Double>of(phenotype.genotype(), 0))
               .collect(ISeq.toISeq());
           LOGGER.atDebug()
               .addKeyValue("Вычислений", realEvaluationsCounter::sum)

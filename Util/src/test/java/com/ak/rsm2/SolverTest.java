@@ -221,18 +221,24 @@ class SolverTest {
     }
 
     @Disabled("""
+        2025-04-23 E-9712 ak 6 мм
         129.008, 199.456, 0.0948, 0.2517, 0.09
         128.847, 198.872, 0.0837, 0.2436, 0.09
         128.652, 198.051, 0.0786, 0.2518, 0.09
+        
+        2025-04-16 E-9696 ak 7 мм
+        112.383, 163.174, 0.2186, 0.4617, 0.09
+        alpha = 1,0000; fitness = 0,1160; ρ₁ = 1,915 Ω·m; ρ₂ = 10,335 Ω·m; ρ₃ = 4,747 Ω·m; h₁ = 1,760 mm; h₂ = 4,300 mm; Δh₁ = 0,010 mm; Δh₂ = 0,090 mm
+        
+        111.860, 162.224, 0.2166, 0.4486, 0.09
+        111.354, 161.497, 0.1881, 0.426, 0.09
         """)
     @ParameterizedTest
     @CsvSource(delimiter = ',', textBlock = """
-        129.008, 199.456, 0.0948, 0.2517, 0.09
-        128.847, 198.872, 0.0837, 0.2436, 0.09
-        128.652, 198.051, 0.0786, 0.2518, 0.09
+        112.383, 163.174, 0.2186, 0.4617, 0.09
         """)
     void absolute3(double r1, double r2, double r1Diff, double r2Diff, double hDiff) {
-      Collection<Solver.Solution> solution = Solver.<TetrapolarMeasurement.Diff>of(6.0, Metrics.Length.MILLI)
+      Collection<Solver.Solution> solution = Solver.<TetrapolarMeasurement.Diff>of(7.0, Metrics.Length.MILLI)
           .system1x3(m -> m.ohms(r1).thenOhms(r1 + r1Diff).hDiff(hDiff, Metrics.Length.MILLI))
           .system5x3(m -> m.ohms(r2).thenOhms(r2 + r2Diff).hDiff(hDiff, Metrics.Length.MILLI))
           .origin(inexact -> {
