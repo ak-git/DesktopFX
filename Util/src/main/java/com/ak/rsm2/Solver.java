@@ -8,8 +8,18 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import io.jenetics.*;
 import io.jenetics.engine.*;
 import io.jenetics.util.ISeq;
+import org.apache.commons.math4.legacy.analysis.MultivariateFunction;
 import org.apache.commons.math4.legacy.analysis.interpolation.AkimaSplineInterpolator;
 import org.apache.commons.math4.legacy.analysis.interpolation.UnivariateInterpolator;
+import org.apache.commons.math4.legacy.exception.TooManyEvaluationsException;
+import org.apache.commons.math4.legacy.optim.InitialGuess;
+import org.apache.commons.math4.legacy.optim.MaxEval;
+import org.apache.commons.math4.legacy.optim.PointValuePair;
+import org.apache.commons.math4.legacy.optim.SimpleValueChecker;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.GoalType;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.ObjectiveFunction;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.NelderMeadTransform;
+import org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +101,8 @@ public sealed interface Solver {
   final class SolverBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Step4<M>, Step5<M>, Builder<Solver> {
     private static final class GeneticSolver implements Solver {
       private static final Logger LOGGER = LoggerFactory.getLogger(GeneticSolver.class);
+      private static final double STOP_FITNESS = 1.0e-6;
+      private static final int MAX_SIMPLEX_EVALUATIONS = 1 << 7;
       private final int size;
       /**
        * Элита измеряется долей от популяции.
@@ -120,13 +132,15 @@ public sealed interface Solver {
        */
       private final int offspringSize;
       private final Collection<ParametricFunctional> parametricFunctionals;
+      private final Model origin;
       private final InvertibleCodec<Model, AnyGene<Number>> modelFactory;
       private final Cache<Alpha, Solution> alphaCache = Caffeine.newBuilder().maximumSize(1 << 6).build();
       private @Nullable ISeq<Phenotype<AnyGene<Number>, Double>> resetPopulation;
 
-      private GeneticSolver(Collection<ParametricFunctional> parametricFunctionals, InvertibleCodec<Model, AnyGene<Number>> modelFactory,
+      private GeneticSolver(Collection<ParametricFunctional> parametricFunctionals, Model origin, InvertibleCodec<Model, AnyGene<Number>> modelFactory,
                             int size) {
         this.parametricFunctionals = Objects.requireNonNull(parametricFunctionals);
+        this.origin = origin;
         this.modelFactory = Objects.requireNonNull(modelFactory);
         this.size = size;
         eliteSize = Math.max(3, (int) Math.floor(size * 0.006));
@@ -135,15 +149,15 @@ public sealed interface Solver {
       }
 
       GeneticSolver(Collection<ParametricFunctional> parametricFunctionals, Model origin, int size) {
-        this(parametricFunctionals, switch (origin) {
+        this(parametricFunctionals, origin, switch (origin) {
           case Model.Layer2Relative(K kExtremal, double hExtremal) -> InvertibleCodec.of(
               () -> Genotype.of(
                   AnyChromosome.of(() -> ThreadLocalRandom.current().nextDouble(Math.min(kExtremal.value(), 0), Math.max(0, kExtremal.value()))),
                   AnyChromosome.of(() -> ThreadLocalRandom.current().nextDouble(0, hExtremal))
               ),
               chromosomes -> new Model.Layer2Relative(
-                  K.of(chromosomes.get(0).gene().allele().doubleValue()),
-                  chromosomes.get(1).gene().allele().doubleValue()
+                  K.of(round3(chromosomes.get(0).gene().allele().doubleValue())),
+                  round3(chromosomes.get(1).gene().allele().doubleValue())
               ),
               model -> {
                 if (model instanceof Model.Layer2Relative(K k, double h)) {
@@ -162,9 +176,9 @@ public sealed interface Solver {
                   AnyChromosome.of(() -> ThreadLocalRandom.current().nextDouble(Math.min(dhExtremal, 0), Math.max(0, dhExtremal)))
               ),
               chromosomes -> new Model.Layer2RelativeDh(
-                  K.of(chromosomes.get(0).gene().allele().doubleValue()),
-                  chromosomes.get(1).gene().allele().doubleValue(),
-                  chromosomes.get(2).gene().allele().doubleValue()
+                  K.of(round3(chromosomes.get(0).gene().allele().doubleValue())),
+                  round3(chromosomes.get(1).gene().allele().doubleValue()),
+                  round3(chromosomes.get(2).gene().allele().doubleValue())
               ),
               model -> {
                 if (model instanceof Model.Layer2RelativeDh(Model.Layer2Relative layer2Relative, double dh)) {
@@ -191,8 +205,8 @@ public sealed interface Solver {
               ),
               chromosomes -> {
                 Model.Layer3Relative layer3Relative = new Model.Layer3Relative(
-                    K.of(chromosomes.get(0).gene().allele().doubleValue()),
-                    K.of(chromosomes.get(1).gene().allele().doubleValue()),
+                    K.of(round3(chromosomes.get(0).gene().allele().doubleValue())),
+                    K.of(round3(chromosomes.get(1).gene().allele().doubleValue())),
                     layer3Extremal.hStep(),
                     new Model.P(chromosomes.get(2).gene().allele().intValue(), chromosomes.get(3).gene().allele().intValue())
                 );
@@ -226,9 +240,9 @@ public sealed interface Solver {
               ),
               chromosomes -> {
                 Model.Layer3Absolute layer3Absolute = new Model.Layer3Absolute(
-                    chromosomes.get(0).gene().allele().doubleValue(),
-                    chromosomes.get(1).gene().allele().doubleValue(),
-                    chromosomes.get(2).gene().allele().doubleValue(),
+                    round3(chromosomes.get(0).gene().allele().doubleValue()),
+                    round3(chromosomes.get(1).gene().allele().doubleValue()),
+                    round3(chromosomes.get(2).gene().allele().doubleValue()),
                     layer3Extremal.hStep(),
                     new Model.P(chromosomes.get(3).gene().allele().intValue(), chromosomes.get(4).gene().allele().intValue())
                 );
@@ -256,8 +270,12 @@ public sealed interface Solver {
         }, size);
       }
 
+      private static double round3(double val) {
+        return Math.round(val * 1000.0) / 1000.0;
+      }
+
       private Solution innerSolve(Alpha alpha) {
-        Cache<Model, Double> fitnessCache = Caffeine.newBuilder().maximumSize(size).build();
+        Cache<Model, Double> fitnessCache = Caffeine.newBuilder().maximumSize(1 << 16).build();
         LongAdder realEvaluationsCounter = new LongAdder();
         LongAdder totalEvaluationsCounter = new LongAdder();
         ToDoubleFunction<Model> fitness = model -> {
@@ -279,12 +297,16 @@ public sealed interface Solver {
           });
         };
 
-        EvolutionResult<AnyGene<Number>, Double> evolutionState = null;
-
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+          EvolutionResult<AnyGene<Number>, Double> evolutionState = null;
+          Model bestModel = null;
+          Model lastRefinedSource = null;
+          double bestFitness = Double.POSITIVE_INFINITY;
+          double previousEpochFitness = Double.POSITIVE_INFINITY;
+          int stagnantEpochs = 0;
           final double maxMutation = 1.0 / Math.E;
           final double minMutation = 0.01;
-          final double decayFactor = 0.85; // Чем ближе к 1.0, тем медленнее спад
+          final double decayFactor = 0.85;
 
           for (int epoch = 0, totalEpochs = 1 << 4; epoch < totalEpochs; epoch++) {
             double mutationRate = minMutation + (maxMutation - minMutation) * StrictMath.pow(decayFactor, epoch);
@@ -311,19 +333,50 @@ public sealed interface Solver {
             else {
               stream = engine.stream(evolutionState);
             }
-            evolutionState = stream.limit(1 << 4).collect(EvolutionResult.toBestEvolutionResult());
+            evolutionState = stream.limit(1 << 6).collect(EvolutionResult.toBestEvolutionResult());
 
-            double bestFitness = evolutionState.bestFitness();
-            Model currentBestInput = modelFactory.decode(evolutionState.bestPhenotype().genotype());
+            double epochFitness = evolutionState.bestFitness();
+            Model epochBestModel = modelFactory.decode(evolutionState.bestPhenotype().genotype());
+            if (epochFitness < bestFitness) {
+              bestFitness = epochFitness;
+              bestModel = epochBestModel;
+            }
+
+            if (!epochBestModel.equals(lastRefinedSource)) {
+              lastRefinedSource = epochBestModel;
+              Model refined = nelderMead(epochBestModel, fitness);
+              double refinedFitness = fitness.applyAsDouble(refined);
+              if (refinedFitness < bestFitness) {
+                bestFitness = refinedFitness;
+                bestModel = refined;
+              }
+            }
+
+            if (previousEpochFitness - bestFitness < 1.0e-5) {
+              stagnantEpochs++;
+            }
+            else {
+              stagnantEpochs = 0;
+              previousEpochFitness = bestFitness;
+            }
 
             LOGGER.atDebug().addKeyValue("Эпоха", "%02d/%02d".formatted(epoch + 1, totalEpochs))
                 .addKeyValue("Поколение", "%03d".formatted(evolutionState.generation()))
                 .addKeyValue("Мутация", "%04.1f %%".formatted(mutationRate * 100))
                 .addKeyValue("Невязка", "%.4f".formatted(bestFitness))
-                .log(currentBestInput::toString);
+                .addKeyValue("Вычислений", realEvaluationsCounter::sum)
+                .addKeyValue("Всего попыток", totalEvaluationsCounter::sum)
+                .addKeyValue("Экономия за счет кэша", () -> "%.0f %%".formatted((1.0 - realEvaluationsCounter.doubleValue() / totalEvaluationsCounter.sum()) * 100))
+                .addKeyValue("Стагнированные эпохи", stagnantEpochs)
+                .log(Objects.requireNonNull(bestModel)::toString);
 
-            if (bestFitness < 1.0E-6) {
+            if (bestFitness < STOP_FITNESS) {
               LOGGER.atDebug().log(() -> "--> Минимум найден досрочно!");
+              break;
+            }
+
+            if (epoch >= totalEpochs / 2 && stagnantEpochs >= 3) {
+              LOGGER.atDebug().log(() -> "--> Досрочный выход: решение стабилизировалось");
               break;
             }
           }
@@ -331,14 +384,138 @@ public sealed interface Solver {
               .stream()
               .map(phenotype -> Phenotype.<AnyGene<Number>, Double>of(phenotype.genotype(), 0))
               .collect(ISeq.toISeq());
-          LOGGER.atDebug()
-              .addKeyValue("Вычислений", realEvaluationsCounter::sum)
-              .addKeyValue("Всего попыток", totalEvaluationsCounter::sum)
-              .addKeyValue("Экономия за счет кэша", () -> "%.0f %%".formatted((1.0 - realEvaluationsCounter.doubleValue() / totalEvaluationsCounter.sum()) * 100))
-              .log(evolutionState.bestPhenotype().toString());
-          Solution solution = new Solution(alpha, evolutionState.bestFitness(), modelFactory.decode(evolutionState.bestPhenotype().genotype()));
+
+          Solution solution = new Solution(alpha, bestFitness, Objects.requireNonNull(bestModel));
           LOGGER.atInfo().log(solution::toString);
           return solution;
+        }
+      }
+
+      private Model nelderMead(Model current, ToDoubleFunction<Model> fitness) {
+        return switch (current) {
+          case Model.Layer2Relative(K k, double h) when origin instanceof Model.Layer2Relative(
+              K kExt, double hExt
+          ) -> {
+            double kMin = Math.min(kExt.value(), 0);
+            double kMax = Math.max(0, kExt.value());
+            double[] init = {k.value(), h};
+            double[] steps = {
+                directedStep(init[0], kMin, kMax, 0.05),
+                directedStep(init[1], 0, hExt, hExt / 50.0)
+            };
+            double[] opt = optimizeNelderMead(point -> {
+              if (point[0] < kMin || point[0] > kMax || point[1] < 0 || point[1] > hExt) {
+                return Double.POSITIVE_INFINITY;
+              }
+              return fitness.applyAsDouble(new Model.Layer2Relative(K.of(point[0]), point[1]));
+            }, init, steps);
+            yield new Model.Layer2Relative(K.of(opt[0]), opt[1]);
+          }
+          case Model.Layer2RelativeDh(Model.Layer2Relative(K k, double h), double dh)
+              when origin instanceof Model.Layer2RelativeDh(Model.Layer2Model l2Ext, double dhExt) -> {
+            double kMin = Math.min(l2Ext.k().value(), 0);
+            double kMax = Math.max(0, l2Ext.k().value());
+            double dhMin = Math.min(dhExt, 0);
+            double dhMax = Math.max(0, dhExt);
+            double[] init = {k.value(), h, dh};
+            double[] steps = {
+                directedStep(init[0], kMin, kMax, 0.05),
+                directedStep(init[1], 0, l2Ext.h(), l2Ext.h() / 50.0),
+                directedStep(init[2], dhMin, dhMax, Math.abs(dhExt) / 50.0)
+            };
+            double[] opt = optimizeNelderMead(point -> {
+              if (point[0] < kMin || point[0] > kMax ||
+                  point[1] < 0 || point[1] > l2Ext.h() ||
+                  point[2] < dhMin || point[2] > dhMax) {
+                return Double.POSITIVE_INFINITY;
+              }
+              return fitness.applyAsDouble(new Model.Layer2RelativeDh(K.of(point[0]), point[1], point[2]));
+            }, init, steps);
+            yield new Model.Layer2RelativeDh(K.of(opt[0]), opt[1], opt[2]);
+          }
+          case Model.Layer3RelativeDh(Model.Layer3Relative(K k1, K k2, double hStep, Model.P p), Model.P dp)
+              when origin instanceof Model.Layer3RelativeDh(Model.Layer3Relative l3Ext, _) -> {
+            double k1Min = Math.min(l3Ext.k1().value(), 0);
+            double k1Max = Math.max(0, l3Ext.k1().value());
+            double k2Min = Math.min(l3Ext.k2().value(), 0);
+            double k2Max = Math.max(0, l3Ext.k2().value());
+            double[] init = {k1.value(), k2.value()};
+            double[] steps = {
+                directedStep(init[0], k1Min, k1Max, 0.05),
+                directedStep(init[1], k2Min, k2Max, 0.05)
+            };
+            double[] opt = optimizeNelderMead(point -> {
+              if (point[0] < k1Min || point[0] > k1Max ||
+                  point[1] < k2Min || point[1] > k2Max) {
+                return Double.POSITIVE_INFINITY;
+              }
+              return fitness.applyAsDouble(new Model.Layer3RelativeDh(
+                  new Model.Layer3Relative(K.of(point[0]), K.of(point[1]), hStep, p), dp));
+            }, init, steps);
+            yield new Model.Layer3RelativeDh(new Model.Layer3Relative(K.of(opt[0]), K.of(opt[1]), hStep, p), dp);
+          }
+          case Model.Layer3AbsoluteDh(
+              Model.Layer3Absolute(double rho1, double rho2, double rho3, double hStep, Model.P p), Model.P dp
+          )
+              when origin instanceof Model.Layer3AbsoluteDh(Model.Layer3Absolute l3Ext, _) -> {
+            double[] init = {rho1, rho2, rho3};
+            double[] steps = {
+                directedStep(init[0], 1.35, l3Ext.rho1(), 0.1),
+                directedStep(init[1], l3Ext.rho2(), 20.0, 0.1),
+                directedStep(init[2], 1.35, l3Ext.rho3(), 0.1)
+            };
+            double[] opt = optimizeNelderMead(point -> {
+              if (point[0] < 1.35 || point[0] > l3Ext.rho1() ||
+                  point[1] < l3Ext.rho2() || point[1] > 20.0 ||
+                  point[2] < 1.35 || point[2] > l3Ext.rho3()) {
+                return Double.POSITIVE_INFINITY;
+              }
+              return fitness.applyAsDouble(new Model.Layer3AbsoluteDh(
+                  new Model.Layer3Absolute(point[0], point[1], point[2], hStep, p), dp));
+            }, init, steps);
+            yield new Model.Layer3AbsoluteDh(new Model.Layer3Absolute(opt[0], opt[1], opt[2], hStep, p), dp);
+          }
+          default -> current;
+        };
+      }
+
+      private static double directedStep(double value, double min, double max, double step) {
+        double s = Math.min(step, (max - min) / 10.0);
+        if (s <= 0.0) {
+          return 1.0e-6;
+        }
+        return (value + s > max) ? -s : s;
+      }
+
+      private static double[] optimizeNelderMead(MultivariateFunction function, double[] initialGuess, double[] initialSteps) {
+        double[] bestPoint = initialGuess.clone();
+        double[] bestValue = {Double.POSITIVE_INFINITY};
+
+        MultivariateFunction trackedFunction = point -> {
+          double val = function.value(point);
+          if (val < bestValue[0]) {
+            bestValue[0] = val;
+            System.arraycopy(point, 0, bestPoint, 0, point.length);
+          }
+          return val;
+        };
+
+        try {
+          PointValuePair pair = new SimplexOptimizer(
+              new SimpleValueChecker(1.0e-4, 1.0e-5)
+          ).optimize(
+              new MaxEval(MAX_SIMPLEX_EVALUATIONS),
+              new ObjectiveFunction(trackedFunction),
+              GoalType.MINIMIZE,
+              org.apache.commons.math4.legacy.optim.nonlinear.scalar.noderiv.Simplex.alongAxes(initialSteps),
+              new NelderMeadTransform(),
+              new InitialGuess(initialGuess)
+          );
+          return pair.getPoint();
+        }
+        catch (TooManyEvaluationsException e) {
+          LOGGER.atDebug().log(e::getMessage);
+          return bestPoint;
         }
       }
 

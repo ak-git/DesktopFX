@@ -10,6 +10,7 @@ module com.ak.util {
   requires tech.units.indriya;
   requires org.slf4j;
   requires com.github.benmanes.caffeine;
+  requires org.apache.commons.math4.legacy.exception;
 
   exports com.ak.csv;
   exports com.ak.math;
