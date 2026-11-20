@@ -137,19 +137,14 @@ public sealed interface Solver {
       private final Cache<Alpha, Solution> alphaCache = Caffeine.newBuilder().maximumSize(1 << 6).build();
       private @Nullable ISeq<Phenotype<AnyGene<Number>, Double>> resetPopulation;
 
-      private GeneticSolver(Collection<ParametricFunctional> parametricFunctionals, Model origin, InvertibleCodec<Model, AnyGene<Number>> modelFactory,
-                            int size) {
+      private GeneticSolver(Collection<ParametricFunctional> parametricFunctionals, Model origin, int size) {
         this.parametricFunctionals = Objects.requireNonNull(parametricFunctionals);
         this.origin = origin;
-        this.modelFactory = Objects.requireNonNull(modelFactory);
         this.size = size;
         eliteSize = Math.max(3, (int) Math.floor(size * 0.006));
         parentSize = Math.max(2, (int) (StrictMath.log(size) / StrictMath.log(2.0)) - 5);
         offspringSize = Math.max(2, (int) Math.floor(parentSize * 0.6) + 1);
-      }
-
-      GeneticSolver(Collection<ParametricFunctional> parametricFunctionals, Model origin, int size) {
-        this(parametricFunctionals, origin, switch (origin) {
+        modelFactory = switch (origin) {
           case Model.Layer2Relative(K kExtremal, double hExtremal) -> InvertibleCodec.of(
               () -> Genotype.of(
                   AnyChromosome.of(() -> ThreadLocalRandom.current().nextDouble(Math.min(kExtremal.value(), 0), Math.max(0, kExtremal.value()))),
@@ -213,9 +208,7 @@ public sealed interface Solver {
                 return new Model.Layer3RelativeDh(layer3Relative, dpExtremal);
               },
               model -> {
-                if (model instanceof Model.Layer3RelativeDh(
-                    Model.Layer3Relative layer3, _
-                )) {
+                if (model instanceof Model.Layer3RelativeDh(Model.Layer3Relative layer3, _)) {
                   return Genotype.of(
                       AnyChromosome.of(() -> layer3.k1().value()),
                       AnyChromosome.of(() -> layer3.k2().value()),
@@ -267,7 +260,7 @@ public sealed interface Solver {
                   throw new IllegalArgumentException("Unexpected value: " + model);
                 }
               });
-        }, size);
+        };
       }
 
       private static double round3(double val) {
@@ -364,18 +357,11 @@ public sealed interface Solver {
                 .addKeyValue("Поколение", "%03d".formatted(evolutionState.generation()))
                 .addKeyValue("Мутация", "%04.1f %%".formatted(mutationRate * 100))
                 .addKeyValue("Невязка", "%.4f".formatted(bestFitness))
-                .addKeyValue("Вычислений", realEvaluationsCounter::sum)
-                .addKeyValue("Всего попыток", totalEvaluationsCounter::sum)
+                .addKeyValue("Вычислений", () -> "%d/%d".formatted(realEvaluationsCounter.sum(), totalEvaluationsCounter.sum()))
                 .addKeyValue("Экономия за счет кэша", () -> "%.0f %%".formatted((1.0 - realEvaluationsCounter.doubleValue() / totalEvaluationsCounter.sum()) * 100))
-                .addKeyValue("Стагнированные эпохи", stagnantEpochs)
                 .log(Objects.requireNonNull(bestModel)::toString);
 
-            if (bestFitness < STOP_FITNESS) {
-              LOGGER.atDebug().log(() -> "--> Минимум найден досрочно!");
-              break;
-            }
-
-            if (epoch >= totalEpochs / 2 && stagnantEpochs >= 3) {
+            if (bestFitness < STOP_FITNESS || (epoch > totalEpochs / 2 - 1 && stagnantEpochs > 2)) {
               LOGGER.atDebug().log(() -> "--> Досрочный выход: решение стабилизировалось");
               break;
             }
@@ -624,7 +610,7 @@ public sealed interface Solver {
 
     @Override
     public Solver build() {
-      return new GeneticSolver(parametricFunctionals, Objects.requireNonNull(origin), 1 << 9);
+      return new GeneticSolver(parametricFunctionals, Objects.requireNonNull(origin), 1 << 8);
     }
   }
 }
