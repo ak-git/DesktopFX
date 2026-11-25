@@ -103,6 +103,7 @@ public sealed interface Resistivity {
             double derivative = (apparent2.value() - apparent.value()) / (dp.pSum() * absolute.hStep());
             yield new ApparentRecord(system, apparent.value(), derivative / system.phiFactor());
           }
+          default -> throw new IllegalStateException("Unexpected value: " + model);
         };
       }
 

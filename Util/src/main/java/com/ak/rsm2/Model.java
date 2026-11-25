@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public sealed interface Model {
+  record Empty() implements Model {
+  }
+
   sealed interface Layer2Model extends Model {
     K k();
 
