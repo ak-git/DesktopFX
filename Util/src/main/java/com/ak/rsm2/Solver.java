@@ -32,9 +32,7 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
-import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
@@ -52,18 +50,34 @@ public sealed interface Solver {
     }
   }
 
-  record Solution(Alpha alpha, double fitness, Model model) {
+  record Fitness(double value, double misfit) {
+    public static final Fitness POSITIVE_INFINITY = new Fitness(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+
+    public Fitness {
+      if (value < 0) {
+        throw new IllegalArgumentException("value %f < 0".formatted(value));
+      }
+      if (misfit < 0) {
+        throw new IllegalArgumentException("misfit %f < 0".formatted(misfit));
+      }
+    }
+
+    @Override
+    public String toString() {
+      return "Fitness{%.4f; misfit = %.4f}".formatted(value, misfit);
+    }
+  }
+
+  record Solution(Alpha alpha, Fitness fitness, Model model) {
     public Solution {
       Objects.requireNonNull(alpha);
-      if (fitness < 0.0) {
-        throw new IllegalArgumentException("fitness %f < 0".formatted(fitness));
-      }
+      Objects.requireNonNull(fitness);
       Objects.requireNonNull(model);
     }
 
     @Override
     public String toString() {
-      return "Solution{%s; fitness = %.4f; %s}".formatted(alpha, fitness, model);
+      return "Solution{%s; %s; %s}".formatted(alpha, fitness, model);
     }
   }
 
@@ -100,7 +114,9 @@ public sealed interface Solver {
   }
 
   final class SolverBuilder<M extends TetrapolarMeasurement> implements Step1<M>, Step2<M>, Step4<M>, Step5<M>, Builder<Solver> {
-    sealed interface FitnessProvider extends Function<Alpha, ToDoubleFunction<Model>> {
+    private static final double STOP_FITNESS = 1.0e-6;
+
+    sealed interface FitnessProvider extends Function<Alpha, Function<Model, Fitness>> {
       double dataErrorNormBase();
     }
 
@@ -119,28 +135,31 @@ public sealed interface Solver {
       }
 
       @Override
-      public ToDoubleFunction<Model> apply(Alpha alpha) {
-        Cache<Model, Double> fitnessCache = Caffeine.newBuilder().maximumSize(1 << 16).build();
-        return model -> fitnessCache.get(model, m -> DoubleStream.concat(
-                parametricFunctionals.stream().mapToDouble(f -> alpha.value * f.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG).applyAsDouble(m)),
-                parametricFunctionals.stream().mapToDouble(f -> f.misfit().applyAsDouble(m)).map(x -> x * x)
-            )
-            .takeWhile(Double::isFinite).boxed().collect(
-                Collectors.teeing(
-                    Collectors.reducing(Double::sum),
-                    Collectors.counting(),
-                    (sum, count) -> count == parametricFunctionals.size() * 2L ?
-                        StrictMath.sqrt(sum.orElseThrow()) : Double.POSITIVE_INFINITY
-                )
-            ));
+      public Function<Model, Fitness> apply(Alpha alpha) {
+        Cache<Model, Fitness> fitnessCache = Caffeine.newBuilder().maximumSize(1 << 16).build();
+        return model -> fitnessCache.get(model, m -> {
+          double stab = parametricFunctionals.stream()
+              .mapToDouble(f -> f.regularization(ParametricFunctional.Regularization.ZERO_MAX_LOG).applyAsDouble(m))
+              .sum();
+          if (Double.isFinite(stab)) {
+            double misfit = parametricFunctionals.stream()
+                .mapToDouble(f -> f.misfit().applyAsDouble(m)).reduce(StrictMath::hypot).orElseThrow();
+            if (Double.isFinite(misfit)) {
+              double value = StrictMath.hypot(misfit, StrictMath.sqrt(alpha.value * stab));
+              return new Fitness(value, misfit);
+            }
+          }
+          return Fitness.POSITIVE_INFINITY;
+        });
       }
     }
 
-    private record NelderMeadRefiner(Model origin, ToDoubleFunction<Model> fitness) implements UnaryOperator<Solution> {
+    private record NelderMeadRefiner(Model origin,
+                                     Function<Model, Fitness> fitness) implements UnaryOperator<Solution> {
       private static final Logger LOGGER = LoggerFactory.getLogger(NelderMeadRefiner.class);
       private static final int MAX_SIMPLEX_EVALUATIONS = 1 << 8;
 
-      private NelderMeadRefiner(Model origin, ToDoubleFunction<Model> fitness) {
+      private NelderMeadRefiner(Model origin, Function<Model, Fitness> fitness) {
         this.origin = Objects.requireNonNull(origin);
         this.fitness = Objects.requireNonNull(fitness);
       }
@@ -160,7 +179,7 @@ public sealed interface Solver {
               if (point[0] < kMin || point[0] > kMax || point[1] < 0 || point[1] > hExt) {
                 return Double.POSITIVE_INFINITY;
               }
-              return fitness.applyAsDouble(new Model.Layer2Relative(K.of(point[0]), point[1]));
+              return fitness.apply(new Model.Layer2Relative(K.of(point[0]), point[1])).value;
             }, init, steps);
             yield new Model.Layer2Relative(K.of(opt[0]), opt[1]);
           }
@@ -182,7 +201,7 @@ public sealed interface Solver {
                   point[2] < dhMin || point[2] > dhMax) {
                 return Double.POSITIVE_INFINITY;
               }
-              return fitness.applyAsDouble(new Model.Layer2RelativeDh(K.of(point[0]), point[1], point[2]));
+              return fitness.apply(new Model.Layer2RelativeDh(K.of(point[0]), point[1], point[2])).value;
             }, init, steps);
             yield new Model.Layer2RelativeDh(K.of(opt[0]), opt[1], opt[2]);
           }
@@ -202,8 +221,8 @@ public sealed interface Solver {
                   point[1] < k2Min || point[1] > k2Max) {
                 return Double.POSITIVE_INFINITY;
               }
-              return fitness.applyAsDouble(new Model.Layer3RelativeDh(
-                  new Model.Layer3Relative(K.of(point[0]), K.of(point[1]), hStep, p), dp));
+              return fitness.apply(new Model.Layer3RelativeDh(
+                  new Model.Layer3Relative(K.of(point[0]), K.of(point[1]), hStep, p), dp)).value;
             }, init, steps);
             yield new Model.Layer3RelativeDh(new Model.Layer3Relative(K.of(opt[0]), K.of(opt[1]), hStep, p), dp);
           }
@@ -223,14 +242,14 @@ public sealed interface Solver {
                   point[2] < 1.35 || point[2] > l3Ext.rho3()) {
                 return Double.POSITIVE_INFINITY;
               }
-              return fitness.applyAsDouble(new Model.Layer3AbsoluteDh(
-                  new Model.Layer3Absolute(point[0], point[1], point[2], hStep, p), dp));
+              return fitness.apply(new Model.Layer3AbsoluteDh(
+                  new Model.Layer3Absolute(point[0], point[1], point[2], hStep, p), dp)).value;
             }, init, steps);
             yield new Model.Layer3AbsoluteDh(new Model.Layer3Absolute(opt[0], opt[1], opt[2], hStep, p), dp);
           }
           default -> current.model;
         };
-        return new Solution(current.alpha, fitness.applyAsDouble(model), model);
+        return new Solution(current.alpha, fitness.apply(model), model);
       }
 
       private static double directedStep(double value, double min, double max, double step) {
@@ -256,7 +275,7 @@ public sealed interface Solver {
 
         try {
           PointValuePair pair = new SimplexOptimizer(
-              new SimpleValueChecker(1.0e-4, 1.0e-5)
+              new SimpleValueChecker(STOP_FITNESS * 10.0, STOP_FITNESS)
           ).optimize(
               new MaxEval(MAX_SIMPLEX_EVALUATIONS),
               new ObjectiveFunction(trackedFunction),
@@ -276,7 +295,6 @@ public sealed interface Solver {
 
     private static final class GeneticSolver implements Solver {
       private static final Logger LOGGER = LoggerFactory.getLogger(GeneticSolver.class);
-      private static final double STOP_FITNESS = 1.0e-6;
       private final int size;
       /**
        * Элита измеряется долей от популяции.
@@ -444,10 +462,10 @@ public sealed interface Solver {
 
       private Solution innerSolve(Alpha alpha) {
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-          ToDoubleFunction<Model> fitness = fitnessProvider.apply(alpha);
+          Function<Model, Fitness> fitness = fitnessProvider.apply(alpha);
           EvolutionResult<AnyGene<Number>, Double> evolutionState = null;
-          Solution bestSolution = new Solution(alpha, Double.POSITIVE_INFINITY, new Model.Empty());
-          Solution lastRefinedSolution = new Solution(alpha, Double.POSITIVE_INFINITY, new Model.Empty());
+          Solution bestSolution = new Solution(alpha, Fitness.POSITIVE_INFINITY, new Model.Empty());
+          Solution lastRefinedSolution = new Solution(alpha, Fitness.POSITIVE_INFINITY, new Model.Empty());
           double previousEpochFitness = Double.POSITIVE_INFINITY;
           int stagnantEpochs = 0;
           final double maxMutation = 1.0 / Math.E;
@@ -457,7 +475,7 @@ public sealed interface Solver {
 
           for (int epoch = 0, totalEpochs = 1 << 4; epoch < totalEpochs; epoch++) {
             double mutationRate = minMutation + (maxMutation - minMutation) * StrictMath.pow(decayFactor, epoch);
-            Engine<AnyGene<Number>, Double> engine = Engine.builder(fitness::applyAsDouble, modelFactory)
+            Engine<AnyGene<Number>, Double> engine = Engine.builder(model -> fitness.apply(model).value, modelFactory)
                 .populationSize(size)
                 .optimize(Optimize.MINIMUM)
                 .executor(executor)
@@ -465,7 +483,7 @@ public sealed interface Solver {
                 .selector(new TournamentSelector<>(parentSize))
                 .offspringSelector(new TournamentSelector<>(offspringSize))
                 .alterers(new Mutator<>(mutationRate), new UniformCrossover<>(0.6))
-                .constraint(RetryConstraint.of(modelFactory, m -> Double.isFinite(fitness.applyAsDouble(m))))
+                .constraint(RetryConstraint.of(modelFactory, m -> Double.isFinite(fitness.apply(m).value)))
                 .build();
 
             EvolutionStream<AnyGene<Number>, Double> stream;
@@ -482,26 +500,26 @@ public sealed interface Solver {
             }
             evolutionState = stream.limit(1 << 6).collect(EvolutionResult.toBestEvolutionResult());
 
-            Solution epochSolution = new Solution(alpha, evolutionState.bestFitness(),
-                modelFactory.decode(evolutionState.bestPhenotype().genotype()));
-            if (epochSolution.fitness < bestSolution.fitness) {
+            Model bestPhenotype = modelFactory.decode(evolutionState.bestPhenotype().genotype());
+            Solution epochSolution = new Solution(alpha, fitness.apply(bestPhenotype), bestPhenotype);
+            if (epochSolution.fitness.value < bestSolution.fitness.value) {
               bestSolution = epochSolution;
             }
 
             if (!epochSolution.equals(lastRefinedSolution)) {
               lastRefinedSolution = epochSolution;
               Solution refined = refiner.apply(epochSolution);
-              if (refined.fitness < bestSolution.fitness) {
+              if (refined.fitness.value < bestSolution.fitness.value) {
                 bestSolution = refined;
               }
             }
 
-            if (previousEpochFitness - bestSolution.fitness < 1.0e-5) {
+            if (previousEpochFitness - bestSolution.fitness.value < STOP_FITNESS) {
               stagnantEpochs++;
             }
             else {
               stagnantEpochs = 0;
-              previousEpochFitness = bestSolution.fitness;
+              previousEpochFitness = bestSolution.fitness.value;
             }
 
             LOGGER.atDebug().addKeyValue("Эпоха", "%02d/%02d".formatted(epoch + 1, totalEpochs))
@@ -509,14 +527,19 @@ public sealed interface Solver {
                 .addKeyValue("Мутация", "%04.1f %%".formatted(mutationRate * 100))
                 .log(Objects.requireNonNull(bestSolution)::toString);
 
-            if (bestSolution.fitness < STOP_FITNESS || (epoch > totalEpochs / 2 - 1 && stagnantEpochs > 2)) {
+            if (bestSolution.fitness.value < STOP_FITNESS || (epoch > totalEpochs / 2 - 1 && stagnantEpochs > 2)) {
               LOGGER.atDebug().log(() -> "--> Досрочный выход: решение стабилизировалось");
               break;
             }
           }
-          resetPopulation = Objects.requireNonNull(evolutionState).population()
-              .stream()
-              .map(phenotype -> Phenotype.<AnyGene<Number>, Double>of(phenotype.genotype(), 0))
+
+          Phenotype<AnyGene<Number>, Double> refinedPhenotype = Phenotype.of(modelFactory.encode(bestSolution.model()), 0);
+          resetPopulation = Stream.concat(
+                  Stream.of(refinedPhenotype),
+                  Objects.requireNonNull(evolutionState).population().stream()
+                      .map(phenotype -> Phenotype.<AnyGene<Number>, Double>of(phenotype.genotype(), 0))
+              )
+              .limit(size)
               .collect(ISeq.toISeq());
 
           LOGGER.atInfo().log(bestSolution::toString);
@@ -541,20 +564,20 @@ public sealed interface Solver {
                     DoubleStream.of(0.0)
                 )
                 .toArray())
-            .stream().sorted(Comparator.comparingDouble(Solution::fitness)).toList();
+            .stream().sorted(Comparator.comparingDouble(s -> s.fitness.value)).toList();
 
         UnivariateInterpolator interpolator = new AkimaSplineInterpolator(true);
-        double[] x = solutions.stream().mapToDouble(Solution::fitness).toArray();
-        double[] y = solutions.stream().mapToDouble(value -> value.alpha.value).toArray();
+        double[] x = solutions.stream().mapToDouble(s -> s.fitness.misfit).toArray();
+        double[] y = solutions.stream().mapToDouble(s -> s.alpha.value).toArray();
 
         double dataErrorNormBase = fitnessProvider.dataErrorNormBase();
-        double dataErrorNormShift = solve(0.0).fitness();
+        double dataErrorNormShift = solve(0.0).fitness().misfit;
         double dataErrorNorm = dataErrorNormBase + dataErrorNormShift;
         double alpha = interpolator.interpolate(x, y).value(dataErrorNorm);
         LOGGER.atInfo()
             .addKeyValue("data Error Norm Base", () -> "%.4f".formatted(dataErrorNormBase))
             .addKeyValue("data Error Norm Shift", () -> "%.4f".formatted(dataErrorNormShift))
-            .addKeyValue("target fitness", () -> "%.4f".formatted(dataErrorNorm))
+            .addKeyValue("target misfit", () -> "%.4f".formatted(dataErrorNorm))
             .log(() -> new Alpha(alpha).toString());
         return solve(alpha);
       }
