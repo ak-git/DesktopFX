@@ -488,12 +488,7 @@ public sealed interface Solver {
 
             EvolutionStream<AnyGene<Number>, Double> stream;
             if (evolutionState == null) {
-              if (resetPopulation == null) {
-                stream = engine.stream();
-              }
-              else {
-                stream = engine.stream(resetPopulation);
-              }
+              stream = resetPopulation == null ? engine.stream() : engine.stream(resetPopulation);
             }
             else {
               stream = engine.stream(evolutionState);
@@ -528,7 +523,6 @@ public sealed interface Solver {
                 .log(Objects.requireNonNull(bestSolution)::toString);
 
             if (bestSolution.fitness.value < STOP_FITNESS || (epoch > totalEpochs / 2 - 1 && stagnantEpochs > 2)) {
-              LOGGER.atDebug().log(() -> "--> Досрочный выход: решение стабилизировалось");
               break;
             }
           }
